@@ -198,7 +198,10 @@ const actionHandlers: Record<string, ActionHandler> = {
   },
   addtime: (payload) => {
     const time = numberOrError(payload);
-    runtimeService.addTime(time);
+    if (time === 0) {
+      return { payload: 'success' };
+    }
+    runtimeService.addTime(time * 1000);
     return { payload: 'success' };
   },
 };

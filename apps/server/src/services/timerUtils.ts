@@ -1,20 +1,16 @@
 import { MaybeNumber, TimerType } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
-
-// TODO: timerUtils receive entire state object
+import { TState } from '../state.js';
 
 /**
  * Calculates expected finish time of a running timer
+ * @param {TState} state runtime state
+ * @returns {number | null} new current time or null if nothing is running
  */
-export function getExpectedFinish(
-  startedAt: MaybeNumber,
-  finishedAt: MaybeNumber,
-  duration: number,
-  pausedTime: number,
-  addedTime: number,
-  timeEnd: number,
-  timerType: TimerType,
-) {
+export function getExpectedFinish(state: TState): MaybeNumber {
+  const { startedAt, clock, finishedAt, duration, addedTime, timerType, pausedAt } = state.timer;
+  const { timeEnd } = state.eventNow;
+
   if (startedAt === null) {
     return null;
   }
@@ -23,12 +19,14 @@ export function getExpectedFinish(
     return finishedAt;
   }
 
+  const pausedTime = pausedAt !== null ? clock - pausedAt : 0;
+
   if (timerType === TimerType.TimeToEnd) {
     return timeEnd + addedTime + pausedTime;
   }
 
   // handle events that finish the day after
-  const expectedFinish = startedAt + duration + pausedTime + addedTime;
+  const expectedFinish = startedAt + duration + addedTime + pausedTime;
   if (expectedFinish > dayInMs) {
     return expectedFinish - dayInMs;
   }
@@ -39,41 +37,41 @@ export function getExpectedFinish(
 
 /**
  * Calculates running countdown
+ * @param {TState} state runtime state
+ * @returns {number} current time for timer
  */
-export function getCurrent(
-  startedAt: MaybeNumber,
-  duration: number,
-  addedTime: number,
-  pausedTime: number,
-  clock: number,
-  timeEnd: number,
-  timerType: TimerType,
-) {
-  if (startedAt === null) {
-    return null;
-  }
+export function getCurrent(state: TState): number {
+  const { startedAt, duration, addedTime, clock, timerType, pausedAt } = state.timer;
+  const { timeEnd } = state.eventNow;
 
   if (timerType === TimerType.TimeToEnd) {
-    if (startedAt > timeEnd) {
-      return timeEnd + addedTime + pausedTime + dayInMs - clock;
-    }
-    return timeEnd + addedTime + pausedTime - clock;
+    const isNextDay = startedAt > timeEnd;
+    const correctDay = isNextDay ? dayInMs : 0;
+    return timeEnd + addedTime + correctDay - clock;
   }
 
-  if (startedAt > clock) {
-    // we are the day after the event was started
-    return startedAt + duration + addedTime + pausedTime - clock - dayInMs;
+  if (startedAt === null) {
+    return duration;
   }
-  return startedAt + duration + addedTime + pausedTime - clock;
+
+  const hasPassedMidnight = startedAt > clock;
+  const correctDay = hasPassedMidnight ? dayInMs : 0;
+  if (pausedAt !== null) {
+    return startedAt + duration + addedTime - pausedAt;
+  }
+
+  return startedAt + duration + addedTime - clock - correctDay;
 }
 
-export function skippedOutOfEvent(
-  previousTime: number,
-  clock: number,
-  startedAt: number,
-  expectedFinish: number,
-  skipLimit: number,
-): boolean {
+/**
+ * Checks whether we have skipped out of the event
+ * @param {TState} state runtime state
+ * @param {number} previousTime previous clock
+ * @param {number} skipLimit how much time can we skip
+ * @returns {boolean}
+ */
+export function skippedOutOfEvent(state: TState, previousTime: number, skipLimit: number): boolean {
+  const { clock, startedAt, expectedFinish } = state.timer;
   const hasPassedMidnight = previousTime > dayInMs - skipLimit && clock < skipLimit;
   const adjustedClock = hasPassedMidnight ? clock + dayInMs : clock;
 

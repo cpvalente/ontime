@@ -55,7 +55,7 @@ export { Playback } from './definitions/runtime/Playback.type.js';
 export { TimerLifeCycle } from './definitions/core/TimerLifecycle.type.js';
 export type { Message, TimerMessage } from './definitions/runtime/MessageControl.type.js';
 
-export type { Loaded } from './definitions/runtime/Playlist.type.js';
+export type { Runtime } from './definitions/runtime/Runtime.type.js';
 export type { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
 export type { TimerState } from './definitions/runtime/TimerState.type.js';
 

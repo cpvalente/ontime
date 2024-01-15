@@ -1,5 +1,5 @@
-import { expect } from 'vitest';
-
+import { dayInMs } from '../timeConstants';
+import { MILLIS_PER_HOUR } from './conversionUtils';
 import { millisToString } from './timeFormatting';
 
 describe('millisToString()', () => {
@@ -22,13 +22,17 @@ describe('millisToString()', () => {
       { millis: -3600000, expected: '-01:00:00' },
       { millis: -36000000, expected: '-10:00:00' },
       { millis: -86399000, expected: '-23:59:59' },
-      { millis: -86400000, expected: '-00:00:00' },
-      { millis: -86401000, expected: '-00:00:01' },
+      { millis: -86400000, expected: '-24:00:00' },
+      { millis: -86401000, expected: '-24:00:01' },
     ];
 
     testScenarios.forEach((scenario) => {
       expect(millisToString(scenario.millis)).toBe(scenario.expected);
     });
+  });
+
+  it('handles times over 24 hours', () => {
+    expect(millisToString(dayInMs + MILLIS_PER_HOUR)).toBe('25:00:00');
   });
 
   test('random properties', () => {
@@ -41,27 +45,8 @@ describe('millisToString()', () => {
       { millis: 3600000, expected: '01:00:00' },
       { millis: 36000000, expected: '10:00:00' },
       { millis: 86399000, expected: '23:59:59' },
-      { millis: 86400000, expected: '00:00:00' },
-      { millis: 86401000, expected: '00:00:01' },
-    ];
-
-    testScenarios.forEach((scenario) => {
-      expect(millisToString(scenario.millis)).toBe(scenario.expected);
-    });
-  });
-
-  test.skip('random properties without seconds', () => {
-    const testScenarios = [
-      { millis: 300, expected: '00:00' },
-      { millis: 1000, expected: '00:00' },
-      { millis: 1500, expected: '00:00' },
-      { millis: 60000, expected: '00:01' },
-      { millis: 600000, expected: '00:10' },
-      { millis: 3600000, expected: '01:00' },
-      { millis: 36000000, expected: '10:00' },
-      { millis: 86399000, expected: '23:59' },
-      { millis: 86400000, expected: '00:00' },
-      { millis: 86401000, expected: '00:00' },
+      { millis: 86400000, expected: '24:00:00' },
+      { millis: 86401000, expected: '24:00:01' },
     ];
 
     testScenarios.forEach((scenario) => {
@@ -69,98 +54,3 @@ describe('millisToString()', () => {
     });
   });
 });
-
-/**
- * import { formatDisplay } from './formatDisplay';
-
-describe('test string from formatDisplay function', () => {
-  it('test with null values', () => {
-    const t = { val: null, result: '00:00:00' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-
-  it('test with not numbers', () => {
-    const t = { val: 'test', result: '00:00:00' };
-    // @ts-expect-error -- indulge me for the test
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-
-  it('test with valid millis', () => {
-    const t = { val: 3600000, result: '01:00:00' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-
-  it('test with negative millis', () => {
-    const t = { val: -3600000, result: '01:00:00' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-
-  it('test with 0', () => {
-    const t = { val: 0, result: '00:00:00' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-
-  it('test with -0', () => {
-    const t = { val: -0, result: '00:00:00' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-
-  it('test with 86400 (24 hours)', () => {
-    const t = { val: 86400000, result: '00:00:00' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-
-  it('test with 86401 (24 hours and 1 second)', () => {
-    const t = { val: 86401000, result: '00:00:01' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-
-  it('test with -86401 (-24 hours and 1 second)', () => {
-    const t = { val: -86401000, result: '00:00:01' };
-    expect(formatDisplay(t.val, false)).toBe(t.result);
-  });
-});
-
-describe('test string from formatDisplay function with hidezero', () => {
-  it('test with null values', () => {
-    const t = { val: null, result: '00:00' };
-    expect(formatDisplay(t.val, true)).toBe(t.result);
-  });
-
-  it('test with valid millis', () => {
-    const t = { val: 3600000, result: '01:00:00' };
-    expect(formatDisplay(t.val, true)).toBe(t.result);
-  });
-
-  it('test with negative millis', () => {
-    const t = { val: -3600000, result: '01:00:00' };
-    expect(formatDisplay(t.val, true)).toBe(t.result);
-  });
-
-  it('test with 0', () => {
-    const t = { val: 0, result: '00:00' };
-    expect(formatDisplay(t.val, true)).toBe(t.result);
-  });
-
-  it('test with -0', () => {
-    const t = { val: -0, result: '00:00' };
-    expect(formatDisplay(t.val, true)).toBe(t.result);
-  });
-
-  it('test with 86400 (24 hours)', () => {
-    const t = { val: 86400000, result: '00:00' };
-    expect(formatDisplay(t.val, true)).toBe(t.result);
-  });
-
-  it('test with 86401 (24 hours and 1 second)', () => {
-    const t = { val: 86401000, result: '00:01' };
-    expect(formatDisplay(t.val, true)).toBe(t.result);
-  });
-
-  it('test with -86401 (-24 hours and 1 second)', () => {
-    const t = { val: -86401000, result: '00:01' };
-    expect(formatDisplay(t.val, true)).toBe(t.result);
-  });
-});
-
- */
