@@ -13,11 +13,11 @@
   },
   "dependencies": {
     "deepmerge-ts": "^5.1.0",
-    "luxon": "^3.3.0",
-    "nanoid": "^4.0.1"
+    "luxon": "^3.4.4",
+    "nanoid": "^5.0.4"
   },
   "devDependencies": {
-    "@types/luxon": "^3.2.0",
+    "@types/luxon": "^3.4.0",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
     "eslint": "^8.53.0",

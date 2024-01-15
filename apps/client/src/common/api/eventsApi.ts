@@ -38,6 +38,19 @@ export async function requestPutEvent(data: Partial<OntimeRundownEntry>) {
   return axios.put(rundownURL, data);
 }
 
+type BatchEditEntry = {
+  data: Partial<OntimeRundownEntry>;
+  ids: string[];
+};
+
+/**
+ * @description HTTP request to put multiple events
+ * @returns {Promise}
+ */
+export async function requestBatchPutEvents(data: BatchEditEntry) {
+  return axios.put(`${rundownURL}/batchEdit`, data);
+}
+
 export type ReorderEntry = {
   eventId: string;
   from: number;

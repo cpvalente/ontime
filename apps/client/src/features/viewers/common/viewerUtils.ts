@@ -23,17 +23,3 @@ export function getTimerByType(timerObject?: TimerTypeParams): number | null {
     }
   }
 }
-
-/**
- * Receives a string such as 00:10:10 and removes the hours field if it is 00
- * @param timer
- */
-export const removePrependedZero = (timer: string): string => {
-  if (timer.startsWith('00:0')) {
-    return timer.slice(4);
-  }
-  if (timer.startsWith('00:')) {
-    return timer.slice(3);
-  }
-  return timer;
-};

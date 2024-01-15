@@ -260,6 +260,48 @@ export async function getProjects(): Promise<ProjectFileListResponse> {
 }
 
 /**
+/**
+ * @description STEP 2 test
+ */
+export const getAuthentication = async () => {
+  const response = await axios.get(`${ontimeURL}/sheet/authentication`);
+  return response.data;
+};
+
+/**
+ * @description STEP 3
+ * @returns worksheetOptions
+ */
+export const postId = async (id: string) => {
+  const response = await axios.post(`${ontimeURL}/sheet/id`, { id });
+  return response.data;
+};
+
+/**
+ * @description STEP 4
+ */
+export const postWorksheet = async (id: string, worksheet: string) => {
+  const response = await axios.post(`${ontimeURL}/sheet/worksheet`, { id, worksheet });
+  return response.data;
+};
+
+/**
+ * @description STEP 5
+ */
+export const postPreviewSheet = async (id: string, options: ExcelImportMap) => {
+  const response = await axios.post(`${ontimeURL}/sheet/pull`, { id, options });
+  return response.data.data;
+};
+
+/**
+ * @description STEP 5
+ */
+export const postPushSheet = async (id: string, options: ExcelImportMap) => {
+  const response = await axios.post(`${ontimeURL}/sheet-push`, { id, options });
+  return response.data.data;
+};
+
+/**
  * @description HTTP request to load a project file
  */
 export async function loadProject(filename: string): Promise<MessageResponse> {
