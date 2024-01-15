@@ -1,6 +1,6 @@
 import { Menu, MenuButton, IconButton, MenuList, MenuItem, Input, FormControl } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
-import { useState, useRef, useMemo } from 'react';
+import { useRef, useMemo } from 'react';
 import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
 
 import style from './ProjectPanel.module.scss';
@@ -8,19 +8,27 @@ import { renameProject, loadProject, duplicateProject } from '../../../../common
 import { ontimeQueryClient } from '../../../../common/queryClient';
 import { PROJECT_LIST } from '../../../../common/api/apiConstants';
 import { IoClose } from '@react-icons/all-files/io5/IoClose';
-
-type EditMode = 'rename' | 'duplicate';
+import { EditMode } from './ProjectList';
 
 interface ProjectListItemProps {
   filename: string;
   createdAt: string;
   updatedAt: string;
+  onToggleEditMode?: (editMode: EditMode, filename: string) => void;
+  onSubmit?: () => void;
+  editingFilename: string | null;
+  editingMode: EditMode | null;
 }
 
-export default function ProjectListItem({ filename, createdAt, updatedAt }: ProjectListItemProps) {
-  const [editingMode, setEditingMode] = useState<EditMode | null>(null);
-  const [editingFilename, setEditingFilename] = useState<string | null>(null);
-
+export default function ProjectListItem({
+  filename,
+  createdAt,
+  updatedAt,
+  onToggleEditMode,
+  onSubmit,
+  editingFilename,
+  editingMode,
+}: ProjectListItemProps) {
   const renameInputRef = useRef<HTMLInputElement>(null);
   const duplicateInputRef = useRef<HTMLInputElement>(null);
 
@@ -28,20 +36,16 @@ export default function ProjectListItem({ filename, createdAt, updatedAt }: Proj
     await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
   };
 
-  const handleToggleEditMode = (editMode: EditMode) => {
-    setEditingMode((prev) => (prev === editMode ? null : editMode));
-  };
-
   const handleSubmitRename = async () => {
     await renameProject(filename, renameInputRef.current!.value);
     await handleRefetch();
-    setEditingMode(null);
+    onSubmit?.();
   };
 
   const handleSubmitDuplicate = async () => {
     await duplicateProject(filename, duplicateInputRef.current!.value);
     await handleRefetch();
-    setEditingMode(null);
+    onSubmit?.();
   };
 
   const renderEditMode = useMemo(() => {
@@ -142,7 +146,7 @@ export default function ProjectListItem({ filename, createdAt, updatedAt }: Proj
 
   return (
     <tr key={filename}>
-      {editingMode ? (
+      {editingMode && filename === editingFilename ? (
         renderEditMode
       ) : (
         <>
@@ -154,11 +158,12 @@ export default function ProjectListItem({ filename, createdAt, updatedAt }: Proj
       <td>{createdAt}</td>
       <td>{updatedAt}</td>
       <td className={style.actionButton}>
-        <ActionMenu filename={filename} onAction={handleRefetch} onChangeEditMode={handleToggleEditMode} />
+        <ActionMenu filename={filename} onAction={handleRefetch} onChangeEditMode={onToggleEditMode} />
       </td>
     </tr>
   );
 }
+
 function ActionMenu({
   filename,
   onAction,
@@ -166,7 +171,7 @@ function ActionMenu({
 }: {
   filename: string;
   onAction?: () => void;
-  onChangeEditMode?: (editMode: EditMode) => void;
+  onChangeEditMode?: (editMode: EditMode, filename: string) => void;
 }) {
   const handleLoad = async () => {
     await loadProject(filename);
@@ -174,11 +179,11 @@ function ActionMenu({
   };
 
   const handleRename = () => {
-    onChangeEditMode?.('rename');
+    onChangeEditMode?.('rename', filename);
   };
 
   const handleDuplicate = () => {
-    onChangeEditMode?.('duplicate');
+    onChangeEditMode?.('duplicate', filename);
   };
 
   return (
