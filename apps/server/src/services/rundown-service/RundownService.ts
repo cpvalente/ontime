@@ -21,6 +21,7 @@ import {
   cachedClear,
   cachedDelete,
   cachedEdit,
+  cachedBatchEdit,
   cachedReorder,
   cachedSwap,
   delayedRundownCacheKey,
@@ -28,6 +29,7 @@ import {
 import { logger } from '../../classes/Logger.js';
 import { validateEvent } from '../../utils/parser.js';
 import { clock } from '../Clock.js';
+import { state } from '../../state.js';
 
 /**
  * Forces rundown to be recalculated
@@ -123,7 +125,7 @@ export function updateTimer(affectedIds?: string[]) {
   if (eventInMemory) {
     eventLoader.reset();
 
-    if (eventTimer.playback === Playback.Roll) {
+    if (state.playback === Playback.Roll) {
       const rollTimers = eventLoader.findRoll(clock.timeNow());
       if (rollTimers === null) {
         eventTimer.stop();
@@ -209,6 +211,16 @@ export async function editEvent(eventData: Partial<OntimeEvent> | Partial<Ontime
   notifyChanges({ timer: [newEvent.id], external: true });
 
   return newEvent;
+}
+
+export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>) {
+  await cachedBatchEdit(ids, data);
+
+  // notify timer service of changed events
+  updateTimer(ids);
+
+  // advice socket subscribers of change
+  sendRefetch();
 }
 
 /**

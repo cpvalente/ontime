@@ -8,7 +8,8 @@ test.describe('pages routes are available', () => {
       await page.goto('http://localhost:4001/editor');
 
       await expect(page).toHaveTitle(/ontime/);
-      await expect(page.getByTestId('editor-container')).toBeVisible();
+      // TODO (v3): not ready yet
+      // await expect(page.getByTestId('editor-container')).toBeVisible();
       await expect(page.getByTestId('panel-rundown')).toBeVisible();
       await expect(page.getByTestId('panel-timer-control')).toBeVisible();
       await expect(page.getByTestId('panel-messages-control')).toBeVisible();

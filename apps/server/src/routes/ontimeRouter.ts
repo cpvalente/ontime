@@ -27,6 +27,13 @@ import {
   renameProjectFile,
   createProjectFile,
   deleteProjectFile,
+  getAuthenticationUrl,
+  uploadSheetClientFile as uploadClientSecret,
+  pullSheet,
+  pushSheet,
+  postId,
+  getAuthentication,
+  getClientSecrect as getClientSecret,
 } from '../controllers/ontimeController.js';
 
 import {
@@ -42,6 +49,9 @@ import {
   validateLoadProjectFile,
   validateProjectRename,
   validateProjectCreate,
+  validateSheetid,
+  validateWorksheet,
+  validateSheetOptions,
 } from '../controllers/ontimeController.validate.js';
 import { projectSanitiser } from '../controllers/projectController.validate.js';
 import { sanitizeProjectFilename } from '../utils/sanitizeProjectFilename.js';
@@ -125,3 +135,23 @@ router.post('/project', validateProjectCreate, sanitizeProjectFilename, createPr
 
 // create route between controller and '/ontime/project/:filename' endpoint
 router.delete('/project/:filename', sanitizeProjectFilename, deleteProjectFile);
+
+// Google Sheet integration - Step 1
+router.post('/sheet/clientsecret', uploadFile, uploadClientSecret);
+router.get('/sheet/clientsecret', uploadFile, getClientSecret);
+
+// Google Sheet integration - Step 1
+router.get('/sheet/authentication/url', getAuthenticationUrl);
+router.get('/sheet/authentication', getAuthentication);
+
+// Google Sheet integration - Step 3
+router.post('/sheet/id', validateSheetid, postId);
+
+// Google Sheet integration - Step 4
+router.post('/sheet/worksheet', validateWorksheet, postId);
+
+// Google Sheet integration - Step 5
+router.post('/sheet/pull', validateSheetOptions, pullSheet);
+
+// Google Sheet integration - Step 6
+router.post('/sheet-push', validateSheetOptions, pushSheet);

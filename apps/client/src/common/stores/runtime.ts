@@ -1,7 +1,6 @@
 import isEqual from 'react-fast-compare';
 import { Playback, RuntimeStore } from 'ontime-types';
-import { useStore } from 'zustand';
-import { createStore } from 'zustand/vanilla';
+import { createWithEqualityFn, useStoreWithEqualityFn } from 'zustand/traditional'
 
 export const runtimeStorePlaceholder: RuntimeStore = {
   timer: {
@@ -54,13 +53,13 @@ export const runtimeStorePlaceholder: RuntimeStore = {
   publicEventNext: null,
 };
 
-export const runtime = createStore<RuntimeStore>(() => ({
-  ...runtimeStorePlaceholder,
-}));
+const deepCompare = <T>(a: T, b: T) => isEqual(a, b);
 
-export const deepCompare = <T>(a: T, b: T) => isEqual(a, b);
+export const runtime = createWithEqualityFn<RuntimeStore>(() => ({
+  ...runtimeStorePlaceholder,
+}), deepCompare);
+
 
 export const useRuntimeStore = <T>(
   selector: (state: RuntimeStore) => T,
-  equalityFn?: (a: unknown, b: unknown) => boolean,
-) => useStore(runtime, selector, equalityFn);
+) => useStoreWithEqualityFn(runtime, selector, deepCompare);

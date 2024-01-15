@@ -52,9 +52,7 @@ function RuntimeOverview() {
   const current = selectedEventIndex !== null ? selectedEventIndex + 1 : '-';
   const ofTotal = numEvents || '-';
 
-  const display = formatTime(clock, {
-    showSeconds: true,
-  });
+  const display = formatTime(clock);
 
   return (
     <div className={styles.clocks}>

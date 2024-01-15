@@ -1,7 +1,7 @@
 import { OntimeRundownEntry } from '../definitions/core/Rundown.type.js';
 import { OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent } from '../definitions/core/OntimeEvent.type.js';
 
-type MaybeEvent = Partial<OntimeRundownEntry> | null | undefined;
+type MaybeEvent = OntimeRundownEntry | Partial<OntimeRundownEntry> | null | undefined;
 
 export function isOntimeEvent(event: MaybeEvent): event is OntimeEvent {
   return event?.type === SupportedEvent.Event;

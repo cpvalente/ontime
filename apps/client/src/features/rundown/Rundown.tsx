@@ -36,10 +36,8 @@ export default function Rundown(props: RundownProps) {
   const isExtracted = window.location.pathname.includes('/rundown');
 
   // cursor
-  const cursor = useAppMode((state) => state.cursor);
-  const appMode = useAppMode((state) => state.mode);
+  const { cursor, mode: appMode } = useAppMode();
   const viewFollowsCursor = appMode === AppMode.Run;
-  const moveCursorTo = useAppMode((state) => state.setCursor);
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   useFollowComponent({ followRef: cursorRef, scrollRef: scrollRef, doFollow: true });
@@ -84,13 +82,14 @@ export default function Rundown(props: RundownProps) {
   );
 
   // Handle keyboard shortcuts
-  const handleKeyPress = useCallback(
+  const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       // handle held key
       if (event.repeat) return;
-      // Check if the modifier combination
+
       const modKeysAlt = event.altKey && !event.ctrlKey && !event.shiftKey;
       const modKeysCtrlAlt = event.altKey && event.ctrlKey && !event.shiftKey;
+
       if (modKeysAlt) {
         switch (event.code) {
           case 'ArrowDown': {
@@ -99,7 +98,7 @@ export default function Rundown(props: RundownProps) {
             }
             const nextEvent = cursor == null ? getFirst(entries) : getNext(entries, cursor)?.nextEvent;
             if (nextEvent) {
-              moveCursorTo(nextEvent.id, nextEvent.type === SupportedEvent.Event);
+              // moveCursorTo(nextEvent.id, nextEvent.type === SupportedEvent.Event);
             }
             break;
           }
@@ -110,7 +109,7 @@ export default function Rundown(props: RundownProps) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we check for this before
             const previousEvent = cursor == null ? getFirst(entries) : getPrevious(entries, cursor).previousEvent;
             if (previousEvent) {
-              moveCursorTo(previousEvent.id, previousEvent.type === SupportedEvent.Event);
+              // moveCursorTo(previousEvent.id, previousEvent.type === SupportedEvent.Event);
             }
             break;
           }
@@ -152,7 +151,7 @@ export default function Rundown(props: RundownProps) {
         }
       }
     },
-    [cursor, entries, insertAtCursor, moveCursorTo, reorderEvent],
+    [cursor, entries, insertAtCursor, reorderEvent],
   );
 
   // we copy the state from the store here
@@ -165,20 +164,20 @@ export default function Rundown(props: RundownProps) {
 
   // listen to keys
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyPress);
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.removeEventListener('keydown', handleKeyPress);
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleKeyPress]);
+  }, [handleKeyDown]);
 
   useEffect(() => {
     // in run mode, we follow selection
     if (!viewFollowsCursor || !featureData?.selectedEventId) {
       return;
     }
-    moveCursorTo(featureData.selectedEventId);
-  }, [featureData?.selectedEventId, viewFollowsCursor, moveCursorTo]);
+    // moveCursorTo(featureData.selectedEventId);
+  }, [featureData?.selectedEventId, viewFollowsCursor]);
 
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -240,6 +239,7 @@ export default function Rundown(props: RundownProps) {
                         type={entry.type}
                         isPast={isPast}
                         isFirstEvent={isFirstEvent}
+                        eventIndex={eventIndex}
                         data={entry}
                         selected={isSelected}
                         hasCursor={hasCursor}
@@ -248,7 +248,7 @@ export default function Rundown(props: RundownProps) {
                         previousEventId={previousEventId}
                         playback={isSelected ? featureData.playback : undefined}
                         isRolling={featureData.playback === Playback.Roll}
-                        disableEdit={isExtracted}
+                        disableEdit={isExtracted || appMode === AppMode.Run}
                       />
                     </div>
                   </div>

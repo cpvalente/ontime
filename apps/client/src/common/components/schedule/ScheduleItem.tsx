@@ -4,7 +4,8 @@ import { formatTime } from '../../utils/time';
 import './Schedule.scss';
 
 const formatOptions = {
-  format: 'hh:mm a',
+  format12: 'hh:mm a',
+  format24: 'HH:mm',
 };
 
 interface ScheduleItemProps {

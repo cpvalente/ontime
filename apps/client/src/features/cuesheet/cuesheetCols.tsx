@@ -5,6 +5,7 @@ import { OntimeEvent, OntimeRundownEntry, UserFields } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import DelayIndicator from '../../common/components/delay-indicator/DelayIndicator';
+import RunningTime from '../viewers/common/running-time/RunningTime';
 
 import EditableCell from './cuesheet-table-elements/EditableCell';
 import { useCuesheetSettings } from './store/CuesheetSettings';
@@ -24,9 +25,9 @@ function MakeTimer({ getValue, row: { original } }: CellContext<OntimeRundownEnt
   return (
     <span className={style.time}>
       <DelayIndicator delayValue={delayValue} />
-      {millisToString(cellValue)}
+      <RunningTime value={cellValue} />
       {delayValue !== 0 && showDelayedTimes && (
-        <span className={style.delayedTime}>{` ${millisToString(cellValue + delayValue)}`}</span>
+        <RunningTime className={style.delayedTime} value={cellValue + delayValue} />
       )}
     </span>
   );

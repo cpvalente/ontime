@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { OntimeEvent, OntimeRundown, Settings, ViewSettings } from 'ontime-types';
 import { isOntimeEvent, Playback } from 'ontime-types';
-import { formatDisplay } from 'ontime-utils';
+import { millisToString, removeSeconds } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -11,13 +11,11 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { secondsInMillis } from '../../../common/utils/dateConfig';
-import { formatTime, resolveTimeFormat } from '../../../common/utils/time';
-import { mth } from '../../../common/utils/timeConstants';
+import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
-import { trimRundown } from './studioClock.utils';
+import { secondsInMillis, trimRundown } from './studioClock.utils';
 
 import './StudioClock.scss';
 
@@ -36,6 +34,7 @@ interface StudioClockProps {
 export default function StudioClock(props: StudioClockProps) {
   const { isMirrored, eventNext, time, backstageEvents, selectedId, nextId, onAir, viewSettings, settings } = props;
 
+  // TODO: can we prevent the Flash of Unstyled Content on the 7segment fonts?
   // deferring rendering seems to affect styling (font and useFitText)
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { fontSize: titleFontSize, ref: titleRef } = useFitText({ maxFontSize: 500 });
@@ -52,45 +51,51 @@ export default function StudioClock(props: StudioClockProps) {
     document.title = 'ontime - Studio Clock';
   }, []);
 
-  const hideSeconds = isStringBoolean(searchParams.get('hideSeconds'));
-  const formatOptions = {
-    showSeconds: !hideSeconds,
-    format: 'hh:mm:ss',
-  };
+  let clock = formatTime(time.clock);
+  let hasAmPm = '';
+  if (clock.includes('AM')) {
+    clock = clock.replace('PM', '');
+    hasAmPm = 'AM';
+  } else if (clock.includes('PM')) {
+    clock = clock.replace('PM', '');
+    hasAmPm = 'PM';
+  }
 
-  const clock = formatTime(time.clock, formatOptions);
   const secondsNow = secondsInMillis(time.clock);
   const isNegative = (time.current ?? 0) < 0;
   const isPaused = time.playback === Playback.Pause;
 
-  const studioClockOptions = getStudioClockOptions(settings?.timeFormat ?? '24');
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const studioClockOptions = getStudioClockOptions(defaultFormat);
 
   const delayed = backstageEvents.filter((event) => isOntimeEvent(event)) as OntimeEvent[];
   const trimmedRundown = trimRundown(delayed, selectedId, MAX_TITLES);
-  const isAm = time.clock / (mth * 12) > 12;
-  const timeFormat = resolveTimeFormat();
+  let timer = millisToString(time.current, { fallback: '---' });
+  const hideSeconds = isStringBoolean(searchParams.get('hideTimerSeconds'));
+  if (time.current != null && hideSeconds) {
+    timer = removeSeconds(timer);
+  }
 
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
       <NavigationMenu />
       <ViewParamsEditor paramFields={studioClockOptions} />
       <div className='clock-container'>
-        {timeFormat == '12' && <div className='clock__ampm'>{isAm ? 'am' : 'pm'}</div>}
-        <div className={`studio-timer ${formatOptions.showSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
+        {hasAmPm && <div className='clock__ampm'>{hasAmPm}</div>}
+        <div className={`studio-timer ${!hideSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
         <div
           ref={titleRef}
           className='next-title'
           style={{ fontSize: titleFontSize, height: '12.5vh', width: '100%', maxWidth: '80%' }}
         >
-          {eventNext?.title ?? '---'}
+          {eventNext?.title}
         </div>
         <div
           className={`
             next-countdown ${isNegative ? ' next-countdown--overtime' : ''} ${isPaused ? ' next-countdown--paused' : ''}
           `}
         >
-          {isNegative ? '-' : ''}
-          {formatDisplay(time.current)}
+          {timer}
         </div>
         <div className='clock-indicators'>
           {activeIndicators.map((i) => (
@@ -122,7 +127,7 @@ export default function StudioClock(props: StudioClockProps) {
         </div>
         <ul className='schedule'>
           {trimmedRundown.map((event) => {
-            const start = formatTime(event.timeStart + (event?.delay ?? 0));
+            const start = formatTime(event.timeStart + (event?.delay ?? 0), { format12: 'h:mm a', format24: 'HH:mm' });
             const isSelected = event.id === selectedId;
             const isNext = event.id === nextId;
             const classes = `schedule__item schedule__item${isSelected ? '--now' : isNext ? '--next' : '--future'}`;

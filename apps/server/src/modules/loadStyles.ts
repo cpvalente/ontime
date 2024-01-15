@@ -4,20 +4,15 @@ import { ensureDirectory } from '../utils/fileManagement.js';
 
 /**
  * @description ensures directories exist and populates stylesheet
- * @return {string} - path to stylesheet file
  */
 export const populateStyles = () => {
-  const stylesInDisk = resolveStylesPath;
   ensureDirectory(resolveStylesDirectory);
-
-  // if stylesInDisk doesn't exist we want to use startup stylesheet
-  if (!existsSync(stylesInDisk)) {
+  // if styles doesn't exist we want to use startup stylesheet
+  if (!existsSync(resolveStylesPath)) {
     try {
-      copyFileSync(pathToStartStyles, stylesInDisk);
+      copyFileSync(pathToStartStyles, resolveStylesPath);
     } catch (_) {
       /* we do not handle this */
     }
   }
-
-  return stylesInDisk;
 };
