@@ -51,6 +51,9 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
   const projectMetadata = {};
   const rundownMetadata = {};
   const importMap: ExcelImportMap = { ...defaultExcelImportMap, ...options };
+  for (const [key, value] of Object.entries(importMap)) {
+    importMap[key] = value.toLocaleLowerCase();
+  }
   const projectData: Partial<ProjectData> = {
     title: '',
     description: '',
