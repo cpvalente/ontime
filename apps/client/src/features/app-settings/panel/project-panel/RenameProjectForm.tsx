@@ -25,27 +25,18 @@ export default function RenameProjectForm({ filename, onSubmit }: RenameProjectF
   });
 
   return (
-    <td>
-      <form>
-        <FormControl>
-          <Input
-            // className={style.inputField}
-            defaultValue={filename}
-            size='md'
-            type='text'
-            variant='ontime-filled'
-            {...register('filename')}
-          />
-        </FormControl>
-        <IconButton
-          disabled={!isDirty || !isValid || isSubmitting}
-          aria-label='Save duplicate project name'
-          icon={<IoSaveOutline />}
-          onClick={handleSubmit(onSubmit)}
-          size='sm'
-          variant='ontime-filled'
-        />
-      </form>
-    </td>
+    <form>
+      <FormControl>
+        <Input defaultValue={filename} size='md' type='text' variant='ontime-filled' {...register('filename')} />
+      </FormControl>
+      <IconButton
+        disabled={!isDirty || !isValid || isSubmitting}
+        aria-label='Save duplicate project name'
+        icon={<IoSaveOutline />}
+        onClick={handleSubmit(onSubmit)}
+        size='sm'
+        variant='ontime-filled'
+      />
+    </form>
   );
 }

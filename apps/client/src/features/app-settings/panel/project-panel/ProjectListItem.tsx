@@ -1,8 +1,6 @@
-import { Menu, MenuButton, IconButton, MenuList, MenuItem, Input, FormControl } from '@chakra-ui/react';
+import { Menu, MenuButton, IconButton, MenuList, MenuItem } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
-import { useRef, useMemo } from 'react';
-import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
-import { IoClose } from '@react-icons/all-files/io5/IoClose';
+import { useMemo } from 'react';
 
 import style from './ProjectPanel.module.scss';
 import { renameProject, loadProject, duplicateProject } from '../../../../common/api/ontimeApi';
@@ -10,6 +8,7 @@ import { ontimeQueryClient } from '../../../../common/queryClient';
 import { PROJECT_LIST } from '../../../../common/api/apiConstants';
 import { EditMode } from './ProjectList';
 import RenameProjectForm, { RenameProjectFormValues } from './RenameProjectForm';
+import DuplicateProjectForm, { DuplicateProjectFormValues } from './DuplicateProjectForm';
 
 interface ProjectListItemProps {
   filename: string;
@@ -30,8 +29,6 @@ export default function ProjectListItem({
   onToggleEditMode,
   updatedAt,
 }: ProjectListItemProps) {
-  const duplicateInputRef = useRef<HTMLInputElement>(null);
-
   const handleRefetch = async () => {
     await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
   };
@@ -42,8 +39,8 @@ export default function ProjectListItem({
     onSubmit?.();
   };
 
-  const handleSubmitDuplicate = async () => {
-    await duplicateProject(filename, duplicateInputRef.current!.value);
+  const handleSubmitDuplicate = async (values: DuplicateProjectFormValues) => {
+    await duplicateProject(filename, values.newFilename);
     await handleRefetch();
     onSubmit?.();
   };
@@ -53,74 +50,7 @@ export default function ProjectListItem({
       case 'rename':
         return <RenameProjectForm filename={filename} onSubmit={handleSubmitRename} />;
       case 'duplicate':
-        return (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexDirection: 'column',
-              }}
-            >
-              <FormControl>
-                <label htmlFor='filename'>
-                  <span>Current name</span>
-                </label>
-                <Input
-                  className={style.inputField}
-                  defaultValue={filename}
-                  id='filename'
-                  size='md'
-                  type='text'
-                  variant='ontime-filled'
-                  disabled
-                />
-              </FormControl>
-              <FormControl>
-                <label htmlFor='newFilename'>
-                  <span>New name</span>
-                </label>
-                <Input
-                  className={style.inputField}
-                  defaultValue={filename}
-                  id='newFilename'
-                  ref={duplicateInputRef}
-                  size='md'
-                  type='text'
-                  variant='ontime-filled'
-                />
-              </FormControl>
-            </div>
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-around',
-              }}
-            >
-              <IconButton
-                aria-label='Save duplicate project name'
-                icon={<IoSaveOutline />}
-                onClick={handleSubmitDuplicate}
-                size='sm'
-                variant='ontime-filled'
-              />
-              <IconButton
-                aria-label='Save duplicate project name'
-                icon={<IoClose />}
-                onClick={handleSubmitDuplicate}
-                size='sm'
-                variant='ontime-filled'
-              />
-            </div>
-          </div>
-        );
+        return <DuplicateProjectForm filename={filename} onSubmit={handleSubmitDuplicate} />;
       default:
         return null;
     }
@@ -128,15 +58,7 @@ export default function ProjectListItem({
 
   return (
     <tr key={filename}>
-      {editingMode && filename === editingFilename ? (
-        renderEditMode
-      ) : (
-        <>
-          <td>
-            <span>{filename}</span>
-          </td>
-        </>
-      )}
+      <td>{editingMode && filename === editingFilename ? renderEditMode : <span>{filename}</span>}</td>
       <td>{createdAt}</td>
       <td>{updatedAt}</td>
       <td className={style.actionButton}>
