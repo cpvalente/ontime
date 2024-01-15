@@ -2,13 +2,14 @@ import { Menu, MenuButton, IconButton, MenuList, MenuItem, Input, FormControl } 
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 import { useRef, useMemo } from 'react';
 import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
+import { IoClose } from '@react-icons/all-files/io5/IoClose';
 
 import style from './ProjectPanel.module.scss';
 import { renameProject, loadProject, duplicateProject } from '../../../../common/api/ontimeApi';
 import { ontimeQueryClient } from '../../../../common/queryClient';
 import { PROJECT_LIST } from '../../../../common/api/apiConstants';
-import { IoClose } from '@react-icons/all-files/io5/IoClose';
 import { EditMode } from './ProjectList';
+import RenameProjectForm, { RenameProjectFormValues } from './RenameProjectForm';
 
 interface ProjectListItemProps {
   filename: string;
@@ -21,23 +22,22 @@ interface ProjectListItemProps {
 }
 
 export default function ProjectListItem({
-  filename,
   createdAt,
-  updatedAt,
-  onToggleEditMode,
-  onSubmit,
   editingFilename,
   editingMode,
+  filename,
+  onSubmit,
+  onToggleEditMode,
+  updatedAt,
 }: ProjectListItemProps) {
-  const renameInputRef = useRef<HTMLInputElement>(null);
   const duplicateInputRef = useRef<HTMLInputElement>(null);
 
   const handleRefetch = async () => {
     await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
   };
 
-  const handleSubmitRename = async () => {
-    await renameProject(filename, renameInputRef.current!.value);
+  const handleSubmitRename = async (values: RenameProjectFormValues) => {
+    await renameProject(filename, values.filename);
     await handleRefetch();
     onSubmit?.();
   };
@@ -51,25 +51,7 @@ export default function ProjectListItem({
   const renderEditMode = useMemo(() => {
     switch (editingMode) {
       case 'rename':
-        return (
-          <>
-            <Input
-              className={style.inputField}
-              defaultValue={filename}
-              ref={renameInputRef}
-              size='md'
-              type='text'
-              variant='ontime-filled'
-            />
-            <IconButton
-              aria-label='Save duplicate project name'
-              icon={<IoSaveOutline />}
-              onClick={handleSubmitRename}
-              size='sm'
-              variant='ontime-filled'
-            />
-          </>
-        );
+        return <RenameProjectForm filename={filename} onSubmit={handleSubmitRename} />;
       case 'duplicate':
         return (
           <div
