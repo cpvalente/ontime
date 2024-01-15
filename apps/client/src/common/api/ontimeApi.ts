@@ -292,7 +292,6 @@ export const getSheetsAuthUrl = async () => {
 };
 
 /**
-/**
  * @description STEP 2 test
  */
 export const getAuthentication = async () => {
