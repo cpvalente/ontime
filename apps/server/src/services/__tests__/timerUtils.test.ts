@@ -14,6 +14,7 @@ describe('getExpectedFinish()', () => {
         addedTime: 0,
         duration: 10,
         finishedAt: null,
+        pausedAt: null,
         startedAt: null,
         timerType: TimerType.CountDown,
       },
@@ -30,6 +31,7 @@ describe('getExpectedFinish()', () => {
         addedTime: 0,
         duration: 10,
         finishedAt: 20, // <---- finished at
+        pausedAt: null,
         startedAt: 10,
         timerType: TimerType.CountDown,
       },
@@ -46,6 +48,7 @@ describe('getExpectedFinish()', () => {
         addedTime: 0,
         duration: 10,
         finishedAt: null,
+        pausedAt: null,
         startedAt: 1,
         timerType: TimerType.CountDown,
       },
@@ -62,6 +65,7 @@ describe('getExpectedFinish()', () => {
         addedTime: 20,
         duration: 10,
         finishedAt: null,
+        pausedAt: null,
         startedAt: 1,
         timerType: TimerType.CountDown,
       },
@@ -79,6 +83,7 @@ describe('getExpectedFinish()', () => {
         addedTime: -10,
         duration: 10,
         finishedAt: null,
+        pausedAt: null,
         startedAt: 1,
         timerType: TimerType.CountDown,
       },
@@ -96,6 +101,7 @@ describe('getExpectedFinish()', () => {
         addedTime: -100,
         duration: 10,
         finishedAt: null,
+        pausedAt: null,
         startedAt: 1,
         timerType: TimerType.CountDown,
       },
@@ -113,6 +119,7 @@ describe('getExpectedFinish()', () => {
         addedTime: 0,
         duration: 0,
         finishedAt: null,
+        pausedAt: null,
         startedAt: 1,
         timerType: TimerType.CountDown,
       },
@@ -130,6 +137,7 @@ describe('getExpectedFinish()', () => {
         addedTime: 0,
         duration: dayInMs,
         finishedAt: null,
+        pausedAt: null,
         startedAt: 10,
         timerType: TimerType.CountDown,
       },
@@ -148,6 +156,7 @@ describe('getExpectedFinish()', () => {
           addedTime: 10,
           duration: dayInMs,
           finishedAt: null,
+          pausedAt: null,
           startedAt: 10,
           timerType: TimerType.TimeToEnd,
         },
@@ -164,6 +173,7 @@ describe('getExpectedFinish()', () => {
         timer: {
           addedTime: 0,
           finishedAt: null,
+          pausedAt: null,
           startedAt: 79200000, // 22:00:00
           timerType: TimerType.TimeToEnd,
         },
@@ -188,6 +198,7 @@ describe('getCurrent()', () => {
         duration: 111, // <-- we take the duration value
         startedAt: null,
         finishedAt: null,
+        pausedAt: null,
         timerType: TimerType.CountDown,
       },
     } as TState;
@@ -224,6 +235,7 @@ describe('getCurrent()', () => {
         duration: 10,
         startedAt: 0,
         finishedAt: null,
+        pausedAt: null,
         timerType: TimerType.CountDown,
       },
     } as TState;
@@ -242,6 +254,7 @@ describe('getCurrent()', () => {
         duration: dayInMs + 10,
         startedAt: 10,
         finishedAt: null,
+        pausedAt: null,
         timerType: TimerType.CountDown,
       },
     } as TState;
@@ -260,6 +273,7 @@ describe('getCurrent()', () => {
         duration: dayInMs + 10,
         startedAt: 10,
         finishedAt: null,
+        pausedAt: null,
         timerType: TimerType.CountDown,
       },
     } as TState;
@@ -278,6 +292,7 @@ describe('getCurrent()', () => {
         duration: dayInMs + 10,
         startedAt: 10,
         finishedAt: null,
+        pausedAt: null,
         timerType: TimerType.CountDown,
       },
     } as TState;
@@ -297,6 +312,7 @@ describe('getCurrent()', () => {
           duration: 100,
           startedAt: 10,
           finishedAt: null,
+          pausedAt: null,
           timerType: TimerType.TimeToEnd,
         },
       } as TState;
@@ -315,6 +331,7 @@ describe('getCurrent()', () => {
           duration: 100,
           startedAt: 10,
           finishedAt: null,
+          pausedAt: null,
           timerType: TimerType.TimeToEnd,
         },
       } as TState;
@@ -333,6 +350,7 @@ describe('getCurrent()', () => {
           duration: Infinity, // not relevant,
           startedAt: 79200000, // 22:00:00
           finishedAt: null,
+          pausedAt: null,
           timerType: TimerType.TimeToEnd,
         },
       } as TState;
@@ -351,6 +369,7 @@ describe('getCurrent()', () => {
           duration: Infinity, // not relevant,
           startedAt: 79200000, // 22:00:00
           finishedAt: null,
+          pausedAt: null,
           timerType: TimerType.TimeToEnd,
         },
       } as TState;
@@ -373,6 +392,7 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
         clock: 0,
         duration,
         startedAt: 0,
+        pausedAt: null,
         finishedAt: null,
         timerType: TimerType.CountDown,
       },
@@ -398,6 +418,7 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
         clock: 5,
         duration,
         startedAt: 0,
+        pausedAt: null,
         finishedAt: null,
         timerType: TimerType.CountDown,
       },

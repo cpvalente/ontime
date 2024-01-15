@@ -19,7 +19,7 @@ export function getExpectedFinish(state: TState): MaybeNumber {
     return finishedAt;
   }
 
-  const pausedTime = pausedAt !== null ? clock - pausedAt : 0;
+  const pausedTime = pausedAt != null ? clock - pausedAt : 0;
 
   if (timerType === TimerType.TimeToEnd) {
     return timeEnd + addedTime + pausedTime;
@@ -56,7 +56,7 @@ export function getCurrent(state: TState): number {
 
   const hasPassedMidnight = startedAt > clock;
   const correctDay = hasPassedMidnight ? dayInMs : 0;
-  if (pausedAt !== null) {
+  if (pausedAt != null) {
     return startedAt + duration + addedTime - pausedAt;
   }
 
