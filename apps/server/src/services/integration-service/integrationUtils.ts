@@ -1,6 +1,6 @@
-// any value inside double curly braces {{val}}
-import { formatDisplay } from 'ontime-utils';
+import { millisToString, removeLeadingZero } from 'ontime-utils';
 
+// any value inside double curly braces {{val}}
 const placeholderRegex = /{{(.*?)}}/g;
 
 function formatDisplayFromString(value: string, hideZero = false): string {
@@ -12,7 +12,11 @@ function formatDisplayFromString(value: string, hideZero = false): string {
       valueInNumber = parsedValue;
     }
   }
-  return formatDisplay(valueInNumber, hideZero);
+  let formatted = millisToString(valueInNumber, { fallback: hideZero ? '00:00' : '00:00:00' });
+  if (hideZero) {
+    formatted = removeLeadingZero(formatted);
+  }
+  return formatted;
 }
 
 type AliasesDefinition = Record<string, { key: string; cb: (value: unknown) => string }>;

@@ -7,6 +7,7 @@ import { eventTimer } from './TimerService.js';
 import { clock } from './Clock.js';
 import { logger } from '../classes/Logger.js';
 import { RestorePoint } from './RestoreService.js';
+import { state } from '../state.js';
 
 /**
  * Service manages playback status of app
@@ -164,9 +165,9 @@ export class PlaybackService {
    * Starts playback on selected event
    */
   static start() {
-    if (validatePlayback(eventTimer.playback).start) {
+    if (validatePlayback(state.playback).start) {
       eventTimer.start();
-      const newState = eventTimer.playback;
+      const newState = state.playback;
       logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
     }
   }
@@ -186,9 +187,9 @@ export class PlaybackService {
    * Pauses playback on selected event
    */
   static pause() {
-    if (validatePlayback(eventTimer.playback).pause) {
+    if (validatePlayback(state.playback).pause) {
       eventTimer.pause();
-      const newState = eventTimer.playback;
+      const newState = state.playback;
       logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
     }
   }
@@ -197,10 +198,10 @@ export class PlaybackService {
    * Stops timer and unloads any events
    */
   static stop() {
-    if (validatePlayback(eventTimer.playback).stop) {
+    if (validatePlayback(state.playback).stop) {
       eventLoader.reset();
       eventTimer.stop();
-      const newState = eventTimer.playback;
+      const newState = state.playback;
       logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
     }
   }
@@ -209,8 +210,8 @@ export class PlaybackService {
    * Reloads current event
    */
   static reload() {
-    if (eventTimer.loadedTimerId) {
-      this.loadById(eventTimer.loadedTimerId);
+    if (state.timer.selectedEventId) {
+      this.loadById(state.timer.selectedEventId);
     }
   }
 
@@ -237,7 +238,7 @@ export class PlaybackService {
 
       eventTimer.roll(currentEvent, nextEvent);
 
-      const newState = eventTimer.playback;
+      const newState = state.playback;
       logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
     }
   }
@@ -274,7 +275,7 @@ export class PlaybackService {
    * @param {number} time - time to add in seconds
    */
   static addTime(time: number) {
-    if (eventTimer.loadedTimerId) {
+    if (state.timer.selectedEventId) {
       const timeInMs = time * 1000;
       eventTimer.addTime(timeInMs);
       timeInMs > 0

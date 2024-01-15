@@ -115,7 +115,17 @@ export async function cachedEdit(
   }
 
   const updatedRundown = DataProvider.getRundown();
-  const newEvent = { ...updatedRundown[indexInMemory], ...patchObject } as OntimeRundownEntry;
+  const eventFromRundown = updatedRundown[indexInMemory];
+
+  const isPatchObjectDifferentFromRundownEvent = Object.entries(patchObject).some(
+    ([key, value]) => eventFromRundown[key] !== value,
+  );
+
+  if (!isPatchObjectDifferentFromRundownEvent) {
+    return eventFromRundown;
+  }
+
+  const newEvent = { ...eventFromRundown, ...patchObject } as OntimeRundownEntry;
   if (isOntimeEvent(newEvent)) {
     newEvent.revision++;
   }
@@ -142,6 +152,12 @@ export async function cachedEdit(
   rundownRevision++;
 
   return newEvent;
+}
+
+export async function cachedBatchEdit(ids: string[], patchObject: Partial<OntimeEvent>) {
+  const cachedEdits = ids.map((id) => cachedEdit(id, patchObject));
+
+  await Promise.allSettled(cachedEdits);
 }
 
 /**

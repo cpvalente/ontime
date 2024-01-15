@@ -14,6 +14,7 @@ import useRundown from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
 import useUserFields from '../../common/hooks-query/useUserFields';
 import { debounce } from '../../common/utils/debounce';
+import { getDefaultFormat } from '../../common/utils/time';
 import { isStringBoolean } from '../../common/utils/viewUtils';
 
 import EditModal from './edit-modal/EditModal';
@@ -130,9 +131,9 @@ export default function Operator() {
   const main = searchParams.get('main') as keyof TitleFields | null;
   const secondary = searchParams.get('secondary') as keyof TitleFields | null;
   const subscribedAlias = subscribe ? userFields[subscribe] : '';
-  const showSeconds = isStringBoolean(searchParams.get('showseconds'));
 
-  const operatorOptions = getOperatorOptions(userFields, settings?.timeFormat ?? '24');
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const operatorOptions = getOperatorOptions(userFields, defaultFormat);
   let isPast = Boolean(featureData.selectedEventId);
   const hidePast = isStringBoolean(searchParams.get('hidepast'));
 
@@ -193,7 +194,6 @@ export default function Operator() {
                 isSelected={isSelected}
                 subscribed={subscribedData}
                 subscribedAlias={subscribedAlias}
-                showSeconds={showSeconds}
                 isPast={isPast}
                 selectedRef={isSelected ? selectedRef : undefined}
                 onLongPress={canEdit ? handleEdit : () => undefined}

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { OntimeEvent, OntimeRundownEntry, Playback, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
-import { formatDisplay } from 'ontime-utils';
+import { millisToString, removeLeadingZero } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
@@ -9,8 +9,7 @@ import { getCountdownOptions } from '../../../common/components/view-params-edit
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatTime } from '../../../common/utils/time';
-import { isStringBoolean } from '../../../common/utils/viewUtils';
+import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
@@ -18,11 +17,6 @@ import { fetchTimerData, TimerMessage } from './countdown.helpers';
 import CountdownSelect from './CountdownSelect';
 
 import './Countdown.scss';
-
-const formatOptionsFinished = {
-  showSeconds: false,
-  format: 'hh:mm a',
-};
 
 interface CountdownProps {
   isMirrored: boolean;
@@ -95,24 +89,24 @@ export default function Countdown(props: CountdownProps) {
   const isSelected = runningMessage === TimerMessage.running;
   const delayedTimerStyles = delay > 0 ? 'aux-timers__value--delayed' : '';
 
-  const hideSeconds = isStringBoolean(searchParams.get('hideSeconds'));
-  const formatOptions = {
-    showSeconds: !hideSeconds,
-    format: 'hh:mm:ss a',
+  const clock = formatTime(time.clock);
+  const startTime = follow === null ? '...' : formatTime(follow.timeStart + delay);
+  const endTime = follow === null ? '...' : formatTime(follow.timeEnd + delay);
+
+  const formatTimer = (): string => {
+    if (runningMessage === TimerMessage.ended) {
+      return formatTime(runningTimer, { format12: 'hh:mm a', format24: 'HH:mm' });
+    }
+    let formattedTime = millisToString(isSelected ? runningTimer : runningTimer + delay);
+    if (isSelected || runningMessage === TimerMessage.waiting) {
+      formattedTime = removeLeadingZero(formattedTime);
+    }
+    return formattedTime;
   };
+  const formattedTimer = formatTimer();
 
-  const clock = formatTime(time.clock, formatOptions);
-  const startTime = follow === null ? '...' : formatTime(follow.timeStart + delay, formatOptions);
-  const endTime = follow === null ? '...' : formatTime(follow.timeEnd + delay, formatOptions);
-  const formattedTimer =
-    runningMessage === TimerMessage.ended
-      ? formatTime(runningTimer, formatOptionsFinished)
-      : formatDisplay(
-          isSelected ? runningTimer : runningTimer + delay,
-          isSelected || runningMessage === TimerMessage.waiting,
-        );
-
-  const timeOption = getCountdownOptions(settings?.timeFormat ?? '24');
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const timeOption = getCountdownOptions(defaultFormat);
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
@@ -135,7 +129,7 @@ export default function Countdown(props: CountdownProps) {
             time={formattedTimer}
             className={`timer ${standby ? 'timer--paused' : ''} ${isRunningFinished ? 'timer--finished' : ''}`}
           />
-          <div className='title'>{follow?.title || 'Untitled Event'}</div>
+          {follow?.title && <div className='title'>{follow.title}</div>}
 
           <div className='timer-group'>
             <div className='aux-timers'>

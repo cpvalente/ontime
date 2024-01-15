@@ -6,6 +6,7 @@ import { failEmptyObjects } from '../utils/routerUtils.js';
 import {
   addEvent,
   applyDelay,
+  batchEditEvents,
   deleteAllEvents,
   deleteEvent,
   editEvent,
@@ -55,6 +56,20 @@ export const rundownPut: RequestHandler = async (req, res) => {
     res.status(200).send(event);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
+  }
+};
+
+export const rundownBatchPut: RequestHandler = async (req, res) => {
+  if (failEmptyObjects(req.body, res)) {
+    return res.status(404);
+  }
+
+  try {
+    const { data, ids } = req.body;
+    await batchEditEvents(ids, data);
+    res.status(200);
+  } catch (error) {
+    res.status(400).send(error);
   }
 };
 

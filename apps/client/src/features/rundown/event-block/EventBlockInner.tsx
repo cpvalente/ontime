@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, MouseEvent, useCallback, useEffect, useState } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { BiArrowToBottom } from '@react-icons/all-files/bi/BiArrowToBottom';
 import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
@@ -14,11 +14,11 @@ import { EndAction, Playback, TimerType } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
-import { useAppMode } from '../../../common/stores/appModeStore';
 import { millisToDelayString } from '../../../common/utils/dateConfig';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import { EventItemActions } from '../RundownEntry';
+import { useEventSelection } from '../useEventSelection';
 
 import BlockActionMenu from './composite/BlockActionMenu';
 import EventBlockPlayback from './composite/EventBlockPlayback';
@@ -36,11 +36,11 @@ const tooltipProps = {
 };
 
 interface EventBlockInnerProps {
-  isOpen: boolean;
   timeStart: number;
   timeEnd: number;
   duration: number;
   eventId: string;
+  eventIndex: number;
   isPublic: boolean;
   endAction: EndAction;
   timerType: TimerType;
@@ -60,7 +60,6 @@ interface EventBlockInnerProps {
 
 const EventBlockInner = (props: EventBlockInnerProps) => {
   const {
-    isOpen,
     timeStart,
     timeEnd,
     duration,
@@ -83,19 +82,24 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
-  const setEditId = useAppMode((state) => state.setEditId);
+  const { clearSelectedEvents, selectedEvents } = useEventSelection();
+
+  const isOpen = selectedEvents.size === 1 && selectedEvents.has(eventId);
 
   useEffect(() => {
     setRenderInner(true);
   }, []);
 
-  const toggleOpenEvent = useCallback(() => {
-    if (isOpen) {
-      setEditId(null);
-    } else {
-      setEditId(eventId);
-    }
-  }, [eventId, isOpen, setEditId]);
+  //TODO: fix this
+  const toggleOpenEvent = useCallback(
+    (_event: MouseEvent) => {
+      // if (isOpen) {
+      //   event.stopPropagation();
+      //   clearSelectedEvents();
+      // }
+    },
+    [clearSelectedEvents, isOpen],
+  );
 
   const eventIsPlaying = playback === Playback.Play;
   const eventIsPaused = playback === Playback.Pause;
@@ -137,29 +141,28 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         </Tooltip>
       ) : (
         <span className={style.indicators}>
-          <Tooltip
-            label={
-              delayTime && (
+          {delayTime && (
+            <Tooltip
+              label={
                 <div>
-                  {delayTime}
-                  <br />
+                  {delayTime} <br />
                   New Time: {newTime}
                 </div>
-              )
-            }
-          >
-            <div className={`${style.indicator} ${delayTime ? style.delay : ''}`} />
-          </Tooltip>
-          <Tooltip label={overlapTime}>
-            <div
-              className={`${style.indicator} ${
-                overlap > 0 ? style.overlap : overlap < 0 && overlapTime !== null ? style.spacing : ''
-              }`}
-            />
-          </Tooltip>
-          <Tooltip label='Start time is later than end'>
-            <div className={`${style.indicator} ${timeStart > timeEnd ? style.nextDay : ''}`} />
-          </Tooltip>
+              }
+            >
+              <div className={`${style.indicator} ${style.delay}`} />
+            </Tooltip>
+          )}
+          {overlapTime && (
+            <Tooltip label={overlapTime}>
+              <div className={`${style.indicator} ${overlap > 0 ? style.overlap : style.spacing}`} />
+            </Tooltip>
+          )}
+          {timeStart > timeEnd && (
+            <Tooltip label='Start time is later than end'>
+              <div className={`${style.indicator} ${style.nextDay}`} />
+            </Tooltip>
+          )}
         </span>
       )}
       <EventBlockPlayback
