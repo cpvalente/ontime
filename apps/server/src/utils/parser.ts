@@ -51,6 +51,9 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
   const projectMetadata = {};
   const rundownMetadata = {};
   const importMap: ExcelImportMap = { ...defaultExcelImportMap, ...options };
+  for (const [key, value] of Object.entries(importMap)) {
+    importMap[key] = value.toLocaleLowerCase();
+  }
   const projectData: Partial<ProjectData> = {
     title: '',
     description: '',
@@ -105,6 +108,8 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
   let user7Index: number | null = null;
   let user8Index: number | null = null;
   let user9Index: number | null = null;
+
+  console.log(importMap)
 
   excelData.forEach((row, rowIndex) => {
     if (row.length === 0) {
