@@ -109,8 +109,6 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
   let user8Index: number | null = null;
   let user9Index: number | null = null;
 
-  console.log(importMap)
-
   excelData.forEach((row, rowIndex) => {
     if (row.length === 0) {
       return;
