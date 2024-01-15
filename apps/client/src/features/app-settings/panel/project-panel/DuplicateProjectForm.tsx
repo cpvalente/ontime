@@ -9,10 +9,11 @@ export type DuplicateProjectFormValues = {
 
 interface DuplicateProjectFormProps {
   filename: string;
+  onCancel: () => void;
   onSubmit: (values: DuplicateProjectFormValues) => Promise<void>;
 }
 
-export default function DuplicateProjectForm({ filename, onSubmit }: DuplicateProjectFormProps) {
+export default function DuplicateProjectForm({ filename, onSubmit, onCancel }: DuplicateProjectFormProps) {
   const {
     handleSubmit,
     register,
@@ -31,7 +32,7 @@ export default function DuplicateProjectForm({ filename, onSubmit }: DuplicatePr
         <label htmlFor='filename'>
           <span>Current name</span>
         </label>
-        <Input defaultValue={filename} id='filename' size='md' type='text' variant='ontime-filled' disabled />
+        <Input value={filename} id='filename' size='md' type='text' variant='ontime-filled' disabled />
       </FormControl>
       <FormControl>
         <label htmlFor='newFilename'>
@@ -62,9 +63,9 @@ export default function DuplicateProjectForm({ filename, onSubmit }: DuplicatePr
           type='submit'
         />
         <IconButton
-          aria-label='Save duplicate project name'
+          aria-label='Cancel duplicate project name'
           icon={<IoClose />}
-          // onClick={handleSubmitDuplicate}
+          onClick={onCancel}
           size='sm'
           variant='ontime-filled'
           disabled={!isDirty || !isValid || isSubmitting}

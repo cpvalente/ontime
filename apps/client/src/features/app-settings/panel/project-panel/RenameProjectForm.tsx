@@ -9,9 +9,10 @@ export type RenameProjectFormValues = {
 interface RenameProjectFormProps {
   filename: string;
   onSubmit: (values: RenameProjectFormValues) => Promise<void>;
+  onCancel: () => void;
 }
 
-export default function RenameProjectForm({ filename, onSubmit }: RenameProjectFormProps) {
+export default function RenameProjectForm({ filename, onSubmit, onCancel }: RenameProjectFormProps) {
   const {
     handleSubmit,
     register,
@@ -25,7 +26,7 @@ export default function RenameProjectForm({ filename, onSubmit }: RenameProjectF
   });
 
   return (
-    <form>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <FormControl>
         <Input defaultValue={filename} size='md' type='text' variant='ontime-filled' {...register('filename')} />
       </FormControl>
@@ -33,9 +34,9 @@ export default function RenameProjectForm({ filename, onSubmit }: RenameProjectF
         disabled={!isDirty || !isValid || isSubmitting}
         aria-label='Save duplicate project name'
         icon={<IoSaveOutline />}
-        onClick={handleSubmit(onSubmit)}
         size='sm'
         variant='ontime-filled'
+        type='submit'
       />
     </form>
   );

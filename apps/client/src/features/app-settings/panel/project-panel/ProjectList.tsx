@@ -3,7 +3,7 @@ import { useProjectList } from '../../../../common/hooks-query/useProjectList';
 import * as Panel from '../PanelUtils';
 import ProjectListItem from './ProjectListItem';
 
-export type EditMode = 'rename' | 'duplicate';
+export type EditMode = 'rename' | 'duplicate' | null;
 
 export default function ProjectList() {
   const { data } = useProjectList();

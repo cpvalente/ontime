@@ -14,7 +14,7 @@ interface ProjectListItemProps {
   filename: string;
   createdAt: string;
   updatedAt: string;
-  onToggleEditMode?: (editMode: EditMode, filename: string) => void;
+  onToggleEditMode?: (editMode: EditMode, filename: string | null) => void;
   onSubmit?: () => void;
   editingFilename: string | null;
   editingMode: EditMode | null;
@@ -45,12 +45,16 @@ export default function ProjectListItem({
     onSubmit?.();
   };
 
+  const handleCancel = () => {
+    onToggleEditMode?.(null, null);
+  };
+
   const renderEditMode = useMemo(() => {
     switch (editingMode) {
       case 'rename':
-        return <RenameProjectForm filename={filename} onSubmit={handleSubmitRename} />;
+        return <RenameProjectForm filename={filename} onSubmit={handleSubmitRename} onCancel={handleCancel} />;
       case 'duplicate':
-        return <DuplicateProjectForm filename={filename} onSubmit={handleSubmitDuplicate} />;
+        return <DuplicateProjectForm filename={filename} onSubmit={handleSubmitDuplicate} onCancel={handleCancel} />;
       default:
         return null;
     }
