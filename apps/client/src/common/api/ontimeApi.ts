@@ -260,6 +260,38 @@ export async function getProjects(): Promise<ProjectFileListResponse> {
 }
 
 /**
+ * @description STEP 1
+ */
+export const uploadSheetClientFile = async (file: File) => {
+  const formData = new FormData();
+  formData.append('userFile', file);
+  const res = await axios
+    .post(`${ontimeURL}/sheet/clientsecret`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    .then((response) => response.data.id);
+  return res;
+};
+
+/**
+ * @description STEP 1 test
+ */
+export const getClientSecrect = async () => {
+  const response = await axios.get(`${ontimeURL}/sheet/clientsecret`);
+  return response.data;
+};
+
+/**
+ * @description STEP 2
+ */
+export const getSheetsAuthUrl = async () => {
+  const response = await axios.get(`${ontimeURL}/sheet/authentication/url`);
+  return response.data;
+};
+
+/**
 /**
  * @description STEP 2 test
  */
