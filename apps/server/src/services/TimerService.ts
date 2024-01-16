@@ -22,7 +22,7 @@ export class TimerService {
   }
 
   start() {
-    if (!state.runtime.selectedEventId) {
+    if (!state.eventNow) {
       return;
     }
 
@@ -54,7 +54,7 @@ export class TimerService {
    * @param {number} amount
    */
   addTime(amount: number) {
-    if (state.runtime.selectedEventId === null) {
+    if (state.eventNow === null) {
       return;
     }
     stateMutations.timer.addTime(amount);

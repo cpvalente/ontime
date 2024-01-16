@@ -36,10 +36,10 @@ class RuntimeService {
    * Checks if a list of IDs is in the current selection
    */
   private affectsLoaded(affectedIds: string[]): boolean {
-    const now = state.runtime.selectedEventId;
-    const nowPublic = state.runtime.selectedPublicEventId;
-    const next = state.runtime.nextEventId;
-    const nextPublic = state.runtime.nextPublicEventId;
+    const now = state.eventNow.id;
+    const nowPublic = state.publicEventNow.id;
+    const next = state.eventNext.id;
+    const nextPublic = state.publicEventNext.id;
     return (
       affectedIds.includes(now) ||
       affectedIds.includes(nowPublic) ||
@@ -50,8 +50,8 @@ class RuntimeService {
 
   private isNewNext() {
     const timedEvents = EventLoader.getPlayableEvents();
-    const now = state.runtime.selectedEventId;
-    const next = state.runtime.nextEventId;
+    const now = state.eventNow.id;
+    const next = state.eventNext.id;
 
     // check whether the index of now and next are consecutive
     const indexNow = timedEvents.findIndex((event) => event.id === now);
@@ -61,8 +61,8 @@ class RuntimeService {
       return true;
     }
     // iterate through timed events and see if there are public events between nowPublic and nextPublic
-    const nowPublic = state.runtime.selectedPublicEventId;
-    const nextPublic = state.runtime.nextPublicEventId;
+    const nowPublic = state.publicEventNow.id;
+    const nextPublic = state.publicEventNext.id;
 
     let foundNew = false;
     let isAfter = false;
@@ -93,7 +93,7 @@ class RuntimeService {
    * check whether underlying data of runtime has changed
    */
   update(affectedIds?: string[]) {
-    const hasLoadedElements = state.runtime.selectedEventId && state.runtime.nextEventId;
+    const hasLoadedElements = state.eventNow && state.eventNext;
     if (!hasLoadedElements) {
       return;
     }
@@ -111,7 +111,7 @@ class RuntimeService {
         this.roll();
       }
       // load stuff again, but keep running if our events still exist
-      const eventNow = EventLoader.getEventWithId(state.runtime.selectedEventId);
+      const eventNow = EventLoader.getEventWithId(state.eventNow.id);
       if (eventNow) {
         stateMutations.reload(eventNow);
       }
@@ -139,7 +139,7 @@ class RuntimeService {
 
     const timedEvents = EventLoader.getPlayableEvents();
     stateMutations.load(event, timedEvents);
-    const success = event.id === state.runtime.selectedEventId;
+    const success = event.id === state.eventNow.id;
 
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
@@ -227,7 +227,7 @@ class RuntimeService {
    * @return {boolean} success - whether an event was loaded
    */
   loadPrevious(): boolean {
-    const previousEvent = EventLoader.findPrevious(state.runtime.selectedEventId);
+    const previousEvent = EventLoader.findPrevious(state.eventNow.id);
     if (previousEvent) {
       const success = this.loadEvent(previousEvent);
       return success;
@@ -240,7 +240,7 @@ class RuntimeService {
    * @return {boolean} success
    */
   loadNext(): boolean {
-    const nextEvent = EventLoader.findNext(state.runtime.selectedEventId);
+    const nextEvent = EventLoader.findNext(state.eventNow.id);
     if (nextEvent) {
       const success = this.loadEvent(nextEvent);
       return success;
@@ -297,7 +297,7 @@ class RuntimeService {
    * Reloads current event
    */
   reload() {
-    if (state.runtime.selectedEventId) {
+    if (state.eventNow) {
       stateMutations.reload();
     }
   }

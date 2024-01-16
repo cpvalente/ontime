@@ -25,10 +25,6 @@ const timeSkipLimit = 1000;
 
 const initialRuntime: Runtime = {
   selectedEventIndex: null,
-  selectedEventId: null, // TODO: remove
-  selectedPublicEventId: null, // TODO: remove
-  nextEventId: null, // TODO: remove
-  nextPublicEventId: null, // TODO: remove
   numEvents: 0,
 };
 
@@ -87,7 +83,6 @@ export const stateMutations = {
       const eventIndex = rundown.findIndex((eventInMemory) => eventInMemory.id === event.id);
 
       state.runtime.selectedEventIndex = eventIndex;
-      state.runtime.selectedEventId = event.id;
       state.runtime.numEvents = rundown.length;
 
       this.loadNow(event, rundown);
@@ -110,11 +105,9 @@ export const stateMutations = {
       // check if current is also public
       if (event.isPublic) {
         state.publicEventNow = event;
-        state.runtime.selectedPublicEventId = event.id;
       } else {
         // assume there is no public event
         state.publicEventNow = null;
-        state.runtime.selectedPublicEventId = null;
 
         // if there is nothing before, return
         if (!state.runtime.selectedEventIndex) {
@@ -125,7 +118,6 @@ export const stateMutations = {
         for (let i = state.runtime.selectedEventIndex; i >= 0; i--) {
           if (playableEvents[i].isPublic) {
             state.publicEventNow = playableEvents[i];
-            state.runtime.selectedPublicEventId = playableEvents[i].id;
             break;
           }
         }
@@ -137,8 +129,6 @@ export const stateMutations = {
       // assume there are no next events
       state.eventNext = null;
       state.publicEventNext = null;
-      state.runtime.nextEventId = null;
-      state.runtime.nextPublicEventId = null;
 
       if (state.runtime.selectedEventIndex === null) {
         return;
@@ -154,14 +144,12 @@ export const stateMutations = {
           // if we have not set private
           if (!nextProduction) {
             state.eventNext = playableEvents[i];
-            state.runtime.nextEventId = playableEvents[i].id;
             nextProduction = true;
           }
 
           // if event is public
           if (playableEvents[i].isPublic) {
             state.publicEventNext = playableEvents[i];
-            state.runtime.nextPublicEventId = playableEvents[i].id;
             nextPublic = true;
           }
 
@@ -310,9 +298,6 @@ export const stateMutations = {
       mutate((state) => {
         state.clock = clock.timeNow();
 
-        // TODO: the duplication of timer data would not be necessary
-        // once event loader is merged here
-        state.runtime.selectedEventId = event.id;
         state.timer.startedAt = restorePoint.startedAt;
         state.timer.duration = calculateDuration(event.timeStart, event.timeEnd);
         state.timer.current = state.timer.duration;
@@ -365,10 +350,6 @@ export const stateMutations = {
             state.timer.current = updatedTimer;
             state.timer.secondaryTimer = updatedSecondaryTimer;
             state.timer.elapsed = state.timer.duration - state.timer.current;
-
-            if (isFinished) {
-              state.runtime.selectedEventId = null;
-            }
 
             return { doRoll: doRollLoad, isFinished };
           }
@@ -548,7 +529,7 @@ export function mutate<R>(
   // we write to restore service if the underlying data changes
   restoreService.save({
     playback: state.timer.playback,
-    selectedEventId: state.runtime.selectedEventId,
+    selectedEventId: state.eventNow?.id ?? null,
     startedAt: state.timer.startedAt,
     addedTime: state.timer.addedTime,
     pausedAt: state._timer.pausedAt,

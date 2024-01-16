@@ -6,8 +6,8 @@ import { socketSendJson } from '../utils/socket';
 export const useRundownEditor = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.timer.playback,
-    selectedEventId: state.loaded.selectedEventId,
-    nextEventId: state.loaded.nextEventId,
+    selectedEventId: state.eventNow?.id ?? null,
+    nextEventId: state.eventNext?.id ?? null,
   });
 
   return useRuntimeStore(featureSelector);
@@ -16,7 +16,7 @@ export const useRundownEditor = () => {
 export const useOperator = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.timer.playback,
-    selectedEventId: state.loaded.selectedEventId,
+    selectedEventId: state.eventNow?.id ?? null,
   });
 
   return useRuntimeStore(featureSelector);
@@ -95,7 +95,7 @@ export const useInfoPanel = () => {
 export const useCuesheet = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.timer.playback,
-    selectedEventId: state.loaded.selectedEventId,
+    selectedEventId: state.eventNow?.id ?? null,
     selectedEventIndex: state.loaded.selectedEventIndex,
     numEvents: state.loaded.numEvents,
     titleNow: state.eventNow?.title || '',

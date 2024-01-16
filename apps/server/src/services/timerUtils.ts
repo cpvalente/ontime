@@ -232,10 +232,10 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
  * @returns object with selection variables
  */
 export const updateRoll = (state: TState) => {
-  const { selectedEventId } = state.runtime;
   const { current, expectedFinish, startedAt, secondaryTimer } = state.timer;
   const { secondaryTarget } = state._timer;
   const { clock } = state;
+  const selectedEventId = state.eventNow?.id ?? null;
 
   // timers
   let updatedTimer = current;

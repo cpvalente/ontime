@@ -68,11 +68,10 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
       publicEventNext,
       publicEventNow,
       eventNow,
-      loaded,
     } = useStore(runtime);
-    const publicSelectedId = loaded.selectedPublicEventId;
-    const selectedId = loaded.selectedEventId;
-    const nextId = loaded.nextEventId;
+    const publicSelectedId = publicEventNow?.id ?? null;
+    const selectedId = eventNow?.id ?? null;
+    const nextId = eventNext?.id ?? null;
 
     /******************************************/
     /***  + TimeManagerType                     ***/
