@@ -26,8 +26,8 @@ class MessageService {
     this.timerMessage = {
       text: '',
       visible: false,
-      timerBlink: false,
-      timerBlackout: false,
+      blink: false,
+      blackout: false,
     };
 
     this.publicMessage = {
@@ -171,9 +171,9 @@ class MessageService {
 
   setTimerBlink(status?: boolean) {
     if (typeof status === 'undefined') {
-      this.timerMessage.timerBlink = !this.timerMessage.timerBlink;
+      this.timerMessage.blink = !this.timerMessage.blink;
     } else {
-      this.timerMessage.timerBlink = status;
+      this.timerMessage.blink = status;
     }
     this.throttledSet('timerMessage', this.timerMessage);
     return this.getAll();
@@ -185,9 +185,9 @@ class MessageService {
 
   setTimerBlackout(status?: boolean) {
     if (typeof status === 'undefined') {
-      this.timerMessage.timerBlackout = !this.timerMessage.timerBlackout;
+      this.timerMessage.blackout = !this.timerMessage.blackout;
     } else {
-      this.timerMessage.timerBlackout = status;
+      this.timerMessage.blackout = status;
     }
     this.throttledSet('timerMessage', this.timerMessage);
     return this.getAll();
@@ -219,8 +219,8 @@ export function isPartialTimerMessage(obj: any): obj is Partial<TimerMessage> {
     typeof obj === 'object' &&
     (typeof obj.text === 'string' || obj.text === undefined) &&
     (typeof obj.visible === 'boolean' || obj.visible === undefined) &&
-    (typeof obj.timerBlink === 'boolean' || obj.timerBlink === undefined) &&
-    (typeof obj.timerBlackout === 'boolean' || obj.timerBlackout === undefined)
+    (typeof obj.blink === 'boolean' || obj.timerBlink === undefined) &&
+    (typeof obj.blackout === 'boolean' || obj.timerBlackout === undefined)
   );
 }
 

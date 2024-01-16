@@ -62,22 +62,22 @@ const actionHandlers: Record<string, ActionHandler> = {
         if (!isPartialMessage(payload)) {
           throw new Error('Payload is not a valid public message');
         }
-        const newState = messageService.setPublicMessage(payload);
-        return { payload: newState.timerMessage };
+        const newState = messageService.setPublicMessage(payload.public);
+        return { payload: newState.publicMessage };
       }
       if ('lower' in payload) {
         if (!isPartialMessage(payload)) {
           throw new Error('Payload is not a valid lower message');
         }
-        const newState = messageService.setLowerMessage(payload);
-        return { payload: newState.timerMessage };
+        const newState = messageService.setLowerMessage(payload.lower);
+        return { payload: newState.lowerMessage };
       }
       if ('external' in payload) {
         if (!isPartialMessage(payload)) {
           throw new Error('Payload is not a valid external message');
         }
-        const newState = messageService.setExternalMessage(payload);
-        return { payload: newState.timerMessage };
+        const newState = messageService.setExternalMessage(payload.external);
+        return { payload: newState.externalMessage };
       }
     }
     throw new Error('No message destination provided');

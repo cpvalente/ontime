@@ -23,8 +23,8 @@ export const runtimeStorePlaceholder: RuntimeStore = {
   timerMessage: {
     text: '',
     visible: false,
-    timerBlink: false,
-    timerBlackout: false,
+    blink: false,
+    blackout: false,
   },
   publicMessage: {
     text: '',

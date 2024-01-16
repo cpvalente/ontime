@@ -35,17 +35,17 @@ export const useMessageControl = () => {
 };
 
 export const setMessage = {
-  presenterText: (payload: string) => socketSendJson('set-timer-message-text', payload),
-  presenterVisible: (payload: boolean) => socketSendJson('set-timer-message-visible', payload),
-  publicText: (payload: string) => socketSendJson('set-public-message-text', payload),
-  publicVisible: (payload: boolean) => socketSendJson('set-public-message-visible', payload),
-  lowerText: (payload: string) => socketSendJson('set-lower-message-text', payload),
-  lowerVisible: (payload: boolean) => socketSendJson('set-lower-message-visible', payload),
-  externalText: (payload: string) => socketSendJson('set-external-message-text', payload),
-  externalVisible: (payload: boolean) => socketSendJson('set-external-message-visible', payload),
-  onAir: (payload: boolean) => socketSendJson('set-onAir', payload),
-  timerBlink: (payload: boolean) => socketSendJson('set-timer-blink', payload),
-  timerBlackout: (payload: boolean) => socketSendJson('set-timer-blackout', payload),
+  presenterText: (payload: string) => socketSendJson('message', { timer: { text: payload } }),
+  presenterVisible: (payload: boolean) => socketSendJson('message', { timer: { visible: payload } }),
+  publicText: (payload: string) => socketSendJson('message', { public: { text: payload } }),
+  publicVisible: (payload: boolean) => socketSendJson('message', { public: { visible: payload } }),
+  lowerText: (payload: string) => socketSendJson('message', { lower: { text: payload } }),
+  lowerVisible: (payload: boolean) => socketSendJson('message', { lower: { visible: payload } }),
+  externalText: (payload: string) => socketSendJson('message', { external: { visible: payload } }),
+  externalVisible: (payload: boolean) => socketSendJson('message', { external: { visible: payload } }),
+  onAir: (payload: boolean) => socketSendJson('onAir', payload),
+  timerBlink: (payload: boolean) => socketSendJson('message', { timer: { blink: payload } }),
+  timerBlackout: (payload: boolean) => socketSendJson('message', { timer: { blackout: payload } }),
 };
 
 export const usePlaybackControl = () => {
