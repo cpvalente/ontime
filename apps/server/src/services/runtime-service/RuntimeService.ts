@@ -107,7 +107,7 @@ class RuntimeService {
     let isNext = false;
 
     if (safeOption || eventInMemory) {
-      if (state.playback === Playback.Roll) {
+      if (state.timer.playback === Playback.Roll) {
         this.roll();
       }
       // load stuff again, but keep running if our events still exist
@@ -254,10 +254,10 @@ class RuntimeService {
    * Starts playback on selected event
    */
   start() {
-    const canStart = validatePlayback(state.playback).start;
+    const canStart = validatePlayback(state.timer.playback).start;
     if (canStart) {
       this.eventTimer.start();
-      logger.info(LogOrigin.Playback, `Play Mode ${state.playback.toUpperCase()}`);
+      logger.info(LogOrigin.Playback, `Play Mode ${state.timer.playback.toUpperCase()}`);
     }
   }
 
@@ -275,9 +275,9 @@ class RuntimeService {
    * Pauses playback on selected event
    */
   pause() {
-    if (validatePlayback(state.playback).pause) {
+    if (validatePlayback(state.timer.playback).pause) {
       this.eventTimer.pause();
-      const newState = state.playback;
+      const newState = state.timer.playback;
       logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
     }
   }
@@ -286,9 +286,9 @@ class RuntimeService {
    * Stops timer and unloads any events
    */
   stop() {
-    if (validatePlayback(state.playback).stop) {
+    if (validatePlayback(state.timer.playback).stop) {
       this.eventTimer.stop();
-      const newState = state.playback;
+      const newState = state.timer.playback;
       logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
     }
   }
@@ -313,7 +313,7 @@ class RuntimeService {
       logger.warning(LogOrigin.Server, `Roll: ${error}`);
     }
 
-    const newState = state.playback;
+    const newState = state.timer.playback;
     logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
   }
 

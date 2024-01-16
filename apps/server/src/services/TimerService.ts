@@ -26,7 +26,7 @@ export class TimerService {
       return;
     }
 
-    if (state.playback === Playback.Play) {
+    if (state.timer.playback === Playback.Play) {
       return;
     }
 
@@ -36,14 +36,14 @@ export class TimerService {
   }
 
   pause() {
-    if (state.playback !== Playback.Play) {
+    if (state.timer.playback !== Playback.Play) {
       return;
     }
     stateMutations.timer.pause();
   }
 
   stop() {
-    if (state.playback === Playback.Stop) {
+    if (state.timer.playback === Playback.Stop) {
       return;
     }
     stateMutations.timer.stop();

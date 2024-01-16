@@ -1,4 +1,3 @@
-import { Playback } from './Playback.type.js';
 import { Message, TimerMessage } from './MessageControl.type.js';
 import { TimerState } from './TimerState.type.js';
 import { Runtime } from './Runtime.type.js';
@@ -9,7 +8,6 @@ export type RuntimeStore = {
 
   // timer service
   timer: TimerState;
-  playback: Playback;
 
   // messages service
   timerMessage: TimerMessage;

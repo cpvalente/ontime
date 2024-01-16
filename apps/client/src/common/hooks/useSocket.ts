@@ -5,7 +5,7 @@ import { socketSendJson } from '../utils/socket';
 
 export const useRundownEditor = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    playback: state.playback,
+    playback: state.timer.playback,
     selectedEventId: state.loaded.selectedEventId,
     nextEventId: state.loaded.nextEventId,
   });
@@ -15,7 +15,7 @@ export const useRundownEditor = () => {
 
 export const useOperator = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    playback: state.playback,
+    playback: state.timer.playback,
     selectedEventId: state.loaded.selectedEventId,
   });
 
@@ -50,7 +50,7 @@ export const setMessage = {
 
 export const usePlaybackControl = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    playback: state.playback,
+    playback: state.timer.playback,
     selectedEventIndex: state.loaded.selectedEventIndex,
     numEvents: state.loaded.numEvents,
   });
@@ -84,7 +84,7 @@ export const useInfoPanel = () => {
   const featureSelector = (state: RuntimeStore) => ({
     eventNow: state.eventNow,
     eventNext: state.eventNext,
-    playback: state.playback,
+    playback: state.timer.playback,
     selectedEventIndex: state.loaded.selectedEventIndex,
     numEvents: state.loaded.numEvents,
   });
@@ -94,7 +94,7 @@ export const useInfoPanel = () => {
 
 export const useCuesheet = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    playback: state.playback,
+    playback: state.timer.playback,
     selectedEventId: state.loaded.selectedEventId,
     selectedEventIndex: state.loaded.selectedEventIndex,
     numEvents: state.loaded.numEvents,
@@ -130,7 +130,7 @@ export const setClientName = (newName: string) => socketSendJson('set-client-nam
 
 export const useRuntimeOverview = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    playback: state.playback,
+    playback: state.timer.playback,
     clock: state.clock,
     numEvents: state.loaded.numEvents,
     selectedEventIndex: state.loaded.selectedEventIndex,

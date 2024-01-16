@@ -8,7 +8,7 @@ import NavigationMenu from '../../../common/components/navigation-menu/Navigatio
 import { MINIMAL_TIMER_OPTIONS } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { TimeManagerType } from '../../../common/models/TimeManager.type';
+import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -19,7 +19,7 @@ import './MinimalTimer.scss';
 interface MinimalTimerProps {
   isMirrored: boolean;
   pres: TimerMessage;
-  time: TimeManagerType;
+  time: ViewExtendedTimer;
   viewSettings: ViewSettings;
 }
 

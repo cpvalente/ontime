@@ -14,7 +14,8 @@ export const normaliseEndTime = (start: number, end: number) => (end < start ? e
  * @returns {number | null} new current time or null if nothing is running
  */
 export function getExpectedFinish(state: TState): MaybeNumber {
-  const { startedAt, finishedAt, duration, addedTime, timerType } = state.timer;
+  const { startedAt, finishedAt, duration, addedTime } = state.timer;
+  const { timerType } = state.eventNow;
   const { pausedAt } = state._timer;
   const { timeEnd } = state.eventNow;
   const { clock } = state;
@@ -49,7 +50,8 @@ export function getExpectedFinish(state: TState): MaybeNumber {
  * @returns {number} current time for timer
  */
 export function getCurrent(state: TState): number {
-  const { startedAt, duration, addedTime, timerType } = state.timer;
+  const { startedAt, duration, addedTime } = state.timer;
+  const { timerType } = state.eventNow;
   const { pausedAt } = state._timer;
   const { timeEnd } = state.eventNow;
   const { clock } = state;

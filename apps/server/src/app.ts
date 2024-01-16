@@ -166,7 +166,6 @@ export const startServer = async () => {
    *
    * - Runtime Service    onAir (derived from playback)
    * - Runtime Service    timer
-   * - Runtime Service    playback
    * - Runtime Service    loaded // TODO: rename to runtime ??
    * - Runtime Service    eventNow
    * - Runtime Service    publicEventNow
@@ -179,9 +178,8 @@ export const startServer = async () => {
     publicMessage: messageService.publicMessage,
     lowerMessage: messageService.lowerMessage,
     externalMessage: messageService.externalMessage,
-    onAir: state.playback !== Playback.Stop,
+    onAir: false, // TODO: not emitted?
     timer: state.timer,
-    playback: state.playback,
     loaded: state.runtime,
     eventNow: state.eventNow,
     publicEventNow: state.publicEventNow,

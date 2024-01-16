@@ -1,5 +1,5 @@
 import { ComponentType, useMemo } from 'react';
-import { TimeManagerType } from 'common/models/TimeManager.type';
+import { ViewExtendedTimer } from 'common/models/TimeManager.type';
 import { Message, OntimeEvent, ProjectData, Settings, SupportedEvent, TimerMessage, ViewSettings } from 'ontime-types';
 import { useStore } from 'zustand';
 
@@ -20,7 +20,7 @@ type WithDataProps = {
   publicEventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
   publicEventNext: OntimeEvent | null;
-  time: TimeManagerType;
+  time: ViewExtendedTimer;
   events: OntimeEvent[];
   backstageEvents: OntimeEvent[];
   selectedId: string | null;
@@ -54,14 +54,15 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
       return [];
     }, [rundownData]);
 
+    // TODO: cleanup here
     // websocket data
     const {
+      clock,
       timer,
       publicMessage,
       timerMessage,
       lowerMessage,
       externalMessage,
-      playback,
       onAir,
       eventNext,
       publicEventNext,
@@ -81,7 +82,10 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
 
     const TimeManagerType = {
       ...timer,
-      playback,
+      clock,
+      timerType: eventNow?.timerType ?? null,
+      timeWarning: eventNow?.timeWarning ?? null,
+      timeDanger: eventNow?.timeWarning ?? null,
     };
 
     // prevent render until we get all the data we need
