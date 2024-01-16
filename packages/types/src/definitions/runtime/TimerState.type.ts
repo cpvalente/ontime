@@ -2,7 +2,6 @@ import { TimerType } from '../TimerType.type.js';
 import { EndAction } from '../EndAction.type.js';
 
 export type TimerState = {
-  clock: number; // realtime clock
   current: number | null; // running countdown
   elapsed: number | null; // elapsed time in current timer
   expectedFinish: number | null;

@@ -14,8 +14,9 @@ export const normaliseEndTime = (start: number, end: number) => (end < start ? e
  * @returns {number | null} new current time or null if nothing is running
  */
 export function getExpectedFinish(state: TState): MaybeNumber {
-  const { startedAt, clock, finishedAt, duration, addedTime, timerType, pausedAt } = state.timer;
+  const { startedAt, finishedAt, duration, addedTime, timerType, pausedAt } = state.timer;
   const { timeEnd } = state.eventNow;
+  const { clock } = state;
 
   if (startedAt === null) {
     return null;
@@ -47,8 +48,9 @@ export function getExpectedFinish(state: TState): MaybeNumber {
  * @returns {number} current time for timer
  */
 export function getCurrent(state: TState): number {
-  const { startedAt, duration, addedTime, clock, timerType, pausedAt } = state.timer;
+  const { startedAt, duration, addedTime, timerType, pausedAt } = state.timer;
   const { timeEnd } = state.eventNow;
+  const { clock } = state;
 
   if (timerType === TimerType.TimeToEnd) {
     const isNextDay = startedAt > timeEnd;
@@ -77,7 +79,9 @@ export function getCurrent(state: TState): number {
  * @returns {boolean}
  */
 export function skippedOutOfEvent(state: TState, previousTime: number, skipLimit: number): boolean {
-  const { clock, startedAt, expectedFinish } = state.timer;
+  const { startedAt, expectedFinish } = state.timer;
+  const { clock } = state;
+
   const hasPassedMidnight = previousTime > dayInMs - skipLimit && clock < skipLimit;
   const adjustedClock = hasPassedMidnight ? clock + dayInMs : clock;
 
@@ -225,7 +229,8 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
  */
 export const updateRoll = (state: TState) => {
   const { selectedEventId } = state.runtime;
-  const { current, expectedFinish, startedAt, clock, secondaryTimer, secondaryTarget } = state.timer;
+  const { current, expectedFinish, startedAt, secondaryTimer, secondaryTarget } = state.timer;
+  const { clock } = state;
 
   // timers
   let updatedTimer = current;

@@ -33,7 +33,6 @@ const initialRuntime: Runtime = {
 };
 
 const initialTimer: TimerState = {
-  clock: clock.timeNow(),
   current: null,
   elapsed: null,
   expectedFinish: null, // TODO: expected finish could account for midnight, we cleanup in the clients
@@ -49,6 +48,7 @@ const initialTimer: TimerState = {
 };
 
 export type TState = DeepReadonly<{
+  clock: number; // realtime clock
   eventNow: OntimeEvent | null;
   publicEventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
@@ -65,6 +65,7 @@ export type TState = DeepReadonly<{
 }>;
 
 export const state: TState = {
+  clock: clock.timeNow(),
   eventNow: null,
   publicEventNow: null,
   eventNext: null,
@@ -96,7 +97,7 @@ export const stateMutations = {
       this.loadNow(event, rundown);
       this.loadNext(rundown);
 
-      state.timer.clock = clock.timeNow();
+      state.clock = clock.timeNow();
       state.playback = Playback.Armed;
       state.timer.duration = calculateDuration(event.timeStart, event.timeEnd);
       state.timer.current = getCurrent(state);
@@ -243,10 +244,9 @@ export const stateMutations = {
         state.runtime.numEvents = EventLoader.getPlayableEvents().length;
 
         state.playback = Playback.Stop;
-
+        state.clock = clock.timeNow();
         state.timer = {
           ...initialTimer,
-          clock: clock.timeNow(),
           pausedAt: null,
           lastUpdate: null,
           secondaryTarget: null,
@@ -267,19 +267,19 @@ export const stateMutations = {
     start() {
       mutate(
         (state) => {
-          state.timer.clock = clock.timeNow();
+          state.clock = clock.timeNow();
           state.timer.secondaryTimer = null;
           state.timer.secondaryTarget = null;
 
           // add paused time if it exists
           if (state.timer.pausedAt) {
-            const timeToAdd = state.timer.clock - state.timer.pausedAt;
+            const timeToAdd = state.clock - state.timer.pausedAt;
             state.timer.addedTime += timeToAdd;
             state.timer.pausedAt = null;
           }
 
           if (state.timer.startedAt === null) {
-            state.timer.startedAt = state.timer.clock;
+            state.timer.startedAt = state.clock;
           }
 
           state.playback = Playback.Play;
@@ -312,8 +312,8 @@ export const stateMutations = {
           }
 
           state.playback = Playback.Pause;
-          state.timer.clock = clock.timeNow();
-          state.timer.pausedAt = state.timer.clock;
+          state.clock = clock.timeNow();
+          state.timer.pausedAt = state.clock;
           return true;
         },
         {
@@ -327,7 +327,7 @@ export const stateMutations = {
     },
     resume(event: OntimeEvent, restorePoint: RestorePoint) {
       mutate((state) => {
-        state.timer.clock = clock.timeNow();
+        state.clock = clock.timeNow();
 
         // TODO: the duplication of timer data would not be necessary
         // once event loader is merged here
@@ -400,7 +400,7 @@ export const stateMutations = {
             state.timer.current = getCurrent(state);
 
             if (state.playback === Playback.Play && state.timer.finishedNow) {
-              state.timer.finishedAt = state.timer.clock;
+              state.timer.finishedAt = state.clock;
               isFinished = true;
             } else {
               state.timer.expectedFinish = getExpectedFinish(state);
@@ -419,9 +419,9 @@ export const stateMutations = {
           let _isFinished = false;
           let _shouldNotify = false;
 
-          const previousTime = state.timer.clock;
-          state.timer.clock = clock.timeNow();
-          const hasSkippedBack = previousTime > state.timer.clock;
+          const previousTime = state.clock;
+          state.clock = clock.timeNow();
+          const hasSkippedBack = previousTime > state.clock;
 
           if (hasSkippedBack) {
             _force = true;
@@ -442,9 +442,9 @@ export const stateMutations = {
 
           // we only update the store at the updateInterval
           // side effects such as onFinish will still be triggered in the update functions
-          const isTimeToUpdate = state.timer.clock > state.timer.lastUpdate + updateInterval;
+          const isTimeToUpdate = state.clock > state.timer.lastUpdate + updateInterval;
           if (_force || isTimeToUpdate) {
-            state.timer.lastUpdate = state.timer.clock;
+            state.timer.lastUpdate = state.clock;
             // TODO: can we simplify the didUpdate and shouldNotify
             _didUpdate = true;
           }
@@ -490,7 +490,7 @@ export const stateMutations = {
       mutate((state) => {
         stateMutations.timer.clear();
 
-        const { nextEvent, currentEvent } = getRollTimers(rundown, state.timer.clock);
+        const { nextEvent, currentEvent } = getRollTimers(rundown, state.clock);
 
         if (currentEvent) {
           // there is something running, load
@@ -506,14 +506,13 @@ export const stateMutations = {
           stateMutations.load(currentEvent, rundown, {
             startedAt: currentEvent.timeStart,
             expectedFinish: currentEvent.timeEnd,
-            current: endTime - state.timer.clock,
+            current: endTime - state.clock,
           });
         } else if (nextEvent) {
           // account for day after
-          const nextStart =
-            nextEvent.timeStart < state.timer.clock ? nextEvent.timeStart + dayInMs : nextEvent.timeStart;
+          const nextStart = nextEvent.timeStart < state.clock ? nextEvent.timeStart + dayInMs : nextEvent.timeStart;
           // nothing now, but something coming up
-          state.timer.secondaryTimer = nextStart - state.timer.clock;
+          state.timer.secondaryTimer = nextStart - state.clock;
           state.timer.secondaryTarget = nextStart;
         }
         state.playback = Playback.Roll;
@@ -559,6 +558,7 @@ export function mutate<R>(
   // set eventStore any time a mutation happens
   // this means we are pushing this data to the client every 32ms
   eventStore.batchSet({
+    clock: newState.clock,
     eventNow: newState.eventNow,
     publicEventNow: newState.publicEventNow,
     eventNext: newState.eventNext,

@@ -5,6 +5,8 @@ import { Runtime } from './Runtime.type.js';
 import { OntimeEvent } from '../core/OntimeEvent.type.js';
 
 export type RuntimeStore = {
+  clock: number;
+
   // timer service
   timer: TimerState;
   playback: Playback;

@@ -3,8 +3,8 @@ import { Playback, RuntimeStore } from 'ontime-types';
 import { createWithEqualityFn, useStoreWithEqualityFn } from 'zustand/traditional';
 
 export const runtimeStorePlaceholder: RuntimeStore = {
+  clock: 0,
   timer: {
-    clock: 0,
     current: null,
     elapsed: null,
     expectedFinish: null,

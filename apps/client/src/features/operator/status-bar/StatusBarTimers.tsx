@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { MaybeNumber, Playback } from 'ontime-types';
 
 import PlaybackIcon from '../../../common/components/playback-icon/PlaybackIcon';
-import { useTimer } from '../../../common/hooks/useSocket';
+import { useClock, useTimer } from '../../../common/hooks/useSocket';
 import { cx } from '../../../common/utils/styleUtils';
 import ClockTime from '../../viewers/common/clock-time/ClockTime';
 import RunningTime from '../../viewers/common/running-time/RunningTime';
@@ -23,6 +23,7 @@ export default function StatusBarTimers(props: StatusBarTimersProps) {
   const { projectTitle, playback, selectedEventId, firstStart, firstId, lastEnd, lastId } = props;
 
   const timer = useTimer();
+  const { clock } = useClock();
 
   const getTimeStart = (): MaybeNumber => {
     if (firstStart === undefined) {
@@ -61,7 +62,7 @@ export default function StatusBarTimers(props: StatusBarTimersProps) {
       {PlaybackIconComponent}
       <div className={styles.timeNow}>
         <span className={styles.label}>Time now</span>
-        <ClockTime className={styles.timer} value={timer.clock} />
+        <ClockTime className={styles.timer} value={clock} />
       </div>
       <div className={styles.elapsedTime}>
         <span className={styles.label}>Elapsed time</span>

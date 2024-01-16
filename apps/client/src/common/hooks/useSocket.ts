@@ -119,12 +119,19 @@ export const useTimer = () => {
   return useRuntimeStore(featureSelector);
 };
 
+export const useClock = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    clock: state.clock,
+  });
+  return useRuntimeStore(featureSelector);
+};
+
 export const setClientName = (newName: string) => socketSendJson('set-client-name', newName);
 
 export const useRuntimeOverview = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.playback,
-    clock: state.timer.clock,
+    clock: state.clock,
     numEvents: state.loaded.numEvents,
     selectedEventIndex: state.loaded.selectedEventIndex,
   });
