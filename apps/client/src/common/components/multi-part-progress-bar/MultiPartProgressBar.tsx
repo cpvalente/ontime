@@ -1,14 +1,16 @@
+import { MaybeNumber } from 'ontime-types';
+
 import { clamp } from '../../utils/math';
 
 import './MultiPartProgressBar.scss';
 
 interface MultiPartProgressBar {
-  now: number | null;
+  now: MaybeNumber;
   complete: number;
   normalColor: string;
-  warning?: number | null;
+  warning?: MaybeNumber;
   warningColor: string;
-  danger?: number | null;
+  danger?: MaybeNumber;
   dangerColor: string;
   hidden?: boolean;
   className?: string;

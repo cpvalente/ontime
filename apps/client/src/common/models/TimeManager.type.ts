@@ -13,7 +13,6 @@ export type ViewExtendedTimer = {
   startedAt: MaybeNumber;
 
   clock: number;
-  finished: boolean; // TODO: can we infer this?
   timeDanger: MaybeNumber;
   timeWarning: MaybeNumber;
   timerType: TimerType;

@@ -71,7 +71,7 @@ export const connectSocket = (preferredClientName?: string) => {
         }
         case 'ontime-playback': {
           const state = runtime.getState();
-          state.playback = payload;
+          state.timer.playback = payload;
           runtime.setState(state);
           break;
         }

@@ -126,6 +126,18 @@ export const useClock = () => {
   return useRuntimeStore(featureSelector);
 };
 
+/** Used by the progress bar components */
+export const useProgressData = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    addedTime: state.timer.addedTime,
+    current: state.timer.current,
+    duration: state.timer.duration,
+    timeWarning: state.eventNow?.timeWarning ?? null,
+    timeDanger: state.eventNow?.timeDanger ?? null,
+  });
+  return useRuntimeStore(featureSelector);
+};
+
 export const setClientName = (newName: string) => socketSendJson('set-client-name', newName);
 
 export const useRuntimeOverview = () => {
