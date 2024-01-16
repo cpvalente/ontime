@@ -10,7 +10,6 @@ export type TimerState = {
   startedAt: number | null;
   finishedAt: number | null; // only if timer has already finished
   secondaryTimer: number | null; // used for roll mode
-  selectedEventId: string | null;
   duration: number | null;
   timerType: TimerType | null;
   endAction: EndAction | null;

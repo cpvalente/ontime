@@ -1,4 +1,4 @@
-export type Loaded = {
+export type Runtime = {
   numEvents: number;
   selectedEventIndex: number | null;
   selectedEventId: string | null;
