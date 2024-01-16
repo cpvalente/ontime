@@ -55,8 +55,9 @@ export type TState = DeepReadonly<{
   publicEventNext: OntimeEvent | null;
   runtime: Runtime;
   playback: Playback; // TODO: merge into timer?
-  // TODO: these are private state and should not be emitted
-  timer: TimerState & {
+  timer: TimerState;
+  // private properties of the timer calculations
+  _timer: {
     pausedAt: MaybeNumber;
     finishedNow: boolean;
     lastUpdate: MaybeNumber;
@@ -72,8 +73,8 @@ export const state: TState = {
   publicEventNext: null,
   runtime: initialRuntime,
   playback: Playback.Stop, // TODO: merge into timer?
-  timer: {
-    ...initialTimer,
+  timer: { ...initialTimer },
+  _timer: {
     pausedAt: null,
     lastUpdate: null,
     secondaryTarget: null,
@@ -217,7 +218,7 @@ export const stateMutations = {
 
       state.timer.startedAt = null;
       state.timer.finishedAt = null;
-      state.timer.pausedAt = null;
+      state._timer.pausedAt = null;
       state.timer.addedTime = 0;
 
       state.timer.expectedFinish = getExpectedFinish(state);
@@ -245,8 +246,8 @@ export const stateMutations = {
 
         state.playback = Playback.Stop;
         state.clock = clock.timeNow();
-        state.timer = {
-          ...initialTimer,
+        state.timer = { ...initialTimer };
+        state._timer = {
           pausedAt: null,
           lastUpdate: null,
           secondaryTarget: null,
@@ -269,13 +270,13 @@ export const stateMutations = {
         (state) => {
           state.clock = clock.timeNow();
           state.timer.secondaryTimer = null;
-          state.timer.secondaryTarget = null;
+          state._timer.secondaryTarget = null;
 
           // add paused time if it exists
-          if (state.timer.pausedAt) {
-            const timeToAdd = state.clock - state.timer.pausedAt;
+          if (state._timer.pausedAt) {
+            const timeToAdd = state.clock - state._timer.pausedAt;
             state.timer.addedTime += timeToAdd;
-            state.timer.pausedAt = null;
+            state._timer.pausedAt = null;
           }
 
           if (state.timer.startedAt === null) {
@@ -313,7 +314,7 @@ export const stateMutations = {
 
           state.playback = Playback.Pause;
           state.clock = clock.timeNow();
-          state.timer.pausedAt = state.clock;
+          state._timer.pausedAt = state.clock;
           return true;
         },
         {
@@ -340,7 +341,7 @@ export const stateMutations = {
         state.timer.endAction = event.endAction;
 
         state.playback = restorePoint.playback;
-        state.timer.pausedAt = restorePoint.pausedAt;
+        state._timer.pausedAt = restorePoint.pausedAt;
         state.timer.addedTime = restorePoint.addedTime;
 
         // check if event finished meanwhile
@@ -399,7 +400,7 @@ export const stateMutations = {
             let isFinished = false;
             state.timer.current = getCurrent(state);
 
-            if (state.playback === Playback.Play && state.timer.finishedNow) {
+            if (state.playback === Playback.Play && state._timer.finishedNow) {
               state.timer.finishedAt = state.clock;
               isFinished = true;
             } else {
@@ -442,9 +443,9 @@ export const stateMutations = {
 
           // we only update the store at the updateInterval
           // side effects such as onFinish will still be triggered in the update functions
-          const isTimeToUpdate = state.clock > state.timer.lastUpdate + updateInterval;
+          const isTimeToUpdate = state.clock > state._timer.lastUpdate + updateInterval;
           if (_force || isTimeToUpdate) {
-            state.timer.lastUpdate = state.clock;
+            state._timer.lastUpdate = state.clock;
             // TODO: can we simplify the didUpdate and shouldNotify
             _didUpdate = true;
           }
@@ -495,7 +496,7 @@ export const stateMutations = {
         if (currentEvent) {
           // there is something running, load
           state.timer.secondaryTimer = null;
-          state.timer.secondaryTarget = null;
+          state._timer.secondaryTarget = null;
 
           // account for event that finishes the day after
           const endTime =
@@ -513,7 +514,7 @@ export const stateMutations = {
           const nextStart = nextEvent.timeStart < state.clock ? nextEvent.timeStart + dayInMs : nextEvent.timeStart;
           // nothing now, but something coming up
           state.timer.secondaryTimer = nextStart - state.clock;
-          state.timer.secondaryTarget = nextStart;
+          state._timer.secondaryTarget = nextStart;
         }
         state.playback = Playback.Roll;
       });
@@ -574,7 +575,7 @@ export function mutate<R>(
     selectedEventId: state.runtime.selectedEventId,
     startedAt: state.timer.startedAt,
     addedTime: state.timer.addedTime,
-    pausedAt: state.timer.pausedAt,
+    pausedAt: state._timer.pausedAt,
   });
 
   return result;

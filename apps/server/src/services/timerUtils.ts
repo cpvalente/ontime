@@ -14,7 +14,8 @@ export const normaliseEndTime = (start: number, end: number) => (end < start ? e
  * @returns {number | null} new current time or null if nothing is running
  */
 export function getExpectedFinish(state: TState): MaybeNumber {
-  const { startedAt, finishedAt, duration, addedTime, timerType, pausedAt } = state.timer;
+  const { startedAt, finishedAt, duration, addedTime, timerType } = state.timer;
+  const { pausedAt } = state._timer;
   const { timeEnd } = state.eventNow;
   const { clock } = state;
 
@@ -48,7 +49,8 @@ export function getExpectedFinish(state: TState): MaybeNumber {
  * @returns {number} current time for timer
  */
 export function getCurrent(state: TState): number {
-  const { startedAt, duration, addedTime, timerType, pausedAt } = state.timer;
+  const { startedAt, duration, addedTime, timerType } = state.timer;
+  const { pausedAt } = state._timer;
   const { timeEnd } = state.eventNow;
   const { clock } = state;
 
@@ -229,7 +231,8 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
  */
 export const updateRoll = (state: TState) => {
   const { selectedEventId } = state.runtime;
-  const { current, expectedFinish, startedAt, secondaryTimer, secondaryTarget } = state.timer;
+  const { current, expectedFinish, startedAt, secondaryTimer } = state.timer;
+  const { secondaryTarget } = state._timer;
   const { clock } = state;
 
   // timers
