@@ -1,26 +1,34 @@
 import type { DeepReadonly, DeepWritable } from 'ts-essentials';
 
-import { EndAction, Runtime, OntimeEvent, Playback, TimerLifeCycle, TimerState, TimerType } from 'ontime-types';
+import {
+  EndAction,
+  Runtime,
+  OntimeEvent,
+  Playback,
+  TimerLifeCycle,
+  TimerState,
+  TimerType,
+  MaybeNumber,
+} from 'ontime-types';
 import { calculateDuration, dayInMs } from 'ontime-utils';
 
 import { clock } from './services/Clock.js';
 import { RestorePoint, restoreService } from './services/RestoreService.js';
-import { getCurrent, getExpectedFinish, skippedOutOfEvent } from './services/timerUtils.js';
+import { getCurrent, getExpectedFinish, getRollTimers, skippedOutOfEvent, updateRoll } from './services/timerUtils.js';
 import { eventStore } from './stores/EventStore.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
 import { runtimeService } from './services/runtime-service/RuntimeService.js';
-import { updateRoll } from './services/rollUtils.js';
 import { EventLoader } from './classes/event-loader/EventLoader.js';
 
 // TODO: move to timer config
-const timeSkipLimit = 3 * 32;
+const timeSkipLimit = 1000;
 
 const initialRuntime: Runtime = {
   selectedEventIndex: null,
-  selectedEventId: null,
-  selectedPublicEventId: null,
-  nextEventId: null,
-  nextPublicEventId: null,
+  selectedEventId: null, // TODO: remove
+  selectedPublicEventId: null, // TODO: remove
+  nextEventId: null, // TODO: remove
+  nextPublicEventId: null, // TODO: remove
   numEvents: 0,
 };
 
@@ -28,16 +36,16 @@ const initialTimer: TimerState = {
   clock: clock.timeNow(),
   current: null,
   elapsed: null,
-  expectedFinish: null,
+  expectedFinish: null, // TODO: expected finish could account for midnight, we cleanup in the clients
   addedTime: 0,
   startedAt: null,
   finishedAt: null,
   secondaryTimer: null,
-  duration: null, // TODO: remove ?? it is handy for integrations not to look into the event now
+  duration: null,
   timerType: null, // TODO: remove
   endAction: null, // TODO: remove
-  timeWarning: null,
-  timeDanger: null,
+  timeWarning: null, // TODO: remove
+  timeDanger: null, // TODO: remove
 };
 
 export type TState = DeepReadonly<{
@@ -47,12 +55,12 @@ export type TState = DeepReadonly<{
   publicEventNext: OntimeEvent | null;
   runtime: Runtime;
   playback: Playback; // TODO: merge into timer?
-  // TODO: these are private state which should not be emitted
+  // TODO: these are private state and should not be emitted
   timer: TimerState & {
-    pausedAt: number | null;
+    pausedAt: MaybeNumber;
     finishedNow: boolean;
-    lastUpdate: number | null;
-    secondaryTarget: number | null;
+    lastUpdate: MaybeNumber;
+    secondaryTarget: MaybeNumber;
   };
 }>;
 
@@ -230,7 +238,7 @@ export const stateMutations = {
         state.eventNext = null;
         state.publicEventNext = null;
 
-        state.runtime = initialRuntime;
+        state.runtime = { ...initialRuntime };
         // TODO: could we avoid having this dependency?
         state.runtime.numEvents = EventLoader.getPlayableEvents().length;
 
@@ -238,6 +246,7 @@ export const stateMutations = {
 
         state.timer = {
           ...initialTimer,
+          clock: clock.timeNow(),
           pausedAt: null,
           lastUpdate: null,
           secondaryTarget: null,
@@ -374,22 +383,7 @@ export const stateMutations = {
             if (hasSkippedOutOfEvent) {
               return { doRoll: true };
             }
-
-            const tempCurrentTimer = {
-              selectedEventId: state.runtime.selectedEventId,
-              current: state.timer.current,
-              // safeguard midnight rollover
-              _finishAt:
-                state.timer.expectedFinish >= state.timer.startedAt
-                  ? state.timer.expectedFinish
-                  : state.timer.expectedFinish + dayInMs,
-              clock: state.timer.clock,
-              secondaryTimer: state.timer.secondaryTimer,
-              secondaryTarget: state.timer.secondaryTarget,
-            };
-
-            const updated = updateRoll(tempCurrentTimer);
-            const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } = updated;
+            const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } = updateRoll(state);
             state.timer.current = updatedTimer;
             state.timer.secondaryTimer = updatedSecondaryTimer;
             state.timer.elapsed = state.timer.duration - state.timer.current;
@@ -492,10 +486,11 @@ export const stateMutations = {
         },
       );
     },
-    roll(currentEvent: OntimeEvent | null, nextEvent: OntimeEvent | null, rundown: OntimeEvent[]) {
+    roll(rundown: OntimeEvent[]) {
       mutate((state) => {
         stateMutations.timer.clear();
-        state.timer.clock = clock.timeNow();
+
+        const { nextEvent, currentEvent } = getRollTimers(rundown, state.timer.clock);
 
         if (currentEvent) {
           // there is something running, load
@@ -567,6 +562,7 @@ export function mutate<R>(
     eventNow: newState.eventNow,
     publicEventNow: newState.publicEventNow,
     eventNext: newState.eventNext,
+    publicEventNext: newState.publicEventNext,
     loaded: newState.runtime, // TODO: rename to runtime
     playback: newState.playback,
     timer: newState.timer,

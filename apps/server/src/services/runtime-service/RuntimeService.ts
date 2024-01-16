@@ -3,11 +3,9 @@ import { millisToString, validatePlayback } from 'ontime-utils';
 
 import { EventLoader } from '../../classes/event-loader/EventLoader.js';
 import { TimerService } from '../TimerService.js';
-import { clock } from '../Clock.js';
 import { logger } from '../../classes/Logger.js';
 import { RestorePoint } from '../RestoreService.js';
 import { state, stateMutations } from '../../state.js';
-import { getRollTimers } from '../rollUtils.js';
 
 /**
  * Service manages runtime status of app
@@ -309,27 +307,11 @@ class RuntimeService {
    */
   roll() {
     const playableEvents = EventLoader.getPlayableEvents();
-
-    // nothing to play
-    if (playableEvents.length === 0) {
-      logger.warning(LogOrigin.Server, 'Roll: no events found');
-      this.stop();
-      return;
+    try {
+      this.eventTimer.roll(playableEvents);
+    } catch (error) {
+      logger.warning(LogOrigin.Server, `Roll: ${error}`);
     }
-
-    const timeNow = clock.timeNow();
-
-    // TODO: maybe move this to the state or timer service?
-    // TODO: does roll recalculate most of this anyway?
-    const { nextEvent, currentEvent } = getRollTimers(playableEvents, timeNow);
-
-    if (!currentEvent && !nextEvent) {
-      logger.warning(LogOrigin.Server, 'Roll: no events found');
-      this.stop();
-      return;
-    }
-
-    this.eventTimer.roll(currentEvent, nextEvent, playableEvents);
 
     const newState = state.playback;
     logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);

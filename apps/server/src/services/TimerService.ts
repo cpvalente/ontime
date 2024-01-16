@@ -18,7 +18,7 @@ export class TimerService {
   constructor(timerConfig: { refresh: number; updateInterval: number }) {
     this._refreshInterval = timerConfig.refresh;
     this._updateInterval = timerConfig.updateInterval;
-    this._interval = setInterval(this.update, this._refreshInterval);
+    this._interval = setInterval(this.update, 32);
   }
 
   start() {
@@ -31,6 +31,7 @@ export class TimerService {
     }
 
     // TODO: when we start a timer, we schedule an update to its expected end - 16ms
+    // we need to cancel this timer on pause, stop and addTime
     stateMutations.timer.start();
   }
 
@@ -69,12 +70,15 @@ export class TimerService {
 
   /**
    * Loads roll information into timer service
-   * @param {OntimeEvent | null} currentEvent -- both current event and next event cant be null
-   * @param {OntimeEvent | null} nextEvent -- both current event and next event cant be null
+   * @throws {Error} if rundown is empty
    * @param {OntimeEvent[]} rundown -- list of events to run
    */
-  roll(currentEvent: OntimeEvent | null, nextEvent: OntimeEvent | null, rundown: OntimeEvent[]) {
-    stateMutations.timer.roll(currentEvent, nextEvent, rundown);
+  roll(rundown: OntimeEvent[]) {
+    if (rundown.length === 0) {
+      throw new Error('No events found');
+    }
+
+    stateMutations.timer.roll(rundown);
   }
 
   shutdown() {
