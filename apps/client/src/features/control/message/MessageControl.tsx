@@ -12,8 +12,6 @@ import style from './MessageControl.module.scss';
 
 export default function MessageControl() {
   const data = useMessageControl();
-  console.log(data)
-
   return (
     <div className={style.messageContainer}>
       <InputRow

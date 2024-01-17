@@ -143,7 +143,7 @@ class MessageService {
    */
   setLowerMessage(payload: Partial<Message>) {
     this.lowerMessage = { ...this.lowerMessage, ...payload };
-    this.throttledSet('lowerMessage', this.publicMessage);
+    this.throttledSet('lowerMessage', this.lowerMessage);
     return this.getAll();
   }
 
