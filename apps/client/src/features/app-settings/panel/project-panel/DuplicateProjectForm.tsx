@@ -1,6 +1,4 @@
-import { FormControl, Input, IconButton, Button } from '@chakra-ui/react';
-import { IoClose } from '@react-icons/all-files/io5/IoClose';
-import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
+import { FormControl, Input, Button } from '@chakra-ui/react';
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -19,7 +17,7 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel }: D
   const {
     handleSubmit,
     register,
-    formState: { errors, isSubmitting, isDirty, isValid },
+    formState: { isSubmitting, isDirty, isValid },
   } = useForm<DuplicateProjectFormValues>({
     defaultValues: { newFilename: '' },
     values: { newFilename: '' },
@@ -45,9 +43,6 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel }: D
     >
       <div>
         <FormControl>
-          {/* <label htmlFor='filename'>
-            <span>Current name</span>
-          </label> */}
           <Input value={filename} id='filename' size='sm' type='text' variant='ontime-filled' disabled />
         </FormControl>
         <FormControl
@@ -55,9 +50,6 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel }: D
             marginTop: '0.5rem',
           }}
         >
-          {/* <label htmlFor='newFilename'>
-            <span>New name</span>
-          </label> */}
           <Input
             id='newFilename'
             size='sm'
@@ -65,11 +57,7 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel }: D
             variant='ontime-filled'
             placeholder='Duplicate file name'
             {...newFilenameInput}
-            ref={(e) => {
-              ref(e);
-              // Fix that TS error
-              inputRef.current = e;
-            }}
+            ref={inputRef}
           />
         </FormControl>
       </div>

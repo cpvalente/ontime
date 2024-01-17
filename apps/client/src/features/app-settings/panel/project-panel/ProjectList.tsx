@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+
 import { useProjectList } from '../../../../common/hooks-query/useProjectList';
 import * as Panel from '../PanelUtils';
 import ProjectListItem from './ProjectListItem';
@@ -12,7 +13,7 @@ export default function ProjectList() {
   const [editingMode, setEditingMode] = useState<EditMode | null>(null);
   const [editingFilename, setEditingFilename] = useState<string | null>(null);
 
-  const handleToggleEditMode = (editMode: EditMode, filename: string) => {
+  const handleToggleEditMode = (editMode: EditMode, filename: string | null) => {
     setEditingMode((prev) => (prev === editMode && filename === editingFilename ? null : editMode));
     setEditingFilename(filename);
   };
@@ -22,10 +23,16 @@ export default function ProjectList() {
     setEditingFilename(null);
   };
 
-  // extract currently loaded from file list
-  const currentlyLoadedIndex = files.findIndex((project) => project.filename === lastLoadedProject);
-  const projectFiles = [...files];
-  const current = projectFiles.splice(currentlyLoadedIndex, 1)[0];
+  // Show the currently loaded project first
+  const reorderedProjectFiles = useMemo(() => {
+    if (!data?.files?.length) return [];
+
+    const currentlyLoadedIndex = files.findIndex((project) => project.filename === lastLoadedProject);
+    const projectFiles = [...files];
+    const current = projectFiles.splice(currentlyLoadedIndex, 1)?.[0];
+
+    return [current, ...projectFiles];
+  }, [data?.files, lastLoadedProject]);
 
   return (
     <Panel.Table>
@@ -38,19 +45,7 @@ export default function ProjectList() {
         </tr>
       </thead>
       <tbody>
-        {current && (
-          <ProjectListItem
-            filename={current.filename}
-            createdAt={current.createdAt}
-            updatedAt={current.updatedAt}
-            onToggleEditMode={handleToggleEditMode}
-            onSubmit={handleClear}
-            editingFilename={editingFilename}
-            editingMode={editingMode}
-            current={true}
-          />
-        )}
-        {projectFiles.map((project) => (
+        {reorderedProjectFiles.map((project) => (
           <ProjectListItem
             key={project.filename}
             filename={project.filename}
@@ -60,6 +55,7 @@ export default function ProjectList() {
             onSubmit={handleClear}
             editingFilename={editingFilename}
             editingMode={editingMode}
+            current={project.filename === lastLoadedProject}
           />
         ))}
       </tbody>

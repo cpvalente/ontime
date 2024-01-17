@@ -17,7 +17,7 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel }: Rena
   const {
     handleSubmit,
     register,
-    formState: { errors, isSubmitting, isDirty, isValid },
+    formState: { isSubmitting, isDirty, isValid },
   } = useForm<RenameProjectFormValues>({
     defaultValues: { filename },
     values: { filename },
@@ -53,11 +53,7 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel }: Rena
           type='text'
           variant='ontime-filled'
           {...filenameInput}
-          ref={(e) => {
-            ref(e);
-            // Fix that TS error
-            inputRef.current = e;
-          }}
+          ref={inputRef}
         />
       </FormControl>
       <div>
