@@ -40,6 +40,10 @@ export default function ProjectListItem({
 
   const handleSubmitRename = async (values: RenameProjectFormValues) => {
     try {
+      if (!values.filename) {
+        setSubmitError('Filename cannot be blank');
+        return;
+      }
       await renameProject(filename, values.filename);
       await handleRefetch();
       onSubmit?.();
@@ -56,6 +60,10 @@ export default function ProjectListItem({
 
   const handleSubmitDuplicate = async (values: DuplicateProjectFormValues) => {
     try {
+      if (!values.newFilename) {
+        setSubmitError('Filename cannot be blank');
+        return;
+      }
       await duplicateProject(filename, values.newFilename);
       await handleRefetch();
       onSubmit?.();
