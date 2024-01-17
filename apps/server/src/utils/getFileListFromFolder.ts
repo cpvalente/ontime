@@ -4,6 +4,7 @@ import { getAppDataPath } from '../setup.js';
 
 import { extname, join } from 'path';
 import { readdir, stat } from 'fs/promises';
+import { removeFileExtension } from './removeFileExtension.js';
 
 const getFilesFromFolder = async (folderPath: string) => {
   return await readdir(folderPath);
@@ -41,7 +42,7 @@ export const getProjectFiles = async (): Promise<ProjectFile[]> => {
       const stats = await stat(filePath);
 
       projectFiles.push({
-        filename: file.replace(/\.[^/.]+$/, ''),
+        filename: removeFileExtension(file),
         createdAt: stats.birthtime.toISOString(),
         updatedAt: stats.mtime.toISOString(),
       });

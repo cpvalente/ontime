@@ -43,6 +43,7 @@ import { validateProjectFiles } from './ontimeController.validate.js';
 import { dbModel } from '../models/dataModel.js';
 
 import { sheet } from '../utils/sheetsAuth.js';
+import { removeFileExtension } from '../utils/removeFileExtension.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -489,9 +490,9 @@ export const listProjects: RequestHandler = async (_, res: Response<ProjectFileL
   try {
     const fileList = await getProjectFiles();
 
-    const lastLoadedProject = JSON.parse(
-      fs.readFileSync(lastLoadedProjectConfigPath, 'utf8'),
-    ).lastLoadedProject.replace(/\.[^/.]+$/, '');
+    const lastLoadedProject = removeFileExtension(
+      JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject,
+    );
 
     res.status(200).send({
       files: fileList,
