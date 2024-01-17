@@ -1,5 +1,5 @@
 import { FormControl, Input, Button } from '@chakra-ui/react';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import style from './ProjectPanel.module.scss';
@@ -15,11 +15,11 @@ interface RenameProjectFormProps {
 }
 
 export default function RenameProjectForm({ filename, onSubmit, onCancel }: RenameProjectFormProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
   const {
     handleSubmit,
     register,
     formState: { isSubmitting, isDirty, isValid },
+    setFocus,
   } = useForm<RenameProjectFormValues>({
     defaultValues: { filename },
     values: { filename },
@@ -29,22 +29,13 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel }: Rena
   });
 
   useEffect(() => {
-    inputRef.current?.focus();
+    setFocus('filename');
   }, []);
-
-  const { ref, ...filenameInput } = register('filename');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={style.form}>
       <FormControl className={style.formControl}>
-        <Input
-          defaultValue={filename}
-          size='sm'
-          type='text'
-          variant='ontime-filled'
-          {...filenameInput}
-          ref={inputRef}
-        />
+        <Input defaultValue={filename} size='sm' type='text' variant='ontime-filled' {...register('filename')} />
       </FormControl>
       <div className={style.actionButtons}>
         <Button

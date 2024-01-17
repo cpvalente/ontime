@@ -1,5 +1,5 @@
 import { FormControl, Input, Button } from '@chakra-ui/react';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import style from './ProjectPanel.module.scss';
@@ -15,11 +15,11 @@ interface DuplicateProjectFormProps {
 }
 
 export default function DuplicateProjectForm({ filename, onSubmit, onCancel }: DuplicateProjectFormProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
   const {
     handleSubmit,
     register,
     formState: { isSubmitting, isDirty, isValid },
+    setFocus,
   } = useForm<DuplicateProjectFormValues>({
     defaultValues: { newFilename: '' },
     values: { newFilename: '' },
@@ -29,10 +29,8 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel }: D
   });
 
   useEffect(() => {
-    inputRef.current?.focus();
+    setFocus('newFilename');
   }, []);
-
-  const { ref, ...newFilenameInput } = register('newFilename');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={style.form}>
@@ -47,8 +45,7 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel }: D
             type='text'
             variant='ontime-filled'
             placeholder='Duplicate file name'
-            {...newFilenameInput}
-            ref={inputRef}
+            {...register('newFilename')}
           />
         </FormControl>
       </div>
