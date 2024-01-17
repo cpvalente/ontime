@@ -2,6 +2,8 @@ import { FormControl, Input, Button } from '@chakra-ui/react';
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 
+import style from './ProjectPanel.module.scss';
+
 export type DuplicateProjectFormValues = {
   newFilename: string;
 };
@@ -33,23 +35,12 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel }: D
   const { ref, ...newFilenameInput } = register('newFilename');
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        width: '100%',
-      }}
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className={style.form}>
       <div>
         <FormControl>
           <Input value={filename} id='filename' size='sm' type='text' variant='ontime-filled' disabled />
         </FormControl>
-        <FormControl
-          style={{
-            marginTop: '0.5rem',
-          }}
-        >
+        <FormControl className={style.duplicateFormControl}>
           <Input
             id='newFilename'
             size='sm'
@@ -61,14 +52,7 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel }: D
           />
         </FormControl>
       </div>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-          marginLeft: '0.5rem',
-        }}
-      >
+      <div className={style.duplicateActionButtons}>
         <Button
           aria-label='Save duplicate project name'
           size='sm'
@@ -76,9 +60,7 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel }: D
           disabled={!isDirty || !isValid || isSubmitting}
           type='submit'
           children='Save'
-          style={{
-            marginBottom: '0.5rem',
-          }}
+          className={style.saveButton}
         />
         <Button
           aria-label='Cancel duplicate project name'

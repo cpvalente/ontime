@@ -2,6 +2,8 @@ import { FormControl, Input, Button } from '@chakra-ui/react';
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 
+import style from './ProjectPanel.module.scss';
+
 export type RenameProjectFormValues = {
   filename: string;
 };
@@ -33,20 +35,8 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel }: Rena
   const { ref, ...filenameInput } = register('filename');
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        width: '100%',
-      }}
-    >
-      <FormControl
-        style={{
-          paddingRight: '0.5rem',
-        }}
-      >
+    <form onSubmit={handleSubmit(onSubmit)} className={style.form}>
+      <FormControl className={style.formControl}>
         <Input
           defaultValue={filename}
           size='sm'
@@ -56,7 +46,7 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel }: Rena
           ref={inputRef}
         />
       </FormControl>
-      <div>
+      <div className={style.actionButtons}>
         <Button
           disabled={!isDirty || !isValid || isSubmitting}
           aria-label='Save duplicate project name'
@@ -72,10 +62,7 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel }: Rena
           onClick={onCancel}
           size='sm'
           variant='ontime-ghosted'
-          style={{
-            marginRight: '0.5rem',
-            color: 'red',
-          }}
+          className={style.cancelButton}
         />
       </div>
     </form>
