@@ -1,6 +1,7 @@
 import { FormControl, Input, IconButton } from '@chakra-ui/react';
 import { IoClose } from '@react-icons/all-files/io5/IoClose';
 import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
+import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 
 export type DuplicateProjectFormValues = {
@@ -14,6 +15,7 @@ interface DuplicateProjectFormProps {
 }
 
 export default function DuplicateProjectForm({ filename, onSubmit, onCancel }: DuplicateProjectFormProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
   const {
     handleSubmit,
     register,
@@ -25,6 +27,12 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel }: D
       keepDirtyValues: true,
     },
   });
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  const { ref, ...newFilenameInput } = register('newFilename');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -44,7 +52,12 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel }: D
           size='md'
           type='text'
           variant='ontime-filled'
-          {...register('newFilename')}
+          {...newFilenameInput}
+          ref={(e) => {
+            ref(e);
+            // Fix that TS error
+            inputRef.current = e;
+          }}
         />
       </FormControl>
       <div

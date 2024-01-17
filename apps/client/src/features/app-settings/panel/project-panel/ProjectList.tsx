@@ -47,6 +47,7 @@ export default function ProjectList() {
             onSubmit={handleClear}
             editingFilename={editingFilename}
             editingMode={editingMode}
+            current={true}
           />
         )}
         {projectFiles.map((project) => (

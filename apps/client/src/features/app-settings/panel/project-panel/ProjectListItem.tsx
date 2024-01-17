@@ -11,6 +11,7 @@ import RenameProjectForm, { RenameProjectFormValues } from './RenameProjectForm'
 import DuplicateProjectForm, { DuplicateProjectFormValues } from './DuplicateProjectForm';
 
 interface ProjectListItemProps {
+  current?: boolean;
   filename: string;
   createdAt: string;
   updatedAt: string;
@@ -21,6 +22,7 @@ interface ProjectListItemProps {
 }
 
 export default function ProjectListItem({
+  current,
   createdAt,
   editingFilename,
   editingMode,
@@ -61,7 +63,7 @@ export default function ProjectListItem({
   }, [editingMode, filename]);
 
   return (
-    <tr key={filename}>
+    <tr key={filename} className={current ? style.current : undefined}>
       <td>{editingMode && filename === editingFilename ? renderEditMode : <span>{filename}</span>}</td>
       <td>{createdAt}</td>
       <td>{updatedAt}</td>
