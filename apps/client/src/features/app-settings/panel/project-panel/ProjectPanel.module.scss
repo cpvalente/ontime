@@ -35,13 +35,21 @@
 }
 
 .actionButtons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .cancelRenameButton {
+    margin-right: 0.5rem;
+  }
+  
   .button {
     &:first-of-type {
       margin-right: 0.5rem;
     }
   }
+}
 
-  .cancelButton {
-    color: red;
-  }
+.error {
+  color: $red-500;
 }

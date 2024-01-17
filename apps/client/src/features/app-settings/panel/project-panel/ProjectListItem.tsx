@@ -1,6 +1,7 @@
 import { Menu, MenuButton, IconButton, MenuList, MenuItem } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { AxiosError } from 'axios';
 
 import style from './ProjectPanel.module.scss';
 import { renameProject, loadProject, duplicateProject } from '../../../../common/api/ontimeApi';
@@ -31,36 +32,76 @@ export default function ProjectListItem({
   onToggleEditMode,
   updatedAt,
 }: ProjectListItemProps) {
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
   const handleRefetch = async () => {
     await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
   };
 
   const handleSubmitRename = async (values: RenameProjectFormValues) => {
-    await renameProject(filename, values.filename);
-    await handleRefetch();
-    onSubmit?.();
+    try {
+      await renameProject(filename, values.filename);
+      await handleRefetch();
+      onSubmit?.();
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        const errorMessage = error?.response?.data?.message;
+
+        setSubmitError(errorMessage);
+      } else {
+        setSubmitError('An unknown error occurred');
+      }
+    }
   };
 
   const handleSubmitDuplicate = async (values: DuplicateProjectFormValues) => {
-    await duplicateProject(filename, values.newFilename);
-    await handleRefetch();
-    onSubmit?.();
+    try {
+      await duplicateProject(filename, values.newFilename);
+      await handleRefetch();
+      onSubmit?.();
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        const errorMessage = error?.response?.data?.message;
+
+        setSubmitError(errorMessage);
+      } else {
+        setSubmitError('An unknown error occurred');
+      }
+    }
   };
 
   const handleCancel = () => {
     onToggleEditMode?.(null, null);
   };
 
+  useEffect(() => {
+    setSubmitError(null);
+  }, [editingMode]);
+
   const renderEditMode = useMemo(() => {
     switch (editingMode) {
       case 'rename':
-        return <RenameProjectForm filename={filename} onSubmit={handleSubmitRename} onCancel={handleCancel} />;
+        return (
+          <RenameProjectForm
+            filename={filename}
+            onSubmit={handleSubmitRename}
+            onCancel={handleCancel}
+            submitError={submitError}
+          />
+        );
       case 'duplicate':
-        return <DuplicateProjectForm filename={filename} onSubmit={handleSubmitDuplicate} onCancel={handleCancel} />;
+        return (
+          <DuplicateProjectForm
+            filename={filename}
+            onSubmit={handleSubmitDuplicate}
+            onCancel={handleCancel}
+            submitError={submitError}
+          />
+        );
       default:
         return null;
     }
-  }, [editingMode, filename]);
+  }, [editingMode, filename, submitError]);
 
   return (
     <tr key={filename} className={current ? style.current : undefined}>

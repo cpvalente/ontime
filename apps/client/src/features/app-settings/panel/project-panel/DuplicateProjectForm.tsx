@@ -12,9 +12,10 @@ interface DuplicateProjectFormProps {
   filename: string;
   onCancel: () => void;
   onSubmit: (values: DuplicateProjectFormValues) => Promise<void>;
+  submitError: string | null;
 }
 
-export default function DuplicateProjectForm({ filename, onSubmit, onCancel }: DuplicateProjectFormProps) {
+export default function DuplicateProjectForm({ filename, onSubmit, onCancel, submitError }: DuplicateProjectFormProps) {
   const {
     handleSubmit,
     register,
@@ -33,41 +34,44 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel }: D
   }, []);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className={style.form}>
-      <div>
-        <FormControl>
-          <Input value={filename} id='filename' size='sm' type='text' variant='ontime-filled' disabled />
-        </FormControl>
-        <FormControl className={style.duplicateFormControl}>
-          <Input
-            id='newFilename'
+    <div>
+      <form onSubmit={handleSubmit(onSubmit)} className={style.form}>
+        <div>
+          <FormControl>
+            <Input value={filename} id='filename' size='sm' type='text' variant='ontime-filled' disabled />
+          </FormControl>
+          <FormControl className={style.duplicateFormControl}>
+            <Input
+              id='newFilename'
+              size='sm'
+              type='text'
+              variant='ontime-filled'
+              placeholder='Duplicate file name'
+              {...register('newFilename')}
+            />
+          </FormControl>
+        </div>
+        <div className={style.duplicateActionButtons}>
+          <Button
+            aria-label='Save duplicate project name'
             size='sm'
-            type='text'
             variant='ontime-filled'
-            placeholder='Duplicate file name'
-            {...register('newFilename')}
+            disabled={!isDirty || !isValid || isSubmitting}
+            type='submit'
+            children='Save'
+            className={style.saveButton}
           />
-        </FormControl>
-      </div>
-      <div className={style.duplicateActionButtons}>
-        <Button
-          aria-label='Save duplicate project name'
-          size='sm'
-          variant='ontime-filled'
-          disabled={!isDirty || !isValid || isSubmitting}
-          type='submit'
-          children='Save'
-          className={style.saveButton}
-        />
-        <Button
-          aria-label='Cancel duplicate project name'
-          onClick={onCancel}
-          size='sm'
-          variant='ontime-ghosted'
-          children='Cancel'
-          disabled={!isDirty || !isValid || isSubmitting}
-        />
-      </div>
-    </form>
+          <Button
+            aria-label='Cancel duplicate project name'
+            onClick={onCancel}
+            size='sm'
+            variant='ontime-ghosted'
+            children='Cancel'
+            disabled={!isDirty || !isValid || isSubmitting}
+          />
+        </div>
+      </form>
+      {submitError ? <span className={style.error}>{submitError}</span> : null}
+    </div>
   );
 }
