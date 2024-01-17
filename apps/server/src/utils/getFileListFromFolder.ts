@@ -41,7 +41,7 @@ export const getProjectFiles = async (): Promise<ProjectFile[]> => {
       const stats = await stat(filePath);
 
       projectFiles.push({
-        filename: file,
+        filename: file.replace(/\.[^/.]+$/, ''),
         createdAt: stats.birthtime.toISOString(),
         updatedAt: stats.mtime.toISOString(),
       });

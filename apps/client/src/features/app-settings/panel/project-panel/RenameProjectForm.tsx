@@ -60,26 +60,28 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel }: Rena
           }}
         />
       </FormControl>
-      <Button
-        disabled={!isDirty || !isValid || isSubmitting}
-        aria-label='Cancel duplicate project name'
-        children='Cancel'
-        onClick={onCancel}
-        size='sm'
-        variant='ontime-ghosted'
-        style={{
-          marginRight: '0.5rem',
-          color: 'red',
-        }}
-      />
-      <Button
-        disabled={!isDirty || !isValid || isSubmitting}
-        aria-label='Save duplicate project name'
-        children='Save'
-        onClick={handleSubmit(onSubmit)}
-        size='sm'
-        variant='ontime-filled'
-      />
+      <div>
+        <Button
+          disabled={!isDirty || !isValid || isSubmitting}
+          aria-label='Save duplicate project name'
+          children='Save'
+          onClick={handleSubmit(onSubmit)}
+          size='sm'
+          variant='ontime-filled'
+        />
+        <Button
+          disabled={!isDirty || !isValid || isSubmitting}
+          aria-label='Cancel duplicate project name'
+          children='Cancel'
+          onClick={onCancel}
+          size='sm'
+          variant='ontime-ghosted'
+          style={{
+            marginRight: '0.5rem',
+            color: 'red',
+          }}
+        />
+      </div>
     </form>
   );
 }

@@ -489,7 +489,9 @@ export const listProjects: RequestHandler = async (_, res: Response<ProjectFileL
   try {
     const fileList = await getProjectFiles();
 
-    const lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
+    const lastLoadedProject = JSON.parse(
+      fs.readFileSync(lastLoadedProjectConfigPath, 'utf8'),
+    ).lastLoadedProject.replace(/\.[^/.]+$/, '');
 
     res.status(200).send({
       files: fileList,

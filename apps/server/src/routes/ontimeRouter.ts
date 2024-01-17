@@ -122,7 +122,7 @@ router.post('/new', projectSanitiser, postNew);
 router.get('/projects', listProjects);
 
 // create route between controller and '/ontime/load-project' endpoint
-router.post('/load-project', validateLoadProjectFile, loadProject);
+router.post('/load-project', validateLoadProjectFile, sanitizeProjectFilename, loadProject);
 
 // create route between controller and '/ontime/project/:filename/duplicate' endpoint
 router.post('/project/:filename/duplicate', validateProjectDuplicate, sanitizeProjectFilename, duplicateProjectFile);
