@@ -1,6 +1,4 @@
-import { FormControl, Input, IconButton } from '@chakra-ui/react';
-import { IoClose } from '@react-icons/all-files/io5/IoClose';
-import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
+import { FormControl, Input, Button } from '@chakra-ui/react';
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -62,10 +60,10 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel }: Rena
           }}
         />
       </FormControl>
-      <IconButton
+      <Button
         disabled={!isDirty || !isValid || isSubmitting}
         aria-label='Cancel duplicate project name'
-        icon={<IoClose />}
+        children='Cancel'
         onClick={onCancel}
         size='sm'
         variant='ontime-ghosted'
@@ -74,10 +72,10 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel }: Rena
           color: 'red',
         }}
       />
-      <IconButton
+      <Button
         disabled={!isDirty || !isValid || isSubmitting}
         aria-label='Save duplicate project name'
-        icon={<IoSaveOutline />}
+        children='Save'
         onClick={handleSubmit(onSubmit)}
         size='sm'
         variant='ontime-filled'
