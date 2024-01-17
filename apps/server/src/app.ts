@@ -31,19 +31,18 @@ import { DataProvider } from './classes/data-provider/DataProvider.js';
 import { dbLoadingProcess } from './modules/loadDb.js';
 
 // Services
-import { eventTimer } from './services/TimerService.js';
-import { eventLoader } from './classes/event-loader/EventLoader.js';
+import { EventLoader } from './classes/event-loader/EventLoader.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
 import { logger } from './classes/Logger.js';
 import { oscIntegration } from './services/integration-service/OscIntegration.js';
 import { httpIntegration } from './services/integration-service/HttpIntegration.js';
 import { populateStyles } from './modules/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
-import { PlaybackService } from './services/PlaybackService.js';
+import { runtimeService } from './services/runtime-service/RuntimeService.js';
 import { restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
 import { populateDemo } from './modules/loadDemo.js';
-import { state } from './state.js';
+import { state, stateMutations } from './state.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -155,45 +154,49 @@ export const startServer = async () => {
   expressServer = http.createServer(app);
 
   socket.init(expressServer);
-  eventLoader.init();
-
-  // load restore point if it exists
-  const maybeRestorePoint = await restoreService.load();
-  if (maybeRestorePoint) {
-    logger.info(LogOrigin.Server, 'Found resumable state');
-    PlaybackService.resume(maybeRestorePoint);
-  }
-  eventTimer.init();
 
   /**
    * Module initialises the services and provides initial payload for the store
    * Currently registered objects in store
-   * - Timer Service      timer
-   * - Timer Service      playback
+   *
    * - Message Service    timerMessage
    * - Message Service    publicMessage
    * - Message Service    lowerMessage
-   * - Message Service    onAir
-   * - Event Loader       loaded
-   * - Event Loader       eventNow
-   * - Event Loader       publicEventNow
-   * - Event Loader       eventNext
-   * - Event Loader       publicEventNext
+   * - Message Service    externalMessage
+   *
+   * - Runtime Service    onAir (derived from playback)
+   * - Runtime Service    timer
+   * - Runtime Service    playback
+   * - Runtime Service    loaded // TODO: rename to runtime ??
+   * - Runtime Service    eventNow
+   * - Runtime Service    publicEventNow
+   * - Runtime Service    eventNext
+   * - Runtime Service    publicEventNext
    */
   eventStore.init({
-    timer: state.timer,
-    playback: state.playback,
     timerMessage: messageService.timerMessage,
     publicMessage: messageService.publicMessage,
     lowerMessage: messageService.lowerMessage,
     externalMessage: messageService.externalMessage,
     onAir: state.playback !== Playback.Stop,
-    loaded: eventLoader.loaded,
-    eventNow: eventLoader.eventNow,
-    publicEventNow: eventLoader.publicEventNow,
-    eventNext: eventLoader.eventNext,
-    publicEventNext: eventLoader.publicEventNext,
+    timer: state.timer,
+    playback: state.playback,
+    loaded: state.runtime,
+    eventNow: state.eventNow,
+    publicEventNow: state.publicEventNow,
+    eventNext: state.eventNext,
+    publicEventNext: state.publicEventNext,
   });
+
+  // load restore point if it exists
+  const maybeRestorePoint = await restoreService.load();
+
+  // TODO: pass event store to rundownservice
+  runtimeService.init(maybeRestorePoint);
+
+  // TODO: do this on the init of the runtime service
+  const numEvents = EventLoader.getNumEvents();
+  stateMutations.updateNumEvents(numEvents);
 
   // eventStore set is a dependency of the services that publish to it
   messageService.init(eventStore.set.bind(eventStore));
@@ -277,7 +280,7 @@ export const shutdown = async (exitCode = 0) => {
 
   expressServer?.close();
   oscServer?.shutdown();
-  eventTimer.shutdown();
+  runtimeService.shutdown();
   integrationService.shutdown();
   logger.shutdown();
   socket.shutdown();
