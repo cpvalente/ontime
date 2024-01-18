@@ -32,7 +32,6 @@ export function dispatchFromAdapter(
 
 type ActionHandler = (payload: unknown) => { payload: unknown };
 
-// TODO: add data to missing returns once available
 const actionHandlers: Record<string, ActionHandler> = {
   /* General */
   version: () => ({ payload: ONTIME_VERSION }),
@@ -48,7 +47,6 @@ const actionHandlers: Record<string, ActionHandler> = {
     return { payload: updatedEvent };
   },
   /* Message Service */
-  //TODO: maybe coerce the boolean values
   message: (payload) => {
     const reply = { payload: {} };
     Object.keys(payload).forEach((key) => {
