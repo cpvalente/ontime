@@ -1,6 +1,6 @@
 import { LogOrigin, OSCSettings } from 'ontime-types';
 
-import { Server, Client } from 'node-osc';
+import { Server } from 'node-osc';
 
 import { IAdapter } from './IAdapter.js';
 import { dispatchFromAdapter, type ChangeOptions } from '../controllers/integrationController.js';
@@ -14,7 +14,7 @@ export class OscServer implements IAdapter {
 
     this.osc.on('error', (error) => logger.error(LogOrigin.Rx, `OSC IN: ${error}`));
 
-    this.osc.on('message', (msg, clientInfo) => {
+    this.osc.on('message', (msg) => {
       // TODO: update this comment
       // message should look like /ontime/{path}/{params?} {args} where
       // ontime: fixed message for app
@@ -70,19 +70,13 @@ export class OscServer implements IAdapter {
       }
 
       try {
-        const reply = dispatchFromAdapter(
+        dispatchFromAdapter(
           path,
           {
             payload: transformedPayload,
           },
           'osc',
         );
-        //We only send simple types back to the OSC client
-        if (typeof reply.payload === 'string' || typeof reply.payload === 'number') {
-          const client = new Client(clientInfo.address, clientInfo.port);
-          client.send([msg[0], reply.payload]);
-          client.close();
-        }
       } catch (error) {
         logger.error(LogOrigin.Rx, `OSC IN: ${error}`);
       }
