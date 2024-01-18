@@ -61,7 +61,7 @@ class MessageService {
   setExternalMessage(payload: Partial<Message>) {
     this.externalMessage = { ...this.externalMessage, ...payload };
     this.throttledSet('externalMessage', this.externalMessage);
-    return this.getAll();
+    return this.externalMessage;
   }
 
   /**
@@ -70,7 +70,7 @@ class MessageService {
   setTimerMessage(payload: Partial<TimerMessage>) {
     this.timerMessage = { ...this.timerMessage, ...payload };
     this.throttledSet('timerMessage', this.timerMessage);
-    return this.getAll();
+    return this.timerMessage;
   }
 
   /**
@@ -79,7 +79,7 @@ class MessageService {
   setPublicMessage(payload: Partial<Message>) {
     this.publicMessage = { ...this.publicMessage, ...payload };
     this.throttledSet('publicMessage', this.publicMessage);
-    return this.getAll();
+    return this.publicMessage;
   }
 
   /**
@@ -88,7 +88,7 @@ class MessageService {
   setLowerMessage(payload: Partial<Message>) {
     this.lowerMessage = { ...this.lowerMessage, ...payload };
     this.throttledSet('lowerMessage', this.lowerMessage);
-    return this.getAll();
+    return this.lowerMessage;
   }
 
   /**

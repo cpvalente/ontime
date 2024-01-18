@@ -2,7 +2,7 @@
 import * as assert from '../utils/assert.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
-import { isPartialMessage, isPartialTimerMessage, messageService } from '../services/message-service/MessageService.js';
+import { isPartialTimerMessage, messageService } from '../services/message-service/MessageService.js';
 import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
 import { parse, updateEvent } from './integrationController.config.js';
@@ -50,37 +50,36 @@ const actionHandlers: Record<string, ActionHandler> = {
   /* Message Service */
   //TODO: maybe coerce the boolean values
   message: (payload) => {
-    if (payload && typeof payload === 'object') {
-      if ('timer' in payload) {
-        if (!isPartialTimerMessage(payload)) {
-          throw new Error('Payload is not a valid timer message');
-        }
-        const newState = messageService.setTimerMessage(payload.timer);
-        return { payload: newState.timerMessage };
+    const reply = { payload: {} };
+    Object.keys(payload).forEach((key) => {
+      if (!isPartialTimerMessage(payload[key])) {
+        throw new Error('Message: Payload is not valid');
       }
-      if ('public' in payload) {
-        if (!isPartialMessage(payload)) {
-          throw new Error('Payload is not a valid public message');
+      let newState;
+      switch (key) {
+        case 'timer': {
+          newState = messageService.setTimerMessage(payload[key]);
+          break;
         }
-        const newState = messageService.setPublicMessage(payload.public);
-        return { payload: newState.publicMessage };
-      }
-      if ('lower' in payload) {
-        if (!isPartialMessage(payload)) {
-          throw new Error('Payload is not a valid lower message');
+        case 'public': {
+          newState = messageService.setPublicMessage(payload[key]);
+          break;
         }
-        const newState = messageService.setLowerMessage(payload.lower);
-        return { payload: newState.lowerMessage };
-      }
-      if ('external' in payload) {
-        if (!isPartialMessage(payload)) {
-          throw new Error('Payload is not a valid external message');
+        case 'external': {
+          newState = messageService.setExternalMessage(payload[key]);
+          break;
         }
-        const newState = messageService.setExternalMessage(payload.external);
-        return { payload: newState.externalMessage };
+        case 'lower': {
+          newState = messageService.setLowerMessage(payload[key]);
+          break;
+        }
+        default: {
+          throw new Error(`Message: ${key} dose not exist`);
+        }
       }
-    }
-    throw new Error('No message destination provided');
+      reply.payload[key] = newState;
+    });
+    return reply;
   },
   /* Playback */
   start: (payload) => {
