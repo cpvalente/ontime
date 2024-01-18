@@ -12,6 +12,8 @@ import style from './MessageControl.module.scss';
 
 export default function MessageControl() {
   const data = useMessageControl();
+  const blink = data.timerMessage.blink;
+  const blackout = data.timerMessage.blackout;
   return (
     <div className={style.messageContainer}>
       <InputRow
@@ -41,10 +43,10 @@ export default function MessageControl() {
       <div className={style.buttonSection}>
         <Button
           size='sm'
-          className={`${data.timerMessage.blink ? style.blink : ''}`}
-          variant={data.timerMessage.blink ? 'ontime-filled' : 'ontime-subtle'}
-          leftIcon={data.timerMessage.blink ? <IoSunny size='1rem' /> : <IoSunnyOutline size='1rem' />}
-          onClick={() => setMessage.timerBlink(!data.timerMessage.blink)}
+          className={`${blink ? style.blink : ''}`}
+          variant={blink ? 'ontime-filled' : 'ontime-subtle'}
+          leftIcon={blink ? <IoSunny size='1rem' /> : <IoSunnyOutline size='1rem' />}
+          onClick={() => setMessage.timerBlink(!blink)}
           data-testid='toggle timer blink'
         >
           Blink message
@@ -52,9 +54,9 @@ export default function MessageControl() {
         <Button
           size='sm'
           className={style.blackoutButton}
-          variant={data.timerMessage.blackout ? 'ontime-filled' : 'ontime-subtle'}
-          leftIcon={data.timerMessage.blackout ? <IoEye size='1rem' /> : <IoEyeOffOutline size='1rem' />}
-          onClick={() => setMessage.timerBlackout(!data.timerMessage.blackout)}
+          variant={blackout ? 'ontime-filled' : 'ontime-subtle'}
+          leftIcon={blackout ? <IoEye size='1rem' /> : <IoEyeOffOutline size='1rem' />}
+          onClick={() => setMessage.timerBlackout(!blackout)}
           data-testid='toggle timer blackout'
         >
           Blackout screen
