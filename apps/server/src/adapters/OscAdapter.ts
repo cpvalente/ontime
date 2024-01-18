@@ -14,7 +14,7 @@ export class OscServer implements IAdapter {
 
     this.osc.on('error', (error) => logger.error(LogOrigin.Rx, `OSC IN: ${error}`));
 
-    this.osc.on('message', (msg, rinfo) => {
+    this.osc.on('message', (msg, clientInfo) => {
       // TODO: update this comment
       // message should look like /ontime/{path}/{params?} {args} where
       // ontime: fixed message for app
@@ -79,7 +79,7 @@ export class OscServer implements IAdapter {
         );
         //We only send simple types back to the OSC client
         if (typeof reply.payload === 'string' || typeof reply.payload === 'number') {
-          const client = new Client(rinfo.address, rinfo.port);
+          const client = new Client(clientInfo.address, clientInfo.port);
           client.send([msg[0], reply.payload]);
           client.close();
         }
