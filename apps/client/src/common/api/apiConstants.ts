@@ -8,6 +8,7 @@ export const PROJECT_DATA = ['project'];
 export const PROJECT_LIST = ['projectList'];
 export const RUNDOWN = ['rundown'];
 export const RUNTIME = ['runtimeStore'];
+export const SHEET_STATE = ['sheetState'];
 export const USERFIELDS = ['userFields'];
 export const VIEW_SETTINGS = ['viewSettings'];
 

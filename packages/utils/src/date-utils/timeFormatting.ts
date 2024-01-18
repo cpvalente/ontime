@@ -25,7 +25,7 @@ export function millisToString(millis?: MaybeNumber, options?: FormatOptions): s
   const absoluteMillis = Math.abs(millis);
   const seconds = millisToSeconds(absoluteMillis) % 60;
   const minutes = millisToMinutes(absoluteMillis) % 60;
-  const hours = millisToHours(absoluteMillis) % 24;
+  const hours = millisToHours(absoluteMillis);
 
   const isNegative = millis < 0;
 

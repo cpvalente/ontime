@@ -257,3 +257,76 @@ export async function getProjects(): Promise<ProjectFileListResponse> {
   const res = await axios.get(`${ontimeURL}/projects`);
   return res.data;
 }
+
+/**
+ * @description STEP 1
+ */
+export const uploadSheetClientFile = async (file: File) => {
+  const formData = new FormData();
+  formData.append('userFile', file);
+  const res = await axios
+    .post(`${ontimeURL}/sheet/clientsecret`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+    .then((response) => response.data.id);
+  return res;
+};
+
+/**
+ * @description STEP 1 test
+ */
+export const getClientSecrect = async () => {
+  const response = await axios.get(`${ontimeURL}/sheet/clientsecret`);
+  return response.data;
+};
+
+/**
+ * @description STEP 2
+ */
+export const getSheetsAuthUrl = async () => {
+  const response = await axios.get(`${ontimeURL}/sheet/authentication/url`);
+  return response.data;
+};
+
+/**
+ * @description STEP 2 test
+ */
+export const getAuthentication = async () => {
+  const response = await axios.get(`${ontimeURL}/sheet/authentication`);
+  return response.data;
+};
+
+/**
+ * @description STEP 3
+ * @returns worksheetOptions
+ */
+export const postId = async (id: string) => {
+  const response = await axios.post(`${ontimeURL}/sheet/id`, { id });
+  return response.data;
+};
+
+/**
+ * @description STEP 4
+ */
+export const postWorksheet = async (id: string, worksheet: string) => {
+  const response = await axios.post(`${ontimeURL}/sheet/worksheet`, { id, worksheet });
+  return response.data;
+};
+
+/**
+ * @description STEP 5
+ */
+export const postPreviewSheet = async (id: string, options: ExcelImportMap) => {
+  const response = await axios.post(`${ontimeURL}/sheet/pull`, { id, options });
+  return response.data.data;
+};
+
+/**
+ * @description STEP 5
+ */
+export const postPushSheet = async (id: string, options: ExcelImportMap) => {
+  const response = await axios.post(`${ontimeURL}/sheet-push`, { id, options });
+  return response.data.data;
+};

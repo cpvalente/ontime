@@ -1,5 +1,12 @@
 import { useCallback } from 'react';
-import { GetRundownCached, OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
+import {
+  GetRundownCached,
+  isOntimeEvent,
+  OntimeEvent,
+  OntimeRundownEntry,
+  Playback,
+  SupportedEvent,
+} from 'ontime-types';
 import { calculateDuration, getCueCandidate } from 'ontime-utils';
 
 import { RUNDOWN } from '../../common/api/apiConstants';
@@ -14,6 +21,7 @@ import { cloneEvent } from '../../common/utils/eventsManager';
 import BlockBlock from './block-block/BlockBlock';
 import DelayBlock from './delay-block/DelayBlock';
 import EventBlock from './event-block/EventBlock';
+import { useEventSelection } from './useEventSelection';
 
 export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'delete' | 'clone' | 'update' | 'swap';
 
@@ -23,6 +31,7 @@ interface RundownEntryProps {
   isFirstEvent: boolean;
   data: OntimeRundownEntry;
   selected: boolean;
+  eventIndex: number;
   hasCursor: boolean;
   next: boolean;
   previousEnd: number;
@@ -45,24 +54,22 @@ export default function RundownEntry(props: RundownEntryProps) {
     isRolling,
     disableEdit,
     isFirstEvent,
+    eventIndex,
   } = props;
   const { emitError } = useEmitLog();
-  const { addEvent, updateEvent, deleteEvent, swapEvents } = useEventAction();
-
-  const cursor = useAppMode((state) => state.cursor);
-  const setCursor = useAppMode((state) => state.setCursor);
-  const openId = useAppMode((state) => state.editId);
-  const setEditId = useAppMode((state) => state.setEditId);
+  const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
+  const { cursor } = useAppMode();
+  const { selectedEvents, clearSelectedEvents } = useEventSelection();
 
   const removeOpenEvent = useCallback(() => {
-    if (openId === data.id) {
-      setEditId(null);
+    if (selectedEvents.has(data.id)) {
+      clearSelectedEvents();
     }
 
     if (cursor === data.id) {
-      setCursor(null);
+      // setCursor(null);
     }
-  }, [cursor, data.id, openId, setCursor, setEditId]);
+  }, [cursor, data.id, selectedEvents, clearSelectedEvents]);
 
   const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
@@ -84,29 +91,23 @@ export default function RundownEntry(props: RundownEntryProps) {
           lastEventId: previousEventId,
           after: data.id,
         };
-        addEvent(newEvent, options);
-        break;
+        return addEvent(newEvent, options);
       }
       case 'delay': {
-        addEvent({ type: SupportedEvent.Delay }, { after: data.id });
-        break;
+        return addEvent({ type: SupportedEvent.Delay }, { after: data.id });
       }
       case 'block': {
-        addEvent({ type: SupportedEvent.Block }, { after: data.id });
-        break;
+        return addEvent({ type: SupportedEvent.Block }, { after: data.id });
       }
       case 'swap': {
         const { value } = payload as FieldValue;
-        swapEvents({ from: value as string, to: data.id });
-
-        break;
+        return swapEvents({ from: value as string, to: data.id });
       }
       case 'delete': {
-        if (openId === data.id) {
+        if (selectedEvents.has(data.id)) {
           removeOpenEvent();
         }
-        deleteEvent(data.id);
-        break;
+        return deleteEvent(data.id);
       }
       case 'clone': {
         const newEvent = cloneEvent(data as OntimeEvent, data.id);
@@ -120,27 +121,51 @@ export default function RundownEntry(props: RundownEntryProps) {
         const { field, value } = payload as FieldValue;
         const newData: Partial<OntimeEvent> = { id: data.id };
 
+        // if selected events are more than one
+        // we need to bulk edit
+        if (selectedEvents.size > 1) {
+          const changes: Partial<OntimeEvent> = { [field]: value };
+          const rundown = ontimeQueryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? [];
+          const idsOfRundownEvents = rundown.filter(isOntimeEvent).map((event) => event.id);
+
+          const eventIds = [...selectedEvents.keys()];
+          // check every selected event id to see if they match rundown event ids
+          const areIdsValid = eventIds.every((eventId) => idsOfRundownEvents.includes(eventId));
+
+          if (!areIdsValid) {
+            return;
+          }
+
+          batchUpdateEvents(changes, eventIds);
+          return clearSelectedEvents();
+        }
+
         if (field === 'durationOverride' && data.type === SupportedEvent.Event) {
           // duration defines timeEnd
           newData.duration = value as number;
           newData.timeEnd = data.timeStart + (value as number);
-          updateEvent(newData);
-        } else if (field === 'timeStart' && data.type === SupportedEvent.Event) {
+          return updateEvent(newData);
+        }
+
+        if (field === 'timeStart' && data.type === SupportedEvent.Event) {
           newData.duration = calculateDuration(value as number, data.timeEnd);
           newData.timeStart = value as number;
-          updateEvent(newData);
-        } else if (field === 'timeEnd' && data.type === SupportedEvent.Event) {
+          return updateEvent(newData);
+        }
+
+        if (field === 'timeEnd' && data.type === SupportedEvent.Event) {
           newData.duration = calculateDuration(data.timeStart, value as number);
           newData.timeEnd = value as number;
-          updateEvent(newData);
-        } else if (field in data) {
+          return updateEvent(newData);
+        }
+
+        if (field in data) {
           // @ts-expect-error not sure how to type this
           newData[field] = value;
-          updateEvent(newData);
-        } else {
-          emitError(`Unknown field: ${field}`);
+          return updateEvent(newData);
         }
-        break;
+
+        return emitError(`Unknown field: ${field}`);
       }
       default:
         throw new Error(`Unhandled event ${action}`);
@@ -150,6 +175,7 @@ export default function RundownEntry(props: RundownEntryProps) {
   if (data.type === SupportedEvent.Event) {
     return (
       <EventBlock
+        eventIndex={eventIndex}
         cue={data.cue}
         timeStart={data.timeStart}
         timeEnd={data.timeEnd}

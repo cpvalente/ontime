@@ -1,18 +1,9 @@
-import {
-  LogOrigin,
-  OntimeBaseEvent,
-  OntimeBlock,
-  OntimeDelay,
-  OntimeEvent,
-  Playback,
-  SupportedEvent,
-} from 'ontime-types';
+import { LogOrigin, OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent } from 'ontime-types';
 import { generateId, getCueCandidate } from 'ontime-utils';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../../settings.js';
-import { EventLoader, eventLoader } from '../../classes/event-loader/EventLoader.js';
-import { eventTimer } from '../TimerService.js';
+import { EventLoader } from '../../classes/event-loader/EventLoader.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeCacheStore } from '../../stores/cachingStore.js';
 import {
@@ -21,135 +12,24 @@ import {
   cachedClear,
   cachedDelete,
   cachedEdit,
+  cachedBatchEdit,
   cachedReorder,
   cachedSwap,
   delayedRundownCacheKey,
 } from './delayedRundown.utils.js';
 import { logger } from '../../classes/Logger.js';
 import { validateEvent } from '../../utils/parser.js';
-import { clock } from '../Clock.js';
+import { stateMutations } from '../../state.js';
+import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 /**
  * Forces rundown to be recalculated
  * To be used when we know the rundown has changed completely
  */
 export function forceReset() {
-  eventLoader.reset();
+  runtimeService.reset();
   runtimeCacheStore.invalidate(delayedRundownCacheKey);
 }
-
-/**
- * Checks if a list of IDs is in the current selection
- */
-const affectedLoaded = (affectedIds: string[]) => {
-  const now = eventLoader.loaded.selectedEventId;
-  const nowPublic = eventLoader.loaded.selectedPublicEventId;
-  const next = eventLoader.loaded.nextEventId;
-  const nextPublic = eventLoader.loaded.nextPublicEventId;
-  return (
-    affectedIds.includes(now) ||
-    affectedIds.includes(nowPublic) ||
-    affectedIds.includes(next) ||
-    affectedIds.includes(nextPublic)
-  );
-};
-
-/**
- * Checks if timer replaces the loaded next
- */
-const isNewNext = () => {
-  const timedEvents = EventLoader.getTimedEvents();
-  const now = eventLoader.loaded.selectedEventId;
-  const next = eventLoader.loaded.nextEventId;
-
-  // check whether the index of now and next are consecutive
-  const indexNow = timedEvents.findIndex((event) => event.id === now);
-  const indexNext = timedEvents.findIndex((event) => event.id === next);
-
-  if (indexNext - indexNow !== 1) {
-    return true;
-  }
-  // iterate through timed events and see if there are public events between nowPublic and nextPublic
-  const nowPublic = eventLoader.loaded.selectedPublicEventId;
-  const nextPublic = eventLoader.loaded.nextPublicEventId;
-
-  let foundNew = false;
-  let isAfter = false;
-  for (const event of timedEvents) {
-    if (!isAfter) {
-      if (event.id === nowPublic) {
-        isAfter = true;
-      }
-    } else {
-      if (event.id === nextPublic) {
-        break;
-      }
-      if (event.isPublic) {
-        foundNew = true;
-        break;
-      }
-    }
-  }
-
-  return foundNew;
-};
-
-/**
- * Updates timer service when a relevant piece of data changes
- */
-export function updateTimer(affectedIds?: string[]) {
-  const runningEventId = eventLoader.loaded.selectedEventId;
-  const nextEventId = eventLoader.loaded.nextEventId;
-
-  if (runningEventId === null && nextEventId === null) {
-    return false;
-  }
-
-  // we need to reload in a few scenarios:
-  // 1. we are not confident that changes do not affect running event
-  const safeOption = typeof affectedIds === 'undefined';
-  // 2. the edited event is in memory (now or next) running
-  const eventInMemory = safeOption ? false : affectedLoaded(affectedIds);
-  // 3. the edited event replaces next event
-  const isNext = isNewNext();
-
-  if (safeOption) {
-    eventLoader.reset();
-    const { eventNow } = eventLoader.loadById(runningEventId) || {};
-    eventTimer.hotReload(eventNow);
-    return true;
-  }
-
-  if (eventInMemory) {
-    eventLoader.reset();
-
-    if (eventTimer.playback === Playback.Roll) {
-      const rollTimers = eventLoader.findRoll(clock.timeNow());
-      if (rollTimers === null) {
-        eventTimer.stop();
-      } else {
-        const { currentEvent, nextEvent } = rollTimers;
-        eventTimer.roll(currentEvent, nextEvent);
-      }
-    } else {
-      const { eventNow } = eventLoader.loadById(runningEventId) || {};
-      if (eventNow) {
-        eventTimer.hotReload(eventNow);
-      } else {
-        eventTimer.stop();
-      }
-    }
-    return true;
-  }
-
-  if (isNext) {
-    const { eventNow } = eventLoader.loadById(runningEventId) || {};
-    eventTimer.hotReload(eventNow);
-    return true;
-  }
-  return false;
-}
-
 /**
  * @description creates a new event with given data
  * @param {object} eventData
@@ -211,6 +91,16 @@ export async function editEvent(eventData: Partial<OntimeEvent> | Partial<Ontime
   return newEvent;
 }
 
+export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>) {
+  await cachedBatchEdit(ids, data);
+
+  // notify runtime service of changed events
+  runtimeService.update(ids);
+
+  // advice socket subscribers of change
+  sendRefetch();
+}
+
 /**
  * deletes event by its ID
  * @param eventId
@@ -231,7 +121,8 @@ export async function deleteEvent(eventId) {
 export async function deleteAllEvents() {
   await cachedClear();
 
-  notifyChanges({ timer: true, external: true, reset: true });
+  // no need to modify timer since we will reset
+  notifyChanges({ external: true, reset: true });
 }
 
 /**
@@ -272,7 +163,8 @@ export async function swapEvents(from: string, to: string) {
  * Called when we make changes to the rundown object
  */
 function updateChangeNumEvents() {
-  eventLoader.updateNumEvents();
+  const numEvents = EventLoader.getPlayableEvents().length;
+  stateMutations.updateNumEvents(numEvents);
 }
 
 /**
@@ -281,10 +173,11 @@ function updateChangeNumEvents() {
 export function notifyChanges(options: { timer?: boolean | string[]; external?: boolean; reset?: boolean }) {
   if (options.timer) {
     // notify timer service of changed events
+    // timer can be true or an array of changed IDs
     if (Array.isArray(options.timer)) {
-      updateTimer(options.timer);
+      runtimeService.update(options.timer);
     }
-    updateTimer();
+    runtimeService.update();
   }
 
   if (options.reset) {

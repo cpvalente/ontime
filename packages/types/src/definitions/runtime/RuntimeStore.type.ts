@@ -1,7 +1,7 @@
 import { Playback } from './Playback.type.js';
 import { Message, TimerMessage } from './MessageControl.type.js';
 import { TimerState } from './TimerState.type.js';
-import { Loaded } from './Playlist.type.js';
+import { Runtime } from './Runtime.type.js';
 import { OntimeEvent } from '../core/OntimeEvent.type.js';
 import { SimpleTimerState } from './Extratimer.type.js';
 
@@ -18,7 +18,7 @@ export type RuntimeStore = {
   onAir: boolean;
 
   // event loader
-  loaded: Loaded;
+  loaded: Runtime;
   eventNow: OntimeEvent | null;
   publicEventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;

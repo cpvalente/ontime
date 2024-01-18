@@ -8,6 +8,10 @@ interface Config {
   lastLoadedProject: string;
 }
 
+/**
+ * Service manages Ontime's runtime configuration
+ */
+
 class ConfigService {
   private config: Low<Config>;
   private configPath: string;

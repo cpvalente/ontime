@@ -38,6 +38,7 @@ import {
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
 import { configService } from '../services/ConfigService.js';
+import { coerceBoolean } from './coerceType.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
@@ -49,7 +50,12 @@ export const JSON_MIME = 'application/json';
  * @returns {object} - parsed object
  */
 export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImportMap>) => {
+  const projectMetadata = {};
+  const rundownMetadata = {};
   const importMap: ExcelImportMap = { ...defaultExcelImportMap, ...options };
+  for (const [key, value] of Object.entries(importMap)) {
+    importMap[key] = value.toLocaleLowerCase();
+  }
   const projectData: Partial<ProjectData> = {
     title: '',
     description: '',
@@ -107,145 +113,239 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
   let user8Index: number | null = null;
   let user9Index: number | null = null;
 
-  excelData
-    .filter((e) => e.length > 0)
-    .forEach((row) => {
-      // these fields contain the data to its right
-      let projectTitleNext = false;
-      let projectDescriptionNext = false;
-      let publicUrlNext = false;
-      let publicInfoNext = false;
-      let backstageUrlNext = false;
-      let backstageInfoNext = false;
+  excelData.forEach((row, rowIndex) => {
+    if (row.length === 0) {
+      return;
+    }
+    // these fields contain the data to its right
+    let projectTitleNext = false;
+    let projectDescriptionNext = false;
+    let publicUrlNext = false;
+    let publicInfoNext = false;
+    let backstageUrlNext = false;
+    let backstageInfoNext = false;
 
-      const event: Partial<OntimeEvent> = {};
-      const handlers = {
-        [importMap.projectName]: () => (projectTitleNext = true),
-        [importMap.projectDescription]: () => (projectDescriptionNext = true),
-        [importMap.publicUrl]: () => (publicUrlNext = true),
-        [importMap.publicInfo]: () => (publicInfoNext = true),
-        [importMap.backstageUrl]: () => (backstageUrlNext = true),
-        [importMap.backstageInfo]: () => (backstageInfoNext = true),
+    const event: Partial<OntimeEvent> = {};
+    const handlers = {
+      [importMap.projectName]: (row: number, col: number) => {
+        projectTitleNext = true;
+        projectMetadata['title'] = { row, col };
+      },
+      [importMap.projectDescription]: (row: number, col: number) => {
+        projectDescriptionNext = true;
+        projectMetadata['description'] = { row, col };
+      },
+      [importMap.publicUrl]: (row: number, col: number) => {
+        publicUrlNext = true;
+        projectMetadata['publicUrl'] = { row, col };
+      },
+      [importMap.publicInfo]: (row: number, col: number) => {
+        publicInfoNext = true;
+        projectMetadata['publicInfo'] = { row, col };
+      },
+      [importMap.backstageUrl]: (row: number, col: number) => {
+        backstageUrlNext = true;
+        projectMetadata['backstageUrl'] = { row, col };
+      },
+      [importMap.backstageInfo]: (row: number, col: number) => {
+        backstageInfoNext = true;
+        projectMetadata['backstageInfo'] = { row, col };
+      },
 
-        [importMap.timeStart]: (index: number) => (timeStartIndex = index),
-        [importMap.timeEnd]: (index: number) => (timeEndIndex = index),
-        [importMap.duration]: (index: number) => (durationIndex = index),
+      [importMap.timeStart]: (row: number, col: number) => {
+        timeStartIndex = col;
+        rundownMetadata['timeStart'] = { row, col };
+      },
+      [importMap.timeEnd]: (row: number, col: number) => {
+        timeEndIndex = col;
+        rundownMetadata['timeEnd'] = { row, col };
+      },
+      [importMap.duration]: (row: number, col: number) => {
+        durationIndex = col;
+        rundownMetadata['duration'] = { row, col };
+      },
 
-        [importMap.cue]: (index: number) => (cueIndex = index),
-        [importMap.title]: (index: number) => (titleIndex = index),
-        [importMap.presenter]: (index: number) => (presenterIndex = index),
-        [importMap.subtitle]: (index: number) => (subtitleIndex = index),
-        [importMap.isPublic]: (index: number) => (isPublicIndex = index),
-        [importMap.skip]: (index: number) => (skipIndex = index),
-        [importMap.note]: (index: number) => (notesIndex = index),
-        [importMap.colour]: (index: number) => (colourIndex = index),
+      [importMap.cue]: (row: number, col: number) => {
+        cueIndex = col;
+        rundownMetadata['cue'] = { row, col };
+      },
+      [importMap.title]: (row: number, col: number) => {
+        titleIndex = col;
+        rundownMetadata['title'] = { row, col };
+      },
+      [importMap.presenter]: (row: number, col: number) => {
+        presenterIndex = col;
+        rundownMetadata['presenter'] = { row, col };
+      },
+      [importMap.subtitle]: (row: number, col: number) => {
+        subtitleIndex = col;
+        rundownMetadata['subtitle'] = { row, col };
+      },
+      [importMap.isPublic]: (row: number, col: number) => {
+        isPublicIndex = col;
+        rundownMetadata['isPublic'] = { row, col };
+      },
+      [importMap.skip]: (row: number, col: number) => {
+        skipIndex = col;
+        rundownMetadata['skip'] = { row, col };
+      },
+      [importMap.note]: (row: number, col: number) => {
+        notesIndex = col;
+        rundownMetadata['note'] = { row, col };
+      },
+      [importMap.colour]: (row: number, col: number) => {
+        colourIndex = col;
+        rundownMetadata['colour'] = { row, col };
+      },
 
-        [importMap.endAction]: (index: number) => (endActionIndex = index),
-        [importMap.timerType]: (index: number) => (timerTypeIndex = index),
+      [importMap.endAction]: (row: number, col: number) => {
+        endActionIndex = col;
+        rundownMetadata['endAction'] = { row, col };
+      },
+      [importMap.timerType]: (row: number, col: number) => {
+        timerTypeIndex = col;
+        rundownMetadata['timerType'] = { row, col };
+      },
+      [importMap.timeWarning]: (row: number, col: number) => {
+        timeWarningIndex = col;
+        rundownMetadata['timeWarningIndex'] = { row, col };
+      },
+      [importMap.timeDanger]: (row: number, col: number) => {
+        timeDangerIndex = col;
+        rundownMetadata['timeDangerIndex'] = { row, col };
+      },
 
-        [importMap.user0]: (index: number) => (user0Index = index),
-        [importMap.user1]: (index: number) => (user1Index = index),
-        [importMap.user2]: (index: number) => (user2Index = index),
-        [importMap.user3]: (index: number) => (user3Index = index),
-        [importMap.user4]: (index: number) => (user4Index = index),
-        [importMap.user5]: (index: number) => (user5Index = index),
-        [importMap.user6]: (index: number) => (user6Index = index),
-        [importMap.user7]: (index: number) => (user7Index = index),
-        [importMap.user8]: (index: number) => (user8Index = index),
-        [importMap.user9]: (index: number) => (user9Index = index),
-        [importMap.timeWarning]: (index: number) => (timeWarningIndex = index),
-        [importMap.timeDanger]: (index: number) => (timeDangerIndex = index),
-      } as const;
+      [importMap.user0]: (row: number, col: number) => {
+        user0Index = col;
+        rundownMetadata['user0'] = { row, col };
+      },
+      [importMap.user1]: (row: number, col: number) => {
+        user1Index = col;
+        rundownMetadata['user1'] = { row, col };
+      },
+      [importMap.user2]: (row: number, col: number) => {
+        user2Index = col;
+        rundownMetadata['user2'] = { row, col };
+      },
+      [importMap.user3]: (row: number, col: number) => {
+        user3Index = col;
+        rundownMetadata['user3'] = { row, col };
+      },
+      [importMap.user4]: (row: number, col: number) => {
+        user4Index = col;
+        rundownMetadata['user4'] = { row, col };
+      },
+      [importMap.user5]: (row: number, col: number) => {
+        user5Index = col;
+        rundownMetadata['user5'] = { row, col };
+      },
+      [importMap.user6]: (row: number, col: number) => {
+        user6Index = col;
+        rundownMetadata['user6'] = { row, col };
+      },
+      [importMap.user7]: (row: number, col: number) => {
+        user7Index = col;
+        rundownMetadata['user7'] = { row, col };
+      },
+      [importMap.user8]: (row: number, col: number) => {
+        user8Index = col;
+        rundownMetadata['user8'] = { row, col };
+      },
+      [importMap.user9]: (row: number, col: number) => {
+        user9Index = col;
+        rundownMetadata['user9'] = { row, col };
+      },
+    } as const;
 
-      row.forEach((column, j) => {
-        // 1. we check if we have set a flag for a known field
-        if (projectTitleNext) {
-          projectData.title = makeString(column, '');
-          projectTitleNext = false;
-        } else if (projectDescriptionNext) {
-          projectData.description = makeString(column, '');
-          projectDescriptionNext = false;
-        } else if (publicUrlNext) {
-          projectData.publicUrl = makeString(column, '');
-          publicUrlNext = false;
-        } else if (publicInfoNext) {
-          projectData.publicInfo = makeString(column, '');
-          publicInfoNext = false;
-        } else if (backstageUrlNext) {
-          projectData.backstageUrl = makeString(column, '');
-          backstageUrlNext = false;
-        } else if (backstageInfoNext) {
-          projectData.backstageInfo = makeString(column, '');
-          backstageInfoNext = false;
-        } else if (j === timeStartIndex) {
-          event.timeStart = parseExcelDate(column);
-        } else if (j === timeEndIndex) {
-          event.timeEnd = parseExcelDate(column);
-        } else if (j === durationIndex) {
-          event.duration = parseExcelDate(column);
-        } else if (j === titleIndex) {
-          event.title = makeString(column, '');
-        } else if (j === cueIndex) {
-          event.cue = makeString(column, '');
-        } else if (j === presenterIndex) {
-          event.presenter = makeString(column, '');
-        } else if (j === subtitleIndex) {
-          event.subtitle = makeString(column, '');
-        } else if (j === isPublicIndex) {
-          event.isPublic = Boolean(column);
-        } else if (j === skipIndex) {
-          event.skip = Boolean(column);
-        } else if (j === notesIndex) {
-          event.note = makeString(column, '');
-        } else if (j === endActionIndex) {
-          event.endAction = validateEndAction(column);
-        } else if (j === timerTypeIndex) {
-          event.timerType = validateTimerType(column);
-        } else if (j === colourIndex) {
-          event.colour = makeString(column, '');
-        } else if (j === user0Index) {
-          event.user0 = makeString(column, '');
-        } else if (j === user1Index) {
-          event.user1 = makeString(column, '');
-        } else if (j === user2Index) {
-          event.user2 = makeString(column, '');
-        } else if (j === user3Index) {
-          event.user3 = makeString(column, '');
-        } else if (j === user4Index) {
-          event.user4 = makeString(column, '');
-        } else if (j === user5Index) {
-          event.user5 = makeString(column, '');
-        } else if (j === user6Index) {
-          event.user6 = makeString(column, '');
-        } else if (j === user7Index) {
-          event.user7 = makeString(column, '');
-        } else if (j === user8Index) {
-          event.user8 = makeString(column, '');
-        } else if (j === user9Index) {
-          event.user9 = makeString(column, '');
-        } else if (j === timeWarningIndex) {
-          event.timeWarning = parseExcelDate(column);
-        } else if (j === timeDangerIndex) {
-          event.timeDanger = parseExcelDate(column);
-        } else {
-          // 2. if there is no flag, lets see if we know the field type
-          if (typeof column === 'string') {
-            const col = column.toLowerCase();
+    row.forEach((column, j) => {
+      // 1. we check if we have set a flag for a known field
+      if (projectTitleNext) {
+        projectData.title = makeString(column, '');
+        projectTitleNext = false;
+      } else if (projectDescriptionNext) {
+        projectData.description = makeString(column, '');
+        projectDescriptionNext = false;
+      } else if (publicUrlNext) {
+        projectData.publicUrl = makeString(column, '');
+        publicUrlNext = false;
+      } else if (publicInfoNext) {
+        projectData.publicInfo = makeString(column, '');
+        publicInfoNext = false;
+      } else if (backstageUrlNext) {
+        projectData.backstageUrl = makeString(column, '');
+        backstageUrlNext = false;
+      } else if (backstageInfoNext) {
+        projectData.backstageInfo = makeString(column, '');
+        backstageInfoNext = false;
+      } else if (j === timeStartIndex) {
+        event.timeStart = parseExcelDate(column);
+      } else if (j === timeEndIndex) {
+        event.timeEnd = parseExcelDate(column);
+      } else if (j === durationIndex) {
+        event.duration = parseExcelDate(column);
+      } else if (j === titleIndex) {
+        event.title = makeString(column, '');
+      } else if (j === cueIndex) {
+        event.cue = makeString(column, '');
+      } else if (j === presenterIndex) {
+        event.presenter = makeString(column, '');
+      } else if (j === subtitleIndex) {
+        event.subtitle = makeString(column, '');
+      } else if (j === isPublicIndex) {
+        event.isPublic = column == 'x' ? true : coerceBoolean(column);
+      } else if (j === skipIndex) {
+        event.skip = column == 'x' ? true : coerceBoolean(column);
+      } else if (j === notesIndex) {
+        event.note = makeString(column, '');
+      } else if (j === endActionIndex) {
+        event.endAction = validateEndAction(column);
+      } else if (j === timerTypeIndex) {
+        event.timerType = validateTimerType(column);
+      } else if (j === timeWarningIndex) {
+        event.timeWarning = parseExcelDate(column);
+      } else if (j === timeDangerIndex) {
+        event.timeDanger = parseExcelDate(column);
+      } else if (j === colourIndex) {
+        event.colour = makeString(column, '');
+      } else if (j === user0Index) {
+        event.user0 = makeString(column, '');
+      } else if (j === user1Index) {
+        event.user1 = makeString(column, '');
+      } else if (j === user2Index) {
+        event.user2 = makeString(column, '');
+      } else if (j === user3Index) {
+        event.user3 = makeString(column, '');
+      } else if (j === user4Index) {
+        event.user4 = makeString(column, '');
+      } else if (j === user5Index) {
+        event.user5 = makeString(column, '');
+      } else if (j === user6Index) {
+        event.user6 = makeString(column, '');
+      } else if (j === user7Index) {
+        event.user7 = makeString(column, '');
+      } else if (j === user8Index) {
+        event.user8 = makeString(column, '');
+      } else if (j === user9Index) {
+        event.user9 = makeString(column, '');
+      } else {
+        // 2. if there is no flag, lets see if we know the field type
+        if (typeof column === 'string') {
+          const col = column.toLowerCase();
 
-            if (handlers[col]) {
-              handlers[col](j);
-            }
-            // else. we don't know how to handle this column
-            // just ignore it
+          if (handlers[col]) {
+            handlers[col](rowIndex, j);
           }
+          // else. we don't know how to handle this column
+          // just ignore it
         }
-      });
-
-      if (Object.keys(event).length > 0) {
-        // if any data was found, push to array
-        rundown.push({ ...event, type: SupportedEvent.Event } as OntimeEvent);
       }
     });
+
+    if (Object.keys(event).length > 0) {
+      // if any data was found, push to array
+      rundown.push({ ...event, type: SupportedEvent.Event } as OntimeEvent);
+    }
+  });
 
   return {
     rundown,
@@ -255,6 +355,8 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
       version: '2.0.0',
     },
     userFields: customUserFields,
+    projectMetadata,
+    rundownMetadata,
   };
 };
 
@@ -403,7 +505,6 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     res.data = await parseJson(uploadedJson);
 
     await configService.updateDatabaseConfig(fileName);
-
     return res;
   }
 };

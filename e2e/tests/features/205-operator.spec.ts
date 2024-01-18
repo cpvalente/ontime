@@ -27,6 +27,7 @@ test('smoke test operator', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Add block at start' }).click();
   await page.getByTestId('quick-add-block').click();
 
+  await page.getByRole('button', { name: 'Edit mode' }).click();
   await page.getByTestId('entry-1').getByRole('button', { name: 'Event options' }).first().click();
   await page.getByLabel('Title', { exact: true }).click();
   await page.getByLabel('Title', { exact: true }).fill('title 1');

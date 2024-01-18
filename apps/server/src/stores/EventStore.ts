@@ -1,8 +1,6 @@
-import { Playback, RuntimeStore, SimplePlayback } from 'ontime-types';
+import { RuntimeStore } from 'ontime-types';
+
 import { socket } from '../adapters/WebsocketAdapter.js';
-import { eventTimer } from '../services/TimerService.js';
-import { messageService } from '../services/message-service/MessageService.js';
-import { eventLoader } from '../classes/event-loader/EventLoader.js';
 
 export type PublishFn = <T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) => void;
 
@@ -47,39 +45,3 @@ export const eventStore = {
     });
   },
 };
-
-/**
- * Module initialises the services and provides initial payload for the store
- * Currently registered objects in store
- * - Timer Service      timer
- * - Timer Service      playback
- * - Timer Service      onAir
- * - Message Service    timerMessage
- * - Message Service    publicMessage
- * - Message Service    lowerMessage
- * - Event Loader       loaded
- * - Event Loader       eventNow
- * - Event Loader       publicEventNow
- * - Event Loader       eventNext
- * - Event Loader       publicEventNext
- */
-
-export const getInitialPayload = () => ({
-  timer: eventTimer.timer,
-  playback: eventTimer.playback,
-  onAir: eventTimer.playback !== Playback.Stop,
-  timerMessage: messageService.timerMessage,
-  publicMessage: messageService.publicMessage,
-  lowerMessage: messageService.lowerMessage,
-  externalMessage: messageService.externalMessage,
-  loaded: eventLoader.loaded,
-  eventNow: eventLoader.eventNow,
-  publicEventNow: eventLoader.publicEventNow,
-  eventNext: eventLoader.eventNext,
-  publicEventNext: eventLoader.publicEventNext,
-  timer1: {
-    duration: null,
-    current: null,
-    playback: 'stop' as SimplePlayback,
-  },
-});

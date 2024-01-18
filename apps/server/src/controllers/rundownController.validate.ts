@@ -18,6 +18,16 @@ export const rundownPutValidator = [
   },
 ];
 
+export const rundownBatchPutValidator = [
+  body('data').isObject().exists(),
+  body('ids').isArray().exists(),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
+
 export const rundownReorderValidator = [
   body('eventId').isString().exists(),
   body('from').isNumeric().exists(),
