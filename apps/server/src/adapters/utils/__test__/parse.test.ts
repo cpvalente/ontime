@@ -1,38 +1,31 @@
 import { objectFromPath } from '../parse.js';
 
-describe('nestedObjectFromArray()', () => {
-  it('nests object with string value', () => {
-    const arr = ['a', 'b', 'c', 'd'];
-    const value = '1234567890';
-    const objExpected = { a: { b: { c: { d: value } } } };
+describe('objectFromPath()', () => {
+  it('start index', () => {
+    const arr = ['index'];
+    const value = 1;
+    const objExpected = { index: 1 };
 
     const obj = objectFromPath(arr, value);
     expect(obj).toStrictEqual(objExpected);
   });
-  it('nests object with number value', () => {
-    const arr = ['a', 'b', 'c', 'd'];
-    const value = 1234567890;
-    const objExpected = { a: { b: { c: { d: value } } } };
+  it('set timer message text', () => {
+    const arr = ['timer', 'text'];
+    const value = 'hello';
+    const objExpected = { timer: { text: value } };
 
     const obj = objectFromPath(arr, value);
     expect(obj).toStrictEqual(objExpected);
   });
-  it('nests object with object value', () => {
-    const arr = ['a', 'b', 'c', 'd'];
-    const value = { test: { test1: '1234' } };
-    const objExpected = { a: { b: { c: { d: value } } } };
+  it('set timer message text and visible', () => {
+    const arr = ['timer'];
+    const value = { text: 'hello', visible: true };
+    const objExpected = { timer: value };
 
     const obj = objectFromPath(arr, value);
     expect(obj).toStrictEqual(objExpected);
   });
-  it('nests object with array value', () => {
-    const arr = ['a', 'b', 'c', 'd'];
-    const value = [1, 2, 3, 4];
-    const objExpected = { a: { b: { c: { d: value } } } };
 
-    const obj = objectFromPath(arr, value);
-    expect(obj).toStrictEqual(objExpected);
-  });
   it('nests object with undefined value', () => {
     const arr = ['a', 'b', 'c', 'd'];
     const objExpected = { a: { b: { c: { d: undefined } } } };
