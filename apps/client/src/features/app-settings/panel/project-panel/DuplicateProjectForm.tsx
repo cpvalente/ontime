@@ -1,4 +1,4 @@
-import { FormControl, Input, Button } from '@chakra-ui/react';
+import { Input, Button } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -37,19 +37,15 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel, sub
     <>
       <form onSubmit={handleSubmit(onSubmit)} className={style.form}>
         <div>
-          <FormControl>
-            <Input value={filename} id='filename' size='sm' type='text' variant='ontime-filled' disabled />
-          </FormControl>
-          <FormControl className={style.duplicateFormControl}>
-            <Input
-              id='newFilename'
-              size='sm'
-              type='text'
-              variant='ontime-filled'
-              placeholder='Duplicate file name'
-              {...register('newFilename')}
-            />
-          </FormControl>
+          <Input value={filename} id='filename' size='sm' type='text' variant='ontime-filled' disabled />
+          <Input
+            id='newFilename'
+            size='sm'
+            type='text'
+            variant='ontime-filled'
+            placeholder='Duplicate file name'
+            {...register('newFilename')}
+          />
         </div>
         <div className={style.duplicateActionButtons}>
           <Button
