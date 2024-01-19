@@ -490,13 +490,13 @@ export const listProjects: RequestHandler = async (_, res: Response<ProjectFileL
   try {
     const fileList = await getProjectFiles();
 
-    const lastLoadedProject = removeFileExtension(
-      JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject,
-    );
+    const lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
+
+    const lastLoadedProjectName = removeFileExtension(lastLoadedProject);
 
     res.status(200).send({
       files: fileList,
-      lastLoadedProject,
+      lastLoadedProject: lastLoadedProjectName,
     });
   } catch (error) {
     res.status(500).send({ message: error.toString() });
