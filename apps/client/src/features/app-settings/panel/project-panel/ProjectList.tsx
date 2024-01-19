@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 
+import style from './ProjectPanel.module.scss';
 import { useProjectList } from '../../../../common/hooks-query/useProjectList';
 import * as Panel from '../PanelUtils';
 import ProjectListItem from './ProjectListItem';
@@ -23,7 +24,6 @@ export default function ProjectList() {
     setEditingFilename(null);
   };
 
-  // Show the currently loaded project first
   const reorderedProjectFiles = useMemo(() => {
     if (!data?.files?.length) return [];
 
@@ -35,30 +35,60 @@ export default function ProjectList() {
   }, [data?.files, lastLoadedProject]);
 
   return (
-    <Panel.Table>
-      <thead>
-        <tr>
-          <th>Project Name</th>
-          <th>Date Created</th>
-          <th>Date Modified</th>
-          <th />
-        </tr>
-      </thead>
-      <tbody>
-        {reorderedProjectFiles.map((project) => (
-          <ProjectListItem
-            key={project.filename}
-            filename={project.filename}
-            createdAt={project.createdAt}
-            updatedAt={project.updatedAt}
-            onToggleEditMode={handleToggleEditMode}
-            onSubmit={handleClear}
-            editingFilename={editingFilename}
-            editingMode={editingMode}
-            current={project.filename === lastLoadedProject}
-          />
-        ))}
-      </tbody>
-    </Panel.Table>
+    <Panel.Section>
+      <Panel.Card>
+        <div className={style.divTable}>
+          <div className={style.divTableHead}>
+            <div className={style.divTableRow}>
+              <div
+                className={style.divTableHeader}
+                style={{
+                  flex: 4,
+                }}
+              >
+                Project Name
+              </div>
+              <div
+                className={style.divTableHeader}
+                style={{
+                  flex: 4,
+                }}
+              >
+                Date Created
+              </div>
+              <div
+                className={style.divTableHeader}
+                style={{
+                  flex: 4,
+                }}
+              >
+                Date Modified
+              </div>
+              <div
+                className={style.divTableHeader}
+                style={{
+                  flex: 1,
+                }}
+              ></div>
+            </div>
+          </div>
+          <div className={style.divTableBody}>
+            {reorderedProjectFiles.map((project) => (
+              <ProjectListItem
+                key={project.filename}
+                filename={project.filename}
+                createdAt={project.createdAt}
+                updatedAt={project.updatedAt}
+                onToggleEditMode={handleToggleEditMode}
+                onSubmit={handleClear}
+                editingFilename={editingFilename}
+                editingMode={editingMode}
+                current={project.filename === lastLoadedProject}
+              />
+            ))}
+          </div>
+        </div>
+      </Panel.Card>
+    </Panel.Section>
   );
 }

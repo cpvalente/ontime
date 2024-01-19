@@ -112,14 +112,46 @@ export default function ProjectListItem({
   }, [editingMode, filename, submitError]);
 
   return (
-    <tr key={filename} className={current ? style.current : undefined}>
-      <td>{editingMode && filename === editingFilename ? renderEditMode : <span>{filename}</span>}</td>
-      <td>{createdAt}</td>
-      <td>{updatedAt}</td>
-      <td className={style.actionButton}>
+    <div
+      key={filename}
+      className={current ? style.current : undefined}
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '0.5rem 0.5rem',
+      }}
+    >
+      <span
+        style={{
+          flex: 4,
+        }}
+      >
+        {editingMode && filename === editingFilename ? renderEditMode : <span>{filename}</span>}
+      </span>
+      <span
+        style={{
+          flex: 4,
+        }}
+      >
+        {createdAt}
+      </span>
+      <span
+        style={{
+          flex: 4,
+        }}
+      >
+        {updatedAt}
+      </span>
+      <span
+        className={style.actionButton}
+        style={{
+          flex: 1,
+        }}
+      >
         <ActionMenu filename={filename} onAction={handleRefetch} onChangeEditMode={onToggleEditMode} />
-      </td>
-    </tr>
+      </span>
+    </div>
   );
 }
 

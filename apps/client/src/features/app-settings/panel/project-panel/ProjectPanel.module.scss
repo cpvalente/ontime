@@ -53,3 +53,39 @@
 .error {
   color: $red-500;
 }
+
+.divTable {
+  display: block;
+  width: 100%;
+}
+
+.divTableHead,
+.divTableBody {
+  width: 100%;
+}
+
+.divTableRow {
+  display: flex;
+  width: 100%;
+}
+
+.divTableHeader,
+.divTableCell {
+  flex: 1;
+  padding: 0.5rem;
+  border-bottom: 1px solid $white-10;
+}
+
+.divTableHeader {
+  font-weight: 600;
+  color: $gray-400;
+}
+
+.divTableCell {
+  text-align: left;
+}
+
+// Add styles for odd and even rows if needed
+.divTableRow:nth-child(odd) {
+  background-color: $white-1;
+}
