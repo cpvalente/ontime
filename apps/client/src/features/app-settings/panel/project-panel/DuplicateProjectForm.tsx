@@ -22,8 +22,8 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel, sub
     formState: { isSubmitting, isDirty, isValid },
     setFocus,
   } = useForm<DuplicateProjectFormValues>({
-    defaultValues: { newFilename: '' },
-    values: { newFilename: '' },
+    defaultValues: { newFilename: filename },
+    values: { newFilename: filename },
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -36,34 +36,24 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel, sub
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)} className={style.form}>
-        <div>
-          <Input value={filename} id='filename' size='sm' type='text' variant='ontime-filled' disabled />
-          <Input
-            id='newFilename'
-            size='sm'
-            type='text'
-            variant='ontime-filled'
-            placeholder='Enter new name'
-            {...register('newFilename')}
-          />
-        </div>
-        <div className={style.duplicateActionButtons}>
+        <Input
+          className={style.formInput}
+          id='newFilename'
+          size='sm'
+          type='text'
+          variant='ontime-filled'
+          placeholder='Enter new name'
+          {...register('newFilename')}
+        />
+        <div className={style.actionButtons}>
+          <Button onClick={onCancel} size='sm' variant='ontime-ghosted' children='Cancel' disabled={isSubmitting} />
           <Button
-            aria-label='Save duplicate project name'
             size='sm'
             variant='ontime-filled'
             isDisabled={!isDirty || !isValid || isSubmitting}
             type='submit'
-            children='Save'
+            children='Duplicate'
             className={style.saveButton}
-          />
-          <Button
-            aria-label='Cancel duplicate project name'
-            onClick={onCancel}
-            size='sm'
-            variant='ontime-ghosted'
-            children='Cancel'
-            disabled={isSubmitting}
           />
         </div>
       </form>

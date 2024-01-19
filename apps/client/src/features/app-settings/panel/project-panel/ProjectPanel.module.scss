@@ -21,25 +21,6 @@
   flex: 2;
 }
 
-.formControl {
-  padding-right: 0.5rem;
-}
-
-.duplicateFormControl {
-  margin-top: 0.5rem;
-}
-
-.duplicateActionButtons {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  margin-left: 0.5rem;
-
-  .saveButton {
-    margin-bottom: 0.5rem;
-  }
-}
-
 .actionButtons {
   display: flex;
   justify-content: space-between;
