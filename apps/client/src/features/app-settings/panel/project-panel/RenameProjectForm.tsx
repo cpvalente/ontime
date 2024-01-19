@@ -47,7 +47,6 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel, submit
         <div className={style.actionButtons}>
           <Button
             disabled={!isDirty || !isValid || isSubmitting}
-            aria-label='Cancel duplicate project name'
             children='Cancel'
             onClick={onCancel}
             size='sm'
@@ -56,8 +55,7 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel, submit
           />
           <Button
             disabled={!isDirty || !isValid || isSubmitting}
-            aria-label='Save duplicate project name'
-            children='Save'
+            children='Rename'
             onClick={handleSubmit(onSubmit)}
             size='sm'
             variant='ontime-filled'
