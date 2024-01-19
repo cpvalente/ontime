@@ -154,24 +154,19 @@ const actionHandlers: Record<string, ActionHandler> = {
   load: (payload) => {
     if (payload && typeof payload === 'object') {
       if ('index' in payload) {
-        const reply = actionHandlers.loadindex(payload.index);
-        return reply;
+        return actionHandlers.loadindex(payload.index);
       }
       if ('id' in payload) {
-        const reply = actionHandlers.loadid(payload.id);
-        return reply;
+        return actionHandlers.loadid(payload.id);
       }
       if ('cue' in payload) {
-        const reply = actionHandlers.loadcue(payload.cue);
-        return reply;
+        return actionHandlers.loadcue(payload.cue);
       }
       if ('next' in payload) {
-        const reply = actionHandlers.next(payload.next);
-        return reply;
+        return actionHandlers.next(payload.next);
       }
       if ('previous' in payload) {
-        const reply = actionHandlers.previous(payload.previous);
-        return reply;
+        return actionHandlers.previous(payload.previous);
       }
     }
     throw new Error('No load method provided');
