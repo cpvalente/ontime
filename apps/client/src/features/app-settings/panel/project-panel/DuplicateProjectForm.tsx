@@ -52,7 +52,7 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel, sub
             aria-label='Save duplicate project name'
             size='sm'
             variant='ontime-filled'
-            disabled={!isDirty || !isValid || isSubmitting}
+            isDisabled={!isDirty || !isValid || isSubmitting}
             type='submit'
             children='Save'
             className={style.saveButton}
@@ -63,7 +63,7 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel, sub
             size='sm'
             variant='ontime-ghosted'
             children='Cancel'
-            disabled={!isDirty || !isValid || isSubmitting}
+            disabled={isSubmitting}
           />
         </div>
       </form>

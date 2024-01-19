@@ -47,7 +47,7 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel, submit
         />
         <div className={style.actionButtons}>
           <Button
-            disabled={!isDirty || !isValid || isSubmitting}
+            isDisabled={isSubmitting}
             children='Cancel'
             onClick={onCancel}
             size='sm'
@@ -55,7 +55,7 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel, submit
             className={style.cancelRenameButton}
           />
           <Button
-            disabled={!isDirty || !isValid || isSubmitting}
+            isDisabled={!isDirty || !isValid || isSubmitting}
             children='Rename'
             onClick={handleSubmit(onSubmit)}
             size='sm'
