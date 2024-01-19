@@ -11,34 +11,34 @@ import InputRow from './InputRow';
 import style from './MessageControl.module.scss';
 
 export default function MessageControl() {
-  const data = useMessageControl();
-  const blink = data.timerMessage.blink;
-  const blackout = data.timerMessage.blackout;
+  const messge = useMessageControl();
+  const blink = messge.timer.blink;
+  const blackout = messge.timer.blackout;
   return (
     <div className={style.messageContainer}>
       <InputRow
         label='Public / Backstage screen message'
         placeholder='Shown in public and backstage screens'
-        text={data.publicMessage.text || ''}
-        visible={data.publicMessage.visible || false}
+        text={messge.public.text || ''}
+        visible={messge.public.visible || false}
         changeHandler={(newValue) => setMessage.publicText(newValue)}
-        actionHandler={() => setMessage.publicVisible(!data.publicMessage.visible)}
+        actionHandler={() => setMessage.publicVisible(!messge.public.visible)}
       />
       <InputRow
         label='Lower third message'
         placeholder='Shown in lower third'
-        text={data.lowerMessage.text || ''}
-        visible={data.lowerMessage.visible || false}
+        text={messge.lower.text || ''}
+        visible={messge.lower.visible || false}
         changeHandler={(newValue) => setMessage.lowerText(newValue)}
-        actionHandler={() => setMessage.lowerVisible(!data.lowerMessage.visible)}
+        actionHandler={() => setMessage.lowerVisible(!messge.lower.visible)}
       />
       <InputRow
         label='Timer'
         placeholder='Message shown in stage timer'
-        text={data.timerMessage.text || ''}
-        visible={data.timerMessage.visible || false}
-        changeHandler={(newValue) => setMessage.presenterText(newValue)}
-        actionHandler={() => setMessage.presenterVisible(!data.timerMessage.visible)}
+        text={messge.timer.text || ''}
+        visible={messge.timer.visible || false}
+        changeHandler={(newValue) => setMessage.timerText(newValue)}
+        actionHandler={() => setMessage.timerVisible(!messge.timer.visible)}
       />
       <div className={style.buttonSection}>
         <Button
@@ -66,8 +66,8 @@ export default function MessageControl() {
         label='External Message'
         placeholder='-'
         readonly
-        text={data.externalMessage.text || ''}
-        visible={data.externalMessage.visible || false}
+        text={messge.external.text || ''}
+        visible={messge.external.visible || false}
         changeHandler={() => undefined}
         actionHandler={() => undefined}
       />

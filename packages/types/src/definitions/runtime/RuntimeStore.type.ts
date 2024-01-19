@@ -10,10 +10,12 @@ export type RuntimeStore = {
   playback: Playback;
 
   // messages service
-  timerMessage: TimerMessage;
-  publicMessage: Message;
-  lowerMessage: Message;
-  externalMessage: Message;
+  message: {
+    timer: TimerMessage;
+    public: Message;
+    lower: Message;
+    external: Message;
+  };
   onAir: boolean;
 
   // event loader

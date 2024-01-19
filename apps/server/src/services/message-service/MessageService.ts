@@ -7,10 +7,7 @@ import type { PublishFn } from '../../stores/EventStore.js';
 let instance;
 
 class MessageService {
-  timerMessage: TimerMessage;
-  publicMessage: Message;
-  lowerMessage: Message;
-  externalMessage: Message;
+  message: { timer: TimerMessage; public: Message; lower: Message; external: Message };
 
   private throttledSet: PublishFn;
   private publish: PublishFn | null;
@@ -22,27 +19,25 @@ class MessageService {
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
-
-    this.timerMessage = {
-      text: '',
-      visible: false,
-      blink: false,
-      blackout: false,
-    };
-
-    this.publicMessage = {
-      text: '',
-      visible: false,
-    };
-
-    this.lowerMessage = {
-      text: '',
-      visible: false,
-    };
-
-    this.externalMessage = {
-      text: '',
-      visible: false,
+    this.message = {
+      timer: {
+        text: '',
+        visible: false,
+        blink: false,
+        blackout: false,
+      },
+      public: {
+        text: '',
+        visible: false,
+      },
+      lower: {
+        text: '',
+        visible: false,
+      },
+      external: {
+        text: '',
+        visible: false,
+      },
     };
 
     this.throttledSet = () => {
@@ -55,69 +50,23 @@ class MessageService {
     this.throttledSet = throttle((key, value) => this.publish(key, value), 100);
   }
 
-  /**
-   * @description patches the External Message object
-   */
-  setExternalMessage(payload: Partial<Message>) {
-    this.externalMessage = { ...this.externalMessage, ...payload };
-    this.throttledSet('externalMessage', this.externalMessage);
-    return this.externalMessage;
-  }
+  setAll(
+    message: Partial<{
+      timer: TimerMessage;
+      public: Message;
+      lower: Message;
+      external: Message;
+    }>,
+  ) {
+    //TODO: is there a nicer way to spread nested objects
+    this.message.timer = { ...this.message.timer, ...message?.timer };
+    this.message.public = { ...this.message.public, ...message?.public };
+    this.message.lower = { ...this.message.lower, ...message?.lower };
+    this.message.external = { ...this.message.external, ...message?.external };
 
-  /**
-   * @description patches the Timer Message object
-   */
-  setTimerMessage(payload: Partial<TimerMessage>) {
-    this.timerMessage = { ...this.timerMessage, ...payload };
-    this.throttledSet('timerMessage', this.timerMessage);
-    return this.timerMessage;
-  }
-
-  /**
-   * @description patches the Public Message object
-   */
-  setPublicMessage(payload: Partial<Message>) {
-    this.publicMessage = { ...this.publicMessage, ...payload };
-    this.throttledSet('publicMessage', this.publicMessage);
-    return this.publicMessage;
-  }
-
-  /**
-   * @description patches the Lower Message object
-   */
-  setLowerMessage(payload: Partial<Message>) {
-    this.lowerMessage = { ...this.lowerMessage, ...payload };
-    this.throttledSet('lowerMessage', this.lowerMessage);
-    return this.lowerMessage;
-  }
-
-  /**
-   * @description Returns feature data
-   */
-  getAll() {
-    return {
-      timerMessage: this.timerMessage,
-      publicMessage: this.publicMessage,
-      lowerMessage: this.lowerMessage,
-      externalMessage: this.externalMessage,
-    };
+    this.throttledSet('message', this.message);
+    return this.message;
   }
 }
 
 export const messageService = new MessageService();
-
-/**
- * Asserts whether an object is a valid TimerMessage patch
- * @param obj - object to evaluate
- * @returns boolean
- */
-export function isPartialTimerMessage(obj: any): obj is Partial<TimerMessage> {
-  return (
-    obj &&
-    typeof obj === 'object' &&
-    (typeof obj.text === 'string' || obj.text === undefined) &&
-    (typeof obj.visible === 'boolean' || obj.visible === undefined) &&
-    (typeof obj.blink === 'boolean' || obj.timerBlink === undefined) &&
-    (typeof obj.blackout === 'boolean' || obj.timerBlackout === undefined)
-  );
-}

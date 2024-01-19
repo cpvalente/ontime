@@ -2,10 +2,11 @@
 import * as assert from '../utils/assert.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
-import { isPartialTimerMessage, messageService } from '../services/message-service/MessageService.js';
+import { messageService } from '../services/message-service/MessageService.js';
 import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
 import { parse, updateEvent } from './integrationController.config.js';
+import { coerceBoolean, coerceString } from '../utils/coerceType.js';
 
 export type ChangeOptions = {
   eventId: string;
@@ -48,36 +49,21 @@ const actionHandlers: Record<string, ActionHandler> = {
   },
   /* Message Service */
   message: (payload) => {
-    const reply = { payload: {} };
-    Object.keys(payload).forEach((key) => {
-      if (!isPartialTimerMessage(payload[key])) {
-        throw new Error('Message: Payload is not valid');
-      }
-      let newState;
-      switch (key) {
-        case 'timer': {
-          newState = messageService.setTimerMessage(payload[key]);
-          break;
-        }
-        case 'public': {
-          newState = messageService.setPublicMessage(payload[key]);
-          break;
-        }
-        case 'external': {
-          newState = messageService.setExternalMessage(payload[key]);
-          break;
-        }
-        case 'lower': {
-          newState = messageService.setLowerMessage(payload[key]);
-          break;
-        }
-        default: {
-          throw new Error(`Message: ${key} dose not exist`);
-        }
-      }
-      reply.payload[key] = newState;
-    });
-    return reply;
+    if (typeof payload !== 'object') {
+      throw new Error('TODO: write error');
+    }
+    const patch = {};
+    if ('timer' in payload) Object.assign(patch, { timer: validateMessage(payload.timer) });
+    if ('public' in payload) Object.assign(patch, { public: validateMessage(payload.public) });
+    if ('lower' in payload) Object.assign(patch, { lower: validateMessage(payload.lower) });
+    if ('external' in payload) Object.assign(patch, { external: validateMessage(payload.external) });
+
+    //   lower: 'lower' in payload ? validateMessage(payload.lower) : undefined,
+    //   external: 'external' in payload ? validateMessage(payload.external) : undefined,
+    // };
+
+    const newMessage = messageService.setAll(patch);
+    return { payload: newMessage };
   },
   /* Playback */
   start: (payload) => {
@@ -212,4 +198,16 @@ function numberOrError(value: unknown) {
     throw new Error('Payload is not a valid number');
   }
   return converted;
+}
+
+function validateMessage(message: unknown) {
+  if (typeof message !== 'object') {
+    return;
+  }
+  const result = {};
+  if ('text' in message) Object.assign(result, { text: coerceString(message.text) });
+  if ('visible' in message) Object.assign(result, { visible: coerceBoolean(message.visible) });
+  if ('blink' in message) Object.assign(result, { blink: coerceBoolean(message.blink) });
+  if ('blackout' in message) Object.assign(result, { blackout: coerceBoolean(message.blackout) });
+  return result;
 }
