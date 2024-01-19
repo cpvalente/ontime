@@ -41,6 +41,7 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel, submit
           defaultValue={filename}
           size='sm'
           type='text'
+          placeholder='Enter new name'
           variant='ontime-filled'
           {...register('filename')}
         />

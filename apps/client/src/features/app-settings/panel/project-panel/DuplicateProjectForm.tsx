@@ -43,7 +43,7 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel, sub
             size='sm'
             type='text'
             variant='ontime-filled'
-            placeholder='Duplicate file name'
+            placeholder='Enter new name'
             {...register('newFilename')}
           />
         </div>
