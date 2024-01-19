@@ -16,7 +16,6 @@ import styles from './Editor.module.scss';
 const Rundown = lazy(() => import('../rundown/RundownExport'));
 const TimerControl = lazy(() => import('../control/playback/TimerControlExport'));
 const MessageControl = lazy(() => import('../control/message/MessageControlExport'));
-const EventEditor = lazy(() => import('../event-editor/EventEditorExport'));
 
 const IntegrationModal = lazy(() => import('../modals/integration-modal/IntegrationModal'));
 const SettingsModal = lazy(() => import('../modals/settings-modal/SettingsModal'));
@@ -88,7 +87,6 @@ export default function Editor() {
         )}
         <Overview />
       </div>
-      <EventEditor />
     </>
   );
 }

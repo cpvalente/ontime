@@ -1,5 +1,15 @@
 @use '../../theme/v2Styles' as *;
 
+.rundownWrapper {
+  height: calc(100% - 1.5rem);
+  overflow: hidden;
+  padding-top: 0.5rem;
+}
+
+.eventEditor {
+  width: 400px;
+}
+
 .eventContainer {
   flex: 1;
 

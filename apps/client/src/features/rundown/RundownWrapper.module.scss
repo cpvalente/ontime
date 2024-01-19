@@ -1,0 +1,22 @@
+@use '../../theme/ontimeColours' as *;
+@use '../../theme/v2Styles' as *;
+
+@use '../editors//EditorMixin' as editor;
+
+$rundown-width: 44.5rem;
+$editor-width: 20rem;
+
+.rundownExport {
+  grid-area: rundown;
+  min-width: calc($rundown-width + $editor-width);
+  max-height: 100%;
+  position: relative;
+}
+
+.rundown {
+  @include editor.panel;
+}
+
+.corner {
+  @include editor.corner;
+}

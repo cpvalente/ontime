@@ -4,7 +4,7 @@ import RundownMenu from '../menu/RundownMenu';
 
 import Rundown from './Rundown';
 
-import styles from '../editors/Editor.module.scss';
+import styles from './Rundown.module.scss';
 
 export default function RundownWrapper() {
   const { data, status } = useRundown();
@@ -12,7 +12,7 @@ export default function RundownWrapper() {
   return (
     <>
       <RundownMenu />
-      <div className={styles.content}>
+      <div className={styles.rundownWrapper}>
         {status === 'success' && data ? <Rundown entries={data} /> : <Empty text='Connecting to server' />}
       </div>
     </>

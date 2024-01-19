@@ -1,28 +1,12 @@
 @use '../../theme/ontimeColours' as *;
 @use '../../theme/v2Styles' as *;
+@use './EditorMixin' as editor;
 
 $menu-width: 2.75rem;
-$rundown-width: 44.5rem;
 $playback-width: 26rem;
 
-@mixin absolute-top-right($distance) {
-  position: absolute;
-  top: $distance;
-  right: $distance;
-  cursor: pointer;
-  color: $ui-white;
-  transition-property: color;
-  transition-duration: $transition-time-action;
-
-  &:hover {
-    color: $ontime-color;
-  }
-}
-
 .corner {
-  display: none;
-  @include absolute-top-right(0.5rem);
-  transform: rotate(45deg);
+  @include editor.corner;
 }
 
 .mainContainer {
@@ -69,16 +53,6 @@ $playback-width: 26rem;
   }
 }
 
-.rundown {
-  grid-area: rundown;
-  min-width: $rundown-width;
-
-  .content {
-    height: calc(100% - 1.5rem);
-    overflow: hidden;
-  }
-}
-
 .messages {
   grid-area: mess;
   min-width: 24rem;
@@ -92,10 +66,4 @@ $playback-width: 26rem;
 
 .content {
   padding-top: 1.5rem;
-}
-
-.rundown {
-  .content {
-    padding-top: 0.5rem;
-  }
 }

@@ -1,0 +1,22 @@
+@use '../../../theme/ontimeColours' as *;
+@use '../../../theme/v2Styles' as *;
+
+// TODO: unify with RundownWrapper.module.scss
+$editor-width: 20rem;
+
+.eventEditor {
+  background-color: black;
+  margin-top: 2rem;
+  padding: 1rem;
+  max-height: 100%;
+  overflow-y: auto;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+}
