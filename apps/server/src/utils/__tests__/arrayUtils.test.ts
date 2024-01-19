@@ -1,4 +1,4 @@
-import { insertAtIndex, nestedObjectFromArray, reorderArray, sortArrayByProperty } from '../arrayUtils.js';
+import { insertAtIndex, reorderArray, sortArrayByProperty } from '../arrayUtils.js';
 
 describe('insertAtIndex', () => {
   it('should insert an item at the beginning of the array', () => {
@@ -84,55 +84,5 @@ describe('sortArrayByProperty()', () => {
 
     const sorted = sortArrayByProperty(arr1, 'timeStart');
     expect(sorted).toStrictEqual(arr1Expected);
-  });
-});
-
-describe('nestedObjectFromArray()', () => {
-  it('nests object with string value', () => {
-    const arr = ['a', 'b', 'c', 'd'];
-    const value = '1234567890';
-    const objExpected = { a: { b: { c: { d: value } } } };
-
-    const obj = nestedObjectFromArray(arr, value);
-    expect(obj).toStrictEqual(objExpected);
-  });
-  it('nests object with number value', () => {
-    const arr = ['a', 'b', 'c', 'd'];
-    const value = 1234567890;
-    const objExpected = { a: { b: { c: { d: value } } } };
-
-    const obj = nestedObjectFromArray(arr, value);
-    expect(obj).toStrictEqual(objExpected);
-  });
-  it('nests object with object value', () => {
-    const arr = ['a', 'b', 'c', 'd'];
-    const value = { test: { test1: '1234' } };
-    const objExpected = { a: { b: { c: { d: value } } } };
-
-    const obj = nestedObjectFromArray(arr, value);
-    expect(obj).toStrictEqual(objExpected);
-  });
-  it('nests object with array value', () => {
-    const arr = ['a', 'b', 'c', 'd'];
-    const value = [1, 2, 3, 4];
-    const objExpected = { a: { b: { c: { d: value } } } };
-
-    const obj = nestedObjectFromArray(arr, value);
-    expect(obj).toStrictEqual(objExpected);
-  });
-  it('nests object with undefined value', () => {
-    const arr = ['a', 'b', 'c', 'd'];
-    const objExpected = { a: { b: { c: { d: undefined } } } };
-
-    const obj = nestedObjectFromArray(arr);
-    expect(obj).toStrictEqual(objExpected);
-  });
-  it('empty array creates undefinde object', () => {
-    const arr = [];
-    const value = '1234567890';
-    const objExpected = null;
-
-    const obj = nestedObjectFromArray(arr, value);
-    expect(obj).toStrictEqual(objExpected);
   });
 });

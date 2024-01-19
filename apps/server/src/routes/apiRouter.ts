@@ -2,7 +2,7 @@ import express from 'express';
 import { dispatchFromAdapter } from '../controllers/integrationController.js';
 import { logger } from '../classes/Logger.js';
 import { LogOrigin } from 'ontime-types';
-import { nestedObjectFromArray } from '../utils/arrayUtils.js';
+import { objectFromPath } from '../adapters/utils/parse.js';
 
 export const router = express.Router();
 
@@ -22,7 +22,7 @@ router.get('/*', (req, res) => {
 
   if (actionArray.length > 1) {
     action = actionArray.shift();
-    params.payload = nestedObjectFromArray(actionArray, params.payload);
+    params.payload = objectFromPath(actionArray, params.payload);
   }
 
   try {

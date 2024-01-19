@@ -5,7 +5,7 @@ import { Server } from 'node-osc';
 import { IAdapter } from './IAdapter.js';
 import { dispatchFromAdapter, type ChangeOptions } from '../controllers/integrationController.js';
 import { logger } from '../classes/Logger.js';
-import { nestedObjectFromArray } from '../utils/arrayUtils.js';
+import { objectFromPath } from './utils/parse.js';
 
 export class OscServer implements IAdapter {
   private readonly osc: Server;
@@ -62,7 +62,7 @@ export class OscServer implements IAdapter {
           value,
         } satisfies ChangeOptions;
       } else if (params.length) {
-        transformedPayload = nestedObjectFromArray(params, args);
+        transformedPayload = objectFromPath(params, args);
       }
 
       try {
