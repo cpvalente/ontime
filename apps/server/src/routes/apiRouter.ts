@@ -2,6 +2,7 @@ import express from 'express';
 import { dispatchFromAdapter } from '../controllers/integrationController.js';
 import { logger } from '../classes/Logger.js';
 import { LogOrigin } from 'ontime-types';
+import { nestedObjectFromArray } from '../utils/arrayUtils.js';
 
 export const router = express.Router();
 
@@ -16,17 +17,14 @@ router.get('/', (_req, res) => {
 router.get('/*', (req, res) => {
   let action = req.path.substring(1);
   const actionArray = action.split('/');
-  
-  const params = { payload: req.query };
-  
-  //TODO: this can be better
+
+  const params = { payload: req.query as object };
+
   if (actionArray.length > 1) {
     action = actionArray.shift();
-    params.payload = actionArray.reduceRight(
-      (parm, key, index) => (index === actionArray.length - 1 ? { [key]: params.payload } : { [key]: parm }),
-      {},
-    );
+    params.payload = nestedObjectFromArray(actionArray, params.payload);
   }
+
   try {
     const reply = dispatchFromAdapter(action, params, 'http');
     res.status(202).json(reply);

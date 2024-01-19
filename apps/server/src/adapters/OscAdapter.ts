@@ -5,6 +5,7 @@ import { Server } from 'node-osc';
 import { IAdapter } from './IAdapter.js';
 import { dispatchFromAdapter, type ChangeOptions } from '../controllers/integrationController.js';
 import { logger } from '../classes/Logger.js';
+import { nestedObjectFromArray } from '../utils/arrayUtils.js';
 
 export class OscServer implements IAdapter {
   private readonly osc: Server;
@@ -61,12 +62,7 @@ export class OscServer implements IAdapter {
           value,
         } satisfies ChangeOptions;
       } else if (params.length) {
-        // transform params array into a nested object with args as the value
-        // /a/b/c/d 5 will become {a:{b:{c:{d: 5}}}}
-        transformedPayload = params.reduceRight(
-          (parm, key, index) => (index === params.length - 1 ? { [key]: args } : { [key]: parm }),
-          {},
-        );
+        transformedPayload = nestedObjectFromArray(params, args);
       }
 
       try {
