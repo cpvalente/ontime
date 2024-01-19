@@ -111,30 +111,23 @@ export default function ProjectListItem({
     }
   }, [editingMode, filename, submitError]);
 
+  const isCurrentlyBeingEdited = editingMode && filename === editingFilename;
+
   return (
-    <div
-      key={filename}
-      className={current ? style.current : undefined}
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '0.5rem',
-      }}
-    >
-      {editingMode && filename === editingFilename ? (
-        renderEditMode
-      ) : (
+    <tr key={filename} className={current ? style.current : undefined}>
+      <td colSpan={isCurrentlyBeingEdited ? 4 : 1}>
+        {isCurrentlyBeingEdited ? renderEditMode : <span>{filename}</span>}
+      </td>
+      {!isCurrentlyBeingEdited && (
         <>
-          <span className={style.tableRow}>{filename}</span>
-          <span className={style.tableRow}>{createdAt}</span>
-          <span className={style.tableRow}>{updatedAt}</span>
-          <span className={style.actionButton}>
+          <td>{createdAt}</td>
+          <td>{updatedAt}</td>
+          <td className={style.actionButton}>
             <ActionMenu filename={filename} onAction={handleRefetch} onChangeEditMode={onToggleEditMode} />
-          </span>
+          </td>
         </>
       )}
-    </div>
+    </tr>
   );
 }
 
