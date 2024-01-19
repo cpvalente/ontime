@@ -40,30 +40,9 @@ export default function ProjectList() {
         <div className={style.divTable}>
           <div className={style.divTableHead}>
             <div className={style.divTableRow}>
-              <div
-                className={style.divTableHeader}
-                style={{
-                  flex: 4,
-                }}
-              >
-                Project Name
-              </div>
-              <div
-                className={style.divTableHeader}
-                style={{
-                  flex: 4,
-                }}
-              >
-                Date Created
-              </div>
-              <div
-                className={style.divTableHeader}
-                style={{
-                  flex: 4,
-                }}
-              >
-                Date Modified
-              </div>
+              <div className={style.divTableHeader}>Project Name</div>
+              <div className={style.divTableHeader}>Date Created</div>
+              <div className={style.divTableHeader}>Date Modified</div>
               <div
                 className={style.divTableHeader}
                 style={{

@@ -34,7 +34,7 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel, sub
   }, []);
 
   return (
-    <div>
+    <>
       <form onSubmit={handleSubmit(onSubmit)} className={style.form}>
         <div>
           <FormControl>
@@ -72,6 +72,6 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel, sub
         </div>
       </form>
       {submitError ? <span className={style.error}>{submitError}</span> : null}
-    </div>
+    </>
   );
 }

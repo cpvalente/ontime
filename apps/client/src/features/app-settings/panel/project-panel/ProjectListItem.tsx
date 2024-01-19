@@ -119,38 +119,21 @@ export default function ProjectListItem({
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '0.5rem 0.5rem',
+        padding: '0.5rem',
       }}
     >
-      <span
-        style={{
-          flex: 4,
-        }}
-      >
-        {editingMode && filename === editingFilename ? renderEditMode : <span>{filename}</span>}
-      </span>
-      <span
-        style={{
-          flex: 4,
-        }}
-      >
-        {createdAt}
-      </span>
-      <span
-        style={{
-          flex: 4,
-        }}
-      >
-        {updatedAt}
-      </span>
-      <span
-        className={style.actionButton}
-        style={{
-          flex: 1,
-        }}
-      >
-        <ActionMenu filename={filename} onAction={handleRefetch} onChangeEditMode={onToggleEditMode} />
-      </span>
+      {editingMode && filename === editingFilename ? (
+        renderEditMode
+      ) : (
+        <>
+          <span className={style.tableRow}>{filename}</span>
+          <span className={style.tableRow}>{createdAt}</span>
+          <span className={style.tableRow}>{updatedAt}</span>
+          <span className={style.actionButton}>
+            <ActionMenu filename={filename} onAction={handleRefetch} onChangeEditMode={onToggleEditMode} />
+          </span>
+        </>
+      )}
     </div>
   );
 }

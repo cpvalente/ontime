@@ -1,4 +1,4 @@
-import { FormControl, Input, Button } from '@chakra-ui/react';
+import { Input, Button } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -34,11 +34,16 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel, submit
   }, []);
 
   return (
-    <div>
+    <>
       <form onSubmit={handleSubmit(onSubmit)} className={style.form}>
-        <FormControl className={style.formControl}>
-          <Input defaultValue={filename} size='sm' type='text' variant='ontime-filled' {...register('filename')} />
-        </FormControl>
+        <Input
+          className={style.formInput}
+          defaultValue={filename}
+          size='sm'
+          type='text'
+          variant='ontime-filled'
+          {...register('filename')}
+        />
         <div className={style.actionButtons}>
           <Button
             disabled={!isDirty || !isValid || isSubmitting}
@@ -60,6 +65,6 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel, submit
         </div>
       </form>
       {submitError ? <span className={style.error}>{submitError}</span> : null}
-    </div>
+    </>
   );
 }

@@ -6,13 +6,19 @@
 }
 
 .actionButton {
+  flex: 1;
   text-align: right;
 }
 
 .form {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   width: 100%;
+}
+
+.formInput {
+  flex: 2;
 }
 
 .formControl {
@@ -38,16 +44,17 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex: 1;
 
-  .cancelRenameButton {
+  margin: 0 0.5rem;
+
+  button {
+    flex: 1;
+  }
+
+  button:first-child {
     margin-right: 0.5rem;
-  }
-  
-  .button {
-    &:first-of-type {
-      margin-right: 0.5rem;
-    }
-  }
+  } 
 }
 
 .error {
@@ -76,16 +83,28 @@
   border-bottom: 1px solid $white-10;
 }
 
+.tableRow {
+  flex: 3;
+}
+
 .divTableHeader {
   font-weight: 600;
   color: $gray-400;
+  flex: 3;
 }
 
 .divTableCell {
   text-align: left;
 }
 
-// Add styles for odd and even rows if needed
 .divTableRow:nth-child(odd) {
   background-color: $white-1;
+}
+
+.flexSingle {
+  flex: 1
+}
+
+.flexFour {
+  flex: 4
 }
