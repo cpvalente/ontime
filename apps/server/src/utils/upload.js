@@ -6,6 +6,28 @@ import { EXCEL_MIME, JSON_MIME } from './parser.js';
 import { ensureDirectory } from './fileManagement.js';
 import { getAppDataPath } from '../setup.js';
 
+function generateNewFileName(filePath, callback) {
+  let baseName = path.basename(filePath, path.extname(filePath));
+  let extension = path.extname(filePath);
+  let counter = 1;
+
+  const checkExistence = (newPath) => {
+    fs.access(newPath, fs.constants.F_OK, (err) => {
+      if (err) {
+        // File with the new name does not exist, use this name
+        callback(path.basename(newPath));
+      } else {
+        // File exists, increment the counter and try again
+        newPath = path.join(path.dirname(filePath), `${baseName} (${++counter})${extension}`);
+        checkExistence(newPath);
+      }
+    });
+  };
+
+  let newPath = path.join(path.dirname(filePath), `${baseName} (${counter})${extension}`);
+  checkExistence(newPath);
+}
+
 // Define multer storage object
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -25,8 +47,10 @@ const storage = multer.diskStorage({
         // File does not exist, can safely proceed to this destination
         cb(null, uploadsPath);
       } else {
-        // File already exists, handle error
-        return cb(new Error('File already exists'), false);
+        generateNewFileName(filePath, (newName) => {
+          file.originalname = newName;
+          cb(null, uploadsPath);
+        });
       }
     });
   },
