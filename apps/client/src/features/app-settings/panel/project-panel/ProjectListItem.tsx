@@ -10,14 +10,15 @@ import { PROJECT_LIST } from '../../../../common/api/apiConstants';
 import { EditMode } from './ProjectList';
 import RenameProjectForm, { RenameProjectFormValues } from './RenameProjectForm';
 import DuplicateProjectForm, { DuplicateProjectFormValues } from './DuplicateProjectForm';
+import { invalidateAllCaches } from 'common/api/apiUtils';
 
 interface ProjectListItemProps {
   current?: boolean;
   filename: string;
   createdAt: string;
   updatedAt: string;
-  onToggleEditMode?: (editMode: EditMode, filename: string | null) => void;
-  onSubmit?: () => void;
+  onToggleEditMode: (editMode: EditMode, filename: string | null) => void;
+  onSubmit: () => void;
   editingFilename: string | null;
   editingMode: EditMode | null;
 }
@@ -142,12 +143,13 @@ function ActionMenu({
   onChangeEditMode,
 }: {
   filename: string;
-  onAction?: () => void;
+  onAction?: () => Promise<void>;
   onChangeEditMode?: (editMode: EditMode, filename: string) => void;
 }) {
   const handleLoad = async () => {
     await loadProject(filename);
-    onAction?.();
+    await onAction?.();
+    await invalidateAllCaches();
   };
 
   const handleRename = () => {

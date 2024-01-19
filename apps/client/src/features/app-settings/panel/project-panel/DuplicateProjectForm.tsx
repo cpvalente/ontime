@@ -67,7 +67,7 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel, sub
           />
         </div>
       </form>
-      {submitError ? <span className={style.error}>{submitError}</span> : null}
+      {submitError && <span className={style.error}>{submitError}</span>}
     </>
   );
 }
