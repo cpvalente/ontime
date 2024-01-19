@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { Textarea } from '@chakra-ui/react';
 
-import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
+import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
 import { EditorUpdateFields } from '../EventEditor';
 
 import style from '../EventEditor.module.scss';

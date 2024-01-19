@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { EditorUpdateFields } from '../../../../features/event-editor/EventEditor';
+import { type EditorUpdateFields } from '../../../../features/rundown/event-editor/EventEditor';
 
 import Swatch from './Swatch';
 

@@ -4,15 +4,10 @@
   height: calc(100% - 1.5rem);
   overflow: hidden;
   padding-top: 0.5rem;
-}
-
-.eventEditor {
-  width: 400px;
+  flex: 1;
 }
 
 .eventContainer {
-  flex: 1;
-
   margin-top: 1em;
   display: flex;
   flex-direction: column;

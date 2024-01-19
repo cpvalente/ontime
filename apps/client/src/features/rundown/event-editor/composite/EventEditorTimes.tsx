@@ -3,11 +3,11 @@ import { Select, Switch } from '@chakra-ui/react';
 import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
 import { calculateDuration, millisToString } from 'ontime-utils';
 
-import TimeInput from '../../../common/components/input/time-input/TimeInput';
-import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
-import { useEventAction } from '../../../common/hooks/useEventAction';
-import { millisToDelayString } from '../../../common/utils/dateConfig';
-import { cx } from '../../../common/utils/styleUtils';
+import TimeInput from '../../../../common/components/input/time-input/TimeInput';
+import TimeInputWithButton from '../../../../common/components/input/time-input/TimeInputWithButton';
+import { useEventAction } from '../../../../common/hooks/useEventAction';
+import { millisToDelayString } from '../../../../common/utils/dateConfig';
+import { cx } from '../../../../common/utils/styleUtils';
 
 import style from '../EventEditor.module.scss';
 
@@ -34,7 +34,6 @@ type TimeActions =
   | 'timeWarning'
   | 'timeDanger';
 
-// Todo: add previous end to TimeInput fields
 const EventEditorTimes = (props: EventEditorTimesProps) => {
   const { eventId, timeStart, timeEnd, duration, delay, isPublic, endAction, timerType, timeWarning, timeDanger } =
     props;
@@ -65,7 +64,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
       }
       default: {
         if (field === 'timerType' || field === 'endAction' || field === 'timeWarning' || field === 'timeDanger') {
-          // @ts-expect-error -- not sure how to typecheck here
+          ///// @ts-expect-error -- not sure how to typecheck here
           newEventData[field as keyof OntimeEvent] = value as string;
         } else {
           return;
@@ -115,10 +114,10 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           time={duration}
           placeholder='Duration'
         />
-        <span className={style.spacer} />
+        <span className={style.inputLabel}>Event visibility</span>
         <label className={`${style.inputLabel} ${style.publicToggle}`}>
           <Switch isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
-          Event is public
+          {isPublic ? 'Public' : 'Private'}
         </label>
       </div>
       <div className={style.timeSettings}>

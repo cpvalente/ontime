@@ -4,13 +4,15 @@ import { isOntimeEvent, OntimeEvent } from 'ontime-types';
 import CopyTag from '../../../common/components/copy-tag/CopyTag';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import useRundown from '../../../common/hooks-query/useRundown';
-import EventEditorDataLeft from '../../event-editor/composite/EventEditorDataLeft';
-import EventEditorDataRight from '../../event-editor/composite/EventEditorDataRight';
-import EventEditorTimes from '../../event-editor/composite/EventEditorTimes';
-import { EditorUpdateFields } from '../../event-editor/EventEditor';
 import { useEventSelection } from '../useEventSelection';
 
+import EventEditorTimes from './composite/EventEditorTimes';
+import EventEditorTitles from './composite/EventEditorTitles';
+
 import style from './EventEditor.module.scss';
+
+export type EventEditorSubmitActions = keyof OntimeEvent;
+export type EditorUpdateFields = 'cue' | 'title' | 'presenter' | 'subtitle' | 'note' | 'colour';
 
 export default function EventEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
@@ -59,25 +61,20 @@ export default function EventEditor() {
           timeWarning={event.timeWarning}
           timeDanger={event.timeDanger}
         />
-        <EventEditorDataLeft
+        <EventEditorTitles
           key={`${event.id}-left`}
           eventId={event.id}
           cue={event.cue}
           title={event.title}
           presenter={event.presenter}
           subtitle={event.subtitle}
-          handleSubmit={handleSubmit}
-        />
-        <EventEditorDataRight
-          key={`${event.id}-right`}
           note={event.note}
           colour={event.colour}
           handleSubmit={handleSubmit}
         />
       </div>
-      <div>
+      <div className={style.eventActions}>
         {/** TODO: update this with changes from alex */}
-        <CopyTag label='Event ID'>{event.id}</CopyTag>
         <CopyTag label='OSC trigger by id'>{`/ontime/gotoid "${event.id}"`}</CopyTag>
         <CopyTag label='OSC trigger by cue'>{`/ontime/gotocue "${event.cue}"`}</CopyTag>
       </div>
