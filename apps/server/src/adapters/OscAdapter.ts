@@ -15,15 +15,14 @@ export class OscServer implements IAdapter {
     this.osc.on('error', (error) => logger.error(LogOrigin.Rx, `OSC IN: ${error}`));
 
     this.osc.on('message', (msg) => {
-      // TODO: update this comment
-      // message should look like /ontime/{action}/{params?} {args} where
+      // message should look like /ontime/{path}/{params?} {args} where
       // ontime: fixed message for app
-      // action: command to be called
-      // params: used if the to create a nested object to patch with
+      // path: command to be called
+      // params: used to create a nested object to patch with
       // args: extra data, only used on some API entries (delay, goto)
 
       // split message
-      const [, address, action, ...params] = msg[0].split('/');
+      const [, address, path, ...params] = msg[0].split('/');
       const args = msg[1];
 
       // get first part before (ontime)
@@ -33,7 +32,7 @@ export class OscServer implements IAdapter {
       }
 
       // get second part (command)
-      if (!action) {
+      if (!path) {
         logger.error(LogOrigin.Rx, 'OSC IN: No path found');
         return;
       }
@@ -41,7 +40,7 @@ export class OscServer implements IAdapter {
       let transformedPayload: unknown = args;
       // we need to transform the params for the change endpoint
       // OSC: /ontime/change/{eventID}/{propertyName} value
-      if (action === 'change') {
+      if (path === 'change') {
         if (params.length < 2) {
           logger.error(LogOrigin.Rx, 'OSC IN: No params provided for change');
           return;
@@ -72,7 +71,7 @@ export class OscServer implements IAdapter {
 
       try {
         dispatchFromAdapter(
-          action,
+          path,
           {
             payload: transformedPayload,
           },
