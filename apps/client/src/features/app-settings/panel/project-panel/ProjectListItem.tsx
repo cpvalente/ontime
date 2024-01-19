@@ -10,7 +10,7 @@ import { PROJECT_LIST } from '../../../../common/api/apiConstants';
 import { EditMode } from './ProjectList';
 import RenameProjectForm, { RenameProjectFormValues } from './RenameProjectForm';
 import DuplicateProjectForm, { DuplicateProjectFormValues } from './DuplicateProjectForm';
-import { invalidateAllCaches } from 'common/api/apiUtils';
+import { invalidateAllCaches } from '../../../../common/api/apiUtils';
 
 interface ProjectListItemProps {
   current?: boolean;
