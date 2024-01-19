@@ -1,6 +1,6 @@
 import { Menu, MenuButton, IconButton, MenuList, MenuItem } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { AxiosError } from 'axios';
 
 import style from './ProjectPanel.module.scss';
@@ -40,6 +40,8 @@ export default function ProjectListItem({
 
   const handleSubmitRename = async (values: RenameProjectFormValues) => {
     try {
+      setSubmitError(null);
+
       if (!values.filename) {
         setSubmitError('Filename cannot be blank');
         return;
@@ -60,6 +62,8 @@ export default function ProjectListItem({
 
   const handleSubmitDuplicate = async (values: DuplicateProjectFormValues) => {
     try {
+      setSubmitError(null);
+
       if (!values.newFilename) {
         setSubmitError('Filename cannot be blank');
         return;
@@ -78,13 +82,14 @@ export default function ProjectListItem({
     }
   };
 
-  const handleCancel = () => {
-    onToggleEditMode?.(null, null);
+  const handleToggleEditMode = (editMode: EditMode, filename: string | null) => {
+    setSubmitError(null);
+    onToggleEditMode?.(editMode, filename);
   };
 
-  useEffect(() => {
-    setSubmitError(null);
-  }, [editingMode]);
+  const handleCancel = () => {
+    handleToggleEditMode?.(null, null);
+  };
 
   const renderEditMode = useMemo(() => {
     switch (editingMode) {
@@ -123,7 +128,7 @@ export default function ProjectListItem({
           <td>{createdAt}</td>
           <td>{updatedAt}</td>
           <td className={style.actionButton}>
-            <ActionMenu filename={filename} onAction={handleRefetch} onChangeEditMode={onToggleEditMode} />
+            <ActionMenu filename={filename} onAction={handleRefetch} onChangeEditMode={handleToggleEditMode} />
           </td>
         </>
       )}
