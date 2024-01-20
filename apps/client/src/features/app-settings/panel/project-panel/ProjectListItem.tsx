@@ -52,7 +52,7 @@ export default function ProjectListItem({
         }
         await renameProject(filename, values.filename);
         await handleRefetch();
-        onSubmit?.();
+        onSubmit();
       } catch (error) {
         if (error instanceof AxiosError) {
           const errorMessage = error?.response?.data?.message;
@@ -77,7 +77,7 @@ export default function ProjectListItem({
         }
         await duplicateProject(filename, values.newFilename);
         await handleRefetch();
-        onSubmit?.();
+        onSubmit();
       } catch (error) {
         if (error instanceof AxiosError) {
           const errorMessage = error?.response?.data?.message;
