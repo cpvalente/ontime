@@ -100,18 +100,6 @@ export const setExtraTimer = {
   setTime: (time: number) => socketSendJson('timer-set', time),
 };
 
-export const useInfoPanel = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    eventNow: state.eventNow,
-    eventNext: state.eventNext,
-    playback: state.playback,
-    selectedEventIndex: state.loaded.selectedEventIndex,
-    numEvents: state.loaded.numEvents,
-  });
-
-  return useRuntimeStore(featureSelector);
-};
-
 export const useCuesheet = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.playback,

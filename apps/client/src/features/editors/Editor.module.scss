@@ -46,17 +46,16 @@ $playback-width: 26rem;
 
   display: grid;
   grid-template-rows: auto 1fr;
-  grid-template-columns: $rundown-width $playback-width 1fr;
+  grid-template-columns: 1fr $playback-width;
   grid-template-areas:
-    'rundown play info'
-    'rundown mess info';
+    'rundown play'
+    'rundown mess';
   gap: 0.5rem;
   overflow: hidden;
 
   .rundown,
   .playback,
-  .messages,
-  .info {
+  .messages {
     position: relative;
     border-radius: 8px;
     height: 100%;
@@ -72,21 +71,10 @@ $playback-width: 26rem;
 
 .rundown {
   grid-area: rundown;
+  min-width: $rundown-width;
 
   .content {
     height: calc(100% - 1.5rem);
-    overflow: hidden;
-  }
-}
-
-.info {
-  grid-area: info;
-  min-width: 17rem;
-  max-width: 800px;
-
-  .content {
-    display: flex;
-    flex-direction: column;
     overflow: hidden;
   }
 }

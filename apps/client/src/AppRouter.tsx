@@ -31,7 +31,6 @@ const EditorFeatureWrapper = lazy(() => import('./features/EditorFeatureWrapper'
 const RundownPanel = lazy(() => import('./features/rundown/RundownExport'));
 const TimerControl = lazy(() => import('./features/control/playback/TimerControlExport'));
 const MessageControl = lazy(() => import('./features/control/message/MessageControlExport'));
-const Info = lazy(() => import('./features/info/InfoExport'));
 
 export default function AppRouter() {
   return (
@@ -82,14 +81,6 @@ export default function AppRouter() {
           element={
             <EditorFeatureWrapper>
               <MessageControl />
-            </EditorFeatureWrapper>
-          }
-        />
-        <Route
-          path='/info'
-          element={
-            <EditorFeatureWrapper>
-              <Info />
             </EditorFeatureWrapper>
           }
         />

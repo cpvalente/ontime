@@ -13,7 +13,6 @@ test.describe('pages routes are available', () => {
       await expect(page.getByTestId('panel-rundown')).toBeVisible();
       await expect(page.getByTestId('panel-timer-control')).toBeVisible();
       await expect(page.getByTestId('panel-messages-control')).toBeVisible();
-      await expect(page.getByTestId('panel-info')).toBeVisible();
       await page.screenshot({ path: 'automated-screenshots/editor.png' });
     });
 
@@ -98,10 +97,6 @@ test.describe('pages routes are available', () => {
     test('message control', async ({ page }) => {
       await page.goto('http://localhost:4001/messagecontrol');
       await expect(page.getByTestId('panel-messages-control')).toBeVisible();
-    });
-    test('info', async ({ page }) => {
-      await page.goto('http://localhost:4001/info');
-      await expect(page.getByTestId('panel-info')).toBeVisible();
     });
   });
 });
