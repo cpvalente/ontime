@@ -41,13 +41,10 @@ describe('MessageService', () => {
       public: { text: 'public text', visible: false },
     };
 
-    messageService.patch(initialMessage);
-
-    const message = { timer: { text: 'new text' } };
-    const newState = messageService.patch(message);
+    const newState = messageService.patch(initialMessage);
 
     expect(newState).toEqual({
-      timer: { text: 'new text', visible: true, blackout: false, blink: false },
+      timer: { text: 'initial text', visible: true, blackout: false, blink: false },
       public: { text: 'public text', visible: false },
       lower: {
         text: '',
@@ -57,6 +54,18 @@ describe('MessageService', () => {
         text: '',
         visible: false,
       },
+    });
+  });
+
+  it('ignores undefined', () => {
+    const initialMessage = {
+      timer: { text: undefined, visible: true },
+    };
+
+    const newState = messageService.patch(initialMessage);
+
+    expect(newState).toMatchObject({
+      timer: { text: '', visible: true, blackout: false, blink: false },
     });
   });
 });

@@ -21,7 +21,7 @@ describe('validateMessage()', () => {
       visible: true,
     };
 
-    expect(validateMessage(payload)).toEqual(expected);
+    expect(validateMessage(payload)).toStrictEqual(expected);
   });
 });
 
@@ -50,6 +50,6 @@ describe('validateTimerMessage()', () => {
       visible: true,
     };
 
-    expect(validateTimerMessage(payload)).toEqual(expected);
+    expect(validateTimerMessage(payload)).toStrictEqual(expected);
   });
 });
