@@ -5,8 +5,8 @@ import { sanitiseCue } from 'ontime-utils';
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
 import { type EditorUpdateFields } from '../EventEditor';
 
-import CountedTextArea from './CountedTextArea';
-import CountedTextInput from './CountedTextInput';
+import EventTextArea from './EventTextArea';
+import EventTextInput from './EventTextInput';
 
 import style from '../EventEditor.module.scss';
 
@@ -46,18 +46,18 @@ const EventEditorTitles = (props: EventEditorLeftProps) => {
             readOnly
           />
         </div>
-        <CountedTextInput field='cue' label='Cue' initialValue={cue} submitHandler={cueSubmitHandler} maxLength={10} />
+        <EventTextInput field='cue' label='Cue' initialValue={cue} submitHandler={cueSubmitHandler} maxLength={10} />
       </div>
-      <CountedTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />
-      <CountedTextInput field='presenter' label='Presenter' initialValue={presenter} submitHandler={handleSubmit} />
-      <CountedTextInput field='subtitle' label='Subtitle' initialValue={subtitle} submitHandler={handleSubmit} />
+      <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />
+      <EventTextInput field='presenter' label='Presenter' initialValue={presenter} submitHandler={handleSubmit} />
+      <EventTextInput field='subtitle' label='Subtitle' initialValue={subtitle} submitHandler={handleSubmit} />
       <div className={style.column}>
         <label className={style.inputLabel}>Colour</label>
         <div className={style.inline}>
           <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
         </div>
       </div>
-      <CountedTextArea field='note' label='Note' initialValue={note} submitHandler={handleSubmit} />
+      <EventTextArea field='note' label='Note' initialValue={note} submitHandler={handleSubmit} />
     </div>
   );
 };

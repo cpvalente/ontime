@@ -10,9 +10,11 @@ import RundownWrapper from './RundownWrapper';
 import style from './RundownWrapper.module.scss';
 
 const RundownExport = () => {
+  const isExtracted = window.location.pathname.includes('/rundown');
+
   return (
     <div className={style.rundownExport} data-testid='panel-rundown'>
-      <IoArrowUp className={style.corner} onClick={(event) => handleLinks(event, 'rundown')} />
+      {!isExtracted && <IoArrowUp className={style.corner} onClick={(event) => handleLinks(event, 'rundown')} />}
       <div className={style.rundown}>
         <ErrorBoundary>
           <RundownWrapper />

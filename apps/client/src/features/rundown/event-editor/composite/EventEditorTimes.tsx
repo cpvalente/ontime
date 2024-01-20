@@ -80,95 +80,111 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
   const inputTimeLabels = cx([style.inputLabel, delayTime ? style.delayLabel : null]);
 
   return (
-    <div className={style.timeOptions}>
-      <div className={style.timers}>
-        <label className={inputTimeLabels} htmlFor='timeStart'>
-          {startLabel}
-        </label>
-        <TimeInputWithButton
-          id='timeStart'
-          name='timeStart'
-          submitHandler={handleSubmit}
-          time={timeStart}
-          delay={delay}
-          placeholder='Start'
-        />
-        <label className={inputTimeLabels} htmlFor='timeEnd'>
-          {endLabel}
-        </label>
-        <TimeInputWithButton
-          id='timeEnd'
-          name='timeEnd'
-          submitHandler={handleSubmit}
-          time={timeEnd}
-          delay={delay}
-          placeholder='End'
-        />
-        <label className={style.inputLabel} htmlFor='durationOverride'>
-          Duration
-        </label>
-        <TimeInputWithButton
-          id='durationOverride'
-          name='durationOverride'
-          submitHandler={handleSubmit}
-          time={duration}
-          placeholder='Duration'
-        />
-        <span className={style.inputLabel}>Event visibility</span>
-        <label className={`${style.inputLabel} ${style.publicToggle}`}>
+    <>
+      <div className={style.inline}>
+        <div>
+          <label className={inputTimeLabels} htmlFor='timeStart'>
+            {startLabel}
+          </label>
+          <TimeInputWithButton
+            id='timeStart'
+            name='timeStart'
+            submitHandler={handleSubmit}
+            time={timeStart}
+            delay={delay}
+            placeholder='Start'
+          />
+        </div>
+        <div>
+          <label className={inputTimeLabels} htmlFor='timeEnd'>
+            {endLabel}
+          </label>
+          <TimeInputWithButton
+            id='timeEnd'
+            name='timeEnd'
+            submitHandler={handleSubmit}
+            time={timeEnd}
+            delay={delay}
+            placeholder='End'
+          />
+        </div>
+        <div>
+          <label className={style.inputLabel} htmlFor='durationOverride'>
+            Duration
+          </label>
+          <TimeInputWithButton
+            id='durationOverride'
+            name='durationOverride'
+            submitHandler={handleSubmit}
+            time={duration}
+            placeholder='Duration'
+          />
+        </div>
+      </div>
+      <div>
+        <label className={style.inputLabel}>Event visibility</label>
+        <span className={`${style.inputLabel} ${style.publicToggle}`}>
           <Switch isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
           {isPublic ? 'Public' : 'Private'}
-        </label>
+        </span>
       </div>
-      <div className={style.timeSettings}>
-        <label className={style.inputLabel}>Timer Type</label>
-        <Select
-          size='sm'
-          name='timerType'
-          value={timerType}
-          onChange={(event) => handleSubmit('timerType', event.target.value)}
-          variant='ontime'
-        >
-          <option value={TimerType.CountDown}>Count down</option>
-          <option value={TimerType.CountUp}>Count up</option>
-          <option value={TimerType.TimeToEnd}>Time to end</option>
-          <option value={TimerType.Clock}>Clock</option>
-        </Select>
-        <label className={style.inputLabel}>End Action</label>
-        <Select
-          size='sm'
-          name='endAction'
-          value={endAction}
-          onChange={(event) => handleSubmit('endAction', event.target.value)}
-          variant='ontime'
-        >
-          <option value={EndAction.None}>None</option>
-          <option value={EndAction.Stop}>Stop</option>
-          <option value={EndAction.LoadNext}>Load Next</option>
-          <option value={EndAction.PlayNext}>Play Next</option>
-        </Select>
-        <label className={style.inputLabel} htmlFor='timeWarning'>
-          Warning Time
-        </label>
-        <TimeInput
-          id='timeWarning'
-          name='timeWarning'
-          submitHandler={handleSubmit}
-          time={timeWarning}
-          placeholder='Duration'
-        />
-        <label className={style.inputLabel} htmlFor='timeDanger'>
-          Danger Time
-        </label>
-        <TimeInput
-          id='timeDanger'
-          name='timeDanger'
-          submitHandler={handleSubmit}
-          time={timeDanger}
-          placeholder='Duration'
-        />
+      <div className={style.splitTwo}>
+        <div>
+          <label className={style.inputLabel}>Timer Type</label>
+          <Select
+            size='sm'
+            name='timerType'
+            value={timerType}
+            onChange={(event) => handleSubmit('timerType', event.target.value)}
+            variant='ontime'
+          >
+            <option value={TimerType.CountDown}>Count down</option>
+            <option value={TimerType.CountUp}>Count up</option>
+            <option value={TimerType.TimeToEnd}>Time to end</option>
+            <option value={TimerType.Clock}>Clock</option>
+          </Select>
+        </div>
+        <div>
+          <label className={style.inputLabel}>End Action</label>
+          <Select
+            size='sm'
+            name='endAction'
+            value={endAction}
+            onChange={(event) => handleSubmit('endAction', event.target.value)}
+            variant='ontime'
+          >
+            <option value={EndAction.None}>None</option>
+            <option value={EndAction.Stop}>Stop</option>
+            <option value={EndAction.LoadNext}>Load Next</option>
+            <option value={EndAction.PlayNext}>Play Next</option>
+          </Select>
+        </div>
+        <div>
+          <label className={style.inputLabel} htmlFor='timeWarning'>
+            Warning Time
+          </label>
+          <TimeInput
+            id='timeWarning'
+            name='timeWarning'
+            submitHandler={handleSubmit}
+            time={timeWarning}
+            placeholder='Duration'
+          />
+        </div>
+        <div>
+          <label className={style.inputLabel} htmlFor='timeDanger'>
+            Danger Time
+          </label>
+          <TimeInput
+            id='timeDanger'
+            name='timeDanger'
+            submitHandler={handleSubmit}
+            time={timeDanger}
+            placeholder='Duration'
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 

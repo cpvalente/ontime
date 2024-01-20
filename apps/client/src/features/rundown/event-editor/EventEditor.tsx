@@ -8,11 +8,30 @@ import { useEventSelection } from '../useEventSelection';
 
 import EventEditorTimes from './composite/EventEditorTimes';
 import EventEditorTitles from './composite/EventEditorTitles';
+import EventEditorUser from './composite/EventEditorUser';
 
 import style from './EventEditor.module.scss';
 
 export type EventEditorSubmitActions = keyof OntimeEvent;
-export type EditorUpdateFields = 'cue' | 'title' | 'presenter' | 'subtitle' | 'note' | 'colour';
+
+// TODO: this logic will become dynamic
+export type EditorUpdateFields =
+  | 'cue'
+  | 'title'
+  | 'presenter'
+  | 'subtitle'
+  | 'note'
+  | 'colour'
+  | 'user0'
+  | 'user1'
+  | 'user2'
+  | 'user3'
+  | 'user4'
+  | 'user5'
+  | 'user6'
+  | 'user7'
+  | 'user8'
+  | 'user9';
 
 export default function EventEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
@@ -45,6 +64,21 @@ export default function EventEditor() {
     return <span>Loading...</span>;
   }
 
+  // Compositing user fields by hand
+  // this will be replaced by dynamic logic
+  const userFields = {
+    user0: event.user0,
+    user1: event.user1,
+    user2: event.user2,
+    user3: event.user3,
+    user4: event.user4,
+    user5: event.user5,
+    user6: event.user6,
+    user7: event.user7,
+    user8: event.user8,
+    user9: event.user9,
+  };
+
   return (
     <div className={style.eventEditor}>
       <div>HEADER ACTIONS?</div>
@@ -72,11 +106,11 @@ export default function EventEditor() {
           colour={event.colour}
           handleSubmit={handleSubmit}
         />
+        <EventEditorUser key={`${event.id}-user`} userFields={userFields} handleSubmit={handleSubmit} />
       </div>
       <div className={style.eventActions}>
-        {/** TODO: update this with changes from alex */}
-        <CopyTag label='OSC trigger by id'>{`/ontime/gotoid "${event.id}"`}</CopyTag>
-        <CopyTag label='OSC trigger by cue'>{`/ontime/gotocue "${event.cue}"`}</CopyTag>
+        <CopyTag label='OSC trigger by id'>{`/ontime/load/id "${event.id}"`}</CopyTag>
+        <CopyTag label='OSC trigger by cue'>{`/ontime/load/cue "${event.cue}"`}</CopyTag>
       </div>
     </div>
   );

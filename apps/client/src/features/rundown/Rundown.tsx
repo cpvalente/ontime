@@ -33,8 +33,6 @@ export default function Rundown(props: RundownProps) {
   const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
   const showQuickEntry = eventSettings.showQuickEntry;
 
-  const isExtracted = window.location.pathname.includes('/rundown');
-
   // cursor
   const { cursor, mode: appMode } = useAppMode();
   const viewFollowsCursor = appMode === AppMode.Run;
@@ -248,7 +246,7 @@ export default function Rundown(props: RundownProps) {
                         previousEventId={previousEventId}
                         playback={isSelected ? featureData.playback : undefined}
                         isRolling={featureData.playback === Playback.Roll}
-                        disableEdit={isExtracted || appMode === AppMode.Run}
+                        disableEdit={appMode === AppMode.Run}
                       />
                     </div>
                   </div>

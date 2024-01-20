@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { Input, InputProps } from '@chakra-ui/react';
 
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
-import { EditorUpdateFields } from '../../../event-editor/EventEditor';
+import { EditorUpdateFields } from '../EventEditor';
 
 import style from '../EventEditor.module.scss';
 
@@ -13,7 +13,7 @@ interface CountedTextInputProps extends InputProps {
   submitHandler: (field: EditorUpdateFields, value: string) => void;
 }
 
-export default function CountedTextInput(props: CountedTextInputProps) {
+export default function EventTextInput(props: CountedTextInputProps) {
   const { field, label, initialValue, submitHandler, maxLength } = props;
 
   const submitCallback = useCallback((newValue: string) => submitHandler(field, newValue), [field, submitHandler]);
@@ -24,12 +24,9 @@ export default function CountedTextInput(props: CountedTextInputProps) {
 
   return (
     <div className={style.column}>
-      <div className={style.countedInput}>
-        <label className={style.inputLabel} htmlFor={field}>
-          {label}
-        </label>
-        <span className={style.charCount}>{`${value.length} characters`}</span>
-      </div>
+      <label className={style.inputLabel} htmlFor={field}>
+        {label}
+      </label>
       <Input
         id={field}
         size='sm'

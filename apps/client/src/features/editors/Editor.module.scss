@@ -37,6 +37,12 @@ $playback-width: 26rem;
   gap: 0.5rem;
   overflow: hidden;
 
+
+  .corner {
+    /* we show this if the component hasnt been extracted */
+    display: inline;
+  }
+
   .rundown,
   .playback,
   .messages {
@@ -45,11 +51,6 @@ $playback-width: 26rem;
     height: 100%;
     background-color: $bg-container-l2;
     padding: 1rem;
-
-    .corner {
-      /* we show this if the component hasnt been extracted */
-      display: inline;
-    }
   }
 }
 
