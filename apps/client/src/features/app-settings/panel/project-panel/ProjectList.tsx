@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { useProjectList } from '../../../../common/hooks-query/useProjectList';
 import * as Panel from '../PanelUtils';
+
 import ProjectListItem from './ProjectListItem';
 
 export type EditMode = 'rename' | 'duplicate' | null;
@@ -31,7 +32,7 @@ export default function ProjectList() {
     const current = projectFiles.splice(currentlyLoadedIndex, 1)?.[0];
 
     return [current, ...projectFiles];
-  }, [data?.files, lastLoadedProject]);
+  }, [data?.files?.length, files, lastLoadedProject]);
 
   return (
     <Panel.Table>

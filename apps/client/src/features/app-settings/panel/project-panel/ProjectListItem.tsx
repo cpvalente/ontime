@@ -1,16 +1,18 @@
-import { Menu, MenuButton, IconButton, MenuList, MenuItem } from '@chakra-ui/react';
+import { useCallback, useMemo, useState } from 'react';
+import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
-import { useMemo, useState } from 'react';
 import { AxiosError } from 'axios';
 
-import style from './ProjectPanel.module.scss';
-import { renameProject, loadProject, duplicateProject } from '../../../../common/api/ontimeApi';
-import { ontimeQueryClient } from '../../../../common/queryClient';
 import { PROJECT_LIST } from '../../../../common/api/apiConstants';
+import { invalidateAllCaches } from '../../../../common/api/apiUtils';
+import { duplicateProject, loadProject, renameProject } from '../../../../common/api/ontimeApi';
+import { ontimeQueryClient } from '../../../../common/queryClient';
+
+import DuplicateProjectForm, { DuplicateProjectFormValues } from './DuplicateProjectForm';
 import { EditMode } from './ProjectList';
 import RenameProjectForm, { RenameProjectFormValues } from './RenameProjectForm';
-import DuplicateProjectForm, { DuplicateProjectFormValues } from './DuplicateProjectForm';
-import { invalidateAllCaches } from '../../../../common/api/apiUtils';
+
+import style from './ProjectPanel.module.scss';
 
 interface ProjectListItemProps {
   current?: boolean;
@@ -39,58 +41,67 @@ export default function ProjectListItem({
     await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
   };
 
-  const handleSubmitRename = async (values: RenameProjectFormValues) => {
-    try {
+  const handleSubmitRename = useCallback(
+    async (values: RenameProjectFormValues) => {
+      try {
+        setSubmitError(null);
+
+        if (!values.filename) {
+          setSubmitError('Filename cannot be blank');
+          return;
+        }
+        await renameProject(filename, values.filename);
+        await handleRefetch();
+        onSubmit?.();
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          const errorMessage = error?.response?.data?.message;
+
+          setSubmitError(errorMessage);
+        } else {
+          setSubmitError('An unknown error occurred');
+        }
+      }
+    },
+    [filename, onSubmit],
+  );
+
+  const handleSubmitDuplicate = useCallback(
+    async (values: DuplicateProjectFormValues) => {
+      try {
+        setSubmitError(null);
+
+        if (!values.newFilename) {
+          setSubmitError('Filename cannot be blank');
+          return;
+        }
+        await duplicateProject(filename, values.newFilename);
+        await handleRefetch();
+        onSubmit?.();
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          const errorMessage = error?.response?.data?.message;
+
+          setSubmitError(errorMessage);
+        } else {
+          setSubmitError('An unknown error occurred');
+        }
+      }
+    },
+    [filename, onSubmit],
+  );
+
+  const handleToggleEditMode = useCallback(
+    (editMode: EditMode, filename: string | null) => {
       setSubmitError(null);
+      onToggleEditMode(editMode, filename);
+    },
+    [onToggleEditMode],
+  );
 
-      if (!values.filename) {
-        setSubmitError('Filename cannot be blank');
-        return;
-      }
-      await renameProject(filename, values.filename);
-      await handleRefetch();
-      onSubmit?.();
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        const errorMessage = error?.response?.data?.message;
-
-        setSubmitError(errorMessage);
-      } else {
-        setSubmitError('An unknown error occurred');
-      }
-    }
-  };
-
-  const handleSubmitDuplicate = async (values: DuplicateProjectFormValues) => {
-    try {
-      setSubmitError(null);
-
-      if (!values.newFilename) {
-        setSubmitError('Filename cannot be blank');
-        return;
-      }
-      await duplicateProject(filename, values.newFilename);
-      await handleRefetch();
-      onSubmit?.();
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        const errorMessage = error?.response?.data?.message;
-
-        setSubmitError(errorMessage);
-      } else {
-        setSubmitError('An unknown error occurred');
-      }
-    }
-  };
-
-  const handleToggleEditMode = (editMode: EditMode, filename: string | null) => {
-    setSubmitError(null);
-    onToggleEditMode(editMode, filename);
-  };
-
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     handleToggleEditMode(null, null);
-  };
+  }, [handleToggleEditMode]);
 
   const renderEditMode = useMemo(() => {
     switch (editingMode) {
@@ -115,7 +126,7 @@ export default function ProjectListItem({
       default:
         return null;
     }
-  }, [editingMode, filename, submitError]);
+  }, [editingMode, filename, handleCancel, handleSubmitDuplicate, handleSubmitRename, submitError]);
 
   const isCurrentlyBeingEdited = editingMode && filename === editingFilename;
 

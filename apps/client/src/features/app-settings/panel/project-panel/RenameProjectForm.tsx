@@ -1,6 +1,6 @@
-import { Input, Button } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { Button, Input } from '@chakra-ui/react';
 
 import style from './ProjectPanel.module.scss';
 
@@ -31,7 +31,7 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel, submit
 
   useEffect(() => {
     setFocus('filename');
-  }, []);
+  }, [setFocus]);
 
   return (
     <>
@@ -48,19 +48,21 @@ export default function RenameProjectForm({ filename, onSubmit, onCancel, submit
         <div className={style.actionButtons}>
           <Button
             isDisabled={isSubmitting}
-            children='Cancel'
             onClick={onCancel}
             size='sm'
             variant='ontime-ghosted'
             className={style.cancelRenameButton}
-          />
+          >
+            Cancel
+          </Button>
           <Button
             isDisabled={!isDirty || !isValid || isSubmitting}
-            children='Rename'
             onClick={handleSubmit(onSubmit)}
             size='sm'
             variant='ontime-filled'
-          />
+          >
+            Rename
+          </Button>
         </div>
       </form>
       {submitError && <span className={style.error}>{submitError}</span>}

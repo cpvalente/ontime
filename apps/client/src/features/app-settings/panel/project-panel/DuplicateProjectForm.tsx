@@ -1,6 +1,6 @@
-import { Input, Button } from '@chakra-ui/react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { Button, Input } from '@chakra-ui/react';
 
 import style from './ProjectPanel.module.scss';
 
@@ -31,7 +31,7 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel, sub
 
   useEffect(() => {
     setFocus('newFilename');
-  }, []);
+  }, [setFocus]);
 
   return (
     <>
@@ -46,15 +46,18 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel, sub
           {...register('newFilename')}
         />
         <div className={style.actionButtons}>
-          <Button onClick={onCancel} size='sm' variant='ontime-ghosted' children='Cancel' disabled={isSubmitting} />
+          <Button onClick={onCancel} size='sm' variant='ontime-ghosted' disabled={isSubmitting}>
+            Cancel
+          </Button>
           <Button
             size='sm'
             variant='ontime-filled'
             isDisabled={!isDirty || !isValid || isSubmitting}
             type='submit'
-            children='Duplicate'
             className={style.saveButton}
-          />
+          >
+            Duplicate
+          </Button>
         </div>
       </form>
       {submitError && <span className={style.error}>{submitError}</span>}
