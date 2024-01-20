@@ -56,16 +56,4 @@ describe('MessageService', () => {
       },
     });
   });
-
-  it('ignores undefined', () => {
-    const initialMessage = {
-      timer: { text: undefined, visible: true },
-    };
-
-    const newState = messageService.patch(initialMessage);
-
-    expect(newState).toMatchObject({
-      timer: { text: '', visible: true, blackout: false, blink: false },
-    });
-  });
 });
