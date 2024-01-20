@@ -121,7 +121,7 @@ export default function ProjectListItem({
 
   return (
     <tr key={filename} className={current ? style.current : undefined}>
-      <td colSpan={isCurrentlyBeingEdited ? 4 : 1}>
+      <td colSpan={isCurrentlyBeingEdited ? 99 : 1}>
         {isCurrentlyBeingEdited ? renderEditMode : <span>{filename}</span>}
       </td>
       {!isCurrentlyBeingEdited && (
