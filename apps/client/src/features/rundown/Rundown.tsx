@@ -204,7 +204,7 @@ export default function Rundown(props: RundownProps) {
   let isPast = Boolean(featureData?.selectedEventId);
 
   return (
-    <div className={style.eventContainer} ref={scrollRef}>
+    <div className={style.eventContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext onDragEnd={handleOnDragEnd} sensors={sensors} collisionDetection={closestCenter}>
         <SortableContext items={statefulEntries} strategy={verticalListSortingStrategy}>
           <div className={style.list}>
