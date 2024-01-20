@@ -1,10 +1,11 @@
-import { SimpleTimerState } from 'ontime-types';
+import { SimpleDirection, SimpleTimerState } from 'ontime-types';
 
 export class SimpleTimer {
   state: SimpleTimerState = {
     duration: 0,
     current: 0,
     playback: 'stop',
+    direction: 'down',
   };
   private startedAt: number | null = null;
   private pausedAt: number | null = null;
@@ -16,6 +17,7 @@ export class SimpleTimer {
       duration: 0,
       current: 0,
       playback: 'stop',
+      direction: 'down',
     };
   }
 
@@ -26,6 +28,11 @@ export class SimpleTimer {
   public setTime(time: number): SimpleTimerState {
     this.state.duration = time;
     this.state.current = time;
+    return this.state;
+  }
+
+  public setDirection(direction: SimpleDirection): SimpleTimerState {
+    this.state.direction = direction;
     return this.state;
   }
 
@@ -56,7 +63,11 @@ export class SimpleTimer {
   public update(timeNow: number): SimpleTimerState {
     if (this.state.playback === 'play') {
       const elapsed = timeNow - this.startedAt;
-      this.state.current = this.state.duration - elapsed;
+      if (this.state.direction === 'down') {
+        this.state.current = this.state.duration - elapsed;
+      } else if (this.state.direction === 'up') {
+        this.state.current = this.state.duration + elapsed;
+      }
     }
 
     return this.state;

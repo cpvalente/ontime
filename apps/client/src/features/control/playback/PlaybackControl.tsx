@@ -1,15 +1,12 @@
+import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
+import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoPause } from '@react-icons/all-files/io5/IoPause';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { Playback } from 'ontime-types';
 
 import TimeInput from '../../../common/components/input/time-input/TimeInput';
-import {
-  setExtraTimer,
-  useExtraTimerPlayback,
-  useExtraTimerTime,
-  usePlaybackControl,
-} from '../../../common/hooks/useSocket';
+import { setExtraTimer, useExtraTimer, useExtraTimerTime, usePlaybackControl } from '../../../common/hooks/useSocket';
 
 import PlaybackButtons from './playback-buttons/PlaybackButtons';
 import PlaybackTimer from './playback-timer/PlaybackTimer';
@@ -32,9 +29,9 @@ function ExtraTimer() {
 }
 
 function ExtraTimerControl() {
-  const playback = useExtraTimerPlayback();
+  const { playback, direction } = useExtraTimer();
 
-  const { start, pause, stop } = setExtraTimer;
+  const { start, pause, stop, setDirection } = setExtraTimer;
 
   return (
     <div style={{ display: 'flex', gap: '0.5rem', marginTop: '2rem' }}>
@@ -47,6 +44,15 @@ function ExtraTimerControl() {
       </TapButton>
       <TapButton onClick={stop} theme={Playback.Stop}>
         <IoStop />
+      </TapButton>
+      <TapButton
+        onClick={() => {
+          setDirection(direction === 'down' ? 'up' : 'down');
+        }}
+        theme={Playback.Roll}
+      >
+        {direction === 'down' && <IoArrowDown />}
+        {direction === 'up' && <IoArrowUp />}
       </TapButton>
     </div>
   );

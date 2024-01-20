@@ -1,4 +1,4 @@
-import { SimpleTimerState } from 'ontime-types';
+import { SimpleDirection, SimpleTimerState } from 'ontime-types';
 
 import { SimpleTimer } from '../../classes/simple-timer/SimpleTimer.js';
 import { eventStore } from '../../stores/EventStore.js';
@@ -24,6 +24,11 @@ export class ExtraTimerService {
 
   private stopInterval() {
     clearInterval(this.interval);
+  }
+
+  @broadcastReturn
+  setDirection(direction: SimpleDirection) {
+    return this.timer.setDirection(direction);
   }
 
   @broadcastReturn

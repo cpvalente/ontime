@@ -1,4 +1,4 @@
-import { RuntimeStore } from 'ontime-types';
+import { RuntimeStore, SimpleDirection } from 'ontime-types';
 
 import { useRuntimeStore } from '../stores/runtime';
 import { socketSendJson } from '../utils/socket';
@@ -86,8 +86,8 @@ export const useExtraTimerTime = () => {
   return useRuntimeStore(featureSelector);
 };
 
-export const useExtraTimerPlayback = () => {
-  const featureSelector = (state: RuntimeStore) => state.timer1.playback;
+export const useExtraTimer = () => {
+  const featureSelector = (state: RuntimeStore) => state.timer1;
 
   return useRuntimeStore(featureSelector);
 };
@@ -96,6 +96,7 @@ export const setExtraTimer = {
   start: () => socketSendJson('timer-play'),
   pause: () => socketSendJson('timer-pause'),
   stop: () => socketSendJson('timer-stop'),
+  setDirection: (direction: SimpleDirection) => socketSendJson('timer-direction', direction),
   setTime: (time: number) => socketSendJson('timer-set', time),
 };
 

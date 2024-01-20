@@ -222,6 +222,14 @@ const actionHandlers: Record<string, ActionHandler> = {
     extraTimerService.setTime(time);
     return { payload: 'success' };
   },
+  'timer-direction': (payload) => {
+    if (typeof payload === 'string' && (payload === 'up' || payload === 'down')) {
+      extraTimerService.setDirection(payload);
+      return { payload: 'success' };
+    } else {
+      throw new Error('Invalid direction payload');
+    }
+  },
 };
 /**
  * Returns a value of type number, converting if necessary
