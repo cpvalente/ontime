@@ -85,11 +85,11 @@ export default function ProjectListItem({
 
   const handleToggleEditMode = (editMode: EditMode, filename: string | null) => {
     setSubmitError(null);
-    onToggleEditMode?.(editMode, filename);
+    onToggleEditMode(editMode, filename);
   };
 
   const handleCancel = () => {
-    handleToggleEditMode?.(null, null);
+    handleToggleEditMode(null, null);
   };
 
   const renderEditMode = useMemo(() => {
@@ -129,12 +129,7 @@ export default function ProjectListItem({
           <td>{createdAt}</td>
           <td>{updatedAt}</td>
           <td className={style.actionButton}>
-            <ActionMenu
-              current={current}
-              filename={filename}
-              onAction={handleRefetch}
-              onChangeEditMode={handleToggleEditMode}
-            />
+            <ActionMenu current={current} filename={filename} onChangeEditMode={handleToggleEditMode} />
           </td>
         </>
       )}
@@ -145,26 +140,23 @@ export default function ProjectListItem({
 function ActionMenu({
   current,
   filename,
-  onAction,
   onChangeEditMode,
 }: {
   current?: boolean;
   filename: string;
-  onAction?: () => Promise<void>;
-  onChangeEditMode?: (editMode: EditMode, filename: string) => void;
+  onChangeEditMode: (editMode: EditMode, filename: string) => void;
 }) {
   const handleLoad = async () => {
     await loadProject(filename);
-    await onAction?.();
     await invalidateAllCaches();
   };
 
   const handleRename = () => {
-    onChangeEditMode?.('rename', filename);
+    onChangeEditMode('rename', filename);
   };
 
   const handleDuplicate = () => {
-    onChangeEditMode?.('duplicate', filename);
+    onChangeEditMode('duplicate', filename);
   };
 
   return (
