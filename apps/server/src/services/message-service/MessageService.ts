@@ -1,4 +1,4 @@
-import { Message, TimerMessage } from 'ontime-types';
+import { DeepPartial, Message, TimerMessage } from 'ontime-types';
 
 import { throttle } from '../../utils/throttle.js';
 
@@ -6,8 +6,18 @@ import type { PublishFn } from '../../stores/EventStore.js';
 
 let instance;
 
+export type MessageState = {
+  timer: TimerMessage;
+  public: Message;
+  lower: Message;
+  external: Message;
+};
+
 class MessageService {
-  message: { timer: TimerMessage; public: Message; lower: Message; external: Message };
+  timer: TimerMessage;
+  public: Message;
+  lower: Message;
+  external: Message;
 
   private throttledSet: PublishFn;
   private publish: PublishFn | null;
@@ -19,29 +29,35 @@ class MessageService {
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
-    this.message = {
-      timer: {
-        text: '',
-        visible: false,
-        blink: false,
-        blackout: false,
-      },
-      public: {
-        text: '',
-        visible: false,
-      },
-      lower: {
-        text: '',
-        visible: false,
-      },
-      external: {
-        text: '',
-        visible: false,
-      },
-    };
 
     this.throttledSet = () => {
       throw new Error('Published called before initialisation');
+    };
+
+    this.clear();
+  }
+
+  clear() {
+    this.timer = {
+      text: '',
+      visible: false,
+      blink: false,
+      blackout: false,
+    };
+
+    this.public = {
+      text: '',
+      visible: false,
+    };
+
+    this.lower = {
+      text: '',
+      visible: false,
+    };
+
+    this.external = {
+      text: '',
+      visible: false,
     };
   }
 
@@ -50,22 +66,25 @@ class MessageService {
     this.throttledSet = throttle((key, value) => this.publish(key, value), 100);
   }
 
-  setAll(
-    message: Partial<{
-      timer: TimerMessage;
-      public: Message;
-      lower: Message;
-      external: Message;
-    }>,
-  ) {
-    //TODO: is there a nicer way to spread nested objects
-    this.message.timer = { ...this.message.timer, ...message?.timer };
-    this.message.public = { ...this.message.public, ...message?.public };
-    this.message.lower = { ...this.message.lower, ...message?.lower };
-    this.message.external = { ...this.message.external, ...message?.external };
+  getState(): MessageState {
+    return {
+      timer: this.timer,
+      public: this.public,
+      lower: this.lower,
+      external: this.external,
+    };
+  }
 
-    this.throttledSet('message', this.message);
-    return this.message;
+  patch(message: DeepPartial<MessageState>) {
+    if (message.timer) this.timer = { ...this.timer, ...message.timer };
+    if (message.public) this.public = { ...this.public, ...message.public };
+    if (message.lower) this.lower = { ...this.lower, ...message.lower };
+    if (message.external) this.external = { ...this.external, ...message.external };
+
+    const newState = this.getState();
+
+    this.throttledSet('message', newState);
+    return newState;
   }
 }
 

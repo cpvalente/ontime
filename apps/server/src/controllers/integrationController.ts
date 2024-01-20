@@ -1,12 +1,14 @@
+import { DeepPartial } from 'ontime-types';
+
 // skipcq: JS-C1003 - we like the API
 import * as assert from '../utils/assert.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
-import { messageService } from '../services/message-service/MessageService.js';
+import { type MessageState, messageService } from '../services/message-service/MessageService.js';
 import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
 import { parse, updateEvent } from './integrationController.config.js';
-import { coerceBoolean, coerceString } from '../utils/coerceType.js';
+import { validateMessage, validateTimerMessage } from '../services/message-service/messageUtils.js';
 
 export type ChangeOptions = {
   eventId: string;
@@ -49,20 +51,16 @@ const actionHandlers: Record<string, ActionHandler> = {
   },
   /* Message Service */
   message: (payload) => {
-    if (typeof payload !== 'object') {
-      throw new Error('TODO: write error');
-    }
-    const patch = {};
-    if ('timer' in payload) Object.assign(patch, { timer: validateMessage(payload.timer) });
-    if ('public' in payload) Object.assign(patch, { public: validateMessage(payload.public) });
-    if ('lower' in payload) Object.assign(patch, { lower: validateMessage(payload.lower) });
-    if ('external' in payload) Object.assign(patch, { external: validateMessage(payload.external) });
+    assert.isObject(payload);
 
-    //   lower: 'lower' in payload ? validateMessage(payload.lower) : undefined,
-    //   external: 'external' in payload ? validateMessage(payload.external) : undefined,
-    // };
+    const patch: DeepPartial<MessageState> = {
+      timer: 'timer' in payload ? validateTimerMessage(payload.timer) : undefined,
+      public: 'public' in payload ? validateMessage(payload.public) : undefined,
+      lower: 'lower' in payload ? validateMessage(payload.lower) : undefined,
+      external: 'external' in payload ? validateMessage(payload.external) : undefined,
+    };
 
-    const newMessage = messageService.setAll(patch);
+    const newMessage = messageService.patch(patch);
     return { payload: newMessage };
   },
   /* Playback */
@@ -198,16 +196,4 @@ function numberOrError(value: unknown) {
     throw new Error('Payload is not a valid number');
   }
   return converted;
-}
-
-function validateMessage(message: unknown) {
-  if (typeof message !== 'object') {
-    return;
-  }
-  const result = {};
-  if ('text' in message) Object.assign(result, { text: coerceString(message.text) });
-  if ('visible' in message) Object.assign(result, { visible: coerceBoolean(message.visible) });
-  if ('blink' in message) Object.assign(result, { blink: coerceBoolean(message.blink) });
-  if ('blackout' in message) Object.assign(result, { blackout: coerceBoolean(message.blackout) });
-  return result;
 }
