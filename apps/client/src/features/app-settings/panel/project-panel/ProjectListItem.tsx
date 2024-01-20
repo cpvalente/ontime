@@ -129,7 +129,12 @@ export default function ProjectListItem({
           <td>{createdAt}</td>
           <td>{updatedAt}</td>
           <td className={style.actionButton}>
-            <ActionMenu filename={filename} onAction={handleRefetch} onChangeEditMode={handleToggleEditMode} />
+            <ActionMenu
+              current={current}
+              filename={filename}
+              onAction={handleRefetch}
+              onChangeEditMode={handleToggleEditMode}
+            />
           </td>
         </>
       )}
@@ -138,10 +143,12 @@ export default function ProjectListItem({
 }
 
 function ActionMenu({
+  current,
   filename,
   onAction,
   onChangeEditMode,
 }: {
+  current?: boolean;
   filename: string;
   onAction?: () => Promise<void>;
   onChangeEditMode?: (editMode: EditMode, filename: string) => void;
@@ -170,7 +177,9 @@ function ActionMenu({
         size='sm'
       />
       <MenuList>
-        <MenuItem onClick={handleLoad}>Load</MenuItem>
+        <MenuItem onClick={handleLoad} isDisabled={current}>
+          Load
+        </MenuItem>
         <MenuItem onClick={handleRename}>Rename</MenuItem>
         <MenuItem onClick={handleDuplicate}>Duplicate</MenuItem>
         <MenuItem>Delete</MenuItem>
