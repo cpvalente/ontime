@@ -64,10 +64,10 @@ export const setPlayback = {
   roll: () => socketSendJson('roll'),
   startNext: () => socketSendJson('start', { next: true }),
   previous: () => {
-    socketSendJson('previous');
+    socketSendJson('load', { previous: true });
   },
   next: () => {
-    socketSendJson('next');
+    socketSendJson('load', { next: true });
   },
   stop: () => {
     socketSendJson('stop');

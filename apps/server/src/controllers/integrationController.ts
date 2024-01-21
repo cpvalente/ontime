@@ -100,14 +100,6 @@ const actionHandlers: Record<string, ActionHandler> = {
     runtimeService.pause();
     return { payload: 'success' };
   },
-  previous: () => {
-    runtimeService.loadPrevious();
-    return { payload: 'success' };
-  },
-  next: () => {
-    runtimeService.loadNext();
-    return { payload: 'success' };
-  },
   stop: () => {
     runtimeService.stop();
     return { payload: 'success' };
@@ -123,41 +115,34 @@ const actionHandlers: Record<string, ActionHandler> = {
   load: (payload) => {
     if (payload && typeof payload === 'object') {
       if ('index' in payload) {
-        return actionHandlers.loadindex(payload.index);
+        const eventIndex = numberOrError(payload.index);
+        if (eventIndex <= 0) {
+          throw new Error(`Event index out of range ${eventIndex}`);
+        }
+        // Indexes in frontend are 1 based
+        runtimeService.loadByIndex(eventIndex - 1);
+        return { payload: 'success' };
       }
       if ('id' in payload) {
-        return actionHandlers.loadid(payload.id);
+        assert.isDefined(payload.id);
+        runtimeService.loadById(payload.id.toString().toLowerCase());
+        return { payload: 'success' };
       }
       if ('cue' in payload) {
-        return actionHandlers.loadcue(payload.cue);
+        assert.isString(payload.cue);
+        runtimeService.loadByCue(payload.cue);
+        return { payload: 'success' };
       }
       if ('next' in payload) {
-        return actionHandlers.next(payload.next);
+        runtimeService.loadNext();
+        return { payload: 'success' };
       }
       if ('previous' in payload) {
-        return actionHandlers.previous(payload.previous);
+        runtimeService.loadPrevious();
+        return { payload: 'success' };
       }
     }
     throw new Error('No load method provided');
-  },
-  loadindex: (payload) => {
-    const eventIndex = numberOrError(payload);
-    if (eventIndex <= 0) {
-      throw new Error(`Event index out of range ${eventIndex}`);
-    }
-    // Indexes in frontend are 1 based
-    runtimeService.loadByIndex(eventIndex - 1);
-    return { payload: 'success' };
-  },
-  loadid: (payload) => {
-    assert.isDefined(payload);
-    runtimeService.loadById(payload.toString().toLowerCase());
-    return { payload: 'success' };
-  },
-  loadcue: (payload) => {
-    assert.isString(payload);
-    runtimeService.loadByCue(payload);
-    return { payload: 'success' };
   },
   addtime: (payload) => {
     const time = numberOrError(payload);
