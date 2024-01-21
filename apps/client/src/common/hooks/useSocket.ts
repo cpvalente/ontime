@@ -93,11 +93,11 @@ export const useExtraTimer = () => {
 };
 
 export const setExtraTimer = {
-  start: () => socketSendJson('timer-play'),
-  pause: () => socketSendJson('timer-pause'),
-  stop: () => socketSendJson('timer-stop'),
-  setDirection: (direction: SimpleDirection) => socketSendJson('timer-direction', direction),
-  setTime: (time: number) => socketSendJson('timer-set', time),
+  start: () => socketSendJson('extratimer', { play: true }),
+  pause: () => socketSendJson('extratimer', { pause: true }),
+  stop: () => socketSendJson('extratimer', { stop: true }),
+  setDirection: (direction: SimpleDirection) => socketSendJson('extratimer', { direction }),
+  setTime: (time: number) => socketSendJson('extratimer', { settime: time }),
 };
 
 export const useCuesheet = () => {

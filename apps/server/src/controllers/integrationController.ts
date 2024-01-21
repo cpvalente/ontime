@@ -205,30 +205,35 @@ const actionHandlers: Record<string, ActionHandler> = {
     return { payload: 'success' };
   },
   /* Extra timers */
-  'timer-play': () => {
-    extraTimerService.play();
-    return { payload: 'success' };
-  },
-  'timer-pause': () => {
-    extraTimerService.pause();
-    return { payload: 'success' };
-  },
-  'timer-stop': () => {
-    extraTimerService.stop();
-    return { payload: 'success' };
-  },
-  'timer-set': (payload) => {
-    const time = numberOrError(payload);
-    extraTimerService.setTime(time);
-    return { payload: 'success' };
-  },
-  'timer-direction': (payload) => {
-    if (typeof payload === 'string' && (payload === 'up' || payload === 'down')) {
-      extraTimerService.setDirection(payload);
-      return { payload: 'success' };
-    } else {
-      throw new Error('Invalid direction payload');
+  extratimer: (payload) => {
+    if (payload && typeof payload === 'object') {
+      if ('play' in payload) {
+        const reply = extraTimerService.play();
+        return { payload: reply };
+      }
+      if ('pause' in payload) {
+        const reply = extraTimerService.pause();
+        return { payload: reply };
+      }
+      if ('stop' in payload) {
+        const reply = extraTimerService.stop();
+        return { payload: reply };
+      }
+      if ('settime' in payload) {
+        const time = numberOrError(payload.settime);
+        const reply = extraTimerService.setTime(time);
+        return { payload: reply };
+      }
+      if ('direction' in payload) {
+        if (typeof payload.direction === 'string' && (payload.direction === 'up' || payload.direction === 'down')) {
+          const reply = extraTimerService.setDirection(payload.direction);
+          return { payload: reply };
+        } else {
+          throw new Error('Invalid direction payload');
+        }
+      }
     }
+    throw new Error('Invalid extratimer payload');
   },
 };
 /**
