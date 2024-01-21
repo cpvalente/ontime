@@ -36,16 +36,17 @@ function ExtraTimerControl() {
   return (
     <div style={{ display: 'flex', gap: '0.5rem', marginTop: '2rem' }}>
       <ExtraTimer />
-      <TapButton onClick={start} theme={Playback.Play} active={playback === 'play'}>
+      <TapButton className={style.smallButton} onClick={start} theme={Playback.Play} active={playback === 'play'}>
         <IoPlay />
       </TapButton>
-      <TapButton onClick={pause} theme={Playback.Pause} active={playback === 'pause'}>
+      <TapButton className={style.smallButton} onClick={pause} theme={Playback.Pause} active={playback === 'pause'}>
         <IoPause />
       </TapButton>
-      <TapButton onClick={stop} theme={Playback.Stop}>
+      <TapButton className={style.smallButton} onClick={stop} theme={Playback.Stop}>
         <IoStop />
       </TapButton>
       <TapButton
+        className={style.smallButton}
         onClick={() => {
           setDirection(direction === 'down' ? 'up' : 'down');
         }}
