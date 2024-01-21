@@ -89,8 +89,8 @@ export default function ProjectListItem({
 
   return (
     <tr key={filename} className={current ? style.current : undefined}>
-      <td colSpan={isCurrentlyBeingEdited ? 99 : 1}>
-        {isCurrentlyBeingEdited ? (
+      {isCurrentlyBeingEdited ? (
+        <td colSpan={99}>
           <DuplicateRenameProjectForm
             action={editingMode}
             filename={filename}
@@ -98,12 +98,10 @@ export default function ProjectListItem({
             onCancel={handleCancel}
             submitError={submitError}
           />
-        ) : (
-          <span>{filename}</span>
-        )}
-      </td>
-      {!isCurrentlyBeingEdited && (
+        </td>
+      ) : (
         <>
+          <td>{filename}</td>
           <td>{createdAt}</td>
           <td>{updatedAt}</td>
           <td className={style.actionButton}>
