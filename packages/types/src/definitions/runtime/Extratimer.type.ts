@@ -1,5 +1,5 @@
 export type SimplePlayback = 'play' | 'pause' | 'stop';
-export type SimpleDirection = 'up' | 'down';
+export type SimpleDirection = 'count-up' | 'count-down';
 
 export type SimpleTimerState = {
   duration: number;

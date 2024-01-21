@@ -5,7 +5,7 @@ export class SimpleTimer {
     duration: 0,
     current: 0,
     playback: 'stop',
-    direction: 'down',
+    direction: 'count-down',
   };
   private startedAt: number | null = null;
   private pausedAt: number | null = null;
@@ -17,7 +17,7 @@ export class SimpleTimer {
       duration: 0,
       current: 0,
       playback: 'stop',
-      direction: 'down',
+      direction: 'count-down',
     };
   }
 
@@ -63,9 +63,9 @@ export class SimpleTimer {
   public update(timeNow: number): SimpleTimerState {
     if (this.state.playback === 'play') {
       const elapsed = timeNow - this.startedAt;
-      if (this.state.direction === 'down') {
+      if (this.state.direction === 'count-down') {
         this.state.current = this.state.duration - elapsed;
-      } else if (this.state.direction === 'up') {
+      } else if (this.state.direction === 'count-up') {
         this.state.current = this.state.duration + elapsed;
       }
     }

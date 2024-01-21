@@ -225,7 +225,10 @@ const actionHandlers: Record<string, ActionHandler> = {
         return { payload: reply };
       }
       if ('direction' in payload) {
-        if (typeof payload.direction === 'string' && (payload.direction === 'up' || payload.direction === 'down')) {
+        if (
+          typeof payload.direction === 'string' &&
+          (payload.direction === 'count-up' || payload.direction === 'count-down')
+        ) {
           const reply = extraTimerService.setDirection(payload.direction);
           return { payload: reply };
         } else {

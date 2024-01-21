@@ -48,12 +48,12 @@ function ExtraTimerControl() {
       <TapButton
         className={style.smallButton}
         onClick={() => {
-          setDirection(direction === 'down' ? 'up' : 'down');
+          setDirection(direction === 'count-down' ? 'count-up' : 'count-down');
         }}
         theme={Playback.Roll}
       >
-        {direction === 'down' && <IoArrowDown />}
-        {direction === 'up' && <IoArrowUp />}
+        {direction === 'count-down' && <IoArrowDown />}
+        {direction === 'count-up' && <IoArrowUp />}
       </TapButton>
     </div>
   );

@@ -190,7 +190,7 @@ export const startServer = async () => {
       duration: null,
       current: null,
       playback: 'stop',
-      direction: 'down',
+      direction: 'count-down',
     },
   });
 
