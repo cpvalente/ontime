@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 
@@ -35,55 +35,46 @@ export default function ProjectListItem({
 }: ProjectListItemProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleSubmitRename = useCallback(
-    async (values: DuplicateRenameProjectFormValues) => {
-      try {
-        setSubmitError(null);
-
-        if (!values.filename) {
-          setSubmitError('Filename cannot be blank');
-          return;
-        }
-        await renameProject(filename, values.filename);
-        await onRefetch();
-        onSubmit();
-      } catch (error) {
-        setSubmitError(maybeAxiosError(error));
-      }
-    },
-    [filename, onRefetch, onSubmit],
-  );
-
-  const handleSubmitDuplicate = useCallback(
-    async (values: DuplicateRenameProjectFormValues) => {
-      try {
-        setSubmitError(null);
-
-        if (!values.filename) {
-          setSubmitError('Filename cannot be blank');
-          return;
-        }
-        await duplicateProject(filename, values.filename);
-        await onRefetch();
-        onSubmit();
-      } catch (error) {
-        setSubmitError(maybeAxiosError(error));
-      }
-    },
-    [filename, onRefetch, onSubmit],
-  );
-
-  const handleToggleEditMode = useCallback(
-    (editMode: EditMode, filename: string | null) => {
+  const handleSubmitRename = async (values: DuplicateRenameProjectFormValues) => {
+    try {
       setSubmitError(null);
-      onToggleEditMode(editMode, filename);
-    },
-    [onToggleEditMode],
-  );
 
-  const handleCancel = useCallback(() => {
+      if (!values.filename) {
+        setSubmitError('Filename cannot be blank');
+        return;
+      }
+      await renameProject(filename, values.filename);
+      await onRefetch();
+      onSubmit();
+    } catch (error) {
+      setSubmitError(maybeAxiosError(error));
+    }
+  };
+
+  const handleSubmitDuplicate = async (values: DuplicateRenameProjectFormValues) => {
+    try {
+      setSubmitError(null);
+
+      if (!values.filename) {
+        setSubmitError('Filename cannot be blank');
+        return;
+      }
+      await duplicateProject(filename, values.filename);
+      await onRefetch();
+      onSubmit();
+    } catch (error) {
+      setSubmitError(maybeAxiosError(error));
+    }
+  };
+
+  const handleToggleEditMode = (editMode: EditMode, filename: string | null) => {
+    setSubmitError(null);
+    onToggleEditMode(editMode, filename);
+  };
+
+  const handleCancel = () => {
     handleToggleEditMode(null, null);
-  }, [handleToggleEditMode]);
+  };
 
   const isCurrentlyBeingEdited = editingMode && filename === editingFilename;
 
