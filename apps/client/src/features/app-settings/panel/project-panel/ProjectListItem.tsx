@@ -1,10 +1,9 @@
 import { useCallback, useState } from 'react';
 import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
-import { AxiosError } from 'axios';
 
 import { PROJECT_LIST } from '../../../../common/api/apiConstants';
-import { invalidateAllCaches } from '../../../../common/api/apiUtils';
+import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/apiUtils';
 import { duplicateProject, loadProject, renameProject } from '../../../../common/api/ontimeApi';
 import { ontimeQueryClient } from '../../../../common/queryClient';
 
@@ -53,13 +52,7 @@ export default function ProjectListItem({
         await handleRefetch();
         onSubmit();
       } catch (error) {
-        if (error instanceof AxiosError) {
-          const errorMessage = error?.response?.data?.message;
-
-          setSubmitError(errorMessage);
-        } else {
-          setSubmitError('An unknown error occurred');
-        }
+        setSubmitError(maybeAxiosError(error));
       }
     },
     [filename, onSubmit],
@@ -78,13 +71,7 @@ export default function ProjectListItem({
         await handleRefetch();
         onSubmit();
       } catch (error) {
-        if (error instanceof AxiosError) {
-          const errorMessage = error?.response?.data?.message;
-
-          setSubmitError(errorMessage);
-        } else {
-          setSubmitError('An unknown error occurred');
-        }
+        setSubmitError(maybeAxiosError(error));
       }
     },
     [filename, onSubmit],
