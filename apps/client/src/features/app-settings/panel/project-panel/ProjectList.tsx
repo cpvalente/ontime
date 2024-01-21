@@ -8,7 +8,7 @@ import ProjectListItem from './ProjectListItem';
 export type EditMode = 'rename' | 'duplicate' | null;
 
 export default function ProjectList() {
-  const { data } = useProjectList();
+  const { data, refetch } = useProjectList();
   const { files, lastLoadedProject } = data;
 
   const [editingMode, setEditingMode] = useState<EditMode | null>(null);
@@ -22,6 +22,10 @@ export default function ProjectList() {
   const handleClear = () => {
     setEditingMode(null);
     setEditingFilename(null);
+  };
+
+  const handleRefetch = async () => {
+    await refetch();
   };
 
   const reorderedProjectFiles = useMemo(() => {
@@ -53,6 +57,7 @@ export default function ProjectList() {
             updatedAt={project.updatedAt}
             onToggleEditMode={handleToggleEditMode}
             onSubmit={handleClear}
+            onRefetch={handleRefetch}
             editingFilename={editingFilename}
             editingMode={editingMode}
             current={project.filename === lastLoadedProject}

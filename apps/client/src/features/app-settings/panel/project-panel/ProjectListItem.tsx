@@ -2,10 +2,8 @@ import { useCallback, useState } from 'react';
 import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 
-import { PROJECT_LIST } from '../../../../common/api/apiConstants';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/apiUtils';
 import { duplicateProject, loadProject, renameProject } from '../../../../common/api/ontimeApi';
-import { ontimeQueryClient } from '../../../../common/queryClient';
 
 import DuplicateRenameProjectForm, { DuplicateRenameProjectFormValues } from './DuplicateRenameProjectForm';
 import { EditMode } from './ProjectList';
@@ -19,6 +17,7 @@ interface ProjectListItemProps {
   updatedAt: string;
   onToggleEditMode: (editMode: EditMode, filename: string | null) => void;
   onSubmit: () => void;
+  onRefetch: () => Promise<void>;
   editingFilename: string | null;
   editingMode: EditMode | null;
 }
@@ -29,15 +28,12 @@ export default function ProjectListItem({
   editingFilename,
   editingMode,
   filename,
+  onRefetch,
   onSubmit,
   onToggleEditMode,
   updatedAt,
 }: ProjectListItemProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
-
-  const handleRefetch = async () => {
-    await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
-  };
 
   const handleSubmitRename = useCallback(
     async (values: DuplicateRenameProjectFormValues) => {
@@ -49,13 +45,13 @@ export default function ProjectListItem({
           return;
         }
         await renameProject(filename, values.filename);
-        await handleRefetch();
+        await onRefetch();
         onSubmit();
       } catch (error) {
         setSubmitError(maybeAxiosError(error));
       }
     },
-    [filename, onSubmit],
+    [filename, onRefetch, onSubmit],
   );
 
   const handleSubmitDuplicate = useCallback(
@@ -68,13 +64,13 @@ export default function ProjectListItem({
           return;
         }
         await duplicateProject(filename, values.filename);
-        await handleRefetch();
+        await onRefetch();
         onSubmit();
       } catch (error) {
         setSubmitError(maybeAxiosError(error));
       }
     },
-    [filename, onSubmit],
+    [filename, onRefetch, onSubmit],
   );
 
   const handleToggleEditMode = useCallback(

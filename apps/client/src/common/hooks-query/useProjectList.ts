@@ -11,7 +11,7 @@ const placeholderProjectList: ProjectFileListResponse = {
 };
 
 export function useProjectList() {
-  const { data, status } = useQuery({
+  const { data, status, refetch } = useQuery({
     queryKey: PROJECT_LIST,
     queryFn: getProjects,
     placeholderData: placeholderProjectList,
@@ -20,5 +20,5 @@ export function useProjectList() {
     refetchInterval: queryRefetchIntervalSlow,
     networkMode: 'always',
   });
-  return { data: data ?? placeholderProjectList, status };
+  return { data: data ?? placeholderProjectList, status, refetch };
 }
