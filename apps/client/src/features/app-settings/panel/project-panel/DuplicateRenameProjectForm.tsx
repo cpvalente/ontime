@@ -4,33 +4,40 @@ import { Button, Input } from '@chakra-ui/react';
 
 import style from './ProjectPanel.module.scss';
 
-export type DuplicateProjectFormValues = {
-  newFilename: string;
+export type DuplicateRenameProjectFormValues = {
+  filename: string;
 };
 
-interface DuplicateProjectFormProps {
+interface DuplicateRenameProjectFormProps {
+  action: 'duplicate' | 'rename';
   filename: string;
   onCancel: () => void;
-  onSubmit: (values: DuplicateProjectFormValues) => Promise<void>;
+  onSubmit: (values: DuplicateRenameProjectFormValues) => Promise<void>;
   submitError: string | null;
 }
 
-export default function DuplicateProjectForm({ filename, onSubmit, onCancel, submitError }: DuplicateProjectFormProps) {
+export default function DuplicateRenameProjectForm({
+  action,
+  filename,
+  onSubmit,
+  onCancel,
+  submitError,
+}: DuplicateRenameProjectFormProps) {
   const {
     handleSubmit,
     register,
     formState: { isSubmitting, isDirty, isValid },
     setFocus,
-  } = useForm<DuplicateProjectFormValues>({
-    defaultValues: { newFilename: filename },
-    values: { newFilename: filename },
+  } = useForm<DuplicateRenameProjectFormValues>({
+    defaultValues: { filename },
+    values: { filename },
     resetOptions: {
       keepDirtyValues: true,
     },
   });
 
   useEffect(() => {
-    setFocus('newFilename');
+    setFocus('filename');
   }, [setFocus]);
 
   return (
@@ -38,12 +45,12 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel, sub
       <form onSubmit={handleSubmit(onSubmit)} className={style.form}>
         <Input
           className={style.formInput}
-          id='newFilename'
+          id='filename'
           size='sm'
           type='text'
           variant='ontime-filled'
           placeholder='Enter new name'
-          {...register('newFilename')}
+          {...register('filename')}
         />
         <div className={style.actionButtons}>
           <Button onClick={onCancel} size='sm' variant='ontime-ghosted' disabled={isSubmitting}>
@@ -56,7 +63,7 @@ export default function DuplicateProjectForm({ filename, onSubmit, onCancel, sub
             type='submit'
             className={style.saveButton}
           >
-            Duplicate
+            {action === 'duplicate' ? 'Duplicate' : 'Rename'}
           </Button>
         </div>
       </form>

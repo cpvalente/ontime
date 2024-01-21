@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 import { AxiosError } from 'axios';
@@ -8,9 +8,8 @@ import { invalidateAllCaches } from '../../../../common/api/apiUtils';
 import { duplicateProject, loadProject, renameProject } from '../../../../common/api/ontimeApi';
 import { ontimeQueryClient } from '../../../../common/queryClient';
 
-import DuplicateProjectForm, { DuplicateProjectFormValues } from './DuplicateProjectForm';
+import DuplicateRenameProjectForm, { DuplicateRenameProjectFormValues } from './DuplicateRenameProjectForm';
 import { EditMode } from './ProjectList';
-import RenameProjectForm, { RenameProjectFormValues } from './RenameProjectForm';
 
 import style from './ProjectPanel.module.scss';
 
@@ -42,7 +41,7 @@ export default function ProjectListItem({
   };
 
   const handleSubmitRename = useCallback(
-    async (values: RenameProjectFormValues) => {
+    async (values: DuplicateRenameProjectFormValues) => {
       try {
         setSubmitError(null);
 
@@ -67,15 +66,15 @@ export default function ProjectListItem({
   );
 
   const handleSubmitDuplicate = useCallback(
-    async (values: DuplicateProjectFormValues) => {
+    async (values: DuplicateRenameProjectFormValues) => {
       try {
         setSubmitError(null);
 
-        if (!values.newFilename) {
+        if (!values.filename) {
           setSubmitError('Filename cannot be blank');
           return;
         }
-        await duplicateProject(filename, values.newFilename);
+        await duplicateProject(filename, values.filename);
         await handleRefetch();
         onSubmit();
       } catch (error) {
@@ -103,37 +102,22 @@ export default function ProjectListItem({
     handleToggleEditMode(null, null);
   }, [handleToggleEditMode]);
 
-  const renderEditMode = useMemo(() => {
-    switch (editingMode) {
-      case 'rename':
-        return (
-          <RenameProjectForm
-            filename={filename}
-            onSubmit={handleSubmitRename}
-            onCancel={handleCancel}
-            submitError={submitError}
-          />
-        );
-      case 'duplicate':
-        return (
-          <DuplicateProjectForm
-            filename={filename}
-            onSubmit={handleSubmitDuplicate}
-            onCancel={handleCancel}
-            submitError={submitError}
-          />
-        );
-      default:
-        return null;
-    }
-  }, [editingMode, filename, handleCancel, handleSubmitDuplicate, handleSubmitRename, submitError]);
-
   const isCurrentlyBeingEdited = editingMode && filename === editingFilename;
 
   return (
     <tr key={filename} className={current ? style.current : undefined}>
       <td colSpan={isCurrentlyBeingEdited ? 99 : 1}>
-        {isCurrentlyBeingEdited ? renderEditMode : <span>{filename}</span>}
+        {isCurrentlyBeingEdited ? (
+          <DuplicateRenameProjectForm
+            action={editingMode}
+            filename={filename}
+            onSubmit={editingMode === 'duplicate' ? handleSubmitDuplicate : handleSubmitRename}
+            onCancel={handleCancel}
+            submitError={submitError}
+          />
+        ) : (
+          <span>{filename}</span>
+        )}
       </td>
       {!isCurrentlyBeingEdited && (
         <>
