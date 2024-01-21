@@ -66,50 +66,35 @@ const actionHandlers: Record<string, ActionHandler> = {
   /* Playback */
   start: (payload) => {
     if (payload && typeof payload === 'object') {
+      if ('next' in payload) {
+        runtimeService.startNext();
+        return { payload: 'start' };
+      }
       if ('index' in payload) {
-        const reply = actionHandlers.startindex(payload.index);
-        return reply;
+        const eventIndex = numberOrError(payload.index);
+        if (eventIndex <= 0) {
+          throw new Error(`Event index out of range ${eventIndex}`);
+        }
+        // Indexes in frontend are 1 based
+        const success = runtimeService.startByIndex(eventIndex - 1);
+        if (!success) {
+          throw new Error(`Event index not recognised or out of range ${eventIndex}`);
+        }
+        return { payload: 'success' };
       }
       if ('id' in payload) {
-        const reply = actionHandlers.startid(payload.id);
-        return reply;
+        assert.isString(payload);
+        runtimeService.startById(payload);
+        return { payload: 'success' };
       }
       if ('cue' in payload) {
-        const reply = actionHandlers.startcue(payload.cue);
-        return reply;
+        assert.isString(payload);
+        runtimeService.startByCue(payload);
+        return { payload: 'success' };
       }
     }
-
     runtimeService.start();
-
     return { payload: 'start' };
-  },
-  startnext: () => {
-    runtimeService.startNext();
-    return { payload: 'start' };
-  },
-  startindex: (payload) => {
-    const eventIndex = numberOrError(payload);
-    if (eventIndex <= 0) {
-      throw new Error(`Event index out of range ${eventIndex}`);
-    }
-
-    // Indexes in frontend are 1 based
-    const success = runtimeService.startByIndex(eventIndex - 1);
-    if (!success) {
-      throw new Error(`Event index not recognised or out of range ${eventIndex}`);
-    }
-    return { payload: 'success' };
-  },
-  startid: (payload) => {
-    assert.isString(payload);
-    runtimeService.startById(payload);
-    return { payload: 'success' };
-  },
-  startcue: (payload) => {
-    assert.isString(payload);
-    runtimeService.startByCue(payload);
-    return { payload: 'success' };
   },
   pause: () => {
     runtimeService.pause();

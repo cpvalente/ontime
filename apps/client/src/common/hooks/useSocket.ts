@@ -62,7 +62,7 @@ export const setPlayback = {
   start: () => socketSendJson('start'),
   pause: () => socketSendJson('pause'),
   roll: () => socketSendJson('roll'),
-  startNext: () => socketSendJson('startnext'),
+  startNext: () => socketSendJson('start', { next: true }),
   previous: () => {
     socketSendJson('previous');
   },
@@ -105,8 +105,8 @@ export const useCuesheet = () => {
 };
 
 export const setEventPlayback = {
-  loadEvent: (eventId: string) => socketSendJson('loadid', eventId),
-  startEvent: (eventId: string) => socketSendJson('startid', eventId),
+  loadEvent: (id: string) => socketSendJson('load', { id }),
+  startEvent: (id: string) => socketSendJson('start', { id }),
   start: () => socketSendJson('start'),
   pause: () => socketSendJson('pause'),
 };
