@@ -25,21 +25,21 @@ import { eventStore } from '../stores/EventStore.js';
 import { dispatchFromAdapter } from '../controllers/integrationController.js';
 import { logger } from '../classes/Logger.js';
 
-let instance;
 
 export class SocketServer implements IAdapter {
+  private static instance: SocketServer;
   private readonly MAX_PAYLOAD = 1024 * 256; // 256Kb
 
   private wss: WebSocketServer | null;
   private readonly clientIds: Set<string>;
 
   constructor() {
-    if (instance) {
+    if (SocketServer.instance) {
       throw new Error('There can be only one');
     }
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
-    instance = this;
+    SocketServer.instance = this;
     this.clientIds = new Set<string>();
     this.wss = null;
   }

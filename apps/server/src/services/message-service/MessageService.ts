@@ -4,9 +4,9 @@ import { throttle } from '../../utils/throttle.js';
 
 import type { PublishFn } from '../../stores/EventStore.js';
 
-let instance;
-
 class MessageService {
+  private static instance: MessageService;
+
   timerMessage: TimerMessage;
   publicMessage: Message;
   lowerMessage: Message;
@@ -16,12 +16,12 @@ class MessageService {
   private publish: PublishFn | null;
 
   constructor() {
-    if (instance) {
+    if (MessageService.instance) {
       throw new Error('There can be only one');
     }
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
-    instance = this;
+    MessageService.instance = this;
 
     this.timerMessage = {
       text: '',
