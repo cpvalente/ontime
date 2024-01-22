@@ -14,6 +14,8 @@ import {
   swapEvents,
 } from '../services/rundown-service/RundownService.js';
 import { getDelayedRundown, getRundownCache } from '../services/rundown-service/delayedRundown.utils.js';
+import { postEvent, putEvent } from './rundownController.validate.js';
+import { parse } from 'valibot';
 
 // Create controller for GET request to '/events'
 // Returns -
@@ -32,27 +34,21 @@ export const rundownGetCached: RequestHandler = async (_req: Request, res: Respo
 // Create controller for POST request to '/events/'
 // Returns -
 export const rundownPost: RequestHandler = async (req, res) => {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
-
   try {
-    const newEvent = await addEvent(req.body);
+    const validEvent = parse(postEvent, req.body);
+    const newEvent = await addEvent(validEvent);
     res.status(201).send(newEvent);
   } catch (error) {
-    res.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: error.message });
   }
 };
 
 // Create controller for PUT request to '/events/'
 // Returns -
 export const rundownPut: RequestHandler = async (req, res) => {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
-
   try {
-    const event = await editEvent(req.body);
+    const validEvent = parse(putEvent, req.body);
+    const event = await editEvent(validEvent);
     res.status(200).send(event);
   } catch (error) {
     res.status(400).send({ message: error.toString() });

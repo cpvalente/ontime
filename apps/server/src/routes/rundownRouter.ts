@@ -14,8 +14,6 @@ import {
 import {
   paramsMustHaveEventId,
   rundownBatchPutValidator,
-  rundownPostValidator,
-  rundownPutValidator,
   rundownReorderValidator,
   rundownSwapValidator,
 } from '../controllers/rundownController.validate.js';
@@ -29,10 +27,10 @@ router.get('/cached', rundownGetCached);
 router.get('/', rundownGetAll);
 
 // create route between controller and '/events/' endpoint
-router.post('/', rundownPostValidator, rundownPost);
+router.post('/', rundownPost);
 
 // create route between controller and '/events/' endpoint
-router.put('/', rundownPutValidator, rundownPut);
+router.put('/', rundownPut);
 
 router.put('/batchEdit', rundownBatchPutValidator, rundownBatchPut);
 

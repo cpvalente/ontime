@@ -300,6 +300,9 @@ importers:
       ts-essentials:
         specifier: ^9.4.1
         version: 9.4.1(typescript@5.2.2)
+      valibot:
+        specifier: ^0.26.0
+        version: 0.26.0
       ws:
         specifier: ^8.13.0
         version: 8.13.0
@@ -8997,6 +9000,10 @@ packages:
   /v8-compile-cache-lib@3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
     dev: true
+
+  /valibot@0.26.0:
+    resolution: {integrity: sha512-cM8VM9jsJGx9P4qarZUBXd0I88OVI4ddtyZ1sAMiofC3Usj7Jxm2c8Xx5accdTrKc3CblO8yyytRaJ6lrsuA+Q==}
+    dev: false
 
   /validator@13.7.0:
     resolution: {integrity: sha512-nYXQLCBkpJ8X6ltALua9dRrZDHVYxjJ1wgskNt1lH9fzGjs3tgojGSCBjmEPwkWS1y29+DrizMTW19Pr9uB2nw==}

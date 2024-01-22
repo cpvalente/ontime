@@ -1,22 +1,25 @@
 import { body, param, validationResult } from 'express-validator';
+import { SupportedEvent } from 'ontime-types';
+import { enum_, object, unknown, string, array } from 'valibot';
 
-export const rundownPostValidator = [
-  body('type').isString().exists().isIn(['event', 'delay', 'block']),
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
+export const postEvent = object(
+  {
+    type: enum_(SupportedEvent, 'Invalid event type'),
   },
-];
+  unknown(),
+);
 
-export const rundownPutValidator = [
-  body('id').isString().exists(),
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
+export const putEvent = object(
+  {
+    id: string('Must include an ID'),
   },
-];
+  unknown(),
+);
+
+export const putBatchEvent = object({
+  data: object({}, unknown(), 'Must batch object'),
+  ids: array(string(), 'Must include an IDs'),
+});
 
 export const rundownBatchPutValidator = [
   body('data').isObject().exists(),
