@@ -32,9 +32,9 @@ export class ExtraTimerService {
   }
 
   @broadcastReturn
-  play() {
+  start() {
     this.startInterval();
-    return this.timer.play(this.getTime());
+    return this.timer.start(this.getTime());
   }
 
   @broadcastReturn

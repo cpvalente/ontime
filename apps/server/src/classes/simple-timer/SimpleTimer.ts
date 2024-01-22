@@ -36,7 +36,7 @@ export class SimpleTimer {
     return this.state;
   }
 
-  public play(timeNow: number): SimpleTimerState {
+  public start(timeNow: number): SimpleTimerState {
     if (this.state.playback === 'pause') {
       const elapsedSincePause = this.pausedAt - this.startedAt;
       this.startedAt = timeNow - elapsedSincePause;

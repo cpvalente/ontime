@@ -20,7 +20,7 @@ describe('SimpleTimer cout-down', () => {
     });
 
     test('setting the timer to play', () => {
-      const newState = timer.play(0);
+      const newState = timer.start(0);
       const expected: SimpleTimerState = {
         duration: initialTime,
         current: initialTime,
@@ -66,7 +66,7 @@ describe('SimpleTimer cout-down', () => {
       newState = timer.update(1700);
       expect(newState).toStrictEqual(expected);
 
-      newState = timer.play(1700);
+      newState = timer.start(1700);
       expected.playback = 'play';
       expect(newState).toStrictEqual(expected);
 
@@ -107,7 +107,7 @@ describe('SimpleTimer cout-up', () => {
     });
 
     test('setting the timer to play', () => {
-      const newState = timer.play(0);
+      const newState = timer.start(0);
       const expected: SimpleTimerState = {
         duration: initialTime,
         current: initialTime,
@@ -153,7 +153,7 @@ describe('SimpleTimer cout-up', () => {
       newState = timer.update(1700);
       expect(newState).toStrictEqual(expected);
 
-      newState = timer.play(1700);
+      newState = timer.start(1700);
       expected.playback = 'play';
       expect(newState).toStrictEqual(expected);
 

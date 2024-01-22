@@ -206,9 +206,10 @@ const actionHandlers: Record<string, ActionHandler> = {
   },
   /* Extra timers */
   extratimer: (payload) => {
+    console.log(payload)
     if (payload && typeof payload === 'object') {
-      if ('play' in payload) {
-        const reply = extraTimerService.play();
+      if ('start' in payload) {
+        const reply = extraTimerService.start();
         return { payload: reply };
       }
       if ('pause' in payload) {

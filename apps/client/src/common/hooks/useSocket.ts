@@ -93,7 +93,7 @@ export const useExtraTimer = () => {
 };
 
 export const setExtraTimer = {
-  start: () => socketSendJson('extratimer', { play: true }),
+  start: () => socketSendJson('extratimer', { start: true }),
   pause: () => socketSendJson('extratimer', { pause: true }),
   stop: () => socketSendJson('extratimer', { stop: true }),
   setDirection: (direction: SimpleDirection) => socketSendJson('extratimer', { direction }),
