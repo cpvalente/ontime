@@ -19,7 +19,7 @@ function formatDisplayFromString(value: string, hideZero = false): string {
   return formatted;
 }
 
-type AliasesDefinition = Record<string, { key: string; cb: (value: unknown) => string }>;
+type AliasesDefinition = Record<string, { key: string; cb: (value: string) => string }>;
 const quickAliases: AliasesDefinition = {
   clock: { key: 'timer.clock', cb: (value: string) => formatDisplayFromString(value) },
   duration: { key: 'timer.duration', cb: (value: string) => formatDisplayFromString(value, true) },
