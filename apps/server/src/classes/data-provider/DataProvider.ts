@@ -11,6 +11,7 @@ import {
   UserFields,
   Alias,
   Settings,
+  HttpSettings,
 } from 'ontime-types';
 
 import { data, db } from '../../modules/loadDb.js';
@@ -98,7 +99,7 @@ export class DataProvider {
     await this.persist();
   }
 
-  static async setHttp(newData) {
+  static async setHttp(newData: HttpSettings) {
     data.http = { ...newData };
     await this.persist();
   }
