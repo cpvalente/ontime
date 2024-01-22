@@ -1,10 +1,10 @@
-import { DeepPartial } from 'ontime-types';
+import { DeepPartial, MessageState } from 'ontime-types';
 
 // skipcq: JS-C1003 - we like the API
 import * as assert from '../utils/assert.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
-import { type MessageState, messageService } from '../services/message-service/MessageService.js';
+import { messageService } from '../services/message-service/MessageService.js';
 import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
 import { parse, updateEvent } from './integrationController.config.js';

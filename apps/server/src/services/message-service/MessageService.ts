@@ -1,17 +1,10 @@
-import { DeepPartial, Message, TimerMessage } from 'ontime-types';
+import { DeepPartial, Message, TimerMessage, MessageState } from 'ontime-types';
 
 import { throttle } from '../../utils/throttle.js';
 
 import type { PublishFn } from '../../stores/EventStore.js';
 
 let instance;
-
-export type MessageState = {
-  timer: TimerMessage;
-  public: Message;
-  lower: Message;
-  external: Message;
-};
 
 class MessageService {
   timer: TimerMessage;
