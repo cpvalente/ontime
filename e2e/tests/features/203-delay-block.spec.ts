@@ -33,7 +33,7 @@ test('delay blocks add time to events', async ({ page }) => {
 
   // apply delay
   await page.getByRole('button', { name: 'Apply' }).click();
-  await expect(page.getByTestId('pan-rundown').getByTestId('time-input-timeStart')).toHaveValue('00:08:00');
+  await expect(page.getByTestId('rundown').getByTestId('time-input-timeStart')).toHaveValue('00:08:00');
 
   // add new delay
   await page.getByTestId('rundown').getByPlaceholder('Start').click();
