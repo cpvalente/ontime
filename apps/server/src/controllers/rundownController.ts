@@ -2,7 +2,6 @@ import { GetRundownCached } from 'ontime-types';
 
 import { Request, Response, RequestHandler } from 'express';
 
-import { failEmptyObjects } from '../utils/routerUtils.js';
 import {
   addEvent,
   applyDelay,
@@ -14,8 +13,14 @@ import {
   swapEvents,
 } from '../services/rundown-service/RundownService.js';
 import { getDelayedRundown, getRundownCache } from '../services/rundown-service/delayedRundown.utils.js';
-import { postEvent, putEvent } from './rundownController.validate.js';
-import { parse } from 'valibot';
+import {
+  paramsMustHaveEventId,
+  rundownBatchPutValidator,
+  rundownPostValidator,
+  rundownPutValidator,
+  rundownReorderValidator,
+  rundownSwapValidator,
+} from './rundownController.validate.js';
 
 // Create controller for GET request to '/events'
 // Returns -
@@ -34,8 +39,10 @@ export const rundownGetCached: RequestHandler = async (_req: Request, res: Respo
 // Create controller for POST request to '/events/'
 // Returns -
 export const rundownPost: RequestHandler = async (req, res) => {
+  const validEvent = rundownPostValidator(req, res);
+  if (!validEvent) return;
+
   try {
-    const validEvent = parse(postEvent, req.body);
     const newEvent = await addEvent(validEvent);
     res.status(201).send(newEvent);
   } catch (error) {
@@ -46,8 +53,10 @@ export const rundownPost: RequestHandler = async (req, res) => {
 // Create controller for PUT request to '/events/'
 // Returns -
 export const rundownPut: RequestHandler = async (req, res) => {
+  const validEvent = rundownPutValidator(req, res);
+  if (!validEvent) return;
+
   try {
-    const validEvent = parse(putEvent, req.body);
     const event = await editEvent(validEvent);
     res.status(200).send(event);
   } catch (error) {
@@ -56,12 +65,11 @@ export const rundownPut: RequestHandler = async (req, res) => {
 };
 
 export const rundownBatchPut: RequestHandler = async (req, res) => {
-  if (failEmptyObjects(req.body, res)) {
-    return res.status(404);
-  }
+  const validBatchEvents = rundownBatchPutValidator(req, res);
+  if (!validBatchEvents) return;
 
   try {
-    const { data, ids } = req.body;
+    const { data, ids } = validBatchEvents;
     await batchEditEvents(ids, data);
     res.status(200);
   } catch (error) {
@@ -70,26 +78,24 @@ export const rundownBatchPut: RequestHandler = async (req, res) => {
 };
 
 export const rundownReorder: RequestHandler = async (req, res) => {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
+  const validEventReorder = rundownReorderValidator(req, res);
+  if (!validEventReorder) return;
 
   try {
-    const { eventId, from, to } = req.body;
+    const { eventId, from, to } = validEventReorder;
     const event = await reorderEvent(eventId, from, to);
     res.status(200).send(event);
   } catch (error) {
-    res.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: error });
   }
 };
 
 export const rundownSwap: RequestHandler = async (req, res) => {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
+  const validEventSwap = rundownSwapValidator(req, res);
+  if (!validEventSwap) return;
 
   try {
-    const { from, to } = req.body;
+    const { from, to } = validEventSwap;
     await swapEvents(from, to);
     res.sendStatus(200);
   } catch (error) {
@@ -100,8 +106,11 @@ export const rundownSwap: RequestHandler = async (req, res) => {
 // Create controller for PATCH request to '/events/applydelay/:eventId'
 // Returns -
 export const rundownApplyDelay: RequestHandler = async (req, res) => {
+  const validEventId = paramsMustHaveEventId(req, res);
+  if (!validEventId) return;
+
   try {
-    await applyDelay(req.params.eventId);
+    await applyDelay(validEventId);
     res.sendStatus(200);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
@@ -111,8 +120,11 @@ export const rundownApplyDelay: RequestHandler = async (req, res) => {
 // Create controller for DELETE request to '/events/:eventId'
 // Returns -
 export const deleteEventById: RequestHandler = async (req, res) => {
+  const validEventId = paramsMustHaveEventId(req, res);
+  if (!validEventId) return;
+
   try {
-    await deleteEvent(req.params.eventId);
+    await deleteEvent(validEventId);
     res.sendStatus(204);
   } catch (error) {
     res.status(400).send({ message: error.toString() });

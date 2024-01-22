@@ -11,12 +11,6 @@ import {
   rundownSwap,
   rundownBatchPut,
 } from '../controllers/rundownController.js';
-import {
-  paramsMustHaveEventId,
-  rundownBatchPutValidator,
-  rundownReorderValidator,
-  rundownSwapValidator,
-} from '../controllers/rundownController.validate.js';
 
 export const router = express.Router();
 
@@ -32,18 +26,18 @@ router.post('/', rundownPost);
 // create route between controller and '/events/' endpoint
 router.put('/', rundownPut);
 
-router.put('/batchEdit', rundownBatchPutValidator, rundownBatchPut);
+router.put('/batchEdit', rundownBatchPut);
 
 // create route between controller and '/events/reorder' endpoint
-router.patch('/reorder/', rundownReorderValidator, rundownReorder);
+router.patch('/reorder', rundownReorder);
 
-router.patch('/swap', rundownSwapValidator, rundownSwap);
+router.patch('/swap', rundownSwap);
 
 // create route between controller and '/events/applydelay/:eventId' endpoint
-router.patch('/applydelay/:eventId', paramsMustHaveEventId, rundownApplyDelay);
+router.patch('/applydelay/:eventId', rundownApplyDelay);
 
 // create route between controller and '/events/all' endpoint
 router.delete('/all', rundownDelete);
 
 // create route between controller and '/events/:eventId' endpoint
-router.delete('/:eventId', paramsMustHaveEventId, deleteEventById);
+router.delete('/:eventId', deleteEventById);

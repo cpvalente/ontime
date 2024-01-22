@@ -1,6 +1,7 @@
 import { isEmptyObject } from './parserUtils.js';
 
 /**
+ * @deprecated switch to valibot schema
  * @description initial checks for an empty of malformed request object
  * @param obj
  * @param res
@@ -20,6 +21,7 @@ export const failEmptyObjects = (obj, res) => {
 };
 
 /**
+ * @deprecated switch to valibot schema
  * @description initial checks for an empty of malformed request object
  * @param obj
  * @param res
