@@ -1,11 +1,6 @@
 @use '../../../theme/ontimeColours' as *;
 @use '../../../theme/v2Styles' as *;
 
-@mixin input-label() {
-  font-size: calc(1rem - 3px);
-  color: $label-gray;
-}
-
 // TODO: unify with RundownWrapper.module.scss
 $editor-width: 25rem;
 
@@ -53,19 +48,23 @@ $editor-width: 25rem;
 
 .inputLabel {
   display: block;
-  @include input-label;
+  font-size: calc(1rem - 3px);
+  color: $label-gray;
+  margin-bottom: 0.25rem;
 
   &.delayLabel {
     color: $ontime-delay-text;
   }
+}
 
-  &.publicToggle {
-    height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-items: center;
-    gap: 0.5rem;
-  }
+.switchLabel {
+  font-size: calc(1rem - 3px);
+  color: $label-gray;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: max-content;
+  cursor: pointer;
 }
 
 .inline {
@@ -77,7 +76,8 @@ $editor-width: 25rem;
 .splitTwo {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  column-gap: 1.5rem;
+  row-gap: 0.5rem;
 }
 
 .eventActions {

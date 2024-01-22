@@ -31,12 +31,8 @@ const EventEditorTitles = (props: EventEditorLeftProps) => {
   return (
     <div className={style.column}>
       <div className={style.splitTwo}>
-        <div className={style.column}>
-          <div className={style.countedInput}>
-            <label className={style.inputLabel} htmlFor='eventId'>
-              Event ID (read only)
-            </label>
-          </div>
+        <label className={style.inputLabel} htmlFor='eventId'>
+          Event ID (read only)
           <Input
             id='eventId'
             size='sm'
@@ -45,17 +41,15 @@ const EventEditorTitles = (props: EventEditorLeftProps) => {
             value={eventId}
             readOnly
           />
-        </div>
+        </label>
         <EventTextInput field='cue' label='Cue' initialValue={cue} submitHandler={cueSubmitHandler} maxLength={10} />
       </div>
       <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />
       <EventTextInput field='presenter' label='Presenter' initialValue={presenter} submitHandler={handleSubmit} />
       <EventTextInput field='subtitle' label='Subtitle' initialValue={subtitle} submitHandler={handleSubmit} />
-      <div className={style.column}>
+      <div>
         <label className={style.inputLabel}>Colour</label>
-        <div className={style.inline}>
-          <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
-        </div>
+        <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
       </div>
       <EventTextArea field='note' label='Note' initialValue={note} submitHandler={handleSubmit} />
     </div>

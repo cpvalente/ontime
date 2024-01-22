@@ -23,7 +23,7 @@ export default function EventTextInput(props: CountedTextInputProps) {
   });
 
   return (
-    <div className={style.column}>
+    <div>
       <label className={style.inputLabel} htmlFor={field}>
         {label}
       </label>

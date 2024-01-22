@@ -21,7 +21,7 @@ export default function EventTextArea(props: CountedTextAreaProps) {
   const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(initialValue, submitCallback);
 
   return (
-    <div className={style.column}>
+    <div>
       <label className={style.inputLabel} htmlFor={field}>
         {label}
       </label>

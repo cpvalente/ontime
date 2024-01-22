@@ -64,7 +64,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
       }
       default: {
         if (field === 'timerType' || field === 'endAction' || field === 'timeWarning' || field === 'timeDanger') {
-          ///// @ts-expect-error -- not sure how to typecheck here
+          // @ts-expect-error -- not sure how to typecheck here
           newEventData[field as keyof OntimeEvent] = value as string;
         } else {
           return;
@@ -80,7 +80,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
   const inputTimeLabels = cx([style.inputLabel, delayTime ? style.delayLabel : null]);
 
   return (
-    <>
+    <div className={style.column}>
       <div className={style.inline}>
         <div>
           <label className={inputTimeLabels} htmlFor='timeStart'>
@@ -121,16 +121,20 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           />
         </div>
       </div>
-      <div>
-        <label className={style.inputLabel}>Event visibility</label>
-        <span className={`${style.inputLabel} ${style.publicToggle}`}>
-          <Switch isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
-          {isPublic ? 'Public' : 'Private'}
-        </span>
-      </div>
+
       <div className={style.splitTwo}>
-        <div>
-          <label className={style.inputLabel}>Timer Type</label>
+        <label className={style.inputLabel} htmlFor='timeWarning'>
+          Warning Time
+          <TimeInput
+            id='timeWarning'
+            name='timeWarning'
+            submitHandler={handleSubmit}
+            time={timeWarning}
+            placeholder='Duration'
+          />
+        </label>
+        <label className={style.inputLabel}>
+          Timer Type
           <Select
             size='sm'
             name='timerType'
@@ -143,9 +147,19 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             <option value={TimerType.TimeToEnd}>Time to end</option>
             <option value={TimerType.Clock}>Clock</option>
           </Select>
-        </div>
-        <div>
-          <label className={style.inputLabel}>End Action</label>
+        </label>
+        <label className={style.inputLabel} htmlFor='timeDanger'>
+          Danger Time
+          <TimeInput
+            id='timeDanger'
+            name='timeDanger'
+            submitHandler={handleSubmit}
+            time={timeDanger}
+            placeholder='Duration'
+          />
+        </label>
+        <label className={style.inputLabel}>
+          End Action
           <Select
             size='sm'
             name='endAction'
@@ -158,33 +172,17 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             <option value={EndAction.LoadNext}>Load Next</option>
             <option value={EndAction.PlayNext}>Play Next</option>
           </Select>
-        </div>
-        <div>
-          <label className={style.inputLabel} htmlFor='timeWarning'>
-            Warning Time
-          </label>
-          <TimeInput
-            id='timeWarning'
-            name='timeWarning'
-            submitHandler={handleSubmit}
-            time={timeWarning}
-            placeholder='Duration'
-          />
-        </div>
-        <div>
-          <label className={style.inputLabel} htmlFor='timeDanger'>
-            Danger Time
-          </label>
-          <TimeInput
-            id='timeDanger'
-            name='timeDanger'
-            submitHandler={handleSubmit}
-            time={timeDanger}
-            placeholder='Duration'
-          />
-        </div>
+        </label>
       </div>
-    </>
+
+      <div>
+        <span className={style.inputLabel}>Event visibility</span>
+        <label className={style.switchLabel}>
+          <Switch isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
+          {isPublic ? 'Public' : 'Private'}
+        </label>
+      </div>
+    </div>
   );
 };
 

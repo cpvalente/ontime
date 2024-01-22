@@ -84,6 +84,7 @@ export default function EventEditor() {
       <div>HEADER ACTIONS?</div>
       <div className={style.content}>
         <EventEditorTimes
+          key={`${event.id}-times`}
           eventId={event.id}
           timeStart={event.timeStart}
           timeEnd={event.timeEnd}
@@ -96,7 +97,7 @@ export default function EventEditor() {
           timeDanger={event.timeDanger}
         />
         <EventEditorTitles
-          key={`${event.id}-left`}
+          key={`${event.id}-titles`}
           eventId={event.id}
           cue={event.cue}
           title={event.title}
