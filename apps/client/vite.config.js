@@ -44,4 +44,14 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `
+        @use './src/theme/ontimeColours' as *;
+        @use './src/theme/ontimeStyles' as *;
+        `,
+      },
+    },
+  },
 });
