@@ -66,10 +66,10 @@ export class EventLoader {
    * finds the previous event
    * @return {object | undefined}
    */
-  static findPrevious(currentEventId: string | null): OntimeEvent | null {
+  static findPrevious(currentEventId: string | null): OntimeEvent | undefined {
     const timedEvents = EventLoader.getPlayableEvents();
     if (!timedEvents || !timedEvents.length) {
-      return null;
+      return undefined;
     }
 
     // if there is no event running, go to first
@@ -87,10 +87,10 @@ export class EventLoader {
    * finds the next event
    * @return {object | undefined}
    */
-  static findNext(currentEventId: string | null): OntimeEvent | null {
+  static findNext(currentEventId: string | null): OntimeEvent | undefined {
     const timedEvents = EventLoader.getPlayableEvents();
     if (!timedEvents || !timedEvents.length) {
-      return null;
+      return undefined;
     }
 
     // if there is no event running, go to first
