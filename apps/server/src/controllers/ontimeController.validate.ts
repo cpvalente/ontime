@@ -1,6 +1,7 @@
 import { body, check, validationResult } from 'express-validator';
 import { join } from 'path';
 import { existsSync } from 'fs';
+import { Request, Response, NextFunction } from 'express';
 
 import {
   validateHttpSubscriptionObject,
@@ -20,7 +21,7 @@ export const viewValidator = [
   check('dangerColor').isString().trim().withMessage('dangerColor value must be string'),
   check('warningThreshold').isNumeric().withMessage('warningThreshold value must be a number'),
   check('dangerThreshold').isNumeric().withMessage('dangerThreshold value must a number'),
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();
@@ -35,7 +36,7 @@ export const validateAliases = [
   body('*.enabled').isBoolean(),
   body('*.alias').isString().trim(),
   body('*.pathAndParams').isString().trim(),
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();
@@ -56,7 +57,7 @@ export const validateUserFields = [
   body('user7').exists().isString().trim(),
   body('user8').exists().isString().trim(),
   body('user9').exists().isString().trim(),
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();
@@ -72,7 +73,7 @@ export const validateSettings = [
   body('timeFormat').isString().isIn(['12', '24']),
   body('language').isString(),
   body('serverPort').isPort().optional(),
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();
@@ -91,7 +92,7 @@ export const validateOSC = [
   body('subscriptions')
     .isObject()
     .custom((value) => validateOscSubscriptionObject(value)),
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();
@@ -106,7 +107,7 @@ export const validateHTTP = [
   body('subscriptions')
     .isObject()
     .custom((value) => validateHttpSubscriptionObject(value)),
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();
@@ -135,7 +136,7 @@ export const validateOscSubscription = [
   body('onFinish')
     .isArray()
     .custom((value) => validateOscSubscriptionCycle(value)),
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();
@@ -150,7 +151,7 @@ export const validatePatchProjectFile = [
   body('aliases').isArray().optional({ nullable: false }),
   body('userFields').isObject().optional({ nullable: false }),
   body('osc').isObject().optional({ nullable: false }),
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();
@@ -162,7 +163,7 @@ export const validatePatchProjectFile = [
  */
 export const validateLoadProjectFile = [
   body('filename').exists().withMessage('Filename is required').isString().withMessage('Filename must be a string'),
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
@@ -183,7 +184,7 @@ export const validateProjectDuplicate = [
     .isLength({ min: 1, max: 255 })
     .withMessage('New project filename must be between 1 and 255 characters'),
 
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
@@ -205,7 +206,7 @@ export const validateProjectRename = [
     .isLength({ min: 1, max: 255 })
     .withMessage('Duplicate project filename must be between 1 and 255 characters'),
 
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
@@ -226,7 +227,7 @@ export const validateProjectCreate = [
     .withMessage('Filename must be a string')
     .isLength({ min: 1, max: 255 })
     .withMessage('Filename must be between 1 and 255 characters'),
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(422).json({ errors: errors.array() });
@@ -269,7 +270,7 @@ export const validateProjectFiles = (projectFiles: { filename?: string; newFilen
 
 export const validateSheetid = [
   body('id').exists().isString(),
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();
@@ -279,7 +280,7 @@ export const validateSheetid = [
 export const validateWorksheet = [
   body('id').exists().isString(),
   body('worksheet').exists().isString(),
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();
@@ -289,7 +290,7 @@ export const validateWorksheet = [
 export const validateSheetOptions = [
   body('id').exists().isString(),
   // body('options').exists().isObject(), TODO:
-  (req, res, next) => {
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();
