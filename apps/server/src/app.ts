@@ -1,4 +1,4 @@
-import { HttpSettings, LogOrigin, OSCSettings, Playback } from 'ontime-types';
+import { HttpSettings, LogOrigin, OSCSettings, Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';
@@ -189,8 +189,8 @@ export const startServer = async () => {
     timer1: {
       duration: null,
       current: null,
-      playback: 'stop',
-      direction: 'count-down',
+      playback: SimplePlayback.Stop,
+      direction: SimpleDirection.CountDown,
     },
   });
 

@@ -1,4 +1,4 @@
-import { RuntimeStore, SimpleDirection } from 'ontime-types';
+import { RuntimeStore, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import { useRuntimeStore } from '../stores/runtime';
 import { socketSendJson } from '../utils/socket';
@@ -93,9 +93,9 @@ export const useExtraTimer = () => {
 };
 
 export const setExtraTimer = {
-  start: () => socketSendJson('extratimer', { start: true }),
-  pause: () => socketSendJson('extratimer', { pause: true }),
-  stop: () => socketSendJson('extratimer', { stop: true }),
+  start: () => socketSendJson('extratimer', SimplePlayback.Start),
+  pause: () => socketSendJson('extratimer', SimplePlayback.Pause),
+  stop: () => socketSendJson('extratimer', SimplePlayback.Stop),
   setDirection: (direction: SimpleDirection) => socketSendJson('extratimer', { direction }),
   setTime: (time: number) => socketSendJson('extratimer', { settime: time }),
 };

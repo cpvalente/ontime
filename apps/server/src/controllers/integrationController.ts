@@ -7,6 +7,7 @@ import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
 import { parse, updateEvent } from './integrationController.config.js';
 import { extraTimerService } from '../services/extra-timer-service/ExtraTimerService.js';
+import { SimpleDirection, SimplePlayback } from 'ontime-types';
 
 export type ChangeOptions = {
   eventId: string;
@@ -206,30 +207,29 @@ const actionHandlers: Record<string, ActionHandler> = {
   },
   /* Extra timers */
   extratimer: (payload) => {
-    console.log(payload)
-    if (payload && typeof payload === 'object') {
-      if ('start' in payload) {
+    if (payload && typeof payload === 'string') {
+      if (payload === SimplePlayback.Start) {
         const reply = extraTimerService.start();
         return { payload: reply };
       }
-      if ('pause' in payload) {
+      if (payload === SimplePlayback.Pause) {
         const reply = extraTimerService.pause();
         return { payload: reply };
       }
-      if ('stop' in payload) {
+      if (payload === SimplePlayback.Stop) {
         const reply = extraTimerService.stop();
         return { payload: reply };
       }
+    }
+
+    if (payload && typeof payload === 'object') {
       if ('settime' in payload) {
         const time = numberOrError(payload.settime);
         const reply = extraTimerService.setTime(time);
         return { payload: reply };
       }
       if ('direction' in payload) {
-        if (
-          typeof payload.direction === 'string' &&
-          (payload.direction === 'count-up' || payload.direction === 'count-down')
-        ) {
+        if (payload.direction === SimpleDirection.CountUp || payload.direction === SimpleDirection.CountDown) {
           const reply = extraTimerService.setDirection(payload.direction);
           return { payload: reply };
         } else {

@@ -3,7 +3,7 @@ import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoPause } from '@react-icons/all-files/io5/IoPause';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
-import { Playback } from 'ontime-types';
+import { Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import TimeInput from '../../../common/components/input/time-input/TimeInput';
 import { setExtraTimer, useExtraTimer, useExtraTimerTime, usePlaybackControl } from '../../../common/hooks/useSocket';
@@ -36,10 +36,20 @@ function ExtraTimerControl() {
   return (
     <div style={{ display: 'flex', gap: '0.5rem', marginTop: '2rem' }}>
       <ExtraTimer />
-      <TapButton className={style.smallButton} onClick={start} theme={Playback.Play} active={playback === 'play'}>
+      <TapButton
+        className={style.smallButton}
+        onClick={start}
+        theme={Playback.Play}
+        active={playback === SimplePlayback.Start}
+      >
         <IoPlay />
       </TapButton>
-      <TapButton className={style.smallButton} onClick={pause} theme={Playback.Pause} active={playback === 'pause'}>
+      <TapButton
+        className={style.smallButton}
+        onClick={pause}
+        theme={Playback.Pause}
+        active={playback === SimplePlayback.Pause}
+      >
         <IoPause />
       </TapButton>
       <TapButton className={style.smallButton} onClick={stop} theme={Playback.Stop}>
@@ -48,12 +58,12 @@ function ExtraTimerControl() {
       <TapButton
         className={style.smallButton}
         onClick={() => {
-          setDirection(direction === 'count-down' ? 'count-up' : 'count-down');
+          setDirection(direction === SimpleDirection.CountDown ? SimpleDirection.CountUp : SimpleDirection.CountDown);
         }}
         theme={Playback.Roll}
       >
-        {direction === 'count-down' && <IoArrowDown />}
-        {direction === 'count-up' && <IoArrowUp />}
+        {direction === SimpleDirection.CountDown && <IoArrowDown />}
+        {direction === SimpleDirection.CountUp && <IoArrowUp />}
       </TapButton>
     </div>
   );
