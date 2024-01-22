@@ -13,7 +13,6 @@ class MessageService {
   externalMessage: Message;
 
   private throttledSet: PublishFn;
-  private publish: PublishFn | null;
 
   constructor() {
     if (MessageService.instance) {
@@ -51,8 +50,7 @@ class MessageService {
   }
 
   init(publish: PublishFn) {
-    this.publish = publish;
-    this.throttledSet = throttle((key, value) => this.publish(key, value), 100);
+    this.throttledSet = throttle((key, value) => publish(key, value), 100);
   }
 
   /**
