@@ -3,6 +3,7 @@ export enum SimplePlayback {
   Pause = 'pause',
   Stop = 'stop',
 }
+
 export enum SimpleDirection {
   CountUp = 'count-up',
   CountDown = 'count-down',
