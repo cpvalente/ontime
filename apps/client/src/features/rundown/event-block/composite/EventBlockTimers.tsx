@@ -1,11 +1,11 @@
 import { memo } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { IoAlertCircleOutline } from '@react-icons/all-files/io5/IoAlertCircleOutline';
-import { MaybeNumber, OntimeEvent } from 'ontime-types';
-import { calculateDuration } from 'ontime-utils';
+import { OntimeEvent } from 'ontime-types';
 
 import TimeInputWithButton from '../../../../common/components/input/time-input/TimeInputWithButton';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
+import { forgivingStringToMillis } from '../../../../common/utils/dateConfig';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
 
 import style from '../EventBlock.module.scss';
@@ -16,70 +16,58 @@ interface EventBlockTimerProps {
   timeEnd: number;
   duration: number;
   delay: number;
-  previousEnd: MaybeNumber;
 }
 
-type TimeActions = 'timeStart' | 'timeEnd' | 'durationOverride' | 'timeWarning' | 'timeDanger';
+type TimeActions = 'timeStart' | 'timeEnd' | 'durationOverride'; // we call it durationOverride to stop from passing as a duration value
 
 const EventBlockTimers = (props: EventBlockTimerProps) => {
-  const { eventId, timeStart, timeEnd, duration, delay, previousEnd } = props;
-  const { updateEvent } = useEventAction();
+  const { eventId, timeStart, timeEnd, duration, delay } = props;
+  const { updateEvent, updateTimer } = useEventAction();
 
-  const handleSubmit = (field: TimeActions, value: number) => {
-    const newEventData: Partial<OntimeEvent> = { id: eventId };
-    switch (field) {
-      case 'durationOverride': {
-        // duration defines timeEnd
-        newEventData.duration = value;
-        newEventData.timeEnd = timeStart + value;
-        break;
-      }
-      case 'timeStart': {
-        newEventData.duration = calculateDuration(value, timeEnd);
-        newEventData.timeStart = value;
-        break;
-      }
-      case 'timeEnd': {
-        newEventData.duration = calculateDuration(timeStart, value);
-        newEventData.timeEnd = value;
-        break;
-      }
+  // In sync with EventEditorTimes
+  const handleSubmit = (field: TimeActions, value: string) => {
+    if (field === 'timeStart' || field === 'timeEnd') {
+      updateTimer(eventId, field, value);
+      return;
     }
-    updateEvent(newEventData);
+
+    if (field === 'durationOverride') {
+      const timeInMillis = forgivingStringToMillis(value);
+      const newEventData: Partial<OntimeEvent> = { id: eventId, timeEnd: timeStart + timeInMillis };
+      updateEvent(newEventData);
+      return;
+    }
   };
 
   const overMidnight = timeStart > timeEnd;
+  const hasDelay = delay !== 0;
 
   return (
     <div className={style.eventTimers}>
-      <TimeInputWithButton
+      <TimeInputWithButton<TimeActions>
         name='timeStart'
         submitHandler={handleSubmit}
         time={timeStart}
-        delay={delay}
+        hasDelay={hasDelay}
         placeholder='Start'
-        previousEnd={previousEnd ?? 0}
       />
-      <TimeInputWithButton
+      <TimeInputWithButton<TimeActions>
         name='timeEnd'
         submitHandler={handleSubmit}
         time={timeEnd}
-        delay={delay}
+        hasDelay={hasDelay}
         placeholder='End'
-        previousEnd={previousEnd ?? 0}
       />
-      <TimeInputWithButton
+      <TimeInputWithButton<TimeActions>
         name='durationOverride'
         submitHandler={handleSubmit}
         time={duration}
-        delay={0}
         placeholder='Duration'
-        previousEnd={previousEnd ?? 0}
       />
       {overMidnight && (
         <div className={style.timerNote}>
           <Tooltip
-            label='End timer before start '
+            label='End timer before start'
             openDelay={tooltipDelayFast}
             variant='ontime-ondark'
             shouldWrapChildren

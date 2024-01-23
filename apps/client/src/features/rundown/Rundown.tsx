@@ -239,7 +239,6 @@ export default function Rundown(props: RundownProps) {
                       <RundownEntry
                         type={entry.type}
                         isPast={isPast}
-                        isFirstEvent={isFirstEvent}
                         eventIndex={eventIndex}
                         data={entry}
                         selected={isSelected}

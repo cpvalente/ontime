@@ -1,4 +1,4 @@
-import { LogOrigin, OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent } from 'ontime-types';
+import { LogOrigin, OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent, isOntimeEvent } from 'ontime-types';
 import { generateId, getCueCandidate } from 'ontime-utils';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
@@ -80,10 +80,11 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
 }
 
 export async function editEvent(eventData: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
-  if (eventData.type === SupportedEvent.Event && eventData?.cue === '') {
+  if (isOntimeEvent(eventData) && eventData?.cue === '') {
     throw new Error('Cue value invalid');
   }
 
+  // TODO: check if we are changing times and change related data
   const newEvent = await cachedEdit(eventData.id, eventData);
 
   notifyChanges({ timer: [newEvent.id], external: true });

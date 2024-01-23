@@ -10,7 +10,7 @@ import { IoPlayForward } from '@react-icons/all-files/io5/IoPlayForward';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
-import { EndAction, MaybeNumber, Playback, TimerType } from 'ontime-types';
+import { EndAction, Playback, TimerType } from 'ontime-types';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 import { tooltipDelayMid } from '../../../ontimeConfig';
@@ -45,7 +45,6 @@ interface EventBlockInnerProps {
   title: string;
   note: string;
   delay: number;
-  previousEnd: MaybeNumber;
   next: boolean;
   skip: boolean;
   selected: boolean;
@@ -67,7 +66,6 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     title,
     note,
     delay,
-    previousEnd,
     next,
     skip = false,
     selected,
@@ -109,14 +107,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
 
   return !renderInner ? null : (
     <>
-      <EventBlockTimers
-        eventId={eventId}
-        timeStart={timeStart}
-        timeEnd={timeEnd}
-        duration={duration}
-        delay={delay}
-        previousEnd={previousEnd}
-      />
+      <EventBlockTimers eventId={eventId} timeStart={timeStart} timeEnd={timeEnd} duration={duration} delay={delay} />
       <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
       {next && (
         <Tooltip label='Next event' {...tooltipProps}>

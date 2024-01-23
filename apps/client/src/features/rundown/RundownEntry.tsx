@@ -8,7 +8,6 @@ import {
   Playback,
   SupportedEvent,
 } from 'ontime-types';
-import { calculateDuration } from 'ontime-utils';
 
 import { RUNDOWN } from '../../common/api/apiConstants';
 import { useEventAction } from '../../common/hooks/useEventAction';
@@ -29,7 +28,6 @@ export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'del
 interface RundownEntryProps {
   type: SupportedEvent;
   isPast: boolean;
-  isFirstEvent: boolean;
   data: OntimeRundownEntry;
   selected: boolean;
   eventIndex: number;
@@ -39,7 +37,7 @@ interface RundownEntryProps {
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
   isRolling: boolean; // we need to know even if not related to this event
-  disableEdit: boolean; // we disable edit when the window is extracted
+  disableEdit: boolean;
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
@@ -54,7 +52,6 @@ export default function RundownEntry(props: RundownEntryProps) {
     playback,
     isRolling,
     disableEdit,
-    isFirstEvent,
     eventIndex,
   } = props;
   const { emitError } = useEmitLog();
@@ -138,26 +135,6 @@ export default function RundownEntry(props: RundownEntryProps) {
           batchUpdateEvents(changes, eventIds);
           return clearSelectedEvents();
         }
-
-        if (field === 'durationOverride' && data.type === SupportedEvent.Event) {
-          // duration defines timeEnd
-          newData.duration = value as number;
-          newData.timeEnd = data.timeStart + (value as number);
-          return updateEvent(newData);
-        }
-
-        if (field === 'timeStart' && data.type === SupportedEvent.Event) {
-          newData.duration = calculateDuration(value as number, data.timeEnd);
-          newData.timeStart = value as number;
-          return updateEvent(newData);
-        }
-
-        if (field === 'timeEnd' && data.type === SupportedEvent.Event) {
-          newData.duration = calculateDuration(data.timeStart, value as number);
-          newData.timeEnd = value as number;
-          return updateEvent(newData);
-        }
-
         if (field in data) {
           // @ts-expect-error not sure how to type this
           newData[field] = value;
@@ -197,7 +174,6 @@ export default function RundownEntry(props: RundownEntryProps) {
         isRolling={isRolling}
         actionHandler={actionHandler}
         disableEdit={disableEdit}
-        isFirstEvent={isFirstEvent}
       />
     );
   } else if (data.type === SupportedEvent.Block) {

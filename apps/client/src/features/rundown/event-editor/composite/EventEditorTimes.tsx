@@ -1,12 +1,12 @@
 import { memo } from 'react';
 import { Select, Switch } from '@chakra-ui/react';
 import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
-import { calculateDuration, millisToString } from 'ontime-utils';
+import { millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import TimeInputWithButton from '../../../../common/components/input/time-input/TimeInputWithButton';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
-import { millisToDelayString } from '../../../../common/utils/dateConfig';
+import { forgivingStringToMillis, millisToDelayString } from '../../../../common/utils/dateConfig';
 import { cx } from '../../../../common/utils/styleUtils';
 
 import style from '../EventEditor.module.scss';
@@ -24,60 +24,52 @@ interface EventEditorTimesProps {
   timeDanger: number;
 }
 
-type TimeActions =
-  | 'timeStart'
-  | 'timeEnd'
-  | 'durationOverride'
-  | 'timerType'
-  | 'endAction'
-  | 'isPublic'
-  | 'timeWarning'
-  | 'timeDanger';
+type HandledActions = 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
+type TimeActions = 'timeStart' | 'timeEnd' | 'durationOverride'; // we call it durationOverride to stop from passing as a duration value
 
 const EventEditorTimes = (props: EventEditorTimesProps) => {
   const { eventId, timeStart, timeEnd, duration, delay, isPublic, endAction, timerType, timeWarning, timeDanger } =
     props;
-  const { updateEvent } = useEventAction();
+  const { updateEvent, updateTimer } = useEventAction();
 
-  const handleSubmit = (field: TimeActions, value: number | string | boolean) => {
-    const newEventData: Partial<OntimeEvent> = { id: eventId };
-    switch (field) {
-      case 'durationOverride': {
-        // duration defines timeEnd
-        newEventData.duration = value as number;
-        newEventData.timeEnd = timeStart + (value as number);
-        break;
-      }
-      case 'timeStart': {
-        newEventData.duration = calculateDuration(value as number, timeEnd);
-        newEventData.timeStart = value as number;
-        break;
-      }
-      case 'timeEnd': {
-        newEventData.duration = calculateDuration(timeStart, value as number);
-        newEventData.timeEnd = value as number;
-        break;
-      }
-      case 'isPublic': {
-        updateEvent({ id: eventId, isPublic: !(value as boolean) });
-        break;
-      }
-      default: {
-        if (field === 'timerType' || field === 'endAction' || field === 'timeWarning' || field === 'timeDanger') {
-          // @ts-expect-error -- not sure how to typecheck here
-          newEventData[field as keyof OntimeEvent] = value as string;
-        } else {
-          return;
-        }
-      }
+  // In sync with EventBlockTimers
+  const handleTimeSubmit = (field: TimeActions, value: string) => {
+    if (field === 'timeStart' || field === 'timeEnd') {
+      updateTimer(eventId, field, value);
+      return;
     }
-    updateEvent(newEventData);
+
+    if (field === 'durationOverride') {
+      const timeInMillis = forgivingStringToMillis(value);
+      const newEventData: Partial<OntimeEvent> = { id: eventId, timeEnd: timeStart + timeInMillis };
+      updateEvent(newEventData);
+      return;
+    }
   };
 
-  const delayTime = delay !== 0 ? millisToDelayString(delay) : null;
-  const startLabel = delayTime ? `New start ${millisToString(timeStart + delay)}` : 'Start time';
-  const endLabel = delayTime ? `New end ${millisToString(timeEnd + delay)}` : 'End time';
-  const inputTimeLabels = cx([style.inputLabel, delayTime ? style.delayLabel : null]);
+  const handleSubmit = (field: HandledActions, value: string | boolean) => {
+    if (field === 'isPublic') {
+      updateEvent({ id: eventId, isPublic: !(value as boolean) });
+      return;
+    }
+
+    if (field === 'timeWarning' || field === 'timeDanger') {
+      const newTime = forgivingStringToMillis(value as string);
+      updateEvent({ id: eventId, [field]: newTime });
+      return;
+    }
+
+    if (field === 'timerType' || field === 'endAction') {
+      updateEvent({ id: eventId, [field]: value });
+      return;
+    }
+  };
+
+  const hasDelay = delay !== 0;
+  const delayTime = hasDelay ? millisToDelayString(delay) : null;
+  const startLabel = delayTime ? `New Start ${millisToString(timeStart + delay)}` : 'Start time';
+  const endLabel = delayTime ? `New End ${millisToString(timeEnd + delay)}` : 'End time';
+  const inputTimeLabels = cx([style.inputLabel, hasDelay ? style.delayLabel : null]);
 
   return (
     <div className={style.column}>
@@ -87,11 +79,10 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             {startLabel}
           </label>
           <TimeInputWithButton
-            id='timeStart'
             name='timeStart'
-            submitHandler={handleSubmit}
+            submitHandler={handleTimeSubmit}
             time={timeStart}
-            delay={delay}
+            hasDelay={hasDelay}
             placeholder='Start'
           />
         </div>
@@ -100,11 +91,10 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             {endLabel}
           </label>
           <TimeInputWithButton
-            id='timeEnd'
             name='timeEnd'
-            submitHandler={handleSubmit}
+            submitHandler={handleTimeSubmit}
             time={timeEnd}
-            delay={delay}
+            hasDelay={hasDelay}
             placeholder='End'
           />
         </div>
@@ -113,9 +103,8 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             Duration
           </label>
           <TimeInputWithButton
-            id='durationOverride'
             name='durationOverride'
-            submitHandler={handleSubmit}
+            submitHandler={handleTimeSubmit}
             time={duration}
             placeholder='Duration'
           />
@@ -125,13 +114,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
       <div className={style.splitTwo}>
         <label className={style.inputLabel} htmlFor='timeWarning'>
           Warning Time
-          <TimeInput
-            id='timeWarning'
-            name='timeWarning'
-            submitHandler={handleSubmit}
-            time={timeWarning}
-            placeholder='Duration'
-          />
+          <TimeInput name='timeWarning' submitHandler={handleSubmit} time={timeWarning} placeholder='Duration' />
         </label>
         <label className={style.inputLabel}>
           Timer Type
@@ -150,13 +133,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         </label>
         <label className={style.inputLabel} htmlFor='timeDanger'>
           Danger Time
-          <TimeInput
-            id='timeDanger'
-            name='timeDanger'
-            submitHandler={handleSubmit}
-            time={timeDanger}
-            placeholder='Duration'
-          />
+          <TimeInput name='timeDanger' submitHandler={handleSubmit} time={timeDanger} placeholder='Duration' />
         </label>
         <label className={style.inputLabel}>
           End Action
@@ -176,7 +153,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
       </div>
 
       <div>
-        <span className={style.inputLabel}>Event visibility</span>
+        <span className={style.inputLabel}>Event Visibility</span>
         <label className={style.switchLabel}>
           <Switch isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
           {isPublic ? 'Public' : 'Private'}

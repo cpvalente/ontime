@@ -67,7 +67,6 @@ interface EventBlockProps {
         },
   ) => void;
   disableEdit: boolean;
-  isFirstEvent: boolean;
 }
 
 export default function EventBlock(props: EventBlockProps) {
@@ -275,7 +274,6 @@ export default function EventBlock(props: EventBlockProps) {
           title={title}
           note={note}
           delay={delay}
-          previousEnd={previousEnd}
           next={next}
           skip={skip}
           selected={selected}
