@@ -400,11 +400,11 @@ export const parseJson = async (jsonData): Promise<DatabaseModel | null> => {
  * @returns {object|null} - formatted object or null in case is invalid
  */
 
-export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: string) => {
+export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: string): OntimeEvent | null => {
   // ensure id is defined and unique
   const id = eventArgs.id || generateId();
 
-  let event = null;
+  let event: OntimeEvent | null = null;
 
   // return if object is empty
   if (Object.keys(eventArgs).length > 0) {
@@ -442,7 +442,7 @@ export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: stri
       colour: makeString(e.colour, d.colour),
       cue: makeString(e.cue, cueFallback),
       id,
-      type: 'event',
+      type: SupportedEvent.Event,
       timeWarning: e.timeWarning,
       timeDanger: e.timeDanger,
     };

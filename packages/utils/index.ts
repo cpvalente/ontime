@@ -20,7 +20,13 @@ export {
   millisToSeconds,
 } from './src/date-utils/conversionUtils.js';
 export { isTimeString } from './src/date-utils/isTimeString.js';
-export { formatFromMillis, millisToString, removeLeadingZero, removeSeconds } from './src/date-utils/timeFormatting.js';
+export {
+  formatFromMillis,
+  millisToString,
+  removeLeadingZero,
+  removeSeconds,
+  removeTrailingZero,
+} from './src/date-utils/timeFormatting.js';
 export { isColourHex } from './src/regex-utils/isColourHex.js';
 
 // time utils

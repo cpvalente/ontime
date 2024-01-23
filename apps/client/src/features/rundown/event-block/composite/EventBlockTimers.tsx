@@ -1,10 +1,12 @@
 import { memo } from 'react';
-import { OntimeEvent } from 'ontime-types';
-import { calculateDuration, millisToString } from 'ontime-utils';
+import { Tooltip } from '@chakra-ui/react';
+import { IoAlertCircleOutline } from '@react-icons/all-files/io5/IoAlertCircleOutline';
+import { MaybeNumber, OntimeEvent } from 'ontime-types';
+import { calculateDuration } from 'ontime-utils';
 
 import TimeInputWithButton from '../../../../common/components/input/time-input/TimeInputWithButton';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
-import { millisToDelayString } from '../../../../common/utils/dateConfig';
+import { tooltipDelayFast } from '../../../../ontimeConfig';
 
 import style from '../EventBlock.module.scss';
 
@@ -14,7 +16,7 @@ interface EventBlockTimerProps {
   timeEnd: number;
   duration: number;
   delay: number;
-  previousEnd: number;
+  previousEnd: MaybeNumber;
 }
 
 type TimeActions = 'timeStart' | 'timeEnd' | 'durationOverride' | 'timeWarning' | 'timeDanger';
@@ -46,9 +48,7 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
     updateEvent(newEventData);
   };
 
-  const delayedStart = Math.max(0, timeStart + delay);
-  const newTime = millisToString(delayedStart);
-  const delayTime = delay !== 0 ? millisToDelayString(delay) : null;
+  const overMidnight = timeStart > timeEnd;
 
   return (
     <div className={style.eventTimers}>
@@ -58,7 +58,7 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
         time={timeStart}
         delay={delay}
         placeholder='Start'
-        previousEnd={previousEnd}
+        previousEnd={previousEnd ?? 0}
       />
       <TimeInputWithButton
         name='timeEnd'
@@ -66,7 +66,7 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
         time={timeEnd}
         delay={delay}
         placeholder='End'
-        previousEnd={previousEnd}
+        previousEnd={previousEnd ?? 0}
       />
       <TimeInputWithButton
         name='durationOverride'
@@ -74,13 +74,18 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
         time={duration}
         delay={0}
         placeholder='Duration'
-        previousEnd={previousEnd}
+        previousEnd={previousEnd ?? 0}
       />
-      {delayTime && (
-        <div className={style.delayNote}>
-          {delayTime}
-          <br />
-          {`New start: ${newTime}`}
+      {overMidnight && (
+        <div className={style.timerNote}>
+          <Tooltip
+            label='End timer before start '
+            openDelay={tooltipDelayFast}
+            variant='ontime-ondark'
+            shouldWrapChildren
+          >
+            <IoAlertCircleOutline />
+          </Tooltip>
         </div>
       )}
     </div>

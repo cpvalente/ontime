@@ -10,11 +10,9 @@ import { IoPlayForward } from '@react-icons/all-files/io5/IoPlayForward';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
-import { EndAction, Playback, TimerType } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { EndAction, MaybeNumber, Playback, TimerType } from 'ontime-types';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
-import { millisToDelayString } from '../../../common/utils/dateConfig';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import { EventItemActions } from '../RundownEntry';
@@ -47,7 +45,7 @@ interface EventBlockInnerProps {
   title: string;
   note: string;
   delay: number;
-  previousEnd: number;
+  previousEnd: MaybeNumber;
   next: boolean;
   skip: boolean;
   selected: boolean;
@@ -55,7 +53,6 @@ interface EventBlockInnerProps {
   isRolling: boolean;
   actionHandler: (action: EventItemActions, payload?: any) => void;
   disableEdit: boolean;
-  isFirstEvent: boolean;
 }
 
 const EventBlockInner = (props: EventBlockInnerProps) => {
@@ -78,7 +75,6 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     isRolling,
     actionHandler,
     disableEdit,
-    isFirstEvent,
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
@@ -111,19 +107,6 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     playBtnStyles._hover = {};
   }
 
-  const delayedStart = Math.max(0, timeStart + delay);
-  const newTime = millisToString(delayedStart);
-  const delayTime = delay !== 0 ? millisToDelayString(delay) : null;
-
-  const overlap = previousEnd - timeStart;
-  const overlapTime = !isFirstEvent
-    ? overlap > 0
-      ? `Overlapping ${millisToDelayString(overlap)}`
-      : overlap < 0
-      ? `Spacing ${millisToDelayString(overlap)}`
-      : null
-    : null;
-
   return !renderInner ? null : (
     <>
       <EventBlockTimers
@@ -135,35 +118,10 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         previousEnd={previousEnd}
       />
       <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
-      {next ? (
+      {next && (
         <Tooltip label='Next event' {...tooltipProps}>
           <span className={style.nextTag}>UP NEXT</span>
         </Tooltip>
-      ) : (
-        <span className={style.indicators}>
-          {delayTime && (
-            <Tooltip
-              label={
-                <div>
-                  {delayTime} <br />
-                  New Time: {newTime}
-                </div>
-              }
-            >
-              <div className={`${style.indicator} ${style.delay}`} />
-            </Tooltip>
-          )}
-          {overlapTime && (
-            <Tooltip label={overlapTime}>
-              <div className={`${style.indicator} ${overlap > 0 ? style.overlap : style.spacing}`} />
-            </Tooltip>
-          )}
-          {timeStart > timeEnd && (
-            <Tooltip label='Start time is later than end'>
-              <div className={`${style.indicator} ${style.nextDay}`} />
-            </Tooltip>
-          )}
-        </span>
       )}
       <EventBlockPlayback
         eventId={eventId}

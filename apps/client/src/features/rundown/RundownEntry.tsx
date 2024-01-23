@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import {
   GetRundownCached,
   isOntimeEvent,
+  MaybeNumber,
   OntimeEvent,
   OntimeRundownEntry,
   Playback,
@@ -34,7 +35,7 @@ interface RundownEntryProps {
   eventIndex: number;
   hasCursor: boolean;
   next: boolean;
-  previousEnd: number;
+  previousEnd: MaybeNumber;
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
   isRolling: boolean; // we need to know even if not related to this event
