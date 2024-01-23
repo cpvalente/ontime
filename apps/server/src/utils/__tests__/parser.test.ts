@@ -4,7 +4,7 @@ import { vi } from 'vitest';
 import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
 
 import { dbModel } from '../../models/dataModel.js';
-import { parseExcel, parseJson, validateEvent } from '../parser.js';
+import { parseExcel, parseJson, createEvent } from '../parser.js';
 import { makeString } from '../parserUtils.js';
 import { parseAliases, parseUserFields, parseViewSettings } from '../parserFunctions.js';
 
@@ -464,7 +464,7 @@ describe('test event validator', () => {
     const event = {
       title: 'test',
     };
-    const validated = validateEvent(event, 'test');
+    const validated = createEvent(event, 'test');
 
     expect(validated).toEqual(
       expect.objectContaining({
@@ -497,7 +497,7 @@ describe('test event validator', () => {
 
   it('fails an empty object', () => {
     const event = {};
-    const validated = validateEvent(event, 'none');
+    const validated = createEvent(event, 'none');
     expect(validated).toEqual(null);
   });
 
@@ -509,7 +509,7 @@ describe('test event validator', () => {
       note: '1899-12-30T08:00:10.000Z',
     };
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const validated = validateEvent(event, 'not-used');
+    const validated = createEvent(event, 'not-used');
     expect(typeof validated.title).toEqual('string');
     expect(typeof validated.subtitle).toEqual('string');
     expect(typeof validated.presenter).toEqual('string');
@@ -522,7 +522,7 @@ describe('test event validator', () => {
       timeEnd: '2',
     };
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const validated = validateEvent(event);
+    const validated = createEvent(event);
     expect(typeof validated.timeStart).toEqual('number');
     expect(validated.timeStart).toEqual(0);
     expect(typeof validated.timeEnd).toEqual('number');
@@ -534,7 +534,7 @@ describe('test event validator', () => {
       title: {},
     };
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const validated = validateEvent(event);
+    const validated = createEvent(event);
     expect(typeof validated.title).toEqual('string');
   });
 });

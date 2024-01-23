@@ -17,7 +17,7 @@ import {
 
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
-import { validateEvent } from './parser.js';
+import { createEvent } from './parser.js';
 import { MAX_EVENTS } from '../settings.js';
 
 /**
@@ -48,7 +48,7 @@ export const parseRundown = (data): OntimeRundown => {
 
         if (e.type === 'event') {
           eventIndex += 1;
-          const event = validateEvent(e, eventIndex.toString());
+          const event = createEvent(e, eventIndex.toString());
           if (event != null) {
             rundown.push(event);
             ids.push(event.id);

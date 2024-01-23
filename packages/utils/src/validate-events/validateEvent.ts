@@ -1,4 +1,4 @@
-import { EndAction, TimerType } from 'ontime-types';
+import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
 
 import { dayInMs } from '../timeConstants.js';
 
@@ -86,4 +86,42 @@ export function validateTimes(
 
   // we should have covered all cases
   return { timeStart, duration, timeEnd };
+}
+
+/**
+ * Creates a valid patch object for an OntimeEvent
+ * @throws if there is not enough data to do so
+ * @param event
+ */
+export function validatePatch(event: Partial<OntimeEvent>) {
+  const mustBeOfType = (value: unknown, type: string) => {
+    if (typeof value !== type) {
+      throw new Error('Invalid patch event');
+    }
+  };
+
+  if ('cue' in event) mustBeOfType(event.cue, 'string');
+  if ('colour' in event) mustBeOfType(event.colour, 'string');
+  if ('title' in event) mustBeOfType(event.title, 'string');
+  if ('subtitle' in event) mustBeOfType(event.subtitle, 'string');
+  if ('presenter' in event) mustBeOfType(event.presenter, 'string');
+  if ('note' in event) mustBeOfType(event.note, 'string');
+  if ('user0' in event) mustBeOfType(event.user0, 'string');
+  if ('user1' in event) mustBeOfType(event.user1, 'string');
+  if ('user2' in event) mustBeOfType(event.user2, 'string');
+  if ('user3' in event) mustBeOfType(event.user3, 'string');
+  if ('user4' in event) mustBeOfType(event.user4, 'string');
+  if ('user5' in event) mustBeOfType(event.user5, 'string');
+  if ('user7' in event) mustBeOfType(event.user7, 'string');
+  if ('user8' in event) mustBeOfType(event.user8, 'string');
+  if ('user9' in event) mustBeOfType(event.user9, 'string');
+
+  if ('isPublic' in event) mustBeOfType(event.isPublic, 'boolean');
+  if ('skip' in event) mustBeOfType(event.skip, 'boolean');
+
+  if ('timeStart' in event) mustBeOfType(event.timeStart, 'number');
+  if ('timeEnd' in event) mustBeOfType(event.timeEnd, 'number');
+  if ('duration' in event) mustBeOfType(event.duration, 'number');
+  if ('timeWarning' in event) mustBeOfType(event.timeWarning, 'number');
+  if ('timeDanger' in event) mustBeOfType(event.timeDanger, 'number');
 }

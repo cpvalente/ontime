@@ -18,7 +18,7 @@ import {
   delayedRundownCacheKey,
 } from './delayedRundown.utils.js';
 import { logger } from '../../classes/Logger.js';
-import { validateEvent } from '../../utils/parser.js';
+import { createEvent } from '../../utils/parser.js';
 import { stateMutations } from '../../state.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
@@ -56,7 +56,7 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
 
   switch (eventData.type) {
     case SupportedEvent.Event: {
-      newEvent = validateEvent(eventData, getCueCandidate(DataProvider.getRundown(), eventData?.after)) as OntimeEvent;
+      newEvent = createEvent(eventData, getCueCandidate(DataProvider.getRundown(), eventData?.after)) as OntimeEvent;
       break;
     }
     case SupportedEvent.Delay:
@@ -84,7 +84,6 @@ export async function editEvent(eventData: Partial<OntimeEvent> | Partial<Ontime
     throw new Error('Cue value invalid');
   }
 
-  // TODO: check if we are changing times and change related data
   const newEvent = await cachedEdit(eventData.id, eventData);
 
   notifyChanges({ timer: [newEvent.id], external: true });

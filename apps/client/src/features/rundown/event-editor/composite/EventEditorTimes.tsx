@@ -112,12 +112,14 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
       </div>
 
       <div className={style.splitTwo}>
-        <label className={style.inputLabel} htmlFor='timeWarning'>
-          Warning Time
+        <div>
+          <label className={style.inputLabel} htmlFor='timeWarning'>
+            Warning Time
+          </label>
           <TimeInput name='timeWarning' submitHandler={handleSubmit} time={timeWarning} placeholder='Duration' />
-        </label>
-        <label className={style.inputLabel}>
-          Timer Type
+        </div>
+        <div>
+          <label className={style.inputLabel}>Timer Type</label>
           <Select
             size='sm'
             name='timerType'
@@ -130,13 +132,15 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             <option value={TimerType.TimeToEnd}>Time to end</option>
             <option value={TimerType.Clock}>Clock</option>
           </Select>
-        </label>
-        <label className={style.inputLabel} htmlFor='timeDanger'>
-          Danger Time
+        </div>
+        <div>
+          <label className={style.inputLabel} htmlFor='timeDanger'>
+            Danger Time
+          </label>
           <TimeInput name='timeDanger' submitHandler={handleSubmit} time={timeDanger} placeholder='Duration' />
-        </label>
-        <label className={style.inputLabel}>
-          End Action
+        </div>
+        <div>
+          <label className={style.inputLabel}>End Action</label>
           <Select
             size='sm'
             name='endAction'
@@ -149,7 +153,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             <option value={EndAction.LoadNext}>Load Next</option>
             <option value={EndAction.PlayNext}>Play Next</option>
           </Select>
-        </label>
+        </div>
       </div>
 
       <div>
