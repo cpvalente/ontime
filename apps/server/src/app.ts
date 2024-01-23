@@ -174,11 +174,8 @@ export const startServer = async () => {
    */
   eventStore.init({
     clock: state.clock,
-    timerMessage: messageService.timerMessage,
-    publicMessage: messageService.publicMessage,
-    lowerMessage: messageService.lowerMessage,
-    externalMessage: messageService.externalMessage,
-    onAir: false, // TODO: not emitted?
+    message: messageService,
+    onAir: state.timer.playback !== Playback.Stop,
     timer: state.timer,
     loaded: state.runtime,
     eventNow: state.eventNow,

@@ -141,8 +141,8 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const showProgress = time.playback !== Playback.Stop;
   const showWarning = (time.current ?? 1) < (time.timeWarning ?? 0);
   const showDanger = (time.current ?? 1) < (time.timeDanger ?? 0);
-  const showBlinking = pres.timerBlink;
-  const showBlackout = pres.timerBlackout;
+  const showBlinking = pres.blink;
+  const showBlackout = pres.blackout;
 
   const timerColor = userOptions.textColour
     ? userOptions.textColour

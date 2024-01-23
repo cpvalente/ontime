@@ -24,10 +24,10 @@ export const useOperator = () => {
 
 export const useMessageControl = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    timerMessage: state.timerMessage,
-    publicMessage: state.publicMessage,
-    lowerMessage: state.lowerMessage,
-    externalMessage: state.externalMessage,
+    timer: state.message.timer,
+    public: state.message.public,
+    lower: state.message.lower,
+    external: state.message.external,
     onAir: state.onAir,
   });
 
@@ -35,17 +35,17 @@ export const useMessageControl = () => {
 };
 
 export const setMessage = {
-  presenterText: (payload: string) => socketSendJson('set-timer-message-text', payload),
-  presenterVisible: (payload: boolean) => socketSendJson('set-timer-message-visible', payload),
-  publicText: (payload: string) => socketSendJson('set-public-message-text', payload),
-  publicVisible: (payload: boolean) => socketSendJson('set-public-message-visible', payload),
-  lowerText: (payload: string) => socketSendJson('set-lower-message-text', payload),
-  lowerVisible: (payload: boolean) => socketSendJson('set-lower-message-visible', payload),
-  externalText: (payload: string) => socketSendJson('set-external-message-text', payload),
-  externalVisible: (payload: boolean) => socketSendJson('set-external-message-visible', payload),
-  onAir: (payload: boolean) => socketSendJson('set-onAir', payload),
-  timerBlink: (payload: boolean) => socketSendJson('set-timer-blink', payload),
-  timerBlackout: (payload: boolean) => socketSendJson('set-timer-blackout', payload),
+  timerText: (payload: string) => socketSendJson('message', { timer: { text: payload } }),
+  timerVisible: (payload: boolean) => socketSendJson('message', { timer: { visible: payload } }),
+  publicText: (payload: string) => socketSendJson('message', { public: { text: payload } }),
+  publicVisible: (payload: boolean) => socketSendJson('message', { public: { visible: payload } }),
+  lowerText: (payload: string) => socketSendJson('message', { lower: { text: payload } }),
+  lowerVisible: (payload: boolean) => socketSendJson('message', { lower: { visible: payload } }),
+  externalText: (payload: string) => socketSendJson('message', { external: { visible: payload } }),
+  externalVisible: (payload: boolean) => socketSendJson('message', { external: { visible: payload } }),
+  onAir: (payload: boolean) => socketSendJson('onAir', payload),
+  timerBlink: (payload: boolean) => socketSendJson('message', { timer: { blink: payload } }),
+  timerBlackout: (payload: boolean) => socketSendJson('message', { timer: { blackout: payload } }),
 };
 
 export const usePlaybackControl = () => {
@@ -62,12 +62,12 @@ export const setPlayback = {
   start: () => socketSendJson('start'),
   pause: () => socketSendJson('pause'),
   roll: () => socketSendJson('roll'),
-  startNext: () => socketSendJson('start-next'),
+  startNext: () => socketSendJson('start', { next: true }),
   previous: () => {
-    socketSendJson('previous');
+    socketSendJson('load', { previous: true });
   },
   next: () => {
-    socketSendJson('next');
+    socketSendJson('load', { next: true });
   },
   stop: () => {
     socketSendJson('stop');
@@ -105,8 +105,8 @@ export const useCuesheet = () => {
 };
 
 export const setEventPlayback = {
-  loadEvent: (eventId: string) => socketSendJson('loadid', eventId),
-  startEvent: (eventId: string) => socketSendJson('startid', eventId),
+  loadEvent: (id: string) => socketSendJson('load', { id }),
+  startEvent: (id: string) => socketSendJson('start', { id }),
   start: () => socketSendJson('start'),
   pause: () => socketSendJson('pause'),
 };

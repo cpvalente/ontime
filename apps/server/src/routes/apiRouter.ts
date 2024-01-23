@@ -2,6 +2,7 @@ import express from 'express';
 import { dispatchFromAdapter } from '../controllers/integrationController.js';
 import { logger } from '../classes/Logger.js';
 import { LogOrigin } from 'ontime-types';
+import { objectFromPath } from '../adapters/utils/parse.js';
 
 export const router = express.Router();
 
@@ -14,8 +15,15 @@ router.get('/', (_req, res) => {
 
 // any GET request in /api is sent to the integration controller
 router.get('/*', (req, res) => {
-  const action = req.path.substring(1);
-  const params = { payload: req.query };
+  let action = req.path.substring(1);
+  const actionArray = action.split('/');
+
+  const params = { payload: req.query as object };
+
+  if (actionArray.length > 1) {
+    action = actionArray.shift();
+    params.payload = objectFromPath(actionArray, params.payload);
+  }
 
   try {
     const reply = dispatchFromAdapter(action, params, 'http');
