@@ -10,12 +10,12 @@ test('delay blocks add time to events', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Add event at start' }).click();
 
   // add data to new event
-  await page.getByTestId('panel-rundown').getByPlaceholder('Start').click();
-  await page.getByTestId('panel-rundown').getByPlaceholder('Start').fill('10m');
-  await page.getByTestId('panel-rundown').getByPlaceholder('Start').press('Enter');
-  await page.getByTestId('panel-rundown').getByPlaceholder('End').click();
-  await page.getByTestId('panel-rundown').getByPlaceholder('End').fill('20m');
-  await page.getByTestId('panel-rundown').getByPlaceholder('End').press('Enter');
+  await page.getByTestId('rundown').getByPlaceholder('Start').click();
+  await page.getByTestId('rundown').getByPlaceholder('Start').fill('10m');
+  await page.getByTestId('rundown').getByPlaceholder('Start').press('Enter');
+  await page.getByTestId('rundown').getByPlaceholder('End').click();
+  await page.getByTestId('rundown').getByPlaceholder('End').fill('20m');
+  await page.getByTestId('rundown').getByPlaceholder('End').press('Enter');
 
   // add delay block
   await page.getByRole('button', { name: 'Event...' }).click();
@@ -33,10 +33,10 @@ test('delay blocks add time to events', async ({ page }) => {
 
   // apply delay
   await page.getByRole('button', { name: 'Apply' }).click();
-  await expect(page.getByTestId('panel-rundown').getByTestId('time-input-timeStart')).toHaveValue('00:08:00');
+  await expect(page.getByTestId('rundown').getByTestId('time-input-timeStart')).toHaveValue('00:08:00');
 
   // add new delay
-  await page.getByTestId('panel-rundown').getByPlaceholder('Start').click();
+  await page.getByTestId('rundown').getByPlaceholder('Start').click();
   await page.getByRole('button', { name: 'Event...' }).click();
   await page.getByRole('menuitem', { name: 'Add delay at start' }).click();
   await page.getByTestId('delay-input').click();
@@ -46,7 +46,7 @@ test('delay blocks add time to events', async ({ page }) => {
 
   // cancel delay
   await page.getByRole('button', { name: 'Cancel' }).click();
-  await expect(page.getByTestId('panel-rundown').getByTestId('time-input-timeStart')).toHaveValue('00:08:00');
+  await expect(page.getByTestId('rundown').getByTestId('time-input-timeStart')).toHaveValue('00:08:00');
   await expect(page.getByText('+10 minNew start: 00:18:00')).toHaveCount(0);
 });
 
@@ -58,12 +58,12 @@ test('delays are show correctly', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Delete all events' }).click();
   await page.getByRole('button', { name: 'Create Event' }).click();
   await page.getByTestId('time-input-timeStart').click();
-  await page.getByTestId('panel-rundown').getByTestId('time-input-timeStart').click();
-  await page.getByTestId('panel-rundown').getByTestId('time-input-timeStart').fill('10');
-  await page.getByTestId('panel-rundown').getByTestId('time-input-timeStart').press('Enter');
-  await page.getByTestId('panel-rundown').getByTestId('time-input-timeEnd').click();
-  await page.getByTestId('panel-rundown').getByTestId('time-input-timeEnd').fill('20');
-  await page.getByTestId('panel-rundown').getByTestId('time-input-timeEnd').press('Enter');
+  await page.getByTestId('rundown').getByTestId('time-input-timeStart').click();
+  await page.getByTestId('rundown').getByTestId('time-input-timeStart').fill('10');
+  await page.getByTestId('rundown').getByTestId('time-input-timeStart').press('Enter');
+  await page.getByTestId('rundown').getByTestId('time-input-timeEnd').click();
+  await page.getByTestId('rundown').getByTestId('time-input-timeEnd').fill('20');
+  await page.getByTestId('rundown').getByTestId('time-input-timeEnd').press('Enter');
   await page.getByText('Event title').click();
   await page.getByPlaceholder('Event title').fill('test');
   await page.getByPlaceholder('Event title').press('Enter');

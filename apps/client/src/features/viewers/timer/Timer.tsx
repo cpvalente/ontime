@@ -102,8 +102,8 @@ export default function Timer(props: TimerProps) {
   const showFinished = finished && (time.timerType !== TimerType.Clock || showEndMessage);
   const showWarning = (time.current ?? 1) < (eventNow?.timeWarning ?? 0);
   const showDanger = (time.current ?? 1) < (eventNow?.timeDanger ?? 0);
-  const showBlinking = pres.timerBlink;
-  const showBlackout = pres.timerBlackout;
+  const showBlinking = pres.blink;
+  const showBlackout = pres.blackout;
   const showClock = time.timerType !== TimerType.Clock;
   const showExternal = external.visible && external.text;
 
