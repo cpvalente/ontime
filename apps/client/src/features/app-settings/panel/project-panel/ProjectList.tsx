@@ -1,20 +1,42 @@
-import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
-import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
+import { useMemo, useState } from 'react';
 
 import { useProjectList } from '../../../../common/hooks-query/useProjectList';
 import * as Panel from '../PanelUtils';
 
-import style from './ProjectPanel.module.scss';
-import { loadProject } from '../../../../common/api/ontimeApi';
+import ProjectListItem from './ProjectListItem';
+
+export type EditMode = 'rename' | 'duplicate' | null;
 
 export default function ProjectList() {
-  const { data } = useProjectList();
+  const { data, refetch } = useProjectList();
   const { files, lastLoadedProject } = data;
 
-  // extract currently loaded from file list
-  const currentlyLoadedIndex = files.findIndex((project) => project.filename === lastLoadedProject);
-  const projectFiles = [...files];
-  const current = projectFiles.splice(currentlyLoadedIndex, 1)[0];
+  const [editingMode, setEditingMode] = useState<EditMode | null>(null);
+  const [editingFilename, setEditingFilename] = useState<string | null>(null);
+
+  const handleToggleEditMode = (editMode: EditMode, filename: string | null) => {
+    setEditingMode((prev) => (prev === editMode && filename === editingFilename ? null : editMode));
+    setEditingFilename(filename);
+  };
+
+  const handleClear = () => {
+    setEditingMode(null);
+    setEditingFilename(null);
+  };
+
+  const handleRefetch = async () => {
+    await refetch();
+  };
+
+  const reorderedProjectFiles = useMemo(() => {
+    if (!data?.files?.length) return [];
+
+    const currentlyLoadedIndex = files.findIndex((project) => project.filename === lastLoadedProject);
+    const projectFiles = [...files];
+    const current = projectFiles.splice(currentlyLoadedIndex, 1)?.[0];
+
+    return [current, ...projectFiles];
+  }, [data?.files?.length, files, lastLoadedProject]);
 
   return (
     <Panel.Table>
@@ -27,54 +49,21 @@ export default function ProjectList() {
         </tr>
       </thead>
       <tbody>
-        {current && (
-          <tr className={style.current}>
-            <td>{current.filename}</td>
-            <td>{new Date(current.createdAt).toLocaleString()}</td>
-            <td>{new Date(current.updatedAt).toLocaleString()}</td>
-            <td className={style.actionButton}>
-              <ActionMenu filename={current.filename} />
-            </td>
-          </tr>
-        )}
-        {projectFiles.map((project) => {
-          const createdAt = new Date(project.createdAt).toLocaleString();
-          const updatedAt = new Date(project.updatedAt).toLocaleString();
-          return (
-            <tr key={project.filename}>
-              <td>{project.filename}</td>
-              <td>{createdAt}</td>
-              <td>{updatedAt}</td>
-              <td className={style.actionButton}>
-                <ActionMenu filename={project.filename} />
-              </td>
-            </tr>
-          );
-        })}
+        {reorderedProjectFiles.map((project) => (
+          <ProjectListItem
+            key={project.filename}
+            filename={project.filename}
+            createdAt={project.createdAt}
+            updatedAt={project.updatedAt}
+            onToggleEditMode={handleToggleEditMode}
+            onSubmit={handleClear}
+            onRefetch={handleRefetch}
+            editingFilename={editingFilename}
+            editingMode={editingMode}
+            current={project.filename === lastLoadedProject}
+          />
+        ))}
       </tbody>
     </Panel.Table>
-  );
-}
-
-function ActionMenu({ filename }: { filename: string }) {
-  const handleLoad = () => {
-    loadProject(filename);
-  };
-  return (
-    <Menu variant='ontime-on-dark' size='sm'>
-      <MenuButton
-        as={IconButton}
-        aria-label='Options'
-        icon={<IoEllipsisHorizontal />}
-        variant='ontime-ghosted'
-        size='sm'
-      />
-      <MenuList>
-        <MenuItem onClick={handleLoad}>Load</MenuItem>
-        <MenuItem>Rename</MenuItem>
-        <MenuItem>Duplicate</MenuItem>
-        <MenuItem>Delete</MenuItem>
-      </MenuList>
-    </Menu>
   );
 }

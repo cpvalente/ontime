@@ -13,13 +13,13 @@ import {
   UserFields,
   ViewSettings,
 } from 'ontime-types';
+import { MessageResponse } from 'ontime-types';
 import { ExcelImportMap } from 'ontime-utils';
 
 import { apiRepoLatest } from '../../externals';
 import fileDownload from '../utils/fileDownload';
 
 import { ontimeURL } from './apiConstants';
-import { MessageResponse } from 'ontime-types/src/api/ontime-controller/BackendResponse.type';
 
 /**
  * @description HTTP request to retrieve application settings
@@ -341,3 +341,27 @@ export const postPushSheet = async (id: string, options: ExcelImportMap) => {
   const response = await axios.post(`${ontimeURL}/sheet-push`, { id, options });
   return response.data.data;
 };
+
+/**
+ * @description HTTP request to rename a project file
+ */
+export async function renameProject(filename: string, newFilename: string): Promise<MessageResponse> {
+  const url = `${ontimeURL}/project/${filename}/rename`;
+  const decodedUrl = decodeURIComponent(url);
+  const res = await axios.put(decodedUrl, {
+    newFilename,
+  });
+  return res.data;
+}
+
+/**
+ * @description HTTP request to duplicate a project file
+ */
+export async function duplicateProject(filename: string, newFilename: string): Promise<MessageResponse> {
+  const url = `${ontimeURL}/project/${filename}/duplicate`;
+  const decodedUrl = decodeURIComponent(url);
+  const res = await axios.post(decodedUrl, {
+    newFilename,
+  });
+  return res.data;
+}

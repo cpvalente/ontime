@@ -6,5 +6,28 @@
 }
 
 .actionButton {
+  flex: 1;
   text-align: right;
+}
+
+.form {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.formInput {
+  flex: 2;
+}
+
+.actionButtons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 1rem;
+}
+
+.error {
+  color: $red-500;
 }
