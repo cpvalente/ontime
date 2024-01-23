@@ -19,7 +19,7 @@ function ExtraTimer() {
   const { setTime } = setExtraTimer;
 
   return (
-    <TimeInput
+    <TimeInput<'extraTimer'>
       submitHandler={(_field, value) => setTime(value)}
       name='extraTimer'
       time={time}

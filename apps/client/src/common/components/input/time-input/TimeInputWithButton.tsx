@@ -70,7 +70,7 @@ export default function TimeInputWithButton(props: TimeInputProps) {
           </Button>
         </Tooltip>
       </InputLeftElement>
-      <TimeInput
+      <TimeInput<TimeEntryField>
         id={id}
         name={name}
         submitHandler={submitHandler}

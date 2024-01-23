@@ -4,16 +4,13 @@ import { millisToString } from 'ontime-utils';
 
 import { useEmitLog } from '../../../stores/logger';
 import { forgivingStringToMillis } from '../../../utils/dateConfig';
-import { TimeEntryField } from '../../../utils/timesManager';
 
 import style from './TimeInput.module.scss';
 
-type OntimeTimeEntry = TimeEntryField | 'extraTimer'
-
-interface TimeInputProps {
-  id?: OntimeTimeEntry;
-  name: OntimeTimeEntry;
-  submitHandler: (field: OntimeTimeEntry, value: number) => void;
+interface TimeInputProps<T extends string> {
+  id?: T;
+  name: T;
+  submitHandler: (field: T, value: number) => void;
   time?: number;
   delay?: number;
   placeholder: string;
@@ -21,7 +18,7 @@ interface TimeInputProps {
   className?: string;
 }
 
-export default function TimeInput(props: TimeInputProps) {
+export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
   const { id, name, submitHandler, time = 0, delay = 0, placeholder, previousEnd = 0, className } = props;
   const { emitError } = useEmitLog();
   const inputRef = useRef<HTMLInputElement | null>(null);

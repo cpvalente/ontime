@@ -1,5 +1,5 @@
 import isEqual from 'react-fast-compare';
-import { Playback, RuntimeStore } from 'ontime-types';
+import { Playback, RuntimeStore, SimpleDirection, SimplePlayback } from 'ontime-types';
 import { createWithEqualityFn, useStoreWithEqualityFn } from 'zustand/traditional';
 
 export const runtimeStorePlaceholder: RuntimeStore = {
@@ -50,6 +50,12 @@ export const runtimeStorePlaceholder: RuntimeStore = {
   eventNext: null,
   publicEventNow: null,
   publicEventNext: null,
+  timer1: {
+    current: 0,
+    direction: SimpleDirection.CountUp,
+    duration: 0,
+    playback: SimplePlayback.Stop,
+  },
 };
 
 const deepCompare = <T>(a: T, b: T) => isEqual(a, b);
