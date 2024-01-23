@@ -1,4 +1,5 @@
-import { SimpleTimerState } from 'ontime-types';
+import { SimpleDirection, SimplePlayback, SimpleTimerState } from 'ontime-types';
+
 import { SimpleTimer } from '../SimpleTimer.js';
 
 describe('SimpleTimer cout-down', () => {
@@ -13,8 +14,8 @@ describe('SimpleTimer cout-down', () => {
       const expected: SimpleTimerState = {
         duration: initialTime,
         current: initialTime,
-        direction: 'count-down',
-        playback: 'stop',
+        direction: SimpleDirection.CountDown,
+        playback: SimplePlayback.Stop,
       };
       expect(newState).toStrictEqual(expected);
     });
@@ -24,8 +25,8 @@ describe('SimpleTimer cout-down', () => {
       const expected: SimpleTimerState = {
         duration: initialTime,
         current: initialTime,
-        direction: 'count-down',
-        playback: 'play',
+        direction: SimpleDirection.CountDown,
+        playback: SimplePlayback.Start,
       };
       expect(newState).toStrictEqual(expected);
     });
@@ -35,8 +36,8 @@ describe('SimpleTimer cout-down', () => {
       const expected: SimpleTimerState = {
         duration: initialTime,
         current: initialTime - 100,
-        direction: 'count-down',
-        playback: 'play',
+        direction: SimpleDirection.CountDown,
+        playback: SimplePlayback.Start,
       };
       expect(newState).toStrictEqual(expected);
 
@@ -55,8 +56,8 @@ describe('SimpleTimer cout-down', () => {
       const expected: SimpleTimerState = {
         duration: initialTime,
         current: initialTime - 1500,
-        direction: 'count-down',
-        playback: 'pause',
+        direction: SimpleDirection.CountDown,
+        playback: SimplePlayback.Pause,
       };
       expect(newState).toStrictEqual(expected);
 
@@ -67,7 +68,7 @@ describe('SimpleTimer cout-down', () => {
       expect(newState).toStrictEqual(expected);
 
       newState = timer.start(1700);
-      expected.playback = 'play';
+      expected.playback = SimplePlayback.Start;
       expect(newState).toStrictEqual(expected);
 
       newState = timer.update(1800);
@@ -79,8 +80,8 @@ describe('SimpleTimer cout-down', () => {
       const expected: SimpleTimerState = {
         duration: initialTime,
         current: initialTime,
-        direction: 'count-down',
-        playback: 'stop',
+        direction: SimpleDirection.CountDown,
+        playback: SimplePlayback.Stop,
       };
       expect(newState).toStrictEqual(expected);
     });
@@ -93,15 +94,15 @@ describe('SimpleTimer cout-up', () => {
   describe('normal timer flow', () => {
     const initialTime = 1000;
     timer = new SimpleTimer();
-    timer.setDirection('count-up');
+    timer.setDirection(SimpleDirection.CountUp);
 
     test('setting the timer duration', () => {
       const newState = timer.setTime(initialTime);
       const expected: SimpleTimerState = {
         duration: initialTime,
         current: initialTime,
-        direction: 'count-up',
-        playback: 'stop',
+        direction: SimpleDirection.CountUp,
+        playback: SimplePlayback.Stop,
       };
       expect(newState).toStrictEqual(expected);
     });
@@ -111,8 +112,8 @@ describe('SimpleTimer cout-up', () => {
       const expected: SimpleTimerState = {
         duration: initialTime,
         current: initialTime,
-        direction: 'count-up',
-        playback: 'play',
+        direction: SimpleDirection.CountUp,
+        playback: SimplePlayback.Start,
       };
       expect(newState).toStrictEqual(expected);
     });
@@ -122,8 +123,8 @@ describe('SimpleTimer cout-up', () => {
       const expected: SimpleTimerState = {
         duration: initialTime,
         current: initialTime + 100,
-        direction: 'count-up',
-        playback: 'play',
+        direction: SimpleDirection.CountUp,
+        playback: SimplePlayback.Start,
       };
       expect(newState).toStrictEqual(expected);
 
@@ -142,8 +143,8 @@ describe('SimpleTimer cout-up', () => {
       const expected: SimpleTimerState = {
         duration: initialTime,
         current: initialTime + 1500,
-        direction: 'count-up',
-        playback: 'pause',
+        direction: SimpleDirection.CountUp,
+        playback: SimplePlayback.Pause,
       };
       expect(newState).toStrictEqual(expected);
 
@@ -154,7 +155,7 @@ describe('SimpleTimer cout-up', () => {
       expect(newState).toStrictEqual(expected);
 
       newState = timer.start(1700);
-      expected.playback = 'play';
+      expected.playback = SimplePlayback.Start
       expect(newState).toStrictEqual(expected);
 
       newState = timer.update(1800);
@@ -166,8 +167,8 @@ describe('SimpleTimer cout-up', () => {
       const expected: SimpleTimerState = {
         duration: initialTime,
         current: initialTime,
-        direction: 'count-up',
-        playback: 'stop',
+        direction: SimpleDirection.CountUp,
+        playback: SimplePlayback.Stop,
       };
       expect(newState).toStrictEqual(expected);
     });
