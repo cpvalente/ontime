@@ -66,7 +66,7 @@ export class EventLoader {
    * finds the previous event
    * @return {object | undefined}
    */
-  static findPrevious(currentEventId: string | null): OntimeEvent | null {
+  static findPrevious(currentEventId?: string): OntimeEvent | null {
     const timedEvents = EventLoader.getPlayableEvents();
     if (!timedEvents || !timedEvents.length) {
       return null;
@@ -87,7 +87,7 @@ export class EventLoader {
    * finds the next event
    * @return {object | undefined}
    */
-  static findNext(currentEventId: string | null): OntimeEvent | null {
+  static findNext(currentEventId?: string): OntimeEvent | null {
     const timedEvents = EventLoader.getPlayableEvents();
     if (!timedEvents || !timedEvents.length) {
       return null;

@@ -8,7 +8,7 @@ import NavigationMenu from '../../../common/components/navigation-menu/Navigatio
 import { getCountdownOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { TimeManagerType } from '../../../common/models/TimeManager.type';
+import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
@@ -21,7 +21,7 @@ import './Countdown.scss';
 interface CountdownProps {
   isMirrored: boolean;
   backstageEvents: OntimeEvent[];
-  time: TimeManagerType;
+  time: ViewExtendedTimer;
   selectedId: string | null;
   viewSettings: ViewSettings;
   settings: Settings | undefined;

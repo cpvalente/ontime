@@ -22,11 +22,11 @@ export class TimerService {
   }
 
   start() {
-    if (!state.runtime.selectedEventId) {
+    if (!state.eventNow) {
       return;
     }
 
-    if (state.playback === Playback.Play) {
+    if (state.timer.playback === Playback.Play) {
       return;
     }
 
@@ -36,14 +36,14 @@ export class TimerService {
   }
 
   pause() {
-    if (state.playback !== Playback.Play) {
+    if (state.timer.playback !== Playback.Play) {
       return;
     }
     stateMutations.timer.pause();
   }
 
   stop() {
-    if (state.playback === Playback.Stop) {
+    if (state.timer.playback === Playback.Stop) {
       return;
     }
     stateMutations.timer.stop();
@@ -54,7 +54,7 @@ export class TimerService {
    * @param {number} amount
    */
   addTime(amount: number) {
-    if (state.runtime.selectedEventId === null) {
+    if (state.eventNow === null) {
       return;
     }
     stateMutations.timer.addTime(amount);

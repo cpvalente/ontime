@@ -1,5 +1,5 @@
 import { ComponentType, useMemo } from 'react';
-import { TimeManagerType } from 'common/models/TimeManager.type';
+import { ViewExtendedTimer } from 'common/models/TimeManager.type';
 import { Message, OntimeEvent, ProjectData, Settings, SupportedEvent, TimerMessage, ViewSettings } from 'ontime-types';
 import { useStore } from 'zustand';
 
@@ -7,7 +7,7 @@ import useProjectData from '../../common/hooks-query/useProjectData';
 import useRundown from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
-import { runtime } from '../../common/stores/runtime';
+import { runtimeStore } from '../../common/stores/runtime';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
 
 type WithDataProps = {
@@ -20,7 +20,7 @@ type WithDataProps = {
   publicEventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
   publicEventNext: OntimeEvent | null;
-  time: TimeManagerType;
+  time: ViewExtendedTimer;
   events: OntimeEvent[];
   backstageEvents: OntimeEvent[];
   selectedId: string | null;
@@ -55,11 +55,11 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     }, [rundownData]);
 
     // websocket data
-    const { timer, message, playback, onAir, eventNext, publicEventNext, publicEventNow, eventNow, loaded } =
-      useStore(runtime);
-    const publicSelectedId = loaded.selectedPublicEventId;
-    const selectedId = loaded.selectedEventId;
-    const nextId = loaded.nextEventId;
+    const { clock, timer, message, onAir, eventNext, publicEventNext, publicEventNow, eventNow } =
+      useStore(runtimeStore);
+    const publicSelectedId = publicEventNow?.id ?? null;
+    const selectedId = eventNow?.id ?? null;
+    const nextId = eventNext?.id ?? null;
 
     /******************************************/
     /***  + TimeManagerType                     ***/
@@ -69,7 +69,10 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
 
     const TimeManagerType = {
       ...timer,
-      playback,
+      clock,
+      timerType: eventNow?.timerType ?? null,
+      timeWarning: eventNow?.timeWarning ?? null,
+      timeDanger: eventNow?.timeWarning ?? null,
     };
 
     // prevent render until we get all the data we need

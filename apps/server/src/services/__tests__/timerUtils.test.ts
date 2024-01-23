@@ -16,14 +16,16 @@ describe('getExpectedFinish()', () => {
     const state = {
       eventNow: {
         timeEnd: 10,
+        timerType: TimerType.CountDown,
       },
       timer: {
         addedTime: 0,
         duration: 10,
         finishedAt: null,
-        pausedAt: null,
         startedAt: null,
-        timerType: TimerType.CountDown,
+      },
+      _timer: {
+        pausedAt: null,
       },
     } as TState;
     const calculatedFinish = getExpectedFinish(state);
@@ -33,14 +35,16 @@ describe('getExpectedFinish()', () => {
     const state = {
       eventNow: {
         timeEnd: 20,
+        timerType: TimerType.CountDown,
       },
       timer: {
         addedTime: 0,
         duration: 10,
         finishedAt: 20, // <---- finished at
-        pausedAt: null,
         startedAt: 10,
-        timerType: TimerType.CountDown,
+      },
+      _timer: {
+        pausedAt: null,
       },
     } as TState;
     const calculatedFinish = getExpectedFinish(state);
@@ -50,14 +54,16 @@ describe('getExpectedFinish()', () => {
     const state = {
       eventNow: {
         timeEnd: 11,
+        timerType: TimerType.CountDown,
       },
       timer: {
         addedTime: 0,
         duration: 10,
         finishedAt: null,
-        pausedAt: null,
         startedAt: 1,
-        timerType: TimerType.CountDown,
+      },
+      _timer: {
+        pausedAt: null,
       },
     } as TState;
     const calculatedFinish = getExpectedFinish(state);
@@ -67,14 +73,16 @@ describe('getExpectedFinish()', () => {
     const state = {
       eventNow: {
         timeEnd: 11,
+        timerType: TimerType.CountDown,
       },
       timer: {
         addedTime: 20,
         duration: 10,
         finishedAt: null,
-        pausedAt: null,
         startedAt: 1,
-        timerType: TimerType.CountDown,
+      },
+      _timer: {
+        pausedAt: null,
       },
     } as TState;
 
@@ -85,14 +93,16 @@ describe('getExpectedFinish()', () => {
     const state = {
       eventNow: {
         timeEnd: 11,
+        timerType: TimerType.CountDown,
       },
       timer: {
         addedTime: -10,
         duration: 10,
         finishedAt: null,
-        pausedAt: null,
         startedAt: 1,
-        timerType: TimerType.CountDown,
+      },
+      _timer: {
+        pausedAt: null,
       },
     } as TState;
 
@@ -103,14 +113,16 @@ describe('getExpectedFinish()', () => {
     const state = {
       eventNow: {
         timeEnd: 11,
+        timerType: TimerType.CountDown,
       },
       timer: {
         addedTime: -100,
         duration: 10,
         finishedAt: null,
-        pausedAt: null,
         startedAt: 1,
-        timerType: TimerType.CountDown,
+      },
+      _timer: {
+        pausedAt: null,
       },
     } as TState;
 
@@ -121,14 +133,16 @@ describe('getExpectedFinish()', () => {
     const state = {
       eventNow: {
         timeEnd: 0,
+        timerType: TimerType.CountDown,
       },
       timer: {
         addedTime: 0,
         duration: 0,
         finishedAt: null,
-        pausedAt: null,
         startedAt: 1,
-        timerType: TimerType.CountDown,
+      },
+      _timer: {
+        pausedAt: null,
       },
     } as TState;
 
@@ -139,14 +153,16 @@ describe('getExpectedFinish()', () => {
     const state = {
       eventNow: {
         timeEnd: 10,
+        timerType: TimerType.CountDown,
       },
       timer: {
         addedTime: 0,
         duration: dayInMs,
         finishedAt: null,
-        pausedAt: null,
         startedAt: 10,
-        timerType: TimerType.CountDown,
+      },
+      _timer: {
+        pausedAt: null,
       },
     } as TState;
 
@@ -158,14 +174,16 @@ describe('getExpectedFinish()', () => {
       const state = {
         eventNow: {
           timeEnd: 30,
+          timerType: TimerType.TimeToEnd,
         },
         timer: {
           addedTime: 10,
           duration: dayInMs,
           finishedAt: null,
-          pausedAt: null,
           startedAt: 10,
-          timerType: TimerType.TimeToEnd,
+        },
+        _timer: {
+          pausedAt: null,
         },
       } as TState;
 
@@ -176,13 +194,15 @@ describe('getExpectedFinish()', () => {
       const state = {
         eventNow: {
           timeEnd: 600000, // 00:10:00
+          timerType: TimerType.TimeToEnd,
         },
         timer: {
           addedTime: 0,
           finishedAt: null,
-          pausedAt: null,
           startedAt: 79200000, // 22:00:00
-          timerType: TimerType.TimeToEnd,
+        },
+        _timer: {
+          pausedAt: null,
         },
       } as TState;
 
@@ -198,15 +218,17 @@ describe('getCurrent()', () => {
     const state = {
       eventNow: {
         timeEnd: 30,
+        timerType: TimerType.CountDown,
       },
+      clock: 0,
       timer: {
         addedTime: 10,
-        clock: 0,
         duration: 111, // <-- we take the duration value
         startedAt: null,
         finishedAt: null,
+      },
+      _timer: {
         pausedAt: null,
-        timerType: TimerType.CountDown,
       },
     } as TState;
 
@@ -217,14 +239,17 @@ describe('getCurrent()', () => {
     const state = {
       eventNow: {
         timeEnd: 10,
+        timerType: TimerType.CountDown,
       },
+      clock: 1,
       timer: {
         addedTime: 0,
-        clock: 1,
         duration: 10,
         startedAt: 0,
         finishedAt: null,
-        timerType: TimerType.CountDown,
+      },
+      _timer: {
+        pausedAt: null,
       },
     } as TState;
 
@@ -235,15 +260,17 @@ describe('getCurrent()', () => {
     const state = {
       eventNow: {
         timeEnd: 10,
+        timerType: TimerType.CountDown,
       },
+      clock: 1,
       timer: {
         addedTime: 10,
-        clock: 1,
         duration: 10,
         startedAt: 0,
         finishedAt: null,
+      },
+      _timer: {
         pausedAt: null,
-        timerType: TimerType.CountDown,
       },
     } as TState;
 
@@ -254,15 +281,17 @@ describe('getCurrent()', () => {
     const state = {
       eventNow: {
         timeEnd: 20,
+        timerType: TimerType.CountDown,
       },
+      clock: 10,
       timer: {
         addedTime: 0,
-        clock: 10,
         duration: dayInMs + 10,
         startedAt: 10,
         finishedAt: null,
+      },
+      _timer: {
         pausedAt: null,
-        timerType: TimerType.CountDown,
       },
     } as TState;
 
@@ -273,15 +302,17 @@ describe('getCurrent()', () => {
     const state = {
       eventNow: {
         timeEnd: 20,
+        timerType: TimerType.CountDown,
       },
+      clock: 5,
       timer: {
         addedTime: 0,
-        clock: 5,
         duration: dayInMs + 10,
         startedAt: 10,
         finishedAt: null,
+      },
+      _timer: {
         pausedAt: null,
-        timerType: TimerType.CountDown,
       },
     } as TState;
 
@@ -292,15 +323,17 @@ describe('getCurrent()', () => {
     const state = {
       eventNow: {
         timeEnd: 20,
+        timerType: TimerType.CountDown,
       },
+      clock: 5,
       timer: {
         addedTime: 20,
-        clock: 5,
         duration: dayInMs + 10,
         startedAt: 10,
         finishedAt: null,
+      },
+      _timer: {
         pausedAt: null,
-        timerType: TimerType.CountDown,
       },
     } as TState;
 
@@ -312,15 +345,17 @@ describe('getCurrent()', () => {
       const state = {
         eventNow: {
           timeEnd: 100,
+          timerType: TimerType.TimeToEnd,
         },
+        clock: 30,
         timer: {
           addedTime: 0,
-          clock: 30,
           duration: 100,
           startedAt: 10,
           finishedAt: null,
+        },
+        _timer: {
           pausedAt: null,
-          timerType: TimerType.TimeToEnd,
         },
       } as TState;
 
@@ -331,15 +366,17 @@ describe('getCurrent()', () => {
       const state = {
         eventNow: {
           timeEnd: 100,
+          timerType: TimerType.TimeToEnd,
         },
+        clock: 30,
         timer: {
           addedTime: 7,
-          clock: 30,
           duration: 100,
           startedAt: 10,
           finishedAt: null,
+        },
+        _timer: {
           pausedAt: null,
-          timerType: TimerType.TimeToEnd,
         },
       } as TState;
 
@@ -350,15 +387,17 @@ describe('getCurrent()', () => {
       const state = {
         eventNow: {
           timeEnd: 600000, // 00:10:00
+          timerType: TimerType.TimeToEnd,
         },
+        clock: 79500000, // 22:05:00
         timer: {
           addedTime: 0,
-          clock: 79500000, // 22:05:00
           duration: Infinity, // not relevant,
           startedAt: 79200000, // 22:00:00
           finishedAt: null,
+        },
+        _timer: {
           pausedAt: null,
-          timerType: TimerType.TimeToEnd,
         },
       } as TState;
 
@@ -369,15 +408,17 @@ describe('getCurrent()', () => {
       const state = {
         eventNow: {
           timeEnd: 600000, // 00:10:00
+          timerType: TimerType.TimeToEnd,
         },
+        clock: 79500000, // 22:05:00
         timer: {
           addedTime: 0,
-          clock: 79500000, // 22:05:00
           duration: Infinity, // not relevant,
           startedAt: 79200000, // 22:00:00
           finishedAt: null,
+        },
+        _timer: {
           pausedAt: null,
-          timerType: TimerType.TimeToEnd,
         },
       } as TState;
 
@@ -393,15 +434,17 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
     const state = {
       eventNow: {
         timeEnd: 10,
+        timerType: TimerType.CountDown,
       },
+      clock: 0,
       timer: {
         addedTime: 0,
-        clock: 0,
         duration,
         startedAt: 0,
-        pausedAt: null,
         finishedAt: null,
-        timerType: TimerType.CountDown,
+      },
+      _timer: {
+        pausedAt: null,
       },
     } as TState;
 
@@ -419,15 +462,17 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
     const state = {
       eventNow: {
         timeEnd: 10,
+        timerType: TimerType.CountDown,
       },
+      clock: 5,
       timer: {
         addedTime: 3,
-        clock: 5,
         duration,
         startedAt: 0,
-        pausedAt: null,
         finishedAt: null,
-        timerType: TimerType.CountDown,
+      },
+      _timer: {
+        pausedAt: null,
       },
     } as TState;
 
@@ -449,8 +494,8 @@ describe('skippedOutOfEvent()', () => {
     const expectedFinish = startedAt + duration;
     const previousTime = expectedFinish - testSkipLimit / 2;
     const state = {
+      clock: previousTime,
       timer: {
-        clock: previousTime,
         expectedFinish,
         startedAt,
       },
@@ -459,7 +504,7 @@ describe('skippedOutOfEvent()', () => {
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
     // @ts-expect-error -- cheating in tests
-    state.timer.clock += testSkipLimit;
+    state.clock += testSkipLimit;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
 
@@ -470,8 +515,8 @@ describe('skippedOutOfEvent()', () => {
     const previousTime = startedAt + testSkipLimit / 2;
 
     const state = {
+      clock: previousTime,
       timer: {
-        clock: previousTime,
         expectedFinish,
         startedAt,
       },
@@ -480,7 +525,7 @@ describe('skippedOutOfEvent()', () => {
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
     // @ts-expect-error -- cheating in tests
-    state.timer.clock += testSkipLimit;
+    state.clock += testSkipLimit;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
 
@@ -490,8 +535,8 @@ describe('skippedOutOfEvent()', () => {
     const previousTime = dayInMs - 1;
 
     const state = {
+      clock: previousTime,
       timer: {
-        clock: previousTime,
         expectedFinish,
         startedAt,
       },
@@ -500,7 +545,7 @@ describe('skippedOutOfEvent()', () => {
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
     // @ts-expect-error -- cheating in tests
-    state.timer.clock = testSkipLimit - 2;
+    state.clock = testSkipLimit - 2;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
 
@@ -510,8 +555,8 @@ describe('skippedOutOfEvent()', () => {
     const previousTime = startedAt + 1;
 
     const state = {
+      clock: previousTime,
       timer: {
-        clock: previousTime,
         expectedFinish,
         startedAt,
       },
@@ -520,7 +565,7 @@ describe('skippedOutOfEvent()', () => {
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
     // @ts-expect-error -- cheating in tests
-    state.timer.clock -= testSkipLimit;
+    state.clock -= testSkipLimit;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
 
@@ -531,8 +576,8 @@ describe('skippedOutOfEvent()', () => {
     const previousTime = expectedFinish - testSkipLimit / 2;
 
     const state = {
+      clock: previousTime,
       timer: {
-        clock: previousTime,
         expectedFinish,
         startedAt,
       },
@@ -541,7 +586,7 @@ describe('skippedOutOfEvent()', () => {
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
     // @ts-expect-error -- cheating in tests
-    state.timer.clock += testSkipLimit + 1;
+    state.clock += testSkipLimit + 1;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
 
@@ -552,8 +597,8 @@ describe('skippedOutOfEvent()', () => {
     const previousTime = startedAt + testSkipLimit / 2;
 
     const state = {
+      clock: previousTime,
       timer: {
-        clock: previousTime,
         expectedFinish,
         startedAt,
       },
@@ -562,7 +607,7 @@ describe('skippedOutOfEvent()', () => {
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
     // @ts-expect-error -- cheating in tests
-    state.timer.clock -= testSkipLimit + 1;
+    state.clock -= testSkipLimit + 1;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
 
@@ -572,8 +617,8 @@ describe('skippedOutOfEvent()', () => {
     const previousTime = dayInMs - 3;
 
     const state = {
+      clock: previousTime,
       timer: {
-        clock: previousTime,
         expectedFinish,
         startedAt,
       },
@@ -582,7 +627,7 @@ describe('skippedOutOfEvent()', () => {
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
     // @ts-expect-error -- cheating in tests
-    state.timer.clock = testSkipLimit - 2;
+    state.clock = testSkipLimit - 2;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
 
@@ -592,8 +637,8 @@ describe('skippedOutOfEvent()', () => {
     const previousTime = startedAt + 1;
 
     const state = {
+      clock: previousTime,
       timer: {
-        clock: previousTime,
         expectedFinish,
         startedAt,
       },
@@ -602,7 +647,7 @@ describe('skippedOutOfEvent()', () => {
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
     // @ts-expect-error -- cheating in tests
-    state.timer.clock -= testSkipLimit + 1;
+    state.clock -= testSkipLimit + 1;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
 });
@@ -1124,14 +1169,17 @@ test('normaliseEndTime()', () => {
 describe('updateRoll()', () => {
   it('it updates running events correctly', () => {
     const timers = {
-      runtime: {
-        selectedEventId: '1',
+      eventNow: {
+        id: '1',
       },
+      clock: 11,
       timer: {
         current: 10,
         expectedFinish: 15,
-        clock: 11,
         secondaryTimer: null,
+        startedAt: 1,
+      },
+      _timer: {
         secondaryTarget: null,
       },
     } as TState;
@@ -1149,7 +1197,7 @@ describe('updateRoll()', () => {
     // @ts-expect-error -- cheating for tests
     timers.timer.expectedFinish = 1000;
     // @ts-expect-error -- cheating for tests
-    timers.timer.clock = 600;
+    timers.clock = 600;
     expected.updatedTimer = 1000 - 600;
 
     expect(updateRoll(timers)).toStrictEqual(expected);
@@ -1157,14 +1205,14 @@ describe('updateRoll()', () => {
 
   it('it updates secondary timer', () => {
     const timers = {
-      runtime: {
-        selectedEventId: null,
-      },
+      eventNow: null,
+      clock: 11,
       timer: {
         current: null,
         expectedFinish: null,
-        clock: 11,
         secondaryTimer: 1,
+      },
+      _timer: {
         secondaryTarget: 15,
       },
     } as TState;
@@ -1181,15 +1229,17 @@ describe('updateRoll()', () => {
 
   it('flags an event end', () => {
     const timers = {
-      runtime: {
-        selectedEventId: '1',
+      eventNow: {
+        id: '1',
       },
+      clock: 12,
       timer: {
         startedAt: 0,
         current: 10,
         expectedFinish: 11,
-        clock: 12,
         secondaryTimer: null,
+      },
+      _timer: {
         secondaryTarget: null,
       },
     } as TState;
@@ -1206,15 +1256,15 @@ describe('updateRoll()', () => {
 
   it('secondary events do not trigger event ends', () => {
     const timers = {
-      runtime: {
-        selectedEventId: null,
-      },
+      eventNow: null,
+      clock: 16,
       timer: {
         startedAt: null,
         current: null,
         expectedFinish: null,
-        clock: 16,
         secondaryTimer: 1,
+      },
+      _timer: {
         secondaryTarget: 15,
       },
     } as TState;
@@ -1231,14 +1281,14 @@ describe('updateRoll()', () => {
 
   it('when a secondary timer is finished, it prompts for new event load', () => {
     const timers = {
-      runtime: {
-        selectedEventId: null,
-      },
+      eventNow: null,
+      clock: 15,
       timer: {
         current: null,
         expectedFinish: null,
-        clock: 15,
         secondaryTimer: 0,
+      },
+      _timer: {
         secondaryTarget: 15,
       },
     } as TState;
@@ -1255,15 +1305,17 @@ describe('updateRoll()', () => {
 
   it('counts over midnight', () => {
     const timers = {
-      runtime: {
-        selectedEventId: '1',
+      eventNow: {
+        id: '1',
       },
+      clock: dayInMs - 10,
       timer: {
         current: 25,
         expectedFinish: 10,
         startedAt: 1000,
-        clock: dayInMs - 10,
         secondaryTimer: null,
+      },
+      _timer: {
         secondaryTarget: null,
       },
     } as TState;
@@ -1280,15 +1332,17 @@ describe('updateRoll()', () => {
 
   it('rolls over midnight', () => {
     const timers = {
-      runtime: {
-        selectedEventId: '1',
+      eventNow: {
+        id: '1',
       },
+      clock: 10,
       timer: {
         current: dayInMs,
         expectedFinish: 10,
         startedAt: 1000,
-        clock: 10,
         secondaryTimer: null,
+      },
+      _timer: {
         secondaryTarget: null,
       },
     } as TState;

@@ -10,7 +10,7 @@ import { getStudioClockOptions } from '../../../common/components/view-params-ed
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { TimeManagerType } from '../../../common/models/TimeManager.type';
+import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
@@ -22,7 +22,7 @@ import './StudioClock.scss';
 interface StudioClockProps {
   isMirrored: boolean;
   eventNext: OntimeEvent | null;
-  time: TimeManagerType;
+  time: ViewExtendedTimer;
   backstageEvents: OntimeRundown;
   selectedId: string | null;
   nextId: string | null;
