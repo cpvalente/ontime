@@ -19,23 +19,25 @@ export const runtimeStorePlaceholder: RuntimeStore = {
     timeDanger: null,
   },
   playback: Playback.Stop,
-  timerMessage: {
-    text: '',
-    visible: false,
-    timerBlink: false,
-    timerBlackout: false,
-  },
-  publicMessage: {
-    text: '',
-    visible: false,
-  },
-  lowerMessage: {
-    text: '',
-    visible: false,
-  },
-  externalMessage: {
-    text: '',
-    visible: false,
+  message: {
+    timer: {
+      text: '',
+      visible: false,
+      blink: false,
+      blackout: false,
+    },
+    public: {
+      text: '',
+      visible: false,
+    },
+    lower: {
+      text: '',
+      visible: false,
+    },
+    external: {
+      text: '',
+      visible: false,
+    },
   },
   onAir: false,
   loaded: {

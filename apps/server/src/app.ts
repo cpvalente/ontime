@@ -174,10 +174,7 @@ export const startServer = async () => {
    * - Runtime Service    publicEventNext
    */
   eventStore.init({
-    timerMessage: messageService.timerMessage,
-    publicMessage: messageService.publicMessage,
-    lowerMessage: messageService.lowerMessage,
-    externalMessage: messageService.externalMessage,
+    message: messageService,
     onAir: state.playback !== Playback.Stop,
     timer: state.timer,
     playback: state.playback,

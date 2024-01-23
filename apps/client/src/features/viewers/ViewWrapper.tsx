@@ -55,20 +55,8 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     }, [rundownData]);
 
     // websocket data
-    const {
-      timer,
-      publicMessage,
-      timerMessage,
-      lowerMessage,
-      externalMessage,
-      playback,
-      onAir,
-      eventNext,
-      publicEventNext,
-      publicEventNow,
-      eventNow,
-      loaded,
-    } = useStore(runtime);
+    const { timer, message, playback, onAir, eventNext, publicEventNext, publicEventNow, eventNow, loaded } =
+      useStore(runtime);
     const publicSelectedId = loaded.selectedPublicEventId;
     const selectedId = loaded.selectedEventId;
     const nextId = loaded.nextEventId;
@@ -93,10 +81,10 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
       <Component
         {...props}
         isMirrored={isMirrored}
-        pres={timerMessage}
-        publ={publicMessage}
-        lower={lowerMessage}
-        external={externalMessage}
+        pres={message.timer}
+        publ={message.public}
+        lower={message.lower}
+        external={message.external}
         eventNow={eventNow}
         publicEventNow={publicEventNow}
         eventNext={eventNext}

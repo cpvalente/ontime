@@ -15,3 +15,9 @@ export function isNumber(value: unknown): asserts value is number {
     throw new Error(`Unexpected payload type: ${value}`);
   }
 }
+
+export function isObject(value: unknown): asserts value is object {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    throw new Error(`Unexpected payload type: ${value}`);
+  }
+}

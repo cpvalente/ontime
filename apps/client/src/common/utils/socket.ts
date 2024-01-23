@@ -87,21 +87,9 @@ export const connectSocket = (preferredClientName?: string) => {
           runtime.setState(state);
           break;
         }
-        case 'ontime-timerMessage': {
+        case 'ontime-message': {
           const state = runtime.getState();
-          state.timerMessage = payload;
-          runtime.setState(state);
-          break;
-        }
-        case 'ontime-publicMessage': {
-          const state = runtime.getState();
-          state.publicMessage = payload;
-          runtime.setState(state);
-          break;
-        }
-        case 'ontime-lowerMessage': {
-          const state = runtime.getState();
-          state.lowerMessage = payload;
+          state.message = payload;
           runtime.setState(state);
           break;
         }
