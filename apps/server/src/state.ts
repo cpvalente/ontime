@@ -307,7 +307,7 @@ export const stateMutations = {
         state.timer.addedTime = restorePoint.addedTime;
 
         // check if event finished meanwhile
-        if (state.eventNow.timerType === TimerType.TimeToEnd) {
+        if (event.timerType === TimerType.TimeToEnd) {
           state.timer.current = getCurrent(state);
         }
       });
