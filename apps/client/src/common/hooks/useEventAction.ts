@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { GetRundownCached, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
-import { getCueCandidate, swapOntimeEvents } from 'ontime-utils';
+import { swapOntimeEvents } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/apiConstants';
 import { logAxiosError } from '../api/apiUtils';
@@ -70,19 +70,9 @@ export const useEventAction = () => {
 
         const rundown = queryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? [];
 
-        if (newEvent?.cue === undefined) {
-          newEvent.cue = getCueCandidate(rundown, options?.after);
-        }
-
-        // hard coding duration value to be as expected for now
-        // this until timeOptions gets implemented
-        if (newEvent?.timeStart !== undefined && newEvent.timeEnd !== undefined) {
-          newEvent.duration = Math.max(0, newEvent?.timeEnd - newEvent?.timeStart) || 0;
-        }
-
         if (applicationOptions.startTimeIsLastEnd && applicationOptions?.lastEventId) {
           const previousEvent = rundown.find((event) => event.id === applicationOptions.lastEventId);
-          if (previousEvent !== undefined && previousEvent.type === 'event') {
+          if (isOntimeEvent(previousEvent)) {
             newEvent.timeStart = previousEvent.timeEnd;
             newEvent.timeEnd = previousEvent.timeEnd;
           }
