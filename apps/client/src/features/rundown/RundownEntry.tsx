@@ -7,7 +7,7 @@ import {
   Playback,
   SupportedEvent,
 } from 'ontime-types';
-import { calculateDuration, getCueCandidate } from 'ontime-utils';
+import { calculateDuration } from 'ontime-utils';
 
 import { RUNDOWN } from '../../common/api/apiConstants';
 import { useEventAction } from '../../common/hooks/useEventAction';
@@ -111,9 +111,7 @@ export default function RundownEntry(props: RundownEntryProps) {
       }
       case 'clone': {
         const newEvent = cloneEvent(data as OntimeEvent, data.id);
-        const rundown = ontimeQueryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? [];
-        newEvent.cue = getCueCandidate(rundown, data.id);
-        addEvent(newEvent);
+        addEvent(newEvent, { after: data.id });
         break;
       }
       case 'update': {
