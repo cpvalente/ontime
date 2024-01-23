@@ -4,17 +4,16 @@ import { Runtime } from './Runtime.type.js';
 import { OntimeEvent } from '../core/OntimeEvent.type.js';
 
 export type RuntimeStore = {
+  // timer data
   clock: number;
-
-  // timer service
   timer: TimerState;
+  onAir: boolean;
 
   // messages service
   message: MessageState;
-  onAir: boolean;
 
-  // event loader
-  loaded: Runtime;
+  // rundown data
+  runtime: Runtime;
   eventNow: OntimeEvent | null;
   publicEventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;

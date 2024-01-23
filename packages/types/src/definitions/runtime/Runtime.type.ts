@@ -1,4 +1,4 @@
-import { MaybeNumber } from '../../utils/utils.type';
+import { MaybeNumber } from '../../utils/utils.type.js';
 
 export type Runtime = {
   numEvents: number;

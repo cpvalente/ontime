@@ -7,7 +7,7 @@ import useProjectData from '../../common/hooks-query/useProjectData';
 import useRundown from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
-import { runtime } from '../../common/stores/runtime';
+import { runtimeStore } from '../../common/stores/runtime';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
 
 type WithDataProps = {
@@ -54,13 +54,13 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
       return [];
     }, [rundownData]);
 
-    // TODO: cleanup here
     // websocket data
-    const { clock, timer, message, onAir, eventNext, publicEventNext, publicEventNow, eventNow, loaded } =
-      useStore(runtime);
+    const { clock, timer, message, onAir, eventNext, publicEventNext, publicEventNow, eventNow } =
+      useStore(runtimeStore);
     const publicSelectedId = publicEventNow?.id ?? null;
     const selectedId = eventNow?.id ?? null;
     const nextId = eventNext?.id ?? null;
+
     /******************************************/
     /***  + TimeManagerType                     ***/
     /***  WRAP INFORMATION RELATED TO TIME  ***/

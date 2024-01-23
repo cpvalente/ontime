@@ -157,27 +157,13 @@ export const startServer = async () => {
 
   /**
    * Module initialises the services and provides initial payload for the store
-   * Currently registered objects in store
-   *
-   * - Message Service    timerMessage
-   * - Message Service    publicMessage
-   * - Message Service    lowerMessage
-   * - Message Service    externalMessage
-   *
-   * - Runtime Service    onAir (derived from playback)
-   * - Runtime Service    timer
-   * - Runtime Service    loaded // TODO: rename to runtime ??
-   * - Runtime Service    eventNow
-   * - Runtime Service    publicEventNow
-   * - Runtime Service    eventNext
-   * - Runtime Service    publicEventNext
    */
   eventStore.init({
     clock: state.clock,
-    message: messageService.getState(),
-    onAir: state.timer.playback !== Playback.Stop,
     timer: state.timer,
-    loaded: state.runtime,
+    onAir: state.timer.playback !== Playback.Stop,
+    message: messageService.getState(),
+    runtime: state.runtime,
     eventNow: state.eventNow,
     publicEventNow: state.publicEventNow,
     eventNext: state.eventNext,

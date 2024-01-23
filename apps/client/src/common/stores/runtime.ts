@@ -15,6 +15,7 @@ export const runtimeStorePlaceholder: RuntimeStore = {
     secondaryTimer: null,
     startedAt: null,
   },
+  onAir: false,
   message: {
     timer: {
       text: '',
@@ -35,8 +36,7 @@ export const runtimeStorePlaceholder: RuntimeStore = {
       visible: false,
     },
   },
-  onAir: false,
-  loaded: {
+  runtime: {
     numEvents: 0,
     selectedEventIndex: null,
   },
@@ -48,7 +48,7 @@ export const runtimeStorePlaceholder: RuntimeStore = {
 
 const deepCompare = <T>(a: T, b: T) => isEqual(a, b);
 
-export const runtime = createWithEqualityFn<RuntimeStore>(
+export const runtimeStore = createWithEqualityFn<RuntimeStore>(
   () => ({
     ...runtimeStorePlaceholder,
   }),
@@ -56,4 +56,4 @@ export const runtime = createWithEqualityFn<RuntimeStore>(
 );
 
 export const useRuntimeStore = <T>(selector: (state: RuntimeStore) => T) =>
-  useStoreWithEqualityFn(runtime, selector, deepCompare);
+  useStoreWithEqualityFn(runtimeStore, selector, deepCompare);

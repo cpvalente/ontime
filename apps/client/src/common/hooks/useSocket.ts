@@ -51,8 +51,8 @@ export const setMessage = {
 export const usePlaybackControl = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.timer.playback,
-    selectedEventIndex: state.loaded.selectedEventIndex,
-    numEvents: state.loaded.numEvents,
+    selectedEventIndex: state.runtime.selectedEventIndex,
+    numEvents: state.runtime.numEvents,
   });
 
   return useRuntimeStore(featureSelector);
@@ -85,8 +85,8 @@ export const useInfoPanel = () => {
     eventNow: state.eventNow,
     eventNext: state.eventNext,
     playback: state.timer.playback,
-    selectedEventIndex: state.loaded.selectedEventIndex,
-    numEvents: state.loaded.numEvents,
+    selectedEventIndex: state.runtime.selectedEventIndex,
+    numEvents: state.runtime.numEvents,
   });
 
   return useRuntimeStore(featureSelector);
@@ -96,8 +96,8 @@ export const useCuesheet = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.timer.playback,
     selectedEventId: state.eventNow?.id ?? null,
-    selectedEventIndex: state.loaded.selectedEventIndex,
-    numEvents: state.loaded.numEvents,
+    selectedEventIndex: state.runtime.selectedEventIndex,
+    numEvents: state.runtime.numEvents,
     titleNow: state.eventNow?.title || '',
   });
 
@@ -144,8 +144,8 @@ export const useRuntimeOverview = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.timer.playback,
     clock: state.clock,
-    numEvents: state.loaded.numEvents,
-    selectedEventIndex: state.loaded.selectedEventIndex,
+    selectedEventIndex: state.runtime.selectedEventIndex,
+    numEvents: state.runtime.numEvents,
   });
 
   return useRuntimeStore(featureSelector);

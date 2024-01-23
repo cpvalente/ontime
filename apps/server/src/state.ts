@@ -522,7 +522,7 @@ export function mutate<R>(
     publicEventNow: newState.publicEventNow,
     eventNext: newState.eventNext,
     publicEventNext: newState.publicEventNext,
-    loaded: newState.runtime, // TODO: rename to runtime
+    runtime: newState.runtime,
     timer: newState.timer,
   });
 
