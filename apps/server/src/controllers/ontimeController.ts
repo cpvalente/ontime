@@ -34,14 +34,13 @@ import { logger } from '../classes/Logger.js';
 import { deleteAllEvents, notifyChanges } from '../services/rundown-service/RundownService.js';
 import { deepmerge } from 'ontime-utils';
 import { runtimeCacheStore } from '../stores/cachingStore.js';
-import { delayedRundownCacheKey } from '../services/rundown-service/rundown.utils.js';
 import { integrationService } from '../services/integration-service/IntegrationService.js';
 import { getProjectFiles } from '../utils/getFileListFromFolder.js';
 import { configService } from '../services/ConfigService.js';
 import { deleteFile } from '../utils/parserUtils.js';
 import { validateProjectFiles } from './ontimeController.validate.js';
 import { dbModel } from '../models/dataModel.js';
-
+import { delayedRundownCacheKey } from '../services/rundown-service/cachedRundown.utils.js';
 import { sheet } from '../utils/sheetsAuth.js';
 
 // Create controller for GET request to '/ontime/poll'

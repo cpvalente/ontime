@@ -13,7 +13,7 @@ import {
   reorderEvent,
   swapEvents,
 } from '../services/rundown-service/RundownService.js';
-import { getDelayedRundown, getRundownCache } from '../services/rundown-service/rundown.utils.js';
+import { getDelayedRundown, getRundownCache } from '../services/rundown-service/cachedRundown.utils.js';
 
 // Create controller for GET request to '/events'
 // Returns -
