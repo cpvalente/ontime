@@ -24,7 +24,7 @@ export default function CountdownSelect(props: CountdownSelectProps) {
   ) as OntimeEvent[];
 
   return (
-    <div className='event-select' data-testid='countdown-select'>
+    <div className='event-select' data-testid='countdown__select'>
       <span className='event-select__title'>{getLocalizedString('countdown.select_event')}</span>
       <ul className='event-select__events'>
         {!events.length ? (
