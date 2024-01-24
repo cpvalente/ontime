@@ -22,7 +22,6 @@ type WithDataProps = {
   publicEventNext: OntimeEvent | null;
   time: ViewExtendedTimer;
   events: OntimeEvent[];
-  backstageEvents: OntimeEvent[];
   selectedId: string | null;
   publicSelectedId: string | null;
   nextId: string | null;
@@ -47,9 +46,9 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     const { data: viewSettings } = useViewSettings();
     const { data: settings } = useSettings();
 
-    const publicEvents = useMemo(() => {
+    const playableEvents = useMemo(() => {
       if (Array.isArray(rundownData)) {
-        return rundownData.filter((e) => e.type === SupportedEvent.Event && e.title && e.isPublic);
+        return rundownData.filter((e) => e.type === SupportedEvent.Event);
       }
       return [];
     }, [rundownData]);
@@ -93,8 +92,7 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
         eventNext={eventNext}
         publicEventNext={publicEventNext}
         time={TimeManagerType}
-        events={publicEvents}
-        backstageEvents={rundownData}
+        events={playableEvents}
         selectedId={selectedId}
         publicSelectedId={publicSelectedId}
         viewSettings={viewSettings}

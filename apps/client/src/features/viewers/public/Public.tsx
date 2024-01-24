@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import QRCode from 'react-qr-code';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Message, OntimeEvent, ProjectData, Settings, ViewSettings } from 'ontime-types';
@@ -23,32 +23,59 @@ import './Public.scss';
 interface BackstageProps {
   isMirrored: boolean;
   publ: Message;
-  publicEventNow: OntimeEvent | null;
-  publicEventNext: OntimeEvent | null;
+  eventNow: OntimeEvent | null;
+  eventNext: OntimeEvent | null;
   time: ViewExtendedTimer;
   events: OntimeEvent[];
-  publicSelectedId: string | null;
   general: ProjectData;
   viewSettings: ViewSettings;
   settings: Settings | undefined;
 }
 
 export default function Public(props: BackstageProps) {
-  const {
-    isMirrored,
-    publ,
-    publicEventNow,
-    publicEventNext,
-    time,
-    events,
-    publicSelectedId,
-    general,
-    viewSettings,
-    settings,
-  } = props;
+  const { isMirrored, publ, eventNow, eventNext, time, events, general, viewSettings, settings } = props;
 
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
+
+  const filter = 'isPublic';
+
+  const filteredEventNow = useMemo(() => {
+    if (!eventNow || !Object.hasOwn(events[0], filter)) {
+      return null;
+    }
+    if (eventNow && eventNow[filter as keyof OntimeEvent] === true) {
+      return eventNow;
+    }
+    const selectedEventIndex = events.findIndex((e) => e.id === eventNow?.id);
+    for (let i = selectedEventIndex; i >= 0; i--) {
+      if (events[i][filter as keyof OntimeEvent] === true) {
+        return events[i];
+      }
+    }
+    return null;
+  }, [eventNow, events]);
+
+  const filteredEventNext = useMemo(() => {
+    if (!eventNext || !Object.hasOwn(events[0], filter)) {
+      return null;
+    }
+    if (eventNext && eventNext[filter as keyof OntimeEvent] === true) {
+      return eventNext;
+    }
+    const numEvents = events.length;
+    const nextEventIndex = events.findIndex((e) => e.id === eventNext?.id);
+    for (let i = nextEventIndex; i < numEvents; i++) {
+      if (events[i][filter as keyof OntimeEvent] === true) {
+        return events[i];
+      }
+    }
+    return null;
+  }, [eventNext, events]);
+
+  const filteredEvents = useMemo(() => {
+    return filter === undefined ? events : events.filter((e) => e[filter as keyof OntimeEvent] === true);
+  }, [events, filter]);
 
   useEffect(() => {
     document.title = 'ontime - Public Screen';
@@ -80,7 +107,7 @@ export default function Public(props: BackstageProps) {
 
       <div className='now-container'>
         <AnimatePresence>
-          {publicEventNow && (
+          {filteredEventNow && (
             <motion.div
               className='event now'
               key='now'
@@ -91,16 +118,16 @@ export default function Public(props: BackstageProps) {
             >
               <TitleCard
                 label='now'
-                title={publicEventNow.title}
-                subtitle={publicEventNow.subtitle}
-                presenter={publicEventNow.presenter}
+                title={filteredEventNow.title}
+                subtitle={filteredEventNow.subtitle}
+                presenter={filteredEventNow.presenter}
               />
             </motion.div>
           )}
         </AnimatePresence>
 
         <AnimatePresence>
-          {publicEventNext && (
+          {filteredEventNext && (
             <motion.div
               className='event next'
               key='next'
@@ -111,16 +138,16 @@ export default function Public(props: BackstageProps) {
             >
               <TitleCard
                 label='next'
-                title={publicEventNext.title}
-                subtitle={publicEventNext.subtitle}
-                presenter={publicEventNext.presenter}
+                title={filteredEventNext.title}
+                subtitle={filteredEventNext.subtitle}
+                presenter={filteredEventNext.presenter}
               />
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      <ScheduleProvider events={events} selectedEventId={publicSelectedId}>
+      <ScheduleProvider events={filteredEvents} selectedEventId={filteredEventNow?.id ?? null}>
         <ScheduleNav className='schedule-nav-container' />
         <Schedule className='schedule-container' />
       </ScheduleProvider>

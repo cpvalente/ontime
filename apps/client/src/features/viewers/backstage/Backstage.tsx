@@ -28,7 +28,7 @@ interface BackstageProps {
   eventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
   time: ViewExtendedTimer;
-  backstageEvents: OntimeEvent[];
+  events: OntimeEvent[];
   selectedId: string | null;
   general: ProjectData;
   viewSettings: ViewSettings;
@@ -36,8 +36,7 @@ interface BackstageProps {
 }
 
 export default function Backstage(props: BackstageProps) {
-  const { isMirrored, publ, eventNow, eventNext, time, backstageEvents, selectedId, general, viewSettings, settings } =
-    props;
+  const { isMirrored, publ, eventNow, eventNext, time, events, selectedId, general, viewSettings, settings } = props;
 
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
@@ -70,7 +69,7 @@ export default function Backstage(props: BackstageProps) {
   const expectedFinish = isNegative ? getLocalizedString('countdown.overtime') : formatTime(time.expectedFinish);
 
   const qrSize = Math.max(window.innerWidth / 15, 128);
-  const filteredEvents = backstageEvents.filter((event) => event.type === SupportedEvent.Event);
+  const filteredEvents = events.filter((event) => event.type === SupportedEvent.Event);
   const showPublicMessage = publ.text && publ.visible;
   const showProgress = time.playback !== 'stop';
 
@@ -162,7 +161,7 @@ export default function Backstage(props: BackstageProps) {
         </AnimatePresence>
       </div>
 
-      <ScheduleProvider events={filteredEvents} selectedEventId={selectedId} isBackstage>
+      <ScheduleProvider events={filteredEvents} selectedEventId={selectedId}>
         <ScheduleNav className='schedule-nav-container' />
         <Schedule isProduction className='schedule-container' />
       </ScheduleProvider>

@@ -12,7 +12,6 @@ interface ScheduleContextState {
   scheduleType: 'past' | 'now' | 'future';
   numPages: number;
   visiblePage: number;
-  isBackstage: boolean;
 }
 
 const ScheduleContext = createContext<ScheduleContextState | undefined>(undefined);
@@ -20,15 +19,14 @@ const ScheduleContext = createContext<ScheduleContextState | undefined>(undefine
 interface ScheduleProviderProps {
   events: OntimeEvent[];
   selectedEventId: string | null;
-  isBackstage?: boolean;
   time?: number;
+  filter?: string;
 }
 
 export const ScheduleProvider = ({
   children,
   events,
   selectedEventId,
-  isBackstage = false,
   time = 10,
 }: PropsWithChildren<ScheduleProviderProps>) => {
   const [visiblePage, setVisiblePage] = useState(0);
@@ -83,7 +81,6 @@ export const ScheduleProvider = ({
         scheduleType,
         numPages,
         visiblePage,
-        isBackstage,
       }}
     >
       {children}
