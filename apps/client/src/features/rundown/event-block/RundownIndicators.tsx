@@ -1,7 +1,5 @@
 import { millisToString, removeLeadingZero, removeTrailingZero } from 'ontime-utils';
 
-import { millisToDelayString } from '../../../common/utils/dateConfig';
-
 import style from './RundownIndicators.module.scss';
 
 interface RundownIndicatorProps {
@@ -32,7 +30,6 @@ function formatOverlap(previousEnd: number | null, timeStart: number): string | 
 export default function RundownIndicators(props: RundownIndicatorProps) {
   const { timeStart, previousEnd, delay } = props;
 
-  console.log(previousEnd, timeStart)
   const hasOverlap = formatOverlap(previousEnd, timeStart);
   const hasDelay = formatDelay(timeStart, delay);
 

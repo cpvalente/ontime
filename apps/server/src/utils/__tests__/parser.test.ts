@@ -340,7 +340,7 @@ describe('test parser edge cases', () => {
     };
 
     const parseResponse = await parseJson(testData);
-    expect(console.log).toHaveBeenCalledWith('ERROR: undefined event type, skipping');
+    expect(console.log).toHaveBeenCalledWith('ERROR: unkown event type, skipping');
     expect(parseResponse?.rundown.length).toBe(0);
   });
 

@@ -43,20 +43,25 @@ import { coerceBoolean } from './coerceType.js';
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
 
+type ExcelData = Pick<DatabaseModel, 'rundown' | 'project' | 'userFields'> & {
+  projectMetadata: Record<string, { row: number; col: number }>;
+  rundownMetadata: Record<string, { row: number; col: number }>;
+};
+
 /**
  * @description Excel array parser
  * @param {array} excelData - array with excel sheet
  * @param {ExcelImportOptions} options - an object that contains the import map
  * @returns {object} - parsed object
  */
-export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImportMap>) => {
+export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImportMap>): ExcelData => {
   const projectMetadata = {};
   const rundownMetadata = {};
   const importMap: ExcelImportMap = { ...defaultExcelImportMap, ...options };
   for (const [key, value] of Object.entries(importMap)) {
     importMap[key] = value.toLocaleLowerCase();
   }
-  const projectData: Partial<ProjectData> = {
+  const projectData: ProjectData = {
     title: '',
     description: '',
     publicUrl: '',
@@ -64,7 +69,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
     backstageUrl: '',
     backstageInfo: '',
   };
-  const customUserFields: Partial<UserFields> = {
+  const customUserFields: UserFields = {
     user0: importMap.user0,
     user1: importMap.user1,
     user2: importMap.user2,
@@ -350,10 +355,6 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
   return {
     rundown,
     project: projectData,
-    settings: {
-      app: 'ontime',
-      version: '2.0.0',
-    },
     userFields: customUserFields,
     projectMetadata,
     rundownMetadata,
@@ -448,7 +449,7 @@ export const createEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: string
   }
 
   const baseEvent = {
-    id: generateId(),
+    id: eventArgs?.id ?? generateId(),
     cue: cueFallback,
     ...eventDef,
   };
@@ -502,7 +503,6 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
   }
 
   if (file.endsWith('.json')) {
-    // if json check version
     const rawdata = fs.readFileSync(file).toString();
     let uploadedJson = null;
 

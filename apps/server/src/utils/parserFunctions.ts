@@ -13,6 +13,10 @@ import {
   HttpSubscription,
   OscSubscriptionOptions,
   HttpSubscriptionOptions,
+  DatabaseModel,
+  isOntimeEvent,
+  isOntimeDelay,
+  isOntimeBlock,
 } from 'ontime-types';
 
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
@@ -25,7 +29,7 @@ import { MAX_EVENTS } from '../settings.js';
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseRundown = (data): OntimeRundown => {
+export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
   let newRundown: OntimeRundown = [];
   if ('rundown' in data) {
     console.log('Found rundown definition, importing...');
@@ -33,7 +37,7 @@ export const parseRundown = (data): OntimeRundown => {
     try {
       let eventIndex = 0;
       const ids = [];
-      for (const e of data.rundown) {
+      for (const event of data.rundown) {
         // cap number of events
         if (rundown.length >= MAX_EVENTS) {
           console.log(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
@@ -41,28 +45,28 @@ export const parseRundown = (data): OntimeRundown => {
         }
 
         // double check unique ids
-        if (ids.includes(e?.id)) {
+        if (ids.includes(event?.id)) {
           console.log('ERROR: ID collision on import, skipping');
           continue;
         }
 
-        if (e.type === 'event') {
+        if (isOntimeEvent(event)) {
           eventIndex += 1;
-          const event = createEvent(e, eventIndex.toString());
+          const parsedEvent = createEvent(event, eventIndex.toString());
           if (event != null) {
-            rundown.push(event);
-            ids.push(event.id);
+            rundown.push(parsedEvent);
+            ids.push(parsedEvent.id);
           }
-        } else if (e.type === 'delay') {
+        } else if (isOntimeDelay(event)) {
           rundown.push({
             ...delayDef,
-            duration: e.duration,
-            id: e.id || generateId(),
+            duration: event.duration,
+            id: event.id || generateId(),
           });
-        } else if (e.type === 'block') {
-          rundown.push({ ...blockDef, title: e.title, id: e.id || generateId() });
+        } else if (isOntimeBlock(event)) {
+          rundown.push({ ...blockDef, title: event.title, id: event.id || generateId() });
         } else {
-          console.log('ERROR: undefined event type, skipping');
+          console.log('ERROR: unkown event type, skipping');
         }
       }
     } catch (error) {
