@@ -16,7 +16,7 @@ import { getCached, runtimeCacheStore } from '../../stores/cachingStore.js';
 import { isProduction } from '../../setup.js';
 import { deleteAtIndex, insertAtIndex, reorderArray } from '../../utils/arrayUtils.js';
 import { _applyDelay } from '../delayUtils.js';
-import { createEvent, createPatch } from '../../utils/parser.js';
+import { createPatch } from '../../utils/parser.js';
 
 /**
  * Keep incremental revision number of rundown for runtime

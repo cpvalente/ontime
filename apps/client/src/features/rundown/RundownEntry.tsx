@@ -162,7 +162,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         timerType={data.timerType}
         title={data.title}
         note={data.note}
-        delay={data.delay || 0}
+        delay={data.delay ?? 0}
         previousEnd={previousEnd}
         colour={data.colour}
         isPast={isPast}

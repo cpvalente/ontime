@@ -426,9 +426,9 @@ export const useEventAction = () => {
     async (eventId: string, from: number, to: number) => {
       try {
         const reorderObject: ReorderEntry = {
-          eventId: eventId,
-          from: from,
-          to: to,
+          eventId,
+          from,
+          to,
         };
         await _reorderEventMutation.mutateAsync(reorderObject);
       } catch (error) {

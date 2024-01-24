@@ -38,7 +38,7 @@ export default function Rundown(props: RundownProps) {
   const viewFollowsCursor = appMode === AppMode.Run;
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  useFollowComponent({ followRef: cursorRef, scrollRef: scrollRef, doFollow: true });
+  useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: true });
 
   // DND KIT
   const sensors = useSensors(useSensor(PointerSensor));
@@ -66,8 +66,8 @@ export default function Rundown(props: RundownProps) {
           type: SupportedEvent.Event,
         };
         const options = {
-          defaultPublic: defaultPublic,
-          startTimeIsLastEnd: startTimeIsLastEnd,
+          defaultPublic,
+          startTimeIsLastEnd,
           lastEventId: cursor,
           after: cursor,
         };

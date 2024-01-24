@@ -116,16 +116,16 @@ export const parseSettings = (data): Settings => {
     const s = data.settings;
 
     // skip if file definition is missing
-    if (s.app == null || s.version == null) {
+    if (s?.app !== 'ontime' || s?.version == null) {
       console.log('ERROR: unknown app version, skipping');
     } else {
       const settings = {
         version: dbModel.settings.version,
-        serverPort: s.serverPort || dbModel.settings.serverPort,
-        editorKey: s.editorKey || null,
-        operatorKey: s.operatorKey || null,
-        timeFormat: s.timeFormat || '24',
-        language: s.language || 'en',
+        serverPort: s.serverPort ?? dbModel.settings.serverPort,
+        editorKey: s.editorKey ?? null,
+        operatorKey: s.operatorKey ?? null,
+        timeFormat: s.timeFormat ?? '24',
+        language: s.language ?? 'en',
       };
 
       // write to db
@@ -291,15 +291,15 @@ export const parseAliases = (data): Alias[] => {
   if ('aliases' in data) {
     console.log('Found Aliases definition, importing...');
     try {
-      for (const a of data.aliases) {
+      for (const alias of data.aliases) {
         const newAlias = {
-          enabled: a.enabled || false,
-          alias: a.alias || '',
-          pathAndParams: a.pathAndParams || '',
+          enabled: alias.enabled ?? false,
+          alias: alias.alias ?? '',
+          pathAndParams: alias.pathAndParams ?? '',
         };
         newAliases.push(newAlias);
       }
-      console.log(`Uploaded ${newAliases?.length || 0} alias(es)`);
+      console.log(`Uploaded ${newAliases.length} alias(es)`);
     } catch (error) {
       console.log(`Error: ${error}`);
     }

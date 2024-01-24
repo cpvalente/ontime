@@ -80,7 +80,7 @@ export default function EventEditor() {
   };
 
   return (
-    <div className={style.eventEditor}>
+    <div className={style.eventEditor} data-testid='editor-container'>
       <div>HEADER ACTIONS?</div>
       <div className={style.content}>
         <EventEditorTimes
