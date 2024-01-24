@@ -1,6 +1,6 @@
 import { EndAction, OntimeEvent, OntimeRundown, SupportedEvent, TimerType } from 'ontime-types';
 
-import { calculateRuntimeDelays, calculateRuntimeDelaysFrom, getDelayAt } from '../delayedRundown.utils.js';
+import { calculateRuntimeDelays, calculateRuntimeDelaysFrom, getDelayAt } from '../rundown.utils.js';
 
 describe('calculateRuntimeDelays', () => {
   it('calculates all delays in a given rundown', () => {

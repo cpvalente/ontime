@@ -1,22 +1,24 @@
 import { LogOrigin, OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent } from 'ontime-types';
 import { generateId, getCueCandidate } from 'ontime-utils';
+
+import {
+  delayedRundownCacheKey,
+  cachedAdd,
+  cachedEdit,
+  cachedBatchEdit,
+  cachedDelete,
+  cachedClear,
+  cachedReorder,
+  cachedApplyDelay,
+  cachedSwap,
+} from './cachedRundown.utils.js';
+
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { MAX_EVENTS } from '../../settings.js';
 import { EventLoader } from '../../classes/event-loader/EventLoader.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeCacheStore } from '../../stores/cachingStore.js';
-import {
-  cachedAdd,
-  cachedApplyDelay,
-  cachedClear,
-  cachedDelete,
-  cachedEdit,
-  cachedBatchEdit,
-  cachedReorder,
-  cachedSwap,
-  delayedRundownCacheKey,
-} from './delayedRundown.utils.js';
 import { logger } from '../../classes/Logger.js';
 import { validateEvent } from '../../utils/parser.js';
 import { stateMutations } from '../../state.js';
@@ -106,7 +108,7 @@ export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>)
  * @param eventId
  * @returns {Promise<void>}
  */
-export async function deleteEvent(eventId) {
+export async function deleteEvent(eventId: string) {
   await cachedDelete(eventId);
 
   notifyChanges({ timer: [eventId], external: true });
