@@ -25,38 +25,31 @@ const timeSkipLimit = 1000;
 
 const initialRuntime: Runtime = {
   selectedEventIndex: null,
-  selectedEventId: null, // TODO: remove
-  selectedPublicEventId: null, // TODO: remove
-  nextEventId: null, // TODO: remove
-  nextPublicEventId: null, // TODO: remove
   numEvents: 0,
 };
 
 const initialTimer: TimerState = {
-  clock: clock.timeNow(),
+  addedTime: 0,
   current: null,
+  duration: null,
   elapsed: null,
   expectedFinish: null, // TODO: expected finish could account for midnight, we cleanup in the clients
-  addedTime: 0,
-  startedAt: null,
   finishedAt: null,
+  playback: Playback.Stop,
   secondaryTimer: null,
-  duration: null,
-  timerType: null, // TODO: remove
-  endAction: null, // TODO: remove
-  timeWarning: null, // TODO: remove
-  timeDanger: null, // TODO: remove
+  startedAt: null,
 };
 
 export type TState = DeepReadonly<{
+  clock: number; // realtime clock
   eventNow: OntimeEvent | null;
   publicEventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
   publicEventNext: OntimeEvent | null;
   runtime: Runtime;
-  playback: Playback; // TODO: merge into timer?
-  // TODO: these are private state and should not be emitted
-  timer: TimerState & {
+  timer: TimerState;
+  // private properties of the timer calculations
+  _timer: {
     pausedAt: MaybeNumber;
     finishedNow: boolean;
     lastUpdate: MaybeNumber;
@@ -65,14 +58,14 @@ export type TState = DeepReadonly<{
 }>;
 
 export const state: TState = {
+  clock: clock.timeNow(),
   eventNow: null,
   publicEventNow: null,
   eventNext: null,
   publicEventNext: null,
   runtime: initialRuntime,
-  playback: Playback.Stop, // TODO: merge into timer?
-  timer: {
-    ...initialTimer,
+  timer: { ...initialTimer },
+  _timer: {
     pausedAt: null,
     lastUpdate: null,
     secondaryTarget: null,
@@ -90,21 +83,15 @@ export const stateMutations = {
       const eventIndex = rundown.findIndex((eventInMemory) => eventInMemory.id === event.id);
 
       state.runtime.selectedEventIndex = eventIndex;
-      state.runtime.selectedEventId = event.id;
       state.runtime.numEvents = rundown.length;
 
       this.loadNow(event, rundown);
       this.loadNext(rundown);
 
-      state.timer.clock = clock.timeNow();
-      state.playback = Playback.Armed;
+      state.clock = clock.timeNow();
+      state.timer.playback = Playback.Armed;
       state.timer.duration = calculateDuration(event.timeStart, event.timeEnd);
       state.timer.current = getCurrent(state);
-
-      state.timer.timerType = event.timerType;
-      state.timer.endAction = event.endAction;
-      state.timer.timeWarning = event.timeWarning;
-      state.timer.timeDanger = event.timeDanger;
 
       if (initialData) {
         stateMutations.timer.patch(initialData);
@@ -118,11 +105,9 @@ export const stateMutations = {
       // check if current is also public
       if (event.isPublic) {
         state.publicEventNow = event;
-        state.runtime.selectedPublicEventId = event.id;
       } else {
         // assume there is no public event
         state.publicEventNow = null;
-        state.runtime.selectedPublicEventId = null;
 
         // if there is nothing before, return
         if (!state.runtime.selectedEventIndex) {
@@ -133,7 +118,6 @@ export const stateMutations = {
         for (let i = state.runtime.selectedEventIndex; i >= 0; i--) {
           if (playableEvents[i].isPublic) {
             state.publicEventNow = playableEvents[i];
-            state.runtime.selectedPublicEventId = playableEvents[i].id;
             break;
           }
         }
@@ -145,8 +129,6 @@ export const stateMutations = {
       // assume there are no next events
       state.eventNext = null;
       state.publicEventNext = null;
-      state.runtime.nextEventId = null;
-      state.runtime.nextPublicEventId = null;
 
       if (state.runtime.selectedEventIndex === null) {
         return;
@@ -162,14 +144,12 @@ export const stateMutations = {
           // if we have not set private
           if (!nextProduction) {
             state.eventNext = playableEvents[i];
-            state.runtime.nextEventId = playableEvents[i].id;
             nextProduction = true;
           }
 
           // if event is public
           if (playableEvents[i].isPublic) {
             state.publicEventNext = playableEvents[i];
-            state.runtime.nextPublicEventId = playableEvents[i].id;
             nextPublic = true;
           }
 
@@ -180,14 +160,8 @@ export const stateMutations = {
     });
   },
   resume(restorePoint: RestorePoint, event: OntimeEvent, rundown: OntimeEvent[]) {
-    mutate((state) => {
-      const { playback, ...patch } = restorePoint;
-
-      // TODO: this.load gets typed as any?
-      stateMutations.load(event, rundown, patch);
-
-      // TODO: send as part of the patch when playback is merged to timer
-      state.playback = playback;
+    mutate((_state) => {
+      stateMutations.load(event, rundown, restorePoint);
     });
   },
   /**
@@ -202,21 +176,17 @@ export const stateMutations = {
         // update data which is duplicate between eventNow and timer objects
         state.timer.duration = calculateDuration(state.eventNow.timeStart, state.eventNow.timeEnd);
         state.timer.expectedFinish = getExpectedFinish(state);
-        state.timer.timerType = state.eventNow.timerType;
-        state.timer.endAction = state.eventNow.endAction;
         return;
       }
-      state.playback = Playback.Armed;
+      state.timer.playback = Playback.Armed;
 
       state.timer.duration = calculateDuration(state.eventNow.timeStart, state.eventNow.timeEnd);
       state.timer.current = state.timer.duration;
       state.timer.elapsed = null;
-      state.timer.timerType = state.eventNow.timerType;
-      state.timer.endAction = state.eventNow.endAction;
 
       state.timer.startedAt = null;
       state.timer.finishedAt = null;
-      state.timer.pausedAt = null;
+      state._timer.pausedAt = null;
       state.timer.addedTime = 0;
 
       state.timer.expectedFinish = getExpectedFinish(state);
@@ -242,11 +212,10 @@ export const stateMutations = {
         // TODO: could we avoid having this dependency?
         state.runtime.numEvents = EventLoader.getPlayableEvents().length;
 
-        state.playback = Playback.Stop;
-
-        state.timer = {
-          ...initialTimer,
-          clock: clock.timeNow(),
+        state.timer.playback = Playback.Stop;
+        state.clock = clock.timeNow();
+        state.timer = { ...initialTimer };
+        state._timer = {
           pausedAt: null,
           lastUpdate: null,
           secondaryTarget: null,
@@ -267,22 +236,22 @@ export const stateMutations = {
     start() {
       mutate(
         (state) => {
-          state.timer.clock = clock.timeNow();
+          state.clock = clock.timeNow();
           state.timer.secondaryTimer = null;
-          state.timer.secondaryTarget = null;
+          state._timer.secondaryTarget = null;
 
           // add paused time if it exists
-          if (state.timer.pausedAt) {
-            const timeToAdd = state.timer.clock - state.timer.pausedAt;
+          if (state._timer.pausedAt) {
+            const timeToAdd = state.clock - state._timer.pausedAt;
             state.timer.addedTime += timeToAdd;
-            state.timer.pausedAt = null;
+            state._timer.pausedAt = null;
           }
 
           if (state.timer.startedAt === null) {
-            state.timer.startedAt = state.timer.clock;
+            state.timer.startedAt = state.clock;
           }
 
-          state.playback = Playback.Play;
+          state.timer.playback = Playback.Play;
           state.timer.expectedFinish = getExpectedFinish(state);
         },
         {
@@ -307,13 +276,13 @@ export const stateMutations = {
     pause() {
       mutate(
         (state) => {
-          if (state.playback !== Playback.Play) {
+          if (state.timer.playback !== Playback.Play) {
             return false;
           }
 
-          state.playback = Playback.Pause;
-          state.timer.clock = clock.timeNow();
-          state.timer.pausedAt = state.timer.clock;
+          state.timer.playback = Playback.Pause;
+          state.clock = clock.timeNow();
+          state._timer.pausedAt = state.clock;
           return true;
         },
         {
@@ -327,24 +296,18 @@ export const stateMutations = {
     },
     resume(event: OntimeEvent, restorePoint: RestorePoint) {
       mutate((state) => {
-        state.timer.clock = clock.timeNow();
+        state.clock = clock.timeNow();
 
-        // TODO: the duplication of timer data would not be necessary
-        // once event loader is merged here
-        state.runtime.selectedEventId = event.id;
         state.timer.startedAt = restorePoint.startedAt;
         state.timer.duration = calculateDuration(event.timeStart, event.timeEnd);
         state.timer.current = state.timer.duration;
 
-        state.timer.timerType = event.timerType;
-        state.timer.endAction = event.endAction;
-
-        state.playback = restorePoint.playback;
-        state.timer.pausedAt = restorePoint.pausedAt;
+        state.timer.playback = restorePoint.playback;
+        state._timer.pausedAt = restorePoint.pausedAt;
         state.timer.addedTime = restorePoint.addedTime;
 
         // check if event finished meanwhile
-        if (state.timer.timerType === TimerType.TimeToEnd) {
+        if (event.timerType === TimerType.TimeToEnd) {
           state.timer.current = getCurrent(state);
         }
       });
@@ -388,10 +351,6 @@ export const stateMutations = {
             state.timer.secondaryTimer = updatedSecondaryTimer;
             state.timer.elapsed = state.timer.duration - state.timer.current;
 
-            if (isFinished) {
-              state.runtime.selectedEventId = null;
-            }
-
             return { doRoll: doRollLoad, isFinished };
           }
 
@@ -399,8 +358,8 @@ export const stateMutations = {
             let isFinished = false;
             state.timer.current = getCurrent(state);
 
-            if (state.playback === Playback.Play && state.timer.finishedNow) {
-              state.timer.finishedAt = state.timer.clock;
+            if (state.timer.playback === Playback.Play && state._timer.finishedNow) {
+              state.timer.finishedAt = state.clock;
               isFinished = true;
             } else {
               state.timer.expectedFinish = getExpectedFinish(state);
@@ -419,16 +378,16 @@ export const stateMutations = {
           let _isFinished = false;
           let _shouldNotify = false;
 
-          const previousTime = state.timer.clock;
-          state.timer.clock = clock.timeNow();
-          const hasSkippedBack = previousTime > state.timer.clock;
+          const previousTime = state.clock;
+          state.clock = clock.timeNow();
+          const hasSkippedBack = previousTime > state.clock;
 
           if (hasSkippedBack) {
             _force = true;
           }
 
           // we call integrations if we update timers
-          if (state.playback === Playback.Roll) {
+          if (state.timer.playback === Playback.Roll) {
             const result = roll();
             _shouldNotify = true;
             _doRoll = result.doRoll;
@@ -442,9 +401,9 @@ export const stateMutations = {
 
           // we only update the store at the updateInterval
           // side effects such as onFinish will still be triggered in the update functions
-          const isTimeToUpdate = state.timer.clock > state.timer.lastUpdate + updateInterval;
+          const isTimeToUpdate = state.clock > state._timer.lastUpdate + updateInterval;
           if (_force || isTimeToUpdate) {
-            state.timer.lastUpdate = state.timer.clock;
+            state._timer.lastUpdate = state.clock;
             // TODO: can we simplify the didUpdate and shouldNotify
             _didUpdate = true;
           }
@@ -471,13 +430,13 @@ export const stateMutations = {
               integrationService.dispatch(TimerLifeCycle.onFinish);
 
               // handle end action if there was a timer playing
-              if (newState.playback === Playback.Play) {
-                if (newState.timer.endAction === EndAction.Stop) {
+              if (newState.timer.playback === Playback.Play) {
+                if (newState.eventNow.endAction === EndAction.Stop) {
                   runtimeService.stop();
-                } else if (newState.timer.endAction === EndAction.LoadNext) {
+                } else if (newState.eventNow.endAction === EndAction.LoadNext) {
                   // we need to delay here to put this action in the queue stack. otherwise it won't be executed properly
                   setTimeout(runtimeService.loadNext, 0);
-                } else if (newState.timer.endAction === EndAction.PlayNext) {
+                } else if (newState.eventNow.endAction === EndAction.PlayNext) {
                   runtimeService.startNext();
                 }
               }
@@ -490,12 +449,12 @@ export const stateMutations = {
       mutate((state) => {
         stateMutations.timer.clear();
 
-        const { nextEvent, currentEvent } = getRollTimers(rundown, state.timer.clock);
+        const { nextEvent, currentEvent } = getRollTimers(rundown, state.clock);
 
         if (currentEvent) {
           // there is something running, load
           state.timer.secondaryTimer = null;
-          state.timer.secondaryTarget = null;
+          state._timer.secondaryTarget = null;
 
           // account for event that finishes the day after
           const endTime =
@@ -506,17 +465,16 @@ export const stateMutations = {
           stateMutations.load(currentEvent, rundown, {
             startedAt: currentEvent.timeStart,
             expectedFinish: currentEvent.timeEnd,
-            current: endTime - state.timer.clock,
+            current: endTime - state.clock,
           });
         } else if (nextEvent) {
           // account for day after
-          const nextStart =
-            nextEvent.timeStart < state.timer.clock ? nextEvent.timeStart + dayInMs : nextEvent.timeStart;
+          const nextStart = nextEvent.timeStart < state.clock ? nextEvent.timeStart + dayInMs : nextEvent.timeStart;
           // nothing now, but something coming up
-          state.timer.secondaryTimer = nextStart - state.timer.clock;
-          state.timer.secondaryTarget = nextStart;
+          state.timer.secondaryTimer = nextStart - state.clock;
+          state._timer.secondaryTarget = nextStart;
         }
-        state.playback = Playback.Roll;
+        state.timer.playback = Playback.Roll;
       });
     },
   },
@@ -559,22 +517,22 @@ export function mutate<R>(
   // set eventStore any time a mutation happens
   // this means we are pushing this data to the client every 32ms
   eventStore.batchSet({
+    clock: newState.clock,
     eventNow: newState.eventNow,
     publicEventNow: newState.publicEventNow,
     eventNext: newState.eventNext,
     publicEventNext: newState.publicEventNext,
-    loaded: newState.runtime, // TODO: rename to runtime
-    playback: newState.playback,
+    runtime: newState.runtime,
     timer: newState.timer,
   });
 
   // we write to restore service if the underlying data changes
   restoreService.save({
-    playback: state.playback,
-    selectedEventId: state.runtime.selectedEventId,
+    playback: state.timer.playback,
+    selectedEventId: state.eventNow?.id ?? null,
     startedAt: state.timer.startedAt,
     addedTime: state.timer.addedTime,
-    pausedAt: state.timer.pausedAt,
+    pausedAt: state._timer.pausedAt,
   });
 
   return result;

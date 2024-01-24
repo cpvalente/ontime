@@ -5,9 +5,9 @@ import { socketSendJson } from '../utils/socket';
 
 export const useRundownEditor = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    playback: state.playback,
-    selectedEventId: state.loaded.selectedEventId,
-    nextEventId: state.loaded.nextEventId,
+    playback: state.timer.playback,
+    selectedEventId: state.eventNow?.id ?? null,
+    nextEventId: state.eventNext?.id ?? null,
   });
 
   return useRuntimeStore(featureSelector);
@@ -15,8 +15,8 @@ export const useRundownEditor = () => {
 
 export const useOperator = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    playback: state.playback,
-    selectedEventId: state.loaded.selectedEventId,
+    playback: state.timer.playback,
+    selectedEventId: state.eventNow?.id ?? null,
   });
 
   return useRuntimeStore(featureSelector);
@@ -50,9 +50,9 @@ export const setMessage = {
 
 export const usePlaybackControl = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    playback: state.playback,
-    selectedEventIndex: state.loaded.selectedEventIndex,
-    numEvents: state.loaded.numEvents,
+    playback: state.timer.playback,
+    selectedEventIndex: state.runtime.selectedEventIndex,
+    numEvents: state.runtime.numEvents,
   });
 
   return useRuntimeStore(featureSelector);
@@ -80,6 +80,18 @@ export const setPlayback = {
   },
 };
 
+export const useInfoPanel = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    eventNow: state.eventNow,
+    eventNext: state.eventNext,
+    playback: state.timer.playback,
+    selectedEventIndex: state.runtime.selectedEventIndex,
+    numEvents: state.runtime.numEvents,
+  });
+
+  return useRuntimeStore(featureSelector);
+};
+
 export const useExtraTimerTime = () => {
   const featureSelector = (state: RuntimeStore) => state.timer1.current;
 
@@ -102,10 +114,10 @@ export const setExtraTimer = {
 
 export const useCuesheet = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    playback: state.playback,
-    selectedEventId: state.loaded.selectedEventId,
-    selectedEventIndex: state.loaded.selectedEventIndex,
-    numEvents: state.loaded.numEvents,
+    playback: state.timer.playback,
+    selectedEventId: state.eventNow?.id ?? null,
+    selectedEventIndex: state.runtime.selectedEventIndex,
+    numEvents: state.runtime.numEvents,
     titleNow: state.eventNow?.title || '',
   });
 
@@ -127,14 +139,33 @@ export const useTimer = () => {
   return useRuntimeStore(featureSelector);
 };
 
+export const useClock = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    clock: state.clock,
+  });
+  return useRuntimeStore(featureSelector);
+};
+
+/** Used by the progress bar components */
+export const useProgressData = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    addedTime: state.timer.addedTime,
+    current: state.timer.current,
+    duration: state.timer.duration,
+    timeWarning: state.eventNow?.timeWarning ?? null,
+    timeDanger: state.eventNow?.timeDanger ?? null,
+  });
+  return useRuntimeStore(featureSelector);
+};
+
 export const setClientName = (newName: string) => socketSendJson('set-client-name', newName);
 
 export const useRuntimeOverview = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    playback: state.playback,
-    clock: state.timer.clock,
-    numEvents: state.loaded.numEvents,
-    selectedEventIndex: state.loaded.selectedEventIndex,
+    playback: state.timer.playback,
+    clock: state.clock,
+    selectedEventIndex: state.runtime.selectedEventIndex,
+    numEvents: state.runtime.numEvents,
   });
 
   return useRuntimeStore(featureSelector);

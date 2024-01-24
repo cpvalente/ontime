@@ -1,8 +1,8 @@
 import { TimerType } from 'ontime-types';
 
-import type { TimeManagerType } from '../../../common/models/TimeManager.type';
+import type { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 
-type TimerTypeParams = Pick<TimeManagerType, 'timerType' | 'current' | 'elapsed' | 'clock'>;
+type TimerTypeParams = Pick<ViewExtendedTimer, 'timerType' | 'current' | 'elapsed' | 'clock'>;
 
 export function getTimerByType(timerObject?: TimerTypeParams): number | null {
   if (!timerObject) {

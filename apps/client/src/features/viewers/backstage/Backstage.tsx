@@ -14,7 +14,7 @@ import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getBackstageOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { TimeManagerType } from '../../../common/models/TimeManager.type';
+import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
@@ -27,7 +27,7 @@ interface BackstageProps {
   publ: Message;
   eventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
-  time: TimeManagerType;
+  time: ViewExtendedTimer;
   backstageEvents: OntimeEvent[];
   selectedId: string | null;
   general: ProjectData;
