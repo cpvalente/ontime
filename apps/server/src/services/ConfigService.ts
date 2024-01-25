@@ -1,8 +1,8 @@
-import { Low } from 'lowdb';
+import { Low, Memory } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
 import { join } from 'path';
 
-import { getAppDataPath } from '../setup.js';
+import { getAppDataPath, isTest } from '../setup.js';
 
 interface Config {
   lastLoadedProject: string;
@@ -18,7 +18,7 @@ class ConfigService {
 
   constructor() {
     this.configPath = join(getAppDataPath(), 'config.json');
-    const adapter = new JSONFile<Config>(this.configPath);
+    const adapter = isTest ? new Memory<Config>() : new JSONFile<Config>(this.configPath);
     this.config = new Low<Config>(adapter, null);
 
     this.init();
@@ -35,7 +35,7 @@ class ConfigService {
   }
 
   async updateDatabaseConfig(filename: string): Promise<void> {
-    if (process.env.IS_TEST) return;
+    if (isTest) return;
 
     this.config.data.lastLoadedProject = filename;
     await this.config.write();

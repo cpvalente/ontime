@@ -1,4 +1,4 @@
-import { Low } from 'lowdb';
+import { Low, Memory } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
 import { copyFileSync, existsSync } from 'fs';
 import { DatabaseModel } from 'ontime-types';
@@ -7,7 +7,7 @@ import { ensureDirectory } from '../utils/fileManagement.js';
 import { validateFile } from '../utils/parserUtils.js';
 import { dbModel } from '../models/dataModel.js';
 import { parseJson } from '../utils/parser.js';
-import { pathToStartDb, resolveDbDirectory, resolveDbPath } from '../setup.js';
+import { isTest, pathToStartDb, resolveDbDirectory, resolveDbPath } from '../setup.js';
 
 /**
  * @description ensures directories exist and populates database
@@ -52,7 +52,7 @@ const parseDb = async (fileToRead, adapterToUse) => {
 async function loadDb() {
   const dbInDisk = populateDb();
 
-  const adapter = new JSONFile<DatabaseModel>(dbInDisk);
+  const adapter = isTest ? new Memory<DatabaseModel>() : new JSONFile<DatabaseModel>(dbInDisk);
   const db = new Low(adapter, dbModel);
 
   const data = await parseDb(dbInDisk, db);

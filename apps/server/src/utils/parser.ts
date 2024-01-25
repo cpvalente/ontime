@@ -371,27 +371,18 @@ export const parseJson = async (jsonData): Promise<DatabaseModel | null> => {
     return null;
   }
 
-  // object containing the parsed data
-  const returnData: Partial<DatabaseModel> = {};
+  const returnData: DatabaseModel = {
+    rundown: parseRundown(jsonData),
+    project: parseProject(jsonData) ?? dbModel.project,
+    settings: parseSettings(jsonData) ?? dbModel.settings,
+    viewSettings: parseViewSettings(jsonData) ?? dbModel.viewSettings,
+    aliases: parseAliases(jsonData),
+    userFields: parseUserFields(jsonData),
+    osc: parseOsc(jsonData) ?? dbModel.osc,
+    http: parseHttp(jsonData) ?? dbModel.http,
+  };
 
-  // parse Events
-  returnData.rundown = parseRundown(jsonData);
-  // parse Event
-  returnData.project = parseProject(jsonData) ?? dbModel.project;
-  // Settings handled partially
-  returnData.settings = parseSettings(jsonData) ?? dbModel.settings;
-  // View settings handled partially
-  returnData.viewSettings = parseViewSettings(jsonData) ?? dbModel.viewSettings;
-  // Import Aliases if any
-  returnData.aliases = parseAliases(jsonData);
-  // Import user fields if any
-  returnData.userFields = parseUserFields(jsonData);
-  // Import OSC settings if any
-  returnData.osc = parseOsc(jsonData) ?? dbModel.osc;
-  // Import HTTP settings if any
-  returnData.http = parseHttp(jsonData) ?? dbModel.http;
-
-  return returnData as DatabaseModel;
+  return returnData;
 };
 
 export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<OntimeEvent>): OntimeEvent {

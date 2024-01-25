@@ -1,6 +1,7 @@
 import { Playback } from 'ontime-types';
 
 import { JSONFile } from 'lowdb/node';
+
 import { resolveRestoreFile } from '../setup.js';
 
 export type RestorePoint = {
