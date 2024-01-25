@@ -1,4 +1,4 @@
-import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
+import { EndAction, TimerType } from 'ontime-types';
 
 import { dayInMs } from '../timeConstants.js';
 
