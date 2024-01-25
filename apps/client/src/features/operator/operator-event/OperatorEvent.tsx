@@ -30,8 +30,8 @@ interface OperatorEventProps {
 
 // extract this to contain re-renders
 function RollingTime() {
-  const timer = useTimer();
-  return <RunningTime value={timer.current} />;
+  const { current } = useTimer();
+  return <RunningTime value={current} />;
 }
 
 function OperatorEvent(props: OperatorEventProps) {

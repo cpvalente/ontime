@@ -8,7 +8,7 @@ import NavigationMenu from '../../../common/components/navigation-menu/Navigatio
 import { MINIMAL_TIMER_OPTIONS } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { TimeManagerType } from '../../../common/models/TimeManager.type';
+import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -19,7 +19,7 @@ import './MinimalTimer.scss';
 interface MinimalTimerProps {
   isMirrored: boolean;
   pres: TimerMessage;
-  time: TimeManagerType;
+  time: ViewExtendedTimer;
   viewSettings: ViewSettings;
 }
 
@@ -141,8 +141,8 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const showProgress = time.playback !== Playback.Stop;
   const showWarning = (time.current ?? 1) < (time.timeWarning ?? 0);
   const showDanger = (time.current ?? 1) < (time.timeDanger ?? 0);
-  const showBlinking = pres.timerBlink;
-  const showBlackout = pres.timerBlackout;
+  const showBlinking = pres.blink;
+  const showBlackout = pres.blackout;
 
   const timerColor = userOptions.textColour
     ? userOptions.textColour

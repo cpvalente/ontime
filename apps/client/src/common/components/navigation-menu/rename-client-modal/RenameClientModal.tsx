@@ -30,7 +30,7 @@ export default function RenameClientModal({ isOpen, onClose }: RenameClientModal
 
   const handleRename = async () => {
     if (newName) {
-      await setClientName(newName);
+      setClientName(newName);
       persistName(newName);
       onClose();
     }

@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { GetRundownCached, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
-import { getCueCandidate, swapOntimeEvents } from 'ontime-utils';
+import { getPreviousEvent, swapOntimeEvents } from 'ontime-utils';
 
 import { trpc } from '../../AppRouter';
 import { RUNDOWN } from '../api/apiConstants';
@@ -18,6 +18,7 @@ import {
   SwapEntry,
 } from '../api/eventsApi';
 import { useEditorSettings } from '../stores/editorSettings';
+import { forgivingStringToMillis } from '../utils/dateConfig';
 
 /**
  * @description Set of utilities for events
@@ -70,19 +71,9 @@ export const useEventAction = () => {
 
         const rundown = queryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? [];
 
-        if (newEvent?.cue === undefined) {
-          newEvent.cue = getCueCandidate(rundown, options?.after);
-        }
-
-        // hard coding duration value to be as expected for now
-        // this until timeOptions gets implemented
-        if (newEvent?.timeStart !== undefined && newEvent.timeEnd !== undefined) {
-          newEvent.duration = Math.max(0, newEvent?.timeEnd - newEvent?.timeStart) || 0;
-        }
-
         if (applicationOptions.startTimeIsLastEnd && applicationOptions?.lastEventId) {
           const previousEvent = rundown.find((event) => event.id === applicationOptions.lastEventId);
-          if (previousEvent !== undefined && previousEvent.type === 'event') {
+          if (isOntimeEvent(previousEvent)) {
             newEvent.timeStart = previousEvent.timeEnd;
             newEvent.timeEnd = previousEvent.timeEnd;
           }
@@ -120,7 +111,6 @@ export const useEventAction = () => {
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
       // Snapshot the previous value
-
       const previousData = queryClient.getQueryData<GetRundownCached>(RUNDOWN);
 
       if (previousData) {
@@ -161,6 +151,50 @@ export const useEventAction = () => {
       }
     },
     [_updateEventMutation],
+  );
+
+  type TimeField = 'timeStart' | 'timeEnd' | 'duration';
+  /**
+   * Updates time of existing event
+   */
+  const updateTimer = useCallback(
+    async (eventId: string, field: TimeField, value: string) => {
+      const getPreviousEnd = (): number => {
+        const rundown = queryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? [];
+        if (rundown) {
+          const { previousEvent } = getPreviousEvent(rundown, eventId);
+          if (previousEvent) {
+            return previousEvent.timeEnd;
+          }
+        }
+        return 0;
+      };
+
+      let newValMillis = 0;
+
+      // check for previous keyword
+      if (value === 'p' || value === 'prev' || value === 'previous') {
+        newValMillis = getPreviousEnd();
+
+        // check for adding time keyword
+      } else if (value.startsWith('+') || value.startsWith('p+') || value.startsWith('p +')) {
+        const remainingString = value.substring(1);
+        newValMillis = getPreviousEnd() + forgivingStringToMillis(remainingString);
+      } else {
+        newValMillis = forgivingStringToMillis(value);
+      }
+
+      const newEvent = {
+        id: eventId,
+        [field]: newValMillis,
+      };
+      try {
+        await _updateEventMutation.mutateAsync(newEvent);
+      } catch (error) {
+        logAxiosError('Error updating event', error);
+      }
+    },
+    [_updateEventMutation, queryClient],
   );
 
   /**
@@ -391,9 +425,9 @@ export const useEventAction = () => {
     async (eventId: string, from: number, to: number) => {
       try {
         const reorderObject: ReorderEntry = {
-          eventId: eventId,
-          from: from,
-          to: to,
+          eventId,
+          from,
+          to,
         };
         await _reorderEventMutation.mutateAsync(reorderObject);
       } catch (error) {
@@ -460,12 +494,13 @@ export const useEventAction = () => {
 
   return {
     addEvent,
-    updateEvent,
+    applyDelay,
+    batchUpdateEvents,
     deleteEvent,
     deleteAllEvents,
-    applyDelay,
     reorderEvent,
     swapEvents,
-    batchUpdateEvents,
+    updateEvent,
+    updateTimer,
   };
 };

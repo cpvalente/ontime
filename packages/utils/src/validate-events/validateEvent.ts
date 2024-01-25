@@ -7,7 +7,7 @@ import { dayInMs } from '../timeConstants.js';
  * @param {EndAction} maybeAction
  * @param {EndAction} [fallback]
  */
-export function validateEndAction(maybeAction: unknown, fallback = EndAction.None) {
+export function validateEndAction(maybeAction: unknown, fallback = EndAction.None): EndAction {
   return Object.values(EndAction).includes(maybeAction as EndAction) ? (maybeAction as EndAction) : fallback;
 }
 
@@ -16,7 +16,7 @@ export function validateEndAction(maybeAction: unknown, fallback = EndAction.Non
  * @param {TimerType} maybeTimerType
  * @param {TimerType} [fallback]
  */
-export function validateTimerType(maybeTimerType: unknown, fallback = TimerType.CountDown) {
+export function validateTimerType(maybeTimerType: unknown, fallback = TimerType.CountDown): TimerType {
   return Object.values(TimerType).includes(maybeTimerType as TimerType) ? (maybeTimerType as TimerType) : fallback;
 }
 
@@ -51,7 +51,11 @@ function convertToInteger(value: unknown): number {
  * @param _end
  * @param _duration
  */
-export function validateTimes(_start?: unknown, _end?: unknown, _duration?: unknown) {
+export function validateTimes(
+  _start?: unknown,
+  _end?: unknown,
+  _duration?: unknown,
+): { timeStart: number; duration: number; timeEnd: number } {
   const timeStart = convertToInteger(_start);
   const timeEnd = convertToInteger(_end);
   const duration = convertToInteger(_duration);

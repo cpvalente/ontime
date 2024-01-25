@@ -4,7 +4,7 @@ import { isProduction, RUNTIME, websocketUrl } from '../api/apiConstants';
 import { ontimeQueryClient } from '../queryClient';
 import { socketClientName } from '../stores/connectionName';
 import { addLog } from '../stores/logger';
-import { runtime } from '../stores/runtime';
+import { runtimeStore } from '../stores/runtime';
 
 export let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
@@ -63,52 +63,40 @@ export const connectSocket = (preferredClientName?: string) => {
           break;
         }
         case 'ontime': {
-          runtime.setState(payload as RuntimeStore);
+          runtimeStore.setState(payload as RuntimeStore);
           if (!isProduction) {
             ontimeQueryClient.setQueryData(RUNTIME, data.payload);
           }
           break;
         }
         case 'ontime-playback': {
-          const state = runtime.getState();
-          state.playback = payload;
-          runtime.setState(state);
+          const state = runtimeStore.getState();
+          state.timer.playback = payload;
+          runtimeStore.setState(state);
           break;
         }
         case 'ontime-timer': {
-          const state = runtime.getState();
+          const state = runtimeStore.getState();
           state.timer = payload;
-          runtime.setState(state);
+          runtimeStore.setState(state);
           break;
         }
-        case 'ontime-loaded': {
-          const state = runtime.getState();
-          state.loaded = payload;
-          runtime.setState(state);
+        case 'ontime-runtime': {
+          const state = runtimeStore.getState();
+          state.runtime = payload;
+          runtimeStore.setState(state);
           break;
         }
-        case 'ontime-timerMessage': {
-          const state = runtime.getState();
-          state.timerMessage = payload;
-          runtime.setState(state);
-          break;
-        }
-        case 'ontime-publicMessage': {
-          const state = runtime.getState();
-          state.publicMessage = payload;
-          runtime.setState(state);
-          break;
-        }
-        case 'ontime-lowerMessage': {
-          const state = runtime.getState();
-          state.lowerMessage = payload;
-          runtime.setState(state);
+        case 'ontime-message': {
+          const state = runtimeStore.getState();
+          state.message = payload;
+          runtimeStore.setState(state);
           break;
         }
         case 'ontime-onAir': {
-          const state = runtime.getState();
+          const state = runtimeStore.getState();
           state.onAir = payload;
-          runtime.setState(state);
+          runtimeStore.setState(state);
           break;
         }
       }

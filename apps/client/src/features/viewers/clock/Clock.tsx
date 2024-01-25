@@ -7,7 +7,7 @@ import NavigationMenu from '../../../common/components/navigation-menu/Navigatio
 import { getClockOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { TimeManagerType } from '../../../common/models/TimeManager.type';
+import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
@@ -16,7 +16,7 @@ import './Clock.scss';
 
 interface ClockProps {
   isMirrored: boolean;
-  time: TimeManagerType;
+  time: ViewExtendedTimer;
   viewSettings: ViewSettings;
   settings: Settings | undefined;
 }

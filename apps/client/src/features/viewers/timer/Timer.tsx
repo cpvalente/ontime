@@ -11,7 +11,7 @@ import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getTimerOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { TimeManagerType } from '../../../common/models/TimeManager.type';
+import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -42,7 +42,7 @@ interface TimerProps {
   external: Message;
   eventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
-  time: TimeManagerType;
+  time: ViewExtendedTimer;
   viewSettings: ViewSettings;
   settings: Settings | undefined;
 }
@@ -102,8 +102,8 @@ export default function Timer(props: TimerProps) {
   const showFinished = finished && (time.timerType !== TimerType.Clock || showEndMessage);
   const showWarning = (time.current ?? 1) < (eventNow?.timeWarning ?? 0);
   const showDanger = (time.current ?? 1) < (eventNow?.timeDanger ?? 0);
-  const showBlinking = pres.timerBlink;
-  const showBlackout = pres.timerBlackout;
+  const showBlinking = pres.blink;
+  const showBlackout = pres.blackout;
   const showClock = time.timerType !== TimerType.Clock;
   const showExternal = external.visible && external.text;
 
