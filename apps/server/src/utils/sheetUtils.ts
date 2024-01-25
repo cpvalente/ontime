@@ -1,6 +1,6 @@
 import { sheets_v4 } from '@googleapis/sheets';
 import { millisToString } from 'ontime-utils';
-import { OntimeRundownEntry, ProjectData, isOntimeEvent } from 'ontime-types';
+import { OntimeRundownEntry, isOntimeEvent } from 'ontime-types';
 
 /**
  *
