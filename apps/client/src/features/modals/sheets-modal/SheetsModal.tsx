@@ -17,10 +17,10 @@ import {
   Select,
 } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { OntimeRundown, ProjectData, UserFields } from 'ontime-types';
+import { OntimeRundown, UserFields } from 'ontime-types';
 import { defaultExcelImportMap, ExcelImportMap } from 'ontime-utils';
 
-import { PROJECT_DATA, RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
+import { RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../common/api/apiUtils';
 import {
   getAuthentication,
@@ -33,7 +33,6 @@ import {
   postWorksheet,
   uploadSheetClientFile,
 } from '../../../common/api/ontimeApi';
-import { projectDataPlaceholder } from '../../../common/models/ProjectData';
 import { userFieldsPlaceholder } from '../../../common/models/UserFields';
 import { openLink } from '../../../common/utils/linkUtils';
 import ModalLink from '../ModalLink';
