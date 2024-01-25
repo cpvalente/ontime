@@ -1,4 +1,4 @@
-import { RuntimeStore } from 'ontime-types';
+import { RuntimeStore, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import { useRuntimeStore } from '../stores/runtime';
 import { socketSendJson } from '../utils/socket';
@@ -90,6 +90,29 @@ export const useInfoPanel = () => {
   });
 
   return useRuntimeStore(featureSelector);
+};
+
+export const useExtraTimerTime = () => {
+  const featureSelector = (state: RuntimeStore) => state.timer1.current;
+
+  return useRuntimeStore(featureSelector);
+};
+
+export const useExtraTimerControl = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    playback: state.timer1.playback,
+    direction: state.timer1.direction,
+  });
+
+  return useRuntimeStore(featureSelector);
+};
+
+export const setExtraTimer = {
+  start: () => socketSendJson('extratimer', SimplePlayback.Start),
+  pause: () => socketSendJson('extratimer', SimplePlayback.Pause),
+  stop: () => socketSendJson('extratimer', SimplePlayback.Stop),
+  setDirection: (direction: SimpleDirection) => socketSendJson('extratimer', { direction }),
+  setTime: (time: number) => socketSendJson('extratimer', { settime: time }),
 };
 
 export const useCuesheet = () => {
