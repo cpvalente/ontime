@@ -13,11 +13,11 @@ import {
   rundownReorder,
   rundownSwap,
   rundownBatchPut,
-  getRundown,
+  getRundownCached,
 } from '../controllers/rundownController.js';
 
 export const rundownRouterr = trpcRouter({
-  getRundown,
+  getRundownCached,
 });
 
 export const router = express.Router();

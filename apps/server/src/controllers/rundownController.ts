@@ -24,8 +24,9 @@ import {
   rundownSwapValidator,
 } from './rundownController.validate.js';
 
-export const getRundown = publicProcedure.query(() => {
-  return getDelayedRundown();
+export const getRundownCached = publicProcedure.query(() => {
+  console.log('trpc get rundown')
+  return getRundownCache();
 });
 // Create controller for GET request to '/events'
 // Returns -

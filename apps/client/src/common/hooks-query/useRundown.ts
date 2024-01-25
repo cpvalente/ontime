@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { GetRundownCached } from 'ontime-types';
 
+import { trpc } from '../../AppRouter';
 import { queryRefetchInterval } from '../../ontimeConfig';
 import { RUNDOWN } from '../api/apiConstants';
-import { fetchCachedRundown } from '../api/eventsApi';
 
 const cachedRundownPlaceholder = { rundown: [], revision: -1 };
 
@@ -11,7 +11,9 @@ const cachedRundownPlaceholder = { rundown: [], revision: -1 };
 export default function useRundown() {
   const { data, status, isError, refetch, isFetching } = useQuery<GetRundownCached>({
     queryKey: RUNDOWN,
-    queryFn: fetchCachedRundown,
+    queryFn: async () => {
+      return await trpc.rundownRouterr.getRundownCached.query();
+    },
     placeholderData: cachedRundownPlaceholder,
     retry: 5,
     retryDelay: (attempt) => attempt * 2500,

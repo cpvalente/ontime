@@ -93,12 +93,13 @@ export default function AppRouter() {
 
 import { createTRPCProxyClient, httpBatchLink } from '@trpc/client';
 
-import type { AppRouter } from '../../server/src/index';
+import type { TrpcRouter } from '../../server/src/app';
 
-export const trpc = createTRPCProxyClient<AppRouter>({
+//TODO: use not localhost
+export const trpc = createTRPCProxyClient<TrpcRouter>({
   links: [
     httpBatchLink({
-      url: 'http://localhost:4000/trpc',
+      url: 'http://localhost:4001/trpc',
     }),
   ],
 });

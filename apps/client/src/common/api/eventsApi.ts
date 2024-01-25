@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { GetRundownCached, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 
+import { trpc } from '../../AppRouter';
+
 import { rundownURL } from './apiConstants';
 
 /**
@@ -8,7 +10,9 @@ import { rundownURL } from './apiConstants';
  * @return {Promise}
  */
 export async function fetchCachedRundown(): Promise<GetRundownCached> {
+  const rundown = await trpc.rundownRouterr.getRundownCached.query();
   const res = await axios.get(`${rundownURL}/cached`);
+  console.log('trpc', rundown, 'fetch', res.data);
   return res.data;
 }
 

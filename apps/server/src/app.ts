@@ -67,16 +67,16 @@ app.options('*', cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '1mb' }));
 
-export const appRouter = router({
+export const trpcRouter = router({
   rundownRouterr,
 });
 
-export type AppRouter = typeof appRouter;
+export type TrpcRouter = typeof trpcRouter;
 
 app.use(
   '/trpc',
   trpcExpress.createExpressMiddleware({
-    router: appRouter,
+    router: trpcRouter,
     createContext,
   }),
 );
