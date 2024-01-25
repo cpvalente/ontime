@@ -10,10 +10,10 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { OntimeRundown, ProjectData, UserFields } from 'ontime-types';
+import { OntimeRundown, UserFields } from 'ontime-types';
 import { defaultExcelImportMap, ExcelImportMap } from 'ontime-utils';
 
-import { PROJECT_DATA, RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
+import { RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
 import { invalidateAllCaches, maybeAxiosError } from '../../../common/api/apiUtils';
 import {
   patchData,
@@ -21,7 +21,6 @@ import {
   ProjectFileImportOptions,
   uploadProjectFile,
 } from '../../../common/api/ontimeApi';
-import { projectDataPlaceholder } from '../../../common/models/ProjectData';
 import { userFieldsPlaceholder } from '../../../common/models/UserFields';
 
 import PreviewExcel from './preview/PreviewExcel';
@@ -50,7 +49,6 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   const [submitting, setSubmitting] = useState(false);
   const [rundown, setRundown] = useState<OntimeRundown | null>(null);
   const [userFields, setUserFields] = useState<UserFields | null>(null);
-  const [project, setProject] = useState<ProjectData | null>(null);
 
   const [errors, setErrors] = useState('');
 
@@ -85,7 +83,6 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
     setSubmitting(false);
     setRundown(null);
     setUserFields(null);
-    setProject(null);
     setErrors('');
   }, [clear, isOpen]);
 
@@ -127,7 +124,6 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
       if (response.status === 200) {
         setRundown(response.data.rundown);
         setUserFields(response.data.userFields);
-        setProject(response.data.project);
         // in excel imports we have an extra review step
         setUploadStep('review');
       }
@@ -144,22 +140,20 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
     clear();
     setRundown([]);
     setUserFields(userFieldsPlaceholder);
-    setProject(projectDataPlaceholder);
     onClose();
   };
 
   const handleFinalise = async () => {
     // this step is currently only used for excel files, after preview
-    if (isExcel && rundown && userFields && project) {
+    if (isExcel && rundown && userFields) {
       let doClose = false;
       setSubmitting(true);
       try {
-        await patchData({ rundown, userFields, project });
+        await patchData({ rundown, userFields });
         queryClient.setQueryData(RUNDOWN, { rundown, revision: -1 });
         queryClient.setQueryData(USERFIELDS, userFields);
-        queryClient.setQueryData(PROJECT_DATA, project);
         await queryClient.invalidateQueries({
-          queryKey: [...RUNDOWN, ...USERFIELDS, ...PROJECT_DATA],
+          queryKey: [...RUNDOWN, ...USERFIELDS],
         });
         doClose = true;
       } catch (error) {
@@ -214,11 +208,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
               {isExcel && <ExcelFileOptions optionsRef={excelFileOptions} updateOptions={updateExcelFileOptions} />}
             </>
           ) : (
-            <PreviewExcel
-              rundown={rundown ?? []}
-              project={project ?? projectDataPlaceholder}
-              userFields={userFields ?? userFieldsPlaceholder}
-            />
+            <PreviewExcel rundown={rundown ?? []} userFields={userFields ?? userFieldsPlaceholder} />
           )}
         </ModalBody>
         <ModalFooter>

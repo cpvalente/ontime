@@ -40,12 +40,11 @@ class Sheet {
 
   constructor() {
     const appDataPath = getAppDataPath();
-    if (appDataPath === '') {
-      throw new Error('Sheet: Could not resolve sheet folser');
-    }
+
     this.sheetsFolder = join(appDataPath, 'sheets');
     this.clientSecretFile = join(this.sheetsFolder, 'client_secret.json');
     ensureDirectory(this.sheetsFolder);
+
     try {
       const secrets = JSON.parse(readFileSync(this.clientSecretFile, 'utf-8'));
       const isKeyMissing = this.requiredClientKeys.some((key) => !(key in secrets['installed']));
@@ -53,12 +52,12 @@ class Sheet {
         Sheet.clientSecret = secrets;
       }
     } catch (_) {
-      /* empty - it is ok thet there is no clientSecret */
+      /* empty - it is ok that there is no clientSecret */
     }
   }
 
   /**
-   * @description SETP 1 - saves secrets object to appdata path as client_secret.json
+   * @description STEP 1 - saves secrets object to appdata path as client_secret.json
    * @param {object} secrets
    * @throws
    */
@@ -79,14 +78,14 @@ class Sheet {
   }
 
   /**
-   * @description SETP 1 - test that the saved object is pressent
+   * @description STEP 1 - test that the saved object is pressent
    */
   testClientSecret() {
     return Sheet.clientSecret !== null;
   }
 
   /**
-   * @description SETP 2 - create server to interact with th OAuth2 request
+   * @description STEP 2 - create server to interact with th OAuth2 request
    * @returns {Promise<string | null>} - returns url path serve on success
    * @throws
    */
@@ -159,7 +158,7 @@ class Sheet {
     });
     let listenPort = 3000;
     if (keyFile.installed) {
-      // Use emphemeral port if not a web client
+      // Use ephemeral port if not a web client
       listenPort = 0;
     } else if (redirectUri.port !== '') {
       listenPort = Number(redirectUri.port);
@@ -188,7 +187,7 @@ class Sheet {
   }
 
   /**
-   * @description SETP 2 - test that the reciveed OAuth2 is still valid
+   * @description STEP 2 - test that the reciveed OAuth2 is still valid
    * @throws
    */
   async testAuthentication() {
@@ -205,7 +204,7 @@ class Sheet {
   }
 
   /**
-   * @description SETP 3 - test the given sheet id
+   * @description STEP 3 - test the given sheet id
    * @throws
    */
   async testSheetId(id: string) {
@@ -220,7 +219,7 @@ class Sheet {
   }
 
   /**
-   * @description SETP 4 - test the given worksheet
+   * @description STEP 4 - test the given worksheet
    * @throws
    */
   async testWorksheet(id: string, worksheet: string) {
@@ -264,7 +263,7 @@ class Sheet {
   }
 
   /**
-   * @description SETP 5 - Upload the rundown to sheet
+   * @description STEP 5 - Upload the rundown to sheet
    * @param {string} id - id of the sheet https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
    * @param {ExcelImportMap} options
    * @throws
@@ -279,14 +278,13 @@ class Sheet {
       range: range,
     });
     if (readResponse.status === 200) {
-      const { rundownMetadata, projectMetadata } = parseExcel(readResponse.data.values, options);
+      const { rundownMetadata } = parseExcel(readResponse.data.values, options);
       const rundown = DataProvider.getRundown();
-      const projectData = DataProvider.getProjectData();
       const titleRow = Object.values(rundownMetadata)[0]['row'];
 
       const updateRundown = Array<sheets_v4.Schema$Request>();
 
-      // we can't delete the last unflozzen row so we create an empty one
+      // we can't delete the last unfrozen row so we create an empty one
       updateRundown.push({
         insertDimension: {
           inheritFromBefore: false,
@@ -319,9 +317,6 @@ class Sheet {
       rundown.forEach((entry, index) =>
         updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, rundownMetadata)),
       );
-
-      //update project data
-      updateRundown.push(cellRequenstFromProjectData(projectData, worksheetId, projectMetadata));
 
       const writeResponse = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.batchUpdate({
         spreadsheetId: id,
@@ -361,6 +356,7 @@ class Sheet {
       range,
     });
 
+    // TODO: we need to pass this into a service that can safely merge the datasets
     if (googleResponse.status === 200) {
       res.data = {};
       const dataFromSheet = parseExcel(googleResponse.data.values, options);
@@ -368,7 +364,6 @@ class Sheet {
       if (res.data.rundown.length < 1) {
         throw new Error(`Sheet: Could not find data to import in the worksheet`);
       }
-      res.data.project = parseProject(dataFromSheet);
       res.data.userFields = parseUserFields(dataFromSheet);
       return res;
     } else {

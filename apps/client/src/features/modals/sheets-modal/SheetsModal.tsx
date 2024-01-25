@@ -54,7 +54,6 @@ export default function SheetsModal(props: SheetsModalProps) {
 
   const [rundown, setRundown] = useState<OntimeRundown | null>(null);
   const [userFields, setUserFields] = useState<UserFields | null>(null);
-  const [project, setProject] = useState<ProjectData | null>(null);
 
   const [id, setSheetId] = useState('');
   const [worksheet, setWorksheet] = useState('');
@@ -84,12 +83,11 @@ export default function SheetsModal(props: SheetsModalProps) {
 
   const handleClose = () => {
     setRundown(null);
-    setProject(null);
     setUserFields(null);
     onClose();
   };
 
-  //SETP-1 Upload Client ID
+  //STEP-1 Upload Client ID
   const handleClick = () => {
     fileInputRef.current?.click();
   };
@@ -139,7 +137,7 @@ export default function SheetsModal(props: SheetsModalProps) {
       });
   };
 
-  //SETP-2 Authenticate
+  //STEP-2 Authenticate
   const handleAuthenticate = () => {
     getSheetsAuthUrl()
       .then((data) => {
@@ -175,7 +173,7 @@ export default function SheetsModal(props: SheetsModalProps) {
       });
   };
 
-  //SETP-3 set sheet ID
+  //STEP-3 set sheet ID
   const testSheetId = () => {
     postId(id)
       .then((data) => {
@@ -194,7 +192,7 @@ export default function SheetsModal(props: SheetsModalProps) {
       });
   };
 
-  //SETP-4 Select Worksheet
+  //STEP-4 Select Worksheet
   const testWorksheet = (value: string) => {
     excelFileOptions.current.worksheet = value;
     setWorksheet(value);
@@ -208,7 +206,7 @@ export default function SheetsModal(props: SheetsModalProps) {
       });
   };
 
-  //SETP-5 Upload / Download
+  //STEP-5 Upload / Download
   const updateExcelFileOptions = <T extends keyof ExcelImportMap>(field: T, value: ExcelImportMap[T]) => {
     if (excelFileOptions.current[field] !== value) {
       excelFileOptions.current = { ...excelFileOptions.current, [field]: value };
@@ -218,7 +216,6 @@ export default function SheetsModal(props: SheetsModalProps) {
   const handlePullData = () => {
     postPreviewSheet(id, excelFileOptions.current)
       .then((data) => {
-        setProject(data.project);
         setRundown(data.rundown);
         setUserFields(data.userFields);
       })
@@ -244,15 +241,14 @@ export default function SheetsModal(props: SheetsModalProps) {
 
   //GET preview
   const handleFinalise = async () => {
-    if (rundown && userFields && project) {
+    if (rundown && userFields) {
       let doClose = false;
       try {
-        await patchData({ rundown, userFields, project });
+        await patchData({ rundown, userFields });
         queryClient.setQueryData(RUNDOWN, rundown);
         queryClient.setQueryData(USERFIELDS, userFields);
-        queryClient.setQueryData(PROJECT_DATA, project);
         await queryClient.invalidateQueries({
-          queryKey: [...RUNDOWN, ...USERFIELDS, ...PROJECT_DATA],
+          queryKey: [...RUNDOWN, ...USERFIELDS],
         });
         doClose = true;
       } catch (error) {
@@ -418,11 +414,7 @@ export default function SheetsModal(props: SheetsModalProps) {
               </>
             )
           ) : (
-            <PreviewExcel
-              rundown={rundown ?? []}
-              project={project ?? projectDataPlaceholder}
-              userFields={userFields ?? userFieldsPlaceholder}
-            />
+            <PreviewExcel rundown={rundown ?? []} userFields={userFields ?? userFieldsPlaceholder} />
           )}
         </ModalBody>
         <ModalFooter>

@@ -13,7 +13,6 @@ import {
   OntimeEvent,
   OntimeRundown,
   SupportedEvent,
-  ProjectData,
   UserFields,
   EndAction,
   TimerType,
@@ -43,8 +42,7 @@ import { coerceBoolean } from './coerceType.js';
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
 
-type ExcelData = Pick<DatabaseModel, 'rundown' | 'project' | 'userFields'> & {
-  projectMetadata: Record<string, { row: number; col: number }>;
+type ExcelData = Pick<DatabaseModel, 'rundown' | 'userFields'> & {
   rundownMetadata: Record<string, { row: number; col: number }>;
 };
 
@@ -55,20 +53,11 @@ type ExcelData = Pick<DatabaseModel, 'rundown' | 'project' | 'userFields'> & {
  * @returns {object} - parsed object
  */
 export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImportMap>): ExcelData => {
-  const projectMetadata = {};
   const rundownMetadata = {};
   const importMap: ExcelImportMap = { ...defaultExcelImportMap, ...options };
   for (const [key, value] of Object.entries(importMap)) {
     importMap[key] = value.toLocaleLowerCase();
   }
-  const projectData: ProjectData = {
-    title: '',
-    description: '',
-    publicUrl: '',
-    publicInfo: '',
-    backstageUrl: '',
-    backstageInfo: '',
-  };
   const customUserFields: UserFields = {
     user0: importMap.user0,
     user1: importMap.user1,
@@ -122,41 +111,9 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
     if (row.length === 0) {
       return;
     }
-    // these fields contain the data to its right
-    let projectTitleNext = false;
-    let projectDescriptionNext = false;
-    let publicUrlNext = false;
-    let publicInfoNext = false;
-    let backstageUrlNext = false;
-    let backstageInfoNext = false;
 
     const event: Partial<OntimeEvent> = {};
     const handlers = {
-      [importMap.projectName]: (row: number, col: number) => {
-        projectTitleNext = true;
-        projectMetadata['title'] = { row, col };
-      },
-      [importMap.projectDescription]: (row: number, col: number) => {
-        projectDescriptionNext = true;
-        projectMetadata['description'] = { row, col };
-      },
-      [importMap.publicUrl]: (row: number, col: number) => {
-        publicUrlNext = true;
-        projectMetadata['publicUrl'] = { row, col };
-      },
-      [importMap.publicInfo]: (row: number, col: number) => {
-        publicInfoNext = true;
-        projectMetadata['publicInfo'] = { row, col };
-      },
-      [importMap.backstageUrl]: (row: number, col: number) => {
-        backstageUrlNext = true;
-        projectMetadata['backstageUrl'] = { row, col };
-      },
-      [importMap.backstageInfo]: (row: number, col: number) => {
-        backstageInfoNext = true;
-        projectMetadata['backstageInfo'] = { row, col };
-      },
-
       [importMap.timeStart]: (row: number, col: number) => {
         timeStartIndex = col;
         rundownMetadata['timeStart'] = { row, col };
@@ -264,25 +221,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
 
     row.forEach((column, j) => {
       // 1. we check if we have set a flag for a known field
-      if (projectTitleNext) {
-        projectData.title = makeString(column, '');
-        projectTitleNext = false;
-      } else if (projectDescriptionNext) {
-        projectData.description = makeString(column, '');
-        projectDescriptionNext = false;
-      } else if (publicUrlNext) {
-        projectData.publicUrl = makeString(column, '');
-        publicUrlNext = false;
-      } else if (publicInfoNext) {
-        projectData.publicInfo = makeString(column, '');
-        publicInfoNext = false;
-      } else if (backstageUrlNext) {
-        projectData.backstageUrl = makeString(column, '');
-        backstageUrlNext = false;
-      } else if (backstageInfoNext) {
-        projectData.backstageInfo = makeString(column, '');
-        backstageInfoNext = false;
-      } else if (j === timeStartIndex) {
+      if (j === timeStartIndex) {
         event.timeStart = parseExcelDate(column);
       } else if (j === timeEndIndex) {
         event.timeEnd = parseExcelDate(column);
@@ -354,9 +293,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
 
   return {
     rundown,
-    project: projectData,
     userFields: customUserFields,
-    projectMetadata,
     rundownMetadata,
   };
 };
@@ -371,27 +308,18 @@ export const parseJson = async (jsonData): Promise<DatabaseModel | null> => {
     return null;
   }
 
-  // object containing the parsed data
-  const returnData: Partial<DatabaseModel> = {};
+  const returnData: DatabaseModel = {
+    rundown: parseRundown(jsonData),
+    project: parseProject(jsonData) ?? dbModel.project,
+    settings: parseSettings(jsonData) ?? dbModel.settings,
+    viewSettings: parseViewSettings(jsonData) ?? dbModel.viewSettings,
+    aliases: parseAliases(jsonData),
+    userFields: parseUserFields(jsonData),
+    osc: parseOsc(jsonData) ?? dbModel.osc,
+    http: parseHttp(jsonData) ?? dbModel.http,
+  };
 
-  // parse Events
-  returnData.rundown = parseRundown(jsonData);
-  // parse Event
-  returnData.project = parseProject(jsonData) ?? dbModel.project;
-  // Settings handled partially
-  returnData.settings = parseSettings(jsonData) ?? dbModel.settings;
-  // View settings handled partially
-  returnData.viewSettings = parseViewSettings(jsonData) ?? dbModel.viewSettings;
-  // Import Aliases if any
-  returnData.aliases = parseAliases(jsonData);
-  // Import user fields if any
-  returnData.userFields = parseUserFields(jsonData);
-  // Import OSC settings if any
-  returnData.osc = parseOsc(jsonData) ?? dbModel.osc;
-  // Import HTTP settings if any
-  returnData.http = parseHttp(jsonData) ?? dbModel.http;
-
-  return returnData as DatabaseModel;
+  return returnData;
 };
 
 export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<OntimeEvent>): OntimeEvent {
@@ -476,7 +404,7 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
   if (file.endsWith('.xlsx')) {
     // we need to check that the options are applicable
     if (!isExcelImportMap(options)) {
-      throw new Error('Got incorrect options to excel import', JSON.parse(options));
+      throw new Error('Got incorrect options to excel import');
     }
 
     const excelData = xlsx
@@ -494,15 +422,16 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     if (res.data.rundown.length < 1) {
       throw new Error(`Could not find data to import in the worksheet ${options.worksheet}`);
     }
-    res.data.project = parseProject(dataFromExcel);
     res.data.userFields = parseUserFields(dataFromExcel);
 
-    await deleteFile(file);
+    deleteFile(file);
 
     return res;
   }
 
   if (file.endsWith('.json')) {
+    console.log('JSON!');
+
     const rawdata = fs.readFileSync(file).toString();
     let uploadedJson = null;
 
@@ -512,4 +441,5 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     await configService.updateDatabaseConfig(fileName);
     return res;
   }
+  console.log('NOTHIGN');
 };
