@@ -16,25 +16,43 @@ export function ExtraTimer() {
 
   const { start, pause, stop, setDirection } = setExtraTimer;
 
+  const toggleDirection = () => {
+    const newDirection = direction === SimpleDirection.CountDown ? SimpleDirection.CountUp : SimpleDirection.CountDown;
+    setDirection(newDirection);
+  };
+
+  const userCan = {
+    start: playback !== SimplePlayback.Start,
+    pause: playback === SimplePlayback.Start,
+    stop: playback !== SimplePlayback.Stop,
+  };
+
   return (
     <div className={style.extraRow}>
       <ExtraTimeInput />
-      <TapButton onClick={start} theme={Playback.Play} active={playback === SimplePlayback.Start}>
-        <IoPlay />
-      </TapButton>
-      <TapButton onClick={pause} theme={Playback.Pause} active={playback === SimplePlayback.Pause}>
-        <IoPause />
-      </TapButton>
-      <TapButton onClick={stop} theme={Playback.Stop}>
-        <IoStop />
-      </TapButton>
-      <TapButton
-        onClick={() => {
-          setDirection(direction === SimpleDirection.CountDown ? SimpleDirection.CountUp : SimpleDirection.CountDown);
-        }}
-      >
+      <TapButton onClick={toggleDirection}>
         {direction === SimpleDirection.CountDown && <IoArrowDown />}
         {direction === SimpleDirection.CountUp && <IoArrowUp />}
+      </TapButton>
+
+      <TapButton
+        onClick={start}
+        theme={Playback.Play}
+        active={playback === SimplePlayback.Start}
+        disabled={!userCan.start}
+      >
+        <IoPlay />
+      </TapButton>
+      <TapButton
+        onClick={pause}
+        theme={Playback.Pause}
+        active={playback === SimplePlayback.Pause}
+        disabled={!userCan.pause}
+      >
+        <IoPause />
+      </TapButton>
+      <TapButton onClick={stop} theme={Playback.Stop} disabled={!userCan.stop}>
+        <IoStop />
       </TapButton>
     </div>
   );
