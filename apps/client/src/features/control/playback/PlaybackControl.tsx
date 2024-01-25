@@ -1,73 +1,12 @@
-import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-import { IoPause } from '@react-icons/all-files/io5/IoPause';
-import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
-import { IoStop } from '@react-icons/all-files/io5/IoStop';
-import { Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { Playback } from 'ontime-types';
 
-import TimeInput from '../../../common/components/input/time-input/TimeInput';
-import { setExtraTimer, useExtraTimer, useExtraTimerTime, usePlaybackControl } from '../../../common/hooks/useSocket';
+import { usePlaybackControl } from '../../../common/hooks/useSocket';
 
+import { ExtraTimer } from './extra-timer/ExtraTimer';
 import PlaybackButtons from './playback-buttons/PlaybackButtons';
 import PlaybackTimer from './playback-timer/PlaybackTimer';
-import TapButton from './tap-button/TapButton';
 
 import style from './PlaybackControl.module.scss';
-
-function ExtraTimer() {
-  const time = useExtraTimerTime();
-  const { setTime } = setExtraTimer;
-
-  return (
-    <TimeInput<'extraTimer'>
-      submitHandler={(_field, value) => setTime(value)}
-      name='extraTimer'
-      time={time}
-      placeholder='Extra Timer'
-    />
-  );
-}
-
-function ExtraTimerControl() {
-  const { playback, direction } = useExtraTimer();
-
-  const { start, pause, stop, setDirection } = setExtraTimer;
-
-  return (
-    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '2rem' }}>
-      <ExtraTimer />
-      <TapButton
-        className={style.smallButton}
-        onClick={start}
-        theme={Playback.Play}
-        active={playback === SimplePlayback.Start}
-      >
-        <IoPlay />
-      </TapButton>
-      <TapButton
-        className={style.smallButton}
-        onClick={pause}
-        theme={Playback.Pause}
-        active={playback === SimplePlayback.Pause}
-      >
-        <IoPause />
-      </TapButton>
-      <TapButton className={style.smallButton} onClick={stop} theme={Playback.Stop}>
-        <IoStop />
-      </TapButton>
-      <TapButton
-        className={style.smallButton}
-        onClick={() => {
-          setDirection(direction === SimpleDirection.CountDown ? SimpleDirection.CountUp : SimpleDirection.CountDown);
-        }}
-        theme={Playback.Roll}
-      >
-        {direction === SimpleDirection.CountDown && <IoArrowDown />}
-        {direction === SimpleDirection.CountUp && <IoArrowUp />}
-      </TapButton>
-    </div>
-  );
-}
 
 export default function PlaybackControl() {
   const data = usePlaybackControl();
@@ -80,7 +19,7 @@ export default function PlaybackControl() {
         numEvents={data.numEvents}
         selectedEventIndex={data.selectedEventIndex}
       />
-      <ExtraTimerControl />
+      <ExtraTimer />
     </div>
   );
 }

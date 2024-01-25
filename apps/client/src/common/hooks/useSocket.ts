@@ -98,8 +98,11 @@ export const useExtraTimerTime = () => {
   return useRuntimeStore(featureSelector);
 };
 
-export const useExtraTimer = () => {
-  const featureSelector = (state: RuntimeStore) => state.timer1;
+export const useExtraTimerControl = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    playback: state.timer1.playback,
+    direction: state.timer1.direction,
+  });
 
   return useRuntimeStore(featureSelector);
 };
