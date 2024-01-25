@@ -16,6 +16,7 @@ import { getCached, runtimeCacheStore } from '../../stores/cachingStore.js';
 import { isProduction } from '../../setup.js';
 import { deleteAtIndex, insertAtIndex, reorderArray } from '../../utils/arrayUtils.js';
 import { _applyDelay } from '../delayUtils.js';
+import { createPatch } from '../../utils/parser.js';
 
 /**
  * Keep incremental revision number of rundown for runtime
@@ -109,6 +110,16 @@ export async function cachedEdit(
   eventId: string,
   patchObject: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>,
 ) {
+  const makeEvent = (eventFromRundown: OntimeRundownEntry): OntimeRundownEntry => {
+    if (isOntimeEvent(eventFromRundown)) {
+      const newEvent = createPatch(eventFromRundown, patchObject as OntimeEvent);
+      newEvent.revision++;
+      return newEvent;
+    }
+
+    return { ...eventFromRundown, ...patchObject } as OntimeRundownEntry;
+  };
+
   const indexInMemory = DataProvider.getIndexOf(eventId);
   if (indexInMemory < 0) {
     throw new Error('No event with ID found');
@@ -125,10 +136,7 @@ export async function cachedEdit(
     return eventFromRundown;
   }
 
-  const newEvent = { ...eventFromRundown, ...patchObject } as OntimeRundownEntry;
-  if (isOntimeEvent(newEvent)) {
-    newEvent.revision++;
-  }
+  const newEvent = makeEvent(eventFromRundown);
   updatedRundown[indexInMemory] = newEvent;
 
   let newDelayedRundown = getDelayedRundown();

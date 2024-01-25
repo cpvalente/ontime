@@ -6,20 +6,16 @@ import { useEmitLog } from '../../../stores/logger';
 import { forgivingStringToMillis } from '../../../utils/dateConfig';
 
 import style from './TimeInput.module.scss';
-
 interface TimeInputProps<T extends string> {
-  id?: T;
   name: T;
-  submitHandler: (field: T, value: number) => void;
+  submitHandler: (field: T, value: string) => void;
   time?: number;
-  delay?: number;
   placeholder: string;
-  previousEnd?: number;
   className?: string;
 }
 
 export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
-  const { id, name, submitHandler, time = 0, delay = 0, placeholder, previousEnd = 0, className } = props;
+  const { name, submitHandler, time = 0, placeholder, className } = props;
   const { emitError } = useEmitLog();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
@@ -55,32 +51,20 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
         return false;
       }
 
-      let newValMillis = 0;
-
-      // check for known aliases
-      if (newValue === 'p' || newValue === 'prev' || newValue === 'previous') {
-        // string to pass should be the time of the end before
-        if (previousEnd != null) {
-          newValMillis = previousEnd;
-        }
-      } else if (newValue.startsWith('+') || newValue.startsWith('p+') || newValue.startsWith('p +')) {
-        // string to pass should add to the end before
-        const val = newValue.substring(1);
-        newValMillis = previousEnd + forgivingStringToMillis(val);
-      } else {
-        // convert entered value to milliseconds
-        newValMillis = forgivingStringToMillis(newValue);
+      // we dont know the values in the rundown, escalate to handler
+      if (newValue.startsWith('p') || newValue.startsWith('+')) {
+        submitHandler(name, newValue);
       }
 
-      // check if time is different from before
-      if (newValMillis === time) return false;
+      const valueInMillis = forgivingStringToMillis(newValue);
+      if (valueInMillis === time) {
+        return false;
+      }
 
-      // update entry
-      submitHandler(name, newValMillis);
-
+      submitHandler(name, newValue);
       return true;
     },
-    [name, previousEnd, submitHandler, time],
+    [name, submitHandler, time],
   );
 
   /**
@@ -90,15 +74,11 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
   const validateAndSubmit = useCallback(
     (newValue: string) => {
       const success = handleSubmit(newValue);
-      if (success) {
-        const ms = forgivingStringToMillis(newValue);
-        const delayed = name === 'timeEnd' ? Math.max(0, ms + delay) : Math.max(0, ms + delay);
-        setValue(millisToString(delayed));
-      } else {
+      if (!success) {
         resetValue();
       }
     },
-    [delay, handleSubmit, name, resetValue],
+    [handleSubmit, resetValue],
   );
 
   /**
@@ -144,7 +124,6 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
     <Input
       size='sm'
       ref={inputRef}
-      id={id}
       data-testid={`time-input-${name}`}
       className={timeInputClass}
       type='text'

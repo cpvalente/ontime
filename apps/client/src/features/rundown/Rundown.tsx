@@ -1,7 +1,7 @@
 import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { OntimeRundown, Playback, SupportedEvent } from 'ontime-types';
+import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeRundown, Playback, SupportedEvent } from 'ontime-types';
 import { getFirst, getNext, getPrevious } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
@@ -38,7 +38,7 @@ export default function Rundown(props: RundownProps) {
   const viewFollowsCursor = appMode === AppMode.Run;
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  useFollowComponent({ followRef: cursorRef, scrollRef: scrollRef, doFollow: true });
+  useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: true });
 
   // DND KIT
   const sensors = useSensors(useSensor(PointerSensor));
@@ -66,8 +66,8 @@ export default function Rundown(props: RundownProps) {
           type: SupportedEvent.Event,
         };
         const options = {
-          defaultPublic: defaultPublic,
-          startTimeIsLastEnd: startTimeIsLastEnd,
+          defaultPublic,
+          startTimeIsLastEnd,
           lastEventId: cursor,
           after: cursor,
         };
@@ -197,7 +197,7 @@ export default function Rundown(props: RundownProps) {
     return <RundownEmpty handleAddNew={() => insertAtCursor(SupportedEvent.Event, null)} />;
   }
 
-  let previousEnd = 0;
+  let previousEnd: null | number = null;
   let thisEnd = 0;
   let previousEventId: string | undefined;
   let eventIndex = 0;
@@ -213,10 +213,13 @@ export default function Rundown(props: RundownProps) {
                 eventIndex = 0;
               }
               let isFirstEvent = false;
-              if (entry.type === SupportedEvent.Event) {
+              if (isOntimeEvent(entry)) {
                 isFirstEvent = eventIndex === 0;
+                // event indexes are 1 based in frontend
                 eventIndex++;
-                previousEnd = thisEnd;
+                if (!isFirstEvent) {
+                  previousEnd = thisEnd;
+                }
                 thisEnd = entry.timeEnd;
                 previousEventId = entry.id;
               }
@@ -236,7 +239,6 @@ export default function Rundown(props: RundownProps) {
                       <RundownEntry
                         type={entry.type}
                         isPast={isPast}
-                        isFirstEvent={isFirstEvent}
                         eventIndex={eventIndex}
                         data={entry}
                         selected={isSelected}
@@ -255,8 +257,8 @@ export default function Rundown(props: RundownProps) {
                       showKbd={hasCursor}
                       eventId={entry.id}
                       previousEventId={previousEventId}
-                      disableAddDelay={entry.type === SupportedEvent.Delay}
-                      disableAddBlock={entry.type === SupportedEvent.Block}
+                      disableAddDelay={isOntimeDelay(entry)}
+                      disableAddBlock={isOntimeBlock(entry)}
                     />
                   )}
                 </Fragment>

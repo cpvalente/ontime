@@ -8,13 +8,12 @@ import { OntimeEvent, SupportedEvent } from 'ontime-types';
  */
 type ClonedEvent = Omit<
   OntimeEvent,
-  'id' | 'user0' | 'user1' | 'user2' | 'user3' | 'user4' | 'user5' | 'user6' | 'user7' | 'user8' | 'user9'
+  'id' | 'cue' | 'user0' | 'user1' | 'user2' | 'user3' | 'user4' | 'user5' | 'user6' | 'user7' | 'user8' | 'user9'
 >;
 export const cloneEvent = (event: OntimeEvent, after?: string): ClonedEvent => {
   return {
     type: SupportedEvent.Event,
     title: event.title,
-    cue: event.cue,
     subtitle: event.subtitle,
     presenter: event.presenter,
     note: event.note,
@@ -26,7 +25,7 @@ export const cloneEvent = (event: OntimeEvent, after?: string): ClonedEvent => {
     isPublic: event.isPublic,
     skip: event.skip,
     colour: event.colour,
-    after: after,
+    after,
     revision: 0,
     timeWarning: event.timeWarning,
     timeDanger: event.timeDanger,
