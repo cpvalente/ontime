@@ -7,10 +7,10 @@ import { Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { setExtraTimer, useExtraTimerControl, useExtraTimerTime } from '../../../../common/hooks/useSocket';
+import { forgivingStringToMillis } from '../../../../common/utils/dateConfig';
 import TapButton from '../tap-button/TapButton';
 
 import style from './ExtraTimer.module.scss';
-import { forgivingStringToMillis } from '../../../../common/utils/dateConfig';
 
 export function ExtraTimer() {
   const { playback, direction } = useExtraTimerControl();
