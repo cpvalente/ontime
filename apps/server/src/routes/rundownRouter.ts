@@ -1,4 +1,7 @@
 import express from 'express';
+
+import { router as trpcRouter } from '../trpc.js';
+
 import {
   deleteEventById,
   rundownApplyDelay,
@@ -10,7 +13,12 @@ import {
   rundownReorder,
   rundownSwap,
   rundownBatchPut,
+  getRundown,
 } from '../controllers/rundownController.js';
+
+export const rundownRouterr = trpcRouter({
+  getRundown,
+});
 
 export const router = express.Router();
 

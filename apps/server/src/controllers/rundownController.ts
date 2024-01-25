@@ -2,6 +2,8 @@ import { GetRundownCached } from 'ontime-types';
 
 import { Request, Response, RequestHandler } from 'express';
 
+import { publicProcedure } from '../trpc.js';
+
 import {
   addEvent,
   applyDelay,
@@ -22,6 +24,9 @@ import {
   rundownSwapValidator,
 } from './rundownController.validate.js';
 
+export const getRundown = publicProcedure.query(() => {
+  return getDelayedRundown();
+});
 // Create controller for GET request to '/events'
 // Returns -
 export const rundownGetAll: RequestHandler = async (_req, res) => {

@@ -6,6 +6,7 @@
   "exports": "./src/index.js",
   "dependencies": {
     "@googleapis/sheets": "^5.0.5",
+    "@trpc/server": "^10.45.0",
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",

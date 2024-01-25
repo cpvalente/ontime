@@ -5,6 +5,8 @@ import express from 'express';
 import expressStaticGzip from 'express-static-gzip';
 import http, { type Server } from 'http';
 import cors from 'cors';
+import * as trpcExpress from '@trpc/server/adapters/express';
+import { createContext, router } from './trpc.js';
 
 // import utils
 import { join, resolve } from 'path';
@@ -19,7 +21,7 @@ import {
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 
 // Import Routes
-import { router as rundownRouter } from './routes/rundownRouter.js';
+import { router as rundownRouter, rundownRouterr } from './routes/rundownRouter.js';
 import { router as projectRouter } from './routes/projectRouter.js';
 import { router as ontimeRouter } from './routes/ontimeRouter.js';
 import { router as apiRouter } from './routes/apiRouter.js';
@@ -64,6 +66,20 @@ app.options('*', cors());
 // Implement middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '1mb' }));
+
+export const appRouter = router({
+  rundownRouterr,
+});
+
+export type AppRouter = typeof appRouter;
+
+app.use(
+  '/trpc',
+  trpcExpress.createExpressMiddleware({
+    router: appRouter,
+    createContext,
+  }),
+);
 
 // Implement route endpoints
 app.use('/events', rundownRouter);
