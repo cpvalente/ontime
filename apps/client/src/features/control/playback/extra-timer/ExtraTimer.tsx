@@ -49,7 +49,7 @@ function ExtraTimeInput() {
       submitHandler={(_field, value) => setTime(value)}
       name='extraTimer'
       time={time}
-      placeholder='Extra Timer'
+      placeholder='Timer 1'
     />
   );
 }
