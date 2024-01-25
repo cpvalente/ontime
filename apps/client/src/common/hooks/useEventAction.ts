@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { GetRundownCached, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
 import { getCueCandidate, swapOntimeEvents } from 'ontime-utils';
 
+import { trpc } from '../../AppRouter';
 import { RUNDOWN } from '../api/apiConstants';
 import { logAxiosError } from '../api/apiUtils';
 import {
@@ -12,7 +13,6 @@ import {
   requestDelete,
   requestDeleteAll,
   requestEventSwap,
-  requestPostEvent,
   requestPutEvent,
   requestReorderEvent,
   SwapEntry,
@@ -35,7 +35,7 @@ export const useEventAction = () => {
   const _addEventMutation = useMutation({
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
-    mutationFn: requestPostEvent,
+    mutationFn: trpc.rundownRouterr.addEventToRundown.mutate,
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
@@ -113,7 +113,7 @@ export const useEventAction = () => {
    * @private
    */
   const _updateEventMutation = useMutation({
-    mutationFn: requestPutEvent,
+    mutationFn: trpc.rundownRouterr.editEventInRundown.mutate,
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
@@ -128,7 +128,6 @@ export const useEventAction = () => {
         const optimisticRundown = [...previousData.rundown];
         const index = optimisticRundown.findIndex((event) => event.id === newEvent.id);
         if (index > -1) {
-          // @ts-expect-error -- we expect the event types to match
           optimisticRundown[index] = { ...optimisticRundown[index], ...newEvent };
 
           queryClient.setQueryData(RUNDOWN, { rundown: optimisticRundown, revision: -1 });
@@ -156,7 +155,7 @@ export const useEventAction = () => {
   const updateEvent = useCallback(
     async (event: Partial<OntimeRundownEntry>) => {
       try {
-        await _updateEventMutation.mutateAsync(event);
+        await _updateEventMutation.mutateAsync(event); //TODO: type Optional<T, K extends keyof T> = Pick<T,K> & Partial<Omit<T, K>>;
       } catch (error) {
         logAxiosError('Error updating event', error);
       }

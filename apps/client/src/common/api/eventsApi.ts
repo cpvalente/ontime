@@ -1,18 +1,15 @@
 import axios from 'axios';
 import { GetRundownCached, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 
-import { trpc } from '../../AppRouter';
-
 import { rundownURL } from './apiConstants';
 
 /**
+ * @deprecated
  * @description HTTP request to fetch all events
  * @return {Promise}
  */
 export async function fetchCachedRundown(): Promise<GetRundownCached> {
-  const rundown = await trpc.rundownRouterr.getRundownCached.query();
   const res = await axios.get(`${rundownURL}/cached`);
-  console.log('trpc', rundown, 'fetch', res.data);
   return res.data;
 }
 
@@ -27,6 +24,7 @@ export async function fetchRundown(): Promise<OntimeRundown> {
 }
 
 /**
+ * @deprecated
  * @description HTTP request to post new event
  * @return {Promise}
  */
@@ -35,6 +33,7 @@ export async function requestPostEvent(data: OntimeRundownEntry) {
 }
 
 /**
+ * @deprecated
  * @description HTTP request to put new event
  * @return {Promise}
  */

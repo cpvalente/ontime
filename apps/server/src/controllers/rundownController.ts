@@ -1,4 +1,4 @@
-import { GetRundownCached } from 'ontime-types';
+import { GetRundownCached, SupportedEvent } from 'ontime-types';
 
 import { Request, Response, RequestHandler } from 'express';
 
@@ -23,9 +23,9 @@ import {
   rundownReorderValidator,
   rundownSwapValidator,
 } from './rundownController.validate.js';
+import * as v from 'valibot';
 
 export const getRundownCached = publicProcedure.query(() => {
-  console.log('trpc get rundown')
   return getRundownCache();
 });
 // Create controller for GET request to '/events'
@@ -42,6 +42,12 @@ export const rundownGetCached: RequestHandler = async (_req: Request, res: Respo
   res.json(cachedRundown);
 };
 
+export const addEventToRundown = publicProcedure
+  .input((i) => v.parse(v.object({ type: v.enum_(SupportedEvent) }, v.unknown()), i))
+  .mutation(async ({ input }) => {
+    return await addEvent(input);
+  });
+
 // Create controller for POST request to '/events/'
 // Returns -
 export const rundownPost: RequestHandler = async (req, res) => {
@@ -55,6 +61,12 @@ export const rundownPost: RequestHandler = async (req, res) => {
     res.status(400).send({ message: error.message });
   }
 };
+
+export const editEventInRundown = publicProcedure
+  .input((i) => v.parse(v.object({ id: v.string() }, v.unknown()), i))
+  .mutation(async ({ input }) => {
+    return await editEvent(input);
+  });
 
 // Create controller for PUT request to '/events/'
 // Returns -

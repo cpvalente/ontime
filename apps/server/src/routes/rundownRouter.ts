@@ -14,10 +14,14 @@ import {
   rundownSwap,
   rundownBatchPut,
   getRundownCached,
+  addEventToRundown,
+  editEventInRundown,
 } from '../controllers/rundownController.js';
 
 export const rundownRouterr = trpcRouter({
   getRundownCached,
+  addEventToRundown,
+  editEventInRundown,
 });
 
 export const router = express.Router();
