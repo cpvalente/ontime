@@ -21,7 +21,7 @@ import {
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 
 // Import Routes
-import { router as rundownRouter, rundownRouterr } from './routes/rundownRouter.js';
+import { rundownController } from './controllers/rundownController.js';
 import { router as projectRouter } from './routes/projectRouter.js';
 import { router as ontimeRouter } from './routes/ontimeRouter.js';
 import { router as apiRouter } from './routes/apiRouter.js';
@@ -68,7 +68,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '1mb' }));
 
 export const trpcRouter = router({
-  rundownRouterr,
+  rundownController,
 });
 
 export type TrpcRouter = typeof trpcRouter;
@@ -82,7 +82,7 @@ app.use(
 );
 
 // Implement route endpoints
-app.use('/events', rundownRouter);
+// app.use('/events', rundownRouter);
 app.use('/project', projectRouter);
 app.use('/ontime', ontimeRouter);
 app.use('/api', apiRouter);

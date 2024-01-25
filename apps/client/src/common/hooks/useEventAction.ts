@@ -6,17 +6,6 @@ import { getPreviousEvent, swapOntimeEvents } from 'ontime-utils';
 import { trpc } from '../../AppRouter';
 import { RUNDOWN } from '../api/apiConstants';
 import { logAxiosError } from '../api/apiUtils';
-import {
-  ReorderEntry,
-  requestApplyDelay,
-  requestBatchPutEvents,
-  requestDelete,
-  requestDeleteAll,
-  requestEventSwap,
-  requestPutEvent,
-  requestReorderEvent,
-  SwapEntry,
-} from '../api/eventsApi';
 import { useEditorSettings } from '../stores/editorSettings';
 import { forgivingStringToMillis } from '../utils/dateConfig';
 
@@ -36,7 +25,7 @@ export const useEventAction = () => {
   const _addEventMutation = useMutation({
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
-    mutationFn: trpc.rundownRouterr.addEventToRundown.mutate,
+    mutationFn: trpc.rundownController.addEvent.mutate,
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
@@ -104,7 +93,7 @@ export const useEventAction = () => {
    * @private
    */
   const _updateEventMutation = useMutation({
-    mutationFn: trpc.rundownRouterr.editEventInRundown.mutate,
+    mutationFn: trpc.rundownController.editEvent.mutate,
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
@@ -202,7 +191,7 @@ export const useEventAction = () => {
    * @private
    */
   const _batchUpdateEventsMutation = useMutation({
-    mutationFn: requestBatchPutEvents,
+    mutationFn: trpc.rundownController.batchEditEvents.mutate,
     onMutate: async ({ ids, data }) => {
       // cancel ongoing queries
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
@@ -255,7 +244,7 @@ export const useEventAction = () => {
    * @private
    */
   const _deleteEventMutation = useMutation({
-    mutationFn: requestDelete,
+    mutationFn: trpc.rundownController.deleteEvent.mutate,
     // we optimistically update here
     onMutate: async (eventId) => {
       // cancel ongoing queries
@@ -313,7 +302,7 @@ export const useEventAction = () => {
    * @private
    */
   const _deleteAllEventsMutation = useMutation({
-    mutationFn: requestDeleteAll,
+    mutationFn: trpc.rundownController.deleteAllEvents.mutate,
     // we optimistically update here
     onMutate: async () => {
       // cancel ongoing queries
@@ -357,7 +346,7 @@ export const useEventAction = () => {
    * @private
    */
   const _applyDelayMutation = useMutation({
-    mutationFn: requestApplyDelay,
+    mutationFn: trpc.rundownController.applyDelay.mutate,
     // Mutation finished, failed or successful
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
@@ -384,7 +373,7 @@ export const useEventAction = () => {
    * @private
    */
   const _reorderEventMutation = useMutation({
-    mutationFn: requestReorderEvent,
+    mutationFn: trpc.rundownController.reorderEvent.mutate,
     // we optimistically update here
     onMutate: async (data) => {
       // cancel ongoing queries
@@ -424,12 +413,7 @@ export const useEventAction = () => {
   const reorderEvent = useCallback(
     async (eventId: string, from: number, to: number) => {
       try {
-        const reorderObject: ReorderEntry = {
-          eventId,
-          from,
-          to,
-        };
-        await _reorderEventMutation.mutateAsync(reorderObject);
+        await _reorderEventMutation.mutateAsync({ eventId, from, to });
       } catch (error) {
         logAxiosError('Error re-ordering event', error);
       }
@@ -442,7 +426,7 @@ export const useEventAction = () => {
    * @private
    */
   const _swapEvents = useMutation({
-    mutationFn: requestEventSwap,
+    mutationFn: trpc.rundownController.swapEvents.mutate,
     // we optimistically update here
     onMutate: async ({ from, to }) => {
       // cancel ongoing queries
@@ -480,7 +464,7 @@ export const useEventAction = () => {
    * Swaps the schedule of two events
    */
   const swapEvents = useCallback(
-    async ({ from, to }: SwapEntry) => {
+    async ({ from, to }: { from: string; to: string }) => {
       // TODO: before calling `/swapEvents`,
       // we should determine the events are of type `OntimeEvent`
       try {
