@@ -226,7 +226,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
         if (column === 'block') {
           event.type = SupportedEvent.Block;
         }
-        if (isKnownTimerType(column)) {
+        if (column === '' || isKnownTimerType(column)) {
           event.type = SupportedEvent.Event;
           event.timerType = validateTimerType(column);
         }
