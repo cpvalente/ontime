@@ -10,6 +10,7 @@ import { setExtraTimer, useExtraTimerControl, useExtraTimerTime } from '../../..
 import TapButton from '../tap-button/TapButton';
 
 import style from './ExtraTimer.module.scss';
+import { forgivingStringToMillis } from '../../../../common/utils/dateConfig';
 
 export function ExtraTimer() {
   const { playback, direction } = useExtraTimerControl();
@@ -62,12 +63,12 @@ function ExtraTimeInput() {
   const time = useExtraTimerTime();
   const { setTime } = setExtraTimer;
 
+  const handleTimeUpdate = (_field: string, value: string) => {
+    const newTime = forgivingStringToMillis(value);
+    setTime(newTime);
+  };
+
   return (
-    <TimeInput<'extraTimer'>
-      submitHandler={(_field, value) => setTime(value)}
-      name='extraTimer'
-      time={time}
-      placeholder='Timer 1'
-    />
+    <TimeInput<'extraTimer'> submitHandler={handleTimeUpdate} name='extraTimer' time={time} placeholder='Timer 1' />
   );
 }
