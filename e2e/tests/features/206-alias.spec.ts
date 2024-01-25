@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
 
 test('test aliases feature, it should redirect to given alias', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
@@ -17,5 +17,5 @@ test('test aliases feature, it should redirect to given alias', async ({ page })
 
   // make sure alias works
   await page.goto('http://localhost:4001/testing');
-  await page.getByText('Select an event to follow').click();
+  await page.getByTestId('countdown__select').click();
 });

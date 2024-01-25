@@ -31,8 +31,10 @@ const EventEditorTitles = (props: EventEditorLeftProps) => {
   return (
     <div className={style.column}>
       <div className={style.splitTwo}>
-        <label className={style.inputLabel} htmlFor='eventId'>
-          Event ID (read only)
+        <div>
+          <label className={style.inputLabel} htmlFor='eventId'>
+            Event ID (read only)
+          </label>
           <Input
             id='eventId'
             size='sm'
@@ -41,7 +43,7 @@ const EventEditorTitles = (props: EventEditorLeftProps) => {
             value={eventId}
             readOnly
           />
-        </label>
+        </div>
         <EventTextInput field='cue' label='Cue' initialValue={cue} submitHandler={cueSubmitHandler} maxLength={10} />
       </div>
       <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />

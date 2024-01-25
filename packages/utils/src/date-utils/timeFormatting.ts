@@ -53,6 +53,17 @@ export function removeLeadingZero(timer: string): string {
 }
 
 /**
+ * Receives a string such as 00:10:10 and removes the seconds field if it is 00
+ * @param timer
+ */
+export function removeTrailingZero(timer: string): string {
+  if (timer.endsWith(':00')) {
+    return timer.slice(0, -3);
+  }
+  return timer;
+}
+
+/**
  * Receives a string such as 00:10:10 and removes the seconds field
  * @param timer
  */
