@@ -32,6 +32,8 @@ export class SimpleTimer {
   }
 
   public setDirection(direction: SimpleDirection): SimpleTimerState {
+    this.state.playback = SimplePlayback.Stop;
+    this.state.current = this.state.duration;
     this.state.direction = direction;
     return this.state;
   }
@@ -48,6 +50,7 @@ export class SimpleTimer {
   }
 
   public pause(timeNow: number): SimpleTimerState {
+    if (this.state.playback !== SimplePlayback.Start) return this.state;
     this.state.playback = SimplePlayback.Pause;
     this.pausedAt = timeNow;
     return this.state;
