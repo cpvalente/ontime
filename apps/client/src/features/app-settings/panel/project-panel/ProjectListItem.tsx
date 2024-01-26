@@ -2,10 +2,8 @@ import { useState } from 'react';
 import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 
-import { PROJECT_LIST } from '../../../../common/api/apiConstants';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/apiUtils';
 import { deleteProject, duplicateProject, loadProject, renameProject } from '../../../../common/api/ontimeApi';
-import { ontimeQueryClient } from '../../../../common/queryClient';
 
 import ProjectForm, { ProjectFormValues } from './ProjectForm';
 import { EditMode } from './ProjectList';
@@ -98,7 +96,12 @@ export default function ProjectListItem({
           <td>{createdAt}</td>
           <td>{updatedAt}</td>
           <td className={style.actionButton}>
-            <ActionMenu current={current} filename={filename} onChangeEditMode={handleToggleEditMode} />
+            <ActionMenu
+              current={current}
+              filename={filename}
+              onChangeEditMode={handleToggleEditMode}
+              onRefetch={onRefetch}
+            />
           </td>
         </>
       )}
@@ -110,10 +113,12 @@ function ActionMenu({
   current,
   filename,
   onChangeEditMode,
+  onRefetch,
 }: {
   current?: boolean;
   filename: string;
   onChangeEditMode: (editMode: EditMode, filename: string) => void;
+  onRefetch: () => Promise<void>;
 }) {
   const handleLoad = async () => {
     await loadProject(filename);
@@ -130,7 +135,7 @@ function ActionMenu({
 
   const handleDelete = async () => {
     await deleteProject(filename);
-    await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
+    await onRefetch();
   };
 
   return (
