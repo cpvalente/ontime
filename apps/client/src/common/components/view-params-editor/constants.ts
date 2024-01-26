@@ -378,6 +378,13 @@ export const getBackstageOptions = (timeFormat: string): ParamField[] => [
 export const getPublicOptions = (timeFormat: string): ParamField[] => [
   getTimeOption(timeFormat),
   {
+    id: 'filter',
+    title: 'Filter',
+    description: 'Select what to filter by',
+    type: 'string',
+    placeholder: 'isPublic',
+  },
+  {
     id: 'hidePast',
     title: 'Hide past events',
     description: 'Scheduler will only show upcoming events',

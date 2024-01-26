@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import QRCode from 'react-qr-code';
+import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Message, OntimeEvent, ProjectData, Settings, ViewSettings } from 'ontime-types';
 
@@ -37,44 +38,51 @@ export default function Public(props: BackstageProps) {
 
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
+  const [searchParams] = useSearchParams();
 
-  const filter = 'isPublic';
+  const filter = searchParams.get('filter') ?? 'isPublic';
 
   const filteredEventNow = useMemo(() => {
-    if (!eventNow || !Object.hasOwn(events[0], filter)) {
+    if (!eventNow || !events.length || !Object.hasOwn(eventNow, filter)) {
       return null;
     }
-    if (eventNow && eventNow[filter as keyof OntimeEvent] === true) {
+    if (eventNow && eventNow[filter as keyof OntimeEvent]) {
       return eventNow;
     }
-    const selectedEventIndex = events.findIndex((e) => e.id === eventNow?.id);
+    const selectedEventIndex = events.findIndex((e) => e.id === eventNow.id);
     for (let i = selectedEventIndex; i >= 0; i--) {
-      if (events[i][filter as keyof OntimeEvent] === true) {
+      //This is trueish on purpose
+      if (events[i][filter as keyof OntimeEvent]) {
         return events[i];
       }
     }
     return null;
-  }, [eventNow, events]);
+  }, [eventNow, events, filter]);
 
   const filteredEventNext = useMemo(() => {
-    if (!eventNext || !Object.hasOwn(events[0], filter)) {
+    if (!eventNext || !events.length || !Object.hasOwn(eventNext, filter)) {
       return null;
     }
-    if (eventNext && eventNext[filter as keyof OntimeEvent] === true) {
+    //This is trueish on purpose
+    if (eventNext && eventNext[filter as keyof OntimeEvent]) {
       return eventNext;
     }
     const numEvents = events.length;
-    const nextEventIndex = events.findIndex((e) => e.id === eventNext?.id);
+    const nextEventIndex = events.findIndex((e) => e.id === eventNext.id);
     for (let i = nextEventIndex; i < numEvents; i++) {
-      if (events[i][filter as keyof OntimeEvent] === true) {
+      if (events[i][filter as keyof OntimeEvent]) {
         return events[i];
       }
     }
     return null;
-  }, [eventNext, events]);
+  }, [eventNext, events, filter]);
 
   const filteredEvents = useMemo(() => {
-    return filter === undefined ? events : events.filter((e) => e[filter as keyof OntimeEvent] === true);
+    if (!events.length || !Object.hasOwn(events[0], filter)) {
+      return events;
+    }
+    //This is trueish on purpose
+    return events.filter((e) => e[filter as keyof OntimeEvent]);
   }, [events, filter]);
 
   useEffect(() => {
