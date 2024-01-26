@@ -12,6 +12,7 @@ import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoPushOutline } from '@react-icons/all-files/io5/IoPushOutline';
 import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
+import { IoSnowOutline } from '@react-icons/all-files/io5/IoSnowOutline';
 
 import { downloadCSV, downloadRundown } from '../../common/api/ontimeApi';
 import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
@@ -134,7 +135,6 @@ const MenuBar = (props: MenuBarProps) => {
   return (
     <div className={style.menu}>
       <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} />
-
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
@@ -162,15 +162,21 @@ const MenuBar = (props: MenuBarProps) => {
         tooltip='Export project file'
         aria-label='Export project file'
       />
-
       <ExportModal onClose={onModalClose} isOpen={isModalOpen} />
-
       <div className={style.gap} />
       <RundownMenu>
         <Tooltip label='Rundown...'>
           <MenuButton as={IconButton} icon={<IoAdd />} {...buttonStyle} size='sm' />
         </Tooltip>
       </RundownMenu>
+      <TooltipActionBtn
+        {...buttonStyle}
+        icon={<IoSnowOutline />}
+        className={appMode === AppMode.Run ? style.open : ''}
+        clickHandler={setRunMode}
+        tooltip='Run mode'
+        aria-label='Run mode'
+      />
       <TooltipActionBtn
         {...buttonStyle}
         icon={<IoPlay />}
@@ -187,7 +193,6 @@ const MenuBar = (props: MenuBarProps) => {
         tooltip='Edit mode'
         aria-label='Edit mode'
       />
-
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
