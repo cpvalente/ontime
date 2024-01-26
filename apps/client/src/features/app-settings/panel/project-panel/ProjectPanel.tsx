@@ -1,20 +1,78 @@
+import { useState } from 'react';
 import { Button } from '@chakra-ui/react';
+import { AxiosError } from 'axios';
 
+import { PROJECT_LIST } from '../../../../common/api/apiConstants';
+import { createProject } from '../../../../common/api/ontimeApi';
+import { ontimeQueryClient } from '../../../../common/queryClient';
 import * as Panel from '../PanelUtils';
 
+import ProjectForm, { ProjectFormValues } from './ProjectForm';
 import ProjectList from './ProjectList';
 
+import style from './ProjectPanel.module.scss';
+
 export default function ProjectPanel() {
+  const [isCreatingProject, setIsCreatingProject] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const handleToggleCreate = () => {
+    setIsCreatingProject((prev) => !prev);
+    setSubmitError(null);
+  };
+
+  const handleSubmitCreate = async (values: ProjectFormValues) => {
+    try {
+      setSubmitError(null);
+
+      if (!values.filename) {
+        setSubmitError('Filename cannot be blank');
+        return;
+      }
+      await createProject(values.filename);
+      await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
+      handleToggleCreate();
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        const errorMessage = error?.response?.data?.message;
+
+        setSubmitError(errorMessage);
+      } else {
+        setSubmitError('An unknown error occurred');
+      }
+    }
+  };
+
   return (
     <>
       <Panel.Header>Project</Panel.Header>
       <Panel.Section>
         <Panel.Card>
           <Panel.SubHeader>
-            Manage projects
-            <Button variant='ontime-filled'>New</Button>
+            {!isCreatingProject ? (
+              <>
+                Manage projects
+                <Button variant='ontime-filled' onClick={handleToggleCreate}>
+                  New
+                </Button>
+              </>
+            ) : (
+              <span>Create new project</span>
+            )}
           </Panel.SubHeader>
-          <ProjectList />
+          {isCreatingProject ? (
+            <div className={style.createContainer}>
+              <ProjectForm
+                action='create'
+                filename=''
+                onSubmit={handleSubmitCreate}
+                onCancel={handleToggleCreate}
+                submitError=''
+              />
+              {submitError && <span className={style.createSubmitError}>{submitError}</span>}
+            </div>
+          ) : null}
+          {!isCreatingProject && <ProjectList />}
         </Panel.Card>
       </Panel.Section>
     </>
