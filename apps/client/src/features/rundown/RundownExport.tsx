@@ -14,10 +14,10 @@ const RundownExport = () => {
 
   return (
     <div className={style.rundownExport} data-testid='panel-rundown'>
-      {!isExtracted && <IoArrowUp className={style.corner} onClick={(event) => handleLinks(event, 'rundown')} />}
       <div className={style.rundown}>
         <div className={style.list}>
           <ErrorBoundary>
+            {!isExtracted && <IoArrowUp className={style.corner} onClick={(event) => handleLinks(event, 'rundown')} />}
             <RundownWrapper />
           </ErrorBoundary>
         </div>

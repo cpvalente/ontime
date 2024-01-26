@@ -63,7 +63,11 @@ export default function EventEditor() {
   );
 
   if (!event) {
-    return <span data-testid='editor-container'>Loading...</span>;
+    return (
+      <div className={style.eventEditor} data-testid='editor-container'>
+        Select an event to edit
+      </div>
+    );
   }
 
   // Compositing user fields by hand
