@@ -23,7 +23,7 @@ interface StudioClockProps {
   isMirrored: boolean;
   eventNext: OntimeEvent | null;
   time: ViewExtendedTimer;
-  backstageEvents: OntimeRundown;
+  events: OntimeRundown;
   selectedId: string | null;
   nextId: string | null;
   onAir: boolean;
@@ -32,7 +32,7 @@ interface StudioClockProps {
 }
 
 export default function StudioClock(props: StudioClockProps) {
-  const { isMirrored, eventNext, time, backstageEvents, selectedId, nextId, onAir, viewSettings, settings } = props;
+  const { isMirrored, eventNext, time, events, selectedId, nextId, onAir, viewSettings, settings } = props;
 
   // TODO: can we prevent the Flash of Unstyled Content on the 7segment fonts?
   // deferring rendering seems to affect styling (font and useFitText)
@@ -68,7 +68,7 @@ export default function StudioClock(props: StudioClockProps) {
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const studioClockOptions = getStudioClockOptions(defaultFormat);
 
-  const delayed = backstageEvents.filter((event) => isOntimeEvent(event)) as OntimeEvent[];
+  const delayed = events.filter((event) => isOntimeEvent(event)) as OntimeEvent[];
   const trimmedRundown = trimRundown(delayed, selectedId, MAX_TITLES);
   let timer = millisToString(time.current, { fallback: '---' });
   const hideSeconds = isStringBoolean(searchParams.get('hideTimerSeconds'));

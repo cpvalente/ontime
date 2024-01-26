@@ -20,7 +20,7 @@ import './Countdown.scss';
 
 interface CountdownProps {
   isMirrored: boolean;
-  backstageEvents: OntimeEvent[];
+  events: OntimeEvent[];
   time: ViewExtendedTimer;
   selectedId: string | null;
   viewSettings: ViewSettings;
@@ -28,7 +28,7 @@ interface CountdownProps {
 }
 
 export default function Countdown(props: CountdownProps) {
-  const { isMirrored, backstageEvents, time, selectedId, viewSettings, settings } = props;
+  const { isMirrored, events, time, selectedId, viewSettings, settings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
   const { getLocalizedString } = useTranslation();
@@ -45,7 +45,7 @@ export default function Countdown(props: CountdownProps) {
   // eg. http://localhost:4001/countdown?eventId=ei0us
   // Check for user options
   useEffect(() => {
-    if (!backstageEvents) {
+    if (!events) {
       return;
     }
 
@@ -53,20 +53,20 @@ export default function Countdown(props: CountdownProps) {
     const eventIndex = searchParams.get('event');
 
     let followThis: OntimeEvent | null = null;
-    const events: OntimeEvent[] = [...backstageEvents].filter((event) => event.type === SupportedEvent.Event);
+    const supportedevents: OntimeEvent[] = [...events].filter((event) => event.type === SupportedEvent.Event);
 
     if (eventId !== null) {
-      followThis = events.find((event) => event.id === eventId) || null;
+      followThis = supportedevents.find((event) => event.id === eventId) || null;
     } else if (eventIndex !== null) {
-      followThis = events?.[Number(eventIndex) - 1];
+      followThis = supportedevents?.[Number(eventIndex) - 1];
     }
     if (followThis !== null) {
       setFollow(followThis);
-      const idx: number = backstageEvents.findIndex((event: OntimeRundownEntry) => event.id === followThis?.id);
-      const delayToEvent = backstageEvents[idx]?.delay ?? 0;
+      const idx: number = supportedevents.findIndex((event: OntimeRundownEntry) => event.id === followThis?.id);
+      const delayToEvent = supportedevents[idx]?.delay ?? 0;
       setDelay(delayToEvent);
     }
-  }, [backstageEvents, searchParams]);
+  }, [events, searchParams]);
 
   useEffect(() => {
     if (!follow) {
@@ -113,7 +113,7 @@ export default function Countdown(props: CountdownProps) {
       <NavigationMenu />
       <ViewParamsEditor paramFields={timeOption} />
       {follow === null ? (
-        <CountdownSelect events={backstageEvents} />
+        <CountdownSelect events={events} />
       ) : (
         <div className='countdown-container' data-testid='countdown-event'>
           <div className='clock-container'>
