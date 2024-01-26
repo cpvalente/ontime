@@ -166,7 +166,7 @@ const MenuBar = (props: MenuBarProps) => {
       <div className={style.gap} />
       <RundownMenu>
         <Tooltip label='Rundown...'>
-          <MenuButton as={IconButton} icon={<IoAdd />} {...buttonStyle} size='sm' aria-label='Rundown menu' />
+          <MenuButton as={IconButton} icon={<IoAdd />} {...buttonStyle} aria-label='Rundown menu' />
         </Tooltip>
       </RundownMenu>
       <TooltipActionBtn
