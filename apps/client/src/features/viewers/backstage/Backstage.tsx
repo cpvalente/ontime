@@ -161,7 +161,7 @@ export default function Backstage(props: BackstageProps) {
         </AnimatePresence>
       </div>
 
-      <ScheduleProvider events={filteredEvents} selectedEventId={selectedId}>
+      <ScheduleProvider events={filteredEvents} selectedEventId={selectedId} isBackstage>
         <ScheduleNav className='schedule-nav-container' />
         <Schedule isProduction className='schedule-container' />
       </ScheduleProvider>
