@@ -174,8 +174,8 @@ const MenuBar = (props: MenuBarProps) => {
         icon={<IoSnowOutline />}
         className={appMode === AppMode.Run ? style.open : ''}
         clickHandler={setRunMode}
-        tooltip='Run mode'
-        aria-label='Run mode'
+        tooltip='Freeze rundown'
+        aria-label='Freeze rundown'
       />
       <TooltipActionBtn
         {...buttonStyle}
