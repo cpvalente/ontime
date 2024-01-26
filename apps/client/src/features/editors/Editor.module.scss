@@ -1,7 +1,7 @@
 @use './EditorMixin' as editor;
 
 $menu-width: 2.75rem;
-$playback-width: 26rem;
+$playback-width: 30rem;
 
 .corner {
   @include editor.corner;

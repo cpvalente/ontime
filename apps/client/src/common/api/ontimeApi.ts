@@ -196,7 +196,6 @@ export async function patchData(patchDb: Partial<DatabaseModel>) {
 
 type PostPreviewExcelResponse = {
   rundown: OntimeRundown;
-  project: ProjectData;
   userFields: UserFields;
 };
 

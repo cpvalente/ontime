@@ -2,12 +2,12 @@ import { useCallback } from 'react';
 import {
   GetRundownCached,
   isOntimeEvent,
+  MaybeNumber,
   OntimeEvent,
   OntimeRundownEntry,
   Playback,
   SupportedEvent,
 } from 'ontime-types';
-import { calculateDuration, getCueCandidate } from 'ontime-utils';
 
 import { RUNDOWN } from '../../common/api/apiConstants';
 import { useEventAction } from '../../common/hooks/useEventAction';
@@ -28,34 +28,20 @@ export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'del
 interface RundownEntryProps {
   type: SupportedEvent;
   isPast: boolean;
-  isFirstEvent: boolean;
   data: OntimeRundownEntry;
   selected: boolean;
   eventIndex: number;
   hasCursor: boolean;
   next: boolean;
-  previousEnd: number;
+  previousEnd: MaybeNumber;
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
   isRolling: boolean; // we need to know even if not related to this event
-  disableEdit: boolean; // we disable edit when the window is extracted
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const {
-    isPast,
-    data,
-    selected,
-    hasCursor,
-    next,
-    previousEnd,
-    previousEventId,
-    playback,
-    isRolling,
-    disableEdit,
-    isFirstEvent,
-    eventIndex,
-  } = props;
+  const { isPast, data, selected, hasCursor, next, previousEnd, previousEventId, playback, isRolling, eventIndex } =
+    props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
   const { cursor } = useAppMode();
@@ -111,9 +97,7 @@ export default function RundownEntry(props: RundownEntryProps) {
       }
       case 'clone': {
         const newEvent = cloneEvent(data as OntimeEvent, data.id);
-        const rundown = ontimeQueryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? [];
-        newEvent.cue = getCueCandidate(rundown, data.id);
-        addEvent(newEvent);
+        addEvent(newEvent, { after: data.id });
         break;
       }
       case 'update': {
@@ -139,26 +123,6 @@ export default function RundownEntry(props: RundownEntryProps) {
           batchUpdateEvents(changes, eventIds);
           return clearSelectedEvents();
         }
-
-        if (field === 'durationOverride' && data.type === SupportedEvent.Event) {
-          // duration defines timeEnd
-          newData.duration = value as number;
-          newData.timeEnd = data.timeStart + (value as number);
-          return updateEvent(newData);
-        }
-
-        if (field === 'timeStart' && data.type === SupportedEvent.Event) {
-          newData.duration = calculateDuration(value as number, data.timeEnd);
-          newData.timeStart = value as number;
-          return updateEvent(newData);
-        }
-
-        if (field === 'timeEnd' && data.type === SupportedEvent.Event) {
-          newData.duration = calculateDuration(data.timeStart, value as number);
-          newData.timeEnd = value as number;
-          return updateEvent(newData);
-        }
-
         if (field in data) {
           // @ts-expect-error not sure how to type this
           newData[field] = value;
@@ -186,7 +150,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         timerType={data.timerType}
         title={data.title}
         note={data.note}
-        delay={data.delay || 0}
+        delay={data.delay ?? 0}
         previousEnd={previousEnd}
         colour={data.colour}
         isPast={isPast}
@@ -197,8 +161,6 @@ export default function RundownEntry(props: RundownEntryProps) {
         playback={playback}
         isRolling={isRolling}
         actionHandler={actionHandler}
-        disableEdit={disableEdit}
-        isFirstEvent={isFirstEvent}
       />
     );
   } else if (data.type === SupportedEvent.Block) {

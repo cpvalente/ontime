@@ -13,7 +13,6 @@ import {
   OntimeEvent,
   OntimeRundown,
   SupportedEvent,
-  ProjectData,
   UserFields,
   EndAction,
   TimerType,
@@ -43,28 +42,23 @@ import { coerceBoolean } from './coerceType.js';
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
 
+type ExcelData = Pick<DatabaseModel, 'rundown' | 'userFields'> & {
+  rundownMetadata: Record<string, { row: number; col: number }>;
+};
+
 /**
  * @description Excel array parser
  * @param {array} excelData - array with excel sheet
  * @param {ExcelImportOptions} options - an object that contains the import map
  * @returns {object} - parsed object
  */
-export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImportMap>) => {
-  const projectMetadata = {};
+export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImportMap>): ExcelData => {
   const rundownMetadata = {};
   const importMap: ExcelImportMap = { ...defaultExcelImportMap, ...options };
   for (const [key, value] of Object.entries(importMap)) {
     importMap[key] = value.toLocaleLowerCase();
   }
-  const projectData: Partial<ProjectData> = {
-    title: '',
-    description: '',
-    publicUrl: '',
-    publicInfo: '',
-    backstageUrl: '',
-    backstageInfo: '',
-  };
-  const customUserFields: Partial<UserFields> = {
+  const customUserFields: UserFields = {
     user0: importMap.user0,
     user1: importMap.user1,
     user2: importMap.user2,
@@ -117,41 +111,9 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
     if (row.length === 0) {
       return;
     }
-    // these fields contain the data to its right
-    let projectTitleNext = false;
-    let projectDescriptionNext = false;
-    let publicUrlNext = false;
-    let publicInfoNext = false;
-    let backstageUrlNext = false;
-    let backstageInfoNext = false;
 
     const event: Partial<OntimeEvent> = {};
     const handlers = {
-      [importMap.projectName]: (row: number, col: number) => {
-        projectTitleNext = true;
-        projectMetadata['title'] = { row, col };
-      },
-      [importMap.projectDescription]: (row: number, col: number) => {
-        projectDescriptionNext = true;
-        projectMetadata['description'] = { row, col };
-      },
-      [importMap.publicUrl]: (row: number, col: number) => {
-        publicUrlNext = true;
-        projectMetadata['publicUrl'] = { row, col };
-      },
-      [importMap.publicInfo]: (row: number, col: number) => {
-        publicInfoNext = true;
-        projectMetadata['publicInfo'] = { row, col };
-      },
-      [importMap.backstageUrl]: (row: number, col: number) => {
-        backstageUrlNext = true;
-        projectMetadata['backstageUrl'] = { row, col };
-      },
-      [importMap.backstageInfo]: (row: number, col: number) => {
-        backstageInfoNext = true;
-        projectMetadata['backstageInfo'] = { row, col };
-      },
-
       [importMap.timeStart]: (row: number, col: number) => {
         timeStartIndex = col;
         rundownMetadata['timeStart'] = { row, col };
@@ -259,25 +221,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
 
     row.forEach((column, j) => {
       // 1. we check if we have set a flag for a known field
-      if (projectTitleNext) {
-        projectData.title = makeString(column, '');
-        projectTitleNext = false;
-      } else if (projectDescriptionNext) {
-        projectData.description = makeString(column, '');
-        projectDescriptionNext = false;
-      } else if (publicUrlNext) {
-        projectData.publicUrl = makeString(column, '');
-        publicUrlNext = false;
-      } else if (publicInfoNext) {
-        projectData.publicInfo = makeString(column, '');
-        publicInfoNext = false;
-      } else if (backstageUrlNext) {
-        projectData.backstageUrl = makeString(column, '');
-        backstageUrlNext = false;
-      } else if (backstageInfoNext) {
-        projectData.backstageInfo = makeString(column, '');
-        backstageInfoNext = false;
-      } else if (j === timeStartIndex) {
+      if (j === timeStartIndex) {
         event.timeStart = parseExcelDate(column);
       } else if (j === timeEndIndex) {
         event.timeEnd = parseExcelDate(column);
@@ -349,13 +293,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
 
   return {
     rundown,
-    project: projectData,
-    settings: {
-      app: 'ontime',
-      version: '2.0.0',
-    },
     userFields: customUserFields,
-    projectMetadata,
     rundownMetadata,
   };
 };
@@ -370,28 +308,62 @@ export const parseJson = async (jsonData): Promise<DatabaseModel | null> => {
     return null;
   }
 
-  // object containing the parsed data
-  const returnData: Partial<DatabaseModel> = {};
+  const returnData: DatabaseModel = {
+    rundown: parseRundown(jsonData),
+    project: parseProject(jsonData) ?? dbModel.project,
+    settings: parseSettings(jsonData) ?? dbModel.settings,
+    viewSettings: parseViewSettings(jsonData) ?? dbModel.viewSettings,
+    aliases: parseAliases(jsonData),
+    userFields: parseUserFields(jsonData),
+    osc: parseOsc(jsonData) ?? dbModel.osc,
+    http: parseHttp(jsonData) ?? dbModel.http,
+  };
 
-  // parse Events
-  returnData.rundown = parseRundown(jsonData);
-  // parse Event
-  returnData.project = parseProject(jsonData) ?? dbModel.project;
-  // Settings handled partially
-  returnData.settings = parseSettings(jsonData) ?? dbModel.settings;
-  // View settings handled partially
-  returnData.viewSettings = parseViewSettings(jsonData) ?? dbModel.viewSettings;
-  // Import Aliases if any
-  returnData.aliases = parseAliases(jsonData);
-  // Import user fields if any
-  returnData.userFields = parseUserFields(jsonData);
-  // Import OSC settings if any
-  returnData.osc = parseOsc(jsonData) ?? dbModel.osc;
-  // Import HTTP settings if any
-  returnData.http = parseHttp(jsonData) ?? dbModel.http;
-
-  return returnData as DatabaseModel;
+  return returnData;
 };
+
+export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<OntimeEvent>): OntimeEvent {
+  if (Object.keys(patchEvent).length === 0) {
+    return originalEvent;
+  }
+
+  const { timeStart, timeEnd, duration } = validateTimes(
+    patchEvent?.timeStart ?? originalEvent.timeStart,
+    patchEvent?.timeEnd ?? originalEvent.timeEnd,
+    patchEvent?.duration ?? originalEvent.duration,
+  );
+
+  return {
+    id: originalEvent.id,
+    type: SupportedEvent.Event,
+    title: makeString(patchEvent.title, originalEvent.title),
+    subtitle: makeString(patchEvent.subtitle, originalEvent.subtitle),
+    presenter: makeString(patchEvent.presenter, originalEvent.presenter),
+    timeStart,
+    timeEnd,
+    duration,
+    endAction: validateEndAction(patchEvent.endAction, EndAction.None),
+    timerType: validateTimerType(patchEvent.timerType, TimerType.CountDown),
+    isPublic: typeof patchEvent.isPublic === 'boolean' ? patchEvent.isPublic : originalEvent.isPublic,
+    skip: typeof patchEvent.skip === 'boolean' ? patchEvent.skip : originalEvent.skip,
+    note: makeString(patchEvent.note, originalEvent.note),
+    user0: makeString(patchEvent.user0, originalEvent.user0),
+    user1: makeString(patchEvent.user1, originalEvent.user1),
+    user2: makeString(patchEvent.user2, originalEvent.user2),
+    user3: makeString(patchEvent.user3, originalEvent.user3),
+    user4: makeString(patchEvent.user4, originalEvent.user4),
+    user5: makeString(patchEvent.user5, originalEvent.user5),
+    user6: makeString(patchEvent.user6, originalEvent.user6),
+    user7: makeString(patchEvent.user7, originalEvent.user7),
+    user8: makeString(patchEvent.user8, originalEvent.user8),
+    user9: makeString(patchEvent.user9, originalEvent.user9),
+    colour: makeString(patchEvent.colour, originalEvent.colour),
+    cue: makeString(patchEvent.cue, originalEvent.cue),
+    revision: originalEvent.revision,
+    timeWarning: patchEvent.timeWarning,
+    timeDanger: patchEvent.timeDanger,
+  };
+}
 
 /**
  * @description Enforces formatting for events
@@ -399,55 +371,17 @@ export const parseJson = async (jsonData): Promise<DatabaseModel | null> => {
  * @param cueFallback
  * @returns {object|null} - formatted object or null in case is invalid
  */
-
-export const validateEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: string) => {
-  // ensure id is defined and unique
-  const id = eventArgs.id || generateId();
-
-  let event = null;
-
-  // return if object is empty
-  if (Object.keys(eventArgs).length > 0) {
-    // make sure all properties exits
-    // dont load any extra properties than the ones known
-
-    const e = eventArgs;
-    const d = eventDef;
-
-    const { timeStart, timeEnd, duration } = validateTimes(e.timeStart, e.timeEnd, e.duration);
-
-    event = {
-      ...d,
-      title: makeString(e.title, d.title),
-      subtitle: makeString(e.subtitle, d.subtitle),
-      presenter: makeString(e.presenter, d.presenter),
-      timeStart,
-      timeEnd,
-      duration,
-      endAction: validateEndAction(e.endAction, EndAction.None),
-      timerType: validateTimerType(e.timerType, TimerType.CountDown),
-      isPublic: typeof e.isPublic === 'boolean' ? e.isPublic : d.isPublic,
-      skip: typeof e.skip === 'boolean' ? e.skip : d.skip,
-      note: makeString(e.note, d.note),
-      user0: makeString(e.user0, d.user0),
-      user1: makeString(e.user1, d.user1),
-      user2: makeString(e.user2, d.user2),
-      user3: makeString(e.user3, d.user3),
-      user4: makeString(e.user4, d.user4),
-      user5: makeString(e.user5, d.user5),
-      user6: makeString(e.user6, d.user6),
-      user7: makeString(e.user7, d.user7),
-      user8: makeString(e.user8, d.user8),
-      user9: makeString(e.user9, d.user9),
-      colour: makeString(e.colour, d.colour),
-      cue: makeString(e.cue, cueFallback),
-      id,
-      type: 'event',
-      timeWarning: e.timeWarning,
-      timeDanger: e.timeDanger,
-    };
+export const createEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: string): OntimeEvent | null => {
+  if (Object.keys(eventArgs).length === 0) {
+    return null;
   }
 
+  const baseEvent = {
+    id: eventArgs?.id ?? generateId(),
+    cue: cueFallback,
+    ...eventDef,
+  };
+  const event = createPatch(baseEvent, eventArgs);
   return event;
 };
 
@@ -470,7 +404,7 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
   if (file.endsWith('.xlsx')) {
     // we need to check that the options are applicable
     if (!isExcelImportMap(options)) {
-      throw new Error('Got incorrect options to excel import', JSON.parse(options));
+      throw new Error('Got incorrect options to excel import');
     }
 
     const excelData = xlsx
@@ -488,16 +422,16 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     if (res.data.rundown.length < 1) {
       throw new Error(`Could not find data to import in the worksheet ${options.worksheet}`);
     }
-    res.data.project = parseProject(dataFromExcel);
     res.data.userFields = parseUserFields(dataFromExcel);
 
-    await deleteFile(file);
+    deleteFile(file);
 
     return res;
   }
 
   if (file.endsWith('.json')) {
-    // if json check version
+    console.log('JSON!');
+
     const rawdata = fs.readFileSync(file).toString();
     let uploadedJson = null;
 
@@ -507,4 +441,5 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     await configService.updateDatabaseConfig(fileName);
     return res;
   }
+  console.log('NOTHIGN');
 };

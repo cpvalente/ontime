@@ -3,12 +3,6 @@ export type ExcelImportMap = typeof defaultExcelImportMap;
 
 export const defaultExcelImportMap = {
   worksheet: 'event schedule',
-  projectName: 'project name',
-  projectDescription: 'project description',
-  publicUrl: 'public url',
-  publicInfo: 'public info',
-  backstageUrl: 'backstage url',
-  backstageInfo: 'backstage info',
   timeStart: 'time start',
   timeEnd: 'time end',
   duration: 'duration',
@@ -41,6 +35,6 @@ export function isExcelImportMap(obj: unknown): obj is ExcelImportMap {
     return false;
   }
 
-  const keys = Object.keys(obj);
-  return keys.every((key) => Object.hasOwn(defaultExcelImportMap, key));
+  const keys = Object.keys(defaultExcelImportMap);
+  return keys.every((key) => Object.hasOwn(obj, key));
 }

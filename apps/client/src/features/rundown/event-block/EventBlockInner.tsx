@@ -1,9 +1,8 @@
-import { memo, MouseEvent, useCallback, useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { BiArrowToBottom } from '@react-icons/all-files/bi/BiArrowToBottom';
 import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoPlayForward } from '@react-icons/all-files/io5/IoPlayForward';
@@ -11,14 +10,10 @@ import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward'
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { EndAction, Playback, TimerType } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
 
-import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
-import { millisToDelayString } from '../../../common/utils/dateConfig';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import { EventItemActions } from '../RundownEntry';
-import { useEventSelection } from '../useEventSelection';
 
 import BlockActionMenu from './composite/BlockActionMenu';
 import EventBlockPlayback from './composite/EventBlockPlayback';
@@ -26,10 +21,6 @@ import EventBlockProgressBar from './composite/EventBlockProgressBar';
 import EventBlockTimers from './composite/EventBlockTimers';
 
 import style from './EventBlock.module.scss';
-
-const blockBtnStyle = {
-  size: 'sm',
-};
 
 const tooltipProps = {
   openDelay: tooltipDelayMid,
@@ -47,15 +38,12 @@ interface EventBlockInnerProps {
   title: string;
   note: string;
   delay: number;
-  previousEnd: number;
   next: boolean;
   skip: boolean;
   selected: boolean;
   playback?: Playback;
   isRolling: boolean;
   actionHandler: (action: EventItemActions, payload?: any) => void;
-  disableEdit: boolean;
-  isFirstEvent: boolean;
 }
 
 const EventBlockInner = (props: EventBlockInnerProps) => {
@@ -70,36 +58,19 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     title,
     note,
     delay,
-    previousEnd,
     next,
     skip = false,
     selected,
     playback,
     isRolling,
     actionHandler,
-    disableEdit,
-    isFirstEvent,
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
-  const { clearSelectedEvents, selectedEvents } = useEventSelection();
-
-  const isOpen = selectedEvents.size === 1 && selectedEvents.has(eventId);
 
   useEffect(() => {
     setRenderInner(true);
   }, []);
-
-  //TODO: fix this
-  const toggleOpenEvent = useCallback(
-    (_event: MouseEvent) => {
-      // if (isOpen) {
-      //   event.stopPropagation();
-      //   clearSelectedEvents();
-      // }
-    },
-    [clearSelectedEvents, isOpen],
-  );
 
   const eventIsPlaying = playback === Playback.Play;
   const eventIsPaused = playback === Playback.Pause;
@@ -111,59 +82,14 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     playBtnStyles._hover = {};
   }
 
-  const delayedStart = Math.max(0, timeStart + delay);
-  const newTime = millisToString(delayedStart);
-  const delayTime = delay !== 0 ? millisToDelayString(delay) : null;
-
-  const overlap = previousEnd - timeStart;
-  const overlapTime = !isFirstEvent
-    ? overlap > 0
-      ? `Overlapping ${millisToDelayString(overlap)}`
-      : overlap < 0
-      ? `Spacing ${millisToDelayString(overlap)}`
-      : null
-    : null;
-
   return !renderInner ? null : (
     <>
-      <EventBlockTimers
-        eventId={eventId}
-        timeStart={timeStart}
-        timeEnd={timeEnd}
-        duration={duration}
-        delay={delay}
-        previousEnd={previousEnd}
-      />
+      <EventBlockTimers eventId={eventId} timeStart={timeStart} timeEnd={timeEnd} duration={duration} delay={delay} />
       <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
-      {next ? (
+      {next && (
         <Tooltip label='Next event' {...tooltipProps}>
           <span className={style.nextTag}>UP NEXT</span>
         </Tooltip>
-      ) : (
-        <span className={style.indicators}>
-          {delayTime && (
-            <Tooltip
-              label={
-                <div>
-                  {delayTime} <br />
-                  New Time: {newTime}
-                </div>
-              }
-            >
-              <div className={`${style.indicator} ${style.delay}`} />
-            </Tooltip>
-          )}
-          {overlapTime && (
-            <Tooltip label={overlapTime}>
-              <div className={`${style.indicator} ${overlap > 0 ? style.overlap : style.spacing}`} />
-            </Tooltip>
-          )}
-          {timeStart > timeEnd && (
-            <Tooltip label='Start time is later than end'>
-              <div className={`${style.indicator} ${style.nextDay}`} />
-            </Tooltip>
-          )}
-        </span>
       )}
       <EventBlockPlayback
         eventId={eventId}
@@ -200,19 +126,6 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         </div>
       </div>
       <div className={style.eventActions}>
-        <TooltipActionBtn
-          {...blockBtnStyle}
-          variant='ontime-subtle-white'
-          size='sm'
-          icon={<IoOptions />}
-          clickHandler={toggleOpenEvent}
-          tooltip='Event options'
-          aria-label='Event options'
-          tabIndex={-1}
-          backgroundColor={isOpen ? '#2B5ABC' : undefined}
-          color={isOpen ? 'white' : '#f6f6f6'}
-          isDisabled={disableEdit}
-        />
         <BlockActionMenu showClone enableDelete={!selected} actionHandler={actionHandler} />
       </div>
     </>

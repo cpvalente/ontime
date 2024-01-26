@@ -15,7 +15,7 @@ export async function uploadTestDb(request) {
     multipart: {
       file: {
         fileName: filePath,
-        mimeType: "application/json",
+        mimeType: 'application/json',
         buffer: file,
       },
     },

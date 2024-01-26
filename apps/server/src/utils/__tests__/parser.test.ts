@@ -4,7 +4,7 @@ import { vi } from 'vitest';
 import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
 
 import { dbModel } from '../../models/dataModel.js';
-import { parseExcel, parseJson, validateEvent } from '../parser.js';
+import { parseExcel, parseJson, createEvent } from '../parser.js';
 import { makeString } from '../parserUtils.js';
 import { parseAliases, parseUserFields, parseViewSettings } from '../parserFunctions.js';
 
@@ -340,7 +340,7 @@ describe('test parser edge cases', () => {
     };
 
     const parseResponse = await parseJson(testData);
-    expect(console.log).toHaveBeenCalledWith('ERROR: undefined event type, skipping');
+    expect(console.log).toHaveBeenCalledWith('ERROR: unkown event type, skipping');
     expect(parseResponse?.rundown.length).toBe(0);
   });
 
@@ -464,7 +464,7 @@ describe('test event validator', () => {
     const event = {
       title: 'test',
     };
-    const validated = validateEvent(event, 'test');
+    const validated = createEvent(event, 'test');
 
     expect(validated).toEqual(
       expect.objectContaining({
@@ -497,7 +497,7 @@ describe('test event validator', () => {
 
   it('fails an empty object', () => {
     const event = {};
-    const validated = validateEvent(event, 'none');
+    const validated = createEvent(event, 'none');
     expect(validated).toEqual(null);
   });
 
@@ -509,7 +509,7 @@ describe('test event validator', () => {
       note: '1899-12-30T08:00:10.000Z',
     };
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const validated = validateEvent(event, 'not-used');
+    const validated = createEvent(event, 'not-used');
     expect(typeof validated.title).toEqual('string');
     expect(typeof validated.subtitle).toEqual('string');
     expect(typeof validated.presenter).toEqual('string');
@@ -522,7 +522,7 @@ describe('test event validator', () => {
       timeEnd: '2',
     };
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const validated = validateEvent(event);
+    const validated = createEvent(event);
     expect(typeof validated.timeStart).toEqual('number');
     expect(validated.timeStart).toEqual(0);
     expect(typeof validated.timeEnd).toEqual('number');
@@ -534,7 +534,7 @@ describe('test event validator', () => {
       title: {},
     };
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const validated = validateEvent(event);
+    const validated = createEvent(event);
     expect(typeof validated.title).toEqual('string');
   });
 });
@@ -568,14 +568,6 @@ describe('test parseExcel function', () => {
   it('parses the example file', async () => {
     const testdata = [
       ['Ontime ┬À Schedule Template'],
-      [],
-      ['Project Name', 'Test Event'],
-      ['Project Description', 'test description'],
-      ['Public URL', 'www.public.com'],
-      ['Backstage URL', 'www.backstage.com'],
-      ['Public Info', 'test public info'],
-      ['Backstage Info', 'test backstage info'],
-      [],
       [],
       [
         'Time Start',
@@ -665,15 +657,6 @@ describe('test parseExcel function', () => {
       user9: 'test9',
     };
 
-    const expectedParsedProjectData = {
-      title: 'Test Event',
-      description: 'test description',
-      publicUrl: 'www.public.com',
-      backstageUrl: 'www.backstage.com',
-      publicInfo: 'test public info',
-      backstageInfo: 'test backstage info',
-    };
-
     // TODO: update tests once import is resolved
     const expectedParsedRundown = [
       {
@@ -721,7 +704,6 @@ describe('test parseExcel function', () => {
     ];
 
     const parsedData = parseExcel(testdata, partialOptions);
-    expect(parsedData.project).toStrictEqual(expectedParsedProjectData);
     expect(parsedData.rundown).toBeDefined();
     expect(parsedData.rundown[0]).toMatchObject(expectedParsedRundown[0]);
     expect(parsedData.rundown[1]).toMatchObject(expectedParsedRundown[1]);

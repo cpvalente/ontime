@@ -10,7 +10,7 @@ $skip-opacity: 0.1;
   grid-template-areas:
     'binder ...        ...     ...'
     'binder pb-actions times   actions'
-    'binder pb-actions title   next-ind'
+    'binder pb-actions title   next'
     'binder pb-actions estatus estatus'
     'binder ...        ...     ...';
 
@@ -53,7 +53,7 @@ $skip-opacity: 0.1;
 
   /* we stop the eventActions from having opacity to fix issue with dropdown drawing order */
   &.past:not(.skip) {
-    .delayNote,
+    .timerNote,
     .statusElements,
     .eventTitle,
     .eventNote,
@@ -68,7 +68,7 @@ $skip-opacity: 0.1;
   &.skip {
     border: 1px solid $white-3;
 
-    .delayNote,
+    .timerNote,
     .eventTitle,
     .eventNote,
     .binder,
@@ -127,10 +127,12 @@ $skip-opacity: 0.1;
   gap: $block-clearance;
   height: 100%;
 
-  .delayNote {
-    font-size: 0.75rem;
-    line-height: 0.8rem;
-    color: $ontime-delay-text;
+  .timerNote {
+    display: grid;
+    place-content: center;
+    color: $blue-500;
+    margin-right: 0.5em;
+    font-size: 1.5em;
   }
 }
 
@@ -189,37 +191,12 @@ $skip-opacity: 0.1;
 }
 
 .nextTag {
-  grid-area: next-ind;
+  grid-area: next;
   font-size: 1rem;
   color: $orange-500;
   letter-spacing: 0.03px;
   font-weight: 600;
   text-align: right;
-}
-
-.indicators {
-  grid-area: next-ind;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.5rem;
-
-  .indicator {
-    background-color: transparent;
-    margin: 0.4rem;
-    margin-right: 0;
-    border-radius: 0.7rem;
-    width: 0.7rem;
-    height: 0.7rem;
-  }
-  .indicator.delay {
-    background-color: $ontime-delay;
-  }
-  .indicator.nextDay,
-  .indicator.overlap,
-  .indicator.spacing {
-    background-color: $gray-600;
-  }
 }
 
 .eventStatus {

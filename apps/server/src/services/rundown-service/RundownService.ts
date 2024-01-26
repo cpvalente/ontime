@@ -1,4 +1,12 @@
-import { LogOrigin, OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent } from 'ontime-types';
+import {
+  LogOrigin,
+  OntimeBaseEvent,
+  OntimeBlock,
+  OntimeDelay,
+  OntimeEvent,
+  SupportedEvent,
+  isOntimeEvent,
+} from 'ontime-types';
 import { generateId, getCueCandidate } from 'ontime-utils';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
@@ -18,7 +26,7 @@ import {
   delayedRundownCacheKey,
 } from './delayedRundown.utils.js';
 import { logger } from '../../classes/Logger.js';
-import { validateEvent } from '../../utils/parser.js';
+import { createEvent } from '../../utils/parser.js';
 import { stateMutations } from '../../state.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
@@ -56,7 +64,7 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
 
   switch (eventData.type) {
     case SupportedEvent.Event: {
-      newEvent = validateEvent(eventData, getCueCandidate(DataProvider.getRundown(), eventData?.after)) as OntimeEvent;
+      newEvent = createEvent(eventData, getCueCandidate(DataProvider.getRundown(), eventData?.after)) as OntimeEvent;
       break;
     }
     case SupportedEvent.Delay:
@@ -80,7 +88,7 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
 }
 
 export async function editEvent(eventData: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
-  if (eventData.type === SupportedEvent.Event && eventData?.cue === '') {
+  if (isOntimeEvent(eventData) && eventData?.cue === '') {
     throw new Error('Cue value invalid');
   }
 

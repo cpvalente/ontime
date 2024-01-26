@@ -4,7 +4,7 @@ test('smoke test operator', async ({ page }) => {
   // make some boilerplate
   await page.goto('http://localhost:4001/editor');
   await page.getByRole('button', { name: 'Run mode' }).click();
-  await page.getByRole('button', { name: 'Event...' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Delete all events' }).click();
   await page.getByRole('button', { name: 'Create Event' }).click();
 
@@ -23,7 +23,7 @@ test('smoke test operator', async ({ page }) => {
   await page.getByTestId('entry-3').getByTestId('time-input-durationOverride').fill('1m');
   await page.getByTestId('entry-3').getByTestId('time-input-durationOverride').press('Enter');
 
-  await page.getByRole('button', { name: 'Event...' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Add block at start' }).click();
   await page.getByTestId('quick-add-block').click();
 

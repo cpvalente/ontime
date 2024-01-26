@@ -7,7 +7,7 @@ import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
 import { IoPeopleOutline } from '@react-icons/all-files/io5/IoPeopleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
-import { EndAction, OntimeEvent, Playback, TimerType } from 'ontime-types';
+import { EndAction, MaybeNumber, OntimeEvent, Playback, TimerType } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import useRundown from '../../../common/hooks-query/useRundown';
@@ -19,6 +19,7 @@ import { useEventIdSwapping } from '../useEventIdSwapping';
 import { EditMode, useEventSelection } from '../useEventSelection';
 
 import EventBlockInner from './EventBlockInner';
+import RundownIndicators from './RundownIndicators';
 
 import style from './EventBlock.module.scss';
 
@@ -47,7 +48,7 @@ interface EventBlockProps {
   title: string;
   note: string;
   delay: number;
-  previousEnd: number;
+  previousEnd: MaybeNumber;
   colour: string;
   isPast: boolean;
   next: boolean;
@@ -65,8 +66,6 @@ interface EventBlockProps {
           value: unknown;
         },
   ) => void;
-  disableEdit: boolean;
-  isFirstEvent: boolean;
 }
 
 export default function EventBlock(props: EventBlockProps) {
@@ -93,8 +92,6 @@ export default function EventBlock(props: EventBlockProps) {
     playback,
     isRolling,
     actionHandler,
-    disableEdit,
-    isFirstEvent,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
   const { selectedEvents, setSelectedEvents } = useEventSelection();
@@ -253,12 +250,15 @@ export default function EventBlock(props: EventBlockProps) {
       onContextMenu={onContextMenu}
       id='event-block'
     >
+      <RundownIndicators timeStart={timeStart} previousEnd={previousEnd} delay={delay} />
+
       <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
         <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
           <IoReorderTwo />
         </span>
         <span className={style.cue}>{cue}</span>
       </div>
+
       {isVisible && (
         <EventBlockInner
           timeStart={timeStart}
@@ -272,15 +272,12 @@ export default function EventBlock(props: EventBlockProps) {
           title={title}
           note={note}
           delay={delay}
-          previousEnd={previousEnd}
           next={next}
           skip={skip}
           selected={selected}
           playback={playback}
           isRolling={isRolling}
           actionHandler={actionHandler}
-          disableEdit={disableEdit}
-          isFirstEvent={isFirstEvent}
         />
       )}
     </div>

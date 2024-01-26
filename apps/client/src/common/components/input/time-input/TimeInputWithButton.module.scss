@@ -1,11 +1,11 @@
 $input-font-size: 15px;
-$input-delayed-border-color: #E69056;
+$input-delayed-border-color: $ontime-delay-text;
 
 .timeInput {
-  width: fit-content !important;
+  width: fit-content;
 
-  .inputLeft {
-    max-width: fit-content;
+  &.delayed {
+    border: 1px solid $input-delayed-border-color;
   }
 
   .inputLeft,
@@ -20,16 +20,7 @@ $input-delayed-border-color: #E69056;
     padding: 0 0 0 2.6em;
   }
 
-  .warn {
-    &::after {
-      content: "*";
-      color: $warning-orange;
-    }
-  }
-
-  &.delayed {
-    .inputField {
-      border: 1px solid $input-delayed-border-color;
-    }
+  .inputButton {
+    border-radius: 2px 0 0 2px;
   }
 }

@@ -1,17 +1,15 @@
-import { memo, useCallback } from 'react';
-import { Button, Menu, MenuButton, MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
-import { FiMinusCircle } from '@react-icons/all-files/fi/FiMinusCircle';
-import { FiTrash2 } from '@react-icons/all-files/fi/FiTrash2';
+import { memo, ReactNode, useCallback } from 'react';
+import { Menu, MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
+import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircleOutline';
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
+import { IoTrashOutline } from '@react-icons/all-files/io5/IoTrashOutline';
 import { SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useEventSelection } from '../../features/rundown/useEventSelection';
 
-import style from './RundownMenu.module.scss';
-
-const RundownMenu = () => {
+const RundownMenu = ({ children }: { children: ReactNode }) => {
   const { clearSelectedEvents } = useEventSelection();
 
   const { addEvent, deleteAllEvents } = useEventAction();
@@ -35,28 +33,24 @@ const RundownMenu = () => {
   }, [deleteAllEvents, clearSelectedEvents]);
 
   return (
-    <div className={style.headerButtons}>
-      <Menu isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
-        <MenuButton as={Button} leftIcon={<IoAdd />} size='sm' variant='ontime-subtle'>
-          Event...
-        </MenuButton>
-        <MenuList>
-          <MenuItem icon={<IoAdd />} onClick={newEvent}>
-            Add event at start
-          </MenuItem>
-          <MenuItem icon={<IoTimerOutline />} onClick={newDelay}>
-            Add delay at start
-          </MenuItem>
-          <MenuItem icon={<FiMinusCircle />} onClick={newBlock}>
-            Add block at start
-          </MenuItem>
-          <MenuDivider />
-          <MenuItem icon={<FiTrash2 />} onClick={deleteAll} color='#D20300'>
-            Delete all events
-          </MenuItem>
-        </MenuList>
-      </Menu>
-    </div>
+    <Menu isLazy lazyBehavior='unmount' variant='ontime-on-dark' placement='right-start'>
+      {children}
+      <MenuList>
+        <MenuItem icon={<IoAdd />} onClick={newEvent}>
+          Add event at start
+        </MenuItem>
+        <MenuItem icon={<IoTimerOutline />} onClick={newDelay}>
+          Add delay at start
+        </MenuItem>
+        <MenuItem icon={<IoRemoveCircleOutline />} onClick={newBlock}>
+          Add block at start
+        </MenuItem>
+        <MenuDivider />
+        <MenuItem icon={<IoTrashOutline />} onClick={deleteAll} color='#D20300'>
+          Delete all events
+        </MenuItem>
+      </MenuList>
+    </Menu>
   );
 };
 

@@ -1,0 +1,25 @@
+.indicators {
+  font-size: calc(1rem - 5px);
+  position: absolute;
+  top: -1em;
+  z-index: 2;
+  margin: 0 20%;
+  width: 60%;
+
+  display: flex;
+  gap: 0.5rem;
+}
+
+@mixin indicator($bg-colour) {
+  padding: 0 0.5rem;
+  border-radius: 2px;
+  background-color: $bg-colour;
+}
+
+.delay {
+  @include indicator($ontime-delay);
+}
+
+.gap {
+  @include indicator($blue-500);
+}

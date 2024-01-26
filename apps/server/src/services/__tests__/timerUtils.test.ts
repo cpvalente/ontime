@@ -340,7 +340,30 @@ describe('getCurrent()', () => {
     const current = getCurrent(state);
     expect(current).toBe(35);
   });
+
   describe('on timers of type time-to-end', () => {
+    it('current time is the time to end even if it hasnt started, this is weird, but by design', () => {
+      const state = {
+        eventNow: {
+          timeEnd: 100,
+          timerType: TimerType.TimeToEnd,
+        },
+        clock: 30,
+        timer: {
+          addedTime: 0,
+          duration: 100,
+          startedAt: null,
+          finishedAt: null,
+        },
+        _timer: {
+          pausedAt: null,
+        },
+      } as TState;
+
+      const current = getCurrent(state);
+      expect(current).toBe(70);
+    });
+
     it('current time is the time to end', () => {
       const state = {
         eventNow: {
