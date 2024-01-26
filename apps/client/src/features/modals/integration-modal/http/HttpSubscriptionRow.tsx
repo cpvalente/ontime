@@ -7,7 +7,6 @@ import { HttpSettings, TimerLifeCycle } from 'ontime-types';
 import { useEmitLog } from '../../../../common/stores/logger';
 import { startsWithHttp } from '../../../../common/utils/regex';
 
-import collapseStyles from '../../../../common/components/collapse-bar/CollapseBar.module.scss';
 import styles from '../../Modal.module.scss';
 
 interface SubscriptionRowProps {
@@ -52,7 +51,7 @@ export default function SubscriptionRow(props: SubscriptionRowProps) {
           <span className={`${styles.sectionTitle} ${styles.main}`}>{sectionTitle}</span>
           {visible && <span className={styles.sectionSubtitle}>{subtitle}</span>}
         </div>
-        <FiChevronUp className={visible ? collapseStyles.moreCollapsed : collapseStyles.moreExpanded} />
+        <FiChevronUp />
       </div>
       {visible && (
         <>

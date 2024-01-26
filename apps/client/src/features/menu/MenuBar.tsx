@@ -1,4 +1,6 @@
 import { memo, useCallback, useEffect, useState } from 'react';
+import { IconButton, MenuButton, Tooltip } from '@chakra-ui/react';
+import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoCloud } from '@react-icons/all-files/io5/IoCloud';
 import { IoCloudOutline } from '@react-icons/all-files/io5/IoCloudOutline';
 import { IoColorWand } from '@react-icons/all-files/io5/IoColorWand';
@@ -18,6 +20,8 @@ import useElectronEvent from '../../common/hooks/useElectronEvent';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { cx } from '../../common/utils/styleUtils';
 import ExportModal, { ExportType } from '../modals/export-modal/ExportModal';
+
+import RundownMenu from './RundownMenu';
 
 import style from './MenuBar.module.scss';
 
@@ -41,7 +45,7 @@ interface MenuBarProps {
 
 const buttonStyle = {
   fontSize: '1.25em',
-  size: 'lg',
+  size: 'md',
   colorScheme: 'white',
   _hover: {
     background: 'rgba(255, 255, 255, 0.10)', // $white-10
@@ -129,7 +133,7 @@ const MenuBar = (props: MenuBarProps) => {
 
   return (
     <div className={style.menu}>
-      <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} size='md' />
+      <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} />
 
       <div className={style.gap} />
       <TooltipActionBtn
@@ -149,7 +153,6 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={onUploadOpen}
         tooltip='Import project file'
         aria-label='Import project file'
-        size='sm'
       />
       <TooltipActionBtn
         {...buttonStyle}
@@ -158,12 +161,16 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={() => setIsModalOpen(true)}
         tooltip='Export project file'
         aria-label='Export project file'
-        size='sm'
       />
 
       <ExportModal onClose={onModalClose} isOpen={isModalOpen} />
 
       <div className={style.gap} />
+      <RundownMenu>
+        <Tooltip label='Rundown...'>
+          <MenuButton as={IconButton} icon={<IoAdd />} {...buttonStyle} size='sm' />
+        </Tooltip>
+      </RundownMenu>
       <TooltipActionBtn
         {...buttonStyle}
         icon={<IoPlay />}
@@ -171,7 +178,6 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={setRunMode}
         tooltip='Run mode'
         aria-label='Run mode'
-        size='sm'
       />
       <TooltipActionBtn
         {...buttonStyle}
@@ -180,7 +186,6 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={setEditMode}
         tooltip='Edit mode'
         aria-label='Edit mode'
-        size='sm'
       />
 
       <div className={style.gap} />
@@ -192,7 +197,6 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={onSheetsOpen}
         tooltip='Sheets'
         aria-label='Sheets'
-        size='sm'
       />
       <TooltipActionBtn
         {...buttonStyle}
@@ -202,7 +206,6 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={onIntegrationOpen}
         tooltip='Integrations'
         aria-label='Integrations'
-        size='sm'
       />
       <TooltipActionBtn
         {...buttonStyle}
@@ -212,7 +215,6 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={onSettingsOpen}
         tooltip='Settings'
         aria-label='Settings'
-        size='sm'
       />
       <div className={style.gap} />
       <TooltipActionBtn
@@ -232,7 +234,6 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={() => openSettings()}
         tooltip='About'
         aria-label='About'
-        size='sm'
       />
     </div>
   );

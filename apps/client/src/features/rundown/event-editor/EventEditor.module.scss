@@ -1,9 +1,4 @@
-// TODO: unify with RundownWrapper.module.scss
-$editor-width: 25rem;
-
 .eventEditor {
-  min-width: $editor-width;
-  background-color: $gray-1350;
   max-height: 100%;
   overflow-y: auto;
   flex: 1;
@@ -23,7 +18,8 @@ $editor-width: 25rem;
 }
 
 .footer {
-  padding: 0.5rem;
+  border-top: 1px solid $white-10;
+  padding-top: 1rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
