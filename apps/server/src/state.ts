@@ -315,10 +315,6 @@ export const stateMutations = {
     addTime(amount: number) {
       mutate((state) => {
         // TODO: what kind of validation go here or in the consumer?
-        if (state.timer.startedAt === null) {
-          return;
-        }
-
         state.timer.addedTime += amount;
         state.timer.expectedFinish += amount;
         state.timer.current += amount;
@@ -407,6 +403,7 @@ export const stateMutations = {
             // TODO: can we simplify the didUpdate and shouldNotify
             _didUpdate = true;
           }
+
           return {
             didUpdate: _didUpdate,
             doRoll: _doRoll,

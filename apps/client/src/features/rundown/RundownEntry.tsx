@@ -37,23 +37,11 @@ interface RundownEntryProps {
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
   isRolling: boolean; // we need to know even if not related to this event
-  disableEdit: boolean;
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const {
-    isPast,
-    data,
-    selected,
-    hasCursor,
-    next,
-    previousEnd,
-    previousEventId,
-    playback,
-    isRolling,
-    disableEdit,
-    eventIndex,
-  } = props;
+  const { isPast, data, selected, hasCursor, next, previousEnd, previousEventId, playback, isRolling, eventIndex } =
+    props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
   const { cursor } = useAppMode();
@@ -173,7 +161,6 @@ export default function RundownEntry(props: RundownEntryProps) {
         playback={playback}
         isRolling={isRolling}
         actionHandler={actionHandler}
-        disableEdit={disableEdit}
       />
     );
   } else if (data.type === SupportedEvent.Block) {

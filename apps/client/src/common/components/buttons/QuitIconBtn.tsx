@@ -10,14 +10,12 @@ import {
   IconButton,
   Tooltip,
 } from '@chakra-ui/react';
-import { FiPower } from '@react-icons/all-files/fi/FiPower';
+import { IoPowerOutline } from '@react-icons/all-files/io5/IoPowerOutline';
 
-import { Size } from '../../models/Util.type';
 import { useEmitLog } from '../../stores/logger';
 
 interface QuitIconBtnProps {
   clickHandler: () => void;
-  size?: Size;
   disabled?: boolean;
 }
 
@@ -42,7 +40,7 @@ const quitBtnStyle = {
 };
 
 export default function QuitIconBtn(props: QuitIconBtnProps) {
-  const { clickHandler, size = 'lg', disabled, ...rest } = props;
+  const { clickHandler, disabled, ...rest } = props;
   const [isOpen, setIsOpen] = useState(false);
   const { emitInfo } = useEmitLog();
   const onClose = () => setIsOpen(false);
@@ -67,8 +65,8 @@ export default function QuitIconBtn(props: QuitIconBtnProps) {
       <Tooltip label='Quit Application'>
         <IconButton
           aria-label='Quit Application'
-          size={size}
-          icon={<FiPower />}
+          size='lg'
+          icon={<IoPowerOutline />}
           onClick={() => setIsOpen(true)}
           isDisabled={disabled}
           {...quitBtnStyle}
@@ -81,7 +79,7 @@ export default function QuitIconBtn(props: QuitIconBtnProps) {
             <AlertDialogHeader fontSize='lg' fontWeight='bold'>
               Ontime Shutdown
             </AlertDialogHeader>
-            <AlertDialogBody>This will shutdown the program and all running servers. Are you sure?</AlertDialogBody>
+            <AlertDialogBody>This will shutdown the Ontime server. Are you sure?</AlertDialogBody>
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose} variant='ghost'>
                 Cancel

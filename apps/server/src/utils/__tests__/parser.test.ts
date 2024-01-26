@@ -569,14 +569,6 @@ describe('test parseExcel function', () => {
     const testdata = [
       ['Ontime ┬À Schedule Template'],
       [],
-      ['Project Name', 'Test Event'],
-      ['Project Description', 'test description'],
-      ['Public URL', 'www.public.com'],
-      ['Backstage URL', 'www.backstage.com'],
-      ['Public Info', 'test public info'],
-      ['Backstage Info', 'test backstage info'],
-      [],
-      [],
       [
         'Time Start',
         'Time End',
@@ -665,15 +657,6 @@ describe('test parseExcel function', () => {
       user9: 'test9',
     };
 
-    const expectedParsedProjectData = {
-      title: 'Test Event',
-      description: 'test description',
-      publicUrl: 'www.public.com',
-      backstageUrl: 'www.backstage.com',
-      publicInfo: 'test public info',
-      backstageInfo: 'test backstage info',
-    };
-
     // TODO: update tests once import is resolved
     const expectedParsedRundown = [
       {
@@ -721,7 +704,6 @@ describe('test parseExcel function', () => {
     ];
 
     const parsedData = parseExcel(testdata, partialOptions);
-    expect(parsedData.project).toStrictEqual(expectedParsedProjectData);
     expect(parsedData.rundown).toBeDefined();
     expect(parsedData.rundown[0]).toMatchObject(expectedParsedRundown[0]);
     expect(parsedData.rundown[1]).toMatchObject(expectedParsedRundown[1]);

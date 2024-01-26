@@ -4,6 +4,7 @@
   flex-direction: column;
   align-items: center;
   gap: 0.5em;
+  padding-bottom: 1rem
 }
 
 .gap {
@@ -12,4 +13,8 @@
 
 .open {
   background: $blue-700;
+}
+
+.bottom {
+  margin-top: auto;
 }

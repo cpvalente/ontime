@@ -4,9 +4,9 @@ test('delay blocks add time to events', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
   // delete all events and add a new one
-  await page.getByRole('button', { name: 'Event...' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Delete all events' }).click();
-  await page.getByRole('button', { name: 'Event...' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Add event at start' }).click();
 
   // add data to new event
@@ -18,7 +18,7 @@ test('delay blocks add time to events', async ({ page }) => {
   await page.getByTestId('rundown').getByPlaceholder('End').press('Enter');
 
   // add delay block
-  await page.getByRole('button', { name: 'Event...' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Add delay at start' }).click();
 
   // fill positive delay
@@ -37,7 +37,7 @@ test('delay blocks add time to events', async ({ page }) => {
 
   // add new delay
   await page.getByTestId('rundown').getByPlaceholder('Start').click();
-  await page.getByRole('button', { name: 'Event...' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Add delay at start' }).click();
   await page.getByTestId('delay-input').click();
   await page.getByTestId('delay-input').fill('10m');
@@ -54,7 +54,7 @@ test('delays are show correctly', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
   // add a test event
-  await page.getByRole('button', { name: 'Event...' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Delete all events' }).click();
   await page.getByRole('button', { name: 'Create Event' }).click();
   await page.getByTestId('time-input-timeStart').click();
@@ -72,7 +72,7 @@ test('delays are show correctly', async ({ page }) => {
   await page.getByRole('menuitem', { name: 'Toggle public' }).click();
 
   // add a delay
-  await page.getByRole('button', { name: 'Event...' }).click();
+  await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Add delay at start' }).click();
   await page.getByTestId('delay-input').click();
   await page.getByTestId('delay-input').fill('1');
