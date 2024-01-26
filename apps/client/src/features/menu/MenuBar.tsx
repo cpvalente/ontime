@@ -16,6 +16,7 @@ import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import useElectronEvent from '../../common/hooks/useElectronEvent';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
+import { cx } from '../../common/utils/styleUtils';
 import ExportModal, { ExportType } from '../modals/export-modal/ExportModal';
 
 import style from './MenuBar.module.scss';
@@ -226,7 +227,7 @@ const MenuBar = (props: MenuBarProps) => {
       <div className={style.gap} />
       <TooltipActionBtn
         {...buttonStyle}
-        className={isSettingsOpen ? style.open : ''}
+        className={cx([isSettingsOpen ? style.open : null, style.bottom])}
         icon={<IoSettingsOutline />}
         clickHandler={() => openSettings()}
         tooltip='About'
