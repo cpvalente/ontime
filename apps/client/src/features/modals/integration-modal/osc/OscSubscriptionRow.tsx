@@ -6,7 +6,6 @@ import type { OscSubscription, TimerLifeCycle } from 'ontime-types';
 
 import { useEmitLog } from '../../../../common/stores/logger';
 
-import collapseStyles from '../../../../common/components/collapse-bar/CollapseBar.module.scss';
 import styles from '../../Modal.module.scss';
 
 interface OscSubscriptionRowProps {
@@ -51,7 +50,7 @@ export default function OscSubscriptionRow(props: OscSubscriptionRowProps) {
           <span className={`${styles.sectionTitle} ${styles.main}`}>{sectionTitle}</span>
           {visible && <span className={styles.sectionSubtitle}>{subtitle}</span>}
         </div>
-        <FiChevronUp className={visible ? collapseStyles.moreCollapsed : collapseStyles.moreExpanded} />
+        <FiChevronUp />
       </div>
       {visible && (
         <>

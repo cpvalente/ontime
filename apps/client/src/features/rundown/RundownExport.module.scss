@@ -1,0 +1,40 @@
+@use '../editors//EditorMixin' as editor;
+
+$rundown-width: 44.5rem;
+$editor-width: 25rem;
+
+.rundownExport {
+  grid-area: rundown;
+  max-height: 100%;
+  height: 100%;
+}
+
+.rundown {
+  display: flex;
+  max-height: 100%;
+  height: 100%;
+}
+
+.corner {
+  @include editor.corner;
+  display: inline;
+  z-index: 2;
+}
+
+.list {
+  @include editor.panel;
+  height: inherit;
+  box-shadow: $box-shadow-right;
+  min-width: $rundown-width;
+}
+
+.side {
+  margin: 2rem 0;
+  padding: 1rem;
+  background-color: $gray-1325;
+  border-radius: 0 8px 8px 0;
+  min-width: $editor-width;
+  flex: 1;
+  max-height: 100%;
+  overflow: auto;
+}

@@ -66,7 +66,6 @@ interface EventBlockProps {
           value: unknown;
         },
   ) => void;
-  disableEdit: boolean;
 }
 
 export default function EventBlock(props: EventBlockProps) {
@@ -93,7 +92,6 @@ export default function EventBlock(props: EventBlockProps) {
     playback,
     isRolling,
     actionHandler,
-    disableEdit,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
   const { selectedEvents, setSelectedEvents } = useEventSelection();
@@ -280,7 +278,6 @@ export default function EventBlock(props: EventBlockProps) {
           playback={playback}
           isRolling={isRolling}
           actionHandler={actionHandler}
-          disableEdit={disableEdit}
         />
       )}
     </div>

@@ -1,4 +1,12 @@
-import { LogOrigin, OntimeBaseEvent, OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent, isOntimeEvent } from 'ontime-types';
+import {
+  LogOrigin,
+  OntimeBaseEvent,
+  OntimeBlock,
+  OntimeDelay,
+  OntimeEvent,
+  SupportedEvent,
+  isOntimeEvent,
+} from 'ontime-types';
 import { generateId, getCueCandidate } from 'ontime-utils';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
