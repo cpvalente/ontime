@@ -81,7 +81,6 @@ export default function EventEditor() {
 
   return (
     <div className={style.eventEditor} data-testid='editor-container'>
-      <div>HEADER ACTIONS?</div>
       <div className={style.content}>
         <EventEditorTimes
           key={`${event.id}-times`}
@@ -109,7 +108,7 @@ export default function EventEditor() {
         />
         <EventEditorUser key={`${event.id}-user`} userFields={userFields} handleSubmit={handleSubmit} />
       </div>
-      <div className={style.eventActions}>
+      <div className={style.footer}>
         <CopyTag label='OSC trigger by id'>{`/ontime/load/id "${event.id}"`}</CopyTag>
         <CopyTag label='OSC trigger by cue'>{`/ontime/load/cue "${event.cue}"`}</CopyTag>
       </div>

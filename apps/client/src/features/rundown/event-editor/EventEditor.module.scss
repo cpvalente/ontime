@@ -10,11 +10,6 @@ $editor-width: 25rem;
 
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-}
-
-.header {
-  padding: 1rem;
 }
 
 .content {
@@ -28,19 +23,22 @@ $editor-width: 25rem;
 }
 
 .footer {
-  padding: 1rem;
+  padding: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .timeSettings {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .column {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .inputLabel {
@@ -74,11 +72,5 @@ $editor-width: 25rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 1.5rem;
-  row-gap: 0.5rem;
-}
-
-.eventActions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  row-gap: 1rem;
 }

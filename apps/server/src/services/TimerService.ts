@@ -54,7 +54,7 @@ export class TimerService {
    * @param {number} amount
    */
   addTime(amount: number) {
-    if (state.eventNow === null) {
+    if (state.timer.current === null) {
       return;
     }
     stateMutations.timer.addTime(amount);
