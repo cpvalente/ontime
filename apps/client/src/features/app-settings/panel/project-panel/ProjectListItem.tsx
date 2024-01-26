@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 
+import { PROJECT_LIST } from '../../../../common/api/apiConstants';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/apiUtils';
-import { duplicateProject, loadProject, renameProject } from '../../../../common/api/ontimeApi';
+import { deleteProject, duplicateProject, loadProject, renameProject } from '../../../../common/api/ontimeApi';
+import { ontimeQueryClient } from '../../../../common/queryClient';
 
-import DuplicateRenameProjectForm, { DuplicateRenameProjectFormValues } from './DuplicateRenameProjectForm';
+import ProjectForm, { ProjectFormValues } from './ProjectForm';
 import { EditMode } from './ProjectList';
 
 import style from './ProjectPanel.module.scss';
@@ -35,7 +37,7 @@ export default function ProjectListItem({
 }: ProjectListItemProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleSubmitRename = async (values: DuplicateRenameProjectFormValues) => {
+  const handleSubmitRename = async (values: ProjectFormValues) => {
     try {
       setSubmitError(null);
 
@@ -51,7 +53,7 @@ export default function ProjectListItem({
     }
   };
 
-  const handleSubmitDuplicate = async (values: DuplicateRenameProjectFormValues) => {
+  const handleSubmitDuplicate = async (values: ProjectFormValues) => {
     try {
       setSubmitError(null);
 
@@ -82,7 +84,7 @@ export default function ProjectListItem({
     <tr key={filename} className={current ? style.current : undefined}>
       {isCurrentlyBeingEdited ? (
         <td colSpan={99}>
-          <DuplicateRenameProjectForm
+          <ProjectForm
             action={editingMode}
             filename={filename}
             onSubmit={editingMode === 'duplicate' ? handleSubmitDuplicate : handleSubmitRename}
@@ -126,6 +128,11 @@ function ActionMenu({
     onChangeEditMode('duplicate', filename);
   };
 
+  const handleDelete = async () => {
+    await deleteProject(filename);
+    await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
+  };
+
   return (
     <Menu variant='ontime-on-dark' size='sm'>
       <MenuButton
@@ -141,7 +148,7 @@ function ActionMenu({
         </MenuItem>
         <MenuItem onClick={handleRename}>Rename</MenuItem>
         <MenuItem onClick={handleDuplicate}>Duplicate</MenuItem>
-        <MenuItem>Delete</MenuItem>
+        <MenuItem onClick={handleDelete}>Delete</MenuItem>
       </MenuList>
     </Menu>
   );
