@@ -148,7 +148,9 @@ function ActionMenu({
         </MenuItem>
         <MenuItem onClick={handleRename}>Rename</MenuItem>
         <MenuItem onClick={handleDuplicate}>Duplicate</MenuItem>
-        <MenuItem onClick={handleDelete}>Delete</MenuItem>
+        <MenuItem isDisabled={current} onClick={handleDelete}>
+          Delete
+        </MenuItem>
       </MenuList>
     </Menu>
   );
