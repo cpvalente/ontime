@@ -8,6 +8,7 @@ import type {
   ErrorResponse,
   ProjectFileListResponse,
 } from 'ontime-types';
+import { deepmerge } from 'ontime-utils';
 
 import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
@@ -32,7 +33,6 @@ import { oscIntegration } from '../services/integration-service/OscIntegration.j
 import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
 import { deleteAllEvents, notifyChanges } from '../services/rundown-service/RundownService.js';
-import { deepmerge } from 'ontime-utils';
 import { runtimeCacheStore } from '../stores/cachingStore.js';
 import { delayedRundownCacheKey } from '../services/rundown-service/delayedRundown.utils.js';
 import { integrationService } from '../services/integration-service/IntegrationService.js';
@@ -41,7 +41,6 @@ import { configService } from '../services/ConfigService.js';
 import { deleteFile } from '../utils/parserUtils.js';
 import { validateProjectFiles } from './ontimeController.validate.js';
 import { dbModel } from '../models/dataModel.js';
-
 import { sheet } from '../utils/sheetsAuth.js';
 
 // Create controller for GET request to '/ontime/poll'
@@ -453,6 +452,7 @@ export async function previewExcel(req, res) {
     const data = await parseFile(file, req, res, options);
     res.status(200).send(data);
   } catch (error) {
+    console.log(error)
     res.status(500).send({ message: error.toString() });
   }
 }

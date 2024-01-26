@@ -44,7 +44,7 @@ const filterAllowed = (req, file, cb) => {
   if (file.mimetype.includes(JSON_MIME) || file.mimetype.includes(EXCEL_MIME)) {
     cb(null, true);
   } else {
-    console.log('ERROR: Unrecognised file type');
+    console.error('ERROR: Unrecognised file type');
     cb(null, false);
   }
 };
