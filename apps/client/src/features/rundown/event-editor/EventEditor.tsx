@@ -50,6 +50,8 @@ export default function EventEditor() {
 
     if (event && isOntimeEvent(event)) {
       setEvent(event);
+    } else {
+      setEvent(null);
     }
   }, [data, selectedEvents]);
 
