@@ -20,6 +20,10 @@ export function validateTimerType(maybeTimerType: unknown, fallback = TimerType.
   return Object.values(TimerType).includes(maybeTimerType as TimerType) ? (maybeTimerType as TimerType) : fallback;
 }
 
+export function isKnownTimerType(maybeTimerType: unknown) {
+  return Object.values(TimerType).includes(maybeTimerType as TimerType);
+}
+
 /**
  * @description calculates event duration considering midnight
  * @param {number} timeStart

@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { isOntimeEvent, OntimeRundown, UserFields } from 'ontime-types';
+import { isOntimeBlock, isOntimeEvent, OntimeRundown, UserFields } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
@@ -18,6 +18,8 @@ function booleanToText(value?: boolean) {
 }
 
 export default function PreviewRundown({ rundown, userFields }: PreviewRundownProps) {
+  // we only count Ontime Events which are 1 based in client
+  let eventIndex = 0;
   return (
     <div className={style.container}>
       <table className={style.rundownPreview}>
@@ -72,22 +74,36 @@ export default function PreviewRundown({ rundown, userFields }: PreviewRundownPr
           </tr>
         </thead>
         <tbody className={style.body}>
-          {rundown.map((event, index) => {
+          {rundown.map((event) => {
+            if (isOntimeBlock(event)) {
+              return (
+                <tr key={event.id}>
+                  <td className={style.center}>
+                    <Tag>-</Tag>
+                  </td>
+                  <td className={style.center}>
+                    <Tag>{event.type}</Tag>
+                  </td>
+                  <td />
+                  <td colSpan={99}>{event.title}</td>
+                </tr>
+              );
+            }
             if (!isOntimeEvent(event)) {
               return null;
             }
-            const key = event.id;
+            eventIndex += 1;
             const colour = event.colour ? getAccessibleColour(event.colour) : {};
             const isPublic = booleanToText(event.isPublic);
             const skip = booleanToText(event.skip);
             return (
-              <Fragment key={key}>
+              <Fragment key={event.id}>
                 <tr>
                   <td className={style.center}>
-                    <Tag>{index + 1}</Tag>
+                    <Tag>{eventIndex}</Tag>
                   </td>
                   <td className={style.center}>
-                    <Tag>Event</Tag>
+                    <Tag>{event.type}</Tag>
                   </td>
                   <td className={style.nowrap}>{event.cue}</td>
                   <td>{event.title}</td>

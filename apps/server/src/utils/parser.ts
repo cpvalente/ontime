@@ -38,6 +38,7 @@ import {
 import { parseExcelDate } from './time.js';
 import { configService } from '../services/ConfigService.js';
 import { coerceBoolean } from './coerceType.js';
+import { isKnownTimerType } from '../../../../packages/utils/src/validate-events/validateEvent.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
@@ -112,7 +113,6 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
       return;
     }
 
-    const event: Partial<OntimeEvent> = {};
     const handlers = {
       [importMap.timeStart]: (row: number, col: number) => {
         timeStartIndex = col;
@@ -219,16 +219,31 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
       },
     } as const;
 
+    const event: any = {};
     row.forEach((column, j) => {
       // 1. we check if we have set a flag for a known field
-      if (j === timeStartIndex) {
+      if (j === timerTypeIndex) {
+        if (column === 'block') {
+          event.type = SupportedEvent.Block;
+        }
+        if (column === '' || isKnownTimerType(column)) {
+          event.type = SupportedEvent.Event;
+          event.timerType = validateTimerType(column);
+        }
+        // if it is not a block or a known type, we dont import it
+        return;
+      } else if (j === titleIndex) {
+        event.title = makeString(column, '');
+        // if this is a block, we have nothing else to import
+        if (event.type === SupportedEvent.Block) {
+          return;
+        }
+      } else if (j === timeStartIndex) {
         event.timeStart = parseExcelDate(column);
       } else if (j === timeEndIndex) {
         event.timeEnd = parseExcelDate(column);
       } else if (j === durationIndex) {
         event.duration = parseExcelDate(column);
-      } else if (j === titleIndex) {
-        event.title = makeString(column, '');
       } else if (j === cueIndex) {
         event.cue = makeString(column, '');
       } else if (j === presenterIndex) {
@@ -243,8 +258,6 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
         event.note = makeString(column, '');
       } else if (j === endActionIndex) {
         event.endAction = validateEndAction(column);
-      } else if (j === timerTypeIndex) {
-        event.timerType = validateTimerType(column);
       } else if (j === timeWarningIndex) {
         event.timeWarning = parseExcelDate(column);
       } else if (j === timeDangerIndex) {
@@ -287,7 +300,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
 
     if (Object.keys(event).length > 0) {
       // if any data was found, push to array
-      rundown.push({ ...event, type: SupportedEvent.Event } as OntimeEvent);
+      rundown.push({ ...event });
     }
   });
 
@@ -430,8 +443,6 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
   }
 
   if (file.endsWith('.json')) {
-    console.log('JSON!');
-
     const rawdata = fs.readFileSync(file).toString();
     let uploadedJson = null;
 
@@ -441,5 +452,4 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     await configService.updateDatabaseConfig(fileName);
     return res;
   }
-  console.log('NOTHIGN');
 };
