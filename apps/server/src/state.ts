@@ -175,6 +175,7 @@ export const stateMutations = {
 
         // update data which is duplicate between eventNow and timer objects
         state.timer.duration = calculateDuration(state.eventNow.timeStart, state.eventNow.timeEnd);
+        state.timer.current = getCurrent(state);
         state.timer.expectedFinish = getExpectedFinish(state);
         return;
       }

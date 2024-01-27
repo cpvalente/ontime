@@ -93,7 +93,7 @@ class RuntimeService {
    * check whether underlying data of runtime has changed
    */
   update(affectedIds?: string[]) {
-    const hasLoadedElements = state.eventNow && state.eventNext;
+    const hasLoadedElements = state.eventNow || state.eventNext;
     if (!hasLoadedElements) {
       return;
     }
