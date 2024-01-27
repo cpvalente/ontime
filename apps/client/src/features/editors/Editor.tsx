@@ -80,9 +80,11 @@ export default function Editor() {
           <AppSettings />
         ) : (
           <div id='panels' className={styles.panelContainer}>
+            <div className={styles.left}>
+              <TimerControl />
+              <MessageControl />
+            </div>
             <Rundown />
-            <MessageControl />
-            <TimerControl />
           </div>
         )}
         <Overview />

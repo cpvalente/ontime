@@ -1,9 +1,7 @@
-$input-font-size: 15px;
+$input-font-size: 1rem;
 $input-delayed-border-color: $ontime-delay-text;
 
 .timeInput {
-  width: fit-content;
-
   &.delayed {
     border: 1px solid $input-delayed-border-color;
   }

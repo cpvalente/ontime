@@ -21,7 +21,7 @@ export default function TimeInputWithButton<T extends string>(props: TimeInputWi
   const inputClasses = cx([style.timeInput, hasDelay ? style.delayed : null]);
 
   return (
-    <InputGroup size='sm' className={inputClasses}>
+    <InputGroup size='sm' className={inputClasses} width='fit-content'>
       <InputLeftElement className={style.inputLeft}>
         <Tooltip label={placeholder} openDelay={tooltipDelayFast} variant='ontime-ondark'>
           <Button size='sm' variant='ontime-subtle-white' className={style.inputButton} tabIndex={-1}>
