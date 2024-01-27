@@ -1,6 +1,6 @@
 import { sheets_v4 } from '@googleapis/sheets';
 import { millisToString } from 'ontime-utils';
-import { OntimeRundownEntry, isOntimeEvent } from 'ontime-types';
+import { OntimeRundownEntry, isOntimeBlock, isOntimeEvent } from 'ontime-types';
 
 /**
  *
@@ -80,6 +80,18 @@ export function cellRequestFromEvent(
       } else if (typeof event[key] === 'boolean') {
         returnRows.push({
           userEnteredValue: { stringValue: event[key] ? 'x' : '' },
+        });
+      } else {
+        returnRows.push({});
+      }
+    } else if (isOntimeBlock(event)) {
+      if (key === 'title') {
+        returnRows.push({
+          userEnteredValue: { stringValue: event[key] },
+        });
+      } else if (key === 'timerType') {
+        returnRows.push({
+          userEnteredValue: { stringValue: 'block' },
         });
       } else {
         returnRows.push({});
