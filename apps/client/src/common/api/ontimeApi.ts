@@ -365,3 +365,25 @@ export async function duplicateProject(filename: string, newFilename: string): P
   });
   return res.data;
 }
+
+/**
+ * @description HTTP request to delete a project file
+ */
+export async function deleteProject(filename: string): Promise<MessageResponse> {
+  const url = `${ontimeURL}/project/${filename}`;
+  const decodedUrl = decodeURIComponent(url);
+  const res = await axios.delete(decodedUrl);
+  return res.data;
+}
+
+/**
+ * @description HTTP request to create a project file
+ */
+export async function createProject(filename: string): Promise<MessageResponse> {
+  const url = `${ontimeURL}/project`;
+  const decodedUrl = decodeURIComponent(url);
+  const res = await axios.post(decodedUrl, {
+    filename,
+  });
+  return res.data;
+}

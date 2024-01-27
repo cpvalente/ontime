@@ -4,31 +4,25 @@ import { Button, Input } from '@chakra-ui/react';
 
 import style from './ProjectPanel.module.scss';
 
-export type DuplicateRenameProjectFormValues = {
+export type ProjectFormValues = {
   filename: string;
 };
 
-interface DuplicateRenameProjectFormProps {
-  action: 'duplicate' | 'rename';
+interface ProjectFormProps {
+  action: 'duplicate' | 'rename' | 'create';
   filename: string;
   onCancel: () => void;
-  onSubmit: (values: DuplicateRenameProjectFormValues) => Promise<void>;
+  onSubmit: (values: ProjectFormValues) => Promise<void>;
   submitError: string | null;
 }
 
-export default function DuplicateRenameProjectForm({
-  action,
-  filename,
-  onSubmit,
-  onCancel,
-  submitError,
-}: DuplicateRenameProjectFormProps) {
+export default function ProjectForm({ action, filename, onSubmit, onCancel, submitError }: ProjectFormProps) {
   const {
     handleSubmit,
     register,
     formState: { isSubmitting, isDirty, isValid },
     setFocus,
-  } = useForm<DuplicateRenameProjectFormValues>({
+  } = useForm<ProjectFormValues>({
     defaultValues: { filename },
     values: { filename },
     resetOptions: {
@@ -63,7 +57,7 @@ export default function DuplicateRenameProjectForm({
             type='submit'
             className={style.saveButton}
           >
-            {action === 'duplicate' ? 'Duplicate' : 'Rename'}
+            {action}
           </Button>
         </div>
       </form>
