@@ -1,11 +1,11 @@
 import { RequestHandler } from 'express';
 
-import { CustomFieldDefinitions, ProjectData } from 'ontime-types';
+import { ProjectData } from 'ontime-types';
 
 import { removeUndefined } from '../utils/parserUtils.js';
 import { failEmptyObjects } from '../utils/routerUtils.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
-import { generateId } from 'ontime-utils';
+import { createCustomField, editCustomField, removeCustomField } from '../utils/customFields.js';
 
 // Create controller for GET request to 'project'
 export const getProject: RequestHandler = async (req, res) => {
@@ -41,18 +41,39 @@ export const getCustomFields: RequestHandler = async (req, res) => {
 };
 
 //Expects {lable:'name for the Field', type: 'string | ..'}
-export const postCustomFields: RequestHandler = async (req, res) => {
+export const postCustomField: RequestHandler = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
   //TODO: validate
-  //TODO: disallow duplicates
   try {
-    const fieldId = generateId();
-    const newField: CustomFieldDefinitions = {};
-    Object.assign(newField, { [fieldId]: req.body });
-    const newFields = await DataProvider.setCustomField(newField);
+    const newFields = await createCustomField(req.body);
     res.json(newFields);
+  } catch (error) {
+    res.status(400).send({ message: error.toString() });
+  }
+};
+
+//Expects {id: 'id of the field', field: {lable:'name for the Field', type: 'string | ..'}}
+export const putCustomField: RequestHandler = async (req, res) => {
+  if (failEmptyObjects(req.body, res)) {
+    return;
+  }
+  //TODO: validate
+  try {
+    const newFields = await editCustomField(req.body.id, req.body.field);
+    res.json(newFields);
+  } catch (error) {
+    res.status(400).send({ message: error.toString() });
+  }
+};
+
+//Expects {id: 'id of the field'}
+export const deleteCustomField: RequestHandler = async (req, res) => {
+  //TODO: validate
+  try {
+    await removeCustomField(req.params.fieldId);
+    res.sendStatus(204);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }

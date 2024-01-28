@@ -31,7 +31,7 @@ export type { Alias } from './definitions/core/Alias.type.js';
 export type { UserFields } from './definitions/core/UserFields.type.js';
 
 // ---> Custom Fields
-export type { CustomFieldDefinitions } from './definitions/core/CustomFields.type.js';
+export type { CustomFieldDefinitions, CustomInfo } from './definitions/core/CustomFields.type.js';
 
 // ---> Integration, Subscription
 export type { OSCSettings, OscSubscription } from './definitions/core/OscSettings.type.js';

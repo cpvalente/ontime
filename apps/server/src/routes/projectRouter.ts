@@ -1,5 +1,12 @@
 import express from 'express';
-import { getCustomFields, getProject, postCustomFields, postProject } from '../controllers/projectController.js';
+import {
+  deleteCustomField,
+  getCustomFields,
+  getProject,
+  postCustomField,
+  postProject,
+  putCustomField,
+} from '../controllers/projectController.js';
 import { projectSanitiser } from '../controllers/projectController.validate.js';
 
 export const router = express.Router();
@@ -13,4 +20,8 @@ router.post('/', projectSanitiser, postProject);
 router.get('/custom', getCustomFields);
 
 //TODO: validate
-router.post('/custom', postCustomFields);
+router.post('/custom', postCustomField);
+
+router.put('/custom', putCustomField);
+
+router.delete('/custom/:fieldId', deleteCustomField);

@@ -33,8 +33,14 @@ export class DataProvider {
     return data.project;
   }
 
-  static async setCustomField(newData: Partial<CustomFieldDefinitions>) {
+  static async setCustomField(newData: CustomFieldDefinitions) {
     data.project.customFields = { ...data.project.customFields, ...newData };
+    await this.persist();
+    return data.project.customFields;
+  }
+
+  static async overrideCustomField(newData: CustomFieldDefinitions) {
+    data.project.customFields = { ...newData };
     await this.persist();
     return data.project.customFields;
   }
