@@ -90,6 +90,7 @@ export const parseProject = (data): ProjectData => {
       publicInfo: project.publicInfo || dbModel.project.publicInfo,
       backstageUrl: project.backstageUrl || dbModel.project.backstageUrl,
       backstageInfo: project.backstageInfo || dbModel.project.backstageInfo,
+      customFields: project.customFields || dbModel.project.customFields,
     };
   }
   return newProjectData as ProjectData;
