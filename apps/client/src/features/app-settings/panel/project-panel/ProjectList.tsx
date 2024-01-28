@@ -36,7 +36,7 @@ export default function ProjectList() {
     const current = projectFiles.splice(currentlyLoadedIndex, 1)?.[0];
 
     return [current, ...projectFiles];
-  }, [data?.files?.length, files, lastLoadedProject]);
+  }, [data.files.length, files, lastLoadedProject]);
 
   return (
     <Panel.Table>
