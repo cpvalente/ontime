@@ -1,4 +1,4 @@
-import { CustomFieldDefinitions } from './CustomFields .type.js';
+import { CustomFieldDefinitions } from './CustomFields.type.js';
 
 export type ProjectData = {
   title: string;
