@@ -1,9 +1,13 @@
 @use './theme/ontimeStyles' as *;
 
+$track-color: $white-1;
+$thumb-color: $gray-1100;
+$thumb-color-hover: $gray-900;
+
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  scrollbar-color: #2b2b2b rgba(255, 255, 255, 0.01);
+  scrollbar-color: $track-color $thumb-color;
   scrollbar-width: thin;
 }
 
@@ -39,21 +43,22 @@ option {
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.01);
+  background: $track-color;
   border-radius: 2px;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #2d2d2d;
+  background: $thumb-color;
   border-radius: 2px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #404040;
+  background: $thumb-color-hover;
 }

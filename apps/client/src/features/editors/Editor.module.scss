@@ -1,7 +1,9 @@
 @use './EditorMixin' as editor;
 
 $menu-width: 2.75rem;
-$playback-width: 30rem;
+$min-playback-width: 27rem;
+$max-playback-width: 35rem;
+$panel-gap: 0.5rem;
 
 .corner {
   @include editor.corner;
@@ -13,28 +15,22 @@ $playback-width: 30rem;
   height: 100%;
   color: $ui-white;
   padding: 1rem 0.5rem;
-  
+
   display: grid;
   grid-template-columns: $menu-width auto;
   grid-template-rows: 3rem 1fr;
-  grid-template-areas: 
+  grid-template-areas:
     'menu overview'
     'menu main';
-  gap: 0.5rem;
+  gap: $panel-gap;
 }
 
 .panelContainer {
   grid-area: main;
 
-  display: grid;
-  grid-template-rows: auto 1fr;
-  grid-template-columns: 1fr $playback-width;
-  grid-template-areas:
-    'rundown play'
-    'rundown mess';
-  gap: 0.5rem;
+  display: flex;
+  gap: $panel-gap;
   overflow: hidden;
-
 
   .corner {
     /* we show this if the component hasnt been extracted */
@@ -46,21 +42,23 @@ $playback-width: 30rem;
   .messages {
     position: relative;
     border-radius: 8px;
-    height: 100%;
     background-color: $bg-container-l2;
     padding: 1rem;
   }
 }
 
-.messages {
-  grid-area: mess;
-  min-width: 24rem;
+.left {
+  flex-grow: 1;
+  flex-shrink: 1;
+  min-width: $min-playback-width;
+  max-width: $max-playback-width;
+  display: flex;
+  flex-direction: column;
+  gap: $panel-gap;
 }
 
-.playback {
-  grid-area: play;
-  max-height: 380px;
-  min-width: 26rem;
+.messages {
+  flex: 1;
 }
 
 .content {

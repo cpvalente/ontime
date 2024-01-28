@@ -1,20 +1,23 @@
 .eventEditor {
+  color: $label-gray;
   max-height: 100%;
   overflow-y: auto;
-  flex: 1;
+  padding: 0.5rem;
 
   display: flex;
   flex-direction: column;
+  overflow-x: auto;
 }
 
 .content {
-  padding: 1rem;
+  padding-right: 4px;
 
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 2rem;
   overflow-y: auto;
+
 }
 
 .footer {
@@ -53,7 +56,7 @@
   color: $label-gray;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.25rem;
   max-width: max-content;
   cursor: pointer;
 }

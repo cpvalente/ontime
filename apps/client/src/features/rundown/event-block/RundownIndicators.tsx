@@ -24,7 +24,7 @@ function formatOverlap(previousEnd: number | null, timeStart: number): string | 
 
   const overlapString = removeLeadingZero(millisToString(Math.abs(overlap)));
 
-  return `${overlap > 0 ? 'Overlap' : 'Gap'}: ${overlapString}`;
+  return `${overlap > 0 ? 'Overlap' : 'Gap'} ${overlapString}`;
 }
 
 export default function RundownIndicators(props: RundownIndicatorProps) {

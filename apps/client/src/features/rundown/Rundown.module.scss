@@ -7,9 +7,8 @@
   margin-top: 1em;
   display: flex;
   flex-direction: column;
-  padding: 0 4px;
+  padding-right: 4px; // size of scrollbar
   overflow-y: scroll;
-  -ms-overflow-style: -ms-autohiding-scrollbar;
   height: 100%;
 }
 
