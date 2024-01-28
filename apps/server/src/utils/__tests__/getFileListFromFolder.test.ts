@@ -20,7 +20,7 @@ describe('getProjectFiles test', () => {
 
     const result = await getProjectFiles();
 
-    const expectedFiles = ['file1.json', 'file2.json', 'file3.json'].map((file) => ({
+    const expectedFiles = ['file1', 'file2', 'file3'].map((file) => ({
       filename: file,
       createdAt: new Date('2020-01-01').toISOString(),
       updatedAt: new Date('2021-01-01').toISOString(),
