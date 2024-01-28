@@ -44,6 +44,7 @@ export default function ProjectForm({ action, filename, onSubmit, onCancel, subm
           type='text'
           variant='ontime-filled'
           placeholder='Enter new name'
+          autoComplete='off'
           {...register('filename')}
         />
         <div className={style.actionButtons}>

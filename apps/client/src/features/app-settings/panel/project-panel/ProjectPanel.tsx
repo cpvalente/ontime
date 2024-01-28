@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@chakra-ui/react';
-import { AxiosError } from 'axios';
+import { maybeAxiosError } from 'common/api/apiUtils';
 
 import { PROJECT_LIST } from '../../../../common/api/apiConstants';
 import { createProject } from '../../../../common/api/ontimeApi';
@@ -33,13 +33,7 @@ export default function ProjectPanel() {
       await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
       handleToggleCreate();
     } catch (error) {
-      if (error instanceof AxiosError) {
-        const errorMessage = error?.response?.data?.message;
-
-        setSubmitError(errorMessage);
-      } else {
-        setSubmitError('An unknown error occurred');
-      }
+      maybeAxiosError(error);
     }
   };
 
