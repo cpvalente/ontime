@@ -3,9 +3,7 @@ import { useMemo, useState } from 'react';
 import { useProjectList } from '../../../../common/hooks-query/useProjectList';
 import * as Panel from '../PanelUtils';
 
-import ProjectListItem from './ProjectListItem';
-
-export type EditMode = 'rename' | 'duplicate' | null;
+import ProjectListItem, { EditMode } from './ProjectListItem';
 
 export default function ProjectList() {
   const { data, refetch } = useProjectList();

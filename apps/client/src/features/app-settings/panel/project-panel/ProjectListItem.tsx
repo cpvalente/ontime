@@ -6,9 +6,10 @@ import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/api
 import { deleteProject, duplicateProject, loadProject, renameProject } from '../../../../common/api/ontimeApi';
 
 import ProjectForm, { ProjectFormValues } from './ProjectForm';
-import { EditMode } from './ProjectList';
 
 import style from './ProjectPanel.module.scss';
+
+export type EditMode = 'rename' | 'duplicate' | null;
 
 interface ProjectListItemProps {
   current?: boolean;
