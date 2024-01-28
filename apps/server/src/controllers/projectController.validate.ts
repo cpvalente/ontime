@@ -1,6 +1,7 @@
 import { body, validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
 
+//TODO: add customFields validation
 export const projectSanitiser = [
   body('title').optional().isString().trim(),
   body('description').optional().isString().trim(),

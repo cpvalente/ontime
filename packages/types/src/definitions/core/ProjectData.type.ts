@@ -1,3 +1,5 @@
+import { CustomFieldDefinitions } from './CustomFields .type.js';
+
 export type ProjectData = {
   title: string;
   description: string;
@@ -5,4 +7,5 @@ export type ProjectData = {
   publicInfo: string;
   backstageUrl: string;
   backstageInfo: string;
+  customFields: CustomFieldDefinitions;
 };

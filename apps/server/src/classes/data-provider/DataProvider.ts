@@ -11,6 +11,7 @@ import {
   UserFields,
   Alias,
   Settings,
+  CustomFieldDefinitions,
   HttpSettings,
 } from 'ontime-types';
 
@@ -30,6 +31,16 @@ export class DataProvider {
 
   static getProjectData() {
     return data.project;
+  }
+
+  static async setCustomField(newData: Partial<CustomFieldDefinitions>) {
+    data.project.customFields = { ...data.project.customFields, ...newData };
+    await this.persist();
+    return data.project.customFields;
+  }
+
+  static getCustomField() {
+    return data.project.customFields;
   }
 
   static async setRundown(newData: OntimeRundown) {

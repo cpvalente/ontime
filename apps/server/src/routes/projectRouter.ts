@@ -1,5 +1,5 @@
 import express from 'express';
-import { getProject, postProject } from '../controllers/projectController.js';
+import { getCustomFields, getProject, postCustomFields, postProject } from '../controllers/projectController.js';
 import { projectSanitiser } from '../controllers/projectController.validate.js';
 
 export const router = express.Router();
@@ -9,3 +9,8 @@ router.get('/', getProject);
 
 // create route between controller and 'POST /project' endpoint
 router.post('/', projectSanitiser, postProject);
+
+router.get('/custom', getCustomFields);
+
+//TODO: validate
+router.post('/custom', postCustomFields);

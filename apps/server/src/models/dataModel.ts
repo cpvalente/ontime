@@ -10,6 +10,7 @@ export const dbModel: DatabaseModel = {
     publicInfo: '',
     backstageUrl: '',
     backstageInfo: '',
+    customFields: {},
   },
   settings: {
     app: 'ontime',
