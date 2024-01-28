@@ -4,7 +4,7 @@ import { DataProvider } from '../classes/data-provider/DataProvider.js';
 
 export const createCustomField = async (field: CustomInfo) => {
   const existingFields = DataProvider.getCustomField();
-  if (Object.values(existingFields).findIndex((f) => f[1].lable === field.lable) >= 0) {
+  if (Object.values(existingFields).findIndex((f) => f[1].label === field.label) >= 0) {
     throw new Error('Label already exists');
   }
   const id = generateId();
