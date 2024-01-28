@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Button } from '@chakra-ui/react';
-import { maybeAxiosError } from 'common/api/apiUtils';
 
 import { PROJECT_LIST } from '../../../../common/api/apiConstants';
+import { maybeAxiosError } from '../../../../common/api/apiUtils';
 import { createProject } from '../../../../common/api/ontimeApi';
 import { ontimeQueryClient } from '../../../../common/queryClient';
 import * as Panel from '../PanelUtils';
@@ -24,12 +24,12 @@ export default function ProjectPanel() {
   const handleSubmitCreate = async (values: ProjectFormValues) => {
     try {
       setSubmitError(null);
-
-      if (!values.filename) {
-        setSubmitError('Filename cannot be blank');
+      const filename = values.filename.trim();
+      if (!filename) {
+        setSubmitError('Project name cannot be empty');
         return;
       }
-      await createProject(values.filename);
+      await createProject(filename);
       await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
       handleToggleCreate();
     } catch (error) {
