@@ -15,9 +15,8 @@ export const normaliseEndTime = (start: number, end: number) => (end < start ? e
  */
 export function getExpectedFinish(state: TState): MaybeNumber {
   const { startedAt, finishedAt, duration, addedTime } = state.timer;
-  const { timerType } = state.eventNow;
+  const { timerType, timeEnd } = state.eventNow;
   const { pausedAt } = state._timer;
-  const { timeEnd } = state.eventNow;
   const { clock } = state;
 
   if (startedAt === null) {
