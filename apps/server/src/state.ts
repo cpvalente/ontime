@@ -304,7 +304,7 @@ export const stateMutations = {
 
         state.timer.playback = restorePoint.playback;
         state._timer.pausedAt = restorePoint.pausedAt;
-        state.timer.addedTime = restorePoint.addedTime;
+        state.timer.addedTime = restorePoint.addedTime ?? 0;
 
         // check if event finished meanwhile
         if (event.timerType === TimerType.TimeToEnd) {

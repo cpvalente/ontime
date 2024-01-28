@@ -14,7 +14,7 @@ export function getCached<T>(key: string, callback: () => T): T {
       const data = callback();
       runtimeCache.set(key, { data });
     } catch (error) {
-      console.log(`Failed retrieving data from callback: ${error}`);
+      console.error(`Failed retrieving data from callback: ${error}`);
     }
   }
 
@@ -23,10 +23,10 @@ export function getCached<T>(key: string, callback: () => T): T {
 
 export function setCached<T>(key: string, value: T): T {
   runtimeCache.set(key, { data: value });
-  return runtimeCache.get(key).data as T;
+  return value;
 }
 
-export function invalidate(key) {
+export function invalidate(key: string) {
   runtimeCache.delete(key);
 }
 
