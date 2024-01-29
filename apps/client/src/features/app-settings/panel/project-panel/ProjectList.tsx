@@ -1,16 +1,50 @@
 import { useMemo, useState } from 'react';
 
+import { PROJECT_LIST } from '../../../../common/api/apiConstants';
+import { maybeAxiosError } from '../../../../common/api/apiUtils';
+import { createProject } from '../../../../common/api/ontimeApi';
 import { useProjectList } from '../../../../common/hooks-query/useProjectList';
+import { ontimeQueryClient } from '../../../../common/queryClient';
 import * as Panel from '../PanelUtils';
 
+import ProjectForm, { ProjectFormValues } from './ProjectForm';
 import ProjectListItem, { EditMode } from './ProjectListItem';
 
-export default function ProjectList() {
+import style from './ProjectPanel.module.scss';
+
+interface ProjectListProps {
+  isCreatingProject: boolean;
+  onToggleCreate: () => void;
+}
+
+export default function ProjectList({ isCreatingProject, onToggleCreate }: ProjectListProps) {
   const { data, refetch } = useProjectList();
   const { files, lastLoadedProject } = data;
 
   const [editingMode, setEditingMode] = useState<EditMode | null>(null);
   const [editingFilename, setEditingFilename] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const handleToggleCreateMode = () => {
+    onToggleCreate();
+    setSubmitError(null);
+  };
+
+  const handleSubmitCreate = async (values: ProjectFormValues) => {
+    try {
+      setSubmitError(null);
+      const filename = values.filename.trim();
+      if (!filename) {
+        setSubmitError('Project name cannot be empty');
+        return;
+      }
+      await createProject(filename);
+      await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
+      handleToggleCreateMode();
+    } catch (error) {
+      setSubmitError(maybeAxiosError(error));
+    }
+  };
 
   const handleToggleEditMode = (editMode: EditMode, filename: string | null) => {
     setEditingMode((prev) => (prev === editMode && filename === editingFilename ? null : editMode));
@@ -47,6 +81,20 @@ export default function ProjectList() {
         </tr>
       </thead>
       <tbody>
+        {isCreatingProject ? (
+          <tr className={style.createContainer}>
+            <td colSpan={99}>
+              <ProjectForm
+                action='create'
+                filename=''
+                onSubmit={handleSubmitCreate}
+                onCancel={handleToggleCreateMode}
+                submitError=''
+              />
+              {submitError && <span className={style.createSubmitError}>{submitError}</span>}
+            </td>
+          </tr>
+        ) : null}
         {reorderedProjectFiles.map((project) => (
           <ProjectListItem
             key={project.filename}
