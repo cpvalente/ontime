@@ -90,8 +90,9 @@ export default function Timer(props: TimerProps) {
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
 
-  const isNegative =
-    (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
+  const timerIsTimeOfDay = time.timerType === TimerType.Clock;
+
+  const isNegative = (time.current ?? 0) < 0 && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
   const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
 
@@ -105,12 +106,9 @@ export default function Timer(props: TimerProps) {
   const showClock = time.timerType !== TimerType.Clock;
   const showExternal = external.visible && external.text;
 
-  const timerColor =
-    showProgress && showDanger
-      ? viewSettings.dangerColor
-      : showProgress && showWarning
-      ? viewSettings.warningColor
-      : viewSettings.normalColor;
+  let timerColor = viewSettings.normalColor;
+  if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
+  if (!timerIsTimeOfDay && showProgress && showWarning) timerColor = viewSettings.warningColor;
 
   const stageTimer = getTimerByType(time);
   let display = formatTimerDisplay(stageTimer);
@@ -173,7 +171,7 @@ export default function Timer(props: TimerProps) {
       {!userOptions.hideProgress && (
         <MultiPartProgressBar
           className={isPlaying ? 'progress-container' : 'progress-container progress-container--paused'}
-          now={time.current}
+          now={timerIsTimeOfDay ? null : time.current}
           complete={totalTime}
           normalColor={viewSettings.normalColor}
           warning={viewSettings.warningThreshold}
