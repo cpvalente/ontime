@@ -1,10 +1,8 @@
 import { useMemo, useState } from 'react';
 
-import { PROJECT_LIST } from '../../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../../common/api/apiUtils';
 import { createProject } from '../../../../common/api/ontimeApi';
 import { useProjectList } from '../../../../common/hooks-query/useProjectList';
-import { ontimeQueryClient } from '../../../../common/queryClient';
 import * as Panel from '../PanelUtils';
 
 import ProjectForm, { ProjectFormValues } from './ProjectForm';
@@ -39,7 +37,7 @@ export default function ProjectList({ isCreatingProject, onToggleCreate }: Proje
         return;
       }
       await createProject(filename);
-      await ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_LIST });
+      await refetch();
       handleToggleCreateMode();
     } catch (error) {
       setSubmitError(maybeAxiosError(error));
