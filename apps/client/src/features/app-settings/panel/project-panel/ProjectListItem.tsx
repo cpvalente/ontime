@@ -94,8 +94,8 @@ export default function ProjectListItem({
       ) : (
         <>
           <td>{filename}</td>
-          <td>{createdAt}</td>
-          <td>{updatedAt}</td>
+          <td>{new Date(createdAt).toLocaleString()}</td>
+          <td>{new Date(updatedAt).toLocaleString()}</td>
           <td className={style.actionButton}>
             <ActionMenu
               current={current}
