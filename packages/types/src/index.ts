@@ -46,6 +46,7 @@ export type {
   ProjectFile,
   ErrorResponse,
   ProjectFileListResponse,
+  MessageResponse,
 } from './api/ontime-controller/BackendResponse.type.js';
 export type { GetRundownCached } from './api/rundown-controller/BackendResponse.type.js';
 

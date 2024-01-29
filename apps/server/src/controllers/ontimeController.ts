@@ -42,6 +42,7 @@ import { deleteFile } from '../utils/parserUtils.js';
 import { validateProjectFiles } from './ontimeController.validate.js';
 import { dbModel } from '../models/dataModel.js';
 import { sheet } from '../utils/sheetsAuth.js';
+import { removeFileExtension } from '../utils/removeFileExtension.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -491,9 +492,11 @@ export const listProjects: RequestHandler = async (_, res: Response<ProjectFileL
 
     const lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
 
+    const lastLoadedProjectName = removeFileExtension(lastLoadedProject);
+
     res.status(200).send({
       files: fileList,
-      lastLoadedProject,
+      lastLoadedProject: lastLoadedProjectName,
     });
   } catch (error) {
     res.status(500).send({ message: error.toString() });
