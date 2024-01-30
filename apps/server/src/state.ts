@@ -394,6 +394,10 @@ export const stateMutations = {
             const result = play();
             _shouldNotify = true;
             _isFinished = result.isFinished;
+          } else if (state.eventNow?.timerType === TimerType.TimeToEnd) {
+            // or if we are in a time-to-end timer
+            state.timer.current = getCurrent(state);
+            state.timer.duration = state.timer.current;
           }
 
           // we only update the store at the updateInterval
