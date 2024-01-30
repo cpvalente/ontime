@@ -10,7 +10,6 @@ import {
 import { generateId, getCueCandidate } from 'ontime-utils';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
-import { MAX_EVENTS } from '../../settings.js';
 import { EventLoader } from '../../classes/event-loader/EventLoader.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeCacheStore } from '../../stores/cachingStore.js';
@@ -24,7 +23,7 @@ import {
   cachedReorder,
   cachedSwap,
   delayedRundownCacheKey,
-} from './delayedRundown.utils.js';
+} from './rundownCache.js';
 import { logger } from '../../classes/Logger.js';
 import { createEvent } from '../../utils/parser.js';
 import { stateMutations } from '../../state.js';
@@ -44,11 +43,6 @@ export function forceReset() {
  * @return {unknown[]}
  */
 export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>) {
-  const numEvents = DataProvider.getRundownLength();
-  if (numEvents > MAX_EVENTS) {
-    throw new Error(`Reached limit number of ${MAX_EVENTS} events`);
-  }
-
   let newEvent: Partial<OntimeBaseEvent> = {};
   const id = generateId();
 

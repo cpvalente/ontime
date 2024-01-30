@@ -22,7 +22,6 @@ import {
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
 import { createEvent } from './parser.js';
-import { MAX_EVENTS } from '../settings.js';
 
 /**
  * Parse events array of an entry
@@ -38,12 +37,6 @@ export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
       let eventIndex = 0;
       const ids = [];
       for (const event of data.rundown) {
-        // cap number of events
-        if (rundown.length >= MAX_EVENTS) {
-          console.log(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
-          break;
-        }
-
         // double check unique ids
         if (ids.includes(event?.id)) {
           console.log('ERROR: ID collision on import, skipping');
