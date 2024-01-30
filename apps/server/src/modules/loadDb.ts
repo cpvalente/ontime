@@ -57,7 +57,7 @@ async function loadDb() {
 
   const data = await parseDb(dbInDisk, db);
   if (data === null) {
-    console.log('ERROR: Invalid JSON format');
+    console.error('ERROR: Invalid JSON format');
     return;
   }
 

@@ -45,7 +45,7 @@ export class SocketServer implements IAdapter {
   }
 
   init(server: Server) {
-    this.wss = new WebSocketServer({ path: '/ws', server });
+    this.wss = new WebSocketServer({ path: '/ws', server, maxPayload: this.MAX_PAYLOAD });
 
     this.wss.on('connection', (ws) => {
       let clientId = getRandomName();
@@ -75,11 +75,8 @@ export class SocketServer implements IAdapter {
       });
 
       ws.on('message', (data) => {
-        if (data.length > this.MAX_PAYLOAD) {
-          ws.close();
-        }
-
         try {
+          // @ts-expect-error -- ??
           const message = JSON.parse(data);
           const { type, payload } = message;
 
@@ -107,11 +104,6 @@ export class SocketServer implements IAdapter {
                 payload: clientId,
               }),
             );
-            return;
-          }
-
-          if (type === 'hello') {
-            ws.send('hi');
             return;
           }
 
@@ -148,8 +140,12 @@ export class SocketServer implements IAdapter {
   // message is any serializable value
   sendAsJson(message: unknown) {
     this.wss?.clients.forEach((client) => {
-      if (client !== this.wss && client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(message));
+      try {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify(message));
+        }
+      } catch (_) {
+        /** We do not handle this error */
       }
     });
   }

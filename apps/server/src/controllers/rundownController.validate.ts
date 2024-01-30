@@ -1,8 +1,10 @@
 import { body, param, validationResult } from 'express-validator';
+import { Request, Response, NextFunction } from 'express';
 
 export const rundownPostValidator = [
   body('type').isString().exists().isIn(['event', 'delay', 'block']),
-  (req, res, next) => {
+
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();
@@ -11,7 +13,8 @@ export const rundownPostValidator = [
 
 export const rundownPutValidator = [
   body('id').isString().exists(),
-  (req, res, next) => {
+
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();
@@ -21,7 +24,8 @@ export const rundownPutValidator = [
 export const rundownBatchPutValidator = [
   body('data').isObject().exists(),
   body('ids').isArray().exists(),
-  (req, res, next) => {
+
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();
@@ -32,7 +36,8 @@ export const rundownReorderValidator = [
   body('eventId').isString().exists(),
   body('from').isNumeric().exists(),
   body('to').isNumeric().exists(),
-  (req, res, next) => {
+
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();
@@ -42,7 +47,8 @@ export const rundownReorderValidator = [
 export const rundownSwapValidator = [
   body('from').isString().exists(),
   body('to').isString().exists(),
-  (req, res, next) => {
+
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();
@@ -51,7 +57,8 @@ export const rundownSwapValidator = [
 
 export const paramsMustHaveEventId = [
   param('eventId').exists(),
-  (req, res, next) => {
+
+  (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
     next();

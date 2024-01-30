@@ -9,7 +9,7 @@
     "skipLibCheck": true,
     "types": ["vitest/globals"],
     "outDir": "dist",
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
   },
   "include": [
     "src/**/*"

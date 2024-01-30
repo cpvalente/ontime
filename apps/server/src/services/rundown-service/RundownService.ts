@@ -88,6 +88,9 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
 }
 
 export async function editEvent(eventData: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
+  if (!eventData?.id) {
+    throw new Error('Event misses ID');
+  }
   if (isOntimeEvent(eventData) && eventData?.cue === '') {
     throw new Error('Cue value invalid');
   }
@@ -114,7 +117,7 @@ export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>)
  * @param eventId
  * @returns {Promise<void>}
  */
-export async function deleteEvent(eventId) {
+export async function deleteEvent(eventId: string) {
   await cachedDelete(eventId);
 
   notifyChanges({ timer: [eventId], external: true });

@@ -1,6 +1,7 @@
+import { NextFunction, Request, Response } from 'express';
 import { ensureJsonExtension } from './ensureJsonExtension.js';
 
-export const sanitizeProjectFilename = (req, _res, next) => {
+export const sanitizeProjectFilename = (req: Request, _res: Response, next: NextFunction) => {
   const { filename, newFilename } = req.body;
   const { filename: projectName } = req.params;
 

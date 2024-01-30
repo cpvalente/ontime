@@ -8,7 +8,7 @@ export type GetTimeFn = () => number;
 
 export class ExtraTimerService {
   private timer: SimpleTimer;
-  private interval: NodeJS.Timer;
+  private interval: NodeJS.Timer | null = null;
   private emit: EmitFn;
   private getTime: GetTimeFn;
 
@@ -23,7 +23,9 @@ export class ExtraTimerService {
   }
 
   private stopInterval() {
-    clearInterval(this.interval);
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
   }
 
   @broadcastReturn

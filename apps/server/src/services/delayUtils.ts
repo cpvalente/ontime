@@ -1,4 +1,4 @@
-import { isOntimeBlock, isOntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
+import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeRundown } from 'ontime-types';
 
 import { deleteAtIndex } from '../utils/arrayUtils.js';
 
@@ -6,7 +6,11 @@ export function _applyDelay(eventId: string, rundown: OntimeRundown): OntimeRund
   const delayIndex = rundown.findIndex((event) => event.id === eventId);
   const delayEvent = rundown.at(delayIndex);
 
-  if (delayEvent.type !== SupportedEvent.Delay) {
+  if (!delayEvent) {
+    throw new Error('Given event ID not found');
+  }
+
+  if (!isOntimeDelay(delayEvent)) {
     throw new Error('Given event ID is not a delay');
   }
 

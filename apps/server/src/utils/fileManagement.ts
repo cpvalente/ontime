@@ -4,7 +4,7 @@ import { existsSync, mkdirSync } from 'fs';
  * @description Creates a directory if it doesn't exist
  * @param {string} directory - directory that should exist or will be created
  */
-export function ensureDirectory(directory) {
+export function ensureDirectory(directory: string) {
   if (!existsSync(directory)) {
     try {
       mkdirSync(directory, { recursive: true });
