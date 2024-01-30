@@ -67,4 +67,4 @@ export { type SimpleTimerState, SimplePlayback, SimpleDirection } from './defini
 
 // TYPE UTILITIES
 export { isOntimeBlock, isOntimeDelay, isOntimeEvent, isKeyOfType } from './utils/guards.js';
-export type { MaybeNumber, DeepPartial } from './utils/utils.type.js';
+export type { DeepPartial, MaybeNumber, MaybeString } from './utils/utils.type.js';

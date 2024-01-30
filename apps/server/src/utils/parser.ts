@@ -316,7 +316,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
  * @param {object} jsonData - project file to be parsed
  * @returns {object} - parsed object
  */
-export const parseJson = async (jsonData): Promise<DatabaseModel | null> => {
+export const parseJson = async (jsonData: Partial<DatabaseModel>): Promise<DatabaseModel | null> => {
   if (!jsonData || typeof jsonData !== 'object') {
     return null;
   }

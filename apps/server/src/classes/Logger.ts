@@ -54,7 +54,7 @@ class Logger {
    * @param origin
    * @param text
    */
-  emit(level, origin: string, text: string) {
+  emit(level: LogLevel, origin: string, text: string) {
     const log = {
       id: generateId(),
       level,

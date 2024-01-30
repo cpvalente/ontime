@@ -74,12 +74,12 @@ export class EventLoader {
 
     // if there is no event running, go to first
     if (!currentEventId) {
-      return timedEvents.at(0);
+      return timedEvents.at(0) ?? null;
     }
 
     const currentIndex = timedEvents.findIndex((event) => event.id === currentEventId);
     const newIndex = Math.max(currentIndex - 1, 0);
-    const previousEvent = timedEvents.at(newIndex);
+    const previousEvent = timedEvents.at(newIndex) ?? null;
     return previousEvent;
   }
 
@@ -95,12 +95,12 @@ export class EventLoader {
 
     // if there is no event running, go to first
     if (!currentEventId) {
-      return timedEvents.at(0);
+      return timedEvents.at(0) ?? null;
     }
 
     const currentIndex = timedEvents.findIndex((event) => event.id === currentEventId);
     const newIndex = (currentIndex + 1) % timedEvents.length;
     const nextEvent = timedEvents.at(newIndex);
-    return nextEvent;
+    return nextEvent ?? null;
   }
 }

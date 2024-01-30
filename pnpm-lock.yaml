@@ -316,6 +316,9 @@ importers:
       '@types/websocket':
         specifier: ^1.0.5
         version: 1.0.5
+      '@types/ws':
+        specifier: ^8.5.10
+        version: 8.5.10
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.10.0
         version: 6.10.0(@typescript-eslint/parser@6.10.0)(eslint@8.53.0)(typescript@5.2.2)
@@ -2317,7 +2320,7 @@ packages:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 20.10.5
+      '@types/node': 18.19.3
       '@types/yargs': 17.0.19
       chalk: 4.1.2
     dev: true
@@ -3155,7 +3158,7 @@ packages:
   /@types/connect@3.4.35:
     resolution: {integrity: sha512-cdeYyv4KWoEgpBISTxWvqYsVy444DOqehiF3fM3ne10AmJ62RSyNkUnxMJXHQWRQQX2eR94m5y1IZyDwBjV9FQ==}
     dependencies:
-      '@types/node': 18.11.18
+      '@types/node': 18.19.3
     dev: true
 
   /@types/debug@4.1.12:
@@ -3188,7 +3191,7 @@ packages:
   /@types/fs-extra@9.0.13:
     resolution: {integrity: sha512-nEnwB++1u5lVDM2UI4c1+5R+FYaKfaAzS4OococimjVm3nQw3TuzH5UNsocrcTBbhnerblyHj4A49qXbIiZdpA==}
     dependencies:
-      '@types/node': 20.10.5
+      '@types/node': 18.19.3
     dev: true
 
   /@types/http-cache-semantics@4.0.4:
@@ -3261,12 +3264,6 @@ packages:
 
   /@types/node@18.19.3:
     resolution: {integrity: sha512-k5fggr14DwAytoA/t8rPrIz++lXK7/DqckthCmoZOKNsEbJkId4Z//BqgApXBUGrGddrigYa1oqheo/7YmW4rg==}
-    dependencies:
-      undici-types: 5.26.5
-    dev: true
-
-  /@types/node@20.10.5:
-    resolution: {integrity: sha512-nNPsNE65wjMxEKI93yOP+NPGGBJz/PoN3kZsVLee0XMiJolxSekEVD8wRwBUBqkwc7UWop0edW50yrCQW4CyRw==}
     dependencies:
       undici-types: 5.26.5
     dev: true
@@ -3348,6 +3345,12 @@ packages:
     resolution: {integrity: sha512-NbsqiNX9CnEfC1Z0Vf4mE1SgAJ07JnRYcNex7AJ9zAVzmiGHmjKFEk7O4TJIsgv2B1sLEb6owKFZrACwdYngsQ==}
     dependencies:
       '@types/node': 18.11.18
+    dev: true
+
+  /@types/ws@8.5.10:
+    resolution: {integrity: sha512-vmQSUcfalpIq0R9q7uTo2lXs6eGIpt9wtnLdMv9LVpIjCA/+ufZRozlVoVelIYixx1ugCBKDhn89vnsEGOCx9A==}
+    dependencies:
+      '@types/node': 18.19.3
     dev: true
 
   /@types/yargs-parser@21.0.0:
@@ -6590,7 +6593,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/types': 29.3.1
-      '@types/node': 20.10.5
+      '@types/node': 18.19.3
       chalk: 4.1.2
       ci-info: 3.7.1
       graceful-fs: 4.2.11

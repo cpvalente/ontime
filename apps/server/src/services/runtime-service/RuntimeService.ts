@@ -12,7 +12,7 @@ import { state, stateMutations } from '../../state.js';
  * Coordinating with necessary services
  */
 class RuntimeService {
-  private eventTimer: TimerService;
+  private eventTimer: TimerService | null = null;
 
   constructor() {}
 
@@ -28,8 +28,10 @@ class RuntimeService {
   }
 
   shutdown() {
-    logger.info(LogOrigin.Server, 'Runtime service shutting down');
-    this.eventTimer.shutdown();
+    if (this.eventTimer) {
+      logger.info(LogOrigin.Server, 'Runtime service shutting down');
+      this.eventTimer.shutdown();
+    }
   }
 
   /**

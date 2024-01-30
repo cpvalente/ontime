@@ -7,8 +7,8 @@ import { isRestorePoint, RestorePoint, RestoreService } from '../RestoreService.
 
 describe('isRestorePoint()', () => {
   it('validates a well defined object', () => {
-    let restorePoint = {
-      playback: 'play',
+    let restorePoint: RestorePoint = {
+      playback: Playback.Roll,
       selectedEventId: '123',
       startedAt: 1,
       addedTime: 2,
@@ -17,10 +17,10 @@ describe('isRestorePoint()', () => {
     expect(isRestorePoint(restorePoint)).toBe(true);
 
     restorePoint = {
-      playback: 'roll',
+      playback: Playback.Roll,
       selectedEventId: '123',
       startedAt: null,
-      addedTime: null,
+      addedTime: 0,
       pausedAt: null,
     };
     expect(isRestorePoint(restorePoint)).toBe(true);
@@ -32,7 +32,7 @@ describe('isRestorePoint()', () => {
         playback: 'unknown',
         selectedEventId: '123',
         startedAt: null,
-        addedTime: null,
+        addedTime: 0,
         pausedAt: null,
       };
       expect(isRestorePoint(restorePoint)).toBe(false);
@@ -41,17 +41,17 @@ describe('isRestorePoint()', () => {
       const restorePoint = {
         selectedEventId: '123',
         startedAt: null,
-        addedTime: null,
+        addedTime: 0,
         pausedAt: null,
       };
       expect(isRestorePoint(restorePoint)).toBe(false);
     });
     it('with incorrect value', () => {
       const restorePoint = {
-        playback: 'roll',
+        playback: Playback.Roll,
         selectedEventId: '123',
         startedAt: 'testing',
-        addedTime: null,
+        addedTime: 0,
         pausedAt: null,
       };
       expect(isRestorePoint(restorePoint)).toBe(false);
@@ -62,7 +62,7 @@ describe('isRestorePoint()', () => {
 describe('RestoreService()', () => {
   describe('load()', () => {
     it('loads working file with times', async () => {
-      const expected = {
+      const expected: RestorePoint = {
         playback: Playback.Play,
         selectedEventId: 'da5b4',
         startedAt: 1234,
@@ -78,11 +78,11 @@ describe('RestoreService()', () => {
     });
 
     it('loads working file without times', async () => {
-      const expected = {
+      const expected: RestorePoint = {
         playback: Playback.Stop,
         selectedEventId: null,
         startedAt: null,
-        addedTime: null,
+        addedTime: 0,
         pausedAt: null,
       };
 

@@ -1,7 +1,16 @@
 /* eslint-disable no-console -- we are mocking the console */
 import { vi } from 'vitest';
 
-import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
+import {
+  DatabaseModel,
+  EndAction,
+  OntimeEvent,
+  ProjectData,
+  Settings,
+  SupportedEvent,
+  TimerType,
+  ViewSettings,
+} from 'ontime-types';
 
 import { dbModel } from '../../models/dataModel.js';
 import { parseExcel, parseJson, createEvent } from '../parser.js';
@@ -9,24 +18,24 @@ import { makeString } from '../parserUtils.js';
 import { parseAliases, parseUserFields, parseViewSettings } from '../parserFunctions.js';
 
 describe('test json parser with valid def', () => {
-  const testData = {
+  const testData: Partial<DatabaseModel> = {
     rundown: [
       {
+        id: '4b31',
+        cue: 'Guest Welcoming',
+        type: SupportedEvent.Event,
         title: 'Guest Welcoming',
         subtitle: '',
         presenter: '',
         note: '',
+        endAction: EndAction.PlayNext,
+        timerType: TimerType.Clock,
         timeStart: 31500000,
         timeEnd: 32400000,
-        timeType: 'start-end',
         duration: 32400000 - 31500000,
         isPublic: false,
-        endAction: 'play-next',
-        timerType: 'clock',
+        skip: false,
         colour: '',
-        type: 'event',
-        revision: 0,
-        id: '4b31',
         user0: '',
         user1: '',
         user2: '',
@@ -37,24 +46,26 @@ describe('test json parser with valid def', () => {
         user7: '',
         user8: '',
         user9: '',
+        revision: 0,
+        timeWarning: 0,
+        timeDanger: 0,
       },
       {
+        id: 'f24d',
+        cue: 'Good Morning',
+        type: SupportedEvent.Event,
         title: 'Good Morning',
         subtitle: 'Days schedule',
         presenter: 'Carlos Valente',
         note: '',
+        endAction: EndAction.PlayNext,
+        timerType: TimerType.CountUp,
         timeStart: 32400000,
         timeEnd: 36000000,
-        timeType: 'start-end',
         duration: 36000000 - 32400000,
         isPublic: true,
-        endAction: 'play-next',
-        timerType: 'count-up',
         skip: true,
         colour: 'red',
-        type: 'event',
-        revision: 0,
-        id: 'f24d',
         user0: '',
         user1: '',
         user2: '',
@@ -65,23 +76,26 @@ describe('test json parser with valid def', () => {
         user7: '',
         user8: '',
         user9: '',
+        revision: 0,
+        timeWarning: 0,
+        timeDanger: 0,
       },
       {
+        id: 'bbc5',
+        cue: 'Stage 2 setup',
+        type: SupportedEvent.Event,
         title: 'Stage 2 setup',
         subtitle: '',
         presenter: '',
         note: '',
+        endAction: 'wrong action' as EndAction, // testing
+        timerType: TimerType.Clock,
         timeStart: 32400000,
         timeEnd: 37200000,
-        timeType: 'start-end',
         duration: 37200000 - 32400000,
         isPublic: false,
-        endAction: 'wrong action',
-        timerType: 'clock',
+        skip: false,
         colour: '',
-        type: 'event',
-        revision: 0,
-        id: 'bbc5',
         user0: '',
         user1: '',
         user2: '',
@@ -92,41 +106,47 @@ describe('test json parser with valid def', () => {
         user7: '',
         user8: '',
         user9: '',
+        revision: 0,
+        timeWarning: 0,
+        timeDanger: 0,
       },
       {
+        // testing incomplete dataset
+        id: '5b3e',
+        cue: 'Working Procedures',
+        type: SupportedEvent.Event,
         title: 'Working Procedures',
         subtitle: '',
         presenter: 'Filip Johansen',
         note: '',
+        endAction: EndAction.None,
+        timerType: TimerType.Clock,
         timeStart: 37200000,
         timeEnd: 39000000,
-        timeType: 'start-end',
         duration: 39000000 - 37200000,
         isPublic: true,
-        endAction: 'none',
-        timerType: 'clock',
         skip: false,
         colour: '',
-        type: 'event',
         revision: 0,
-        id: '5b3e',
-      },
+        timeWarning: 0,
+        timeDanger: 0,
+      } as OntimeEvent,
       {
+        id: '8e2c',
+        cue: 'Lunch',
         title: 'Lunch',
+        type: SupportedEvent.Event,
         subtitle: '',
         presenter: '',
         note: '',
+        endAction: EndAction.None,
+        timerType: TimerType.Clock,
         timeStart: 39600000,
         timeEnd: 45000000,
-        timeType: 'start-end',
         duration: 37200000 - 32400000,
         isPublic: false,
-        endAction: 'none',
-        timerType: 'clock',
+        skip: false,
         colour: '',
-        type: 'event',
-        revision: 0,
-        id: '8e2c',
         user0: '',
         user1: '',
         user2: '',
@@ -137,23 +157,26 @@ describe('test json parser with valid def', () => {
         user7: '',
         user8: '',
         user9: '',
+        revision: 0,
+        timeWarning: 0,
+        timeDanger: 0,
       },
       {
+        id: '08e9',
+        cue: 'A day being carlos',
         title: 'A day being carlos',
+        type: SupportedEvent.Event,
         subtitle: 'My life in a song',
         presenter: 'Carlos Valente',
         note: '',
+        endAction: EndAction.None,
+        timerType: TimerType.Clock,
         timeStart: 46800000,
         timeEnd: 50400000,
-        timeType: 'start-end',
         duration: 37200000 - 32400000,
         isPublic: true,
-        endAction: 'none',
-        timerType: 'clock',
+        skip: true,
         colour: '',
-        type: 'event',
-        revision: 0,
-        id: '08e9',
         user0: '',
         user1: '',
         user2: '',
@@ -164,23 +187,26 @@ describe('test json parser with valid def', () => {
         user7: '',
         user8: '',
         user9: '',
+        revision: 0,
+        timeWarning: 0,
+        timeDanger: 0,
       },
       {
+        // testing incomplete dataset
+        id: 'e25a',
+        cue: 'Hamburgers and Cheese',
         title: 'Hamburgers and Cheese',
+        type: SupportedEvent.Event,
         subtitle: '... and other life questions',
         presenter: 'Filip Johansen',
         note: '',
+        endAction: EndAction.None,
+        timerType: TimerType.Clock,
         timeStart: 54000000,
         timeEnd: 57600000,
-        timeType: 'start-end',
         duration: 37200000 - 32400000,
         isPublic: true,
-        endAction: 'none',
-        timerType: 'clock',
         colour: '',
-        type: 'event',
-        revision: 0,
-        id: 'e25a',
         user0: '',
         user1: '',
         user2: '',
@@ -191,20 +217,23 @@ describe('test json parser with valid def', () => {
         user7: '',
         user8: '',
         user9: '',
-      },
+        revision: 0,
+        timeWarning: 0,
+        timeDanger: 0,
+      } as OntimeEvent,
     ],
     project: {
       title: 'This is a test definition',
-      url: 'www.carlosvalente.com',
+      backstageUrl: 'www.carlosvalente.com',
       publicInfo: 'WiFi: demoproject \nPassword: ontimeproject',
       backstageInfo: 'WiFi: demobackstage\nPassword: ontimeproject',
-    },
+    } as ProjectData,
     settings: {
       app: 'ontime',
       version: '2.0.0',
       timeFormat: '24',
-    },
-    viewSettings: {},
+    } as Settings,
+    viewSettings: {} as ViewSettings,
   };
 
   let parseResponse;
@@ -283,6 +312,8 @@ describe('test parser edge cases', () => {
         },
       ],
     };
+
+    // @ts-expect-error -- we know this is wrong, testing imports outside domain
     const parseResponse = await parseJson(testData);
     expect(typeof (parseResponse.rundown[0] as OntimeEvent).cue).toBe('string');
     expect(typeof (parseResponse.rundown[1] as OntimeEvent).cue).toBe('string');
@@ -298,6 +329,7 @@ describe('test parser edge cases', () => {
       ],
     };
 
+    // @ts-expect-error -- we know this is wrong, testing imports outside domain
     const parseResponse = await parseJson(testData);
     expect(parseResponse.rundown[0].id).toBeDefined();
   });
@@ -319,6 +351,7 @@ describe('test parser edge cases', () => {
       ],
     };
 
+    //@ts-expect-error -- we know this is wrong, testing imports outside domain
     const parseResponse = await parseJson(testData);
     expect(console.log).toHaveBeenCalledWith('ERROR: ID collision on import, skipping');
     expect(parseResponse?.rundown.length).toBe(1);
@@ -339,6 +372,7 @@ describe('test parser edge cases', () => {
       ],
     };
 
+    // @ts-expect-error -- we know this is wrong, testing imports outside domain
     const parseResponse = await parseJson(testData);
     expect(console.log).toHaveBeenCalledWith('ERROR: unkown event type, skipping');
     expect(parseResponse?.rundown.length).toBe(0);
@@ -352,6 +386,7 @@ describe('test parser edge cases', () => {
       },
     };
 
+    // @ts-expect-error -- we know this is wrong, testing imports outside domain
     await parseJson(testData);
     expect(console.log).toHaveBeenCalledWith('ERROR: unknown app version, skipping');
   });
@@ -378,9 +413,11 @@ describe('test corrupt data', () => {
         {},
         {},
       ],
-      event: {
+      project: {
         title: 'All about Carlos demo event',
-        url: 'www.carlosvalente.com',
+        description: 'description',
+        publicUrl: 'www.carlosvalente.com',
+        backstageUrl: 'www.carlosvalente.com',
         publicInfo: 'WiFi: demoproject \nPassword: ontimeproject',
         backstageInfo: 'WiFi: demobackstage\nPassword: ontimeproject',
         endMessage: '',
@@ -389,11 +426,11 @@ describe('test corrupt data', () => {
         app: 'ontime',
         version: '2.0.0',
         serverPort: 4001,
-        lock: null,
         timeFormat: '24',
       },
     };
 
+    // @ts-expect-error -- we know this is wrong, testing imports outside domain
     const parsedDef = await parseJson(emptyEvents);
     expect(parsedDef.rundown.length).toBe(2);
   });
@@ -401,9 +438,11 @@ describe('test corrupt data', () => {
   it('handles all empty events', async () => {
     const emptyEvents = {
       rundown: [{}, {}, {}, {}, {}, {}, {}, {}],
-      event: {
+      project: {
         title: 'All about Carlos demo event',
-        url: 'www.carlosvalente.com',
+        description: 'description',
+        publicUrl: 'www.carlosvalente.com',
+        backstageUrl: 'www.carlosvalente.com',
         publicInfo: 'WiFi: demoproject \nPassword: ontimeproject',
         backstageInfo: 'WiFi: demobackstage\nPassword: ontimeproject',
         endMessage: '',
@@ -412,11 +451,11 @@ describe('test corrupt data', () => {
         app: 'ontime',
         version: '2.0.0',
         serverPort: 4001,
-        lock: null,
         timeFormat: '24',
       },
     };
 
+    // @ts-expect-error -- we know this is wrong, testing imports outside domain
     const parsedDef = await parseJson(emptyEvents);
     expect(parsedDef.rundown.length).toBe(0);
   });
@@ -434,6 +473,7 @@ describe('test corrupt data', () => {
       },
     };
 
+    // @ts-expect-error -- we know this is wrong, testing imports outside domain
     const parsedDef = await parseJson(emptyProjectData);
     expect(parsedDef.project).toStrictEqual(dbModel.project);
   });
@@ -448,12 +488,15 @@ describe('test corrupt data', () => {
       },
     };
 
+    // @ts-expect-error -- we know this is wrong, testing imports outside domain
     const parsedDef = await parseJson(missingSettings);
     expect(parsedDef.settings).toStrictEqual(dbModel.settings);
   });
 
   it('fails with invalid JSON', async () => {
     const invalidJSON = 'some random dataset';
+
+    // @ts-expect-error -- we know this is wrong, testing imports outside domain
     const parsedDef = await parseJson(invalidJSON);
     expect(parsedDef).toBeNull();
   });

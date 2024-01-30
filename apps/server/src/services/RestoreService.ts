@@ -1,14 +1,14 @@
-import { Playback } from 'ontime-types';
+import { MaybeNumber, MaybeString, Playback } from 'ontime-types';
 
 import { JSONFile } from 'lowdb/node';
 import { resolveRestoreFile } from '../setup.js';
 
 export type RestorePoint = {
   playback: Playback;
-  selectedEventId: string | null;
-  startedAt: number | null;
-  addedTime: number | null;
-  pausedAt: number | null;
+  selectedEventId: MaybeString;
+  startedAt: MaybeNumber;
+  addedTime: number;
+  pausedAt: MaybeNumber;
 };
 
 /**
@@ -35,7 +35,7 @@ export function isRestorePoint(obj: unknown): obj is RestorePoint {
     return false;
   }
 
-  if (typeof restorePoint.addedTime !== 'number' && restorePoint.addedTime !== null) {
+  if (typeof restorePoint.addedTime !== 'number') {
     return false;
   }
 
@@ -55,9 +55,9 @@ export function isRestorePoint(obj: unknown): obj is RestorePoint {
  * that can then be restored when reopening
  */
 export class RestoreService {
-  private readonly filePath: string | null;
+  private readonly filePath: MaybeString;
   private readonly file: JSONFile<RestorePoint | null>;
-  private lastStore: string | null;
+  private lastStore: MaybeString;
   private failedCreateAttempts: number;
 
   constructor(filePath: string) {
@@ -128,7 +128,7 @@ export class RestoreService {
    */
   async clear() {
     try {
-      await this.write(null);
+      await this.file.write(null);
     } catch (_error) {
       // nothing to do
     }
