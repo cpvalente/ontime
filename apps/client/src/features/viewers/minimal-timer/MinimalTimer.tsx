@@ -126,10 +126,11 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const hideEndMessage = searchParams.get('hideendmessage');
   userOptions.hideEndMessage = isStringBoolean(hideEndMessage);
 
+  const timerIsTimeOfDay = time.timerType === TimerType.Clock;
+
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
-  const isNegative =
-    (time.current ?? 0) < 0 && time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
+  const isNegative = (time.current ?? 0) < 0 && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
   const showEndMessage = (time.current ?? 0) < 0 && viewSettings.endMessage && !hideEndMessage;
   const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
   const showFinished = finished && !userOptions?.hideOvertime && (time.timerType !== TimerType.Clock || showEndMessage);
@@ -140,13 +141,9 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const showBlinking = pres.timerBlink;
   const showBlackout = pres.timerBlackout;
 
-  const timerColor = userOptions.textColour
-    ? userOptions.textColour
-    : showProgress && showDanger
-    ? viewSettings.dangerColor
-    : showProgress && showWarning
-    ? viewSettings.warningColor
-    : viewSettings.normalColor;
+  let timerColor = viewSettings.normalColor;
+  if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
+  if (!timerIsTimeOfDay && showProgress && showWarning) timerColor = viewSettings.warningColor;
 
   const stageTimer = getTimerByType(time);
   let display = formatTimerDisplay(stageTimer);
