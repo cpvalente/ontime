@@ -5,7 +5,7 @@ import { EventLoader } from '../../classes/event-loader/EventLoader.js';
 import { TimerService } from '../TimerService.js';
 import { logger } from '../../classes/Logger.js';
 import { RestorePoint } from '../RestoreService.js';
-import { state, stateMutations } from '../../state.js';
+import * as runtimeState from '../../stores/runtimeState.js';
 
 /**
  * Service manages runtime status of app
@@ -38,6 +38,7 @@ class RuntimeService {
    * Checks if a list of IDs is in the current selection
    */
   private affectsLoaded(affectedIds: string[]): boolean {
+    const state = runtimeState.getState();
     const now = state.eventNow?.id;
     const nowPublic = state.publicEventNow?.id;
     const next = state.eventNext?.id;
@@ -52,6 +53,7 @@ class RuntimeService {
 
   private isNewNext() {
     const timedEvents = EventLoader.getPlayableEvents();
+    const state = runtimeState.getState();
     const now = state.eventNow?.id;
     const next = state.eventNext?.id;
 
@@ -88,13 +90,14 @@ class RuntimeService {
   }
 
   reset() {
-    stateMutations.timer.clear();
+    runtimeState.clear();
   }
 
   /**
    * check whether underlying data of runtime has changed
    */
   update(affectedIds?: string[]) {
+    const state = runtimeState.getState();
     const hasLoadedElements = state.eventNow || state.eventNext;
     if (!hasLoadedElements) {
       return;
@@ -115,7 +118,7 @@ class RuntimeService {
       // load stuff again, but keep running if our events still exist
       const eventNow = EventLoader.getEventWithId(state.eventNow.id);
       if (eventNow) {
-        stateMutations.reload(eventNow);
+        runtimeState.reload(eventNow);
       }
       return;
     }
@@ -124,7 +127,7 @@ class RuntimeService {
     if (isNext) {
       // TODO: do i need to load here?
       const playableEvents = EventLoader.getPlayableEvents();
-      stateMutations.loadNext(playableEvents);
+      runtimeState.loadNext(playableEvents);
     }
   }
 
@@ -140,7 +143,8 @@ class RuntimeService {
     }
 
     const timedEvents = EventLoader.getPlayableEvents();
-    stateMutations.load(event, timedEvents);
+    const state = runtimeState.getState();
+    runtimeState.load(event, timedEvents);
     const success = event.id === state.eventNow?.id;
 
     if (success) {
@@ -229,6 +233,7 @@ class RuntimeService {
    * @return {boolean} success - whether an event was loaded
    */
   loadPrevious(): boolean {
+    const state = runtimeState.getState();
     const previousEvent = EventLoader.findPrevious(state.eventNow?.id);
     if (previousEvent) {
       const success = this.loadEvent(previousEvent);
@@ -242,6 +247,7 @@ class RuntimeService {
    * @return {boolean} success
    */
   loadNext(): boolean {
+    const state = runtimeState.getState();
     const nextEvent = EventLoader.findNext(state.eventNow?.id);
     if (nextEvent) {
       const success = this.loadEvent(nextEvent);
@@ -256,6 +262,7 @@ class RuntimeService {
    * Starts playback on selected event
    */
   start() {
+    const state = runtimeState.getState();
     const canStart = validatePlayback(state.timer.playback).start;
     if (canStart) {
       this.eventTimer.start();
@@ -277,6 +284,7 @@ class RuntimeService {
    * Pauses playback on selected event
    */
   pause() {
+    const state = runtimeState.getState();
     if (validatePlayback(state.timer.playback).pause) {
       this.eventTimer.pause();
       const newState = state.timer.playback;
@@ -288,6 +296,7 @@ class RuntimeService {
    * Stops timer and unloads any events
    */
   stop() {
+    const state = runtimeState.getState();
     if (validatePlayback(state.timer.playback).stop) {
       this.eventTimer.stop();
       const newState = state.timer.playback;
@@ -299,8 +308,9 @@ class RuntimeService {
    * Reloads current event
    */
   reload() {
+    const state = runtimeState.getState();
     if (state.eventNow) {
-      stateMutations.reload();
+      runtimeState.reload();
     }
   }
 
@@ -315,6 +325,7 @@ class RuntimeService {
       logger.warning(LogOrigin.Server, `Roll: ${error}`);
     }
 
+    const state = runtimeState.getState();
     const newState = state.timer.playback;
     logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
   }
@@ -337,7 +348,7 @@ class RuntimeService {
     }
 
     const timedEvents = EventLoader.getPlayableEvents();
-    stateMutations.resume(restorePoint, event, timedEvents);
+    runtimeState.resume(restorePoint, event, timedEvents);
     logger.info(LogOrigin.Playback, 'Resuming playback');
   }
 

@@ -42,7 +42,7 @@ import { runtimeService } from './services/runtime-service/RuntimeService.js';
 import { restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
 import { populateDemo } from './modules/loadDemo.js';
-import { state, stateMutations } from './state.js';
+import { getState, updateNumEvents } from './stores/runtimeState.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -158,6 +158,7 @@ export const startServer = async () => {
   /**
    * Module initialises the services and provides initial payload for the store
    */
+  const state = getState();
   eventStore.init({
     clock: state.clock,
     timer: state.timer,
@@ -184,7 +185,7 @@ export const startServer = async () => {
 
   // TODO: do this on the init of the runtime service
   const numEvents = EventLoader.getNumEvents();
-  stateMutations.updateNumEvents(numEvents);
+  updateNumEvents(numEvents);
 
   // eventStore set is a dependency of the services that publish to it
   messageService.init(eventStore.set.bind(eventStore));
