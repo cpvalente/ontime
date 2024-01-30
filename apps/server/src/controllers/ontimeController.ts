@@ -34,7 +34,7 @@ import { httpIntegration } from '../services/integration-service/HttpIntegration
 import { logger } from '../classes/Logger.js';
 import { deleteAllEvents, notifyChanges } from '../services/rundown-service/RundownService.js';
 import { runtimeCacheStore } from '../stores/cachingStore.js';
-import { delayedRundownCacheKey } from '../services/rundown-service/delayedRundown.utils.js';
+import { delayedRundownCacheKey } from '../services/rundown-service/rundownCache.js';
 import { integrationService } from '../services/integration-service/IntegrationService.js';
 import { getProjectFiles } from '../utils/getFileListFromFolder.js';
 import { configService } from '../services/ConfigService.js';
