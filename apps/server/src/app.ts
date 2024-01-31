@@ -31,7 +31,6 @@ import { DataProvider } from './classes/data-provider/DataProvider.js';
 import { dbLoadingProcess } from './modules/loadDb.js';
 
 // Services
-import { EventLoader } from './classes/event-loader/EventLoader.js';
 import { integrationService } from './services/integration-service/IntegrationService.js';
 import { logger } from './classes/Logger.js';
 import { oscIntegration } from './services/integration-service/OscIntegration.js';
@@ -43,6 +42,7 @@ import { restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
 import { populateDemo } from './modules/loadDemo.js';
 import { getState, updateNumEvents } from './stores/runtimeState.js';
+import { getNumEvents } from './services/rundown-service/RundownService.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -184,7 +184,7 @@ export const startServer = async () => {
   runtimeService.init(maybeRestorePoint);
 
   // TODO: do this on the init of the runtime service
-  const numEvents = EventLoader.getNumEvents();
+  const numEvents = getNumEvents();
   updateNumEvents(numEvents);
 
   // eventStore set is a dependency of the services that publish to it

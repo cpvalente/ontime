@@ -5,7 +5,7 @@ import { integrationService } from './integration-service/IntegrationService.js'
 import { eventStore } from '../stores/EventStore.js';
 import { restoreService } from './RestoreService.js';
 import { runtimeService } from './runtime-service/RuntimeService.js';
-import { EventLoader } from '../classes/event-loader/EventLoader.js';
+import { getPlayableEvents } from './rundown-service/RundownService.js';
 
 /**
  * Service manages Ontime's main timer
@@ -71,7 +71,8 @@ export class TimerService {
     }
 
     if (doRoll) {
-      const rundown = EventLoader.getPlayableEvents();
+      // TODO: escalate to parent
+      const rundown = getPlayableEvents();
       runtimeState.roll(rundown);
     }
 

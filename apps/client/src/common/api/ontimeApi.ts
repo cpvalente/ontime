@@ -4,6 +4,7 @@ import {
   DatabaseModel,
   GetInfo,
   HttpSettings,
+  MessageResponse,
   OntimeRundown,
   OSCSettings,
   OscSubscription,
@@ -13,7 +14,6 @@ import {
   UserFields,
   ViewSettings,
 } from 'ontime-types';
-import { MessageResponse } from 'ontime-types';
 import { ExcelImportMap } from 'ontime-utils';
 
 import { apiRepoLatest } from '../../externals';

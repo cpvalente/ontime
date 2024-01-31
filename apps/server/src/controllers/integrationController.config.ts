@@ -1,6 +1,5 @@
 import { LogOrigin, OntimeEvent, isKeyOfType, isOntimeEvent } from 'ontime-types';
-import { EventLoader } from '../classes/event-loader/EventLoader.js';
-import { editEvent } from '../services/rundown-service/RundownService.js';
+import { editEvent, getEventWithId } from '../services/rundown-service/RundownService.js';
 import { coerceString, coerceNumber, coerceBoolean, coerceColour } from '../utils/coerceType.js';
 import { logger } from '../classes/Logger.js';
 
@@ -49,7 +48,7 @@ export function updateEvent(
   propertyName: keyof OntimeEvent,
   newValue: OntimeEvent[typeof propertyName],
 ) {
-  const event = EventLoader.getEventWithId(eventId);
+  const event = getEventWithId(eventId);
   if (event) {
     if (!isOntimeEvent(event)) {
       throw new Error('Can only update events');
