@@ -339,6 +339,11 @@ class RuntimeService {
     const { selectedEventId, playback } = restorePoint;
     if (playback === Playback.Roll) {
       this.roll();
+      return;
+    }
+
+    if (!selectedEventId) {
+      return;
     }
 
     // the db would have to change for the event not to exist

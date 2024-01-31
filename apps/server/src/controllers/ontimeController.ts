@@ -115,7 +115,7 @@ const parseAndApply = async (file, _req, res, options) => {
  */
 const getNetworkInterfaces = () => {
   const nets = networkInterfaces();
-  const results = [];
+  const results: { name: string; address: string }[] = [];
 
   for (const name of Object.keys(nets)) {
     for (const net of nets[name]) {
