@@ -3,8 +3,8 @@ import { calculateDuration, dayInMs } from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
 import { RestorePoint } from '../services/RestoreService.js';
+import { getPlayableEvents } from '../services/rundown-service/RundownService.js';
 import { getCurrent, getExpectedFinish, getRollTimers, skippedOutOfEvent, updateRoll } from '../services/timerUtils.js';
-import { EventLoader } from '../classes/event-loader/EventLoader.js';
 import { timerConfig } from '../config/config.js';
 
 const initialRuntime: Runtime = {
@@ -102,7 +102,7 @@ function patchTimer(newState: Partial<TimerState>) {
  */
 function fetchNumEvents(): number {
   // TODO: could we avoid having this dependency?
-  return EventLoader.getPlayableEvents().length;
+  return getPlayableEvents().length;
 }
 
 /**

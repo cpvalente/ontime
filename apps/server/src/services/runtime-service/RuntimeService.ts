@@ -1,11 +1,11 @@
 import { LogOrigin, OntimeEvent, Playback } from 'ontime-types';
 import { millisToString, validatePlayback } from 'ontime-utils';
 
-import { EventLoader } from '../../classes/event-loader/EventLoader.js';
 import { TimerService } from '../TimerService.js';
 import { logger } from '../../classes/Logger.js';
 import { RestorePoint } from '../RestoreService.js';
 import * as runtimeState from '../../stores/runtimeState.js';
+import { findNext, findPrevious, getEventAtIndex, getEventWithCue, getEventWithId, getPlayableEvents } from '../rundown-service/RundownService.js';
 
 /**
  * Service manages runtime status of app
@@ -50,7 +50,7 @@ class RuntimeService {
   }
 
   private isNewNext() {
-    const timedEvents = EventLoader.getPlayableEvents();
+    const timedEvents = getPlayableEvents();
     const state = runtimeState.getState();
     const now = state.eventNow?.id;
     const next = state.eventNext?.id;
@@ -114,7 +114,7 @@ class RuntimeService {
         this.roll();
       }
       // load stuff again, but keep running if our events still exist
-      const eventNow = EventLoader.getEventWithId(state.eventNow.id);
+      const eventNow = getEventWithId(state.eventNow.id);
       if (eventNow) {
         runtimeState.reload(eventNow);
       }
@@ -124,7 +124,7 @@ class RuntimeService {
     isNext = this.isNewNext();
     if (isNext) {
       // TODO: do i need to load here?
-      const playableEvents = EventLoader.getPlayableEvents();
+      const playableEvents = getPlayableEvents();
       runtimeState.loadNext(playableEvents);
     }
   }
@@ -140,7 +140,7 @@ class RuntimeService {
       return false;
     }
 
-    const timedEvents = EventLoader.getPlayableEvents();
+    const timedEvents = getPlayableEvents();
     const state = runtimeState.getState();
     // TODO: return success boolean from runtimeState
     runtimeState.load(event, timedEvents);
@@ -158,7 +158,7 @@ class RuntimeService {
    * @return {boolean} success - whether an event was loaded
    */
   startById(eventId: string): boolean {
-    const event = EventLoader.getEventWithId(eventId);
+    const event = getEventWithId(eventId);
     const success = this.loadEvent(event);
     if (success) {
       this.start();
@@ -172,7 +172,7 @@ class RuntimeService {
    * @return {boolean} success - whether an event was loaded
    */
   startByIndex(eventIndex: number): boolean {
-    const event = EventLoader.getEventAtIndex(eventIndex);
+    const event = getEventAtIndex(eventIndex);
     const success = this.loadEvent(event);
     if (success) {
       this.start();
@@ -186,7 +186,7 @@ class RuntimeService {
    * @return {boolean} success - whether an event was loaded
    */
   startByCue(cue: string): boolean {
-    const event = EventLoader.getEventWithCue(cue);
+    const event = getEventWithCue(cue);
     const success = this.loadEvent(event);
     if (success) {
       this.start();
@@ -200,7 +200,7 @@ class RuntimeService {
    * @return {boolean} success - whether an event was loaded
    */
   loadById(eventId: string): boolean {
-    const event = EventLoader.getEventWithId(eventId);
+    const event = getEventWithId(eventId);
     const success = this.loadEvent(event);
     return success;
   }
@@ -211,7 +211,7 @@ class RuntimeService {
    * @return {boolean} success - whether an event was loaded
    */
   loadByIndex(eventIndex: number): boolean {
-    const event = EventLoader.getEventAtIndex(eventIndex);
+    const event = getEventAtIndex(eventIndex);
     const success = this.loadEvent(event);
     return success;
   }
@@ -222,7 +222,7 @@ class RuntimeService {
    * @return {boolean} success - whether an event was loaded
    */
   loadByCue(cue: string): boolean {
-    const event = EventLoader.getEventWithCue(cue);
+    const event = getEventWithCue(cue);
     const success = this.loadEvent(event);
     return success;
   }
@@ -233,7 +233,7 @@ class RuntimeService {
    */
   loadPrevious(): boolean {
     const state = runtimeState.getState();
-    const previousEvent = EventLoader.findPrevious(state.eventNow?.id);
+    const previousEvent = findPrevious(state.eventNow?.id);
     if (previousEvent) {
       const success = this.loadEvent(previousEvent);
       return success;
@@ -247,7 +247,7 @@ class RuntimeService {
    */
   loadNext(): boolean {
     const state = runtimeState.getState();
-    const nextEvent = EventLoader.findNext(state.eventNow?.id);
+    const nextEvent = findNext(state.eventNow?.id);
     if (nextEvent) {
       const success = this.loadEvent(nextEvent);
       return success;
@@ -317,7 +317,7 @@ class RuntimeService {
    * Sets playback to roll
    */
   roll() {
-    const playableEvents = EventLoader.getPlayableEvents();
+    const playableEvents = getPlayableEvents();
     try {
       this.eventTimer.roll(playableEvents);
     } catch (error) {
@@ -346,12 +346,12 @@ class RuntimeService {
 
     // the db would have to change for the event not to exist
     // we do not kow the reason for the crash, so we check anyway
-    const event = EventLoader.getEventWithId(selectedEventId);
+    const event = getEventWithId(selectedEventId);
     if (!event) {
       return;
     }
 
-    const timedEvents = EventLoader.getPlayableEvents();
+    const timedEvents = getPlayableEvents();
     runtimeState.resume(restorePoint, event, timedEvents);
     logger.info(LogOrigin.Playback, 'Resuming playback');
   }

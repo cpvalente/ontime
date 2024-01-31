@@ -48,18 +48,16 @@ describe('mutation on runtimeState', () => {
   beforeEach(() => {
     clear();
 
-    vi.mock('../../classes/event-loader/EventLoader.js', () => ({
-      EventLoader: {
-        getPlayableEvents: vi.fn().mockReturnValue([
-          {
-            id: 'mock',
-            cue: 'mock',
-            timeStart: 0,
-            timeEnd: 1000,
-            duration: 1000,
-          },
-        ]),
-      },
+    vi.mock('../../services/rundown-service/RundownService.js', () => ({
+      getPlayableEvents: vi.fn().mockReturnValue([
+        {
+          id: 'mock',
+          cue: 'mock',
+          timeStart: 0,
+          timeEnd: 1000,
+          duration: 1000,
+        },
+      ]),
     }));
   });
 

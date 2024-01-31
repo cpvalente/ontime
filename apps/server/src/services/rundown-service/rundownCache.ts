@@ -18,6 +18,36 @@ import { deleteAtIndex, insertAtIndex, reorderArray } from '../../utils/arrayUti
 import { createPatch } from '../../utils/parser.js';
 import { applyDelay, calculateRuntimeDelays, calculateRuntimeDelaysFromIndex, getDelayAt } from './delayUtils.js';
 
+let revision: number = 0;
+let rundown: Record<string, OntimeRundownEntry> = {};
+let order: string[] = [];
+let isStale = true;
+
+function init(persistedRundown: Readonly<OntimeRundown>) {
+  for (let i = 0; i < persistedRundown.length; i++) {
+    const event = persistedRundown[i];
+    order.push(event.id);
+    rundown[event.id] = event;
+  }
+  revision = 0;
+  isStale = false;
+}
+
+export function clear() {
+  rundown = {};
+  order = [];
+  revision = 0;
+  isStale = true;
+}
+
+export function get() {
+  return {
+    revision,
+    rundown,
+    order,
+  };
+}
+
 /**
  * Keep incremental revision number of rundown for runtime
  */

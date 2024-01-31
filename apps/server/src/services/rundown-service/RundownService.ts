@@ -10,7 +10,6 @@ import {
 import { generateId, getCueCandidate } from 'ontime-utils';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
-import { EventLoader } from '../../classes/event-loader/EventLoader.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeCacheStore } from '../../stores/cachingStore.js';
 import {
@@ -168,7 +167,7 @@ export async function swapEvents(from: string, to: string) {
  * Called when we make changes to the rundown object
  */
 function updateChangeNumEvents() {
-  const numEvents = EventLoader.getPlayableEvents().length;
+  const numEvents = getPlayableEvents().length;
   updateNumEvents(numEvents);
 }
 
@@ -194,4 +193,100 @@ export function notifyChanges(options: { timer?: boolean | string[]; external?: 
     // advice socket subscribers of change
     sendRefetch();
   }
+}
+
+/**
+ * returns all events of type OntimeEvent
+ * @return {array}
+ */
+export function getTimedEvents(): OntimeEvent[] {
+  return DataProvider.getRundown().filter((event) => isOntimeEvent(event)) as OntimeEvent[];
+}
+
+/**
+ * returns all events that can be loaded
+ * @return {array}
+ */
+export function getPlayableEvents(): OntimeEvent[] {
+  return DataProvider.getRundown().filter((event) => isOntimeEvent(event) && !event.skip) as OntimeEvent[];
+}
+
+/**
+ * returns number of events that can be loaded
+ * @return {number}
+ */
+export function getNumEvents(): number {
+  return getPlayableEvents().length;
+}
+
+/**
+ * returns an event given its index after filtering for OntimeEvents
+ * @param {number} eventIndex
+ * @return {OntimeEvent | undefined}
+ */
+export function getEventAtIndex(eventIndex: number): OntimeEvent | undefined {
+  const timedEvents = getTimedEvents();
+  return timedEvents.at(eventIndex);
+}
+
+/**
+ * returns first event that matches a given ID
+ * @param {string} eventId
+ * @return {object | undefined}
+ */
+export function getEventWithId(eventId: string): OntimeEvent | undefined {
+  const timedEvents = getTimedEvents();
+  return timedEvents.find((event) => event.id === eventId);
+}
+
+/**
+ * returns first event that matches a given cue
+ * @param {string} cue
+ * @return {object | undefined}
+ */
+export function getEventWithCue(cue: string): OntimeEvent | undefined {
+  const timedEvents = getTimedEvents();
+  return timedEvents.find((event) => event.cue.toLowerCase() === cue.toLowerCase());
+}
+
+/**
+ * finds the previous event
+ * @return {object | undefined}
+ */
+export function findPrevious(currentEventId?: string): OntimeEvent | null {
+  const timedEvents = getPlayableEvents();
+  if (!timedEvents || !timedEvents.length) {
+    return null;
+  }
+
+  // if there is no event running, go to first
+  if (!currentEventId) {
+    return timedEvents.at(0) ?? null;
+  }
+
+  const currentIndex = timedEvents.findIndex((event) => event.id === currentEventId);
+  const newIndex = Math.max(currentIndex - 1, 0);
+  const previousEvent = timedEvents.at(newIndex) ?? null;
+  return previousEvent;
+}
+
+/**
+ * finds the next event
+ * @return {object | undefined}
+ */
+export function findNext(currentEventId?: string): OntimeEvent | null {
+  const timedEvents = getPlayableEvents();
+  if (!timedEvents || !timedEvents.length) {
+    return null;
+  }
+
+  // if there is no event running, go to first
+  if (!currentEventId) {
+    return timedEvents.at(0) ?? null;
+  }
+
+  const currentIndex = timedEvents.findIndex((event) => event.id === currentEventId);
+  const newIndex = (currentIndex + 1) % timedEvents.length;
+  const nextEvent = timedEvents.at(newIndex);
+  return nextEvent ?? null;
 }
