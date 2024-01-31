@@ -27,7 +27,6 @@ export const postProject: RequestHandler = async (req, res) => {
       backstageUrl: req.body?.backstageUrl,
       backstageInfo: req.body?.backstageInfo,
       endMessage: req.body?.endMessage,
-      customFields: req.body?.customFields,
     });
     const newData = await DataProvider.setProjectData(newEvent);
     res.status(200).send(newData);
