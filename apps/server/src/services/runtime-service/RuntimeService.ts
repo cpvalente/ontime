@@ -144,6 +144,7 @@ class RuntimeService {
 
     const timedEvents = EventLoader.getPlayableEvents();
     const state = runtimeState.getState();
+    // TODO: return success boolean from runtimeState
     runtimeState.load(event, timedEvents);
     const success = event.id === state.eventNow?.id;
 
@@ -357,8 +358,9 @@ class RuntimeService {
    * @param {number} time - time to add in milliseconds
    */
   addTime(time: number) {
-    this.eventTimer.addTime(time);
-    logger.info(LogOrigin.Playback, `${time > 0 ? 'Added' : 'Removed'} ${millisToString(time)}`);
+    if (this.eventTimer.addTime(time)) {
+      logger.info(LogOrigin.Playback, `${time > 0 ? 'Added' : 'Removed'} ${millisToString(time)}`);
+    }
   }
 }
 

@@ -14,3 +14,7 @@ export const config = {
   },
   restoreFile: 'ontime.restore',
 };
+
+export const timerConfig = {
+  timeSkipLimit: 1000,
+};

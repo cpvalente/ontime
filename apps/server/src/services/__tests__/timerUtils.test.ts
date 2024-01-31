@@ -526,7 +526,6 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    // @ts-expect-error -- cheating in tests
     state.clock += testSkipLimit;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
@@ -547,7 +546,6 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    // @ts-expect-error -- cheating in tests
     state.clock += testSkipLimit;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
@@ -567,7 +565,6 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    // @ts-expect-error -- cheating in tests
     state.clock = testSkipLimit - 2;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
@@ -587,7 +584,6 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    // @ts-expect-error -- cheating in tests
     state.clock -= testSkipLimit;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
@@ -608,7 +604,6 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    // @ts-expect-error -- cheating in tests
     state.clock += testSkipLimit + 1;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
@@ -629,7 +624,6 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    // @ts-expect-error -- cheating in tests
     state.clock -= testSkipLimit + 1;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
@@ -649,7 +643,6 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    // @ts-expect-error -- cheating in tests
     state.clock = testSkipLimit - 2;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
@@ -669,7 +662,6 @@ describe('skippedOutOfEvent()', () => {
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    // @ts-expect-error -- cheating in tests
     state.clock -= testSkipLimit + 1;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
@@ -1217,9 +1209,7 @@ describe('updateRoll()', () => {
     expect(updateRoll(timers)).toStrictEqual(expected);
 
     // test that it can jump time
-    // @ts-expect-error -- cheating for tests
     timers.timer.expectedFinish = 1000;
-    // @ts-expect-error -- cheating for tests
     timers.clock = 600;
     expected.updatedTimer = 1000 - 600;
 

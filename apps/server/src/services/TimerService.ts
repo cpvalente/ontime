@@ -5,6 +5,7 @@ import { integrationService } from './integration-service/IntegrationService.js'
 import { eventStore } from '../stores/EventStore.js';
 import { restoreService } from './RestoreService.js';
 import { runtimeService } from './runtime-service/RuntimeService.js';
+import { EventLoader } from '../classes/event-loader/EventLoader.js';
 
 /**
  * Service manages Ontime's main timer
@@ -27,19 +28,11 @@ export class TimerService {
 
   @broadcastResult
   start() {
-    const state = runtimeState.getState();
-    if (!state.eventNow) {
-      return;
-    }
-
-    if (state.timer.playback === Playback.Play) {
-      return;
-    }
-
     // TODO: when we start a timer, we schedule an update to its expected end - 16ms
     // we need to cancel this timer on pause, stop and addTime
-    runtimeState.start();
-    integrationService.dispatch(TimerLifeCycle.onStart);
+    if (runtimeState.start()) {
+      integrationService.dispatch(TimerLifeCycle.onStart);
+    }
   }
 
   @broadcastResult
@@ -47,17 +40,13 @@ export class TimerService {
     if (runtimeState.pause()) {
       integrationService.dispatch(TimerLifeCycle.onPause);
     }
-    runtimeState.pause();
   }
 
   @broadcastResult
   stop() {
-    const state = runtimeState.getState();
-    if (state.timer.playback === Playback.Stop) {
-      return;
+    if (runtimeState.stop()) {
+      integrationService.dispatch(TimerLifeCycle.onStop);
     }
-    runtimeState.stop();
-    integrationService.dispatch(TimerLifeCycle.onStop);
   }
 
   /**
@@ -65,12 +54,8 @@ export class TimerService {
    * @param {number} amount
    */
   @broadcastResult
-  addTime(amount: number) {
-    const state = runtimeState.getState();
-    if (state.timer.current === null) {
-      return;
-    }
-    runtimeState.addTime(amount);
+  addTime(amount: number): boolean {
+    return runtimeState.addTime(amount);
   }
 
   /**
@@ -86,8 +71,8 @@ export class TimerService {
     }
 
     if (doRoll) {
-      // TODO: add rundown here
-      runtimeState.roll([]);
+      const rundown = EventLoader.getPlayableEvents();
+      runtimeState.roll(rundown);
     }
 
     if (isFinished) {
@@ -135,6 +120,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     const result = originalMethod.apply(this, args);
     const state = runtimeState.getState();
 
+    // TODO: compare datasets to see what needs to be emitted
     eventStore.batchSet({
       clock: state.clock,
       eventNow: state.eventNow,
