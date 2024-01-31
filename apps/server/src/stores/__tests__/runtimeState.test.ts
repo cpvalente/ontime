@@ -45,7 +45,7 @@ const makeMockState = (patch: RuntimeState): RuntimeState => {
 };
 
 describe('mutation on runtimeState', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     clear();
 
     vi.mock('../../classes/event-loader/EventLoader.js', () => ({
