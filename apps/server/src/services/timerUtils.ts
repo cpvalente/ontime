@@ -1,6 +1,6 @@
 import { MaybeNumber, OntimeEvent, TimerType } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
-import { TState } from '../state.js';
+import { RuntimeState } from '../stores/runtimeState.js';
 import { sortArrayByProperty } from '../utils/arrayUtils.js';
 
 /**
@@ -10,10 +10,10 @@ export const normaliseEndTime = (start: number, end: number) => (end < start ? e
 
 /**
  * Calculates expected finish time of a running timer
- * @param {TState} state runtime state
+ * @param {RuntimeState} state runtime state
  * @returns {number | null} new current time or null if nothing is running
  */
-export function getExpectedFinish(state: TState): MaybeNumber {
+export function getExpectedFinish(state: RuntimeState): MaybeNumber {
   const { startedAt, finishedAt, duration, addedTime } = state.timer;
   const { timerType, timeEnd } = state.eventNow;
   const { pausedAt } = state._timer;
@@ -45,10 +45,10 @@ export function getExpectedFinish(state: TState): MaybeNumber {
 
 /**
  * Calculates running countdown
- * @param {TState} state runtime state
+ * @param {RuntimeState} state runtime state
  * @returns {number} current time for timer
  */
-export function getCurrent(state: TState): number {
+export function getCurrent(state: RuntimeState): number {
   const { startedAt, duration, addedTime } = state.timer;
   const { timerType, timeEnd } = state.eventNow;
   const { pausedAt } = state._timer;
@@ -75,12 +75,12 @@ export function getCurrent(state: TState): number {
 
 /**
  * Checks whether we have skipped out of the event
- * @param {TState} state runtime state
+ * @param {RuntimeState} state runtime state
  * @param {number} previousTime previous clock
  * @param {number} skipLimit how much time can we skip
  * @returns {boolean}
  */
-export function skippedOutOfEvent(state: TState, previousTime: number, skipLimit: number): boolean {
+export function skippedOutOfEvent(state: RuntimeState, previousTime: number, skipLimit: number): boolean {
   const { startedAt, expectedFinish } = state.timer;
   const { clock } = state;
 
@@ -226,10 +226,10 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
 
 /**
  * @description Implements update functions for roll mode
- * @param {TState}
+ * @param {RuntimeState}
  * @returns object with selection variables
  */
-export const updateRoll = (state: TState) => {
+export const updateRoll = (state: RuntimeState) => {
   const { current, expectedFinish, startedAt, secondaryTimer } = state.timer;
   const { secondaryTarget } = state._timer;
   const { clock } = state;

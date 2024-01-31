@@ -26,7 +26,7 @@ import {
 } from './rundownCache.js';
 import { logger } from '../../classes/Logger.js';
 import { createEvent } from '../../utils/parser.js';
-import { stateMutations } from '../../state.js';
+import { updateNumEvents } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 /**
@@ -169,7 +169,7 @@ export async function swapEvents(from: string, to: string) {
  */
 function updateChangeNumEvents() {
   const numEvents = EventLoader.getPlayableEvents().length;
-  stateMutations.updateNumEvents(numEvents);
+  updateNumEvents(numEvents);
 }
 
 /**

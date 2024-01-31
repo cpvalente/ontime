@@ -9,7 +9,7 @@ import {
   skippedOutOfEvent,
   updateRoll,
 } from '../timerUtils.js';
-import { TState } from '../../state.js';
+import { RuntimeState } from '../../stores/runtimeState.js';
 
 describe('getExpectedFinish()', () => {
   it('is null if we havent started', () => {
@@ -27,7 +27,7 @@ describe('getExpectedFinish()', () => {
       _timer: {
         pausedAt: null,
       },
-    } as TState;
+    } as RuntimeState;
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(null);
   });
@@ -46,7 +46,7 @@ describe('getExpectedFinish()', () => {
       _timer: {
         pausedAt: null,
       },
-    } as TState;
+    } as RuntimeState;
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(20);
   });
@@ -65,7 +65,7 @@ describe('getExpectedFinish()', () => {
       _timer: {
         pausedAt: null,
       },
-    } as TState;
+    } as RuntimeState;
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(11);
   });
@@ -84,7 +84,7 @@ describe('getExpectedFinish()', () => {
       _timer: {
         pausedAt: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(31);
@@ -104,7 +104,7 @@ describe('getExpectedFinish()', () => {
       _timer: {
         pausedAt: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(1);
@@ -124,7 +124,7 @@ describe('getExpectedFinish()', () => {
       _timer: {
         pausedAt: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(1);
@@ -144,7 +144,7 @@ describe('getExpectedFinish()', () => {
       _timer: {
         pausedAt: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(1);
@@ -164,7 +164,7 @@ describe('getExpectedFinish()', () => {
       _timer: {
         pausedAt: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const calculatedFinish = getExpectedFinish(state);
     expect(calculatedFinish).toBe(10);
@@ -185,7 +185,7 @@ describe('getExpectedFinish()', () => {
         _timer: {
           pausedAt: null,
         },
-      } as TState;
+      } as RuntimeState;
 
       const calculatedFinish = getExpectedFinish(state);
       expect(calculatedFinish).toBe(40);
@@ -204,7 +204,7 @@ describe('getExpectedFinish()', () => {
         _timer: {
           pausedAt: null,
         },
-      } as TState;
+      } as RuntimeState;
 
       const calculatedFinish = getExpectedFinish(state);
       // expected finish is not a duration but a point in time
@@ -230,7 +230,7 @@ describe('getCurrent()', () => {
       _timer: {
         pausedAt: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const current = getCurrent(state);
     expect(current).toBe(111);
@@ -251,7 +251,7 @@ describe('getCurrent()', () => {
       _timer: {
         pausedAt: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const current = getCurrent(state);
     expect(current).toBe(9);
@@ -272,7 +272,7 @@ describe('getCurrent()', () => {
       _timer: {
         pausedAt: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const current = getCurrent(state);
     expect(current).toBe(19);
@@ -293,7 +293,7 @@ describe('getCurrent()', () => {
       _timer: {
         pausedAt: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const current = getCurrent(state);
     expect(current).toBe(dayInMs + 10);
@@ -314,7 +314,7 @@ describe('getCurrent()', () => {
       _timer: {
         pausedAt: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const current = getCurrent(state);
     expect(current).toBe(15);
@@ -335,7 +335,7 @@ describe('getCurrent()', () => {
       _timer: {
         pausedAt: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const current = getCurrent(state);
     expect(current).toBe(35);
@@ -358,7 +358,7 @@ describe('getCurrent()', () => {
         _timer: {
           pausedAt: null,
         },
-      } as TState;
+      } as RuntimeState;
 
       const current = getCurrent(state);
       expect(current).toBe(70);
@@ -380,7 +380,7 @@ describe('getCurrent()', () => {
         _timer: {
           pausedAt: null,
         },
-      } as TState;
+      } as RuntimeState;
 
       const current = getCurrent(state);
       expect(current).toBe(70);
@@ -401,7 +401,7 @@ describe('getCurrent()', () => {
         _timer: {
           pausedAt: null,
         },
-      } as TState;
+      } as RuntimeState;
 
       const current = getCurrent(state);
       expect(current).toBe(77);
@@ -422,7 +422,7 @@ describe('getCurrent()', () => {
         _timer: {
           pausedAt: null,
         },
-      } as TState;
+      } as RuntimeState;
 
       const current = getCurrent(state);
       expect(current).toBe(600000 + dayInMs - 79500000);
@@ -443,7 +443,7 @@ describe('getCurrent()', () => {
         _timer: {
           pausedAt: null,
         },
-      } as TState;
+      } as RuntimeState;
 
       const current = getCurrent(state);
       expect(current).toBe(600000 + dayInMs - 79500000);
@@ -469,7 +469,7 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
       _timer: {
         pausedAt: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const expectedFinish = getExpectedFinish(state);
     const current = getCurrent(state);
@@ -497,7 +497,7 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
       _timer: {
         pausedAt: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const expectedFinish = getExpectedFinish(state);
     const current = getCurrent(state);
@@ -522,11 +522,10 @@ describe('skippedOutOfEvent()', () => {
         expectedFinish,
         startedAt,
       },
-    } as TState;
+    } as RuntimeState;
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    // @ts-expect-error -- cheating in tests
     state.clock += testSkipLimit;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
@@ -543,11 +542,10 @@ describe('skippedOutOfEvent()', () => {
         expectedFinish,
         startedAt,
       },
-    } as TState;
+    } as RuntimeState;
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    // @ts-expect-error -- cheating in tests
     state.clock += testSkipLimit;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
@@ -563,11 +561,10 @@ describe('skippedOutOfEvent()', () => {
         expectedFinish,
         startedAt,
       },
-    } as TState;
+    } as RuntimeState;
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    // @ts-expect-error -- cheating in tests
     state.clock = testSkipLimit - 2;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
@@ -583,11 +580,10 @@ describe('skippedOutOfEvent()', () => {
         expectedFinish,
         startedAt,
       },
-    } as TState;
+    } as RuntimeState;
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    // @ts-expect-error -- cheating in tests
     state.clock -= testSkipLimit;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
   });
@@ -604,11 +600,10 @@ describe('skippedOutOfEvent()', () => {
         expectedFinish,
         startedAt,
       },
-    } as TState;
+    } as RuntimeState;
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    // @ts-expect-error -- cheating in tests
     state.clock += testSkipLimit + 1;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
@@ -625,11 +620,10 @@ describe('skippedOutOfEvent()', () => {
         expectedFinish,
         startedAt,
       },
-    } as TState;
+    } as RuntimeState;
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    // @ts-expect-error -- cheating in tests
     state.clock -= testSkipLimit + 1;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
@@ -645,11 +639,10 @@ describe('skippedOutOfEvent()', () => {
         expectedFinish,
         startedAt,
       },
-    } as TState;
+    } as RuntimeState;
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    // @ts-expect-error -- cheating in tests
     state.clock = testSkipLimit - 2;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
@@ -665,11 +658,10 @@ describe('skippedOutOfEvent()', () => {
         expectedFinish,
         startedAt,
       },
-    } as TState;
+    } as RuntimeState;
 
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(false);
 
-    // @ts-expect-error -- cheating in tests
     state.clock -= testSkipLimit + 1;
     expect(skippedOutOfEvent(state, previousTime, testSkipLimit)).toBe(true);
   });
@@ -1205,7 +1197,7 @@ describe('updateRoll()', () => {
       _timer: {
         secondaryTarget: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const expected = {
       updatedTimer: 15 - 11,
@@ -1217,9 +1209,7 @@ describe('updateRoll()', () => {
     expect(updateRoll(timers)).toStrictEqual(expected);
 
     // test that it can jump time
-    // @ts-expect-error -- cheating for tests
     timers.timer.expectedFinish = 1000;
-    // @ts-expect-error -- cheating for tests
     timers.clock = 600;
     expected.updatedTimer = 1000 - 600;
 
@@ -1238,7 +1228,7 @@ describe('updateRoll()', () => {
       _timer: {
         secondaryTarget: 15,
       },
-    } as TState;
+    } as RuntimeState;
 
     const expected = {
       updatedTimer: null,
@@ -1265,7 +1255,7 @@ describe('updateRoll()', () => {
       _timer: {
         secondaryTarget: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const expected = {
       updatedTimer: -1,
@@ -1290,7 +1280,7 @@ describe('updateRoll()', () => {
       _timer: {
         secondaryTarget: 15,
       },
-    } as TState;
+    } as RuntimeState;
 
     const expected = {
       updatedTimer: null,
@@ -1314,7 +1304,7 @@ describe('updateRoll()', () => {
       _timer: {
         secondaryTarget: 15,
       },
-    } as TState;
+    } as RuntimeState;
 
     const expected = {
       updatedTimer: null,
@@ -1341,7 +1331,7 @@ describe('updateRoll()', () => {
       _timer: {
         secondaryTarget: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const expected = {
       updatedTimer: 20,
@@ -1368,7 +1358,7 @@ describe('updateRoll()', () => {
       _timer: {
         secondaryTarget: null,
       },
-    } as TState;
+    } as RuntimeState;
 
     const expected = {
       updatedTimer: dayInMs,

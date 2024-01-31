@@ -1,6 +1,11 @@
-import { OntimeEvent, Playback } from 'ontime-types';
+import { EndAction, OntimeEvent, Playback, TimerLifeCycle } from 'ontime-types';
 
-import { stateMutations, state } from '../state.js';
+import * as runtimeState from '../stores/runtimeState.js';
+import { integrationService } from './integration-service/IntegrationService.js';
+import { eventStore } from '../stores/EventStore.js';
+import { restoreService } from './RestoreService.js';
+import { runtimeService } from './runtime-service/RuntimeService.js';
+import { EventLoader } from '../classes/event-loader/EventLoader.js';
 
 /**
  * Service manages Ontime's main timer
@@ -21,51 +26,72 @@ export class TimerService {
     this._interval = setInterval(this.update, 32);
   }
 
+  @broadcastResult
   start() {
-    if (!state.eventNow) {
-      return;
-    }
-
-    if (state.timer.playback === Playback.Play) {
-      return;
-    }
-
     // TODO: when we start a timer, we schedule an update to its expected end - 16ms
     // we need to cancel this timer on pause, stop and addTime
-    stateMutations.timer.start();
+    if (runtimeState.start()) {
+      integrationService.dispatch(TimerLifeCycle.onStart);
+    }
   }
 
+  @broadcastResult
   pause() {
-    if (state.timer.playback !== Playback.Play) {
-      return;
+    if (runtimeState.pause()) {
+      integrationService.dispatch(TimerLifeCycle.onPause);
     }
-    stateMutations.timer.pause();
   }
 
+  @broadcastResult
   stop() {
-    if (state.timer.playback === Playback.Stop) {
-      return;
+    if (runtimeState.stop()) {
+      integrationService.dispatch(TimerLifeCycle.onStop);
     }
-    stateMutations.timer.stop();
   }
 
   /**
    * Adds time to running timer by given amount
    * @param {number} amount
    */
-  addTime(amount: number) {
-    if (state.timer.current === null) {
-      return;
-    }
-    stateMutations.timer.addTime(amount);
+  @broadcastResult
+  addTime(amount: number): boolean {
+    return runtimeState.addTime(amount);
   }
 
   /**
    * Update the app at regular intervals
    * @param {boolean} force whether we should force a broadcast of state
    */
+  @broadcastResult
   update(force = false) {
-    stateMutations.timer.update(force, this._updateInterval);
+    const { didUpdate, doRoll, isFinished, shouldNotify } = runtimeState.update(force, this._updateInterval);
+    if (didUpdate && shouldNotify) {
+      // TODO: can we distinguish between a clock update and a timer update?
+      integrationService.dispatch(TimerLifeCycle.onUpdate);
+    }
+
+    if (doRoll) {
+      const rundown = EventLoader.getPlayableEvents();
+      runtimeState.roll(rundown);
+    }
+
+    if (isFinished) {
+      integrationService.dispatch(TimerLifeCycle.onFinish);
+      const newState = runtimeState.getState();
+
+      // handle end action if there was a timer playing
+      if (newState.timer.playback === Playback.Play) {
+        if (newState.eventNow.endAction === EndAction.Stop) {
+          runtimeState.stop();
+        } else if (newState.eventNow.endAction === EndAction.LoadNext) {
+          // we need to delay here to put this action in the queue stack. otherwise it won't be executed properly
+          setTimeout(runtimeState.loadNext, 0);
+        } else if (newState.eventNow.endAction === EndAction.PlayNext) {
+          // TODO: avoid calling the runtime service here
+          runtimeService.startNext();
+        }
+      }
+    }
   }
 
   /**
@@ -73,15 +99,48 @@ export class TimerService {
    * @throws {Error} if rundown is empty
    * @param {OntimeEvent[]} rundown -- list of events to run
    */
+  @broadcastResult
   roll(rundown: OntimeEvent[]) {
     if (rundown.length === 0) {
       throw new Error('No events found');
     }
 
-    stateMutations.timer.roll(rundown);
+    runtimeState.roll(rundown);
   }
 
   shutdown() {
     clearInterval(this._interval);
   }
+}
+
+function broadcastResult(_target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
+  const originalMethod = descriptor.value;
+
+  descriptor.value = function (...args: any[]) {
+    const result = originalMethod.apply(this, args);
+    const state = runtimeState.getState();
+
+    // TODO: compare datasets to see what needs to be emitted
+    eventStore.batchSet({
+      clock: state.clock,
+      eventNow: state.eventNow,
+      publicEventNow: state.publicEventNow,
+      eventNext: state.eventNext,
+      publicEventNext: state.publicEventNext,
+      runtime: state.runtime,
+      timer: state.timer,
+    });
+
+    // we write to restore service if the underlying data changes
+    restoreService.save({
+      playback: state.timer.playback,
+      selectedEventId: state.eventNow?.id ?? null,
+      startedAt: state.timer.startedAt,
+      addedTime: state.timer.addedTime,
+      pausedAt: state._timer.pausedAt,
+    });
+    return result;
+  };
+
+  return descriptor;
 }
