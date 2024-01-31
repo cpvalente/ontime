@@ -1,36 +1,34 @@
 import { CustomFieldDefinitions, CustomInfo } from 'ontime-types';
-import { generateId } from 'ontime-utils';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 
-export const createCustomField = async (field: CustomInfo) => {
+export const createCustomField = async (label: string, field: CustomInfo) => {
   const existingFields = DataProvider.getCustomField();
-  if (Object.values(existingFields).findIndex((f) => f[1].label === field.label) >= 0) {
+  if (Object.keys(existingFields).find((f) => f === label) !== undefined) {
     throw new Error('Label already exists');
   }
-  const id = generateId();
   const newField: CustomFieldDefinitions = {};
-  Object.assign(newField, { [id]: field });
+  Object.assign(newField, { [label]: field });
   await DataProvider.setCustomField(newField);
   return newField;
 };
 
-export const editCustomField = async (id: string, field: Partial<CustomInfo>) => {
+export const editCustomField = async (label: string, field: Partial<CustomInfo>) => {
   const existingFields = DataProvider.getCustomField();
-  const existingField = Object.entries(existingFields).find((f) => f[0] === id)[1];
+  const existingField = Object.entries(existingFields).find((f) => f[0] === label)[1];
   if (!existingField) {
-    throw new Error('Could not find ID');
+    throw new Error('Could not find label');
   }
   const newField: CustomFieldDefinitions = {};
-  Object.assign(newField, { [id]: { ...existingField, ...field } });
+  Object.assign(newField, { [label]: { ...existingField, ...field } });
   await DataProvider.setCustomField(newField);
   return newField;
 };
 
-export const removeCustomField = async (id: string) => {
+export const removeCustomField = async (label: string) => {
   const existingFields = DataProvider.getCustomField();
-  if (!(id in existingFields)) {
-    throw new Error('Could not find ID');
+  if (!(label in existingFields)) {
+    throw new Error('Could not find label');
   }
-  delete existingFields[id];
+  delete existingFields[label];
   await DataProvider.overrideCustomField(existingFields);
 };

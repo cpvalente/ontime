@@ -24,4 +24,4 @@ router.post('/custom', postCustomField);
 
 router.put('/custom', putCustomField);
 
-router.delete('/custom/:fieldId', deleteCustomField);
+router.delete('/custom/:label', deleteCustomField);

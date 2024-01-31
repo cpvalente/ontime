@@ -39,21 +39,23 @@ export const getCustomFields: RequestHandler = async (req, res) => {
   res.json(DataProvider.getCustomField());
 };
 
-//Expects {lable:'name for the Field', type: 'string | ..'}
+//Expects {label:'name for the Field', type: 'string | ..'}
 export const postCustomField: RequestHandler = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
   //TODO: validate
   try {
-    const newFields = await createCustomField(req.body);
+    const { label, ...rest } = req.body;
+    console.log(label, rest)
+    const newFields = await createCustomField(label, rest);
     res.json(newFields);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
 };
 
-//Expects {id: 'id of the field', field: {lable:'name for the Field', type: 'string | ..'}}
+//Expects {label: { type: 'string | ..'}}
 export const putCustomField: RequestHandler = async (req, res) => {
   if (failEmptyObjects(req.body, res)) {
     return;
@@ -67,11 +69,11 @@ export const putCustomField: RequestHandler = async (req, res) => {
   }
 };
 
-//Expects {id: 'id of the field'}
+//Expects label
 export const deleteCustomField: RequestHandler = async (req, res) => {
   //TODO: validate
   try {
-    await removeCustomField(req.params.fieldId);
+    await removeCustomField(req.params.label);
     res.sendStatus(204);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
