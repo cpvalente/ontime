@@ -100,7 +100,7 @@ class Sheet {
       this.authServerTimeout = setTimeout(
         () => {
           Sheet.authUrl = null;
-          server.unref;
+          server.unref();
         },
         2 * 60 * 1000,
       );
@@ -140,7 +140,7 @@ class Sheet {
         }
         if (!searchParams.has('code')) {
           res.end('No authentication code provided.');
-          logger.info(LogOrigin.Server, `Sheet: Cannot read authentication code`);
+          logger.info(LogOrigin.Server, 'Sheet: Cannot read authentication code');
           return;
         }
         const code = searchParams.get('code');
@@ -151,7 +151,7 @@ class Sheet {
         client.credentials = tokens;
         Sheet.client = client;
         res.end('Authentication successful! Please close this tab and return to OnTime.');
-        logger.info(LogOrigin.Server, `Sheet: Authentication successful`);
+        logger.info(LogOrigin.Server, 'Sheet: Authentication successful');
       } catch (e) {
         logger.error(LogOrigin.Server, `Sheet: ${e}`);
       } finally {
@@ -277,7 +277,7 @@ class Sheet {
       spreadsheetId: id,
       valueRenderOption: 'FORMATTED_VALUE',
       majorDimension: 'ROWS',
-      range: range,
+      range,
     });
     if (readResponse.status === 200) {
       const { rundownMetadata } = parseExcel(readResponse.data.values, options);
@@ -364,7 +364,7 @@ class Sheet {
       const dataFromSheet = parseExcel(googleResponse.data.values, options);
       res.data.rundown = parseRundown(dataFromSheet);
       if (res.data.rundown.length < 1) {
-        throw new Error(`Sheet: Could not find data to import in the worksheet`);
+        throw new Error('Sheet: Could not find data to import in the worksheet');
       }
       res.data.userFields = parseUserFields(dataFromSheet);
       return res;

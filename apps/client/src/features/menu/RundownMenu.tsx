@@ -7,7 +7,7 @@ import { IoTrashOutline } from '@react-icons/all-files/io5/IoTrashOutline';
 import { SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
-import { useEventSelection } from '../../features/rundown/useEventSelection';
+import { useEventSelection } from '../rundown/useEventSelection';
 
 const RundownMenu = ({ children }: { children: ReactNode }) => {
   const { clearSelectedEvents } = useEventSelection();

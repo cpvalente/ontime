@@ -7,8 +7,8 @@ import { ensureDirectory } from './fileManagement.js';
 import { getAppDataPath } from '../setup.js';
 
 function generateNewFileName(filePath, callback) {
-  let baseName = path.basename(filePath, path.extname(filePath));
-  let extension = path.extname(filePath);
+  const baseName = path.basename(filePath, path.extname(filePath));
+  const extension = path.extname(filePath);
   let counter = 1;
 
   const checkExistence = (newPath) => {
@@ -24,7 +24,7 @@ function generateNewFileName(filePath, callback) {
     });
   };
 
-  let newPath = path.join(path.dirname(filePath), `${baseName} (${counter})${extension}`);
+  const newPath = path.join(path.dirname(filePath), `${baseName} (${counter})${extension}`);
   checkExistence(newPath);
 }
 
@@ -75,6 +75,6 @@ const filterAllowed = (req, file, cb) => {
 
 // Build multer uploader for a single file
 export const uploadFile = multer({
-  storage: storage,
+  storage,
   fileFilter: filterAllowed,
 }).single('userFile');

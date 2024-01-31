@@ -34,18 +34,10 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
     }
 
     this.initSubscriptions(subscriptions);
-
-    try {
-      return {
-        success: true,
-        message: `HTTP integration client ready`,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: `Failed initialising HTTP integration: ${error}`,
-      };
-    }
+    return {
+      success: true,
+      message: 'HTTP integration client ready',
+    };
   }
 
   initSubscriptions(subscriptionOptions: HttpSubscription) {

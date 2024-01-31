@@ -10,8 +10,6 @@ export class SimpleTimer {
   private startedAt: number | null = null;
   private pausedAt: number | null = null;
 
-  constructor() {}
-
   public reset() {
     this.state = {
       duration: 0,

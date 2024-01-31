@@ -14,8 +14,6 @@ import * as runtimeState from '../../stores/runtimeState.js';
 class RuntimeService {
   private eventTimer: TimerService | null = null;
 
-  constructor() {}
-
   init(resumable: RestorePoint | null) {
     logger.info(LogOrigin.Server, 'Runtime service started');
     // TODO: refresh at 32ms, slowing down now to keep UI responsive while we dont have granular updates

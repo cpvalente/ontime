@@ -12,7 +12,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
-import { useLocalStorage } from '../../../common/hooks/useLocalStorage';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 
 import ParamInput from './ParamInput';
 import { ParamField } from './types';

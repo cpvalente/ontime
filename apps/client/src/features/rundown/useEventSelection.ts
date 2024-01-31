@@ -44,7 +44,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
         selectedEvents.delete(id);
 
         return set({
-          selectedEvents: selectedEvents,
+          selectedEvents,
           anchoredIndex: newAnchoredIndex?.index ?? 0,
         });
       }
