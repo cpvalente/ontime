@@ -200,7 +200,7 @@ export const startServer = async () => {
  * @param overrideConfig
  * @return {Promise<void>}
  */
-export const startOSCServer = async (overrideConfig = null) => {
+export const startOSCServer = async (overrideConfig?: { port: number }) => {
   checkStart(OntimeStartOrder.InitIO);
 
   const { osc } = DataProvider.getData();

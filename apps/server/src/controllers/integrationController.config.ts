@@ -52,7 +52,7 @@ export function updateEvent(
   const event = EventLoader.getEventWithId(eventId);
   if (event) {
     if (!isOntimeEvent(event)) {
-      throw new Error(`Can only update events`);
+      throw new Error('Can only update events');
     }
     const propertiesToUpdate = { [propertyName]: newValue };
 

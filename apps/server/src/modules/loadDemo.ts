@@ -12,7 +12,7 @@ export const populateDemo = () => {
     Promise.all(
       resolveDemoPath.map((to, index) => {
         const from = pathToStartDemo[index];
-        copyFile(from, to);
+        return copyFile(from, to);
       }),
     );
   } catch (_) {

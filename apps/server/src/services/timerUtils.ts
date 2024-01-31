@@ -1,4 +1,4 @@
-import { MaybeNumber, OntimeEvent, TimerType } from 'ontime-types';
+import { MaybeNumber, MaybeString, OntimeEvent, TimerType } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 import { RuntimeState } from '../stores/runtimeState.js';
 import { sortArrayByProperty } from '../utils/arrayUtils.js';
@@ -94,13 +94,26 @@ export function skippedOutOfEvent(state: RuntimeState, previousTime: number, ski
   return hasSkipped && (adjustedClock > adjustedExpectedFinish || adjustedClock < startedAt);
 }
 
+type RollTimers = {
+  nowIndex: MaybeNumber;
+  nowId: MaybeString;
+  publicIndex: MaybeNumber;
+  nextIndex: MaybeNumber;
+  publicNextIndex: MaybeNumber;
+  timeToNext: MaybeNumber;
+  nextEvent: OntimeEvent | null;
+  nextPublicEvent: OntimeEvent | null;
+  currentEvent: OntimeEvent | null;
+  currentPublicEvent: OntimeEvent | null;
+};
+
 /**
  * Finds loading information given a current rundown and time
  * @param {OntimeEvent[]} rundown - List of playable events
  * @param {number} timeNow - time now in ms
  * @returns {{}}
  */
-export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
+export const getRollTimers = (rundown: OntimeEvent[], timeNow: number): RollTimers => {
   let nowIndex: number | null = null; // index of event now
   let nowId: string | null = null; // id of event now
   let publicIndex: number | null = null; // index of public event now

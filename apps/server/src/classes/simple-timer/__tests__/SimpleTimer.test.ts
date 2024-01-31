@@ -72,7 +72,8 @@ describe('SimpleTimer count-down', () => {
       expect(newState).toStrictEqual(expected);
 
       newState = timer.update(1800);
-      (expected.current = initialTime - 1800 + pausedTime), expect(newState).toStrictEqual(expected);
+      expected.current = initialTime - 1800 + pausedTime;
+      expect(newState).toStrictEqual(expected);
     });
 
     test('stopping the timer clears the running data', () => {

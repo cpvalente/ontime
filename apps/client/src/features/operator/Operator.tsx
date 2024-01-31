@@ -52,7 +52,7 @@ export default function Operator() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const scrollToComponent = useFollowComponent({
     followRef: selectedRef,
-    scrollRef: scrollRef,
+    scrollRef,
     doFollow: !lockAutoScroll,
     topOffset: selectedOffset,
   });
