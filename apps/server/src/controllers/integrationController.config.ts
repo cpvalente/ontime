@@ -63,7 +63,7 @@ export function updateEvent(
     }
 
     editEvent({ id: eventId, ...propertiesToUpdate }).then(() => {
-      logger.info(LogOrigin.Playback, `Updated ${propertyName} of event with ID ${eventId} to ${newValue}`);
+      logger.info(LogOrigin.Server, `Updated ${propertyName} of event with ID ${eventId} to ${newValue}`);
     });
   } else {
     throw new Error(`Event with ID ${eventId} not found`);
