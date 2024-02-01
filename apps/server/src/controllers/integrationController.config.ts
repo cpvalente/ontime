@@ -62,9 +62,7 @@ export function updateEvent(
       propertiesToUpdate.timeEnd = event.timeStart + propertiesToUpdate.duration;
     }
 
-    editEvent({ id: eventId, ...propertiesToUpdate }).then(() => {
-      logger.info(LogOrigin.Server, `Updated ${propertyName} of event with ID ${eventId} to ${newValue}`);
-    });
+    editEvent({ id: eventId, ...propertiesToUpdate });
   } else {
     throw new Error(`Event with ID ${eventId} not found`);
   }
