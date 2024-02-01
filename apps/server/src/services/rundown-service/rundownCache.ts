@@ -25,23 +25,14 @@ let revision = 0;
 let isStale = true;
 
 /**
- * Clears scoped data
- */
-export function clear() {
-  rundown = {};
-  order = [];
-  revision = 0;
-  isStale = true;
-}
-
-/**
  * Utility initialises cache
  * @param persistedRundown
  */
 function init(persistedRundown: Readonly<OntimeRundown>) {
   // we decided to try and re-write this dataset for every change
   // instead of maintaining logic to update it
-  clear();
+  rundown = {};
+  order = [];
 
   let accumulatedDelay = 0;
   for (let i = 0; i < persistedRundown.length; i++) {
@@ -59,7 +50,6 @@ function init(persistedRundown: Readonly<OntimeRundown>) {
     order.push(event.id);
     rundown[event.id] = { ...event };
   }
-  revision = 0;
   isStale = false;
 }
 
@@ -112,13 +102,14 @@ export function get(): Readonly<RundownCache> {
     console.timeEnd('rundownCache__init');
   }
   return {
-    rundown: rundown,
+    rundown,
     order,
     revision,
   };
 }
 
-type MutationParams<T> = T & Partial<{ persistedRundown: OntimeRundown }>;
+type CommonParams = { persistedRundown: OntimeRundown };
+type MutationParams<T> = T & Partial<CommonParams>;
 
 type MutatingFn<T extends object> = (params: MutationParams<T>) => { newRundown: OntimeRundown };
 /**
@@ -127,14 +118,18 @@ type MutatingFn<T extends object> = (params: MutationParams<T>) => { newRundown:
  * @returns
  */
 export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
-  function scopedMutation(params: T) {
+  async function scopedMutation(params: T) {
     const persistedRundown = getPersistedRundown();
     const { newRundown } = mutation({ ...params, persistedRundown });
 
-    revision++;
+    revision = revision + 1;
     isStale = true;
 
     DataProvider.setRundown(newRundown);
+    // schedule the update to the next tick
+    process.nextTick(() => {
+      init(newRundown);
+    });
 
     // TODO: could we return a patch object?
   }
@@ -147,6 +142,18 @@ export function add({ persistedRundown, atIndex, event }: AddArgs): { newRundown
   const newRundown = insertAtIndex(atIndex, newEvent, persistedRundown);
 
   return { newRundown };
+}
+
+type RemoveArgs = MutationParams<{ eventId: string }>;
+export function remove({ persistedRundown, eventId }: RemoveArgs): { newRundown: OntimeRundown } {
+  const atIndex = persistedRundown.findIndex((event) => event.id === eventId);
+  const newRundown = deleteAtIndex(atIndex, persistedRundown);
+
+  return { newRundown };
+}
+
+export function removeAll(): { newRundown: OntimeRundown } {
+  return { newRundown: [] };
 }
 
 /**

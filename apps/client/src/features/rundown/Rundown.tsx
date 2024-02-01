@@ -210,7 +210,8 @@ export default function Rundown({ data }: RundownProps) {
       <DndContext onDragEnd={handleOnDragEnd} sensors={sensors} collisionDetection={closestCenter}>
         <SortableContext items={statefulEntries} strategy={verticalListSortingStrategy}>
           <div className={style.list}>
-            {statefulEntries.map((eventId, index) => {
+            {order.map((eventId, index) => {
+              // TODO: does iterating through order affect the sortable list?
               if (index === 0) {
                 eventIndex = 0;
               }

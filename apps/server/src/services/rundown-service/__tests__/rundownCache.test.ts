@@ -1,6 +1,40 @@
 import { EndAction, OntimeEvent, OntimeRundown, SupportedEvent, TimerType } from 'ontime-types';
 
 import { calculateRuntimeDelays, getDelayAt, calculateRuntimeDelaysFrom } from '../delayUtils.js';
+import { add, remove } from '../rundownCache.js';
+
+describe('add() mutation', () => {
+  test('adds an event to the rundown', () => {
+    const mockEvent = { id: 'mock', cue: 'mock', type: SupportedEvent.Event } as OntimeEvent;
+    const testRundown: OntimeRundown = [];
+    const { newRundown } = add({ atIndex: 0, event: mockEvent, persistedRundown: testRundown });
+    expect(newRundown.length).toBe(1);
+    expect(newRundown[0]).toMatchObject(mockEvent);
+  });
+});
+
+describe('remove() mutation', () => {
+  test('deletes an event from the rundown', () => {
+    const mockEvent = { id: 'mock', cue: 'mock', type: SupportedEvent.Event } as OntimeEvent;
+    const testRundown: OntimeRundown = [mockEvent];
+    const { newRundown } = remove({ eventId: mockEvent.id, persistedRundown: testRundown });
+    expect(newRundown.length).toBe(0);
+  });
+});
+
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 
 describe('calculateRuntimeDelays', () => {
   it('calculates all delays in a given rundown', () => {

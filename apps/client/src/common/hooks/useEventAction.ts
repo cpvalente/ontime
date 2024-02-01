@@ -266,16 +266,15 @@ export const useEventAction = () => {
 
       if (previousData) {
         // optimistically update object
-        const optimisticRundown = [...previousData.rundown];
-        const index = optimisticRundown.findIndex((event) => event.id === eventId);
-        if (index > -1) {
-          optimisticRundown.splice(index, 1);
+        const newOrder = previousData.order.filter((id) => id !== eventId);
+        const newRundown = { ...previousData.rundown };
+        delete newRundown[eventId];
 
-          queryClient.setQueryData(RUNDOWN, {
-            rundown: optimisticRundown,
-            revision: -1,
-          });
-        }
+        queryClient.setQueryData(RUNDOWN, {
+          order: newOrder,
+          rundown: newRundown,
+          revision: -1,
+        });
       }
 
       // Return a context with the previous and new events
@@ -323,7 +322,7 @@ export const useEventAction = () => {
       const previousData = queryClient.getQueryData<GetRundownCached>(RUNDOWN);
 
       // optimistically update object
-      queryClient.setQueryData(RUNDOWN, { rundown: [], revision: -1 });
+      queryClient.setQueryData(RUNDOWN, { rundown: {}, order: [], revision: -1 });
 
       // Return a context with the previous and new events
       return { previousData };

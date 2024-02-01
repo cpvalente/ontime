@@ -16,8 +16,6 @@ import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeCacheStore } from '../../stores/cachingStore.js';
 import {
   cachedApplyDelay,
-  cachedClear,
-  cachedDelete,
   cachedEdit,
   cachedBatchEdit,
   cachedReorder,
@@ -81,7 +79,7 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
 
   // modify rundown
   const scopedMutation = cache.mutateCache(cache.add);
-  scopedMutation({ atIndex, event: newEvent as OntimeRundownEntry });
+  await scopedMutation({ atIndex, event: newEvent as OntimeRundownEntry });
 
   notifyChanges({ timer: [newEvent.id], external: true });
 
@@ -89,6 +87,33 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
   updateChangeNumEvents();
 
   return newEvent;
+}
+
+/**
+ * deletes event by its ID
+ * @param eventId
+ * @returns {Promise<void>}
+ */
+export async function deleteEvent(eventId: string) {
+  const scopedMutation = cache.mutateCache(cache.remove);
+  await scopedMutation({ eventId });
+
+  notifyChanges({ timer: [eventId], external: true });
+
+  // notify event loader that rundown size has changed
+  updateChangeNumEvents();
+}
+
+/**
+ * deletes all events in database
+ * @returns {Promise<void>}
+ */
+export async function deleteAllEvents() {
+  const scopedMutation = cache.mutateCache(cache.removeAll);
+  await scopedMutation({});
+
+  // no need to modify timer since we will reset
+  notifyChanges({ external: true, reset: true });
 }
 
 export async function editEvent(eventData: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
@@ -116,30 +141,6 @@ export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>)
 
   // advice socket subscribers of change
   sendRefetch();
-}
-
-/**
- * deletes event by its ID
- * @param eventId
- * @returns {Promise<void>}
- */
-export async function deleteEvent(eventId: string) {
-  await cachedDelete(eventId);
-
-  notifyChanges({ timer: [eventId], external: true });
-  // notify event loader that rundown size has changed
-  updateChangeNumEvents();
-}
-
-/**
- * deletes all events in database
- * @returns {Promise<void>}
- */
-export async function deleteAllEvents() {
-  await cachedClear();
-
-  // no need to modify timer since we will reset
-  notifyChanges({ external: true, reset: true });
 }
 
 /**
