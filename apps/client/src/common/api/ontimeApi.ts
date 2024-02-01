@@ -143,15 +143,19 @@ export async function postOscSubscriptions(data: OscSubscription) {
 /**
  * @description HTTP request to download db in CSV format
  */
-export const downloadCSV = () => {
-  return fileDownload(ontimeURL, { name: 'rundown', type: 'csv' }, { type: 'text/csv;charset=utf-8;' });
+export const downloadCSV = (fileName?: string) => {
+  return fileDownload(ontimeURL, { name: fileName ?? 'rundown', type: 'csv' }, { type: 'text/csv;charset=utf-8;' });
 };
 
 /**
  * @description HTTP request to download db in JSON format
  */
-export const downloadRundown = () => {
-  return fileDownload(ontimeURL, { name: 'rundown', type: 'json' }, { type: 'application/json;charset=utf-8;' });
+export const downloadRundown = (fileName?: string) => {
+  return fileDownload(
+    ontimeURL,
+    { name: fileName ?? 'rundown', type: 'json' },
+    { type: 'application/json;charset=utf-8;' },
+  );
 };
 
 // TODO: should this be extracted to shared code?
