@@ -371,7 +371,8 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     user8: makeString(patchEvent.user8, originalEvent.user8),
     user9: makeString(patchEvent.user9, originalEvent.user9),
     colour: makeString(patchEvent.colour, originalEvent.colour),
-    cue: makeString(patchEvent.cue, originalEvent.cue),
+    // short circuit empty string
+    cue: makeString(patchEvent.cue ?? null, originalEvent.cue),
     revision: originalEvent.revision,
     timeWarning: patchEvent.timeWarning,
     timeDanger: patchEvent.timeDanger,

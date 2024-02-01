@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { GetRundownCached, isOntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import { GetRundownCached, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
 import { getPreviousEvent, swapOntimeEvents } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/apiConstants';
@@ -208,20 +208,19 @@ export const useEventAction = () => {
       const previousEvents = queryClient.getQueryData<GetRundownCached>(RUNDOWN);
 
       if (previousEvents) {
-        const updatedEvents = previousEvents.rundown.map((event) => {
-          const isEventEdited = ids.includes(event.id);
-
-          if (isEventEdited && isOntimeEvent(event)) {
+        const eventIds = new Set(ids);
+        const updatedEvents = previousEvents.order.map((eventId) => {
+          if (eventIds.has(eventId)) {
             return {
-              ...event,
+              ...previousEvents.rundown[eventId],
               ...data,
             };
+          } else {
+            return previousEvents.rundown[eventId];
           }
-
-          return event;
         });
 
-        queryClient.setQueryData(RUNDOWN, { rundown: updatedEvents, revision: -1 });
+        queryClient.setQueryData(RUNDOWN, { order: previousEvents.order, rundown: updatedEvents, revision: -1 });
       }
 
       // Return a context with the previous and new events

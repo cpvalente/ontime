@@ -160,17 +160,24 @@ export function removeAll(): { newRundown: OntimeRundown } {
   return { newRundown: [] };
 }
 
+/**
+ * Utility function for patching events
+ * @param eventFromRundown
+ * @param patch
+ * @returns
+ */
+function makeEvent(eventFromRundown: OntimeRundownEntry, patch: Partial<OntimeRundownEntry>): OntimeRundownEntry {
+  if (isOntimeEvent(eventFromRundown)) {
+    const newEvent = createPatch(eventFromRundown, patch as OntimeEvent);
+    newEvent.revision++;
+    return newEvent;
+  }
+  // TODO: exhaustive check
+  return { ...eventFromRundown, ...patch } as OntimeRundownEntry;
+}
+
 type EditArgs = MutationParams<{ eventId: string; patch: Partial<OntimeRundownEntry> }>;
 export function edit({ persistedRundown, eventId, patch }: EditArgs): Required<MutatingReturn> {
-  const makeEvent = (eventFromRundown: OntimeRundownEntry): OntimeRundownEntry => {
-    if (isOntimeEvent(eventFromRundown)) {
-      const newEvent = createPatch(eventFromRundown, patch as OntimeEvent);
-      newEvent.revision++;
-      return newEvent;
-    }
-
-    return { ...eventFromRundown, ...patch } as OntimeRundownEntry;
-  };
   const indexAt = persistedRundown.findIndex((event) => event.id === eventId);
 
   if (indexAt < 0) {
@@ -182,11 +189,30 @@ export function edit({ persistedRundown, eventId, patch }: EditArgs): Required<M
   }
 
   const eventInMemory = persistedRundown[indexAt];
-  const newEvent = makeEvent(eventInMemory);
+  const newEvent = makeEvent(eventInMemory, patch);
   const newRundown = [...persistedRundown];
   newRundown[indexAt] = newEvent;
 
   return { newRundown, newEvent };
+}
+
+type BatchEditArgs = MutationParams<{ eventIds: string[]; patch: Partial<OntimeRundownEntry> }>;
+export function batchEdit({ persistedRundown, eventIds, patch }: BatchEditArgs): MutatingReturn {
+  const ids = new Set(eventIds);
+
+  const newRundown = [];
+  for (let i = 0; i < persistedRundown.length; i++) {
+    if (ids.has(persistedRundown[i].id)) {
+      if (patch?.type && persistedRundown[i].type !== patch.type) {
+        continue;
+      }
+      const newEvent = makeEvent(persistedRundown[i], patch);
+      newRundown.push(newEvent);
+    } else {
+      newRundown.push(persistedRundown[i]);
+    }
+  }
+  return { newRundown };
 }
 
 /**

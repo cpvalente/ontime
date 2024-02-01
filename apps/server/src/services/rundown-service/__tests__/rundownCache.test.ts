@@ -1,7 +1,7 @@
 import { EndAction, OntimeEvent, OntimeRundown, SupportedEvent, TimerType } from 'ontime-types';
 
 import { calculateRuntimeDelays, getDelayAt, calculateRuntimeDelaysFrom } from '../delayUtils.js';
-import { add, edit, remove } from '../rundownCache.js';
+import { add, batchEdit, edit, remove } from '../rundownCache.js';
 
 describe('add() mutation', () => {
   test('adds an event to the rundown', () => {
@@ -34,6 +34,26 @@ describe('edit() mutation', () => {
       cue: 'patched',
       type: SupportedEvent.Event,
     });
+  });
+});
+
+describe('batchEdit() mutation', () => {
+  it('should correctly apply the patch to the events with the given IDs', () => {
+    const persistedRundown: OntimeRundown = [
+      { id: '1', type: SupportedEvent.Event, cue: 'data1' } as OntimeEvent,
+      { id: '2', type: SupportedEvent.Event, cue: 'data2' } as OntimeEvent,
+      { id: '3', type: SupportedEvent.Event, cue: 'data3' } as OntimeEvent,
+    ];
+    const eventIds = ['1', '3'];
+    const patch = { cue: 'newData' };
+
+    const result = batchEdit({ persistedRundown, eventIds, patch });
+
+    expect(result.newRundown).toMatchObject([
+      { id: '1', type: SupportedEvent.Event, cue: 'newData' },
+      { id: '2', type: SupportedEvent.Event, cue: 'data2' },
+      { id: '3', type: SupportedEvent.Event, cue: 'newData' },
+    ]);
   });
 });
 

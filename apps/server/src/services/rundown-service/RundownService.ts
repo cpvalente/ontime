@@ -119,8 +119,6 @@ export async function editEvent(patch: Partial<OntimeEvent> | Partial<OntimeBloc
     throw new Error('Cue value invalid');
   }
 
-  // TODO: validate event against its type
-
   const scopedMutation = cache.mutateCache(cache.edit);
   const { newEvent } = await scopedMutation({ patch, eventId: patch.id });
 
@@ -132,8 +130,8 @@ export async function editEvent(patch: Partial<OntimeEvent> | Partial<OntimeBloc
 export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>) {
   await cachedBatchEdit(ids, data);
 
-  // notify runtime service of changed events
-  runtimeService.update(ids);
+  const scopedMutation = cache.mutateCache(cache.batchEdit);
+  await scopedMutation({ patch: data, eventIds: ids });
 
   notifyChanges({ timer: ids, external: true });
 

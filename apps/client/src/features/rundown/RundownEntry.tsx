@@ -1,18 +1,8 @@
 import { useCallback } from 'react';
-import {
-  GetRundownCached,
-  isOntimeEvent,
-  MaybeNumber,
-  OntimeEvent,
-  OntimeRundownEntry,
-  Playback,
-  SupportedEvent,
-} from 'ontime-types';
+import { MaybeNumber, OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 
-import { RUNDOWN } from '../../common/api/apiConstants';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
-import { ontimeQueryClient } from '../../common/queryClient';
 import { useAppMode } from '../../common/stores/appModeStore';
 import { useEditorSettings } from '../../common/stores/editorSettings';
 import { useEmitLog } from '../../common/stores/logger';
@@ -103,28 +93,20 @@ export default function RundownEntry(props: RundownEntryProps) {
       case 'update': {
         // Handles and filters update requests
         const { field, value } = payload as FieldValue;
+        if (field === undefined || value === undefined) {
+          return;
+        }
         const newData: Partial<OntimeEvent> = { id: data.id };
 
         // if selected events are more than one
         // we need to bulk edit
         if (selectedEvents.size > 1) {
           const changes: Partial<OntimeEvent> = { [field]: value };
-          const rundown = ontimeQueryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? [];
-          const idsOfRundownEvents = rundown.filter(isOntimeEvent).map((event) => event.id);
-
-          const eventIds = [...selectedEvents.keys()];
-          // check every selected event id to see if they match rundown event ids
-          const areIdsValid = eventIds.every((eventId) => idsOfRundownEvents.includes(eventId));
-
-          if (!areIdsValid) {
-            return;
-          }
-
-          batchUpdateEvents(changes, eventIds);
+          batchUpdateEvents(changes, Array.from(selectedEvents));
           return clearSelectedEvents();
         }
         if (field in data) {
-          // @ts-expect-error not sure how to type this
+          // @ts-expect-error -- not sure how to type this
           newData[field] = value;
           return updateEvent(newData);
         }
