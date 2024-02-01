@@ -84,16 +84,15 @@ const getLastLoadedProject = () => {
   } catch {
     if (!isTest) {
       ensureDirectory(getAppDataPath());
-      fs.writeFileSync(lastLoadedProjectConfigPath, JSON.stringify({ lastLoadedProject: 'default.json' }));
+      fs.writeFileSync(lastLoadedProjectConfigPath, JSON.stringify({ lastLoadedProject: 'db.json' }));
     }
   }
 };
 
 const lastLoadedProject = getLastLoadedProject();
-const configDbDirectory = lastLoadedProject ? 'uploads' : config.database.directory;
 
 // path to public db
-export const resolveDbDirectory = join(testDbStartDirectory, isTest ? config.database.testdb : configDbDirectory);
+export const resolveDbDirectory = join(testDbStartDirectory, isTest ? config.database.testdb : 'uploads');
 export const resolveDbPath = join(resolveDbDirectory, lastLoadedProject ? lastLoadedProject : config.database.filename);
 export const pathToStartDb = isTest
   ? join(currentDirectory, '../', config.database.testdb, config.database.filename)
