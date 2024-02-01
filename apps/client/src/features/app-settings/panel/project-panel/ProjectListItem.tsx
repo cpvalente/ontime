@@ -3,7 +3,14 @@ import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/rea
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/apiUtils';
-import { deleteProject, duplicateProject, loadProject, renameProject } from '../../../../common/api/ontimeApi';
+import {
+  deleteProject,
+  downloadCSV,
+  downloadRundown,
+  duplicateProject,
+  loadProject,
+  renameProject,
+} from '../../../../common/api/ontimeApi';
 
 import ProjectForm, { ProjectFormValues } from './ProjectForm';
 
@@ -139,6 +146,14 @@ function ActionMenu({
     await onRefetch();
   };
 
+  const handleDownload = async () => {
+    await downloadRundown(filename);
+  };
+
+  const handleExportCSV = async () => {
+    await downloadCSV(filename);
+  };
+
   return (
     <Menu variant='ontime-on-dark' size='sm'>
       <MenuButton
@@ -154,6 +169,8 @@ function ActionMenu({
         </MenuItem>
         <MenuItem onClick={handleRename}>Rename</MenuItem>
         <MenuItem onClick={handleDuplicate}>Duplicate</MenuItem>
+        <MenuItem onClick={handleDownload}>Download</MenuItem>
+        {current && <MenuItem onClick={handleExportCSV}>Export CSV Rundown</MenuItem>}
         <MenuItem isDisabled={current} onClick={handleDelete}>
           Delete
         </MenuItem>
