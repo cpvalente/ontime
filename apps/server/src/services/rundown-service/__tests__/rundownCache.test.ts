@@ -1,7 +1,7 @@
 import { EndAction, OntimeEvent, OntimeRundown, SupportedEvent, TimerType } from 'ontime-types';
 
 import { calculateRuntimeDelays, getDelayAt, calculateRuntimeDelaysFrom } from '../delayUtils.js';
-import { add, remove } from '../rundownCache.js';
+import { add, edit, remove } from '../rundownCache.js';
 
 describe('add() mutation', () => {
   test('adds an event to the rundown', () => {
@@ -19,6 +19,21 @@ describe('remove() mutation', () => {
     const testRundown: OntimeRundown = [mockEvent];
     const { newRundown } = remove({ eventId: mockEvent.id, persistedRundown: testRundown });
     expect(newRundown.length).toBe(0);
+  });
+});
+
+describe('edit() mutation', () => {
+  test('edits an event in the rundown', () => {
+    const mockEvent = { id: 'mock', cue: 'mock', type: SupportedEvent.Event } as OntimeEvent;
+    const mockEventPatch = { cue: 'patched' } as OntimeEvent;
+    const testRundown: OntimeRundown = [mockEvent];
+    const { newRundown, newEvent } = edit({ eventId: mockEvent.id, patch: mockEventPatch, persistedRundown: testRundown });
+    expect(newRundown.length).toBe(1);
+    expect(newEvent).toMatchObject({
+      id: 'mock',
+      cue: 'patched',
+      type: SupportedEvent.Event,
+    });
   });
 });
 
@@ -72,7 +87,6 @@ describe('calculateRuntimeDelays', () => {
       {
         duration: 600000,
         type: SupportedEvent.Delay,
-        revision: 0,
         id: '07986',
       },
       {
@@ -108,7 +122,6 @@ describe('calculateRuntimeDelays', () => {
       {
         duration: 1200000,
         type: SupportedEvent.Delay,
-        revision: 0,
         id: '7db42',
       },
       {
@@ -224,7 +237,6 @@ describe('getDelayAt()', () => {
     {
       duration: 600000,
       type: SupportedEvent.Delay,
-      revision: 0,
       id: '07986',
     },
     {
@@ -261,7 +273,6 @@ describe('getDelayAt()', () => {
     {
       duration: 1200000,
       type: SupportedEvent.Delay,
-      revision: 0,
       id: '7db42',
     },
     {
@@ -396,7 +407,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
       {
         duration: 600000,
         type: SupportedEvent.Delay,
-        revision: 0,
         id: '07986',
       },
       {
@@ -433,7 +443,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
       {
         duration: 1200000,
         type: SupportedEvent.Delay,
-        revision: 0,
         id: '7db42',
       },
       {

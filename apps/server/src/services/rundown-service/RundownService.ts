@@ -16,7 +16,6 @@ import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeCacheStore } from '../../stores/cachingStore.js';
 import {
   cachedApplyDelay,
-  cachedEdit,
   cachedBatchEdit,
   cachedReorder,
   cachedSwap,
@@ -51,7 +50,7 @@ function generateEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | 
   }
 
   if (isOntimeBlock(eventData)) {
-    return { ...blockDef, title: eventData.title, id } as OntimeBlock;
+    return { ...blockDef, title: eventData?.title ?? '', id } as OntimeBlock;
   }
 
   throw new Error('Invalid event type');
@@ -75,11 +74,10 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
   }
 
   // generate a fully formed event from the patch
-  const newEvent = generateEvent(eventData);
-
+  const eventToAdd = generateEvent(eventData);
   // modify rundown
   const scopedMutation = cache.mutateCache(cache.add);
-  await scopedMutation({ atIndex, event: newEvent as OntimeRundownEntry });
+  const { newEvent } = await scopedMutation({ atIndex, event: eventToAdd as OntimeRundownEntry });
 
   notifyChanges({ timer: [newEvent.id], external: true });
 
@@ -116,17 +114,17 @@ export async function deleteAllEvents() {
   notifyChanges({ external: true, reset: true });
 }
 
-export async function editEvent(eventData: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
-  if (!eventData?.id) {
-    throw new Error('Event misses ID');
-  }
-  if (isOntimeEvent(eventData) && eventData?.cue === '') {
+export async function editEvent(patch: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
+  if (isOntimeEvent(patch) && patch?.cue === '') {
     throw new Error('Cue value invalid');
   }
 
-  const newEvent = await cachedEdit(eventData.id, eventData);
+  // TODO: validate event against its type
 
-  notifyChanges({ timer: [newEvent.id], external: true });
+  const scopedMutation = cache.mutateCache(cache.edit);
+  const { newEvent } = await scopedMutation({ patch, eventId: patch.id });
+
+  notifyChanges({ timer: [patch.id], external: true });
 
   return newEvent;
 }

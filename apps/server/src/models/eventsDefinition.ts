@@ -32,7 +32,6 @@ export const event: Omit<OntimeEvent, 'id' | 'delay' | 'cue'> = {
 export const delay: Omit<OntimeDelay, 'id'> = {
   duration: 0,
   type: SupportedEvent.Delay,
-  revision: 0,
 };
 
 export const block: Omit<OntimeBlock, 'id'> = {

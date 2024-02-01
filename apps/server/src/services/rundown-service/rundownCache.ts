@@ -110,8 +110,11 @@ export function get(): Readonly<RundownCache> {
 
 type CommonParams = { persistedRundown: OntimeRundown };
 type MutationParams<T> = T & Partial<CommonParams>;
-
-type MutatingFn<T extends object> = (params: MutationParams<T>) => { newRundown: OntimeRundown };
+type MutatingReturn = {
+  newRundown: OntimeRundown;
+  newEvent?: OntimeRundownEntry;
+};
+type MutatingFn<T extends object> = (params: MutationParams<T>) => MutatingReturn;
 /**
  * Decorators injects data into mutation
  * @param mutation
@@ -120,7 +123,7 @@ type MutatingFn<T extends object> = (params: MutationParams<T>) => { newRundown:
 export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
   async function scopedMutation(params: T) {
     const persistedRundown = getPersistedRundown();
-    const { newRundown } = mutation({ ...params, persistedRundown });
+    const { newEvent, newRundown } = mutation({ ...params, persistedRundown });
 
     revision = revision + 1;
     isStale = true;
@@ -132,20 +135,21 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
     });
 
     // TODO: could we return a patch object?
+    return { newEvent };
   }
   return scopedMutation;
 }
 
 type AddArgs = MutationParams<{ atIndex: number; event: OntimeRundownEntry }>;
-export function add({ persistedRundown, atIndex, event }: AddArgs): { newRundown: OntimeRundown } {
-  const newEvent = { ...event };
+export function add({ persistedRundown, atIndex, event }: AddArgs): Required<MutatingReturn> {
+  const newEvent: OntimeRundownEntry = { ...event };
   const newRundown = insertAtIndex(atIndex, newEvent, persistedRundown);
 
-  return { newRundown };
+  return { newRundown, newEvent };
 }
 
 type RemoveArgs = MutationParams<{ eventId: string }>;
-export function remove({ persistedRundown, eventId }: RemoveArgs): { newRundown: OntimeRundown } {
+export function remove({ persistedRundown, eventId }: RemoveArgs): MutatingReturn {
   const atIndex = persistedRundown.findIndex((event) => event.id === eventId);
   const newRundown = deleteAtIndex(atIndex, persistedRundown);
 
@@ -154,6 +158,35 @@ export function remove({ persistedRundown, eventId }: RemoveArgs): { newRundown:
 
 export function removeAll(): { newRundown: OntimeRundown } {
   return { newRundown: [] };
+}
+
+type EditArgs = MutationParams<{ eventId: string; patch: Partial<OntimeRundownEntry> }>;
+export function edit({ persistedRundown, eventId, patch }: EditArgs): Required<MutatingReturn> {
+  const makeEvent = (eventFromRundown: OntimeRundownEntry): OntimeRundownEntry => {
+    if (isOntimeEvent(eventFromRundown)) {
+      const newEvent = createPatch(eventFromRundown, patch as OntimeEvent);
+      newEvent.revision++;
+      return newEvent;
+    }
+
+    return { ...eventFromRundown, ...patch } as OntimeRundownEntry;
+  };
+  const indexAt = persistedRundown.findIndex((event) => event.id === eventId);
+
+  if (indexAt < 0) {
+    throw new Error('Event not found');
+  }
+
+  if (patch?.type && persistedRundown[indexAt].type !== patch.type) {
+    throw new Error('Invalid event type');
+  }
+
+  const eventInMemory = persistedRundown[indexAt];
+  const newEvent = makeEvent(eventInMemory);
+  const newRundown = [...persistedRundown];
+  newRundown[indexAt] = newEvent;
+
+  return { newRundown, newEvent };
 }
 
 /**

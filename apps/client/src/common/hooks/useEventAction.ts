@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { GetRundownCached, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
+import { GetRundownCached, isOntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 import { getPreviousEvent, swapOntimeEvents } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/apiConstants';
@@ -111,17 +111,14 @@ export const useEventAction = () => {
 
       // Snapshot the previous value
       const previousData = queryClient.getQueryData<GetRundownCached>(RUNDOWN);
+      const eventId = newEvent.id;
 
-      if (previousData) {
+      if (previousData && eventId) {
         // optimistically update object
-        const optimisticRundown = [...previousData.rundown];
-        const index = optimisticRundown.findIndex((event) => event.id === newEvent.id);
-        if (index > -1) {
-          // @ts-expect-error -- we expect the event types to match
-          optimisticRundown[index] = { ...optimisticRundown[index], ...newEvent };
-
-          queryClient.setQueryData(RUNDOWN, { rundown: optimisticRundown, revision: -1 });
-        }
+        const newRundown = { ...previousData.rundown };
+        // @ts-expect-error -- we expect the events to be of same type
+        newRundown[eventId] = { ...newRundown[eventId], ...newEvent };
+        queryClient.setQueryData(RUNDOWN, { order: previousData.order, rundown: newRundown, revision: -1 });
       }
 
       // Return a context with the previous and new events
