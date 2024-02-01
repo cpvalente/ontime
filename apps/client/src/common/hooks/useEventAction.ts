@@ -34,8 +34,6 @@ export const useEventAction = () => {
    * @private
    */
   const _addEventMutation = useMutation({
-    // Mutation finished, failed or successful
-    // Fetch anyway, just to be sure
     mutationFn: requestPostEvent,
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
@@ -69,10 +67,12 @@ export const useEventAction = () => {
           after: options?.after,
         };
 
-        const rundown = queryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? [];
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know this has a value
+        const rundownData = queryClient.getQueryData<GetRundownCached>(RUNDOWN)!;
+        const { rundown } = rundownData;
 
         if (applicationOptions.startTimeIsLastEnd && applicationOptions?.lastEventId) {
-          const previousEvent = rundown.find((event) => event.id === applicationOptions.lastEventId);
+          const previousEvent = rundown[applicationOptions.lastEventId];
           if (isOntimeEvent(previousEvent)) {
             newEvent.timeStart = previousEvent.timeEnd;
             newEvent.timeEnd = previousEvent.timeEnd;
@@ -90,7 +90,6 @@ export const useEventAction = () => {
       }
 
       try {
-        // @ts-expect-error -- we know that the object is well formed now
         await _addEventMutation.mutateAsync(newEvent);
       } catch (error) {
         logAxiosError('Failed adding event', error);

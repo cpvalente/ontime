@@ -48,7 +48,7 @@ export type {
   ProjectFileListResponse,
   MessageResponse,
 } from './api/ontime-controller/BackendResponse.type.js';
-export type { GetRundownCached } from './api/rundown-controller/BackendResponse.type.js';
+export type { GetRundownCached, NormalisedRundown } from './api/rundown-controller/BackendResponse.type.js';
 
 // SERVER RUNTIME
 export { type Log, LogLevel, type LogMessage, LogOrigin } from './definitions/runtime/Logger.type.js';

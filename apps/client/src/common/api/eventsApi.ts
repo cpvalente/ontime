@@ -26,7 +26,7 @@ export async function fetchRundown(): Promise<OntimeRundown> {
  * @description HTTP request to post new event
  * @return {Promise}
  */
-export async function requestPostEvent(data: OntimeRundownEntry) {
+export async function requestPostEvent(data: Partial<OntimeRundownEntry>) {
   return axios.post(rundownURL, data);
 }
 

@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import { GetRundownCached } from 'ontime-types';
+import { GetRundownCached, NormalisedRundown } from 'ontime-types';
 
 import { queryRefetchInterval } from '../../ontimeConfig';
 import { RUNDOWN } from '../api/apiConstants';
 import { fetchCachedRundown } from '../api/eventsApi';
 
-const cachedRundownPlaceholder = { rundown: [], revision: -1 };
+// revision is -1 so that the remote revision is higher
+const cachedRundownPlaceholder = { order: [] as string[], rundown: {} as NormalisedRundown, revision: -1 };
 
-// TODO: can we leverage structural sharing to see if data has changed?
 export default function useRundown() {
   const { data, status, isError, refetch, isFetching } = useQuery<GetRundownCached>({
     queryKey: RUNDOWN,
@@ -17,13 +17,6 @@ export default function useRundown() {
     retryDelay: (attempt) => attempt * 2500,
     refetchInterval: queryRefetchInterval,
     networkMode: 'always',
-    // structuralSharing: (oldData: GetRundownCached | undefined, newData: GetRundownCached) => {
-    //   if (oldData === undefined) {
-    //     return cachedRundownPlaceholder;
-    //   }
-    //   const hasDataChanged = oldData?.revision === newData.revision;
-    //   return hasDataChanged ? oldData : newData;
-    // },
   });
-  return { data: data?.rundown ?? [], status, isError, refetch, isFetching };
+  return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
 }

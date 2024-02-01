@@ -5,7 +5,14 @@ import { TimerService } from '../TimerService.js';
 import { logger } from '../../classes/Logger.js';
 import { RestorePoint } from '../RestoreService.js';
 import * as runtimeState from '../../stores/runtimeState.js';
-import { findNext, findPrevious, getEventAtIndex, getEventWithCue, getEventWithId, getPlayableEvents } from '../rundown-service/RundownService.js';
+import {
+  findNext,
+  findPrevious,
+  getEventAtIndex,
+  getEventWithCue,
+  getEventWithId,
+  getPlayableEvents,
+} from '../rundown-service/RundownService.js';
 
 /**
  * Service manages runtime status of app
@@ -142,7 +149,7 @@ class RuntimeService {
 
     const timedEvents = getPlayableEvents();
     const state = runtimeState.getState();
-    // TODO: return success boolean from runtimeState
+    // TODO: return success boolean from runtimeState, when we work with optimising integrations
     runtimeState.load(event, timedEvents);
     const success = event.id === state.eventNow?.id;
 

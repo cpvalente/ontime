@@ -1,19 +1,20 @@
 import {
   LogOrigin,
-  OntimeBaseEvent,
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
-  SupportedEvent,
+  OntimeRundown,
+  OntimeRundownEntry,
+  isOntimeBlock,
+  isOntimeDelay,
   isOntimeEvent,
 } from 'ontime-types';
-import { generateId, getCueCandidate } from 'ontime-utils';
+import { getCueCandidate } from 'ontime-utils';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeCacheStore } from '../../stores/cachingStore.js';
 import {
-  cachedAdd,
   cachedApplyDelay,
   cachedClear,
   cachedDelete,
@@ -28,6 +29,8 @@ import { createEvent } from '../../utils/parser.js';
 import { updateNumEvents } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
+import * as cache from './rundownCache.js';
+
 /**
  * Forces rundown to be recalculated
  * To be used when we know the rundown has changed completely
@@ -36,45 +39,53 @@ export function forceReset() {
   runtimeService.reset();
   runtimeCacheStore.invalidate(delayedRundownCacheKey);
 }
+
+function generateEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>) {
+  // we discard any UI provided events and add our own
+  const id = cache.getUniqueId();
+
+  if (isOntimeEvent(eventData)) {
+    return createEvent(eventData, getCueCandidate(DataProvider.getRundown(), eventData?.after)) as OntimeEvent;
+  }
+
+  if (isOntimeDelay(eventData)) {
+    return { ...delayDef, duration: eventData.duration ?? 0, id } as OntimeDelay;
+  }
+
+  if (isOntimeBlock(eventData)) {
+    return { ...blockDef, title: eventData.title, id } as OntimeBlock;
+  }
+
+  throw new Error('Invalid event type');
+}
+
 /**
  * @description creates a new event with given data
  * @param {object} eventData
- * @return {unknown[]}
+ * @return {OntimeRundownEntry}
  */
 export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>) {
-  let newEvent: Partial<OntimeBaseEvent> = {};
-  const id = generateId();
-
-  let insertIndex = 0;
+  // if the user didnt provide an index, we add the event to start
+  let atIndex = 0;
   if (eventData?.after !== undefined) {
-    const index = DataProvider.getIndexOf(eventData.after);
-    if (index < 0) {
+    const previousIndex = cache.getIndexOf(eventData.after);
+    if (previousIndex < 0) {
       logger.warning(LogOrigin.Server, `Could not find event with id ${eventData.after}`);
     } else {
-      insertIndex = index + 1;
+      atIndex = previousIndex + 1;
     }
   }
 
-  switch (eventData.type) {
-    case SupportedEvent.Event: {
-      newEvent = createEvent(eventData, getCueCandidate(DataProvider.getRundown(), eventData?.after)) as OntimeEvent;
-      break;
-    }
-    case SupportedEvent.Delay:
-      newEvent = { ...delayDef, duration: eventData.duration, id } as OntimeDelay;
-      break;
-    case SupportedEvent.Block:
-      newEvent = { ...blockDef, title: eventData.title, id } as OntimeBlock;
-      break;
-  }
-  delete eventData.after;
+  // generate a fully formed event from the patch
+  const newEvent = generateEvent(eventData);
 
   // modify rundown
-  await cachedAdd(insertIndex, newEvent as OntimeEvent | OntimeDelay | OntimeBlock);
+  const scopedMutation = cache.mutateCache(cache.add);
+  scopedMutation({ atIndex, event: newEvent as OntimeRundownEntry });
 
-  notifyChanges({ timer: [id], external: true });
+  notifyChanges({ timer: [newEvent.id], external: true });
 
-  // notify event loader that rundown size has changed
+  // notify runtime that rundown size has changed
   updateChangeNumEvents();
 
   return newEvent;
@@ -100,6 +111,8 @@ export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>)
 
   // notify runtime service of changed events
   runtimeService.update(ids);
+
+  notifyChanges({ timer: ids, external: true });
 
   // advice socket subscribers of change
   sendRefetch();
@@ -193,6 +206,14 @@ export function notifyChanges(options: { timer?: boolean | string[]; external?: 
     // advice socket subscribers of change
     sendRefetch();
   }
+}
+
+/**
+ * returns entire unfiltered rundown
+ * @return {array}
+ */
+export function getRundown(): OntimeRundown {
+  return DataProvider.getRundown();
 }
 
 /**

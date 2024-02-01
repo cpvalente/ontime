@@ -1,5 +1,4 @@
 import {
-  GetRundownCached,
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
@@ -9,7 +8,7 @@ import {
   OntimeRundown,
   OntimeRundownEntry,
 } from 'ontime-types';
-import { swapOntimeEvents } from 'ontime-utils';
+import { generateId, swapOntimeEvents } from 'ontime-utils';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { getCached, runtimeCacheStore } from '../../stores/cachingStore.js';
@@ -17,6 +16,164 @@ import { isProduction } from '../../setup.js';
 import { deleteAtIndex, insertAtIndex, reorderArray } from '../../utils/arrayUtils.js';
 import { createPatch } from '../../utils/parser.js';
 import { applyDelay, calculateRuntimeDelays, calculateRuntimeDelaysFromIndex, getDelayAt } from './delayUtils.js';
+
+type NormalisedRundown = Record<string, OntimeRundownEntry>;
+
+let rundown: NormalisedRundown = {};
+let order: string[] = [];
+let revision = 0;
+let isStale = true;
+
+/**
+ * Clears scoped data
+ */
+export function clear() {
+  rundown = {};
+  order = [];
+  revision = 0;
+  isStale = true;
+}
+
+/**
+ * Utility initialises cache
+ * @param persistedRundown
+ */
+function init(persistedRundown: Readonly<OntimeRundown>) {
+  // we decided to try and re-write this dataset for every change
+  // instead of maintaining logic to update it
+  clear();
+
+  let accumulatedDelay = 0;
+  for (let i = 0; i < persistedRundown.length; i++) {
+    const event = persistedRundown[i];
+
+    // calculate delays
+    if (isOntimeDelay(event)) {
+      accumulatedDelay += event.duration;
+    } else if (isOntimeBlock(event)) {
+      accumulatedDelay = 0;
+    } else if (isOntimeEvent(event)) {
+      event.delay = accumulatedDelay;
+    }
+
+    order.push(event.id);
+    rundown[event.id] = { ...event };
+  }
+  revision = 0;
+  isStale = false;
+}
+
+/**
+ * Returns an ID guaranteed to be unique
+ * @returns
+ */
+export function getUniqueId(persistedRundown: Readonly<OntimeRundown> = getPersistedRundown()): string {
+  let id = '';
+  do {
+    id = generateId();
+  } while (!isIdUnique(persistedRundown, id));
+  return id;
+}
+
+export function isIdUnique(persistedRundown: Readonly<OntimeRundown>, eventId: string) {
+  if (isStale) {
+    init(persistedRundown);
+  }
+  return !Object.hasOwn(rundown, eventId);
+}
+
+export function getIndexOf(eventId: string) {
+  if (isStale) {
+    init(getPersistedRundown());
+  }
+  return order.indexOf(eventId);
+}
+
+/**
+ * Utility function gets rundown from DataProvider
+ * @returns {OntimeRundown}
+ */
+export const getPersistedRundown = (): OntimeRundown => DataProvider.getRundown();
+
+type RundownCache = {
+  rundown: NormalisedRundown;
+  order: string[];
+  revision: number;
+};
+
+/**
+ * Returns cached data
+ * @returns {RundownCache}
+ */
+export function get(): Readonly<RundownCache> {
+  if (isStale) {
+    console.time('rundownCache__init');
+    init(getPersistedRundown());
+    console.timeEnd('rundownCache__init');
+  }
+  return {
+    rundown: rundown,
+    order,
+    revision,
+  };
+}
+
+type MutationParams<T> = T & Partial<{ persistedRundown: OntimeRundown }>;
+
+type MutatingFn<T extends object> = (params: MutationParams<T>) => { newRundown: OntimeRundown };
+/**
+ * Decorators injects data into mutation
+ * @param mutation
+ * @returns
+ */
+export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
+  function scopedMutation(params: T) {
+    const persistedRundown = getPersistedRundown();
+    const { newRundown } = mutation({ ...params, persistedRundown });
+
+    revision++;
+    isStale = true;
+
+    DataProvider.setRundown(newRundown);
+
+    // TODO: could we return a patch object?
+  }
+  return scopedMutation;
+}
+
+type AddArgs = MutationParams<{ atIndex: number; event: OntimeRundownEntry }>;
+export function add({ persistedRundown, atIndex, event }: AddArgs): { newRundown: OntimeRundown } {
+  const newEvent = { ...event };
+  const newRundown = insertAtIndex(atIndex, newEvent, persistedRundown);
+
+  return { newRundown };
+}
+
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 
 /**
  * Keep incremental revision number of rundown for runtime
@@ -45,7 +202,7 @@ export function invalidateFromError(errorMessage = 'Found mismatch between store
  * Returns rundown with calculated delays
  * Ensures request goes through the caching layer
  */
-export function getRundownCache(): GetRundownCached {
+export function getRundownCache() {
   function calculateRundown() {
     const rundown = DataProvider.getRundown();
     return calculateRuntimeDelays(rundown);

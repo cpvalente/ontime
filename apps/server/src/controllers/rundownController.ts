@@ -13,7 +13,7 @@ import {
   reorderEvent,
   swapEvents,
 } from '../services/rundown-service/RundownService.js';
-import { getDelayedRundown, getRundownCache } from '../services/rundown-service/rundownCache.js';
+import { get, getDelayedRundown } from '../services/rundown-service/rundownCache.js';
 
 // Create controller for GET request to '/events'
 // Returns -
@@ -25,7 +25,7 @@ export const rundownGetAll: RequestHandler = async (_req, res) => {
 // Create controller for GET request to '/events/cached'
 // Returns -
 export const rundownGetCached: RequestHandler = async (_req: Request, res: Response<GetRundownCached>) => {
-  const cachedRundown = getRundownCache();
+  const cachedRundown = get();
   res.json(cachedRundown);
 };
 
