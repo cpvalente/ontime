@@ -22,3 +22,10 @@
   @include drag-style;
   grid-area: drag;
 }
+
+.actionButtons {
+  grid-area: btns;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

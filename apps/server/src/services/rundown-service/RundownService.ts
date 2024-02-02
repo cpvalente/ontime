@@ -148,7 +148,8 @@ export async function reorderEvent(eventId: string, from: number, to: number) {
 }
 
 export async function applyDelay(eventId: string) {
-  await cachedApplyDelay(eventId);
+  const scopedMutation = cache.mutateCache(cache.applyDelay);
+  await scopedMutation({ eventId });
 
   notifyChanges({ timer: true, external: true });
 }

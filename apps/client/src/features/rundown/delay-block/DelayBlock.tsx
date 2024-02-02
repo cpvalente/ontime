@@ -72,7 +72,7 @@ export default function DelayBlock(props: DelayBlockProps) {
         <IoReorderTwo />
       </span>
       <DelayInput eventId={data.id} duration={data.duration} />
-      <HStack spacing='8px' className={style.actionOverlay}>
+      <div className={style.actionButtons}>
         <Button onClick={applyDelayHandler} size='sm' leftIcon={<IoCheckmark />} variant='ontime-subtle-white'>
           Apply
         </Button>
@@ -80,7 +80,7 @@ export default function DelayBlock(props: DelayBlockProps) {
           Cancel
         </Button>
         <BlockActionMenu enableDelete actionHandler={actionHandler} />
-      </HStack>
+      </div>
     </div>
   );
 }

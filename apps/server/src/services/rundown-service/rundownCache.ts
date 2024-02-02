@@ -14,7 +14,7 @@ import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { getCached, runtimeCacheStore } from '../../stores/cachingStore.js';
 import { isProduction } from '../../setup.js';
 import { createPatch } from '../../utils/parser.js';
-import { applyDelay, calculateRuntimeDelays, calculateRuntimeDelaysFromIndex, getDelayAt } from './delayUtils.js';
+import { apply, calculateRuntimeDelays, calculateRuntimeDelaysFromIndex, getDelayAt } from './delayUtils.js';
 
 type NormalisedRundown = Record<string, OntimeRundownEntry>;
 
@@ -225,8 +225,11 @@ export function reorder({ persistedRundown, eventId, from, to }: ReorderArgs): R
   return { newRundown, newEvent: event };
 }
 
-//type ApplyDelayArgs = MutationParams<{ eventIds: string[]; patch: Partial<OntimeRundownEntry> }>;
-//export function applyDelay({ persistedRundown, eventIds, patch }: ApplyDelayArgs): MutatingReturn {}
+type ApplyDelayArgs = MutationParams<{ eventId: string }>;
+export function applyDelay({ persistedRundown, eventId }: ApplyDelayArgs): MutatingReturn {
+  const newRundown = apply(eventId, persistedRundown);
+  return { newRundown };
+}
 
 //type SwapArgs = MutationParams<{ eventIds: string[]; patch: Partial<OntimeRundownEntry> }>;
 //export function swap({ persistedRundown, eventIds, patch }: SwapArgs): MutatingReturn {}
@@ -514,10 +517,10 @@ export async function cachedSwap(fromEventId: string, toEventId: string) {
 export async function cachedApplyDelay(eventId: string) {
   // update persisted rundown
   const rundown: OntimeRundown = DataProvider.getRundown();
-  const persistedRundown = applyDelay(eventId, rundown);
+  const persistedRundown = apply(eventId, rundown);
 
   const delayedRundown = getDelayedRundown();
-  const cachedRundown = applyDelay(eventId, delayedRundown);
+  const cachedRundown = apply(eventId, delayedRundown);
 
   // update
   runtimeCacheStore.setCached(delayedRundownCacheKey, cachedRundown);
