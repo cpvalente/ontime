@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Button, HStack } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
