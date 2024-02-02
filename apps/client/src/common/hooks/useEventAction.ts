@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { GetRundownCached, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
-import { getPreviousEvent, reorderArray, swapEventData } from 'ontime-utils';
+import { reorderArray, swapEventData } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/apiConstants';
 import { logAxiosError } from '../api/apiUtils';
@@ -157,14 +157,25 @@ export const useEventAction = () => {
   const updateTimer = useCallback(
     async (eventId: string, field: TimeField, value: string) => {
       const getPreviousEnd = (): number => {
-        const rundown = queryClient.getQueryData<GetRundownCached>(RUNDOWN)?.rundown ?? [];
-        if (rundown) {
-          const { previousEvent } = getPreviousEvent(rundown, eventId);
-          if (previousEvent) {
-            return previousEvent.timeEnd;
+        const cachedRundown = queryClient.getQueryData<GetRundownCached>(RUNDOWN);
+
+        if (!cachedRundown?.order || !cachedRundown?.rundown) {
+          return 0;
+        }
+
+        const index = cachedRundown.order.indexOf(eventId);
+        if (index === 0) {
+          return 0;
+        }
+        let previousEnd = 0;
+        for (let i = index - 1; i >= 0; i--) {
+          const event = cachedRundown.rundown[cachedRundown.order[i]];
+          if (isOntimeEvent(event)) {
+            previousEnd = event.timeEnd;
+            break;
           }
         }
-        return 0;
+        return previousEnd;
       };
 
       let newValMillis = 0;

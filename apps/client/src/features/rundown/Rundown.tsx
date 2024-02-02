@@ -2,7 +2,7 @@ import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react'
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { GetRundownCached, isOntimeBlock, isOntimeDelay, isOntimeEvent, Playback, SupportedEvent } from 'ontime-types';
-import { getFirst, getNext, getPrevious } from 'ontime-utils';
+import { getFirstNormal, getNextNormal, getPreviousNormal } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
@@ -94,8 +94,8 @@ export default function Rundown({ data }: RundownProps) {
             if (order.length < 1) {
               return;
             }
-            const nextEvent = cursor == null ? getFirst([]) : getNext([], cursor)?.nextEvent;
-            //const nextEvent = cursor == null ? getFirst(data) : getNext(data, cursor)?.nextEvent;
+            const nextEvent =
+              cursor == null ? getFirstNormal(rundown, order) : getNextNormal(rundown, order, cursor)?.nextEvent;
             if (nextEvent) {
               // moveCursorTo(nextEvent.id, nextEvent.type === SupportedEvent.Event);
             }
@@ -106,8 +106,8 @@ export default function Rundown({ data }: RundownProps) {
               return;
             }
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we check for this before
-            const previousEvent = cursor == null ? getFirst([]) : getPrevious([], cursor).previousEvent;
-            //const previousEvent = cursor == null ? getFirst(data) : getPrevious(data, cursor).previousEvent;
+            const previousEvent =
+              cursor == null ? getFirstNormal(rundown, order) : getPreviousNormal(rundown, order, cursor).previousEvent;
             if (previousEvent) {
               // moveCursorTo(previousEvent.id, previousEvent.type === SupportedEvent.Event);
             }
@@ -139,21 +139,19 @@ export default function Rundown({ data }: RundownProps) {
           return;
         }
         if (event.code == 'ArrowDown') {
-          // const { nextEvent, nextIndex } = getNext(data, cursor);
-          const { nextEvent, nextIndex } = getNext([], cursor);
+          const { nextEvent, nextIndex } = getNextNormal(rundown, order, cursor);
           if (nextEvent && nextIndex !== null) {
             reorderEvent(cursor, nextIndex - 1, nextIndex);
           }
         } else if (event.code == 'ArrowUp') {
-          // const { previousEvent, previousIndex } = getPrevious(data, cursor);
-          const { previousEvent, previousIndex } = getPrevious([], cursor);
+          const { previousEvent, previousIndex } = getPreviousNormal(rundown, order, cursor);
           if (previousEvent && previousIndex !== null) {
             reorderEvent(cursor, previousIndex + 1, previousIndex);
           }
         }
       }
     },
-    [cursor, insertAtCursor, order.length, reorderEvent],
+    [cursor, insertAtCursor, order, rundown, reorderEvent],
   );
 
   // we copy the state from the store here
@@ -195,7 +193,7 @@ export default function Rundown({ data }: RundownProps) {
     }
   };
 
-  if (statefulEntries?.length < 1) {
+  if (statefulEntries.length < 1) {
     return <RundownEmpty handleAddNew={() => insertAtCursor(SupportedEvent.Event, null)} />;
   }
 
