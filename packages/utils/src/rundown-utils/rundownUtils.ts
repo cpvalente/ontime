@@ -133,40 +133,27 @@ export function getPreviousEvent(
 
 /**
  * @description swaps two OntimeEvents in the rundown
- * @param {OntimeRundown} rundown
- * @param {number} fromEventIndex
- * @param {number} toEventIndex
- * @returns {OntimeRundown}
+ * @param {OntimeEvent} eventA
+ * @param {OntimeEvent} eventB
  */
-export const swapOntimeEvents = (
-  rundown: OntimeRundown,
-  fromEventIndex: number,
-  toEventIndex: number,
-): OntimeRundown => {
-  const updatedRundown = [...rundown];
-
-  if (fromEventIndex < 0 || toEventIndex < 0) {
-    throw new Error('ID not found at index');
-  }
-
-  const fromEvent = updatedRundown.at(fromEventIndex) as OntimeEvent;
-  const toEvent = updatedRundown.at(toEventIndex) as OntimeEvent;
-
-  updatedRundown[fromEventIndex] = {
-    ...toEvent,
-    timeStart: fromEvent.timeStart,
-    timeEnd: fromEvent.timeEnd,
-    duration: fromEvent.duration,
-    delay: fromEvent.delay,
+export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA: OntimeEvent; newB: OntimeEvent } => {
+  const newA = {
+    ...eventB,
+    id: eventA.id,
+    timeStart: eventA.timeStart,
+    timeEnd: eventA.timeEnd,
+    duration: eventA.duration,
+    delay: eventA.delay,
   };
 
-  updatedRundown[toEventIndex] = {
-    ...fromEvent,
-    timeStart: toEvent.timeStart,
-    timeEnd: toEvent.timeEnd,
-    duration: toEvent.duration,
-    delay: toEvent.delay,
+  const newB = {
+    ...eventA,
+    id: eventB.id,
+    timeStart: eventB.timeStart,
+    timeEnd: eventB.timeEnd,
+    duration: eventB.duration,
+    delay: eventB.delay,
   };
 
-  return updatedRundown;
+  return { newA, newB };
 };

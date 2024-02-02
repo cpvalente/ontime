@@ -1,7 +1,7 @@
 import { EndAction, OntimeEvent, OntimeRundown, SupportedEvent, TimerType } from 'ontime-types';
 
 import { calculateRuntimeDelays, getDelayAt, calculateRuntimeDelaysFrom } from '../delayUtils.js';
-import { add, batchEdit, edit, remove, reorder } from '../rundownCache.js';
+import { add, batchEdit, edit, remove, reorder, swap } from '../rundownCache.js';
 
 describe('add() mutation', () => {
   test('adds an event to the rundown', () => {
@@ -64,9 +64,9 @@ describe('batchEdit() mutation', () => {
 describe('reorder() mutation', () => {
   it('should correctly reorder two events', () => {
     const persistedRundown: OntimeRundown = [
-      { id: '1', type: SupportedEvent.Event, cue: 'data1' } as OntimeEvent,
-      { id: '2', type: SupportedEvent.Event, cue: 'data2' } as OntimeEvent,
-      { id: '3', type: SupportedEvent.Event, cue: 'data3' } as OntimeEvent,
+      { id: '1', type: SupportedEvent.Event, cue: 'data1', revision: 0 } as OntimeEvent,
+      { id: '2', type: SupportedEvent.Event, cue: 'data2', revision: 0 } as OntimeEvent,
+      { id: '3', type: SupportedEvent.Event, cue: 'data3', revision: 0 } as OntimeEvent,
     ];
     const { newRundown } = reorder({
       persistedRundown,
@@ -76,10 +76,40 @@ describe('reorder() mutation', () => {
     });
 
     expect(newRundown).toMatchObject([
-      { id: '2', type: SupportedEvent.Event, cue: 'data2' },
-      { id: '3', type: SupportedEvent.Event, cue: 'data3' },
-      { id: '1', type: SupportedEvent.Event, cue: 'data1' },
+      { id: '2', type: SupportedEvent.Event, cue: 'data2', revision: 1 },
+      { id: '3', type: SupportedEvent.Event, cue: 'data3', revision: 1 },
+      { id: '1', type: SupportedEvent.Event, cue: 'data1', revision: 1 },
     ]);
+  });
+});
+
+describe('swap() mutation', () => {
+  it('should correctly swap data between events', () => {
+    const persistedRundown: OntimeRundown = [
+      { id: '1', type: SupportedEvent.Event, cue: 'data1', timeStart: 1, revision: 0 } as OntimeEvent,
+      { id: '2', type: SupportedEvent.Event, cue: 'data2', timeStart: 2, revision: 0 } as OntimeEvent,
+      { id: '3', type: SupportedEvent.Event, cue: 'data3', timeStart: 3, revision: 0 } as OntimeEvent,
+    ];
+    const { newRundown } = swap({
+      persistedRundown,
+      fromId: persistedRundown[0].id,
+      toId: persistedRundown[1].id,
+    });
+
+    expect((newRundown[0] as OntimeEvent).id).toBe('1');
+    expect((newRundown[0] as OntimeEvent).cue).toBe('data2');
+    expect((newRundown[0] as OntimeEvent).timeStart).toBe(1);
+    expect((newRundown[0] as OntimeEvent).revision).toBe(1);
+
+    expect((newRundown[1] as OntimeEvent).id).toBe('2');
+    expect((newRundown[1] as OntimeEvent).cue).toBe('data1');
+    expect((newRundown[1] as OntimeEvent).timeStart).toBe(2);
+    expect((newRundown[1] as OntimeEvent).revision).toBe(1);
+
+    expect((newRundown[2] as OntimeEvent).id).toBe('3');
+    expect((newRundown[2] as OntimeEvent).cue).toBe('data3');
+    expect((newRundown[2] as OntimeEvent).timeStart).toBe(3);
+    expect((newRundown[2] as OntimeEvent).revision).toBe(0);
   });
 });
 

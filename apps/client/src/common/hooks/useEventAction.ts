@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { GetRundownCached, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
-import { getPreviousEvent, reorderArray, swapOntimeEvents } from 'ontime-utils';
+import { getPreviousEvent, reorderArray, swapEventData } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/apiConstants';
 import { logAxiosError } from '../api/apiUtils';
@@ -445,12 +445,19 @@ export const useEventAction = () => {
       const previousData = queryClient.getQueryData<GetRundownCached>(RUNDOWN);
       if (previousData) {
         // optimistically update object
-        const fromEventIndex = previousData.rundown.findIndex((event) => event.id === from);
-        const toEventIndex = previousData.rundown.findIndex((event) => event.id === to);
+        const newRundown = { ...previousData.rundown };
+        const eventA = previousData.rundown[from];
+        const eventB = previousData.rundown[to];
 
-        const optimisticRundown = swapOntimeEvents(previousData.rundown, fromEventIndex, toEventIndex);
+        if (!isOntimeEvent(eventA) || !isOntimeEvent(eventB)) {
+          return;
+        }
 
-        queryClient.setQueryData(RUNDOWN, { rundown: optimisticRundown, revision: -1 });
+        const { newA, newB } = swapEventData(eventA, eventB);
+        newRundown[from] = newA;
+        newRundown[to] = newB;
+
+        queryClient.setQueryData(RUNDOWN, { order: previousData.order, rundown: newRundown, revision: -1 });
       }
 
       // Return a context with the previous events
@@ -474,8 +481,6 @@ export const useEventAction = () => {
    */
   const swapEvents = useCallback(
     async ({ from, to }: SwapEntry) => {
-      // TODO: before calling `/swapEvents`,
-      // we should determine the events are of type `OntimeEvent`
       try {
         await _swapEvents.mutateAsync({ from, to });
       } catch (error) {

@@ -8,7 +8,7 @@ import {
   OntimeRundown,
   OntimeRundownEntry,
 } from 'ontime-types';
-import { generateId, swapOntimeEvents, deleteAtIndex, insertAtIndex, reorderArray } from 'ontime-utils';
+import { generateId, deleteAtIndex, insertAtIndex, reorderArray, swapEventData } from 'ontime-utils';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { getCached, runtimeCacheStore } from '../../stores/cachingStore.js';
@@ -222,7 +222,13 @@ export function reorder({ persistedRundown, eventId, from, to }: ReorderArgs): R
   }
 
   const newRundown = reorderArray(persistedRundown, from, to);
-  return { newRundown, newEvent: event };
+  for (let i = from; i <= to; i++) {
+    const event = newRundown.at(i);
+    if (isOntimeEvent(event)) {
+      event.revision += 1;
+    }
+  }
+  return { newRundown, newEvent: newRundown.at(from) };
 }
 
 type ApplyDelayArgs = MutationParams<{ eventId: string }>;
@@ -231,8 +237,28 @@ export function applyDelay({ persistedRundown, eventId }: ApplyDelayArgs): Mutat
   return { newRundown };
 }
 
-//type SwapArgs = MutationParams<{ eventIds: string[]; patch: Partial<OntimeRundownEntry> }>;
-//export function swap({ persistedRundown, eventIds, patch }: SwapArgs): MutatingReturn {}
+type SwapArgs = MutationParams<{ fromId: string; toId: string }>;
+export function swap({ persistedRundown, fromId, toId }: SwapArgs): MutatingReturn {
+  const indexA = persistedRundown.findIndex((event) => event.id === fromId);
+  const eventA = persistedRundown.at(indexA);
+
+  const indexB = persistedRundown.findIndex((event) => event.id === toId);
+  const eventB = persistedRundown.at(indexB);
+
+  if (!isOntimeEvent(eventA) || !isOntimeEvent(eventB)) {
+    throw new Error('Swap only available for OntimeEvents');
+  }
+
+  const { newA, newB } = swapEventData(eventA, eventB);
+  const newRundown = [...persistedRundown];
+
+  newRundown[indexA] = newA;
+  (newRundown[indexA] as OntimeEvent).revision += 1;
+  newRundown[indexB] = newB;
+  (newRundown[indexB] as OntimeEvent).revision += 1;
+
+  return { newRundown };
+}
 
 /**
  *
@@ -482,35 +508,6 @@ export async function cachedReorder(eventId: string, from: number, to: number) {
 export async function cachedClear() {
   await DataProvider.clearRundown();
   runtimeCacheStore.setCached(delayedRundownCacheKey, []);
-  rundownRevision++;
-}
-
-/**
- * Swaps two events
- * @param {string} fromEventId
- * @param {string} toEventId
- */
-export async function cachedSwap(fromEventId: string, toEventId: string) {
-  const fromEventIndex = DataProvider.getIndexOf(fromEventId);
-  const toEventIndex = DataProvider.getIndexOf(toEventId);
-
-  const rundown = DataProvider.getRundown();
-  const rundownToUpdate = swapOntimeEvents(rundown, fromEventIndex, toEventIndex);
-
-  const delayedRundown = getDelayedRundown();
-  const fromCachedEvent = delayedRundown.at(fromEventIndex);
-  const toCachedEvent = delayedRundown.at(toEventIndex);
-
-  if (fromCachedEvent.id !== fromEventId || toCachedEvent.id !== toEventId) {
-    // something went wrong, we invalidate the cache
-    runtimeCacheStore.invalidate(delayedRundownCacheKey);
-  } else {
-    const delayedRundownToUpdate = swapOntimeEvents(delayedRundown, fromEventIndex, toEventIndex);
-    runtimeCacheStore.setCached(delayedRundownCacheKey, delayedRundownToUpdate);
-  }
-
-  await DataProvider.setRundown(rundownToUpdate);
-
   rundownRevision++;
 }
 

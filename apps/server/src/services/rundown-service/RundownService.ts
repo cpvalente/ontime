@@ -14,7 +14,7 @@ import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeCacheStore } from '../../stores/cachingStore.js';
-import { cachedApplyDelay, cachedSwap, delayedRundownCacheKey } from './rundownCache.js';
+import { delayedRundownCacheKey } from './rundownCache.js';
 import { logger } from '../../classes/Logger.js';
 import { createEvent } from '../../utils/parser.js';
 import { updateNumEvents } from '../../stores/runtimeState.js';
@@ -161,7 +161,8 @@ export async function applyDelay(eventId: string) {
  * @returns {Promise<void>}
  */
 export async function swapEvents(from: string, to: string) {
-  await cachedSwap(from, to);
+  const scopedMutation = cache.mutateCache(cache.swap);
+  await scopedMutation({ fromId: from, toId: to });
 
   notifyChanges({ timer: true, external: true });
 }
