@@ -1,5 +1,5 @@
 import { MouseEvent } from 'react';
-import { isOntimeEvent, OntimeEvent, OntimeRundown, RundownCached } from 'ontime-types';
+import { isOntimeEvent, OntimeEvent, RundownCached } from 'ontime-types';
 import { create } from 'zustand';
 
 import { RUNDOWN } from '../../common/api/apiConstants';
