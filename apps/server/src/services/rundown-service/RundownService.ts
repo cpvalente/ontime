@@ -10,6 +10,7 @@ import {
   isOntimeEvent,
 } from 'ontime-types';
 import { getCueCandidate } from 'ontime-utils';
+
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
@@ -286,4 +287,10 @@ export function findNext(currentEventId?: string): OntimeEvent | null {
   const newIndex = (currentIndex + 1) % timedEvents.length;
   const nextEvent = timedEvents.at(newIndex);
   return nextEvent ?? null;
+}
+
+export async function setRundown(rundown: OntimeRundown) {
+  await DataProvider.setRundown(rundown);
+  cache.init(rundown);
+  notifyChanges({ timer: true });
 }

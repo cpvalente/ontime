@@ -23,7 +23,7 @@ let isStale = true;
  * Utility initialises cache
  * @param persistedRundown
  */
-function init(persistedRundown: Readonly<OntimeRundown>) {
+export function init(persistedRundown: Readonly<OntimeRundown>) {
   // we decided to try and re-write this dataset for every change
   // instead of maintaining logic to update it
   rundown = {};

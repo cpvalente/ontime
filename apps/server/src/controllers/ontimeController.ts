@@ -32,9 +32,7 @@ import {
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
-import { deleteAllEvents, notifyChanges } from '../services/rundown-service/RundownService.js';
-import { runtimeCacheStore } from '../stores/cachingStore.js';
-import { delayedRundownCacheKey } from '../services/rundown-service/rundownCache.js';
+import { deleteAllEvents, notifyChanges, setRundown } from '../services/rundown-service/RundownService.js';
 import { integrationService } from '../services/integration-service/IntegrationService.js';
 import { getProjectFiles } from '../utils/getFileListFromFolder.js';
 import { configService } from '../services/ConfigService.js';
@@ -102,11 +100,11 @@ const parseAndApply = async (file, _req, res, options) => {
 
   const newRundown = result.rundown || [];
   if (options?.onlyRundown === 'true') {
-    await DataProvider.setRundown(newRundown);
+    setRundown(newRundown);
   } else {
     await DataProvider.mergeIntoData(result);
   }
-  notifyChanges({ timer: true, external: true, reset: true });
+  notifyChanges({ timer: true, external: true });
 };
 
 /**
@@ -403,15 +401,14 @@ export async function patchPartialProjectFile(req, res) {
       osc: req.body?.osc,
       aliases: req.body?.aliases,
       userFields: req.body?.userFields,
-      rundown: req.body?.rundown,
     };
 
+    const maybeRundown = req.body?.rundown;
     await DataProvider.mergeIntoData(patchDb);
-    if (patchDb.rundown !== undefined) {
+    if (maybeRundown !== undefined) {
       // it is likely cheaper to invalidate cache than to calculate diff
       runtimeService.stop();
-      runtimeCacheStore.invalidate(delayedRundownCacheKey);
-      notifyChanges({ external: true, reset: true });
+      await setRundown(maybeRundown);
     }
     res.status(200).send();
   } catch (error) {
@@ -453,7 +450,6 @@ export async function previewExcel(req, res) {
     const data = await parseFile(file, req, res, options);
     res.status(200).send(data);
   } catch (error) {
-    console.log(error)
     res.status(500).send({ message: error.toString() });
   }
 }
