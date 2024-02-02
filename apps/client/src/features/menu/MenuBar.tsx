@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect } from 'react';
 import { IconButton, MenuButton, Tooltip } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoCloud } from '@react-icons/all-files/io5/IoCloud';
@@ -10,17 +10,14 @@ import { IoHelp } from '@react-icons/all-files/io5/IoHelp';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoPushOutline } from '@react-icons/all-files/io5/IoPushOutline';
-import { IoSaveOutline } from '@react-icons/all-files/io5/IoSaveOutline';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 import { IoSnowOutline } from '@react-icons/all-files/io5/IoSnowOutline';
 
-import { downloadCSV, downloadRundown } from '../../common/api/ontimeApi';
 import QuitIconBtn from '../../common/components/buttons/QuitIconBtn';
 import TooltipActionBtn from '../../common/components/buttons/TooltipActionBtn';
 import useElectronEvent from '../../common/hooks/useElectronEvent';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { cx } from '../../common/utils/styleUtils';
-import ExportModal, { ExportType } from '../modals/export-modal/ExportModal';
 
 import RundownMenu from './RundownMenu';
 
@@ -116,22 +113,6 @@ const MenuBar = (props: MenuBarProps) => {
     };
   }, [handleKeyPress, isElectron]);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const onModalClose = (exportType?: ExportType) => {
-    setIsModalOpen(false);
-
-    if (!exportType) {
-      return;
-    }
-
-    if (exportType === 'json') {
-      downloadRundown();
-    } else if (exportType === 'csv') {
-      downloadCSV();
-    }
-  };
-
   return (
     <div className={style.menu}>
       <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} />
@@ -154,15 +135,6 @@ const MenuBar = (props: MenuBarProps) => {
         tooltip='Import project file'
         aria-label='Import project file'
       />
-      <TooltipActionBtn
-        {...buttonStyle}
-        icon={<IoSaveOutline />}
-        isDisabled={appMode === AppMode.Run}
-        clickHandler={() => setIsModalOpen(true)}
-        tooltip='Export project file'
-        aria-label='Export project file'
-      />
-      <ExportModal onClose={onModalClose} isOpen={isModalOpen} />
       <div className={style.gap} />
       <RundownMenu>
         <Tooltip label='Rundown...'>
