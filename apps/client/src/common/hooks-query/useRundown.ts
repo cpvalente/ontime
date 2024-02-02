@@ -26,7 +26,7 @@ export function useFlatRundown() {
   const { data, status } = useRundown();
 
   const [prevRevision, setPrevRevision] = useState<number>(-1);
-  const [flatRunDown, setFlatRunDown] = useState<OntimeRundown | null>(null);
+  const [flatRunDown, setFlatRunDown] = useState<OntimeRundown>([]);
 
   // update data whenever the revision changes
   useEffect(() => {
