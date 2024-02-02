@@ -6,7 +6,6 @@ import { IoCloudOutline } from '@react-icons/all-files/io5/IoCloudOutline';
 import { IoColorWand } from '@react-icons/all-files/io5/IoColorWand';
 import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle';
 import { IoExtensionPuzzleOutline } from '@react-icons/all-files/io5/IoExtensionPuzzleOutline';
-import { IoHelp } from '@react-icons/all-files/io5/IoHelp';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoPushOutline } from '@react-icons/all-files/io5/IoPushOutline';
@@ -31,8 +30,6 @@ interface MenuBarProps {
   onUploadOpen: () => void;
   isIntegrationOpen: boolean;
   onIntegrationOpen: () => void;
-  isAboutOpen: boolean;
-  onAboutOpen: () => void;
   isQuickStartOpen: boolean;
   onQuickStartOpen: () => void;
   isSheetsOpen: boolean;
@@ -62,8 +59,6 @@ const MenuBar = (props: MenuBarProps) => {
     onUploadOpen,
     isIntegrationOpen,
     onIntegrationOpen,
-    isAboutOpen,
-    onAboutOpen,
     isQuickStartOpen,
     onQuickStartOpen,
     openSettings,
@@ -193,17 +188,7 @@ const MenuBar = (props: MenuBarProps) => {
         tooltip='Settings'
         aria-label='Settings'
       />
-      <div className={style.gap} />
-      <TooltipActionBtn
-        {...buttonStyle}
-        className={isAboutOpen ? style.open : ''}
-        icon={<IoHelp />}
-        clickHandler={onAboutOpen}
-        tooltip='About'
-        aria-label='About'
-        size='sm'
-      />
-      <div className={style.gap} />
+
       <TooltipActionBtn
         {...buttonStyle}
         className={cx([isSettingsOpen ? style.open : null, style.bottom])}

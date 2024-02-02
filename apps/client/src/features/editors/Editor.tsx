@@ -5,7 +5,6 @@ import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary'
 import AppSettings from '../app-settings/AppSettings';
 import { SettingsOptionId, useSettingsStore } from '../app-settings/settingsStore';
 import MenuBar from '../menu/MenuBar';
-import AboutModal from '../modals/about-modal/AboutModal';
 import QuickStart from '../modals/quick-start/QuickStart';
 import SheetsModal from '../modals/sheets-modal/SheetsModal';
 import UploadModal from '../modals/upload-modal/UploadModal';
@@ -35,7 +34,6 @@ export default function Editor() {
     onOpen: onIntegrationModalOpen,
     onClose: onIntegrationModalClose,
   } = useDisclosure();
-  const { isOpen: isAboutModalOpen, onOpen: onAboutModalOpen, onClose: onAboutModalClose } = useDisclosure();
   const { isOpen: isQuickStartOpen, onOpen: onQuickStartOpen, onClose: onQuickStartClose } = useDisclosure();
   const { isOpen: isSheetsOpen, onOpen: onSheetsOpen, onClose: onSheetsClose } = useDisclosure();
 
@@ -52,7 +50,6 @@ export default function Editor() {
         <QuickStart onClose={onQuickStartClose} isOpen={isQuickStartOpen} />
         <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
         <IntegrationModal onClose={onIntegrationModalClose} isOpen={isIntegrationModalOpen} />
-        <AboutModal onClose={onAboutModalClose} isOpen={isAboutModalOpen} />
         <SettingsModal isOpen={isOldSettingsOpen} onClose={onSettingsClose} />
         <SheetsModal onClose={onSheetsClose} isOpen={isSheetsOpen} />
       </ErrorBoundary>
@@ -66,8 +63,6 @@ export default function Editor() {
             onUploadOpen={onUploadModalOpen}
             isIntegrationOpen={isIntegrationModalOpen}
             onIntegrationOpen={onIntegrationModalOpen}
-            isAboutOpen={isAboutModalOpen}
-            onAboutOpen={onAboutModalOpen}
             isQuickStartOpen={isQuickStartOpen}
             onQuickStartOpen={onQuickStartOpen}
             openSettings={handleSettings}
