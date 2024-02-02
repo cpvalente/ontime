@@ -1,4 +1,4 @@
-import { GetRundownCached } from 'ontime-types';
+import { RundownCached } from 'ontime-types';
 
 import { Request, Response, RequestHandler } from 'express';
 
@@ -25,7 +25,7 @@ export const rundownGetAll: RequestHandler = async (_req, res) => {
 
 // Create controller for GET request to '/events/cached'
 // Returns -
-export const rundownGetCached: RequestHandler = async (_req: Request, res: Response<GetRundownCached>) => {
+export const rundownGetCached: RequestHandler = async (_req: Request, res: Response<RundownCached>) => {
   const cachedRundown = get();
   res.json(cachedRundown);
 };

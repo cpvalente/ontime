@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GetRundownCached, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import { OntimeRundown, OntimeRundownEntry, RundownCached } from 'ontime-types';
 
 import { rundownURL } from './apiConstants';
 
@@ -7,7 +7,7 @@ import { rundownURL } from './apiConstants';
  * @description HTTP request to fetch all events
  * @return {Promise}
  */
-export async function fetchCachedRundown(): Promise<GetRundownCached> {
+export async function fetchCachedRundown(): Promise<RundownCached> {
   const res = await axios.get(`${rundownURL}/cached`);
   return res.data;
 }

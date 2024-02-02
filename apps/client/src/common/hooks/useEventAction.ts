@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { GetRundownCached, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
+import { isOntimeEvent, OntimeRundownEntry, RundownCached } from 'ontime-types';
 import { reorderArray, swapEventData } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/apiConstants';
@@ -68,7 +68,7 @@ export const useEventAction = () => {
         };
 
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know this has a value
-        const rundownData = queryClient.getQueryData<GetRundownCached>(RUNDOWN)!;
+        const rundownData = queryClient.getQueryData<RundownCached>(RUNDOWN)!;
         const { rundown } = rundownData;
 
         if (applicationOptions.startTimeIsLastEnd && applicationOptions?.lastEventId) {
@@ -110,7 +110,7 @@ export const useEventAction = () => {
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<GetRundownCached>(RUNDOWN);
+      const previousData = queryClient.getQueryData<RundownCached>(RUNDOWN);
       const eventId = newEvent.id;
 
       if (previousData && eventId) {
@@ -157,7 +157,7 @@ export const useEventAction = () => {
   const updateTimer = useCallback(
     async (eventId: string, field: TimeField, value: string) => {
       const getPreviousEnd = (): number => {
-        const cachedRundown = queryClient.getQueryData<GetRundownCached>(RUNDOWN);
+        const cachedRundown = queryClient.getQueryData<RundownCached>(RUNDOWN);
 
         if (!cachedRundown?.order || !cachedRundown?.rundown) {
           return 0;
@@ -216,7 +216,7 @@ export const useEventAction = () => {
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
       // Snapshot the previous value
-      const previousEvents = queryClient.getQueryData<GetRundownCached>(RUNDOWN);
+      const previousEvents = queryClient.getQueryData<RundownCached>(RUNDOWN);
 
       if (previousEvents) {
         const eventIds = new Set(ids);
@@ -269,7 +269,7 @@ export const useEventAction = () => {
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<GetRundownCached>(RUNDOWN);
+      const previousData = queryClient.getQueryData<RundownCached>(RUNDOWN);
 
       if (previousData) {
         // optimistically update object
@@ -326,7 +326,7 @@ export const useEventAction = () => {
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<GetRundownCached>(RUNDOWN);
+      const previousData = queryClient.getQueryData<RundownCached>(RUNDOWN);
 
       // optimistically update object
       queryClient.setQueryData(RUNDOWN, { rundown: {}, order: [], revision: -1 });
@@ -397,7 +397,7 @@ export const useEventAction = () => {
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<GetRundownCached>(RUNDOWN);
+      const previousData = queryClient.getQueryData<RundownCached>(RUNDOWN);
 
       if (previousData) {
         // optimistically update object
@@ -453,7 +453,7 @@ export const useEventAction = () => {
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<GetRundownCached>(RUNDOWN);
+      const previousData = queryClient.getQueryData<RundownCached>(RUNDOWN);
       if (previousData) {
         // optimistically update object
         const newRundown = { ...previousData.rundown };

@@ -1,7 +1,7 @@
 import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { GetRundownCached, isOntimeBlock, isOntimeDelay, isOntimeEvent, Playback, SupportedEvent } from 'ontime-types';
+import { isOntimeBlock, isOntimeDelay, isOntimeEvent, Playback, RundownCached, SupportedEvent } from 'ontime-types';
 import { getFirstNormal, getNextNormal, getPreviousNormal } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
@@ -19,7 +19,7 @@ import style from './Rundown.module.scss';
 const RundownEntry = lazy(() => import('./RundownEntry'));
 
 interface RundownProps {
-  data: GetRundownCached;
+  data: RundownCached;
 }
 
 export default function Rundown({ data }: RundownProps) {

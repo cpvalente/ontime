@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { GetRundownCached, NormalisedRundown, OntimeRundown } from 'ontime-types';
+import { NormalisedRundown, OntimeRundown, RundownCached } from 'ontime-types';
 
 import { queryRefetchInterval } from '../../ontimeConfig';
 import { RUNDOWN } from '../api/apiConstants';
@@ -10,7 +10,7 @@ import { fetchCachedRundown } from '../api/eventsApi';
 const cachedRundownPlaceholder = { order: [] as string[], rundown: {} as NormalisedRundown, revision: -1 };
 
 export default function useRundown() {
-  const { data, status, isError, refetch, isFetching } = useQuery<GetRundownCached>({
+  const { data, status, isError, refetch, isFetching } = useQuery<RundownCached>({
     queryKey: RUNDOWN,
     queryFn: fetchCachedRundown,
     placeholderData: cachedRundownPlaceholder,
