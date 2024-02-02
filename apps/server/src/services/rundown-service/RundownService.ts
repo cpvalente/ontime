@@ -13,23 +13,12 @@ import { getCueCandidate } from 'ontime-utils';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
-import { runtimeCacheStore } from '../../stores/cachingStore.js';
-import { delayedRundownCacheKey } from './rundownCache.js';
 import { logger } from '../../classes/Logger.js';
 import { createEvent } from '../../utils/parser.js';
 import { updateNumEvents } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 import * as cache from './rundownCache.js';
-
-/**
- * Forces rundown to be recalculated
- * To be used when we know the rundown has changed completely
- */
-export function forceReset() {
-  runtimeService.reset();
-  runtimeCacheStore.invalidate(delayedRundownCacheKey);
-}
 
 function generateEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>) {
   // we discard any UI provided events and add our own
@@ -105,7 +94,7 @@ export async function deleteAllEvents() {
   await scopedMutation({});
 
   // no need to modify timer since we will reset
-  notifyChanges({ external: true, reset: true });
+  notifyChanges({ external: true });
 }
 
 export async function editEvent(patch: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
@@ -179,7 +168,7 @@ function updateChangeNumEvents() {
 /**
  * Notify services of changes in the rundown
  */
-export function notifyChanges(options: { timer?: boolean | string[]; external?: boolean; reset?: boolean }) {
+export function notifyChanges(options: { timer?: boolean | string[]; external?: boolean }) {
   if (options.timer) {
     // notify timer service of changed events
     // timer can be true or an array of changed IDs
@@ -187,11 +176,6 @@ export function notifyChanges(options: { timer?: boolean | string[]; external?: 
       runtimeService.update(options.timer);
     }
     runtimeService.update();
-  }
-
-  if (options.reset) {
-    // force rundown to be recalculated
-    forceReset();
   }
 
   if (options.external) {
