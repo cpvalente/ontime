@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { GetRundownCached, NormalisedRundown } from 'ontime-types';
+import { GetRundownCached, NormalisedRundown, OntimeRundown } from 'ontime-types';
 
 import { queryRefetchInterval } from '../../ontimeConfig';
 import { RUNDOWN } from '../api/apiConstants';
@@ -19,4 +20,22 @@ export default function useRundown() {
     networkMode: 'always',
   });
   return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
+}
+
+export function useFlatRundown() {
+  const { data, status } = useRundown();
+
+  const [prevRevision, setPrevRevision] = useState<number>(-1);
+  const [flatRunDown, setFlatRunDown] = useState<OntimeRundown | null>(null);
+
+  // update data whenever the revision changes
+  useEffect(() => {
+    if (data.revision > prevRevision) {
+      const flatRundown = data.order.map((id) => data.rundown[id]);
+      setFlatRunDown(flatRundown);
+      setPrevRevision(data.revision);
+    }
+  }, [data.order, data.revision, data.rundown, prevRevision]);
+
+  return { data: flatRunDown, status };
 }

@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import Color from 'color';
-import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import { GetRundownCached, isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useLocalStorage } from '../../common/hooks/useLocalStorage';

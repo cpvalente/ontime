@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { OntimeRundownEntry } from 'ontime-types';
+import { OntimeRundownEntry, ProjectData } from 'ontime-types';
 
 import Empty from '../../common/components/state/Empty';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useCuesheet } from '../../common/hooks/useSocket';
-import useRundown from '../../common/hooks-query/useRundown';
+import { useFlatRundown } from '../../common/hooks-query/useRundown';
 import useUserFields from '../../common/hooks-query/useUserFields';
 
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
@@ -16,7 +16,8 @@ import { makeCSV, makeTable } from './cuesheetUtils';
 import styles from './CuesheetWrapper.module.scss';
 
 export default function CuesheetWrapper() {
-  const { data: rundownData } = useRundown();
+  // TODO: can we use the normalised rundown for the table?
+  const { data: flatRundown, status: rundownStatus } = useFlatRundown();
   const { data: userFields } = useUserFields();
   const { updateEvent } = useEventAction();
   const featureData = useCuesheet();
@@ -29,7 +30,7 @@ export default function CuesheetWrapper() {
 
   const handleUpdate = useCallback(
     async (rowIndex: number, accessor: keyof OntimeRundownEntry, payload: unknown) => {
-      if (!rundownData) {
+      if (!flatRundown || rundownStatus !== 'success') {
         return;
       }
 
@@ -38,7 +39,7 @@ export default function CuesheetWrapper() {
       }
 
       // check if value is the same
-      const event = rundown[rowIndex];
+      const event = flatRundown[rowIndex];
       if (!event) {
         return;
       }
@@ -66,32 +67,35 @@ export default function CuesheetWrapper() {
         console.error(error);
       }
     },
-    [updateEvent, rundown],
+    [flatRundown, rundownStatus, updateEvent],
   );
 
-  const exportHandler = useCallback(() => {
-    if (!rundownData || !userFields) {
+  const exportHandler = useCallback(
+    (headerData: ProjectData) => {
+      if (!userFields || !flatRundown || rundownStatus !== 'success') {
+        return;
+      }
+      const sheetData = makeTable(headerData, flatRundown, userFields);
+      const csvContent = makeCSV(sheetData);
+
+      const fileName = 'ontime rundown.csv';
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      // Clean up the URL.createObjectURL to release resources
+      URL.revokeObjectURL(url);
       return;
-    }
-    const sheetData = makeTable(null, rundownData, userFields);
-    const csvContent = makeCSV(sheetData);
+    },
+    [flatRundown, rundownStatus, userFields],
+  );
 
-    const fileName = 'ontime rundown.csv';
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', fileName);
-    document.body.appendChild(link);
-    link.click();
-    // Clean up the URL.createObjectURL to release resources
-    URL.revokeObjectURL(url);
-    return;
-  }, [rundownData, userFields]);
-
-  if (!rundownData || !userFields) {
+  if (!userFields || !flatRundown || rundownStatus !== 'success') {
     return <Empty text='Loading...' />;
   }
 
@@ -100,7 +104,7 @@ export default function CuesheetWrapper() {
       <CuesheetTableHeader handleExport={exportHandler} featureData={featureData} />
       <CuesheetProgress />
       <Cuesheet
-        data={rundownData}
+        data={flatRundown}
         columns={columns}
         handleUpdate={handleUpdate}
         selectedId={featureData.selectedEventId}
