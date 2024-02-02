@@ -1,12 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { OntimeRundownEntry, ProjectData } from 'ontime-types';
+import { useCallback, useEffect, useMemo } from 'react';
+import { OntimeRundownEntry } from 'ontime-types';
 
 import Empty from '../../common/components/state/Empty';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useCuesheet } from '../../common/hooks/useSocket';
 import useRundown from '../../common/hooks-query/useRundown';
 import useUserFields from '../../common/hooks-query/useUserFields';
-import ExportModal, { ExportType } from '../modals/export-modal/ExportModal';
 
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
 import CuesheetTableHeader from './cuesheet-table-header/CuesheetTableHeader';
@@ -17,13 +16,11 @@ import { makeCSV, makeTable } from './cuesheetUtils';
 import styles from './CuesheetWrapper.module.scss';
 
 export default function CuesheetWrapper() {
-  const { data: rundown } = useRundown();
+  const { data: rundownData } = useRundown();
   const { data: userFields } = useUserFields();
   const { updateEvent } = useEventAction();
   const featureData = useCuesheet();
   const columns = useMemo(() => makeCuesheetColumns(userFields), [userFields]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [headerData, setheaderData] = useState<ProjectData | null>(null);
 
   // Set window title
   useEffect(() => {
@@ -32,7 +29,7 @@ export default function CuesheetWrapper() {
 
   const handleUpdate = useCallback(
     async (rowIndex: number, accessor: keyof OntimeRundownEntry, payload: unknown) => {
-      if (!rundown) {
+      if (!rundownData) {
         return;
       }
 
@@ -72,78 +69,42 @@ export default function CuesheetWrapper() {
     [updateEvent, rundown],
   );
 
-  const exportHandler = useCallback(
-    (headerData: ProjectData, exportType: ExportType) => {
-      if (!headerData || !rundown || !userFields) {
-        return;
-      }
-
-      let fileName = '';
-      let url = '';
-
-      if (exportType === 'json') {
-        const jsonContent = JSON.stringify({
-          headerData,
-          rundown,
-          userFields,
-        });
-
-        fileName = 'ontime export.json';
-
-        const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
-        url = URL.createObjectURL(blob);
-      } else if (exportType === 'csv') {
-        const sheetData = makeTable(headerData, rundown, userFields);
-        const csvContent = makeCSV(sheetData);
-
-        fileName = 'ontime export.csv';
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        url = URL.createObjectURL(blob);
-      } else {
-        console.error('Invalid export type: ', exportType);
-        return;
-      }
-
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', fileName);
-      document.body.appendChild(link);
-      link.click();
-      // Clean up the URL.createObjectURL to release resources
-      URL.revokeObjectURL(url);
-      return;
-    },
-    [rundown, userFields],
-  );
-
-  const onModalClose = (exportType?: ExportType) => {
-    setIsModalOpen(false);
-
-    if (!exportType) {
+  const exportHandler = useCallback(() => {
+    if (!rundownData || !userFields) {
       return;
     }
+    const sheetData = makeTable(null, rundownData, userFields);
+    const csvContent = makeCSV(sheetData);
 
-    if (headerData) {
-      exportHandler(headerData, exportType);
-    }
-  };
+    const fileName = 'ontime rundown.csv';
 
-  const handleOpenModal = (projectData: ProjectData) => {
-    setheaderData(projectData);
-    setIsModalOpen(true);
-  };
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
 
-  if (!rundown || !userFields) {
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    // Clean up the URL.createObjectURL to release resources
+    URL.revokeObjectURL(url);
+    return;
+  }, [rundownData, userFields]);
+
+  if (!rundownData || !userFields) {
     return <Empty text='Loading...' />;
   }
 
   return (
     <div className={styles.tableWrapper} data-testid='cuesheet'>
-      <CuesheetTableHeader handleExport={handleOpenModal} featureData={featureData} />
+      <CuesheetTableHeader handleExport={exportHandler} featureData={featureData} />
       <CuesheetProgress />
-      <Cuesheet data={rundown} columns={columns} handleUpdate={handleUpdate} selectedId={featureData.selectedEventId} />
-      <ExportModal isOpen={isModalOpen} onClose={onModalClose} />
+      <Cuesheet
+        data={rundownData}
+        columns={columns}
+        handleUpdate={handleUpdate}
+        selectedId={featureData.selectedEventId}
+      />
     </div>
   );
 }
