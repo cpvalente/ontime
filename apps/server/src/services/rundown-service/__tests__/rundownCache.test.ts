@@ -1,7 +1,7 @@
 import { EndAction, OntimeEvent, OntimeRundown, SupportedEvent, TimerType } from 'ontime-types';
 
 import { calculateRuntimeDelays, getDelayAt, calculateRuntimeDelaysFrom } from '../delayUtils.js';
-import { add, batchEdit, edit, remove } from '../rundownCache.js';
+import { add, batchEdit, edit, remove, reorder } from '../rundownCache.js';
 
 describe('add() mutation', () => {
   test('adds an event to the rundown', () => {
@@ -27,7 +27,11 @@ describe('edit() mutation', () => {
     const mockEvent = { id: 'mock', cue: 'mock', type: SupportedEvent.Event } as OntimeEvent;
     const mockEventPatch = { cue: 'patched' } as OntimeEvent;
     const testRundown: OntimeRundown = [mockEvent];
-    const { newRundown, newEvent } = edit({ eventId: mockEvent.id, patch: mockEventPatch, persistedRundown: testRundown });
+    const { newRundown, newEvent } = edit({
+      eventId: mockEvent.id,
+      patch: mockEventPatch,
+      persistedRundown: testRundown,
+    });
     expect(newRundown.length).toBe(1);
     expect(newEvent).toMatchObject({
       id: 'mock',
@@ -47,12 +51,34 @@ describe('batchEdit() mutation', () => {
     const eventIds = ['1', '3'];
     const patch = { cue: 'newData' };
 
-    const result = batchEdit({ persistedRundown, eventIds, patch });
+    const { newRundown } = batchEdit({ persistedRundown, eventIds, patch });
 
-    expect(result.newRundown).toMatchObject([
+    expect(newRundown).toMatchObject([
       { id: '1', type: SupportedEvent.Event, cue: 'newData' },
       { id: '2', type: SupportedEvent.Event, cue: 'data2' },
       { id: '3', type: SupportedEvent.Event, cue: 'newData' },
+    ]);
+  });
+});
+
+describe('reorder() mutation', () => {
+  it('should correctly reorder two events', () => {
+    const persistedRundown: OntimeRundown = [
+      { id: '1', type: SupportedEvent.Event, cue: 'data1' } as OntimeEvent,
+      { id: '2', type: SupportedEvent.Event, cue: 'data2' } as OntimeEvent,
+      { id: '3', type: SupportedEvent.Event, cue: 'data3' } as OntimeEvent,
+    ];
+    const { newRundown } = reorder({
+      persistedRundown,
+      eventId: persistedRundown[0].id,
+      from: 0,
+      to: persistedRundown.length - 1,
+    });
+
+    expect(newRundown).toMatchObject([
+      { id: '2', type: SupportedEvent.Event, cue: 'data2' },
+      { id: '3', type: SupportedEvent.Event, cue: 'data3' },
+      { id: '1', type: SupportedEvent.Event, cue: 'data1' },
     ]);
   });
 });

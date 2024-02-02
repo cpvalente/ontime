@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { GetRundownCached, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
-import { getPreviousEvent, swapOntimeEvents } from 'ontime-utils';
+import { getPreviousEvent, reorderArray, swapOntimeEvents } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/apiConstants';
 import { logAxiosError } from '../api/apiUtils';
@@ -390,11 +390,9 @@ export const useEventAction = () => {
 
       if (previousData) {
         // optimistically update object
-        const optimisticRundown = [...previousData.rundown];
-        const [reorderedItem] = optimisticRundown.splice(data.from, 1);
-        optimisticRundown.splice(data.to, 0, reorderedItem);
+        const newOrder = reorderArray(previousData.order, data.from, data.to);
 
-        queryClient.setQueryData(RUNDOWN, { rundown: optimisticRundown, revision: -1 });
+        queryClient.setQueryData(RUNDOWN, { order: newOrder, rundown: previousData.rundown, revision: -1 });
       }
 
       // Return a context with the previous and new events

@@ -8,12 +8,11 @@ import {
   OntimeRundown,
   OntimeRundownEntry,
 } from 'ontime-types';
-import { generateId, swapOntimeEvents } from 'ontime-utils';
+import { generateId, swapOntimeEvents, deleteAtIndex, insertAtIndex, reorderArray } from 'ontime-utils';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { getCached, runtimeCacheStore } from '../../stores/cachingStore.js';
 import { isProduction } from '../../setup.js';
-import { deleteAtIndex, insertAtIndex, reorderArray } from '../../utils/arrayUtils.js';
 import { createPatch } from '../../utils/parser.js';
 import { applyDelay, calculateRuntimeDelays, calculateRuntimeDelaysFromIndex, getDelayAt } from './delayUtils.js';
 
@@ -214,6 +213,23 @@ export function batchEdit({ persistedRundown, eventIds, patch }: BatchEditArgs):
   }
   return { newRundown };
 }
+
+type ReorderArgs = MutationParams<{ eventId: string; from: number; to: number }>;
+export function reorder({ persistedRundown, eventId, from, to }: ReorderArgs): Required<MutatingReturn> {
+  const event = persistedRundown[from];
+  if (!event || eventId !== event.id) {
+    throw new Error('Event not found');
+  }
+
+  const newRundown = reorderArray(persistedRundown, from, to);
+  return { newRundown, newEvent: event };
+}
+
+//type ApplyDelayArgs = MutationParams<{ eventIds: string[]; patch: Partial<OntimeRundownEntry> }>;
+//export function applyDelay({ persistedRundown, eventIds, patch }: ApplyDelayArgs): MutatingReturn {}
+
+//type SwapArgs = MutationParams<{ eventIds: string[]; patch: Partial<OntimeRundownEntry> }>;
+//export function swap({ persistedRundown, eventIds, patch }: SwapArgs): MutatingReturn {}
 
 /**
  *

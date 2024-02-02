@@ -14,13 +14,7 @@ import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeCacheStore } from '../../stores/cachingStore.js';
-import {
-  cachedApplyDelay,
-  cachedBatchEdit,
-  cachedReorder,
-  cachedSwap,
-  delayedRundownCacheKey,
-} from './rundownCache.js';
+import { cachedApplyDelay, cachedSwap, delayedRundownCacheKey } from './rundownCache.js';
 import { logger } from '../../classes/Logger.js';
 import { createEvent } from '../../utils/parser.js';
 import { updateNumEvents } from '../../stores/runtimeState.js';
@@ -128,8 +122,6 @@ export async function editEvent(patch: Partial<OntimeEvent> | Partial<OntimeBloc
 }
 
 export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>) {
-  await cachedBatchEdit(ids, data);
-
   const scopedMutation = cache.mutateCache(cache.batchEdit);
   await scopedMutation({ patch: data, eventIds: ids });
 
@@ -147,7 +139,8 @@ export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>)
  * @returns {Promise<void>}
  */
 export async function reorderEvent(eventId: string, from: number, to: number) {
-  const reorderedItem = await cachedReorder(eventId, from, to);
+  const scopedMutation = cache.mutateCache(cache.reorder);
+  const reorderedItem = await scopedMutation({ eventId, from, to });
 
   notifyChanges({ timer: true, external: true });
 

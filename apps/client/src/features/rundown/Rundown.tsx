@@ -210,12 +210,17 @@ export default function Rundown({ data }: RundownProps) {
       <DndContext onDragEnd={handleOnDragEnd} sensors={sensors} collisionDetection={closestCenter}>
         <SortableContext items={statefulEntries} strategy={verticalListSortingStrategy}>
           <div className={style.list}>
-            {order.map((eventId, index) => {
-              // TODO: does iterating through order affect the sortable list?
+            {statefulEntries.map((eventId, index) => {
+              // we iterate through a stateful copy of order to make the operations smoother
+              // this means that this can be out of sync with order until the useEffect runs
+              // instead of writing all the logic guards, we simply short circuit rendering here
+              const event = rundown[eventId];
+              if (!event) {
+                return null;
+              }
               if (index === 0) {
                 eventIndex = 0;
               }
-              const event = rundown[eventId];
               let isFirstEvent = false;
               if (isOntimeEvent(event)) {
                 isFirstEvent = eventIndex === 0;

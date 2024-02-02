@@ -1,6 +1,6 @@
 import { OntimeRundown, isOntimeDelay, isOntimeBlock, isOntimeEvent } from 'ontime-types';
 
-import { deleteAtIndex } from '../../utils/arrayUtils.js';
+import { deleteAtIndex } from '../../../../../packages/utils/src/array-utils/arrayUtils.js';
 
 /**
  * Calculates all delays in a given rundown
