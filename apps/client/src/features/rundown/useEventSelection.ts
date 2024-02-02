@@ -1,12 +1,17 @@
-import { isOntimeEvent, OntimeRundown } from 'ontime-types';
+import { MouseEvent } from 'react';
+import { isOntimeEvent, OntimeEvent, OntimeRundown, RundownCached } from 'ontime-types';
 import { create } from 'zustand';
 
-export type EditMode = 'shift' | 'click' | 'ctrl';
+import { RUNDOWN } from '../../common/api/apiConstants';
+import { ontimeQueryClient } from '../../common/queryClient';
+import { isMacOS } from '../../common/utils/deviceUtils';
+
+export type SelectionMode = 'shift' | 'click' | 'ctrl';
 
 interface EventSelectionStore {
   selectedEvents: Set<string>;
   anchoredIndex: number | null;
-  setSelectedEvents: (selectionArgs: { id: string; index: number; rundown: OntimeRundown; editMode: EditMode }) => void;
+  setSelectedEvents: (selectionArgs: { id: string; index: number; selectMode: SelectionMode }) => void;
   clearSelectedEvents: () => void;
 }
 
@@ -14,20 +19,22 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
   selectedEvents: new Set(),
   anchoredIndex: null,
   setSelectedEvents: (selectionArgs) => {
-    const { id, index: eventIndex, rundown, editMode } = selectionArgs;
-    // event indexes are not 0 based
-    const index = eventIndex - 1;
-
+    const { id, index, selectMode } = selectionArgs;
     const { selectedEvents, anchoredIndex } = get();
 
-    if (editMode === 'click') {
+    if (selectMode === 'click') {
       return set({ selectedEvents: new Set([id]), anchoredIndex: index });
     }
 
-    if (editMode === 'ctrl') {
+    if (selectMode === 'ctrl') {
+      const rundownData = ontimeQueryClient.getQueryData<RundownCached>(RUNDOWN);
+      if (!rundownData) return;
+
       if (selectedEvents.has(id)) {
-        const eventIds = rundown.reduce(
-          (newRundown, event, i) => {
+        const eventIds = rundownData.order.reduce(
+          (newRundown, eventId, i) => {
+            const event = rundownData.rundown[eventId];
+
             if (isOntimeEvent(event) && selectedEvents.has(id)) {
               return newRundown.concat({ id: event.id, index: i });
             }
@@ -55,17 +62,26 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       });
     }
 
-    if (editMode === 'shift') {
-      const eventIds = rundown.filter(isOntimeEvent);
+    if (selectMode === 'shift') {
+      const rundownData = ontimeQueryClient.getQueryData<RundownCached>(RUNDOWN);
+      if (!rundownData) return;
+
+      const events: OntimeEvent[] = [];
+      rundownData.order.forEach((eventId) => {
+        const event = rundownData.rundown[eventId];
+        if (isOntimeEvent(event)) {
+          events.push(event);
+        }
+      });
 
       if (anchoredIndex === null) {
-        const eventsUntilIndex = eventIds.slice(0, eventIndex).map((event) => event.id);
+        const eventsUntilIndex = events.slice(0, index).map((event) => event.id);
 
         return set({ selectedEvents: new Set(eventsUntilIndex), anchoredIndex: index });
       }
 
       if (anchoredIndex > index) {
-        const eventsFromIndex = eventIds.slice(index, anchoredIndex + 1).map((event) => event.id);
+        const eventsFromIndex = events.slice(index, anchoredIndex + 1).map((event) => event.id);
 
         return set({
           selectedEvents: new Set([...selectedEvents, ...eventsFromIndex]),
@@ -73,7 +89,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
         });
       }
 
-      const eventsUntilIndex = eventIds.slice(anchoredIndex, eventIndex).map((event) => event.id);
+      const eventsUntilIndex = events.slice(anchoredIndex, index).map((event) => event.id);
 
       return set({
         selectedEvents: new Set([...selectedEvents, ...eventsUntilIndex]),
@@ -83,3 +99,15 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
   },
   clearSelectedEvents: () => set({ selectedEvents: new Set() }),
 }));
+
+export function getSelectionMode(event: MouseEvent): SelectionMode {
+  if ((isMacOS() && event.metaKey) || event.ctrlKey) {
+    return 'ctrl';
+  }
+
+  if (event.shiftKey) {
+    return 'shift';
+  }
+
+  return 'click';
+}
