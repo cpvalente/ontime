@@ -125,8 +125,11 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
 
     DataProvider.setRundown(newRundown);
     // schedule the update to the next tick
+
     process.nextTick(() => {
+      console.time('rundownCache__init');
       init(newRundown);
+      console.timeEnd('rundownCache__init');
     });
 
     // TODO: could we return a patch object?
