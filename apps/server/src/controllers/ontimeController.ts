@@ -99,10 +99,12 @@ const parseAndApply = async (file, _req, res, options) => {
   runtimeService.stop();
 
   const newRundown = result.rundown || [];
+  const { rundown, ...rest } = result;
   if (options?.onlyRundown === 'true') {
-    setRundown(newRundown);
+    setRundown(newRundown ?? []);
   } else {
-    await DataProvider.mergeIntoData(result);
+    await DataProvider.mergeIntoData(rest);
+    setRundown(rundown ?? []);
   }
   notifyChanges({ timer: true, external: true });
 };

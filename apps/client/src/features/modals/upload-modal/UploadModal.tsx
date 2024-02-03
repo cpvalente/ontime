@@ -150,6 +150,8 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
       setSubmitting(true);
       try {
         await patchData({ rundown, userFields });
+        // TODO: broken :(
+        // we need to normalise the data here
         queryClient.setQueryData(RUNDOWN, { rundown, revision: -1 });
         queryClient.setQueryData(USERFIELDS, userFields);
         await queryClient.invalidateQueries({
