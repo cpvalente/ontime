@@ -1,7 +1,6 @@
 import { MaybeNumber, MaybeString, OntimeEvent, TimerType } from 'ontime-types';
-import { dayInMs } from 'ontime-utils';
+import { dayInMs, sortArrayByProperty } from 'ontime-utils';
 import { RuntimeState } from '../stores/runtimeState.js';
-import { sortArrayByProperty } from '../../../../packages/utils/src/array-utils/arrayUtils.js';
 
 /**
  * handle events that span over midnight

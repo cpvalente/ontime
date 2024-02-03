@@ -85,11 +85,6 @@ $active-colour: $gray-500;
   }
 }
 
-@mixin headerAction() {
-  .actionIcon {
-  }
-}
-
 .headerActions {
   grid-area: actions;
   display: flex;
