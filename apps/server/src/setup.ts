@@ -92,13 +92,16 @@ const getLastLoadedProject = () => {
 const lastLoadedProject = isTest ? 'db.json' : getLastLoadedProject();
 
 // path to public db
-export const resolveDbDirectory = join(testDbStartDirectory, isTest ? config.database.testdb : 'uploads');
+export const resolveDbDirectory = join(testDbStartDirectory, isTest ? `../${config.database.testdb}` : 'uploads');
 
 export const resolveDbPath = join(resolveDbDirectory, lastLoadedProject ? lastLoadedProject : config.database.filename);
 
 export const pathToStartDb = isTest
-  ? join(currentDirectory, config.database.testdb, config.database.filename)
+  ? join(currentDirectory, '..', config.database.testdb, config.database.filename)
   : join(currentDirectory, '/preloaded-db/', config.database.filename);
+
+console.log('>>>>>>>>>>>> resolveDbPath', pathToStartDb);
+console.log('>>>>>>>>>>>> pathToStartDb', pathToStartDb);
 
 // TODO: move all static files to the external directory
 // path to public styles
