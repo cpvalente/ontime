@@ -624,6 +624,7 @@ export const createProjectFile: RequestHandler = async (req, res) => {
       return res.status(409).send({ message: errors.join(', ') });
     }
 
+    console.log(`----------------> Creating directory createProjectFile:  ${projectFilePath}`);
     await writeFile(projectFilePath, JSON.stringify(dbModel));
 
     res.status(200).send({

@@ -92,8 +92,7 @@ const getLastLoadedProject = () => {
 const lastLoadedProject = isTest ? 'db.json' : getLastLoadedProject();
 
 // path to public db
-export const resolveDbDirectory = join(testDbStartDirectory, isTest ? config.database.testdb : 'uploads');
-
+export const resolveDbDirectory = join(testDbStartDirectory, isTest ? `../${config.database.testdb}` : 'uploads');
 export const resolveDbPath = join(resolveDbDirectory, lastLoadedProject ? lastLoadedProject : config.database.filename);
 
 export const pathToStartDb = isTest
