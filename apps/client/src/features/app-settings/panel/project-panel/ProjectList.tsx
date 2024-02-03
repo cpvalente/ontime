@@ -5,7 +5,7 @@ import { createProject } from '../../../../common/api/ontimeApi';
 import { useProjectList } from '../../../../common/hooks-query/useProjectList';
 import * as Panel from '../PanelUtils';
 
-import ProjectForm, { ProjectFormValues } from './ProjectForm';
+import ProjectCreateForm, { ProjectCreateFormValues } from './ProjectCreateForm';
 import ProjectListItem, { EditMode } from './ProjectListItem';
 
 import style from './ProjectPanel.module.scss';
@@ -28,10 +28,10 @@ export default function ProjectList({ isCreatingProject, onToggleCreate }: Proje
     setSubmitError(null);
   };
 
-  const handleSubmitCreate = async (values: ProjectFormValues) => {
+  const handleSubmitCreate = async (values: ProjectCreateFormValues) => {
     try {
       setSubmitError(null);
-      const filename = values.filename.trim();
+      const filename = values.title.trim();
       if (!filename) {
         setSubmitError('Project name cannot be empty');
         return;
@@ -82,13 +82,7 @@ export default function ProjectList({ isCreatingProject, onToggleCreate }: Proje
         {isCreatingProject ? (
           <tr className={style.createContainer}>
             <td colSpan={99}>
-              <ProjectForm
-                action='create'
-                filename=''
-                onSubmit={handleSubmitCreate}
-                onCancel={handleToggleCreateMode}
-                submitError=''
-              />
+              <ProjectCreateForm onSubmit={handleSubmitCreate} onCancel={handleToggleCreateMode} submitError='' />
               {submitError && <span className={style.createSubmitError}>{submitError}</span>}
             </td>
           </tr>
