@@ -10,30 +10,16 @@ import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { EndAction, MaybeNumber, OntimeEvent, Playback, TimerType } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import useRundown from '../../../common/hooks-query/useRundown';
 import copyToClipboard from '../../../common/utils/copyToClipboard';
-import { isMacOS } from '../../../common/utils/deviceUtils';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import type { EventItemActions } from '../RundownEntry';
 import { useEventIdSwapping } from '../useEventIdSwapping';
-import { EditMode, useEventSelection } from '../useEventSelection';
+import { getSelectionMode, useEventSelection } from '../useEventSelection';
 
 import EventBlockInner from './EventBlockInner';
 import RundownIndicators from './RundownIndicators';
 
 import style from './EventBlock.module.scss';
-
-const getEditMode = (event: MouseEvent): EditMode => {
-  if ((isMacOS() && event.metaKey) || event.ctrlKey) {
-    return 'ctrl';
-  }
-
-  if (event.shiftKey) {
-    return 'shift';
-  }
-
-  return 'click';
-};
 
 interface EventBlockProps {
   cue: string;
@@ -95,7 +81,6 @@ export default function EventBlock(props: EventBlockProps) {
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
   const { selectedEvents, setSelectedEvents } = useEventSelection();
-  const { data: rundown = [] } = useRundown();
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -235,8 +220,10 @@ export default function EventBlock(props: EventBlockProps) {
       return;
     }
 
-    const editMode = getEditMode(event);
-    return setSelectedEvents({ id: eventId, index: eventIndex, rundown, editMode });
+    // UI indexes are 1 based
+    const index = eventIndex - 1;
+    const editMode = getSelectionMode(event);
+    return setSelectedEvents({ id: eventId, index, selectMode: editMode });
 
     // moveCursorTo(eventId, true);
   };

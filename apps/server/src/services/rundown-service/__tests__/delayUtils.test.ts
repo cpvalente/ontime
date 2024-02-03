@@ -1,7 +1,7 @@
 import { OntimeBlock, OntimeDelay, OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
-import { applyDelay } from '../delayUtils.js';
+import { apply } from '../delayUtils.js';
 
-describe('_applyDelay() ', () => {
+describe('apply() ', () => {
   describe('in a rundown without the delay field, persisted rundown', () => {
     it('applies delays', () => {
       const delayId = '1';
@@ -20,7 +20,7 @@ describe('_applyDelay() ', () => {
         { id: '5', type: SupportedEvent.Event, timeStart: 0, timeEnd: 10, duration: 10, revision: 1 } as OntimeEvent,
       ];
 
-      const updatedRundown = applyDelay(delayId, testRundown);
+      const updatedRundown = apply(delayId, testRundown);
       expect(updatedRundown).toStrictEqual(expected);
     });
     it('applies negative delays', () => {
@@ -40,7 +40,7 @@ describe('_applyDelay() ', () => {
         { id: '5', type: SupportedEvent.Event, timeStart: 0, timeEnd: 10, duration: 10, revision: 1 } as OntimeEvent,
       ];
 
-      const updatedRundown = applyDelay(delayId, testRundown);
+      const updatedRundown = apply(delayId, testRundown);
       expect(updatedRundown).toStrictEqual(expected);
     });
     it('maintains constant duration', () => {
@@ -56,7 +56,7 @@ describe('_applyDelay() ', () => {
         { id: '3', type: SupportedEvent.Event, timeStart: 0, timeEnd: 20, duration: 20, revision: 2 } as OntimeEvent,
       ];
 
-      const updatedRundown = applyDelay(delayId, testRundown);
+      const updatedRundown = apply(delayId, testRundown);
       expect(updatedRundown).toStrictEqual(expected);
     });
   });
@@ -126,7 +126,7 @@ describe('_applyDelay() ', () => {
         } as OntimeEvent,
       ];
 
-      const updatedRundown = applyDelay(delayId, testRundown);
+      const updatedRundown = apply(delayId, testRundown);
       expect(updatedRundown).toStrictEqual(expected);
     });
     it('applies negative delays', () => {
@@ -194,7 +194,7 @@ describe('_applyDelay() ', () => {
         } as OntimeEvent,
       ];
 
-      const updatedRundown = applyDelay(delayId, testRundown);
+      const updatedRundown = apply(delayId, testRundown);
       expect(updatedRundown).toStrictEqual(expected);
     });
     it('maintains constant duration', () => {
@@ -242,7 +242,7 @@ describe('_applyDelay() ', () => {
         } as OntimeEvent,
       ];
 
-      const updatedRundown = applyDelay(delayId, testRundown);
+      const updatedRundown = apply(delayId, testRundown);
       expect(updatedRundown).toStrictEqual(expected);
     });
   });

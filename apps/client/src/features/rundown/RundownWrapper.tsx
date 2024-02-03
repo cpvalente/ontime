@@ -10,7 +10,7 @@ export default function RundownWrapper() {
 
   return (
     <div className={styles.rundownWrapper}>
-      {status === 'success' && data ? <Rundown entries={data} /> : <Empty text='Connecting to server' />}
+      {status === 'success' && data ? <Rundown data={data} /> : <Empty text='Connecting to server' />}
     </div>
   );
 }

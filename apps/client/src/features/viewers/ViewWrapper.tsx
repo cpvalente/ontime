@@ -4,7 +4,7 @@ import { Message, OntimeEvent, ProjectData, Settings, SupportedEvent, TimerMessa
 import { useStore } from 'zustand';
 
 import useProjectData from '../../common/hooks-query/useProjectData';
-import useRundown from '../../common/hooks-query/useRundown';
+import { useFlatRundown } from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
 import { runtimeStore } from '../../common/stores/runtime';
@@ -42,7 +42,7 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     const isMirrored = useViewOptionsStore((state) => state.mirror);
 
     // HTTP API data
-    const { data: rundownData } = useRundown();
+    const { data: rundownData } = useFlatRundown();
     const { data: project } = useProjectData();
     const { data: viewSettings } = useViewSettings();
     const { data: settings } = useSettings();

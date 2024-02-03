@@ -39,8 +39,8 @@ const env = process.env.NODE_ENV || 'production';
 
 export const isTest = Boolean(process.env.IS_TEST);
 export const environment = isTest ? 'test' : env;
-export const isProduction = env === ('production' || 'docker') && !isTest;
 export const isDocker = env === 'docker';
+export const isProduction = isDocker || (env === 'production' && !isTest);
 
 // =================================================
 // resolve path to external
@@ -71,7 +71,7 @@ export const currentDirectory = dirname(__dirname);
 
 const testDbStartDirectory = isTest ? '../' : getAppDataPath();
 export const externalsStartDirectory = isProduction ? getAppDataPath() : join(currentDirectory, 'external');
-//TODO: we only need one when they are all in the same folder
+// TODO: we only need one when they are all in the same folder
 export const resolveExternalsDirectory = join(isProduction ? getAppDataPath() : currentDirectory, 'external');
 
 // project files
@@ -89,13 +89,14 @@ const getLastLoadedProject = () => {
   }
 };
 
-const lastLoadedProject = getLastLoadedProject();
+const lastLoadedProject = isTest ? 'db.json' : getLastLoadedProject();
 
 // path to public db
-export const resolveDbDirectory = join(testDbStartDirectory, isTest ? config.database.testdb : 'uploads');
+export const resolveDbDirectory = join(testDbStartDirectory, isTest ? `../${config.database.testdb}` : 'uploads');
 export const resolveDbPath = join(resolveDbDirectory, lastLoadedProject ? lastLoadedProject : config.database.filename);
+
 export const pathToStartDb = isTest
-  ? join(currentDirectory, '../', config.database.testdb, config.database.filename)
+  ? join(currentDirectory, '..', config.database.testdb, config.database.filename)
   : join(currentDirectory, '/preloaded-db/', config.database.filename);
 
 // TODO: move all static files to the external directory
@@ -108,7 +109,7 @@ export const pathToStartStyles = join(currentDirectory, '/external/styles/', con
 // path to public demo
 export const resolveDemoDirectory = join(
   externalsStartDirectory,
-  isProduction ? '/external/' : '', //move to external folde in production
+  isProduction ? '/external/' : '', // move to external folder in production
   config.demo.directory,
 );
 export const resolveDemoPath = config.demo.filename.map((file) => {

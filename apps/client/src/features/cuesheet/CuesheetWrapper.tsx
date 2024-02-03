@@ -1,12 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { OntimeRundownEntry, ProjectData } from 'ontime-types';
 
 import Empty from '../../common/components/state/Empty';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useCuesheet } from '../../common/hooks/useSocket';
-import useRundown from '../../common/hooks-query/useRundown';
+import { useFlatRundown } from '../../common/hooks-query/useRundown';
 import useUserFields from '../../common/hooks-query/useUserFields';
-import ExportModal, { ExportType } from '../modals/export-modal/ExportModal';
 
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
 import CuesheetTableHeader from './cuesheet-table-header/CuesheetTableHeader';
@@ -17,13 +16,12 @@ import { makeCSV, makeTable } from './cuesheetUtils';
 import styles from './CuesheetWrapper.module.scss';
 
 export default function CuesheetWrapper() {
-  const { data: rundown } = useRundown();
+  // TODO: can we use the normalised rundown for the table?
+  const { data: flatRundown, status: rundownStatus } = useFlatRundown();
   const { data: userFields } = useUserFields();
   const { updateEvent } = useEventAction();
   const featureData = useCuesheet();
   const columns = useMemo(() => makeCuesheetColumns(userFields), [userFields]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [headerData, setheaderData] = useState<ProjectData | null>(null);
 
   // Set window title
   useEffect(() => {
@@ -32,7 +30,7 @@ export default function CuesheetWrapper() {
 
   const handleUpdate = useCallback(
     async (rowIndex: number, accessor: keyof OntimeRundownEntry, payload: unknown) => {
-      if (!rundown) {
+      if (!flatRundown || rundownStatus !== 'success') {
         return;
       }
 
@@ -41,7 +39,7 @@ export default function CuesheetWrapper() {
       }
 
       // check if value is the same
-      const event = rundown[rowIndex];
+      const event = flatRundown[rowIndex];
       if (!event) {
         return;
       }
@@ -69,41 +67,21 @@ export default function CuesheetWrapper() {
         console.error(error);
       }
     },
-    [updateEvent, rundown],
+    [flatRundown, rundownStatus, updateEvent],
   );
 
   const exportHandler = useCallback(
-    (headerData: ProjectData, exportType: ExportType) => {
-      if (!headerData || !rundown || !userFields) {
+    (headerData: ProjectData) => {
+      if (!userFields || !flatRundown || rundownStatus !== 'success') {
         return;
       }
+      const sheetData = makeTable(headerData, flatRundown, userFields);
+      const csvContent = makeCSV(sheetData);
 
-      let fileName = '';
-      let url = '';
+      const fileName = 'ontime rundown.csv';
 
-      if (exportType === 'json') {
-        const jsonContent = JSON.stringify({
-          headerData,
-          rundown,
-          userFields,
-        });
-
-        fileName = 'ontime export.json';
-
-        const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
-        url = URL.createObjectURL(blob);
-      } else if (exportType === 'csv') {
-        const sheetData = makeTable(headerData, rundown, userFields);
-        const csvContent = makeCSV(sheetData);
-
-        fileName = 'ontime export.csv';
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        url = URL.createObjectURL(blob);
-      } else {
-        console.error('Invalid export type: ', exportType);
-        return;
-      }
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
 
       const link = document.createElement('a');
       link.setAttribute('href', url);
@@ -114,36 +92,23 @@ export default function CuesheetWrapper() {
       URL.revokeObjectURL(url);
       return;
     },
-    [rundown, userFields],
+    [flatRundown, rundownStatus, userFields],
   );
 
-  const onModalClose = (exportType?: ExportType) => {
-    setIsModalOpen(false);
-
-    if (!exportType) {
-      return;
-    }
-
-    if (headerData) {
-      exportHandler(headerData, exportType);
-    }
-  };
-
-  const handleOpenModal = (projectData: ProjectData) => {
-    setheaderData(projectData);
-    setIsModalOpen(true);
-  };
-
-  if (!rundown || !userFields) {
+  if (!userFields || !flatRundown || rundownStatus !== 'success') {
     return <Empty text='Loading...' />;
   }
 
   return (
     <div className={styles.tableWrapper} data-testid='cuesheet'>
-      <CuesheetTableHeader handleExport={handleOpenModal} featureData={featureData} />
+      <CuesheetTableHeader handleExport={exportHandler} featureData={featureData} />
       <CuesheetProgress />
-      <Cuesheet data={rundown} columns={columns} handleUpdate={handleUpdate} selectedId={featureData.selectedEventId} />
-      <ExportModal isOpen={isModalOpen} onClose={onModalClose} />
+      <Cuesheet
+        data={flatRundown}
+        columns={columns}
+        handleUpdate={handleUpdate}
+        selectedId={featureData.selectedEventId}
+      />
     </div>
   );
 }

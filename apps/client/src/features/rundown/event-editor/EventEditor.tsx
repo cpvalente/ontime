@@ -36,24 +36,30 @@ export type EditorUpdateFields =
 export default function EventEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const { data } = useRundown();
+  const { order, rundown } = data;
   const { updateEvent } = useEventAction();
 
   const [event, setEvent] = useState<OntimeEvent | null>(null);
 
   useEffect(() => {
-    if (!data) {
+    if (order.length === 0) {
       setEvent(null);
       return;
     }
 
-    const event = data.find((event) => selectedEvents.has(event.id));
+    const selectedEventId = order.find((eventId) => selectedEvents.has(eventId));
+    if (!selectedEventId) {
+      setEvent(null);
+      return;
+    }
+    const event = rundown[selectedEventId];
 
     if (event && isOntimeEvent(event)) {
       setEvent(event);
     } else {
       setEvent(null);
     }
-  }, [data, selectedEvents]);
+  }, [order, rundown, selectedEvents]);
 
   const handleSubmit = useCallback(
     (field: EditorUpdateFields, value: string) => {
