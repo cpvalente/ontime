@@ -69,7 +69,7 @@ if (import.meta.url) {
 // path to server src folder
 export const currentDirectory = dirname(__dirname);
 
-const testDbStartDirectory = isTest ? '../' : getAppDataPath();
+const testDbStartDirectory = isTest ? './' : getAppDataPath();
 export const externalsStartDirectory = isProduction ? getAppDataPath() : join(currentDirectory, 'external');
 //TODO: we only need one when they are all in the same folder
 export const resolveExternalsDirectory = join(isProduction ? getAppDataPath() : currentDirectory, 'external');
@@ -95,7 +95,7 @@ const lastLoadedProject = getLastLoadedProject();
 export const resolveDbDirectory = join(testDbStartDirectory, isTest ? config.database.testdb : 'uploads');
 export const resolveDbPath = join(resolveDbDirectory, lastLoadedProject ? lastLoadedProject : config.database.filename);
 export const pathToStartDb = isTest
-  ? join(currentDirectory, '../', config.database.testdb, config.database.filename)
+  ? join(currentDirectory, config.database.testdb, config.database.filename)
   : join(currentDirectory, '/preloaded-db/', config.database.filename);
 
 // TODO: move all static files to the external directory
