@@ -116,9 +116,6 @@ export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>)
   await scopedMutation({ patch: data, eventIds: ids });
 
   notifyChanges({ timer: ids, external: true });
-
-  // advice socket subscribers of change
-  sendRefetch();
 }
 
 /**

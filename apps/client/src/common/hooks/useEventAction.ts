@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { isOntimeEvent, OntimeRundownEntry, RundownCached } from 'ontime-types';
+import { isOntimeEvent, OntimeEvent, OntimeRundownEntry, RundownCached } from 'ontime-types';
 import { reorderArray, swapEventData } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/apiConstants';
@@ -220,20 +220,22 @@ export const useEventAction = () => {
 
       if (previousEvents) {
         const eventIds = new Set(ids);
-        const updatedEvents = previousEvents.order.map((eventId) => {
-          if (eventIds.has(eventId)) {
-            return {
-              ...previousEvents.rundown[eventId],
-              ...data,
-            };
-          } else {
-            return previousEvents.rundown[eventId];
+        const newRundown = { ...previousEvents.rundown };
+
+        eventIds.forEach((eventId) => {
+          if (Object.hasOwn(newRundown, eventId)) {
+            const event = newRundown[eventId];
+            if (isOntimeEvent(event)) {
+              newRundown[eventId] = {
+                ...event,
+                ...data,
+              };
+            }
           }
         });
 
-        queryClient.setQueryData(RUNDOWN, { order: previousEvents.order, rundown: updatedEvents, revision: -1 });
+        queryClient.setQueryData(RUNDOWN, { order: previousEvents.order, rundown: newRundown, revision: -1 });
       }
-
       // Return a context with the previous and new events
       return { previousEvents };
     },
@@ -247,7 +249,7 @@ export const useEventAction = () => {
   });
 
   const batchUpdateEvents = useCallback(
-    async (data: Partial<OntimeRundownEntry>, eventIds: string[]) => {
+    async (data: Partial<OntimeEvent>, eventIds: string[]) => {
       try {
         await _batchUpdateEventsMutation.mutateAsync({ ids: eventIds, data });
       } catch (error) {

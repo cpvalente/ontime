@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { OntimeRundown, OntimeRundownEntry, RundownCached } from 'ontime-types';
+import { OntimeEvent, OntimeRundown, OntimeRundownEntry, RundownCached } from 'ontime-types';
 
 import { rundownURL } from './apiConstants';
 
@@ -39,7 +39,7 @@ export async function requestPutEvent(data: Partial<OntimeRundownEntry>) {
 }
 
 type BatchEditEntry = {
-  data: Partial<OntimeRundownEntry>;
+  data: Partial<OntimeEvent>;
   ids: string[];
 };
 
