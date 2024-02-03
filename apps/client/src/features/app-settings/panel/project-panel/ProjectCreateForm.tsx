@@ -33,8 +33,6 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
     },
   });
 
-  console.log(isDirty, isValid, onCancel, onSubmit, submitError);
-
   useEffect(() => {
     setFocus('title');
   }, [setFocus]);
@@ -48,7 +46,9 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
             variant='ontime-filled'
             size='sm'
             maxLength={50}
-            placeholder='Eurovision song contest'
+            placeholder='Your project name'
+            required
+            minLength={1}
             {...register('title')}
           />
         </label>
@@ -105,10 +105,18 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
         <Button onClick={onCancel} variant='ontime-ghost-on-light' size='sm'>
           Cancel
         </Button>
-        <Button type='submit' isLoading={isSubmitting} variant='ontime-filled' padding='0 2em' size='sm'>
+        <Button
+          isDisabled={!isDirty || !isValid}
+          type='submit'
+          isLoading={isSubmitting}
+          variant='ontime-filled'
+          padding='0 2em'
+          size='sm'
+        >
           Create
         </Button>
       </div>
+      {submitError && <span className={style.error}>{submitError}</span>}
     </form>
   );
 }

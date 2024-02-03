@@ -36,7 +36,10 @@ export default function ProjectList({ isCreatingProject, onToggleCreate }: Proje
         setSubmitError('Project name cannot be empty');
         return;
       }
-      await createProject(filename);
+      await createProject({
+        ...values,
+        filename,
+      });
       await refetch();
       handleToggleCreateMode();
     } catch (error) {

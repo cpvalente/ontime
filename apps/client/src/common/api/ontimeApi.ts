@@ -382,11 +382,15 @@ export async function deleteProject(filename: string): Promise<MessageResponse> 
 /**
  * @description HTTP request to create a project file
  */
-export async function createProject(filename: string): Promise<MessageResponse> {
+export async function createProject(
+  project: Partial<
+    ProjectData & {
+      filename: string;
+    }
+  >,
+): Promise<MessageResponse> {
   const url = `${ontimeURL}/project`;
   const decodedUrl = decodeURIComponent(url);
-  const res = await axios.post(decodedUrl, {
-    filename,
-  });
+  const res = await axios.post(decodedUrl, project);
   return res.data;
 }

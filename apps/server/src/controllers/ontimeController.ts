@@ -453,7 +453,6 @@ export async function previewExcel(req, res) {
     const data = await parseFile(file, req, res, options);
     res.status(200).send(data);
   } catch (error) {
-    console.log(error)
     res.status(500).send({ message: error.toString() });
   }
 }
@@ -622,14 +621,32 @@ export const createProjectFile: RequestHandler = async (req, res) => {
 
     const errors = validateProjectFiles({ newFilename: filename });
 
+    const newProjectData: ProjectData = {
+      title: req.body?.title ?? '',
+      description: req.body?.description ?? '',
+      publicUrl: req.body?.publicUrl ?? '',
+      publicInfo: req.body?.publicInfo ?? '',
+      backstageUrl: req.body?.backstageUrl ?? '',
+      backstageInfo: req.body?.backstageInfo ?? '',
+    };
+
+    const data = {
+      ...dbModel,
+      project: {
+        ...dbModel.project,
+        ...newProjectData,
+      },
+    };
+
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
     }
 
-    await writeFile(projectFilePath, JSON.stringify(dbModel));
+    await writeFile(projectFilePath, JSON.stringify(data));
+    await parseAndApply(projectFilePath, req, res, {});
 
     res.status(200).send({
-      message: `Created project ${filename}`,
+      filename,
     });
   } catch (error) {
     res.status(500).send({ message: error.toString() });
