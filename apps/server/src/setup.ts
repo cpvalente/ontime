@@ -100,9 +100,6 @@ export const pathToStartDb = isTest
   ? join(currentDirectory, '..', config.database.testdb, config.database.filename)
   : join(currentDirectory, '/preloaded-db/', config.database.filename);
 
-console.log('>>>>>>>>>>>> resolveDbPath', pathToStartDb);
-console.log('>>>>>>>>>>>> pathToStartDb', pathToStartDb);
-
 // TODO: move all static files to the external directory
 // path to public styles
 export const resolveStylesDirectory = join(externalsStartDirectory, config.styles.directory);
