@@ -33,8 +33,8 @@ describe('objectFromPath()', () => {
     const obj = objectFromPath(arr);
     expect(obj).toStrictEqual(objExpected);
   });
-  it('empty array creates undefinde object', () => {
-    const arr = [];
+  it('empty array creates undefined object', () => {
+    const arr: string[] = [];
     const value = '1234567890';
     const objExpected = null;
 

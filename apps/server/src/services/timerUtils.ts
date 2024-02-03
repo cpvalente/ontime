@@ -14,6 +14,11 @@ export const normaliseEndTime = (start: number, end: number) => (end < start ? e
  */
 export function getExpectedFinish(state: RuntimeState): MaybeNumber {
   const { startedAt, finishedAt, duration, addedTime } = state.timer;
+
+  if (state.eventNow === null) {
+    return null;
+  }
+
   const { timerType, timeEnd } = state.eventNow;
   const { pausedAt } = state._timer;
   const { clock } = state;
@@ -33,7 +38,8 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
   }
 
   // handle events that finish the day after
-  const expectedFinish = startedAt + duration + addedTime + pausedTime;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- duration exists if ther eis a timer
+  const expectedFinish = startedAt + duration! + addedTime + pausedTime;
   if (expectedFinish > dayInMs) {
     return expectedFinish - dayInMs;
   }

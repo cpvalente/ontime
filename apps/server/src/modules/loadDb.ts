@@ -35,7 +35,7 @@ const populateDb = () => {
  * @param adapterToUse
  * @return {Promise<number|*>}
  */
-const parseDb = async (fileToRead, adapterToUse) => {
+const parseDb = async (fileToRead: string, adapterToUse: Low<DatabaseModel>) => {
   if (validateFile(fileToRead)) {
     await adapterToUse.read();
   } else {

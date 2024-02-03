@@ -81,7 +81,7 @@ export class TimerService {
       const newState = runtimeState.getState();
 
       // handle end action if there was a timer playing
-      if (newState.timer.playback === Playback.Play) {
+      if (newState.timer.playback === Playback.Play && newState.eventNow) {
         if (newState.eventNow.endAction === EndAction.Stop) {
           runtimeState.stop();
         } else if (newState.eventNow.endAction === EndAction.LoadNext) {

@@ -104,7 +104,7 @@ export function get(): Readonly<RundownCache> {
 }
 
 type CommonParams = { persistedRundown: OntimeRundown };
-type MutationParams<T> = T & Partial<CommonParams>;
+type MutationParams<T> = T & CommonParams;
 type MutatingReturn = {
   newRundown: OntimeRundown;
   newEvent?: OntimeRundownEntry;

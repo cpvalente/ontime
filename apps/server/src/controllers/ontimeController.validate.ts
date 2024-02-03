@@ -255,7 +255,7 @@ export const validateProjectCreate = [
  *
  */
 export const validateProjectFiles = (projectFiles: { filename?: string; newFilename?: string }): Array<string> => {
-  const errors = [];
+  const errors: string[] = [];
 
   if (projectFiles.filename) {
     const projectFilePath = join(uploadsFolderPath, projectFiles.filename);

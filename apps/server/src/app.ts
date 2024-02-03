@@ -170,8 +170,8 @@ export const startServer = async () => {
     eventNext: state.eventNext,
     publicEventNext: state.publicEventNext,
     timer1: {
-      duration: null,
-      current: null,
+      duration: 0,
+      current: 0,
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
     },

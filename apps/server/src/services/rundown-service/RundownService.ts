@@ -104,7 +104,8 @@ export async function editEvent(patch: Partial<OntimeEvent> | Partial<OntimeBloc
   }
 
   const scopedMutation = cache.mutateCache(cache.edit);
-  const { newEvent } = await scopedMutation({ patch, eventId: patch.id });
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know patch has an id
+  const { newEvent } = await scopedMutation({ patch, eventId: patch.id! });
 
   notifyChanges({ timer: [patch.id], external: true });
 
