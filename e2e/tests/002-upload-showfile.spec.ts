@@ -22,11 +22,7 @@ test('test project file upload', async ({ page }) => {
   await page.getByRole('button', { name: 'Import' }).click();
 
   // asset test events
-  await page.getByPlaceholder('Start').first().click();
-  await page.getByText('First test event').click();
-  await page.getByTestId('delay-input').click();
-  await page.getByText('New start: 10:10').click();
-  await page.getByText('Second test event').click();
-  await page.getByText('Lunch').click();
-  await page.getByText('Third test event').click();
+  await page.getByText('Albania').click();
+  await page.getByText('Latvia').click();
+  await page.getByText('Lithuania').click();
 });
