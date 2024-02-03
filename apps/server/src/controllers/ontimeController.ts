@@ -681,7 +681,7 @@ export const deleteProjectFile: RequestHandler = async (req: Request, res: Respo
  * @description SETP-1 POST Client Secrect
  * @returns parsed result
  */
-export async function uploadSheetClientFile(req, res: Responseres) {
+export async function uploadSheetClientFile(req, res: Response) {
   if (!req.file.path) {
     res.status(400).send({ message: 'File not found' });
     return;
