@@ -4,7 +4,7 @@ import { throttle } from '../../utils/throttle.js';
 
 import type { PublishFn } from '../../stores/EventStore.js';
 
-let instance;
+let instance: MessageService | null = null;
 
 class MessageService {
   timer: TimerMessage;
@@ -56,7 +56,7 @@ class MessageService {
 
   init(publish: PublishFn) {
     this.publish = publish;
-    this.throttledSet = throttle((key, value) => this.publish(key, value), 100);
+    this.throttledSet = throttle((key, value) => this.publish?.(key, value), 100);
   }
 
   getState(): MessageState {

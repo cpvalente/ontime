@@ -63,6 +63,7 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
   const scopedMutation = cache.mutateCache(cache.add);
   const { newEvent } = await scopedMutation({ atIndex, event: eventToAdd as OntimeRundownEntry });
 
+  // @ts-expect-error -- we know there is a return here
   notifyChanges({ timer: [newEvent.id], external: true });
 
   // notify runtime that rundown size has changed
@@ -104,8 +105,10 @@ export async function editEvent(patch: Partial<OntimeEvent> | Partial<OntimeBloc
   }
 
   const scopedMutation = cache.mutateCache(cache.edit);
-  const { newEvent } = await scopedMutation({ patch, eventId: patch.id });
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know patch has an id
+  const { newEvent } = await scopedMutation({ patch, eventId: patch.id! });
 
+  // @ts-expect-error -- we know there is a return here
   notifyChanges({ timer: [patch.id], external: true });
 
   return newEvent;

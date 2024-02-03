@@ -77,7 +77,7 @@ describe('mutation on runtimeState', () => {
       // 1. Load event
       load(mockEvent, [mockEvent]);
       let newState = getState();
-      expect(newState.eventNow.id).toBe(mockEvent.id);
+      expect(newState.eventNow?.id).toBe(mockEvent.id);
       expect(newState.timer.playback).toBe(Playback.Armed);
       expect(newState.clock).not.toBe(666);
 

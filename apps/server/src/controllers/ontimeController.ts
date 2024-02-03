@@ -8,7 +8,7 @@ import type {
   ErrorResponse,
   ProjectFileListResponse,
 } from 'ontime-types';
-import { deepmerge } from 'ontime-utils';
+import { ExcelImportOptions, deepmerge } from 'ontime-utils';
 
 import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
@@ -44,7 +44,7 @@ import { removeFileExtension } from '../utils/removeFileExtension.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
-export const poll = async (_req, res) => {
+export const poll = async (_req: Request, res: Response) => {
   try {
     const state = eventStore.poll();
     res.status(200).send(state);
@@ -57,7 +57,7 @@ export const poll = async (_req, res) => {
 
 // Create controller for GET request to '/ontime/db'
 // Returns -
-export const dbDownload = async (req, res) => {
+export const dbDownload = async (_req: Request, res: Response) => {
   const { title } = DataProvider.getProjectData();
   const fileTitle = title || 'ontime data';
 
@@ -77,13 +77,17 @@ export const dbDownload = async (req, res) => {
  * @param _res
  * @param options
  */
-async function parseFile(file, _req, _res, options) {
+async function parseFile(file, _req: Request, _res: Response, options: ExcelImportOptions) {
   if (!fs.existsSync(file)) {
     throw new Error('Upload failed');
   }
   const result = await fileHandler(file, options);
   return result.data;
 }
+
+export type ParsingOptions = {
+  onlyRundown?: 'true' | 'false';
+};
 
 /**
  * parse an uploaded file and apply its parsed objects
@@ -93,7 +97,7 @@ async function parseFile(file, _req, _res, options) {
  * @param [options]
  * @returns {Promise<void>}
  */
-const parseAndApply = async (file, _req, res, options) => {
+const parseAndApply = async (file, _req: Request, res: Response, options) => {
   const result = await parseFile(file, _req, res, options);
 
   runtimeService.stop();
@@ -134,7 +138,7 @@ const getNetworkInterfaces = () => {
 
 // Create controller for GET request to '/ontime/info'
 // Returns -
-export const getInfo = async (req: Request, res: Response<GetInfo>) => {
+export const getInfo = async (_req: Request, res: Response<GetInfo>) => {
   const { version, serverPort } = DataProvider.getSettings();
   const osc = DataProvider.getOsc();
 
@@ -155,14 +159,14 @@ export const getInfo = async (req: Request, res: Response<GetInfo>) => {
 
 // Create controller for POST request to '/ontime/aliases'
 // Returns -
-export const getAliases = async (req, res) => {
+export const getAliases = async (_req: Request, res: Response) => {
   const aliases = DataProvider.getAliases();
   res.status(200).send(aliases);
 };
 
 // Create controller for POST request to '/ontime/aliases'
 // Returns ACK message
-export const postAliases = async (req, res) => {
+export const postAliases = async (req: Request, res: Response) => {
   if (failIsNotArray(req.body, res)) {
     return;
   }
@@ -178,20 +182,20 @@ export const postAliases = async (req, res) => {
     await DataProvider.setAliases(newAliases);
     res.status(200).send(newAliases);
   } catch (error) {
-    res.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: String(error) });
   }
 };
 
 // Create controller for GET request to '/ontime/userfields'
 // Returns -
-export const getUserFields = async (req, res) => {
+export const getUserFields = async (_req: Request, res: Response) => {
   const userFields = DataProvider.getUserFields();
   res.status(200).send(userFields);
 };
 
 // Create controller for POST request to '/ontime/userfields'
 // Returns ACK message
-export const postUserFields = async (req, res) => {
+export const postUserFields = async (req: Request, res: Response) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -201,13 +205,13 @@ export const postUserFields = async (req, res) => {
     await DataProvider.setUserFields(newData);
     res.status(200).send(newData);
   } catch (error) {
-    res.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: String(error) });
   }
 };
 
 // Create controller for POST request to '/ontime/settings'
 // Returns -
-export const getSettings = async (req, res) => {
+export const getSettings = async (_req: Request, res: Response) => {
   const settings = DataProvider.getSettings();
   res.status(200).send(settings);
 };
@@ -227,7 +231,7 @@ function extractPin(value: string | undefined | null, fallback: string | null): 
 
 // Create controller for POST request to '/ontime/settings'
 // Returns ACK message
-export const postSettings = async (req, res) => {
+export const postSettings = async (req: Request, res: Response) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -264,7 +268,7 @@ export const postSettings = async (req, res) => {
     await DataProvider.setSettings(newData);
     res.status(200).send(newData);
   } catch (error) {
-    res.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: String(error) });
   }
 };
 
@@ -272,7 +276,7 @@ export const postSettings = async (req, res) => {
  * @description Get view Settings
  * @method GET
  */
-export const getViewSettings = async (req, res) => {
+export const getViewSettings = async (_req: Request, res: Response) => {
   const views = DataProvider.getViewSettings();
   res.status(200).send(views);
 };
@@ -281,7 +285,7 @@ export const getViewSettings = async (req, res) => {
  * @description Change view Settings
  * @method POST
  */
-export const postViewSettings = async (req, res) => {
+export const postViewSettings = async (req: Request, res: Response) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -299,20 +303,20 @@ export const postViewSettings = async (req, res) => {
     await DataProvider.setViewSettings(newData);
     res.status(200).send(newData);
   } catch (error) {
-    res.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: String(error) });
   }
 };
 
 // Create controller for GET request to '/ontime/osc'
 // Returns -
-export const getOSC = async (req, res) => {
+export const getOSC = async (_req: Request, res: Response) => {
   const osc = DataProvider.getOsc();
   res.status(200).send(osc);
 };
 
 // Create controller for POST request to '/ontime/osc'
 // Returns ACK message
-export const postOSC = async (req, res) => {
+export const postOSC = async (req: Request, res: Response) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -333,11 +337,11 @@ export const postOSC = async (req, res) => {
 
     res.send(oscSettings).status(200);
   } catch (error) {
-    res.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: String(error) });
   }
 };
 
-export const postOscSubscriptions = async (req, res) => {
+export const postOscSubscriptions = async (req: Request, res: Response) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -354,18 +358,18 @@ export const postOscSubscriptions = async (req, res) => {
 
     res.send(oscSettings).status(200);
   } catch (error) {
-    res.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: String(error) });
   }
 };
 
 // Create controller for GET request to '/ontime/http'
-export const getHTTP = async (_req, res: Response<HttpSettings>) => {
+export const getHTTP = async (_req: Request, res: Response<HttpSettings>) => {
   const http = DataProvider.getHttp();
   res.status(200).send(http);
 };
 
 // Create controller for POST request to '/ontime/http'
-export const postHTTP = async (req, res) => {
+export const postHTTP = async (req: Request, res: Response) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -386,11 +390,11 @@ export const postHTTP = async (req, res) => {
 
     res.send(httpSettings).status(200);
   } catch (error) {
-    res.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: String(error) });
   }
 };
 
-export async function patchPartialProjectFile(req, res) {
+export async function patchPartialProjectFile(req: Request, res: Response) {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -414,14 +418,14 @@ export async function patchPartialProjectFile(req, res) {
     }
     res.status(200).send();
   } catch (error) {
-    res.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: String(error) });
   }
 }
 
 /**
  * uploads, parses and applies the data from a given file
  */
-export const dbUpload = async (req, res) => {
+export const dbUpload = async (req: Request, res: Response) => {
   if (!req.file) {
     res.status(400).send({ message: 'File not found' });
     return;
@@ -440,7 +444,7 @@ export const dbUpload = async (req, res) => {
  * uploads and parses an excel file
  * @returns parsed result
  */
-export async function previewExcel(req, res) {
+export async function previewExcel(req, res: Response) {
   if (!req.file) {
     res.status(400).send({ message: 'File not found' });
     return;
@@ -452,7 +456,7 @@ export async function previewExcel(req, res) {
     const data = await parseFile(file, req, res, options);
     res.status(200).send(data);
   } catch (error) {
-    res.status(500).send({ message: error.toString() });
+    res.status(500).send({ message: String(error) });
   }
 }
 
@@ -475,7 +479,7 @@ export const postNew: RequestHandler = async (req, res) => {
     await deleteAllEvents();
     res.status(201).send(newData);
   } catch (error) {
-    res.status(400).send({ message: error.toString() });
+    res.status(400).send({ message: String(error) });
   }
 };
 
@@ -497,7 +501,7 @@ export const listProjects: RequestHandler = async (_, res: Response<ProjectFileL
       lastLoadedProject: lastLoadedProjectName,
     });
   } catch (error) {
-    res.status(500).send({ message: error.toString() });
+    res.status(500).send({ message: String(error) });
   }
 };
 
@@ -523,7 +527,7 @@ export const loadProject: RequestHandler = async (req, res) => {
       message: `Loaded project ${filename}`,
     });
   } catch (error) {
-    res.status(500).send({ message: error.toString() });
+    res.status(500).send({ message: String(error) });
   }
 };
 
@@ -537,7 +541,7 @@ export const loadProject: RequestHandler = async (req, res) => {
  *                         a 409 status if there are validation errors,
  *                         or a 500 status with an error message in case of an exception.
  */
-export const duplicateProjectFile: RequestHandler = async (req, res) => {
+export const duplicateProjectFile: RequestHandler = async (req: Request, res: Response) => {
   try {
     const { filename } = req.params;
     const { newFilename } = req.body;
@@ -557,7 +561,7 @@ export const duplicateProjectFile: RequestHandler = async (req, res) => {
       message: `Duplicated project ${filename} to ${newFilename}`,
     });
   } catch (error) {
-    res.status(500).send({ message: error.toString() });
+    res.status(500).send({ message: String(error) });
   }
 };
 
@@ -571,7 +575,7 @@ export const duplicateProjectFile: RequestHandler = async (req, res) => {
  *                         a 409 status if there are validation errors,
  *                         or a 500 status with an error message in case of an exception.
  */
-export const renameProjectFile: RequestHandler = async (req, res) => {
+export const renameProjectFile: RequestHandler = async (req: Request, res: Response) => {
   try {
     const { newFilename } = req.body;
     const { filename } = req.params;
@@ -599,7 +603,7 @@ export const renameProjectFile: RequestHandler = async (req, res) => {
       message: `Renamed project ${filename} to ${newFilename}`,
     });
   } catch (error) {
-    res.status(500).send({ message: error.toString() });
+    res.status(500).send({ message: String(error) });
   }
 };
 
@@ -612,7 +616,7 @@ export const renameProjectFile: RequestHandler = async (req, res) => {
  *                         a 409 status if there are validation errors,
  *                         or a 500 status with an error message in case of an exception.
  */
-export const createProjectFile: RequestHandler = async (req, res) => {
+export const createProjectFile: RequestHandler = async (req: Request, res: Response) => {
   try {
     const { filename } = req.body;
 
@@ -624,14 +628,13 @@ export const createProjectFile: RequestHandler = async (req, res) => {
       return res.status(409).send({ message: errors.join(', ') });
     }
 
-    console.log(`----------------> Creating directory createProjectFile:  ${projectFilePath}`);
     await writeFile(projectFilePath, JSON.stringify(dbModel));
 
     res.status(200).send({
       message: `Created project ${filename}`,
     });
   } catch (error) {
-    res.status(500).send({ message: error.toString() });
+    res.status(500).send({ message: String(error) });
   }
 };
 
@@ -645,7 +648,7 @@ export const createProjectFile: RequestHandler = async (req, res) => {
  *                         a 409 status if there are validation errors,
  *                         or a 500 status with an error message in case of an exception.
  */
-export const deleteProjectFile: RequestHandler = async (req, res) => {
+export const deleteProjectFile: RequestHandler = async (req: Request, res: Response) => {
   try {
     const { filename } = req.params;
 
@@ -669,7 +672,7 @@ export const deleteProjectFile: RequestHandler = async (req, res) => {
       message: `Deleted project ${filename}`,
     });
   } catch (error) {
-    res.status(500).send({ message: error.toString() });
+    res.status(500).send({ message: String(error) });
   }
 };
 
@@ -678,7 +681,7 @@ export const deleteProjectFile: RequestHandler = async (req, res) => {
  * @description SETP-1 POST Client Secrect
  * @returns parsed result
  */
-export async function uploadSheetClientFile(req, res) {
+export async function uploadSheetClientFile(req, res: Responseres) {
   if (!req.file.path) {
     res.status(400).send({ message: 'File not found' });
     return;
@@ -688,7 +691,7 @@ export async function uploadSheetClientFile(req, res) {
     await sheet.saveClientSecrets(client);
     res.status(200).send('OK');
   } catch (error) {
-    res.status(500).send({ message: error.toString() });
+    res.status(500).send({ message: String(error) });
   }
   fs.unlink(req.file.path, (err) => {
     if (err) logger.error(LogOrigin.Server, err.message);
@@ -698,7 +701,7 @@ export async function uploadSheetClientFile(req, res) {
 /**
  * @description STEP-1 GET Client Secrect status
  */
-export const getClientSecrect = async (req, res) => {
+export const getClientSecrect = async (req: Request, res: Response) => {
   try {
     const clientSecrectExists = await sheet.testClientSecret();
     if (clientSecrectExists) {
@@ -707,31 +710,31 @@ export const getClientSecrect = async (req, res) => {
       res.status(500).send({ message: 'The Client ID does not exist' });
     }
   } catch (error) {
-    res.status(500).send({ message: error.toString() });
+    res.status(500).send({ message: String(error) });
   }
 };
 
 /**
  * @description STEP-2 GET sheet authentication url
  */
-export async function getAuthenticationUrl(req, res) {
+export async function getAuthenticationUrl(_req: Request, res: Response) {
   try {
     const authUrl = await sheet.openAuthServer();
     res.status(200).send(authUrl);
   } catch (error) {
-    res.status(500).send({ message: error.toString() });
+    res.status(500).send({ message: String(error) });
   }
 }
 
 /**
  * @description STEP-2 GET sheet authentication status
  */
-export const getAuthentication = async (req, res) => {
+export const getAuthentication = async (_req: Request, res: Response) => {
   try {
     await sheet.testAuthentication();
     res.status(200).send();
   } catch (error) {
-    res.status(500).send({ message: error.toString() });
+    res.status(500).send({ message: String(error) });
   }
 };
 
@@ -739,7 +742,7 @@ export const getAuthentication = async (req, res) => {
  * @description STEP-3 POST sheet id
  * @returns list of worksheets
  */
-export const postId = async (req, res) => {
+export const postId = async (req: Request, res: Response) => {
   try {
     const { id } = req.body;
     if (id.lenght < 40) {
@@ -748,20 +751,20 @@ export const postId = async (req, res) => {
     const state = await sheet.testSheetId(id);
     res.status(200).send(state);
   } catch (error) {
-    res.status(500).send({ message: error.toString() });
+    res.status(500).send({ message: String(error) });
   }
 };
 
 /**
  * @description STEP-4 POST worksheet
  */
-export const postWorksheet = async (req, res) => {
+export const postWorksheet = async (req: Request, res: Response) => {
   try {
     const { worksheet, id } = req.body;
     const state = await sheet.testWorksheet(worksheet, id);
     res.status(200).send(state);
   } catch (error) {
-    res.status(500).send({ message: error.toString() });
+    res.status(500).send({ message: String(error) });
   }
 };
 
@@ -769,25 +772,25 @@ export const postWorksheet = async (req, res) => {
  * @description STEP-5 POST download undown to sheet
  * @returns parsed result
  */
-export async function pullSheet(req, res) {
+export async function pullSheet(req: Request, res: Response) {
   try {
     const { id, options } = req.body;
     const data = await sheet.pull(id, options);
     res.status(200).send(data);
   } catch (error) {
-    res.status(500).send({ message: error.toString() });
+    res.status(500).send({ message: String(error) });
   }
 }
 
 /**
  * @description STEP-5 POST upload rundown to sheet
  */
-export async function pushSheet(req, res) {
+export async function pushSheet(req: Request, res: Response) {
   try {
     const { id, options } = req.body;
     await sheet.push(id, options);
     res.status(200).send();
   } catch (error) {
-    res.status(500).send({ message: error.toString() });
+    res.status(500).send({ message: String(error) });
   }
 }

@@ -166,6 +166,9 @@ class RuntimeService {
    */
   startById(eventId: string): boolean {
     const event = getEventWithId(eventId);
+    if (!event) {
+      return false;
+    }
     const success = this.loadEvent(event);
     if (success) {
       this.start();
@@ -180,6 +183,9 @@ class RuntimeService {
    */
   startByIndex(eventIndex: number): boolean {
     const event = getEventAtIndex(eventIndex);
+    if (!event) {
+      return false;
+    }
     const success = this.loadEvent(event);
     if (success) {
       this.start();
@@ -194,6 +200,9 @@ class RuntimeService {
    */
   startByCue(cue: string): boolean {
     const event = getEventWithCue(cue);
+    if (!event) {
+      return false;
+    }
     const success = this.loadEvent(event);
     if (success) {
       this.start();
@@ -208,6 +217,9 @@ class RuntimeService {
    */
   loadById(eventId: string): boolean {
     const event = getEventWithId(eventId);
+    if (!event) {
+      return false;
+    }
     const success = this.loadEvent(event);
     return success;
   }
@@ -219,6 +231,9 @@ class RuntimeService {
    */
   loadByIndex(eventIndex: number): boolean {
     const event = getEventAtIndex(eventIndex);
+    if (!event) {
+      return false;
+    }
     const success = this.loadEvent(event);
     return success;
   }
@@ -230,6 +245,9 @@ class RuntimeService {
    */
   loadByCue(cue: string): boolean {
     const event = getEventWithCue(cue);
+    if (!event) {
+      return false;
+    }
     const success = this.loadEvent(event);
     return success;
   }

@@ -1,10 +1,11 @@
+import { MaybeNumber } from 'ontime-types';
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 
 // any value inside double curly braces {{val}}
 const placeholderRegex = /{{(.*?)}}/g;
 
 function formatDisplayFromString(value: string, hideZero = false): string {
-  let valueInNumber = null;
+  let valueInNumber: MaybeNumber = null;
 
   if (value !== 'null') {
     const parsedValue = Number(value);
@@ -48,7 +49,7 @@ export function parseTemplateNested(template: string, state: object, humanReadab
   for (const match of matches) {
     const variableName = match[1];
     const variableParts = variableName.split('.');
-    let value = undefined;
+    let value: string | undefined = undefined;
 
     if (variableParts[0] === 'human') {
       const lookupKey = variableParts[1];
