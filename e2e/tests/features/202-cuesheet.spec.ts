@@ -18,15 +18,14 @@ test('cuesheet displays events and exports csv', async ({ page }) => {
   await page.getByRole('cell', { name: 'Third test event' }).click();
   await page.getByRole('cell', { name: '+10 min' }).click();
   await page.getByRole('cell', { name: 'Lunch' }).click();
-  const downloadPromise = page.waitForEvent('download');
-  await page.getByTestId('cuesheet').getByText('Export').click();
-  await page.getByText('CSV').click();
 
   // From here we test the CSV download feature
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByTestId('cuesheet').getByText('Export CSV').click();
 
   function validateCSV(contents) {
     // We should try to keep this in sync with the implementation over at cuesheetUtils.ts
-    const expectedHeader = ['All about Carlos demo event', 'www.getontime.no'];
+    const expectedHeader = ['Project title: All about Carlos demo event', 'Project description: Demo event for Ontime'];
     const expectedColumns = [
       'Time Start',
       'Time End',
@@ -58,6 +57,5 @@ test('cuesheet displays events and exports csv', async ({ page }) => {
 
   const download = await downloadPromise;
   const contents = await fs.promises.readFile(await download.path(), 'utf-8');
-  expect(contents).toContain('All about Carlos demo event');
   expect(validateCSV(contents)).toBe(true);
 });
