@@ -39,8 +39,8 @@ const env = process.env.NODE_ENV || 'production';
 
 export const isTest = Boolean(process.env.IS_TEST);
 export const environment = isTest ? 'test' : env;
-export const isProduction = env === ('production' || 'docker') && !isTest;
 export const isDocker = env === 'docker';
+export const isProduction = isDocker || (env === 'production' && !isTest);
 
 // =================================================
 // resolve path to external
@@ -92,7 +92,7 @@ const getLastLoadedProject = () => {
 const lastLoadedProject = isTest ? 'db.json' : getLastLoadedProject();
 
 // path to public db
-export const resolveDbDirectory = join(testDbStartDirectory, isTest ? `../${config.database.testdb}` : 'uploads');
+export const resolveDbDirectory = join(testDbStartDirectory, isTest ? config.database.testdb : 'uploads');
 
 export const resolveDbPath = join(resolveDbDirectory, lastLoadedProject ? lastLoadedProject : config.database.filename);
 

@@ -15,7 +15,6 @@ import { pathToStartDb, resolveDbDirectory, resolveDbPath } from '../setup.js';
  */
 const populateDb = () => {
   const dbInDisk = resolveDbPath;
-  console.log('>>>>>>>>>>>> dbInDisk', dbInDisk);
   ensureDirectory(resolveDbDirectory);
 
   // if dbInDisk doesn't exist we want to use startup db
