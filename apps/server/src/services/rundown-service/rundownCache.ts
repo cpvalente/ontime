@@ -11,6 +11,7 @@ import { generateId, deleteAtIndex, insertAtIndex, reorderArray, swapEventData }
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
 import { apply } from './delayUtils.js';
+import { throttle } from '../../utils/throttle.js';
 
 type NormalisedRundown = Record<string, OntimeRundownEntry>;
 
@@ -80,6 +81,13 @@ export function getIndexOf(eventId: string) {
  */
 export const getPersistedRundown = (): OntimeRundown => DataProvider.getRundown();
 
+/**
+ * Utility function thottles the call to DataProvider
+ */
+const callPersistance = throttle((newRundown: OntimeRundown) => {
+  DataProvider.setRundown(newRundown);
+}, 5000);
+
 type RundownCache = {
   rundown: NormalisedRundown;
   order: string[];
@@ -123,8 +131,8 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
     revision = revision + 1;
     isStale = true;
 
-    DataProvider.setRundown(newRundown);
-    // schedule the update to the next tick
+    // schedule the update
+    callPersistance(newRundown);
 
     process.nextTick(() => {
       console.time('rundownCache__init');
