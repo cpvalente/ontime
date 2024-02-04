@@ -79,7 +79,8 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number) => {
       const normalEnd = normaliseEndTime(event.timeStart, event.timeEnd);
 
       const hasNotEnded = normalEnd > timeNow;
-      const isFromDayBefore = normalEnd > dayInMs && timeNow < event.timeEnd;
+      // TODO: we will likely want a better solution than the modulus here
+      const isFromDayBefore = normalEnd > dayInMs && timeNow < event.timeEnd % dayInMs;
       const hasStarted = isFromDayBefore || timeNow >= event.timeStart;
 
       if (normalEnd <= timeNow) {

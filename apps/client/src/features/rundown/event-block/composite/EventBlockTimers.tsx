@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { OntimeEvent } from 'ontime-types';
-import { calculateDuration, millisToString } from 'ontime-utils';
+import { calculateDuration, dayInMs, millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
@@ -29,7 +29,7 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
       case 'durationOverride': {
         // duration defines timeEnd
         newEventData.duration = value;
-        newEventData.timeEnd = timeStart + value;
+        newEventData.timeEnd = timeStart + ((value as number) % dayInMs);
         break;
       }
       case 'timeStart': {

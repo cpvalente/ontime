@@ -52,9 +52,9 @@ function convertToInteger(value: unknown): number {
  * @param _duration
  */
 export function validateTimes(_start?: unknown, _end?: unknown, _duration?: unknown) {
-  const timeStart = convertToInteger(_start);
-  const timeEnd = convertToInteger(_end);
-  const duration = convertToInteger(_duration);
+  const timeStart = convertToInteger(_start) % dayInMs;
+  const timeEnd = convertToInteger(_end) % dayInMs;
+  const duration = convertToInteger(_duration) % dayInMs;
 
   if (_start != null && _end != null) {
     // Case 1. if we have start and end, duration must be derived
