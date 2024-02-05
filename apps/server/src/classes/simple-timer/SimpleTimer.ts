@@ -38,7 +38,8 @@ export class SimpleTimer {
 
   public start(timeNow: number): SimpleTimerState {
     if (this.state.playback === SimplePlayback.Pause) {
-      const elapsedSincePause = this.pausedAt - this.startedAt;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know these are not null in a timer that is paused
+      const elapsedSincePause = this.pausedAt! - this.startedAt!;
       this.startedAt = timeNow - elapsedSincePause;
     } else if (this.state.playback === SimplePlayback.Stop) {
       this.startedAt = timeNow;

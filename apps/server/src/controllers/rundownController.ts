@@ -1,4 +1,4 @@
-import { GetRundownCached } from 'ontime-types';
+import { RundownCached } from 'ontime-types';
 
 import { Request, Response, RequestHandler } from 'express';
 
@@ -13,19 +13,20 @@ import {
   reorderEvent,
   swapEvents,
 } from '../services/rundown-service/RundownService.js';
-import { getDelayedRundown, getRundownCache } from '../services/rundown-service/rundownCache.js';
+import { get } from '../services/rundown-service/rundownCache.js';
+import { DataProvider } from '../classes/data-provider/DataProvider.js';
 
 // Create controller for GET request to '/events'
 // Returns -
 export const rundownGetAll: RequestHandler = async (_req, res) => {
-  const delayedRundown = getDelayedRundown();
-  res.json(delayedRundown);
+  const rundown = DataProvider.getRundown();
+  res.json(rundown);
 };
 
 // Create controller for GET request to '/events/cached'
 // Returns -
-export const rundownGetCached: RequestHandler = async (_req: Request, res: Response<GetRundownCached>) => {
-  const cachedRundown = getRundownCache();
+export const rundownGetCached: RequestHandler = async (_req: Request, res: Response<RundownCached>) => {
+  const cachedRundown = get();
   res.json(cachedRundown);
 };
 

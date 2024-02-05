@@ -1,7 +1,6 @@
 import { MaybeNumber, MaybeString, OntimeEvent, TimerType } from 'ontime-types';
-import { dayInMs } from 'ontime-utils';
+import { dayInMs, sortArrayByProperty } from 'ontime-utils';
 import { RuntimeState } from '../stores/runtimeState.js';
-import { sortArrayByProperty } from '../utils/arrayUtils.js';
 
 /**
  * handle events that span over midnight
@@ -15,6 +14,11 @@ export const normaliseEndTime = (start: number, end: number) => (end < start ? e
  */
 export function getExpectedFinish(state: RuntimeState): MaybeNumber {
   const { startedAt, finishedAt, duration, addedTime } = state.timer;
+
+  if (state.eventNow === null) {
+    return null;
+  }
+
   const { timerType, timeEnd } = state.eventNow;
   const { pausedAt } = state._timer;
   const { clock } = state;
@@ -34,7 +38,8 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
   }
 
   // handle events that finish the day after
-  const expectedFinish = startedAt + duration + addedTime + pausedTime;
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- duration exists if ther eis a timer
+  const expectedFinish = startedAt + duration! + addedTime + pausedTime;
   if (expectedFinish > dayInMs) {
     return expectedFinish - dayInMs;
   }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { isOntimeEvent, OntimeEvent, SupportedEvent, UserFields } from 'ontime-types';
-import { getFirstEvent, getLastEvent } from 'ontime-utils';
+import { getFirstEventNormal, getLastEventNormal } from 'ontime-utils';
 
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
 import Empty from '../../common/components/state/Empty';
@@ -137,8 +137,8 @@ export default function Operator() {
   let isPast = Boolean(featureData.selectedEventId);
   const hidePast = isStringBoolean(searchParams.get('hidepast'));
 
-  const { firstEvent } = getFirstEvent(data);
-  const { lastEvent } = getLastEvent(data);
+  const { firstEvent } = getFirstEventNormal(data.rundown, data.order);
+  const { lastEvent } = getLastEventNormal(data.rundown, data.order);
 
   return (
     <div className={style.operatorContainer}>
@@ -163,7 +163,8 @@ export default function Operator() {
       )}
 
       <div className={style.operatorEvents} onWheel={handleScroll} onTouchMove={handleScroll} ref={scrollRef}>
-        {data.map((entry) => {
+        {data.order.map((eventId) => {
+          const entry = data.rundown[eventId];
           if (isOntimeEvent(entry)) {
             const isSelected = featureData.selectedEventId === entry.id;
             if (isSelected) {

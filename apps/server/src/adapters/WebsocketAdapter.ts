@@ -25,7 +25,7 @@ import { eventStore } from '../stores/EventStore.js';
 import { dispatchFromAdapter } from '../controllers/integrationController.js';
 import { logger } from '../classes/Logger.js';
 
-let instance;
+let instance: SocketServer | null = null;
 
 export class SocketServer implements IAdapter {
   private readonly MAX_PAYLOAD = 1024 * 256; // 256Kb
@@ -50,7 +50,7 @@ export class SocketServer implements IAdapter {
     this.wss.on('connection', (ws) => {
       let clientId = getRandomName();
       this.clientIds.add(clientId);
-      logger.info(LogOrigin.Client, `${this.wss.clients.size} Connections with new: ${clientId}`);
+      logger.info(LogOrigin.Client, `${this.clientIds.size} Connections with new: ${clientId}`);
 
       // send store payload on connect
       ws.send(
@@ -70,8 +70,8 @@ export class SocketServer implements IAdapter {
       ws.on('error', console.error);
 
       ws.on('close', () => {
-        logger.info(LogOrigin.Client, `${this.wss.clients.size} Connections with disconnected: ${clientId}`);
         this.clientIds.delete(clientId);
+        logger.info(LogOrigin.Client, `${this.clientIds.size} Connections with disconnected: ${clientId}`);
       });
 
       ws.on('message', (data) => {

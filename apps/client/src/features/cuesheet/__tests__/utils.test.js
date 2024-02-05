@@ -59,7 +59,10 @@ describe('parseField()', () => {
 
 describe('makeTable()', () => {
   it('returns array of arrays with given fields', () => {
-    const headerData = {};
+    const headerData = {
+      title: 'test title',
+      description: 'test description',
+    };
     const tableData = [
       {
         title: 'test title 1',

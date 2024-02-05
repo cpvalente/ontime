@@ -1,6 +1,131 @@
 import { EndAction, OntimeEvent, OntimeRundown, SupportedEvent, TimerType } from 'ontime-types';
 
 import { calculateRuntimeDelays, getDelayAt, calculateRuntimeDelaysFrom } from '../delayUtils.js';
+import { add, batchEdit, edit, remove, reorder, swap } from '../rundownCache.js';
+
+describe('add() mutation', () => {
+  test('adds an event to the rundown', () => {
+    const mockEvent = { id: 'mock', cue: 'mock', type: SupportedEvent.Event } as OntimeEvent;
+    const testRundown: OntimeRundown = [];
+    const { newRundown } = add({ atIndex: 0, event: mockEvent, persistedRundown: testRundown });
+    expect(newRundown.length).toBe(1);
+    expect(newRundown[0]).toMatchObject(mockEvent);
+  });
+});
+
+describe('remove() mutation', () => {
+  test('deletes an event from the rundown', () => {
+    const mockEvent = { id: 'mock', cue: 'mock', type: SupportedEvent.Event } as OntimeEvent;
+    const testRundown: OntimeRundown = [mockEvent];
+    const { newRundown } = remove({ eventId: mockEvent.id, persistedRundown: testRundown });
+    expect(newRundown.length).toBe(0);
+  });
+});
+
+describe('edit() mutation', () => {
+  test('edits an event in the rundown', () => {
+    const mockEvent = { id: 'mock', cue: 'mock', type: SupportedEvent.Event } as OntimeEvent;
+    const mockEventPatch = { cue: 'patched' } as OntimeEvent;
+    const testRundown: OntimeRundown = [mockEvent];
+    const { newRundown, newEvent } = edit({
+      eventId: mockEvent.id,
+      patch: mockEventPatch,
+      persistedRundown: testRundown,
+    });
+    expect(newRundown.length).toBe(1);
+    expect(newEvent).toMatchObject({
+      id: 'mock',
+      cue: 'patched',
+      type: SupportedEvent.Event,
+    });
+  });
+});
+
+describe('batchEdit() mutation', () => {
+  it('should correctly apply the patch to the events with the given IDs', () => {
+    const persistedRundown: OntimeRundown = [
+      { id: '1', type: SupportedEvent.Event, cue: 'data1' } as OntimeEvent,
+      { id: '2', type: SupportedEvent.Event, cue: 'data2' } as OntimeEvent,
+      { id: '3', type: SupportedEvent.Event, cue: 'data3' } as OntimeEvent,
+    ];
+    const eventIds = ['1', '3'];
+    const patch = { cue: 'newData' };
+
+    const { newRundown } = batchEdit({ persistedRundown, eventIds, patch });
+
+    expect(newRundown).toMatchObject([
+      { id: '1', type: SupportedEvent.Event, cue: 'newData' },
+      { id: '2', type: SupportedEvent.Event, cue: 'data2' },
+      { id: '3', type: SupportedEvent.Event, cue: 'newData' },
+    ]);
+  });
+});
+
+describe('reorder() mutation', () => {
+  it('should correctly reorder two events', () => {
+    const persistedRundown: OntimeRundown = [
+      { id: '1', type: SupportedEvent.Event, cue: 'data1', revision: 0 } as OntimeEvent,
+      { id: '2', type: SupportedEvent.Event, cue: 'data2', revision: 0 } as OntimeEvent,
+      { id: '3', type: SupportedEvent.Event, cue: 'data3', revision: 0 } as OntimeEvent,
+    ];
+    const { newRundown } = reorder({
+      persistedRundown,
+      eventId: persistedRundown[0].id,
+      from: 0,
+      to: persistedRundown.length - 1,
+    });
+
+    expect(newRundown).toMatchObject([
+      { id: '2', type: SupportedEvent.Event, cue: 'data2', revision: 1 },
+      { id: '3', type: SupportedEvent.Event, cue: 'data3', revision: 1 },
+      { id: '1', type: SupportedEvent.Event, cue: 'data1', revision: 1 },
+    ]);
+  });
+});
+
+describe('swap() mutation', () => {
+  it('should correctly swap data between events', () => {
+    const persistedRundown: OntimeRundown = [
+      { id: '1', type: SupportedEvent.Event, cue: 'data1', timeStart: 1, revision: 0 } as OntimeEvent,
+      { id: '2', type: SupportedEvent.Event, cue: 'data2', timeStart: 2, revision: 0 } as OntimeEvent,
+      { id: '3', type: SupportedEvent.Event, cue: 'data3', timeStart: 3, revision: 0 } as OntimeEvent,
+    ];
+    const { newRundown } = swap({
+      persistedRundown,
+      fromId: persistedRundown[0].id,
+      toId: persistedRundown[1].id,
+    });
+
+    expect((newRundown[0] as OntimeEvent).id).toBe('1');
+    expect((newRundown[0] as OntimeEvent).cue).toBe('data2');
+    expect((newRundown[0] as OntimeEvent).timeStart).toBe(1);
+    expect((newRundown[0] as OntimeEvent).revision).toBe(1);
+
+    expect((newRundown[1] as OntimeEvent).id).toBe('2');
+    expect((newRundown[1] as OntimeEvent).cue).toBe('data1');
+    expect((newRundown[1] as OntimeEvent).timeStart).toBe(2);
+    expect((newRundown[1] as OntimeEvent).revision).toBe(1);
+
+    expect((newRundown[2] as OntimeEvent).id).toBe('3');
+    expect((newRundown[2] as OntimeEvent).cue).toBe('data3');
+    expect((newRundown[2] as OntimeEvent).timeStart).toBe(3);
+    expect((newRundown[2] as OntimeEvent).revision).toBe(0);
+  });
+});
+
+/**
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ */
 
 describe('calculateRuntimeDelays', () => {
   it('calculates all delays in a given rundown', () => {
@@ -38,7 +163,6 @@ describe('calculateRuntimeDelays', () => {
       {
         duration: 600000,
         type: SupportedEvent.Delay,
-        revision: 0,
         id: '07986',
       },
       {
@@ -74,7 +198,6 @@ describe('calculateRuntimeDelays', () => {
       {
         duration: 1200000,
         type: SupportedEvent.Delay,
-        revision: 0,
         id: '7db42',
       },
       {
@@ -190,7 +313,6 @@ describe('getDelayAt()', () => {
     {
       duration: 600000,
       type: SupportedEvent.Delay,
-      revision: 0,
       id: '07986',
     },
     {
@@ -227,7 +349,6 @@ describe('getDelayAt()', () => {
     {
       duration: 1200000,
       type: SupportedEvent.Delay,
-      revision: 0,
       id: '7db42',
     },
     {
@@ -362,7 +483,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
       {
         duration: 600000,
         type: SupportedEvent.Delay,
-        revision: 0,
         id: '07986',
       },
       {
@@ -399,7 +519,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
       {
         duration: 1200000,
         type: SupportedEvent.Delay,
-        revision: 0,
         id: '7db42',
       },
       {

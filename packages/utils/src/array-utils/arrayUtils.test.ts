@@ -1,4 +1,4 @@
-import { insertAtIndex, reorderArray, sortArrayByProperty } from '../arrayUtils.js';
+import { insertAtIndex, reorderArray, sortArrayByProperty } from './arrayUtils.js';
 
 describe('insertAtIndex', () => {
   it('should insert an item at the beginning of the array', () => {

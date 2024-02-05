@@ -1,6 +1,6 @@
 import { OntimeRundown, isOntimeDelay, isOntimeBlock, isOntimeEvent } from 'ontime-types';
 
-import { deleteAtIndex } from '../../utils/arrayUtils.js';
+import { deleteAtIndex } from '../../../../../packages/utils/src/array-utils/arrayUtils.js';
 
 /**
  * Calculates all delays in a given rundown
@@ -94,9 +94,10 @@ export function getDelayAt(eventIndex: number, rundown: OntimeRundown): number {
  * Applies delay from given event ID, deletes the delay event after
  * @param eventId
  * @param rundown
+ * @throws {Error} if event ID not found or is not a delay
  * @returns
  */
-export function applyDelay(eventId: string, rundown: OntimeRundown): OntimeRundown {
+export function apply(eventId: string, rundown: OntimeRundown): OntimeRundown {
   const delayIndex = rundown.findIndex((event) => event.id === eventId);
   const delayEvent = rundown.at(delayIndex);
 

@@ -1,5 +1,4 @@
 // runtime utils
-export { getFirst, getFirstEvent, getLastEvent, getNext, getPrevious } from './src/rundown-utils/rundownUtils.js';
 export { validatePlayback } from './src/validate-action/validatePlayback.js';
 export { validateTimes } from './src/validate-events/validateEvent.js';
 export { calculateDuration } from './src/validate-events/validateEvent.js';
@@ -8,7 +7,23 @@ export { calculateDuration } from './src/validate-events/validateEvent.js';
 export { sanitiseCue } from './src/cue-utils/cueUtils.js';
 export { getCueCandidate } from './src/cue-utils/cueUtils.js';
 export { generateId } from './src/generate-id/generateId.js';
-export { getPreviousEvent, swapOntimeEvents } from './src/rundown-utils/rundownUtils.js';
+export {
+  getFirst,
+  getFirstEvent,
+  getFirstEventNormal,
+  getFirstNormal,
+  getLastEvent,
+  getLastEventNormal,
+  getNext,
+  getNextEvent,
+  getNextEventNormal,
+  getNextNormal,
+  getPrevious,
+  getPreviousEvent,
+  getPreviousEventNormal,
+  getPreviousNormal,
+  swapEventData,
+} from './src/rundown-utils/rundownUtils.js';
 
 // format utils
 export {
@@ -34,6 +49,9 @@ export { dayInMs, mts } from './src/timeConstants.js';
 
 // helpers from externals
 export { deepmerge } from './src/externals/deepmerge.js';
+
+// array utils
+export { deleteAtIndex, insertAtIndex, reorderArray, sortArrayByProperty } from './src/array-utils/arrayUtils.js';
 
 // generic utilities
 export { isNumeric } from './src/types/types.js';

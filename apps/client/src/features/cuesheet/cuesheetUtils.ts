@@ -39,14 +39,9 @@ export const parseField = <T extends OntimeEntryCommonKeys>(field: T, data: unkn
  * @return {(string[])[]}
  */
 export const makeTable = (headerData: ProjectData, rundown: OntimeRundown, userFields: UserFields): string[][] => {
-  const data = [
-    ['Ontime · Schedule Template'],
-    ['Project Title', headerData?.title || ''],
-    ['Project Description', headerData?.description || ''],
-    ['Public URL', headerData?.publicUrl || ''],
-    ['Backstage URL', headerData?.backstageUrl || ''],
-    [],
-  ];
+  const data = [['Ontime · Rundown export']];
+  if (headerData.title) data.push([`Project title: ${headerData.title}`]);
+  if (headerData.description) data.push([`Project description: ${headerData.description}`]);
 
   const fieldOrder: OntimeEntryCommonKeys[] = [
     'timeStart',

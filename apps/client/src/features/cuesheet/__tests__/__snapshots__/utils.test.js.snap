@@ -3,25 +3,14 @@
 exports[`makeTable() > returns array of arrays with given fields 1`] = `
 [
   [
-    "Ontime · Schedule Template",
+    "Ontime · Rundown export",
   ],
   [
-    "Project Title",
-    "",
+    "Project title: test title",
   ],
   [
-    "Project Description",
-    "",
+    "Project description: test description",
   ],
-  [
-    "Public URL",
-    "",
-  ],
-  [
-    "Backstage URL",
-    "",
-  ],
-  [],
   [
     "Time Start",
     "Time End",

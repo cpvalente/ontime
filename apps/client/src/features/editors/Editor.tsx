@@ -5,7 +5,6 @@ import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary'
 import AppSettings from '../app-settings/AppSettings';
 import { SettingsOptionId, useSettingsStore } from '../app-settings/settingsStore';
 import MenuBar from '../menu/MenuBar';
-import AboutModal from '../modals/about-modal/AboutModal';
 import SheetsModal from '../modals/sheets-modal/SheetsModal';
 import UploadModal from '../modals/upload-modal/UploadModal';
 import Overview from '../overview/Overview';
@@ -15,7 +14,6 @@ import styles from './Editor.module.scss';
 const Rundown = lazy(() => import('../rundown/RundownExport'));
 const TimerControl = lazy(() => import('../control/playback/TimerControlExport'));
 const MessageControl = lazy(() => import('../control/message/MessageControlExport'));
-
 const IntegrationModal = lazy(() => import('../modals/integration-modal/IntegrationModal'));
 const SettingsModal = lazy(() => import('../modals/settings-modal/SettingsModal'));
 
@@ -34,7 +32,6 @@ export default function Editor() {
     onOpen: onIntegrationModalOpen,
     onClose: onIntegrationModalClose,
   } = useDisclosure();
-  const { isOpen: isAboutModalOpen, onOpen: onAboutModalOpen, onClose: onAboutModalClose } = useDisclosure();
   const { isOpen: isSheetsOpen, onOpen: onSheetsOpen, onClose: onSheetsClose } = useDisclosure();
 
   // Set window title
@@ -49,7 +46,6 @@ export default function Editor() {
       <ErrorBoundary>
         <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
         <IntegrationModal onClose={onIntegrationModalClose} isOpen={isIntegrationModalOpen} />
-        <AboutModal onClose={onAboutModalClose} isOpen={isAboutModalOpen} />
         <SettingsModal isOpen={isOldSettingsOpen} onClose={onSettingsClose} />
         <SheetsModal onClose={onSheetsClose} isOpen={isSheetsOpen} />
       </ErrorBoundary>
@@ -63,8 +59,6 @@ export default function Editor() {
             onUploadOpen={onUploadModalOpen}
             isIntegrationOpen={isIntegrationModalOpen}
             onIntegrationOpen={onIntegrationModalOpen}
-            isAboutOpen={isAboutModalOpen}
-            onAboutOpen={onAboutModalOpen}
             openSettings={handleSettings}
             isSettingsOpen={isSettingsOpen}
             isSheetsOpen={isSheetsOpen}

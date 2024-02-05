@@ -1,4 +1,5 @@
-import multer from 'multer';
+import { Request } from 'express';
+import multer, { FileFilterCallback } from 'multer';
 import path from 'path';
 import fs from 'fs';
 
@@ -6,12 +7,12 @@ import { EXCEL_MIME, JSON_MIME } from './parser.js';
 import { ensureDirectory } from './fileManagement.js';
 import { getAppDataPath } from '../setup.js';
 
-function generateNewFileName(filePath, callback) {
+function generateNewFileName(filePath: string, callback: (newName: string) => void) {
   const baseName = path.basename(filePath, path.extname(filePath));
   const extension = path.extname(filePath);
   let counter = 1;
 
-  const checkExistence = (newPath) => {
+  const checkExistence = (newPath: string) => {
     fs.access(newPath, fs.constants.F_OK, (err) => {
       if (err) {
         // File with the new name does not exist, use this name
@@ -64,7 +65,7 @@ const storage = multer.diskStorage({
  * @argument file - reference to file
  * @return {boolean} - file allowed
  */
-const filterAllowed = (req, file, cb) => {
+const filterAllowed = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
   if (file.mimetype.includes(JSON_MIME) || file.mimetype.includes(EXCEL_MIME)) {
     cb(null, true);
   } else {

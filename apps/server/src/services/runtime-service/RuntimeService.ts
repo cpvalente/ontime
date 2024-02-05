@@ -5,7 +5,14 @@ import { TimerService } from '../TimerService.js';
 import { logger } from '../../classes/Logger.js';
 import { RestorePoint } from '../RestoreService.js';
 import * as runtimeState from '../../stores/runtimeState.js';
-import { findNext, findPrevious, getEventAtIndex, getEventWithCue, getEventWithId, getPlayableEvents } from '../rundown-service/RundownService.js';
+import {
+  findNext,
+  findPrevious,
+  getEventAtIndex,
+  getEventWithCue,
+  getEventWithId,
+  getPlayableEvents,
+} from '../rundown-service/RundownService.js';
 
 /**
  * Service manages runtime status of app
@@ -142,7 +149,7 @@ class RuntimeService {
 
     const timedEvents = getPlayableEvents();
     const state = runtimeState.getState();
-    // TODO: return success boolean from runtimeState
+    // TODO: return success boolean from runtimeState, when we work with optimising integrations
     runtimeState.load(event, timedEvents);
     const success = event.id === state.eventNow?.id;
 
@@ -159,6 +166,9 @@ class RuntimeService {
    */
   startById(eventId: string): boolean {
     const event = getEventWithId(eventId);
+    if (!event) {
+      return false;
+    }
     const success = this.loadEvent(event);
     if (success) {
       this.start();
@@ -173,6 +183,9 @@ class RuntimeService {
    */
   startByIndex(eventIndex: number): boolean {
     const event = getEventAtIndex(eventIndex);
+    if (!event) {
+      return false;
+    }
     const success = this.loadEvent(event);
     if (success) {
       this.start();
@@ -187,6 +200,9 @@ class RuntimeService {
    */
   startByCue(cue: string): boolean {
     const event = getEventWithCue(cue);
+    if (!event) {
+      return false;
+    }
     const success = this.loadEvent(event);
     if (success) {
       this.start();
@@ -201,6 +217,9 @@ class RuntimeService {
    */
   loadById(eventId: string): boolean {
     const event = getEventWithId(eventId);
+    if (!event) {
+      return false;
+    }
     const success = this.loadEvent(event);
     return success;
   }
@@ -212,6 +231,9 @@ class RuntimeService {
    */
   loadByIndex(eventIndex: number): boolean {
     const event = getEventAtIndex(eventIndex);
+    if (!event) {
+      return false;
+    }
     const success = this.loadEvent(event);
     return success;
   }
@@ -223,6 +245,9 @@ class RuntimeService {
    */
   loadByCue(cue: string): boolean {
     const event = getEventWithCue(cue);
+    if (!event) {
+      return false;
+    }
     const success = this.loadEvent(event);
     return success;
   }

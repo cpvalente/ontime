@@ -1,108 +1,74 @@
 import {
   LogOrigin,
-  OntimeBaseEvent,
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
-  SupportedEvent,
+  OntimeRundown,
+  OntimeRundownEntry,
+  isOntimeBlock,
+  isOntimeDelay,
   isOntimeEvent,
 } from 'ontime-types';
-import { generateId, getCueCandidate } from 'ontime-utils';
+import { getCueCandidate } from 'ontime-utils';
+
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
-import { runtimeCacheStore } from '../../stores/cachingStore.js';
-import {
-  cachedAdd,
-  cachedApplyDelay,
-  cachedClear,
-  cachedDelete,
-  cachedEdit,
-  cachedBatchEdit,
-  cachedReorder,
-  cachedSwap,
-  delayedRundownCacheKey,
-} from './rundownCache.js';
 import { logger } from '../../classes/Logger.js';
 import { createEvent } from '../../utils/parser.js';
 import { updateNumEvents } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
-/**
- * Forces rundown to be recalculated
- * To be used when we know the rundown has changed completely
- */
-export function forceReset() {
-  runtimeService.reset();
-  runtimeCacheStore.invalidate(delayedRundownCacheKey);
+import * as cache from './rundownCache.js';
+
+function generateEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>) {
+  // we discard any UI provided events and add our own
+  const id = cache.getUniqueId();
+
+  if (isOntimeEvent(eventData)) {
+    return createEvent(eventData, getCueCandidate(DataProvider.getRundown(), eventData?.after)) as OntimeEvent;
+  }
+
+  if (isOntimeDelay(eventData)) {
+    return { ...delayDef, duration: eventData.duration ?? 0, id } as OntimeDelay;
+  }
+
+  if (isOntimeBlock(eventData)) {
+    return { ...blockDef, title: eventData?.title ?? '', id } as OntimeBlock;
+  }
+
+  throw new Error('Invalid event type');
 }
+
 /**
  * @description creates a new event with given data
  * @param {object} eventData
- * @return {unknown[]}
+ * @return {OntimeRundownEntry}
  */
 export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>) {
-  let newEvent: Partial<OntimeBaseEvent> = {};
-  const id = generateId();
-
-  let insertIndex = 0;
+  // if the user didnt provide an index, we add the event to start
+  let atIndex = 0;
   if (eventData?.after !== undefined) {
-    const index = DataProvider.getIndexOf(eventData.after);
-    if (index < 0) {
+    const previousIndex = cache.getIndexOf(eventData.after);
+    if (previousIndex < 0) {
       logger.warning(LogOrigin.Server, `Could not find event with id ${eventData.after}`);
     } else {
-      insertIndex = index + 1;
+      atIndex = previousIndex + 1;
     }
   }
 
-  switch (eventData.type) {
-    case SupportedEvent.Event: {
-      newEvent = createEvent(eventData, getCueCandidate(DataProvider.getRundown(), eventData?.after)) as OntimeEvent;
-      break;
-    }
-    case SupportedEvent.Delay:
-      newEvent = { ...delayDef, duration: eventData.duration, id } as OntimeDelay;
-      break;
-    case SupportedEvent.Block:
-      newEvent = { ...blockDef, title: eventData.title, id } as OntimeBlock;
-      break;
-  }
-  delete eventData.after;
-
+  // generate a fully formed event from the patch
+  const eventToAdd = generateEvent(eventData);
   // modify rundown
-  await cachedAdd(insertIndex, newEvent as OntimeEvent | OntimeDelay | OntimeBlock);
-
-  notifyChanges({ timer: [id], external: true });
-
-  // notify event loader that rundown size has changed
-  updateChangeNumEvents();
-
-  return newEvent;
-}
-
-export async function editEvent(eventData: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
-  if (!eventData?.id) {
-    throw new Error('Event misses ID');
-  }
-  if (isOntimeEvent(eventData) && eventData?.cue === '') {
-    throw new Error('Cue value invalid');
-  }
-
-  const newEvent = await cachedEdit(eventData.id, eventData);
+  const scopedMutation = cache.mutateCache(cache.add);
+  const { newEvent } = await scopedMutation({ atIndex, event: eventToAdd as OntimeRundownEntry });
 
   notifyChanges({ timer: [newEvent.id], external: true });
 
+  // notify runtime that rundown size has changed
+  updateChangeNumEvents();
+
   return newEvent;
-}
-
-export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>) {
-  await cachedBatchEdit(ids, data);
-
-  // notify runtime service of changed events
-  runtimeService.update(ids);
-
-  // advice socket subscribers of change
-  sendRefetch();
 }
 
 /**
@@ -111,9 +77,11 @@ export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>)
  * @returns {Promise<void>}
  */
 export async function deleteEvent(eventId: string) {
-  await cachedDelete(eventId);
+  const scopedMutation = cache.mutateCache(cache.remove);
+  await scopedMutation({ eventId });
 
   notifyChanges({ timer: [eventId], external: true });
+
   // notify event loader that rundown size has changed
   updateChangeNumEvents();
 }
@@ -123,10 +91,32 @@ export async function deleteEvent(eventId: string) {
  * @returns {Promise<void>}
  */
 export async function deleteAllEvents() {
-  await cachedClear();
+  const scopedMutation = cache.mutateCache(cache.removeAll);
+  await scopedMutation({});
 
   // no need to modify timer since we will reset
-  notifyChanges({ external: true, reset: true });
+  notifyChanges({ external: true });
+}
+
+export async function editEvent(patch: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
+  if (isOntimeEvent(patch) && patch?.cue === '') {
+    throw new Error('Cue value invalid');
+  }
+
+  const scopedMutation = cache.mutateCache(cache.edit);
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know patch has an id
+  const { newEvent } = await scopedMutation({ patch, eventId: patch.id! });
+
+  notifyChanges({ timer: [patch.id], external: true });
+
+  return newEvent;
+}
+
+export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>) {
+  const scopedMutation = cache.mutateCache(cache.batchEdit);
+  await scopedMutation({ patch: data, eventIds: ids });
+
+  notifyChanges({ timer: ids, external: true });
 }
 
 /**
@@ -137,7 +127,8 @@ export async function deleteAllEvents() {
  * @returns {Promise<void>}
  */
 export async function reorderEvent(eventId: string, from: number, to: number) {
-  const reorderedItem = await cachedReorder(eventId, from, to);
+  const scopedMutation = cache.mutateCache(cache.reorder);
+  const reorderedItem = await scopedMutation({ eventId, from, to });
 
   notifyChanges({ timer: true, external: true });
 
@@ -145,7 +136,8 @@ export async function reorderEvent(eventId: string, from: number, to: number) {
 }
 
 export async function applyDelay(eventId: string) {
-  await cachedApplyDelay(eventId);
+  const scopedMutation = cache.mutateCache(cache.applyDelay);
+  await scopedMutation({ eventId });
 
   notifyChanges({ timer: true, external: true });
 }
@@ -157,7 +149,8 @@ export async function applyDelay(eventId: string) {
  * @returns {Promise<void>}
  */
 export async function swapEvents(from: string, to: string) {
-  await cachedSwap(from, to);
+  const scopedMutation = cache.mutateCache(cache.swap);
+  await scopedMutation({ fromId: from, toId: to });
 
   notifyChanges({ timer: true, external: true });
 }
@@ -174,7 +167,7 @@ function updateChangeNumEvents() {
 /**
  * Notify services of changes in the rundown
  */
-export function notifyChanges(options: { timer?: boolean | string[]; external?: boolean; reset?: boolean }) {
+export function notifyChanges(options: { timer?: boolean | string[]; external?: boolean }) {
   if (options.timer) {
     // notify timer service of changed events
     // timer can be true or an array of changed IDs
@@ -184,15 +177,18 @@ export function notifyChanges(options: { timer?: boolean | string[]; external?: 
     runtimeService.update();
   }
 
-  if (options.reset) {
-    // force rundown to be recalculated
-    forceReset();
-  }
-
   if (options.external) {
     // advice socket subscribers of change
     sendRefetch();
   }
+}
+
+/**
+ * returns entire unfiltered rundown
+ * @return {array}
+ */
+export function getRundown(): OntimeRundown {
+  return DataProvider.getRundown();
 }
 
 /**
@@ -289,4 +285,10 @@ export function findNext(currentEventId?: string): OntimeEvent | null {
   const newIndex = (currentIndex + 1) % timedEvents.length;
   const nextEvent = timedEvents.at(newIndex);
   return nextEvent ?? null;
+}
+
+export async function setRundown(rundown: OntimeRundown) {
+  await DataProvider.setRundown(rundown);
+  cache.init(rundown);
+  notifyChanges({ timer: true });
 }

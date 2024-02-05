@@ -1,6 +1,6 @@
-import { OntimeRundown, SupportedEvent } from 'ontime-types';
+import { OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
 
-import { getNext, getNextEvent, getPrevious, getPreviousEvent } from './rundownUtils';
+import { getNext, getNextEvent, getPrevious, getPreviousEvent, swapEventData } from './rundownUtils';
 
 describe('getNext()', () => {
   it('returns the next event of type event', () => {
@@ -147,5 +147,45 @@ describe('getPreviousEvent()', () => {
     const { previousEvent, previousIndex } = getPreviousEvent(testRundown as OntimeRundown, '2');
     expect(previousEvent).toBe(null);
     expect(previousIndex).toBe(null);
+  });
+});
+
+describe('swapEventData', () => {
+  it('swaps some data between two events', () => {
+    const eventA = {
+      id: '1',
+      cue: 'A',
+      timeStart: 1,
+      timeEnd: 1,
+      duration: 1,
+      delay: 1,
+    } as OntimeEvent;
+    const eventB = {
+      id: '2',
+      cue: 'B',
+      timeStart: 2,
+      timeEnd: 2,
+      duration: 2,
+      delay: 2,
+    } as OntimeEvent;
+
+    const { newA, newB } = swapEventData(eventA, eventB);
+
+    expect(newA).toMatchObject({
+      id: '1',
+      cue: 'B',
+      timeStart: 1,
+      timeEnd: 1,
+      duration: 1,
+      delay: 1,
+    });
+    expect(newB).toMatchObject({
+      id: '2',
+      cue: 'A',
+      timeStart: 2,
+      timeEnd: 2,
+      duration: 2,
+      delay: 2,
+    });
   });
 });

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Button, HStack } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
@@ -72,7 +72,7 @@ export default function DelayBlock(props: DelayBlockProps) {
         <IoReorderTwo />
       </span>
       <DelayInput eventId={data.id} duration={data.duration} />
-      <HStack spacing='8px' className={style.actionOverlay}>
+      <div className={style.actionButtons}>
         <Button onClick={applyDelayHandler} size='sm' leftIcon={<IoCheckmark />} variant='ontime-subtle-white'>
           Apply
         </Button>
@@ -80,7 +80,7 @@ export default function DelayBlock(props: DelayBlockProps) {
           Cancel
         </Button>
         <BlockActionMenu enableDelete actionHandler={actionHandler} />
-      </HStack>
+      </div>
     </div>
   );
 }
