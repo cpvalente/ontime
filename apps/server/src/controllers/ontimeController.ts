@@ -32,7 +32,7 @@ import {
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
-import { deleteAllEvents, notifyChanges } from '../services/rundown-service/RundownService.js';
+import { notifyChanges } from '../services/rundown-service/RundownService.js';
 import { runtimeCacheStore } from '../stores/cachingStore.js';
 import { delayedRundownCacheKey } from '../services/rundown-service/rundownCache.js';
 import { integrationService } from '../services/integration-service/IntegrationService.js';
@@ -43,6 +43,7 @@ import { validateProjectFiles } from './ontimeController.validate.js';
 import { dbModel } from '../models/dataModel.js';
 import { sheet } from '../utils/sheetsAuth.js';
 import { removeFileExtension } from '../utils/removeFileExtension.js';
+import { ensureJsonExtension } from '../utils/ensureJsonExtension.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -458,29 +459,6 @@ export async function previewExcel(req, res) {
 }
 
 /**
- * Meant to create a new project file, it will clear only fields which are specific to a project
- * @param req
- * @param res
- */
-export const postNew: RequestHandler = async (req, res) => {
-  try {
-    const newProjectData: ProjectData = {
-      title: req.body?.title ?? '',
-      description: req.body?.description ?? '',
-      publicUrl: req.body?.publicUrl ?? '',
-      publicInfo: req.body?.publicInfo ?? '',
-      backstageUrl: req.body?.backstageUrl ?? '',
-      backstageInfo: req.body?.backstageInfo ?? '',
-    };
-    const newData = await DataProvider.setProjectData(newProjectData);
-    await deleteAllEvents();
-    res.status(201).send(newData);
-  } catch (error) {
-    res.status(400).send({ message: error.toString() });
-  }
-};
-
-/**
  * Retrieves and lists all project files from the uploads directory.
  * @param req
  * @param res
@@ -615,7 +593,7 @@ export const renameProjectFile: RequestHandler = async (req, res) => {
  */
 export const createProjectFile: RequestHandler = async (req, res) => {
   try {
-    const { filename } = req.body;
+    const filename = ensureJsonExtension(req.body.title);
 
     const projectFilePath = join(uploadsFolderPath, filename);
 
@@ -639,7 +617,7 @@ export const createProjectFile: RequestHandler = async (req, res) => {
     };
 
     if (errors.length) {
-      return res.status(409).send({ message: errors.join(', ') });
+      return res.status(409).send({ message: 'Project with title already exists' });
     }
 
     await writeFile(projectFilePath, JSON.stringify(data));

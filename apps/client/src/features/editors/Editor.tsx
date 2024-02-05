@@ -6,7 +6,6 @@ import AppSettings from '../app-settings/AppSettings';
 import { SettingsOptionId, useSettingsStore } from '../app-settings/settingsStore';
 import MenuBar from '../menu/MenuBar';
 import AboutModal from '../modals/about-modal/AboutModal';
-import QuickStart from '../modals/quick-start/QuickStart';
 import SheetsModal from '../modals/sheets-modal/SheetsModal';
 import UploadModal from '../modals/upload-modal/UploadModal';
 import Overview from '../overview/Overview';
@@ -36,7 +35,6 @@ export default function Editor() {
     onClose: onIntegrationModalClose,
   } = useDisclosure();
   const { isOpen: isAboutModalOpen, onOpen: onAboutModalOpen, onClose: onAboutModalClose } = useDisclosure();
-  const { isOpen: isQuickStartOpen, onOpen: onQuickStartOpen, onClose: onQuickStartClose } = useDisclosure();
   const { isOpen: isSheetsOpen, onOpen: onSheetsOpen, onClose: onSheetsClose } = useDisclosure();
 
   // Set window title
@@ -49,7 +47,6 @@ export default function Editor() {
   return (
     <>
       <ErrorBoundary>
-        <QuickStart onClose={onQuickStartClose} isOpen={isQuickStartOpen} />
         <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
         <IntegrationModal onClose={onIntegrationModalClose} isOpen={isIntegrationModalOpen} />
         <AboutModal onClose={onAboutModalClose} isOpen={isAboutModalOpen} />
@@ -68,8 +65,6 @@ export default function Editor() {
             onIntegrationOpen={onIntegrationModalOpen}
             isAboutOpen={isAboutModalOpen}
             onAboutOpen={onAboutModalOpen}
-            isQuickStartOpen={isQuickStartOpen}
-            onQuickStartOpen={onQuickStartOpen}
             openSettings={handleSettings}
             isSettingsOpen={isSettingsOpen}
             isSheetsOpen={isSheetsOpen}

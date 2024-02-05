@@ -3,7 +3,6 @@ import { IconButton, MenuButton, Tooltip } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoCloud } from '@react-icons/all-files/io5/IoCloud';
 import { IoCloudOutline } from '@react-icons/all-files/io5/IoCloudOutline';
-import { IoColorWand } from '@react-icons/all-files/io5/IoColorWand';
 import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle';
 import { IoExtensionPuzzleOutline } from '@react-icons/all-files/io5/IoExtensionPuzzleOutline';
 import { IoHelp } from '@react-icons/all-files/io5/IoHelp';
@@ -36,8 +35,6 @@ interface MenuBarProps {
   onIntegrationOpen: () => void;
   isAboutOpen: boolean;
   onAboutOpen: () => void;
-  isQuickStartOpen: boolean;
-  onQuickStartOpen: () => void;
   isSheetsOpen: boolean;
   onSheetsOpen: () => void;
   openSettings: (newTab?: string) => void;
@@ -67,8 +64,6 @@ const MenuBar = (props: MenuBarProps) => {
     onIntegrationOpen,
     isAboutOpen,
     onAboutOpen,
-    isQuickStartOpen,
-    onQuickStartOpen,
     openSettings,
     isSettingsOpen,
     isSheetsOpen,
@@ -136,15 +131,6 @@ const MenuBar = (props: MenuBarProps) => {
     <div className={style.menu}>
       <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} />
       <div className={style.gap} />
-      <TooltipActionBtn
-        {...buttonStyle}
-        isDisabled={appMode === AppMode.Run}
-        icon={<IoColorWand />}
-        className={isQuickStartOpen ? style.open : ''}
-        clickHandler={onQuickStartOpen}
-        tooltip='Quick start'
-        aria-label='Quick start'
-      />
       <TooltipActionBtn
         {...buttonStyle}
         isDisabled={appMode === AppMode.Run}
