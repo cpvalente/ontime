@@ -11,11 +11,12 @@ interface TimeInputProps<T extends string> {
   submitHandler: (field: T, value: string) => void;
   time?: number;
   placeholder: string;
+  disabled?: boolean;
   className?: string;
 }
 
 export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
-  const { name, submitHandler, time = 0, placeholder, className } = props;
+  const { name, submitHandler, time = 0, placeholder, disabled, className } = props;
   const { emitError } = useEmitLog();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
@@ -122,6 +123,7 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
 
   return (
     <Input
+      disabled={disabled}
       size='sm'
       ref={inputRef}
       data-testid={`time-input-${name}`}
