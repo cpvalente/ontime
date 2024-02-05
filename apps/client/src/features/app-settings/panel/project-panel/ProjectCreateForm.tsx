@@ -101,8 +101,8 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
           <Input variant='ontime-filled' size='sm' placeholder='www.ontime.gitbook.io' {...register('backstageUrl')} />
         </label>
       </div>
-      <div className={style.actionButtons}>
-        <Button onClick={onCancel} variant='ontime-ghost-on-light' size='sm'>
+      <div className={style.createActionButtons}>
+        <Button onClick={onCancel} variant='ontime-ghosted' size='sm'>
           Cancel
         </Button>
         <Button

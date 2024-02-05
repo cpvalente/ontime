@@ -30,6 +30,14 @@
   margin-left: 1rem;
 }
 
+.createActionButtons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 1rem;
+  justify-content: flex-end;
+}
+
 .error {
   color: $red-500;
 }
