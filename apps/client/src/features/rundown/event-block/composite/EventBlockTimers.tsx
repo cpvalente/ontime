@@ -29,7 +29,7 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
   const { eventId, timeStart, timeEnd, duration, delay } = props;
   const { updateEvent, updateTimer } = useEventAction();
   const [linkedStart, setLinkedStart] = useState(false);
-  const [locked, setLocked] = useState<'none' | 'timeEnd' | 'duration'>('none');
+  const [locked, setLocked] = useState<'timeEnd' | 'duration'>('duration');
 
   // In sync with EventEditorTimes
   const handleSubmit = (field: TimeActions, value: string) => {
@@ -76,9 +76,10 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
         submitHandler={handleSubmit}
         time={timeEnd}
         hasDelay={hasDelay}
+        disabled={isLockedDuration}
         placeholder='End'
       >
-        <InputRightElement className={activeEnd} onClick={() => setLocked(isLockedEnd ? 'none' : 'timeEnd')}>
+        <InputRightElement className={activeEnd} onClick={() => setLocked('timeEnd')}>
           <span className={style.timeLabel}>E</span>
           {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
         </InputRightElement>
@@ -87,9 +88,10 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
         name='durationOverride'
         submitHandler={handleSubmit}
         time={duration}
+        disabled={isLockedEnd}
         placeholder='Duration'
       >
-        <InputRightElement className={activeDuration} onClick={() => setLocked(isLockedDuration ? 'none' : 'duration')}>
+        <InputRightElement className={activeDuration} onClick={() => setLocked('duration')}>
           <span className={style.timeLabel}>D</span>
           {isLockedDuration ? <IoLockClosed /> : <IoLockOpenOutline />}
         </InputRightElement>
@@ -97,7 +99,7 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
       {overMidnight && (
         <div className={style.timerNote}>
           <Tooltip
-            label='End timer before start'
+            label='Over midnight: end time is before start'
             openDelay={tooltipDelayFast}
             variant='ontime-ondark'
             shouldWrapChildren
