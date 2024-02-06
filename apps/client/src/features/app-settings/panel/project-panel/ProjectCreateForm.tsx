@@ -26,8 +26,8 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
     formState: { isSubmitting, isDirty, isValid },
     setFocus,
   } = useForm<ProjectCreateFormValues>({
-    defaultValues: { title: '' },
-    values: { title: '' },
+    defaultValues: { title: 'Untitled Project' },
+    values: { title: 'Untitled Project' },
     resetOptions: {
       keepDirtyValues: true,
     },
