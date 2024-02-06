@@ -7,7 +7,7 @@ $thumb-color-hover: $gray-900;
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  scrollbar-color: $track-color $thumb-color;
+  scrollbar-color: $thumb-color $track-color;
   scrollbar-width: thin;
 }
 
@@ -48,7 +48,7 @@ option {
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: $track-color;
+  background: $white-1;
   border-radius: 2px;
 }
 
