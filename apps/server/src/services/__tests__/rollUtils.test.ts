@@ -528,6 +528,76 @@ describe('test that roll behaviour multi day event edge cases', () => {
   });
 });
 
+// test getRollTimers() on issue #757
+describe('it handles timeEnd over day', () => {
+  it('ignores events with timeEnd larger than a day', () => {
+    const testRundown = [
+      {
+        title: 'Setup',
+        subtitle: '',
+        presenter: '',
+        note: 'BMA, Nebelfluid, Shooter, Akkus, UHF11, Getränke, Kaffee, Strom, ELA, Text für Holger',
+        endAction: 'play-next',
+        timerType: 'count-down',
+        timeStart: 66600000,
+        timeEnd: 68400000,
+        duration: 1800000,
+        isPublic: false,
+        skip: false,
+        colour: '#2fa9e5',
+        user0: '',
+        user1: '',
+        user2: '',
+        user3: '',
+        user4: '',
+        user5: '',
+        user6: '',
+        user7: '',
+        user8: '',
+        user9: '',
+        type: 'event',
+        revision: 0,
+        cue: 'PRE',
+        id: 'b2f8d',
+      },
+      {
+        title: 'Künstliche Intelligenz',
+        subtitle: ' -> Vorstellung Maske',
+        presenter: 'Engel und Teufel',
+        note: 'Melli Kleben! Sofa',
+        endAction: 'play-next',
+        timerType: 'count-down',
+        timeStart: 86100000,
+        // timeEnd: 1020000, <--- this would have been equivalent
+        timeEnd: 87420000,
+        duration: 1320000,
+        isPublic: true,
+        skip: false,
+        colour: '#a8ec31',
+        user0: 'UHF1 Melli (Korsett)',
+        user1: 'UHF2 Reinhold (unter Flügel)',
+        user2: 'UHF3 Oli (Sport-Unterhose Rechts)',
+        user3: '',
+        user4: '',
+        user5: '',
+        user6: '',
+        user7: '',
+        user8: '',
+        user9: '',
+        type: 'event',
+        revision: 0,
+        cue: '16',
+        id: '8b970',
+      },
+    ];
+
+    const timeNow = 64488675; // 17:55-something
+
+    const timers = getRollTimers(testRundown as OntimeEvent[], timeNow);
+    expect(timers.currentEvent).toBeNull();
+  });
+});
+
 // test normaliseEndTime() on issue #58
 test('test typical scenarios', () => {
   const t1 = {

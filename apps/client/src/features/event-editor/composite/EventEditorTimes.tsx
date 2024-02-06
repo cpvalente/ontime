@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Select, Switch } from '@chakra-ui/react';
 import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
-import { calculateDuration, millisToString } from 'ontime-utils';
+import { calculateDuration, dayInMs, millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../../common/hooks/useEventAction';
@@ -28,14 +28,13 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
   const { eventId, timeStart, timeEnd, duration, delay, isPublic, endAction, timerType } = props;
   const { updateEvent } = useEventAction();
 
-
   const handleSubmit = (field: TimeActions, value: number | string | boolean) => {
     const newEventData: Partial<OntimeEvent> = { id: eventId };
     switch (field) {
       case 'durationOverride': {
         // duration defines timeEnd
         newEventData.duration = value as number;
-        newEventData.timeEnd = timeStart + (value as number);
+        newEventData.timeEnd = timeStart + ((value as number) % dayInMs);
         break;
       }
       case 'timeStart': {

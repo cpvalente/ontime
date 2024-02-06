@@ -93,6 +93,17 @@ describe('validateTimes()', () => {
     expect(timeEnd).toBe(10);
     expect(duration).toBe(10);
   });
+
+  it('ensures values dont overflow dayMs', () => {
+    const start = 86100000;
+    const endOverDay = 87420000;
+    const durationNormal = 1320000;
+
+    const { timeStart, timeEnd, duration } = validateTimes(start, endOverDay, durationNormal);
+    expect(timeStart).toBe(start);
+    expect(timeEnd).toBe(1020000);
+    expect(duration).toBe(durationNormal);
+  });
 });
 
 describe('calculateDuration()', () => {
