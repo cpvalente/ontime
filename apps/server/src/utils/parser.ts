@@ -7,6 +7,8 @@ import {
   validateTimerType,
   type ExcelImportOptions,
   validateTimes,
+  isKnownTimerType,
+  validateLinkStart,
 } from 'ontime-utils';
 import {
   DatabaseModel,
@@ -38,7 +40,6 @@ import {
 import { parseExcelDate } from './time.js';
 import { configService } from '../services/ConfigService.js';
 import { coerceBoolean } from './coerceType.js';
-import { isKnownTimerType } from '../../../../packages/utils/src/validate-events/validateEvent.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
@@ -340,10 +341,11 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     return originalEvent;
   }
 
-  const { timeStart, timeEnd, duration } = validateTimes(
+  const { timeStart, timeEnd, duration, timeStrategy } = validateTimes(
     patchEvent?.timeStart ?? originalEvent.timeStart,
     patchEvent?.timeEnd ?? originalEvent.timeEnd,
     patchEvent?.duration ?? originalEvent.duration,
+    patchEvent?.timeStrategy ?? originalEvent.timeStrategy,
   );
 
   return {
@@ -355,6 +357,8 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     timeStart,
     timeEnd,
     duration,
+    timeStrategy,
+    linkStart: validateLinkStart(patchEvent.linkStart),
     endAction: validateEndAction(patchEvent.endAction, EndAction.None),
     timerType: validateTimerType(patchEvent.timerType, TimerType.CountDown),
     isPublic: typeof patchEvent.isPublic === 'boolean' ? patchEvent.isPublic : originalEvent.isPublic,

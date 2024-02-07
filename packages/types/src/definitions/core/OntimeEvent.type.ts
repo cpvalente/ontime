@@ -1,5 +1,7 @@
+import { MaybeString } from '../../index.js';
 import { EndAction } from '../EndAction.type.js';
 import { TimerType } from '../TimerType.type.js';
+import { TimeStrategy } from '../TimeStrategy.type.js';
 
 export enum SupportedEvent {
   Event = 'event',
@@ -32,6 +34,8 @@ export type OntimeEvent = OntimeBaseEvent & {
   note: string;
   endAction: EndAction;
   timerType: TimerType;
+  linkStart: MaybeString; // ID of event to link to
+  timeStrategy: TimeStrategy;
   timeStart: number;
   timeEnd: number;
   duration: number;
