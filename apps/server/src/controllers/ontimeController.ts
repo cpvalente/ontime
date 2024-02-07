@@ -42,6 +42,7 @@ import { dbModel } from '../models/dataModel.js';
 import { sheet } from '../utils/sheetsAuth.js';
 import { removeFileExtension } from '../utils/removeFileExtension.js';
 import { ensureJsonExtension } from '../utils/ensureJsonExtension.js';
+import { generateUniqueFileName } from '../utils/generateUniqueFilename.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -596,7 +597,8 @@ export const renameProjectFile: RequestHandler = async (req: Request, res: Respo
  */
 export const createProjectFile: RequestHandler = async (req: Request, res: Response) => {
   try {
-    const filename = ensureJsonExtension(req.body.title || 'Untitled');
+    let filename = ensureJsonExtension(req.body.title || 'Untitled');
+    filename = generateUniqueFileName(uploadsFolderPath, filename);
 
     const projectFilePath = join(uploadsFolderPath, filename);
 
