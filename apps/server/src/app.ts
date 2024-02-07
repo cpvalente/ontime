@@ -12,6 +12,7 @@ import {
   currentDirectory,
   environment,
   isProduction,
+  resolveDbPath,
   resolveExternalsDirectory,
   resolveStylesDirectory,
   resolvedPath,
@@ -49,6 +50,7 @@ console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 if (!isProduction) {
   console.log(`Ontime running in ${environment} environment`);
   console.log(`Ontime directory at ${currentDirectory} `);
+  console.log(`Ontime database at ${resolveDbPath}`);
 }
 
 // Create express APP
