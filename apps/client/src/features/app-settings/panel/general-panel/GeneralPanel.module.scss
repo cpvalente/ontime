@@ -1,0 +1,40 @@
+@mixin sectionSpacing {
+  border-radius: $component-border-radius-md;
+  padding: $element-spacing;
+  display: flex;
+  align-items: center;
+}
+
+.splitSection {
+  display: flex;
+  align-items: center;
+  gap: $section-spacing;
+  justify-content: space-between;
+  @include sectionSpacing;
+}
+
+.sectionTitle {
+  font-size: $inner-section-text-size;
+  display: block;
+  width: 100%;
+
+  &.main {
+    font-weight: 600;
+  }
+}
+
+@mixin subsection {
+  font-size: $inner-section-text-size;
+  display: block;
+}
+
+.sectionSubtitle {
+  @include subsection;
+  color: $modal-note-color;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: calc($section-spacing * 2) $element-spacing;
+}

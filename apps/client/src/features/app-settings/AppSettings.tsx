@@ -13,6 +13,7 @@ import PanelList from './panel-list/PanelList';
 import { useSettingsStore } from './settingsStore';
 
 import style from './AppSettings.module.scss';
+import GeneralPanel from './panel/general-panel/GeneralPanel';
 
 export default function AppSettings() {
   const setShowSettings = useSettingsStore((state) => state.setShowSettings);
@@ -29,6 +30,7 @@ export default function AppSettings() {
         <PanelList />
         <PanelContent onClose={closeSettings}>
           {selectedPanel === 'project' && <ProjectPanel />}
+          {selectedPanel === 'general' && <GeneralPanel />}
           {selectedPanel === 'sources' && <SourcesPanel />}
           {selectedPanel === 'integrations' && <IntegrationsPanel />}
           {selectedPanel === 'project_settings' && <ProjectSettingsPanel />}
