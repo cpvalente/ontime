@@ -1,15 +1,14 @@
-import { memo, useState } from 'react';
+import { memo } from 'react';
 import { InputRightElement, Tooltip } from '@chakra-ui/react';
 import { IoAlertCircleOutline } from '@react-icons/all-files/io5/IoAlertCircleOutline';
 import { IoLink } from '@react-icons/all-files/io5/IoLink';
 import { IoLockClosed } from '@react-icons/all-files/io5/IoLockClosed';
 import { IoLockOpenOutline } from '@react-icons/all-files/io5/IoLockOpenOutline';
 import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
-import { OntimeEvent } from 'ontime-types';
+import { MaybeString, OntimeEvent, TimeStrategy } from 'ontime-types';
 
 import TimeInputWithButton from '../../../../common/components/input/time-input/TimeInputWithButton';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
-import { forgivingStringToMillis } from '../../../../common/utils/dateConfig';
 import { cx } from '../../../../common/utils/styleUtils';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
 
@@ -20,39 +19,40 @@ interface EventBlockTimerProps {
   timeStart: number;
   timeEnd: number;
   duration: number;
+  timeStrategy: TimeStrategy;
+  linkStart: MaybeString;
   delay: number;
 }
 
-type TimeActions = 'timeStart' | 'timeEnd' | 'durationOverride'; // we call it durationOverride to stop from passing as a duration value
+type TimeActions = 'timeStart' | 'timeEnd' | 'duration';
 
 const EventBlockTimers = (props: EventBlockTimerProps) => {
-  const { eventId, timeStart, timeEnd, duration, delay } = props;
-  const { updateEvent, updateTimer } = useEventAction();
-  const [linkedStart, setLinkedStart] = useState(false);
-  const [locked, setLocked] = useState<'timeEnd' | 'duration'>('duration');
+  const { eventId, timeStart, timeEnd, duration, timeStrategy, linkStart, delay } = props;
+  const { updateEvent, updateTimer, linkTimer } = useEventAction();
 
   // In sync with EventEditorTimes
   const handleSubmit = (field: TimeActions, value: string) => {
-    if (field === 'timeStart' || field === 'timeEnd') {
-      updateTimer(eventId, field, value);
-      return;
-    }
+    updateTimer(eventId, field, value);
+  };
 
-    if (field === 'durationOverride') {
-      const timeInMillis = forgivingStringToMillis(value);
-      const newEventData: Partial<OntimeEvent> = { id: eventId, timeEnd: timeStart + timeInMillis };
-      updateEvent(newEventData);
-      return;
-    }
+  const handleChangeStrategy = (timeStrategy: TimeStrategy) => {
+    const newEvent: Partial<OntimeEvent> = { id: eventId, timeStrategy };
+    updateEvent(newEvent);
+  };
+
+  const handleLink = (doLink: boolean) => {
+    // the string doesnt mean much for now, not more than an intent to link
+    // we imagine that we can leverage this to create offsets p+10
+    linkTimer(eventId, doLink ? 'p' : null);
   };
 
   const overMidnight = timeStart > timeEnd;
   const hasDelay = delay !== 0;
 
-  const isLockedEnd = locked === 'timeEnd';
-  const isLockedDuration = locked === 'duration';
+  const isLockedEnd = timeStrategy === TimeStrategy.LockEnd;
+  const isLockedDuration = timeStrategy === TimeStrategy.LockDuration;
 
-  const activeStart = cx([style.timeAction, linkedStart ? style.active : null]);
+  const activeStart = cx([style.timeAction, linkStart ? style.active : null]);
   const activeEnd = cx([style.timeAction, isLockedEnd ? style.active : null]);
   const activeDuration = cx([style.timeAction, isLockedDuration ? style.active : null]);
 
@@ -64,11 +64,11 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
         time={timeStart}
         hasDelay={hasDelay}
         placeholder='Start'
-        disabled={linkedStart}
+        disabled={Boolean(linkStart)}
       >
-        <InputRightElement className={activeStart} onClick={() => setLinkedStart((prev) => !prev)}>
+        <InputRightElement className={activeStart} onClick={() => handleLink(!linkStart)}>
           <span className={style.timeLabel}>S</span>
-          <span className={style.fourtyfive}>{linkedStart ? <IoLink /> : <IoUnlink />}</span>
+          <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
         </InputRightElement>
       </TimeInputWithButton>
       <TimeInputWithButton<TimeActions>
@@ -79,19 +79,19 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
         disabled={isLockedDuration}
         placeholder='End'
       >
-        <InputRightElement className={activeEnd} onClick={() => setLocked('timeEnd')}>
+        <InputRightElement className={activeEnd} onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}>
           <span className={style.timeLabel}>E</span>
           {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
         </InputRightElement>
       </TimeInputWithButton>
       <TimeInputWithButton<TimeActions>
-        name='durationOverride'
+        name='duration'
         submitHandler={handleSubmit}
         time={duration}
         disabled={isLockedEnd}
         placeholder='Duration'
       >
-        <InputRightElement className={activeDuration} onClick={() => setLocked('duration')}>
+        <InputRightElement className={activeDuration} onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}>
           <span className={style.timeLabel}>D</span>
           {isLockedDuration ? <IoLockClosed /> : <IoLockOpenOutline />}
         </InputRightElement>
