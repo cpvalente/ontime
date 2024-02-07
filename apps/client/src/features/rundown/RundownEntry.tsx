@@ -126,6 +126,8 @@ export default function RundownEntry(props: RundownEntryProps) {
         timeStart={data.timeStart}
         timeEnd={data.timeEnd}
         duration={data.duration}
+        timeStrategy={data.timeStrategy}
+        linkStart={data.linkStart}
         eventId={data.id}
         isPublic={data.isPublic}
         endAction={data.endAction}

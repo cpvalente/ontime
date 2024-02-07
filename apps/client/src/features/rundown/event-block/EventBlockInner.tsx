@@ -9,7 +9,7 @@ import { IoPlayForward } from '@react-icons/all-files/io5/IoPlayForward';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
-import { EndAction, Playback, TimerType } from 'ontime-types';
+import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
@@ -30,6 +30,8 @@ interface EventBlockInnerProps {
   timeStart: number;
   timeEnd: number;
   duration: number;
+  timeStrategy: TimeStrategy;
+  linkStart: MaybeString;
   eventId: string;
   eventIndex: number;
   isPublic: boolean;
@@ -51,6 +53,8 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     timeStart,
     timeEnd,
     duration,
+    timeStrategy,
+    linkStart,
     eventId,
     isPublic = true,
     endAction,
@@ -84,7 +88,15 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
 
   return !renderInner ? null : (
     <>
-      <EventBlockTimers eventId={eventId} timeStart={timeStart} timeEnd={timeEnd} duration={duration} delay={delay} />
+      <EventBlockTimers
+        eventId={eventId}
+        timeStart={timeStart}
+        timeEnd={timeEnd}
+        duration={duration}
+        delay={delay}
+        timeStrategy={timeStrategy}
+        linkStart={linkStart}
+      />
       <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
       {next && (
         <Tooltip label='Next event' {...tooltipProps}>
