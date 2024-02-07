@@ -31,11 +31,8 @@ export default function ProjectList({ isCreatingProject, onToggleCreate }: Proje
   const handleSubmitCreate = async (values: ProjectCreateFormValues) => {
     try {
       setSubmitError(null);
-      const filename = values.title.trim();
-      if (!filename) {
-        setSubmitError('Project name cannot be empty');
-        return;
-      }
+      const filename = values.title?.trim();
+
       await createProject({
         ...values,
         filename,

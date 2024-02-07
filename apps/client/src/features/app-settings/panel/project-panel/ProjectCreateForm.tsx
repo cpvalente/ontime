@@ -5,7 +5,7 @@ import { Button, Input, Textarea } from '@chakra-ui/react';
 import style from './ProjectPanel.module.scss';
 
 export type ProjectCreateFormValues = {
-  title: string;
+  title?: string;
   description?: string;
   publicInfo?: string;
   publicUrl?: string;
@@ -23,11 +23,11 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
   const {
     handleSubmit,
     register,
-    formState: { isSubmitting, isDirty, isValid },
+    formState: { isSubmitting, isValid },
     setFocus,
   } = useForm<ProjectCreateFormValues>({
-    defaultValues: { title: 'Untitled Project' },
-    values: { title: 'Untitled Project' },
+    defaultValues: { title: '' },
+    values: { title: '' },
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -47,8 +47,7 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
             size='sm'
             maxLength={50}
             placeholder='Your project name'
-            required
-            minLength={1}
+            autoComplete='off'
             {...register('title')}
           />
         </label>
@@ -61,6 +60,7 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
             size='sm'
             maxLength={100}
             placeholder='Euro Love, Malmö 2024'
+            autoComplete='off'
             {...register('description')}
           />
         </label>
@@ -73,6 +73,7 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
             size='sm'
             maxLength={150}
             placeholder='Shows always start ontime'
+            autoComplete='off'
             {...register('publicInfo')}
           />
         </label>
@@ -80,7 +81,13 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
       <div className={style.createFormInputField}>
         <label>
           Public QR code Url
-          <Input variant='ontime-filled' size='sm' placeholder='www.getontime.no' {...register('publicUrl')} />
+          <Input
+            variant='ontime-filled'
+            size='sm'
+            placeholder='www.getontime.no'
+            autoComplete='off'
+            {...register('publicUrl')}
+          />
         </label>
       </div>
       <div className={style.createFormInputField}>
@@ -91,6 +98,7 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
             size='sm'
             maxLength={150}
             placeholder='Wi-Fi password: 1234'
+            autoComplete='off'
             {...register('backstageInfo')}
           />
         </label>
@@ -98,7 +106,13 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
       <div className={style.createFormInputField}>
         <label>
           Backstage QR code Url
-          <Input variant='ontime-filled' size='sm' placeholder='www.ontime.gitbook.io' {...register('backstageUrl')} />
+          <Input
+            variant='ontime-filled'
+            size='sm'
+            placeholder='www.ontime.gitbook.io'
+            autoComplete='off'
+            {...register('backstageUrl')}
+          />
         </label>
       </div>
       <div className={style.createActionButtons}>
@@ -106,7 +120,7 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
           Cancel
         </Button>
         <Button
-          isDisabled={!isDirty || !isValid}
+          isDisabled={!isValid}
           type='submit'
           isLoading={isSubmitting}
           variant='ontime-filled'

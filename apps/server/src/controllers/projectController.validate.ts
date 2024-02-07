@@ -2,7 +2,7 @@ import { body, validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
 
 export const projectSanitiser = [
-  body('title').isString().trim(),
+  body('title').optional().isString().trim(),
   body('description').optional().isString().trim(),
   body('publicUrl').optional().isString().trim(),
   body('publicInfo').optional().isString().trim(),

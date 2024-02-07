@@ -47,7 +47,6 @@ import {
   validateProjectDuplicate,
   validateLoadProjectFile,
   validateProjectRename,
-  validateProjectCreate,
   validateSheetid,
   validateWorksheet,
   validateSheetOptions,
@@ -127,7 +126,7 @@ router.post('/project/:filename/duplicate', validateProjectDuplicate, sanitizePr
 router.put('/project/:filename/rename', validateProjectRename, sanitizeProjectFilename, renameProjectFile);
 
 // create route between controller and '/ontime/project' endpoint
-router.post('/project', validateProjectCreate, projectSanitiser, createProjectFile);
+router.post('/project', projectSanitiser, createProjectFile);
 
 // create route between controller and '/ontime/project/:filename' endpoint
 router.delete('/project/:filename', sanitizeProjectFilename, deleteProjectFile);
