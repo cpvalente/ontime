@@ -597,8 +597,8 @@ export const renameProjectFile: RequestHandler = async (req: Request, res: Respo
  */
 export const createProjectFile: RequestHandler = async (req: Request, res: Response) => {
   try {
-    let filename = ensureJsonExtension(req.body.title || 'Untitled');
-    filename = generateUniqueFileName(uploadsFolderPath, filename);
+    const originalFilename = ensureJsonExtension(req.body.title || 'Untitled');
+    const filename = generateUniqueFileName(uploadsFolderPath, originalFilename);
 
     const projectFilePath = join(uploadsFolderPath, filename);
 
