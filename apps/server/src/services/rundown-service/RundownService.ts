@@ -11,7 +11,6 @@ import {
 } from 'ontime-types';
 import { getCueCandidate } from 'ontime-utils';
 
-import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
 import { logger } from '../../classes/Logger.js';
@@ -26,7 +25,7 @@ function generateEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | 
   const id = cache.getUniqueId();
 
   if (isOntimeEvent(eventData)) {
-    return createEvent(eventData, getCueCandidate(DataProvider.getRundown(), eventData?.after)) as OntimeEvent;
+    return createEvent(eventData, getCueCandidate(cache.getPersistedRundown(), eventData?.after)) as OntimeEvent;
   }
 
   if (isOntimeDelay(eventData)) {
@@ -188,7 +187,7 @@ export function notifyChanges(options: { timer?: boolean | string[]; external?: 
  * @return {array}
  */
 export function getRundown(): OntimeRundown {
-  return DataProvider.getRundown();
+  return cache.getPersistedRundown();
 }
 
 /**
@@ -196,7 +195,7 @@ export function getRundown(): OntimeRundown {
  * @return {array}
  */
 export function getTimedEvents(): OntimeEvent[] {
-  return DataProvider.getRundown().filter((event) => isOntimeEvent(event)) as OntimeEvent[];
+  return getRundown().filter((event) => isOntimeEvent(event)) as OntimeEvent[];
 }
 
 /**
@@ -204,7 +203,7 @@ export function getTimedEvents(): OntimeEvent[] {
  * @return {array}
  */
 export function getPlayableEvents(): OntimeEvent[] {
-  return DataProvider.getRundown().filter((event) => isOntimeEvent(event) && !event.skip) as OntimeEvent[];
+  return getRundown().filter((event) => isOntimeEvent(event) && !event.skip) as OntimeEvent[];
 }
 
 /**
@@ -288,7 +287,6 @@ export function findNext(currentEventId?: string): OntimeEvent | null {
 }
 
 export async function setRundown(rundown: OntimeRundown) {
-  await DataProvider.setRundown(rundown);
   cache.init(rundown);
   notifyChanges({ timer: true });
 }

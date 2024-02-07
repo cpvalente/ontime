@@ -347,6 +347,7 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     patchEvent?.duration ?? originalEvent.duration,
     patchEvent?.timeStrategy ?? originalEvent.timeStrategy,
   );
+  const maybeLinkStart = patchEvent.linkStart !== undefined ? patchEvent.linkStart : originalEvent.linkStart;
 
   return {
     id: originalEvent.id,
@@ -358,7 +359,7 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     timeEnd,
     duration,
     timeStrategy,
-    linkStart: validateLinkStart(patchEvent.linkStart),
+    linkStart: validateLinkStart(maybeLinkStart),
     endAction: validateEndAction(patchEvent.endAction, EndAction.None),
     timerType: validateTimerType(patchEvent.timerType, TimerType.CountDown),
     isPublic: typeof patchEvent.isPublic === 'boolean' ? patchEvent.isPublic : originalEvent.isPublic,
@@ -378,8 +379,8 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     // short circuit empty string
     cue: makeString(patchEvent.cue ?? null, originalEvent.cue),
     revision: originalEvent.revision,
-    timeWarning: patchEvent.timeWarning,
-    timeDanger: patchEvent.timeDanger,
+    timeWarning: patchEvent.timeWarning ?? originalEvent.timeWarning,
+    timeDanger: patchEvent.timeDanger ?? originalEvent.timeDanger,
   };
 }
 

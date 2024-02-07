@@ -43,7 +43,7 @@ import { restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
 import { populateDemo } from './modules/loadDemo.js';
 import { getState, updateNumEvents } from './stores/runtimeState.js';
-import { getNumEvents } from './services/rundown-service/RundownService.js';
+import { getNumEvents, setRundown } from './services/rundown-service/RundownService.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -179,15 +179,18 @@ export const startServer = async () => {
     },
   });
 
+  // initialise rundown service
+  setRundown(DataProvider.getRundown());
+
+  // TODO: do this on the init of the runtime service
+  const numEvents = getNumEvents();
+  updateNumEvents(numEvents);
+
   // load restore point if it exists
   const maybeRestorePoint = await restoreService.load();
 
   // TODO: pass event store to rundownservice
   runtimeService.init(maybeRestorePoint);
-
-  // TODO: do this on the init of the runtime service
-  const numEvents = getNumEvents();
-  updateNumEvents(numEvents);
 
   // eventStore set is a dependency of the services that publish to it
   messageService.init(eventStore.set.bind(eventStore));
@@ -278,7 +281,7 @@ export const shutdown = async (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-process.on('exit', (code) => console.log(`Ontime exited with code: ${code}`));
+process.on('exit', (code) => console.log(`Ontime shutdown with code: ${code}`));
 
 process.on('unhandledRejection', async (error) => {
   logger.error(LogOrigin.Server, `Error: unhandled rejection ${error}`);
