@@ -18,6 +18,7 @@ import {
   UserFields,
   EndAction,
   TimerType,
+  TimeStrategy,
 } from 'ontime-types';
 
 import fs from 'fs';
@@ -336,6 +337,24 @@ export const parseJson = async (jsonData: Partial<DatabaseModel>): Promise<Datab
   return returnData;
 };
 
+/**
+ * Function infers strategy for a patch with only partial timer data
+ * @param end
+ * @param duration
+ * @param fallback
+ * @returns
+ */
+function inferStrategy(end: unknown, duration: unknown, fallback: TimeStrategy): TimeStrategy {
+  if (end && !duration) {
+    return TimeStrategy.LockEnd;
+  }
+
+  if (!end && duration) {
+    return TimeStrategy.LockDuration;
+  }
+  return fallback;
+}
+
 export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<OntimeEvent>): OntimeEvent {
   if (Object.keys(patchEvent).length === 0) {
     return originalEvent;
@@ -345,7 +364,7 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     patchEvent?.timeStart ?? originalEvent.timeStart,
     patchEvent?.timeEnd ?? originalEvent.timeEnd,
     patchEvent?.duration ?? originalEvent.duration,
-    patchEvent?.timeStrategy ?? originalEvent.timeStrategy,
+    patchEvent?.timeStrategy ?? inferStrategy(patchEvent?.timeEnd, patchEvent?.duration, originalEvent.timeStrategy),
   );
   const maybeLinkStart = patchEvent.linkStart !== undefined ? patchEvent.linkStart : originalEvent.linkStart;
 
