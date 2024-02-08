@@ -7,15 +7,15 @@ test('delay blocks add time to events', async ({ page }) => {
   await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Delete all events' }).click();
   await page.getByRole('button', { name: 'Rundown menu' }).click();
-  await page.getByRole('menuitem', { name: 'Add event at start' }).click();
+  await page.getByRole('button', { name: 'Create event' }).click();
 
   // add data to new event
   await page.getByTestId('rundown').getByPlaceholder('Start').click();
   await page.getByTestId('rundown').getByPlaceholder('Start').fill('10m');
   await page.getByTestId('rundown').getByPlaceholder('Start').press('Enter');
-  await page.getByTestId('rundown').getByPlaceholder('End').click();
-  await page.getByTestId('rundown').getByPlaceholder('End').fill('20m');
-  await page.getByTestId('rundown').getByPlaceholder('End').press('Enter');
+  await page.getByTestId('rundown').getByPlaceholder('Duration').click();
+  await page.getByTestId('rundown').getByPlaceholder('Duration').fill('20m');
+  await page.getByTestId('rundown').getByPlaceholder('Duration').press('Enter');
 
   // add delay block
   await page.getByRole('button', { name: 'Rundown menu' }).click();
@@ -61,9 +61,9 @@ test('delays are show correctly', async ({ page }) => {
   await page.getByTestId('rundown').getByTestId('time-input-timeStart').click();
   await page.getByTestId('rundown').getByTestId('time-input-timeStart').fill('10');
   await page.getByTestId('rundown').getByTestId('time-input-timeStart').press('Enter');
-  await page.getByTestId('rundown').getByTestId('time-input-timeEnd').click();
-  await page.getByTestId('rundown').getByTestId('time-input-timeEnd').fill('20');
-  await page.getByTestId('rundown').getByTestId('time-input-timeEnd').press('Enter');
+  await page.getByTestId('rundown').getByTestId('time-input-duration').click();
+  await page.getByTestId('rundown').getByTestId('time-input-duration').fill('10');
+  await page.getByTestId('rundown').getByTestId('time-input-duration').press('Enter');
   await page.getByText('Event title').click();
   await page.getByPlaceholder('Event title').fill('test');
   await page.getByPlaceholder('Event title').press('Enter');
