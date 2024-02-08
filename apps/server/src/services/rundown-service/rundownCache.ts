@@ -6,7 +6,15 @@ import {
   OntimeRundown,
   OntimeRundownEntry,
 } from 'ontime-types';
-import { generateId, deleteAtIndex, insertAtIndex, reorderArray, swapEventData, getLinkedTimes } from 'ontime-utils';
+import {
+  generateId,
+  deleteAtIndex,
+  insertAtIndex,
+  reorderArray,
+  swapEventData,
+  getLinkedTimes,
+  formatFromMillis,
+} from 'ontime-utils';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
@@ -27,23 +35,23 @@ let isStale = true;
 let links: Record<EventID, EventID> = {};
 
 export async function init(initialRundown: OntimeRundown) {
-  await DataProvider.setRundown(initialRundown);
   persistedRundown = structuredClone(initialRundown);
   generate();
+  await DataProvider.setRundown(persistedRundown);
 }
 
 /**
  * Utility initialises cache
  * @param rundown
  */
-export function generate(intialRundown: OntimeRundown = persistedRundown) {
+export function generate(initialRundown: OntimeRundown = persistedRundown) {
   // we decided to re-write this dataset for every change
   // instead of maintaining logic to update it
 
   function getLink(currentIndex: number): OntimeEvent | null {
     // currently the link is the previous event
     for (let i = currentIndex - 1; i >= 0; i--) {
-      const event = intialRundown[i];
+      const event = initialRundown[i];
       if (isOntimeEvent(event)) {
         return event;
       }
@@ -56,8 +64,8 @@ export function generate(intialRundown: OntimeRundown = persistedRundown) {
   links = {};
 
   let accumulatedDelay = 0;
-  for (let i = 0; i < intialRundown.length; i++) {
-    const currentEvent = intialRundown[i];
+  for (let i = 0; i < initialRundown.length; i++) {
+    const currentEvent = initialRundown[i];
     let updatedEvent = { ...currentEvent };
 
     // handle links
@@ -67,11 +75,14 @@ export function generate(intialRundown: OntimeRundown = persistedRundown) {
         // link is always the previous event for now
         if (linkedEvent) {
           links[linkedEvent.id] = currentEvent.id;
+
           const timePatch = getLinkedTimes(updatedEvent, linkedEvent);
           updatedEvent = { ...updatedEvent, ...timePatch };
         } else {
           updatedEvent.linkStart = null;
         }
+        // update the persisted event
+        initialRundown[i] = updatedEvent;
       }
     }
 
@@ -165,7 +176,7 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
     // TODO: should we trottle this?
     // defer writing to the database
     setImmediate(() => {
-      DataProvider.setRundown(newRundown);
+      DataProvider.setRundown(persistedRundown);
     });
 
     // TODO: could we return a patch object?
@@ -221,6 +232,9 @@ export function edit({ persistedRundown, eventId, patch }: EditArgs): Required<M
   if (patch?.type && persistedRundown[indexAt].type !== patch.type) {
     throw new Error('Invalid event type');
   }
+
+  // @ts-expect-error -- testing
+  console.log('patch', formatFromMillis(patch?.timeStart ?? 0, 'HH:mm:ss'));
 
   const eventInMemory = persistedRundown[indexAt];
   const newEvent = makeEvent(eventInMemory, patch);

@@ -1,4 +1,12 @@
-import { HttpSettings, LogOrigin, OSCSettings, Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
+import {
+  HttpSettings,
+  LogOrigin,
+  OSCSettings,
+  OntimeEvent,
+  Playback,
+  SimpleDirection,
+  SimplePlayback,
+} from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';
@@ -180,7 +188,8 @@ export const startServer = async () => {
   });
 
   // initialise rundown service
-  setRundown(DataProvider.getRundown());
+  const persistedRundown = DataProvider.getRundown();
+  setRundown(persistedRundown);
 
   // TODO: do this on the init of the runtime service
   const numEvents = getNumEvents();
