@@ -21,6 +21,8 @@ export const cloneEvent = (event: OntimeEvent, after?: string): ClonedEvent => {
     duration: event.duration,
     timeEnd: event.timeEnd,
     timerType: event.timerType,
+    timeStrategy: event.timeStrategy,
+    linkStart: event.linkStart,
     endAction: event.endAction,
     isPublic: event.isPublic,
     skip: event.skip,
