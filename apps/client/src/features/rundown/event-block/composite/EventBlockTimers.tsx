@@ -79,7 +79,11 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
         disabled={isLockedDuration}
         placeholder='End'
       >
-        <InputRightElement className={activeEnd} onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}>
+        <InputRightElement
+          className={activeEnd}
+          onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}
+          data-testid='lock__end'
+        >
           <span className={style.timeLabel}>E</span>
           {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
         </InputRightElement>
@@ -91,7 +95,11 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
         disabled={isLockedEnd}
         placeholder='Duration'
       >
-        <InputRightElement className={activeDuration} onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}>
+        <InputRightElement
+          className={activeDuration}
+          onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}
+          data-testid='lock__duration'
+        >
           <span className={style.timeLabel}>D</span>
           {isLockedDuration ? <IoLockClosed /> : <IoLockOpenOutline />}
         </InputRightElement>
