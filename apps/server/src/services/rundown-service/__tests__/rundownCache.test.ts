@@ -44,17 +44,46 @@ describe('init() function', () => {
 
   it('links times across events', () => {
     const testRundown: OntimeRundown = [
-      { type: SupportedEvent.Event, id: '1', timeStart: 1, timeEnd: 2 } as OntimeEvent,
-      { type: SupportedEvent.Event, id: '2', timeStart: 11, timeEnd: 12, linkStart: '1' } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '1',
+        timeStart: 1,
+        duration: 1,
+        timeEnd: 2,
+        timeStrategy: TimeStrategy.LockEnd,
+      } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '2',
+        timeStart: 11,
+        duration: 1,
+        timeEnd: 12,
+        linkStart: '1',
+        timeStrategy: TimeStrategy.LockEnd,
+      } as OntimeEvent,
       { type: SupportedEvent.Block, id: 'block' } as OntimeBlock,
       { type: SupportedEvent.Delay, id: 'delay' } as OntimeDelay,
-      { type: SupportedEvent.Event, id: '3', timeStart: 21, timeEnd: 22, linkStart: '2' } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '3',
+        timeStart: 21,
+        duration: 1,
+        timeEnd: 22,
+        linkStart: '2',
+        timeStrategy: TimeStrategy.LockEnd,
+      } as OntimeEvent,
     ];
 
     const initResult = generate(testRundown);
     expect(initResult.order.length).toBe(5);
     expect((initResult.rundown['2'] as OntimeEvent).timeStart).toBe(2);
+    expect((initResult.rundown['2'] as OntimeEvent).timeEnd).toBe(12);
+    expect((initResult.rundown['2'] as OntimeEvent).duration).toBe(10);
+
     expect((initResult.rundown['3'] as OntimeEvent).timeStart).toBe(12);
+    expect((initResult.rundown['3'] as OntimeEvent).timeEnd).toBe(22);
+    expect((initResult.rundown['3'] as OntimeEvent).duration).toBe(10);
+
     expect(initResult.links['1']).toBe('2');
     expect(initResult.links['2']).toBe('3');
   });
@@ -68,7 +97,6 @@ describe('init() function', () => {
 
     const initResult = generate(testRundown);
     expect(initResult.order.length).toBe(3);
-    expect((initResult.rundown['2'] as OntimeEvent).timeStart).toBe(22);
     expect((initResult.rundown['3'] as OntimeEvent).timeStart).toBe(2);
     expect(initResult.links['1']).toBe('3');
     expect(initResult.links['3']).toBe('2');

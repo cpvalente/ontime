@@ -577,10 +577,12 @@ describe('test event validator', () => {
     };
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
     const validated = createEvent(event);
-    expect(typeof validated.timeStart).toEqual('number');
+    assertType<number>(validated.timeStart);
+    assertType<number>(validated.timeEnd);
+    assertType<number>(validated.duration);
     expect(validated.timeStart).toEqual(0);
-    expect(typeof validated.timeEnd).toEqual('number');
     expect(validated.timeEnd).toEqual(2);
+    expect(validated.duration).toEqual(2);
   });
 
   it('handles bad objects', () => {
