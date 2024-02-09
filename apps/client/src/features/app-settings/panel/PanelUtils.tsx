@@ -25,3 +25,20 @@ export function Card({ children }: { children: ReactNode }) {
 export function Table({ children }: { children: ReactNode }) {
   return <table className={style.table}>{children}</table>;
 }
+
+export function ListGroup({ children }: { children: ReactNode }) {
+  return <ul className={style.listGroup}>{children}</ul>;
+}
+
+export function ListItem({ children }: { children: ReactNode }) {
+  return <li className={style.listItem}>{children}</li>;
+}
+
+export function Field({ title, description }: { title: string; description: string }) {
+  return (
+    <div className={style.fieldTitle}>
+      {title}
+      {description && <div className={style.fieldDescription}>{description}</div>}
+    </div>
+  );
+}

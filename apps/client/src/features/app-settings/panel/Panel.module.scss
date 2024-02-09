@@ -62,3 +62,28 @@
     background-color: $white-1;
   }
 }
+
+.listGroup {
+  padding: 1rem 0;
+
+  > li:not(:last-child) {
+    border-bottom: 1px solid $white-10;
+  }
+}
+
+.listItem {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.fieldTitle {
+  color: $ui-white;
+  font-size: 1rem;
+}
+
+.fieldDescription {
+  font-size: calc(1rem - 2px);
+  color: $gray-400;
+}
