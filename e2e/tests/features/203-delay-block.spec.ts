@@ -68,7 +68,7 @@ test('delays are show correctly', async ({ page }) => {
   await page.getByPlaceholder('Event title').fill('test');
   await page.getByPlaceholder('Event title').press('Enter');
 
-  await page.getByText('SED').click({ button: 'right' });
+  await page.getByTestId('entry-1').getByText('test').click({ button: 'right' });
   await page.getByRole('menuitem', { name: 'Toggle public' }).click();
 
   // add a delay
@@ -83,7 +83,7 @@ test('delays are show correctly', async ({ page }) => {
 
   // delay is shown in the cuesheet
   await page.goto('http://localhost:4001/cuesheet');
-  await page.getByRole('cell', { name: '+1 min' }).click();
+  await page.getByRole('cell', { name: 'Delayed by 1 min' }).click();
 
   // delay is NOT shown in the public view
   await page.goto('http://localhost:4001/public');

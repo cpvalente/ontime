@@ -14,11 +14,11 @@ import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontim
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import { EventItemActions } from '../RundownEntry';
+import TimeInputFlow from '../time-input-flow/TimeInputFlow';
 
 import BlockActionMenu from './composite/BlockActionMenu';
 import EventBlockPlayback from './composite/EventBlockPlayback';
 import EventBlockProgressBar from './composite/EventBlockProgressBar';
-import TimeInputFlow from '../time-input-flow/TimeInputFlow';
 
 import style from './EventBlock.module.scss';
 
@@ -113,7 +113,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         selected={selected}
         disablePlayback={skip || isRolling}
       />
-      <div className={style.statusElements}>
+      <div className={style.statusElements} id='block-status' data-ispublic={isPublic}>
         <span className={style.eventNote}>{note}</span>
         <div className={selected ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
           {selected && <EventBlockProgressBar playback={playback} />}
@@ -131,10 +131,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           </Tooltip>
           <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} {...tooltipProps}>
             <span>
-              <IoPeople
-                className={`${style.statusIcon} ${isPublic ? style.active : style.disabled}`}
-                data-ispublic={isPublic}
-              />
+              <IoPeople className={`${style.statusIcon} ${isPublic ? style.active : style.disabled}`} />
             </span>
           </Tooltip>
         </div>
