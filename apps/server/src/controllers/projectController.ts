@@ -47,7 +47,6 @@ export const postCustomField: RequestHandler = async (req, res) => {
   //TODO: validate
   try {
     const { label, ...rest } = req.body;
-    console.log(label, rest)
     const newFields = await createCustomField(label, rest);
     res.json(newFields);
   } catch (error) {
