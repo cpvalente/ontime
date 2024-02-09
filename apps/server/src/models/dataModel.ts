@@ -46,24 +46,10 @@ export const dbModel: DatabaseModel = {
     targetIP: '127.0.0.1',
     enabledIn: false,
     enabledOut: false,
-    subscriptions: {
-      onLoad: [],
-      onStart: [],
-      onPause: [],
-      onStop: [],
-      onUpdate: [],
-      onFinish: [],
-    },
+    subscriptions: [],
   },
   http: {
     enabledOut: false,
-    subscriptions: {
-      onLoad: [],
-      onStart: [],
-      onPause: [],
-      onStop: [],
-      onUpdate: [],
-      onFinish: [],
-    },
+    subscriptions: [],
   },
 };
