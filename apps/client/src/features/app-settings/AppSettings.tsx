@@ -5,6 +5,7 @@ import { useKeyDown } from '../../common/hooks/useKeyDown';
 import AboutPanel from './panel/about-panel/AboutPanel';
 import LogPanel from './panel/log-panel/LogPanel';
 import ProjectPanel from './panel/project-panel/ProjectPanel';
+import ProjectSettingsPanel from './panel/project-settings-panel/ProjectSettingsPanel';
 import PanelContent from './panel-content/PanelContent';
 import PanelList from './panel-list/PanelList';
 import { useSettingsStore } from './settingsStore';
@@ -26,6 +27,7 @@ export default function AppSettings() {
         <PanelList />
         <PanelContent onClose={closeSettings}>
           {selectedPanel === 'project' && <ProjectPanel />}
+          {selectedPanel === 'project_settings' && <ProjectSettingsPanel />}
           {selectedPanel === 'about' && <AboutPanel />}
           {selectedPanel === 'log' && <LogPanel />}
         </PanelContent>
