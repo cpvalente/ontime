@@ -271,7 +271,6 @@ export function reorder({ persistedRundown, eventId, from, to }: ReorderArgs): R
     throw new Error('Event not found');
   }
 
-  // TODO: what is the behaviour on reordering
   const newRundown = reorderArray(persistedRundown, from, to);
   for (let i = from; i <= to; i++) {
     const event = newRundown.at(i);
