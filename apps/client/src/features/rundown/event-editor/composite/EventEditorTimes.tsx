@@ -1,13 +1,11 @@
 import { memo } from 'react';
 import { Select, Switch } from '@chakra-ui/react';
-import { EndAction, MaybeString, OntimeEvent, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, MaybeString, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
-import TimeInputWithButton from '../../../../common/components/input/time-input/TimeInputWithButton';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { forgivingStringToMillis, millisToDelayString } from '../../../../common/utils/dateConfig';
-import { cx } from '../../../../common/utils/styleUtils';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
 
 import style from '../EventEditor.module.scss';
@@ -28,7 +26,6 @@ interface EventEditorTimesProps {
 }
 
 type HandledActions = 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
-type TimeActions = 'timeStart' | 'timeEnd' | 'durationOverride'; // we call it durationOverride to stop from passing as a duration value
 
 const EventEditorTimes = (props: EventEditorTimesProps) => {
   const {
@@ -45,22 +42,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
     timeWarning,
     timeDanger,
   } = props;
-  const { updateEvent, updateTimer } = useEventAction();
-
-  // In sync with EventBlockTimers
-  const handleTimeSubmit = (field: TimeActions, value: string) => {
-    if (field === 'timeStart' || field === 'timeEnd') {
-      updateTimer(eventId, field, value);
-      return;
-    }
-
-    if (field === 'durationOverride') {
-      const timeInMillis = forgivingStringToMillis(value);
-      const newEventData: Partial<OntimeEvent> = { id: eventId, timeEnd: timeStart + timeInMillis };
-      updateEvent(newEventData);
-      return;
-    }
-  };
+  const { updateEvent } = useEventAction();
 
   const handleSubmit = (field: HandledActions, value: string | boolean) => {
     if (field === 'isPublic') {

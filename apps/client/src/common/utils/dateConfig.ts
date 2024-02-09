@@ -162,14 +162,14 @@ export function millisToDelayString(millis: number | null, small = false): undef
 
   const isNegative = millis < 0;
   const absMillis = Math.abs(millis);
-  const delayed = small ? '+' : 'delayed by';
-  const ahead = small ? '-' : 'ahead by';
+  const delayed = small ? '+' : 'delayed by ';
+  const ahead = small ? '-' : 'ahead by ';
 
   if (absMillis < MILLIS_PER_MINUTE) {
-    return `${isNegative ? ahead : delayed} ${formatFromMillis(absMillis, 's')} sec`;
+    return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 's')} sec`;
   } else if (absMillis < MILLIS_PER_HOUR && absMillis % MILLIS_PER_MINUTE === 0) {
-    return `${isNegative ? ahead : delayed} ${formatFromMillis(absMillis, 'm')} min`;
+    return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 'm')} min`;
   } else {
-    return `${isNegative ? ahead : delayed} ${formatFromMillis(absMillis, 'HH:mm:ss')}`;
+    return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 'HH:mm:ss')}`;
   }
 }
