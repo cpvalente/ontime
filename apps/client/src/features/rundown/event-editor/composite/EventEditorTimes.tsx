@@ -159,7 +159,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
       <div>
         <span className={style.inputLabel}>Event Visibility</span>
         <label className={style.switchLabel}>
-          <Switch isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
+          <Switch size='sm' isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
           {isPublic ? 'Public' : 'Private'}
         </label>
       </div>
