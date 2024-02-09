@@ -18,7 +18,7 @@ import { EventItemActions } from '../RundownEntry';
 import BlockActionMenu from './composite/BlockActionMenu';
 import EventBlockPlayback from './composite/EventBlockPlayback';
 import EventBlockProgressBar from './composite/EventBlockProgressBar';
-import EventBlockTimers from './composite/EventBlockTimers';
+import TimeInputFlow from '../time-input-flow/TimeInputFlow';
 
 import style from './EventBlock.module.scss';
 
@@ -88,15 +88,17 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
 
   return !renderInner ? null : (
     <>
-      <EventBlockTimers
-        eventId={eventId}
-        timeStart={timeStart}
-        timeEnd={timeEnd}
-        duration={duration}
-        delay={delay}
-        timeStrategy={timeStrategy}
-        linkStart={linkStart}
-      />
+      <div className={style.eventTimers}>
+        <TimeInputFlow
+          eventId={eventId}
+          timeStart={timeStart}
+          timeEnd={timeEnd}
+          duration={duration}
+          delay={delay}
+          timeStrategy={timeStrategy}
+          linkStart={linkStart}
+        />
+      </div>
       <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
       {next && (
         <Tooltip label='Next event' {...tooltipProps}>

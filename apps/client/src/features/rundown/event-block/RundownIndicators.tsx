@@ -13,7 +13,7 @@ function formatDelay(timeStart: number, delay: number): string | undefined {
 
   const delayedStart = Math.max(0, timeStart + delay);
   const timeTag = removeTrailingZero(millisToString(delayedStart));
-  return `New start: ${timeTag}`;
+  return `New start ${timeTag}`;
 }
 
 function formatOverlap(previousEnd: number | null, timeStart: number): string | undefined {

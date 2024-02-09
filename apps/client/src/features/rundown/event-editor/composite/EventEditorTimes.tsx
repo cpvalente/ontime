@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { Select, Switch } from '@chakra-ui/react';
-import { EndAction, OntimeEvent, TimerType } from 'ontime-types';
+import { EndAction, MaybeString, OntimeEvent, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
@@ -8,6 +8,7 @@ import TimeInputWithButton from '../../../../common/components/input/time-input/
 import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { forgivingStringToMillis, millisToDelayString } from '../../../../common/utils/dateConfig';
 import { cx } from '../../../../common/utils/styleUtils';
+import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
 
 import style from '../EventEditor.module.scss';
 
@@ -16,6 +17,8 @@ interface EventEditorTimesProps {
   timeStart: number;
   timeEnd: number;
   duration: number;
+  timeStrategy: TimeStrategy;
+  linkStart: MaybeString;
   delay: number;
   isPublic: boolean;
   endAction: EndAction;
@@ -28,8 +31,20 @@ type HandledActions = 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | '
 type TimeActions = 'timeStart' | 'timeEnd' | 'durationOverride'; // we call it durationOverride to stop from passing as a duration value
 
 const EventEditorTimes = (props: EventEditorTimesProps) => {
-  const { eventId, timeStart, timeEnd, duration, delay, isPublic, endAction, timerType, timeWarning, timeDanger } =
-    props;
+  const {
+    eventId,
+    timeStart,
+    timeEnd,
+    duration,
+    timeStrategy,
+    linkStart,
+    delay,
+    isPublic,
+    endAction,
+    timerType,
+    timeWarning,
+    timeDanger,
+  } = props;
   const { updateEvent, updateTimer } = useEventAction();
 
   // In sync with EventBlockTimers
@@ -66,49 +81,28 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
   };
 
   const hasDelay = delay !== 0;
-  const delayTime = hasDelay ? millisToDelayString(delay) : null;
-  const startLabel = delayTime ? `New Start ${millisToString(timeStart + delay)}` : 'Start time';
-  const endLabel = delayTime ? `New End ${millisToString(timeEnd + delay)}` : 'End time';
-  const inputTimeLabels = cx([style.inputLabel, hasDelay ? style.delayLabel : null]);
+  const delayLabel = hasDelay
+    ? `Event is ${millisToDelayString(delay)}. New schedule ${millisToString(timeStart + delay)} → ${millisToString(
+        timeEnd + delay,
+      )}`
+    : '';
 
   return (
-    <div className={style.column}>
-      <div className={style.inline}>
-        <div>
-          <label className={inputTimeLabels} htmlFor='timeStart'>
-            {startLabel}
-          </label>
-          <TimeInputWithButton
-            name='timeStart'
-            submitHandler={handleTimeSubmit}
-            time={timeStart}
-            hasDelay={hasDelay}
-            placeholder='Start'
+    <>
+      <div>
+        <div className={style.inputLabel}>Event schedule</div>
+        <div className={style.inline}>
+          <TimeInputFlow
+            eventId={eventId}
+            timeStart={timeStart}
+            timeEnd={timeEnd}
+            duration={duration}
+            timeStrategy={timeStrategy}
+            linkStart={linkStart}
+            delay={delay}
           />
         </div>
-        <div>
-          <label className={inputTimeLabels} htmlFor='timeEnd'>
-            {endLabel}
-          </label>
-          <TimeInputWithButton
-            name='timeEnd'
-            submitHandler={handleTimeSubmit}
-            time={timeEnd}
-            hasDelay={hasDelay}
-            placeholder='End'
-          />
-        </div>
-        <div>
-          <label className={style.inputLabel} htmlFor='durationOverride'>
-            Duration
-          </label>
-          <TimeInputWithButton
-            name='durationOverride'
-            submitHandler={handleTimeSubmit}
-            time={duration}
-            placeholder='Duration'
-          />
-        </div>
+        <div className={style.delayLabel}>{delayLabel}</div>
       </div>
 
       <div className={style.splitTwo}>
@@ -163,7 +157,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           {isPublic ? 'Public' : 'Private'}
         </label>
       </div>
-    </div>
+    </>
   );
 };
 

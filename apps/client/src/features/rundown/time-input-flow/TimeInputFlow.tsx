@@ -7,12 +7,12 @@ import { IoLockOpenOutline } from '@react-icons/all-files/io5/IoLockOpenOutline'
 import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
 import { MaybeString, OntimeEvent, TimeStrategy } from 'ontime-types';
 
-import TimeInputWithButton from '../../../../common/components/input/time-input/TimeInputWithButton';
-import { useEventAction } from '../../../../common/hooks/useEventAction';
-import { cx } from '../../../../common/utils/styleUtils';
-import { tooltipDelayFast } from '../../../../ontimeConfig';
+import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
+import { useEventAction } from '../../../common/hooks/useEventAction';
+import { cx } from '../../../common/utils/styleUtils';
+import { tooltipDelayFast } from '../../../ontimeConfig';
 
-import style from '../EventBlock.module.scss';
+import style from './TimeInputFlow.module.scss';
 
 interface EventBlockTimerProps {
   eventId: string;
@@ -26,7 +26,7 @@ interface EventBlockTimerProps {
 
 type TimeActions = 'timeStart' | 'timeEnd' | 'duration';
 
-const EventBlockTimers = (props: EventBlockTimerProps) => {
+const TimeInputFlow = (props: EventBlockTimerProps) => {
   const { eventId, timeStart, timeEnd, duration, timeStrategy, linkStart, delay } = props;
   const { updateEvent, updateTimer, linkTimer } = useEventAction();
 
@@ -57,7 +57,7 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
   const activeDuration = cx([style.timeAction, isLockedDuration ? style.active : null]);
 
   return (
-    <div className={style.eventTimers}>
+    <>
       <TimeInputWithButton<TimeActions>
         name='timeStart'
         submitHandler={handleSubmit}
@@ -71,6 +71,7 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
           <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
         </InputRightElement>
       </TimeInputWithButton>
+
       <TimeInputWithButton<TimeActions>
         name='timeEnd'
         submitHandler={handleSubmit}
@@ -88,6 +89,7 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
           {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
         </InputRightElement>
       </TimeInputWithButton>
+
       <TimeInputWithButton<TimeActions>
         name='duration'
         submitHandler={handleSubmit}
@@ -104,6 +106,7 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
           {isLockedDuration ? <IoLockClosed /> : <IoLockOpenOutline />}
         </InputRightElement>
       </TimeInputWithButton>
+
       {overMidnight && (
         <div className={style.timerNote}>
           <Tooltip
@@ -116,8 +119,8 @@ const EventBlockTimers = (props: EventBlockTimerProps) => {
           </Tooltip>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
-export default memo(EventBlockTimers);
+export default memo(TimeInputFlow);

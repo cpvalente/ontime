@@ -1,14 +1,12 @@
-$input-font-size: 1rem;
 $input-delayed-border-color: $ontime-delay-text;
 
 .timeInput {
+  border: 1px solid transparent;
   &.delayed {
     border: 1px solid $input-delayed-border-color;
   }
+}
 
-  .inputField {
-    max-width: 7.75em;
-    font-size: $input-font-size;
-    letter-spacing: 1px;
-  }
+.inputField {
+  max-width: 7.75em;
 }

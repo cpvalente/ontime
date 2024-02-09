@@ -155,19 +155,21 @@ export const forgivingStringToMillis = (value: string): number => {
   return millis;
 };
 
-export function millisToDelayString(millis: number | null): undefined | string | null {
+export function millisToDelayString(millis: number | null, small = false): undefined | string | null {
   if (millis == null || millis === 0) {
     return null;
   }
 
   const isNegative = millis < 0;
   const absMillis = Math.abs(millis);
+  const delayed = small ? '+' : 'delayed by';
+  const ahead = small ? '-' : 'ahead by';
 
   if (absMillis < MILLIS_PER_MINUTE) {
-    return `${isNegative ? '-' : '+'}${formatFromMillis(absMillis, 's')} sec`;
+    return `${isNegative ? ahead : delayed} ${formatFromMillis(absMillis, 's')} sec`;
   } else if (absMillis < MILLIS_PER_HOUR && absMillis % MILLIS_PER_MINUTE === 0) {
-    return `${isNegative ? '-' : '+'}${formatFromMillis(absMillis, 'm')} min`;
+    return `${isNegative ? ahead : delayed} ${formatFromMillis(absMillis, 'm')} min`;
   } else {
-    return `${isNegative ? '-' : '+'}${formatFromMillis(absMillis, 'HH:mm:ss')}`;
+    return `${isNegative ? ahead : delayed} ${formatFromMillis(absMillis, 'HH:mm:ss')}`;
   }
 }
