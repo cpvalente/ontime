@@ -4,6 +4,7 @@ import { useDisclosure } from '@chakra-ui/react';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import AppSettings from '../app-settings/AppSettings';
 import { SettingsOptionId, useSettingsStore } from '../app-settings/settingsStore';
+import FloatingMenu from '../floating-menu/FloatingMenu';
 import MenuBar from '../menu/MenuBar';
 import QuickStart from '../modals/quick-start/QuickStart';
 import SheetsModal from '../modals/sheets-modal/SheetsModal';
@@ -45,6 +46,7 @@ export default function Editor() {
 
   return (
     <>
+      <FloatingMenu />
       <ErrorBoundary>
         <QuickStart onClose={onQuickStartClose} isOpen={isQuickStartOpen} />
         <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />

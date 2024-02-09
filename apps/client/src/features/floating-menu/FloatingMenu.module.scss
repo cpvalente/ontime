@@ -1,0 +1,16 @@
+.floating {
+    position: fixed;
+    bottom: 0.5rem;
+    left: 50%;
+    transform: translate(-50%, 0%);
+    z-index: 1000;
+
+    border-radius: 99px;
+    display: flex;
+    gap: 0.5rem;
+
+    background-color: $gray-1350;
+    border: 1px solid $white-10;
+    box-shadow: $box-shadow-l2;
+    padding: 0 1em;
+}
