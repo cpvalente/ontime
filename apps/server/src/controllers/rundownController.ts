@@ -52,9 +52,6 @@ export const rundownPut: RequestHandler = async (req, res) => {
     return;
   }
 
-  // TODO: without a cursor, we add to the bottom
-  // TODO: cannot lock end
-  // TODO: changing duration deletes link
   try {
     const event = await editEvent(req.body);
     res.status(200).send(event);
