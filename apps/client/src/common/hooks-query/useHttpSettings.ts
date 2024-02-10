@@ -1,5 +1,4 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { HttpSettings } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { HTTP_SETTINGS } from '../api/apiConstants';
@@ -20,13 +19,17 @@ export function useHttpSettings() {
   });
 
   // we need to jump through some hoops because of the type op port
-  return { data: data! as unknown as HttpSettings, status, isFetching, isError, refetch };
+  return { data: data ?? httpPlaceholder, status, isFetching, isError, refetch };
 }
 
 export function usePostHttpSettings() {
   const { isPending, mutateAsync } = useMutation({
     mutationFn: postHTTP,
     onError: (error) => logAxiosError('Error saving HTTP settings', error),
+    onSuccess: (res) => {
+      console.log('will patch cache', res);
+      ontimeQueryClient.setQueryData(HTTP_SETTINGS, res);
+    },
     onSettled: () => ontimeQueryClient.invalidateQueries({ queryKey: HTTP_SETTINGS }),
   });
   return { isPending, mutateAsync };

@@ -59,11 +59,11 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getOsc() {
+  static getOsc(): OSCSettings {
     return data.osc;
   }
 
-  static getHttp() {
+  static getHttp(): HttpSettings {
     return data.http;
   }
 
@@ -94,14 +94,16 @@ export class DataProvider {
     await this.persist();
   }
 
-  static async setOsc(newData: OSCSettings) {
+  static async setOsc(newData: OSCSettings): Promise<OSCSettings> {
     data.osc = { ...newData };
     await this.persist();
+    return data.osc;
   }
 
-  static async setHttp(newData: HttpSettings) {
+  static async setHttp(newData: HttpSettings): Promise<HttpSettings> {
     data.http = { ...newData };
     await this.persist();
+    return data.http;
   }
 
   static getRundown() {

@@ -7,6 +7,7 @@ import type {
   ProjectData,
   ErrorResponse,
   ProjectFileListResponse,
+  OSCSettings,
 } from 'ontime-types';
 import { ExcelImportOptions, deepmerge } from 'ontime-utils';
 
@@ -33,7 +34,6 @@ import { oscIntegration } from '../services/integration-service/OscIntegration.j
 import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
 import { deleteAllEvents, notifyChanges, setRundown } from '../services/rundown-service/RundownService.js';
-import { integrationService } from '../services/integration-service/IntegrationService.js';
 import { getProjectFiles } from '../utils/getFileListFromFolder.js';
 import { configService } from '../services/ConfigService.js';
 import { deleteFile } from '../utils/parserUtils.js';
@@ -41,6 +41,7 @@ import { validateProjectFiles } from './ontimeController.validate.js';
 import { dbModel } from '../models/dataModel.js';
 import { sheet } from '../utils/sheetsAuth.js';
 import { removeFileExtension } from '../utils/removeFileExtension.js';
+import type { OntimeError } from '../utils/backend.types.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -316,7 +317,7 @@ export const getOSC = async (_req: Request, res: Response) => {
 
 // Create controller for POST request to '/ontime/osc'
 // Returns ACK message
-export const postOSC = async (req: Request, res: Response) => {
+export const postOSC = async (req: Request, res: Response<OSCSettings | OntimeError>) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -326,8 +327,8 @@ export const postOSC = async (req: Request, res: Response) => {
 
     oscIntegration.init(oscSettings);
     // we persist the data after init to avoid persisting invalid data
-    await DataProvider.setOsc(oscSettings);
-    res.send(oscSettings).status(200);
+    const result = await DataProvider.setOsc(oscSettings);
+    res.send(result).status(200);
   } catch (error) {
     res.status(400).send({ message: String(error) });
   }
@@ -340,7 +341,7 @@ export const getHTTP = async (_req: Request, res: Response<HttpSettings>) => {
 };
 
 // Create controller for POST request to '/ontime/http'
-export const postHTTP = async (req: Request, res: Response) => {
+export const postHTTP = async (req: Request, res: Response<HttpSettings | OntimeError>) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -350,8 +351,8 @@ export const postHTTP = async (req: Request, res: Response) => {
 
     httpIntegration.init(httpSettings);
     // we persist the data after init to avoid persisting invalid data
-    await DataProvider.setHttp(httpSettings);
-    res.send(httpSettings).status(200);
+    const result = await DataProvider.setHttp(httpSettings);
+    res.send(result).status(200);
   } catch (error) {
     res.status(400).send({ message: String(error) });
   }
