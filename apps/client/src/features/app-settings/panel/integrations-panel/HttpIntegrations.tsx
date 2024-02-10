@@ -11,7 +11,7 @@ import { isKeyEscape } from '../../../../common/utils/keyEvent';
 import { startsWithHttp } from '../../../../common/utils/regex';
 import * as Panel from '../PanelUtils';
 
-import { cycles } from './IntegrationsPanel';
+import { cycles } from './integrationUtils';
 
 import style from './IntegrationsPanel.module.css';
 
@@ -74,7 +74,7 @@ export default function HttpIntegrations() {
     <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} onKeyDown={preventEscape}>
       <Panel.Section>
         <Panel.SubHeader>
-          HTTP integrations
+          HTTP settings
           <div className={style.flex}>
             <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
               Reset
@@ -102,69 +102,71 @@ export default function HttpIntegrations() {
             </Button>
           </Panel.SubHeader>
           <Panel.Paragraph>Integration Settings for OSC protocol</Panel.Paragraph>
-          <Panel.Table>
-            <thead>
-              <tr>
-                <th>Enabled</th>
-                <th>Cycle</th>
-                <th className={style.fullWidth}>Message</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {fields.map((integration, index) => {
-                // @ts-expect-error -- not sure why it is not finding the type, it is ok
-                const maybeError = errors.subscriptions?.[index]?.message?.message;
-                return (
-                  <tr key={integration.id}>
-                    <td>
-                      <Switch variant='ontime' {...register(`subscriptions.${index}.enabled`)} />
-                    </td>
-                    <td className={style.autoWidth}>
-                      <Select
-                        size='sm'
-                        variant='ontime'
-                        className={style.fitContents}
-                        {...register(`subscriptions.${index}.cycle`)}
-                      >
-                        {cycles.map((cycle) => (
-                          <option key={cycle.id} value={cycle.value}>
-                            {cycle.label}
-                          </option>
-                        ))}
-                      </Select>
-                    </td>
-                    <td className={style.fullWidth}>
-                      <Input
-                        size='sm'
-                        variant='ontime-filled'
-                        autoComplete='off'
-                        placeholder='http://third-party/vt1/{{timer.current}}'
-                        {...register(`subscriptions.${index}.message`, {
-                          required: { value: true, message: 'Required field' },
-                          pattern: {
-                            value: startsWithHttp,
-                            message: 'HTTP messages should start with http://',
-                          },
-                        })}
-                      />
-                      {maybeError && <Panel.Error>{maybeError}</Panel.Error>}
-                    </td>
-                    <td>
-                      <IconButton
-                        size='sm'
-                        variant='ontime-ghosted'
-                        color='#FA5656' // $red-500
-                        icon={<IoTrash />}
-                        aria-label='Delete entry'
-                        onClick={() => handleDeleteSubscription(index)}
-                      />
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </Panel.Table>
+          {fields.length > 0 && (
+            <Panel.Table>
+              <thead>
+                <tr>
+                  <th>Enabled</th>
+                  <th>Cycle</th>
+                  <th className={style.fullWidth}>Message</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {fields.map((integration, index) => {
+                  // @ts-expect-error -- not sure why it is not finding the type, it is ok
+                  const maybeError = errors.subscriptions?.[index]?.message?.message;
+                  return (
+                    <tr key={integration.id}>
+                      <td>
+                        <Switch variant='ontime' {...register(`subscriptions.${index}.enabled`)} />
+                      </td>
+                      <td className={style.autoWidth}>
+                        <Select
+                          size='sm'
+                          variant='ontime'
+                          className={style.fitContents}
+                          {...register(`subscriptions.${index}.cycle`)}
+                        >
+                          {cycles.map((cycle) => (
+                            <option key={cycle.id} value={cycle.value}>
+                              {cycle.label}
+                            </option>
+                          ))}
+                        </Select>
+                      </td>
+                      <td className={style.fullWidth}>
+                        <Input
+                          size='sm'
+                          variant='ontime-filled'
+                          autoComplete='off'
+                          placeholder='http://third-party/vt1/{{timer.current}}'
+                          {...register(`subscriptions.${index}.message`, {
+                            required: { value: true, message: 'Required field' },
+                            pattern: {
+                              value: startsWithHttp,
+                              message: 'HTTP messages should start with http://',
+                            },
+                          })}
+                        />
+                        {maybeError && <Panel.Error>{maybeError}</Panel.Error>}
+                      </td>
+                      <td>
+                        <IconButton
+                          size='sm'
+                          variant='ontime-ghosted'
+                          color='#FA5656' // $red-500
+                          icon={<IoTrash />}
+                          aria-label='Delete entry'
+                          onClick={() => handleDeleteSubscription(index)}
+                        />
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </Panel.Table>
+          )}
         </Panel.Card>
       </Panel.Section>
     </Panel.Section>

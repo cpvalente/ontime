@@ -11,7 +11,7 @@ import { isKeyEscape } from '../../../../common/utils/keyEvent';
 import { isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
 import * as Panel from '../PanelUtils';
 
-import { cycles } from './IntegrationsPanel';
+import { cycles } from './integrationUtils';
 
 import style from './IntegrationsPanel.module.css';
 
@@ -80,7 +80,7 @@ export default function OscIntegrations() {
     <Panel.Section onKeyDown={preventEscape}>
       <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)}>
         <Panel.SubHeader>
-          Open Sound Control integrations
+          Open Sound Control settings
           <div className={style.flex}>
             <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
               Reset
@@ -187,70 +187,72 @@ export default function OscIntegrations() {
             New
           </Button>
         </Panel.SubHeader>
-        <Panel.Table>
-          <thead>
-            <tr>
-              <th>Enabled</th>
-              <th>Cycle</th>
-              <th className={style.fullWidth}>Message</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {fields.map((field, index) => {
-              // @ts-expect-error -- not sure why it is not finding the type, it is ok
-              const maybeError = errors.subscriptions?.[index]?.message?.message;
-              return (
-                <tr key={field.id}>
-                  <td>
-                    <Switch variant='ontime' {...register(`subscriptions.${index}.enabled`)} />
-                  </td>
-                  <td className={style.autoWidth}>
-                    <Select
-                      size='sm'
-                      variant='ontime'
-                      className={style.fitContents}
-                      {...register(`subscriptions.${index}.cycle`)}
-                    >
-                      {cycles.map((cycle) => (
-                        <option key={cycle.id} value={cycle.value}>
-                          {cycle.label}
-                        </option>
-                      ))}
-                    </Select>
-                  </td>
-                  <td className={style.fullWidth}>
-                    <Input
-                      key={field.id}
-                      size='sm'
-                      variant='ontime-filled'
-                      autoComplete='off'
-                      placeholder='/from-ontime/{{timer.current}}'
-                      {...register(`subscriptions.${index}.message`, {
-                        required: { value: true, message: 'Required field' },
-                        pattern: {
-                          value: startsWithSlash,
-                          message: 'OSC messages should start with a forward slash',
-                        },
-                      })}
-                    />
-                    {maybeError && <Panel.Error>{maybeError}</Panel.Error>}
-                  </td>
-                  <td>
-                    <IconButton
-                      size='sm'
-                      variant='ontime-ghosted'
-                      color='#FA5656' // $red-500
-                      icon={<IoTrash />}
-                      aria-label='Delete entry'
-                      onClick={() => handleDeleteSubscription(index)}
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </Panel.Table>
+        {fields.length > 0 && (
+          <Panel.Table>
+            <thead>
+              <tr>
+                <th>Enabled</th>
+                <th>Cycle</th>
+                <th className={style.fullWidth}>Message</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {fields.map((field, index) => {
+                // @ts-expect-error -- not sure why it is not finding the type, it is ok
+                const maybeError = errors.subscriptions?.[index]?.message?.message;
+                return (
+                  <tr key={field.id}>
+                    <td>
+                      <Switch variant='ontime' {...register(`subscriptions.${index}.enabled`)} />
+                    </td>
+                    <td className={style.autoWidth}>
+                      <Select
+                        size='sm'
+                        variant='ontime'
+                        className={style.fitContents}
+                        {...register(`subscriptions.${index}.cycle`)}
+                      >
+                        {cycles.map((cycle) => (
+                          <option key={cycle.id} value={cycle.value}>
+                            {cycle.label}
+                          </option>
+                        ))}
+                      </Select>
+                    </td>
+                    <td className={style.fullWidth}>
+                      <Input
+                        key={field.id}
+                        size='sm'
+                        variant='ontime-filled'
+                        autoComplete='off'
+                        placeholder='/from-ontime/{{timer.current}}'
+                        {...register(`subscriptions.${index}.message`, {
+                          required: { value: true, message: 'Required field' },
+                          pattern: {
+                            value: startsWithSlash,
+                            message: 'OSC messages should start with a forward slash',
+                          },
+                        })}
+                      />
+                      {maybeError && <Panel.Error>{maybeError}</Panel.Error>}
+                    </td>
+                    <td>
+                      <IconButton
+                        size='sm'
+                        variant='ontime-ghosted'
+                        color='#FA5656' // $red-500
+                        icon={<IoTrash />}
+                        aria-label='Delete entry'
+                        onClick={() => handleDeleteSubscription(index)}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Panel.Table>
+        )}
       </Panel.Card>
     </Panel.Section>
   );
