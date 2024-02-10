@@ -27,8 +27,7 @@ export function usePostHttpSettings() {
     mutationFn: postHTTP,
     onError: (error) => logAxiosError('Error saving HTTP settings', error),
     onSuccess: (res) => {
-      console.log('will patch cache', res);
-      ontimeQueryClient.setQueryData(HTTP_SETTINGS, res);
+      ontimeQueryClient.setQueryData(HTTP_SETTINGS, res.data);
     },
     onSettled: () => ontimeQueryClient.invalidateQueries({ queryKey: HTTP_SETTINGS }),
   });

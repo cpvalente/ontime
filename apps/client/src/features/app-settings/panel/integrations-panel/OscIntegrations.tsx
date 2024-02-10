@@ -90,7 +90,7 @@ export default function OscIntegrations() {
             </Button>
           </div>
         </Panel.SubHeader>
-        <Panel.Error>{errors.root?.message}</Panel.Error>
+        {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
         <Panel.ListGroup>
           <Panel.ListItem>
             <Panel.Field title='OSC input' description='Allow control of Ontime through OSC' />
@@ -224,8 +224,8 @@ export default function OscIntegrations() {
                       key={field.id}
                       size='sm'
                       variant='ontime-filled'
-                      placeholder='/from-ontime/{{timer.current}}'
                       autoComplete='off'
+                      placeholder='/from-ontime/{{timer.current}}'
                       {...register(`subscriptions.${index}.message`, {
                         required: { value: true, message: 'Required field' },
                         pattern: {

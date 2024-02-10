@@ -32,7 +32,7 @@ export default function IntegrationsPanel() {
           </AlertDescription>
         </Alert>
       </Panel.Section>
-      <OscIntegrations />
+      {false && <OscIntegrations />}
       <HttpIntegrations />
     </>
   );
