@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertIcon } from '@chakra-ui/react';
+import { Alert, AlertDescription } from '@chakra-ui/react';
 
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import * as Panel from '../PanelUtils';
@@ -22,10 +22,10 @@ export default function IntegrationsPanel() {
     <>
       <Panel.Header>Integration settings</Panel.Header>
       <Panel.Section>
-        <Alert status='info' variant='ontime-on-dark-info'>
-          <AlertIcon />
+        <Alert status='info' variant='ontime-on-dark-info' flexDirection='column'>
           <AlertDescription>
-            Integrations allow Ontime to receive comamnds or send its data to other systems in your workflow. <br />
+            Integrations allow Ontime to receive commands or send its data to other systems in your workflow. <br />{' '}
+            <br />
             Currently supported protocols are OSC (Open Sound Control), HTTP and Websockets. <br />
             WebSockets are used for Ontime and cannot be configured independently. <br />
             <ExternalLink href={integrationDocsUrl}>See the docs</ExternalLink>

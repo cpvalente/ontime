@@ -5,6 +5,7 @@ import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { OSCSettings } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
+import { maybeAxiosError } from '../../../../common/api/apiUtils';
 import useOscSettings, { useOscSettingsMutation } from '../../../../common/hooks-query/useOscSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
 import { isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
@@ -21,6 +22,7 @@ export default function OscIntegrations() {
   const {
     control,
     handleSubmit,
+    reset,
     register,
     setError,
     formState: { errors, isSubmitting, isDirty, isValid },
@@ -47,8 +49,8 @@ export default function OscIntegrations() {
     const parsedValues = { ...values, portIn: Number(values.portIn), portOut: Number(values.portOut) };
     try {
       await mutateAsync(parsedValues);
-    } catch {
-      console.error('error');
+    } catch (error) {
+      setError('root', { message: maybeAxiosError(error) });
     }
   };
 
@@ -79,8 +81,8 @@ export default function OscIntegrations() {
       <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)}>
         <Panel.SubHeader>
           Open Sound Control integrations
-          <div>
-            <Button variant='ontime-ghosted' size='sm' type='reset' isDisabled={!canSubmit} isLoading={isSubmitting}>
+          <div className={style.flex}>
+            <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
               Reset
             </Button>
             <Button variant='ontime-filled' size='sm' type='submit' isDisabled={!canSubmit} isLoading={isSubmitting}>
@@ -88,6 +90,7 @@ export default function OscIntegrations() {
             </Button>
           </div>
         </Panel.SubHeader>
+        <Panel.Error>{errors.root?.message}</Panel.Error>
         <Panel.ListGroup>
           <Panel.ListItem>
             <Panel.Field title='OSC input' description='Allow control of Ontime through OSC' />

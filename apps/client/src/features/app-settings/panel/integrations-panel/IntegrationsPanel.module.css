@@ -5,3 +5,8 @@
 .fitContents {
     width: max-content !important; /* override chakra */
 }
+
+.flex {
+    display: flex;
+    gap: 1rem;
+}
