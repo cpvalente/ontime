@@ -227,26 +227,26 @@ export const startOSCServer = async (overrideConfig?: { port: number }) => {
 export const startIntegrations = async (config?: { osc: OSCSettings; http: HttpSettings }) => {
   checkStart(OntimeStartOrder.InitIO);
 
+  // if a config is not provided, we use the persisted one
   const { osc, http } = config ?? DataProvider.getData();
 
-  if (!osc) {
-    return 'OSC Invalid configuration';
-  } else {
-    const { success, message } = oscIntegration.init(osc);
-    logger.info(LogOrigin.Tx, message);
-
-    if (success) {
+  if (osc) {
+    logger.info(LogOrigin.Tx, 'Initialising OSC Integration...');
+    try {
+      oscIntegration.init(osc);
       integrationService.register(oscIntegration);
+    } catch (error) {
+      logger.error(LogOrigin.Tx, 'OSC Integration initialisation failed');
     }
   }
-  if (!http) {
-    return 'HTTP Invalid configuration';
-  } else {
-    const { success, message } = httpIntegration.init(http);
-    logger.info(LogOrigin.Tx, message);
 
-    if (success) {
+  if (http) {
+    logger.info(LogOrigin.Tx, 'Initialising HTTP Integration...');
+    try {
+      httpIntegration.init(http);
       integrationService.register(httpIntegration);
+    } catch (error) {
+      logger.error(LogOrigin.Tx, `HTTP Integration initialisation failed: ${error}`);
     }
   }
 };
@@ -262,7 +262,7 @@ export const shutdown = async (exitCode = 0) => {
   // clear the restore file if it was a normal exit
   // 0 means it was a SIGNAL
   // 1 means crash -> keep the file
-  // 99 means it was the UI
+  // 99 means there was a shutdown request from the UI
   if (exitCode === 0 || exitCode === 99) {
     await restoreService.clear();
   }

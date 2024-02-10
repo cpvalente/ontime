@@ -1,23 +1,22 @@
 import got from 'got';
 
-import { HttpSettings, HttpSubscription, HttpSubscriptionOptions, LogOrigin } from 'ontime-types';
+import { HttpSettings, HttpSubscription, LogOrigin } from 'ontime-types';
 
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplateNested } from './integrationUtils.js';
-import { dbModel } from '../../models/dataModel.js';
 import { logger } from '../../classes/Logger.js';
-import { validateHttpSubscriptionObject } from '../../utils/parserFunctions.js';
-
-type Action = TimerLifeCycleKey | string;
 
 /**
  * @description Class contains logic towards outgoing HTTP communications
  * @class
  */
-export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
-  subscriptions: HttpSubscription;
+export class HttpIntegration implements IIntegration<HttpSubscription> {
+  subscriptions: HttpSubscription[];
+  enabled: boolean;
+
   constructor() {
-    this.subscriptions = dbModel.http.subscriptions;
+    this.subscriptions = [];
+    this.enabled = false;
   }
 
   /**
@@ -25,64 +24,40 @@ export class HttpIntegration implements IIntegration<HttpSubscriptionOptions> {
    */
   init(config: HttpSettings) {
     const { subscriptions, enabledOut } = config;
-
-    if (!enabledOut) {
-      return {
-        success: false,
-        message: 'HTTP output disabled',
-      };
-    }
-
     this.initSubscriptions(subscriptions);
-    return {
-      success: true,
-      message: 'HTTP integration client ready',
-    };
+    this.enabled = enabledOut;
   }
 
-  initSubscriptions(subscriptionOptions: HttpSubscription) {
-    if (validateHttpSubscriptionObject(subscriptionOptions)) {
-      this.subscriptions = { ...subscriptionOptions };
-    }
+  initSubscriptions(subscriptions: HttpSubscription[]) {
+    this.subscriptions = subscriptions;
   }
 
-  dispatch(action: Action, state?: object) {
-    if (!action) {
-      return {
-        success: false,
-        message: 'HTTP called with no action',
-      };
+  dispatch(action: TimerLifeCycleKey, state?: object) {
+    // noop
+    if (!this.enabled || !action) {
+      return;
     }
 
-    // check subscriptions for action
-    const eventSubscriptions = this.subscriptions?.[action] || [];
-
-    eventSubscriptions.forEach((sub) => {
-      const { enabled, message } = sub;
-      if (enabled && message) {
-        const parsedMessage = parseTemplateNested(message, state || {});
-        try {
-          const parsedUrl = new URL(parsedMessage);
-          this.emit(parsedUrl);
-        } catch (err) {
-          logger.error(LogOrigin.Tx, `HTTP Integration: ${err}`);
-          return {
-            success: false,
-            message: `${err}`,
-          };
-        }
+    for (let i = 0; i < this.subscriptions.length; i++) {
+      const { cycle, message, enabled } = this.subscriptions[i];
+      if (cycle !== action || !enabled || !message) {
+        continue;
       }
-    });
+
+      const parsedMessage = parseTemplateNested(message, state || {});
+      try {
+        const parsedUrl = new URL(parsedMessage);
+        this.emit(parsedUrl);
+      } catch (error) {
+        logger.error(LogOrigin.Tx, `HTTP Integration: ${error}`);
+      }
+    }
   }
 
   async emit(path: URL) {
-    try {
-      await got.get(path, {
-        retry: { limit: 0 },
-      });
-    } catch (err) {
-      logger.error(LogOrigin.Tx, `HTTP integration: ${err}`);
-    }
+    await got.get(path, {
+      retry: { limit: 0 },
+    });
   }
 
   shutdown() {}

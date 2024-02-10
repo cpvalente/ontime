@@ -1,25 +1,22 @@
 import { ArgumentType, Client, Message } from 'node-osc';
-import { OSCSettings, OscSubscription, OscSubscriptionOptions } from 'ontime-types';
+import { LogOrigin, OSCSettings, OscSubscription } from 'ontime-types';
 
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplateNested } from './integrationUtils.js';
 import { isObject } from '../../utils/varUtils.js';
-import { dbModel } from '../../models/dataModel.js';
-import { validateOscSubscriptionObject } from '../../utils/parserFunctions.js';
-
-type Action = TimerLifeCycleKey | string;
+import { logger } from '../../classes/Logger.js';
 
 /**
  * @description Class contains logic towards outgoing OSC communications
  * @class
  */
-export class OscIntegration implements IIntegration<OscSubscriptionOptions> {
+export class OscIntegration implements IIntegration<OscSubscription> {
   protected oscClient: null | Client;
-  subscriptions: OscSubscription;
+  subscriptions: OscSubscription[];
 
   constructor() {
     this.oscClient = null;
-    this.subscriptions = dbModel.osc.subscriptions;
+    this.subscriptions = [];
   }
 
   /**
@@ -27,75 +24,47 @@ export class OscIntegration implements IIntegration<OscSubscriptionOptions> {
    */
   init(config: OSCSettings) {
     const { targetIP, portOut, subscriptions, enabledOut } = config;
-
-    if (!enabledOut) {
-      this.oscClient?.close();
-      return {
-        success: false,
-        message: 'OSC output disabled',
-      };
-    }
-
     this.initSubscriptions(subscriptions);
 
-    // runtime validation
-    const validateType = typeof targetIP !== 'string' || typeof portOut !== 'number';
-    const validateNull = !targetIP || !portOut;
-
-    if (validateType || validateNull) {
-      return {
-        success: false,
-        message: 'Config options incorrect',
-      };
+    // this allows re-calling the init function during runtime
+    this.oscClient?.close();
+    if (!enabledOut) {
+      logger.info(LogOrigin.Tx, 'OSC client closed');
+      return;
     }
+
     try {
-      // this allows re-calling the init function during runtime
-      this.oscClient?.close();
       this.oscClient = new Client(targetIP, portOut);
-      return {
-        success: true,
-        message: `OSC integration client connected to ${targetIP}:${portOut}`,
-      };
     } catch (error) {
       this.oscClient = null;
-      return {
-        success: false,
-        message: `Failed initialising OSC Client: ${error}`,
-      };
+      throw new Error(`Failed initialising OSC client: ${error}`);
     }
+    return `OSC integration client connected to ${targetIP}:${portOut}`;
   }
 
-  initSubscriptions(subscriptionOptions: OscSubscription) {
-    if (validateOscSubscriptionObject(subscriptionOptions)) {
-      this.subscriptions = { ...subscriptionOptions };
-    }
+  initSubscriptions(subscriptions: OscSubscription[]) {
+    this.subscriptions = subscriptions;
   }
 
-  dispatch(action: Action, state?: object) {
-    if (!this.oscClient) {
-      return {
-        success: false,
-        message: 'Client not initialised',
-      };
+  dispatch(action: TimerLifeCycleKey, state?: object) {
+    // noop
+    if (!this.oscClient || !action) {
+      return;
     }
 
-    if (!action) {
-      return {
-        success: false,
-        message: 'OSC called with no action',
-      };
-    }
-
-    // check subscriptions for action
-    const eventSubscriptions = this.subscriptions?.[action] || [];
-
-    eventSubscriptions.forEach((sub) => {
-      const { enabled, message } = sub;
-      if (enabled && message) {
-        const parsedMessage = parseTemplateNested(message, state || {});
-        this.emit(parsedMessage);
+    for (let i = 0; i < this.subscriptions.length; i++) {
+      const { cycle, message, enabled } = this.subscriptions[i];
+      if (cycle !== action || !enabled || !message) {
+        continue;
       }
-    });
+
+      const parsedMessage = parseTemplateNested(message, state || {});
+      try {
+        this.emit(parsedMessage);
+      } catch (error) {
+        logger.error(LogOrigin.Tx, `OSC Integration: ${error}`);
+      }
+    }
   }
 
   emit(path: string, payload?: ArgumentType) {
@@ -105,29 +74,14 @@ export class OscIntegration implements IIntegration<OscSubscriptionOptions> {
 
     const message = new Message(path);
     if (payload) {
-      try {
-        if (isObject(payload)) {
-          message.append(JSON.stringify(payload));
-        } else {
-          message.append(payload);
-        }
-      } catch (error) {
-        console.log('OSC ERROR', error, payload);
+      if (isObject(payload)) {
+        message.append(JSON.stringify(payload));
+      } else {
+        message.append(payload);
       }
     }
 
-    this.oscClient.send(message, (error) => {
-      if (error) {
-        return {
-          success: false,
-          message: `Error sending message: ${JSON.stringify(error)}`,
-        };
-      }
-      return {
-        success: true,
-        message: 'OSC Message sent',
-      };
-    });
+    this.oscClient.send(message);
   }
 
   shutdown() {

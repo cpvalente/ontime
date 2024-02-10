@@ -1,5 +1,8 @@
+import { LogOrigin } from 'ontime-types';
+
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { eventStore } from '../../stores/EventStore.js';
+import { logger } from '../../classes/Logger.js';
 
 class IntegrationService {
   private integrations: IIntegration<unknown>[];
@@ -24,7 +27,7 @@ class IntegrationService {
   }
 
   shutdown() {
-    console.log('Shutdown integrations');
+    logger.info(LogOrigin.Tx, `Shutdown Integrations`);
     this.integrations.forEach((integration) => {
       integration.shutdown();
     });

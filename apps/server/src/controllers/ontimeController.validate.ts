@@ -2,13 +2,8 @@ import { body, check, validationResult } from 'express-validator';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import { Request, Response, NextFunction } from 'express';
-
-import {
-  validateHttpSubscriptionObject,
-  validateOscSubscriptionObject,
-  validateOscSubscriptionCycle,
-} from '../utils/parserFunctions.js';
 import { uploadsFolderPath } from '../setup.js';
+import { sanitiseHttpSubscriptions, sanitiseOscSubscriptions } from '../utils/parserFunctions.js';
 
 /**
  * @description Validates object for POST /ontime/views
@@ -87,14 +82,15 @@ export const validateSettings = [
  * @description Validates object for POST /ontime/osc
  */
 export const validateOSC = [
-  body('portIn').exists().isInt({ min: 1024, max: 65535 }),
-  body('portOut').exists().isInt({ min: 1024, max: 65535 }),
+  body('portIn').exists().isPort(),
+  body('portOut').exists().isPort(),
   body('targetIP').exists().isIP(),
   body('enabledIn').exists().isBoolean(),
   body('enabledOut').exists().isBoolean(),
   body('subscriptions')
-    .isObject()
-    .custom((value) => validateOscSubscriptionObject(value)),
+    .exists()
+    .isArray()
+    .custom((value) => sanitiseOscSubscriptions(value)),
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
@@ -108,38 +104,9 @@ export const validateOSC = [
 export const validateHTTP = [
   body('enabledOut').exists().isBoolean(),
   body('subscriptions')
-    .isObject()
-    .custom((value) => validateHttpSubscriptionObject(value)),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
-
-/**
- * @description Validates object for POST /ontime/osc-subscriptions
- */
-export const validateOscSubscription = [
-  body('onLoad')
+    .exists()
     .isArray()
-    .custom((value) => validateOscSubscriptionCycle(value)),
-  body('onStart')
-    .isArray()
-    .custom((value) => validateOscSubscriptionCycle(value)),
-  body('onPause')
-    .isArray()
-    .custom((value) => validateOscSubscriptionCycle(value)),
-  body('onStop')
-    .isArray()
-    .custom((value) => validateOscSubscriptionCycle(value)),
-  body('onUpdate')
-    .isArray()
-    .custom((value) => validateOscSubscriptionCycle(value)),
-  body('onFinish')
-    .isArray()
-    .custom((value) => validateOscSubscriptionCycle(value)),
+    .custom((value) => sanitiseHttpSubscriptions(value)),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

@@ -323,39 +323,10 @@ export const postOSC = async (req: Request, res: Response) => {
 
   try {
     const oscSettings = req.body;
+
+    oscIntegration.init(oscSettings);
+    // we persist the data after init to avoid persisting invalid data
     await DataProvider.setOsc(oscSettings);
-
-    integrationService.unregister(oscIntegration);
-
-    // TODO: this update could be more granular, checking that relevant data was changed
-    const { success, message } = oscIntegration.init(oscSettings);
-    logger.info(LogOrigin.Tx, message);
-
-    if (success) {
-      integrationService.register(oscIntegration);
-    }
-
-    res.send(oscSettings).status(200);
-  } catch (error) {
-    res.status(400).send({ message: String(error) });
-  }
-};
-
-export const postOscSubscriptions = async (req: Request, res: Response) => {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
-
-  try {
-    const subscriptions = req.body;
-    const oscSettings = DataProvider.getOsc();
-    oscSettings.subscriptions = subscriptions;
-    await DataProvider.setOsc(oscSettings);
-
-    // TODO: this update could be more granular, checking that relevant data was changed
-    const { message } = oscIntegration.init(oscSettings);
-    logger.info(LogOrigin.Tx, message);
-
     res.send(oscSettings).status(200);
   } catch (error) {
     res.status(400).send({ message: String(error) });
@@ -376,18 +347,10 @@ export const postHTTP = async (req: Request, res: Response) => {
 
   try {
     const httpSettings = req.body;
+
+    httpIntegration.init(httpSettings);
+    // we persist the data after init to avoid persisting invalid data
     await DataProvider.setHttp(httpSettings);
-
-    integrationService.unregister(httpIntegration);
-
-    // TODO: this update could be more granular, checking that relevant data was changed
-    const { success, message } = httpIntegration.init(httpSettings);
-    logger.info(LogOrigin.Tx, message);
-
-    if (success) {
-      integrationService.register(httpIntegration);
-    }
-
     res.send(httpSettings).status(200);
   } catch (error) {
     res.status(400).send({ message: String(error) });

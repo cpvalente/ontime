@@ -14,6 +14,7 @@ import {
   isOntimeDelay,
   isOntimeBlock,
   isOntimeCycle,
+  HttpSubscription,
 } from 'ontime-types';
 
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
@@ -188,7 +189,7 @@ export const parseOsc = (data: { osc?: Partial<OSCSettings> }): OSCSettings => {
 /**
  * Sanitises an HTTP Subscriptions array
  */
-export function sanitiseHttpSubscriptions(subscriptions?: OscSubscription[]): OscSubscription[] {
+export function sanitiseHttpSubscriptions(subscriptions?: HttpSubscription[]): HttpSubscription[] {
   if (!Array.isArray(subscriptions)) {
     return [];
   }
