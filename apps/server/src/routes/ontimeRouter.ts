@@ -13,7 +13,6 @@ import {
   patchPartialProjectFile,
   poll,
   postAliases,
-  postNew,
   postOSC,
   postSettings,
   postUserFields,
@@ -46,7 +45,6 @@ import {
   validateProjectDuplicate,
   validateLoadProjectFile,
   validateProjectRename,
-  validateProjectCreate,
   validateSheetid,
   validateWorksheet,
   validateSheetOptions,
@@ -110,9 +108,6 @@ router.get('/http', getHTTP);
 // create route between controller and '/ontime/http' endpoint
 router.post('/http', validateHTTP, postHTTP);
 
-// create route between controller and '/ontime/new' endpoint
-router.post('/new', projectSanitiser, postNew);
-
 // create route between controller and '/ontime/projects' endpoint
 router.get('/projects', listProjects);
 
@@ -126,7 +121,7 @@ router.post('/project/:filename/duplicate', validateProjectDuplicate, sanitizePr
 router.put('/project/:filename/rename', validateProjectRename, sanitizeProjectFilename, renameProjectFile);
 
 // create route between controller and '/ontime/project' endpoint
-router.post('/project', validateProjectCreate, sanitizeProjectFilename, createProjectFile);
+router.post('/project', projectSanitiser, createProjectFile);
 
 // create route between controller and '/ontime/project/:filename' endpoint
 router.delete('/project/:filename', sanitizeProjectFilename, deleteProjectFile);
