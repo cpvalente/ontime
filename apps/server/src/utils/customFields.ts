@@ -1,7 +1,11 @@
 import { CustomFieldDefinitions, CustomInfo } from 'ontime-types';
+import { isAlphanumeric } from 'ontime-utils';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 
 export const createCustomField = async (label: string, field: CustomInfo) => {
+  if (!isAlphanumeric(label)) {
+    throw new Error('Lable must be Alphanumeric');
+  }
   const existingFields = DataProvider.getCustomField();
   if (Object.keys(existingFields).find((f) => f === label) !== undefined) {
     throw new Error('Label already exists');
