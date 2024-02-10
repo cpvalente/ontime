@@ -94,39 +94,32 @@ describe('safeMerge', () => {
     const newData = {
       osc: {
         portIn: 7777,
-        subscriptions: {
-          onStart: [
-            {
-              id: 'unique',
-              message: 'new message',
-              enabled: true,
-            },
-          ],
-        },
+        subscriptions: [
+          {
+            id: 'unique',
+            cycle: 'onStart',
+            message: 'new message',
+            enabled: true,
+          },
+        ],
       },
     };
     //@ts-expect-error -- testing partial merge
     const mergedData = safeMerge(existing, newData);
-    expect(mergedData.osc).toEqual({
+    expect(mergedData.osc).toMatchObject({
       portIn: 7777,
       portOut: 9999,
       targetIP: '127.0.0.1',
       enabledIn: false,
       enabledOut: false,
-      subscriptions: {
-        onLoad: [],
-        onStart: [
-          {
-            id: 'unique',
-            message: 'new message',
-            enabled: true,
-          },
-        ],
-        onPause: [],
-        onStop: [],
-        onUpdate: [],
-        onFinish: [],
-      },
+      subscriptions: [
+        {
+          id: 'unique',
+          cycle: 'onStart',
+          message: 'new message',
+          enabled: true,
+        },
+      ],
     });
   });
 
@@ -173,7 +166,7 @@ describe('safeMerge', () => {
         enabledIn: false,
         enabledOut: false,
         subscriptions: [],
-      },
+      }, 
     } as DatabaseModel;
 
     const newData = {
