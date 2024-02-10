@@ -1,3 +1,4 @@
+import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import * as Panel from '../PanelUtils';
 
 import HttpIntegrations from './HttpIntegrations';
@@ -12,10 +13,16 @@ export const cycles = [
   { id: 6, label: 'On Finish', value: 'onFinish' },
 ];
 
+const integrationDocsUrl = 'https://ontime.gitbook.io/v2/control-and-feedback/integrations';
+
 export default function IntegrationsPanel() {
   return (
     <>
       <Panel.Header>Integration settings</Panel.Header>
+      <div>
+        Some helpful tips
+        <ExternalLink href={integrationDocsUrl}> in the docs</ExternalLink>
+      </div>
       <OscIntegrations />
       <HttpIntegrations />
     </>
