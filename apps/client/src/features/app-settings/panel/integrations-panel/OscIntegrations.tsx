@@ -1,30 +1,25 @@
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { Button, IconButton, Input, Select, Switch } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { OSCSettings } from 'ontime-types';
+import { generateId } from 'ontime-utils';
 
 import useOscSettings, { useOscSettingsMutation } from '../../../../common/hooks-query/useOscSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
-import { isIPAddress, isOnlyNumbers } from '../../../../common/utils/regex';
+import { isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
 import * as Panel from '../PanelUtils';
 
 import { cycles } from './IntegrationsPanel';
 
 import style from './IntegrationsPanel.module.css';
 
-const demoIntegrations = [
-  { id: 1, enabled: true, cycle: 'onLoad', message: '/ontime/scene/1' },
-  { id: 2, enabled: true, cycle: 'onLoad', message: '/ontime/scene/2' },
-  { id: 3, enabled: true, cycle: 'onLoad', message: '/ontime/scene/3' },
-  { id: 4, enabled: true, cycle: 'onLoad', message: '/ontime/scene/4' },
-];
-
 export default function OscIntegrations() {
   const { data } = useOscSettings();
   const { mutateAsync } = useOscSettingsMutation();
 
   const {
+    control,
     handleSubmit,
     register,
     setError,
@@ -36,6 +31,11 @@ export default function OscIntegrations() {
     resetOptions: {
       keepDirtyValues: true,
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    name: 'subscriptions',
+    control,
   });
 
   const onSubmit = async (values: OSCSettings) => {
@@ -57,6 +57,19 @@ export default function OscIntegrations() {
       event.preventDefault();
       event.stopPropagation();
     }
+  };
+
+  const handleAddNewSubscription = () => {
+    append({
+      id: generateId(),
+      cycle: 'onLoad',
+      message: '',
+      enabled: false,
+    });
+  };
+
+  const handleDeleteSubscription = (index: number) => {
+    remove(index);
   };
 
   const canSubmit = !isSubmitting && isDirty && isValid;
@@ -167,7 +180,7 @@ export default function OscIntegrations() {
       <Panel.Card>
         <Panel.SubHeader>
           OSC Integration
-          <Button variant='ontime-subtle' size='sm' rightIcon={<IoAdd />} onClick={() => undefined}>
+          <Button variant='ontime-subtle' size='sm' rightIcon={<IoAdd />} onClick={handleAddNewSubscription}>
             New
           </Button>
         </Panel.SubHeader>
@@ -181,34 +194,58 @@ export default function OscIntegrations() {
             </tr>
           </thead>
           <tbody>
-            {demoIntegrations.map((integration) => (
-              <tr key={integration.id}>
-                <td>
-                  <Switch variant='ontime' />
-                </td>
-                <td className={style.autoWidth}>
-                  <Select size='sm' variant='ontime' className={style.fitContents}>
-                    {cycles.map((cycle) => (
-                      <option key={cycle.id} value={cycle.value}>
-                        {cycle.label}
-                      </option>
-                    ))}
-                  </Select>
-                </td>
-                <td className={style.fullWidth}>
-                  <Input size='sm' variant='ontime-filled' value={integration.message} />
-                </td>
-                <td>
-                  <IconButton
-                    size='sm'
-                    variant='ontime-ghosted'
-                    color='#FA5656' // $red-500
-                    icon={<IoTrash />}
-                    aria-label='Delete entry'
-                  />
-                </td>
-              </tr>
-            ))}
+            {fields.map((field, index) => {
+              // @ts-expect-error -- not sure why it is not finding the type, it is ok
+              const maybeError = errors.subscriptions?.[index]?.message?.message;
+              return (
+                <tr key={field.id}>
+                  <td>
+                    <Switch variant='ontime' {...register(`subscriptions.${index}.enabled`)} />
+                  </td>
+                  <td className={style.autoWidth}>
+                    <Select
+                      size='sm'
+                      variant='ontime'
+                      className={style.fitContents}
+                      {...register(`subscriptions.${index}.cycle`)}
+                    >
+                      {cycles.map((cycle) => (
+                        <option key={cycle.id} value={cycle.value}>
+                          {cycle.label}
+                        </option>
+                      ))}
+                    </Select>
+                  </td>
+                  <td className={style.fullWidth}>
+                    <Input
+                      key={field.id}
+                      size='sm'
+                      variant='ontime-filled'
+                      placeholder='/from-ontime/{{timer.current}}'
+                      autoComplete='off'
+                      {...register(`subscriptions.${index}.message`, {
+                        required: { value: true, message: 'Required field' },
+                        pattern: {
+                          value: startsWithSlash,
+                          message: 'OSC messages should start with a forward slash',
+                        },
+                      })}
+                    />
+                    {maybeError && <Panel.Error>{maybeError}</Panel.Error>}
+                  </td>
+                  <td>
+                    <IconButton
+                      size='sm'
+                      variant='ontime-ghosted'
+                      color='#FA5656' // $red-500
+                      icon={<IoTrash />}
+                      aria-label='Delete entry'
+                      onClick={() => handleDeleteSubscription(index)}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </Panel.Table>
       </Panel.Card>

@@ -33,8 +33,7 @@ import {
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
-import { deleteAllEvents, notifyChanges, setRundown } from '../services/rundown-service/RundownService.js';
-import { integrationService } from '../services/integration-service/IntegrationService.js';
+import { notifyChanges, setRundown } from '../services/rundown-service/RundownService.js';
 import { getProjectFiles } from '../utils/getFileListFromFolder.js';
 import { configService } from '../services/ConfigService.js';
 import { deleteFile } from '../utils/parserUtils.js';

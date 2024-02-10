@@ -49,8 +49,16 @@ export function Field({ title, description, error }: { title: string; descriptio
   return (
     <div className={style.fieldTitle}>
       {title}
-      {error && <div className={style.fieldError}>{error}</div>}
-      {!error && description && <div className={style.fieldDescription}>{description}</div>}
+      {error && <Error>{error}</Error>}
+      {!error && description && <Description>{description}</Description>}
     </div>
   );
+}
+
+export function Description({ children }: { children: ReactNode }) {
+  return <div className={style.fieldDescription}>{children}</div>;
+}
+
+export function Error({ children }: { children: ReactNode }) {
+  return <div className={style.fieldError}>{children}</div>;
 }
