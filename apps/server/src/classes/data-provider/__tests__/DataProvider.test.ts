@@ -38,6 +38,10 @@ describe('safeMerge', () => {
       enabledOut: false,
       subscriptions: [],
     },
+    http: {
+      enabledOut: false,
+      subscriptions: [],
+    },
   } as DatabaseModel;
 
   it('returns existing data if new data is not provided', () => {
@@ -166,7 +170,7 @@ describe('safeMerge', () => {
         enabledIn: false,
         enabledOut: false,
         subscriptions: [],
-      }, 
+      },
     } as DatabaseModel;
 
     const newData = {

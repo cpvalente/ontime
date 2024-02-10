@@ -120,6 +120,7 @@ export class DataProvider {
     data.settings = mergedData.settings;
     data.viewSettings = mergedData.viewSettings;
     data.osc = mergedData.osc;
+    data.http = mergedData.http;
     data.aliases = mergedData.aliases;
     data.userFields = mergedData.userFields;
     data.rundown = mergedData.rundown;
