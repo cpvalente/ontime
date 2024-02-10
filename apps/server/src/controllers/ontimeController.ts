@@ -32,7 +32,7 @@ import {
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
-import { deleteAllEvents, notifyChanges, setRundown } from '../services/rundown-service/RundownService.js';
+import { notifyChanges, setRundown } from '../services/rundown-service/RundownService.js';
 import { integrationService } from '../services/integration-service/IntegrationService.js';
 import { getProjectFiles } from '../utils/getFileListFromFolder.js';
 import { configService } from '../services/ConfigService.js';
@@ -41,6 +41,8 @@ import { validateProjectFiles } from './ontimeController.validate.js';
 import { dbModel } from '../models/dataModel.js';
 import { sheet } from '../utils/sheetsAuth.js';
 import { removeFileExtension } from '../utils/removeFileExtension.js';
+import { ensureJsonExtension } from '../utils/ensureJsonExtension.js';
+import { generateUniqueFileName } from '../utils/generateUniqueFilename.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
@@ -461,29 +463,6 @@ export async function previewExcel(req, res: Response) {
 }
 
 /**
- * Meant to create a new project file, it will clear only fields which are specific to a project
- * @param req
- * @param res
- */
-export const postNew: RequestHandler = async (req, res) => {
-  try {
-    const newProjectData: ProjectData = {
-      title: req.body?.title ?? '',
-      description: req.body?.description ?? '',
-      publicUrl: req.body?.publicUrl ?? '',
-      publicInfo: req.body?.publicInfo ?? '',
-      backstageUrl: req.body?.backstageUrl ?? '',
-      backstageInfo: req.body?.backstageInfo ?? '',
-    };
-    const newData = await DataProvider.setProjectData(newProjectData);
-    await deleteAllEvents();
-    res.status(201).send(newData);
-  } catch (error) {
-    res.status(400).send({ message: String(error) });
-  }
-};
-
-/**
  * Retrieves and lists all project files from the uploads directory.
  * @param req
  * @param res
@@ -618,20 +597,39 @@ export const renameProjectFile: RequestHandler = async (req: Request, res: Respo
  */
 export const createProjectFile: RequestHandler = async (req: Request, res: Response) => {
   try {
-    const { filename } = req.body;
+    const originalFilename = ensureJsonExtension(req.body.title || 'Untitled');
+    const filename = generateUniqueFileName(uploadsFolderPath, originalFilename);
 
     const projectFilePath = join(uploadsFolderPath, filename);
 
     const errors = validateProjectFiles({ newFilename: filename });
 
+    const newProjectData: ProjectData = {
+      title: req.body?.title ?? '',
+      description: req.body?.description ?? '',
+      publicUrl: req.body?.publicUrl ?? '',
+      publicInfo: req.body?.publicInfo ?? '',
+      backstageUrl: req.body?.backstageUrl ?? '',
+      backstageInfo: req.body?.backstageInfo ?? '',
+    };
+
+    const data = {
+      ...dbModel,
+      project: {
+        ...dbModel.project,
+        ...newProjectData,
+      },
+    };
+
     if (errors.length) {
-      return res.status(409).send({ message: errors.join(', ') });
+      return res.status(409).send({ message: 'Project with title already exists' });
     }
 
-    await writeFile(projectFilePath, JSON.stringify(dbModel));
+    await writeFile(projectFilePath, JSON.stringify(data));
+    await parseAndApply(projectFilePath, req, res, {});
 
     res.status(200).send({
-      message: `Created project ${filename}`,
+      filename,
     });
   } catch (error) {
     res.status(500).send({ message: String(error) });

@@ -19,11 +19,23 @@
   flex: 2;
 }
 
+.createFormInputField {
+  padding-bottom: 0.5rem;
+}
+
 .actionButtons {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin-left: 1rem;
+}
+
+.createActionButtons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: 1rem;
+  justify-content: flex-end;
 }
 
 .error {

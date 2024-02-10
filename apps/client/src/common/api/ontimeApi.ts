@@ -248,13 +248,6 @@ export async function getLatestVersion(): Promise<HasUpdate> {
 }
 
 /**
- * @description HTTP POST request to create a new project file with given project data
- */
-export async function postNew(initialData: Partial<ProjectData>) {
-  return axios.post(`${ontimeURL}/new`, initialData);
-}
-
-/**
  * @description HTTP request to get the list of available project files
  */
 export async function getProjects(): Promise<ProjectFileListResponse> {
@@ -382,11 +375,15 @@ export async function deleteProject(filename: string): Promise<MessageResponse> 
 /**
  * @description HTTP request to create a project file
  */
-export async function createProject(filename: string): Promise<MessageResponse> {
+export async function createProject(
+  project: Partial<
+    ProjectData & {
+      filename: string;
+    }
+  >,
+): Promise<MessageResponse> {
   const url = `${ontimeURL}/project`;
   const decodedUrl = decodeURIComponent(url);
-  const res = await axios.post(decodedUrl, {
-    filename,
-  });
+  const res = await axios.post(decodedUrl, project);
   return res.data;
 }
