@@ -110,7 +110,7 @@ export async function getOSC(): Promise<OSCSettings> {
  * @description HTTP request to mutate osc settings
  * @return {Promise}
  */
-export async function postOSC(data: OSCSettings): Promise<OSCSettings> {
+export async function postOSC(data: OSCSettings): Promise<AxiosResponse<OSCSettings>> {
   return axios.post(`${ontimeURL}/osc`, data);
 }
 
@@ -127,7 +127,7 @@ export async function getHTTP(): Promise<HttpSettings> {
  * @description HTTP request to mutate http settings
  * @return {Promise}
  */
-export async function postHTTP(data: HttpSettings): Promise<HttpSettings> {
+export async function postHTTP(data: HttpSettings): Promise<AxiosResponse<HttpSettings>> {
   return axios.post(`${ontimeURL}/http`, data);
 }
 

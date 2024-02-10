@@ -28,7 +28,7 @@
   padding: 1rem;
   background-color: $white-1;
   border: 1px solid $gray-1100;
-  border-radius: 0.25rem;
+  border-radius: 3px;
 }
 
 .error {
@@ -86,4 +86,9 @@
 .fieldDescription {
   font-size: calc(1rem - 2px);
   color: $gray-400;
+}
+
+.fieldError {
+  font-size: calc(1rem - 2px);
+  color: $red-500;
 }

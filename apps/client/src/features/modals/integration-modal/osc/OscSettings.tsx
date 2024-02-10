@@ -93,8 +93,8 @@ export default function OscSettings() {
           variant='ontime-filled-on-light'
           {...register('portIn', {
             required: { value: true, message: 'Required field' },
-            max: { value: 65535, message: 'Port in incorrect range (1024 - 65535)' },
-            min: { value: 1024, message: 'Port in incorrect range (1024 - 65535)' },
+            max: { value: 65535, message: 'Port must be within range 1024 - 65535' },
+            min: { value: 1024, message: 'Port must be within range 1024 - 65535' },
             pattern: {
               value: isOnlyNumbers,
               message: 'Value should be numeric',
@@ -158,8 +158,8 @@ export default function OscSettings() {
           variant='ontime-filled-on-light'
           {...register('portOut', {
             required: { value: true, message: 'Required field' },
-            max: { value: 65535, message: 'Port in incorrect range (1024 - 65535)' },
-            min: { value: 1024, message: 'Port in incorrect range (1024 - 65535)' },
+            max: { value: 65535, message: 'Port must be within range 1024 - 65535' },
+            min: { value: 1024, message: 'Port must be within range 1024 - 65535' },
             pattern: {
               value: isOnlyNumbers,
               message: 'Value should be numeric',

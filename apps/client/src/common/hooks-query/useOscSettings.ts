@@ -10,11 +10,7 @@ import { ontimeQueryClient } from '../queryClient';
 export default function useOscSettings() {
   const { data, status, isFetching, isError, refetch } = useQuery({
     queryKey: OSC_SETTINGS,
-    queryFn: async () => {
-      const oscData = await getOSC();
-      // transform port to string
-      return { ...oscData, portIn: String(oscData.portIn), portOut: String(oscData.portOut) };
-    },
+    queryFn: getOSC,
     placeholderData: oscPlaceholderSettings,
     retry: 5,
     retryDelay: (attempt: number) => attempt * 2500,
@@ -30,8 +26,7 @@ export function useOscSettingsMutation() {
     mutationFn: postOSC,
     onError: (error) => logAxiosError('Error saving OSC settings', error),
     onSuccess: (res) => {
-      console.log('will patch cache', res);
-      ontimeQueryClient.setQueryData(OSC_SETTINGS, res);
+      ontimeQueryClient.setQueryData(OSC_SETTINGS, res.data);
     },
     onSettled: () => ontimeQueryClient.invalidateQueries({ queryKey: OSC_SETTINGS }),
   });

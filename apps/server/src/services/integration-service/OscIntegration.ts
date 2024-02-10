@@ -1,5 +1,5 @@
 import { ArgumentType, Client, Message } from 'node-osc';
-import { LogOrigin, OSCSettings, OscSubscription } from 'ontime-types';
+import { LogOrigin, MaybeNumber, MaybeString, OSCSettings, OscSubscription } from 'ontime-types';
 
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplateNested } from './integrationUtils.js';
@@ -13,10 +13,16 @@ import { logger } from '../../classes/Logger.js';
 export class OscIntegration implements IIntegration<OscSubscription> {
   protected oscClient: null | Client;
   subscriptions: OscSubscription[];
+  targetIP: MaybeString;
+  portOut: MaybeNumber;
+  enabledOut: boolean;
 
   constructor() {
     this.oscClient = null;
     this.subscriptions = [];
+    this.targetIP = null;
+    this.portOut = null;
+    this.enabledOut = false;
   }
 
   /**
@@ -26,14 +32,25 @@ export class OscIntegration implements IIntegration<OscSubscription> {
     const { targetIP, portOut, subscriptions, enabledOut } = config;
     this.initSubscriptions(subscriptions);
 
-    // this allows re-calling the init function during runtime
-    this.oscClient?.close();
-    if (!enabledOut) {
-      logger.info(LogOrigin.Tx, 'OSC client closed');
+    if (!enabledOut && this.enabledOut) {
+      this.targetIP = targetIP;
+      this.portOut = portOut;
+      this.enabledOut = enabledOut;
+      this.shutdown();
       return;
     }
 
+    if (this.oscClient && targetIP === this.targetIP && portOut === this.portOut) {
+      // nothing changed that would mean we need a new client
+      return;
+    }
+
+    this.targetIP = targetIP;
+    this.portOut = portOut;
+    this.enabledOut = enabledOut;
+
     try {
+      logger.info(LogOrigin.Tx, 'Initialising OSC integration...');
       this.oscClient = new Client(targetIP, portOut);
     } catch (error) {
       this.oscClient = null;
@@ -85,7 +102,7 @@ export class OscIntegration implements IIntegration<OscSubscription> {
   }
 
   shutdown() {
-    console.log('Shutting down OSC integration');
+    logger.info(LogOrigin.Tx, 'Shutting down OSC integration');
     if (this.oscClient) {
       this.oscClient?.close();
       this.oscClient = null;
