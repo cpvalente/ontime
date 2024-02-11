@@ -35,7 +35,7 @@ export default function HttpIntegrations() {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, prepend, remove } = useFieldArray({
     name: 'subscriptions',
     control,
   });
@@ -56,7 +56,7 @@ export default function HttpIntegrations() {
   };
 
   const handleAddNewSubscription = () => {
-    append({
+    prepend({
       id: generateId(),
       cycle: 'onLoad',
       message: '',
@@ -101,7 +101,6 @@ export default function HttpIntegrations() {
               New
             </Button>
           </Panel.SubHeader>
-          <Panel.Paragraph>Integration Settings for OSC protocol</Panel.Paragraph>
           {fields.length > 0 && (
             <Panel.Table>
               <thead>

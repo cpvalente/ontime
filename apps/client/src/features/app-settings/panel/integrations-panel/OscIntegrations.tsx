@@ -35,7 +35,7 @@ export default function OscIntegrations() {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, prepend, remove } = useFieldArray({
     name: 'subscriptions',
     control,
   });
@@ -62,7 +62,7 @@ export default function OscIntegrations() {
   };
 
   const handleAddNewSubscription = () => {
-    append({
+    prepend({
       id: generateId(),
       cycle: 'onLoad',
       message: '',
