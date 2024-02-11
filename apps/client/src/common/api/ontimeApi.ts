@@ -7,7 +7,6 @@ import {
   MessageResponse,
   OntimeRundown,
   OSCSettings,
-  OscSubscription,
   ProjectData,
   ProjectFileListResponse,
   Settings,
@@ -108,6 +107,14 @@ export async function getOSC(): Promise<OSCSettings> {
 }
 
 /**
+ * @description HTTP request to mutate osc settings
+ * @return {Promise}
+ */
+export async function postOSC(data: OSCSettings): Promise<AxiosResponse<OSCSettings>> {
+  return axios.post(`${ontimeURL}/osc`, data);
+}
+
+/**
  * @description HTTP request to retrieve http settings
  * @return {Promise}
  */
@@ -120,24 +127,8 @@ export async function getHTTP(): Promise<HttpSettings> {
  * @description HTTP request to mutate http settings
  * @return {Promise}
  */
-export async function postHTTP(data: HttpSettings) {
+export async function postHTTP(data: HttpSettings): Promise<AxiosResponse<HttpSettings>> {
   return axios.post(`${ontimeURL}/http`, data);
-}
-
-/**
- * @description HTTP request to mutate osc settings
- * @return {Promise}
- */
-export async function postOSC(data: OSCSettings) {
-  return axios.post(`${ontimeURL}/osc`, data);
-}
-
-/**
- * @description HTTP request to mutate osc subscriptions
- * @return {Promise}
- */
-export async function postOscSubscriptions(data: OscSubscription) {
-  return axios.post(`${ontimeURL}/osc-subscriptions`, data);
 }
 
 /**

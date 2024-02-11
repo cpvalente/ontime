@@ -6,17 +6,15 @@ import {
   OSCSettings,
   ProjectData,
   Settings,
-  TimerLifeCycle,
   UserFields,
   ViewSettings,
   OscSubscription,
-  HttpSubscription,
-  OscSubscriptionOptions,
-  HttpSubscriptionOptions,
   DatabaseModel,
   isOntimeEvent,
   isOntimeDelay,
   isOntimeBlock,
+  isOntimeCycle,
+  HttpSubscription,
 } from 'ontime-types';
 
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
@@ -156,40 +154,18 @@ export const parseViewSettings = (data): ViewSettings => {
 };
 
 /**
- * Parses and validates OSC subscription cycle options
- * @param data
+ * Sanitises an OSC Subscriptions array
  */
-export const validateOscSubscriptionCycle = (data: OscSubscriptionOptions[]): boolean => {
-  for (const subscriptionOption of data) {
-    if (typeof subscriptionOption.message !== 'string' || typeof subscriptionOption.enabled !== 'boolean') {
-      return false;
-    }
-  }
-  return true;
-};
-
-/**
- * Parses and validates OSC subscription object
- * @param data
- */
-export const validateOscSubscriptionObject = (data: OscSubscription): boolean => {
-  if (!data) {
-    return false;
+export function sanitiseOscSubscriptions(subscriptions?: OscSubscription[]): OscSubscription[] {
+  if (!Array.isArray(subscriptions)) {
+    return [];
   }
 
-  const timerKeys = Object.keys(TimerLifeCycle);
-  for (const key of timerKeys) {
-    // must contains all keys and be an array
-    if (!(key in data) || !Array.isArray(data[key])) {
-      return false;
-    }
-    const isValid = validateOscSubscriptionCycle(data[key]);
-    if (!isValid) {
-      return false;
-    }
-  }
-  return true;
-};
+  return subscriptions.filter(
+    ({ id, cycle, message, enabled }) =>
+      typeof id === 'string' && isOntimeCycle(cycle) && typeof message === 'string' && typeof enabled === 'boolean',
+  );
+}
 
 /**
  * Parse osc portion of an entry
@@ -198,58 +174,35 @@ export const parseOsc = (data: { osc?: Partial<OSCSettings> }): OSCSettings => {
   if ('osc' in data) {
     console.log('Found OSC definition, importing...');
 
-    // TODO: this can be improved by only merging known keys
     const loadedConfig = data.osc || {};
-    const validatedSubscriptions = validateOscSubscriptionObject(loadedConfig.subscriptions)
-      ? loadedConfig.subscriptions
-      : dbModel.osc.subscriptions;
-
     return {
       portIn: loadedConfig.portIn ?? dbModel.osc.portIn,
       portOut: loadedConfig.portOut ?? dbModel.osc.portOut,
       targetIP: loadedConfig.targetIP ?? dbModel.osc.targetIP,
       enabledIn: loadedConfig.enabledIn ?? dbModel.osc.enabledIn,
       enabledOut: loadedConfig.enabledOut ?? dbModel.osc.enabledOut,
-      subscriptions: validatedSubscriptions,
+      subscriptions: sanitiseOscSubscriptions(loadedConfig.subscriptions),
     };
   }
 };
 
 /**
- * Parses and validates HTTP subscription cycle options
- * @param data
+ * Sanitises an HTTP Subscriptions array
  */
-export const validateHttpSubscriptionCycle = (data: HttpSubscriptionOptions[]): boolean => {
-  for (const subscriptionOption of data) {
-    const isHttp = subscriptionOption.message?.startsWith('http://');
-    if (typeof subscriptionOption.message !== 'string' || !isHttp || typeof subscriptionOption.enabled !== 'boolean') {
-      return false;
-    }
+export function sanitiseHttpSubscriptions(subscriptions?: HttpSubscription[]): HttpSubscription[] {
+  if (!Array.isArray(subscriptions)) {
+    return [];
   }
-  return true;
-};
 
-/**
- * Parses and validates HTTP subscription object
- * @param data
- */
-export const validateHttpSubscriptionObject = (data: HttpSubscription): boolean => {
-  if (!data) {
-    return false;
-  }
-  const timerKeys = Object.keys(TimerLifeCycle);
-  // must contains all keys and be an array
-  for (const key of timerKeys) {
-    if (!(key in data) || !Array.isArray(data[key])) {
-      return false;
-    }
-    const isValid = validateHttpSubscriptionCycle(data[key]);
-    if (!isValid) {
-      return false;
-    }
-  }
-  return true;
-};
+  return subscriptions.filter(
+    ({ id, cycle, message, enabled }) =>
+      typeof id === 'string' &&
+      isOntimeCycle(cycle) &&
+      typeof message === 'string' &&
+      message.startsWith('http://') &&
+      typeof enabled === 'boolean',
+  );
+}
 
 /**
  * Parse Http portion of an entry
@@ -263,13 +216,10 @@ export const parseHttp = (data: { http?: Partial<HttpSettings> }): HttpSettings 
 
     // TODO: this can be improved by only merging known keys
     const loadedConfig = data?.http || {};
-    const validatedSubscriptions = validateHttpSubscriptionObject(loadedConfig.subscriptions)
-      ? loadedConfig.subscriptions
-      : dbModel.http.subscriptions;
 
     return {
       enabledOut: loadedConfig.enabledOut ?? dbModel.http.enabledOut,
-      subscriptions: validatedSubscriptions,
+      subscriptions: sanitiseHttpSubscriptions(loadedConfig.subscriptions),
     };
   }
 };

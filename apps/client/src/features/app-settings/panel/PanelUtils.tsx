@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { HTMLAttributes, ReactNode } from 'react';
 
 import style from './Panel.module.scss';
 
@@ -10,8 +10,19 @@ export function SubHeader({ children }: { children: ReactNode }) {
   return <h3 className={style.subheader}>{children}</h3>;
 }
 
-export function Section({ children }: { children: ReactNode }) {
-  return <div className={style.section}>{children}</div>;
+type AllowedTags = 'div' | 'form';
+type SectionProps<C extends AllowedTags> = {
+  as?: C;
+  children: ReactNode;
+} & JSX.IntrinsicElements[C];
+
+export function Section<C extends AllowedTags = 'div'>({ as, children, ...props }: SectionProps<C>) {
+  const Element = as ?? 'div';
+  return (
+    <Element className={style.section} {...(props as HTMLAttributes<HTMLElement>)}>
+      {children}
+    </Element>
+  );
 }
 
 export function Paragraph({ children }: { children: ReactNode }) {
@@ -34,11 +45,20 @@ export function ListItem({ children }: { children: ReactNode }) {
   return <li className={style.listItem}>{children}</li>;
 }
 
-export function Field({ title, description }: { title: string; description: string }) {
+export function Field({ title, description, error }: { title: string; description: string; error?: string }) {
   return (
     <div className={style.fieldTitle}>
       {title}
-      {description && <div className={style.fieldDescription}>{description}</div>}
+      {error && <Error>{error}</Error>}
+      {!error && description && <Description>{description}</Description>}
     </div>
   );
+}
+
+export function Description({ children }: { children: ReactNode }) {
+  return <div className={style.fieldDescription}>{children}</div>;
+}
+
+export function Error({ children }: { children: ReactNode }) {
+  return <div className={style.fieldError}>{children}</div>;
 }

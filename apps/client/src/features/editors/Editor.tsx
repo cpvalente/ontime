@@ -14,7 +14,6 @@ import styles from './Editor.module.scss';
 const Rundown = lazy(() => import('../rundown/RundownExport'));
 const TimerControl = lazy(() => import('../control/playback/TimerControlExport'));
 const MessageControl = lazy(() => import('../control/message/MessageControlExport'));
-const IntegrationModal = lazy(() => import('../modals/integration-modal/IntegrationModal'));
 const SettingsModal = lazy(() => import('../modals/settings-modal/SettingsModal'));
 
 export default function Editor() {
@@ -27,11 +26,6 @@ export default function Editor() {
 
   const { isOpen: isOldSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
   const { isOpen: isUploadModalOpen, onOpen: onUploadModalOpen, onClose: onUploadModalClose } = useDisclosure();
-  const {
-    isOpen: isIntegrationModalOpen,
-    onOpen: onIntegrationModalOpen,
-    onClose: onIntegrationModalClose,
-  } = useDisclosure();
   const { isOpen: isSheetsOpen, onOpen: onSheetsOpen, onClose: onSheetsClose } = useDisclosure();
 
   // Set window title
@@ -45,7 +39,6 @@ export default function Editor() {
     <>
       <ErrorBoundary>
         <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
-        <IntegrationModal onClose={onIntegrationModalClose} isOpen={isIntegrationModalOpen} />
         <SettingsModal isOpen={isOldSettingsOpen} onClose={onSettingsClose} />
         <SheetsModal onClose={onSheetsClose} isOpen={isSheetsOpen} />
       </ErrorBoundary>
@@ -57,8 +50,6 @@ export default function Editor() {
             onSettingsClose={onSettingsClose}
             isUploadOpen={isUploadModalOpen}
             onUploadOpen={onUploadModalOpen}
-            isIntegrationOpen={isIntegrationModalOpen}
-            onIntegrationOpen={onIntegrationModalOpen}
             openSettings={handleSettings}
             isSettingsOpen={isSettingsOpen}
             isSheetsOpen={isSheetsOpen}

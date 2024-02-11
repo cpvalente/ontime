@@ -7,6 +7,7 @@ import type {
   ProjectData,
   ErrorResponse,
   ProjectFileListResponse,
+  OSCSettings,
 } from 'ontime-types';
 import { ExcelImportOptions, deepmerge } from 'ontime-utils';
 
@@ -33,7 +34,6 @@ import { oscIntegration } from '../services/integration-service/OscIntegration.j
 import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
 import { logger } from '../classes/Logger.js';
 import { notifyChanges, setRundown } from '../services/rundown-service/RundownService.js';
-import { integrationService } from '../services/integration-service/IntegrationService.js';
 import { getProjectFiles } from '../utils/getFileListFromFolder.js';
 import { configService } from '../services/ConfigService.js';
 import { deleteFile } from '../utils/parserUtils.js';
@@ -41,6 +41,7 @@ import { validateProjectFiles } from './ontimeController.validate.js';
 import { dbModel } from '../models/dataModel.js';
 import { sheet } from '../utils/sheetsAuth.js';
 import { removeFileExtension } from '../utils/removeFileExtension.js';
+import type { OntimeError } from '../utils/backend.types.js';
 import { ensureJsonExtension } from '../utils/ensureJsonExtension.js';
 import { generateUniqueFileName } from '../utils/generateUniqueFilename.js';
 
@@ -318,47 +319,18 @@ export const getOSC = async (_req: Request, res: Response) => {
 
 // Create controller for POST request to '/ontime/osc'
 // Returns ACK message
-export const postOSC = async (req: Request, res: Response) => {
+export const postOSC = async (req: Request, res: Response<OSCSettings | OntimeError>) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
 
   try {
     const oscSettings = req.body;
-    await DataProvider.setOsc(oscSettings);
 
-    integrationService.unregister(oscIntegration);
-
-    // TODO: this update could be more granular, checking that relevant data was changed
-    const { success, message } = oscIntegration.init(oscSettings);
-    logger.info(LogOrigin.Tx, message);
-
-    if (success) {
-      integrationService.register(oscIntegration);
-    }
-
-    res.send(oscSettings).status(200);
-  } catch (error) {
-    res.status(400).send({ message: String(error) });
-  }
-};
-
-export const postOscSubscriptions = async (req: Request, res: Response) => {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
-
-  try {
-    const subscriptions = req.body;
-    const oscSettings = DataProvider.getOsc();
-    oscSettings.subscriptions = subscriptions;
-    await DataProvider.setOsc(oscSettings);
-
-    // TODO: this update could be more granular, checking that relevant data was changed
-    const { message } = oscIntegration.init(oscSettings);
-    logger.info(LogOrigin.Tx, message);
-
-    res.send(oscSettings).status(200);
+    oscIntegration.init(oscSettings);
+    // we persist the data after init to avoid persisting invalid data
+    const result = await DataProvider.setOsc(oscSettings);
+    res.send(result).status(200);
   } catch (error) {
     res.status(400).send({ message: String(error) });
   }
@@ -371,26 +343,18 @@ export const getHTTP = async (_req: Request, res: Response<HttpSettings>) => {
 };
 
 // Create controller for POST request to '/ontime/http'
-export const postHTTP = async (req: Request, res: Response) => {
+export const postHTTP = async (req: Request, res: Response<HttpSettings | OntimeError>) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
 
   try {
     const httpSettings = req.body;
-    await DataProvider.setHttp(httpSettings);
 
-    integrationService.unregister(httpIntegration);
-
-    // TODO: this update could be more granular, checking that relevant data was changed
-    const { success, message } = httpIntegration.init(httpSettings);
-    logger.info(LogOrigin.Tx, message);
-
-    if (success) {
-      integrationService.register(httpIntegration);
-    }
-
-    res.send(httpSettings).status(200);
+    httpIntegration.init(httpSettings);
+    // we persist the data after init to avoid persisting invalid data
+    const result = await DataProvider.setHttp(httpSettings);
+    res.send(result).status(200);
   } catch (error) {
     res.status(400).send({ message: String(error) });
   }

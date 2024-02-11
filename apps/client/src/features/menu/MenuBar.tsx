@@ -3,8 +3,6 @@ import { IconButton, MenuButton, Tooltip } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoCloud } from '@react-icons/all-files/io5/IoCloud';
 import { IoCloudOutline } from '@react-icons/all-files/io5/IoCloudOutline';
-import { IoExtensionPuzzle } from '@react-icons/all-files/io5/IoExtensionPuzzle';
-import { IoExtensionPuzzleOutline } from '@react-icons/all-files/io5/IoExtensionPuzzleOutline';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoPushOutline } from '@react-icons/all-files/io5/IoPushOutline';
@@ -27,8 +25,6 @@ interface MenuBarProps {
   onSettingsClose: () => void;
   isUploadOpen: boolean;
   onUploadOpen: () => void;
-  isIntegrationOpen: boolean;
-  onIntegrationOpen: () => void;
   isSheetsOpen: boolean;
   onSheetsOpen: () => void;
   openSettings: (newTab?: string) => void;
@@ -54,8 +50,6 @@ const MenuBar = (props: MenuBarProps) => {
     onSettingsClose,
     isUploadOpen,
     onUploadOpen,
-    isIntegrationOpen,
-    onIntegrationOpen,
     openSettings,
     isSettingsOpen,
     isSheetsOpen,
@@ -155,15 +149,6 @@ const MenuBar = (props: MenuBarProps) => {
         clickHandler={onSheetsOpen}
         tooltip='Sheets'
         aria-label='Sheets'
-      />
-      <TooltipActionBtn
-        {...buttonStyle}
-        isDisabled={appMode === AppMode.Run}
-        icon={isIntegrationOpen ? <IoExtensionPuzzle /> : <IoExtensionPuzzleOutline />}
-        className={isIntegrationOpen ? style.open : ''}
-        clickHandler={onIntegrationOpen}
-        tooltip='Integrations'
-        aria-label='Integrations'
       />
       <TooltipActionBtn
         {...buttonStyle}

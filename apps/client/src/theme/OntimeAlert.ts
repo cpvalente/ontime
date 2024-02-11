@@ -18,6 +18,7 @@ export const ontimeAlertOnDark = {
     borderRadius: '3px',
   },
   icon: {
+    alignSelf: 'start',
     color: '#578AF4', // $blue-500
   },
 };

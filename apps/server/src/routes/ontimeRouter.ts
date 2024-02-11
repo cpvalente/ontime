@@ -14,7 +14,6 @@ import {
   poll,
   postAliases,
   postOSC,
-  postOscSubscriptions,
   postSettings,
   postUserFields,
   postViewSettings,
@@ -43,7 +42,6 @@ import {
   validateUserFields,
   viewValidator,
   validateHTTP,
-  validateOscSubscription,
   validateProjectDuplicate,
   validateLoadProjectFile,
   validateProjectRename,
@@ -104,9 +102,6 @@ router.get('/osc', getOSC);
 // create route between controller and '/ontime/osc' endpoint
 router.post('/osc', validateOSC, postOSC);
 
-// create route between controller and '/ontime/osc-subscriptions' endpoint
-router.post('/osc-subscriptions', validateOscSubscription, postOscSubscriptions);
-
 // create route between controller and '/ontime/http' endpoint
 router.get('/http', getHTTP);
 
@@ -135,7 +130,7 @@ router.delete('/project/:filename', sanitizeProjectFilename, deleteProjectFile);
 router.post('/sheet/clientsecret', uploadFile, uploadClientSecret);
 router.get('/sheet/clientsecret', uploadFile, getClientSecret);
 
-// Google Sheet integration - Step 1
+// Google Sheet integration - Step 2
 router.get('/sheet/authentication/url', getAuthenticationUrl);
 router.get('/sheet/authentication', getAuthentication);
 

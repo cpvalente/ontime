@@ -6,7 +6,8 @@ import { DatabaseModel } from 'ontime-types';
  * @param {object} newData
  */
 export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseModel>) {
-  const { rundown, project, settings, viewSettings, osc, aliases, userFields } = newData || {};
+  const { rundown, project, settings, viewSettings, aliases, userFields, osc, http } = newData || {};
+
   return {
     ...existing,
     rundown: rundown ?? existing.rundown,
@@ -18,21 +19,7 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
       ...existing.userFields,
       ...(userFields && Object.fromEntries(Object.entries(userFields).filter(([_, value]) => value !== null))),
     },
-    osc: {
-      ...existing.osc,
-      ...osc,
-      subscriptions: {
-        ...existing.osc?.subscriptions,
-        ...(newData?.osc?.subscriptions || {}),
-        ...(existing.osc?.subscriptions && newData?.osc?.subscriptions
-          ? Object.keys(existing.osc.subscriptions).reduce((acc, key) => {
-              if (!(key in newData.osc.subscriptions)) {
-                acc[key] = existing.osc.subscriptions[key];
-              }
-              return acc;
-            }, {})
-          : {}),
-      },
-    },
+    osc: { ...existing.osc, ...osc },
+    http: { ...existing.http, ...http },
   };
 }

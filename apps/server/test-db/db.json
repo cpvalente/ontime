@@ -454,30 +454,17 @@
     "targetIP": "127.0.0.1",
     "enabledIn": true,
     "enabledOut": true,
-    "subscriptions": {
-      "onLoad": [],
-      "onStart": [],
-      "onPause": [],
-      "onStop": [],
-      "onUpdate": [
+    "subscriptions": [
         {
           "id": "10eea",
           "enabled": true,
+          "cycle": "onUpdate",
           "message": "/ontime/update/{{timer.current}}"
         }
-      ],
-      "onFinish": []
-    }
-  },
+      ]
+    },
   "http": {
     "enabledOut": true,
-    "subscriptions": {
-      "onLoad": [],
-      "onStart": [],
-      "onPause": [],
-      "onStop": [],
-      "onUpdate": [],
-      "onFinish": []
-    }
+    "subscriptions": []
   }
 }
