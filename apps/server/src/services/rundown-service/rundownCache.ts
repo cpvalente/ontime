@@ -6,79 +6,122 @@ import {
   OntimeRundown,
   OntimeRundownEntry,
 } from 'ontime-types';
-import { generateId, deleteAtIndex, insertAtIndex, reorderArray, swapEventData } from 'ontime-utils';
+import {
+  generateId,
+  deleteAtIndex,
+  insertAtIndex,
+  reorderArray,
+  swapEventData,
+  getLinkedTimes,
+  formatFromMillis,
+} from 'ontime-utils';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
 import { apply } from './delayUtils.js';
 
-type NormalisedRundown = Record<string, OntimeRundownEntry>;
+type EventID = string;
+type NormalisedRundown = Record<EventID, OntimeRundownEntry>;
+
+let persistedRundown: OntimeRundown = [];
+/** Utility function gets rundown from DataProvider */
+export const getPersistedRundown = (): OntimeRundown => persistedRundown;
 
 let rundown: NormalisedRundown = {};
-let order: string[] = [];
+let order: EventID[] = [];
 let revision = 0;
 let isStale = true;
 
-/**
- * Utility initialises cache
- * @param persistedRundown
- */
-export function init(persistedRundown: Readonly<OntimeRundown>) {
-  // we decided to try and re-write this dataset for every change
-  // instead of maintaining logic to update it
-  rundown = {};
-  order = [];
+let links: Record<EventID, EventID> = {};
 
-  let accumulatedDelay = 0;
-  for (let i = 0; i < persistedRundown.length; i++) {
-    const event = persistedRundown[i];
-
-    // calculate delays
-    if (isOntimeDelay(event)) {
-      accumulatedDelay += event.duration;
-    } else if (isOntimeBlock(event)) {
-      accumulatedDelay = 0;
-    } else if (isOntimeEvent(event)) {
-      event.delay = accumulatedDelay;
-    }
-
-    order.push(event.id);
-    rundown[event.id] = { ...event };
-  }
-  isStale = false;
+export async function init(initialRundown: OntimeRundown) {
+  persistedRundown = structuredClone(initialRundown);
+  generate();
+  await DataProvider.setRundown(persistedRundown);
 }
 
 /**
- * Returns an ID guaranteed to be unique
- * @returns
+ * Utility initialises cache
+ * @param rundown
  */
-export function getUniqueId(persistedRundown: Readonly<OntimeRundown> = getPersistedRundown()): string {
+export function generate(initialRundown: OntimeRundown = persistedRundown) {
+  // we decided to re-write this dataset for every change
+  // instead of maintaining logic to update it
+
+  function getLink(currentIndex: number): OntimeEvent | null {
+    // currently the link is the previous event
+    for (let i = currentIndex - 1; i >= 0; i--) {
+      const event = initialRundown[i];
+      if (isOntimeEvent(event)) {
+        return event;
+      }
+    }
+    return null;
+  }
+
+  rundown = {};
+  order = [];
+  links = {};
+
+  let accumulatedDelay = 0;
+  for (let i = 0; i < initialRundown.length; i++) {
+    const currentEvent = initialRundown[i];
+    let updatedEvent = { ...currentEvent };
+
+    // handle links
+    if (isOntimeEvent(updatedEvent)) {
+      if (updatedEvent.linkStart) {
+        const linkedEvent = getLink(i);
+        // link is always the previous event for now
+        if (linkedEvent) {
+          links[linkedEvent.id] = currentEvent.id;
+
+          const timePatch = getLinkedTimes(updatedEvent, linkedEvent);
+          updatedEvent = { ...updatedEvent, ...timePatch };
+        } else {
+          updatedEvent.linkStart = null;
+        }
+        // update the persisted event
+        initialRundown[i] = updatedEvent;
+      }
+    }
+
+    // calculate delays
+    if (isOntimeDelay(updatedEvent)) {
+      accumulatedDelay += updatedEvent.duration;
+    } else if (isOntimeBlock(updatedEvent)) {
+      accumulatedDelay = 0;
+    } else if (isOntimeEvent(updatedEvent)) {
+      updatedEvent.delay = accumulatedDelay;
+    }
+
+    order.push(updatedEvent.id);
+    rundown[updatedEvent.id] = { ...updatedEvent };
+  }
+
+  isStale = false;
+  return { rundown, order, links };
+}
+
+/** Returns an ID guaranteed to be unique */
+export function getUniqueId(): string {
+  if (isStale) {
+    generate();
+  }
   let id = '';
   do {
     id = generateId();
-  } while (!isIdUnique(persistedRundown, id));
+  } while (Object.hasOwn(rundown, id));
   return id;
 }
 
-export function isIdUnique(persistedRundown: Readonly<OntimeRundown>, eventId: string) {
-  if (isStale) {
-    init(persistedRundown);
-  }
-  return !Object.hasOwn(rundown, eventId);
-}
-
+/** Returns index of an event with a given id */
 export function getIndexOf(eventId: string) {
   if (isStale) {
-    init(getPersistedRundown());
+    generate();
   }
   return order.indexOf(eventId);
 }
-
-/**
- * Utility function gets rundown from DataProvider
- * @returns {OntimeRundown}
- */
-export const getPersistedRundown = (): OntimeRundown => DataProvider.getRundown();
 
 type RundownCache = {
   rundown: NormalisedRundown;
@@ -93,7 +136,7 @@ type RundownCache = {
 export function get(): Readonly<RundownCache> {
   if (isStale) {
     console.time('rundownCache__init');
-    init(getPersistedRundown());
+    generate();
     console.timeEnd('rundownCache__init');
   }
   return {
@@ -117,19 +160,23 @@ type MutatingFn<T extends object> = (params: MutationParams<T>) => MutatingRetur
  */
 export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
   async function scopedMutation(params: T) {
-    const persistedRundown = getPersistedRundown();
     const { newEvent, newRundown } = mutation({ ...params, persistedRundown });
 
     revision = revision + 1;
     isStale = true;
+    persistedRundown = newRundown;
 
-    DataProvider.setRundown(newRundown);
-    // schedule the update to the next tick
-
-    process.nextTick(() => {
+    // schedule a non priority cache update
+    setImmediate(() => {
       console.time('rundownCache__init');
-      init(newRundown);
+      generate();
       console.timeEnd('rundownCache__init');
+    });
+
+    // TODO: should we trottle this?
+    // defer writing to the database
+    setImmediate(() => {
+      DataProvider.setRundown(persistedRundown);
     });
 
     // TODO: could we return a patch object?
@@ -186,8 +233,12 @@ export function edit({ persistedRundown, eventId, patch }: EditArgs): Required<M
     throw new Error('Invalid event type');
   }
 
+  // @ts-expect-error -- testing
+  console.log('patch', formatFromMillis(patch?.timeStart ?? 0, 'HH:mm:ss'));
+
   const eventInMemory = persistedRundown[indexAt];
   const newEvent = makeEvent(eventInMemory, patch);
+
   const newRundown = [...persistedRundown];
   newRundown[indexAt] = newEvent;
 

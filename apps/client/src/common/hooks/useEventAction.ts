@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { isOntimeEvent, OntimeEvent, OntimeRundownEntry, RundownCached } from 'ontime-types';
-import { reorderArray, swapEventData } from 'ontime-utils';
+import { isOntimeEvent, MaybeString, OntimeEvent, OntimeRundownEntry, RundownCached } from 'ontime-types';
+import { getLinkedTimes, getPreviousEventNormal, reorderArray, swapEventData } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/apiConstants';
 import { logAxiosError } from '../api/apiUtils';
@@ -186,6 +186,7 @@ export const useEventAction = () => {
 
         // check for adding time keyword
       } else if (value.startsWith('+') || value.startsWith('p+') || value.startsWith('p +')) {
+        // TODO: is this logic solid?
         const remainingString = value.substring(1);
         newValMillis = getPreviousEnd() + forgivingStringToMillis(remainingString);
       } else {
@@ -196,6 +197,44 @@ export const useEventAction = () => {
         id: eventId,
         [field]: newValMillis,
       };
+      try {
+        await _updateEventMutation.mutateAsync(newEvent);
+      } catch (error) {
+        logAxiosError('Error updating event', error);
+      }
+    },
+    [_updateEventMutation, queryClient],
+  );
+
+  /**
+   * Toggles link of an event to the previous
+   */
+  const linkTimer = useCallback(
+    async (eventId: string, linkStart: MaybeString) => {
+      let newEvent: Partial<OntimeEvent> = { id: eventId };
+
+      if (!linkStart) {
+        newEvent.linkStart = null;
+      } else {
+        const cachedRundown = queryClient.getQueryData<RundownCached>(RUNDOWN);
+        if (!cachedRundown) {
+          return;
+        }
+        const currentEvent = cachedRundown.rundown[eventId] as OntimeEvent;
+        if (!isOntimeEvent(currentEvent)) {
+          return;
+        }
+        const { previousEvent } = getPreviousEventNormal(cachedRundown.rundown, cachedRundown.order, eventId);
+
+        if (!previousEvent) {
+          newEvent.linkStart = null;
+        } else {
+          newEvent.linkStart = previousEvent.id;
+          const timePatch = getLinkedTimes(currentEvent, previousEvent);
+          newEvent = { ...newEvent, ...timePatch };
+        }
+      }
+
       try {
         await _updateEventMutation.mutateAsync(newEvent);
       } catch (error) {
@@ -509,6 +548,7 @@ export const useEventAction = () => {
     batchUpdateEvents,
     deleteEvent,
     deleteAllEvents,
+    linkTimer,
     reorderEvent,
     swapEvents,
     updateEvent,

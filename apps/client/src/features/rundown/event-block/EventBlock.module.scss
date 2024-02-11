@@ -125,12 +125,6 @@ $skip-opacity: 0.1;
   display: flex;
   gap: $block-clearance;
   height: 100%;
-
-  .timerNote {
-    color: $blue-500;
-    margin-right: $block-clearance;
-    font-size: 1.5em;
-  }
 }
 
 .eventTitle {
@@ -143,6 +137,7 @@ $skip-opacity: 0.1;
 .eventActions {
   grid-area: actions;
   height: 100%;
+  text-align: end;
 }
 
 .progressBg {

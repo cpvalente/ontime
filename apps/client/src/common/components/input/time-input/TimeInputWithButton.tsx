@@ -1,4 +1,5 @@
-import { Button, InputGroup, InputLeftElement, Tooltip } from '@chakra-ui/react';
+import { PropsWithChildren } from 'react';
+import { InputGroup, Tooltip } from '@chakra-ui/react';
 
 import { tooltipDelayFast } from '../../../../ontimeConfig';
 import { cx } from '../../../utils/styleUtils';
@@ -12,30 +13,28 @@ interface TimeInputWithButtonProps<T extends string> {
   submitHandler: (field: T, value: string) => void;
   time?: number;
   hasDelay?: boolean;
+  disabled?: boolean;
   placeholder: string;
 }
 
-export default function TimeInputWithButton<T extends string>(props: TimeInputWithButtonProps<T>) {
-  const { name, submitHandler, time, hasDelay, placeholder } = props;
+export default function TimeInputWithButton<T extends string>(props: PropsWithChildren<TimeInputWithButtonProps<T>>) {
+  const { name, submitHandler, time, hasDelay, placeholder, disabled, children } = props;
 
   const inputClasses = cx([style.timeInput, hasDelay ? style.delayed : null]);
 
   return (
     <InputGroup size='sm' className={inputClasses} width='fit-content'>
-      <InputLeftElement className={style.inputLeft}>
-        <Tooltip label={placeholder} openDelay={tooltipDelayFast} variant='ontime-ondark'>
-          <Button size='sm' variant='ontime-subtle-white' className={style.inputButton} tabIndex={-1}>
-            {placeholder.charAt(0)}
-          </Button>
-        </Tooltip>
-      </InputLeftElement>
-      <TimeInput<T>
-        name={name}
-        submitHandler={submitHandler}
-        time={time}
-        placeholder={placeholder}
-        className={style.inputField}
-      />
+      <Tooltip label={placeholder} openDelay={tooltipDelayFast} variant='ontime-ondark'>
+        <TimeInput<T>
+          name={name}
+          submitHandler={submitHandler}
+          time={time}
+          placeholder={placeholder}
+          className={style.inputField}
+          disabled={disabled}
+        />
+      </Tooltip>
+      {children}
     </InputGroup>
   );
 }

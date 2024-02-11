@@ -7,7 +7,7 @@ import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
 import { IoPeopleOutline } from '@react-icons/all-files/io5/IoPeopleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
-import { EndAction, MaybeNumber, OntimeEvent, Playback, TimerType } from 'ontime-types';
+import { EndAction, MaybeNumber, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import copyToClipboard from '../../../common/utils/copyToClipboard';
@@ -26,6 +26,8 @@ interface EventBlockProps {
   timeStart: number;
   timeEnd: number;
   duration: number;
+  timeStrategy: TimeStrategy;
+  linkStart: MaybeString;
   eventId: string;
   eventIndex: number;
   isPublic: boolean;
@@ -61,6 +63,8 @@ export default function EventBlock(props: EventBlockProps) {
     timeStart,
     timeEnd,
     duration,
+    timeStrategy,
+    linkStart,
     isPublic = true,
     eventIndex,
     endAction,
@@ -251,6 +255,8 @@ export default function EventBlock(props: EventBlockProps) {
           timeStart={timeStart}
           timeEnd={timeEnd}
           duration={duration}
+          linkStart={linkStart}
+          timeStrategy={timeStrategy}
           eventId={eventId}
           eventIndex={eventIndex}
           isPublic={isPublic}

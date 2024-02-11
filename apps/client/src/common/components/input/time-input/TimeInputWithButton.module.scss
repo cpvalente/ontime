@@ -1,24 +1,12 @@
-$input-font-size: 1rem;
 $input-delayed-border-color: $ontime-delay-text;
 
 .timeInput {
+  border: 1px solid transparent;
   &.delayed {
     border: 1px solid $input-delayed-border-color;
   }
+}
 
-  .inputLeft,
-  .inputButton {
-    aspect-ratio: 1;
-  }
-
-  .inputField {
-    font-size: $input-font-size;
-    letter-spacing: 1px;
-    width: 7.5em;
-    padding: 0 0 0 2.6em;
-  }
-
-  .inputButton {
-    border-radius: 2px 0 0 2px;
-  }
+.inputField {
+  max-width: 7.75em;
 }

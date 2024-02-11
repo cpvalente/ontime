@@ -4,6 +4,7 @@ import { millisToString } from 'ontime-utils';
 
 import { useEmitLog } from '../../../stores/logger';
 import { forgivingStringToMillis } from '../../../utils/dateConfig';
+import { cx } from '../../../utils/styleUtils';
 
 import style from './TimeInput.module.scss';
 interface TimeInputProps<T extends string> {
@@ -11,11 +12,12 @@ interface TimeInputProps<T extends string> {
   submitHandler: (field: T, value: string) => void;
   time?: number;
   placeholder: string;
+  disabled?: boolean;
   className?: string;
 }
 
 export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
-  const { name, submitHandler, time = 0, placeholder, className } = props;
+  const { name, submitHandler, time = 0, placeholder, disabled, className } = props;
   const { emitError } = useEmitLog();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
@@ -118,14 +120,16 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
     resetValue();
   }, [resetValue, time]);
 
-  const timeInputClass = className ? className : style.timeInput;
+  const timeInputClasses = cx([style.timeInput, className]);
 
   return (
     <Input
+      disabled={disabled}
       size='sm'
       ref={inputRef}
       data-testid={`time-input-${name}`}
-      className={timeInputClass}
+      className={timeInputClasses}
+      fontSize='1rem'
       type='text'
       placeholder={placeholder}
       variant='ontime-filled'

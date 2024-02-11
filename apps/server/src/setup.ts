@@ -10,6 +10,7 @@ import { ensureDirectory } from './utils/fileManagement.js';
 
 /**
  * @description Returns public path depending on OS
+ * This is the correct path for the app running in production mode
  */
 export function getAppDataPath(): string {
   // handle docker

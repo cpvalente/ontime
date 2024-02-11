@@ -10,23 +10,23 @@ import {
   deleteAllEvents,
   deleteEvent,
   editEvent,
+  getRundown,
   reorderEvent,
   swapEvents,
 } from '../services/rundown-service/RundownService.js';
-import { get } from '../services/rundown-service/rundownCache.js';
-import { DataProvider } from '../classes/data-provider/DataProvider.js';
+import { get as getCachedRundown } from '../services/rundown-service/rundownCache.js';
 
 // Create controller for GET request to '/events'
 // Returns -
 export const rundownGetAll: RequestHandler = async (_req, res) => {
-  const rundown = DataProvider.getRundown();
+  const rundown = getRundown();
   res.json(rundown);
 };
 
 // Create controller for GET request to '/events/cached'
 // Returns -
 export const rundownGetCached: RequestHandler = async (_req: Request, res: Response<RundownCached>) => {
-  const cachedRundown = get();
+  const cachedRundown = getCachedRundown();
   res.json(cachedRundown);
 };
 

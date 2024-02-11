@@ -1,7 +1,7 @@
 // runtime utils
 export { validatePlayback } from './src/validate-action/validatePlayback.js';
-export { validateTimes } from './src/validate-events/validateEvent.js';
-export { calculateDuration } from './src/validate-events/validateEvent.js';
+export { isKnownTimerType, validateLinkStart, validateTimeStrategy } from './src/validate-events/validateEvent.js';
+export { calculateDuration, getLinkedTimes, validateTimes } from './src/validate-times/validateTimes.js';
 
 // rundown utils
 export { sanitiseCue } from './src/cue-utils/cueUtils.js';

@@ -1,7 +1,174 @@
-import { EndAction, OntimeEvent, OntimeRundown, SupportedEvent, TimerType } from 'ontime-types';
+import {
+  EndAction,
+  OntimeBlock,
+  OntimeDelay,
+  OntimeEvent,
+  OntimeRundown,
+  SupportedEvent,
+  TimeStrategy,
+  TimerType,
+} from 'ontime-types';
 
 import { calculateRuntimeDelays, getDelayAt, calculateRuntimeDelaysFrom } from '../delayUtils.js';
-import { add, batchEdit, edit, remove, reorder, swap } from '../rundownCache.js';
+import { add, batchEdit, edit, generate, remove, reorder, swap } from '../rundownCache.js';
+
+describe('init() function', () => {
+  it('creates normalised versions of a given rundown', () => {
+    const testRundown: OntimeRundown = [
+      { type: SupportedEvent.Event, id: '1' } as OntimeEvent,
+      { type: SupportedEvent.Block, id: '2' } as OntimeBlock,
+      { type: SupportedEvent.Delay, id: '3' } as OntimeDelay,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.order.length).toBe(3);
+    expect(initResult.order).toStrictEqual(['1', '2', '3']);
+    expect(initResult.rundown['1'].type).toBe(SupportedEvent.Event);
+    expect(initResult.rundown['2'].type).toBe(SupportedEvent.Block);
+    expect(initResult.rundown['3'].type).toBe(SupportedEvent.Delay);
+  });
+
+  it('calculates delays versions of a given rundown', () => {
+    const testRundown: OntimeRundown = [
+      { type: SupportedEvent.Delay, id: '1', duration: 100 } as OntimeDelay,
+      { type: SupportedEvent.Event, id: '2', timeStart: 1 } as OntimeEvent,
+      { type: SupportedEvent.Block, id: '3' } as OntimeBlock,
+      { type: SupportedEvent.Event, id: '4', timeStart: 2 } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.order.length).toBe(4);
+    expect((initResult.rundown['2'] as OntimeEvent).delay).toBe(100);
+    expect((initResult.rundown['4'] as OntimeEvent).delay).toBe(0);
+  });
+
+  it('links times across events', () => {
+    const testRundown: OntimeRundown = [
+      {
+        type: SupportedEvent.Event,
+        id: '1',
+        timeStart: 1,
+        duration: 1,
+        timeEnd: 2,
+        timeStrategy: TimeStrategy.LockEnd,
+      } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '2',
+        timeStart: 11,
+        duration: 1,
+        timeEnd: 12,
+        linkStart: '1',
+        timeStrategy: TimeStrategy.LockEnd,
+      } as OntimeEvent,
+      { type: SupportedEvent.Block, id: 'block' } as OntimeBlock,
+      { type: SupportedEvent.Delay, id: 'delay' } as OntimeDelay,
+      {
+        type: SupportedEvent.Event,
+        id: '3',
+        timeStart: 21,
+        duration: 1,
+        timeEnd: 22,
+        linkStart: '2',
+        timeStrategy: TimeStrategy.LockEnd,
+      } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.order.length).toBe(5);
+    expect((initResult.rundown['2'] as OntimeEvent).timeStart).toBe(2);
+    expect((initResult.rundown['2'] as OntimeEvent).timeEnd).toBe(12);
+    expect((initResult.rundown['2'] as OntimeEvent).duration).toBe(10);
+
+    expect((initResult.rundown['3'] as OntimeEvent).timeStart).toBe(12);
+    expect((initResult.rundown['3'] as OntimeEvent).timeEnd).toBe(22);
+    expect((initResult.rundown['3'] as OntimeEvent).duration).toBe(10);
+
+    expect(initResult.links['1']).toBe('2');
+    expect(initResult.links['2']).toBe('3');
+  });
+
+  it('links times across events, reordered', () => {
+    const testRundown: OntimeRundown = [
+      { type: SupportedEvent.Event, id: '1', timeStart: 1, timeEnd: 2 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '3', timeStart: 21, timeEnd: 22, linkStart: '2' } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '2', timeStart: 11, timeEnd: 12, linkStart: '1' } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.order.length).toBe(3);
+    expect((initResult.rundown['3'] as OntimeEvent).timeStart).toBe(2);
+    expect(initResult.links['1']).toBe('3');
+    expect(initResult.links['3']).toBe('2');
+  });
+
+  it('handles updating event sequence', () => {
+    const testRundown: OntimeRundown = [
+      {
+        type: SupportedEvent.Event,
+        id: '97cc3e',
+        timeStart: 0,
+        timeEnd: 600000,
+        duration: 600000,
+        timeStrategy: TimeStrategy.LockDuration,
+        linkStart: null,
+      } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: 'e01948',
+        timeStart: 600000,
+        timeEnd: 601000,
+        duration: 85801000, // <------------- value out of sync
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: '97cc3e',
+      } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '25c1af',
+        timeStart: 100, // <------------- value out of sync
+        timeEnd: 602000,
+        duration: 0,
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: 'e01948',
+      } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.rundown).toMatchObject({
+      '97cc3e': {
+        timeStart: 0,
+        timeEnd: 600000,
+        duration: 600000,
+        timeStrategy: 'lock-duration',
+        linkStart: null,
+      },
+      e01948: {
+        timeStart: 600000,
+        timeEnd: 601000,
+        duration: 1000,
+        timeStrategy: 'lock-end',
+        linkStart: '97cc3e',
+      },
+      '25c1af': {
+        timeStart: 601000,
+        timeEnd: 602000,
+        duration: 1000,
+        timeStrategy: 'lock-end',
+        linkStart: 'e01948',
+      },
+    });
+  });
+
+  it('deletes links if invalid', () => {
+    const testRundown: OntimeRundown = [
+      { type: SupportedEvent.Event, id: '1', timeStart: 1, linkStart: '10' } as OntimeEvent,
+    ];
+    const initResult = generate(testRundown);
+    expect(initResult.order.length).toBe(1);
+    expect((initResult.rundown['1'] as OntimeEvent).timeStart).toBe(1);
+    expect(Object.keys(initResult.links).length).toBe(0);
+  });
+});
 
 describe('add() mutation', () => {
   test('adds an event to the rundown', () => {
@@ -137,6 +304,8 @@ describe('calculateRuntimeDelays', () => {
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
         timeStart: 600000,
         timeEnd: 1200000,
         duration: 600000,
@@ -172,6 +341,8 @@ describe('calculateRuntimeDelays', () => {
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
         timeStart: 1200000,
         timeEnd: 1200000,
         duration: 0,
@@ -207,6 +378,8 @@ describe('calculateRuntimeDelays', () => {
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
         timeStart: 600000,
         timeEnd: 1200000,
         duration: 600000,
@@ -242,6 +415,8 @@ describe('calculateRuntimeDelays', () => {
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
         timeStart: 1200000,
         timeEnd: 1800000,
         duration: 600000,
@@ -286,6 +461,8 @@ describe('getDelayAt()', () => {
       note: '',
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
+      timeStrategy: TimeStrategy.LockEnd,
+      linkStart: null,
       timeStart: 600000,
       timeEnd: 1200000,
       duration: 600000,
@@ -322,6 +499,8 @@ describe('getDelayAt()', () => {
       note: '',
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
+      timeStrategy: TimeStrategy.LockEnd,
+      linkStart: null,
       timeStart: 1200000,
       timeEnd: 1200000,
       duration: 0,
@@ -358,6 +537,8 @@ describe('getDelayAt()', () => {
       note: '',
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
+      timeStrategy: TimeStrategy.LockEnd,
+      linkStart: null,
       timeStart: 600000,
       timeEnd: 1200000,
       duration: 600000,
@@ -394,6 +575,8 @@ describe('getDelayAt()', () => {
       note: '',
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
+      timeStrategy: TimeStrategy.LockEnd,
+      linkStart: null,
       timeStart: 1200000,
       timeEnd: 1800000,
       duration: 600000,
@@ -456,6 +639,8 @@ describe('calculateRuntimeDelaysFrom()', () => {
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
         timeStart: 600000,
         timeEnd: 1200000,
         duration: 600000,
@@ -492,6 +677,8 @@ describe('calculateRuntimeDelaysFrom()', () => {
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
         timeStart: 1200000,
         timeEnd: 1200000,
         duration: 0,
@@ -528,6 +715,8 @@ describe('calculateRuntimeDelaysFrom()', () => {
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
         timeStart: 600000,
         timeEnd: 1200000,
         duration: 600000,
@@ -564,6 +753,8 @@ describe('calculateRuntimeDelaysFrom()', () => {
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
         timeStart: 1200000,
         timeEnd: 1800000,
         duration: 600000,

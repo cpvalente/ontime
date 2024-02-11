@@ -8,6 +8,7 @@ import {
   ProjectData,
   Settings,
   SupportedEvent,
+  TimeStrategy,
   TimerType,
   ViewSettings,
 } from 'ontime-types';
@@ -33,6 +34,8 @@ describe('test json parser with valid def', () => {
         timeStart: 31500000,
         timeEnd: 32400000,
         duration: 32400000 - 31500000,
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
         isPublic: false,
         skip: false,
         colour: '',
@@ -63,6 +66,8 @@ describe('test json parser with valid def', () => {
         timeStart: 32400000,
         timeEnd: 36000000,
         duration: 36000000 - 32400000,
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
         isPublic: true,
         skip: true,
         colour: 'red',
@@ -93,6 +98,8 @@ describe('test json parser with valid def', () => {
         timeStart: 32400000,
         timeEnd: 37200000,
         duration: 37200000 - 32400000,
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
         isPublic: false,
         skip: false,
         colour: '',
@@ -144,6 +151,8 @@ describe('test json parser with valid def', () => {
         timeStart: 39600000,
         timeEnd: 45000000,
         duration: 37200000 - 32400000,
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
         isPublic: false,
         skip: false,
         colour: '',
@@ -174,6 +183,8 @@ describe('test json parser with valid def', () => {
         timeStart: 46800000,
         timeEnd: 50400000,
         duration: 37200000 - 32400000,
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
         isPublic: true,
         skip: true,
         colour: '',
@@ -566,10 +577,12 @@ describe('test event validator', () => {
     };
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
     const validated = createEvent(event);
-    expect(typeof validated.timeStart).toEqual('number');
+    assertType<number>(validated.timeStart);
+    assertType<number>(validated.timeEnd);
+    assertType<number>(validated.duration);
     expect(validated.timeStart).toEqual(0);
-    expect(typeof validated.timeEnd).toEqual('number');
     expect(validated.timeEnd).toEqual(2);
+    expect(validated.duration).toEqual(2);
   });
 
   it('handles bad objects', () => {

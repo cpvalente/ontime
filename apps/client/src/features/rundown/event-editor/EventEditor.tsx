@@ -100,6 +100,8 @@ export default function EventEditor() {
           timeStart={event.timeStart}
           timeEnd={event.timeEnd}
           duration={event.duration}
+          timeStrategy={event.timeStrategy}
+          linkStart={event.linkStart}
           delay={event.delay ?? 0}
           isPublic={event.isPublic}
           endAction={event.endAction}

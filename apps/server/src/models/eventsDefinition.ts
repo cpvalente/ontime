@@ -1,4 +1,12 @@
-import { EndAction, OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent, TimerType } from 'ontime-types';
+import {
+  EndAction,
+  OntimeBlock,
+  OntimeDelay,
+  OntimeEvent,
+  SupportedEvent,
+  TimeStrategy,
+  TimerType,
+} from 'ontime-types';
 
 export const event: Omit<OntimeEvent, 'id' | 'delay' | 'cue'> = {
   title: '',
@@ -7,6 +15,8 @@ export const event: Omit<OntimeEvent, 'id' | 'delay' | 'cue'> = {
   note: '',
   endAction: EndAction.None,
   timerType: TimerType.CountDown,
+  timeStrategy: TimeStrategy.LockDuration,
+  linkStart: null,
   timeStart: 0,
   timeEnd: 0,
   duration: 0,

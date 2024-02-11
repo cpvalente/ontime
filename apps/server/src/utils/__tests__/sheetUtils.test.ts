@@ -1,4 +1,4 @@
-import { EndAction, OntimeRundownEntry, SupportedEvent, TimerType } from 'ontime-types';
+import { EndAction, OntimeRundownEntry, SupportedEvent, TimeStrategy, TimerType } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { getA1Notation, cellRequestFromEvent } from '../sheetUtils.js';
@@ -29,6 +29,8 @@ describe('cellRequestFromEvent()', () => {
       note: 'Blue button on the right',
       timeStart: 46800000,
       timeEnd: 57600000,
+      timeStrategy: TimeStrategy.LockEnd,
+      linkStart: null,
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
       duration: 10800000,
@@ -97,6 +99,8 @@ describe('cellRequestFromEvent()', () => {
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
       duration: 10800000,
+      timeStrategy: TimeStrategy.LockEnd,
+      linkStart: null,
       isPublic: false,
       skip: false,
       colour: 'red',
@@ -163,6 +167,8 @@ describe('cellRequestFromEvent()', () => {
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
       duration: 10800000,
+      timeStrategy: TimeStrategy.LockEnd,
+      linkStart: null,
       isPublic: true,
       skip: false,
       colour: 'red',
@@ -228,6 +234,8 @@ describe('cellRequestFromEvent()', () => {
       timeEnd: 57600000,
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
+      timeStrategy: TimeStrategy.LockEnd,
+      linkStart: null,
       duration: 10800000,
       isPublic: true,
       skip: false,
@@ -272,6 +280,8 @@ describe('cellRequestFromEvent()', () => {
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
       duration: 10800000,
+      timeStrategy: TimeStrategy.LockEnd,
+      linkStart: null,
       isPublic: true,
       skip: false,
       colour: 'red',
@@ -315,6 +325,8 @@ describe('cellRequestFromEvent()', () => {
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
       duration: 10800000,
+      timeStrategy: TimeStrategy.LockEnd,
+      linkStart: null,
       isPublic: true,
       skip: false,
       colour: 'red',

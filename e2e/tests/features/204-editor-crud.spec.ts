@@ -17,16 +17,14 @@ test('CRUD operations on the rundown', async ({ page }) => {
   await page.getByTestId('quick-add-event').click();
 
   // test quick add options - start is last end
-  await page.getByTestId('entry-2').getByTestId('time-input-timeEnd').fill('20m');
+  await page.getByTestId('entry-2').getByTestId('time-input-duration').fill('20m');
   await page.getByText('Start time is last end').click();
   await page.getByTestId('quick-add-event').click();
-  await expect(await page.getByTestId('entry-3').getByTestId('time-input-timeStart').inputValue()).toContain(
-    '00:20:00',
-  );
+  expect(await page.getByTestId('entry-3').getByTestId('time-input-timeStart').inputValue()).toContain('00:20:00');
 
   // test quick add options - event is public
   await page.locator('label').filter({ hasText: 'Event is public' }).click();
   await page.getByTestId('quick-add-event').click();
 
-  await expect(await page.getByTestId('entry-4').getByRole('img').nth(3)).toHaveAttribute('data-ispublic', 'true');
+  await expect(page.getByTestId('entry-4').locator('#block-status')).toHaveAttribute('data-ispublic', 'true');
 });

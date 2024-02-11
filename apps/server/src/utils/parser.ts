@@ -7,6 +7,8 @@ import {
   validateTimerType,
   type ExcelImportOptions,
   validateTimes,
+  isKnownTimerType,
+  validateLinkStart,
 } from 'ontime-utils';
 import {
   DatabaseModel,
@@ -16,6 +18,7 @@ import {
   UserFields,
   EndAction,
   TimerType,
+  TimeStrategy,
 } from 'ontime-types';
 
 import fs from 'fs';
@@ -38,7 +41,6 @@ import {
 import { parseExcelDate } from './time.js';
 import { configService } from '../services/ConfigService.js';
 import { coerceBoolean } from './coerceType.js';
-import { isKnownTimerType } from '../../../../packages/utils/src/validate-events/validateEvent.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
@@ -335,16 +337,36 @@ export const parseJson = async (jsonData: Partial<DatabaseModel>): Promise<Datab
   return returnData;
 };
 
+/**
+ * Function infers strategy for a patch with only partial timer data
+ * @param end
+ * @param duration
+ * @param fallback
+ * @returns
+ */
+function inferStrategy(end: unknown, duration: unknown, fallback: TimeStrategy): TimeStrategy {
+  if (end && !duration) {
+    return TimeStrategy.LockEnd;
+  }
+
+  if (!end && duration) {
+    return TimeStrategy.LockDuration;
+  }
+  return fallback;
+}
+
 export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<OntimeEvent>): OntimeEvent {
   if (Object.keys(patchEvent).length === 0) {
     return originalEvent;
   }
 
-  const { timeStart, timeEnd, duration } = validateTimes(
+  const { timeStart, timeEnd, duration, timeStrategy } = validateTimes(
     patchEvent?.timeStart ?? originalEvent.timeStart,
     patchEvent?.timeEnd ?? originalEvent.timeEnd,
     patchEvent?.duration ?? originalEvent.duration,
+    patchEvent?.timeStrategy ?? inferStrategy(patchEvent?.timeEnd, patchEvent?.duration, originalEvent.timeStrategy),
   );
+  const maybeLinkStart = patchEvent.linkStart !== undefined ? patchEvent.linkStart : originalEvent.linkStart;
 
   return {
     id: originalEvent.id,
@@ -355,6 +377,8 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     timeStart,
     timeEnd,
     duration,
+    timeStrategy,
+    linkStart: validateLinkStart(maybeLinkStart),
     endAction: validateEndAction(patchEvent.endAction, EndAction.None),
     timerType: validateTimerType(patchEvent.timerType, TimerType.CountDown),
     isPublic: typeof patchEvent.isPublic === 'boolean' ? patchEvent.isPublic : originalEvent.isPublic,
@@ -374,8 +398,8 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     // short circuit empty string
     cue: makeString(patchEvent.cue ?? null, originalEvent.cue),
     revision: originalEvent.revision,
-    timeWarning: patchEvent.timeWarning,
-    timeDanger: patchEvent.timeDanger,
+    timeWarning: patchEvent.timeWarning ?? originalEvent.timeWarning,
+    timeDanger: patchEvent.timeDanger ?? originalEvent.timeDanger,
   };
 }
 

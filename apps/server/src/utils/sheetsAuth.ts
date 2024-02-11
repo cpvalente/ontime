@@ -10,12 +10,12 @@ import { join } from 'path';
 import { URL } from 'url';
 
 import { logger } from '../classes/Logger.js';
-import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { getAppDataPath } from '../setup.js';
 import { ensureDirectory } from './fileManagement.js';
 import { cellRequestFromEvent, getA1Notation } from './sheetUtils.js';
 import { parseExcel } from './parser.js';
 import { parseRundown, parseUserFields } from './parserFunctions.js';
+import { getRundown } from '../services/rundown-service/RundownService.js';
 
 type ResponseOK = {
   data: Partial<DatabaseModel>;
@@ -281,7 +281,7 @@ class Sheet {
     });
     if (readResponse.status === 200) {
       const { rundownMetadata } = parseExcel(readResponse.data.values, options);
-      const rundown = DataProvider.getRundown();
+      const rundown = getRundown();
       const titleRow = Object.values(rundownMetadata)[0]['row'];
 
       const updateRundown = Array<sheets_v4.Schema$Request>();

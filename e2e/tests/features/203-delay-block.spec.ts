@@ -7,15 +7,15 @@ test('delay blocks add time to events', async ({ page }) => {
   await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Delete all events' }).click();
   await page.getByRole('button', { name: 'Rundown menu' }).click();
-  await page.getByRole('menuitem', { name: 'Add event at start' }).click();
+  await page.getByRole('button', { name: 'Create event' }).click();
 
   // add data to new event
   await page.getByTestId('rundown').getByPlaceholder('Start').click();
   await page.getByTestId('rundown').getByPlaceholder('Start').fill('10m');
   await page.getByTestId('rundown').getByPlaceholder('Start').press('Enter');
-  await page.getByTestId('rundown').getByPlaceholder('End').click();
-  await page.getByTestId('rundown').getByPlaceholder('End').fill('20m');
-  await page.getByTestId('rundown').getByPlaceholder('End').press('Enter');
+  await page.getByTestId('rundown').getByPlaceholder('Duration').click();
+  await page.getByTestId('rundown').getByPlaceholder('Duration').fill('20m');
+  await page.getByTestId('rundown').getByPlaceholder('Duration').press('Enter');
 
   // add delay block
   await page.getByRole('button', { name: 'Rundown menu' }).click();
@@ -25,11 +25,11 @@ test('delay blocks add time to events', async ({ page }) => {
   await page.getByTestId('delay-input').click();
   await page.getByTestId('delay-input').fill('2m');
   await page.getByTestId('delay-input').press('Enter');
-  await page.getByText('New start: 00:12').click();
+  await page.getByText('New start 00:12').click();
 
   // make negative delay
   await page.getByText('Subtract time').click();
-  await page.getByText('New start: 00:08').click();
+  await page.getByText('New start 00:08').click();
 
   // apply delay
   await page.getByRole('button', { name: 'Apply' }).click();
@@ -42,12 +42,12 @@ test('delay blocks add time to events', async ({ page }) => {
   await page.getByTestId('delay-input').click();
   await page.getByTestId('delay-input').fill('10m');
   await page.getByTestId('delay-input').press('Enter');
-  await page.getByText('New start: 00:18').click();
+  await page.getByText('New start 00:18').click();
 
   // cancel delay
   await page.getByRole('button', { name: 'Cancel' }).click();
   await expect(page.getByTestId('rundown').getByTestId('time-input-timeStart')).toHaveValue('00:08:00');
-  await expect(page.getByText('New start: 00:18')).toHaveCount(0);
+  await expect(page.getByText('New start 00:18')).toHaveCount(0);
 });
 
 test('delays are show correctly', async ({ page }) => {
@@ -61,14 +61,14 @@ test('delays are show correctly', async ({ page }) => {
   await page.getByTestId('rundown').getByTestId('time-input-timeStart').click();
   await page.getByTestId('rundown').getByTestId('time-input-timeStart').fill('10');
   await page.getByTestId('rundown').getByTestId('time-input-timeStart').press('Enter');
-  await page.getByTestId('rundown').getByTestId('time-input-timeEnd').click();
-  await page.getByTestId('rundown').getByTestId('time-input-timeEnd').fill('20');
-  await page.getByTestId('rundown').getByTestId('time-input-timeEnd').press('Enter');
+  await page.getByTestId('rundown').getByTestId('time-input-duration').click();
+  await page.getByTestId('rundown').getByTestId('time-input-duration').fill('10');
+  await page.getByTestId('rundown').getByTestId('time-input-duration').press('Enter');
   await page.getByText('Event title').click();
   await page.getByPlaceholder('Event title').fill('test');
   await page.getByPlaceholder('Event title').press('Enter');
 
-  await page.getByText('SED').click({ button: 'right' });
+  await page.getByTestId('entry-1').getByText('test').click({ button: 'right' });
   await page.getByRole('menuitem', { name: 'Toggle public' }).click();
 
   // add a delay
@@ -79,11 +79,11 @@ test('delays are show correctly', async ({ page }) => {
   await page.getByTestId('delay-input').press('Enter');
 
   // delay is shown in the editor
-  await page.getByText('New start: 00:11').click();
+  await page.getByText('New start 00:11').click();
 
   // delay is shown in the cuesheet
   await page.goto('http://localhost:4001/cuesheet');
-  await page.getByRole('cell', { name: '+1 min' }).click();
+  await page.getByRole('cell', { name: 'Delayed by 1 min' }).click();
 
   // delay is NOT shown in the public view
   await page.goto('http://localhost:4001/public');
