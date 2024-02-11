@@ -1,3 +1,4 @@
+import { MaybeNumber } from 'ontime-types';
 import { formatFromMillis, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 /**
@@ -55,7 +56,9 @@ function checkMatchers(value: string) {
   const secondsMatchValue = secondsMatch ? parse(secondsMatch[1]) : 0;
 
   if (hoursMatchValue > 0 || minutesMatchValue > 0 || secondsMatchValue > 0) {
-    return hoursMatchValue * MILLIS_PER_HOUR + minutesMatchValue * MILLIS_PER_MINUTE + secondsMatchValue * MILLIS_PER_SECOND;
+    return (
+      hoursMatchValue * MILLIS_PER_HOUR + minutesMatchValue * MILLIS_PER_MINUTE + secondsMatchValue * MILLIS_PER_SECOND
+    );
   }
   return { hoursMatchValue };
 }
@@ -155,21 +158,22 @@ export const forgivingStringToMillis = (value: string): number => {
   return millis;
 };
 
-export function millisToDelayString(millis: number | null, small = false): undefined | string | null {
+export function millisToDelayString(millis: MaybeNumber, format: 'compact' | 'expanded' = 'compact'): string {
   if (millis == null || millis === 0) {
-    return null;
+    return '';
   }
 
   const isNegative = millis < 0;
   const absMillis = Math.abs(millis);
-  const delayed = small ? '+' : 'delayed by ';
-  const ahead = small ? '-' : 'ahead by ';
+  const isCompact = format === 'compact';
+  const delayed = isCompact ? '+' : 'delayed by ';
+  const ahead = isCompact ? '-' : 'ahead by ';
 
   if (absMillis < MILLIS_PER_MINUTE) {
     return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 's')} sec`;
   } else if (absMillis < MILLIS_PER_HOUR && absMillis % MILLIS_PER_MINUTE === 0) {
     return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 'm')} min`;
-  } else {
-    return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 'HH:mm:ss')}`;
   }
+
+  return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 'HH:mm:ss')}`;
 }
