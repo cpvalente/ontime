@@ -17,11 +17,11 @@ router.get('/', getProject);
 // create route between controller and 'POST /project' endpoint
 router.post('/', projectSanitiser, postProject);
 
-router.get('/custom', getCustomFields);
+router.get('/custom-field', getCustomFields);
 
 //TODO: validate
-router.post('/custom', postCustomField);
+router.post('/custom-field', postCustomField);
 
-router.put('/custom', putCustomField);
+router.put('/custom-field', putCustomField);
 
-router.delete('/custom/:label', deleteCustomField);
+router.delete('/custom-field/:label', deleteCustomField);
