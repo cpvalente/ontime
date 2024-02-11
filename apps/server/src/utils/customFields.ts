@@ -6,14 +6,13 @@ export const createCustomField = async (label: string, field: CustomInfo) => {
   if (!isAlphanumeric(label)) {
     throw new Error('Lable must be Alphanumeric');
   }
-  const existingFields = DataProvider.getCustomField();
-  if (Object.keys(existingFields).find((f) => f === label) !== undefined) {
+  const customFields = DataProvider.getCustomField();
+  if (Object.keys(customFields).find((f) => f === label) !== undefined) {
     throw new Error('Label already exists');
   }
-  const newField: CustomFieldDefinitions = {};
-  Object.assign(newField, { [label]: field });
-  await DataProvider.setCustomField(newField);
-  return newField;
+  Object.assign(customFields, { [label]: field });
+  await DataProvider.setCustomField(customFields);
+  return customFields;
 };
 
 export const editCustomField = async (label: string, field: Partial<CustomInfo>) => {
@@ -34,5 +33,5 @@ export const removeCustomField = async (label: string) => {
     throw new Error('Could not find label');
   }
   delete existingFields[label];
-  await DataProvider.overrideCustomField(existingFields);
+  await DataProvider.setCustomField(existingFields);
 };
