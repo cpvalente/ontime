@@ -5,8 +5,7 @@
   justify-content: start;
   font-size: $inner-section-text-size;
   gap: 2rem;
-  padding-left: 1rem;
-  padding-right: 0.5rem;
+  padding: 0 1rem;
 }
 
 .titles {
@@ -28,28 +27,31 @@
   text-overflow: ellipsis;
 }
 
-.inline {
+.column {
   display: flex;
-  align-items: center;
-  gap: 0.25rem;
+  flex-direction: column;
 }
 
-@mixin indicator($bg-color) {
-  &::before {
-    content: '';  
-    background-color: $bg-color;
-    display: inline-flex;
-    height: 0.75em;
-    width: 0.75em;
-    vertical-align: middle;
-    margin-right: 0.25rem;
+.label {
+  color: $label-gray;
+  font-size: 11px;
+  line-height: 1em;
+}
+
+.clock {
+  font-size: 1.5rem;
+  letter-spacing: 0.5px;
+  min-width: 5em;
+
+  &::after {
+      content: '\200b';
   }
 }
 
-.start {
-  @include indicator($green-500);
+.ahead {
+  color: $green-500;
 }
 
-.end {
-  @include indicator($red-500);
+.behind {
+  color: $ontime-delay-text;
 }

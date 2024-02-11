@@ -42,8 +42,8 @@ import { runtimeService } from './services/runtime-service/RuntimeService.js';
 import { restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
 import { populateDemo } from './modules/loadDemo.js';
-import { getState, updateNumEvents } from './stores/runtimeState.js';
-import { getNumEvents, setRundown } from './services/rundown-service/RundownService.js';
+import { getState, updateRundownData } from './stores/runtimeState.js';
+import { setRundown, getPlayableEvents } from './services/rundown-service/RundownService.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -184,8 +184,7 @@ export const startServer = async () => {
   setRundown(persistedRundown);
 
   // TODO: do this on the init of the runtime service
-  const numEvents = getNumEvents();
-  updateNumEvents(numEvents);
+  updateRundownData(getPlayableEvents());
 
   // load restore point if it exists
   const maybeRestorePoint = await restoreService.load();

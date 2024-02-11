@@ -13,6 +13,7 @@ describe('isRestorePoint()', () => {
       startedAt: 1,
       addedTime: 2,
       pausedAt: 3,
+      firstStart: 1,
     };
     expect(isRestorePoint(restorePoint)).toBe(true);
 
@@ -22,6 +23,7 @@ describe('isRestorePoint()', () => {
       startedAt: null,
       addedTime: 0,
       pausedAt: null,
+      firstStart: 1,
     };
     expect(isRestorePoint(restorePoint)).toBe(true);
   });
@@ -68,6 +70,7 @@ describe('RestoreService()', () => {
         startedAt: 1234,
         addedTime: 5678,
         pausedAt: 9087,
+        firstStart: 1234,
       };
 
       const restoreService = new RestoreService('/path/to/restore/file');
@@ -84,6 +87,7 @@ describe('RestoreService()', () => {
         startedAt: null,
         addedTime: 0,
         pausedAt: null,
+        firstStart: 1234,
       };
 
       const restoreService = new RestoreService('/path/to/restore/file');
@@ -100,6 +104,7 @@ describe('RestoreService()', () => {
         startedAt: 1234,
         addedTime: 1234,
         pausedAt: 1234,
+        firstStart: 1234,
       };
 
       const restoreService = new RestoreService('/path/to/restore/file');
@@ -118,6 +123,7 @@ describe('RestoreService()', () => {
         startedAt: 1234,
         addedTime: 1234,
         pausedAt: 1234,
+        firstStart: 1234,
       };
 
       const restoreService = new RestoreService('/path/to/restore/file');

@@ -139,6 +139,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       startedAt: state.timer.startedAt,
       addedTime: state.timer.addedTime,
       pausedAt: state._timer.pausedAt,
+      firstStart: state.runtime.actualStart,
     });
     return result;
   };

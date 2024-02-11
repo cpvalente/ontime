@@ -5,6 +5,7 @@ import {
   getCurrent,
   getExpectedFinish,
   getRollTimers,
+  getRuntimeOffset,
   normaliseEndTime,
   skippedOutOfEvent,
   updateRoll,
@@ -1368,5 +1369,23 @@ describe('updateRoll()', () => {
     };
 
     expect(updateRoll(timers)).toStrictEqual(expected);
+  });
+});
+
+describe('getRuntimeOffset()', () => {
+  it('calculates the difference between schedule and actual start', () => {
+    const state = {
+      eventNow: {
+        id: '1',
+        timeStart: 100,
+      },
+      clock: 150,
+      timer: {
+        addedTime: 10,
+      },
+    } as RuntimeState;
+
+    const delay = getRuntimeOffset(state);
+    expect(delay).toBe(150 - 100 + 10);
   });
 });

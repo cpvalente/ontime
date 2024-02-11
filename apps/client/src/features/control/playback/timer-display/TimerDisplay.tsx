@@ -11,6 +11,7 @@ interface TimerDisplayProps {
 
 /**
  * Displays time in ms in formatted timetag
+ * Typically used in production views
  */
 export default function TimerDisplay(props: TimerDisplayProps) {
   const { time } = props;

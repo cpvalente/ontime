@@ -289,3 +289,22 @@ export const updateRoll = (state: RuntimeState) => {
 
   return { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished: isPrimaryFinished };
 };
+
+/**
+ * Calculates difference between the runtime and the schedule of an event
+ * @param state
+ * @returns
+ */
+export function getRuntimeOffset(state: RuntimeState): number {
+  if (state.eventNow === null) {
+    return 0;
+  }
+
+  const { clock } = state;
+  const { timeStart } = state.eventNow;
+  const { addedTime } = state.timer;
+
+  // TODO: consider running timer
+  // TODO: leverage expected finish instead?
+  return clock - timeStart + addedTime;
+}

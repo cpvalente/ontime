@@ -9,6 +9,7 @@ export type RestorePoint = {
   startedAt: MaybeNumber;
   addedTime: number;
   pausedAt: MaybeNumber;
+  firstStart: MaybeNumber;
 };
 
 /**
@@ -40,6 +41,10 @@ export function isRestorePoint(obj: unknown): obj is RestorePoint {
   }
 
   if (typeof restorePoint.pausedAt !== 'number' && restorePoint.pausedAt !== null) {
+    return false;
+  }
+
+  if (typeof restorePoint.firstStart !== 'number' && restorePoint.pausedAt !== null) {
     return false;
   }
 

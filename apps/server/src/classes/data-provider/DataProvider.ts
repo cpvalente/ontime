@@ -37,19 +37,6 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getIndexOf(eventId: string) {
-    return data.rundown.findIndex((e) => e.id === eventId);
-  }
-
-  static getRundownLength() {
-    return data.rundown.length;
-  }
-
-  static async clearRundown() {
-    data.rundown = [];
-    await db.write();
-  }
-
   static getSettings() {
     return data.settings;
   }
