@@ -95,5 +95,5 @@ export const formatTime = (
   const display = formatFromMillis(Math.abs(milliseconds), timeFormat);
 
   const isNegative = milliseconds < 0;
-  return `${isNegative ? enDash : ''}${display}`;
+  return `${isNegative ? '-' : ''}${display}`;
 };

@@ -29,7 +29,7 @@ export function millisToString(millis?: MaybeNumber, options?: FormatOptions): s
 
   const isNegative = millis < 0;
 
-  return `${isNegative ? '–' : ''}${[hours, minutes, seconds].map(pad).join(':')}`;
+  return `${isNegative ? '-' : ''}${[hours, minutes, seconds].map(pad).join(':')}`;
 }
 
 /**
