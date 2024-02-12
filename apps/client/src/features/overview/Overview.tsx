@@ -4,17 +4,11 @@ import { millisToString } from 'ontime-utils';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import { useRuntimeOverview, useRuntimePlaybackOverview } from '../../common/hooks/useSocket';
 import useProjectData from '../../common/hooks-query/useProjectData';
+import { enDash, timerPlaceholder } from '../../common/utils/styleUtils';
+
+import { TimeColumn, TimeRow } from './composite/TimeLayout';
 
 import style from './Overview.module.scss';
-
-function TimeColumn({ label, value, className }: { label: string; value: string; className?: string }) {
-  return (
-    <div className={style.column}>
-      <span className={style.label}>{label}</span>
-      <span className={cx([style.clock, className])}>{value}</span>
-    </div>
-  );
-}
 
 /**
  * Encapsulates the logic for formatting time in overview
@@ -32,11 +26,15 @@ export default function Overview() {
     <div className={style.overview}>
       <ErrorBoundary>
         <TitlesOverview />
-        <TimeColumn label='Planned start' value={formattedTime(plannedStart)} className={style.start} />
-        <TimeColumn label='Planned end' value={formattedTime(plannedEnd)} className={style.end} />
-        <TimeColumn label='Actual start' value={formattedTime(actualStart)} className={style.start} />
-        <TimeColumn label='Expected end' value={formattedTime(expectedEnd)} className={style.end} />
+        <div className={style.column}>
+          <TimeRow label='Planned start' value={formattedTime(plannedStart)} className={style.start} />
+          <TimeRow label='Actual start' value={formattedTime(actualStart)} className={style.start} />
+        </div>
         <RuntimeOverview />
+        <div className={style.column}>
+          <TimeRow label='Planned end' value={formattedTime(plannedEnd)} className={style.end} />
+          <TimeRow label='Expected end' value={formattedTime(expectedEnd)} className={style.end} />
+        </div>
       </ErrorBoundary>
     </div>
   );
@@ -60,15 +58,16 @@ function RuntimeOverview() {
   const ofTotal = numEvents || enDash;
   const progressText = numEvents ? `${current} of ${ofTotal}` : '';
 
+  const isAhead = offset <= 0;
   let offsetText = millisToString(Math.abs(offset), { fallback: enDash });
   if (offsetText !== enDash) {
-    offsetText = offset < 0 ? `+${offsetText}` : `${enDash}${offsetText}`;
+    offsetText = isAhead ? `+${offsetText}` : `${enDash}${offsetText}`;
   }
 
   return (
     <>
-      <TimeColumn label='Offset' value={offsetText} className={offset < 0 ? style.ahead : style.behind} />
       <TimeColumn label='Progress' value={progressText} />
+      <TimeColumn label='Offset' value={offsetText} className={isAhead ? style.ahead : style.behind} />
       <TimeColumn label='Time now' value={formattedTime(clock)} />
     </>
   );
