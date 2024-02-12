@@ -359,6 +359,9 @@ export function update(force: boolean, updateInterval: number) {
     _force = true;
   }
 
+  // update offset
+  runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
+
   // we call integrations if we update timers
   if (runtimeState.timer.playback === Playback.Roll) {
     const result = roll();

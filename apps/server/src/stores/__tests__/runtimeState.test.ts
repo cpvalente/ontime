@@ -138,7 +138,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.actualStart).toBeNull();
     });
 
-    test('over-under', () => {
+    test('runtime offset', () => {
       const event1 = { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000 };
       const event2 = { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500 };
 
@@ -181,6 +181,8 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.offset).toBe(0);
       expect(newState.runtime.expectedEnd).toBeNull();
     });
+
+    test.todo('runtime offset on timers in overtime', () => {});
 
     test.todo('roll mode', () => {});
   });

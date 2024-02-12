@@ -300,11 +300,12 @@ export function getRuntimeOffset(state: RuntimeState): number {
     return 0;
   }
 
-  const { clock } = state;
   const { timeStart } = state.eventNow;
-  const { addedTime } = state.timer;
+  const { addedTime, current, startedAt } = state.timer;
 
-  // TODO: consider running timer
-  // TODO: leverage expected finish instead?
-  return clock - timeStart + addedTime;
+  const overtime = Math.min(current, 0);
+  const startOffset = startedAt - timeStart;
+  const pausedTime = state._timer.pausedAt === null ? 0 : state.clock - state._timer.pausedAt;
+
+  return startOffset + addedTime + pausedTime + Math.abs(overtime);
 }
