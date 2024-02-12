@@ -10,6 +10,7 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
+import { timerPlaceholder } from '../../../common/utils/styleUtils';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { getTimerByType } from '../common/viewerUtils';
@@ -153,7 +154,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
     : viewSettings.normalColor;
 
   const stageTimer = getTimerByType(time);
-  let display = millisToString(stageTimer, { fallback: '-- : -- : --' });
+  let display = millisToString(stageTimer, { fallback: timerPlaceholder });
   if (stageTimer !== null) {
     if (hideTimerSeconds) {
       display = removeSeconds(display);

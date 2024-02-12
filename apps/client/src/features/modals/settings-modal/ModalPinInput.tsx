@@ -3,6 +3,8 @@ import { UseFormRegister } from 'react-hook-form';
 import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react';
 import { IoEyeOutline } from '@react-icons/all-files/io5/IoEyeOutline';
 
+import { enDash } from '../../../common/utils/styleUtils';
+
 interface FormInput {
   [key: string]: string;
 }
@@ -21,7 +23,7 @@ export default function ModalPinInput({ register, formName, isDisabled }: ModalP
         type={isVisible ? 'text' : 'password'}
         maxLength={4}
         {...register(formName)}
-        placeholder='-'
+        placeholder={enDash}
         isDisabled={isDisabled}
       />
       <InputRightElement>

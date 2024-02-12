@@ -1,10 +1,9 @@
 import { MaybeNumber } from 'ontime-types';
-import { millisToString, removeLeadingZero } from 'ontime-utils';
+import { millisToString } from 'ontime-utils';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import { useRuntimeOverview, useRuntimePlaybackOverview } from '../../common/hooks/useSocket';
 import useProjectData from '../../common/hooks-query/useProjectData';
-import { cx } from '../../common/utils/styleUtils';
 
 import style from './Overview.module.scss';
 
@@ -23,7 +22,7 @@ function TimeColumn({ label, value, className }: { label: string; value: string;
  * @returns
  */
 function formattedTime(time: MaybeNumber) {
-  return millisToString(time, { fallback: '-- : -- : --' });
+  return millisToString(time, { fallback: timerPlaceholder });
 }
 
 export default function Overview() {
@@ -57,13 +56,13 @@ function TitlesOverview() {
 function RuntimeOverview() {
   const { clock, numEvents, selectedEventIndex, offset } = useRuntimePlaybackOverview();
 
-  const current = selectedEventIndex !== null ? selectedEventIndex + 1 : '-';
-  const ofTotal = numEvents || '-';
-  const progressText = numEvents ? `${current} of ${ofTotal}` : '-';
+  const current = selectedEventIndex !== null ? selectedEventIndex + 1 : enDash;
+  const ofTotal = numEvents || enDash;
+  const progressText = numEvents ? `${current} of ${ofTotal}` : '';
 
-  let offsetText = removeLeadingZero(millisToString(offset, { fallback: '-' }));
-  if (offsetText !== '-') {
-    offsetText = offset < 0 ? `+${offsetText}` : `-${offsetText}`;
+  let offsetText = millisToString(Math.abs(offset), { fallback: enDash });
+  if (offsetText !== enDash) {
+    offsetText = offset < 0 ? `+${offsetText}` : `${enDash}${offsetText}`;
   }
 
   return (

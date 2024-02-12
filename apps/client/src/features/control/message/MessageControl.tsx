@@ -5,6 +5,7 @@ import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
 import { IoSunnyOutline } from '@react-icons/all-files/io5/IoSunnyOutline';
 
 import { setMessage, useMessageControl } from '../../../common/hooks/useSocket';
+import { enDash } from '../../../common/utils/styleUtils';
 
 import InputRow from './InputRow';
 
@@ -64,7 +65,7 @@ export default function MessageControl() {
       </div>
       <InputRow
         label='External Message'
-        placeholder='-'
+        placeholder={enDash}
         readonly
         text={message.external.text || ''}
         visible={message.external.visible || false}

@@ -8,7 +8,7 @@ import { Playback, ProjectData } from 'ontime-types';
 import PlaybackIcon from '../../../common/components/playback-icon/PlaybackIcon';
 import useFullscreen from '../../../common/hooks/useFullscreen';
 import useProjectData from '../../../common/hooks-query/useProjectData';
-import { cx } from '../../../common/utils/styleUtils';
+import { cx, enDash } from '../../../common/utils/styleUtils';
 import { tooltipDelayFast } from '../../../ontimeConfig';
 import { useCuesheetSettings } from '../store/CuesheetSettings';
 
@@ -42,15 +42,15 @@ export default function CuesheetTableHeader({ handleExport, featureData }: Cuesh
 
   const selected = !featureData.numEvents
     ? 'No events'
-    : `Event ${featureData.selectedEventIndex != null ? featureData.selectedEventIndex + 1 : '-'}/${
-        featureData.numEvents ? featureData.numEvents : '-'
+    : `Event ${featureData.selectedEventIndex != null ? featureData.selectedEventIndex + 1 : enDash}/${
+        featureData.numEvents ? featureData.numEvents : enDash
       }`;
 
   return (
     <div className={style.header}>
       <div className={style.event}>
-        <div className={style.title}>{project?.title || '-'}</div>
-        <div className={style.eventNow}>{featureData?.titleNow || '-'}</div>
+        <div className={style.title}>{project?.title || enDash}</div>
+        <div className={style.eventNow}>{featureData?.titleNow || enDash}</div>
       </div>
       <div className={style.playback}>
         <div className={style.playbackLabel}>{selected}</div>
