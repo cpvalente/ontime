@@ -1,3 +1,5 @@
+$inner-padding: 1rem;
+
 .header {
   font-size: 2rem;
   padding-bottom: 0.5rem;
@@ -6,16 +8,24 @@
 }
 
 .subheader {
-  font-size: 1.25rem;
-  padding-bottom: 0.25rem;
+  font-size: 1.5rem;
+  padding-bottom: 0.5rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
+.title {
+  font-size: 1.25rem;
+  padding-left: $inner-padding;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .section {
-  margin: 2rem 0;
+  margin-top: 2rem;
   font-size: calc(1rem - 1px);
   max-width: 800px;
 }
@@ -25,7 +35,7 @@
 }
 
 .card {
-  padding: 1rem;
+  padding: 2rem;
   background-color: $white-1;
   border: 1px solid $gray-1100;
   border-radius: 3px;
@@ -35,6 +45,12 @@
   font-size: $inner-section-text-size;
   display: block;
   color: $error-red;
+}
+
+.pad {
+  padding: 0 1rem;
+  max-height: 500px;
+  overflow-y: scroll;
 }
 
 .table {
@@ -64,7 +80,7 @@
 }
 
 .listGroup {
-  padding: 1rem 0;
+  padding: 0.5rem 1rem 0 1rem;
 
   > li:not(:last-child) {
     border-bottom: 1px solid $white-10;
@@ -91,4 +107,9 @@
 .fieldError {
   font-size: calc(1rem - 2px);
   color: $red-500;
+}
+
+.divider {
+  border-top: 1px solid $white-10;
+  margin: 1rem -2rem;
 }

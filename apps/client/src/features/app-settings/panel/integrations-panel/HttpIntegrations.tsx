@@ -71,36 +71,44 @@ export default function HttpIntegrations() {
   const canSubmit = !isSubmitting && isDirty && isValid;
 
   return (
-    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} onKeyDown={preventEscape}>
-      <Panel.Section>
+    <Panel.Section>
+      <Panel.Card>
         <Panel.SubHeader>
-          HTTP settings
+          HTTP
           <div className={style.flex}>
             <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
               Reset
             </Button>
-            <Button variant='ontime-filled' size='sm' type='submit' isDisabled={!canSubmit} isLoading={isSubmitting}>
+            <Button
+              variant='ontime-filled'
+              size='sm'
+              type='submit'
+              form='http-form'
+              isDisabled={!canSubmit}
+              isLoading={isSubmitting}
+            >
               Save changes
             </Button>
           </div>
         </Panel.SubHeader>
-        {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
-        <Panel.ListGroup>
-          <Panel.ListItem>
-            <Panel.Field title='HTTP Output' description='Provide feedback from Ontime through HTTP' />
-            <Switch variant='ontime' size='lg' {...register('enabledOut')} />
-          </Panel.ListItem>
-        </Panel.ListGroup>
-      </Panel.Section>
 
-      <Panel.Section>
-        <Panel.Card>
-          <Panel.SubHeader>
+        <Panel.Section as='form' id='http-form' onSubmit={handleSubmit(onSubmit)} onKeyDown={preventEscape}>
+          {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
+          <Panel.ListGroup>
+            <Panel.ListItem>
+              <Panel.Field title='HTTP Output' description='Provide feedback from Ontime through HTTP' />
+              <Switch variant='ontime' size='lg' {...register('enabledOut')} />
+            </Panel.ListItem>
+          </Panel.ListGroup>
+
+          <Panel.Divider />
+
+          <Panel.Title>
             HTTP Integration
             <Button variant='ontime-subtle' size='sm' rightIcon={<IoAdd />} onClick={handleAddNewSubscription}>
               New
             </Button>
-          </Panel.SubHeader>
+          </Panel.Title>
           {fields.length > 0 && (
             <Panel.Table>
               <thead>
@@ -166,8 +174,8 @@ export default function HttpIntegrations() {
               </tbody>
             </Panel.Table>
           )}
-        </Panel.Card>
-      </Panel.Section>
+        </Panel.Section>
+      </Panel.Card>
     </Panel.Section>
   );
 }
