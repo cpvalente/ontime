@@ -1,12 +1,6 @@
 $table-font-size: calc(1rem - 2px);
 $table-header-font-size: calc(1rem - 3px);
 
-@mixin ellipsis-overflow() {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .cuesheetContainer {
   grid-area: table;
   display: flex;
