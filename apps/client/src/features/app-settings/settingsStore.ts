@@ -30,8 +30,8 @@ export const settingPanels: Readonly<SettingsOption[]> = [
     id: 'integrations',
     label: 'Integrations',
     secondary: [
-      { id: 'integrations__osc', label: 'OSC Integration' },
-      { id: 'integrations__http', label: 'HTTP Integration' },
+      { id: 'integrations__osc', label: 'OSC settings' },
+      { id: 'integrations__http', label: 'HTTP settings' },
     ],
   },
   { id: 'log', label: 'Log', split: true },

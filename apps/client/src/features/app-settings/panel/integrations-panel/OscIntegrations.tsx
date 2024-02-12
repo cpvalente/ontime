@@ -77,19 +77,27 @@ export default function OscIntegrations() {
   const canSubmit = !isSubmitting && isDirty && isValid;
 
   return (
-    <Panel.Section onKeyDown={preventEscape}>
-      <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)}>
-        <Panel.SubHeader>
-          Open Sound Control settings
-          <div className={style.flex}>
-            <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
-              Reset
-            </Button>
-            <Button variant='ontime-filled' size='sm' type='submit' isDisabled={!canSubmit} isLoading={isSubmitting}>
-              Save changes
-            </Button>
-          </div>
-        </Panel.SubHeader>
+    <Panel.Card>
+      <Panel.SubHeader>
+        Open Sound Control
+        <div className={style.flex}>
+          <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
+            Reset
+          </Button>
+          <Button
+            variant='ontime-filled'
+            size='sm'
+            type='submit'
+            form='osc-form'
+            isDisabled={!canSubmit}
+            isLoading={isSubmitting}
+          >
+            Save changes
+          </Button>
+        </div>
+      </Panel.SubHeader>
+
+      <Panel.Section as='form' id='osc-form' onSubmit={handleSubmit(onSubmit)} onKeyDown={preventEscape}>
         {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
         <Panel.ListGroup>
           <Panel.ListItem>
@@ -178,15 +186,16 @@ export default function OscIntegrations() {
             />
           </Panel.ListItem>
         </Panel.ListGroup>
-      </Panel.Section>
 
-      <Panel.Card>
-        <Panel.SubHeader>
-          OSC Integration
+        <Panel.Divider />
+
+        <Panel.Title>
+          OSC Integrations
           <Button variant='ontime-subtle' size='sm' rightIcon={<IoAdd />} onClick={handleAddNewSubscription}>
-            New
+            Add
           </Button>
-        </Panel.SubHeader>
+        </Panel.Title>
+
         {fields.length > 0 && (
           <Panel.Table>
             <thead>
@@ -253,7 +262,7 @@ export default function OscIntegrations() {
             </tbody>
           </Panel.Table>
         )}
-      </Panel.Card>
-    </Panel.Section>
+      </Panel.Section>
+    </Panel.Card>
   );
 }

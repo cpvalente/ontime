@@ -24,8 +24,10 @@ export default function IntegrationsPanel() {
           </AlertDescription>
         </Alert>
       </Panel.Section>
-      <OscIntegrations />
-      <HttpIntegrations />
+      <Panel.Section>
+        <OscIntegrations />
+        <HttpIntegrations />
+      </Panel.Section>
     </>
   );
 }

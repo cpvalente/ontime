@@ -10,6 +10,10 @@ export function SubHeader({ children }: { children: ReactNode }) {
   return <h3 className={style.subheader}>{children}</h3>;
 }
 
+export function Title({ children }: { children: ReactNode }) {
+  return <h4 className={style.title}>{children}</h4>;
+}
+
 type AllowedTags = 'div' | 'form';
 type SectionProps<C extends AllowedTags> = {
   as?: C;
@@ -29,12 +33,20 @@ export function Paragraph({ children }: { children: ReactNode }) {
   return <p className={style.paragraph}>{children}</p>;
 }
 
-export function Card({ children }: { children: ReactNode }) {
-  return <div className={style.card}>{children}</div>;
+export function Card({ children, ...props }: { children: ReactNode } & JSX.IntrinsicElements['div']) {
+  return (
+    <div className={style.card} {...props}>
+      {children}
+    </div>
+  );
 }
 
 export function Table({ children }: { children: ReactNode }) {
-  return <table className={style.table}>{children}</table>;
+  return (
+    <div className={style.pad}>
+      <table className={style.table}>{children}</table>
+    </div>
+  );
 }
 
 export function ListGroup({ children }: { children: ReactNode }) {
@@ -61,4 +73,8 @@ export function Description({ children }: { children: ReactNode }) {
 
 export function Error({ children }: { children: ReactNode }) {
   return <div className={style.fieldError}>{children}</div>;
+}
+
+export function Divider() {
+  return <hr className={style.divider} />;
 }
