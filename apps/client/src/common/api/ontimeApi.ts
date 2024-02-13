@@ -275,7 +275,7 @@ export const uploadSheetClientFile = async (file: File) => {
 /**
  * @description STEP 1 test
  */
-export const getClientSecrect = async () => {
+export const getClientSecret = async () => {
   const response = await axios.get(`${ontimeURL}/sheet/clientsecret`);
   return response.data;
 };

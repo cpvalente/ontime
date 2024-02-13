@@ -24,7 +24,7 @@ import { RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../common/api/apiUtils';
 import {
   getAuthentication,
-  getClientSecrect,
+  getClientSecret,
   getSheetsAuthUrl,
   patchData,
   postId,
@@ -120,7 +120,7 @@ export default function SheetsModal(props: SheetsModalProps) {
   };
 
   const testClientSecret = () => {
-    getClientSecrect()
+    getClientSecret()
       .then(() => {
         setState({ ...state, clientSecret: { complete: true, message: '' } });
       })

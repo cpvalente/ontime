@@ -68,7 +68,7 @@ export const ContextMenu = ({ children }: ContextMenuProps) => {
     <>
       {children}
       <div className={style.contextMenuBackdrop} />
-      <Menu isOpen gutter={0} onClose={onClose} isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
+      <Menu isOpen size='sm' gutter={0} onClose={onClose} isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
         <MenuButton
           className={style.contextMenuButton}
           aria-hidden

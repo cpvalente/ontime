@@ -2,8 +2,8 @@
   width: 100%;
 }
 
-.fitContents {
-  width: max-content !important; /* override chakra */
+.fitContents.fitContents {
+  width: max-content; /* override chakra */
 }
 
 .flex {

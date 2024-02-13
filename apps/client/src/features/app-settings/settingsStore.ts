@@ -16,14 +16,17 @@ export const settingPanels: Readonly<SettingsOption[]> = [
   {
     id: 'project_settings',
     label: 'Project Settings',
-    secondary: [{ id: 'project_settings__custom', label: 'Custom Fields' }],
+    secondary: [{ id: 'project_settings__custom', label: 'Custom fields' }],
   },
   { id: 'interface', label: 'Interface' },
   { id: 'views', label: 'Views' },
   {
     id: 'sources',
     label: 'Data Sources',
-    secondary: [{ id: 'sources__gsheet', label: 'Sync with Google Sheet' }],
+    secondary: [
+      { id: 'sources__xlsx', label: 'Import spreadsheet' },
+      { id: 'sources__gsheet', label: 'Sync with Google Sheet' },
+    ],
     split: true,
   },
   {
