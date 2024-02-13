@@ -34,7 +34,7 @@ export default function BlockActionMenu(props: BlockActionMenuProps) {
           aria-label='Event options'
           icon={<IoEllipsisHorizontal />}
           tabIndex={-1}
-          variant='ontime-subtle-white'
+          variant='ontime-ghosted-white'
           size='sm'
           className={className}
         />

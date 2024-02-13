@@ -34,7 +34,7 @@ export default function Rundown({ data }: RundownProps) {
   const showQuickEntry = eventSettings.showQuickEntry;
 
   // cursor
-  const { cursor, mode: appMode } = useAppMode();
+  const { cursor, mode: appMode, setCursor } = useAppMode();
   const viewFollowsCursor = appMode === AppMode.Run;
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
@@ -95,9 +95,9 @@ export default function Rundown({ data }: RundownProps) {
               return;
             }
             const nextEvent =
-              cursor == null ? getFirstNormal(rundown, order) : getNextNormal(rundown, order, cursor)?.nextEvent;
+              cursor === null ? getFirstNormal(rundown, order) : getNextNormal(rundown, order, cursor)?.nextEvent;
             if (nextEvent) {
-              // moveCursorTo(nextEvent.id, nextEvent.type === SupportedEvent.Event);
+              setCursor(nextEvent.id);
             }
             break;
           }
@@ -107,9 +107,11 @@ export default function Rundown({ data }: RundownProps) {
             }
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we check for this before
             const previousEvent =
-              cursor == null ? getFirstNormal(rundown, order) : getPreviousNormal(rundown, order, cursor).previousEvent;
+              cursor === null
+                ? getFirstNormal(rundown, order)
+                : getPreviousNormal(rundown, order, cursor).previousEvent;
             if (previousEvent) {
-              // moveCursorTo(previousEvent.id, previousEvent.type === SupportedEvent.Event);
+              setCursor(previousEvent.id);
             }
             break;
           }
@@ -138,11 +140,13 @@ export default function Rundown({ data }: RundownProps) {
         if (order.length < 2 || cursor == null) {
           return;
         }
+        // Alt + Ctrl + Arrow Down
         if (event.code == 'ArrowDown') {
           const { nextEvent, nextIndex } = getNextNormal(rundown, order, cursor);
           if (nextEvent && nextIndex !== null) {
             reorderEvent(cursor, nextIndex - 1, nextIndex);
           }
+          // Alt + Ctrl + Arrow Up
         } else if (event.code == 'ArrowUp') {
           const { previousEvent, previousIndex } = getPreviousNormal(rundown, order, cursor);
           if (previousEvent && previousIndex !== null) {
@@ -151,7 +155,7 @@ export default function Rundown({ data }: RundownProps) {
         }
       }
     },
-    [cursor, insertAtCursor, order, rundown, reorderEvent],
+    [order, cursor, rundown, setCursor, insertAtCursor, reorderEvent],
   );
 
   // we copy the state from the store here
@@ -231,10 +235,10 @@ export default function Rundown({ data }: RundownProps) {
                 previousEventId = event.id;
               }
               const isLast = index === order.length - 1;
-              const isSelected = featureData?.selectedEventId === event.id;
+              const isLoaded = featureData?.selectedEventId === event.id;
               const isNext = featureData?.nextEventId === event.id;
               const hasCursor = event.id === cursor;
-              if (isSelected) {
+              if (isLoaded) {
                 isPast = false;
               }
 
@@ -248,12 +252,12 @@ export default function Rundown({ data }: RundownProps) {
                         isPast={isPast}
                         eventIndex={eventIndex}
                         data={event}
-                        selected={isSelected}
+                        loaded={isLoaded}
                         hasCursor={hasCursor}
                         next={isNext}
                         previousEnd={previousEnd}
                         previousEventId={previousEventId}
-                        playback={isSelected ? featureData.playback : undefined}
+                        playback={isLoaded ? featureData.playback : undefined}
                         isRolling={featureData.playback === Playback.Roll}
                       />
                     </div>

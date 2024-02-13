@@ -32,12 +32,12 @@ interface EventBlockPlaybackProps {
   skip: boolean;
   isPlaying: boolean;
   isPaused: boolean;
-  selected: boolean;
+  loaded: boolean;
   disablePlayback: boolean;
 }
 
 const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
-  const { eventId, skip, isPlaying, isPaused, selected, disablePlayback } = props;
+  const { eventId, skip, isPlaying, isPaused, loaded, disablePlayback } = props;
   const { updateEvent } = useEventAction();
 
   const toggleSkip = () => {
@@ -93,7 +93,7 @@ const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
         {...blockBtnStyle}
         clickHandler={toggleSkip}
         tabIndex={-1}
-        isDisabled={selected}
+        isDisabled={loaded}
       />
       <TooltipActionBtn
         variant='ontime-subtle-white'

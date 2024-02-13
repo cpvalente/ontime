@@ -10,6 +10,7 @@ import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { EndAction, MaybeNumber, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
+import { useAppMode } from '../../../common/stores/appModeStore';
 import copyToClipboard from '../../../common/utils/copyToClipboard';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import type { EventItemActions } from '../RundownEntry';
@@ -41,7 +42,7 @@ interface EventBlockProps {
   isPast: boolean;
   next: boolean;
   skip: boolean;
-  selected: boolean;
+  loaded: boolean;
   hasCursor: boolean;
   playback?: Playback;
   isRolling: boolean;
@@ -77,7 +78,7 @@ export default function EventBlock(props: EventBlockProps) {
     isPast,
     next,
     skip = false,
-    selected,
+    loaded,
     hasCursor,
     playback,
     isRolling,
@@ -85,6 +86,7 @@ export default function EventBlock(props: EventBlockProps) {
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
   const { selectedEvents, setSelectedEvents } = useEventSelection();
+  const setCursor = useAppMode((state) => state.setCursor);
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -205,13 +207,15 @@ export default function EventBlock(props: EventBlockProps) {
     };
   }, [handleRef]);
 
+  const isSelected = selectedEvents.has(eventId);
   const blockClasses = cx([
     style.eventBlock,
     skip ? style.skip : null,
     isPast ? style.past : null,
-    selected ? style.selected : null,
+    loaded ? style.loaded : null,
     playback ? style[playback] : null,
-    selectedEvents.has(eventId) ? style.hasCursor : null,
+    isSelected ? style.selected : null,
+    hasCursor ? style.hasCursor : null,
   ]);
 
   const handleFocusClick = (event: MouseEvent) => {
@@ -227,9 +231,8 @@ export default function EventBlock(props: EventBlockProps) {
     // UI indexes are 1 based
     const index = eventIndex - 1;
     const editMode = getSelectionMode(event);
-    return setSelectedEvents({ id: eventId, index, selectMode: editMode });
-
-    // moveCursorTo(eventId, true);
+    setSelectedEvents({ id: eventId, index, selectMode: editMode });
+    setCursor(eventId);
   };
 
   return (
@@ -267,7 +270,7 @@ export default function EventBlock(props: EventBlockProps) {
           delay={delay}
           next={next}
           skip={skip}
-          selected={selected}
+          loaded={loaded}
           playback={playback}
           isRolling={isRolling}
           actionHandler={actionHandler}

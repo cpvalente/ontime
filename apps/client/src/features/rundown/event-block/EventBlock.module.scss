@@ -28,7 +28,7 @@ $skip-opacity: 0.1;
     --status-color-active-override: #{$green-400};
   }
 
-  &.selected {
+  &.loaded {
     background-color: $gray-1325;
   }
 
@@ -45,6 +45,10 @@ $skip-opacity: 0.1;
   &.pause {
     background-color: rgba($ontime-paused, 0.6);
     @include declare-overrides;
+  }
+
+  &.selected {
+    outline: 1px solid $block-selected-color;
   }
 
   &.hasCursor {
