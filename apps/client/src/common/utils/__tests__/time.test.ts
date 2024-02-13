@@ -16,13 +16,13 @@ describe('nowInMillis()', () => {
 describe('formatTime()', () => {
   it('parses 24h strings', () => {
     const ms = 13 * 60 * 60 * 1000;
-    const time = formatTime(ms, {format12: "hh:mm:ss", format24: "HH:mm:ss" }, (_format12, format24) => format24);
+    const time = formatTime(ms, { format12: 'hh:mm:ss', format24: 'HH:mm:ss' }, (_format12, format24) => format24);
     expect(time).toStrictEqual('13:00:00');
   });
 
   it('parses same string in 12h strings', () => {
     const ms = 13 * 60 * 60 * 1000;
-    const time = formatTime(ms, {format12: "hh:mm:ss a", format24: "HH:mm:ss" }, (format12, _format24) => format12);
+    const time = formatTime(ms, { format12: 'hh:mm:ss a', format24: 'HH:mm:ss' }, (format12, _format24) => format12);
     expect(time).toStrictEqual('01:00:00 PM');
   });
 
@@ -34,7 +34,7 @@ describe('formatTime()', () => {
 
   it('handles negative times', () => {
     const ms = 1 * 60 * 60 * 1000;
-    const time = formatTime(-ms, {format12: "hh:mm a", format24: "HH:mm" }, (_format12, format24) => format24);
+    const time = formatTime(-ms, { format12: 'hh:mm a', format24: 'HH:mm' }, (_format12, format24) => format24);
     expect(time).toStrictEqual('-01:00');
   });
 });

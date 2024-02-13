@@ -5,8 +5,6 @@ import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';
 import { APP_SETTINGS } from '../api/apiConstants';
 import { ontimeQueryClient } from '../queryClient';
 
-import { enDash } from './styleUtils';
-
 /**
  * Returns current time in milliseconds
  * @returns {number}
