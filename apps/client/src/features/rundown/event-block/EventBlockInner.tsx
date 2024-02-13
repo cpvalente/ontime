@@ -42,7 +42,7 @@ interface EventBlockInnerProps {
   delay: number;
   next: boolean;
   skip: boolean;
-  selected: boolean;
+  loaded: boolean;
   playback?: Playback;
   isRolling: boolean;
   actionHandler: (action: EventItemActions, payload?: any) => void;
@@ -64,7 +64,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     delay,
     next,
     skip = false,
-    selected,
+    loaded,
     playback,
     isRolling,
     actionHandler,
@@ -110,13 +110,13 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         skip={skip}
         isPlaying={eventIsPlaying}
         isPaused={eventIsPaused}
-        selected={selected}
+        loaded={loaded}
         disablePlayback={skip || isRolling}
       />
       <div className={style.statusElements} id='block-status' data-ispublic={isPublic}>
         <span className={style.eventNote}>{note}</span>
-        <div className={selected ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
-          {selected && <EventBlockProgressBar playback={playback} />}
+        <div className={loaded ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
+          {loaded && <EventBlockProgressBar playback={playback} />}
         </div>
         <div className={style.eventStatus} tabIndex={-1}>
           <Tooltip label={`Time type: ${timerType}`} {...tooltipProps}>
@@ -137,7 +137,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         </div>
       </div>
       <div className={style.eventActions}>
-        <BlockActionMenu showClone enableDelete={!selected} actionHandler={actionHandler} />
+        <BlockActionMenu showClone enableDelete={!loaded} actionHandler={actionHandler} />
       </div>
     </>
   );

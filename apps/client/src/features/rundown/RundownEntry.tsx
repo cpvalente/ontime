@@ -19,7 +19,7 @@ interface RundownEntryProps {
   type: SupportedEvent;
   isPast: boolean;
   data: OntimeRundownEntry;
-  selected: boolean;
+  loaded: boolean;
   eventIndex: number;
   hasCursor: boolean;
   next: boolean;
@@ -30,7 +30,7 @@ interface RundownEntryProps {
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const { isPast, data, selected, hasCursor, next, previousEnd, previousEventId, playback, isRolling, eventIndex } =
+  const { isPast, data, loaded, hasCursor, next, previousEnd, previousEventId, playback, isRolling, eventIndex } =
     props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
@@ -140,7 +140,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         isPast={isPast}
         next={next}
         skip={data.skip}
-        selected={selected}
+        loaded={loaded}
         hasCursor={hasCursor}
         playback={playback}
         isRolling={isRolling}

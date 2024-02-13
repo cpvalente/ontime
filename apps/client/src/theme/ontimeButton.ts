@@ -52,7 +52,12 @@ export const ontimeButtonGhostedWhite = {
   ...ontimeButtonSubtle,
   backgroundColor: 'transparent',
   color: 'white',
-  _hover: { background: '#ebedf0', color: '#333' },
+  _hover: {
+    background: '#404040', // $gray-1000
+  },
+  _active: {
+    background: '#2d2d2d', // $gray-1100
+  },
 };
 
 export const ontimeButtonGhosted = {
