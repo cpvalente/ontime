@@ -1,6 +1,5 @@
-import { Box, Button, ModalFooter } from '@chakra-ui/react';
-
-import styles from './Modal.module.scss';
+import { Box, Button } from '@chakra-ui/react';
+import style from './GeneralPanel.module.scss';
 
 interface GeneralFooterProps {
   formId: string;
@@ -17,23 +16,7 @@ export default function GeneralFooter(props: GeneralFooterProps) {
   const disableSubmit = isSubmitting || !isDirty || !isValid;
 
   return (
-    // <ModalFooter className={styles.buttonSection}>
-    //   <Button isDisabled={disableRevert} variant='ontime-ghost-on-light' size='sm' onClick={handleRevert}>
-    //     Revert to saved
-    //   </Button>
-    //   <Button
-    //     type='submit'
-    //     form={formId}
-    //     isLoading={isSubmitting}
-    //     isDisabled={disableSubmit}
-    //     variant='ontime-filled'
-    //     padding='0 2em'
-    //     size='sm'
-    //   >
-    //     Save
-    //   </Button>
-    // </ModalFooter>
-    <Box>
+    <Box className={style.footer}>
       <Button isDisabled={disableRevert} variant='ontime-ghost' size='sm' onClick={handleRevert}>
         Revert to saved
       </Button>

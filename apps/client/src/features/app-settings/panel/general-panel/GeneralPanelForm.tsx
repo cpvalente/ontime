@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Box, Button, Input, Select } from '@chakra-ui/react';
-
+import { Input, Select } from '@chakra-ui/react';
 import style from './GeneralPanel.module.scss';
 import useSettings from '../../../../common/hooks-query/useSettings';
 import { Settings } from 'ontime-types';
@@ -18,19 +17,16 @@ export type GeneralPanelFormValues = {
 
 interface GeneralPanelFormProps {
   action: 'duplicate' | 'rename' | 'create';
-  //   onCancel: () => void;
-  //   onSubmit: (values: GeneralPanelFormValues) => Promise<void>;
   submitError: string | null;
 }
 
 export default function GeneralPanelForm({ action, submitError }: GeneralPanelFormProps) {
-  const { data, status, isFetching, refetch } = useSettings();
+  const { data, status, refetch } = useSettings();
   const {
     handleSubmit,
     register,
     reset,
     formState: { isSubmitting, isDirty, isValid, errors },
-    setFocus,
   } = useForm<Settings>({
     defaultValues: data,
     values: data,
@@ -61,12 +57,9 @@ export default function GeneralPanelForm({ action, submitError }: GeneralPanelFo
     reset(data);
   };
 
-  const disableRevert = !isDirty;
-  const disableSubmit = isSubmitting || !isDirty || !isValid;
-
   return (
     <>
-      <form onSubmit={handleSubmit(onSubmit)} className={style.form}>
+      <form onSubmit={handleSubmit(onSubmit)} className={style.form} id='app-settings'>
         <GeneralSplitInput
           field='serverPort'
           title='Ontime is available on port'
@@ -136,36 +129,13 @@ export default function GeneralPanelForm({ action, submitError }: GeneralPanelFo
             <option value='sv'>Swedish</option>
           </Select>
         </GeneralSplitInput>
-        {/* <div className={style.actionButtons}>
-          <Button onClick={onCancel} size='sm' variant='ontime-ghosted' disabled={isSubmitting}>
-            Cancel
-          </Button>
-          <Button
-            size='sm'
-            variant='ontime-filled'
-            isDisabled={!isDirty || !isValid || isSubmitting}
-            type='submit'
-            className={style.saveButton}
-          >
-            {action}
-          </Button>
-        </div> */}
-        <Box className={style.footer}>
-          <Button isDisabled={disableRevert} variant='ontime-ghost' size='sm' onClick={onReset}>
-            Revert to saved
-          </Button>
-          <Button
-            type='submit'
-            form='app-settings'
-            isLoading={isSubmitting}
-            isDisabled={disableSubmit}
-            variant='ontime-filled'
-            padding='0 2em'
-            size='sm'
-          >
-            Save
-          </Button>
-        </Box>
+        <GeneralFooter
+          formId='app-settings'
+          handleRevert={onReset}
+          isDirty={isDirty}
+          isValid={isValid}
+          isSubmitting={isSubmitting}
+        />
       </form>
       {submitError && <span className={style.error}>{submitError}</span>}
     </>
