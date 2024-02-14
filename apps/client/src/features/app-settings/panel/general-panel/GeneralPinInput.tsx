@@ -1,7 +1,5 @@
-import { FormControl, IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react';
+import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react';
 import { PropsWithChildren, useState } from 'react';
-
-import style from './GeneralPanel.module.scss';
 import { UseFormRegister } from 'react-hook-form';
 import { IoEyeOutline } from '@react-icons/all-files/io5/IoEyeOutline';
 

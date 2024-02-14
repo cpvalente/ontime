@@ -72,7 +72,7 @@ export default function GeneralPanelForm({ action, submitError }: GeneralPanelFo
             type='number'
             variant='ontime-filled'
             maxLength={5}
-            width='10%' // ??
+            width='75px'
             {...register('serverPort', {
               required: { value: true, message: 'Required field' },
               max: { value: 65535, message: 'Port in incorrect range (1024 - 65535)' },
@@ -90,7 +90,6 @@ export default function GeneralPanelForm({ action, submitError }: GeneralPanelFo
           description='Protect the editor with a pin code'
           error={errors.editorKey?.message}
         >
-          {/* TODO: Check Any Type */}
           <GeneralPinInput register={register as any} formName='editorKey' isDisabled={disableInputs} />
         </GeneralSplitInput>
         <GeneralSplitInput
