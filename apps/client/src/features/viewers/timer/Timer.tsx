@@ -107,8 +107,8 @@ export default function Timer(props: TimerProps) {
   const showExternal = external.visible && external.text;
 
   let timerColor = viewSettings.normalColor;
-  if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
   if (!timerIsTimeOfDay && showProgress && showWarning) timerColor = viewSettings.warningColor;
+  if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
 
   const stageTimer = getTimerByType(time);
   let display = formatTimerDisplay(stageTimer);
