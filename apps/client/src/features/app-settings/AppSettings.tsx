@@ -7,6 +7,7 @@ import IntegrationsPanel from './panel/integrations-panel/IntegrationsPanel';
 import LogPanel from './panel/log-panel/LogPanel';
 import ProjectPanel from './panel/project-panel/ProjectPanel';
 import ProjectSettingsPanel from './panel/project-settings-panel/ProjectSettingsPanel';
+import UrlAliasPanel from './panel/url-alias-panel/UrlAliasPanel';
 import PanelContent from './panel-content/PanelContent';
 import PanelList from './panel-list/PanelList';
 import { useSettingsStore } from './settingsStore';
@@ -30,6 +31,7 @@ export default function AppSettings() {
           {selectedPanel === 'project' && <ProjectPanel />}
           {selectedPanel === 'integrations' && <IntegrationsPanel />}
           {selectedPanel === 'project_settings' && <ProjectSettingsPanel />}
+          {selectedPanel === 'url_alias' && <UrlAliasPanel />}
           {selectedPanel === 'about' && <AboutPanel />}
           {selectedPanel === 'log' && <LogPanel />}
         </PanelContent>

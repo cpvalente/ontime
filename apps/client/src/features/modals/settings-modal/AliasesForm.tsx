@@ -85,6 +85,8 @@ export default function AliasesForm() {
     return <ModalLoader />;
   }
 
+  console.log({ fields });
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} id='aliases' className={style.sectionContainer}>
       <div style={{ height: '16px' }} />
