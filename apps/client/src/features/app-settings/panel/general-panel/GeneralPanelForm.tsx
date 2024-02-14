@@ -1,15 +1,18 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Input, Select } from '@chakra-ui/react';
-import style from './GeneralPanel.module.scss';
-import useSettings from '../../../../common/hooks-query/useSettings';
 import { Settings } from 'ontime-types';
-import { postSettings } from '../../../../common/api/ontimeApi';
+
 import { logAxiosError } from '../../../../common/api/apiUtils';
-import GeneralSplitInput from './GeneralSplitInput';
+import { postSettings } from '../../../../common/api/ontimeApi';
+import useSettings from '../../../../common/hooks-query/useSettings';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
-import GeneralPinInput from './GeneralPinInput';
+
 import GeneralFooter from './GeneralFooter';
+import GeneralPinInput from './GeneralPinInput';
+import GeneralSplitInput from './GeneralSplitInput';
+
+import style from './GeneralPanel.module.scss';
 
 export type GeneralPanelFormValues = {
   filename: string;
@@ -20,7 +23,7 @@ interface GeneralPanelFormProps {
   submitError: string | null;
 }
 
-export default function GeneralPanelForm({ action, submitError }: GeneralPanelFormProps) {
+export default function GeneralPanelForm({ submitError }: GeneralPanelFormProps) {
   const { data, status, refetch } = useSettings();
   const {
     handleSubmit,

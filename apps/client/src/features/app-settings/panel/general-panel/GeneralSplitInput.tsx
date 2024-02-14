@@ -1,5 +1,5 @@
-import { FormControl } from '@chakra-ui/react';
 import { PropsWithChildren } from 'react';
+import { FormControl } from '@chakra-ui/react';
 
 import style from './GeneralPanel.module.scss';
 

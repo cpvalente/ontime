@@ -3,6 +3,7 @@ import { ErrorBoundary } from '@sentry/react';
 import { useKeyDown } from '../../common/hooks/useKeyDown';
 
 import AboutPanel from './panel/about-panel/AboutPanel';
+import GeneralPanel from './panel/general-panel/GeneralPanel';
 import IntegrationsPanel from './panel/integrations-panel/IntegrationsPanel';
 import LogPanel from './panel/log-panel/LogPanel';
 import ProjectPanel from './panel/project-panel/ProjectPanel';
@@ -13,7 +14,6 @@ import PanelList from './panel-list/PanelList';
 import { useSettingsStore } from './settingsStore';
 
 import style from './AppSettings.module.scss';
-import GeneralPanel from './panel/general-panel/GeneralPanel';
 
 export default function AppSettings() {
   const setShowSettings = useSettingsStore((state) => state.setShowSettings);

@@ -1,4 +1,5 @@
 import { Box, Button } from '@chakra-ui/react';
+
 import style from './GeneralPanel.module.scss';
 
 interface GeneralFooterProps {
