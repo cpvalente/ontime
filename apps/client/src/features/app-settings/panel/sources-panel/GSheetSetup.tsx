@@ -1,6 +1,7 @@
 import { useRef } from 'react';
-import { Button, Input } from '@chakra-ui/react';
+import { Button, Input, Select } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
+import { IoCloudDownloadOutline } from '@react-icons/all-files/io5/IoCloudDownloadOutline';
 import { IoShieldCheckmarkOutline } from '@react-icons/all-files/io5/IoShieldCheckmarkOutline';
 
 import * as Panel from '../PanelUtils';
@@ -21,6 +22,10 @@ export default function GSheetSetup({ cancel }: GSheetSetupProps) {
   const reset = useSheetStore((state) => state.reset);
 
   const sheetIdInputRef = useRef<HTMLInputElement>(null);
+  const worksheetOptions = useSheetStore((state) => state.worksheetOptions) ?? [];
+  const setWorksheet = useSheetStore((state) => state.setWorksheet);
+
+  const worksheetIdInputRef = useRef<HTMLSelectElement>(null);
 
   // user cancels the flow
   const onCancel = () => {
@@ -36,6 +41,13 @@ export default function GSheetSetup({ cancel }: GSheetSetupProps) {
     handleConnect(sheetId);
   };
 
+  // adds the selected worksheet to the store
+  const addSheetId = () => {
+    const worksheetId = worksheetIdInputRef.current?.value;
+    if (!worksheetId) return;
+    setWorksheet(worksheetId);
+  };
+
   const canConnect = stepData.authenticate.available && sheetIdInputRef?.current?.value;
 
   return (
@@ -48,14 +60,9 @@ export default function GSheetSetup({ cancel }: GSheetSetupProps) {
       </Panel.Title>
       <Panel.ListGroup>
         <div className={style.buttonRow}>
-          <Input
-            type='file'
-            onChange={handleClientSecret}
-            accept='.json'
-            size='sm'
-            variant='ontime-filled'
-            maxWidth='400px'
-          />
+          <div className={style.inputContainer}>
+            <Input type='file' onChange={handleClientSecret} accept='.json' size='sm' variant='ontime-filled' />
+          </div>
           <Button
             variant='ontime-subtle'
             size='sm'
@@ -72,14 +79,15 @@ export default function GSheetSetup({ cancel }: GSheetSetupProps) {
       <Panel.ListGroup>
         <Panel.Error>{stepData.sheetId.error}</Panel.Error>
         <div className={style.buttonRow}>
-          <Input
-            size='sm'
-            variant='ontime-filled'
-            autoComplete='off'
-            isDisabled={!stepData.sheetId.available}
-            placeholder='Enter Sheet ID'
-            maxWidth='400px'
-          />
+          <div className={style.inputContainer}>
+            <Input
+              size='sm'
+              variant='ontime-filled'
+              autoComplete='off'
+              isDisabled={!stepData.sheetId.available}
+              placeholder='Enter Sheet ID'
+            />
+          </div>
           <Button
             variant='ontime-subtle'
             size='sm'
@@ -90,6 +98,37 @@ export default function GSheetSetup({ cancel }: GSheetSetupProps) {
             Connect
           </Button>
         </div>
+      </Panel.ListGroup>
+
+      <Panel.ListGroup>
+        <div className={style.buttonRow}>
+          <div className={style.inputContainer}>
+            <Select
+              size='sm'
+              variant='ontime'
+              isDisabled={!stepData.worksheet.available}
+              placeholder='Select worksheet'
+              ref={worksheetIdInputRef}
+            >
+              {worksheetOptions.map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <Button
+            variant='ontime-filled'
+            size='sm'
+            onClick={addSheetId}
+            isDisabled={!stepData.worksheet.available}
+            leftIcon={<IoCloudDownloadOutline />}
+          >
+            Continue
+          </Button>
+        </div>
+        <Panel.Error>{stepData.worksheet.error}</Panel.Error>
+        <Panel.Error>{stepData.pullPush.error}</Panel.Error>
       </Panel.ListGroup>
     </Panel.Section>
   );
