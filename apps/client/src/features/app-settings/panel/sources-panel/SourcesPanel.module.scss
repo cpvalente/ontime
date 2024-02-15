@@ -1,3 +1,16 @@
+.uploadSection {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  padding: 3rem 1rem;
+  align-items: center;
+  justify-content: center;
+  background-color: $gray-1350;
+  border: 1px solid $white-10;
+  border-radius: 3px;
+}
+
 .buttonRow {
   display: flex;
   gap: 1rem;

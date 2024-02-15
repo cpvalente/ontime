@@ -31,8 +31,8 @@ export default function ImportMapTable(props: ImportMapTableProps) {
               <td className={style.input}>
                 <Input
                   id={field.title}
-                  size='xs'
-                  variant='ontime-filled-on-light'
+                  size='sm'
+                  variant='ontime-filled'
                   maxLength={25}
                   defaultValue={field.value}
                   placeholder='Use default column name'

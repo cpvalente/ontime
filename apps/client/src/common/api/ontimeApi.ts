@@ -275,6 +275,7 @@ export const uploadSheetClientFile = async (file: File) => {
 /**
  * @description STEP 1 test
  */
+// TODO: do we still need this?
 export const getClientSecret = async () => {
   const response = await axios.get(`${ontimeURL}/sheet/clientsecret`);
   return response.data;

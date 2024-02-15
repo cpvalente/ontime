@@ -1,13 +1,12 @@
-import { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { ChangeEvent } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { OntimeRundown, UserFields } from 'ontime-types';
-import { defaultExcelImportMap, ExcelImportMap } from 'ontime-utils';
+import { ExcelImportMap } from 'ontime-utils';
 
 import { RUNDOWN, USERFIELDS } from '../../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../../common/api/apiUtils';
 import {
   getAuthentication,
-  getClientSecret,
   getSheetsAuthUrl,
   patchData,
   postId,
@@ -18,212 +17,129 @@ import {
 } from '../../../../common/api/ontimeApi';
 import { openLink } from '../../../../common/utils/linkUtils';
 
+import { useSheetStore } from './useSheetStore';
+
+// TODO: recover useEffect for resuming previous state
 export default function useGoogleSheet() {
   const queryClient = useQueryClient();
 
-  const [rundown, setRundown] = useState<OntimeRundown | null>(null);
-  const [userFields, setUserFields] = useState<UserFields | null>(null);
+  // functions push data to store
+  const setClientSecret = useSheetStore((state) => state.setClientSecret);
+  const patchStepData = useSheetStore((state) => state.patchStepData);
+  const setWorksheetOptions = useSheetStore((state) => state.setWorksheetOptions);
+  const setRundown = useSheetStore((state) => state.setRundown);
+  const setUserFields = useSheetStore((state) => state.setUserFields);
 
-  const [id, setSheetId] = useState('');
-  const [worksheet, setWorksheet] = useState('');
-  const [worksheetOptions, setWorksheetOptions] = useState<string[]>([]);
-
-  // TODO: can we improve the logic around direction?
-  const [direction, setDirection] = useState('none');
-  const excelFileOptions = useRef<ExcelImportMap>(defaultExcelImportMap);
-
-  const [stepData, setStepData] = useState({
-    clientSecret: { complete: false, message: '' },
-    authenticate: { complete: false, message: '' },
-    id: { complete: false, message: '' },
-    worksheet: { complete: false, message: '' },
-    pullPush: { complete: false, message: '' },
-  });
-
-  // verify authentication state
-  useEffect(() => {
-    setDirection('none');
-    testClientSecret();
-    if (stepData.clientSecret.complete) testAuthentication();
-    if (stepData.authenticate.complete) testSheetId();
-
-    return () => {};
-  }, []);
-
-  const handleFile = async (event: ChangeEvent<HTMLInputElement>) => {
+  /** receives a client secrets file and passes on to the server */
+  const handleClientSecret = async (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files?.length) {
-      setStepData({
-        clientSecret: { complete: false, message: 'Missing file' },
-        authenticate: { complete: false, message: '' },
-        id: { complete: false, message: '' },
-        worksheet: { complete: false, message: '' },
-        pullPush: { complete: false, message: '' },
+      patchStepData({
+        clientSecret: { available: true, error: 'Missing file' },
+        authenticate: { available: false, error: '' },
       });
       return;
     }
 
-    const selectedFile = event.target.files[0];
-
     try {
+      const selectedFile = event.target.files[0];
       await uploadSheetClientFile(selectedFile);
-      setStepData((prev) => ({ ...prev, clientSecret: { complete: true, message: '' } }));
+      setClientSecret(selectedFile);
+      patchStepData({
+        clientSecret: { available: true, error: '' },
+        authenticate: { available: true, error: '' },
+      });
     } catch (error) {
-      const message = maybeAxiosError(error);
-      setStepData((prev) => ({
-        ...prev,
-        clientSecret: { complete: false, message },
-        authenticate: { complete: false, message: '' },
-        id: { complete: false, message: '' },
-        worksheet: { complete: false, message: '' },
-        pullPush: { complete: false, message: '' },
-      }));
-    }
-  };
-
-  const testClientSecret = async () => {
-    try {
-      await getClientSecret();
-      setStepData((prev) => ({ ...prev, clientSecret: { complete: true, message: '' } }));
-    } catch (error) {
-      const message = maybeAxiosError(error);
-      setStepData({
-        clientSecret: { complete: false, message },
-        authenticate: { complete: false, message: '' },
-        id: { complete: false, message: '' },
-        worksheet: { complete: false, message: '' },
-        pullPush: { complete: false, message: '' },
+      patchStepData({
+        clientSecret: { available: true, error: maybeAxiosError(error) },
+        authenticate: { available: false, error: '' },
       });
     }
   };
 
-  //STEP-2 Authenticate
+  /** authenticate with the Google Sheets API */
   const handleAuthenticate = async () => {
     try {
       const authLink = await getSheetsAuthUrl();
+
+      // request windown to open link and check auth when user is back
       openLink(authLink);
-      window.addEventListener('focus', () => testAuthentication(), { once: true });
+      window.addEventListener('focus', async () => await getAuthentication(), { once: true });
+
+      patchStepData({
+        sheetId: { available: true, error: '' },
+      });
     } catch (error) {
-      const message = maybeAxiosError(error);
-      setStepData((prev) => ({
-        ...prev,
-        authenticate: { complete: false, message },
-        id: { complete: false, message: '' },
-        worksheet: { complete: false, message: '' },
-        pullPush: { complete: false, message: '' },
-      }));
+      patchStepData({
+        authenticate: { available: true, error: maybeAxiosError(error) },
+        sheetId: { available: false, error: '' },
+      });
     }
   };
 
-  const testAuthentication = async () => {
+  /** fetches data from a Google Sheet by its ID */
+  const handleConnect = async (sheetId: string) => {
     try {
-      await getAuthentication();
-      setStepData((prev) => ({ ...prev, authenticate: { complete: true, message: '' } }));
-    } catch (error) {
-      const message = maybeAxiosError(error);
-      setStepData((prev) => ({
-        ...prev,
-        authenticate: { complete: false, message },
-        id: { complete: false, message: '' },
-        worksheet: { complete: false, message: '' },
-        pullPush: { complete: false, message: '' },
-      }));
-    }
-  };
-
-  //STEP-3 set sheet ID
-  const testSheetId = async () => {
-    try {
-      const data = await postId(id);
-      setStepData((prev) => ({ ...prev, id: { complete: true, message: '' } }));
+      const data = await postId(sheetId);
+      patchStepData({ worksheet: { available: true, error: '' } });
       setWorksheetOptions(data.worksheetOptions);
     } catch (error) {
-      const message = maybeAxiosError(error);
-      setStepData((prev) => ({
-        ...prev,
-        id: { complete: false, message },
-        worksheet: { complete: false, message: '' },
-        pullPush: { complete: false, message: '' },
-      }));
+      patchStepData({
+        sheetId: { available: true, error: maybeAxiosError(error) },
+        worksheet: { available: false, error: '' },
+      });
       setWorksheetOptions([]);
     }
   };
 
-  //STEP-4 Select Worksheet
-  const testWorksheet = async (value: string) => {
-    excelFileOptions.current.worksheet = value;
-    setWorksheet(value);
+  /** fetches data from a worksheet by its ID */
+  const handleImportPreview = async (sheetId: string, worksheet: string, fileOptions: ExcelImportMap) => {
     try {
-      await postWorksheet(id, worksheet);
-      setStepData((prev) => ({ ...prev, worksheet: { complete: true, message: '' } }));
-    } catch (error) {
-      const message = maybeAxiosError(error);
-      setStepData({ ...stepData, worksheet: { complete: false, message }, pullPush: { complete: false, message: '' } });
-    }
-  };
+      // update worksheet data in the server
+      postWorksheet(sheetId, worksheet);
 
-  //STEP-5 Upload / Download
-  const updateExcelFileOptions = <T extends keyof ExcelImportMap>(field: T, value: ExcelImportMap[T]) => {
-    if (excelFileOptions.current[field] !== value) {
-      excelFileOptions.current = { ...excelFileOptions.current, [field]: value };
-    }
-  };
-
-  const handlePullData = async () => {
-    try {
-      const data = await postPreviewSheet(id, excelFileOptions.current);
+      // get data from google
+      const data = await postPreviewSheet(worksheet, fileOptions);
       setRundown(data.rundown);
       setUserFields(data.userFields);
     } catch (error) {
-      const message = maybeAxiosError(error);
-      setDirection('none');
-      setStepData((prev) => ({ ...prev, pullPush: { complete: false, message } }));
+      patchStepData({ pullPush: { available: true, error: maybeAxiosError(error) } });
     }
   };
 
-  const handlePushData = async () => {
+  /** writes data to a worksheet by its ID */
+  const handleExport = async (sheetId: string, worksheet: string, fileOptions: ExcelImportMap) => {
     try {
-      postPushSheet(id, excelFileOptions.current);
-      setDirection('none');
-      setStepData((prev) => ({ ...prev, pullPush: { complete: true, message: '' } }));
+      // update worksheet data in the server
+      postWorksheet(sheetId, worksheet);
+
+      // write data to google
+      await postPushSheet(worksheet, fileOptions);
+      patchStepData({ pullPush: { available: false, error: '' } });
     } catch (error) {
-      const message = maybeAxiosError(error);
-      setDirection('none');
-      setStepData((prev) => ({ ...prev, pullPush: { complete: false, message } }));
+      patchStepData({ pullPush: { available: true, error: maybeAxiosError(error) } });
     }
   };
 
-  // GET preview
-  const handleFinalise = async () => {
-    if (rundown && userFields) {
-      try {
-        await patchData({ rundown, userFields });
-        queryClient.setQueryData(RUNDOWN, rundown);
-        queryClient.setQueryData(USERFIELDS, userFields);
-        await queryClient.invalidateQueries({
-          queryKey: [...RUNDOWN, ...USERFIELDS],
-        });
-      } catch (error) {
-        const message = maybeAxiosError(error);
-        console.error(message);
-      }
+  /** applies rundown and userfields to current project */
+  const handleImport = async (rundown: OntimeRundown, userFields: UserFields) => {
+    try {
+      await patchData({ rundown, userFields });
+      queryClient.setQueryData(RUNDOWN, rundown);
+      queryClient.setQueryData(USERFIELDS, userFields);
+      await queryClient.invalidateQueries({
+        queryKey: [...RUNDOWN, ...USERFIELDS],
+      });
+    } catch (error) {
+      patchStepData({ pullPush: { available: true, error: maybeAxiosError(error) } });
     }
   };
 
-  // TODO: reset process
-  // TODO: add loading states
   return {
-    stepData,
-    handleFile,
-    testClientSecret,
+    handleClientSecret,
     handleAuthenticate,
-    testAuthentication,
-    testSheetId,
-    testWorksheet,
-    updateExcelFileOptions,
-    handlePullData,
-    handlePushData,
-    handleFinalise,
-    worksheetOptions,
-    setSheetId,
+    handleConnect,
+    handleImportPreview,
+    handleImport,
+    handleExport,
   };
 }
