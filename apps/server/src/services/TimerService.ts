@@ -1,8 +1,12 @@
 import { EndAction, OntimeEvent, Playback, TimerLifeCycle } from 'ontime-types';
 
-import * as runtimeState from '../stores/runtimeState.js';
-import { integrationService } from './integration-service/IntegrationService.js';
+import { deepEqual } from 'fast-equals';
+
 import { eventStore } from '../stores/EventStore.js';
+import * as runtimeState from '../stores/runtimeState.js';
+import type { RuntimeState } from '../stores/runtimeState.js';
+
+import { integrationService } from './integration-service/IntegrationService.js';
 import { restoreService } from './RestoreService.js';
 import { runtimeService } from './runtime-service/RuntimeService.js';
 import { getPlayableEvents } from './rundown-service/RundownService.js';
@@ -12,8 +16,10 @@ import { getPlayableEvents } from './rundown-service/RundownService.js';
  */
 export class TimerService {
   private _interval: NodeJS.Timer;
-  private _updateInterval: number;
-  private _refreshInterval: number;
+  static _updateInterval: number; // how often we update the socket
+  static _refreshInterval: number; // how often we recalculate
+  static previousUpdate: number; // last time we updates the socket
+  static previousState: RuntimeState;
 
   /**
    * @constructor
@@ -21,9 +27,11 @@ export class TimerService {
    * @param {number} [timerConfig.updateInterval]
    */
   constructor(timerConfig: { refresh: number; updateInterval: number }) {
-    this._refreshInterval = timerConfig.refresh;
-    this._updateInterval = timerConfig.updateInterval;
     this._interval = setInterval(this.update, 32);
+    TimerService._updateInterval = timerConfig.updateInterval;
+    TimerService._refreshInterval = timerConfig.refresh;
+    TimerService.previousUpdate = -1;
+    TimerService.previousState = {} as RuntimeState;
   }
 
   @broadcastResult
@@ -64,7 +72,7 @@ export class TimerService {
    */
   @broadcastResult
   update(force = false) {
-    const { didUpdate, doRoll, isFinished, shouldNotify } = runtimeState.update(force, this._updateInterval);
+    const { didUpdate, doRoll, isFinished, shouldNotify } = runtimeState.update(force, TimerService._updateInterval);
     if (didUpdate && shouldNotify) {
       // TODO: can we distinguish between a clock update and a timer update?
       integrationService.dispatch(TimerLifeCycle.onUpdate);
@@ -118,19 +126,51 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
   const originalMethod = descriptor.value;
 
   descriptor.value = function (...args: any[]) {
+    // call the original method and get the state
     const result = originalMethod.apply(this, args);
     const state = runtimeState.getState();
 
-    // TODO: compare datasets to see what needs to be emitted
-    eventStore.batchSet({
-      clock: state.clock,
-      eventNow: state.eventNow,
-      publicEventNow: state.publicEventNow,
-      eventNext: state.eventNext,
-      publicEventNext: state.publicEventNext,
-      runtime: state.runtime,
-      timer: state.timer,
-    });
+    // we do the comparison by explicitely fop each property
+    // to apply custom logic for different datasets
+
+    // we assume clock always changes
+    const shouldUpdate = state.clock - TimerService.previousUpdate >= TimerService._updateInterval;
+    if (shouldUpdate) {
+      TimerService.previousUpdate = state.clock;
+      eventStore.set('clock', state.clock);
+    }
+
+    const hasImmediateChanges =
+      !TimerService.previousState?.timer || TimerService.previousState.timer.playback !== state.timer.playback;
+    if (hasImmediateChanges || (shouldUpdate && !deepEqual(TimerService.previousState?.timer, state.timer))) {
+      eventStore.set('timer', state.timer);
+      TimerService.previousState.timer = { ...state.timer };
+    }
+
+    if (shouldUpdate && !deepEqual(TimerService.previousState?.runtime, state.runtime)) {
+      eventStore.set('runtime', state.runtime);
+      TimerService.previousState.runtime = { ...state.runtime };
+    }
+
+    if (!deepEqual(TimerService.previousState?.eventNow, state.eventNow)) {
+      eventStore.set('eventNow', state.eventNow);
+      TimerService.previousState.eventNow = { ...state.eventNow };
+    }
+
+    if (!deepEqual(TimerService.previousState?.publicEventNow, state.publicEventNow)) {
+      eventStore.set('publicEventNow', state.publicEventNow);
+      TimerService.previousState.publicEventNow = { ...state.publicEventNow };
+    }
+
+    if (!deepEqual(TimerService.previousState?.eventNext, state.eventNext)) {
+      eventStore.set('eventNext', state.eventNext);
+      TimerService.previousState.eventNext = { ...state.eventNext };
+    }
+
+    if (!deepEqual(TimerService.previousState?.publicEventNext, state.publicEventNext)) {
+      eventStore.set('publicEventNext', state.publicEventNext);
+      TimerService.previousState.publicEventNext = { ...state.publicEventNext };
+    }
 
     // we write to restore service if the underlying data changes
     restoreService.save({
@@ -141,6 +181,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       pausedAt: state._timer.pausedAt,
       firstStart: state.runtime.actualStart,
     });
+
     return result;
   };
 

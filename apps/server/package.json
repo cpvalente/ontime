@@ -13,6 +13,7 @@
     "express-session": "^1.17.3",
     "express-static-gzip": "^2.1.7",
     "express-validator": "^6.14.2",
+    "fast-equals": "^5.0.1",
     "google-auth-library": "^9.4.2",
     "got": "^14.0.0",
     "lowdb": "^7.0.1",
