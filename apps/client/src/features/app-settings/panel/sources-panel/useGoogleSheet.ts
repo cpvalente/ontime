@@ -114,7 +114,7 @@ export default function useGoogleSheet() {
   const handleExport = async (sheetId: string, worksheet: string, fileOptions: ExcelImportMap) => {
     try {
       // update worksheet data in the server
-      postWorksheet(sheetId, worksheet);
+      await postWorksheet(sheetId, worksheet);
 
       // write data to google
       await postPushSheet(sheetId, fileOptions);
