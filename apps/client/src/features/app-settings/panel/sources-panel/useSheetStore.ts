@@ -8,6 +8,7 @@ type SheetStore = {
   clientSecret: File | null;
   rundown: OntimeRundown | null;
   userFields: UserFields | null;
+  sheetId: string | null;
   worksheet: string | null;
   worksheetOptions: string[] | null;
   excelFileOptions: ExcelImportMap;
@@ -15,6 +16,7 @@ type SheetStore = {
   setClientSecret: (clientSecret: File | null) => void;
   setRundown: (rundown: OntimeRundown | null) => void;
   setUserFields: (userFields: UserFields | null) => void;
+  setSheetId: (sheetId: string) => void;
   setWorksheet: (worksheet: string) => void;
   setWorksheetOptions: (worksheetOptions: string[] | null) => void;
   patchExcelFileOptions: <T extends keyof ExcelImportMap>(field: T, value: ExcelImportMap[T]) => void;
@@ -35,6 +37,7 @@ const initialState = {
   clientSecret: null,
   rundown: null,
   userFields: null,
+  sheetId: null,
   worksheet: null,
   worksheetOptions: null,
   excelFileOptions: defaultExcelImportMap,
@@ -46,6 +49,7 @@ export const useSheetStore = create<SheetStore>((set, get) => ({
   setClientSecret: (clientSecret: File | null) => set({ clientSecret }),
   setRundown: (rundown: OntimeRundown | null) => set({ rundown }),
   setUserFields: (userFields: UserFields | null) => set({ userFields }),
+  setSheetId: (sheetId: string) => set({ sheetId }),
   setWorksheet: (worksheet: string) => set({ worksheet }),
   setWorksheetOptions: (worksheetOptions: string[] | null) => set({ worksheetOptions }),
   patchExcelFileOptions: <T extends keyof ExcelImportMap>(field: T, value: ExcelImportMap[T]) => {

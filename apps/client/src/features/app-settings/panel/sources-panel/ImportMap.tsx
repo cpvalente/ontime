@@ -11,20 +11,20 @@ import style from './SourcesPanel.module.scss';
 export default function ImportMap() {
   const { handleImportPreview, handleExport } = useGoogleSheet();
 
-  const sheetId = 'asdas';
+  const sheetId = useSheetStore((state) => state.sheetId);
   const worksheetId = useSheetStore((state) => state.worksheet);
   const importOptions = useSheetStore((state) => state.excelFileOptions);
   const patchImportOptions = useSheetStore((state) => state.patchExcelFileOptions);
   const stepData = useSheetStore((state) => state.stepData);
 
   const exportRundown = () => {
-    if (!worksheetId) return;
-    handleImportPreview(sheetId, worksheetId, importOptions);
+    if (!worksheetId || !sheetId) return;
+    handleExport(sheetId, worksheetId, importOptions);
   };
 
   const importPreviewRundown = () => {
-    if (!worksheetId) return;
-    handleExport(sheetId, worksheetId, importOptions);
+    if (!worksheetId || !sheetId) return;
+    handleImportPreview(sheetId, worksheetId, importOptions);
   };
 
   return (

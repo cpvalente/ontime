@@ -18,12 +18,16 @@ interface GSheetSetupProps {
 export default function GSheetSetup({ cancel }: GSheetSetupProps) {
   const { handleClientSecret, handleAuthenticate, handleConnect } = useGoogleSheet();
 
+  const sheetIdInputRef = useRef<HTMLInputElement>(null);
+
   const stepData = useSheetStore((state) => state.stepData);
   const reset = useSheetStore((state) => state.reset);
 
-  const sheetIdInputRef = useRef<HTMLInputElement>(null);
+  const sheetId = useSheetStore((state) => state.sheetId);
   const worksheetOptions = useSheetStore((state) => state.worksheetOptions) ?? [];
+
   const setWorksheet = useSheetStore((state) => state.setWorksheet);
+  const setSheetId = useSheetStore((state) => state.setSheetId);
 
   const worksheetIdInputRef = useRef<HTMLSelectElement>(null);
 
@@ -41,14 +45,22 @@ export default function GSheetSetup({ cancel }: GSheetSetupProps) {
     handleConnect(sheetId);
   };
 
-  // adds the selected worksheet to the store
+  // adds the user input sheet ID to the store
   const addSheetId = () => {
+    const sheetId = sheetIdInputRef.current?.value;
+    if (!sheetId) return;
+    setSheetId(sheetId);
+  };
+
+  // adds the selected worksheet to the store
+  const addWorksheetSheetId = () => {
     const worksheetId = worksheetIdInputRef.current?.value;
     if (!worksheetId) return;
     setWorksheet(worksheetId);
   };
 
-  const canConnect = stepData.authenticate.available && sheetIdInputRef?.current?.value;
+  const canAuthenticate = stepData.authenticate.available;
+  const canConnect = stepData.authenticate.available && sheetId;
 
   return (
     <Panel.Section>
@@ -68,7 +80,7 @@ export default function GSheetSetup({ cancel }: GSheetSetupProps) {
             size='sm'
             onClick={handleAuthenticate}
             leftIcon={<IoShieldCheckmarkOutline />}
-            disabled={!stepData.authenticate.available}
+            isDisabled={!canAuthenticate}
           >
             Authenticate
           </Button>
@@ -86,6 +98,9 @@ export default function GSheetSetup({ cancel }: GSheetSetupProps) {
               autoComplete='off'
               isDisabled={!stepData.sheetId.available}
               placeholder='Enter Sheet ID'
+              onBlur={addSheetId}
+              onSubmit={addSheetId}
+              ref={sheetIdInputRef}
             />
           </div>
           <Button
@@ -120,7 +135,7 @@ export default function GSheetSetup({ cancel }: GSheetSetupProps) {
           <Button
             variant='ontime-filled'
             size='sm'
-            onClick={addSheetId}
+            onClick={addWorksheetSheetId}
             isDisabled={!stepData.worksheet.available}
             leftIcon={<IoCloudDownloadOutline />}
           >

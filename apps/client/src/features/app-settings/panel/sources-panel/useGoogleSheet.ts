@@ -26,6 +26,7 @@ export default function useGoogleSheet() {
   // functions push data to store
   const setClientSecret = useSheetStore((state) => state.setClientSecret);
   const patchStepData = useSheetStore((state) => state.patchStepData);
+  const setSheetId = useSheetStore((state) => state.setSheetId);
   const setWorksheetOptions = useSheetStore((state) => state.setWorksheetOptions);
   const setRundown = useSheetStore((state) => state.setRundown);
   const setUserFields = useSheetStore((state) => state.setUserFields);
@@ -66,6 +67,7 @@ export default function useGoogleSheet() {
       window.addEventListener('focus', async () => await getAuthentication(), { once: true });
 
       patchStepData({
+        authenticate: { available: false, error: '' },
         sheetId: { available: true, error: '' },
       });
     } catch (error) {
@@ -79,13 +81,15 @@ export default function useGoogleSheet() {
   /** fetches data from a Google Sheet by its ID */
   const handleConnect = async (sheetId: string) => {
     try {
+      setSheetId(sheetId);
       const data = await postId(sheetId);
-      patchStepData({ worksheet: { available: true, error: '' } });
       setWorksheetOptions(data.worksheetOptions);
+      patchStepData({ worksheet: { available: true, error: '' } });
     } catch (error) {
       patchStepData({
         sheetId: { available: true, error: maybeAxiosError(error) },
         worksheet: { available: false, error: '' },
+        pullPush: { available: false, error: '' },
       });
       setWorksheetOptions([]);
     }
@@ -95,10 +99,10 @@ export default function useGoogleSheet() {
   const handleImportPreview = async (sheetId: string, worksheet: string, fileOptions: ExcelImportMap) => {
     try {
       // update worksheet data in the server
-      postWorksheet(sheetId, worksheet);
+      await postWorksheet(sheetId, worksheet);
 
       // get data from google
-      const data = await postPreviewSheet(worksheet, fileOptions);
+      const data = await postPreviewSheet(sheetId, fileOptions);
       setRundown(data.rundown);
       setUserFields(data.userFields);
     } catch (error) {
@@ -113,7 +117,7 @@ export default function useGoogleSheet() {
       postWorksheet(sheetId, worksheet);
 
       // write data to google
-      await postPushSheet(worksheet, fileOptions);
+      await postPushSheet(sheetId, fileOptions);
       patchStepData({ pullPush: { available: false, error: '' } });
     } catch (error) {
       patchStepData({ pullPush: { available: true, error: maybeAxiosError(error) } });
