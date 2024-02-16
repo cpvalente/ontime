@@ -3,6 +3,8 @@ import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react
 import ModalLink from '../../../../features/modals/ModalLink';
 import * as Panel from '../PanelUtils';
 
+import UrlAliasList from './UrlAliasList';
+
 import style from './UrlAliasPanel.module.scss';
 
 const aliasesDocsUrl = 'https://ontime.gitbook.io/v2/features/url-aliases';
@@ -26,6 +28,7 @@ export default function UrlAliasPanel() {
                 </AlertDescription>
               </div>
             </Alert>
+            <UrlAliasList />
           </div>
         </Panel.Card>
       </Panel.Section>

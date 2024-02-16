@@ -1,32 +1,96 @@
-import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
+import { useEffect } from 'react';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { Alias } from 'ontime-types';
 
-import ModalLink from '../../../../features/modals/ModalLink';
+import useAliases from '../../../../common/hooks-query/useAliases';
+import ModalLoader from '../../../../features/modals/modal-loader/ModalLoader';
 import * as Panel from '../PanelUtils';
 
-const aliasesDocsUrl = 'https://ontime.gitbook.io/v2/features/url-aliases';
+import UrlAliasListItem from './UrlAliasListItem';
+
+type Aliases = {
+  aliases: Alias[];
+};
 
 export default function UrlAliasList() {
+  const { data, status, isFetching } = useAliases();
+
+  // const { emitError } = useEmitLog();
+  const {
+    control,
+    // handleSubmit,
+    register,
+    reset,
+    formState: { isSubmitting, isDirty, isValid },
+  } = useForm<Aliases>({
+    defaultValues: { aliases: data },
+    values: { aliases: data || [] },
+    resetOptions: {
+      keepDirtyValues: true,
+    },
+  });
+
+  console.log({ isSubmitting, isDirty, isValid, data });
+
+  const { fields, remove } = useFieldArray({
+    name: 'aliases',
+    control,
+  });
+
+  useEffect(() => {
+    if (data) {
+      reset({ aliases: data });
+    }
+  }, [data, reset]);
+
+  // const onReset = () => {
+  //   reset({ aliases: data });
+  // };
+
+  // const addNew = () => {
+  //   if (fields.length > 20) {
+  //     emitError('Maximum amount of aliases reached (20)');
+  //     return;
+  //   }
+  //   append({
+  //     enabled: false,
+  //     alias: '',
+  //     pathAndParams: '',
+  //   });
+  // };
+
+  const disableInputs = status === 'pending';
+  // const hasTooManyOptions = fields.length >= 20;
+
+  console.log('bolama');
+  console.log({ isFetching });
+
+  if (isFetching) {
+    return <ModalLoader />;
+  }
+
   return (
-    <>
-      <Panel.Header>URL Aliases</Panel.Header>
-      <Panel.Section>
-        <Panel.Card>
-          <div>
-            <Alert status='info' variant='ontime-on-light-info'>
-              <AlertIcon />
-              <div>
-                <AlertTitle>URL Aliases</AlertTitle>
-                <AlertDescription>
-                  Custom aliases allow providing a short name for any ontime URL. <br />
-                  It serves two primary purposes: <br />
-                  - Providing dynamic URLs for automation or unattended screens <br />- Simplifying complex URLs
-                  <ModalLink href={aliasesDocsUrl}>For more information, see the docs</ModalLink>
-                </AlertDescription>
-              </div>
-            </Alert>
-          </div>
-        </Panel.Card>
-      </Panel.Section>
-    </>
+    <Panel.Table>
+      <thead>
+        <tr>
+          <th>Alias</th>
+          <th>Path and Params</th>
+          <th>Enabled</th>
+          <th />
+        </tr>
+      </thead>
+      <tbody>
+        {fields.map((alias) => {
+          return (
+            <UrlAliasListItem
+              alias={alias.alias}
+              enabled={alias.enabled}
+              pathAndParams={alias.pathAndParams}
+              key={alias.id}
+            />
+          );
+        })}
+      </tbody>
+    </Panel.Table>
   );
 }
