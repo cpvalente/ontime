@@ -2,54 +2,26 @@
   grid-area: overview;
   display: flex;
   align-items: center;
-  justify-content: start;
+  justify-content: space-between;
   font-size: $inner-section-text-size;
-  gap: 2rem;
-  padding-left: 1rem;
-  padding-right: 0.5rem;
-}
-
-.titles {
-  flex: 1;
+  padding: 0 1rem;
 }
 
 .title {
   font-size: 1.5rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis-overflow;
 }
 
 .description {
   font-size: 1rem;
   color: $label-gray;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  @include ellipsis-overflow;
 }
 
-.inline {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+.ahead {
+  color: $green-500;
 }
 
-@mixin indicator($bg-color) {
-  &::before {
-    content: '';  
-    background-color: $bg-color;
-    display: inline-flex;
-    height: 0.75em;
-    width: 0.75em;
-    vertical-align: middle;
-    margin-right: 0.25rem;
-  }
-}
-
-.start {
-  @include indicator($green-500);
-}
-
-.end {
-  @include indicator($red-500);
+.behind {
+  color: $ontime-delay-text;
 }

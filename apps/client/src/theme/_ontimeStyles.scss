@@ -69,3 +69,9 @@ $min-tablet: 500px;
     opacity: 20%;
   }
 }
+
+@mixin ellipsis-overflow() {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

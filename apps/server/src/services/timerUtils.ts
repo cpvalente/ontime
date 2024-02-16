@@ -289,3 +289,23 @@ export const updateRoll = (state: RuntimeState) => {
 
   return { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished: isPrimaryFinished };
 };
+
+/**
+ * Calculates difference between the runtime and the schedule of an event
+ * @param state
+ * @returns
+ */
+export function getRuntimeOffset(state: RuntimeState): number {
+  if (state.eventNow === null) {
+    return 0;
+  }
+
+  const { timeStart } = state.eventNow;
+  const { addedTime, current, startedAt } = state.timer;
+
+  const overtime = Math.min(current, 0);
+  const startOffset = startedAt - timeStart;
+  const pausedTime = state._timer.pausedAt === null ? 0 : state.clock - state._timer.pausedAt;
+
+  return startOffset + addedTime + pausedTime + Math.abs(overtime);
+}

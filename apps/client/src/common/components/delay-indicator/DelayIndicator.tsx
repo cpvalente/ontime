@@ -17,7 +17,7 @@ export default function DelayIndicator(props: DelayIndicatorProps) {
   if (typeof delayValue === 'number') {
     if (delayValue < 0) {
       return (
-        <Tooltip openDelay={tooltipDelayFast} label={millisToDelayString(delayValue, true)}>
+        <Tooltip openDelay={tooltipDelayFast} label={millisToDelayString(delayValue)}>
           <span className={style.delaySymbol}>
             <IoChevronDown />
           </span>
@@ -27,7 +27,7 @@ export default function DelayIndicator(props: DelayIndicatorProps) {
 
     if (delayValue > 0) {
       return (
-        <Tooltip openDelay={tooltipDelayFast} label={millisToDelayString(delayValue, true)}>
+        <Tooltip openDelay={tooltipDelayFast} label={millisToDelayString(delayValue)}>
           <span className={style.delaySymbol}>
             <IoChevronUp />
           </span>

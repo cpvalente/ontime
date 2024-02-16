@@ -74,7 +74,7 @@ export function getLastEvent(rundown: OntimeRundown): {
     return { lastEvent: null, lastIndex: null };
   }
 
-  for (let i = rundown.length - 1; i > 0; i--) {
+  for (let i = rundown.length - 1; i >= 0; i--) {
     const lastEvent = rundown.at(i);
     if (isOntimeEvent(lastEvent)) {
       return { lastEvent, lastIndex: i };
@@ -100,7 +100,7 @@ export function getLastEventNormal(
     return { lastEvent: null, lastIndex: null };
   }
 
-  for (let i = order.length - 1; i > 0; i--) {
+  for (let i = order.length - 1; i >= 0; i--) {
     const lastId = order[i];
     const lastEvent = rundown[lastId];
     if (isOntimeEvent(lastEvent)) {

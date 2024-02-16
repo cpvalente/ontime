@@ -1,15 +1,27 @@
 import { Runtime, OntimeEvent, Playback, TimerState, TimerType, MaybeNumber } from 'ontime-types';
-import { calculateDuration, dayInMs } from 'ontime-utils';
+import { calculateDuration, dayInMs, getFirstEvent, getLastEvent } from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
 import { RestorePoint } from '../services/RestoreService.js';
 import { getPlayableEvents } from '../services/rundown-service/RundownService.js';
-import { getCurrent, getExpectedFinish, getRollTimers, skippedOutOfEvent, updateRoll } from '../services/timerUtils.js';
+import {
+  getCurrent,
+  getExpectedFinish,
+  getRollTimers,
+  getRuntimeOffset,
+  skippedOutOfEvent,
+  updateRoll,
+} from '../services/timerUtils.js';
 import { timerConfig } from '../config/config.js';
 
 const initialRuntime: Runtime = {
   selectedEventIndex: null,
   numEvents: 0,
+  offset: 0,
+  plannedStart: 0,
+  plannedEnd: 0,
+  actualStart: null,
+  expectedEnd: null,
 };
 
 const initialTimer: TimerState = {
@@ -64,13 +76,13 @@ export function getState(): Readonly<RuntimeState> {
 }
 
 export function clear() {
-  // TODO: check that entire state is reset here
   runtimeState.eventNow = null;
   runtimeState.publicEventNow = null;
   runtimeState.eventNext = null;
   runtimeState.publicEventNext = null;
 
-  runtimeState.runtime = { ...initialRuntime };
+  runtimeState.runtime = { ...initialRuntime, actualStart: runtimeState.runtime.actualStart };
+  // TODO: can we cleanup the initialisation of runtime state?
   runtimeState.runtime.numEvents = fetchNumEvents();
 
   runtimeState.timer.playback = Playback.Stop;
@@ -106,11 +118,17 @@ function fetchNumEvents(): number {
 }
 
 /**
- * Utility, allows updating the number of events
+ * Utility, allows updating data derived from the rundown
  * @param numEvents
  */
-export function updateNumEvents(numEvents: number) {
-  runtimeState.runtime.numEvents = numEvents;
+export function updateRundownData(playableRundown: OntimeEvent[]) {
+  runtimeState.runtime.numEvents = playableRundown.length;
+
+  const { firstEvent } = getFirstEvent(playableRundown);
+  const { lastEvent } = getLastEvent(playableRundown);
+
+  runtimeState.runtime.plannedStart = firstEvent?.timeStart ?? null;
+  runtimeState.runtime.plannedEnd = lastEvent?.timeEnd ?? null;
 }
 
 /**
@@ -119,8 +137,10 @@ export function updateNumEvents(numEvents: number) {
  * @param rundown
  * @param initialData
  */
-export function load(event: OntimeEvent, rundown: OntimeEvent[], initialData?: Partial<TimerState>) {
+export function load(event: OntimeEvent, rundown: OntimeEvent[], initialData?: Partial<TimerState & RestorePoint>) {
   clear();
+
+  updateRundownData(rundown);
 
   const eventIndex = rundown.findIndex((eventInMemory) => eventInMemory.id === event.id);
 
@@ -137,6 +157,13 @@ export function load(event: OntimeEvent, rundown: OntimeEvent[], initialData?: P
 
   if (initialData) {
     patchTimer(initialData);
+
+    const firstStart = initialData?.firstStart;
+    if (firstStart === null || typeof firstStart === 'number') {
+      runtimeState.runtime.actualStart = firstStart;
+      runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
+      runtimeState.runtime.expectedEnd = runtimeState.runtime.plannedEnd + runtimeState.runtime.offset;
+    }
   }
 }
 
@@ -256,6 +283,15 @@ export function start(state: RuntimeState = runtimeState): boolean {
   state.timer.playback = Playback.Play;
   state.timer.expectedFinish = getExpectedFinish(state);
   state.timer.elapsed = 0;
+
+  // update runtime delays: over - under
+  if (state.runtime.actualStart === null) {
+    state.runtime.actualStart = state.clock;
+  }
+
+  state.runtime.offset = getRuntimeOffset(state);
+  state.runtime.expectedEnd = state.runtime.plannedEnd + state.runtime.offset;
+
   return true;
 }
 
@@ -274,6 +310,7 @@ export function stop(state: RuntimeState = runtimeState): boolean {
   if (state.timer.playback === Playback.Stop) {
     return false;
   }
+  runtimeState.runtime.actualStart = null;
   clear();
   return true;
 }
@@ -298,6 +335,10 @@ export function addTime(amount: number) {
       runtimeState.timer.finishedAt = null;
     }
   }
+
+  // update runtime delays: over - under
+  runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
+  runtimeState.runtime.expectedEnd = runtimeState.runtime.plannedEnd + runtimeState.runtime.offset;
   return true;
 }
 
@@ -317,6 +358,9 @@ export function update(force: boolean, updateInterval: number) {
   if (hasSkippedBack) {
     _force = true;
   }
+
+  // update offset
+  runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
 
   // we call integrations if we update timers
   if (runtimeState.timer.playback === Playback.Roll) {

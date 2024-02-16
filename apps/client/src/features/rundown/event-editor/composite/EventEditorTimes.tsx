@@ -64,9 +64,9 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
 
   const hasDelay = delay !== 0;
   const delayLabel = hasDelay
-    ? `Event is ${millisToDelayString(delay)}. New schedule ${millisToString(timeStart + delay)} → ${millisToString(
-        timeEnd + delay,
-      )}`
+    ? `Event is ${millisToDelayString(delay, 'expanded')}. New schedule ${millisToString(
+        timeStart + delay,
+      )} → ${millisToString(timeEnd + delay)}`
     : '';
 
   return (

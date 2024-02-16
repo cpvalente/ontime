@@ -1,9 +1,10 @@
 import { OntimeEvent, Playback } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
 
-import { RuntimeState, clear, getState, load, pause, start, stop } from '../runtimeState.js';
+import { RuntimeState, addTime, clear, getState, load, pause, start, stop } from '../runtimeState.js';
 
 const mockEvent = {
+  type: 'event',
   id: 'mock',
   cue: 'mock',
   timeStart: 0,
@@ -88,6 +89,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.timer).toMatchObject({
         playback: Playback.Play,
       });
+      expect(newState.runtime.actualStart).toBe(newState.clock);
 
       // 3. Pause event
       success = pause();
@@ -122,7 +124,7 @@ describe('mutation on runtimeState', () => {
       );
       expect(newState._timer.pausedAt).toBeNull();
 
-      // 4. Stop event
+      // 5. Stop event
       success = stop();
       expect(success).toBe(true);
       expect(newState.eventNow).toBe(null);
@@ -133,7 +135,54 @@ describe('mutation on runtimeState', () => {
         expectedFinish: null,
         startedAt: null,
       });
+      expect(newState.runtime.actualStart).toBeNull();
     });
+
+    test('runtime offset', () => {
+      const event1 = { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000 };
+      const event2 = { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500 };
+
+      // 1. Load event
+      load(event1, [event1, event2]);
+      let newState = getState();
+      expect(newState.runtime.actualStart).toBeNull();
+      expect(newState.runtime.plannedStart).toBe(0);
+      expect(newState.runtime.plannedEnd).toBe(1500);
+
+      // 2. Start event
+      start();
+      newState = getState();
+      const firstStart = newState.clock;
+      expect(newState.runtime.actualStart).toBe(newState.clock);
+      expect(newState.runtime.offset).toBe(newState.clock - event1.timeStart);
+      expect(newState.runtime.expectedEnd).toBe(newState.runtime.offset + event2.timeEnd);
+
+      // 3. Next event
+      load(event2, [event1, event2]);
+      start();
+      newState = getState();
+      expect(newState.runtime.actualStart).toBe(firstStart);
+      // we are over-under, the difference between the schedule and the actual start
+      const delayBefore = newState.clock - event2.timeStart;
+      expect(newState.runtime.offset).toBe(delayBefore);
+      // finish is the difference between the runtime and the schedule
+      expect(newState.runtime.expectedEnd).toBe(event2.timeEnd + newState.runtime.offset);
+
+      // 4. Add time
+      addTime(10);
+      newState = getState();
+      expect(newState.runtime.offset).toBe(delayBefore + 10);
+      expect(newState.runtime.expectedEnd).toBe(event2.timeEnd + newState.runtime.offset);
+
+      // 5. Stop event
+      stop();
+      newState = getState();
+      expect(newState.runtime.actualStart).toBeNull();
+      expect(newState.runtime.offset).toBe(0);
+      expect(newState.runtime.expectedEnd).toBeNull();
+    });
+
+    test.todo('runtime offset on timers in overtime', () => {});
 
     test.todo('roll mode', () => {});
   });

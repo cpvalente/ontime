@@ -165,10 +165,23 @@ export const setClientName = (newName: string) => socketSendJson('set-client-nam
 
 export const useRuntimeOverview = () => {
   const featureSelector = (state: RuntimeStore) => ({
+    plannedStart: state.runtime.plannedStart,
+    actualStart: state.runtime.actualStart,
+    plannedEnd: state.runtime.plannedEnd,
+    expectedEnd: state.runtime.expectedEnd,
+  });
+
+  return useRuntimeStore(featureSelector);
+};
+
+export const useRuntimePlaybackOverview = () => {
+  const featureSelector = (state: RuntimeStore) => ({
     playback: state.timer.playback,
     clock: state.clock,
-    selectedEventIndex: state.runtime.selectedEventIndex,
+
     numEvents: state.runtime.numEvents,
+    selectedEventIndex: state.runtime.selectedEventIndex,
+    offset: state.runtime.offset,
   });
 
   return useRuntimeStore(featureSelector);

@@ -1,0 +1,40 @@
+.label {
+  color: $label-gray;
+  font-size: calc(1rem - 2px);
+  width: 10em; // a number large enough to force right alignment
+}
+
+.clock {
+  text-align: left;
+  font-size: 1.5rem;
+  letter-spacing: 0.5px;
+  min-width: 5em;
+
+  &::after {
+    content: '\200b';
+  }
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+
+  .label {
+  line-height: 0.9em;
+
+  }
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .label {
+    text-align: right;
+  }
+
+  .clock {
+    font-size: 1.25rem;
+  }
+}

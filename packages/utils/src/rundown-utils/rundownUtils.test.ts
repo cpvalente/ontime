@@ -1,6 +1,6 @@
 import { OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
 
-import { getNext, getNextEvent, getPrevious, getPreviousEvent, swapEventData } from './rundownUtils';
+import { getLastEvent, getNext, getNextEvent, getPrevious, getPreviousEvent, swapEventData } from './rundownUtils';
 
 describe('getNext()', () => {
   it('returns the next event of type event', () => {
@@ -187,5 +187,25 @@ describe('swapEventData', () => {
       duration: 2,
       delay: 2,
     });
+  });
+});
+
+describe('getLastEvent', () => {
+  it('returns the last event of type event', () => {
+    const testRundown = [
+      { id: '1', type: SupportedEvent.Event },
+      { id: '2', type: SupportedEvent.Delay },
+      { id: '3', type: SupportedEvent.Event },
+      { id: '4', type: SupportedEvent.Block },
+    ];
+
+    const { lastEvent } = getLastEvent(testRundown as OntimeRundown);
+    expect(lastEvent?.id).toBe('3');
+  });
+  it('handles rundowns with a single event', () => {
+    const testRundown = [{ id: '1', type: SupportedEvent.Event }];
+
+    const { lastEvent } = getLastEvent(testRundown as OntimeRundown);
+    expect(lastEvent?.id).toBe('1');
   });
 });

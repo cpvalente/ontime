@@ -15,7 +15,7 @@ import { block as blockDef, delay as delayDef } from '../../models/eventsDefinit
 import { sendRefetch } from '../../adapters/websocketAux.js';
 import { logger } from '../../classes/Logger.js';
 import { createEvent } from '../../utils/parser.js';
-import { updateNumEvents } from '../../stores/runtimeState.js';
+import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 import * as cache from './rundownCache.js';
@@ -159,8 +159,7 @@ export async function swapEvents(from: string, to: string) {
  * Called when we make changes to the rundown object
  */
 function updateChangeNumEvents() {
-  const numEvents = getPlayableEvents().length;
-  updateNumEvents(numEvents);
+  updateRundownData(getPlayableEvents());
 }
 
 /**
@@ -286,6 +285,10 @@ export function findNext(currentEventId?: string): OntimeEvent | null {
   return nextEvent ?? null;
 }
 
+/**
+ * Overrides the rundown with the given
+ * @param rundown
+ */
 export async function setRundown(rundown: OntimeRundown) {
   cache.init(rundown);
   notifyChanges({ timer: true });

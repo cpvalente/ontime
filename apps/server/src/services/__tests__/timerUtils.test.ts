@@ -5,6 +5,7 @@ import {
   getCurrent,
   getExpectedFinish,
   getRollTimers,
+  getRuntimeOffset,
   normaliseEndTime,
   skippedOutOfEvent,
   updateRoll,
@@ -1368,5 +1369,70 @@ describe('updateRoll()', () => {
     };
 
     expect(updateRoll(timers)).toStrictEqual(expected);
+  });
+});
+
+describe('getRuntimeOffset()', () => {
+  it('calculates the difference between schedule and actual start', () => {
+    const state = {
+      eventNow: {
+        id: '1',
+        timeStart: 100,
+      },
+      timer: {
+        startedAt: 150,
+        addedTime: 10,
+        current: 0,
+      },
+      _timer: {
+        pausedAt: null,
+      },
+    } as RuntimeState;
+
+    const offset = getRuntimeOffset(state);
+    expect(offset).toBe(60);
+  });
+
+  it('adds the overtime time of the current timer', () => {
+    const state = {
+      eventNow: {
+        id: '1',
+        timeStart: 100,
+        timeEnd: 140,
+      },
+      timer: {
+        startedAt: 100,
+        current: -10,
+        addedTime: 0,
+      },
+      _timer: {
+        pausedAt: null,
+      },
+    } as RuntimeState;
+
+    const offset = getRuntimeOffset(state);
+    expect(offset).toBe(10);
+  });
+
+  it('accounts for paused time', () => {
+    const state = {
+      eventNow: {
+        id: '1',
+        timeStart: 100,
+        timeEnd: 150,
+      },
+      clock: 150,
+      timer: {
+        startedAt: 100,
+        current: 25,
+        addedTime: 0,
+      },
+      _timer: {
+        pausedAt: 125,
+      },
+    } as RuntimeState;
+
+    const offset = getRuntimeOffset(state);
+    expect(offset).toBe(25);
   });
 });
