@@ -28,6 +28,7 @@ export const dbModel: DatabaseModel = {
     endMessage: '',
   },
   aliases: [],
+  customFields: {},
   userFields: {
     user0: 'user0',
     user1: 'user1',

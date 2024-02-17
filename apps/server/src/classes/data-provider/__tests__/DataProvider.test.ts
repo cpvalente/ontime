@@ -24,11 +24,26 @@ describe('safeMerge', () => {
     viewSettings: {
       overrideStyles: false,
       endMessage: 'existing endMessage',
+      normalColor: '#ffffffcc',
+      warningColor: '#FFAB33',
+      dangerColor: '#ED3333',
     },
     aliases: [],
     userFields: {
       user0: 'existing user0',
       user1: 'existing user1',
+      user2: 'existing user2',
+      user3: 'existing user3',
+      user4: 'existing user4',
+      user5: 'existing user5',
+      user6: 'existing user6',
+      user7: 'existing user7',
+      user8: 'existing user8',
+      user9: 'existing user9',
+    },
+    customFields: {
+      lighting: { type: 'string', label: 'lighting' },
+      vfx: { type: 'string', label: 'vfx' },
     },
     osc: {
       portIn: 8888,
@@ -211,5 +226,30 @@ describe('safeMerge', () => {
     //@ts-expect-error -- testing partial merge
     const result = safeMerge(existing, newData);
     expect(result.userFields).toEqual(expected);
+  });
+
+  it('merges customFields into existing object', () => {
+    const existing = {
+      customFields: {
+        lighting: { type: 'string', label: 'lighting' },
+        sound: { type: 'string', label: 'sound' },
+      },
+    };
+
+    const newData = {
+      customFields: {
+        switcher: { type: 'string', label: 'switcher' },
+        vfx: { type: 'string', label: 'vfx' },
+      },
+    };
+
+    const expected = {
+      switcher: { type: 'string', label: 'switcher' },
+      vfx: { type: 'string', label: 'vfx' },
+    };
+
+    //@ts-expect-error -- testing partial merge
+    const result = safeMerge(existing, newData);
+    expect(result.customFields).toEqual(expected);
   });
 });

@@ -13,6 +13,7 @@ import {
   isOntimeEvent,
   isOntimeDelay,
   isOntimeBlock,
+  CustomFields,
   isOntimeCycle,
   HttpSubscription,
 } from 'ontime-types';
@@ -275,4 +276,24 @@ export const parseUserFields = (data): UserFields => {
     }
   }
   return { ...newUserFields };
+};
+
+/**
+ * Parse customFields entry
+ * @param {object} data - data object
+ * @returns {object} - event object data
+ */
+export const parseCustomFields = (data): CustomFields => {
+  let newCustomFields: CustomFields = { ...dbModel.customFields };
+
+  if ('customFields' in data) {
+    console.log('Found Custom Fields definition, importing...');
+    try {
+      //TODO: validate
+      newCustomFields = { ...dbModel.customFields, ...data.customFields };
+    } catch (error) {
+      console.log(`Error: ${error}`);
+    }
+  }
+  return { ...newCustomFields };
 };
