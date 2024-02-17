@@ -25,10 +25,10 @@ export default function ImportReview({ rundown, userFields }: ImportReviewProps)
     <>
       <PreviewExcel rundown={rundown} userFields={userFields} />
       <div className={style.buttonRow}>
-        <Button onClick={applyImport} variant='ontime-ghosted' size='sm'>
+        <Button onClick={resetPreview} variant='ontime-ghosted' size='sm'>
           Cancel
         </Button>
-        <Button onClick={resetPreview} variant='ontime-filled' size='sm'>
+        <Button onClick={applyImport} variant='ontime-filled' size='sm'>
           Apply
         </Button>
       </div>
