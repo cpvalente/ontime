@@ -1,8 +1,6 @@
 import { memo, useCallback, useEffect } from 'react';
 import { IconButton, MenuButton, Tooltip } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoCloud } from '@react-icons/all-files/io5/IoCloud';
-import { IoCloudOutline } from '@react-icons/all-files/io5/IoCloudOutline';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoPushOutline } from '@react-icons/all-files/io5/IoPushOutline';
@@ -25,8 +23,6 @@ interface MenuBarProps {
   onSettingsClose: () => void;
   isUploadOpen: boolean;
   onUploadOpen: () => void;
-  isSheetsOpen: boolean;
-  onSheetsOpen: () => void;
   openSettings: (newTab?: string) => void;
   isSettingsOpen: boolean;
 }
@@ -52,8 +48,6 @@ const MenuBar = (props: MenuBarProps) => {
     onUploadOpen,
     openSettings,
     isSettingsOpen,
-    isSheetsOpen,
-    onSheetsOpen,
   } = props;
   const { isElectron, sendToElectron } = useElectronEvent();
 
@@ -141,15 +135,6 @@ const MenuBar = (props: MenuBarProps) => {
         aria-label='Edit mode'
       />
       <div className={style.gap} />
-      <TooltipActionBtn
-        {...buttonStyle}
-        isDisabled={appMode === AppMode.Run}
-        icon={isSheetsOpen ? <IoCloud /> : <IoCloudOutline />}
-        className={isSheetsOpen ? style.open : ''}
-        clickHandler={onSheetsOpen}
-        tooltip='Sheets'
-        aria-label='Sheets'
-      />
       <TooltipActionBtn
         {...buttonStyle}
         isDisabled={appMode === AppMode.Run}
