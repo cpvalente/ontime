@@ -80,7 +80,7 @@ class Sheet {
   }
 
   /**
-   * @description STEP 1 - test that the saved object is pressent
+   * @description STEP 1 - test that the saved object is present
    */
   testClientSecret() {
     return Sheet.clientSecret !== null;
@@ -92,18 +92,15 @@ class Sheet {
    * @throws
    */
   async openAuthServer(): Promise<string | null> {
-    //TODO: this only works on local networks
+    //TODO: this only works in local networks
 
-    // if the server is allready running retun it
+    // if the server is already running return it
     if (Sheet.authUrl) {
       clearTimeout(this.authServerTimeout);
-      this.authServerTimeout = setTimeout(
-        () => {
-          Sheet.authUrl = null;
-          server.unref();
-        },
-        2 * 60 * 1000,
-      );
+      this.authServerTimeout = setTimeout(() => {
+        Sheet.authUrl = null;
+        server.unref();
+      }, 120000);
       return Sheet.authUrl;
     }
 
@@ -209,12 +206,12 @@ class Sheet {
    * @description STEP 3 - test the given sheet id
    * @throws
    */
-  async testSheetId(id: string) {
+  async testSheetId(sheetId: string) {
     const spreadsheets = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.get({
-      spreadsheetId: id,
+      spreadsheetId: sheetId,
       includeGridData: false,
     });
-    if (spreadsheets.status != 200) {
+    if (spreadsheets.status !== 200) {
       throw new Error(spreadsheets.statusText);
     }
     return { worksheetOptions: spreadsheets.data.sheets.map((i) => i.properties.title) };
@@ -224,12 +221,12 @@ class Sheet {
    * @description STEP 4 - test the given worksheet
    * @throws
    */
-  async testWorksheet(id: string, worksheet: string) {
+  async testWorksheet(sheetId: string, worksheet: string) {
     const spreadsheets = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.get({
-      spreadsheetId: id,
+      spreadsheetId: sheetId,
       includeGridData: false,
     });
-    if (spreadsheets.status != 200) {
+    if (spreadsheets.status !== 200) {
       throw new Error(spreadsheets.statusText);
     }
     const worksheetExist = spreadsheets.data.sheets.find((i) => i.properties.title === worksheet);
@@ -260,7 +257,7 @@ class Sheet {
         return { worksheetId: ourWorksheetData.properties.sheetId, range: `${worksheet}!A1:${endCell}` };
       }
     } else {
-      throw new Error('Uable to open spreadsheets');
+      throw new Error('Unable to open spreadsheets');
     }
   }
 
@@ -302,7 +299,7 @@ class Sheet {
       updateRundown.push({
         deleteDimension: { range: { dimension: 'ROWS', startIndex: titleRow + 2, sheetId: worksheetId } },
       });
-      // insert the lenght of the rundown
+      // insert the length of the rundown
       updateRundown.push({
         insertDimension: {
           inheritFromBefore: false,
@@ -340,19 +337,19 @@ class Sheet {
   }
 
   /**
-   * @description STEP 5 - Downpload the rundown from sheet
-   * @param {string} id - id of the sheet https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
+   * @description STEP 5 - Download the rundown from sheet
+   * @param {string} sheetId - id of the sheet https://docs.google.com/spreadsheets/d/[[spreadsheetId]]/edit#gid=0
    * @param {ExcelImportMap} options
    * @returns {Promise<Partial<ResponseOK>>}
    * @throws
    */
-  public async pull(id: string, options: ExcelImportMap): Promise<Partial<ResponseOK>> {
-    const { range } = await this.exist(id, options.worksheet);
+  public async pull(sheetId: string, options: ExcelImportMap): Promise<Partial<ResponseOK>> {
+    const { range } = await this.exist(sheetId, options.worksheet);
 
     const res: Partial<ResponseOK> = {};
 
     const googleResponse = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.values.get({
-      spreadsheetId: id,
+      spreadsheetId: sheetId,
       valueRenderOption: 'FORMATTED_VALUE',
       majorDimension: 'ROWS',
       range,

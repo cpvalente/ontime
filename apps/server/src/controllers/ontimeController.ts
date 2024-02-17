@@ -661,12 +661,13 @@ export async function uploadSheetClientFile(req, res: Response) {
 }
 
 /**
- * @description STEP-1 GET Client Secrect status
+ * @description STEP-1 GET Client Secret status
  */
-export const getClientSecrect = async (req: Request, res: Response) => {
+export const getClientSecret = async (req: Request, res: Response) => {
   try {
-    const clientSecrectExists = await sheet.testClientSecret();
-    if (clientSecrectExists) {
+    // TODO: can we merge this with the previous?
+    const clientSecretExists = await sheet.testClientSecret();
+    if (clientSecretExists) {
       res.status(200).send();
     } else {
       res.status(500).send({ message: 'The Client ID does not exist' });
@@ -706,11 +707,11 @@ export const getAuthentication = async (_req: Request, res: Response) => {
  */
 export const postId = async (req: Request, res: Response) => {
   try {
-    const { id } = req.body;
-    if (id.lenght < 40) {
-      res.status(400).send({ message: 'ID is usualy 44 characters long' });
+    const { sheetId } = req.body;
+    if (sheetId.length < 40) {
+      res.status(400).send({ message: 'ID is usually 44 characters long' });
     }
-    const state = await sheet.testSheetId(id);
+    const state = await sheet.testSheetId(sheetId);
     res.status(200).send(state);
   } catch (error) {
     res.status(500).send({ message: String(error) });
@@ -722,8 +723,8 @@ export const postId = async (req: Request, res: Response) => {
  */
 export const postWorksheet = async (req: Request, res: Response) => {
   try {
-    const { worksheet, id } = req.body;
-    const state = await sheet.testWorksheet(worksheet, id);
+    const { sheetId, worksheet } = req.body;
+    const state = await sheet.testWorksheet(sheetId, worksheet);
     res.status(200).send(state);
   } catch (error) {
     res.status(500).send({ message: String(error) });
@@ -731,13 +732,15 @@ export const postWorksheet = async (req: Request, res: Response) => {
 };
 
 /**
- * @description STEP-5 POST download undown to sheet
+ * @description STEP-5 POST download rundown to sheet
  * @returns parsed result
  */
 export async function pullSheet(req: Request, res: Response) {
   try {
-    const { id, options } = req.body;
-    const data = await sheet.pull(id, options);
+    const { sheetId, options } = req.body;
+    console.log('starting');
+    const data = await sheet.pull(sheetId, options);
+    console.log('finished');
     res.status(200).send(data);
   } catch (error) {
     res.status(500).send({ message: String(error) });

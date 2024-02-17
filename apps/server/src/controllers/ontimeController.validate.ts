@@ -244,8 +244,8 @@ export const validateProjectFiles = (projectFiles: { filename?: string; newFilen
   return errors;
 };
 
-export const validateSheetid = [
-  body('id').exists().isString(),
+export const validateSheetId = [
+  body('sheetId').exists().isString(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -255,7 +255,7 @@ export const validateSheetid = [
 ];
 
 export const validateWorksheet = [
-  body('id').exists().isString(),
+  body('sheetId').exists().isString(),
   body('worksheet').exists().isString(),
 
   (req: Request, res: Response, next: NextFunction) => {
@@ -266,7 +266,7 @@ export const validateWorksheet = [
 ];
 
 export const validateSheetOptions = [
-  body('id').exists().isString(),
+  body('sheetId').exists().isString(),
   // body('options').exists().isObject(), TODO:
 
   (req: Request, res: Response, next: NextFunction) => {

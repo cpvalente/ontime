@@ -48,6 +48,7 @@ export default function GSheetSetup({ cancel }: GSheetSetupProps) {
   // adds the user input sheet ID to the store
   const addSheetId = () => {
     const sheetId = sheetIdInputRef.current?.value;
+    console.log('adding', sheetId);
     if (!sheetId) return;
     setSheetId(sheetId);
   };

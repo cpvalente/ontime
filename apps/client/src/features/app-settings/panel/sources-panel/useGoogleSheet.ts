@@ -7,6 +7,7 @@ import { RUNDOWN, USERFIELDS } from '../../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../../common/api/apiUtils';
 import {
   getAuthentication,
+  getClientSecret,
   getSheetsAuthUrl,
   patchData,
   postId,
@@ -44,6 +45,8 @@ export default function useGoogleSheet() {
     try {
       const selectedFile = event.target.files[0];
       await uploadSheetClientFile(selectedFile);
+      // TODO: why do we need this call?
+      await getClientSecret();
       setClientSecret(selectedFile);
       patchStepData({
         clientSecret: { available: true, error: '' },
@@ -62,12 +65,12 @@ export default function useGoogleSheet() {
     try {
       const authLink = await getSheetsAuthUrl();
 
-      // request windown to open link and check auth when user is back
+      // request window to open link and check auth when user is back
       openLink(authLink);
       window.addEventListener('focus', async () => await getAuthentication(), { once: true });
 
       patchStepData({
-        authenticate: { available: false, error: '' },
+        authenticate: { available: true, error: '' },
         sheetId: { available: true, error: '' },
       });
     } catch (error) {
