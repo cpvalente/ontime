@@ -1,4 +1,4 @@
-import { createCustomField, removeCustomField } from '../customFields.js';
+import { createCustomField, editCustomField, removeCustomField } from '../customFields.js';
 
 describe('createCustomField()', () => {
   beforeEach(() => {
@@ -21,29 +21,31 @@ describe('createCustomField()', () => {
     const expected = {
       lighting: {
         label: 'lighting',
-        field: 'text',
+        type: 'text',
       },
     };
 
-    const customField = await createCustomField('lighting', 'text');
+    const customField = await createCustomField({ label: 'lighting', type: 'text' });
     expect(customField).toStrictEqual(expected);
   });
 });
 
 describe('editCustomField()', () => {
   it('edits a field with a given label', async () => {
+    await createCustomField({ label: 'sound', type: 'text' });
+
     const expected = {
       lighting: {
         label: 'lighting',
-        field: 'text',
+        type: 'text',
       },
       sound: {
         label: 'sound',
-        field: 'text',
+        type: 'number',
       },
     };
 
-    const customField = await createCustomField('sound', 'text');
+    const customField = await editCustomField('sound', { label: 'sound', type: 'number' });
 
     expect(customField).toStrictEqual(expected);
   });
@@ -54,7 +56,7 @@ describe('removeCustomField()', () => {
     const expected = {
       lighting: {
         label: 'lighting',
-        field: 'text',
+        type: 'text',
       },
     };
 
