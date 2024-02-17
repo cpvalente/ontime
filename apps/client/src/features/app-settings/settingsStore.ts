@@ -50,6 +50,10 @@ export const settingPanels: Readonly<SettingsOption[]> = [
       { id: 'integrations__http', label: 'HTTP settings' },
     ],
   },
+  {
+    id: 'client_control',
+    label: 'Client Control',
+  },
   { id: 'log', label: 'Log', split: true },
   {
     id: 'about',
