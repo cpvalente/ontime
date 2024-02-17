@@ -4,21 +4,20 @@ import { CustomField } from 'ontime-types';
 
 /**
  * Sanitises and creates a custom field in the database
- * @param label
  * @param field
  * @returns
  */
-export const createCustomField = async (label: string, field: string) => {
-  if (!isAlphanumeric(label)) {
+export const createCustomField = async (field: CustomField) => {
+  if (!isAlphanumeric(field.label)) {
     throw new Error('Label must be Alphanumeric');
   }
 
   const customFields = DataProvider.getCustomFields();
-  if (Object.keys(customFields).find((f) => f === label) !== undefined) {
+  if (Object.keys(customFields).find((f) => f === field.label) !== undefined) {
     throw new Error('Label already exists');
   }
 
-  Object.assign(customFields, { [label]: { label, field } });
+  Object.assign(customFields, { [field.label]: field });
   const newCustomFields = await DataProvider.setCustomFields(customFields);
 
   return newCustomFields;

@@ -7,7 +7,11 @@ import {
   postProject,
   putCustomField,
 } from '../controllers/projectController.js';
-import { projectSanitiser, validateCustomField } from '../controllers/projectController.validate.js';
+import {
+  projectSanitiser,
+  validateCustomField,
+  validateEditCustomField,
+} from '../controllers/projectController.validate.js';
 
 export const router = express.Router();
 
@@ -19,9 +23,8 @@ router.post('/', projectSanitiser, postProject);
 
 router.get('/custom-field', getCustomFields);
 
-//TODO: validate
 router.post('/custom-field', validateCustomField, postCustomField);
 
-router.put('/custom-field', validateCustomField, putCustomField);
+router.put('/custom-field', validateEditCustomField, putCustomField);
 
 router.delete('/custom-field/:label', deleteCustomField);

@@ -19,7 +19,7 @@ export const projectSanitiser = [
 
 export const validateCustomField = [
   body('label').isString().trim(),
-  body('field').isString().trim(),
+  body('type').isString().trim(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -27,6 +27,19 @@ export const validateCustomField = [
     next();
   },
 ];
+
+export const validateEditCustomField = [
+  body('label').isString().trim(),
+  body('field.label').optional().isString().trim(),
+  body('field.type').optional().isString().trim(),
+
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
+
 
 export const valdiateDeleteCustomField = [
   body('label').isString(),

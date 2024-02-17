@@ -1,6 +1,6 @@
 import type { Request, Response, RequestHandler } from 'express';
 
-import { CustomFields, ProjectData } from 'ontime-types';
+import { CustomField, CustomFields, ProjectData } from 'ontime-types';
 
 import { removeUndefined } from '../utils/parserUtils.js';
 import { failEmptyObjects } from '../utils/routerUtils.js';
@@ -45,9 +45,9 @@ export const postCustomField: RequestHandler = async (req: Request, res: Respons
   }
 
   try {
-    const { label, field } = req.body;
-    const newFields = await createCustomField(label, field);
-    res.status(201).send(newFields);
+    const newField = req.body as CustomField;
+    const allFields = await createCustomField(newField);
+    res.status(201).send(allFields);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
@@ -60,7 +60,7 @@ export const putCustomField: RequestHandler = async (req: Request, res: Response
   }
 
   try {
-    const newFields = await editCustomField(req.body.id, req.body.field);
+    const newFields = await editCustomField(req.body.label, req.body.field);
     res.status(200).send(newFields);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
