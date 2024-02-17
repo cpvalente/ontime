@@ -52,7 +52,7 @@ export default function CheckUpdatesButton(props: CheckUpdatesButtonProps) {
 
   return (
     <>
-      <Button onClick={versionCheck} variant='ontime-filled' isLoading={isFetching} isDisabled={disableButton}>
+      <Button onClick={versionCheck} variant='ontime-filled' isLoading={isFetching} isDisabled={disableButton} size='sm'>
         Check for updates
       </Button>
       <ResolveUpdateMessage updateMessage={updateMessage} />

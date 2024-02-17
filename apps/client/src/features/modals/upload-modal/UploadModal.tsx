@@ -207,7 +207,9 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
             <>
               <UploadFile />
               {isOntime && <OntimeFileOptions optionsRef={ontimeFileOptions} updateOptions={updateOntimeFileOptions} />}
-              {isExcel && <ExcelFileOptions optionsRef={excelFileOptions} updateOptions={updateExcelFileOptions} />}
+              {isExcel && (
+                <ExcelFileOptions importOptions={excelFileOptions.current} updateOptions={updateExcelFileOptions} />
+              )}
             </>
           ) : (
             <PreviewExcel rundown={rundown ?? []} userFields={userFields ?? userFieldsPlaceholder} />

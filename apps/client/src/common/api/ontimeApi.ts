@@ -275,7 +275,8 @@ export const uploadSheetClientFile = async (file: File) => {
 /**
  * @description STEP 1 test
  */
-export const getClientSecrect = async () => {
+// TODO: do we still need this?
+export const getClientSecret = async () => {
   const response = await axios.get(`${ontimeURL}/sheet/clientsecret`);
   return response.data;
 };
@@ -300,32 +301,32 @@ export const getAuthentication = async () => {
  * @description STEP 3
  * @returns worksheetOptions
  */
-export const postId = async (id: string) => {
-  const response = await axios.post(`${ontimeURL}/sheet/id`, { id });
+export const postId = async (sheetId: string) => {
+  const response = await axios.post(`${ontimeURL}/sheet/sheetId`, { sheetId });
   return response.data;
 };
 
 /**
  * @description STEP 4
  */
-export const postWorksheet = async (id: string, worksheet: string) => {
-  const response = await axios.post(`${ontimeURL}/sheet/worksheet`, { id, worksheet });
+export const postWorksheet = async (sheetId: string, worksheet: string) => {
+  const response = await axios.post(`${ontimeURL}/sheet/worksheet`, { sheetId, worksheet });
   return response.data;
 };
 
 /**
  * @description STEP 5
  */
-export const postPreviewSheet = async (id: string, options: ExcelImportMap) => {
-  const response = await axios.post(`${ontimeURL}/sheet/pull`, { id, options });
+export const postPreviewSheet = async (sheetId: string, options: ExcelImportMap) => {
+  const response = await axios.post(`${ontimeURL}/sheet-pull`, { sheetId, options });
   return response.data.data;
 };
 
 /**
  * @description STEP 5
  */
-export const postPushSheet = async (id: string, options: ExcelImportMap) => {
-  const response = await axios.post(`${ontimeURL}/sheet-push`, { id, options });
+export const postPushSheet = async (sheetId: string, options: ExcelImportMap) => {
+  const response = await axios.post(`${ontimeURL}/sheet-push`, { sheetId, options });
   return response.data.data;
 };
 

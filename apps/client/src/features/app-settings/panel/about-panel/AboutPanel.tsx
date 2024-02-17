@@ -17,18 +17,14 @@ export default function AboutPanel() {
         </Panel.Paragraph>
       </Panel.Section>
       <Panel.Section>
-        <Panel.Card>
-          <Panel.SubHeader>Links</Panel.SubHeader>
-          <ExternalLink href={gitbookUrl}>Read the docs over at GitBook</ExternalLink>
-          <ExternalLink href={githubUrl}>Follow the project on GitHub</ExternalLink>
-        </Panel.Card>
+        <Panel.SubHeader>Links</Panel.SubHeader>
+        <ExternalLink href={gitbookUrl}>Read the docs over at GitBook</ExternalLink>
+        <ExternalLink href={githubUrl}>Follow the project on GitHub</ExternalLink>
       </Panel.Section>
       <Panel.Section>
-        <Panel.Card>
-          <Panel.SubHeader>Current version</Panel.SubHeader>
-          <Panel.Paragraph>{`You are currently using Ontime ${version}`}</Panel.Paragraph>
-          <CheckUpdatesButton version={version} />
-        </Panel.Card>
+        <Panel.SubHeader>Current version</Panel.SubHeader>
+        <Panel.Paragraph>{`You are currently using Ontime ${version}`}</Panel.Paragraph>
+        <CheckUpdatesButton version={version} />
       </Panel.Section>
     </>
   );

@@ -17,11 +17,13 @@ $inner-padding: 1rem;
 }
 
 .title {
-  font-size: 1.25rem;
-  padding-left: $inner-padding;
+  font-size: 1.375rem;
+  padding: 0 2rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  color: $gray-300;
 }
 
 .section {
@@ -49,7 +51,7 @@ $inner-padding: 1rem;
 
 .pad {
   padding: 0 1rem;
-  max-height: 500px;
+  max-height: 550px;
   overflow-y: scroll;
 }
 
@@ -80,7 +82,7 @@ $inner-padding: 1rem;
 }
 
 .listGroup {
-  padding: 0.5rem 1rem 0 1rem;
+  padding: 1rem 2rem 0 2rem;
 
   > li:not(:last-child) {
     border-bottom: 1px solid $white-10;

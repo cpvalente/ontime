@@ -16,7 +16,7 @@ export default function IntegrationsPanel() {
         <Alert status='info' variant='ontime-on-dark-info'>
           <AlertIcon />
           <AlertDescription>
-            Integrations allow Ontime to receive commands or send its data to other systems in your workflow. <br />{' '}
+            Integrations allow Ontime to receive commands or send its data to other systems in your workflow. <br />
             <br />
             Currently supported protocols are OSC (Open Sound Control), HTTP and Websockets. <br />
             WebSockets are used for Ontime and cannot be configured independently. <br />

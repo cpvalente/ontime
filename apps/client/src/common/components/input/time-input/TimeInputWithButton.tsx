@@ -1,7 +1,6 @@
 import { PropsWithChildren } from 'react';
-import { InputGroup, Tooltip } from '@chakra-ui/react';
+import { InputGroup } from '@chakra-ui/react';
 
-import { tooltipDelayFast } from '../../../../ontimeConfig';
 import { cx } from '../../../utils/styleUtils';
 
 import TimeInput from './TimeInput';
@@ -24,16 +23,14 @@ export default function TimeInputWithButton<T extends string>(props: PropsWithCh
 
   return (
     <InputGroup size='sm' className={inputClasses} width='fit-content'>
-      <Tooltip label={placeholder} openDelay={tooltipDelayFast} variant='ontime-ondark'>
-        <TimeInput<T>
-          name={name}
-          submitHandler={submitHandler}
-          time={time}
-          placeholder={placeholder}
-          className={style.inputField}
-          disabled={disabled}
-        />
-      </Tooltip>
+      <TimeInput<T>
+        name={name}
+        submitHandler={submitHandler}
+        time={time}
+        placeholder={placeholder}
+        className={style.inputField}
+        disabled={disabled}
+      />
       {children}
     </InputGroup>
   );

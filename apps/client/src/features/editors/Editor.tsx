@@ -5,7 +5,6 @@ import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary'
 import AppSettings from '../app-settings/AppSettings';
 import { SettingsOptionId, useSettingsStore } from '../app-settings/settingsStore';
 import MenuBar from '../menu/MenuBar';
-import SheetsModal from '../modals/sheets-modal/SheetsModal';
 import UploadModal from '../modals/upload-modal/UploadModal';
 import Overview from '../overview/Overview';
 
@@ -26,7 +25,6 @@ export default function Editor() {
 
   const { isOpen: isOldSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
   const { isOpen: isUploadModalOpen, onOpen: onUploadModalOpen, onClose: onUploadModalClose } = useDisclosure();
-  const { isOpen: isSheetsOpen, onOpen: onSheetsOpen, onClose: onSheetsClose } = useDisclosure();
 
   // Set window title
   useEffect(() => {
@@ -40,7 +38,6 @@ export default function Editor() {
       <ErrorBoundary>
         <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
         <SettingsModal isOpen={isOldSettingsOpen} onClose={onSettingsClose} />
-        <SheetsModal onClose={onSheetsClose} isOpen={isSheetsOpen} />
       </ErrorBoundary>
       <div className={styles.mainContainer} data-testid='event-editor'>
         <ErrorBoundary>
@@ -52,8 +49,6 @@ export default function Editor() {
             onUploadOpen={onUploadModalOpen}
             openSettings={handleSettings}
             isSettingsOpen={isSettingsOpen}
-            isSheetsOpen={isSheetsOpen}
-            onSheetsOpen={onSheetsOpen}
           />
         </ErrorBoundary>
         {showSettings ? (

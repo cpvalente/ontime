@@ -97,7 +97,11 @@ export default function OscIntegrations() {
         </div>
       </Panel.SubHeader>
 
+      <Panel.Divider />
+
+
       <Panel.Section as='form' id='osc-form' onSubmit={handleSubmit(onSubmit)} onKeyDown={preventEscape}>
+        <Panel.Title>OSC Settings</Panel.Title>
         {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
         <Panel.ListGroup>
           <Panel.ListItem>

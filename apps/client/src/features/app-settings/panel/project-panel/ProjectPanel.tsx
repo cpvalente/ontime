@@ -19,9 +19,14 @@ export default function ProjectPanel() {
         <Panel.Card>
           <Panel.SubHeader>
             Manage projects
-            <Button variant='ontime-filled' onClick={handleToggleCreate}>
-              New
-            </Button>
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <Button variant='ontime-subtle' onClick={handleToggleCreate} size='sm'>
+                Import
+              </Button>
+              <Button variant='ontime-subtle' onClick={handleToggleCreate} size='sm'>
+                Add
+              </Button>
+            </div>
           </Panel.SubHeader>
           <ProjectList onToggleCreate={handleToggleCreate} isCreatingProject={isCreatingProject} />
         </Panel.Card>
