@@ -30,6 +30,10 @@ describe('safeMerge', () => {
       user0: 'existing user0',
       user1: 'existing user1',
     },
+    customFields: {
+      lighting: { type: 'string', label: 'lighting' },
+      vfx: { type: 'string', label: 'vfx' },
+    },
     osc: {
       portIn: 8888,
       portOut: 9999,
@@ -211,5 +215,30 @@ describe('safeMerge', () => {
     //@ts-expect-error -- testing partial merge
     const result = safeMerge(existing, newData);
     expect(result.userFields).toEqual(expected);
+  });
+
+  it('merges customFields into existing object', () => {
+    const existing = {
+      customFields: {
+        lighting: { type: 'string', label: 'lighting' },
+        sound: { type: 'string', label: 'sound' },
+      },
+    };
+
+    const newData = {
+      customFields: {
+        switcher: { type: 'string', label: 'switcher' },
+        vfx: { type: 'string', label: 'vfx' },
+      },
+    };
+
+    const expected = {
+      switcher: { type: 'string', label: 'switcher' },
+      vfx: { type: 'string', label: 'vfx' },
+    };
+
+    //@ts-expect-error -- testing partial merge
+    const result = safeMerge(existing, newData);
+    expect(result.customFields).toEqual(expected);
   });
 });

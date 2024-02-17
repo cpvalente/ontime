@@ -1,4 +1,6 @@
-export type CustomInfo = {
+export type CustomField = {
   type: 'string';
+  label: 'string';
 };
-export type CustomFieldDefinitions = Record<string, CustomInfo>;
+
+export type CustomFields = Record<string, CustomField>;

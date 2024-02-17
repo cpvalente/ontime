@@ -11,7 +11,7 @@ import {
   UserFields,
   Alias,
   Settings,
-  CustomFieldDefinitions,
+  CustomFields,
   HttpSettings,
 } from 'ontime-types';
 
@@ -33,13 +33,13 @@ export class DataProvider {
     return data.project;
   }
 
-  static async setCustomField(newData: CustomFieldDefinitions): Promise<CustomFieldDefinitions> {
+  static async setCustomFields(newData: CustomFields): Promise<CustomFields> {
     data.customFields = { ...newData };
     await this.persist();
     return data.customFields;
   }
 
-  static getCustomField(): CustomFieldDefinitions {
+  static getCustomFields(): CustomFields {
     return data.customFields;
   }
 
@@ -121,6 +121,7 @@ export class DataProvider {
     data.http = mergedData.http;
     data.aliases = mergedData.aliases;
     data.userFields = mergedData.userFields;
+    data.customFields = mergedData.customFields;
     data.rundown = mergedData.rundown;
     await this.persist();
   }

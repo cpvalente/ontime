@@ -3,6 +3,6 @@
  * @returns {boolean}
  */
 export const isAlphanumeric = (text: string): boolean => {
-  const regex = /^[a-zA-Z0-9]+$/;
+  const regex = /^[a-z0-9]+$/i;
   return regex.test(text);
 };

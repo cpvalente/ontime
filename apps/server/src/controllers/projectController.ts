@@ -1,6 +1,6 @@
-import { RequestHandler } from 'express';
+import type { Request, Response, RequestHandler } from 'express';
 
-import { ProjectData } from 'ontime-types';
+import { CustomFields, ProjectData } from 'ontime-types';
 
 import { removeUndefined } from '../utils/parserUtils.js';
 import { failEmptyObjects } from '../utils/routerUtils.js';
@@ -35,44 +35,42 @@ export const postProject: RequestHandler = async (req, res) => {
   }
 };
 
-export const getCustomFields: RequestHandler = async (req, res) => {
-  res.json(DataProvider.getCustomField());
+export const getCustomFields: RequestHandler = async (_req: Request, res: Response<CustomFields>) => {
+  res.json(DataProvider.getCustomFields());
 };
 
-//Expects {label:'name for the Field', type: 'string | ..'}
-export const postCustomField: RequestHandler = async (req, res) => {
+export const postCustomField: RequestHandler = async (req: Request, res: Response) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
-  //TODO: validate
+
   try {
-    const { label, ...rest } = req.body;
-    const newFields = await createCustomField(label, rest);
-    res.json(newFields);
+    const { label, field } = req.body;
+    const newFields = await createCustomField(label, field);
+    res.status(201).send(newFields);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
 };
 
-//Expects {label: { type: 'string | ..'}}
-export const putCustomField: RequestHandler = async (req, res) => {
+// Expects { label: { type: 'string | ..' } }
+export const putCustomField: RequestHandler = async (req: Request, res: Response) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
-  //TODO: validate
+
   try {
     const newFields = await editCustomField(req.body.id, req.body.field);
-    res.json(newFields);
+    res.status(200).send(newFields);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
 };
 
-//Expects label
-export const deleteCustomField: RequestHandler = async (req, res) => {
-  //TODO: validate
+export const deleteCustomField: RequestHandler = async (req: Request, res: Response) => {
   try {
-    await removeCustomField(req.params.label);
+    const fieldToDelete = req.params.label;
+    await removeCustomField(fieldToDelete);
     res.sendStatus(204);
   } catch (error) {
     res.status(400).send({ message: error.toString() });

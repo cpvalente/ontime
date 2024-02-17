@@ -1,7 +1,6 @@
 import { body, validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
 
-//TODO: add customFields validation
 export const projectSanitiser = [
   body('title').optional().isString().trim(),
   body('description').optional().isString().trim(),
@@ -10,6 +9,27 @@ export const projectSanitiser = [
   body('backstageUrl').optional().isString().trim(),
   body('backstageInfo').optional().isString().trim(),
   body('endMessage').optional().isString().trim(),
+
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
+
+export const validateCustomField = [
+  body('label').isString().trim(),
+  body('field').isString().trim(),
+
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
+
+export const valdiateDeleteCustomField = [
+  body('label').isString(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

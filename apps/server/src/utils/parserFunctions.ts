@@ -13,7 +13,7 @@ import {
   isOntimeEvent,
   isOntimeDelay,
   isOntimeBlock,
-  CustomFieldDefinitions,
+  CustomFields,
   isOntimeCycle,
   HttpSubscription,
 } from 'ontime-types';
@@ -283,8 +283,8 @@ export const parseUserFields = (data): UserFields => {
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseCustomFields = (data): CustomFieldDefinitions => {
-  let newCustomFields: CustomFieldDefinitions = { ...dbModel.customFields };
+export const parseCustomFields = (data): CustomFields => {
+  let newCustomFields: CustomFields = { ...dbModel.customFields };
 
   if ('customFields' in data) {
     console.log('Found Custom Fields definition, importing...');
