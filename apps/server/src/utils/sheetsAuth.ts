@@ -247,17 +247,18 @@ class Sheet {
       spreadsheetId: sheetId,
     });
 
-    if (spreadsheets.status === 200) {
-      const ourWorksheetData = spreadsheets.data.sheets.find((n) => n.properties.title == worksheet);
-      if (ourWorksheetData !== undefined) {
-        const endCell = getA1Notation(
-          ourWorksheetData.properties.gridProperties.rowCount,
-          ourWorksheetData.properties.gridProperties.columnCount,
-        );
-        return { worksheetId: ourWorksheetData.properties.sheetId, range: `${worksheet}!A1:${endCell}` };
-      }
-    } else {
-      throw new Error('Unable to open spreadsheets');
+    if (spreadsheets.status !== 200) {
+      throw new Error(`Request failed: ${spreadsheets.status} ${spreadsheets.statusText}`);
+    }
+
+    const ourWorksheetData = spreadsheets.data.sheets.find((n) => n.properties.title == worksheet);
+
+    if (ourWorksheetData !== undefined) {
+      const endCell = getA1Notation(
+        ourWorksheetData.properties.gridProperties.rowCount,
+        ourWorksheetData.properties.gridProperties.columnCount,
+      );
+      return { worksheetId: ourWorksheetData.properties.sheetId, range: `${worksheet}!A1:${endCell}` };
     }
   }
 
