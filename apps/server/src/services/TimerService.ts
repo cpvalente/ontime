@@ -133,12 +133,8 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // we do the comparison by explicitely fop each property
     // to apply custom logic for different datasets
 
-    // we assume clock always changes
+    // assume clock always changes
     const shouldUpdate = state.clock - TimerService.previousUpdate >= TimerService._updateInterval;
-    if (shouldUpdate) {
-      TimerService.previousUpdate = state.clock;
-      eventStore.set('clock', state.clock);
-    }
 
     const hasImmediateChanges =
       !TimerService.previousState?.timer || TimerService.previousState.timer.playback !== state.timer.playback;
@@ -172,15 +168,20 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       TimerService.previousState.publicEventNext = { ...state.publicEventNext };
     }
 
-    // we write to restore service if the underlying data changes
-    restoreService.save({
-      playback: state.timer.playback,
-      selectedEventId: state.eventNow?.id ?? null,
-      startedAt: state.timer.startedAt,
-      addedTime: state.timer.addedTime,
-      pausedAt: state._timer.pausedAt,
-      firstStart: state.runtime.actualStart,
-    });
+    if (shouldUpdate) {
+      TimerService.previousUpdate = state.clock;
+      eventStore.set('clock', state.clock);
+
+      // we write to restore service if the underlying data changes
+      restoreService.save({
+        playback: state.timer.playback,
+        selectedEventId: state.eventNow?.id ?? null,
+        startedAt: state.timer.startedAt,
+        addedTime: state.timer.addedTime,
+        pausedAt: state._timer.pausedAt,
+        firstStart: state.runtime.actualStart,
+      });
+    }
 
     return result;
   };
