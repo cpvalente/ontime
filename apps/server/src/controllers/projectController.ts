@@ -39,6 +39,7 @@ export const getCustomFields: RequestHandler = async (_req: Request, res: Respon
   res.json(DataProvider.getCustomFields());
 };
 
+// Expects { label: <lable> type: 'string | ..' }
 export const postCustomField: RequestHandler = async (req: Request, res: Response) => {
   if (failEmptyObjects(req.body, res)) {
     return;
@@ -53,7 +54,7 @@ export const postCustomField: RequestHandler = async (req: Request, res: Respons
   }
 };
 
-// Expects { label: { type: 'string | ..' } }
+// Expects { label: <oldLable>, field: { label: <newlable> type: 'string | ..' } }
 export const putCustomField: RequestHandler = async (req: Request, res: Response) => {
   if (failEmptyObjects(req.body, res)) {
     return;
@@ -67,6 +68,7 @@ export const putCustomField: RequestHandler = async (req: Request, res: Response
   }
 };
 
+// Expects { label: <lable> }
 export const deleteCustomField: RequestHandler = async (req: Request, res: Response) => {
   try {
     const fieldToDelete = req.params.label;
