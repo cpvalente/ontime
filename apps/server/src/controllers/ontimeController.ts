@@ -752,8 +752,8 @@ export async function pullSheet(req: Request, res: Response) {
  */
 export async function pushSheet(req: Request, res: Response) {
   try {
-    const { id, options } = req.body;
-    await sheet.push(id, options);
+    const { sheetId, options } = req.body;
+    await sheet.push(sheetId, options);
     res.status(200).send();
   } catch (error) {
     res.status(500).send({ message: String(error) });
