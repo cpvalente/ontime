@@ -24,11 +24,22 @@ describe('safeMerge', () => {
     viewSettings: {
       overrideStyles: false,
       endMessage: 'existing endMessage',
+      normalColor: '#ffffffcc',
+      warningColor: '#FFAB33',
+      dangerColor: '#ED3333',
     },
     aliases: [],
     userFields: {
       user0: 'existing user0',
       user1: 'existing user1',
+      user2: 'existing user2',
+      user3: 'existing user3',
+      user4: 'existing user4',
+      user5: 'existing user5',
+      user6: 'existing user6',
+      user7: 'existing user7',
+      user8: 'existing user8',
+      user9: 'existing user9',
     },
     customFields: {
       lighting: { type: 'string', label: 'lighting' },
