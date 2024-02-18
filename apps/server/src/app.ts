@@ -43,7 +43,8 @@ import { restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
 import { populateDemo } from './modules/loadDemo.js';
 import { getState, updateRundownData } from './stores/runtimeState.js';
-import { setRundown, getPlayableEvents } from './services/rundown-service/RundownService.js';
+import { setRundown } from './services/rundown-service/RundownService.js';
+import { getPlayableEvents } from './services/rundown-service/rundownUtils.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 

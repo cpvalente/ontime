@@ -3,7 +3,7 @@ import { calculateDuration, dayInMs, getFirstEvent, getLastEvent } from 'ontime-
 
 import { clock } from '../services/Clock.js';
 import { RestorePoint } from '../services/RestoreService.js';
-import { getPlayableEvents } from '../services/rundown-service/RundownService.js';
+
 import {
   getCurrent,
   getExpectedFinish,
@@ -79,9 +79,12 @@ export function clear() {
   runtimeState.eventNext = null;
   runtimeState.publicEventNext = null;
 
-  runtimeState.runtime = { ...initialRuntime, actualStart: runtimeState.runtime.actualStart };
-  // TODO: can we cleanup the initialisation of runtime state?
-  runtimeState.runtime.numEvents = fetchNumEvents();
+  runtimeState.runtime = {
+    ...initialRuntime,
+    // persist session stuff
+    actualStart: runtimeState.runtime.actualStart,
+    numEvents: runtimeState.runtime.numEvents,
+  };
 
   runtimeState.timer.playback = Playback.Stop;
   runtimeState.clock = clock.timeNow();
@@ -103,14 +106,6 @@ function patchTimer(newState: Partial<TimerState>) {
       runtimeState.timer[key] = newState[key];
     }
   }
-}
-
-/**
- * Utility, fetches number of events from EventLoader
- */
-function fetchNumEvents(): number {
-  // TODO: could we avoid having this dependency?
-  return getPlayableEvents().length;
 }
 
 /**

@@ -1,4 +1,4 @@
-import { OntimeEvent } from 'ontime-types';
+import { OntimeEvent, RuntimeStore } from 'ontime-types';
 
 import { deepEqual } from 'fast-equals';
 
@@ -66,11 +66,12 @@ export class TimerService {
   @broadcastResult
   pause() {
     if (!runtimeState.pause()) {
-      return;
+      return false;
     }
 
     // cancel end callback
     clearTimeout(this.endCallback);
+    return true;
   }
 
   @broadcastResult
@@ -81,6 +82,7 @@ export class TimerService {
 
     // cancel end callback
     clearTimeout(this.endCallback);
+    return true;
   }
 
   /**
@@ -137,7 +139,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // we do the comparison by explicitly for each property
     // to apply custom logic for different datasets
 
-    // assume clock always changes
+    // some of the data, we only update at intervals
     const isTimeToUpdate = state.clock - TimerService.previousUpdate >= TimerService._updateInterval;
 
     // some changes need an immediate update
@@ -156,31 +158,28 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       TimerService.previousState.runtime = { ...state.runtime };
     }
 
-    if (!deepEqual(TimerService.previousState?.eventNow, state.eventNow)) {
-      eventStore.set('eventNow', state.eventNow);
-      TimerService.previousState.eventNow = { ...state.eventNow };
-    }
-
-    if (!deepEqual(TimerService.previousState?.publicEventNow, state.publicEventNow)) {
-      eventStore.set('publicEventNow', state.publicEventNow);
-      TimerService.previousState.publicEventNow = { ...state.publicEventNow };
-    }
-
-    if (!deepEqual(TimerService.previousState?.eventNext, state.eventNext)) {
-      eventStore.set('eventNext', state.eventNext);
-      TimerService.previousState.eventNext = { ...state.eventNext };
-    }
-
-    if (!deepEqual(TimerService.previousState?.publicEventNext, state.publicEventNext)) {
-      eventStore.set('publicEventNext', state.publicEventNext);
-      TimerService.previousState.publicEventNext = { ...state.publicEventNext };
-    }
+    // Update the events if they have changed
+    updateEventIfChanged('eventNow', state);
+    updateEventIfChanged('publicEventNow', state);
+    updateEventIfChanged('eventNext', state);
+    updateEventIfChanged('publicEventNext', state);
 
     if (isTimeToUpdate) {
       TimerService.previousUpdate = state.clock;
       eventStore.set('clock', state.clock);
+      saveRestoreState(state);
+    }
 
-      // we write to restore service if the underlying data changes
+    // Helper function to update an event if it has changed
+    function updateEventIfChanged(eventKey: keyof RuntimeStore, state: RuntimeState) {
+      if (!deepEqual(TimerService.previousState?.[eventKey], state[eventKey])) {
+        eventStore.set(eventKey, state[eventKey]);
+        TimerService.previousState[eventKey] = { ...state[eventKey] };
+      }
+    }
+
+    // Helper function to save the restore state
+    function saveRestoreState(state: RuntimeState) {
       restoreService.save({
         playback: state.timer.playback,
         selectedEventId: state.eventNow?.id ?? null,

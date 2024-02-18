@@ -6,7 +6,6 @@ import { logger } from '../../classes/Logger.js';
 import { RestorePoint } from '../RestoreService.js';
 
 import * as runtimeState from '../../stores/runtimeState.js';
-import { type UpdateResult } from '../../stores/runtimeState.js';
 
 import {
   findNext,
@@ -15,7 +14,7 @@ import {
   getEventWithCue,
   getEventWithId,
   getPlayableEvents,
-} from '../rundown-service/RundownService.js';
+} from '../rundown-service/rundownUtils.js';
 import { integrationService } from '../integration-service/IntegrationService.js';
 import { timerConfig } from '../../config/config.js';
 
@@ -27,7 +26,8 @@ class RuntimeService {
   private eventTimer: TimerService | null = null;
   private lastOnUpdate: number = -1;
 
-  checkTimerUpdate({ shouldCallRoll, hasTimerFinished }: UpdateResult) {
+  /** Checks result of an update and notifies integrations as needed */
+  checkTimerUpdate({ shouldCallRoll, hasTimerFinished }: runtimeState.UpdateResult) {
     const newState = runtimeState.getState();
 
     if (hasTimerFinished) {
@@ -64,6 +64,7 @@ class RuntimeService {
     }
   }
 
+  /** delay initialisation until we have a restore point */
   init(resumable: RestorePoint | null) {
     logger.info(LogOrigin.Server, 'Runtime service started');
     // calculate at 30fps, refresh at 1fps
@@ -140,14 +141,11 @@ class RuntimeService {
     return foundNew;
   }
 
-  reset() {
-    runtimeState.clear();
-  }
-
   /**
-   * check whether underlying data of runtime has changed
+   * Called when the underlying data has changed,
+   * we check if the change affects the runtime
    */
-  update(affectedIds?: string[]) {
+  maybeUpdate(playableEvents: OntimeEvent[], affectedIds?: string[]) {
     const state = runtimeState.getState();
     const hasLoadedElements = state.eventNow || state.eventNext;
     if (!hasLoadedElements) {
@@ -177,7 +175,6 @@ class RuntimeService {
     isNext = this.isNewNext();
     if (isNext) {
       // TODO: do i need to load here?
-      const playableEvents = getPlayableEvents();
       runtimeState.loadNext(playableEvents);
     }
   }

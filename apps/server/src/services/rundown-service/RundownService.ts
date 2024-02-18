@@ -3,11 +3,11 @@ import {
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
-  OntimeRundown,
   OntimeRundownEntry,
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
+  OntimeRundown,
 } from 'ontime-types';
 import { getCueCandidate } from 'ontime-utils';
 
@@ -19,6 +19,7 @@ import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 import * as cache from './rundownCache.js';
+import { getPlayableEvents } from './rundownUtils.js';
 
 function generateEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>) {
   // we discard any UI provided events and add our own
@@ -65,7 +66,7 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
   notifyChanges({ timer: [newEvent.id], external: true });
 
   // notify runtime that rundown size has changed
-  updateChangeNumEvents();
+  updateRuntimeOnChange();
 
   return newEvent;
 }
@@ -82,7 +83,7 @@ export async function deleteEvent(eventId: string) {
   notifyChanges({ timer: [eventId], external: true });
 
   // notify event loader that rundown size has changed
-  updateChangeNumEvents();
+  updateRuntimeOnChange();
 }
 
 /**
@@ -158,7 +159,7 @@ export async function swapEvents(from: string, to: string) {
  * Forces update in the store
  * Called when we make changes to the rundown object
  */
-function updateChangeNumEvents() {
+function updateRuntimeOnChange() {
   updateRundownData(getPlayableEvents());
 }
 
@@ -167,122 +168,19 @@ function updateChangeNumEvents() {
  */
 export function notifyChanges(options: { timer?: boolean | string[]; external?: boolean }) {
   if (options.timer) {
+    const playableEvents = getPlayableEvents();
     // notify timer service of changed events
     // timer can be true or an array of changed IDs
     if (Array.isArray(options.timer)) {
-      runtimeService.update(options.timer);
+      runtimeService.maybeUpdate(playableEvents, options.timer);
     }
-    runtimeService.update();
+    runtimeService.maybeUpdate(playableEvents);
   }
 
   if (options.external) {
     // advice socket subscribers of change
     sendRefetch();
   }
-}
-
-/**
- * returns entire unfiltered rundown
- * @return {array}
- */
-export function getRundown(): OntimeRundown {
-  return cache.getPersistedRundown();
-}
-
-/**
- * returns all events of type OntimeEvent
- * @return {array}
- */
-export function getTimedEvents(): OntimeEvent[] {
-  return getRundown().filter((event) => isOntimeEvent(event)) as OntimeEvent[];
-}
-
-/**
- * returns all events that can be loaded
- * @return {array}
- */
-export function getPlayableEvents(): OntimeEvent[] {
-  return getRundown().filter((event) => isOntimeEvent(event) && !event.skip) as OntimeEvent[];
-}
-
-/**
- * returns number of events that can be loaded
- * @return {number}
- */
-export function getNumEvents(): number {
-  return getPlayableEvents().length;
-}
-
-/**
- * returns an event given its index after filtering for OntimeEvents
- * @param {number} eventIndex
- * @return {OntimeEvent | undefined}
- */
-export function getEventAtIndex(eventIndex: number): OntimeEvent | undefined {
-  const timedEvents = getTimedEvents();
-  return timedEvents.at(eventIndex);
-}
-
-/**
- * returns first event that matches a given ID
- * @param {string} eventId
- * @return {object | undefined}
- */
-export function getEventWithId(eventId: string): OntimeEvent | undefined {
-  const timedEvents = getTimedEvents();
-  return timedEvents.find((event) => event.id === eventId);
-}
-
-/**
- * returns first event that matches a given cue
- * @param {string} cue
- * @return {object | undefined}
- */
-export function getEventWithCue(cue: string): OntimeEvent | undefined {
-  const timedEvents = getTimedEvents();
-  return timedEvents.find((event) => event.cue.toLowerCase() === cue.toLowerCase());
-}
-
-/**
- * finds the previous event
- * @return {object | undefined}
- */
-export function findPrevious(currentEventId?: string): OntimeEvent | null {
-  const timedEvents = getPlayableEvents();
-  if (!timedEvents || !timedEvents.length) {
-    return null;
-  }
-
-  // if there is no event running, go to first
-  if (!currentEventId) {
-    return timedEvents.at(0) ?? null;
-  }
-
-  const currentIndex = timedEvents.findIndex((event) => event.id === currentEventId);
-  const newIndex = Math.max(currentIndex - 1, 0);
-  const previousEvent = timedEvents.at(newIndex) ?? null;
-  return previousEvent;
-}
-
-/**
- * finds the next event
- * @return {object | undefined}
- */
-export function findNext(currentEventId?: string): OntimeEvent | null {
-  const timedEvents = getPlayableEvents();
-  if (!timedEvents || !timedEvents.length) {
-    return null;
-  }
-
-  // if there is no event running, go to first
-  if (!currentEventId) {
-    return timedEvents.at(0) ?? null;
-  }
-
-  const currentIndex = timedEvents.findIndex((event) => event.id === currentEventId);
-  const newIndex = (currentIndex + 1) % timedEvents.length;
-  const nextEvent = timedEvents.at(newIndex);
-  return nextEvent ?? null;
 }
 
 /**
