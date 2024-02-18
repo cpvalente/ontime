@@ -67,6 +67,13 @@ export class SocketServer implements IAdapter {
         }),
       );
 
+      ws.send(
+        JSON.stringify({
+          type: 'client-list',
+          payload: Array.from(this.clientIds),
+        }),
+      );
+
       ws.on('error', console.error);
 
       ws.on('close', () => {
@@ -102,6 +109,16 @@ export class SocketServer implements IAdapter {
               JSON.stringify({
                 type: 'client-name',
                 payload: clientId,
+              }),
+            );
+            return;
+          }
+
+          if (type === 'get-client-list') {
+            ws.send(
+              JSON.stringify({
+                type: 'client-list',
+                payload: Array.from(this.clientIds),
               }),
             );
             return;
