@@ -2,6 +2,7 @@ import { Log, RuntimeStore } from 'ontime-types';
 
 import { isProduction, RUNTIME, websocketUrl } from '../api/constants';
 import { ontimeQueryClient } from '../queryClient';
+import { clientListStore } from '../stores/clientList';
 import { socketClientName } from '../stores/connectionName';
 import { addLog } from '../stores/logger';
 import { patchRuntime, runtimeStore } from '../stores/runtime';
@@ -56,6 +57,10 @@ export const connectSocket = (preferredClientName?: string) => {
       switch (type) {
         case 'client-name': {
           socketClientName.getState().setName(payload);
+          break;
+        }
+        case 'client-list': {
+          clientListStore.setState(payload);
           break;
         }
         case 'ontime-log': {
