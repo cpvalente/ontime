@@ -106,8 +106,7 @@ function patchTimer(newState: Partial<TimerState>) {
 }
 
 /**
- * Utility, getches number of events from EventLoader
- * @param numEvents
+ * Utility, fetches number of events from EventLoader
  */
 function fetchNumEvents(): number {
   // TODO: could we avoid having this dependency?
@@ -116,7 +115,7 @@ function fetchNumEvents(): number {
 
 /**
  * Utility, allows updating data derived from the rundown
- * @param numEvents
+ * @param playableRundown
  */
 export function updateRundownData(playableRundown: OntimeEvent[]) {
   runtimeState.runtime.numEvents = playableRundown.length;

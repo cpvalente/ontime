@@ -267,8 +267,7 @@ class RuntimeService {
     if (!event) {
       return false;
     }
-    const success = this.loadEvent(event);
-    return success;
+    return this.loadEvent(event);
   }
 
   /**
@@ -281,8 +280,7 @@ class RuntimeService {
     if (!event) {
       return false;
     }
-    const success = this.loadEvent(event);
-    return success;
+    return this.loadEvent(event);
   }
 
   /**
@@ -295,8 +293,7 @@ class RuntimeService {
     if (!event) {
       return false;
     }
-    const success = this.loadEvent(event);
-    return success;
+    return this.loadEvent(event);
   }
 
   /**
@@ -307,8 +304,7 @@ class RuntimeService {
     const state = runtimeState.getState();
     const previousEvent = findPrevious(state.eventNow?.id);
     if (previousEvent) {
-      const success = this.loadEvent(previousEvent);
-      return success;
+      return this.loadEvent(previousEvent);
     }
     return false;
   }
@@ -321,8 +317,7 @@ class RuntimeService {
     const state = runtimeState.getState();
     const nextEvent = findNext(state.eventNow?.id);
     if (nextEvent) {
-      const success = this.loadEvent(nextEvent);
-      return success;
+      return this.loadEvent(nextEvent);
     }
 
     logger.info(LogOrigin.Playback, 'No next event found! Continuing playback');
