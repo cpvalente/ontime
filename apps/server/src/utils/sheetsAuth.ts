@@ -1,4 +1,4 @@
-import { DatabaseModel, LogOrigin } from 'ontime-types';
+import { DatabaseModel, LogOrigin, MaybeString } from 'ontime-types';
 import { ExcelImportMap } from 'ontime-utils';
 
 import { sheets, sheets_v4 } from '@googleapis/sheets';
@@ -26,8 +26,10 @@ class Sheet {
   private readonly sheetsFolder: string;
   private readonly clientSecretFile: string;
   private static clientSecret = null;
-  private static authUrl: null | string = null;
   private authServerTimeout;
+
+  private currentAuthUrl: MaybeString = null;
+  private currentAuthCode: MaybeString = null;
 
   private readonly requiredClientKeys = [
     'client_id',
@@ -63,8 +65,9 @@ class Sheet {
    */
   public async saveClientSecrets(secrets: object) {
     Sheet.client = null;
-    Sheet.authUrl = null;
     Sheet.clientSecret = null;
+    this.currentAuthUrl = null;
+    this.currentAuthCode = null;
 
     const isKeyMissing = this.requiredClientKeys.some((key) => !(key in secrets['installed']));
     if (isKeyMissing) {
@@ -89,7 +92,7 @@ class Sheet {
    * @returns {Promise<string | null>} - returns url path serve on success
    * @throws
    */
-  async openAuthServer(): Promise<string | null> {
+  async openAuthServer(): Promise<{ verification_url: string; user_code: string }> {
     // Check that Secret is valid
     const keyFile = Sheet.clientSecret;
     const keys = keyFile.installed;
@@ -152,15 +155,13 @@ class Sheet {
     console.log(user_code);
 
     // if the server is already running return it
-    // if (Sheet.authUrl) {
-    //
-    //   this.authServerInterval = setInterval(() => {
-    //     Sheet.authUrl = null;
-    //   }, 120000);
-    //   return Sheet.authUrl;
-    // }
+    if (this.authServerTimeout) {
+      return { verification_url: this.currentAuthUrl, user_code: this.currentAuthCode };
+    }
 
-    return verification_url;
+    this.currentAuthUrl = verification_url;
+    this.currentAuthCode = user_code;
+    return { verification_url, user_code };
   }
 
   /**
@@ -232,15 +233,17 @@ class Sheet {
       throw new Error(`Request failed: ${spreadsheets.status} ${spreadsheets.statusText}`);
     }
 
-    const ourWorksheetData = spreadsheets.data.sheets.find((n) => n.properties.title == worksheet);
+    const selectedWorksheet = spreadsheets.data.sheets.find((n) => n.properties.title == worksheet);
 
-    if (ourWorksheetData !== undefined) {
-      const endCell = getA1Notation(
-        ourWorksheetData.properties.gridProperties.rowCount,
-        ourWorksheetData.properties.gridProperties.columnCount,
-      );
-      return { worksheetId: ourWorksheetData.properties.sheetId, range: `${worksheet}!A1:${endCell}` };
+    if (!selectedWorksheet) {
+      throw new Error('Could not find worksheet');
     }
+
+    const endCell = getA1Notation(
+      selectedWorksheet.properties.gridProperties.rowCount,
+      selectedWorksheet.properties.gridProperties.columnCount,
+    );
+    return { worksheetId: selectedWorksheet.properties.sheetId, range: `${worksheet}!A1:${endCell}` };
   }
 
   /**
