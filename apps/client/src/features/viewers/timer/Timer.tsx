@@ -13,7 +13,7 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { timerPlaceholder } from '../../../common/utils/styleUtils';
-import { formatTime, getDefaultFormat } from '../../../common/utils/time';
+import { formatTime } from '../../../common/utils/time';
 import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
@@ -95,6 +95,8 @@ export default function Timer(props: TimerProps) {
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
 
+  const timerIsTimeOfDay = time.timerType === TimerType.Clock;
+
   const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
 
@@ -108,12 +110,9 @@ export default function Timer(props: TimerProps) {
   const showClock = time.timerType !== TimerType.Clock;
   const showExternal = external.visible && external.text;
 
-  const timerColor =
-    showProgress && showDanger
-      ? viewSettings.dangerColor
-      : showProgress && showWarning
-      ? viewSettings.warningColor
-      : viewSettings.normalColor;
+  let timerColor = viewSettings.normalColor;
+  if (!timerIsTimeOfDay && showProgress && showWarning) timerColor = viewSettings.warningColor;
+  if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
 
   const stageTimer = getTimerByType(time);
   let display = millisToString(stageTimer, { fallback: timerPlaceholder });
@@ -123,7 +122,7 @@ export default function Timer(props: TimerProps) {
     }
     display = removeLeadingZero(display);
     // last unit rounds up in negative timers
-    const isNegative = stageTimer ?? 0 < 0;
+    const isNegative = (stageTimer ?? 0 < 0) && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
     if (isNegative && display === '0') {
       display = '-1';
     }
@@ -188,7 +187,7 @@ export default function Timer(props: TimerProps) {
       {!userOptions.hideProgress && (
         <MultiPartProgressBar
           className={isPlaying ? 'progress-container' : 'progress-container progress-container--paused'}
-          now={time.current}
+          now={timerIsTimeOfDay ? null : time.current}
           complete={totalTime}
           normalColor={viewSettings.normalColor}
           warning={eventNow?.timeWarning}

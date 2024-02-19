@@ -132,6 +132,8 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const hideTimerSeconds = searchParams.get('hideTimerSeconds');
   userOptions.hideTimerSeconds = isStringBoolean(hideTimerSeconds);
 
+  const timerIsTimeOfDay = time.timerType === TimerType.Clock;
+
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
 
@@ -145,13 +147,9 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const showBlinking = pres.blink;
   const showBlackout = pres.blackout;
 
-  const timerColor = userOptions.textColour
-    ? userOptions.textColour
-    : showProgress && showDanger
-    ? viewSettings.dangerColor
-    : showProgress && showWarning
-    ? viewSettings.warningColor
-    : viewSettings.normalColor;
+  let timerColor = viewSettings.normalColor;
+  if (!timerIsTimeOfDay && showProgress && showWarning) timerColor = viewSettings.warningColor;
+  if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
 
   const stageTimer = getTimerByType(time);
   let display = millisToString(stageTimer, { fallback: timerPlaceholder });
@@ -161,7 +159,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
     }
     display = removeLeadingZero(display);
     // last unit rounds up in negative timers
-    const isNegative = stageTimer ?? 0 < 0;
+    const isNegative = (stageTimer ?? 0 < 0) && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
     if (isNegative && display === '0') {
       display = '-1';
     }
