@@ -31,15 +31,53 @@ describe('init() function', () => {
   it('calculates delays versions of a given rundown', () => {
     const testRundown: OntimeRundown = [
       { type: SupportedEvent.Delay, id: '1', duration: 100 } as OntimeDelay,
-      { type: SupportedEvent.Event, id: '2', timeStart: 1 } as OntimeEvent,
-      { type: SupportedEvent.Block, id: '3' } as OntimeBlock,
-      { type: SupportedEvent.Event, id: '4', timeStart: 2 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '2', timeStart: 1, timeEnd: 100 } as OntimeEvent,
     ];
 
     const initResult = generate(testRundown);
-    expect(initResult.order.length).toBe(4);
+    expect(initResult.order.length).toBe(2);
     expect((initResult.rundown['2'] as OntimeEvent).delay).toBe(100);
+    expect(initResult.totalDelay).toBe(100);
+  });
+
+  it('accounts for gaps in rundown when calculating delays', () => {
+    const testRundown: OntimeRundown = [
+      { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 200 } as OntimeEvent,
+      { type: SupportedEvent.Delay, id: 'delay', duration: 200 } as OntimeDelay,
+      { type: SupportedEvent.Event, id: '2', timeStart: 200, timeEnd: 300 } as OntimeEvent,
+      { type: SupportedEvent.Block, id: 'block', title: 'break' } as OntimeBlock,
+      { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500 } as OntimeEvent,
+      { type: SupportedEvent.Block, id: 'another-block', title: 'another-break' } as OntimeBlock,
+      { type: SupportedEvent.Event, id: '4', timeStart: 600, timeEnd: 700 } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.order.length).toBe(7);
+    expect((initResult.rundown['1'] as OntimeEvent).delay).toBe(0);
+    expect((initResult.rundown['2'] as OntimeEvent).delay).toBe(200);
+    expect((initResult.rundown['3'] as OntimeEvent).delay).toBe(100);
     expect((initResult.rundown['4'] as OntimeEvent).delay).toBe(0);
+    expect(initResult.totalDelay).toBe(0);
+  });
+
+  it('handles negative delays', () => {
+    const testRundown: OntimeRundown = [
+      { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 200 } as OntimeEvent,
+      { type: SupportedEvent.Delay, id: 'delay', duration: -200 } as OntimeDelay,
+      { type: SupportedEvent.Event, id: '2', timeStart: 200, timeEnd: 300 } as OntimeEvent,
+      { type: SupportedEvent.Block, id: 'block', title: 'break' } as OntimeBlock,
+      { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500 } as OntimeEvent,
+      { type: SupportedEvent.Block, id: 'another-block', title: 'another-break' } as OntimeBlock,
+      { type: SupportedEvent.Event, id: '4', timeStart: 600, timeEnd: 700 } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.order.length).toBe(7);
+    expect((initResult.rundown['1'] as OntimeEvent).delay).toBe(0);
+    expect((initResult.rundown['2'] as OntimeEvent).delay).toBe(-200);
+    expect((initResult.rundown['3'] as OntimeEvent).delay).toBe(-200);
+    expect((initResult.rundown['4'] as OntimeEvent).delay).toBe(-200);
+    expect(initResult.totalDelay).toBe(-200);
   });
 
   it('links times across events', () => {

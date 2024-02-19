@@ -1,11 +1,4 @@
-import {
-  isOntimeBlock,
-  isOntimeDelay,
-  isOntimeEvent,
-  OntimeEvent,
-  OntimeRundown,
-  OntimeRundownEntry,
-} from 'ontime-types';
+import { isOntimeDelay, isOntimeEvent, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 import {
   generateId,
   deleteAtIndex,
@@ -31,6 +24,7 @@ let rundown: NormalisedRundown = {};
 let order: EventID[] = [];
 let revision = 0;
 let isStale = true;
+let totalDelay = 0;
 
 let links: Record<EventID, EventID> = {};
 
@@ -64,6 +58,8 @@ export function generate(initialRundown: OntimeRundown = persistedRundown) {
   links = {};
 
   let accumulatedDelay = 0;
+  let previousEnd: number;
+
   for (let i = 0; i < initialRundown.length; i++) {
     const currentEvent = initialRundown[i];
     let updatedEvent = { ...currentEvent };
@@ -89,10 +85,16 @@ export function generate(initialRundown: OntimeRundown = persistedRundown) {
     // calculate delays
     if (isOntimeDelay(updatedEvent)) {
       accumulatedDelay += updatedEvent.duration;
-    } else if (isOntimeBlock(updatedEvent)) {
-      accumulatedDelay = 0;
     } else if (isOntimeEvent(updatedEvent)) {
+      const eventStart = updatedEvent.timeStart;
+
+      // we only affect positive delays (time forwards)
+      if (accumulatedDelay > 0 && previousEnd) {
+        const gap = Math.max(eventStart - previousEnd, 0);
+        accumulatedDelay = Math.max(accumulatedDelay - gap, 0);
+      }
       updatedEvent.delay = accumulatedDelay;
+      previousEnd = updatedEvent.timeEnd;
     }
 
     order.push(updatedEvent.id);
@@ -100,7 +102,8 @@ export function generate(initialRundown: OntimeRundown = persistedRundown) {
   }
 
   isStale = false;
-  return { rundown, order, links };
+  totalDelay = accumulatedDelay;
+  return { rundown, order, links, totalDelay };
 }
 
 /** Returns an ID guaranteed to be unique */
@@ -153,6 +156,7 @@ type MutatingReturn = {
   newEvent?: OntimeRundownEntry;
 };
 type MutatingFn<T extends object> = (params: MutationParams<T>) => MutatingReturn;
+
 /**
  * Decorators injects data into mutation
  * @param mutation
@@ -182,10 +186,12 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
     // TODO: could we return a patch object?
     return { newEvent };
   }
+
   return scopedMutation;
 }
 
 type AddArgs = MutationParams<{ atIndex: number; event: OntimeRundownEntry }>;
+
 export function add({ persistedRundown, atIndex, event }: AddArgs): Required<MutatingReturn> {
   const newEvent: OntimeRundownEntry = { ...event };
   const newRundown = insertAtIndex(atIndex, newEvent, persistedRundown);
@@ -194,6 +200,7 @@ export function add({ persistedRundown, atIndex, event }: AddArgs): Required<Mut
 }
 
 type RemoveArgs = MutationParams<{ eventId: string }>;
+
 export function remove({ persistedRundown, eventId }: RemoveArgs): MutatingReturn {
   const atIndex = persistedRundown.findIndex((event) => event.id === eventId);
   const newRundown = deleteAtIndex(atIndex, persistedRundown);
@@ -222,6 +229,7 @@ function makeEvent(eventFromRundown: OntimeRundownEntry, patch: Partial<OntimeRu
 }
 
 type EditArgs = MutationParams<{ eventId: string; patch: Partial<OntimeRundownEntry> }>;
+
 export function edit({ persistedRundown, eventId, patch }: EditArgs): Required<MutatingReturn> {
   const indexAt = persistedRundown.findIndex((event) => event.id === eventId);
 
@@ -246,6 +254,7 @@ export function edit({ persistedRundown, eventId, patch }: EditArgs): Required<M
 }
 
 type BatchEditArgs = MutationParams<{ eventIds: string[]; patch: Partial<OntimeRundownEntry> }>;
+
 export function batchEdit({ persistedRundown, eventIds, patch }: BatchEditArgs): MutatingReturn {
   const ids = new Set(eventIds);
 
@@ -265,6 +274,7 @@ export function batchEdit({ persistedRundown, eventIds, patch }: BatchEditArgs):
 }
 
 type ReorderArgs = MutationParams<{ eventId: string; from: number; to: number }>;
+
 export function reorder({ persistedRundown, eventId, from, to }: ReorderArgs): Required<MutatingReturn> {
   const event = persistedRundown[from];
   if (!event || eventId !== event.id) {
@@ -282,12 +292,14 @@ export function reorder({ persistedRundown, eventId, from, to }: ReorderArgs): R
 }
 
 type ApplyDelayArgs = MutationParams<{ eventId: string }>;
+
 export function applyDelay({ persistedRundown, eventId }: ApplyDelayArgs): MutatingReturn {
   const newRundown = apply(eventId, persistedRundown);
   return { newRundown };
 }
 
 type SwapArgs = MutationParams<{ fromId: string; toId: string }>;
+
 export function swap({ persistedRundown, fromId, toId }: SwapArgs): MutatingReturn {
   const indexA = persistedRundown.findIndex((event) => event.id === fromId);
   const eventA = persistedRundown.at(indexA);
