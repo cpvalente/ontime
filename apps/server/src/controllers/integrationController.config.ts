@@ -1,5 +1,6 @@
 import { OntimeEvent, isKeyOfType, isOntimeEvent } from 'ontime-types';
-import { editEvent, getEventWithId } from '../services/rundown-service/RundownService.js';
+import { editEvent } from '../services/rundown-service/RundownService.js';
+import { getEventWithId } from '../services/rundown-service/rundownUtils.js';
 import { coerceString, coerceNumber, coerceBoolean, coerceColour } from '../utils/coerceType.js';
 
 const whitelistedPayload = {
@@ -48,21 +49,23 @@ export function updateEvent(
   newValue: OntimeEvent[typeof propertyName],
 ) {
   const event = getEventWithId(eventId);
-  if (event) {
-    if (!isOntimeEvent(event)) {
-      throw new Error('Can only update events');
-    }
-    const propertiesToUpdate = { [propertyName]: newValue };
-
-    // Handles the special case for duration
-    // needs to be converted to milliseconds
-    if (propertyName === 'duration') {
-      propertiesToUpdate.duration = (newValue as number) * 1000;
-      propertiesToUpdate.timeEnd = event.timeStart + propertiesToUpdate.duration;
-    }
-
-    editEvent({ id: eventId, ...propertiesToUpdate });
-  } else {
+  if (!event) {
     throw new Error(`Event with ID ${eventId} not found`);
   }
+
+  if (!isOntimeEvent(event)) {
+    throw new Error('Can only update events');
+  }
+
+  const propertiesToUpdate = { [propertyName]: newValue };
+
+  // Handles the special case for duration
+  // needs to be converted to milliseconds
+  if (propertyName === 'duration') {
+    propertiesToUpdate.duration = (newValue as number) * 1000;
+    propertiesToUpdate.timeEnd = event.timeStart + propertiesToUpdate.duration;
+  }
+
+  const newEvent = editEvent({ id: eventId, ...propertiesToUpdate });
+  return newEvent;
 }

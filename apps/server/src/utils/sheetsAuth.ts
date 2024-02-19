@@ -15,7 +15,7 @@ import { ensureDirectory } from './fileManagement.js';
 import { cellRequestFromEvent, getA1Notation } from './sheetUtils.js';
 import { parseExcel } from './parser.js';
 import { parseRundown, parseUserFields } from './parserFunctions.js';
-import { getRundown } from '../services/rundown-service/RundownService.js';
+import { getRundown } from '../services/rundown-service/rundownUtils.js';
 
 type ResponseOK = {
   data: Partial<DatabaseModel>;
