@@ -6,6 +6,7 @@ import { writeFile } from 'fs/promises';
 import { readFileSync } from 'fs';
 import { OAuth2Client } from 'google-auth-library';
 import { join } from 'path';
+import got from 'got';
 
 import { logger } from '../classes/Logger.js';
 import { getAppDataPath } from '../setup.js';
@@ -14,7 +15,6 @@ import { cellRequestFromEvent, getA1Notation } from './sheetUtils.js';
 import { parseExcel } from './parser.js';
 import { parseRundown, parseUserFields } from './parserFunctions.js';
 import { getRundown } from '../services/rundown-service/RundownService.js';
-import got from 'got';
 
 type ResponseOK = {
   data: Partial<DatabaseModel>;
@@ -74,10 +74,12 @@ class Sheet {
       throw new Error('Client file is missing some keys');
     }
 
-    await writeFile(this.clientSecretFile, JSON.stringify(secrets), 'utf-8').catch((err) => {
-      throw new Error(`Unable to save client file to disk ${err}`);
-    });
-    Sheet.clientSecret = secrets;
+    try {
+      await writeFile(this.clientSecretFile, JSON.stringify(secrets), 'utf-8');
+      Sheet.clientSecret = secrets;
+    } catch (error) {
+      throw new Error(`Unable to save client file to disk ${error}`);
+    }
   }
 
   /**
@@ -93,6 +95,11 @@ class Sheet {
    * @throws
    */
   async openAuthServer(): Promise<{ verification_url: string; user_code: string }> {
+    // if the server is already running return it
+    if (this.authServerTimeout) {
+      return { verification_url: this.currentAuthUrl, user_code: this.currentAuthCode };
+    }
+
     // Check that Secret is valid
     const keyFile = Sheet.clientSecret;
     const keys = keyFile.installed;
@@ -102,16 +109,12 @@ class Sheet {
       clientSecret: keys.client_secret,
     });
 
-    const deviceCodes = await got
-      .post('https://oauth2.googleapis.com/device/code', {
-        json: {
-          client_id: keys.client_id,
-          scope: sheet.scope,
-        },
-      })
-      .catch((err) => {
-        throw new Error(err);
-      });
+    const deviceCodes = await got.post('https://oauth2.googleapis.com/device/code', {
+      json: {
+        client_id: keys.client_id,
+        scope: sheet.scope,
+      },
+    });
 
     const { device_code, expires_in, interval, user_code, verification_url } = JSON.parse(deviceCodes.body);
 
@@ -148,16 +151,8 @@ class Sheet {
     clearTimeout(this.authServerTimeout);
 
     this.authServerTimeout = setTimeout(() => {
-      console.log('Auth timedout');
       clearInterval(testInterval);
     }, expires_in * 1000);
-
-    console.log(user_code);
-
-    // if the server is already running return it
-    if (this.authServerTimeout) {
-      return { verification_url: this.currentAuthUrl, user_code: this.currentAuthCode };
-    }
 
     this.currentAuthUrl = verification_url;
     this.currentAuthCode = user_code;
@@ -165,23 +160,14 @@ class Sheet {
   }
 
   /**
-   * @description STEP 2 - test that the reciveed OAuth2 is still valid
+   * @description STEP 2 - test that the received OAuth2 is still valid
    * @throws
    */
   async testAuthentication() {
     if (Sheet.client) {
       return true;
-
-      // Sheet.client.credentials
-      // const ref = await Sheet.client.refreshAccessToken();
-      // if (ref.credentials.expiry_date > 10000) {
-      //   return true;
-      // } else {
-      //   throw new Error('Unable to use access token');
-      // }
-    } else {
-      throw new Error('Unable to authenticate');
     }
+    throw new Error('Unable to authenticate');
   }
 
   /**
@@ -261,63 +247,65 @@ class Sheet {
       majorDimension: 'ROWS',
       range,
     });
-    if (readResponse.status === 200) {
-      const { rundownMetadata } = parseExcel(readResponse.data.values, options);
-      const rundown = getRundown();
-      const titleRow = Object.values(rundownMetadata)[0]['row'];
 
-      const updateRundown = Array<sheets_v4.Schema$Request>();
-
-      // we can't delete the last unfrozen row so we create an empty one
-      updateRundown.push({
-        insertDimension: {
-          inheritFromBefore: false,
-          range: {
-            dimension: 'ROWS',
-            startIndex: titleRow + 1,
-            endIndex: titleRow + 2,
-            sheetId: worksheetId,
-          },
-        },
-      });
-      //and delete the rest
-      updateRundown.push({
-        deleteDimension: { range: { dimension: 'ROWS', startIndex: titleRow + 2, sheetId: worksheetId } },
-      });
-      // insert the length of the rundown
-      updateRundown.push({
-        insertDimension: {
-          inheritFromBefore: false,
-          range: {
-            dimension: 'ROWS',
-            startIndex: titleRow + 1,
-            endIndex: titleRow + rundown.length,
-            sheetId: worksheetId,
-          },
-        },
-      });
-
-      //update the corresponding row with event data
-      rundown.forEach((entry, index) =>
-        updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, rundownMetadata)),
-      );
-
-      const writeResponse = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.batchUpdate({
-        spreadsheetId: id,
-        requestBody: {
-          includeSpreadsheetInResponse: false,
-          responseRanges: [range],
-          requests: updateRundown,
-        },
-      });
-
-      if (writeResponse.status === 200) {
-        logger.info(LogOrigin.Server, `Sheet: write: ${writeResponse.statusText}`);
-      } else {
-        throw new Error(`Sheet: write failed: ${writeResponse.statusText}`);
-      }
-    } else {
+    if (readResponse.status !== 200) {
       throw new Error(`Sheet: read failed: ${readResponse.statusText}`);
+    }
+
+    const { rundownMetadata } = parseExcel(readResponse.data.values, options);
+    const rundown = getRundown();
+    const titleRow = Object.values(rundownMetadata)[0]['row'];
+
+    const updateRundown = Array<sheets_v4.Schema$Request>();
+
+    // we can't delete the last unfrozen row so we create an empty one
+    updateRundown.push({
+      insertDimension: {
+        inheritFromBefore: false,
+        range: {
+          dimension: 'ROWS',
+          startIndex: titleRow + 1,
+          endIndex: titleRow + 2,
+          sheetId: worksheetId,
+        },
+      },
+    });
+
+    //and delete the rest
+    updateRundown.push({
+      deleteDimension: { range: { dimension: 'ROWS', startIndex: titleRow + 2, sheetId: worksheetId } },
+    });
+    // insert the length of the rundown
+    updateRundown.push({
+      insertDimension: {
+        inheritFromBefore: false,
+        range: {
+          dimension: 'ROWS',
+          startIndex: titleRow + 1,
+          endIndex: titleRow + rundown.length,
+          sheetId: worksheetId,
+        },
+      },
+    });
+
+    //update the corresponding row with event data
+    rundown.forEach((entry, index) =>
+      updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, rundownMetadata)),
+    );
+
+    const writeResponse = await sheets({ version: 'v4', auth: Sheet.client }).spreadsheets.batchUpdate({
+      spreadsheetId: id,
+      requestBody: {
+        includeSpreadsheetInResponse: false,
+        responseRanges: [range],
+        requests: updateRundown,
+      },
+    });
+
+    if (writeResponse.status === 200) {
+      logger.info(LogOrigin.Server, `Sheet: write ${writeResponse.statusText}`);
+    } else {
+      throw new Error(`Sheet: write failed ${writeResponse.statusText}`);
     }
   }
 
