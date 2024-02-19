@@ -273,6 +273,7 @@ export const shutdown = async (exitCode = 0) => {
     await restoreService.clear();
   }
 
+  // TODO: Clear token
   expressServer?.close();
   oscServer?.shutdown();
   runtimeService.shutdown();

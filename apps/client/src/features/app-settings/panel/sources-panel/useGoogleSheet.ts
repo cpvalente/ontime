@@ -101,11 +101,14 @@ export default function useGoogleSheet() {
   /** fetches data from a worksheet by its ID */
   const handleImportPreview = async (sheetId: string, worksheet: string, fileOptions: ExcelImportMap) => {
     try {
+      console.log('start');
       // update worksheet data in the server
       await postWorksheet(sheetId, worksheet);
 
       // get data from google
       const data = await postPreviewSheet(sheetId, fileOptions);
+      console.log('end');
+
       setRundown(data.rundown);
       setUserFields(data.userFields);
     } catch (error) {
