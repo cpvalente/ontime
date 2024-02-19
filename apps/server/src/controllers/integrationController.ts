@@ -185,9 +185,10 @@ const actionHandlers: Record<string, ActionHandler> = {
         }
       }
     }
-    throw new Error('Invalid extratimer payload');
+    throw new Error('Invalid extra-timer payload');
   },
 };
+
 /**
  * Returns a value of type number, converting if necessary
  * Otherwise throws

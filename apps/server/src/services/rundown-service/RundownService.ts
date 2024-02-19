@@ -45,7 +45,9 @@ function generateEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | 
  * @param {object} eventData
  * @return {OntimeRundownEntry}
  */
-export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>) {
+export async function addEvent(
+  eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>,
+): Promise<OntimeRundownEntry> {
   // if the user didnt provide an index, we add the event to start
   let atIndex = 0;
   if (eventData?.after !== undefined) {
@@ -74,7 +76,6 @@ export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeD
 /**
  * deletes event by its ID
  * @param eventId
- * @returns {Promise<void>}
  */
 export async function deleteEvent(eventId: string) {
   const scopedMutation = cache.mutateCache(cache.remove);
@@ -88,7 +89,6 @@ export async function deleteEvent(eventId: string) {
 
 /**
  * deletes all events in database
- * @returns {Promise<void>}
  */
 export async function deleteAllEvents() {
   const scopedMutation = cache.mutateCache(cache.removeAll);
@@ -98,6 +98,10 @@ export async function deleteAllEvents() {
   notifyChanges({ external: true });
 }
 
+/**
+ * Apply patch to an element in rundown
+ * @param patch
+ */
 export async function editEvent(patch: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
   if (isOntimeEvent(patch) && patch?.cue === '') {
     throw new Error('Cue value invalid');
@@ -112,6 +116,11 @@ export async function editEvent(patch: Partial<OntimeEvent> | Partial<OntimeBloc
   return newEvent;
 }
 
+/**
+ * Applies a patch to several elements in a rundown
+ * @param ids
+ * @param data
+ */
 export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>) {
   const scopedMutation = cache.mutateCache(cache.batchEdit);
   await scopedMutation({ patch: data, eventIds: ids });
@@ -124,7 +133,6 @@ export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>)
  * @param {string} eventId - ID of event from, for sanity check
  * @param {number} from - index of event from
  * @param {number} to - index of event to
- * @returns {Promise<void>}
  */
 export async function reorderEvent(eventId: string, from: number, to: number) {
   const scopedMutation = cache.mutateCache(cache.reorder);
@@ -188,6 +196,6 @@ export function notifyChanges(options: { timer?: boolean | string[]; external?: 
  * @param rundown
  */
 export async function setRundown(rundown: OntimeRundown) {
-  cache.init(rundown);
+  await cache.init(rundown);
   notifyChanges({ timer: true });
 }
