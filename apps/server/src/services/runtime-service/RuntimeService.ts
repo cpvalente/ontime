@@ -24,7 +24,7 @@ import { timerConfig } from '../../config/config.js';
  */
 class RuntimeService {
   private eventTimer: TimerService | null = null;
-  private lastOnUpdate: number = -1;
+  private lastOnUpdate = -1;
 
   /** Checks result of an update and notifies integrations as needed */
   checkTimerUpdate({ shouldCallRoll, hasTimerFinished }: runtimeState.UpdateResult) {
@@ -402,7 +402,7 @@ class RuntimeService {
 
     const playableEvents = getPlayableEvents();
     if (playableEvents.length === 0) {
-      logger.warning(LogOrigin.Server, `Roll: no events found`);
+      logger.warning(LogOrigin.Server, 'Roll: no events found');
       return;
     }
 
