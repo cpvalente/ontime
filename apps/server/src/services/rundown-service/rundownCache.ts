@@ -17,6 +17,7 @@ type EventID = string;
 type NormalisedRundown = Record<EventID, OntimeRundownEntry>;
 
 let persistedRundown: OntimeRundown = [];
+
 /** Utility function gets rundown from DataProvider */
 export const getPersistedRundown = (): OntimeRundown => persistedRundown;
 
