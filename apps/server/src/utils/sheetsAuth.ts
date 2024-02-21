@@ -5,9 +5,7 @@ import { sheets, sheets_v4 } from '@googleapis/sheets';
 import { writeFile } from 'fs/promises';
 import { readFileSync } from 'fs';
 import { OAuth2Client } from 'google-auth-library';
-import http from 'http';
 import { join } from 'path';
-import { URL } from 'url';
 
 import { logger } from '../classes/Logger.js';
 import { getAppDataPath } from '../setup.js';
@@ -15,7 +13,8 @@ import { ensureDirectory } from './fileManagement.js';
 import { cellRequestFromEvent, getA1Notation } from './sheetUtils.js';
 import { parseExcel } from './parser.js';
 import { parseRundown, parseUserFields } from './parserFunctions.js';
-import { getRundown } from '../services/rundown-service/rundownUtils.js';
+import { getRundown } from '../services/rundown-service/RundownService.js';
+import got from 'got';
 
 type ResponseOK = {
   data: Partial<DatabaseModel>;
@@ -32,12 +31,11 @@ class Sheet {
 
   private readonly requiredClientKeys = [
     'client_id',
-    'project_id',
     'auth_uri',
+    'token_uri',
     'token_uri',
     'auth_provider_x509_cert_url',
     'client_secret',
-    'redirect_uris',
   ];
 
   constructor() {
@@ -92,97 +90,77 @@ class Sheet {
    * @throws
    */
   async openAuthServer(): Promise<string | null> {
-    //TODO: this only works in local networks
-
-    // if the server is already running return it
-    if (Sheet.authUrl) {
-      clearTimeout(this.authServerTimeout);
-      this.authServerTimeout = setTimeout(() => {
-        Sheet.authUrl = null;
-        server.unref();
-      }, 120000);
-      return Sheet.authUrl;
-    }
-
     // Check that Secret is valid
     const keyFile = Sheet.clientSecret;
-    const keys = keyFile.installed || keyFile.web;
-    if (!keys.redirect_uris || keys.redirect_uris.length === 0) {
-      throw new Error('Sheet: Missing redirect URI');
-    }
-    const redirectUri = new URL(keys.redirect_uris[0]);
-    if (redirectUri.hostname !== 'localhost') {
-      throw new Error('Sheet: Invalid redirect URI');
-    }
+    const keys = keyFile.installed;
 
-    // create an oAuth client to authorize the API call
     const client = new OAuth2Client({
       clientId: keys.client_id,
       clientSecret: keys.client_secret,
     });
 
-    // start the server that will recive the codes
-    const server = http.createServer(async (req, res) => {
-      try {
-        const serverUrl = new URL(req.url, 'http://localhost:3000');
-        if (serverUrl.pathname !== redirectUri.pathname) {
-          res.end('Invalid callback URL');
-          return;
-        }
-        const searchParams = serverUrl.searchParams;
-        if (searchParams.has('error')) {
-          res.end('Authorization rejected.');
-          logger.info(LogOrigin.Server, `Sheet: ${searchParams.get('error')}`);
-          return;
-        }
-        if (!searchParams.has('code')) {
-          res.end('No authentication code provided.');
-          logger.info(LogOrigin.Server, 'Sheet: Cannot read authentication code');
-          return;
-        }
-        const code = searchParams.get('code');
-        const { tokens } = await client.getToken({
-          code,
-          redirect_uri: redirectUri.toString(),
-        });
-        client.credentials = tokens;
-        Sheet.client = client;
-        res.end('Authentication successful! Please close this tab and return to OnTime.');
-        logger.info(LogOrigin.Server, 'Sheet: Authentication successful');
-      } catch (e) {
-        logger.error(LogOrigin.Server, `Sheet: ${e}`);
-      } finally {
-        server.close();
-      }
-    });
-    let listenPort = 3000;
-    if (keyFile.installed) {
-      // Use ephemeral port if not a web client
-      listenPort = 0;
-    } else if (redirectUri.port !== '') {
-      listenPort = Number(redirectUri.port);
-    }
-    //TODO: the server might not start correctly
-    server.listen(listenPort);
-    const address = server.address();
-    if (typeof address !== 'string') {
-      redirectUri.port = String(address.port);
-    }
-    // open the browser to the authorize url to start the workflow
-    const authorizeUrl = client.generateAuthUrl({
-      redirect_uri: redirectUri.toString(),
-      access_type: 'offline',
-      scope: this.scope,
-    });
-    Sheet.authUrl = authorizeUrl;
-    this.authServerTimeout = setTimeout(
-      () => {
-        Sheet.authUrl = null;
-        server.unref();
-      },
-      2 * 60 * 1000,
-    );
-    return authorizeUrl;
+    const deviceCodes = await got
+      .post('https://oauth2.googleapis.com/device/code', {
+        json: {
+          client_id: keys.client_id,
+          scope: sheet.scope,
+        },
+      })
+      .catch((err) => {
+        throw new Error(err);
+      });
+
+    const { device_code, expires_in, interval, user_code, verification_url } = JSON.parse(deviceCodes.body);
+
+    const testInterval = setInterval(() => {
+      got
+        .post('https://oauth2.googleapis.com/token', {
+          json: {
+            client_id: keys.client_id,
+            client_secret: keys.client_secret,
+            device_code,
+            grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+          },
+        })
+        .then(
+          (res) => {
+            const auth = JSON.parse(res.body);
+            console.log(auth);
+            client.setCredentials({
+              refresh_token: auth.refresh_token,
+              access_token: auth.access_token,
+              scope: auth.scope,
+              token_type: auth.token_type,
+            });
+            Sheet.client = client;
+            clearTimeout(this.authServerTimeout);
+            clearInterval(testInterval);
+          },
+          (res) => {
+            console.log(res.response.body);
+          },
+        );
+    }, interval * 1000);
+
+    clearTimeout(this.authServerTimeout);
+
+    this.authServerTimeout = setTimeout(() => {
+      console.log('Auth timedout');
+      clearInterval(testInterval);
+    }, expires_in * 1000);
+
+    console.log(user_code);
+
+    // if the server is already running return it
+    // if (Sheet.authUrl) {
+    //
+    //   this.authServerInterval = setInterval(() => {
+    //     Sheet.authUrl = null;
+    //   }, 120000);
+    //   return Sheet.authUrl;
+    // }
+
+    return verification_url;
   }
 
   /**
@@ -191,12 +169,15 @@ class Sheet {
    */
   async testAuthentication() {
     if (Sheet.client) {
-      const ref = await Sheet.client.refreshAccessToken();
-      if (ref.credentials.expiry_date > 10000) {
-        return true;
-      } else {
-        throw new Error('Unable to use access token');
-      }
+      return true;
+
+      // Sheet.client.credentials
+      // const ref = await Sheet.client.refreshAccessToken();
+      // if (ref.credentials.expiry_date > 10000) {
+      //   return true;
+      // } else {
+      //   throw new Error('Unable to use access token');
+      // }
     } else {
       throw new Error('Unable to authenticate');
     }
