@@ -1,6 +1,36 @@
-import { sheets_v4 } from '@googleapis/sheets';
-import { millisToString } from 'ontime-utils';
 import { OntimeRundownEntry, isOntimeBlock, isOntimeEvent } from 'ontime-types';
+import { millisToString } from 'ontime-utils';
+
+import { sheets_v4 } from '@googleapis/sheets';
+
+// we expect client secret file to contain the following keys
+const requiredClientKeys = [
+  'client_id',
+  'auth_uri',
+  'token_uri',
+  'token_uri',
+  'auth_provider_x509_cert_url',
+  'client_secret',
+];
+
+export type ClientSecret = {
+  installed: {
+    client_id: string;
+    auth_uri: string;
+    token_uri: string;
+    auth_provider_x509_cert_url: string;
+    client_secret: string;
+  };
+};
+
+/**
+ * Guard validates a given client secrets file
+ * @param clientSecret
+ * @returns
+ */
+export function validateClientSecret(clientSecret: object): clientSecret is ClientSecret {
+  return requiredClientKeys.every((key) => Object.keys(clientSecret['installed']).includes(key));
+}
 
 /**
  *
@@ -21,10 +51,12 @@ export function getA1Notation(row: number, column: number): string {
   const a1Notation = [`${row + 1}`];
   const totalAlphabets = 'Z'.charCodeAt(0) - 'A'.charCodeAt(0) + 1;
   let block = column;
+
   while (block >= 0) {
     a1Notation.unshift(String.fromCharCode((block % totalAlphabets) + 'A'.charCodeAt(0)));
     block = Math.floor(block / totalAlphabets) - 1;
   }
+
   return a1Notation.join('');
 }
 
