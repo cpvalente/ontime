@@ -82,9 +82,10 @@ export function mergeObject<T extends object>(a: T, b: Partial<T>): T {
  * @param {object} obj
  */
 export const removeUndefined = (obj: object) => {
-  const patched = {};
-  Object.keys({ ...obj })
-    .filter((key) => typeof obj[key] !== 'undefined')
-    .map((key) => (patched[key] = obj[key]));
-  return patched;
+  return Object.keys(obj).reduce((patched, key) => {
+    if (typeof obj[key] !== 'undefined') {
+      patched[key] = obj[key];
+    }
+    return patched;
+  }, {});
 };
