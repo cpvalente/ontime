@@ -12,6 +12,9 @@ export const config = {
     directory: 'demo',
     filename: ['app.js', 'index.html', 'styles.css'],
   },
+  sheets: {
+    directory: 'sheets',
+  },
   restoreFile: 'ontime.restore',
 };
 
