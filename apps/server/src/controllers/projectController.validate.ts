@@ -39,14 +39,3 @@ export const validateEditCustomField = [
     next();
   },
 ];
-
-
-export const valdiateDeleteCustomField = [
-  body('label').isString(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];

@@ -39,6 +39,7 @@ export type { HttpSettings, HttpSubscription } from './definitions/core/HttpSett
 
 // SERVER RESPONSES
 export type {
+  AuthenticationStatus,
   NetworkInterface,
   GetInfo,
   ProjectFileList,
