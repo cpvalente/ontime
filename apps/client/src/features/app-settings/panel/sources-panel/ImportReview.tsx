@@ -14,11 +14,11 @@ interface ImportReviewProps {
 }
 
 export default function ImportReview({ rundown, userFields }: ImportReviewProps) {
-  const { handleImport } = useGoogleSheet();
+  const { importRundown } = useGoogleSheet();
   const resetPreview = useSheetStore((state) => state.resetPreview);
 
   const applyImport = () => {
-    handleImport(rundown, userFields);
+    importRundown(rundown, userFields);
   };
 
   return (

@@ -15,9 +15,9 @@ import { ensureDirectory } from '../../utils/fileManagement.js';
 import { type ClientSecret, cellRequestFromEvent, getA1Notation, validateClientSecret } from './sheetUtils.js';
 import { ExcelImportMap } from 'ontime-utils';
 import { parseExcel } from '../../utils/parser.js';
-import { getRundown } from '../rundown-service/RundownService.js';
 import { logger } from '../../classes/Logger.js';
 import { parseRundown, parseUserFields } from '../../utils/parserFunctions.js';
+import { getRundown } from '../rundown-service/rundownUtils.js';
 
 const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';
 const codesUrl = 'https://oauth2.googleapis.com/device/code';
@@ -97,7 +97,6 @@ type CodesResponse = {
  * Establishes connection with Google Auth server
  * and retrieves device codes
  * @param clientSecret
- * @param sheetId
  * @returns
  */
 async function getDeviceCodes(clientSecret: ClientSecret): Promise<CodesResponse> {
@@ -119,6 +118,7 @@ async function getDeviceCodes(clientSecret: ClientSecret): Promise<CodesResponse
  * @param device_code
  * @param interval
  * @param expires_in
+ * @param postAction
  */
 function verifyConnection(
   clientSecret: ClientSecret,
