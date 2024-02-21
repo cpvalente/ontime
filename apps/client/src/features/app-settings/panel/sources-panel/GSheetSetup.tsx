@@ -125,7 +125,7 @@ export default function GSheetSetup({ onCancel }: GSheetSetupProps) {
         <>
           <Panel.ListGroup>
             <Panel.Description>Upload Client Secret provided by Google</Panel.Description>
-            <Panel.Error>{}</Panel.Error>
+            <Panel.Error>{undefined}</Panel.Error>
             <Input
               type='file'
               onChange={handleClientSecret}
@@ -138,7 +138,7 @@ export default function GSheetSetup({ onCancel }: GSheetSetupProps) {
 
           <Panel.ListGroup>
             <Panel.Description>Enter ID of sheet to synchronise</Panel.Description>
-            <Panel.Error>{}</Panel.Error>
+            <Panel.Error>{undefined}</Panel.Error>
             <Input
               size='sm'
               variant='ontime-filled'
