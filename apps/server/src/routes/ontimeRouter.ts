@@ -1,5 +1,5 @@
 import express from 'express';
-import { uploadFile } from '../utils/upload.js';
+import { uploadClientSecret, uploadFile } from '../utils/upload.js';
 import {
   dbDownload,
   dbUpload,
@@ -25,14 +25,6 @@ import {
   renameProjectFile,
   createProjectFile,
   deleteProjectFile,
-  getAuthenticationUrl,
-  uploadSheetClientFile as uploadClientSecret,
-  pullSheet,
-  pushSheet,
-  postId,
-  getAuthentication,
-  getClientSecret as getClientSecret,
-  postWorksheet,
 } from '../controllers/ontimeController.js';
 
 import {
@@ -46,12 +38,17 @@ import {
   validateProjectDuplicate,
   validateLoadProjectFile,
   validateProjectRename,
-  validateSheetId,
-  validateWorksheet,
-  validateSheetOptions,
 } from '../controllers/ontimeController.validate.js';
 import { projectSanitiser } from '../controllers/projectController.validate.js';
 import { sanitizeProjectFilename } from '../utils/sanitizeProjectFilename.js';
+import {
+  revokeAuthentication,
+  readFromSheet,
+  requestConnection,
+  verifyAuthentication,
+  writeToSheet,
+} from '../controllers/sheetsController.js';
+import { validateRequestConnection, validateSheetOptions } from '../controllers/sheetController.validate.js';
 
 export const router = express.Router();
 
@@ -127,23 +124,13 @@ router.post('/project', projectSanitiser, createProjectFile);
 // create route between controller and '/ontime/project/:filename' endpoint
 router.delete('/project/:filename', sanitizeProjectFilename, deleteProjectFile);
 
-// TODO: move the google sheet stuff into a separate file
-// Google Sheet integration - Step 1
-router.post('/sheet/clientsecret', uploadFile, uploadClientSecret);
-router.get('/sheet/clientsecret', uploadFile, getClientSecret);
+// create route between controller and '/sheet/:sheetId/connect' endpoint
+router.post('/sheet/:sheetId/connect', uploadClientSecret, validateRequestConnection, requestConnection);
 
-// Google Sheet integration - Step 2
-router.get('/sheet/authentication/url', getAuthenticationUrl);
-router.get('/sheet/authentication', getAuthentication);
+router.get('/sheet/connect', verifyAuthentication);
 
-// Google Sheet integration - Step 3
-router.post('/sheet/sheetId', validateSheetId, postId);
+router.post('/sheet/revoke', revokeAuthentication);
 
-// Google Sheet integration - Step 4
-router.post('/sheet/worksheet', validateWorksheet, postWorksheet);
+router.post('/sheet/:sheetId/read', validateSheetOptions, readFromSheet);
 
-// Google Sheet integration - Step 5
-router.post('/sheet-pull', validateSheetOptions, pullSheet);
-
-// Google Sheet integration - Step 6
-router.post('/sheet-push', validateSheetOptions, pushSheet);
+router.post('/sheet/:sheetId/write', validateSheetOptions, writeToSheet);

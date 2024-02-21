@@ -192,28 +192,6 @@ export const validateProjectRename = [
 ];
 
 /**
- * @description Validates the filename for creating a project file.
- */
-export const validateProjectCreate = [
-  body('filename')
-    .exists()
-    .withMessage('Filename is required')
-    .isString()
-    .withMessage('Filename must be a string')
-    .isLength({ min: 1, max: 255 })
-    .withMessage('Filename must be between 1 and 255 characters'),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-
-    next();
-  },
-];
-
-/**
  * @description Validates the existence of project files.
  * @param {object} projectFiles
  * @param {string} projectFiles.projectFilename
@@ -243,35 +221,3 @@ export const validateProjectFiles = (projectFiles: { filename?: string; newFilen
 
   return errors;
 };
-
-export const validateSheetId = [
-  body('sheetId').exists().isString(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
-
-export const validateWorksheet = [
-  body('sheetId').exists().isString(),
-  body('worksheet').exists().isString(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
-
-export const validateSheetOptions = [
-  body('sheetId').exists().isString(),
-  // body('options').exists().isObject(), TODO:
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];

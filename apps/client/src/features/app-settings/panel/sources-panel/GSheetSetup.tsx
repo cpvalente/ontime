@@ -1,9 +1,10 @@
-import { useRef } from 'react';
-import { Button, Input, Select } from '@chakra-ui/react';
+import { ChangeEvent, useEffect, useState } from 'react';
+import { Button, Input } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
-import { IoCloudDownloadOutline } from '@react-icons/all-files/io5/IoCloudDownloadOutline';
 import { IoShieldCheckmarkOutline } from '@react-icons/all-files/io5/IoShieldCheckmarkOutline';
 
+import CopyTag from '../../../../common/components/copy-tag/CopyTag';
+import { openLink } from '../../../../common/utils/linkUtils';
 import * as Panel from '../PanelUtils';
 
 import useGoogleSheet from './useGoogleSheet';
@@ -12,140 +13,178 @@ import { useSheetStore } from './useSheetStore';
 import style from './SourcesPanel.module.scss';
 
 interface GSheetSetupProps {
-  cancel: () => void;
+  onCancel: () => void;
 }
 
-export default function GSheetSetup({ cancel }: GSheetSetupProps) {
-  const { handleClientSecret, handleAuthenticate, handleConnect } = useGoogleSheet();
-
-  const sheetIdInputRef = useRef<HTMLInputElement>(null);
-
-  const stepData = useSheetStore((state) => state.stepData);
-  const reset = useSheetStore((state) => state.reset);
+export default function GSheetSetup({ onCancel }: GSheetSetupProps) {
+  const { revoke, connect, verifyAuth } = useGoogleSheet();
+  const [file, setFile] = useState<File | null>(null);
+  const [authKey, setAuthKey] = useState<string | null>(null);
+  const [loading, setLoading] = useState<'' | 'cancel' | 'connect' | 'authenticate'>('');
+  const [authLink, setAuthLink] = useState('');
 
   const sheetId = useSheetStore((state) => state.sheetId);
-  const worksheetOptions = useSheetStore((state) => state.worksheetOptions) ?? [];
-
-  const setWorksheet = useSheetStore((state) => state.setWorksheet);
   const setSheetId = useSheetStore((state) => state.setSheetId);
 
-  const worksheetIdInputRef = useRef<HTMLSelectElement>(null);
+  const authenticationStatus = useSheetStore((state) => state.authenticationStatus);
+  const setAuthenticationStatus = useSheetStore((state) => state.setAuthenticationStatus);
+
+  /** Check if we are authenticated */
+  const getAuthStatus = async () => {
+    const result = await verifyAuth();
+    if (result) {
+      setAuthenticationStatus(result.authenticated);
+    }
+  };
+
+  /** check if the current session has been authenticated */
+  useEffect(() => {
+    getAuthStatus();
+  }, []);
+
+  const handleCancelFlow = () => {
+    revoke();
+    onCancel();
+  };
 
   // user cancels the flow
-  const onCancel = () => {
-    reset();
-    cancel();
+  const handleRevoke = async () => {
+    setLoading('cancel');
+    await revoke();
+    await getAuthStatus();
+    setLoading('');
   };
 
-  // connect to the accoutn with the given sheet ID
-  const connectToId = () => {
-    const sheetId = sheetIdInputRef.current?.value;
+  /**
+   * Gets file from input
+   * @param event
+   */
+  const handleClientSecret = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (!event.target.files?.length) {
+      return;
+    }
+    setFile(event.target.files[0]);
+  };
+
+  /**
+   * Requests connection to google auth
+   */
+  const handleConnect = async () => {
+    if (!file) return;
     if (!sheetId) return;
 
-    handleConnect(sheetId);
+    setLoading('connect');
+    const result = await connect(file, sheetId);
+    if (result) {
+      setAuthLink(result.verification_url);
+      setAuthKey(result.user_code);
+    }
+    setLoading('');
   };
 
-  // adds the user input sheet ID to the store
-  const addSheetId = () => {
-    const sheetId = sheetIdInputRef.current?.value;
-    console.log('adding', sheetId);
-    if (!sheetId) return;
-    setSheetId(sheetId);
+  /**
+   * Open google auth
+   */
+  const handleAuthenticate = async () => {
+    setLoading('authenticate');
+
+    // open link and schedule a check for when the user focuses again
+    openLink(authLink);
+    window.addEventListener(
+      'focus',
+      async () => {
+        getAuthStatus();
+        setLoading('');
+      },
+      { once: true },
+    );
   };
 
-  // adds the selected worksheet to the store
-  const addWorksheetSheetId = () => {
-    const worksheetId = worksheetIdInputRef.current?.value;
-    if (!worksheetId) return;
-    setWorksheet(worksheetId);
-  };
-
-  const canAuthenticate = stepData.authenticate.available;
-  const canConnect = stepData.authenticate.available && sheetId;
+  const canConnect = file && sheetId;
+  const canAuthenticate = Boolean(authKey) && Boolean(authLink);
+  const isLoading = Boolean(loading);
+  const isAuthenticated = authenticationStatus === 'authenticated';
 
   return (
     <Panel.Section>
+      <Button onClick={getAuthStatus}>check</Button>
       <Panel.Title>
         Sync with Google Sheet (experimental)
-        <Button variant='ontime-subtle' size='sm' onClick={onCancel}>
+        <Button variant='ontime-subtle' size='sm' onClick={handleCancelFlow}>
           Cancel
         </Button>
       </Panel.Title>
-      <Panel.ListGroup>
-        <div className={style.buttonRow}>
-          <div className={style.inputContainer}>
-            <Input type='file' onChange={handleClientSecret} accept='.json' size='sm' variant='ontime-filled' />
-          </div>
-          <Button
-            variant='ontime-subtle'
-            size='sm'
-            onClick={handleAuthenticate}
-            leftIcon={<IoShieldCheckmarkOutline />}
-            isDisabled={!canAuthenticate}
-          >
-            Authenticate
+      {isAuthenticated ? (
+        <Panel.ListGroup>
+          <Panel.Title>Authenticated</Panel.Title>
+          <Button variant='ontime-subtle' size='sm' onClick={handleRevoke} isLoading={loading === 'cancel'}>
+            Revoke Authentication
           </Button>
-        </div>
-        <Panel.Error>{stepData.clientSecret.error}</Panel.Error>
-      </Panel.ListGroup>
+        </Panel.ListGroup>
+      ) : (
+        <>
+          <Panel.ListGroup>
+            <Panel.Description>Upload Client Secret provided by Google</Panel.Description>
+            <Panel.Error>{}</Panel.Error>
+            <Input
+              type='file'
+              onChange={handleClientSecret}
+              accept='.json'
+              size='sm'
+              variant='ontime-filled'
+              isDisabled={isLoading || canAuthenticate}
+            />
+          </Panel.ListGroup>
 
-      <Panel.ListGroup>
-        <Panel.Error>{stepData.sheetId.error}</Panel.Error>
-        <div className={style.buttonRow}>
-          <div className={style.inputContainer}>
+          <Panel.ListGroup>
+            <Panel.Description>Enter ID of sheet to synchronise</Panel.Description>
+            <Panel.Error>{}</Panel.Error>
             <Input
               size='sm'
               variant='ontime-filled'
               autoComplete='off'
-              isDisabled={!stepData.sheetId.available}
-              placeholder='Enter Sheet ID'
-              onBlur={addSheetId}
-              onSubmit={addSheetId}
-              ref={sheetIdInputRef}
+              placeholder='Sheet ID'
+              onChange={(event) => setSheetId(event.target.value)}
+              isDisabled={isLoading || canAuthenticate}
             />
-          </div>
-          <Button
-            variant='ontime-subtle'
-            size='sm'
-            onClick={connectToId}
-            isDisabled={!canConnect}
-            leftIcon={<IoCheckmark />}
-          >
-            Connect
-          </Button>
-        </div>
-      </Panel.ListGroup>
+          </Panel.ListGroup>
 
-      <Panel.ListGroup>
-        <div className={style.buttonRow}>
-          <div className={style.inputContainer}>
-            <Select
-              size='sm'
-              variant='ontime'
-              isDisabled={!stepData.worksheet.available}
-              placeholder='Select worksheet'
-              ref={worksheetIdInputRef}
-            >
-              {worksheetOptions.map((value) => (
-                <option key={value} value={value}>
-                  {value}
-                </option>
-              ))}
-            </Select>
-          </div>
-          <Button
-            variant='ontime-filled'
-            size='sm'
-            onClick={addWorksheetSheetId}
-            isDisabled={!stepData.worksheet.available}
-            leftIcon={<IoCloudDownloadOutline />}
-          >
-            Continue
-          </Button>
-        </div>
-        <Panel.Error>{stepData.worksheet.error}</Panel.Error>
-        <Panel.Error>{stepData.pullPush.error}</Panel.Error>
-      </Panel.ListGroup>
+          {!canAuthenticate ? (
+            <Panel.ListGroup>
+              <div className={style.buttonRow}>
+                <Button
+                  variant='ontime-subtle'
+                  size='sm'
+                  leftIcon={<IoCheckmark />}
+                  onClick={handleConnect}
+                  isDisabled={!canConnect || isLoading}
+                  isLoading={loading === 'connect'}
+                >
+                  Upload
+                </Button>
+              </div>
+            </Panel.ListGroup>
+          ) : (
+            <Panel.ListGroup>
+              <div className={style.buttonRow}>
+                <CopyTag label='Google Auth Key' disabled={!canAuthenticate} size='sm'>
+                  {authKey ? authKey : 'Upload files to generate Auth Key'}
+                </CopyTag>
+                <Button
+                  variant='ontime-filled'
+                  size='sm'
+                  leftIcon={<IoShieldCheckmarkOutline />}
+                  onClick={handleAuthenticate}
+                  isDisabled={!canAuthenticate || isLoading}
+                  isLoading={loading === 'authenticate'}
+                >
+                  Authenticate
+                </Button>
+              </div>
+            </Panel.ListGroup>
+          )}
+        </>
+      )}
     </Panel.Section>
   );
 }
