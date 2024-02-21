@@ -65,11 +65,10 @@ const storage = multer.diskStorage({
  * @argument file - reference to file
  * @return {boolean} - file allowed
  */
-const filterAllowed = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+const filterUserFile = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
   if (file.mimetype.includes(JSON_MIME) || file.mimetype.includes(EXCEL_MIME)) {
     cb(null, true);
   } else {
-    console.error('ERROR: Unrecognised file type');
     cb(null, false);
   }
 };
@@ -77,5 +76,18 @@ const filterAllowed = (_req: Request, file: Express.Multer.File, cb: FileFilterC
 // Build multer uploader for a single file
 export const uploadFile = multer({
   storage,
-  fileFilter: filterAllowed,
+  fileFilter: filterUserFile,
 }).single('userFile');
+
+const filterClientSecret = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+  if (file.mimetype.includes(JSON_MIME)) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+export const uploadClientSecret = multer({
+  storage,
+  fileFilter: filterClientSecret,
+}).single('client_secret');

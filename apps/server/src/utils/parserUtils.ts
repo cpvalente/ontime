@@ -1,4 +1,4 @@
-import fs from 'fs';
+import { unlink, readFileSync } from 'fs';
 import { deepmerge } from 'ontime-utils';
 
 /**
@@ -18,10 +18,9 @@ export const makeString = (val: unknown, fallback = ''): string => {
  * @param {string} file - reference to file
  */
 export const deleteFile = async (file) => {
-  // delete a file
-  fs.unlink(file, (err) => {
-    if (err) {
-      console.log(err);
+  unlink(file, (error) => {
+    if (error) {
+      console.error('Could not delete file:', error);
     }
   });
 };
@@ -33,7 +32,7 @@ export const deleteFile = async (file) => {
  */
 export const validateFile = (file) => {
   try {
-    JSON.parse(fs.readFileSync(file, 'utf-8'));
+    JSON.parse(readFileSync(file, 'utf-8'));
     return true;
   } catch (err) {
     return false;
