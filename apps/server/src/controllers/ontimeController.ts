@@ -92,7 +92,7 @@ export type ParsingOptions = {
 /**
  * parse an uploaded file and apply its parsed objects
  * @param file
- * @param req
+ * @param _req
  * @param res
  * @param [options]
  * @returns {Promise<void>}
@@ -274,7 +274,6 @@ export const postSettings = async (req: Request, res: Response) => {
 
 /**
  * @description Get view Settings
- * @method GET
  */
 export const getViewSettings = async (_req: Request, res: Response) => {
   const views = DataProvider.getViewSettings();
@@ -283,7 +282,6 @@ export const getViewSettings = async (_req: Request, res: Response) => {
 
 /**
  * @description Change view Settings
- * @method POST
  */
 export const postViewSettings = async (req: Request, res: Response) => {
   if (failEmptyObjects(req.body, res)) {
@@ -425,10 +423,10 @@ export async function previewExcel(req, res: Response) {
 
 /**
  * Retrieves and lists all project files from the uploads directory.
- * @param req
+ * @param _req
  * @param res
  */
-export const listProjects: RequestHandler = async (_, res: Response<ProjectFileListResponse | ErrorResponse>) => {
+export const listProjects: RequestHandler = async (_req, res: Response<ProjectFileListResponse | ErrorResponse>) => {
   try {
     const fileList = await getProjectFiles();
 
