@@ -107,7 +107,6 @@ export default function GSheetSetup({ onCancel }: GSheetSetupProps) {
 
   return (
     <Panel.Section>
-      <Button onClick={getAuthStatus}>check</Button>
       <Panel.Title>
         Sync with Google Sheet (experimental)
         <Button variant='ontime-subtle' size='sm' onClick={handleCancelFlow}>
