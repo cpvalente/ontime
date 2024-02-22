@@ -77,8 +77,8 @@ export default function useGoogleSheet() {
   const importRundown = async (rundown: OntimeRundown, userFields: UserFields) => {
     try {
       await patchData({ rundown, userFields });
-      queryClient.setQueryData(RUNDOWN, rundown);
-      queryClient.setQueryData(USERFIELDS, userFields);
+      // we are unable to optimistically set the rundown since we need
+      // it to be normalised
       await queryClient.invalidateQueries({
         queryKey: [...RUNDOWN, ...USERFIELDS],
       });

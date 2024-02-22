@@ -282,7 +282,7 @@ export async function upload(sheetId: string, options: ExcelImportMap) {
   });
 
   if (readResponse.status !== 200) {
-    throw new Error(`Sheet: read failed: ${readResponse.statusText}`);
+    throw new Error(`Sheet read failed: ${readResponse.statusText}`);
   }
 
   const { rundownMetadata } = parseExcel(readResponse.data.values, options);
@@ -336,9 +336,9 @@ export async function upload(sheetId: string, options: ExcelImportMap) {
   });
 
   if (writeResponse.status === 200) {
-    logger.info(LogOrigin.Server, `Sheet: write ${writeResponse.statusText}`);
+    logger.info(LogOrigin.Server, `Sheet write ${writeResponse.statusText}`);
   } else {
-    throw new Error(`Sheet: write failed ${writeResponse.statusText}`);
+    throw new Error(`Sheet write failed: ${writeResponse.statusText}`);
   }
 }
 
@@ -359,7 +359,7 @@ export async function download(
   });
 
   if (googleResponse.status !== 200) {
-    throw new Error(`Sheet: read failed: ${googleResponse.statusText}`);
+    throw new Error(`Sheet read failed: ${googleResponse.statusText}`);
   }
 
   const dataFromSheet = parseExcel(googleResponse.data.values, options);
