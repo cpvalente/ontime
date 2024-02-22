@@ -29,17 +29,49 @@ let totalDelay = 0;
 
 let links: Record<EventID, EventID> = {};
 
+type CustomPropertyLabel = string;
+type CustomPropertyDefinition = Record<
+  CustomPropertyLabel,
+  {
+    label: CustomPropertyLabel;
+    type: 'string' | 'number' | 'boolean';
+  }
+>;
+
+type EventCustomProperties = Record<
+  CustomPropertyLabel,
+  {
+    value: string | number | boolean;
+  }
+>;
+
+const assignedCustomProperties: Record<CustomPropertyLabel, EventID[]> = {};
+
 export async function init(initialRundown: OntimeRundown) {
   persistedRundown = structuredClone(initialRundown);
   generate();
   await DataProvider.setRundown(persistedRundown);
 }
 
+const testCustomProperties: CustomPropertyDefinition = {
+  lighting: {
+    label: 'lighting',
+    type: 'string',
+  },
+  sound: {
+    label: 'sound',
+    type: 'string',
+  },
+};
+
 /**
  * Utility initialises cache
  * @param rundown
  */
-export function generate(initialRundown: OntimeRundown = persistedRundown) {
+export function generate(
+  initialRundown: OntimeRundown = persistedRundown,
+  customProperties: CustomPropertyDefinition = testCustomProperties,
+) {
   // we decided to re-write this dataset for every change
   // instead of maintaining logic to update it
 
@@ -62,9 +94,11 @@ export function generate(initialRundown: OntimeRundown = persistedRundown) {
   let previousEnd: number;
 
   for (let i = 0; i < initialRundown.length; i++) {
+    console.log('|>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>|');
     const currentEvent = initialRundown[i];
     let updatedEvent = { ...currentEvent };
 
+    console.log(1, isOntimeEvent(updatedEvent));
     // handle links
     if (isOntimeEvent(updatedEvent)) {
       if (updatedEvent.linkStart) {
@@ -77,6 +111,24 @@ export function generate(initialRundown: OntimeRundown = persistedRundown) {
           updatedEvent = { ...updatedEvent, ...timePatch };
         } else {
           updatedEvent.linkStart = null;
+        }
+        // update the persisted event
+        initialRundown[i] = updatedEvent;
+      }
+      console.log(1, updatedEvent.custom);
+      if (updatedEvent.custom) {
+        for (const property in updatedEvent.custom) {
+          const isValid = property in customProperties;
+          console.log(2, property, isValid);
+          if (!isValid) {
+            delete updatedEvent.custom[property];
+            return;
+          }
+          console.log(3, Array.isArray(assignedCustomProperties[property]));
+          if (!Array.isArray(assignedCustomProperties[property])) {
+            assignedCustomProperties[property] = [];
+          }
+          assignedCustomProperties[property].push(updatedEvent.id);
         }
         // update the persisted event
         initialRundown[i] = updatedEvent;
@@ -104,7 +156,7 @@ export function generate(initialRundown: OntimeRundown = persistedRundown) {
 
   isStale = false;
   totalDelay = accumulatedDelay;
-  return { rundown, order, links, totalDelay };
+  return { rundown, order, links, totalDelay, assignedCustomProperties };
 }
 
 /** Returns an ID guaranteed to be unique */

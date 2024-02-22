@@ -25,6 +25,22 @@ export type OntimeBlock = OntimeBaseEvent & {
   title: string;
 };
 
+export type CustomPropertyLabel = string;
+export type CustomPropertyDefinition = Record<
+  CustomPropertyLabel,
+  {
+    label: CustomPropertyLabel;
+    type: 'string' | 'number' | 'boolean';
+  }
+>;
+
+export type EventCustomProperties = Record<
+  CustomPropertyLabel,
+  {
+    value: string | number | boolean;
+  }
+>;
+
 export type OntimeEvent = OntimeBaseEvent & {
   type: SupportedEvent.Event;
   cue: string;
@@ -56,4 +72,5 @@ export type OntimeEvent = OntimeBaseEvent & {
   delay?: number; // calculated at runtime
   timeWarning: number;
   timeDanger: number;
+  custom: EventCustomProperties;
 };

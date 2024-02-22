@@ -10,7 +10,7 @@ import {
 } from 'ontime-types';
 
 import { calculateRuntimeDelays, getDelayAt, calculateRuntimeDelaysFrom } from '../delayUtils.js';
-import { add, batchEdit, edit, generate, remove, reorder, swap } from '../rundownCache.js';
+import { add, batchEdit, CustomPropertyDefinition, edit, generate, remove, reorder, swap } from '../rundownCache.js';
 
 describe('init() function', () => {
   it('creates normalised versions of a given rundown', () => {
@@ -206,6 +206,37 @@ describe('init() function', () => {
     expect((initResult.rundown['1'] as OntimeEvent).timeStart).toBe(1);
     expect(Object.keys(initResult.links).length).toBe(0);
   });
+
+  describe('custom properties feature', () => {
+    it.only('creates a map of custom properties', () => {
+      const customProperties: CustomPropertyDefinition = {
+        lighting: {
+          label: 'lighting',
+          type: 'string',
+        },
+        sound: {
+          label: 'sound',
+          type: 'string',
+        },
+      };
+      const testRundown: OntimeRundown = [
+        { type: SupportedEvent.Event, id: '1', custom: { lighting: 'event 1 lx' } } as OntimeEvent,
+        {
+          type: SupportedEvent.Event,
+          id: '2',
+          custom: { lighting: 'event 2 lx', sound: 'event 2 sound' },
+        } as OntimeEvent,
+      ];
+      const initResult = generate(testRundown, customProperties);
+      expect(initResult.order.length).toBe(2);
+      expect(initResult.assignedCustomProperties).toMatchObject({
+        lighting: ['1', '2'],
+        sound: ['2'],
+      });
+      expect(initResult.rundown['1'].custom).toMatchObject({ lighting: 'event 1 lx' });
+      expect(initResult.rundown['2'].custom).toMatchObject({ lighting: 'event 2 lx', sound: 'event 2 sound' });
+    });
+  });
 });
 
 describe('add() mutation', () => {
@@ -366,6 +397,7 @@ describe('calculateRuntimeDelays', () => {
         timeDanger: 60000,
         id: '659e1',
         cue: '1',
+        custom: {},
       },
       {
         duration: 600000,
@@ -403,6 +435,7 @@ describe('calculateRuntimeDelays', () => {
         timeDanger: 60000,
         id: '1c48f',
         cue: '2',
+        custom: {},
       },
       {
         duration: 1200000,
@@ -440,6 +473,7 @@ describe('calculateRuntimeDelays', () => {
         timeDanger: 60000,
         id: 'd48c2',
         cue: '3',
+        custom: {},
       },
       {
         title: '',
@@ -477,6 +511,7 @@ describe('calculateRuntimeDelays', () => {
         timeDanger: 60000,
         id: '2f185',
         cue: '4',
+        custom: {},
       },
     ];
 
@@ -524,6 +559,7 @@ describe('getDelayAt()', () => {
       id: '659e1',
       delay: 0,
       cue: '1',
+      custom: {},
     },
     {
       duration: 600000,
@@ -562,6 +598,7 @@ describe('getDelayAt()', () => {
       id: '1c48f',
       delay: 600000,
       cue: '2',
+      custom: {},
     },
     {
       duration: 1200000,
@@ -600,6 +637,7 @@ describe('getDelayAt()', () => {
       id: 'd48c2',
       delay: 1800000,
       cue: '3',
+      custom: {},
     },
     {
       title: '',
@@ -638,6 +676,7 @@ describe('getDelayAt()', () => {
       id: '2f185',
       delay: 0,
       cue: '4',
+      custom: {},
     },
   ];
 
@@ -702,6 +741,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         id: '659e1',
         delay: 0,
         cue: '1',
+        custom: {},
       },
       {
         duration: 600000,
@@ -740,6 +780,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         id: '1c48f',
         delay: 0,
         cue: '2',
+        custom: {},
       },
       {
         duration: 1200000,
@@ -778,6 +819,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         id: 'd48c2',
         delay: 1800000,
         cue: '3',
+        custom: {},
       },
       {
         title: '',
@@ -816,6 +858,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         id: '2f185',
         delay: 0,
         cue: '4',
+        custom: {},
       },
     ];
 
