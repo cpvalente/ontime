@@ -349,7 +349,7 @@ export async function download(
   rundown: OntimeRundown;
   userFields: UserFields;
 }> {
-  const { range } = await this.exist(sheetId, options.worksheet);
+  const { range } = await verifyWorksheet(sheetId, options.worksheet);
 
   const googleResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.values.get({
     spreadsheetId: sheetId,
