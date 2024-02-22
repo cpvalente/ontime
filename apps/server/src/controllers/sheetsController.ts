@@ -58,7 +58,8 @@ export async function revokeAuthentication(_req: Request, res: Response) {
 
 export async function readFromSheet(req: Request, res: Response) {
   try {
-    const { sheetId, options } = req.body;
+    const { sheetId } = req.params;
+    const { options } = req.body;
     const data = await download(sheetId, options);
     res.status(200).send(data);
   } catch (error) {
