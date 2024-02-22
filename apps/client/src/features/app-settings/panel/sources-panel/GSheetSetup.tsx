@@ -160,7 +160,7 @@ export default function GSheetSetup({ onCancel }: GSheetSetupProps) {
                   isDisabled={!canConnect || isLoading}
                   isLoading={loading === 'connect'}
                 >
-                  Upload
+                  Connect
                 </Button>
               </div>
             </Panel.ListGroup>
