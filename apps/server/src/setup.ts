@@ -123,3 +123,6 @@ export const pathToStartDemo = config.demo.filename.map((file) => {
 
 // path to restore file
 export const resolveRestoreFile = join(getAppDataPath(), config.restoreFile);
+
+// path to crash reports
+export const resolveCrashReportDirectory = getAppDataPath();

@@ -45,6 +45,7 @@ import { populateDemo } from './modules/loadDemo.js';
 import { getState, updateRundownData } from './stores/runtimeState.js';
 import { setRundown } from './services/rundown-service/RundownService.js';
 import { getPlayableEvents } from './services/rundown-service/rundownUtils.js';
+import { generateCrashReport } from './utils/generateCrashReport.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
@@ -286,12 +287,14 @@ process.on('exit', (code) => console.log(`Ontime shutdown with code: ${code}`));
 
 process.on('unhandledRejection', async (error) => {
   console.error('Error: unhandled rejection', error);
+  generateCrashReport(error);
   logger.error(LogOrigin.Server, `Error: unhandled rejection ${error}`);
   await shutdown(1);
 });
 
 process.on('uncaughtException', async (error) => {
   console.error('Error: uncaught exception', error);
+  generateCrashReport(error);
   logger.error(LogOrigin.Server, `Error: uncaught exception ${error}`);
   await shutdown(1);
 });
