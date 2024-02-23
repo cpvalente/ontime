@@ -5,7 +5,7 @@ import { CustomField, CustomFields, ProjectData } from 'ontime-types';
 import { removeUndefined } from '../utils/parserUtils.js';
 import { failEmptyObjects } from '../utils/routerUtils.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
-import { createCustomField, editCustomField, removeCustomField } from '../utils/customFields.js';
+import { createCustomField, editCustomField, removeCustomField } from '../services/rundown-service/rundownCache.js';
 
 // Create controller for GET request to 'project'
 export const getProject: RequestHandler = async (req, res) => {

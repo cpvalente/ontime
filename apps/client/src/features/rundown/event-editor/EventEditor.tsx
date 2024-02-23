@@ -68,7 +68,12 @@ export default function EventEditor() {
 
   const handleSubmit = useCallback(
     (field: EditorUpdateFields, value: string) => {
-      updateEvent({ id: event?.id, [field]: value });
+      if (field.startsWith('custom-')) {
+        const fieldLabel = field.split('custom-')[1];
+        updateEvent({ id: event?.id, custom: { [fieldLabel]: { value } } });
+      } else {
+        updateEvent({ id: event?.id, [field]: value });
+      }
     },
     [event?.id, updateEvent],
   );
@@ -138,7 +143,7 @@ export default function EventEditor() {
             return (
               <EventTextArea
                 key={label}
-                field={label}
+                field={`custom-${label}`}
                 label={label}
                 initialValue={event.custom[label]?.value ?? ''}
                 submitHandler={handleSubmit}

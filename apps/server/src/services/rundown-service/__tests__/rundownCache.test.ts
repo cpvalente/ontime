@@ -12,7 +12,18 @@ import {
 } from 'ontime-types';
 
 import { calculateRuntimeDelays, getDelayAt, calculateRuntimeDelaysFrom } from '../delayUtils.js';
-import { add, batchEdit, edit, generate, remove, reorder, swap } from '../rundownCache.js';
+import {
+  add,
+  batchEdit,
+  edit,
+  generate,
+  remove,
+  reorder,
+  swap,
+  createCustomField,
+  editCustomField,
+  removeCustomField,
+} from '../rundownCache.js';
 
 describe('init() function', () => {
   it('creates normalised versions of a given rundown', () => {
@@ -884,5 +895,77 @@ describe('calculateRuntimeDelaysFrom()', () => {
     expect((updatedRundown[0] as OntimeEvent).delay).toBe(0);
     // 1 + 3
     expect((updatedRundown[4] as OntimeEvent).delay).toBe(600000 + 1200000);
+  });
+});
+
+describe('custom fields', () => {
+  describe('createCustomField()', () => {
+    beforeEach(() => {
+      vi.mock('../../classes/data-provider/DataProvider.js', () => {
+        return {
+          DataProvider: {
+            ...vi.fn().mockImplementation(() => {
+              return {};
+            }),
+            getCustomFields: vi.fn().mockReturnValue({}),
+            setCustomFields: vi.fn().mockImplementation((newData) => {
+              return newData;
+            }),
+          },
+        };
+      });
+    });
+
+    it('creates a field from given parameters', async () => {
+      const expected = {
+        lighting: {
+          label: 'lighting',
+          type: 'string',
+          colour: 'blue',
+        },
+      };
+
+      const customField = await createCustomField({ label: 'lighting', type: 'string', colour: 'blue' });
+      expect(customField).toStrictEqual(expected);
+    });
+  });
+
+  describe('editCustomField()', () => {
+    it('edits a field with a given label', async () => {
+      await createCustomField({ label: 'sound', type: 'string', colour: 'blue' });
+
+      const expected = {
+        lighting: {
+          label: 'lighting',
+          type: 'string',
+          colour: 'blue',
+        },
+        sound: {
+          label: 'sound',
+          type: 'string',
+          colour: 'blue',
+        },
+      };
+
+      const customField = await editCustomField('sound', { label: 'sound', type: 'string', colour: 'blue' });
+
+      expect(customField).toStrictEqual(expected);
+    });
+  });
+
+  describe('removeCustomField()', () => {
+    it('deletes a field with a given label', async () => {
+      const expected = {
+        lighting: {
+          label: 'lighting',
+          type: 'string',
+          colour: 'blue',
+        },
+      };
+
+      const customField = await removeCustomField('sound');
+
+      expect(customField).toStrictEqual(expected);
+    });
   });
 });
