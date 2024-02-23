@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@chakra-ui/react';
-import { isOntimeEvent, OntimeEvent } from 'ontime-types';
+import { CustomFieldLabel, isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import CopyTag from '../../../common/components/copy-tag/CopyTag';
 import { useEventAction } from '../../../common/hooks/useEventAction';
@@ -35,7 +35,7 @@ export type EditorUpdateFields =
   | 'user7'
   | 'user8'
   | 'user9'
-  | string; // TODO: keyof customFields
+  | CustomFieldLabel; // TODO: keyof customFields
 
 export default function EventEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
@@ -140,7 +140,7 @@ export default function EventEditor() {
                 key={label}
                 field={label}
                 label={label}
-                initialValue={event.custom[label]}
+                initialValue={event.custom[label].value}
                 submitHandler={handleSubmit}
               />
             );

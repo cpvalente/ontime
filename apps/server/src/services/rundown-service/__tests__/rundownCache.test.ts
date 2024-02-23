@@ -1,5 +1,7 @@
 import {
+  CustomFields,
   EndAction,
+  EventCustomFields,
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
@@ -10,7 +12,7 @@ import {
 } from 'ontime-types';
 
 import { calculateRuntimeDelays, getDelayAt, calculateRuntimeDelaysFrom } from '../delayUtils.js';
-import { add, batchEdit, CustomPropertyDefinition, edit, generate, remove, reorder, swap } from '../rundownCache.js';
+import { add, batchEdit, edit, generate, remove, reorder, swap } from '../rundownCache.js';
 
 describe('init() function', () => {
   it('creates normalised versions of a given rundown', () => {
@@ -208,23 +210,34 @@ describe('init() function', () => {
   });
 
   describe('custom properties feature', () => {
-    it.only('creates a map of custom properties', () => {
-      const customProperties: CustomPropertyDefinition = {
+    it('creates a map of custom properties', () => {
+      const customProperties: CustomFields = {
         lighting: {
           label: 'lighting',
           type: 'string',
+          colour: 'red',
         },
         sound: {
           label: 'sound',
           type: 'string',
+          colour: 'red',
         },
       };
       const testRundown: OntimeRundown = [
-        { type: SupportedEvent.Event, id: '1', custom: { lighting: 'event 1 lx' } } as OntimeEvent,
+        {
+          type: SupportedEvent.Event,
+          id: '1',
+          custom: {
+            lighting: { value: 'event 1 lx' },
+          } as EventCustomFields,
+        } as OntimeEvent,
         {
           type: SupportedEvent.Event,
           id: '2',
-          custom: { lighting: 'event 2 lx', sound: 'event 2 sound' },
+          custom: {
+            lighting: { value: 'event 2 lx' },
+            sound: { value: 'event 2 sound' },
+          } as EventCustomFields,
         } as OntimeEvent,
       ];
       const initResult = generate(testRundown, customProperties);
@@ -233,8 +246,11 @@ describe('init() function', () => {
         lighting: ['1', '2'],
         sound: ['2'],
       });
-      expect(initResult.rundown['1'].custom).toMatchObject({ lighting: 'event 1 lx' });
-      expect(initResult.rundown['2'].custom).toMatchObject({ lighting: 'event 2 lx', sound: 'event 2 sound' });
+      expect((initResult.rundown['1'] as OntimeEvent).custom).toMatchObject({ lighting: { value: 'event 1 lx' } });
+      expect((initResult.rundown['2'] as OntimeEvent).custom).toMatchObject({
+        lighting: { value: 'event 2 lx' },
+        sound: { value: 'event 2 sound' },
+      });
     });
   });
 });

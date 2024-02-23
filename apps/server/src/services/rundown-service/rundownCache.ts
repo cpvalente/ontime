@@ -89,11 +89,9 @@ export function generate(
   let previousEnd: number;
 
   for (let i = 0; i < initialRundown.length; i++) {
-    console.log('|>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>|');
     const currentEvent = initialRundown[i];
     let updatedEvent = { ...currentEvent };
 
-    console.log(1, isOntimeEvent(updatedEvent));
     // handle links
     if (isOntimeEvent(updatedEvent)) {
       if (updatedEvent.linkStart) {
@@ -110,16 +108,13 @@ export function generate(
         // update the persisted event
         initialRundown[i] = updatedEvent;
       }
-      console.log(1, updatedEvent.custom);
       if (updatedEvent.custom) {
         for (const property in updatedEvent.custom) {
           const isValid = property in customProperties;
-          console.log(2, property, isValid);
           if (!isValid) {
             delete updatedEvent.custom[property];
             return;
           }
-          console.log(3, Array.isArray(assignedCustomProperties[property]));
           if (!Array.isArray(assignedCustomProperties[property])) {
             assignedCustomProperties[property] = [];
           }
