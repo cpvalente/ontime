@@ -1,4 +1,4 @@
-import { EndAction, OntimeRundownEntry, SupportedEvent, TimeStrategy, TimerType } from 'ontime-types';
+import { EndAction, OntimeEvent, OntimeRundownEntry, SupportedEvent, TimeStrategy, TimerType } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { getA1Notation, cellRequestFromEvent } from '../sheetUtils.js';
@@ -20,7 +20,7 @@ describe('getA1Notation()', () => {
 
 describe('cellRequestFromEvent()', () => {
   test('string to string', () => {
-    const event: OntimeRundownEntry = {
+    const event: OntimeEvent = {
       type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
@@ -51,6 +51,7 @@ describe('cellRequestFromEvent()', () => {
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
+      custom: {},
     };
     const metadata = {
       type: { row: 1, col: 14 },
@@ -87,7 +88,7 @@ describe('cellRequestFromEvent()', () => {
   });
 
   test('numer to timer', () => {
-    const event: OntimeRundownEntry = {
+    const event: OntimeEvent = {
       type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
@@ -118,6 +119,7 @@ describe('cellRequestFromEvent()', () => {
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
+      custom: {},
     };
     const metadata = {
       type: { row: 1, col: 14 },
@@ -155,7 +157,7 @@ describe('cellRequestFromEvent()', () => {
   });
 
   test('boolean to x', () => {
-    const event: OntimeRundownEntry = {
+    const event: OntimeEvent = {
       type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
@@ -186,6 +188,7 @@ describe('cellRequestFromEvent()', () => {
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
+      custom: {},
     };
     const metadata = {
       type: { row: 1, col: 14 },
@@ -223,7 +226,7 @@ describe('cellRequestFromEvent()', () => {
   });
 
   test('spacing in metadata', () => {
-    const event: OntimeRundownEntry = {
+    const event: OntimeEvent = {
       type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
@@ -254,6 +257,7 @@ describe('cellRequestFromEvent()', () => {
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
+      custom: {},
     };
     const metadata = {
       cue: { row: 1, col: 0 },
@@ -268,7 +272,7 @@ describe('cellRequestFromEvent()', () => {
   });
 
   test('metadata offset from zero', () => {
-    const event: OntimeRundownEntry = {
+    const event: OntimeEvent = {
       type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
@@ -299,6 +303,7 @@ describe('cellRequestFromEvent()', () => {
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
+      custom: {},
     };
     const metadata = {
       cue: { row: 1, col: 5 },
@@ -313,7 +318,7 @@ describe('cellRequestFromEvent()', () => {
   });
 
   test('sheet setup', () => {
-    const event: OntimeRundownEntry = {
+    const event: OntimeEvent = {
       type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
@@ -344,6 +349,7 @@ describe('cellRequestFromEvent()', () => {
       id: '1358',
       timeWarning: 0,
       timeDanger: 0,
+      custom: {},
     };
     const metadata = {
       cue: { row: 10, col: 5 },
