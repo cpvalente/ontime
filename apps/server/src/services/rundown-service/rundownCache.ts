@@ -1,4 +1,12 @@
-import { isOntimeDelay, isOntimeEvent, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import {
+  CustomFieldLabel,
+  CustomFields,
+  isOntimeDelay,
+  isOntimeEvent,
+  OntimeEvent,
+  OntimeRundown,
+  OntimeRundownEntry,
+} from 'ontime-types';
 import {
   generateId,
   deleteAtIndex,
@@ -20,6 +28,7 @@ let persistedRundown: OntimeRundown = [];
 
 /** Utility function gets rundown from DataProvider */
 export const getPersistedRundown = (): OntimeRundown => persistedRundown;
+export const getCustomFields = (): CustomFields => testCustomProperties;
 
 let rundown: NormalisedRundown = {};
 let order: EventID[] = [];
@@ -29,23 +38,7 @@ let totalDelay = 0;
 
 let links: Record<EventID, EventID> = {};
 
-type CustomPropertyLabel = string;
-type CustomPropertyDefinition = Record<
-  CustomPropertyLabel,
-  {
-    label: CustomPropertyLabel;
-    type: 'string' | 'number' | 'boolean';
-  }
->;
-
-type EventCustomProperties = Record<
-  CustomPropertyLabel,
-  {
-    value: string | number | boolean;
-  }
->;
-
-const assignedCustomProperties: Record<CustomPropertyLabel, EventID[]> = {};
+const assignedCustomProperties: Record<CustomFieldLabel, EventID[]> = {};
 
 export async function init(initialRundown: OntimeRundown) {
   persistedRundown = structuredClone(initialRundown);
@@ -53,12 +46,14 @@ export async function init(initialRundown: OntimeRundown) {
   await DataProvider.setRundown(persistedRundown);
 }
 
-const testCustomProperties: CustomPropertyDefinition = {
+const testCustomProperties: CustomFields = {
   lighting: {
+    colour: 'red',
     label: 'lighting',
     type: 'string',
   },
   sound: {
+    colour: 'amber',
     label: 'sound',
     type: 'string',
   },
@@ -70,7 +65,7 @@ const testCustomProperties: CustomPropertyDefinition = {
  */
 export function generate(
   initialRundown: OntimeRundown = persistedRundown,
-  customProperties: CustomPropertyDefinition = testCustomProperties,
+  customProperties: CustomFields = testCustomProperties,
 ) {
   // we decided to re-write this dataset for every change
   // instead of maintaining logic to update it

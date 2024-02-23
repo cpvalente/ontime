@@ -10,6 +10,7 @@ export const RUNDOWN = ['rundown'];
 export const RUNTIME = ['runtimeStore'];
 export const SHEET_STATE = ['sheetState'];
 export const USERFIELDS = ['userFields'];
+export const CUSTOM_FIELDS = ['customFields'];
 export const VIEW_SETTINGS = ['viewSettings'];
 
 const location = window.location;

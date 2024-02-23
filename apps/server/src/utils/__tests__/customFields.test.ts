@@ -21,31 +21,34 @@ describe('createCustomField()', () => {
     const expected = {
       lighting: {
         label: 'lighting',
-        type: 'text',
+        type: 'string',
+        colour: 'blue',
       },
     };
 
-    const customField = await createCustomField({ label: 'lighting', type: 'text' });
+    const customField = await createCustomField({ label: 'lighting', type: 'string', colour: 'blue' });
     expect(customField).toStrictEqual(expected);
   });
 });
 
 describe('editCustomField()', () => {
   it('edits a field with a given label', async () => {
-    await createCustomField({ label: 'sound', type: 'text' });
+    await createCustomField({ label: 'sound', type: 'string', colour: 'blue' });
 
     const expected = {
       lighting: {
         label: 'lighting',
-        type: 'text',
+        type: 'string',
+        colour: 'blue',
       },
       sound: {
         label: 'sound',
-        type: 'number',
+        type: 'string',
+        colour: 'blue',
       },
     };
 
-    const customField = await editCustomField('sound', { label: 'sound', type: 'number' });
+    const customField = await editCustomField('sound', { label: 'sound', type: 'string', colour: 'blue' });
 
     expect(customField).toStrictEqual(expected);
   });
@@ -56,7 +59,8 @@ describe('removeCustomField()', () => {
     const expected = {
       lighting: {
         label: 'lighting',
-        type: 'text',
+        type: 'string',
+        colour: 'blue',
       },
     };
 

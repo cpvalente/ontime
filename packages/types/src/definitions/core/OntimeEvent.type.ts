@@ -1,7 +1,4 @@
-import { MaybeString } from '../../index.js';
-import { EndAction } from '../EndAction.type.js';
-import { TimerType } from '../TimerType.type.js';
-import { TimeStrategy } from '../TimeStrategy.type.js';
+import { EventCustomFields, EndAction, MaybeString, TimerType, TimeStrategy } from '../../index.js';
 
 export enum SupportedEvent {
   Event = 'event',
@@ -24,22 +21,6 @@ export type OntimeBlock = OntimeBaseEvent & {
   type: SupportedEvent.Block;
   title: string;
 };
-
-export type CustomPropertyLabel = string;
-export type CustomPropertyDefinition = Record<
-  CustomPropertyLabel,
-  {
-    label: CustomPropertyLabel;
-    type: 'string' | 'number' | 'boolean';
-  }
->;
-
-export type EventCustomProperties = Record<
-  CustomPropertyLabel,
-  {
-    value: string | number | boolean;
-  }
->;
 
 export type OntimeEvent = OntimeBaseEvent & {
   type: SupportedEvent.Event;
@@ -72,5 +53,5 @@ export type OntimeEvent = OntimeBaseEvent & {
   delay?: number; // calculated at runtime
   timeWarning: number;
   timeDanger: number;
-  custom: EventCustomProperties;
+  custom: EventCustomFields;
 };

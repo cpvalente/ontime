@@ -1,4 +1,5 @@
 import express from 'express';
+
 import {
   deleteCustomField,
   getCustomFields,
@@ -10,6 +11,7 @@ import {
 import {
   projectSanitiser,
   validateCustomField,
+  validateDeleteCustomField,
   validateEditCustomField,
 } from '../controllers/projectController.validate.js';
 
@@ -25,6 +27,6 @@ router.get('/custom-field', getCustomFields);
 
 router.post('/custom-field', validateCustomField, postCustomField);
 
-router.put('/custom-field', validateEditCustomField, putCustomField);
+router.put('/custom-field/:label', validateEditCustomField, putCustomField);
 
-router.delete('/custom-field/:label', deleteCustomField);
+router.delete('/custom-field/:label', validateDeleteCustomField, deleteCustomField);

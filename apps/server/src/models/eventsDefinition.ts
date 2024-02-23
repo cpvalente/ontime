@@ -37,6 +37,7 @@ export const event: Omit<OntimeEvent, 'id' | 'delay' | 'cue'> = {
   revision: 0,
   timeWarning: 120000,
   timeDanger: 60000,
+  custom: {},
 };
 
 export const delay: Omit<OntimeDelay, 'id'> = {
