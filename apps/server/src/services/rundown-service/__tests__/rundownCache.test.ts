@@ -911,6 +911,7 @@ describe('custom fields', () => {
             setCustomFields: vi.fn().mockImplementation((newData) => {
               return newData;
             }),
+            persist: vi.fn().mockReturnValue({}),
           },
         };
       });
