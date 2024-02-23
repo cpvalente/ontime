@@ -43,7 +43,7 @@ import { restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
 import { populateDemo } from './modules/loadDemo.js';
 import { getState, updateRundownData } from './stores/runtimeState.js';
-import { setRundown } from './services/rundown-service/RundownService.js';
+import { initRundown } from './services/rundown-service/RundownService.js';
 import { getPlayableEvents } from './services/rundown-service/rundownUtils.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -182,7 +182,8 @@ export const startServer = async () => {
 
   // initialise rundown service
   const persistedRundown = DataProvider.getRundown();
-  setRundown(persistedRundown);
+  const persistedCustomFields = DataProvider.getCustomFields();
+  initRundown(persistedRundown, persistedCustomFields);
 
   // TODO: do this on the init of the runtime service
   updateRundownData(getPlayableEvents());

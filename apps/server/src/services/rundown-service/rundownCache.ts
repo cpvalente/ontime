@@ -18,7 +18,7 @@ type EventID = string;
 type NormalisedRundown = Record<EventID, OntimeRundownEntry>;
 
 let persistedRundown: OntimeRundown = [];
-const persistedCustomFields: CustomFields = {};
+let persistedCustomFields: CustomFields = {};
 
 /** Utility function gets to expose data */
 export const getPersistedRundown = (): OntimeRundown => persistedRundown;
@@ -44,12 +44,18 @@ let links: Record<EventID, EventID> = {};
 const customFieldChangelog = {};
 const assignedCustomFields: Record<CustomFieldLabel, EventID[]> = {};
 
-export async function init(initialRundown: OntimeRundown) {
+export async function init(initialRundown: OntimeRundown, customFields: CustomFields) {
   persistedRundown = structuredClone(initialRundown);
+  persistedCustomFields = structuredClone(customFields);
   generate();
   await DataProvider.setRundown(persistedRundown);
 }
 
+export async function setRundown(initialRundown: OntimeRundown) {
+  persistedRundown = structuredClone(initialRundown);
+  generate();
+  await DataProvider.setRundown(persistedRundown);
+}
 /**
  * Utility initialises cache
  * @param rundown
