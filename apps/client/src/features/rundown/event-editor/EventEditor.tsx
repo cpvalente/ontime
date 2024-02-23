@@ -140,7 +140,7 @@ export default function EventEditor() {
                 key={label}
                 field={label}
                 label={label}
-                initialValue={event.custom[label].value}
+                initialValue={event.custom[label]?.value ?? ''}
                 submitHandler={handleSubmit}
               />
             );
