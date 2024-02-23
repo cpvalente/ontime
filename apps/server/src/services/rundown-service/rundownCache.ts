@@ -7,15 +7,7 @@ import {
   OntimeRundown,
   OntimeRundownEntry,
 } from 'ontime-types';
-import {
-  generateId,
-  deleteAtIndex,
-  insertAtIndex,
-  reorderArray,
-  swapEventData,
-  getLinkedTimes,
-  formatFromMillis,
-} from 'ontime-utils';
+import { generateId, deleteAtIndex, insertAtIndex, reorderArray, swapEventData, getLinkedTimes } from 'ontime-utils';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
@@ -283,9 +275,6 @@ export function edit({ persistedRundown, eventId, patch }: EditArgs): Required<M
   if (patch?.type && persistedRundown[indexAt].type !== patch.type) {
     throw new Error('Invalid event type');
   }
-
-  // @ts-expect-error -- testing
-  console.log('patch', formatFromMillis(patch?.timeStart ?? 0, 'HH:mm:ss'));
 
   const eventInMemory = persistedRundown[indexAt];
   const newEvent = makeEvent(eventInMemory, patch);

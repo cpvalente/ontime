@@ -1,4 +1,4 @@
-import { EndAction, OntimeEvent, OntimeRundownEntry, SupportedEvent, TimeStrategy, TimerType } from 'ontime-types';
+import { EndAction, OntimeEvent, SupportedEvent, TimeStrategy, TimerType } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { getA1Notation, cellRequestFromEvent } from '../sheetUtils.js';
