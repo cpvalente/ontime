@@ -150,6 +150,13 @@ export const useEventAction = () => {
     [_updateEventMutation],
   );
 
+  const updateCustomField = useCallback(
+    async (eventId: string, field: string, value: string) => {
+      updateEvent({ id: eventId, custom: { [field]: { value } } });
+    },
+    [updateEvent],
+  );
+
   type TimeField = 'timeStart' | 'timeEnd' | 'duration';
   /**
    * Updates time of existing event
@@ -553,5 +560,6 @@ export const useEventAction = () => {
     swapEvents,
     updateEvent,
     updateTimer,
+    updateCustomField,
   };
 };

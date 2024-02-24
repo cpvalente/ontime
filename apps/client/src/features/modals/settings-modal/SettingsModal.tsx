@@ -4,7 +4,6 @@ import ModalWrapper from '../ModalWrapper';
 
 import AliasesForm from './AliasesForm';
 import AppSettingsModal from './AppSettings';
-import CuesheetSettingsForm from './CuesheetSettingsForm';
 import EditorSettings from './EditorSettings';
 import ProjectDataForm from './ProjectDataForm';
 import ViewSettingsForm from './ViewSettingsForm';
@@ -24,7 +23,6 @@ export default function SettingsModal(props: ModalManagerProps) {
             <Tab>App</Tab>
             <Tab>Project Data</Tab>
             <Tab>Editor</Tab>
-            <Tab>Cuesheet</Tab>
             <Tab>Views</Tab>
             <Tab>URL Aliases</Tab>
           </TabList>
@@ -37,9 +35,6 @@ export default function SettingsModal(props: ModalManagerProps) {
             </TabPanel>
             <TabPanel>
               <EditorSettings />
-            </TabPanel>
-            <TabPanel>
-              <CuesheetSettingsForm />
             </TabPanel>
             <TabPanel>
               <ViewSettingsForm />

@@ -402,7 +402,7 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     revision: originalEvent.revision,
     timeWarning: patchEvent.timeWarning ?? originalEvent.timeWarning,
     timeDanger: patchEvent.timeDanger ?? originalEvent.timeDanger,
-    custom: patchEvent.custom ?? originalEvent.custom,
+    custom: { ...originalEvent.custom, ...patchEvent.custom },
   };
 }
 

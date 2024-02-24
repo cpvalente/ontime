@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { CSSProperties, useCallback, useEffect, useState } from 'react';
 import { Button } from '@chakra-ui/react';
 import { CustomFieldLabel, isOntimeEvent, OntimeEvent } from 'ontime-types';
 
@@ -10,7 +10,6 @@ import { useEventSelection } from '../useEventSelection';
 
 import EventEditorTimes from './composite/EventEditorTimes';
 import EventEditorTitles from './composite/EventEditorTitles';
-import EventEditorUser from './composite/EventEditorUser';
 import EventTextArea from './composite/EventTextArea';
 
 import style from './EventEditor.module.scss';
@@ -86,21 +85,6 @@ export default function EventEditor() {
     );
   }
 
-  // Compositing user fields by hand
-  // this will be replaced by dynamic logic
-  const userFields = {
-    user0: event.user0,
-    user1: event.user1,
-    user2: event.user2,
-    user3: event.user3,
-    user4: event.user4,
-    user5: event.user5,
-    user6: event.user6,
-    user7: event.user7,
-    user8: event.user8,
-    user9: event.user9,
-  };
-
   const customKeys = Object.keys(customFields ?? {});
 
   return (
@@ -142,16 +126,17 @@ export default function EventEditor() {
           {customKeys.map((label) => {
             return (
               <EventTextArea
-                key={label}
+                key={`${event.id}-${label}`}
                 field={`custom-${label}`}
                 label={label}
                 initialValue={event.custom[label]?.value ?? ''}
                 submitHandler={handleSubmit}
+                className={style.decorated}
+                style={{ '--decorator-color': customFields[label].colour } as CSSProperties}
               />
             );
           })}
         </div>
-        <EventEditorUser key={`${event.id}-user`} userFields={userFields} handleSubmit={handleSubmit} />
       </div>
       <div className={style.footer}>
         <CopyTag label='OSC trigger by id'>{`/ontime/load/id "${event.id}"`}</CopyTag>
