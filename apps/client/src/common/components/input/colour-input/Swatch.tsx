@@ -14,7 +14,7 @@ export default function Swatch(props: SwatchProps) {
   const { color, isSelected, onClick } = props;
 
   const handleClick = () => {
-    onClick?.(color ?? '');
+    onClick?.(color);
   };
   const classes = cx([style.swatch, isSelected ? style.selected : null, onClick ? style.selectable : null]);
 
