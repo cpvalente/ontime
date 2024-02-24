@@ -56,7 +56,7 @@ export default function CuesheetWrapper() {
       }
 
       // check if value is valid
-      // in antecepation to different types of event here
+      // in anticipation to different types of event here
       if (typeof payload !== 'string') {
         return;
       }
