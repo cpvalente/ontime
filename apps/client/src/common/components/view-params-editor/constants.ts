@@ -1,4 +1,4 @@
-import { CustomFields, UserFields } from 'ontime-types';
+import { CustomFields } from 'ontime-types';
 
 import { ParamField } from './types';
 
