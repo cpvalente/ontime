@@ -340,6 +340,37 @@ export function swap({ persistedRundown, fromId, toId }: SwapArgs): MutatingRetu
 }
 
 /**
+ * Invalidates service cache if a custom field is used
+ * @param label
+ */
+function invalidateIfUsed(label: CustomFieldLabel) {
+  if (label in assignedCustomFields) {
+    isStale = true;
+  }
+  // if the field was in use, we mark the cache as stale
+  if (label in assignedCustomFields) {
+    isStale = true;
+  }
+  // ... and schedule a cache update
+  // schedule a non priority cache update
+  setImmediate(() => {
+    console.time('rundownCache__init');
+    generate();
+    console.timeEnd('rundownCache__init');
+  });
+}
+
+/**
+ * Scheduløes a non priority custom field persist
+ * @param persistedCustomFields
+ */
+function scheduleCustomFieldPersist(persistedCustomFields: CustomFields) {
+  setImmediate(() => {
+    DataProvider.setCustomFields(persistedCustomFields);
+  });
+}
+
+/**
  * Sanitises and creates a custom field in the database
  * @param field
  * @returns
@@ -357,9 +388,7 @@ export const createCustomField = async (field: CustomField) => {
   // update object and persist
   persistedCustomFields[label] = { label, type, colour };
 
-  setImmediate(() => {
-    DataProvider.setCustomFields(persistedCustomFields);
-  });
+  scheduleCustomFieldPersist(persistedCustomFields);
 
   return persistedCustomFields;
 };
@@ -386,9 +415,8 @@ export const editCustomField = async (label: string, newField: Partial<CustomFie
 
   persistedCustomFields[label] = { ...existingField, ...newField };
 
-  setImmediate(() => {
-    DataProvider.setCustomFields(persistedCustomFields);
-  });
+  scheduleCustomFieldPersist(persistedCustomFields);
+  invalidateIfUsed(label);
 
   return persistedCustomFields;
 };
@@ -402,21 +430,8 @@ export const removeCustomField = async (label: string) => {
     delete persistedCustomFields[label];
   }
 
-  setImmediate(() => {
-    DataProvider.setCustomFields(persistedCustomFields);
-  });
-
-  // if the field was in use, we mark the cache as stale
-  if (label in assignedCustomFields) {
-    isStale = true;
-  }
-  // ... and schedule a cache update
-  // schedule a non priority cache update
-  setImmediate(() => {
-    console.time('rundownCache__init');
-    generate();
-    console.timeEnd('rundownCache__init');
-  });
+  scheduleCustomFieldPersist(persistedCustomFields);
+  invalidateIfUsed(label);
 
   return persistedCustomFields;
 };
