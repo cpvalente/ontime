@@ -93,6 +93,9 @@ export const makeTable = (headerData: ProjectData, rundown: OntimeRundown, custo
           const fieldLabel = field.split('custom-')[1];
           const value = entry.custom[fieldLabel]?.value;
           row.push(parseField(fieldLabel, value));
+        } else {
+          // @ts-expect-error -- it is ok, we will just not have the data for other fields
+          row.push(parseField(field, entry[field]));
         }
         return;
       }
