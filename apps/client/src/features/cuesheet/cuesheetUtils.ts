@@ -1,5 +1,5 @@
 import { stringify } from 'csv-stringify/browser/esm/sync';
-import { OntimeEntryCommonKeys, OntimeRundown, ProjectData, UserFields } from 'ontime-types';
+import { CustomFields, OntimeEntryCommonKeys, OntimeRundown, ProjectData } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 /**
@@ -33,16 +33,17 @@ export const parseField = <T extends OntimeEntryCommonKeys>(field: T, data: unkn
 
 /**
  * @description Creates an array of arrays usable by xlsx for export
- * @param {object} headerData
- * @param {array} rundown
- * @param {object} userFields
+ * @param {ProjectData} headerData
+ * @param {OntimeRundown} rundown
+ * @param {CustomFields} customFields
  * @return {(string[])[]}
  */
-export const makeTable = (headerData: ProjectData, rundown: OntimeRundown, userFields: UserFields): string[][] => {
+export const makeTable = (headerData: ProjectData, rundown: OntimeRundown, customFields: CustomFields): string[][] => {
   const data = [['Ontime · Rundown export']];
   if (headerData.title) data.push([`Project title: ${headerData.title}`]);
   if (headerData.description) data.push([`Project description: ${headerData.description}`]);
 
+  // TODO: add custom fields to header
   const fieldOrder: OntimeEntryCommonKeys[] = [
     'timeStart',
     'timeEnd',
@@ -55,18 +56,9 @@ export const makeTable = (headerData: ProjectData, rundown: OntimeRundown, userF
     'endAction',
     'timerType',
     'skip',
-    'user0',
-    'user1',
-    'user2',
-    'user3',
-    'user4',
-    'user5',
-    'user6',
-    'user7',
-    'user8',
-    'user9',
   ];
 
+  // TODO: is this up to date?
   const fieldTitles = [
     'Time Start',
     'Time End',
@@ -81,8 +73,8 @@ export const makeTable = (headerData: ProjectData, rundown: OntimeRundown, userF
     'Skip?',
   ];
 
-  for (const field in userFields) {
-    const fieldValue = userFields[field as keyof UserFields];
+  for (const field in customFields) {
+    const fieldValue = customFields[field as keyof CustomFields];
     const displayName = `${field}${fieldValue !== field && fieldValue !== '' ? `:${fieldValue}` : ''}`;
     fieldTitles.push(displayName);
   }

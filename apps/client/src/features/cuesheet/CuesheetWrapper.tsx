@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { OntimeRundownEntry, ProjectData } from 'ontime-types';
+import { CustomFieldLabel, isOntimeEvent, ProjectData } from 'ontime-types';
 
 import Empty from '../../common/components/state/Empty';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useCuesheet } from '../../common/hooks/useSocket';
+import useCustomFields from '../../common/hooks-query/useCustomFields';
 import { useFlatRundown } from '../../common/hooks-query/useRundown';
-import useUserFields from '../../common/hooks-query/useUserFields';
 
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
 import CuesheetTableHeader from './cuesheet-table-header/CuesheetTableHeader';
@@ -18,18 +18,23 @@ import styles from './CuesheetWrapper.module.scss';
 export default function CuesheetWrapper() {
   // TODO: can we use the normalised rundown for the table?
   const { data: flatRundown, status: rundownStatus } = useFlatRundown();
-  const { data: userFields } = useUserFields();
-  const { updateEvent } = useEventAction();
+  const { data: customFields } = useCustomFields();
+
+  const { updateCustomField } = useEventAction();
   const featureData = useCuesheet();
-  const columns = useMemo(() => makeCuesheetColumns(userFields), [userFields]);
+  const columns = useMemo(() => makeCuesheetColumns(customFields), [customFields]);
 
   // Set window title
   useEffect(() => {
     document.title = 'ontime - Cuesheet';
   }, []);
 
+  /**
+   * Handles updating a field
+   * Currently, only custom fields can be updated from the cuesheet
+   */
   const handleUpdate = useCallback(
-    async (rowIndex: number, accessor: keyof OntimeRundownEntry, payload: unknown) => {
+    async (rowIndex: number, accessor: CustomFieldLabel, payload: unknown) => {
       if (!flatRundown || rundownStatus !== 'success') {
         return;
       }
@@ -40,42 +45,42 @@ export default function CuesheetWrapper() {
 
       // check if value is the same
       const event = flatRundown[rowIndex];
-      if (!event) {
+      if (!event || !isOntimeEvent(event)) {
         return;
       }
 
-      if (event[accessor] === payload) {
+      const previousValue = event.custom[accessor]?.value;
+
+      if (previousValue === payload) {
         return;
       }
+
       // check if value is valid
-      // as of now, the fields do not have any validation
+      // in antecepation to different types of event here
       if (typeof payload !== 'string') {
         return;
       }
 
       // cleanup
       const cleanVal = payload.trim();
-      const mutationObject = {
-        id: event.id,
-        [accessor]: cleanVal,
-      };
 
       // submit
       try {
-        await updateEvent(mutationObject);
+        // TODO: create function to mutate user fields
+        await updateCustomField(event.id, accessor, cleanVal);
       } catch (error) {
         console.error(error);
       }
     },
-    [flatRundown, rundownStatus, updateEvent],
+    [flatRundown, rundownStatus, updateCustomField],
   );
 
   const exportHandler = useCallback(
     (headerData: ProjectData) => {
-      if (!userFields || !flatRundown || rundownStatus !== 'success') {
+      if (!flatRundown || rundownStatus !== 'success') {
         return;
       }
-      const sheetData = makeTable(headerData, flatRundown, userFields);
+      const sheetData = makeTable(headerData, flatRundown, customFields);
       const csvContent = makeCSV(sheetData);
 
       const fileName = 'ontime rundown.csv';
@@ -92,10 +97,10 @@ export default function CuesheetWrapper() {
       URL.revokeObjectURL(url);
       return;
     },
-    [flatRundown, rundownStatus, userFields],
+    [flatRundown, rundownStatus, customFields],
   );
 
-  if (!userFields || !flatRundown || rundownStatus !== 'success') {
+  if (!customFields || !flatRundown || rundownStatus !== 'success') {
     return <Empty text='Loading...' />;
   }
 
