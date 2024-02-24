@@ -220,6 +220,7 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
     // TODO: should we trottle this?
     // defer writing to the database
     setImmediate(() => {
+      console.log('writing to database', persistedRundown.length)
       DataProvider.setRundown(persistedRundown);
     });
 
@@ -283,7 +284,6 @@ export function edit({ persistedRundown, eventId, patch }: EditArgs): Required<M
 
   const eventInMemory = persistedRundown[indexAt];
   const newEvent = makeEvent(eventInMemory, patch);
-  console.log('got', patch, 'will make', newEvent);
 
   const newRundown = [...persistedRundown];
   newRundown[indexAt] = newEvent;
