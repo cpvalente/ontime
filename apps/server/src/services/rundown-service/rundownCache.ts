@@ -1,13 +1,14 @@
-import { isOntimeDelay, isOntimeEvent, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 import {
-  generateId,
-  deleteAtIndex,
-  insertAtIndex,
-  reorderArray,
-  swapEventData,
-  getLinkedTimes,
-  formatFromMillis,
-} from 'ontime-utils';
+  CustomField,
+  CustomFieldLabel,
+  CustomFields,
+  isOntimeDelay,
+  isOntimeEvent,
+  OntimeEvent,
+  OntimeRundown,
+  OntimeRundownEntry,
+} from 'ontime-types';
+import { generateId, deleteAtIndex, insertAtIndex, reorderArray, swapEventData, getLinkedTimes } from 'ontime-utils';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
@@ -17,9 +18,11 @@ type EventID = string;
 type NormalisedRundown = Record<EventID, OntimeRundownEntry>;
 
 let persistedRundown: OntimeRundown = [];
+let persistedCustomFields: CustomFields = {};
 
-/** Utility function gets rundown from DataProvider */
+/** Utility function gets to expose data */
 export const getPersistedRundown = (): OntimeRundown => persistedRundown;
+export const getCustomFields = (): CustomFields => persistedCustomFields;
 
 let rundown: NormalisedRundown = {};
 let order: EventID[] = [];
@@ -29,17 +32,38 @@ let totalDelay = 0;
 
 let links: Record<EventID, EventID> = {};
 
-export async function init(initialRundown: OntimeRundown) {
+/**
+ * Object that contains renamings to custom fields
+ * Used to rename the custom fields in the events
+ * @example
+ * {
+ *  oldLabel: newLabel
+ *  lighting: lx
+ * }
+ */
+const customFieldChangelog = {};
+const assignedCustomFields: Record<CustomFieldLabel, EventID[]> = {};
+
+export async function init(initialRundown: OntimeRundown, customFields: CustomFields) {
   persistedRundown = structuredClone(initialRundown);
+  persistedCustomFields = structuredClone(customFields);
   generate();
   await DataProvider.setRundown(persistedRundown);
 }
 
+export async function setRundown(initialRundown: OntimeRundown) {
+  persistedRundown = structuredClone(initialRundown);
+  generate();
+  await DataProvider.setRundown(persistedRundown);
+}
 /**
  * Utility initialises cache
  * @param rundown
  */
-export function generate(initialRundown: OntimeRundown = persistedRundown) {
+export function generate(
+  initialRundown: OntimeRundown = persistedRundown,
+  customProperties: CustomFields = persistedCustomFields,
+) {
   // we decided to re-write this dataset for every change
   // instead of maintaining logic to update it
 
@@ -81,6 +105,21 @@ export function generate(initialRundown: OntimeRundown = persistedRundown) {
         // update the persisted event
         initialRundown[i] = updatedEvent;
       }
+      if (updatedEvent.custom) {
+        for (const property in updatedEvent.custom) {
+          const isValid = property in customProperties;
+          if (!isValid) {
+            delete updatedEvent.custom[property];
+            return;
+          }
+          if (!Array.isArray(assignedCustomFields[property])) {
+            assignedCustomFields[property] = [];
+          }
+          assignedCustomFields[property].push(updatedEvent.id);
+        }
+        // update the persisted event
+        initialRundown[i] = updatedEvent;
+      }
     }
 
     // calculate delays
@@ -104,7 +143,7 @@ export function generate(initialRundown: OntimeRundown = persistedRundown) {
 
   isStale = false;
   totalDelay = accumulatedDelay;
-  return { rundown, order, links, totalDelay };
+  return { rundown, order, links, totalDelay, assignedCustomProperties: assignedCustomFields };
 }
 
 /** Returns an ID guaranteed to be unique */
@@ -242,11 +281,9 @@ export function edit({ persistedRundown, eventId, patch }: EditArgs): Required<M
     throw new Error('Invalid event type');
   }
 
-  // @ts-expect-error -- testing
-  console.log('patch', formatFromMillis(patch?.timeStart ?? 0, 'HH:mm:ss'));
-
   const eventInMemory = persistedRundown[indexAt];
   const newEvent = makeEvent(eventInMemory, patch);
+  console.log('got', patch, 'will make', newEvent);
 
   const newRundown = [...persistedRundown];
   newRundown[indexAt] = newEvent;
@@ -322,3 +359,73 @@ export function swap({ persistedRundown, fromId, toId }: SwapArgs): MutatingRetu
 
   return { newRundown };
 }
+
+/**
+ * Sanitises and creates a custom field in the database
+ * @param field
+ * @returns
+ */
+export const createCustomField = async (field: CustomField) => {
+  const { label, type, colour } = field;
+
+  // check if label already exists
+  const alreadyExists = Object.hasOwn(persistedCustomFields, label);
+
+  if (alreadyExists) {
+    throw new Error('Label already exists');
+  }
+
+  // update object and persist
+  persistedCustomFields[label] = { label, type, colour };
+
+  setImmediate(() => {
+    DataProvider.setCustomFields(persistedCustomFields);
+  });
+
+  return persistedCustomFields;
+};
+
+/**
+ * Edits an existing custom field in the database
+ * @param label
+ * @param newField
+ * @returns
+ */
+export const editCustomField = async (label: string, newField: Partial<CustomField>) => {
+  if (!(label in persistedCustomFields)) {
+    throw new Error('Could not find label');
+  }
+
+  const existingField = persistedCustomFields[label];
+  if (existingField.type !== newField.type) {
+    throw new Error('Change of field type is not allowed');
+  }
+
+  if (existingField.label !== newField.label) {
+    customFieldChangelog[label] = newField.label;
+  }
+
+  persistedCustomFields[label] = { ...existingField, ...newField };
+
+  setImmediate(() => {
+    DataProvider.setCustomFields(persistedCustomFields);
+  });
+
+  return persistedCustomFields;
+};
+
+/**
+ * Deletes a custom field from the database
+ * @param label
+ */
+export const removeCustomField = async (label: string) => {
+  if (label in persistedCustomFields) {
+    delete persistedCustomFields[label];
+  }
+
+  setImmediate(() => {
+    DataProvider.setCustomFields(persistedCustomFields);
+  });
+
+  return persistedCustomFields;
+};

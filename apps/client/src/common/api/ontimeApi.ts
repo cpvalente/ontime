@@ -2,6 +2,9 @@ import axios, { AxiosResponse } from 'axios';
 import {
   Alias,
   AuthenticationStatus,
+  CustomField,
+  CustomFieldLabel,
+  CustomFields,
   DatabaseModel,
   GetInfo,
   HttpSettings,
@@ -19,7 +22,7 @@ import { ExcelImportMap } from 'ontime-utils';
 import { apiRepoLatest } from '../../externals';
 import fileDownload from '../utils/fileDownload';
 
-import { ontimeURL } from './apiConstants';
+import { ontimeURL, projectDataURL } from './apiConstants';
 
 /**
  * @description HTTP request to retrieve application settings
@@ -361,8 +364,33 @@ export async function createProject(
     }
   >,
 ): Promise<MessageResponse> {
+  // TODO: is this URL correct?
   const url = `${ontimeURL}/project`;
   const decodedUrl = decodeURIComponent(url);
   const res = await axios.post(decodedUrl, project);
+  return res.data;
+}
+
+export async function getCustomFields(): Promise<CustomFields> {
+  const res = await axios.get(`${projectDataURL}/custom-field`);
+  return res.data;
+}
+
+export async function postCustomField(newField: CustomField): Promise<CustomFields> {
+  const res = await axios.post(`${projectDataURL}/custom-field`, {
+    ...newField,
+  });
+  return res.data;
+}
+
+export async function editCustomField(label: CustomFieldLabel, newField: CustomField): Promise<CustomFields> {
+  const res = await axios.put(`${projectDataURL}/custom-field/${label}`, {
+    ...newField,
+  });
+  return res.data;
+}
+
+export async function deleteCustomField(label: CustomFieldLabel): Promise<CustomFields> {
+  const res = await axios.delete(`${projectDataURL}/custom-field/${label}`);
   return res.data;
 }

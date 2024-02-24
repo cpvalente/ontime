@@ -405,7 +405,7 @@ export const dbUpload = async (req: Request, res: Response) => {
  * uploads and parses an excel file
  * @returns parsed result
  */
-export async function previewExcel(req, res: Response) {
+export async function previewExcel(req: Request, res: Response) {
   if (!req.file) {
     res.status(400).send({ message: 'File not found' });
     return;

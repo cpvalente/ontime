@@ -52,6 +52,7 @@ describe('test json parser with valid def', () => {
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
+        custom: {},
       },
       {
         id: 'f24d',
@@ -84,6 +85,7 @@ describe('test json parser with valid def', () => {
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
+        custom: {},
       },
       {
         id: 'bbc5',
@@ -116,6 +118,7 @@ describe('test json parser with valid def', () => {
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
+        custom: {},
       },
       {
         // testing incomplete dataset
@@ -169,6 +172,7 @@ describe('test json parser with valid def', () => {
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
+        custom: {},
       },
       {
         id: '08e9',
@@ -201,6 +205,7 @@ describe('test json parser with valid def', () => {
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
+        custom: {},
       },
       {
         // testing incomplete dataset

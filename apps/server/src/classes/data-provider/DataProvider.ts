@@ -17,6 +17,7 @@ import {
 
 import { data, db } from '../../modules/loadDb.js';
 import { safeMerge } from './DataProvider.utils.js';
+import { isProduction } from '../../setup.js';
 
 export class DataProvider {
   static getData() {
@@ -109,6 +110,9 @@ export class DataProvider {
   }
 
   static async persist() {
+    if (!isProduction) {
+      return;
+    }
     await db.write();
   }
 
