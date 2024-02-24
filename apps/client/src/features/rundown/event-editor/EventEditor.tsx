@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { CSSProperties, useCallback, useEffect, useState } from 'react';
 import { Button } from '@chakra-ui/react';
 import { CustomFieldLabel, isOntimeEvent, OntimeEvent } from 'ontime-types';
 
@@ -147,6 +147,8 @@ export default function EventEditor() {
                 label={label}
                 initialValue={event.custom[label]?.value ?? ''}
                 submitHandler={handleSubmit}
+                className={style.decorated}
+                style={{ '--decorator-color': customFields[label].colour } as CSSProperties}
               />
             );
           })}
