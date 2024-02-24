@@ -1,27 +1,27 @@
 import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
 
-import ModalLink from '../../../../features/modals/ModalLink';
+import ModalLink from '../../../modals/ModalLink';
 import * as Panel from '../PanelUtils';
 
-import UrlAliasList from './UrlAliasList';
+import UrlPresetList from './UrlPresetList';
 
-import style from './UrlAliasPanel.module.scss';
+import style from './UrlPresetPanel.module.scss';
 
 const aliasesDocsUrl = 'https://ontime.gitbook.io/v2/features/url-aliases';
 
-export default function UrlAliasPanel() {
+export default function UrlPresetPanel() {
   return (
     <>
-      <Panel.Header>URL Aliases</Panel.Header>
+      <Panel.Header>URL Presets</Panel.Header>
       <Panel.Section>
         <Panel.Card>
           <main>
             <Alert status='info' variant='ontime-on-light-info'>
               <AlertIcon />
               <div className={style.column}>
-                <AlertTitle>URL Aliases</AlertTitle>
+                <AlertTitle>URL Presets</AlertTitle>
                 <AlertDescription>
-                  Custom aliases allow providing a short name for any ontime URL. <br />
+                  Custom presets allow providing a short name for any ontime URL. <br />
                   It serves two primary purposes: <br />
                   - Providing dynamic URLs for automation or unattended screens <br />- Simplifying complex URLs
                   <ModalLink href={aliasesDocsUrl}>For more information, see the docs</ModalLink>
@@ -33,7 +33,7 @@ export default function UrlAliasPanel() {
                 marginTop: '1rem',
               }}
             >
-              <UrlAliasList />
+              <UrlPresetList />
             </div>
           </main>
         </Panel.Card>

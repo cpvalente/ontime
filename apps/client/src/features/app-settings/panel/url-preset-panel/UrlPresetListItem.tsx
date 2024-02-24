@@ -4,16 +4,16 @@ import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHoriz
 
 import { deleteAlias, updateAliases } from '../../../../common/api/ontimeApi';
 
-import UrlAliasForm, { UrlAliasFormValues } from './UrlAliasForm';
+import UrlAliasForm, { UrlPresetFormValues } from './UrlPresetForm';
 
-interface UrlAliasListItemProps {
+interface UrlPresetListItemProps {
   alias: string;
   enabled: boolean;
   pathAndParams: string;
   onRefetch: () => Promise<void>;
 }
 
-export default function UrlAliasListItem({ alias, enabled, pathAndParams, onRefetch }: UrlAliasListItemProps) {
+export default function UrlPresetListItem({ alias, enabled, pathAndParams, onRefetch }: UrlPresetListItemProps) {
   const [isEditing, setIsEditing] = useState(false);
 
   const handleToggle = useCallback(async () => {
@@ -32,7 +32,7 @@ export default function UrlAliasListItem({ alias, enabled, pathAndParams, onRefe
   }, [isEditing]);
 
   const handleSubmitUpdate = useCallback(
-    async (values: UrlAliasFormValues) => {
+    async (values: UrlPresetFormValues) => {
       try {
         await updateAliases(values);
         await onRefetch();

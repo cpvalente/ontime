@@ -1,10 +1,10 @@
 import useAliases from '../../../../common/hooks-query/useAliases';
-import ModalLoader from '../../../../features/modals/modal-loader/ModalLoader';
+import ModalLoader from '../../../modals/modal-loader/ModalLoader';
 import * as Panel from '../PanelUtils';
 
-import UrlAliasListItem from './UrlAliasListItem';
+import UrlPresetListItem from './UrlPresetListItem';
 
-export default function UrlAliasList() {
+export default function UrlPresetList() {
   const { data, isFetching, refetch } = useAliases();
 
   const handleRefetch = async () => {
@@ -28,7 +28,7 @@ export default function UrlAliasList() {
       <tbody>
         {(data || []).map((alias) => {
           return (
-            <UrlAliasListItem
+            <UrlPresetListItem
               alias={alias.alias}
               enabled={alias.enabled}
               pathAndParams={alias.pathAndParams}

@@ -2,37 +2,37 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input } from '@chakra-ui/react';
 
-import style from './UrlAliasPanel.module.scss';
+import style from './UrlPresetPanel.module.scss';
 
-export type UrlAliasFormValues = {
+export type UrlPresetFormValues = {
   alias?: string;
   pathAndParams?: string;
   enabled?: boolean;
 };
 
-interface UrlAliasFormProps {
+interface UrlPresetFormProps {
   alias?: string;
   enabled?: boolean;
   pathAndParams?: string;
   onCancel: () => void;
-  onSubmit: (values: UrlAliasFormValues) => Promise<void>;
+  onSubmit: (values: UrlPresetFormValues) => Promise<void>;
   submitError: string | null;
 }
 
-export default function UrlAliasForm({
+export default function UrlPresetForm({
   onSubmit,
   onCancel,
   submitError,
   alias,
   enabled,
   pathAndParams,
-}: UrlAliasFormProps) {
+}: UrlPresetFormProps) {
   const {
     handleSubmit,
     register,
     formState: { isSubmitting, isValid },
     setFocus,
-  } = useForm<UrlAliasFormValues>({
+  } = useForm<UrlPresetFormValues>({
     defaultValues: { alias, pathAndParams, enabled },
     values: { alias, pathAndParams, enabled },
     resetOptions: {

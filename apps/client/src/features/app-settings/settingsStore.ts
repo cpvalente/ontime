@@ -35,7 +35,7 @@ export const settingPanels: Readonly<SettingsOption[]> = [
     ],
   },
   { id: 'log', label: 'Log', split: true },
-  { id: 'url_alias', label: 'URL Aliases' },
+  { id: 'url_presets', label: 'URL Presets' },
   {
     id: 'about',
     label: 'About',

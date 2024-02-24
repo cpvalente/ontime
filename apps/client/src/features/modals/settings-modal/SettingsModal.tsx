@@ -26,7 +26,7 @@ export default function SettingsModal(props: ModalManagerProps) {
             <Tab>Editor</Tab>
             <Tab>Cuesheet</Tab>
             <Tab>Views</Tab>
-            <Tab>URL Aliases</Tab>
+            <Tab>URL Presets</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
