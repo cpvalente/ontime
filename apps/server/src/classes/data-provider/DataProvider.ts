@@ -17,7 +17,7 @@ import {
 
 import { data, db } from '../../modules/loadDb.js';
 import { safeMerge } from './DataProvider.utils.js';
-import { isProduction, isTest } from '../../setup.js';
+import { isTest } from '../../setup.js';
 
 export class DataProvider {
   static getData() {
