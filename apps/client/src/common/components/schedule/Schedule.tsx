@@ -42,7 +42,6 @@ export default function Schedule({ isProduction, className }: ScheduleProps) {
             timeEnd={timeEnd}
             title={event.title}
             colour={isBackstage ? event.colour : ''}
-            backstageEvent={!event.isPublic}
             skip={event.skip}
           />
         );

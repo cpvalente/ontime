@@ -20,16 +20,16 @@ const ScheduleContext = createContext<ScheduleContextState | undefined>(undefine
 interface ScheduleProviderProps {
   events: OntimeEvent[];
   selectedEventId: string | null;
-  isBackstage?: boolean;
   time?: number;
+  isBackstage?: boolean;
 }
 
 export const ScheduleProvider = ({
   children,
   events,
   selectedEventId,
-  isBackstage = false,
   time = 10,
+  isBackstage = false,
 }: PropsWithChildren<ScheduleProviderProps>) => {
   const [visiblePage, setVisiblePage] = useState(0);
   const [searchParams] = useSearchParams();
