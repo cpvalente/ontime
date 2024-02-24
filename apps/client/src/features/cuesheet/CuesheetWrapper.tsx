@@ -66,7 +66,6 @@ export default function CuesheetWrapper() {
 
       // submit
       try {
-        // TODO: create function to mutate user fields
         await updateCustomField(event.id, accessor, cleanVal);
       } catch (error) {
         console.error(error);
