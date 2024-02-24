@@ -189,6 +189,34 @@ export const postAliases = async (req: Request, res: Response) => {
   }
 };
 
+// Update controller for PUT request to '/ontime/aliases'
+// Returns ACK message
+export const updateAliases = async (req: Request, res: Response) => {
+  try {
+    const { alias, enabled, pathAndParams } = req.body;
+
+    const aliases = DataProvider.getAliases();
+
+    const index = aliases.findIndex((a) => a.alias === alias);
+
+    if (index === -1) {
+      return res.status(404).send({ message: `Alias ${alias} not found` });
+    }
+
+    aliases[index] = {
+      alias,
+      enabled,
+      pathAndParams,
+    };
+
+    await DataProvider.setAliases(aliases);
+
+    res.status(200).send(aliases);
+  } catch (error) {
+    res.status(400).send({ message: String(error) });
+  }
+};
+
 // Create controller for GET request to '/ontime/userfields'
 // Returns -
 export const getUserFields = async (_req: Request, res: Response) => {

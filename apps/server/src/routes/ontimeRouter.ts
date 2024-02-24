@@ -32,6 +32,7 @@ import {
   postId,
   getAuthentication,
   getClientSecrect as getClientSecret,
+  updateAliases,
 } from '../controllers/ontimeController.js';
 
 import {
@@ -48,6 +49,7 @@ import {
   validateSheetid,
   validateWorksheet,
   validateSheetOptions,
+  validateUpdateAlises,
 } from '../controllers/ontimeController.validate.js';
 import { projectSanitiser } from '../controllers/projectController.validate.js';
 import { sanitizeProjectFilename } from '../utils/sanitizeProjectFilename.js';
@@ -86,6 +88,9 @@ router.get('/aliases', getAliases);
 
 // create route between controller and '/ontime/aliases' endpoint
 router.post('/aliases', validateAliases, postAliases);
+
+// create route between controller and /ontime/aliases' endpoint
+router.put('/aliases', validateUpdateAlises, updateAliases);
 
 // create route between controller and '/ontime/aliases' endpoint
 router.get('/userfields', getUserFields);

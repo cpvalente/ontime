@@ -1,82 +1,78 @@
+import { useCallback, useMemo, useState } from 'react';
 import { IconButton, Menu, MenuButton, MenuItem, MenuList, Switch } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 
-export type EditMode = 'rename' | 'duplicate' | null;
+import { updateAliases } from '../../../../common/api/ontimeApi';
 
 interface UrlAliasListItemProps {
   alias: string;
   enabled: boolean;
   pathAndParams: string;
-  // onToggleEditMode: (editMode: EditMode, filename: string | null) => void;
-  // onSubmit: () => void;
-  // onRefetch: () => Promise<void>;
-  // editingFilename: string | null;
-  // editingMode: EditMode | null;
+  onRefetch: () => Promise<void>;
 }
 
-export default function UrlAliasListItem({ alias, enabled, pathAndParams }: UrlAliasListItemProps) {
-  // const [submitError, setSubmitError] = useState<string | null>(null);
+export default function UrlAliasListItem({ alias, enabled, pathAndParams, onRefetch }: UrlAliasListItemProps) {
+  const [isEditing, setIsEditing] = useState(false);
 
-  // const handleSubmitRename = async (values: ProjectFormValues) => {
-  //   try {
-  //     setSubmitError(null);
+  const handleToggle = useCallback(async () => {
+    // TODO: Error handling
+    await updateAliases({
+      alias,
+      enabled: !enabled,
+      pathAndParams,
+    });
 
-  //     if (!values.filename) {
-  //       setSubmitError('Filename cannot be blank');
-  //       return;
-  //     }
-  //     await renameProject(filename, values.filename);
-  //     await onRefetch();
-  //     onSubmit();
-  //   } catch (error) {
-  //     setSubmitError(maybeAxiosError(error));
-  //   }
-  // };
+    await onRefetch();
+  }, [alias, enabled, onRefetch, pathAndParams]);
 
-  // const handleSubmitDuplicate = async (values: ProjectFormValues) => {
-  //   try {
-  //     setSubmitError(null);
+  const handleToggleEditMode = useCallback(() => {
+    setIsEditing(!isEditing);
+  }, [isEditing]);
 
-  //     if (!values.filename) {
-  //       setSubmitError('Filename cannot be blank');
-  //       return;
-  //     }
-  //     await duplicateProject(filename, values.filename);
-  //     await onRefetch();
-  //     onSubmit();
-  //   } catch (error) {
-  //     setSubmitError(maybeAxiosError(error));
-  //   }
-  // };
-
-  // const handleToggleEditMode = (editMode: EditMode, filename: string | null) => {
-  //   setSubmitError(null);
-  //   onToggleEditMode(editMode, filename);
-  // };
+  const handleRenderAliases = useMemo(() => {
+    if (!isEditing) {
+      return (
+        <>
+          <td
+            style={{
+              width: '45%',
+            }}
+          >
+            {alias}
+          </td>
+          <td
+            style={{
+              width: '45%',
+            }}
+          >
+            {pathAndParams}
+          </td>
+          <td>
+            <Switch variant='ontime-on-light' isChecked={enabled} onChange={handleToggle} />
+          </td>
+          <td>
+            <ActionMenu onChangeEditMode={handleToggleEditMode} />
+          </td>
+        </>
+      );
+    } else {
+      // Return a form
+      return null;
+    }
+  }, [alias, enabled, handleToggle, handleToggleEditMode, isEditing, pathAndParams]);
 
   return (
     <tr key={alias}>
-      <td>{alias}</td>
-      <td>{pathAndParams}</td>
-      <td>
-        <Switch
-          variant='ontime-on-light'
-          defaultValue={enabled}
-          // isDisabled={disableInputs}
-        />
-      </td>
-      <td>
-        <ActionMenu />
-      </td>
+      {handleRenderAliases}
       {/* <td>{new Date(updatedAt).toLocaleString()}</td>
       <td className={style.actionButton}></td> */}
     </tr>
   );
 }
 
-function ActionMenu() {
-  const handleRename = () => {
-    // onChangeEditMode('rename', filename);
+function ActionMenu({ onChangeEditMode }: { onChangeEditMode: () => void }) {
+  const handleEdit = () => {
+    onChangeEditMode();
   };
 
   const handleDelete = async () => {
@@ -94,7 +90,7 @@ function ActionMenu() {
         size='sm'
       />
       <MenuList>
-        <MenuItem onClick={handleRename}>Edit</MenuItem>
+        <MenuItem onClick={handleEdit}>Edit</MenuItem>
         <MenuItem onClick={handleDelete}>Delete</MenuItem>
       </MenuList>
     </Menu>

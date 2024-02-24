@@ -81,6 +81,14 @@ export async function postAliases(data: Alias[]) {
 }
 
 /**
+ * @description HTTP request to update aliases
+ * @return {Promise}
+ */
+export async function updateAliases(data: Partial<Alias>) {
+  return axios.put(`${ontimeURL}/aliases`, data);
+}
+
+/**
  * @description HTTP request to retrieve user fields
  * @return {Promise}
  */

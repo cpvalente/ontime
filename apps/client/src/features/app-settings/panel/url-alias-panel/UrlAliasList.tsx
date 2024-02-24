@@ -13,7 +13,7 @@ type Aliases = {
 };
 
 export default function UrlAliasList() {
-  const { data, status, isFetching } = useAliases();
+  const { data, status, isFetching, refetch } = useAliases();
 
   // const { emitError } = useEmitLog();
   const {
@@ -43,6 +43,10 @@ export default function UrlAliasList() {
     }
   }, [data, reset]);
 
+  const handleRefetch = async () => {
+    await refetch();
+  };
+
   // const onReset = () => {
   //   reset({ aliases: data });
   // };
@@ -61,9 +65,6 @@ export default function UrlAliasList() {
 
   const disableInputs = status === 'pending';
   // const hasTooManyOptions = fields.length >= 20;
-
-  console.log('bolama');
-  console.log({ isFetching });
 
   if (isFetching) {
     return <ModalLoader />;
@@ -86,6 +87,7 @@ export default function UrlAliasList() {
               alias={alias.alias}
               enabled={alias.enabled}
               pathAndParams={alias.pathAndParams}
+              onRefetch={handleRefetch}
               key={alias.id}
             />
           );
