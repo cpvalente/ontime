@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { IconButton, Menu, MenuButton, MenuItem, MenuList, Switch } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 
-import { updateAliases } from '../../../../common/api/ontimeApi';
+import { deleteAlias, updateAliases } from '../../../../common/api/ontimeApi';
 
 import UrlAliasForm, { UrlAliasFormValues } from './UrlAliasForm';
 
@@ -43,6 +43,11 @@ export default function UrlAliasListItem({ alias, enabled, pathAndParams, onRefe
     [onRefetch],
   );
 
+  const handleDelete = useCallback(async () => {
+    await deleteAlias(alias);
+    await onRefetch();
+  }, [alias, onRefetch]);
+
   const handleRenderAliases = useMemo(() => {
     if (!isEditing) {
       return (
@@ -65,7 +70,7 @@ export default function UrlAliasListItem({ alias, enabled, pathAndParams, onRefe
             <Switch variant='ontime-on-light' isChecked={enabled} onChange={handleToggle} />
           </td>
           <td>
-            <ActionMenu onChangeEditMode={handleToggleEditMode} />
+            <ActionMenu onDelete={handleDelete} onChangeEditMode={handleToggleEditMode} />
           </td>
         </>
       );
@@ -83,19 +88,14 @@ export default function UrlAliasListItem({ alias, enabled, pathAndParams, onRefe
         </td>
       );
     }
-  }, [alias, enabled, handleSubmitUpdate, handleToggle, handleToggleEditMode, isEditing, pathAndParams]);
+  }, [alias, enabled, handleDelete, handleSubmitUpdate, handleToggle, handleToggleEditMode, isEditing, pathAndParams]);
 
   return <tr key={alias}>{handleRenderAliases}</tr>;
 }
 
-function ActionMenu({ onChangeEditMode }: { onChangeEditMode: () => void }) {
+function ActionMenu({ onChangeEditMode, onDelete }: { onChangeEditMode: () => void; onDelete: () => Promise<void> }) {
   const handleEdit = () => {
     onChangeEditMode();
-  };
-
-  const handleDelete = async () => {
-    // await deleteProject();
-    // await onRefetch();
   };
 
   return (
@@ -109,7 +109,7 @@ function ActionMenu({ onChangeEditMode }: { onChangeEditMode: () => void }) {
       />
       <MenuList>
         <MenuItem onClick={handleEdit}>Edit</MenuItem>
-        <MenuItem onClick={handleDelete}>Delete</MenuItem>
+        <MenuItem onClick={onDelete}>Delete</MenuItem>
       </MenuList>
     </Menu>
   );

@@ -217,6 +217,30 @@ export const updateAliases = async (req: Request, res: Response) => {
   }
 };
 
+// Delete controller for DELETE request to '/ontime/aliases/:alias'
+// Returns ACK message
+export const deleteAlias = async (req: Request, res: Response) => {
+  try {
+    const alias = req.params.alias;
+
+    const aliases = DataProvider.getAliases();
+
+    const index = aliases.findIndex((a) => a.alias === alias);
+
+    if (index === -1) {
+      return res.status(404).send({ message: `Alias ${alias} not found` });
+    }
+
+    aliases.splice(index, 1);
+
+    await DataProvider.setAliases(aliases);
+
+    res.status(200).send(aliases);
+  } catch (error) {
+    res.status(400).send({ message: String(error) });
+  }
+};
+
 // Create controller for GET request to '/ontime/userfields'
 // Returns -
 export const getUserFields = async (_req: Request, res: Response) => {

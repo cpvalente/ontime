@@ -33,6 +33,7 @@ import {
   getAuthentication,
   getClientSecrect as getClientSecret,
   updateAliases,
+  deleteAlias,
 } from '../controllers/ontimeController.js';
 
 import {
@@ -91,6 +92,9 @@ router.post('/aliases', validateAliases, postAliases);
 
 // create route between controller and /ontime/aliases' endpoint
 router.put('/aliases', validateUpdateAlises, updateAliases);
+
+// create route between controller and '/ontime/aliases' endpoint
+router.delete('/aliases/:alias', deleteAlias);
 
 // create route between controller and '/ontime/aliases' endpoint
 router.get('/userfields', getUserFields);

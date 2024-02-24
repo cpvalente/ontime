@@ -89,6 +89,14 @@ export async function updateAliases(data: Partial<Alias>) {
 }
 
 /**
+ * @description HTTP request to delete alias
+ * @return {Promise}
+ */
+export async function deleteAlias(alias: string) {
+  return axios.delete(`${ontimeURL}/aliases/${alias}`);
+}
+
+/**
  * @description HTTP request to retrieve user fields
  * @return {Promise}
  */
