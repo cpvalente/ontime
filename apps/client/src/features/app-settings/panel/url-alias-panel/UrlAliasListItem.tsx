@@ -4,6 +4,8 @@ import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHoriz
 
 import { updateAliases } from '../../../../common/api/ontimeApi';
 
+import UrlAliasForm, { UrlAliasFormValues } from './UrlAliasForm';
+
 interface UrlAliasListItemProps {
   alias: string;
   enabled: boolean;
@@ -28,6 +30,18 @@ export default function UrlAliasListItem({ alias, enabled, pathAndParams, onRefe
   const handleToggleEditMode = useCallback(() => {
     setIsEditing(!isEditing);
   }, [isEditing]);
+
+  const handleSubmitUpdate = useCallback(
+    async (values: UrlAliasFormValues) => {
+      try {
+        await updateAliases(values);
+        await onRefetch();
+      } catch (error) {
+        // some error handling here
+      }
+    },
+    [onRefetch],
+  );
 
   const handleRenderAliases = useMemo(() => {
     if (!isEditing) {
@@ -56,18 +70,22 @@ export default function UrlAliasListItem({ alias, enabled, pathAndParams, onRefe
         </>
       );
     } else {
-      // Return a form
-      return null;
+      return (
+        <td colSpan={99}>
+          <UrlAliasForm
+            alias={alias}
+            enabled={enabled}
+            pathAndParams={pathAndParams}
+            onCancel={handleToggleEditMode}
+            onSubmit={handleSubmitUpdate}
+            submitError=''
+          />
+        </td>
+      );
     }
-  }, [alias, enabled, handleToggle, handleToggleEditMode, isEditing, pathAndParams]);
+  }, [alias, enabled, handleSubmitUpdate, handleToggle, handleToggleEditMode, isEditing, pathAndParams]);
 
-  return (
-    <tr key={alias}>
-      {handleRenderAliases}
-      {/* <td>{new Date(updatedAt).toLocaleString()}</td>
-      <td className={style.actionButton}></td> */}
-    </tr>
-  );
+  return <tr key={alias}>{handleRenderAliases}</tr>;
 }
 
 function ActionMenu({ onChangeEditMode }: { onChangeEditMode: () => void }) {
