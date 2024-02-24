@@ -15,7 +15,7 @@ export default function UrlAliasPanel() {
       <Panel.Header>URL Aliases</Panel.Header>
       <Panel.Section>
         <Panel.Card>
-          <div>
+          <main>
             <Alert status='info' variant='ontime-on-light-info'>
               <AlertIcon />
               <div className={style.column}>
@@ -28,8 +28,14 @@ export default function UrlAliasPanel() {
                 </AlertDescription>
               </div>
             </Alert>
-            <UrlAliasList />
-          </div>
+            <div
+              style={{
+                marginTop: '1rem',
+              }}
+            >
+              <UrlAliasList />
+            </div>
+          </main>
         </Panel.Card>
       </Panel.Section>
     </>
