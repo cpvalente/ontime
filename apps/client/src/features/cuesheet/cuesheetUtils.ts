@@ -1,6 +1,7 @@
 import { stringify } from 'csv-stringify/browser/esm/sync';
 import {
   CustomFields,
+  isOntimeDelay,
   isOntimeEvent,
   MaybeNumber,
   OntimeEntryCommonKeys,
@@ -82,19 +83,21 @@ export const makeTable = (headerData: ProjectData, rundown: OntimeRundown, custo
   // add header row to data
   data.push(fieldTitles);
   rundown.forEach((entry) => {
-    // we only allow exporting OntimeEvents
-    if (!isOntimeEvent(entry)) return;
+    if (isOntimeDelay(entry)) return;
 
     const row: string[] = [];
     fieldOrder.forEach((field) => {
-      // for custom fields, we need to extract the value from the custom object
-      if (field.startsWith('custom-')) {
-        const fieldLabel = field.split('custom-')[1];
-        const value = entry.custom[fieldLabel]?.value;
-        row.push(parseField(fieldLabel, value));
-      } else {
-        row.push(parseField(field, entry[field as OntimeEntryCommonKeys]));
+      if (isOntimeEvent(entry)) {
+        // for custom fields, we need to extract the value from the custom object
+        if (field.startsWith('custom-')) {
+          const fieldLabel = field.split('custom-')[1];
+          const value = entry.custom[fieldLabel]?.value;
+          row.push(parseField(fieldLabel, value));
+        }
+        return;
       }
+      // @ts-expect-error -- it is ok, we will just not have the data for other fields
+      row.push(parseField(field, entry[field]));
     });
     data.push(row);
   });

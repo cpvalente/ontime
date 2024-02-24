@@ -20,7 +20,7 @@ export default async function fileDownload(url: string, fileOptions: FileOptions
   const headerLine = response.headers['Content-Disposition'];
   let { name: fileName } = fileOptions;
   const { type: fileType } = fileOptions;
-  const { project, rundown, userFields } = response.data;
+  const { project, rundown, customFields } = response.data;
 
   // try and get the filename from the response
   if (headerLine != null) {
@@ -37,7 +37,7 @@ export default async function fileDownload(url: string, fileOptions: FileOptions
   }
 
   if (fileType === 'csv') {
-    const sheetData = makeTable(project, rundown, userFields);
+    const sheetData = makeTable(project, rundown, customFields);
     fileContent = makeCSV(sheetData);
     fileName += '.csv';
   }
