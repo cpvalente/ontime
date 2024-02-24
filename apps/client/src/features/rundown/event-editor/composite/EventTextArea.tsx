@@ -12,7 +12,7 @@ interface CountedTextAreaProps {
   field: EditorUpdateFields;
   label: string;
   initialValue: string;
-  style: CSSProperties;
+  style?: CSSProperties;
   submitHandler: (field: EditorUpdateFields, value: string) => void;
 }
 

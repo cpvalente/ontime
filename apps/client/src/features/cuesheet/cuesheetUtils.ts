@@ -1,6 +1,15 @@
 import { stringify } from 'csv-stringify/browser/esm/sync';
-import { CustomFields, OntimeEntryCommonKeys, OntimeRundown, ProjectData } from 'ontime-types';
+import {
+  CustomFields,
+  isOntimeEvent,
+  MaybeNumber,
+  OntimeEntryCommonKeys,
+  OntimeRundown,
+  ProjectData,
+} from 'ontime-types';
 import { millisToString } from 'ontime-utils';
+
+type CsvHeaderKey = OntimeEntryCommonKeys | keyof CustomFields;
 
 /**
  * @description parses a field for export
@@ -9,26 +18,16 @@ import { millisToString } from 'ontime-utils';
  * @return {string}
  */
 
-export const parseField = <T extends OntimeEntryCommonKeys>(field: T, data: unknown): string => {
-  let val;
-  switch (field) {
-    case 'timeStart':
-    case 'timeEnd':
-      val = millisToString(data as number | null);
-      break;
-    case 'isPublic':
-    case 'skip':
-      val = data ? 'x' : '';
-      break;
-    default:
-      val = data;
-      break;
+export const parseField = (field: CsvHeaderKey, data: unknown): string => {
+  if (field === 'timeStart' || field === 'timeEnd' || field === 'duration') {
+    return millisToString(data as MaybeNumber);
   }
-  if (typeof data === 'undefined') {
-    return '';
+
+  if (field === 'isPublic' || field === 'skip') {
+    return data ? 'x' : '';
   }
-  // all other values are strings
-  return val as string;
+
+  return String(data ?? '');
 };
 
 /**
@@ -39,52 +38,64 @@ export const parseField = <T extends OntimeEntryCommonKeys>(field: T, data: unkn
  * @return {(string[])[]}
  */
 export const makeTable = (headerData: ProjectData, rundown: OntimeRundown, customFields: CustomFields): string[][] => {
+  // create metadata header row
   const data = [['Ontime · Rundown export']];
   if (headerData.title) data.push([`Project title: ${headerData.title}`]);
   if (headerData.description) data.push([`Project description: ${headerData.description}`]);
 
-  // TODO: add custom fields to header
-  const fieldOrder: OntimeEntryCommonKeys[] = [
+  const customFieldKeys = Object.keys(customFields).map((key) => `custom-${key}`);
+  const customFieldLabels = Object.keys(customFields);
+
+  // we chose not to expose internals of the application
+  const fieldOrder: CsvHeaderKey[] = [
     'timeStart',
     'timeEnd',
-    'title',
-    'presenter',
-    'subtitle',
-    'isPublic',
-    'note',
+    'duration',
+    'id',
     'colour',
-    'endAction',
-    'timerType',
+    'cue',
+    'title',
+    'subtitle',
+    'presenter',
+    'note',
+    'isPublic',
     'skip',
+    ...customFieldKeys,
   ];
 
-  // TODO: is this up to date?
   const fieldTitles = [
     'Time Start',
     'Time End',
-    'Event Title',
-    'Presenter Name',
-    'Event Subtitle',
-    'Is Public? (x)',
-    'Note',
+    'Duration',
+    'ID',
     'Colour',
-    'End Action',
-    'Timer Type',
+    'Cue',
+    'Title',
+    'Subtitle',
+    'Presenter',
+    'Note',
+    'Is Public? (x)',
     'Skip?',
+    ...customFieldLabels,
   ];
 
-  for (const field in customFields) {
-    const fieldValue = customFields[field as keyof CustomFields];
-    const displayName = `${field}${fieldValue !== field && fieldValue !== '' ? `:${fieldValue}` : ''}`;
-    fieldTitles.push(displayName);
-  }
-
+  // add header row to data
   data.push(fieldTitles);
-
   rundown.forEach((entry) => {
+    // we only allow exporting OntimeEvents
+    if (!isOntimeEvent(entry)) return;
+
     const row: string[] = [];
-    // @ts-expect-error -- not sure how to type this
-    fieldOrder.forEach((field) => row.push(parseField(field, entry[field])));
+    fieldOrder.forEach((field) => {
+      // for custom fields, we need to extract the value from the custom object
+      if (field.startsWith('custom-')) {
+        const fieldLabel = field.split('custom-')[1];
+        const value = entry.custom[fieldLabel]?.value;
+        row.push(parseField(fieldLabel, value));
+      } else {
+        row.push(parseField(field, entry[field as OntimeEntryCommonKeys]));
+      }
+    });
     data.push(row);
   });
 
@@ -93,10 +104,10 @@ export const makeTable = (headerData: ProjectData, rundown: OntimeRundown, custo
 
 /**
  * @description Converts an array of arrays to a csv file
- * @param {array[]} arrayOfArrays
+ * @param {string[][]} arrayOfArrays
  * @return {string}
  */
-export const makeCSV = (arrayOfArrays: string[][]) => {
+export const makeCSV = (arrayOfArrays: string[][]): string => {
   const stringifiedData = stringify(arrayOfArrays);
   return stringifiedData;
 };
