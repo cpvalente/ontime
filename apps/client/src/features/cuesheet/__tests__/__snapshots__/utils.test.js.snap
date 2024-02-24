@@ -26,5 +26,20 @@ exports[`makeTable() > returns array of arrays with given fields 1`] = `
     "Skip?",
     "lighting",
   ],
+  [
+    "00:00:00",
+    "00:00:00",
+    "...",
+    "",
+    "",
+    "",
+    "test title 1",
+    "",
+    "",
+    "",
+    "x",
+    "",
+    "",
+  ],
 ]
 `;
