@@ -1,4 +1,5 @@
 import {
+  CustomFields,
   LogOrigin,
   OntimeBlock,
   OntimeDelay,
@@ -195,7 +196,16 @@ export function notifyChanges(options: { timer?: boolean | string[]; external?: 
  * Overrides the rundown with the given
  * @param rundown
  */
+export async function initRundown(rundown: OntimeRundown, customFields: CustomFields) {
+  await cache.init(rundown, customFields);
+  notifyChanges({ timer: true });
+}
+
+/**
+ * Overrides the rundown with the given
+ * @param rundown
+ */
 export async function setRundown(rundown: OntimeRundown) {
-  await cache.init(rundown);
+  await cache.setRundown(rundown);
   notifyChanges({ timer: true });
 }

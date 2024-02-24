@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
-import { isOntimeEvent, OntimeEvent } from 'ontime-types';
+import { Button } from '@chakra-ui/react';
+import { CustomFieldLabel, isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import CopyTag from '../../../common/components/copy-tag/CopyTag';
 import { useEventAction } from '../../../common/hooks/useEventAction';
+import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import useRundown from '../../../common/hooks-query/useRundown';
 import { useEventSelection } from '../useEventSelection';
 
 import EventEditorTimes from './composite/EventEditorTimes';
 import EventEditorTitles from './composite/EventEditorTitles';
 import EventEditorUser from './composite/EventEditorUser';
+import EventTextArea from './composite/EventTextArea';
 
 import style from './EventEditor.module.scss';
 
@@ -31,11 +34,13 @@ export type EditorUpdateFields =
   | 'user6'
   | 'user7'
   | 'user8'
-  | 'user9';
+  | 'user9'
+  | CustomFieldLabel; // TODO: keyof customFields
 
 export default function EventEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const { data } = useRundown();
+  const { data: customFields } = useCustomFields();
   const { order, rundown } = data;
   const { updateEvent } = useEventAction();
 
@@ -63,7 +68,12 @@ export default function EventEditor() {
 
   const handleSubmit = useCallback(
     (field: EditorUpdateFields, value: string) => {
-      updateEvent({ id: event?.id, [field]: value });
+      if (field.startsWith('custom-')) {
+        const fieldLabel = field.split('custom-')[1];
+        updateEvent({ id: event?.id, custom: { [fieldLabel]: { value } } });
+      } else {
+        updateEvent({ id: event?.id, [field]: value });
+      }
     },
     [event?.id, updateEvent],
   );
@@ -90,6 +100,8 @@ export default function EventEditor() {
     user8: event.user8,
     user9: event.user9,
   };
+
+  const customKeys = Object.keys(customFields ?? {});
 
   return (
     <div className={style.eventEditor} data-testid='editor-container'>
@@ -120,6 +132,25 @@ export default function EventEditor() {
           colour={event.colour}
           handleSubmit={handleSubmit}
         />
+        <div className={style.column}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span>Custom Fields</span>
+            <Button variant='ontime-subtle' size='sm' isDisabled>
+              Manage
+            </Button>
+          </div>
+          {customKeys.map((label) => {
+            return (
+              <EventTextArea
+                key={label}
+                field={`custom-${label}`}
+                label={label}
+                initialValue={event.custom[label]?.value ?? ''}
+                submitHandler={handleSubmit}
+              />
+            );
+          })}
+        </div>
         <EventEditorUser key={`${event.id}-user`} userFields={userFields} handleSubmit={handleSubmit} />
       </div>
       <div className={style.footer}>

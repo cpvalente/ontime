@@ -124,5 +124,8 @@ export const pathToStartDemo = config.demo.filename.map((file) => {
 // path to restore file
 export const resolveRestoreFile = join(getAppDataPath(), config.restoreFile);
 
+// path to sheets folder
+export const resolveSheetsDirectory = join(getAppDataPath(), config.sheets.directory);
+
 // path to crash reports
 export const resolveCrashReportDirectory = getAppDataPath();

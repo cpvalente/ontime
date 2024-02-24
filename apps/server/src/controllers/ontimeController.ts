@@ -1,4 +1,3 @@
-import { LogOrigin } from 'ontime-types';
 import type {
   Alias,
   DatabaseModel,
@@ -32,14 +31,12 @@ import {
 } from '../setup.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
-import { logger } from '../classes/Logger.js';
 import { notifyChanges, setRundown } from '../services/rundown-service/RundownService.js';
 import { getProjectFiles } from '../utils/getFileListFromFolder.js';
 import { configService } from '../services/ConfigService.js';
 import { deleteFile } from '../utils/parserUtils.js';
 import { validateProjectFiles } from './ontimeController.validate.js';
 import { dbModel } from '../models/dataModel.js';
-import { sheet } from '../utils/sheetsAuth.js';
 import { removeFileExtension } from '../utils/removeFileExtension.js';
 import type { OntimeError } from '../utils/backend.types.js';
 import { ensureJsonExtension } from '../utils/ensureJsonExtension.js';
@@ -95,7 +92,7 @@ export type ParsingOptions = {
 /**
  * parse an uploaded file and apply its parsed objects
  * @param file
- * @param req
+ * @param _req
  * @param res
  * @param [options]
  * @returns {Promise<void>}
@@ -277,7 +274,6 @@ export const postSettings = async (req: Request, res: Response) => {
 
 /**
  * @description Get view Settings
- * @method GET
  */
 export const getViewSettings = async (_req: Request, res: Response) => {
   const views = DataProvider.getViewSettings();
@@ -286,7 +282,6 @@ export const getViewSettings = async (_req: Request, res: Response) => {
 
 /**
  * @description Change view Settings
- * @method POST
  */
 export const postViewSettings = async (req: Request, res: Response) => {
   if (failEmptyObjects(req.body, res)) {
@@ -410,7 +405,7 @@ export const dbUpload = async (req: Request, res: Response) => {
  * uploads and parses an excel file
  * @returns parsed result
  */
-export async function previewExcel(req, res: Response) {
+export async function previewExcel(req: Request, res: Response) {
   if (!req.file) {
     res.status(400).send({ message: 'File not found' });
     return;
@@ -428,10 +423,10 @@ export async function previewExcel(req, res: Response) {
 
 /**
  * Retrieves and lists all project files from the uploads directory.
- * @param req
+ * @param _req
  * @param res
  */
-export const listProjects: RequestHandler = async (_, res: Response<ProjectFileListResponse | ErrorResponse>) => {
+export const listProjects: RequestHandler = async (_req, res: Response<ProjectFileListResponse | ErrorResponse>) => {
   try {
     const fileList = await getProjectFiles();
 
@@ -637,125 +632,3 @@ export const deleteProjectFile: RequestHandler = async (req: Request, res: Respo
     res.status(500).send({ message: String(error) });
   }
 };
-
-// SHEET Functions
-/**
- * @description SETP-1 POST Client Secrect
- * @returns parsed result
- */
-export async function uploadSheetClientFile(req, res: Response) {
-  if (!req.file.path) {
-    res.status(400).send({ message: 'File not found' });
-    return;
-  }
-  try {
-    const client = JSON.parse(fs.readFileSync(req.file.path as string, 'utf-8'));
-    await sheet.saveClientSecrets(client);
-    res.status(200).send('OK');
-  } catch (error) {
-    res.status(500).send({ message: String(error) });
-  }
-  fs.unlink(req.file.path, (err) => {
-    if (err) logger.error(LogOrigin.Server, err.message);
-  });
-}
-
-/**
- * @description STEP-1 GET Client Secret status
- */
-export const getClientSecret = async (req: Request, res: Response) => {
-  try {
-    // TODO: can we merge this with the previous?
-    const clientSecretExists = await sheet.testClientSecret();
-    if (clientSecretExists) {
-      res.status(200).send();
-    } else {
-      res.status(500).send({ message: 'The Client ID does not exist' });
-    }
-  } catch (error) {
-    res.status(500).send({ message: String(error) });
-  }
-};
-
-/**
- * @description STEP-2 GET sheet authentication url
- */
-export async function getAuthenticationUrl(_req: Request, res: Response) {
-  try {
-    const authUrl = await sheet.openAuthServer();
-    res.status(200).send(authUrl);
-  } catch (error) {
-    res.status(500).send({ message: String(error) });
-  }
-}
-
-/**
- * @description STEP-2 GET sheet authentication status
- */
-export const getAuthentication = async (_req: Request, res: Response) => {
-  try {
-    await sheet.testAuthentication();
-    res.status(200).send();
-  } catch (error) {
-    res.status(500).send({ message: String(error) });
-  }
-};
-
-/**
- * @description STEP-3 POST sheet id
- * @returns list of worksheets
- */
-export const postId = async (req: Request, res: Response) => {
-  try {
-    const { sheetId } = req.body;
-    if (sheetId.length < 40) {
-      res.status(400).send({ message: 'ID is usually 44 characters long' });
-    }
-    const state = await sheet.testSheetId(sheetId);
-    res.status(200).send(state);
-  } catch (error) {
-    res.status(500).send({ message: String(error) });
-  }
-};
-
-/**
- * @description STEP-4 POST worksheet
- */
-export const postWorksheet = async (req: Request, res: Response) => {
-  try {
-    const { sheetId, worksheet } = req.body;
-    const state = await sheet.testWorksheet(sheetId, worksheet);
-    res.status(200).send(state);
-  } catch (error) {
-    res.status(500).send({ message: String(error) });
-  }
-};
-
-/**
- * @description STEP-5 POST download rundown to sheet
- * @returns parsed result
- */
-export async function pullSheet(req: Request, res: Response) {
-  try {
-    const { sheetId, options } = req.body;
-    console.log('starting');
-    const data = await sheet.pull(sheetId, options);
-    console.log('finished');
-    res.status(200).send(data);
-  } catch (error) {
-    res.status(500).send({ message: String(error) });
-  }
-}
-
-/**
- * @description STEP-5 POST upload rundown to sheet
- */
-export async function pushSheet(req: Request, res: Response) {
-  try {
-    const { sheetId, options } = req.body;
-    await sheet.push(sheetId, options);
-    res.status(200).send();
-  } catch (error) {
-    res.status(500).send({ message: String(error) });
-  }
-}

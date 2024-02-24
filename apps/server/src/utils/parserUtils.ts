@@ -1,4 +1,4 @@
-import fs from 'fs';
+import { unlink, readFileSync } from 'fs';
 import { deepmerge } from 'ontime-utils';
 
 /**
@@ -18,10 +18,9 @@ export const makeString = (val: unknown, fallback = ''): string => {
  * @param {string} file - reference to file
  */
 export const deleteFile = async (file) => {
-  // delete a file
-  fs.unlink(file, (err) => {
-    if (err) {
-      console.log(err);
+  unlink(file, (error) => {
+    if (error) {
+      console.error('Could not delete file:', error);
     }
   });
 };
@@ -33,7 +32,7 @@ export const deleteFile = async (file) => {
  */
 export const validateFile = (file) => {
   try {
-    JSON.parse(fs.readFileSync(file, 'utf-8'));
+    JSON.parse(readFileSync(file, 'utf-8'));
     return true;
   } catch (err) {
     return false;
@@ -83,9 +82,10 @@ export function mergeObject<T extends object>(a: T, b: Partial<T>): T {
  * @param {object} obj
  */
 export const removeUndefined = (obj: object) => {
-  const patched = {};
-  Object.keys({ ...obj })
-    .filter((key) => typeof obj[key] !== 'undefined')
-    .map((key) => (patched[key] = obj[key]));
-  return patched;
+  return Object.keys(obj).reduce((patched, key) => {
+    if (typeof obj[key] !== 'undefined') {
+      patched[key] = obj[key];
+    }
+    return patched;
+  }, {});
 };

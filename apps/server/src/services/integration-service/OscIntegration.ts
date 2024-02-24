@@ -50,7 +50,6 @@ export class OscIntegration implements IIntegration<OscSubscription> {
     this.enabledOut = enabledOut;
 
     try {
-      logger.info(LogOrigin.Tx, 'Initialising OSC integration...');
       this.oscClient = new Client(targetIP, portOut);
     } catch (error) {
       this.oscClient = null;

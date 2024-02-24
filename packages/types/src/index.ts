@@ -31,7 +31,12 @@ export type { Alias } from './definitions/core/Alias.type.js';
 export type { UserFields } from './definitions/core/UserFields.type.js';
 
 // ---> Custom Fields
-export type { CustomFields, CustomField } from './definitions/core/CustomFields.type.js';
+export type {
+  CustomFields,
+  CustomField,
+  CustomFieldLabel,
+  EventCustomFields,
+} from './definitions/core/CustomFields.type.js';
 
 // ---> Integration, Subscription
 export type { OSCSettings, OscSubscription } from './definitions/core/OscSettings.type.js';
@@ -39,6 +44,7 @@ export type { HttpSettings, HttpSubscription } from './definitions/core/HttpSett
 
 // SERVER RESPONSES
 export type {
+  AuthenticationStatus,
   NetworkInterface,
   GetInfo,
   ProjectFileList,

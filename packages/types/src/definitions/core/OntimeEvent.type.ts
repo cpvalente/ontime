@@ -1,7 +1,4 @@
-import { MaybeString } from '../../index.js';
-import { EndAction } from '../EndAction.type.js';
-import { TimerType } from '../TimerType.type.js';
-import { TimeStrategy } from '../TimeStrategy.type.js';
+import { EventCustomFields, EndAction, MaybeString, TimerType, TimeStrategy } from '../../index.js';
 
 export enum SupportedEvent {
   Event = 'event',
@@ -56,4 +53,5 @@ export type OntimeEvent = OntimeBaseEvent & {
   delay?: number; // calculated at runtime
   timeWarning: number;
   timeDanger: number;
+  custom: EventCustomFields;
 };

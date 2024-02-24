@@ -8,7 +8,19 @@ import { OntimeEvent, SupportedEvent } from 'ontime-types';
  */
 type ClonedEvent = Omit<
   OntimeEvent,
-  'id' | 'cue' | 'user0' | 'user1' | 'user2' | 'user3' | 'user4' | 'user5' | 'user6' | 'user7' | 'user8' | 'user9'
+  | 'id'
+  | 'cue'
+  | 'user0'
+  | 'user1'
+  | 'user2'
+  | 'user3'
+  | 'user4'
+  | 'user5'
+  | 'user6'
+  | 'user7'
+  | 'user8'
+  | 'user9'
+  | 'custom'
 >;
 export const cloneEvent = (event: OntimeEvent, after?: string): ClonedEvent => {
   return {

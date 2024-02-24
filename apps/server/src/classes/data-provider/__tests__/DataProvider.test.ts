@@ -42,8 +42,8 @@ describe('safeMerge', () => {
       user9: 'existing user9',
     },
     customFields: {
-      lighting: { type: 'string', label: 'lighting' },
-      vfx: { type: 'string', label: 'vfx' },
+      lighting: { type: 'string', label: 'lighting', colour: 'red' },
+      vfx: { type: 'string', label: 'vfx', colour: 'blue' },
     },
     osc: {
       portIn: 8888,

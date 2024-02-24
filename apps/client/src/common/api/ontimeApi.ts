@@ -1,6 +1,10 @@
 import axios, { AxiosResponse } from 'axios';
 import {
   Alias,
+  AuthenticationStatus,
+  CustomField,
+  CustomFieldLabel,
+  CustomFields,
   DatabaseModel,
   GetInfo,
   HttpSettings,
@@ -18,7 +22,7 @@ import { ExcelImportMap } from 'ontime-utils';
 import { apiRepoLatest } from '../../externals';
 import fileDownload from '../utils/fileDownload';
 
-import { ontimeURL } from './apiConstants';
+import { ontimeURL, projectDataURL } from './apiConstants';
 
 /**
  * @description HTTP request to retrieve application settings
@@ -257,77 +261,63 @@ export async function loadProject(filename: string): Promise<MessageResponse> {
 }
 
 /**
- * @description STEP 1
+ * @description HTTP request to initiate the authentication service with google
  */
-export const uploadSheetClientFile = async (file: File) => {
+export const requestConnection = async (
+  file: File,
+  sheetId: string,
+): Promise<{
+  verification_url: string;
+  user_code: string;
+}> => {
   const formData = new FormData();
-  formData.append('userFile', file);
-  const res = await axios
-    .post(`${ontimeURL}/sheet/clientsecret`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })
-    .then((response) => response.data.id);
-  return res;
-};
+  formData.append('client_secret', file);
 
-/**
- * @description STEP 1 test
- */
-// TODO: do we still need this?
-export const getClientSecret = async () => {
-  const response = await axios.get(`${ontimeURL}/sheet/clientsecret`);
+  const response = await axios.post(`${ontimeURL}/sheet/${sheetId}/connect`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
   return response.data;
 };
 
 /**
- * @description STEP 2
+ * @description HTTP request to verify whether we are authenticated with Google Sheet service
  */
-export const getSheetsAuthUrl = async () => {
-  const response = await axios.get(`${ontimeURL}/sheet/authentication/url`);
+export const verifyAuthenticationStatus = async (): Promise<{ authenticated: AuthenticationStatus }> => {
+  const response = await axios.get(`${ontimeURL}/sheet/connect`);
   return response.data;
 };
 
 /**
- * @description STEP 2 test
+ * @description HTTP request to revoke authentication to google sheet
  */
-export const getAuthentication = async () => {
-  const response = await axios.get(`${ontimeURL}/sheet/authentication`);
+export const revokeAuthentication = async (): Promise<{ authenticated: AuthenticationStatus }> => {
+  const response = await axios.post(`${ontimeURL}/sheet/revoke`);
   return response.data;
 };
 
 /**
- * @description STEP 3
- * @returns worksheetOptions
+ * @description HTTP request to upload preview the contents of a google sheet as rundown
  */
-export const postId = async (sheetId: string) => {
-  const response = await axios.post(`${ontimeURL}/sheet/sheetId`, { sheetId });
+export const previewRundown = async (
+  sheetId: string,
+  options: ExcelImportMap,
+): Promise<{
+  rundown: OntimeRundown;
+  userFields: UserFields;
+}> => {
+  const response = await axios.post(`${ontimeURL}/sheet/${sheetId}/read`, { options });
   return response.data;
 };
 
 /**
- * @description STEP 4
+ * @description HTTP request to upload the rundown to a google sheet
  */
-export const postWorksheet = async (sheetId: string, worksheet: string) => {
-  const response = await axios.post(`${ontimeURL}/sheet/worksheet`, { sheetId, worksheet });
+export const uploadRundown = async (sheetId: string, options: ExcelImportMap): Promise<void> => {
+  const response = await axios.post(`${ontimeURL}/sheet/${sheetId}/write`, { options });
   return response.data;
-};
-
-/**
- * @description STEP 5
- */
-export const postPreviewSheet = async (sheetId: string, options: ExcelImportMap) => {
-  const response = await axios.post(`${ontimeURL}/sheet-pull`, { sheetId, options });
-  return response.data.data;
-};
-
-/**
- * @description STEP 5
- */
-export const postPushSheet = async (sheetId: string, options: ExcelImportMap) => {
-  const response = await axios.post(`${ontimeURL}/sheet-push`, { sheetId, options });
-  return response.data.data;
 };
 
 /**
@@ -374,8 +364,33 @@ export async function createProject(
     }
   >,
 ): Promise<MessageResponse> {
+  // TODO: is this URL correct?
   const url = `${ontimeURL}/project`;
   const decodedUrl = decodeURIComponent(url);
   const res = await axios.post(decodedUrl, project);
+  return res.data;
+}
+
+export async function getCustomFields(): Promise<CustomFields> {
+  const res = await axios.get(`${projectDataURL}/custom-field`);
+  return res.data;
+}
+
+export async function postCustomField(newField: CustomField): Promise<CustomFields> {
+  const res = await axios.post(`${projectDataURL}/custom-field`, {
+    ...newField,
+  });
+  return res.data;
+}
+
+export async function editCustomField(label: CustomFieldLabel, newField: CustomField): Promise<CustomFields> {
+  const res = await axios.put(`${projectDataURL}/custom-field/${label}`, {
+    ...newField,
+  });
+  return res.data;
+}
+
+export async function deleteCustomField(label: CustomFieldLabel): Promise<CustomFields> {
+  const res = await axios.delete(`${projectDataURL}/custom-field/${label}`);
   return res.data;
 }

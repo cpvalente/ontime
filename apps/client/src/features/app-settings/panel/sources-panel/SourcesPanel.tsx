@@ -16,14 +16,16 @@ import style from './SourcesPanel.module.scss';
 export default function SourcesPanel() {
   const [importFlow, setImportFlow] = useState<'none' | 'excel' | 'gsheet'>('none');
 
-  const hasDataSource = useSheetStore((state) => state.stepData.worksheet.available);
+  const authenticationStatus = useSheetStore((state) => state.authenticationStatus);
   const rundown = useSheetStore((state) => state.rundown);
   const userFields = useSheetStore((state) => state.userFields);
+
+  const isAuthenticated = authenticationStatus === 'authenticated';
   const hasData = rundown && userFields;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = () => console.error('not yet implementeed');
+  const handleFile = () => console.error('not yet implemented');
 
   const handleUpload = () => {
     fileInputRef.current?.click();
@@ -73,9 +75,9 @@ export default function SourcesPanel() {
               </div>
             </>
           )}
-          {isGSheetFlow && <GSheetSetup cancel={cancelGSheetFlow} />}
+          {isGSheetFlow && <GSheetSetup onCancel={cancelGSheetFlow} />}
           {isExcelFlow && <Panel.Title>Not yet implemented</Panel.Title>}
-          {hasDataSource && <ImportMap />}
+          {isAuthenticated && <ImportMap />}
           {hasData && <ImportReview rundown={rundown} userFields={userFields} />}
         </Panel.Card>
       </Panel.Section>

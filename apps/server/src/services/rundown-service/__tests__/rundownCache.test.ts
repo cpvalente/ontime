@@ -1,5 +1,7 @@
 import {
+  CustomFields,
   EndAction,
+  EventCustomFields,
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
@@ -10,7 +12,18 @@ import {
 } from 'ontime-types';
 
 import { calculateRuntimeDelays, getDelayAt, calculateRuntimeDelaysFrom } from '../delayUtils.js';
-import { add, batchEdit, edit, generate, remove, reorder, swap } from '../rundownCache.js';
+import {
+  add,
+  batchEdit,
+  edit,
+  generate,
+  remove,
+  reorder,
+  swap,
+  createCustomField,
+  editCustomField,
+  removeCustomField,
+} from '../rundownCache.js';
 
 describe('init() function', () => {
   it('creates normalised versions of a given rundown', () => {
@@ -206,6 +219,51 @@ describe('init() function', () => {
     expect((initResult.rundown['1'] as OntimeEvent).timeStart).toBe(1);
     expect(Object.keys(initResult.links).length).toBe(0);
   });
+
+  describe('custom properties feature', () => {
+    it('creates a map of custom properties', () => {
+      const customProperties: CustomFields = {
+        lighting: {
+          label: 'lighting',
+          type: 'string',
+          colour: 'red',
+        },
+        sound: {
+          label: 'sound',
+          type: 'string',
+          colour: 'red',
+        },
+      };
+      const testRundown: OntimeRundown = [
+        {
+          type: SupportedEvent.Event,
+          id: '1',
+          custom: {
+            lighting: { value: 'event 1 lx' },
+          } as EventCustomFields,
+        } as OntimeEvent,
+        {
+          type: SupportedEvent.Event,
+          id: '2',
+          custom: {
+            lighting: { value: 'event 2 lx' },
+            sound: { value: 'event 2 sound' },
+          } as EventCustomFields,
+        } as OntimeEvent,
+      ];
+      const initResult = generate(testRundown, customProperties);
+      expect(initResult.order.length).toBe(2);
+      expect(initResult.assignedCustomProperties).toMatchObject({
+        lighting: ['1', '2'],
+        sound: ['2'],
+      });
+      expect((initResult.rundown['1'] as OntimeEvent).custom).toMatchObject({ lighting: { value: 'event 1 lx' } });
+      expect((initResult.rundown['2'] as OntimeEvent).custom).toMatchObject({
+        lighting: { value: 'event 2 lx' },
+        sound: { value: 'event 2 sound' },
+      });
+    });
+  });
 });
 
 describe('add() mutation', () => {
@@ -366,6 +424,7 @@ describe('calculateRuntimeDelays', () => {
         timeDanger: 60000,
         id: '659e1',
         cue: '1',
+        custom: {},
       },
       {
         duration: 600000,
@@ -403,6 +462,7 @@ describe('calculateRuntimeDelays', () => {
         timeDanger: 60000,
         id: '1c48f',
         cue: '2',
+        custom: {},
       },
       {
         duration: 1200000,
@@ -440,6 +500,7 @@ describe('calculateRuntimeDelays', () => {
         timeDanger: 60000,
         id: 'd48c2',
         cue: '3',
+        custom: {},
       },
       {
         title: '',
@@ -477,6 +538,7 @@ describe('calculateRuntimeDelays', () => {
         timeDanger: 60000,
         id: '2f185',
         cue: '4',
+        custom: {},
       },
     ];
 
@@ -524,6 +586,7 @@ describe('getDelayAt()', () => {
       id: '659e1',
       delay: 0,
       cue: '1',
+      custom: {},
     },
     {
       duration: 600000,
@@ -562,6 +625,7 @@ describe('getDelayAt()', () => {
       id: '1c48f',
       delay: 600000,
       cue: '2',
+      custom: {},
     },
     {
       duration: 1200000,
@@ -600,6 +664,7 @@ describe('getDelayAt()', () => {
       id: 'd48c2',
       delay: 1800000,
       cue: '3',
+      custom: {},
     },
     {
       title: '',
@@ -638,6 +703,7 @@ describe('getDelayAt()', () => {
       id: '2f185',
       delay: 0,
       cue: '4',
+      custom: {},
     },
   ];
 
@@ -702,6 +768,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         id: '659e1',
         delay: 0,
         cue: '1',
+        custom: {},
       },
       {
         duration: 600000,
@@ -740,6 +807,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         id: '1c48f',
         delay: 0,
         cue: '2',
+        custom: {},
       },
       {
         duration: 1200000,
@@ -778,6 +846,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         id: 'd48c2',
         delay: 1800000,
         cue: '3',
+        custom: {},
       },
       {
         title: '',
@@ -816,6 +885,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         id: '2f185',
         delay: 0,
         cue: '4',
+        custom: {},
       },
     ];
 
@@ -825,5 +895,78 @@ describe('calculateRuntimeDelaysFrom()', () => {
     expect((updatedRundown[0] as OntimeEvent).delay).toBe(0);
     // 1 + 3
     expect((updatedRundown[4] as OntimeEvent).delay).toBe(600000 + 1200000);
+  });
+});
+
+describe('custom fields', () => {
+  describe('createCustomField()', () => {
+    beforeEach(() => {
+      vi.mock('../../classes/data-provider/DataProvider.js', () => {
+        return {
+          DataProvider: {
+            ...vi.fn().mockImplementation(() => {
+              return {};
+            }),
+            getCustomFields: vi.fn().mockReturnValue({}),
+            setCustomFields: vi.fn().mockImplementation((newData) => {
+              return newData;
+            }),
+            persist: vi.fn().mockReturnValue({}),
+          },
+        };
+      });
+    });
+
+    it('creates a field from given parameters', async () => {
+      const expected = {
+        lighting: {
+          label: 'lighting',
+          type: 'string',
+          colour: 'blue',
+        },
+      };
+
+      const customField = await createCustomField({ label: 'lighting', type: 'string', colour: 'blue' });
+      expect(customField).toStrictEqual(expected);
+    });
+  });
+
+  describe('editCustomField()', () => {
+    it('edits a field with a given label', async () => {
+      await createCustomField({ label: 'sound', type: 'string', colour: 'blue' });
+
+      const expected = {
+        lighting: {
+          label: 'lighting',
+          type: 'string',
+          colour: 'blue',
+        },
+        sound: {
+          label: 'sound',
+          type: 'string',
+          colour: 'blue',
+        },
+      };
+
+      const customField = await editCustomField('sound', { label: 'sound', type: 'string', colour: 'blue' });
+
+      expect(customField).toStrictEqual(expected);
+    });
+  });
+
+  describe('removeCustomField()', () => {
+    it('deletes a field with a given label', async () => {
+      const expected = {
+        lighting: {
+          label: 'lighting',
+          type: 'string',
+          colour: 'blue',
+        },
+      };
+
+      const customField = await removeCustomField('sound');
+
+      expect(customField).toStrictEqual(expected);
+    });
   });
 });
