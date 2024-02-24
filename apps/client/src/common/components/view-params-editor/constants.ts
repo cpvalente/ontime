@@ -1,4 +1,4 @@
-import { UserFields } from 'ontime-types';
+import { CustomFields, UserFields } from 'ontime-types';
 
 import { ParamField } from './types';
 
@@ -404,7 +404,11 @@ export const getStudioClockOptions = (timeFormat: string): ParamField[] => [
   hideTimerSeconds,
 ];
 
-export const getOperatorOptions = (userFields: UserFields, timeFormat: string): ParamField[] => {
+export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ParamField[] => {
+  const customFieldSelect = Object.keys(customFields).reduce((acc, key) => {
+    return { ...acc, [key]: key };
+  }, {});
+
   return [
     getTimeOption(timeFormat),
     {
@@ -439,25 +443,14 @@ export const getOperatorOptions = (userFields: UserFields, timeFormat: string): 
     {
       id: 'subscribe',
       title: 'Highlight Field',
-      description: 'Choose a field to highlight',
+      description: 'Choose a custom field to highlight',
       type: 'option',
-      values: {
-        user0: userFields.user0 || 'user0',
-        user1: userFields.user1 || 'user1',
-        user2: userFields.user2 || 'user2',
-        user3: userFields.user3 || 'user3',
-        user4: userFields.user4 || 'user4',
-        user5: userFields.user5 || 'user5',
-        user6: userFields.user6 || 'user6',
-        user7: userFields.user7 || 'user7',
-        user8: userFields.user8 || 'user8',
-        user9: userFields.user9 || 'user9',
-      },
+      values: customFieldSelect,
     },
     {
       id: 'shouldEdit',
-      title: 'Edit user field',
-      description: 'Allows editing an events user field by long pressing on it. Needs a selected highlighted field',
+      title: 'Edit custom field',
+      description: 'Allows editing an events selected custom field by long pressing.',
       type: 'boolean',
       defaultValue: false,
     },
