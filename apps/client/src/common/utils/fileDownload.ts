@@ -11,6 +11,13 @@ type BlobOptions = {
   type: string;
 };
 
+/**
+ * Gets DB from backend and prepares a file to be downloaded
+ * @param url
+ * @param fileOptions
+ * @param blobOptions
+ * @returns
+ */
 export default async function fileDownload(url: string, fileOptions: FileOptions, blobOptions: BlobOptions) {
   const response = await axios({
     url: `${url}/db`,
