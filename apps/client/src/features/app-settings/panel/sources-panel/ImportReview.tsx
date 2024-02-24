@@ -1,5 +1,5 @@
 import { Button } from '@chakra-ui/react';
-import { OntimeRundown, UserFields } from 'ontime-types';
+import { CustomFields, OntimeRundown } from 'ontime-types';
 
 import PreviewExcel from '../../../modals/upload-modal/preview/PreviewExcel';
 
@@ -10,20 +10,20 @@ import style from './SourcesPanel.module.scss';
 
 interface ImportReviewProps {
   rundown: OntimeRundown;
-  userFields: UserFields;
+  customFields: CustomFields;
 }
 
-export default function ImportReview({ rundown, userFields }: ImportReviewProps) {
+export default function ImportReview({ rundown, customFields }: ImportReviewProps) {
   const { importRundown } = useGoogleSheet();
   const resetPreview = useSheetStore((state) => state.resetPreview);
 
   const applyImport = () => {
-    importRundown(rundown, userFields);
+    importRundown(rundown, customFields);
   };
 
   return (
     <>
-      <PreviewExcel rundown={rundown} userFields={userFields} />
+      <PreviewExcel rundown={rundown} customFields={customFields} />
       <div className={style.buttonRow}>
         <Button onClick={resetPreview} variant='ontime-ghosted' size='sm'>
           Cancel

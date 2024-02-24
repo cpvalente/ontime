@@ -8,7 +8,7 @@ import type {
   ProjectFileListResponse,
   OSCSettings,
 } from 'ontime-types';
-import { ExcelImportOptions, deepmerge } from 'ontime-utils';
+import { ExcelImportOptions } from 'ontime-utils';
 
 import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
@@ -186,29 +186,6 @@ export const postAliases = async (req: Request, res: Response) => {
   }
 };
 
-// Create controller for GET request to '/ontime/userfields'
-// Returns -
-export const getUserFields = async (_req: Request, res: Response) => {
-  const userFields = DataProvider.getUserFields();
-  res.status(200).send(userFields);
-};
-
-// Create controller for POST request to '/ontime/userfields'
-// Returns ACK message
-export const postUserFields = async (req: Request, res: Response) => {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
-  try {
-    const persistedData = DataProvider.getUserFields();
-    const newData = deepmerge(persistedData, req.body);
-    await DataProvider.setUserFields(newData);
-    res.status(200).send(newData);
-  } catch (error) {
-    res.status(400).send({ message: String(error) });
-  }
-};
-
 // Create controller for POST request to '/ontime/settings'
 // Returns -
 export const getSettings = async (_req: Request, res: Response) => {
@@ -367,7 +344,7 @@ export async function patchPartialProjectFile(req: Request, res: Response) {
       viewSettings: req.body?.viewSettings,
       osc: req.body?.osc,
       aliases: req.body?.aliases,
-      userFields: req.body?.userFields,
+      customFields: req.body?.customFields,
     };
 
     const maybeRundown = req.body?.rundown;

@@ -18,7 +18,7 @@ export default function SourcesPanel() {
 
   const authenticationStatus = useSheetStore((state) => state.authenticationStatus);
   const rundown = useSheetStore((state) => state.rundown);
-  const userFields = useSheetStore((state) => state.userFields);
+  const userFields = useSheetStore((state) => state.customFields);
 
   const isAuthenticated = authenticationStatus === 'authenticated';
   const hasData = rundown && userFields;

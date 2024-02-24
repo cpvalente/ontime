@@ -1,8 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { AuthenticationStatus, OntimeRundown, UserFields } from 'ontime-types';
+import { AuthenticationStatus, CustomFields, OntimeRundown } from 'ontime-types';
 import { ExcelImportMap } from 'ontime-utils';
 
-import { RUNDOWN, USERFIELDS } from '../../../../common/api/apiConstants';
+import { CUSTOM_FIELDS, RUNDOWN } from '../../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../../common/api/apiUtils';
 import {
   patchData,
@@ -20,7 +20,7 @@ export default function useGoogleSheet() {
   // functions push data to store
   const patchStepData = useSheetStore((state) => state.patchStepData);
   const setRundown = useSheetStore((state) => state.setRundown);
-  const setUserFields = useSheetStore((state) => state.setUserFields);
+  const setUserFields = useSheetStore((state) => state.setCustomFields);
 
   /** whether the current session has been authenticated */
   const verifyAuth = async (): Promise<{ authenticated: AuthenticationStatus } | void> => {
@@ -56,7 +56,7 @@ export default function useGoogleSheet() {
     try {
       const data = await previewRundown(sheetId, fileOptions);
       setRundown(data.rundown);
-      setUserFields(data.userFields);
+      setUserFields(data.customFields);
     } catch (error) {
       patchStepData({ pullPush: { available: true, error: maybeAxiosError(error) } });
     }
@@ -74,13 +74,13 @@ export default function useGoogleSheet() {
   };
 
   /** applies rundown and userfields to current project */
-  const importRundown = async (rundown: OntimeRundown, userFields: UserFields) => {
+  const importRundown = async (rundown: OntimeRundown, customFields: CustomFields) => {
     try {
-      await patchData({ rundown, userFields });
+      await patchData({ rundown, customFields });
       // we are unable to optimistically set the rundown since we need
       // it to be normalised
       await queryClient.invalidateQueries({
-        queryKey: [...RUNDOWN, ...USERFIELDS],
+        queryKey: [...RUNDOWN, ...CUSTOM_FIELDS],
       });
     } catch (error) {
       patchStepData({ pullPush: { available: true, error: maybeAxiosError(error) } });

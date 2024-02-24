@@ -8,14 +8,12 @@ import {
   getOSC,
   getHTTP,
   getSettings,
-  getUserFields,
   getViewSettings,
   patchPartialProjectFile,
   poll,
   postAliases,
   postOSC,
   postSettings,
-  postUserFields,
   postViewSettings,
   previewExcel,
   postHTTP,
@@ -32,7 +30,6 @@ import {
   validateOSC,
   validatePatchProjectFile,
   validateSettings,
-  validateUserFields,
   viewValidator,
   validateHTTP,
   validateProjectDuplicate,
@@ -84,12 +81,6 @@ router.get('/aliases', getAliases);
 
 // create route between controller and '/ontime/aliases' endpoint
 router.post('/aliases', validateAliases, postAliases);
-
-// create route between controller and '/ontime/aliases' endpoint
-router.get('/userfields', getUserFields);
-
-// create route between controller and '/ontime/aliases' endpoint
-router.post('/userfields', validateUserFields, postUserFields);
 
 // create route between controller and '/ontime/info' endpoint
 router.get('/info', getInfo);

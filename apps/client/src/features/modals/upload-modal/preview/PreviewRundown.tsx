@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { isOntimeBlock, isOntimeEvent, OntimeRundown, UserFields } from 'ontime-types';
+import { CustomFields, isOntimeBlock, isOntimeEvent, OntimeRundown } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
@@ -10,14 +10,14 @@ import style from './PreviewTable.module.scss';
 
 interface PreviewRundownProps {
   rundown: OntimeRundown;
-  userFields: UserFields;
+  customFields: CustomFields;
 }
 
 function booleanToText(value?: boolean) {
   return value ? 'Yes' : undefined;
 }
 
-export default function PreviewRundown({ rundown, userFields }: PreviewRundownProps) {
+export default function PreviewRundown({ rundown, customFields }: PreviewRundownProps) {
   // we only count Ontime Events which are 1 based in client
   let eventIndex = 0;
   return (
@@ -41,36 +41,7 @@ export default function PreviewRundown({ rundown, userFields }: PreviewRundownPr
             <th>Colour</th>
             <th>Timer Type</th>
             <th>End Action</th>
-            <th>
-              user0 <Tag>{userFields.user0}</Tag>
-            </th>
-            <th>
-              user1 <Tag>{userFields.user1}</Tag>
-            </th>
-            <th>
-              user2 <Tag>{userFields.user2}</Tag>
-            </th>
-            <th>
-              user3 <Tag>{userFields.user3}</Tag>
-            </th>
-            <th>
-              user4 <Tag>{userFields.user4}</Tag>
-            </th>
-            <th>
-              user5 <Tag>{userFields.user5}</Tag>
-            </th>
-            <th>
-              user6 <Tag>{userFields.user6}</Tag>
-            </th>
-            <th>
-              user7 <Tag>{userFields.user7}</Tag>
-            </th>
-            <th>
-              user8 <Tag>{userFields.user8}</Tag>
-            </th>
-            <th>
-              user9 <Tag>{userFields.user9}</Tag>
-            </th>
+            {/** TODO: Map custom fields */}
           </tr>
         </thead>
         <tbody className={style.body}>
@@ -123,16 +94,7 @@ export default function PreviewRundown({ rundown, userFields }: PreviewRundownPr
                   <td className={style.center}>
                     <Tag>{event.endAction}</Tag>
                   </td>
-                  <td>{event.user0}</td>
-                  <td>{event.user1}</td>
-                  <td>{event.user2}</td>
-                  <td>{event.user3}</td>
-                  <td>{event.user4}</td>
-                  <td>{event.user5}</td>
-                  <td>{event.user6}</td>
-                  <td>{event.user7}</td>
-                  <td>{event.user8}</td>
-                  <td>{event.user9}</td>
+                  {/** TODO: Map custom fields */}
                 </tr>
                 {event.note && (
                   <tr>

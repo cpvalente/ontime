@@ -1,4 +1,4 @@
-import { AuthenticationStatus, OntimeRundown, UserFields } from 'ontime-types';
+import { AuthenticationStatus, CustomFields, OntimeRundown } from 'ontime-types';
 import { defaultExcelImportMap, ExcelImportMap } from 'ontime-utils';
 import { create } from 'zustand';
 
@@ -17,8 +17,8 @@ type SheetStore = {
   rundown: OntimeRundown | null;
   setRundown: (rundown: OntimeRundown | null) => void;
 
-  userFields: UserFields | null;
-  setUserFields: (userFields: UserFields | null) => void;
+  customFields: CustomFields | null;
+  setCustomFields: (customFields: CustomFields | null) => void;
 
   worksheetOptions: string[] | null;
   setWorksheetOptions: (worksheetOptions: string[] | null) => void;
@@ -42,7 +42,7 @@ const initialState = {
   sheetId: null,
   authenticationStatus: 'not_authenticated' as AuthenticationStatus,
   rundown: null,
-  userFields: null,
+  customFields: null,
   worksheetOptions: null,
   excelFileOptions: defaultExcelImportMap,
 };
@@ -61,7 +61,7 @@ export const useSheetStore = create<SheetStore>((set, get) => ({
 
   setRundown: (rundown: OntimeRundown | null) => set({ rundown }),
 
-  setUserFields: (userFields: UserFields | null) => set({ userFields }),
+  setCustomFields: (customFields: CustomFields | null) => set({ customFields }),
 
   setWorksheetOptions: (worksheetOptions: string[] | null) => set({ worksheetOptions }),
 
@@ -73,5 +73,5 @@ export const useSheetStore = create<SheetStore>((set, get) => ({
   },
 
   reset: () => set(initialState),
-  resetPreview: () => set({ rundown: null, userFields: null }),
+  resetPreview: () => set({ rundown: null, customFields: null }),
 }));

@@ -40,28 +40,6 @@ export const validateAliases = [
 ];
 
 /**
- * @description Validates object for POST /ontime/userfields
- */
-export const validateUserFields = [
-  body('user0').exists().isString().trim(),
-  body('user1').exists().isString().trim(),
-  body('user2').exists().isString().trim(),
-  body('user3').exists().isString().trim(),
-  body('user4').exists().isString().trim(),
-  body('user5').exists().isString().trim(),
-  body('user6').exists().isString().trim(),
-  body('user7').exists().isString().trim(),
-  body('user8').exists().isString().trim(),
-  body('user9').exists().isString().trim(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
-
-/**
  * @description Validates object for POST /ontime/settings
  */
 export const validateSettings = [
@@ -122,7 +100,7 @@ export const validatePatchProjectFile = [
   body('settings').isObject().optional({ nullable: false }),
   body('viewSettings').isObject().optional({ nullable: false }),
   body('aliases').isArray().optional({ nullable: false }),
-  body('userFields').isObject().optional({ nullable: false }),
+  body('customFields').isObject().optional({ nullable: false }),
   body('osc').isObject().optional({ nullable: false }),
 
   (req: Request, res: Response, next: NextFunction) => {

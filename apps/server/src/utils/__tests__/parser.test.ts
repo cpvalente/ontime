@@ -16,7 +16,7 @@ import {
 import { dbModel } from '../../models/dataModel.js';
 import { parseExcel, parseJson, createEvent } from '../parser.js';
 import { makeString } from '../parserUtils.js';
-import { parseAliases, parseUserFields, parseViewSettings } from '../parserFunctions.js';
+import { parseAliases, parseViewSettings } from '../parserFunctions.js';
 
 describe('test json parser with valid def', () => {
   const testData: Partial<DatabaseModel> = {
@@ -39,16 +39,6 @@ describe('test json parser with valid def', () => {
         isPublic: false,
         skip: false,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
@@ -72,16 +62,6 @@ describe('test json parser with valid def', () => {
         isPublic: true,
         skip: true,
         colour: 'red',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
@@ -105,16 +85,6 @@ describe('test json parser with valid def', () => {
         isPublic: false,
         skip: false,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
@@ -159,16 +129,6 @@ describe('test json parser with valid def', () => {
         isPublic: false,
         skip: false,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
@@ -192,16 +152,6 @@ describe('test json parser with valid def', () => {
         isPublic: true,
         skip: true,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
@@ -223,16 +173,6 @@ describe('test json parser with valid def', () => {
         duration: 37200000 - 32400000,
         isPublic: true,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
@@ -540,16 +480,7 @@ describe('test event validator', () => {
         id: expect.any(String),
         cue: 'test',
         colour: expect.any(String),
-        user0: expect.any(String),
-        user1: expect.any(String),
-        user2: expect.any(String),
-        user3: expect.any(String),
-        user4: expect.any(String),
-        user5: expect.any(String),
-        user6: expect.any(String),
-        user7: expect.any(String),
-        user8: expect.any(String),
-        user9: expect.any(String),
+        custom: expect.any(Object),
       }),
     );
   });
@@ -705,6 +636,7 @@ describe('test parseExcel function', () => {
       [],
     ];
 
+    // TODO: Custom fields
     const partialOptions = {
       user0: 'test0',
       user1: 'test1',
@@ -793,94 +725,6 @@ describe('test aliases import', () => {
 
     // generates missing id
     expect(parsed[0].alias).toBeDefined();
-  });
-});
-
-describe('test userFields import', () => {
-  const model = dbModel.userFields;
-  it('imports a fully defined user fields', () => {
-    const testUserFields = {
-      user0: 'test0',
-      user1: 'test1',
-      user2: 'test2',
-      user3: 'test3',
-      user4: 'test4',
-      user5: 'test5',
-      user6: 'test6',
-      user7: 'test7',
-      user8: 'test8',
-      user9: 'test9',
-    };
-
-    const testData = {
-      rundown: [],
-      settings: {
-        app: 'ontime',
-        version: '2.0.0',
-      },
-      userFields: testUserFields,
-    };
-
-    const parsed = parseUserFields(testData);
-    expect(parsed).toStrictEqual(testUserFields);
-  });
-
-  it('imports a partially defined user fields', () => {
-    const testUserFields = {
-      user0: 'test0',
-      user1: 'test1',
-      user7: 'test7',
-      user8: 'test8',
-      user9: 'test9',
-    };
-
-    const expected = {
-      ...model,
-      ...testUserFields,
-    };
-
-    const testData = {
-      rundown: [],
-      settings: {
-        app: 'ontime',
-        version: '2.0.0',
-      },
-      userFields: testUserFields,
-    };
-
-    const parsed = parseUserFields(testData);
-    expect(parsed).toStrictEqual(expected);
-  });
-
-  it('handles missing user fields', () => {
-    const testData = {
-      rundown: [],
-      settings: {
-        app: 'ontime',
-        version: '2.0.0',
-      },
-    };
-
-    const parsed = parseUserFields(testData);
-    expect(parsed).toStrictEqual(model);
-    expect(parsed).toStrictEqual(model);
-  });
-
-  it('ignores badly defined fields', () => {
-    const testData = {
-      rundown: [],
-      settings: {
-        app: 'ontime',
-        version: '2.0.0',
-      },
-      userFields: {
-        notThis: 'this shouldng be accepted',
-        orThis: 'this neither',
-      },
-    };
-
-    const parsed = parseUserFields(testData);
-    expect(parsed).toStrictEqual(model);
   });
 });
 

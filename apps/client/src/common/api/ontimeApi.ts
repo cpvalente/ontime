@@ -14,7 +14,6 @@ import {
   ProjectData,
   ProjectFileListResponse,
   Settings,
-  UserFields,
   ViewSettings,
 } from 'ontime-types';
 import { ExcelImportMap } from 'ontime-utils';
@@ -82,23 +81,6 @@ export async function getAliases(): Promise<Alias[]> {
  */
 export async function postAliases(data: Alias[]) {
   return axios.post(`${ontimeURL}/aliases`, data);
-}
-
-/**
- * @description HTTP request to retrieve user fields
- * @return {Promise}
- */
-export async function getUserFields(): Promise<UserFields> {
-  const res = await axios.get(`${ontimeURL}/userfields`);
-  return res.data;
-}
-
-/**
- * @description HTTP request to mutate user fields
- * @return {Promise}
- */
-export async function postUserFields(data: UserFields) {
-  return axios.post(`${ontimeURL}/userfields`, data);
 }
 
 /**
@@ -196,12 +178,12 @@ export async function patchData(patchDb: Partial<DatabaseModel>) {
 
 type PostPreviewExcelResponse = {
   rundown: OntimeRundown;
-  userFields: UserFields;
+  customFields: CustomFields;
 };
 
 /**
  * @description Make patch changes to the objects in the db
- * @return {Promise} - returns parsed rundown and userfields
+ * @return {Promise} - returns parsed rundown and customFields
  */
 export async function postPreviewExcel(file: File, setProgress: (value: number) => void, options?: ExcelImportMap) {
   const formData = new FormData();
@@ -306,7 +288,7 @@ export const previewRundown = async (
   options: ExcelImportMap,
 ): Promise<{
   rundown: OntimeRundown;
-  userFields: UserFields;
+  customFields: CustomFields;
 }> => {
   const response = await axios.post(`${ontimeURL}/sheet/${sheetId}/read`, { options });
   return response.data;
