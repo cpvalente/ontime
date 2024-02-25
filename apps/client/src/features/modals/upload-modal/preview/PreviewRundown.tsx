@@ -20,6 +20,9 @@ function booleanToText(value?: boolean) {
 export default function PreviewRundown({ rundown, customFields }: PreviewRundownProps) {
   // we only count Ontime Events which are 1 based in client
   let eventIndex = 0;
+
+  const fieldHeaders = Object.keys(customFields);
+
   return (
     <div className={style.container}>
       <table className={style.rundownPreview}>
@@ -41,7 +44,9 @@ export default function PreviewRundown({ rundown, customFields }: PreviewRundown
             <th>Colour</th>
             <th>Timer Type</th>
             <th>End Action</th>
-            {/** TODO: Map custom fields */}
+            {fieldHeaders.map((field) => (
+              <th key={field}>{field}</th>
+            ))}
           </tr>
         </thead>
         <tbody className={style.body}>
@@ -94,7 +99,8 @@ export default function PreviewRundown({ rundown, customFields }: PreviewRundown
                   <td className={style.center}>
                     <Tag>{event.endAction}</Tag>
                   </td>
-                  {/** TODO: Map custom fields */}
+                  {isOntimeEvent(event) &&
+                    fieldHeaders.map((field) => <td key={field}>{event.custom?.[field].value}</td>)}
                 </tr>
                 {event.note && (
                   <tr>
