@@ -87,9 +87,6 @@ router.post('/views', viewValidator, postViewSettings);
 // create route between controller and '/ontime/aliases' endpoint
 router.get('/aliases', getAliases);
 
-// // create route between controller and '/ontime/aliases' endpoint
-// router.post('/aliases', validateAliases, postAliases);
-
 // create route between controller and '/ontime/aliases' endpoint
 router.post('/aliases', validateCreateAlias, postAlias);
 

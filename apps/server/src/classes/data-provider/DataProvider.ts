@@ -71,6 +71,7 @@ export class DataProvider {
     return data.aliases;
   }
 
+  // TODO: Remove this when I change the data model
   static async setAliases(newData: Alias[]) {
     data.aliases = newData;
     await this.persist();

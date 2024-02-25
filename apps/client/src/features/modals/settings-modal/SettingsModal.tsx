@@ -2,7 +2,6 @@ import { ModalBody, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/r
 
 import ModalWrapper from '../ModalWrapper';
 
-import AliasesForm from './AliasesForm';
 import AppSettingsModal from './AppSettings';
 import CuesheetSettingsForm from './CuesheetSettingsForm';
 import EditorSettings from './EditorSettings';
@@ -43,9 +42,6 @@ export default function SettingsModal(props: ModalManagerProps) {
             </TabPanel>
             <TabPanel>
               <ViewSettingsForm />
-            </TabPanel>
-            <TabPanel>
-              <AliasesForm />
             </TabPanel>
           </TabPanels>
         </Tabs>
