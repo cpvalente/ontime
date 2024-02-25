@@ -716,6 +716,7 @@ describe('test import of v2 datamodel', () => {
         custom: expect.any(Object),
       }),
     );
+    // @ts-expect-error -- checking if the field is removed
     expect(parsed?.userFields).toBeUndefined();
     expect(parsed.osc).toMatchObject({ subscriptions: [] });
     expect(parsed.http).toMatchObject({ enabledOut: false, subscriptions: [] });
