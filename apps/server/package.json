@@ -25,6 +25,7 @@
     "passport-local": "~1.0.0",
     "steno": "^3.1.0",
     "ts-essentials": "^9.4.1",
+    "valibot": "^0.29.0",
     "ws": "^8.13.0"
   },
   "devDependencies": {
