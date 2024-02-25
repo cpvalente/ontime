@@ -81,6 +81,14 @@ export async function postAliases(data: Alias[]) {
 }
 
 /**
+ * @description HTTP request to create an alias
+ * @return {Promise}
+ */
+export async function postAlias(data: Alias) {
+  return axios.post(`${ontimeURL}/aliases`, data);
+}
+
+/**
  * @description HTTP request to update aliases
  * @return {Promise}
  */

@@ -1,14 +1,35 @@
+import { postAlias } from '../../../../common/api/ontimeApi';
 import useAliases from '../../../../common/hooks-query/useAliases';
 import ModalLoader from '../../../modals/modal-loader/ModalLoader';
 import * as Panel from '../PanelUtils';
 
+import UrlPresetForm, { UrlPresetFormValues } from './UrlPresetForm';
 import UrlPresetListItem from './UrlPresetListItem';
 
-export default function UrlPresetList() {
+interface UrlPresetListProps {
+  isCreatingPresetURL: boolean;
+  onToggleCreate: () => void;
+}
+
+export default function UrlPresetList({ isCreatingPresetURL, onToggleCreate }: UrlPresetListProps) {
   const { data, isFetching, refetch } = useAliases();
 
   const handleRefetch = async () => {
     await refetch();
+  };
+
+  const handleSubmitCreate = async (values: UrlPresetFormValues) => {
+    try {
+      // TODO: fix this
+      // @ts-ignore
+      await postAlias({
+        ...values,
+        enabled: true,
+      });
+      await refetch();
+    } catch (error) {
+      // some error handling here
+    }
   };
 
   if (isFetching) {
@@ -26,6 +47,14 @@ export default function UrlPresetList() {
         </tr>
       </thead>
       <tbody>
+        {isCreatingPresetURL ? (
+          <tr>
+            <td colSpan={99}>
+              <UrlPresetForm onCancel={onToggleCreate} onSubmit={handleSubmitCreate} submitError='' />
+              {/* {submitError && <span className={style.createSubmitError}>{submitError}</span>} */}
+            </td>
+          </tr>
+        ) : null}
         {(data || []).map((alias) => {
           return (
             <UrlPresetListItem

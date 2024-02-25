@@ -1,4 +1,5 @@
-import { Alert, AlertDescription, AlertIcon, AlertTitle } from '@chakra-ui/react';
+import { useState } from 'react';
+import { Alert, AlertDescription, AlertIcon, AlertTitle, Button } from '@chakra-ui/react';
 
 import ModalLink from '../../../modals/ModalLink';
 import * as Panel from '../PanelUtils';
@@ -10,6 +11,12 @@ import style from './UrlPresetPanel.module.scss';
 const aliasesDocsUrl = 'https://ontime.gitbook.io/v2/features/url-aliases';
 
 export default function UrlPresetPanel() {
+  const [isCreatingPresetURL, setIsCreatingPresetURL] = useState(false);
+
+  const handleToggleCreate = () => {
+    setIsCreatingPresetURL((prev) => !prev);
+  };
+
   return (
     <>
       <Panel.Header>URL Presets</Panel.Header>
@@ -33,8 +40,14 @@ export default function UrlPresetPanel() {
                 marginTop: '1rem',
               }}
             >
-              <UrlPresetList />
+              <Panel.SubHeader>
+                Manage URL presets
+                <Button variant='ontime-filled' onClick={handleToggleCreate}>
+                  New
+                </Button>
+              </Panel.SubHeader>
             </div>
+            <UrlPresetList isCreatingPresetURL={isCreatingPresetURL} onToggleCreate={handleToggleCreate} />
           </main>
         </Panel.Card>
       </Panel.Section>

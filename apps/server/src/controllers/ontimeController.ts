@@ -189,6 +189,23 @@ export const postAliases = async (req: Request, res: Response) => {
   }
 };
 
+// Create controller for POST request to '/ontime/aliases'
+// Returns ACK message
+export const postAlias = async (req: Request, res: Response) => {
+  try {
+    const newAlias = {
+      enabled: req.body.enabled,
+      alias: req.body.alias,
+      pathAndParams: req.body.pathAndParams,
+    };
+
+    await DataProvider.addAlias(newAlias);
+    res.status(200).send(newAlias);
+  } catch (error) {
+    res.status(400).send({ message: String(error) });
+  }
+};
+
 // Update controller for PUT request to '/ontime/aliases'
 // Returns ACK message
 export const updateAliases = async (req: Request, res: Response) => {

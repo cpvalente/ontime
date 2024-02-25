@@ -12,7 +12,6 @@ import {
   getViewSettings,
   patchPartialProjectFile,
   poll,
-  postAliases,
   postOSC,
   postSettings,
   postUserFields,
@@ -34,10 +33,10 @@ import {
   getClientSecrect as getClientSecret,
   updateAliases,
   deleteAlias,
+  postAlias,
 } from '../controllers/ontimeController.js';
 
 import {
-  validateAliases,
   validateOSC,
   validatePatchProjectFile,
   validateSettings,
@@ -51,6 +50,7 @@ import {
   validateWorksheet,
   validateSheetOptions,
   validateUpdateAlises,
+  validateCreateAlias,
 } from '../controllers/ontimeController.validate.js';
 import { projectSanitiser } from '../controllers/projectController.validate.js';
 import { sanitizeProjectFilename } from '../utils/sanitizeProjectFilename.js';
@@ -87,8 +87,11 @@ router.post('/views', viewValidator, postViewSettings);
 // create route between controller and '/ontime/aliases' endpoint
 router.get('/aliases', getAliases);
 
+// // create route between controller and '/ontime/aliases' endpoint
+// router.post('/aliases', validateAliases, postAliases);
+
 // create route between controller and '/ontime/aliases' endpoint
-router.post('/aliases', validateAliases, postAliases);
+router.post('/aliases', validateCreateAlias, postAlias);
 
 // create route between controller and /ontime/aliases' endpoint
 router.put('/aliases', validateUpdateAlises, updateAliases);

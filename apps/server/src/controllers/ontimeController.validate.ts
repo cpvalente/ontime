@@ -40,6 +40,21 @@ export const validateAliases = [
 ];
 
 /**
+ * @description Validates object for POST /ontime/aliases
+ */
+export const validateCreateAlias = [
+  body('alias').isString().trim(),
+  body('pathAndParams').isString().trim(),
+  body('enabled').isBoolean(),
+
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
+
+/**
  * @description Validates object for PUT /ontime/aliases
  */
 export const validateUpdateAlises = [

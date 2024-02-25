@@ -76,6 +76,11 @@ export class DataProvider {
     await this.persist();
   }
 
+  static async addAlias(newData: Alias) {
+    data.aliases.push(newData);
+    await this.persist();
+  }
+
   static getUserFields() {
     return { ...data.userFields };
   }
