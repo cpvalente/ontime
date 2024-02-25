@@ -20,7 +20,7 @@ export default function useGoogleSheet() {
   // functions push data to store
   const patchStepData = useSheetStore((state) => state.patchStepData);
   const setRundown = useSheetStore((state) => state.setRundown);
-  const setUserFields = useSheetStore((state) => state.setCustomFields);
+  const setCustomFields = useSheetStore((state) => state.setCustomFields);
 
   /** whether the current session has been authenticated */
   const verifyAuth = async (): Promise<{ authenticated: AuthenticationStatus } | void> => {
@@ -43,6 +43,7 @@ export default function useGoogleSheet() {
     }
   };
 
+  /** requests the revoking of an existing authenticated session */
   const revoke = async (): Promise<{ authenticated: AuthenticationStatus } | void> => {
     try {
       return revokeAuthentication();
@@ -56,7 +57,7 @@ export default function useGoogleSheet() {
     try {
       const data = await previewRundown(sheetId, fileOptions);
       setRundown(data.rundown);
-      setUserFields(data.customFields);
+      setCustomFields(data.customFields);
     } catch (error) {
       patchStepData({ pullPush: { available: true, error: maybeAxiosError(error) } });
     }
@@ -73,14 +74,14 @@ export default function useGoogleSheet() {
     }
   };
 
-  /** applies rundown and userfields to current project */
+  /** applies rundown and customFields to current project */
   const importRundown = async (rundown: OntimeRundown, customFields: CustomFields) => {
     try {
       await patchData({ rundown, customFields });
       // we are unable to optimistically set the rundown since we need
       // it to be normalised
       await queryClient.invalidateQueries({
-        queryKey: [...RUNDOWN, ...CUSTOM_FIELDS],
+        queryKey: [RUNDOWN, CUSTOM_FIELDS],
       });
     } catch (error) {
       patchStepData({ pullPush: { available: true, error: maybeAxiosError(error) } });

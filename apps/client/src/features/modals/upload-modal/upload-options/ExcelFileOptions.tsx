@@ -38,18 +38,7 @@ export default function ExcelFileOptions(props: ExcelFileOptionsProps) {
     { label: 'End Action', title: 'endAction', value: importOptions.endAction },
   ];
 
-  const userFields: TableEntry[] = [
-    { label: 'User 0', title: 'user0', value: importOptions.user0 },
-    { label: 'User 1', title: 'user1', value: importOptions.user1 },
-    { label: 'User 2', title: 'user2', value: importOptions.user2 },
-    { label: 'User 3', title: 'user3', value: importOptions.user3 },
-    { label: 'User 4', title: 'user4', value: importOptions.user4 },
-    { label: 'User 5', title: 'user5', value: importOptions.user5 },
-    { label: 'User 6', title: 'user6', value: importOptions.user6 },
-    { label: 'User 7', title: 'user7', value: importOptions.user7 },
-    { label: 'User 8', title: 'user8', value: importOptions.user8 },
-    { label: 'User 9', title: 'user9', value: importOptions.user9 },
-  ];
+  const customFields: TableEntry[] = [];
 
   return (
     <div className={style.uploadOptions}>
@@ -64,7 +53,7 @@ export default function ExcelFileOptions(props: ExcelFileOptionsProps) {
 
       <div className={style.twoEqualColumn}>
         <ImportMapTable title='Titles' fields={titles} handleOnChange={updateOptions} />
-        <ImportMapTable title='User Fields' fields={userFields} handleOnChange={updateOptions} />
+        <ImportMapTable title='Custom fields' fields={customFields} handleOnChange={updateOptions} />
       </div>
     </div>
   );
