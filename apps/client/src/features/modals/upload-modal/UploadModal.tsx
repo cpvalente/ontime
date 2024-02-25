@@ -10,10 +10,10 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { OntimeRundown, UserFields } from 'ontime-types';
+import { OntimeRundown } from 'ontime-types';
 import { defaultExcelImportMap, ExcelImportMap } from 'ontime-utils';
 
-import { RUNDOWN, USERFIELDS } from '../../../common/api/apiConstants';
+import { RUNDOWN } from '../../../common/api/apiConstants';
 import { invalidateAllCaches, maybeAxiosError } from '../../../common/api/apiUtils';
 import {
   patchData,
@@ -21,7 +21,6 @@ import {
   ProjectFileImportOptions,
   uploadProjectFile,
 } from '../../../common/api/ontimeApi';
-import { userFieldsPlaceholder } from '../../../common/models/UserFields';
 
 import PreviewExcel from './preview/PreviewExcel';
 import ExcelFileOptions from './upload-options/ExcelFileOptions';
@@ -48,7 +47,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   const [uploadStep, setUploadStep] = useState<UploadStep>('import');
   const [submitting, setSubmitting] = useState(false);
   const [rundown, setRundown] = useState<OntimeRundown | null>(null);
-  const [userFields, setUserFields] = useState<UserFields | null>(null);
+  const [userFields, setUserFields] = useState<null>(null);
 
   const [errors, setErrors] = useState('');
 
@@ -123,7 +122,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
       const response = await postPreviewExcel(file, setProgress, options);
       if (response.status === 200) {
         setRundown(response.data.rundown);
-        setUserFields(response.data.userFields);
+        //setUserFields(response.data.userFields);
         // in excel imports we have an extra review step
         setUploadStep('review');
       }
@@ -139,7 +138,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   const handleClose = () => {
     clear();
     setRundown([]);
-    setUserFields(userFieldsPlaceholder);
+   // setUserFields(userFieldsPlaceholder);
     onClose();
   };
 
@@ -149,13 +148,14 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
       let doClose = false;
       setSubmitting(true);
       try {
-        await patchData({ rundown, userFields });
+        await patchData({ rundown, customFields: {} });
         // TODO: broken :(
         // we need to normalise the data here
         queryClient.setQueryData(RUNDOWN, { rundown, revision: -1 });
-        queryClient.setQueryData(USERFIELDS, userFields);
+        //queryClient.setQueryData(USERFIELDS, userFields);
         await queryClient.invalidateQueries({
-          queryKey: [...RUNDOWN, ...USERFIELDS],
+          //queryKey: [...RUNDOWN, ...USERFIELDS],
+          queryKey: [RUNDOWN],
         });
         doClose = true;
       } catch (error) {
@@ -212,7 +212,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
               )}
             </>
           ) : (
-            <PreviewExcel rundown={rundown ?? []} userFields={userFields ?? userFieldsPlaceholder} />
+            <PreviewExcel rundown={rundown ?? []} customFields={{}} />
           )}
         </ModalBody>
         <ModalFooter>

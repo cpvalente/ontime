@@ -15,10 +15,10 @@ import {
   OntimeEvent,
   OntimeRundown,
   SupportedEvent,
-  UserFields,
   EndAction,
   TimerType,
   TimeStrategy,
+  CustomFields,
 } from 'ontime-types';
 
 import fs from 'fs';
@@ -35,7 +35,6 @@ import {
   parseHttp,
   parseRundown,
   parseSettings,
-  parseUserFields,
   parseViewSettings,
   parseCustomFields,
 } from './parserFunctions.js';
@@ -46,7 +45,7 @@ import { coerceBoolean } from './coerceType.js';
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
 
-type ExcelData = Pick<DatabaseModel, 'rundown' | 'userFields'> & {
+type ExcelData = Pick<DatabaseModel, 'rundown' | 'customFields'> & {
   rundownMetadata: Record<string, { row: number; col: number }>;
 };
 
@@ -62,18 +61,8 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
   for (const [key, value] of Object.entries(importMap)) {
     importMap[key] = value.toLocaleLowerCase();
   }
-  const customUserFields: UserFields = {
-    user0: importMap.user0,
-    user1: importMap.user1,
-    user2: importMap.user2,
-    user3: importMap.user3,
-    user4: importMap.user4,
-    user5: importMap.user5,
-    user6: importMap.user6,
-    user7: importMap.user7,
-    user8: importMap.user8,
-    user9: importMap.user9,
-  };
+  // TODO: logic for dynamic field import
+  const importedCustomFields: CustomFields = {};
   const rundown: OntimeRundown = [];
 
   // title stuff: strings
@@ -98,18 +87,6 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
   // options: enum properties
   let endActionIndex: number | null = null;
   let timerTypeIndex: number | null = null;
-
-  // user fields: strings
-  let user0Index: number | null = null;
-  let user1Index: number | null = null;
-  let user2Index: number | null = null;
-  let user3Index: number | null = null;
-  let user4Index: number | null = null;
-  let user5Index: number | null = null;
-  let user6Index: number | null = null;
-  let user7Index: number | null = null;
-  let user8Index: number | null = null;
-  let user9Index: number | null = null;
 
   excelData.forEach((row, rowIndex) => {
     if (row.length === 0) {
@@ -179,47 +156,6 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
         timeDangerIndex = col;
         rundownMetadata['timeDangerIndex'] = { row, col };
       },
-
-      [importMap.user0]: (row: number, col: number) => {
-        user0Index = col;
-        rundownMetadata['user0'] = { row, col };
-      },
-      [importMap.user1]: (row: number, col: number) => {
-        user1Index = col;
-        rundownMetadata['user1'] = { row, col };
-      },
-      [importMap.user2]: (row: number, col: number) => {
-        user2Index = col;
-        rundownMetadata['user2'] = { row, col };
-      },
-      [importMap.user3]: (row: number, col: number) => {
-        user3Index = col;
-        rundownMetadata['user3'] = { row, col };
-      },
-      [importMap.user4]: (row: number, col: number) => {
-        user4Index = col;
-        rundownMetadata['user4'] = { row, col };
-      },
-      [importMap.user5]: (row: number, col: number) => {
-        user5Index = col;
-        rundownMetadata['user5'] = { row, col };
-      },
-      [importMap.user6]: (row: number, col: number) => {
-        user6Index = col;
-        rundownMetadata['user6'] = { row, col };
-      },
-      [importMap.user7]: (row: number, col: number) => {
-        user7Index = col;
-        rundownMetadata['user7'] = { row, col };
-      },
-      [importMap.user8]: (row: number, col: number) => {
-        user8Index = col;
-        rundownMetadata['user8'] = { row, col };
-      },
-      [importMap.user9]: (row: number, col: number) => {
-        user9Index = col;
-        rundownMetadata['user9'] = { row, col };
-      },
     } as const;
 
     const event: any = {};
@@ -267,26 +203,6 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
         event.timeDanger = parseExcelDate(column);
       } else if (j === colourIndex) {
         event.colour = makeString(column, '');
-      } else if (j === user0Index) {
-        event.user0 = makeString(column, '');
-      } else if (j === user1Index) {
-        event.user1 = makeString(column, '');
-      } else if (j === user2Index) {
-        event.user2 = makeString(column, '');
-      } else if (j === user3Index) {
-        event.user3 = makeString(column, '');
-      } else if (j === user4Index) {
-        event.user4 = makeString(column, '');
-      } else if (j === user5Index) {
-        event.user5 = makeString(column, '');
-      } else if (j === user6Index) {
-        event.user6 = makeString(column, '');
-      } else if (j === user7Index) {
-        event.user7 = makeString(column, '');
-      } else if (j === user8Index) {
-        event.user8 = makeString(column, '');
-      } else if (j === user9Index) {
-        event.user9 = makeString(column, '');
       } else {
         // 2. if there is no flag, lets see if we know the field type
         if (typeof column === 'string') {
@@ -309,7 +225,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImport
 
   return {
     rundown,
-    userFields: customUserFields,
+    customFields: importedCustomFields,
     rundownMetadata,
   };
 };
@@ -330,7 +246,6 @@ export const parseJson = async (jsonData: Partial<DatabaseModel>): Promise<Datab
     settings: parseSettings(jsonData) ?? dbModel.settings,
     viewSettings: parseViewSettings(jsonData) ?? dbModel.viewSettings,
     aliases: parseAliases(jsonData),
-    userFields: parseUserFields(jsonData),
     customFields: parseCustomFields(jsonData),
     osc: parseOsc(jsonData) ?? dbModel.osc,
     http: parseHttp(jsonData) ?? dbModel.http,
@@ -463,7 +378,7 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
     if (res.data.rundown.length < 1) {
       throw new Error(`Could not find data to import in the worksheet ${options.worksheet}`);
     }
-    res.data.userFields = parseUserFields(dataFromExcel);
+    res.data.customFields = parseCustomFields(dataFromExcel);
 
     deleteFile(file);
 

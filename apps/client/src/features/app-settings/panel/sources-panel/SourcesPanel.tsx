@@ -18,10 +18,10 @@ export default function SourcesPanel() {
 
   const authenticationStatus = useSheetStore((state) => state.authenticationStatus);
   const rundown = useSheetStore((state) => state.rundown);
-  const userFields = useSheetStore((state) => state.customFields);
+  const customFields = useSheetStore((state) => state.customFields);
 
   const isAuthenticated = authenticationStatus === 'authenticated';
-  const hasData = rundown && userFields;
+  const hasData = rundown && customFields;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -78,7 +78,7 @@ export default function SourcesPanel() {
           {isGSheetFlow && <GSheetSetup onCancel={cancelGSheetFlow} />}
           {isExcelFlow && <Panel.Title>Not yet implemented</Panel.Title>}
           {isAuthenticated && <ImportMap />}
-          {hasData && <ImportReview rundown={rundown} userFields={userFields} />}
+          {hasData && <ImportReview rundown={rundown} customFields={customFields} />}
         </Panel.Card>
       </Panel.Section>
     </>

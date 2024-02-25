@@ -6,7 +6,6 @@ import {
   OSCSettings,
   ProjectData,
   Settings,
-  UserFields,
   ViewSettings,
   OscSubscription,
   DatabaseModel,
