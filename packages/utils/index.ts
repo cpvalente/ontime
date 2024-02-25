@@ -62,10 +62,10 @@ export { validateEndAction, validateTimerType } from './src/validate-events/vali
 
 // feature business logic
 
-// feature business logic - excel import
+// feature business logic - spreadsheet import
 export {
   type ImportMap,
   type ImportOptions,
   defaultImportMap,
   isImportMap,
-} from './src/feature/excel-import/spreadsheetImport.js';
+} from './src/feature/spreadsheet-import/spreadsheetImport.js';

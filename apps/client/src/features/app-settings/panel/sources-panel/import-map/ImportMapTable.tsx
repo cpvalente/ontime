@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Button } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { ImportMap } from 'ontime-utils';
+import { defaultImportMap, ImportMap } from 'ontime-utils';
 
 import * as Panel from '../../PanelUtils';
 
@@ -10,7 +10,7 @@ import ImportMapRow from './ImportMapRow';
 
 export type TableEntry = { label: string; ontimeName: keyof ImportMap; importName: string };
 
-interface ExcelFileOptionsProps {
+interface ImportMapTableProps {
   importOptions: ImportMap;
   updateOptions: <T extends keyof ImportMap>(field: T, value: ImportMap[T]) => void;
 }
@@ -37,11 +37,12 @@ function makeOntimeFields(importOptions: ImportMap): TableEntry[] {
   ];
 }
 
-export default function ImportMapTable(props: ExcelFileOptionsProps) {
+export default function ImportMapTable(props: ImportMapTableProps) {
   const { importOptions, updateOptions } = props;
   const [customFields, setCustomFields] = useState<TableEntry[]>([]);
 
   const ontimeFields = useMemo(() => makeOntimeFields(importOptions), [importOptions]);
+  const customFields2 = Object.keys(importOptions).filter((key) => !(key in defaultImportMap));
 
   const handleDelete = (ontimeName: string) => {
     setCustomFields((prev) => {
