@@ -9,26 +9,15 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import { useQueryClient } from '@tanstack/react-query';
 import { OntimeRundown } from 'ontime-types';
-import { defaultImportMap, ImportMap } from 'ontime-utils';
 
-import { RUNDOWN } from '../../../common/api/apiConstants';
 import { invalidateAllCaches, maybeAxiosError } from '../../../common/api/apiUtils';
-import {
-  patchData,
-  postPreviewExcel,
-  ProjectFileImportOptions,
-  uploadProjectFile,
-} from '../../../common/api/ontimeApi';
+import { ProjectFileImportOptions, uploadProjectFile } from '../../../common/api/ontimeApi';
 
-import PreviewExcel from './preview/PreviewExcel';
-import ExcelFileOptions from './upload-options/ExcelFileOptions';
 import OntimeFileOptions from './upload-options/OntimeFileOptions';
-import UploadStepTracker from './upload-step/UploadStep';
 import UploadFile from './UploadFile';
 import { useUploadModalContextStore } from './uploadModalContext';
-import { getPersistedOptions, isExcelFile, isOntimeFile, persistOptions } from './uploadUtils';
+import { isOntimeFile } from './uploadUtils';
 
 import style from './UploadModal.module.scss';
 
@@ -40,19 +29,15 @@ interface UploadModalProps {
 }
 
 export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
-  const queryClient = useQueryClient();
-
   const { file, setProgress, clear } = useUploadModalContextStore();
 
   const [uploadStep, setUploadStep] = useState<UploadStep>('import');
   const [submitting, setSubmitting] = useState(false);
   const [rundown, setRundown] = useState<OntimeRundown | null>(null);
-  const [userFields, setUserFields] = useState<null>(null);
 
   const [errors, setErrors] = useState('');
 
   const ontimeFileOptions = useRef<Partial<ProjectFileImportOptions>>({});
-  const excelFileOptions = useRef<ImportMap>(defaultImportMap);
 
   const updateOntimeFileOptions = <T extends keyof ProjectFileImportOptions>(
     field: T,
@@ -61,27 +46,12 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
     ontimeFileOptions.current = { ...ontimeFileOptions.current, [field]: value };
   };
 
-  const updateExcelFileOptions = <T extends keyof ImportMap>(field: T, value: ImportMap[T]) => {
-    if (excelFileOptions.current[field] !== value) {
-      excelFileOptions.current = { ...excelFileOptions.current, [field]: value };
-    }
-  };
-
-  // We want to populate the options with any previous options given by the user
-  useEffect(() => {
-    const excelOptions = getPersistedOptions('excel');
-    if (excelOptions) {
-      excelFileOptions.current = excelOptions;
-    }
-  }, []);
-
   // if the modal re-opens, we want to restart all states
   useEffect(() => {
     clear();
     setUploadStep('import');
     setSubmitting(false);
     setRundown(null);
-    setUserFields(null);
     setErrors('');
   }, [clear, isOpen]);
 
@@ -101,10 +71,6 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
           await handleOntimeFile(file, options);
           await invalidateAllCaches();
           doClose = true;
-        } else if (isExcelFile(file)) {
-          const options = excelFileOptions.current;
-          persistOptions({ optionType: 'excel', options });
-          await handleExcelFile(file, options);
         }
       } catch (error) {
         const message = maybeAxiosError(error);
@@ -114,17 +80,6 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
         if (doClose) {
           handleClose();
         }
-      }
-    }
-
-    // when we upload excel, we populate state with preview data
-    async function handleExcelFile(file: File, options: ImportMap) {
-      const response = await postPreviewExcel(file, setProgress, options);
-      if (response.status === 200) {
-        setRundown(response.data.rundown);
-        //setUserFields(response.data.userFields);
-        // in excel imports we have an extra review step
-        setUploadStep('review');
       }
     }
 
@@ -142,34 +97,6 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
     onClose();
   };
 
-  const handleFinalise = async () => {
-    // this step is currently only used for excel files, after preview
-    if (isExcel && rundown && userFields) {
-      let doClose = false;
-      setSubmitting(true);
-      try {
-        await patchData({ rundown, customFields: {} });
-        // TODO: broken :(
-        // we need to normalise the data here
-        queryClient.setQueryData(RUNDOWN, { rundown, revision: -1 });
-        //queryClient.setQueryData(USERFIELDS, userFields);
-        await queryClient.invalidateQueries({
-          //queryKey: [...RUNDOWN, ...USERFIELDS],
-          queryKey: [RUNDOWN],
-        });
-        doClose = true;
-      } catch (error) {
-        const message = maybeAxiosError(error);
-        setErrors(`Failed applying changes ${message}`);
-      } finally {
-        setSubmitting(false);
-        if (doClose) {
-          handleClose();
-        }
-      }
-    }
-  };
-
   const undoReview = () => {
     setUploadStep('import');
     setErrors('');
@@ -177,11 +104,10 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
 
   const isImporting = uploadStep === 'import';
   const isReview = uploadStep === 'review';
-  const isExcel = isExcelFile(file);
   const isOntime = isOntimeFile(file);
 
   const handleGoBack = isImporting ? undefined : undoReview;
-  const handleSubmit = isImporting ? handleUpload : handleFinalise;
+  const handleSubmit = handleUpload;
   const disableSubmit = (isImporting && !file) || (isReview && rundown === null);
   const disableGoBack = isImporting;
   const submitText = isImporting ? 'Import' : 'Finish';
@@ -202,18 +128,10 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
         <ModalHeader>File import</ModalHeader>
         <ModalCloseButton />
         <ModalBody className={style.uploadBody}>
-          {isExcel && <UploadStepTracker uploadStep={uploadStep} />}
-          {uploadStep === 'import' ? (
-            <>
-              <UploadFile />
-              {isOntime && <OntimeFileOptions optionsRef={ontimeFileOptions} updateOptions={updateOntimeFileOptions} />}
-              {isExcel && (
-                <ExcelFileOptions importOptions={excelFileOptions.current} updateOptions={updateExcelFileOptions} />
-              )}
-            </>
-          ) : (
-            <PreviewExcel rundown={rundown ?? []} customFields={{}} />
-          )}
+          <>
+            <UploadFile />
+            {isOntime && <OntimeFileOptions optionsRef={ontimeFileOptions} updateOptions={updateOntimeFileOptions} />}
+          </>
         </ModalBody>
         <ModalFooter>
           <div className={style.feedbackSection}>{errors && <div className={style.error}>{errors}</div>}</div>
