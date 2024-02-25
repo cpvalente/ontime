@@ -15,6 +15,7 @@ import {
   isOntimeBlock,
   isOntimeCycle,
   HttpSubscription,
+  Presets,
 } from 'ontime-types';
 
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
@@ -248,6 +249,32 @@ export const parseAliases = (data): Alias[] => {
     }
   }
   return newAliases;
+};
+
+/**
+ * Parse presets portion of an entry
+ * @param {object} data - data object
+ * @returns {object} - event object data
+ */
+export const parsePresets = (data): Presets => {
+  const newPresets: { [key: string]: { alias: string; pathAndParams: string; enabled: boolean } } = {};
+  if ('presets' in data) {
+    console.log('Found Presets definition, importing...');
+    try {
+      for (const preset in data.presets) {
+        const newPreset = {
+          alias: data.presets[preset].alias,
+          pathAndParams: data.presets[preset].pathAndParams,
+          enabled: data.presets[preset].enabled,
+        };
+        newPresets[preset] = newPreset;
+      }
+      console.log(`Uploaded ${Object.keys(newPresets).length} preset(s)`);
+    } catch (error) {
+      console.log(`Error: ${error}`);
+    }
+  }
+  return newPresets;
 };
 
 /**

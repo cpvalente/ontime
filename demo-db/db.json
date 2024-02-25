@@ -436,6 +436,13 @@
       "pathAndParams": "lower?bg=ff2&text=f00&size=0.6&transition=5"
     }
   ],
+  "presets": {
+    "test": {
+      "enabled": true,
+      "preset": "test",
+      "pathAndParams": "lower?bg=ff2&text=f00&size=0.6&transition=5"
+    }
+  },
   "userFields": {
     "user0": "user0",
     "user1": "user1",

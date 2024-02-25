@@ -159,16 +159,16 @@ export const getInfo = async (_req: Request, res: Response<GetInfo>) => {
   });
 };
 
-// Create controller for POST request to '/ontime/aliases'
+// Create controller for POST request to '/ontime/presets'
 // Returns -
-export const getAliases = async (_req: Request, res: Response) => {
+export const getPresets = async (_req: Request, res: Response) => {
   const aliases = DataProvider.getAliases();
   res.status(200).send(aliases);
 };
 
-// Create controller for POST request to '/ontime/aliases'
+// Create controller for POST request to '/ontime/presets'
 // Returns ACK message
-export const postAlias = async (req: Request, res: Response) => {
+export const postPreset = async (req: Request, res: Response) => {
   try {
     const newAlias = {
       enabled: req.body.enabled,
@@ -183,9 +183,9 @@ export const postAlias = async (req: Request, res: Response) => {
   }
 };
 
-// Update controller for PUT request to '/ontime/aliases'
+// Update controller for PUT request to '/ontime/presets/:preset'
 // Returns ACK message
-export const updateAliases = async (req: Request, res: Response) => {
+export const updatePreset = async (req: Request, res: Response) => {
   try {
     const { alias, enabled, pathAndParams } = req.body;
 
@@ -211,9 +211,9 @@ export const updateAliases = async (req: Request, res: Response) => {
   }
 };
 
-// Delete controller for DELETE request to '/ontime/aliases/:alias'
+// Delete controller for DELETE request to '/ontime/presets/:preset'
 // Returns ACK message
-export const deleteAlias = async (req: Request, res: Response) => {
+export const deletePreset = async (req: Request, res: Response) => {
   try {
     const alias = req.params.alias;
 

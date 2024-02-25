@@ -24,9 +24,9 @@ export const viewValidator = [
 ];
 
 /**
- * @description Validates object for POST /ontime/aliases
+ * @description Validates object for POST /ontime/presets
  */
-export const validateAliases = [
+export const validatePresets = [
   body().isArray(),
   body('*.enabled').isBoolean(),
   body('*.alias').isString().trim(),
@@ -40,9 +40,9 @@ export const validateAliases = [
 ];
 
 /**
- * @description Validates object for POST /ontime/aliases
+ * @description Validates object for POST /ontime/presets
  */
-export const validateCreateAlias = [
+export const validateCreatePreset = [
   body('alias').isString().trim(),
   body('pathAndParams').isString().trim(),
   body('enabled').isBoolean(),
@@ -55,9 +55,9 @@ export const validateCreateAlias = [
 ];
 
 /**
- * @description Validates object for PUT /ontime/aliases
+ * @description Validates object for PUT /ontime/presets
  */
-export const validateUpdateAlises = [
+export const validateUpdatePreset = [
   body('alias').isString().trim(),
   body('pathAndParams').isString().trim().optional(),
   body('enabled').isBoolean().optional(),
@@ -151,7 +151,7 @@ export const validatePatchProjectFile = [
   body('project').isObject().optional({ nullable: false }),
   body('settings').isObject().optional({ nullable: false }),
   body('viewSettings').isObject().optional({ nullable: false }),
-  body('aliases').isArray().optional({ nullable: false }),
+  body('aliases').isArray().optional({ nullable: false }), // TODO
   body('userFields').isObject().optional({ nullable: false }),
   body('osc').isObject().optional({ nullable: false }),
 

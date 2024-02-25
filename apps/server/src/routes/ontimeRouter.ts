@@ -3,7 +3,6 @@ import { uploadFile } from '../utils/upload.js';
 import {
   dbDownload,
   dbUpload,
-  getAliases,
   getInfo,
   getOSC,
   getHTTP,
@@ -31,9 +30,10 @@ import {
   postId,
   getAuthentication,
   getClientSecrect as getClientSecret,
-  updateAliases,
-  deleteAlias,
-  postAlias,
+  postPreset,
+  updatePreset,
+  deletePreset,
+  getPresets,
 } from '../controllers/ontimeController.js';
 
 import {
@@ -49,8 +49,8 @@ import {
   validateSheetid,
   validateWorksheet,
   validateSheetOptions,
-  validateUpdateAlises,
-  validateCreateAlias,
+  validateCreatePreset,
+  validateUpdatePreset,
 } from '../controllers/ontimeController.validate.js';
 import { projectSanitiser } from '../controllers/projectController.validate.js';
 import { sanitizeProjectFilename } from '../utils/sanitizeProjectFilename.js';
@@ -85,16 +85,16 @@ router.get('/views', getViewSettings);
 router.post('/views', viewValidator, postViewSettings);
 
 // create route between controller and '/ontime/aliases' endpoint
-router.get('/aliases', getAliases);
+router.get('/presets', getPresets);
 
 // create route between controller and '/ontime/aliases' endpoint
-router.post('/aliases', validateCreateAlias, postAlias);
+router.post('/presets', validateCreatePreset, postPreset);
 
 // create route between controller and /ontime/aliases' endpoint
-router.put('/aliases', validateUpdateAlises, updateAliases);
+router.put('/presets', validateUpdatePreset, updatePreset);
 
 // create route between controller and '/ontime/aliases' endpoint
-router.delete('/aliases/:alias', deleteAlias);
+router.delete('/presets/:preset', deletePreset);
 
 // create route between controller and '/ontime/aliases' endpoint
 router.get('/userfields', getUserFields);
