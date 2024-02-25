@@ -1,7 +1,7 @@
-export type ExcelImportOptions = keyof typeof defaultExcelImportMap;
-export type ExcelImportMap = typeof defaultExcelImportMap;
+export type ImportOptions = keyof typeof defaultImportMap;
+export type ImportMap = typeof defaultImportMap;
 
-export const defaultExcelImportMap = {
+export const defaultImportMap = {
   worksheet: 'event schedule',
   timeStart: 'time start',
   timeEnd: 'time end',
@@ -20,11 +20,15 @@ export const defaultExcelImportMap = {
   timeDanger: 'danger time',
 };
 
-export function isExcelImportMap(obj: unknown): obj is ExcelImportMap {
+/**
+ * Validates whether an object is an Import Map
+ * @param obj
+ */
+export function isImportMap(obj: unknown): obj is ImportMap {
   if (typeof obj !== 'object' || obj === null) {
     return false;
   }
 
-  const keys = Object.keys(defaultExcelImportMap);
+  const keys = Object.keys(defaultImportMap);
   return keys.every((key) => Object.hasOwn(obj, key));
 }
