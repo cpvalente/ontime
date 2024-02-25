@@ -1,5 +1,5 @@
-export type ImportOptions = keyof typeof defaultImportMap;
-export type ImportMap = typeof defaultImportMap;
+export type ImportOptions = keyof typeof defaultImportMap | 'custom';
+export type ImportMap = typeof defaultImportMap & { custom: Record<string, string> };
 
 export const defaultImportMap = {
   worksheet: 'event schedule',
@@ -18,6 +18,7 @@ export const defaultImportMap = {
   timerType: 'timer type',
   timeWarning: 'warning time',
   timeDanger: 'danger time',
+  custom: {},
 };
 
 /**

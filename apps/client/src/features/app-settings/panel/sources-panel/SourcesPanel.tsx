@@ -5,7 +5,7 @@ import { IoDownloadOutline } from '@react-icons/all-files/io5/IoDownloadOutline'
 
 import * as Panel from '../PanelUtils';
 
-import ImportMap from './import-map/ImportMap';
+import ImportMapForm from './import-map/ImportMapForm';
 import GSheetInfo from './GSheetInfo';
 import GSheetSetup from './GSheetSetup';
 import ImportReview from './ImportReview';
@@ -77,7 +77,7 @@ export default function SourcesPanel() {
           )}
           {isGSheetFlow && <GSheetSetup onCancel={cancelGSheetFlow} />}
           {isExcelFlow && <Panel.Title>Not yet implemented</Panel.Title>}
-          {isAuthenticated && <ImportMap />}
+          {isAuthenticated && <ImportMapForm />}
           {hasData && <ImportReview rundown={rundown} customFields={customFields} />}
         </Panel.Card>
       </Panel.Section>

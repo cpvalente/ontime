@@ -1,5 +1,5 @@
 /* eslint-disable no-console -- we are mocking the console */
-import { vi } from 'vitest';
+import { assertType, vi } from 'vitest';
 
 import {
   DatabaseModel,
@@ -11,10 +11,12 @@ import {
   TimeStrategy,
   TimerType,
   ViewSettings,
+  OntimeRundown,
 } from 'ontime-types';
 
 import { dbModel } from '../../models/dataModel.js';
-import { parseExcel, parseJson, createEvent } from '../parser.js';
+
+import { parseExcel, parseJson, createEvent, getCustomFieldData } from '../parser.js';
 import { makeString } from '../parserUtils.js';
 import { parseAliases, parseViewSettings } from '../parserFunctions.js';
 
@@ -177,7 +179,7 @@ describe('test json parser with valid def', () => {
         timeWarning: 0,
         timeDanger: 0,
       } as OntimeEvent,
-    ],
+    ] as OntimeRundown,
     project: {
       title: 'This is a test definition',
       backstageUrl: 'www.carlosvalente.com',
@@ -531,7 +533,196 @@ describe('test event validator', () => {
   });
 });
 
-describe('test makeString function', () => {
+describe('test aliases import', () => {
+  it('imports a well defined alias', () => {
+    const testData = {
+      rundown: [],
+      settings: {
+        app: 'ontime',
+        version: '2.0.0',
+      },
+      aliases: [
+        {
+          enabled: false,
+          alias: 'testalias',
+          pathAndParams: 'testpathAndParams',
+        },
+      ],
+    };
+
+    const parsed = parseAliases(testData);
+    expect(parsed.length).toBe(1);
+
+    // generates missing id
+    expect(parsed[0].alias).toBeDefined();
+  });
+});
+
+describe('test views import', () => {
+  it('imports data from file', () => {
+    const testData = {
+      rundown: [],
+      settings: {
+        app: 'ontime',
+        version: '2.0.0',
+      },
+      viewSettings: {
+        normalColor: '#ffffffcc',
+        warningColor: '#FFAB33',
+        dangerColor: '#ED3333',
+        endMessage: '',
+        overrideStyles: false,
+        notAthing: true,
+      },
+      views: {
+        overrideStyles: true,
+      },
+    };
+    const expectedParsedViewSettings = {
+      normalColor: '#ffffffcc',
+      warningColor: '#FFAB33',
+      dangerColor: '#ED3333',
+      endMessage: '',
+      overrideStyles: false,
+    };
+    const parsed = parseViewSettings(testData);
+    expect(parsed).toStrictEqual(expectedParsedViewSettings);
+  });
+
+  it('imports defaults to model', () => {
+    const testData = {
+      rundown: [],
+      settings: {
+        app: 'ontime',
+        version: '2.0.0',
+      },
+    };
+    const parsed = parseViewSettings(testData);
+    expect(parsed).toStrictEqual({});
+  });
+});
+
+describe('test import of v2 datamodel', () => {
+  it('ignores deprecated fields and generates new ones', async () => {
+    const v2ProjectFile = {
+      rundown: [
+        { type: SupportedEvent.Block, title: 'block-title', id: 'block-id' },
+        { type: SupportedEvent.Delay, duration: 0 },
+        { type: SupportedEvent.Event, title: 'block-title', id: 'block-id' },
+      ],
+      project: {
+        title: '',
+        description: '',
+        publicUrl: '',
+        publicInfo: '',
+        backstageUrl: '',
+        backstageInfo: '',
+      },
+      settings: {
+        app: 'ontime',
+        version: '2.0.0',
+        serverPort: 4001,
+        editorKey: null,
+        operatorKey: null,
+        timeFormat: '24',
+        language: 'en',
+      },
+      viewSettings: {
+        overrideStyles: false,
+        normalColor: '#ffffffcc',
+        warningColor: '#FFAB33',
+        dangerColor: '#ED3333',
+        endMessage: '',
+      },
+      aliases: [],
+      userFields: {
+        user0: 'user0',
+        user1: 'user1',
+        user2: 'user2',
+        user3: 'user3',
+        user4: 'user4',
+        user5: 'user5',
+        user6: 'user6',
+        user7: 'user7',
+        user8: 'user8',
+        user9: 'user9',
+      },
+      osc: {
+        portIn: 8888,
+        portOut: 9999,
+        targetIP: '127.0.0.1',
+        enabledIn: false,
+        enabledOut: false,
+        subscriptions: {
+          onLoad: [],
+          onStart: [],
+          onPause: [],
+          onStop: [],
+          onUpdate: [],
+          onFinish: [],
+        },
+      },
+      http: {
+        enabledOut: false,
+        subscriptions: {
+          onLoad: [],
+          onStart: [],
+          onPause: [],
+          onStop: [],
+          onUpdate: [],
+          onFinish: [],
+        },
+      },
+    };
+    // @ts-expect-error -- we know this is wrong, testing imports outside domain
+    const parsed = await parseJson(v2ProjectFile);
+    expect(parsed.rundown.length).toBe(3);
+    expect(parsed.rundown[0]).toMatchObject({ type: SupportedEvent.Block });
+    expect(parsed.rundown[0]).toEqual(
+      expect.objectContaining({
+        id: expect.any(String),
+        title: expect.any(String),
+      }),
+    );
+    expect(parsed.rundown[1]).toMatchObject({ type: SupportedEvent.Delay });
+    expect(parsed.rundown[1]).toEqual(
+      expect.objectContaining({
+        id: expect.any(String),
+        duration: expect.any(Number),
+      }),
+    );
+    expect(parsed.rundown[2]).toMatchObject({ type: SupportedEvent.Event });
+    expect(parsed.rundown[2]).toEqual(
+      expect.objectContaining({
+        id: expect.any(String),
+        cue: expect.any(String),
+        title: expect.any(String),
+        subtitle: expect.any(String),
+        presenter: expect.any(String),
+        note: expect.any(String),
+        endAction: expect.any(String),
+        timerType: expect.any(String),
+        linkStart: null,
+        timeStrategy: expect.any(String),
+        timeStart: expect.any(Number),
+        timeEnd: expect.any(Number),
+        duration: expect.any(Number),
+        isPublic: expect.any(Boolean),
+        skip: expect.any(Boolean),
+        colour: expect.any(String),
+        revision: expect.any(Number),
+        timeWarning: expect.any(Number),
+        timeDanger: expect.any(Number),
+        custom: expect.any(Object),
+      }),
+    );
+    expect(parsed?.userFields).toBeUndefined();
+    expect(parsed.osc).toMatchObject({ subscriptions: [] });
+    expect(parsed.http).toMatchObject({ enabledOut: false, subscriptions: [] });
+  });
+});
+
+describe('makeString()', () => {
   it('converts variables to string', () => {
     let val = 2;
     let expected = '2';
@@ -556,7 +747,61 @@ describe('test makeString function', () => {
   });
 });
 
-describe('test parseExcel function', () => {
+describe('getCustomFieldData()', () => {
+  it('generates a list of keys from the given import map', () => {
+    const importMap = {
+      worksheet: 'event schedule',
+      timeStart: 'time start',
+      timeEnd: 'time end',
+      duration: 'duration',
+      cue: 'cue',
+      title: 'title',
+      presenter: 'presenter',
+      subtitle: 'subtitle',
+      isPublic: 'public',
+      skip: 'skip',
+      note: 'notes',
+      colour: 'colour',
+      endAction: 'end action',
+      timerType: 'timer type',
+      timeWarning: 'warning time',
+      timeDanger: 'danger time',
+      custom: {
+        lighting: 'lx',
+        sound: 'sound',
+        video: 'av',
+      },
+    };
+
+    const result = getCustomFieldData(importMap);
+    expect(result.customFields).toStrictEqual({
+      lighting: {
+        type: 'string',
+        colour: '',
+        label: 'lighting',
+      },
+      sound: {
+        type: 'string',
+        colour: '',
+        label: 'sound',
+      },
+      video: {
+        type: 'string',
+        colour: '',
+        label: 'video',
+      },
+    });
+
+    // it is an inverted record of <importKey, ontimeKey>
+    expect(result.customFieldImportKeys).toStrictEqual({
+      lx: 'lighting',
+      sound: 'sound',
+      av: 'video',
+    });
+  });
+});
+
+describe('parseExcel()', () => {
   it('parses the example file', async () => {
     const testdata = [
       ['Ontime ┬À Schedule Template'],
@@ -636,18 +881,20 @@ describe('test parseExcel function', () => {
       [],
     ];
 
-    // TODO: Custom fields
-    const partialOptions = {
-      user0: 'test0',
-      user1: 'test1',
-      user2: 'test2',
-      user3: 'test3',
-      user4: 'test4',
-      user5: 'test5',
-      user6: 'test6',
-      user7: 'test7',
-      user8: 'test8',
-      user9: 'test9',
+    // partial import map with only custom fields
+    const importMap = {
+      custom: {
+        user0: 'test0',
+        user1: 'test1',
+        user2: 'test2',
+        user3: 'test3',
+        user4: 'test4',
+        user5: 'test5',
+        user6: 'test6',
+        user7: 'test7',
+        user8: 'test8',
+        user9: 'test9',
+      },
     };
 
     // TODO: update tests once import is resolved
@@ -663,16 +910,18 @@ describe('test parseExcel function', () => {
         isPublic: true,
         skip: false,
         note: 'Ballyhoo',
-        user0: 'a0',
-        user1: 'a1',
-        user2: 'a2',
-        user3: 'a3',
-        user4: 'a4',
-        user5: 'a5',
-        user6: 'a6',
-        user7: 'a7',
-        user8: 'a8',
-        user9: 'a9',
+        custom: {
+          user0: { value: 'a0' },
+          user1: { value: 'a1' },
+          user2: { value: 'a2' },
+          user3: { value: 'a3' },
+          user4: { value: 'a4' },
+          user5: { value: 'a5' },
+          user6: { value: 'a6' },
+          user7: { value: 'a7' },
+          user8: { value: 'a8' },
+          user9: { value: 'a9' },
+        },
         colour: 'red',
         type: 'event',
         cue: '101',
@@ -688,86 +937,73 @@ describe('test parseExcel function', () => {
         isPublic: false,
         skip: true,
         note: 'Rainbow chase',
-        user0: 'b0',
-        user5: 'b5',
+        custom: {
+          user0: { value: 'b0' },
+          user5: { value: 'b5' },
+        },
         colour: '#F00',
         type: 'event',
         cue: '102',
       },
     ];
 
-    const parsedData = parseExcel(testdata, partialOptions);
-    expect(parsedData.rundown).toBeDefined();
+    const parsedData = parseExcel(testdata, importMap);
+    expect(parsedData.customFields).toStrictEqual({
+      user0: {
+        type: 'string',
+        colour: '',
+        label: 'user0',
+      },
+      user1: {
+        type: 'string',
+        colour: '',
+        label: 'user1',
+      },
+      user2: {
+        type: 'string',
+        colour: '',
+        label: 'user2',
+      },
+      user3: {
+        type: 'string',
+        colour: '',
+        label: 'user3',
+      },
+      user4: {
+        type: 'string',
+        colour: '',
+        label: 'user4',
+      },
+      user5: {
+        type: 'string',
+        colour: '',
+        label: 'user5',
+      },
+      user6: {
+        type: 'string',
+        colour: '',
+        label: 'user6',
+      },
+      user7: {
+        type: 'string',
+        colour: '',
+        label: 'user7',
+      },
+      user8: {
+        type: 'string',
+        colour: '',
+        label: 'user8',
+      },
+      user9: {
+        type: 'string',
+        colour: '',
+        label: 'user9',
+      },
+    });
+    expect(parsedData.rundown.length).toBe(2);
     expect(parsedData.rundown[0]).toMatchObject(expectedParsedRundown[0]);
     expect(parsedData.rundown[1]).toMatchObject(expectedParsedRundown[1]);
   });
-});
 
-describe('test aliases import', () => {
-  it('imports a well defined alias', () => {
-    const testData = {
-      rundown: [],
-      settings: {
-        app: 'ontime',
-        version: '2.0.0',
-      },
-      aliases: [
-        {
-          enabled: false,
-          alias: 'testalias',
-          pathAndParams: 'testpathAndParams',
-        },
-      ],
-    };
-
-    const parsed = parseAliases(testData);
-    expect(parsed.length).toBe(1);
-
-    // generates missing id
-    expect(parsed[0].alias).toBeDefined();
-  });
-});
-
-describe('test views import', () => {
-  it('imports data from file', () => {
-    const testData = {
-      rundown: [],
-      settings: {
-        app: 'ontime',
-        version: '2.0.0',
-      },
-      viewSettings: {
-        normalColor: '#ffffffcc',
-        warningColor: '#FFAB33',
-        dangerColor: '#ED3333',
-        endMessage: '',
-        overrideStyles: false,
-        notAthing: true,
-      },
-      views: {
-        overrideStyles: true,
-      },
-    };
-    const expectedParsedViewSettings = {
-      normalColor: '#ffffffcc',
-      warningColor: '#FFAB33',
-      dangerColor: '#ED3333',
-      endMessage: '',
-      overrideStyles: false,
-    };
-    const parsed = parseViewSettings(testData);
-    expect(parsed).toStrictEqual(expectedParsedViewSettings);
-  });
-
-  it('imports defaults to model', () => {
-    const testData = {
-      rundown: [],
-      settings: {
-        app: 'ontime',
-        version: '2.0.0',
-      },
-    };
-    const parsed = parseViewSettings(testData);
-    expect(parsed).toStrictEqual({});
-  });
+  it.todo('imports events and blocks, ignores otherwise', () => {});
 });

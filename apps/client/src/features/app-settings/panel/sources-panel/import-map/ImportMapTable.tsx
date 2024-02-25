@@ -8,7 +8,7 @@ import * as Panel from '../../PanelUtils';
 import ImportMapCustomRow from './ImportMapCustomRow';
 import ImportMapRow from './ImportMapRow';
 
-export type TableEntry = { label: string; ontimeName: keyof ImportMap; importName: string };
+export type TableEntry = { label: string; ontimeName: keyof ImportMap | string; importName: string };
 
 interface ImportMapTableProps {
   importOptions: ImportMap;
@@ -37,13 +37,24 @@ function makeOntimeFields(importOptions: ImportMap): TableEntry[] {
   ];
 }
 
+function makeCustomFields(importOptions: ImportMap): TableEntry[] {
+  const customFieldsImportMap: TableEntry[] = [];
+  for (const field in importOptions) {
+    const label = importOptions[field];
+    if (!(field in defaultImportMap)) {
+      customFieldsImportMap.push({ label, ontimeName: field, importName: label });
+    }
+  }
+  return customFieldsImportMap;
+}
+
+// TODO: add style to action button cell
 export default function ImportMapTable(props: ImportMapTableProps) {
   const { importOptions, updateOptions } = props;
-  const [customFields, setCustomFields] = useState<TableEntry[]>([]);
+  const [ontimeFields, setOntimeFields] = useState<TableEntry[]>(() => makeOntimeFields(importOptions));
+  const [customFields, setCustomFields] = useState<TableEntry[]>(() => makeCustomFields(importOptions));
 
-  const ontimeFields = useMemo(() => makeOntimeFields(importOptions), [importOptions]);
-  const customFields2 = Object.keys(importOptions).filter((key) => !(key in defaultImportMap));
-
+  console.log('>>>>>>>>>>>>>>>>>>>>', customFields);
   const handleDelete = (ontimeName: string) => {
     setCustomFields((prev) => {
       return prev.filter((field) => field.ontimeName !== ontimeName);

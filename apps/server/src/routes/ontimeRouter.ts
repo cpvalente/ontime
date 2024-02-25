@@ -62,6 +62,7 @@ router.post('/db', uploadFile, dbUpload);
 router.patch('/db', validatePatchProjectFile, patchPartialProjectFile);
 
 // create route between controller and '/ontime/preview-spreadsheet' endpoint
+// TODO: validate import map
 router.post('/preview-spreadsheet', uploadFile, previewExcel);
 
 // create route between controller and '/ontime/settings' endpoint

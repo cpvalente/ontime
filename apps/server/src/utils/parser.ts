@@ -19,6 +19,7 @@ import {
   TimerType,
   TimeStrategy,
   CustomFields,
+  EventCustomFields,
 } from 'ontime-types';
 
 import fs from 'fs';
@@ -49,6 +50,25 @@ type ExcelData = Pick<DatabaseModel, 'rundown' | 'customFields'> & {
   rundownMetadata: Record<string, { row: number; col: number }>;
 };
 
+export function getCustomFieldData(importMap: ImportMap): {
+  customFields: CustomFields;
+  customFieldImportKeys: Record<keyof CustomFields, string>;
+} {
+  const customFields = {};
+  const customFieldImportKeys = {};
+  for (const key in importMap.custom) {
+    const ontimeName = key;
+    const importName = importMap.custom[key];
+    customFields[ontimeName] = {
+      type: 'string',
+      colour: '',
+      label: ontimeName,
+    };
+    customFieldImportKeys[importName] = ontimeName;
+  }
+  return { customFields, customFieldImportKeys };
+}
+
 /**
  * @description Excel array parser
  * @param {array} excelData - array with excel sheet
@@ -58,11 +78,14 @@ type ExcelData = Pick<DatabaseModel, 'rundown' | 'customFields'> & {
 export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>): ExcelData => {
   const rundownMetadata = {};
   const importMap: ImportMap = { ...defaultImportMap, ...options };
+
   for (const [key, value] of Object.entries(importMap)) {
-    importMap[key] = value.toLocaleLowerCase();
+    if (typeof value === 'string') {
+      importMap[key] = value.toLocaleLowerCase();
+    }
   }
-  // TODO: logic for dynamic field import
-  const importedCustomFields: CustomFields = {};
+
+  const { customFields, customFieldImportKeys } = getCustomFieldData(importMap);
   const rundown: OntimeRundown = [];
 
   // title stuff: strings
@@ -88,11 +111,15 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
   let endActionIndex: number | null = null;
   let timerTypeIndex: number | null = null;
 
+  // record of column index and the name of the field
+  const customFieldIndexes: Record<number, string> = {};
+
   excelData.forEach((row, rowIndex) => {
     if (row.length === 0) {
       return;
     }
 
+    // TODO: extract generating handlers from importMap
     const handlers = {
       [importMap.timeStart]: (row: number, col: number) => {
         timeStartIndex = col;
@@ -139,7 +166,6 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
         colourIndex = col;
         rundownMetadata['colour'] = { row, col };
       },
-
       [importMap.endAction]: (row: number, col: number) => {
         endActionIndex = col;
         rundownMetadata['endAction'] = { row, col };
@@ -156,9 +182,15 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
         timeDangerIndex = col;
         rundownMetadata['timeDangerIndex'] = { row, col };
       },
+      custom: (row: number, col: number, columnText: string) => {
+        customFieldIndexes[col] = columnText;
+        rundownMetadata[`custom-${columnText}`] = { row, col };
+      },
     } as const;
 
     const event: any = {};
+    const eventCustomFields: EventCustomFields = {};
+
     row.forEach((column, j) => {
       // 1. we check if we have set a flag for a known field
       if (j === timerTypeIndex) {
@@ -203,29 +235,45 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
         event.timeDanger = parseExcelDate(column);
       } else if (j === colourIndex) {
         event.colour = makeString(column, '');
+      } else if (j in customFieldIndexes) {
+        const importKey = customFieldIndexes[j];
+        const ontimeKey = customFieldImportKeys[importKey];
+        eventCustomFields[ontimeKey] = { value: makeString(column, '') };
       } else {
         // 2. if there is no flag, lets see if we know the field type
         if (typeof column === 'string') {
-          const col = column.toLowerCase();
-
-          if (handlers[col]) {
-            handlers[col](rowIndex, j);
+          // we cant deal with empty content
+          if (column.length === 0) {
+            return;
           }
+          const columnText = column.toLowerCase();
+
+          // check if it is an ontime column
+          if (handlers[columnText]) {
+            handlers[columnText](rowIndex, j, undefined);
+          }
+
+          // check if it is a custom field
+          if (columnText in customFieldImportKeys) {
+            handlers.custom(rowIndex, j, columnText);
+          }
+
           // else. we don't know how to handle this column
           // just ignore it
         }
       }
     });
 
-    if (Object.keys(event).length > 0) {
-      // if any data was found, push to array
-      rundown.push({ ...event });
+    // if any data was found in row, push to array
+    const keysFound = Object.keys(event).length + Object.keys(eventCustomFields).length;
+    if (keysFound > 0) {
+      rundown.push({ ...event, custom: { ...eventCustomFields } });
     }
   });
 
   return {
     rundown,
-    customFields: importedCustomFields,
+    customFields,
     rundownMetadata,
   };
 };
@@ -301,16 +349,6 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     isPublic: typeof patchEvent.isPublic === 'boolean' ? patchEvent.isPublic : originalEvent.isPublic,
     skip: typeof patchEvent.skip === 'boolean' ? patchEvent.skip : originalEvent.skip,
     note: makeString(patchEvent.note, originalEvent.note),
-    user0: makeString(patchEvent.user0, originalEvent.user0),
-    user1: makeString(patchEvent.user1, originalEvent.user1),
-    user2: makeString(patchEvent.user2, originalEvent.user2),
-    user3: makeString(patchEvent.user3, originalEvent.user3),
-    user4: makeString(patchEvent.user4, originalEvent.user4),
-    user5: makeString(patchEvent.user5, originalEvent.user5),
-    user6: makeString(patchEvent.user6, originalEvent.user6),
-    user7: makeString(patchEvent.user7, originalEvent.user7),
-    user8: makeString(patchEvent.user8, originalEvent.user8),
-    user9: makeString(patchEvent.user9, originalEvent.user9),
     colour: makeString(patchEvent.colour, originalEvent.colour),
     // short circuit empty string
     cue: makeString(patchEvent.cue ?? null, originalEvent.cue),
