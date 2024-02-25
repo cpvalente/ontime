@@ -1,4 +1,4 @@
-import { defaultExcelImportMap } from 'ontime-utils';
+import { defaultImportMap } from 'ontime-utils';
 
 import { body, param, validationResult } from 'express-validator';
 import { NextFunction, Request, Response } from 'express';
@@ -26,8 +26,8 @@ export const validateSheetOptions = [
     .exists()
     .isObject()
     .custom((content) => {
-      // Check if the fileContent has the same keys as defaultExcelImportMap
-      const hasValidKeys = Object.keys(defaultExcelImportMap).every((key) => key in content);
+      // Check if the fileContent has the same keys as defaultImportMap
+      const hasValidKeys = Object.keys(defaultImportMap).every((key) => key in content);
 
       // Check if all values in fileContent are strings
       const hasValidValues = Object.values(content).every((value) => typeof value === 'string');

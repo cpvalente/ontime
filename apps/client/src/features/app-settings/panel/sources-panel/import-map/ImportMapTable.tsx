@@ -3,7 +3,7 @@ import { Button } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { ImportMap } from 'ontime-utils';
 
-import * as Panel from '../../../app-settings/panel/PanelUtils';
+import * as Panel from '../../PanelUtils';
 
 import ImportMapCustomRow from './ImportMapCustomRow';
 import ImportMapRow from './ImportMapRow';
@@ -37,7 +37,7 @@ function makeOntimeFields(importOptions: ImportMap): TableEntry[] {
   ];
 }
 
-export default function ExcelFileOptions(props: ExcelFileOptionsProps) {
+export default function ImportMapTable(props: ExcelFileOptionsProps) {
   const { importOptions, updateOptions } = props;
   const [customFields, setCustomFields] = useState<TableEntry[]>([]);
 

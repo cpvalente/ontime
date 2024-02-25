@@ -5,9 +5,9 @@ import { IoDownloadOutline } from '@react-icons/all-files/io5/IoDownloadOutline'
 
 import * as Panel from '../PanelUtils';
 
+import ImportMap from './import-map/ImportMap';
 import GSheetInfo from './GSheetInfo';
 import GSheetSetup from './GSheetSetup';
-import ImportMap from './ImportMap';
 import ImportReview from './ImportReview';
 import { useSheetStore } from './useSheetStore';
 

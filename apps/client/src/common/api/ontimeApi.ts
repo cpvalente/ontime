@@ -16,7 +16,7 @@ import {
   Settings,
   ViewSettings,
 } from 'ontime-types';
-import { ExcelImportMap } from 'ontime-utils';
+import { ImportMap } from 'ontime-utils';
 
 import { apiRepoLatest } from '../../externals';
 import fileDownload from '../utils/fileDownload';
@@ -185,7 +185,7 @@ type PostPreviewExcelResponse = {
  * @description Make patch changes to the objects in the db
  * @return {Promise} - returns parsed rundown and customFields
  */
-export async function postPreviewExcel(file: File, setProgress: (value: number) => void, options?: ExcelImportMap) {
+export async function postPreviewExcel(file: File, setProgress: (value: number) => void, options?: ImportMap) {
   const formData = new FormData();
   formData.append('userFile', file);
   formData.append('options', JSON.stringify(options));
@@ -285,7 +285,7 @@ export const revokeAuthentication = async (): Promise<{ authenticated: Authentic
  */
 export const previewRundown = async (
   sheetId: string,
-  options: ExcelImportMap,
+  options: ImportMap,
 ): Promise<{
   rundown: OntimeRundown;
   customFields: CustomFields;
@@ -297,7 +297,7 @@ export const previewRundown = async (
 /**
  * @description HTTP request to upload the rundown to a google sheet
  */
-export const uploadRundown = async (sheetId: string, options: ExcelImportMap): Promise<void> => {
+export const uploadRundown = async (sheetId: string, options: ImportMap): Promise<void> => {
   const response = await axios.post(`${ontimeURL}/sheet/${sheetId}/write`, { options });
   return response.data;
 };

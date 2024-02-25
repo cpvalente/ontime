@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { OntimeRundown } from 'ontime-types';
-import { defaultExcelImportMap, ExcelImportMap } from 'ontime-utils';
+import { defaultImportMap, ImportMap } from 'ontime-utils';
 
 import { RUNDOWN } from '../../../common/api/apiConstants';
 import { invalidateAllCaches, maybeAxiosError } from '../../../common/api/apiUtils';
@@ -52,7 +52,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   const [errors, setErrors] = useState('');
 
   const ontimeFileOptions = useRef<Partial<ProjectFileImportOptions>>({});
-  const excelFileOptions = useRef<ExcelImportMap>(defaultExcelImportMap);
+  const excelFileOptions = useRef<ImportMap>(defaultImportMap);
 
   const updateOntimeFileOptions = <T extends keyof ProjectFileImportOptions>(
     field: T,
@@ -61,7 +61,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
     ontimeFileOptions.current = { ...ontimeFileOptions.current, [field]: value };
   };
 
-  const updateExcelFileOptions = <T extends keyof ExcelImportMap>(field: T, value: ExcelImportMap[T]) => {
+  const updateExcelFileOptions = <T extends keyof ImportMap>(field: T, value: ImportMap[T]) => {
     if (excelFileOptions.current[field] !== value) {
       excelFileOptions.current = { ...excelFileOptions.current, [field]: value };
     }
@@ -118,7 +118,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
     }
 
     // when we upload excel, we populate state with preview data
-    async function handleExcelFile(file: File, options: ExcelImportMap) {
+    async function handleExcelFile(file: File, options: ImportMap) {
       const response = await postPreviewExcel(file, setProgress, options);
       if (response.status === 200) {
         setRundown(response.data.rundown);
@@ -138,7 +138,7 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   const handleClose = () => {
     clear();
     setRundown([]);
-   // setUserFields(userFieldsPlaceholder);
+    // setUserFields(userFieldsPlaceholder);
     onClose();
   };
 

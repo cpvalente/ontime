@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import { Button } from '@chakra-ui/react';
 
-import ExcelFileOptions from '../../../modals/upload-modal/upload-options/ExcelFileOptions';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../PanelUtils';
+import useGoogleSheet from '../useGoogleSheet';
+import { useSheetStore } from '../useSheetStore';
 
-import useGoogleSheet from './useGoogleSheet';
-import { useSheetStore } from './useSheetStore';
+import ImportMapTable from './ImportMapTable';
 
-import style from './SourcesPanel.module.scss';
+import style from '../SourcesPanel.module.scss';
 
 export default function ImportMap() {
   const { importRundownPreview, exportRundown } = useGoogleSheet();
 
-  const importOptions = useSheetStore((state) => state.excelFileOptions);
-  const patchImportOptions = useSheetStore((state) => state.patchExcelFileOptions);
+  const importMap = useSheetStore((state) => state.spreadsheetImportMap);
+  const patchImportOptions = useSheetStore((state) => state.patchSpreadsheetImportMap);
   const stepData = useSheetStore((state) => state.stepData);
   const sheetId = useSheetStore((state) => state.sheetId);
 
@@ -22,14 +22,14 @@ export default function ImportMap() {
   const handleExport = async () => {
     if (!sheetId) return;
     setLoading('export');
-    await exportRundown(sheetId, importOptions);
+    await exportRundown(sheetId, importMap);
     setLoading('');
   };
 
   const handleImportPreview = async () => {
     if (!sheetId) return;
     setLoading('import');
-    await importRundownPreview(sheetId, importOptions);
+    await importRundownPreview(sheetId, importMap);
     setLoading('');
   };
 
@@ -38,7 +38,7 @@ export default function ImportMap() {
   return (
     <Panel.Section>
       <Panel.Title>Import options</Panel.Title>
-      <ExcelFileOptions importOptions={importOptions} updateOptions={patchImportOptions} />
+      <ImportMapTable importOptions={importMap} updateOptions={patchImportOptions} />
       <Panel.Error>{stepData.worksheet.error}</Panel.Error>
       <div className={style.buttonRow}>
         <Button

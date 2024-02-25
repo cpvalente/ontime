@@ -1,8 +1,6 @@
 import { AuthenticationStatus, CustomFields, OntimeRundown } from 'ontime-types';
-import { defaultExcelImportMap, ExcelImportMap } from 'ontime-utils';
+import { defaultImportMap, ImportMap } from 'ontime-utils';
 import { create } from 'zustand';
-
-// TODO: persist excelFileOptions to localStorage
 
 type SheetStore = {
   stepData: typeof initialStepData;
@@ -14,17 +12,17 @@ type SheetStore = {
   authenticationStatus: AuthenticationStatus;
   setAuthenticationStatus: (status: AuthenticationStatus) => void;
 
+  // we get this from a preview response
   rundown: OntimeRundown | null;
   setRundown: (rundown: OntimeRundown | null) => void;
 
+  // we get this from a preview response
   customFields: CustomFields | null;
   setCustomFields: (customFields: CustomFields | null) => void;
 
-  worksheetOptions: string[] | null;
-  setWorksheetOptions: (worksheetOptions: string[] | null) => void;
-
-  excelFileOptions: ExcelImportMap;
-  patchExcelFileOptions: <T extends keyof ExcelImportMap>(field: T, value: ExcelImportMap[T]) => void;
+  // TODO: persist excelFileOptions to localStorage
+  spreadsheetImportMap: ImportMap;
+  patchSpreadsheetImportMap: <T extends keyof ImportMap>(field: T, value: ImportMap[T]) => void;
 
   reset: () => void;
   resetPreview: () => void;
@@ -43,8 +41,7 @@ const initialState = {
   authenticationStatus: 'not_authenticated' as AuthenticationStatus,
   rundown: null,
   customFields: null,
-  worksheetOptions: null,
-  excelFileOptions: defaultExcelImportMap,
+  spreadsheetImportMap: defaultImportMap,
 };
 
 export const useSheetStore = create<SheetStore>((set, get) => ({
@@ -63,12 +60,10 @@ export const useSheetStore = create<SheetStore>((set, get) => ({
 
   setCustomFields: (customFields: CustomFields | null) => set({ customFields }),
 
-  setWorksheetOptions: (worksheetOptions: string[] | null) => set({ worksheetOptions }),
-
-  patchExcelFileOptions: <T extends keyof ExcelImportMap>(field: T, value: ExcelImportMap[T]) => {
-    const excelFileOptions = get().excelFileOptions;
-    if (excelFileOptions[field] !== value) {
-      excelFileOptions[field] = value;
+  patchSpreadsheetImportMap: <T extends keyof ImportMap>(field: T, value: ImportMap[T]) => {
+    const currentImportMap = get().spreadsheetImportMap;
+    if (currentImportMap[field] !== value) {
+      currentImportMap[field] = value;
     }
   },
 

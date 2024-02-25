@@ -8,7 +8,7 @@ import type {
   ProjectFileListResponse,
   OSCSettings,
 } from 'ontime-types';
-import { ExcelImportOptions } from 'ontime-utils';
+import { ImportOptions } from 'ontime-utils';
 
 import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
@@ -77,7 +77,7 @@ export const dbDownload = async (_req: Request, res: Response) => {
  * @param _res
  * @param options
  */
-async function parseFile(file, _req: Request, _res: Response, options: ExcelImportOptions) {
+async function parseFile(file, _req: Request, _res: Response, options: ImportOptions) {
   if (!fs.existsSync(file)) {
     throw new Error('Upload failed');
   }

@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { AuthenticationStatus, CustomFields, OntimeRundown } from 'ontime-types';
-import { ExcelImportMap } from 'ontime-utils';
+import { ImportMap } from 'ontime-utils';
 
 import { CUSTOM_FIELDS, RUNDOWN } from '../../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../../common/api/apiUtils';
@@ -53,7 +53,7 @@ export default function useGoogleSheet() {
   };
 
   /** fetches data from a worksheet by its ID */
-  const importRundownPreview = async (sheetId: string, fileOptions: ExcelImportMap) => {
+  const importRundownPreview = async (sheetId: string, fileOptions: ImportMap) => {
     try {
       const data = await previewRundown(sheetId, fileOptions);
       setRundown(data.rundown);
@@ -64,7 +64,7 @@ export default function useGoogleSheet() {
   };
 
   /** writes data to a worksheet by its ID */
-  const exportRundown = async (sheetId: string, fileOptions: ExcelImportMap) => {
+  const exportRundown = async (sheetId: string, fileOptions: ImportMap) => {
     try {
       // write data to google
       await uploadRundown(sheetId, fileOptions);

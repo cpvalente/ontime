@@ -4,25 +4,25 @@
  * @link https://developers.google.com/identity/protocols/oauth2/limited-input-device
  */
 
-import { AuthenticationStatus, CustomFields, LogOrigin, MaybeString, OntimeRundown } from 'ontime-types';
+import { AuthenticationStatus, CustomFields, LogOrigin, MaybeString, OntimeRundown } from "ontime-types";
 
-import { sheets, sheets_v4 } from '@googleapis/sheets';
-import { Credentials, OAuth2Client } from 'google-auth-library';
-import got from 'got';
+import { sheets, sheets_v4 } from "@googleapis/sheets";
+import { Credentials, OAuth2Client } from "google-auth-library";
+import got from "got";
 
-import { resolveSheetsDirectory } from '../../setup.js';
-import { ensureDirectory } from '../../utils/fileManagement.js';
-import { type ClientSecret, cellRequestFromEvent, getA1Notation, validateClientSecret } from './sheetUtils.js';
-import { ExcelImportMap } from 'ontime-utils';
-import { parseExcel } from '../../utils/parser.js';
-import { logger } from '../../classes/Logger.js';
-import { parseCustomFields, parseRundown } from '../../utils/parserFunctions.js';
-import { getRundown } from '../rundown-service/rundownUtils.js';
+import { resolveSheetsDirectory } from "../../setup.js";
+import { ensureDirectory } from "../../utils/fileManagement.js";
+import { type ClientSecret, cellRequestFromEvent, getA1Notation, validateClientSecret } from "./sheetUtils.js";
+import { ImportMap } from "ontime-utils";
+import { parseExcel } from "../../utils/parser.js";
+import { logger } from "../../classes/Logger.js";
+import { parseCustomFields, parseRundown } from "../../utils/parserFunctions.js";
+import { getRundown } from "../rundown-service/rundownUtils.js";
 
-const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';
-const codesUrl = 'https://oauth2.googleapis.com/device/code';
-const tokenUrl = 'https://oauth2.googleapis.com/token';
-const grantType = 'urn:ietf:params:oauth:grant-type:device_code';
+const sheetScope = "https://www.googleapis.com/auth/spreadsheets";
+const codesUrl = "https://oauth2.googleapis.com/device/code";
+const tokenUrl = "https://oauth2.googleapis.com/token";
+const grantType = "urn:ietf:params:oauth:grant-type:device_code";
 
 let currentAuthClient: OAuth2Client | null = null;
 let currentClientSecret: ClientSecret | null = null;
@@ -78,7 +78,7 @@ export function handleClientSecret(clientSecret: string): ClientSecret {
   const isValid = validateClientSecret(clientSecretObject);
 
   if (!isValid) {
-    throw new Error('Client secret invalid');
+    throw new Error("Client secret invalid");
   }
 
   return clientSecretObject;
@@ -104,8 +104,8 @@ async function getDeviceCodes(clientSecret: ClientSecret): Promise<CodesResponse
     .post(codesUrl, {
       json: {
         client_id: clientSecret.installed.client_id,
-        scope: sheetScope,
-      },
+        scope: sheetScope
+      }
     })
     .json();
 
@@ -125,7 +125,7 @@ function verifyConnection(
   device_code: string,
   interval: number,
   expires_in: number,
-  postAction: () => void,
+  postAction: () => void
 ) {
   // create poller to check for auth
   pollInterval = setInterval(pollForAuth, interval * 1000);
@@ -145,29 +145,29 @@ function verifyConnection(
   async function pollForAuth() {
     // server returns 428 if user hasnt yet completed the auth process
     try {
-      logger.info(LogOrigin.Server, 'Polling for auth...');
+      logger.info(LogOrigin.Server, "Polling for auth...");
       const auth: Credentials = await got
         .post(tokenUrl, {
           json: {
             client_id: clientSecret.installed.client_id,
             client_secret: clientSecret.installed.client_secret,
             device_code,
-            grant_type: grantType,
-          },
+            grant_type: grantType
+          }
         })
         .json();
 
-      logger.info(LogOrigin.Server, 'Successfully Authenticated');
+      logger.info(LogOrigin.Server, "Successfully Authenticated");
       const client = new OAuth2Client({
         clientId: clientSecret.installed.client_id,
-        clientSecret: clientSecret.installed.client_secret,
+        clientSecret: clientSecret.installed.client_secret
       });
 
       client.setCredentials({
         refresh_token: auth.refresh_token,
         access_token: auth.access_token,
         scope: auth.scope,
-        token_type: auth.token_type,
+        token_type: auth.token_type
       });
 
       // save client and cancel tasks
@@ -192,18 +192,18 @@ function verifyConnection(
 
 export function hasAuth(): { authenticated: AuthenticationStatus } {
   if (cleanupTimeout) {
-    return { authenticated: 'pending' };
+    return { authenticated: "pending" };
   }
-  return { authenticated: currentAuthClient ? 'authenticated' : 'not_authenticated' };
+  return { authenticated: currentAuthClient ? "authenticated" : "not_authenticated" };
 }
 
 async function verifySheet(
   sheetId = currentSheetId,
-  authClient = currentAuthClient,
+  authClient = currentAuthClient
 ): Promise<{ worksheetOptions: string[] }> {
-  const spreadsheets = await sheets({ version: 'v4', auth: authClient }).spreadsheets.get({
+  const spreadsheets = await sheets({ version: "v4", auth: authClient }).spreadsheets.get({
     spreadsheetId: sheetId,
-    includeGridData: false,
+    includeGridData: false
   });
 
   if (spreadsheets.status !== 200) {
@@ -214,7 +214,7 @@ async function verifySheet(
 
 export async function handleInitialConnection(
   clientSecret: ClientSecret,
-  sheetId: string,
+  sheetId: string
 ): Promise<{ verification_url: string; user_code: string }> {
   // TODO: check if the clientSecret has changed
   currentClientSecret = clientSecret;
@@ -242,7 +242,7 @@ export async function handleInitialConnection(
  */
 export async function getWorksheetOptions(sheetId: string): ReturnType<typeof verifySheet> {
   if (!currentAuthClient) {
-    throw new Error('Not authenticated');
+    throw new Error("Not authenticated");
   }
   currentSheetId = sheetId;
 
@@ -250,8 +250,8 @@ export async function getWorksheetOptions(sheetId: string): ReturnType<typeof ve
 }
 
 async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ worksheetId: number; range: string }> {
-  const spreadsheets = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.get({
-    spreadsheetId: sheetId,
+  const spreadsheets = await sheets({ version: "v4", auth: currentAuthClient }).spreadsheets.get({
+    spreadsheetId: sheetId
   });
 
   if (spreadsheets.status !== 200) {
@@ -261,24 +261,24 @@ async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ wo
   const selectedWorksheet = spreadsheets.data.sheets.find((n) => n.properties.title == worksheet);
 
   if (!selectedWorksheet) {
-    throw new Error('Could not find worksheet');
+    throw new Error("Could not find worksheet");
   }
 
   const endCell = getA1Notation(
     selectedWorksheet.properties.gridProperties.rowCount,
-    selectedWorksheet.properties.gridProperties.columnCount,
+    selectedWorksheet.properties.gridProperties.columnCount
   );
   return { worksheetId: selectedWorksheet.properties.sheetId, range: `${worksheet}!A1:${endCell}` };
 }
 
-export async function upload(sheetId: string, options: ExcelImportMap) {
+export async function upload(sheetId: string, options: ImportMap) {
   const { worksheetId, range } = await verifyWorksheet(sheetId, options.worksheet);
 
-  const readResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.values.get({
+  const readResponse = await sheets({ version: "v4", auth: currentAuthClient }).spreadsheets.values.get({
     spreadsheetId: sheetId,
-    valueRenderOption: 'FORMATTED_VALUE',
-    majorDimension: 'ROWS',
-    range,
+    valueRenderOption: "FORMATTED_VALUE",
+    majorDimension: "ROWS",
+    range
   });
 
   if (readResponse.status !== 200) {
@@ -287,7 +287,7 @@ export async function upload(sheetId: string, options: ExcelImportMap) {
 
   const { rundownMetadata } = parseExcel(readResponse.data.values, options);
   const rundown = getRundown();
-  const titleRow = Object.values(rundownMetadata)[0]['row'];
+  const titleRow = Object.values(rundownMetadata)[0]["row"];
   const updateRundown = Array<sheets_v4.Schema$Request>();
 
   // we can't delete the last unfrozen row so we create an empty one
@@ -295,17 +295,17 @@ export async function upload(sheetId: string, options: ExcelImportMap) {
     insertDimension: {
       inheritFromBefore: false,
       range: {
-        dimension: 'ROWS',
+        dimension: "ROWS",
         startIndex: titleRow + 1,
         endIndex: titleRow + 2,
-        sheetId: worksheetId,
-      },
-    },
+        sheetId: worksheetId
+      }
+    }
   });
 
   // ... and delete the rest
   updateRundown.push({
-    deleteDimension: { range: { dimension: 'ROWS', startIndex: titleRow + 2, sheetId: worksheetId } },
+    deleteDimension: { range: { dimension: "ROWS", startIndex: titleRow + 2, sheetId: worksheetId } }
   });
 
   // insert the length of the rundown
@@ -313,26 +313,26 @@ export async function upload(sheetId: string, options: ExcelImportMap) {
     insertDimension: {
       inheritFromBefore: false,
       range: {
-        dimension: 'ROWS',
+        dimension: "ROWS",
         startIndex: titleRow + 1,
         endIndex: titleRow + rundown.length,
-        sheetId: worksheetId,
-      },
-    },
+        sheetId: worksheetId
+      }
+    }
   });
 
   // update the corresponding row with event data
   rundown.forEach((entry, index) =>
-    updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, rundownMetadata)),
+    updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, rundownMetadata))
   );
 
-  const writeResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.batchUpdate({
+  const writeResponse = await sheets({ version: "v4", auth: currentAuthClient }).spreadsheets.batchUpdate({
     spreadsheetId: sheetId,
     requestBody: {
       includeSpreadsheetInResponse: false,
       responseRanges: [range],
-      requests: updateRundown,
-    },
+      requests: updateRundown
+    }
   });
 
   if (writeResponse.status === 200) {
@@ -344,18 +344,18 @@ export async function upload(sheetId: string, options: ExcelImportMap) {
 
 export async function download(
   sheetId: string,
-  options: ExcelImportMap,
+  options: ImportMap
 ): Promise<{
   rundown: OntimeRundown;
   customFields: CustomFields;
 }> {
   const { range } = await verifyWorksheet(sheetId, options.worksheet);
 
-  const googleResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.values.get({
+  const googleResponse = await sheets({ version: "v4", auth: currentAuthClient }).spreadsheets.values.get({
     spreadsheetId: sheetId,
-    valueRenderOption: 'FORMATTED_VALUE',
-    majorDimension: 'ROWS',
-    range,
+    valueRenderOption: "FORMATTED_VALUE",
+    majorDimension: "ROWS",
+    range
   });
 
   if (googleResponse.status !== 200) {
@@ -365,7 +365,7 @@ export async function download(
   const dataFromSheet = parseExcel(googleResponse.data.values, options);
   const rundown = parseRundown(dataFromSheet);
   if (rundown.length < 1) {
-    throw new Error('Sheet: Could not find data to import in the worksheet');
+    throw new Error("Sheet: Could not find data to import in the worksheet");
   }
   const customFields = parseCustomFields(dataFromSheet);
   return { rundown, customFields };

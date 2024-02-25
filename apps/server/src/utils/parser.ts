@@ -1,11 +1,11 @@
 import {
   generateId,
-  isExcelImportMap,
-  type ExcelImportMap,
-  defaultExcelImportMap,
+  isImportMap,
+  type ImportMap,
+  defaultImportMap,
   validateEndAction,
   validateTimerType,
-  type ExcelImportOptions,
+  type ImportOptions,
   validateTimes,
   isKnownTimerType,
   validateLinkStart,
@@ -52,12 +52,12 @@ type ExcelData = Pick<DatabaseModel, 'rundown' | 'customFields'> & {
 /**
  * @description Excel array parser
  * @param {array} excelData - array with excel sheet
- * @param {ExcelImportOptions} options - an object that contains the import map
+ * @param {ImportOptions} options - an object that contains the import map
  * @returns {object} - parsed object
  */
-export const parseExcel = (excelData: unknown[][], options?: Partial<ExcelImportMap>): ExcelData => {
+export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>): ExcelData => {
   const rundownMetadata = {};
-  const importMap: ExcelImportMap = { ...defaultExcelImportMap, ...options };
+  const importMap: ImportMap = { ...defaultImportMap, ...options };
   for (const [key, value] of Object.entries(importMap)) {
     importMap[key] = value.toLocaleLowerCase();
   }
@@ -351,7 +351,7 @@ type ResponseOK = {
  * @param options - import options
  * @return {object} - parse result message
  */
-export const fileHandler = async (file: string, options: ExcelImportOptions): Promise<Partial<ResponseOK>> => {
+export const fileHandler = async (file: string, options: ImportOptions): Promise<Partial<ResponseOK>> => {
   const res: Partial<ResponseOK> = {};
 
   const fileName = path.basename(file);
@@ -359,7 +359,7 @@ export const fileHandler = async (file: string, options: ExcelImportOptions): Pr
   // check which file type are we dealing with
   if (file.endsWith('.xlsx')) {
     // we need to check that the options are applicable
-    if (!isExcelImportMap(options)) {
+    if (!isImportMap(options)) {
       throw new Error('Got incorrect options to excel import');
     }
 

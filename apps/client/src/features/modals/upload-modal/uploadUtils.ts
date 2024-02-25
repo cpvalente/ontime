@@ -1,4 +1,4 @@
-import { ExcelImportMap } from 'ontime-utils';
+import { ImportMap } from 'ontime-utils';
 
 import { ProjectFileImportOptions } from '../../../common/api/ontimeApi';
 
@@ -48,7 +48,7 @@ type PersistedOntimeOptions = {
 
 type PersistedExcelOptions = {
   optionType: 'excel';
-  options: ExcelImportMap;
+  options: ImportMap;
 };
 
 export function persistOptions(options: PersistedOntimeOptions | PersistedExcelOptions) {
