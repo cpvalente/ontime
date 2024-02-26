@@ -13,11 +13,11 @@ import { OntimeRundown } from 'ontime-types';
 
 import { invalidateAllCaches, maybeAxiosError } from '../../../common/api/apiUtils';
 import { ProjectFileImportOptions, uploadProjectFile } from '../../../common/api/ontimeApi';
+import { isOntimeFile } from '../../../common/utils/uploadUtils';
 
 import OntimeFileOptions from './upload-options/OntimeFileOptions';
 import UploadFile from './UploadFile';
 import { useUploadModalContextStore } from './uploadModalContext';
-import { isOntimeFile } from './uploadUtils';
 
 import style from './UploadModal.module.scss';
 

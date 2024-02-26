@@ -2,11 +2,11 @@ import { Fragment } from 'react';
 import { CustomFields, isOntimeBlock, isOntimeEvent, OntimeRundown } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
-import { getAccessibleColour } from '../../../../common/utils/styleUtils';
+import Tag from '../../../../../common/components/tag/Tag';
+import { getAccessibleColour } from '../../../../../common/utils/styleUtils';
+import * as Panel from '../../PanelUtils';
 
-import Tag from './Tag';
-
-import style from './PreviewTable.module.scss';
+import style from './PreviewRundown.module.scss';
 
 interface PreviewRundownProps {
   rundown: OntimeRundown;
@@ -17,16 +17,19 @@ function booleanToText(value?: boolean) {
   return value ? 'Yes' : undefined;
 }
 
-export default function PreviewRundown({ rundown, customFields }: PreviewRundownProps) {
+export default function PreviewRundown(props: PreviewRundownProps) {
+  const { rundown, customFields } = props;
+
   // we only count Ontime Events which are 1 based in client
   let eventIndex = 0;
 
   const fieldHeaders = Object.keys(customFields);
 
   return (
-    <div className={style.container}>
-      <table className={style.rundownPreview}>
-        <thead className={style.header}>
+    <Panel.Section>
+      <Panel.Title>Review Rundown</Panel.Title>
+      <Panel.Table>
+        <thead>
           <tr>
             <th>#</th>
             <th>Type</th>
@@ -49,7 +52,7 @@ export default function PreviewRundown({ rundown, customFields }: PreviewRundown
             ))}
           </tr>
         </thead>
-        <tbody className={style.body}>
+        <tbody>
           {rundown.map((event) => {
             if (isOntimeBlock(event)) {
               return (
@@ -72,6 +75,7 @@ export default function PreviewRundown({ rundown, customFields }: PreviewRundown
             const colour = event.colour ? getAccessibleColour(event.colour) : {};
             const isPublic = booleanToText(event.isPublic);
             const skip = booleanToText(event.skip);
+
             return (
               <Fragment key={event.id}>
                 <tr>
@@ -100,7 +104,13 @@ export default function PreviewRundown({ rundown, customFields }: PreviewRundown
                     <Tag>{event.endAction}</Tag>
                   </td>
                   {isOntimeEvent(event) &&
-                    fieldHeaders.map((field) => <td key={field}>{event.custom?.[field].value}</td>)}
+                    fieldHeaders.map((field) => {
+                      let value = '';
+                      if (field in event.custom) {
+                        value = event.custom[field].value;
+                      }
+                      return <td key={field}>{value}</td>;
+                    })}
                 </tr>
                 {event.note && (
                   <tr>
@@ -113,7 +123,7 @@ export default function PreviewRundown({ rundown, customFields }: PreviewRundown
             );
           })}
         </tbody>
-      </table>
-    </div>
+      </Panel.Table>
+    </Panel.Section>
   );
 }

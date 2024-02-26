@@ -72,16 +72,16 @@ export const dbDownload = async (_req: Request, res: Response) => {
 
 /**
  * Parses a file and returns the result objects
- * @param file
+ * @param filePath
  * @param _req
  * @param _res
  * @param options
  */
-async function parseFile(file, _req: Request, _res: Response, options: ImportOptions) {
-  if (!fs.existsSync(file)) {
+async function parseFile(filePath: string, _req: Request, _res: Response, options: ImportOptions) {
+  if (!fs.existsSync(filePath)) {
     throw new Error('Upload failed');
   }
-  const result = await fileHandler(file, options);
+  const result = await fileHandler(filePath, options);
   return result.data;
 }
 
@@ -379,10 +379,10 @@ export const dbUpload = async (req: Request, res: Response) => {
 };
 
 /**
- * uploads and parses an excel file
+ * uploads and parses an excel spreadsheet
  * @returns parsed result
  */
-export async function previewExcel(req: Request, res: Response) {
+export async function previewSpreadsheet(req: Request, res: Response) {
   if (!req.file) {
     res.status(400).send({ message: 'File not found' });
     return;
@@ -390,8 +390,8 @@ export async function previewExcel(req: Request, res: Response) {
 
   try {
     const options = JSON.parse(req.body.options);
-    const file = req.file.path;
-    const data = await parseFile(file, req, res, options);
+    const filePath = req.file.path;
+    const data = await parseFile(filePath, req, res, options);
     res.status(200).send(data);
   } catch (error) {
     res.status(500).send({ message: String(error) });

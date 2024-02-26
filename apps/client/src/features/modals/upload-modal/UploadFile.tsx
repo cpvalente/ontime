@@ -1,9 +1,10 @@
 import { ChangeEvent, useRef, useState } from 'react';
 import { Input } from '@chakra-ui/react';
 
+import { validateFile } from '../../../common/utils/uploadUtils';
+
 import UploadEntry from './upload-entry/UploadEntry';
 import { useUploadModalContextStore } from './uploadModalContext';
-import { validateFile } from './uploadUtils';
 
 import style from './UploadModal.module.scss';
 

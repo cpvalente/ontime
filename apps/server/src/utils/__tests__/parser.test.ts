@@ -1006,5 +1006,146 @@ describe('parseExcel()', () => {
     expect(parsedData.rundown[1]).toMatchObject(expectedParsedRundown[1]);
   });
 
+  it('parses a file without custom fields', async () => {
+    const testdata = [
+      ['Ontime ┬À Schedule Template'],
+      [],
+      [
+        'Time Start',
+        'Time End',
+        'Title',
+        'Presenter',
+        'Subtitle',
+        'End Action',
+        'Timer type',
+        'Public',
+        'Skip',
+        'Notes',
+        'test0',
+        'test1',
+        'test2',
+        'test3',
+        'test4',
+        'test5',
+        'test6',
+        'test7',
+        'test8',
+        'test9',
+        'Colour',
+        'cue',
+      ],
+      [
+        '1899-12-30T07:00:00.000Z',
+        '1899-12-30T08:00:10.000Z',
+        'Guest Welcome',
+        'Carlos',
+        'Getting things started',
+        '',
+        '',
+        'x',
+        '',
+        'Ballyhoo',
+        'a0',
+        'a1',
+        'a2',
+        'a3',
+        'a4',
+        'a5',
+        'a6',
+        'a7',
+        'a8',
+        'a9',
+        'red',
+        101,
+      ],
+      [
+        '1899-12-30T08:00:00.000Z',
+        '1899-12-30T08:30:00.000Z',
+        'A song from the hearth',
+        'Still Carlos',
+        'Derailing early',
+        'load-next',
+        'clock',
+        '',
+        'x',
+        'Rainbow chase',
+        'b0',
+        '',
+        '',
+        '',
+        '',
+        'b5',
+        '',
+        '',
+        '',
+        '',
+        '#F00',
+        102,
+      ],
+      [],
+    ];
+
+    // partial import map with only custom fields
+    const importMap = {
+      custom: {
+        niu1: 'niu1',
+        niu2: 'niu2',
+      },
+    };
+
+    // TODO: update tests once import is resolved
+    const expectedParsedRundown = [
+      {
+        //timeStart: 28800000,
+        //timeEnd: 32410000,
+        title: 'Guest Welcome',
+        presenter: 'Carlos',
+        subtitle: 'Getting things started',
+        timerType: 'count-down',
+        endAction: 'none',
+        isPublic: true,
+        skip: false,
+        note: 'Ballyhoo',
+        custom: {},
+        colour: 'red',
+        type: 'event',
+        cue: '101',
+      },
+      {
+        //timeStart: 32400000,
+        //timeEnd: 34200000,
+        title: 'A song from the hearth',
+        presenter: 'Still Carlos',
+        subtitle: 'Derailing early',
+        timerType: 'clock',
+        endAction: 'load-next',
+        isPublic: false,
+        skip: true,
+        note: 'Rainbow chase',
+        custom: {},
+        colour: '#F00',
+        type: 'event',
+        cue: '102',
+      },
+    ];
+
+    const parsedData = parseExcel(testdata, importMap);
+    expect(parsedData.customFields).toStrictEqual({
+      niu1: {
+        type: 'string',
+        colour: '',
+        label: 'niu1',
+      },
+      niu2: {
+        type: 'string',
+        colour: '',
+        label: 'niu2',
+      },
+    });
+    expect(parsedData.rundown.length).toBe(2);
+    expect(parsedData.rundown[0]).toMatchObject(expectedParsedRundown[0]);
+    expect(parsedData.rundown[1]).toMatchObject(expectedParsedRundown[1]);
+  });
+
   it.todo('imports events and blocks, ignores otherwise', () => {});
 });

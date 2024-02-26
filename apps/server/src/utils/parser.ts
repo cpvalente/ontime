@@ -398,7 +398,7 @@ export const fileHandler = async (file: string, options: ImportOptions): Promise
   if (file.endsWith('.xlsx')) {
     // we need to check that the options are applicable
     if (!isImportMap(options)) {
-      throw new Error('Got incorrect options to excel import');
+      throw new Error('Got incorrect options for spreadsheet import');
     }
 
     const excelData = xlsx

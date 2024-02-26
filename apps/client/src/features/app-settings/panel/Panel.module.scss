@@ -61,14 +61,22 @@ $inner-padding: 1rem;
   font-size: calc(1rem - 2px);
   text-align: left;
 
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    box-shadow: 0 1px $white-10;
+  }
+
   tr {
     padding: 1rem 0;
   }
 
   th {
-    border-bottom: 1px solid $white-10;
     font-weight: 400;
     color: $gray-400;
+    background-color: $gray-1350;
+    white-space: nowrap;
   }
 
   th,

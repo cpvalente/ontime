@@ -1,8 +1,7 @@
 import { Button } from '@chakra-ui/react';
 import { CustomFields, OntimeRundown } from 'ontime-types';
 
-import PreviewExcel from '../../../modals/upload-modal/preview/PreviewExcel';
-
+import PreviewSpreadsheet from './preview/PreviewRundown';
 import useGoogleSheet from './useGoogleSheet';
 import { useSheetStore } from './useSheetStore';
 
@@ -23,7 +22,7 @@ export default function ImportReview({ rundown, customFields }: ImportReviewProp
 
   return (
     <>
-      <PreviewExcel rundown={rundown} customFields={customFields} />
+      <PreviewSpreadsheet rundown={rundown} customFields={customFields} />
       <div className={style.buttonRow}>
         <Button onClick={resetPreview} variant='ontime-ghosted' size='sm'>
           Cancel

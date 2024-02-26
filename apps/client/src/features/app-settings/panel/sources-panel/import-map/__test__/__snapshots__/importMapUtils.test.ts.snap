@@ -1,0 +1,27 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`makeImportMap() > generates an import map from a list of TableEntries 1`] = `
+{
+  "colour": "colour",
+  "cue": "cue",
+  "custom": {
+    "lighting": "lx",
+    "sound": "sound",
+    "video": "av",
+  },
+  "duration": "duration",
+  "endAction": "end action",
+  "isPublic": "public",
+  "note": "notes",
+  "presenter": "presenter",
+  "skip": "skip",
+  "subtitle": "subtitle",
+  "timeDanger": "danger time",
+  "timeEnd": "time end",
+  "timeStart": "time start",
+  "timeWarning": "warning time",
+  "timerType": "timer type",
+  "title": "title",
+  "worksheet": "event schedule",
+}
+`;

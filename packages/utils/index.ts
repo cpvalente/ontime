@@ -55,6 +55,7 @@ export { deepmerge } from './src/externals/deepmerge.js';
 export { deleteAtIndex, insertAtIndex, reorderArray, sortArrayByProperty } from './src/array-utils/arrayUtils.js';
 
 // generic utilities
+export { unpackError } from './src/generic/generic.js';
 export { isNumeric } from './src/types/types.js';
 
 // model validation

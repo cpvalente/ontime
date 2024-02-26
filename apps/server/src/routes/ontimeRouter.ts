@@ -15,7 +15,7 @@ import {
   postOSC,
   postSettings,
   postViewSettings,
-  previewExcel,
+  previewSpreadsheet,
   postHTTP,
   duplicateProjectFile,
   listProjects,
@@ -58,12 +58,12 @@ router.get('/db', dbDownload);
 // create route between controller and '/ontime/db' endpoint
 router.post('/db', uploadFile, dbUpload);
 
-// create route between controller and '/ontime/excel' endpoint
+// create route between controller and '/ontime/db' endpoint
 router.patch('/db', validatePatchProjectFile, patchPartialProjectFile);
 
-// create route between controller and '/ontime/preview-spreadsheet' endpoint
+// create route between controller and '/spreadsheet/preview' endpoint
 // TODO: validate import map
-router.post('/preview-spreadsheet', uploadFile, previewExcel);
+router.post('/spreadsheet/preview', uploadFile, previewSpreadsheet);
 
 // create route between controller and '/ontime/settings' endpoint
 router.get('/settings', getSettings);

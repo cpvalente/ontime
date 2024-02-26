@@ -1,5 +1,4 @@
-// TODO: add type which allows importing blocks
-import { ImportMap } from 'ontime-utils';
+import { defaultImportMap, ImportMap } from 'ontime-utils';
 
 export type TableEntry = { label: string; ontimeName: keyof ImportMap | string; importName: string };
 
@@ -39,4 +38,19 @@ export function makeImportPreview(importOptions: ImportMap) {
   const ontimeFields = makeOntimeFields(importOptions);
   const customFields = makeCustomFields(importOptions);
   return { ontimeFields, customFields };
+}
+
+export function makeImportMap(entries: TableEntry[]) {
+  const importMap: ImportMap = { ...defaultImportMap };
+  for (const entry of entries) {
+    if (Array.isArray(entry)) {
+      for (const customEntry of entry) {
+        importMap.custom[customEntry.ontimeName] = customEntry.importName;
+      }
+    } else {
+      // @ts-expect-error -- its ok
+      importMap[entry.ontimeName] = entry.importName;
+    }
+  }
+  return importMap;
 }

@@ -171,12 +171,11 @@ export const uploadProjectFile = async (
  * @description Make patch changes to the objects in the db
  * @return {Promise}
  */
-export async function patchData(patchDb: Partial<DatabaseModel>) {
-  const response = await axios.patch(`${ontimeURL}/db`, patchDb);
-  return response;
+export async function patchData(patchDb: Partial<DatabaseModel>): Promise<void> {
+  return await axios.patch(`${ontimeURL}/db`, patchDb);
 }
 
-type PostPreviewExcelResponse = {
+type PreviewSpreadsheetResponse = {
   rundown: OntimeRundown;
   customFields: CustomFields;
 };
@@ -185,26 +184,22 @@ type PostPreviewExcelResponse = {
  * @description Make patch changes to the objects in the db
  * @return {Promise} - returns parsed rundown and customFields
  */
-export async function postPreviewExcel(file: File, setProgress: (value: number) => void, options?: ImportMap) {
+export async function importSpreadsheetPreview(file: File, options: ImportMap): Promise<PreviewSpreadsheetResponse> {
   const formData = new FormData();
   formData.append('userFile', file);
   formData.append('options', JSON.stringify(options));
 
-  const response: AxiosResponse<PostPreviewExcelResponse> = await axios.post(
-    `${ontimeURL}/preview-spreadsheet`,
+  const response: AxiosResponse<PreviewSpreadsheetResponse> = await axios.post(
+    `${ontimeURL}/spreadsheet/preview`,
     formData,
     {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-      onUploadProgress: (progressEvent) => {
-        const complete = progressEvent?.total ? Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
-        setProgress(complete);
-      },
     },
   );
 
-  return response;
+  return response.data;
 }
 
 export type HasUpdate = {
@@ -353,11 +348,17 @@ export async function createProject(
   return res.data;
 }
 
+/**
+ * Requests list of known custom fields
+ */
 export async function getCustomFields(): Promise<CustomFields> {
   const res = await axios.get(`${projectDataURL}/custom-field`);
   return res.data;
 }
 
+/**
+ * Sets list of known custom fields
+ */
 export async function postCustomField(newField: CustomField): Promise<CustomFields> {
   const res = await axios.post(`${projectDataURL}/custom-field`, {
     ...newField,
@@ -365,6 +366,9 @@ export async function postCustomField(newField: CustomField): Promise<CustomFiel
   return res.data;
 }
 
+/**
+ * Edits single custom field
+ */
 export async function editCustomField(label: CustomFieldLabel, newField: CustomField): Promise<CustomFields> {
   const res = await axios.put(`${projectDataURL}/custom-field/${label}`, {
     ...newField,
@@ -372,6 +376,9 @@ export async function editCustomField(label: CustomFieldLabel, newField: CustomF
   return res.data;
 }
 
+/**
+ * Deletes single custom field
+ */
 export async function deleteCustomField(label: CustomFieldLabel): Promise<CustomFields> {
   const res = await axios.delete(`${projectDataURL}/custom-field/${label}`);
   return res.data;

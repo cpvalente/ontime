@@ -6,6 +6,9 @@ type SheetStore = {
   stepData: typeof initialStepData;
   patchStepData: (patch: Partial<typeof initialStepData>) => void;
 
+  spreadsheet: File | null;
+  setSpreadsheet: (spreadsheet: File | null) => void;
+
   sheetId: string | null;
   setSheetId: (sheetId: string | null) => void;
 
@@ -37,6 +40,7 @@ const initialStepData = {
 
 const initialState = {
   stepData: initialStepData,
+  spreadsheet: null,
   sheetId: null,
   authenticationStatus: 'not_authenticated' as AuthenticationStatus,
   rundown: null,
@@ -51,6 +55,8 @@ export const useSheetStore = create<SheetStore>((set, get) => ({
     const stepData = get().stepData;
     set({ stepData: { ...stepData, ...patch } });
   },
+
+  setSpreadsheet: (spreadsheet: File | null) => set({ spreadsheet }),
 
   setSheetId: (sheetId: string | null) => set({ sheetId }),
 

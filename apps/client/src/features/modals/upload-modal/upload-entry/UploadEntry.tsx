@@ -3,7 +3,7 @@ import { IoClose } from '@react-icons/all-files/io5/IoClose';
 import { IoDocumentTextOutline } from '@react-icons/all-files/io5/IoDocumentTextOutline';
 import { IoWarningOutline } from '@react-icons/all-files/io5/IoWarningOutline';
 
-import { isOntimeFile } from '../uploadUtils';
+import { isOntimeFile } from '../../../../common/utils/uploadUtils';
 
 import style from './UploadEntry.module.scss';
 
