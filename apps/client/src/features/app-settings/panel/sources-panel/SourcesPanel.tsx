@@ -99,9 +99,9 @@ export default function SourcesPanel() {
       <Panel.Header>Data sources</Panel.Header>
       <Panel.Section>
         <Panel.Card>
+          <Panel.SubHeader>Synchronise your rundown with an external source</Panel.SubHeader>
           {showInput && (
             <>
-              <Panel.SubHeader>Synchronise your rundown with an external source</Panel.SubHeader>
               <GSheetInfo />
               <Input
                 ref={fileInputRef}

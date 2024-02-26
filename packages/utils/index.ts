@@ -65,6 +65,7 @@ export { validateEndAction, validateTimerType } from './src/validate-events/vali
 
 // feature business logic - spreadsheet import
 export {
+  type ImportCustom,
   type ImportMap,
   type ImportOptions,
   defaultImportMap,

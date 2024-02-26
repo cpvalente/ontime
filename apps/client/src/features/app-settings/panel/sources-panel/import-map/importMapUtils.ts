@@ -1,56 +1,53 @@
-import { defaultImportMap, ImportMap } from 'ontime-utils';
+import { ImportCustom, ImportMap } from 'ontime-utils';
 
-export type TableEntry = { label: string; ontimeName: keyof ImportMap | string; importName: string };
+export type NamedImportMap = typeof namedImportMap;
 
-function makeOntimeFields(importOptions: ImportMap): TableEntry[] {
-  return [
-    { label: 'Worksheet', ontimeName: 'worksheet', importName: importOptions.worksheet },
-    { label: 'Start time', ontimeName: 'timeStart', importName: importOptions.timeStart },
-    { label: 'End Time', ontimeName: 'timeEnd', importName: importOptions.timeEnd },
-    { label: 'Duration', ontimeName: 'duration', importName: importOptions.duration },
-    { label: 'Warning Time', ontimeName: 'timeWarning', importName: importOptions.timeWarning },
-    { label: 'Danger Time', ontimeName: 'timeDanger', importName: importOptions.timeDanger },
-    { label: 'Cue', ontimeName: 'cue', importName: importOptions.cue },
-    { label: 'Colour', ontimeName: 'colour', importName: importOptions.colour },
-    { label: 'Title', ontimeName: 'title', importName: importOptions.title },
-    { label: 'Presenter', ontimeName: 'presenter', importName: importOptions.presenter },
-    { label: 'Subtitle', ontimeName: 'subtitle', importName: importOptions.subtitle },
-    { label: 'Note', ontimeName: 'note', importName: importOptions.note },
-    { label: 'Is Public', ontimeName: 'isPublic', importName: importOptions.isPublic },
-    { label: 'Skip', ontimeName: 'skip', importName: importOptions.skip },
-    { label: 'Timer Type', ontimeName: 'timerType', importName: importOptions.timerType },
-    { label: 'End Action', ontimeName: 'endAction', importName: importOptions.endAction },
-  ];
-}
+// Record of label and import name
+export const namedImportMap = {
+  Worksheet: 'event schedule',
+  Start: 'time start',
+  End: 'time end',
+  Duration: 'duration',
+  Cue: 'cue',
+  Title: 'title',
+  Presenter: 'presenter',
+  Subtitle: 'subtitle',
+  'Is Public': 'public',
+  Skip: 'skip',
+  Note: 'notes',
+  Colour: 'colour',
+  'End action': 'end action',
+  'Timer type': 'timer type',
+  'Time warning': 'warning time',
+  'Time danger': 'danger time',
+  custom: [] as ImportCustom[],
+};
 
-function makeCustomFields(importOptions: ImportMap): TableEntry[] {
-  const customFieldsImportMap: TableEntry[] = [];
-  if (Object.hasOwn(importOptions, 'custom')) {
-    for (const field in importOptions.custom) {
-      const importName = importOptions.custom[field];
-      customFieldsImportMap.push({ label: field, ontimeName: field, importName });
+export function convertToImportMap(namedImportMap: NamedImportMap): ImportMap {
+  const custom = namedImportMap.custom.reduce((accumulator, { ontimeName, importName }) => {
+    if (ontimeName && importName) {
+      accumulator[ontimeName.trim()] = importName.trim();
     }
-  }
-  return customFieldsImportMap;
-}
+    return accumulator;
+  }, {});
 
-export function makeImportPreview(importOptions: ImportMap) {
-  const ontimeFields = makeOntimeFields(importOptions);
-  const customFields = makeCustomFields(importOptions);
-  return { ontimeFields, customFields };
-}
-
-export function makeImportMap(entries: TableEntry[]) {
-  const importMap: ImportMap = { ...defaultImportMap };
-  for (const entry of entries) {
-    if (Array.isArray(entry)) {
-      for (const customEntry of entry) {
-        importMap.custom[customEntry.ontimeName] = customEntry.importName;
-      }
-    } else {
-      // @ts-expect-error -- its ok
-      importMap[entry.ontimeName] = entry.importName;
-    }
-  }
-  return importMap;
+  return {
+    worksheet: namedImportMap.Worksheet,
+    timeStart: namedImportMap.Start,
+    timeEnd: namedImportMap.End,
+    duration: namedImportMap.Duration,
+    cue: namedImportMap.Cue,
+    title: namedImportMap.Title,
+    presenter: namedImportMap.Presenter,
+    subtitle: namedImportMap.Subtitle,
+    isPublic: namedImportMap['Is Public'],
+    skip: namedImportMap.Skip,
+    note: namedImportMap.Note,
+    colour: namedImportMap.Colour,
+    endAction: namedImportMap['End action'],
+    timerType: namedImportMap['Timer type'],
+    timeWarning: namedImportMap['Time warning'],
+    timeDanger: namedImportMap['Time danger'],
+    custom,
+  };
 }

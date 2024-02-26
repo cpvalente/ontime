@@ -1,6 +1,8 @@
 export type ImportOptions = keyof typeof defaultImportMap | 'custom';
-export type ImportMap = typeof defaultImportMap & { custom: Record<string, string> };
+export type ImportCustom = Record<string, string>;
+export type ImportMap = typeof defaultImportMap & { custom: ImportCustom };
 
+// Record of ontime name and import name
 export const defaultImportMap = {
   worksheet: 'event schedule',
   timeStart: 'time start',
