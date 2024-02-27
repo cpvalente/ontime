@@ -414,7 +414,7 @@ export const fileHandler = async (file: string, options: ImportOptions): Promise
     res.data = {};
     res.data.rundown = parseRundown(dataFromExcel);
     if (res.data.rundown.length < 1) {
-      throw new Error(`Could not find data to import in the worksheet ${options.worksheet}`);
+      throw new Error(`Could not find data to import in the worksheet: ${options.worksheet}`);
     }
     res.data.customFields = parseCustomFields(dataFromExcel);
 

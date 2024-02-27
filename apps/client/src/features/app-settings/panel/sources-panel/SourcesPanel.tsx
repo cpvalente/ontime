@@ -16,6 +16,7 @@ import useGoogleSheet from './useGoogleSheet';
 import { useSheetStore } from './useSheetStore';
 
 import style from './SourcesPanel.module.scss';
+import { maybeAxiosError } from '../../../../common/api/apiUtils';
 
 export default function SourcesPanel() {
   const [importFlow, setImportFlow] = useState<'none' | 'excel' | 'gsheet'>('none');
@@ -67,9 +68,13 @@ export default function SourcesPanel() {
   const handleSubmitImportPreview = async (importMap: ImportMap) => {
     if (importFlow === 'excel') {
       if (!spreadsheet) return;
-      const previewData = await importSpreadsheetPreview(spreadsheet, importMap);
-      setRundown(previewData.rundown);
-      setCustomFields(previewData.customFields);
+      try {
+        const previewData = await importSpreadsheetPreview(spreadsheet, importMap);
+        setRundown(previewData.rundown);
+        setCustomFields(previewData.customFields);
+      } catch (error) {
+        setError(maybeAxiosError(error));
+      }
     }
 
     if (importFlow === 'gsheet') {
@@ -115,6 +120,7 @@ export default function SourcesPanel() {
       <Panel.Section>
         <Panel.Card>
           <Panel.SubHeader>Synchronise your rundown with an external source</Panel.SubHeader>
+          {error && <Panel.Error>{error}</Panel.Error>}
           {showInput && (
             <>
               <GSheetInfo />
@@ -140,7 +146,6 @@ export default function SourcesPanel() {
                   <Panel.Description>Start authentication process</Panel.Description>
                 </div>
               </div>
-              {error && <Panel.Error>{error}</Panel.Error>}
             </>
           )}
           {showAuth && <GSheetSetup onCancel={cancelGSheetFlow} />}
