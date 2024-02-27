@@ -16,25 +16,7 @@ import style from './EventEditor.module.scss';
 
 export type EventEditorSubmitActions = keyof OntimeEvent;
 
-// TODO: this logic will become dynamic
-export type EditorUpdateFields =
-  | 'cue'
-  | 'title'
-  | 'presenter'
-  | 'subtitle'
-  | 'note'
-  | 'colour'
-  | 'user0'
-  | 'user1'
-  | 'user2'
-  | 'user3'
-  | 'user4'
-  | 'user5'
-  | 'user6'
-  | 'user7'
-  | 'user8'
-  | 'user9'
-  | CustomFieldLabel; // TODO: keyof customFields
+export type EditorUpdateFields = 'cue' | 'title' | 'presenter' | 'subtitle' | 'note' | 'colour' | CustomFieldLabel; // TODO: keyof customFields
 
 export default function EventEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
@@ -85,8 +67,6 @@ export default function EventEditor() {
     );
   }
 
-  const customKeys = Object.keys(customFields ?? {});
-
   return (
     <div className={style.eventEditor} data-testid='editor-container'>
       <div className={style.content}>
@@ -123,13 +103,17 @@ export default function EventEditor() {
               Manage
             </Button>
           </div>
-          {customKeys.map((label) => {
+          {Object.keys(customFields).map((label) => {
+            const key = `${event.id}-${label}`;
+            const fieldName = `custom-${label}`;
+            const initialValue = event.custom[label]?.value ?? '';
+
             return (
               <EventTextArea
-                key={`${event.id}-${label}`}
-                field={`custom-${label}`}
+                key={key}
+                field={fieldName}
                 label={label}
-                initialValue={event.custom[label]?.value ?? ''}
+                initialValue={initialValue}
                 submitHandler={handleSubmit}
                 className={style.decorated}
                 style={{ '--decorator-color': customFields[label].colour } as CSSProperties}

@@ -13,7 +13,7 @@ test('test project file upload', async ({ page }) => {
   // https://playwright.dev/docs/api/class-filechooser
   const [fileChooser] = await Promise.all([
     page.waitForEvent('filechooser'),
-    await page.getByText('Click to select Ontime project or xlsx rundown').click(),
+    await page.getByText('Click to select Ontime project').click(),
   ]);
 
   await fileChooser.setFiles(fileToUpload);

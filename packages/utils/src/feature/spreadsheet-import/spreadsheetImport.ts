@@ -1,7 +1,9 @@
-export type ExcelImportOptions = keyof typeof defaultExcelImportMap;
-export type ExcelImportMap = typeof defaultExcelImportMap;
+export type ImportOptions = keyof typeof defaultImportMap | 'custom';
+export type ImportCustom = Record<string, string>;
+export type ImportMap = typeof defaultImportMap & { custom: ImportCustom };
 
-export const defaultExcelImportMap = {
+// Record of ontime name and import name
+export const defaultImportMap = {
   worksheet: 'event schedule',
   timeStart: 'time start',
   timeEnd: 'time end',
@@ -16,25 +18,20 @@ export const defaultExcelImportMap = {
   colour: 'colour',
   endAction: 'end action',
   timerType: 'timer type',
-  user0: 'user0',
-  user1: 'user1',
-  user2: 'user2',
-  user3: 'user3',
-  user4: 'user4',
-  user5: 'user5',
-  user6: 'user6',
-  user7: 'user7',
-  user8: 'user8',
-  user9: 'user9',
   timeWarning: 'warning time',
   timeDanger: 'danger time',
+  custom: {},
 };
 
-export function isExcelImportMap(obj: unknown): obj is ExcelImportMap {
+/**
+ * Validates whether an object is an Import Map
+ * @param obj
+ */
+export function isImportMap(obj: unknown): obj is ImportMap {
   if (typeof obj !== 'object' || obj === null) {
     return false;
   }
 
-  const keys = Object.keys(defaultExcelImportMap);
+  const keys = Object.keys(defaultImportMap);
   return keys.every((key) => Object.hasOwn(obj, key));
 }

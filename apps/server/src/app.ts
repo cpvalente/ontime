@@ -153,11 +153,12 @@ export const startServer = async () => {
   checkStart(OntimeStartOrder.InitServer);
 
   const { serverPort } = DataProvider.getSettings();
+
   const returnMessage = `Ontime is listening on port ${serverPort}`;
 
   expressServer = http.createServer(app);
-
   socket.init(expressServer);
+  logger.info(LogOrigin.Server, returnMessage);
 
   /**
    * Module initialises the services and provides initial payload for the store

@@ -8,16 +8,14 @@ import {
   getOSC,
   getHTTP,
   getSettings,
-  getUserFields,
   getViewSettings,
   patchPartialProjectFile,
   poll,
   postAliases,
   postOSC,
   postSettings,
-  postUserFields,
   postViewSettings,
-  previewExcel,
+  previewSpreadsheet,
   postHTTP,
   duplicateProjectFile,
   listProjects,
@@ -32,7 +30,6 @@ import {
   validateOSC,
   validatePatchProjectFile,
   validateSettings,
-  validateUserFields,
   viewValidator,
   validateHTTP,
   validateProjectDuplicate,
@@ -61,11 +58,12 @@ router.get('/db', dbDownload);
 // create route between controller and '/ontime/db' endpoint
 router.post('/db', uploadFile, dbUpload);
 
-// create route between controller and '/ontime/excel' endpoint
+// create route between controller and '/ontime/db' endpoint
 router.patch('/db', validatePatchProjectFile, patchPartialProjectFile);
 
-// create route between controller and '/ontime/preview-spreadsheet' endpoint
-router.post('/preview-spreadsheet', uploadFile, previewExcel);
+// create route between controller and '/spreadsheet/preview' endpoint
+// TODO: validate import map
+router.post('/spreadsheet/preview', uploadFile, previewSpreadsheet);
 
 // create route between controller and '/ontime/settings' endpoint
 router.get('/settings', getSettings);
@@ -84,12 +82,6 @@ router.get('/aliases', getAliases);
 
 // create route between controller and '/ontime/aliases' endpoint
 router.post('/aliases', validateAliases, postAliases);
-
-// create route between controller and '/ontime/aliases' endpoint
-router.get('/userfields', getUserFields);
-
-// create route between controller and '/ontime/aliases' endpoint
-router.post('/userfields', validateUserFields, postUserFields);
 
 // create route between controller and '/ontime/info' endpoint
 router.get('/info', getInfo);

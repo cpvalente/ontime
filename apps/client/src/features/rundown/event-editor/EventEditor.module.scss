@@ -7,10 +7,12 @@
   display: flex;
   flex-direction: column;
   overflow-x: auto;
+
 }
 
 .content {
   padding-right: 4px;
+  padding-bottom: 4rem;
 
   flex: 1;
   display: flex;
@@ -44,6 +46,7 @@
   font-size: calc(1rem - 3px);
   color: $label-gray;
   margin-bottom: 0.25rem;
+  text-transform: capitalize;
 }
 
 .delayLabel {

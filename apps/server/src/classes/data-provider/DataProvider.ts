@@ -8,7 +8,6 @@ import {
   ViewSettings,
   DatabaseModel,
   OSCSettings,
-  UserFields,
   Alias,
   Settings,
   CustomFields,
@@ -75,21 +74,12 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getUserFields() {
-    return { ...data.userFields };
-  }
-
   static getViewSettings() {
     return { ...data.viewSettings };
   }
 
   static async setViewSettings(newData: ViewSettings) {
     data.viewSettings = { ...newData };
-    await this.persist();
-  }
-
-  static async setUserFields(newData: UserFields) {
-    data.userFields = { ...newData };
     await this.persist();
   }
 
@@ -124,7 +114,6 @@ export class DataProvider {
     data.osc = mergedData.osc;
     data.http = mergedData.http;
     data.aliases = mergedData.aliases;
-    data.userFields = mergedData.userFields;
     data.customFields = mergedData.customFields;
     data.rundown = mergedData.rundown;
     await this.persist();

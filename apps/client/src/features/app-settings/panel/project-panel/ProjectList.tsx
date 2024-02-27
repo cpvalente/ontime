@@ -72,7 +72,7 @@ export default function ProjectList({ isCreatingProject, onToggleCreate }: Proje
     <Panel.Table>
       <thead>
         <tr>
-          <th>Project Name</th>
+          <th className={style.containCell}>Project Name</th>
           <th>Date Created</th>
           <th>Date Modified</th>
           <th />

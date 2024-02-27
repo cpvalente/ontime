@@ -4,7 +4,7 @@
  * @link https://developers.google.com/identity/protocols/oauth2/limited-input-device
  */
 
-import { AuthenticationStatus, LogOrigin, MaybeString, OntimeRundown, UserFields } from 'ontime-types';
+import { AuthenticationStatus, CustomFields, LogOrigin, MaybeString, OntimeRundown } from 'ontime-types';
 
 import { sheets, sheets_v4 } from '@googleapis/sheets';
 import { Credentials, OAuth2Client } from 'google-auth-library';
@@ -13,10 +13,10 @@ import got from 'got';
 import { resolveSheetsDirectory } from '../../setup.js';
 import { ensureDirectory } from '../../utils/fileManagement.js';
 import { type ClientSecret, cellRequestFromEvent, getA1Notation, validateClientSecret } from './sheetUtils.js';
-import { ExcelImportMap } from 'ontime-utils';
+import { ImportMap } from 'ontime-utils';
 import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
-import { parseRundown, parseUserFields } from '../../utils/parserFunctions.js';
+import { parseCustomFields, parseRundown } from '../../utils/parserFunctions.js';
 import { getRundown } from '../rundown-service/rundownUtils.js';
 
 const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';
@@ -258,7 +258,9 @@ async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ wo
     throw new Error(`Request failed: ${spreadsheets.status} ${spreadsheets.statusText}`);
   }
 
-  const selectedWorksheet = spreadsheets.data.sheets.find((n) => n.properties.title == worksheet);
+  const selectedWorksheet = spreadsheets.data.sheets.find(
+    (n) => n.properties.title.toLowerCase() === worksheet.toLowerCase(),
+  );
 
   if (!selectedWorksheet) {
     throw new Error('Could not find worksheet');
@@ -271,7 +273,7 @@ async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ wo
   return { worksheetId: selectedWorksheet.properties.sheetId, range: `${worksheet}!A1:${endCell}` };
 }
 
-export async function upload(sheetId: string, options: ExcelImportMap) {
+export async function upload(sheetId: string, options: ImportMap) {
   const { worksheetId, range } = await verifyWorksheet(sheetId, options.worksheet);
 
   const readResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.values.get({
@@ -344,10 +346,10 @@ export async function upload(sheetId: string, options: ExcelImportMap) {
 
 export async function download(
   sheetId: string,
-  options: ExcelImportMap,
+  options: ImportMap,
 ): Promise<{
   rundown: OntimeRundown;
-  userFields: UserFields;
+  customFields: CustomFields;
 }> {
   const { range } = await verifyWorksheet(sheetId, options.worksheet);
 
@@ -367,6 +369,6 @@ export async function download(
   if (rundown.length < 1) {
     throw new Error('Sheet: Could not find data to import in the worksheet');
   }
-  const userFields = parseUserFields(dataFromSheet);
-  return { rundown, userFields };
+  const customFields = parseCustomFields(dataFromSheet);
+  return { rundown, customFields };
 }

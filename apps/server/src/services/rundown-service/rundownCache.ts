@@ -62,6 +62,7 @@ export async function setRundown(initialRundown: OntimeRundown) {
   generate();
   await DataProvider.setRundown(persistedRundown);
 }
+
 /**
  * Utility initialises cache
  * @param rundown
@@ -88,10 +89,6 @@ export function generate(
     if (isOntimeEvent(updatedEvent)) {
       // 1. handle links
       handleLink(i, initialRundown, updatedEvent, links);
-
-      // TODO: wait until the next thing?
-      // update the persisted event
-      initialRundown[i] = updatedEvent;
 
       // 2. handle custom fields
       handleCustomField(customFields, customFieldChangelog, updatedEvent, assignedCustomFields);
@@ -196,14 +193,12 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
       console.timeEnd('rundownCache__init');
     });
 
-    // TODO: should we trottle this?
+    // TODO: should we throttle this?
     // defer writing to the database
     setImmediate(() => {
-      console.log('writing to database', persistedRundown.length);
       DataProvider.setRundown(persistedRundown);
     });
 
-    // TODO: could we return a patch object?
     return { newEvent };
   }
 
