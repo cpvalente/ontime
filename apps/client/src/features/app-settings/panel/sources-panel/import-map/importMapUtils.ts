@@ -53,11 +53,11 @@ export function convertToImportMap(namedImportMap: NamedImportMap): ImportMap {
 }
 
 export function persistImportMap(options: NamedImportMap) {
-  localStorage.setItem(`ontime-import-options`, JSON.stringify(options));
+  localStorage.setItem('ontime-import-options', JSON.stringify(options));
 }
 
 export function getPersistedOptions(): NamedImportMap {
-  const options = localStorage.getItem(`ontime-import-options`);
+  const options = localStorage.getItem('ontime-import-options');
   if (!options) {
     return namedImportMap;
   }
