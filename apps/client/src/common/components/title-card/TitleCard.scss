@@ -33,4 +33,8 @@
   font-size: clamp(1.5rem, 2vw, 2.25rem);
   color: var(--secondary-color-override, $viewer-secondary-color);
   line-height: 1.1em;
+
+  &::after {
+    content: '\200b';
+  }
 }

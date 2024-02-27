@@ -2,6 +2,13 @@ import { CustomFields } from 'ontime-types';
 
 import { ParamField } from './types';
 
+const makeOptionsFromCustomFields = (customFields: CustomFields, additionalOptions?: Record<string, string>) => {
+  const customFieldOptions = Object.keys(customFields).reduce((acc, key) => {
+    return { ...acc, [`custom-${key}`]: key };
+  }, additionalOptions ?? {});
+  return customFieldOptions;
+};
+
 const getTimeOption = (timeFormat: string): ParamField => {
   const placeholder = `${timeFormat} (default)`;
   return {
@@ -93,45 +100,56 @@ export const getClockOptions = (timeFormat: string): ParamField[] => [
   },
 ];
 
-export const getTimerOptions = (timeFormat: string): ParamField[] => [
-  getTimeOption(timeFormat),
-  hideTimerSeconds,
-  {
-    id: 'hideClock',
-    title: 'Hide Time Now',
-    description: 'Hides the Time Now field',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'hideCards',
-    title: 'Hide Cards',
-    description: 'Hides the Now and Next cards',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'hideProgress',
-    title: 'Hide progress bar',
-    description: 'Hides the progress bar',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'hideMessage',
-    title: 'Hide Presenter Message',
-    description: 'Prevents the screen from displaying messages from the presenter',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'hideExternal',
-    title: 'Hide External',
-    description: 'Prevents the screen from displaying the external field',
-    type: 'boolean',
-    defaultValue: false,
-  },
-];
+export const getTimerOptions = (timeFormat: string, customFields: CustomFields): ParamField[] => {
+  const secondaryOptions = makeOptionsFromCustomFields(customFields);
+  return [
+    getTimeOption(timeFormat),
+    hideTimerSeconds,
+    {
+      id: 'hideClock',
+      title: 'Hide Time Now',
+      description: 'Hides the Time Now field',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      id: 'secondary-src',
+      title: 'Secondary text',
+      description: 'Select the data source for the secondary text',
+      type: 'option',
+      values: secondaryOptions,
+      defaultValue: '',
+    },
+    {
+      id: 'hideCards',
+      title: 'Hide Cards',
+      description: 'Hides the Now and Next cards',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      id: 'hideProgress',
+      title: 'Hide progress bar',
+      description: 'Hides the progress bar',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      id: 'hideMessage',
+      title: 'Hide Presenter Message',
+      description: 'Prevents the screen from displaying messages from the presenter',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      id: 'hideExternal',
+      title: 'Hide External',
+      description: 'Prevents the screen from displaying the external field',
+      type: 'boolean',
+      defaultValue: false,
+    },
+  ];
+};
 
 export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
   hideTimerSeconds,
@@ -252,7 +270,7 @@ export const LOWER_THIRD_OPTIONS: ParamField[] = [
   {
     id: 'bottom-src',
     title: 'Bottom Text',
-    description: 'Select the text source for the bottom element',
+    description: 'Select the data source for the bottom element',
     type: 'option',
     values: {
       title: 'Title',
@@ -346,30 +364,42 @@ export const LOWER_THIRD_OPTIONS: ParamField[] = [
   },
 ];
 
-export const getBackstageOptions = (timeFormat: string): ParamField[] => [
-  getTimeOption(timeFormat),
-  {
-    id: 'hidePast',
-    title: 'Hide past events',
-    description: 'Scheduler will only show upcoming events',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'stopCycle',
-    title: 'Stop cycling through event pages',
-    description: 'Schedule will not auto-cycle through events',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'eventsPerPage',
-    title: 'Events per page',
-    description: 'Sets the number of events on the page, can cause overlow',
-    type: 'number',
-    placeholder: '7 (default)',
-  },
-];
+export const getBackstageOptions = (timeFormat: string, customFields: CustomFields): ParamField[] => {
+  const secondaryOptions = makeOptionsFromCustomFields(customFields, { note: 'Note' });
+
+  return [
+    getTimeOption(timeFormat),
+    {
+      id: 'hidePast',
+      title: 'Hide past events',
+      description: 'Scheduler will only show upcoming events',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      id: 'stopCycle',
+      title: 'Stop cycling through event pages',
+      description: 'Schedule will not auto-cycle through events',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      id: 'eventsPerPage',
+      title: 'Events per page',
+      description: 'Sets the number of events on the page, can cause overlow',
+      type: 'number',
+      placeholder: '7 (default)',
+    },
+    {
+      id: 'secondary-src',
+      title: 'Schedule secondary text',
+      description: 'Select the data source for auxiliary test shown in the schedule',
+      type: 'option',
+      values: secondaryOptions,
+      defaultValue: '',
+    },
+  ];
+};
 
 export const getPublicOptions = (timeFormat: string): ParamField[] => [
   getTimeOption(timeFormat),

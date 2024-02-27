@@ -22,7 +22,7 @@ export default function TitleCard(props: TitleCardProps) {
           {getLocalizedString(`common.${label}`)}
         </span>
       </div>
-      {secondary && <div className='title-card__secondary'>{secondary}</div>}
+      <div className='title-card__secondary'>{secondary}</div>
     </div>
   );
 }
