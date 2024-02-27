@@ -1,7 +1,16 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Message, OntimeEvent, Playback, Settings, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
+import {
+  CustomFields,
+  Message,
+  OntimeEvent,
+  Playback,
+  Settings,
+  TimerMessage,
+  TimerType,
+  ViewSettings,
+} from 'ontime-types';
 import { millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/apiConstants';
@@ -14,10 +23,9 @@ import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
-import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
-import { getTimerByType } from '../common/viewerUtils';
+import { getPropertyValue, getTimerByType, isStringBoolean } from '../common/viewUtils';
 
 import './Timer.scss';
 
@@ -38,18 +46,19 @@ const titleVariants = {
 };
 
 interface TimerProps {
+  customFields: CustomFields;
+  eventNext: OntimeEvent | null;
+  eventNow: OntimeEvent | null;
+  external: Message;
   isMirrored: boolean;
   pres: TimerMessage;
-  external: Message;
-  eventNow: OntimeEvent | null;
-  eventNext: OntimeEvent | null;
+  settings: Settings | undefined;
   time: ViewExtendedTimer;
   viewSettings: ViewSettings;
-  settings: Settings | undefined;
 }
 
 export default function Timer(props: TimerProps) {
-  const { isMirrored, pres, eventNow, eventNext, time, viewSettings, external, settings } = props;
+  const { customFields, isMirrored, pres, eventNow, eventNext, time, viewSettings, external, settings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -91,6 +100,10 @@ export default function Timer(props: TimerProps) {
 
   const hideTimerSeconds = searchParams.get('hideTimerSeconds');
   userOptions.hideTimerSeconds = isStringBoolean(hideTimerSeconds);
+
+  const secondarySource = searchParams.get('secondary-src');
+  const secondaryTextNow = getPropertyValue(eventNow, secondarySource);
+  const secondaryTextNext = getPropertyValue(eventNext, secondarySource);
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
@@ -143,7 +156,7 @@ export default function Timer(props: TimerProps) {
   const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const timerOptions = getTimerOptions(defaultFormat);
+  const timerOptions = getTimerOptions(defaultFormat, customFields);
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
@@ -210,7 +223,7 @@ export default function Timer(props: TimerProps) {
                 animate='visible'
                 exit='exit'
               >
-                <TitleCard label='now' title={eventNow.title} />
+                <TitleCard label='now' title={eventNow.title} secondary={secondaryTextNow} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -225,7 +238,7 @@ export default function Timer(props: TimerProps) {
                 animate='visible'
                 exit='exit'
               >
-                <TitleCard label='next' title={eventNext.title} />
+                <TitleCard label='next' title={eventNext.title} secondary={secondaryTextNext} />
               </motion.div>
             )}
           </AnimatePresence>
