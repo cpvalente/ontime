@@ -93,7 +93,6 @@ export default function UploadModal({ onClose, isOpen }: UploadModalProps) {
   const handleClose = () => {
     clear();
     setRundown([]);
-    // setUserFields(userFieldsPlaceholder);
     onClose();
   };
 

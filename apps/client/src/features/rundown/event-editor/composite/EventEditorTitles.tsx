@@ -46,13 +46,13 @@ const EventEditorTitles = (props: EventEditorLeftProps) => {
         </div>
         <EventTextInput field='cue' label='Cue' initialValue={cue} submitHandler={cueSubmitHandler} maxLength={10} />
       </div>
-      <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />
-      <EventTextInput field='presenter' label='Presenter' initialValue={presenter} submitHandler={handleSubmit} />
-      <EventTextInput field='subtitle' label='Subtitle' initialValue={subtitle} submitHandler={handleSubmit} />
       <div>
         <label className={style.inputLabel}>Colour</label>
         <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
       </div>
+      <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />
+      <EventTextInput field='presenter' label='Presenter' initialValue={presenter} submitHandler={handleSubmit} />
+      <EventTextInput field='subtitle' label='Subtitle' initialValue={subtitle} submitHandler={handleSubmit} />
       <EventTextArea field='note' label='Note' initialValue={note} submitHandler={handleSubmit} />
     </div>
   );

@@ -9,20 +9,20 @@ import { isAlphanumeric } from '../../../../../common/utils/regex';
 import * as Panel from '../../PanelUtils';
 import { useSheetStore } from '../useSheetStore';
 
-import { convertToImportMap, NamedImportMap, namedImportMap } from './importMapUtils';
+import { convertToImportMap, getPersistedOptions, NamedImportMap, persistImportMap } from './importMapUtils';
 
 import style from '../SourcesPanel.module.scss';
 
 interface ImportMapFormProps {
   isSpreadsheet?: boolean;
+  onCancel: () => void;
   onSubmitExport: (importMap: ImportMap) => Promise<void>;
   onSubmitImport: (importMap: ImportMap) => Promise<void>;
 }
 
 export default function ImportMapForm(props: ImportMapFormProps) {
-  const { isSpreadsheet, onSubmitExport, onSubmitImport } = props;
-
-  //const importMap = useSheetStore((state) => state.spreadsheetImportMap);
+  const { isSpreadsheet, onCancel, onSubmitExport, onSubmitImport } = props;
+  const namedImportMap = getPersistedOptions();
 
   const {
     control,
@@ -55,6 +55,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
   const handleImportPreview = async (values: NamedImportMap) => {
     setLoading('import');
     const importMap = convertToImportMap(values);
+    persistImportMap(values);
     await onSubmitImport(importMap);
     setLoading('');
   };
@@ -77,6 +78,9 @@ export default function ImportMapForm(props: ImportMapFormProps) {
       <Panel.Title>
         Import options
         <div className={style.buttonRow}>
+          <Button variant='ontime-subtle' size='sm' onClick={onCancel} isDisabled={isLoading}>
+            Cancel
+          </Button>
           {!isSpreadsheet && (
             <Button
               variant='ontime-filled'
@@ -135,9 +139,9 @@ export default function ImportMapForm(props: ImportMapFormProps) {
             const ontimeName = field.ontimeName;
             const importName = field.importName;
             const maybeOntimeError = errors.custom?.[index]?.ontimeName?.message;
-
+            const key = `custom.${index}.ontimeName`;
             return (
-              <tr key={ontimeName}>
+              <tr key={key}>
                 <td>
                   <Input
                     size='sm'

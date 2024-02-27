@@ -6,7 +6,7 @@
     white-space: nowrap;
   }
 
-  .secondaryRow {
-    padding: 0.25em 0.25em;
-    background-color: $gray-1350;
+  tr .secondaryRow {
+    background-color: $white-7;
+    padding-left: 2em;
   }

@@ -72,6 +72,7 @@ export default function SourcesPanel() {
       const previewData = await importSpreadsheetPreview(spreadsheet, importMap);
       setRundown(previewData.rundown);
       setCustomFields(previewData.customFields);
+      setImportStep('review');
     }
 
     if (importFlow === 'gsheet') {
@@ -79,6 +80,11 @@ export default function SourcesPanel() {
       await importRundownPreview(sheetId, importMap);
     }
   };
+
+  const handleFinished = () => {
+    setImportStep('input');
+    setImportFlow('none');
+  }
 
   const handleSubmitExport = async (importMap: ImportMap) => {
     if (!sheetId) return;
@@ -132,11 +138,12 @@ export default function SourcesPanel() {
           {showImportMap && (
             <ImportMapForm
               isSpreadsheet={isExcelFlow}
+              onCancel={() => setImportStep('input')}
               onSubmitExport={handleSubmitExport}
               onSubmitImport={handleSubmitImportPreview}
             />
           )}
-          {showReview && <ImportReview rundown={rundown} customFields={customFields} />}
+          {showReview && <ImportReview rundown={rundown} customFields={customFields} onFinished={handleFinished} />}
         </Panel.Card>
       </Panel.Section>
     </>

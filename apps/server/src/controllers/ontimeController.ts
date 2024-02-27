@@ -333,7 +333,9 @@ export const postHTTP = async (req: Request, res: Response<HttpSettings | Ontime
 };
 
 export async function patchPartialProjectFile(req: Request, res: Response) {
+  // all fields are optional in validation
   if (failEmptyObjects(req.body, res)) {
+    res.status(400).send({ message: 'No field found to patch' });
     return;
   }
 

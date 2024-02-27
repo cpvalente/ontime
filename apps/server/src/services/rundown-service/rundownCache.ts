@@ -89,10 +89,6 @@ export function generate(
       // 1. handle links
       handleLink(i, initialRundown, updatedEvent, links);
 
-      // TODO: wait until the next thing?
-      // update the persisted event
-      initialRundown[i] = updatedEvent;
-
       // 2. handle custom fields
       handleCustomField(customFields, customFieldChangelog, updatedEvent, assignedCustomFields);
 
