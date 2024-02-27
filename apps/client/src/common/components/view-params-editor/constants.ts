@@ -452,8 +452,10 @@ export const getStudioClockOptions = (timeFormat: string): ParamField[] => [
 ];
 
 export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ParamField[] => {
+  const fieldOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
+
   const customFieldSelect = Object.keys(customFields).reduce((acc, key) => {
-    return { ...acc, [key]: key };
+    return { ...acc, [key]: `Custom: ${capitaliseFirstLetter(key)}` };
   }, {});
 
   return [
@@ -470,18 +472,16 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
       title: 'Main data field',
       description: 'Field to be shown in the first line of text',
       type: 'option',
-      values: {
-        title: 'Title',
-      },
+      values: fieldOptions,
+      defaultValue: 'title',
     },
     {
       id: 'secondary',
       title: 'Secondary data field',
       description: 'Field to be shown in the second line of text',
       type: 'option',
-      values: {
-        title: 'Title',
-      },
+      values: fieldOptions,
+      defaultValue: '',
     },
     {
       id: 'subscribe',
@@ -489,6 +489,7 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
       description: 'Choose a custom field to highlight',
       type: 'option',
       values: customFieldSelect,
+      defaultValue: '',
     },
     {
       id: 'shouldEdit',

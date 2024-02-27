@@ -15,7 +15,7 @@ import useRundown from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
 import { debounce } from '../../common/utils/debounce';
 import { getDefaultFormat } from '../../common/utils/time';
-import { isStringBoolean } from '../../common/utils/viewUtils';
+import { getPropertyValue, isStringBoolean } from '../viewers/common/viewUtils';
 
 import EditModal from './edit-modal/EditModal';
 import FollowButton from './follow-button/FollowButton';
@@ -129,7 +129,7 @@ export default function Operator() {
   const canEdit = shouldEdit && subscribe;
 
   const main = searchParams.get('main') as keyof TitleFields | null;
-  const secondary = searchParams.get('secondary') as keyof TitleFields | null;
+  const secondary = searchParams.get('secondary');
 
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const operatorOptions = getOperatorOptions(customFields, defaultFormat);
@@ -176,8 +176,7 @@ export default function Operator() {
             }
 
             const mainField = main ? entry?.[main] || entry.title : entry.title;
-            // TODO: add support for secondary field
-            const secondaryField = '';
+            const secondaryField = getPropertyValue(entry, secondary) ?? '';
             const subscribedData = entry.custom[subscribe]?.value;
 
             return (
