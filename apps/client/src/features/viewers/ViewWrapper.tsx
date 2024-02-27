@@ -1,8 +1,18 @@
 import { ComponentType, useMemo } from 'react';
 import { ViewExtendedTimer } from 'common/models/TimeManager.type';
-import { Message, OntimeEvent, ProjectData, Settings, SupportedEvent, TimerMessage, ViewSettings } from 'ontime-types';
+import {
+  CustomFields,
+  Message,
+  OntimeEvent,
+  ProjectData,
+  Settings,
+  SupportedEvent,
+  TimerMessage,
+  ViewSettings,
+} from 'ontime-types';
 import { useStore } from 'zustand';
 
+import useCustomFields from '../../common/hooks-query/useCustomFields';
 import useProjectData from '../../common/hooks-query/useProjectData';
 import { useFlatRundown } from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
@@ -11,25 +21,26 @@ import { runtimeStore } from '../../common/stores/runtime';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
 
 type WithDataProps = {
+  backstageEvents: OntimeEvent[];
+  customFields: CustomFields;
+  eventNext: OntimeEvent | null;
+  eventNow: OntimeEvent | null;
+  events: OntimeEvent[];
+  external: Message;
+  general: ProjectData;
   isMirrored: boolean;
+  lower: Message;
+  nextId: string | null;
+  onAir: boolean;
   pres: TimerMessage;
   publ: Message;
-  lower: Message;
-  external: Message;
-  eventNow: OntimeEvent | null;
-  publicEventNow: OntimeEvent | null;
-  eventNext: OntimeEvent | null;
   publicEventNext: OntimeEvent | null;
-  time: ViewExtendedTimer;
-  events: OntimeEvent[];
-  backstageEvents: OntimeEvent[];
-  selectedId: string | null;
+  publicEventNow: OntimeEvent | null;
   publicSelectedId: string | null;
-  nextId: string | null;
-  general: ProjectData;
-  viewSettings: ViewSettings;
+  selectedId: string | null;
   settings: Settings | undefined;
-  onAir: boolean;
+  time: ViewExtendedTimer;
+  viewSettings: ViewSettings;
 };
 
 function getDisplayName(Component: React.ComponentType<any>): string {
@@ -46,6 +57,7 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     const { data: project } = useProjectData();
     const { data: viewSettings } = useViewSettings();
     const { data: settings } = useSettings();
+    const { data: customFields } = useCustomFields();
 
     const publicEvents = useMemo(() => {
       if (Array.isArray(rundownData)) {
@@ -83,25 +95,26 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     return (
       <Component
         {...props}
+        backstageEvents={rundownData}
+        customFields={customFields}
+        eventNext={eventNext}
+        eventNow={eventNow}
+        events={publicEvents}
+        external={message.external}
+        general={project}
         isMirrored={isMirrored}
+        lower={message.lower}
+        nextId={nextId}
+        onAir={onAir}
         pres={message.timer}
         publ={message.public}
-        lower={message.lower}
-        external={message.external}
-        eventNow={eventNow}
-        publicEventNow={publicEventNow}
-        eventNext={eventNext}
         publicEventNext={publicEventNext}
-        time={TimeManagerType}
-        events={publicEvents}
-        backstageEvents={rundownData}
-        selectedId={selectedId}
+        publicEventNow={publicEventNow}
         publicSelectedId={publicSelectedId}
-        viewSettings={viewSettings}
+        selectedId={selectedId}
         settings={settings}
-        nextId={nextId}
-        general={project}
-        onAir={onAir}
+        time={TimeManagerType}
+        viewSettings={viewSettings}
       />
     );
   };
