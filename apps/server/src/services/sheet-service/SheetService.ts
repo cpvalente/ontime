@@ -258,7 +258,9 @@ async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ wo
     throw new Error(`Request failed: ${spreadsheets.status} ${spreadsheets.statusText}`);
   }
 
-  const selectedWorksheet = spreadsheets.data.sheets.find((n) => n.properties.title == worksheet);
+  const selectedWorksheet = spreadsheets.data.sheets.find(
+    (n) => n.properties.title.toLowerCase() === worksheet.toLowerCase(),
+  );
 
   if (!selectedWorksheet) {
     throw new Error('Could not find worksheet');

@@ -36,6 +36,10 @@ export default function GSheetSetup(props: GSheetSetupProps) {
     const result = await verifyAuth();
     if (result) {
       setAuthenticationStatus(result.authenticated);
+      // if we are still pending, lets check again in 2seconds
+      if (result.authenticated === 'pending') {
+        setTimeout(getAuthStatus, 2000);
+      }
     }
   };
 
@@ -44,17 +48,17 @@ export default function GSheetSetup(props: GSheetSetupProps) {
     getAuthStatus();
   }, []);
 
-  const handleCancelFlow = () => {
-    revoke();
-    onCancel();
-  };
-
   // user cancels the flow
   const handleRevoke = async () => {
     setLoading('cancel');
     await revoke();
     await getAuthStatus();
     setLoading('');
+  };
+
+  const handleCancelFlow = async () => {
+    await handleRevoke();
+    onCancel();
   };
 
   /**
@@ -106,6 +110,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
   const canAuthenticate = Boolean(authKey) && Boolean(authLink);
   const isLoading = Boolean(loading);
   const isAuthenticated = authenticationStatus === 'authenticated';
+  const isAuthenticating = authenticationStatus === 'pending';
 
   return (
     <Panel.Section>
@@ -117,7 +122,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
           </Button>
         ) : (
           <Button variant='ontime-subtle' size='sm' onClick={handleCancelFlow}>
-            Cancel
+            Go Back
           </Button>
         )}
       </Panel.Title>
@@ -172,7 +177,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
               leftIcon={<IoShieldCheckmarkOutline />}
               onClick={handleAuthenticate}
               isDisabled={!canAuthenticate || isLoading}
-              isLoading={loading === 'authenticate'}
+              isLoading={loading === 'authenticate' || isAuthenticating}
             >
               Authenticate
             </Button>

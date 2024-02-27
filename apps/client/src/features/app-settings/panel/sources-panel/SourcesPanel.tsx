@@ -4,6 +4,7 @@ import { IoCloudOutline } from '@react-icons/all-files/io5/IoCloudOutline';
 import { IoDownloadOutline } from '@react-icons/all-files/io5/IoDownloadOutline';
 import { ImportMap, unpackError } from 'ontime-utils';
 
+import { maybeAxiosError } from '../../../../common/api/apiUtils';
 import { importSpreadsheetPreview } from '../../../../common/api/ontimeApi';
 import { validateSpreadsheetImport } from '../../../../common/utils/uploadUtils';
 import * as Panel from '../PanelUtils';
@@ -16,17 +17,17 @@ import useGoogleSheet from './useGoogleSheet';
 import { useSheetStore } from './useSheetStore';
 
 import style from './SourcesPanel.module.scss';
-import { maybeAxiosError } from '../../../../common/api/apiUtils';
 
 export default function SourcesPanel() {
   const [importFlow, setImportFlow] = useState<'none' | 'excel' | 'gsheet'>('none');
   const [error, setError] = useState('');
 
-  const { exportRundown, importRundownPreview, revoke } = useGoogleSheet();
+  const { exportRundown, importRundownPreview, revoke, verifyAuth } = useGoogleSheet();
 
   const spreadsheet = useSheetStore((state) => state.spreadsheet);
   const setSpreadsheet = useSheetStore((state) => state.setSpreadsheet);
   const authenticationStatus = useSheetStore((state) => state.authenticationStatus);
+  const setAuthenticationStatus = useSheetStore((state) => state.setAuthenticationStatus);
   const rundown = useSheetStore((state) => state.rundown);
   const setRundown = useSheetStore((state) => state.setRundown);
   const customFields = useSheetStore((state) => state.customFields);
@@ -83,14 +84,18 @@ export default function SourcesPanel() {
     }
   };
 
-  const cancelImportMap = () => {
+  const cancelImportMap = async () => {
     setImportFlow('none');
     if (spreadsheet) {
       setSpreadsheet(null);
     }
 
     if (authenticationStatus === 'authenticated') {
-      revoke();
+      await revoke();
+      const result = await verifyAuth();
+      if (result) {
+        setAuthenticationStatus(result.authenticated);
+      }
     }
   };
   const handleFinished = () => {
@@ -114,6 +119,7 @@ export default function SourcesPanel() {
   const showImportMap = (isGSheetFlow && isAuthenticated) || (isExcelFlow && hasFile);
   const showReview = rundown !== null && customFields !== null;
 
+  console.log(isAuthenticated);
   return (
     <>
       <Panel.Header>Data sources</Panel.Header>
