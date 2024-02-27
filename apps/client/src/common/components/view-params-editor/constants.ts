@@ -1,10 +1,12 @@
 import { CustomFields } from 'ontime-types';
 
+import { capitaliseFirstLetter } from '../../../features/viewers/common/viewUtils';
+
 import { ParamField } from './types';
 
 const makeOptionsFromCustomFields = (customFields: CustomFields, additionalOptions?: Record<string, string>) => {
   const customFieldOptions = Object.keys(customFields).reduce((acc, key) => {
-    return { ...acc, [`custom-${key}`]: key };
+    return { ...acc, [`custom-${key}`]: `Custom: ${capitaliseFirstLetter(key)}` };
   }, additionalOptions ?? {});
   return customFieldOptions;
 };
@@ -244,125 +246,131 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
   },
 ];
 
-export const LOWER_THIRD_OPTIONS: ParamField[] = [
-  {
-    id: 'trigger',
-    title: 'Animation Trigger',
-    description: '',
-    type: 'option',
-    values: {
-      event: 'Event Load',
-      manual: 'Manual',
+export const getLowerThirdOptions = (customFields: CustomFields): ParamField[] => {
+  const topSourceOptions = makeOptionsFromCustomFields(customFields, {
+    title: 'Title',
+    lowerMsg: 'Lower Third Message',
+  });
+
+  const bottomSourceOptions = makeOptionsFromCustomFields(customFields, {
+    title: 'Title',
+    lowerMsg: 'Lower Third Message',
+  });
+
+  return [
+    {
+      id: 'trigger',
+      title: 'Animation Trigger',
+      description: '',
+      type: 'option',
+      values: {
+        event: 'Event Load',
+        manual: 'Manual',
+      },
+      defaultValue: 'event',
     },
-    defaultValue: 'event',
-  },
-  {
-    id: 'top-src',
-    title: 'Top Text',
-    description: '',
-    type: 'option',
-    values: {
-      title: 'Title',
-      lowerMsg: 'Lower Third Message',
+    {
+      id: 'top-src',
+      title: 'Top Text',
+      description: '',
+      type: 'option',
+      values: topSourceOptions,
+      defaultValue: 'title',
     },
-    defaultValue: 'title',
-  },
-  {
-    id: 'bottom-src',
-    title: 'Bottom Text',
-    description: 'Select the data source for the bottom element',
-    type: 'option',
-    values: {
-      title: 'Title',
-      lowerMsg: 'Lower Third Message',
+    {
+      id: 'bottom-src',
+      title: 'Bottom Text',
+      description: 'Select the data source for the bottom element',
+      type: 'option',
+      values: bottomSourceOptions,
+      defaultValue: 'lowerMsg',
     },
-    defaultValue: 'lowerMsg',
-  },
-  {
-    id: 'top-colour',
-    title: 'Top Text Colour',
-    description: 'Top text colour in hexadecimal',
-    prefix: '#',
-    type: 'string',
-    placeholder: '0000ff (default)',
-  },
-  {
-    id: 'bottom-colour',
-    title: 'Bottom Text Colour',
-    description: 'Bottom text colour in hexadecimal',
-    prefix: '#',
-    type: 'string',
-    placeholder: '0000ff (default)',
-  },
-  {
-    id: 'top-bg',
-    title: 'Top Background Colour',
-    description: 'Top text background colour in hexadecimal',
-    prefix: '#',
-    type: 'string',
-    placeholder: '00000000 (default)',
-  },
-  {
-    id: 'bottom-bg',
-    title: 'Bottom Background Colour',
-    description: 'Bottom text background colour in hexadecimal',
-    prefix: '#',
-    type: 'string',
-    placeholder: '00000000 (default)',
-  },
-  {
-    id: 'top-size',
-    title: 'Top Text Size',
-    description: 'Font size of the top text',
-    type: 'string',
-    placeholder: '65px',
-  },
-  {
-    id: 'bottom-size',
-    title: 'Bottom Text Size',
-    description: 'Font size of the bottom text',
-    type: 'string',
-    placeholder: '64px',
-  },
-  {
-    id: 'width',
-    title: 'Minimum Width',
-    description: 'Minimum Width of the element',
-    type: 'number',
-    prefix: '%',
-    placeholder: '45 (default)',
-  },
-  {
-    id: 'transition',
-    title: 'Transition',
-    description: 'Transition in time in seconds (default 3)',
-    type: 'number',
-    placeholder: '3 (default)',
-  },
-  {
-    id: 'delay',
-    title: 'Delay',
-    description: 'Delay between transition in and out in seconds (default 3)',
-    type: 'number',
-    placeholder: '3 (default)',
-  },
-  {
-    id: 'key',
-    title: 'Key Colour',
-    description: 'Colour of the background',
-    prefix: '#',
-    type: 'string',
-    placeholder: 'ffffffff (default)',
-  },
-  {
-    id: 'line-colour',
-    title: 'Line Colour',
-    description: 'Colour of the line',
-    prefix: '#',
-    type: 'string',
-    placeholder: 'ff0000ff (default)',
-  },
-];
+    {
+      id: 'top-colour',
+      title: 'Top Text Colour',
+      description: 'Top text colour in hexadecimal',
+      prefix: '#',
+      type: 'string',
+      placeholder: '0000ff (default)',
+    },
+    {
+      id: 'bottom-colour',
+      title: 'Bottom Text Colour',
+      description: 'Bottom text colour in hexadecimal',
+      prefix: '#',
+      type: 'string',
+      placeholder: '0000ff (default)',
+    },
+    {
+      id: 'top-bg',
+      title: 'Top Background Colour',
+      description: 'Top text background colour in hexadecimal',
+      prefix: '#',
+      type: 'string',
+      placeholder: '00000000 (default)',
+    },
+    {
+      id: 'bottom-bg',
+      title: 'Bottom Background Colour',
+      description: 'Bottom text background colour in hexadecimal',
+      prefix: '#',
+      type: 'string',
+      placeholder: '00000000 (default)',
+    },
+    {
+      id: 'top-size',
+      title: 'Top Text Size',
+      description: 'Font size of the top text',
+      type: 'string',
+      placeholder: '65px',
+    },
+    {
+      id: 'bottom-size',
+      title: 'Bottom Text Size',
+      description: 'Font size of the bottom text',
+      type: 'string',
+      placeholder: '64px',
+    },
+    {
+      id: 'width',
+      title: 'Minimum Width',
+      description: 'Minimum Width of the element',
+      type: 'number',
+      prefix: '%',
+      placeholder: '45 (default)',
+    },
+    {
+      id: 'transition',
+      title: 'Transition',
+      description: 'Transition in time in seconds (default 3)',
+      type: 'number',
+      placeholder: '3 (default)',
+    },
+    {
+      id: 'delay',
+      title: 'Delay',
+      description: 'Delay between transition in and out in seconds (default 3)',
+      type: 'number',
+      placeholder: '3 (default)',
+    },
+    {
+      id: 'key',
+      title: 'Key Colour',
+      description: 'Colour of the background',
+      prefix: '#',
+      type: 'string',
+      placeholder: 'ffffffff (default)',
+    },
+    {
+      id: 'line-colour',
+      title: 'Line Colour',
+      description: 'Colour of the line',
+      prefix: '#',
+      type: 'string',
+      placeholder: 'ff0000ff (default)',
+    },
+  ];
+};
 
 export const getBackstageOptions = (timeFormat: string, customFields: CustomFields): ParamField[] => {
   const secondaryOptions = makeOptionsFromCustomFields(customFields, { note: 'Note' });
