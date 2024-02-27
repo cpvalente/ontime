@@ -23,7 +23,6 @@ type SheetStore = {
   customFields: CustomFields | null;
   setCustomFields: (customFields: CustomFields | null) => void;
 
-  // TODO: persist excelFileOptions to localStorage
   spreadsheetImportMap: ImportMap;
   patchSpreadsheetImportMap: <T extends keyof ImportMap>(field: T, value: ImportMap[T]) => void;
 

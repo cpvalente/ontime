@@ -19,10 +19,9 @@ import style from './SourcesPanel.module.scss';
 
 export default function SourcesPanel() {
   const [importFlow, setImportFlow] = useState<'none' | 'excel' | 'gsheet'>('none');
-  const [importStep, setImportStep] = useState<'input' | 'auth' | 'map' | 'review'>('input');
   const [error, setError] = useState('');
 
-  const { exportRundown, importRundownPreview } = useGoogleSheet();
+  const { exportRundown, importRundownPreview, revoke } = useGoogleSheet();
 
   const spreadsheet = useSheetStore((state) => state.spreadsheet);
   const setSpreadsheet = useSheetStore((state) => state.setSpreadsheet);
@@ -46,7 +45,6 @@ export default function SourcesPanel() {
       validateSpreadsheetImport(fileToUpload);
       setSpreadsheet(fileToUpload);
       setImportFlow('excel');
-      setImportStep('map');
     } catch (error) {
       const errorMessage = unpackError(error);
       setError(`Error uploading file: ${errorMessage}`);
@@ -72,7 +70,6 @@ export default function SourcesPanel() {
       const previewData = await importSpreadsheetPreview(spreadsheet, importMap);
       setRundown(previewData.rundown);
       setCustomFields(previewData.customFields);
-      setImportStep('review');
     }
 
     if (importFlow === 'gsheet') {
@@ -81,10 +78,22 @@ export default function SourcesPanel() {
     }
   };
 
-  const handleFinished = () => {
-    setImportStep('input');
+  const cancelImportMap = () => {
     setImportFlow('none');
-  }
+    if (spreadsheet) {
+      setSpreadsheet(null);
+    }
+
+    if (authenticationStatus === 'authenticated') {
+      revoke();
+    }
+  };
+  const handleFinished = () => {
+    setImportFlow('none');
+    setRundown(null);
+    setSpreadsheet(null);
+    setCustomFields(null);
+  };
 
   const handleSubmitExport = async (importMap: ImportMap) => {
     if (!sheetId) return;
@@ -95,10 +104,10 @@ export default function SourcesPanel() {
   const isGSheetFlow = importFlow === 'gsheet';
   const hasFile = Boolean(spreadsheet);
   const isAuthenticated = authenticationStatus === 'authenticated';
-  const showInput = importStep === 'input';
-  const showAuth = importStep === 'auth' && isGSheetFlow;
-  const showImportMap = importStep === 'map' && (isAuthenticated || (isExcelFlow && hasFile));
-  const showReview = importStep === 'review' && rundown && customFields;
+  const showInput = importFlow === 'none';
+  const showAuth = isGSheetFlow && !isAuthenticated;
+  const showImportMap = (isGSheetFlow && isAuthenticated) || (isExcelFlow && hasFile);
+  const showReview = rundown !== null && customFields !== null;
 
   return (
     <>
@@ -135,10 +144,10 @@ export default function SourcesPanel() {
             </>
           )}
           {showAuth && <GSheetSetup onCancel={cancelGSheetFlow} />}
-          {showImportMap && (
+          {showImportMap && !showReview && (
             <ImportMapForm
               isSpreadsheet={isExcelFlow}
-              onCancel={() => setImportStep('input')}
+              onCancel={cancelImportMap}
               onSubmitExport={handleSubmitExport}
               onSubmitImport={handleSubmitImportPreview}
             />
