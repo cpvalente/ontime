@@ -12,8 +12,6 @@ import './LowerThird.scss';
 
 enum SrcKeys {
   Title = 'title',
-  Subtitle = 'subtitle',
-  Presenter = 'presenter',
   LowerMsg = 'lowerMsg',
 }
 
@@ -50,7 +48,7 @@ const defaultOptions: Readonly<LowerOptions> = {
   width: 45,
   trigger: TriggerType.Event,
   topSrc: SrcKeys.Title,
-  bottomSrc: SrcKeys.Subtitle,
+  bottomSrc: SrcKeys.LowerMsg,
   topColour: '000000ff',
   bottomColour: '000000ff',
   topBg: '00000000',

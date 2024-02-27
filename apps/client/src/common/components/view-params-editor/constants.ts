@@ -245,8 +245,6 @@ export const LOWER_THIRD_OPTIONS: ParamField[] = [
     type: 'option',
     values: {
       title: 'Title',
-      subtitle: 'Subtitle',
-      presenter: 'Presenter',
       lowerMsg: 'Lower Third Message',
     },
     defaultValue: 'title',
@@ -258,11 +256,9 @@ export const LOWER_THIRD_OPTIONS: ParamField[] = [
     type: 'option',
     values: {
       title: 'Title',
-      subtitle: 'Subtitle',
-      presenter: 'Presenter',
       lowerMsg: 'Lower Third Message',
     },
-    defaultValue: 'subtitle',
+    defaultValue: 'lowerMsg',
   },
   {
     id: 'top-colour',
@@ -425,8 +421,6 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
       type: 'option',
       values: {
         title: 'Title',
-        subtitle: 'Subtitle',
-        presenter: 'Presenter',
       },
     },
     {
@@ -436,8 +430,6 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
       type: 'option',
       values: {
         title: 'Title',
-        subtitle: 'Subtitle',
-        presenter: 'Presenter',
       },
     },
     {

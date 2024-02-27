@@ -10,8 +10,6 @@ export const defaultImportMap = {
   duration: 'duration',
   cue: 'cue',
   title: 'title',
-  presenter: 'presenter',
-  subtitle: 'subtitle',
   isPublic: 'public',
   skip: 'skip',
   note: 'notes',

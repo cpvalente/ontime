@@ -89,12 +89,7 @@ export default function Public(props: BackstageProps) {
               animate='visible'
               exit='exit'
             >
-              <TitleCard
-                label='now'
-                title={publicEventNow.title}
-                subtitle={publicEventNow.subtitle}
-                presenter={publicEventNow.presenter}
-              />
+              <TitleCard label='now' title={publicEventNow.title} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -109,12 +104,7 @@ export default function Public(props: BackstageProps) {
               animate='visible'
               exit='exit'
             >
-              <TitleCard
-                label='next'
-                title={publicEventNext.title}
-                subtitle={publicEventNext.subtitle}
-                presenter={publicEventNext.presenter}
-              />
+              <TitleCard label='next' title={publicEventNext.title} />
             </motion.div>
           )}
         </AnimatePresence>

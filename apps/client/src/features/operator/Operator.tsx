@@ -27,7 +27,7 @@ import style from './Operator.module.scss';
 
 const selectedOffset = 50;
 
-type TitleFields = Pick<OntimeEvent, 'title' | 'subtitle' | 'presenter'>;
+type TitleFields = Pick<OntimeEvent, 'title'>;
 export type EditEvent = Pick<OntimeEvent, 'id' | 'cue'> & { fieldLabel?: string; fieldValue: string };
 export type PartialEdit = EditEvent & {
   field: keyof CustomFields;
@@ -176,7 +176,8 @@ export default function Operator() {
             }
 
             const mainField = main ? entry?.[main] || entry.title : entry.title;
-            const secondaryField = secondary ? entry?.[secondary] || entry.subtitle : entry.subtitle;
+            // TODO: add support for secondary field
+            const secondaryField = '';
             const subscribedData = entry.custom[subscribe]?.value;
 
             return (

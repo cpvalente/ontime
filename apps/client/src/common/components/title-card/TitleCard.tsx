@@ -5,12 +5,11 @@ import './TitleCard.scss';
 interface TitleCardProps {
   label: 'now' | 'next';
   title: string | null;
-  subtitle: string | null;
-  presenter: string | null;
+  secondary?: string | null;
 }
 
 export default function TitleCard(props: TitleCardProps) {
-  const { label, title, subtitle, presenter } = props;
+  const { label, title, secondary } = props;
   const { getLocalizedString } = useTranslation();
 
   const accent = label === 'now';
@@ -18,11 +17,12 @@ export default function TitleCard(props: TitleCardProps) {
   return (
     <div className='title-card'>
       <div className='inline'>
-        <span className='presenter'>{presenter}</span>
-        <span className={accent ? 'label accent' : 'label'}>{getLocalizedString(`common.${label}`)}</span>
+        <span className='title-card__title'>{title}</span>
+        <span className={accent ? 'title-card__label--accent' : 'title-card__label'}>
+          {getLocalizedString(`common.${label}`)}
+        </span>
       </div>
-      <div className='title'>{title}</div>
-      <div className='subtitle'>{subtitle}</div>
+      {secondary && <div className='title-card__secondary'>{secondary}</div>}
     </div>
   );
 }

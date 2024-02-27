@@ -106,18 +106,6 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       cell: (row) => row.getValue(),
     },
     {
-      accessorKey: 'subtitle',
-      id: 'subtitle',
-      header: 'Subtitle',
-      cell: (row) => row.getValue(),
-    },
-    {
-      accessorKey: 'presenter',
-      id: 'presenter',
-      header: 'Presenter',
-      cell: (row) => row.getValue(),
-    },
-    {
       accessorKey: 'note',
       id: 'note',
       header: 'Note',

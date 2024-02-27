@@ -91,8 +91,6 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
   // title stuff: strings
   let titleIndex: number | null = null;
   let cueIndex: number | null = null;
-  let presenterIndex: number | null = null;
-  let subtitleIndex: number | null = null;
   let notesIndex: number | null = null;
   let colourIndex: number | null = null;
 
@@ -141,14 +139,6 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
       [importMap.title]: (row: number, col: number) => {
         titleIndex = col;
         rundownMetadata['title'] = { row, col };
-      },
-      [importMap.presenter]: (row: number, col: number) => {
-        presenterIndex = col;
-        rundownMetadata['presenter'] = { row, col };
-      },
-      [importMap.subtitle]: (row: number, col: number) => {
-        subtitleIndex = col;
-        rundownMetadata['subtitle'] = { row, col };
       },
       [importMap.isPublic]: (row: number, col: number) => {
         isPublicIndex = col;
@@ -217,10 +207,6 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
         event.duration = parseExcelDate(column);
       } else if (j === cueIndex) {
         event.cue = makeString(column, '');
-      } else if (j === presenterIndex) {
-        event.presenter = makeString(column, '');
-      } else if (j === subtitleIndex) {
-        event.subtitle = makeString(column, '');
       } else if (j === isPublicIndex) {
         event.isPublic = column == 'x' ? true : coerceBoolean(column);
       } else if (j === skipIndex) {
@@ -337,8 +323,6 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     id: originalEvent.id,
     type: SupportedEvent.Event,
     title: makeString(patchEvent.title, originalEvent.title),
-    subtitle: makeString(patchEvent.subtitle, originalEvent.subtitle),
-    presenter: makeString(patchEvent.presenter, originalEvent.presenter),
     timeStart,
     timeEnd,
     duration,

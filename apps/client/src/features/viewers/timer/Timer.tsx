@@ -201,7 +201,7 @@ export default function Timer(props: TimerProps) {
       {!userOptions.hideCards && (
         <>
           <AnimatePresence>
-            {eventNow && !finished && (
+            {eventNow && (
               <motion.div
                 className='event now'
                 key='now'
@@ -210,12 +210,7 @@ export default function Timer(props: TimerProps) {
                 animate='visible'
                 exit='exit'
               >
-                <TitleCard
-                  label='now'
-                  title={eventNow.title}
-                  subtitle={eventNow.subtitle}
-                  presenter={eventNow.presenter}
-                />
+                <TitleCard label='now' title={eventNow.title} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -230,12 +225,7 @@ export default function Timer(props: TimerProps) {
                 animate='visible'
                 exit='exit'
               >
-                <TitleCard
-                  label='next'
-                  title={eventNext.title}
-                  subtitle={eventNext.subtitle}
-                  presenter={eventNext.presenter}
-                />
+                <TitleCard label='next' title={eventNext.title} />
               </motion.div>
             )}
           </AnimatePresence>

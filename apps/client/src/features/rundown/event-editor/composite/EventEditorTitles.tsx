@@ -10,19 +10,17 @@ import EventTextInput from './EventTextInput';
 
 import style from '../EventEditor.module.scss';
 
-interface EventEditorLeftProps {
+interface EventEditorTitlesProps {
   eventId: string;
   cue: string;
   title: string;
-  presenter: string;
-  subtitle: string;
   note: string;
   colour: string;
   handleSubmit: (field: EditorUpdateFields, value: string) => void;
 }
 
-const EventEditorTitles = (props: EventEditorLeftProps) => {
-  const { eventId, cue, title, presenter, subtitle, note, colour, handleSubmit } = props;
+const EventEditorTitles = (props: EventEditorTitlesProps) => {
+  const { eventId, cue, title, note, colour, handleSubmit } = props;
 
   const cueSubmitHandler = (_field: string, newValue: string) => {
     handleSubmit('cue', sanitiseCue(newValue));
@@ -51,8 +49,6 @@ const EventEditorTitles = (props: EventEditorLeftProps) => {
         <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
       </div>
       <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />
-      <EventTextInput field='presenter' label='Presenter' initialValue={presenter} submitHandler={handleSubmit} />
-      <EventTextInput field='subtitle' label='Subtitle' initialValue={subtitle} submitHandler={handleSubmit} />
       <EventTextArea field='note' label='Note' initialValue={note} submitHandler={handleSubmit} />
     </div>
   );

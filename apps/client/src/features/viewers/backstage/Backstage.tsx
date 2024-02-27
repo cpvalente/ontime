@@ -111,12 +111,7 @@ export default function Backstage(props: BackstageProps) {
               animate='visible'
               exit='exit'
             >
-              <TitleCard
-                label='now'
-                title={eventNow.title}
-                subtitle={eventNow.subtitle}
-                presenter={eventNow.presenter}
-              />
+              <TitleCard label='now' title={eventNow.title} />
               <div className='timer-group'>
                 <div className='aux-timers'>
                   <div className='aux-timers__label'>{getLocalizedString('common.started_at')}</div>
@@ -151,12 +146,7 @@ export default function Backstage(props: BackstageProps) {
               animate='visible'
               exit='exit'
             >
-              <TitleCard
-                label='next'
-                title={eventNext.title}
-                subtitle={eventNext.subtitle}
-                presenter={eventNext.presenter}
-              />
+              <TitleCard label='next' title={eventNext.title} />
             </motion.div>
           )}
         </AnimatePresence>

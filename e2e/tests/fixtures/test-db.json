@@ -2,8 +2,6 @@
   "rundown": [
     {
       "title": "Albania",
-      "subtitle": "Sekret",
-      "presenter": "Ronela Hajati",
       "note": "SF1.01",
       "endAction": "none",
       "timerType": "count-down",
@@ -17,12 +15,13 @@
       "revision": 0,
       "id": "32d31",
       "cue": "SF1.01",
-      "custom": {}
+      "custom": {
+        "song": "Sekret",
+        "artist": "Ronela Hajati"
+      }
     },
     {
       "title": "Latvia",
-      "subtitle": "Eat Your Salad",
-      "presenter": "Citi Zeni",
       "note": "SF1.02",
       "endAction": "none",
       "timerType": "count-down",
@@ -36,12 +35,13 @@
       "revision": 0,
       "id": "21cd2",
       "cue": "SF1.02",
-      "custom": {}
+      "custom": {
+        "song": "Eat Your Salad",
+        "artist": "Citi Zeni"
+      }
     },
     {
       "title": "Lithuania",
-      "subtitle": "Sentimentai",
-      "presenter": "Monika Liu",
       "note": "SF1.03",
       "endAction": "none",
       "timerType": "count-down",
@@ -55,12 +55,13 @@
       "revision": 0,
       "id": "0b371",
       "cue": "SF1.03",
-      "custom": {}
+      "custom": {
+        "song": "Sentimentai",
+        "artist": "Monika Liu"
+      }
     },
     {
       "title": "Switzerland",
-      "subtitle": "Boys Do Cry",
-      "presenter": "Marius Bear",
       "note": "SF1.04",
       "endAction": "none",
       "timerType": "count-down",
@@ -74,12 +75,13 @@
       "revision": 0,
       "id": "3cd28",
       "cue": "SF1.04",
-      "custom": {}
+      "custom": {
+        "song": "Boys Do Cry",
+        "artist": "Marius Bear"
+      }
     },
     {
       "title": "Slovenia",
-      "subtitle": "Disko",
-      "presenter": "LPS",
       "note": "SF1.05",
       "endAction": "none",
       "timerType": "count-down",
@@ -93,7 +95,10 @@
       "revision": 0,
       "id": "e457f",
       "cue": "SF1.05",
-      "custom": {}
+      "custom": {
+        "song": "Disko",
+        "artist": "LPS"
+      }
     },
     {
       "title": "Lunch break",
@@ -102,8 +107,6 @@
     },
     {
       "title": "Ukraine",
-      "subtitle": "Stefania",
-      "presenter": "Kalush Orchestra",
       "note": "SF1.06",
       "endAction": "none",
       "timerType": "count-down",
@@ -117,12 +120,13 @@
       "revision": 0,
       "id": "1c420",
       "cue": "SF1.06",
-      "custom": {}
+      "custom": {
+        "song": "Stefania",
+        "artist": "Kalush Orchestra"
+      }
     },
     {
       "title": "Bulgaria",
-      "subtitle": "Intention",
-      "presenter": "Intelligent Music Project",
       "note": "SF1.07",
       "endAction": "none",
       "timerType": "count-down",
@@ -136,12 +140,13 @@
       "revision": 0,
       "id": "b7737",
       "cue": "SF1.07",
-      "custom": {}
+      "custom": {
+        "song": "Intention",
+        "artist": "Intelligent Music Project"
+      }
     },
     {
       "title": "Netherlands",
-      "subtitle": "De Diepte",
-      "presenter": "S10",
       "note": "SF1.08",
       "endAction": "none",
       "timerType": "count-down",
@@ -155,12 +160,13 @@
       "revision": 0,
       "id": "d3a80",
       "cue": "SF1.08",
-      "custom": {}
+      "custom": {
+        "song": "De Diepte",
+        "artist": "S10"
+      }
     },
     {
       "title": "Moldova",
-      "subtitle": "Trenuletul",
-      "presenter": "Zdob si Zdub",
       "note": "SF1.09",
       "endAction": "none",
       "timerType": "count-down",
@@ -174,12 +180,13 @@
       "revision": 0,
       "id": "8276c",
       "cue": "SF1.09",
-      "custom": {}
+      "custom": {
+        "song": "Trenuletul",
+        "artist": "Zdob si Zdub"
+      }
     },
     {
       "title": "Portugal",
-      "subtitle": "Saudade Saudade",
-      "presenter": "Maro",
       "note": "SF1.10",
       "endAction": "none",
       "timerType": "count-down",
@@ -193,7 +200,10 @@
       "revision": 0,
       "id": "2340b",
       "cue": "SF1.10",
-      "custom": {}
+      "custom": {
+        "song": "Saudade Saudade",
+        "artist": "Maro"
+      }
     },
     {
       "title": "Afternoon break",
@@ -202,8 +212,6 @@
     },
     {
       "title": "Croatia",
-      "subtitle": "Guilty Pleasure",
-      "presenter": "Mia Dimsic",
       "note": "SF1.11",
       "endAction": "none",
       "timerType": "count-down",
@@ -217,12 +225,13 @@
       "revision": 0,
       "id": "503c4",
       "cue": "SF1.11",
-      "custom": {}
+      "custom": {
+        "song": "Guilty Pleasure",
+        "artist": "Mia Dimsic"
+      }
     },
     {
       "title": "Denmark",
-      "subtitle": "The Show",
-      "presenter": "Reddi",
       "note": "SF1.12",
       "endAction": "none",
       "timerType": "count-down",
@@ -236,12 +245,13 @@
       "revision": 0,
       "id": "5e965",
       "cue": "SF1.12",
-      "custom": {}
+      "custom": {
+        "song": "The Show",
+        "artist": "Reddi"
+      }
     },
     {
       "title": "Austria",
-      "subtitle": "Halo",
-      "presenter": "LUM!X & Pia Maria",
       "note": "SF1.13",
       "endAction": "none",
       "timerType": "count-down",
@@ -255,12 +265,13 @@
       "revision": 0,
       "id": "bab4a",
       "cue": "SF1.13",
-      "custom": {}
+      "custom": {
+        "song": "Halo",
+        "artist": "LUM!X & Pia Maria"
+      }
     },
     {
       "title": "Greece",
-      "subtitle": "Die Together",
-      "presenter": "Amanda Tenfjord",
       "note": "SF1.14",
       "endAction": "none",
       "timerType": "count-down",
@@ -274,7 +285,10 @@
       "revision": 0,
       "id": "d3eb1",
       "cue": "SF1.14",
-      "custom": {}
+      "custom": {
+        "song": "Die Together",
+        "artist": "Amanda Tenfjord"
+      }
     }
   ],
   "project": {
