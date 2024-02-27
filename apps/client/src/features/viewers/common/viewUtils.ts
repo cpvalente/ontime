@@ -50,3 +50,7 @@ export function getPropertyValue(event: OntimeEvent | null, property: MaybeStrin
 
   return event[property as keyof OntimeEvent] as string;
 }
+
+export function capitaliseFirstLetter(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
