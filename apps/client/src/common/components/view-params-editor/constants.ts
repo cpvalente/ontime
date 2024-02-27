@@ -400,8 +400,8 @@ export const getBackstageOptions = (timeFormat: string, customFields: CustomFiel
     },
     {
       id: 'secondary-src',
-      title: 'Schedule secondary text',
-      description: 'Select the data source for auxiliary test shown in the schedule',
+      title: 'Event secondary text',
+      description: 'Select the data source for auxiliary text shown in now and next cards',
       type: 'option',
       values: secondaryOptions,
       defaultValue: '',
@@ -409,30 +409,43 @@ export const getBackstageOptions = (timeFormat: string, customFields: CustomFiel
   ];
 };
 
-export const getPublicOptions = (timeFormat: string): ParamField[] => [
-  getTimeOption(timeFormat),
-  {
-    id: 'hidePast',
-    title: 'Hide past events',
-    description: 'Scheduler will only show upcoming events',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'stopCycle',
-    title: 'Stop cycling through event pages',
-    description: 'Schedule will not auto-cycle through events',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'eventsPerPage',
-    title: 'Events per page',
-    description: 'Sets the number of events on the page, can cause overlow',
-    type: 'number',
-    placeholder: '7 (default)',
-  },
-];
+export const getPublicOptions = (timeFormat: string, customFields: CustomFields): ParamField[] => {
+  const secondaryOptions = makeOptionsFromCustomFields(customFields);
+
+  return [
+    getTimeOption(timeFormat),
+    {
+      id: 'hidePast',
+      title: 'Hide past events',
+      description: 'Scheduler will only show upcoming events',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      id: 'stopCycle',
+      title: 'Stop cycling through event pages',
+      description: 'Schedule will not auto-cycle through events',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      id: 'eventsPerPage',
+      title: 'Events per page',
+      description: 'Sets the number of events on the page, can cause overlow',
+      type: 'number',
+      placeholder: '7 (default)',
+    },
+    {
+      id: 'secondary-src',
+      title: 'Event secondary text',
+      description: 'Select the data source for auxiliary text shown in now and next cards',
+      type: 'option',
+      values: secondaryOptions,
+      defaultValue: '',
+    },
+  ];
+};
+
 export const getStudioClockOptions = (timeFormat: string): ParamField[] => [
   getTimeOption(timeFormat),
   hideTimerSeconds,
