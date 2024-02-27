@@ -4,8 +4,8 @@ import './TitleCard.scss';
 
 interface TitleCardProps {
   label: 'now' | 'next';
-  title: string | null;
-  secondary?: string | null;
+  title: string;
+  secondary?: string;
 }
 
 export default function TitleCard(props: TitleCardProps) {
@@ -18,7 +18,7 @@ export default function TitleCard(props: TitleCardProps) {
     <div className='title-card'>
       <div className='inline'>
         <span className='title-card__title'>{title}</span>
-        <span className={accent ? 'title-card__label--accent' : 'title-card__label'}>
+        <span className={accent ? 'title-card__label title-card__label--accent' : 'title-card__label'}>
           {getLocalizedString(`common.${label}`)}
         </span>
       </div>
