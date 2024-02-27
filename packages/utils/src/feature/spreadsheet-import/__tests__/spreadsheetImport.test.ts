@@ -19,6 +19,7 @@ describe('isImportMap()', () => {
       timerType: 'timer type',
       timeWarning: 'warning time',
       timeDanger: 'danger time',
+      custom: {},
     };
 
     expect(isImportMap(v3ImportMap)).toBe(true);
@@ -42,8 +43,10 @@ describe('isImportMap()', () => {
       timerType: 'timer type',
       timeWarning: 'warning time',
       timeDanger: 'danger time',
-      userDefined: 'userDefined',
-      anotherOne: 'anotherOne',
+      custom: {
+        userDefined: 'userDefined',
+        anotherOne: 'anotherOne',
+      },
     };
 
     expect(isImportMap(v3ImportMap)).toBe(true);
