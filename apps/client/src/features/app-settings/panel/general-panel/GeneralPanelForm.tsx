@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Input, Select } from '@chakra-ui/react';
+import { Box, Button, Input, Select } from '@chakra-ui/react';
 import { Settings } from 'ontime-types';
 
 import { logAxiosError } from '../../../../common/api/apiUtils';
@@ -8,7 +8,6 @@ import { postSettings } from '../../../../common/api/ontimeApi';
 import useSettings from '../../../../common/hooks-query/useSettings';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
 
-import GeneralFooter from './GeneralFooter';
 import GeneralPinInput from './GeneralPinInput';
 import GeneralSplitInput from './GeneralSplitInput';
 
@@ -55,6 +54,7 @@ export default function GeneralPanelForm({ submitError }: GeneralPanelFormProps)
   };
 
   const disableInputs = status === 'pending';
+  const disableSubmit = isSubmitting || !isDirty || !isValid;
 
   const onReset = () => {
     reset(data);
@@ -131,13 +131,22 @@ export default function GeneralPanelForm({ submitError }: GeneralPanelFormProps)
             <option value='sv'>Swedish</option>
           </Select>
         </GeneralSplitInput>
-        <GeneralFooter
-          formId='app-settings'
-          handleRevert={onReset}
-          isDirty={isDirty}
-          isValid={isValid}
-          isSubmitting={isSubmitting}
-        />
+        <Box className={style.footer}>
+          <Button isDisabled={!isDirty} variant='ontime-ghost' size='sm' onClick={onReset}>
+            Revert to saved
+          </Button>
+          <Button
+            type='submit'
+            form='app-settings'
+            isLoading={isSubmitting}
+            isDisabled={disableSubmit}
+            variant='ontime-filled'
+            padding='0 2em'
+            size='sm'
+          >
+            Save
+          </Button>
+        </Box>
       </form>
       {submitError && <span className={style.error}>{submitError}</span>}
     </>
