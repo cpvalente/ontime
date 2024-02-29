@@ -27,15 +27,13 @@ describe('parseField()', () => {
   });
 
   it('returns an empty string on undefined fields', () => {
-    expect(parseField('presenter')).toBe('');
+    expect(parseField('title')).toBe('');
   });
 
   describe('simply returns any other value in any other field', () => {
     const testFields = [
       { field: 'nothing', value: '123' },
       { field: 'title', value: 'test' },
-      { field: 'presenter', value: 'test' },
-      { field: 'subtitle', value: 'test' },
       { field: 'note', value: 'test' },
       { field: 'colour', value: 'test' },
     ];
@@ -57,7 +55,6 @@ describe('makeTable()', () => {
     const tableData = [
       {
         title: 'test title 1',
-        presenter: '',
         timeStart: 0,
         timeEnd: 0,
         isPublic: 'x',

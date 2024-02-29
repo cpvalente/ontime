@@ -24,8 +24,6 @@ describe('cellRequestFromEvent()', () => {
       type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
-      subtitle: 'Wow',
-      presenter: 'Mr. Presenter',
       note: 'Blue button on the right',
       timeStart: 46800000,
       timeEnd: 57600000,
@@ -47,8 +45,6 @@ describe('cellRequestFromEvent()', () => {
       type: { row: 1, col: 14 },
       cue: { row: 1, col: 15 },
       title: { row: 1, col: 16 },
-      subtitle: { row: 1, col: 17 },
-      presenter: { row: 1, col: 18 },
       note: { row: 1, col: 19 },
       timeStart: { row: 1, col: 20 },
       timeEnd: { row: 1, col: 21 },
@@ -72,8 +68,6 @@ describe('cellRequestFromEvent()', () => {
       type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
-      subtitle: 'Wow',
-      presenter: 'Mr. Presenter',
       note: 'Blue button on the right',
       timeStart: 46800000,
       timeEnd: 57600000,
@@ -95,8 +89,6 @@ describe('cellRequestFromEvent()', () => {
       type: { row: 1, col: 14 },
       cue: { row: 1, col: 15 },
       title: { row: 1, col: 16 },
-      subtitle: { row: 1, col: 17 },
-      presenter: { row: 1, col: 18 },
       note: { row: 1, col: 19 },
       timeStart: { row: 1, col: 20 },
       timeEnd: { row: 1, col: 21 },
@@ -121,8 +113,6 @@ describe('cellRequestFromEvent()', () => {
       type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
-      subtitle: 'Wow',
-      presenter: 'Mr. Presenter',
       note: 'Blue button on the right',
       timeStart: 46800000,
       timeEnd: 57600000,
@@ -144,8 +134,6 @@ describe('cellRequestFromEvent()', () => {
       type: { row: 1, col: 14 },
       cue: { row: 1, col: 15 },
       title: { row: 1, col: 16 },
-      subtitle: { row: 1, col: 17 },
-      presenter: { row: 1, col: 18 },
       note: { row: 1, col: 19 },
       timeStart: { row: 1, col: 20 },
       timeEnd: { row: 1, col: 21 },
@@ -170,8 +158,6 @@ describe('cellRequestFromEvent()', () => {
       type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
-      subtitle: 'Wow',
-      presenter: 'Mr. Presenter',
       note: 'Blue button on the right',
       timeStart: 46800000,
       timeEnd: 57600000,
@@ -192,12 +178,10 @@ describe('cellRequestFromEvent()', () => {
     const metadata = {
       cue: { row: 1, col: 0 },
       title: { row: 1, col: 6 },
-      subtitle: { row: 1, col: 10 },
     };
     const result = cellRequestFromEvent(event, 1, 1234, metadata);
     expect(result.updateCells.rows[0].values[0].userEnteredValue.stringValue).toStrictEqual(event.cue);
     expect(result.updateCells.rows[0].values[6].userEnteredValue.stringValue).toStrictEqual(event.title);
-    expect(result.updateCells.rows[0].values[10].userEnteredValue.stringValue).toStrictEqual(event.subtitle);
   });
 
   test('metadata offset from zero', () => {
@@ -205,8 +189,6 @@ describe('cellRequestFromEvent()', () => {
       type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
-      subtitle: 'Wow',
-      presenter: 'Mr. Presenter',
       note: 'Blue button on the right',
       timeStart: 46800000,
       timeEnd: 57600000,
@@ -227,13 +209,11 @@ describe('cellRequestFromEvent()', () => {
     const metadata = {
       cue: { row: 1, col: 5 },
       title: { row: 1, col: 6 },
-      subtitle: { row: 1, col: 10 },
       user0: { row: 1, col: 16 },
     };
     const result = cellRequestFromEvent(event, 1, 1234, metadata);
     expect(result.updateCells.rows[0].values[0].userEnteredValue.stringValue).toStrictEqual(event.cue);
     expect(result.updateCells.rows[0].values[1].userEnteredValue.stringValue).toStrictEqual(event.title);
-    expect(result.updateCells.rows[0].values[5].userEnteredValue.stringValue).toStrictEqual(event.subtitle);
   });
 
   test('sheet setup', () => {
@@ -241,8 +221,6 @@ describe('cellRequestFromEvent()', () => {
       type: SupportedEvent.Event,
       cue: '1',
       title: 'Fancy',
-      subtitle: 'Wow',
-      presenter: 'Mr. Presenter',
       note: 'Blue button on the right',
       timeStart: 46800000,
       timeEnd: 57600000,
@@ -263,7 +241,6 @@ describe('cellRequestFromEvent()', () => {
     const metadata = {
       cue: { row: 10, col: 5 },
       title: { row: 10, col: 6 },
-      subtitle: { row: 1, col: 10 },
     };
     const result1 = cellRequestFromEvent(event, 1, 1234, metadata);
     expect(result1.updateCells.start.sheetId).toStrictEqual(1234);

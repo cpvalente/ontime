@@ -70,7 +70,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
     : '';
 
   return (
-    <>
+    <div className={style.column}>
       <div>
         <div className={style.inputLabel}>Event schedule</div>
         <div className={style.inline}>
@@ -139,7 +139,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           {isPublic ? 'Public' : 'Private'}
         </label>
       </div>
-    </>
+    </div>
   );
 };
 

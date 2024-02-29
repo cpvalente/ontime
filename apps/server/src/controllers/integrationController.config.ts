@@ -6,8 +6,6 @@ import { coerceString, coerceNumber, coerceBoolean, coerceColour } from '../util
 // TODO: handle custom fields
 const whitelistedPayload = {
   title: coerceString,
-  subtitle: coerceString,
-  presenter: coerceString,
   note: coerceString,
   cue: coerceString,
 

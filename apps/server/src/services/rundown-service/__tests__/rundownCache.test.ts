@@ -395,8 +395,6 @@ describe('calculateRuntimeDelays', () => {
     const rundown: OntimeRundown = [
       {
         title: '',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
@@ -423,8 +421,6 @@ describe('calculateRuntimeDelays', () => {
       },
       {
         title: '',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
@@ -451,8 +447,6 @@ describe('calculateRuntimeDelays', () => {
       },
       {
         title: '',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
@@ -479,8 +473,6 @@ describe('calculateRuntimeDelays', () => {
       },
       {
         title: '',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
@@ -516,8 +508,6 @@ describe('getDelayAt()', () => {
   const delayedRundown: OntimeRundown = [
     {
       title: '',
-      subtitle: '',
-      presenter: '',
       note: '',
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
@@ -545,8 +535,6 @@ describe('getDelayAt()', () => {
     },
     {
       title: '',
-      subtitle: '',
-      presenter: '',
       note: '',
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
@@ -574,8 +562,6 @@ describe('getDelayAt()', () => {
     },
     {
       title: '',
-      subtitle: '',
-      presenter: '',
       note: '',
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
@@ -603,8 +589,6 @@ describe('getDelayAt()', () => {
     },
     {
       title: '',
-      subtitle: '',
-      presenter: '',
       note: '',
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
@@ -658,8 +642,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
     const delayedRundown: OntimeRundown = [
       {
         title: '',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
@@ -687,8 +669,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
       },
       {
         title: '',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
@@ -716,8 +696,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
       },
       {
         title: '',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
@@ -745,8 +723,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
       },
       {
         title: '',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,

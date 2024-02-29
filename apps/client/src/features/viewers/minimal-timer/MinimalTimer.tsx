@@ -11,9 +11,8 @@ import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
 import { timerPlaceholder } from '../../../common/utils/styleUtils';
-import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
-import { getTimerByType } from '../common/viewerUtils';
+import { getTimerByType, isStringBoolean } from '../common/viewUtils';
 
 import './MinimalTimer.scss';
 

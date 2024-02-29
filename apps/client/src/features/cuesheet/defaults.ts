@@ -10,8 +10,6 @@ export const defaultColumnOrder: OntimeEntryCommonKeys[] = [
   'timeEnd',
   'duration',
   'title',
-  'subtitle',
-  'presenter',
   'note',
 ];
 

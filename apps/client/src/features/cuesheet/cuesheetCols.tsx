@@ -61,6 +61,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
     header: customFields[key].label,
     meta: { colour: customFields[key].colour },
     cell: MakeCustomField,
+    size: 250,
   }));
 
   return [
@@ -104,24 +105,14 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       id: 'title',
       header: 'Title',
       cell: (row) => row.getValue(),
-    },
-    {
-      accessorKey: 'subtitle',
-      id: 'subtitle',
-      header: 'Subtitle',
-      cell: (row) => row.getValue(),
-    },
-    {
-      accessorKey: 'presenter',
-      id: 'presenter',
-      header: 'Presenter',
-      cell: (row) => row.getValue(),
+      size: 250,
     },
     {
       accessorKey: 'note',
       id: 'note',
       header: 'Note',
       cell: (row) => row.getValue(),
+      size: 250,
     },
     ...dynamicCustomFields,
   ];

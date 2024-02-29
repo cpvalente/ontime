@@ -11,8 +11,6 @@ export const cloneEvent = (event: OntimeEvent, after?: string): ClonedEvent => {
   return {
     type: SupportedEvent.Event,
     title: event.title,
-    subtitle: event.subtitle,
-    presenter: event.presenter,
     note: event.note,
     timeStart: event.timeStart,
     duration: event.duration,
