@@ -16,7 +16,9 @@ interface GSheetSetupProps {
   onCancel: () => void;
 }
 
-export default function GSheetSetup({ onCancel }: GSheetSetupProps) {
+export default function GSheetSetup(props: GSheetSetupProps) {
+  const { onCancel } = props;
+
   const { revoke, connect, verifyAuth } = useGoogleSheet();
   const [file, setFile] = useState<File | null>(null);
   const [authKey, setAuthKey] = useState<string | null>(null);
@@ -34,6 +36,10 @@ export default function GSheetSetup({ onCancel }: GSheetSetupProps) {
     const result = await verifyAuth();
     if (result) {
       setAuthenticationStatus(result.authenticated);
+      // if we are still pending, lets check again in 2seconds
+      if (result.authenticated === 'pending') {
+        setTimeout(getAuthStatus, 2000);
+      }
     }
   };
 
@@ -42,17 +48,17 @@ export default function GSheetSetup({ onCancel }: GSheetSetupProps) {
     getAuthStatus();
   }, []);
 
-  const handleCancelFlow = () => {
-    revoke();
-    onCancel();
-  };
-
   // user cancels the flow
   const handleRevoke = async () => {
     setLoading('cancel');
     await revoke();
     await getAuthStatus();
     setLoading('');
+  };
+
+  const handleCancelFlow = async () => {
+    await handleRevoke();
+    onCancel();
   };
 
   /**
@@ -104,85 +110,79 @@ export default function GSheetSetup({ onCancel }: GSheetSetupProps) {
   const canAuthenticate = Boolean(authKey) && Boolean(authLink);
   const isLoading = Boolean(loading);
   const isAuthenticated = authenticationStatus === 'authenticated';
+  const isAuthenticating = authenticationStatus === 'pending';
 
   return (
     <Panel.Section>
       <Panel.Title>
         Sync with Google Sheet (experimental)
-        <Button variant='ontime-subtle' size='sm' onClick={handleCancelFlow}>
-          Cancel
-        </Button>
-      </Panel.Title>
-      {isAuthenticated ? (
-        <Panel.ListGroup>
-          <Panel.Title>Authenticated</Panel.Title>
+        {isAuthenticated ? (
           <Button variant='ontime-subtle' size='sm' onClick={handleRevoke} isLoading={loading === 'cancel'}>
             Revoke Authentication
           </Button>
+        ) : (
+          <Button variant='ontime-subtle' size='sm' onClick={handleCancelFlow}>
+            Go Back
+          </Button>
+        )}
+      </Panel.Title>
+      <Panel.ListGroup>
+        <Panel.Description>Upload Client Secret provided by Google</Panel.Description>
+        <Panel.Error>{undefined}</Panel.Error>
+        <Input
+          type='file'
+          onChange={handleClientSecret}
+          accept='.json'
+          size='sm'
+          variant='ontime-filled'
+          isDisabled={isLoading || canAuthenticate}
+        />
+      </Panel.ListGroup>
+      <Panel.ListGroup>
+        <Panel.Description>Enter ID of sheet to synchronise</Panel.Description>
+        <Panel.Error>{undefined}</Panel.Error>
+        <Input
+          size='sm'
+          variant='ontime-filled'
+          autoComplete='off'
+          placeholder='Sheet ID'
+          onChange={(event) => setSheetId(event.target.value)}
+          isDisabled={isLoading || canAuthenticate}
+        />
+      </Panel.ListGroup>
+      {!canAuthenticate ? (
+        <Panel.ListGroup>
+          <div className={style.buttonRow}>
+            <Button
+              variant='ontime-subtle'
+              size='sm'
+              leftIcon={<IoCheckmark />}
+              onClick={handleConnect}
+              isDisabled={!canConnect || isLoading}
+              isLoading={loading === 'connect'}
+            >
+              Connect
+            </Button>
+          </div>
         </Panel.ListGroup>
       ) : (
-        <>
-          <Panel.ListGroup>
-            <Panel.Description>Upload Client Secret provided by Google</Panel.Description>
-            <Panel.Error>{undefined}</Panel.Error>
-            <Input
-              type='file'
-              onChange={handleClientSecret}
-              accept='.json'
-              size='sm'
+        <Panel.ListGroup>
+          <div className={style.buttonRow}>
+            <CopyTag label='Google Auth Key' disabled={!canAuthenticate} size='sm'>
+              {authKey ? authKey : 'Upload files to generate Auth Key'}
+            </CopyTag>
+            <Button
               variant='ontime-filled'
-              isDisabled={isLoading || canAuthenticate}
-            />
-          </Panel.ListGroup>
-
-          <Panel.ListGroup>
-            <Panel.Description>Enter ID of sheet to synchronise</Panel.Description>
-            <Panel.Error>{undefined}</Panel.Error>
-            <Input
               size='sm'
-              variant='ontime-filled'
-              autoComplete='off'
-              placeholder='Sheet ID'
-              onChange={(event) => setSheetId(event.target.value)}
-              isDisabled={isLoading || canAuthenticate}
-            />
-          </Panel.ListGroup>
-
-          {!canAuthenticate ? (
-            <Panel.ListGroup>
-              <div className={style.buttonRow}>
-                <Button
-                  variant='ontime-subtle'
-                  size='sm'
-                  leftIcon={<IoCheckmark />}
-                  onClick={handleConnect}
-                  isDisabled={!canConnect || isLoading}
-                  isLoading={loading === 'connect'}
-                >
-                  Connect
-                </Button>
-              </div>
-            </Panel.ListGroup>
-          ) : (
-            <Panel.ListGroup>
-              <div className={style.buttonRow}>
-                <CopyTag label='Google Auth Key' disabled={!canAuthenticate} size='sm'>
-                  {authKey ? authKey : 'Upload files to generate Auth Key'}
-                </CopyTag>
-                <Button
-                  variant='ontime-filled'
-                  size='sm'
-                  leftIcon={<IoShieldCheckmarkOutline />}
-                  onClick={handleAuthenticate}
-                  isDisabled={!canAuthenticate || isLoading}
-                  isLoading={loading === 'authenticate'}
-                >
-                  Authenticate
-                </Button>
-              </div>
-            </Panel.ListGroup>
-          )}
-        </>
+              leftIcon={<IoShieldCheckmarkOutline />}
+              onClick={handleAuthenticate}
+              isDisabled={!canAuthenticate || isLoading}
+              isLoading={loading === 'authenticate' || isAuthenticating}
+            >
+              Authenticate
+            </Button>
+          </div>
+        </Panel.ListGroup>
       )}
     </Panel.Section>
   );

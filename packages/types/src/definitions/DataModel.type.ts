@@ -3,7 +3,6 @@ import { ProjectData } from './core/ProjectData.type.js';
 import { OntimeRundown } from './core/Rundown.type.js';
 import { OSCSettings } from './core/OscSettings.type.js';
 import { Settings } from './core/Settings.type.js';
-import { UserFields } from './core/UserFields.type.js';
 import { ViewSettings } from './core/Views.type.js';
 import { CustomFields, HttpSettings } from '../index.js';
 
@@ -13,7 +12,6 @@ export type DatabaseModel = {
   settings: Settings;
   viewSettings: ViewSettings;
   aliases: Alias[];
-  userFields: UserFields;
   customFields: CustomFields;
   osc: OSCSettings;
   http: HttpSettings;

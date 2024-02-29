@@ -11,7 +11,7 @@ import * as Panel from '../PanelUtils';
 import CustomFieldEntry from './CustomFieldEntry';
 import CustomFieldForm from './CustomFieldForm';
 
-const userFieldsDocsUrl = 'https://ontime.gitbook.io/v2/features/user-fields';
+const customFieldsDocsUrl = 'https://ontime.gitbook.io/v2/features/user-fields';
 
 export default function ProjectSettingsPanel() {
   const { data, refetch } = useCustomFields();
@@ -64,7 +64,7 @@ export default function ProjectSettingsPanel() {
                 <br />
                 <br />
                 This data is not used by Ontime.
-                <ExternalLink href={userFieldsDocsUrl}>See the docs</ExternalLink>
+                <ExternalLink href={customFieldsDocsUrl}>See the docs</ExternalLink>
               </AlertDescription>
             </Alert>
           </Panel.Section>

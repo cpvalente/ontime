@@ -100,7 +100,7 @@ export default function ProjectListItem({
         </td>
       ) : (
         <>
-          <td>{filename}</td>
+          <td className={style.containCell}>{filename}</td>
           <td>{new Date(createdAt).toLocaleString()}</td>
           <td>{new Date(updatedAt).toLocaleString()}</td>
           <td className={style.actionButton}>

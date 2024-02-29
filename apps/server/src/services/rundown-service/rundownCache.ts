@@ -8,11 +8,12 @@ import {
   OntimeRundown,
   OntimeRundownEntry,
 } from 'ontime-types';
-import { generateId, deleteAtIndex, insertAtIndex, reorderArray, swapEventData, getLinkedTimes } from 'ontime-utils';
+import { generateId, deleteAtIndex, insertAtIndex, reorderArray, swapEventData } from 'ontime-utils';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
 import { apply } from './delayUtils.js';
+import { handleCustomField, handleLink } from './rundownCacheUtils.js';
 
 type EventID = string;
 type NormalisedRundown = Record<EventID, OntimeRundownEntry>;
@@ -42,7 +43,12 @@ let links: Record<EventID, EventID> = {};
  * }
  */
 const customFieldChangelog = {};
-const assignedCustomFields: Record<CustomFieldLabel, EventID[]> = {};
+
+/**
+ * Keep track of which custom fields are used.
+ * This will be handy for when we delete custom fields
+ */
+let assignedCustomFields: Record<CustomFieldLabel, EventID[]> = {};
 
 export async function init(initialRundown: OntimeRundown, customFields: CustomFields) {
   persistedRundown = structuredClone(initialRundown);
@@ -56,28 +62,19 @@ export async function setRundown(initialRundown: OntimeRundown) {
   generate();
   await DataProvider.setRundown(persistedRundown);
 }
+
 /**
  * Utility initialises cache
  * @param rundown
  */
 export function generate(
   initialRundown: OntimeRundown = persistedRundown,
-  customProperties: CustomFields = persistedCustomFields,
+  customFields: CustomFields = persistedCustomFields,
 ) {
   // we decided to re-write this dataset for every change
   // instead of maintaining logic to update it
 
-  function getLink(currentIndex: number): OntimeEvent | null {
-    // currently the link is the previous event
-    for (let i = currentIndex - 1; i >= 0; i--) {
-      const event = initialRundown[i];
-      if (isOntimeEvent(event)) {
-        return event;
-      }
-    }
-    return null;
-  }
-
+  assignedCustomFields = {};
   rundown = {};
   order = [];
   links = {};
@@ -87,42 +84,21 @@ export function generate(
 
   for (let i = 0; i < initialRundown.length; i++) {
     const currentEvent = initialRundown[i];
-    let updatedEvent = { ...currentEvent };
+    const updatedEvent = { ...currentEvent };
 
-    // handle links
     if (isOntimeEvent(updatedEvent)) {
-      if (updatedEvent.linkStart) {
-        const linkedEvent = getLink(i);
-        // link is always the previous event for now
-        if (linkedEvent) {
-          links[linkedEvent.id] = currentEvent.id;
+      // 1. handle links
+      handleLink(i, initialRundown, updatedEvent, links);
 
-          const timePatch = getLinkedTimes(updatedEvent, linkedEvent);
-          updatedEvent = { ...updatedEvent, ...timePatch };
-        } else {
-          updatedEvent.linkStart = null;
-        }
-        // update the persisted event
-        initialRundown[i] = updatedEvent;
-      }
-      if (updatedEvent.custom) {
-        for (const property in updatedEvent.custom) {
-          const isValid = property in customProperties;
-          if (!isValid) {
-            delete updatedEvent.custom[property];
-            return;
-          }
-          if (!Array.isArray(assignedCustomFields[property])) {
-            assignedCustomFields[property] = [];
-          }
-          assignedCustomFields[property].push(updatedEvent.id);
-        }
-        // update the persisted event
-        initialRundown[i] = updatedEvent;
-      }
+      // 2. handle custom fields
+      handleCustomField(customFields, customFieldChangelog, updatedEvent, assignedCustomFields);
+
+      // update the persisted event
+      initialRundown[i] = updatedEvent;
     }
 
     // calculate delays
+    // !!! this must happen after handling the links
     if (isOntimeDelay(updatedEvent)) {
       accumulatedDelay += updatedEvent.duration;
     } else if (isOntimeEvent(updatedEvent)) {
@@ -217,14 +193,12 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
       console.timeEnd('rundownCache__init');
     });
 
-    // TODO: should we trottle this?
+    // TODO: should we throttle this?
     // defer writing to the database
     setImmediate(() => {
-      console.log('writing to database', persistedRundown.length)
       DataProvider.setRundown(persistedRundown);
     });
 
-    // TODO: could we return a patch object?
     return { newEvent };
   }
 
@@ -361,6 +335,37 @@ export function swap({ persistedRundown, fromId, toId }: SwapArgs): MutatingRetu
 }
 
 /**
+ * Invalidates service cache if a custom field is used
+ * @param label
+ */
+function invalidateIfUsed(label: CustomFieldLabel) {
+  if (label in assignedCustomFields) {
+    isStale = true;
+  }
+  // if the field was in use, we mark the cache as stale
+  if (label in assignedCustomFields) {
+    isStale = true;
+  }
+  // ... and schedule a cache update
+  // schedule a non priority cache update
+  setImmediate(() => {
+    console.time('rundownCache__init');
+    generate();
+    console.timeEnd('rundownCache__init');
+  });
+}
+
+/**
+ * Scheduløes a non priority custom field persist
+ * @param persistedCustomFields
+ */
+function scheduleCustomFieldPersist(persistedCustomFields: CustomFields) {
+  setImmediate(() => {
+    DataProvider.setCustomFields(persistedCustomFields);
+  });
+}
+
+/**
  * Sanitises and creates a custom field in the database
  * @param field
  * @returns
@@ -378,9 +383,7 @@ export const createCustomField = async (field: CustomField) => {
   // update object and persist
   persistedCustomFields[label] = { label, type, colour };
 
-  setImmediate(() => {
-    DataProvider.setCustomFields(persistedCustomFields);
-  });
+  scheduleCustomFieldPersist(persistedCustomFields);
 
   return persistedCustomFields;
 };
@@ -407,9 +410,8 @@ export const editCustomField = async (label: string, newField: Partial<CustomFie
 
   persistedCustomFields[label] = { ...existingField, ...newField };
 
-  setImmediate(() => {
-    DataProvider.setCustomFields(persistedCustomFields);
-  });
+  scheduleCustomFieldPersist(persistedCustomFields);
+  invalidateIfUsed(label);
 
   return persistedCustomFields;
 };
@@ -423,9 +425,8 @@ export const removeCustomField = async (label: string) => {
     delete persistedCustomFields[label];
   }
 
-  setImmediate(() => {
-    DataProvider.setCustomFields(persistedCustomFields);
-  });
+  scheduleCustomFieldPersist(persistedCustomFields);
+  invalidateIfUsed(label);
 
   return persistedCustomFields;
 };

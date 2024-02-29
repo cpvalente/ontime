@@ -3,6 +3,7 @@ import { editEvent } from '../services/rundown-service/RundownService.js';
 import { getEventWithId } from '../services/rundown-service/rundownUtils.js';
 import { coerceString, coerceNumber, coerceBoolean, coerceColour } from '../utils/coerceType.js';
 
+// TODO: handle custom fields
 const whitelistedPayload = {
   title: coerceString,
   subtitle: coerceString,
@@ -16,17 +17,6 @@ const whitelistedPayload = {
   skip: coerceBoolean,
 
   colour: coerceColour,
-
-  user0: coerceString,
-  user1: coerceString,
-  user2: coerceString,
-  user3: coerceString,
-  user4: coerceString,
-  user5: coerceString,
-  user6: coerceString,
-  user7: coerceString,
-  user8: coerceString,
-  user9: coerceString,
 };
 
 export function parse(property: string, value: unknown) {

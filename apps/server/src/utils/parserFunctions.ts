@@ -6,7 +6,6 @@ import {
   OSCSettings,
   ProjectData,
   Settings,
-  UserFields,
   ViewSettings,
   OscSubscription,
   DatabaseModel,
@@ -249,33 +248,6 @@ export const parseAliases = (data): Alias[] => {
     }
   }
   return newAliases;
-};
-
-/**
- * Parse userFields entry
- * @param {object} data - data object
- * @returns {object} - event object data
- */
-export const parseUserFields = (data): UserFields => {
-  const newUserFields: UserFields = { ...dbModel.userFields };
-
-  if ('userFields' in data) {
-    console.log('Found User Fields definition, importing...');
-    // we will only be importing the fields we know, so look for that
-    try {
-      let fieldsFound = 0;
-      for (const n in newUserFields) {
-        if (n in data.userFields) {
-          fieldsFound++;
-          newUserFields[n] = data.userFields[n];
-        }
-      }
-      console.log(`Uploaded ${fieldsFound} user fields`);
-    } catch (error) {
-      console.log(`Error: ${error}`);
-    }
-  }
-  return { ...newUserFields };
 };
 
 /**

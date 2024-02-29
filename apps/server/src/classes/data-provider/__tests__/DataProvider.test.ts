@@ -29,18 +29,6 @@ describe('safeMerge', () => {
       dangerColor: '#ED3333',
     },
     aliases: [],
-    userFields: {
-      user0: 'existing user0',
-      user1: 'existing user1',
-      user2: 'existing user2',
-      user3: 'existing user3',
-      user4: 'existing user4',
-      user5: 'existing user5',
-      user6: 'existing user6',
-      user7: 'existing user7',
-      user8: 'existing user8',
-      user9: 'existing user9',
-    },
     customFields: {
       lighting: { type: 'string', label: 'lighting', colour: 'red' },
       vfx: { type: 'string', label: 'vfx', colour: 'blue' },
@@ -166,18 +154,6 @@ describe('safeMerge', () => {
         endMessage: '',
       },
       aliases: [],
-      userFields: {
-        user0: 'user0',
-        user1: 'user1',
-        user2: 'user2',
-        user3: 'user3',
-        user4: 'user4',
-        user5: 'user5',
-        user6: 'user6',
-        user7: 'user7',
-        user8: 'user8',
-        user9: 'user9',
-      },
       osc: {
         portIn: 8888,
         portOut: 9999,
@@ -198,34 +174,6 @@ describe('safeMerge', () => {
     const mergedData = safeMerge(existingData, newData);
 
     expect(mergedData.aliases).toEqual(newData.aliases);
-  });
-
-  it('merges userFields into existing object', () => {
-    const existing = {
-      userFields: {
-        user0: 'Alice',
-        user1: 'Bob',
-      },
-    };
-
-    const newData = {
-      userFields: {
-        user2: 'Charlie',
-        user3: 'David',
-        user4: null,
-      },
-    };
-
-    const expected = {
-      user0: 'Alice',
-      user1: 'Bob',
-      user2: 'Charlie',
-      user3: 'David',
-    };
-
-    //@ts-expect-error -- testing partial merge
-    const result = safeMerge(existing, newData);
-    expect(result.userFields).toEqual(expected);
   });
 
   it('merges customFields into existing object', () => {

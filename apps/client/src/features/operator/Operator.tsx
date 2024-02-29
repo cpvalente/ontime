@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { CustomFields, isOntimeEvent, OntimeEvent, SupportedEvent, UserFields } from 'ontime-types';
+import { CustomField, CustomFields, isOntimeEvent, OntimeEvent, SupportedEvent } from 'ontime-types';
 import { getFirstEventNormal, getLastEventNormal } from 'ontime-utils';
 
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
@@ -107,7 +107,7 @@ export default function Operator() {
 
   const handleEdit = useCallback(
     (event: EditEvent) => {
-      const field = searchParams.get('subscribe') as keyof UserFields | null;
+      const field = searchParams.get('subscribe') as keyof CustomField | null;
 
       if (field) {
         setEditEvent({ ...event, field });

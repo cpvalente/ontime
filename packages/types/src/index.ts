@@ -27,9 +27,6 @@ export type { TimeFormat } from './definitions/core/TimeFormat.type.js';
 // ---> Aliases
 export type { Alias } from './definitions/core/Alias.type.js';
 
-// ---> User Fields
-export type { UserFields } from './definitions/core/UserFields.type.js';
-
 // ---> Custom Fields
 export type {
   CustomFields,

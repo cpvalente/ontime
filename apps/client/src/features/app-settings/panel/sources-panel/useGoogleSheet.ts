@@ -1,8 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { AuthenticationStatus, OntimeRundown, UserFields } from 'ontime-types';
-import { ExcelImportMap } from 'ontime-utils';
+import { AuthenticationStatus, CustomFields, OntimeRundown } from 'ontime-types';
+import { ImportMap } from 'ontime-utils';
 
-import { RUNDOWN, USERFIELDS } from '../../../../common/api/apiConstants';
+import { CUSTOM_FIELDS, RUNDOWN } from '../../../../common/api/apiConstants';
 import { maybeAxiosError } from '../../../../common/api/apiUtils';
 import {
   patchData,
@@ -20,7 +20,7 @@ export default function useGoogleSheet() {
   // functions push data to store
   const patchStepData = useSheetStore((state) => state.patchStepData);
   const setRundown = useSheetStore((state) => state.setRundown);
-  const setUserFields = useSheetStore((state) => state.setUserFields);
+  const setCustomFields = useSheetStore((state) => state.setCustomFields);
 
   /** whether the current session has been authenticated */
   const verifyAuth = async (): Promise<{ authenticated: AuthenticationStatus } | void> => {
@@ -43,6 +43,7 @@ export default function useGoogleSheet() {
     }
   };
 
+  /** requests the revoking of an existing authenticated session */
   const revoke = async (): Promise<{ authenticated: AuthenticationStatus } | void> => {
     try {
       return revokeAuthentication();
@@ -52,18 +53,18 @@ export default function useGoogleSheet() {
   };
 
   /** fetches data from a worksheet by its ID */
-  const importRundownPreview = async (sheetId: string, fileOptions: ExcelImportMap) => {
+  const importRundownPreview = async (sheetId: string, fileOptions: ImportMap) => {
     try {
       const data = await previewRundown(sheetId, fileOptions);
       setRundown(data.rundown);
-      setUserFields(data.userFields);
+      setCustomFields(data.customFields);
     } catch (error) {
       patchStepData({ pullPush: { available: true, error: maybeAxiosError(error) } });
     }
   };
 
   /** writes data to a worksheet by its ID */
-  const exportRundown = async (sheetId: string, fileOptions: ExcelImportMap) => {
+  const exportRundown = async (sheetId: string, fileOptions: ImportMap) => {
     try {
       // write data to google
       await uploadRundown(sheetId, fileOptions);
@@ -73,14 +74,14 @@ export default function useGoogleSheet() {
     }
   };
 
-  /** applies rundown and userfields to current project */
-  const importRundown = async (rundown: OntimeRundown, userFields: UserFields) => {
+  /** applies rundown and customFields to current project */
+  const importRundown = async (rundown: OntimeRundown, customFields: CustomFields) => {
     try {
-      await patchData({ rundown, userFields });
+      await patchData({ rundown, customFields });
       // we are unable to optimistically set the rundown since we need
       // it to be normalised
       await queryClient.invalidateQueries({
-        queryKey: [...RUNDOWN, ...USERFIELDS],
+        queryKey: [RUNDOWN, CUSTOM_FIELDS],
       });
     } catch (error) {
       patchStepData({ pullPush: { available: true, error: maybeAxiosError(error) } });
