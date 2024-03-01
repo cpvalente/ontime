@@ -98,6 +98,7 @@ export default function SourcesPanel() {
       }
     }
   };
+
   const handleFinished = () => {
     setImportFlow('none');
     setRundown(null);
@@ -119,7 +120,6 @@ export default function SourcesPanel() {
   const showImportMap = (isGSheetFlow && isAuthenticated) || (isExcelFlow && hasFile);
   const showReview = rundown !== null && customFields !== null;
 
-  console.log(isAuthenticated);
   return (
     <>
       <Panel.Header>Data sources</Panel.Header>

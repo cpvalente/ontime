@@ -2,7 +2,7 @@ import express from 'express';
 import { uploadClientSecret, uploadFile } from '../utils/upload.js';
 import {
   dbDownload,
-  dbUpload,
+  uploadProjectFile,
   getAliases,
   getInfo,
   getOSC,
@@ -36,8 +36,7 @@ import {
   validateLoadProjectFile,
   validateProjectRename,
 } from '../controllers/ontimeController.validate.js';
-import { projectSanitiser } from '../controllers/projectController.validate.js';
-import { sanitizeProjectFilename } from '../utils/sanitizeProjectFilename.js';
+import { projectSanitiser, sanitizeProjectFilename } from '../controllers/projectController.validate.js';
 import {
   revokeAuthentication,
   readFromSheet,
@@ -52,11 +51,12 @@ export const router = express.Router();
 // create route between controller and '/ontime/sync' endpoint
 router.get('/poll', poll);
 
+// TODO: should db be the root endpoint for /ontime/data
 // create route between controller and '/ontime/db' endpoint
 router.get('/db', dbDownload);
 
 // create route between controller and '/ontime/db' endpoint
-router.post('/db', uploadFile, dbUpload);
+router.post('/db', uploadFile, uploadProjectFile);
 
 // create route between controller and '/ontime/db' endpoint
 router.patch('/db', validatePatchProjectFile, patchPartialProjectFile);

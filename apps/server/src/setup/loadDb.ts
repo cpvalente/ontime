@@ -1,26 +1,34 @@
+import { DatabaseModel } from 'ontime-types';
+
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
 import { copyFileSync, existsSync } from 'fs';
-import { DatabaseModel } from 'ontime-types';
+import { join } from 'path';
 
 import { ensureDirectory } from '../utils/fileManagement.js';
-import { validateFile } from '../utils/parserUtils.js';
 import { dbModel } from '../models/dataModel.js';
+
+import { pathToStartDb, resolveDbDirectory, resolveDbPath } from './index.js';
+import { parseProjectFile } from '../services/project-service/projectFileUtils.js';
 import { parseJson } from '../utils/parser.js';
-import { pathToStartDb, resolveDbDirectory, resolveDbPath } from '../setup.js';
 
 /**
  * @description ensures directories exist and populates database
  * @return {string} - path to db file
  */
-const populateDb = () => {
-  const dbInDisk = resolveDbPath;
+const populateDb = (): string => {
+  // if everything goes well, the DB in disk is the one loaded
+  let dbInDisk = resolveDbPath;
   ensureDirectory(resolveDbDirectory);
 
   // if dbInDisk doesn't exist we want to use startup db
   if (!existsSync(dbInDisk)) {
     try {
-      copyFileSync(pathToStartDb, dbInDisk);
+      const dbDirectory = resolveDbDirectory;
+      const newFileDirectory = join(dbDirectory, pathToStartDb.split('/').pop());
+
+      copyFileSync(pathToStartDb, newFileDirectory);
+      dbInDisk = newFileDirectory;
     } catch (_) {
       /* we do not handle this */
     }
@@ -31,14 +39,14 @@ const populateDb = () => {
 
 /**
  * @description parses a json file to the adapter
- * @param fileToRead
- * @param adapterToUse
- * @return {Promise<number|*>}
+ * It will create an empty file from the model if the parsing fails
  */
-const parseDb = async (fileToRead: string, adapterToUse: Low<DatabaseModel>) => {
-  if (validateFile(fileToRead)) {
+const parseDatabase = async (fileToRead: string, adapterToUse: Low<DatabaseModel>) => {
+  try {
+    // this will throw if file is not valid
+    parseProjectFile(fileToRead);
     await adapterToUse.read();
-  } else {
+  } catch (error) {
     adapterToUse.data = dbModel;
   }
 
@@ -55,12 +63,7 @@ async function loadDb() {
   const adapter = new JSONFile<DatabaseModel>(dbInDisk);
   const db = new Low(adapter, dbModel);
 
-  const data = await parseDb(dbInDisk, db);
-  if (data === null) {
-    console.error('ERROR: Invalid JSON format');
-    return;
-  }
-
+  const data = await parseDatabase(dbInDisk, db);
   db.data = data;
   await db.write();
 

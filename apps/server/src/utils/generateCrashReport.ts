@@ -4,7 +4,7 @@ import { join } from 'path';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { get } from '../services/rundown-service/rundownCache.js';
 import { getState } from '../stores/runtimeState.js';
-import { resolveCrashReportDirectory } from '../setup.js';
+import { resolveCrashReportDirectory } from '../setup/index.js';
 
 /**
  * Writes a file to the crash report location

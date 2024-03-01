@@ -1,5 +1,5 @@
 import { copyFile } from 'fs/promises';
-import { pathToStartDemo, resolveDemoDirectory, resolveDemoPath } from '../setup.js';
+import { pathToStartDemo, resolveDemoDirectory, resolveDemoPath } from './index.js';
 import { ensureDirectory } from '../utils/fileManagement.js';
 
 /**

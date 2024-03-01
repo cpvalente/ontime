@@ -1,3 +1,5 @@
+import { Response } from 'express';
+
 import { isEmptyObject } from './parserUtils.js';
 
 /**
@@ -5,18 +7,17 @@ import { isEmptyObject } from './parserUtils.js';
  * @param obj
  * @param res
  */
-export const failEmptyObjects = (obj, res) => {
-  let failed = false;
+export const failEmptyObjects = (obj: object, res: Response): boolean => {
   try {
     if (isEmptyObject(obj)) {
       res.status(400).send('No object found in request');
-      failed = true;
+      return true;
     }
   } catch (error) {
     res.status(400).send(error);
-    failed = true;
+    return true;
   }
-  return failed;
+  return false;
 };
 
 /**
@@ -24,16 +25,15 @@ export const failEmptyObjects = (obj, res) => {
  * @param obj
  * @param res
  */
-export const failIsNotArray = (obj, res) => {
-  let failed = false;
+export const failIsNotArray = (obj: object, res: Response): boolean => {
   try {
     if (!Array.isArray(obj)) {
       res.status(400).send('No array found in request');
-      failed = true;
+      return true;
     }
   } catch (error) {
     res.status(400).send(error);
-    failed = true;
+    return true;
   }
-  return failed;
+  return false;
 };

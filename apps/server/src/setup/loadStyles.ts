@@ -1,5 +1,5 @@
 import { copyFileSync, existsSync } from 'fs';
-import { pathToStartStyles, resolveStylesDirectory, resolveStylesPath } from '../setup.js';
+import { pathToStartStyles, resolveStylesDirectory, resolveStylesPath } from './index.js';
 import { ensureDirectory } from '../utils/fileManagement.js';
 
 /**

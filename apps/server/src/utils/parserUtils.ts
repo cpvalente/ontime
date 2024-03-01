@@ -1,4 +1,4 @@
-import { unlink, readFileSync } from 'fs';
+import { unlink } from 'fs';
 import { deepmerge } from 'ontime-utils';
 
 /**
@@ -23,20 +23,6 @@ export const deleteFile = async (file) => {
       console.error('Could not delete file:', error);
     }
   });
-};
-
-/**
- * @description Delete file from system
- * @param {string} file - reference to file
- * @returns {boolean} - whether file is valid JSON
- */
-export const validateFile = (file) => {
-  try {
-    JSON.parse(readFileSync(file, 'utf-8'));
-    return true;
-  } catch (err) {
-    return false;
-  }
 };
 
 /**

@@ -22,9 +22,7 @@ import {
   EventCustomFields,
 } from 'ontime-types';
 
-import fs from 'fs';
 import xlsx from 'node-xlsx';
-import path from 'path';
 
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
@@ -40,7 +38,6 @@ import {
   parseCustomFields,
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
-import { configService } from '../services/ConfigService.js';
 import { coerceBoolean } from './coerceType.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
@@ -368,53 +365,38 @@ type ResponseOK = {
 };
 
 /**
- * @description Middleware function that checks file type and calls relevant parser
- * @param {string} file - reference to file
- * @param options - import options
- * @return {object} - parse result message
+ * Validates and calls parse on an excel file
  */
-export const fileHandler = async (file: string, options: ImportOptions): Promise<Partial<ResponseOK>> => {
+export function handleMaybeExcel(file: string, options: ImportOptions) {
   const res: Partial<ResponseOK> = {};
 
-  const fileName = path.basename(file);
-
-  // check which file type are we dealing with
-  if (file.endsWith('.xlsx')) {
-    // we need to check that the options are applicable
-    if (!isImportMap(options)) {
-      throw new Error('Got incorrect options for spreadsheet import');
-    }
-
-    const excelData = xlsx
-      .parse(file, { cellDates: true })
-      .find(({ name }) => name.toLowerCase() === options.worksheet.toLowerCase());
-
-    if (!excelData?.data) {
-      throw new Error(`Could not find data to import, maybe the worksheet name is incorrect: ${options.worksheet}`);
-    }
-
-    const dataFromExcel = parseExcel(excelData.data, options);
-    // we run the parsed data through an extra step to ensure the objects shape
-    res.data = {};
-    res.data.rundown = parseRundown(dataFromExcel);
-    if (res.data.rundown.length < 1) {
-      throw new Error(`Could not find data to import in the worksheet: ${options.worksheet}`);
-    }
-    res.data.customFields = parseCustomFields(dataFromExcel);
-
-    deleteFile(file);
-
-    return res;
+  if (!file.endsWith('.xlsx')) {
+    throw new Error('unexpected extension for spreadsheet');
   }
 
-  if (file.endsWith('.json')) {
-    const rawdata = fs.readFileSync(file).toString();
-    let uploadedJson = null;
-
-    uploadedJson = JSON.parse(rawdata);
-    res.data = await parseJson(uploadedJson);
-
-    await configService.updateDatabaseConfig(fileName);
-    return res;
+  // we need to check that the options are applicable
+  if (!isImportMap(options)) {
+    throw new Error('Got incorrect options for spreadsheet import');
   }
-};
+
+  const excelData = xlsx
+    .parse(file, { cellDates: true })
+    .find(({ name }) => name.toLowerCase() === options.worksheet.toLowerCase());
+
+  if (!excelData?.data) {
+    throw new Error(`Could not find data to import, maybe the worksheet name is incorrect: ${options.worksheet}`);
+  }
+
+  const dataFromExcel = parseExcel(excelData.data, options);
+  // we run the parsed data through an extra step to ensure the objects shape
+  res.data = {};
+  res.data.rundown = parseRundown(dataFromExcel);
+  if (res.data.rundown.length < 1) {
+    throw new Error(`Could not find data to import in the worksheet: ${options.worksheet}`);
+  }
+  res.data.customFields = parseCustomFields(dataFromExcel);
+
+  deleteFile(file);
+
+  return res;
+}
