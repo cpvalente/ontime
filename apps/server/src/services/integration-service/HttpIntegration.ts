@@ -60,7 +60,9 @@ export class HttpIntegration implements IIntegration<HttpSubscription> {
     });
   }
 
-  shutdown() {}
+  shutdown() {
+    /** shutdown is a no-op here*/
+  }
 }
 
 export const httpIntegration = new HttpIntegration();

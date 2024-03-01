@@ -27,7 +27,7 @@ class IntegrationService {
   }
 
   shutdown() {
-    logger.info(LogOrigin.Tx, `Shutdown Integrations`);
+    logger.info(LogOrigin.Tx, 'Shutdown Integrations');
     this.integrations.forEach((integration) => {
       integration.shutdown();
     });
