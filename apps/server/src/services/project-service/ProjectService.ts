@@ -18,7 +18,6 @@ import { deleteFile } from '../../utils/parserUtils.js';
 // init dependencies
 init();
 
-
 /**
  * Ensure services has its dependencies initialized
  */
