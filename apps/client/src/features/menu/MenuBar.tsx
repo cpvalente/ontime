@@ -129,8 +129,8 @@ const MenuBar = (props: MenuBarProps) => {
         className={cx([isSettingsOpen ? style.open : null, style.bottom])}
         icon={<IoSettingsOutline />}
         clickHandler={() => openSettings()}
-        tooltip='About'
-        aria-label='About'
+        tooltip='Application settings'
+        aria-label='Application settings'
       />
     </div>
   );
