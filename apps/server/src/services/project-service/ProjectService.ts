@@ -11,9 +11,20 @@ import { getNetworkInterfaces } from '../../utils/networkInterfaces.js';
 import { resolveProjectsDirectory, resolveStylesPath } from '../../setup/index.js';
 import { filterProjectFiles, parseProjectFile } from './projectFileUtils.js';
 import { appStateService } from '../app-state-service/AppStateService.js';
-import { getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
+import { ensureDirectory, getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
 import { dbModel } from '../../models/dataModel.js';
 import { deleteFile } from '../../utils/parserUtils.js';
+
+// init dependencies
+init();
+
+
+/**
+ * Ensure services has its dependencies initialized
+ */
+function init() {
+  ensureDirectory(resolveProjectsDirectory);
+}
 
 type Options = {
   onlyRundown?: 'true' | 'false';
