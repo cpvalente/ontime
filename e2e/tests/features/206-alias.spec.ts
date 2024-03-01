@@ -4,7 +4,7 @@ test('test aliases feature, it should redirect to given alias', async ({ page })
   await page.goto('http://localhost:4001/editor');
 
   // open settings
-  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Settings deprecated' }).click();
   await page.getByRole('tab', { name: 'URL Aliases' }).click();
 
   // create alias

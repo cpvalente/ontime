@@ -120,8 +120,8 @@ const MenuBar = (props: MenuBarProps) => {
         icon={<IoSettingsOutline />}
         className={isOldSettingsOpen ? style.open : ''}
         clickHandler={onSettingsOpen}
-        tooltip='Settings'
-        aria-label='Settings'
+        tooltip='Settings deprecated'
+        aria-label='Settings deprecated'
       />
 
       <TooltipActionBtn
