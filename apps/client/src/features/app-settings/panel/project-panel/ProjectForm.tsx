@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input } from '@chakra-ui/react';
 
+import * as Panel from '../PanelUtils';
+
 import style from './ProjectPanel.module.scss';
 
 export type ProjectFormValues = {
@@ -62,7 +64,7 @@ export default function ProjectForm({ action, filename, onSubmit, onCancel, subm
           </Button>
         </div>
       </form>
-      {submitError && <span className={style.error}>{submitError}</span>}
+      {submitError && <Panel.Error>{submitError}</Panel.Error>}
     </>
   );
 }

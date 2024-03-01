@@ -5,7 +5,7 @@ import fs from 'fs';
 
 import { EXCEL_MIME, JSON_MIME } from './parser.js';
 import { ensureDirectory } from './fileManagement.js';
-import { getAppDataPath } from '../setup.js';
+import { getAppDataPath, uploadsFolderPath } from '../setup/index.js';
 
 function generateNewFileName(filePath: string, callback: (newName: string) => void) {
   const baseName = path.basename(filePath, path.extname(filePath));
@@ -37,20 +37,19 @@ const storage = multer.diskStorage({
       throw new Error('Could not resolve public folder for platform');
     }
 
-    const uploadsPath = path.join(appDataPath, 'uploads');
-    ensureDirectory(uploadsPath);
+    ensureDirectory(uploadsFolderPath);
 
-    const filePath = path.join(uploadsPath, file.originalname);
+    const filePath = path.join(uploadsFolderPath, file.originalname);
 
     // Check if file already exists
     fs.access(filePath, fs.constants.F_OK, (err) => {
       if (err) {
         // File does not exist, can safely proceed to this destination
-        cb(null, uploadsPath);
+        cb(null, uploadsFolderPath);
       } else {
         generateNewFileName(filePath, (newName) => {
           file.originalname = newName;
-          cb(null, uploadsPath);
+          cb(null, uploadsFolderPath);
         });
       }
     });

@@ -7,44 +7,35 @@ import type {
   ErrorResponse,
   ProjectFileListResponse,
   OSCSettings,
+  RuntimeStore,
+  Settings,
+  ViewSettings,
 } from 'ontime-types';
-import { ImportOptions } from 'ontime-utils';
 
 import { RequestHandler, Request, Response } from 'express';
 import fs from 'fs';
-import { networkInterfaces } from 'os';
 import { join } from 'path';
-import { copyFile, rename, writeFile } from 'fs/promises';
 
-import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
 import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
-import {
-  getAppDataPath,
-  isDocker,
-  lastLoadedProjectConfigPath,
-  resolveDbPath,
-  resolveStylesPath,
-  uploadsFolderPath,
-} from '../setup.js';
+import { isDocker, resolveDbPath, resolveProjectsDirectory, uploadsFolderPath } from '../setup/index.js';
 import { oscIntegration } from '../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../services/integration-service/HttpIntegration.js';
-import { notifyChanges, setRundown } from '../services/rundown-service/RundownService.js';
-import { getProjectFiles } from '../utils/getFileListFromFolder.js';
-import { configService } from '../services/ConfigService.js';
-import { deleteFile } from '../utils/parserUtils.js';
-import { validateProjectFiles } from './ontimeController.validate.js';
-import { dbModel } from '../models/dataModel.js';
-import { removeFileExtension } from '../utils/removeFileExtension.js';
+import { setRundown } from '../services/rundown-service/RundownService.js';
+import { appStateService } from '../services/app-state-service/AppStateService.js';
 import type { OntimeError } from '../utils/backend.types.js';
-import { ensureJsonExtension } from '../utils/ensureJsonExtension.js';
 import { generateUniqueFileName } from '../utils/generateUniqueFilename.js';
+
+import * as projectService from '../services/project-service/ProjectService.js';
+import { extractPin } from '../services/project-service/ProjectService.js';
+import { handleMaybeExcel } from '../utils/parser.js';
+import { ensureJsonExtension } from '../utils/fileManagement.js';
 
 // Create controller for GET request to '/ontime/poll'
 // Returns data for current state
-export const poll = async (_req: Request, res: Response) => {
+export const poll = async (_req: Request, res: Response<Partial<RuntimeStore> | ErrorResponse>) => {
   try {
     const state = eventStore.poll();
     res.status(200).send(state);
@@ -70,103 +61,23 @@ export const dbDownload = async (_req: Request, res: Response) => {
   });
 };
 
-/**
- * Parses a file and returns the result objects
- * @param filePath
- * @param _req
- * @param _res
- * @param options
- */
-async function parseFile(filePath: string, _req: Request, _res: Response, options: ImportOptions) {
-  if (!fs.existsSync(filePath)) {
-    throw new Error('Upload failed');
-  }
-  const result = await fileHandler(filePath, options);
-  return result.data;
-}
-
-export type ParsingOptions = {
-  onlyRundown?: 'true' | 'false';
-};
-
-/**
- * parse an uploaded file and apply its parsed objects
- * @param file
- * @param _req
- * @param res
- * @param [options]
- * @returns {Promise<void>}
- */
-const parseAndApply = async (file, _req: Request, res: Response, options) => {
-  const result = await parseFile(file, _req, res, options);
-
-  runtimeService.stop();
-
-  const newRundown = result.rundown || [];
-  const { rundown, ...rest } = result;
-  if (options?.onlyRundown === 'true') {
-    setRundown(newRundown ?? []);
-  } else {
-    await DataProvider.mergeIntoData(rest);
-    setRundown(rundown ?? []);
-  }
-  notifyChanges({ timer: true, external: true });
-};
-
-/**
- * @description Gets information on IPV4 non-internal interfaces
- * @returns {array} - Array of objects {name: ip}
- */
-const getNetworkInterfaces = () => {
-  const nets = networkInterfaces();
-  const results: { name: string; address: string }[] = [];
-
-  for (const name of Object.keys(nets)) {
-    for (const net of nets[name]) {
-      // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
-      if (net.family === 'IPv4' && !net.internal) {
-        results.push({
-          name,
-          address: net.address,
-        });
-      }
-    }
-  }
-
-  return results;
-};
-
 // Create controller for GET request to '/ontime/info'
 // Returns -
 export const getInfo = async (_req: Request, res: Response<GetInfo>) => {
-  const { version, serverPort } = DataProvider.getSettings();
-  const osc = DataProvider.getOsc();
-
-  // get nif and inject localhost
-  const ni = getNetworkInterfaces();
-  ni.unshift({ name: 'localhost', address: '127.0.0.1' });
-  const cssOverride = resolveStylesPath;
-
-  // send object with network information
-  res.status(200).send({
-    networkInterfaces: ni,
-    version,
-    serverPort,
-    osc,
-    cssOverride,
-  });
+  const info = await projectService.getInfo();
+  res.status(200).send(info);
 };
 
-// Create controller for POST request to '/ontime/aliases'
+// Create controller for GET request to '/ontime/aliases'
 // Returns -
-export const getAliases = async (_req: Request, res: Response) => {
+export const getAliases = async (_req: Request, res: Response<Alias[]>) => {
   const aliases = DataProvider.getAliases();
   res.status(200).send(aliases);
 };
 
 // Create controller for POST request to '/ontime/aliases'
 // Returns ACK message
-export const postAliases = async (req: Request, res: Response) => {
+export const postAliases = async (req: Request, res: Response<Alias[] | ErrorResponse>) => {
   if (failIsNotArray(req.body, res)) {
     return;
   }
@@ -186,25 +97,12 @@ export const postAliases = async (req: Request, res: Response) => {
   }
 };
 
-// Create controller for POST request to '/ontime/settings'
+// Create controller for GET request to '/ontime/settings'
 // Returns -
-export const getSettings = async (_req: Request, res: Response) => {
+export const getSettings = async (_req: Request, res: Response<Settings>) => {
   const settings = DataProvider.getSettings();
   res.status(200).send(settings);
 };
-
-function extractPin(value: string | undefined | null, fallback: string | null): string | null {
-  if (value === null) {
-    return value;
-  }
-  if (typeof value === 'undefined') {
-    return fallback;
-  }
-  if (value.length === 0) {
-    return null;
-  }
-  return value;
-}
 
 // Create controller for POST request to '/ontime/settings'
 // Returns ACK message
@@ -252,7 +150,7 @@ export const postSettings = async (req: Request, res: Response) => {
 /**
  * @description Get view Settings
  */
-export const getViewSettings = async (_req: Request, res: Response) => {
+export const getViewSettings = async (_req: Request, res: Response<ViewSettings>) => {
   const views = DataProvider.getViewSettings();
   res.status(200).send(views);
 };
@@ -260,7 +158,7 @@ export const getViewSettings = async (_req: Request, res: Response) => {
 /**
  * @description Change view Settings
  */
-export const postViewSettings = async (req: Request, res: Response) => {
+export const postViewSettings = async (req: Request, res: Response<ViewSettings | ErrorResponse>) => {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -284,7 +182,7 @@ export const postViewSettings = async (req: Request, res: Response) => {
 
 // Create controller for GET request to '/ontime/osc'
 // Returns -
-export const getOSC = async (_req: Request, res: Response) => {
+export const getOSC = async (_req: Request, res: Response<OSCSettings>) => {
   const osc = DataProvider.getOsc();
   res.status(200).send(osc);
 };
@@ -365,15 +263,16 @@ export async function patchPartialProjectFile(req: Request, res: Response) {
 /**
  * uploads, parses and applies the data from a given file
  */
-export const dbUpload = async (req: Request, res: Response) => {
+export const uploadProjectFile = async (req: Request, res: Response) => {
   if (!req.file) {
     res.status(400).send({ message: 'File not found' });
     return;
   }
-  const options = req.query;
-  const file = req.file.path;
+
   try {
-    await parseAndApply(file, req, res, options);
+    const options = req.query;
+    const filePath = req.file.path;
+    await projectService.applyProjectFile(filePath, options);
     res.status(200).send();
   } catch (error) {
     res.status(400).send({ message: `Failed parsing ${error}` });
@@ -391,9 +290,13 @@ export async function previewSpreadsheet(req: Request, res: Response) {
   }
 
   try {
-    const options = JSON.parse(req.body.options);
     const filePath = req.file.path;
-    const data = await parseFile(filePath, req, res, options);
+    if (!fs.existsSync(filePath)) {
+      throw new Error('Upload failed');
+    }
+
+    const options = JSON.parse(req.body.options);
+    const data = handleMaybeExcel(filePath, options);
     res.status(200).send(data);
   } catch (error) {
     res.status(500).send({ message: String(error) });
@@ -407,16 +310,8 @@ export async function previewSpreadsheet(req: Request, res: Response) {
  */
 export const listProjects: RequestHandler = async (_req, res: Response<ProjectFileListResponse | ErrorResponse>) => {
   try {
-    const fileList = await getProjectFiles();
-
-    const lastLoadedProject = JSON.parse(fs.readFileSync(lastLoadedProjectConfigPath, 'utf8')).lastLoadedProject;
-
-    const lastLoadedProjectName = removeFileExtension(lastLoadedProject);
-
-    res.status(200).send({
-      files: fileList,
-      lastLoadedProject: lastLoadedProjectName,
-    });
+    const data = await projectService.getProjectList();
+    res.status(200).send(data);
   } catch (error) {
     res.status(500).send({ message: String(error) });
   }
@@ -430,16 +325,12 @@ export const listProjects: RequestHandler = async (_req, res: Response<ProjectFi
 export const loadProject: RequestHandler = async (req, res) => {
   try {
     const filename = req.body.filename;
-
-    const uploadsFolderPath = join(getAppDataPath(), 'uploads');
-    const filePath = join(uploadsFolderPath, filename);
+    const filePath = join(resolveProjectsDirectory, filename);
 
     if (!fs.existsSync(filePath)) {
       return res.status(404).send({ message: 'File not found' });
     }
-
-    await parseAndApply(filePath, req, res, {});
-
+    await projectService.applyProjectFile(filePath);
     res.status(200).send({
       message: `Loaded project ${filename}`,
     });
@@ -463,16 +354,13 @@ export const duplicateProjectFile: RequestHandler = async (req: Request, res: Re
     const { filename } = req.params;
     const { newFilename } = req.body;
 
-    const projectFilePath = join(uploadsFolderPath, filename);
-    const duplicateProjectFilePath = join(uploadsFolderPath, newFilename);
-
-    const errors = validateProjectFiles({ filename, newFilename });
+    const errors = projectService.validateProjectFiles({ filename, newFilename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
     }
 
-    await copyFile(projectFilePath, duplicateProjectFilePath);
+    await projectService.duplicateProjectFile(filename, newFilename);
 
     res.status(200).send({
       message: `Duplicated project ${filename} to ${newFilename}`,
@@ -497,24 +385,14 @@ export const renameProjectFile: RequestHandler = async (req: Request, res: Respo
     const { newFilename } = req.body;
     const { filename } = req.params;
 
-    const projectFilePath = join(uploadsFolderPath, filename);
-    const newProjectFilePath = join(uploadsFolderPath, newFilename);
-
-    const errors = validateProjectFiles({ filename, newFilename });
+    const errors = projectService.validateProjectFiles({ filename, newFilename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
     }
 
     // Rename the file
-    await rename(projectFilePath, newProjectFilePath);
-
-    // Update the last loaded project config if current loaded project is the one being renamed
-    const { lastLoadedProject } = await configService.getConfig();
-
-    if (lastLoadedProject === filename) {
-      await configService.updateDatabaseConfig(newFilename);
-    }
+    await projectService.renameProjectFile(filename, newFilename);
 
     res.status(200).send({
       message: `Renamed project ${filename} to ${newFilename}`,
@@ -537,10 +415,11 @@ export const createProjectFile: RequestHandler = async (req: Request, res: Respo
   try {
     const originalFilename = ensureJsonExtension(req.body.title || 'Untitled');
     const filename = generateUniqueFileName(uploadsFolderPath, originalFilename);
+    const errors = projectService.validateProjectFiles({ newFilename: filename });
 
-    const projectFilePath = join(uploadsFolderPath, filename);
-
-    const errors = validateProjectFiles({ newFilename: filename });
+    if (errors.length) {
+      return res.status(409).send({ message: 'Project with title already exists' });
+    }
 
     const newProjectData: ProjectData = {
       title: req.body?.title ?? '',
@@ -551,20 +430,7 @@ export const createProjectFile: RequestHandler = async (req: Request, res: Respo
       backstageInfo: req.body?.backstageInfo ?? '',
     };
 
-    const data = {
-      ...dbModel,
-      project: {
-        ...dbModel.project,
-        ...newProjectData,
-      },
-    };
-
-    if (errors.length) {
-      return res.status(409).send({ message: 'Project with title already exists' });
-    }
-
-    await writeFile(projectFilePath, JSON.stringify(data));
-    await parseAndApply(projectFilePath, req, res, {});
+    projectService.createProjectFile(filename, newProjectData);
 
     res.status(200).send({
       filename,
@@ -588,21 +454,19 @@ export const deleteProjectFile: RequestHandler = async (req: Request, res: Respo
   try {
     const { filename } = req.params;
 
-    const { lastLoadedProject } = await configService.getConfig();
+    const { lastLoadedProject } = await appStateService.get();
 
     if (lastLoadedProject === filename) {
       return res.status(403).send({ message: 'Cannot delete currently loaded project' });
     }
 
-    const projectFilePath = join(uploadsFolderPath, filename);
-
-    const errors = validateProjectFiles({ filename });
+    const errors = projectService.validateProjectFiles({ filename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
     }
 
-    await deleteFile(projectFilePath);
+    await projectService.deleteProjectFile(filename);
 
     res.status(200).send({
       message: `Deleted project ${filename}`,

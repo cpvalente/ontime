@@ -10,7 +10,7 @@ import { sheets, sheets_v4 } from '@googleapis/sheets';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import got from 'got';
 
-import { resolveSheetsDirectory } from '../../setup.js';
+import { resolveSheetsDirectory } from '../../setup/index.js';
 import { ensureDirectory } from '../../utils/fileManagement.js';
 import { type ClientSecret, cellRequestFromEvent, getA1Notation, validateClientSecret } from './sheetUtils.js';
 import { ImportMap } from 'ontime-utils';

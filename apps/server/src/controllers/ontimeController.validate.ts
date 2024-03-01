@@ -1,8 +1,6 @@
 import { body, check, validationResult } from 'express-validator';
-import { join } from 'path';
-import { existsSync } from 'fs';
 import { Request, Response, NextFunction } from 'express';
-import { uploadsFolderPath } from '../setup.js';
+
 import { sanitiseHttpSubscriptions, sanitiseOscSubscriptions } from '../utils/parserFunctions.js';
 
 /**
@@ -168,34 +166,3 @@ export const validateProjectRename = [
     next();
   },
 ];
-
-/**
- * @description Validates the existence of project files.
- * @param {object} projectFiles
- * @param {string} projectFiles.projectFilename
- * @param {string} projectFiles.newFilename
- *
- * @returns {Promise<Array<string>>} Array of errors
- *
- */
-export const validateProjectFiles = (projectFiles: { filename?: string; newFilename?: string }): Array<string> => {
-  const errors: string[] = [];
-
-  if (projectFiles.filename) {
-    const projectFilePath = join(uploadsFolderPath, projectFiles.filename);
-
-    if (!existsSync(projectFilePath)) {
-      errors.push('Project file does not exist');
-    }
-  }
-
-  if (projectFiles.newFilename) {
-    const projectFilePath = join(uploadsFolderPath, projectFiles.newFilename);
-
-    if (existsSync(projectFilePath)) {
-      errors.push('New project file already exists');
-    }
-  }
-
-  return errors;
-};

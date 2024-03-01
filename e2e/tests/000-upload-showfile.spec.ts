@@ -7,19 +7,17 @@ test('test project file upload', async ({ page }) => {
   await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Delete all events' }).click();
 
-  await page.getByRole('button', { name: 'Import project file' }).click();
+  await page.getByRole('button', { name: 'Application settings' }).click();
+  await page.getByRole('button', { name: 'Project', exact: true }).click();
 
   // workaround to upload file on hidden input
   // https://playwright.dev/docs/api/class-filechooser
-  const [fileChooser] = await Promise.all([
-    page.waitForEvent('filechooser'),
-    await page.getByText('Click to select Ontime project').click(),
-  ]);
-
+  const fileChooserPromise = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Import' }).click();
+  const fileChooser = await fileChooserPromise;
   await fileChooser.setFiles(fileToUpload);
 
-  // there is only one step for normal imports
-  await page.getByRole('button', { name: 'Import' }).click();
+  await page.getByRole('button', { name: 'close' }).click();
 
   // asset test events
   await page.getByText('Albania').click();

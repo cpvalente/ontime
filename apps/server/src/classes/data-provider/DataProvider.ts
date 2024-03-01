@@ -14,9 +14,9 @@ import {
   HttpSettings,
 } from 'ontime-types';
 
-import { data, db } from '../../modules/loadDb.js';
+import { data, db } from '../../setup/loadDb.js';
 import { safeMerge } from './DataProvider.utils.js';
-import { isTest } from '../../setup.js';
+import { isTest } from '../../setup/index.js';
 
 export class DataProvider {
   static getData() {
@@ -48,7 +48,7 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getSettings() {
+  static getSettings(): Settings {
     return data.settings;
   }
 
@@ -65,7 +65,7 @@ export class DataProvider {
     return data.http;
   }
 
-  static getAliases() {
+  static getAliases(): Alias[] {
     return data.aliases;
   }
 

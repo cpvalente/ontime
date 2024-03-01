@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ensureJsonExtension } from '../ensureJsonExtension.js';
+import { ensureJsonExtension } from '../fileManagement.js';
 
 describe('ensureJsonExtension', () => {
   it('should add .json to a filename without an extension', () => {

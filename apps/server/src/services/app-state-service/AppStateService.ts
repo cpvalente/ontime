@@ -1,24 +1,23 @@
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
-import { join } from 'path';
 
-import { getAppDataPath, isTest } from '../setup.js';
+import { appStatePath, isTest } from '../../setup/index.js';
 
 interface Config {
   lastLoadedProject: string;
 }
 
 /**
- * Service manages Ontime's runtime configuration
+ * Service manages Ontime's runtime memory between boots
  */
 
-class ConfigService {
+class AppStateService {
   private config: Low<Config>;
-  private configPath: string;
+  private pathToFile: string;
 
-  constructor() {
-    this.configPath = join(getAppDataPath(), 'config.json');
-    const adapter = new JSONFile<Config>(this.configPath);
+  constructor(appStatePath: string) {
+    this.pathToFile = appStatePath;
+    const adapter = new JSONFile<Config>(this.pathToFile);
     this.config = new Low<Config>(adapter, null);
 
     this.init();
@@ -29,7 +28,7 @@ class ConfigService {
     await this.config.write();
   }
 
-  async getConfig(): Promise<Config> {
+  async get(): Promise<Config> {
     await this.config.read();
     return this.config.data;
   }
@@ -42,4 +41,4 @@ class ConfigService {
   }
 }
 
-export const configService = new ConfigService();
+export const appStateService = new AppStateService(appStatePath);

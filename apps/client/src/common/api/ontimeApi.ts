@@ -135,6 +135,21 @@ export const downloadRundown = (fileName?: string) => {
   );
 };
 
+/**
+ * @description HTTP request to upload project file
+ * @return {Promise}
+ */
+export async function importProjectFile(file: File): Promise<void> {
+  const formData = new FormData();
+  formData.append('userFile', file);
+  const response = await axios.post(`${ontimeURL}/db`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+}
+
 // TODO: should this be extracted to shared code?
 export type ProjectFileImportOptions = {
   onlyRundown: boolean;
@@ -341,10 +356,7 @@ export async function createProject(
     }
   >,
 ): Promise<MessageResponse> {
-  // TODO: is this URL correct?
-  const url = `${ontimeURL}/project`;
-  const decodedUrl = decodeURIComponent(url);
-  const res = await axios.post(decodedUrl, project);
+  const res = await axios.post(`${ontimeURL}/project`, project);
   return res.data;
 }
 

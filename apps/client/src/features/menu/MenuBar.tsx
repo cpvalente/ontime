@@ -3,7 +3,6 @@ import { IconButton, MenuButton, Tooltip } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
-import { IoPushOutline } from '@react-icons/all-files/io5/IoPushOutline';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 import { IoSnowOutline } from '@react-icons/all-files/io5/IoSnowOutline';
 
@@ -21,8 +20,6 @@ interface MenuBarProps {
   isOldSettingsOpen: boolean;
   onSettingsOpen: () => void;
   onSettingsClose: () => void;
-  isUploadOpen: boolean;
-  onUploadOpen: () => void;
   openSettings: (newTab?: string) => void;
   isSettingsOpen: boolean;
 }
@@ -40,15 +37,7 @@ const buttonStyle = {
 };
 
 const MenuBar = (props: MenuBarProps) => {
-  const {
-    isOldSettingsOpen,
-    onSettingsOpen,
-    onSettingsClose,
-    isUploadOpen,
-    onUploadOpen,
-    openSettings,
-    isSettingsOpen,
-  } = props;
+  const { isOldSettingsOpen, onSettingsOpen, onSettingsClose, openSettings, isSettingsOpen } = props;
   const { isElectron, sendToElectron } = useElectronEvent();
 
   const appMode = useAppMode((state) => state.mode);
@@ -95,16 +84,6 @@ const MenuBar = (props: MenuBarProps) => {
     <div className={style.menu}>
       <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} />
       <div className={style.gap} />
-      <TooltipActionBtn
-        {...buttonStyle}
-        isDisabled={appMode === AppMode.Run}
-        icon={<IoPushOutline />}
-        className={isUploadOpen ? style.open : ''}
-        clickHandler={onUploadOpen}
-        tooltip='Import project file'
-        aria-label='Import project file'
-      />
-      <div className={style.gap} />
       <RundownMenu>
         <Tooltip label='Rundown...'>
           <MenuButton as={IconButton} icon={<IoAdd />} {...buttonStyle} aria-label='Rundown menu' />
@@ -141,8 +120,8 @@ const MenuBar = (props: MenuBarProps) => {
         icon={<IoSettingsOutline />}
         className={isOldSettingsOpen ? style.open : ''}
         clickHandler={onSettingsOpen}
-        tooltip='Settings'
-        aria-label='Settings'
+        tooltip='Settings deprecated'
+        aria-label='Settings deprecated'
       />
 
       <TooltipActionBtn
@@ -150,8 +129,8 @@ const MenuBar = (props: MenuBarProps) => {
         className={cx([isSettingsOpen ? style.open : null, style.bottom])}
         icon={<IoSettingsOutline />}
         clickHandler={() => openSettings()}
-        tooltip='About'
-        aria-label='About'
+        tooltip='Application settings'
+        aria-label='Application settings'
       />
     </div>
   );

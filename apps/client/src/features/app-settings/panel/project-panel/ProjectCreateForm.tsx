@@ -1,10 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input, Textarea } from '@chakra-ui/react';
 
+import { maybeAxiosError } from '../../../../common/api/apiUtils';
+import { createProject } from '../../../../common/api/ontimeApi';
+import * as Panel from '../PanelUtils';
+
 import style from './ProjectPanel.module.scss';
 
-export type ProjectCreateFormValues = {
+interface ProjectCreateFromProps {
+  onClose: () => void;
+}
+
+type ProjectCreateFormValues = {
   title?: string;
   description?: string;
   publicInfo?: string;
@@ -13,13 +21,11 @@ export type ProjectCreateFormValues = {
   backstageUrl?: string;
 };
 
-interface ProjectCreateFormProps {
-  onCancel: () => void;
-  onSubmit: (values: ProjectCreateFormValues) => Promise<void>;
-  submitError: string | null;
-}
+export default function ProjectCreateForm(props: ProjectCreateFromProps) {
+  const { onClose } = props;
 
-export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: ProjectCreateFormProps) {
+  const [error, setError] = useState<string | null>(null);
+
   const {
     handleSubmit,
     register,
@@ -33,12 +39,40 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
     },
   });
 
+  // set focus to first field
   useEffect(() => {
     setFocus('title');
   }, [setFocus]);
 
+  const handleSubmitCreate = async (values: ProjectCreateFormValues) => {
+    try {
+      setError(null);
+      const filename = values.title?.trim();
+
+      await createProject({
+        ...values,
+        filename,
+      });
+      onClose();
+    } catch (error) {
+      setError(maybeAxiosError(error));
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <Panel.Section as='form' onSubmit={handleSubmit(handleSubmitCreate)}>
+      <Panel.Title>
+        Create new project
+        <div className={style.createActionButtons}>
+          <Button onClick={onClose} variant='ontime-ghosted' size='sm' isDisabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button isDisabled={!isValid} type='submit' isLoading={isSubmitting} variant='ontime-filled' size='sm'>
+            Create
+          </Button>
+        </div>
+      </Panel.Title>
+      {error && <Panel.Error>{error}</Panel.Error>}
       <div className={style.createFormInputField}>
         <label>
           Project title
@@ -115,22 +149,6 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
           />
         </label>
       </div>
-      <div className={style.createActionButtons}>
-        <Button onClick={onCancel} variant='ontime-ghosted' size='sm'>
-          Cancel
-        </Button>
-        <Button
-          isDisabled={!isValid}
-          type='submit'
-          isLoading={isSubmitting}
-          variant='ontime-filled'
-          padding='0 2em'
-          size='sm'
-        >
-          Create
-        </Button>
-      </div>
-      {submitError && <span className={style.error}>{submitError}</span>}
-    </form>
+    </Panel.Section>
   );
 }

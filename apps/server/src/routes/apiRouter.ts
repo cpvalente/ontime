@@ -1,7 +1,16 @@
+/**
+ * API Router
+ * User to handle all requests which affect runtime
+ * It is a mirror implementation of OSC and Websocket Adapters
+ *
+ */
+
+import { LogOrigin } from 'ontime-types';
+
 import express from 'express';
+
 import { dispatchFromAdapter } from '../controllers/integrationController.js';
 import { logger } from '../classes/Logger.js';
-import { LogOrigin } from 'ontime-types';
 import { objectFromPath } from '../adapters/utils/parse.js';
 
 export const router = express.Router();
