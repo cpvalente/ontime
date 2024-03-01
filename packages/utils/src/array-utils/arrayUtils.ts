@@ -59,7 +59,7 @@ export function reorderArray<T>(array: T[], fromIndex: number, toIndex: number) 
 export const sortArrayByProperty = <T>(arr: T[], property: string): T[] => {
   return [...arr].sort((a, b) => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error -- its ok
+    // @ts-ignore -- its ok
     return a[property] - b[property];
   });
 };
