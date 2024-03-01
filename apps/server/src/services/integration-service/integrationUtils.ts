@@ -62,9 +62,9 @@ export function parseTemplateNested(template: string, state: object, humanReadab
       }
     } else {
       // iterate through variable parts, and look for the property in the state object
-      value = variableParts.reduce((obj, key) => obj && obj[key], state);
+      value = variableParts.reduce((obj, key) => obj?.[key], state);
     }
-    if (typeof value !== 'undefined') {
+    if (value !== undefined) {
       parsedTemplate = parsedTemplate.replace(match[0], value);
     }
   }
