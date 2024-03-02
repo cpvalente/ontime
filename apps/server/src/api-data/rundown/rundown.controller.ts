@@ -1,4 +1,4 @@
-import { ErrorResponse, OntimeRundown, OntimeRundownEntry, RundownCached } from 'ontime-types';
+import { ErrorResponse, MessageResponse, OntimeRundown, OntimeRundownEntry, RundownCached } from 'ontime-types';
 
 import { Request, Response } from 'express';
 
@@ -20,7 +20,7 @@ export async function rundownGetAll(_req: Request, res: Response<OntimeRundown>)
   res.json(rundown);
 }
 
-export async function rundownGetCached(_req: Request, res: Response<RundownCached>) {
+export async function rundownGetNormalised(_req: Request, res: Response<RundownCached>) {
   const cachedRundown = getNormalisedRundown();
   res.json(cachedRundown);
 }
@@ -51,7 +51,7 @@ export async function rundownPut(req: Request, res: Response<OntimeRundownEntry 
   }
 }
 
-export async function rundownBatchPut(req: Request, res: Response) {
+export async function rundownBatchPut(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   if (failEmptyObjects(req.body, res)) {
     return res.status(404);
   }
@@ -59,13 +59,13 @@ export async function rundownBatchPut(req: Request, res: Response) {
   try {
     const { data, ids } = req.body;
     await batchEditEvents(ids, data);
-    res.status(200);
+    res.status(200).send({ message: 'Batch edit successful' });
   } catch (error) {
     res.status(400).send(error);
   }
 }
 
-export async function rundownReorder(req: Request, res: Response) {
+export async function rundownReorder(req: Request, res: Response<OntimeRundownEntry | ErrorResponse>) {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -73,13 +73,13 @@ export async function rundownReorder(req: Request, res: Response) {
   try {
     const { eventId, from, to } = req.body;
     const event = await reorderEvent(eventId, from, to);
-    res.status(200).send(event);
+    res.status(200).send(event.newEvent);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
 }
 
-export async function rundownSwap(req: Request, res: Response) {
+export async function rundownSwap(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -87,34 +87,34 @@ export async function rundownSwap(req: Request, res: Response) {
   try {
     const { from, to } = req.body;
     await swapEvents(from, to);
-    res.sendStatus(200);
+    res.status(200).send({ message: 'Swap successful' });
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
 }
 
-export async function rundownApplyDelay(req: Request, res: Response) {
+export async function rundownApplyDelay(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
     await applyDelay(req.params.eventId);
-    res.sendStatus(200);
+    res.status(200).send({ message: 'Delay applied' });
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
 }
 
-export async function deleteEventById(req: Request, res: Response) {
+export async function deleteEventById(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
     await deleteEvent(req.params.eventId);
-    res.sendStatus(204);
+    res.status(204).send({ message: 'Event deleted' });
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
 }
 
-export async function rundownDelete(req: Request, res: Response) {
+export async function rundownDelete(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
     await deleteAllEvents();
-    res.sendStatus(204);
+    res.status(204).send({ message: 'All events deleted' });
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }

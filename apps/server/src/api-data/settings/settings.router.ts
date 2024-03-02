@@ -4,5 +4,5 @@ import { validateSettings } from './settings.validation.js';
 
 export const router = express.Router();
 
-router.get('/settings', getSettings);
-router.post('/settings', validateSettings, postSettings);
+router.get('/', getSettings);
+router.post('/', validateSettings, postSettings);

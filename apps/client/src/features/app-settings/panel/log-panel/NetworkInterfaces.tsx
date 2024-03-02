@@ -1,4 +1,4 @@
-import { serverPort } from '../../../../common/api/apiConstants';
+import { serverPort } from '../../../../common/api/constants';
 import AppLink from '../../../../common/components/app-link/AppLink';
 import useInfo from '../../../../common/hooks-query/useInfo';
 

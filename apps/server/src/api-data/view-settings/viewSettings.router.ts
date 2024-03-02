@@ -5,5 +5,5 @@ import { getViewSettings, postViewSettings } from './viewSettings.controller.js'
 
 export const router = express.Router();
 
-router.get('/views', getViewSettings);
-router.post('/views', validateViewSettings, postViewSettings);
+router.get('/', getViewSettings);
+router.post('/', validateViewSettings, postViewSettings);

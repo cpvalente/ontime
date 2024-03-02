@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input, Textarea } from '@chakra-ui/react';
 
-import { maybeAxiosError } from '../../../../common/api/apiUtils';
-import { createProject } from '../../../../common/api/ontimeApi';
+import { createProject } from '../../../../common/api/db';
+import { maybeAxiosError } from '../../../../common/api/utils';
 import * as Panel from '../PanelUtils';
 
 import style from './ProjectPanel.module.scss';

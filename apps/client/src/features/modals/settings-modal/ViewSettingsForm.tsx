@@ -3,8 +3,8 @@ import { useForm } from 'react-hook-form';
 import { Alert, AlertDescription, AlertIcon, AlertTitle, Input, Switch } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
-import { logAxiosError } from '../../../common/api/apiUtils';
-import { postViewSettings } from '../../../common/api/ontimeApi';
+import { logAxiosError } from '../../../common/api/utils';
+import { postViewSettings } from '../../../common/api/viewSettings';
 import { PopoverPickerRHF } from '../../../common/components/input/popover-picker/PopoverPicker';
 import useInfo from '../../../common/hooks-query/useInfo';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';

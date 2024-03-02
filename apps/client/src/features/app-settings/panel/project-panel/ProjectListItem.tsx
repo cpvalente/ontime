@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 
-import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/apiUtils';
 import {
   deleteProject,
   downloadCSV,
@@ -10,7 +9,8 @@ import {
   duplicateProject,
   loadProject,
   renameProject,
-} from '../../../../common/api/ontimeApi';
+} from '../../../../common/api/db';
+import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';
 
 import ProjectForm, { ProjectFormValues } from './ProjectForm';
 

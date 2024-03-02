@@ -2,8 +2,8 @@ import { ChangeEvent, useRef, useState } from 'react';
 import { Button, Input } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 
-import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/apiUtils';
-import { importProjectFile } from '../../../../common/api/ontimeApi';
+import { uploadProjectFile } from '../../../../common/api/db';
+import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';
 import { validateProjectFile } from '../../../../common/utils/uploadUtils';
 import * as Panel from '../PanelUtils';
 
@@ -37,7 +37,7 @@ export default function ProjectPanel() {
 
     try {
       validateProjectFile(selectedFile);
-      await importProjectFile(selectedFile);
+      await uploadProjectFile(selectedFile);
     } catch (error) {
       const errorMessage = maybeAxiosError(error);
       setError(`Error uploading file: ${errorMessage}`);

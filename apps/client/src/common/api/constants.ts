@@ -1,4 +1,4 @@
-// REST stuff
+// keys in tanstack store
 export const ALIASES = ['aliases'];
 export const APP_INFO = ['appinfo'];
 export const APP_SETTINGS = ['appSettings'];
@@ -12,15 +12,19 @@ export const SHEET_STATE = ['sheetState'];
 export const CUSTOM_FIELDS = ['customFields'];
 export const VIEW_SETTINGS = ['viewSettings'];
 
+// resolve location
 const location = window.location;
 const socketProtocol = location.protocol === 'https:' ? 'wss' : 'ws';
 export const isProduction = import.meta.env.MODE === 'production';
 export const isDev = !isProduction;
 
+// resolve port
 const STATIC_PORT = 4001;
 export const serverPort = isProduction ? location.port : STATIC_PORT;
 export const serverURL = `${location.protocol}//${location.hostname}:${serverPort}`;
 export const websocketUrl = `${socketProtocol}://${location.hostname}:${serverPort}/ws`;
+
+export const apiEntryUrl = `${serverURL}/data`;
 
 export const projectDataURL = `${serverURL}/project`;
 export const rundownURL = `${serverURL}/events`;

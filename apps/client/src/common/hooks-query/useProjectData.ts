@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
-import { PROJECT_DATA } from '../api/apiConstants';
-import { getProjectData } from '../api/projectDataApi';
+import { PROJECT_DATA } from '../api/constants';
+import { getProjectData } from '../api/project';
 import { projectDataPlaceholder } from '../models/ProjectData';
 
 export default function useProjectData() {

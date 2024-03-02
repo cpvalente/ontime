@@ -4,15 +4,22 @@
 
 import express from 'express';
 
-import { readFromSheet, requestConnection, revokeAuthentication, verifyAuthentication } from './sheets.controller.js';
+import {
+  readFromSheet,
+  requestConnection,
+  revokeAuthentication,
+  verifyAuthentication,
+  writeToSheet,
+} from './sheets.controller.js';
 import { uploadClientSecret } from './sheets.middleware.js';
 import { validateRequestConnection, validateSheetOptions } from './sheets.validation.js';
 
 export const router = express.Router();
 
-router.get('/sheet/connect', verifyAuthentication);
-router.post('/sheet/:sheetId/connect', uploadClientSecret, validateRequestConnection, requestConnection);
+router.get('/connect', verifyAuthentication);
+router.post('/:sheetId/connect', uploadClientSecret, validateRequestConnection, requestConnection);
 
-router.post('/sheet/revoke', revokeAuthentication);
+router.post('/revoke', revokeAuthentication);
 
-router.post('/sheet/:sheetId/read', validateSheetOptions, readFromSheet);
+router.post('/:sheetId/read', validateSheetOptions, readFromSheet);
+router.post('/:sheetId/write', validateSheetOptions, writeToSheet);
