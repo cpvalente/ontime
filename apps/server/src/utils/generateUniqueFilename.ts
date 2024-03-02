@@ -21,7 +21,6 @@ export const generateUniqueFileName = (directory: string, filename: string): str
   return uniqueFilename;
 
   function fileExists(name: string) {
-    console.log('Checking if file exists:', name, existsSync(path.join(directory, name)));
     return existsSync(path.join(directory, name));
   }
 };
