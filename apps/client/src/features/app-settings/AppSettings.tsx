@@ -3,6 +3,7 @@ import { ErrorBoundary } from '@sentry/react';
 import { useKeyDown } from '../../common/hooks/useKeyDown';
 
 import AboutPanel from './panel/about-panel/AboutPanel';
+import ClientControlPanel from './panel/client-control-panel/ClientControlPanel';
 import IntegrationsPanel from './panel/integrations-panel/IntegrationsPanel';
 import LogPanel from './panel/log-panel/LogPanel';
 import ProjectPanel from './panel/project-panel/ProjectPanel';
@@ -32,6 +33,7 @@ export default function AppSettings() {
           {selectedPanel === 'sources' && <SourcesPanel />}
           {selectedPanel === 'integrations' && <IntegrationsPanel />}
           {selectedPanel === 'project_settings' && <ProjectSettingsPanel />}
+          {selectedPanel === 'client_control' && <ClientControlPanel />}
           {selectedPanel === 'about' && <AboutPanel />}
           {selectedPanel === 'log' && <LogPanel />}
         </PanelContent>
