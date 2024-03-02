@@ -48,6 +48,10 @@ export default function ProjectPanel() {
     setLoading(null);
   };
 
+  const handleCloseForm = () => {
+    setIsCreatingProject(false);
+  };
+
   return (
     <>
       <Panel.Header>Project</Panel.Header>
@@ -85,7 +89,7 @@ export default function ProjectPanel() {
             </div>
           </Panel.SubHeader>
           {error && <Panel.Error>{error}</Panel.Error>}
-          {isCreatingProject && <ProjectCreateForm onClose={() => setIsCreatingProject(false)} />}
+          {isCreatingProject && <ProjectCreateForm onClose={handleCloseForm} />}
           <ProjectList />
         </Panel.Card>
       </Panel.Section>
