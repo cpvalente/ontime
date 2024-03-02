@@ -5,5 +5,5 @@ import { getHTTP, postHTTP } from './http.controller.js';
 
 export const router = express.Router();
 
-router.get('/http', getHTTP);
-router.post('/http', validateHTTP, postHTTP);
+router.get('/', getHTTP);
+router.post('/', validateHTTP, postHTTP);

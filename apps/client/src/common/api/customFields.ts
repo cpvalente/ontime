@@ -3,7 +3,7 @@ import { CustomField, CustomFieldLabel, CustomFields } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 
-const customFieldsPath = `${apiEntryUrl}/custom-field`;
+const customFieldsPath = `${apiEntryUrl}/custom-fields`;
 
 /**
  * Requests list of known custom fields

@@ -4,5 +4,5 @@ import { validateOSC } from './osc.validation.js';
 
 export const router = express.Router();
 
-router.get('/osc', getOSC);
-router.post('/osc', validateOSC, postOSC);
+router.get('/', getOSC);
+router.post('/', validateOSC, postOSC);

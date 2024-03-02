@@ -5,10 +5,10 @@ import { validateCustomField, validateDeleteCustomField, validateEditCustomField
 
 export const router = express.Router();
 
-router.get('/custom-field', getCustomFields);
+router.get('/', getCustomFields);
 
-router.post('/custom-field', validateCustomField, postCustomField);
+router.post('/', validateCustomField, postCustomField);
 
-router.put('/custom-field/:label', validateEditCustomField, putCustomField);
+router.put('/:label', validateEditCustomField, putCustomField);
 
-router.delete('/custom-field/:label', validateDeleteCustomField, deleteCustomField);
+router.delete('/:label', validateDeleteCustomField, deleteCustomField);
