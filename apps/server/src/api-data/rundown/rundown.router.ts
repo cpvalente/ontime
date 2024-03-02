@@ -35,5 +35,5 @@ router.patch('/reorder/', rundownReorderValidator, rundownReorder);
 router.patch('/swap', rundownSwapValidator, rundownSwap);
 router.patch('/applydelay/:eventId', paramsMustHaveEventId, rundownApplyDelay);
 
-router.delete('/:eventId', paramsMustHaveEventId, deleteEventById);
 router.delete('/all', rundownDelete);
+router.delete('/:eventId', paramsMustHaveEventId, deleteEventById);

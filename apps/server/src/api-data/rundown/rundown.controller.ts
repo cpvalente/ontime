@@ -102,19 +102,19 @@ export async function rundownApplyDelay(req: Request, res: Response<MessageRespo
   }
 }
 
-export async function deleteEventById(req: Request, res: Response<MessageResponse | ErrorResponse>) {
+export async function rundownDelete(_req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
-    await deleteEvent(req.params.eventId);
-    res.status(204).send({ message: 'Event deleted' });
+    await deleteAllEvents();
+    res.status(204).send({ message: 'All events deleted' });
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
 }
 
-export async function rundownDelete(req: Request, res: Response<MessageResponse | ErrorResponse>) {
+export async function deleteEventById(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
-    await deleteAllEvents();
-    res.status(204).send({ message: 'All events deleted' });
+    await deleteEvent(req.params.eventId);
+    res.status(204).send({ message: 'Event deleted' });
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
