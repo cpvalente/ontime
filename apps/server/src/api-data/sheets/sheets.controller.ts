@@ -6,7 +6,7 @@
 import { Request, Response } from 'express';
 import { readFileSync } from 'fs';
 
-import { deleteFile } from '../utils/parserUtils.js';
+import { deleteFile } from '../../utils/parserUtils.js';
 import {
   revoke,
   handleClientSecret,
@@ -14,7 +14,7 @@ import {
   hasAuth,
   download,
   upload,
-} from '../services/sheet-service/SheetService.js';
+} from '../../services/sheet-service/SheetService.js';
 
 export async function requestConnection(req: Request, res: Response) {
   const { sheetId } = req.params;

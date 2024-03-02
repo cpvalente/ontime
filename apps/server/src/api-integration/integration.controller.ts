@@ -7,9 +7,10 @@ import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { messageService } from '../services/message-service/MessageService.js';
 import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
-import { parse, updateEvent } from './integrationController.config.js';
 import { extraTimerService } from '../services/extra-timer-service/ExtraTimerService.js';
 import { validateMessage, validateTimerMessage } from '../services/message-service/messageUtils.js';
+
+import { parse, updateEvent } from './integration.utils.js';
 
 export type ChangeOptions = {
   eventId: string;

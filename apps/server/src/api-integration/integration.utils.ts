@@ -1,4 +1,5 @@
 import { OntimeEvent, isKeyOfType, isOntimeEvent } from 'ontime-types';
+
 import { editEvent } from '../services/rundown-service/RundownService.js';
 import { getEventWithId } from '../services/rundown-service/rundownUtils.js';
 import { coerceString, coerceNumber, coerceBoolean, coerceColour } from '../utils/coerceType.js';

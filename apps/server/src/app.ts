@@ -19,11 +19,9 @@ import {
 } from './setup/index.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 
-// Import Routes
-import { router as rundownRouter } from './routes/rundownRouter.js';
-import { router as projectRouter } from './routes/projectRouter.js';
-import { router as ontimeRouter } from './routes/ontimeRouter.js';
-import { router as apiRouter } from './routes/apiRouter.js';
+// Import Routers
+import { appRouter } from './api-data/index.js';
+import { integrationRouter } from './api-integration/integration.router.js';
 
 // Import adapters
 import { OscServer } from './adapters/OscAdapter.js';
@@ -70,10 +68,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '1mb' }));
 
 // Implement route endpoints
-app.use('/events', rundownRouter);
-app.use('/project', projectRouter);
-app.use('/ontime', ontimeRouter);
-app.use('/api', apiRouter);
+app.use('/data', appRouter); // router for application data
+app.use('/api', integrationRouter); // router for integrations
 
 // serve static - css
 app.use('/external/styles', express.static(resolveStylesDirectory));

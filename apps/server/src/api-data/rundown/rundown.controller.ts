@@ -1,8 +1,8 @@
-import { RundownCached } from 'ontime-types';
+import { ErrorResponse, OntimeRundown, OntimeRundownEntry, RundownCached } from 'ontime-types';
 
-import { Request, Response, RequestHandler } from 'express';
+import { Request, Response } from 'express';
 
-import { failEmptyObjects } from '../utils/routerUtils.js';
+import { failEmptyObjects } from '../../utils/routerUtils.js';
 import {
   addEvent,
   applyDelay,
@@ -12,26 +12,20 @@ import {
   editEvent,
   reorderEvent,
   swapEvents,
-} from '../services/rundown-service/RundownService.js';
-import { getNormalisedRundown, getRundown } from '../services/rundown-service/rundownUtils.js';
+} from '../../services/rundown-service/RundownService.js';
+import { getNormalisedRundown, getRundown } from '../../services/rundown-service/rundownUtils.js';
 
-// Create controller for GET request to '/events'
-// Returns -
-export const rundownGetAll: RequestHandler = async (_req, res) => {
+export async function rundownGetAll(_req: Request, res: Response<OntimeRundown>) {
   const rundown = getRundown();
   res.json(rundown);
-};
+}
 
-// Create controller for GET request to '/events/cached'
-// Returns -
-export const rundownGetCached: RequestHandler = async (_req: Request, res: Response<RundownCached>) => {
+export async function rundownGetCached(_req: Request, res: Response<RundownCached>) {
   const cachedRundown = getNormalisedRundown();
   res.json(cachedRundown);
-};
+}
 
-// Create controller for POST request to '/events/'
-// Returns -
-export const rundownPost: RequestHandler = async (req, res) => {
+export async function rundownPost(req: Request, res: Response<OntimeRundownEntry | ErrorResponse>) {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -42,11 +36,9 @@ export const rundownPost: RequestHandler = async (req, res) => {
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
-};
+}
 
-// Create controller for PUT request to '/events/'
-// Returns -
-export const rundownPut: RequestHandler = async (req, res) => {
+export async function rundownPut(req: Request, res: Response<OntimeRundownEntry | ErrorResponse>) {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -57,9 +49,9 @@ export const rundownPut: RequestHandler = async (req, res) => {
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
-};
+}
 
-export const rundownBatchPut: RequestHandler = async (req, res) => {
+export async function rundownBatchPut(req: Request, res: Response) {
   if (failEmptyObjects(req.body, res)) {
     return res.status(404);
   }
@@ -71,9 +63,9 @@ export const rundownBatchPut: RequestHandler = async (req, res) => {
   } catch (error) {
     res.status(400).send(error);
   }
-};
+}
 
-export const rundownReorder: RequestHandler = async (req, res) => {
+export async function rundownReorder(req: Request, res: Response) {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -85,9 +77,9 @@ export const rundownReorder: RequestHandler = async (req, res) => {
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
-};
+}
 
-export const rundownSwap: RequestHandler = async (req, res) => {
+export async function rundownSwap(req: Request, res: Response) {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -99,37 +91,31 @@ export const rundownSwap: RequestHandler = async (req, res) => {
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
-};
+}
 
-// Create controller for PATCH request to '/events/applydelay/:eventId'
-// Returns -
-export const rundownApplyDelay: RequestHandler = async (req, res) => {
+export async function rundownApplyDelay(req: Request, res: Response) {
   try {
     await applyDelay(req.params.eventId);
     res.sendStatus(200);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
-};
+}
 
-// Create controller for DELETE request to '/events/:eventId'
-// Returns -
-export const deleteEventById: RequestHandler = async (req, res) => {
+export async function deleteEventById(req: Request, res: Response) {
   try {
     await deleteEvent(req.params.eventId);
     res.sendStatus(204);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
-};
+}
 
-// Create controller for DELETE request to '/events/'
-// Returns -
-export const rundownDelete: RequestHandler = async (req, res) => {
+export async function rundownDelete(req: Request, res: Response) {
   try {
     await deleteAllEvents();
     res.sendStatus(204);
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }
-};
+}

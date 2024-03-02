@@ -141,8 +141,8 @@ export const downloadRundown = (fileName?: string) => {
  */
 export async function importProjectFile(file: File): Promise<void> {
   const formData = new FormData();
-  formData.append('userFile', file);
-  const response = await axios.post(`${ontimeURL}/db`, formData, {
+  formData.append('project', file);
+  const response = await axios.post(`${ontimeURL}/upload`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -165,7 +165,7 @@ export const uploadProjectFile = async (
   options?: Partial<ProjectFileImportOptions>,
 ) => {
   const formData = new FormData();
-  formData.append('userFile', file);
+  formData.append('project', file);
 
   const onlyRundown = Boolean(options?.onlyRundown);
 
@@ -201,7 +201,7 @@ type PreviewSpreadsheetResponse = {
  */
 export async function importSpreadsheetPreview(file: File, options: ImportMap): Promise<PreviewSpreadsheetResponse> {
   const formData = new FormData();
-  formData.append('userFile', file);
+  formData.append('spreadsheet', file);
   formData.append('options', JSON.stringify(options));
 
   const response: AxiosResponse<PreviewSpreadsheetResponse> = await axios.post(
@@ -238,7 +238,7 @@ export async function getLatestVersion(): Promise<HasUpdate> {
  * @description HTTP request to get the list of available project files
  */
 export async function getProjects(): Promise<ProjectFileListResponse> {
-  const res = await axios.get(`${ontimeURL}/projects`);
+  const res = await axios.get(`${ontimeURL}/all`);
   return res.data;
 }
 
@@ -246,7 +246,7 @@ export async function getProjects(): Promise<ProjectFileListResponse> {
  * @description HTTP request to load a project file
  */
 export async function loadProject(filename: string): Promise<MessageResponse> {
-  const res = await axios.post(`${ontimeURL}/load-project`, {
+  const res = await axios.post(`${ontimeURL}/load`, {
     filename,
   });
   return res.data;
@@ -356,7 +356,7 @@ export async function createProject(
     }
   >,
 ): Promise<MessageResponse> {
-  const res = await axios.post(`${ontimeURL}/project`, project);
+  const res = await axios.post(`${ontimeURL}/new`, project);
   return res.data;
 }
 
