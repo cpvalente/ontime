@@ -56,7 +56,7 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
         ...values,
         filename,
       });
-      await queryClient.invalidateQueries(PROJECT_LIST);
+      await queryClient.invalidateQueries({ queryKey: PROJECT_LIST });
       onClose();
     } catch (error) {
       setError(maybeAxiosError(error));

@@ -13,7 +13,7 @@ import { join } from 'path';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
-import { resolveDbPath, resolveProjectsDirectory, uploadsFolderPath } from '../../setup/index.js';
+import { resolveDbPath, resolveProjectsDirectory } from '../../setup/index.js';
 
 import * as projectService from '../../services/project-service/ProjectService.js';
 import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
