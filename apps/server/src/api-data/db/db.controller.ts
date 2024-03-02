@@ -66,7 +66,7 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
 export async function createProjectFile(req: Request, res: Response<{ filename: string } | ErrorResponse>) {
   try {
     const originalFilename = ensureJsonExtension(req.body.title || 'Untitled');
-    const filename = generateUniqueFileName(uploadsFolderPath, originalFilename);
+    const filename = generateUniqueFileName(resolveProjectsDirectory, originalFilename);
     const errors = projectService.validateProjectFiles({ newFilename: filename });
 
     if (errors.length) {

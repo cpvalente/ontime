@@ -17,7 +17,7 @@ export async function getCustomFields(): Promise<CustomFields> {
  * Sets list of known custom fields
  */
 export async function postCustomField(newField: CustomField): Promise<CustomFields> {
-  const res = await axios.post(customFieldsPath, { newField });
+  const res = await axios.post(customFieldsPath, { ...newField });
   return res.data;
 }
 
@@ -25,7 +25,7 @@ export async function postCustomField(newField: CustomField): Promise<CustomFiel
  * Edits single custom field
  */
 export async function editCustomField(label: CustomFieldLabel, newField: CustomField): Promise<CustomFields> {
-  const res = await axios.put(`${customFieldsPath}/${label}`, { newField });
+  const res = await axios.put(`${customFieldsPath}/${label}`, { ...newField });
   return res.data;
 }
 
