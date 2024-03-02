@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { CustomFields } from 'ontime-types';
 
 import { queryRefetchInterval } from '../../ontimeConfig';
-import { CUSTOM_FIELDS } from '../api/apiConstants';
-import { getCustomFields } from '../api/ontimeApi';
+import { CUSTOM_FIELDS } from '../api/constants';
+import { getCustomFields } from '../api/customFields';
 
 const placeholder: CustomFields = {};
 

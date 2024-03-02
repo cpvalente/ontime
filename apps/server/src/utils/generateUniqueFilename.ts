@@ -12,11 +12,15 @@ export const generateUniqueFileName = (directory: string, filename: string): str
   let counter = 0;
   let uniqueFilename = filename;
 
-  while (existsSync(path.join(directory, uniqueFilename))) {
+  while (fileExists(uniqueFilename)) {
     counter++;
     // Append counter to filename if the file exists.
     uniqueFilename = `${baseName} (${counter})${extension}`;
   }
 
   return uniqueFilename;
+
+  function fileExists(name: string) {
+    return existsSync(path.join(directory, name));
+  }
 };

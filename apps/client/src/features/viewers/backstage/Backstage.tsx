@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { CustomFields, Message, OntimeEvent, ProjectData, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 
-import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { overrideStylesURL } from '../../../common/api/constants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import ProgressBar from '../../../common/components/progress-bar/ProgressBar';
 import Schedule from '../../../common/components/schedule/Schedule';

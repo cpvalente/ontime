@@ -3,8 +3,8 @@ import { useForm } from 'react-hook-form';
 import { Input, Select } from '@chakra-ui/react';
 import type { Settings } from 'ontime-types';
 
-import { logAxiosError } from '../../../common/api/apiUtils';
-import { postSettings } from '../../../common/api/ontimeApi';
+import { postSettings } from '../../../common/api/settings';
+import { logAxiosError } from '../../../common/api/utils';
 import useSettings from '../../../common/hooks-query/useSettings';
 import { isOnlyNumbers } from '../../../common/utils/regex';
 import ModalLoader from '../modal-loader/ModalLoader';

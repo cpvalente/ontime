@@ -1,6 +1,6 @@
 import { Log, RuntimeStore } from 'ontime-types';
 
-import { isProduction, RUNTIME, websocketUrl } from '../api/apiConstants';
+import { isProduction, RUNTIME, websocketUrl } from '../api/constants';
 import { ontimeQueryClient } from '../queryClient';
 import { socketClientName } from '../stores/connectionName';
 import { addLog } from '../stores/logger';

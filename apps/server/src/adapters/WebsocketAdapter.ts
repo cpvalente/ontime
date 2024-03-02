@@ -22,8 +22,8 @@ import type { Server } from 'http';
 import getRandomName from '../utils/getRandomName.js';
 import { IAdapter } from './IAdapter.js';
 import { eventStore } from '../stores/EventStore.js';
-import { dispatchFromAdapter } from '../controllers/integrationController.js';
 import { logger } from '../classes/Logger.js';
+import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
 
 let instance: SocketServer | null = null;
 

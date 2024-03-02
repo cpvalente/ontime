@@ -5,7 +5,7 @@ import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { HttpSettings } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
-import { maybeAxiosError } from '../../../../common/api/apiUtils';
+import { maybeAxiosError } from '../../../../common/api/utils';
 import { useHttpSettings, usePostHttpSettings } from '../../../../common/hooks-query/useHttpSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
 import { startsWithHttp } from '../../../../common/utils/regex';

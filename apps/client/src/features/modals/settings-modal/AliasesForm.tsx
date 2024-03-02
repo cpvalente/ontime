@@ -5,8 +5,8 @@ import { IoOpenOutline } from '@react-icons/all-files/io5/IoOpenOutline';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { Alias } from 'ontime-types';
 
-import { logAxiosError } from '../../../common/api/apiUtils';
-import { postAliases } from '../../../common/api/ontimeApi';
+import { postAliases } from '../../../common/api/aliases';
+import { logAxiosError } from '../../../common/api/utils';
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 import useAliases from '../../../common/hooks-query/useAliases';
 import { useEmitLog } from '../../../common/stores/logger';

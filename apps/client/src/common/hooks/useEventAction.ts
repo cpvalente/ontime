@@ -3,8 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { isOntimeEvent, MaybeString, OntimeEvent, OntimeRundownEntry, RundownCached } from 'ontime-types';
 import { getLinkedTimes, getPreviousEventNormal, reorderArray, swapEventData } from 'ontime-utils';
 
-import { RUNDOWN } from '../api/apiConstants';
-import { logAxiosError } from '../api/apiUtils';
+import { RUNDOWN } from '../api/constants';
 import {
   ReorderEntry,
   requestApplyDelay,
@@ -16,7 +15,8 @@ import {
   requestPutEvent,
   requestReorderEvent,
   SwapEntry,
-} from '../api/eventsApi';
+} from '../api/rundown';
+import { logAxiosError } from '../api/utils';
 import { useEditorSettings } from '../stores/editorSettings';
 import { forgivingStringToMillis } from '../utils/dateConfig';
 

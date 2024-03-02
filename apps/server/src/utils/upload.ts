@@ -1,9 +1,7 @@
-import { Request } from 'express';
-import multer, { FileFilterCallback } from 'multer';
+import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-import { EXCEL_MIME, JSON_MIME } from './parser.js';
 import { ensureDirectory } from './fileManagement.js';
 import { getAppDataPath, uploadsFolderPath } from '../setup/index.js';
 
@@ -30,8 +28,8 @@ function generateNewFileName(filePath: string, callback: (newName: string) => vo
 }
 
 // Define multer storage object
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
+export const storage = multer.diskStorage({
+  destination: function (_req, file, cb) {
     const appDataPath = getAppDataPath();
     if (appDataPath === '') {
       throw new Error('Could not resolve public folder for platform');
@@ -58,35 +56,3 @@ const storage = multer.diskStorage({
     cb(null, file.originalname);
   },
 });
-
-/**
- * @description Middleware function to filter allowed file types
- * @argument file - reference to file
- * @return {boolean} - file allowed
- */
-const filterUserFile = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
-  if (file.mimetype.includes(JSON_MIME) || file.mimetype.includes(EXCEL_MIME)) {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
-
-// Build multer uploader for a single file
-export const uploadFile = multer({
-  storage,
-  fileFilter: filterUserFile,
-}).single('userFile');
-
-const filterClientSecret = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
-  if (file.mimetype.includes(JSON_MIME)) {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
-
-export const uploadClientSecret = multer({
-  storage,
-  fileFilter: filterClientSecret,
-}).single('client_secret');

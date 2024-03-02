@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input, Textarea } from '@chakra-ui/react';
+import { useQueryClient } from '@tanstack/react-query';
 
-import { maybeAxiosError } from '../../../../common/api/apiUtils';
-import { createProject } from '../../../../common/api/ontimeApi';
+import { PROJECT_LIST } from '../../../../common/api/constants';
+import { createProject } from '../../../../common/api/db';
+import { maybeAxiosError } from '../../../../common/api/utils';
 import * as Panel from '../PanelUtils';
 
 import style from './ProjectPanel.module.scss';
@@ -25,6 +27,7 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
   const { onClose } = props;
 
   const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const {
     handleSubmit,
@@ -53,6 +56,7 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
         ...values,
         filename,
       });
+      await queryClient.invalidateQueries({ queryKey: PROJECT_LIST });
       onClose();
     } catch (error) {
       setError(maybeAxiosError(error));
