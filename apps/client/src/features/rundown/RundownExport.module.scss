@@ -3,6 +3,17 @@
 .rundownExport {
   height: 100%;
   flex: 1;
+
+  &.extracted {
+    .list {
+      flex: 1;
+      max-width: none;
+    }
+    .side {
+      flex: 1;
+      max-width: none;
+    }
+  }
 }
 
 .rundown {
