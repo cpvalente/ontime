@@ -128,7 +128,11 @@ export function updateRundownData(playableRundown: OntimeEvent[]) {
  * @param rundown
  * @param initialData
  */
-export function load(event: OntimeEvent, rundown: OntimeEvent[], initialData?: Partial<TimerState & RestorePoint>) {
+export function load(
+  event: OntimeEvent,
+  rundown: OntimeEvent[],
+  initialData?: Partial<TimerState & RestorePoint>,
+): boolean {
   clear();
 
   updateRundownData(rundown);
@@ -156,6 +160,8 @@ export function load(event: OntimeEvent, rundown: OntimeEvent[], initialData?: P
       runtimeState.runtime.expectedEnd = runtimeState.runtime.plannedEnd + runtimeState.runtime.offset;
     }
   }
+
+  return event.id === runtimeState.eventNow?.id;
 }
 
 export function loadNow(event: OntimeEvent, playableEvents: OntimeEvent[]) {
