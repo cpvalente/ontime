@@ -11,6 +11,7 @@ import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
+import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import { EventItemActions } from '../RundownEntry';
@@ -147,14 +148,16 @@ export default memo(EventBlockInner);
 
 function EndActionIcon(props: { action: EndAction; className: string }) {
   const { action, className } = props;
+  const maybeActiveClasses = cx([action !== EndAction.None && style.active, className]);
+
   if (action === EndAction.LoadNext) {
-    return <IoPlaySkipForward className={className} />;
+    return <IoPlaySkipForward className={maybeActiveClasses} />;
   }
   if (action === EndAction.PlayNext) {
-    return <IoPlayForward className={className} />;
+    return <IoPlayForward className={maybeActiveClasses} />;
   }
   if (action === EndAction.Stop) {
-    return <IoStop className={className} />;
+    return <IoStop className={maybeActiveClasses} />;
   }
   return <IoPlay className={className} />;
 }
