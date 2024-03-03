@@ -56,7 +56,7 @@ function RuntimeOverview() {
 
   const current = selectedEventIndex !== null ? selectedEventIndex + 1 : enDash;
   const ofTotal = numEvents || enDash;
-  const progressText = numEvents ? `${current} of ${ofTotal}` : '';
+  const progressText = numEvents ? `${current} of ${ofTotal}` : '-';
 
   const isAhead = offset <= 0;
   let offsetText = millisToString(Math.abs(offset), { fallback: enDash });

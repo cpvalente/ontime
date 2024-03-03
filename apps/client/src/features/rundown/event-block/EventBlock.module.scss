@@ -14,7 +14,7 @@ $skip-opacity: 0.1;
     'binder pb-actions estatus estatus'
     'binder ...        ...     ...';
 
-  grid-template-columns: $block-binder-width auto 1fr auto;
+  grid-template-columns: $block-binder-width 3rem 1fr auto;
   grid-template-rows: 0.25rem 2.25rem 2.25rem 2.25rem 0.25rem;
   align-items: center;
   padding-right: $block-clearance;
