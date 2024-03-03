@@ -1,6 +1,7 @@
 import { generateId } from 'ontime-utils';
 import {
   Alias,
+  AliasSchema,
   OntimeRundown,
   HttpSettings,
   OSCSettings,
@@ -20,6 +21,7 @@ import {
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
 import { createEvent } from './parser.js';
+import { safeParse } from 'valibot';
 
 /**
  * Parse events array of an entry
@@ -229,18 +231,16 @@ export const parseHttp = (data: { http?: Partial<HttpSettings> }): HttpSettings 
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseAliases = (data): Alias[] => {
+export const parseAliases = (data: object): Alias[] => {
   const newAliases: Alias[] = [];
-  if ('aliases' in data) {
+  if ('aliases' in data && Array.isArray(data.aliases)) {
     console.log('Found Aliases definition, importing...');
     try {
       for (const alias of data.aliases) {
-        const newAlias = {
-          enabled: alias.enabled ?? false,
-          alias: alias.alias ?? '',
-          pathAndParams: alias.pathAndParams ?? '',
-        };
-        newAliases.push(newAlias);
+        const newAlias = safeParse(AliasSchema, alias);
+        if (newAlias.success) {
+          newAliases.push(newAlias.output);
+        }
       }
       console.log(`Uploaded ${newAliases.length} alias(es)`);
     } catch (error) {
