@@ -25,8 +25,6 @@ test('cuesheet displays events and exports csv', async ({ page }) => {
       'Colour',
       'Cue',
       'Title',
-      'Subtitle',
-      'Presenter',
       'Note',
       'Is Public? (x)',
       'Skip?',

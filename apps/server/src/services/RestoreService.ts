@@ -1,7 +1,7 @@
 import { MaybeNumber, MaybeString, Playback } from 'ontime-types';
 
 import { JSONFile } from 'lowdb/node';
-import { resolveRestoreFile } from '../setup.js';
+import { resolveRestoreFile } from '../setup/index.js';
 
 export type RestorePoint = {
   playback: Playback;

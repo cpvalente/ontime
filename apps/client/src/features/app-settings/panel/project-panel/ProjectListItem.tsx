@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 
-import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/apiUtils';
 import {
   deleteProject,
   downloadCSV,
@@ -10,7 +9,8 @@ import {
   duplicateProject,
   loadProject,
   renameProject,
-} from '../../../../common/api/ontimeApi';
+} from '../../../../common/api/db';
+import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';
 
 import ProjectForm, { ProjectFormValues } from './ProjectForm';
 
@@ -85,9 +85,10 @@ export default function ProjectListItem({
   };
 
   const isCurrentlyBeingEdited = editingMode && filename === editingFilename;
+  const classes = current && !isCurrentlyBeingEdited ? style.current : undefined;
 
   return (
-    <tr key={filename} className={current ? style.current : undefined}>
+    <tr key={filename} className={classes}>
       {isCurrentlyBeingEdited ? (
         <td colSpan={99}>
           <ProjectForm
@@ -160,6 +161,7 @@ function ActionMenu({
         as={IconButton}
         aria-label='Options'
         icon={<IoEllipsisHorizontal />}
+        color='#e2e2e2' // $gray-200
         variant='ontime-ghosted'
         size='sm'
       />

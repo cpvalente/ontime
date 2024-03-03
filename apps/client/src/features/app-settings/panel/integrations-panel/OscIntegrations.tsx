@@ -5,7 +5,7 @@ import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { OSCSettings } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
-import { maybeAxiosError } from '../../../../common/api/apiUtils';
+import { maybeAxiosError } from '../../../../common/api/utils';
 import useOscSettings, { useOscSettingsMutation } from '../../../../common/hooks-query/useOscSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
 import { isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';

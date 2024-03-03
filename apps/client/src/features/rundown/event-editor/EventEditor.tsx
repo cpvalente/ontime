@@ -16,7 +16,7 @@ import style from './EventEditor.module.scss';
 
 export type EventEditorSubmitActions = keyof OntimeEvent;
 
-export type EditorUpdateFields = 'cue' | 'title' | 'presenter' | 'subtitle' | 'note' | 'colour' | CustomFieldLabel; // TODO: keyof customFields
+export type EditorUpdateFields = 'cue' | 'title' | 'note' | 'colour' | CustomFieldLabel;
 
 export default function EventEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
@@ -90,8 +90,6 @@ export default function EventEditor() {
           eventId={event.id}
           cue={event.cue}
           title={event.title}
-          presenter={event.presenter}
-          subtitle={event.subtitle}
           note={event.note}
           colour={event.colour}
           handleSubmit={handleSubmit}

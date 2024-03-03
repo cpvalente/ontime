@@ -9,8 +9,6 @@ describe('cloneEvent()', () => {
       type: SupportedEvent.Event,
       title: 'title',
       cue: 'cue',
-      subtitle: 'subtitle',
-      presenter: 'presenter',
       note: 'note',
       timeStart: 0,
       duration: 10,
@@ -33,8 +31,6 @@ describe('cloneEvent()', () => {
     // @ts-expect-error -- safeguarding this
     expect(cloned?.id).toBe(undefined);
     expect(cloned.title).toBe(original.title);
-    expect(cloned.subtitle).toBe(original.subtitle);
-    expect(cloned.presenter).toBe(original.presenter);
     expect(cloned.note).toBe(original.note);
     expect(cloned.endAction).toBe(original.endAction);
     expect(cloned.timerType).toBe(original.timerType);

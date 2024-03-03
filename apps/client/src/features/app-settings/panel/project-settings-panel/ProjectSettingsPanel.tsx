@@ -3,7 +3,7 @@ import { Alert, AlertDescription, AlertIcon, Button } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { CustomField, CustomFieldLabel } from 'ontime-types';
 
-import { deleteCustomField, editCustomField, postCustomField } from '../../../../common/api/ontimeApi';
+import { deleteCustomField, editCustomField, postCustomField } from '../../../../common/api/customFields';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
 import * as Panel from '../PanelUtils';

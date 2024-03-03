@@ -26,8 +26,6 @@ export type OntimeEvent = OntimeBaseEvent & {
   type: SupportedEvent.Event;
   cue: string;
   title: string;
-  subtitle: string;
-  presenter: string;
   note: string;
   endAction: EndAction;
   timerType: TimerType;

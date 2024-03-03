@@ -4,7 +4,7 @@ import type { OntimeEvent, OntimeRundown, Settings, ViewSettings } from 'ontime-
 import { isOntimeEvent, Playback } from 'ontime-types';
 import { millisToString, removeSeconds } from 'ontime-utils';
 
-import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { overrideStylesURL } from '../../../common/api/constants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { getStudioClockOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
@@ -12,8 +12,8 @@ import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
-import { isStringBoolean } from '../../../common/utils/viewUtils';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
+import { isStringBoolean } from '../common/viewUtils';
 
 import { secondsInMillis, trimRundown } from './studioClock.utils';
 

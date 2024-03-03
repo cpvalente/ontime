@@ -81,3 +81,11 @@ export function Error({ children }: { children: ReactNode }) {
 export function Divider() {
   return <hr className={style.divider} />;
 }
+
+export function Loader() {
+  return (
+    <div className={style.overlay}>
+      <span className={style.loader} />
+    </div>
+  );
+}

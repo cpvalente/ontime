@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
+import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Message, OntimeEvent, ProjectData, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
+import { CustomFields, Message, OntimeEvent, ProjectData, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 
-import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { overrideStylesURL } from '../../../common/api/constants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import ProgressBar from '../../../common/components/progress-bar/ProgressBar';
 import Schedule from '../../../common/components/schedule/Schedule';
@@ -19,10 +20,12 @@ import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
+import { getPropertyValue } from '../common/viewUtils';
 
 import './Backstage.scss';
 
 interface BackstageProps {
+  customFields: CustomFields;
   isMirrored: boolean;
   publ: Message;
   eventNow: OntimeEvent | null;
@@ -36,12 +39,24 @@ interface BackstageProps {
 }
 
 export default function Backstage(props: BackstageProps) {
-  const { isMirrored, publ, eventNow, eventNext, time, backstageEvents, selectedId, general, viewSettings, settings } =
-    props;
+  const {
+    customFields,
+    isMirrored,
+    publ,
+    eventNow,
+    eventNext,
+    time,
+    backstageEvents,
+    selectedId,
+    general,
+    viewSettings,
+    settings,
+  } = props;
 
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [blinkClass, setBlinkClass] = useState(false);
+  const [searchParams] = useSearchParams();
 
   // Set window title
   useEffect(() => {
@@ -74,12 +89,16 @@ export default function Backstage(props: BackstageProps) {
   const showPublicMessage = publ.text && publ.visible;
   const showProgress = time.playback !== 'stop';
 
+  const secondarySource = searchParams.get('secondary-src');
+  const secondaryTextNext = getPropertyValue(eventNext, secondarySource);
+  const secondaryTextNow = getPropertyValue(eventNow, secondarySource);
+
   let stageTimer = millisToString(time.current, { fallback: '- - : - -' });
   stageTimer = removeLeadingZero(stageTimer);
 
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const backstageOptions = getBackstageOptions(defaultFormat);
+  const backstageOptions = getBackstageOptions(defaultFormat, customFields);
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
@@ -111,12 +130,7 @@ export default function Backstage(props: BackstageProps) {
               animate='visible'
               exit='exit'
             >
-              <TitleCard
-                label='now'
-                title={eventNow.title}
-                subtitle={eventNow.subtitle}
-                presenter={eventNow.presenter}
-              />
+              <TitleCard label='now' title={eventNow.title} secondary={secondaryTextNow} />
               <div className='timer-group'>
                 <div className='aux-timers'>
                   <div className='aux-timers__label'>{getLocalizedString('common.started_at')}</div>
@@ -151,12 +165,7 @@ export default function Backstage(props: BackstageProps) {
               animate='visible'
               exit='exit'
             >
-              <TitleCard
-                label='next'
-                title={eventNext.title}
-                subtitle={eventNext.subtitle}
-                presenter={eventNext.presenter}
-              />
+              <TitleCard label='next' title={eventNext.title} secondary={secondaryTextNext} />
             </motion.div>
           )}
         </AnimatePresence>

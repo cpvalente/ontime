@@ -4,8 +4,8 @@ import { IoCloudOutline } from '@react-icons/all-files/io5/IoCloudOutline';
 import { IoDownloadOutline } from '@react-icons/all-files/io5/IoDownloadOutline';
 import { ImportMap, unpackError } from 'ontime-utils';
 
-import { maybeAxiosError } from '../../../../common/api/apiUtils';
-import { importSpreadsheetPreview } from '../../../../common/api/ontimeApi';
+import { importSpreadsheetPreview } from '../../../../common/api/db';
+import { maybeAxiosError } from '../../../../common/api/utils';
 import { validateSpreadsheetImport } from '../../../../common/utils/uploadUtils';
 import * as Panel from '../PanelUtils';
 
@@ -98,6 +98,7 @@ export default function SourcesPanel() {
       }
     }
   };
+
   const handleFinished = () => {
     setImportFlow('none');
     setRundown(null);
@@ -119,7 +120,6 @@ export default function SourcesPanel() {
   const showImportMap = (isGSheetFlow && isAuthenticated) || (isExcelFlow && hasFile);
   const showReview = rundown !== null && customFields !== null;
 
-  console.log(isAuthenticated);
   return (
     <>
       <Panel.Header>Data sources</Panel.Header>

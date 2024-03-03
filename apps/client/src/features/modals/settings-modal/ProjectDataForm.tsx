@@ -3,8 +3,8 @@ import { useForm } from 'react-hook-form';
 import { Input, Textarea } from '@chakra-ui/react';
 import { ProjectData } from 'ontime-types';
 
-import { logAxiosError } from '../../../common/api/apiUtils';
-import { postProjectData } from '../../../common/api/projectDataApi';
+import { postProjectData } from '../../../common/api/project';
+import { logAxiosError } from '../../../common/api/utils';
 import useProjectData from '../../../common/hooks-query/useProjectData';
 import ModalLoader from '../modal-loader/ModalLoader';
 import { inputProps } from '../modalHelper';

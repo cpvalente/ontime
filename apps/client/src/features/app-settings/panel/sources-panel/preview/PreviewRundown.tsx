@@ -33,8 +33,6 @@ export default function PreviewRundown(props: PreviewRundownProps) {
           <th>Type</th>
           <th>Cue</th>
           <th>Title</th>
-          <th>Subtitle</th>
-          <th>Presenter</th>
           <th>Time Start</th>
           <th>Time End</th>
           <th>Duration</th>
@@ -85,8 +83,6 @@ export default function PreviewRundown(props: PreviewRundownProps) {
                 </td>
                 <td className={style.nowrap}>{event.cue}</td>
                 <td>{event.title}</td>
-                <td>{event.subtitle}</td>
-                <td>{event.presenter}</td>
                 <td>{millisToString(event.timeStart)}</td>
                 <td>{millisToString(event.timeEnd)}</td>
                 <td>{millisToString(event.duration)}</td>

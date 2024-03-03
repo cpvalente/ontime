@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
 import { millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
-import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { overrideStylesURL } from '../../../common/api/constants';
 import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { MINIMAL_TIMER_OPTIONS } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
@@ -11,9 +11,8 @@ import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
 import { timerPlaceholder } from '../../../common/utils/styleUtils';
-import { isStringBoolean } from '../../../common/utils/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
-import { getTimerByType } from '../common/viewerUtils';
+import { getTimerByType, isStringBoolean } from '../common/viewUtils';
 
 import './MinimalTimer.scss';
 

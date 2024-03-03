@@ -1,6 +1,6 @@
 import * as Panel from '../PanelUtils';
 
-import Log from './Log';
+import LogExport from './LogExport';
 import InfoNif from './NetworkInterfaces';
 
 export default function LogPanel() {
@@ -8,19 +8,10 @@ export default function LogPanel() {
     <>
       <Panel.Header>Application log</Panel.Header>
       <Panel.Section>
-        <Panel.SubHeader>Available networks</Panel.SubHeader>
-        <Panel.Card>
-          <Panel.Paragraph>Ontime is streaming on the following network interfaces</Panel.Paragraph>
-          <InfoNif />
-        </Panel.Card>
+        <Panel.Paragraph>Ontime is streaming on the following network interfaces</Panel.Paragraph>
       </Panel.Section>
-
-      <Panel.Section>
-        <Panel.SubHeader>Network log</Panel.SubHeader>
-        <Panel.Card>
-          <Log />
-        </Panel.Card>
-      </Panel.Section>
+      <InfoNif />
+      <LogExport />
     </>
   );
 }

@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import withAlias from './features/AliasWrapper';
+import Log from './features/log/Log';
 import withData from './features/viewers/ViewWrapper';
 
 const Editor = lazy(() => import('./features/editors/ProtectedEditor'));
@@ -81,6 +82,14 @@ export default function AppRouter() {
           element={
             <EditorFeatureWrapper>
               <MessageControl />
+            </EditorFeatureWrapper>
+          }
+        />
+        <Route
+          path='/log'
+          element={
+            <EditorFeatureWrapper>
+              <Log />
             </EditorFeatureWrapper>
           }
         />

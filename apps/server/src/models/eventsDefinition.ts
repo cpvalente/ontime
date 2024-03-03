@@ -10,8 +10,6 @@ import {
 
 export const event: Omit<OntimeEvent, 'id' | 'delay' | 'cue'> = {
   title: '',
-  subtitle: '',
-  presenter: '',
   note: '',
   endAction: EndAction.None,
   timerType: TimerType.CountDown,

@@ -11,8 +11,6 @@ describe('convertToImportMap', () => {
       Duration: 'duration',
       Cue: 'cue',
       Title: 'title',
-      Presenter: 'presenter',
-      Subtitle: 'subtitle',
       'Is Public': 'public',
       Skip: 'skip',
       Note: 'notes',
