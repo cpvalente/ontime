@@ -121,6 +121,12 @@ function getApplicationMenu(isMac, askToQuit) {
                 await shell.openExternal('http://localhost:4001/cuesheet');
               },
             },
+            {
+              label: 'Operator',
+              click: async () => {
+                await shell.openExternal('http://localhost:4001/operator');
+              },
+            },
           ],
         },
         { type: 'separator' },
