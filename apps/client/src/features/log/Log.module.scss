@@ -5,7 +5,7 @@ $info-hover: $section-white;
   font-size: $inner-section-text-size;
   overflow-y: auto;
   user-select: text;
-  min-height: 10vh;
+  min-height: 20vh;
   max-height: 40vh;
 }
 
@@ -44,7 +44,6 @@ $info-hover: $section-white;
 .buttonBar {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  justify-content: flex-start;
+  gap: 1em;
   padding-bottom: 0.5rem;
 }
