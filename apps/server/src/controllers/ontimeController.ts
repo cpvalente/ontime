@@ -1,16 +1,16 @@
-import type {
-  Alias,
+import {
+  AliasSchema,
   DatabaseModel,
+  ErrorResponse,
   GetInfo,
   HttpSettings,
-  ProjectData,
-  ErrorResponse,
-  ProjectFileListResponse,
   OSCSettings,
+  ProjectData,
+  ProjectFileListResponse,
 } from 'ontime-types';
 import { ImportOptions } from 'ontime-utils';
-
-import { RequestHandler, Request, Response } from 'express';
+import { array, safeParse } from 'valibot';
+import { Request, RequestHandler, Response } from 'express';
 import fs from 'fs';
 import { networkInterfaces } from 'os';
 import { join } from 'path';
@@ -18,7 +18,7 @@ import { copyFile, rename, writeFile } from 'fs/promises';
 
 import { fileHandler } from '../utils/parser.js';
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
-import { failEmptyObjects, failIsNotArray } from '../utils/routerUtils.js';
+import { failEmptyObjects } from '../utils/routerUtils.js';
 import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
 import {
@@ -157,32 +157,29 @@ export const getInfo = async (_req: Request, res: Response<GetInfo>) => {
   });
 };
 
-// Create controller for POST request to '/ontime/aliases'
-// Returns -
+/**
+ * controller for GET request to '/ontime/aliases' returns new list of all aliases
+ */
 export const getAliases = async (_req: Request, res: Response) => {
   const aliases = DataProvider.getAliases();
   res.status(200).send(aliases);
 };
 
-// Create controller for POST request to '/ontime/aliases'
-// Returns ACK message
+/**
+ * controller for POST request to '/ontime/aliases' returns new list of all aliases
+ */
 export const postAliases = async (req: Request, res: Response) => {
-  if (failIsNotArray(req.body, res)) {
-    return;
-  }
-  try {
-    const newAliases: Alias[] = [];
-    req.body.forEach((a) => {
-      newAliases.push({
-        enabled: a.enabled,
-        alias: a.alias,
-        pathAndParams: a.pathAndParams,
-      });
-    });
-    await DataProvider.setAliases(newAliases);
-    res.status(200).send(newAliases);
-  } catch (error) {
-    res.status(400).send({ message: String(error) });
+  const result = safeParse(array(AliasSchema), req.body, { abortEarly: true });
+  if (result.success) {
+    try {
+      const newAliases = result.output;
+      await DataProvider.setAliases(newAliases);
+      res.status(200).send(newAliases);
+    } catch (error) {
+      res.status(400).send({ message: String(error) });
+    }
+  } else {
+    res.status(422).send({ message: result.issues[0].message });
   }
 };
 

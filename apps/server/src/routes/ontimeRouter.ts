@@ -26,7 +26,6 @@ import {
 } from '../controllers/ontimeController.js';
 
 import {
-  validateAliases,
   validateOSC,
   validatePatchProjectFile,
   validateSettings,
@@ -81,7 +80,7 @@ router.post('/views', viewValidator, postViewSettings);
 router.get('/aliases', getAliases);
 
 // create route between controller and '/ontime/aliases' endpoint
-router.post('/aliases', validateAliases, postAliases);
+router.post('/aliases', postAliases);
 
 // create route between controller and '/ontime/info' endpoint
 router.get('/info', getInfo);

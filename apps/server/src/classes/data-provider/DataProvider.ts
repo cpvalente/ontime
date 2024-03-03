@@ -65,7 +65,7 @@ export class DataProvider {
     return data.http;
   }
 
-  static getAliases() {
+  static getAliases(): Alias[] {
     return data.aliases;
   }
 

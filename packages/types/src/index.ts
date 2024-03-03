@@ -25,7 +25,7 @@ export type { ViewSettings } from './definitions/core/Views.type.js';
 export type { TimeFormat } from './definitions/core/TimeFormat.type.js';
 
 // ---> Aliases
-export type { Alias } from './definitions/core/Alias.type.js';
+export { type Alias, AliasSchema } from './definitions/core/Alias.type.js';
 
 // ---> Custom Fields
 export type {
