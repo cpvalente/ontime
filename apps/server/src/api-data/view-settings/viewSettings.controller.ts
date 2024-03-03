@@ -21,9 +21,7 @@ export async function postViewSettings(req: Request, res: Response<ViewSettings 
       endMessage: req.body?.endMessage || '',
       normalColor: req.body.normalColor,
       warningColor: req.body.warningColor,
-      warningThreshold: req.body.warningThreshold,
       dangerColor: req.body.dangerColor,
-      dangerThreshold: req.body.dangerThreshold,
     };
     await DataProvider.setViewSettings(newData);
     res.status(200).send(newData);

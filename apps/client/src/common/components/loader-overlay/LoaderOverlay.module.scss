@@ -1,0 +1,45 @@
+$loader-size: 4rem;
+
+.overlay {
+  position: absolute;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-content: center;
+  background-color: $black-10;
+  backdrop-filter: blur(5px);
+}
+
+
+.loader {
+  width: $loader-size;
+  height: $loader-size;
+  background: $blue-500;
+  display: inline-block;
+  border-radius: 50%;
+  box-sizing: border-box;
+  animation: animloader 1s ease-in infinite;
+}
+
+@keyframes animloader {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes animloader {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}

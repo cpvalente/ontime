@@ -17,5 +17,5 @@ export default function useInfo() {
     networkMode: 'always',
   });
 
-  return { data, status, isError, refetch, isFetching };
+  return { data: data ?? ontimePlaceholderInfo, status, isError, refetch, isFetching };
 }

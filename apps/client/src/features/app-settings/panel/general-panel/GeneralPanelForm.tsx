@@ -65,7 +65,7 @@ export default function GeneralPanelForm() {
         <Panel.SubHeader>
           General settings
           <div className={style.actionButtons}>
-            <Button isDisabled={!isDirty || isSubmitting} variant='ontime-ghost' size='sm' onClick={onReset}>
+            <Button isDisabled={!isDirty || isSubmitting} variant='ontime-ghosted' size='sm' onClick={onReset}>
               Revert to saved
             </Button>
             <Button
