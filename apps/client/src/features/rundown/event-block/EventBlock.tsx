@@ -240,7 +240,7 @@ export default function EventBlock(props: EventBlockProps) {
       className={blockClasses}
       ref={setNodeRef}
       style={dragStyle}
-      onMouseDown={handleFocusClick}
+      onClick={handleFocusClick}
       onContextMenu={onContextMenu}
       id='event-block'
     >
