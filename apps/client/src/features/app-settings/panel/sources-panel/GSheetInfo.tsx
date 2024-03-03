@@ -1,7 +1,7 @@
 import { Alert, AlertDescription, AlertIcon } from '@chakra-ui/react';
 
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
-const googleSheetDocsUrl = 'https://ontime.gitbook.io/v2/features/google-sheet';
+const googleSheetDocsUrl = 'https://docs.getontime.no/features/import-spreadsheet-gsheet/';
 
 export default function GSheetInfo() {
   return (

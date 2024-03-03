@@ -13,7 +13,7 @@ import * as Panel from '../PanelUtils';
 
 import style from './GeneralPanel.module.scss';
 
-const cssOverrideDocsUrl = 'https://ontime.gitbook.io/v2/features/custom-styling';
+const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
 export default function ViewSettingsForm() {
   const { data, status, refetch, isFetching } = useViewSettings();

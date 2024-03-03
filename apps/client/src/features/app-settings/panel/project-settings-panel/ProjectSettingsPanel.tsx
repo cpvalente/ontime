@@ -11,7 +11,7 @@ import * as Panel from '../PanelUtils';
 import CustomFieldEntry from './CustomFieldEntry';
 import CustomFieldForm from './CustomFieldForm';
 
-const customFieldsDocsUrl = 'https://ontime.gitbook.io/v2/features/user-fields';
+const customFieldsDocsUrl = 'https://docs.getontime.no/features/custom-fields/';
 
 export default function ProjectSettingsPanel() {
   const { data, refetch } = useCustomFields();

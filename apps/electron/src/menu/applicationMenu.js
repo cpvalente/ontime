@@ -153,7 +153,7 @@ function getApplicationMenu(isMac, askToQuit) {
         {
           label: 'Online documentation',
           click: async () => {
-            await shell.openExternal('https://ontime.gitbook.io/');
+            await shell.openExternal('https://docs.getontime.no/');
           },
         },
       ],
