@@ -146,10 +146,11 @@ $skip-opacity: 0.1;
 
 .progressBg {
   grid-area: progb;
-  border-radius: 2px;
+  border-radius: 1px;
   background-color: $gray-1100;
   opacity: 1;
   height: 100%;
+  overflow: hidden; /* clip foreground border radius*/
 }
 
 .progressBg.hidden {

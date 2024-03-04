@@ -117,7 +117,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
       <div className={style.statusElements} id='block-status' data-ispublic={isPublic}>
         <span className={style.eventNote}>{note}</span>
         <div className={loaded ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
-          {loaded && <EventBlockProgressBar playback={playback} />}
+          {loaded && <EventBlockProgressBar />}
         </div>
         <div className={style.eventStatus} tabIndex={-1}>
           <Tooltip label={`Time type: ${timerType}`} {...tooltipProps}>
