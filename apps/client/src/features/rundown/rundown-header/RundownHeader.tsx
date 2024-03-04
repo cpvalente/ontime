@@ -28,6 +28,7 @@ export default function RundownHeader() {
           clickHandler={setFreezeMode}
           tooltip='Freeze rundown'
           aria-label='Freeze rundown'
+          isDisabled
         />
         <TooltipActionBtn
           variant={appMode === AppMode.Run ? 'ontime-filled' : 'ontime-outlined'}
