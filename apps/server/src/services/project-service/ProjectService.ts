@@ -14,6 +14,7 @@ import { appStateService } from '../app-state-service/AppStateService.js';
 import { ensureDirectory, getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
 import { dbModel } from '../../models/dataModel.js';
 import { deleteFile } from '../../utils/parserUtils.js';
+import { switchDb } from '../../setup/loadDb.js';
 
 // init dependencies
 init();
@@ -39,6 +40,9 @@ export async function applyProjectFile(filePath: string, options?: Options) {
   const filename = basename(filePath);
   const newFilePath = join(resolveProjectsDirectory, filename);
   await rename(filePath, newFilePath);
+
+  // change LowDB to point to new file
+  await switchDb(filename);
 
   // apply data model
   await applyDataModel(data, options);
@@ -134,6 +138,9 @@ export async function createProjectFile(filename: string, projectData: ProjectDa
   // create new file
   const newFile = join(resolveProjectsDirectory, filename);
   await writeFile(newFile, JSON.stringify(data));
+
+  // change LowDB to point to new file
+  await switchDb(filename);
 
   // apply its data
   await applyDataModel(data);

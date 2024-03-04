@@ -8,7 +8,7 @@ import { join } from 'path';
 import { ensureDirectory } from '../utils/fileManagement.js';
 import { dbModel } from '../models/dataModel.js';
 
-import { pathToStartDb, resolveDbDirectory, resolveDbPath } from './index.js';
+import { pathToStartDb, resolveDbDirectory, resolveDbName } from './index.js';
 import { parseProjectFile } from '../services/project-service/projectFileUtils.js';
 import { parseJson } from '../utils/parser.js';
 
@@ -16,25 +16,25 @@ import { parseJson } from '../utils/parser.js';
  * @description ensures directories exist and populates database
  * @return {string} - path to db file
  */
-const populateDb = (): string => {
-  // if everything goes well, the DB in disk is the one loaded
-  let dbInDisk = resolveDbPath;
-  ensureDirectory(resolveDbDirectory);
+const populateDb = (directory: string, filename: string): string => {
+  ensureDirectory(directory);
+  let dbPath = join(directory, filename);
 
+  // if everything goes well, the DB in disk is the one loaded
   // if dbInDisk doesn't exist we want to use startup db
-  if (!existsSync(dbInDisk)) {
+  if (!existsSync(dbPath)) {
     try {
       const dbDirectory = resolveDbDirectory;
       const newFileDirectory = join(dbDirectory, pathToStartDb.split('/').pop());
 
       copyFileSync(pathToStartDb, newFileDirectory);
-      dbInDisk = newFileDirectory;
+      dbPath = newFileDirectory;
     } catch (_) {
       /* we do not handle this */
     }
   }
 
-  return dbInDisk;
+  return dbPath;
 };
 
 /**
@@ -55,10 +55,9 @@ const parseDatabase = async (fileToRead: string, adapterToUse: Low<DatabaseModel
 
 /**
  * @description loads ontime db
- * @return {Promise<{data: (*), db: Low<unknown>}>}
  */
-async function loadDb() {
-  const dbInDisk = populateDb();
+async function loadDb(directory: string, filename: string) {
+  const dbInDisk = populateDb(directory, filename);
 
   const adapter = new JSONFile<DatabaseModel>(dbInDisk);
   const db = new Low(adapter, dbModel);
@@ -72,12 +71,24 @@ async function loadDb() {
 
 export let db = {} as Low<DatabaseModel>;
 export let data = {} as DatabaseModel;
-export const dbLoadingProcess = loadDb();
+export const dbLoadingProcess = loadDb(resolveDbDirectory, resolveDbName);
 
+/**
+ * Initialises database at known location
+ */
 const init = async () => {
   const dbProvider = await dbLoadingProcess;
   db = dbProvider.db;
   data = dbProvider.data;
+};
+
+/**
+ * Allows to switch the database to a new file
+ */
+export const switchDb = async (newFileName: string) => {
+  const { db: newDb, data: newData } = await loadDb(resolveDbDirectory, newFileName);
+  db = newDb;
+  data = newData;
 };
 
 init();
