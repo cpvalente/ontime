@@ -17,7 +17,7 @@ import { timerConfig } from '../config/config.js';
 const initialRuntime: Runtime = {
   selectedEventIndex: null,
   numEvents: 0,
-  offset: 0,
+  offset: null,
   plannedStart: 0,
   plannedEnd: 0,
   actualStart: null,
@@ -335,7 +335,9 @@ export function addTime(amount: number) {
 
   // update runtime delays: over - under
   runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
-  runtimeState.runtime.expectedEnd = runtimeState.runtime.plannedEnd + runtimeState.runtime.offset;
+  if (runtimeState.runtime.offset !== null) {
+    runtimeState.runtime.expectedEnd = runtimeState.runtime.plannedEnd + runtimeState.runtime.offset;
+  }
   return true;
 }
 

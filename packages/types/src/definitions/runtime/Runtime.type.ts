@@ -3,7 +3,7 @@ import { MaybeNumber } from '../../utils/utils.type.js';
 export type Runtime = {
   numEvents: number;
   selectedEventIndex: MaybeNumber;
-  offset: number;
+  offset: MaybeNumber;
   plannedStart: MaybeNumber;
   actualStart: MaybeNumber;
   plannedEnd: MaybeNumber;
