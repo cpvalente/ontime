@@ -127,6 +127,7 @@ $skip-opacity: 0.1;
 .eventTimers {
   grid-area: times;
   display: flex;
+  align-items: center;
   gap: $block-clearance;
   height: 100%;
 }
