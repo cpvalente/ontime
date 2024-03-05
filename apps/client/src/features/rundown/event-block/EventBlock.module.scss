@@ -10,7 +10,7 @@ $skip-opacity: 0.1;
   grid-template-areas:
     'binder ...        ...     ...'
     'binder pb-actions times   actions'
-    'binder pb-actions title   next'
+    'binder pb-actions title   title'
     'binder pb-actions estatus estatus'
     'binder ...        ...     ...';
 
@@ -131,11 +131,25 @@ $skip-opacity: 0.1;
   height: 100%;
 }
 
-.eventTitle {
+.titleSection {
   grid-area: title;
-  overflow: hidden;
-  max-height: calc(2.5em + 2px);
-  line-height: 1.25em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .nextTag {
+    font-size: 1rem;
+    color: $orange-500;
+    letter-spacing: 0.03px;
+    font-weight: 600;
+  }
+
+  .eventTitle {
+    overflow: hidden;
+    max-height: calc(2.5em + 2px);
+    line-height: 1.25em;
+    flex: 1;
+  }
 }
 
 .eventActions {
@@ -183,15 +197,6 @@ $skip-opacity: 0.1;
 
   max-height: 2rem;
   overflow-y: hidden;
-}
-
-.nextTag {
-  grid-area: next;
-  font-size: 1rem;
-  color: $orange-500;
-  letter-spacing: 0.03px;
-  font-weight: 600;
-  text-align: right;
 }
 
 .eventStatus {

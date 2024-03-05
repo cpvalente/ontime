@@ -100,12 +100,14 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           linkStart={linkStart}
         />
       </div>
-      <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
-      {next && (
-        <Tooltip label='Next event' {...tooltipProps}>
-          <span className={style.nextTag}>UP NEXT</span>
-        </Tooltip>
-      )}
+      <div className={style.titleSection}>
+        <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
+        {next && (
+          <Tooltip label='Next event' {...tooltipProps}>
+            <span className={style.nextTag}>UP NEXT</span>
+          </Tooltip>
+        )}
+      </div>
       <EventBlockPlayback
         eventId={eventId}
         skip={skip}
