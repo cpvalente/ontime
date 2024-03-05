@@ -91,9 +91,6 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
     (event: KeyboardEvent<HTMLInputElement>) => {
       if (event.key === 'Enter') {
         inputRef.current?.blur();
-        validateAndSubmit((event.target as HTMLInputElement).value);
-      } else if (event.key === 'Tab') {
-        validateAndSubmit((event.target as HTMLInputElement).value);
       }
       if (event.key === 'Escape') {
         ignoreChange.current = true;
@@ -101,7 +98,7 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
         resetValue();
       }
     },
-    [resetValue, validateAndSubmit],
+    [resetValue],
   );
 
   const onBlurHandler = useCallback(
