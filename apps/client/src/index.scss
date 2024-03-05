@@ -33,8 +33,19 @@ html,
   background-color: $bg-container-l1;
 }
 
-// workaround for chakra
-// // https://github.com/chakra-ui/chakra-ui/issues/417
+/* smaller root size for MacOS laptops */
+@media (max-width: 1600px) {
+  body,
+  html,
+  .App {
+    font-size: 14px;
+  }
+}
+
+/**
+ * workaround for chakra
+ * https://github.com/chakra-ui/chakra-ui/issues/417
+ */
 option {
   color: initial;
 }
