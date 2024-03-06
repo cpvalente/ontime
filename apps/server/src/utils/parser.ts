@@ -15,8 +15,6 @@ import {
   OntimeEvent,
   OntimeRundown,
   SupportedEvent,
-  EndAction,
-  TimerType,
   TimeStrategy,
   CustomFields,
   EventCustomFields,
