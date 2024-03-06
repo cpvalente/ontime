@@ -41,7 +41,7 @@ interface EventBlockInnerProps {
   title: string;
   note: string;
   delay: number;
-  next: boolean;
+  isNext: boolean;
   skip: boolean;
   loaded: boolean;
   playback?: Playback;
@@ -63,7 +63,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     title,
     note,
     delay,
-    next,
+    isNext,
     skip = false,
     loaded,
     playback,
@@ -102,7 +102,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
       </div>
       <div className={style.titleSection}>
         <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
-        {next && (
+        {isNext && (
           <Tooltip label='Next event' {...tooltipProps}>
             <span className={style.nextTag}>UP NEXT</span>
           </Tooltip>

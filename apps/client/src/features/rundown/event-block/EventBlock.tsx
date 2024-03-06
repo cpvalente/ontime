@@ -40,7 +40,7 @@ interface EventBlockProps {
   previousEnd: MaybeNumber;
   colour: string;
   isPast: boolean;
-  next: boolean;
+  isNext: boolean;
   skip: boolean;
   loaded: boolean;
   hasCursor: boolean;
@@ -76,7 +76,7 @@ export default function EventBlock(props: EventBlockProps) {
     previousEnd,
     colour,
     isPast,
-    next,
+    isNext,
     skip = false,
     loaded,
     hasCursor,
@@ -268,7 +268,7 @@ export default function EventBlock(props: EventBlockProps) {
           title={title}
           note={note}
           delay={delay}
-          next={next}
+          isNext={isNext}
           skip={skip}
           loaded={loaded}
           playback={playback}
