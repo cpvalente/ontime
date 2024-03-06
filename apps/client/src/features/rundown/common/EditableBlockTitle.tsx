@@ -46,6 +46,9 @@ export default function EditableBlockTitle(props: TitleEditorProps) {
       onBlur={onBlur}
       onKeyDown={onKeyDown}
       autoComplete='off'
+      fontWeight='600'
+      letterSpacing='0.25px'
+      paddingLeft='0'
     />
   );
 }

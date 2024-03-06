@@ -29,8 +29,8 @@ export const ontimeInputFilled = {
 export const ontimeInputGhosted = {
   field: {
     ...commonStyles,
-    paddingLeft: '0.25rem',
     backgroundColor: 'transparent',
+    color: '#f6f6f6', // $gray-50
     _hover: {
       backgroundColor: 'transparent', // $gray-1100
       border: '1px solid #2B5ABC', // $blue-500
