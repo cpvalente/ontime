@@ -25,5 +25,5 @@ export default function EventBlockProgressBar() {
   const timer = useTimer();
 
   const progress = `${getPercentComplete(timer.current, timer.duration)}%`;
-  return <div className={style.progressBar} style={{ width: '100%' }} />;
+  return <div className={style.progressBar} style={{ width: progress }} />;
 }
