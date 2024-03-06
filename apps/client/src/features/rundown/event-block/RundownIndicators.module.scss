@@ -10,6 +10,7 @@ $gap-left: calc(2rem + 0.25rem + 3rem);
 
   display: flex;
   gap: 0.5rem;
+  font-weight: 700;
 }
 
 @mixin indicator($bg-colour) {
