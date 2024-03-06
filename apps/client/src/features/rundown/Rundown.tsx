@@ -254,7 +254,7 @@ export default function Rundown({ data }: RundownProps) {
                         data={event}
                         loaded={isLoaded}
                         hasCursor={hasCursor}
-                        next={isNext}
+                        isNext={isNext}
                         previousEnd={previousEnd}
                         previousEventId={previousEventId}
                         playback={isLoaded ? featureData.playback : undefined}

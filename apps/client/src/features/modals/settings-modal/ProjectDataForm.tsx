@@ -122,7 +122,7 @@ export default function ProjectDataForm() {
           {...inputProps}
           variant='ontime-filled-on-light'
           size='sm'
-          placeholder='www.ontime.gitbook.io'
+          placeholder='https://docs.getontime.no'
           isDisabled={disableInputs}
           {...register('backstageUrl')}
         />

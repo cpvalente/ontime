@@ -23,6 +23,7 @@ import { ontimeTab } from './ontimeTab';
 import {
   ontimeInputFilled,
   ontimeInputFilledOnLight,
+  ontimeInputGhosted,
   ontimeTextAreaFilled,
   ontimeTextAreaFilledOnLight,
   ontimeTextAreaTransparent,
@@ -71,6 +72,7 @@ const theme = extendTheme({
       },
       variants: {
         'ontime-filled': { ...ontimeInputFilled },
+        'ontime-ghosted': { ...ontimeInputGhosted },
         'ontime-filled-on-light': { ...ontimeInputFilledOnLight },
       },
     },

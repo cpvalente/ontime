@@ -6,7 +6,7 @@ import * as Panel from '../PanelUtils';
 import HttpIntegrations from './HttpIntegrations';
 import OscIntegrations from './OscIntegrations';
 
-const integrationDocsUrl = 'https://ontime.gitbook.io/v2/control-and-feedback/integrations';
+const integrationDocsUrl = 'https://docs.getontime.no/api/integrations/';
 
 export default function IntegrationsPanel() {
   return (

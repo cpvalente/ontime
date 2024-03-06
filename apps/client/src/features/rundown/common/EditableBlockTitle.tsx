@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Editable, EditableInput, EditablePreview } from '@chakra-ui/react';
+import { useCallback } from 'react';
+import { Input } from '@chakra-ui/react';
 
+import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { cx } from '../../../common/utils/styleUtils';
 
@@ -15,39 +16,40 @@ interface TitleEditorProps {
 
 export default function EditableBlockTitle(props: TitleEditorProps) {
   const { title, eventId, placeholder, className } = props;
-  const [blockTitle, setBlockTitle] = useState<string>(title || '');
   const { updateEvent } = useEventAction();
 
-  useEffect(() => {
-    setBlockTitle(title);
-  }, [title]);
-
-  const handleTitle = useCallback(
+  const submitCallback = useCallback(
     (text: string) => {
       if (text === title) {
         return;
       }
 
       const cleanVal = text.trim();
-      setBlockTitle(cleanVal);
-
       updateEvent({ id: eventId, title: cleanVal });
     },
     [title, updateEvent, eventId],
   );
 
-  const classes = cx([className, style.eventTitle, !blockTitle ? style.noTitle : null]);
+  const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(title, submitCallback, {
+    submitOnEnter: true,
+  });
+
+  const classes = cx([className, style.eventTitle, !value ? style.noTitle : null]);
+
   return (
-    <Editable
-      variant='ontime'
-      value={blockTitle}
+    <Input
+      data-testid='block__title'
+      variant='ontime-ghosted'
+      value={value}
       className={classes}
       placeholder={placeholder}
-      onChange={(value) => setBlockTitle(value)}
-      onSubmit={(value) => handleTitle(value)}
-    >
-      <EditablePreview className={style.preview} />
-      <EditableInput />
-    </Editable>
+      onChange={onChange}
+      onBlur={onBlur}
+      onKeyDown={onKeyDown}
+      autoComplete='off'
+      fontWeight='600'
+      letterSpacing='0.25px'
+      paddingLeft='0'
+    />
   );
 }

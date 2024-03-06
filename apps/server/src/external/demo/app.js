@@ -48,7 +48,7 @@ const connectSocket = () => {
     // we only need to read message type of ontime
     if (type === 'ontime') {
       // destructure known data from ontime
-      // see https://cpvalente.gitbook.io/ontime/control-and-feedback/websocket-api
+      // see https://docs.getontime.no/api/osc-and-ws/
       const { timer, playback } = payload;
       const timerElement = document.getElementById('timer');
       if (playback == 'stop') {

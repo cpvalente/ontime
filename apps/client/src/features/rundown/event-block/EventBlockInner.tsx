@@ -41,7 +41,7 @@ interface EventBlockInnerProps {
   title: string;
   note: string;
   delay: number;
-  next: boolean;
+  isNext: boolean;
   skip: boolean;
   loaded: boolean;
   playback?: Playback;
@@ -63,7 +63,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     title,
     note,
     delay,
-    next,
+    isNext,
     skip = false,
     loaded,
     playback,
@@ -100,12 +100,14 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           linkStart={linkStart}
         />
       </div>
-      <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
-      {next && (
-        <Tooltip label='Next event' {...tooltipProps}>
-          <span className={style.nextTag}>UP NEXT</span>
-        </Tooltip>
-      )}
+      <div className={style.titleSection}>
+        <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
+        {isNext && (
+          <Tooltip label='Next event' {...tooltipProps}>
+            <span className={style.nextTag}>UP NEXT</span>
+          </Tooltip>
+        )}
+      </div>
       <EventBlockPlayback
         eventId={eventId}
         skip={skip}
@@ -117,7 +119,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
       <div className={style.statusElements} id='block-status' data-ispublic={isPublic}>
         <span className={style.eventNote}>{note}</span>
         <div className={loaded ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
-          {loaded && <EventBlockProgressBar playback={playback} />}
+          {loaded && <EventBlockProgressBar />}
         </div>
         <div className={style.eventStatus} tabIndex={-1}>
           <Tooltip label={`Time type: ${timerType}`} {...tooltipProps}>

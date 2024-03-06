@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, MouseEvent } from 'react';
 import { IoPause } from '@react-icons/all-files/io5/IoPause';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoReload } from '@react-icons/all-files/io5/IoReload';
@@ -40,11 +40,13 @@ const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
   const { eventId, skip, isPlaying, isPaused, loaded, disablePlayback } = props;
   const { updateEvent } = useEventAction();
 
-  const toggleSkip = () => {
+  const toggleSkip = (event: MouseEvent) => {
+    event.stopPropagation();
     updateEvent({ id: eventId, skip: !skip });
   };
 
-  const actionHandler = () => {
+  const actionHandler = (event: MouseEvent) => {
+    event.stopPropagation();
     // is playing -> pause
     // is paused -> continue
     // otherwise -> start
@@ -55,6 +57,11 @@ const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
     } else {
       setEventPlayback.startEvent(eventId);
     }
+  };
+
+  const load = (event: MouseEvent) => {
+    event.stopPropagation();
+    setEventPlayback.loadEvent(eventId);
   };
 
   const buttonVariant: Partial<StyleVariant> = {};
@@ -103,7 +110,7 @@ const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
         isDisabled={disablePlayback}
         {...tooltipProps}
         {...blockBtnStyle}
-        clickHandler={() => setEventPlayback.loadEvent(eventId)}
+        clickHandler={load}
         tabIndex={-1}
       />
       <TooltipActionBtn

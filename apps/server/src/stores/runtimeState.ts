@@ -17,7 +17,7 @@ import { timerConfig } from '../config/config.js';
 const initialRuntime: Runtime = {
   selectedEventIndex: null,
   numEvents: 0,
-  offset: 0,
+  offset: null,
   plannedStart: 0,
   plannedEnd: 0,
   actualStart: null,
@@ -128,7 +128,11 @@ export function updateRundownData(playableRundown: OntimeEvent[]) {
  * @param rundown
  * @param initialData
  */
-export function load(event: OntimeEvent, rundown: OntimeEvent[], initialData?: Partial<TimerState & RestorePoint>) {
+export function load(
+  event: OntimeEvent,
+  rundown: OntimeEvent[],
+  initialData?: Partial<TimerState & RestorePoint>,
+): boolean {
   clear();
 
   updateRundownData(rundown);
@@ -153,9 +157,11 @@ export function load(event: OntimeEvent, rundown: OntimeEvent[], initialData?: P
     if (firstStart === null || typeof firstStart === 'number') {
       runtimeState.runtime.actualStart = firstStart;
       runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
-      runtimeState.runtime.expectedEnd = runtimeState.runtime.plannedEnd + runtimeState.runtime.offset;
+      runtimeState.runtime.expectedEnd = (runtimeState.runtime.plannedEnd + runtimeState.runtime.offset) % dayInMs;
     }
   }
+
+  return event.id === runtimeState.eventNow?.id;
 }
 
 export function loadNow(event: OntimeEvent, playableEvents: OntimeEvent[]) {
@@ -329,7 +335,9 @@ export function addTime(amount: number) {
 
   // update runtime delays: over - under
   runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
-  runtimeState.runtime.expectedEnd = runtimeState.runtime.plannedEnd + runtimeState.runtime.offset;
+  if (runtimeState.runtime.offset !== null) {
+    runtimeState.runtime.expectedEnd = (runtimeState.runtime.plannedEnd + runtimeState.runtime.offset) % dayInMs;
+  }
   return true;
 }
 

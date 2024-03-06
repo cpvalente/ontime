@@ -22,7 +22,7 @@ interface RundownEntryProps {
   loaded: boolean;
   eventIndex: number;
   hasCursor: boolean;
-  next: boolean;
+  isNext: boolean;
   previousEnd: MaybeNumber;
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
@@ -30,7 +30,7 @@ interface RundownEntryProps {
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const { isPast, data, loaded, hasCursor, next, previousEnd, previousEventId, playback, isRolling, eventIndex } =
+  const { isPast, data, loaded, hasCursor, isNext, previousEnd, previousEventId, playback, isRolling, eventIndex } =
     props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
@@ -138,7 +138,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         previousEnd={previousEnd}
         colour={data.colour}
         isPast={isPast}
-        next={next}
+        isNext={isNext}
         skip={data.skip}
         loaded={loaded}
         hasCursor={hasCursor}

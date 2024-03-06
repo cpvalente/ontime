@@ -64,11 +64,11 @@ test('delays are show correctly', async ({ page }) => {
   await page.getByTestId('rundown').getByTestId('time-input-duration').click();
   await page.getByTestId('rundown').getByTestId('time-input-duration').fill('10');
   await page.getByTestId('rundown').getByTestId('time-input-duration').press('Enter');
-  await page.getByText('Event title').click();
-  await page.getByPlaceholder('Event title').fill('test');
-  await page.getByPlaceholder('Event title').press('Enter');
+  await page.getByTestId('block__title').click();
+  await page.getByTestId('block__title').fill('test');
+  await page.getByTestId('block__title').press('Enter');
 
-  await page.getByTestId('entry-1').getByText('test').click({ button: 'right' });
+  await page.locator('#event-block').getByText('1').click({ button: 'right' });
   await page.getByRole('menuitem', { name: 'Toggle public' }).click();
 
   // add a delay

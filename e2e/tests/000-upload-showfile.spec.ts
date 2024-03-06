@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 const fileToUpload = 'e2e/tests/fixtures/test-db.json';
 
@@ -20,7 +20,12 @@ test('test project file upload', async ({ page }) => {
   await page.getByRole('button', { name: 'close' }).click();
 
   // asset test events
-  await page.getByText('Albania').click();
-  await page.getByText('Latvia').click();
-  await page.getByText('Lithuania').click();
+  const firstTitle = page.getByTestId('entry-1').getByTestId('block__title')
+  await expect(firstTitle).toHaveValue('Albania');
+
+  const secondTitle = page.getByTestId('entry-2').getByTestId('block__title')
+  await expect(secondTitle).toHaveValue('Latvia');
+
+  const thirdTitle = page.getByTestId('entry-3').getByTestId('block__title')
+  await expect(thirdTitle).toHaveValue('Lithuania');
 });

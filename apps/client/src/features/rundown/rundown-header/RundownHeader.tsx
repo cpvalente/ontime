@@ -22,15 +22,16 @@ export default function RundownHeader() {
     <div className={style.header}>
       <ButtonGroup isAttached>
         <TooltipActionBtn
-          variant={appMode === AppMode.Freeze ? 'ontime-filled' : 'ontime-ghosted'}
+          variant={appMode === AppMode.Freeze ? 'ontime-filled' : 'ontime-outlined'}
           size='sm'
           icon={<IoSnowOutline />}
           clickHandler={setFreezeMode}
           tooltip='Freeze rundown'
           aria-label='Freeze rundown'
+          isDisabled
         />
         <TooltipActionBtn
-          variant={appMode === AppMode.Run ? 'ontime-filled' : 'ontime-ghosted'}
+          variant={appMode === AppMode.Run ? 'ontime-filled' : 'ontime-outlined'}
           size='sm'
           icon={<IoPlay />}
           clickHandler={setRunMode}
@@ -38,7 +39,7 @@ export default function RundownHeader() {
           aria-label='Run mode'
         />
         <TooltipActionBtn
-          variant={appMode === AppMode.Edit ? 'ontime-filled' : 'ontime-ghosted'}
+          variant={appMode === AppMode.Edit ? 'ontime-filled' : 'ontime-outlined'}
           size='sm'
           icon={<IoOptions />}
           clickHandler={setEditMode}
@@ -47,7 +48,7 @@ export default function RundownHeader() {
         />
       </ButtonGroup>
       <RundownMenu>
-        <MenuButton size='sm' as={Button} rightIcon={<IoAdd />} aria-label='Rundown menu' variant='ontime-ghosted'>
+        <MenuButton size='sm' as={Button} rightIcon={<IoAdd />} aria-label='Rundown menu' variant='ontime-outlined'>
           Rundown
         </MenuButton>
       </RundownMenu>

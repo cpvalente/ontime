@@ -1387,6 +1387,9 @@ describe('getRuntimeOffset()', () => {
       _timer: {
         pausedAt: null,
       },
+      runtime: {
+        actualStart: 150,
+      },
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
@@ -1407,6 +1410,9 @@ describe('getRuntimeOffset()', () => {
       },
       _timer: {
         pausedAt: null,
+      },
+      runtime: {
+        actualStart: 100,
       },
     } as RuntimeState;
 
@@ -1430,9 +1436,116 @@ describe('getRuntimeOffset()', () => {
       _timer: {
         pausedAt: 125,
       },
+      runtime: {
+        actualStart: 100,
+      },
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
     expect(offset).toBe(25);
+  });
+
+  it('can only count once started', () => {
+    const state = {
+      clock: 78480789,
+      eventNow: {
+        id: 'd6a2ce',
+        type: 'event',
+        title: '',
+        timeStart: 77400000,
+        timeEnd: 81000000,
+        duration: 3600000,
+        timeStrategy: 'lock-duration',
+        linkStart: null,
+        endAction: 'none',
+        timerType: 'count-down',
+        isPublic: true,
+        skip: false,
+        note: '',
+        colour: '',
+        cue: '1',
+        revision: 0,
+        timeWarning: 120000,
+        timeDanger: 60000,
+        custom: {},
+        delay: 0,
+      },
+      runtime: {
+        selectedEventIndex: 0,
+        numEvents: 2,
+        offset: -77400000,
+        plannedStart: 77400000,
+        plannedEnd: 84600000,
+        actualStart: null,
+        expectedEnd: null,
+      },
+      timer: {
+        addedTime: 0,
+        current: 3600000,
+        duration: 3600000,
+        elapsed: null,
+        expectedFinish: null,
+        finishedAt: null,
+        playback: 'armed',
+        secondaryTimer: null,
+        startedAt: null,
+      },
+      _timer: { pausedAt: null, secondaryTarget: null, finishedNow: false },
+    } as RuntimeState;
+
+    const offset = getRuntimeOffset(state);
+    expect(offset).toBe(null);
+  });
+
+  it('handles loaded event', () => {
+    const state = {
+      clock: 79521653,
+      eventNow: {
+        id: '835242',
+        type: 'event',
+        title: '',
+        timeStart: 81000000,
+        timeEnd: 84600000,
+        duration: 3600000,
+        timeStrategy: 'lock-duration',
+        linkStart: null,
+        endAction: 'none',
+        timerType: 'count-down',
+        isPublic: true,
+        skip: false,
+        note: '',
+        colour: '',
+        cue: '2',
+        revision: 0,
+        timeWarning: 120000,
+        timeDanger: 60000,
+        custom: {},
+        delay: 0,
+      },
+      runtime: {
+        selectedEventIndex: 1,
+        numEvents: 2,
+        offset: -81000000,
+        plannedStart: 77400000,
+        plannedEnd: 84600000,
+        actualStart: 79443403,
+        expectedEnd: null,
+      },
+      timer: {
+        addedTime: 0,
+        current: 3600000,
+        duration: 3600000,
+        elapsed: null,
+        expectedFinish: null,
+        finishedAt: null,
+        playback: 'armed',
+        secondaryTimer: null,
+        startedAt: null,
+      },
+      _timer: { pausedAt: null, secondaryTarget: null, finishedNow: false },
+    } as RuntimeState;
+
+    const offset = getRuntimeOffset(state);
+    expect(offset).toBe(79521653 - 81000000);
   });
 });

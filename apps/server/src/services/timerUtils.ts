@@ -292,20 +292,27 @@ export const updateRoll = (state: RuntimeState) => {
 
 /**
  * Calculates difference between the runtime and the schedule of an event
+ * Positive offset is a delay
+ * Negative offset is time ahead
  * @param state
  * @returns
  */
-export function getRuntimeOffset(state: RuntimeState): number {
-  if (state.eventNow === null) {
-    return 0;
+export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
+  if (state.runtime.actualStart === null) {
+    return null;
   }
-
+  const { clock } = state;
   const { timeStart } = state.eventNow;
   const { addedTime, current, startedAt } = state.timer;
 
+  // if we havent started, the offset is the difference to the schedule
+  if (startedAt === null) {
+    return clock - timeStart;
+  }
+
   const overtime = Math.min(current, 0);
   const startOffset = startedAt - timeStart;
-  const pausedTime = state._timer.pausedAt === null ? 0 : state.clock - state._timer.pausedAt;
+  const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
 
   return startOffset + addedTime + pausedTime + Math.abs(overtime);
 }

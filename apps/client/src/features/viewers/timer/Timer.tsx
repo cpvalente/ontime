@@ -145,7 +145,7 @@ export default function Timer(props: TimerProps) {
   }
   const stageTimerCharacters = display.replace('/:/g', '').length;
 
-  const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''} ${showBlackout ? 'blackout' : ''}`;
+  const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
   let timerFontSize = 89 / (stageTimerCharacters - 1);
   // we need to shrink the timer if the external is going to be there
   if (showExternal) {
@@ -162,6 +162,7 @@ export default function Timer(props: TimerProps) {
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
       <NavigationMenu />
       <ViewParamsEditor paramFields={timerOptions} />
+      <div className={showBlackout ? 'blackout blackout--active' : 'blackout'} />
       {!userOptions.hideMessage && (
         <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
           <div className={`message ${showBlinking ? 'blink' : ''}`}>{pres.text}</div>

@@ -191,10 +191,7 @@ class RuntimeService {
     }
 
     const timedEvents = getPlayableEvents();
-    const state = runtimeState.getState();
-    // TODO: return success boolean from runtimeState, when we work with optimising integrations
-    runtimeState.load(event, timedEvents);
-    const success = event.id === state.eventNow?.id;
+    const success = runtimeState.load(event, timedEvents);
 
     if (success) {
       integrationService.dispatch(TimerLifeCycle.onLoad);

@@ -85,13 +85,13 @@ const actionHandlers: Record<string, ActionHandler> = {
         return { payload: 'success' };
       }
       if ('id' in payload) {
-        assert.isString(payload);
-        runtimeService.startById(payload);
+        assert.isString(payload.id);
+        runtimeService.startById(payload.id);
         return { payload: 'success' };
       }
       if ('cue' in payload) {
-        assert.isString(payload);
-        runtimeService.startByCue(payload);
+        assert.isString(payload.cue);
+        runtimeService.startByCue(payload.cue);
         return { payload: 'success' };
       }
     }

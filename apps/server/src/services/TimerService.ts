@@ -142,17 +142,18 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     const isTimeToUpdate = state.clock - TimerService.previousUpdate >= TimerService._updateInterval;
 
     // some changes need an immediate update
+    const hasNewLoaded = state.eventNow?.id !== TimerService.previousState?.eventNow?.id;
     const hasSkippedBack = state.clock < TimerService.previousUpdate;
     const justStarted = !TimerService.previousState?.timer;
     const hasChangedPlayback = TimerService.previousState.timer?.playback !== state.timer.playback;
-    const hasImmediateChanges = hasSkippedBack || justStarted || hasChangedPlayback;
+    const hasImmediateChanges = hasNewLoaded || hasSkippedBack || justStarted || hasChangedPlayback;
 
     if (hasImmediateChanges || (isTimeToUpdate && !deepEqual(TimerService.previousState?.timer, state.timer))) {
       eventStore.set('timer', state.timer);
       TimerService.previousState.timer = { ...state.timer };
     }
 
-    if (isTimeToUpdate && !deepEqual(TimerService.previousState?.runtime, state.runtime)) {
+    if (hasChangedPlayback || (isTimeToUpdate && !deepEqual(TimerService.previousState?.runtime, state.runtime))) {
       eventStore.set('runtime', state.runtime);
       TimerService.previousState.runtime = { ...state.runtime };
     }

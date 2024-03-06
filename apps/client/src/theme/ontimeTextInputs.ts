@@ -3,6 +3,7 @@ const commonStyles = {
   backgroundColor: '#262626', // $gray-1200
   color: '#e2e2e2', // $gray-200
   border: '1px solid transparent',
+  borderRadius: '3px',
   _hover: {
     backgroundColor: '#2d2d2d', // $gray-1100
   },
@@ -22,6 +23,18 @@ const commonStyles = {
 export const ontimeInputFilled = {
   field: {
     ...commonStyles,
+  },
+};
+
+export const ontimeInputGhosted = {
+  field: {
+    ...commonStyles,
+    backgroundColor: 'transparent',
+    color: '#f6f6f6', // $gray-50
+    _hover: {
+      backgroundColor: 'transparent', // $gray-1100
+      border: '1px solid #2B5ABC', // $blue-500
+    },
   },
 };
 

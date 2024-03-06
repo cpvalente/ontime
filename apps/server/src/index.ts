@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { initAssets, startIntegrations, startOSCServer, startServer } from './app.js';
 
 async function startOntime() {

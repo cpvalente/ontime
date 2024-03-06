@@ -18,7 +18,7 @@ import OntimeModalFooter from '../OntimeModalFooter';
 
 import style from './SettingsModal.module.scss';
 
-const aliasesDocsUrl = 'https://ontime.gitbook.io/v2/features/url-aliases';
+const aliasesDocsUrl = 'https://docs.getontime.no/features/url-presets/';
 
 // we wrap the array in an object to be simplify react-hook-form
 type Aliases = {
