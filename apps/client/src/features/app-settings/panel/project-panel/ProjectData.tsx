@@ -142,7 +142,7 @@ export default function ProjectData() {
               <Input
                 variant='ontime-filled'
                 size='sm'
-                placeholder='http://docs.ontime.no'
+                placeholder='http://docs.getontime.no'
                 autoComplete='off'
                 {...register('backstageUrl')}
               />

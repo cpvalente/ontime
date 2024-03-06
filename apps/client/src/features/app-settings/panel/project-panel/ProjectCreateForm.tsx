@@ -147,7 +147,7 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
           <Input
             variant='ontime-filled'
             size='sm'
-            placeholder='http://docs.ontime.no'
+            placeholder='http://docs.getontime.no'
             autoComplete='off'
             {...register('backstageUrl')}
           />
