@@ -31,6 +31,10 @@ export const ontimeInputGhosted = {
     ...commonStyles,
     paddingLeft: '0.25rem',
     backgroundColor: 'transparent',
+    _hover: {
+      backgroundColor: 'transparent', // $gray-1100
+      border: '1px solid #2B5ABC', // $blue-500
+    },
   },
 };
 
