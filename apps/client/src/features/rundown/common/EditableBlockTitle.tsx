@@ -38,6 +38,7 @@ export default function EditableBlockTitle(props: TitleEditorProps) {
 
   return (
     <Input
+      data-testid='block__title'
       variant='ontime-ghosted'
       value={value}
       className={classes}
