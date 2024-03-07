@@ -2,7 +2,7 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import { Button, IconButton, Input, Select, Switch } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
-import { HttpSettings } from 'ontime-types';
+import { HttpSettings, TimerLifeCycle } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -58,7 +58,7 @@ export default function HttpIntegrations() {
   const handleAddNewSubscription = () => {
     prepend({
       id: generateId(),
-      cycle: 'onLoad',
+      cycle: TimerLifeCycle.onLoad,
       message: '',
       enabled: false,
     });
