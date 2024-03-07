@@ -53,16 +53,23 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
  * @param {RuntimeState} state runtime state
  * @returns {number} current time for timer
  */
+
 export function getCurrent(state: RuntimeState): number {
   const { startedAt, duration, addedTime } = state.timer;
-  const { timerType, timeEnd } = state.eventNow;
+  const { timerType, timeStart, timeEnd } = state.eventNow;
   const { pausedAt } = state._timer;
   const { clock } = state;
 
   if (timerType === TimerType.TimeToEnd) {
-    const isNextDay = startedAt > timeEnd;
-    const correctDay = isNextDay ? dayInMs : 0;
-    return timeEnd + addedTime + correctDay - clock;
+    const isEventOverMidnight = timeStart > timeEnd;
+    const hasFinishedRundownForToday = state.runtime.plannedEnd && clock > state.runtime.plannedEnd;
+
+    if (hasFinishedRundownForToday && !isEventOverMidnight) {
+      return dayInMs - clock + state.eventNow.timeStart + addedTime;
+    }
+
+    const correctDay = isEventOverMidnight ? dayInMs : 0;
+    return correctDay - clock + timeEnd + addedTime;
   }
 
   if (startedAt === null) {
@@ -301,8 +308,9 @@ export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
   if (state.runtime.actualStart === null) {
     return null;
   }
+
   const { clock } = state;
-  const { timeStart } = state.eventNow;
+  const { timeStart, timerType } = state.eventNow;
   const { addedTime, current, startedAt } = state.timer;
 
   // if we havent started, the offset is the difference to the schedule
@@ -311,6 +319,11 @@ export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
   }
 
   const overtime = Math.min(current, 0);
+  // in time-to-end, offset is overtime
+  if (timerType === TimerType.TimeToEnd) {
+    return overtime;
+  }
+
   const startOffset = startedAt - timeStart;
   const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
 
