@@ -1,8 +1,8 @@
 import { memo, useEffect, useState } from 'react';
 import { Tooltip } from '@chakra-ui/react';
-import { BiArrowToBottom } from '@react-icons/all-files/bi/BiArrowToBottom';
 import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
+import { IoFlag } from '@react-icons/all-files/io5/IoFlag';
 import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoPlayForward } from '@react-icons/all-files/io5/IoPlayForward';
@@ -173,7 +173,7 @@ function TimerIcon(props: { type: TimerType; className: string }) {
     return <IoTime className={className} />;
   }
   if (type === TimerType.TimeToEnd) {
-    return <BiArrowToBottom className={className} />;
+    return <IoFlag className={className} />
   }
   return <IoArrowDown className={className} />;
 }

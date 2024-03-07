@@ -404,11 +404,12 @@ export const editCustomField = async (label: string, newField: Partial<CustomFie
     throw new Error('Change of field type is not allowed');
   }
 
+  persistedCustomFields[newField.label] = { ...existingField, ...newField };
+
   if (existingField.label !== newField.label) {
+    delete persistedCustomFields[existingField.label];
     customFieldChangelog[label] = newField.label;
   }
-
-  persistedCustomFields[label] = { ...existingField, ...newField };
 
   scheduleCustomFieldPersist(persistedCustomFields);
   invalidateIfUsed(label);
