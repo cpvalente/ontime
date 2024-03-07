@@ -1,5 +1,5 @@
 import { dayInMs } from 'ontime-utils';
-import { OntimeEvent, TimerType } from 'ontime-types';
+import { EndAction, OntimeEvent, Playback, TimeStrategy, TimerType } from 'ontime-types';
 
 import {
   getCurrent,
@@ -205,6 +205,10 @@ describe('getExpectedFinish()', () => {
         _timer: {
           pausedAt: null,
         },
+        runtime: {
+          actualStart: 79200000,
+          plannedEnd: 600000,
+        },
       } as RuntimeState;
 
       const calculatedFinish = getExpectedFinish(state);
@@ -356,6 +360,9 @@ describe('getCurrent()', () => {
           startedAt: null,
           finishedAt: null,
         },
+        runtime: {
+          plannedEnd: null,
+        },
         _timer: {
           pausedAt: null,
         },
@@ -378,6 +385,9 @@ describe('getCurrent()', () => {
           startedAt: 10,
           finishedAt: null,
         },
+        runtime: {
+          plannedEnd: 100,
+        },
         _timer: {
           pausedAt: null,
         },
@@ -399,6 +409,9 @@ describe('getCurrent()', () => {
           duration: 100,
           startedAt: 10,
           finishedAt: null,
+        },
+        runtime: {
+          plannedEnd: 100,
         },
         _timer: {
           pausedAt: null,
@@ -441,6 +454,7 @@ describe('getCurrent()', () => {
     it('handles events that finish the day after', () => {
       const state = {
         eventNow: {
+          timeStart: 79200000, // 22:00:00
           timeEnd: 600000, // 00:10:00
           timerType: TimerType.TimeToEnd,
         },
@@ -451,26 +465,9 @@ describe('getCurrent()', () => {
           startedAt: 79200000, // 22:00:00
           finishedAt: null,
         },
-        _timer: {
-          pausedAt: null,
-        },
-      } as RuntimeState;
-
-      const current = getCurrent(state);
-      expect(current).toBe(600000 + dayInMs - 79500000);
-    });
-    it('does not update ', () => {
-      const state = {
-        eventNow: {
-          timeEnd: 600000, // 00:10:00
-          timerType: TimerType.TimeToEnd,
-        },
-        clock: 79500000, // 22:05:00
-        timer: {
-          addedTime: 0,
-          duration: Infinity, // not relevant,
-          startedAt: 79200000, // 22:00:00
-          finishedAt: null,
+        runtime: {
+          actualStart: 79200000,
+          plannedEnd: 600000,
         },
         _timer: {
           pausedAt: null,
@@ -478,7 +475,7 @@ describe('getCurrent()', () => {
       } as RuntimeState;
 
       const current = getCurrent(state);
-      expect(current).toBe(600000 + dayInMs - 79500000);
+      expect(current).toBe(dayInMs - 79500000 + 600000);
     });
   });
 });
@@ -1578,5 +1575,109 @@ describe('getRuntimeOffset()', () => {
 
     const offset = getRuntimeOffset(state);
     expect(offset).toBe(79521653 - 81000000);
+  });
+
+  it('handles time-to-end', () => {
+    const state = {
+      clock: 80000000, // 22:13:20
+      eventNow: {
+        id: 'd6a2ce',
+        type: 'event',
+        title: '',
+        timeStart: 77400000, // 21:30:00
+        timeEnd: 81000000, // 22:30:00
+        duration: 3600000, // 01:00:00
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
+        endAction: EndAction.None,
+        timerType: TimerType.TimeToEnd,
+        isPublic: true,
+        skip: false,
+        note: '',
+        colour: '',
+        cue: '1',
+        revision: 0,
+        timeWarning: 120000,
+        timeDanger: 60000,
+        custom: {},
+        delay: 0,
+      },
+      runtime: {
+        selectedEventIndex: 0,
+        numEvents: 1,
+        offset: null,
+        plannedStart: 77400000, // 21:30:00
+        plannedEnd: 81000000, // 22:30:00
+        actualStart: 78000000, // 21:40:00
+        expectedEnd: 81600000, // 22:40:00
+      },
+      timer: {
+        addedTime: 0,
+        current: 1600000,
+        duration: 3600000,
+        elapsed: 2000000,
+        expectedFinish: 81600000,
+        finishedAt: null,
+        playback: Playback.Play,
+        secondaryTimer: null,
+        startedAt: 78000000,
+      },
+      _timer: { pausedAt: null, secondaryTarget: null, finishedNow: false },
+    } as RuntimeState;
+
+    const offset = getRuntimeOffset(state);
+    expect(offset).toBe(0);
+  });
+
+  it('handles time-to-end with delays', () => {
+    const state = {
+      clock: 82000000, // 22:46:40
+      eventNow: {
+        id: 'd6a2ce',
+        type: 'event',
+        title: '',
+        timeStart: 77400000, // 21:30:00
+        timeEnd: 81000000, // 22:30:00
+        duration: 3600000, // 01:00:00
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
+        endAction: EndAction.None,
+        timerType: TimerType.TimeToEnd,
+        isPublic: true,
+        skip: false,
+        note: '',
+        colour: '',
+        cue: '1',
+        revision: 0,
+        timeWarning: 120000,
+        timeDanger: 60000,
+        custom: {},
+        delay: 0,
+      },
+      runtime: {
+        selectedEventIndex: 0,
+        numEvents: 1,
+        offset: null,
+        plannedStart: 77400000, // 21:30:00
+        plannedEnd: 81000000, // 22:30:00
+        actualStart: 78000000, // 21:40:00
+        expectedEnd: 81600000, // 22:40:00
+      },
+      timer: {
+        addedTime: 0,
+        current: -400000,
+        duration: 3600000,
+        elapsed: 4000000,
+        expectedFinish: 81600000,
+        finishedAt: null,
+        playback: Playback.Play,
+        secondaryTimer: null,
+        startedAt: 78000000,
+      },
+      _timer: { pausedAt: null, secondaryTarget: null, finishedNow: false },
+    } as RuntimeState;
+
+    const offset = getRuntimeOffset(state);
+    expect(offset).toBe(-400000);
   });
 });
