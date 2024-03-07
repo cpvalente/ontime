@@ -1,6 +1,7 @@
 import { generateId } from 'ontime-utils';
 import {
   Alias,
+  AliasSchema,
   OntimeRundown,
   HttpSettings,
   OSCSettings,
@@ -14,12 +15,13 @@ import {
   isOntimeBlock,
   CustomFields,
   isOntimeCycle,
-  HttpSubscription,
+  HttpSubscription, HttpSettingsSchema,
 } from 'ontime-types';
 
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
 import { createEvent } from './parser.js';
+import { safeParse } from 'valibot';
 
 /**
  * Parse events array of an entry
@@ -207,20 +209,18 @@ export function sanitiseHttpSubscriptions(subscriptions?: HttpSubscription[]): H
 /**
  * Parse Http portion of an entry
  * @param {object} data - data object
- * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
 export const parseHttp = (data: { http?: Partial<HttpSettings> }): HttpSettings => {
   if ('http' in data) {
     console.log('Found HTTP definition, importing...');
 
-    // TODO: this can be improved by only merging known keys
-    const loadedConfig = data?.http || {};
-
-    return {
-      enabledOut: loadedConfig.enabledOut ?? dbModel.http.enabledOut,
-      subscriptions: sanitiseHttpSubscriptions(loadedConfig.subscriptions),
-    };
+    const parsed = safeParse(HttpSettingsSchema, data.http);
+    if (!parsed.success) {
+      console.log('Failed to load HTTP definition', parsed.issues);
+      return dbModel.http;
+    }
+    return parsed.output;
   }
 };
 
@@ -229,18 +229,16 @@ export const parseHttp = (data: { http?: Partial<HttpSettings> }): HttpSettings 
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseAliases = (data): Alias[] => {
+export const parseAliases = (data: object): Alias[] => {
   const newAliases: Alias[] = [];
-  if ('aliases' in data) {
+  if ('aliases' in data && Array.isArray(data.aliases)) {
     console.log('Found Aliases definition, importing...');
     try {
       for (const alias of data.aliases) {
-        const newAlias = {
-          enabled: alias.enabled ?? false,
-          alias: alias.alias ?? '',
-          pathAndParams: alias.pathAndParams ?? '',
-        };
-        newAliases.push(newAlias);
+        const newAlias = safeParse(AliasSchema, alias);
+        if (newAlias.success) {
+          newAliases.push(newAlias.output);
+        }
       }
       console.log(`Uploaded ${newAliases.length} alias(es)`);
     } catch (error) {

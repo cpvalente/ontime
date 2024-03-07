@@ -303,6 +303,9 @@ importers:
       ts-essentials:
         specifier: ^9.4.1
         version: 9.4.1(typescript@5.2.2)
+      valibot:
+        specifier: ^0.29.0
+        version: 0.29.0
       ws:
         specifier: ^8.13.0
         version: 8.13.0
@@ -366,6 +369,10 @@ importers:
         version: 1.2.2(@types/node@18.11.18)(jsdom@21.1.0)(sass@1.57.1)
 
   packages/types:
+    dependencies:
+      valibot:
+        specifier: ^0.29.0
+        version: 0.29.0
     devDependencies:
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.10.0
@@ -391,6 +398,9 @@ importers:
       nanoid:
         specifier: ^5.0.4
         version: 5.0.4
+      valibot:
+        specifier: ^0.29.0
+        version: 0.29.0
     devDependencies:
       '@types/luxon':
         specifier: ^3.4.0
@@ -9181,6 +9191,10 @@ packages:
   /v8-compile-cache-lib@3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
     dev: true
+
+  /valibot@0.29.0:
+    resolution: {integrity: sha512-JhZn08lwZPhAamOCfBwBkv/btQt4KeQhekULPH8crH053zUCLSOGEF2zKExu3bFf245tsj6J1dY0ysd/jUiMIQ==}
+    dev: false
 
   /validator@13.7.0:
     resolution: {integrity: sha512-nYXQLCBkpJ8X6ltALua9dRrZDHVYxjJ1wgskNt1lH9fzGjs3tgojGSCBjmEPwkWS1y29+DrizMTW19Pr9uB2nw==}

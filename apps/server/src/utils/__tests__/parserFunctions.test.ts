@@ -1,4 +1,4 @@
-import { HttpSubscription, OscSubscription } from 'ontime-types';
+import { HttpSubscription, OscSubscription, TimerLifeCycle } from 'ontime-types';
 import { sanitiseOscSubscriptions, sanitiseHttpSubscriptions } from '../parserFunctions.js';
 
 describe('sanitiseOscSubscriptions()', () => {
@@ -45,13 +45,13 @@ describe('sanitiseHttpSubscriptions()', () => {
   });
 
   it('returns an array of valid entries', () => {
-    const oscSubscriptions: OscSubscription[] = [
-      { id: '1', cycle: 'onLoad', message: 'http://test', enabled: true },
-      { id: '2', cycle: 'onStart', message: 'http://test', enabled: false },
-      { id: '3', cycle: 'onPause', message: 'http://test', enabled: true },
-      { id: '4', cycle: 'onStop', message: 'http://test', enabled: false },
-      { id: '5', cycle: 'onUpdate', message: 'http://test', enabled: true },
-      { id: '6', cycle: 'onFinish', message: 'http://test', enabled: false },
+    const oscSubscriptions: HttpSubscription[] = [
+      { id: '1', cycle: TimerLifeCycle.onLoad, message: 'http://test', enabled: true },
+      { id: '2', cycle: TimerLifeCycle.onStart, message: 'http://test', enabled: false },
+      { id: '3', cycle: TimerLifeCycle.onPause, message: 'http://test', enabled: true },
+      { id: '4', cycle: TimerLifeCycle.onStop, message: 'http://test', enabled: false },
+      { id: '5', cycle: TimerLifeCycle.onUpdate, message: 'http://test', enabled: true },
+      { id: '6', cycle: TimerLifeCycle.onFinish, message: 'http://test', enabled: false },
     ];
     const sanitationResult = sanitiseHttpSubscriptions(oscSubscriptions);
     expect(sanitationResult).toStrictEqual(oscSubscriptions);

@@ -25,7 +25,7 @@ export type { ViewSettings } from './definitions/core/Views.type.js';
 export type { TimeFormat } from './definitions/core/TimeFormat.type.js';
 
 // ---> Aliases
-export type { Alias } from './definitions/core/Alias.type.js';
+export { type Alias, AliasSchema } from './definitions/core/Alias.type.js';
 
 // ---> Custom Fields
 export type {
@@ -37,7 +37,12 @@ export type {
 
 // ---> Integration, Subscription
 export type { OSCSettings, OscSubscription } from './definitions/core/OscSettings.type.js';
-export type { HttpSettings, HttpSubscription } from './definitions/core/HttpSettings.type.js';
+export {
+  HttpSubscriptionSchema,
+  HttpSettingsSchema,
+  type HttpSettings,
+  type HttpSubscription,
+} from './definitions/core/HttpSettings.type.js';
 
 // SERVER RESPONSES
 export type {

@@ -14,7 +14,8 @@
   "dependencies": {
     "deepmerge-ts": "^5.1.0",
     "luxon": "^3.4.4",
-    "nanoid": "^5.0.4"
+    "nanoid": "^5.0.4",
+    "valibot": "^0.29.0"
   },
   "devDependencies": {
     "@types/luxon": "^3.4.0",
