@@ -53,6 +53,7 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
  * @param {RuntimeState} state runtime state
  * @returns {number} current time for timer
  */
+
 export function getCurrent(state: RuntimeState): number {
   const { startedAt, duration, addedTime } = state.timer;
   const { timerType, timeEnd } = state.eventNow;
@@ -60,9 +61,11 @@ export function getCurrent(state: RuntimeState): number {
   const { clock } = state;
 
   if (timerType === TimerType.TimeToEnd) {
-    const isNextDay = startedAt > timeEnd;
-    const correctDay = isNextDay ? dayInMs : 0;
-    return timeEnd + addedTime + correctDay - clock;
+    const hasFinishedRundownForToday = clock > state.runtime.plannedEnd;
+    if (hasFinishedRundownForToday) {
+      return dayInMs - clock + state.eventNow.timeStart + addedTime;
+    }
+    return timeEnd + addedTime - clock;
   }
 
   if (startedAt === null) {

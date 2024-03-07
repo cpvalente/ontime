@@ -386,6 +386,7 @@ describe('getCurrent()', () => {
       const current = getCurrent(state);
       expect(current).toBe(70);
     });
+
     it('current time is the time to end + added time', () => {
       const state = {
         eventNow: {
@@ -407,6 +408,36 @@ describe('getCurrent()', () => {
       const current = getCurrent(state);
       expect(current).toBe(77);
     });
+
+    it('handles events that start the day after', () => {
+      const state = {
+        eventNow: {
+          timeStart: 60000, // 00:01:00
+          timeEnd: 600000, // 00:10:00
+          timerType: TimerType.TimeToEnd,
+        },
+        clock: 79500000, // 22:05:00
+        timer: {
+          addedTime: 0,
+          duration: Infinity, // not relevant,
+          startedAt: 79200000, // 22:00:00
+          finishedAt: null,
+        },
+        runtime: {
+          plannedStart: 60000, // 00:01:00
+          plannedEnd: 79200000, // 22:00:00
+        },
+        _timer: {
+          pausedAt: null,
+        },
+      } as RuntimeState;
+
+      const current = getCurrent(state);
+      // day - clock + start time
+      const expectedCurrent = dayInMs - 79500000 + 60000;
+      expect(current).toBe(expectedCurrent);
+    });
+
     it('handles events that finish the day after', () => {
       const state = {
         eventNow: {
