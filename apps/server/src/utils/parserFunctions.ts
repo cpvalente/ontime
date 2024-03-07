@@ -15,7 +15,7 @@ import {
   isOntimeBlock,
   CustomFields,
   isOntimeCycle,
-  HttpSubscription,
+  HttpSubscription, HttpSettingsSchema,
 } from 'ontime-types';
 
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
@@ -209,20 +209,18 @@ export function sanitiseHttpSubscriptions(subscriptions?: HttpSubscription[]): H
 /**
  * Parse Http portion of an entry
  * @param {object} data - data object
- * @param {boolean} enforce - whether to create a definition if one is missing
  * @returns {object} - event object data
  */
 export const parseHttp = (data: { http?: Partial<HttpSettings> }): HttpSettings => {
   if ('http' in data) {
     console.log('Found HTTP definition, importing...');
 
-    // TODO: this can be improved by only merging known keys
-    const loadedConfig = data?.http || {};
-
-    return {
-      enabledOut: loadedConfig.enabledOut ?? dbModel.http.enabledOut,
-      subscriptions: sanitiseHttpSubscriptions(loadedConfig.subscriptions),
-    };
+    const parsed = safeParse(HttpSettingsSchema, data.http);
+    if (!parsed.success) {
+      console.log('Failed to load HTTP definition', parsed.issues);
+      return dbModel.http;
+    }
+    return parsed.output;
   }
 };
 

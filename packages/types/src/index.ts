@@ -37,7 +37,12 @@ export type {
 
 // ---> Integration, Subscription
 export type { OSCSettings, OscSubscription } from './definitions/core/OscSettings.type.js';
-export type { HttpSettings, HttpSubscription } from './definitions/core/HttpSettings.type.js';
+export {
+  HttpSubscriptionSchema,
+  HttpSettingsSchema,
+  type HttpSettings,
+  type HttpSubscription,
+} from './definitions/core/HttpSettings.type.js';
 
 // SERVER RESPONSES
 export type {

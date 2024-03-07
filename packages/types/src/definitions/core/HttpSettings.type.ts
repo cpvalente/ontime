@@ -1,8 +1,18 @@
-import { TimerLifeCycleKey } from './TimerLifecycle.type.js';
+import { TimerLifeCycle } from './TimerLifecycle.type.js';
+import { object, string, enum_, boolean, Output, array, startsWith } from 'valibot';
 
-export type HttpSubscription = { id: string; cycle: TimerLifeCycleKey; message: string; enabled: boolean };
+export const HttpSubscriptionSchema = object({
+  id: string(),
+  message: string([startsWith('http://')]),
+  cycle: enum_(TimerLifeCycle),
+  enabled: boolean(),
+});
 
-export interface HttpSettings {
-  enabledOut: boolean;
-  subscriptions: HttpSubscription[];
-}
+export type HttpSubscription = Output<typeof HttpSubscriptionSchema>;
+
+export const HttpSettingsSchema = object({
+  enabledOut: boolean(),
+  subscriptions: array(HttpSubscriptionSchema),
+});
+
+export type HttpSettings = Output<typeof HttpSettingsSchema>;
