@@ -70,84 +70,72 @@ export default function ProjectData() {
         </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
-          <div className={style.createFormInputField}>
-            <label>
-              Project title
-              <Input
-                variant='ontime-filled'
-                size='sm'
-                maxLength={50}
-                placeholder='Your project name'
-                autoComplete='off'
-                {...register('title')}
-              />
-            </label>
-          </div>
-          <div className={style.createFormInputField}>
-            <label>
-              Project description
-              <Input
-                variant='ontime-filled'
-                size='sm'
-                maxLength={100}
-                placeholder='Euro Love, Malmö 2024'
-                autoComplete='off'
-                {...register('description')}
-              />
-            </label>
-          </div>
-          <div className={style.createFormInputField}>
-            <label>
-              Public info
-              <Textarea
-                variant='ontime-filled'
-                size='sm'
-                maxLength={150}
-                placeholder='Shows always start ontime'
-                autoComplete='off'
-                resize='none'
-                {...register('publicInfo')}
-              />
-            </label>
-          </div>
-          <div className={style.createFormInputField}>
-            <label>
-              Public QR code URL
-              <Input
-                variant='ontime-filled'
-                size='sm'
-                placeholder='www.getontime.no'
-                autoComplete='off'
-                {...register('publicUrl')}
-              />
-            </label>
-          </div>
-          <div className={style.createFormInputField}>
-            <label>
-              Backstage info
-              <Textarea
-                variant='ontime-filled'
-                size='sm'
-                maxLength={150}
-                placeholder='Wi-Fi password: 1234'
-                autoComplete='off'
-                resize='none'
-                {...register('backstageInfo')}
-              />
-            </label>
-          </div>
-          <div className={style.createFormInputField}>
-            <label>
-              Backstage QR code URL
-              <Input
-                variant='ontime-filled'
-                size='sm'
-                placeholder='http://docs.getontime.no'
-                autoComplete='off'
-                {...register('backstageUrl')}
-              />
-            </label>
-          </div>
+          <label>
+            Project title
+            <Input
+              variant='ontime-filled'
+              size='sm'
+              maxLength={50}
+              placeholder='Your project name'
+              autoComplete='off'
+              {...register('title')}
+            />
+          </label>
+          <label>
+            Project description
+            <Input
+              variant='ontime-filled'
+              size='sm'
+              maxLength={100}
+              placeholder='Euro Love, Malmö 2024'
+              autoComplete='off'
+              {...register('description')}
+            />
+          </label>
+          <label>
+            Public info
+            <Textarea
+              variant='ontime-filled'
+              size='sm'
+              maxLength={150}
+              placeholder='Shows always start ontime'
+              autoComplete='off'
+              resize='none'
+              {...register('publicInfo')}
+            />
+          </label>
+          <label>
+            Public QR code URL
+            <Input
+              variant='ontime-filled'
+              size='sm'
+              placeholder='www.getontime.no'
+              autoComplete='off'
+              {...register('publicUrl')}
+            />
+          </label>
+          <label>
+            Backstage info
+            <Textarea
+              variant='ontime-filled'
+              size='sm'
+              maxLength={150}
+              placeholder='Wi-Fi password: 1234'
+              autoComplete='off'
+              resize='none'
+              {...register('backstageInfo')}
+            />
+          </label>
+          <label>
+            Backstage QR code URL
+            <Input
+              variant='ontime-filled'
+              size='sm'
+              placeholder='http://docs.getontime.no'
+              autoComplete='off'
+              {...register('backstageUrl')}
+            />
+          </label>
         </Panel.Section>
       </Panel.Card>
     </Panel.Section>

@@ -10,14 +10,14 @@ $gap-left: calc(2rem + 0.25rem + 3rem);
 
   display: flex;
   gap: 0.5rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 @mixin indicator($bg-colour) {
   padding: 0 0.5rem;
   border-radius: 2px;
   background-color: $bg-colour;
-  color: $ui-black;
+  color: $ui-white;
 }
 
 .delay {

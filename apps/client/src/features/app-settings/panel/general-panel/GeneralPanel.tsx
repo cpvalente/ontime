@@ -1,6 +1,5 @@
 import * as Panel from '../PanelUtils';
 
-import EditorSettingsForm from './EditorSettingsForm';
 import GeneralPanelForm from './GeneralPanelForm';
 import ViewSettingsForm from './ViewSettingsForm';
 
@@ -9,7 +8,6 @@ export default function GeneralPanel() {
     <>
       <Panel.Header>Settings</Panel.Header>
       <GeneralPanelForm />
-      <EditorSettingsForm />
       <ViewSettingsForm />
     </>
   );

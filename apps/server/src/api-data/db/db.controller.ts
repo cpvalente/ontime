@@ -277,7 +277,7 @@ export async function previewSpreadsheet(req: Request, res: Response) {
     }
 
     const options = JSON.parse(req.body.options);
-    const data = handleMaybeExcel(filePath, options);
+    const { data } = handleMaybeExcel(filePath, options);
     res.status(200).send(data);
   } catch (error) {
     res.status(500).send({ message: String(error) });

@@ -58,6 +58,7 @@ export default function CheckUpdatesButton(props: CheckUpdatesButtonProps) {
         isLoading={isFetching}
         isDisabled={disableButton}
         size='sm'
+        maxWidth='max-content'
       >
         Check for updates
       </Button>

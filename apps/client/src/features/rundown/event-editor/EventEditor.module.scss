@@ -7,7 +7,6 @@
   display: flex;
   flex-direction: column;
   overflow-x: auto;
-
 }
 
 .content {
@@ -49,6 +48,14 @@
   text-transform: capitalize;
 }
 
+.decorated {
+  color: var(--decorator-color, $ui-white);
+  background-color: var(--decorator-bg, $gray-1100);
+  width: fit-content;
+  padding: 0 0.5rem;
+  border-radius: 2px;
+}
+
 .delayLabel {
   font-size: calc(1rem - 3px);
   color: $ontime-delay-text;
@@ -80,18 +87,4 @@
   grid-template-columns: 1fr 1fr;
   column-gap: 1.5rem;
   row-gap: 1rem;
-}
-
-.decorated {
-  &::before{
-    content: '';
-    display: inline-block;
-    vertical-align: baseline;
-    margin-right: 0.25rem;
-    width: 1em;
-    height: 1em;
-    aspect-ratio: 1;
-    border-radius: 99px;
-    background-color: var(--decorator-color, $gray-1100);
-  }
 }
