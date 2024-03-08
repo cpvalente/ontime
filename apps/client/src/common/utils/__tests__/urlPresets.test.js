@@ -44,7 +44,7 @@ describe('generateUrlFromPreset and getRouteFromPreset function', () => {
     expect(generateUrlFromPreset(testData[0])).toStrictEqual(expected[0].url);
   });
   test('generate the url to redirect to when the current URL is just the alias', () => {
-    const aliases = [
+    const presets = [
       {
         enabled: true,
         alias: 'demopage',
@@ -52,7 +52,7 @@ describe('generateUrlFromPreset and getRouteFromPreset function', () => {
       },
     ];
     // let current location be the alias
-    const location = resolvePath(aliases[0].alias);
+    const location = resolvePath(presets[0].alias);
 
     const expected = [
       {
@@ -60,10 +60,10 @@ describe('generateUrlFromPreset and getRouteFromPreset function', () => {
       },
     ];
 
-    expect(getRouteFromPreset(location, aliases, null)).toStrictEqual(expected[0].url);
+    expect(getRouteFromPreset(location, presets, null)).toStrictEqual(expected[0].url);
   });
   test('generate the url to redirect to when the current URL the same url but with a change of params', () => {
-    const aliases = [
+    const presets = [
       {
         enabled: true,
         alias: 'demopage',
@@ -71,22 +71,22 @@ describe('generateUrlFromPreset and getRouteFromPreset function', () => {
       },
     ];
     // let current location be the actual url with alias attached to it
-    const location = resolvePath(aliases[0].pathAndParams);
+    const location = resolvePath(presets[0].pathAndParams);
     const urlSearchParams = new URLSearchParams(location.search);
-    urlSearchParams.append('alias', aliases[0].alias); //
+    urlSearchParams.append('alias', presets[0].alias); //
 
     // update current alias with extra param
-    aliases[0].pathAndParams += '&eventId=674';
+    presets[0].pathAndParams += '&eventId=674';
     const expected = [
       {
         url: '/timer?user=guest&eventId=674&alias=demopage',
       },
     ];
 
-    expect(getRouteFromPreset(location, aliases, urlSearchParams)).toStrictEqual(expected[0].url);
+    expect(getRouteFromPreset(location, presets, urlSearchParams)).toStrictEqual(expected[0].url);
   });
   test('generate no url to redirect to when the current URL the same url', () => {
-    const aliases = [
+    const presets = [
       {
         enabled: true,
         alias: 'demopage',
@@ -94,10 +94,10 @@ describe('generateUrlFromPreset and getRouteFromPreset function', () => {
       },
     ];
     // let current location be the actual url with alias attached to it
-    const location = resolvePath(aliases[0].pathAndParams);
+    const location = resolvePath(presets[0].pathAndParams);
     const urlSearchParams = new URLSearchParams(location.search);
-    urlSearchParams.append('alias', aliases[0].alias); //
+    urlSearchParams.append('alias', presets[0].alias); //
 
-    expect(getRouteFromPreset(location, aliases, urlSearchParams)).toBeNull();
+    expect(getRouteFromPreset(location, presets, urlSearchParams)).toBeNull();
   });
 });
