@@ -41,7 +41,7 @@ export default function PanelList() {
             </li>
             {panel.secondary?.map((secondary) => {
               return (
-                <li key={secondary.id} onClick={() => handleSelect(panel)} className={style.secondary}>
+                <li key={secondary.id} onClick={() => handleSelect(panel)} className={style.secondary} role='button'>
                   {secondary.label}
                 </li>
               );

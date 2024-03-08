@@ -88,7 +88,7 @@ export default function UrlPresetsForm() {
   const canSubmit = !isSubmitting && isDirty && isValid;
 
   return (
-    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)}>
+    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} data-testId='url-preset-form'>
       <Panel.Card>
         <Panel.SubHeader>
           URL Presets
