@@ -276,8 +276,7 @@ export default function Rundown({ data }: RundownProps) {
                   {((showQuickEntry && hasCursor) || isLast) && (
                     <QuickAddBlock
                       showKbd={hasCursor}
-                      eventId={event.id}
-                      previousEventId={previousEventId}
+                      previousEventId={event.id}
                       disableAddDelay={isOntimeDelay(event)}
                       disableAddBlock={isOntimeBlock(event)}
                     />
