@@ -31,7 +31,7 @@ export function getFirstEvent(rundown: OntimeRundownEntry[]): {
 } {
   for (let i = 0; i < rundown.length; i++) {
     const firstEvent = rundown[i];
-    if (isOntimeEvent(firstEvent)) {
+    if (isOntimeEvent(firstEvent) && !firstEvent.skip) {
       return { firstEvent, firstIndex: i };
     }
   }
@@ -54,7 +54,7 @@ export function getFirstEventNormal(
   for (let i = 0; i < order.length; i++) {
     const firstId = order[i];
     const firstEvent = rundown[firstId];
-    if (isOntimeEvent(firstEvent)) {
+    if (isOntimeEvent(firstEvent) && !firstEvent.skip) {
       return { firstEvent, firstIndex: i };
     }
   }
@@ -76,7 +76,7 @@ export function getLastEvent(rundown: OntimeRundown): {
 
   for (let i = rundown.length - 1; i >= 0; i--) {
     const lastEvent = rundown.at(i);
-    if (isOntimeEvent(lastEvent)) {
+    if (isOntimeEvent(lastEvent) && !lastEvent.skip) {
       return { lastEvent, lastIndex: i };
     }
   }
@@ -103,7 +103,7 @@ export function getLastEventNormal(
   for (let i = order.length - 1; i >= 0; i--) {
     const lastId = order[i];
     const lastEvent = rundown[lastId];
-    if (isOntimeEvent(lastEvent)) {
+    if (isOntimeEvent(lastEvent) && !lastEvent.skip) {
       return { lastEvent, lastIndex: i };
     }
   }

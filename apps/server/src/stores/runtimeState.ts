@@ -120,6 +120,11 @@ export function updateRundownData(playableRundown: OntimeEvent[]) {
 
   runtimeState.runtime.plannedStart = firstEvent?.timeStart ?? null;
   runtimeState.runtime.plannedEnd = lastEvent?.timeEnd ?? null;
+  if (runtimeState.runtime.plannedEnd === null) {
+    runtimeState.runtime.expectedEnd = null;
+  } else {
+    runtimeState.runtime.expectedEnd = (runtimeState.runtime.plannedEnd + runtimeState.runtime.offset) % dayInMs;
+  }
 }
 
 /**
@@ -255,6 +260,18 @@ export function reload(event?: OntimeEvent) {
   runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
 }
 
+/**
+ * Used in situations when we want to reload all events
+ * without interrupting timer
+ * @param eventNow
+ * @param playableEvents
+ */
+export function reloadAll(eventNow: OntimeEvent, playableEvents: OntimeEvent[]) {
+  loadNow(eventNow, playableEvents);
+  loadNext(playableEvents);
+  reload(eventNow);
+}
+
 export function start(state: RuntimeState = runtimeState): boolean {
   if (state.eventNow === null) {
     return false;
@@ -307,8 +324,10 @@ export function stop(state: RuntimeState = runtimeState): boolean {
   if (state.timer.playback === Playback.Stop) {
     return false;
   }
-  runtimeState.runtime.actualStart = null;
+
   clear();
+  runtimeState.runtime.actualStart = null;
+  runtimeState.runtime.expectedEnd = null;
   return true;
 }
 

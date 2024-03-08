@@ -1,6 +1,6 @@
 @use '../blockMixins' as *;
 
-$skip-opacity: 0.1;
+$skip-opacity: 0.2;
 
 .eventBlock {
   @include block-styling;
