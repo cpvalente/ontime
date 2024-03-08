@@ -18,7 +18,7 @@ import { dbModel } from '../../models/dataModel.js';
 
 import { parseExcel, parseJson, createEvent, getCustomFieldData } from '../parser.js';
 import { makeString } from '../parserUtils.js';
-import { parseAliases, parseViewSettings } from '../parserFunctions.js';
+import { parseUrlPresets, parseViewSettings } from '../parserFunctions.js';
 
 describe('test json parser with valid def', () => {
   const testData: Partial<DatabaseModel> = {
@@ -530,7 +530,7 @@ describe('test aliases import', () => {
       ],
     };
 
-    const parsed = parseAliases(testData);
+    const parsed = parseUrlPresets(testData);
     expect(parsed.length).toBe(1);
 
     // generates missing id

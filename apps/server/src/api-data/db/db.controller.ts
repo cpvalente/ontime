@@ -36,7 +36,7 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
       settings: req.body?.settings,
       viewSettings: req.body?.viewSettings,
       osc: req.body?.osc,
-      aliases: req.body?.aliases,
+      urlPresets: req.body?.urlPresets,
       customFields: req.body?.customFields,
     };
 

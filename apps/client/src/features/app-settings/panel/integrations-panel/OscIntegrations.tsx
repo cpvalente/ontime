@@ -82,7 +82,7 @@ export default function OscIntegrations() {
         Open Sound Control
         <div className={style.flex}>
           <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
-            Reset
+            Revert to saved
           </Button>
           <Button
             variant='ontime-filled'
@@ -92,7 +92,7 @@ export default function OscIntegrations() {
             isDisabled={!canSubmit}
             isLoading={isSubmitting}
           >
-            Save changes
+            Save
           </Button>
         </div>
       </Panel.SubHeader>

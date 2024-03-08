@@ -27,7 +27,7 @@ export const dbModel: DatabaseModel = {
     dangerColor: '#ED3333',
     endMessage: '',
   },
-  aliases: [],
+  urlPresets: [],
   customFields: {},
   osc: {
     portIn: 8888,

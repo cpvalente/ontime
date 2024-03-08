@@ -24,8 +24,8 @@ export type { Settings } from './definitions/core/Settings.type.js';
 export type { ViewSettings } from './definitions/core/Views.type.js';
 export type { TimeFormat } from './definitions/core/TimeFormat.type.js';
 
-// ---> Aliases
-export type { Alias } from './definitions/core/Alias.type.js';
+// ---> URL Presets
+export type { URLPreset } from './definitions/core/UrlPreset.type.js';
 
 // ---> Custom Fields
 export type {

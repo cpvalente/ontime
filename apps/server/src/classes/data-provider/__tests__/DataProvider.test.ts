@@ -1,4 +1,4 @@
-import { Alias, DatabaseModel, OntimeRundown, Settings } from 'ontime-types';
+import { DatabaseModel, OntimeRundown, Settings, URLPreset } from 'ontime-types';
 import { safeMerge } from '../DataProvider.utils.js';
 
 describe('safeMerge', () => {
@@ -28,7 +28,7 @@ describe('safeMerge', () => {
       warningColor: '#FFAB33',
       dangerColor: '#ED3333',
     },
-    aliases: [],
+    urlPresets: [],
     customFields: {
       lighting: { type: 'string', label: 'lighting', colour: 'red' },
       vfx: { type: 'string', label: 'vfx', colour: 'blue' },
@@ -130,7 +130,7 @@ describe('safeMerge', () => {
     });
   });
 
-  it('should merge the aliases key when present', () => {
+  it('should merge the urlPresets key when present', () => {
     const existingData = {
       rundown: [],
       project: {
@@ -153,7 +153,7 @@ describe('safeMerge', () => {
         overrideStyles: false,
         endMessage: '',
       },
-      aliases: [],
+      urlPresets: [],
       osc: {
         portIn: 8888,
         portOut: 9999,
@@ -165,15 +165,15 @@ describe('safeMerge', () => {
     } as DatabaseModel;
 
     const newData = {
-      aliases: [
+      urlPresets: [
         { enabled: true, alias: 'alias1', pathAndParams: '' },
         { enabled: true, alias: 'alias2', pathAndParams: '' },
-      ] as Alias[],
+      ] as URLPreset[],
     };
 
     const mergedData = safeMerge(existingData, newData);
 
-    expect(mergedData.aliases).toEqual(newData.aliases);
+    expect(mergedData.urlPresets).toEqual(newData.urlPresets);
   });
 
   it('merges customFields into existing object', () => {

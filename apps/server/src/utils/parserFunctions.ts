@@ -1,6 +1,5 @@
 import { generateId } from 'ontime-utils';
 import {
-  Alias,
   OntimeRundown,
   HttpSettings,
   OSCSettings,
@@ -15,6 +14,7 @@ import {
   CustomFields,
   isOntimeCycle,
   HttpSubscription,
+  URLPreset,
 } from 'ontime-types';
 
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
@@ -225,29 +225,29 @@ export const parseHttp = (data: { http?: Partial<HttpSettings> }): HttpSettings 
 };
 
 /**
- * Parse aliases portion of an entry
+ * Parse URL preset portion of an entry
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseAliases = (data): Alias[] => {
-  const newAliases: Alias[] = [];
-  if ('aliases' in data) {
-    console.log('Found Aliases definition, importing...');
+export const parseUrlPresets = (data): URLPreset[] => {
+  const newPresets: URLPreset[] = [];
+  if ('urlPresets' in data) {
+    console.log('Found URL presets definition, importing...');
     try {
-      for (const alias of data.aliases) {
-        const newAlias = {
-          enabled: alias.enabled ?? false,
-          alias: alias.alias ?? '',
-          pathAndParams: alias.pathAndParams ?? '',
+      for (const preset of data.presets) {
+        const newPreset = {
+          enabled: preset.enabled ?? false,
+          alias: preset.alias ?? '',
+          pathAndParams: preset.pathAndParams ?? '',
         };
-        newAliases.push(newAlias);
+        newPresets.push(newPreset);
       }
-      console.log(`Uploaded ${newAliases.length} alias(es)`);
+      console.log(`Uploaded ${newPresets.length} preset(s)`);
     } catch (error) {
       console.log(`Error: ${error}`);
     }
   }
-  return newAliases;
+  return newPresets;
 };
 
 /**
