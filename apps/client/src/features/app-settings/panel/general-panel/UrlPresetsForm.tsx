@@ -12,7 +12,7 @@ import TooltipActionBtn from '../../../../common/components/buttons/TooltipActio
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
 import { handleLinks } from '../../../../common/utils/linkUtils';
-import { validateUrlPreset } from '../../../../common/utils/urlPresets';
+import { validateUrlPresetPath } from '../../../../common/utils/urlPresets';
 import * as Panel from '../PanelUtils';
 
 import style from './GeneralPanel.module.scss';
@@ -55,9 +55,9 @@ export default function UrlPresetsForm() {
   const onSubmit = async (formData: FormData) => {
     for (let i = 0; i < formData.data.length; i++) {
       const preset = formData.data[i];
-      const { isValid, message } = validateUrlPreset(preset.pathAndParams);
+      const { isValid, message } = validateUrlPresetPath(preset.pathAndParams);
       if (!isValid) {
-        setError(`data.${i}`, { message });
+        setError(`data.${i}.pathAndParams`, { message });
         return;
       }
     }
@@ -137,7 +137,8 @@ export default function UrlPresetsForm() {
             </thead>
             <tbody>
               {fields.map((preset, index) => {
-                const maybeError = errors.data?.[index]?.message;
+                const maybeAliasError = errors.data?.[index]?.alias?.message;
+                const maybeUrlError = errors.data?.[index]?.pathAndParams?.message;
                 return (
                   <tr key={preset.id}>
                     <td className={style.fit}>
@@ -158,6 +159,7 @@ export default function UrlPresetsForm() {
                         data-testid={`field__alias_${index}`}
                         autoComplete='off'
                       />
+                      <Panel.Error>{maybeAliasError}</Panel.Error>
                     </td>
                     <td className={style.fullWidth}>
                       <Input
@@ -170,7 +172,7 @@ export default function UrlPresetsForm() {
                         data-testid={`field__url_${index}`}
                         autoComplete='off'
                       />
-                      <Panel.Error>{maybeError}</Panel.Error>
+                      <Panel.Error>{maybeUrlError}</Panel.Error>
                     </td>
                     <td className={style.flex}>
                       <TooltipActionBtn

@@ -7,22 +7,22 @@ import { URLPreset } from 'ontime-types';
  * @param {string} preset
  * @returns {{message: string, isValid: boolean}}
  */
-export const validateUrlPreset = (preset: string): { message: string; isValid: boolean } => {
+export const validateUrlPresetPath = (preset: string): { message: string; isValid: boolean } => {
   if (preset === '' || preset == null) {
-    return { isValid: false, message: 'Preset cannot be empty' };
+    return { isValid: false, message: 'Path cannot be empty' };
   }
 
   if (preset.includes('http') || preset.includes('https') || preset.includes('www')) {
-    return { isValid: false, message: 'Preset should not include http, https, www' };
+    return { isValid: false, message: 'Path should not include http, https, www' };
   }
 
   if (preset.includes('127.0.0.1') || preset.includes('localhost') || preset.includes('0.0.0.0')) {
-    return { isValid: false, message: 'Preset should not include hostname' };
+    return { isValid: false, message: 'Path should not include hostname' };
   }
 
   if (preset.includes('editor')) {
     // no editor
-    return { isValid: false, message: 'No presets to editor page allowed' };
+    return { isValid: false, message: 'No path to editor page allowed' };
   }
 
   return { isValid: true, message: 'ok' };

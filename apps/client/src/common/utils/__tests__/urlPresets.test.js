@@ -1,6 +1,6 @@
 import { resolvePath } from 'react-router-dom';
 
-import { generateUrlFromPreset, getRouteFromPreset, validateUrlPreset } from '../urlPresets';
+import { generateUrlFromPreset, getRouteFromPreset, validateUrlPresetPath } from '../urlPresets';
 
 describe('A preset fails if incorrect', () => {
   const testsToFail = [
@@ -21,7 +21,7 @@ describe('A preset fails if incorrect', () => {
 
   testsToFail.forEach((t) =>
     it(`${t}`, () => {
-      expect(validateUrlPreset(t).isValid).toBeFalsy();
+      expect(validateUrlPresetPath(t).isValid).toBeFalsy();
     }),
   );
 });
