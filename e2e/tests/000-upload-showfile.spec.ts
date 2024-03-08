@@ -12,8 +12,8 @@ test('test project file upload', async ({ page }) => {
 
   // workaround to upload file on hidden input
   // https://playwright.dev/docs/api/class-filechooser
-  await page.getByRole('button', { name: 'Import', exact: true }).click();
   const fileChooserPromise = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Import', exact: true }).click();
   const fileChooser = await fileChooserPromise;
   await fileChooser.setFiles(fileToUpload);
 
