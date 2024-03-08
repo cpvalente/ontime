@@ -74,7 +74,7 @@ export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseProject = (data): ProjectData => {
+export const parseProject = (data: Partial<DatabaseModel>): ProjectData => {
   let newProjectData: Partial<ProjectData> = {};
   // we are adding this here to aid transition, should be removed once enough time has past that users have fully migrated
   if ('project' in data) {
@@ -134,7 +134,7 @@ export const parseSettings = (data): Settings => {
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseViewSettings = (data): ViewSettings => {
+export const parseViewSettings = (data: Partial<DatabaseModel>): ViewSettings => {
   let newViews: Partial<ViewSettings> = {};
   if ('viewSettings' in data) {
     console.log('Found view definition, importing...');
@@ -229,12 +229,12 @@ export const parseHttp = (data: { http?: Partial<HttpSettings> }): HttpSettings 
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseUrlPresets = (data): URLPreset[] => {
+export const parseUrlPresets = (data: Partial<DatabaseModel>): URLPreset[] => {
   const newPresets: URLPreset[] = [];
   if ('urlPresets' in data) {
     console.log('Found URL presets definition, importing...');
     try {
-      for (const preset of data.presets) {
+      for (const preset of data.urlPresets) {
         const newPreset = {
           enabled: preset.enabled ?? false,
           alias: preset.alias ?? '',
@@ -255,7 +255,7 @@ export const parseUrlPresets = (data): URLPreset[] => {
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseCustomFields = (data): CustomFields => {
+export const parseCustomFields = (data: Partial<DatabaseModel>): CustomFields => {
   let newCustomFields: CustomFields = { ...dbModel.customFields };
 
   if ('customFields' in data) {

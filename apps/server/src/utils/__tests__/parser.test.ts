@@ -514,21 +514,21 @@ describe('test event validator', () => {
 });
 
 describe('test aliases import', () => {
-  it('imports a well defined alias', () => {
+  it('imports a well defined urlPreset', () => {
     const testData = {
       rundown: [],
       settings: {
         app: 'ontime',
         version: '2.0.0',
       },
-      aliases: [
+      urlPresets: [
         {
           enabled: false,
           alias: 'testalias',
           pathAndParams: 'testpathAndParams',
         },
       ],
-    };
+    } as DatabaseModel;
 
     const parsed = parseUrlPresets(testData);
     expect(parsed.length).toBe(1);
@@ -552,8 +552,10 @@ describe('test views import', () => {
         dangerColor: '#ED3333',
         endMessage: '',
         overrideStyles: false,
+        // known error: properties do not exist
         notAthing: true,
       },
+      // known error: views does not exist
       views: {
         overrideStyles: true,
       },
@@ -565,6 +567,7 @@ describe('test views import', () => {
       endMessage: '',
       overrideStyles: false,
     };
+    // @ts-expect-error -- we know the above is incorrect
     const parsed = parseViewSettings(testData);
     expect(parsed).toStrictEqual(expectedParsedViewSettings);
   });
@@ -576,7 +579,7 @@ describe('test views import', () => {
         app: 'ontime',
         version: '2.0.0',
       },
-    };
+    } as DatabaseModel;
     const parsed = parseViewSettings(testData);
     expect(parsed).toStrictEqual({});
   });
