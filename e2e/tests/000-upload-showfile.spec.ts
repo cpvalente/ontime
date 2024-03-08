@@ -12,20 +12,20 @@ test('test project file upload', async ({ page }) => {
 
   // workaround to upload file on hidden input
   // https://playwright.dev/docs/api/class-filechooser
+  await page.getByRole('button', { name: 'Import', exact: true }).click();
   const fileChooserPromise = page.waitForEvent('filechooser');
-  await page.getByRole('button', { name: 'Import' }).click();
   const fileChooser = await fileChooserPromise;
   await fileChooser.setFiles(fileToUpload);
 
   await page.getByRole('button', { name: 'close' }).click();
 
   // asset test events
-  const firstTitle = page.getByTestId('entry-1').getByTestId('block__title')
+  const firstTitle = page.getByTestId('entry-1').getByTestId('block__title');
   await expect(firstTitle).toHaveValue('Albania');
 
-  const secondTitle = page.getByTestId('entry-2').getByTestId('block__title')
+  const secondTitle = page.getByTestId('entry-2').getByTestId('block__title');
   await expect(secondTitle).toHaveValue('Latvia');
 
-  const thirdTitle = page.getByTestId('entry-3').getByTestId('block__title')
+  const thirdTitle = page.getByTestId('entry-3').getByTestId('block__title');
   await expect(thirdTitle).toHaveValue('Lithuania');
 });
