@@ -2,9 +2,9 @@ import { body, validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
 
 /**
- * @description Validates object for POST /ontime/aliases
+ * validate array of URL preset objects
  */
-export const validateAliases = [
+export const validateUrlPresets = [
   body().isArray(),
   body('*.enabled').isBoolean(),
   body('*.alias').isString().trim(),

@@ -1,7 +1,7 @@
 // keys in tanstack store
-export const ALIASES = ['aliases'];
 export const APP_INFO = ['appinfo'];
 export const APP_SETTINGS = ['appSettings'];
+export const CUSTOM_FIELDS = ['customFields'];
 export const HTTP_SETTINGS = ['httpSettings'];
 export const OSC_SETTINGS = ['oscSettings'];
 export const PROJECT_DATA = ['project'];
@@ -9,7 +9,7 @@ export const PROJECT_LIST = ['projectList'];
 export const RUNDOWN = ['rundown'];
 export const RUNTIME = ['runtimeStore'];
 export const SHEET_STATE = ['sheetState'];
-export const CUSTOM_FIELDS = ['customFields'];
+export const URL_PRESETS = ['urlpresets'];
 export const VIEW_SETTINGS = ['viewSettings'];
 
 // resolve location

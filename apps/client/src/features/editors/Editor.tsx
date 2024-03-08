@@ -12,7 +12,6 @@ import styles from './Editor.module.scss';
 const Rundown = lazy(() => import('../rundown/RundownExport'));
 const TimerControl = lazy(() => import('../control/playback/TimerControlExport'));
 const MessageControl = lazy(() => import('../control/message/MessageControlExport'));
-const SettingsModal = lazy(() => import('../modals/settings-modal/SettingsModal'));
 
 export default function Editor() {
   const showSettings = useSettingsStore((state) => state.showSettings);
@@ -32,33 +31,28 @@ export default function Editor() {
   const isSettingsOpen = Boolean(showSettings);
 
   return (
-    <>
+    <div className={styles.mainContainer} data-testid='event-editor'>
       <ErrorBoundary>
-        <SettingsModal isOpen={isOldSettingsOpen} onClose={onSettingsClose} />
+        <MenuBar
+          isOldSettingsOpen={isOldSettingsOpen}
+          onSettingsOpen={onSettingsOpen}
+          onSettingsClose={onSettingsClose}
+          openSettings={handleSettings}
+          isSettingsOpen={isSettingsOpen}
+        />
       </ErrorBoundary>
-      <div className={styles.mainContainer} data-testid='event-editor'>
-        <ErrorBoundary>
-          <MenuBar
-            isOldSettingsOpen={isOldSettingsOpen}
-            onSettingsOpen={onSettingsOpen}
-            onSettingsClose={onSettingsClose}
-            openSettings={handleSettings}
-            isSettingsOpen={isSettingsOpen}
-          />
-        </ErrorBoundary>
-        {showSettings ? (
-          <AppSettings />
-        ) : (
-          <div id='panels' className={styles.panelContainer}>
-            <div className={styles.left}>
-              <TimerControl />
-              <MessageControl />
-            </div>
-            <Rundown />
+      {showSettings ? (
+        <AppSettings />
+      ) : (
+        <div id='panels' className={styles.panelContainer}>
+          <div className={styles.left}>
+            <TimerControl />
+            <MessageControl />
           </div>
-        )}
-        <Overview />
-      </div>
-    </>
+          <Rundown />
+        </div>
+      )}
+      <Overview />
+    </div>
   );
 }

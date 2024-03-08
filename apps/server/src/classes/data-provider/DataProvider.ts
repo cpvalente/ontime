@@ -8,10 +8,10 @@ import {
   ViewSettings,
   DatabaseModel,
   OSCSettings,
-  Alias,
   Settings,
   CustomFields,
   HttpSettings,
+  URLPreset,
 } from 'ontime-types';
 
 import { data, db } from '../../setup/loadDb.js';
@@ -65,12 +65,12 @@ export class DataProvider {
     return data.http;
   }
 
-  static getAliases(): Alias[] {
-    return data.aliases;
+  static getUrlPresets(): URLPreset[] {
+    return data.urlPresets;
   }
 
-  static async setAliases(newData: Alias[]) {
-    data.aliases = newData;
+  static async setUrlPresets(newData: URLPreset[]) {
+    data.urlPresets = newData;
     await this.persist();
   }
 
@@ -113,7 +113,7 @@ export class DataProvider {
     data.viewSettings = mergedData.viewSettings;
     data.osc = mergedData.osc;
     data.http = mergedData.http;
-    data.aliases = mergedData.aliases;
+    data.urlPresets = mergedData.urlPresets;
     data.customFields = mergedData.customFields;
     data.rundown = mergedData.rundown;
     await this.persist();

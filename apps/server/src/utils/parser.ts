@@ -26,7 +26,7 @@ import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
 import { deleteFile, makeString } from './parserUtils.js';
 import {
-  parseAliases,
+  parseUrlPresets,
   parseProject,
   parseOsc,
   parseHttp,
@@ -274,7 +274,7 @@ export const parseJson = async (jsonData: Partial<DatabaseModel>): Promise<Datab
     project: parseProject(jsonData) ?? dbModel.project,
     settings: parseSettings(jsonData) ?? dbModel.settings,
     viewSettings: parseViewSettings(jsonData) ?? dbModel.viewSettings,
-    aliases: parseAliases(jsonData),
+    urlPresets: parseUrlPresets(jsonData),
     customFields: parseCustomFields(jsonData),
     osc: parseOsc(jsonData) ?? dbModel.osc,
     http: parseHttp(jsonData) ?? dbModel.http,

@@ -2,12 +2,12 @@
 import { ComponentType, useEffect } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
-import useAliases from '../common/hooks-query/useAliases';
-import { getAliasRoute } from '../common/utils/aliases';
+import useUrlPresets from '../common/hooks-query/useUrlPresets';
+import { getRouteFromPreset } from '../common/utils/urlPresets';
 
-const withAlias = <P extends object>(Component: ComponentType<P>) => {
+const withPreset = <P extends object>(Component: ComponentType<P>) => {
   return (props: Partial<P>) => {
-    const { data } = useAliases();
+    const { data } = useUrlPresets();
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const location = useLocation();
@@ -15,7 +15,7 @@ const withAlias = <P extends object>(Component: ComponentType<P>) => {
     // navigate if is alias route
     useEffect(() => {
       if (!data) return;
-      const url = getAliasRoute(location, data, searchParams);
+      const url = getRouteFromPreset(location, data, searchParams);
       // navigate to this route if its not empty
       if (url) {
         navigate(url);
@@ -26,4 +26,4 @@ const withAlias = <P extends object>(Component: ComponentType<P>) => {
   };
 };
 
-export default withAlias;
+export default withPreset;

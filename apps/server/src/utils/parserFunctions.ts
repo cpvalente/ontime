@@ -1,6 +1,5 @@
 import { generateId } from 'ontime-utils';
 import {
-  Alias,
   OntimeRundown,
   HttpSettings,
   OSCSettings,
@@ -15,6 +14,7 @@ import {
   CustomFields,
   isOntimeCycle,
   HttpSubscription,
+  URLPreset,
 } from 'ontime-types';
 
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
@@ -74,7 +74,7 @@ export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseProject = (data): ProjectData => {
+export const parseProject = (data: Partial<DatabaseModel>): ProjectData => {
   let newProjectData: Partial<ProjectData> = {};
   // we are adding this here to aid transition, should be removed once enough time has past that users have fully migrated
   if ('project' in data) {
@@ -134,7 +134,7 @@ export const parseSettings = (data): Settings => {
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseViewSettings = (data): ViewSettings => {
+export const parseViewSettings = (data: Partial<DatabaseModel>): ViewSettings => {
   let newViews: Partial<ViewSettings> = {};
   if ('viewSettings' in data) {
     console.log('Found view definition, importing...');
@@ -225,29 +225,29 @@ export const parseHttp = (data: { http?: Partial<HttpSettings> }): HttpSettings 
 };
 
 /**
- * Parse aliases portion of an entry
+ * Parse URL preset portion of an entry
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseAliases = (data): Alias[] => {
-  const newAliases: Alias[] = [];
-  if ('aliases' in data) {
-    console.log('Found Aliases definition, importing...');
+export const parseUrlPresets = (data: Partial<DatabaseModel>): URLPreset[] => {
+  const newPresets: URLPreset[] = [];
+  if ('urlPresets' in data) {
+    console.log('Found URL presets definition, importing...');
     try {
-      for (const alias of data.aliases) {
-        const newAlias = {
-          enabled: alias.enabled ?? false,
-          alias: alias.alias ?? '',
-          pathAndParams: alias.pathAndParams ?? '',
+      for (const preset of data.urlPresets) {
+        const newPreset = {
+          enabled: preset.enabled ?? false,
+          alias: preset.alias ?? '',
+          pathAndParams: preset.pathAndParams ?? '',
         };
-        newAliases.push(newAlias);
+        newPresets.push(newPreset);
       }
-      console.log(`Uploaded ${newAliases.length} alias(es)`);
+      console.log(`Uploaded ${newPresets.length} preset(s)`);
     } catch (error) {
       console.log(`Error: ${error}`);
     }
   }
-  return newAliases;
+  return newPresets;
 };
 
 /**
@@ -255,7 +255,7 @@ export const parseAliases = (data): Alias[] => {
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseCustomFields = (data): CustomFields => {
+export const parseCustomFields = (data: Partial<DatabaseModel>): CustomFields => {
   let newCustomFields: CustomFields = { ...dbModel.customFields };
 
   if ('customFields' in data) {
