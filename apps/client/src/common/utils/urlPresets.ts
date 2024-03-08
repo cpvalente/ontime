@@ -43,7 +43,7 @@ export const getRouteFromPreset = (location: Location, data: URLPreset[], search
     return generateUrlFromPreset(foundPreset);
   }
 
-  const presetOnPage = searchParams.get('preset');
+  const presetOnPage = searchParams.get('alias');
   for (const d of data) {
     if (presetOnPage) {
       // if the alias fits the preset on this page, but the URL is different, we redirect user to the new URL
@@ -51,7 +51,7 @@ export const getRouteFromPreset = (location: Location, data: URLPreset[], search
       if (d.alias !== '' && d.enabled && d.alias === presetOnPage) {
         const newPath = resolvePath(d.pathAndParams);
         const urlParams = new URLSearchParams(newPath.search);
-        urlParams.set('preset', d.alias);
+        urlParams.set('alias', d.alias);
         // we confirm either the url parameters does not match or the url path doesnt
         if (!isEqual(urlParams, searchParams) || newPath.pathname !== location.pathname) {
           // we then redirect to the alias route, since the view listening to this alias has an outdated URL
@@ -70,7 +70,7 @@ export const getRouteFromPreset = (location: Location, data: URLPreset[], search
 export const generateUrlFromPreset = (presetData: URLPreset) => {
   const newPresetPath = resolvePath(presetData.pathAndParams);
   const urlParams = new URLSearchParams(newPresetPath.search);
-  urlParams.set('preset', presetData.alias);
+  urlParams.set('alias', presetData.alias);
 
   return `${newPresetPath.pathname}?${urlParams}`;
 };
