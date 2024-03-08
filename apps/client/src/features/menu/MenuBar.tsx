@@ -29,7 +29,7 @@ const buttonStyle = {
 };
 
 const MenuBar = (props: MenuBarProps) => {
-  const { isOldSettingsOpen, onSettingsOpen, onSettingsClose, openSettings, isSettingsOpen } = props;
+  const { onSettingsOpen, onSettingsClose, openSettings, isSettingsOpen } = props;
   const { isElectron, sendToElectron } = useElectronEvent();
 
   const sendShutdown = () => {
@@ -50,6 +50,8 @@ const MenuBar = (props: MenuBarProps) => {
         if (event.key === ',') {
           // open if not open
           isSettingsOpen ? onSettingsClose() : onSettingsOpen();
+          event.preventDefault();
+          event.stopPropagation();
         }
       }
     },
@@ -70,18 +72,6 @@ const MenuBar = (props: MenuBarProps) => {
   return (
     <div className={style.menu}>
       <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} />
-      <div className={style.gap} />
-
-      <div className={style.gap} />
-      <TooltipActionBtn
-        {...buttonStyle}
-        icon={<IoSettingsOutline />}
-        className={isOldSettingsOpen ? style.open : ''}
-        clickHandler={onSettingsOpen}
-        tooltip='Settings deprecated'
-        aria-label='Settings deprecated'
-      />
-
       <TooltipActionBtn
         {...buttonStyle}
         className={cx([isSettingsOpen ? style.open : null, style.bottom])}
