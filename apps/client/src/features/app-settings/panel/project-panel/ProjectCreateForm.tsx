@@ -77,7 +77,7 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
         </div>
       </Panel.Title>
       {error && <Panel.Error>{error}</Panel.Error>}
-      <div className={style.createFormInputField}>
+      <div className={style.innerColumn}>
         <label>
           Project title
           <Input
@@ -89,8 +89,6 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
             {...register('title')}
           />
         </label>
-      </div>
-      <div className={style.createFormInputField}>
         <label>
           Project description
           <Input
@@ -102,8 +100,6 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
             {...register('description')}
           />
         </label>
-      </div>
-      <div className={style.createFormInputField}>
         <label>
           Public info
           <Textarea
@@ -112,11 +108,10 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
             maxLength={150}
             placeholder='Shows always start ontime'
             autoComplete='off'
+            resize='none'
             {...register('publicInfo')}
           />
         </label>
-      </div>
-      <div className={style.createFormInputField}>
         <label>
           Public QR code Url
           <Input
@@ -127,8 +122,6 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
             {...register('publicUrl')}
           />
         </label>
-      </div>
-      <div className={style.createFormInputField}>
         <label>
           Backstage info
           <Textarea
@@ -137,11 +130,10 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
             maxLength={150}
             placeholder='Wi-Fi password: 1234'
             autoComplete='off'
+            resize='none'
             {...register('backstageInfo')}
           />
         </label>
-      </div>
-      <div className={style.createFormInputField}>
         <label>
           Backstage QR code Url
           <Input

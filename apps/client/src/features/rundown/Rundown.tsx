@@ -1,7 +1,15 @@
 import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { isOntimeBlock, isOntimeDelay, isOntimeEvent, Playback, RundownCached, SupportedEvent } from 'ontime-types';
+import {
+  isOntimeBlock,
+  isOntimeDelay,
+  isOntimeEvent,
+  MaybeNumber,
+  Playback,
+  RundownCached,
+  SupportedEvent,
+} from 'ontime-types';
 import { getFirstNormal, getNextNormal, getPreviousNormal } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
@@ -201,10 +209,13 @@ export default function Rundown({ data }: RundownProps) {
     return <RundownEmpty handleAddNew={() => insertAtCursor(SupportedEvent.Event, null)} />;
   }
 
-  let previousEnd: null | number = null;
-  let thisEnd = 0;
+  let previousEnd: MaybeNumber = null;
   let previousEventId: string | undefined;
+  let thisEnd: MaybeNumber = previousEnd;
+  let thisId = previousEventId;
+
   let eventIndex = 0;
+  // all events before the current selected are in the past
   let isPast = Boolean(featureData?.selectedEventId);
 
   return (
@@ -223,16 +234,16 @@ export default function Rundown({ data }: RundownProps) {
               if (index === 0) {
                 eventIndex = 0;
               }
-              let isFirstEvent = false;
               if (isOntimeEvent(event)) {
-                isFirstEvent = eventIndex === 0;
                 // event indexes are 1 based in frontend
                 eventIndex++;
-                if (!isFirstEvent) {
-                  previousEnd = thisEnd;
+                previousEnd = thisEnd;
+                previousEventId = thisId;
+
+                if (!event.skip) {
+                  thisEnd = event.timeEnd;
+                  thisId = eventId;
                 }
-                thisEnd = event.timeEnd;
-                previousEventId = event.id;
               }
               const isLast = index === order.length - 1;
               const isLoaded = featureData?.selectedEventId === event.id;
@@ -265,8 +276,7 @@ export default function Rundown({ data }: RundownProps) {
                   {((showQuickEntry && hasCursor) || isLast) && (
                     <QuickAddBlock
                       showKbd={hasCursor}
-                      eventId={event.id}
-                      previousEventId={previousEventId}
+                      previousEventId={event.id}
                       disableAddDelay={isOntimeDelay(event)}
                       disableAddBlock={isOntimeBlock(event)}
                     />

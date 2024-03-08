@@ -8,7 +8,7 @@ export function getLink(currentIndex: number, rundown: OntimeRundown): OntimeEve
   // currently the link is the previous event
   for (let i = currentIndex - 1; i >= 0; i--) {
     const event = rundown[i];
-    if (isOntimeEvent(event)) {
+    if (isOntimeEvent(event) && !event.skip) {
       return event;
     }
   }

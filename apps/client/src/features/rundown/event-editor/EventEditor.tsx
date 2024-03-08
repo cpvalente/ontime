@@ -6,6 +6,7 @@ import CopyTag from '../../../common/components/copy-tag/CopyTag';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import useRundown from '../../../common/hooks-query/useRundown';
+import { getAccessibleColour } from '../../../common/utils/styleUtils';
 import { useEventSelection } from '../useEventSelection';
 
 import EventEditorTimes from './composite/EventEditorTimes';
@@ -105,6 +106,7 @@ export default function EventEditor() {
             const key = `${event.id}-${label}`;
             const fieldName = `custom-${label}`;
             const initialValue = event.custom[label]?.value ?? '';
+            const { backgroundColor, color } = getAccessibleColour(customFields[label].colour);
 
             return (
               <EventTextArea
@@ -114,7 +116,7 @@ export default function EventEditor() {
                 initialValue={initialValue}
                 submitHandler={handleSubmit}
                 className={style.decorated}
-                style={{ '--decorator-color': customFields[label].colour } as CSSProperties}
+                style={{ '--decorator-bg': backgroundColor, '--decorator-color': color } as CSSProperties}
               />
             );
           })}

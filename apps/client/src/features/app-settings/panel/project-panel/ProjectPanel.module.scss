@@ -18,10 +18,6 @@
   flex: 2;
 }
 
-.createFormInputField {
-  padding-bottom: 0.5rem;
-}
-
 .headerButtons,
 .actionButtons,
 .createActionButtons {
@@ -39,14 +35,18 @@
   justify-content: flex-end;
 }
 
-.createContainer {
-  padding: 0.5rem 0;
-}
-
 .saveButton {
   text-transform: capitalize;
 }
 
 .containCell {
   max-width: 400px;
+}
+
+.innerColumn {
+  margin: 0 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
 }

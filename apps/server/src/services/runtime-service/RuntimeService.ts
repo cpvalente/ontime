@@ -147,13 +147,13 @@ class RuntimeService {
    */
   maybeUpdate(playableEvents: OntimeEvent[], affectedIds?: string[]) {
     const state = runtimeState.getState();
-    const hasLoadedElements = state.eventNow || state.eventNext;
+    const hasLoadedElements = state.eventNow !== null || state.eventNext !== null;
     if (!hasLoadedElements) {
       return;
     }
 
     // we need to reload in a few scenarios:
-    // 1. we are not confident that changes do not affect running event
+    // 1. we are not confident that changes do not affect running event (eg. all events where changed)
     const safeOption = typeof affectedIds === 'undefined';
     // 2. the edited event is in memory (now or next) running
     const eventInMemory = safeOption ? false : this.affectsLoaded(affectedIds);
@@ -166,15 +166,18 @@ class RuntimeService {
       }
       // load stuff again, but keep running if our events still exist
       const eventNow = getEventWithId(state.eventNow.id);
-      if (eventNow) {
+      const onlyChangedNow = affectedIds?.length === 1 && affectedIds.at(0) === eventNow.id;
+      if (onlyChangedNow) {
         runtimeState.reload(eventNow);
+      } else {
+        runtimeState.reloadAll(eventNow, playableEvents);
       }
       return;
     }
 
+    // Maybe the event will become the next
     isNext = this.isNewNext();
     if (isNext) {
-      // TODO: do i need to load here?
       runtimeState.loadNext(playableEvents);
     }
   }

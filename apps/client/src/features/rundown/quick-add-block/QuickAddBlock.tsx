@@ -13,14 +13,13 @@ import style from './QuickAddBlock.module.scss';
 
 interface QuickAddBlockProps {
   showKbd: boolean;
-  eventId: string;
-  previousEventId?: string;
+  previousEventId: string;
   disableAddDelay?: boolean;
   disableAddBlock: boolean;
 }
 
 const QuickAddBlock = (props: QuickAddBlockProps) => {
-  const { showKbd, eventId, previousEventId, disableAddDelay = true, disableAddBlock } = props;
+  const { showKbd, previousEventId, disableAddDelay = true, disableAddBlock } = props;
   const { addEvent } = useEventAction();
   const { emitError } = useEmitLog();
 
@@ -43,7 +42,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
             defaultPublic: isPublicOption,
             startTimeIsLastEnd: startTimeIsLastEndOption,
             lastEventId: previousEventId,
-            after: eventId,
+            after: previousEventId,
           };
           addEvent(newEvent, options);
           break;
@@ -51,7 +50,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
         case 'delay': {
           const options = {
             lastEventId: previousEventId,
-            after: eventId,
+            after: previousEventId,
           };
           addEvent({ type: SupportedEvent.Delay }, options);
           break;
@@ -59,7 +58,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
         case 'block': {
           const options = {
             lastEventId: previousEventId,
-            after: eventId,
+            after: previousEventId,
           };
           addEvent({ type: SupportedEvent.Block }, options);
           break;
@@ -70,7 +69,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
         }
       }
     },
-    [previousEventId, eventId, addEvent, emitError],
+    [previousEventId, addEvent, emitError],
   );
 
   return (

@@ -68,7 +68,7 @@ export async function addEvent(
 
   notifyChanges({ timer: [newEvent.id], external: true });
 
-  // notify runtime that rundown size has changed
+  // notify runtime that rundown has changed
   updateRuntimeOnChange();
 
   return newEvent;
@@ -84,7 +84,7 @@ export async function deleteEvent(eventId: string) {
 
   notifyChanges({ timer: [eventId], external: true });
 
-  // notify event loader that rundown size has changed
+  // notify event loader that rundown has changed
   updateRuntimeOnChange();
 }
 
@@ -114,6 +114,9 @@ export async function editEvent(patch: Partial<OntimeEvent> | Partial<OntimeBloc
 
   notifyChanges({ timer: [patch.id], external: true });
 
+  // notify event loader that rundown has changed
+  updateRuntimeOnChange();
+
   return newEvent;
 }
 
@@ -127,6 +130,9 @@ export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>)
   await scopedMutation({ patch: data, eventIds: ids });
 
   notifyChanges({ timer: ids, external: true });
+
+  // notify event loader that rundown has changed
+  updateRuntimeOnChange();
 }
 
 /**
@@ -140,6 +146,9 @@ export async function reorderEvent(eventId: string, from: number, to: number) {
   const reorderedItem = await scopedMutation({ eventId, from, to });
 
   notifyChanges({ timer: true, external: true });
+
+  // notify event loader that rundown has changed
+  updateRuntimeOnChange();
 
   return reorderedItem;
 }
@@ -162,6 +171,9 @@ export async function swapEvents(from: string, to: string) {
   await scopedMutation({ fromId: from, toId: to });
 
   notifyChanges({ timer: true, external: true });
+
+  // notify event loader that rundown has changed
+  updateRuntimeOnChange();
 }
 
 /**
@@ -169,7 +181,8 @@ export async function swapEvents(from: string, to: string) {
  * Called when we make changes to the rundown object
  */
 function updateRuntimeOnChange() {
-  updateRundownData(getPlayableEvents());
+  // schedule an update for the end of the event loop
+  setImmediate(() => updateRundownData(getPlayableEvents()));
 }
 
 /**
@@ -180,10 +193,8 @@ export function notifyChanges(options: { timer?: boolean | string[]; external?: 
     const playableEvents = getPlayableEvents();
     // notify timer service of changed events
     // timer can be true or an array of changed IDs
-    if (Array.isArray(options.timer)) {
-      runtimeService.maybeUpdate(playableEvents, options.timer);
-    }
-    runtimeService.maybeUpdate(playableEvents);
+    const affected = Array.isArray(options.timer) ? options.timer : undefined;
+    runtimeService.maybeUpdate(playableEvents, affected);
   }
 
   if (options.external) {

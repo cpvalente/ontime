@@ -91,7 +91,7 @@ export default function HttpIntegrations() {
             </Button>
           </div>
         </Panel.SubHeader>
-
+        <Panel.Divider />
         <Panel.Section as='form' id='http-form' onSubmit={handleSubmit(onSubmit)} onKeyDown={preventEscape}>
           {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
           <Panel.ListGroup>
