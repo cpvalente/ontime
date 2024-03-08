@@ -173,7 +173,7 @@ function TimerIcon(props: { type: TimerType; className: string }) {
     return <IoTime className={className} />;
   }
   if (type === TimerType.TimeToEnd) {
-    return <IoFlag className={className} />
+    return <IoFlag className={className} />;
   }
   return <IoArrowDown className={className} />;
 }

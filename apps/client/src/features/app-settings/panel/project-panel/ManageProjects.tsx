@@ -81,7 +81,7 @@ export default function ManageProjects() {
               isDisabled={Boolean(loading) || isCreatingProject}
               rightIcon={<IoAdd />}
             >
-              Add
+              New
             </Button>
           </div>
         </Panel.SubHeader>

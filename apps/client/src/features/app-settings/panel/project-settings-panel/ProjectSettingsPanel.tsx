@@ -56,6 +56,7 @@ export default function ProjectSettingsPanel() {
               New
             </Button>
           </Panel.SubHeader>
+          <Panel.Divider />
           <Panel.Section>
             <Alert status='info' variant='ontime-on-dark-info'>
               <AlertIcon />

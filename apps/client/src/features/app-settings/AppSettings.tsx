@@ -5,6 +5,7 @@ import { useKeyDown } from '../../common/hooks/useKeyDown';
 import AboutPanel from './panel/about-panel/AboutPanel';
 import GeneralPanel from './panel/general-panel/GeneralPanel';
 import IntegrationsPanel from './panel/integrations-panel/IntegrationsPanel';
+import InterfacePanel from './panel/interface-panel/InterfacePanel';
 import LogPanel from './panel/log-panel/LogPanel';
 import ProjectPanel from './panel/project-panel/ProjectPanel';
 import ProjectSettingsPanel from './panel/project-settings-panel/ProjectSettingsPanel';
@@ -32,6 +33,7 @@ export default function AppSettings() {
           {selectedPanel === 'project' && <ProjectPanel />}
           {selectedPanel === 'general' && <GeneralPanel />}
           {selectedPanel === 'sources' && <SourcesPanel />}
+          {selectedPanel === 'interface' && <InterfacePanel />}
           {selectedPanel === 'integrations' && <IntegrationsPanel />}
           {selectedPanel === 'project_settings' && <ProjectSettingsPanel />}
           {selectedPanel === 'about' && <AboutPanel />}
