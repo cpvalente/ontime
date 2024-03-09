@@ -32,10 +32,10 @@ export default function AppSettings() {
         <PanelContent onClose={closeSettings}>
           {selectedPanel === 'project' && <ProjectPanel />}
           {selectedPanel === 'general' && <GeneralPanel />}
+          {selectedPanel === 'project_settings' && <ProjectSettingsPanel />}
           {selectedPanel === 'sources' && <SourcesPanel />}
           {selectedPanel === 'interface' && <InterfacePanel />}
           {selectedPanel === 'integrations' && <IntegrationsPanel />}
-          {selectedPanel === 'project_settings' && <ProjectSettingsPanel />}
           {selectedPanel === 'about' && <AboutPanel />}
           {selectedPanel === 'log' && <LogPanel />}
         </PanelContent>

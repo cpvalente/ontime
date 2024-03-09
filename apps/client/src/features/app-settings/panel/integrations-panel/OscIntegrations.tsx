@@ -16,7 +16,7 @@ import { cycles } from './integrationUtils';
 import style from './IntegrationsPanel.module.css';
 
 export default function OscIntegrations() {
-  const { data } = useOscSettings();
+  const { data, status } = useOscSettings();
   const { mutateAsync } = useOscSettingsMutation();
 
   const {
@@ -75,6 +75,7 @@ export default function OscIntegrations() {
   };
 
   const canSubmit = !isSubmitting && isDirty && isValid;
+  const isLoading = status === 'pending';
 
   return (
     <Panel.Card>
@@ -100,6 +101,7 @@ export default function OscIntegrations() {
       <Panel.Divider />
 
       <Panel.Section as='form' id='osc-form' onSubmit={handleSubmit(onSubmit)} onKeyDown={preventEscape}>
+        <Panel.Loader isLoading={isLoading} />
         <Panel.Title>OSC Settings</Panel.Title>
         {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
         <Panel.ListGroup>

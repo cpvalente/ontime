@@ -84,11 +84,11 @@ export default function UrlPresetsForm() {
     });
   };
 
-  const isPending = status === 'pending';
+  const isLoading = status === 'pending';
   const canSubmit = !isSubmitting && isDirty && isValid;
 
   return (
-    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} data-testId='url-preset-form'>
+    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} data-testid='url-preset-form'>
       <Panel.Card>
         <Panel.SubHeader>
           URL Presets
@@ -102,21 +102,21 @@ export default function UrlPresetsForm() {
           </div>
         </Panel.SubHeader>
         <Panel.Divider />
-        {isPending && <Panel.Loader />}
+        <Alert status='info' variant='ontime-on-dark-info'>
+          <AlertIcon />
+          <AlertDescription>
+            URL Presets
+            <br />
+            <br />
+            Custom presets allow providing a short name for any ontime URL. <br />
+            - Providing dynamic URLs for automation or unattended screens <br />- Simplifying complex URLs
+            <br />
+            <br />
+            <ExternalLink href={urlPresetsDocs}>See the docs</ExternalLink>
+          </AlertDescription>
+        </Alert>
         <Panel.Section>
-          <Alert status='info' variant='ontime-on-dark-info'>
-            <AlertIcon />
-            <AlertDescription>
-              URL Presets
-              <br />
-              <br />
-              Custom presets allow providing a short name for any ontime URL. <br />
-              - Providing dynamic URLs for automation or unattended screens <br />- Simplifying complex URLs
-              <br />
-              <br />
-              <ExternalLink href={urlPresetsDocs}>See the docs</ExternalLink>
-            </AlertDescription>
-          </Alert>
+          <Panel.Loader isLoading={isLoading} />
           <Panel.Title>
             Manage presets
             <Button variant='ontime-subtle' rightIcon={<IoAdd />} size='sm' onClick={addNew}>
