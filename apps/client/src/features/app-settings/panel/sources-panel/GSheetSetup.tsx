@@ -36,16 +36,12 @@ export default function GSheetSetup(props: GSheetSetupProps) {
     const result = await verifyAuth();
     if (result) {
       setAuthenticationStatus(result.authenticated);
-      // if we are still pending, lets check again in 2seconds
-      if (result.authenticated === 'pending') {
-        setTimeout(getAuthStatus, 2000);
-      }
     }
   };
 
   /** check if the current session has been authenticated */
   useEffect(() => {
-    getAuthStatus();
+    untilAuthenticated();
   }, []);
 
   // user cancels the flow
@@ -88,6 +84,25 @@ export default function GSheetSetup(props: GSheetSetupProps) {
     setLoading('');
   };
 
+  const untilAuthenticated = async (attempts: number = 0) => {
+    const result = await verifyAuth();
+    console.log('attempts', attempts);
+    if (result?.authenticated) {
+      setAuthenticationStatus(result.authenticated);
+      console.log('result.authenticated', result.authenticated);
+      if (result.authenticated !== 'pending') {
+        setLoading('');
+        return;
+      }
+    }
+    if (attempts <= 10) {
+      console.log('scheduling');
+      setTimeout(() => untilAuthenticated(attempts + 1), 2000);
+      return;
+    }
+    setLoading('');
+  };
+
   /**
    * Open google auth
    */
@@ -99,8 +114,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
     window.addEventListener(
       'focus',
       async () => {
-        getAuthStatus();
-        setLoading('');
+        untilAuthenticated();
       },
       { once: true },
     );
@@ -111,7 +125,8 @@ export default function GSheetSetup(props: GSheetSetupProps) {
   const isLoading = Boolean(loading);
   const isAuthenticated = authenticationStatus === 'authenticated';
   const isAuthenticating = authenticationStatus === 'pending';
-
+  console.log(authenticationStatus);
+  // 1Ft5czgMtXAuwdU5X4sxXoNQKan-dR4n1AU3vIN8TSCg
   return (
     <Panel.Section>
       <Panel.Title>

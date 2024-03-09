@@ -10,7 +10,7 @@ const sheetsPath = `${apiEntryUrl}/sheets`;
  * HTTP request to verify whether we are authenticated with Google Sheet service
  */
 export const verifyAuthenticationStatus = async (): Promise<{ authenticated: AuthenticationStatus }> => {
-  const response = await axios.get(`${apiEntryUrl}/connect`);
+  const response = await axios.get(`${sheetsPath}/connect`);
   return response.data;
 };
 
