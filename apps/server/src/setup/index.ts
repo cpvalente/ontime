@@ -52,7 +52,9 @@ if (import.meta.url) {
 }
 
 // path to server src folder
-export const srcDirectory = path.join(dirname(__dirname), '../');
+const currentDir = dirname(__dirname);
+// locally we are in src/setup, in the production build, this is a single file at src
+export const srcDirectory = isProduction ? currentDir : path.join(currentDir, '../');
 
 // resolve path to external
 const productionPath = path.join(srcDirectory, '../../resources/extraResources/client');
@@ -104,7 +106,6 @@ export const pathToStartDb = isTest
   ? join(srcDirectory, '..', config.database.testdb, config.database.filename)
   : join(srcDirectory, '/preloaded-db/', config.database.filename);
 
-// TODO: move all static files to the external directory
 // path to public styles
 export const resolveStylesDirectory = join(externalsStartDirectory, config.styles.directory);
 export const resolveStylesPath = join(resolveStylesDirectory, config.styles.filename);
