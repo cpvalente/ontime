@@ -69,29 +69,31 @@ export default function ProjectSettingsPanel() {
               </AlertDescription>
             </Alert>
           </Panel.Section>
-          {isAdding && <CustomFieldForm onSubmit={handleCreate} onCancel={handleCancel} />}
-          <Panel.Table>
-            <thead>
-              <tr>
-                <th>Colour</th>
-                <th>Name</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(data).map(([key, { colour, label }]) => {
-                return (
-                  <CustomFieldEntry
-                    key={key}
-                    colour={colour}
-                    label={label}
-                    onEdit={handleEditField}
-                    onDelete={handleDelete}
-                  />
-                );
-              })}
-            </tbody>
-          </Panel.Table>
+          <Panel.Section>
+            {isAdding && <CustomFieldForm onSubmit={handleCreate} onCancel={handleCancel} />}
+            <Panel.Table>
+              <thead>
+                <tr>
+                  <th>Colour</th>
+                  <th>Name</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(data).map(([key, { colour, label }]) => {
+                  return (
+                    <CustomFieldEntry
+                      key={key}
+                      colour={colour}
+                      label={label}
+                      onEdit={handleEditField}
+                      onDelete={handleDelete}
+                    />
+                  );
+                })}
+              </tbody>
+            </Panel.Table>
+          </Panel.Section>
         </Panel.Card>
       </Panel.Section>
     </>
