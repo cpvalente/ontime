@@ -17,8 +17,7 @@ Ontime is an application for creating and managing event running order and timer
 The user inputs a list of events along with scheduling and event information.
 This will then populate a series of screens which are available to be rendered by any device in the Network.
 
-This makes for a simple and cheap way to distribute over a venue using a network infrastructure instead of video
-outputs.
+This makes for a simple and cheap way to distribute over a venue using a network infrastructure instead of video outputs.
 
 ![App Window](https://github.com/cpvalente/ontime/blob/master/.github/aux-images/app.png)
 
@@ -39,7 +38,7 @@ You can then use the menu in the top left corner to select the desired view.
 The menu will be initially hidden until there is mouse interaction.
 
 In the case of unattended machines or automation, it is possible to use different URL to recall
-individual views and extend view settings using the URL aliases feature
+individual views and extend view settings using the URL presets feature
 
 ```
 For the presentation views
