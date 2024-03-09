@@ -11,7 +11,7 @@ import * as Panel from '../PanelUtils';
 import style from './ProjectPanel.module.scss';
 
 export default function ProjectData() {
-  const { data, refetch } = useProjectData();
+  const { data, status, refetch } = useProjectData();
 
   const {
     handleSubmit,
@@ -45,9 +45,13 @@ export default function ProjectData() {
     }
   };
 
+  // populate with new data if we get an update
   const onReset = () => {
     reset(data);
   };
+
+  const isLoading = status === 'pending';
+
   return (
     <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)}>
       <Panel.Card>
@@ -70,6 +74,7 @@ export default function ProjectData() {
         </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
+          <Panel.Loader isLoading={isLoading} />
           <label>
             Project title
             <Input

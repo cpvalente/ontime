@@ -51,6 +51,7 @@ export default function ManageProjects() {
   const handleCloseForm = () => {
     setIsCreatingProject(false);
   };
+
   return (
     <Panel.Section>
       <Input

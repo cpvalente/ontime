@@ -82,10 +82,13 @@ export function Divider() {
   return <hr className={style.divider} />;
 }
 
-export function Loader() {
+export function Loader({ isLoading }: { isLoading: boolean }) {
+  if (!isLoading) {
+    return null;
+  }
   return (
     <div className={style.overlay}>
-      <span className={style.loader} />
+      <div className={style.loader} />
     </div>
   );
 }

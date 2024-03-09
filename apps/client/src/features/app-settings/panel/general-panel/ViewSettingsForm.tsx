@@ -16,8 +16,8 @@ import style from './GeneralPanel.module.scss';
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
 export default function ViewSettingsForm() {
-  const { data, status, refetch, isFetching } = useViewSettings();
-  const { data: info, isFetching: isFetchingInfo } = useInfo();
+  const { data, status, refetch } = useViewSettings();
+  const { data: info, status: infoStatus } = useInfo();
 
   const {
     control,
@@ -64,7 +64,7 @@ export default function ViewSettingsForm() {
     return null;
   }
 
-  const disableInputs = status === 'pending';
+  const isLoading = status === 'pending' || infoStatus === 'pending';
 
   return (
     <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} id='view-settings'>
@@ -81,55 +81,56 @@ export default function ViewSettingsForm() {
           </div>
         </Panel.SubHeader>
         <Panel.Divider />
-        {isFetching || isFetchingInfo ? <Panel.Loader /> : null}
-        <Panel.ListGroup>
-          <Alert status='info' variant='ontime-on-dark-info'>
-            <AlertIcon />
-            <AlertDescription>
-              You can override the styles of the viewers with a custom CSS file. <br />
-              {info?.cssOverride && `In your installation the file is at ${info?.cssOverride}`}
-              <br />
-              <br />
-              <ExternalLink href={cssOverrideDocsUrl}>See the docs</ExternalLink>
-            </AlertDescription>
-          </Alert>
-          <Panel.ListItem>
-            <Panel.Field
-              title='Override CSS styles'
-              description='Enables overriding view styles with custom stylesheet'
-            />
-            <Switch {...register('overrideStyles')} variant='ontime' size='lg' />
-          </Panel.ListItem>
-        </Panel.ListGroup>
-        <Panel.ListGroup>
-          <Panel.ListItem>
-            <Panel.Field title='Timer colour' description='Default colour of a running timer' />
-            <PopoverPickerRHF name='normalColor' control={control} />
-          </Panel.ListItem>
-          <Panel.ListItem>
-            <Panel.Field title='Warning colour' description='Colour of a running timer in warning mode' />
-            <PopoverPickerRHF name='warningColor' control={control} />
-          </Panel.ListItem>
-          <Panel.ListItem>
-            <Panel.Field title='Danger colour' description='Colour of a running timer in danger mode' />
-            <PopoverPickerRHF name='dangerColor' control={control} />
-          </Panel.ListItem>
-        </Panel.ListGroup>
-        <Panel.ListGroup>
-          <Panel.ListItem>
-            <Panel.Field title='End message' description='If no end message is provided, timer will continue' />
-            <Input
-              size='sm'
-              autoComplete='off'
-              variant='ontime-filled'
-              maxLength={150}
-              width='275px'
-              placeholder='Message shown when timer reaches end'
-              isDisabled={disableInputs}
-              {...register('endMessage')}
-            />
-          </Panel.ListItem>
-        </Panel.ListGroup>
+        <Alert status='info' variant='ontime-on-dark-info'>
+          <AlertIcon />
+          <AlertDescription>
+            You can override the styles of the viewers with a custom CSS file. <br />
+            {info?.cssOverride && `In your installation the file is at ${info?.cssOverride}`}
+            <br />
+            <br />
+            <ExternalLink href={cssOverrideDocsUrl}>See the docs</ExternalLink>
+          </AlertDescription>
+        </Alert>
+        <Panel.Section>
+          <Panel.Loader isLoading={isLoading} />
+          <Panel.ListGroup>
+            <Panel.ListItem>
+              <Panel.Field
+                title='Override CSS styles'
+                description='Enables overriding view styles with custom stylesheet'
+              />
+              <Switch {...register('overrideStyles')} variant='ontime' size='lg' />
+            </Panel.ListItem>
+          </Panel.ListGroup>
+          <Panel.ListGroup>
+            <Panel.ListItem>
+              <Panel.Field title='Timer colour' description='Default colour of a running timer' />
+              <PopoverPickerRHF name='normalColor' control={control} />
+            </Panel.ListItem>
+            <Panel.ListItem>
+              <Panel.Field title='Warning colour' description='Colour of a running timer in warning mode' />
+              <PopoverPickerRHF name='warningColor' control={control} />
+            </Panel.ListItem>
+            <Panel.ListItem>
+              <Panel.Field title='Danger colour' description='Colour of a running timer in danger mode' />
+              <PopoverPickerRHF name='dangerColor' control={control} />
+            </Panel.ListItem>
+          </Panel.ListGroup>
+          <Panel.ListGroup>
+            <Panel.ListItem>
+              <Panel.Field title='End message' description='If no end message is provided, timer will continue' />
+              <Input
+                size='sm'
+                autoComplete='off'
+                variant='ontime-filled'
+                maxLength={150}
+                width='275px'
+                placeholder='Message shown when timer reaches end'
+                {...register('endMessage')}
+              />
+            </Panel.ListItem>
+          </Panel.ListGroup>
+        </Panel.Section>
       </Panel.Card>
     </Panel.Section>
   );

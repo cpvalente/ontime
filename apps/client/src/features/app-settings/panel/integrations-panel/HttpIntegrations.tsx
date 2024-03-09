@@ -16,7 +16,7 @@ import { cycles } from './integrationUtils';
 import style from './IntegrationsPanel.module.css';
 
 export default function HttpIntegrations() {
-  const { data } = useHttpSettings();
+  const { data, status } = useHttpSettings();
   const { mutateAsync } = usePostHttpSettings();
 
   const {
@@ -69,6 +69,7 @@ export default function HttpIntegrations() {
   };
 
   const canSubmit = !isSubmitting && isDirty && isValid;
+  const isLoading = status === 'pending';
 
   return (
     <Panel.Section>
@@ -93,6 +94,7 @@ export default function HttpIntegrations() {
         </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section as='form' id='http-form' onSubmit={handleSubmit(onSubmit)} onKeyDown={preventEscape}>
+          <Panel.Loader isLoading={isLoading} />
           {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
           <Panel.ListGroup>
             <Panel.ListItem>
