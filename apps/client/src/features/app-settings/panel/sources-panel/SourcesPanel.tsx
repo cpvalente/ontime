@@ -19,7 +19,7 @@ import { useSheetStore } from './useSheetStore';
 import style from './SourcesPanel.module.scss';
 
 export default function SourcesPanel() {
-  const [importFlow, setImportFlow] = useState<'none' | 'excel' | 'gsheet'>('none');
+  const [importFlow, setImportFlow] = useState<'none' | 'excel' | 'gsheet' | 'finished'>('none');
   const [error, setError] = useState('');
 
   const { exportRundown, importRundownPreview, revoke, verifyAuth } = useGoogleSheet();
@@ -100,7 +100,7 @@ export default function SourcesPanel() {
   };
 
   const handleFinished = () => {
-    setImportFlow('none');
+    setImportFlow('finished');
     setRundown(null);
     setSpreadsheet(null);
     setCustomFields(null);
@@ -116,6 +116,7 @@ export default function SourcesPanel() {
   const hasFile = Boolean(spreadsheet);
   const isAuthenticated = authenticationStatus === 'authenticated';
   const showInput = importFlow === 'none';
+  const showSuccess = importFlow === 'finished';
   const showAuth = isGSheetFlow && !isAuthenticated;
   const showImportMap = (isGSheetFlow && isAuthenticated) || (isExcelFlow && hasFile);
   const showReview = rundown !== null && customFields !== null;
@@ -153,6 +154,14 @@ export default function SourcesPanel() {
                 </div>
               </div>
             </>
+          )}
+          {showSuccess && (
+            <div className={style.successSection}>
+              <span>Import successful</span>
+              <Button variant='ontime-filled' size='sm' onClick={() => setImportFlow('none')}>
+                Return
+              </Button>
+            </div>
           )}
           {showAuth && <GSheetSetup onCancel={cancelGSheetFlow} />}
           {showImportMap && !showReview && (
