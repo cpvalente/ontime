@@ -86,17 +86,14 @@ export default function GSheetSetup(props: GSheetSetupProps) {
 
   const untilAuthenticated = async (attempts: number = 0) => {
     const result = await verifyAuth();
-    console.log('attempts', attempts);
     if (result?.authenticated) {
       setAuthenticationStatus(result.authenticated);
-      console.log('result.authenticated', result.authenticated);
       if (result.authenticated !== 'pending') {
         setLoading('');
         return;
       }
     }
     if (attempts <= 10) {
-      console.log('scheduling');
       setTimeout(() => untilAuthenticated(attempts + 1), 2000);
       return;
     }
@@ -125,8 +122,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
   const isLoading = Boolean(loading);
   const isAuthenticated = authenticationStatus === 'authenticated';
   const isAuthenticating = authenticationStatus === 'pending';
-  console.log(authenticationStatus);
-  // 1Ft5czgMtXAuwdU5X4sxXoNQKan-dR4n1AU3vIN8TSCg
+
   return (
     <Panel.Section>
       <Panel.Title>
