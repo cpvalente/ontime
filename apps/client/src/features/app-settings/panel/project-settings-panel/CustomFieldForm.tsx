@@ -57,7 +57,6 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
   }, [setFocus]);
 
   const handleSelectColour = (colour: string) => {
-    console.log('setting', colour);
     setColour(colour);
     setValue('colour', colour, { shouldDirty: true });
   };
