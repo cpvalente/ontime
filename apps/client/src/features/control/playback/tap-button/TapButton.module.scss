@@ -79,6 +79,11 @@ $button-color-white: $gray-50;
   font-size: calc(1rem - 2px);
 }
 
+.tapButton.tight {
+  padding-inline: 0.5rem;
+  width: fit-content
+}
+
 .tapButton.fill {
   aspect-ratio: unset;
   height: 100%;
