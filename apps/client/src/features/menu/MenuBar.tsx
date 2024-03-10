@@ -9,9 +9,6 @@ import { cx } from '../../common/utils/styleUtils';
 import style from './MenuBar.module.scss';
 
 interface MenuBarProps {
-  isOldSettingsOpen: boolean;
-  onSettingsOpen: () => void;
-  onSettingsClose: () => void;
   openSettings: (newTab?: string) => void;
   isSettingsOpen: boolean;
 }
@@ -29,7 +26,7 @@ const buttonStyle = {
 };
 
 const MenuBar = (props: MenuBarProps) => {
-  const { onSettingsOpen, onSettingsClose, openSettings, isSettingsOpen } = props;
+  const { openSettings, isSettingsOpen } = props;
   const { isElectron, sendToElectron } = useElectronEvent();
 
   const sendShutdown = () => {
@@ -48,14 +45,13 @@ const MenuBar = (props: MenuBarProps) => {
       if (event.ctrlKey || event.metaKey) {
         // ctrl + , (settings)
         if (event.key === ',') {
-          // open if not open
-          isSettingsOpen ? onSettingsClose() : onSettingsOpen();
+          openSettings();
           event.preventDefault();
           event.stopPropagation();
         }
       }
     },
-    [isSettingsOpen, onSettingsClose, onSettingsOpen],
+    [openSettings],
   );
 
   useEffect(() => {

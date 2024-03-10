@@ -21,8 +21,6 @@ export default function Editor() {
     setShowSettings(newTab);
   };
 
-  const { isOpen: isOldSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
-
   // Set window title
   useEffect(() => {
     document.title = 'ontime - Editor';
@@ -33,13 +31,7 @@ export default function Editor() {
   return (
     <div className={styles.mainContainer} data-testid='event-editor'>
       <ErrorBoundary>
-        <MenuBar
-          isOldSettingsOpen={isOldSettingsOpen}
-          onSettingsOpen={onSettingsOpen}
-          onSettingsClose={onSettingsClose}
-          openSettings={handleSettings}
-          isSettingsOpen={isSettingsOpen}
-        />
+        <MenuBar openSettings={handleSettings} isSettingsOpen={isSettingsOpen} />
       </ErrorBoundary>
       {showSettings ? (
         <AppSettings />
