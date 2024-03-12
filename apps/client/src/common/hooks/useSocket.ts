@@ -41,9 +41,6 @@ export const setMessage = {
   publicVisible: (payload: boolean) => socketSendJson('message', { public: { visible: payload } }),
   lowerText: (payload: string) => socketSendJson('message', { lower: { text: payload } }),
   lowerVisible: (payload: boolean) => socketSendJson('message', { lower: { visible: payload } }),
-  externalText: (payload: string) => socketSendJson('message', { external: { visible: payload } }),
-  externalVisible: (payload: boolean) => socketSendJson('message', { external: { visible: payload } }),
-  onAir: (payload: boolean) => socketSendJson('onAir', payload),
   timerBlink: (payload: boolean) => socketSendJson('message', { timer: { blink: payload } }),
   timerBlackout: (payload: boolean) => socketSendJson('message', { timer: { blackout: payload } }),
 };
