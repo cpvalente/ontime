@@ -67,9 +67,7 @@ test('delays are show correctly', async ({ page }) => {
   await page.getByTestId('block__title').click();
   await page.getByTestId('block__title').fill('test');
   await page.getByTestId('block__title').press('Enter');
-
-  await page.locator('#event-block').getByText('1').click({ button: 'right' });
-  await page.getByRole('menuitem', { name: 'Toggle public' }).click();
+  await expect(page.getByTestId('entry-1').locator('#block-status')).toHaveAttribute('data-ispublic', 'true');
 
   // add a delay
   await page.getByRole('button', { name: 'Rundown menu' }).click();
