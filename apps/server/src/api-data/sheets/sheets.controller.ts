@@ -15,6 +15,7 @@ import {
   download,
   upload,
 } from '../../services/sheet-service/SheetService.js';
+import { toErrorResponse } from 'ontime-utils';
 
 export async function requestConnection(req: Request, res: Response) {
   const { sheetId } = req.params;
@@ -43,7 +44,7 @@ export async function verifyAuthentication(_req: Request, res: Response) {
     const authenticated = hasAuth();
     res.status(200).send(authenticated);
   } catch (error) {
-    res.status(500).send({ message: String(error) });
+    res.status(500).send(toErrorResponse(error));
   }
 }
 
@@ -52,7 +53,7 @@ export async function revokeAuthentication(_req: Request, res: Response) {
     const authenticated = revoke();
     res.status(200).send(authenticated);
   } catch (error) {
-    res.status(500).send({ message: String(error) });
+    res.status(500).send(toErrorResponse(error));
   }
 }
 
@@ -63,7 +64,7 @@ export async function readFromSheet(req: Request, res: Response) {
     const data = await download(sheetId, options);
     res.status(200).send(data);
   } catch (error) {
-    res.status(500).send({ message: String(error) });
+    res.status(500).send(toErrorResponse(error));
   }
 }
 
@@ -74,6 +75,6 @@ export async function writeToSheet(req: Request, res: Response) {
     await upload(sheetId, options);
     res.status(200).send();
   } catch (error) {
-    res.status(500).send({ message: String(error) });
+    res.status(500).send(toErrorResponse(error));
   }
 }

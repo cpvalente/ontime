@@ -1,4 +1,4 @@
-import { ErrorResponse } from '../../../types';
+import { ErrorResponse } from 'ontime-types';
 
 export function isErrorResponse(error: unknown): error is ErrorResponse {
   return (
