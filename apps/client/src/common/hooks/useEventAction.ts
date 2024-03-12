@@ -25,7 +25,7 @@ import { forgivingStringToMillis } from '../utils/dateConfig';
  */
 export const useEventAction = () => {
   const queryClient = useQueryClient();
-  const { defaultPublic, linkPrevious } = useEditorSettings((state) => state.eventSettings);
+  const { defaultPublic, linkPrevious, defaultDuration } = useEditorSettings((state) => state.eventSettings);
 
   /**
    * Calls mutation to add new event
@@ -74,6 +74,10 @@ export const useEventAction = () => {
         if (applicationOptions.defaultPublic) {
           newEvent.isPublic = true;
         }
+
+        if (newEvent.duration === undefined && newEvent.timeEnd === undefined) {
+          newEvent.duration = forgivingStringToMillis(defaultDuration);
+        }
       }
 
       // handle adding options that concern all event type
@@ -86,7 +90,9 @@ export const useEventAction = () => {
       } catch (error) {
         logAxiosError('Failed adding event', error);
       }
-  }, [_addEventMutation, defaultPublic, linkPrevious]);
+    },
+    [_addEventMutation, defaultDuration, defaultPublic, linkPrevious],
+  );
 
   /**
    * Calls mutation to update existing event

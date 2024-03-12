@@ -6,6 +6,7 @@ type EditorSettings = {
   showQuickEntry: boolean;
   linkPrevious: boolean;
   defaultPublic: boolean;
+  defaultDuration: string;
 };
 
 type EditorSettingsStore = {
@@ -14,12 +15,14 @@ type EditorSettingsStore = {
   setShowQuickEntry: (showQuickEntry: boolean) => void;
   setLinkPrevious: (linkPrevious: boolean) => void;
   setDefaultPublic: (defaultPublic: boolean) => void;
+  setDefaultDuration: (defaultDuration: string) => void;
 };
 
 enum EditorSettingsKeys {
   ShowQuickEntry = 'ontime-show-quick-entry',
   LinkPrevious = 'ontime-link-previous',
   DefaultPublic = 'ontime-default-public',
+  DefaultDuration = 'ontime-default-duration',
 }
 
 export const useEditorSettings = create<EditorSettingsStore>((set) => ({
@@ -27,6 +30,7 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => ({
     showQuickEntry: booleanFromLocalStorage(EditorSettingsKeys.ShowQuickEntry, false),
     linkPrevious: booleanFromLocalStorage(EditorSettingsKeys.LinkPrevious, true),
     defaultPublic: booleanFromLocalStorage(EditorSettingsKeys.DefaultPublic, true),
+    defaultDuration: localStorage.getItem(EditorSettingsKeys.DefaultDuration) ?? '00:10:00',
   },
 
   setLocalEventSettings: (value) =>
@@ -53,5 +57,11 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => ({
     set((state) => {
       localStorage.setItem(EditorSettingsKeys.DefaultPublic, String(defaultPublic));
       return { eventSettings: { ...state.eventSettings, defaultPublic } };
+    }),
+
+  setDefaultDuration: (defaultDuration) =>
+    set((state) => {
+      localStorage.setItem(EditorSettingsKeys.DefaultDuration, String(defaultDuration));
+      return { eventSettings: { ...state.eventSettings, defaultDuration } };
     }),
 }));
