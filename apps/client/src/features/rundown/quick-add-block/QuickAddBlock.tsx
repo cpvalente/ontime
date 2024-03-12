@@ -23,26 +23,24 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
   const { addEvent } = useEventAction();
   const { emitError } = useEmitLog();
 
-  const doStartTime = useRef<HTMLInputElement | null>(null);
+  const doLinkPrevious = useRef<HTMLInputElement | null>(null);
   const doPublic = useRef<HTMLInputElement | null>(null);
 
-  const eventSettings = useEditorSettings((state) => state.eventSettings);
-  const defaultPublic = eventSettings.defaultPublic;
-  const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
+  const { defaultPublic, linkPrevious } = useEditorSettings((state) => state.eventSettings);
 
   const handleCreateEvent = useCallback(
     (eventType: SupportedEvent) => {
       switch (eventType) {
         case 'event': {
-          const isPublicOption = doPublic?.current?.checked;
-          const startTimeIsLastEndOption = doStartTime?.current?.checked;
+          const defaultPublic = doPublic?.current?.checked;
+          const linkPrevious = doLinkPrevious?.current?.checked;
 
           const newEvent = { type: SupportedEvent.Event };
           const options = {
-            defaultPublic: isPublicOption,
-            startTimeIsLastEnd: startTimeIsLastEndOption,
-            lastEventId: previousEventId,
             after: previousEventId,
+            defaultPublic,
+            lastEventId: previousEventId,
+            linkPrevious,
           };
           addEvent(newEvent, options);
           break;
@@ -115,8 +113,8 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
         </Tooltip>
       </div>
       <div className={style.options}>
-        <Checkbox ref={doStartTime} size='sm' variant='ontime-ondark' defaultChecked={startTimeIsLastEnd}>
-          Start time is last end
+        <Checkbox ref={doLinkPrevious} size='sm' variant='ontime-ondark' defaultChecked={linkPrevious}>
+          Link to previous
         </Checkbox>
         <Checkbox ref={doPublic} size='sm' variant='ontime-ondark' defaultChecked={defaultPublic}>
           Event is public

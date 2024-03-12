@@ -25,9 +25,7 @@ import { forgivingStringToMillis } from '../utils/dateConfig';
  */
 export const useEventAction = () => {
   const queryClient = useQueryClient();
-  const eventSettings = useEditorSettings((state) => state.eventSettings);
-  const defaultPublic = eventSettings.defaultPublic;
-  const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
+  const { defaultPublic, linkPrevious } = useEditorSettings((state) => state.eventSettings);
 
   /**
    * Calls mutation to add new event
@@ -45,11 +43,13 @@ export const useEventAction = () => {
     after?: string;
   };
 
-  type EventOptions = BaseOptions & {
-    defaultPublic?: boolean;
-    lastEventId?: string;
-    startTimeIsLastEnd?: boolean;
-  };
+  type EventOptions = BaseOptions &
+    Partial<{
+      defaultPublic: boolean;
+      linkPrevious: boolean;
+      lastEventId: string;
+      startTimeIsLastEnd: boolean;
+    }>;
 
   /**
    * Adds an event to rundown
@@ -61,22 +61,14 @@ export const useEventAction = () => {
       // ************* CHECK OPTIONS specific to events
       if (isOntimeEvent(newEvent)) {
         const applicationOptions = {
-          defaultPublic: options?.defaultPublic ?? defaultPublic,
-          startTimeIsLastEnd: options?.startTimeIsLastEnd ?? startTimeIsLastEnd,
-          lastEventId: options?.lastEventId,
           after: options?.after,
+          defaultPublic: options?.defaultPublic ?? defaultPublic,
+          lastEventId: options?.lastEventId,
+          linkPrevious: options?.linkPrevious ?? linkPrevious,
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know this has a value
-        const rundownData = queryClient.getQueryData<RundownCached>(RUNDOWN)!;
-        const { rundown } = rundownData;
-
-        if (applicationOptions.startTimeIsLastEnd && applicationOptions?.lastEventId) {
-          const previousEvent = rundown[applicationOptions.lastEventId];
-          if (isOntimeEvent(previousEvent)) {
-            newEvent.timeStart = previousEvent.timeEnd;
-            newEvent.timeEnd = previousEvent.timeEnd;
-          }
+        if (applicationOptions.linkPrevious && applicationOptions?.lastEventId) {
+          newEvent.linkStart = applicationOptions.lastEventId;
         }
 
         if (applicationOptions.defaultPublic) {
@@ -94,9 +86,7 @@ export const useEventAction = () => {
       } catch (error) {
         logAxiosError('Failed adding event', error);
       }
-    },
-    [_addEventMutation, defaultPublic, queryClient, startTimeIsLastEnd],
-  );
+  }, [_addEventMutation, defaultPublic, linkPrevious]);
 
   /**
    * Calls mutation to update existing event

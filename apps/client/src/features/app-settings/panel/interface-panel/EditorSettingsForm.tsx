@@ -6,7 +6,7 @@ import * as Panel from '../PanelUtils';
 export default function EditorSettingsForm() {
   const eventSettings = useEditorSettings((state) => state.eventSettings);
   const setShowQuickEntry = useEditorSettings((state) => state.setShowQuickEntry);
-  const setStartTimeIsLastEnd = useEditorSettings((state) => state.setStartTimeIsLastEnd);
+  const setLinkPrevious = useEditorSettings((state) => state.setLinkPrevious);
   const setDefaultPublic = useEditorSettings((state) => state.setDefaultPublic);
 
   return (
@@ -29,14 +29,14 @@ export default function EditorSettingsForm() {
           </Panel.ListItem>
           <Panel.ListItem>
             <Panel.Field
-              title='Start time is last end'
-              description='New events start time will be the previous event end'
+              title='Link previous'
+              description='New events start time will be linked to the previous event'
             />
             <Switch
               variant='ontime'
               size='lg'
-              defaultChecked={eventSettings.startTimeIsLastEnd}
-              onChange={(event) => setStartTimeIsLastEnd(event.target.checked)}
+              defaultChecked={eventSettings.linkPrevious}
+              onChange={(event) => setLinkPrevious(event.target.checked)}
             />
           </Panel.ListItem>
           <Panel.ListItem>
