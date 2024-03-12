@@ -41,161 +41,161 @@ $orange-active: #f60;
   gap: 2.5vw;
   grid-template-areas: 'clock schedule';
   text-transform: uppercase;
-}
 
-.clock-container {
-  grid-area: clock;
-  display: grid;
-  place-content: center;
-  justify-items: center;
-  padding-top: 3em;
-  gap: 0.5em;
-  width: 100%;
-  height: 100%;
-  position: relative;
-  font-family: seven-seg;
-}
+  .clock-container {
+    grid-area: clock;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    padding-top: 3em;
+    gap: 0.5em;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    font-family: seven-seg;
+  }
 
-.clock-indicators {
-  position: absolute;
-  top: 0;
-  width: 100%;
-  height: 100%;
-
-  .min,
-  .hours {
-    border-radius: 50%;
+  .clock-indicators {
     position: absolute;
-    background: var(--studio-idle, $red-idle);
+    top: 0;
+    width: 100%;
+    height: 100%;
 
-    &--active {
-      background: var(--studio-active, $red-active);
+    .min,
+    .hours {
+      border-radius: 50%;
+      position: absolute;
+      background: var(--studio-idle, $red-idle);
+
+      &--active {
+        background: var(--studio-active, $red-active);
+      }
+    }
+
+    .min {
+      min-height: $size-min;
+      width: $size-min;
+      top: calc(50% - #{$half_min});
+      left: calc(50% - #{$half_min});
+    }
+
+    .hours {
+      min-height: $size-hours;
+      width: $size-hours;
+      top: calc(50% - #{$half_hours});
+      left: calc(50% - #{$half_hours});
     }
   }
 
-  .min {
-    min-height: $size-min;
-    width: $size-min;
-    top: calc(50% - #{$half_min});
-    left: calc(50% - #{$half_min});
+  .studio-timer {
+    font-size: calc(var(--clock-size) / 5);
+    line-height: 1em;
+
+    color: var(--studio-active, $red-active);
+
+    &--with-seconds {
+      font-size: calc(var(--clock-size) / 6.5);
+    }
+
+    &::before {
+      content: '88:88';
+      mix-blend-mode: hard-light;
+      opacity: 0.1;
+      position: absolute;
+    }
   }
 
-  .hours {
-    min-height: $size-hours;
-    width: $size-hours;
-    top: calc(50% - #{$half_hours});
-    left: calc(50% - #{$half_hours});
-  }
-}
-
-.studio-timer {
-  font-size: calc(var(--clock-size) / 5);
-  line-height: 1em;
-
-  color: var(--studio-active, $red-active);
-
-  &--with-seconds {
-    font-size: calc(var(--clock-size) / 6.5);
-  }
-
-  &::before {
-    content: '88:88';
-    mix-blend-mode: hard-light;
-    opacity: 0.1;
-    position: absolute;
-  }
-}
-
-.clock__ampm {
-  font-family: monospace;
-  font-size: calc(var(--clock-size) / 20);
-  position: relative;
-  top: -2em;
-  margin-bottom: -2em;
-  color: var(--studio-active, $red-active);
-}
-
-.next-title {
-  font-family: monospace;
-  font-weight: 400;
-  color: var(--studio-active-label, $cyan-active);
-  font-size: calc(var(--clock-size) / 10);
-  text-align: center;
-  overflow: clip hidden;
-  white-space: nowrap;
-}
-
-.next-countdown {
-  color: var(--studio-active, $red-active);
-  font-size: calc(var(--clock-size) / 10);
-  line-height: 1em;
-
-  &--overtime {
+  .clock__ampm {
+    font-family: monospace;
+    font-size: calc(var(--clock-size) / 20);
+    position: relative;
+    top: -2em;
+    margin-bottom: -2em;
     color: var(--studio-active, $red-active);
   }
-  &--paused {
-    color: var(--studio-overtime, $orange-active);
-  }
-}
 
-.schedule-container {
-  grid-area: schedule;
-  font-family: monospace;
-  margin-right: 2vw;
-}
-
-.onAir {
-  font-size: 13vh;
-  padding-top: 6vh;
-  padding-bottom: 0.25em;
-  line-height: 0.8em;
-  color: var(--studio-active, $red-active);
-
-  &--idle {
-    color: var(--studio-idle, $red-idle);
-  }
-}
-
-.schedule {
-  color: var(--studio-idle-label, $red-idle);
-  font-size: 3.5vh;
-  line-height: 1.25em;
-  list-style: none;
-}
-
-.schedule__item {
-  margin-bottom: 1.5vh;
-  padding-left: 0.25em;
-  display: flex;
-  align-items: start;
-  gap: 0.5em;
-  white-space: nowrap;
-
-  &--now {
-    color: var(--studio-active-label, $red-active);
+  .next-title {
+    font-family: monospace;
+    font-weight: 400;
+    color: var(--studio-active-label, $cyan-active);
+    font-size: calc(var(--clock-size) / 10);
+    text-align: center;
+    overflow: clip hidden;
+    white-space: nowrap;
   }
 
-  &--next {
-    color: var(--studio-active, $cyan-active);
-    padding-bottom: 1em;
+  .next-countdown {
+    color: var(--studio-active, $red-active);
+    font-size: calc(var(--clock-size) / 10);
+    line-height: 1em;
+
+    &--overtime {
+      color: var(--studio-active, $red-active);
+    }
+    &--paused {
+      color: var(--studio-overtime, $orange-active);
+    }
   }
 
-  &--future {
-    color: var(--studio-idle-label, $cyan-idle);
+  .schedule-container {
+    grid-area: schedule;
+    font-family: monospace;
+    margin-right: 2vw;
   }
-}
 
-.event {
-  display: flex;
-  align-items: center;
-  gap: 0.25em;
+  .onAir {
+    font-size: 13vh;
+    padding-top: 6vh;
+    padding-bottom: 0.25em;
+    line-height: 0.8em;
+    color: var(--studio-active, $red-active);
 
-  &__colour {
-    width: 0.35em;
-    height: 0.35em;
-    aspect-ratio: 1;
-    border-radius: 0.35em;
-    background-color: var(--studio-idle, $red-idle);
+    &--idle {
+      color: var(--studio-idle, $red-idle);
+    }
+  }
+
+  .schedule {
+    color: var(--studio-idle-label, $red-idle);
+    font-size: 3.5vh;
+    line-height: 1.25em;
+    list-style: none;
+  }
+
+  .schedule__item {
+    margin-bottom: 1.5vh;
+    padding-left: 0.25em;
+    display: flex;
+    align-items: start;
+    gap: 0.5em;
+    white-space: nowrap;
+
+    &--now {
+      color: var(--studio-active-label, $red-active);
+    }
+
+    &--next {
+      color: var(--studio-active, $cyan-active);
+      padding-bottom: 1em;
+    }
+
+    &--future {
+      color: var(--studio-idle-label, $cyan-idle);
+    }
+  }
+
+  .event {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+
+    &__colour {
+      width: 0.35em;
+      height: 0.35em;
+      aspect-ratio: 1;
+      border-radius: 0.35em;
+      background-color: var(--studio-idle, $red-idle);
+    }
   }
 }
 

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input } from '@chakra-ui/react';
 import { CustomField } from 'ontime-types';
@@ -19,6 +19,8 @@ interface CustomFieldsFormProps {
 
 export default function CustomFieldForm(props: CustomFieldsFormProps) {
   const { onSubmit, onCancel, initialColour, initialLabel } = props;
+  // we use this to force an update
+  const [_, setColour] = useState(initialColour || '');
 
   const {
     handleSubmit,
@@ -55,6 +57,7 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
   }, [setFocus]);
 
   const handleSelectColour = (colour: string) => {
+    setColour(colour);
     setValue('colour', colour, { shouldDirty: true });
   };
 

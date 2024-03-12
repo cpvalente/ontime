@@ -1,36 +1,21 @@
-import { millisToString, removeLeadingZero, removeTrailingZero } from 'ontime-utils';
+import { MaybeNumber } from 'ontime-types';
+
+import { formatDelay, formatOverlap } from './EventBlock.utils';
 
 import style from './RundownIndicators.module.scss';
 
 interface RundownIndicatorProps {
   timeStart: number;
-  previousEnd: number | null;
+  timeEnd: number;
+  previousStart: MaybeNumber;
+  previousEnd: MaybeNumber;
   delay: number;
 }
 
-function formatDelay(timeStart: number, delay: number): string | undefined {
-  if (!delay) return;
-
-  const delayedStart = Math.max(0, timeStart + delay);
-  const timeTag = removeTrailingZero(millisToString(delayedStart));
-  return `New start ${timeTag}`;
-}
-
-function formatOverlap(previousEnd: number | null, timeStart: number): string | undefined {
-  if (previousEnd === null) return;
-
-  const overlap = previousEnd - timeStart;
-  if (overlap === 0) return;
-
-  const overlapString = removeLeadingZero(millisToString(Math.abs(overlap)));
-
-  return `${overlap > 0 ? 'Overlap' : 'Gap'} ${overlapString}`;
-}
-
 export default function RundownIndicators(props: RundownIndicatorProps) {
-  const { timeStart, previousEnd, delay } = props;
+  const { timeStart, timeEnd, previousStart, previousEnd, delay } = props;
 
-  const hasOverlap = formatOverlap(previousEnd, timeStart);
+  const hasOverlap = formatOverlap(previousStart, previousEnd, timeStart, timeEnd);
   const hasDelay = formatDelay(timeStart, delay);
 
   return (
