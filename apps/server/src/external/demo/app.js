@@ -12,6 +12,14 @@ const leftPad = (number) => {
   return Math.floor(number).toString().padStart(2, '0');
 };
 
+const formatTimer = (number) => {
+  const millis = Math.abs(number);
+  const isNegative = number < 0;
+  return `${isNegative ? '-' : ''}${leftPad(millis / mth)}:${leftPad((millis % mth) / mtm)}:${leftPad(
+    (millis % mtm) / mts,
+  )}`;
+};
+
 let reconnectTimeout;
 const reconnectInterval = 1000;
 let reconnectAttempts = 0;
@@ -22,7 +30,7 @@ const connectSocket = () => {
   websocket.onopen = () => {
     clearTimeout(reconnectTimeout);
     reconnectAttempts = 0;
-    console.info('WebSocket connected');
+    console.warn('WebSocket connected');
   };
 
   websocket.onclose = () => {
@@ -44,21 +52,29 @@ const connectSocket = () => {
 
     // all objects from ontime are structured with type and payload
     const { type, payload } = data;
+    const timerElement = document.getElementById('timer');
 
     // we only need to read message type of ontime
-    if (type === 'ontime') {
-      // destructure known data from ontime
-      // see https://docs.getontime.no/api/osc-and-ws/
-      const { timer, playback } = payload;
-      const timerElement = document.getElementById('timer');
-      if (playback == 'stop') {
-        timerElement.innerText = '--:--:--';
-      } else {
-        const millis = Math.abs(timer.current);
-        const isNegative = timer.current < 0;
-        timerElement.innerText = `${isNegative ? '-' : ''}${leftPad(millis / mth)}:${leftPad(
-          (millis % mth) / mtm,
-        )}:${leftPad((millis % mtm) / mts)}`;
+    switch (type) {
+      case 'ontime': {
+        // destructure known data from ontime
+        // see https://docs.getontime.no/api/osc-and-ws/
+        const { timer, playback } = payload;
+        if (playback === 'stop') {
+          timerElement.innerText = '--:--:--';
+        } else {
+          timerElement.innerText = formatTimer(timer.current);
+        }
+        break;
+      }
+      case 'ontime-timer': {
+        const { current, playback } = payload;
+        if (playback === 'stop') {
+          timerElement.innerText = '--:--:--';
+        } else {
+          timerElement.innerText = formatTimer(current);
+        }
+        break;
       }
     }
   };
