@@ -38,7 +38,7 @@ export default function Rundown({ data }: RundownProps) {
   const { addEvent, reorderEvent } = useEventAction();
   const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
-  const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
+  const linkPrevious = eventSettings.linkPrevious;
   const showQuickEntry = eventSettings.showQuickEntry;
 
   // cursor
@@ -74,17 +74,17 @@ export default function Rundown({ data }: RundownProps) {
           type: SupportedEvent.Event,
         };
         const options = {
-          defaultPublic,
-          startTimeIsLastEnd,
-          lastEventId: cursor,
           after: cursor,
+          defaultPublic,
+          lastEventId: cursor,
+          linkPrevious,
         };
         addEvent(newEvent, options);
       } else {
         addEvent({ type }, { after: cursor });
       }
     },
-    [addEvent, rundown, defaultPublic, startTimeIsLastEnd],
+    [addEvent, rundown, defaultPublic, linkPrevious],
   );
 
   // Handle keyboard shortcuts

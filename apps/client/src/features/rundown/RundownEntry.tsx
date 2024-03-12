@@ -52,7 +52,7 @@ export default function RundownEntry(props: RundownEntryProps) {
 
   const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
-  const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
+  const linkPrevious = eventSettings.linkPrevious;
 
   const removeOpenEvent = useCallback(() => {
     if (selectedEvents.has(data.id)) {
@@ -63,7 +63,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     if (cursor === data.id) {
       setCursor(null);
     }
-  }, [clearSelectedEvents, cursor, data.id, selectedEvents, setCursor]);
+  }, [selectedEvents, data.id, cursor, clearSelectedEvents, setCursor]);
 
   // Create / delete new events
   type FieldValue = {
@@ -76,10 +76,10 @@ export default function RundownEntry(props: RundownEntryProps) {
       case 'event': {
         const newEvent = { type: SupportedEvent.Event };
         const options = {
-          startTimeIsLastEnd,
+          after: data.id,
           defaultPublic,
           lastEventId: previousEventId,
-          after: data.id,
+          linkPrevious,
         };
         return addEvent(newEvent, options);
       }

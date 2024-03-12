@@ -48,7 +48,6 @@ export const useEventAction = () => {
       defaultPublic: boolean;
       linkPrevious: boolean;
       lastEventId: string;
-      startTimeIsLastEnd: boolean;
     }>;
 
   /**
