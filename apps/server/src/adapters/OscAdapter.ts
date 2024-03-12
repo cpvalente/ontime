@@ -66,13 +66,7 @@ export class OscServer implements IAdapter {
       }
 
       try {
-        dispatchFromAdapter(
-          path,
-          {
-            payload: transformedPayload,
-          },
-          'osc',
-        );
+        dispatchFromAdapter(path, transformedPayload, 'osc');
       } catch (error) {
         logger.error(LogOrigin.Rx, `OSC IN: ${error}`);
       }

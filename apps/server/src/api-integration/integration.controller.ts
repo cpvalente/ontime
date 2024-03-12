@@ -18,14 +18,8 @@ export type ChangeOptions = {
   value: unknown;
 };
 
-export function dispatchFromAdapter(
-  type: string,
-  args: {
-    payload: unknown;
-  },
-  _source?: 'osc' | 'ws' | 'http',
-) {
-  const payload = args.payload;
+export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
+  // const payload = args.payload;
   const action = type.toLowerCase();
   const handler = actionHandlers[action];
   if (handler) {
