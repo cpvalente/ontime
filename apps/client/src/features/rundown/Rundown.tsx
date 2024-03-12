@@ -209,9 +209,11 @@ export default function Rundown({ data }: RundownProps) {
     return <RundownEmpty handleAddNew={() => insertAtCursor(SupportedEvent.Event, null)} />;
   }
 
+  let previousStart: MaybeNumber = null;
   let previousEnd: MaybeNumber = null;
   let previousEventId: string | undefined;
-  let thisEnd: MaybeNumber = previousEnd;
+  let thisStart: MaybeNumber = null;
+  let thisEnd: MaybeNumber = null;
   let thisId = previousEventId;
 
   let eventIndex = 0;
@@ -237,10 +239,12 @@ export default function Rundown({ data }: RundownProps) {
               if (isOntimeEvent(event)) {
                 // event indexes are 1 based in frontend
                 eventIndex++;
+                previousStart = thisStart;
                 previousEnd = thisEnd;
                 previousEventId = thisId;
 
                 if (!event.skip) {
+                  thisStart = event.timeStart;
                   thisEnd = event.timeEnd;
                   thisId = eventId;
                 }
@@ -266,6 +270,7 @@ export default function Rundown({ data }: RundownProps) {
                         loaded={isLoaded}
                         hasCursor={hasCursor}
                         isNext={isNext}
+                        previousStart={previousStart}
                         previousEnd={previousEnd}
                         previousEventId={previousEventId}
                         playback={isLoaded ? featureData.playback : undefined}
