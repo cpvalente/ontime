@@ -6,7 +6,7 @@ import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { extractPin } from '../../services/project-service/ProjectService.js';
 import { isDocker } from '../../setup/index.js';
-import { toErrorResponse } from 'ontime-utils';
+import { getErrorMessage } from 'ontime-utils';
 
 export async function getSettings(_req: Request, res: Response<Settings>) {
   const settings = DataProvider.getSettings();
@@ -50,6 +50,7 @@ export async function postSettings(req: Request, res: Response<Settings | ErrorR
     await DataProvider.setSettings(newData);
     res.status(200).send(newData);
   } catch (error) {
-    res.status(400).send(toErrorResponse(error));
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
   }
 }
