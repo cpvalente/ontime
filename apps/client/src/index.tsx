@@ -42,7 +42,7 @@ Sentry.init({
   tracesSampleRate: 0.3,
   release: ONTIME_VERSION,
   enabled: import.meta.env.PROD,
-  ignoreErrors: [...sentryRecommendedIgnore, 'Unable to preload CSS', 'Failed to fetch dynamically imported module'],
+  ignoreErrors: [...sentryRecommendedIgnore, /Unable to preload CSS/i, /dynamically imported module/i],
   denyUrls: [/extensions\//i, /^chrome:\/\//i, /^chrome-extension:\/\//i],
 });
 
