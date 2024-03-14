@@ -10,6 +10,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@mantine/core": "^7.6.2",
     "@mantine/hooks": "^7.6.2",
     "@react-icons/all-files": "^4.1.0",
     "@sentry/react": "^7.92.0",

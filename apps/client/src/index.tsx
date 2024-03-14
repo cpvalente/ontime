@@ -6,6 +6,7 @@ import * as Sentry from '@sentry/react';
 import App from './App';
 import { ONTIME_VERSION } from './ONTIME_VERSION';
 
+import "./theme/normalise.scss";
 import './index.scss';
 
 const container = document.getElementById('root');
