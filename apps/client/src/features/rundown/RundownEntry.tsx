@@ -12,8 +12,18 @@ import BlockBlock from './block-block/BlockBlock';
 import DelayBlock from './delay-block/DelayBlock';
 import EventBlock from './event-block/EventBlock';
 import { useEventSelection } from './useEventSelection';
+import { savePresetEvent } from '../../common/api/rundown';
 
-export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'delete' | 'clone' | 'update' | 'swap';
+export type EventItemActions =
+  | 'set-cursor'
+  | 'event'
+  | 'delay'
+  | 'block'
+  | 'delete'
+  | 'clone'
+  | 'update'
+  | 'swap'
+  | 'preset';
 
 interface RundownEntryProps {
   type: SupportedEvent;
@@ -88,6 +98,11 @@ export default function RundownEntry(props: RundownEntryProps) {
       case 'clone': {
         const newEvent = cloneEvent(data as OntimeEvent, data.id);
         addEvent(newEvent, { after: data.id });
+        break;
+      }
+      case 'preset': {
+        //TODO: popup with name selection
+        savePresetEvent(data.id, 'testName');
         break;
       }
       case 'update': {

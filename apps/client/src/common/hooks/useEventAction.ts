@@ -1,10 +1,11 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { isOntimeEvent, MaybeString, OntimeEvent, OntimeRundownEntry, RundownCached } from 'ontime-types';
-import { getLinkedTimes, getPreviousEventNormal, reorderArray, swapEventData } from 'ontime-utils';
+import { getLinkedTimes, getPreviousEventNormal, presetEventToEvent, reorderArray, swapEventData } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/constants';
 import {
+  getPresetEvent,
   ReorderEntry,
   requestApplyDelay,
   requestBatchPutEvents,
@@ -49,6 +50,7 @@ export const useEventAction = () => {
     defaultPublic?: boolean;
     lastEventId?: string;
     startTimeIsLastEnd?: boolean;
+    fromPreset?: string;
   };
 
   /**
@@ -56,33 +58,42 @@ export const useEventAction = () => {
    */
   const addEvent = useCallback(
     async (event: Partial<OntimeRundownEntry>, options?: EventOptions) => {
-      const newEvent: Partial<OntimeRundownEntry> = { ...event };
+      let newEvent: Partial<OntimeRundownEntry> = { ...event };
 
-      // ************* CHECK OPTIONS specific to events
-      if (isOntimeEvent(newEvent)) {
-        const applicationOptions = {
-          defaultPublic: options?.defaultPublic ?? defaultPublic,
-          startTimeIsLastEnd: options?.startTimeIsLastEnd ?? startTimeIsLastEnd,
-          lastEventId: options?.lastEventId,
-          after: options?.after,
-        };
-
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know this has a value
-        const rundownData = queryClient.getQueryData<RundownCached>(RUNDOWN)!;
-        const { rundown } = rundownData;
-
-        if (applicationOptions.startTimeIsLastEnd && applicationOptions?.lastEventId) {
-          const previousEvent = rundown[applicationOptions.lastEventId];
-          if (isOntimeEvent(previousEvent)) {
-            newEvent.timeStart = previousEvent.timeEnd;
-            newEvent.timeEnd = previousEvent.timeEnd;
-          }
-        }
-
-        if (applicationOptions.defaultPublic) {
-          newEvent.isPublic = true;
+      if (options && options.fromPreset) {
+        try {
+          const res = await getPresetEvent(options.fromPreset);
+          const presetEvent = res.data;
+          newEvent = presetEventToEvent(presetEvent, options?.after);
+          console.log(newEvent)
+        } catch (error) {
+          logAxiosError('Failed adding event from preset', error);
+          return;
         }
       }
+
+      // ************* CHECK OPTIONS specific to events
+      //TODO: Is this all replaced by the preset?
+
+      // if (isOntimeEvent(newEvent)) {
+
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know this has a value
+      // const rundownData = queryClient.getQueryData<RundownCached>(RUNDOWN)!;
+      // const { rundown } = rundownData;
+
+
+      // if (applicationOptions.startTimeIsLastEnd && applicationOptions?.lastEventId) {
+      //   const previousEvent = rundown[applicationOptions.lastEventId];
+      //   if (isOntimeEvent(previousEvent)) {
+      //     newEvent.timeStart = previousEvent.timeEnd;
+      //     newEvent.timeEnd = previousEvent.timeEnd;
+      //   }
+      // }
+      //
+      // if (applicationOptions.defaultPublic) {
+      //   newEvent.isPublic = true;
+      // }
+      // }
 
       // handle adding options that concern all event type
       if (options?.after) {

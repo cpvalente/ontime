@@ -1,8 +1,9 @@
 import {
   CustomFields,
+  PresetEvents,
   HttpSettings,
-  OSCSettings,
   OntimeRundown,
+  OSCSettings,
   ProjectData,
   Settings,
   URLPreset,
@@ -16,6 +17,7 @@ export type DatabaseModel = {
   viewSettings: ViewSettings;
   urlPresets: URLPreset[];
   customFields: CustomFields;
+  presetEvents: PresetEvents;
   osc: OSCSettings;
   http: HttpSettings;
 };

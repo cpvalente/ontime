@@ -11,7 +11,7 @@ import {
   Settings,
   CustomFields,
   HttpSettings,
-  URLPreset,
+  URLPreset, PresetEvents,
 } from 'ontime-types';
 
 import { data, db } from '../../setup/loadDb.js';
@@ -41,6 +41,16 @@ export class DataProvider {
 
   static getCustomFields(): CustomFields {
     return data.customFields;
+  }
+
+  static async setPresetEvents(newData: PresetEvents): Promise<PresetEvents> {
+    data.presetEvents = { ...newData };
+    await this.persist();
+    return data.presetEvents;
+  }
+
+  static getPresetEvents(): PresetEvents {
+    return data.presetEvents;
   }
 
   static async setRundown(newData: OntimeRundown) {

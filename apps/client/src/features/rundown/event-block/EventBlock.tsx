@@ -2,10 +2,10 @@ import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoCopyOutline } from '@react-icons/all-files/io5/IoCopyOutline';
 import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
 import { IoPeopleOutline } from '@react-icons/all-files/io5/IoPeopleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
+import { IoCopyOutline } from '@react-icons/all-files/io5/IoCopyOutline';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { EndAction, MaybeNumber, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
 

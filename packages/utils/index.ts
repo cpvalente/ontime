@@ -23,6 +23,8 @@ export {
   getPreviousEventNormal,
   getPreviousNormal,
   swapEventData,
+  eventToPresetEvent,
+  presetEventToEvent,
 } from './src/rundown-utils/rundownUtils.js';
 
 // format utils

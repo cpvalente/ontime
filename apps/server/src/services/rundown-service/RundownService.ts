@@ -9,6 +9,7 @@ import {
   isOntimeDelay,
   isOntimeEvent,
   OntimeRundown,
+  PresetEvents,
 } from 'ontime-types';
 import { getCueCandidate } from 'ontime-utils';
 
@@ -206,9 +207,11 @@ export function notifyChanges(options: { timer?: boolean | string[]; external?: 
 /**
  * Overrides the rundown with the given
  * @param rundown
+ * @param customFields
+ * @param presetEvents
  */
-export async function initRundown(rundown: OntimeRundown, customFields: CustomFields) {
-  await cache.init(rundown, customFields);
+export async function initRundown(rundown: OntimeRundown, customFields: CustomFields, presetEvents: PresetEvents) {
+  await cache.init(rundown, customFields, presetEvents);
   notifyChanges({ timer: true });
 }
 

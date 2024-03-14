@@ -13,6 +13,7 @@ export {
 export type { OntimeEntryCommonKeys, OntimeRundown, OntimeRundownEntry } from './definitions/core/Rundown.type.js';
 export { TimeStrategy } from './definitions/TimeStrategy.type.js';
 export { TimerType } from './definitions/TimerType.type.js';
+export { type PresetEvent, type PresetEvents } from './definitions/core/EventPreset.type.js';
 
 // ---> Project Data
 export type { ProjectData } from './definitions/core/ProjectData.type.js';
