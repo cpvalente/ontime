@@ -18,6 +18,11 @@ const RundownMenu = ({ children }: { children: ReactNode }) => {
     addEvent({ type: SupportedEvent.Event });
   }, [addEvent]);
 
+  const newEventFromPreset = useCallback(() => {
+    //TODO: add proper name selection
+    addEvent({ type: SupportedEvent.Event }, { fromPreset: 'testName' });
+  }, [addEvent]);
+
   const newBlock = useCallback(() => {
     addEvent({ type: SupportedEvent.Block });
   }, [addEvent]);
@@ -38,6 +43,9 @@ const RundownMenu = ({ children }: { children: ReactNode }) => {
       <MenuList>
         <MenuItem icon={<IoAdd />} onClick={newEvent}>
           Add event at start
+        </MenuItem>
+        <MenuItem icon={<IoAdd />} onClick={newEventFromPreset}>
+          Add preset event at start
         </MenuItem>
         <MenuItem icon={<IoTimerOutline />} onClick={newDelay}>
           Add delay at start
