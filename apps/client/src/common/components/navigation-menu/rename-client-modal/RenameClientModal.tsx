@@ -8,7 +8,7 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
-} from '@chakra-ui/react';
+} from '@mantine/core';
 
 import { setClientName } from '../../../hooks/useSocket';
 import { useSocketClientName } from '../../../stores/connectionName';
@@ -38,14 +38,10 @@ export default function RenameClientModal({ isOpen, onClose }: RenameClientModal
 
   return (
     <Modal
-      isOpen={isOpen}
+      opened={isOpen}
       onClose={onClose}
       size='sm'
-      closeOnOverlayClick={false}
-      motionPreset='slideInBottom'
-      scrollBehavior='inside'
-      preserveScrollBarGap
-      variant='ontime-small'
+      closeOnClickOutside={false}
     >
       <ModalOverlay />
       <ModalContent>
@@ -59,9 +55,9 @@ export default function RenameClientModal({ isOpen, onClose }: RenameClientModal
             variant='ontime-filled-on-light'
           />
           <Button
-            isDisabled={newName === clientName || !newName}
+            disabled={newName === clientName || !newName}
             onClick={handleRename}
-            width='100%'
+            //width='100%'
             variant='ontime-filled'
           >
             Save

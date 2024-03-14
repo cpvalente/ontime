@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Textarea } from '@chakra-ui/react';
+import { Button, Input, Textarea } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { PROJECT_LIST } from '../../../../common/api/constants';
@@ -68,10 +68,10 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
       <Panel.Title>
         Create new project
         <div className={style.createActionButtons}>
-          <Button onClick={onClose} variant='ontime-ghosted' size='sm' isDisabled={isSubmitting}>
+          <Button onClick={onClose} variant='ontime-ghosted' size='sm' disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button isDisabled={!isValid} type='submit' isLoading={isSubmitting} variant='ontime-filled' size='sm'>
+          <Button disabled={!isValid} type='submit' loading={isSubmitting} variant='ontime-filled' size='sm'>
             Create
           </Button>
         </div>

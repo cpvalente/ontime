@@ -1,5 +1,5 @@
 import { FocusEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { Input } from '@chakra-ui/react';
+import { Input } from '@mantine/core';
 import { millisToString } from 'ontime-utils';
 
 import { useEmitLog } from '../../../stores/logger';
@@ -126,7 +126,7 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
       ref={inputRef}
       data-testid={`time-input-${name}`}
       className={timeInputClasses}
-      fontSize='1rem'
+      //fontSize='1rem'
       type='text'
       placeholder={placeholder}
       variant='ontime-filled'

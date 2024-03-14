@@ -1,4 +1,4 @@
-import { Tooltip } from '@chakra-ui/react';
+import { Tooltip } from '@mantine/core';
 import { IoPause } from '@react-icons/all-files/io5/IoPause';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoPlaySkipBack } from '@react-icons/all-files/io5/IoPlaySkipBack';

@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import { Button, ButtonGroup, IconButton, Tooltip } from '@chakra-ui/react';
+import { Button, ActionIcon, Tooltip } from '@mantine/core';
 import { IoCopy } from '@react-icons/all-files/io5/IoCopy';
 
 import { tooltipDelayFast } from '../../../ontimeConfig';
@@ -20,19 +20,20 @@ export default function CopyTag(props: PropsWithChildren<CopyTagProps>) {
 
   return (
     <Tooltip label={label} openDelay={tooltipDelayFast}>
-      <ButtonGroup size={size} isAttached className={className}>
-        <Button variant='ontime-subtle' tabIndex={-1} isDisabled={disabled}>
+      <Button.Group className={className}>
+        <Button variant='ontime-subtle' tabIndex={-1} disabled={disabled}>
           {children}
         </Button>
-        <IconButton
+        <ActionIcon
           aria-label={label}
-          icon={<IoCopy />}
           variant='ontime-filled'
           tabIndex={-1}
           onClick={handleClick}
-          isDisabled={disabled}
-        />
-      </ButtonGroup>
+          disabled={disabled}
+        >
+          <IoCopy />
+        </ActionIcon>
+      </Button.Group>
     </Tooltip>
   );
 }

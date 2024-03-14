@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Button } from '@chakra-ui/react';
+import { Button } from '@mantine/core';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
@@ -73,10 +73,10 @@ export default function DelayBlock(props: DelayBlockProps) {
       </span>
       <DelayInput eventId={data.id} duration={data.duration} />
       <div className={style.actionButtons}>
-        <Button onClick={applyDelayHandler} size='sm' leftIcon={<IoCheckmark />} variant='ontime-subtle-white'>
+        <Button onClick={applyDelayHandler} size='sm' leftSection={<IoCheckmark />} variant='ontime-subtle-white'>
           Apply
         </Button>
-        <Button onClick={cancelDelayHandler} size='sm' leftIcon={<IoClose />} variant='ontime-subtle-white'>
+        <Button onClick={cancelDelayHandler} size='sm' leftSection={<IoClose />} variant='ontime-subtle-white'>
           Cancel
         </Button>
         <BlockActionMenu enableDelete actionHandler={actionHandler} />

@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Input } from '@chakra-ui/react';
+import { Input } from '@mantine/core';
 import { sanitiseCue } from 'ontime-utils';
 
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';

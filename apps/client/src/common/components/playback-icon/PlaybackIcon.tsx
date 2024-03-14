@@ -1,4 +1,4 @@
-import { Tooltip } from '@chakra-ui/react';
+import { Tooltip } from '@mantine/core';
 import { IoPause } from '@react-icons/all-files/io5/IoPause';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
@@ -35,7 +35,7 @@ export default function PlaybackIcon(props: PlaybackIconProps) {
   }
 
   return (
-    <Tooltip openDelay={tooltipDelayFast} label={label} shouldWrapChildren>
+    <Tooltip openDelay={tooltipDelayFast} label={label}>
       <Icon className={className} />
     </Tooltip>
   );

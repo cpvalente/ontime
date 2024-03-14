@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
+import { ActionIcon, Menu } from '@mantine/core';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 
 import {
@@ -156,27 +156,27 @@ function ActionMenu({
   };
 
   return (
-    <Menu variant='ontime-on-dark' size='sm'>
-      <MenuButton
-        as={IconButton}
+    <Menu>
+      <ActionIcon
         aria-label='Options'
-        icon={<IoEllipsisHorizontal />}
         color='#e2e2e2' // $gray-200
         variant='ontime-ghosted'
         size='sm'
-      />
-      <MenuList>
-        <MenuItem onClick={handleLoad} isDisabled={current}>
+      >
+        <IoEllipsisHorizontal />
+      </ActionIcon>
+      <Menu.Dropdown>
+        <Menu.Item onClick={handleLoad} disabled={current}>
           Load
-        </MenuItem>
-        <MenuItem onClick={handleRename}>Rename</MenuItem>
-        <MenuItem onClick={handleDuplicate}>Duplicate</MenuItem>
-        <MenuItem onClick={handleDownload}>Download</MenuItem>
-        {current && <MenuItem onClick={handleExportCSV}>Export CSV Rundown</MenuItem>}
-        <MenuItem isDisabled={current} onClick={handleDelete}>
+        </Menu.Item>
+        <Menu.Item onClick={handleRename}>Rename</Menu.Item>
+        <Menu.Item onClick={handleDuplicate}>Duplicate</Menu.Item>
+        <Menu.Item onClick={handleDownload}>Download</Menu.Item>
+        {current && <Menu.Item onClick={handleExportCSV}>Export CSV Rundown</Menu.Item>}
+        <Menu.Item disabled={current} onClick={handleDelete}>
           Delete
-        </MenuItem>
-      </MenuList>
+        </Menu.Item>
+      </Menu.Dropdown>
     </Menu>
   );
 }

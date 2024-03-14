@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { HStack, IconButton, PinInput, PinInputField } from '@chakra-ui/react';
+import { ActionIcon, PinInput } from '@mantine/core';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 
 import style from './ProtectRoute.module.scss';
@@ -40,25 +40,19 @@ export default function PinPage(props: PinPageProps) {
   return (
     <div className={style.container}>
       {`Ontime ${permission || ''}`}
-      <HStack spacing='10px' className={failed ? style.pin__failed : style.pin}>
-        <PinInput
-          type='alphanumeric'
-          size='lg'
-          mask
-          autoFocus
-          value={pin}
-          onChange={(value) => {
-            setFailed(false);
-            setPin(value);
-          }}
-        >
-          <PinInputField />
-          <PinInputField />
-          <PinInputField />
-          <PinInputField />
-        </PinInput>
-        <IconButton aria-label='Enter' size='lg' isRound icon={<IoCheckmark />} onClick={validate} />
-      </HStack>
+      <PinInput
+        autoFocus
+        value={pin}
+        onChange={(value) => {
+          setFailed(false);
+          setPin(value);
+        }}
+      />
+      <div style={{ display: 'flex', gap: '10px' }} className={failed ? style.pin__failed : style.pin}>
+        <ActionIcon aria-label='Enter' size='lg' onClick={validate}>
+          <IoCheckmark />
+        </ActionIcon>
+      </div>
     </div>
   );
 }

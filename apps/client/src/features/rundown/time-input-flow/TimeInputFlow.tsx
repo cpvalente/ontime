@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { InputRightElement, Tooltip } from '@chakra-ui/react';
+import { Tooltip } from '@mantine/core';
 import { IoAlertCircleOutline } from '@react-icons/all-files/io5/IoAlertCircleOutline';
 import { IoLink } from '@react-icons/all-files/io5/IoLink';
 import { IoLockClosed } from '@react-icons/all-files/io5/IoLockClosed';
@@ -66,10 +66,10 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         placeholder='Start'
         disabled={Boolean(linkStart)}
       >
-        <InputRightElement className={activeStart} onClick={() => handleLink(!linkStart)}>
+        <div className={activeStart} onClick={() => handleLink(!linkStart)}>
           <span className={style.timeLabel}>S</span>
           <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
-        </InputRightElement>
+        </div>
       </TimeInputWithButton>
 
       <TimeInputWithButton<TimeActions>
@@ -80,14 +80,14 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         disabled={isLockedDuration}
         placeholder='End'
       >
-        <InputRightElement
+        <div
           className={activeEnd}
           onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}
           data-testid='lock__end'
         >
           <span className={style.timeLabel}>E</span>
           {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
-        </InputRightElement>
+        </div>
       </TimeInputWithButton>
 
       <TimeInputWithButton<TimeActions>
@@ -97,14 +97,14 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         disabled={isLockedEnd}
         placeholder='Duration'
       >
-        <InputRightElement
+        <div
           className={activeDuration}
           onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}
           data-testid='lock__duration'
         >
           <span className={style.timeLabel}>D</span>
           {isLockedDuration ? <IoLockClosed /> : <IoLockOpenOutline />}
-        </InputRightElement>
+        </div>
       </TimeInputWithButton>
 
       {overMidnight && (
@@ -113,7 +113,6 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
             label='Over midnight: end time is before start'
             openDelay={tooltipDelayFast}
             variant='ontime-ondark'
-            shouldWrapChildren
           >
             <IoAlertCircleOutline />
           </Tooltip>

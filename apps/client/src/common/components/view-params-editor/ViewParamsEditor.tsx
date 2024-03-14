@@ -1,16 +1,7 @@
 import { FormEvent, useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import {
-  Button,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { Button, Drawer } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 
@@ -46,7 +37,7 @@ interface EditFormDrawerProps {
 
 export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isOpen, onClose, onOpen } = useDisclosure();
+  const [opened, { open, close }] = useDisclosure(false);
   const { pathname } = useLocation();
   const [storedViewParams, setStoredViewParams] = useLocalStorage<SavedViewParams>('ontime-views', {});
 
@@ -54,9 +45,9 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
     const isEditing = searchParams.get('edit');
 
     if (isEditing === 'true') {
-      return onOpen();
+      return open();
     }
-  }, [searchParams, onOpen]);
+  }, [searchParams, open]);
 
   /**
    * disabling this for now, this feature needs more testing
@@ -80,7 +71,7 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   */
 
   const onCloseWithoutSaving = () => {
-    onClose();
+    close();
 
     searchParams.delete('edit');
     setSearchParams(searchParams);
@@ -102,15 +93,15 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   };
 
   return (
-    <Drawer isOpen={isOpen} placement='right' onClose={onCloseWithoutSaving} size='lg'>
-      <DrawerOverlay />
-      <DrawerContent>
-        <DrawerHeader className={style.drawerHeader}>
-          <DrawerCloseButton _hover={{ bg: '#ebedf0', color: '#333' }} size='lg' />
-          Customise
-        </DrawerHeader>
+    <Drawer.Root opened={opened} position='right' onClose={onCloseWithoutSaving} size='lg'>
+      <Drawer.Overlay />
+      <Drawer.Content>
+        <Drawer.Header className={style.drawerHeader}>
+          <Drawer.CloseButton size='lg' />
+          <Drawer.Title>Customise</Drawer.Title>
+        </Drawer.Header>
 
-        <DrawerBody className={style.drawerContent}>
+        <Drawer.Body className={style.drawerContent}>
           <form id='edit-params-form' onSubmit={onParamsFormSubmit}>
             {paramFields.map((field) => (
               <div key={field.title} className={style.columnSection}>
@@ -122,9 +113,9 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
               </div>
             ))}
           </form>
-        </DrawerBody>
+        </Drawer.Body>
 
-        <DrawerFooter className={style.drawerFooter}>
+        <div className={style.drawerFooter}>
           <Button variant='ontime-ghosted' onClick={resetParams} type='reset'>
             Reset
           </Button>
@@ -134,8 +125,8 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
           <Button variant='ontime-filled' form='edit-params-form' type='submit'>
             Save
           </Button>
-        </DrawerFooter>
-      </DrawerContent>
-    </Drawer>
+        </div>
+      </Drawer.Content>
+    </Drawer.Root>
   );
 }

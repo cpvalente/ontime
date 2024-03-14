@@ -1,4 +1,4 @@
-import { Tooltip } from '@chakra-ui/react';
+import { Tooltip } from '@mantine/core';
 import { IoChevronDown } from '@react-icons/all-files/io5/IoChevronDown';
 import { IoChevronUp } from '@react-icons/all-files/io5/IoChevronUp';
 

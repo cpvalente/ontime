@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Tooltip } from '@chakra-ui/react';
+import { Tooltip } from '@mantine/core';
 import {
   closestCenter,
   DndContext,

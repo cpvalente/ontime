@@ -1,5 +1,5 @@
 import { memo, useCallback, useRef } from 'react';
-import { Button, Checkbox, Tooltip } from '@chakra-ui/react';
+import { Button, Checkbox, Tooltip } from '@mantine/core';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { SupportedEvent } from 'ontime-types';
 
@@ -82,7 +82,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
             variant='ontime-subtle-white'
             className={style.quickBtn}
             data-testid='quick-add-event'
-            leftIcon={<IoAdd />}
+            leftSection={<IoAdd />}
           >
             Event {showKbd && <span className={style.keyboard}>{`${deviceAlt} + E`}</span>}
           </Button>
@@ -95,7 +95,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
             disabled={disableAddDelay}
             className={style.quickBtn}
             data-testid='quick-add-delay'
-            leftIcon={<IoAdd />}
+            leftSection={<IoAdd />}
           >
             Delay {showKbd && <span className={style.keyboard}>{`${deviceAlt} + D`}</span>}
           </Button>
@@ -108,7 +108,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
             disabled={disableAddBlock}
             className={style.quickBtn}
             data-testid='quick-add-block'
-            leftIcon={<IoAdd />}
+            leftSection={<IoAdd />}
           >
             Block {showKbd && <span className={style.keyboard}>{`${deviceAlt} + B`}</span>}
           </Button>

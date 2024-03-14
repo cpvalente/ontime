@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Alert, AlertDescription, AlertIcon, Button, IconButton, Input, Switch } from '@chakra-ui/react';
+import { Alert, Button, ActionIcon, Input, Switch } from '@mantine/core';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoOpenOutline } from '@react-icons/all-files/io5/IoOpenOutline';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
@@ -16,6 +16,7 @@ import { validateUrlPresetPath } from '../../../../common/utils/urlPresets';
 import * as Panel from '../PanelUtils';
 
 import style from './GeneralPanel.module.scss';
+import { IoAlertCircleOutline } from '@react-icons/all-files/io5/IoAlertCircleOutline';
 
 const urlPresetsDocs = 'https://docs.getontime.no/features/url-presets/';
 
@@ -93,33 +94,30 @@ export default function UrlPresetsForm() {
         <Panel.SubHeader>
           URL Presets
           <div className={style.actionButtons}>
-            <Button variant='ontime-ghosted' size='md' onClick={onReset} isDisabled={!canSubmit}>
+            <Button variant='ontime-ghosted' size='md' onClick={onReset} disabled={!canSubmit}>
               Revert to saved
             </Button>
-            <Button variant='ontime-filled' size='md' type='submit' isDisabled={!canSubmit} isLoading={isSubmitting}>
+            <Button variant='ontime-filled' size='md' type='submit' disabled={!canSubmit} loading={isSubmitting}>
               Save
             </Button>
           </div>
         </Panel.SubHeader>
         <Panel.Divider />
-        <Alert status='info' variant='ontime-on-dark-info'>
-          <AlertIcon />
-          <AlertDescription>
-            URL Presets
-            <br />
-            <br />
-            Custom presets allow providing a short name for any ontime URL. <br />
-            - Providing dynamic URLs for automation or unattended screens <br />- Simplifying complex URLs
-            <br />
-            <br />
-            <ExternalLink href={urlPresetsDocs}>See the docs</ExternalLink>
-          </AlertDescription>
+        <Alert color='blue' icon={<IoAlertCircleOutline />}>
+          URL Presets
+          <br />
+          <br />
+          Custom presets allow providing a short name for any ontime URL. <br />
+          - Providing dynamic URLs for automation or unattended screens <br />- Simplifying complex URLs
+          <br />
+          <br />
+          <ExternalLink href={urlPresetsDocs}>See the docs</ExternalLink>
         </Alert>
         <Panel.Section>
           <Panel.Loader isLoading={isLoading} />
           <Panel.Title>
             Manage presets
-            <Button variant='ontime-subtle' rightIcon={<IoAdd />} size='sm' onClick={addNew}>
+            <Button variant='ontime-subtle' rightSection={<IoAdd />} size='sm' onClick={addNew}>
               New
             </Button>
           </Panel.Title>
@@ -185,15 +183,16 @@ export default function UrlPresetsForm() {
                         icon={<IoOpenOutline />}
                         data-testid={`field__test_${index}`}
                       />
-                      <IconButton
+                      <ActionIcon
                         size='sm'
                         onClick={() => remove(index)}
                         variant='ontime-ghosted'
                         color='#FA5656' // $red-500
-                        icon={<IoTrash />}
                         aria-label='Delete entry'
                         data-testid={`field__delete_${index}`}
-                      />
+                      >
+                        <IoTrash />
+                      </ActionIcon>
                     </td>
                   </tr>
                 );

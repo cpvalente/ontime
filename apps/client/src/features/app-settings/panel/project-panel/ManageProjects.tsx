@@ -1,5 +1,5 @@
 import { ChangeEvent, useRef, useState } from 'react';
-import { Button, Input } from '@chakra-ui/react';
+import { Button, Input } from '@mantine/core';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 
 import { uploadProjectFile } from '../../../../common/api/db';
@@ -70,8 +70,8 @@ export default function ManageProjects() {
               variant='ontime-subtle'
               onClick={handleSelectFile}
               size='sm'
-              isDisabled={Boolean(loading) || isCreatingProject}
-              isLoading={loading === 'import'}
+              disabled={Boolean(loading) || isCreatingProject}
+              loading={loading === 'import'}
             >
               Import
             </Button>
@@ -79,8 +79,8 @@ export default function ManageProjects() {
               variant='ontime-subtle'
               onClick={handleToggleCreate}
               size='sm'
-              isDisabled={Boolean(loading) || isCreatingProject}
-              rightIcon={<IoAdd />}
+              disabled={Boolean(loading) || isCreatingProject}
+              rightSection={<IoAdd />}
             >
               New
             </Button>

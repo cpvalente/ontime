@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Button } from '@chakra-ui/react';
+import { Button } from '@mantine/core';
 import { LogOrigin } from 'ontime-types';
 
 import { clearLogs, useLogData } from '../../common/stores/logger';

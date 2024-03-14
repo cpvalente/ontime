@@ -1,5 +1,5 @@
 import { ChangeEvent, useRef, useState } from 'react';
-import { Button, Input } from '@chakra-ui/react';
+import { Button, Input } from '@mantine/core';
 import { IoCloudOutline } from '@react-icons/all-files/io5/IoCloudOutline';
 import { IoDownloadOutline } from '@react-icons/all-files/io5/IoDownloadOutline';
 import { ImportMap, unpackError } from 'ontime-utils';
@@ -141,13 +141,13 @@ export default function SourcesPanel() {
               />
               <div className={style.uploadSection}>
                 <div>
-                  <Button variant='ontime-filled' size='sm' leftIcon={<IoDownloadOutline />} onClick={handleUpload}>
+                  <Button variant='ontime-filled' size='sm' leftSection={<IoDownloadOutline />} onClick={handleUpload}>
                     Import from spreadsheet
                   </Button>
                   <Panel.Description>Accepts .xlsx files</Panel.Description>
                 </div>
                 <div>
-                  <Button variant='ontime-filled' size='sm' leftIcon={<IoCloudOutline />} onClick={openGSheetFlow}>
+                  <Button variant='ontime-filled' size='sm' leftSection={<IoCloudOutline />} onClick={openGSheetFlow}>
                     Synchronise with Google
                   </Button>
                   <Panel.Description>Start authentication process</Panel.Description>

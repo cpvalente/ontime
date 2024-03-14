@@ -1,4 +1,4 @@
-import { Button } from '@chakra-ui/react';
+import { Button } from '@mantine/core';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 
 import Empty from '../../common/components/state/Empty';
@@ -15,7 +15,7 @@ export default function RundownEmpty(props: RundownEmptyProps) {
   return (
     <div className={style.alignCenter}>
       <Empty style={{ marginTop: '7vh' }} />
-      <Button onClick={handleAddNew} variant='ontime-filled' className={style.spaceTop} leftIcon={<IoAdd />}>
+      <Button onClick={handleAddNew} variant='ontime-filled' className={style.spaceTop} leftSection={<IoAdd />}>
         Create Event
       </Button>
     </div>

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Textarea } from '@chakra-ui/react';
+import { Button, Input, Textarea } from '@mantine/core';
 import { type ProjectData } from 'ontime-types';
 
 import { postProjectData } from '../../../../common/api/project';
@@ -58,15 +58,15 @@ export default function ProjectData() {
         <Panel.SubHeader>
           Project Data
           <div className={style.headerButtons}>
-            <Button variant='ontime-ghosted' size='sm' onClick={onReset} isDisabled={isSubmitting || !isDirty}>
+            <Button variant='ontime-ghosted' size='sm' onClick={onReset} disabled={isSubmitting || !isDirty}>
               Revert to saved
             </Button>
             <Button
               variant='ontime-filled'
               size='sm'
               type='submit'
-              isDisabled={!isDirty || !isValid}
-              isLoading={isSubmitting}
+              disabled={!isDirty || !isValid}
+              loading={isSubmitting}
             >
               Save
             </Button>

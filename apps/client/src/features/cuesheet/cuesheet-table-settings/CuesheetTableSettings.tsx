@@ -1,5 +1,5 @@
 import { memo, ReactNode } from 'react';
-import { Button, Checkbox, Switch } from '@chakra-ui/react';
+import { Button, Checkbox, Switch } from '@mantine/core';
 import { Column } from '@tanstack/react-table';
 import { OntimeRundownEntry } from 'ontime-types';
 

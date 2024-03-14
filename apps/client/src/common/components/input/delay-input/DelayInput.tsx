@@ -1,5 +1,5 @@
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
-import { Input, Radio, RadioGroup } from '@chakra-ui/react';
+import { Input, Radio } from '@mantine/core';
 import { millisToString } from 'ontime-utils';
 
 import { useEventAction } from '../../../hooks/useEventAction';
@@ -120,7 +120,7 @@ export default function DelayInput(props: DelayInputProps) {
         value={value}
         maxLength={9}
       />
-      <RadioGroup
+      <Radio.Group
         className={style.delayOptions}
         onChange={handleSlipChange}
         value={checkedOption}
@@ -129,7 +129,7 @@ export default function DelayInput(props: DelayInputProps) {
       >
         <Radio value='add'>Add time</Radio>
         <Radio value='subtract'>Subtract time</Radio>
-      </RadioGroup>
+      </Radio.Group>
     </div>
   );
 }

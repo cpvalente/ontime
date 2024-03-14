@@ -1,4 +1,4 @@
-import { memo, ReactNode, useCallback } from 'react';
+import { memo, ReactNode } from 'react';
 import { Menu } from '@mantine/core';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircleOutline';
@@ -11,26 +11,25 @@ import { useEventSelection } from '../useEventSelection';
 
 const RundownMenu = ({ children }: { children: ReactNode }) => {
   const { clearSelectedEvents } = useEventSelection();
-
   const { addEvent, deleteAllEvents } = useEventAction();
 
-  const newEvent = useCallback(() => {
+  const newEvent = () => {
     addEvent({ type: SupportedEvent.Event });
-  }, [addEvent]);
+  };
 
-  const newBlock = useCallback(() => {
+  const newBlock = () => {
     addEvent({ type: SupportedEvent.Block });
-  }, [addEvent]);
+  };
 
-  const newDelay = useCallback(() => {
+  const newDelay = () => {
     addEvent({ type: SupportedEvent.Delay });
-  }, [addEvent]);
+  };
 
-  const deleteAll = useCallback(() => {
+  const deleteAll = () => {
     deleteAllEvents();
     clearSelectedEvents();
     // setCursor(null);
-  }, [deleteAllEvents, clearSelectedEvents]);
+  };
 
   return (
     <Menu>

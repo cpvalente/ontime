@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { IconButton, Input } from '@chakra-ui/react';
+import { ActionIcon, Input } from '@mantine/core';
 import { IoEye } from '@react-icons/all-files/io5/IoEye';
 import { IoEyeOffOutline } from '@react-icons/all-files/io5/IoEyeOffOutline';
 
@@ -56,13 +56,12 @@ export default function InputRow(props: InputRowProps) {
           placeholder={placeholder}
         />
         {readonly ? (
-          <IconButton
+          <ActionIcon
             size='sm'
-            isDisabled
-            icon={visible ? <IoEye size='18px' /> : <IoEyeOffOutline size='18px' />}
+            disabled
             aria-label={`Toggle ${label}`}
             variant={visible ? 'ontime-filled' : 'ontime-subtle'}
-          />
+          >{visible ? <IoEye size='18px' /> : <IoEyeOffOutline size='18px' />}</ActionIcon>
         ) : (
           <TooltipActionBtn
             clickHandler={() => actionHandler('update', { field: 'isPublic', value: !visible })}

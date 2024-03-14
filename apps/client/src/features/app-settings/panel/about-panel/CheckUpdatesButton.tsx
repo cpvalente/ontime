@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from '@chakra-ui/react';
+import { Button } from '@mantine/core';
 
 import { getLatestVersion, HasUpdate } from '../../../../common/api/external';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';

@@ -1,8 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { useDisclosure } from '@chakra-ui/react';
-import { useFullscreen } from '@mantine/hooks';
+import { useDisclosure, useFullscreen } from '@mantine/hooks';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
@@ -31,7 +30,7 @@ function NavigationMenu() {
 
   useClickOutside(menuRef, () => setShowMenu(false));
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [opened, handlers] = useDisclosure(false);
 
   const toggleMenu = () => setShowMenu((prev) => !prev);
 
@@ -64,7 +63,7 @@ function NavigationMenu() {
 
   return createPortal(
     <div id='navigation-menu-portal' ref={menuRef}>
-      <RenameClientModal isOpen={isOpen} onClose={onClose} />
+      <RenameClientModal isOpen={opened} onClose={handlers.close} />
       <div className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}>
         <button onClick={toggleMenu} aria-label='toggle menu' className={style.navButton}>
           <IoApps />
@@ -103,9 +102,9 @@ function NavigationMenu() {
                 className={style.link}
                 tabIndex={0}
                 role='button'
-                onClick={onOpen}
+                onClick={handlers.open}
                 onKeyDown={(event) => {
-                  isKeyEnter(event) && onOpen();
+                  isKeyEnter(event) && handlers.open();
                 }}
               >
                 Rename Client

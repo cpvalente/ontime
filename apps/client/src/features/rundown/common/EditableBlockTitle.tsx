@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Input } from '@chakra-ui/react';
+import { Input } from '@mantine/core';
 
 import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
 import { useEventAction } from '../../../common/hooks/useEventAction';
@@ -47,9 +47,9 @@ export default function EditableBlockTitle(props: TitleEditorProps) {
       onBlur={onBlur}
       onKeyDown={onKeyDown}
       autoComplete='off'
-      fontWeight='600'
-      letterSpacing='0.25px'
-      paddingLeft='0'
+      //fontWeight='600'
+      //letterSpacing='0.25px'
+      //paddingLeft='0'
     />
   );
 }

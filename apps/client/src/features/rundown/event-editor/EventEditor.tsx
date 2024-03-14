@@ -1,5 +1,5 @@
 import { CSSProperties, useCallback, useEffect, useState } from 'react';
-import { Button } from '@chakra-ui/react';
+import { Button } from '@mantine/core';
 import { CustomFieldLabel, isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import CopyTag from '../../../common/components/copy-tag/CopyTag';
@@ -98,7 +98,7 @@ export default function EventEditor() {
         <div className={style.column}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span>Custom Fields</span>
-            <Button variant='ontime-subtle' size='sm' isDisabled>
+            <Button variant='ontime-subtle' size='sm' disabled>
               Manage
             </Button>
           </div>

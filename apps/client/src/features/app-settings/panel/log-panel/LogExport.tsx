@@ -1,5 +1,5 @@
 import { MouseEvent } from 'react';
-import { Button } from '@chakra-ui/react';
+import { Button } from '@mantine/core';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 
 import { handleLinks } from '../../../../common/utils/linkUtils';
@@ -21,7 +21,7 @@ export default function LogExport() {
           <Button
             variant='ontime-subtle'
             size='sm'
-            rightIcon={<IoArrowUp className={style.iconRotate} />}
+            rightSection={<IoArrowUp className={style.iconRotate} />}
             onClick={extract}
           >
             Extract
