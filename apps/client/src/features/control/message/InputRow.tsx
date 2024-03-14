@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { ActionIcon, Input } from '@mantine/core';
+import { TextInput } from '@mantine/core';
 import { IoEye } from '@react-icons/all-files/io5/IoEye';
 import { IoEyeOffOutline } from '@react-icons/all-files/io5/IoEyeOffOutline';
 
@@ -44,36 +44,26 @@ export default function InputRow(props: InputRowProps) {
   return (
     <div className={classes}>
       <label className={`${style.label} ${visible ? style.active : ''}`}>{label}</label>
-      <div className={style.inputItems}>
-        <Input
-          ref={inputRef}
-          size='sm'
-          variant='ontime-filled'
-          readOnly={readonly}
-          disabled={readonly}
-          value={text}
-          onChange={handleInputChange}
-          placeholder={placeholder}
-        />
-        {readonly ? (
-          <ActionIcon
-            size='sm'
-            disabled
-            aria-label={`Toggle ${label}`}
-            variant={visible ? 'ontime-filled' : 'ontime-subtle'}
-          >{visible ? <IoEye size='18px' /> : <IoEyeOffOutline size='18px' />}</ActionIcon>
-        ) : (
+      <TextInput
+        ref={inputRef}
+        readOnly={readonly}
+        disabled={readonly}
+        value={text}
+        onChange={handleInputChange}
+        placeholder={placeholder}
+        rightSection={
           <TooltipActionBtn
             clickHandler={() => actionHandler('update', { field: 'isPublic', value: !visible })}
             tooltip={visible ? 'Make invisible' : 'Make visible'}
             aria-label={`Toggle ${label}`}
             openDelay={tooltipDelayMid}
-            icon={visible ? <IoEye size='18px' /> : <IoEyeOffOutline size='18px' />}
+            icon={visible ? <IoEye /> : <IoEyeOffOutline />}
             variant={visible ? 'ontime-filled' : 'ontime-subtle'}
             size='sm'
+            disabled={readonly}
           />
-        )}
-      </div>
+        }
+      />
     </div>
   );
 }
