@@ -4,7 +4,7 @@
     'ind clk clk btn'
     '... sta fin btn';
   grid-template-rows: 1fr auto;
-  grid-template-columns: 1.25rem 1fr 1fr 5rem;
+  grid-template-columns: 1.25rem 1fr 1fr auto;
   gap: $element-inner-spacing;
   justify-items: start;
 }
@@ -55,10 +55,8 @@
 
 .btn {
   grid-area: btn;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
   gap: $element-inner-spacing;
 }
 

@@ -49,10 +49,10 @@ function App() {
   }, [isElectron, sendToElectron]);
 
   return (
-    <ChakraProvider resetCSS theme={theme}>
-      <QueryClientProvider client={ontimeQueryClient}>
-        <AppContextProvider>
-          <BrowserRouter>
+    <QueryClientProvider client={ontimeQueryClient}>
+      <AppContextProvider>
+        <BrowserRouter>
+          <ChakraProvider resetCSS theme={theme} disableGlobalStyle>
             <div className='App'>
               <ErrorBoundary>
                 <TranslationProvider>
@@ -63,10 +63,10 @@ function App() {
               </ErrorBoundary>
               <ReactQueryDevtools initialIsOpen={false} />
             </div>
-          </BrowserRouter>
-        </AppContextProvider>
-      </QueryClientProvider>
-    </ChakraProvider>
+          </ChakraProvider>
+        </BrowserRouter>
+      </AppContextProvider>
+    </QueryClientProvider>
   );
 }
 

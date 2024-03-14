@@ -1,4 +1,4 @@
-import { Tooltip } from '@chakra-ui/react';
+import { Button, ButtonGroup, IconButton, Tooltip } from '@chakra-ui/react';
 import { Playback } from 'ontime-types';
 import { millisToMinutes, millisToSeconds, millisToString } from 'ontime-utils';
 
@@ -8,6 +8,12 @@ import TapButton from '../tap-button/TapButton';
 import TimerDisplay from '../timer-display/TimerDisplay';
 
 import style from './PlaybackTimer.module.scss';
+import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
+import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
+import { useState } from 'react';
+import { set } from 'react-hook-form';
+import { IoPencil } from '@react-icons/all-files/io5/IoPencil';
+import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 
 interface PlaybackTimerProps {
   playback: Playback;
@@ -82,7 +88,9 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
         </>
       )}
       <div className={style.btn}>
-        <Tooltip label='Remove 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
+        <TimeControlButtonGroup />
+        <TimeControlButtonGroup />
+        {/* <Tooltip label='Remove 1 minute' openDelay={tooltipDelayMid} shouldWrapChildren={disableButtons}>
           <TapButton onClick={() => setPlayback.addTime(-60)} disabled={disableButtons} aspect='square'>
             -1
           </TapButton>
@@ -101,8 +109,52 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
           <TapButton onClick={() => setPlayback.addTime(+5 * 60)} disabled={disableButtons} aspect='square'>
             +5
           </TapButton>
-        </Tooltip>
+        </Tooltip> */}
       </div>
     </div>
+  );
+}
+
+function TimeControlButtonGroup() {
+  const [value, setValue] = useState(1);
+  const [unit, setUnit] = useState<'sec' | 'min'>('sec');
+  const [edit, setEdit] = useState(false);
+
+  const toggleUnit = () => {
+    setUnit(unit === 'sec' ? 'min' : 'sec');
+  };
+
+  const increment = () => {
+    setValue(Math.min(value + 1, 59));
+  };
+
+  const decrement = () => {
+    setValue(Math.max(1, value - 1));
+  };
+
+  const openEdit = () => setEdit(true);
+
+  const closeEdit = () => setEdit(false)
+
+  return (
+    <ButtonGroup size='sm' isAttached variant='ontime-subtle' className={style.buttonGroup}>
+      {edit ? (
+        <>
+          <IconButton aria-label='Subtract time' color='white' icon={<IoRemove />} onClick={decrement} />
+          <TapButton onClick={() => undefined}>{value}</TapButton>
+          <TapButton onClick={() => undefined}>{unit}</TapButton>
+          <IconButton aria-label='Add time' color='white' icon={<IoAdd />} onClick={increment} />
+          <IconButton aria-label='Edit' icon={<IoCheckmark />} onClick={closeEdit} />
+        </>
+      ) : (
+        <>
+          <TapButton onClick={() => undefined}>{`-${value}`}</TapButton>
+          <TapButton onClick={() => undefined}>{`+${value}`}</TapButton>
+          <Button color='white' variant='ontime-ghosted' rightIcon={<IoPencil />} onClick={openEdit}>
+            {unit}
+          </Button>
+        </>
+      )}
+    </ButtonGroup>
   );
 }
