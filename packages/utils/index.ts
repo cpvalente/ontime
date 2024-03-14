@@ -8,6 +8,7 @@ export { sanitiseCue } from './src/cue-utils/cueUtils.js';
 export { getCueCandidate } from './src/cue-utils/cueUtils.js';
 export { generateId } from './src/generate-id/generateId.js';
 export {
+  eventToPresetEvent,
   getFirst,
   getFirstEvent,
   getFirstEventNormal,
@@ -22,9 +23,8 @@ export {
   getPreviousEvent,
   getPreviousEventNormal,
   getPreviousNormal,
-  swapEventData,
-  eventToPresetEvent,
   presetEventToEvent,
+  swapEventData,
 } from './src/rundown-utils/rundownUtils.js';
 
 // format utils

@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { MaybeNumber, OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 
+import { savePresetEvent } from '../../common/api/rundown';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
 import { useAppMode } from '../../common/stores/appModeStore';
@@ -12,7 +13,6 @@ import BlockBlock from './block-block/BlockBlock';
 import DelayBlock from './delay-block/DelayBlock';
 import EventBlock from './event-block/EventBlock';
 import { useEventSelection } from './useEventSelection';
-import { savePresetEvent } from '../../common/api/rundown';
 
 export type EventItemActions =
   | 'set-cursor'
