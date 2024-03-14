@@ -84,7 +84,7 @@ function CuesheetHeader(props: CuesheetHeaderProps) {
             <tr key={headerGroup.id}>
               <th className={style.indexColumn}>
                 <Tooltip label='Event Order' openDelay={tooltipDelayFast}>
-                  #
+                  <div>#</div>
                 </Tooltip>
               </th>
               <SortableContext key={key} items={headerGroup.headers} strategy={horizontalListSortingStrategy}>

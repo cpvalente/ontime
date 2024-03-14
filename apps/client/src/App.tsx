@@ -11,11 +11,11 @@ import useElectronEvent from './common/hooks/useElectronEvent';
 import { ontimeQueryClient } from './common/queryClient';
 import { socketClientName } from './common/stores/connectionName';
 import { connectSocket } from './common/utils/socket';
-import theme from './theme/theme';
 import { TranslationProvider } from './translation/TranslationProvider';
 import AppRouter from './AppRouter';
 
 import '@mantine/core/styles.css';
+import { theme } from './theme/ontimeTheme';
 
 // Load Open Sans typeface
 // @ts-expect-error no types from font import
@@ -54,7 +54,7 @@ function App() {
     <QueryClientProvider client={ontimeQueryClient}>
       <AppContextProvider>
         <BrowserRouter>
-          <MantineProvider /* theme={} */ defaultColorScheme='dark'>
+          <MantineProvider theme={theme} defaultColorScheme='dark'>
             <div className='App'>
               <ErrorBoundary>
                 <TranslationProvider>

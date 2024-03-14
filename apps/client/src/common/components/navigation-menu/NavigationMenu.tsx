@@ -1,6 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { UnstyledButton } from '@mantine/core';
 import { useDisclosure, useFullscreen } from '@mantine/hooks';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
@@ -65,12 +66,12 @@ function NavigationMenu() {
     <div id='navigation-menu-portal' ref={menuRef}>
       <RenameClientModal isOpen={opened} onClose={handlers.close} />
       <div className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}>
-        <button onClick={toggleMenu} aria-label='toggle menu' className={style.navButton}>
+        <UnstyledButton onClick={toggleMenu} aria-label='toggle menu' className={style.navButton}>
           <IoApps />
-        </button>
-        <button className={style.button} onClick={showEditFormDrawer}>
+        </UnstyledButton>
+        <UnstyledButton className={style.button} onClick={showEditFormDrawer}>
           <IoPencilSharp />
-        </button>
+        </UnstyledButton>
         {showMenu && (
           <div className={style.menuContainer} data-testid='navigation-menu'>
             <div className={style.buttonsContainer}>
