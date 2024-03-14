@@ -1,5 +1,5 @@
 import { memo, ReactNode, useCallback } from 'react';
-import { Menu, MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
+import { Menu } from '@mantine/core';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircleOutline';
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
@@ -33,23 +33,23 @@ const RundownMenu = ({ children }: { children: ReactNode }) => {
   }, [deleteAllEvents, clearSelectedEvents]);
 
   return (
-    <Menu isLazy lazyBehavior='unmount' variant='ontime-on-dark' placement='right-start'>
-      {children}
-      <MenuList>
-        <MenuItem icon={<IoAdd />} onClick={newEvent}>
+    <Menu>
+      <Menu.Target>{children}</Menu.Target>
+      <Menu.Dropdown>
+        <Menu.Item leftSection={<IoAdd />} onClick={newEvent}>
           Add event at start
-        </MenuItem>
-        <MenuItem icon={<IoTimerOutline />} onClick={newDelay}>
+        </Menu.Item>
+        <Menu.Item leftSection={<IoTimerOutline />} onClick={newDelay}>
           Add delay at start
-        </MenuItem>
-        <MenuItem icon={<IoRemoveCircleOutline />} onClick={newBlock}>
+        </Menu.Item>
+        <Menu.Item leftSection={<IoRemoveCircleOutline />} onClick={newBlock}>
           Add block at start
-        </MenuItem>
-        <MenuDivider />
-        <MenuItem icon={<IoTrashOutline />} onClick={deleteAll} color='#D20300'>
+        </Menu.Item>
+        <Menu.Divider />
+        <Menu.Item leftSection={<IoTrashOutline />} onClick={deleteAll} color='#FA5656'>
           Delete all events
-        </MenuItem>
-      </MenuList>
+        </Menu.Item>
+      </Menu.Dropdown>
     </Menu>
   );
 };

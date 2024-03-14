@@ -13,18 +13,6 @@ interface MenuBarProps {
   isSettingsOpen: boolean;
 }
 
-const buttonStyle = {
-  fontSize: '1.25em',
-  size: 'md',
-  colorScheme: 'white',
-  _hover: {
-    background: 'rgba(255, 255, 255, 0.10)', // $white-10
-  },
-  _active: {
-    background: 'rgba(255, 255, 255, 0.13)', // $white-13
-  },
-};
-
 const MenuBar = (props: MenuBarProps) => {
   const { openSettings, isSettingsOpen } = props;
   const { isElectron, sendToElectron } = useElectronEvent();
@@ -69,7 +57,9 @@ const MenuBar = (props: MenuBarProps) => {
     <div className={style.menu}>
       <QuitIconBtn disabled={!isElectron} clickHandler={sendShutdown} />
       <TooltipActionBtn
-        {...buttonStyle}
+        size='lg'
+        variant='transparent'
+        color='white'
         className={cx([isSettingsOpen ? style.open : null, style.bottom])}
         icon={<IoSettingsOutline />}
         clickHandler={() => openSettings()}
