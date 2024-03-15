@@ -19,20 +19,19 @@ import style from './ViewParamsEditor.module.scss';
 
 type ViewParamsObj = { [key: string]: string | FormDataEntryValue };
 
+/**
+ * Makes a new URLSearchParams object from the given params object
+ */
 const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj, paramFields: ParamField[]) => {
   const defaultValues = paramFields.reduce<Record<string, string>>((acc, { id, defaultValue }) => {
-    return { ...acc, [id]: String(defaultValue) };
+    acc[id] = String(defaultValue);
+    return acc;
   }, {});
+
   return Object.entries(paramsObj).reduce((newSearchParams, [id, value]) => {
-    if (typeof value === 'string' && value.length) {
-      if (defaultValues[id] === value) {
-        return newSearchParams;
-      }
+    if (typeof value === 'string' && value.length && defaultValues[id] !== value) {
       newSearchParams.set(id, value);
-
-      return newSearchParams;
     }
-
     return newSearchParams;
   }, new URLSearchParams());
 };
