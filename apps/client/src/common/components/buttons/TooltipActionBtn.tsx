@@ -14,7 +14,7 @@ export default function TooltipActionBtn(props: TooltipActionBtnProps) {
   const { clickHandler, icon, size = 'xs', tooltip, openDelay = 0, tooltipPosition, className, ...rest } = props;
   return (
     <Tooltip label={tooltip} openDelay={openDelay} position={tooltipPosition}>
-      <ActionIcon {...rest} size={size} onClick={clickHandler} className={className} variant='transparent'>
+      <ActionIcon size={size} onClick={clickHandler} className={className} variant='transparent' {...rest}>
         {icon}
       </ActionIcon>
     </Tooltip>

@@ -78,8 +78,9 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
         <Tooltip label='Add Event' openDelay={tooltipDelayMid}>
           <Button
             onClick={() => handleCreateEvent(SupportedEvent.Event)}
-            size='xs'
-            variant='ontime-subtle-white'
+            size='compact-xs'
+            variant='light'
+            color='gray'
             className={style.quickBtn}
             data-testid='quick-add-event'
             leftSection={<IoAdd />}
@@ -90,10 +91,11 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
         <Tooltip label='Add Delay' openDelay={tooltipDelayMid}>
           <Button
             onClick={() => handleCreateEvent(SupportedEvent.Delay)}
-            size='xs'
-            variant='ontime-subtle-white'
-            disabled={disableAddDelay}
+            size='compact-xs'
+            variant='light'
+            color='gray'
             className={style.quickBtn}
+            disabled={disableAddDelay}
             data-testid='quick-add-delay'
             leftSection={<IoAdd />}
           >
@@ -103,10 +105,11 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
         <Tooltip label='Add Block' openDelay={tooltipDelayMid}>
           <Button
             onClick={() => handleCreateEvent(SupportedEvent.Block)}
-            size='xs'
-            variant='ontime-subtle-white'
-            disabled={disableAddBlock}
+            size='compact-xs'
+            variant='light'
+            color='gray'
             className={style.quickBtn}
+            disabled={disableAddBlock}
             data-testid='quick-add-block'
             leftSection={<IoAdd />}
           >
@@ -115,12 +118,18 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
         </Tooltip>
       </div>
       <div className={style.options}>
-        <Checkbox ref={doStartTime} size='sm' variant='ontime-ondark' defaultChecked={startTimeIsLastEnd}>
-          Start time is last end
-        </Checkbox>
-        <Checkbox ref={doPublic} size='sm' variant='ontime-ondark' defaultChecked={defaultPublic}>
-          Event is public
-        </Checkbox>
+        <Checkbox
+          ref={doStartTime}
+          size='xs'
+          defaultChecked={startTimeIsLastEnd}
+          label='Start time is last end'
+        />
+        <Checkbox
+          ref={doPublic}
+          size='xs'
+          defaultChecked={defaultPublic}
+          label='Event is public'
+        />
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { FocusEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
-import { Input } from '@mantine/core';
+import { TextInput } from '@mantine/core';
 import { millisToString } from 'ontime-utils';
 
 import { useEmitLog } from '../../../stores/logger';
@@ -120,16 +120,15 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
   const timeInputClasses = cx([style.timeInput, className]);
 
   return (
-    <Input
+    <TextInput
       disabled={disabled}
       size='sm'
       ref={inputRef}
       data-testid={`time-input-${name}`}
       className={timeInputClasses}
-      //fontSize='1rem'
       type='text'
       placeholder={placeholder}
-      variant='ontime-filled'
+      variant='filled'
       onFocus={handleFocus}
       onChange={(event) => setValue(event.target.value)}
       onBlur={onBlurHandler}

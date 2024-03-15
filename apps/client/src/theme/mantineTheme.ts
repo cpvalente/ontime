@@ -1,6 +1,7 @@
-import { createTheme } from '@mantine/core';
+import { Checkbox, createTheme } from '@mantine/core';
 
 import themeClasses from './appTheme.module.scss';
+import checkboxClasses from "./ontimeCheckbox.module.scss";
 
 export const theme = createTheme({
   fontFamily: 'Open Sans, Segoe UI, sans-serif',
@@ -22,4 +23,7 @@ export const theme = createTheme({
   defaultRadius: 'md',
   cursorType: 'pointer', // pointer on interactive elements, eg. label
   activeClassName: themeClasses.active,
+  components: {
+    Checkbox: Checkbox.extend({classNames: checkboxClasses}),
+  },
 });

@@ -1,5 +1,5 @@
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
-import { Input, Radio } from '@mantine/core';
+import { TextInput, Radio } from '@mantine/core';
 import { millisToString } from 'ontime-utils';
 
 import { useEventAction } from '../../../hooks/useEventAction';
@@ -105,7 +105,7 @@ export default function DelayInput(props: DelayInputProps) {
 
   return (
     <div className={style.delayInput}>
-      <Input
+      <TextInput
         size='sm'
         ref={inputRef}
         data-testid='delay-input'
@@ -122,7 +122,7 @@ export default function DelayInput(props: DelayInputProps) {
       />
       <Radio.Group
         className={style.delayOptions}
-        onChange={handleSlipChange}
+        onChange={(value) => handleSlipChange(value as 'add' | 'subtract')}
         value={checkedOption}
         variant='ontime-block'
         size='sm'

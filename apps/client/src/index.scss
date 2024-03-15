@@ -11,13 +11,6 @@ $thumb-color-hover: $gray-900;
   scrollbar-width: thin;
 }
 
-// reset box-sizing
-*,
-*:before,
-*:after {
-  box-sizing: inherit;
-}
-
 body,
 html,
 .App {
@@ -46,7 +39,6 @@ html,
 a {
   text-decoration: none;
 }
-
 
 /* width */
 ::-webkit-scrollbar {

@@ -14,8 +14,7 @@ import { connectSocket } from './common/utils/socket';
 import { TranslationProvider } from './translation/TranslationProvider';
 import AppRouter from './AppRouter';
 
-import '@mantine/core/styles.css';
-import { theme } from './theme/ontimeTheme';
+import { theme } from './theme/mantineTheme';
 
 // Load Open Sans typeface
 // @ts-expect-error no types from font import
