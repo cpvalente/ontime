@@ -31,6 +31,7 @@ import {
 import { ontimeTooltip } from './ontimeTooltip';
 
 const theme = extendTheme({
+  initialColorMode: 'dark',
   components: {
     Alert: {
       variants: {
