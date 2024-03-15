@@ -1,5 +1,5 @@
 import { FormEvent, useEffect } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import {
   Button,
   Drawer,
@@ -12,15 +12,12 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
-import { useLocalStorage } from '../../hooks/useLocalStorage';
-
 import ParamInput from './ParamInput';
 import { ParamField } from './types';
 
 import style from './ViewParamsEditor.module.scss';
 
 type ViewParamsObj = { [key: string]: string | FormDataEntryValue };
-type SavedViewParams = Record<string, ViewParamsObj>;
 
 const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj, paramFields: ParamField[]) => {
   const defaultValues = paramFields.reduce<Record<string, string>>((acc, { id, defaultValue }) => {
@@ -47,8 +44,6 @@ interface EditFormDrawerProps {
 export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const { pathname } = useLocation();
-  const [storedViewParams, setStoredViewParams] = useLocalStorage<SavedViewParams>('ontime-views', {});
 
   useEffect(() => {
     const isEditing = searchParams.get('edit');
@@ -58,27 +53,6 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
     }
   }, [searchParams, onOpen]);
 
-  /**
-   * disabling this for now, this feature needs more testing
-   * - we seem to have a bug where this is conflicting with the aliases
-   * - I wonder if the logic below needs to be inside an effect, 
-   * both localStorage and searchParams should trigger a component update when they change
-
-  useEffect(() => {
-    const viewParamsObjFromLocalStorage = storedViewParams[pathname];
-
-    if (viewParamsObjFromLocalStorage !== undefined) {
-      const defaultSearchParams = getURLSearchParamsFromObj(viewParamsObjFromLocalStorage);
-      setSearchParams(defaultSearchParams);
-    }
-
-    // linter is asking for `setSearchParams` & `storedViewParams` in the useEffect deps
-    // rule is disabled since adding `setSearchParams` & `storedViewParams` results in unnecessary re-renders
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
-
-  */
-
   const onCloseWithoutSaving = () => {
     onClose();
 
@@ -87,7 +61,6 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   };
 
   const resetParams = () => {
-    setStoredViewParams({ ...storedViewParams, [pathname]: {} });
     setSearchParams();
   };
 
@@ -96,8 +69,6 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
 
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, paramFields);
-
-    setStoredViewParams({ ...storedViewParams, [pathname]: newParamsObject });
     setSearchParams(newSearchParams);
   };
 
