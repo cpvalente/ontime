@@ -56,6 +56,7 @@ export { deleteAtIndex, insertAtIndex, reorderArray, sortArrayByProperty } from 
 
 // generic utilities
 export { unpackError } from './src/generic/generic.js';
+export { obfuscate, unobfuscate } from './src/generic/generic.js';
 export { isNumeric } from './src/types/types.js';
 
 // model validation
