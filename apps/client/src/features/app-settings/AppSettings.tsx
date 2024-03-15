@@ -1,7 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
 import { ErrorBoundary } from '@sentry/react';
-
-import { useKeyDown } from '../../common/hooks/useKeyDown';
 
 import AboutPanel from './panel/about-panel/AboutPanel';
 import GeneralPanel from './panel/general-panel/GeneralPanel';
