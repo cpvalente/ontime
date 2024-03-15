@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Textarea, TextareaProps } from '@chakra-ui/react';
+import { Textarea, TextareaProps } from '@mantine/core';
 // @ts-expect-error no types from library
 import autosize from 'autosize/dist/autosize';
 
@@ -18,11 +18,11 @@ export const AutoTextArea = (props: TextareaProps) => {
 
   return (
     <Textarea
-      overflow='hidden'
+      //overflow='hidden'
       w='100%'
       resize='none'
       ref={ref}
-      transition='height none'
+      //transition='height none'
       variant='ontime-transparent'
       {...props}
     />

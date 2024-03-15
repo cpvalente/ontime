@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, MenuButton } from '@chakra-ui/react';
+import { Button } from '@mantine/core';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
@@ -20,18 +20,18 @@ export default function RundownHeader() {
 
   return (
     <div className={style.header}>
-      <ButtonGroup isAttached>
+      <Button.Group>
         <TooltipActionBtn
-          variant={appMode === AppMode.Freeze ? 'ontime-filled' : 'ontime-outlined'}
+          variant={appMode === AppMode.Freeze ? 'filled' : 'outlined'}
           size='sm'
           icon={<IoSnowOutline />}
           clickHandler={setFreezeMode}
           tooltip='Freeze rundown'
           aria-label='Freeze rundown'
-          isDisabled
+          disabled
         />
         <TooltipActionBtn
-          variant={appMode === AppMode.Run ? 'ontime-filled' : 'ontime-outlined'}
+          variant={appMode === AppMode.Run ? 'filled' : 'outlined'}
           size='sm'
           icon={<IoPlay />}
           clickHandler={setRunMode}
@@ -39,18 +39,18 @@ export default function RundownHeader() {
           aria-label='Run mode'
         />
         <TooltipActionBtn
-          variant={appMode === AppMode.Edit ? 'ontime-filled' : 'ontime-outlined'}
+          variant={appMode === AppMode.Edit ? 'filled' : 'outlined'}
           size='sm'
           icon={<IoOptions />}
           clickHandler={setEditMode}
           tooltip='Edit mode'
           aria-label='Edit mode'
         />
-      </ButtonGroup>
+      </Button.Group>
       <RundownMenu>
-        <MenuButton size='sm' as={Button} rightIcon={<IoAdd />} aria-label='Rundown menu' variant='ontime-outlined'>
+        <Button size='sm' rightSection={<IoAdd />} variant='outline'>
           Rundown
-        </MenuButton>
+        </Button>
       </RundownMenu>
     </div>
   );

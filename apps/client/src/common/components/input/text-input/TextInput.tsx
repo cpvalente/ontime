@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import { Input, Textarea } from '@chakra-ui/react';
+import { Input, Textarea } from '@mantine/core';
 
 import { EventEditorSubmitActions } from '../../../../features/rundown/event-editor/EventEditor';
 import { Size } from '../../../models/Util.type';

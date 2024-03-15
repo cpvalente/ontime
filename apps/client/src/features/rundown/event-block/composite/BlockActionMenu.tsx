@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { IconButton, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Tooltip } from '@chakra-ui/react';
+import { ActionIcon, Menu, Tooltip } from '@mantine/core';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
@@ -27,38 +27,38 @@ export default function BlockActionMenu(props: BlockActionMenuProps) {
   const handleDelete = useCallback(() => actionHandler('delete'), [actionHandler]);
 
   return (
-    <Menu isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
+    <Menu>
       <Tooltip label='Add ...' openDelay={tooltipDelayMid}>
-        <MenuButton
-          as={IconButton}
+        <ActionIcon
           aria-label='Event options'
-          icon={<IoEllipsisHorizontal />}
           tabIndex={-1}
           variant='ontime-ghosted-white'
           size='sm'
           className={className}
-        />
+        >
+          <IoEllipsisHorizontal />
+        </ActionIcon>
       </Tooltip>
-      <MenuList>
-        <MenuItem icon={<IoAdd />} onClick={handleAddEvent}>
+      <Menu.Dropdown>
+        <Menu.Item leftSection={<IoAdd />} onClick={handleAddEvent}>
           Add Event after
-        </MenuItem>
-        <MenuItem icon={<IoTimerOutline />} onClick={handleAddDelay}>
+        </Menu.Item>
+        <Menu.Item leftSection={<IoTimerOutline />} onClick={handleAddDelay}>
           Add Delay after
-        </MenuItem>
-        <MenuItem icon={<IoRemoveCircleOutline />} onClick={handleAddBlock}>
+        </Menu.Item>
+        <Menu.Item leftSection={<IoRemoveCircleOutline />} onClick={handleAddBlock}>
           Add Block after
-        </MenuItem>
+        </Menu.Item>
         {showClone && (
-          <MenuItem icon={<IoDuplicateOutline />} onClick={handleClone}>
+          <Menu.Item leftSection={<IoDuplicateOutline />} onClick={handleClone}>
             Clone event
-          </MenuItem>
+          </Menu.Item>
         )}
-        <MenuDivider />
-        <MenuItem icon={<IoTrashBinSharp />} onClick={handleDelete} isDisabled={!enableDelete} color='#D20300'>
+        <Menu.Divider />
+        <Menu.Item leftSection={<IoTrashBinSharp />} onClick={handleDelete} disabled={!enableDelete} color='#D20300'>
           Delete
-        </MenuItem>
-      </MenuList>
+        </Menu.Item>
+      </Menu.Dropdown>
     </Menu>
   );
 }

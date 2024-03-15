@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input } from '@chakra-ui/react';
+import { Button, Input } from '@mantine/core';
 import { CustomField } from 'ontime-types';
 import { isAlphanumeric } from 'ontime-utils';
 

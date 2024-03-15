@@ -1,5 +1,5 @@
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Button, IconButton, Input, Select, Switch } from '@chakra-ui/react';
+import { Button, ActionIcon, Input, NativeSelect, Switch } from '@mantine/core';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { OSCSettings } from 'ontime-types';
@@ -82,7 +82,7 @@ export default function OscIntegrations() {
       <Panel.SubHeader>
         Open Sound Control
         <div className={style.flex}>
-          <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
+          <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} disabled={!canSubmit}>
             Revert to saved
           </Button>
           <Button
@@ -90,8 +90,8 @@ export default function OscIntegrations() {
             size='sm'
             type='submit'
             form='osc-form'
-            isDisabled={!canSubmit}
-            isLoading={isSubmitting}
+            disabled={!canSubmit}
+            loading={isSubmitting}
           >
             Save
           </Button>
@@ -121,7 +121,7 @@ export default function OscIntegrations() {
               width='5rem'
               maxLength={5}
               size='sm'
-              textAlign='right'
+              //textAlign='right'
               variant='ontime-filled'
               type='number'
               autoComplete='off'
@@ -153,7 +153,7 @@ export default function OscIntegrations() {
               placeholder='127.0.0.1'
               width='9rem'
               size='sm'
-              textAlign='right'
+              //textAlign='right'
               variant='ontime-filled'
               autoComplete='off'
               {...register('targetIP', {
@@ -176,7 +176,7 @@ export default function OscIntegrations() {
               placeholder='8888'
               width='75px'
               size='sm'
-              textAlign='right'
+              //textAlign='right'
               variant='ontime-filled'
               autoComplete='off'
               {...register('portOut', {
@@ -196,7 +196,7 @@ export default function OscIntegrations() {
 
         <Panel.Title>
           OSC Integrations
-          <Button variant='ontime-subtle' size='sm' rightIcon={<IoAdd />} onClick={handleAddNewSubscription}>
+          <Button variant='ontime-subtle' size='sm' rightSection={<IoAdd />} onClick={handleAddNewSubscription}>
             Add
           </Button>
         </Panel.Title>
@@ -221,7 +221,7 @@ export default function OscIntegrations() {
                       <Switch variant='ontime' {...register(`subscriptions.${index}.enabled`)} />
                     </td>
                     <td className={style.autoWidth}>
-                      <Select
+                      <NativeSelect
                         size='sm'
                         variant='ontime'
                         className={style.fitContents}
@@ -232,7 +232,7 @@ export default function OscIntegrations() {
                             {cycle.label}
                           </option>
                         ))}
-                      </Select>
+                      </NativeSelect>
                     </td>
                     <td className={style.fullWidth}>
                       <Input
@@ -252,14 +252,15 @@ export default function OscIntegrations() {
                       {maybeError && <Panel.Error>{maybeError}</Panel.Error>}
                     </td>
                     <td>
-                      <IconButton
+                      <ActionIcon
                         size='sm'
                         variant='ontime-ghosted'
                         color='#FA5656' // $red-500
-                        icon={<IoTrash />}
                         aria-label='Delete entry'
                         onClick={() => handleDeleteSubscription(index)}
-                      />
+                      >
+                        <IoTrash />
+                      </ActionIcon>
                     </td>
                   </tr>
                 );

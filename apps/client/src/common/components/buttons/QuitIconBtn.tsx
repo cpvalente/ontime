@@ -1,15 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
-  Button,
-  IconButton,
-  Tooltip,
-} from '@chakra-ui/react';
+import { useCallback, useEffect } from 'react';
+import { ActionIcon, Button, Group, Modal, Space, Tooltip } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+
 import { IoPowerOutline } from '@react-icons/all-files/io5/IoPowerOutline';
 
 import { useEmitLog } from '../../stores/logger';
@@ -19,78 +11,60 @@ interface QuitIconBtnProps {
   disabled?: boolean;
 }
 
-const quitBtnStyle = {
-  color: '#D20300', // $red-700
-  borderColor: '#D20300', // $red-700
-  _focus: { boxShadow: 'none' },
-  _hover: {
-    background: '#D20300', // $red-700
-    color: 'white',
-    _disabled: {
-      color: '#D20300', // $red-700
-      background: 'none',
-    },
-  },
-  _active: {
-    background: '#9A0000', // $red-1000
-    color: 'white',
-  },
-  variant: 'outline',
-  isRound: true,
-};
-
 export default function QuitIconBtn(props: QuitIconBtnProps) {
-  const { clickHandler, disabled, ...rest } = props;
-  const [isOpen, setIsOpen] = useState(false);
+  const { clickHandler, disabled } = props;
+  const [opened, { open, close }] = useDisclosure(false);
   const { emitInfo } = useEmitLog();
-  const onClose = () => setIsOpen(false);
-  const cancelRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     if (window.process?.type === 'renderer') {
       window.ipcRenderer.on('user-request-shutdown', () => {
         emitInfo('Shutdown request');
-        setIsOpen(true);
+        open();
       });
     }
-  }, [emitInfo]);
+  }, [emitInfo, open]);
 
   const handleShutdown = useCallback(() => {
-    onClose();
+    close();
     clickHandler();
-  }, [clickHandler]);
+  }, [clickHandler, close]);
 
   return (
     <>
       <Tooltip label='Quit Application'>
-        <IconButton
+        <ActionIcon
           aria-label='Quit Application'
+          variant='filled'
           size='lg'
-          icon={<IoPowerOutline />}
-          onClick={() => setIsOpen(true)}
-          isDisabled={disabled}
-          {...quitBtnStyle}
-          {...rest}
-        />
+          color='red'
+          onClick={open}
+          disabled={disabled}
+        >
+          <IoPowerOutline />
+        </ActionIcon>
       </Tooltip>
-      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-              Ontime Shutdown
-            </AlertDialogHeader>
-            <AlertDialogBody>This will shutdown the Ontime server. Are you sure?</AlertDialogBody>
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose} variant='ghost'>
+      <Modal.Root opened={opened} onClose={close} size='auto'>
+        <Modal.Overlay />
+        <Modal.Content>
+          <Modal.Body>
+            <Group>
+              This will shutdown the Ontime server.
+              <br />
+              Are you sure?
+            </Group>
+            <Space h='sm' />
+            <Group justify='flex-end'>
+              <Button onClick={close} variant='outline' size='sm'>
                 Cancel
               </Button>
-              <Button colorScheme='red' onClick={handleShutdown} ml={3}>
+              <Button color='red' onClick={handleShutdown} size='sm'>
                 Shutdown
               </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
+            </Group>
+          </Modal.Body>
+        </Modal.Content>
+      </Modal.Root>
     </>
   );
 }

@@ -1,5 +1,5 @@
 import { ChangeEvent, useEffect, useState } from 'react';
-import { Button, Input } from '@chakra-ui/react';
+import { Button, Input } from '@mantine/core';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { IoShieldCheckmarkOutline } from '@react-icons/all-files/io5/IoShieldCheckmarkOutline';
 
@@ -128,7 +128,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
       <Panel.Title>
         Sync with Google Sheet (experimental)
         {isAuthenticated ? (
-          <Button variant='ontime-subtle' size='sm' onClick={handleRevoke} isLoading={loading === 'cancel'}>
+          <Button variant='ontime-subtle' size='sm' onClick={handleRevoke} loading={loading === 'cancel'}>
             Revoke Authentication
           </Button>
         ) : (
@@ -146,7 +146,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
           accept='.json'
           size='sm'
           variant='ontime-filled'
-          isDisabled={isLoading || canAuthenticate}
+          disabled={isLoading || canAuthenticate}
         />
       </Panel.ListGroup>
       <Panel.ListGroup>
@@ -158,7 +158,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
           autoComplete='off'
           placeholder='Sheet ID'
           onChange={(event) => setSheetId(event.target.value)}
-          isDisabled={isLoading || canAuthenticate}
+          disabled={isLoading || canAuthenticate}
         />
       </Panel.ListGroup>
       {!canAuthenticate ? (
@@ -167,10 +167,10 @@ export default function GSheetSetup(props: GSheetSetupProps) {
             <Button
               variant='ontime-subtle'
               size='sm'
-              leftIcon={<IoCheckmark />}
+              leftSection={<IoCheckmark />}
               onClick={handleConnect}
-              isDisabled={!canConnect || isLoading}
-              isLoading={loading === 'connect'}
+              disabled={!canConnect || isLoading}
+              loading={loading === 'connect'}
             >
               Connect
             </Button>
@@ -185,10 +185,10 @@ export default function GSheetSetup(props: GSheetSetupProps) {
             <Button
               variant='ontime-filled'
               size='sm'
-              leftIcon={<IoShieldCheckmarkOutline />}
+              leftSection={<IoShieldCheckmarkOutline />}
               onClick={handleAuthenticate}
-              isDisabled={!canAuthenticate || isLoading}
-              isLoading={loading === 'authenticate' || isAuthenticating}
+              disabled={!canAuthenticate || isLoading}
+              loading={loading === 'authenticate' || isAuthenticating}
             >
               Authenticate
             </Button>

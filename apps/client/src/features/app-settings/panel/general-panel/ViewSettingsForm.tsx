@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Alert, AlertDescription, AlertIcon, Button, Input, Switch } from '@chakra-ui/react';
+import { Alert, Button, Input, Switch } from '@mantine/core';
 import { ViewSettings } from 'ontime-types';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -12,6 +12,7 @@ import useViewSettings from '../../../../common/hooks-query/useViewSettings';
 import * as Panel from '../PanelUtils';
 
 import style from './GeneralPanel.module.scss';
+import { IoAlertCircleOutline } from '@react-icons/all-files/io5/IoAlertCircleOutline';
 
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
@@ -72,24 +73,21 @@ export default function ViewSettingsForm() {
         <Panel.SubHeader>
           View settings
           <div className={style.actionButtons}>
-            <Button isDisabled={!isDirty} variant='ontime-ghosted' size='sm' onClick={onReset}>
+            <Button disabled={!isDirty} variant='ontime-ghosted' size='sm' onClick={onReset}>
               Revert to saved
             </Button>
-            <Button type='submit' isLoading={isSubmitting} isDisabled={!isDirty} variant='ontime-filled' size='sm'>
+            <Button type='submit' loading={isSubmitting} disabled={!isDirty} variant='ontime-filled' size='sm'>
               Save
             </Button>
           </div>
         </Panel.SubHeader>
         <Panel.Divider />
-        <Alert status='info' variant='ontime-on-dark-info'>
-          <AlertIcon />
-          <AlertDescription>
-            You can override the styles of the viewers with a custom CSS file. <br />
-            {info?.cssOverride && `In your installation the file is at ${info?.cssOverride}`}
-            <br />
-            <br />
-            <ExternalLink href={cssOverrideDocsUrl}>See the docs</ExternalLink>
-          </AlertDescription>
+        <Alert color='blue' icon={<IoAlertCircleOutline />}>
+          You can override the styles of the viewers with a custom CSS file. <br />
+          {info?.cssOverride && `In your installation the file is at ${info?.cssOverride}`}
+          <br />
+          <br />
+          <ExternalLink href={cssOverrideDocsUrl}>See the docs</ExternalLink>
         </Alert>
         <Panel.Section>
           <Panel.Loader isLoading={isLoading} />

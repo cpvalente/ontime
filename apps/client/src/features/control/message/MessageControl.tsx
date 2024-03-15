@@ -1,4 +1,4 @@
-import { Button } from '@chakra-ui/react';
+import { Button } from '@mantine/core';
 import { IoEye } from '@react-icons/all-files/io5/IoEye';
 import { IoEyeOffOutline } from '@react-icons/all-files/io5/IoEyeOffOutline';
 import { IoSunny } from '@react-icons/all-files/io5/IoSunny';
@@ -46,7 +46,7 @@ export default function MessageControl() {
           size='sm'
           className={`${blink ? style.blink : ''}`}
           variant={blink ? 'ontime-filled' : 'ontime-subtle'}
-          leftIcon={blink ? <IoSunny size='1rem' /> : <IoSunnyOutline size='1rem' />}
+          leftSection={blink ? <IoSunny size='1rem' /> : <IoSunnyOutline size='1rem' />}
           onClick={() => setMessage.timerBlink(!blink)}
           data-testid='toggle timer blink'
         >
@@ -56,7 +56,7 @@ export default function MessageControl() {
           size='sm'
           className={style.blackoutButton}
           variant={blackout ? 'ontime-filled' : 'ontime-subtle'}
-          leftIcon={blackout ? <IoEye size='1rem' /> : <IoEyeOffOutline size='1rem' />}
+          leftSection={blackout ? <IoEye size='1rem' /> : <IoEyeOffOutline size='1rem' />}
           onClick={() => setMessage.timerBlackout(!blackout)}
           data-testid='toggle timer blackout'
         >

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, AlertDescription, AlertIcon, Button } from '@chakra-ui/react';
+import { Alert, Button } from '@mantine/core';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { CustomField, CustomFieldLabel } from 'ontime-types';
 
@@ -10,6 +10,7 @@ import * as Panel from '../PanelUtils';
 
 import CustomFieldEntry from './CustomFieldEntry';
 import CustomFieldForm from './CustomFieldForm';
+import { IoAlertCircleOutline } from '@react-icons/all-files/io5/IoAlertCircleOutline';
 
 const customFieldsDocsUrl = 'https://docs.getontime.no/features/custom-fields/';
 
@@ -52,21 +53,17 @@ export default function ProjectSettingsPanel() {
         <Panel.Card>
           <Panel.SubHeader>
             Custom fields
-            <Button variant='ontime-subtle' rightIcon={<IoAdd />} size='sm' onClick={handleInitiateCreate}>
+            <Button variant='ontime-subtle' rightSection={<IoAdd />} size='sm' onClick={handleInitiateCreate}>
               New
             </Button>
           </Panel.SubHeader>
           <Panel.Divider />
           <Panel.Section>
-            <Alert status='info' variant='ontime-on-dark-info'>
-              <AlertIcon />
-              <AlertDescription>
-                Custom fields allow for additional information to be added to an event (eg. light, sound, camera).{' '}
-                <br />
-                <br />
-                This data is not used by Ontime.
-                <ExternalLink href={customFieldsDocsUrl}>See the docs</ExternalLink>
-              </AlertDescription>
+            <Alert color='blue' icon={<IoAlertCircleOutline />}>
+              Custom fields allow for additional information to be added to an event (eg. light, sound, camera). <br />
+              <br />
+              This data is not used by Ontime.
+              <ExternalLink href={customFieldsDocsUrl}>See the docs</ExternalLink>
             </Alert>
           </Panel.Section>
           <Panel.Section>

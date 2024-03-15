@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Button, IconButton, Input } from '@chakra-ui/react';
+import { Button, ActionIcon, Input } from '@mantine/core';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { ImportMap } from 'ontime-utils';
@@ -78,7 +78,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
       <Panel.Title>
         Import options
         <div className={style.buttonRow}>
-          <Button variant='ontime-subtle' size='sm' onClick={onCancel} isDisabled={isLoading}>
+          <Button variant='ontime-subtle' size='sm' onClick={onCancel} disabled={isLoading}>
             Cancel
           </Button>
           {!isSpreadsheet && (
@@ -86,8 +86,8 @@ export default function ImportMapForm(props: ImportMapFormProps) {
               variant='ontime-filled'
               size='sm'
               onClick={handleSubmit(handleExport)}
-              isDisabled={!canSubmitGSheet}
-              isLoading={loading === 'export'}
+              disabled={!canSubmitGSheet}
+              loading={loading === 'export'}
             >
               Export
             </Button>
@@ -96,8 +96,8 @@ export default function ImportMapForm(props: ImportMapFormProps) {
             variant='ontime-filled'
             size='sm'
             onClick={handleSubmit(handleImportPreview)}
-            isDisabled={!canSubmit}
-            isLoading={loading === 'import'}
+            disabled={!canSubmit}
+            loading={loading === 'import'}
           >
             Import preview
           </Button>
@@ -171,14 +171,13 @@ export default function ImportMapForm(props: ImportMapFormProps) {
                   />
                 </td>
                 <td className={style.singleActionCell}>
-                  <IconButton
+                  <ActionIcon
                     size='sm'
                     variant='ontime-ghosted'
                     color='#FA5656' // $red-500
-                    icon={<IoTrash />}
                     aria-label='Delete entry'
                     onClick={() => deleteCustomImport(index)}
-                  />
+                  ><IoTrash /></ActionIcon>
                 </td>
               </tr>
             );
@@ -186,7 +185,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
           <tr>
             <td />
             <td className={style.buttonRow} colSpan={99}>
-              <Button size='sm' variant='ontime-subtle' rightIcon={<IoAdd />} onClick={addCustomImport}>
+              <Button size='sm' variant='ontime-subtle' rightSection={<IoAdd />} onClick={addCustomImport}>
                 Add custom field
               </Button>
             </td>

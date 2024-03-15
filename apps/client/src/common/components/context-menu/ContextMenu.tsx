@@ -2,7 +2,7 @@
 // https://github.com/lukasbach/chakra-ui-contextmenu/blob/main/src/ContextMenu.tsx
 
 import { ReactElement } from 'react';
-import { Menu, MenuButton, MenuGroup, MenuList } from '@chakra-ui/react';
+import { Menu, Button } from '@mantine/core';
 import { IconType } from '@react-icons/all-files';
 import { create } from 'zustand';
 
@@ -68,8 +68,8 @@ export const ContextMenu = ({ children }: ContextMenuProps) => {
     <>
       {children}
       <div className={style.contextMenuBackdrop} />
-      <Menu isOpen size='sm' gutter={0} onClose={onClose} isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
-        <MenuButton
+      <Menu opened onClose={onClose}>
+        <Button
           className={style.contextMenuButton}
           aria-hidden
           w={1}
@@ -79,19 +79,7 @@ export const ContextMenu = ({ children }: ContextMenuProps) => {
             top: coords.y,
           }}
         />
-        <MenuList>
-          {options.map((option) =>
-            isOptionWithGroup(option) ? (
-              <MenuGroup key={option.label} title={option.label}>
-                {option.group.map((groupOption) => (
-                  <ContextMenuOption key={groupOption.label} {...groupOption} />
-                ))}
-              </MenuGroup>
-            ) : (
-              <ContextMenuOption key={option.label} {...option} />
-            ),
-          )}
-        </MenuList>
+        <Menu.Item>TEMP</Menu.Item>
       </Menu>
     </>
   );

@@ -1,5 +1,5 @@
 import { memo, useEffect, useState } from 'react';
-import { Tooltip } from '@chakra-ui/react';
+import { Tooltip } from '@mantine/core';
 import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoFlag } from '@react-icons/all-files/io5/IoFlag';

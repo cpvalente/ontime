@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Button, Textarea } from '@chakra-ui/react';
+import { Button, Textarea } from '@mantine/core';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import type { PartialEdit } from '../Operator';

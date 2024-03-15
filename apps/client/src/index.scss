@@ -42,13 +42,11 @@ html,
   }
 }
 
-/**
- * workaround for chakra
- * https://github.com/chakra-ui/chakra-ui/issues/417
- */
-option {
-  color: initial;
+/* hide underline in links */
+a {
+  text-decoration: none;
 }
+
 
 /* width */
 ::-webkit-scrollbar {

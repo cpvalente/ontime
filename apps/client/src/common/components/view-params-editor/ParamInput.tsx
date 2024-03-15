@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
-import { Input, InputGroup, InputLeftElement, Select, Switch } from '@chakra-ui/react';
+import { Input, NativeSelect, Switch } from '@mantine/core';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 
@@ -19,7 +19,7 @@ export default function ParamInput(props: EditFormInputProps) {
     const defaultOptionValue = optionFromParams || defaultValue;
 
     return (
-      <Select
+      <NativeSelect
         placeholder={defaultValue ? undefined : 'Select an option'}
         variant='ontime'
         name={id}
@@ -30,7 +30,7 @@ export default function ParamInput(props: EditFormInputProps) {
             {value}
           </option>
         ))}
-      </Select>
+      </NativeSelect>
     );
   }
 
@@ -46,27 +46,20 @@ export default function ParamInput(props: EditFormInputProps) {
     const defaultNumberValue = searchParams.get(id) ?? defaultValue;
 
     return (
-      <InputGroup variant='ontime-filled'>
-        {prefix && <InputLeftElement pointerEvents='none'>{prefix}</InputLeftElement>}
-        <Input
-          type='number'
-          step='any'
-          variant='ontime-filled'
-          name={id}
-          defaultValue={defaultNumberValue}
-          placeholder={placeholder}
-        />
-      </InputGroup>
+      <Input
+        type='number'
+        step='any'
+        variant='ontime-filled'
+        name={id}
+        defaultValue={defaultNumberValue}
+        placeholder={placeholder}
+        leftSection={prefix}
+      />
     );
   }
 
   const defaultStringValue = searchParams.get(id) ?? defaultValue;
   const { prefix, placeholder } = paramField;
 
-  return (
-    <InputGroup variant='ontime-filled'>
-      {prefix && <InputLeftElement pointerEvents='none'>{prefix}</InputLeftElement>}
-      <Input name={id} defaultValue={defaultStringValue} placeholder={placeholder} />
-    </InputGroup>
-  );
+  return <Input leftSection={prefix} name={id} defaultValue={defaultStringValue} placeholder={placeholder} />;
 }

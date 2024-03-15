@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Select, Switch } from '@chakra-ui/react';
+import { NativeSelect, Switch } from '@mantine/core';
 import { EndAction, MaybeString, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
@@ -96,7 +96,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         </div>
         <div>
           <label className={style.inputLabel}>Timer Type</label>
-          <Select
+          <NativeSelect
             size='sm'
             name='timerType'
             value={timerType}
@@ -107,7 +107,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             <option value={TimerType.CountUp}>Count up</option>
             <option value={TimerType.TimeToEnd}>Time to end</option>
             <option value={TimerType.Clock}>Clock</option>
-          </Select>
+          </NativeSelect>
         </div>
         <div>
           <label className={style.inputLabel} htmlFor='timeDanger'>
@@ -117,7 +117,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         </div>
         <div>
           <label className={style.inputLabel}>End Action</label>
-          <Select
+          <NativeSelect
             size='sm'
             name='endAction'
             value={endAction}
@@ -128,14 +128,14 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             <option value={EndAction.Stop}>Stop</option>
             <option value={EndAction.LoadNext}>Load Next</option>
             <option value={EndAction.PlayNext}>Play Next</option>
-          </Select>
+          </NativeSelect>
         </div>
       </div>
 
       <div>
         <span className={style.inputLabel}>Event Visibility</span>
         <label className={style.switchLabel}>
-          <Switch size='md' isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
+          <Switch size='md' checked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
           {isPublic ? 'Public' : 'Private'}
         </label>
       </div>

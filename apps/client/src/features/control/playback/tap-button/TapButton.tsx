@@ -1,6 +1,6 @@
 import { ForwardedRef, forwardRef, PropsWithChildren } from 'react';
 import { Playback } from 'ontime-types';
-
+import { UnstyledButton } from '@mantine/core';
 import { cx } from '../../../../common/utils/styleUtils';
 
 import style from './TapButton.module.scss';
@@ -20,9 +20,9 @@ const TapButton = forwardRef((props: PropsWithChildren<TapButtonProps>, ref: For
   const classes = cx([style.tapButton, className, style[theme], style[aspect], active ? style.active : null]);
 
   return (
-    <button className={classes} disabled={disabled} type='button' onClick={onClick} ref={ref}>
+    <UnstyledButton className={classes} disabled={disabled} type='button' onClick={onClick} ref={ref}>
       {children}
-    </button>
+    </UnstyledButton>
   );
 });
 

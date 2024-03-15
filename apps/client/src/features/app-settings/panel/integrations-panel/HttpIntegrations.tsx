@@ -1,5 +1,5 @@
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Button, IconButton, Input, Select, Switch } from '@chakra-ui/react';
+import { Button, ActionIcon, Input, NativeSelect, Switch } from '@mantine/core';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { HttpSettings } from 'ontime-types';
@@ -77,7 +77,7 @@ export default function HttpIntegrations() {
         <Panel.SubHeader>
           HTTP
           <div className={style.flex}>
-            <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
+            <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} disabled={!canSubmit}>
               Revert to saved
             </Button>
             <Button
@@ -85,8 +85,8 @@ export default function HttpIntegrations() {
               size='sm'
               type='submit'
               form='http-form'
-              isDisabled={!canSubmit}
-              isLoading={isSubmitting}
+              disabled={!canSubmit}
+              loading={isSubmitting}
             >
               Save
             </Button>
@@ -107,7 +107,7 @@ export default function HttpIntegrations() {
 
           <Panel.Title>
             HTTP Integration
-            <Button variant='ontime-subtle' size='sm' rightIcon={<IoAdd />} onClick={handleAddNewSubscription}>
+            <Button variant='ontime-subtle' size='sm' rightSection={<IoAdd />} onClick={handleAddNewSubscription}>
               New
             </Button>
           </Panel.Title>
@@ -131,7 +131,7 @@ export default function HttpIntegrations() {
                         <Switch variant='ontime' {...register(`subscriptions.${index}.enabled`)} />
                       </td>
                       <td className={style.autoWidth}>
-                        <Select
+                        <NativeSelect
                           size='sm'
                           variant='ontime'
                           className={style.fitContents}
@@ -142,7 +142,7 @@ export default function HttpIntegrations() {
                               {cycle.label}
                             </option>
                           ))}
-                        </Select>
+                        </NativeSelect>
                       </td>
                       <td className={style.fullWidth}>
                         <Input
@@ -161,14 +161,15 @@ export default function HttpIntegrations() {
                         {maybeError && <Panel.Error>{maybeError}</Panel.Error>}
                       </td>
                       <td>
-                        <IconButton
+                        <ActionIcon
                           size='sm'
                           variant='ontime-ghosted'
-                          color='#FA5656' // $red-500
-                          icon={<IoTrash />}
+                          //color='#FA5656' // $red-500
                           aria-label='Delete entry'
                           onClick={() => handleDeleteSubscription(index)}
-                        />
+                        >
+                          <IoTrash />
+                        </ActionIcon>
                       </td>
                     </tr>
                   );

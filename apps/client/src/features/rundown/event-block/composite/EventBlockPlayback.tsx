@@ -94,36 +94,33 @@ const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
         aria-label='Skip event'
         tooltip='Skip event'
         icon={skip ? <IoRemoveCircle /> : <IoRemoveCircleOutline />}
-        backgroundColor={skip ? '#B20000' : undefined}
-        _hover={{ backgroundColor: '#FF7878' }}
+        //backgroundColor={skip ? '#B20000' : undefined}
+        //_hover={{ backgroundColor: '#FF7878' }}
         {...tooltipProps}
         {...blockBtnStyle}
         clickHandler={toggleSkip}
-        tabIndex={-1}
-        isDisabled={loaded}
+        disabled={loaded}
       />
       <TooltipActionBtn
         variant='ontime-subtle-white'
         aria-label='Load event'
         tooltip='Load event'
         icon={<IoReload className={style.flip} />}
-        isDisabled={disablePlayback}
+        disabled={disablePlayback}
         {...tooltipProps}
         {...blockBtnStyle}
         clickHandler={load}
-        tabIndex={-1}
       />
       <TooltipActionBtn
         variant='ontime-subtle-white'
         aria-label='Start event'
         tooltip='Start event'
         icon={!isPlaying ? <IoPlay /> : <IoPause />}
-        isDisabled={disablePlayback}
+        disabled={disablePlayback}
         {...tooltipProps}
         {...blockBtnStyle}
         {...buttonVariant}
         clickHandler={actionHandler}
-        tabIndex={-1}
       />
     </div>
   );

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IconButton } from '@chakra-ui/react';
+import { ActionIcon } from '@mantine/core';
 import { IoPencil } from '@react-icons/all-files/io5/IoPencil';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { CustomField, CustomFieldLabel } from 'ontime-types';
@@ -50,22 +50,24 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
       </td>
       <td className={style.fullWidth}>{label}</td>
       <td className={style.actions}>
-        <IconButton
+        <ActionIcon
           size='sm'
           variant='ontime-ghosted'
           color='#e2e2e2' // $gray-200
-          icon={<IoPencil />}
           aria-label='Edit entry'
           onClick={() => setIsEditing(true)}
-        />
-        <IconButton
+        >
+          <IoPencil />
+        </ActionIcon>
+        <ActionIcon
           size='sm'
           variant='ontime-ghosted'
           color='#FA5656' // $red-500
-          icon={<IoTrash />}
           aria-label='Delete entry'
           onClick={() => onDelete(label)}
-        />
+        >
+          <IoTrash />
+        </ActionIcon>
       </td>
     </tr>
   );

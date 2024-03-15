@@ -1,4 +1,4 @@
-import { Switch } from '@chakra-ui/react';
+import { Switch } from '@mantine/core';
 
 import { useEditorSettings } from '../../../../common/stores/editorSettings';
 import * as Panel from '../PanelUtils';

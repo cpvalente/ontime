@@ -1,4 +1,4 @@
-import { Tooltip } from '@chakra-ui/react';
+import { Tooltip } from '@mantine/core';
 import { useFullscreen } from '@mantine/hooks';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
