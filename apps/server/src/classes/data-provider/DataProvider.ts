@@ -48,7 +48,7 @@ export class DataProvider {
     await this.persist();
   }
 
-  static getSettings(): Settings {
+  static getSettings(): Readonly<Settings> {
     return data.settings;
   }
 
