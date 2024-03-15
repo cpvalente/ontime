@@ -1,4 +1,5 @@
 import { CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Button } from '@chakra-ui/react';
 import { CustomFieldLabel, isOntimeEvent, OntimeEvent } from 'ontime-types';
 
@@ -25,6 +26,7 @@ export default function EventEditor() {
   const { data: customFields } = useCustomFields();
   const { order, rundown } = data;
   const { updateEvent } = useEventAction();
+  const [_searchParams, setSearchParams] = useSearchParams();
 
   const [event, setEvent] = useState<OntimeEvent | null>(null);
 
@@ -59,6 +61,10 @@ export default function EventEditor() {
     },
     [event?.id, updateEvent],
   );
+
+  const handleOpenCustomManager = () => {
+    setSearchParams({ settings: 'project_settings__custom' });
+  };
 
   if (!event) {
     return (
@@ -98,7 +104,7 @@ export default function EventEditor() {
         <div className={style.column}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span>Custom Fields</span>
-            <Button variant='ontime-subtle' size='sm' isDisabled>
+            <Button variant='ontime-subtle' size='sm' onClick={handleOpenCustomManager}>
               Manage
             </Button>
           </div>
