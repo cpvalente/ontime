@@ -7,11 +7,12 @@ import { IoTrashOutline } from '@react-icons/all-files/io5/IoTrashOutline';
 import { SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
+import { useAppMode } from '../../../common/stores/appModeStore';
 import { useEventSelection } from '../useEventSelection';
 
 const RundownMenu = ({ children }: { children: ReactNode }) => {
-  const { clearSelectedEvents } = useEventSelection();
-
+  const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
+  const setCursor = useAppMode((state) => state.setCursor);
   const { addEvent, deleteAllEvents } = useEventAction();
 
   const newEvent = useCallback(() => {
@@ -29,8 +30,8 @@ const RundownMenu = ({ children }: { children: ReactNode }) => {
   const deleteAll = useCallback(() => {
     deleteAllEvents();
     clearSelectedEvents();
-    // setCursor(null);
-  }, [deleteAllEvents, clearSelectedEvents]);
+    setCursor(null);
+  }, [clearSelectedEvents, deleteAllEvents, setCursor]);
 
   return (
     <Menu isLazy lazyBehavior='unmount' variant='ontime-on-dark' placement='right-start'>
