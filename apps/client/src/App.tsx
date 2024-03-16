@@ -47,9 +47,8 @@ function App() {
       }
     };
   }, [isElectron, sendToElectron]);
-
   return (
-    <ChakraProvider resetCSS theme={theme}>
+    <ChakraProvider disableGlobalStyle resetCSS theme={theme}>
       <QueryClientProvider client={ontimeQueryClient}>
         <AppContextProvider>
           <BrowserRouter>
