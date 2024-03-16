@@ -1,7 +1,6 @@
 import { MouseEvent } from 'react';
 import { ActionIcon, ActionIconProps, FloatingPosition, Tooltip } from '@mantine/core';
 
-
 interface TooltipActionBtnProps extends ActionIconProps {
   clickHandler: (event: MouseEvent) => void | Promise<void>;
   tooltip: string;

@@ -1,4 +1,4 @@
-import { Button } from '@mantine/core';
+import { ActionIcon, Button } from '@mantine/core';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
@@ -20,10 +20,10 @@ export default function RundownHeader() {
 
   return (
     <div className={style.header}>
-      <Button.Group>
+      <ActionIcon.Group>
         <TooltipActionBtn
           variant={appMode === AppMode.Freeze ? 'filled' : 'outlined'}
-          size='sm'
+          size='md'
           icon={<IoSnowOutline />}
           clickHandler={setFreezeMode}
           tooltip='Freeze rundown'
@@ -32,7 +32,7 @@ export default function RundownHeader() {
         />
         <TooltipActionBtn
           variant={appMode === AppMode.Run ? 'filled' : 'outlined'}
-          size='sm'
+          size='md'
           icon={<IoPlay />}
           clickHandler={setRunMode}
           tooltip='Run mode'
@@ -40,15 +40,15 @@ export default function RundownHeader() {
         />
         <TooltipActionBtn
           variant={appMode === AppMode.Edit ? 'filled' : 'outlined'}
-          size='sm'
+          size='md'
           icon={<IoOptions />}
           clickHandler={setEditMode}
           tooltip='Edit mode'
           aria-label='Edit mode'
         />
-      </Button.Group>
+      </ActionIcon.Group>
       <RundownMenu>
-        <Button size='sm' rightSection={<IoAdd />} variant='outline'>
+        <Button size='xs' rightSection={<IoAdd />} variant='default'>
           Rundown
         </Button>
       </RundownMenu>
