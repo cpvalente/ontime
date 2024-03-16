@@ -367,9 +367,6 @@ export function update(): UpdateResult {
   const previousTime = runtimeState.clock;
   runtimeState.clock = clock.timeNow();
 
-  // update offset
-  runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
-
   // we call integrations if we update timers
   if (runtimeState.timer.playback === Playback.Roll) {
     const result = onRollUpdate();
@@ -384,6 +381,9 @@ export function update(): UpdateResult {
     runtimeState.timer.current = getCurrent(runtimeState);
     runtimeState.timer.duration = runtimeState.timer.current;
   }
+
+  // update offset
+  runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
 
   return {
     hasTimerFinished,

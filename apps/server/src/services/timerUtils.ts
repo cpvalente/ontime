@@ -62,12 +62,6 @@ export function getCurrent(state: RuntimeState): number {
 
   if (timerType === TimerType.TimeToEnd) {
     const isEventOverMidnight = timeStart > timeEnd;
-    const hasFinishedRundownForToday = state.runtime.plannedEnd && clock > state.runtime.plannedEnd;
-
-    if (hasFinishedRundownForToday && !isEventOverMidnight) {
-      return dayInMs - clock + state.eventNow.timeStart + addedTime;
-    }
-
     const correctDay = isEventOverMidnight ? dayInMs : 0;
     return correctDay - clock + timeEnd + addedTime;
   }
@@ -76,12 +70,12 @@ export function getCurrent(state: RuntimeState): number {
     return duration;
   }
 
-  const hasPassedMidnight = startedAt > clock;
-  const correctDay = hasPassedMidnight ? dayInMs : 0;
   if (pausedAt != null) {
     return startedAt + duration + addedTime - pausedAt;
   }
 
+  const hasPassedMidnight = startedAt > clock;
+  const correctDay = hasPassedMidnight ? dayInMs : 0;
   return startedAt + duration + addedTime - clock - correctDay;
 }
 
