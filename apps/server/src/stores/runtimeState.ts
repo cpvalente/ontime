@@ -6,6 +6,7 @@ import { RestorePoint } from '../services/RestoreService.js';
 
 import {
   getCurrent,
+  getExpectedEnd,
   getExpectedFinish,
   getRollTimers,
   getRuntimeOffset,
@@ -46,6 +47,7 @@ export type RuntimeState = {
   timer: TimerState;
   // private properties of the timer calculations
   _timer: {
+    totalDelay: number; // this value comes from rundown service
     pausedAt: MaybeNumber;
     secondaryTarget: MaybeNumber;
   };
@@ -60,6 +62,7 @@ const runtimeState: RuntimeState = {
   runtime: initialRuntime,
   timer: { ...initialTimer },
   _timer: {
+    totalDelay: 0,
     pausedAt: null,
     secondaryTarget: null,
   },
@@ -85,10 +88,10 @@ export function clear() {
   runtimeState.timer.playback = Playback.Stop;
   runtimeState.clock = clock.timeNow();
   runtimeState.timer = { ...initialTimer };
-  runtimeState._timer = {
-    pausedAt: null,
-    secondaryTarget: null,
-  };
+
+  // we maintain the total delay
+  runtimeState._timer.pausedAt = null;
+  runtimeState._timer.secondaryTarget = null;
 }
 
 /**
@@ -119,14 +122,8 @@ export function updateRundownData(rundownData: RundownData) {
   runtimeState.runtime.numEvents = rundownData.numEvents;
 
   runtimeState.runtime.plannedStart = rundownData.firstStart;
-  runtimeState.runtime.plannedEnd = rundownData.lastEnd;
-
-  // only populate planned end if we are running
-  if (runtimeState.runtime.plannedEnd === null) {
-    runtimeState.runtime.expectedEnd = null;
-  } else {
-    runtimeState.runtime.expectedEnd = (runtimeState.runtime.plannedEnd + runtimeState.runtime.offset) % dayInMs;
-  }
+  runtimeState.runtime.plannedEnd = rundownData.firstStart + rundownData.totalDuration;
+  runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
 }
 
 /**
@@ -161,7 +158,7 @@ export function load(
     if (firstStart === null || typeof firstStart === 'number') {
       runtimeState.runtime.actualStart = firstStart;
       runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
-      runtimeState.runtime.expectedEnd = (runtimeState.runtime.plannedEnd + runtimeState.runtime.offset) % dayInMs;
+      runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
     }
   }
 
@@ -353,9 +350,8 @@ export function addTime(amount: number) {
 
   // update runtime delays: over - under
   runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
-  if (runtimeState.runtime.offset !== null) {
-    runtimeState.runtime.expectedEnd = (runtimeState.runtime.plannedEnd + runtimeState.runtime.offset) % dayInMs;
-  }
+  runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
+
   return true;
 }
 

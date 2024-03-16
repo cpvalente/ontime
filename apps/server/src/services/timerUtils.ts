@@ -332,11 +332,25 @@ export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
  * @returns
  */
 export function getTotalDuration(firstStart: number, lastEnd: number, daySpan: number): number {
+  if (!lastEnd) {
+    return 0;
+  }
   let correctDay = 0;
   if (lastEnd < firstStart) {
     correctDay = dayInMs;
     daySpan -= 1;
   }
   // eslint-disable-next-line prettier/prettier -- we like the clarity
-  return lastEnd + correctDay + (daySpan * dayInMs) - firstStart;
+  return lastEnd + correctDay + daySpan * dayInMs - firstStart;
+}
+
+/**
+ * Calculates the expected end of the rundown
+ */
+export function getExpectedEnd(state: RuntimeState): MaybeNumber {
+  // there is no expected end if we havent started
+  if (state.runtime.actualStart === null) {
+    return null;
+  }
+  return state.runtime.plannedEnd + state.runtime.offset + state._timer.totalDelay;
 }

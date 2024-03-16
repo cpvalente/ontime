@@ -83,6 +83,8 @@ export function generate(
   rundown = {};
   order = [];
   links = {};
+  firstStart = null;
+  lastEnd = null;
 
   let accumulatedDelay = 0;
   let daySpan = 0;

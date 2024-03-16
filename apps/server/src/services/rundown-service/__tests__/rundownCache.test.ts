@@ -26,7 +26,7 @@ import {
   removeCustomField,
 } from '../rundownCache.js';
 
-describe('init() function', () => {
+describe('generate()', () => {
   it('creates normalised versions of a given rundown', () => {
     const testRundown: OntimeRundown = [
       { type: SupportedEvent.Event, id: '1' } as OntimeEvent,
