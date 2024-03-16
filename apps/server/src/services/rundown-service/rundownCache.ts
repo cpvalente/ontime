@@ -4,6 +4,7 @@ import {
   CustomFields,
   isOntimeDelay,
   isOntimeEvent,
+  MaybeNumber,
   OntimeEvent,
   OntimeRundown,
   OntimeRundownEntry,
@@ -12,6 +13,7 @@ import { generateId, deleteAtIndex, insertAtIndex, reorderArray, swapEventData }
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
+import { getTotalDuration } from '../timerUtils.js';
 import { apply } from './delayUtils.js';
 import { handleCustomField, handleLink } from './rundownCacheUtils.js';
 
@@ -30,6 +32,9 @@ let order: EventID[] = [];
 let revision = 0;
 let isStale = true;
 let totalDelay = 0;
+let totalDuration = 0;
+let firstStart: MaybeNumber = null;
+let lastEnd: MaybeNumber = null;
 
 let links: Record<EventID, EventID> = {};
 
@@ -80,6 +85,7 @@ export function generate(
   links = {};
 
   let accumulatedDelay = 0;
+  let daySpan = 0;
   let previousEnd: number;
 
   for (let i = 0; i < initialRundown.length; i++) {
@@ -95,6 +101,19 @@ export function generate(
 
       // update the persisted event
       initialRundown[i] = updatedEvent;
+
+      // update rundown duration
+      if (firstStart === null) {
+        firstStart = updatedEvent.timeStart;
+      }
+      lastEnd = updatedEvent.timeEnd;
+
+      // check if we go over midnight, account for eventual gaps
+      const gapOverMidnight = previousEnd > updatedEvent.timeStart;
+      const durationOverMidnight = updatedEvent.timeStart > updatedEvent.timeEnd;
+      if (gapOverMidnight || durationOverMidnight) {
+        daySpan++;
+      }
     }
 
     // calculate delays
@@ -119,7 +138,9 @@ export function generate(
 
   isStale = false;
   totalDelay = accumulatedDelay;
-  return { rundown, order, links, totalDelay, assignedCustomProperties: assignedCustomFields };
+  totalDuration = getTotalDuration(firstStart, lastEnd, daySpan);
+
+  return { rundown, order, links, totalDelay, totalDuration, assignedCustomProperties: assignedCustomFields };
 }
 
 /** Returns an ID guaranteed to be unique */
@@ -146,6 +167,8 @@ type RundownCache = {
   rundown: NormalisedRundown;
   order: string[];
   revision: number;
+  totalDelay: number;
+  totalDuration: number;
 };
 
 /**
@@ -162,6 +185,26 @@ export function get(): Readonly<RundownCache> {
     rundown,
     order,
     revision,
+    totalDelay,
+    totalDuration,
+  };
+}
+
+/**
+ * Returns calculated metadata from rundown
+ */
+export function getMetadata() {
+  if (isStale) {
+    console.time('rundownCache__init');
+    generate();
+    console.timeEnd('rundownCache__init');
+  }
+
+  return {
+    firstStart,
+    lastEnd,
+    totalDelay,
+    totalDuration,
   };
 }
 

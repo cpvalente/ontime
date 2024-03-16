@@ -181,8 +181,17 @@ export async function swapEvents(from: string, to: string) {
  * Called when we make changes to the rundown object
  */
 function updateRuntimeOnChange() {
+  const playableEvents = getPlayableEvents();
+  const numEvents = playableEvents.length;
+  const metadata = cache.getMetadata();
+
   // schedule an update for the end of the event loop
-  setImmediate(() => updateRundownData(getPlayableEvents()));
+  setImmediate(() =>
+    updateRundownData({
+      numEvents,
+      ...metadata,
+    }),
+  );
 }
 
 /**
@@ -210,6 +219,8 @@ export function notifyChanges(options: { timer?: boolean | string[]; external?: 
 export async function initRundown(rundown: OntimeRundown, customFields: CustomFields) {
   await cache.init(rundown, customFields);
   notifyChanges({ timer: true });
+
+  updateRuntimeOnChange();
 }
 
 /**

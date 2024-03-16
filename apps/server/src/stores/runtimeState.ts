@@ -1,5 +1,5 @@
 import { MaybeNumber, OntimeEvent, Playback, Runtime, TimerState, TimerType } from 'ontime-types';
-import { calculateDuration, dayInMs, getFirstEvent, getLastEvent } from 'ontime-utils';
+import { calculateDuration, dayInMs } from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
 import { RestorePoint } from '../services/RestoreService.js';
@@ -103,18 +103,25 @@ function patchTimer(newState: Partial<TimerState>) {
   }
 }
 
+type RundownData = {
+  numEvents: number;
+  firstStart: MaybeNumber;
+  lastEnd: MaybeNumber;
+  totalDelay: number;
+  totalDuration: number;
+};
+
 /**
  * Utility, allows updating data derived from the rundown
  * @param playableRundown
  */
-export function updateRundownData(playableRundown: OntimeEvent[]) {
-  runtimeState.runtime.numEvents = playableRundown.length;
+export function updateRundownData(rundownData: RundownData) {
+  runtimeState.runtime.numEvents = rundownData.numEvents;
 
-  const { firstEvent } = getFirstEvent(playableRundown);
-  const { lastEvent } = getLastEvent(playableRundown);
+  runtimeState.runtime.plannedStart = rundownData.firstStart;
+  runtimeState.runtime.plannedEnd = rundownData.lastEnd;
 
-  runtimeState.runtime.plannedStart = firstEvent?.timeStart ?? null;
-  runtimeState.runtime.plannedEnd = lastEvent?.timeEnd ?? null;
+  // only populate planned end if we are running
   if (runtimeState.runtime.plannedEnd === null) {
     runtimeState.runtime.expectedEnd = null;
   } else {
@@ -135,12 +142,9 @@ export function load(
 ): boolean {
   clear();
 
-  updateRundownData(rundown);
-
   const eventIndex = rundown.findIndex((eventInMemory) => eventInMemory.id === event.id);
 
   runtimeState.runtime.selectedEventIndex = eventIndex;
-  runtimeState.runtime.numEvents = rundown.length;
 
   loadNow(event, rundown);
   loadNext(rundown);
