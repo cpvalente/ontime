@@ -115,7 +115,7 @@ export function updateRundownData(playableRundown: OntimeEvent[]) {
 
   runtimeState.runtime.plannedStart = firstEvent?.timeStart ?? null;
   runtimeState.runtime.plannedEnd = lastEvent?.timeEnd ?? null;
-  if (runtimeState.runtime.plannedEnd === null) {
+  if (runtimeState.runtime.plannedEnd === null || !runtimeState.runtime.actualStart) {
     runtimeState.runtime.expectedEnd = null;
   } else {
     runtimeState.runtime.expectedEnd = (runtimeState.runtime.plannedEnd + runtimeState.runtime.offset) % dayInMs;
