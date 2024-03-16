@@ -46,22 +46,24 @@ export default function RundownEntry(props: RundownEntryProps) {
   } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
-  const { cursor } = useAppMode();
+  const cursor = useAppMode((state) => state.cursor);
+  const setCursor = useAppMode((state) => state.setCursor);
   const { selectedEvents, clearSelectedEvents } = useEventSelection();
+
+  const eventSettings = useEditorSettings((state) => state.eventSettings);
+  const defaultPublic = eventSettings.defaultPublic;
+  const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
 
   const removeOpenEvent = useCallback(() => {
     if (selectedEvents.has(data.id)) {
       clearSelectedEvents();
     }
 
+    // clear cursor if we are deleting the event that is currently selected
     if (cursor === data.id) {
-      // setCursor(null);
+      setCursor(null);
     }
-  }, [cursor, data.id, selectedEvents, clearSelectedEvents]);
-
-  const eventSettings = useEditorSettings((state) => state.eventSettings);
-  const defaultPublic = eventSettings.defaultPublic;
-  const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
+  }, [clearSelectedEvents, cursor, data.id, selectedEvents, setCursor]);
 
   // Create / delete new events
   type FieldValue = {
