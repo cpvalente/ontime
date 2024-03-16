@@ -1,4 +1,4 @@
-import { dayInMs, millisToString } from 'ontime-utils';
+import { dayInMs } from 'ontime-utils';
 import { EndAction, OntimeEvent, Playback, TimeStrategy, TimerType } from 'ontime-types';
 
 import {
