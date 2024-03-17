@@ -66,10 +66,11 @@ export async function addEvent(
   const scopedMutation = cache.mutateCache(cache.add);
   const { newEvent } = await scopedMutation({ atIndex, event: eventToAdd as OntimeRundownEntry });
 
-  notifyChanges({ timer: [newEvent.id], external: true });
-
   // notify runtime that rundown has changed
   updateRuntimeOnChange();
+
+  // notify timer and external services of change
+  notifyChanges({ timer: [newEvent.id], external: true });
 
   return newEvent;
 }
@@ -82,10 +83,11 @@ export async function deleteEvent(eventId: string) {
   const scopedMutation = cache.mutateCache(cache.remove);
   await scopedMutation({ eventId });
 
-  notifyChanges({ timer: [eventId], external: true });
-
-  // notify event loader that rundown has changed
+  // notify runtime that rundown has changed
   updateRuntimeOnChange();
+
+  // notify timer and external services of change
+  notifyChanges({ timer: [eventId], external: true });
 }
 
 /**
@@ -112,10 +114,11 @@ export async function editEvent(patch: Partial<OntimeEvent> | Partial<OntimeBloc
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know patch has an id
   const { newEvent } = await scopedMutation({ patch, eventId: patch.id! });
 
-  notifyChanges({ timer: [patch.id], external: true });
-
-  // notify event loader that rundown has changed
+  // notify runtime that rundown has changed
   updateRuntimeOnChange();
+
+  // notify timer and external services of change
+  notifyChanges({ timer: [patch.id], external: true });
 
   return newEvent;
 }
@@ -129,10 +132,11 @@ export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>)
   const scopedMutation = cache.mutateCache(cache.batchEdit);
   await scopedMutation({ patch: data, eventIds: ids });
 
-  notifyChanges({ timer: ids, external: true });
-
-  // notify event loader that rundown has changed
+  // notify runtime that rundown has changed
   updateRuntimeOnChange();
+
+  // notify timer and external services of change
+  notifyChanges({ timer: ids, external: true });
 }
 
 /**
@@ -145,10 +149,11 @@ export async function reorderEvent(eventId: string, from: number, to: number) {
   const scopedMutation = cache.mutateCache(cache.reorder);
   const reorderedItem = await scopedMutation({ eventId, from, to });
 
-  notifyChanges({ timer: true, external: true });
-
-  // notify event loader that rundown has changed
+  // notify runtime that rundown has changed
   updateRuntimeOnChange();
+
+  // notify timer and external services of change
+  notifyChanges({ timer: true, external: true });
 
   return reorderedItem;
 }
@@ -157,6 +162,10 @@ export async function applyDelay(eventId: string) {
   const scopedMutation = cache.mutateCache(cache.applyDelay);
   await scopedMutation({ eventId });
 
+  // notify runtime that rundown has changed
+  updateRuntimeOnChange();
+
+  // notify timer and external services of change
   notifyChanges({ timer: true, external: true });
 }
 
@@ -170,10 +179,11 @@ export async function swapEvents(from: string, to: string) {
   const scopedMutation = cache.mutateCache(cache.swap);
   await scopedMutation({ fromId: from, toId: to });
 
-  notifyChanges({ timer: true, external: true });
-
-  // notify event loader that rundown has changed
+  // notify runtime that rundown has changed
   updateRuntimeOnChange();
+
+  // notify timer and external services of change
+  notifyChanges({ timer: true, external: true });
 }
 
 /**
@@ -218,9 +228,12 @@ export function notifyChanges(options: { timer?: boolean | string[]; external?: 
  */
 export async function initRundown(rundown: OntimeRundown, customFields: CustomFields) {
   await cache.init(rundown, customFields);
-  notifyChanges({ timer: true });
 
+  // notify runtime that rundown has changed
   updateRuntimeOnChange();
+
+  // notify timer of change
+  notifyChanges({ timer: true });
 }
 
 /**
