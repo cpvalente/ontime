@@ -119,8 +119,9 @@ type RundownData = {
  * @param playableRundown
  */
 export function updateRundownData(rundownData: RundownData) {
-  runtimeState.runtime.numEvents = rundownData.numEvents;
+  runtimeState._timer.totalDelay = rundownData.totalDelay;
 
+  runtimeState.runtime.numEvents = rundownData.numEvents;
   runtimeState.runtime.plannedStart = rundownData.firstStart;
   runtimeState.runtime.plannedEnd = rundownData.firstStart + rundownData.totalDuration;
   runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
