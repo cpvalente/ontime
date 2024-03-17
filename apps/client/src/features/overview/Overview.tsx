@@ -1,5 +1,6 @@
+import { useMemo } from 'react';
 import { MaybeNumber } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { dayInMs, millisToString } from 'ontime-utils';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import { useRuntimeOverview, useRuntimePlaybackOverview } from '../../common/hooks/useSocket';
@@ -19,8 +20,26 @@ function formatedTime(time: MaybeNumber) {
   return millisToString(time, { fallback: timerPlaceholder });
 }
 
+function calculateEndAndDaySpan(end: MaybeNumber): [MaybeNumber, number] {
+  let maybeEnd = end;
+  let maybeDaySpan = 0;
+  if (end !== null) {
+    if (end > dayInMs) {
+      maybeEnd = end % dayInMs;
+      maybeDaySpan = Math.floor(end / dayInMs);
+    }
+  }
+  return [maybeEnd, maybeDaySpan];
+}
+
 export default function Overview() {
   const { plannedEnd, plannedStart, actualStart, expectedEnd } = useRuntimeOverview();
+
+  const [maybePlannedEnd, maybePlannedDaySpan] = useMemo(() => calculateEndAndDaySpan(plannedEnd), [plannedEnd]);
+  const plannedEndText = formatedTime(maybePlannedEnd);
+
+  const [maybeExpectedEnd, maybeExpectedDaySpan] = useMemo(() => calculateEndAndDaySpan(expectedEnd), [expectedEnd]);
+  const expectedEndText = formatedTime(maybeExpectedEnd);
 
   return (
     <div className={style.overview}>
@@ -32,8 +51,8 @@ export default function Overview() {
         </div>
         <RuntimeOverview />
         <div className={style.column}>
-          <TimeRow label='Planned end' value={formatedTime(plannedEnd)} className={style.end} />
-          <TimeRow label='Expected end' value={formatedTime(expectedEnd)} className={style.end} />
+          <TimeRow label='Planned end' value={plannedEndText} className={style.end} daySpan={maybePlannedDaySpan} />
+          <TimeRow label='Expected end' value={expectedEndText} className={style.end} daySpan={maybeExpectedDaySpan} />
         </div>
       </ErrorBoundary>
     </div>

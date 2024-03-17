@@ -1,6 +1,6 @@
 import { Tooltip } from '@chakra-ui/react';
 import { Playback } from 'ontime-types';
-import { millisToMinutes, millisToSeconds, millisToString } from 'ontime-utils';
+import { dayInMs, millisToMinutes, millisToSeconds, millisToString } from 'ontime-utils';
 
 import { setPlayback, useTimer } from '../../../../common/hooks/useSocket';
 import { tooltipDelayMid } from '../../../../ontimeConfig';
@@ -17,9 +17,10 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
   const { playback } = props;
   const timer = useTimer();
 
-  // TODO: checkout typescript in utilities
   const started = millisToString(timer.startedAt);
-  const finish = millisToString(timer.expectedFinish);
+  const expectedFinish = timer.expectedFinish !== null ? timer.expectedFinish % dayInMs : null;
+  const finish = millisToString(expectedFinish);
+
   const isRolling = playback === Playback.Roll;
   const isStopped = playback === Playback.Stop;
   const isWaiting = timer.secondaryTimer !== null && timer.secondaryTimer > 0 && timer.current === null;
