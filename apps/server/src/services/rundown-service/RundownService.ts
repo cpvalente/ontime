@@ -95,6 +95,9 @@ export async function deleteAllEvents() {
   const scopedMutation = cache.mutateCache(cache.removeAll);
   await scopedMutation({});
 
+  // notify event loader that rundown has changed
+  updateRuntimeOnChange();
+
   // no need to modify timer since we will reset
   notifyChanges({ external: true });
 }
