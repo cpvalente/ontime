@@ -1,6 +1,7 @@
 import { MaybeNumber, MaybeString, OntimeEvent, TimerType } from 'ontime-types';
 import { dayInMs, sortArrayByProperty } from 'ontime-utils';
 import { RuntimeState } from '../stores/runtimeState.js';
+import { timerConfig } from '../config/config.js';
 
 /**
  * handle events that span over midnight
@@ -272,7 +273,7 @@ export const updateRoll = (state: RuntimeState) => {
       updatedTimer -= dayInMs;
     }
 
-    if (updatedTimer < 0) {
+    if (updatedTimer <= timerConfig.triggerAhead) {
       isPrimaryFinished = true;
       // we need a new event
       doRollLoad = true;

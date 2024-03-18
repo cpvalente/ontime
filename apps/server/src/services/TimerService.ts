@@ -58,7 +58,8 @@ export class TimerService {
     }
 
     const state = runtimeState.getState();
-    this.endCallback = setTimeout(() => this.update(), state.timer.expectedFinish);
+    const endTime = state.timer.current - 10;
+    this.endCallback = setTimeout(() => this.update(), endTime);
     return true;
   }
 
