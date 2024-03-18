@@ -407,7 +407,8 @@ export function update(): UpdateResult {
   function onPlayUpdate() {
     let isFinished = false;
     runtimeState.timer.current = getCurrent(runtimeState);
-    const finishedNow = runtimeState.timer.current <= 0 && runtimeState.timer.finishedAt === null;
+    const finishedNow =
+      runtimeState.timer.current <= timerConfig.triggerAhead && runtimeState.timer.finishedAt === null;
 
     if (runtimeState.timer.playback === Playback.Play && finishedNow) {
       runtimeState.timer.finishedAt = runtimeState.clock;
