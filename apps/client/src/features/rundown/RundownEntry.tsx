@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { MaybeNumber, OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 
-import { savePresetEvent } from '../../common/api/rundown';
+import { postPresetFromEvent } from '../../common/api/presetEvents';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
 import { useAppMode } from '../../common/stores/appModeStore';
@@ -102,7 +102,7 @@ export default function RundownEntry(props: RundownEntryProps) {
       }
       case 'preset': {
         //TODO: popup with name selection
-        savePresetEvent(data.id, 'testName');
+        postPresetFromEvent('testName', data.id);
         break;
       }
       case 'update': {

@@ -1,12 +1,4 @@
-import {
-  ErrorResponse,
-  MessageResponse,
-  OntimeRundown,
-  OntimeRundownEntry,
-  PresetEvent,
-  PresetEvents,
-  RundownCached,
-} from 'ontime-types';
+import { ErrorResponse, MessageResponse, OntimeRundown, OntimeRundownEntry, RundownCached } from 'ontime-types';
 
 import { Request, Response } from 'express';
 
@@ -21,9 +13,7 @@ import {
   reorderEvent,
   swapEvents,
 } from '../../services/rundown-service/RundownService.js';
-import { getEventWithId, getNormalisedRundown, getRundown } from '../../services/rundown-service/rundownUtils.js';
-import { createPresetEvent, getPresetEvents } from '../../services/rundown-service/rundownCache.js';
-import { eventToPresetEvent } from 'ontime-utils';
+import { getNormalisedRundown, getRundown } from '../../services/rundown-service/rundownUtils.js';
 
 export async function rundownGetAll(_req: Request, res: Response<OntimeRundown>) {
   const rundown = getRundown();
@@ -125,40 +115,6 @@ export async function deleteEventById(req: Request, res: Response<MessageRespons
   try {
     await deleteEvent(req.params.eventId);
     res.status(204).send({ message: 'Event deleted' });
-  } catch (error) {
-    res.status(400).send({ message: error.toString() });
-  }
-}
-
-export async function savePresetEvent(req: Request, res: Response<MessageResponse | ErrorResponse>) {
-  try {
-    const event = getEventWithId(req.params.eventId);
-    const preset = eventToPresetEvent(event, req.params.label);
-    await createPresetEvent(preset);
-    res.status(200).send({ message: 'OK' });
-  } catch (error) {
-    res.status(400).send({ message: error.toString() });
-  }
-}
-
-export async function getAllPresetEvents(req: Request, res: Response<PresetEvents | ErrorResponse>) {
-  try {
-    const presets = getPresetEvents();
-    res.status(200).send(presets);
-  } catch (error) {
-    res.status(400).send({ message: error.toString() });
-  }
-}
-
-export async function getPresetEvent(req: Request, res: Response<PresetEvent | ErrorResponse>) {
-  try {
-    const label = req.params.label;
-    const presets = getPresetEvents();
-    if (label in presets) {
-      res.status(200).send(presets[label]);
-    } else {
-      res.status(400).send({ message: `Can't find preset: ${label} ` });
-    }
   } catch (error) {
     res.status(400).send({ message: error.toString() });
   }

@@ -5,7 +5,6 @@ import { getLinkedTimes, getPreviousEventNormal, presetEventToEvent, reorderArra
 
 import { RUNDOWN } from '../api/constants';
 import {
-  getPresetEvent,
   ReorderEntry,
   requestApplyDelay,
   requestBatchPutEvents,
@@ -17,6 +16,7 @@ import {
   requestReorderEvent,
   SwapEntry,
 } from '../api/rundown';
+import {getPresetEvent} from '../api/presetEvents'
 import { logAxiosError } from '../api/utils';
 import { useEditorSettings } from '../stores/editorSettings';
 import { forgivingStringToMillis } from '../utils/dateConfig';
@@ -62,10 +62,8 @@ export const useEventAction = () => {
 
       if (options && options.fromPreset) {
         try {
-          const res = await getPresetEvent(options.fromPreset);
-          const presetEvent = res.data;
+          const presetEvent = await getPresetEvent(options.fromPreset);
           newEvent = presetEventToEvent(presetEvent, options?.after);
-          console.log(newEvent)
         } catch (error) {
           logAxiosError('Failed adding event from preset', error);
           return;

@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { MessageResponse, OntimeEvent, OntimeRundownEntry, PresetEvent, RundownCached } from 'ontime-types';
+import { MessageResponse, OntimeEvent, OntimeRundownEntry, RundownCached } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 
@@ -83,18 +83,4 @@ export async function requestDelete(eventId: string): Promise<AxiosResponse<Mess
  */
 export async function requestDeleteAll(): Promise<AxiosResponse<MessageResponse>> {
   return axios.delete(`${rundownPath}/all`);
-}
-
-/**
- * HTTP request to save event as preset
- */
-export async function savePresetEvent(eventId: string, label: string): Promise<AxiosResponse<MessageResponse>> {
-  return axios.post(`${rundownPath}/preset/${eventId}/${label}`);
-}
-
-/**
- * HTTP request to save event as preset
- */
-export async function getPresetEvent(label: string): Promise<AxiosResponse<PresetEvent>> {
-  return axios.get(`${rundownPath}/preset/${label}`);
 }

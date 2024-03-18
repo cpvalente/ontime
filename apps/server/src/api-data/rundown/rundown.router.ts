@@ -2,8 +2,6 @@ import express from 'express';
 
 import {
   deleteEventById,
-  getAllPresetEvents,
-  getPresetEvent,
   rundownApplyDelay,
   rundownBatchPut,
   rundownDelete,
@@ -13,7 +11,6 @@ import {
   rundownPut,
   rundownReorder,
   rundownSwap,
-  savePresetEvent,
 } from './rundown.controller.js';
 import {
   paramsMustHaveEventId,
@@ -28,13 +25,8 @@ export const router = express.Router();
 
 router.get('/', rundownGetAll); // not used in Ontime frontend
 router.get('/normalised', rundownGetNormalised);
-router.get('/preset/:label', getPresetEvent);
-router.get('/preset/', getAllPresetEvents);
 
 router.post('/', rundownPostValidator, rundownPost);
-
-//TODO: validate
-router.post('/preset/:eventId/:label', savePresetEvent);
 
 router.put('/', rundownPutValidator, rundownPut);
 router.put('/batch', rundownBatchPutValidator, rundownBatchPut);
