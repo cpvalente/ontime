@@ -86,6 +86,9 @@ export const uploadsFolderPath = join(getAppDataPath(), config.uploads);
 const getLastLoadedProject = () => {
   try {
     const appState = JSON.parse(fs.readFileSync(appStatePath, 'utf8'));
+    if (!appState.lastLoadedProject) {
+      throw new Error('No last loaded project');
+    }
     return appState.lastLoadedProject;
   } catch {
     if (!isTest) {
