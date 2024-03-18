@@ -1,4 +1,12 @@
-import { isOntimeEvent, NormalisedRundown, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import {
+  isOntimeEvent,
+  NormalisedRundown,
+  OntimeEvent,
+  OntimeRundown,
+  OntimeRundownEntry,
+  PresetEvent,
+  SupportedEvent,
+} from 'ontime-types';
 
 /**
  * Gets first event in rundown, if it exists
@@ -322,3 +330,17 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA:
 
   return { newA, newB };
 };
+
+export function eventToPresetEvent(event: Partial<OntimeEvent>, label: string): PresetEvent {
+  // unused-vars used to drop convert object type
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id, delay, revision, linkStart, after, type, ...presetPart } = event;
+  return { ...presetPart, label, linkStart: Boolean(event.linkStart) };
+}
+
+export function presetEventToEvent(presetEvent: PresetEvent, after?: string): Partial<OntimeEvent> {
+  // unused-vars used to drop convert object type
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { label, timeStart, timeEnd, linkStart, ...eventPart } = { ...presetEvent };
+  return { type: SupportedEvent.Event, linkStart: linkStart ? after : null, ...eventPart };
+}

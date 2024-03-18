@@ -52,10 +52,22 @@ export default function Rundown({ data }: RundownProps) {
   const sensors = useSensors(useSensor(PointerSensor));
 
   const insertAtCursor = useCallback(
-    (type: SupportedEvent | 'clone', cursor: string | null) => {
+    (type: SupportedEvent | 'clone' | 'preset', cursor: string | null, preset?: string) => {
       if (cursor === null) {
         // we cant clone without selection
         if (type === 'clone') {
+          return;
+        }
+        if (type === 'preset') {
+          const newEvent = {
+            type: SupportedEvent.Event,
+          };
+          const options = {
+            defaultPublic,
+            startTimeIsLastEnd,
+            fromPreset: preset,
+          };
+          addEvent(newEvent, options);
           return;
         }
         // the only thing to do is adding an event at top
@@ -69,6 +81,19 @@ export default function Rundown({ data }: RundownProps) {
           const newEvent = cloneEvent(cursorEvent, cursorEvent.id);
           addEvent(newEvent);
         }
+      } else if (type === 'preset') {
+        const newEvent = {
+          type: SupportedEvent.Event,
+        };
+        const options = {
+          defaultPublic,
+          startTimeIsLastEnd,
+          lastEventId: cursor,
+          after: cursor,
+          fromPreset: preset,
+        };
+        addEvent(newEvent, options);
+        return;
       } else if (type === SupportedEvent.Event) {
         const newEvent = {
           type: SupportedEvent.Event,
@@ -141,6 +166,12 @@ export default function Rundown({ data }: RundownProps) {
           case 'KeyC': {
             event.preventDefault();
             insertAtCursor('clone', cursor);
+            break;
+          }
+          case 'Digit1': {
+            //TODO: This is temp for testing preset insertion
+            event.preventDefault();
+            insertAtCursor('preset', cursor, 'testName');
             break;
           }
         }

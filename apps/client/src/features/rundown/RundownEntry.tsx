@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { MaybeNumber, OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 
+import { postPresetFromEvent } from '../../common/api/presetEvents';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
 import { useAppMode } from '../../common/stores/appModeStore';
@@ -13,7 +14,16 @@ import DelayBlock from './delay-block/DelayBlock';
 import EventBlock from './event-block/EventBlock';
 import { useEventSelection } from './useEventSelection';
 
-export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'delete' | 'clone' | 'update' | 'swap';
+export type EventItemActions =
+  | 'set-cursor'
+  | 'event'
+  | 'delay'
+  | 'block'
+  | 'delete'
+  | 'clone'
+  | 'update'
+  | 'swap'
+  | 'preset';
 
 interface RundownEntryProps {
   type: SupportedEvent;
@@ -102,6 +112,11 @@ export default function RundownEntry(props: RundownEntryProps) {
       case 'clone': {
         const newEvent = cloneEvent(data as OntimeEvent, data.id);
         addEvent(newEvent, { after: data.id });
+        break;
+      }
+      case 'preset': {
+        //TODO: popup with name selection
+        postPresetFromEvent('testName', data.id);
         break;
       }
       case 'update': {

@@ -7,8 +7,10 @@ import {
   OntimeEvent,
   OntimeRundown,
   OntimeRundownEntry,
+  PresetEvent,
+  PresetEvents,
 } from 'ontime-types';
-import { generateId, deleteAtIndex, insertAtIndex, reorderArray, swapEventData } from 'ontime-utils';
+import { deleteAtIndex, generateId, insertAtIndex, reorderArray, swapEventData } from 'ontime-utils';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
@@ -20,10 +22,13 @@ type NormalisedRundown = Record<EventID, OntimeRundownEntry>;
 
 let persistedRundown: OntimeRundown = [];
 let persistedCustomFields: CustomFields = {};
+let persistedPresetEvents: PresetEvents = {};
 
 /** Utility function gets to expose data */
 export const getPersistedRundown = (): OntimeRundown => persistedRundown;
 export const getCustomFields = (): CustomFields => persistedCustomFields;
+
+export const getPresetEvents = (): PresetEvents => persistedPresetEvents;
 
 let rundown: NormalisedRundown = {};
 let order: EventID[] = [];
@@ -50,9 +55,10 @@ const customFieldChangelog = {};
  */
 let assignedCustomFields: Record<CustomFieldLabel, EventID[]> = {};
 
-export async function init(initialRundown: OntimeRundown, customFields: CustomFields) {
+export async function init(initialRundown: OntimeRundown, customFields: CustomFields, presetEvents: PresetEvents) {
   persistedRundown = structuredClone(initialRundown);
   persistedCustomFields = structuredClone(customFields);
+  persistedPresetEvents = structuredClone(presetEvents);
   generate();
   await DataProvider.setRundown(persistedRundown);
 }
@@ -356,7 +362,7 @@ function invalidateIfUsed(label: CustomFieldLabel) {
 }
 
 /**
- * Scheduløes a non priority custom field persist
+ * Schedules a non priority custom field persist
  * @param persistedCustomFields
  */
 function scheduleCustomFieldPersist(persistedCustomFields: CustomFields) {
@@ -428,6 +434,76 @@ export const removeCustomField = async (label: string) => {
 
   scheduleCustomFieldPersist(persistedCustomFields);
   invalidateIfUsed(label);
+
+  return persistedCustomFields;
+};
+
+/**
+ * Schedules a non priority preset event persist
+ * @param persistedPresetEvents
+ */
+function schedulePresetEventPersist(persistedPresetEvents: PresetEvents) {
+  setImmediate(() => {
+    DataProvider.setPresetEvents(persistedPresetEvents);
+  });
+}
+
+/**
+ * Sanitises and creates a custom field in the database
+ * @returns
+ * @param presetEvent
+ */
+export const createPresetEvent = async (presetEvent: PresetEvent) => {
+  const { label } = presetEvent;
+
+  // check if label already exists
+  const alreadyExists = Object.hasOwn(persistedPresetEvents, label);
+
+  if (alreadyExists) {
+    throw new Error('Label already exists');
+  }
+
+  // update object and persist
+  persistedPresetEvents[label] = presetEvent;
+
+  schedulePresetEventPersist(persistedPresetEvents);
+
+  return persistedPresetEvents;
+};
+
+/**
+ * Edits an existing custom field in the database
+ * @param label
+ * @param newData
+ * @returns
+ */
+export const editPresetEvent = async (label: string, newData: Partial<PresetEvent>) => {
+  if (!(label in persistedPresetEvents)) {
+    throw new Error('Could not find label');
+  }
+
+  const existingPresetEvent = persistedPresetEvents[label];
+  persistedPresetEvents[newData.label] = { ...existingPresetEvent, ...newData };
+
+  if (existingPresetEvent.label !== newData.label) {
+    delete persistedPresetEvents[existingPresetEvent.label];
+  }
+
+  schedulePresetEventPersist(persistedPresetEvents);
+
+  return persistedCustomFields;
+};
+
+/**
+ * Deletes a custom field from the database
+ * @param label
+ */
+export const removePresetEvent = async (label: string) => {
+  if (label in persistedPresetEvents) {
+    delete persistedPresetEvents[label];
+  }
+
+  schedulePresetEventPersist(persistedPresetEvents);
 
   return persistedCustomFields;
 };

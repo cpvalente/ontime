@@ -9,13 +9,13 @@ import cors from 'cors';
 // import utils
 import { resolve } from 'path';
 import {
-  srcDirectory,
   environment,
   isProduction,
   resolveDbPath,
+  resolvedPath,
   resolveExternalsDirectory,
   resolveStylesDirectory,
-  resolvedPath,
+  srcDirectory,
 } from './setup/index.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 
@@ -181,7 +181,8 @@ export const startServer = async () => {
   // initialise rundown service
   const persistedRundown = DataProvider.getRundown();
   const persistedCustomFields = DataProvider.getCustomFields();
-  initRundown(persistedRundown, persistedCustomFields);
+  const persistedPresetEvents = DataProvider.getPresetEvents();
+  initRundown(persistedRundown, persistedCustomFields, persistedPresetEvents);
 
   // TODO: do this on the init of the runtime service
   updateRundownData(getPlayableEvents());

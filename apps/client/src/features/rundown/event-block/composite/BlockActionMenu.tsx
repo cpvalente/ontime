@@ -4,6 +4,7 @@ import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircleOutline';
+import { IoSave } from '@react-icons/all-files/io5/IoSave';
 import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import { IoTrashBinSharp } from '@react-icons/all-files/io5/IoTrashBinSharp';
 
@@ -25,7 +26,7 @@ export default function BlockActionMenu(props: BlockActionMenuProps) {
   const handleAddBlock = useCallback(() => actionHandler('block'), [actionHandler]);
   const handleClone = useCallback(() => actionHandler('clone'), [actionHandler]);
   const handleDelete = useCallback(() => actionHandler('delete'), [actionHandler]);
-
+  const handleSavePreset = useCallback(() => actionHandler('preset'), [actionHandler]);
   return (
     <Menu isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
       <Tooltip label='Add ...' openDelay={tooltipDelayMid}>
@@ -48,6 +49,9 @@ export default function BlockActionMenu(props: BlockActionMenuProps) {
         </MenuItem>
         <MenuItem icon={<IoRemoveCircleOutline />} onClick={handleAddBlock}>
           Add Block after
+        </MenuItem>
+        <MenuItem icon={<IoSave />} onClick={handleSavePreset}>
+          Save as preset
         </MenuItem>
         {showClone && (
           <MenuItem icon={<IoDuplicateOutline />} onClick={handleClone}>

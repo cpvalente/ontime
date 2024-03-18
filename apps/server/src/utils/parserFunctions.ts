@@ -1,20 +1,21 @@
 import { generateId } from 'ontime-utils';
 import {
-  OntimeRundown,
+  CustomFields,
+  DatabaseModel,
   HttpSettings,
+  HttpSubscription,
+  isOntimeBlock,
+  isOntimeCycle,
+  isOntimeDelay,
+  isOntimeEvent,
+  OntimeRundown,
   OSCSettings,
+  OscSubscription,
+  PresetEvents,
   ProjectData,
   Settings,
-  ViewSettings,
-  OscSubscription,
-  DatabaseModel,
-  isOntimeEvent,
-  isOntimeDelay,
-  isOntimeBlock,
-  CustomFields,
-  isOntimeCycle,
-  HttpSubscription,
   URLPreset,
+  ViewSettings,
 } from 'ontime-types';
 
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
@@ -268,4 +269,24 @@ export const parseCustomFields = (data: Partial<DatabaseModel>): CustomFields =>
     }
   }
   return { ...newCustomFields };
+};
+
+/**
+ * Parse customFields entry
+ * @param {object} data - data object
+ * @returns {object} - event object data
+ */
+export const parsePresetEvents = (data: Partial<DatabaseModel>): PresetEvents => {
+  let newPresetEvents: PresetEvents = { ...dbModel.presetEvents };
+
+  if ('customFields' in data) {
+    console.log('Found Preset Events definition, importing...');
+    try {
+      //TODO: validate
+      newPresetEvents = { ...dbModel.presetEvents, ...data.presetEvents };
+    } catch (error) {
+      console.log(`Error: ${error}`);
+    }
+  }
+  return { ...newPresetEvents };
 };

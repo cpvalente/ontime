@@ -29,6 +29,7 @@ export const dbModel: DatabaseModel = {
   },
   urlPresets: [],
   customFields: {},
+  presetEvents: {},
   osc: {
     portIn: 8888,
     portOut: 9999,

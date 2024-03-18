@@ -34,7 +34,7 @@ import {
   parseRundown,
   parseSettings,
   parseViewSettings,
-  parseCustomFields,
+  parseCustomFields, parsePresetEvents,
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
 import { coerceBoolean } from './coerceType.js';
@@ -282,6 +282,7 @@ export const parseJson = async (jsonData: Partial<DatabaseModel>): Promise<Datab
     viewSettings: parseViewSettings(jsonData) ?? dbModel.viewSettings,
     urlPresets: parseUrlPresets(jsonData),
     customFields: parseCustomFields(jsonData),
+    presetEvents: parsePresetEvents(jsonData),
     osc: parseOsc(jsonData) ?? dbModel.osc,
     http: parseHttp(jsonData) ?? dbModel.http,
   };
