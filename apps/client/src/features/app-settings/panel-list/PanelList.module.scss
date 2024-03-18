@@ -58,4 +58,8 @@ ul {
   color: $secondary-text-gray;
   border-left: 1px solid $white-10;
   font-size: $inner-section-text-size;
+
+  &.active {
+    color: $blue-400;
+  }
 }

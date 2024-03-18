@@ -2,7 +2,8 @@ import { lazy, useEffect } from 'react';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import AppSettings from '../app-settings/AppSettings';
-import { SettingsOptionId, useSettingsStore } from '../app-settings/settingsStore';
+import { SettingsOptionId } from '../app-settings/settingsStore';
+import useAppSettingsNavigation from '../app-settings/useAppSettingsNavigation';
 import MenuBar from '../menu/MenuBar';
 import Overview from '../overview/Overview';
 
@@ -13,11 +14,14 @@ const TimerControl = lazy(() => import('../control/playback/TimerControlExport')
 const MessageControl = lazy(() => import('../control/message/MessageControlExport'));
 
 export default function Editor() {
-  const showSettings = useSettingsStore((state) => state.showSettings);
-  const setShowSettings = useSettingsStore((state) => state.setShowSettings);
+  const { isOpen, setLocation, close } = useAppSettingsNavigation();
 
   const handleSettings = (newTab?: SettingsOptionId) => {
-    setShowSettings(newTab);
+    if (isOpen) {
+      close();
+    } else {
+      setLocation(newTab ?? 'project');
+    }
   };
 
   // Set window title
@@ -25,14 +29,12 @@ export default function Editor() {
     document.title = 'ontime - Editor';
   }, []);
 
-  const isSettingsOpen = Boolean(showSettings);
-
   return (
     <div className={styles.mainContainer} data-testid='event-editor'>
       <ErrorBoundary>
-        <MenuBar openSettings={handleSettings} isSettingsOpen={isSettingsOpen} />
+        <MenuBar openSettings={handleSettings} isSettingsOpen={isOpen} />
       </ErrorBoundary>
-      {showSettings ? (
+      {isOpen ? (
         <AppSettings />
       ) : (
         <div id='panels' className={styles.panelContainer}>
