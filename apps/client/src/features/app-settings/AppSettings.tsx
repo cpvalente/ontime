@@ -1,5 +1,7 @@
 import { ErrorBoundary } from '@sentry/react';
 
+import { useKeyDown } from '../../common/hooks/useKeyDown';
+
 import AboutPanel from './panel/about-panel/AboutPanel';
 import GeneralPanel from './panel/general-panel/GeneralPanel';
 import IntegrationsPanel from './panel/integrations-panel/IntegrationsPanel';
@@ -16,6 +18,7 @@ import style from './AppSettings.module.scss';
 
 export default function AppSettings() {
   const { close, panel, location } = useAppSettingsNavigation();
+  useKeyDown(close, 'Escape');
 
   return (
     <div className={style.container}>
