@@ -86,14 +86,15 @@
   grid-area: 2 / 2 / 2 / 4 ;
 }
 
+.tag {
+  color: $label-gray;
+  font-size: calc(1rem - 2px);
+  margin-right: 0.25rem;
+}
+
 .time {
   color: $section-white;
   font-size: $text-body-size;
-}
-
-.tag {
-  color: $label-gray;
-  font-size: 13px;
 }
 
 .rolltag {

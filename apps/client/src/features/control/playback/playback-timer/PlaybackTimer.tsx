@@ -73,11 +73,11 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
       ) : (
         <>
           <div className={style.start}>
-            <span className={style.tag}>Started at </span>
+            <span className={style.tag}>Started at</span>
             <span className={style.time}>{started}</span>
           </div>
           <div className={style.finish}>
-            <span className={style.tag}>Finish at </span>
+            <span className={style.tag}>Expect end</span>
             <span className={style.time}>{finish}</span>
           </div>
         </>
