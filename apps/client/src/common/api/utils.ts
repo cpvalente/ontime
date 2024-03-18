@@ -2,7 +2,6 @@ import axios, { AxiosError } from 'axios';
 import { LogLevel } from 'ontime-types';
 import { generateId, millisToString } from 'ontime-utils';
 
-import { makeCSV, makeTable } from '../../features/cuesheet/cuesheetUtils';
 import { ontimeQueryClient } from '../queryClient';
 import { addLog } from '../stores/logger';
 import { nowInMillis } from '../utils/time';
@@ -56,63 +55,29 @@ export async function invalidateAllCaches() {
   await ontimeQueryClient.invalidateQueries();
 }
 
-type FileOptions = {
-  name: string;
-  type: string;
-};
-
-type BlobOptions = {
-  type: string;
-};
-
 /**
- * Gets DB from backend and prepares a file to be downloaded
- * @param url
- * @param fileOptions
- * @param blobOptions
+ * Creates blob from content
+ * @param fileContent
+ * @param type
  * @returns
  */
-export default async function fileDownload(url: string, fileOptions: FileOptions, blobOptions: BlobOptions) {
-  const response = await axios({
-    url: `${url}/db`,
-    method: 'GET',
-  });
+export function createBlob(fileContent: string, type: string): Blob {
+  return new Blob([fileContent], { type });
+}
 
-  const headerLine = response.headers['Content-Disposition'];
-  let { name: fileName } = fileOptions;
-  const { type: fileType } = fileOptions;
-  const { project, rundown, customFields } = response.data;
-
-  // try and get the filename from the response
-  if (headerLine != null) {
-    const startFileNameIndex = headerLine.indexOf('"') + 1;
-    const endFileNameIndex = headerLine.lastIndexOf('"');
-    fileName = headerLine.substring(startFileNameIndex, endFileNameIndex);
-  }
-
-  let fileContent = '';
-
-  if (fileType === 'json') {
-    fileContent = JSON.stringify(response.data);
-    fileName += '.json';
-  }
-
-  if (fileType === 'csv') {
-    const sheetData = makeTable(project, rundown, customFields);
-    fileContent = makeCSV(sheetData);
-    fileName += '.csv';
-  }
-
-  const blob = new Blob([fileContent], { type: blobOptions.type });
+/**
+ * downloads a blob
+ * @param downloadUrl
+ * @param fileName
+ */
+export function downloadBlob(blob: Blob, fileName: string) {
   const downloadUrl = URL.createObjectURL(blob);
-
   const link = document.createElement('a');
   link.setAttribute('href', downloadUrl);
   link.setAttribute('download', fileName);
   document.body.appendChild(link);
   link.click();
+
   // Clean up the URL.createObjectURL to release resources
   URL.revokeObjectURL(downloadUrl);
-  return;
 }
-

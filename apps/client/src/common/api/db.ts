@@ -10,27 +10,65 @@ import {
 } from 'ontime-types';
 import { ImportMap } from 'ontime-utils';
 
+import { makeCSV, makeTable } from '../../features/cuesheet/cuesheetUtils';
+
 import { apiEntryUrl } from './constants';
-import fileDownload from './utils';
+import { createBlob, downloadBlob } from './utils';
 
 const dbPath = `${apiEntryUrl}/db`;
 
 /**
- * HTTP request to download db in JSON format
+ * HTTP request to the current DB
  */
-export async function downloadRundown(fileName?: string) {
-  return fileDownload(
-    dbPath,
-    { name: fileName ?? 'rundown', type: 'json' },
-    { type: 'application/json;charset=utf-8;' },
-  );
+async function getDb(): Promise<AxiosResponse<DatabaseModel>> {
+  return axios.get(dbPath);
+}
+
+async function fileDownload(fileName: string): Promise<{ data: DatabaseModel; name: string }> {
+  const response = await getDb();
+
+  const headerLine = response.headers['Content-Disposition'];
+
+  // try and get the filename from the response
+  let name = fileName;
+  if (headerLine != null) {
+    const startFileNameIndex = headerLine.indexOf('"') + 1;
+    const endFileNameIndex = headerLine.lastIndexOf('"');
+    name = headerLine.substring(startFileNameIndex, endFileNameIndex);
+  }
+
+  return { data: response.data, name };
+}
+
+export async function downloadRundown(fileName: string = 'ontime-project') {
+  try {
+    const { data, name } = await fileDownload(fileName);
+
+    const fileContent = JSON.stringify(data, null, 2);
+
+    const blob = createBlob(fileContent, 'application/json;charset=utf-8;');
+    downloadBlob(blob, `${name}.json`);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 /**
  * HTTP request to download db in CSV format
  */
-export async function downloadCSV(fileName?: string) {
-  return fileDownload(dbPath, { name: fileName ?? 'rundown', type: 'csv' }, { type: 'text/csv;charset=utf-8;' });
+export async function downloadCSV(fileName: string = 'rundown') {
+  try {
+    const { data, name } = await fileDownload(fileName);
+    const { project, rundown, customFields } = data;
+
+    const sheetData = makeTable(project, rundown, customFields);
+    const fileContent = makeCSV(sheetData);
+
+    const blob = createBlob(fileContent, 'text/csv;charset=utf-8;');
+    downloadBlob(blob, `${name}.csv`);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 /**
