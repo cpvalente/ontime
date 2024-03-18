@@ -26,7 +26,6 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     if (status === 'pending') return;
-    if (!data) return;
     const previousEditor = sessionStorage.getItem(storageKeys.editor);
 
     if (previousEditor && previousEditor === data.editorKey) {
@@ -51,10 +50,6 @@ export const AppContextProvider = ({ children }: PropsWithChildren) => {
     (pin: string, permission: 'editor' | 'operator'): boolean => {
       function isValid(pin: string, savedPin?: string | null): boolean {
         return savedPin == null || savedPin === '' || pin === savedPin;
-      }
-
-      if (!data) {
-        return false;
       }
 
       if (permission === 'editor') {

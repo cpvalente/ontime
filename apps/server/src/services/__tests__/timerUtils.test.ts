@@ -1518,7 +1518,7 @@ describe('getRuntimeOffset()', () => {
         secondaryTimer: null,
         startedAt: null,
       },
-      _timer: { pausedAt: null, secondaryTarget: null, finishedNow: false },
+      _timer: { pausedAt: null, secondaryTarget: null },
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
@@ -1570,7 +1570,7 @@ describe('getRuntimeOffset()', () => {
         secondaryTimer: null,
         startedAt: null,
       },
-      _timer: { pausedAt: null, secondaryTarget: null, finishedNow: false },
+      _timer: { pausedAt: null, secondaryTarget: null },
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
@@ -1622,7 +1622,7 @@ describe('getRuntimeOffset()', () => {
         secondaryTimer: null,
         startedAt: 78000000,
       },
-      _timer: { pausedAt: null, secondaryTarget: null, finishedNow: false },
+      _timer: { pausedAt: null, secondaryTarget: null },
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
@@ -1674,7 +1674,7 @@ describe('getRuntimeOffset()', () => {
         secondaryTimer: null,
         startedAt: 78000000,
       },
-      _timer: { pausedAt: null, secondaryTarget: null, finishedNow: false },
+      _timer: { pausedAt: null, secondaryTarget: null },
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);

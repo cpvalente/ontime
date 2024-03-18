@@ -317,7 +317,7 @@
     "dangerThreshold": 60000,
     "endMessage": ""
   },
-  "aliases": [
+  "urlPresets": [
     {
       "enabled": true,
       "alias": "test",

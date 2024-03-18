@@ -64,7 +64,7 @@ export class OscIntegration implements IIntegration<OscSubscription> {
 
   dispatch(action: TimerLifeCycleKey, state?: object) {
     // noop
-    if (!this.oscClient || !action) {
+    if (!this.oscClient) {
       return;
     }
 

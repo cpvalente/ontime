@@ -37,6 +37,7 @@ interface EventBlockProps {
   title: string;
   note: string;
   delay: number;
+  previousStart: MaybeNumber;
   previousEnd: MaybeNumber;
   colour: string;
   isPast: boolean;
@@ -73,6 +74,7 @@ export default function EventBlock(props: EventBlockProps) {
     title,
     note,
     delay,
+    previousStart,
     previousEnd,
     colour,
     isPast,
@@ -244,7 +246,13 @@ export default function EventBlock(props: EventBlockProps) {
       onContextMenu={onContextMenu}
       id='event-block'
     >
-      <RundownIndicators timeStart={timeStart} previousEnd={previousEnd} delay={delay} />
+      <RundownIndicators
+        timeStart={timeStart}
+        timeEnd={timeEnd}
+        previousStart={previousStart}
+        previousEnd={previousEnd}
+        delay={delay}
+      />
 
       <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
         <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>

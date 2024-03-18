@@ -29,7 +29,6 @@ class RuntimeService {
   /** Checks result of an update and notifies integrations as needed */
   checkTimerUpdate({ shouldCallRoll, hasTimerFinished }: runtimeState.UpdateResult) {
     const newState = runtimeState.getState();
-
     if (hasTimerFinished) {
       integrationService.dispatch(TimerLifeCycle.onFinish);
 
@@ -37,11 +36,11 @@ class RuntimeService {
       // actions are added to the queue stack to ensure that the order of operations is maintained
       if (newState.timer.playback === Playback.Play && newState.eventNow) {
         if (newState.eventNow.endAction === EndAction.Stop) {
-          setTimeout(this.stop, 0);
+          setTimeout(this.stop.bind(this), 0);
         } else if (newState.eventNow.endAction === EndAction.LoadNext) {
-          setTimeout(this.loadNext, 0);
+          setTimeout(this.loadNext.bind(this), 0);
         } else if (newState.eventNow.endAction === EndAction.PlayNext) {
-          setTimeout(this.startNext, 0);
+          setTimeout(this.startNext.bind(this), 0);
         }
       }
     }

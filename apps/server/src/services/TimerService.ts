@@ -1,4 +1,4 @@
-import { OntimeEvent, RuntimeStore } from 'ontime-types';
+import { OntimeEvent, Playback, RuntimeStore } from 'ontime-types';
 
 import { deepEqual } from 'fast-equals';
 
@@ -149,7 +149,10 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     const hasImmediateChanges = hasNewLoaded || hasSkippedBack || justStarted || hasChangedPlayback;
 
     if (hasImmediateChanges || (isTimeToUpdate && !deepEqual(TimerService.previousState?.timer, state.timer))) {
-      eventStore.set('timer', state.timer);
+      eventStore.batchSet({
+        timer: state.timer,
+        onAir: state.timer.playback !== Playback.Stop,
+      });
       TimerService.previousState.timer = { ...state.timer };
     }
 

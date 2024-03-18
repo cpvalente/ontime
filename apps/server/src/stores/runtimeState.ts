@@ -47,7 +47,6 @@ export type RuntimeState = {
   // private properties of the timer calculations
   _timer: {
     pausedAt: MaybeNumber;
-    finishedNow: boolean;
     secondaryTarget: MaybeNumber;
   };
 };
@@ -63,9 +62,6 @@ const runtimeState: RuntimeState = {
   _timer: {
     pausedAt: null,
     secondaryTarget: null,
-    get finishedNow() {
-      return this.current <= 0 && this.finishedAt === null;
-    },
   },
 };
 
@@ -92,7 +88,6 @@ export function clear() {
   runtimeState._timer = {
     pausedAt: null,
     secondaryTarget: null,
-    finishedNow: false,
   };
 }
 
@@ -120,7 +115,7 @@ export function updateRundownData(playableRundown: OntimeEvent[]) {
 
   runtimeState.runtime.plannedStart = firstEvent?.timeStart ?? null;
   runtimeState.runtime.plannedEnd = lastEvent?.timeEnd ?? null;
-  if (runtimeState.runtime.plannedEnd === null) {
+  if (runtimeState.runtime.plannedEnd === null || !runtimeState.runtime.actualStart) {
     runtimeState.runtime.expectedEnd = null;
   } else {
     runtimeState.runtime.expectedEnd = (runtimeState.runtime.plannedEnd + runtimeState.runtime.offset) % dayInMs;
@@ -411,8 +406,9 @@ export function update(): UpdateResult {
   function onPlayUpdate() {
     let isFinished = false;
     runtimeState.timer.current = getCurrent(runtimeState);
+    const finishedNow = runtimeState.timer.current <= 0 && runtimeState.timer.finishedAt === null;
 
-    if (runtimeState.timer.playback === Playback.Play && runtimeState._timer.finishedNow) {
+    if (runtimeState.timer.playback === Playback.Play && finishedNow) {
       runtimeState.timer.finishedAt = runtimeState.clock;
       isFinished = true;
     } else {

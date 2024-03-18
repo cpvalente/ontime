@@ -34,7 +34,7 @@ export class HttpIntegration implements IIntegration<HttpSubscription> {
 
   dispatch(action: TimerLifeCycleKey, state?: object) {
     // noop
-    if (!this.enabled || !action) {
+    if (!this.enabled) {
       return;
     }
 

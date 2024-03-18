@@ -2,6 +2,7 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useDisclosure } from '@chakra-ui/react';
+import { useFullscreen } from '@mantine/hooks';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
@@ -11,7 +12,6 @@ import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 
 import { navigatorConstants } from '../../../viewerConfig';
 import useClickOutside from '../../hooks/useClickOutside';
-import useFullscreen from '../../hooks/useFullscreen';
 import { useViewOptionsStore } from '../../stores/viewOptions';
 import { isKeyEnter } from '../../utils/keyEvent';
 
@@ -22,7 +22,7 @@ import style from './NavigationMenu.module.scss';
 function NavigationMenu() {
   const location = useLocation();
 
-  const { isFullScreen, toggleFullScreen } = useFullscreen();
+  const { fullscreen, toggle } = useFullscreen();
   const { toggleMirror } = useViewOptionsStore();
   const [showButton, setShowButton] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -54,7 +54,7 @@ function NavigationMenu() {
     };
   }, []);
 
-  const handleFullscreen = () => toggleFullScreen();
+  const handleFullscreen = () => toggle();
   const handleMirror = () => toggleMirror();
 
   const showEditFormDrawer = () => {
@@ -85,7 +85,7 @@ function NavigationMenu() {
                 }}
               >
                 Toggle Fullscreen
-                {isFullScreen ? <IoContract /> : <IoExpand />}
+                {fullscreen ? <IoContract /> : <IoExpand />}
               </div>
               <div
                 className={style.link}

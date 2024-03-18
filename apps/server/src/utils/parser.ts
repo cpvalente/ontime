@@ -18,6 +18,7 @@ import {
   TimeStrategy,
   CustomFields,
   EventCustomFields,
+  TimerType,
 } from 'ontime-types';
 
 import xlsx from 'node-xlsx';
@@ -176,23 +177,24 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
     const event: any = {};
     const eventCustomFields: EventCustomFields = {};
 
-    row.forEach((column, j) => {
+    for (let j = 0; j < row.length; j++) {
+      const column = row[j];
       // 1. we check if we have set a flag for a known field
       if (j === timerTypeIndex) {
         if (column === 'block') {
           event.type = SupportedEvent.Block;
-        }
-        if (column === '' || isKnownTimerType(column)) {
+        } else if (column === '' || isKnownTimerType(column)) {
           event.type = SupportedEvent.Event;
           event.timerType = validateTimerType(column);
+        } else {
+          // if it is not a block or a known type, we dont import it
+          return;
         }
-        // if it is not a block or a known type, we dont import it
-        return;
       } else if (j === titleIndex) {
         event.title = makeString(column, '');
         // if this is a block, we have nothing else to import
         if (event.type === SupportedEvent.Block) {
-          return;
+          continue;
         }
       } else if (j === timeStartIndex) {
         event.timeStart = parseExcelDate(column);
@@ -225,7 +227,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
         if (typeof column === 'string') {
           // we cant deal with empty content
           if (column.length === 0) {
-            return;
+            continue;
           }
           const columnText = column.toLowerCase();
 
@@ -243,11 +245,15 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
           // just ignore it
         }
       }
-    });
+    }
 
     // if any data was found in row, push to array
     const keysFound = Object.keys(event).length + Object.keys(eventCustomFields).length;
     if (keysFound > 0) {
+      if (timerTypeIndex === null) {
+        event.timerType = TimerType.CountDown;
+        event.type = SupportedEvent.Event;
+      }
       rundown.push({ ...event, custom: { ...eventCustomFields } });
     }
   });

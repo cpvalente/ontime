@@ -7,7 +7,7 @@ import style from './TapButton.module.scss';
 
 interface TapButtonProps {
   disabled?: boolean;
-  aspect?: 'normal' | 'square' | 'fill';
+  aspect?: 'normal' | 'square' | 'fill' | 'tight';
   free?: boolean;
   onClick: () => void;
   theme?: Playback | 'neutral';

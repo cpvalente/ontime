@@ -7,10 +7,20 @@ import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { extractPin } from '../../services/project-service/ProjectService.js';
 import { isDocker } from '../../setup/index.js';
 import { getErrorMessage } from 'ontime-utils';
+import { obfuscate } from 'ontime-utils';
 
 export async function getSettings(_req: Request, res: Response<Settings>) {
   const settings = DataProvider.getSettings();
-  res.status(200).send(settings);
+  const obfuscatedSettings = { ...settings };
+  if (settings.editorKey) {
+    obfuscatedSettings.editorKey = obfuscate(settings.editorKey);
+  }
+
+  if (settings.operatorKey) {
+    obfuscatedSettings.editorKey = obfuscate(settings.editorKey);
+  }
+
+  res.status(200).send(obfuscatedSettings);
 }
 
 export async function postSettings(req: Request, res: Response<Settings | ErrorResponse>) {
