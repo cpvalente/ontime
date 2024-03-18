@@ -48,7 +48,6 @@ export async function downloadProject(fileName: string = 'ontime-project') {
 export async function downloadCSV(fileName: string = 'rundown') {
   try {
     const { data, name } = await fileDownload(fileName);
-    console.log(data, name)
     const { project, rundown, customFields } = data;
 
     const sheetData = makeTable(project, rundown, customFields);
