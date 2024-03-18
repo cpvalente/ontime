@@ -58,7 +58,7 @@ export class TimerService {
     }
 
     const state = runtimeState.getState();
-    this.endCallback = setTimeout(this.update, state.timer.expectedFinish);
+    this.endCallback = setTimeout(() => this.update(), state.timer.expectedFinish);
     return true;
   }
 
@@ -97,7 +97,7 @@ export class TimerService {
     // renew end callback
     clearTimeout(this.endCallback);
     const state = runtimeState.getState();
-    this.endCallback = setTimeout(this.update, state.timer.expectedFinish);
+    this.endCallback = setTimeout(() => this.update(), state.timer.expectedFinish);
     return true;
   }
 

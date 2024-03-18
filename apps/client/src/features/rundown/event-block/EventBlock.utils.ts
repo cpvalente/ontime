@@ -1,5 +1,5 @@
 import { MaybeNumber } from 'ontime-types';
-import { millisToString, removeLeadingZero, removeTrailingZero } from 'ontime-utils';
+import { dayInMs, millisToString, removeLeadingZero, removeTrailingZero } from 'ontime-utils';
 
 export function formatDelay(timeStart: number, delay: number): string | undefined {
   if (!delay) return;
@@ -23,10 +23,13 @@ export function formatOverlap(
 
   if (previousStart && timeStart < previousEnd) {
     const overlap = timeEnd - previousStart;
-    if (overlap <= 0) return;
-
-    const overlapString = removeLeadingZero(millisToString(Math.abs(overlap)));
-    return `Overlap ${overlapString}`;
+    if (overlap > 0) {
+      const overlapString = removeLeadingZero(millisToString(Math.abs(overlap)));
+      return `Overlap ${overlapString}`;
+    }
+    const gap = timeStart + dayInMs - previousEnd;
+    const gapString = removeLeadingZero(millisToString(Math.abs(gap)));
+    return `Gap ${gapString} (next day)`;
   }
 
   const overlapString = removeLeadingZero(millisToString(Math.abs(overlap)));

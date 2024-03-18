@@ -1,11 +1,12 @@
 import { MaybeNumber, OntimeEvent, Playback, Runtime, TimerState, TimerType } from 'ontime-types';
-import { calculateDuration, dayInMs, getFirstEvent, getLastEvent } from 'ontime-utils';
+import { calculateDuration, dayInMs } from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
 import { RestorePoint } from '../services/RestoreService.js';
 
 import {
   getCurrent,
+  getExpectedEnd,
   getExpectedFinish,
   getRollTimers,
   getRuntimeOffset,
@@ -46,6 +47,7 @@ export type RuntimeState = {
   timer: TimerState;
   // private properties of the timer calculations
   _timer: {
+    totalDelay: number; // this value comes from rundown service
     pausedAt: MaybeNumber;
     secondaryTarget: MaybeNumber;
   };
@@ -60,6 +62,7 @@ const runtimeState: RuntimeState = {
   runtime: initialRuntime,
   timer: { ...initialTimer },
   _timer: {
+    totalDelay: 0,
     pausedAt: null,
     secondaryTarget: null,
   },
@@ -85,10 +88,10 @@ export function clear() {
   runtimeState.timer.playback = Playback.Stop;
   runtimeState.clock = clock.timeNow();
   runtimeState.timer = { ...initialTimer };
-  runtimeState._timer = {
-    pausedAt: null,
-    secondaryTarget: null,
-  };
+
+  // we maintain the total delay
+  runtimeState._timer.pausedAt = null;
+  runtimeState._timer.secondaryTarget = null;
 }
 
 /**
@@ -103,23 +106,25 @@ function patchTimer(newState: Partial<TimerState>) {
   }
 }
 
+type RundownData = {
+  numEvents: number;
+  firstStart: MaybeNumber;
+  lastEnd: MaybeNumber;
+  totalDelay: number;
+  totalDuration: number;
+};
+
 /**
  * Utility, allows updating data derived from the rundown
  * @param playableRundown
  */
-export function updateRundownData(playableRundown: OntimeEvent[]) {
-  runtimeState.runtime.numEvents = playableRundown.length;
+export function updateRundownData(rundownData: RundownData) {
+  runtimeState._timer.totalDelay = rundownData.totalDelay;
 
-  const { firstEvent } = getFirstEvent(playableRundown);
-  const { lastEvent } = getLastEvent(playableRundown);
-
-  runtimeState.runtime.plannedStart = firstEvent?.timeStart ?? null;
-  runtimeState.runtime.plannedEnd = lastEvent?.timeEnd ?? null;
-  if (runtimeState.runtime.plannedEnd === null || !runtimeState.runtime.actualStart) {
-    runtimeState.runtime.expectedEnd = null;
-  } else {
-    runtimeState.runtime.expectedEnd = (runtimeState.runtime.plannedEnd + runtimeState.runtime.offset) % dayInMs;
-  }
+  runtimeState.runtime.numEvents = rundownData.numEvents;
+  runtimeState.runtime.plannedStart = rundownData.firstStart;
+  runtimeState.runtime.plannedEnd = rundownData.firstStart + rundownData.totalDuration;
+  runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
 }
 
 /**
@@ -135,12 +140,9 @@ export function load(
 ): boolean {
   clear();
 
-  updateRundownData(rundown);
-
   const eventIndex = rundown.findIndex((eventInMemory) => eventInMemory.id === event.id);
 
   runtimeState.runtime.selectedEventIndex = eventIndex;
-  runtimeState.runtime.numEvents = rundown.length;
 
   loadNow(event, rundown);
   loadNext(rundown);
@@ -157,7 +159,7 @@ export function load(
     if (firstStart === null || typeof firstStart === 'number') {
       runtimeState.runtime.actualStart = firstStart;
       runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
-      runtimeState.runtime.expectedEnd = (runtimeState.runtime.plannedEnd + runtimeState.runtime.offset) % dayInMs;
+      runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
     }
   }
 
@@ -349,9 +351,8 @@ export function addTime(amount: number) {
 
   // update runtime delays: over - under
   runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
-  if (runtimeState.runtime.offset !== null) {
-    runtimeState.runtime.expectedEnd = (runtimeState.runtime.plannedEnd + runtimeState.runtime.offset) % dayInMs;
-  }
+  runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
+
   return true;
 }
 
@@ -367,9 +368,6 @@ export function update(): UpdateResult {
   const previousTime = runtimeState.clock;
   runtimeState.clock = clock.timeNow();
 
-  // update offset
-  runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
-
   // we call integrations if we update timers
   if (runtimeState.timer.playback === Playback.Roll) {
     const result = onRollUpdate();
@@ -384,6 +382,9 @@ export function update(): UpdateResult {
     runtimeState.timer.current = getCurrent(runtimeState);
     runtimeState.timer.duration = runtimeState.timer.current;
   }
+
+  // update offset
+  runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
 
   return {
     hasTimerFinished,

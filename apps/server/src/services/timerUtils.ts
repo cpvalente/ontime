@@ -62,12 +62,6 @@ export function getCurrent(state: RuntimeState): number {
 
   if (timerType === TimerType.TimeToEnd) {
     const isEventOverMidnight = timeStart > timeEnd;
-    const hasFinishedRundownForToday = state.runtime.plannedEnd && clock > state.runtime.plannedEnd;
-
-    if (hasFinishedRundownForToday && !isEventOverMidnight) {
-      return dayInMs - clock + state.eventNow.timeStart + addedTime;
-    }
-
     const correctDay = isEventOverMidnight ? dayInMs : 0;
     return correctDay - clock + timeEnd + addedTime;
   }
@@ -76,12 +70,12 @@ export function getCurrent(state: RuntimeState): number {
     return duration;
   }
 
-  const hasPassedMidnight = startedAt > clock;
-  const correctDay = hasPassedMidnight ? dayInMs : 0;
   if (pausedAt != null) {
     return startedAt + duration + addedTime - pausedAt;
   }
 
+  const hasPassedMidnight = startedAt > clock;
+  const correctDay = hasPassedMidnight ? dayInMs : 0;
   return startedAt + duration + addedTime - clock - correctDay;
 }
 
@@ -328,4 +322,35 @@ export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
   const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
 
   return startOffset + addedTime + pausedTime + Math.abs(overtime);
+}
+
+/**
+ * Calculates total duration of a time span
+ * @param firstStart
+ * @param lastEnd
+ * @param daySpan
+ * @returns
+ */
+export function getTotalDuration(firstStart: number, lastEnd: number, daySpan: number): number {
+  if (!lastEnd) {
+    return 0;
+  }
+  let correctDay = 0;
+  if (lastEnd < firstStart) {
+    correctDay = dayInMs;
+    daySpan -= 1;
+  }
+  // eslint-disable-next-line prettier/prettier -- we like the clarity
+  return lastEnd + correctDay + daySpan * dayInMs - firstStart;
+}
+
+/**
+ * Calculates the expected end of the rundown
+ */
+export function getExpectedEnd(state: RuntimeState): MaybeNumber {
+  // there is no expected end if we havent started
+  if (state.runtime.actualStart === null) {
+    return null;
+  }
+  return state.runtime.plannedEnd + state.runtime.offset + state._timer.totalDelay;
 }

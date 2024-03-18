@@ -40,9 +40,8 @@ import { runtimeService } from './services/runtime-service/RuntimeService.js';
 import { restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
 import { populateDemo } from './setup/loadDemo.js';
-import { getState, updateRundownData } from './stores/runtimeState.js';
+import { getState } from './stores/runtimeState.js';
 import { initRundown } from './services/rundown-service/RundownService.js';
-import { getPlayableEvents } from './services/rundown-service/rundownUtils.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -182,9 +181,6 @@ export const startServer = async () => {
   const persistedRundown = DataProvider.getRundown();
   const persistedCustomFields = DataProvider.getCustomFields();
   initRundown(persistedRundown, persistedCustomFields);
-
-  // TODO: do this on the init of the runtime service
-  updateRundownData(getPlayableEvents());
 
   // load restore point if it exists
   const maybeRestorePoint = await restoreService.load();

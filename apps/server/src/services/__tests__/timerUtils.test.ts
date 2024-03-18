@@ -1,4 +1,4 @@
-import { dayInMs } from 'ontime-utils';
+import { MILLIS_PER_HOUR, dayInMs, millisToString } from 'ontime-utils';
 import { EndAction, OntimeEvent, Playback, TimeStrategy, TimerType } from 'ontime-types';
 
 import {
@@ -6,6 +6,7 @@ import {
   getExpectedFinish,
   getRollTimers,
   getRuntimeOffset,
+  getTotalDuration,
   normaliseEndTime,
   skippedOutOfEvent,
   updateRoll,
@@ -422,35 +423,6 @@ describe('getCurrent()', () => {
       expect(current).toBe(77);
     });
 
-    it('handles events that start the day after', () => {
-      const state = {
-        eventNow: {
-          timeStart: 60000, // 00:01:00
-          timeEnd: 600000, // 00:10:00
-          timerType: TimerType.TimeToEnd,
-        },
-        clock: 79500000, // 22:05:00
-        timer: {
-          addedTime: 0,
-          duration: Infinity, // not relevant,
-          startedAt: 79200000, // 22:00:00
-          finishedAt: null,
-        },
-        runtime: {
-          plannedStart: 60000, // 00:01:00
-          plannedEnd: 79200000, // 22:00:00
-        },
-        _timer: {
-          pausedAt: null,
-        },
-      } as RuntimeState;
-
-      const current = getCurrent(state);
-      // day - clock + start time
-      const expectedCurrent = dayInMs - 79500000 + 60000;
-      expect(current).toBe(expectedCurrent);
-    });
-
     it('handles events that finish the day after', () => {
       const state = {
         eventNow: {
@@ -476,6 +448,34 @@ describe('getCurrent()', () => {
 
       const current = getCurrent(state);
       expect(current).toBe(dayInMs - 79500000 + 600000);
+    });
+
+    it('handles events that were started late', () => {
+      const state = {
+        clock: 82000000, // 22:46:40 <--- starting 16 min after the scheduled end
+        eventNow: {
+          timeStart: 77400000, // 21:30:00
+          timeEnd: 81000000, // 22:30:00
+          duration: 3600000, // 01:00:00
+          timerType: TimerType.TimeToEnd,
+        },
+        timer: {
+          addedTime: 0,
+          duration: Infinity, // not relevant,
+          startedAt: 79200000, // 22:00:00
+          finishedAt: null,
+        },
+        runtime: {
+          actualStart: 82000000, // 22:46:40 <--- started now
+          plannedEnd: 81000000, // 22:30:00
+        },
+        _timer: {
+          pausedAt: null,
+        },
+      } as RuntimeState;
+
+      const current = getCurrent(state);
+      expect(current).toBe(81000000 - 82000000); // <-- planned end - now
     });
   });
 });
@@ -1679,5 +1679,93 @@ describe('getRuntimeOffset()', () => {
 
     const offset = getRuntimeOffset(state);
     expect(offset).toBe(-400000);
+  });
+
+  it('handles time-to-end started after the end time', () => {
+    const state = {
+      clock: 82000000, // 22:46:40 <--- starting 16 min after the scheduled end
+      eventNow: {
+        id: 'd6a2ce',
+        type: 'event',
+        title: '',
+        timeStart: 77400000, // 21:30:00
+        timeEnd: 81000000, // 22:30:00
+        duration: 3600000, // 01:00:00
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
+        endAction: EndAction.None,
+        timerType: TimerType.TimeToEnd,
+        isPublic: true,
+        skip: false,
+        note: '',
+        colour: '',
+        cue: '1',
+        revision: 0,
+        timeWarning: 120000,
+        timeDanger: 60000,
+        custom: {},
+        delay: 0,
+      },
+      runtime: {
+        selectedEventIndex: 0,
+        numEvents: 1,
+        offset: null,
+        plannedStart: 77400000, // 21:30:00
+        plannedEnd: 81000000, // 22:30:00
+        actualStart: 82000000, // 22:46:40 <--- started now
+        expectedEnd: 82000000 + 3600000, // <--- now + duration
+      },
+      timer: {
+        addedTime: 0,
+        current: 0,
+        duration: 3600000,
+        elapsed: 0,
+        expectedFinish: 82000000 + 3600000, // <--- now + duration
+        finishedAt: null,
+        playback: Playback.Play,
+        secondaryTimer: null,
+        startedAt: 82000000, // <--- started now
+      },
+      _timer: { pausedAt: null, secondaryTarget: null },
+    } as RuntimeState;
+
+    const updateCurrent = getCurrent(state);
+    state.timer.current = updateCurrent;
+    const offset = getRuntimeOffset(state);
+    expect(offset).toBe(81000000 - 82000000); // <-- planned end - now
+  });
+});
+
+describe('getTotalDuration()', () => {
+  it('calculates the duration of events in a single day', () => {
+    const start = MILLIS_PER_HOUR * 9;
+    const end = MILLIS_PER_HOUR * 17;
+    const daySpan = 0;
+    const duration = getTotalDuration(start, end, daySpan);
+    expect(duration).toBe(MILLIS_PER_HOUR * (17 - 9));
+  });
+
+  it('calculates the duration of events across days', () => {
+    const start = MILLIS_PER_HOUR * 9;
+    const end = MILLIS_PER_HOUR * 17;
+    const daySpan = 1;
+    const duration = getTotalDuration(start, end, daySpan);
+    expect(duration).toBe(MILLIS_PER_HOUR * (17 - 9) + dayInMs);
+  });
+
+  it('calculates the duration of events across days (2)', () => {
+    const start = new Date(0).setHours(12);
+    const end = new Date(0).setHours(8);
+    const daySpan = 1;
+    const duration = getTotalDuration(start, end, daySpan);
+    expect(millisToString(duration)).toBe('20:00:00');
+  });
+
+  it('calculates the duration of events across days (3)', () => {
+    const start = new Date(0).setHours(9);
+    const end = new Date(0).setHours(23);
+    const daySpan = 2;
+    const duration = getTotalDuration(start, end, daySpan);
+    expect(millisToString(duration)).toBe('62:00:00');
   });
 });
