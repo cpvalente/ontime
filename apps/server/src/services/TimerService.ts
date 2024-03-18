@@ -48,7 +48,7 @@ export class TimerService {
     this.onUpdateCallback = timerConfig.onUpdateCallback;
     this._interval = setInterval(() => {
       this.update();
-    }, TimerService._updateInterval);
+    }, TimerService._refreshInterval);
   }
 
   @broadcastResult
