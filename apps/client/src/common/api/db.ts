@@ -21,7 +21,7 @@ const dbPath = `${apiEntryUrl}/db`;
  * HTTP request to the current DB
  */
 async function getDb(): Promise<AxiosResponse<DatabaseModel>> {
-  return axios.get(dbPath);
+  return axios.get(`${dbPath}/download`);
 }
 
 /**
@@ -48,6 +48,7 @@ export async function downloadProject(fileName: string = 'ontime-project') {
 export async function downloadCSV(fileName: string = 'rundown') {
   try {
     const { data, name } = await fileDownload(fileName);
+    console.log(data, name)
     const { project, rundown, customFields } = data;
 
     const sheetData = makeTable(project, rundown, customFields);
