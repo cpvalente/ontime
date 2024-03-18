@@ -5,7 +5,7 @@ import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHoriz
 import {
   deleteProject,
   downloadCSV,
-  downloadRundown,
+  downloadProject,
   duplicateProject,
   loadProject,
   renameProject,
@@ -148,7 +148,7 @@ function ActionMenu({
   };
 
   const handleDownload = async () => {
-    await downloadRundown(filename);
+    await downloadProject(filename);
   };
 
   const handleExportCSV = async () => {

@@ -24,23 +24,11 @@ async function getDb(): Promise<AxiosResponse<DatabaseModel>> {
   return axios.get(dbPath);
 }
 
-async function fileDownload(fileName: string): Promise<{ data: DatabaseModel; name: string }> {
-  const response = await getDb();
-
-  const headerLine = response.headers['Content-Disposition'];
-
-  // try and get the filename from the response
-  let name = fileName;
-  if (headerLine != null) {
-    const startFileNameIndex = headerLine.indexOf('"') + 1;
-    const endFileNameIndex = headerLine.lastIndexOf('"');
-    name = headerLine.substring(startFileNameIndex, endFileNameIndex);
-  }
-
-  return { data: response.data, name };
-}
-
-export async function downloadRundown(fileName: string = 'ontime-project') {
+/**
+ * Request download of the current project file
+ * @param fileName
+ */
+export async function downloadProject(fileName: string = 'ontime-project') {
   try {
     const { data, name } = await fileDownload(fileName);
 
@@ -54,7 +42,8 @@ export async function downloadRundown(fileName: string = 'ontime-project') {
 }
 
 /**
- * HTTP request to download db in CSV format
+ * Request download of the current rundown as a CSV file
+ * @param fileName
  */
 export async function downloadCSV(fileName: string = 'rundown') {
   try {
@@ -190,4 +179,25 @@ export async function importSpreadsheetPreview(file: File, options: ImportMap): 
   );
 
   return response.data;
+}
+
+/**
+ * Utility function gets project from db
+ * @param fileName
+ * @returns
+ */
+async function fileDownload(fileName: string): Promise<{ data: DatabaseModel; name: string }> {
+  const response = await getDb();
+
+  const headerLine = response.headers['Content-Disposition'];
+
+  // try and get the filename from the response
+  let name = fileName;
+  if (headerLine != null) {
+    const startFileNameIndex = headerLine.indexOf('"') + 1;
+    const endFileNameIndex = headerLine.lastIndexOf('"');
+    name = headerLine.substring(startFileNameIndex, endFileNameIndex);
+  }
+
+  return { data: response.data, name };
 }
