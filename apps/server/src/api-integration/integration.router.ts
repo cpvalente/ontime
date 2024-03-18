@@ -13,7 +13,7 @@ import { logger } from '../classes/Logger.js';
 import { objectFromPath } from '../adapters/utils/parse.js';
 
 import { dispatchFromAdapter } from './integration.controller.js';
-import { unpackError } from 'ontime-utils';
+import { getErrorMessage } from 'ontime-utils';
 import { eventStore } from '../stores/EventStore.js';
 
 export const integrationRouter = express.Router();
@@ -46,7 +46,7 @@ integrationRouter.get('/*', (req: Request, res: Response) => {
     const reply = dispatchFromAdapter(action, params, 'http');
     res.status(202).json(reply);
   } catch (error) {
-    const errorMessage = unpackError(error);
+    const errorMessage = getErrorMessage(error);
     logger.error(LogOrigin.Rx, `HTTP IN: ${errorMessage}`);
     res.status(500).send({ message: errorMessage });
   }
@@ -57,9 +57,7 @@ integrationRouter.get('/poll', (_req: Request, res: Response<Partial<RuntimeStor
     const state = eventStore.poll();
     res.status(200).send(state);
   } catch (error) {
-    const message = unpackError(error);
-    res.status(500).send({
-      message: `Could not get sync data: ${message}`,
-    });
+    const message = getErrorMessage(error);
+    res.status(500).send({ message: `Could not get sync data: ${message}` });
   }
 });

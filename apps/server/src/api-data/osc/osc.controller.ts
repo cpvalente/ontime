@@ -5,6 +5,7 @@ import { Request, Response } from 'express';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { oscIntegration } from '../../services/integration-service/OscIntegration.js';
+import { getErrorMessage } from 'ontime-utils';
 
 export async function getOSC(_req: Request, res: Response<OSCSettings>) {
   const osc = DataProvider.getOsc();
@@ -24,6 +25,7 @@ export async function postOSC(req: Request, res: Response<OSCSettings | ErrorRes
     const result = await DataProvider.setOsc(oscSettings);
     res.send(result).status(200);
   } catch (error) {
-    res.status(400).send({ message: String(error) });
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
   }
 }

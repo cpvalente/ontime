@@ -4,6 +4,7 @@ import type { Request, Response } from 'express';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { removeUndefined } from '../../utils/parserUtils.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
+import { getErrorMessage } from 'ontime-utils';
 
 export async function getProjectData(_req: Request, res: Response<ProjectData>) {
   res.json(DataProvider.getProjectData());
@@ -27,6 +28,7 @@ export async function postProjectData(req: Request, res: Response<ProjectData | 
     const newData = await DataProvider.setProjectData(newEvent);
     res.status(200).send(newData);
   } catch (error) {
-    res.status(400).send({ message: error.toString() });
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
   }
 }

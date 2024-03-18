@@ -22,6 +22,7 @@ import { ensureJsonExtension } from '../../utils/fileManagement.js';
 import { generateUniqueFileName } from '../../utils/generateUniqueFilename.js';
 import { appStateService } from '../../services/app-state-service/AppStateService.js';
 import { handleMaybeExcel } from '../../utils/parser.js';
+import { getErrorMessage } from 'ontime-utils';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   // all fields are optional in validation
@@ -50,7 +51,8 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
     const newData = DataProvider.getData();
     res.status(200).send(newData);
   } catch (error) {
-    res.status(400).send({ message: String(error) });
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
   }
 }
 
@@ -88,7 +90,8 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
       filename,
     });
   } catch (error) {
-    res.status(500).send({ message: String(error) });
+    const message = getErrorMessage(error);
+    res.status(500).send({ message });
   }
 }
 
@@ -132,7 +135,8 @@ export async function listProjects(_req: Request, res: Response<ProjectFileListR
     const data = await projectService.getProjectList();
     res.status(200).send(data);
   } catch (error) {
-    res.status(500).send({ message: String(error) });
+    const message = getErrorMessage(error);
+    res.status(500).send({ message });
   }
 }
 
@@ -152,7 +156,8 @@ export async function loadProject(req: Request, res: Response<MessageResponse | 
       message: `Loaded project ${filename}`,
     });
   } catch (error) {
-    res.status(500).send({ message: String(error) });
+    const message = getErrorMessage(error);
+    res.status(500).send({ message });
   }
 }
 
@@ -183,7 +188,8 @@ export async function duplicateProjectFile(req: Request, res: Response<MessageRe
       message: `Duplicated project ${filename} to ${newFilename}`,
     });
   } catch (error) {
-    res.status(500).send({ message: String(error) });
+    const message = getErrorMessage(error);
+    res.status(500).send({ message });
   }
 }
 
@@ -215,7 +221,8 @@ export async function renameProjectFile(req: Request, res: Response<MessageRespo
       message: `Renamed project ${filename} to ${newFilename}`,
     });
   } catch (error) {
-    res.status(500).send({ message: String(error) });
+    const message = getErrorMessage(error);
+    res.status(500).send({ message });
   }
 }
 
@@ -251,7 +258,8 @@ export async function deleteProjectFile(req: Request, res: Response<MessageRespo
       message: `Deleted project ${filename}`,
     });
   } catch (error) {
-    res.status(500).send({ message: String(error) });
+    const message = getErrorMessage(error);
+    res.status(500).send({ message });
   }
 }
 
@@ -280,6 +288,7 @@ export async function previewSpreadsheet(req: Request, res: Response) {
     const { data } = handleMaybeExcel(filePath, options);
     res.status(200).send(data);
   } catch (error) {
-    res.status(500).send({ message: String(error) });
+    const message = getErrorMessage(error);
+    res.status(500).send({ message });
   }
 }

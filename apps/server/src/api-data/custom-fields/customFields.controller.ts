@@ -8,6 +8,7 @@ import {
   getCustomFields as getCustomFieldsFromCache,
   removeCustomField,
 } from '../../services/rundown-service/rundownCache.js';
+import { getErrorMessage } from 'ontime-utils';
 
 export async function getCustomFields(_req: Request, res: Response<CustomFields>) {
   const customFields = getCustomFieldsFromCache();
@@ -21,7 +22,8 @@ export async function postCustomField(req: Request, res: Response) {
     const allFields = await createCustomField(newField);
     res.status(201).send(allFields);
   } catch (error) {
-    res.status(400).send({ message: error.toString() });
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
   }
 }
 
@@ -33,7 +35,8 @@ export async function putCustomField(req: Request, res: Response) {
     const newFields = await editCustomField(oldLabel, { label, colour, type });
     res.status(200).send(newFields);
   } catch (error) {
-    res.status(400).send({ message: error.toString() });
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
   }
 }
 
@@ -44,6 +47,7 @@ export async function deleteCustomField(req: Request, res: Response) {
     await removeCustomField(fieldToDelete);
     res.sendStatus(204);
   } catch (error) {
-    res.status(400).send({ message: error.toString() });
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
   }
 }
