@@ -11,7 +11,7 @@ import {
   TimerType,
   ViewSettings,
 } from 'ontime-types';
-import { millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
+import { MILLIS_PER_SECOND, millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
@@ -59,6 +59,7 @@ interface TimerProps {
 
 export default function Timer(props: TimerProps) {
   const { customFields, isMirrored, pres, eventNow, eventNext, time, viewSettings, external, settings } = props;
+
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -127,7 +128,7 @@ export default function Timer(props: TimerProps) {
   if (!timerIsTimeOfDay && showProgress && showWarning) timerColor = viewSettings.warningColor;
   if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
 
-  const stageTimer = getTimerByType(time);
+  const stageTimer = getTimerByType(viewSettings.freezeEnd, time);
   let display = millisToString(stageTimer, { fallback: timerPlaceholder });
   if (stageTimer !== null) {
     if (hideTimerSeconds) {
@@ -135,7 +136,8 @@ export default function Timer(props: TimerProps) {
     }
     display = removeLeadingZero(display);
     // last unit rounds up in negative timers
-    const isNegative = (stageTimer ?? 0 < 0) && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
+    const isNegative =
+      (stageTimer ?? 0 < -MILLIS_PER_SECOND) && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
     if (isNegative && display === '0') {
       display = '-1';
     }
@@ -215,7 +217,7 @@ export default function Timer(props: TimerProps) {
       {!userOptions.hideCards && (
         <>
           <AnimatePresence>
-            {eventNow && (
+            {eventNow?.title && (
               <motion.div
                 className='event now'
                 key='now'
@@ -230,7 +232,7 @@ export default function Timer(props: TimerProps) {
           </AnimatePresence>
 
           <AnimatePresence>
-            {eventNext && (
+            {eventNext?.title && (
               <motion.div
                 className='event next'
                 key='next'

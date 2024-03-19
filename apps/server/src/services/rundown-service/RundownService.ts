@@ -100,8 +100,8 @@ export async function deleteAllEvents() {
   // notify event loader that rundown has changed
   updateRuntimeOnChange();
 
-  // no need to modify timer since we will reset
-  notifyChanges({ external: true });
+  // notify timer and external services of change
+  notifyChanges({ timer: true, external: true });
 }
 
 /**
@@ -213,10 +213,15 @@ function updateRuntimeOnChange() {
 export function notifyChanges(options: { timer?: boolean | string[]; external?: boolean }) {
   if (options.timer) {
     const playableEvents = getPlayableEvents();
-    // notify timer service of changed events
-    // timer can be true or an array of changed IDs
-    const affected = Array.isArray(options.timer) ? options.timer : undefined;
-    runtimeService.maybeUpdate(playableEvents, affected);
+
+    if (playableEvents.length === 0) {
+      runtimeService.stop();
+    } else {
+      // notify timer service of changed events
+      // timer can be true or an array of changed IDs
+      const affected = Array.isArray(options.timer) ? options.timer : undefined;
+      runtimeService.maybeUpdate(playableEvents, affected);
+    }
   }
 
   if (options.external) {

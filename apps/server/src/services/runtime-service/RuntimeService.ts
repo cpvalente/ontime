@@ -70,7 +70,7 @@ class RuntimeService {
     this.eventTimer = new TimerService({
       refresh: timerConfig.updateRate,
       updateInterval: timerConfig.notificationRate,
-      onUpdateCallback: () => this.checkTimerUpdate,
+      onUpdateCallback: (updateResult) => this.checkTimerUpdate(updateResult),
     });
 
     if (resumable) {

@@ -118,7 +118,17 @@ export default function ViewSettingsForm() {
           </Panel.ListGroup>
           <Panel.ListGroup>
             <Panel.ListItem>
-              <Panel.Field title='End message' description='If no end message is provided, timer will continue' />
+              <Panel.Field
+                title='Freeze timer on end'
+                description='Timer in views will stop from going negative after reaching'
+              />
+              <Switch {...register('freezeEnd')} variant='ontime' size='lg' />
+            </Panel.ListItem>
+            <Panel.ListItem>
+              <Panel.Field
+                title='End message'
+                description='Message to show on negative timers if not frozen. If not provided, timer will continue'
+              />
               <Input
                 size='sm'
                 autoComplete='off'
