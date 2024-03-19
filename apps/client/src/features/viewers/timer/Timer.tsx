@@ -59,6 +59,7 @@ interface TimerProps {
 
 export default function Timer(props: TimerProps) {
   const { customFields, isMirrored, pres, eventNow, eventNext, time, viewSettings, external, settings } = props;
+
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -127,7 +128,7 @@ export default function Timer(props: TimerProps) {
   if (!timerIsTimeOfDay && showProgress && showWarning) timerColor = viewSettings.warningColor;
   if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
 
-  const stageTimer = getTimerByType(time);
+  const stageTimer = getTimerByType(viewSettings.freezeEnd, time);
   let display = millisToString(stageTimer, { fallback: timerPlaceholder });
   if (stageTimer !== null) {
     if (hideTimerSeconds) {

@@ -25,6 +25,7 @@ export const dbModel: DatabaseModel = {
     normalColor: '#ffffffcc',
     warningColor: '#FFAB33',
     dangerColor: '#ED3333',
+    freezeEnd: false,
     endMessage: '',
   },
   urlPresets: [],

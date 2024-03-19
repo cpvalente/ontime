@@ -150,7 +150,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   if (!timerIsTimeOfDay && showProgress && showWarning) timerColor = viewSettings.warningColor;
   if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
 
-  const stageTimer = getTimerByType(time);
+  const stageTimer = getTimerByType(viewSettings.freezeEnd, time);
   let display = millisToString(stageTimer, { fallback: timerPlaceholder });
   if (stageTimer !== null) {
     if (hideTimerSeconds) {

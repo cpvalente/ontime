@@ -17,11 +17,12 @@ export async function postViewSettings(req: Request, res: Response<ViewSettings 
 
   try {
     const newData = {
-      overrideStyles: req.body.overrideStyles,
-      endMessage: req.body?.endMessage || '',
-      normalColor: req.body.normalColor,
-      warningColor: req.body.warningColor,
       dangerColor: req.body.dangerColor,
+      endMessage: req.body?.endMessage ?? '',
+      freezeEnd: req.body.freezeEnd,
+      normalColor: req.body.normalColor,
+      overrideStyles: req.body.overrideStyles,
+      warningColor: req.body.warningColor,
     };
     await DataProvider.setViewSettings(newData);
     res.status(200).send(newData);
