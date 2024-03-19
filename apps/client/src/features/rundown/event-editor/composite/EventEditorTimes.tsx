@@ -125,7 +125,6 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             variant='ontime'
           >
             <option value={EndAction.None}>None</option>
-            <option value={EndAction.Pause}>Pause</option>
             <option value={EndAction.Stop}>Stop</option>
             <option value={EndAction.LoadNext}>Load Next</option>
             <option value={EndAction.PlayNext}>Play Next</option>

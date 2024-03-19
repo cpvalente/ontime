@@ -41,8 +41,6 @@ class RuntimeService {
           setTimeout(this.loadNext.bind(this), 0);
         } else if (newState.eventNow.endAction === EndAction.PlayNext) {
           setTimeout(this.startNext.bind(this), 0);
-        } else if (newState.eventNow.endAction === EndAction.Pause) {
-          setTimeout(this.pause.bind(this), 0);
         }
       }
     }
