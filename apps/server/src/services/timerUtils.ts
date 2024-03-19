@@ -300,7 +300,7 @@ export const updateRoll = (state: RuntimeState) => {
  * @returns
  */
 export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
-  if (state.runtime.actualStart === null) {
+  if (state.eventNow === null || state.runtime.actualStart === null) {
     return null;
   }
 
