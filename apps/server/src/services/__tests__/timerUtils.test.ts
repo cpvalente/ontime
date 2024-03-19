@@ -1219,7 +1219,7 @@ describe('updateRoll()', () => {
       clock: 11,
       timer: {
         current: 10,
-        expectedFinish: 15,
+        expectedFinish: 100,
         secondaryTimer: null,
         startedAt: 1,
       },
@@ -1229,7 +1229,7 @@ describe('updateRoll()', () => {
     } as RuntimeState;
 
     const expected = {
-      updatedTimer: 15 - 11,
+      updatedTimer: 100 - 11,
       updatedSecondaryTimer: null, // usually clock - expectedFinish
       doRollLoad: false,
       isFinished: false,
