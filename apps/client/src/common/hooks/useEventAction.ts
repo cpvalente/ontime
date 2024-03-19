@@ -68,6 +68,14 @@ export const useEventAction = () => {
 
         if (applicationOptions.linkPrevious && applicationOptions?.lastEventId) {
           newEvent.linkStart = applicationOptions.lastEventId;
+        } else if (applicationOptions?.lastEventId) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know this is a value
+          const rundownData = queryClient.getQueryData<RundownCached>(RUNDOWN)!;
+          const { rundown } = rundownData;
+          const previousEvent = rundown[applicationOptions.lastEventId];
+          if (isOntimeEvent(previousEvent)) {
+            newEvent.timeStart = previousEvent.timeEnd;
+          }
         }
 
         if (applicationOptions.defaultPublic) {
