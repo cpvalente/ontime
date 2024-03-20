@@ -4,7 +4,7 @@ import { IoCloudOutline } from '@react-icons/all-files/io5/IoCloudOutline';
 import { IoDownloadOutline } from '@react-icons/all-files/io5/IoDownloadOutline';
 import { ImportMap, unpackError } from 'ontime-utils';
 
-import { importSpreadsheetPreview } from '../../../../common/api/db';
+import { getSpreadsheetWorksheetNames, importSpreadsheetPreview } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { validateSpreadsheetImport } from '../../../../common/utils/uploadUtils';
 import * as Panel from '../PanelUtils';
@@ -26,6 +26,7 @@ export default function SourcesPanel() {
 
   const spreadsheet = useSheetStore((state) => state.spreadsheet);
   const setSpreadsheet = useSheetStore((state) => state.setSpreadsheet);
+  const setWorksheets = useSheetStore((state) => state.setWorksheets);
   const authenticationStatus = useSheetStore((state) => state.authenticationStatus);
   const setAuthenticationStatus = useSheetStore((state) => state.setAuthenticationStatus);
   const rundown = useSheetStore((state) => state.rundown);
@@ -36,21 +37,25 @@ export default function SourcesPanel() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFile = async (event: ChangeEvent<HTMLInputElement>) => {
     const fileToUpload = event.target.files?.[0];
 
     if (!fileToUpload) {
       setSpreadsheet(null);
+      setWorksheets(null);
       return;
     }
     try {
       validateSpreadsheetImport(fileToUpload);
       setSpreadsheet(fileToUpload);
+      const names = await getSpreadsheetWorksheetNames(fileToUpload);
+      setWorksheets(names);
       setImportFlow('excel');
     } catch (error) {
       const errorMessage = unpackError(error);
       setError(`Error uploading file: ${errorMessage}`);
       setSpreadsheet(null);
+      setWorksheets(null);
     }
   };
 

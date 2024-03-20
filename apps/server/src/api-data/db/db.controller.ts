@@ -21,7 +21,7 @@ import { setRundown } from '../../services/rundown-service/RundownService.js';
 import { ensureJsonExtension } from '../../utils/fileManagement.js';
 import { generateUniqueFileName } from '../../utils/generateUniqueFilename.js';
 import { appStateService } from '../../services/app-state-service/AppStateService.js';
-import { handleMaybeExcel } from '../../utils/parser.js';
+import { getExcelWorksheets, handleMaybeExcel } from '../../utils/parser.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   // all fields are optional in validation
@@ -279,6 +279,25 @@ export async function previewSpreadsheet(req: Request, res: Response) {
     const options = JSON.parse(req.body.options);
     const { data } = handleMaybeExcel(filePath, options);
     res.status(200).send(data);
+  } catch (error) {
+    res.status(500).send({ message: String(error) });
+  }
+}
+
+export async function getSpreadsheetWorksheets(req: Request, res: Response) {
+  if (!req.file) {
+    res.status(400).send({ message: 'File not found' });
+    return;
+  }
+
+  try {
+    const filePath = req.file.path;
+    if (!fs.existsSync(filePath)) {
+      throw new Error('Upload failed');
+    }
+
+    const worksheetNames = getExcelWorksheets(filePath);
+    res.status(200).send(worksheetNames);
   } catch (error) {
     res.status(500).send({ message: String(error) });
   }

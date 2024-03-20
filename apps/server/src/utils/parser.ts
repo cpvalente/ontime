@@ -1,24 +1,24 @@
 import {
-  generateId,
-  isImportMap,
-  type ImportMap,
   defaultImportMap,
-  validateEndAction,
-  validateTimerType,
+  generateId,
+  type ImportMap,
   type ImportOptions,
-  validateTimes,
+  isImportMap,
   isKnownTimerType,
+  validateEndAction,
   validateLinkStart,
+  validateTimerType,
+  validateTimes,
 } from 'ontime-utils';
 import {
+  CustomFields,
   DatabaseModel,
+  EventCustomFields,
   OntimeEvent,
   OntimeRundown,
   SupportedEvent,
-  TimeStrategy,
-  CustomFields,
-  EventCustomFields,
   TimerType,
+  TimeStrategy,
 } from 'ontime-types';
 
 import xlsx from 'node-xlsx';
@@ -27,14 +27,14 @@ import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
 import { deleteFile, makeString } from './parserUtils.js';
 import {
-  parseUrlPresets,
-  parseProject,
-  parseOsc,
+  parseCustomFields,
   parseHttp,
+  parseOsc,
+  parseProject,
   parseRundown,
   parseSettings,
+  parseUrlPresets,
   parseViewSettings,
-  parseCustomFields,
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
 import { coerceBoolean } from './coerceType.js';
@@ -194,7 +194,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
         event.title = makeString(column, '');
         // if this is a block, we have nothing else to import
         if (event.type === SupportedEvent.Block) {
-          continue;
+
         }
       } else if (j === timeStartIndex) {
         event.timeStart = parseExcelDate(column);
@@ -367,6 +367,13 @@ export const createEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: string
 type ResponseOK = {
   data: Partial<DatabaseModel>;
 };
+
+export function getExcelWorksheets(file: string): string[] {
+  if (!file.endsWith('.xlsx')) {
+    throw new Error('unexpected extension for spreadsheet');
+  }
+  return xlsx.parse(file, { cellDates: false }).map((value) => value.name);
+}
 
 /**
  * Validates and calls parse on an excel file

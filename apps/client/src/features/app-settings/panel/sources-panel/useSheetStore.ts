@@ -8,6 +8,9 @@ type SheetStore = {
 
   spreadsheet: File | null;
   setSpreadsheet: (spreadsheet: File | null) => void;
+  setWorksheets: (worksheetNames: string[] | null) => void;
+
+  worksheetNames: string[] | null;
 
   sheetId: string | null;
   setSheetId: (sheetId: string | null) => void;
@@ -40,6 +43,7 @@ const initialStepData = {
 const initialState = {
   stepData: initialStepData,
   spreadsheet: null,
+  worksheetNames: null,
   sheetId: null,
   authenticationStatus: 'not_authenticated' as AuthenticationStatus,
   rundown: null,
@@ -56,6 +60,7 @@ export const useSheetStore = create<SheetStore>((set, get) => ({
   },
 
   setSpreadsheet: (spreadsheet: File | null) => set({ spreadsheet }),
+  setWorksheets: (worksheetNames: string[] | null) => set({ worksheetNames }),
 
   setSheetId: (sheetId: string | null) => set({ sheetId }),
 

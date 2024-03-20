@@ -2,16 +2,17 @@ import express from 'express';
 
 import {
   createProjectFile,
-  projectDownload,
   deleteProjectFile,
-  getInfo,
-  listProjects,
-  patchPartialProjectFile,
-  previewSpreadsheet,
-  loadProject,
   duplicateProjectFile,
-  renameProjectFile,
+  getInfo,
+  getSpreadsheetWorksheets,
+  listProjects,
+  loadProject,
+  patchPartialProjectFile,
   postProjectFile,
+  previewSpreadsheet,
+  projectDownload,
+  renameProjectFile,
 } from './db.controller.js';
 import { uploadProjectFile, uploadSpreadsheet } from './db.middleware.js';
 import {
@@ -42,3 +43,4 @@ router.get('/info', getInfo);
 
 // TODO: validate import map
 router.post('/spreadsheet/preview', uploadSpreadsheet, previewSpreadsheet);
+router.post('/spreadsheet/worksheets', uploadSpreadsheet, getSpreadsheetWorksheets);

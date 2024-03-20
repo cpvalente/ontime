@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Button, IconButton, Input } from '@chakra-ui/react';
+import { Button, IconButton, Input, Select } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { ImportMap } from 'ontime-utils';
@@ -41,6 +41,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
   });
 
   const stepData = useSheetStore((state) => state.stepData);
+  const worksheetNames = useSheetStore((state) => state.worksheetNames);
 
   const [loading, setLoading] = useState<'' | 'export' | 'import'>('');
 
@@ -115,6 +116,31 @@ export default function ImportMapForm(props: ImportMapFormProps) {
           {Object.entries(namedImportMap).map(([label, importName]) => {
             if (label === 'custom') {
               return null;
+            }
+            if (label === 'Worksheet') {
+              return (
+                <tr key={importName as string}>
+                  <td>{label}</td>
+                  <td>
+                    <Select
+                      id={importName as string}
+                      size='sm'
+                      {...register(label as keyof NamedImportMap)}
+                      value={worksheetNames ? worksheetNames[0] : '--Select Worksheet--'}
+                    >
+                      {worksheetNames &&
+                        worksheetNames.map((name) => {
+                          return (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          );
+                        })}
+                    </Select>
+                  </td>
+                  <td className={style.singleActionCell} />
+                </tr>
+              );
             }
             return (
               <tr key={importName as string}>

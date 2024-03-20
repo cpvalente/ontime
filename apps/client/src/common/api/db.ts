@@ -181,6 +181,17 @@ export async function importSpreadsheetPreview(file: File, options: ImportMap): 
   return response.data;
 }
 
+export async function getSpreadsheetWorksheetNames(file: File): Promise<string[]> {
+  const formData = new FormData();
+  formData.append('spreadsheet', file);
+  const response: AxiosResponse<string[]> = await axios.post(`${dbPath}/spreadsheet/worksheets`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+}
+
 /**
  * Utility function gets project from db
  * @param fileName
