@@ -1,10 +1,9 @@
 import got from 'got';
 
-import { HttpSettings, HttpSubscription, LogOrigin } from 'ontime-types';
+import { HttpSettings, HttpSubscription } from 'ontime-types';
 
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplateNested } from './integrationUtils.js';
-import { logger } from '../../classes/Logger.js';
 
 /**
  * @description Class contains logic towards outgoing HTTP communications
@@ -45,16 +44,11 @@ export class HttpIntegration implements IIntegration<HttpSubscription> {
       }
 
       const parsedMessage = parseTemplateNested(message, state || {});
-      try {
-        const parsedUrl = new URL(parsedMessage);
-        this.emit(parsedUrl);
-      } catch (error) {
-        logger.error(LogOrigin.Tx, `HTTP Integration: ${error}`);
-      }
+      this.emit(parsedMessage);
     }
   }
 
-  emit(path: URL) {
+  emit(path: string) {
     got.get(path, { retry: { limit: 0 } }).catch((_err) => {
       //ignore error
     });
