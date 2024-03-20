@@ -47,16 +47,16 @@ export class HttpIntegration implements IIntegration<HttpSubscription> {
       const parsedMessage = parseTemplateNested(message, state || {});
       try {
         const parsedUrl = new URL(parsedMessage);
-        this.emit(parsedUrl).catch((error) => logger.error(LogOrigin.Tx, `HTTP Integration: ${error}`));
+        this.emit(parsedUrl);
       } catch (error) {
         logger.error(LogOrigin.Tx, `HTTP Integration: ${error}`);
       }
     }
   }
 
-  async emit(path: URL) {
-    await got.get(path, {
-      retry: { limit: 0 },
+  emit(path: URL) {
+    got.get(path, { retry: { limit: 0 } }).catch((_err) => {
+      //ignore error
     });
   }
 
