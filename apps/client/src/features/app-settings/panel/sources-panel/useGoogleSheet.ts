@@ -23,7 +23,7 @@ export default function useGoogleSheet() {
   const setCustomFields = useSheetStore((state) => state.setCustomFields);
 
   /** whether the current session has been authenticated */
-  const verifyAuth = async (): Promise<{ authenticated: AuthenticationStatus } | void> => {
+  const verifyAuth = async (): Promise<{ authenticated: AuthenticationStatus; sheetId: string } | void> => {
     try {
       return verifyAuthenticationStatus();
     } catch (_error) {

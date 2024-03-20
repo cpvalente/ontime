@@ -2,7 +2,6 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { Button, Input } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { IoShieldCheckmarkOutline } from '@react-icons/all-files/io5/IoShieldCheckmarkOutline';
-
 import CopyTag from '../../../../common/components/copy-tag/CopyTag';
 import { openLink } from '../../../../common/utils/linkUtils';
 import * as Panel from '../PanelUtils';
@@ -11,6 +10,7 @@ import useGoogleSheet from './useGoogleSheet';
 import { useSheetStore } from './useSheetStore';
 
 import style from './SourcesPanel.module.scss';
+import { getWorksheetNames } from '../../../../common/api/sheets';
 
 interface GSheetSetupProps {
   onCancel: () => void;
@@ -27,6 +27,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
 
   const sheetId = useSheetStore((state) => state.sheetId);
   const setSheetId = useSheetStore((state) => state.setSheetId);
+  const setWorksheets = useSheetStore((state) => state.setWorksheets);
 
   const authenticationStatus = useSheetStore((state) => state.authenticationStatus);
   const setAuthenticationStatus = useSheetStore((state) => state.setAuthenticationStatus);
@@ -89,6 +90,10 @@ export default function GSheetSetup(props: GSheetSetupProps) {
     if (result?.authenticated) {
       setAuthenticationStatus(result.authenticated);
       if (result.authenticated !== 'pending') {
+        if (result.authenticated == 'authenticated') {
+          const names = await getWorksheetNames(result.sheetId);
+          setWorksheets(names);
+        }
         setLoading('');
         return;
       }

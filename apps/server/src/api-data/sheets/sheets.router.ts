@@ -5,6 +5,7 @@
 import express from 'express';
 
 import {
+  getWorksheetNamesFromSheet,
   readFromSheet,
   requestConnection,
   revokeAuthentication,
@@ -12,7 +13,7 @@ import {
   writeToSheet,
 } from './sheets.controller.js';
 import { uploadClientSecret } from './sheets.middleware.js';
-import { validateRequestConnection, validateSheetOptions } from './sheets.validation.js';
+import { validateRequestConnection, validateSheetId, validateSheetOptions } from './sheets.validation.js';
 
 export const router = express.Router();
 
@@ -20,6 +21,8 @@ router.get('/connect', verifyAuthentication);
 router.post('/:sheetId/connect', uploadClientSecret, validateRequestConnection, requestConnection);
 
 router.post('/revoke', revokeAuthentication);
+
+router.post('/:sheetId/worksheets', validateSheetId, getWorksheetNamesFromSheet);
 
 router.post('/:sheetId/read', validateSheetOptions, readFromSheet);
 router.post('/:sheetId/write', validateSheetOptions, writeToSheet);

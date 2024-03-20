@@ -17,6 +17,7 @@ import useGoogleSheet from './useGoogleSheet';
 import { useSheetStore } from './useSheetStore';
 
 import style from './SourcesPanel.module.scss';
+import { getWorksheetNames } from '../../../../common/api/sheets';
 
 export default function SourcesPanel() {
   const [importFlow, setImportFlow] = useState<'none' | 'excel' | 'gsheet' | 'finished'>('none');
@@ -33,6 +34,7 @@ export default function SourcesPanel() {
   const setRundown = useSheetStore((state) => state.setRundown);
   const customFields = useSheetStore((state) => state.customFields);
   const setCustomFields = useSheetStore((state) => state.setCustomFields);
+  const setSheetId = useSheetStore((state) => state.setSheetId);
   const sheetId = useSheetStore((state) => state.sheetId);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -63,7 +65,16 @@ export default function SourcesPanel() {
     fileInputRef.current?.click();
   };
 
-  const openGSheetFlow = () => {
+  const openGSheetFlow = async () => {
+    const result = await verifyAuth();
+    if (result) {
+      setAuthenticationStatus(result.authenticated);
+      setSheetId(result.sheetId);
+      if (result.authenticated === 'authenticated' && result.sheetId) {
+        const names = await getWorksheetNames(result.sheetId);
+        setWorksheets(names);
+      }
+    }
     setImportFlow('gsheet');
   };
 
@@ -93,6 +104,7 @@ export default function SourcesPanel() {
     setImportFlow('none');
     if (spreadsheet) {
       setSpreadsheet(null);
+      setWorksheets(null);
     }
 
     if (authenticationStatus === 'authenticated') {
@@ -108,6 +120,7 @@ export default function SourcesPanel() {
     setImportFlow('finished');
     setRundown(null);
     setSpreadsheet(null);
+    setWorksheets(null);
     setCustomFields(null);
   };
 
