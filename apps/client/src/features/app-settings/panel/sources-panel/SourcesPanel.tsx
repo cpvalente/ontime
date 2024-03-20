@@ -5,6 +5,7 @@ import { IoDownloadOutline } from '@react-icons/all-files/io5/IoDownloadOutline'
 import { ImportMap, unpackError } from 'ontime-utils';
 
 import { getSpreadsheetWorksheetNames, importSpreadsheetPreview } from '../../../../common/api/db';
+import { getWorksheetNames } from '../../../../common/api/sheets';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { validateSpreadsheetImport } from '../../../../common/utils/uploadUtils';
 import * as Panel from '../PanelUtils';
@@ -17,13 +18,12 @@ import useGoogleSheet from './useGoogleSheet';
 import { useSheetStore } from './useSheetStore';
 
 import style from './SourcesPanel.module.scss';
-import { getWorksheetNames } from '../../../../common/api/sheets';
 
 export default function SourcesPanel() {
   const [importFlow, setImportFlow] = useState<'none' | 'excel' | 'gsheet' | 'finished'>('none');
   const [error, setError] = useState('');
 
-  const { exportRundown, importRundownPreview, revoke, verifyAuth } = useGoogleSheet();
+  const { exportRundown, importRundownPreview, verifyAuth } = useGoogleSheet();
 
   const spreadsheet = useSheetStore((state) => state.spreadsheet);
   const setSpreadsheet = useSheetStore((state) => state.setSpreadsheet);
@@ -108,7 +108,6 @@ export default function SourcesPanel() {
     }
 
     if (authenticationStatus === 'authenticated') {
-      await revoke();
       const result = await verifyAuth();
       if (result) {
         setAuthenticationStatus(result.authenticated);
