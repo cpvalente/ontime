@@ -194,7 +194,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
         event.title = makeString(column, '');
         // if this is a block, we have nothing else to import
         if (event.type === SupportedEvent.Block) {
-
+          /* empty */
         }
       } else if (j === timeStartIndex) {
         event.timeStart = parseExcelDate(column);

@@ -2,6 +2,8 @@ import { ChangeEvent, useEffect, useState } from 'react';
 import { Button, Input } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { IoShieldCheckmarkOutline } from '@react-icons/all-files/io5/IoShieldCheckmarkOutline';
+
+import { getWorksheetNames } from '../../../../common/api/sheets';
 import CopyTag from '../../../../common/components/copy-tag/CopyTag';
 import { openLink } from '../../../../common/utils/linkUtils';
 import * as Panel from '../PanelUtils';
@@ -10,7 +12,6 @@ import useGoogleSheet from './useGoogleSheet';
 import { useSheetStore } from './useSheetStore';
 
 import style from './SourcesPanel.module.scss';
-import { getWorksheetNames } from '../../../../common/api/sheets';
 
 interface GSheetSetupProps {
   onCancel: () => void;
