@@ -85,11 +85,13 @@ export default function ImportMapForm(props: ImportMapFormProps) {
       <Panel.Title>
         Import options
         <div className={style.buttonRow}>
-          <Tooltip label='Revoke the google authentication'>
-            <Button variant='ontime-subtle' size='sm' onClick={handleRevoke} isDisabled={isLoading}>
-              Revoke
-            </Button>
-          </Tooltip>
+          {!isSpreadsheet && (
+            <Tooltip label='Revoke the google authentication'>
+              <Button variant='ontime-subtle' size='sm' onClick={handleRevoke} isDisabled={isLoading}>
+                Revoke
+              </Button>
+            </Tooltip>
+          )}
           <Button variant='ontime-subtle' size='sm' onClick={onCancel} isDisabled={isLoading}>
             Cancel
           </Button>
