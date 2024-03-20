@@ -1,19 +1,11 @@
 import { Request } from 'express';
 import multer, { FileFilterCallback } from 'multer';
 
-import { EXCEL_MIME, JSON_MIME } from '../../utils/parser.js';
+import { JSON_MIME } from '../../utils/parser.js';
 import { storage } from '../../utils/upload.js';
 
 const filterProjectFile = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
   if (file.mimetype.includes(JSON_MIME)) {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
-
-const filterSpreadsheet = (_req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
-  if (file.mimetype.includes(EXCEL_MIME)) {
     cb(null, true);
   } else {
     cb(null, false);
@@ -25,8 +17,3 @@ export const uploadProjectFile = multer({
   storage,
   fileFilter: filterProjectFile,
 }).single('project');
-
-export const uploadSpreadsheet = multer({
-  storage,
-  fileFilter: filterSpreadsheet,
-}).single('spreadsheet');

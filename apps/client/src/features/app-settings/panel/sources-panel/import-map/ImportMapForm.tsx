@@ -135,12 +135,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
                 <tr key={importName as string}>
                   <td>{label}</td>
                   <td>
-                    <Select
-                      id={importName as string}
-                      size='sm'
-                      {...register(label as keyof NamedImportMap)}
-                      value={worksheetNames ? worksheetNames[0] : '--Select Worksheet--'}
-                    >
+                    <Select id={importName as string} size='sm' {...register(label as keyof NamedImportMap)}>
                       {worksheetNames &&
                         worksheetNames.map((name) => {
                           return (

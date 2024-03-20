@@ -5,16 +5,14 @@ import {
   deleteProjectFile,
   duplicateProjectFile,
   getInfo,
-  getSpreadsheetWorksheets,
   listProjects,
   loadProject,
   patchPartialProjectFile,
   postProjectFile,
-  previewSpreadsheet,
   projectDownload,
   renameProjectFile,
 } from './db.controller.js';
-import { uploadProjectFile, uploadSpreadsheet } from './db.middleware.js';
+import { uploadProjectFile } from './db.middleware.js';
 import {
   projectSanitiser,
   sanitizeProjectFilename,
@@ -40,7 +38,3 @@ router.put('/:filename/rename', validateProjectRename, sanitizeProjectFilename, 
 router.delete('/:filename', sanitizeProjectFilename, deleteProjectFile);
 
 router.get('/info', getInfo);
-
-// TODO: validate import map
-router.post('/spreadsheet/preview', uploadSpreadsheet, previewSpreadsheet);
-router.post('/spreadsheet/worksheets', uploadSpreadsheet, getSpreadsheetWorksheets);

@@ -4,10 +4,14 @@ import { IoCloudOutline } from '@react-icons/all-files/io5/IoCloudOutline';
 import { IoDownloadOutline } from '@react-icons/all-files/io5/IoDownloadOutline';
 import { ImportMap, unpackError } from 'ontime-utils';
 
-import { getSpreadsheetWorksheetNames, importSpreadsheetPreview } from '../../../../common/api/db';
+import {
+  getWorksheetNames as getWorksheetNamesExcel,
+  importRundownPreview as importRundownPreviewExcel,
+  upload as uploadExcel,
+} from '../../../../common/api/excel';
 import { getWorksheetNames } from '../../../../common/api/sheets';
 import { maybeAxiosError } from '../../../../common/api/utils';
-import { validateSpreadsheetImport } from '../../../../common/utils/uploadUtils';
+import { validateExcelImport } from '../../../../common/utils/uploadUtils';
 import * as Panel from '../PanelUtils';
 
 import ImportMapForm from './import-map/ImportMapForm';
@@ -25,8 +29,8 @@ export default function SourcesPanel() {
 
   const { exportRundown, importRundownPreview, verifyAuth } = useGoogleSheet();
 
-  const spreadsheet = useSheetStore((state) => state.spreadsheet);
-  const setSpreadsheet = useSheetStore((state) => state.setSpreadsheet);
+  const excel = useSheetStore((state) => state.excel);
+  const setExcel = useSheetStore((state) => state.setExcel);
   const setWorksheets = useSheetStore((state) => state.setWorksheets);
   const authenticationStatus = useSheetStore((state) => state.authenticationStatus);
   const setAuthenticationStatus = useSheetStore((state) => state.setAuthenticationStatus);
@@ -43,20 +47,21 @@ export default function SourcesPanel() {
     const fileToUpload = event.target.files?.[0];
 
     if (!fileToUpload) {
-      setSpreadsheet(null);
+      setExcel(null);
       setWorksheets(null);
       return;
     }
     try {
-      validateSpreadsheetImport(fileToUpload);
-      setSpreadsheet(fileToUpload);
-      const names = await getSpreadsheetWorksheetNames(fileToUpload);
+      validateExcelImport(fileToUpload);
+      const { fileId } = await uploadExcel(fileToUpload);
+      setExcel(fileId);
+      const { names } = await getWorksheetNamesExcel(fileId);
       setWorksheets(names);
       setImportFlow('excel');
     } catch (error) {
       const errorMessage = unpackError(error);
       setError(`Error uploading file: ${errorMessage}`);
-      setSpreadsheet(null);
+      setExcel(null);
       setWorksheets(null);
     }
   };
@@ -84,9 +89,9 @@ export default function SourcesPanel() {
 
   const handleSubmitImportPreview = async (importMap: ImportMap) => {
     if (importFlow === 'excel') {
-      if (!spreadsheet) return;
+      if (!excel) return;
       try {
-        const previewData = await importSpreadsheetPreview(spreadsheet, importMap);
+        const previewData = await importRundownPreviewExcel(excel, importMap);
         setRundown(previewData.rundown);
         setCustomFields(previewData.customFields);
       } catch (error) {
@@ -102,8 +107,8 @@ export default function SourcesPanel() {
 
   const cancelImportMap = async () => {
     setImportFlow('none');
-    if (spreadsheet) {
-      setSpreadsheet(null);
+    if (excel) {
+      setExcel(null);
       setWorksheets(null);
     }
 
@@ -118,7 +123,7 @@ export default function SourcesPanel() {
   const handleFinished = () => {
     setImportFlow('finished');
     setRundown(null);
-    setSpreadsheet(null);
+    setExcel(null);
     setWorksheets(null);
     setCustomFields(null);
   };
@@ -130,7 +135,7 @@ export default function SourcesPanel() {
 
   const isExcelFlow = importFlow === 'excel';
   const isGSheetFlow = importFlow === 'gsheet';
-  const hasFile = Boolean(spreadsheet);
+  const hasFile = Boolean(excel);
   const isAuthenticated = authenticationStatus === 'authenticated';
   const showInput = importFlow === 'none';
   const showSuccess = importFlow === 'finished';

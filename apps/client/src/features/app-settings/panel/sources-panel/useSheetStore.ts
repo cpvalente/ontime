@@ -5,16 +5,16 @@ import { create } from 'zustand';
 type SheetStore = {
   stepData: typeof initialStepData;
   patchStepData: (patch: Partial<typeof initialStepData>) => void;
-
-  spreadsheet: File | null;
-  setSpreadsheet: (spreadsheet: File | null) => void;
   setWorksheets: (worksheetNames: string[] | null) => void;
-
   worksheetNames: string[] | null;
 
+  //Excel
+  excel: string | null;
+  setExcel: (spreadsheet: string | null) => void;
+
+  //gSheet
   sheetId: string | null;
   setSheetId: (sheetId: string | null) => void;
-
   authenticationStatus: AuthenticationStatus;
   setAuthenticationStatus: (status: AuthenticationStatus) => void;
 
@@ -42,7 +42,7 @@ const initialStepData = {
 
 const initialState = {
   stepData: initialStepData,
-  spreadsheet: null,
+  excel: null,
   worksheetNames: null,
   sheetId: null,
   authenticationStatus: 'not_authenticated' as AuthenticationStatus,
@@ -59,8 +59,9 @@ export const useSheetStore = create<SheetStore>((set, get) => ({
     set({ stepData: { ...stepData, ...patch } });
   },
 
-  setSpreadsheet: (spreadsheet: File | null) => set({ spreadsheet }),
   setWorksheets: (worksheetNames: string[] | null) => set({ worksheetNames }),
+
+  setExcel: (excel: string | null) => set({ excel }),
 
   setSheetId: (sheetId: string | null) => set({ sheetId }),
 
