@@ -31,23 +31,9 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
   }
 
   try {
-    const patchDb: Partial<DatabaseModel> = {
-      project: req.body?.project,
-      settings: req.body?.settings,
-      viewSettings: req.body?.viewSettings,
-      osc: req.body?.osc,
-      urlPresets: req.body?.urlPresets,
-      customFields: req.body?.customFields,
-    };
+    const { rundown, project, settings, viewSettings, urlPresets, customFields, osc, http } = req.body;
+    const patchDb: DatabaseModel = { rundown, project, settings, viewSettings, urlPresets, customFields, osc, http };
 
-    const maybeRundown = req.body?.rundown;
-    await DataProvider.mergeIntoData(patchDb);
-    if (maybeRundown !== undefined) {
-      // it is likely cheaper to invalidate cache than to calculate diff
-      runtimeService.stop();
-      await setRundown(maybeRundown);
-    }
-    const newData = DataProvider.getData();
     res.status(200).send(newData);
   } catch (error) {
     res.status(400).send({ message: String(error) });
