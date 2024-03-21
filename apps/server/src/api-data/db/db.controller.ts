@@ -9,7 +9,6 @@ import {
 
 import type { Request, Response } from 'express';
 import fs from 'fs';
-import { join } from 'path';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
