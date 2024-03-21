@@ -41,16 +41,24 @@ const parse = (valueAsString: string): number => {
  * @param {boolean} fillLeft - autofill left = hours / right = seconds
  * @returns {number} - time string in millis
  */
-export const forgivingStringToMillis = (value: string, fillLeft = true): number => {
+export const forgivingStringToMillis = (value: string, fillLeft: boolean = true): number => {
   let millis = 0;
 
+  //force lower case before AM/PM check
+  value = value.toLowerCase();
+
+  value = value.endsWith('am') ? value.substring(0, value.length - 2) : value;
+  if (value.endsWith('pm')) {
+    value = value.substring(0, value.length - 2);
+    millis = mth * 12;
+  }
   // split string at known separators    : , .
   const separatorRegex = /[\s,:.]+/;
   const [first, second, third] = value.split(separatorRegex);
 
   if (first != null && second != null && third != null) {
     // if string has three sections, treat as [hours] [minutes] [seconds]
-    millis = parse(first) * mth;
+    millis += parse(first) * mth;
     millis += parse(second) * mtm;
     millis += parse(third) * mts;
   } else if (first != null && second == null && third == null) {
@@ -60,23 +68,23 @@ export const forgivingStringToMillis = (value: string, fillLeft = true): number 
       const hours = first.substring(0, 2);
       const minutes = first.substring(2, 4);
       const seconds = first.substring(4);
-      millis = parse(hours) * mth;
+      millis += parse(hours) * mth;
       millis += parse(minutes) * mtm;
       millis += parse(seconds) * mts;
     } else {
       // otherwise lets treat as [minutes]
-      millis = parse(first) * mtm;
+      millis += parse(first) * mtm;
     }
   }
   if (first != null && second != null && third == null) {
     // if string has two sections
     if (fillLeft) {
       // treat as [hours] [minutes]
-      millis = parse(first) * mth;
+      millis += parse(first) * mth;
       millis += parse(second) * mtm;
     } else {
       // treat as [minutes] [seconds]
-      millis = parse(first) * mtm;
+      millis += parse(first) * mtm;
       millis += parse(second) * mts;
     }
   }

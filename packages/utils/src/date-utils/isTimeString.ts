@@ -14,6 +14,6 @@ export const isTimeString = (text: string): boolean => {
   // ([0-5]?\d)          # SS (required)
   // $                   # End of string
 
-  const regex = /^(?:(?:([01]?\d|2[0-3])[:,.])?([0-5]?\d)[:,.])?([0-5]?\d)$/;
+  const regex = /^(?:(?:([01]?\d|2[0-3])[:,.])?([0-5]?\d)[:,.])?([0-5]?\d)?(\s)?([APap][Mm])?$/;
   return regex.test(text);
 };
