@@ -210,7 +210,7 @@ function updateRuntimeOnChange() {
 /**
  * Notify services of changes in the rundown
  */
-export function notifyChanges(options: { timer?: boolean | string[]; external?: boolean }) {
+function notifyChanges(options: { timer?: boolean | string[]; external?: boolean }) {
   if (options.timer) {
     const playableEvents = getPlayableEvents();
 
@@ -241,14 +241,5 @@ export async function initRundown(rundown: OntimeRundown, customFields: CustomFi
   updateRuntimeOnChange();
 
   // notify timer of change
-  notifyChanges({ timer: true });
-}
-
-/**
- * Overrides the rundown with the given
- * @param rundown
- */
-export async function setRundown(rundown: OntimeRundown) {
-  await cache.setRundown(rundown);
   notifyChanges({ timer: true });
 }

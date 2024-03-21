@@ -4,7 +4,7 @@ import { copyFile, rename, stat, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { basename, join } from 'path';
 
-import { notifyChanges, setRundown } from '../rundown-service/RundownService.js';
+import { initRundown } from '../rundown-service/RundownService.js';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 import { getNetworkInterfaces } from '../../utils/networkInterfaces.js';
@@ -196,18 +196,20 @@ export function extractPin(value: string | undefined | null, fallback: string | 
 /**
  * applies a partial database model
  */
-export async function applyDataModel(data: Partial<DatabaseModel>, options?: Options) {
+export async function applyDataModel(data: Partial<DatabaseModel>, _options?: Options) {
   runtimeService.stop();
 
-  const newRundown = data.rundown || [];
-  const { rundown, ...rest } = data;
-  if (options?.onlyRundown === 'true') {
-    setRundown(newRundown ?? []);
-  } else {
-    await DataProvider.mergeIntoData(rest);
-    setRundown(rundown ?? []);
+  // TODO: allow partial project merge from options
+  const { rundown, customFields, ...rest } = data;
+  const newData = await DataProvider.mergeIntoData(rest);
+
+  if (rundown != null) {
+    initRundown(rundown, customFields ?? {});
   }
-  notifyChanges({ timer: true, external: true });
+
+  return newData;
+}
+
 }
 
 /**
