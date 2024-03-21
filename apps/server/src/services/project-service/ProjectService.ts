@@ -2,7 +2,7 @@ import { DatabaseModel, GetInfo, ProjectData, ProjectFile, ProjectFileListRespon
 
 import { copyFile, rename, stat, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
-import { basename, join } from 'path';
+import { join } from 'path';
 
 import { initRundown } from '../rundown-service/RundownService.js';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -33,22 +33,31 @@ type Options = {
 /**
  * Handles a file from the upload folder and applies its data
  */
-export async function applyProjectFile(filePath: string, options?: Options) {
+export async function applyProjectFile(name: string, options?: Options) {
+  const filePath = join(resolveProjectsDirectory, name);
   const data = parseProjectFile(filePath);
 
-  // move file to project folder
-  const filename = basename(filePath);
-  const newFilePath = join(resolveProjectsDirectory, filename);
-  await rename(filePath, newFilePath);
-
   // change LowDB to point to new file
-  await switchDb(filename);
+  await switchDb(name);
 
   // apply data model
   await applyDataModel(data, options);
 
   // persist the project selection
-  await appStateService.updateDatabaseConfig(filename);
+  await appStateService.updateDatabaseConfig(name);
+}
+
+/**
+ * Copies a file from upload folder to the projects folder
+ * @param filePath
+ * @param name
+ * @returns
+ */
+export async function handleUploadedFile(filePath: string, name: string) {
+  const newFilePath = join(resolveProjectsDirectory, name);
+  await rename(filePath, newFilePath);
+  await deleteFile(filePath);
+  return name;
 }
 
 /**
