@@ -210,6 +210,13 @@ export async function applyDataModel(data: Partial<DatabaseModel>, _options?: Op
   return newData;
 }
 
+/**
+ * Checks whether a project of a given name exists
+ * @param name
+ */
+export function doesProjectExist(name: string): boolean {
+  const projectFilePath = join(resolveProjectsDirectory, name);
+  return existsSync(projectFilePath);
 }
 
 /**
@@ -242,3 +249,11 @@ export const validateProjectFiles = (projectFiles: { filename?: string; newFilen
 
   return errors;
 };
+
+/**
+ * Get current project title or fallback
+ */
+export function getProjectTitle(): string {
+  const { title } = DataProvider.getProjectData();
+  return title || 'ontime data';
+}

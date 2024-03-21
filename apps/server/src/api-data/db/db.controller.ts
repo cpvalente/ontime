@@ -79,9 +79,7 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
 }
 
 export async function projectDownload(_req: Request, res: Response) {
-  const { title } = DataProvider.getProjectData();
-  const fileTitle = title || 'ontime data';
-
+  const fileTitle = projectService.getProjectTitle();
   res.download(resolveDbPath, `${fileTitle}.json`, (err) => {
     if (err) {
       res.status(500).send({
@@ -127,10 +125,8 @@ export async function listProjects(_req: Request, res: Response<ProjectFileListR
  */
 export async function loadProject(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
-    const filename = req.body.filename;
-    const filePath = join(resolveProjectsDirectory, filename);
-
-    if (!fs.existsSync(filePath)) {
+    const name = req.body.filename;
+    if (!projectService.doesProjectExist(name)) {
       return res.status(404).send({ message: 'File not found' });
     }
     await projectService.applyProjectFile(filePath);
