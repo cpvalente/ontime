@@ -43,10 +43,9 @@ export default function Rundown({ data }: RundownProps) {
 
   // cursor
   const { cursor, mode: appMode, setCursor } = useAppMode();
-  const viewFollowsCursor = appMode === AppMode.Run;
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: true });
+  useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: appMode === AppMode.Run });
 
   // DND KIT
   const sensors = useSensors(useSensor(PointerSensor));
@@ -183,11 +182,11 @@ export default function Rundown({ data }: RundownProps) {
 
   useEffect(() => {
     // in run mode, we follow selection
-    if (!viewFollowsCursor || !featureData?.selectedEventId) {
+    if (appMode !== AppMode.Run || !featureData?.selectedEventId) {
       return;
     }
-    // moveCursorTo(featureData.selectedEventId);
-  }, [featureData?.selectedEventId, viewFollowsCursor]);
+    setCursor(featureData.selectedEventId);
+  }, [appMode, featureData.selectedEventId, setCursor]);
 
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
