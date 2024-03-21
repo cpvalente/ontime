@@ -21,7 +21,6 @@ import { setRundown } from '../../services/rundown-service/RundownService.js';
 import { ensureJsonExtension } from '../../utils/fileManagement.js';
 import { generateUniqueFileName } from '../../utils/generateUniqueFilename.js';
 import { appStateService } from '../../services/app-state-service/AppStateService.js';
-import { getExcelWorksheets, handleMaybeExcel } from '../../utils/parser.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   // all fields are optional in validation
