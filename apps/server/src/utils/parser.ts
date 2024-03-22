@@ -14,6 +14,7 @@ import {
   CustomFields,
   DatabaseModel,
   EventCustomFields,
+  OntimeBlock,
   OntimeEvent,
   OntimeRundown,
   SupportedEvent,
@@ -192,10 +193,6 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
         }
       } else if (j === titleIndex) {
         event.title = makeString(column, '');
-        // if this is a block, we have nothing else to import
-        if (event.type === SupportedEvent.Block) {
-          /* empty */
-        }
       } else if (j === timeStartIndex) {
         event.timeStart = parseExcelDate(column);
       } else if (j === timeEndIndex) {
@@ -250,11 +247,16 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
     // if any data was found in row, push to array
     const keysFound = Object.keys(event).length + Object.keys(eventCustomFields).length;
     if (keysFound > 0) {
-      if (timerTypeIndex === null) {
-        event.timerType = TimerType.CountDown;
-        event.type = SupportedEvent.Event;
+      // if it is a Block type drop all other filed
+      if (event.type === SupportedEvent.Block) {
+        rundown.push({ type: event.type, id: event.id, title: event.title } as OntimeBlock);
+      } else {
+        if (timerTypeIndex === null) {
+          event.timerType = TimerType.CountDown;
+          event.type = SupportedEvent.Event;
+        }
+        rundown.push({ ...event, custom: { ...eventCustomFields } });
       }
-      rundown.push({ ...event, custom: { ...eventCustomFields } });
     }
   });
 
