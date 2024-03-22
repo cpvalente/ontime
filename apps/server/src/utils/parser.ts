@@ -47,6 +47,7 @@ export function getCustomFieldData(importMap: ImportMap): {
   customFields: CustomFields;
   customFieldImportKeys: Record<keyof CustomFields, string>;
 } {
+  //TODO: handle upper lower case better
   const customFields = {};
   const customFieldImportKeys = {};
   for (const key in importMap.custom) {
@@ -229,6 +230,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
             handlers[columnText](rowIndex, j, undefined);
           }
 
+          //TODO: handle upper lower case better
           // check if it is a custom field
           if (column in customFieldImportKeys) {
             handlers.custom(rowIndex, j, column);
