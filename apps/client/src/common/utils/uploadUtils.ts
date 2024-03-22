@@ -2,7 +2,7 @@
  * Collection of rules for pre-validating a spreadsheet
  * @param file
  */
-export function validateSpreadsheetImport(file: File) {
+export function validateExcelImport(file: File) {
   if (!isExcelFile(file)) {
     throw new Error('Unknown file type');
   }
@@ -12,7 +12,7 @@ export function validateSpreadsheetImport(file: File) {
     throw new Error('File is empty');
   }
 
-  // Limit file size of an excel file to around 10MB
+  // Limit file size of an Excel file to around 10MB
   if (file.size > 10_000_000) {
     throw new Error('File size limit (10MB) exceeded');
   }

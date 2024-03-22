@@ -12,7 +12,7 @@ import got from 'got';
 
 import { resolveSheetsDirectory } from '../../setup/index.js';
 import { ensureDirectory } from '../../utils/fileManagement.js';
-import { type ClientSecret, cellRequestFromEvent, getA1Notation, validateClientSecret } from './sheetUtils.js';
+import { cellRequestFromEvent, type ClientSecret, getA1Notation, validateClientSecret } from './sheetUtils.js';
 import { ImportMap } from 'ontime-utils';
 import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
@@ -190,11 +190,11 @@ function verifyConnection(
   }
 }
 
-export function hasAuth(): { authenticated: AuthenticationStatus } {
+export function hasAuth(): { authenticated: AuthenticationStatus; sheetId: string } {
   if (cleanupTimeout) {
-    return { authenticated: 'pending' };
+    return { authenticated: 'pending', sheetId: currentSheetId };
   }
-  return { authenticated: currentAuthClient ? 'authenticated' : 'not_authenticated' };
+  return { authenticated: currentAuthClient ? 'authenticated' : 'not_authenticated', sheetId: currentSheetId };
 }
 
 async function verifySheet(

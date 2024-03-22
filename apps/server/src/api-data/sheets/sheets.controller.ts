@@ -14,6 +14,7 @@ import {
   hasAuth,
   download,
   upload,
+  getWorksheetOptions,
 } from '../../services/sheet-service/SheetService.js';
 
 export async function requestConnection(req: Request, res: Response) {
@@ -51,6 +52,16 @@ export async function revokeAuthentication(_req: Request, res: Response) {
   try {
     const authenticated = revoke();
     res.status(200).send(authenticated);
+  } catch (error) {
+    res.status(500).send({ message: String(error) });
+  }
+}
+
+export async function getWorksheetNamesFromSheet(req: Request, res: Response) {
+  try {
+    const { sheetId } = req.params;
+    const { worksheetOptions } = await getWorksheetOptions(sheetId);
+    res.status(200).send(worksheetOptions);
   } catch (error) {
     res.status(500).send({ message: String(error) });
   }

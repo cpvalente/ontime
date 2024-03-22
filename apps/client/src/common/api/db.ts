@@ -1,14 +1,11 @@
 import axios, { AxiosResponse } from 'axios';
 import {
-  CustomFields,
   DatabaseModel,
   GetInfo,
   MessageResponse,
-  OntimeRundown,
   ProjectData,
   ProjectFileListResponse,
 } from 'ontime-types';
-import { ImportMap } from 'ontime-utils';
 
 import { makeCSV, makeTable } from '../../features/cuesheet/cuesheetUtils';
 
@@ -153,32 +150,6 @@ export async function deleteProject(filename: string): Promise<MessageResponse> 
 export async function getInfo(): Promise<GetInfo> {
   const res = await axios.get(`${dbPath}/info`);
   return res.data;
-}
-
-type PreviewSpreadsheetResponse = {
-  rundown: OntimeRundown;
-  customFields: CustomFields;
-};
-
-/**
- * Make patch changes to the objects in the db
- */
-export async function importSpreadsheetPreview(file: File, options: ImportMap): Promise<PreviewSpreadsheetResponse> {
-  const formData = new FormData();
-  formData.append('spreadsheet', file);
-  formData.append('options', JSON.stringify(options));
-
-  const response: AxiosResponse<PreviewSpreadsheetResponse> = await axios.post(
-    `${dbPath}/spreadsheet/preview`,
-    formData,
-    {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    },
-  );
-
-  return response.data;
 }
 
 /**

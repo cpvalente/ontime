@@ -1,4 +1,4 @@
-import { OntimeRundownEntry, isOntimeBlock, isOntimeEvent } from 'ontime-types';
+import { isOntimeBlock, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { sheets_v4 } from '@googleapis/sheets';
@@ -111,7 +111,7 @@ export function cellRequestFromEvent(
         });
       } else if (typeof event[key] === 'boolean') {
         returnRows.push({
-          userEnteredValue: { stringValue: event[key] ? 'x' : '' },
+          userEnteredValue: { boolValue: event[key] },
         });
       } else {
         returnRows.push({});

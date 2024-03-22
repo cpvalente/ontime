@@ -5,20 +5,20 @@ import {
   DatabaseModel,
   EndAction,
   OntimeEvent,
+  OntimeRundown,
   ProjectData,
   Settings,
   SupportedEvent,
-  TimeStrategy,
   TimerType,
+  TimeStrategy,
   ViewSettings,
-  OntimeRundown,
 } from 'ontime-types';
 
 import { dbModel } from '../../models/dataModel.js';
 
-import { parseExcel, parseJson, createEvent, getCustomFieldData } from '../parser.js';
+import { createEvent, getCustomFieldData, parseExcel, parseJson } from '../parser.js';
 import { makeString } from '../parserUtils.js';
-import { parseUrlPresets, parseViewSettings } from '../parserFunctions.js';
+import { parseRundown, parseUrlPresets, parseViewSettings } from '../parserFunctions.js';
 
 describe('test json parser with valid def', () => {
   const testData: Partial<DatabaseModel> = {
@@ -795,8 +795,8 @@ describe('parseExcel()', () => {
         'Public',
         'Skip',
         'Notes',
-        'test0',
-        'test1',
+        't0',
+        'UpperCaseFromSheet',
         'test2',
         'test3',
         'test4',
@@ -809,8 +809,8 @@ describe('parseExcel()', () => {
         'cue',
       ],
       [
-        '1899-12-30T07:00:00.000Z',
-        '1899-12-30T08:00:10.000Z',
+        '07:00:00',
+        '08:00:10',
         'Guest Welcome',
         '',
         '',
@@ -831,8 +831,8 @@ describe('parseExcel()', () => {
         101,
       ],
       [
-        '1899-12-30T08:00:00.000Z',
-        '1899-12-30T08:30:00.000Z',
+        '08:00:00',
+        '08:30:00',
         'A song from the hearth',
         'load-next',
         'clock',
@@ -858,9 +858,9 @@ describe('parseExcel()', () => {
     // partial import map with only custom fields
     const importMap = {
       custom: {
-        user0: 'test0',
-        user1: 'test1',
-        user2: 'test2',
+        user0: 't0',
+        user1: 'UpperCaseFromSheet',
+        UpperCaseFromOntime: 'test2',
         user3: 'test3',
         user4: 'test4',
         user5: 'test5',
@@ -874,8 +874,8 @@ describe('parseExcel()', () => {
     // TODO: update tests once import is resolved
     const expectedParsedRundown = [
       {
-        //timeStart: 28800000,
-        //timeEnd: 32410000,
+        timeStart: 25200000,
+        timeEnd: 28810000,
         title: 'Guest Welcome',
         timerType: 'count-down',
         endAction: 'none',
@@ -885,7 +885,7 @@ describe('parseExcel()', () => {
         custom: {
           user0: { value: 'a0' },
           user1: { value: 'a1' },
-          user2: { value: 'a2' },
+          UpperCaseFromOntime: { value: 'a2' },
           user3: { value: 'a3' },
           user4: { value: 'a4' },
           user5: { value: 'a5' },
@@ -899,8 +899,8 @@ describe('parseExcel()', () => {
         cue: '101',
       },
       {
-        //timeStart: 32400000,
-        //timeEnd: 34200000,
+        timeStart: 28800000,
+        timeEnd: 30600000,
         title: 'A song from the hearth',
         timerType: 'clock',
         endAction: 'load-next',
@@ -929,10 +929,10 @@ describe('parseExcel()', () => {
         colour: '',
         label: 'user1',
       },
-      user2: {
+      UpperCaseFromOntime: {
         type: 'string',
         colour: '',
-        label: 'user2',
+        label: 'UpperCaseFromOntime',
       },
       user3: {
         type: 'string',
@@ -1362,5 +1362,49 @@ describe('parseExcel()', () => {
     expect((result.rundown.at(0) as OntimeEvent).timerType).toBe(TimerType.CountDown);
     expect(result.rundown.at(1).type).toBe(SupportedEvent.Event);
     expect((result.rundown.at(1) as OntimeEvent).timerType).toBe(TimerType.CountDown);
+  });
+
+  it('am/pm conversion to 24h', () => {
+    const testData = [
+      ['Time Start', 'Time End', 'Title', 'End Action', 'Public', 'Skip', 'Notes', 'Colour', 'cue'],
+      ['4:30:00', '4:36:00', 'A song from the hearth', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102],
+      ['9:45:00', '10:56:00', 'Green grass', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103],
+      ['16:30:00', '16:36:00', 'A song from the hearth', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102],
+      ['21:45:00', '22:56:00', 'Green grass', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103],
+      ['4:30:00AM', '4:36:00AM', 'A song from the hearth', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102],
+      ['9:45:00AM', '10:56:00AM', 'Green grass', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103],
+      ['4:30:00PM', '4:36:00PM', 'A song from the hearth', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102],
+      ['9:45:00PM', '10:56:00PM', 'Green grass', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103],
+      [],
+    ];
+
+    const importMap = {
+      worksheet: 'event schedule',
+      timeStart: 'time start',
+      timeEnd: 'time end',
+      duration: 'duration',
+      cue: 'cue',
+      title: 'title',
+      isPublic: 'public',
+      skip: 'skip',
+      note: 'notes',
+      colour: 'colour',
+      endAction: 'end action',
+      timerType: 'timer type',
+      timeWarning: 'warning time',
+      timeDanger: 'danger time',
+      custom: {},
+    };
+    const result = parseExcel(testData, importMap);
+    const rundown = parseRundown(result);
+    const events = rundown.filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
+    expect(events.at(0).timeStart).toEqual(16200000);
+    expect(events.at(1).timeStart).toEqual(35100000);
+    expect(events.at(2).timeStart).toEqual(59400000);
+    expect(events.at(3).timeStart).toEqual(78300000);
+    expect(events.at(4).timeStart).toEqual(16200000);
+    expect(events.at(5).timeStart).toEqual(35100000);
+    expect(events.at(6).timeStart).toEqual(59400000);
+    expect(events.at(7).timeStart).toEqual(78300000);
   });
 });

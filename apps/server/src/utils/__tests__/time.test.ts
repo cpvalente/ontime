@@ -37,7 +37,7 @@ describe('parseExcelDate', () => {
   });
 
   describe('parses a time string that passes validation', () => {
-    const validFields = ['10:00:00', '10:00'];
+    const validFields = ['10:00:00', '10:00', '10:00AM', '10:00am', '10:00PM', '10:00pm'];
     validFields.forEach((field) => {
       it(`handles ${field}`, () => {
         const millis = parseExcelDate(field);
