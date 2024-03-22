@@ -795,8 +795,8 @@ describe('parseExcel()', () => {
         'Public',
         'Skip',
         'Notes',
-        'test0',
-        'test1',
+        't0',
+        'UpperCaseFromSheet',
         'test2',
         'test3',
         'test4',
@@ -809,8 +809,8 @@ describe('parseExcel()', () => {
         'cue',
       ],
       [
-        '1899-12-30T07:00:00.000Z',
-        '1899-12-30T08:00:10.000Z',
+        '07:00:00',
+        '08:00:10',
         'Guest Welcome',
         '',
         '',
@@ -831,8 +831,8 @@ describe('parseExcel()', () => {
         101,
       ],
       [
-        '1899-12-30T08:00:00.000Z',
-        '1899-12-30T08:30:00.000Z',
+        '08:00:00',
+        '08:30:00',
         'A song from the hearth',
         'load-next',
         'clock',
@@ -858,9 +858,9 @@ describe('parseExcel()', () => {
     // partial import map with only custom fields
     const importMap = {
       custom: {
-        user0: 'test0',
-        user1: 'test1',
-        user2: 'test2',
+        user0: 't0',
+        user1: 'UpperCaseFromSheet',
+        UpperCaseFromOntime: 'test2',
         user3: 'test3',
         user4: 'test4',
         user5: 'test5',
@@ -874,8 +874,8 @@ describe('parseExcel()', () => {
     // TODO: update tests once import is resolved
     const expectedParsedRundown = [
       {
-        //timeStart: 28800000,
-        //timeEnd: 32410000,
+        timeStart: 25200000,
+        timeEnd: 28810000,
         title: 'Guest Welcome',
         timerType: 'count-down',
         endAction: 'none',
@@ -885,7 +885,7 @@ describe('parseExcel()', () => {
         custom: {
           user0: { value: 'a0' },
           user1: { value: 'a1' },
-          user2: { value: 'a2' },
+          UpperCaseFromOntime: { value: 'a2' },
           user3: { value: 'a3' },
           user4: { value: 'a4' },
           user5: { value: 'a5' },
@@ -899,8 +899,8 @@ describe('parseExcel()', () => {
         cue: '101',
       },
       {
-        //timeStart: 32400000,
-        //timeEnd: 34200000,
+        timeStart: 28800000,
+        timeEnd: 30600000,
         title: 'A song from the hearth',
         timerType: 'clock',
         endAction: 'load-next',
@@ -929,10 +929,10 @@ describe('parseExcel()', () => {
         colour: '',
         label: 'user1',
       },
-      user2: {
+      UpperCaseFromOntime: {
         type: 'string',
         colour: '',
-        label: 'user2',
+        label: 'UpperCaseFromOntime',
       },
       user3: {
         type: 'string',
