@@ -32,7 +32,7 @@ export async function getWorksheets(req: Request, res: Response) {
 export async function previewExcel(req: Request, res: Response) {
   try {
     const { options } = req.body;
-    const data  = generateRundownPreview( options);
+    const data = generateRundownPreview(options);
     res.status(200).send(data);
   } catch (error) {
     res.status(500).send({ message: String(error) });

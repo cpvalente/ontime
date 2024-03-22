@@ -26,7 +26,7 @@ import style from './SourcesPanel.module.scss';
 export default function SourcesPanel() {
   const [importFlow, setImportFlow] = useState<'none' | 'excel' | 'gsheet' | 'finished'>('none');
   const [error, setError] = useState('');
-  const [hasFile, setHasFile] = useState(false);
+  const [hasFile, setHasFile] = useState<'none' | 'loading' | 'done'>('none');
 
   const { exportRundown, importRundownPreview, verifyAuth } = useGoogleSheet();
 
@@ -47,21 +47,22 @@ export default function SourcesPanel() {
 
     if (!fileToUpload) {
       setWorksheets(null);
-      setHasFile(false);
+      setHasFile('none');
       return;
     }
     try {
+      setHasFile('loading');
       validateExcelImport(fileToUpload);
       await uploadExcel(fileToUpload);
       const names = await getWorksheetNamesExcel();
       setWorksheets(names);
       setImportFlow('excel');
-      setHasFile(true);
+      setHasFile('done');
     } catch (error) {
       const errorMessage = unpackError(error);
       setError(`Error uploading file: ${errorMessage}`);
       setWorksheets(null);
-      setHasFile(false);
+      setHasFile('none');
     }
   };
 
@@ -105,7 +106,7 @@ export default function SourcesPanel() {
 
   const cancelImportMap = async () => {
     setImportFlow('none');
-    setHasFile(false);
+    setHasFile('none');
     setWorksheets(null);
     if (authenticationStatus === 'authenticated') {
       const result = await verifyAuth();
@@ -118,7 +119,7 @@ export default function SourcesPanel() {
   const handleFinished = () => {
     setImportFlow('finished');
     setRundown(null);
-    setHasFile(false);
+    setHasFile('none');
     setWorksheets(null);
     setCustomFields(null);
   };
@@ -134,7 +135,7 @@ export default function SourcesPanel() {
   const showInput = importFlow === 'none';
   const showSuccess = importFlow === 'finished';
   const showAuth = isGSheetFlow && !isAuthenticated;
-  const showImportMap = (isGSheetFlow && isAuthenticated) || (isExcelFlow && hasFile);
+  const showImportMap = (isGSheetFlow && isAuthenticated) || (isExcelFlow && hasFile === 'done');
   const showReview = rundown !== null && customFields !== null;
 
   return (
@@ -157,13 +158,25 @@ export default function SourcesPanel() {
               />
               <div className={style.uploadSection}>
                 <div>
-                  <Button variant='ontime-filled' size='sm' leftIcon={<IoDownloadOutline />} onClick={handleUpload}>
+                  <Button
+                    variant='ontime-filled'
+                    size='sm'
+                    leftIcon={<IoDownloadOutline />}
+                    onClick={handleUpload}
+                    isLoading={hasFile === 'loading'}
+                  >
                     Import from spreadsheet
                   </Button>
                   <Panel.Description>Accepts .xlsx files</Panel.Description>
                 </div>
                 <div>
-                  <Button variant='ontime-filled' size='sm' leftIcon={<IoCloudOutline />} onClick={openGSheetFlow}>
+                  <Button
+                    variant='ontime-filled'
+                    size='sm'
+                    leftIcon={<IoCloudOutline />}
+                    onClick={openGSheetFlow}
+                    isDisabled={hasFile !== 'none'}
+                  >
                     Synchronise with Google
                   </Button>
                   <Panel.Description>Start authentication process</Panel.Description>
