@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Settings, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import ViewNavigationMenu from '../../../common/components/navigation-menu/ViewNavigationMenu';
 import { getClockOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
@@ -133,7 +133,7 @@ export default function Clock(props: ClockProps) {
       }}
       data-testid='clock-view'
     >
-      <NavigationMenu />
+      <ViewNavigationMenu />
       <ViewParamsEditor paramFields={clockOptions} />
       <SuperscriptTime
         time={clock}

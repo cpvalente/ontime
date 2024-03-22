@@ -5,7 +5,7 @@ import { isOntimeEvent, Playback } from 'ontime-types';
 import { millisToString, removeSeconds } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import ViewNavigationMenu from '../../../common/components/navigation-menu/ViewNavigationMenu';
 import { getStudioClockOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import useFitText from '../../../common/hooks/useFitText';
@@ -78,7 +78,7 @@ export default function StudioClock(props: StudioClockProps) {
 
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
-      <NavigationMenu />
+      <ViewNavigationMenu />
       <ViewParamsEditor paramFields={studioClockOptions} />
       <div className='clock-container'>
         {hasAmPm && <div className='clock__ampm'>{hasAmPm}</div>}

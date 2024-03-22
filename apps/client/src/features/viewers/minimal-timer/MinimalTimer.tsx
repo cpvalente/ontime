@@ -4,7 +4,7 @@ import { Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
 import { MILLIS_PER_SECOND, millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import ViewNavigationMenu from '../../../common/components/navigation-menu/ViewNavigationMenu';
 import { MINIMAL_TIMER_OPTIONS } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
@@ -186,7 +186,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
       }}
       data-testid='minimal-timer'
     >
-      <NavigationMenu />
+      <ViewNavigationMenu />
       <ViewParamsEditor paramFields={MINIMAL_TIMER_OPTIONS} />
       {!hideMessagesOverlay && (
         <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>

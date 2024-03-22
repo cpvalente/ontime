@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { CustomFields, Message, OntimeEvent, ProjectData, Settings, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import ViewNavigationMenu from '../../../common/components/navigation-menu/ViewNavigationMenu';
 import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
 import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
@@ -78,7 +78,7 @@ export default function Public(props: BackstageProps) {
 
   return (
     <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>
-      <NavigationMenu />
+      <ViewNavigationMenu />
       <ViewParamsEditor paramFields={publicOptions} />
       <div className='project-header'>
         {general.title}

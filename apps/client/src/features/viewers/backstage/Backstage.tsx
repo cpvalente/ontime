@@ -6,7 +6,7 @@ import { CustomFields, Message, OntimeEvent, ProjectData, Settings, SupportedEve
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import ViewNavigationMenu from '../../../common/components/navigation-menu/ViewNavigationMenu';
 import ProgressBar from '../../../common/components/progress-bar/ProgressBar';
 import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
@@ -102,7 +102,7 @@ export default function Backstage(props: BackstageProps) {
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
-      <NavigationMenu />
+      <ViewNavigationMenu />
       <ViewParamsEditor paramFields={backstageOptions} />
       <div className='project-header'>
         {general.title}
