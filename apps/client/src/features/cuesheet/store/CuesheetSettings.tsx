@@ -17,6 +17,7 @@ interface CuesheetSettings {
 }
 
 function toggle(oldValue: boolean, value?: boolean) {
+  console.log('toggle', oldValue, value)
   if (typeof value === 'undefined') {
     return !oldValue;
   }

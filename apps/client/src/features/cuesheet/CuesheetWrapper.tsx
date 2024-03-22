@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { CustomFieldLabel, isOntimeEvent, ProjectData } from 'ontime-types';
 
+import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import Empty from '../../common/components/state/Empty';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useCuesheet } from '../../common/hooks/useSocket';
@@ -9,6 +10,7 @@ import { useFlatRundown } from '../../common/hooks-query/useRundown';
 
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
 import CuesheetTableHeader from './cuesheet-table-header/CuesheetTableHeader';
+import { useCuesheetSettings } from './store/CuesheetSettings';
 import Cuesheet from './Cuesheet';
 import { makeCuesheetColumns } from './cuesheetCols';
 import { makeCSV, makeTable } from './cuesheetUtils';
@@ -23,6 +25,7 @@ export default function CuesheetWrapper() {
   const { updateCustomField } = useEventAction();
   const featureData = useCuesheet();
   const columns = useMemo(() => makeCuesheetColumns(customFields), [customFields]);
+  const toggleSettings = useCuesheetSettings((state) => state.toggleSettings);
 
   // Set window title
   useEffect(() => {
@@ -107,6 +110,7 @@ export default function CuesheetWrapper() {
     <div className={styles.tableWrapper} data-testid='cuesheet'>
       <CuesheetTableHeader handleExport={exportHandler} featureData={featureData} />
       <CuesheetProgress />
+      <ProductionNavigationMenu handleSettings={() => toggleSettings()} />
       <Cuesheet
         data={flatRundown}
         columns={columns}
