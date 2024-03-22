@@ -25,7 +25,7 @@ export class DataProvider {
 
   static async setProjectData(newData: Partial<ProjectData>) {
     data.project = { ...data.project, ...newData };
-    await this.persist();
+    this.persist();
     return data.project;
   }
 
@@ -35,7 +35,7 @@ export class DataProvider {
 
   static async setCustomFields(newData: CustomFields): Promise<CustomFields> {
     data.customFields = { ...newData };
-    await this.persist();
+    this.persist();
     return data.customFields;
   }
 
@@ -45,7 +45,8 @@ export class DataProvider {
 
   static async setRundown(newData: OntimeRundown) {
     data.rundown = [...newData];
-    await this.persist();
+    this.persist();
+    return data.rundown;
   }
 
   static getSettings(): Readonly<Settings> {
@@ -54,7 +55,8 @@ export class DataProvider {
 
   static async setSettings(newData: Settings) {
     data.settings = { ...newData };
-    await this.persist();
+    this.persist();
+    return data.settings;
   }
 
   static getOsc(): OSCSettings {
@@ -71,7 +73,8 @@ export class DataProvider {
 
   static async setUrlPresets(newData: URLPreset[]) {
     data.urlPresets = newData;
-    await this.persist();
+    this.persist();
+    return data.urlPresets;
   }
 
   static getViewSettings() {
@@ -80,18 +83,19 @@ export class DataProvider {
 
   static async setViewSettings(newData: ViewSettings) {
     data.viewSettings = { ...newData };
-    await this.persist();
+    this.persist();
+    return data.viewSettings;
   }
 
   static async setOsc(newData: OSCSettings): Promise<OSCSettings> {
     data.osc = { ...newData };
-    await this.persist();
+    this.persist();
     return data.osc;
   }
 
   static async setHttp(newData: HttpSettings): Promise<HttpSettings> {
     data.http = { ...newData };
-    await this.persist();
+    this.persist();
     return data.http;
   }
 
@@ -116,6 +120,9 @@ export class DataProvider {
     data.urlPresets = mergedData.urlPresets;
     data.customFields = mergedData.customFields;
     data.rundown = mergedData.rundown;
-    await this.persist();
+
+    this.persist();
+
+    return data;
   }
 }
