@@ -15,7 +15,7 @@ import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
 import { getTotalDuration } from '../timerUtils.js';
 import { apply } from './delayUtils.js';
-import { handleCustomField, handleLink } from './rundownCacheUtils.js';
+import { handleCustomField, handleLink, hasChanges, isDataStale } from './rundownCacheUtils.js';
 
 type EventID = string;
 type NormalisedRundown = Record<EventID, OntimeRundownEntry>;
@@ -225,20 +225,25 @@ type MutatingFn<T extends object> = (params: MutationParams<T>) => MutatingRetur
  */
 export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
   async function scopedMutation(params: T) {
+    /**
+     * Marking the data set as stale
+     * doing it before calling the mutation, gives the function a chance
+     * to prevent recalculation by setting stale = false
+     */
+    isStale = true;
+
     const { newEvent, newRundown } = mutation({ ...params, persistedRundown });
 
     revision = revision + 1;
-    isStale = true;
     persistedRundown = newRundown;
 
     // schedule a non priority cache update
     setImmediate(() => {
       console.time('rundownCache__init');
-      generate();
+      get();
       console.timeEnd('rundownCache__init');
     });
 
-    // TODO: should we throttle this?
     // defer writing to the database
     setImmediate(() => {
       DataProvider.setRundown(persistedRundown);
@@ -302,11 +307,23 @@ export function edit({ persistedRundown, eventId, patch }: EditArgs): Required<M
   }
 
   const eventInMemory = persistedRundown[indexAt];
+  if (!hasChanges(eventInMemory, patch)) {
+    isStale = false;
+    return;
+  }
+
   const newEvent = makeEvent(eventInMemory, patch);
 
   const newRundown = [...persistedRundown];
   newRundown[indexAt] = newEvent;
 
+  const makeStale = isDataStale(patch);
+
+  if (!makeStale) {
+    rundown[newEvent.id] = newEvent;
+  }
+
+  isStale = makeStale;
   return { newRundown, newEvent };
 }
 

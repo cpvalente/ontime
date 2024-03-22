@@ -1,5 +1,20 @@
-import { CustomFields, OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
-import { addToCustomAssignment, getLink, handleCustomField, handleLink } from '../rundownCacheUtils.js';
+import {
+  CustomFields,
+  EndAction,
+  OntimeEvent,
+  OntimeRundown,
+  SupportedEvent,
+  TimeStrategy,
+  TimerType,
+} from 'ontime-types';
+import {
+  addToCustomAssignment,
+  getLink,
+  handleCustomField,
+  handleLink,
+  hasChanges,
+  isDataStale,
+} from '../rundownCacheUtils.js';
 
 describe('getLink()', () => {
   it('should return null if there is no link', () => {
@@ -185,5 +200,54 @@ describe('handleCustomField()', () => {
       newField1: ['event1'],
       field2: ['event1'],
     });
+  });
+});
+
+describe('isDataStale()', () => {
+  it('is stale if data contains timers', () => {
+    const needsRecompute = [
+      { timeStart: 10 },
+      { timeEnd: 10 },
+      { duration: 10 },
+      { linkStart: '1' },
+      { timerStrategy: TimeStrategy.LockDuration },
+    ];
+
+    for (const testCase of needsRecompute) {
+      expect(isDataStale(testCase)).toBe(true);
+    }
+    expect.assertions(needsRecompute.length);
+  });
+
+  it('is not stale if data contains auxiliary dataset', () => {
+    expect(
+      isDataStale({
+        cue: 'cue',
+        title: 'title',
+        note: 'note',
+        endAction: EndAction.LoadNext,
+        timerType: TimerType.Clock,
+        isPublic: false,
+        colour: 'colour',
+        timeWarning: 1,
+        timeDanger: 2,
+        custom: {
+          lighting: { value: '3' },
+        },
+      }),
+    ).toBe(false);
+  });
+});
+
+describe('hasChanges()', () => {
+  it('identifies objects with new values', () => {
+    const newEvent = { id: '1', title: 'new-title' } as OntimeEvent;
+    const existing = { id: '1', cue: 'cue', title: 'title' } as OntimeEvent;
+    expect(hasChanges(existing, newEvent)).toBe(true);
+  });
+  it('identifies objects with all same values', () => {
+    const newEvent = { id: '1', title: 'title' } as OntimeEvent;
+    const existing = { id: '1', cue: 'cue', title: 'title' } as OntimeEvent;
+    expect(hasChanges(existing, newEvent)).toBe(false);
   });
 });
