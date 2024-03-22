@@ -35,6 +35,17 @@ const parse = (valueAsString: string): number => {
   return Math.abs(parsed);
 };
 
+const stripAMPM = (value: string) => {
+  const lowerValue = value.toLowerCase();
+  if (lowerValue.endsWith('am')) {
+    return { sansPostfix: lowerValue.substring(0, lowerValue.length - 2), pastNoon: false };
+  } else if (lowerValue.endsWith('pm')) {
+    return { sansPostfix: lowerValue.substring(0, lowerValue.length - 2), pastNoon: true };
+  } else {
+    return { sansPostfix: lowerValue, pastNoon: false };
+  }
+};
+
 /**
  * @description Parses a time string to millis, copied from client code
  * @param {string} value - time string
@@ -44,17 +55,16 @@ const parse = (valueAsString: string): number => {
 export const forgivingStringToMillis = (value: string, fillLeft: boolean = true): number => {
   let millis = 0;
 
-  //force lower case before AM/PM check
-  value = value.toLowerCase();
+  // check for AM/PM indicators
+  const { sansPostfix, pastNoon } = stripAMPM(value);
 
-  value = value.endsWith('am') ? value.substring(0, value.length - 2) : value;
-  if (value.endsWith('pm')) {
-    value = value.substring(0, value.length - 2);
+  //if past noon indicated add 12 hours
+  if (pastNoon) {
     millis = mth * 12;
   }
   // split string at known separators    : , .
   const separatorRegex = /[\s,:.]+/;
-  const [first, second, third] = value.split(separatorRegex);
+  const [first, second, third] = sansPostfix.split(separatorRegex);
 
   if (first != null && second != null && third != null) {
     // if string has three sections, treat as [hours] [minutes] [seconds]
