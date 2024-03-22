@@ -201,7 +201,14 @@ export default function SourcesPanel() {
               onSubmitImport={handleSubmitImportPreview}
             />
           )}
-          {showReview && <ImportReview rundown={rundown} customFields={customFields} onFinished={handleFinished} />}
+          {showReview && (
+            <ImportReview
+              rundown={rundown}
+              customFields={customFields}
+              onFinished={handleFinished}
+              onCancel={cancelImportMap}
+            />
+          )}
         </Panel.Card>
       </Panel.Section>
     </>
