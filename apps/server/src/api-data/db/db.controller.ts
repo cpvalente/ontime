@@ -8,7 +8,6 @@ import {
 } from 'ontime-types';
 
 import type { Request, Response } from 'express';
-import fs from 'fs';
 
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { resolveDbPath, resolveProjectsDirectory } from '../../setup/index.js';
