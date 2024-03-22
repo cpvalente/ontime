@@ -71,38 +71,6 @@ export const ontimeButtonGhosted = {
   },
 };
 
-export const ontimeButtonSubtleOnLight = {
-  backgroundColor: '#ececec', // $gray-100
-  color: '#595959', // $gray-800
-  border: '1px solid transparent',
-  _hover: {
-    backgroundColor: '#cfcfcf', // $gray-200
-    _disabled: {
-      backgroundColor: '#ececec', // $gray-100
-    },
-  },
-  _active: {
-    backgroundColor: '#ececec', // $gray-200
-    borderColor: '#ececec', // $gray-300
-  },
-};
-
-export const ontimeGhostOnLight = {
-  backgroundColor: 'transparent',
-  color: '#595959', // $gray-800
-  _hover: {
-    color: '#595959', // $gray-800
-    backgroundColor: '#ececec', // $gray-200
-    _disabled: {
-      backgroundColor: 'transparent',
-    },
-  },
-  _active: {
-    backgroundColor: 'transparent',
-    borderColor: '#595959', // $gray-800
-  },
-};
-
 export const ontimeButtonSubtleWhite = {
   ...ontimeButtonSubtle,
   color: '#f6f6f6', // $gray-50
