@@ -13,12 +13,12 @@ type PreviewSpreadsheetResponse = {
 
 /**
  * upload Excel file to server
- * @return { fileId: string } - file ID op the uploaded file
+ * @return string - file ID op the uploaded file
  */
-export async function upload(file: File): Promise<{ fileId: string }> {
+export async function upload(file: File): Promise<string> {
   const formData = new FormData();
   formData.append('excel', file);
-  const response: AxiosResponse<{ fileId: string }> = await axios.post(`${excelPath}/upload`, formData, {
+  const response: AxiosResponse<string> = await axios.post(`${excelPath}/upload`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
@@ -28,10 +28,10 @@ export async function upload(file: File): Promise<{ fileId: string }> {
 
 /**
  * Get Worksheet names
- * @return {string[]} - array of available worksheets
+ * @return string[] - array of available worksheets
  */
-export async function getWorksheetNames(fileId: string): Promise<{ names: string[] }> {
-  const response: AxiosResponse<{ names: string[] }> = await axios.get(`${excelPath}/${fileId}/worksheets`);
+export async function getWorksheetNames(fileId: string): Promise<string[]> {
+  const response: AxiosResponse<string[]> = await axios.get(`${excelPath}/${fileId}/worksheets`);
   return response.data;
 }
 

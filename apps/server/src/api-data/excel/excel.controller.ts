@@ -27,7 +27,7 @@ export async function postExcel(req: Request, res: Response) {
     const newPath = join(uploadsFolderPath, newName);
     renameSync(filePath, newPath);
 
-    res.status(200).send({ fileId: newName });
+    res.status(200).send(newName);
   } catch (error) {
     res.status(500).send({ message: String(error) });
   }
@@ -41,7 +41,7 @@ export async function getWorksheets(req: Request, res: Response) {
       throw new Error('file missing');
     }
     const names = getExcelWorksheets(filePath);
-    res.status(200).send({ names });
+    res.status(200).send(names);
   } catch (error) {
     res.status(500).send({ message: String(error) });
   }

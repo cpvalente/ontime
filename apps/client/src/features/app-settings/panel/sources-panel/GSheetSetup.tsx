@@ -55,7 +55,6 @@ export default function GSheetSetup(props: GSheetSetupProps) {
   };
 
   const handleCancelFlow = async () => {
-    await handleRevoke();
     onCancel();
   };
 

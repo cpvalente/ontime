@@ -53,9 +53,9 @@ export default function SourcesPanel() {
     }
     try {
       validateExcelImport(fileToUpload);
-      const { fileId } = await uploadExcel(fileToUpload);
+      const fileId = await uploadExcel(fileToUpload);
       setExcel(fileId);
-      const { names } = await getWorksheetNamesExcel(fileId);
+      const names = await getWorksheetNamesExcel(fileId);
       setWorksheets(names);
       setImportFlow('excel');
     } catch (error) {
