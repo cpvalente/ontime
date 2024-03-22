@@ -3,18 +3,15 @@
  * Google Sheets
  */
 
-import { extname, join } from 'path';
+import { extname } from 'path';
 import { existsSync } from 'fs';
 import { ImportMap } from 'ontime-utils';
-import { uploadsFolderPath } from '../../setup/index.js';
 import xlsx from 'node-xlsx';
 import { parseExcel } from '../../utils/parser.js';
 import { parseCustomFields, parseRundown } from '../../utils/parserFunctions.js';
 import { deleteFile } from '../../utils/parserUtils.js';
 
-
-const excelFilePath = join(uploadsFolderPath, 'importedExcelFile.xlsx');
-let excelData: { name: string, data: any[][] }[] = [];
+let excelData: { name: string; data: unknown[][] }[] = [];
 
 export async function saveExcelFile(filePath: string) {
   if (!existsSync(filePath)) {
@@ -33,7 +30,6 @@ export function listWorksheets() {
 }
 
 export function generateRundownPreview(options: ImportMap) {
-
   const data = excelData.find(({ name }) => name.toLowerCase() === options.worksheet.toLowerCase())?.data;
 
   if (!data) {
@@ -55,4 +51,3 @@ export function generateRundownPreview(options: ImportMap) {
 
   return result;
 }
-

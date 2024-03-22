@@ -8,7 +8,7 @@ import {
 } from 'ontime-types';
 
 import type { Request, Response } from 'express';
-import fs from 'fs';
+import { existsSync } from 'fs';
 import { join } from 'path';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -143,7 +143,7 @@ export async function loadProject(req: Request, res: Response<MessageResponse | 
     const filename = req.body.filename;
     const filePath = join(resolveProjectsDirectory, filename);
 
-    if (!fs.existsSync(filePath)) {
+    if (!existsSync(filePath)) {
       return res.status(404).send({ message: 'File not found' });
     }
     await projectService.applyProjectFile(filePath);

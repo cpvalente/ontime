@@ -2,8 +2,6 @@ import {
   defaultImportMap,
   generateId,
   type ImportMap,
-  type ImportOptions,
-  isImportMap,
   isKnownTimerType,
   validateEndAction,
   validateLinkStart,
@@ -21,8 +19,6 @@ import {
   TimerType,
   TimeStrategy,
 } from 'ontime-types';
-
-import xlsx from 'node-xlsx';
 
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
@@ -365,9 +361,3 @@ export const createEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: string
   const event = createPatch(baseEvent, eventArgs);
   return event;
 };
-
-type ResponseOK = {
-  data: Partial<DatabaseModel>;
-};
-
-
