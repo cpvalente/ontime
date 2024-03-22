@@ -230,8 +230,8 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
           }
 
           // check if it is a custom field
-          if (columnText in customFieldImportKeys) {
-            handlers.custom(rowIndex, j, columnText);
+          if (column in customFieldImportKeys) {
+            handlers.custom(rowIndex, j, column);
           }
 
           // else. we don't know how to handle this column
