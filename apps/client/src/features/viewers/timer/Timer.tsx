@@ -15,7 +15,6 @@ import { MILLIS_PER_SECOND, millisToString, removeLeadingZero, removeSeconds } f
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
-import ViewNavigationMenu from '../../../common/components/navigation-menu/ViewNavigationMenu';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getTimerOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
