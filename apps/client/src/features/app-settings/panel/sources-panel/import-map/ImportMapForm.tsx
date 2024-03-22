@@ -142,9 +142,9 @@ export default function ImportMapForm(props: ImportMapFormProps) {
                       {...register(label as keyof NamedImportMap)}
                     >
                       {worksheetNames &&
-                        worksheetNames.map((name, index) => {
+                        worksheetNames.map((name) => {
                           return (
-                            <option key={name} value={name} data-testid={`worksheetName-${index}`}>
+                            <option key={name} value={name}>
                               {name}
                             </option>
                           );

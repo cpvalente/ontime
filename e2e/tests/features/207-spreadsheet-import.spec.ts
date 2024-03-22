@@ -17,11 +17,8 @@ test('sheet file upload', async ({ page }) => {
   const fileChooser = await fileChooserPromise;
   await fileChooser.setFiles(fileToUpload);
 
-  const worksheetOption1 = page.getByTestId('worksheetName-0');
-  await expect(worksheetOption1).toHaveValue('Sheet2');
-
-  const worksheetOption2 = page.getByTestId('worksheetName-1');
-  await expect(worksheetOption2).toHaveValue('test');
+  await page.locator('[id="event\\ schedule"]').selectOption('Sheet2');
+  await page.locator('[id="event\\ schedule"]').selectOption('test');
 
   await page.getByRole('button', { name: 'Import preview' }).click();
   await page.getByRole('button', { name: 'Apply' }).click();
