@@ -26,7 +26,7 @@ import xlsx from 'node-xlsx';
 
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
-import { deleteFile, makeString } from './parserUtils.js';
+import { makeString } from './parserUtils.js';
 import {
   parseCustomFields,
   parseHttp,
@@ -370,46 +370,4 @@ type ResponseOK = {
   data: Partial<DatabaseModel>;
 };
 
-export function getExcelWorksheets(file: string): string[] {
-  if (!file.endsWith('.xlsx')) {
-    throw new Error('unexpected extension for spreadsheet');
-  }
-  return xlsx.parse(file, { cellDates: false }).map((value) => value.name);
-}
 
-/**
- * Validates and calls parse on an excel file
- */
-export function handleMaybeExcel(file: string, options: ImportOptions) {
-  const res: Partial<ResponseOK> = {};
-
-  if (!file.endsWith('.xlsx')) {
-    throw new Error('unexpected extension for spreadsheet');
-  }
-
-  // we need to check that the options are applicable
-  if (!isImportMap(options)) {
-    throw new Error('Got incorrect options for spreadsheet import');
-  }
-
-  const excelData = xlsx
-    .parse(file, { cellDates: true })
-    .find(({ name }) => name.toLowerCase() === options.worksheet.toLowerCase());
-
-  if (!excelData?.data) {
-    throw new Error(`Could not find data to import, maybe the worksheet name is incorrect: ${options.worksheet}`);
-  }
-
-  const dataFromExcel = parseExcel(excelData.data, options);
-  // we run the parsed data through an extra step to ensure the objects shape
-  res.data = {};
-  res.data.rundown = parseRundown(dataFromExcel);
-  if (res.data.rundown.length < 1) {
-    throw new Error(`Could not find data to import in the worksheet: ${options.worksheet}`);
-  }
-  res.data.customFields = parseCustomFields(dataFromExcel);
-
-  deleteFile(file);
-
-  return res;
-}

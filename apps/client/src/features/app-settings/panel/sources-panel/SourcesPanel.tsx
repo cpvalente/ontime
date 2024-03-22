@@ -26,11 +26,10 @@ import style from './SourcesPanel.module.scss';
 export default function SourcesPanel() {
   const [importFlow, setImportFlow] = useState<'none' | 'excel' | 'gsheet' | 'finished'>('none');
   const [error, setError] = useState('');
+  const [hasFile, setHasFile] = useState(false);
 
   const { exportRundown, importRundownPreview, verifyAuth } = useGoogleSheet();
 
-  const excel = useSheetStore((state) => state.excel);
-  const setExcel = useSheetStore((state) => state.setExcel);
   const setWorksheets = useSheetStore((state) => state.setWorksheets);
   const authenticationStatus = useSheetStore((state) => state.authenticationStatus);
   const setAuthenticationStatus = useSheetStore((state) => state.setAuthenticationStatus);
@@ -47,22 +46,22 @@ export default function SourcesPanel() {
     const fileToUpload = event.target.files?.[0];
 
     if (!fileToUpload) {
-      setExcel(null);
       setWorksheets(null);
+      setHasFile(false);
       return;
     }
     try {
       validateExcelImport(fileToUpload);
-      const fileId = await uploadExcel(fileToUpload);
-      setExcel(fileId);
-      const names = await getWorksheetNamesExcel(fileId);
+      await uploadExcel(fileToUpload);
+      const names = await getWorksheetNamesExcel();
       setWorksheets(names);
       setImportFlow('excel');
+      setHasFile(true);
     } catch (error) {
       const errorMessage = unpackError(error);
       setError(`Error uploading file: ${errorMessage}`);
-      setExcel(null);
       setWorksheets(null);
+      setHasFile(false);
     }
   };
 
@@ -89,9 +88,8 @@ export default function SourcesPanel() {
 
   const handleSubmitImportPreview = async (importMap: ImportMap) => {
     if (importFlow === 'excel') {
-      if (!excel) return;
       try {
-        const previewData = await importRundownPreviewExcel(excel, importMap);
+        const previewData = await importRundownPreviewExcel(importMap);
         setRundown(previewData.rundown);
         setCustomFields(previewData.customFields);
       } catch (error) {
@@ -107,11 +105,8 @@ export default function SourcesPanel() {
 
   const cancelImportMap = async () => {
     setImportFlow('none');
-    if (excel) {
-      setExcel(null);
-      setWorksheets(null);
-    }
-
+    setHasFile(false);
+    setWorksheets(null);
     if (authenticationStatus === 'authenticated') {
       const result = await verifyAuth();
       if (result) {
@@ -123,7 +118,7 @@ export default function SourcesPanel() {
   const handleFinished = () => {
     setImportFlow('finished');
     setRundown(null);
-    setExcel(null);
+    setHasFile(false);
     setWorksheets(null);
     setCustomFields(null);
   };
@@ -135,7 +130,6 @@ export default function SourcesPanel() {
 
   const isExcelFlow = importFlow === 'excel';
   const isGSheetFlow = importFlow === 'gsheet';
-  const hasFile = Boolean(excel);
   const isAuthenticated = authenticationStatus === 'authenticated';
   const showInput = importFlow === 'none';
   const showSuccess = importFlow === 'finished';
