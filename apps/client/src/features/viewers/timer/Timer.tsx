@@ -162,7 +162,6 @@ export default function Timer(props: TimerProps) {
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
-      <ViewNavigationMenu />
       <ViewParamsEditor paramFields={timerOptions} />
       <div className={showBlackout ? 'blackout blackout--active' : 'blackout'} />
       {!userOptions.hideMessage && (

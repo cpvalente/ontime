@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 import { CustomField, CustomFields, isOntimeEvent, OntimeEvent, SupportedEvent } from 'ontime-types';
 import { getFirstEventNormal, getLastEventNormal } from 'ontime-utils';
 
-import ViewNavigationMenu from '../../common/components/navigation-menu/ViewNavigationMenu';
 import Empty from '../../common/components/state/Empty';
 import { getOperatorOptions } from '../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
@@ -141,7 +140,6 @@ export default function Operator() {
 
   return (
     <div className={style.operatorContainer}>
-      <ViewNavigationMenu />
       <ViewParamsEditor paramFields={operatorOptions} />
       {editEvent && <EditModal event={editEvent} onClose={() => setEditEvent(null)} />}
 
