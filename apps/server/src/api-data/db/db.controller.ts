@@ -8,16 +8,12 @@ import {
 } from 'ontime-types';
 
 import type { Request, Response } from 'express';
-import { existsSync } from 'fs';
-import { join } from 'path';
+import fs from 'fs';
 
-import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { resolveDbPath, resolveProjectsDirectory } from '../../setup/index.js';
 
 import * as projectService from '../../services/project-service/ProjectService.js';
-import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
-import { setRundown } from '../../services/rundown-service/RundownService.js';
 import { ensureJsonExtension } from '../../utils/fileManagement.js';
 import { generateUniqueFileName } from '../../utils/generateUniqueFilename.js';
 import { appStateService } from '../../services/app-state-service/AppStateService.js';
@@ -30,23 +26,10 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
   }
 
   try {
-    const patchDb: Partial<DatabaseModel> = {
-      project: req.body?.project,
-      settings: req.body?.settings,
-      viewSettings: req.body?.viewSettings,
-      osc: req.body?.osc,
-      urlPresets: req.body?.urlPresets,
-      customFields: req.body?.customFields,
-    };
+    const { rundown, project, settings, viewSettings, urlPresets, customFields, osc, http } = req.body;
+    const patchDb: DatabaseModel = { rundown, project, settings, viewSettings, urlPresets, customFields, osc, http };
 
-    const maybeRundown = req.body?.rundown;
-    await DataProvider.mergeIntoData(patchDb);
-    if (maybeRundown !== undefined) {
-      // it is likely cheaper to invalidate cache than to calculate diff
-      runtimeService.stop();
-      await setRundown(maybeRundown);
-    }
-    const newData = DataProvider.getData();
+    const newData = await projectService.applyDataModel(patchDb);
     res.status(200).send(newData);
   } catch (error) {
     res.status(400).send({ message: String(error) });
@@ -92,9 +75,7 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
 }
 
 export async function projectDownload(_req: Request, res: Response) {
-  const { title } = DataProvider.getProjectData();
-  const fileTitle = title || 'ontime data';
-
+  const fileTitle = projectService.getProjectTitle();
   res.download(resolveDbPath, `${fileTitle}.json`, (err) => {
     if (err) {
       res.status(500).send({
@@ -115,9 +96,14 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
 
   try {
     const options = req.query;
-    const filePath = req.file.path;
-    await projectService.applyProjectFile(filePath, options);
-    res.status(201).send({ message: 'ok' });
+    const { filename, path } = req.file;
+
+    await projectService.handleUploadedFile(path, filename);
+    await projectService.applyProjectFile(filename, options);
+
+    res.status(201).send({
+      message: `Loaded project ${filename}`,
+    });
   } catch (error) {
     res.status(400).send({ message: `Failed parsing ${error}` });
   }
@@ -140,15 +126,15 @@ export async function listProjects(_req: Request, res: Response<ProjectFileListR
  */
 export async function loadProject(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
-    const filename = req.body.filename;
-    const filePath = join(resolveProjectsDirectory, filename);
-
-    if (!existsSync(filePath)) {
+    const name = req.body.filename;
+    if (!projectService.doesProjectExist(name)) {
       return res.status(404).send({ message: 'File not found' });
     }
-    await projectService.applyProjectFile(filePath);
+
+    await projectService.applyProjectFile(name);
+
     res.status(201).send({
-      message: `Loaded project ${filename}`,
+      message: `Loaded project ${name}`,
     });
   } catch (error) {
     res.status(500).send({ message: String(error) });

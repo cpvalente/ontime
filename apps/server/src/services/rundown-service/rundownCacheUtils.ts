@@ -1,4 +1,12 @@
-import { OntimeEvent, isOntimeEvent, OntimeRundown, CustomFieldLabel, CustomFields } from 'ontime-types';
+import {
+  OntimeEvent,
+  isOntimeEvent,
+  OntimeRundown,
+  CustomFieldLabel,
+  CustomFields,
+  OntimeRundownEntry,
+  OntimeBaseEvent,
+} from 'ontime-types';
 import { getLinkedTimes } from 'ontime-utils';
 
 /**
@@ -89,4 +97,39 @@ export function handleCustomField(
       delete mutableEvent.custom[field];
     }
   }
+}
+
+/** List of event properties which do not need the rundown to be regenerated */
+enum regenerateWhitelist {
+  'id',
+  'cue',
+  'title',
+  'note',
+  'endAction',
+  'timerType',
+  'isPublic',
+  'colour',
+  'timeWarning',
+  'timeDanger',
+  'custom',
+}
+
+/**
+ * given a patch, returns whether all keys are whitelisted
+ * @param path
+ */
+export function isDataStale(patch: Partial<OntimeRundownEntry>): boolean {
+  return Object.keys(patch).some((key) => !(key in regenerateWhitelist));
+}
+
+/**
+ * Given an event and a patch to that event checks whether there are actual changes to the dataset
+ * @param existingEvent
+ * @param newEvent
+ * @returns
+ */
+export function hasChanges<T extends OntimeBaseEvent>(existingEvent: T, newEvent: Partial<T>): boolean {
+  return Object.keys(newEvent).some(
+    (key) => !Object.hasOwn(existingEvent, key) || existingEvent[key] !== newEvent[key],
+  );
 }
