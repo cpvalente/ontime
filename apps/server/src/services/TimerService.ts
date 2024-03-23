@@ -139,7 +139,9 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // to apply custom logic for different datasets
 
     // some of the data, we only update at intervals
-    const isTimeToUpdate = state.clock - TimerService.previousUpdate >= TimerService._updateInterval;
+    const isTimeToUpdate =
+      state.clock < TimerService.previousUpdate ||
+      state.clock - TimerService.previousUpdate >= TimerService._updateInterval;
 
     // some changes need an immediate update
     const hasNewLoaded = state.eventNow?.id !== TimerService.previousState?.eventNow?.id;
