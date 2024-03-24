@@ -1,7 +1,7 @@
 import { memo, PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
-import { IoPencilSharp } from '@react-icons/all-files/io5/IoPencilSharp';
+import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
 import useClickOutside from '../../hooks/useClickOutside';
 
@@ -45,14 +45,24 @@ function NavigationMenu(props: PropsWithChildren<NavigationMenuProps>) {
   return createPortal(
     <div id='navigation-menu-portal' ref={menuRef}>
       <div className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}>
-        <button onClick={toggleMenu} aria-label='toggle menu' className={style.navButton}>
+        <button
+          onClick={toggleMenu}
+          aria-label='toggle menu'
+          className={style.navButton}
+          data-testid='navigation__toggle-menu'
+        >
           <IoApps />
         </button>
-        <button className={style.button} onClick={editCallback}>
-          <IoPencilSharp />
+        <button
+          className={style.button}
+          onClick={editCallback}
+          aria-label='toggle settings'
+          data-testid='navigation__toggle-settings'
+        >
+          <IoSettingsOutline />
         </button>
         {showMenu && (
-          <div className={style.menuContainer} data-testid='navigation-menu'>
+          <div className={style.menuContainer} data-testid='navigation__menu'>
             {children}
           </div>
         )}
