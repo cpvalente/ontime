@@ -1,5 +1,14 @@
 import { memo, PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import {
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
+  useDisclosure,
+} from '@chakra-ui/react';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
@@ -16,12 +25,12 @@ function NavigationMenu(props: PropsWithChildren<NavigationMenuProps>) {
   const { children, editCallback } = props;
 
   const [showButton, setShowButton] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const menuRef = useRef<HTMLDivElement | null>(null);
 
-  useClickOutside(menuRef, () => setShowMenu(false));
+  useClickOutside(menuRef, () => onClose);
 
-  const toggleMenu = () => setShowMenu((prev) => !prev);
+  const toggleMenu = () => (isOpen ? onClose() : onOpen());
 
   // show on mouse move
   useEffect(() => {
@@ -47,7 +56,7 @@ function NavigationMenu(props: PropsWithChildren<NavigationMenuProps>) {
 
   return createPortal(
     <div id='navigation-menu-portal' ref={menuRef}>
-      <div className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}>
+      <div className={`${style.buttonContainer} ${!showButton && !isOpen ? style.hidden : ''}`}>
         <button
           onClick={toggleMenu}
           aria-label='toggle menu'
@@ -64,11 +73,16 @@ function NavigationMenu(props: PropsWithChildren<NavigationMenuProps>) {
         >
           <IoSettingsOutline />
         </button>
-        {showMenu && (
-          <div className={style.menuContainer} data-testid='navigation__menu'>
-            {children}
-          </div>
-        )}
+        <Drawer placement='left' onClose={onClose} isOpen={isOpen} variant='ontime' data-testid='navigation__menu'>
+          <DrawerOverlay />
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerCloseButton size='lg' />
+              Ontime
+            </DrawerHeader>
+            <DrawerBody padding={0}>{children}</DrawerBody>
+          </DrawerContent>
+        </Drawer>
       </div>
     </div>,
     document.body,

@@ -10,6 +10,7 @@ import {
   ontimeButtonSubtleWhite,
 } from './ontimeButton';
 import { ontimeCheckboxOnDark } from './ontimeCheckbox';
+import { ontimeDrawer } from './ontimeDrawer';
 import { ontimeEditable } from './ontimeEditable';
 import { ontimeMenuOnDark } from './ontimeMenu';
 import { ontimeModal } from './ontimeModal';
@@ -53,6 +54,11 @@ const theme = extendTheme({
       variants: {
         'ontime-ondark': { ...ontimeCheckboxOnDark },
       },
+    },
+    Drawer: {
+      variants: {
+        'ontime': {...ontimeDrawer},
+      }
     },
     Editable: {
       variants: {
