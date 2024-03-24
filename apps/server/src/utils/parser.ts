@@ -1,40 +1,37 @@
 import {
-  generateId,
-  isImportMap,
-  type ImportMap,
   defaultImportMap,
-  validateEndAction,
-  validateTimerType,
-  type ImportOptions,
-  validateTimes,
+  generateId,
+  type ImportMap,
   isKnownTimerType,
+  validateEndAction,
   validateLinkStart,
+  validateTimerType,
+  validateTimes,
 } from 'ontime-utils';
 import {
+  CustomFields,
   DatabaseModel,
+  EventCustomFields,
+  OntimeBlock,
   OntimeEvent,
   OntimeRundown,
   SupportedEvent,
-  TimeStrategy,
-  CustomFields,
-  EventCustomFields,
   TimerType,
+  TimeStrategy,
 } from 'ontime-types';
-
-import xlsx from 'node-xlsx';
 
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
-import { deleteFile, makeString } from './parserUtils.js';
+import { makeString } from './parserUtils.js';
 import {
-  parseUrlPresets,
-  parseProject,
-  parseOsc,
+  parseCustomFields,
   parseHttp,
+  parseOsc,
+  parseProject,
   parseRundown,
   parseSettings,
+  parseUrlPresets,
   parseViewSettings,
-  parseCustomFields,
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
 import { coerceBoolean } from './coerceType.js';
@@ -192,10 +189,6 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
         }
       } else if (j === titleIndex) {
         event.title = makeString(column, '');
-        // if this is a block, we have nothing else to import
-        if (event.type === SupportedEvent.Block) {
-          continue;
-        }
       } else if (j === timeStartIndex) {
         event.timeStart = parseExcelDate(column);
       } else if (j === timeEndIndex) {
@@ -237,8 +230,8 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
           }
 
           // check if it is a custom field
-          if (columnText in customFieldImportKeys) {
-            handlers.custom(rowIndex, j, columnText);
+          if (column in customFieldImportKeys) {
+            handlers.custom(rowIndex, j, column);
           }
 
           // else. we don't know how to handle this column
@@ -250,11 +243,16 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
     // if any data was found in row, push to array
     const keysFound = Object.keys(event).length + Object.keys(eventCustomFields).length;
     if (keysFound > 0) {
-      if (timerTypeIndex === null) {
-        event.timerType = TimerType.CountDown;
-        event.type = SupportedEvent.Event;
+      // if it is a Block type drop all other filed
+      if (event.type === SupportedEvent.Block) {
+        rundown.push({ type: event.type, id: event.id, title: event.title } as OntimeBlock);
+      } else {
+        if (timerTypeIndex === null) {
+          event.timerType = TimerType.CountDown;
+          event.type = SupportedEvent.Event;
+        }
+        rundown.push({ ...event, custom: { ...eventCustomFields } });
       }
-      rundown.push({ ...event, custom: { ...eventCustomFields } });
     }
   });
 
@@ -363,44 +361,3 @@ export const createEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: string
   const event = createPatch(baseEvent, eventArgs);
   return event;
 };
-
-type ResponseOK = {
-  data: Partial<DatabaseModel>;
-};
-
-/**
- * Validates and calls parse on an excel file
- */
-export function handleMaybeExcel(file: string, options: ImportOptions) {
-  const res: Partial<ResponseOK> = {};
-
-  if (!file.endsWith('.xlsx')) {
-    throw new Error('unexpected extension for spreadsheet');
-  }
-
-  // we need to check that the options are applicable
-  if (!isImportMap(options)) {
-    throw new Error('Got incorrect options for spreadsheet import');
-  }
-
-  const excelData = xlsx
-    .parse(file, { cellDates: true })
-    .find(({ name }) => name.toLowerCase() === options.worksheet.toLowerCase());
-
-  if (!excelData?.data) {
-    throw new Error(`Could not find data to import, maybe the worksheet name is incorrect: ${options.worksheet}`);
-  }
-
-  const dataFromExcel = parseExcel(excelData.data, options);
-  // we run the parsed data through an extra step to ensure the objects shape
-  res.data = {};
-  res.data.rundown = parseRundown(dataFromExcel);
-  if (res.data.rundown.length < 1) {
-    throw new Error(`Could not find data to import in the worksheet: ${options.worksheet}`);
-  }
-  res.data.customFields = parseCustomFields(dataFromExcel);
-
-  deleteFile(file);
-
-  return res;
-}

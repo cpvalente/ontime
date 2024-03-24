@@ -8,7 +8,6 @@ import {
 } from 'ontime-types';
 
 import type { Request, Response } from 'express';
-import fs from 'fs';
 
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { resolveDbPath, resolveProjectsDirectory } from '../../setup/index.js';
@@ -17,7 +16,6 @@ import * as projectService from '../../services/project-service/ProjectService.j
 import { ensureJsonExtension } from '../../utils/fileManagement.js';
 import { generateUniqueFileName } from '../../utils/generateUniqueFilename.js';
 import { appStateService } from '../../services/app-state-service/AppStateService.js';
-import { handleMaybeExcel } from '../../utils/parser.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   // all fields are optional in validation
@@ -244,28 +242,4 @@ export async function deleteProjectFile(req: Request, res: Response<MessageRespo
 export async function getInfo(_req: Request, res: Response<GetInfo>) {
   const info = await projectService.getInfo();
   res.status(200).send(info);
-}
-
-/**
- * uploads and parses an excel spreadsheet
- * @returns parsed result
- */
-export async function previewSpreadsheet(req: Request, res: Response) {
-  if (!req.file) {
-    res.status(400).send({ message: 'File not found' });
-    return;
-  }
-
-  try {
-    const filePath = req.file.path;
-    if (!fs.existsSync(filePath)) {
-      throw new Error('Upload failed');
-    }
-
-    const options = JSON.parse(req.body.options);
-    const { data } = handleMaybeExcel(filePath, options);
-    res.status(200).send(data);
-  } catch (error) {
-    res.status(500).send({ message: String(error) });
-  }
 }

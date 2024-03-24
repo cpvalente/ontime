@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Button, IconButton, Input } from '@chakra-ui/react';
+import { Button, IconButton, Input, Select, Tooltip } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { ImportMap } from 'ontime-utils';
 
 import { isAlphanumeric } from '../../../../../common/utils/regex';
 import * as Panel from '../../PanelUtils';
+import useGoogleSheet from '../useGoogleSheet';
 import { useSheetStore } from '../useSheetStore';
 
 import { convertToImportMap, getPersistedOptions, NamedImportMap, persistImportMap } from './importMapUtils';
@@ -23,7 +24,7 @@ interface ImportMapFormProps {
 export default function ImportMapForm(props: ImportMapFormProps) {
   const { isSpreadsheet, onCancel, onSubmitExport, onSubmitImport } = props;
   const namedImportMap = getPersistedOptions();
-
+  const { revoke } = useGoogleSheet();
   const {
     control,
     handleSubmit,
@@ -41,6 +42,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
   });
 
   const stepData = useSheetStore((state) => state.stepData);
+  const worksheetNames = useSheetStore((state) => state.worksheetNames);
 
   const [loading, setLoading] = useState<'' | 'export' | 'import'>('');
 
@@ -50,6 +52,11 @@ export default function ImportMapForm(props: ImportMapFormProps) {
 
     await onSubmitExport(importMap);
     setLoading('');
+  };
+
+  const handleRevoke = async () => {
+    await revoke();
+    onCancel();
   };
 
   const handleImportPreview = async (values: NamedImportMap) => {
@@ -78,6 +85,13 @@ export default function ImportMapForm(props: ImportMapFormProps) {
       <Panel.Title>
         Import options
         <div className={style.buttonRow}>
+          {!isSpreadsheet && (
+            <Tooltip label='Revoke the google authentication'>
+              <Button variant='ontime-subtle' size='sm' onClick={handleRevoke} isDisabled={isLoading}>
+                Revoke
+              </Button>
+            </Tooltip>
+          )}
           <Button variant='ontime-subtle' size='sm' onClick={onCancel} isDisabled={isLoading}>
             Cancel
           </Button>
@@ -115,6 +129,31 @@ export default function ImportMapForm(props: ImportMapFormProps) {
           {Object.entries(namedImportMap).map(([label, importName]) => {
             if (label === 'custom') {
               return null;
+            }
+            if (label === 'Worksheet') {
+              return (
+                <tr key={importName as string}>
+                  <td>{label}</td>
+                  <td>
+                    <Select
+                      variant='ontime'
+                      id={importName as string}
+                      size='sm'
+                      {...register(label as keyof NamedImportMap)}
+                    >
+                      {worksheetNames &&
+                        worksheetNames.map((name) => {
+                          return (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          );
+                        })}
+                    </Select>
+                  </td>
+                  <td className={style.singleActionCell} />
+                </tr>
+              );
             }
             return (
               <tr key={importName as string}>

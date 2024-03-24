@@ -108,7 +108,7 @@ describe('cellRequestFromEvent()', () => {
     expect(result).toStrictEqual(millisToString(event.duration));
   });
 
-  test('boolean to x', () => {
+  test('boolean to TRUE', () => {
     const event: OntimeEvent = {
       type: SupportedEvent.Event,
       cue: '1',
@@ -149,8 +149,8 @@ describe('cellRequestFromEvent()', () => {
       timeDanger: { row: 1, col: 41 },
     };
     const result = cellRequestFromEvent(event, 1, 1234, metadata);
-    expect(result.updateCells.rows[0].values[11].userEnteredValue.stringValue).toStrictEqual('x');
-    expect(result.updateCells.rows[0].values[12].userEnteredValue.stringValue).toStrictEqual('');
+    expect(result.updateCells.rows[0].values[11].userEnteredValue.boolValue).toStrictEqual(true);
+    expect(result.updateCells.rows[0].values[12].userEnteredValue.boolValue).toStrictEqual(false);
   });
 
   test('spacing in metadata', () => {

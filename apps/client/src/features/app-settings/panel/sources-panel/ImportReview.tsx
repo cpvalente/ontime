@@ -14,10 +14,11 @@ interface ImportReviewProps {
   rundown: OntimeRundown;
   customFields: CustomFields;
   onFinished: () => void;
+  onCancel: () => void;
 }
 
 export default function ImportReview(props: ImportReviewProps) {
-  const { rundown, customFields, onFinished } = props;
+  const { rundown, customFields, onFinished, onCancel } = props;
 
   const [loading, setLoading] = useState(false);
   const { importRundown } = useGoogleSheet();
@@ -25,7 +26,7 @@ export default function ImportReview(props: ImportReviewProps) {
 
   const handleCancel = () => {
     resetPreview();
-    onFinished();
+    onCancel();
   };
 
   const applyImport = async () => {
