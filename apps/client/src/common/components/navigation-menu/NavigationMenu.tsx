@@ -4,6 +4,7 @@ import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
 import useClickOutside from '../../hooks/useClickOutside';
+import { debounce } from '../../utils/debounce';
 
 import style from './NavigationMenu.module.scss';
 
@@ -25,7 +26,6 @@ function NavigationMenu(props: PropsWithChildren<NavigationMenuProps>) {
   // show on mouse move
   useEffect(() => {
     let fadeOut: NodeJS.Timeout | null = null;
-    // TODO: debounce
     const setShowMenuTrue = () => {
       setShowButton(true);
       if (fadeOut) {
@@ -33,9 +33,12 @@ function NavigationMenu(props: PropsWithChildren<NavigationMenuProps>) {
       }
       fadeOut = setTimeout(() => setShowButton(false), 3000);
     };
-    document.addEventListener('mousemove', setShowMenuTrue);
+
+    const debouncedShowMenu = debounce(setShowMenuTrue, 1000);
+
+    document.addEventListener('mousemove', debouncedShowMenu);
     return () => {
-      document.removeEventListener('mousemove', setShowMenuTrue);
+      document.removeEventListener('mousemove', debouncedShowMenu);
       if (fadeOut) {
         clearTimeout(fadeOut);
       }
