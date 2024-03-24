@@ -3,7 +3,11 @@ import fs from 'fs';
 
 test('project file exports csv', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
+
   await page.getByTestId('navigation__toggle-settings').click();
+  await page.getByRole('button', { name: 'Manage project files' }).click();
+
+  await page.getByRole('cell', { name: 'test-db' }).click();
   await page
     .getByRole('row', { name: /test-db/ })
     .getByLabel('Options')
