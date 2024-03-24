@@ -3,7 +3,6 @@ import { lazy, useCallback, useEffect } from 'react';
 import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import useElectronEvent from '../../common/hooks/useElectronEvent';
 import AppSettings from '../app-settings/AppSettings';
-import { SettingsOptionId } from '../app-settings/settingsStore';
 import useAppSettingsNavigation from '../app-settings/useAppSettingsNavigation';
 import Overview from '../overview/Overview';
 
