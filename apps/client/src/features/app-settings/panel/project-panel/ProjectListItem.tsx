@@ -88,7 +88,7 @@ export default function ProjectListItem({
   const classes = current && !isCurrentlyBeingEdited ? style.current : undefined;
 
   return (
-    <tr key={filename} className={classes}>
+    <tr key={filename} data-row={filename} className={classes}>
       {isCurrentlyBeingEdited ? (
         <td colSpan={99}>
           <ProjectForm

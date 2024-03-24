@@ -17,16 +17,13 @@ export default function Editor() {
   const { isOpen, setLocation, close } = useAppSettingsNavigation();
   const { isElectron } = useElectronEvent();
 
-  const handleSettings = useCallback(
-    (newTab?: SettingsOptionId) => {
-      if (isOpen) {
-        close();
-      } else {
-        setLocation(newTab ?? 'project');
-      }
-    },
-    [close, isOpen, setLocation],
-  );
+  const handleSettings = useCallback(() => {
+    if (isOpen) {
+      close();
+    } else {
+      setLocation('project');
+    }
+  }, [close, isOpen, setLocation]);
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
