@@ -1,7 +1,7 @@
 @use '../../../../theme/viewerDefs' as *;
 
 .timer {
-  grid-area: clk;
+  grid-area: clock;
   white-space: nowrap;
   max-width: 18.75rem;
   min-width: 5em;
