@@ -1,8 +1,9 @@
-import { OntimeEvent, isKeyOfType, isOntimeEvent } from 'ontime-types';
+import { EventCustomFields, isKeyOfType, isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import { editEvent } from '../services/rundown-service/RundownService.js';
 import { getEventWithId } from '../services/rundown-service/rundownUtils.js';
-import { coerceString, coerceNumber, coerceBoolean, coerceColour } from '../utils/coerceType.js';
+import { coerceBoolean, coerceColour, coerceNumber, coerceString } from '../utils/coerceType.js';
+import { getCustomFields } from '../services/rundown-service/rundownCache.js';
 
 // TODO: handle custom fields
 const whitelistedPayload = {
@@ -16,9 +17,35 @@ const whitelistedPayload = {
   skip: coerceBoolean,
 
   colour: coerceColour,
+
+  custom: coerceCustom,
 };
 
+function coerceCustom(value: unknown): EventCustomFields {
+  const customValue = value as { value: unknown; customProperty: string; type: 'string' };
+  switch (customValue.type) {
+    case 'string':
+      return {
+        [customValue.customProperty]: {
+          value: coerceString(customValue.value,
+          ),
+        },
+      };
+  }
+  throw new Error('Unable to parese custom value');
+}
+
 export function parse(property: string, value: unknown) {
+  if (property.startsWith('custom:')) {
+    const customProperty = property.split(':')[1];
+    property = property.split(':')[0];
+    const customFields = getCustomFields();
+    if (!Object.hasOwn(customFields, customProperty)) {
+      throw new Error(`Property ${customProperty} not found in available custom fields`);
+    }
+    const { type } = customFields[customProperty];
+    value = { value, customProperty, type };
+  }
   if (!isKeyOfType(property, whitelistedPayload)) {
     throw new Error(`Property ${property} not permitted`);
   }
