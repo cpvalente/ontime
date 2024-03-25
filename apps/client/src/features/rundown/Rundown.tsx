@@ -17,6 +17,7 @@ import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEditorSettings } from '../../common/stores/editorSettings';
+import { millisToDelayString } from '../../common/utils/dateConfig';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
@@ -36,7 +37,7 @@ export default function Rundown({ data }: RundownProps) {
   const [statefulEntries, setStatefulEntries] = useState(order);
 
   const featureData = useRundownEditor();
-  const { addEvent, reorderEvent } = useEventAction();
+  const { addEvent, reorderEvent, deleteEvent } = useEventAction();
   const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const linkPrevious = eventSettings.linkPrevious;
@@ -99,7 +100,6 @@ export default function Rundown({ data }: RundownProps) {
         if (e.target) {
           const elm = e.target as HTMLElement;
           //is it marked as escapable?
-          console.log(elm.getAttributeNames())
           if (elm.classList.contains('escapable')) {
             // then escape it
             elm.blur();
@@ -171,6 +171,36 @@ export default function Rundown({ data }: RundownProps) {
           case 'KeyC': {
             event.preventDefault();
             insertAtCursor('clone', cursor);
+            break;
+          }
+          case 'Backspace':
+          case 'Delete': {
+            event.preventDefault();
+
+            if (cursor) {
+              const elementToDelete = rundown[cursor];
+              const info = isOntimeDelay(elementToDelete)
+                ? `Delete this ${millisToDelayString(elementToDelete.duration)} delay?`
+                : isOntimeBlock(elementToDelete)
+                ? `Delete this block?\n${elementToDelete.title}`
+                : isOntimeEvent(elementToDelete)
+                ? `Delete this event?\n${elementToDelete.cue} | ${elementToDelete.title}`
+                : '';
+
+              if (!confirm(info)) {
+                break;
+              }
+              const { previousEvent, previousIndex } = getPreviousNormal(rundown, order, cursor);
+              const { nextEvent, nextIndex } = getNextNormal(rundown, order, cursor);
+              deleteEvent(cursor);
+              if (previousEvent && previousIndex !== null) {
+                setSelectedEvents({ id: previousEvent.id, index: previousIndex, selectMode: 'click' });
+                setCursor(previousEvent.id);
+              } else if (nextEvent && nextIndex !== null) {
+                setSelectedEvents({ id: nextEvent.id, index: nextIndex, selectMode: 'click' });
+                setCursor(nextEvent.id);
+              }
+            }
             break;
           }
         }
