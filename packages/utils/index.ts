@@ -14,6 +14,7 @@ export {
   getFirstNormal,
   getLastEvent,
   getLastEventNormal,
+  getLastNormal,
   getNext,
   getNextEvent,
   getNextEventNormal,

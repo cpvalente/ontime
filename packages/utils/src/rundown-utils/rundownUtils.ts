@@ -62,6 +62,20 @@ export function getFirstEventNormal(
 }
 
 /**
+ * Gets last event in a normalised rundown, if it exists
+ * @param rundown
+ * @param order
+ * @returns
+ */
+export function getLastNormal(rundown: NormalisedRundown, order: string[]) {
+  const lastId = order[order.length - 1];
+  const event = rundown[lastId];
+  const lastEvent = event ? event : null;
+  const lastIndex = lastEvent ? order.length - 1 : null;
+  return { lastEvent, lastIndex };
+}
+
+/**
  * Gets last scheduled event in rundown, if it exists
  * @param {OntimeRundownEntry[]} rundown
  * @return {{ firstEvent: OntimeEvent | null; firstIndex: number | null } }
