@@ -51,8 +51,16 @@ export default function TextInput(props: InputProps) {
       {...textAreaProps}
       style={{ height: isFullHeight ? '100%' : undefined }}
       data-testid='input-textarea'
+      className='escapable'
     />
   ) : (
-    <Input ref={inputRef} size={size} variant='ontime-filled' {...textInputProps} data-testid='input-textfield' />
+    <Input
+      ref={inputRef}
+      size={size}
+      variant='ontime-filled'
+      {...textInputProps}
+      data-testid='input-textfield'
+      className='escapable'
+    />
   );
 }

@@ -117,7 +117,7 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
     resetValue();
   }, [resetValue, time]);
 
-  const timeInputClasses = cx([style.timeInput, className]);
+  const timeInputClasses = cx([style.timeInput, className, 'escapable']);
 
   return (
     <Input

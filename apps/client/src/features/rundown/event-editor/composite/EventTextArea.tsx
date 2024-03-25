@@ -40,6 +40,7 @@ export default function EventTextArea(props: CountedTextAreaProps) {
         onChange={onChange}
         onBlur={onBlur}
         onKeyDown={onKeyDown}
+        className='escapable'
       />
     </div>
   );

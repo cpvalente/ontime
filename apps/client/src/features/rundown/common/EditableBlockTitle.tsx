@@ -34,7 +34,7 @@ export default function EditableBlockTitle(props: TitleEditorProps) {
     submitOnEnter: true,
   });
 
-  const classes = cx([className, style.eventTitle, !value ? style.noTitle : null]);
+  const classes = cx([className, style.eventTitle, !value ? style.noTitle : null, 'escapable']);
 
   return (
     <Input

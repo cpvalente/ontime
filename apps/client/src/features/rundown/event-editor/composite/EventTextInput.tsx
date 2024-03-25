@@ -38,6 +38,7 @@ export default function EventTextInput(props: CountedTextInputProps) {
         onBlur={onBlur}
         onKeyDown={onKeyDown}
         autoComplete='off'
+        className='escapable'
       />
     </div>
   );
