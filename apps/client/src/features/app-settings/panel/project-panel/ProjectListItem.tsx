@@ -22,7 +22,6 @@ interface ProjectListItemProps {
   current?: boolean;
   filename: string;
   createdAt: string;
-  updatedAt: string;
   onToggleEditMode: (editMode: EditMode, filename: string | null) => void;
   onSubmit: () => void;
   onRefetch: () => Promise<void>;
@@ -39,7 +38,6 @@ export default function ProjectListItem({
   onRefetch,
   onSubmit,
   onToggleEditMode,
-  updatedAt,
 }: ProjectListItemProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -103,7 +101,6 @@ export default function ProjectListItem({
         <>
           <td className={style.containCell}>{filename}</td>
           <td>{new Date(createdAt).toLocaleString()}</td>
-          <td>{new Date(updatedAt).toLocaleString()}</td>
           <td className={style.actionButton}>
             <ActionMenu
               current={current}

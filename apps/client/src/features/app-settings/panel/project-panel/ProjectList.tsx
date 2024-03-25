@@ -44,7 +44,6 @@ export default function ProjectList() {
         <tr>
           <th className={style.containCell}>Project Name</th>
           <th>Date Created</th>
-          <th>Date Modified</th>
           <th />
         </tr>
       </thead>
@@ -54,7 +53,6 @@ export default function ProjectList() {
             key={project.filename}
             filename={project.filename}
             createdAt={project.createdAt}
-            updatedAt={project.updatedAt}
             onToggleEditMode={handleToggleEditMode}
             onSubmit={handleClear}
             onRefetch={handleRefetch}
