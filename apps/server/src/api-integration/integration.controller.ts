@@ -7,10 +7,10 @@ import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { messageService } from '../services/message-service/MessageService.js';
 import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
-import { extraTimerService } from '../services/extra-timer-service/ExtraTimerService.js';
 import { validateMessage, validateTimerMessage } from '../services/message-service/messageUtils.js';
 
 import { parse, updateEvent } from './integration.utils.js';
+import { extraTimerService } from '../services/extra-timer-service/ExtraTimerService.js';
 
 export type ChangeOptions = {
   eventId: string;
@@ -150,35 +150,32 @@ const actionHandlers: Record<string, ActionHandler> = {
   },
   /* Extra timers */
   extratimer: (payload) => {
-    if (payload && typeof payload === 'string') {
-      if (payload === SimplePlayback.Start) {
-        const reply = extraTimerService.start();
-        return { payload: reply };
-      }
-      if (payload === SimplePlayback.Pause) {
-        const reply = extraTimerService.pause();
-        return { payload: reply };
-      }
-      if (payload === SimplePlayback.Stop) {
-        const reply = extraTimerService.stop();
-        return { payload: reply };
-      }
-    }
-
     if (payload && typeof payload === 'object') {
-      if ('settime' in payload) {
-        const time = numberOrError(payload.settime);
-        const reply = extraTimerService.setTime(time);
-        return { payload: reply };
-      }
-      if ('direction' in payload) {
-        if (payload.direction === SimpleDirection.CountUp || payload.direction === SimpleDirection.CountDown) {
-          const reply = extraTimerService.setDirection(payload.direction);
-          return { payload: reply };
-        } else {
-          throw new Error('Invalid direction payload');
+      Object.entries(payload).forEach(([key, value]) => {
+        if ('settime' in value) {
+          const time = numberOrError(value.settime);
+          extraTimerService[key].setTime(time);
         }
-      }
+        if ('direction' in value) {
+          if (value.direction === SimpleDirection.CountUp || value.direction === SimpleDirection.CountDown) {
+            extraTimerService[key].setDirection(value.direction);
+          }
+        }
+        if ('playback' in value) {
+          switch (value.playback) {
+            case SimplePlayback.Start:
+              extraTimerService[key].start();
+              break;
+            case SimplePlayback.Pause:
+              extraTimerService[key].pause();
+              break;
+            case SimplePlayback.Stop:
+              extraTimerService[key].stop();
+              break;
+          }
+        }
+      });
+      return { payload: 'ok' };
     }
     throw new Error('Invalid extra-timer payload');
   },
