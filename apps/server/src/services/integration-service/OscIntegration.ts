@@ -69,14 +69,14 @@ export class OscIntegration implements IIntegration<OscSubscription> {
     }
 
     for (let i = 0; i < this.subscriptions.length; i++) {
-      const { cycle, message, enabled } = this.subscriptions[i];
-      if (cycle !== action || !enabled || !message) {
+      const { cycle, path, message, enabled } = this.subscriptions[i];
+      if (cycle !== action || !enabled || !path) {
         continue;
       }
-
-      const parsedMessage = parseTemplateNested(message, state || {});
+      const parsedPath = parseTemplateNested(path, state || {});
+      const parsedMessage = message ? parseTemplateNested(message, state || {}) : undefined;
       try {
-        this.emit(parsedMessage);
+        this.emit(parsedPath, parsedMessage);
       } catch (error) {
         logger.error(LogOrigin.Tx, `OSC Integration: ${error}`);
       }

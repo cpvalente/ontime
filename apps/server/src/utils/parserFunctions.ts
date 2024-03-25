@@ -1,20 +1,20 @@
 import { generateId } from 'ontime-utils';
 import {
-  OntimeRundown,
+  CustomFields,
+  DatabaseModel,
   HttpSettings,
+  HttpSubscription,
+  isOntimeBlock,
+  isOntimeCycle,
+  isOntimeDelay,
+  isOntimeEvent,
+  OntimeRundown,
   OSCSettings,
+  OscSubscription,
   ProjectData,
   Settings,
-  ViewSettings,
-  OscSubscription,
-  DatabaseModel,
-  isOntimeEvent,
-  isOntimeDelay,
-  isOntimeBlock,
-  CustomFields,
-  isOntimeCycle,
-  HttpSubscription,
   URLPreset,
+  ViewSettings,
 } from 'ontime-types';
 
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
@@ -162,8 +162,12 @@ export function sanitiseOscSubscriptions(subscriptions?: OscSubscription[]): Osc
   }
 
   return subscriptions.filter(
-    ({ id, cycle, message, enabled }) =>
-      typeof id === 'string' && isOntimeCycle(cycle) && typeof message === 'string' && typeof enabled === 'boolean',
+    ({ id, cycle, path, message, enabled }) =>
+      typeof id === 'string' &&
+      isOntimeCycle(cycle) &&
+      typeof path === 'string' &&
+      typeof message === 'string' &&
+      typeof enabled === 'boolean',
   );
 }
 
