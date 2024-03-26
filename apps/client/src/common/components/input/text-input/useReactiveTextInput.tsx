@@ -61,7 +61,7 @@ export default function useReactiveTextInput(
 
   /**
    * @description Handles common keys for submit and cancel
-   * @param {string} key
+   * @param {KeyboardEvent} event
    */
   const keyHandler = useCallback(
     (event: KeyboardEvent) => {
@@ -80,7 +80,7 @@ export default function useReactiveTextInput(
           break;
       }
     },
-    [initialText, options?.submitOnEnter, handleSubmit, text],
+    [initialText, options?.submitOnEnter, elm, handleSubmit, text],
   );
 
   return {

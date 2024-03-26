@@ -1,4 +1,4 @@
-import { ChangeEvent, memo, useCallback, useEffect, useState } from 'react';
+import { type KeyboardEvent, ChangeEvent, memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { AutoTextArea } from '../../../common/components/input/auto-text-area/AutoTextArea';
 
@@ -9,7 +9,7 @@ interface EditableCellProps {
 
 const EditableCell = (props: EditableCellProps) => {
   const { value: initialValue, handleUpdate } = props;
-
+  const inputRef = useRef<unknown>(null);
   // We need to keep and update the state of the cell normally
   const [value, setValue] = useState(initialValue);
 
@@ -17,6 +17,14 @@ const EditableCell = (props: EditableCellProps) => {
 
   // We'll only update the external data when the input is blurred
   const onBlur = useCallback(() => handleUpdate(value), [handleUpdate, value]);
+  const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key == 'Escape') {
+      setValue(initialValue);
+      const elm = inputRef?.current as HTMLElement;
+      setTimeout(() => elm.blur());
+      event.stopPropagation();
+    }
+  };
 
   // If the initialValue is changed external, sync it up with our state
   useEffect(() => {
@@ -25,10 +33,12 @@ const EditableCell = (props: EditableCellProps) => {
 
   return (
     <AutoTextArea
+      inputRef={inputRef}
       size='sm'
       value={value}
       onChange={onChange}
       onBlur={onBlur}
+      onKeyDown={(event) => onKeyDown(event)}
       rows={1}
       transition='none'
       spellCheck={false}
