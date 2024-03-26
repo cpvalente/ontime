@@ -95,6 +95,7 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
       if (event.key === 'Escape') {
         ignoreChange.current = true;
         inputRef.current?.blur();
+        event.stopPropagation();
         resetValue();
       }
     },

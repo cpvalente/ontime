@@ -1,16 +1,16 @@
-import { useEffect, useRef } from 'react';
+import { type RefObject,useEffect} from 'react';
 import { Textarea, TextareaProps } from '@chakra-ui/react';
 // @ts-expect-error no types from library
 import autosize from 'autosize/dist/autosize';
 
-export const AutoTextArea = (props: TextareaProps) => {
-  const { value } = props;
+export const AutoTextArea = (props: TextareaProps & { inputRef: RefObject<unknown> }) => {
+  const { value, inputRef } = props;
 
-  const ref = useRef<HTMLTextAreaElement>(null);
+  // const ref = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    const node = ref.current;
-    autosize(ref.current);
+    const node = inputRef.current;
+    autosize(inputRef.current);
     return () => {
       autosize.destroy(node);
     };
@@ -21,7 +21,7 @@ export const AutoTextArea = (props: TextareaProps) => {
       overflow='hidden'
       w='100%'
       resize='none'
-      ref={ref}
+      ref={inputRef}
       transition='height none'
       variant='ontime-transparent'
       {...props}

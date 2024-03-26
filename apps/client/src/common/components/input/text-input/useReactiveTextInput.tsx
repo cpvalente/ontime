@@ -1,4 +1,4 @@
-import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useState } from 'react';
 
 interface UseReactiveTextInputReturn {
   value: string;
@@ -10,11 +10,13 @@ interface UseReactiveTextInputReturn {
 export default function useReactiveTextInput(
   initialText: string,
   submitCallback: (newValue: string) => void,
+  ref: RefObject<unknown>,
   options?: {
     submitOnEnter?: boolean;
   },
 ): UseReactiveTextInputReturn {
   const [text, setText] = useState<string>(initialText);
+  const elm = ref as RefObject<HTMLElement>;
 
   useEffect(() => {
     if (typeof initialText === 'undefined') {
@@ -62,14 +64,18 @@ export default function useReactiveTextInput(
    * @param {string} key
    */
   const keyHandler = useCallback(
-    (key: string) => {
+    (event: KeyboardEvent) => {
+      const key = event.key;
       switch (key) {
         case 'Escape':
           setText(initialText);
+          setTimeout(() => elm.current?.blur());
+          event.stopPropagation();
           break;
         case 'Enter':
           if (options?.submitOnEnter) {
             handleSubmit(text);
+            setTimeout(() => elm.current?.blur());
           }
           break;
       }
@@ -81,6 +87,6 @@ export default function useReactiveTextInput(
     value: text,
     onChange: (event: ChangeEvent) => handleChange((event.target as HTMLInputElement).value),
     onBlur: (event: ChangeEvent) => handleSubmit((event.target as HTMLInputElement).value),
-    onKeyDown: (event: KeyboardEvent) => keyHandler(event.key),
+    onKeyDown: (event: KeyboardEvent) => keyHandler(event),
   };
 }

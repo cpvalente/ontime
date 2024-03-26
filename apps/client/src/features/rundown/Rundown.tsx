@@ -95,26 +95,11 @@ export default function Rundown({ data }: RundownProps) {
       // handle held key
       if (event.repeat) return;
 
-      const escapeElement = (e: KeyboardEvent) => {
-        // is something selected
-        if (e.target) {
-          const elm = e.target as HTMLElement;
-          //is it marked as escapable?
-          if (elm.classList.contains('escapable')) {
-            // then escape it
-            elm.blur();
-          } else {
-            // otherwise deselect the current event
-            setCursor(null);
-            clearSelectedEvents();
-          }
-        }
-      };
-
       const modKeysAlt = event.altKey && !event.ctrlKey && !event.shiftKey;
       const modKeysCtrlAlt = event.altKey && event.ctrlKey && !event.shiftKey;
       if (event.code == 'Escape') {
-        escapeElement(event);
+        setCursor(null);
+        clearSelectedEvents();
       } else if (modKeysAlt) {
         switch (event.code) {
           case 'ArrowDown': {
