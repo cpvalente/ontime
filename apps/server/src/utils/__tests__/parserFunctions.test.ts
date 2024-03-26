@@ -11,12 +11,12 @@ describe('sanitiseOscSubscriptions()', () => {
 
   it('returns an array of valid entries', () => {
     const oscSubscriptions: OscSubscription[] = [
-      { id: '1', cycle: 'onLoad', path: '/test', message: 'test', enabled: true },
-      { id: '2', cycle: 'onStart', path: '/test', message: 'test', enabled: false },
-      { id: '3', cycle: 'onPause', path: '/test', message: 'test', enabled: true },
-      { id: '4', cycle: 'onStop', path: '/test', message: 'test', enabled: false },
-      { id: '5', cycle: 'onUpdate', path: '/test', message: 'test', enabled: true },
-      { id: '6', cycle: 'onFinish', path: '/test', message: 'test', enabled: false },
+      { id: '1', cycle: 'onLoad', address: '/test', payload: 'test', enabled: true },
+      { id: '2', cycle: 'onStart', address: '/test', payload: 'test', enabled: false },
+      { id: '3', cycle: 'onPause', address: '/test', payload: 'test', enabled: true },
+      { id: '4', cycle: 'onStop', address: '/test', payload: 'test', enabled: false },
+      { id: '5', cycle: 'onUpdate', address: '/test', payload: 'test', enabled: true },
+      { id: '6', cycle: 'onFinish', address: '/test', payload: 'test', enabled: false },
     ];
     const sanitationResult = sanitiseOscSubscriptions(oscSubscriptions);
     expect(sanitationResult).toStrictEqual(oscSubscriptions);
@@ -24,13 +24,13 @@ describe('sanitiseOscSubscriptions()', () => {
 
   it('filters invalid entries', () => {
     const oscSubscriptions = [
-      { id: '1', cycle: 'onLoad', path: 4, message: 'test', enabled: true },
-      { cycle: 'onLoad', message: 'test', enabled: true },
-      { id: '2', cycle: 'unknown', message: 'test', enabled: false },
-      { id: '3', message: 'test', enabled: true },
+      { id: '1', cycle: 'onLoad', address: 4, payload: 'test', enabled: true },
+      { cycle: 'onLoad', payload: 'test', enabled: true },
+      { id: '2', cycle: 'unknown', payload: 'test', enabled: false },
+      { id: '3', payload: 'test', enabled: true },
       { id: '4', cycle: 'onStop', enabled: false },
-      { id: '5', cycle: 'onUpdate', message: 'test' },
-      { id: '6', cycle: 'onFinish', message: 'test', enabled: 'true' },
+      { id: '5', cycle: 'onUpdate', payload: 'test' },
+      { id: '6', cycle: 'onFinish', payload: 'test', enabled: 'true' },
     ];
     const sanitationResult = sanitiseOscSubscriptions(oscSubscriptions as OscSubscription[]);
     expect(sanitationResult.length).toBe(0);

@@ -1,6 +1,12 @@
 import { TimerLifeCycleKey } from './TimerLifecycle.type.js';
 
-export type OscSubscription = { id: string; cycle: TimerLifeCycleKey; path: string; message: string; enabled: boolean };
+export type OscSubscription = {
+  id: string;
+  cycle: TimerLifeCycleKey;
+  address: string;
+  payload: string;
+  enabled: boolean;
+};
 
 export interface OSCSettings {
   portIn: number;

@@ -65,8 +65,8 @@ export default function OscIntegrations() {
     prepend({
       id: generateId(),
       cycle: 'onLoad',
-      path: '',
-      message: '',
+      address: '',
+      payload: '',
       enabled: false,
     });
   };
@@ -208,8 +208,8 @@ export default function OscIntegrations() {
               <tr>
                 <th>Enabled</th>
                 <th>Cycle</th>
-                <th className={style.halfWidth}>Path</th>
-                <th className={style.halfWidth}>Message</th>
+                <th className={style.halfWidth}>Address</th>
+                <th className={style.halfWidth}>Payload</th>
                 <th />
               </tr>
             </thead>
@@ -243,11 +243,11 @@ export default function OscIntegrations() {
                         variant='ontime-filled'
                         autoComplete='off'
                         placeholder='/from-ontime/'
-                        {...register(`subscriptions.${index}.path`, {
+                        {...register(`subscriptions.${index}.address`, {
                           required: { value: true, message: 'Required field' },
                           pattern: {
                             value: startsWithSlash,
-                            message: 'OSC path should start with a forward slash',
+                            message: 'OSC address should start with a forward slash',
                           },
                         })}
                       />
@@ -260,11 +260,8 @@ export default function OscIntegrations() {
                         variant='ontime-filled'
                         autoComplete='off'
                         placeholder='{{timer.current}}'
-                        {...register(`subscriptions.${index}.message`, {
-                          // pattern: {
-                          //   value: isAlphanumeric,
-                          //   message: 'OSC messages should only be alphanumeric',
-                          // },
+                        {...register(`subscriptions.${index}.payload`, {
+                          //TODO: how to validate this
                         })}
                       />
                       {maybeError && <Panel.Error>{maybeError}</Panel.Error>}
