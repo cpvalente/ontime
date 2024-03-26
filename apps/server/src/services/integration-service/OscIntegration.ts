@@ -69,26 +69,26 @@ export class OscIntegration implements IIntegration<OscSubscription> {
     }
 
     for (let i = 0; i < this.subscriptions.length; i++) {
-      const { cycle, path, message, enabled } = this.subscriptions[i];
-      if (cycle !== action || !enabled || !path) {
+      const { cycle, address, payload, enabled } = this.subscriptions[i];
+      if (cycle !== action || !enabled || !address) {
         continue;
       }
-      const parsedPath = parseTemplateNested(path, state || {});
-      const parsedMessage = message ? parseTemplateNested(message, state || {}) : undefined;
+      const parsedAddress = parseTemplateNested(address, state || {});
+      const parsedPayload = payload ? parseTemplateNested(payload, state || {}) : undefined;
       try {
-        this.emit(parsedPath, parsedMessage);
+        this.emit(parsedAddress, parsedPayload);
       } catch (error) {
         logger.error(LogOrigin.Tx, `OSC Integration: ${error}`);
       }
     }
   }
 
-  emit(path: string, payload?: ArgumentType) {
+  emit(address: string, payload?: ArgumentType) {
     if (!this.oscClient) {
       return;
     }
 
-    const message = new Message(path);
+    const message = new Message(address);
     if (payload) {
       if (isObject(payload)) {
         message.append(JSON.stringify(payload));

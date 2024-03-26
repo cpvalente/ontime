@@ -162,11 +162,11 @@ export function sanitiseOscSubscriptions(subscriptions?: OscSubscription[]): Osc
   }
 
   return subscriptions.filter(
-    ({ id, cycle, path, message, enabled }) =>
+    ({ id, cycle, address, payload, enabled }) =>
       typeof id === 'string' &&
       isOntimeCycle(cycle) &&
-      typeof path === 'string' &&
-      typeof message === 'string' &&
+      typeof address === 'string' &&
+      typeof payload === 'string' &&
       typeof enabled === 'boolean',
   );
 }
