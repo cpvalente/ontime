@@ -13,6 +13,7 @@ export default function useReactiveTextInput(
   ref: RefObject<HTMLElement>,
   options?: {
     submitOnEnter?: boolean;
+    submitOnCtrlEnter?: boolean;
   },
 ): UseReactiveTextInputReturn {
   const [text, setText] = useState<string>(initialText);
@@ -64,7 +65,7 @@ export default function useReactiveTextInput(
    */
   const keyHandler = useCallback(
     (event: KeyboardEvent) => {
-      const key = event.key;
+      const { key, ctrlKey } = event;
       switch (key) {
         case 'Escape':
           setText(initialText);
@@ -75,11 +76,14 @@ export default function useReactiveTextInput(
           if (options?.submitOnEnter) {
             handleSubmit(text);
             setTimeout(() => ref.current?.blur());
+          } else if (options?.submitOnCtrlEnter && ctrlKey) {
+            handleSubmit(text);
+            setTimeout(() => ref.current?.blur());
           }
           break;
       }
     },
-    [initialText, options?.submitOnEnter, ref, handleSubmit, text],
+    [initialText, options?.submitOnEnter, options?.submitOnCtrlEnter, ref, handleSubmit, text],
   );
 
   return {

@@ -21,7 +21,9 @@ export default function EventTextArea(props: CountedTextAreaProps) {
   const inputRef = useRef(null);
   const submitCallback = useCallback((newValue: string) => submitHandler(field, newValue), [field, submitHandler]);
 
-  const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(initialValue, submitCallback, inputRef);
+  const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(initialValue, submitCallback, inputRef, {
+    submitOnCtrlEnter: true,
+  });
   const classes = cx([style.inputLabel, className]);
 
   return (
