@@ -11,20 +11,19 @@ import CustomFieldForm from './CustomFieldForm';
 import style from './ProjectSettingsPanel.module.scss';
 
 interface CustomFieldEntryProps {
-  colour: string;
-  label: string;
+  backEndKey: string;
+  field: CustomField;
   onEdit: (label: CustomFieldLabel, patch: CustomField) => Promise<void>;
   onDelete: (label: CustomFieldLabel) => Promise<void>;
 }
 
 export default function CustomFieldEntry(props: CustomFieldEntryProps) {
-  const { colour, label, onEdit, onDelete } = props;
-
+  const { field, onEdit, onDelete, backEndKey } = props;
+  console.log(backEndKey, field);
   const [isEditing, setIsEditing] = useState(false);
 
   const handleEdit = async (patch: CustomField) => {
-    const oldLabel = label;
-    await onEdit(oldLabel, patch);
+    await onEdit(backEndKey, patch);
     setIsEditing(false);
   };
 
@@ -35,8 +34,8 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
           <CustomFieldForm
             onCancel={() => setIsEditing(false)}
             onSubmit={handleEdit}
-            initialColour={colour}
-            initialLabel={label}
+            initialColour={field.colour}
+            initialLabel={field.label}
           />
         </td>
       </tr>
@@ -46,9 +45,9 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
   return (
     <tr>
       <td>
-        <Swatch color={colour} />
+        <Swatch color={field.colour} />
       </td>
-      <td className={style.fullWidth}>{label}</td>
+      <td className={style.fullWidth}>{field.label}</td>
       <td className={style.actions}>
         <IconButton
           size='sm'
@@ -64,7 +63,7 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
           color='#FA5656' // $red-500
           icon={<IoTrash />}
           aria-label='Delete entry'
-          onClick={() => onDelete(label)}
+          onClick={() => onDelete(backEndKey)}
         />
       </td>
     </tr>

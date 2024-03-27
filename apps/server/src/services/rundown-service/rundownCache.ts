@@ -434,16 +434,16 @@ function scheduleCustomFieldPersist(persistedCustomFields: CustomFields) {
  */
 export const createCustomField = async (field: CustomField) => {
   const { label, type, colour } = field;
-
+  const key = label.toLowerCase();
   // check if label already exists
-  const alreadyExists = Object.hasOwn(persistedCustomFields, label);
+  const alreadyExists = Object.hasOwn(persistedCustomFields, key);
 
   if (alreadyExists) {
     throw new Error('Label already exists');
   }
 
   // update object and persist
-  persistedCustomFields[label] = { label, type, colour };
+  persistedCustomFields[key] = { label, type, colour };
 
   scheduleCustomFieldPersist(persistedCustomFields);
 
@@ -466,11 +466,12 @@ export const editCustomField = async (label: string, newField: Partial<CustomFie
     throw new Error('Change of field type is not allowed');
   }
 
-  persistedCustomFields[newField.label] = { ...existingField, ...newField };
+  const key = newField.label.toLowerCase();
+  persistedCustomFields[key] = { ...existingField, ...newField };
 
-  if (existingField.label !== newField.label) {
-    delete persistedCustomFields[existingField.label];
-    customFieldChangelog[label] = newField.label;
+  if (label !== key) {
+    delete persistedCustomFields[label];
+    customFieldChangelog[key] = key;
   }
 
   scheduleCustomFieldPersist(persistedCustomFields);
