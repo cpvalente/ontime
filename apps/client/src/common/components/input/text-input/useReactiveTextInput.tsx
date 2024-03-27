@@ -65,12 +65,12 @@ export default function useReactiveTextInput(
    */
   const keyHandler = useCallback(
     (event: KeyboardEvent) => {
+      event.stopPropagation();
       const { key, ctrlKey } = event;
       switch (key) {
         case 'Escape':
           setText(initialText);
           setTimeout(() => ref.current?.blur());
-          event.stopPropagation();
           break;
         case 'Enter':
           if (options?.submitOnEnter) {

@@ -36,6 +36,8 @@ export default function Rundown({ data }: RundownProps) {
   const { order, rundown } = data;
   const [statefulEntries, setStatefulEntries] = useState(order);
 
+  const [clipBoard, setClipBoard] = useState<string | null>(null);
+
   const featureData = useRundownEditor();
   const { addEvent, reorderEvent, deleteEvent } = useEventAction();
   const eventSettings = useEditorSettings((state) => state.eventSettings);
@@ -95,6 +97,7 @@ export default function Rundown({ data }: RundownProps) {
       // handle held key
       if (event.repeat) return;
 
+      const modKeysCtrl = !event.altKey && event.ctrlKey && !event.shiftKey;
       const modKeysAlt = event.altKey && !event.ctrlKey && !event.shiftKey;
       const modKeysCtrlAlt = event.altKey && event.ctrlKey && !event.shiftKey;
       if (event.code == 'Escape') {
@@ -204,6 +207,24 @@ export default function Rundown({ data }: RundownProps) {
           const { previousEvent, previousIndex } = getPreviousNormal(rundown, order, cursor);
           if (previousEvent && previousIndex !== null) {
             reorderEvent(cursor, previousIndex + 1, previousIndex);
+          }
+        }
+      } else if (modKeysCtrl) {
+        switch (event.code) {
+          case 'KeyC': {
+            event.stopPropagation();
+            setClipBoard(cursor);
+            break;
+          }
+          case 'KeyV': {
+            event.stopPropagation();
+            if (!clipBoard) break;
+            const clipBoardEvent = rundown[clipBoard];
+            if (!isOntimeEvent(clipBoardEvent)) break;
+            const newEvent = cloneEvent(clipBoardEvent, cursor ?? undefined);
+            addEvent(newEvent);
+            setClipBoard(null);
+            break;
           }
         }
       }
