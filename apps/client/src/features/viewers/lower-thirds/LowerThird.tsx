@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 import { CustomFields, Message, OntimeEvent, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { getLowerThirdOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
@@ -191,7 +190,6 @@ export default function LowerThird(props: LowerProps) {
 
   return (
     <div className='lower-third' style={{ backgroundColor: `#${options.key}` }}>
-      <NavigationMenu />
       <ViewParamsEditor paramFields={getLowerThirdOptions(customFields)} />
       <div
         className={`container container--${playState}`}

@@ -9,6 +9,7 @@ import InterfacePanel from './panel/interface-panel/InterfacePanel';
 import LogPanel from './panel/log-panel/LogPanel';
 import ProjectPanel from './panel/project-panel/ProjectPanel';
 import ProjectSettingsPanel from './panel/project-settings-panel/ProjectSettingsPanel';
+import ShutdownPanel from './panel/shutdown-panel/ShutdownPanel';
 import SourcesPanel from './panel/sources-panel/SourcesPanel';
 import PanelContent from './panel-content/PanelContent';
 import PanelList from './panel-list/PanelList';
@@ -33,6 +34,7 @@ export default function AppSettings() {
           {panel === 'integrations' && <IntegrationsPanel location={location} />}
           {panel === 'about' && <AboutPanel />}
           {panel === 'log' && <LogPanel />}
+          {panel === 'shutdown' && <ShutdownPanel />}
         </PanelContent>
       </ErrorBoundary>
     </div>

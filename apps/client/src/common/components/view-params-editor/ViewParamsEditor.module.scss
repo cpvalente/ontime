@@ -1,14 +1,4 @@
-.drawerContent {
-  background-color: $gray-1250;
-}
-
-.drawerHeader {
-  @extend .drawerContent;
-  color: $section-white;
-}
-
 .drawerFooter {
-  @extend .drawerContent;
   display: flex;
   justify-content: start;
   gap: $section-spacing;
