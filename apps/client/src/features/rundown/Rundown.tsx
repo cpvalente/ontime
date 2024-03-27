@@ -35,8 +35,8 @@ interface RundownProps {
 export default function Rundown({ data }: RundownProps) {
   const { order, rundown } = data;
   const [statefulEntries, setStatefulEntries] = useState(order);
-
-  const [clipBoard, setClipBoard] = useState<string | null>(null);
+  const clipBoard = useAppMode((state) => state.eventClipBoard);
+  const setClipBoard = useAppMode((state) => state.setEventClipBoard);
 
   const featureData = useRundownEditor();
   const { addEvent, reorderEvent, deleteEvent } = useEventAction();

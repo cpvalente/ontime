@@ -21,11 +21,14 @@ type AppModeStore = {
   setMode: (mode: AppMode) => void;
   cursor: string | null;
   setCursor: (cursor: string | null) => void;
+  eventClipBoard: string | null;
+  setEventClipBoard: (eventId: string | null) => void;
 };
 
 export const useAppMode = create<AppModeStore>()((set) => ({
   mode: getModeFromSession(),
   cursor: null,
+  eventClipBoard: null,
   setMode: (mode: AppMode) => {
     persistModeToSession(mode);
 
@@ -34,4 +37,5 @@ export const useAppMode = create<AppModeStore>()((set) => ({
     });
   },
   setCursor: (cursor: string | null) => set(() => ({ cursor })),
+  setEventClipBoard: (eventClipBoard: string | null) => set(() => ({ eventClipBoard })),
 }));

@@ -11,7 +11,7 @@ export default function RundownWrapper() {
 
   return (
     <div className={styles.rundownWrapper}>
-      <RundownHeader />
+      <RundownHeader data={data} />
       {status === 'success' && data ? <Rundown data={data} /> : <Empty text='Connecting to server' />}
     </div>
   );
