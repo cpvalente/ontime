@@ -9,7 +9,7 @@ interface EditableCellProps {
 
 const EditableCell = (props: EditableCellProps) => {
   const { value: initialValue, handleUpdate } = props;
-  const inputRef = useRef<unknown>(null);
+  const inputRef = useRef<HTMLElement>(null);
   // We need to keep and update the state of the cell normally
   const [value, setValue] = useState(initialValue);
 
@@ -20,8 +20,7 @@ const EditableCell = (props: EditableCellProps) => {
   const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key == 'Escape') {
       setValue(initialValue);
-      const elm = inputRef?.current as HTMLElement;
-      setTimeout(() => elm.blur());
+      setTimeout(() => inputRef.current?.blur());
       event.stopPropagation();
     }
   };

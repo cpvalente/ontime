@@ -10,13 +10,12 @@ interface UseReactiveTextInputReturn {
 export default function useReactiveTextInput(
   initialText: string,
   submitCallback: (newValue: string) => void,
-  ref: RefObject<unknown>,
+  ref: RefObject<HTMLElement>,
   options?: {
     submitOnEnter?: boolean;
   },
 ): UseReactiveTextInputReturn {
   const [text, setText] = useState<string>(initialText);
-  const elm = ref as RefObject<HTMLElement>;
 
   useEffect(() => {
     if (typeof initialText === 'undefined') {
@@ -69,18 +68,18 @@ export default function useReactiveTextInput(
       switch (key) {
         case 'Escape':
           setText(initialText);
-          setTimeout(() => elm.current?.blur());
+          setTimeout(() => ref.current?.blur());
           event.stopPropagation();
           break;
         case 'Enter':
           if (options?.submitOnEnter) {
             handleSubmit(text);
-            setTimeout(() => elm.current?.blur());
+            setTimeout(() => ref.current?.blur());
           }
           break;
       }
     },
-    [initialText, options?.submitOnEnter, elm, handleSubmit, text],
+    [initialText, options?.submitOnEnter, ref, handleSubmit, text],
   );
 
   return {

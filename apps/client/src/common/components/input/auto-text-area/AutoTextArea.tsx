@@ -1,12 +1,10 @@
-import { type RefObject,useEffect} from 'react';
+import { type RefObject, useEffect } from 'react';
 import { Textarea, TextareaProps } from '@chakra-ui/react';
 // @ts-expect-error no types from library
 import autosize from 'autosize/dist/autosize';
 
 export const AutoTextArea = (props: TextareaProps & { inputRef: RefObject<unknown> }) => {
   const { value, inputRef } = props;
-
-  // const ref = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     const node = inputRef.current;
