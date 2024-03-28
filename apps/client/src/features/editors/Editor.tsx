@@ -67,14 +67,14 @@ export default function Editor() {
       <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
       <Overview>
         <IconButton
-          aria-label='Toggle settings'
+          aria-label='Toggle navigation'
           variant='ontime-subtle-white'
           size='lg'
           icon={<IoApps />}
           onClick={onOpen}
         />
         <IconButton
-          aria-label='Toggle navigation'
+          aria-label='Toggle settings'
           variant='ontime-subtle-white'
           size='lg'
           icon={<IoSettingsOutline />}
