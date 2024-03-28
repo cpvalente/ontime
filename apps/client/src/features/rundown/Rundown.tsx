@@ -229,7 +229,20 @@ export default function Rundown({ data }: RundownProps) {
         }
       }
     },
-    [order, cursor, rundown, eventCopyId],
+    [
+      setCursor,
+      clearSelectedEvents,
+      order,
+      cursor,
+      rundown,
+      setSelectedEvents,
+      insertAtCursor,
+      deleteEvent,
+      reorderEvent,
+      setEventCopyId,
+      eventCopyId,
+      addEvent,
+    ],
   );
 
   // we copy the state from the store here
