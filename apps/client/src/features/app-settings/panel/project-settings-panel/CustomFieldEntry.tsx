@@ -11,6 +11,7 @@ import CustomFieldForm from './CustomFieldForm';
 import style from './ProjectSettingsPanel.module.scss';
 
 interface CustomFieldEntryProps {
+  field: string;
   colour: string;
   label: string;
   onEdit: (label: CustomFieldLabel, patch: CustomField) => Promise<void>;
@@ -18,13 +19,11 @@ interface CustomFieldEntryProps {
 }
 
 export default function CustomFieldEntry(props: CustomFieldEntryProps) {
-  const { colour, label, onEdit, onDelete } = props;
-
+  const { colour, label, onEdit, onDelete, field } = props;
   const [isEditing, setIsEditing] = useState(false);
 
   const handleEdit = async (patch: CustomField) => {
-    const oldLabel = label;
-    await onEdit(oldLabel, patch);
+    await onEdit(field, patch);
     setIsEditing(false);
   };
 
@@ -64,7 +63,7 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
           color='#FA5656' // $red-500
           icon={<IoTrash />}
           aria-label='Delete entry'
-          onClick={() => onDelete(label)}
+          onClick={() => onDelete(field)}
         />
       </td>
     </tr>

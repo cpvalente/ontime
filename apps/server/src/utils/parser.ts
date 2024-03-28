@@ -49,15 +49,15 @@ export function getCustomFieldData(importMap: ImportMap): {
 } {
   const customFields = {};
   const customFieldImportKeys = {};
-  for (const key in importMap.custom) {
-    const ontimeName = key;
-    const importName = importMap.custom[key];
-    customFields[ontimeName] = {
+  for (const ontimeLabel in importMap.custom) {
+    const ontimeKey = ontimeLabel.toLowerCase();
+    const importLabel = importMap.custom[ontimeLabel].toLowerCase();
+    customFields[ontimeKey] = {
       type: 'string',
       colour: '',
-      label: ontimeName,
+      label: ontimeLabel,
     };
-    customFieldImportKeys[importName] = ontimeName;
+    customFieldImportKeys[importLabel] = ontimeKey;
   }
   return { customFields, customFieldImportKeys };
 }
@@ -230,8 +230,8 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
           }
 
           // check if it is a custom field
-          if (column in customFieldImportKeys) {
-            handlers.custom(rowIndex, j, column);
+          if (columnText in customFieldImportKeys) {
+            handlers.custom(rowIndex, j, columnText);
           }
 
           // else. we don't know how to handle this column

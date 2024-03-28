@@ -60,6 +60,7 @@ export async function init(initialRundown: Readonly<OntimeRundown>, customFields
   persistedCustomFields = structuredClone(customFields);
   generate();
   await DataProvider.setRundown(persistedRundown);
+  await DataProvider.setCustomFields(customFields);
 }
 
 /**
@@ -428,16 +429,16 @@ function scheduleCustomFieldPersist(persistedCustomFields: CustomFields) {
  */
 export const createCustomField = async (field: CustomField) => {
   const { label, type, colour } = field;
-
+  const key = label.toLowerCase();
   // check if label already exists
-  const alreadyExists = Object.hasOwn(persistedCustomFields, label);
+  const alreadyExists = Object.hasOwn(persistedCustomFields, key);
 
   if (alreadyExists) {
     throw new Error('Label already exists');
   }
 
   // update object and persist
-  persistedCustomFields[label] = { label, type, colour };
+  persistedCustomFields[key] = { label, type, colour };
 
   scheduleCustomFieldPersist(persistedCustomFields);
 
@@ -446,29 +447,30 @@ export const createCustomField = async (field: CustomField) => {
 
 /**
  * Edits an existing custom field in the database
- * @param label
+ * @param key
  * @param newField
  * @returns
  */
-export const editCustomField = async (label: string, newField: Partial<CustomField>) => {
-  if (!(label in persistedCustomFields)) {
+export const editCustomField = async (key: string, newField: Partial<CustomField>) => {
+  if (!(key in persistedCustomFields)) {
     throw new Error('Could not find label');
   }
 
-  const existingField = persistedCustomFields[label];
+  const existingField = persistedCustomFields[key];
   if (existingField.type !== newField.type) {
     throw new Error('Change of field type is not allowed');
   }
 
-  persistedCustomFields[newField.label] = { ...existingField, ...newField };
+  const newKey = newField.label.toLowerCase();
+  persistedCustomFields[newKey] = { ...existingField, ...newField };
 
-  if (existingField.label !== newField.label) {
-    delete persistedCustomFields[existingField.label];
-    customFieldChangelog[label] = newField.label;
+  if (key !== newKey) {
+    delete persistedCustomFields[key];
+    customFieldChangelog[key] = newKey;
   }
 
   scheduleCustomFieldPersist(persistedCustomFields);
-  invalidateIfUsed(label);
+  invalidateIfUsed(key);
 
   return persistedCustomFields;
 };
