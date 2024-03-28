@@ -1,8 +1,8 @@
 [![Ontime build v2](https://github.com/cpvalente/ontime/actions/workflows/build_v2.yml/badge.svg)](https://github.com/cpvalente/ontime/actions/workflows/build_v2.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-green.svg)](https://www.gnu.org/licenses/gpl-3.0) 
+[![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/cpvalente)
 
-<iframe src="https://github.com/sponsors/cpvalente/button" title="Sponsor cpvalente" height="32" width="114" style="border: 0; border-radius: 6px;"></iframe>
-<a href="https://www.buymeacoffee.com/cpvalente" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" height="41" width="174"></a>
+<a href="https://www.buymeacoffee.com/cpvalente" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-blue.png" alt="Buy Me A Coffee" height="32" width="136"></a>
 
 ## Download the latest releases here
 
@@ -16,8 +16,8 @@
 # Ontime
 
 ### For live environments
-Ontime is designed for use in live environments. \ 
-This guides the application into being flexible and efficiently integrating into different workflows. \
+Ontime is designed for use in live environments. \
+This guides the application into being flexible and efficiently integrating into different workflows.
 
 ### For teams
 All information added in Ontime is shared with the production team and other software / hardware in your workflow. \
