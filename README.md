@@ -64,7 +64,6 @@ IP.ADDRESS:4001/editor    > the control interface, same as the app
 IP.ADDRESS:4001/cuesheet  > realtime cuesheets for collaboration
 IP.ADDRESS:4001/operator  > automated views for operators
 ```
-```
 
 More documentation is available [in our docs](https://docs.getontime.no)
 
