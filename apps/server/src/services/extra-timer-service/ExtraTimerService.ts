@@ -76,4 +76,4 @@ function broadcastReturn(_target: any, _propertyKey: string, descriptor: Propert
 const emit = (state: SimpleTimerState) => eventStore.set('timer1', state);
 const timeNow = () => Date.now();
 
-export const extraTimerService = new ExtraTimerService(emit, timeNow);
+export const extraTimerService = new Array(new ExtraTimerService(emit, timeNow));

@@ -65,7 +65,8 @@ export default function OscIntegrations() {
     prepend({
       id: generateId(),
       cycle: 'onLoad',
-      message: '',
+      address: '',
+      payload: '',
       enabled: false,
     });
   };
@@ -207,7 +208,8 @@ export default function OscIntegrations() {
               <tr>
                 <th>Enabled</th>
                 <th>Cycle</th>
-                <th className={style.fullWidth}>Message</th>
+                <th className={style.halfWidth}>Address</th>
+                <th className={style.halfWidth}>Payload</th>
                 <th />
               </tr>
             </thead>
@@ -234,19 +236,32 @@ export default function OscIntegrations() {
                         ))}
                       </Select>
                     </td>
-                    <td className={style.fullWidth}>
+                    <td className={style.halfWidth}>
                       <Input
                         key={field.id}
                         size='sm'
                         variant='ontime-filled'
                         autoComplete='off'
-                        placeholder='/from-ontime/{{timer.current}}'
-                        {...register(`subscriptions.${index}.message`, {
+                        placeholder='/from-ontime/'
+                        {...register(`subscriptions.${index}.address`, {
                           required: { value: true, message: 'Required field' },
                           pattern: {
                             value: startsWithSlash,
-                            message: 'OSC messages should start with a forward slash',
+                            message: 'OSC address should start with a forward slash',
                           },
+                        })}
+                      />
+                      {maybeError && <Panel.Error>{maybeError}</Panel.Error>}
+                    </td>
+                    <td className={style.halfWidth}>
+                      <Input
+                        key={field.id}
+                        size='sm'
+                        variant='ontime-filled'
+                        autoComplete='off'
+                        placeholder='{{timer.current}}'
+                        {...register(`subscriptions.${index}.payload`, {
+                          //TODO: how to validate this
                         })}
                       />
                       {maybeError && <Panel.Error>{maybeError}</Panel.Error>}
