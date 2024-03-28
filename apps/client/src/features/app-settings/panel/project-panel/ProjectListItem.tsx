@@ -21,7 +21,7 @@ export type EditMode = 'rename' | 'duplicate' | null;
 interface ProjectListItemProps {
   current?: boolean;
   filename: string;
-  createdAt: string;
+  updatedAt: string;
   onToggleEditMode: (editMode: EditMode, filename: string | null) => void;
   onSubmit: () => void;
   onRefetch: () => Promise<void>;
@@ -31,7 +31,7 @@ interface ProjectListItemProps {
 
 export default function ProjectListItem({
   current,
-  createdAt,
+  updatedAt,
   editingFilename,
   editingMode,
   filename,
@@ -100,7 +100,7 @@ export default function ProjectListItem({
       ) : (
         <>
           <td className={style.containCell}>{filename}</td>
-          <td>{new Date(createdAt).toLocaleString()}</td>
+          <td>{new Date(updatedAt).toLocaleString()}</td>
           <td className={style.actionButton}>
             <ActionMenu
               current={current}

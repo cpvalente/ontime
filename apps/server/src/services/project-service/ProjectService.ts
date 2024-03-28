@@ -67,7 +67,7 @@ export async function handleUploadedFile(filePath: string, name: string) {
  *
  * @returns {Promise<Array<ProjectFile>>} A promise that resolves to an array of ProjectFile objects,
  *                                        each representing a file in the 'uploads' folder with its metadata.
- *                                        The metadata includes the filename, creation time (createdAt)
+ *                                        The metadata includes the filename, creation or overwriting time (updatedAt)
  *
  * @throws {Error} Throws an error if there is an issue in reading the directory or fetching file statistics.
  */
@@ -82,7 +82,7 @@ export async function getProjectFiles(): Promise<ProjectFile[]> {
 
     projectFiles.push({
       filename: removeFileExtension(file),
-      createdAt: stats.birthtime.toISOString(),
+      updatedAt: stats.mtime.toISOString(),
     });
   }
 

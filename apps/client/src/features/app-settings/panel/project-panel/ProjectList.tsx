@@ -43,7 +43,7 @@ export default function ProjectList() {
       <thead>
         <tr>
           <th className={style.containCell}>Project Name</th>
-          <th>Date Created</th>
+          <th>Last Used</th>
           <th />
         </tr>
       </thead>
@@ -52,7 +52,7 @@ export default function ProjectList() {
           <ProjectListItem
             key={project.filename}
             filename={project.filename}
-            createdAt={project.createdAt}
+            updatedAt={project.updatedAt}
             onToggleEditMode={handleToggleEditMode}
             onSubmit={handleClear}
             onRefetch={handleRefetch}
