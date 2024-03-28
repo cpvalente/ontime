@@ -24,7 +24,6 @@ import {
   createCustomField,
   editCustomField,
   removeCustomField,
-  customFieldChangelog,
 } from '../rundownCache.js';
 
 describe('generate()', () => {
@@ -876,34 +875,6 @@ describe('custom fields', () => {
     });
   });
 
-  describe('editCustomField() change log', () => {
-    it('edits a field with a given label and finds it in the change log', async () => {
-      await createCustomField({ label: 'FFX', type: 'string', colour: 'red' });
-
-      const expected = {
-        lighting: {
-          label: 'Lighting',
-          type: 'string',
-          colour: 'blue',
-        },
-        sound: {
-          label: 'Sound',
-          type: 'string',
-          colour: 'green',
-        },
-        pyro: {
-          label: 'Pyro',
-          type: 'string',
-          colour: 'red',
-        },
-      };
-
-      const customField = await editCustomField('ffx', { label: 'Pyro', type: 'string', colour: 'red' });
-      expect(customField).toStrictEqual(expected);
-      expect(customFieldChangelog).toStrictEqual({ ffx: 'pyro' });
-    });
-  });
-
   describe('removeCustomField()', () => {
     it('deletes a field with a given label', async () => {
       const expected = {
@@ -911,11 +882,6 @@ describe('custom fields', () => {
           label: 'Lighting',
           type: 'string',
           colour: 'blue',
-        },
-        pyro: {
-          label: 'Pyro',
-          type: 'string',
-          colour: 'red',
         },
       };
 
