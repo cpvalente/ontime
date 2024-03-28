@@ -452,30 +452,30 @@ export const createCustomField = async (field: CustomField) => {
 
 /**
  * Edits an existing custom field in the database
- * @param label
+ * @param key
  * @param newField
  * @returns
  */
-export const editCustomField = async (label: string, newField: Partial<CustomField>) => {
-  if (!(label in persistedCustomFields)) {
+export const editCustomField = async (key: string, newField: Partial<CustomField>) => {
+  if (!(key in persistedCustomFields)) {
     throw new Error('Could not find label');
   }
 
-  const existingField = persistedCustomFields[label];
+  const existingField = persistedCustomFields[key];
   if (existingField.type !== newField.type) {
     throw new Error('Change of field type is not allowed');
   }
 
-  const key = newField.label.toLowerCase();
-  persistedCustomFields[key] = { ...existingField, ...newField };
+  const newKey = newField.label.toLowerCase();
+  persistedCustomFields[newKey] = { ...existingField, ...newField };
 
-  if (label !== key) {
-    delete persistedCustomFields[label];
-    customFieldChangelog[key] = key;
+  if (key !== newKey) {
+    delete persistedCustomFields[key];
+    customFieldChangelog[key] = newKey;
   }
 
   scheduleCustomFieldPersist(persistedCustomFields);
-  invalidateIfUsed(label);
+  invalidateIfUsed(key);
 
   return persistedCustomFields;
 };
