@@ -47,7 +47,7 @@ let links: Record<EventID, EventID> = {};
  *  lighting: lx
  * }
  */
-export const customFieldChangelog = {};
+const customFieldChangelog = {};
 
 /**
  * Keep track of which custom fields are used.
@@ -494,3 +494,9 @@ export const removeCustomField = async (label: string) => {
 
   return persistedCustomFields;
 };
+
+/** DO NOT import this - only for testing */
+export let exportsForTesting;
+if (process.env.IS_TEST) {
+  exportsForTesting = { customFieldChangelog };
+}
