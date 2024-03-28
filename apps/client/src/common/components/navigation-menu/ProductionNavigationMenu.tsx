@@ -15,16 +15,18 @@ import NavigationMenu from './NavigationMenu';
 import style from './NavigationMenu.module.scss';
 
 interface ProductionNavigationMenuProps {
-  handleSettings: () => void;
+  isMenuOpen: boolean;
+  onMenuClose: () => void;
 }
 
-function ProductionNavigationMenu({ handleSettings }: ProductionNavigationMenuProps) {
+function ProductionNavigationMenu(props: ProductionNavigationMenuProps) {
+  const { isMenuOpen, onMenuClose } = props;
   const location = useLocation();
   const { fullscreen, toggle } = useFullscreen();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <NavigationMenu editCallback={handleSettings}>
+    <NavigationMenu isOpen={isMenuOpen} onClose={onMenuClose}>
       <RenameClientModal isOpen={isOpen} onClose={onClose} />
       <div className={style.buttonsContainer}>
         <div

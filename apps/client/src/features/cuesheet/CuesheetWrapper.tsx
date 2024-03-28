@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
+import { IconButton, useDisclosure } from '@chakra-ui/react';
+import { IoApps } from '@react-icons/all-files/io5/IoApps';
+import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 import { CustomFieldLabel, isOntimeEvent } from 'ontime-types';
 
 import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
@@ -20,6 +23,7 @@ export default function CuesheetWrapper() {
   // TODO: can we use the normalised rundown for the table?
   const { data: flatRundown, status: rundownStatus } = useFlatRundown();
   const { data: customFields } = useCustomFields();
+  const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
 
   const { updateCustomField } = useEventAction();
   const featureData = useCuesheet();
@@ -82,9 +86,24 @@ export default function CuesheetWrapper() {
 
   return (
     <div className={styles.tableWrapper} data-testid='cuesheet'>
-      <Overview />
+      <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
+      <Overview>
+        <IconButton
+          aria-label='Toggle settings'
+          variant='ontime-subtle-white'
+          size='lg'
+          icon={<IoApps />}
+          onClick={onOpen}
+        />
+        <IconButton
+          aria-label='Toggle navigation'
+          variant='ontime-subtle-white'
+          size='lg'
+          icon={<IoSettingsOutline />}
+          onClick={() => toggleSettings()}
+        />
+      </Overview>
       <CuesheetProgress />
-      <ProductionNavigationMenu handleSettings={() => toggleSettings()} />
       <Cuesheet
         data={flatRundown}
         columns={columns}
