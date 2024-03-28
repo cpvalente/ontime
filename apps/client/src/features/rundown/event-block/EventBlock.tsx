@@ -1,4 +1,4 @@
-import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { memo, MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
@@ -45,6 +45,7 @@ interface EventBlockProps {
   skip: boolean;
   loaded: boolean;
   hasCursor: boolean;
+  inSelection: boolean;
   playback?: Playback;
   isRolling: boolean;
   actionHandler: (
@@ -58,7 +59,7 @@ interface EventBlockProps {
   ) => void;
 }
 
-export default function EventBlock(props: EventBlockProps) {
+const EventBlock = (props: EventBlockProps) => {
   const {
     eventId,
     cue,
@@ -82,21 +83,22 @@ export default function EventBlock(props: EventBlockProps) {
     skip = false,
     loaded,
     hasCursor,
+    inSelection,
     playback,
     isRolling,
     actionHandler,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
-  const { selectedEvents, setSelectedEvents } = useEventSelection();
+  const setSelectedEvents = useEventSelection((state) => state.setSelectedEvents);
   const setCursor = useAppMode((state) => state.setCursor);
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   const [onContextMenu] = useContextMenu<HTMLDivElement>(
-    selectedEvents.size > 1
+    inSelection
       ? [
           {
-            label: 'Visiblity',
+            label: 'Visibility',
             group: [
               {
                 label: 'Make public',
@@ -209,7 +211,7 @@ export default function EventBlock(props: EventBlockProps) {
     };
   }, [handleRef]);
 
-  const isSelected = selectedEvents.has(eventId);
+  const isSelected = inSelection;
   const blockClasses = cx([
     style.eventBlock,
     skip ? style.skip : null,
@@ -226,7 +228,7 @@ export default function EventBlock(props: EventBlockProps) {
     // event.button === 2 is a right-click
     // disable selection if the user selected events and right clicks
     // so the context menu shows up
-    if (selectedEvents.size > 1 && event.button === 2) {
+    if (event.button === 2) {
       return;
     }
 
@@ -286,4 +288,6 @@ export default function EventBlock(props: EventBlockProps) {
       )}
     </div>
   );
-}
+};
+
+export default memo(EventBlock);

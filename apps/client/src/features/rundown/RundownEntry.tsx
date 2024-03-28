@@ -50,6 +50,7 @@ export default function RundownEntry(props: RundownEntryProps) {
   const setCursor = useAppMode((state) => state.setCursor);
   const { selectedEvents, clearSelectedEvents } = useEventSelection();
 
+  const inSelection = selectedEvents.has(data.id) && selectedEvents.size > 1;
   const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const linkPrevious = eventSettings.linkPrevious;
@@ -58,7 +59,6 @@ export default function RundownEntry(props: RundownEntryProps) {
     if (selectedEvents.has(data.id)) {
       clearSelectedEvents();
     }
-
     // clear cursor if we are deleting the event that is currently selected
     if (cursor === data.id) {
       setCursor(null);
@@ -70,7 +70,6 @@ export default function RundownEntry(props: RundownEntryProps) {
     field: keyof Omit<OntimeEvent, 'duration'> | 'durationOverride';
     value: unknown;
   };
-
   const actionHandler = useMemoisedFn((action: EventItemActions, payload?: number | FieldValue) => {
     switch (action) {
       case 'event': {
@@ -157,6 +156,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         skip={data.skip}
         loaded={loaded}
         hasCursor={hasCursor}
+        inSelection={inSelection}
         playback={playback}
         isRolling={isRolling}
         actionHandler={actionHandler}
