@@ -118,7 +118,7 @@ function getCellData(key: string, event: OntimeRundownEntry) {
     if (key === 'blank') {
       return {};
     }
-    if (key === 'blank') {
+    if (key === 'colour') {
       return { userEnteredValue: { stringValue: event[key] } };
     }
 
