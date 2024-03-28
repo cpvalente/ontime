@@ -45,7 +45,7 @@
     "prettier": "^3.0.3",
     "shx": "^0.3.4",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2",
+    "typescript": "^5.4.3",
     "vitest": "^1.2.2"
   },
   "scripts": {
