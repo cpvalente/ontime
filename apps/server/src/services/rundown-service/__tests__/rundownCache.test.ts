@@ -24,7 +24,7 @@ import {
   createCustomField,
   editCustomField,
   removeCustomField,
-  exportsForTesting,
+  customFieldChangelog,
 } from '../rundownCache.js';
 
 describe('generate()', () => {
@@ -900,7 +900,7 @@ describe('custom fields', () => {
 
       const customField = await editCustomField('ffx', { label: 'Pyro', type: 'string', colour: 'red' });
       expect(customField).toStrictEqual(expected);
-      expect(exportsForTesting.customFieldChangelog).toStrictEqual({ ffx: 'pyro' });
+      expect(customFieldChangelog).toStrictEqual({ ffx: 'pyro' });
     });
   });
 
