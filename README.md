@@ -54,7 +54,7 @@ IP.ADDRESS:4001/sm         > Stage Manager / Backstage view
 IP.ADDRESS:4001/public     > Public / Foyer view
 IP.ADDRESS:4001/lower      > Lower Thirds
 IP.ADDRESS:4001/studio     > Studio Clock
-IP.ADDRESS:4001/countdown  > [Countdown to anything!](https://docs.getontime.no/features/count-to-anything/)
+IP.ADDRESS:4001/countdown  > Countdown to anything
 ```
 
 ```
