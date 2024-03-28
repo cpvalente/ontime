@@ -8,6 +8,7 @@ import { isOntimeEvent, RundownCached } from 'ontime-types';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 import { AppMode, useAppMode } from '../../../common/stores/appModeStore';
+import { useEventCopy } from '../../../common/stores/eventCopySore';
 
 import RundownMenu from './RundownMenu';
 
@@ -20,23 +21,23 @@ interface RundownProps {
 export default function RundownHeader({ data }: RundownProps) {
   const { rundown } = data;
   const appMode = useAppMode((state) => state.mode);
-  const clipBoard = useAppMode((state) => state.eventClipBoard);
+  const eventCopyId = useEventCopy((state) => state.eventCopyId);
   const setAppMode = useAppMode((state) => state.setMode);
   const setRunMode = () => setAppMode(AppMode.Run);
   const setEditMode = () => setAppMode(AppMode.Edit);
   const setFreezeMode = () => setAppMode(AppMode.Freeze);
 
   const inClipBoard = useMemo(() => {
-    if (!clipBoard) return '';
+    if (!eventCopyId) return '';
 
-    const clipEvent = rundown[clipBoard];
+    const clipEvent = rundown[eventCopyId];
 
     if (!isOntimeEvent(clipEvent)) return '';
 
     const idCueName = `${clipEvent.cue} | ${clipEvent.title}`;
     const compressedName = idCueName.length > 35 ? `${idCueName.slice(0, 35)}...` : idCueName;
     return `COPY: ${compressedName}`;
-  }, [clipBoard, rundown]);
+  }, [eventCopyId, rundown]);
 
   return (
     <div className={style.header}>

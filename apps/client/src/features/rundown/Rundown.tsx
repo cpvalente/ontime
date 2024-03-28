@@ -17,6 +17,7 @@ import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEditorSettings } from '../../common/stores/editorSettings';
+import { useEventCopy } from '../../common/stores/eventCopySore';
 import { millisToDelayString } from '../../common/utils/dateConfig';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
@@ -35,8 +36,7 @@ interface RundownProps {
 export default function Rundown({ data }: RundownProps) {
   const { order, rundown } = data;
   const [statefulEntries, setStatefulEntries] = useState(order);
-  const clipBoard = useAppMode((state) => state.eventClipBoard);
-  const setClipBoard = useAppMode((state) => state.setEventClipBoard);
+  const { eventCopyId, setEventCopyId } = useEventCopy();
 
   const featureData = useRundownEditor();
   const { addEvent, reorderEvent, deleteEvent } = useEventAction();
@@ -213,23 +213,23 @@ export default function Rundown({ data }: RundownProps) {
         switch (event.code) {
           case 'KeyC': {
             event.stopPropagation();
-            setClipBoard(cursor);
+            setEventCopyId(cursor);
             break;
           }
           case 'KeyV': {
             event.stopPropagation();
-            if (!clipBoard) break;
-            const clipBoardEvent = rundown[clipBoard];
-            if (!isOntimeEvent(clipBoardEvent)) break;
-            const newEvent = cloneEvent(clipBoardEvent, cursor ?? undefined);
+            if (!eventCopyId) break;
+            const copyEvent = rundown[eventCopyId];
+            if (!isOntimeEvent(copyEvent)) break;
+            const newEvent = cloneEvent(copyEvent, cursor ?? undefined);
             addEvent(newEvent);
-            setClipBoard(null);
+            setEventCopyId(null);
             break;
           }
         }
       }
     },
-    [order, cursor, rundown, insertAtCursor, reorderEvent],
+    [order, cursor, rundown, eventCopyId],
   );
 
   // we copy the state from the store here
