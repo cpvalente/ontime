@@ -4,7 +4,6 @@ import { OntimeEvent, OntimeRundownEntry, Playback, Settings, SupportedEvent, Vi
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { getCountdownOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
@@ -110,7 +109,6 @@ export default function Countdown(props: CountdownProps) {
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
-      <NavigationMenu />
       <ViewParamsEditor paramFields={timeOption} />
       {follow === null ? (
         <CountdownSelect events={backstageEvents} />

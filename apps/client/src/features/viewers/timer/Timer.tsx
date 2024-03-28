@@ -15,7 +15,6 @@ import { MILLIS_PER_SECOND, millisToString, removeLeadingZero, removeSeconds } f
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getTimerOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
@@ -162,7 +161,6 @@ export default function Timer(props: TimerProps) {
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
-      <NavigationMenu />
       <ViewParamsEditor paramFields={timerOptions} />
       <div className={showBlackout ? 'blackout blackout--active' : 'blackout'} />
       {!userOptions.hideMessage && (

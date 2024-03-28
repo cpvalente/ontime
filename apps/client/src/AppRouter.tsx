@@ -49,12 +49,12 @@ export default function AppRouter() {
         <Route path='/backstage' element={<SBackstage />} />
 
         <Route path='/public' element={<SPublic />} />
+
         <Route path='/studio' element={<SStudio />} />
-        {/*/!* Lower cannot have fallback *!/*/}
+
         <Route path='/lower' element={<SLowerThird />} />
 
         <Route path='/op' element={<Operator />} />
-        <Route path='/operator' element={<Operator />} />
 
         {/*/!* Protected Routes *!/*/}
         <Route path='/editor' element={<Editor />} />

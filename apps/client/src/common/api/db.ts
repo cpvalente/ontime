@@ -1,11 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import {
-  DatabaseModel,
-  GetInfo,
-  MessageResponse,
-  ProjectData,
-  ProjectFileListResponse,
-} from 'ontime-types';
+import { DatabaseModel, GetInfo, MessageResponse, ProjectData, ProjectFileListResponse } from 'ontime-types';
 
 import { makeCSV, makeTable } from '../../features/cuesheet/cuesheetUtils';
 

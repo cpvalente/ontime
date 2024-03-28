@@ -4,7 +4,7 @@ test('test URL preset feature, it should redirect to given URL', async ({ page }
   await page.goto('http://localhost:4001/editor');
 
   // open settings
-  await page.getByRole('button', { name: 'Application settings' }).click();
+  await page.getByTestId('navigation__toggle-settings').click();
   await page.getByRole('button', { name: 'General' }).click();
 
   // create preset
