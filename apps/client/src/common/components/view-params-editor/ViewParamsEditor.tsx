@@ -72,15 +72,15 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   };
 
   return (
-    <Drawer isOpen={isOpen} placement='right' onClose={onCloseWithoutSaving} size='lg'>
+    <Drawer isOpen={isOpen} placement='right' onClose={onCloseWithoutSaving} variant='ontime' size='lg'>
       <DrawerOverlay />
       <DrawerContent>
-        <DrawerHeader className={style.drawerHeader}>
-          <DrawerCloseButton _hover={{ bg: '#ebedf0', color: '#333' }} size='lg' />
+        <DrawerHeader>
+          <DrawerCloseButton size='lg' />
           Customise
         </DrawerHeader>
 
-        <DrawerBody className={style.drawerContent}>
+        <DrawerBody>
           <form id='edit-params-form' onSubmit={onParamsFormSubmit}>
             {paramFields.map((field) => (
               <div key={field.title} className={style.columnSection}>

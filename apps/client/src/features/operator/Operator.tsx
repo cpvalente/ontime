@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { CustomField, CustomFields, isOntimeEvent, OntimeEvent, SupportedEvent } from 'ontime-types';
 import { getFirstEventNormal, getLastEventNormal } from 'ontime-utils';
 
-import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
+import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import Empty from '../../common/components/state/Empty';
 import { getOperatorOptions } from '../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
@@ -41,7 +41,7 @@ export default function Operator() {
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
   const featureData = useOperator();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: settings } = useSettings();
 
   const [showEditPrompt, setShowEditPrompt] = useState(false);
@@ -116,6 +116,11 @@ export default function Operator() {
     [searchParams],
   );
 
+  const showEditFormDrawer = useCallback(() => {
+    searchParams.set('edit', 'true');
+    setSearchParams(searchParams);
+  }, [searchParams, setSearchParams]);
+
   const missingData = !data || !customFields || !projectData;
   const isLoading = status === 'pending' || customFieldStatus === 'pending' || projectDataStatus === 'pending';
 
@@ -141,7 +146,7 @@ export default function Operator() {
 
   return (
     <div className={style.operatorContainer}>
-      <NavigationMenu />
+      <ProductionNavigationMenu handleSettings={showEditFormDrawer} />
       <ViewParamsEditor paramFields={operatorOptions} />
       {editEvent && <EditModal event={editEvent} onClose={() => setEditEvent(null)} />}
 

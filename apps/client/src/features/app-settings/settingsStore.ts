@@ -51,6 +51,11 @@ export const settingPanels: Readonly<SettingsOption[]> = [
     label: 'About',
     split: true,
   },
+  {
+    id: 'shutdown',
+    label: 'Shutdown',
+    split: true,
+  },
 ] as const;
 
 export type SettingsOptionId = (typeof settingPanels)[number]['id'];

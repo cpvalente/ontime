@@ -7,7 +7,7 @@ test('sheet file upload', async ({ page }) => {
   await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Delete all events' }).click();
 
-  await page.getByRole('button', { name: 'Application settings' }).click();
+  await page.getByTestId('navigation__toggle-settings').click();
   await page.getByRole('button', { name: 'Import spreadsheet' }).click();
 
   // workaround to upload file on hidden input

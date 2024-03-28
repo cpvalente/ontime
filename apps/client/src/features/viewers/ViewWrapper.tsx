@@ -12,6 +12,7 @@ import {
 } from 'ontime-types';
 import { useStore } from 'zustand';
 
+import ViewNavigationMenu from '../../common/components/navigation-menu/ViewNavigationMenu';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import useProjectData from '../../common/hooks-query/useProjectData';
 import { useFlatRundown } from '../../common/hooks-query/useRundown';
@@ -93,29 +94,32 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     }
 
     return (
-      <Component
-        {...props}
-        backstageEvents={rundownData}
-        customFields={customFields}
-        eventNext={eventNext}
-        eventNow={eventNow}
-        events={publicEvents}
-        external={message.external}
-        general={project}
-        isMirrored={isMirrored}
-        lower={message.lower}
-        nextId={nextId}
-        onAir={onAir}
-        pres={message.timer}
-        publ={message.public}
-        publicEventNext={publicEventNext}
-        publicEventNow={publicEventNow}
-        publicSelectedId={publicSelectedId}
-        selectedId={selectedId}
-        settings={settings}
-        time={TimeManagerType}
-        viewSettings={viewSettings}
-      />
+      <>
+        <ViewNavigationMenu />
+        <Component
+          {...props}
+          backstageEvents={rundownData}
+          customFields={customFields}
+          eventNext={eventNext}
+          eventNow={eventNow}
+          events={publicEvents}
+          external={message.external}
+          general={project}
+          isMirrored={isMirrored}
+          lower={message.lower}
+          nextId={nextId}
+          onAir={onAir}
+          pres={message.timer}
+          publ={message.public}
+          publicEventNext={publicEventNext}
+          publicEventNow={publicEventNow}
+          publicSelectedId={publicSelectedId}
+          selectedId={selectedId}
+          settings={settings}
+          time={TimeManagerType}
+          viewSettings={viewSettings}
+        />
+      </>
     );
   };
 

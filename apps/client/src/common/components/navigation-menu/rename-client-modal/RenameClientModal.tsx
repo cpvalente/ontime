@@ -13,8 +13,6 @@ import {
 import { setClientName } from '../../../hooks/useSocket';
 import { useSocketClientName } from '../../../stores/connectionName';
 
-import style from './RenameClientModal.module.scss';
-
 interface RenameClientModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -45,18 +43,18 @@ export default function RenameClientModal({ isOpen, onClose }: RenameClientModal
       motionPreset='slideInBottom'
       scrollBehavior='inside'
       preserveScrollBarGap
-      variant='ontime-small'
+      variant='ontime'
     >
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>Rename client</ModalHeader>
         <ModalCloseButton />
-        <ModalBody className={style.modalBody}>
+        <ModalBody>
           <Input
             placeholder='Connection must have a name'
             defaultValue={newName}
             onChange={(e) => setNewName(e.target.value)}
-            variant='ontime-filled-on-light'
+            variant='ontime-filled'
           />
           <Button
             isDisabled={newName === clientName || !newName}
