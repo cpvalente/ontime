@@ -12,10 +12,10 @@ import { useViewOptionsStore } from '../../stores/viewOptions';
 import { isKeyEnter } from '../../utils/keyEvent';
 
 import RenameClientModal from './rename-client-modal/RenameClientModal';
+import FloatingNavigation from './FloatingNavigation';
 import NavigationMenu from './NavigationMenu';
 
 import style from './NavigationMenu.module.scss';
-import FloatingNavigation from './FloatingNavigation';
 
 function ViewNavigationMenu() {
   const location = useLocation();
