@@ -12,14 +12,14 @@ import style from './ProjectSettingsPanel.module.scss';
 
 interface CustomFieldEntryProps {
   backEndKey: string;
-  field: CustomField;
+  colour: string;
+  label: string;
   onEdit: (label: CustomFieldLabel, patch: CustomField) => Promise<void>;
   onDelete: (label: CustomFieldLabel) => Promise<void>;
 }
 
 export default function CustomFieldEntry(props: CustomFieldEntryProps) {
-  const { field, onEdit, onDelete, backEndKey } = props;
-  console.log(backEndKey, field);
+  const { colour, label, onEdit, onDelete, backEndKey } = props;
   const [isEditing, setIsEditing] = useState(false);
 
   const handleEdit = async (patch: CustomField) => {
@@ -34,8 +34,8 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
           <CustomFieldForm
             onCancel={() => setIsEditing(false)}
             onSubmit={handleEdit}
-            initialColour={field.colour}
-            initialLabel={field.label}
+            initialColour={colour}
+            initialLabel={label}
           />
         </td>
       </tr>
@@ -45,9 +45,9 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
   return (
     <tr>
       <td>
-        <Swatch color={field.colour} />
+        <Swatch color={colour} />
       </td>
-      <td className={style.fullWidth}>{field.label}</td>
+      <td className={style.fullWidth}>{label}</td>
       <td className={style.actions}>
         <IconButton
           size='sm'

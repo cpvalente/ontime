@@ -80,8 +80,17 @@ export default function ProjectSettingsPanel() {
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(data).map(([key, field]) => {
-                  return <CustomFieldEntry key={key} backEndKey={key} field={field} onEdit={handleEditField} onDelete={handleDelete} />;
+                {Object.entries(data).map(([key, { colour, label }]) => {
+                  return (
+                    <CustomFieldEntry
+                      key={key}
+                      backEndKey={key}
+                      colour={colour}
+                      label={label}
+                      onEdit={handleEditField}
+                      onDelete={handleDelete}
+                    />
+                  );
                 })}
               </tbody>
             </Panel.Table>
