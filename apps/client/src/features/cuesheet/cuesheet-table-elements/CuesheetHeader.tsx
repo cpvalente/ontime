@@ -1,4 +1,3 @@
-import { memo } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import {
   closestCenter,
@@ -114,4 +113,4 @@ function CuesheetHeader(props: CuesheetHeaderProps) {
   );
 }
 
-export default memo(CuesheetHeader);
+export default CuesheetHeader;
