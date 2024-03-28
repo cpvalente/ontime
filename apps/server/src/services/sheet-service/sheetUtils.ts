@@ -74,25 +74,25 @@ export function cellRequestFromEvent(
   worksheetId: number,
   metadata,
 ): sheets_v4.Schema$Request {
-  const tmp = Object.entries(metadata)
+  const rowData = Object.entries(metadata)
     .filter(([_, value]) => value !== undefined)
     .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [string, { col: number; row: number }][];
 
-  const titleCol = tmp[0][1].col;
+  const titleCol = rowData[0][1].col;
 
-  for (const [index, e] of tmp.entries()) {
+  for (const [index, e] of rowData.entries()) {
     if (index !== 0) {
-      const prevCol = tmp[index - 1][1].col;
+      const prevCol = rowData[index - 1][1].col;
       const thisCol = e[1].col;
       const diff = thisCol - prevCol;
       if (diff > 1) {
-        const fillArr = new Array<(typeof tmp)[0]>(1).fill(['blank', { row: e[1].row, col: prevCol + 1 }]);
-        tmp.splice(index, 0, ...fillArr);
+        const fillArr = new Array<(typeof rowData)[0]>(1).fill(['blank', { row: e[1].row, col: prevCol + 1 }]);
+        rowData.splice(index, 0, ...fillArr);
       }
     }
   }
 
-  const returnRows: sheets_v4.Schema$CellData[] = tmp.map(([key, _]) => {
+  const returnRows: sheets_v4.Schema$CellData[] = rowData.map(([key, _]) => {
     return getCellData(key, event);
   });
 
@@ -100,7 +100,7 @@ export function cellRequestFromEvent(
     updateCells: {
       start: {
         sheetId: worksheetId,
-        rowIndex: index + tmp[0][1]['row'] + 1,
+        rowIndex: index + rowData[0][1]['row'] + 1,
         columnIndex: titleCol,
       },
       fields: 'userEnteredValue',
