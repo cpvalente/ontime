@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import QRCode from 'react-qr-code';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -12,6 +11,7 @@ import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getPublicOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -54,10 +54,7 @@ export default function Public(props: BackstageProps) {
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
 
-  // set window title
-  useEffect(() => {
-    document.title = 'ontime - Public Screen';
-  }, []);
+  useWindowTitle('Public Schedule');
 
   // defer rendering until we load stylesheets
   if (!shouldRender) {

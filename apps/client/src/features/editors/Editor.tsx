@@ -5,6 +5,7 @@ import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline'
 
 import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import useElectronEvent from '../../common/hooks/useElectronEvent';
+import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import AppSettings from '../app-settings/AppSettings';
 import useAppSettingsNavigation from '../app-settings/useAppSettingsNavigation';
 import Overview from '../overview/Overview';
@@ -59,10 +60,7 @@ export default function Editor() {
     };
   }, [handleKeyPress, isElectron]);
 
-  // Set window title
-  useEffect(() => {
-    document.title = 'ontime - Editor';
-  }, []);
+  useWindowTitle('Editor');
 
   return (
     <div className={styles.mainContainer} data-testid='event-editor'>

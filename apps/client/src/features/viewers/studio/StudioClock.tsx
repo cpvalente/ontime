@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { OntimeEvent, OntimeRundown, Settings, ViewSettings } from 'ontime-types';
 import { isOntimeEvent, Playback } from 'ontime-types';
@@ -9,6 +8,7 @@ import { getStudioClockOptions } from '../../../common/components/view-params-ed
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
@@ -46,9 +46,7 @@ export default function StudioClock(props: StudioClockProps) {
 
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
-    document.title = 'ontime - Studio Clock';
-  }, []);
+  useWindowTitle('Studio Clock');
 
   let clock = formatTime(time.clock);
   let hasAmPm = '';

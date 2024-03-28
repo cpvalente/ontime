@@ -8,6 +8,7 @@ import ProductionNavigationMenu from '../../common/components/navigation-menu/Pr
 import Empty from '../../common/components/state/Empty';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useCuesheet } from '../../common/hooks/useSocket';
+import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import { useFlatRundown } from '../../common/hooks-query/useRundown';
 import Overview from '../overview/Overview';
@@ -30,10 +31,7 @@ export default function CuesheetWrapper() {
   const columns = useMemo(() => makeCuesheetColumns(customFields), [customFields]);
   const toggleSettings = useCuesheetSettings((state) => state.toggleSettings);
 
-  // Set window title
-  useEffect(() => {
-    document.title = 'ontime - Cuesheet';
-  }, []);
+  useWindowTitle('Cuesheet');
 
   /**
    * Handles updating a field
