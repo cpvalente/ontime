@@ -41,8 +41,7 @@ Once installed and running, Ontime starts a server in the local machine which ma
 
 Any device in the network has access to the data. 
 
-You can access the different screens of the interface by reaching the ontime server at the _default port 4001_ eg: `localhost:4001`
-or `192.168.1.3:4001`
+You can access the different screens of the interface by reaching the ontime server (_default port 4001_) eg: `http://localhost:4001` or `http://192.168.1.3:4001`
 
 ```
 For the presentation views
