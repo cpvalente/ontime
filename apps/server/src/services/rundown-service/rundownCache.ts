@@ -60,6 +60,7 @@ export async function init(initialRundown: OntimeRundown, customFields: CustomFi
   persistedCustomFields = structuredClone(customFields);
   generate();
   await DataProvider.setRundown(persistedRundown);
+  await DataProvider.setCustomFields(customFields);
 }
 
 export async function setRundown(initialRundown: OntimeRundown) {
