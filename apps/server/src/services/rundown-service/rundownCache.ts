@@ -55,15 +55,9 @@ const customFieldChangelog = {};
  */
 let assignedCustomFields: Record<CustomFieldLabel, EventID[]> = {};
 
-export async function init(initialRundown: OntimeRundown, customFields: CustomFields) {
-  persistedRundown = structuredClone(initialRundown);
+export async function init(initialRundown: Readonly<OntimeRundown>, customFields: Readonly<CustomFields>) {
+  persistedRundown = structuredClone(initialRundown) as OntimeRundown;
   persistedCustomFields = structuredClone(customFields);
-  generate();
-  await DataProvider.setRundown(persistedRundown);
-}
-
-export async function setRundown(initialRundown: OntimeRundown) {
-  persistedRundown = structuredClone(initialRundown);
   generate();
   await DataProvider.setRundown(persistedRundown);
 }

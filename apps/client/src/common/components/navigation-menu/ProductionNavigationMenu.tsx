@@ -54,7 +54,7 @@ function ProductionNavigationMenu({ handleSettings }: ProductionNavigationMenuPr
       <hr className={style.separator} />
       <Link
         to='/editor'
-        className={`${style.link} ${'/editor' === location.pathname ? style.current : ''}`}
+        className={`${style.link} ${location.pathname === '/editor' ? style.current : ''}`}
         tabIndex={0}
       >
         Editor
@@ -62,13 +62,13 @@ function ProductionNavigationMenu({ handleSettings }: ProductionNavigationMenuPr
       </Link>
       <Link
         to='/cuesheet'
-        className={`${style.link} ${'/cuesheet' === location.pathname ? style.current : ''}`}
+        className={`${style.link} ${location.pathname === '/cuesheet' ? style.current : ''}`}
         tabIndex={0}
       >
         Cuesheet
         <IoArrowUp className={style.linkIcon} />
       </Link>
-      <Link to='/op' className={`${style.link} ${'/op' === location.pathname ? style.current : ''}`} tabIndex={0}>
+      <Link to='/op' className={`${style.link} ${location.pathname === '/op' ? style.current : ''}`} tabIndex={0}>
         Operator
         <IoArrowUp className={style.linkIcon} />
       </Link>
