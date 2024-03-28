@@ -34,8 +34,8 @@ export default function TextInput(props: InputProps) {
 
   const submitCallback = useCallback((newValue: string) => submitHandler(field, newValue), [field, submitHandler]);
 
-  const textInputProps = useReactiveTextInput(initialText, submitCallback, { submitOnEnter: true });
-  const textAreaProps = useReactiveTextInput(initialText, submitCallback);
+  const textInputProps = useReactiveTextInput(initialText, submitCallback, inputRef, { submitOnEnter: true });
+  const textAreaProps = useReactiveTextInput(initialText, submitCallback, inputRef);
 
   let resize: ResizeOptions = 'none';
   if (isTextArea) {
@@ -51,8 +51,16 @@ export default function TextInput(props: InputProps) {
       {...textAreaProps}
       style={{ height: isFullHeight ? '100%' : undefined }}
       data-testid='input-textarea'
+      className='escapable'
     />
   ) : (
-    <Input ref={inputRef} size={size} variant='ontime-filled' {...textInputProps} data-testid='input-textfield' />
+    <Input
+      ref={inputRef}
+      size={size}
+      variant='ontime-filled'
+      {...textInputProps}
+      data-testid='input-textfield'
+      className='escapable'
+    />
   );
 }

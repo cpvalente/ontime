@@ -89,6 +89,7 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
    */
   const onKeyDownHandler = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {
+      event.stopPropagation();
       if (event.key === 'Enter') {
         inputRef.current?.blur();
       }
@@ -117,7 +118,7 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
     resetValue();
   }, [resetValue, time]);
 
-  const timeInputClasses = cx([style.timeInput, className]);
+  const timeInputClasses = cx([style.timeInput, className, 'escapable']);
 
   return (
     <Input

@@ -1,4 +1,4 @@
-import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useState } from 'react';
 
 interface UseReactiveTextInputReturn {
   value: string;
@@ -10,8 +10,10 @@ interface UseReactiveTextInputReturn {
 export default function useReactiveTextInput(
   initialText: string,
   submitCallback: (newValue: string) => void,
+  ref: RefObject<HTMLElement>,
   options?: {
     submitOnEnter?: boolean;
+    submitOnCtrlEnter?: boolean;
   },
 ): UseReactiveTextInputReturn {
   const [text, setText] = useState<string>(initialText);
@@ -59,28 +61,35 @@ export default function useReactiveTextInput(
 
   /**
    * @description Handles common keys for submit and cancel
-   * @param {string} key
+   * @param {KeyboardEvent} event
    */
   const keyHandler = useCallback(
-    (key: string) => {
+    (event: KeyboardEvent) => {
+      event.stopPropagation();
+      const { key, ctrlKey } = event;
       switch (key) {
         case 'Escape':
           setText(initialText);
+          setTimeout(() => ref.current?.blur());
           break;
         case 'Enter':
           if (options?.submitOnEnter) {
             handleSubmit(text);
+            setTimeout(() => ref.current?.blur());
+          } else if (options?.submitOnCtrlEnter && ctrlKey) {
+            handleSubmit(text);
+            setTimeout(() => ref.current?.blur());
           }
           break;
       }
     },
-    [initialText, options?.submitOnEnter, handleSubmit, text],
+    [initialText, options?.submitOnEnter, options?.submitOnCtrlEnter, ref, handleSubmit, text],
   );
 
   return {
     value: text,
     onChange: (event: ChangeEvent) => handleChange((event.target as HTMLInputElement).value),
     onBlur: (event: ChangeEvent) => handleSubmit((event.target as HTMLInputElement).value),
-    onKeyDown: (event: KeyboardEvent) => keyHandler(event.key),
+    onKeyDown: (event: KeyboardEvent) => keyHandler(event),
   };
 }

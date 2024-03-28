@@ -39,6 +39,13 @@ export default function InputRow(props: InputRowProps) {
     changeHandler(event.target.value);
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    event.stopPropagation();
+    if (event.key == 'Escape' || event.key == 'Enter') {
+      event.currentTarget.blur();
+    }
+  };
+
   const classes = cx([style.inputRow, className]);
 
   return (
@@ -52,6 +59,7 @@ export default function InputRow(props: InputRowProps) {
           readOnly={readonly}
           disabled={readonly}
           value={text}
+          onKeyDown={handleKeyDown}
           onChange={handleInputChange}
           placeholder={placeholder}
         />

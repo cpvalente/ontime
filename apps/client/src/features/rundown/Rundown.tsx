@@ -10,17 +10,20 @@ import {
   RundownCached,
   SupportedEvent,
 } from 'ontime-types';
-import { getFirstNormal, getNextNormal, getPreviousNormal } from 'ontime-utils';
+import { getFirstNormal, getLastNormal, getNextNormal, getPreviousNormal } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEditorSettings } from '../../common/stores/editorSettings';
+import { useEventCopy } from '../../common/stores/eventCopySore';
+import { millisToDelayString } from '../../common/utils/dateConfig';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
 import RundownEmpty from './RundownEmpty';
+import { useEventSelection } from './useEventSelection';
 
 import style from './Rundown.module.scss';
 
@@ -33,9 +36,10 @@ interface RundownProps {
 export default function Rundown({ data }: RundownProps) {
   const { order, rundown } = data;
   const [statefulEntries, setStatefulEntries] = useState(order);
+  const { eventCopyId, setEventCopyId } = useEventCopy();
 
   const featureData = useRundownEditor();
-  const { addEvent, reorderEvent } = useEventAction();
+  const { addEvent, reorderEvent, deleteEvent } = useEventAction();
   const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const linkPrevious = eventSettings.linkPrevious;
@@ -43,6 +47,7 @@ export default function Rundown({ data }: RundownProps) {
 
   // cursor
   const { cursor, mode: appMode, setCursor } = useAppMode();
+  const { setSelectedEvents, clearSelectedEvents } = useEventSelection();
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: appMode === AppMode.Run });
@@ -92,19 +97,28 @@ export default function Rundown({ data }: RundownProps) {
       // handle held key
       if (event.repeat) return;
 
+      const modKeysCtrl = !event.altKey && event.ctrlKey && !event.shiftKey;
       const modKeysAlt = event.altKey && !event.ctrlKey && !event.shiftKey;
       const modKeysCtrlAlt = event.altKey && event.ctrlKey && !event.shiftKey;
-
-      if (modKeysAlt) {
+      if (event.code == 'Escape') {
+        setCursor(null);
+        clearSelectedEvents();
+      } else if (modKeysAlt) {
         switch (event.code) {
           case 'ArrowDown': {
             if (order.length < 1) {
               return;
             }
-            const nextEvent =
-              cursor === null ? getFirstNormal(rundown, order) : getNextNormal(rundown, order, cursor)?.nextEvent;
-            if (nextEvent) {
-              setCursor(nextEvent.id);
+            if (!cursor) {
+              const { id } = getFirstNormal(rundown, order);
+              setSelectedEvents({ id, index: 0, selectMode: 'click' });
+              setCursor(id);
+            } else {
+              const { nextEvent, nextIndex } = getNextNormal(rundown, order, cursor);
+              if (nextEvent && nextIndex) {
+                setSelectedEvents({ id: nextEvent.id, index: 0, selectMode: 'click' });
+                setCursor(nextEvent.id);
+              }
             }
             break;
           }
@@ -112,13 +126,18 @@ export default function Rundown({ data }: RundownProps) {
             if (order.length < 1) {
               return;
             }
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we check for this before
-            const previousEvent =
-              cursor === null
-                ? getFirstNormal(rundown, order)
-                : getPreviousNormal(rundown, order, cursor).previousEvent;
-            if (previousEvent) {
-              setCursor(previousEvent.id);
+            if (!cursor) {
+              const { lastEvent, lastIndex } = getLastNormal(rundown, order);
+              if (lastEvent && lastIndex !== null) {
+                setCursor(lastEvent.id);
+                setSelectedEvents({ id: lastEvent.id, index: lastIndex, selectMode: 'click' });
+              }
+            } else {
+              const { previousEvent, previousIndex } = getPreviousNormal(rundown, order, cursor);
+              if (previousEvent && previousIndex !== null) {
+                setSelectedEvents({ id: previousEvent.id, index: previousIndex, selectMode: 'click' });
+                setCursor(previousEvent.id);
+              }
             }
             break;
           }
@@ -142,6 +161,36 @@ export default function Rundown({ data }: RundownProps) {
             insertAtCursor('clone', cursor);
             break;
           }
+          case 'Backspace':
+          case 'Delete': {
+            event.preventDefault();
+
+            if (cursor) {
+              const elementToDelete = rundown[cursor];
+              const info = isOntimeDelay(elementToDelete)
+                ? `Delete this ${millisToDelayString(elementToDelete.duration)} delay?`
+                : isOntimeBlock(elementToDelete)
+                ? `Delete this block?\n${elementToDelete.title}`
+                : isOntimeEvent(elementToDelete)
+                ? `Delete this event?\n${elementToDelete.cue} | ${elementToDelete.title}`
+                : '';
+
+              if (!confirm(info)) {
+                break;
+              }
+              const { previousEvent, previousIndex } = getPreviousNormal(rundown, order, cursor);
+              const { nextEvent, nextIndex } = getNextNormal(rundown, order, cursor);
+              deleteEvent(cursor);
+              if (previousEvent && previousIndex !== null) {
+                setSelectedEvents({ id: previousEvent.id, index: previousIndex, selectMode: 'click' });
+                setCursor(previousEvent.id);
+              } else if (nextEvent && nextIndex !== null) {
+                setSelectedEvents({ id: nextEvent.id, index: nextIndex, selectMode: 'click' });
+                setCursor(nextEvent.id);
+              }
+            }
+            break;
+          }
         }
       } else if (modKeysCtrlAlt) {
         if (order.length < 2 || cursor == null) {
@@ -160,9 +209,40 @@ export default function Rundown({ data }: RundownProps) {
             reorderEvent(cursor, previousIndex + 1, previousIndex);
           }
         }
+      } else if (modKeysCtrl) {
+        switch (event.code) {
+          case 'KeyC': {
+            event.stopPropagation();
+            setEventCopyId(cursor);
+            break;
+          }
+          case 'KeyV': {
+            event.stopPropagation();
+            if (!eventCopyId) break;
+            const copyEvent = rundown[eventCopyId];
+            if (!isOntimeEvent(copyEvent)) break;
+            const newEvent = cloneEvent(copyEvent, cursor ?? undefined);
+            addEvent(newEvent);
+            setEventCopyId(null);
+            break;
+          }
+        }
       }
     },
-    [order, cursor, rundown, setCursor, insertAtCursor, reorderEvent],
+    [
+      setCursor,
+      clearSelectedEvents,
+      order,
+      cursor,
+      rundown,
+      setSelectedEvents,
+      insertAtCursor,
+      deleteEvent,
+      reorderEvent,
+      setEventCopyId,
+      eventCopyId,
+      addEvent,
+    ],
   );
 
   // we copy the state from the store here
