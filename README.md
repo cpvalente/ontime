@@ -66,7 +66,7 @@ IP.ADDRESS:4001/operator  > automated views for operators
 
 More documentation is available [in our docs](https://docs.getontime.no)
 
-## Feature List (in no specific order)
+## Main features
 
 - [x] Distribute data over network and render it in the browser
 - [x] Different screen types
@@ -132,7 +132,7 @@ There are known issues with Safari versions lower than 13:
 
 There is no plan for any further work on this.
 
-# Contributing
+## Contributing
 
 Looking to contribute? All types of help are appreciated, from coding to testing and feature specification.
 <br /><br />
@@ -141,10 +141,10 @@ Pull Request.
 <br />
 Information about the project setup can be found in the [development documentation](./DEVELOPMENT.md)
 
-# Help
+## Help
 
 Help is underway! ... and can be found [here](https://docs.getontime.no)
 
-# License
+## License
 
 This project is licensed under the terms of the GNU GPL v3
