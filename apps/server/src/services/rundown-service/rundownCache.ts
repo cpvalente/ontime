@@ -47,7 +47,7 @@ let links: Record<EventID, EventID> = {};
  *  lighting: lx
  * }
  */
-const customFieldChangelog = {};
+export const customFieldChangelog = {};
 
 /**
  * Keep track of which custom fields are used.
