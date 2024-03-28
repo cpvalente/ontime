@@ -1,0 +1,24 @@
+.actionButtons {
+  display: flex;
+  gap: 1em;
+}
+
+.pad {
+  padding: 0 2rem;
+}
+
+.fit {
+  width: fit-content;
+}
+
+.aliasConstrain {
+  min-width: 12em;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.flex {
+  display: flex;
+}

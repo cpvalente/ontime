@@ -1,36 +1,36 @@
 {
   "name": "ontime-ui",
-  "version": "2.28.17",
+  "version": "3.0.0-alpha",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@chakra-ui/react": "^2.7.0",
-    "@dnd-kit/core": "^6.0.8",
-    "@dnd-kit/sortable": "^7.0.2",
-    "@dnd-kit/utilities": "^3.2.1",
+    "@dnd-kit/core": "^6.1.0",
+    "@dnd-kit/sortable": "^8.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@mantine/hooks": "^7.6.2",
     "@react-icons/all-files": "^4.1.0",
-    "@sentry/react": "^7.46.0",
-    "@sentry/tracing": "^7.46.0",
-    "@tanstack/react-query": "^5.8.4",
-    "@tanstack/react-query-devtools": "^5.8.4",
-    "@tanstack/react-table": "^8.9.2",
+    "@sentry/react": "^7.92.0",
+    "@tanstack/react-query": "^5.17.9",
+    "@tanstack/react-query-devtools": "^5.17.9",
+    "@tanstack/react-table": "^8.11.3",
     "autosize": "^6.0.1",
     "axios": "^1.2.0",
     "color": "^4.2.3",
-    "csv-stringify": "^6.2.3",
-    "deepmerge": "^4.3.0",
+    "csv-stringify": "^6.4.5",
     "framer-motion": "^10.10.0",
     "react": "^18.2.0",
     "react-colorful": "^5.6.1",
     "react-dom": "^18.2.0",
-    "react-fast-compare": "^3.2.0",
-    "react-hook-form": "^7.43.5",
-    "react-qr-code": "^2.0.11",
+    "react-fast-compare": "^3.2.2",
+    "react-hook-form": "^7.49.2",
+    "react-qr-code": "^2.0.12",
     "react-router-dom": "^6.3.0",
     "typeface-open-sans": "^1.1.13",
     "web-vitals": "^3.1.1",
-    "zustand": "^4.3.6"
+    "zustand": "^4.5.0"
   },
   "scripts": {
     "addversion": "node -p \"'export const ONTIME_VERSION = ' + JSON.stringify(require('../../package.json').version) + ';'\" > src/ONTIME_VERSION.js",
@@ -45,7 +45,8 @@
     "lint-staged": "eslint",
     "test": "vitest",
     "test:pipeline": "vitest run",
-    "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf build"
+    "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf build",
+    "analyse": "npx vite-bundle-visualizer"
   },
   "browserslist": {
     "production": [
@@ -60,7 +61,7 @@
     ]
   },
   "devDependencies": {
-    "@sentry/vite-plugin": "^0.4.0",
+    "@sentry/vite-plugin": "^2.14.0",
     "@tanstack/eslint-plugin-query": "^5.8.4",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.1.1",
@@ -71,7 +72,7 @@
     "@types/testing-library__jest-dom": "^5.14.5",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
-    "@vitejs/plugin-react": "^3.0.1",
+    "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^8.53.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-jest": "^27.6.0",
@@ -85,11 +86,11 @@
     "ontime-utils": "workspace:*",
     "prettier": "^3.0.3",
     "sass": "^1.57.1",
-    "typescript": "^5.2.2",
-    "vite": "^4.3.1",
-    "vite-plugin-compression2": "^0.9.0",
-    "vite-plugin-svgr": "^2.4.0",
-    "vite-tsconfig-paths": "^4.2.0",
-    "vitest": "^0.30.1"
+    "typescript": "^5.4.3",
+    "vite": "^5.1.0",
+    "vite-plugin-compression2": "^0.12.0",
+    "vite-plugin-svgr": "^4.2.0",
+    "vite-tsconfig-paths": "^4.3.1",
+    "vitest": "^1.2.2"
   }
 }

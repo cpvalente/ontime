@@ -1,42 +1,23 @@
-import { FocusEvent, KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Input, InputGroup, InputLeftElement, Tooltip } from '@chakra-ui/react';
+import { FocusEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { Input } from '@chakra-ui/react';
 import { millisToString } from 'ontime-utils';
 
-import { tooltipDelayFast } from '../../../../ontimeConfig';
 import { useEmitLog } from '../../../stores/logger';
 import { forgivingStringToMillis } from '../../../utils/dateConfig';
 import { cx } from '../../../utils/styleUtils';
-import { TimeEntryField } from '../../../utils/timesManager';
 
 import style from './TimeInput.module.scss';
-
-interface TimeInputProps {
-  id?: TimeEntryField;
-  name: TimeEntryField;
-  submitHandler: (field: TimeEntryField, value: number) => void;
+interface TimeInputProps<T extends string> {
+  name: T;
+  submitHandler: (field: T, value: string) => void;
   time?: number;
-  delay?: number;
   placeholder: string;
-  previousEnd?: number;
-  tooltip?: string;
+  disabled?: boolean;
+  className?: string;
 }
 
-function ButtonInitial(name: TimeEntryField) {
-  if (name === 'timeStart') return 'S';
-  if (name === 'timeEnd') return 'E';
-  if (name === 'durationOverride') return 'D';
-  return '';
-}
-
-function ButtonTooltip(name: TimeEntryField, tooltip?: string) {
-  if (name === 'timeStart') return `Start${tooltip ? `: ${tooltip}` : ''}`;
-  if (name === 'timeEnd') return `End${tooltip ? `: ${tooltip}` : ''}`;
-  if (name === 'durationOverride') return `Duration${tooltip ? `: ${tooltip}` : ''}`;
-  return '';
-}
-
-export default function TimeInput(props: TimeInputProps) {
-  const { id, name, submitHandler, time = 0, delay = 0, placeholder, previousEnd = 0 } = props;
+export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
+  const { name, submitHandler, time = 0, placeholder, disabled, className } = props;
   const { emitError } = useEmitLog();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
@@ -72,32 +53,20 @@ export default function TimeInput(props: TimeInputProps) {
         return false;
       }
 
-      let newValMillis = 0;
-
-      // check for known aliases
-      if (newValue === 'p' || newValue === 'prev' || newValue === 'previous') {
-        // string to pass should be the time of the end before
-        if (previousEnd != null) {
-          newValMillis = previousEnd;
-        }
-      } else if (newValue.startsWith('+') || newValue.startsWith('p+') || newValue.startsWith('p +')) {
-        // string to pass should add to the end before
-        const val = newValue.substring(1);
-        newValMillis = previousEnd + forgivingStringToMillis(val);
-      } else {
-        // convert entered value to milliseconds
-        newValMillis = forgivingStringToMillis(newValue);
+      // we dont know the values in the rundown, escalate to handler
+      if (newValue.startsWith('p') || newValue.startsWith('+')) {
+        submitHandler(name, newValue);
       }
 
-      // check if time is different from before
-      if (newValMillis === time) return false;
+      const valueInMillis = forgivingStringToMillis(newValue);
+      if (valueInMillis === time) {
+        return false;
+      }
 
-      // update entry
-      submitHandler(name, newValMillis);
-
+      submitHandler(name, newValue);
       return true;
     },
-    [name, previousEnd, submitHandler, time],
+    [name, submitHandler, time],
   );
 
   /**
@@ -107,15 +76,11 @@ export default function TimeInput(props: TimeInputProps) {
   const validateAndSubmit = useCallback(
     (newValue: string) => {
       const success = handleSubmit(newValue);
-      if (success) {
-        const ms = forgivingStringToMillis(newValue);
-        const delayed = name === 'timeEnd' ? Math.max(0, ms + delay) : Math.max(0, ms + delay);
-        setValue(millisToString(delayed));
-      } else {
+      if (!success) {
         resetValue();
       }
     },
-    [delay, handleSubmit, name, resetValue],
+    [handleSubmit, resetValue],
   );
 
   /**
@@ -126,9 +91,6 @@ export default function TimeInput(props: TimeInputProps) {
     (event: KeyboardEvent<HTMLInputElement>) => {
       if (event.key === 'Enter') {
         inputRef.current?.blur();
-        validateAndSubmit((event.target as HTMLInputElement).value);
-      } else if (event.key === 'Tab') {
-        validateAndSubmit((event.target as HTMLInputElement).value);
       }
       if (event.key === 'Escape') {
         ignoreChange.current = true;
@@ -136,7 +98,7 @@ export default function TimeInput(props: TimeInputProps) {
         resetValue();
       }
     },
-    [resetValue, validateAndSubmit],
+    [resetValue],
   );
 
   const onBlurHandler = useCallback(
@@ -155,51 +117,26 @@ export default function TimeInput(props: TimeInputProps) {
     resetValue();
   }, [resetValue, time]);
 
-  const isDelayed = delay !== 0;
-  const inputClasses = cx([style.timeInput, isDelayed ? style.delayed : null]);
-  const buttonClasses = cx([style.inputButton, isDelayed ? style.delayed : null]);
-
-  const TooltipLabel = useMemo(() => {
-    return ButtonTooltip(name, '');
-  }, [name]);
-
-  const ButtonText = useMemo(() => {
-    return ButtonInitial(name);
-  }, [name]);
+  const timeInputClasses = cx([style.timeInput, className]);
 
   return (
-    <InputGroup size='sm' className={inputClasses}>
-      <InputLeftElement className={style.inputLeft}>
-        <Tooltip label={TooltipLabel} openDelay={tooltipDelayFast} variant='ontime-ondark'>
-          <Button
-            size='sm'
-            variant='ontime-subtle-white'
-            className={buttonClasses}
-            tabIndex={-1}
-            border={isDelayed ? '1px solid #E69056' : '1px solid transparent'}
-            borderRight='1px solid transparent'
-            borderRadius='2px 0 0 2px'
-          >
-            {ButtonText}
-          </Button>
-        </Tooltip>
-      </InputLeftElement>
-      <Input
-        ref={inputRef}
-        id={id}
-        data-testid={`time-input-${name}`}
-        className={style.inputField}
-        type='text'
-        placeholder={placeholder}
-        variant='ontime-filled'
-        onFocus={handleFocus}
-        onChange={(event) => setValue(event.target.value)}
-        onBlur={onBlurHandler}
-        onKeyDown={onKeyDownHandler}
-        value={value}
-        maxLength={8}
-        autoComplete='off'
-      />
-    </InputGroup>
+    <Input
+      disabled={disabled}
+      size='sm'
+      ref={inputRef}
+      data-testid={`time-input-${name}`}
+      className={timeInputClasses}
+      fontSize='1rem'
+      type='text'
+      placeholder={placeholder}
+      variant='ontime-filled'
+      onFocus={handleFocus}
+      onChange={(event) => setValue(event.target.value)}
+      onBlur={onBlurHandler}
+      onKeyDown={onKeyDownHandler}
+      value={value}
+      maxLength={8}
+      autoComplete='off'
+    />
   );
 }

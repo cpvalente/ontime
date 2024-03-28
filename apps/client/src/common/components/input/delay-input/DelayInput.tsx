@@ -21,6 +21,7 @@ export default function DelayInput(props: DelayInputProps) {
   // avoid wrong submit on cancel
   let ignoreChange = false;
 
+  // set internal value on duration change
   useEffect(() => {
     if (typeof duration === 'undefined') {
       return;

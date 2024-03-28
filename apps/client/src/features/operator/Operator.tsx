@@ -1,20 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { isOntimeEvent, OntimeEvent, SupportedEvent, UserFields } from 'ontime-types';
-import { getFirstEvent, getLastEvent } from 'ontime-utils';
+import { CustomField, CustomFields, isOntimeEvent, OntimeEvent, SupportedEvent } from 'ontime-types';
+import { getFirstEventNormal, getLastEventNormal } from 'ontime-utils';
 
-import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
+import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import Empty from '../../common/components/state/Empty';
 import { getOperatorOptions } from '../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useOperator } from '../../common/hooks/useSocket';
+import useCustomFields from '../../common/hooks-query/useCustomFields';
 import useProjectData from '../../common/hooks-query/useProjectData';
 import useRundown from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
-import useUserFields from '../../common/hooks-query/useUserFields';
 import { debounce } from '../../common/utils/debounce';
-import { isStringBoolean } from '../../common/utils/viewUtils';
+import { getDefaultFormat } from '../../common/utils/time';
+import { getPropertyValue, isStringBoolean } from '../viewers/common/viewUtils';
 
 import EditModal from './edit-modal/EditModal';
 import FollowButton from './follow-button/FollowButton';
@@ -26,21 +27,21 @@ import style from './Operator.module.scss';
 
 const selectedOffset = 50;
 
-type TitleFields = Pick<OntimeEvent, 'title' | 'subtitle' | 'presenter'>;
+type TitleFields = Pick<OntimeEvent, 'title'>;
 export type EditEvent = Pick<OntimeEvent, 'id' | 'cue'> & { fieldLabel?: string; fieldValue: string };
 export type PartialEdit = EditEvent & {
-  field: keyof UserFields;
+  field: keyof CustomFields;
 };
 
 export default function Operator() {
   const { data, status } = useRundown();
-  const { data: userFields, status: userFieldsStatus } = useUserFields();
+  const { data: customFields, status: customFieldStatus } = useCustomFields();
   const { data: projectData, status: projectDataStatus } = useProjectData();
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
   const featureData = useOperator();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: settings } = useSettings();
 
   const [showEditPrompt, setShowEditPrompt] = useState(false);
@@ -51,7 +52,7 @@ export default function Operator() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const scrollToComponent = useFollowComponent({
     followRef: selectedRef,
-    scrollRef: scrollRef,
+    scrollRef,
     doFollow: !lockAutoScroll,
     topOffset: selectedOffset,
   });
@@ -106,7 +107,7 @@ export default function Operator() {
 
   const handleEdit = useCallback(
     (event: EditEvent) => {
-      const field = searchParams.get('subscribe') as keyof UserFields | null;
+      const field = searchParams.get('subscribe') as keyof CustomField | null;
 
       if (field) {
         setEditEvent({ ...event, field });
@@ -115,8 +116,13 @@ export default function Operator() {
     [searchParams],
   );
 
-  const missingData = !data || !userFields || !projectData;
-  const isLoading = status === 'pending' || userFieldsStatus === 'pending' || projectDataStatus === 'pending';
+  const showEditFormDrawer = useCallback(() => {
+    searchParams.set('edit', 'true');
+    setSearchParams(searchParams);
+  }, [searchParams, setSearchParams]);
+
+  const missingData = !data || !customFields || !projectData;
+  const isLoading = status === 'pending' || customFieldStatus === 'pending' || projectDataStatus === 'pending';
 
   if (missingData || isLoading) {
     return <Empty text='Loading...' />;
@@ -124,24 +130,23 @@ export default function Operator() {
 
   // get fields which the user subscribed to
   const shouldEdit = searchParams.get('shouldEdit');
-  const subscribe = searchParams.get('subscribe') as keyof UserFields | null;
+  const subscribe = searchParams.get('subscribe') as keyof CustomFields;
   const canEdit = shouldEdit && subscribe;
 
   const main = searchParams.get('main') as keyof TitleFields | null;
-  const secondary = searchParams.get('secondary') as keyof TitleFields | null;
-  const subscribedAlias = subscribe ? userFields[subscribe] : '';
-  const showSeconds = isStringBoolean(searchParams.get('showseconds'));
+  const secondary = searchParams.get('secondary');
 
-  const operatorOptions = getOperatorOptions(userFields, settings?.timeFormat ?? '24');
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const operatorOptions = getOperatorOptions(customFields, defaultFormat);
   let isPast = Boolean(featureData.selectedEventId);
   const hidePast = isStringBoolean(searchParams.get('hidepast'));
 
-  const firstEvent = getFirstEvent(data);
-  const lastEvent = getLastEvent(data);
+  const { firstEvent } = getFirstEventNormal(data.rundown, data.order);
+  const { lastEvent } = getLastEventNormal(data.rundown, data.order);
 
   return (
     <div className={style.operatorContainer}>
-      <NavigationMenu />
+      <ProductionNavigationMenu handleSettings={showEditFormDrawer} />
       <ViewParamsEditor paramFields={operatorOptions} />
       {editEvent && <EditModal event={editEvent} onClose={() => setEditEvent(null)} />}
 
@@ -162,7 +167,8 @@ export default function Operator() {
       )}
 
       <div className={style.operatorEvents} onWheel={handleScroll} onTouchMove={handleScroll} ref={scrollRef}>
-        {data.map((entry) => {
+        {data.order.map((eventId) => {
+          const entry = data.rundown[eventId];
           if (isOntimeEvent(entry)) {
             const isSelected = featureData.selectedEventId === entry.id;
             if (isSelected) {
@@ -175,8 +181,8 @@ export default function Operator() {
             }
 
             const mainField = main ? entry?.[main] || entry.title : entry.title;
-            const secondaryField = secondary ? entry?.[secondary] || entry.subtitle : entry.subtitle;
-            const subscribedData = (subscribe ? entry?.[subscribe] : undefined) || '';
+            const secondaryField = getPropertyValue(entry, secondary) ?? '';
+            const subscribedData = entry.custom[subscribe]?.value;
 
             return (
               <OperatorEvent
@@ -192,8 +198,7 @@ export default function Operator() {
                 delay={entry.delay}
                 isSelected={isSelected}
                 subscribed={subscribedData}
-                subscribedAlias={subscribedAlias}
-                showSeconds={showSeconds}
+                subscribeLabel={subscribe}
                 isPast={isPast}
                 selectedRef={isSelected ? selectedRef : undefined}
                 onLongPress={canEdit ? handleEdit : () => undefined}

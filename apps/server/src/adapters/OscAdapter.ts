@@ -3,8 +3,9 @@ import { LogOrigin, OSCSettings } from 'ontime-types';
 import { Server } from 'node-osc';
 
 import { IAdapter } from './IAdapter.js';
-import { dispatchFromAdapter, type ChangeOptions } from '../controllers/integrationController.js';
 import { logger } from '../classes/Logger.js';
+import { objectFromPath } from './utils/parse.js';
+import { type ChangeOptions, dispatchFromAdapter } from '../api-integration/integration.controller.js';
 
 export class OscServer implements IAdapter {
   private readonly osc: Server;
@@ -18,6 +19,7 @@ export class OscServer implements IAdapter {
       // message should look like /ontime/{path}/{params?} {args} where
       // ontime: fixed message for app
       // path: command to be called
+      // params: used to create a nested object to patch with
       // args: extra data, only used on some API entries (delay, goto)
 
       // split message
@@ -38,7 +40,7 @@ export class OscServer implements IAdapter {
 
       let transformedPayload: unknown = args;
       // we need to transform the params for the change endpoint
-      // OSC: ontime/change/{eventID}/{propertyName} value
+      // OSC: /ontime/change/{eventID}/{propertyName} value
       if (path === 'change') {
         if (params.length < 2) {
           logger.error(LogOrigin.Rx, 'OSC IN: No params provided for change');
@@ -59,20 +61,18 @@ export class OscServer implements IAdapter {
           property,
           value,
         } satisfies ChangeOptions;
+      } else if (params.length) {
+        transformedPayload = objectFromPath(params, args);
       }
 
       try {
-        const reply = dispatchFromAdapter(
+        dispatchFromAdapter(
           path,
           {
             payload: transformedPayload,
           },
           'osc',
         );
-        if (reply) {
-          const { topic, payload } = reply;
-          this.osc.emit(topic, payload);
-        }
       } catch (error) {
         logger.error(LogOrigin.Rx, `OSC IN: ${error}`);
       }

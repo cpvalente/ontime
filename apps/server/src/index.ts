@@ -1,19 +1,18 @@
+/* eslint-disable no-console */
 import { initAssets, startIntegrations, startOSCServer, startServer } from './app.js';
 
 async function startOntime() {
   try {
-    console.log('Starting Ontime');
-    console.log('Loading Assets');
+    console.log('Request: Initialise assets...');
     await initAssets();
-    console.log('Starting Server');
+    console.log('Request: Start server...');
     await startServer();
-    console.log('Starting OSC Server');
+    console.log('Request: Start OSC server...');
     await startOSCServer();
-    console.log('Starting Integrations');
+    console.log('Request: Start OSC integrations...');
     await startIntegrations();
   } catch (error) {
-    console.log('Error starting Ontime');
-    console.log(error);
+    console.log(`Request failed: ${error}`);
   }
 }
 

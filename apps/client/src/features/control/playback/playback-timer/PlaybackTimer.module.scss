@@ -1,6 +1,3 @@
-@use '../../../../theme/v2Styles' as *;
-@use '../../../../theme/ontimeColours' as *;
-
 .timeContainer {
   display: grid;
   grid-template-areas:
@@ -10,12 +7,6 @@
   grid-template-columns: 1.25rem 1fr 1fr 5rem;
   gap: $element-inner-spacing;
   justify-items: start;
-}
-
-.timer {
-  grid-area: clk;
-  white-space: nowrap;
-  max-width: 18.75rem;
 }
 
 .indicators {
@@ -95,14 +86,15 @@
   grid-area: 2 / 2 / 2 / 4 ;
 }
 
+.tag {
+  color: $label-gray;
+  font-size: calc(1rem - 2px);
+  margin-right: 0.25rem;
+}
+
 .time {
   color: $section-white;
   font-size: $text-body-size;
-}
-
-.tag {
-  color: $label-gray;
-  font-size: 13px;
 }
 
 .rolltag {

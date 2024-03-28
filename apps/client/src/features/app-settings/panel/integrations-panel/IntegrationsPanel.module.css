@@ -1,0 +1,12 @@
+.fullWidth {
+  width: 100%;
+}
+
+.fitContents.fitContents {
+  width: max-content; /* override chakra */
+}
+
+.flex {
+  display: flex;
+  gap: 1rem;
+}

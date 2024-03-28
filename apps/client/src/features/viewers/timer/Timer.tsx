@@ -1,28 +1,32 @@
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Message, OntimeEvent, Playback, Settings, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
+import {
+  CustomFields,
+  Message,
+  OntimeEvent,
+  Playback,
+  Settings,
+  TimerMessage,
+  TimerType,
+  ViewSettings,
+} from 'ontime-types';
+import { MILLIS_PER_SECOND, millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
-import { overrideStylesURL } from '../../../common/api/apiConstants';
+import { overrideStylesURL } from '../../../common/api/constants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getTimerOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatTime } from '../../../common/utils/time';
-import { isStringBoolean } from '../../../common/utils/viewUtils';
+import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
+import { timerPlaceholder } from '../../../common/utils/styleUtils';
+import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
-import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
+import { getPropertyValue, getTimerByType, isStringBoolean } from '../common/viewUtils';
 
 import './Timer.scss';
-
-const formatOptions = {
-  showSeconds: true,
-  format: 'hh:mm:ss a',
-};
 
 // motion
 const titleVariants = {
@@ -41,18 +45,20 @@ const titleVariants = {
 };
 
 interface TimerProps {
+  customFields: CustomFields;
+  eventNext: OntimeEvent | null;
+  eventNow: OntimeEvent | null;
+  external: Message;
   isMirrored: boolean;
   pres: TimerMessage;
-  external: Message;
-  eventNow: OntimeEvent | null;
-  eventNext: OntimeEvent | null;
-  time: TimeManagerType;
-  viewSettings: ViewSettings;
   settings: Settings | undefined;
+  time: ViewExtendedTimer;
+  viewSettings: ViewSettings;
 }
 
 export default function Timer(props: TimerProps) {
-  const { isMirrored, pres, eventNow, eventNext, time, viewSettings, external, settings } = props;
+  const { customFields, isMirrored, pres, eventNow, eventNext, time, viewSettings, external, settings } = props;
+
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -72,6 +78,8 @@ export default function Timer(props: TimerProps) {
     hideCards: false,
     hideProgress: false,
     hideMessage: false,
+    hideTimerSeconds: false,
+    hideClockSeconds: false,
   };
 
   const hideClock = searchParams.get('hideClock');
@@ -86,23 +94,32 @@ export default function Timer(props: TimerProps) {
   const hideMessage = searchParams.get('hideMessage');
   userOptions.hideMessage = isStringBoolean(hideMessage);
 
-  const clock = formatTime(time.clock, formatOptions);
+  const hideClockSeconds = searchParams.get('hideClockSeconds');
+  userOptions.hideClockSeconds = isStringBoolean(hideClockSeconds);
+  const clock = formatTime(time.clock);
+
+  const hideTimerSeconds = searchParams.get('hideTimerSeconds');
+  userOptions.hideTimerSeconds = isStringBoolean(hideTimerSeconds);
+
+  const secondarySource = searchParams.get('secondary-src');
+  const secondaryTextNow = getPropertyValue(eventNow, secondarySource);
+  const secondaryTextNext = getPropertyValue(eventNext, secondarySource);
+
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
 
   const timerIsTimeOfDay = time.timerType === TimerType.Clock;
 
-  const isNegative = (time.current ?? 0) < 0 && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
   const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
 
   const showEndMessage = (time.current ?? 1) < 0 && viewSettings.endMessage;
   const showProgress = time.playback !== Playback.Stop;
   const showFinished = finished && (time.timerType !== TimerType.Clock || showEndMessage);
-  const showWarning = (time.current ?? 1) < viewSettings.warningThreshold;
-  const showDanger = (time.current ?? 1) < viewSettings.dangerThreshold;
-  const showBlinking = pres.timerBlink;
-  const showBlackout = pres.timerBlackout;
+  const showWarning = (time.current ?? 1) < (eventNow?.timeWarning ?? 0);
+  const showDanger = (time.current ?? 1) < (eventNow?.timeDanger ?? 0);
+  const showBlinking = pres.blink;
+  const showBlackout = pres.blackout;
   const showClock = time.timerType !== TimerType.Clock;
   const showExternal = external.visible && external.text;
 
@@ -110,14 +127,26 @@ export default function Timer(props: TimerProps) {
   if (!timerIsTimeOfDay && showProgress && showWarning) timerColor = viewSettings.warningColor;
   if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
 
-  const stageTimer = getTimerByType(time);
-  let display = formatTimerDisplay(stageTimer);
-  const stageTimerCharacters = display.replace('/:/g', '').length;
-  if (isNegative) {
-    display = `-${display}`;
+  const stageTimer = getTimerByType(viewSettings.freezeEnd, time);
+  let display = millisToString(stageTimer, { fallback: timerPlaceholder });
+  if (stageTimer !== null) {
+    if (hideTimerSeconds) {
+      display = removeSeconds(display);
+    }
+    display = removeLeadingZero(display);
+    // last unit rounds up in negative timers
+    const isNegative =
+      (stageTimer ?? 0 < -MILLIS_PER_SECOND) && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
+    if (isNegative && display === '0') {
+      display = '-1';
+    }
+    if (display.length < 3) {
+      display = `${display} ${getLocalizedString('common.minutes')}`;
+    }
   }
+  const stageTimerCharacters = display.replace('/:/g', '').length;
 
-  const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''} ${showBlackout ? 'blackout' : ''}`;
+  const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
   let timerFontSize = 89 / (stageTimerCharacters - 1);
   // we need to shrink the timer if the external is going to be there
   if (showExternal) {
@@ -127,12 +156,13 @@ export default function Timer(props: TimerProps) {
   const timerContainerClasses = `timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`;
   const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
-  const timerOptions = getTimerOptions(settings?.timeFormat ?? '24');
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const timerOptions = getTimerOptions(defaultFormat, customFields);
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
-      <NavigationMenu />
       <ViewParamsEditor paramFields={timerOptions} />
+      <div className={showBlackout ? 'blackout blackout--active' : 'blackout'} />
       {!userOptions.hideMessage && (
         <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
           <div className={`message ${showBlinking ? 'blink' : ''}`}>{pres.text}</div>
@@ -174,9 +204,9 @@ export default function Timer(props: TimerProps) {
           now={timerIsTimeOfDay ? null : time.current}
           complete={totalTime}
           normalColor={viewSettings.normalColor}
-          warning={viewSettings.warningThreshold}
+          warning={eventNow?.timeWarning}
           warningColor={viewSettings.warningColor}
-          danger={viewSettings.dangerThreshold}
+          danger={eventNow?.timeDanger}
           dangerColor={viewSettings.dangerColor}
           hidden={!showProgress}
         />
@@ -185,7 +215,7 @@ export default function Timer(props: TimerProps) {
       {!userOptions.hideCards && (
         <>
           <AnimatePresence>
-            {eventNow && !finished && (
+            {eventNow?.title && (
               <motion.div
                 className='event now'
                 key='now'
@@ -194,18 +224,13 @@ export default function Timer(props: TimerProps) {
                 animate='visible'
                 exit='exit'
               >
-                <TitleCard
-                  label='now'
-                  title={eventNow.title}
-                  subtitle={eventNow.subtitle}
-                  presenter={eventNow.presenter}
-                />
+                <TitleCard label='now' title={eventNow.title} secondary={secondaryTextNow} />
               </motion.div>
             )}
           </AnimatePresence>
 
           <AnimatePresence>
-            {eventNext && (
+            {eventNext?.title && (
               <motion.div
                 className='event next'
                 key='next'
@@ -214,12 +239,7 @@ export default function Timer(props: TimerProps) {
                 animate='visible'
                 exit='exit'
               >
-                <TitleCard
-                  label='next'
-                  title={eventNext.title}
-                  subtitle={eventNext.subtitle}
-                  presenter={eventNext.presenter}
-                />
+                <TitleCard label='next' title={eventNext.title} secondary={secondaryTextNext} />
               </motion.div>
             )}
           </AnimatePresence>

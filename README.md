@@ -1,5 +1,5 @@
 [![Ontime build v2](https://github.com/cpvalente/ontime/actions/workflows/build_v2.yml/badge.svg)](https://github.com/cpvalente/ontime/actions/workflows/build_v2.yml)
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-green.svg)](https://www.gnu.org/licenses/gpl-3.0) [![Documentation in Gitbook](https://badges.aleen42.com/src/gitbook_2.svg)](https://ontime.gitbook.io)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-green.svg)](https://www.gnu.org/licenses/gpl-3.0) 
 
 ## Download the latest releases here
 
@@ -17,12 +17,13 @@ Ontime is an application for creating and managing event running order and timer
 The user inputs a list of events along with scheduling and event information.
 This will then populate a series of screens which are available to be rendered by any device in the Network.
 
-This makes for a simple and cheap way to distribute over a venue using a network infrastructure instead of video
-outputs.
+This makes for a simple and cheap way to distribute over a venue using a network infrastructure instead of video outputs.
 
 ![App Window](https://github.com/cpvalente/ontime/blob/master/.github/aux-images/app.png)
 
 ![Views](https://github.com/cpvalente/ontime/blob/master/.github/aux-images/overview.png)
+
+[Read the docs to learn more](https://docs.getontime.no)
 
 ## Using Ontime
 
@@ -37,7 +38,7 @@ You can then use the menu in the top left corner to select the desired view.
 The menu will be initially hidden until there is mouse interaction.
 
 In the case of unattended machines or automation, it is possible to use different URL to recall
-individual views and extend view settings using the URL aliases feature
+individual views and extend view settings using the URL presets feature
 
 ```
 For the presentation views
@@ -59,7 +60,7 @@ IP.ADDRESS:4001/editor    > the control interface, same as the app
 IP.ADDRESS:4001/cuesheet  > realtime cuesheets for collaboration
 ```
 
-More documentation is available [in our docs](https://ontime.gitbook.io)
+More documentation is available [in our docs](https://docs.getontime.no)
 
 ## Feature List (in no specific order)
 
@@ -84,7 +85,7 @@ More documentation is available [in our docs](https://ontime.gitbook.io)
   - WebSockets
 - [x] Roll mode: run standalone using the system clock
 - [x] [Headless run](#headless-run): run server in a separate machine, configure from a browser locally
-- [x] [Countdown to anything!](https://ontime.gitbook.io/v2/views/countdown): have
+- [x] [Countdown to anything!](https://docs.getontime.no/features/count-to-anything/): have
       a countdown to any scheduled event
 - [x] Multi-platform (available on Windows, MacOS and Linux)
 - [x] [Companion integration](https://bitfocus.io/connections/getontime-ontime)
@@ -120,9 +121,14 @@ Ontime broadcasts its data over WebSockets. This allows you to consume its data 
 Writing a new view for the browser can be done with basic knowledge of HTML + CSS + Javascript (or any other language
 that can run in the browser).
 <br />
-See [this repository](https://github.com/cpvalente/ontime-viewer-template-v2) with a small template on
-how to get you started and read the docs about
-the [Websocket API](https://ontime.gitbook.io/v2/control-and-feedback/ontime-apis#osc-and-websocket-api)
+We have prepared a few resources to help here:
+- Shipped with Ontime there is a small clock to get you started, it is available at `http://localhost:4001/external/demo` and the [code can be found here](https://github.com/cpvalente/ontime/tree/master/apps/server/src/external/demo)
+- See [this repository](https://github.com/cpvalente/ontime-viewer-template-v2) with a template on
+how to get you started
+- See information about the [Websocket API](https://docs.getontime.no/api/osc-and-ws/)
+<br />
+More information [in the docs](https://docs.getontime.no/features/custom-views/)
+
 
 ### Headless run️
 
@@ -130,7 +136,7 @@ You can self-host and run Ontime in a docker image.
 
 The docker image along with documentation is [available Docker Hub at getontime/ontime](https://hub.docker.com/r/getontime/ontime)
 
-If you want to run this image in a Raspberry Pi, please see [the docs](https://ontime.gitbook.io/v2/additional-notes/use-in-raspberry-pi)
+If you want to run this image in a Raspberry Pi, please see [the docs](https://docs.getontime.no/additional-notes/use-with-rpi/)
 
 ## Roadmap
 
@@ -192,7 +198,7 @@ Information about the project setup can be found in the [development documentati
 
 # Help
 
-Help is underway! ... and can be found [here](https://ontime.gitbook.io)
+Help is underway! ... and can be found [here](https://docs.getontime.no)
 
 # License
 

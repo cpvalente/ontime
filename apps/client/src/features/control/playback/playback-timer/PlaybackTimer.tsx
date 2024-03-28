@@ -1,12 +1,11 @@
 import { Tooltip } from '@chakra-ui/react';
 import { Playback } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { dayInMs, millisToMinutes, millisToSeconds, millisToString } from 'ontime-utils';
 
-import TimerDisplay from '../../../../common/components/timer-display/TimerDisplay';
 import { setPlayback, useTimer } from '../../../../common/hooks/useSocket';
-import { millisToMinutes, millisToSeconds } from '../../../../common/utils/dateConfig';
 import { tooltipDelayMid } from '../../../../ontimeConfig';
 import TapButton from '../tap-button/TapButton';
+import TimerDisplay from '../timer-display/TimerDisplay';
 
 import style from './PlaybackTimer.module.scss';
 
@@ -18,9 +17,10 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
   const { playback } = props;
   const timer = useTimer();
 
-  // TODO: checkout typescript in utilities
   const started = millisToString(timer.startedAt);
-  const finish = millisToString(timer.expectedFinish);
+  const expectedFinish = timer.expectedFinish !== null ? timer.expectedFinish % dayInMs : null;
+  const finish = millisToString(expectedFinish);
+
   const isRolling = playback === Playback.Roll;
   const isStopped = playback === Playback.Stop;
   const isWaiting = timer.secondaryTimer !== null && timer.secondaryTimer > 0 && timer.current === null;
@@ -65,9 +65,7 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
           <div className={hasAddedTime ? style.indDelayActive : style.indDelay} />
         </Tooltip>
       </div>
-      <div className={style.timer}>
-        <TimerDisplay time={isWaiting ? timer.secondaryTimer : timer.current} />
-      </div>
+      <TimerDisplay time={isWaiting ? timer.secondaryTimer : timer.current} />
       {isWaiting ? (
         <div className={style.roll}>
           <span className={style.rolltag}>Roll: Countdown to start</span>
@@ -75,11 +73,11 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
       ) : (
         <>
           <div className={style.start}>
-            <span className={style.tag}>Started at </span>
+            <span className={style.tag}>Started at</span>
             <span className={style.time}>{started}</span>
           </div>
           <div className={style.finish}>
-            <span className={style.tag}>Finish at </span>
+            <span className={style.tag}>Expect end</span>
             <span className={style.time}>{finish}</span>
           </div>
         </>

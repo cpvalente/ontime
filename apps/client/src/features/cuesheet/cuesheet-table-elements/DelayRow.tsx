@@ -10,7 +10,7 @@ interface DelayRowProps {
 
 function DelayRow(props: DelayRowProps) {
   const { duration } = props;
-  const delayTime = millisToDelayString(duration);
+  const delayTime = millisToDelayString(duration, 'expanded');
 
   return (
     <tr className={style.delayRow}>

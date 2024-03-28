@@ -8,7 +8,7 @@ const config: PlaywrightTestConfig = {
   testDir: './e2e/tests',
   timeout: 60 * 1000,
   expect: {
-    timeout: 5000
+    timeout: 5000,
   },
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -16,9 +16,9 @@ const config: PlaywrightTestConfig = {
   workers: 1,
   reporter: 'html',
   webServer: {
-    command: "turbo run dev:test",
+    command: 'turbo run dev:test',
     port: 4001,
-    reuseExistingServer: false,
+    reuseExistingServer: true,
     timeout: 60 * 1000,
   },
   use: {
@@ -30,8 +30,8 @@ const config: PlaywrightTestConfig = {
     ignoreHTTPSErrors: true,
     trace: 'on-first-retry',
     launchOptions: {
-      slowMo: process.env.CI ? undefined : 250
-    }
+      slowMo: process.env.CI ? undefined : 250,
+    },
   },
   projects: [
     {

@@ -6,7 +6,6 @@
 
   background-color: $block-bg2;
 
-  min-width: 34rem;
   display: grid;
   grid-template-columns: 2rem 1fr auto;
   grid-template-areas: 'drag inpt btns';
@@ -22,4 +21,11 @@
 .drag {
   @include drag-style;
   grid-area: drag;
+}
+
+.actionButtons {
+  grid-area: btns;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }

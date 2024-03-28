@@ -1,15 +1,13 @@
 import { useCallback } from 'react';
 
-import { EditorUpdateFields } from '../../../../features/event-editor/EventEditor';
-
 import Swatch from './Swatch';
 
 import style from './SwatchSelect.module.scss';
 
 interface ColourInputProps {
   value: string;
-  name: EditorUpdateFields;
-  handleChange: (newValue: EditorUpdateFields, name: string) => void;
+  name: 'colour';
+  handleChange: (newValue: 'colour', name: string) => void;
 }
 
 const colours = [

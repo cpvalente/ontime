@@ -1,0 +1,20 @@
+@use '../../../../theme/viewerDefs' as *;
+
+.timer {
+  grid-area: clk;
+  white-space: nowrap;
+  max-width: 18.75rem;
+  min-width: 5em;
+
+  font-family: var(--font-family-override, $viewer-font-family);
+  color: var(--timer-color-override, $timer-color);
+  line-height: 0.9em;
+  text-align: center;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  font-size: 3.5rem;
+  
+  &.finished {
+    color: $timer-finished-color;
+  }
+}

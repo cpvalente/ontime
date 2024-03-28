@@ -1,0 +1,37 @@
+@use '../../theme/ontimeColours' as *;
+@use '../../theme/ontimeStyles' as *;
+
+@mixin absolute-top-right($distance) {
+  position: absolute;
+  top: $distance;
+  right: $distance;
+  cursor: pointer;
+  color: $ui-white;
+  transition-property: color;
+  transition-duration: $transition-time-action;
+
+  &:hover {
+    color: $ontime-color;
+  }
+}
+
+@mixin corner() {
+  display: none;
+  @include absolute-top-right(0.5rem);
+  transform: rotate(45deg);
+}
+
+@mixin panel() {
+  display: flex;
+
+  position: relative;
+  border-radius: 8px;
+  height: 100%;
+  background-color: $bg-container-l2;
+  padding: 1rem;
+
+  .corner {
+    /* we show this if the component hasnt been extracted */
+    display: inline;
+  }
+}

@@ -45,7 +45,7 @@ export function getIncrement(input: string): string {
  */
 export function getCueCandidate(rundown: OntimeRundown, insertAfterId?: string): string {
   function addAtTop() {
-    const firstEventCue = getFirstEvent(rundown)?.cue;
+    const firstEventCue = getFirstEvent(rundown).firstEvent?.cue;
 
     if (isNumeric(firstEventCue)) {
       return (Number(firstEventCue) / 10).toString();
@@ -68,11 +68,11 @@ export function getCueCandidate(rundown: OntimeRundown, insertAfterId?: string):
   // get elements around
   let previousEvent: OntimeRundownEntry | undefined | null | OntimeEvent = rundown.at(afterIndex);
   if (!isOntimeEvent(previousEvent)) {
-    previousEvent = getPreviousEvent(rundown, insertAfterId) as null | OntimeEvent;
+    previousEvent = getPreviousEvent(rundown, insertAfterId).previousEvent as null | OntimeEvent;
   }
 
   let cue = '1';
-  const nextEvent = getNextEvent(rundown, insertAfterId);
+  const { nextEvent } = getNextEvent(rundown, insertAfterId);
 
   // try and increment the cue
   if (isOntimeEvent(previousEvent)) {

@@ -1,0 +1,12 @@
+$input-delayed-border-color: $ontime-delay-text;
+
+.timeInput {
+  border: 1px solid transparent;
+  &.delayed {
+    border: 1px solid $input-delayed-border-color;
+  }
+}
+
+.inputField {
+  max-width: 7.75em;
+}

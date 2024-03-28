@@ -1,6 +1,3 @@
-@use '../../../../src/theme/ontimeColours' as *;
-@use '../../../../src/theme/v2Styles' as *;
-
 @mixin column {
   display: flex;
   flex-direction: column;

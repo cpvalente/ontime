@@ -1,0 +1,41 @@
+{
+  "rundown": [],
+  "project": {
+    "title": "",
+    "description": "",
+    "publicUrl": "",
+    "publicInfo": "",
+    "backstageUrl": "",
+    "backstageInfo": ""
+  },
+  "settings": {
+    "app": "ontime",
+    "version": "3.0.0-alpha",
+    "serverPort": 4001,
+    "editorKey": null,
+    "operatorKey": null,
+    "timeFormat": "24",
+    "language": "en"
+  },
+  "viewSettings": {
+    "overrideStyles": false,
+    "normalColor": "#ffffffcc",
+    "warningColor": "#FFAB33",
+    "dangerColor": "#ED3333",
+    "endMessage": ""
+  },
+  "urlPresets": [],
+  "customFields": {},
+  "osc": {
+    "portIn": 8888,
+    "portOut": 9999,
+    "targetIP": "127.0.0.1",
+    "enabledIn": false,
+    "enabledOut": false,
+    "subscriptions": []
+  },
+  "http": {
+    "enabledOut": false,
+    "subscriptions": []
+  }
+}

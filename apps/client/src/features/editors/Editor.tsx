@@ -1,35 +1,59 @@
-import { lazy, useEffect } from 'react';
-import { useDisclosure } from '@chakra-ui/react';
+import { lazy, useCallback, useEffect } from 'react';
 
-import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
-import MenuBar from '../menu/MenuBar';
-import AboutModal from '../modals/about-modal/AboutModal';
-import QuickStart from '../modals/quick-start/QuickStart';
-import SheetsModal from '../modals/sheets-modal/SheetsModal';
-import UploadModal from '../modals/upload-modal/UploadModal';
+import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
+import useElectronEvent from '../../common/hooks/useElectronEvent';
+import AppSettings from '../app-settings/AppSettings';
+import useAppSettingsNavigation from '../app-settings/useAppSettingsNavigation';
+import Overview from '../overview/Overview';
 
 import styles from './Editor.module.scss';
 
 const Rundown = lazy(() => import('../rundown/RundownExport'));
 const TimerControl = lazy(() => import('../control/playback/TimerControlExport'));
 const MessageControl = lazy(() => import('../control/message/MessageControlExport'));
-const Info = lazy(() => import('../info/InfoExport'));
-const EventEditor = lazy(() => import('../event-editor/EventEditorExport'));
-
-const IntegrationModal = lazy(() => import('../modals/integration-modal/IntegrationModal'));
-const SettingsModal = lazy(() => import('../modals/settings-modal/SettingsModal'));
 
 export default function Editor() {
-  const { isOpen: isSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
-  const { isOpen: isUploadModalOpen, onOpen: onUploadModalOpen, onClose: onUploadModalClose } = useDisclosure();
-  const {
-    isOpen: isIntegrationModalOpen,
-    onOpen: onIntegrationModalOpen,
-    onClose: onIntegrationModalClose,
-  } = useDisclosure();
-  const { isOpen: isAboutModalOpen, onOpen: onAboutModalOpen, onClose: onAboutModalClose } = useDisclosure();
-  const { isOpen: isQuickStartOpen, onOpen: onQuickStartOpen, onClose: onQuickStartClose } = useDisclosure();
-  const { isOpen: isSheetsOpen, onOpen: onSheetsOpen, onClose: onSheetsClose } = useDisclosure();
+  const { isOpen, setLocation, close } = useAppSettingsNavigation();
+  const { isElectron } = useElectronEvent();
+
+  const handleSettings = useCallback(() => {
+    if (isOpen) {
+      close();
+    } else {
+      setLocation('project');
+    }
+  }, [close, isOpen, setLocation]);
+
+  // Handle keyboard shortcuts
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      // handle held key
+      if (event.repeat) return;
+
+      // check if the ctrl key is pressed
+      if (event.ctrlKey || event.metaKey) {
+        // ctrl + , (settings)
+        if (event.key === ',') {
+          handleSettings();
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }
+    },
+    [handleSettings],
+  );
+
+  // register ctrl + , to open settings
+  useEffect(() => {
+    if (isElectron) {
+      document.addEventListener('keydown', handleKeyPress);
+    }
+    return () => {
+      if (isElectron) {
+        document.removeEventListener('keydown', handleKeyPress);
+      }
+    };
+  }, [handleKeyPress, isElectron]);
 
   // Set window title
   useEffect(() => {
@@ -37,41 +61,20 @@ export default function Editor() {
   }, []);
 
   return (
-    <>
-      <ErrorBoundary>
-        <QuickStart onClose={onQuickStartClose} isOpen={isQuickStartOpen} />
-        <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
-        <IntegrationModal onClose={onIntegrationModalClose} isOpen={isIntegrationModalOpen} />
-        <AboutModal onClose={onAboutModalClose} isOpen={isAboutModalOpen} />
-        <SettingsModal isOpen={isSettingsOpen} onClose={onSettingsClose} />
-        <SheetsModal onClose={onSheetsClose} isOpen={isSheetsOpen} />
-      </ErrorBoundary>
-      <div className={styles.mainContainer} data-testid='event-editor'>
-        <div id='settings' className={styles.settings}>
-          <ErrorBoundary>
-            <MenuBar
-              onSettingsOpen={onSettingsOpen}
-              isSettingsOpen={isSettingsOpen}
-              onSettingsClose={onSettingsClose}
-              isUploadOpen={isUploadModalOpen}
-              onUploadOpen={onUploadModalOpen}
-              isIntegrationOpen={isIntegrationModalOpen}
-              onIntegrationOpen={onIntegrationModalOpen}
-              isAboutOpen={isAboutModalOpen}
-              onAboutOpen={onAboutModalOpen}
-              isQuickStartOpen={isQuickStartOpen}
-              onQuickStartOpen={onQuickStartOpen}
-              isSheetsOpen={isSheetsOpen}
-              onSheetsOpen={onSheetsOpen}
-            />
-          </ErrorBoundary>
+    <div className={styles.mainContainer} data-testid='event-editor'>
+      <ProductionNavigationMenu handleSettings={handleSettings} />
+      {isOpen ? (
+        <AppSettings />
+      ) : (
+        <div id='panels' className={styles.panelContainer}>
+          <div className={styles.left}>
+            <TimerControl />
+            <MessageControl />
+          </div>
+          <Rundown />
         </div>
-        <Rundown />
-        <MessageControl />
-        <TimerControl />
-        <Info />
-      </div>
-      <EventEditor />
-    </>
+      )}
+      <Overview />
+    </div>
   );
 }

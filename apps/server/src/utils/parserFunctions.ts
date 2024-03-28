@@ -1,31 +1,32 @@
 import { generateId } from 'ontime-utils';
 import {
-  Alias,
   OntimeRundown,
   HttpSettings,
   OSCSettings,
   ProjectData,
   Settings,
-  TimerLifeCycle,
-  UserFields,
   ViewSettings,
   OscSubscription,
+  DatabaseModel,
+  isOntimeEvent,
+  isOntimeDelay,
+  isOntimeBlock,
+  CustomFields,
+  isOntimeCycle,
   HttpSubscription,
-  OscSubscriptionOptions,
-  HttpSubscriptionOptions,
+  URLPreset,
 } from 'ontime-types';
 
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
-import { validateEvent } from './parser.js';
-import { MAX_EVENTS } from '../settings.js';
+import { createEvent } from './parser.js';
 
 /**
  * Parse events array of an entry
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseRundown = (data): OntimeRundown => {
+export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
   let newRundown: OntimeRundown = [];
   if ('rundown' in data) {
     console.log('Found rundown definition, importing...');
@@ -33,36 +34,30 @@ export const parseRundown = (data): OntimeRundown => {
     try {
       let eventIndex = 0;
       const ids = [];
-      for (const e of data.rundown) {
-        // cap number of events
-        if (rundown.length >= MAX_EVENTS) {
-          console.log(`ERROR: Reached limit number of ${MAX_EVENTS} events`);
-          break;
-        }
-
+      for (const event of data.rundown) {
         // double check unique ids
-        if (ids.includes(e?.id)) {
+        if (ids.includes(event?.id)) {
           console.log('ERROR: ID collision on import, skipping');
           continue;
         }
 
-        if (e.type === 'event') {
+        if (isOntimeEvent(event)) {
           eventIndex += 1;
-          const event = validateEvent(e, eventIndex.toString());
+          const parsedEvent = createEvent(event, eventIndex.toString());
           if (event != null) {
-            rundown.push(event);
-            ids.push(event.id);
+            rundown.push(parsedEvent);
+            ids.push(parsedEvent.id);
           }
-        } else if (e.type === 'delay') {
+        } else if (isOntimeDelay(event)) {
           rundown.push({
             ...delayDef,
-            duration: e.duration,
-            id: e.id || generateId(),
+            duration: event.duration,
+            id: event.id || generateId(),
           });
-        } else if (e.type === 'block') {
-          rundown.push({ ...blockDef, title: e.title, id: e.id || generateId() });
+        } else if (isOntimeBlock(event)) {
+          rundown.push({ ...blockDef, title: event.title, id: event.id || generateId() });
         } else {
-          console.log('ERROR: undefined event type, skipping');
+          console.log('ERROR: unkown event type, skipping');
         }
       }
     } catch (error) {
@@ -79,13 +74,12 @@ export const parseRundown = (data): OntimeRundown => {
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseProject = (data): ProjectData => {
+export const parseProject = (data: Partial<DatabaseModel>): ProjectData => {
   let newProjectData: Partial<ProjectData> = {};
   // we are adding this here to aid transition, should be removed once enough time has past that users have fully migrated
-  // TODO: Remove eventually
-  if ('project' in data || 'eventData' in data) {
+  if ('project' in data) {
     console.log('Found project data, importing...');
-    const project = data.project ?? data.eventData;
+    const project = data.project;
 
     // filter known properties and write to db
     newProjectData = {
@@ -113,16 +107,16 @@ export const parseSettings = (data): Settings => {
     const s = data.settings;
 
     // skip if file definition is missing
-    if (s.app == null || s.version == null) {
+    if (s?.app !== 'ontime' || s?.version == null) {
       console.log('ERROR: unknown app version, skipping');
     } else {
       const settings = {
         version: dbModel.settings.version,
-        serverPort: s.serverPort || dbModel.settings.serverPort,
-        editorKey: s.editorKey || null,
-        operatorKey: s.operatorKey || null,
-        timeFormat: s.timeFormat || '24',
-        language: s.language || 'en',
+        serverPort: s.serverPort ?? dbModel.settings.serverPort,
+        editorKey: s.editorKey ?? null,
+        operatorKey: s.operatorKey ?? null,
+        timeFormat: s.timeFormat ?? '24',
+        language: s.language ?? 'en',
       };
 
       // write to db
@@ -140,7 +134,7 @@ export const parseSettings = (data): Settings => {
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseViewSettings = (data): ViewSettings => {
+export const parseViewSettings = (data: Partial<DatabaseModel>): ViewSettings => {
   let newViews: Partial<ViewSettings> = {};
   if ('viewSettings' in data) {
     console.log('Found view definition, importing...');
@@ -150,9 +144,7 @@ export const parseViewSettings = (data): ViewSettings => {
       overrideStyles: v.overrideStyles ?? dbModel.viewSettings.overrideStyles,
       normalColor: v.normalColor ?? dbModel.viewSettings.normalColor,
       warningColor: v.warningColor ?? dbModel.viewSettings.warningColor,
-      warningThreshold: v.warningThreshold ?? dbModel.viewSettings.warningThreshold,
       dangerColor: v.dangerColor ?? dbModel.viewSettings.dangerColor,
-      dangerThreshold: v.dangerThreshold ?? dbModel.viewSettings.dangerThreshold,
       endMessage: v.endMessage ?? dbModel.viewSettings.endMessage,
     };
 
@@ -162,40 +154,18 @@ export const parseViewSettings = (data): ViewSettings => {
 };
 
 /**
- * Parses and validates OSC subscription cycle options
- * @param data
+ * Sanitises an OSC Subscriptions array
  */
-export const validateOscSubscriptionCycle = (data: OscSubscriptionOptions[]): boolean => {
-  for (const subscriptionOption of data) {
-    if (typeof subscriptionOption.message !== 'string' || typeof subscriptionOption.enabled !== 'boolean') {
-      return false;
-    }
-  }
-  return true;
-};
-
-/**
- * Parses and validates OSC subscription object
- * @param data
- */
-export const validateOscSubscriptionObject = (data: OscSubscription): boolean => {
-  if (!data) {
-    return false;
+export function sanitiseOscSubscriptions(subscriptions?: OscSubscription[]): OscSubscription[] {
+  if (!Array.isArray(subscriptions)) {
+    return [];
   }
 
-  const timerKeys = Object.keys(TimerLifeCycle);
-  for (const key of timerKeys) {
-    // must contains all keys and be an array
-    if (!(key in data) || !Array.isArray(data[key])) {
-      return false;
-    }
-    const isValid = validateOscSubscriptionCycle(data[key]);
-    if (!isValid) {
-      return false;
-    }
-  }
-  return true;
-};
+  return subscriptions.filter(
+    ({ id, cycle, message, enabled }) =>
+      typeof id === 'string' && isOntimeCycle(cycle) && typeof message === 'string' && typeof enabled === 'boolean',
+  );
+}
 
 /**
  * Parse osc portion of an entry
@@ -204,58 +174,35 @@ export const parseOsc = (data: { osc?: Partial<OSCSettings> }): OSCSettings => {
   if ('osc' in data) {
     console.log('Found OSC definition, importing...');
 
-    // TODO: this can be improved by only merging known keys
     const loadedConfig = data.osc || {};
-    const validatedSubscriptions = validateOscSubscriptionObject(loadedConfig.subscriptions)
-      ? loadedConfig.subscriptions
-      : dbModel.osc.subscriptions;
-
     return {
       portIn: loadedConfig.portIn ?? dbModel.osc.portIn,
       portOut: loadedConfig.portOut ?? dbModel.osc.portOut,
       targetIP: loadedConfig.targetIP ?? dbModel.osc.targetIP,
       enabledIn: loadedConfig.enabledIn ?? dbModel.osc.enabledIn,
       enabledOut: loadedConfig.enabledOut ?? dbModel.osc.enabledOut,
-      subscriptions: validatedSubscriptions,
+      subscriptions: sanitiseOscSubscriptions(loadedConfig.subscriptions),
     };
   }
 };
 
 /**
- * Parses and validates HTTP subscription cycle options
- * @param data
+ * Sanitises an HTTP Subscriptions array
  */
-export const validateHttpSubscriptionCycle = (data: HttpSubscriptionOptions[]): boolean => {
-  for (const subscriptionOption of data) {
-    const isHttp = subscriptionOption.message?.startsWith('http://');
-    if (typeof subscriptionOption.message !== 'string' || !isHttp || typeof subscriptionOption.enabled !== 'boolean') {
-      return false;
-    }
+export function sanitiseHttpSubscriptions(subscriptions?: HttpSubscription[]): HttpSubscription[] {
+  if (!Array.isArray(subscriptions)) {
+    return [];
   }
-  return true;
-};
 
-/**
- * Parses and validates HTTP subscription object
- * @param data
- */
-export const validateHttpSubscriptionObject = (data: HttpSubscription): boolean => {
-  if (!data) {
-    return false;
-  }
-  const timerKeys = Object.keys(TimerLifeCycle);
-  // must contains all keys and be an array
-  for (const key of timerKeys) {
-    if (!(key in data) || !Array.isArray(data[key])) {
-      return false;
-    }
-    const isValid = validateHttpSubscriptionCycle(data[key]);
-    if (!isValid) {
-      return false;
-    }
-  }
-  return true;
-};
+  return subscriptions.filter(
+    ({ id, cycle, message, enabled }) =>
+      typeof id === 'string' &&
+      isOntimeCycle(cycle) &&
+      typeof message === 'string' &&
+      message.startsWith('http://') &&
+      typeof enabled === 'boolean',
+  );
+}
 
 /**
  * Parse Http portion of an entry
@@ -269,66 +216,56 @@ export const parseHttp = (data: { http?: Partial<HttpSettings> }): HttpSettings 
 
     // TODO: this can be improved by only merging known keys
     const loadedConfig = data?.http || {};
-    const validatedSubscriptions = validateHttpSubscriptionObject(loadedConfig.subscriptions)
-      ? loadedConfig.subscriptions
-      : dbModel.http.subscriptions;
 
     return {
       enabledOut: loadedConfig.enabledOut ?? dbModel.http.enabledOut,
-      subscriptions: validatedSubscriptions,
+      subscriptions: sanitiseHttpSubscriptions(loadedConfig.subscriptions),
     };
   }
 };
 
 /**
- * Parse aliases portion of an entry
+ * Parse URL preset portion of an entry
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseAliases = (data): Alias[] => {
-  const newAliases: Alias[] = [];
-  if ('aliases' in data) {
-    console.log('Found Aliases definition, importing...');
+export const parseUrlPresets = (data: Partial<DatabaseModel>): URLPreset[] => {
+  const newPresets: URLPreset[] = [];
+  if ('urlPresets' in data) {
+    console.log('Found URL presets definition, importing...');
     try {
-      for (const a of data.aliases) {
-        const newAlias = {
-          enabled: a.enabled || false,
-          alias: a.alias || '',
-          pathAndParams: a.pathAndParams || '',
+      for (const preset of data.urlPresets) {
+        const newPreset = {
+          enabled: preset.enabled ?? false,
+          alias: preset.alias ?? '',
+          pathAndParams: preset.pathAndParams ?? '',
         };
-        newAliases.push(newAlias);
+        newPresets.push(newPreset);
       }
-      console.log(`Uploaded ${newAliases?.length || 0} alias(es)`);
+      console.log(`Uploaded ${newPresets.length} preset(s)`);
     } catch (error) {
       console.log(`Error: ${error}`);
     }
   }
-  return newAliases;
+  return newPresets;
 };
 
 /**
- * Parse userFields entry
+ * Parse customFields entry
  * @param {object} data - data object
  * @returns {object} - event object data
  */
-export const parseUserFields = (data): UserFields => {
-  const newUserFields: UserFields = { ...dbModel.userFields };
+export const parseCustomFields = (data: Partial<DatabaseModel>): CustomFields => {
+  let newCustomFields: CustomFields = { ...dbModel.customFields };
 
-  if ('userFields' in data) {
-    console.log('Found User Fields definition, importing...');
-    // we will only be importing the fields we know, so look for that
+  if ('customFields' in data) {
+    console.log('Found Custom Fields definition, importing...');
     try {
-      let fieldsFound = 0;
-      for (const n in newUserFields) {
-        if (n in data.userFields) {
-          fieldsFound++;
-          newUserFields[n] = data.userFields[n];
-        }
-      }
-      console.log(`Uploaded ${fieldsFound} user fields`);
+      //TODO: validate
+      newCustomFields = { ...dbModel.customFields, ...data.customFields };
     } catch (error) {
       console.log(`Error: ${error}`);
     }
   }
-  return { ...newUserFields };
+  return { ...newCustomFields };
 };

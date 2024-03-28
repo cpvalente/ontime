@@ -3,34 +3,38 @@
 .title-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0.5rem;
+}
 
-  .inline {
-    display: flex;
+.inline {
+  display: flex;
+}
+
+.title-card__title {
+  font-weight: 600;
+  font-size: clamp(32px, 3.5vw, 50px);
+  color: var(--color-override, $viewer-color);
+  line-height: 1.1em;
+}
+
+.title-card__label {
+  font-size: clamp(1rem, 1.5vw, 1.5rem);
+  font-weight: 400;
+  color: var(--secondary-color-override, $viewer-secondary-color);
+  margin-left: auto;
+  text-transform: uppercase;
+
+  &--accent {
+    color: var(--accent-color-override, $accent-color);
   }
+}
 
-  .title {
-    font-weight: 600;
-    font-size: clamp(32px, 3.5vw, 50px);
-    color: var(--color-override, $viewer-color);
-    line-height: 1.1em;
-  }
+.title-card__secondary {
+  font-size: clamp(1.5rem, 2vw, 2.25rem);
+  color: var(--secondary-color-override, $viewer-secondary-color);
+  line-height: 1.1em;
 
-  .subtitle, .presenter {
-    font-size: clamp(24px, 2vw, 35px);
-    color: var(--secondary-color-override, $viewer-secondary-color);
-    line-height: 1.1em;
-  }
-
-  .label {
-    font-size: clamp(16px, 1.5vw, 24px);
-    font-weight: 400;
-    color: var(--secondary-color-override, $viewer-secondary-color);
-    margin-left: auto;
-    text-transform: uppercase;
-
-    &.accent {
-      color: var(--accent-color-override, $accent-color);
-    }
+  &::after {
+    content: '\200b';
   }
 }

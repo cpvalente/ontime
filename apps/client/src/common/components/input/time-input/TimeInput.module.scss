@@ -1,37 +1,4 @@
-@use "../../../../theme/v2Styles" as *;
-
-$input-font-size: 15px;
-$input-delayed-border-color: #E69056;
-
 .timeInput {
-  width: fit-content !important;
-
-  .inputLeft {
-    max-width: fit-content;
-  }
-
-  .inputLeft,
-  .inputButton {
-    aspect-ratio: 1;
-  }
-
-  .inputField {
-    font-size: $input-font-size;
     letter-spacing: 1px;
-    width: 7.5em;
-    padding: 0 0 0 2.6em;
-  }
-
-  .warn {
-    &::after {
-      content: "*";
-      color: $warning-orange;
-    }
-  }
-
-  &.delayed {
-    .inputField {
-      border: 1px solid $input-delayed-border-color;
-    }
-  }
+    width: 6.5em;
 }

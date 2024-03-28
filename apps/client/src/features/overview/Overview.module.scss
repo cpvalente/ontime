@@ -1,0 +1,27 @@
+.overview {
+  grid-area: overview;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: $inner-section-text-size;
+  padding: 0 1rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  @include ellipsis-overflow;
+}
+
+.description {
+  font-size: 1rem;
+  color: $label-gray;
+  @include ellipsis-overflow;
+}
+
+.ahead {
+  color: $green-500;
+}
+
+.behind {
+  color: $ontime-delay-text;
+}

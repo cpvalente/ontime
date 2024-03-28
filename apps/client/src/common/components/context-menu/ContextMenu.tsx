@@ -1,10 +1,12 @@
 // logic (with some modifications) culled from:
 // https://github.com/lukasbach/chakra-ui-contextmenu/blob/main/src/ContextMenu.tsx
 
-import { Fragment, ReactElement } from 'react';
-import { Menu, MenuButton, MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
+import { ReactElement } from 'react';
+import { Menu, MenuButton, MenuGroup, MenuList } from '@chakra-ui/react';
 import { IconType } from '@react-icons/all-files';
 import { create } from 'zustand';
+
+import { ContextMenuOption } from './ContextMenuOption';
 
 import style from './ContextMenu.module.scss';
 
@@ -13,13 +15,22 @@ type ContextMenuCoords = {
   y: number;
 };
 
-export type Option = {
+export type OptionWithoutGroup = {
   label: string;
+  isDisabled?: boolean;
   icon: IconType;
   onClick: () => void;
   withDivider?: boolean;
-  isDisabled?: boolean;
 };
+
+export type OptionWithGroup = {
+  label: string;
+  group: Omit<OptionWithoutGroup, 'isGroup'>[];
+};
+
+export type Option = OptionWithoutGroup | OptionWithGroup;
+
+const isOptionWithGroup = (option: Option): option is OptionWithGroup => 'group' in option;
 
 type ContextMenuStore = {
   coords: ContextMenuCoords;
@@ -57,7 +68,7 @@ export const ContextMenu = ({ children }: ContextMenuProps) => {
     <>
       {children}
       <div className={style.contextMenuBackdrop} />
-      <Menu isOpen gutter={0} onClose={onClose} isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
+      <Menu isOpen size='sm' gutter={0} onClose={onClose} isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
         <MenuButton
           className={style.contextMenuButton}
           aria-hidden
@@ -69,14 +80,17 @@ export const ContextMenu = ({ children }: ContextMenuProps) => {
           }}
         />
         <MenuList>
-          {options.map(({ label, icon: Icon, onClick, withDivider, isDisabled }, i) => (
-            <Fragment key={label}>
-              {withDivider && <MenuDivider />}
-              <MenuItem key={i} icon={<Icon />} onClick={onClick} isDisabled={isDisabled}>
-                {label}
-              </MenuItem>
-            </Fragment>
-          ))}
+          {options.map((option) =>
+            isOptionWithGroup(option) ? (
+              <MenuGroup key={option.label} title={option.label}>
+                {option.group.map((groupOption) => (
+                  <ContextMenuOption key={groupOption.label} {...groupOption} />
+                ))}
+              </MenuGroup>
+            ) : (
+              <ContextMenuOption key={option.label} {...option} />
+            ),
+          )}
         </MenuList>
       </Menu>
     </>

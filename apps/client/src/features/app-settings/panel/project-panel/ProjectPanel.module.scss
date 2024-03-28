@@ -1,0 +1,52 @@
+.current {
+  background-color: $blue-1100;
+}
+
+.actionButton {
+  flex: 1;
+  text-align: right;
+}
+
+.form {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.formInput {
+  flex: 2;
+}
+
+.headerButtons,
+.actionButtons,
+.createActionButtons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.actionButtons {
+  margin-left: 1rem;
+}
+
+.createActionButtons {
+  margin-left: 1rem;
+  justify-content: flex-end;
+}
+
+.saveButton {
+  text-transform: capitalize;
+}
+
+.containCell {
+  max-width: 400px;
+}
+
+.innerColumn {
+  margin: 0 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}

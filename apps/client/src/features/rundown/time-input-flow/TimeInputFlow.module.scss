@@ -1,0 +1,30 @@
+.timeLabel {
+  position: absolute;
+  z-index: 100;
+  font-size: 0.75rem;
+  font-weight: 600;
+  top: 2px;
+  right: 4px;
+  color: inherit;
+}
+
+.timeAction {
+  opacity: 0.4;
+  cursor: pointer;
+  padding-right: 0.5em;
+
+  &.active {
+    opacity: 1;
+    color: var(--status-color-active-override, $active-indicator);
+  }
+  .fourtyfive {
+    transform: rotate(-45deg);
+  }
+}
+
+.timerNote {
+  color: $blue-500;
+  margin-right: 0.5rem;
+  font-size: 1.5em;
+  display: grid;
+}

@@ -3,6 +3,7 @@ const commonStyles = {
   backgroundColor: '#262626', // $gray-1200
   color: '#e2e2e2', // $gray-200
   border: '1px solid transparent',
+  borderRadius: '3px',
   _hover: {
     backgroundColor: '#2d2d2d', // $gray-1100
   },
@@ -25,20 +26,14 @@ export const ontimeInputFilled = {
   },
 };
 
-export const ontimeInputFilledOnLight = {
+export const ontimeInputGhosted = {
   field: {
-    backgroundColor: 'white',
-    border: '2px solid #f6f6f6', // $gray-50
+    ...commonStyles,
+    backgroundColor: 'transparent',
+    color: '#f6f6f6', // $gray-50
     _hover: {
-      border: '2px solid #D2DDFF', // $blue-200
-    },
-    _focus: {
-      border: '2px solid #578AF4', // $blue-500
-    },
-    _disabled: {
-      _hover: {
-        backgroundColor: 'white',
-      },
+      backgroundColor: 'transparent', // $gray-1100
+      border: '1px solid #2B5ABC', // $blue-500
     },
   },
 };
@@ -46,31 +41,11 @@ export const ontimeInputFilledOnLight = {
 export const ontimeTextAreaFilled = {
   ...commonStyles,
 };
+
 export const ontimeTextAreaTransparent = {
   ...commonStyles,
   backgroundColor: 'transparent',
   _hover: {
     backgroundColor: 'rgba(255, 255, 255, 0.10)', // $white-10
-  },
-};
-
-export const ontimeTextAreaFilledOnLight = {
-  borderRadius: '3px',
-  fontWeight: '400',
-  backgroundColor: 'white',
-  color: '#202020', // $gray-1200
-  border: '2px solid #f6f6f6', // $gray-50
-  _hover: {
-    border: '2px solid #D2DDFF', // $blue-200
-  },
-  _focus: {
-    color: '#101010',
-    border: '2px solid #578AF4', // $blue-500
-  },
-  _placeholder: { color: '#9d9d9d' }, // $gray-500
-  _disabled: {
-    _hover: {
-      backgroundColor: 'white',
-    },
   },
 };

@@ -1,15 +1,7 @@
-@use '../../../theme/v2Styles' as *;
-
 .messageContainer {
   display: flex;
   flex-direction: column;
   gap: $section-spacing;
-}
-
-.onAirSection {
-  display: flex;
-  flex-direction: column;
-  gap: $element-spacing;
 }
 
 .buttonSection {
@@ -17,13 +9,4 @@
   grid-template-columns: 1fr 1fr;
   gap: $element-spacing;
   margin-top: -0.5rem;
-}
-
-.label {
-  font-size: $inner-section-text-size;
-  color: $label-gray;
-
-  &.active {
-    color: $action-text-color;
-  }
 }
