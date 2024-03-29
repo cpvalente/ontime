@@ -23,7 +23,7 @@ describe('getProjectFiles test', () => {
 
     const expectedFiles = ['file1', 'file2', 'file3'].map((file) => ({
       filename: file,
-      createdAt: new Date('2020-01-01').toISOString(),
+      updatedAt: new Date('2020-01-01').toISOString(),
     }));
 
     expect(result).toEqual(expectedFiles);
