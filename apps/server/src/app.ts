@@ -5,6 +5,7 @@ import express from 'express';
 import expressStaticGzip from 'express-static-gzip';
 import http, { type Server } from 'http';
 import cors from 'cors';
+import serverTiming from 'server-timing';
 
 // import utils
 import { resolve } from 'path';
@@ -54,6 +55,10 @@ if (!isProduction) {
 
 // Create express APP
 const app = express();
+if (process.env.NODE_ENV === 'development') {
+  // log more serever timings
+  app.use(serverTiming());
+}
 app.disable('x-powered-by');
 
 // setup cors for all routes
@@ -91,7 +96,7 @@ app.use(
 );
 
 app.get('*', (_req, res) => {
-  res.sendFile(resolve(resolvedPath(), 'index.html'));
+  res.sendFile(resolve(reactAppPath, 'index.html'));
 });
 
 // Implement catch all
