@@ -22,4 +22,7 @@ export type RuntimeStore = {
 
   // extra timers
   timer1: SimpleTimerState;
+
+  //client list lives here for now
+  clientList: [];
 };
