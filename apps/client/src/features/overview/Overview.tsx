@@ -12,7 +12,7 @@ import style from './Overview.module.scss';
 
 export default memo(Overview);
 
-function Overview() {
+function Overview({ children }: { children: React.ReactNode }) {
   const { plannedEnd, plannedStart, actualStart, expectedEnd } = useRuntimeOverview();
 
   const [maybePlannedEnd, maybePlannedDaySpan] = useMemo(() => calculateEndAndDaySpan(plannedEnd), [plannedEnd]);
@@ -24,15 +24,23 @@ function Overview() {
   return (
     <div className={style.overview}>
       <ErrorBoundary>
-        <TitlesOverview />
-        <div className={style.column}>
-          <TimeRow label='Planned start' value={formatedTime(plannedStart)} className={style.start} />
-          <TimeRow label='Actual start' value={formatedTime(actualStart)} className={style.start} />
-        </div>
-        <RuntimeOverview />
-        <div className={style.column}>
-          <TimeRow label='Planned end' value={plannedEndText} className={style.end} daySpan={maybePlannedDaySpan} />
-          <TimeRow label='Expected end' value={expectedEndText} className={style.end} daySpan={maybeExpectedDaySpan} />
+        <div className={style.nav}>{children}</div>
+        <div className={style.info}>
+          <TitlesOverview />
+          <div>
+            <TimeRow label='Planned start' value={formatedTime(plannedStart)} className={style.start} />
+            <TimeRow label='Actual start' value={formatedTime(actualStart)} className={style.start} />
+          </div>
+          <RuntimeOverview />
+          <div>
+            <TimeRow label='Planned end' value={plannedEndText} className={style.end} daySpan={maybePlannedDaySpan} />
+            <TimeRow
+              label='Expected end'
+              value={expectedEndText}
+              className={style.end}
+              daySpan={maybeExpectedDaySpan}
+            />
+          </div>
         </div>
       </ErrorBoundary>
     </div>
@@ -43,7 +51,7 @@ function TitlesOverview() {
   const { data } = useProjectData();
 
   return (
-    <div className={style.titles}>
+    <div>
       <div className={style.title}>{data.title}</div>
       <div className={style.description}>{data.description}</div>
     </div>

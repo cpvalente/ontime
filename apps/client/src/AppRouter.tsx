@@ -7,7 +7,7 @@ import withData from './features/viewers/ViewWrapper';
 
 const Editor = lazy(() => import('./features/editors/ProtectedEditor'));
 const Cuesheet = lazy(() => import('./features/cuesheet/ProtectedCuesheet'));
-const Operator = lazy(() => import('./features/operator/Operator'));
+const Operator = lazy(() => import('./features/operator/OperatorExport'));
 
 const TimerView = lazy(() => import('./features/viewers/timer/Timer'));
 const MinimalTimerView = lazy(() => import('./features/viewers/minimal-timer/MinimalTimer'));
