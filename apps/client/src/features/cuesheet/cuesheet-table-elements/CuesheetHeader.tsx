@@ -1,3 +1,4 @@
+import { memo, useEffect } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import {
   closestCenter,
@@ -29,6 +30,12 @@ interface CuesheetHeaderProps {
 function CuesheetHeader(props: CuesheetHeaderProps) {
   const { headerGroups } = props;
   const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>('table-order', initialColumnOrder);
+
+  useEffect(() => {
+    if (!localStorage.getItem('table-order')) {
+      saveColumnOrder(initialColumnOrder);
+    }
+  }, [saveColumnOrder]);
 
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { delta, active, over } = event;
@@ -113,4 +120,4 @@ function CuesheetHeader(props: CuesheetHeaderProps) {
   );
 }
 
-export default CuesheetHeader;
+export default memo(CuesheetHeader);
