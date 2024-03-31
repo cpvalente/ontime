@@ -281,7 +281,6 @@ export default function EventBlock(props: EventBlockProps) {
           loaded={loaded}
           playback={playback}
           isRolling={isRolling}
-          actionHandler={actionHandler}
         />
       )}
     </div>
