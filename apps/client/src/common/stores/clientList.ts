@@ -1,12 +1,16 @@
 import { useStore } from 'zustand';
-import { createStore } from 'zustand/vanilla';
+import { create } from 'zustand';
 
-type ClientListStore = {
+export type ClientListStore = {
   clients: [];
 };
 
-export const clientListStore = createStore<ClientListStore>(() => ({
+export const clientListStorePlaceholder: ClientListStore = {
   clients: [],
+};
+
+export const clientListStore = create<ClientListStore>(() => ({
+  ...clientListStorePlaceholder,
 }));
 
-export const useClientList = () => useStore(clientListStore);
+export const useClientList = useStore(clientListStore);

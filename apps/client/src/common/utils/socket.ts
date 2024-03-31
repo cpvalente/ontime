@@ -5,6 +5,7 @@ import { ontimeQueryClient } from '../queryClient';
 import { socketClientName } from '../stores/connectionName';
 import { addLog } from '../stores/logger';
 import { patchRuntime, runtimeStore } from '../stores/runtime';
+import { ClientListStore, clientListStore } from '../stores/clientList';
 
 export let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
@@ -59,11 +60,15 @@ export const connectSocket = (preferredClientName?: string) => {
           break;
         }
         case 'client-list': {
-          const state = runtimeStore.getState();
-          state.clientList = payload;
-          runtimeStore.setState(state);
-          console.log(runtimeStore);
+          clientListStore.setState(payload as ClientListStore)
+
           break;
+
+          // const state = runtimeStore.getState();
+          // state.clientList = payload;
+          // runtimeStore.setState(state);
+          // console.log(runtimeStore);
+          // break;
         }
         case 'ontime-log': {
           addLog(payload as Log);
