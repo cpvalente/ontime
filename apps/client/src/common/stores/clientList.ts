@@ -13,4 +13,4 @@ export const clientListStore = create<ClientListStore>(() => ({
   ...clientListStorePlaceholder,
 }));
 
-export const useClientList = useStore(clientListStore);
+export const useClientList = () => useStore(clientListStore);

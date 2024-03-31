@@ -184,7 +184,6 @@ export const startServer = async () => {
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
     },
-    clientList: [],
   });
 
   // initialise rundown service
