@@ -3,7 +3,7 @@ import { Input } from '@chakra-ui/react';
 import { sanitiseCue } from 'ontime-utils';
 
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
-import { type EditorUpdateFields } from '../EventEditor';
+import { type EditorUpdateFields } from '../EventEditorWrapper';
 
 import EventTextArea from './EventTextArea';
 import EventTextInput from './EventTextInput';

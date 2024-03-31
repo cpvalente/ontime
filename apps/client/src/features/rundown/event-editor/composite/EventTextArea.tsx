@@ -3,7 +3,7 @@ import { CSSProperties, useCallback } from 'react';
 import { AutoTextArea } from '../../../../common/components/input/auto-text-area/AutoTextArea';
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
 import { cx } from '../../../../common/utils/styleUtils';
-import { EditorUpdateFields } from '../EventEditor';
+import { EditorUpdateFields } from '../EventEditorWrapper';
 
 import style from '../EventEditor.module.scss';
 

@@ -1,14 +1,11 @@
-import { CSSProperties, useCallback, useEffect, useState } from 'react';
+import { CSSProperties } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@chakra-ui/react';
-import { CustomFieldLabel, isOntimeEvent, OntimeEvent } from 'ontime-types';
+import { CustomFieldLabel, OntimeEvent } from 'ontime-types';
 
 import CopyTag from '../../../common/components/copy-tag/CopyTag';
-import { useEventAction } from '../../../common/hooks/useEventAction';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
-import useRundown from '../../../common/hooks-query/useRundown';
 import { getAccessibleColour } from '../../../common/utils/styleUtils';
-import { useEventSelection } from '../useEventSelection';
 
 import EventEditorTimes from './composite/EventEditorTimes';
 import EventEditorTitles from './composite/EventEditorTitles';
@@ -20,47 +17,15 @@ export type EventEditorSubmitActions = keyof OntimeEvent;
 
 export type EditorUpdateFields = 'cue' | 'title' | 'note' | 'colour' | CustomFieldLabel;
 
-export default function EventEditor() {
-  const selectedEvents = useEventSelection((state) => state.selectedEvents);
-  const { data } = useRundown();
+interface EventEditorProps {
+  event: OntimeEvent | null;
+  handleSubmit: (field: EditorUpdateFields, value: string) => void;
+  isMultiple: boolean;
+}
+
+export default function EventEditor({ event, handleSubmit, isMultiple }: EventEditorProps) {
   const { data: customFields } = useCustomFields();
-  const { order, rundown } = data;
-  const { updateEvent } = useEventAction();
   const [_searchParams, setSearchParams] = useSearchParams();
-
-  const [event, setEvent] = useState<OntimeEvent | null>(null);
-
-  useEffect(() => {
-    if (order.length === 0) {
-      setEvent(null);
-      return;
-    }
-
-    const selectedEventId = order.find((eventId) => selectedEvents.has(eventId));
-    if (!selectedEventId) {
-      setEvent(null);
-      return;
-    }
-    const event = rundown[selectedEventId];
-
-    if (event && isOntimeEvent(event)) {
-      setEvent(event);
-    } else {
-      setEvent(null);
-    }
-  }, [order, rundown, selectedEvents]);
-
-  const handleSubmit = useCallback(
-    (field: EditorUpdateFields, value: string) => {
-      if (field.startsWith('custom-')) {
-        const fieldLabel = field.split('custom-')[1];
-        updateEvent({ id: event?.id, custom: { [fieldLabel]: { value } } });
-      } else {
-        updateEvent({ id: event?.id, [field]: value });
-      }
-    },
-    [event?.id, updateEvent],
-  );
 
   const handleOpenCustomManager = () => {
     setSearchParams({ settings: 'project_settings__custom' });
@@ -128,10 +93,12 @@ export default function EventEditor() {
           })}
         </div>
       </div>
-      <div className={style.footer}>
-        <CopyTag label='OSC trigger by id'>{`/ontime/load/id "${event.id}"`}</CopyTag>
-        <CopyTag label='OSC trigger by cue'>{`/ontime/load/cue "${event.cue}"`}</CopyTag>
-      </div>
+      {!isMultiple ? (
+        <div className={style.footer}>
+          <CopyTag label='OSC trigger by id'>{`/ontime/load/id "${event.id}"`}</CopyTag>
+          <CopyTag label='OSC trigger by cue'>{`/ontime/load/cue "${event.cue}"`}</CopyTag>
+        </div>
+      ) : null}
     </div>
   );
 }
