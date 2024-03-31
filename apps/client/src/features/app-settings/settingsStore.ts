@@ -27,7 +27,7 @@ export const settingPanels: Readonly<SettingsOption[]> = [
     label: 'Project Settings',
     secondary: [{ id: 'project_settings__custom', label: 'Custom fields' }],
   },
-  { id: 'interface', label: 'Interface', secondary: [{ id: 'general__editor', label: 'Editor settings' }] },
+  { id: 'interface', label: 'Interface', secondary: [{ id: 'interface__editor', label: 'Editor settings' }] },
   {
     id: 'sources',
     label: 'Data Sources',

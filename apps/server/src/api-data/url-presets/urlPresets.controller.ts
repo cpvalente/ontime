@@ -7,7 +7,7 @@ import { failIsNotArray } from '../../utils/routerUtils.js';
 
 export async function getUrlPresets(_req: Request, res: Response<URLPreset[]>) {
   const presets = DataProvider.getUrlPresets();
-  res.status(200).send(presets);
+  res.status(200).send(presets as URLPreset[]);
 }
 
 export async function postUrlPresets(req: Request, res: Response<URLPreset[] | ErrorResponse>) {

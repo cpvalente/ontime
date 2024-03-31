@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 const fileToUpload = 'e2e/tests/fixtures/test-db.json';
 
-test('test project file upload', async ({ page }) => {
+test('project file upload', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
   await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Delete all events' }).click();

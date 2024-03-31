@@ -15,16 +15,18 @@ import NavigationMenu from './NavigationMenu';
 import style from './NavigationMenu.module.scss';
 
 interface ProductionNavigationMenuProps {
-  handleSettings: () => void;
+  isMenuOpen: boolean;
+  onMenuClose: () => void;
 }
 
-function ProductionNavigationMenu({ handleSettings }: ProductionNavigationMenuProps) {
+function ProductionNavigationMenu(props: ProductionNavigationMenuProps) {
+  const { isMenuOpen, onMenuClose } = props;
   const location = useLocation();
   const { fullscreen, toggle } = useFullscreen();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <NavigationMenu editCallback={handleSettings}>
+    <NavigationMenu isOpen={isMenuOpen} onClose={onMenuClose}>
       <RenameClientModal isOpen={isOpen} onClose={onClose} />
       <div className={style.buttonsContainer}>
         <div
@@ -54,7 +56,7 @@ function ProductionNavigationMenu({ handleSettings }: ProductionNavigationMenuPr
       <hr className={style.separator} />
       <Link
         to='/editor'
-        className={`${style.link} ${'/editor' === location.pathname ? style.current : ''}`}
+        className={`${style.link} ${location.pathname === '/editor' ? style.current : ''}`}
         tabIndex={0}
       >
         Editor
@@ -62,13 +64,13 @@ function ProductionNavigationMenu({ handleSettings }: ProductionNavigationMenuPr
       </Link>
       <Link
         to='/cuesheet'
-        className={`${style.link} ${'/cuesheet' === location.pathname ? style.current : ''}`}
+        className={`${style.link} ${location.pathname === '/cuesheet' ? style.current : ''}`}
         tabIndex={0}
       >
         Cuesheet
         <IoArrowUp className={style.linkIcon} />
       </Link>
-      <Link to='/op' className={`${style.link} ${'/op' === location.pathname ? style.current : ''}`} tabIndex={0}>
+      <Link to='/op' className={`${style.link} ${location.pathname === '/op' ? style.current : ''}`} tabIndex={0}>
         Operator
         <IoArrowUp className={style.linkIcon} />
       </Link>

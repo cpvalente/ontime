@@ -6,6 +6,7 @@ import { overrideStylesURL } from '../../../common/api/constants';
 import { getLowerThirdOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { getPropertyValue } from '../common/viewUtils';
 
 import './LowerThird.scss';
@@ -141,10 +142,7 @@ export default function LowerThird(props: LowerProps) {
   const [playState, setPlayState] = useState<'pre' | 'in' | 'out'>('pre');
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
 
-  // set window title
-  useEffect(() => {
-    document.title = 'ontime - Lower Third';
-  }, []);
+  useWindowTitle('Lower Third');
 
   const trigger = useMemo(() => {
     if (options.trigger === TriggerType.Event) {

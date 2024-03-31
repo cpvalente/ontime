@@ -1,7 +1,11 @@
 import { lazy, useCallback, useEffect } from 'react';
+import { IconButton, useDisclosure } from '@chakra-ui/react';
+import { IoApps } from '@react-icons/all-files/io5/IoApps';
+import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
 import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import useElectronEvent from '../../common/hooks/useElectronEvent';
+import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import AppSettings from '../app-settings/AppSettings';
 import useAppSettingsNavigation from '../app-settings/useAppSettingsNavigation';
 import Overview from '../overview/Overview';
@@ -13,16 +17,17 @@ const TimerControl = lazy(() => import('../control/playback/TimerControlExport')
 const MessageControl = lazy(() => import('../control/message/MessageControlExport'));
 
 export default function Editor() {
-  const { isOpen, setLocation, close } = useAppSettingsNavigation();
+  const { isOpen: isSettingsOpen, setLocation, close } = useAppSettingsNavigation();
   const { isElectron } = useElectronEvent();
+  const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
 
-  const handleSettings = useCallback(() => {
-    if (isOpen) {
+  const toggleSettings = useCallback(() => {
+    if (isSettingsOpen) {
       close();
     } else {
       setLocation('project');
     }
-  }, [close, isOpen, setLocation]);
+  }, [close, isSettingsOpen, setLocation]);
 
   // Handle keyboard shortcuts
   const handleKeyPress = useCallback(
@@ -34,13 +39,13 @@ export default function Editor() {
       if (event.ctrlKey || event.metaKey) {
         // ctrl + , (settings)
         if (event.key === ',') {
-          handleSettings();
+          toggleSettings();
           event.preventDefault();
           event.stopPropagation();
         }
       }
     },
-    [handleSettings],
+    [toggleSettings],
   );
 
   // register ctrl + , to open settings
@@ -55,15 +60,28 @@ export default function Editor() {
     };
   }, [handleKeyPress, isElectron]);
 
-  // Set window title
-  useEffect(() => {
-    document.title = 'ontime - Editor';
-  }, []);
+  useWindowTitle('Editor');
 
   return (
     <div className={styles.mainContainer} data-testid='event-editor'>
-      <ProductionNavigationMenu handleSettings={handleSettings} />
-      {isOpen ? (
+      <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
+      <Overview>
+        <IconButton
+          aria-label='Toggle navigation'
+          variant='ontime-subtle-white'
+          size='lg'
+          icon={<IoApps />}
+          onClick={onOpen}
+        />
+        <IconButton
+          aria-label='Toggle settings'
+          variant='ontime-subtle-white'
+          size='lg'
+          icon={<IoSettingsOutline />}
+          onClick={toggleSettings}
+        />
+      </Overview>
+      {isSettingsOpen ? (
         <AppSettings />
       ) : (
         <div id='panels' className={styles.panelContainer}>
@@ -74,7 +92,6 @@ export default function Editor() {
           <Rundown />
         </div>
       )}
-      <Overview />
     </div>
   );
 }

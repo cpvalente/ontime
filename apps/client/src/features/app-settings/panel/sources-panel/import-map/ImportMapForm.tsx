@@ -141,14 +141,13 @@ export default function ImportMapForm(props: ImportMapFormProps) {
                       size='sm'
                       {...register(label as keyof NamedImportMap)}
                     >
-                      {worksheetNames &&
-                        worksheetNames.map((name) => {
-                          return (
-                            <option key={name} value={name}>
-                              {name}
-                            </option>
-                          );
-                        })}
+                      {worksheetNames?.map((name) => {
+                        return (
+                          <option key={name} value={name}>
+                            {name}
+                          </option>
+                        );
+                      })}
                     </Select>
                   </td>
                   <td className={style.singleActionCell} />
