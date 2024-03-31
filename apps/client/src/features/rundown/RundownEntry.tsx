@@ -163,7 +163,7 @@ export default function RundownEntry(props: RundownEntryProps) {
       />
     );
   } else if (data.type === SupportedEvent.Block) {
-    return <BlockBlock data={data} hasCursor={hasCursor} actionHandler={actionHandler} />;
+    return <BlockBlock data={data} hasCursor={hasCursor} onDelete={() => actionHandler('delete')} />;
   } else if (data.type === SupportedEvent.Delay) {
     return <DelayBlock data={data} hasCursor={hasCursor} />;
   }

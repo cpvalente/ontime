@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 import { Button } from '@chakra-ui/react';
-import { IoTrashOutline } from '@react-icons/all-files/io5/IoTrashOutline';
+import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useAppMode } from '../../../common/stores/appModeStore';
@@ -20,7 +20,7 @@ function RundownMenu() {
   }, [clearSelectedEvents, deleteAllEvents, setCursor]);
 
   return (
-    <Button size='sm' variant='ontime-outlined' leftIcon={<IoTrashOutline />} onClick={deleteAll} color='#FA5656'>
+    <Button size='sm' variant='ontime-outlined' leftIcon={<IoTrash />} onClick={deleteAll} color='#FA5656'>
       Clear rundown
     </Button>
   );
