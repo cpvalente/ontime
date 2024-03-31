@@ -159,6 +159,9 @@ This project is licensed under the terms of the GNU GPL v3
 
 ## SPONSOR
 
+You can help the development of this project or say thank you with a one time donation. \
+See [the terms of donations](https://github.com/cpvalente/ontime/blob/master/.github/FUNDING.md).
+
 <p align="center">
 <br>
 <a href="https://www.buymeacoffee.com/cpvalente" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="200"></a>
