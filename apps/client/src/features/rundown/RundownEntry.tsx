@@ -165,7 +165,7 @@ export default function RundownEntry(props: RundownEntryProps) {
   } else if (data.type === SupportedEvent.Block) {
     return <BlockBlock data={data} hasCursor={hasCursor} actionHandler={actionHandler} />;
   } else if (data.type === SupportedEvent.Delay) {
-    return <DelayBlock data={data} hasCursor={hasCursor} actionHandler={actionHandler} />;
+    return <DelayBlock data={data} hasCursor={hasCursor} />;
   }
   return null;
 }
