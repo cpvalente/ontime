@@ -16,20 +16,10 @@ export default function RundownHeader() {
   const setAppMode = useAppMode((state) => state.setMode);
   const setRunMode = () => setAppMode(AppMode.Run);
   const setEditMode = () => setAppMode(AppMode.Edit);
-  const setFreezeMode = () => setAppMode(AppMode.Freeze);
 
   return (
     <div className={style.header}>
       <ButtonGroup isAttached>
-        <TooltipActionBtn
-          variant={appMode === AppMode.Freeze ? 'ontime-filled' : 'ontime-outlined'}
-          size='sm'
-          icon={<IoSnowOutline />}
-          clickHandler={setFreezeMode}
-          tooltip='Freeze rundown'
-          aria-label='Freeze rundown'
-          isDisabled
-        />
         <TooltipActionBtn
           variant={appMode === AppMode.Run ? 'ontime-filled' : 'ontime-outlined'}
           size='sm'
@@ -47,11 +37,7 @@ export default function RundownHeader() {
           aria-label='Edit mode'
         />
       </ButtonGroup>
-      <RundownMenu>
-        <MenuButton size='sm' as={Button} rightIcon={<IoAdd />} aria-label='Rundown menu' variant='ontime-outlined'>
-          Rundown
-        </MenuButton>
-      </RundownMenu>
+      {appMode === AppMode.Edit && <RundownMenu />}
     </div>
   );
 }
