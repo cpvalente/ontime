@@ -11,6 +11,8 @@ import InputRow from './InputRow';
 
 import style from './MessageControl.module.scss';
 
+const noop = () => undefined;
+
 export default function MessageControl() {
   const message = useMessageControl();
   const blink = message.timer.blink;
@@ -64,13 +66,13 @@ export default function MessageControl() {
         </Button>
       </div>
       <InputRow
-        label='External Message'
+        label='External Message (readonly)'
         placeholder={enDash}
         readonly
         text={message.external.text || ''}
         visible={message.external.visible || false}
-        changeHandler={() => undefined}
-        actionHandler={() => undefined}
+        changeHandler={noop}
+        actionHandler={noop}
       />
     </div>
   );

@@ -5,7 +5,6 @@
 }
 
 .swatch {
-  cursor: pointer;
   width: 2rem;
   height: 2rem;
   aspect-ratio: 1;
@@ -14,6 +13,10 @@
 
   &.selected {
     border: 2px solid $blue-500;
+  }
+
+  &.selectable {
+    cursor: pointer;
   }
 }
 

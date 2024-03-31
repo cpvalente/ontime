@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react';
 import { Button, Textarea } from '@chakra-ui/react';
-import { OntimeEvent } from 'ontime-types';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import type { PartialEdit } from '../Operator';
@@ -15,19 +14,18 @@ interface EditModalProps {
 export default function EditModal(props: EditModalProps) {
   const { event, onClose } = props;
 
-  const { updateEvent } = useEventAction();
+  const { updateCustomField } = useEventAction();
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const handleSave = async () => {
     setLoading(true);
     const newValue = inputRef.current?.value;
+    if (newValue === undefined) {
+      return;
+    }
 
-    const partialEvent: Partial<OntimeEvent> = {
-      id: event.id,
-      [event.field]: newValue,
-    };
-    await updateEvent(partialEvent);
+    await updateCustomField(event.id, event.field, newValue);
     setLoading(false);
     onClose();
   };
@@ -43,6 +41,7 @@ export default function EditModal(props: EditModalProps) {
         placeholder={`Add value for ${fieldLabel} field`}
         defaultValue={event.fieldValue}
         isDisabled={loading}
+        resize='none'
       />
       <div className={style.buttonRow}>
         <Button variant='ontime-subtle' onClick={onClose} isDisabled={loading}>

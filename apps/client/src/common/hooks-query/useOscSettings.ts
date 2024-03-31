@@ -1,9 +1,9 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
-import { OSC_SETTINGS } from '../api/apiConstants';
-import { logAxiosError } from '../api/apiUtils';
-import { getOSC, postOSC } from '../api/ontimeApi';
+import { OSC_SETTINGS } from '../api/constants';
+import { getOSC, postOSC } from '../api/osc';
+import { logAxiosError } from '../api/utils';
 import { oscPlaceholderSettings } from '../models/OscSettings';
 import { ontimeQueryClient } from '../queryClient';
 

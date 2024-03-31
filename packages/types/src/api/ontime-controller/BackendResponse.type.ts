@@ -31,3 +31,5 @@ export type MessageResponse = {
 };
 
 export type ErrorResponse = MessageResponse;
+
+export type AuthenticationStatus = 'authenticated' | 'not_authenticated' | 'pending';

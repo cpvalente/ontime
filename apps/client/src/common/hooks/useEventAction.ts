@@ -3,8 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { isOntimeEvent, MaybeString, OntimeEvent, OntimeRundownEntry, RundownCached } from 'ontime-types';
 import { getLinkedTimes, getPreviousEventNormal, reorderArray, swapEventData } from 'ontime-utils';
 
-import { RUNDOWN } from '../api/apiConstants';
-import { logAxiosError } from '../api/apiUtils';
+import { RUNDOWN } from '../api/constants';
 import {
   ReorderEntry,
   requestApplyDelay,
@@ -16,7 +15,8 @@ import {
   requestPutEvent,
   requestReorderEvent,
   SwapEntry,
-} from '../api/eventsApi';
+} from '../api/rundown';
+import { logAxiosError } from '../api/utils';
 import { useEditorSettings } from '../stores/editorSettings';
 import { forgivingStringToMillis } from '../utils/dateConfig';
 
@@ -25,9 +25,7 @@ import { forgivingStringToMillis } from '../utils/dateConfig';
  */
 export const useEventAction = () => {
   const queryClient = useQueryClient();
-  const eventSettings = useEditorSettings((state) => state.eventSettings);
-  const defaultPublic = eventSettings.defaultPublic;
-  const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
+  const { defaultPublic, linkPrevious, defaultDuration } = useEditorSettings((state) => state.eventSettings);
 
   /**
    * Calls mutation to add new event
@@ -45,11 +43,12 @@ export const useEventAction = () => {
     after?: string;
   };
 
-  type EventOptions = BaseOptions & {
-    defaultPublic?: boolean;
-    lastEventId?: string;
-    startTimeIsLastEnd?: boolean;
-  };
+  type EventOptions = BaseOptions &
+    Partial<{
+      defaultPublic: boolean;
+      linkPrevious: boolean;
+      lastEventId: string;
+    }>;
 
   /**
    * Adds an event to rundown
@@ -61,26 +60,30 @@ export const useEventAction = () => {
       // ************* CHECK OPTIONS specific to events
       if (isOntimeEvent(newEvent)) {
         const applicationOptions = {
-          defaultPublic: options?.defaultPublic ?? defaultPublic,
-          startTimeIsLastEnd: options?.startTimeIsLastEnd ?? startTimeIsLastEnd,
-          lastEventId: options?.lastEventId,
           after: options?.after,
+          defaultPublic: options?.defaultPublic ?? defaultPublic,
+          lastEventId: options?.lastEventId,
+          linkPrevious: options?.linkPrevious ?? linkPrevious,
         };
 
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know this has a value
-        const rundownData = queryClient.getQueryData<RundownCached>(RUNDOWN)!;
-        const { rundown } = rundownData;
-
-        if (applicationOptions.startTimeIsLastEnd && applicationOptions?.lastEventId) {
+        if (applicationOptions.linkPrevious && applicationOptions?.lastEventId) {
+          newEvent.linkStart = applicationOptions.lastEventId;
+        } else if (applicationOptions?.lastEventId) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know this is a value
+          const rundownData = queryClient.getQueryData<RundownCached>(RUNDOWN)!;
+          const { rundown } = rundownData;
           const previousEvent = rundown[applicationOptions.lastEventId];
           if (isOntimeEvent(previousEvent)) {
             newEvent.timeStart = previousEvent.timeEnd;
-            newEvent.timeEnd = previousEvent.timeEnd;
           }
         }
 
         if (applicationOptions.defaultPublic) {
           newEvent.isPublic = true;
+        }
+
+        if (newEvent.duration === undefined && newEvent.timeEnd === undefined) {
+          newEvent.duration = forgivingStringToMillis(defaultDuration);
         }
       }
 
@@ -95,7 +98,7 @@ export const useEventAction = () => {
         logAxiosError('Failed adding event', error);
       }
     },
-    [_addEventMutation, defaultPublic, queryClient, startTimeIsLastEnd],
+    [_addEventMutation, defaultDuration, defaultPublic, linkPrevious],
   );
 
   /**
@@ -148,6 +151,13 @@ export const useEventAction = () => {
       }
     },
     [_updateEventMutation],
+  );
+
+  const updateCustomField = useCallback(
+    async (eventId: string, field: string, value: string) => {
+      updateEvent({ id: eventId, custom: { [field]: { value } } });
+    },
+    [updateEvent],
   );
 
   type TimeField = 'timeStart' | 'timeEnd' | 'duration';
@@ -553,5 +563,6 @@ export const useEventAction = () => {
     swapEvents,
     updateEvent,
     updateTimer,
+    updateCustomField,
   };
 };

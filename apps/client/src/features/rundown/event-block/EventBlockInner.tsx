@@ -1,8 +1,8 @@
 import { memo, useEffect, useState } from 'react';
 import { Tooltip } from '@chakra-ui/react';
-import { BiArrowToBottom } from '@react-icons/all-files/bi/BiArrowToBottom';
 import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
+import { IoFlag } from '@react-icons/all-files/io5/IoFlag';
 import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoPlayForward } from '@react-icons/all-files/io5/IoPlayForward';
@@ -11,6 +11,7 @@ import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
+import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import { EventItemActions } from '../RundownEntry';
@@ -40,7 +41,7 @@ interface EventBlockInnerProps {
   title: string;
   note: string;
   delay: number;
-  next: boolean;
+  isNext: boolean;
   skip: boolean;
   loaded: boolean;
   playback?: Playback;
@@ -62,7 +63,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     title,
     note,
     delay,
-    next,
+    isNext,
     skip = false,
     loaded,
     playback,
@@ -99,12 +100,14 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           linkStart={linkStart}
         />
       </div>
-      <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
-      {next && (
-        <Tooltip label='Next event' {...tooltipProps}>
-          <span className={style.nextTag}>UP NEXT</span>
-        </Tooltip>
-      )}
+      <div className={style.titleSection}>
+        <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
+        {isNext && (
+          <Tooltip label='Next event' {...tooltipProps}>
+            <span className={style.nextTag}>UP NEXT</span>
+          </Tooltip>
+        )}
+      </div>
       <EventBlockPlayback
         eventId={eventId}
         skip={skip}
@@ -116,7 +119,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
       <div className={style.statusElements} id='block-status' data-ispublic={isPublic}>
         <span className={style.eventNote}>{note}</span>
         <div className={loaded ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
-          {loaded && <EventBlockProgressBar playback={playback} />}
+          {loaded && <EventBlockProgressBar />}
         </div>
         <div className={style.eventStatus} tabIndex={-1}>
           <Tooltip label={`Time type: ${timerType}`} {...tooltipProps}>
@@ -147,14 +150,16 @@ export default memo(EventBlockInner);
 
 function EndActionIcon(props: { action: EndAction; className: string }) {
   const { action, className } = props;
+  const maybeActiveClasses = cx([action !== EndAction.None && style.active, className]);
+
   if (action === EndAction.LoadNext) {
-    return <IoPlaySkipForward className={className} />;
+    return <IoPlaySkipForward className={maybeActiveClasses} />;
   }
   if (action === EndAction.PlayNext) {
-    return <IoPlayForward className={className} />;
+    return <IoPlayForward className={maybeActiveClasses} />;
   }
   if (action === EndAction.Stop) {
-    return <IoStop className={className} />;
+    return <IoStop className={maybeActiveClasses} />;
   }
   return <IoPlay className={className} />;
 }
@@ -168,7 +173,7 @@ function TimerIcon(props: { type: TimerType; className: string }) {
     return <IoTime className={className} />;
   }
   if (type === TimerType.TimeToEnd) {
-    return <BiArrowToBottom className={className} />;
+    return <IoFlag className={className} />;
   }
   return <IoArrowDown className={className} />;
 }

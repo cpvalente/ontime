@@ -1,10 +1,9 @@
-import { useEffect } from 'react';
 import QRCode from 'react-qr-code';
+import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Message, OntimeEvent, ProjectData, Settings, ViewSettings } from 'ontime-types';
+import { CustomFields, Message, OntimeEvent, ProjectData, Settings, ViewSettings } from 'ontime-types';
 
-import { overrideStylesURL } from '../../../common/api/apiConstants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import { overrideStylesURL } from '../../../common/api/constants';
 import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
 import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
@@ -12,15 +11,18 @@ import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getPublicOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
+import { getPropertyValue } from '../common/viewUtils';
 
 import './Public.scss';
 
 interface BackstageProps {
+  customFields: CustomFields;
   isMirrored: boolean;
   publ: Message;
   publicEventNow: OntimeEvent | null;
@@ -35,6 +37,7 @@ interface BackstageProps {
 
 export default function Public(props: BackstageProps) {
   const {
+    customFields,
     isMirrored,
     publ,
     publicEventNow,
@@ -49,10 +52,9 @@ export default function Public(props: BackstageProps) {
 
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
+  const [searchParams] = useSearchParams();
 
-  useEffect(() => {
-    document.title = 'ontime - Public Screen';
-  }, []);
+  useWindowTitle('Public Schedule');
 
   // defer rendering until we load stylesheets
   if (!shouldRender) {
@@ -64,11 +66,14 @@ export default function Public(props: BackstageProps) {
   const qrSize = Math.max(window.innerWidth / 15, 128);
 
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const publicOptions = getPublicOptions(defaultFormat);
+  const publicOptions = getPublicOptions(defaultFormat, customFields);
+
+  const secondarySource = searchParams.get('secondary-src');
+  const secondaryTextNext = getPropertyValue(publicEventNext, secondarySource);
+  const secondaryTextNow = getPropertyValue(publicEventNow, secondarySource);
 
   return (
     <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>
-      <NavigationMenu />
       <ViewParamsEditor paramFields={publicOptions} />
       <div className='project-header'>
         {general.title}
@@ -89,12 +94,7 @@ export default function Public(props: BackstageProps) {
               animate='visible'
               exit='exit'
             >
-              <TitleCard
-                label='now'
-                title={publicEventNow.title}
-                subtitle={publicEventNow.subtitle}
-                presenter={publicEventNow.presenter}
-              />
+              <TitleCard label='now' title={publicEventNow.title} secondary={secondaryTextNow} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -109,12 +109,7 @@ export default function Public(props: BackstageProps) {
               animate='visible'
               exit='exit'
             >
-              <TitleCard
-                label='next'
-                title={publicEventNext.title}
-                subtitle={publicEventNext.subtitle}
-                presenter={publicEventNext.presenter}
-              />
+              <TitleCard label='next' title={publicEventNext.title} secondary={secondaryTextNext} />
             </motion.div>
           )}
         </AnimatePresence>

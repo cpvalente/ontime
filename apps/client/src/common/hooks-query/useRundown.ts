@@ -3,8 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { NormalisedRundown, OntimeRundown, RundownCached } from 'ontime-types';
 
 import { queryRefetchInterval } from '../../ontimeConfig';
-import { RUNDOWN } from '../api/apiConstants';
-import { fetchCachedRundown } from '../api/eventsApi';
+import { RUNDOWN } from '../api/constants';
+import { fetchNormalisedRundown } from '../api/rundown';
 
 // revision is -1 so that the remote revision is higher
 const cachedRundownPlaceholder = { order: [] as string[], rundown: {} as NormalisedRundown, revision: -1 };
@@ -12,7 +12,7 @@ const cachedRundownPlaceholder = { order: [] as string[], rundown: {} as Normali
 export default function useRundown() {
   const { data, status, isError, refetch, isFetching } = useQuery<RundownCached>({
     queryKey: RUNDOWN,
-    queryFn: fetchCachedRundown,
+    queryFn: fetchNormalisedRundown,
     placeholderData: cachedRundownPlaceholder,
     retry: 5,
     retryDelay: (attempt) => attempt * 2500,

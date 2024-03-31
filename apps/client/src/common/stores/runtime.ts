@@ -69,3 +69,14 @@ export const runtimeStore = createWithEqualityFn<RuntimeStore>(
 
 export const useRuntimeStore = <T>(selector: (state: RuntimeStore) => T) =>
   useStoreWithEqualityFn(runtimeStore, selector, deepCompare);
+
+/**
+ * Allows patching a property of the runtime store
+ * @param key
+ * @param value
+ */
+export function patchRuntime<K extends keyof RuntimeStore>(key: K, value: RuntimeStore[K]): void {
+  const state = runtimeStore.getState();
+  state[key] = value;
+  runtimeStore.setState({ ...state });
+}

@@ -1,9 +1,9 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
-import { HTTP_SETTINGS } from '../api/apiConstants';
-import { logAxiosError } from '../api/apiUtils';
-import { getHTTP, postHTTP } from '../api/ontimeApi';
+import { HTTP_SETTINGS } from '../api/constants';
+import { getHTTP, postHTTP } from '../api/http';
+import { logAxiosError } from '../api/utils';
 import { httpPlaceholder } from '../models/Http';
 import { ontimeQueryClient } from '../queryClient';
 

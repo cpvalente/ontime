@@ -1,6 +1,6 @@
 @use '../blockMixins' as *;
 
-$skip-opacity: 0.1;
+$skip-opacity: 0.2;
 
 .eventBlock {
   @include block-styling;
@@ -10,11 +10,11 @@ $skip-opacity: 0.1;
   grid-template-areas:
     'binder ...        ...     ...'
     'binder pb-actions times   actions'
-    'binder pb-actions title   next'
+    'binder pb-actions title   title'
     'binder pb-actions estatus estatus'
     'binder ...        ...     ...';
 
-  grid-template-columns: $block-binder-width auto 1fr auto;
+  grid-template-columns: $block-binder-width 3rem 1fr auto;
   grid-template-rows: 0.25rem 2.25rem 2.25rem 2.25rem 0.25rem;
   align-items: center;
   padding-right: $block-clearance;
@@ -127,15 +127,30 @@ $skip-opacity: 0.1;
 .eventTimers {
   grid-area: times;
   display: flex;
+  align-items: center;
   gap: $block-clearance;
   height: 100%;
 }
 
-.eventTitle {
+.titleSection {
   grid-area: title;
-  overflow: hidden;
-  max-height: calc(2.5em + 2px);
-  line-height: 1.25em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .nextTag {
+    font-size: 1rem;
+    color: $orange-500;
+    letter-spacing: 0.03px;
+    font-weight: 600;
+  }
+
+  .eventTitle {
+    overflow: hidden;
+    max-height: calc(2.5em + 2px);
+    line-height: 1.25em;
+    flex: 1;
+  }
 }
 
 .eventActions {
@@ -146,10 +161,11 @@ $skip-opacity: 0.1;
 
 .progressBg {
   grid-area: progb;
-  border-radius: 2px;
+  border-radius: 1px;
   background-color: $gray-1100;
   opacity: 1;
   height: 100%;
+  overflow: hidden; /* clip foreground border radius*/
 }
 
 .progressBg.hidden {
@@ -182,15 +198,6 @@ $skip-opacity: 0.1;
 
   max-height: 2rem;
   overflow-y: hidden;
-}
-
-.nextTag {
-  grid-area: next;
-  font-size: 1rem;
-  color: $orange-500;
-  letter-spacing: 0.03px;
-  font-weight: 600;
-  text-align: right;
 }
 
 .eventStatus {

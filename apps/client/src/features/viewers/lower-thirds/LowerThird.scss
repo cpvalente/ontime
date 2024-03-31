@@ -7,40 +7,50 @@
     position: absolute;
     display: block;
     top: 75vh;
+    line-height: normal;
+
     animation-fill-mode: both;
     animation-timing-function: ease-out;
 
     &--pre {
       animation-name: in;
       animation-play-state: paused;
+
       .data-top {
         animation-play-state: paused;
         animation-name: top-in;
       }
+
       .data-lower {
         animation-play-state: paused;
         animation-name: bottom-in;
       }
     }
+
     &--in {
       animation-name: in;
       animation-play-state: running;
+
       .data-top {
         animation-play-state: running;
         animation-name: top-in;
       }
+
       .data-bottom {
         animation-play-state: running;
         animation-name: bottom-in;
       }
     }
+
     &--out {
       animation-name: out;
       animation-play-state: running;
+
       .data-top {
         animation-play-state: running;
         animation-name: top-out;
       }
+
       .data-bottom {
         animation-play-state: running;
         animation-name: bottom-out;
@@ -51,28 +61,31 @@
       width: 100%;
       height: var(--bottomThird-line-height-override, 0.5vh);
     }
+
     .clip {
       overflow: hidden;
     }
+
     .data-bottom,
     .data-top {
-      padding-left: 3vw;
-      padding-right: 3vw;
-      font-family: var(--lowerThird-font-family-override, 'Arial');
+      padding: 0 3vw;
+      font-family: var(--lowerThird-font-family-override), Lato, Arial, sans-serif;
       text-align: var(--lowerThird-text-align-override, left);
       white-space: nowrap;
     }
 
     .data-top {
-      font-weight: var(--lowerThird-top-font-weight-override, bold);
+      font-weight: var(--lowerThird-top-font-weight-override, 600);
       font-style: var(--lowerThird-top-font-style-override, normal);
     }
+
     .data-bottom {
       font-weight: var(--lowerThird-bottom-font-weight-override, normal);
       font-style: var(--lowerThird-bottom-font-style-override, normal);
     }
   }
 }
+
 
 @keyframes in {
   0% {

@@ -1,13 +1,9 @@
-import { MaybeNumber, Playback } from 'ontime-types';
+import { MaybeNumber } from 'ontime-types';
 
 import { useTimer } from '../../../../common/hooks/useSocket';
 import { clamp } from '../../../../common/utils/math';
 
 import style from './EventBlockProgressBar.module.scss';
-
-interface EventBlockProgressBarProps {
-  playback?: Playback;
-}
 
 export function getPercentComplete(remaining: MaybeNumber, total: MaybeNumber): number {
   if (remaining === null || total === null) {
@@ -25,10 +21,9 @@ export function getPercentComplete(remaining: MaybeNumber, total: MaybeNumber): 
   return clamp(100 - (remaining * 100) / total, 0, 100);
 }
 
-export default function EventBlockProgressBar(props: EventBlockProgressBarProps) {
-  const { playback } = props;
+export default function EventBlockProgressBar() {
   const timer = useTimer();
 
   const progress = `${getPercentComplete(timer.current, timer.duration)}%`;
-  return <div className={`${style.progressBar} ${playback ? style[playback] : ''}`} style={{ width: progress }} />;
+  return <div className={style.progressBar} style={{ width: progress }} />;
 }

@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
-import { VIEW_SETTINGS } from '../api/apiConstants';
-import { getView } from '../api/ontimeApi';
+import { VIEW_SETTINGS } from '../api/constants';
+import { getView } from '../api/viewSettings';
 import { viewsSettingsPlaceholder } from '../models/ViewSettings.type';
 
 export default function useViewSettings() {

@@ -1,21 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Message, OntimeEvent, ViewSettings } from 'ontime-types';
+import { CustomFields, Message, OntimeEvent, ViewSettings } from 'ontime-types';
 
-import { overrideStylesURL } from '../../../common/api/apiConstants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
-import { LOWER_THIRD_OPTIONS } from '../../../common/components/view-params-editor/constants';
+import { overrideStylesURL } from '../../../common/api/constants';
+import { getLowerThirdOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
+import { getPropertyValue } from '../common/viewUtils';
 
 import './LowerThird.scss';
-
-enum SrcKeys {
-  Title = 'title',
-  Subtitle = 'subtitle',
-  Presenter = 'presenter',
-  LowerMsg = 'lowerMsg',
-}
 
 enum TriggerType {
   Event = 'event',
@@ -25,8 +19,8 @@ enum TriggerType {
 type LowerOptions = {
   width: number;
   trigger: TriggerType;
-  topSrc: SrcKeys;
-  bottomSrc: SrcKeys;
+  topSrc: string;
+  bottomSrc: string;
   topColour: string;
   bottomColour: string;
   topBg: string;
@@ -41,6 +35,7 @@ type LowerOptions = {
 };
 
 interface LowerProps {
+  customFields: CustomFields;
   eventNow: OntimeEvent | null;
   viewSettings: ViewSettings;
   lower: Message;
@@ -49,8 +44,8 @@ interface LowerProps {
 const defaultOptions: Readonly<LowerOptions> = {
   width: 45,
   trigger: TriggerType.Event,
-  topSrc: SrcKeys.Title,
-  bottomSrc: SrcKeys.Subtitle,
+  topSrc: 'title',
+  bottomSrc: 'lowerMsg',
   topColour: '000000ff',
   bottomColour: '000000ff',
   topBg: '00000000',
@@ -65,7 +60,7 @@ const defaultOptions: Readonly<LowerOptions> = {
 };
 
 export default function LowerThird(props: LowerProps) {
-  const { eventNow, lower, viewSettings } = props;
+  const { customFields, eventNow, lower, viewSettings } = props;
   const [searchParams] = useSearchParams();
 
   const options = useMemo(() => {
@@ -81,12 +76,12 @@ export default function LowerThird(props: LowerProps) {
       newOptions.trigger = trigger;
     }
 
-    const topSrc = Object.values(SrcKeys).find((s) => s === searchParams.get('top-src'));
+    const topSrc = searchParams.get('top-src');
     if (topSrc) {
       newOptions.topSrc = topSrc;
     }
 
-    const bottomSrc = Object.values(SrcKeys).find((s) => s === searchParams.get('bottom-src'));
+    const bottomSrc = searchParams.get('bottom-src');
     if (bottomSrc) {
       newOptions.bottomSrc = bottomSrc;
     }
@@ -144,33 +139,10 @@ export default function LowerThird(props: LowerProps) {
     return newOptions;
   }, [searchParams]);
 
+  const [playState, setPlayState] = useState<'pre' | 'in' | 'out'>('pre');
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
 
-  const [playState, setPlayState] = useState<'pre' | 'in' | 'out'>('pre');
-
-  useEffect(() => {
-    document.title = 'ontime - Lower Third';
-  }, []);
-
-  const topText = useMemo(() => {
-    if (options.topSrc === SrcKeys.LowerMsg) {
-      return lower.text;
-    } else if (eventNow) {
-      return eventNow[options.topSrc];
-    }
-    return '';
-  }, [eventNow, lower.text, options]);
-
-  const bottomText = useMemo(() => {
-    if (options.bottomSrc === SrcKeys.LowerMsg) {
-      return lower.text;
-    } else if (eventNow) {
-      return eventNow[options.bottomSrc];
-    }
-    return '';
-  }, [eventNow, lower.text, options]);
-
-  const transition = `${options.transition}s`;
+  useWindowTitle('Lower Third');
 
   const trigger = useMemo(() => {
     if (options.trigger === TriggerType.Event) {
@@ -181,6 +153,7 @@ export default function LowerThird(props: LowerProps) {
     return false;
   }, [eventNow?.id, lower.visible, options.trigger]);
 
+  // coordinate load-unload of lower third
   useEffect(() => {
     if (options.trigger === TriggerType.Event && trigger) {
       setPlayState('in');
@@ -197,10 +170,25 @@ export default function LowerThird(props: LowerProps) {
     return () => null;
   }, [options.delay, options.transition, options.trigger, trigger]);
 
+  const topText = useMemo(() => {
+    if (options.topSrc === 'lowerMsg') {
+      return lower.text;
+    }
+    return getPropertyValue(eventNow, options.topSrc) ?? '';
+  }, [eventNow, lower.text, options]);
+
+  const bottomText = useMemo(() => {
+    if (options.bottomSrc === 'lowerMsg') {
+      return lower.text;
+    }
+    return getPropertyValue(eventNow, options.bottomSrc) ?? '';
+  }, [eventNow, lower.text, options]);
+
+  const transition = `${options.transition}s`;
+
   return (
     <div className='lower-third' style={{ backgroundColor: `#${options.key}` }}>
-      <NavigationMenu />
-      <ViewParamsEditor paramFields={LOWER_THIRD_OPTIONS} />
+      <ViewParamsEditor paramFields={getLowerThirdOptions(customFields)} />
       <div
         className={`container container--${playState}`}
         style={{ minWidth: `${options.width}vw`, animationDuration: transition }}

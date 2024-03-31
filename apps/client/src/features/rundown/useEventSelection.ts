@@ -2,7 +2,7 @@ import { MouseEvent } from 'react';
 import { isOntimeEvent, OntimeEvent, RundownCached } from 'ontime-types';
 import { create } from 'zustand';
 
-import { RUNDOWN } from '../../common/api/apiConstants';
+import { RUNDOWN } from '../../common/api/constants';
 import { ontimeQueryClient } from '../../common/queryClient';
 import { isMacOS } from '../../common/utils/deviceUtils';
 

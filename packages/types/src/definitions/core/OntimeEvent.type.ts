@@ -1,7 +1,4 @@
-import { MaybeString } from '../../index.js';
-import { EndAction } from '../EndAction.type.js';
-import { TimerType } from '../TimerType.type.js';
-import { TimeStrategy } from '../TimeStrategy.type.js';
+import { EventCustomFields, EndAction, MaybeString, TimerType, TimeStrategy } from '../../index.js';
 
 export enum SupportedEvent {
   Event = 'event',
@@ -29,8 +26,6 @@ export type OntimeEvent = OntimeBaseEvent & {
   type: SupportedEvent.Event;
   cue: string;
   title: string;
-  subtitle: string;
-  presenter: string;
   note: string;
   endAction: EndAction;
   timerType: TimerType;
@@ -42,18 +37,9 @@ export type OntimeEvent = OntimeBaseEvent & {
   isPublic: boolean;
   skip: boolean;
   colour: string;
-  user0: string;
-  user1: string;
-  user2: string;
-  user3: string;
-  user4: string;
-  user5: string;
-  user6: string;
-  user7: string;
-  user8: string;
-  user9: string;
   revision: number;
   delay?: number; // calculated at runtime
   timeWarning: number;
   timeDanger: number;
+  custom: EventCustomFields;
 };

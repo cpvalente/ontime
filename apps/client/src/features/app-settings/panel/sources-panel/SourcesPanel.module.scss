@@ -1,8 +1,7 @@
-.uploadSection {
+.uploadSection,
+.successSection {
   margin-top: 1rem;
   display: flex;
-  flex-direction: row;
-  gap: 2rem;
   padding: 3rem 1rem;
   align-items: center;
   justify-content: center;
@@ -11,11 +10,30 @@
   border-radius: 3px;
 }
 
+.uploadSection {
+  flex-direction: row;
+  gap: 2rem;
+}
+
+.successSection {
+  color: $green-500;
+  font-size: 1.5rem;
+  text-align: center;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .buttonRow {
   display: flex;
   gap: 1rem;
+  justify-content: end;
 }
 
 .inputContainer {
   flex: 1;
+}
+
+.singleActionCell {
+  width: 50px;
+  text-align: center;
 }

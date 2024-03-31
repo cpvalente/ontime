@@ -1,19 +1,18 @@
-import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import type { OntimeEvent, OntimeRundown, Settings, ViewSettings } from 'ontime-types';
 import { isOntimeEvent, Playback } from 'ontime-types';
 import { millisToString, removeSeconds } from 'ontime-utils';
 
-import { overrideStylesURL } from '../../../common/api/apiConstants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import { overrideStylesURL } from '../../../common/api/constants';
 import { getStudioClockOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
-import { isStringBoolean } from '../../../common/utils/viewUtils';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
+import { isStringBoolean } from '../common/viewUtils';
 
 import { secondsInMillis, trimRundown } from './studioClock.utils';
 
@@ -47,9 +46,7 @@ export default function StudioClock(props: StudioClockProps) {
 
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
-    document.title = 'ontime - Studio Clock';
-  }, []);
+  useWindowTitle('Studio Clock');
 
   let clock = formatTime(time.clock);
   let hasAmPm = '';
@@ -78,7 +75,6 @@ export default function StudioClock(props: StudioClockProps) {
 
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
-      <NavigationMenu />
       <ViewParamsEditor paramFields={studioClockOptions} />
       <div className='clock-container'>
         {hasAmPm && <div className='clock__ampm'>{hasAmPm}</div>}

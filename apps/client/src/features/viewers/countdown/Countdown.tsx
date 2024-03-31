@@ -3,11 +3,11 @@ import { useSearchParams } from 'react-router-dom';
 import { OntimeEvent, OntimeRundownEntry, Playback, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 
-import { overrideStylesURL } from '../../../common/api/apiConstants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import { overrideStylesURL } from '../../../common/api/constants';
 import { getCountdownOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -38,9 +38,7 @@ export default function Countdown(props: CountdownProps) {
   const [runningMessage, setRunningMessage] = useState<TimerMessage>(TimerMessage.unhandled);
   const [delay, setDelay] = useState(0);
 
-  useEffect(() => {
-    document.title = 'ontime - Countdown';
-  }, []);
+  useWindowTitle('Countdown');
 
   // eg. http://localhost:4001/countdown?eventId=ei0us
   // Check for user options
@@ -110,7 +108,6 @@ export default function Countdown(props: CountdownProps) {
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
-      <NavigationMenu />
       <ViewParamsEditor paramFields={timeOption} />
       {follow === null ? (
         <CountdownSelect events={backstageEvents} />

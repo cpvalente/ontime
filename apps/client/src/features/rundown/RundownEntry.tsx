@@ -22,7 +22,8 @@ interface RundownEntryProps {
   loaded: boolean;
   eventIndex: number;
   hasCursor: boolean;
-  next: boolean;
+  isNext: boolean;
+  previousStart: MaybeNumber;
   previousEnd: MaybeNumber;
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
@@ -30,26 +31,39 @@ interface RundownEntryProps {
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const { isPast, data, loaded, hasCursor, next, previousEnd, previousEventId, playback, isRolling, eventIndex } =
-    props;
+  const {
+    isPast,
+    data,
+    loaded,
+    hasCursor,
+    isNext,
+    previousStart,
+    previousEnd,
+    previousEventId,
+    playback,
+    isRolling,
+    eventIndex,
+  } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
-  const { cursor } = useAppMode();
+  const cursor = useAppMode((state) => state.cursor);
+  const setCursor = useAppMode((state) => state.setCursor);
   const { selectedEvents, clearSelectedEvents } = useEventSelection();
+
+  const eventSettings = useEditorSettings((state) => state.eventSettings);
+  const defaultPublic = eventSettings.defaultPublic;
+  const linkPrevious = eventSettings.linkPrevious;
 
   const removeOpenEvent = useCallback(() => {
     if (selectedEvents.has(data.id)) {
       clearSelectedEvents();
     }
 
+    // clear cursor if we are deleting the event that is currently selected
     if (cursor === data.id) {
-      // setCursor(null);
+      setCursor(null);
     }
-  }, [cursor, data.id, selectedEvents, clearSelectedEvents]);
-
-  const eventSettings = useEditorSettings((state) => state.eventSettings);
-  const defaultPublic = eventSettings.defaultPublic;
-  const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
+  }, [selectedEvents, data.id, cursor, clearSelectedEvents, setCursor]);
 
   // Create / delete new events
   type FieldValue = {
@@ -62,10 +76,10 @@ export default function RundownEntry(props: RundownEntryProps) {
       case 'event': {
         const newEvent = { type: SupportedEvent.Event };
         const options = {
-          startTimeIsLastEnd,
+          after: data.id,
           defaultPublic,
           lastEventId: previousEventId,
-          after: data.id,
+          linkPrevious,
         };
         return addEvent(newEvent, options);
       }
@@ -135,10 +149,11 @@ export default function RundownEntry(props: RundownEntryProps) {
         title={data.title}
         note={data.note}
         delay={data.delay ?? 0}
+        previousStart={previousStart}
         previousEnd={previousEnd}
         colour={data.colour}
         isPast={isPast}
-        next={next}
+        isNext={isNext}
         skip={data.skip}
         loaded={loaded}
         hasCursor={hasCursor}

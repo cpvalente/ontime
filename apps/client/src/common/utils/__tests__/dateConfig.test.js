@@ -14,6 +14,7 @@ describe('test forgivingStringToMillis()', () => {
       { value: '1h0m0s', expect: 1000 * 60 * 60 },
       { value: '23h0m0s', expect: 1000 * 60 * 60 * 23 },
       { value: '12h12m12s', expect: 12 * 1000 + 12 * 60 * 1000 + 12 * 1000 * 60 * 60 },
+      { value: '12H12M12S', expect: 12 * 1000 + 12 * 60 * 1000 + 12 * 1000 * 60 * 60 },
       { value: '2m', expect: 2 * 60 * 1000 },
       { value: '1h5s', expect: 1000 * 60 * 60 + 1000 * 5 },
       { value: '1h2m', expect: 1000 * 60 * 60 + 1000 * 60 * 2 },

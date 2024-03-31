@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { ProjectFileListResponse } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
-import { PROJECT_LIST } from '../api/apiConstants';
-import { getProjects } from '../api/ontimeApi';
+import { PROJECT_LIST } from '../api/constants';
+import { getProjects } from '../api/db';
 
 const placeholderProjectList: ProjectFileListResponse = {
   files: [],

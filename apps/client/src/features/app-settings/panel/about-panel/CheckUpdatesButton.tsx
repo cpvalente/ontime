@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@chakra-ui/react';
 
-import { getLatestVersion, HasUpdate } from '../../../../common/api/ontimeApi';
+import { getLatestVersion, HasUpdate } from '../../../../common/api/external';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 
 import style from '../Panel.module.scss';
@@ -52,7 +52,14 @@ export default function CheckUpdatesButton(props: CheckUpdatesButtonProps) {
 
   return (
     <>
-      <Button onClick={versionCheck} variant='ontime-filled' isLoading={isFetching} isDisabled={disableButton} size='sm'>
+      <Button
+        onClick={versionCheck}
+        variant='ontime-filled'
+        isLoading={isFetching}
+        isDisabled={disableButton}
+        size='sm'
+        maxWidth='max-content'
+      >
         Check for updates
       </Button>
       <ResolveUpdateMessage updateMessage={updateMessage} />

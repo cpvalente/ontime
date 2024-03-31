@@ -1,10 +1,20 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input, Textarea } from '@chakra-ui/react';
+import { useQueryClient } from '@tanstack/react-query';
+
+import { PROJECT_LIST } from '../../../../common/api/constants';
+import { createProject } from '../../../../common/api/db';
+import { maybeAxiosError } from '../../../../common/api/utils';
+import * as Panel from '../PanelUtils';
 
 import style from './ProjectPanel.module.scss';
 
-export type ProjectCreateFormValues = {
+interface ProjectCreateFromProps {
+  onClose: () => void;
+}
+
+type ProjectCreateFormValues = {
   title?: string;
   description?: string;
   publicInfo?: string;
@@ -13,13 +23,12 @@ export type ProjectCreateFormValues = {
   backstageUrl?: string;
 };
 
-interface ProjectCreateFormProps {
-  onCancel: () => void;
-  onSubmit: (values: ProjectCreateFormValues) => Promise<void>;
-  submitError: string | null;
-}
+export default function ProjectCreateForm(props: ProjectCreateFromProps) {
+  const { onClose } = props;
 
-export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: ProjectCreateFormProps) {
+  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
   const {
     handleSubmit,
     register,
@@ -33,13 +42,42 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
     },
   });
 
+  // set focus to first field
   useEffect(() => {
     setFocus('title');
   }, [setFocus]);
 
+  const handleSubmitCreate = async (values: ProjectCreateFormValues) => {
+    try {
+      setError(null);
+      const filename = values.title?.trim();
+
+      await createProject({
+        ...values,
+        filename,
+      });
+      await queryClient.invalidateQueries({ queryKey: PROJECT_LIST });
+      onClose();
+    } catch (error) {
+      setError(maybeAxiosError(error));
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div className={style.createFormInputField}>
+    <Panel.Section as='form' onSubmit={handleSubmit(handleSubmitCreate)}>
+      <Panel.Title>
+        Create new project
+        <div className={style.createActionButtons}>
+          <Button onClick={onClose} variant='ontime-ghosted' size='sm' isDisabled={isSubmitting}>
+            Cancel
+          </Button>
+          <Button isDisabled={!isValid} type='submit' isLoading={isSubmitting} variant='ontime-filled' size='sm'>
+            Create
+          </Button>
+        </div>
+      </Panel.Title>
+      {error && <Panel.Error>{error}</Panel.Error>}
+      <div className={style.innerColumn}>
         <label>
           Project title
           <Input
@@ -51,8 +89,6 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
             {...register('title')}
           />
         </label>
-      </div>
-      <div className={style.createFormInputField}>
         <label>
           Project description
           <Input
@@ -64,8 +100,6 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
             {...register('description')}
           />
         </label>
-      </div>
-      <div className={style.createFormInputField}>
         <label>
           Public info
           <Textarea
@@ -74,11 +108,10 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
             maxLength={150}
             placeholder='Shows always start ontime'
             autoComplete='off'
+            resize='none'
             {...register('publicInfo')}
           />
         </label>
-      </div>
-      <div className={style.createFormInputField}>
         <label>
           Public QR code Url
           <Input
@@ -89,8 +122,6 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
             {...register('publicUrl')}
           />
         </label>
-      </div>
-      <div className={style.createFormInputField}>
         <label>
           Backstage info
           <Textarea
@@ -99,38 +130,21 @@ export default function ProjectCreateForm({ onSubmit, onCancel, submitError }: P
             maxLength={150}
             placeholder='Wi-Fi password: 1234'
             autoComplete='off'
+            resize='none'
             {...register('backstageInfo')}
           />
         </label>
-      </div>
-      <div className={style.createFormInputField}>
         <label>
           Backstage QR code Url
           <Input
             variant='ontime-filled'
             size='sm'
-            placeholder='www.ontime.gitbook.io'
+            placeholder='http://docs.getontime.no'
             autoComplete='off'
             {...register('backstageUrl')}
           />
         </label>
       </div>
-      <div className={style.createActionButtons}>
-        <Button onClick={onCancel} variant='ontime-ghosted' size='sm'>
-          Cancel
-        </Button>
-        <Button
-          isDisabled={!isValid}
-          type='submit'
-          isLoading={isSubmitting}
-          variant='ontime-filled'
-          padding='0 2em'
-          size='sm'
-        >
-          Create
-        </Button>
-      </div>
-      {submitError && <span className={style.error}>{submitError}</span>}
-    </form>
+    </Panel.Section>
   );
 }

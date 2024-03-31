@@ -1,5 +1,5 @@
 {
-  "name": "ontime",
+  "name": "ontime-prerelease",
   "version": "3.0.0-alpha",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
@@ -29,8 +29,8 @@
     "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "build": {
-    "productName": "ontime",
-    "appId": "no.lightdev.ontime",
+    "productName": "ontime-prerelease",
+    "appId": "no.lightdev.ontime.prerelease",
     "asar": true,
     "dmg": {
       "artifactName": "ontime-macOS-${arch}.dmg",

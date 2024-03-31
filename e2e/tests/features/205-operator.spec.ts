@@ -13,14 +13,12 @@ test('smoke test operator', async ({ page }) => {
   await page.getByTestId('time-input-duration').fill('1m');
   await page.getByTestId('time-input-duration').press('Enter');
 
-  await page.getByText('Start time is last end').click();
   await page.getByTestId('quick-add-event').click();
   await page.getByTestId('entry-2').getByTestId('lock__duration').click();
   await page.getByTestId('entry-2').getByTestId('time-input-duration').fill('1m');
   await page.getByTestId('entry-2').getByTestId('time-input-duration').press('Enter');
   await page.getByTestId('entry-2').getByTestId('time-input-duration').press('Enter');
 
-  await page.getByText('Start time is last end').click();
   await page.getByTestId('quick-add-event').click();
   await page.getByTestId('entry-3').getByTestId('lock__duration').click();
   await page.getByTestId('entry-3').getByTestId('time-input-duration').fill('1m');

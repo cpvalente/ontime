@@ -13,14 +13,13 @@ interface ScheduleItemProps {
   timeStart: number;
   timeEnd: number;
   title: string;
-  presenter?: string;
   backstageEvent: boolean;
   colour: string;
   skip: boolean;
 }
 
 export default function ScheduleItem(props: ScheduleItemProps) {
-  const { selected, timeStart, timeEnd, title, presenter, backstageEvent, colour, skip } = props;
+  const { selected, timeStart, timeEnd, title, backstageEvent, colour, skip } = props;
 
   const start = formatTime(timeStart, formatOptions);
   const end = formatTime(timeEnd, formatOptions);
@@ -39,7 +38,6 @@ export default function ScheduleItem(props: ScheduleItemProps) {
         </div>
       </div>
       <div className='entry-title'>{title}</div>
-      {presenter && <div className='entry-presenter'>{presenter}</div>}
     </li>
   );
 }

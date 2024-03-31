@@ -5,7 +5,7 @@ import EmptyImage from '../../../assets/images/empty.svg?react';
 import style from './Empty.module.scss';
 
 interface EmptyProps {
-  text: string;
+  text?: string;
   style?: CSSProperties;
 }
 
@@ -14,7 +14,7 @@ export default function Empty(props: EmptyProps) {
   return (
     <div className={style.emptyContainer} {...rest}>
       <EmptyImage className={style.empty} />
-      <span className={style.text}>{text}</span>
+      {text && <span className={style.text}>{text}</span>}
     </div>
   );
 }

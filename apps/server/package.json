@@ -13,6 +13,7 @@
     "express-session": "^1.17.3",
     "express-static-gzip": "^2.1.7",
     "express-validator": "^6.14.2",
+    "fast-equals": "^5.0.1",
     "google-auth-library": "^9.4.2",
     "got": "^14.0.0",
     "lowdb": "^7.0.1",
@@ -42,9 +43,10 @@
     "nodemon": "^2.0.20",
     "ontime-types": "workspace:*",
     "prettier": "^3.0.3",
+    "server-timing": "^3.3.3",
     "shx": "^0.3.4",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2",
+    "typescript": "^5.4.3",
     "vitest": "^1.2.2"
   },
   "scripts": {
@@ -60,7 +62,7 @@
     "build:electron": "pnpm prebuild && esbuild src/app.ts --log-level=error --platform=node --format=cjs --bundle --minify --legal-comments=external --outfile=dist/index.cjs",
     "build:local": "pnpm prebuild && esbuild src/app.ts --log-level=error --platform=node --format=cjs --bundle --minify --legal-comments=external --outfile=dist/index.cjs",
     "build:docker": "pnpm prebuild && esbuild src/index.ts --log-level=error --platform=node --format=cjs --minify --bundle --legal-comments=external --outfile=dist/docker.cjs",
-    "build:localdocker": "NODE_ENV=local pnpm prebuild && esbuild src/index.ts --log-level=error --platform=node --format=cjs --minify --bundle --legal-comments=external --outfile=dist/docker.cjs",
+    "build:localdocker": "cross-env NODE_ENV=local pnpm prebuild && esbuild src/index.ts --log-level=error --platform=node --format=cjs --minify --bundle --legal-comments=external --outfile=dist/docker.cjs",
     "build:debug": "pnpm prebuild && esbuild src/app.ts --platform=node --format=cjs --bundle --legal-comments=external --outfile=dist/index.cjs",
     "lint": "eslint . --quiet",
     "lint-staged": "eslint",

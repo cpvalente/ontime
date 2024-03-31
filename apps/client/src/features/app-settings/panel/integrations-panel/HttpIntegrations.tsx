@@ -5,7 +5,7 @@ import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { HttpSettings } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
-import { maybeAxiosError } from '../../../../common/api/apiUtils';
+import { maybeAxiosError } from '../../../../common/api/utils';
 import { useHttpSettings, usePostHttpSettings } from '../../../../common/hooks-query/useHttpSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
 import { startsWithHttp } from '../../../../common/utils/regex';
@@ -16,7 +16,7 @@ import { cycles } from './integrationUtils';
 import style from './IntegrationsPanel.module.css';
 
 export default function HttpIntegrations() {
-  const { data } = useHttpSettings();
+  const { data, status } = useHttpSettings();
   const { mutateAsync } = usePostHttpSettings();
 
   const {
@@ -69,6 +69,7 @@ export default function HttpIntegrations() {
   };
 
   const canSubmit = !isSubmitting && isDirty && isValid;
+  const isLoading = status === 'pending';
 
   return (
     <Panel.Section>
@@ -77,7 +78,7 @@ export default function HttpIntegrations() {
           HTTP
           <div className={style.flex}>
             <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
-              Reset
+              Revert to saved
             </Button>
             <Button
               variant='ontime-filled'
@@ -87,12 +88,13 @@ export default function HttpIntegrations() {
               isDisabled={!canSubmit}
               isLoading={isSubmitting}
             >
-              Save changes
+              Save
             </Button>
           </div>
         </Panel.SubHeader>
-
+        <Panel.Divider />
         <Panel.Section as='form' id='http-form' onSubmit={handleSubmit(onSubmit)} onKeyDown={preventEscape}>
+          <Panel.Loader isLoading={isLoading} />
           {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
           <Panel.ListGroup>
             <Panel.ListItem>

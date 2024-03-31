@@ -70,7 +70,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
     : '';
 
   return (
-    <>
+    <div className={style.column}>
       <div>
         <div className={style.inputLabel}>Event schedule</div>
         <div className={style.inline}>
@@ -135,11 +135,11 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
       <div>
         <span className={style.inputLabel}>Event Visibility</span>
         <label className={style.switchLabel}>
-          <Switch size='sm' isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
+          <Switch size='md' isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
           {isPublic ? 'Public' : 'Private'}
         </label>
       </div>
-    </>
+    </div>
   );
 };
 

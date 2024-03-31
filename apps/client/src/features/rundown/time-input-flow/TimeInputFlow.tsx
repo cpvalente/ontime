@@ -109,12 +109,7 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
 
       {overMidnight && (
         <div className={style.timerNote}>
-          <Tooltip
-            label='Over midnight: end time is before start'
-            openDelay={tooltipDelayFast}
-            variant='ontime-ondark'
-            shouldWrapChildren
-          >
+          <Tooltip label='Over midnight' openDelay={tooltipDelayFast} variant='ontime-ondark' shouldWrapChildren>
             <IoAlertCircleOutline />
           </Tooltip>
         </div>

@@ -31,7 +31,7 @@ export function ExtraTimer() {
   return (
     <div className={style.extraRow}>
       <ExtraTimeInput />
-      <TapButton onClick={toggleDirection}>
+      <TapButton onClick={toggleDirection} aspect='tight'>
         {direction === SimpleDirection.CountDown && <IoArrowDown />}
         {direction === SimpleDirection.CountUp && <IoArrowUp />}
       </TapButton>

@@ -18,12 +18,12 @@ test('CRUD operations on the rundown', async ({ page }) => {
 
   // test quick add options - start is last end
   await page.getByTestId('entry-2').getByTestId('time-input-duration').fill('20m');
-  await page.getByText('Start time is last end').click();
   await page.getByTestId('quick-add-event').click();
-  expect(await page.getByTestId('entry-3').getByTestId('time-input-timeStart').inputValue()).toContain('00:20:00');
+  await expect(page.getByLabel('Link to previous')).toBeChecked();
+  expect(await page.getByTestId('entry-3').getByTestId('time-input-timeStart').inputValue()).toContain('00:30:00');
 
   // test quick add options - event is public
-  await page.locator('label').filter({ hasText: 'Event is public' }).click();
+  await expect(page.getByLabel('Event is public')).toBeChecked();
   await page.getByTestId('quick-add-event').click();
 
   await expect(page.getByTestId('entry-4').locator('#block-status')).toHaveAttribute('data-ispublic', 'true');

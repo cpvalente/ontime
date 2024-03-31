@@ -24,14 +24,16 @@ export type { Settings } from './definitions/core/Settings.type.js';
 export type { ViewSettings } from './definitions/core/Views.type.js';
 export type { TimeFormat } from './definitions/core/TimeFormat.type.js';
 
-// ---> Aliases
-export type { Alias } from './definitions/core/Alias.type.js';
-
-// ---> User Fields
-export type { UserFields } from './definitions/core/UserFields.type.js';
+// ---> URL Presets
+export type { URLPreset } from './definitions/core/UrlPreset.type.js';
 
 // ---> Custom Fields
-export type { CustomFields, CustomField } from './definitions/core/CustomFields.type.js';
+export type {
+  CustomFields,
+  CustomField,
+  CustomFieldLabel,
+  EventCustomFields,
+} from './definitions/core/CustomFields.type.js';
 
 // ---> Integration, Subscription
 export type { OSCSettings, OscSubscription } from './definitions/core/OscSettings.type.js';
@@ -39,6 +41,7 @@ export type { HttpSettings, HttpSubscription } from './definitions/core/HttpSett
 
 // SERVER RESPONSES
 export type {
+  AuthenticationStatus,
   NetworkInterface,
   GetInfo,
   ProjectFileList,

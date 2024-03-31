@@ -1,7 +1,8 @@
 export type ViewSettings = {
-  overrideStyles: boolean;
-  endMessage: string;
-  normalColor: string;
-  warningColor: string;
   dangerColor: string;
+  endMessage: string;
+  freezeEnd: boolean;
+  normalColor: string;
+  overrideStyles: boolean;
+  warningColor: string;
 };

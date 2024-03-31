@@ -2,7 +2,7 @@ import { MaybeNumber, Settings, TimeFormat } from 'ontime-types';
 import { formatFromMillis } from 'ontime-utils';
 
 import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';
-import { APP_SETTINGS } from '../api/apiConstants';
+import { APP_SETTINGS } from '../api/constants';
 import { ontimeQueryClient } from '../queryClient';
 
 /**

@@ -5,7 +5,7 @@ import { Playback } from 'ontime-types';
  */
 export function validatePlayback(currentPlayback: Playback) {
   return {
-    start: currentPlayback !== Playback.Stop && currentPlayback !== Playback.Roll,
+    start: currentPlayback !== Playback.Stop,
     pause: currentPlayback === Playback.Play,
     roll: currentPlayback !== Playback.Roll,
     stop: currentPlayback !== Playback.Stop,

@@ -1,17 +1,7 @@
-.drawerContent {
-  background-color: $gray-1250;
-}
-
-.drawerHeader {
-  @extend .drawerContent;
-  color: $section-white;
-}
-
 .drawerFooter {
-  @extend .drawerContent;
   display: flex;
   justify-content: start;
-  gap: $element-spacing;
+  gap: $section-spacing;
 
   button[type='reset'] {
     padding: 0 2em;
@@ -30,9 +20,9 @@
 
 .columnSection {
   display: flex;
-  padding: $element-spacing;
+  padding: $section-spacing 0;
   flex-direction: column;
-  gap: $element-inner-spacing;
+  gap: $element-spacing;
 }
 
 .title {

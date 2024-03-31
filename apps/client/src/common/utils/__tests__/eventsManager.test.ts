@@ -1,4 +1,4 @@
-import { EndAction, OntimeEvent, SupportedEvent, TimerType } from 'ontime-types';
+import { EndAction, EventCustomFields, OntimeEvent, SupportedEvent, TimerType } from 'ontime-types';
 
 import { cloneEvent } from '../eventsManager';
 
@@ -9,8 +9,6 @@ describe('cloneEvent()', () => {
       type: SupportedEvent.Event,
       title: 'title',
       cue: 'cue',
-      subtitle: 'subtitle',
-      presenter: 'presenter',
       note: 'note',
       timeStart: 0,
       duration: 10,
@@ -21,18 +19,11 @@ describe('cloneEvent()', () => {
       skip: false,
       colour: 'F00',
       revision: 10,
-      user0: 'user0',
-      user1: 'user1',
-      user2: 'user2',
-      user3: 'user3',
-      user4: 'user4',
-      user5: 'user5',
-      user6: 'user6',
-      user7: 'user7',
-      user8: 'user8',
-      user9: 'user9',
       timeWarning: 120000,
       timeDanger: 60000,
+      custom: {
+        lighting: { value: '3' },
+      } as EventCustomFields,
     } as OntimeEvent;
 
     const cloned = cloneEvent(original);
@@ -40,8 +31,6 @@ describe('cloneEvent()', () => {
     // @ts-expect-error -- safeguarding this
     expect(cloned?.id).toBe(undefined);
     expect(cloned.title).toBe(original.title);
-    expect(cloned.subtitle).toBe(original.subtitle);
-    expect(cloned.presenter).toBe(original.presenter);
     expect(cloned.note).toBe(original.note);
     expect(cloned.endAction).toBe(original.endAction);
     expect(cloned.timerType).toBe(original.timerType);
@@ -55,5 +44,6 @@ describe('cloneEvent()', () => {
     expect(cloned.revision).toBe(0);
     expect(cloned.timeWarning).toBe(original.timeWarning);
     expect(cloned.timeDanger).toBe(original.timeDanger);
+    expect(cloned.custom).toStrictEqual({});
   });
 });

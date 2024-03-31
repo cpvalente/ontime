@@ -1,6 +1,5 @@
 .current {
-  color: $blue-400;
-  background-color: $gray-1350;
+  background-color: $blue-1100;
 }
 
 .actionButton {
@@ -19,39 +18,35 @@
   flex: 2;
 }
 
-.createFormInputField {
-  padding-bottom: 0.5rem;
+.headerButtons,
+.actionButtons,
+.createActionButtons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .actionButtons {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   margin-left: 1rem;
 }
 
 .createActionButtons {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   margin-left: 1rem;
   justify-content: flex-end;
-}
-
-.error {
-  color: $red-500;
-}
-
-.createContainer {
-  padding: 0.5rem 0;
 }
 
 .saveButton {
   text-transform: capitalize;
 }
 
-.createSubmitError {
-  font-size: calc(1rem - 2px);
-  font-weight: 400;
-  color: $red-500;
+.containCell {
+  max-width: 400px;
+}
+
+.innerColumn {
+  margin: 0 2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
 }

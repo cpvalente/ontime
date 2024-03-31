@@ -2,6 +2,7 @@ import { OntimeEvent, Playback } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
 
 import { RuntimeState, addTime, clear, getState, load, pause, start, stop } from '../runtimeState.js';
+import { initRundown } from '../../services/rundown-service/RundownService.js';
 
 const mockEvent = {
   type: 'event',
@@ -35,7 +36,6 @@ const mockState = {
   },
   _timer: {
     pausedAt: null,
-    lastUpdate: null,
     secondaryTarget: null,
   },
 } as RuntimeState;
@@ -49,17 +49,22 @@ describe('mutation on runtimeState', () => {
   beforeEach(() => {
     clear();
 
-    vi.mock('../../services/rundown-service/RundownService.js', () => ({
-      getPlayableEvents: vi.fn().mockReturnValue([
-        {
-          id: 'mock',
-          cue: 'mock',
-          timeStart: 0,
-          timeEnd: 1000,
-          duration: 1000,
-        },
-      ]),
-    }));
+    vi.mock('../../services/rundown-service/RundownService.js', async (importOriginal) => {
+      const actual = (await importOriginal()) as object;
+
+      return {
+        ...actual,
+        getPlayableEvents: vi.fn().mockReturnValue([
+          {
+            id: 'mock',
+            cue: 'mock',
+            timeStart: 0,
+            timeEnd: 1000,
+            duration: 1000,
+          },
+        ]),
+      };
+    });
   });
 
   afterEach(() => {
@@ -138,10 +143,12 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.actualStart).toBeNull();
     });
 
+    // do this before the test so that it is applied
+    const event1 = { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000 };
+    const event2 = { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500 };
+    // force update
+    initRundown([event1, event2], {});
     test('runtime offset', () => {
-      const event1 = { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000 };
-      const event2 = { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500 };
-
       // 1. Load event
       load(event1, [event1, event2]);
       let newState = getState();
@@ -178,7 +185,7 @@ describe('mutation on runtimeState', () => {
       stop();
       newState = getState();
       expect(newState.runtime.actualStart).toBeNull();
-      expect(newState.runtime.offset).toBe(0);
+      expect(newState.runtime.offset).toBeNull();
       expect(newState.runtime.expectedEnd).toBeNull();
     });
 

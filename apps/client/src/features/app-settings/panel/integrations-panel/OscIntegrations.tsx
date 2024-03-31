@@ -5,7 +5,7 @@ import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { OSCSettings } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
-import { maybeAxiosError } from '../../../../common/api/apiUtils';
+import { maybeAxiosError } from '../../../../common/api/utils';
 import useOscSettings, { useOscSettingsMutation } from '../../../../common/hooks-query/useOscSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
 import { isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
@@ -16,7 +16,7 @@ import { cycles } from './integrationUtils';
 import style from './IntegrationsPanel.module.css';
 
 export default function OscIntegrations() {
-  const { data } = useOscSettings();
+  const { data, status } = useOscSettings();
   const { mutateAsync } = useOscSettingsMutation();
 
   const {
@@ -75,6 +75,7 @@ export default function OscIntegrations() {
   };
 
   const canSubmit = !isSubmitting && isDirty && isValid;
+  const isLoading = status === 'pending';
 
   return (
     <Panel.Card>
@@ -82,7 +83,7 @@ export default function OscIntegrations() {
         Open Sound Control
         <div className={style.flex}>
           <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
-            Reset
+            Revert to saved
           </Button>
           <Button
             variant='ontime-filled'
@@ -92,15 +93,15 @@ export default function OscIntegrations() {
             isDisabled={!canSubmit}
             isLoading={isSubmitting}
           >
-            Save changes
+            Save
           </Button>
         </div>
       </Panel.SubHeader>
 
       <Panel.Divider />
 
-
       <Panel.Section as='form' id='osc-form' onSubmit={handleSubmit(onSubmit)} onKeyDown={preventEscape}>
+        <Panel.Loader isLoading={isLoading} />
         <Panel.Title>OSC Settings</Panel.Title>
         {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
         <Panel.ListGroup>

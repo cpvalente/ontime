@@ -5,56 +5,60 @@ import express from 'express';
 import expressStaticGzip from 'express-static-gzip';
 import http, { type Server } from 'http';
 import cors from 'cors';
+import serverTiming from 'server-timing';
 
 // import utils
-import { join, resolve } from 'path';
+import { resolve } from 'path';
 import {
-  currentDirectory,
+  srcDirectory,
   environment,
   isProduction,
   resolveDbPath,
   resolveExternalsDirectory,
   resolveStylesDirectory,
   resolvedPath,
-} from './setup.js';
+} from './setup/index.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 
-// Import Routes
-import { router as rundownRouter } from './routes/rundownRouter.js';
-import { router as projectRouter } from './routes/projectRouter.js';
-import { router as ontimeRouter } from './routes/ontimeRouter.js';
-import { router as apiRouter } from './routes/apiRouter.js';
+// Import Routers
+import { appRouter } from './api-data/index.js';
+import { integrationRouter } from './api-integration/integration.router.js';
 
 // Import adapters
 import { OscServer } from './adapters/OscAdapter.js';
 import { socket } from './adapters/WebsocketAdapter.js';
 import { DataProvider } from './classes/data-provider/DataProvider.js';
-import { dbLoadingProcess } from './modules/loadDb.js';
+import { dbLoadingProcess } from './setup/loadDb.js';
 
 // Services
 import { integrationService } from './services/integration-service/IntegrationService.js';
 import { logger } from './classes/Logger.js';
 import { oscIntegration } from './services/integration-service/OscIntegration.js';
 import { httpIntegration } from './services/integration-service/HttpIntegration.js';
-import { populateStyles } from './modules/loadStyles.js';
+import { populateStyles } from './setup/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
 import { runtimeService } from './services/runtime-service/RuntimeService.js';
 import { restoreService } from './services/RestoreService.js';
 import { messageService } from './services/message-service/MessageService.js';
-import { populateDemo } from './modules/loadDemo.js';
-import { getState, updateRundownData } from './stores/runtimeState.js';
-import { setRundown, getPlayableEvents } from './services/rundown-service/RundownService.js';
+import { populateDemo } from './setup/loadDemo.js';
+import { getState } from './stores/runtimeState.js';
+import { initRundown } from './services/rundown-service/RundownService.js';
+import { generateCrashReport } from './utils/generateCrashReport.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
 if (!isProduction) {
   console.log(`Ontime running in ${environment} environment`);
-  console.log(`Ontime directory at ${currentDirectory} `);
+  console.log(`Ontime directory at ${srcDirectory} `);
   console.log(`Ontime database at ${resolveDbPath}`);
 }
 
 // Create express APP
 const app = express();
+if (process.env.NODE_ENV === 'development') {
+  // log more serever timings
+  app.use(serverTiming());
+}
 app.disable('x-powered-by');
 
 // setup cors for all routes
@@ -68,10 +72,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '1mb' }));
 
 // Implement route endpoints
-app.use('/events', rundownRouter);
-app.use('/project', projectRouter);
-app.use('/ontime', ontimeRouter);
-app.use('/api', apiRouter);
+app.use('/data', appRouter); // router for application data
+app.use('/api', integrationRouter); // router for integrations
 
 // serve static - css
 app.use('/external/styles', express.static(resolveStylesDirectory));
@@ -81,20 +83,24 @@ app.use('/external', (req, res) => {
 });
 
 // serve static - react, in dev/test mode we fetch the React app from module
-const reactAppPath = join(currentDirectory, resolvedPath());
+const reactAppPath = resolvedPath();
 app.use(
   expressStaticGzip(reactAppPath, {
     enableBrotli: true,
     orderPreference: ['br'],
+    // when we build the client all the react subfiles will get a hashed name we can the immutable tag
+    // as the contents of a build file will never change without also changing its name
+    // so the client dose not need to revalidate the file contetnts with the server
+    serveStatic: { etag: false, lastModified: false, immutable: true, maxAge: '1y' },
   }),
 );
 
-app.get('*', (req, res) => {
-  res.sendFile(resolve(currentDirectory, resolvedPath(), 'index.html'));
+app.get('*', (_req, res) => {
+  res.sendFile(resolve(reactAppPath, 'index.html'));
 });
 
 // Implement catch all
-app.use((error, response) => {
+app.use((_error, response) => {
   response.status(400).send('Unhandled request');
 });
 
@@ -151,11 +157,12 @@ export const startServer = async () => {
   checkStart(OntimeStartOrder.InitServer);
 
   const { serverPort } = DataProvider.getSettings();
+
   const returnMessage = `Ontime is listening on port ${serverPort}`;
 
   expressServer = http.createServer(app);
-
   socket.init(expressServer);
+  logger.info(LogOrigin.Server, returnMessage);
 
   /**
    * Module initialises the services and provides initial payload for the store
@@ -182,10 +189,8 @@ export const startServer = async () => {
 
   // initialise rundown service
   const persistedRundown = DataProvider.getRundown();
-  setRundown(persistedRundown);
-
-  // TODO: do this on the init of the runtime service
-  updateRundownData(getPlayableEvents());
+  const persistedCustomFields = DataProvider.getCustomFields();
+  initRundown(persistedRundown, persistedCustomFields);
 
   // load restore point if it exists
   const maybeRestorePoint = await restoreService.load();
@@ -273,6 +278,7 @@ export const shutdown = async (exitCode = 0) => {
     await restoreService.clear();
   }
 
+  // TODO: Clear token
   expressServer?.close();
   oscServer?.shutdown();
   runtimeService.shutdown();
@@ -285,11 +291,15 @@ export const shutdown = async (exitCode = 0) => {
 process.on('exit', (code) => console.log(`Ontime shutdown with code: ${code}`));
 
 process.on('unhandledRejection', async (error) => {
+  console.error('Error: unhandled rejection', error);
+  generateCrashReport(error);
   logger.error(LogOrigin.Server, `Error: unhandled rejection ${error}`);
   await shutdown(1);
 });
 
 process.on('uncaughtException', async (error) => {
+  console.error('Error: uncaught exception', error);
+  generateCrashReport(error);
   logger.error(LogOrigin.Server, `Error: uncaught exception ${error}`);
   await shutdown(1);
 });

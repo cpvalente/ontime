@@ -1,11 +1,13 @@
-import { lazy, useEffect } from 'react';
-import { useDisclosure } from '@chakra-ui/react';
+import { lazy, useCallback, useEffect } from 'react';
+import { IconButton, useDisclosure } from '@chakra-ui/react';
+import { IoApps } from '@react-icons/all-files/io5/IoApps';
+import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
-import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
+import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
+import useElectronEvent from '../../common/hooks/useElectronEvent';
+import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import AppSettings from '../app-settings/AppSettings';
-import { SettingsOptionId, useSettingsStore } from '../app-settings/settingsStore';
-import MenuBar from '../menu/MenuBar';
-import UploadModal from '../modals/upload-modal/UploadModal';
+import useAppSettingsNavigation from '../app-settings/useAppSettingsNavigation';
 import Overview from '../overview/Overview';
 
 import styles from './Editor.module.scss';
@@ -13,57 +15,83 @@ import styles from './Editor.module.scss';
 const Rundown = lazy(() => import('../rundown/RundownExport'));
 const TimerControl = lazy(() => import('../control/playback/TimerControlExport'));
 const MessageControl = lazy(() => import('../control/message/MessageControlExport'));
-const SettingsModal = lazy(() => import('../modals/settings-modal/SettingsModal'));
 
 export default function Editor() {
-  const showSettings = useSettingsStore((state) => state.showSettings);
-  const setShowSettings = useSettingsStore((state) => state.setShowSettings);
+  const { isOpen: isSettingsOpen, setLocation, close } = useAppSettingsNavigation();
+  const { isElectron } = useElectronEvent();
+  const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
 
-  const handleSettings = (newTab?: SettingsOptionId) => {
-    setShowSettings(newTab);
-  };
+  const toggleSettings = useCallback(() => {
+    if (isSettingsOpen) {
+      close();
+    } else {
+      setLocation('project');
+    }
+  }, [close, isSettingsOpen, setLocation]);
 
-  const { isOpen: isOldSettingsOpen, onOpen: onSettingsOpen, onClose: onSettingsClose } = useDisclosure();
-  const { isOpen: isUploadModalOpen, onOpen: onUploadModalOpen, onClose: onUploadModalClose } = useDisclosure();
+  // Handle keyboard shortcuts
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      // handle held key
+      if (event.repeat) return;
 
-  // Set window title
+      // check if the ctrl key is pressed
+      if (event.ctrlKey || event.metaKey) {
+        // ctrl + , (settings)
+        if (event.key === ',') {
+          toggleSettings();
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      }
+    },
+    [toggleSettings],
+  );
+
+  // register ctrl + , to open settings
   useEffect(() => {
-    document.title = 'ontime - Editor';
-  }, []);
+    if (isElectron) {
+      document.addEventListener('keydown', handleKeyPress);
+    }
+    return () => {
+      if (isElectron) {
+        document.removeEventListener('keydown', handleKeyPress);
+      }
+    };
+  }, [handleKeyPress, isElectron]);
 
-  const isSettingsOpen = Boolean(showSettings);
+  useWindowTitle('Editor');
 
   return (
-    <>
-      <ErrorBoundary>
-        <UploadModal onClose={onUploadModalClose} isOpen={isUploadModalOpen} />
-        <SettingsModal isOpen={isOldSettingsOpen} onClose={onSettingsClose} />
-      </ErrorBoundary>
-      <div className={styles.mainContainer} data-testid='event-editor'>
-        <ErrorBoundary>
-          <MenuBar
-            isOldSettingsOpen={isOldSettingsOpen}
-            onSettingsOpen={onSettingsOpen}
-            onSettingsClose={onSettingsClose}
-            isUploadOpen={isUploadModalOpen}
-            onUploadOpen={onUploadModalOpen}
-            openSettings={handleSettings}
-            isSettingsOpen={isSettingsOpen}
-          />
-        </ErrorBoundary>
-        {showSettings ? (
-          <AppSettings />
-        ) : (
-          <div id='panels' className={styles.panelContainer}>
-            <div className={styles.left}>
-              <TimerControl />
-              <MessageControl />
-            </div>
-            <Rundown />
+    <div className={styles.mainContainer} data-testid='event-editor'>
+      <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
+      <Overview>
+        <IconButton
+          aria-label='Toggle navigation'
+          variant='ontime-subtle-white'
+          size='lg'
+          icon={<IoApps />}
+          onClick={onOpen}
+        />
+        <IconButton
+          aria-label='Toggle settings'
+          variant='ontime-subtle-white'
+          size='lg'
+          icon={<IoSettingsOutline />}
+          onClick={toggleSettings}
+        />
+      </Overview>
+      {isSettingsOpen ? (
+        <AppSettings />
+      ) : (
+        <div id='panels' className={styles.panelContainer}>
+          <div className={styles.left}>
+            <TimerControl />
+            <MessageControl />
           </div>
-        )}
-        <Overview />
-      </div>
-    </>
+          <Rundown />
+        </div>
+      )}
+    </div>
   );
 }

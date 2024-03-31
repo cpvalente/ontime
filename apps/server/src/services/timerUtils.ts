@@ -1,6 +1,7 @@
 import { MaybeNumber, MaybeString, OntimeEvent, TimerType } from 'ontime-types';
 import { dayInMs, sortArrayByProperty } from 'ontime-utils';
 import { RuntimeState } from '../stores/runtimeState.js';
+import { timerConfig } from '../config/config.js';
 
 /**
  * handle events that span over midnight
@@ -53,28 +54,29 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
  * @param {RuntimeState} state runtime state
  * @returns {number} current time for timer
  */
+
 export function getCurrent(state: RuntimeState): number {
   const { startedAt, duration, addedTime } = state.timer;
-  const { timerType, timeEnd } = state.eventNow;
+  const { timerType, timeStart, timeEnd } = state.eventNow;
   const { pausedAt } = state._timer;
   const { clock } = state;
 
   if (timerType === TimerType.TimeToEnd) {
-    const isNextDay = startedAt > timeEnd;
-    const correctDay = isNextDay ? dayInMs : 0;
-    return timeEnd + addedTime + correctDay - clock;
+    const isEventOverMidnight = timeStart > timeEnd;
+    const correctDay = isEventOverMidnight ? dayInMs : 0;
+    return correctDay - clock + timeEnd + addedTime;
   }
 
   if (startedAt === null) {
     return duration;
   }
 
-  const hasPassedMidnight = startedAt > clock;
-  const correctDay = hasPassedMidnight ? dayInMs : 0;
   if (pausedAt != null) {
     return startedAt + duration + addedTime - pausedAt;
   }
 
+  const hasPassedMidnight = startedAt > clock;
+  const correctDay = hasPassedMidnight ? dayInMs : 0;
   return startedAt + duration + addedTime - clock - correctDay;
 }
 
@@ -271,7 +273,7 @@ export const updateRoll = (state: RuntimeState) => {
       updatedTimer -= dayInMs;
     }
 
-    if (updatedTimer < 0) {
+    if (updatedTimer <= timerConfig.triggerAhead) {
       isPrimaryFinished = true;
       // we need a new event
       doRollLoad = true;
@@ -292,20 +294,64 @@ export const updateRoll = (state: RuntimeState) => {
 
 /**
  * Calculates difference between the runtime and the schedule of an event
+ * Positive offset is a delay
+ * Negative offset is time ahead
  * @param state
  * @returns
  */
-export function getRuntimeOffset(state: RuntimeState): number {
-  if (state.eventNow === null) {
-    return 0;
+export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
+  if (state.eventNow === null || state.runtime.actualStart === null) {
+    return null;
   }
 
-  const { timeStart } = state.eventNow;
+  const { clock } = state;
+  const { timeStart, timerType } = state.eventNow;
   const { addedTime, current, startedAt } = state.timer;
 
+  // if we havent started, the offset is the difference to the schedule
+  if (startedAt === null) {
+    return clock - timeStart;
+  }
+
   const overtime = Math.min(current, 0);
+  // in time-to-end, offset is overtime
+  if (timerType === TimerType.TimeToEnd) {
+    return overtime;
+  }
+
   const startOffset = startedAt - timeStart;
-  const pausedTime = state._timer.pausedAt === null ? 0 : state.clock - state._timer.pausedAt;
+  const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
 
   return startOffset + addedTime + pausedTime + Math.abs(overtime);
+}
+
+/**
+ * Calculates total duration of a time span
+ * @param firstStart
+ * @param lastEnd
+ * @param daySpan
+ * @returns
+ */
+export function getTotalDuration(firstStart: number, lastEnd: number, daySpan: number): number {
+  if (!lastEnd) {
+    return 0;
+  }
+  let correctDay = 0;
+  if (lastEnd < firstStart) {
+    correctDay = dayInMs;
+    daySpan -= 1;
+  }
+  // eslint-disable-next-line prettier/prettier -- we like the clarity
+  return lastEnd + correctDay + daySpan * dayInMs - firstStart;
+}
+
+/**
+ * Calculates the expected end of the rundown
+ */
+export function getExpectedEnd(state: RuntimeState): MaybeNumber {
+  // there is no expected end if we havent started
+  if (state.runtime.actualStart === null) {
+    return null;
+  }
+  return state.runtime.plannedEnd + state.runtime.offset + state._timer.totalDelay;
 }

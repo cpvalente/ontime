@@ -14,12 +14,20 @@ export const settingPanels: Readonly<SettingsOption[]> = [
     secondary: [{ id: 'project__manage', label: 'Manage project files' }],
   },
   {
+    id: 'general',
+    label: 'General',
+    secondary: [
+      { id: 'general__manage', label: 'Manage Ontime settings' },
+      { id: 'general__view', label: 'View settings' },
+      { id: 'general__urlpresets', label: 'URL presets' },
+    ],
+  },
+  {
     id: 'project_settings',
     label: 'Project Settings',
     secondary: [{ id: 'project_settings__custom', label: 'Custom fields' }],
   },
-  { id: 'interface', label: 'Interface' },
-  { id: 'views', label: 'Views' },
+  { id: 'interface', label: 'Interface', secondary: [{ id: 'interface__editor', label: 'Editor settings' }] },
   {
     id: 'sources',
     label: 'Data Sources',
@@ -47,14 +55,19 @@ export const settingPanels: Readonly<SettingsOption[]> = [
     label: 'About',
     split: true,
   },
+  {
+    id: 'shutdown',
+    label: 'Shutdown',
+    split: true,
+  },
 ] as const;
 
 export type SettingsOptionId = (typeof settingPanels)[number]['id'];
-const firstPanel = settingPanels[0].id;
+export interface PanelBaseProps {
+  location?: string;
+}
 
 type SettingsStore = {
-  showSettings: SettingsOptionId | null;
-  setShowSettings: (panelId?: SettingsOptionId | null) => void;
   unsavedChanges: Set<SettingsOptionId>;
   hasUnsavedChanges: (panelId: SettingsOptionId) => boolean;
   addUnsavedChanges: (panelId: SettingsOptionId) => void;
@@ -62,16 +75,6 @@ type SettingsStore = {
 };
 
 export const useSettingsStore = create<SettingsStore>((set, get) => ({
-  showSettings: null,
-  setShowSettings: (panelId?: SettingsOptionId | null) => {
-    const newPanel = panelId === undefined ? firstPanel : panelId;
-    set((state) => {
-      return {
-        ...state,
-        showSettings: newPanel,
-      };
-    });
-  },
   unsavedChanges: new Set(),
   hasUnsavedChanges: (panelId: SettingsOptionId) => get().unsavedChanges.has(panelId),
   addUnsavedChanges: (panelId: SettingsOptionId) =>

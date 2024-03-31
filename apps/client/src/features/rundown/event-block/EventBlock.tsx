@@ -37,10 +37,11 @@ interface EventBlockProps {
   title: string;
   note: string;
   delay: number;
+  previousStart: MaybeNumber;
   previousEnd: MaybeNumber;
   colour: string;
   isPast: boolean;
-  next: boolean;
+  isNext: boolean;
   skip: boolean;
   loaded: boolean;
   hasCursor: boolean;
@@ -73,10 +74,11 @@ export default function EventBlock(props: EventBlockProps) {
     title,
     note,
     delay,
+    previousStart,
     previousEnd,
     colour,
     isPast,
-    next,
+    isNext,
     skip = false,
     loaded,
     hasCursor,
@@ -240,11 +242,17 @@ export default function EventBlock(props: EventBlockProps) {
       className={blockClasses}
       ref={setNodeRef}
       style={dragStyle}
-      onMouseDown={handleFocusClick}
+      onClick={handleFocusClick}
       onContextMenu={onContextMenu}
       id='event-block'
     >
-      <RundownIndicators timeStart={timeStart} previousEnd={previousEnd} delay={delay} />
+      <RundownIndicators
+        timeStart={timeStart}
+        timeEnd={timeEnd}
+        previousStart={previousStart}
+        previousEnd={previousEnd}
+        delay={delay}
+      />
 
       <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
         <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
@@ -268,7 +276,7 @@ export default function EventBlock(props: EventBlockProps) {
           title={title}
           note={note}
           delay={delay}
-          next={next}
+          isNext={isNext}
           skip={skip}
           loaded={loaded}
           playback={playback}

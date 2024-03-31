@@ -1,5 +1,7 @@
 import { HTMLAttributes, ReactNode } from 'react';
 
+import { cx } from '../../../common/utils/styleUtils';
+
 import style from './Panel.module.scss';
 
 export function Header({ children }: { children: ReactNode }) {
@@ -41,10 +43,11 @@ export function Card({ children, ...props }: { children: ReactNode } & JSX.Intri
   );
 }
 
-export function Table({ children }: { children: ReactNode }) {
+export function Table({ className, children }: { className?: string; children: ReactNode }) {
+  const classes = cx([style.table, className]);
   return (
     <div className={style.pad}>
-      <table className={style.table}>{children}</table>
+      <table className={classes}>{children}</table>
     </div>
   );
 }
@@ -77,4 +80,15 @@ export function Error({ children }: { children: ReactNode }) {
 
 export function Divider() {
   return <hr className={style.divider} />;
+}
+
+export function Loader({ isLoading }: { isLoading: boolean }) {
+  if (!isLoading) {
+    return null;
+  }
+  return (
+    <div className={style.overlay}>
+      <div className={style.loader} />
+    </div>
+  );
 }

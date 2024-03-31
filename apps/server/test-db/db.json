@@ -2,8 +2,6 @@
   "rundown": [
     {
       "title": "Albania",
-      "subtitle": "Sekret",
-      "presenter": "Ronela Hajati",
       "note": "SF1.01",
       "endAction": "none",
       "timerType": "count-down",
@@ -13,25 +11,17 @@
       "isPublic": true,
       "skip": false,
       "colour": "",
-      "user0": "",
-      "user1": "",
-      "user2": "",
-      "user3": "",
-      "user4": "",
-      "user5": "",
-      "user6": "",
-      "user7": "",
-      "user8": "",
-      "user9": "",
       "type": "event",
       "revision": 0,
       "id": "32d31",
-      "cue": "SF1.01"
+      "cue": "SF1.01",
+      "custom": {
+        "song": "Sekret",
+        "artist": "Ronela Hajati"
+      }
     },
     {
       "title": "Latvia",
-      "subtitle": "Eat Your Salad",
-      "presenter": "Citi Zeni",
       "note": "SF1.02",
       "endAction": "none",
       "timerType": "count-down",
@@ -41,25 +31,17 @@
       "isPublic": true,
       "skip": false,
       "colour": "",
-      "user0": "",
-      "user1": "",
-      "user2": "",
-      "user3": "",
-      "user4": "",
-      "user5": "",
-      "user6": "",
-      "user7": "",
-      "user8": "",
-      "user9": "",
       "type": "event",
       "revision": 0,
       "id": "21cd2",
-      "cue": "SF1.02"
+      "cue": "SF1.02",
+      "custom": {
+        "song": "Eat Your Salad",
+        "artist": "Citi Zeni"
+      }
     },
     {
       "title": "Lithuania",
-      "subtitle": "Sentimentai",
-      "presenter": "Monika Liu",
       "note": "SF1.03",
       "endAction": "none",
       "timerType": "count-down",
@@ -69,25 +51,17 @@
       "isPublic": true,
       "skip": false,
       "colour": "",
-      "user0": "",
-      "user1": "",
-      "user2": "",
-      "user3": "",
-      "user4": "",
-      "user5": "",
-      "user6": "",
-      "user7": "",
-      "user8": "",
-      "user9": "",
       "type": "event",
       "revision": 0,
       "id": "0b371",
-      "cue": "SF1.03"
+      "cue": "SF1.03",
+      "custom": {
+        "song": "Sentimentai",
+        "artist": "Monika Liu"
+      }
     },
     {
       "title": "Switzerland",
-      "subtitle": "Boys Do Cry",
-      "presenter": "Marius Bear",
       "note": "SF1.04",
       "endAction": "none",
       "timerType": "count-down",
@@ -97,25 +71,17 @@
       "isPublic": true,
       "skip": false,
       "colour": "",
-      "user0": "",
-      "user1": "",
-      "user2": "",
-      "user3": "",
-      "user4": "",
-      "user5": "",
-      "user6": "",
-      "user7": "",
-      "user8": "",
-      "user9": "",
       "type": "event",
       "revision": 0,
       "id": "3cd28",
-      "cue": "SF1.04"
+      "cue": "SF1.04",
+      "custom": {
+        "song": "Boys Do Cry",
+        "artist": "Marius Bear"
+      }
     },
     {
       "title": "Slovenia",
-      "subtitle": "Disko",
-      "presenter": "LPS",
       "note": "SF1.05",
       "endAction": "none",
       "timerType": "count-down",
@@ -125,20 +91,14 @@
       "isPublic": true,
       "skip": false,
       "colour": "",
-      "user0": "",
-      "user1": "",
-      "user2": "",
-      "user3": "",
-      "user4": "",
-      "user5": "",
-      "user6": "",
-      "user7": "",
-      "user8": "",
-      "user9": "",
       "type": "event",
       "revision": 0,
       "id": "e457f",
-      "cue": "SF1.05"
+      "cue": "SF1.05",
+      "custom": {
+        "song": "Disko",
+        "artist": "LPS"
+      }
     },
     {
       "title": "Lunch break",
@@ -147,8 +107,6 @@
     },
     {
       "title": "Ukraine",
-      "subtitle": "Stefania",
-      "presenter": "Kalush Orchestra",
       "note": "SF1.06",
       "endAction": "none",
       "timerType": "count-down",
@@ -158,25 +116,17 @@
       "isPublic": true,
       "skip": false,
       "colour": "",
-      "user0": "",
-      "user1": "",
-      "user2": "",
-      "user3": "",
-      "user4": "",
-      "user5": "",
-      "user6": "",
-      "user7": "",
-      "user8": "",
-      "user9": "",
       "type": "event",
       "revision": 0,
       "id": "1c420",
-      "cue": "SF1.06"
+      "cue": "SF1.06",
+      "custom": {
+        "song": "Stefania",
+        "artist": "Kalush Orchestra"
+      }
     },
     {
       "title": "Bulgaria",
-      "subtitle": "Intention",
-      "presenter": "Intelligent Music Project",
       "note": "SF1.07",
       "endAction": "none",
       "timerType": "count-down",
@@ -186,25 +136,17 @@
       "isPublic": true,
       "skip": false,
       "colour": "",
-      "user0": "",
-      "user1": "",
-      "user2": "",
-      "user3": "",
-      "user4": "",
-      "user5": "",
-      "user6": "",
-      "user7": "",
-      "user8": "",
-      "user9": "",
       "type": "event",
       "revision": 0,
       "id": "b7737",
-      "cue": "SF1.07"
+      "cue": "SF1.07",
+      "custom": {
+        "song": "Intention",
+        "artist": "Intelligent Music Project"
+      }
     },
     {
       "title": "Netherlands",
-      "subtitle": "De Diepte",
-      "presenter": "S10",
       "note": "SF1.08",
       "endAction": "none",
       "timerType": "count-down",
@@ -214,25 +156,17 @@
       "isPublic": true,
       "skip": false,
       "colour": "",
-      "user0": "",
-      "user1": "",
-      "user2": "",
-      "user3": "",
-      "user4": "",
-      "user5": "",
-      "user6": "",
-      "user7": "",
-      "user8": "",
-      "user9": "",
       "type": "event",
       "revision": 0,
       "id": "d3a80",
-      "cue": "SF1.08"
+      "cue": "SF1.08",
+      "custom": {
+        "song": "De Diepte",
+        "artist": "S10"
+      }
     },
     {
       "title": "Moldova",
-      "subtitle": "Trenuletul",
-      "presenter": "Zdob si Zdub",
       "note": "SF1.09",
       "endAction": "none",
       "timerType": "count-down",
@@ -242,25 +176,17 @@
       "isPublic": true,
       "skip": false,
       "colour": "",
-      "user0": "",
-      "user1": "",
-      "user2": "",
-      "user3": "",
-      "user4": "",
-      "user5": "",
-      "user6": "",
-      "user7": "",
-      "user8": "",
-      "user9": "",
       "type": "event",
       "revision": 0,
       "id": "8276c",
-      "cue": "SF1.09"
+      "cue": "SF1.09",
+      "custom": {
+        "song": "Trenuletul",
+        "artist": "Zdob si Zdub"
+      }
     },
     {
       "title": "Portugal",
-      "subtitle": "Saudade Saudade",
-      "presenter": "Maro",
       "note": "SF1.10",
       "endAction": "none",
       "timerType": "count-down",
@@ -270,20 +196,14 @@
       "isPublic": true,
       "skip": false,
       "colour": "",
-      "user0": "",
-      "user1": "",
-      "user2": "",
-      "user3": "",
-      "user4": "",
-      "user5": "",
-      "user6": "",
-      "user7": "",
-      "user8": "",
-      "user9": "",
       "type": "event",
       "revision": 0,
       "id": "2340b",
-      "cue": "SF1.10"
+      "cue": "SF1.10",
+      "custom": {
+        "song": "Saudade Saudade",
+        "artist": "Maro"
+      }
     },
     {
       "title": "Afternoon break",
@@ -292,8 +212,6 @@
     },
     {
       "title": "Croatia",
-      "subtitle": "Guilty Pleasure",
-      "presenter": "Mia Dimsic",
       "note": "SF1.11",
       "endAction": "none",
       "timerType": "count-down",
@@ -303,25 +221,17 @@
       "isPublic": true,
       "skip": false,
       "colour": "",
-      "user0": "",
-      "user1": "",
-      "user2": "",
-      "user3": "",
-      "user4": "",
-      "user5": "",
-      "user6": "",
-      "user7": "",
-      "user8": "",
-      "user9": "",
       "type": "event",
       "revision": 0,
       "id": "503c4",
-      "cue": "SF1.11"
+      "cue": "SF1.11",
+      "custom": {
+        "song": "Guilty Pleasure",
+        "artist": "Mia Dimsic"
+      }
     },
     {
       "title": "Denmark",
-      "subtitle": "The Show",
-      "presenter": "Reddi",
       "note": "SF1.12",
       "endAction": "none",
       "timerType": "count-down",
@@ -331,25 +241,17 @@
       "isPublic": true,
       "skip": false,
       "colour": "",
-      "user0": "",
-      "user1": "",
-      "user2": "",
-      "user3": "",
-      "user4": "",
-      "user5": "",
-      "user6": "",
-      "user7": "",
-      "user8": "",
-      "user9": "",
       "type": "event",
       "revision": 0,
       "id": "5e965",
-      "cue": "SF1.12"
+      "cue": "SF1.12",
+      "custom": {
+        "song": "The Show",
+        "artist": "Reddi"
+      }
     },
     {
       "title": "Austria",
-      "subtitle": "Halo",
-      "presenter": "LUM!X & Pia Maria",
       "note": "SF1.13",
       "endAction": "none",
       "timerType": "count-down",
@@ -359,25 +261,17 @@
       "isPublic": true,
       "skip": false,
       "colour": "",
-      "user0": "",
-      "user1": "",
-      "user2": "",
-      "user3": "",
-      "user4": "",
-      "user5": "",
-      "user6": "",
-      "user7": "",
-      "user8": "",
-      "user9": "",
       "type": "event",
       "revision": 0,
       "id": "bab4a",
-      "cue": "SF1.13"
+      "cue": "SF1.13",
+      "custom": {
+        "song": "Halo",
+        "artist": "LUM!X & Pia Maria"
+      }
     },
     {
       "title": "Greece",
-      "subtitle": "Die Together",
-      "presenter": "Amanda Tenfjord",
       "note": "SF1.14",
       "endAction": "none",
       "timerType": "count-down",
@@ -387,20 +281,14 @@
       "isPublic": true,
       "skip": false,
       "colour": "",
-      "user0": "",
-      "user1": "",
-      "user2": "",
-      "user3": "",
-      "user4": "",
-      "user5": "",
-      "user6": "",
-      "user7": "",
-      "user8": "",
-      "user9": "",
       "type": "event",
       "revision": 0,
       "id": "d3eb1",
-      "cue": "SF1.14"
+      "cue": "SF1.14",
+      "custom": {
+        "song": "Die Together",
+        "artist": "Amanda Tenfjord"
+      }
     }
   ],
   "project": {
@@ -429,40 +317,21 @@
     "dangerThreshold": 60000,
     "endMessage": ""
   },
-  "aliases": [
+  "urlPresets": [
     {
       "enabled": true,
       "alias": "test",
       "pathAndParams": "lower?bg=ff2&text=f00&size=0.6&transition=5"
     }
   ],
-  "userFields": {
-    "user0": "user0",
-    "user1": "user1",
-    "user2": "user2",
-    "user3": "user3",
-    "user4": "user4",
-    "user5": "user5",
-    "user6": "user6",
-    "user7": "user7",
-    "user8": "user8",
-    "user9": "user9"
-  },
   "osc": {
     "portIn": 8888,
     "portOut": 9999,
     "targetIP": "127.0.0.1",
     "enabledIn": true,
     "enabledOut": true,
-    "subscriptions": [
-        {
-          "id": "10eea",
-          "enabled": true,
-          "cycle": "onUpdate",
-          "message": "/ontime/update/{{timer.current}}"
-        }
-      ]
-    },
+    "subscriptions": []
+  },
   "http": {
     "enabledOut": true,
     "subscriptions": []

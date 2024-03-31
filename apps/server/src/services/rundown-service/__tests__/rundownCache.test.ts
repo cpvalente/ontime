@@ -1,5 +1,7 @@
 import {
+  CustomFields,
   EndAction,
+  EventCustomFields,
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
@@ -8,11 +10,23 @@ import {
   TimeStrategy,
   TimerType,
 } from 'ontime-types';
+import { MILLIS_PER_HOUR, dayInMs, millisToString } from 'ontime-utils';
 
 import { calculateRuntimeDelays, getDelayAt, calculateRuntimeDelaysFrom } from '../delayUtils.js';
-import { add, batchEdit, edit, generate, remove, reorder, swap } from '../rundownCache.js';
+import {
+  add,
+  batchEdit,
+  edit,
+  generate,
+  remove,
+  reorder,
+  swap,
+  createCustomField,
+  editCustomField,
+  removeCustomField,
+} from '../rundownCache.js';
 
-describe('init() function', () => {
+describe('generate()', () => {
   it('creates normalised versions of a given rundown', () => {
     const testRundown: OntimeRundown = [
       { type: SupportedEvent.Event, id: '1' } as OntimeEvent,
@@ -31,15 +45,55 @@ describe('init() function', () => {
   it('calculates delays versions of a given rundown', () => {
     const testRundown: OntimeRundown = [
       { type: SupportedEvent.Delay, id: '1', duration: 100 } as OntimeDelay,
-      { type: SupportedEvent.Event, id: '2', timeStart: 1 } as OntimeEvent,
-      { type: SupportedEvent.Block, id: '3' } as OntimeBlock,
-      { type: SupportedEvent.Event, id: '4', timeStart: 2 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '2', timeStart: 1, timeEnd: 100 } as OntimeEvent,
     ];
 
     const initResult = generate(testRundown);
-    expect(initResult.order.length).toBe(4);
+    expect(initResult.order.length).toBe(2);
     expect((initResult.rundown['2'] as OntimeEvent).delay).toBe(100);
+    expect(initResult.totalDelay).toBe(100);
+  });
+
+  it('accounts for gaps in rundown when calculating delays', () => {
+    const testRundown: OntimeRundown = [
+      { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 200 } as OntimeEvent,
+      { type: SupportedEvent.Delay, id: 'delay', duration: 200 } as OntimeDelay,
+      { type: SupportedEvent.Event, id: '2', timeStart: 200, timeEnd: 300 } as OntimeEvent,
+      { type: SupportedEvent.Block, id: 'block', title: 'break' } as OntimeBlock,
+      { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500 } as OntimeEvent,
+      { type: SupportedEvent.Block, id: 'another-block', title: 'another-break' } as OntimeBlock,
+      { type: SupportedEvent.Event, id: '4', timeStart: 600, timeEnd: 700 } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.order.length).toBe(7);
+    expect((initResult.rundown['1'] as OntimeEvent).delay).toBe(0);
+    expect((initResult.rundown['2'] as OntimeEvent).delay).toBe(200);
+    expect((initResult.rundown['3'] as OntimeEvent).delay).toBe(100);
     expect((initResult.rundown['4'] as OntimeEvent).delay).toBe(0);
+    expect(initResult.totalDelay).toBe(0);
+    expect(initResult.totalDuration).toBe(700 - 100);
+  });
+
+  it('handles negative delays', () => {
+    const testRundown: OntimeRundown = [
+      { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 200 } as OntimeEvent,
+      { type: SupportedEvent.Delay, id: 'delay', duration: -200 } as OntimeDelay,
+      { type: SupportedEvent.Event, id: '2', timeStart: 200, timeEnd: 300 } as OntimeEvent,
+      { type: SupportedEvent.Block, id: 'block', title: 'break' } as OntimeBlock,
+      { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500 } as OntimeEvent,
+      { type: SupportedEvent.Block, id: 'another-block', title: 'another-break' } as OntimeBlock,
+      { type: SupportedEvent.Event, id: '4', timeStart: 600, timeEnd: 700 } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.order.length).toBe(7);
+    expect((initResult.rundown['1'] as OntimeEvent).delay).toBe(0);
+    expect((initResult.rundown['2'] as OntimeEvent).delay).toBe(-200);
+    expect((initResult.rundown['3'] as OntimeEvent).delay).toBe(-200);
+    expect((initResult.rundown['4'] as OntimeEvent).delay).toBe(-200);
+    expect(initResult.totalDelay).toBe(-200);
+    expect(initResult.totalDuration).toBe(700 - 100);
   });
 
   it('links times across events', () => {
@@ -100,6 +154,68 @@ describe('init() function', () => {
     expect((initResult.rundown['3'] as OntimeEvent).timeStart).toBe(2);
     expect(initResult.links['1']).toBe('3');
     expect(initResult.links['3']).toBe('2');
+  });
+
+  it('calculates total duration', () => {
+    const testRundown: OntimeRundown = [
+      { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 200 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '2', timeStart: 200, timeEnd: 300 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '3', timeStart: 300, timeEnd: 400 } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.order.length).toBe(3);
+    expect(initResult.totalDuration).toBe(400 - 100);
+  });
+
+  it('calculates total duration across days with gap', () => {
+    const testRundown: OntimeRundown = [
+      {
+        type: SupportedEvent.Event,
+        id: '1',
+        timeStart: new Date(0).setHours(9),
+        timeEnd: new Date(0).setHours(23),
+      } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '2',
+        timeStart: new Date(0).setHours(9),
+        timeEnd: new Date(0).setHours(23),
+      } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '3',
+        timeStart: new Date(0).setHours(9),
+        timeEnd: new Date(0).setHours(23),
+      } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    const expectedDuration = (23 - 9 + 48) * MILLIS_PER_HOUR;
+    expect(millisToString(initResult.totalDuration)).toBe('62:00:00');
+    expect(initResult.totalDuration).toBe(expectedDuration);
+  });
+
+  it('calculates total duration across days', () => {
+    const testRundown: OntimeRundown = [
+      {
+        type: SupportedEvent.Event,
+        id: '1',
+        timeStart: new Date(0).setHours(12),
+        timeEnd: new Date(0).setHours(22),
+      } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '2',
+        timeStart: new Date(0).setHours(22),
+        timeEnd: new Date(0).setHours(8),
+      } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    const expectedDuration = 8 * MILLIS_PER_HOUR + (dayInMs - 12 * MILLIS_PER_HOUR);
+    expect(millisToString(initResult.totalDuration)).toBe('20:00:00');
+    expect(initResult.totalDuration).toBe(expectedDuration);
   });
 
   it('handles updating event sequence', () => {
@@ -167,6 +283,51 @@ describe('init() function', () => {
     expect(initResult.order.length).toBe(1);
     expect((initResult.rundown['1'] as OntimeEvent).timeStart).toBe(1);
     expect(Object.keys(initResult.links).length).toBe(0);
+  });
+
+  describe('custom properties feature', () => {
+    it('creates a map of custom properties', () => {
+      const customProperties: CustomFields = {
+        lighting: {
+          label: 'lighting',
+          type: 'string',
+          colour: 'red',
+        },
+        sound: {
+          label: 'sound',
+          type: 'string',
+          colour: 'red',
+        },
+      };
+      const testRundown: OntimeRundown = [
+        {
+          type: SupportedEvent.Event,
+          id: '1',
+          custom: {
+            lighting: { value: 'event 1 lx' },
+          } as EventCustomFields,
+        } as OntimeEvent,
+        {
+          type: SupportedEvent.Event,
+          id: '2',
+          custom: {
+            lighting: { value: 'event 2 lx' },
+            sound: { value: 'event 2 sound' },
+          } as EventCustomFields,
+        } as OntimeEvent,
+      ];
+      const initResult = generate(testRundown, customProperties);
+      expect(initResult.order.length).toBe(2);
+      expect(initResult.assignedCustomProperties).toMatchObject({
+        lighting: ['1', '2'],
+        sound: ['2'],
+      });
+      expect((initResult.rundown['1'] as OntimeEvent).custom).toMatchObject({ lighting: { value: 'event 1 lx' } });
+      expect((initResult.rundown['2'] as OntimeEvent).custom).toMatchObject({
+        lighting: { value: 'event 2 lx' },
+        sound: { value: 'event 2 sound' },
+      });
+    });
   });
 });
 
@@ -299,8 +460,6 @@ describe('calculateRuntimeDelays', () => {
     const rundown: OntimeRundown = [
       {
         title: '',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
@@ -312,22 +471,13 @@ describe('calculateRuntimeDelays', () => {
         isPublic: true,
         skip: false,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         type: SupportedEvent.Event,
         revision: 0,
         timeWarning: 120000,
         timeDanger: 60000,
         id: '659e1',
         cue: '1',
+        custom: {},
       },
       {
         duration: 600000,
@@ -336,8 +486,6 @@ describe('calculateRuntimeDelays', () => {
       },
       {
         title: '',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
@@ -349,22 +497,13 @@ describe('calculateRuntimeDelays', () => {
         isPublic: true,
         skip: false,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         type: SupportedEvent.Event,
         revision: 0,
         timeWarning: 120000,
         timeDanger: 60000,
         id: '1c48f',
         cue: '2',
+        custom: {},
       },
       {
         duration: 1200000,
@@ -373,8 +512,6 @@ describe('calculateRuntimeDelays', () => {
       },
       {
         title: '',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
@@ -386,22 +523,13 @@ describe('calculateRuntimeDelays', () => {
         isPublic: true,
         skip: false,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         type: SupportedEvent.Event,
         revision: 0,
         timeWarning: 120000,
         timeDanger: 60000,
         id: 'd48c2',
         cue: '3',
+        custom: {},
       },
       {
         title: '',
@@ -410,8 +538,6 @@ describe('calculateRuntimeDelays', () => {
       },
       {
         title: '',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
@@ -423,22 +549,13 @@ describe('calculateRuntimeDelays', () => {
         isPublic: true,
         skip: false,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         type: SupportedEvent.Event,
         revision: 0,
         timeWarning: 120000,
         timeDanger: 60000,
         id: '2f185',
         cue: '4',
+        custom: {},
       },
     ];
 
@@ -456,8 +573,6 @@ describe('getDelayAt()', () => {
   const delayedRundown: OntimeRundown = [
     {
       title: '',
-      subtitle: '',
-      presenter: '',
       note: '',
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
@@ -469,16 +584,6 @@ describe('getDelayAt()', () => {
       isPublic: true,
       skip: false,
       colour: '',
-      user0: '',
-      user1: '',
-      user2: '',
-      user3: '',
-      user4: '',
-      user5: '',
-      user6: '',
-      user7: '',
-      user8: '',
-      user9: '',
       type: SupportedEvent.Event,
       revision: 0,
       timeWarning: 120000,
@@ -486,6 +591,7 @@ describe('getDelayAt()', () => {
       id: '659e1',
       delay: 0,
       cue: '1',
+      custom: {},
     },
     {
       duration: 600000,
@@ -494,8 +600,6 @@ describe('getDelayAt()', () => {
     },
     {
       title: '',
-      subtitle: '',
-      presenter: '',
       note: '',
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
@@ -507,16 +611,6 @@ describe('getDelayAt()', () => {
       isPublic: true,
       skip: false,
       colour: '',
-      user0: '',
-      user1: '',
-      user2: '',
-      user3: '',
-      user4: '',
-      user5: '',
-      user6: '',
-      user7: '',
-      user8: '',
-      user9: '',
       type: SupportedEvent.Event,
       revision: 0,
       timeWarning: 120000,
@@ -524,6 +618,7 @@ describe('getDelayAt()', () => {
       id: '1c48f',
       delay: 600000,
       cue: '2',
+      custom: {},
     },
     {
       duration: 1200000,
@@ -532,8 +627,6 @@ describe('getDelayAt()', () => {
     },
     {
       title: '',
-      subtitle: '',
-      presenter: '',
       note: '',
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
@@ -545,16 +638,6 @@ describe('getDelayAt()', () => {
       isPublic: true,
       skip: false,
       colour: '',
-      user0: '',
-      user1: '',
-      user2: '',
-      user3: '',
-      user4: '',
-      user5: '',
-      user6: '',
-      user7: '',
-      user8: '',
-      user9: '',
       type: SupportedEvent.Event,
       revision: 0,
       timeWarning: 120000,
@@ -562,6 +645,7 @@ describe('getDelayAt()', () => {
       id: 'd48c2',
       delay: 1800000,
       cue: '3',
+      custom: {},
     },
     {
       title: '',
@@ -570,8 +654,6 @@ describe('getDelayAt()', () => {
     },
     {
       title: '',
-      subtitle: '',
-      presenter: '',
       note: '',
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
@@ -583,16 +665,6 @@ describe('getDelayAt()', () => {
       isPublic: true,
       skip: false,
       colour: '',
-      user0: '',
-      user1: '',
-      user2: '',
-      user3: '',
-      user4: '',
-      user5: '',
-      user6: '',
-      user7: '',
-      user8: '',
-      user9: '',
       type: SupportedEvent.Event,
       revision: 0,
       timeWarning: 120000,
@@ -600,6 +672,7 @@ describe('getDelayAt()', () => {
       id: '2f185',
       delay: 0,
       cue: '4',
+      custom: {},
     },
   ];
 
@@ -634,8 +707,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
     const delayedRundown: OntimeRundown = [
       {
         title: '',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
@@ -647,16 +718,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
         isPublic: true,
         skip: false,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         type: SupportedEvent.Event,
         revision: 0,
         timeWarning: 120000,
@@ -664,6 +725,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         id: '659e1',
         delay: 0,
         cue: '1',
+        custom: {},
       },
       {
         duration: 600000,
@@ -672,8 +734,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
       },
       {
         title: '',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
@@ -685,16 +745,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
         isPublic: true,
         skip: false,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         type: SupportedEvent.Event,
         revision: 0,
         timeWarning: 120000,
@@ -702,6 +752,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         id: '1c48f',
         delay: 0,
         cue: '2',
+        custom: {},
       },
       {
         duration: 1200000,
@@ -710,8 +761,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
       },
       {
         title: '',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
@@ -723,16 +772,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
         isPublic: true,
         skip: false,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         type: SupportedEvent.Event,
         revision: 0,
         timeWarning: 120000,
@@ -740,6 +779,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         id: 'd48c2',
         delay: 1800000,
         cue: '3',
+        custom: {},
       },
       {
         title: '',
@@ -748,8 +788,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
       },
       {
         title: '',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
@@ -761,16 +799,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
         isPublic: true,
         skip: false,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         type: SupportedEvent.Event,
         revision: 0,
         timeWarning: 120000,
@@ -778,6 +806,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         id: '2f185',
         delay: 0,
         cue: '4',
+        custom: {},
       },
     ];
 
@@ -787,5 +816,78 @@ describe('calculateRuntimeDelaysFrom()', () => {
     expect((updatedRundown[0] as OntimeEvent).delay).toBe(0);
     // 1 + 3
     expect((updatedRundown[4] as OntimeEvent).delay).toBe(600000 + 1200000);
+  });
+});
+
+describe('custom fields', () => {
+  describe('createCustomField()', () => {
+    beforeEach(() => {
+      vi.mock('../../classes/data-provider/DataProvider.js', () => {
+        return {
+          DataProvider: {
+            ...vi.fn().mockImplementation(() => {
+              return {};
+            }),
+            getCustomFields: vi.fn().mockReturnValue({}),
+            setCustomFields: vi.fn().mockImplementation((newData) => {
+              return newData;
+            }),
+            persist: vi.fn().mockReturnValue({}),
+          },
+        };
+      });
+    });
+
+    it('creates a field from given parameters', async () => {
+      const expected = {
+        lighting: {
+          label: 'Lighting',
+          type: 'string',
+          colour: 'blue',
+        },
+      };
+
+      const customField = await createCustomField({ label: 'Lighting', type: 'string', colour: 'blue' });
+      expect(customField).toStrictEqual(expected);
+    });
+  });
+
+  describe('editCustomField()', () => {
+    it('edits a field with a given label', async () => {
+      await createCustomField({ label: 'Sound', type: 'string', colour: 'blue' });
+
+      const expected = {
+        lighting: {
+          label: 'Lighting',
+          type: 'string',
+          colour: 'blue',
+        },
+        sound: {
+          label: 'Sound',
+          type: 'string',
+          colour: 'green',
+        },
+      };
+
+      const customField = await editCustomField('sound', { label: 'Sound', type: 'string', colour: 'green' });
+
+      expect(customField).toStrictEqual(expected);
+    });
+  });
+
+  describe('removeCustomField()', () => {
+    it('deletes a field with a given label', async () => {
+      const expected = {
+        lighting: {
+          label: 'Lighting',
+          type: 'string',
+          colour: 'blue',
+        },
+      };
+
+      const customField = await removeCustomField('sound');
+
+      expect(customField).toStrictEqual(expected);
+    });
   });
 });

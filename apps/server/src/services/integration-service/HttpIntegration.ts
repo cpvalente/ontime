@@ -34,7 +34,7 @@ export class HttpIntegration implements IIntegration<HttpSubscription> {
 
   dispatch(action: TimerLifeCycleKey, state?: object) {
     // noop
-    if (!this.enabled || !action) {
+    if (!this.enabled) {
       return;
     }
 
@@ -45,22 +45,19 @@ export class HttpIntegration implements IIntegration<HttpSubscription> {
       }
 
       const parsedMessage = parseTemplateNested(message, state || {});
-      try {
-        const parsedUrl = new URL(parsedMessage);
-        this.emit(parsedUrl);
-      } catch (error) {
-        logger.error(LogOrigin.Tx, `HTTP Integration: ${error}`);
-      }
+      this.emit(parsedMessage);
     }
   }
 
-  async emit(path: URL) {
-    await got.get(path, {
-      retry: { limit: 0 },
+  emit(path: string) {
+    got.get(path, { retry: { limit: 0 } }).catch((err) => {
+      logger.error(LogOrigin.Tx, `HTTP Integration: ${err.code}`);
     });
   }
 
-  shutdown() {}
+  shutdown() {
+    /** shutdown is a no-op here*/
+  }
 }
 
 export const httpIntegration = new HttpIntegration();

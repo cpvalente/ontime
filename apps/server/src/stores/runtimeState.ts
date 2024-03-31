@@ -1,11 +1,12 @@
-import { Runtime, OntimeEvent, Playback, TimerState, TimerType, MaybeNumber } from 'ontime-types';
-import { calculateDuration, dayInMs, getFirstEvent, getLastEvent } from 'ontime-utils';
+import { MaybeNumber, OntimeEvent, Playback, Runtime, TimerState, TimerType } from 'ontime-types';
+import { calculateDuration, dayInMs } from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
 import { RestorePoint } from '../services/RestoreService.js';
-import { getPlayableEvents } from '../services/rundown-service/RundownService.js';
+
 import {
   getCurrent,
+  getExpectedEnd,
   getExpectedFinish,
   getRollTimers,
   getRuntimeOffset,
@@ -17,7 +18,7 @@ import { timerConfig } from '../config/config.js';
 const initialRuntime: Runtime = {
   selectedEventIndex: null,
   numEvents: 0,
-  offset: 0,
+  offset: null,
   plannedStart: 0,
   plannedEnd: 0,
   actualStart: null,
@@ -46,9 +47,8 @@ export type RuntimeState = {
   timer: TimerState;
   // private properties of the timer calculations
   _timer: {
+    totalDelay: number; // this value comes from rundown service
     pausedAt: MaybeNumber;
-    finishedNow: boolean;
-    lastUpdate: MaybeNumber;
     secondaryTarget: MaybeNumber;
   };
 };
@@ -62,12 +62,9 @@ const runtimeState: RuntimeState = {
   runtime: initialRuntime,
   timer: { ...initialTimer },
   _timer: {
+    totalDelay: 0,
     pausedAt: null,
-    lastUpdate: null,
     secondaryTarget: null,
-    get finishedNow() {
-      return this.current <= 0 && this.finishedAt === null;
-    },
   },
 };
 
@@ -81,19 +78,20 @@ export function clear() {
   runtimeState.eventNext = null;
   runtimeState.publicEventNext = null;
 
-  runtimeState.runtime = { ...initialRuntime, actualStart: runtimeState.runtime.actualStart };
-  // TODO: can we cleanup the initialisation of runtime state?
-  runtimeState.runtime.numEvents = fetchNumEvents();
+  runtimeState.runtime = {
+    ...initialRuntime,
+    // persist session stuff
+    actualStart: runtimeState.runtime.actualStart,
+    numEvents: runtimeState.runtime.numEvents,
+  };
 
   runtimeState.timer.playback = Playback.Stop;
   runtimeState.clock = clock.timeNow();
   runtimeState.timer = { ...initialTimer };
-  runtimeState._timer = {
-    pausedAt: null,
-    lastUpdate: null,
-    secondaryTarget: null,
-    finishedNow: false,
-  };
+
+  // we maintain the total delay
+  runtimeState._timer.pausedAt = null;
+  runtimeState._timer.secondaryTarget = null;
 }
 
 /**
@@ -108,27 +106,25 @@ function patchTimer(newState: Partial<TimerState>) {
   }
 }
 
-/**
- * Utility, getches number of events from EventLoader
- * @param numEvents
- */
-function fetchNumEvents(): number {
-  // TODO: could we avoid having this dependency?
-  return getPlayableEvents().length;
-}
+type RundownData = {
+  numEvents: number;
+  firstStart: MaybeNumber;
+  lastEnd: MaybeNumber;
+  totalDelay: number;
+  totalDuration: number;
+};
 
 /**
  * Utility, allows updating data derived from the rundown
- * @param numEvents
+ * @param playableRundown
  */
-export function updateRundownData(playableRundown: OntimeEvent[]) {
-  runtimeState.runtime.numEvents = playableRundown.length;
+export function updateRundownData(rundownData: RundownData) {
+  runtimeState._timer.totalDelay = rundownData.totalDelay;
 
-  const { firstEvent } = getFirstEvent(playableRundown);
-  const { lastEvent } = getLastEvent(playableRundown);
-
-  runtimeState.runtime.plannedStart = firstEvent?.timeStart ?? null;
-  runtimeState.runtime.plannedEnd = lastEvent?.timeEnd ?? null;
+  runtimeState.runtime.numEvents = rundownData.numEvents;
+  runtimeState.runtime.plannedStart = rundownData.firstStart;
+  runtimeState.runtime.plannedEnd = rundownData.firstStart + rundownData.totalDuration;
+  runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
 }
 
 /**
@@ -137,15 +133,16 @@ export function updateRundownData(playableRundown: OntimeEvent[]) {
  * @param rundown
  * @param initialData
  */
-export function load(event: OntimeEvent, rundown: OntimeEvent[], initialData?: Partial<TimerState & RestorePoint>) {
+export function load(
+  event: OntimeEvent,
+  rundown: OntimeEvent[],
+  initialData?: Partial<TimerState & RestorePoint>,
+): boolean {
   clear();
-
-  updateRundownData(rundown);
 
   const eventIndex = rundown.findIndex((eventInMemory) => eventInMemory.id === event.id);
 
   runtimeState.runtime.selectedEventIndex = eventIndex;
-  runtimeState.runtime.numEvents = rundown.length;
 
   loadNow(event, rundown);
   loadNext(rundown);
@@ -162,9 +159,11 @@ export function load(event: OntimeEvent, rundown: OntimeEvent[], initialData?: P
     if (firstStart === null || typeof firstStart === 'number') {
       runtimeState.runtime.actualStart = firstStart;
       runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
-      runtimeState.runtime.expectedEnd = runtimeState.runtime.plannedEnd + runtimeState.runtime.offset;
+      runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
     }
   }
+
+  return event.id === runtimeState.eventNow?.id;
 }
 
 export function loadNow(event: OntimeEvent, playableEvents: OntimeEvent[]) {
@@ -258,6 +257,18 @@ export function reload(event?: OntimeEvent) {
   runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
 }
 
+/**
+ * Used in situations when we want to reload all events
+ * without interrupting timer
+ * @param eventNow
+ * @param playableEvents
+ */
+export function reloadAll(eventNow: OntimeEvent, playableEvents: OntimeEvent[]) {
+  loadNow(eventNow, playableEvents);
+  loadNext(playableEvents);
+  reload(eventNow);
+}
+
 export function start(state: RuntimeState = runtimeState): boolean {
   if (state.eventNow === null) {
     return false;
@@ -310,8 +321,10 @@ export function stop(state: RuntimeState = runtimeState): boolean {
   if (state.timer.playback === Playback.Stop) {
     return false;
   }
-  runtimeState.runtime.actualStart = null;
+
   clear();
+  runtimeState.runtime.actualStart = null;
+  runtimeState.runtime.expectedEnd = null;
   return true;
 }
 
@@ -338,65 +351,48 @@ export function addTime(amount: number) {
 
   // update runtime delays: over - under
   runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
-  runtimeState.runtime.expectedEnd = runtimeState.runtime.plannedEnd + runtimeState.runtime.offset;
+  runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
+
   return true;
 }
 
-export function update(force: boolean, updateInterval: number) {
-  // TODO: should this logic be moved to consumer?
-  // force indicates whether the state change should be broadcast to socket
-  let _force = force;
-  let _didUpdate = false;
-  let _doRoll = false;
-  let _isFinished = false;
-  let _shouldNotify = false;
+export type UpdateResult = {
+  hasTimerFinished: boolean;
+  shouldCallRoll: boolean;
+};
+
+export function update(): UpdateResult {
+  let hasTimerFinished = false;
+  let shouldCallRoll = false; // we also need to call roll if a secondary timer has finished
 
   const previousTime = runtimeState.clock;
   runtimeState.clock = clock.timeNow();
-  const hasSkippedBack = previousTime > runtimeState.clock;
-
-  if (hasSkippedBack) {
-    _force = true;
-  }
-
-  // update offset
-  runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
 
   // we call integrations if we update timers
   if (runtimeState.timer.playback === Playback.Roll) {
-    const result = roll();
-    _shouldNotify = true;
-    _doRoll = result.doRoll;
-    _isFinished = result.isFinished;
+    const result = onRollUpdate();
+    shouldCallRoll = result.doRoll;
+    hasTimerFinished = result.isFinished;
   } else if (runtimeState.timer.startedAt !== null) {
     // we only update timer if a timer has been started
-    const result = play();
-    _shouldNotify = true;
-    _isFinished = result.isFinished;
+    const result = onPlayUpdate();
+    hasTimerFinished = result.isFinished;
   } else if (runtimeState.eventNow?.timerType === TimerType.TimeToEnd) {
     // or if we are in a time-to-end timer
     runtimeState.timer.current = getCurrent(runtimeState);
     runtimeState.timer.duration = runtimeState.timer.current;
   }
 
-  // we only update the store at the updateInterval
-  // side effects such as onFinish will still be triggered in the update functions
-  const isTimeToUpdate = runtimeState.clock > runtimeState._timer.lastUpdate + updateInterval;
-  if (_force || isTimeToUpdate) {
-    runtimeState._timer.lastUpdate = runtimeState.clock;
-    // TODO: can we simplify the didUpdate and shouldNotify
-    _didUpdate = true;
-  }
+  // update offset
+  runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
 
   return {
-    didUpdate: _didUpdate,
-    doRoll: _doRoll,
-    isFinished: _isFinished,
-    shouldNotify: _shouldNotify,
+    hasTimerFinished,
+    shouldCallRoll,
   };
 
-  function roll() {
-    const hasSkippedOutOfEvent = skippedOutOfEvent(runtimeState, previousTime, timerConfig.timeSkipLimit);
+  function onRollUpdate() {
+    const hasSkippedOutOfEvent = skippedOutOfEvent(runtimeState, previousTime, timerConfig.skipLimit);
     if (hasSkippedOutOfEvent) {
       return { doRoll: true };
     }
@@ -408,11 +404,13 @@ export function update(force: boolean, updateInterval: number) {
     return { doRoll: doRollLoad, isFinished };
   }
 
-  function play() {
+  function onPlayUpdate() {
     let isFinished = false;
     runtimeState.timer.current = getCurrent(runtimeState);
+    const finishedNow =
+      runtimeState.timer.current <= timerConfig.triggerAhead && runtimeState.timer.finishedAt === null;
 
-    if (runtimeState.timer.playback === Playback.Play && runtimeState._timer.finishedNow) {
+    if (runtimeState.timer.playback === Playback.Play && finishedNow) {
       runtimeState.timer.finishedAt = runtimeState.clock;
       isFinished = true;
     } else {

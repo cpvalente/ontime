@@ -1,7 +1,15 @@
 import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { isOntimeBlock, isOntimeDelay, isOntimeEvent, Playback, RundownCached, SupportedEvent } from 'ontime-types';
+import {
+  isOntimeBlock,
+  isOntimeDelay,
+  isOntimeEvent,
+  MaybeNumber,
+  Playback,
+  RundownCached,
+  SupportedEvent,
+} from 'ontime-types';
 import { getFirstNormal, getNextNormal, getPreviousNormal } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
@@ -30,15 +38,14 @@ export default function Rundown({ data }: RundownProps) {
   const { addEvent, reorderEvent } = useEventAction();
   const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
-  const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
+  const linkPrevious = eventSettings.linkPrevious;
   const showQuickEntry = eventSettings.showQuickEntry;
 
   // cursor
   const { cursor, mode: appMode, setCursor } = useAppMode();
-  const viewFollowsCursor = appMode === AppMode.Run;
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: true });
+  useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: appMode === AppMode.Run });
 
   // DND KIT
   const sensors = useSensors(useSensor(PointerSensor));
@@ -66,17 +73,17 @@ export default function Rundown({ data }: RundownProps) {
           type: SupportedEvent.Event,
         };
         const options = {
-          defaultPublic,
-          startTimeIsLastEnd,
-          lastEventId: cursor,
           after: cursor,
+          defaultPublic,
+          lastEventId: cursor,
+          linkPrevious,
         };
         addEvent(newEvent, options);
       } else {
         addEvent({ type }, { after: cursor });
       }
     },
-    [addEvent, rundown, defaultPublic, startTimeIsLastEnd],
+    [addEvent, rundown, defaultPublic, linkPrevious],
   );
 
   // Handle keyboard shortcuts
@@ -175,11 +182,11 @@ export default function Rundown({ data }: RundownProps) {
 
   useEffect(() => {
     // in run mode, we follow selection
-    if (!viewFollowsCursor || !featureData?.selectedEventId) {
+    if (appMode !== AppMode.Run || !featureData?.selectedEventId) {
       return;
     }
-    // moveCursorTo(featureData.selectedEventId);
-  }, [featureData?.selectedEventId, viewFollowsCursor]);
+    setCursor(featureData.selectedEventId);
+  }, [appMode, featureData.selectedEventId, setCursor]);
 
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -201,10 +208,15 @@ export default function Rundown({ data }: RundownProps) {
     return <RundownEmpty handleAddNew={() => insertAtCursor(SupportedEvent.Event, null)} />;
   }
 
-  let previousEnd: null | number = null;
-  let thisEnd = 0;
+  let previousStart: MaybeNumber = null;
+  let previousEnd: MaybeNumber = null;
   let previousEventId: string | undefined;
+  let thisStart: MaybeNumber = null;
+  let thisEnd: MaybeNumber = null;
+  let thisId = previousEventId;
+
   let eventIndex = 0;
+  // all events before the current selected are in the past
   let isPast = Boolean(featureData?.selectedEventId);
 
   return (
@@ -223,16 +235,18 @@ export default function Rundown({ data }: RundownProps) {
               if (index === 0) {
                 eventIndex = 0;
               }
-              let isFirstEvent = false;
               if (isOntimeEvent(event)) {
-                isFirstEvent = eventIndex === 0;
                 // event indexes are 1 based in frontend
                 eventIndex++;
-                if (!isFirstEvent) {
-                  previousEnd = thisEnd;
+                previousStart = thisStart;
+                previousEnd = thisEnd;
+                previousEventId = thisId;
+
+                if (!event.skip) {
+                  thisStart = event.timeStart;
+                  thisEnd = event.timeEnd;
+                  thisId = eventId;
                 }
-                thisEnd = event.timeEnd;
-                previousEventId = event.id;
               }
               const isLast = index === order.length - 1;
               const isLoaded = featureData?.selectedEventId === event.id;
@@ -254,7 +268,8 @@ export default function Rundown({ data }: RundownProps) {
                         data={event}
                         loaded={isLoaded}
                         hasCursor={hasCursor}
-                        next={isNext}
+                        isNext={isNext}
+                        previousStart={previousStart}
                         previousEnd={previousEnd}
                         previousEventId={previousEventId}
                         playback={isLoaded ? featureData.playback : undefined}
@@ -265,8 +280,7 @@ export default function Rundown({ data }: RundownProps) {
                   {((showQuickEntry && hasCursor) || isLast) && (
                     <QuickAddBlock
                       showKbd={hasCursor}
-                      eventId={event.id}
-                      previousEventId={previousEventId}
+                      previousEventId={event.id}
                       disableAddDelay={isOntimeDelay(event)}
                       disableAddBlock={isOntimeBlock(event)}
                     />

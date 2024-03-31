@@ -1,6 +1,15 @@
-import { UserFields } from 'ontime-types';
+import { CustomFields } from 'ontime-types';
+
+import { capitaliseFirstLetter } from '../../../features/viewers/common/viewUtils';
 
 import { ParamField } from './types';
+
+const makeOptionsFromCustomFields = (customFields: CustomFields, additionalOptions?: Record<string, string>) => {
+  const customFieldOptions = Object.keys(customFields).reduce((acc, key) => {
+    return { ...acc, [`custom-${key}`]: `Custom: ${capitaliseFirstLetter(key)}` };
+  }, additionalOptions ?? {});
+  return customFieldOptions;
+};
 
 const getTimeOption = (timeFormat: string): ParamField => {
   const placeholder = `${timeFormat} (default)`;
@@ -93,45 +102,56 @@ export const getClockOptions = (timeFormat: string): ParamField[] => [
   },
 ];
 
-export const getTimerOptions = (timeFormat: string): ParamField[] => [
-  getTimeOption(timeFormat),
-  hideTimerSeconds,
-  {
-    id: 'hideClock',
-    title: 'Hide Time Now',
-    description: 'Hides the Time Now field',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'hideCards',
-    title: 'Hide Cards',
-    description: 'Hides the Now and Next cards',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'hideProgress',
-    title: 'Hide progress bar',
-    description: 'Hides the progress bar',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'hideMessage',
-    title: 'Hide Presenter Message',
-    description: 'Prevents the screen from displaying messages from the presenter',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'hideExternal',
-    title: 'Hide External',
-    description: 'Prevents the screen from displaying the external field',
-    type: 'boolean',
-    defaultValue: false,
-  },
-];
+export const getTimerOptions = (timeFormat: string, customFields: CustomFields): ParamField[] => {
+  const secondaryOptions = makeOptionsFromCustomFields(customFields);
+  return [
+    getTimeOption(timeFormat),
+    hideTimerSeconds,
+    {
+      id: 'hideClock',
+      title: 'Hide Time Now',
+      description: 'Hides the Time Now field',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      id: 'secondary-src',
+      title: 'Secondary text',
+      description: 'Select the data source for the secondary text',
+      type: 'option',
+      values: secondaryOptions,
+      defaultValue: '',
+    },
+    {
+      id: 'hideCards',
+      title: 'Hide Cards',
+      description: 'Hides the Now and Next cards',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      id: 'hideProgress',
+      title: 'Hide progress bar',
+      description: 'Hides the progress bar',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      id: 'hideMessage',
+      title: 'Hide Presenter Message',
+      description: 'Prevents the screen from displaying messages from the presenter',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      id: 'hideExternal',
+      title: 'Hide External',
+      description: 'Prevents the screen from displaying the external field',
+      type: 'boolean',
+      defaultValue: false,
+    },
+  ];
+};
 
 export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
   hideTimerSeconds,
@@ -226,185 +246,218 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
   },
 ];
 
-export const LOWER_THIRD_OPTIONS: ParamField[] = [
-  {
-    id: 'trigger',
-    title: 'Animation Trigger',
-    description: '',
-    type: 'option',
-    values: {
-      event: 'Event Load',
-      manual: 'Manual',
-    },
-    defaultValue: 'event',
-  },
-  {
-    id: 'top-src',
-    title: 'Top Text',
-    description: '',
-    type: 'option',
-    values: {
-      title: 'Title',
-      subtitle: 'Subtitle',
-      presenter: 'Presenter',
-      lowerMsg: 'Lower Thrid Message',
-    },
-    defaultValue: 'title',
-  },
-  {
-    id: 'bottom-src',
-    title: 'Bottom Text',
-    description: 'Select the text source for the bottom element',
-    type: 'option',
-    values: {
-      title: 'Title',
-      subtitle: 'Subtitle',
-      presenter: 'Presenter',
-      lowerMsg: 'Lower Thrid Message',
-    },
-    defaultValue: 'subtitle',
-  },
-  {
-    id: 'top-colour',
-    title: 'Top Text Colour',
-    description: 'Top text colour in hexadecimal',
-    prefix: '#',
-    type: 'string',
-    placeholder: '0000ff (default)',
-  },
-  {
-    id: 'bottom-colour',
-    title: 'Bottom Text Colour',
-    description: 'Bottom text colour in hexadecimal',
-    prefix: '#',
-    type: 'string',
-    placeholder: '0000ff (default)',
-  },
-  {
-    id: 'top-bg',
-    title: 'Top Background Colour',
-    description: 'Top text background colour in hexadecimal',
-    prefix: '#',
-    type: 'string',
-    placeholder: '00000000 (default)',
-  },
-  {
-    id: 'bottom-bg',
-    title: 'Bottom Background Colour',
-    description: 'Bottom text background colour in hexadecimal',
-    prefix: '#',
-    type: 'string',
-    placeholder: '00000000 (default)',
-  },
-  {
-    id: 'top-size',
-    title: 'Top Text Size',
-    description: 'Font size of the top text',
-    type: 'string',
-    placeholder: '65px',
-  },
-  {
-    id: 'bottom-size',
-    title: 'Bottom Text Size',
-    description: 'Font size of the bottom text',
-    type: 'string',
-    placeholder: '64px',
-  },
-  {
-    id: 'width',
-    title: 'Minimum Width',
-    description: 'Minimum Width of the element',
-    type: 'number',
-    prefix: '%',
-    placeholder: '45 (default)',
-  },
-  {
-    id: 'transition',
-    title: 'Transition',
-    description: 'Transition in time in seconds (default 3)',
-    type: 'number',
-    placeholder: '3 (default)',
-  },
-  {
-    id: 'delay',
-    title: 'Delay',
-    description: 'Delay between transition in and out in seconds (default 3)',
-    type: 'number',
-    placeholder: '3 (default)',
-  },
-  {
-    id: 'key',
-    title: 'Key Colour',
-    description: 'Colour of the background',
-    prefix: '#',
-    type: 'string',
-    placeholder: 'ffffffff (default)',
-  },
-  {
-    id: 'line-colour',
-    title: 'Line Colour',
-    description: 'Colour of the line',
-    prefix: '#',
-    type: 'string',
-    placeholder: 'ff0000ff (default)',
-  },
-];
+export const getLowerThirdOptions = (customFields: CustomFields): ParamField[] => {
+  const topSourceOptions = makeOptionsFromCustomFields(customFields, {
+    title: 'Title',
+    lowerMsg: 'Lower Third Message',
+  });
 
-export const getBackstageOptions = (timeFormat: string): ParamField[] => [
-  getTimeOption(timeFormat),
-  {
-    id: 'hidePast',
-    title: 'Hide past events',
-    description: 'Scheduler will only show upcoming events',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'stopCycle',
-    title: 'Stop cycling through event pages',
-    description: 'Schedule will not auto-cycle through events',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'eventsPerPage',
-    title: 'Events per page',
-    description: 'Sets the number of events on the page, can cause overlow',
-    type: 'number',
-    placeholder: '7 (default)',
-  },
-];
+  const bottomSourceOptions = makeOptionsFromCustomFields(customFields, {
+    title: 'Title',
+    lowerMsg: 'Lower Third Message',
+  });
 
-export const getPublicOptions = (timeFormat: string): ParamField[] => [
-  getTimeOption(timeFormat),
-  {
-    id: 'hidePast',
-    title: 'Hide past events',
-    description: 'Scheduler will only show upcoming events',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'stopCycle',
-    title: 'Stop cycling through event pages',
-    description: 'Schedule will not auto-cycle through events',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'eventsPerPage',
-    title: 'Events per page',
-    description: 'Sets the number of events on the page, can cause overlow',
-    type: 'number',
-    placeholder: '7 (default)',
-  },
-];
+  return [
+    {
+      id: 'trigger',
+      title: 'Animation Trigger',
+      description: '',
+      type: 'option',
+      values: {
+        event: 'Event Load',
+        manual: 'Manual',
+      },
+      defaultValue: 'event',
+    },
+    {
+      id: 'top-src',
+      title: 'Top Text',
+      description: '',
+      type: 'option',
+      values: topSourceOptions,
+      defaultValue: 'title',
+    },
+    {
+      id: 'bottom-src',
+      title: 'Bottom Text',
+      description: 'Select the data source for the bottom element',
+      type: 'option',
+      values: bottomSourceOptions,
+      defaultValue: 'lowerMsg',
+    },
+    {
+      id: 'top-colour',
+      title: 'Top Text Colour',
+      description: 'Top text colour in hexadecimal',
+      prefix: '#',
+      type: 'string',
+      placeholder: '0000ff (default)',
+    },
+    {
+      id: 'bottom-colour',
+      title: 'Bottom Text Colour',
+      description: 'Bottom text colour in hexadecimal',
+      prefix: '#',
+      type: 'string',
+      placeholder: '0000ff (default)',
+    },
+    {
+      id: 'top-bg',
+      title: 'Top Background Colour',
+      description: 'Top text background colour in hexadecimal',
+      prefix: '#',
+      type: 'string',
+      placeholder: '00000000 (default)',
+    },
+    {
+      id: 'bottom-bg',
+      title: 'Bottom Background Colour',
+      description: 'Bottom text background colour in hexadecimal',
+      prefix: '#',
+      type: 'string',
+      placeholder: '00000000 (default)',
+    },
+    {
+      id: 'top-size',
+      title: 'Top Text Size',
+      description: 'Font size of the top text',
+      type: 'string',
+      placeholder: '65px',
+    },
+    {
+      id: 'bottom-size',
+      title: 'Bottom Text Size',
+      description: 'Font size of the bottom text',
+      type: 'string',
+      placeholder: '64px',
+    },
+    {
+      id: 'width',
+      title: 'Minimum Width',
+      description: 'Minimum Width of the element',
+      type: 'number',
+      prefix: '%',
+      placeholder: '45 (default)',
+    },
+    {
+      id: 'transition',
+      title: 'Transition',
+      description: 'Transition in time in seconds (default 3)',
+      type: 'number',
+      placeholder: '3 (default)',
+    },
+    {
+      id: 'delay',
+      title: 'Delay',
+      description: 'Delay between transition in and out in seconds (default 3)',
+      type: 'number',
+      placeholder: '3 (default)',
+    },
+    {
+      id: 'key',
+      title: 'Key Colour',
+      description: 'Colour of the background',
+      prefix: '#',
+      type: 'string',
+      placeholder: 'ffffffff (default)',
+    },
+    {
+      id: 'line-colour',
+      title: 'Line Colour',
+      description: 'Colour of the line',
+      prefix: '#',
+      type: 'string',
+      placeholder: 'ff0000ff (default)',
+    },
+  ];
+};
+
+export const getBackstageOptions = (timeFormat: string, customFields: CustomFields): ParamField[] => {
+  const secondaryOptions = makeOptionsFromCustomFields(customFields, { note: 'Note' });
+
+  return [
+    getTimeOption(timeFormat),
+    {
+      id: 'hidePast',
+      title: 'Hide past events',
+      description: 'Scheduler will only show upcoming events',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      id: 'stopCycle',
+      title: 'Stop cycling through event pages',
+      description: 'Schedule will not auto-cycle through events',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      id: 'eventsPerPage',
+      title: 'Events per page',
+      description: 'Sets the number of events on the page, can cause overlow',
+      type: 'number',
+      placeholder: '7 (default)',
+    },
+    {
+      id: 'secondary-src',
+      title: 'Event secondary text',
+      description: 'Select the data source for auxiliary text shown in now and next cards',
+      type: 'option',
+      values: secondaryOptions,
+      defaultValue: '',
+    },
+  ];
+};
+
+export const getPublicOptions = (timeFormat: string, customFields: CustomFields): ParamField[] => {
+  const secondaryOptions = makeOptionsFromCustomFields(customFields);
+
+  return [
+    getTimeOption(timeFormat),
+    {
+      id: 'hidePast',
+      title: 'Hide past events',
+      description: 'Scheduler will only show upcoming events',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      id: 'stopCycle',
+      title: 'Stop cycling through event pages',
+      description: 'Schedule will not auto-cycle through events',
+      type: 'boolean',
+      defaultValue: false,
+    },
+    {
+      id: 'eventsPerPage',
+      title: 'Events per page',
+      description: 'Sets the number of events on the page, can cause overlow',
+      type: 'number',
+      placeholder: '7 (default)',
+    },
+    {
+      id: 'secondary-src',
+      title: 'Event secondary text',
+      description: 'Select the data source for auxiliary text shown in now and next cards',
+      type: 'option',
+      values: secondaryOptions,
+      defaultValue: '',
+    },
+  ];
+};
+
 export const getStudioClockOptions = (timeFormat: string): ParamField[] => [
   getTimeOption(timeFormat),
   hideTimerSeconds,
 ];
 
-export const getOperatorOptions = (userFields: UserFields, timeFormat: string): ParamField[] => {
+export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ParamField[] => {
+  const fieldOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
+
+  const customFieldSelect = Object.keys(customFields).reduce((acc, key) => {
+    return { ...acc, [key]: `Custom: ${capitaliseFirstLetter(key)}` };
+  }, {});
+
   return [
     getTimeOption(timeFormat),
     {
@@ -419,45 +472,29 @@ export const getOperatorOptions = (userFields: UserFields, timeFormat: string): 
       title: 'Main data field',
       description: 'Field to be shown in the first line of text',
       type: 'option',
-      values: {
-        title: 'Title',
-        subtitle: 'Subtitle',
-        presenter: 'Presenter',
-      },
+      values: fieldOptions,
+      defaultValue: 'title',
     },
     {
       id: 'secondary',
       title: 'Secondary data field',
       description: 'Field to be shown in the second line of text',
       type: 'option',
-      values: {
-        title: 'Title',
-        subtitle: 'Subtitle',
-        presenter: 'Presenter',
-      },
+      values: fieldOptions,
+      defaultValue: '',
     },
     {
       id: 'subscribe',
       title: 'Highlight Field',
-      description: 'Choose a field to highlight',
+      description: 'Choose a custom field to highlight',
       type: 'option',
-      values: {
-        user0: userFields.user0 || 'user0',
-        user1: userFields.user1 || 'user1',
-        user2: userFields.user2 || 'user2',
-        user3: userFields.user3 || 'user3',
-        user4: userFields.user4 || 'user4',
-        user5: userFields.user5 || 'user5',
-        user6: userFields.user6 || 'user6',
-        user7: userFields.user7 || 'user7',
-        user8: userFields.user8 || 'user8',
-        user9: userFields.user9 || 'user9',
-      },
+      values: customFieldSelect,
+      defaultValue: '',
     },
     {
       id: 'shouldEdit',
-      title: 'Edit user field',
-      description: 'Allows editing an events user field by long pressing on it. Needs a selected highlighted field',
+      title: 'Edit custom field',
+      description: 'Allows editing an events selected custom field by long pressing.',
       type: 'boolean',
       defaultValue: false,
     },

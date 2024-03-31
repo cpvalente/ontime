@@ -22,7 +22,7 @@ interface OperatorEventProps {
   delay?: number;
   isSelected: boolean;
   subscribed?: string;
-  subscribedAlias: string;
+  subscribeLabel: string;
   isPast: boolean;
   selectedRef?: RefObject<HTMLDivElement>;
   onLongPress: (event: EditEvent) => void;
@@ -47,7 +47,7 @@ function OperatorEvent(props: OperatorEventProps) {
     delay,
     isSelected,
     subscribed,
-    subscribedAlias,
+    subscribeLabel: subscribedAlias,
     isPast,
     selectedRef,
     onLongPress,

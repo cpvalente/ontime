@@ -3,6 +3,7 @@ export enum TimerLifeCycle {
   onStart = 'onStart',
   onPause = 'onPause',
   onStop = 'onStop',
+  onClock = 'onClock',
   onUpdate = 'onUpdate',
   onFinish = 'onFinish',
 }

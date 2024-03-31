@@ -1,76 +1,100 @@
-import { Alert, AlertDescription, AlertIcon, IconButton } from '@chakra-ui/react';
-import { IoPencil } from '@react-icons/all-files/io5/IoPencil';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { useState } from 'react';
+import { Alert, AlertDescription, AlertIcon, Button } from '@chakra-ui/react';
+import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
+import { CustomField, CustomFieldLabel } from 'ontime-types';
 
+import { deleteCustomField, editCustomField, postCustomField } from '../../../../common/api/customFields';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
+import useCustomFields from '../../../../common/hooks-query/useCustomFields';
 import * as Panel from '../PanelUtils';
 
-import style from './ProjectSettingsPanel.module.scss';
+import CustomFieldEntry from './CustomFieldEntry';
+import CustomFieldForm from './CustomFieldForm';
 
-const demoCustomFields = {
-  Apple: { value: 'Fruit' },
-  Dog: { value: 'Animal' },
-  Sun: { value: 'Star' },
-  Car: { value: 'Vehicle' },
-  Tree: { value: 'Plant' },
-  Bird: { value: 'Creature' },
-  Book: { value: 'Reading' },
-  Chair: { value: 'Furniture' },
-  Music: { value: 'Melody' },
-  Ocean: { value: 'Sea' },
-};
-
-const userFieldsDocsUrl = 'https://ontime.gitbook.io/v2/features/user-fields';
+const customFieldsDocsUrl = 'https://docs.getontime.no/features/custom-fields/';
 
 export default function ProjectSettingsPanel() {
+  const { data, refetch } = useCustomFields();
+  const [isAdding, setIsAdding] = useState(false);
+
+  const handleInitiateCreate = () => {
+    setIsAdding(true);
+  };
+
+  const handleCancel = () => {
+    setIsAdding(false);
+  };
+
+  const handleCreate = async (customField: CustomField) => {
+    await postCustomField(customField);
+    refetch();
+    setIsAdding(false);
+  };
+
+  const handleEditField = async (label: CustomFieldLabel, customField: CustomField) => {
+    await editCustomField(label, customField);
+    refetch();
+  };
+
+  const handleDelete = async (label: string) => {
+    try {
+      await deleteCustomField(label);
+      refetch();
+    } catch (_error) {
+      /** we do not handle errors here */
+    }
+  };
+
   return (
     <>
       <Panel.Header>Project Settings</Panel.Header>
       <Panel.Section>
         <Panel.Card>
-          <Panel.SubHeader>Custom fields</Panel.SubHeader>
-          <div>
+          <Panel.SubHeader>
+            Custom fields
+            <Button variant='ontime-subtle' rightIcon={<IoAdd />} size='sm' onClick={handleInitiateCreate}>
+              New
+            </Button>
+          </Panel.SubHeader>
+          <Panel.Divider />
+          <Panel.Section>
             <Alert status='info' variant='ontime-on-dark-info'>
               <AlertIcon />
               <AlertDescription>
                 Custom fields allow for additional information to be added to an event (eg. light, sound, camera).{' '}
                 <br />
-                This data is not used by Ontime. <br />
-                <ExternalLink href={userFieldsDocsUrl}>See the docs</ExternalLink>
+                <br />
+                This data is not used by Ontime.
+                <ExternalLink href={customFieldsDocsUrl}>See the docs</ExternalLink>
               </AlertDescription>
             </Alert>
-          </div>
-          <Panel.Table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(demoCustomFields).map(([key, { value }]) => (
-                <tr key={key}>
-                  <td className={style.fullWidth}>{value}</td>
-                  <td className={style.actions}>
-                    <IconButton
-                      size='sm'
-                      variant='ontime-ghosted'
-                      color='#e2e2e2' // $gray-200
-                      icon={<IoPencil />}
-                      aria-label='Edit entry'
-                    />
-                    <IconButton
-                      size='sm'
-                      variant='ontime-ghosted'
-                      color='#FA5656' // $red-500
-                      icon={<IoTrash />}
-                      aria-label='Delete entry'
-                    />
-                  </td>
+          </Panel.Section>
+          <Panel.Section>
+            {isAdding && <CustomFieldForm onSubmit={handleCreate} onCancel={handleCancel} />}
+            <Panel.Table>
+              <thead>
+                <tr>
+                  <th>Colour</th>
+                  <th>Name</th>
+                  <th />
                 </tr>
-              ))}
-            </tbody>
-          </Panel.Table>
+              </thead>
+              <tbody>
+                {Object.entries(data).map(([key, { colour, label }]) => {
+                  return (
+                    <CustomFieldEntry
+                      key={key}
+                      field={key}
+                      colour={colour}
+                      label={label}
+                      onEdit={handleEditField}
+                      onDelete={handleDelete}
+                    />
+                  );
+                })}
+              </tbody>
+            </Panel.Table>
+          </Panel.Section>
         </Panel.Card>
       </Panel.Section>
     </>

@@ -1,36 +1,23 @@
-import { useState } from 'react';
-import { Button } from '@chakra-ui/react';
-
+import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
+import { PanelBaseProps } from '../../settingsStore';
 import * as Panel from '../PanelUtils';
 
-import ProjectList from './ProjectList';
+import ManageProjects from './ManageProjects';
+import ProjectData from './ProjectData';
 
-export default function ProjectPanel() {
-  const [isCreatingProject, setIsCreatingProject] = useState(false);
-
-  const handleToggleCreate = () => {
-    setIsCreatingProject((prev) => !prev);
-  };
+export default function ProjectPanel({ location }: PanelBaseProps) {
+  const projectRef = useScrollIntoView<HTMLDivElement>('project', location);
+  const manageRef = useScrollIntoView<HTMLDivElement>('manage', location);
 
   return (
     <>
       <Panel.Header>Project</Panel.Header>
-      <Panel.Section>
-        <Panel.Card>
-          <Panel.SubHeader>
-            Manage projects
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <Button variant='ontime-subtle' onClick={handleToggleCreate} size='sm'>
-                Import
-              </Button>
-              <Button variant='ontime-subtle' onClick={handleToggleCreate} size='sm'>
-                Add
-              </Button>
-            </div>
-          </Panel.SubHeader>
-          <ProjectList onToggleCreate={handleToggleCreate} isCreatingProject={isCreatingProject} />
-        </Panel.Card>
-      </Panel.Section>
+      <div ref={projectRef}>
+        <ProjectData />
+      </div>
+      <div ref={manageRef}>
+        <ManageProjects />
+      </div>
     </>
   );
 }

@@ -4,7 +4,7 @@
   grid-area: clk;
   white-space: nowrap;
   max-width: 18.75rem;
-
+  min-width: 5em;
 
   font-family: var(--font-family-override, $viewer-font-family);
   color: var(--timer-color-override, $timer-color);

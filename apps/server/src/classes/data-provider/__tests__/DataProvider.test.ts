@@ -1,4 +1,4 @@
-import { Alias, DatabaseModel, OntimeRundown, Settings } from 'ontime-types';
+import { DatabaseModel, OntimeRundown, Settings, URLPreset } from 'ontime-types';
 import { safeMerge } from '../DataProvider.utils.js';
 
 describe('safeMerge', () => {
@@ -23,27 +23,16 @@ describe('safeMerge', () => {
     },
     viewSettings: {
       overrideStyles: false,
+      freezeEnd: false,
       endMessage: 'existing endMessage',
       normalColor: '#ffffffcc',
       warningColor: '#FFAB33',
       dangerColor: '#ED3333',
     },
-    aliases: [],
-    userFields: {
-      user0: 'existing user0',
-      user1: 'existing user1',
-      user2: 'existing user2',
-      user3: 'existing user3',
-      user4: 'existing user4',
-      user5: 'existing user5',
-      user6: 'existing user6',
-      user7: 'existing user7',
-      user8: 'existing user8',
-      user9: 'existing user9',
-    },
+    urlPresets: [],
     customFields: {
-      lighting: { type: 'string', label: 'lighting' },
-      vfx: { type: 'string', label: 'vfx' },
+      lighting: { type: 'string', label: 'lighting', colour: 'red' },
+      vfx: { type: 'string', label: 'vfx', colour: 'blue' },
     },
     osc: {
       portIn: 8888,
@@ -142,7 +131,7 @@ describe('safeMerge', () => {
     });
   });
 
-  it('should merge the aliases key when present', () => {
+  it('should merge the urlPresets key when present', () => {
     const existingData = {
       rundown: [],
       project: {
@@ -165,19 +154,7 @@ describe('safeMerge', () => {
         overrideStyles: false,
         endMessage: '',
       },
-      aliases: [],
-      userFields: {
-        user0: 'user0',
-        user1: 'user1',
-        user2: 'user2',
-        user3: 'user3',
-        user4: 'user4',
-        user5: 'user5',
-        user6: 'user6',
-        user7: 'user7',
-        user8: 'user8',
-        user9: 'user9',
-      },
+      urlPresets: [],
       osc: {
         portIn: 8888,
         portOut: 9999,
@@ -189,43 +166,15 @@ describe('safeMerge', () => {
     } as DatabaseModel;
 
     const newData = {
-      aliases: [
+      urlPresets: [
         { enabled: true, alias: 'alias1', pathAndParams: '' },
         { enabled: true, alias: 'alias2', pathAndParams: '' },
-      ] as Alias[],
+      ] as URLPreset[],
     };
 
     const mergedData = safeMerge(existingData, newData);
 
-    expect(mergedData.aliases).toEqual(newData.aliases);
-  });
-
-  it('merges userFields into existing object', () => {
-    const existing = {
-      userFields: {
-        user0: 'Alice',
-        user1: 'Bob',
-      },
-    };
-
-    const newData = {
-      userFields: {
-        user2: 'Charlie',
-        user3: 'David',
-        user4: null,
-      },
-    };
-
-    const expected = {
-      user0: 'Alice',
-      user1: 'Bob',
-      user2: 'Charlie',
-      user3: 'David',
-    };
-
-    //@ts-expect-error -- testing partial merge
-    const result = safeMerge(existing, newData);
-    expect(result.userFields).toEqual(expected);
+    expect(mergedData.urlPresets).toEqual(newData.urlPresets);
   });
 
   it('merges customFields into existing object', () => {

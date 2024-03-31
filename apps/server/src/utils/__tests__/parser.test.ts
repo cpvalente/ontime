@@ -1,22 +1,24 @@
 /* eslint-disable no-console -- we are mocking the console */
-import { vi } from 'vitest';
+import { assertType, vi } from 'vitest';
 
 import {
   DatabaseModel,
   EndAction,
   OntimeEvent,
+  OntimeRundown,
   ProjectData,
   Settings,
   SupportedEvent,
-  TimeStrategy,
   TimerType,
+  TimeStrategy,
   ViewSettings,
 } from 'ontime-types';
 
 import { dbModel } from '../../models/dataModel.js';
-import { parseExcel, parseJson, createEvent } from '../parser.js';
+
+import { createEvent, getCustomFieldData, parseExcel, parseJson } from '../parser.js';
 import { makeString } from '../parserUtils.js';
-import { parseAliases, parseUserFields, parseViewSettings } from '../parserFunctions.js';
+import { parseRundown, parseUrlPresets, parseViewSettings } from '../parserFunctions.js';
 
 describe('test json parser with valid def', () => {
   const testData: Partial<DatabaseModel> = {
@@ -26,8 +28,6 @@ describe('test json parser with valid def', () => {
         cue: 'Guest Welcoming',
         type: SupportedEvent.Event,
         title: 'Guest Welcoming',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.PlayNext,
         timerType: TimerType.Clock,
@@ -39,27 +39,16 @@ describe('test json parser with valid def', () => {
         isPublic: false,
         skip: false,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
+        custom: {},
       },
       {
         id: 'f24d',
         cue: 'Good Morning',
         type: SupportedEvent.Event,
         title: 'Good Morning',
-        subtitle: 'Days schedule',
-        presenter: 'Carlos Valente',
         note: '',
         endAction: EndAction.PlayNext,
         timerType: TimerType.CountUp,
@@ -71,27 +60,16 @@ describe('test json parser with valid def', () => {
         isPublic: true,
         skip: true,
         colour: 'red',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
+        custom: {},
       },
       {
         id: 'bbc5',
         cue: 'Stage 2 setup',
         type: SupportedEvent.Event,
         title: 'Stage 2 setup',
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: 'wrong action' as EndAction, // testing
         timerType: TimerType.Clock,
@@ -103,19 +81,10 @@ describe('test json parser with valid def', () => {
         isPublic: false,
         skip: false,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
+        custom: {},
       },
       {
         // testing incomplete dataset
@@ -123,8 +92,6 @@ describe('test json parser with valid def', () => {
         cue: 'Working Procedures',
         type: SupportedEvent.Event,
         title: 'Working Procedures',
-        subtitle: '',
-        presenter: 'Filip Johansen',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.Clock,
@@ -143,8 +110,6 @@ describe('test json parser with valid def', () => {
         cue: 'Lunch',
         title: 'Lunch',
         type: SupportedEvent.Event,
-        subtitle: '',
-        presenter: '',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.Clock,
@@ -156,27 +121,16 @@ describe('test json parser with valid def', () => {
         isPublic: false,
         skip: false,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
+        custom: {},
       },
       {
         id: '08e9',
         cue: 'A day being carlos',
         title: 'A day being carlos',
         type: SupportedEvent.Event,
-        subtitle: 'My life in a song',
-        presenter: 'Carlos Valente',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.Clock,
@@ -188,19 +142,10 @@ describe('test json parser with valid def', () => {
         isPublic: true,
         skip: true,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
+        custom: {},
       },
       {
         // testing incomplete dataset
@@ -208,8 +153,6 @@ describe('test json parser with valid def', () => {
         cue: 'Hamburgers and Cheese',
         title: 'Hamburgers and Cheese',
         type: SupportedEvent.Event,
-        subtitle: '... and other life questions',
-        presenter: 'Filip Johansen',
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.Clock,
@@ -218,21 +161,11 @@ describe('test json parser with valid def', () => {
         duration: 37200000 - 32400000,
         isPublic: true,
         colour: '',
-        user0: '',
-        user1: '',
-        user2: '',
-        user3: '',
-        user4: '',
-        user5: '',
-        user6: '',
-        user7: '',
-        user8: '',
-        user9: '',
         revision: 0,
         timeWarning: 0,
         timeDanger: 0,
       } as OntimeEvent,
-    ],
+    ] as OntimeRundown,
     project: {
       title: 'This is a test definition',
       backstageUrl: 'www.carlosvalente.com',
@@ -523,8 +456,6 @@ describe('test event validator', () => {
     expect(validated).toEqual(
       expect.objectContaining({
         title: expect.any(String),
-        subtitle: expect.any(String),
-        presenter: expect.any(String),
         note: expect.any(String),
         timeStart: expect.any(Number),
         timeEnd: expect.any(Number),
@@ -535,16 +466,7 @@ describe('test event validator', () => {
         id: expect.any(String),
         cue: 'test',
         colour: expect.any(String),
-        user0: expect.any(String),
-        user1: expect.any(String),
-        user2: expect.any(String),
-        user3: expect.any(String),
-        user4: expect.any(String),
-        user5: expect.any(String),
-        user6: expect.any(String),
-        user7: expect.any(String),
-        user8: expect.any(String),
-        user9: expect.any(String),
+        custom: expect.any(Object),
       }),
     );
   });
@@ -558,15 +480,11 @@ describe('test event validator', () => {
   it('makes objects strings', () => {
     const event = {
       title: 2,
-      subtitle: true,
-      presenter: 3.2,
       note: '1899-12-30T08:00:10.000Z',
     };
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
     const validated = createEvent(event, 'not-used');
     expect(typeof validated.title).toEqual('string');
-    expect(typeof validated.subtitle).toEqual('string');
-    expect(typeof validated.presenter).toEqual('string');
     expect(typeof validated.note).toEqual('string');
   });
 
@@ -595,7 +513,198 @@ describe('test event validator', () => {
   });
 });
 
-describe('test makeString function', () => {
+describe('test aliases import', () => {
+  it('imports a well defined urlPreset', () => {
+    const testData = {
+      rundown: [],
+      settings: {
+        app: 'ontime',
+        version: '2.0.0',
+      },
+      urlPresets: [
+        {
+          enabled: false,
+          alias: 'testalias',
+          pathAndParams: 'testpathAndParams',
+        },
+      ],
+    } as DatabaseModel;
+
+    const parsed = parseUrlPresets(testData);
+    expect(parsed.length).toBe(1);
+
+    // generates missing id
+    expect(parsed[0].alias).toBeDefined();
+  });
+});
+
+describe('test views import', () => {
+  it('imports data from file', () => {
+    const testData = {
+      rundown: [],
+      settings: {
+        app: 'ontime',
+        version: '2.0.0',
+      },
+      viewSettings: {
+        normalColor: '#ffffffcc',
+        warningColor: '#FFAB33',
+        dangerColor: '#ED3333',
+        endMessage: '',
+        overrideStyles: false,
+        // known error: properties do not exist
+        notAthing: true,
+      },
+      // known error: views does not exist
+      views: {
+        overrideStyles: true,
+      },
+    };
+    const expectedParsedViewSettings = {
+      normalColor: '#ffffffcc',
+      warningColor: '#FFAB33',
+      dangerColor: '#ED3333',
+      endMessage: '',
+      overrideStyles: false,
+    };
+    // @ts-expect-error -- we know the above is incorrect
+    const parsed = parseViewSettings(testData);
+    expect(parsed).toStrictEqual(expectedParsedViewSettings);
+  });
+
+  it('imports defaults to model', () => {
+    const testData = {
+      rundown: [],
+      settings: {
+        app: 'ontime',
+        version: '2.0.0',
+      },
+    } as DatabaseModel;
+    const parsed = parseViewSettings(testData);
+    expect(parsed).toStrictEqual({});
+  });
+});
+
+describe('test import of v2 datamodel', () => {
+  it('ignores deprecated fields and generates new ones', async () => {
+    const v2ProjectFile = {
+      rundown: [
+        { type: SupportedEvent.Block, title: 'block-title', id: 'block-id' },
+        { type: SupportedEvent.Delay, duration: 0 },
+        { type: SupportedEvent.Event, title: 'block-title', id: 'block-id' },
+      ],
+      project: {
+        title: '',
+        description: '',
+        publicUrl: '',
+        publicInfo: '',
+        backstageUrl: '',
+        backstageInfo: '',
+      },
+      settings: {
+        app: 'ontime',
+        version: '2.0.0',
+        serverPort: 4001,
+        editorKey: null,
+        operatorKey: null,
+        timeFormat: '24',
+        language: 'en',
+      },
+      viewSettings: {
+        overrideStyles: false,
+        normalColor: '#ffffffcc',
+        warningColor: '#FFAB33',
+        dangerColor: '#ED3333',
+        endMessage: '',
+      },
+      aliases: [],
+      userFields: {
+        user0: 'user0',
+        user1: 'user1',
+        user2: 'user2',
+        user3: 'user3',
+        user4: 'user4',
+        user5: 'user5',
+        user6: 'user6',
+        user7: 'user7',
+        user8: 'user8',
+        user9: 'user9',
+      },
+      osc: {
+        portIn: 8888,
+        portOut: 9999,
+        targetIP: '127.0.0.1',
+        enabledIn: false,
+        enabledOut: false,
+        subscriptions: {
+          onLoad: [],
+          onStart: [],
+          onPause: [],
+          onStop: [],
+          onUpdate: [],
+          onFinish: [],
+        },
+      },
+      http: {
+        enabledOut: false,
+        subscriptions: {
+          onLoad: [],
+          onStart: [],
+          onPause: [],
+          onStop: [],
+          onUpdate: [],
+          onFinish: [],
+        },
+      },
+    };
+    // @ts-expect-error -- we know this is wrong, testing imports outside domain
+    const parsed = await parseJson(v2ProjectFile);
+    expect(parsed.rundown.length).toBe(3);
+    expect(parsed.rundown[0]).toMatchObject({ type: SupportedEvent.Block });
+    expect(parsed.rundown[0]).toEqual(
+      expect.objectContaining({
+        id: expect.any(String),
+        title: expect.any(String),
+      }),
+    );
+    expect(parsed.rundown[1]).toMatchObject({ type: SupportedEvent.Delay });
+    expect(parsed.rundown[1]).toEqual(
+      expect.objectContaining({
+        id: expect.any(String),
+        duration: expect.any(Number),
+      }),
+    );
+    expect(parsed.rundown[2]).toMatchObject({ type: SupportedEvent.Event });
+    expect(parsed.rundown[2]).toEqual(
+      expect.objectContaining({
+        id: expect.any(String),
+        cue: expect.any(String),
+        title: expect.any(String),
+        note: expect.any(String),
+        endAction: expect.any(String),
+        timerType: expect.any(String),
+        linkStart: null,
+        timeStrategy: expect.any(String),
+        timeStart: expect.any(Number),
+        timeEnd: expect.any(Number),
+        duration: expect.any(Number),
+        isPublic: expect.any(Boolean),
+        skip: expect.any(Boolean),
+        colour: expect.any(String),
+        revision: expect.any(Number),
+        timeWarning: expect.any(Number),
+        timeDanger: expect.any(Number),
+        custom: expect.any(Object),
+      }),
+    );
+    // @ts-expect-error -- checking if the field is removed
+    expect(parsed?.userFields).toBeUndefined();
+    expect(parsed.osc).toMatchObject({ subscriptions: [] });
+    expect(parsed.http).toMatchObject({ enabledOut: false, subscriptions: [] });
+  });
+});
+
+describe('makeString()', () => {
   it('converts variables to string', () => {
     let val = 2;
     let expected = '2';
@@ -620,7 +729,59 @@ describe('test makeString function', () => {
   });
 });
 
-describe('test parseExcel function', () => {
+describe('getCustomFieldData()', () => {
+  it('generates a list of keys from the given import map', () => {
+    const importMap = {
+      worksheet: 'event schedule',
+      timeStart: 'time start',
+      timeEnd: 'time end',
+      duration: 'duration',
+      cue: 'cue',
+      title: 'title',
+      isPublic: 'public',
+      skip: 'skip',
+      note: 'notes',
+      colour: 'colour',
+      endAction: 'end action',
+      timerType: 'timer type',
+      timeWarning: 'warning time',
+      timeDanger: 'danger time',
+      custom: {
+        lighting: 'lx',
+        sound: 'sound',
+        video: 'av',
+      },
+    };
+
+    const result = getCustomFieldData(importMap);
+    expect(result.customFields).toStrictEqual({
+      lighting: {
+        type: 'string',
+        colour: '',
+        label: 'lighting',
+      },
+      sound: {
+        type: 'string',
+        colour: '',
+        label: 'sound',
+      },
+      video: {
+        type: 'string',
+        colour: '',
+        label: 'video',
+      },
+    });
+
+    // it is an inverted record of <importKey, ontimeKey>
+    expect(result.customFieldImportKeys).toStrictEqual({
+      lx: 'lighting',
+      sound: 'sound',
+      av: 'video',
+    });
+  });
+});
+
+describe('parseExcel()', () => {
   it('parses the example file', async () => {
     const testdata = [
       ['Ontime ┬À Schedule Template'],
@@ -629,8 +790,199 @@ describe('test parseExcel function', () => {
         'Time Start',
         'Time End',
         'Title',
-        'Presenter',
-        'Subtitle',
+        'End Action',
+        'Timer type',
+        'Public',
+        'Skip',
+        'Notes',
+        't0',
+        'Test1',
+        'test2',
+        'test3',
+        'test4',
+        'test5',
+        'test6',
+        'test7',
+        'test8',
+        'test9',
+        'Colour',
+        'cue',
+      ],
+      [
+        '07:00:00',
+        '08:00:10',
+        'Guest Welcome',
+        '',
+        '',
+        'x',
+        '',
+        'Ballyhoo',
+        'a0',
+        'a1',
+        'a2',
+        'a3',
+        'a4',
+        'a5',
+        'a6',
+        'a7',
+        'a8',
+        'a9',
+        'red',
+        101,
+      ],
+      [
+        '08:00:00',
+        '08:30:00',
+        'A song from the hearth',
+        'load-next',
+        'clock',
+        '',
+        'x',
+        'Rainbow chase',
+        'b0',
+        '',
+        '',
+        '',
+        '',
+        'b5',
+        '',
+        '',
+        '',
+        '',
+        '#F00',
+        102,
+      ],
+      [],
+    ];
+
+    // partial import map with only custom fields
+    const importMap = {
+      custom: {
+        user0: 't0',
+        User1: 'Test1',
+        user2: 'test2',
+        user3: 'test3',
+        user4: 'test4',
+        user5: 'test5',
+        user6: 'test6',
+        user7: 'test7',
+        user8: 'test8',
+        user9: 'test9',
+      },
+    };
+
+    // TODO: update tests once import is resolved
+    const expectedParsedRundown = [
+      {
+        timeStart: 25200000,
+        timeEnd: 28810000,
+        title: 'Guest Welcome',
+        timerType: 'count-down',
+        endAction: 'none',
+        isPublic: true,
+        skip: false,
+        note: 'Ballyhoo',
+        custom: {
+          user0: { value: 'a0' },
+          user1: { value: 'a1' },
+          user2: { value: 'a2' },
+          user3: { value: 'a3' },
+          user4: { value: 'a4' },
+          user5: { value: 'a5' },
+          user6: { value: 'a6' },
+          user7: { value: 'a7' },
+          user8: { value: 'a8' },
+          user9: { value: 'a9' },
+        },
+        colour: 'red',
+        type: 'event',
+        cue: '101',
+      },
+      {
+        timeStart: 28800000,
+        timeEnd: 30600000,
+        title: 'A song from the hearth',
+        timerType: 'clock',
+        endAction: 'load-next',
+        isPublic: false,
+        skip: true,
+        note: 'Rainbow chase',
+        custom: {
+          user0: { value: 'b0' },
+          user5: { value: 'b5' },
+        },
+        colour: '#F00',
+        type: 'event',
+        cue: '102',
+      },
+    ];
+
+    const parsedData = parseExcel(testdata, importMap);
+    expect(parsedData.customFields).toStrictEqual({
+      user0: {
+        type: 'string',
+        colour: '',
+        label: 'user0',
+      },
+      user1: {
+        type: 'string',
+        colour: '',
+        label: 'User1',
+      },
+      user2: {
+        type: 'string',
+        colour: '',
+        label: 'user2',
+      },
+      user3: {
+        type: 'string',
+        colour: '',
+        label: 'user3',
+      },
+      user4: {
+        type: 'string',
+        colour: '',
+        label: 'user4',
+      },
+      user5: {
+        type: 'string',
+        colour: '',
+        label: 'user5',
+      },
+      user6: {
+        type: 'string',
+        colour: '',
+        label: 'user6',
+      },
+      user7: {
+        type: 'string',
+        colour: '',
+        label: 'user7',
+      },
+      user8: {
+        type: 'string',
+        colour: '',
+        label: 'user8',
+      },
+      user9: {
+        type: 'string',
+        colour: '',
+        label: 'user9',
+      },
+    });
+    expect(parsedData.rundown.length).toBe(2);
+    expect(parsedData.rundown[0]).toMatchObject(expectedParsedRundown[0]);
+    expect(parsedData.rundown[1]).toMatchObject(expectedParsedRundown[1]);
+  });
+
+  it('parses a file without custom fields', async () => {
+    const testdata = [
+      ['Ontime ┬À Schedule Template'],
+      [],
+      [
+        'Time Start',
+        'Time End',
+        'Title',
         'End Action',
         'Timer type',
         'Public',
@@ -653,8 +1005,6 @@ describe('test parseExcel function', () => {
         '1899-12-30T07:00:00.000Z',
         '1899-12-30T08:00:10.000Z',
         'Guest Welcome',
-        'Carlos',
-        'Getting things started',
         '',
         '',
         'x',
@@ -677,8 +1027,6 @@ describe('test parseExcel function', () => {
         '1899-12-30T08:00:00.000Z',
         '1899-12-30T08:30:00.000Z',
         'A song from the hearth',
-        'Still Carlos',
-        'Derailing early',
         'load-next',
         'clock',
         '',
@@ -700,17 +1048,12 @@ describe('test parseExcel function', () => {
       [],
     ];
 
-    const partialOptions = {
-      user0: 'test0',
-      user1: 'test1',
-      user2: 'test2',
-      user3: 'test3',
-      user4: 'test4',
-      user5: 'test5',
-      user6: 'test6',
-      user7: 'test7',
-      user8: 'test8',
-      user9: 'test9',
+    // partial import map with only custom fields
+    const importMap = {
+      custom: {
+        niu1: 'niu1',
+        niu2: 'niu2',
+      },
     };
 
     // TODO: update tests once import is resolved
@@ -719,23 +1062,12 @@ describe('test parseExcel function', () => {
         //timeStart: 28800000,
         //timeEnd: 32410000,
         title: 'Guest Welcome',
-        presenter: 'Carlos',
-        subtitle: 'Getting things started',
         timerType: 'count-down',
         endAction: 'none',
         isPublic: true,
         skip: false,
         note: 'Ballyhoo',
-        user0: 'a0',
-        user1: 'a1',
-        user2: 'a2',
-        user3: 'a3',
-        user4: 'a4',
-        user5: 'a5',
-        user6: 'a6',
-        user7: 'a7',
-        user8: 'a8',
-        user9: 'a9',
+        custom: {},
         colour: 'red',
         type: 'event',
         cue: '101',
@@ -744,181 +1076,335 @@ describe('test parseExcel function', () => {
         //timeStart: 32400000,
         //timeEnd: 34200000,
         title: 'A song from the hearth',
-        presenter: 'Still Carlos',
-        subtitle: 'Derailing early',
         timerType: 'clock',
         endAction: 'load-next',
         isPublic: false,
         skip: true,
         note: 'Rainbow chase',
-        user0: 'b0',
-        user5: 'b5',
+        custom: {},
         colour: '#F00',
         type: 'event',
         cue: '102',
       },
     ];
 
-    const parsedData = parseExcel(testdata, partialOptions);
-    expect(parsedData.rundown).toBeDefined();
+    const parsedData = parseExcel(testdata, importMap);
+    expect(parsedData.customFields).toStrictEqual({
+      niu1: {
+        type: 'string',
+        colour: '',
+        label: 'niu1',
+      },
+      niu2: {
+        type: 'string',
+        colour: '',
+        label: 'niu2',
+      },
+    });
+    expect(parsedData.rundown.length).toBe(2);
     expect(parsedData.rundown[0]).toMatchObject(expectedParsedRundown[0]);
     expect(parsedData.rundown[1]).toMatchObject(expectedParsedRundown[1]);
   });
-});
 
-describe('test aliases import', () => {
-  it('imports a well defined alias', () => {
-    const testData = {
-      rundown: [],
-      settings: {
-        app: 'ontime',
-        version: '2.0.0',
-      },
-      aliases: [
-        {
-          enabled: false,
-          alias: 'testalias',
-          pathAndParams: 'testpathAndParams',
-        },
+  it('ignores unknown event types', () => {
+    const testdata = [
+      [
+        'Time Start',
+        'Time End',
+        'Title',
+        'End Action',
+        'Timer type',
+        'Public',
+        'Skip',
+        'Notes',
+        'test0',
+        'test1',
+        'test2',
+        'test3',
+        'test4',
+        'test5',
+        'test6',
+        'test7',
+        'test8',
+        'test9',
+        'Colour',
+        'cue',
       ],
+      [
+        '1899-12-30T07:00:00.000Z',
+        '1899-12-30T08:00:10.000Z',
+        'Guest Welcome',
+        '',
+        'skip',
+        'x',
+        '',
+        'Ballyhoo',
+        'a0',
+        'a1',
+        'a2',
+        'a3',
+        'a4',
+        'a5',
+        'a6',
+        'a7',
+        'a8',
+        'a9',
+        'red',
+        101,
+      ],
+      [
+        '1899-12-30T08:00:00.000Z',
+        '1899-12-30T08:30:00.000Z',
+        'A song from the hearth',
+        'load-next',
+        'clock',
+        '',
+        'x',
+        'Rainbow chase',
+        'b0',
+        '',
+        '',
+        '',
+        '',
+        'b5',
+        '',
+        '',
+        '',
+        '',
+        '#F00',
+        102,
+      ],
+      [],
+    ];
+
+    const importMap = {
+      worksheet: 'event schedule',
+      timeStart: 'time start',
+      timeEnd: 'time end',
+      duration: 'duration',
+      cue: 'cue',
+      title: 'title',
+      isPublic: 'public',
+      skip: 'skip',
+      note: 'notes',
+      colour: 'colour',
+      endAction: 'end action',
+      timerType: 'timer type',
+      timeWarning: 'warning time',
+      timeDanger: 'danger time',
+      custom: {},
     };
-
-    const parsed = parseAliases(testData);
-    expect(parsed.length).toBe(1);
-
-    // generates missing id
-    expect(parsed[0].alias).toBeDefined();
+    const result = parseExcel(testdata, importMap);
+    expect(result.rundown.length).toBe(1);
+    expect((result.rundown.at(0) as OntimeEvent).title).toBe('A song from the hearth');
   });
-});
+  it('imports blocks', () => {
+    const testdata = [
+      [
+        'Time Start',
+        'Time End',
+        'Title',
+        'End Action',
+        'Timer type',
+        'Public',
+        'Skip',
+        'Notes',
+        'test0',
+        'test1',
+        'test2',
+        'test3',
+        'test4',
+        'test5',
+        'test6',
+        'test7',
+        'test8',
+        'test9',
+        'Colour',
+        'cue',
+      ],
+      [
+        '',
+        '',
+        '',
+        '',
+        'block',
+        'x',
+        '',
+        'Ballyhoo',
+        'a0',
+        'a1',
+        'a2',
+        'a3',
+        'a4',
+        'a5',
+        'a6',
+        'a7',
+        'a8',
+        'a9',
+        'red',
+        101,
+      ],
+      [
+        '1899-12-30T08:00:00.000Z',
+        '1899-12-30T08:30:00.000Z',
+        'A song from the hearth',
+        'load-next',
+        'clock',
+        '',
+        'x',
+        'Rainbow chase',
+        'b0',
+        '',
+        '',
+        '',
+        '',
+        'b5',
+        '',
+        '',
+        '',
+        '',
+        '#F00',
+        102,
+      ],
+      [],
+    ];
 
-describe('test userFields import', () => {
-  const model = dbModel.userFields;
-  it('imports a fully defined user fields', () => {
-    const testUserFields = {
-      user0: 'test0',
-      user1: 'test1',
-      user2: 'test2',
-      user3: 'test3',
-      user4: 'test4',
-      user5: 'test5',
-      user6: 'test6',
-      user7: 'test7',
-      user8: 'test8',
-      user9: 'test9',
+    const importMap = {
+      worksheet: 'event schedule',
+      timeStart: 'time start',
+      timeEnd: 'time end',
+      duration: 'duration',
+      cue: 'cue',
+      title: 'title',
+      isPublic: 'public',
+      skip: 'skip',
+      note: 'notes',
+      colour: 'colour',
+      endAction: 'end action',
+      timerType: 'timer type',
+      timeWarning: 'warning time',
+      timeDanger: 'danger time',
+      custom: {},
     };
-
-    const testData = {
-      rundown: [],
-      settings: {
-        app: 'ontime',
-        version: '2.0.0',
-      },
-      userFields: testUserFields,
-    };
-
-    const parsed = parseUserFields(testData);
-    expect(parsed).toStrictEqual(testUserFields);
+    const result = parseExcel(testdata, importMap);
+    expect(result.rundown.length).toBe(2);
+    expect(result.rundown.at(0).type).toBe(SupportedEvent.Block);
   });
 
-  it('imports a partially defined user fields', () => {
-    const testUserFields = {
-      user0: 'test0',
-      user1: 'test1',
-      user7: 'test7',
-      user8: 'test8',
-      user9: 'test9',
-    };
+  it('imports as events if there is no timer type column', () => {
+    const testdata = [
+      [
+        'Time Start',
+        'Time End',
+        'Title',
+        'End Action',
+        'Public',
+        'Skip',
+        'Notes',
+        'test0',
+        'test1',
+        'test2',
+        'test3',
+        'test4',
+        'test5',
+        'test6',
+        'test7',
+        'test8',
+        'test9',
+        'Colour',
+        'cue',
+      ],
+      ['', '', '', '', 'x', '', 'Ballyhoo', 'a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 'a8', 'a9', 'red', 101],
+      [
+        '1899-12-30T08:00:00.000Z',
+        '1899-12-30T08:30:00.000Z',
+        'A song from the hearth',
+        'load-next',
+        '',
+        'x',
+        'Rainbow chase',
+        'b0',
+        '',
+        '',
+        '',
+        '',
+        'b5',
+        '',
+        '',
+        '',
+        '',
+        '#F00',
+        102,
+      ],
+      [],
+    ];
 
-    const expected = {
-      ...model,
-      ...testUserFields,
+    const importMap = {
+      worksheet: 'event schedule',
+      timeStart: 'time start',
+      timeEnd: 'time end',
+      duration: 'duration',
+      cue: 'cue',
+      title: 'title',
+      isPublic: 'public',
+      skip: 'skip',
+      note: 'notes',
+      colour: 'colour',
+      endAction: 'end action',
+      timerType: 'timer type',
+      timeWarning: 'warning time',
+      timeDanger: 'danger time',
+      custom: {},
     };
-
-    const testData = {
-      rundown: [],
-      settings: {
-        app: 'ontime',
-        version: '2.0.0',
-      },
-      userFields: testUserFields,
-    };
-
-    const parsed = parseUserFields(testData);
-    expect(parsed).toStrictEqual(expected);
+    const result = parseExcel(testdata, importMap);
+    expect(result.rundown.length).toBe(2);
+    expect(result.rundown.at(0).type).toBe(SupportedEvent.Event);
+    expect((result.rundown.at(0) as OntimeEvent).timerType).toBe(TimerType.CountDown);
+    expect(result.rundown.at(1).type).toBe(SupportedEvent.Event);
+    expect((result.rundown.at(1) as OntimeEvent).timerType).toBe(TimerType.CountDown);
   });
 
-  it('handles missing user fields', () => {
-    const testData = {
-      rundown: [],
-      settings: {
-        app: 'ontime',
-        version: '2.0.0',
-      },
-    };
+  it('am/pm conversion to 24h', () => {
+    const testData = [
+      ['Time Start', 'Time End', 'Title', 'End Action', 'Public', 'Skip', 'Notes', 'Colour', 'cue'],
+      ['4:30:00', '4:36:00', 'A song from the hearth', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102],
+      ['9:45:00', '10:56:00', 'Green grass', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103],
+      ['16:30:00', '16:36:00', 'A song from the hearth', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102],
+      ['21:45:00', '22:56:00', 'Green grass', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103],
+      ['4:30:00AM', '4:36:00AM', 'A song from the hearth', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102],
+      ['9:45:00AM', '10:56:00AM', 'Green grass', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103],
+      ['4:30:00PM', '4:36:00PM', 'A song from the hearth', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102],
+      ['9:45:00PM', '10:56:00PM', 'Green grass', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103],
+      [],
+    ];
 
-    const parsed = parseUserFields(testData);
-    expect(parsed).toStrictEqual(model);
-    expect(parsed).toStrictEqual(model);
-  });
-
-  it('ignores badly defined fields', () => {
-    const testData = {
-      rundown: [],
-      settings: {
-        app: 'ontime',
-        version: '2.0.0',
-      },
-      userFields: {
-        notThis: 'this shouldng be accepted',
-        orThis: 'this neither',
-      },
+    const importMap = {
+      worksheet: 'event schedule',
+      timeStart: 'time start',
+      timeEnd: 'time end',
+      duration: 'duration',
+      cue: 'cue',
+      title: 'title',
+      isPublic: 'public',
+      skip: 'skip',
+      note: 'notes',
+      colour: 'colour',
+      endAction: 'end action',
+      timerType: 'timer type',
+      timeWarning: 'warning time',
+      timeDanger: 'danger time',
+      custom: {},
     };
-
-    const parsed = parseUserFields(testData);
-    expect(parsed).toStrictEqual(model);
-  });
-});
-
-describe('test views import', () => {
-  it('imports data from file', () => {
-    const testData = {
-      rundown: [],
-      settings: {
-        app: 'ontime',
-        version: '2.0.0',
-      },
-      viewSettings: {
-        normalColor: '#ffffffcc',
-        warningColor: '#FFAB33',
-        dangerColor: '#ED3333',
-        endMessage: '',
-        overrideStyles: false,
-        notAthing: true,
-      },
-      views: {
-        overrideStyles: true,
-      },
-    };
-    const expectedParsedViewSettings = {
-      normalColor: '#ffffffcc',
-      warningColor: '#FFAB33',
-      dangerColor: '#ED3333',
-      endMessage: '',
-      overrideStyles: false,
-    };
-    const parsed = parseViewSettings(testData);
-    expect(parsed).toStrictEqual(expectedParsedViewSettings);
-  });
-
-  it('imports defaults to model', () => {
-    const testData = {
-      rundown: [],
-      settings: {
-        app: 'ontime',
-        version: '2.0.0',
-      },
-    };
-    const parsed = parseViewSettings(testData);
-    expect(parsed).toStrictEqual({});
+    const result = parseExcel(testData, importMap);
+    const rundown = parseRundown(result);
+    const events = rundown.filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
+    expect(events.at(0).timeStart).toEqual(16200000);
+    expect(events.at(1).timeStart).toEqual(35100000);
+    expect(events.at(2).timeStart).toEqual(59400000);
+    expect(events.at(3).timeStart).toEqual(78300000);
+    expect(events.at(4).timeStart).toEqual(16200000);
+    expect(events.at(5).timeStart).toEqual(35100000);
+    expect(events.at(6).timeStart).toEqual(59400000);
+    expect(events.at(7).timeStart).toEqual(78300000);
   });
 });

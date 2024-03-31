@@ -1,43 +1,32 @@
-import { useCallback, useEffect, useState } from 'react';
-import { isOntimeEvent, OntimeEvent } from 'ontime-types';
+import { CSSProperties, useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Button } from '@chakra-ui/react';
+import { CustomFieldLabel, isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import CopyTag from '../../../common/components/copy-tag/CopyTag';
 import { useEventAction } from '../../../common/hooks/useEventAction';
+import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import useRundown from '../../../common/hooks-query/useRundown';
+import { getAccessibleColour } from '../../../common/utils/styleUtils';
 import { useEventSelection } from '../useEventSelection';
 
 import EventEditorTimes from './composite/EventEditorTimes';
 import EventEditorTitles from './composite/EventEditorTitles';
-import EventEditorUser from './composite/EventEditorUser';
+import EventTextArea from './composite/EventTextArea';
 
 import style from './EventEditor.module.scss';
 
 export type EventEditorSubmitActions = keyof OntimeEvent;
 
-// TODO: this logic will become dynamic
-export type EditorUpdateFields =
-  | 'cue'
-  | 'title'
-  | 'presenter'
-  | 'subtitle'
-  | 'note'
-  | 'colour'
-  | 'user0'
-  | 'user1'
-  | 'user2'
-  | 'user3'
-  | 'user4'
-  | 'user5'
-  | 'user6'
-  | 'user7'
-  | 'user8'
-  | 'user9';
+export type EditorUpdateFields = 'cue' | 'title' | 'note' | 'colour' | CustomFieldLabel;
 
 export default function EventEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const { data } = useRundown();
+  const { data: customFields } = useCustomFields();
   const { order, rundown } = data;
   const { updateEvent } = useEventAction();
+  const [_searchParams, setSearchParams] = useSearchParams();
 
   const [event, setEvent] = useState<OntimeEvent | null>(null);
 
@@ -63,10 +52,19 @@ export default function EventEditor() {
 
   const handleSubmit = useCallback(
     (field: EditorUpdateFields, value: string) => {
-      updateEvent({ id: event?.id, [field]: value });
+      if (field.startsWith('custom-')) {
+        const fieldLabel = field.split('custom-')[1];
+        updateEvent({ id: event?.id, custom: { [fieldLabel]: { value } } });
+      } else {
+        updateEvent({ id: event?.id, [field]: value });
+      }
     },
     [event?.id, updateEvent],
   );
+
+  const handleOpenCustomManager = () => {
+    setSearchParams({ settings: 'project_settings__custom' });
+  };
 
   if (!event) {
     return (
@@ -75,21 +73,6 @@ export default function EventEditor() {
       </div>
     );
   }
-
-  // Compositing user fields by hand
-  // this will be replaced by dynamic logic
-  const userFields = {
-    user0: event.user0,
-    user1: event.user1,
-    user2: event.user2,
-    user3: event.user3,
-    user4: event.user4,
-    user5: event.user5,
-    user6: event.user6,
-    user7: event.user7,
-    user8: event.user8,
-    user9: event.user9,
-  };
 
   return (
     <div className={style.eventEditor} data-testid='editor-container'>
@@ -114,13 +97,36 @@ export default function EventEditor() {
           eventId={event.id}
           cue={event.cue}
           title={event.title}
-          presenter={event.presenter}
-          subtitle={event.subtitle}
           note={event.note}
           colour={event.colour}
           handleSubmit={handleSubmit}
         />
-        <EventEditorUser key={`${event.id}-user`} userFields={userFields} handleSubmit={handleSubmit} />
+        <div className={style.column}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span>Custom Fields</span>
+            <Button variant='ontime-subtle' size='sm' onClick={handleOpenCustomManager}>
+              Manage
+            </Button>
+          </div>
+          {Object.keys(customFields).map((label) => {
+            const key = `${event.id}-${label}`;
+            const fieldName = `custom-${label}`;
+            const initialValue = event.custom[label]?.value ?? '';
+            const { backgroundColor, color } = getAccessibleColour(customFields[label].colour);
+
+            return (
+              <EventTextArea
+                key={key}
+                field={fieldName}
+                label={label}
+                initialValue={initialValue}
+                submitHandler={handleSubmit}
+                className={style.decorated}
+                style={{ '--decorator-bg': backgroundColor, '--decorator-color': color } as CSSProperties}
+              />
+            );
+          })}
+        </div>
       </div>
       <div className={style.footer}>
         <CopyTag label='OSC trigger by id'>{`/ontime/load/id "${event.id}"`}</CopyTag>

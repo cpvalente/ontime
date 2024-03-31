@@ -24,3 +24,12 @@ describe('test isTimeString() function handle different separators', () => {
     });
   }
 });
+
+describe('test isTimeString() function handle AM/PM', () => {
+  const ts = ['2:10AM', '2:10PM', '2:10'];
+  for (const s of ts) {
+    it(`it handles ${s}`, () => {
+      expect(isTimeString(s)).toBe(true);
+    });
+  }
+});

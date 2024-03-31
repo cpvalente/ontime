@@ -1,14 +1,19 @@
 import { Alert, AlertDescription, AlertIcon } from '@chakra-ui/react';
 
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
+import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
+import { PanelBaseProps } from '../../settingsStore';
 import * as Panel from '../PanelUtils';
 
 import HttpIntegrations from './HttpIntegrations';
 import OscIntegrations from './OscIntegrations';
 
-const integrationDocsUrl = 'https://ontime.gitbook.io/v2/control-and-feedback/integrations';
+const integrationDocsUrl = 'https://docs.getontime.no/api/integrations/';
 
-export default function IntegrationsPanel() {
+export default function IntegrationsPanel({ location }: PanelBaseProps) {
+  const oscRef = useScrollIntoView<HTMLDivElement>('osc', location);
+  const httpRef = useScrollIntoView<HTMLDivElement>('http', location);
+
   return (
     <>
       <Panel.Header>Integration settings</Panel.Header>
@@ -25,8 +30,12 @@ export default function IntegrationsPanel() {
         </Alert>
       </Panel.Section>
       <Panel.Section>
-        <OscIntegrations />
-        <HttpIntegrations />
+        <div ref={oscRef}>
+          <OscIntegrations />
+        </div>
+        <div ref={httpRef}>
+          <HttpIntegrations />
+        </div>
       </Panel.Section>
     </>
   );

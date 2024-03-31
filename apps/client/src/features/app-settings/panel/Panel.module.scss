@@ -27,9 +27,14 @@ $inner-padding: 1rem;
 }
 
 .section {
+  position: relative;
   margin-top: 2rem;
   font-size: calc(1rem - 1px);
   max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  color: $ui-white;
 }
 
 .paragraph {
@@ -37,8 +42,9 @@ $inner-padding: 1rem;
 }
 
 .card {
+  position: relative;
   padding: 2rem;
-  background-color: $white-1;
+  background-color: $white-3;
   border: 1px solid $gray-1100;
   border-radius: 3px;
 }
@@ -50,7 +56,7 @@ $inner-padding: 1rem;
 }
 
 .pad {
-  padding: 0 1rem;
+  padding: 0 2rem;
   max-height: 550px;
   overflow-y: scroll;
 }
@@ -60,15 +66,21 @@ $inner-padding: 1rem;
   border-collapse: collapse;
   font-size: calc(1rem - 2px);
   text-align: left;
+  margin-bottom: 2rem;
 
-  tr {
-    padding: 1rem 0;
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    box-shadow: 0 1px $white-10;
   }
 
   th {
-    border-bottom: 1px solid $white-10;
     font-weight: 400;
     color: $gray-400;
+    background-color: $gray-1350;
+    white-space: nowrap;
+    text-transform: capitalize;
   }
 
   th,
@@ -82,7 +94,7 @@ $inner-padding: 1rem;
 }
 
 .listGroup {
-  padding: 1rem 2rem 0 2rem;
+  padding: 0 2rem;
 
   > li:not(:last-child) {
     border-bottom: 1px solid $white-10;
@@ -114,4 +126,49 @@ $inner-padding: 1rem;
 .divider {
   border-top: 1px solid $white-10;
   margin: 1rem -2rem;
+  z-index: 999;
+}
+
+.overlay {
+  position: absolute;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(2px);
+  display: grid;
+  place-content: center;
+  background-color: $black-10;
+}
+
+.loader {
+  $loader-size: 4rem;
+  width: $loader-size;
+  height: $loader-size;
+  background: $blue-500;
+  display: inline-block;
+  border-radius: 50%;
+  box-sizing: border-box;
+  animation: animloader 1s ease-in infinite;
+}
+
+@keyframes animloader {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes animloader {
+  0% {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
 }

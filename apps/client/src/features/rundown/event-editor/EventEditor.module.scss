@@ -11,6 +11,7 @@
 
 .content {
   padding-right: 4px;
+  padding-bottom: 4rem;
 
   flex: 1;
   display: flex;
@@ -44,6 +45,15 @@
   font-size: calc(1rem - 3px);
   color: $label-gray;
   margin-bottom: 0.25rem;
+  text-transform: capitalize;
+}
+
+.decorated {
+  color: var(--decorator-color, $ui-white);
+  background-color: var(--decorator-bg, $gray-1100);
+  width: fit-content;
+  padding: 0 0.5rem;
+  border-radius: 2px;
 }
 
 .delayLabel {
@@ -60,6 +70,7 @@
   font-size: calc(1rem - 3px);
   color: $label-gray;
   display: flex;
+  align-items: center;
   gap: 0.5rem;
   max-width: max-content;
   cursor: pointer;

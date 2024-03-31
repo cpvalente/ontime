@@ -55,6 +55,8 @@ export { deepmerge } from './src/externals/deepmerge.js';
 export { deleteAtIndex, insertAtIndex, reorderArray, sortArrayByProperty } from './src/array-utils/arrayUtils.js';
 
 // generic utilities
+export { unpackError } from './src/generic/generic.js';
+export { obfuscate, unobfuscate } from './src/generic/generic.js';
 export { isNumeric } from './src/types/types.js';
 
 // model validation
@@ -62,10 +64,11 @@ export { validateEndAction, validateTimerType } from './src/validate-events/vali
 
 // feature business logic
 
-// feature business logic - excel import
+// feature business logic - spreadsheet import
 export {
-  type ExcelImportMap,
-  type ExcelImportOptions,
-  defaultExcelImportMap,
-  isExcelImportMap,
-} from './src/feature/excel-import/excelImport.js';
+  type ImportCustom,
+  type ImportMap,
+  type ImportOptions,
+  defaultImportMap,
+  isImportMap,
+} from './src/feature/spreadsheet-import/spreadsheetImport.js';

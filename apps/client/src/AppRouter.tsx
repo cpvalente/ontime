@@ -1,12 +1,13 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
-import withAlias from './features/AliasWrapper';
+import Log from './features/log/Log';
+import withPreset from './features/PresetWrapper';
 import withData from './features/viewers/ViewWrapper';
 
 const Editor = lazy(() => import('./features/editors/ProtectedEditor'));
 const Cuesheet = lazy(() => import('./features/cuesheet/ProtectedCuesheet'));
-const Operator = lazy(() => import('./features/operator/Operator'));
+const Operator = lazy(() => import('./features/operator/OperatorExport'));
 
 const TimerView = lazy(() => import('./features/viewers/timer/Timer'));
 const MinimalTimerView = lazy(() => import('./features/viewers/minimal-timer/MinimalTimer'));
@@ -18,14 +19,14 @@ const Public = lazy(() => import('./features/viewers/public/Public'));
 const Lower = lazy(() => import('./features/viewers/lower-thirds/LowerThird'));
 const StudioClock = lazy(() => import('./features/viewers/studio/StudioClock'));
 
-const STimer = withAlias(withData(TimerView));
-const SMinimalTimer = withAlias(withData(MinimalTimerView));
-const SClock = withAlias(withData(ClockView));
-const SCountdown = withAlias(withData(Countdown));
-const SBackstage = withAlias(withData(Backstage));
-const SPublic = withAlias(withData(Public));
-const SLowerThird = withAlias(withData(Lower));
-const SStudio = withAlias(withData(StudioClock));
+const STimer = withPreset(withData(TimerView));
+const SMinimalTimer = withPreset(withData(MinimalTimerView));
+const SClock = withPreset(withData(ClockView));
+const SCountdown = withPreset(withData(Countdown));
+const SBackstage = withPreset(withData(Backstage));
+const SPublic = withPreset(withData(Public));
+const SLowerThird = withPreset(withData(Lower));
+const SStudio = withPreset(withData(StudioClock));
 
 const EditorFeatureWrapper = lazy(() => import('./features/EditorFeatureWrapper'));
 const RundownPanel = lazy(() => import('./features/rundown/RundownExport'));
@@ -48,12 +49,12 @@ export default function AppRouter() {
         <Route path='/backstage' element={<SBackstage />} />
 
         <Route path='/public' element={<SPublic />} />
+
         <Route path='/studio' element={<SStudio />} />
-        {/*/!* Lower cannot have fallback *!/*/}
+
         <Route path='/lower' element={<SLowerThird />} />
 
         <Route path='/op' element={<Operator />} />
-        <Route path='/operator' element={<Operator />} />
 
         {/*/!* Protected Routes *!/*/}
         <Route path='/editor' element={<Editor />} />
@@ -81,6 +82,14 @@ export default function AppRouter() {
           element={
             <EditorFeatureWrapper>
               <MessageControl />
+            </EditorFeatureWrapper>
+          }
+        />
+        <Route
+          path='/log'
+          element={
+            <EditorFeatureWrapper>
+              <Log />
             </EditorFeatureWrapper>
           }
         />

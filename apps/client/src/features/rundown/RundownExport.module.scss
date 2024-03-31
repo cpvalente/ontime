@@ -1,8 +1,19 @@
-@use '../editors//EditorMixin' as editor;
+@use '../editors/EditorMixin' as editor;
 
 .rundownExport {
   height: 100%;
-  flex: 1;
+  flex: 1 1 auto; /* flex-grow: 1, flex-shrink: 1, flex-basis: auto */
+
+  &.extracted {
+    .list {
+      flex: 1;
+      max-width: none;
+    }
+    .side {
+      flex: 1;
+      max-width: none;
+    }
+  }
 }
 
 .rundown {
@@ -23,8 +34,7 @@
   padding-left: 0;
   box-shadow: $box-shadow-right;
 
-  flex-grow: 1;
-  flex-shrink: 1;
+  flex: 1 2 auto; /* flex-grow: 1, flex-shrink: 2, flex-basis: auto */
   min-width: 38rem;
   max-width: 45rem;
 }
@@ -38,8 +48,7 @@
   background-color: $gray-1325;
   border-radius: 0 8px 8px 0;
 
-  flex-grow: 1;
-  flex-shrink: 1;
+  flex: 1 1 auto; /* flex-grow: 1, flex-shrink: 1, flex-basis: auto */
   min-width: 30rem;
   max-width: 45rem;
 }

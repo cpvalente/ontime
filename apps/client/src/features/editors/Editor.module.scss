@@ -1,6 +1,5 @@
 @use './EditorMixin' as editor;
 
-$menu-width: 2.75rem;
 $min-playback-width: 27rem;
 $max-playback-width: 35rem;
 $panel-gap: 0.5rem;
@@ -17,11 +16,11 @@ $panel-gap: 0.5rem;
   padding: 1rem 0.5rem;
 
   display: grid;
-  grid-template-columns: $menu-width auto;
+  grid-template-columns: auto;
   grid-template-rows: 3rem 1fr;
   grid-template-areas:
-    'menu overview'
-    'menu main';
+    'overview'
+    'main';
   gap: $panel-gap;
 }
 
@@ -48,8 +47,7 @@ $panel-gap: 0.5rem;
 }
 
 .left {
-  flex-grow: 1;
-  flex-shrink: 1;
+  flex: 1 2 auto; /* flex-grow: 1, flex-shrink: 2, flex-basis: auto */
   min-width: $min-playback-width;
   max-width: $max-playback-width;
   display: flex;

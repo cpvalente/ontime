@@ -15,6 +15,7 @@ import { flexRender, HeaderGroup } from '@tanstack/react-table';
 import { OntimeRundownEntry } from 'ontime-types';
 
 import { useLocalStorage } from '../../../common/hooks/useLocalStorage';
+import { getAccessibleColour } from '../../../common/utils/styleUtils';
 import { tooltipDelayFast } from '../../../ontimeConfig';
 import { initialColumnOrder } from '../cuesheetCols';
 
@@ -89,9 +90,17 @@ function CuesheetHeader(props: CuesheetHeaderProps) {
               <SortableContext key={key} items={headerGroup.headers} strategy={horizontalListSortingStrategy}>
                 {headerGroup.headers.map((header) => {
                   const width = header.getSize();
+                  // @ts-expect-error -- we inject this into react-table
+                  const customBackground = header.column.columnDef?.meta?.colour;
+
+                  let customStyles = {};
+                  if (customBackground) {
+                    const customColour = getAccessibleColour(customBackground);
+                    customStyles = { backgroundColor: customColour.backgroundColor, color: customColour.color };
+                  }
 
                   return (
-                    <SortableCell key={header.column.columnDef.id} header={header} style={{ width }}>
+                    <SortableCell key={header.column.columnDef.id} header={header} style={{ width, ...customStyles }}>
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </SortableCell>
                   );
