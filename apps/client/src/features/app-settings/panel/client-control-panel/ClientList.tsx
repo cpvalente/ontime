@@ -4,8 +4,6 @@ import * as Panel from '../PanelUtils';
 export default function ClientList() {
   const { clients: clientData } = useClientList();
 
-  console.log(clientData);
-
   return (
     <Panel.Table>
       <thead>
