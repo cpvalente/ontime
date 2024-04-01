@@ -66,7 +66,7 @@ export default function MessageControl() {
         </Button>
       </div>
       <InputRow
-        label='External Message (readonly)'
+        label='External Message (read only)'
         placeholder={enDash}
         readonly
         text={message.external.text || ''}
