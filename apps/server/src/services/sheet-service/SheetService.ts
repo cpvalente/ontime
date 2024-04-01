@@ -201,15 +201,15 @@ async function verifySheet(
   sheetId = currentSheetId,
   authClient = currentAuthClient,
 ): Promise<{ worksheetOptions: string[] }> {
-  const spreadsheets = await sheets({ version: 'v4', auth: authClient }).spreadsheets.get({
-    spreadsheetId: sheetId,
-    includeGridData: false,
-  });
-
-  if (spreadsheets.status !== 200) {
-    throw new Error(spreadsheets.statusText);
+  try {
+    const spreadsheets = await sheets({ version: 'v4', auth: authClient }).spreadsheets.get({
+      spreadsheetId: sheetId,
+      includeGridData: false,
+    });
+    return { worksheetOptions: spreadsheets.data.sheets.map((i) => i.properties.title) };
+  } catch (error) {
+    throw new Error(`Failed to verify sheet: ${error.message}`);
   }
-  return { worksheetOptions: spreadsheets.data.sheets.map((i) => i.properties.title) };
 }
 
 export async function handleInitialConnection(
