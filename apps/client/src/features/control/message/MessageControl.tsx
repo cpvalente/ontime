@@ -52,7 +52,7 @@ export default function MessageControl() {
           onClick={() => setMessage.timerBlink(!blink)}
           data-testid='toggle timer blink'
         >
-          Blink message
+          Blink
         </Button>
         <Button
           size='sm'
