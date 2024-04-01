@@ -97,7 +97,6 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
             variant='ontime-subtle-white'
             disabled={disableAddDelay}
             className={style.quickBtn}
-            data-testid='quick-add-delay'
             leftIcon={<IoAdd />}
           >
             Delay {shortcutBase && <span className={style.keyboard}>{`${shortcutBase} D`}</span>}
@@ -110,7 +109,6 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
             variant='ontime-subtle-white'
             disabled={disableAddBlock}
             className={style.quickBtn}
-            data-testid='quick-add-block'
             leftIcon={<IoAdd />}
           >
             Block {shortcutBase && <span className={style.keyboard}>{`${shortcutBase} B`}</span>}
