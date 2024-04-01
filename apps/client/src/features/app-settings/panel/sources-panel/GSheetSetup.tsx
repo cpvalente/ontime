@@ -1,5 +1,5 @@
 import { ChangeEvent, useEffect, useState } from 'react';
-import { Button, Input } from '@chakra-ui/react';
+import { Button, Input, Spinner } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { IoShieldCheckmarkOutline } from '@react-icons/all-files/io5/IoShieldCheckmarkOutline';
 
@@ -190,6 +190,10 @@ export default function GSheetSetup(props: GSheetSetupProps) {
       ) : (
         <Panel.ListGroup>
           <div className={style.buttonRow}>
+            {
+              //TODO: better spinner
+              isAuthenticating ? <Spinner /> : <></>
+            }
             <CopyTag label='Google Auth Key' disabled={!canAuthenticate} size='sm'>
               {authKey ? authKey : 'Upload files to generate Auth Key'}
             </CopyTag>
@@ -198,8 +202,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
               size='sm'
               leftIcon={<IoShieldCheckmarkOutline />}
               onClick={handleAuthenticate}
-              isDisabled={!canAuthenticate || isLoading}
-              isLoading={loading === 'authenticate' || isAuthenticating}
+              isDisabled={!canAuthenticate}
             >
               Authenticate
             </Button>
