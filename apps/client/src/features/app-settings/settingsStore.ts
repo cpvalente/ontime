@@ -15,7 +15,7 @@ export const settingPanels: Readonly<SettingsOption[]> = [
   },
   {
     id: 'general',
-    label: 'General',
+    label: 'App Settings',
     secondary: [
       { id: 'general__manage', label: 'Manage Ontime settings' },
       { id: 'general__view', label: 'View settings' },
@@ -59,6 +59,7 @@ export const settingPanels: Readonly<SettingsOption[]> = [
 ] as const;
 
 export type SettingsOptionId = (typeof settingPanels)[number]['id'];
+
 export interface PanelBaseProps {
   location?: string;
 }
