@@ -210,21 +210,21 @@ export const startServer = async () => {
  * @param overrideConfig
  * @return {Promise<void>}
  */
-export const startOSCServer = async (overrideConfig?: { port: number }) => {
+export const startOSCServer = async (overrideConfig?: OSCSettings) => {
   checkStart(OntimeStartOrder.InitIO);
 
   const { osc } = DataProvider.getData();
+
+  // Setup default port
+  const oscSettings = {
+    ...osc,
+    ...overrideConfig,
+  };
 
   if (!osc.enabledIn) {
     logger.info(LogOrigin.Rx, 'OSC Input Disabled');
     return;
   }
-
-  // Setup default port
-  const oscSettings = {
-    ...osc,
-    portIn: overrideConfig?.port || osc.portIn,
-  };
 
   // Start OSC Server
   logger.info(LogOrigin.Rx, `Starting OSC Server on port: ${oscSettings.portIn}`);
