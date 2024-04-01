@@ -4,9 +4,8 @@ test('CRUD operations on the rundown', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
   // clear rundown
-  await page.getByRole('button', { name: 'Run mode' }).click();
-  await page.getByRole('button', { name: 'Rundown menu' }).click();
-  await page.getByRole('menuitem', { name: 'Delete all events' }).click();
+  await page.getByRole('button', { name: 'Edit mode' }).click();
+  await page.getByRole('button', { name: 'Clear rundown' }).click();
 
   // create event from the rundown empty button
   await page.getByRole('button', { name: 'Create Event' }).click();

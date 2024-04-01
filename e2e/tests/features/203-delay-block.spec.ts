@@ -4,8 +4,8 @@ test('delay blocks add time to events', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
   // delete all events and add a new one
-  await page.getByRole('button', { name: 'Rundown menu' }).click();
-  await page.getByRole('menuitem', { name: 'Delete all events' }).click();
+  await page.getByRole('button', { name: 'Edit mode' }).click();
+  await page.getByRole('button', { name: 'Clear rundown' }).click();
   await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('button', { name: 'Create event' }).click();
 

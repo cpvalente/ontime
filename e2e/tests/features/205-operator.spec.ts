@@ -3,9 +3,8 @@ import { test, expect } from '@playwright/test';
 test('smoke test operator', async ({ page }) => {
   // make some boilerplate
   await page.goto('http://localhost:4001/editor');
-  await page.getByRole('button', { name: 'Run mode' }).click();
-  await page.getByRole('button', { name: 'Rundown menu' }).click();
-  await page.getByRole('menuitem', { name: 'Delete all events' }).click();
+  await page.getByRole('button', { name: 'Edit mode' }).click();
+  await page.getByRole('button', { name: 'Clear rundown' }).click();
   await page.getByRole('button', { name: 'Create Event' }).click();
 
   await page.getByTestId('time-input-timeStart').fill('1m');
