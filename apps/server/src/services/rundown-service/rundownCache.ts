@@ -304,7 +304,7 @@ export function edit({ persistedRundown, eventId, patch }: EditArgs): Required<M
   const eventInMemory = persistedRundown[indexAt];
   if (!hasChanges(eventInMemory, patch)) {
     isStale = false;
-    return;
+    return { newRundown: persistedRundown, newEvent: undefined };
   }
 
   const newEvent = makeEvent(eventInMemory, patch);
