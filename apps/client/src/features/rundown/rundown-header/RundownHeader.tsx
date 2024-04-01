@@ -1,8 +1,6 @@
-import { Button, ButtonGroup, MenuButton } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
+import { ButtonGroup } from '@chakra-ui/react';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
-import { IoSnowOutline } from '@react-icons/all-files/io5/IoSnowOutline';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 import { AppMode, useAppMode } from '../../../common/stores/appModeStore';
@@ -37,7 +35,7 @@ export default function RundownHeader() {
           aria-label='Edit mode'
         />
       </ButtonGroup>
-      {appMode === AppMode.Edit && <RundownMenu />}
+      <RundownMenu />
     </div>
   );
 }
