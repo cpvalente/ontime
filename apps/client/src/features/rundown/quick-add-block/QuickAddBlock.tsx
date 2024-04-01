@@ -84,7 +84,6 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
             size='xs'
             variant='ontime-subtle-white'
             className={style.quickBtn}
-            data-testid='quick-add-event'
             leftIcon={<IoAdd />}
           >
             Event {shortcutBase && <span className={style.keyboard}>{`${shortcutBase} E`}</span>}

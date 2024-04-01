@@ -18,26 +18,28 @@ test('smoke test operator', async ({ page }) => {
   await page.getByTestId('entry-2').getByTestId('time-input-duration').press('Enter');
   await page.getByTestId('entry-2').getByTestId('time-input-duration').press('Enter');
 
-  await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
+  await page.getByRole('button', { name: 'Event Alt E', exact: true }).click();
   await page.getByTestId('entry-3').getByTestId('lock__duration').click();
   await page.getByTestId('entry-3').getByTestId('time-input-duration').fill('1m');
   await page.getByTestId('entry-3').getByTestId('time-input-duration').press('Enter');
 
   await page.getByRole('button', { name: 'Block', exact: true }).nth(0).click();
-  await page.getByTestId('quick-add-block').click();
 
   await page.getByRole('button', { name: 'Edit mode' }).click();
-  await page.getByTestId('entry-1').getByRole('button', { name: 'Event options' }).first().click();
+  await page.getByTestId('entry-1').click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Event after' }).click();
   await page.getByLabel('Title', { exact: true }).click();
   await page.getByLabel('Title', { exact: true }).fill('title 1');
   await page.getByLabel('Title', { exact: true }).press('Enter');
 
-  await page.getByTestId('entry-2').getByRole('button', { name: 'Event options' }).first().click();
+  await page.getByTestId('entry-2').click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Event after' }).click();
   await page.getByLabel('Title', { exact: true }).click();
   await page.getByLabel('Title', { exact: true }).fill('title 2');
   await page.getByLabel('Title', { exact: true }).press('Enter');
 
-  await page.getByTestId('entry-3').getByRole('button', { name: 'Event options' }).first().click();
+  await page.getByTestId('entry-3').click({ button: 'right' });
+  await page.getByRole('menuitem', { name: 'Event after' }).click();
   await page.getByLabel('Title', { exact: true }).click();
   await page.getByLabel('Title', { exact: true }).fill('title 3');
   await page.getByLabel('Title', { exact: true }).press('Enter');
