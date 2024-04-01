@@ -28,7 +28,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
 
   const { defaultPublic, linkPrevious } = useEditorSettings((state) => state.eventSettings);
 
-  const shortcutBase = showKbd === 'none' ? '' : `${deviceAlt} ${showKbd === 'above' ? '+ ⇧' : ''}`;
+  const shortcutBase = showKbd === 'none' ? '' : `${deviceAlt} ${showKbd === 'above' ? '⇧' : ''}`;
 
   const handleCreateEvent = useCallback(
     (eventType: SupportedEvent) => {
@@ -87,7 +87,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
             data-testid='quick-add-event'
             leftIcon={<IoAdd />}
           >
-            Event {shortcutBase && <span className={style.keyboard}>{`${shortcutBase} + E`}</span>}
+            Event {shortcutBase && <span className={style.keyboard}>{`${shortcutBase} E`}</span>}
           </Button>
         </Tooltip>
         <Tooltip label='Add Delay' openDelay={tooltipDelayMid}>
@@ -100,7 +100,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
             data-testid='quick-add-delay'
             leftIcon={<IoAdd />}
           >
-            Delay {shortcutBase && <span className={style.keyboard}>{`${shortcutBase} + D`}</span>}
+            Delay {shortcutBase && <span className={style.keyboard}>{`${shortcutBase} D`}</span>}
           </Button>
         </Tooltip>
         <Tooltip label='Add Block' openDelay={tooltipDelayMid}>
@@ -113,7 +113,7 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
             data-testid='quick-add-block'
             leftIcon={<IoAdd />}
           >
-            Block {shortcutBase && <span className={style.keyboard}>{`${shortcutBase} + B`}</span>}
+            Block {shortcutBase && <span className={style.keyboard}>{`${shortcutBase} B`}</span>}
           </Button>
         </Tooltip>
       </div>
