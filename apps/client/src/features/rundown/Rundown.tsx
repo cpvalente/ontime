@@ -260,7 +260,7 @@ export default function Rundown({ data }: RundownProps) {
 
               return (
                 <Fragment key={event.id}>
-                  {((isEditMode && hasCursor) || isFirst) && (
+                  {isEditMode && (hasCursor || isFirst) && (
                     <QuickAddBlock
                       showKbd={hasCursor ? 'above' : 'none'}
                       previousEventId={previousEventId}
