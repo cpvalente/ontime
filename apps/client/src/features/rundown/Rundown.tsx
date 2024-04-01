@@ -18,8 +18,7 @@ import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEditorSettings } from '../../common/stores/editorSettings';
 import { useEventCopy } from '../../common/stores/eventCopySore';
-import { millisToDelayString } from '../../common/utils/dateConfig';
-import { cloneEvent } from '../../common/utils/eventsManager';
+import { cloneEntry, cloneEvent } from '../../common/utils/eventsManager';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
 import RundownEmpty from './RundownEmpty';
@@ -28,6 +27,44 @@ import { useEventSelection } from './useEventSelection';
 import style from './Rundown.module.scss';
 
 const RundownEntry = lazy(() => import('./RundownEntry'));
+
+type KeyCombo = { altKey: boolean; ctrlKey: boolean; shiftKey: boolean; code: string };
+const checkKeys = (event: KeyboardEvent, keyCombo: KeyCombo) => {
+  return (
+    keyCombo.altKey === event.altKey &&
+    keyCombo.ctrlKey === event.ctrlKey &&
+    keyCombo.shiftKey === event.shiftKey &&
+    keyCombo.code === event.code
+  );
+};
+
+const keyCombos = {
+  selectUp: (event: KeyboardEvent) =>
+    checkKeys(event, { altKey: true, ctrlKey: false, shiftKey: false, code: 'ArrowUp' }),
+  selectDown: (event: KeyboardEvent) =>
+    checkKeys(event, { altKey: true, ctrlKey: false, shiftKey: false, code: 'ArrowDown' }),
+  reorderUp: (event: KeyboardEvent) =>
+    checkKeys(event, { altKey: true, ctrlKey: true, shiftKey: false, code: 'ArrowUp' }),
+  reorderDown: (event: KeyboardEvent) =>
+    checkKeys(event, { altKey: true, ctrlKey: true, shiftKey: false, code: 'ArrowDown' }),
+  addEventUp: (event: KeyboardEvent) =>
+    checkKeys(event, { altKey: true, ctrlKey: false, shiftKey: true, code: 'KeyE' }),
+  addEventDown: (event: KeyboardEvent) =>
+    checkKeys(event, { altKey: true, ctrlKey: false, shiftKey: false, code: 'KeyE' }),
+  addDelayUp: (event: KeyboardEvent) =>
+    checkKeys(event, { altKey: true, ctrlKey: false, shiftKey: true, code: 'KeyD' }),
+  addDelayDown: (event: KeyboardEvent) =>
+    checkKeys(event, { altKey: true, ctrlKey: false, shiftKey: false, code: 'KeyD' }),
+  addBlockUp: (event: KeyboardEvent) =>
+    checkKeys(event, { altKey: true, ctrlKey: false, shiftKey: true, code: 'KeyB' }),
+  addBlockDown: (event: KeyboardEvent) =>
+    checkKeys(event, { altKey: true, ctrlKey: false, shiftKey: false, code: 'KeyB' }),
+  copy: (event: KeyboardEvent) => checkKeys(event, { altKey: false, ctrlKey: true, shiftKey: false, code: 'KeyC' }),
+  pastUp: (event: KeyboardEvent) => checkKeys(event, { altKey: false, ctrlKey: true, shiftKey: true, code: 'KeyV' }),
+  pastDown: (event: KeyboardEvent) => checkKeys(event, { altKey: false, ctrlKey: true, shiftKey: false, code: 'KeyV' }),
+  deleteEntry: (event: KeyboardEvent) =>
+    checkKeys(event, { altKey: true, ctrlKey: false, shiftKey: false, code: 'Backspace' }),
+} as const;
 
 interface RundownProps {
   data: RundownCached;
@@ -97,151 +134,125 @@ export default function Rundown({ data }: RundownProps) {
       // handle held key
       if (event.repeat) return;
 
-      const modKeysCtrl = !event.altKey && event.ctrlKey && !event.shiftKey;
-      const modKeysAlt = event.altKey && !event.ctrlKey && !event.shiftKey;
-      const modKeysCtrlAlt = event.altKey && event.ctrlKey && !event.shiftKey;
       if (event.code == 'Escape') {
         setCursor(null);
         clearSelectedEvents();
-      } else if (modKeysAlt) {
-        switch (event.code) {
-          case 'ArrowDown': {
-            if (order.length < 1) {
-              return;
-            }
-            if (!cursor) {
-              const { id } = getFirstNormal(rundown, order);
-              setSelectedEvents({ id, index: 0, selectMode: 'click' });
-              setCursor(id);
-            } else {
-              const { nextEvent, nextIndex } = getNextNormal(rundown, order, cursor);
-              if (nextEvent && nextIndex) {
-                setSelectedEvents({ id: nextEvent.id, index: 0, selectMode: 'click' });
-                setCursor(nextEvent.id);
-              }
-            }
-            break;
-          }
-          case 'ArrowUp': {
-            if (order.length < 1) {
-              return;
-            }
-            if (!cursor) {
-              const { lastEvent, lastIndex } = getLastNormal(rundown, order);
-              if (lastEvent && lastIndex !== null) {
-                setCursor(lastEvent.id);
-                setSelectedEvents({ id: lastEvent.id, index: lastIndex, selectMode: 'click' });
-              }
-            } else {
-              const { previousEvent, previousIndex } = getPreviousNormal(rundown, order, cursor);
-              if (previousEvent && previousIndex !== null) {
-                setSelectedEvents({ id: previousEvent.id, index: previousIndex, selectMode: 'click' });
-                setCursor(previousEvent.id);
-              }
-            }
-            break;
-          }
-          case 'KeyE': {
-            event.preventDefault();
-            insertAtCursor(SupportedEvent.Event, cursor);
-            break;
-          }
-          case 'KeyD': {
-            event.preventDefault();
-            insertAtCursor(SupportedEvent.Delay, cursor);
-            break;
-          }
-          case 'KeyB': {
-            event.preventDefault();
-            insertAtCursor(SupportedEvent.Block, cursor);
-            break;
-          }
-          case 'KeyC': {
-            event.preventDefault();
-            insertAtCursor('clone', cursor);
-            break;
-          }
-          case 'Backspace':
-          case 'Delete': {
-            event.preventDefault();
+        return;
+      }
 
-            if (cursor) {
-              const elementToDelete = rundown[cursor];
-              const info = isOntimeDelay(elementToDelete)
-                ? `Delete this ${millisToDelayString(elementToDelete.duration)} delay?`
-                : isOntimeBlock(elementToDelete)
-                ? `Delete this block?\n${elementToDelete.title}`
-                : isOntimeEvent(elementToDelete)
-                ? `Delete this event?\n${elementToDelete.cue} | ${elementToDelete.title}`
-                : '';
+      if (!(event.ctrlKey || event.altKey || event.shiftKey)) return;
 
-              if (!confirm(info)) {
-                break;
-              }
-              const { previousEvent, previousIndex } = getPreviousNormal(rundown, order, cursor);
-              const { nextEvent, nextIndex } = getNextNormal(rundown, order, cursor);
-              deleteEvent(cursor);
-              if (previousEvent && previousIndex !== null) {
-                setSelectedEvents({ id: previousEvent.id, index: previousIndex, selectMode: 'click' });
-                setCursor(previousEvent.id);
-              } else if (nextEvent && nextIndex !== null) {
-                setSelectedEvents({ id: nextEvent.id, index: nextIndex, selectMode: 'click' });
-                setCursor(nextEvent.id);
-              }
-            }
-            break;
-          }
+      let comboFlag = true;
+
+      if (keyCombos.selectUp(event)) {
+        const { entry, index } = cursor ? getPreviousNormal(rundown, order, cursor) : getLastNormal(rundown, order);
+        if (entry && index !== null) {
+          setCursor(entry.id);
+          setSelectedEvents({ id: entry.id, index, selectMode: 'click' });
         }
-      } else if (modKeysCtrlAlt) {
-        if (order.length < 2 || cursor == null) {
-          return;
+      } else if (keyCombos.selectDown(event)) {
+        const { entry, index } = cursor ? getNextNormal(rundown, order, cursor) : getFirstNormal(rundown, order);
+        if (entry && index !== null) {
+          setCursor(entry.id);
+          setSelectedEvents({ id: entry.id, index, selectMode: 'click' });
         }
-        // Alt + Ctrl + Arrow Down
-        if (event.code == 'ArrowDown') {
-          const { nextEvent, nextIndex } = getNextNormal(rundown, order, cursor);
-          if (nextEvent && nextIndex !== null) {
-            reorderEvent(cursor, nextIndex - 1, nextIndex);
-          }
-          // Alt + Ctrl + Arrow Up
-        } else if (event.code == 'ArrowUp') {
-          const { previousEvent, previousIndex } = getPreviousNormal(rundown, order, cursor);
-          if (previousEvent && previousIndex !== null) {
-            reorderEvent(cursor, previousIndex + 1, previousIndex);
-          }
+      } else if (keyCombos.reorderUp(event)) {
+        if (order.length < 2 || cursor == null) return;
+        const { entry, index } = getPreviousNormal(rundown, order, cursor);
+        if (entry && index !== null) {
+          reorderEvent(cursor, index + 1, index);
         }
-      } else if (modKeysCtrl) {
-        switch (event.code) {
-          case 'KeyC': {
-            event.stopPropagation();
-            setEventCopyId(cursor);
-            break;
-          }
-          case 'KeyV': {
-            event.stopPropagation();
-            if (!eventCopyId) break;
-            const copyEvent = rundown[eventCopyId];
-            if (!isOntimeEvent(copyEvent)) break;
-            const newEvent = cloneEvent(copyEvent, cursor ?? undefined);
-            addEvent(newEvent);
-            setEventCopyId(null);
-            break;
-          }
+      } else if (keyCombos.reorderDown(event)) {
+        if (order.length < 2 || cursor == null) return;
+        const { entry, index } = getNextNormal(rundown, order, cursor);
+        if (entry && index !== null) {
+          reorderEvent(cursor, index - 1, index);
         }
+      } else if (keyCombos.addEventUp(event)) {
+        const after = cursor ? getPreviousNormal(rundown, order, cursor).entry?.id : undefined;
+        if (after) {
+          insertAtCursor(SupportedEvent.Event, after);
+        } else {
+          addEvent({ type: SupportedEvent.Event });
+        }
+      } else if (keyCombos.addEventDown(event)) {
+        if (cursor) {
+          insertAtCursor(SupportedEvent.Event, cursor);
+        } else {
+          const after = getLastNormal(rundown, order).entry?.id;
+          addEvent({ type: SupportedEvent.Event }, { after });
+        }
+      } else if (keyCombos.addBlockUp(event)) {
+        const after = cursor ? getPreviousNormal(rundown, order, cursor).entry?.id : undefined;
+        if (after) {
+          insertAtCursor(SupportedEvent.Block, after);
+        } else {
+          addEvent({ type: SupportedEvent.Block });
+        }
+      } else if (keyCombos.addBlockDown(event)) {
+        if (cursor) {
+          insertAtCursor(SupportedEvent.Block, cursor);
+        } else {
+          const after = getLastNormal(rundown, order).entry?.id;
+          addEvent({ type: SupportedEvent.Block }, { after });
+        }
+      } else if (keyCombos.addDelayUp(event)) {
+        const after = cursor ? getPreviousNormal(rundown, order, cursor).entry?.id : undefined;
+        if (after) {
+          insertAtCursor(SupportedEvent.Delay, after);
+        } else {
+          addEvent({ type: SupportedEvent.Delay });
+        }
+      } else if (keyCombos.addDelayDown(event)) {
+        if (cursor) {
+          insertAtCursor(SupportedEvent.Delay, cursor);
+        } else {
+          const after = getLastNormal(rundown, order).entry?.id;
+          addEvent({ type: SupportedEvent.Delay }, { after });
+        }
+      } else if (keyCombos.copy(event)) {
+        setEventCopyId(cursor);
+      } else if (keyCombos.pastUp(event)) {
+        if (!eventCopyId) return;
+        const copyEntry = rundown[eventCopyId];
+        const after = cursor ? getPreviousNormal(rundown, order, cursor).entry?.id : undefined;
+        const newEntry = cloneEntry(copyEntry, after);
+        addEvent(newEntry);
+        setEventCopyId(null);
+      } else if (keyCombos.pastDown(event)) {
+        if (!eventCopyId) return;
+        const copyEntry = rundown[eventCopyId];
+        const after = cursor ? cursor : getLastNormal(rundown, order).entry?.id;
+        const newEntry = cloneEntry(copyEntry, after);
+        addEvent(newEntry);
+      } else if (keyCombos.deleteEntry(event)) {
+        if (!cursor) return;
+        const previous = getPreviousNormal(rundown, order, cursor).entry?.id ?? null;
+        //TODO: should we add a confirmation?
+        deleteEvent(cursor);
+        setCursor(previous);
+      } else {
+        comboFlag = false;
+      }
+
+      if (comboFlag) {
+        event.stopPropagation();
+        event.preventDefault();
       }
     },
     [
       setCursor,
       clearSelectedEvents,
-      order,
       cursor,
       rundown,
+      order,
       setSelectedEvents,
-      insertAtCursor,
-      deleteEvent,
       reorderEvent,
+      insertAtCursor,
+      addEvent,
       setEventCopyId,
       eventCopyId,
-      addEvent,
+      deleteEvent,
     ],
   );
 

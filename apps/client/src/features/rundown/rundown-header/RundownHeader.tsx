@@ -4,11 +4,12 @@ import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoSnowOutline } from '@react-icons/all-files/io5/IoSnowOutline';
-import { isOntimeEvent, RundownCached } from 'ontime-types';
+import { isOntimeBlock, isOntimeDelay, isOntimeEvent, RundownCached } from 'ontime-types';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 import { AppMode, useAppMode } from '../../../common/stores/appModeStore';
 import { useEventCopy } from '../../../common/stores/eventCopySore';
+import { millisToDelayString } from '../../../common/utils/dateConfig';
 
 import RundownMenu from './RundownMenu';
 
@@ -32,11 +33,20 @@ export default function RundownHeader({ data }: RundownProps) {
 
     const clipEvent = rundown[eventCopyId];
 
-    if (!isOntimeEvent(clipEvent)) return '';
-
-    const idCueName = `${clipEvent.cue} | ${clipEvent.title}`;
-    const compressedName = idCueName.length > 35 ? `${idCueName.slice(0, 35)}...` : idCueName;
-    return `COPY: ${compressedName}`;
+    if (isOntimeEvent(clipEvent)) {
+      const idCueName = `${clipEvent.cue} | ${clipEvent.title}`;
+      const compressedName = idCueName.length > 35 ? `${idCueName.slice(0, 35)}...` : idCueName;
+      return `COPY: ${compressedName}`;
+    } else if (isOntimeBlock(clipEvent)) {
+      const blockName = `BLOCK | ${clipEvent.title}`;
+      const compressedName = blockName.length > 35 ? `${blockName.slice(0, 35)}...` : blockName;
+      return `COPY: ${compressedName}`;
+    } else if (isOntimeDelay(clipEvent)) {
+      const delayName = `DELAY | ${millisToDelayString(clipEvent.duration)}`;
+      return `COPY: ${delayName}`;
+    } else {
+      return '';
+    }
   }, [eventCopyId, rundown]);
 
   return (

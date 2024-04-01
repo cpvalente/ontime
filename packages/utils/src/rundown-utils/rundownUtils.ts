@@ -1,5 +1,7 @@
 import { isOntimeEvent, NormalisedRundown, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 
+type EntryReturn = { entry: OntimeRundownEntry | null; index: number | null };
+
 /**
  * Gets first event in rundown, if it exists
  * @param {OntimeRundownEntry[]} rundown
@@ -15,9 +17,9 @@ export function getFirst(rundown: OntimeRundownEntry[]) {
  * @param order
  * @returns
  */
-export function getFirstNormal(rundown: NormalisedRundown, order: string[]) {
+export function getFirstNormal(rundown: NormalisedRundown, order: string[]): EntryReturn {
   const firstId = order[0];
-  return rundown[firstId] ?? null;
+  return { entry: rundown[firstId] ?? null, index: 0 };
 }
 
 /**
@@ -67,12 +69,11 @@ export function getFirstEventNormal(
  * @param order
  * @returns
  */
-export function getLastNormal(rundown: NormalisedRundown, order: string[]) {
+export function getLastNormal(rundown: NormalisedRundown, order: string[]): EntryReturn {
   const lastId = order[order.length - 1];
-  const event = rundown[lastId];
-  const lastEvent = event ? event : null;
-  const lastIndex = lastEvent ? order.length - 1 : null;
-  return { lastEvent, lastIndex };
+  const entry = rundown[lastId] ? rundown[lastId] : null;
+  const index = entry ? order.length - 1 : null;
+  return { entry, index };
 }
 
 /**
@@ -151,19 +152,15 @@ export function getNext(
  * @param currentId
  * @returns
  */
-export function getNextNormal(
-  rundown: NormalisedRundown,
-  order: string[],
-  currentId: string,
-): { nextEvent: OntimeRundownEntry | null; nextIndex: number | null } {
-  const index = order.findIndex((id) => id === currentId);
-  if (index !== -1 && index + 1 < order.length) {
-    const nextIndex = index + 1;
-    const nextId = order[nextIndex];
-    const nextEvent = rundown[nextId];
-    return { nextEvent, nextIndex };
+export function getNextNormal(rundown: NormalisedRundown, order: string[], currentId: string): EntryReturn {
+  const currentIndex = order.findIndex((id) => id === currentId);
+  if (currentIndex !== -1 && currentIndex + 1 < order.length) {
+    const index = currentIndex + 1;
+    const id = order[index];
+    const entry = rundown[id];
+    return { entry, index };
   } else {
-    return { nextEvent: null, nextIndex: null };
+    return { entry: null, index: null };
   }
 }
 
@@ -245,19 +242,15 @@ export function getPrevious(
  * @param {string} currentId
  * @return {{ previousEvent: OntimeRundownEntry | null; previousIndex: number | null } }
  */
-export function getPreviousNormal(
-  rundown: NormalisedRundown,
-  order: string[],
-  currentId: string,
-): { previousEvent: OntimeRundownEntry | null; previousIndex: number | null } {
-  const index = order.findIndex((id) => id === currentId);
-  if (index !== -1 && index - 1 >= 0) {
-    const previousIndex = index - 1;
-    const previousId = order[previousIndex];
-    const previousEvent = rundown[previousId];
-    return { previousEvent, previousIndex };
+export function getPreviousNormal(rundown: NormalisedRundown, order: string[], currentId: string): EntryReturn {
+  const currentIndex = order.findIndex((id) => id === currentId);
+  if (currentIndex !== -1 && currentIndex - 1 >= 0) {
+    const index = currentIndex - 1;
+    const id = order[index];
+    const entry = rundown[id];
+    return { entry, index };
   } else {
-    return { previousEvent: null, previousIndex: null };
+    return { entry: null, index: null };
   }
 }
 
