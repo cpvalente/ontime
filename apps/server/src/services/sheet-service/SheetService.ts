@@ -183,7 +183,7 @@ function verifyConnection(
         pollInterval = null;
       }
 
-      postAction();
+      await postAction();
     } catch (_error) {
       /** we do not handle failure */
     }
