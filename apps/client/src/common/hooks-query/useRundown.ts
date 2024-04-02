@@ -13,7 +13,7 @@ export default function useRundown() {
   const { data, status, isError, refetch, isFetching } = useQuery<RundownCached>({
     queryKey: RUNDOWN,
     queryFn: fetchNormalisedRundown,
-    placeholderData: cachedRundownPlaceholder,
+    placeholderData: (previousData, _previousQuery) => previousData,
     retry: 5,
     retryDelay: (attempt) => attempt * 2500,
     refetchInterval: queryRefetchInterval,

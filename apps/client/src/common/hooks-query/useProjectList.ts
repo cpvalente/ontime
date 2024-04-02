@@ -14,7 +14,7 @@ export function useProjectList() {
   const { data, status, refetch } = useQuery({
     queryKey: PROJECT_LIST,
     queryFn: getProjects,
-    placeholderData: placeholderProjectList,
+    placeholderData: (previousData, _previousQuery) => previousData,
     retry: 5,
     retryDelay: (attempt: number) => attempt * 2500,
     refetchInterval: queryRefetchIntervalSlow,

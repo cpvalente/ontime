@@ -11,14 +11,13 @@ export function useHttpSettings() {
   const { data, status, isFetching, isError, refetch } = useQuery({
     queryKey: HTTP_SETTINGS,
     queryFn: getHTTP,
-    placeholderData: httpPlaceholder,
+    placeholderData: (previousData, _previousQuery) => previousData,
     retry: 5,
     retryDelay: (attempt: number) => attempt * 2500,
     refetchInterval: queryRefetchIntervalSlow,
     networkMode: 'always',
   });
 
-  // we need to jump through some hoops because of the type op port
   return { data: data ?? httpPlaceholder, status, isFetching, isError, refetch };
 }
 
