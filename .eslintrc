@@ -19,6 +19,7 @@
   "rules": {
     "no-useless-concat": "warn",
     "prefer-template": "warn",
+    "no-throw-literal": "error",
     "no-console": [
       "warn",
       {
