@@ -1664,7 +1664,7 @@ describe('getRuntimeOffset()', () => {
         expectedEnd: 81600000, // 22:40:00
       },
       timer: {
-        addedTime: 0,
+        addedTime: -200000,
         current: -400000,
         duration: 3600000,
         elapsed: 4000000,
@@ -1678,7 +1678,7 @@ describe('getRuntimeOffset()', () => {
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
-    expect(offset).toBe(-400000);
+    expect(offset).toBe(400000); // <--- offset is always the overtime
   });
 
   it('handles time-to-end started after the end time', () => {
@@ -1732,7 +1732,8 @@ describe('getRuntimeOffset()', () => {
     const updateCurrent = getCurrent(state);
     state.timer.current = updateCurrent;
     const offset = getRuntimeOffset(state);
-    expect(offset).toBe(81000000 - 82000000); // <-- planned end - now
+    expect(millisToString(offset)).toBe('00:16:40');
+    expect(offset).toBe(82000000 - 81000000); // <-- now - planned end
   });
 });
 
