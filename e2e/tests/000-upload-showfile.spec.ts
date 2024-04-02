@@ -4,8 +4,8 @@ const fileToUpload = 'e2e/tests/fixtures/test-db.json';
 
 test('project file upload', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
-  await page.getByRole('button', { name: 'Rundown menu' }).click();
-  await page.getByRole('menuitem', { name: 'Delete all events' }).click();
+  await page.getByRole('button', { name: 'Edit mode' }).click();
+  await page.getByRole('button', { name: 'Clear rundown' }).click();
 
   await page.getByRole('button', { name: 'toggle settings' }).click();
   await page.getByRole('button', { name: 'Project', exact: true }).click();

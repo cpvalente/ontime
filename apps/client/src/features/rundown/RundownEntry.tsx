@@ -13,7 +13,18 @@ import DelayBlock from './delay-block/DelayBlock';
 import EventBlock from './event-block/EventBlock';
 import { useEventSelection } from './useEventSelection';
 
-export type EventItemActions = 'set-cursor' | 'event' | 'delay' | 'block' | 'delete' | 'clone' | 'update' | 'swap';
+export type EventItemActions =
+  | 'set-cursor'
+  | 'event'
+  | 'event-before'
+  | 'delay'
+  | 'delay-before'
+  | 'block'
+  | 'block-before'
+  | 'delete'
+  | 'clone'
+  | 'update'
+  | 'swap';
 
 interface RundownEntryProps {
   type: SupportedEvent;
@@ -83,11 +94,26 @@ export default function RundownEntry(props: RundownEntryProps) {
         };
         return addEvent(newEvent, options);
       }
+      case 'event-before': {
+        const newEvent = { type: SupportedEvent.Event };
+        const options = {
+          after: previousEventId,
+          defaultPublic,
+          linkPrevious,
+        };
+        return addEvent(newEvent, options);
+      }
       case 'delay': {
         return addEvent({ type: SupportedEvent.Delay }, { after: data.id });
       }
+      case 'delay-before': {
+        return addEvent({ type: SupportedEvent.Delay }, { after: previousEventId });
+      }
       case 'block': {
         return addEvent({ type: SupportedEvent.Block }, { after: data.id });
+      }
+      case 'block-before': {
+        return addEvent({ type: SupportedEvent.Block }, { after: previousEventId });
       }
       case 'swap': {
         const { value } = payload as FieldValue;
@@ -163,9 +189,9 @@ export default function RundownEntry(props: RundownEntryProps) {
       />
     );
   } else if (data.type === SupportedEvent.Block) {
-    return <BlockBlock data={data} hasCursor={hasCursor} actionHandler={actionHandler} />;
+    return <BlockBlock data={data} hasCursor={hasCursor} onDelete={() => actionHandler('delete')} />;
   } else if (data.type === SupportedEvent.Delay) {
-    return <DelayBlock data={data} hasCursor={hasCursor} actionHandler={actionHandler} />;
+    return <DelayBlock data={data} hasCursor={hasCursor} />;
   }
   return null;
 }

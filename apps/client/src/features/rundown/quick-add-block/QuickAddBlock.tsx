@@ -12,14 +12,14 @@ import { tooltipDelayMid } from '../../../ontimeConfig';
 import style from './QuickAddBlock.module.scss';
 
 interface QuickAddBlockProps {
-  showKbd: boolean;
-  previousEventId: string;
+  showKbd: 'above' | 'below' | 'none';
+  previousEventId?: string;
   disableAddDelay?: boolean;
   disableAddBlock: boolean;
 }
 
 const QuickAddBlock = (props: QuickAddBlockProps) => {
-  const { showKbd, previousEventId, disableAddDelay = true, disableAddBlock } = props;
+  const { showKbd = 'none', previousEventId, disableAddDelay = true, disableAddBlock } = props;
   const { addEvent } = useEventAction();
   const { emitError } = useEmitLog();
 
@@ -27,6 +27,8 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
   const doPublic = useRef<HTMLInputElement | null>(null);
 
   const { defaultPublic, linkPrevious } = useEditorSettings((state) => state.eventSettings);
+
+  const shortcutBase = showKbd === 'none' ? '' : `${deviceAlt} ${showKbd === 'above' ? '⇧' : ''}`;
 
   const handleCreateEvent = useCallback(
     (eventType: SupportedEvent) => {
@@ -70,6 +72,9 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
     [previousEventId, addEvent, emitError],
   );
 
+  const canLinkPrevious = Boolean(previousEventId);
+  const shouldLinkPrevious = Boolean(linkPrevious) && canLinkPrevious;
+
   return (
     <div className={style.quickAdd}>
       <div className={style.btnRow}>
@@ -79,10 +84,9 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
             size='xs'
             variant='ontime-subtle-white'
             className={style.quickBtn}
-            data-testid='quick-add-event'
             leftIcon={<IoAdd />}
           >
-            Event {showKbd && <span className={style.keyboard}>{`${deviceAlt} + E`}</span>}
+            Event {shortcutBase && <span className={style.keyboard}>{`${shortcutBase} E`}</span>}
           </Button>
         </Tooltip>
         <Tooltip label='Add Delay' openDelay={tooltipDelayMid}>
@@ -92,10 +96,9 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
             variant='ontime-subtle-white'
             disabled={disableAddDelay}
             className={style.quickBtn}
-            data-testid='quick-add-delay'
             leftIcon={<IoAdd />}
           >
-            Delay {showKbd && <span className={style.keyboard}>{`${deviceAlt} + D`}</span>}
+            Delay {shortcutBase && <span className={style.keyboard}>{`${shortcutBase} D`}</span>}
           </Button>
         </Tooltip>
         <Tooltip label='Add Block' openDelay={tooltipDelayMid}>
@@ -105,15 +108,20 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
             variant='ontime-subtle-white'
             disabled={disableAddBlock}
             className={style.quickBtn}
-            data-testid='quick-add-block'
             leftIcon={<IoAdd />}
           >
-            Block {showKbd && <span className={style.keyboard}>{`${deviceAlt} + B`}</span>}
+            Block {shortcutBase && <span className={style.keyboard}>{`${shortcutBase} B`}</span>}
           </Button>
         </Tooltip>
       </div>
       <div className={style.options}>
-        <Checkbox ref={doLinkPrevious} size='sm' variant='ontime-ondark' defaultChecked={linkPrevious}>
+        <Checkbox
+          ref={doLinkPrevious}
+          size='sm'
+          variant='ontime-ondark'
+          isDisabled={!canLinkPrevious}
+          defaultChecked={shouldLinkPrevious}
+        >
           Link to previous
         </Checkbox>
         <Checkbox ref={doPublic} size='sm' variant='ontime-ondark' defaultChecked={defaultPublic}>
