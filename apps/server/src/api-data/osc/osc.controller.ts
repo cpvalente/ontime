@@ -1,4 +1,4 @@
-import { type ErrorResponse, type OSCSettings } from 'ontime-types';
+import type { ErrorResponse, OSCSettings } from 'ontime-types';
 
 import { Request, Response } from 'express';
 
@@ -24,7 +24,6 @@ export async function postOSC(req: Request, res: Response<OSCSettings | ErrorRes
     await startOSCServer();
     // we persist the data after init to avoid persisting invalid data
     const result = await DataProvider.setOsc(oscSettings);
-
 
     res.send(result).status(200);
   } catch (error) {
