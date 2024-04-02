@@ -2,14 +2,14 @@ import { Log, RuntimeStore } from 'ontime-types';
 
 import { isProduction, RUNTIME, websocketUrl } from '../api/constants';
 import { ontimeQueryClient } from '../queryClient';
-import { socketClientName } from '../stores/connectionName';
+import { setClientList, setCurrentClientName } from '../stores/clientList';
 import { addLog } from '../stores/logger';
 import { patchRuntime, runtimeStore } from '../stores/runtime';
-import { ClientListStore, clientListStore } from '../stores/clientList';
 
 export let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
 const reconnectInterval = 1000;
+
 export let shouldReconnect = true;
 export let hasConnected = false;
 export let reconnectAttempts = 0;
@@ -56,19 +56,16 @@ export const connectSocket = (preferredClientName?: string) => {
 
       switch (type) {
         case 'client-name': {
-          socketClientName.getState().setName(payload);
+          if (typeof payload === 'string') {
+            setCurrentClientName(payload);
+          }
           break;
         }
         case 'client-list': {
-          clientListStore.setState(payload as ClientListStore)
-
+          if (Array.isArray(payload)) {
+            setClientList(payload as string[]);
+          }
           break;
-
-          // const state = runtimeStore.getState();
-          // state.clientList = payload;
-          // runtimeStore.setState(state);
-          // console.log(runtimeStore);
-          // break;
         }
         case 'ontime-log': {
           addLog(payload as Log);
