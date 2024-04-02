@@ -1,18 +1,6 @@
 import { memo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { useDisclosure } from '@chakra-ui/react';
-import { useFullscreen } from '@mantine/hooks';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-import { IoContract } from '@react-icons/all-files/io5/IoContract';
-import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 
-import { navigatorConstants } from '../../../viewerConfig';
-import { isKeyEnter } from '../../utils/keyEvent';
-
-import RenameClientModal from './rename-client-modal/RenameClientModal';
 import NavigationMenu from './NavigationMenu';
-
-import style from './NavigationMenu.module.scss';
 
 interface ProductionNavigationMenuProps {
   isMenuOpen: boolean;
@@ -21,73 +9,8 @@ interface ProductionNavigationMenuProps {
 
 function ProductionNavigationMenu(props: ProductionNavigationMenuProps) {
   const { isMenuOpen, onMenuClose } = props;
-  const location = useLocation();
-  const { fullscreen, toggle } = useFullscreen();
-  const { isOpen, onOpen, onClose } = useDisclosure();
 
-  return (
-    <NavigationMenu isOpen={isMenuOpen} onClose={onMenuClose}>
-      <RenameClientModal isOpen={isOpen} onClose={onClose} />
-      <div className={style.buttonsContainer}>
-        <div
-          className={style.link}
-          tabIndex={0}
-          role='button'
-          onClick={toggle}
-          onKeyDown={(event) => {
-            isKeyEnter(event) && toggle();
-          }}
-        >
-          Toggle Fullscreen
-          {fullscreen ? <IoContract /> : <IoExpand />}
-        </div>
-        <div
-          className={style.link}
-          tabIndex={0}
-          role='button'
-          onClick={onOpen}
-          onKeyDown={(event) => {
-            isKeyEnter(event) && onOpen();
-          }}
-        >
-          Rename Client
-        </div>
-      </div>
-      <hr className={style.separator} />
-      <Link
-        to='/editor'
-        className={`${style.link} ${location.pathname === '/editor' ? style.current : ''}`}
-        tabIndex={0}
-      >
-        Editor
-        <IoArrowUp className={style.linkIcon} />
-      </Link>
-      <Link
-        to='/cuesheet'
-        className={`${style.link} ${location.pathname === '/cuesheet' ? style.current : ''}`}
-        tabIndex={0}
-      >
-        Cuesheet
-        <IoArrowUp className={style.linkIcon} />
-      </Link>
-      <Link to='/op' className={`${style.link} ${location.pathname === '/op' ? style.current : ''}`} tabIndex={0}>
-        Operator
-        <IoArrowUp className={style.linkIcon} />
-      </Link>
-      <hr className={style.separator} />
-      {navigatorConstants.map((route) => (
-        <Link
-          key={route.url}
-          to={route.url}
-          className={`${style.link} ${route.url === location.pathname ? style.current : ''}`}
-          tabIndex={0}
-        >
-          {route.label}
-          <IoArrowUp className={style.linkIcon} />
-        </Link>
-      ))}
-    </NavigationMenu>
-  );
+  return <NavigationMenu isOpen={isMenuOpen} onClose={onMenuClose} />;
 }
 
 export default memo(ProductionNavigationMenu);
