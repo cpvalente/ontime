@@ -287,7 +287,7 @@ export default function Rundown({ data }: RundownProps) {
                       />
                     </div>
                   </div>
-                  {((isEditMode && hasCursor) || isLast) && (
+                  {isEditMode && (hasCursor || isLast) && (
                     <QuickAddBlock
                       showKbd={hasCursor ? 'below' : 'none'}
                       previousEventId={event.id}
