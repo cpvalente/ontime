@@ -46,10 +46,20 @@ export const settingPanels: Readonly<SettingsOption[]> = [
     ],
   },
   {
-    id: 'client_control',
-    label: 'Client Control',
+    id: 'network',
+    label: 'Network',
+    split: true,
+    secondary: [
+      {
+        id: 'network__log',
+        label: 'Application log',
+      },
+      {
+        id: 'network__clients',
+        label: 'Manage clients',
+      },
+    ],
   },
-  { id: 'log', label: 'Log', split: true },
   {
     id: 'about',
     label: 'About',

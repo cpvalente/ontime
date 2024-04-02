@@ -1,3 +1,4 @@
+import ClientControlPanel from '../client-control-panel/ClientControlPanel';
 import * as Panel from '../PanelUtils';
 
 import LogExport from './LogExport';
@@ -12,6 +13,7 @@ export default function LogPanel() {
       </Panel.Section>
       <InfoNif />
       <LogExport />
+      <ClientControlPanel />
     </>
   );
 }
