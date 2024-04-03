@@ -841,35 +841,35 @@ describe('custom fields', () => {
     it('creates a field from given parameters', async () => {
       const expected = {
         lighting: {
-          label: 'lighting',
+          label: 'Lighting',
           type: 'string',
           colour: 'blue',
         },
       };
 
-      const customField = await createCustomField({ label: 'lighting', type: 'string', colour: 'blue' });
+      const customField = await createCustomField({ label: 'Lighting', type: 'string', colour: 'blue' });
       expect(customField).toStrictEqual(expected);
     });
   });
 
   describe('editCustomField()', () => {
     it('edits a field with a given label', async () => {
-      await createCustomField({ label: 'sound', type: 'string', colour: 'blue' });
+      await createCustomField({ label: 'Sound', type: 'string', colour: 'blue' });
 
       const expected = {
         lighting: {
-          label: 'lighting',
+          label: 'Lighting',
           type: 'string',
           colour: 'blue',
         },
         sound: {
-          label: 'sound',
+          label: 'Sound',
           type: 'string',
-          colour: 'blue',
+          colour: 'green',
         },
       };
 
-      const customField = await editCustomField('sound', { label: 'sound', type: 'string', colour: 'blue' });
+      const customField = await editCustomField('sound', { label: 'Sound', type: 'string', colour: 'green' });
 
       expect(customField).toStrictEqual(expected);
     });
@@ -879,7 +879,7 @@ describe('custom fields', () => {
     it('deletes a field with a given label', async () => {
       const expected = {
         lighting: {
-          label: 'lighting',
+          label: 'Lighting',
           type: 'string',
           colour: 'blue',
         },

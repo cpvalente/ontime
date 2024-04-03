@@ -1,12 +1,11 @@
-import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Settings, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { getClockOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
@@ -26,9 +25,7 @@ export default function Clock(props: ClockProps) {
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
-    document.title = 'ontime - Clock';
-  }, []);
+  useWindowTitle('Clock');
 
   // defer rendering until we load stylesheets
   if (!shouldRender) {
@@ -133,7 +130,6 @@ export default function Clock(props: ClockProps) {
       }}
       data-testid='clock-view'
     >
-      <NavigationMenu />
       <ViewParamsEditor paramFields={clockOptions} />
       <SuperscriptTime
         time={clock}

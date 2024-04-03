@@ -234,7 +234,7 @@ function notifyChanges(options: { timer?: boolean | string[]; external?: boolean
  * Overrides the rundown with the given
  * @param rundown
  */
-export async function initRundown(rundown: OntimeRundown, customFields: CustomFields) {
+export async function initRundown(rundown: Readonly<OntimeRundown>, customFields: Readonly<CustomFields>) {
   await cache.init(rundown, customFields);
 
   // notify runtime that rundown has changed

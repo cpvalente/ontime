@@ -11,7 +11,7 @@ export default function useCustomFields() {
   const { data, status, isFetching, isError, refetch } = useQuery({
     queryKey: CUSTOM_FIELDS,
     queryFn: getCustomFields,
-    placeholderData: placeholder,
+    placeholderData: (previousData, _previousQuery) => previousData,
     retry: 5,
     retryDelay: (attempt) => attempt * 2500,
     refetchInterval: queryRefetchInterval,

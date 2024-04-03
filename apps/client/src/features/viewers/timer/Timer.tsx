@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -15,11 +14,11 @@ import { MILLIS_PER_SECOND, millisToString, removeLeadingZero, removeSeconds } f
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getTimerOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
@@ -64,9 +63,7 @@ export default function Timer(props: TimerProps) {
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
-    document.title = 'ontime - Timer';
-  }, []);
+  useWindowTitle('Timer');
 
   // defer rendering until we load stylesheets
   if (!shouldRender) {
@@ -162,7 +159,6 @@ export default function Timer(props: TimerProps) {
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
-      <NavigationMenu />
       <ViewParamsEditor paramFields={timerOptions} />
       <div className={showBlackout ? 'blackout blackout--active' : 'blackout'} />
       {!userOptions.hideMessage && (

@@ -1,9 +1,5 @@
 import { Tooltip } from '@chakra-ui/react';
-import { useFullscreen } from '@mantine/hooks';
-import { IoContract } from '@react-icons/all-files/io5/IoContract';
-import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoLocate } from '@react-icons/all-files/io5/IoLocate';
-import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 import { Playback, ProjectData } from 'ontime-types';
 
 import PlaybackIcon from '../../../common/components/playback-icon/PlaybackIcon';
@@ -28,10 +24,7 @@ interface CuesheetTableHeaderProps {
 
 export default function CuesheetTableHeader({ handleExport, featureData }: CuesheetTableHeaderProps) {
   const followSelected = useCuesheetSettings((state) => state.followSelected);
-  const showSettings = useCuesheetSettings((state) => state.showSettings);
-  const toggleSettings = useCuesheetSettings((state) => state.toggleSettings);
   const toggleFollow = useCuesheetSettings((state) => state.toggleFollow);
-  const { fullscreen, toggle } = useFullscreen();
   const { data: project } = useProjectData();
 
   const exportProject = () => {
@@ -64,19 +57,6 @@ export default function CuesheetTableHeader({ handleExport, featureData }: Cuesh
             className={cx([style.actionIcon, followSelected ? style.enabled : null])}
           >
             <IoLocate />
-          </span>
-        </Tooltip>
-        <Tooltip openDelay={tooltipDelayFast} label='Toggle settings'>
-          <span
-            onClick={() => toggleSettings()}
-            className={cx([style.actionIcon, showSettings ? style.enabled : null])}
-          >
-            <IoSettingsOutline />
-          </span>
-        </Tooltip>
-        <Tooltip openDelay={tooltipDelayFast} label='Toggle Fullscreen'>
-          <span onClick={() => toggle()} className={style.actionIcon}>
-            {fullscreen ? <IoContract /> : <IoExpand />}
           </span>
         </Tooltip>
         <Tooltip openDelay={tooltipDelayFast} label='Export rundown'>

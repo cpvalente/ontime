@@ -8,7 +8,7 @@ export default function useUrlPresets() {
   const { data, status, isError, refetch } = useQuery({
     queryKey: URL_PRESETS,
     queryFn: getUrlPresets,
-    placeholderData: [],
+    placeholderData: (previousData, _previousQuery) => previousData,
     retry: 5,
     retryDelay: (attempt) => attempt * 2500,
     refetchInterval: queryRefetchIntervalSlow,

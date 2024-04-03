@@ -13,7 +13,7 @@ export default function GeneralPanel({ location }: PanelBaseProps) {
 
   return (
     <>
-      <Panel.Header>Settings</Panel.Header>
+      <Panel.Header>App Settings</Panel.Header>
       <div ref={manageRef}>
         <GeneralPanelForm />
       </div>

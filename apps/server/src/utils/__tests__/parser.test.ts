@@ -796,7 +796,7 @@ describe('parseExcel()', () => {
         'Skip',
         'Notes',
         't0',
-        'UpperCaseFromSheet',
+        'Test1',
         'test2',
         'test3',
         'test4',
@@ -859,8 +859,8 @@ describe('parseExcel()', () => {
     const importMap = {
       custom: {
         user0: 't0',
-        user1: 'UpperCaseFromSheet',
-        UpperCaseFromOntime: 'test2',
+        User1: 'Test1',
+        user2: 'test2',
         user3: 'test3',
         user4: 'test4',
         user5: 'test5',
@@ -885,7 +885,7 @@ describe('parseExcel()', () => {
         custom: {
           user0: { value: 'a0' },
           user1: { value: 'a1' },
-          UpperCaseFromOntime: { value: 'a2' },
+          user2: { value: 'a2' },
           user3: { value: 'a3' },
           user4: { value: 'a4' },
           user5: { value: 'a5' },
@@ -927,12 +927,12 @@ describe('parseExcel()', () => {
       user1: {
         type: 'string',
         colour: '',
-        label: 'user1',
+        label: 'User1',
       },
-      UpperCaseFromOntime: {
+      user2: {
         type: 'string',
         colour: '',
-        label: 'UpperCaseFromOntime',
+        label: 'user2',
       },
       user3: {
         type: 'string',

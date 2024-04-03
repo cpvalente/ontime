@@ -1,38 +1,18 @@
-import { useMemo } from 'react';
-import { MaybeNumber } from 'ontime-types';
-import { dayInMs, millisToString } from 'ontime-utils';
+import { memo, useMemo } from 'react';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import { useRuntimeOverview, useRuntimePlaybackOverview } from '../../common/hooks/useSocket';
 import useProjectData from '../../common/hooks-query/useProjectData';
-import { enDash, timerPlaceholder } from '../../common/utils/styleUtils';
+import { enDash } from '../../common/utils/styleUtils';
 
 import { TimeColumn, TimeRow } from './composite/TimeLayout';
+import { calculateEndAndDaySpan, formatedTime, getOffsetText } from './overviewUtils';
 
 import style from './Overview.module.scss';
 
-/**
- * Encapsulates the logic for formatting time in overview
- * @param time
- * @returns
- */
-function formatedTime(time: MaybeNumber) {
-  return millisToString(time, { fallback: timerPlaceholder });
-}
+export default memo(Overview);
 
-function calculateEndAndDaySpan(end: MaybeNumber): [MaybeNumber, number] {
-  let maybeEnd = end;
-  let maybeDaySpan = 0;
-  if (end !== null) {
-    if (end > dayInMs) {
-      maybeEnd = end % dayInMs;
-      maybeDaySpan = Math.floor(end / dayInMs);
-    }
-  }
-  return [maybeEnd, maybeDaySpan];
-}
-
-export default function Overview() {
+function Overview({ children }: { children: React.ReactNode }) {
   const { plannedEnd, plannedStart, actualStart, expectedEnd } = useRuntimeOverview();
 
   const [maybePlannedEnd, maybePlannedDaySpan] = useMemo(() => calculateEndAndDaySpan(plannedEnd), [plannedEnd]);
@@ -44,15 +24,23 @@ export default function Overview() {
   return (
     <div className={style.overview}>
       <ErrorBoundary>
-        <TitlesOverview />
-        <div className={style.column}>
-          <TimeRow label='Planned start' value={formatedTime(plannedStart)} className={style.start} />
-          <TimeRow label='Actual start' value={formatedTime(actualStart)} className={style.start} />
-        </div>
-        <RuntimeOverview />
-        <div className={style.column}>
-          <TimeRow label='Planned end' value={plannedEndText} className={style.end} daySpan={maybePlannedDaySpan} />
-          <TimeRow label='Expected end' value={expectedEndText} className={style.end} daySpan={maybeExpectedDaySpan} />
+        <div className={style.nav}>{children}</div>
+        <div className={style.info}>
+          <TitlesOverview />
+          <div>
+            <TimeRow label='Planned start' value={formatedTime(plannedStart)} className={style.start} />
+            <TimeRow label='Actual start' value={formatedTime(actualStart)} className={style.start} />
+          </div>
+          <RuntimeOverview />
+          <div>
+            <TimeRow label='Planned end' value={plannedEndText} className={style.end} daySpan={maybePlannedDaySpan} />
+            <TimeRow
+              label='Expected end'
+              value={expectedEndText}
+              className={style.end}
+              daySpan={maybeExpectedDaySpan}
+            />
+          </div>
         </div>
       </ErrorBoundary>
     </div>
@@ -63,23 +51,11 @@ function TitlesOverview() {
   const { data } = useProjectData();
 
   return (
-    <div className={style.titles}>
+    <div>
       <div className={style.title}>{data.title}</div>
       <div className={style.description}>{data.description}</div>
     </div>
   );
-}
-
-function getOffsetText(offset: MaybeNumber): string {
-  if (offset === null) {
-    return enDash;
-  }
-  const isAhead = offset <= 0;
-  let offsetText = millisToString(Math.abs(offset), { fallback: enDash });
-  if (offsetText !== enDash) {
-    offsetText = isAhead ? `+${offsetText}` : `${enDash}${offsetText}`;
-  }
-  return offsetText;
 }
 
 function RuntimeOverview() {
