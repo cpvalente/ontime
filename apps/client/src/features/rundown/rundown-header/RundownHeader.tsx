@@ -25,7 +25,6 @@ export default function RundownHeader({ data }: RundownProps) {
   const setRunMode = () => setAppMode(AppMode.Run);
   const setEditMode = () => setAppMode(AppMode.Edit);
 
-  //TODO: re implement
   const inClipBoard = useMemo(() => {
     if (!eventCopyId) return '';
 
@@ -67,6 +66,7 @@ export default function RundownHeader({ data }: RundownProps) {
           aria-label='Edit mode'
         />
       </ButtonGroup>
+      <span style={{ opacity: '30%' }}>{inClipBoard}</span>
       <RundownMenu />
     </div>
   );
