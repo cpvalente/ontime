@@ -57,8 +57,8 @@ const theme = extendTheme({
     },
     Drawer: {
       variants: {
-        'ontime': {...ontimeDrawer},
-      }
+        ontime: { ...ontimeDrawer },
+      },
     },
     Editable: {
       variants: {

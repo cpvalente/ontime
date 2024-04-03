@@ -1,9 +1,7 @@
 import { useMemo } from 'react';
-import { Button, ButtonGroup, MenuButton } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
+import { ButtonGroup } from '@chakra-ui/react';
 import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
-import { IoSnowOutline } from '@react-icons/all-files/io5/IoSnowOutline';
 import { isOntimeBlock, isOntimeDelay, isOntimeEvent, RundownCached } from 'ontime-types';
 
 import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
@@ -26,8 +24,8 @@ export default function RundownHeader({ data }: RundownProps) {
   const setAppMode = useAppMode((state) => state.setMode);
   const setRunMode = () => setAppMode(AppMode.Run);
   const setEditMode = () => setAppMode(AppMode.Edit);
-  const setFreezeMode = () => setAppMode(AppMode.Freeze);
 
+  //TODO: re implement
   const inClipBoard = useMemo(() => {
     if (!eventCopyId) return '';
 
@@ -53,15 +51,6 @@ export default function RundownHeader({ data }: RundownProps) {
     <div className={style.header}>
       <ButtonGroup isAttached>
         <TooltipActionBtn
-          variant={appMode === AppMode.Freeze ? 'ontime-filled' : 'ontime-outlined'}
-          size='sm'
-          icon={<IoSnowOutline />}
-          clickHandler={setFreezeMode}
-          tooltip='Freeze rundown'
-          aria-label='Freeze rundown'
-          isDisabled
-        />
-        <TooltipActionBtn
           variant={appMode === AppMode.Run ? 'ontime-filled' : 'ontime-outlined'}
           size='sm'
           icon={<IoPlay />}
@@ -78,12 +67,7 @@ export default function RundownHeader({ data }: RundownProps) {
           aria-label='Edit mode'
         />
       </ButtonGroup>
-      <div style={{ opacity: '30%' }}>{inClipBoard}</div>
-      <RundownMenu>
-        <MenuButton size='sm' as={Button} rightIcon={<IoAdd />} aria-label='Rundown menu' variant='ontime-outlined'>
-          Rundown
-        </MenuButton>
-      </RundownMenu>
+      <RundownMenu />
     </div>
   );
 }

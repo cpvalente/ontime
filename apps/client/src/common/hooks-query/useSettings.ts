@@ -10,7 +10,7 @@ export default function useSettings() {
   const { data, status, isFetching, isError, refetch } = useQuery({
     queryKey: APP_SETTINGS,
     queryFn: getSettings,
-    placeholderData: ontimePlaceholderSettings,
+    placeholderData: (previousData, _previousQuery) => previousData,
     retry: 5,
     retryDelay: (attempt) => attempt * 2500,
     refetchInterval: queryRefetchIntervalSlow,
