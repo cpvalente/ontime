@@ -66,9 +66,10 @@ export function mergeObject<T extends object>(a: T, b: Partial<T>): T {
  * @description Removes undefined
  * @param {object} obj
  */
-export const removeUndefined = <T extends Record<string, any>>(obj: T): Partial<T> => {
+export const removeUndefined = <T extends Record<string, unknown>>(obj: T): Partial<T> => {
   return Object.keys(obj).reduce((patched, key) => {
     if (typeof obj[key] !== 'undefined') {
+      // @ts-expect-error -- not sure how to type this
       patched[key] = obj[key];
     }
     return patched;
