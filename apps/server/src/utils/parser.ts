@@ -280,6 +280,7 @@ export const parseJson = async (jsonData: Partial<DatabaseModel>): Promise<Datab
     settings = parseSettings(jsonData);
   } catch (error) {
     // if we cant parse, return an empty project
+    console.log('ERROR: unable to parse settings, missing app or version');
     return dbModel;
   }
 

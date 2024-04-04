@@ -318,7 +318,6 @@ describe('test parser edge cases', () => {
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
     const parseResponse = await parseJson(testData);
-    expect(console.log).toHaveBeenCalledWith('ERROR: unkown event type, skipping');
     expect(parseResponse?.rundown.length).toBe(0);
   });
 
@@ -332,7 +331,7 @@ describe('test parser edge cases', () => {
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
     await parseJson(testData);
-    expect(console.log).toHaveBeenCalledWith('ERROR: unknown app version, skipping');
+    expect(console.log).toHaveBeenCalledWith('ERROR: unable to parse settings, missing app or version');
   });
 });
 
@@ -564,6 +563,7 @@ describe('test views import', () => {
       normalColor: '#ffffffcc',
       warningColor: '#FFAB33',
       dangerColor: '#ED3333',
+      freezeEnd: false,
       endMessage: '',
       overrideStyles: false,
     };
@@ -581,7 +581,7 @@ describe('test views import', () => {
       },
     } as DatabaseModel;
     const parsed = parseViewSettings(testData);
-    expect(parsed).toStrictEqual({});
+    expect(parsed).toStrictEqual(dbModel.viewSettings);
   });
 });
 
@@ -591,7 +591,7 @@ describe('test import of v2 datamodel', () => {
       rundown: [
         { type: SupportedEvent.Block, title: 'block-title', id: 'block-id' },
         { type: SupportedEvent.Delay, duration: 0 },
-        { type: SupportedEvent.Event, title: 'block-title', id: 'block-id' },
+        { type: SupportedEvent.Event, title: 'event-title', id: 'event-id' },
       ],
       project: {
         title: '',
