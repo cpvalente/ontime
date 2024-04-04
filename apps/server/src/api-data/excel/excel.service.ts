@@ -3,10 +3,13 @@
  * Google Sheets
  */
 
+import { CustomFields, OntimeRundown } from 'ontime-types';
+import { ImportMap } from 'ontime-utils';
+
 import { extname } from 'path';
 import { existsSync } from 'fs';
-import { ImportMap } from 'ontime-utils';
 import xlsx from 'node-xlsx';
+
 import { parseExcel } from '../../utils/parser.js';
 import { parseCustomFields, parseRundown } from '../../utils/parserFunctions.js';
 import { deleteFile } from '../../utils/parserUtils.js';
@@ -29,7 +32,7 @@ export function listWorksheets() {
   return excelData.map((value) => value.name);
 }
 
-export function generateRundownPreview(options: ImportMap) {
+export function generateRundownPreview(options: ImportMap): { rundown: OntimeRundown; customFields: CustomFields } {
   const data = excelData.find(({ name }) => name.toLowerCase() === options.worksheet.toLowerCase())?.data;
 
   if (!data) {
@@ -39,15 +42,14 @@ export function generateRundownPreview(options: ImportMap) {
   const dataFromExcel = parseExcel(data, options);
 
   // we run the parsed data through an extra step to ensure the objects shape
-  const result = { rundown: [], customFields: {} };
-  result.rundown = parseRundown(dataFromExcel);
-  if (result.rundown.length < 1) {
+  const rundown = parseRundown(dataFromExcel);
+  if (rundown.length === 0) {
     throw new Error(`Could not find data to import in the worksheet: ${options.worksheet}`);
   }
-  result.customFields = parseCustomFields(dataFromExcel);
+  const customFields = parseCustomFields(dataFromExcel);
 
-  //clear the data
+  // clear the data
   excelData = [];
 
-  return result;
+  return { rundown, customFields };
 }

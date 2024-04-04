@@ -15,10 +15,9 @@ export const makeString = (val: unknown, fallback = ''): string => {
 
 /**
  * @description Delete file from system
- * @param {string} file - reference to file
  */
-export const deleteFile = async (file) => {
-  unlink(file, (error) => {
+export const deleteFile = async (filePath: string) => {
+  unlink(filePath, (error) => {
     if (error) {
       console.error('Could not delete file:', error);
     }
@@ -67,11 +66,11 @@ export function mergeObject<T extends object>(a: T, b: Partial<T>): T {
  * @description Removes undefined
  * @param {object} obj
  */
-export const removeUndefined = (obj: object) => {
+export const removeUndefined = <T extends Record<string, any>>(obj: T): Partial<T> => {
   return Object.keys(obj).reduce((patched, key) => {
     if (typeof obj[key] !== 'undefined') {
       patched[key] = obj[key];
     }
     return patched;
-  }, {});
+  }, {} as Partial<T>);
 };

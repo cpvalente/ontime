@@ -273,15 +273,25 @@ export const parseJson = async (jsonData: Partial<DatabaseModel>): Promise<Datab
     return null;
   }
 
+  let settings;
+
+  // check settings first to make sure we can parse it
+  try {
+    settings = parseSettings(jsonData);
+  } catch (error) {
+    // if we cant parse, return an empty project
+    return dbModel;
+  }
+
   const returnData: DatabaseModel = {
     rundown: parseRundown(jsonData),
-    project: parseProject(jsonData) ?? dbModel.project,
-    settings: parseSettings(jsonData) ?? dbModel.settings,
-    viewSettings: parseViewSettings(jsonData) ?? dbModel.viewSettings,
+    project: parseProject(jsonData),
+    settings,
+    viewSettings: parseViewSettings(jsonData),
     urlPresets: parseUrlPresets(jsonData),
     customFields: parseCustomFields(jsonData),
-    osc: parseOsc(jsonData) ?? dbModel.osc,
-    http: parseHttp(jsonData) ?? dbModel.http,
+    osc: parseOsc(jsonData),
+    http: parseHttp(jsonData),
   };
 
   return returnData;

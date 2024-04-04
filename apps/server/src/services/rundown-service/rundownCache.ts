@@ -83,7 +83,7 @@ export function generate(
 
   let accumulatedDelay = 0;
   let daySpan = 0;
-  let previousEnd: number;
+  let previousEnd: MaybeNumber = null;
 
   for (let i = 0; i < initialRundown.length; i++) {
     const currentEvent = initialRundown[i];
@@ -106,7 +106,7 @@ export function generate(
       lastEnd = updatedEvent.timeEnd;
 
       // check if we go over midnight, account for eventual gaps
-      const gapOverMidnight = previousEnd > updatedEvent.timeStart;
+      const gapOverMidnight = previousEnd !== null && previousEnd > updatedEvent.timeStart;
       const durationOverMidnight = updatedEvent.timeStart > updatedEvent.timeEnd;
       if (gapOverMidnight || durationOverMidnight) {
         daySpan++;
@@ -244,7 +244,7 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
       DataProvider.setRundown(persistedRundown);
     });
 
-    return { newEvent };
+    return { newEvent, newRundown };
   }
 
   return scopedMutation;
