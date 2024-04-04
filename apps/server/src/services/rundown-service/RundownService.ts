@@ -81,7 +81,7 @@ export async function addEvent(eventData: PatchWithId & { after?: string }): Pro
   updateRuntimeOnChange();
 
   // notify timer and external services of change
-  notifyChanges({ timer: [newEvent.id], external: true });
+  notifyChanges({ timer: [eventData.id], external: true });
 
   return newEvent;
 }
@@ -92,7 +92,11 @@ export async function addEvent(eventData: PatchWithId & { after?: string }): Pro
  */
 export async function deleteEvent(eventId: string) {
   const scopedMutation = cache.mutateCache(cache.remove);
-  await scopedMutation({ eventId });
+  const { didMutate } = await scopedMutation({ eventId });
+
+  if (didMutate === false) {
+    return;
+  }
 
   // notify runtime that rundown has changed
   updateRuntimeOnChange();
@@ -125,7 +129,12 @@ export async function editEvent(patch: PatchWithId) {
   }
 
   const scopedMutation = cache.mutateCache(cache.edit);
-  const { newEvent } = await scopedMutation({ patch, eventId: patch.id });
+  const { newEvent, didMutate } = await scopedMutation({ patch, eventId: patch.id });
+
+  // short circuit if nothing changed
+  if (didMutate === false) {
+    return newEvent;
+  }
 
   // notify runtime that rundown has changed
   updateRuntimeOnChange();
