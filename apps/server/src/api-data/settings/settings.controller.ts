@@ -32,6 +32,7 @@ export async function postSettings(req: Request, res: Response<Settings | ErrorR
     const editorKey = extractPin(req.body?.editorKey, settings.editorKey);
     const operatorKey = extractPin(req.body?.operatorKey, settings.operatorKey);
     const serverPort = Number(req.body?.serverPort);
+    //TODO: should this not be part of the validator?
     if (isNaN(serverPort)) {
       return res.status(400).send({ message: `Invalid value found for server port: ${req.body?.serverPort}` });
     }

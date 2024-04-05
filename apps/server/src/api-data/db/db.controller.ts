@@ -99,11 +99,10 @@ export async function projectDownload(_req: Request, res: Response) {
   const { title } = DataProvider.getProjectData();
   const fileTitle = title || 'ontime data';
 
-  res.download(resolveDbPath, `${fileTitle}.json`, (err) => {
-    if (err) {
-      res.status(500).send({
-        message: `Could not download the file: ${err}`,
-      });
+  res.download(resolveDbPath, `${fileTitle}.json`, (error) => {
+    if (error) {
+      const message = getErrorMessage(error);
+      res.status(500).send({ message });
     }
   });
 }
@@ -123,7 +122,8 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
     await projectService.applyProjectFile(filePath, options);
     res.status(201).send({ message: 'ok' });
   } catch (error) {
-    res.status(400).send({ message: `Failed parsing ${error}` });
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
   }
 }
 
