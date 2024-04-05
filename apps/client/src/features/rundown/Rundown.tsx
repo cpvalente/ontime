@@ -221,7 +221,7 @@ export default function Rundown({ data }: RundownProps) {
   const isEditMode = appMode === AppMode.Edit;
 
   return (
-    <div className={style.eventContainer} ref={scrollRef} data-testid='rundown'>
+    <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext onDragEnd={handleOnDragEnd} sensors={sensors} collisionDetection={closestCenter}>
         <SortableContext items={statefulEntries} strategy={verticalListSortingStrategy}>
           <div className={style.list}>
