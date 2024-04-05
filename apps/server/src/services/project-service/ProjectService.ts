@@ -2,9 +2,9 @@ import { DatabaseModel, GetInfo, ProjectData, ProjectFile, ProjectFileListRespon
 
 import { copyFile, rename, stat, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
-import { basename, join } from 'path';
+import { join } from 'path';
 
-import { notifyChanges, setRundown } from '../rundown-service/RundownService.js';
+import { initRundown } from '../rundown-service/RundownService.js';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 import { getNetworkInterfaces } from '../../utils/networkInterfaces.js';
@@ -33,22 +33,31 @@ type Options = {
 /**
  * Handles a file from the upload folder and applies its data
  */
-export async function applyProjectFile(filePath: string, options?: Options) {
+export async function applyProjectFile(name: string, options?: Options) {
+  const filePath = join(resolveProjectsDirectory, name);
   const data = parseProjectFile(filePath);
 
-  // move file to project folder
-  const filename = basename(filePath);
-  const newFilePath = join(resolveProjectsDirectory, filename);
-  await rename(filePath, newFilePath);
-
   // change LowDB to point to new file
-  await switchDb(filename);
+  await switchDb(name);
 
   // apply data model
   await applyDataModel(data, options);
 
   // persist the project selection
-  await appStateService.updateDatabaseConfig(filename);
+  await appStateService.updateDatabaseConfig(name);
+}
+
+/**
+ * Copies a file from upload folder to the projects folder
+ * @param filePath
+ * @param name
+ * @returns
+ */
+export async function handleUploadedFile(filePath: string, name: string) {
+  const newFilePath = join(resolveProjectsDirectory, name);
+  await rename(filePath, newFilePath);
+  await deleteFile(filePath);
+  return name;
 }
 
 /**
@@ -58,8 +67,7 @@ export async function applyProjectFile(filePath: string, options?: Options) {
  *
  * @returns {Promise<Array<ProjectFile>>} A promise that resolves to an array of ProjectFile objects,
  *                                        each representing a file in the 'uploads' folder with its metadata.
- *                                        The metadata includes the filename, creation time (createdAt),
- *                                        and last modification time (updatedAt) of each file.
+ *                                        The metadata includes the filename, creation or overwriting time (updatedAt)
  *
  * @throws {Error} Throws an error if there is an issue in reading the directory or fetching file statistics.
  */
@@ -67,14 +75,13 @@ export async function getProjectFiles(): Promise<ProjectFile[]> {
   const allFiles = await getFilesFromFolder(resolveProjectsDirectory);
   const filteredFiles = filterProjectFiles(allFiles);
 
-  const projectFiles = [];
+  const projectFiles: ProjectFile[] = [];
   for (const file of filteredFiles) {
     const filePath = join(resolveProjectsDirectory, file);
     const stats = await stat(filePath);
 
     projectFiles.push({
       filename: removeFileExtension(file),
-      createdAt: stats.birthtime.toISOString(),
       updatedAt: stats.mtime.toISOString(),
     });
   }
@@ -196,18 +203,27 @@ export function extractPin(value: string | undefined | null, fallback: string | 
 /**
  * applies a partial database model
  */
-export async function applyDataModel(data: Partial<DatabaseModel>, options?: Options) {
+export async function applyDataModel(data: Partial<DatabaseModel>, _options?: Options) {
   runtimeService.stop();
 
-  const newRundown = data.rundown || [];
-  const { rundown, ...rest } = data;
-  if (options?.onlyRundown === 'true') {
-    setRundown(newRundown ?? []);
-  } else {
-    await DataProvider.mergeIntoData(rest);
-    setRundown(rundown ?? []);
+  // TODO: allow partial project merge from options
+  const { rundown, customFields, ...rest } = data;
+  const newData = await DataProvider.mergeIntoData(rest);
+
+  if (rundown != null) {
+    initRundown(rundown, customFields ?? {});
   }
-  notifyChanges({ timer: true, external: true });
+
+  return newData;
+}
+
+/**
+ * Checks whether a project of a given name exists
+ * @param name
+ */
+export function doesProjectExist(name: string): boolean {
+  const projectFilePath = join(resolveProjectsDirectory, name);
+  return existsSync(projectFilePath);
 }
 
 /**
@@ -240,3 +256,11 @@ export const validateProjectFiles = (projectFiles: { filename?: string; newFilen
 
   return errors;
 };
+
+/**
+ * Get current project title or fallback
+ */
+export function getProjectTitle(): string {
+  const { title } = DataProvider.getProjectData();
+  return title || 'ontime data';
+}

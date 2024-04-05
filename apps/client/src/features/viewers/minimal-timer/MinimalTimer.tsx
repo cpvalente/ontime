@@ -1,13 +1,12 @@
-import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
-import { millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
+import { MILLIS_PER_SECOND, millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { MINIMAL_TIMER_OPTIONS } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
 import { timerPlaceholder } from '../../../common/utils/styleUtils';
@@ -29,9 +28,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
-    document.title = 'ontime - Minimal Timer';
-  }, []);
+  useWindowTitle('Minimal Timer');
 
   // defer rendering until we load stylesheets
   if (!shouldRender) {
@@ -150,7 +147,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   if (!timerIsTimeOfDay && showProgress && showWarning) timerColor = viewSettings.warningColor;
   if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
 
-  const stageTimer = getTimerByType(time);
+  const stageTimer = getTimerByType(viewSettings.freezeEnd, time);
   let display = millisToString(stageTimer, { fallback: timerPlaceholder });
   if (stageTimer !== null) {
     if (hideTimerSeconds) {
@@ -158,7 +155,8 @@ export default function MinimalTimer(props: MinimalTimerProps) {
     }
     display = removeLeadingZero(display);
     // last unit rounds up in negative timers
-    const isNegative = (stageTimer ?? 0 < 0) && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
+    const isNegative =
+      (stageTimer ?? 0 < MILLIS_PER_SECOND) && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
     if (isNegative && display === '0') {
       display = '-1';
     }
@@ -185,7 +183,6 @@ export default function MinimalTimer(props: MinimalTimerProps) {
       }}
       data-testid='minimal-timer'
     >
-      <NavigationMenu />
       <ViewParamsEditor paramFields={MINIMAL_TIMER_OPTIONS} />
       {!hideMessagesOverlay && (
         <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>

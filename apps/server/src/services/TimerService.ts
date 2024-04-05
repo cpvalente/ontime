@@ -48,7 +48,7 @@ export class TimerService {
     this.onUpdateCallback = timerConfig.onUpdateCallback;
     this._interval = setInterval(() => {
       this.update();
-    }, TimerService._updateInterval);
+    }, TimerService._refreshInterval);
   }
 
   @broadcastResult
@@ -58,7 +58,8 @@ export class TimerService {
     }
 
     const state = runtimeState.getState();
-    this.endCallback = setTimeout(this.update, state.timer.expectedFinish);
+    const endTime = state.timer.current - 10;
+    this.endCallback = setTimeout(() => this.update(), endTime);
     return true;
   }
 
@@ -97,7 +98,7 @@ export class TimerService {
     // renew end callback
     clearTimeout(this.endCallback);
     const state = runtimeState.getState();
-    this.endCallback = setTimeout(this.update, state.timer.expectedFinish);
+    this.endCallback = setTimeout(() => this.update(), state.timer.expectedFinish);
     return true;
   }
 
@@ -107,7 +108,6 @@ export class TimerService {
   @broadcastResult
   update() {
     const updateResult = runtimeState.update();
-
     // pass the result to the parent
     this.onUpdateCallback(updateResult);
   }
@@ -139,10 +139,13 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // to apply custom logic for different datasets
 
     // some of the data, we only update at intervals
-    const isTimeToUpdate = state.clock - TimerService.previousUpdate >= TimerService._updateInterval;
+    const isTimeToUpdate =
+      state.clock < TimerService.previousUpdate ||
+      state.clock - TimerService.previousUpdate >= TimerService._updateInterval;
 
     // some changes need an immediate update
     const hasNewLoaded = state.eventNow?.id !== TimerService.previousState?.eventNow?.id;
+
     const hasSkippedBack = state.clock < TimerService.previousUpdate;
     const justStarted = !TimerService.previousState?.timer;
     const hasChangedPlayback = TimerService.previousState.timer?.playback !== state.timer.playback;
@@ -175,7 +178,27 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     // Helper function to update an event if it has changed
     function updateEventIfChanged(eventKey: keyof RuntimeStore, state: RuntimeState) {
+      const previous = TimerService.previousState?.[eventKey];
+      const now = state[eventKey];
+
+      // if there was nothing, and there is nothing, noop
+      if (!previous?.id && !now?.id) {
+        return;
+      }
+
+      // if load status changed, save new
+      if (previous?.id !== now?.id) {
+        storeKey(eventKey);
+        return;
+      }
+
+      // maybe the event itself has changed
       if (!deepEqual(TimerService.previousState?.[eventKey], state[eventKey])) {
+        storeKey(eventKey);
+        return;
+      }
+
+      function storeKey(eventKey: keyof RuntimeStore) {
         eventStore.set(eventKey, state[eventKey]);
         TimerService.previousState[eventKey] = { ...state[eventKey] };
       }

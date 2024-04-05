@@ -12,7 +12,7 @@ import got from 'got';
 
 import { resolveSheetsDirectory } from '../../setup/index.js';
 import { ensureDirectory } from '../../utils/fileManagement.js';
-import { type ClientSecret, cellRequestFromEvent, getA1Notation, validateClientSecret } from './sheetUtils.js';
+import { cellRequestFromEvent, type ClientSecret, getA1Notation, validateClientSecret } from './sheetUtils.js';
 import { ImportMap } from 'ontime-utils';
 import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
@@ -183,33 +183,33 @@ function verifyConnection(
         pollInterval = null;
       }
 
-      postAction();
+      await postAction();
     } catch (_error) {
       /** we do not handle failure */
     }
   }
 }
 
-export function hasAuth(): { authenticated: AuthenticationStatus } {
+export function hasAuth(): { authenticated: AuthenticationStatus; sheetId: string } {
   if (cleanupTimeout) {
-    return { authenticated: 'pending' };
+    return { authenticated: 'pending', sheetId: currentSheetId };
   }
-  return { authenticated: currentAuthClient ? 'authenticated' : 'not_authenticated' };
+  return { authenticated: currentAuthClient ? 'authenticated' : 'not_authenticated', sheetId: currentSheetId };
 }
 
 async function verifySheet(
   sheetId = currentSheetId,
   authClient = currentAuthClient,
 ): Promise<{ worksheetOptions: string[] }> {
-  const spreadsheets = await sheets({ version: 'v4', auth: authClient }).spreadsheets.get({
-    spreadsheetId: sheetId,
-    includeGridData: false,
-  });
-
-  if (spreadsheets.status !== 200) {
-    throw new Error(spreadsheets.statusText);
+  try {
+    const spreadsheets = await sheets({ version: 'v4', auth: authClient }).spreadsheets.get({
+      spreadsheetId: sheetId,
+      includeGridData: false,
+    });
+    return { worksheetOptions: spreadsheets.data.sheets.map((i) => i.properties.title) };
+  } catch (error) {
+    throw new Error(`Failed to verify sheet: ${error.message}`);
   }
-  return { worksheetOptions: spreadsheets.data.sheets.map((i) => i.properties.title) };
 }
 
 export async function handleInitialConnection(

@@ -52,7 +52,7 @@ export default function MessageControl() {
           onClick={() => setMessage.timerBlink(!blink)}
           data-testid='toggle timer blink'
         >
-          Blink message
+          Blink
         </Button>
         <Button
           size='sm'
@@ -66,7 +66,7 @@ export default function MessageControl() {
         </Button>
       </div>
       <InputRow
-        label='External Message (readonly)'
+        label='External Message (read only)'
         placeholder={enDash}
         readonly
         text={message.external.text || ''}

@@ -4,7 +4,7 @@ import type { ViewExtendedTimer } from '../../../common/models/TimeManager.type'
 
 type TimerTypeParams = Pick<ViewExtendedTimer, 'timerType' | 'current' | 'elapsed' | 'clock'>;
 
-export function getTimerByType(timerObject?: TimerTypeParams): number | null {
+export function getTimerByType(freezeEnd: boolean, timerObject?: TimerTypeParams): number | null {
   if (!timerObject) {
     return null;
   }
@@ -12,7 +12,10 @@ export function getTimerByType(timerObject?: TimerTypeParams): number | null {
   switch (timerObject.timerType) {
     case TimerType.CountDown:
     case TimerType.TimeToEnd:
-      return timerObject.current;
+      if (timerObject.current === null) {
+        return null;
+      }
+      return freezeEnd ? Math.max(timerObject.current, 0) : timerObject.current;
     case TimerType.CountUp:
       return Math.abs(timerObject.elapsed ?? 0);
     case TimerType.Clock:

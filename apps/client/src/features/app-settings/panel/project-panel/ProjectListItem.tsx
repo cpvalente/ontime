@@ -5,7 +5,7 @@ import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHoriz
 import {
   deleteProject,
   downloadCSV,
-  downloadRundown,
+  downloadProject,
   duplicateProject,
   loadProject,
   renameProject,
@@ -21,7 +21,6 @@ export type EditMode = 'rename' | 'duplicate' | null;
 interface ProjectListItemProps {
   current?: boolean;
   filename: string;
-  createdAt: string;
   updatedAt: string;
   onToggleEditMode: (editMode: EditMode, filename: string | null) => void;
   onSubmit: () => void;
@@ -32,14 +31,13 @@ interface ProjectListItemProps {
 
 export default function ProjectListItem({
   current,
-  createdAt,
+  updatedAt,
   editingFilename,
   editingMode,
   filename,
   onRefetch,
   onSubmit,
   onToggleEditMode,
-  updatedAt,
 }: ProjectListItemProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -102,7 +100,6 @@ export default function ProjectListItem({
       ) : (
         <>
           <td className={style.containCell}>{filename}</td>
-          <td>{new Date(createdAt).toLocaleString()}</td>
           <td>{new Date(updatedAt).toLocaleString()}</td>
           <td className={style.actionButton}>
             <ActionMenu
@@ -148,7 +145,7 @@ function ActionMenu({
   };
 
   const handleDownload = async () => {
-    await downloadRundown(filename);
+    await downloadProject(filename);
   };
 
   const handleExportCSV = async () => {

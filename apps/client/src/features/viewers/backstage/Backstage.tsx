@@ -6,7 +6,6 @@ import { CustomFields, Message, OntimeEvent, ProjectData, Settings, SupportedEve
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import ProgressBar from '../../../common/components/progress-bar/ProgressBar';
 import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
@@ -15,6 +14,7 @@ import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getBackstageOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -58,10 +58,7 @@ export default function Backstage(props: BackstageProps) {
   const [blinkClass, setBlinkClass] = useState(false);
   const [searchParams] = useSearchParams();
 
-  // Set window title
-  useEffect(() => {
-    document.title = 'ontime - Backstage Screen';
-  }, []);
+  useWindowTitle('Backstage');
 
   // blink on change
   useEffect(() => {
@@ -102,7 +99,6 @@ export default function Backstage(props: BackstageProps) {
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
-      <NavigationMenu />
       <ViewParamsEditor paramFields={backstageOptions} />
       <div className='project-header'>
         {general.title}

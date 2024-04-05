@@ -23,6 +23,7 @@ describe('safeMerge', () => {
     },
     viewSettings: {
       overrideStyles: false,
+      freezeEnd: false,
       endMessage: 'existing endMessage',
       normalColor: '#ffffffcc',
       warningColor: '#FFAB33',

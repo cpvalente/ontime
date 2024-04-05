@@ -2,6 +2,7 @@ import { MaybeNumber, MaybeString, Playback } from 'ontime-types';
 
 import { JSONFile } from 'lowdb/node';
 import { resolveRestoreFile } from '../setup/index.js';
+import { deepEqual } from 'fast-equals';
 
 export type RestorePoint = {
   playback: Playback;
@@ -62,13 +63,13 @@ export function isRestorePoint(obj: unknown): obj is RestorePoint {
 export class RestoreService {
   private readonly filePath: MaybeString;
   private readonly file: JSONFile<RestorePoint | null>;
-  private lastStore: MaybeString;
   private failedCreateAttempts: number;
+  private savedState: RestorePoint | null;
 
   constructor(filePath: string) {
     this.filePath = filePath;
 
-    this.lastStore = null;
+    this.savedState = null;
     this.file = new JSONFile(this.filePath);
     this.failedCreateAttempts = 0;
   }
@@ -100,15 +101,16 @@ export class RestoreService {
       return;
     }
 
-    const stringifiedStore = JSON.stringify(newState);
-    if (stringifiedStore !== this.lastStore) {
-      try {
-        await this.write(newState);
-        this.lastStore = stringifiedStore;
-        this.failedCreateAttempts = 0;
-      } catch (_error) {
-        this.failedCreateAttempts += 1;
-      }
+    if (deepEqual(newState, this.savedState)) {
+      return;
+    }
+
+    try {
+      await this.write(newState);
+      this.savedState = { ...newState };
+      this.failedCreateAttempts = 0;
+    } catch (_error) {
+      this.failedCreateAttempts += 1;
     }
   }
 

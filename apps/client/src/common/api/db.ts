@@ -1,36 +1,54 @@
 import axios, { AxiosResponse } from 'axios';
-import {
-  CustomFields,
-  DatabaseModel,
-  GetInfo,
-  MessageResponse,
-  OntimeRundown,
-  ProjectData,
-  ProjectFileListResponse,
-} from 'ontime-types';
-import { ImportMap } from 'ontime-utils';
+import { DatabaseModel, GetInfo, MessageResponse, ProjectData, ProjectFileListResponse } from 'ontime-types';
+
+import { makeCSV, makeTable } from '../../features/cuesheet/cuesheetUtils';
 
 import { apiEntryUrl } from './constants';
-import fileDownload from './utils';
+import { createBlob, downloadBlob } from './utils';
 
 const dbPath = `${apiEntryUrl}/db`;
 
 /**
- * HTTP request to download db in JSON format
+ * HTTP request to the current DB
  */
-export async function downloadRundown(fileName?: string) {
-  return fileDownload(
-    dbPath,
-    { name: fileName ?? 'rundown', type: 'json' },
-    { type: 'application/json;charset=utf-8;' },
-  );
+async function getDb(): Promise<AxiosResponse<DatabaseModel>> {
+  return axios.get(`${dbPath}/download`);
 }
 
 /**
- * HTTP request to download db in CSV format
+ * Request download of the current project file
+ * @param fileName
  */
-export async function downloadCSV(fileName?: string) {
-  return fileDownload(dbPath, { name: fileName ?? 'rundown', type: 'csv' }, { type: 'text/csv;charset=utf-8;' });
+export async function downloadProject(fileName: string = 'ontime-project') {
+  try {
+    const { data, name } = await fileDownload(fileName);
+
+    const fileContent = JSON.stringify(data, null, 2);
+
+    const blob = createBlob(fileContent, 'application/json;charset=utf-8;');
+    downloadBlob(blob, `${name}.json`);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+/**
+ * Request download of the current rundown as a CSV file
+ * @param fileName
+ */
+export async function downloadCSV(fileName: string = 'rundown') {
+  try {
+    const { data, name } = await fileDownload(fileName);
+    const { project, rundown, customFields } = data;
+
+    const sheetData = makeTable(project, rundown, customFields);
+    const fileContent = makeCSV(sheetData);
+
+    const blob = createBlob(fileContent, 'text/csv;charset=utf-8;');
+    downloadBlob(blob, `${name}.csv`);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 /**
@@ -128,28 +146,23 @@ export async function getInfo(): Promise<GetInfo> {
   return res.data;
 }
 
-type PreviewSpreadsheetResponse = {
-  rundown: OntimeRundown;
-  customFields: CustomFields;
-};
-
 /**
- * Make patch changes to the objects in the db
+ * Utility function gets project from db
+ * @param fileName
+ * @returns
  */
-export async function importSpreadsheetPreview(file: File, options: ImportMap): Promise<PreviewSpreadsheetResponse> {
-  const formData = new FormData();
-  formData.append('spreadsheet', file);
-  formData.append('options', JSON.stringify(options));
+async function fileDownload(fileName: string): Promise<{ data: DatabaseModel; name: string }> {
+  const response = await getDb();
 
-  const response: AxiosResponse<PreviewSpreadsheetResponse> = await axios.post(
-    `${dbPath}/spreadsheet/preview`,
-    formData,
-    {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    },
-  );
+  const headerLine = response.headers['Content-Disposition'];
 
-  return response.data;
+  // try and get the filename from the response
+  let name = fileName;
+  if (headerLine != null) {
+    const startFileNameIndex = headerLine.indexOf('"') + 1;
+    const endFileNameIndex = headerLine.lastIndexOf('"');
+    name = headerLine.substring(startFileNameIndex, endFileNameIndex);
+  }
+
+  return { data: response.data, name };
 }

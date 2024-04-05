@@ -2,18 +2,17 @@ import express from 'express';
 
 import {
   createProjectFile,
-  projectDownload,
   deleteProjectFile,
+  duplicateProjectFile,
   getInfo,
   listProjects,
-  patchPartialProjectFile,
-  previewSpreadsheet,
   loadProject,
-  duplicateProjectFile,
-  renameProjectFile,
+  patchPartialProjectFile,
   postProjectFile,
+  projectDownload,
+  renameProjectFile,
 } from './db.controller.js';
-import { uploadProjectFile, uploadSpreadsheet } from './db.middleware.js';
+import { uploadProjectFile } from './db.middleware.js';
 import {
   projectSanitiser,
   sanitizeProjectFilename,
@@ -39,6 +38,3 @@ router.put('/:filename/rename', validateProjectRename, sanitizeProjectFilename, 
 router.delete('/:filename', sanitizeProjectFilename, deleteProjectFile);
 
 router.get('/info', getInfo);
-
-// TODO: validate import map
-router.post('/spreadsheet/preview', uploadSpreadsheet, previewSpreadsheet);

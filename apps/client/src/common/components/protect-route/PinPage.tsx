@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { HStack, IconButton, PinInput, PinInputField } from '@chakra-ui/react';
+import { IconButton, PinInput, PinInputField } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 
 import style from './ProtectRoute.module.scss';
@@ -39,8 +39,8 @@ export default function PinPage(props: PinPageProps) {
 
   return (
     <div className={style.container}>
-      {`Ontime ${permission || ''}`}
-      <HStack spacing='10px' className={failed ? style.pin__failed : style.pin}>
+      {`Ontime ${permission}`}
+      <div className={failed ? style.pin__failed : style.pin}>
         <PinInput
           type='alphanumeric'
           size='lg'
@@ -57,8 +57,15 @@ export default function PinPage(props: PinPageProps) {
           <PinInputField />
           <PinInputField />
         </PinInput>
-        <IconButton aria-label='Enter' size='lg' isRound icon={<IoCheckmark />} onClick={validate} />
-      </HStack>
+        <IconButton
+          variant='ontime-filled'
+          aria-label='Enter'
+          size='lg'
+          isRound
+          icon={<IoCheckmark />}
+          onClick={validate}
+        />
+      </div>
     </div>
   );
 }

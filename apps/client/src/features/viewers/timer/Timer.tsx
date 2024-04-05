@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -11,15 +10,15 @@ import {
   TimerType,
   ViewSettings,
 } from 'ontime-types';
-import { millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
+import { MILLIS_PER_SECOND, millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getTimerOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
@@ -59,13 +58,12 @@ interface TimerProps {
 
 export default function Timer(props: TimerProps) {
   const { customFields, isMirrored, pres, eventNow, eventNext, time, viewSettings, external, settings } = props;
+
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
-    document.title = 'ontime - Timer';
-  }, []);
+  useWindowTitle('Timer');
 
   // defer rendering until we load stylesheets
   if (!shouldRender) {
@@ -127,7 +125,7 @@ export default function Timer(props: TimerProps) {
   if (!timerIsTimeOfDay && showProgress && showWarning) timerColor = viewSettings.warningColor;
   if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
 
-  const stageTimer = getTimerByType(time);
+  const stageTimer = getTimerByType(viewSettings.freezeEnd, time);
   let display = millisToString(stageTimer, { fallback: timerPlaceholder });
   if (stageTimer !== null) {
     if (hideTimerSeconds) {
@@ -135,7 +133,8 @@ export default function Timer(props: TimerProps) {
     }
     display = removeLeadingZero(display);
     // last unit rounds up in negative timers
-    const isNegative = (stageTimer ?? 0 < 0) && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
+    const isNegative =
+      (stageTimer ?? 0 < -MILLIS_PER_SECOND) && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
     if (isNegative && display === '0') {
       display = '-1';
     }
@@ -160,7 +159,6 @@ export default function Timer(props: TimerProps) {
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
-      <NavigationMenu />
       <ViewParamsEditor paramFields={timerOptions} />
       <div className={showBlackout ? 'blackout blackout--active' : 'blackout'} />
       {!userOptions.hideMessage && (
@@ -215,7 +213,7 @@ export default function Timer(props: TimerProps) {
       {!userOptions.hideCards && (
         <>
           <AnimatePresence>
-            {eventNow && (
+            {eventNow?.title && (
               <motion.div
                 className='event now'
                 key='now'
@@ -230,7 +228,7 @@ export default function Timer(props: TimerProps) {
           </AnimatePresence>
 
           <AnimatePresence>
-            {eventNext && (
+            {eventNext?.title && (
               <motion.div
                 className='event next'
                 key='next'

@@ -83,14 +83,21 @@ export const resolveExternalsDirectory = join(isProduction ? getAppDataPath() : 
 export const appStatePath = join(getAppDataPath(), config.appState);
 export const uploadsFolderPath = join(getAppDataPath(), config.uploads);
 
+const ensureAppState = () => {
+  ensureDirectory(getAppDataPath());
+  fs.writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: 'db.json' }));
+};
+
 const getLastLoadedProject = () => {
   try {
     const appState = JSON.parse(fs.readFileSync(appStatePath, 'utf8'));
+    if (!appState.lastLoadedProject) {
+      ensureAppState();
+    }
     return appState.lastLoadedProject;
   } catch {
     if (!isTest) {
-      ensureDirectory(getAppDataPath());
-      fs.writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: 'db.json' }));
+      ensureAppState();
     }
   }
 };

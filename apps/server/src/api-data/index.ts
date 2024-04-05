@@ -9,6 +9,7 @@ import { router as projectRouter } from './project/project.router.js';
 import { router as rundownRouter } from './rundown/rundown.router.js';
 import { router as settingsRouter } from './settings/settings.router.js';
 import { router as sheetsRouter } from './sheets/sheets.router.js';
+import { router as excelRouter } from './excel/excel.router.js';
 import { router as viewSettingsRouter } from './view-settings/viewSettings.router.js';
 
 export const appRouter = express.Router();
@@ -21,5 +22,6 @@ appRouter.use('/project', projectRouter);
 appRouter.use('/rundown', rundownRouter);
 appRouter.use('/settings', settingsRouter);
 appRouter.use('/sheets', sheetsRouter);
+appRouter.use('/excel', excelRouter);
 appRouter.use('/url-presets', urlPresetsRouter);
 appRouter.use('/view-settings', viewSettingsRouter);

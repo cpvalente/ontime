@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { AuthenticationStatus, CustomFields, OntimeRundown } from 'ontime-types';
 import { ImportMap } from 'ontime-utils';
 
@@ -9,7 +9,10 @@ const sheetsPath = `${apiEntryUrl}/sheets`;
 /**
  * HTTP request to verify whether we are authenticated with Google Sheet service
  */
-export const verifyAuthenticationStatus = async (): Promise<{ authenticated: AuthenticationStatus }> => {
+export const verifyAuthenticationStatus = async (): Promise<{
+  authenticated: AuthenticationStatus;
+  sheetId: string;
+}> => {
   const response = await axios.get(`${sheetsPath}/connect`);
   return response.data;
 };
@@ -55,6 +58,11 @@ export const previewRundown = async (
   customFields: CustomFields;
 }> => {
   const response = await axios.post(`${sheetsPath}/${sheetId}/read`, { options });
+  return response.data;
+};
+
+export const getWorksheetNames = async (sheetId: string): Promise<string[]> => {
+  const response: AxiosResponse<string[]> = await axios.post(`${sheetsPath}/${sheetId}/worksheets`);
   return response.data;
 };
 

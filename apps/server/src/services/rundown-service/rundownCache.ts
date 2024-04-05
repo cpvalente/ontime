@@ -4,6 +4,7 @@ import {
   CustomFields,
   isOntimeDelay,
   isOntimeEvent,
+  MaybeNumber,
   OntimeEvent,
   OntimeRundown,
   OntimeRundownEntry,
@@ -12,8 +13,9 @@ import { generateId, deleteAtIndex, insertAtIndex, reorderArray, swapEventData }
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
+import { getTotalDuration } from '../timerUtils.js';
 import { apply } from './delayUtils.js';
-import { handleCustomField, handleLink } from './rundownCacheUtils.js';
+import { handleCustomField, handleLink, hasChanges, isDataStale } from './rundownCacheUtils.js';
 
 type EventID = string;
 type NormalisedRundown = Record<EventID, OntimeRundownEntry>;
@@ -30,6 +32,9 @@ let order: EventID[] = [];
 let revision = 0;
 let isStale = true;
 let totalDelay = 0;
+let totalDuration = 0;
+let firstStart: MaybeNumber = null;
+let lastEnd: MaybeNumber = null;
 
 let links: Record<EventID, EventID> = {};
 
@@ -50,17 +55,12 @@ const customFieldChangelog = {};
  */
 let assignedCustomFields: Record<CustomFieldLabel, EventID[]> = {};
 
-export async function init(initialRundown: OntimeRundown, customFields: CustomFields) {
-  persistedRundown = structuredClone(initialRundown);
+export async function init(initialRundown: Readonly<OntimeRundown>, customFields: Readonly<CustomFields>) {
+  persistedRundown = structuredClone(initialRundown) as OntimeRundown;
   persistedCustomFields = structuredClone(customFields);
   generate();
   await DataProvider.setRundown(persistedRundown);
-}
-
-export async function setRundown(initialRundown: OntimeRundown) {
-  persistedRundown = structuredClone(initialRundown);
-  generate();
-  await DataProvider.setRundown(persistedRundown);
+  await DataProvider.setCustomFields(customFields);
 }
 
 /**
@@ -78,9 +78,12 @@ export function generate(
   rundown = {};
   order = [];
   links = {};
+  firstStart = null;
+  lastEnd = null;
 
   let accumulatedDelay = 0;
-  let previousEnd: number;
+  let daySpan = 0;
+  let previousEnd: MaybeNumber = null;
 
   for (let i = 0; i < initialRundown.length; i++) {
     const currentEvent = initialRundown[i];
@@ -95,6 +98,19 @@ export function generate(
 
       // update the persisted event
       initialRundown[i] = updatedEvent;
+
+      // update rundown duration
+      if (firstStart === null) {
+        firstStart = updatedEvent.timeStart;
+      }
+      lastEnd = updatedEvent.timeEnd;
+
+      // check if we go over midnight, account for eventual gaps
+      const gapOverMidnight = previousEnd !== null && previousEnd > updatedEvent.timeStart;
+      const durationOverMidnight = updatedEvent.timeStart > updatedEvent.timeEnd;
+      if (gapOverMidnight || durationOverMidnight) {
+        daySpan++;
+      }
     }
 
     // calculate delays
@@ -119,7 +135,11 @@ export function generate(
 
   isStale = false;
   totalDelay = accumulatedDelay;
-  return { rundown, order, links, totalDelay, assignedCustomProperties: assignedCustomFields };
+  if (lastEnd !== null && firstStart !== null) {
+    totalDuration = getTotalDuration(firstStart, lastEnd, daySpan);
+  }
+
+  return { rundown, order, links, totalDelay, totalDuration, assignedCustomProperties: assignedCustomFields };
 }
 
 /** Returns an ID guaranteed to be unique */
@@ -146,6 +166,8 @@ type RundownCache = {
   rundown: NormalisedRundown;
   order: string[];
   revision: number;
+  totalDelay: number;
+  totalDuration: number;
 };
 
 /**
@@ -162,6 +184,26 @@ export function get(): Readonly<RundownCache> {
     rundown,
     order,
     revision,
+    totalDelay,
+    totalDuration,
+  };
+}
+
+/**
+ * Returns calculated metadata from rundown
+ */
+export function getMetadata() {
+  if (isStale) {
+    console.time('rundownCache__init');
+    generate();
+    console.timeEnd('rundownCache__init');
+  }
+
+  return {
+    firstStart,
+    lastEnd,
+    totalDelay,
+    totalDuration,
   };
 }
 
@@ -170,6 +212,7 @@ type MutationParams<T> = T & CommonParams;
 type MutatingReturn = {
   newRundown: OntimeRundown;
   newEvent?: OntimeRundownEntry;
+  didMutate: boolean;
 };
 type MutatingFn<T extends object> = (params: MutationParams<T>) => MutatingReturn;
 
@@ -180,26 +223,31 @@ type MutatingFn<T extends object> = (params: MutationParams<T>) => MutatingRetur
  */
 export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
   async function scopedMutation(params: T) {
-    const { newEvent, newRundown } = mutation({ ...params, persistedRundown });
+    /**
+     * Marking the data set as stale
+     * doing it before calling the mutation, gives the function a chance
+     * to prevent recalculation by setting stale = false
+     */
+    isStale = true;
+
+    const { newEvent, newRundown, didMutate } = mutation({ ...params, persistedRundown });
 
     revision = revision + 1;
-    isStale = true;
     persistedRundown = newRundown;
 
     // schedule a non priority cache update
     setImmediate(() => {
       console.time('rundownCache__init');
-      generate();
+      get();
       console.timeEnd('rundownCache__init');
     });
 
-    // TODO: should we throttle this?
     // defer writing to the database
     setImmediate(() => {
       DataProvider.setRundown(persistedRundown);
     });
 
-    return { newEvent };
+    return { newEvent, newRundown, didMutate };
   }
 
   return scopedMutation;
@@ -211,7 +259,7 @@ export function add({ persistedRundown, atIndex, event }: AddArgs): Required<Mut
   const newEvent: OntimeRundownEntry = { ...event };
   const newRundown = insertAtIndex(atIndex, newEvent, persistedRundown);
 
-  return { newRundown, newEvent };
+  return { newRundown, newEvent, didMutate: true };
 }
 
 type RemoveArgs = MutationParams<{ eventId: string }>;
@@ -220,11 +268,11 @@ export function remove({ persistedRundown, eventId }: RemoveArgs): MutatingRetur
   const atIndex = persistedRundown.findIndex((event) => event.id === eventId);
   const newRundown = deleteAtIndex(atIndex, persistedRundown);
 
-  return { newRundown };
+  return { newRundown, didMutate: atIndex !== -1 };
 }
 
-export function removeAll(): { newRundown: OntimeRundown } {
-  return { newRundown: [] };
+export function removeAll(): MutatingReturn {
+  return { newRundown: [], didMutate: true };
 }
 
 /**
@@ -257,12 +305,25 @@ export function edit({ persistedRundown, eventId, patch }: EditArgs): Required<M
   }
 
   const eventInMemory = persistedRundown[indexAt];
+  if (!hasChanges(eventInMemory, patch)) {
+    isStale = false;
+    return { newRundown: persistedRundown, newEvent: eventInMemory, didMutate: false };
+  }
+
   const newEvent = makeEvent(eventInMemory, patch);
 
   const newRundown = [...persistedRundown];
   newRundown[indexAt] = newEvent;
 
-  return { newRundown, newEvent };
+  // check whether the data warrants recalculation of cache
+  const makeStale = isDataStale(patch);
+
+  if (!makeStale) {
+    rundown[newEvent.id] = newEvent;
+  }
+
+  isStale = makeStale;
+  return { newRundown, newEvent, didMutate: true };
 }
 
 type BatchEditArgs = MutationParams<{ eventIds: string[]; patch: Partial<OntimeRundownEntry> }>;
@@ -282,7 +343,7 @@ export function batchEdit({ persistedRundown, eventIds, patch }: BatchEditArgs):
       newRundown.push(persistedRundown[i]);
     }
   }
-  return { newRundown };
+  return { newRundown, didMutate: true };
 }
 
 type ReorderArgs = MutationParams<{ eventId: string; from: number; to: number }>;
@@ -300,14 +361,14 @@ export function reorder({ persistedRundown, eventId, from, to }: ReorderArgs): R
       event.revision += 1;
     }
   }
-  return { newRundown, newEvent: newRundown.at(from) };
+  return { newRundown, newEvent: newRundown.at(from) as OntimeRundownEntry, didMutate: true };
 }
 
 type ApplyDelayArgs = MutationParams<{ eventId: string }>;
 
 export function applyDelay({ persistedRundown, eventId }: ApplyDelayArgs): MutatingReturn {
   const newRundown = apply(eventId, persistedRundown);
-  return { newRundown };
+  return { newRundown, didMutate: true };
 }
 
 type SwapArgs = MutationParams<{ fromId: string; toId: string }>;
@@ -331,7 +392,7 @@ export function swap({ persistedRundown, fromId, toId }: SwapArgs): MutatingRetu
   newRundown[indexB] = newB;
   (newRundown[indexB] as OntimeEvent).revision += 1;
 
-  return { newRundown };
+  return { newRundown, didMutate: true };
 }
 
 /**
@@ -372,16 +433,16 @@ function scheduleCustomFieldPersist(persistedCustomFields: CustomFields) {
  */
 export const createCustomField = async (field: CustomField) => {
   const { label, type, colour } = field;
-
+  const key = label.toLowerCase();
   // check if label already exists
-  const alreadyExists = Object.hasOwn(persistedCustomFields, label);
+  const alreadyExists = Object.hasOwn(persistedCustomFields, key);
 
   if (alreadyExists) {
     throw new Error('Label already exists');
   }
 
   // update object and persist
-  persistedCustomFields[label] = { label, type, colour };
+  persistedCustomFields[key] = { label, type, colour };
 
   scheduleCustomFieldPersist(persistedCustomFields);
 
@@ -390,29 +451,30 @@ export const createCustomField = async (field: CustomField) => {
 
 /**
  * Edits an existing custom field in the database
- * @param label
+ * @param key
  * @param newField
  * @returns
  */
-export const editCustomField = async (label: string, newField: Partial<CustomField>) => {
-  if (!(label in persistedCustomFields)) {
+export const editCustomField = async (key: string, newField: Partial<CustomField>) => {
+  if (!(key in persistedCustomFields)) {
     throw new Error('Could not find label');
   }
 
-  const existingField = persistedCustomFields[label];
+  const existingField = persistedCustomFields[key];
   if (existingField.type !== newField.type) {
     throw new Error('Change of field type is not allowed');
   }
 
-  persistedCustomFields[newField.label] = { ...existingField, ...newField };
+  const newKey = newField.label.toLowerCase();
+  persistedCustomFields[newKey] = { ...existingField, ...newField };
 
-  if (existingField.label !== newField.label) {
-    delete persistedCustomFields[existingField.label];
-    customFieldChangelog[label] = newField.label;
+  if (key !== newKey) {
+    delete persistedCustomFields[key];
+    customFieldChangelog[key] = newKey;
   }
 
   scheduleCustomFieldPersist(persistedCustomFields);
-  invalidateIfUsed(label);
+  invalidateIfUsed(key);
 
   return persistedCustomFields;
 };

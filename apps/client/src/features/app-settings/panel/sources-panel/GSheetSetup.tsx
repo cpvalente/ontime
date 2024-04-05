@@ -1,8 +1,10 @@
 import { ChangeEvent, useEffect, useState } from 'react';
-import { Button, Input } from '@chakra-ui/react';
+import { Button, Input, Spinner } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { IoShieldCheckmarkOutline } from '@react-icons/all-files/io5/IoShieldCheckmarkOutline';
 
+import { getWorksheetNames } from '../../../../common/api/sheets';
+import { maybeAxiosError } from '../../../../common/api/utils';
 import CopyTag from '../../../../common/components/copy-tag/CopyTag';
 import { openLink } from '../../../../common/utils/linkUtils';
 import * as Panel from '../PanelUtils';
@@ -27,7 +29,8 @@ export default function GSheetSetup(props: GSheetSetupProps) {
 
   const sheetId = useSheetStore((state) => state.sheetId);
   const setSheetId = useSheetStore((state) => state.setSheetId);
-
+  const setWorksheets = useSheetStore((state) => state.setWorksheets);
+  const patchStepData = useSheetStore((state) => state.patchStepData);
   const authenticationStatus = useSheetStore((state) => state.authenticationStatus);
   const setAuthenticationStatus = useSheetStore((state) => state.setAuthenticationStatus);
 
@@ -53,7 +56,6 @@ export default function GSheetSetup(props: GSheetSetupProps) {
   };
 
   const handleCancelFlow = async () => {
-    await handleRevoke();
     onCancel();
   };
 
@@ -89,6 +91,15 @@ export default function GSheetSetup(props: GSheetSetupProps) {
     if (result?.authenticated) {
       setAuthenticationStatus(result.authenticated);
       if (result.authenticated !== 'pending') {
+        if (result.authenticated == 'authenticated') {
+          try {
+            const names = await getWorksheetNames(result.sheetId);
+            setWorksheets(names);
+          } catch (error) {
+            const message = maybeAxiosError(error);
+            patchStepData({ worksheet: { available: false, error: message } });
+          }
+        }
         setLoading('');
         return;
       }
@@ -179,6 +190,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
       ) : (
         <Panel.ListGroup>
           <div className={style.buttonRow}>
+            {isAuthenticating && <Spinner />}
             <CopyTag label='Google Auth Key' disabled={!canAuthenticate} size='sm'>
               {authKey ? authKey : 'Upload files to generate Auth Key'}
             </CopyTag>
@@ -187,8 +199,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
               size='sm'
               leftIcon={<IoShieldCheckmarkOutline />}
               onClick={handleAuthenticate}
-              isDisabled={!canAuthenticate || isLoading}
-              isLoading={loading === 'authenticate' || isAuthenticating}
+              isDisabled={!canAuthenticate}
             >
               Authenticate
             </Button>

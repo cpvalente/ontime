@@ -1,4 +1,4 @@
-import { OntimeRundownEntry, isOntimeBlock, isOntimeEvent } from 'ontime-types';
+import { isOntimeBlock, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { sheets_v4 } from '@googleapis/sheets';
@@ -74,67 +74,33 @@ export function cellRequestFromEvent(
   worksheetId: number,
   metadata,
 ): sheets_v4.Schema$Request {
-  const returnRows: sheets_v4.Schema$CellData[] = [];
-  const tmp = Object.entries(metadata)
+  const rowData = Object.entries(metadata)
     .filter(([_, value]) => value !== undefined)
     .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [string, { col: number; row: number }][];
 
-  const titleCol = tmp[0][1].col;
+  const titleCol = rowData[0][1].col;
 
-  for (const [index, e] of tmp.entries()) {
+  for (const [index, e] of rowData.entries()) {
     if (index !== 0) {
-      const prevCol = tmp[index - 1][1].col;
+      const prevCol = rowData[index - 1][1].col;
       const thisCol = e[1].col;
       const diff = thisCol - prevCol;
       if (diff > 1) {
-        const fillArr = new Array<(typeof tmp)[0]>(1).fill(['blank', { row: e[1].row, col: prevCol + 1 }]);
-        tmp.splice(index, 0, ...fillArr);
+        const fillArr = new Array<(typeof rowData)[0]>(1).fill(['blank', { row: e[1].row, col: prevCol + 1 }]);
+        rowData.splice(index, 0, ...fillArr);
       }
     }
   }
 
-  tmp.forEach(([key, _]) => {
-    if (isOntimeEvent(event)) {
-      if (key === 'blank') {
-        returnRows.push({});
-      } else if (key === 'colour') {
-        returnRows.push({
-          userEnteredValue: { stringValue: event.colour },
-        });
-      } else if (typeof event[key] === 'number') {
-        returnRows.push({
-          userEnteredValue: { stringValue: millisToString(event[key]) },
-        });
-      } else if (typeof event[key] === 'string') {
-        returnRows.push({
-          userEnteredValue: { stringValue: event[key] },
-        });
-      } else if (typeof event[key] === 'boolean') {
-        returnRows.push({
-          userEnteredValue: { stringValue: event[key] ? 'x' : '' },
-        });
-      } else {
-        returnRows.push({});
-      }
-    } else if (isOntimeBlock(event)) {
-      if (key === 'title') {
-        returnRows.push({
-          userEnteredValue: { stringValue: event[key] },
-        });
-      } else if (key === 'timerType') {
-        returnRows.push({
-          userEnteredValue: { stringValue: 'block' },
-        });
-      } else {
-        returnRows.push({});
-      }
-    }
+  const returnRows: sheets_v4.Schema$CellData[] = rowData.map(([key, _]) => {
+    return getCellData(key, event);
   });
+
   return {
     updateCells: {
       start: {
         sheetId: worksheetId,
-        rowIndex: index + tmp[0][1]['row'] + 1,
+        rowIndex: index + rowData[0][1]['row'] + 1,
         columnIndex: titleCol,
       },
       fields: 'userEnteredValue',
@@ -145,4 +111,37 @@ export function cellRequestFromEvent(
       ],
     },
   };
+}
+
+function getCellData(key: string, event: OntimeRundownEntry) {
+  if (isOntimeEvent(event)) {
+    if (key === 'blank') {
+      return {};
+    }
+    if (key === 'colour') {
+      return { userEnteredValue: { stringValue: event[key] } };
+    }
+
+    const dataType = typeof event[key];
+    if (dataType === 'number') {
+      return { userEnteredValue: { stringValue: millisToString(event[key]) } };
+    }
+    if (dataType === 'string') {
+      return { userEnteredValue: { stringValue: event[key] } };
+    }
+    if (dataType === 'boolean') {
+      return { userEnteredValue: { boolValue: event[key] } };
+    }
+  }
+
+  if (isOntimeBlock(event)) {
+    if (key === 'title') {
+      return { userEnteredValue: { stringValue: event[key] } };
+    }
+    if (key === 'timerType') {
+      return { userEnteredValue: { stringValue: 'block' } };
+    }
+  }
+
+  return {};
 }

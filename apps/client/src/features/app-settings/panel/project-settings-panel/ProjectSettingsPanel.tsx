@@ -84,6 +84,7 @@ export default function ProjectSettingsPanel() {
                   return (
                     <CustomFieldEntry
                       key={key}
+                      field={key}
                       colour={colour}
                       label={label}
                       onEdit={handleEditField}

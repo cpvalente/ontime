@@ -23,12 +23,14 @@ interface CuesheetTableSettingsProps {
 function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
   const { columns, handleResetResizing, handleResetReordering, handleClearToggles } = props;
   const {
+    followSelected,
+    toggleFollow,
     showPrevious,
-    toggleDelayVisibility,
+    togglePreviousVisibility,
     showDelayBlock,
     showDelayedTimes,
     toggleDelayedTimes,
-    togglePreviousVisibility,
+    toggleDelayVisibility,
   } = useCuesheetSettings();
 
   return (
@@ -53,6 +55,10 @@ function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
         </div>
         <div className={style.sectionTitle}>Table Options</div>
         <div className={style.options}>
+          <label className={style.option}>
+            <Switch variant='ontime' size='sm' isChecked={followSelected} onChange={() => toggleFollow()} />
+            Follow selected event
+          </label>
           <label className={style.option}>
             <Switch variant='ontime' size='sm' isChecked={showPrevious} onChange={() => togglePreviousVisibility()} />
             Show past events

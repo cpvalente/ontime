@@ -16,6 +16,7 @@ import {
   hasAuth,
   download,
   upload,
+  getWorksheetOptions,
 } from '../../services/sheet-service/SheetService.js';
 import { getErrorMessage } from 'ontime-utils';
 
@@ -68,6 +69,27 @@ export async function revokeAuthentication(
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(500).send({ message });
+  }
+}
+
+export async function getWorksheetNamesFromSheet(req: Request, res: Response) {
+  try {
+    const { sheetId } = req.params;
+    const { worksheetOptions } = await getWorksheetOptions(sheetId);
+    res.status(200).send(worksheetOptions);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(500).send({ message });
+  }
+}
+
+export async function getWorksheetNamesFromSheet(req: Request, res: Response) {
+  try {
+    const { sheetId } = req.params;
+    const { worksheetOptions } = await getWorksheetOptions(sheetId);
+    res.status(200).send(worksheetOptions);
+  } catch (error) {
+    res.status(500).send({ message: String(error) });
   }
 }
 

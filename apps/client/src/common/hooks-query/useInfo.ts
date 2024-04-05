@@ -10,7 +10,7 @@ export default function useInfo() {
   const { data, status, isError, refetch, isFetching } = useQuery<GetInfo>({
     queryKey: APP_INFO,
     queryFn: getInfo,
-    placeholderData: ontimePlaceholderInfo,
+    placeholderData: (previousData, _previousQuery) => previousData,
     retry: 5,
     retryDelay: (attempt) => attempt * 2500,
     refetchInterval: queryRefetchIntervalSlow,

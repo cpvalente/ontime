@@ -1,32 +1,24 @@
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
+import { IconButton } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
-import { OntimeBlock, OntimeEvent } from 'ontime-types';
+import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { OntimeBlock } from 'ontime-types';
 
 import { cx } from '../../../common/utils/styleUtils';
 import EditableBlockTitle from '../common/EditableBlockTitle';
-import BlockActionMenu from '../event-block/composite/BlockActionMenu';
-import type { EventItemActions } from '../RundownEntry';
 
 import style from './BlockBlock.module.scss';
 
 interface BlockBlockProps {
   data: OntimeBlock;
   hasCursor: boolean;
-  actionHandler: (
-    action: EventItemActions,
-    payload?:
-      | number
-      | {
-          field: keyof Omit<OntimeEvent, 'duration'> | 'durationOverride';
-          value: unknown;
-        },
-  ) => void;
+  onDelete: () => void;
 }
 
 export default function BlockBlock(props: BlockBlockProps) {
-  const { data, hasCursor, actionHandler } = props;
+  const { data, hasCursor, onDelete } = props;
   const handleRef = useRef<null | HTMLSpanElement>(null);
 
   const {
@@ -45,12 +37,6 @@ export default function BlockBlock(props: BlockBlockProps) {
     transition,
   };
 
-  useEffect(() => {
-    if (hasCursor) {
-      handleRef?.current?.focus();
-    }
-  }, [hasCursor]);
-
   const blockClasses = cx([style.block, hasCursor ? style.hasCursor : null]);
 
   return (
@@ -59,7 +45,14 @@ export default function BlockBlock(props: BlockBlockProps) {
         <IoReorderTwo />
       </span>
       <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Block title' />
-      <BlockActionMenu className={style.actionMenu} enableDelete actionHandler={actionHandler} />
+      <IconButton
+        aria-label='Delete'
+        size='sm'
+        icon={<IoTrash />}
+        variant='ontime-subtle'
+        color='#FA5656'
+        onClick={onDelete}
+      />
     </div>
   );
 }

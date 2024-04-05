@@ -1,6 +1,7 @@
 import { MaybeNumber, MaybeString, OntimeEvent, TimerType } from 'ontime-types';
 import { dayInMs, sortArrayByProperty } from 'ontime-utils';
 import { RuntimeState } from '../stores/runtimeState.js';
+import { timerConfig } from '../config/config.js';
 
 /**
  * handle events that span over midnight
@@ -62,12 +63,6 @@ export function getCurrent(state: RuntimeState): number {
 
   if (timerType === TimerType.TimeToEnd) {
     const isEventOverMidnight = timeStart > timeEnd;
-    const hasFinishedRundownForToday = state.runtime.plannedEnd && clock > state.runtime.plannedEnd;
-
-    if (hasFinishedRundownForToday && !isEventOverMidnight) {
-      return dayInMs - clock + state.eventNow.timeStart + addedTime;
-    }
-
     const correctDay = isEventOverMidnight ? dayInMs : 0;
     return correctDay - clock + timeEnd + addedTime;
   }
@@ -76,12 +71,12 @@ export function getCurrent(state: RuntimeState): number {
     return duration;
   }
 
-  const hasPassedMidnight = startedAt > clock;
-  const correctDay = hasPassedMidnight ? dayInMs : 0;
   if (pausedAt != null) {
     return startedAt + duration + addedTime - pausedAt;
   }
 
+  const hasPassedMidnight = startedAt > clock;
+  const correctDay = hasPassedMidnight ? dayInMs : 0;
   return startedAt + duration + addedTime - clock - correctDay;
 }
 
@@ -278,7 +273,7 @@ export const updateRoll = (state: RuntimeState) => {
       updatedTimer -= dayInMs;
     }
 
-    if (updatedTimer < 0) {
+    if (updatedTimer <= timerConfig.triggerAhead) {
       isPrimaryFinished = true;
       // we need a new event
       doRollLoad = true;
@@ -305,7 +300,7 @@ export const updateRoll = (state: RuntimeState) => {
  * @returns
  */
 export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
-  if (state.runtime.actualStart === null) {
+  if (state.eventNow === null || state.runtime.actualStart === null) {
     return null;
   }
 
@@ -318,7 +313,7 @@ export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
     return clock - timeStart;
   }
 
-  const overtime = Math.min(current, 0);
+  const overtime = Math.abs(Math.min(current, 0));
   // in time-to-end, offset is overtime
   if (timerType === TimerType.TimeToEnd) {
     return overtime;
@@ -327,5 +322,36 @@ export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
   const startOffset = startedAt - timeStart;
   const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
 
-  return startOffset + addedTime + pausedTime + Math.abs(overtime);
+  return startOffset + addedTime + pausedTime + overtime;
+}
+
+/**
+ * Calculates total duration of a time span
+ * @param firstStart
+ * @param lastEnd
+ * @param daySpan
+ * @returns
+ */
+export function getTotalDuration(firstStart: number, lastEnd: number, daySpan: number): number {
+  if (!lastEnd) {
+    return 0;
+  }
+  let correctDay = 0;
+  if (lastEnd < firstStart) {
+    correctDay = dayInMs;
+    daySpan -= 1;
+  }
+  // eslint-disable-next-line prettier/prettier -- we like the clarity
+  return lastEnd + correctDay + daySpan * dayInMs - firstStart;
+}
+
+/**
+ * Calculates the expected end of the rundown
+ */
+export function getExpectedEnd(state: RuntimeState): MaybeNumber {
+  // there is no expected end if we havent started
+  if (state.runtime.actualStart === null) {
+    return null;
+  }
+  return state.runtime.plannedEnd + state.runtime.offset + state._timer.totalDelay;
 }

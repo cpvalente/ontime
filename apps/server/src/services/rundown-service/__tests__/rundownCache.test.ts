@@ -10,6 +10,7 @@ import {
   TimeStrategy,
   TimerType,
 } from 'ontime-types';
+import { MILLIS_PER_HOUR, dayInMs, millisToString } from 'ontime-utils';
 
 import { calculateRuntimeDelays, getDelayAt, calculateRuntimeDelaysFrom } from '../delayUtils.js';
 import {
@@ -25,7 +26,7 @@ import {
   removeCustomField,
 } from '../rundownCache.js';
 
-describe('init() function', () => {
+describe('generate()', () => {
   it('creates normalised versions of a given rundown', () => {
     const testRundown: OntimeRundown = [
       { type: SupportedEvent.Event, id: '1' } as OntimeEvent,
@@ -71,6 +72,7 @@ describe('init() function', () => {
     expect((initResult.rundown['3'] as OntimeEvent).delay).toBe(100);
     expect((initResult.rundown['4'] as OntimeEvent).delay).toBe(0);
     expect(initResult.totalDelay).toBe(0);
+    expect(initResult.totalDuration).toBe(700 - 100);
   });
 
   it('handles negative delays', () => {
@@ -91,6 +93,7 @@ describe('init() function', () => {
     expect((initResult.rundown['3'] as OntimeEvent).delay).toBe(-200);
     expect((initResult.rundown['4'] as OntimeEvent).delay).toBe(-200);
     expect(initResult.totalDelay).toBe(-200);
+    expect(initResult.totalDuration).toBe(700 - 100);
   });
 
   it('links times across events', () => {
@@ -151,6 +154,68 @@ describe('init() function', () => {
     expect((initResult.rundown['3'] as OntimeEvent).timeStart).toBe(2);
     expect(initResult.links['1']).toBe('3');
     expect(initResult.links['3']).toBe('2');
+  });
+
+  it('calculates total duration', () => {
+    const testRundown: OntimeRundown = [
+      { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 200 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '2', timeStart: 200, timeEnd: 300 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '3', timeStart: 300, timeEnd: 400 } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.order.length).toBe(3);
+    expect(initResult.totalDuration).toBe(400 - 100);
+  });
+
+  it('calculates total duration across days with gap', () => {
+    const testRundown: OntimeRundown = [
+      {
+        type: SupportedEvent.Event,
+        id: '1',
+        timeStart: new Date(0).setHours(9),
+        timeEnd: new Date(0).setHours(23),
+      } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '2',
+        timeStart: new Date(0).setHours(9),
+        timeEnd: new Date(0).setHours(23),
+      } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '3',
+        timeStart: new Date(0).setHours(9),
+        timeEnd: new Date(0).setHours(23),
+      } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    const expectedDuration = (23 - 9 + 48) * MILLIS_PER_HOUR;
+    expect(millisToString(initResult.totalDuration)).toBe('62:00:00');
+    expect(initResult.totalDuration).toBe(expectedDuration);
+  });
+
+  it('calculates total duration across days', () => {
+    const testRundown: OntimeRundown = [
+      {
+        type: SupportedEvent.Event,
+        id: '1',
+        timeStart: new Date(0).setHours(12),
+        timeEnd: new Date(0).setHours(22),
+      } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '2',
+        timeStart: new Date(0).setHours(22),
+        timeEnd: new Date(0).setHours(8),
+      } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    const expectedDuration = 8 * MILLIS_PER_HOUR + (dayInMs - 12 * MILLIS_PER_HOUR);
+    expect(millisToString(initResult.totalDuration)).toBe('20:00:00');
+    expect(initResult.totalDuration).toBe(expectedDuration);
   });
 
   it('handles updating event sequence', () => {
@@ -776,35 +841,35 @@ describe('custom fields', () => {
     it('creates a field from given parameters', async () => {
       const expected = {
         lighting: {
-          label: 'lighting',
+          label: 'Lighting',
           type: 'string',
           colour: 'blue',
         },
       };
 
-      const customField = await createCustomField({ label: 'lighting', type: 'string', colour: 'blue' });
+      const customField = await createCustomField({ label: 'Lighting', type: 'string', colour: 'blue' });
       expect(customField).toStrictEqual(expected);
     });
   });
 
   describe('editCustomField()', () => {
     it('edits a field with a given label', async () => {
-      await createCustomField({ label: 'sound', type: 'string', colour: 'blue' });
+      await createCustomField({ label: 'Sound', type: 'string', colour: 'blue' });
 
       const expected = {
         lighting: {
-          label: 'lighting',
+          label: 'Lighting',
           type: 'string',
           colour: 'blue',
         },
         sound: {
-          label: 'sound',
+          label: 'Sound',
           type: 'string',
-          colour: 'blue',
+          colour: 'green',
         },
       };
 
-      const customField = await editCustomField('sound', { label: 'sound', type: 'string', colour: 'blue' });
+      const customField = await editCustomField('sound', { label: 'Sound', type: 'string', colour: 'green' });
 
       expect(customField).toStrictEqual(expected);
     });
@@ -814,7 +879,7 @@ describe('custom fields', () => {
     it('deletes a field with a given label', async () => {
       const expected = {
         lighting: {
-          label: 'lighting',
+          label: 'Lighting',
           type: 'string',
           colour: 'blue',
         },

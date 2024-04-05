@@ -38,15 +38,13 @@ export default function Rundown({ data }: RundownProps) {
   const { addEvent, reorderEvent } = useEventAction();
   const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
-  const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
-  const showQuickEntry = eventSettings.showQuickEntry;
+  const linkPrevious = eventSettings.linkPrevious;
 
   // cursor
   const { cursor, mode: appMode, setCursor } = useAppMode();
-  const viewFollowsCursor = appMode === AppMode.Run;
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: true });
+  useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: appMode === AppMode.Run });
 
   // DND KIT
   const sensors = useSensors(useSensor(PointerSensor));
@@ -74,17 +72,17 @@ export default function Rundown({ data }: RundownProps) {
           type: SupportedEvent.Event,
         };
         const options = {
-          defaultPublic,
-          startTimeIsLastEnd,
-          lastEventId: cursor,
           after: cursor,
+          defaultPublic,
+          lastEventId: cursor,
+          linkPrevious,
         };
         addEvent(newEvent, options);
       } else {
         addEvent({ type }, { after: cursor });
       }
     },
-    [addEvent, rundown, defaultPublic, startTimeIsLastEnd],
+    [addEvent, rundown, defaultPublic, linkPrevious],
   );
 
   // Handle keyboard shortcuts
@@ -183,11 +181,11 @@ export default function Rundown({ data }: RundownProps) {
 
   useEffect(() => {
     // in run mode, we follow selection
-    if (!viewFollowsCursor || !featureData?.selectedEventId) {
+    if (appMode !== AppMode.Run || !featureData?.selectedEventId) {
       return;
     }
-    // moveCursorTo(featureData.selectedEventId);
-  }, [featureData?.selectedEventId, viewFollowsCursor]);
+    setCursor(featureData.selectedEventId);
+  }, [appMode, featureData.selectedEventId, setCursor]);
 
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -220,6 +218,8 @@ export default function Rundown({ data }: RundownProps) {
   // all events before the current selected are in the past
   let isPast = Boolean(featureData?.selectedEventId);
 
+  const isEditMode = appMode === AppMode.Edit;
+
   return (
     <div className={style.eventContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext onDragEnd={handleOnDragEnd} sensors={sensors} collisionDetection={closestCenter}>
@@ -249,6 +249,7 @@ export default function Rundown({ data }: RundownProps) {
                   thisId = eventId;
                 }
               }
+              const isFirst = index === 0;
               const isLast = index === order.length - 1;
               const isLoaded = featureData?.selectedEventId === event.id;
               const isNext = featureData?.nextEventId === event.id;
@@ -259,6 +260,14 @@ export default function Rundown({ data }: RundownProps) {
 
               return (
                 <Fragment key={event.id}>
+                  {isEditMode && (hasCursor || isFirst) && (
+                    <QuickAddBlock
+                      showKbd={hasCursor ? 'above' : 'none'}
+                      previousEventId={previousEventId}
+                      disableAddDelay={isOntimeDelay(event)}
+                      disableAddBlock={isOntimeBlock(event)}
+                    />
+                  )}
                   <div className={style.entryWrapper} data-testid={`entry-${eventIndex}`}>
                     {isOntimeEvent(event) && <div className={style.entryIndex}>{eventIndex}</div>}
                     <div className={style.entry} key={event.id} ref={hasCursor ? cursorRef : undefined}>
@@ -278,9 +287,9 @@ export default function Rundown({ data }: RundownProps) {
                       />
                     </div>
                   </div>
-                  {((showQuickEntry && hasCursor) || isLast) && (
+                  {isEditMode && (hasCursor || isLast) && (
                     <QuickAddBlock
-                      showKbd={hasCursor}
+                      showKbd={hasCursor ? 'below' : 'none'}
                       previousEventId={event.id}
                       disableAddDelay={isOntimeDelay(event)}
                       disableAddBlock={isOntimeBlock(event)}

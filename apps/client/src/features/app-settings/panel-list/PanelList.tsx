@@ -2,16 +2,18 @@ import { Fragment } from 'react';
 
 import { isKeyEnter } from '../../../common/utils/keyEvent';
 import { cx } from '../../../common/utils/styleUtils';
-import { settingPanels, SettingsOption, useSettingsStore } from '../settingsStore';
+import { PanelBaseProps, settingPanels, useSettingsStore } from '../settingsStore';
+import useAppSettingsNavigation from '../useAppSettingsNavigation';
 
 import style from './PanelList.module.scss';
 
-export default function PanelList() {
-  const { showSettings, setShowSettings, hasUnsavedChanges } = useSettingsStore();
+interface PanelListProps extends PanelBaseProps {
+  selectedPanel: string;
+}
 
-  const handleSelect = (panel: SettingsOption) => {
-    setShowSettings(panel.id);
-  };
+export default function PanelList({ selectedPanel, location }: PanelListProps) {
+  const { setLocation } = useAppSettingsNavigation();
+  const { hasUnsavedChanges } = useSettingsStore();
 
   return (
     <ul className={style.tabs}>
@@ -20,7 +22,7 @@ export default function PanelList() {
 
         const classes = cx([
           style.primary,
-          showSettings === panel.id ? style.active : null,
+          selectedPanel === panel.id ? style.active : null,
           panel.split ? style.split : null,
           unsaved ? style.unsaved : null,
         ]);
@@ -29,9 +31,9 @@ export default function PanelList() {
           <Fragment key={panel.id}>
             <li
               key={panel.id}
-              onClick={() => handleSelect(panel)}
+              onClick={() => setLocation(panel.id)}
               onKeyDown={(event) => {
-                isKeyEnter(event) && handleSelect(panel);
+                isKeyEnter(event) && setLocation(panel.id);
               }}
               className={classes}
               tabIndex={0}
@@ -40,8 +42,18 @@ export default function PanelList() {
               {panel.label}
             </li>
             {panel.secondary?.map((secondary) => {
+              const id = secondary.id.split('__')[1];
+              const secondaryClasses = cx([style.secondary, location === id ? style.active : null]);
               return (
-                <li key={secondary.id} onClick={() => handleSelect(panel)} className={style.secondary} role='button'>
+                <li
+                  key={secondary.id}
+                  onClick={() => setLocation(secondary.id)}
+                  onKeyDown={(event) => {
+                    isKeyEnter(event) && setLocation(secondary.id);
+                  }}
+                  className={secondaryClasses}
+                  role='button'
+                >
                   {secondary.label}
                 </li>
               );

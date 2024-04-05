@@ -45,3 +45,6 @@ apps/server/src/preloaded-db/db.json
 
 # versioning file
 **/ONTIME_VERSION.js
+
+# temporary write files
+**.tmp
