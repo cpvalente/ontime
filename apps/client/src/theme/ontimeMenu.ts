@@ -11,7 +11,7 @@ export const ontimeMenuOnDark = {
     backgroundColor: 'transparent',
     paddingBlock: '0.5rem',
     _hover: {
-      backgroundColor: 'rgba(0, 0, 0, 0.1)',
+      backgroundColor: 'rgba(0, 0, 0, 0.2)',
       _disabled: {
         backgroundColor: 'transparent',
       },
