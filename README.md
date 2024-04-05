@@ -51,23 +51,28 @@ Once installed and running, Ontime starts a server in the local machine which ma
 
 Any device in the network has access to the data. 
 
-You can access the different screens of the interface by reaching the ontime server (_default port 4001_) eg: `http://localhost:4001` or `http://192.168.1.3:4001`
+You can access the different screens of the interface by reaching the ontime server, in your browser, at (_default port 4001_) `http://localhost:4001` or `http://192.168.1.3:4001`
 
 ```
-For the presentation views
+For the backstage views
 -------------------------------------------------------------
 IP.ADDRESS:4001/timer      > Presenter / Stage timer view
 IP.ADDRESS:4001/minimal    > Simple timer view
 IP.ADDRESS:4001/clock      > Simple clock view
-IP.ADDRESS:4001/sm         > Stage Manager / Backstage view
-IP.ADDRESS:4001/public     > Public / Foyer view
-IP.ADDRESS:4001/lower      > Lower Thirds
-IP.ADDRESS:4001/studio     > Studio Clock
+IP.ADDRESS:4001/backstage  > Stage Manager / Backstage view
 IP.ADDRESS:4001/countdown  > Countdown to anything
+IP.ADDRESS:4001/studio     > Studio Clock
 ```
 
 ```
-For management views
+For the public views
+-------------------------------------------------------------
+IP.ADDRESS:4001/public     > Public / Foyer view
+IP.ADDRESS:4001/lower      > Lower Thirds
+```
+
+```
+For production views
 -------------------------------------------------------------
 IP.ADDRESS:4001/editor    > the control interface, same as the app
 IP.ADDRESS:4001/cuesheet  > realtime cuesheets for collaboration
