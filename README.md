@@ -20,6 +20,8 @@
 
 # Ontime
 
+Ontime is an application for creating and managing event rundowns and timers.
+
 ### For live environments
 Ontime is designed for use in live environments. \
 This guides the application into being flexible and efficiently integrating into different workflows.
@@ -76,27 +78,23 @@ More documentation is available [in our docs](https://docs.getontime.no)
 
 ## Main features
 
-- [x] Distribute data over network and render it in the browser
-- [x] Different screen types
-- [x] Collaborative
-- [x] [Make your own?](#make-your-own-viewer)
-- [x] Send messages to different screen types
-- [x] Differentiate between backstage and public data
-- [x] Workflow for managing delays
-- [x] Rich protocol integrations for Control and Feedback
-  - OSC (Open Sound Control)
-  - HTTP
-  - WebSockets
-- [x] [Headless run](#headless-run): run server in a separate machine, configure from a browser locally
-- [x] Multi-platform (available on Windows, MacOS and Linux)
-- [x] [Companion integration](https://bitfocus.io/connections/getontime-ontime)
+* [x] Distribute data over network and render it in the browser 
+* [x] Collaborative 
+* [x] Extendable
+* [x] Send messages to different screen types
+* [x] Differentiate between backstage and public data
+* [x] Workflow for managing delays
+* [x] Rich protocol integrations for Control and Feedback
+* [x] For servers: use docker to run Ontime in in a server, configure from a browser anywhere
+* [x] Multi-platform (available on Windows, MacOS and Linux)
+* [x] Companion integration [follow link](https://bitfocus.io/connections/getontime-ontime)
 
 ## Roadmap
 
 ### Continued development
 
-Several features are planned in the roadmap, and we continuously adjust this to match how users interact with the app.
-<br />
+Ontime is under active development. We continue adding and tweaking features in collaboration with users.
+
 Have an idea? Reach out via [email](mail@getontime.no)
 or [open an issue](https://github.com/cpvalente/ontime/issues/new)
 
