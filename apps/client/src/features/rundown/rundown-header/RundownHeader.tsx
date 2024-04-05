@@ -1,8 +1,5 @@
-import { ButtonGroup } from '@chakra-ui/react';
-import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
-import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
+import { Button, ButtonGroup } from '@chakra-ui/react';
 
-import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
 import { AppMode, useAppMode } from '../../../common/stores/appModeStore';
 
 import RundownMenu from './RundownMenu';
@@ -18,22 +15,12 @@ export default function RundownHeader() {
   return (
     <div className={style.header}>
       <ButtonGroup isAttached>
-        <TooltipActionBtn
-          variant={appMode === AppMode.Run ? 'ontime-filled' : 'ontime-outlined'}
-          size='sm'
-          icon={<IoPlay />}
-          clickHandler={setRunMode}
-          tooltip='Run mode'
-          aria-label='Run mode'
-        />
-        <TooltipActionBtn
-          variant={appMode === AppMode.Edit ? 'ontime-filled' : 'ontime-outlined'}
-          size='sm'
-          icon={<IoOptions />}
-          clickHandler={setEditMode}
-          tooltip='Edit mode'
-          aria-label='Edit mode'
-        />
+        <Button size='sm' variant={appMode === AppMode.Run ? 'ontime-filled' : 'ontime-subtle'} onClick={setRunMode}>
+          Run
+        </Button>
+        <Button size='sm' variant={appMode === AppMode.Edit ? 'ontime-filled' : 'ontime-subtle'} onClick={setEditMode}>
+          Edit
+        </Button>
       </ButtonGroup>
       <RundownMenu />
     </div>
