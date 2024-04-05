@@ -25,3 +25,8 @@ appRouter.use('/sheets', sheetsRouter);
 appRouter.use('/excel', excelRouter);
 appRouter.use('/url-presets', urlPresetsRouter);
 appRouter.use('/view-settings', viewSettingsRouter);
+
+//we don't want to redirect to react index when using api routes
+appRouter.all('/*', (_req, res) => {
+  res.status(404).send();
+});
