@@ -72,7 +72,7 @@ export async function revokeAuthentication(
   }
 }
 
-export async function getWorksheetNamesFromSheet(req: Request, res: Response) {
+export async function getWorksheetNamesFromSheet(req: Request, res: Response<string[] | ErrorResponse>) {
   try {
     const { sheetId } = req.params;
     const { worksheetOptions } = await getWorksheetOptions(sheetId);
@@ -80,16 +80,6 @@ export async function getWorksheetNamesFromSheet(req: Request, res: Response) {
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(500).send({ message });
-  }
-}
-
-export async function getWorksheetNamesFromSheet(req: Request, res: Response) {
-  try {
-    const { sheetId } = req.params;
-    const { worksheetOptions } = await getWorksheetOptions(sheetId);
-    res.status(200).send(worksheetOptions);
-  } catch (error) {
-    res.status(500).send({ message: String(error) });
   }
 }
 
