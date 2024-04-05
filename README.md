@@ -47,11 +47,12 @@ Ontime is made by video engineers and entertainment technicians.
 Ontime can be started by downloading the latest release for your platform. \
 Alternatively you can also use the docker image, available at [Docker Hub](https://hub.docker.com/r/getontime/ontime)
 
-Once installed and running, Ontime starts a server in the local machine which maintains the entire application data.
+Once installed and running, any device in the network has access to Ontime.
 
-Any device in the network has access to the data. 
+Ontime provides different screens which allow for different types of interactions with the data. These are called views. \
+Each view in Ontime focuses on empowering a specific role or achieving a particular task. 
 
-You can access the different screens of the interface by reaching the ontime server, in your browser, at (_default port 4001_) `http://localhost:4001` or `http://192.168.1.3:4001`
+You can access the different views by reaching the ontime server, in your browser, at (_default port 4001_) `http://localhost:4001` or `http://192.168.1.3:4001`
 
 ```
 For the backstage views
@@ -105,7 +106,7 @@ or [open an issue](https://github.com/cpvalente/ontime/issues/new)
 
 ### Issues
 
-We use Github's issue tracking for bug reporting and feature requests. <br />
+We use Github's issue tracking for bug reporting and feature requests. \
 Found a bug? [Open an issue](https://github.com/cpvalente/ontime/issues/new).
 
 #### Unsigned App
@@ -129,10 +130,10 @@ You can circumvent this by allowing the execution of the app manually.
 - In Linux: right-click the AppImage file -> Properties -> Permissions -> select Allow Executing
   File as a Program
 
-Long story short: Ontime app is unsigned. </br>Purchasing the certificates for both Mac and Windows
-would mean a recurrent expense and is not a priority. This is unlikely to change in future. If you
-have tips on how to improve this or would like to sponsor the code signing,
-please [open an issue](https://github.com/cpvalente/ontime/issues/new)
+Long story short: Ontime app is unsigned. \
+Purchasing the certificates for both Mac and Windows would mean a recurrent expense and is not a priority. \
+This is unlikely to change in future. \
+If you have tips on how to improve this or would like to sponsor the code signing, please [open an issue](https://github.com/cpvalente/ontime/issues/new)
 
 #### Safari
 
@@ -146,10 +147,10 @@ There is no plan for any further work on this.
 ## Contributing
 
 Looking to contribute? All types of help are appreciated, from coding to testing and feature specification.
-<br /><br />
+
 If you are a developer and would like to contribute with some code, please open an issue to discuss before opening a
 Pull Request.
-<br />
+
 Information about the project setup can be found in the [development documentation](./DEVELOPMENT.md)
 
 ## Help
