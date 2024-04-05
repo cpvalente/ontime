@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test('smoke test operator', async ({ page }) => {
   // make some boilerplate
   await page.goto('http://localhost:4001/editor');
-  await page.getByRole('button', { name: 'Edit mode' }).click();
+  await page.getByRole('button', { name: 'Edit' }).click();
   await page.getByRole('button', { name: 'Clear rundown' }).click();
   await page.getByRole('button', { name: 'Create Event' }).click();
 
@@ -25,7 +25,7 @@ test('smoke test operator', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Block', exact: true }).nth(0).click();
 
-  await page.getByRole('button', { name: 'Edit mode' }).click();
+  await page.getByRole('button', { name: 'Edit' }).click();
   await page.getByTestId('entry-1').click({ button: 'right' });
   await page.getByRole('menuitem', { name: 'Event after' }).click();
 
