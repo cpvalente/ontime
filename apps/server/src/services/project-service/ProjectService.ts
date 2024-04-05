@@ -75,7 +75,7 @@ export async function getProjectFiles(): Promise<ProjectFile[]> {
   const allFiles = await getFilesFromFolder(resolveProjectsDirectory);
   const filteredFiles = filterProjectFiles(allFiles);
 
-  const projectFiles = [];
+  const projectFiles: ProjectFile[] = [];
   for (const file of filteredFiles) {
     const filePath = join(resolveProjectsDirectory, file);
     const stats = await stat(filePath);
