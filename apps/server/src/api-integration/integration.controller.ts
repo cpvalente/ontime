@@ -149,7 +149,17 @@ const actionHandlers: Record<string, ActionHandler> = {
     throw new Error('No load method provided');
   },
   addtime: (payload) => {
-    const time = numberOrError(payload);
+    let time = 0;
+    if (payload && typeof payload === 'object') {
+      if ('add' in payload) {
+        time = numberOrError(payload.add);
+      } else if ('remove' in payload) {
+        time = numberOrError(payload.remove) * -1;
+      }
+    } else {
+      time = numberOrError(payload);
+    }
+    assert.isNumber(time);
     if (time === 0) {
       return { payload: 'success' };
     }

@@ -11,7 +11,7 @@ export function isDefined<T>(value: T | undefined): asserts value is T {
 }
 
 export function isNumber(value: unknown): asserts value is number {
-  if (typeof value !== 'string') {
+  if (typeof value !== 'number') {
     throw new Error(`Unexpected payload type: ${String(value)}`);
   }
 }
