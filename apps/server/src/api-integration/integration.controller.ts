@@ -1,4 +1,4 @@
-import { DeepPartial, MessageState, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { DeepPartial, MessageState, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 // skipcq: JS-C1003 - we like the API
 import * as assert from '../utils/assert.js';
@@ -35,9 +35,14 @@ const actionHandlers: Record<string, ActionHandler> = {
     assert.isObject(payload);
     const eventId = Object.keys(payload)[0];
     assert.isObject(payload[eventId]);
-    const patchEvent = {};
+    const patchEvent: Partial<OntimeEvent> = {};
     Object.entries(payload[eventId]).forEach(([property, value], _) => {
-      Object.assign(patchEvent, parse(property, value));
+      const prop = parse(property, value);
+      if (patchEvent.custom && prop.custom) {
+        Object.assign(patchEvent.custom, prop.custom);
+      } else {
+        Object.assign(patchEvent, prop);
+      }
     });
     //TODO: don't know how to await this
     updateEvent(eventId, patchEvent);
