@@ -11,7 +11,7 @@ import {
   findNext,
   findPrevious,
   getEventAtIndex,
-  getEventWithCue,
+  getNextEventWithCue,
   getEventWithId,
   getPlayableEvents,
 } from '../rundown-service/rundownUtils.js';
@@ -242,7 +242,8 @@ class RuntimeService {
    * @return {boolean} success - whether an event was loaded
    */
   startByCue(cue: string): boolean {
-    const event = getEventWithCue(cue);
+    const state = runtimeState.getState();
+    const event = getNextEventWithCue(cue, state.eventNow?.id);
     if (!event) {
       return false;
     }
@@ -285,7 +286,8 @@ class RuntimeService {
    * @return {boolean} success - whether an event was loaded
    */
   loadByCue(cue: string): boolean {
-    const event = getEventWithCue(cue);
+    const state = runtimeState.getState();
+    const event = getNextEventWithCue(cue, state.eventNow?.id);
     if (!event) {
       return false;
     }
@@ -338,15 +340,27 @@ class RuntimeService {
   }
 
   /**
+   * Starts playback on previous event
+   */
+  startPrevious() {
+    const hasPrevious = this.loadPrevious();
+    if (!hasPrevious) {
+      return false;
+    }
+
+    return this.start();
+  }
+
+  /**
    * Starts playback on next event
    */
   startNext() {
     const hasNext = this.loadNext();
     if (!hasNext) {
-      return;
+      return false;
     }
 
-    this.start();
+    return this.start();
   }
 
   /**

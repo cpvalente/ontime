@@ -10,7 +10,7 @@ import { ErrorResponse, LogOrigin, RuntimeStore } from 'ontime-types';
 import express, { type Request, type Response } from 'express';
 
 import { logger } from '../classes/Logger.js';
-import { objectFromPath } from '../adapters/utils/parse.js';
+import { integrationPayloadFromPath } from '../adapters/utils/parse.js';
 
 import { dispatchFromAdapter } from './integration.controller.js';
 import { unpackError } from 'ontime-utils';
@@ -36,15 +36,16 @@ integrationRouter.get('/*', (req: Request, res: Response) => {
 
   try {
     const actionArray = action.split('/');
-    const params = { payload: req.query as object } as { payload: object | null };
-
+    const query = req.query.length ? (req.query as object) : undefined;
+    let payload = {};
     if (actionArray.length > 1) {
-      action = actionArray.shift() || '';
-      params.payload = objectFromPath(actionArray, params.payload);
+      action = actionArray.shift();
+      payload = integrationPayloadFromPath(actionArray, query);
+    } else {
+      payload = query;
     }
-
-    const reply = dispatchFromAdapter(action, params, 'http');
-    res.status(202).json(reply);
+    const reply = dispatchFromAdapter(action, payload, 'http');
+    res.status(200).json(reply);
   } catch (error) {
     const errorMessage = unpackError(error);
     logger.error(LogOrigin.Rx, `HTTP IN: ${errorMessage}`);

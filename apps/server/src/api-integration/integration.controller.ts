@@ -18,14 +18,7 @@ export type ChangeOptions = {
   value: unknown;
 };
 
-export function dispatchFromAdapter(
-  type: string,
-  args: {
-    payload: unknown;
-  },
-  _source?: 'osc' | 'ws' | 'http',
-) {
-  const payload = args.payload;
+export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = type.toLowerCase();
   const handler = actionHandlers[action];
   if (handler) {
@@ -44,6 +37,7 @@ const actionHandlers: Record<string, ActionHandler> = {
     payload: eventStore.poll(),
   }),
   change: (payload) => {
+    //TODO: this is not done
     // WS: {type: 'change', payload: { eventId, property, value } }
     const { eventId, property, value } = payload as ChangeOptions;
     const { parsedPayload, parsedProperty } = parse(property, value);
@@ -53,6 +47,8 @@ const actionHandlers: Record<string, ActionHandler> = {
   },
   /* Message Service */
   message: (payload) => {
+    //TODO: this is not done
+
     assert.isObject(payload);
 
     const patch: DeepPartial<MessageState> = {
@@ -67,11 +63,10 @@ const actionHandlers: Record<string, ActionHandler> = {
   },
   /* Playback */
   start: (payload) => {
-    if (payload && typeof payload === 'object') {
-      if ('next' in payload) {
-        runtimeService.startNext();
-        return { payload: 'start' };
-      }
+    if (payload === undefined) {
+      runtimeService.start();
+      return { payload: 'success' };
+    } else if (typeof payload === 'object') {
       if ('index' in payload) {
         const eventIndex = numberOrError(payload.index);
         if (eventIndex <= 0) {
@@ -83,20 +78,25 @@ const actionHandlers: Record<string, ActionHandler> = {
           throw new Error(`Event index not recognised or out of range ${eventIndex}`);
         }
         return { payload: 'success' };
-      }
-      if ('id' in payload) {
+      } else if ('id' in payload) {
         assert.isString(payload.id);
         runtimeService.startById(payload.id);
         return { payload: 'success' };
+      } else if ('cue' in payload) {
+        const cue = stringAndNumberOrError(payload.cue);
+        runtimeService.startByCue(cue);
+        return { payload: 'success' };
       }
-      if ('cue' in payload) {
-        assert.isString(payload.cue);
-        runtimeService.startByCue(payload.cue);
+    } else if (typeof payload === 'string') {
+      if (payload == 'next') {
+        runtimeService.startNext();
+        return { payload: 'success' };
+      } else if (payload == 'previous') {
+        runtimeService.startPrevious();
         return { payload: 'success' };
       }
     }
-    runtimeService.start();
-    return { payload: 'start' };
+    throw new Error('no matching start function');
   },
   pause: () => {
     runtimeService.pause();
@@ -122,24 +122,25 @@ const actionHandlers: Record<string, ActionHandler> = {
           throw new Error(`Event index out of range ${eventIndex}`);
         }
         // Indexes in frontend are 1 based
-        runtimeService.loadByIndex(eventIndex - 1);
+        const success = runtimeService.loadByIndex(eventIndex - 1);
+        if (!success) {
+          throw new Error(`Event index not recognised or out of range ${eventIndex}`);
+        }
+        return { payload: 'success' };
+      } else if ('id' in payload) {
+        assert.isString(payload.id);
+        runtimeService.loadById(payload.id);
+        return { payload: 'success' };
+      } else if ('cue' in payload) {
+        const cue = stringAndNumberOrError(payload.cue);
+        runtimeService.loadByCue(cue);
         return { payload: 'success' };
       }
-      if ('id' in payload) {
-        assert.isDefined(payload.id);
-        runtimeService.loadById(payload.id.toString().toLowerCase());
-        return { payload: 'success' };
-      }
-      if ('cue' in payload) {
-        assert.isString(payload.cue);
-        runtimeService.loadByCue(payload.cue);
-        return { payload: 'success' };
-      }
-      if ('next' in payload) {
+    } else if (typeof payload === 'string') {
+      if (payload == 'next') {
         runtimeService.loadNext();
         return { payload: 'success' };
-      }
-      if ('previous' in payload) {
+      } else if (payload == 'previous') {
         runtimeService.loadPrevious();
         return { payload: 'success' };
       }
@@ -156,36 +157,43 @@ const actionHandlers: Record<string, ActionHandler> = {
   },
   /* Extra timers */
   extratimer: (payload) => {
-    if (payload && typeof payload === 'string') {
-      if (payload === SimplePlayback.Start) {
-        const reply = extraTimerService.start();
-        return { payload: reply };
-      }
-      if (payload === SimplePlayback.Pause) {
-        const reply = extraTimerService.pause();
-        return { payload: reply };
-      }
-      if (payload === SimplePlayback.Stop) {
-        const reply = extraTimerService.stop();
-        return { payload: reply };
-      }
-    }
-
+    //TODO: this is not done
     if (payload && typeof payload === 'object') {
-      if ('settime' in payload) {
-        const time = numberOrError(payload.settime);
-        const reply = extraTimerService.setTime(time);
-        return { payload: reply };
+      if (!('1' in payload)) {
+        throw new Error('Invalid extratimer index');
       }
-      if ('direction' in payload) {
-        if (payload.direction === SimpleDirection.CountUp || payload.direction === SimpleDirection.CountDown) {
-          const reply = extraTimerService.setDirection(payload.direction);
+      const value = payload['1'];
+      if (typeof value === 'string') {
+        if (value === SimplePlayback.Start) {
+          const reply = extraTimerService.start();
           return { payload: reply };
-        } else {
-          throw new Error('Invalid direction payload');
+        }
+        if (value === SimplePlayback.Pause) {
+          const reply = extraTimerService.pause();
+          return { payload: reply };
+        }
+        if (value === SimplePlayback.Stop) {
+          const reply = extraTimerService.stop();
+          return { payload: reply };
+        }
+      }
+      if (typeof payload === 'object') {
+        if ('settime' in payload) {
+          const time = numberOrError(payload.settime);
+          const reply = extraTimerService.setTime(time);
+          return { payload: reply };
+        }
+        if ('direction' in payload) {
+          if (payload.direction === SimpleDirection.CountUp || payload.direction === SimpleDirection.CountDown) {
+            const reply = extraTimerService.setDirection(payload.direction);
+            return { payload: reply };
+          } else {
+            throw new Error('Invalid direction payload');
+          }
         }
       }
     }
+
     throw new Error('Invalid extra-timer payload');
   },
 };
@@ -203,4 +211,15 @@ function numberOrError(value: unknown) {
     throw new Error('Payload is not a valid number');
   }
   return converted;
+}
+
+function stringAndNumberOrError(value: unknown) {
+  let converted = value;
+  if (typeof converted == 'number') {
+    converted = String(converted);
+  }
+  if (typeof converted == 'string') {
+    return converted;
+  }
+  throw new Error('Payload is not a valid string or number');
 }

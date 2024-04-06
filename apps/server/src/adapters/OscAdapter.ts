@@ -4,7 +4,7 @@ import { Server } from 'node-osc';
 
 import { IAdapter } from './IAdapter.js';
 import { logger } from '../classes/Logger.js';
-import { objectFromPath } from './utils/parse.js';
+import { integrationPayloadFromPath } from './utils/parse.js';
 import { type ChangeOptions, dispatchFromAdapter } from '../api-integration/integration.controller.js';
 
 export class OscServer implements IAdapter {
@@ -62,17 +62,11 @@ export class OscServer implements IAdapter {
           value,
         } satisfies ChangeOptions;
       } else if (params.length) {
-        transformedPayload = objectFromPath(params, args);
+        transformedPayload = integrationPayloadFromPath(params, args);
       }
 
       try {
-        dispatchFromAdapter(
-          path,
-          {
-            payload: transformedPayload,
-          },
-          'osc',
-        );
+        dispatchFromAdapter(path, transformedPayload, 'osc');
       } catch (error) {
         logger.error(LogOrigin.Rx, `OSC IN: ${error}`);
       }

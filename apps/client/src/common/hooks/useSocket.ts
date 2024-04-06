@@ -59,12 +59,12 @@ export const setPlayback = {
   start: () => socketSendJson('start'),
   pause: () => socketSendJson('pause'),
   roll: () => socketSendJson('roll'),
-  startNext: () => socketSendJson('start', { next: true }),
+  startNext: () => socketSendJson('start', 'next'),
   previous: () => {
-    socketSendJson('load', { previous: true });
+    socketSendJson('load', 'previous');
   },
   next: () => {
-    socketSendJson('load', { next: true });
+    socketSendJson('load', 'next');
   },
   stop: () => {
     socketSendJson('stop');

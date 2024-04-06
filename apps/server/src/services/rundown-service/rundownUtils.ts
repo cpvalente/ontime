@@ -63,9 +63,16 @@ export function getEventWithId(eventId: string): OntimeEvent | undefined {
  * @param {string} cue
  * @return {object | undefined}
  */
-export function getEventWithCue(cue: string): OntimeEvent | undefined {
-  const timedEvents = getTimedEvents();
-  return timedEvents.find((event) => event.cue.toLowerCase() === cue.toLowerCase());
+export function getNextEventWithCue(cue: string, currentEventId?: string): OntimeEvent | undefined {
+  // const loaded = curr
+  const timedEvents = getPlayableEvents();
+  const comparCue = cue.toLowerCase();
+  if (currentEventId) {
+    const currentIndex = timedEvents.findIndex((event) => event.id === currentEventId);
+    const futureEvents = timedEvents.slice(currentIndex);
+    return futureEvents.find((event) => event.cue.toLowerCase() === comparCue);
+  }
+  return timedEvents.find((event) => event.cue.toLowerCase() === comparCue);
 }
 
 /**
