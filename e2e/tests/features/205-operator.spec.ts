@@ -25,7 +25,7 @@ test('smoke test operator', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Block' }).nth(1).click();
 
-  await page.getByRole('button', { name: 'Edit' }).nth(1).click();
+  await page.getByRole('button', { name: 'Edit' }).click();
   await page.getByTestId('entry-1').click();
   await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
 
