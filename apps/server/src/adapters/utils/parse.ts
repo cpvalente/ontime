@@ -5,17 +5,15 @@
  * @returns {object | string | null} nested object or null if no object was created
  */
 export const integrationPayloadFromPath = (path: string[], value?: unknown): object | string | null => {
-  if (path.length == 1) {
-    if (value === undefined) {
-      return path[0];
-    } else {
-      return { [path[0]]: value };
-    }
+  if (path.length === 1) {
+    const key = path.at(0);
+    return value === undefined ? key : { [key]: value };
   }
-  if (value === undefined) {
-    value = path.pop();
-  }
-  const obj = path.reduceRight((result, key) => ({ [key]: result }), value);
-  if (typeof obj === 'object') return obj;
-  return null;
+
+  const parsedValue = value === undefined ? path.at(-1) : value;
+  const shortenedPath = value === undefined ? path.slice(0, -1) : path;
+
+  const obj = shortenedPath.reduceRight((result, key) => ({ [key]: result }), parsedValue);
+
+  return typeof obj === 'object' ? obj : null;
 };
