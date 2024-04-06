@@ -11,6 +11,7 @@ import { extraTimerService } from '../services/extra-timer-service/ExtraTimerSer
 import { validateMessage, validateTimerMessage } from '../services/message-service/messageUtils.js';
 
 import { parse, updateEvent } from './integration.utils.js';
+import { isEmptyObject } from '../utils/parserUtils.js';
 
 export type ChangeOptions = {
   eventId: string;
@@ -20,6 +21,8 @@ export type ChangeOptions = {
 
 export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = type.toLowerCase();
+  console.log(action, payload);
+
   const handler = actionHandlers[action];
   if (handler) {
     return handler(payload);
@@ -72,8 +75,7 @@ const actionHandlers: Record<string, ActionHandler> = {
         if (eventIndex <= 0) {
           throw new Error(`Event index out of range ${eventIndex}`);
         }
-        // Indexes in frontend are 1 based
-        const success = runtimeService.startByIndex(eventIndex - 1);
+        const success = runtimeService.startByIndex(eventIndex - 1); // Indexes in frontend are 1 based
         if (!success) {
           throw new Error(`Event index not recognised or out of range ${eventIndex}`);
         }
@@ -121,8 +123,7 @@ const actionHandlers: Record<string, ActionHandler> = {
         if (eventIndex <= 0) {
           throw new Error(`Event index out of range ${eventIndex}`);
         }
-        // Indexes in frontend are 1 based
-        const success = runtimeService.loadByIndex(eventIndex - 1);
+        const success = runtimeService.loadByIndex(eventIndex - 1); // Indexes in frontend are 1 based
         if (!success) {
           throw new Error(`Event index not recognised or out of range ${eventIndex}`);
         }
@@ -136,7 +137,7 @@ const actionHandlers: Record<string, ActionHandler> = {
         runtimeService.loadByCue(cue);
         return { payload: 'success' };
       }
-    } else if (typeof payload === 'string') {
+    } else if (payload && typeof payload === 'string') {
       if (payload == 'next') {
         runtimeService.loadNext();
         return { payload: 'success' };
@@ -152,12 +153,11 @@ const actionHandlers: Record<string, ActionHandler> = {
     if (time === 0) {
       return { payload: 'success' };
     }
-    runtimeService.addTime(time * 1000);
+    runtimeService.addTime(time * 1000); //frontend is seconds based
     return { payload: 'success' };
   },
   /* Extra timers */
   extratimer: (payload) => {
-    //TODO: this is not done
     if (payload && typeof payload === 'object') {
       if (!('1' in payload)) {
         throw new Error('Invalid extratimer index');
@@ -177,23 +177,24 @@ const actionHandlers: Record<string, ActionHandler> = {
           return { payload: reply };
         }
       }
-      if (typeof payload === 'object') {
-        if ('settime' in payload) {
-          const time = numberOrError(payload.settime);
-          const reply = extraTimerService.setTime(time);
-          return { payload: reply };
+      if (typeof value === 'object') {
+        const reply = { payload: {} };
+        if ('duration' in value) {
+          const time = numberOrError(value.duration);
+          reply.payload = extraTimerService.setTime(time * 1000); //frontend is seconds based
         }
-        if ('direction' in payload) {
-          if (payload.direction === SimpleDirection.CountUp || payload.direction === SimpleDirection.CountDown) {
-            const reply = extraTimerService.setDirection(payload.direction);
-            return { payload: reply };
+        if ('direction' in value) {
+          if (value.direction === SimpleDirection.CountUp || value.direction === SimpleDirection.CountDown) {
+            reply.payload = extraTimerService.setDirection(value.direction);
           } else {
             throw new Error('Invalid direction payload');
           }
         }
+        if (!isEmptyObject(reply.payload)) {
+          return reply;
+        }
       }
     }
-
     throw new Error('Invalid extra-timer payload');
   },
 };

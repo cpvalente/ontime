@@ -15,6 +15,7 @@ import { integrationPayloadFromPath } from '../adapters/utils/parse.js';
 import { dispatchFromAdapter } from './integration.controller.js';
 import { unpackError } from 'ontime-utils';
 import { eventStore } from '../stores/EventStore.js';
+import { isEmptyObject } from '../utils/parserUtils.js';
 
 export const integrationRouter = express.Router();
 
@@ -29,14 +30,13 @@ integrationRouter.get('/', (_req: Request, res: Response<{ message: string }>) =
  */
 integrationRouter.get('/*', (req: Request, res: Response) => {
   let action = req.path.substring(1);
-
   if (!action) {
     return res.status(400).json({ error: 'No action found' });
   }
 
   try {
     const actionArray = action.split('/');
-    const query = req.query.length ? (req.query as object) : undefined;
+    const query = isEmptyObject(req.query) ? undefined : (req.query as object);
     let payload = {};
     if (actionArray.length > 1) {
       action = actionArray.shift();
