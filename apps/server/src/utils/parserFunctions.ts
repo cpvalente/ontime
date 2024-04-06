@@ -1,36 +1,27 @@
-import { generateId } from 'ontime-utils';
 import {
   CustomFields,
   DatabaseModel,
   HttpSettings,
   HttpSubscription,
-  isOntimeBlock,
-  isOntimeCycle,
-  isOntimeDelay,
-  isOntimeEvent,
-  OntimeRundown,
   OSCSettings,
+  OntimeBlock,
+  OntimeDelay,
+  OntimeEvent,
+  OntimeRundown,
   OscSubscription,
   ProjectData,
   Settings,
   URLPreset,
   ViewSettings,
-  OscSubscription,
-  DatabaseModel,
-  isOntimeEvent,
-  isOntimeDelay,
   isOntimeBlock,
-  CustomFields,
   isOntimeCycle,
-  HttpSubscription,
-  URLPreset,
-  OntimeEvent,
-  OntimeBlock,
-  OntimeDelay,
+  isOntimeDelay,
+  isOntimeEvent,
 } from 'ontime-types';
+import { generateId } from 'ontime-utils';
 
-import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
+import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { createEvent } from './parser.js';
 
 /**
