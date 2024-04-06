@@ -12,18 +12,18 @@ test('smoke test operator', async ({ page }) => {
   await page.getByTestId('time-input-duration').fill('1m');
   await page.getByTestId('time-input-duration').press('Enter');
 
-  await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
+  await page.getByRole('button', { name: 'Event' }).nth(1).click();
   await page.getByTestId('entry-2').getByTestId('lock__duration').click();
   await page.getByTestId('entry-2').getByTestId('time-input-duration').fill('1m');
   await page.getByTestId('entry-2').getByTestId('time-input-duration').press('Enter');
   await page.getByTestId('entry-2').getByTestId('time-input-duration').press('Enter');
 
-  await page.getByRole('button', { name: 'Event', exact: true }).click();
+  await page.getByRole('button', { name: 'Event' }).nth(1).click();
   await page.getByTestId('entry-3').getByTestId('lock__duration').click();
   await page.getByTestId('entry-3').getByTestId('time-input-duration').fill('1m');
   await page.getByTestId('entry-3').getByTestId('time-input-duration').press('Enter');
 
-  await page.getByRole('button', { name: 'Block', exact: true }).nth(0).click();
+  await page.getByRole('button', { name: 'Block' }).nth(0).click();
 
   await page.getByRole('button', { name: 'Edit' }).nth(1).click();
   await page.getByTestId('entry-1').click();
