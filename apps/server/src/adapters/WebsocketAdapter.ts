@@ -118,8 +118,12 @@ export class SocketServer implements IAdapter {
           try {
             const reply = dispatchFromAdapter(type, payload, 'ws');
             if (reply) {
-              const { payload } = reply;
-              ws.send(type, payload);
+              ws.send(
+                JSON.stringify({
+                  type: 'ontime-change',
+                  payload: reply.payload,
+                }),
+              );
             }
           } catch (error) {
             logger.error(LogOrigin.Rx, `WS IN: ${error}`);
