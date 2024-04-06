@@ -142,24 +142,12 @@ export const parseViewSettings = (data: Partial<DatabaseModel>): ViewSettings =>
 /**
  * Sanitises an OSC Subscriptions array
  */
-export function sanitiseOscSubscriptions(subscriptions: OscSubscription[], convert?: boolean): OscSubscription[] {
+export function sanitiseOscSubscriptions(subscriptions?: OscSubscription[]): OscSubscription[] {
   if (!Array.isArray(subscriptions)) {
     return [];
   }
 
-  const sub = [...subscriptions];
-
-  if (convert) {
-    sub.forEach((value) => {
-      if (('message' in value) as unknown) {
-        value['address'] = value['message'];
-        delete value['message'];
-        value['payload'] = '';
-      }
-    });
-  }
-
-  return sub.filter(
+  return subscriptions.filter(
     ({ id, cycle, address, payload, enabled }) =>
       typeof id === 'string' &&
       isOntimeCycle(cycle) &&
@@ -178,19 +166,13 @@ export const parseOsc = (data: Partial<DatabaseModel>): OSCSettings => {
   }
   console.log('Found OSC settings, importing...');
 
-  const convert = Number(data.settings.version.split('.')[0]) < 3 ? true : false;
-
-  if (convert) {
-    console.log('OSC settings from old version, converting...');
-  }
-
   return {
     portIn: data.osc.portIn ?? dbModel.osc.portIn,
     portOut: data.osc.portOut ?? dbModel.osc.portOut,
     targetIP: data.osc.targetIP ?? dbModel.osc.targetIP,
     enabledIn: data.osc.enabledIn ?? dbModel.osc.enabledIn,
     enabledOut: data.osc.enabledOut ?? dbModel.osc.enabledOut,
-    subscriptions: sanitiseOscSubscriptions(data.osc.subscriptions, convert),
+    subscriptions: sanitiseOscSubscriptions(data.osc.subscriptions),
   };
 };
 
