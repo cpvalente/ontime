@@ -17,7 +17,7 @@ test('delay blocks add time to events', async ({ page }) => {
   await page.getByTestId('rundown').getByPlaceholder('Duration').press('Enter');
 
   // add delay block
-  await page.getByRole('button', { name: 'Delay' }).click();
+  await page.getByRole('button', { name: 'Delay' }).nth(0).click();
 
   // fill positive delay
   await page.getByTestId('delay-input').click();
@@ -30,12 +30,12 @@ test('delay blocks add time to events', async ({ page }) => {
   await page.getByText('New start 00:08').click();
 
   // apply delay
-  await page.getByRole('button', { name: 'Apply' }).click();
+  await page.getByRole('button', { name: 'Make permanent' }).click();
   await expect(page.getByTestId('rundown').getByTestId('time-input-timeStart')).toHaveValue('00:08:00');
 
   // add new delay
   await page.getByTestId('rundown').getByPlaceholder('Start').click();
-  await page.getByRole('button', { name: 'Delay' }).click();
+  await page.getByRole('button', { name: 'Delay' }).nth(0).click();
   await page.getByTestId('delay-input').click();
   await page.getByTestId('delay-input').fill('10m');
   await page.getByTestId('delay-input').press('Enter');
@@ -68,7 +68,7 @@ test('delays are show correctly', async ({ page }) => {
   await expect(page.getByTestId('entry-1').locator('#block-status')).toHaveAttribute('data-ispublic', 'true');
 
   // add a delay
-  await page.getByRole('button', { name: 'Delay' }).click();
+  await page.getByRole('button', { name: 'Delay' }).nth(0).click();
   await page.getByTestId('delay-input').click();
   await page.getByTestId('delay-input').fill('1');
   await page.getByTestId('delay-input').press('Enter');
