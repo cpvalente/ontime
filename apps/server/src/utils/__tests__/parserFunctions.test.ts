@@ -35,6 +35,20 @@ describe('sanitiseOscSubscriptions()', () => {
     const sanitationResult = sanitiseOscSubscriptions(oscSubscriptions as OscSubscription[]);
     expect(sanitationResult.length).toBe(0);
   });
+
+  it('converts old oscSubscriptions', () => {
+    const oscSubscriptions = [{ id: '1', cycle: 'onLoad', message: '/ontime/{{time}}', enabled: true }];
+
+    const expectedOscSubscriptions: OscSubscription[] = [
+      { id: '1', cycle: 'onLoad', address: '/ontime/{{time}}', payload: '', enabled: true },
+    ];
+
+    // @ts-expect-error -- known wrong type
+    const sanitationResult = sanitiseOscSubscriptions(oscSubscriptions, true);
+
+    expect(sanitationResult).toStrictEqual(expectedOscSubscriptions);
+    expect(sanitationResult.length).toBe(1);
+  });
 });
 
 describe('sanitiseHttpSubscriptions()', () => {
