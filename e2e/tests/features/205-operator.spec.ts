@@ -26,22 +26,22 @@ test('smoke test operator', async ({ page }) => {
   await page.getByRole('button', { name: 'Block', exact: true }).nth(0).click();
 
   await page.getByRole('button', { name: 'Edit' }).nth(1).click();
-  await page.getByTestId('entry-1').click({ button: 'right' });
-  await page.getByRole('menuitem', { name: 'Event after' }).click();
+  await page.getByTestId('entry-1').click();
+  await page.getByRole('button', { name: 'Event' }).nth(1).click();
 
   await page.getByTestId('entry-1').getByTestId('block__title').click();
   await page.getByTestId('entry-1').getByTestId('block__title').fill('title 1');
   await page.getByTestId('entry-1').getByTestId('block__title').press('Enter');
 
-  await page.getByTestId('entry-2').click({ button: 'right' });
-  await page.getByRole('menuitem', { name: 'Event after' }).click();
+  await page.getByTestId('entry-2').click();
+  await page.getByRole('button', { name: 'Event' }).nth(1).click();
 
   await page.getByTestId('entry-2').getByTestId('block__title').click();
   await page.getByTestId('entry-2').getByTestId('block__title').fill('title 2');
   await page.getByTestId('entry-2').getByTestId('block__title').press('Enter');
 
-  await page.getByTestId('entry-3').click({ button: 'right' });
-  await page.getByRole('menuitem', { name: 'Event after' }).click();
+  await page.getByTestId('entry-3').click();
+  await page.getByRole('button', { name: 'Event' }).nth(1).click();
 
   await page.getByTestId('entry-3').getByTestId('block__title').click();
   await page.getByTestId('entry-3').getByTestId('block__title').fill('title 3');
