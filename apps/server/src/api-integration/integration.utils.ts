@@ -10,7 +10,7 @@ const whitelistedPayload = {
   note: coerceString,
   cue: coerceString,
 
-  duration: coerceNumber,
+  duration: (value) => coerceNumber(value) * 1000, //frontend is seconds based
 
   isPublic: coerceBoolean,
   skip: coerceBoolean,
@@ -23,20 +23,15 @@ export function parse(property: string, value: unknown) {
     throw new Error(`Property ${property} not permitted`);
   }
   const parserFn = whitelistedPayload[property];
-  return { parsedProperty: property, parsedPayload: parserFn(value) };
+  return { [property]: parserFn(value) };
 }
 
 /**
  * Updates a property of the event with the given id
  * @param {string} eventId
- * @param {keyof OntimeEvent} propertyName
- * @param {OntimeEvent[typeof propertyName]} newValue
+ * @param {Partial<OntimeEvent>} patchEvent
  */
-export function updateEvent(
-  eventId: string,
-  propertyName: keyof OntimeEvent,
-  newValue: OntimeEvent[typeof propertyName],
-) {
+export function updateEvent(eventId: string, patchEvent: Partial<OntimeEvent>) {
   const event = getEventWithId(eventId);
   if (!event) {
     throw new Error(`Event with ID ${eventId} not found`);
@@ -46,15 +41,5 @@ export function updateEvent(
     throw new Error('Can only update events');
   }
 
-  const propertiesToUpdate = { [propertyName]: newValue };
-
-  // Handles the special case for duration
-  // needs to be converted to milliseconds
-  if (propertyName === 'duration') {
-    propertiesToUpdate.duration = (newValue as number) * 1000;
-    propertiesToUpdate.timeEnd = event.timeStart + propertiesToUpdate.duration;
-  }
-
-  const newEvent = editEvent({ id: eventId, ...propertiesToUpdate });
-  return newEvent;
+  editEvent({ id: eventId, ...patchEvent });
 }

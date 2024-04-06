@@ -13,16 +13,8 @@ import { validateMessage, validateTimerMessage } from '../services/message-servi
 import { parse, updateEvent } from './integration.utils.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
 
-export type ChangeOptions = {
-  eventId: string;
-  property: string;
-  value: unknown;
-};
-
 export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = type.toLowerCase();
-  console.log(action, payload);
-
   const handler = actionHandlers[action];
   if (handler) {
     return handler(payload);
@@ -40,18 +32,19 @@ const actionHandlers: Record<string, ActionHandler> = {
     payload: eventStore.poll(),
   }),
   change: (payload) => {
-    //TODO: this is not done
-    // WS: {type: 'change', payload: { eventId, property, value } }
-    const { eventId, property, value } = payload as ChangeOptions;
-    const { parsedPayload, parsedProperty } = parse(property, value);
-
-    const updatedEvent = updateEvent(eventId, parsedProperty, parsedPayload);
-    return { payload: updatedEvent };
+    assert.isObject(payload);
+    const eventId = Object.keys(payload)[0];
+    assert.isObject(payload[eventId]);
+    const patchEvent = {};
+    Object.entries(payload[eventId]).forEach(([property, value], _) => {
+      Object.assign(patchEvent, parse(property, value));
+    });
+    //TODO: don't know how to await this
+    updateEvent(eventId, patchEvent);
+    return { payload: 'changes pending' };
   },
   /* Message Service */
   message: (payload) => {
-    //TODO: this is not done
-
     assert.isObject(payload);
 
     const patch: DeepPartial<MessageState> = {
