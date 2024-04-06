@@ -1,7 +1,7 @@
 .quickAdd {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   margin: 0.25rem 0;
   font-size: calc(1rem - 3px);
   padding-inline: calc(2em + 0.5rem) 0.75rem;
@@ -26,6 +26,7 @@
 }
 
 .options {
+  margin-left: auto;
   display: flex;
   flex-direction: column;
   white-space: nowrap;
