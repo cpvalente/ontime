@@ -17,7 +17,7 @@ test('delay blocks add time to events', async ({ page }) => {
   await page.getByTestId('rundown').getByPlaceholder('Duration').press('Enter');
 
   // add delay block
-  await page.getByRole('button', { name: 'Delay Alt ⇧ D' }).click();
+  await page.getByRole('button', { name: 'Delay' }).click();
 
   // fill positive delay
   await page.getByTestId('delay-input').click();
@@ -35,7 +35,7 @@ test('delay blocks add time to events', async ({ page }) => {
 
   // add new delay
   await page.getByTestId('rundown').getByPlaceholder('Start').click();
-  await page.getByRole('button', { name: 'Delay Alt ⇧ D' }).click();
+  await page.getByRole('button', { name: 'Delay' }).click();
   await page.getByTestId('delay-input').click();
   await page.getByTestId('delay-input').fill('10m');
   await page.getByTestId('delay-input').press('Enter');
@@ -68,7 +68,7 @@ test('delays are show correctly', async ({ page }) => {
   await expect(page.getByTestId('entry-1').locator('#block-status')).toHaveAttribute('data-ispublic', 'true');
 
   // add a delay
-  await page.getByRole('button', { name: 'Delay Alt ⇧ D' }).click();
+  await page.getByRole('button', { name: 'Delay' }).click();
   await page.getByTestId('delay-input').click();
   await page.getByTestId('delay-input').fill('1');
   await page.getByTestId('delay-input').press('Enter');

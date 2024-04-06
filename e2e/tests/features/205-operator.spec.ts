@@ -18,7 +18,7 @@ test('smoke test operator', async ({ page }) => {
   await page.getByTestId('entry-2').getByTestId('time-input-duration').press('Enter');
   await page.getByTestId('entry-2').getByTestId('time-input-duration').press('Enter');
 
-  await page.getByRole('button', { name: 'Event Alt E', exact: true }).click();
+  await page.getByRole('button', { name: 'Event', exact: true }).click();
   await page.getByTestId('entry-3').getByTestId('lock__duration').click();
   await page.getByTestId('entry-3').getByTestId('time-input-duration').fill('1m');
   await page.getByTestId('entry-3').getByTestId('time-input-duration').press('Enter');
