@@ -1,14 +1,9 @@
 .drawerFooter {
   display: flex;
-  justify-content: start;
+  justify-content: end;
   gap: $section-spacing;
 
-  button[type='reset'] {
-    padding: 0 2em;
-    margin-right: auto;
-  }
-
-  button[type='submit'] {
+  button {
     padding: 0 2em;
   }
 }
@@ -16,6 +11,9 @@
 .label {
   font-size: $inner-section-text-size;
   color: $label-gray;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem
 }
 
 .columnSection {

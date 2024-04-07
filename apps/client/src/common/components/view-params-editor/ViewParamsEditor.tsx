@@ -52,15 +52,16 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
     }
   }, [searchParams, onOpen]);
 
-  const onCloseWithoutSaving = () => {
-    onClose();
-
+  const handleClose = () => {
     searchParams.delete('edit');
     setSearchParams(searchParams);
+
+    onClose();
   };
 
   const resetParams = () => {
     setSearchParams();
+    onClose();
   };
 
   const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
@@ -69,10 +70,12 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, paramFields);
     setSearchParams(newSearchParams);
+
+    handleClose();
   };
 
   return (
-    <Drawer isOpen={isOpen} placement='right' onClose={onCloseWithoutSaving} variant='ontime' size='lg'>
+    <Drawer isOpen={isOpen} placement='right' onClose={handleClose} variant='ontime' size='lg'>
       <DrawerOverlay />
       <DrawerContent>
         <DrawerHeader>
@@ -96,10 +99,7 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
 
         <DrawerFooter className={style.drawerFooter}>
           <Button variant='ontime-ghosted' onClick={resetParams} type='reset'>
-            Reset
-          </Button>
-          <Button variant='ontime-subtle' onClick={onCloseWithoutSaving}>
-            Cancel
+            Reset to default
           </Button>
           <Button variant='ontime-filled' form='edit-params-form' type='submit'>
             Save

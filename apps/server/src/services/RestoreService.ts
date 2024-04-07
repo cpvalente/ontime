@@ -64,7 +64,7 @@ export class RestoreService {
   private readonly filePath: MaybeString;
   private readonly file: JSONFile<RestorePoint | null>;
   private failedCreateAttempts: number;
-  private savedState: RestorePoint;
+  private savedState: RestorePoint | null;
 
   constructor(filePath: string) {
     this.filePath = filePath;

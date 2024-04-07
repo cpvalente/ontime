@@ -5,6 +5,7 @@ import express from 'express';
 import expressStaticGzip from 'express-static-gzip';
 import http, { type Server } from 'http';
 import cors from 'cors';
+import serverTiming from 'server-timing';
 
 // import utils
 import { resolve } from 'path';
@@ -54,6 +55,10 @@ if (!isProduction) {
 
 // Create express APP
 const app = express();
+if (process.env.NODE_ENV === 'development') {
+  // log more serever timings
+  app.use(serverTiming());
+}
 app.disable('x-powered-by');
 
 // setup cors for all routes
@@ -83,11 +88,15 @@ app.use(
   expressStaticGzip(reactAppPath, {
     enableBrotli: true,
     orderPreference: ['br'],
+    // when we build the client all the react subfiles will get a hashed name we can the immutable tag
+    // as the contents of a build file will never change without also changing its name
+    // so the client dose not need to revalidate the file contetnts with the server
+    serveStatic: { etag: false, lastModified: false, immutable: true, maxAge: '1y' },
   }),
 );
 
 app.get('*', (_req, res) => {
-  res.sendFile(resolve(resolvedPath(), 'index.html'));
+  res.sendFile(resolve(reactAppPath, 'index.html'));
 });
 
 // Implement catch all

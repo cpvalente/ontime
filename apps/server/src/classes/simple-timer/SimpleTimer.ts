@@ -64,6 +64,7 @@ export class SimpleTimer {
 
   public update(timeNow: number): SimpleTimerState {
     if (this.state.playback === SimplePlayback.Start) {
+      // we know startedAt is not null since we are in play mode
       const elapsed = timeNow - this.startedAt;
       if (this.state.direction === SimpleDirection.CountDown) {
         this.state.current = this.state.duration - elapsed;

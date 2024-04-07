@@ -4,10 +4,10 @@ const fileToUpload = 'e2e/tests/fixtures/test-sheet.xlsx';
 
 test('sheet file upload', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
-  await page.getByRole('button', { name: 'Rundown menu' }).click();
-  await page.getByRole('menuitem', { name: 'Delete all events' }).click();
+  await page.getByRole('button', { name: 'Edit mode' }).click();
+  await page.getByRole('button', { name: 'Clear rundown' }).click();
 
-  await page.getByTestId('navigation__toggle-settings').click();
+  await page.getByRole('button', { name: 'Toggle settings' }).click();
   await page.getByRole('button', { name: 'Import spreadsheet' }).click();
 
   // workaround to upload file on hidden input

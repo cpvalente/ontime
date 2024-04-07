@@ -1,10 +1,20 @@
 .overview {
   grid-area: overview;
+  font-size: $inner-section-text-size;
+  display: flex;
+}
+
+.nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.info {
+  flex: 1;
+  padding-inline: 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: $inner-section-text-size;
-  padding: 0 1rem;
 }
 
 .title {

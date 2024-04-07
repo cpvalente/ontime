@@ -7,6 +7,7 @@ import { overrideStylesURL } from '../../../common/api/constants';
 import { getCountdownOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -37,9 +38,7 @@ export default function Countdown(props: CountdownProps) {
   const [runningMessage, setRunningMessage] = useState<TimerMessage>(TimerMessage.unhandled);
   const [delay, setDelay] = useState(0);
 
-  useEffect(() => {
-    document.title = 'ontime - Countdown';
-  }, []);
+  useWindowTitle('Countdown');
 
   // eg. http://localhost:4001/countdown?eventId=ei0us
   // Check for user options

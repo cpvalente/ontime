@@ -3,12 +3,24 @@ export const ontimeCheckboxOnDark = {
     border: '1px',
     borderColor: '#2d2d2d', // $gray-1100
     backgroundColor: '#2d2d2d', // $gray-1100
+    _disabled: {
+      color: 'white',
+      borderColor: '#2d2d2d', // $gray-1100
+      backgroundColor: '#2d2d2d', // $gray-1100
+      opacity: 0.6,
+    },
     _checked: {
       borderColor: '#3182ce', // $action-blue
       backgroundColor: '#3182ce', //$action-blue
+      _disabled: {
+        color: 'white',
+        borderColor: '#3182ce', // $action-blue
+        backgroundColor: '#3182ce', //$action-blue
+        opacity: 0.6,
+      },
     },
     _focus: {
-      boxShadow: '0 0 0 1px #578AF4', // $blue-500
+      boxShadow: 'none',
     },
   },
   label: {

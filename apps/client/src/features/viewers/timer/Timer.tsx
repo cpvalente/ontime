@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -19,6 +18,7 @@ import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getTimerOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
@@ -63,9 +63,7 @@ export default function Timer(props: TimerProps) {
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
-    document.title = 'ontime - Timer';
-  }, []);
+  useWindowTitle('Timer');
 
   // defer rendering until we load stylesheets
   if (!shouldRender) {
