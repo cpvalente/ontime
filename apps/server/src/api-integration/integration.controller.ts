@@ -65,38 +65,33 @@ const actionHandlers: Record<string, ActionHandler> = {
   /* Playback */
   start: (payload) => {
     if (payload === undefined) {
-      runtimeService.start();
-      return { payload: 'success' };
+      return successPayloadOrError(runtimeService.start(), 'Uable to start');
     } else if (payload && typeof payload === 'object') {
       if ('index' in payload) {
         const eventIndex = numberOrError(payload.index);
         if (eventIndex <= 0) {
           throw new Error(`Event index out of range ${eventIndex}`);
         }
-        const success = runtimeService.startByIndex(eventIndex - 1); // Indexes in frontend are 1 based
-        if (!success) {
-          throw new Error(`Event index not recognised or out of range ${eventIndex}`);
-        }
-        return { payload: 'success' };
+        // Indexes in frontend are 1 based
+        return successPayloadOrError(
+          runtimeService.startByIndex(eventIndex - 1),
+          `Event index not recognised or out of range ${eventIndex}`,
+        );
       } else if ('id' in payload) {
         assert.isString(payload.id);
-        runtimeService.startById(payload.id);
-        return { payload: 'success' };
+        return successPayloadOrError(runtimeService.startById(payload.id), `Unable to start ID: ${payload.id}`);
       } else if ('cue' in payload) {
         const cue = stringAndNumberOrError(payload.cue);
-        runtimeService.startByCue(cue);
-        return { payload: 'success' };
+        return successPayloadOrError(runtimeService.startByCue(cue), `Unable to start CUE: ${cue}`);
       }
     } else if (typeof payload === 'string') {
-      if (payload == 'next') {
-        runtimeService.startNext();
-        return { payload: 'success' };
-      } else if (payload == 'previous') {
-        runtimeService.startPrevious();
-        return { payload: 'success' };
+      if (payload === 'next') {
+        return successPayloadOrError(runtimeService.startNext(), 'Unable to start next event');
+      } else if (payload === 'previous') {
+        return successPayloadOrError(runtimeService.startPrevious(), 'Unable to start previous event');
       }
     }
-    throw new Error('no matching start function');
+    throw new Error('No matching start function');
   },
   pause: () => {
     runtimeService.pause();
@@ -121,30 +116,26 @@ const actionHandlers: Record<string, ActionHandler> = {
         if (eventIndex <= 0) {
           throw new Error(`Event index out of range ${eventIndex}`);
         }
-        const success = runtimeService.loadByIndex(eventIndex - 1); // Indexes in frontend are 1 based
-        if (!success) {
-          throw new Error(`Event index not recognised or out of range ${eventIndex}`);
-        }
-        return { payload: 'success' };
+        // Indexes in frontend are 1 based
+        return successPayloadOrError(
+          runtimeService.loadByIndex(eventIndex - 1),
+          `Event index not recognised or out of range ${eventIndex}`,
+        );
       } else if ('id' in payload) {
         assert.isString(payload.id);
-        runtimeService.loadById(payload.id);
-        return { payload: 'success' };
+        return successPayloadOrError(runtimeService.loadById(payload.id), `Unable to load ID: ${payload.id}`);
       } else if ('cue' in payload) {
         const cue = stringAndNumberOrError(payload.cue);
-        runtimeService.loadByCue(cue);
-        return { payload: 'success' };
+        return successPayloadOrError(runtimeService.loadByCue(cue), `Unable to load CUE: ${cue}`);
       }
-    } else if (payload && typeof payload === 'string') {
-      if (payload == 'next') {
-        runtimeService.loadNext();
-        return { payload: 'success' };
-      } else if (payload == 'previous') {
-        runtimeService.loadPrevious();
-        return { payload: 'success' };
+    } else if (typeof payload === 'string') {
+      if (payload === 'next') {
+        return successPayloadOrError(runtimeService.loadNext(), 'Unable to load next event');
+      } else if (payload === 'previous') {
+        return successPayloadOrError(runtimeService.loadPrevious(), 'Unable to load previous event');
       }
     }
-    throw new Error('No load method provided');
+    throw new Error('No matching method provided');
   },
   addtime: (payload) => {
     let time = 0;
@@ -166,44 +157,42 @@ const actionHandlers: Record<string, ActionHandler> = {
   },
   /* Extra timers */
   extratimer: (payload) => {
-    if (payload && typeof payload === 'object') {
-      if (!('1' in payload)) {
-        throw new Error('Invalid extratimer index');
+    assert.isObject(payload);
+    if (!('1' in payload)) {
+      throw new Error('Invalid extratimer index');
+    }
+    const value = payload['1'];
+    if (typeof value === 'string') {
+      if (value === SimplePlayback.Start) {
+        const reply = extraTimerService.start();
+        return { payload: reply };
       }
-      const value = payload['1'];
-      if (typeof value === 'string') {
-        if (value === SimplePlayback.Start) {
-          const reply = extraTimerService.start();
-          return { payload: reply };
-        }
-        if (value === SimplePlayback.Pause) {
-          const reply = extraTimerService.pause();
-          return { payload: reply };
-        }
-        if (value === SimplePlayback.Stop) {
-          const reply = extraTimerService.stop();
-          return { payload: reply };
+      if (value === SimplePlayback.Pause) {
+        const reply = extraTimerService.pause();
+        return { payload: reply };
+      }
+      if (value === SimplePlayback.Stop) {
+        const reply = extraTimerService.stop();
+        return { payload: reply };
+      }
+    } else if (value && typeof value === 'object') {
+      const reply = { payload: {} };
+      if ('duration' in value) {
+        const time = numberOrError(value.duration);
+        reply.payload = extraTimerService.setTime(time * 1000); //frontend is seconds based
+      }
+      if ('direction' in value) {
+        if (value.direction === SimpleDirection.CountUp || value.direction === SimpleDirection.CountDown) {
+          reply.payload = extraTimerService.setDirection(value.direction);
+        } else {
+          throw new Error('Invalid direction payload');
         }
       }
-      if (value && typeof value === 'object') {
-        const reply = { payload: {} };
-        if ('duration' in value) {
-          const time = numberOrError(value.duration);
-          reply.payload = extraTimerService.setTime(time * 1000); //frontend is seconds based
-        }
-        if ('direction' in value) {
-          if (value.direction === SimpleDirection.CountUp || value.direction === SimpleDirection.CountDown) {
-            reply.payload = extraTimerService.setDirection(value.direction);
-          } else {
-            throw new Error('Invalid direction payload');
-          }
-        }
-        if (!isEmptyObject(reply.payload)) {
-          return reply;
-        }
+      if (!isEmptyObject(reply.payload)) {
+        return reply;
       }
     }
-    throw new Error('Invalid extra-timer payload');
+    throw new Error('No matching method provided');
   },
 };
 
@@ -231,4 +220,11 @@ function stringAndNumberOrError(value: unknown) {
     return converted;
   }
   throw new Error('Payload is not a valid string or number');
+}
+
+function successPayloadOrError(success: boolean, error: string) {
+  if (!success) {
+    throw new Error(error);
+  }
+  return { payload: 'success' };
 }
