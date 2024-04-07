@@ -6,7 +6,7 @@
  */
 export const integrationPayloadFromPath = (path: string[], value?: unknown): object | string | null => {
   if (path.length === 1) {
-    const key = path.at(0);
+    const key = path[0];
     return value === undefined ? key : { [key]: value };
   }
 

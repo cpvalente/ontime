@@ -1,17 +1,17 @@
 import { DeepPartial, MessageState, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 // skipcq: JS-C1003 - we like the API
-import * as assert from '../utils/assert.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
+import * as assert from '../utils/assert.js';
 
+import { extraTimerService } from '../services/extra-timer-service/ExtraTimerService.js';
 import { messageService } from '../services/message-service/MessageService.js';
+import { validateMessage, validateTimerMessage } from '../services/message-service/messageUtils.js';
 import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
-import { extraTimerService } from '../services/extra-timer-service/ExtraTimerService.js';
-import { validateMessage, validateTimerMessage } from '../services/message-service/messageUtils.js';
 
-import { parse, updateEvent } from './integration.utils.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
+import { parse, updateEvent } from './integration.utils.js';
 
 export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = type.toLowerCase();

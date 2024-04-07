@@ -1,17 +1,16 @@
 import { OntimeEvent, isKeyOfType, isOntimeEvent } from 'ontime-types';
 
+import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { editEvent } from '../services/rundown-service/RundownService.js';
 import { getEventWithId } from '../services/rundown-service/rundownUtils.js';
-import { coerceString, coerceNumber, coerceBoolean, coerceColour } from '../utils/coerceType.js';
-import { DataProvider } from '../classes/data-provider/DataProvider.js';
+import { coerceBoolean, coerceColour, coerceNumber, coerceString } from '../utils/coerceType.js';
 
-// TODO: handle custom fields
 const whitelistedPayload = {
   title: coerceString,
   note: coerceString,
   cue: coerceString,
 
-  duration: (value) => coerceNumber(value) * 1000, //frontend is seconds based
+  duration: (value: unknown) => coerceNumber(value) * 1000, //frontend is seconds based
 
   isPublic: coerceBoolean,
   skip: coerceBoolean,
