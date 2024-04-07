@@ -33,10 +33,10 @@ const actionHandlers: Record<string, ActionHandler> = {
   }),
   change: (payload) => {
     assert.isObject(payload);
-    const eventId = Object.keys(payload)[0];
-    assert.isObject(payload[eventId]);
+    const eventId = Object.keys(payload)[0] as keyof typeof payload;
+    const data = payload[eventId];
     const patchEvent: Partial<OntimeEvent> = {};
-    Object.entries(payload[eventId]).forEach(([property, value], _) => {
+    Object.entries(data).forEach(([property, value], _) => {
       const prop = parse(property, value);
       if (patchEvent.custom && prop.custom) {
         Object.assign(patchEvent.custom, prop.custom);
@@ -67,7 +67,7 @@ const actionHandlers: Record<string, ActionHandler> = {
     if (payload === undefined) {
       runtimeService.start();
       return { payload: 'success' };
-    } else if (typeof payload === 'object') {
+    } else if (payload && typeof payload === 'object') {
       if ('index' in payload) {
         const eventIndex = numberOrError(payload.index);
         if (eventIndex <= 0) {
@@ -185,7 +185,7 @@ const actionHandlers: Record<string, ActionHandler> = {
           return { payload: reply };
         }
       }
-      if (typeof value === 'object') {
+      if (value && typeof value === 'object') {
         const reply = { payload: {} };
         if ('duration' in value) {
           const time = numberOrError(value.duration);
