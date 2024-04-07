@@ -1,146 +1,98 @@
+import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import path, { dirname, join } from 'path';
 import fs from 'fs';
 
 import { config } from './config.js';
 import { ensureDirectory } from '../utils/fileManagement.js';
 
-// =================================================
-// resolve public path
+// Determine the current environment settings.
+const ENVIRONMENT = process.env.NODE_ENV || 'production';
+const IS_TEST = Boolean(process.env.IS_TEST);
+const IS_DOCKER = ENVIRONMENT === 'docker';
+const IS_PRODUCTION = IS_DOCKER || (ENVIRONMENT === 'production' && !IS_TEST);
 
-/**
- * @description Returns public path depending on OS
- * This is the correct path for the app running in production mode
- */
-export function getAppDataPath(): string {
-  // handle docker
+// Define global variables for directory handling.
+// eslint-disable-next-line prefer-const -- It makes no sense, it is reassigned later.
+let appDataPath: string;
+let srcDirectory: string;
+
+// Initializes global directory paths based on the environment.
+function initializeDirectoryPaths() {
+  if (import.meta.url) {
+    globalThis.__dirname = dirname(fileURLToPath(import.meta.url));
+  }
+  srcDirectory = dirname(__dirname);
+
+  // Adjust srcDirectory for production or development environments.
+  if (!IS_PRODUCTION) {
+    srcDirectory = join(srcDirectory, '../');
+  }
+}
+
+// Determines the application data path based on the operating system.
+function determineAppDataPath() {
   if (process.env.ONTIME_DATA) {
-    return path.join(process.env.ONTIME_DATA);
+    return process.env.ONTIME_DATA;
   }
 
   switch (process.platform) {
-    case 'darwin': {
-      return path.join(process.env.HOME!, 'Library', 'Application Support', 'Ontime');
-    }
-    case 'win32': {
-      return path.join(process.env.APPDATA!, 'Ontime');
-    }
-    case 'linux': {
-      return path.join(process.env.HOME!, '.Ontime');
-    }
-    default: {
-      throw new Error('Could not resolve public folder for platform');
-    }
+    case 'darwin':
+      return join(process.env.HOME, 'Library', 'Application Support', 'Ontime');
+    case 'win32':
+      return join(process.env.APPDATA, 'Ontime');
+    case 'linux':
+      return join(process.env.HOME, '.Ontime');
+    default:
+      throw new Error('Unsupported platform for resolving the public folder.');
   }
 }
 
-// =================================================
-// resolve running environment
-const env = process.env.NODE_ENV || 'production';
-
-export const isTest = Boolean(process.env.IS_TEST);
-export const environment = isTest ? 'test' : env;
-export const isDocker = env === 'docker';
-export const isProduction = isDocker || (env === 'production' && !isTest);
-
-// =================================================
-// Resolve directory paths
-
-// resolve file URL in both CJS and ESM (build and dev)
-if (import.meta.url) {
-  globalThis.__dirname = fileURLToPath(import.meta.url);
+// Ensures the app state file exists and is properly initialized.
+function ensureAppState() {
+  ensureDirectory(appDataPath);
+  const appStateFilePath = join(appDataPath, config.appState);
+  if (!fs.existsSync(appStateFilePath)) {
+    fs.writeFileSync(appStateFilePath, JSON.stringify({ lastLoadedProject: 'db.json' }));
+  }
 }
 
-// path to server src folder
-const currentDir = dirname(__dirname);
-// locally we are in src/setup, in the production build, this is a single file at src
-export const srcDirectory = isProduction ? currentDir : path.join(currentDir, '../');
-
-// resolve path to external
-const productionPath = path.join(srcDirectory, '../../resources/extraResources/client');
-const devPath = path.join(srcDirectory, '../../client/build/');
-const dockerPath = path.join(srcDirectory, 'client/');
-
-export const resolvedPath = (): string => {
-  if (isTest) {
-    return devPath;
-  }
-  if (isDocker) {
-    return dockerPath;
-  }
-  if (isProduction) {
-    return productionPath;
-  }
-  return devPath;
-};
-
-const testDbStartDirectory = isTest ? '../' : getAppDataPath();
-export const externalsStartDirectory = isProduction ? getAppDataPath() : join(srcDirectory, 'external');
-// TODO: we only need one when they are all in the same folder
-export const resolveExternalsDirectory = join(isProduction ? getAppDataPath() : srcDirectory, 'external');
-
-// project files
-export const appStatePath = join(getAppDataPath(), config.appState);
-export const uploadsFolderPath = join(getAppDataPath(), config.uploads);
-
-const ensureAppState = () => {
-  ensureDirectory(getAppDataPath());
-  fs.writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: 'db.json' }));
-};
-
-const getLastLoadedProject = () => {
+// Retrieves the last loaded project from the app state file.
+function getLastLoadedProject() {
+  const appStateFilePath = join(appDataPath, config.appState);
   try {
-    const appState = JSON.parse(fs.readFileSync(appStatePath, 'utf8'));
-    if (!appState.lastLoadedProject) {
-      ensureAppState();
-    }
-    return appState.lastLoadedProject;
+    const appState = JSON.parse(fs.readFileSync(appStateFilePath, 'utf8'));
+    return appState.lastLoadedProject || 'db.json';
   } catch {
-    if (!isTest) {
-      ensureAppState();
-    }
+    ensureAppState();
+    return 'db.json';
   }
+}
+
+// Export functions and constants that resolve paths based on the current environment.
+function resolveExternalDirectory() {
+  return IS_PRODUCTION ? appDataPath : join(srcDirectory, 'external');
+}
+
+function resolveDbDirectory() {
+  const baseDir = IS_TEST ? join(srcDirectory, '../') : appDataPath;
+  return join(baseDir, IS_TEST ? `../${config.database.testdb}` : config.projects);
+}
+
+// Initialize directory paths upon module load.
+initializeDirectoryPaths();
+appDataPath = determineAppDataPath();
+
+export const environment = {
+  isTest: IS_TEST,
+  isProduction: IS_PRODUCTION,
+  isDocker: IS_DOCKER,
 };
 
-const lastLoadedProject = isTest ? 'db.json' : getLastLoadedProject();
-
-// path to public db
-export const resolveDbDirectory = join(testDbStartDirectory, isTest ? `../${config.database.testdb}` : config.projects);
-export const resolveDbName = lastLoadedProject ? lastLoadedProject : config.database.filename;
-export const resolveDbPath = join(resolveDbDirectory, resolveDbName);
-
-export const pathToStartDb = isTest
-  ? join(srcDirectory, '..', config.database.testdb, config.database.filename)
-  : join(srcDirectory, '/preloaded-db/', config.database.filename);
-
-// path to public styles
-export const resolveStylesDirectory = join(externalsStartDirectory, config.styles.directory);
-export const resolveStylesPath = join(resolveStylesDirectory, config.styles.filename);
-
-export const pathToStartStyles = join(srcDirectory, '/external/styles/', config.styles.filename);
-
-// path to public demo
-export const resolveDemoDirectory = join(
-  externalsStartDirectory,
-  isProduction ? '/external/' : '', // move to external folder in production
-  config.demo.directory,
-);
-export const resolveDemoPath = config.demo.filename.map((file) => {
-  return join(resolveDemoDirectory, file);
-});
-
-export const pathToStartDemo = config.demo.filename.map((file) => {
-  return join(srcDirectory, '/external/demo/', file);
-});
-
-// path to restore file
-export const resolveRestoreFile = join(getAppDataPath(), config.restoreFile);
-
-// path to sheets folder
-export const resolveSheetsDirectory = join(getAppDataPath(), config.sheets.directory);
-
-// path to crash reports
-export const resolveCrashReportDirectory = getAppDataPath();
-
-// path to projects
-export const resolveProjectsDirectory = join(getAppDataPath(), config.projects);
+export const directories = {
+  appDataPath,
+  srcDirectory,
+  externalsStartDirectory: resolveExternalDirectory(),
+  projectsDirectory: join(appDataPath, config.projects),
+  dbDirectory: resolveDbDirectory(),
+  lastLoadedProject: getLastLoadedProject(),
+};
