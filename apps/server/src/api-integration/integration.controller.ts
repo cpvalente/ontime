@@ -223,13 +223,12 @@ function numberOrError(value: unknown) {
   return converted;
 }
 
-function stringAndNumberOrError(value: unknown) {
-  let converted = value;
-  if (typeof converted == 'number') {
-    converted = String(converted);
+function extractCue(value: unknown): string {
+  if (typeof value === 'number') {
+    return String(value);
   }
-  if (typeof converted == 'string') {
-    return converted;
+  if (typeof value === 'string') {
+    return value;
   }
   throw new Error('Payload is not a valid string or number');
 }
