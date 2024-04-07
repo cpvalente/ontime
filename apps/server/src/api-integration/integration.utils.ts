@@ -28,13 +28,13 @@ export function parse(property: string, value: unknown) {
     }
     const parserFn = whitelistedPayload.custom;
     return { custom: { [customKey]: { value: parserFn(value) } } };
-  } else {
-    if (!isKeyOfType(property, whitelistedPayload)) {
-      throw new Error(`Property ${property} not permitted`);
-    }
-    const parserFn = whitelistedPayload[property];
-    return { [property]: parserFn(value) };
   }
+
+  if (!isKeyOfType(property, whitelistedPayload)) {
+    throw new Error(`Property ${property} not permitted`);
+  }
+  const parserFn = whitelistedPayload[property];
+  return { [property]: parserFn(value) };
 }
 
 /**
