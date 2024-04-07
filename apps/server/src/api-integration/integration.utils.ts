@@ -39,18 +39,17 @@ export function parse(property: string, value: unknown) {
 
 /**
  * Updates a property of the event with the given id
- * @param {string} eventId
  * @param {Partial<OntimeEvent>} patchEvent
  */
-export function updateEvent(eventId: string, patchEvent: Partial<OntimeEvent>) {
-  const event = getEventWithId(eventId);
+export function updateEvent(patchEvent: Partial<OntimeEvent> & { id: string }) {
+  const event = getEventWithId(patchEvent?.id ?? '');
   if (!event) {
-    throw new Error(`Event with ID ${eventId} not found`);
+    throw new Error(`Event with ID ${patchEvent?.id} not found`);
   }
 
   if (!isOntimeEvent(event)) {
     throw new Error('Can only update events');
   }
 
-  editEvent({ id: eventId, ...patchEvent });
+  editEvent(patchEvent);
 }

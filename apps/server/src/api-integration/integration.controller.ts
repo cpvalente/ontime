@@ -30,9 +30,9 @@ const actionHandlers: Record<string, ActionHandler> = {
   }),
   change: (payload) => {
     assert.isObject(payload);
-    const eventId = Object.keys(payload)[0] as keyof typeof payload;
-    const data = payload[eventId];
-    const patchEvent: Partial<OntimeEvent> = {};
+    const id = Object.keys(payload)[0] as keyof typeof payload;
+    const data = payload[id];
+    const patchEvent: Partial<OntimeEvent> & { id: string } = { id };
     Object.entries(data).forEach(([property, value], _) => {
       const prop = parse(property, value);
       if (patchEvent.custom && prop.custom) {
@@ -41,8 +41,9 @@ const actionHandlers: Record<string, ActionHandler> = {
         Object.assign(patchEvent, prop);
       }
     });
+    Object.assign(patchEvent);
     //TODO: don't know how to await this
-    updateEvent(eventId, patchEvent);
+    updateEvent(patchEvent);
     return { payload: 'changes pending' };
   },
   /* Message Service */
