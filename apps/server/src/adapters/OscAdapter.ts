@@ -16,14 +16,14 @@ export class OscServer implements IAdapter {
     this.osc.on('error', (error) => logger.error(LogOrigin.Rx, `OSC IN: ${error}`));
 
     this.osc.on('message', (msg) => {
-      // message should look like /ontime/{type}/{params?} {args} where
+      // message should look like /ontime/{command}/{params?} {args} where
       // ontime: fixed message for app
-      // type: command to be called
+      // command: command to be called
       // params: used to create a nested object to patch with
       // args: extra data, only used on some API entries
 
       // split message
-      const [, address, type, ...params] = msg[0].split('/');
+      const [, address, command, ...params] = msg[0].split('/');
       const args = msg[1];
 
       // get first part before (ontime)
@@ -33,7 +33,7 @@ export class OscServer implements IAdapter {
       }
 
       // get second part (command)
-      if (!type) {
+      if (!command) {
         logger.error(LogOrigin.Rx, 'OSC IN: No path found');
         return;
       }
@@ -45,7 +45,7 @@ export class OscServer implements IAdapter {
       }
 
       try {
-        dispatchFromAdapter(type, transformedPayload, 'osc');
+        dispatchFromAdapter(command, transformedPayload, 'osc');
       } catch (error) {
         logger.error(LogOrigin.Rx, `OSC IN: ${error}`);
       }
