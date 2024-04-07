@@ -60,19 +60,20 @@ export function getEventWithId(eventId: string): OntimeEvent | undefined {
 
 /**
  * returns first event that matches a given cue
- * @param {string} cue
+ * @param {string} targetCue
+ * @param {number} currentEventIndex
  * @return {object | undefined}
  */
-export function getNextEventWithCue(cue: string, currentEventId?: string): OntimeEvent | undefined {
-  // const loaded = curr
+export function getNextEventWithCue(targetCue: string, currentEventIndex = 0): OntimeEvent | undefined {
   const timedEvents = getPlayableEvents();
-  const comparCue = cue.toLowerCase();
-  if (currentEventId) {
-    const currentIndex = timedEvents.findIndex((event) => event.id === currentEventId);
-    const futureEvents = timedEvents.slice(currentIndex);
-    return futureEvents.find((event) => event.cue.toLowerCase() === comparCue);
+  const lowerCaseCue = targetCue.toLowerCase();
+
+  for (let i = currentEventIndex; i < timedEvents.length; i++) {
+    const event = timedEvents.at(i);
+    if (event && event.cue.toLowerCase() === lowerCaseCue) {
+      return event;
+    }
   }
-  return timedEvents.find((event) => event.cue.toLowerCase() === comparCue);
 }
 
 /**

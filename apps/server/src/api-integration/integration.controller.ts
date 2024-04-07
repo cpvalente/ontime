@@ -58,7 +58,7 @@ const actionHandlers: Record<string, ActionHandler> = {
     updateEvent(patchEvent);
     Object.assign(patchEvent);
 
-    return { payload: 'changes pending' };
+    return { payload: 'success' };
   },
   /* Message Service */
   message: (payload) => {

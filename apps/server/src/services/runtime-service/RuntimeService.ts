@@ -242,8 +242,7 @@ class RuntimeService {
    * @return {boolean} success - whether an event was started
    */
   startByCue(cue: string): boolean {
-    const state = runtimeState.getState();
-    const event = getNextEventWithCue(cue, state.eventNow?.id);
+    const event = getNextEventWithCue(cue); //TODO: add index
     if (!event) {
       return false;
     }
@@ -286,8 +285,7 @@ class RuntimeService {
    * @return {boolean} success - whether an event was loaded
    */
   loadByCue(cue: string): boolean {
-    const state = runtimeState.getState();
-    const event = getNextEventWithCue(cue, state.eventNow?.id);
+    const event = getNextEventWithCue(cue); //TODO: add index
     if (!event) {
       return false;
     }
