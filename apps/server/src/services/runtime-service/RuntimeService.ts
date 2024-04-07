@@ -205,41 +205,41 @@ class RuntimeService {
   /**
    * starts event matching given ID
    * @param {string} eventId
-   * @return {boolean} success - whether an event was loaded
+   * @return {boolean} success - whether an event was started
    */
   startById(eventId: string): boolean {
     const event = getEventWithId(eventId);
     if (!event) {
       return false;
     }
-    const success = this.loadEvent(event);
-    if (success) {
-      this.start();
+    const loaded = this.loadEvent(event);
+    if (!loaded) {
+      return false;
     }
-    return success;
+    return this.start();
   }
 
   /**
    * starts an event at index
    * @param {number} eventIndex
-   * @return {boolean} success - whether an event was loaded
+   * @return {boolean} success - whether an event was started
    */
   startByIndex(eventIndex: number): boolean {
     const event = getEventAtIndex(eventIndex);
     if (!event) {
       return false;
     }
-    const success = this.loadEvent(event);
-    if (success) {
-      this.start();
+    const loaded = this.loadEvent(event);
+    if (!loaded) {
+      return false;
     }
-    return success;
+    return this.start();
   }
 
   /**
    * starts first event matching given cue
    * @param {string} cue
-   * @return {boolean} success - whether an event was loaded
+   * @return {boolean} success - whether an event was started
    */
   startByCue(cue: string): boolean {
     const state = runtimeState.getState();
@@ -247,11 +247,11 @@ class RuntimeService {
     if (!event) {
       return false;
     }
-    const success = this.loadEvent(event);
-    if (success) {
-      this.start();
+    const loaded = this.loadEvent(event);
+    if (!loaded) {
+      return false;
     }
-    return success;
+    return this.start();
   }
 
   /**
@@ -325,24 +325,25 @@ class RuntimeService {
   /**
    * Starts playback on selected event
    */
-  start() {
+  start(): boolean {
     const state = runtimeState.getState();
     const canStart = validatePlayback(state.timer.playback).start;
     if (!canStart) {
       return false;
     }
 
-    const didStart = this.eventTimer.start();
+    const didStart = this.eventTimer?.start() ?? false;
     logger.info(LogOrigin.Playback, `Play Mode ${state.timer.playback.toUpperCase()}`);
     if (didStart) {
       integrationService.dispatch(TimerLifeCycle.onStart);
     }
+    return didStart;
   }
 
   /**
    * Starts playback on previous event
    */
-  startPrevious() {
+  startPrevious(): boolean {
     const hasPrevious = this.loadPrevious();
     if (!hasPrevious) {
       return false;
@@ -354,7 +355,7 @@ class RuntimeService {
   /**
    * Starts playback on next event
    */
-  startNext() {
+  startNext(): boolean {
     const hasNext = this.loadNext();
     if (!hasNext) {
       return false;
@@ -372,7 +373,7 @@ class RuntimeService {
     if (!canPause) {
       return;
     }
-    this.eventTimer.pause();
+    this.eventTimer?.pause();
     const newState = state.timer.playback;
     logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
     integrationService.dispatch(TimerLifeCycle.onPause);
@@ -381,16 +382,20 @@ class RuntimeService {
   /**
    * Stops timer and unloads any events
    */
-  stop() {
+  stop(): boolean {
     const state = runtimeState.getState();
     const canStop = validatePlayback(state.timer.playback).stop;
     if (!canStop) {
-      return;
+      return false;
     }
-    this.eventTimer.stop();
-    const newState = state.timer.playback;
-    logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
-    integrationService.dispatch(TimerLifeCycle.onStop);
+    const didStop = this.eventTimer?.stop();
+    if (didStop) {
+      const newState = state.timer.playback;
+      logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
+      integrationService.dispatch(TimerLifeCycle.onStop);
+      return true;
+    }
+    return false;
   }
 
   /**
