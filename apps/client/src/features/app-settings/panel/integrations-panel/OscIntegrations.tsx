@@ -8,7 +8,7 @@ import { generateId } from 'ontime-utils';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useOscSettings, { useOscSettingsMutation } from '../../../../common/hooks-query/useOscSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
-import { isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
+import { isASCII, isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
 import * as Panel from '../PanelUtils';
 
 import { cycles } from './integrationUtils';
@@ -215,8 +215,8 @@ export default function OscIntegrations() {
             </thead>
             <tbody>
               {fields.map((field, index) => {
-                // @ts-expect-error -- not sure why it is not finding the type, it is ok
-                const maybeError = errors.subscriptions?.[index]?.message?.message;
+                const maybeAddressError = errors.subscriptions?.[index]?.address?.message;
+                const maybePayloadError = errors.subscriptions?.[index]?.payload?.message;
                 return (
                   <tr key={field.id}>
                     <td>
@@ -245,13 +245,15 @@ export default function OscIntegrations() {
                         placeholder='/from-ontime/'
                         {...register(`subscriptions.${index}.address`, {
                           required: { value: true, message: 'Required field' },
-                          pattern: {
-                            value: startsWithSlash,
-                            message: 'OSC address should start with a forward slash',
+                          validate: {
+                            oscStartsWithSlash: (value) =>
+                              startsWithSlash.test(value) || 'OSC address should start with a forward slash',
+                            oscStringIsAscii: (value) =>
+                              isASCII.test(value) || 'OSC address only allow ASCII characters',
                           },
                         })}
                       />
-                      {maybeError && <Panel.Error>{maybeError}</Panel.Error>}
+                      {maybeAddressError && <Panel.Error>{maybeAddressError}</Panel.Error>}
                     </td>
                     <td className={style.halfWidth}>
                       <Input
@@ -261,10 +263,13 @@ export default function OscIntegrations() {
                         autoComplete='off'
                         placeholder='{{timer.current}}'
                         {...register(`subscriptions.${index}.payload`, {
-                          //TODO: how to validate this
+                          validate: {
+                            oscStringIsAscii: (value) =>
+                              isASCII.test(value) || 'OSC payloads only allow ASCII characters',
+                          },
                         })}
                       />
-                      {maybeError && <Panel.Error>{maybeError}</Panel.Error>}
+                      {maybePayloadError && <Panel.Error>{maybePayloadError}</Panel.Error>}
                     </td>
                     <td>
                       <IconButton
