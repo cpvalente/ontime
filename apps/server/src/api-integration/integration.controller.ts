@@ -158,29 +158,29 @@ const actionHandlers: Record<string, ActionHandler> = {
     if (!('1' in payload)) {
       throw new Error('Invalid extratimer index');
     }
-    const value = payload['1'];
-    if (typeof value === 'string') {
-      if (value === SimplePlayback.Start) {
+    const command = payload['1'];
+    if (typeof command === 'string') {
+      if (command === SimplePlayback.Start) {
         const reply = extraTimerService.start();
         return { payload: reply };
       }
-      if (value === SimplePlayback.Pause) {
+      if (command === SimplePlayback.Pause) {
         const reply = extraTimerService.pause();
         return { payload: reply };
       }
-      if (value === SimplePlayback.Stop) {
+      if (command === SimplePlayback.Stop) {
         const reply = extraTimerService.stop();
         return { payload: reply };
       }
-    } else if (value && typeof value === 'object') {
+    } else if (command && typeof command === 'object') {
       const reply = { payload: {} };
-      if ('duration' in value) {
-        const time = numberOrError(value.duration);
+      if ('duration' in command) {
+        const time = numberOrError(command.duration);
         reply.payload = extraTimerService.setTime(time * 1000); //frontend is seconds based
       }
-      if ('direction' in value) {
-        if (value.direction === SimpleDirection.CountUp || value.direction === SimpleDirection.CountDown) {
-          reply.payload = extraTimerService.setDirection(value.direction);
+      if ('direction' in command) {
+        if (command.direction === SimpleDirection.CountUp || command.direction === SimpleDirection.CountDown) {
+          reply.payload = extraTimerService.setDirection(command.direction);
         } else {
           throw new Error('Invalid direction payload');
         }
