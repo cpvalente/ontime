@@ -8,7 +8,7 @@ import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
-import { parse, updateEvent } from './integration.utils.js';
+import { parseProperty, updateEvent } from './integration.utils.js';
 
 export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = type.toLowerCase();
@@ -30,20 +30,34 @@ const actionHandlers: Record<string, ActionHandler> = {
   }),
   change: (payload) => {
     assert.isObject(payload);
-    const id = Object.keys(payload)[0] as keyof typeof payload;
-    const data = payload[id];
+    if (Object.keys(payload).length === 0) {
+      throw new Error('Payload is empty');
+    }
+
+    const id = Object.keys(payload).at(0);
+    if (!id) {
+      throw new Error('Missing Event ID');
+    }
+
+    const data = payload[id as keyof typeof payload];
     const patchEvent: Partial<OntimeEvent> & { id: string } = { id };
-    Object.entries(data).forEach(([property, value], _) => {
-      const prop = parse(property, value);
-      if (patchEvent.custom && prop.custom) {
-        Object.assign(patchEvent.custom, prop.custom);
+
+    Object.entries(data).forEach(([property, value]) => {
+      if (typeof property !== 'string' || value === undefined) {
+        throw new Error('Invalid property or value');
+      }
+      const newObjectProperty = parseProperty(property, value);
+
+      if (patchEvent.custom && newObjectProperty.custom) {
+        Object.assign(patchEvent.custom, newObjectProperty.custom);
       } else {
-        Object.assign(patchEvent, prop);
+        Object.assign(patchEvent, newObjectProperty);
       }
     });
-    Object.assign(patchEvent);
-    //TODO: don't know how to await this
+
     updateEvent(patchEvent);
+    Object.assign(patchEvent);
+
     return { payload: 'changes pending' };
   },
   /* Message Service */

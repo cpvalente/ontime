@@ -20,7 +20,7 @@ const whitelistedPayload = {
   custom: coerceString,
 };
 
-export function parse(property: string, value: unknown) {
+export function parseProperty(property: string, value: unknown) {
   if (property.startsWith('custom:')) {
     const customKey = property.split(':')[1];
     if (!(customKey in DataProvider.getCustomFields())) {
