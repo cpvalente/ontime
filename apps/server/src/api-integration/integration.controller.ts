@@ -63,7 +63,9 @@ const actionHandlers: Record<string, ActionHandler> = {
   start: (payload) => {
     if (payload === undefined) {
       return successPayloadOrError(runtimeService.start(), 'Uable to start');
-    } else if (payload && typeof payload === 'object') {
+    }
+
+    if (payload && typeof payload === 'object') {
       if ('index' in payload) {
         const eventIndex = numberOrError(payload.index);
         if (eventIndex <= 0) {
@@ -74,20 +76,27 @@ const actionHandlers: Record<string, ActionHandler> = {
           runtimeService.startByIndex(eventIndex - 1),
           `Event index not recognised or out of range ${eventIndex}`,
         );
-      } else if ('id' in payload) {
+      }
+
+      if ('id' in payload) {
         assert.isString(payload.id);
         return successPayloadOrError(runtimeService.startById(payload.id), `Unable to start ID: ${payload.id}`);
-      } else if ('cue' in payload) {
+      }
+
+      if ('cue' in payload) {
         const cue = stringAndNumberOrError(payload.cue);
         return successPayloadOrError(runtimeService.startByCue(cue), `Unable to start CUE: ${cue}`);
       }
-    } else if (typeof payload === 'string') {
-      if (payload === 'next') {
-        return successPayloadOrError(runtimeService.startNext(), 'Unable to start next event');
-      } else if (payload === 'previous') {
-        return successPayloadOrError(runtimeService.startPrevious(), 'Unable to start previous event');
-      }
     }
+
+    if (payload === 'next') {
+      return successPayloadOrError(runtimeService.startNext(), 'Unable to start next event');
+    }
+
+    if (payload === 'previous') {
+      return successPayloadOrError(runtimeService.startPrevious(), 'Unable to start previous event');
+    }
+
     throw new Error('No matching start function');
   },
   pause: () => {
@@ -118,19 +127,25 @@ const actionHandlers: Record<string, ActionHandler> = {
           runtimeService.loadByIndex(eventIndex - 1),
           `Event index not recognised or out of range ${eventIndex}`,
         );
-      } else if ('id' in payload) {
+      }
+
+      if ('id' in payload) {
         assert.isString(payload.id);
         return successPayloadOrError(runtimeService.loadById(payload.id), `Unable to load ID: ${payload.id}`);
-      } else if ('cue' in payload) {
+      }
+
+      if ('cue' in payload) {
         const cue = stringAndNumberOrError(payload.cue);
         return successPayloadOrError(runtimeService.loadByCue(cue), `Unable to load CUE: ${cue}`);
       }
-    } else if (typeof payload === 'string') {
-      if (payload === 'next') {
-        return successPayloadOrError(runtimeService.loadNext(), 'Unable to load next event');
-      } else if (payload === 'previous') {
-        return successPayloadOrError(runtimeService.loadPrevious(), 'Unable to load previous event');
-      }
+    }
+
+    if (payload === 'next') {
+      return successPayloadOrError(runtimeService.loadNext(), 'Unable to load next event');
+    }
+
+    if (payload === 'previous') {
+      return successPayloadOrError(runtimeService.loadPrevious(), 'Unable to load previous event');
     }
     throw new Error('No matching method provided');
   },
