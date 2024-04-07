@@ -84,7 +84,7 @@ const actionHandlers: Record<string, ActionHandler> = {
       }
 
       if ('cue' in payload) {
-        const cue = stringAndNumberOrError(payload.cue);
+        const cue = extractCue(payload.cue);
         return successPayloadOrError(runtimeService.startByCue(cue), `Unable to start CUE: ${cue}`);
       }
     }
@@ -135,7 +135,7 @@ const actionHandlers: Record<string, ActionHandler> = {
       }
 
       if ('cue' in payload) {
-        const cue = stringAndNumberOrError(payload.cue);
+        const cue = extractCue(payload.cue);
         return successPayloadOrError(runtimeService.loadByCue(cue), `Unable to load CUE: ${cue}`);
       }
     }
