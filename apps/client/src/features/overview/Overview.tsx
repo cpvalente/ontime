@@ -1,4 +1,5 @@
 import { memo, useMemo } from 'react';
+import { millisToString } from 'ontime-utils';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import { useRuntimeOverview, useRuntimePlaybackOverview, useTimer } from '../../common/hooks/useSocket';
@@ -9,7 +10,6 @@ import { TimeColumn, TimeRow } from './composite/TimeLayout';
 import { calculateEndAndDaySpan, formatedTime, getOffsetText } from './overviewUtils';
 
 import style from './Overview.module.scss';
-import { millisToString } from 'ontime-utils';
 
 export const EditorOverview = memo(_EditorOverview);
 
