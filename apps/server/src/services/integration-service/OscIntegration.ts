@@ -11,7 +11,7 @@ import { OscServer } from '../../adapters/OscAdapter.js';
  * @description Class contains logic towards outgoing OSC communications
  * @class
  */
-export class OscIntegration implements IIntegration<OscSubscription> {
+export class OscIntegration implements IIntegration<OscSubscription, OSCSettings> {
   protected oscClient: null | Client;
   protected oscServer: OscServer | null = null;
 
@@ -85,7 +85,7 @@ export class OscIntegration implements IIntegration<OscSubscription> {
     this.oscClient.send(message);
   }
 
-  private initTX(enabledOut, targetIP, portOut, subscriptions) {
+  private initTX(enabledOut: boolean, targetIP: string, portOut: number, subscriptions: OscSubscription[]) {
     this.initSubscriptions(subscriptions);
 
     if (!enabledOut && this.enabledOut) {
@@ -113,7 +113,7 @@ export class OscIntegration implements IIntegration<OscSubscription> {
     }
   }
 
-  private initRX(enabledIn, portIn) {
+  private initRX(enabledIn: boolean, portIn: number) {
     if (!enabledIn && this.enabledIn) {
       this.shutdownRX();
       return;
@@ -123,7 +123,6 @@ export class OscIntegration implements IIntegration<OscSubscription> {
     logger.info(LogOrigin.Rx, `Starting OSC Server on port: ${portIn}`);
     this.oscServer = new OscServer(portIn);
   }
-
 
   shutdown() {
     this.shutdownTX();

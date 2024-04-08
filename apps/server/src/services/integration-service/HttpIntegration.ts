@@ -10,7 +10,7 @@ import { logger } from '../../classes/Logger.js';
  * @description Class contains logic towards outgoing HTTP communications
  * @class
  */
-export class HttpIntegration implements IIntegration<HttpSubscription> {
+export class HttpIntegration implements IIntegration<HttpSubscription, HttpSettings> {
   subscriptions: HttpSubscription[];
   enabled: boolean;
 
