@@ -11,7 +11,7 @@ export default function useOscSettings() {
   const { data, status, isFetching, isError, refetch } = useQuery({
     queryKey: OSC_SETTINGS,
     queryFn: getOSC,
-    placeholderData: oscPlaceholderSettings,
+    placeholderData: (previousData, _previousQuery) => previousData,
     retry: 5,
     retryDelay: (attempt: number) => attempt * 2500,
     refetchInterval: queryRefetchIntervalSlow,

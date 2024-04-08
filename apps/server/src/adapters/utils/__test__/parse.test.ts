@@ -1,4 +1,4 @@
-import { objectFromPath } from '../parse.js';
+import { integrationPayloadFromPath } from '../parse.js';
 
 describe('objectFromPath()', () => {
   it('start index', () => {
@@ -6,7 +6,15 @@ describe('objectFromPath()', () => {
     const value = 1;
     const objExpected = { index: 1 };
 
-    const obj = objectFromPath(arr, value);
+    const obj = integrationPayloadFromPath(arr, value);
+    expect(obj).toStrictEqual(objExpected);
+  });
+  it('start next', () => {
+    const arr = ['next'];
+    const value = undefined;
+    const objExpected = 'next';
+
+    const obj = integrationPayloadFromPath(arr, value);
     expect(obj).toStrictEqual(objExpected);
   });
   it('set timer message text', () => {
@@ -14,7 +22,7 @@ describe('objectFromPath()', () => {
     const value = 'hello';
     const objExpected = { timer: { text: value } };
 
-    const obj = objectFromPath(arr, value);
+    const obj = integrationPayloadFromPath(arr, value);
     expect(obj).toStrictEqual(objExpected);
   });
   it('set timer message text and visible', () => {
@@ -22,15 +30,15 @@ describe('objectFromPath()', () => {
     const value = { text: 'hello', visible: true };
     const objExpected = { timer: value };
 
-    const obj = objectFromPath(arr, value);
+    const obj = integrationPayloadFromPath(arr, value);
     expect(obj).toStrictEqual(objExpected);
   });
 
   it('nests object with undefined value', () => {
     const arr = ['a', 'b', 'c', 'd'];
-    const objExpected = { a: { b: { c: { d: undefined } } } };
+    const objExpected = { a: { b: { c: 'd' } } };
 
-    const obj = objectFromPath(arr);
+    const obj = integrationPayloadFromPath(arr);
     expect(obj).toStrictEqual(objExpected);
   });
   it('empty array creates undefined object', () => {
@@ -38,7 +46,7 @@ describe('objectFromPath()', () => {
     const value = '1234567890';
     const objExpected = null;
 
-    const obj = objectFromPath(arr, value);
+    const obj = integrationPayloadFromPath(arr, value);
     expect(obj).toStrictEqual(objExpected);
   });
 });

@@ -2,7 +2,7 @@ import { ChangeEvent, useRef, useState } from 'react';
 import { Button, Input } from '@chakra-ui/react';
 import { IoCloudOutline } from '@react-icons/all-files/io5/IoCloudOutline';
 import { IoDownloadOutline } from '@react-icons/all-files/io5/IoDownloadOutline';
-import { ImportMap, unpackError } from 'ontime-utils';
+import { getErrorMessage, ImportMap } from 'ontime-utils';
 
 import {
   getWorksheetNames as getWorksheetNamesExcel,
@@ -59,7 +59,7 @@ export default function SourcesPanel() {
       setImportFlow('excel');
       setHasFile('done');
     } catch (error) {
-      const errorMessage = unpackError(error);
+      const errorMessage = getErrorMessage(error);
       setError(`Error uploading file: ${errorMessage}`);
       setWorksheets(null);
       setHasFile('none');

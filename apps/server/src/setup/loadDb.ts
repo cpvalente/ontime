@@ -25,7 +25,13 @@ const populateDb = (directory: string, filename: string): string => {
   if (!existsSync(dbPath)) {
     try {
       const dbDirectory = resolveDbDirectory;
-      const newFileDirectory = join(dbDirectory, pathToStartDb.split('/').pop());
+      const startDbName = pathToStartDb.split('/').pop();
+
+      if (!startDbName) {
+        throw new Error('Invalid path to start database');
+      }
+
+      const newFileDirectory = join(dbDirectory, startDbName);
 
       copyFileSync(pathToStartDb, newFileDirectory);
       dbPath = newFileDirectory;

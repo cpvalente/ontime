@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
+import { getErrorMessage } from 'ontime-utils';
 
 export async function getViewSettings(_req: Request, res: Response<ViewSettings>) {
   const views = DataProvider.getViewSettings();
@@ -27,6 +28,7 @@ export async function postViewSettings(req: Request, res: Response<ViewSettings 
     await DataProvider.setViewSettings(newData);
     res.status(200).send(newData);
   } catch (error) {
-    res.status(400).send({ message: String(error) });
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
   }
 }

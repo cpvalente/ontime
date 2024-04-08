@@ -15,7 +15,6 @@ export interface GetInfo {
 
 export type ProjectFile = {
   filename: string;
-  createdAt: string;
   updatedAt: string;
 };
 

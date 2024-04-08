@@ -313,7 +313,7 @@ export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
     return clock - timeStart;
   }
 
-  const overtime = Math.min(current, 0);
+  const overtime = Math.abs(Math.min(current, 0));
   // in time-to-end, offset is overtime
   if (timerType === TimerType.TimeToEnd) {
     return overtime;
@@ -322,7 +322,7 @@ export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
   const startOffset = startedAt - timeStart;
   const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
 
-  return startOffset + addedTime + pausedTime + Math.abs(overtime);
+  return startOffset + addedTime + pausedTime + overtime;
 }
 
 /**
