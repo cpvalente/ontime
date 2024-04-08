@@ -9,6 +9,6 @@ test('View params configures timer view', async ({ page }) => {
   await page.locator('label').filter({ hasText: 'Hide Time NowHides the Time' }).locator('span').nth(2).click();
   await page.getByRole('button', { name: 'Save' }).click();
 
+  await expect(page.getByText('TIME NOW', { exact: true })).not.toBeInViewport();
   await expect(page).toHaveURL(/.*hideClock=true/);
-  await expect(page.getByText('TIME NOW')).not.toBeInViewport();
 });
