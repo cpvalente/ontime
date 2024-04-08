@@ -75,7 +75,7 @@ export default function HttpIntegrations() {
     <Panel.Section>
       <Panel.Card>
         <Panel.SubHeader>
-          HTTP
+          HTTP settings
           <div className={style.flex}>
             <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
               Revert to saved

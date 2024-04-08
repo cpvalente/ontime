@@ -81,7 +81,7 @@ export default function OscIntegrations() {
   return (
     <Panel.Card>
       <Panel.SubHeader>
-        Open Sound Control
+        OSC settings
         <div className={style.flex}>
           <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
             Revert to saved
@@ -103,7 +103,7 @@ export default function OscIntegrations() {
 
       <Panel.Section as='form' id='osc-form' onSubmit={handleSubmit(onSubmit)} onKeyDown={preventEscape}>
         <Panel.Loader isLoading={isLoading} />
-        <Panel.Title>OSC Settings</Panel.Title>
+        <Panel.Title>General OSC settings</Panel.Title>
         {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
         <Panel.ListGroup>
           <Panel.ListItem>
@@ -208,7 +208,7 @@ export default function OscIntegrations() {
         <Panel.Divider />
 
         <Panel.Title>
-          OSC Integrations
+          OSC integrations
           <Button variant='ontime-subtle' size='sm' rightIcon={<IoAdd />} onClick={handleAddNewSubscription}>
             Add
           </Button>

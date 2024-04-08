@@ -11,13 +11,13 @@ export const settingPanels: Readonly<SettingsOption[]> = [
   {
     id: 'project',
     label: 'Project',
-    secondary: [{ id: 'project__manage', label: 'Manage project files' }],
+    secondary: [{ id: 'project__manage', label: 'Manage projects' }],
   },
   {
     id: 'general',
     label: 'App Settings',
     secondary: [
-      { id: 'general__manage', label: 'Manage Ontime settings' },
+      { id: 'general__manage', label: 'General settings' },
       { id: 'general__view', label: 'View settings' },
       { id: 'general__urlpresets', label: 'URL presets' },
     ],
