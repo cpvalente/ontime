@@ -136,10 +136,10 @@ export default function Timer(props: TimerProps) {
     if (display.length < 3) {
       display = `${display} ${getLocalizedString('common.minutes')}`;
     }
-    // last unit rounds up in negative timers
     const isNegative =
-      (stageTimer ?? 0 < -MILLIS_PER_SECOND) && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
+      (stageTimer ?? 0) < -MILLIS_PER_SECOND && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
     if (isNegative) {
+      // last unit rounds up in negative timers
       if (display === '0') {
         display = '1';
       }
