@@ -1,15 +1,7 @@
 import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import {
-  isOntimeBlock,
-  isOntimeDelay,
-  isOntimeEvent,
-  MaybeNumber,
-  Playback,
-  RundownCached,
-  SupportedEvent,
-} from 'ontime-types';
+import { isOntimeEvent, MaybeNumber, Playback, RundownCached, SupportedEvent } from 'ontime-types';
 import { getFirstNormal, getNextNormal, getPreviousNormal } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
@@ -221,7 +213,7 @@ export default function Rundown({ data }: RundownProps) {
   const isEditMode = appMode === AppMode.Edit;
 
   return (
-    <div className={style.eventContainer} ref={scrollRef} data-testid='rundown'>
+    <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext onDragEnd={handleOnDragEnd} sensors={sensors} collisionDetection={closestCenter}>
         <SortableContext items={statefulEntries} strategy={verticalListSortingStrategy}>
           <div className={style.list}>
@@ -260,14 +252,7 @@ export default function Rundown({ data }: RundownProps) {
 
               return (
                 <Fragment key={event.id}>
-                  {isEditMode && (hasCursor || isFirst) && (
-                    <QuickAddBlock
-                      showKbd={hasCursor ? 'above' : 'none'}
-                      previousEventId={previousEventId}
-                      disableAddDelay={isOntimeDelay(event)}
-                      disableAddBlock={isOntimeBlock(event)}
-                    />
-                  )}
+                  {isEditMode && (hasCursor || isFirst) && <QuickAddBlock previousEventId={previousEventId} />}
                   <div className={style.entryWrapper} data-testid={`entry-${eventIndex}`}>
                     {isOntimeEvent(event) && <div className={style.entryIndex}>{eventIndex}</div>}
                     <div className={style.entry} key={event.id} ref={hasCursor ? cursorRef : undefined}>
@@ -287,14 +272,7 @@ export default function Rundown({ data }: RundownProps) {
                       />
                     </div>
                   </div>
-                  {isEditMode && (hasCursor || isLast) && (
-                    <QuickAddBlock
-                      showKbd={hasCursor ? 'below' : 'none'}
-                      previousEventId={event.id}
-                      disableAddDelay={isOntimeDelay(event)}
-                      disableAddBlock={isOntimeBlock(event)}
-                    />
-                  )}
+                  {isEditMode && (hasCursor || isLast) && <QuickAddBlock previousEventId={event.id} />}
                 </Fragment>
               );
             })}

@@ -8,7 +8,7 @@ import useElectronEvent from '../../common/hooks/useElectronEvent';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import AppSettings from '../app-settings/AppSettings';
 import useAppSettingsNavigation from '../app-settings/useAppSettingsNavigation';
-import Overview from '../overview/Overview';
+import { EditorOverview } from '../overview/Overview';
 
 import styles from './Editor.module.scss';
 
@@ -65,7 +65,7 @@ export default function Editor() {
   return (
     <div className={styles.mainContainer} data-testid='event-editor'>
       <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
-      <Overview>
+      <EditorOverview>
         <IconButton
           aria-label='Toggle navigation'
           variant='ontime-subtle-white'
@@ -80,7 +80,7 @@ export default function Editor() {
           icon={<IoSettingsOutline />}
           onClick={toggleSettings}
         />
-      </Overview>
+      </EditorOverview>
       {isSettingsOpen ? (
         <AppSettings />
       ) : (

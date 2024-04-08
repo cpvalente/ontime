@@ -11,7 +11,7 @@ import { useCuesheet } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import { useFlatRundown } from '../../common/hooks-query/useRundown';
-import Overview from '../overview/Overview';
+import { CuesheetOverview } from '../overview/Overview';
 
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
 import { useCuesheetSettings } from './store/CuesheetSettings';
@@ -85,7 +85,7 @@ export default function CuesheetWrapper() {
   return (
     <div className={styles.tableWrapper} data-testid='cuesheet'>
       <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
-      <Overview>
+      <CuesheetOverview>
         <IconButton
           aria-label='Toggle settings'
           variant='ontime-subtle-white'
@@ -100,7 +100,7 @@ export default function CuesheetWrapper() {
           icon={<IoSettingsOutline />}
           onClick={() => toggleSettings()}
         />
-      </Overview>
+      </CuesheetOverview>
       <CuesheetProgress />
       <Cuesheet
         data={flatRundown}

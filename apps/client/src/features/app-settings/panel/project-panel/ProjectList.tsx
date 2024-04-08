@@ -29,14 +29,14 @@ export default function ProjectList() {
   };
 
   const reorderedProjectFiles = useMemo(() => {
-    if (!data?.files?.length) return [];
+    if (!data.files?.length) return [];
 
     const currentlyLoadedIndex = files.findIndex((project) => project.filename === lastLoadedProject);
     const projectFiles = [...files];
     const current = projectFiles.splice(currentlyLoadedIndex, 1)?.[0];
 
     return [current, ...projectFiles];
-  }, [data.files.length, files, lastLoadedProject]);
+  }, [data.files?.length, files, lastLoadedProject]);
 
   return (
     <Panel.Table>

@@ -132,14 +132,18 @@ export default function Timer(props: TimerProps) {
       display = removeSeconds(display);
     }
     display = removeLeadingZero(display);
-    // last unit rounds up in negative timers
-    const isNegative =
-      (stageTimer ?? 0 < -MILLIS_PER_SECOND) && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
-    if (isNegative && display === '0') {
-      display = '-1';
-    }
+
     if (display.length < 3) {
       display = `${display} ${getLocalizedString('common.minutes')}`;
+    }
+    const isNegative =
+      (stageTimer ?? 0) < -MILLIS_PER_SECOND && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
+    if (isNegative) {
+      // last unit rounds up in negative timers
+      if (display === '0') {
+        display = '1';
+      }
+      display = `-${display}`;
     }
   }
   const stageTimerCharacters = display.replace('/:/g', '').length;

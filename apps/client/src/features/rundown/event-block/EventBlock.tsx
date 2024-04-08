@@ -5,10 +5,8 @@ import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
 import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
 import { IoPeopleOutline } from '@react-icons/all-files/io5/IoPeopleOutline';
-import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
-import { IoTimerOutline } from '@react-icons/all-files/io5/IoTimerOutline';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { EndAction, MaybeNumber, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
@@ -142,12 +140,6 @@ export default function EventBlock(props: EventBlockProps) {
             isDisabled: selectedEventId == null || selectedEventId === eventId,
           },
           { withDivider: true, label: 'Clone', icon: IoDuplicateOutline, onClick: () => actionHandler('clone') },
-          { withDivider: true, label: 'Event before', icon: IoAdd, onClick: () => actionHandler('event-before') },
-          { label: 'Event after', icon: IoAdd, onClick: () => actionHandler('event') },
-          { label: 'Block before', icon: IoRemoveCircleOutline, onClick: () => actionHandler('block-before') },
-          { label: 'Block after', icon: IoRemoveCircleOutline, onClick: () => actionHandler('block') },
-          { label: 'Delay before', icon: IoTimerOutline, onClick: () => actionHandler('delay-before') },
-          { label: 'Delay after', icon: IoTimerOutline, onClick: () => actionHandler('delay') },
           { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
         ],
   );
