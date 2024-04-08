@@ -9,7 +9,7 @@ import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
-import { timerPlaceholder } from '../../../common/utils/styleUtils';
+import { timerPlaceholder, timerPlaceholderMin } from '../../../common/utils/styleUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { getTimerByType, isStringBoolean } from '../common/viewUtils';
 
@@ -148,7 +148,8 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
 
   const stageTimer = getTimerByType(viewSettings.freezeEnd, time);
-  let display = millisToString(stageTimer, { fallback: timerPlaceholder });
+  const fallback = userOptions.hideTimerSeconds ? timerPlaceholderMin : timerPlaceholder;
+  let display = millisToString(stageTimer, { fallback });
   if (stageTimer !== null) {
     if (hideTimerSeconds) {
       display = removeSeconds(display);
