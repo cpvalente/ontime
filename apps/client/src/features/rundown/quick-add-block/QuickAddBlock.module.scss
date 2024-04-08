@@ -1,33 +1,13 @@
 .quickAdd {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 1rem;
+
   margin: 0.25rem 0;
   font-size: calc(1rem - 3px);
   padding-inline: calc(2em + 0.5rem) 0.75rem;
-  gap: 1rem;
 }
 
-.btnRow {
-  display: flex;
-  gap: 1rem;
-
-  .quickBtn {
-    font-weight: 400;
-  }
-}
-
-.keyboard {
-  margin-left: 0.5rem;
-  padding: 0 0.25rem;
-  color: $label-gray;
-  border-radius: 2px;
-  background-color: $black-10;
-}
-
-.options {
-  margin-left: auto;
-  display: flex;
-  flex-direction: column;
-  white-space: nowrap;
+.quickBtn {
+  font-weight: 400;
 }

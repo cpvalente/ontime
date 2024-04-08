@@ -1,10 +1,9 @@
 import { memo, useCallback, useRef } from 'react';
-import { Button, Checkbox } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
-import { useEditorSettings } from '../../../common/stores/editorSettings';
 import { useEmitLog } from '../../../common/stores/logger';
 
 import style from './QuickAddBlock.module.scss';
@@ -22,8 +21,6 @@ function QuickAddBlock(props: QuickAddBlockProps) {
 
   const doLinkPrevious = useRef<HTMLInputElement | null>(null);
   const doPublic = useRef<HTMLInputElement | null>(null);
-
-  const { defaultPublic, linkPrevious } = useEditorSettings((state) => state.eventSettings);
 
   const handleCreateEvent = useCallback(
     (eventType: SupportedEvent) => {
@@ -67,54 +64,35 @@ function QuickAddBlock(props: QuickAddBlockProps) {
     [previousEventId, addEvent, emitError],
   );
 
-  const canLinkPrevious = Boolean(previousEventId);
-  const shouldLinkPrevious = Boolean(linkPrevious) && canLinkPrevious;
-
   return (
     <div className={style.quickAdd}>
-      <div className={style.btnRow}>
-        <Button
-          onClick={() => handleCreateEvent(SupportedEvent.Event)}
-          size='xs'
-          variant='ontime-subtle-white'
-          className={style.quickBtn}
-          leftIcon={<IoAdd />}
-        >
-          Event
-        </Button>
-        <Button
-          onClick={() => handleCreateEvent(SupportedEvent.Delay)}
-          size='xs'
-          variant='ontime-subtle-white'
-          className={style.quickBtn}
-          leftIcon={<IoAdd />}
-        >
-          Delay
-        </Button>
-        <Button
-          onClick={() => handleCreateEvent(SupportedEvent.Block)}
-          size='xs'
-          variant='ontime-subtle-white'
-          className={style.quickBtn}
-          leftIcon={<IoAdd />}
-        >
-          Block
-        </Button>
-      </div>
-      <div className={style.options}>
-        <Checkbox
-          ref={doLinkPrevious}
-          size='sm'
-          variant='ontime-ondark'
-          isDisabled={!canLinkPrevious}
-          defaultChecked={shouldLinkPrevious}
-        >
-          Link to previous
-        </Checkbox>
-        <Checkbox ref={doPublic} size='sm' variant='ontime-ondark' defaultChecked={defaultPublic}>
-          Event is public
-        </Checkbox>
-      </div>
+      <Button
+        onClick={() => handleCreateEvent(SupportedEvent.Event)}
+        size='xs'
+        variant='ontime-subtle-white'
+        className={style.quickBtn}
+        leftIcon={<IoAdd />}
+      >
+        Event
+      </Button>
+      <Button
+        onClick={() => handleCreateEvent(SupportedEvent.Delay)}
+        size='xs'
+        variant='ontime-subtle-white'
+        className={style.quickBtn}
+        leftIcon={<IoAdd />}
+      >
+        Delay
+      </Button>
+      <Button
+        onClick={() => handleCreateEvent(SupportedEvent.Block)}
+        size='xs'
+        variant='ontime-subtle-white'
+        className={style.quickBtn}
+        leftIcon={<IoAdd />}
+      >
+        Block
+      </Button>
     </div>
   );
 }
