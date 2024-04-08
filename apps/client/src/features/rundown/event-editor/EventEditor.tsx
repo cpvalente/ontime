@@ -65,6 +65,7 @@ export default function EventEditor({ event, handleSubmit, isMultiple }: EventEd
           note={event.note}
           colour={event.colour}
           handleSubmit={handleSubmit}
+          isMultiple={isMultiple}
         />
         <div className={style.column}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

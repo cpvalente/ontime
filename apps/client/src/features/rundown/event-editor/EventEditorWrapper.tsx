@@ -15,7 +15,7 @@ import useRundown from '../../../common/hooks-query/useRundown';
 import { useEventSelection } from '../useEventSelection';
 
 import style from './EventEditor.module.scss';
-import EventEditorTest from './EventEditor';
+import EventEditor from './EventEditor';
 
 export type EventEditorSubmitActions = keyof OntimeEvent;
 
@@ -27,7 +27,6 @@ export default function EventEditorWrapper() {
   const { order, rundown } = data;
   const { updateEvent } = useEventAction();
   const [_searchParams] = useSearchParams();
-  console.log({ selectedEvents, order }, 'size: ', selectedEvents.size);
 
   const [event, setEvent] = useState<OntimeEvent | null>(null);
 
@@ -132,9 +131,9 @@ export default function EventEditorWrapper() {
   return (
     <div className={style.eventEditor} data-testid='editor-container'>
       {selectedEvents.size <= 1 ? (
-        <EventEditorTest event={event} handleSubmit={handleSingleSubmit} isMultiple={false} />
+        <EventEditor event={event} handleSubmit={handleSingleSubmit} isMultiple={false} />
       ) : (
-        <EventEditorTest event={getMultipleEvent()} handleSubmit={handleMultipleSubmits} isMultiple={true} />
+        <EventEditor event={getMultipleEvent()} handleSubmit={handleMultipleSubmits} isMultiple={true} />
       )}
     </div>
   );

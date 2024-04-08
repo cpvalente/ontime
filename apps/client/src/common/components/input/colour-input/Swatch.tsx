@@ -25,5 +25,11 @@ export default function Swatch(props: SwatchProps) {
       </div>
     );
   }
+
+  if (color === 'unkown') {
+    <div className={`${classes} ${style.center}`} onClick={handleClick}>
+      ?
+    </div>;
+  }
   return <div className={classes} style={{ backgroundColor: `${color}` }} onClick={handleClick} />;
 }
