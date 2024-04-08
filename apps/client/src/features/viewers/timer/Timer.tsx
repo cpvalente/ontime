@@ -20,7 +20,7 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
-import { timerPlaceholder } from '../../../common/utils/styleUtils';
+import { timerPlaceholder, timerPlaceholderMin } from '../../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
@@ -126,7 +126,8 @@ export default function Timer(props: TimerProps) {
   if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
 
   const stageTimer = getTimerByType(viewSettings.freezeEnd, time);
-  let display = millisToString(stageTimer, { fallback: timerPlaceholder });
+  const fallback = userOptions.hideTimerSeconds ? timerPlaceholderMin : timerPlaceholder;
+  let display = millisToString(stageTimer, { fallback });
   if (stageTimer !== null) {
     if (hideTimerSeconds) {
       display = removeSeconds(display);
