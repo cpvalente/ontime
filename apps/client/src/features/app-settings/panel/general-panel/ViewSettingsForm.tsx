@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { Alert, AlertDescription, AlertIcon, Button, Input, Switch } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
@@ -99,7 +99,13 @@ export default function ViewSettingsForm() {
                 title='Override CSS styles'
                 description='Enables overriding view styles with custom stylesheet'
               />
-              <Switch {...register('overrideStyles')} variant='ontime' size='lg' />
+              <Controller
+                control={control}
+                name='overrideStyles'
+                render={({ field: { onChange, value, ref } }) => (
+                  <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
+                )}
+              />
             </Panel.ListItem>
           </Panel.ListGroup>
           <Panel.ListGroup>
@@ -122,7 +128,13 @@ export default function ViewSettingsForm() {
                 title='Freeze timer on end'
                 description='Timer in views will stop from going negative after reaching'
               />
-              <Switch {...register('freezeEnd')} variant='ontime' size='lg' />
+              <Controller
+                control={control}
+                name='freezeEnd'
+                render={({ field: { onChange, value, ref } }) => (
+                  <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
+                )}
+              />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
