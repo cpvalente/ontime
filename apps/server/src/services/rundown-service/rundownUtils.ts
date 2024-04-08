@@ -2,6 +2,8 @@ import { OntimeEvent, OntimeRundown, isOntimeEvent, RundownCached } from 'ontime
 
 import * as cache from './rundownCache.js';
 
+//TODO: https://github.com/cpvalente/ontime/pull/854#discussion_r1555086645
+
 export function getNormalisedRundown(): RundownCached {
   return cache.get();
 }

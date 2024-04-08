@@ -10,6 +10,8 @@ import * as assert from '../utils/assert.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
 import { parseProperty, updateEvent } from './integration.utils.js';
 
+//TODO: https://github.com/cpvalente/ontime/pull/854#discussion_r1555084605
+
 export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = type.toLowerCase();
   const handler = actionHandlers[action];
