@@ -3,4 +3,5 @@ export enum EndAction {
   None = 'none',
   PlayNext = 'play-next',
   Stop = 'stop',
+  Unkown = 'unkown',
 }

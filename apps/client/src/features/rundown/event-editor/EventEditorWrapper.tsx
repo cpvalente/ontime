@@ -99,27 +99,27 @@ export default function EventEditorWrapper() {
       }
     }
 
-    const multipleEvents: OntimeEvent = {
+    const multipleEvents: Partial<OntimeEvent> = {
       id: eventsIds.trim().split(' ').join(', '),
-      colour: allHaveSameValue(events, 'colour') ? events[0]['colour'] : '',
-      custom: allHaveSameValue(events, 'custom') ? events[0]['custom'] : {},
-      duration: allHaveSameValue(events, 'duration') ? events[0]['duration'] : 600000,
-      endAction: allHaveSameValue(events, 'endAction') ? events[0]['endAction'] : EndAction.None,
-      delay: allHaveSameValue(events, 'delay') ? events[0]['delay'] : 0,
-      isPublic: allHaveSameValue(events, 'isPublic') ? events[0]['isPublic'] : true,
+      colour: allHaveSameValue(events, 'colour') ? events[0]['colour'] : 'unkown',
+      custom: allHaveSameValue(events, 'custom') ? events[0]['custom'] : undefined,
+      duration: allHaveSameValue(events, 'duration') ? events[0]['duration'] : undefined,
+      endAction: allHaveSameValue(events, 'endAction') ? events[0]['endAction'] : EndAction.Unkown,
+      delay: allHaveSameValue(events, 'delay') ? events[0]['delay'] : undefined,
+      isPublic: allHaveSameValue(events, 'isPublic') ? events[0]['isPublic'] : true, // ??
       linkStart: allHaveSameValue(events, 'linkStart') ? events[0]['linkStart'] : null,
-      note: allHaveSameValue(events, 'note') ? events[0]['note'] : '',
-      revision: allHaveSameValue(events, 'revision') ? events[0]['revision'] : 0,
-      skip: allHaveSameValue(events, 'skip') ? events[0]['skip'] : false,
-      timeDanger: allHaveSameValue(events, 'timeDanger') ? events[0]['timeDanger'] : 60000,
-      timeEnd: allHaveSameValue(events, 'timeEnd') ? events[0]['timeEnd'] : 600000,
-      timeStart: allHaveSameValue(events, 'timeStart') ? events[0]['timeStart'] : 0,
-      timeStrategy: allHaveSameValue(events, 'timeStrategy') ? events[0]['timeStrategy'] : TimeStrategy.LockDuration,
-      timeWarning: allHaveSameValue(events, 'timeWarning') ? events[0]['timeWarning'] : 120000,
-      timerType: allHaveSameValue(events, 'timerType') ? events[0]['timerType'] : TimerType.CountDown,
-      title: allHaveSameValue(events, 'title') ? events[0]['title'] : '',
+      note: allHaveSameValue(events, 'note') ? events[0]['note'] : '', // ??
+      revision: allHaveSameValue(events, 'revision') ? events[0]['revision'] : undefined,
+      skip: allHaveSameValue(events, 'skip') ? events[0]['skip'] : undefined,
+      timeDanger: allHaveSameValue(events, 'timeDanger') ? events[0]['timeDanger'] : undefined,
+      timeEnd: allHaveSameValue(events, 'timeEnd') ? events[0]['timeEnd'] : undefined,
+      timeStart: allHaveSameValue(events, 'timeStart') ? events[0]['timeStart'] : undefined,
+      timeStrategy: allHaveSameValue(events, 'timeStrategy') ? events[0]['timeStrategy'] : TimeStrategy.Unkown,
+      timeWarning: allHaveSameValue(events, 'timeWarning') ? events[0]['timeWarning'] : undefined,
+      timerType: allHaveSameValue(events, 'timerType') ? events[0]['timerType'] : TimerType.Unkown,
+      title: allHaveSameValue(events, 'title') ? events[0]['title'] : '', // ??
       type: allHaveSameValue(events, 'type') ? events[0]['type'] : SupportedEvent.Event,
-      cue: allHaveSameValue(events, 'cue') ? events[0]['cue'] : '0.01',
+      cue: allHaveSameValue(events, 'cue') ? events[0]['cue'] : 'unkown',
     };
 
     return {
