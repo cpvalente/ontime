@@ -10,11 +10,12 @@ import { ErrorResponse, LogOrigin, RuntimeStore } from 'ontime-types';
 import express, { type Request, type Response } from 'express';
 
 import { logger } from '../classes/Logger.js';
-import { objectFromPath } from '../adapters/utils/parse.js';
+import { integrationPayloadFromPath } from '../adapters/utils/parse.js';
 
 import { dispatchFromAdapter } from './integration.controller.js';
 import { getErrorMessage } from 'ontime-utils';
 import { eventStore } from '../stores/EventStore.js';
+import { isEmptyObject } from '../utils/parserUtils.js';
 
 export const integrationRouter = express.Router();
 
@@ -29,21 +30,21 @@ integrationRouter.get('/', (_req: Request, res: Response<{ message: string }>) =
  */
 integrationRouter.get('/*', (req: Request, res: Response) => {
   let action = req.path.substring(1);
-
   if (!action) {
     return res.status(400).json({ error: 'No action found' });
   }
 
   try {
     const actionArray = action.split('/');
-    const params = { payload: req.query as object } as { payload: object | null };
-
+    const query = isEmptyObject(req.query) ? undefined : (req.query as object);
+    let payload = {};
     if (actionArray.length > 1) {
-      action = actionArray.shift() || '';
-      params.payload = objectFromPath(actionArray, params.payload);
+      action = actionArray.shift();
+      payload = integrationPayloadFromPath(actionArray, query);
+    } else {
+      payload = query;
     }
-
-    const reply = dispatchFromAdapter(action, params, 'http');
+    const reply = dispatchFromAdapter(action, payload, 'http');
     res.status(202).json(reply);
   } catch (error) {
     const errorMessage = getErrorMessage(error);

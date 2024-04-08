@@ -1,31 +1,16 @@
-import { DeepPartial, MessageState, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { DeepPartial, MessageState, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
 
-// skipcq: JS-C1003 - we like the API
-import * as assert from '../utils/assert.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
-
+import { extraTimerService } from '../services/extra-timer-service/ExtraTimerService.js';
 import { messageService } from '../services/message-service/MessageService.js';
+import { validateMessage, validateTimerMessage } from '../services/message-service/messageUtils.js';
 import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
-import { extraTimerService } from '../services/extra-timer-service/ExtraTimerService.js';
-import { validateMessage, validateTimerMessage } from '../services/message-service/messageUtils.js';
+import * as assert from '../utils/assert.js';
+import { isEmptyObject } from '../utils/parserUtils.js';
+import { parseProperty, updateEvent } from './integration.utils.js';
 
-import { parse, updateEvent } from './integration.utils.js';
-
-export type ChangeOptions = {
-  eventId: string;
-  property: string;
-  value: unknown;
-};
-
-export function dispatchFromAdapter(
-  type: string,
-  args: {
-    payload: unknown;
-  },
-  _source?: 'osc' | 'ws' | 'http',
-) {
-  const payload = args.payload;
+export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = type.toLowerCase();
   const handler = actionHandlers[action];
   if (handler) {
@@ -44,12 +29,36 @@ const actionHandlers: Record<string, ActionHandler> = {
     payload: eventStore.poll(),
   }),
   change: (payload) => {
-    // WS: {type: 'change', payload: { eventId, property, value } }
-    const { eventId, property, value } = payload as ChangeOptions;
-    const { parsedPayload, parsedProperty } = parse(property, value);
+    assert.isObject(payload);
+    if (Object.keys(payload).length === 0) {
+      throw new Error('Payload is empty');
+    }
 
-    const updatedEvent = updateEvent(eventId, parsedProperty, parsedPayload);
-    return { payload: updatedEvent };
+    const id = Object.keys(payload).at(0);
+    if (!id) {
+      throw new Error('Missing Event ID');
+    }
+
+    const data = payload[id as keyof typeof payload];
+    const patchEvent: Partial<OntimeEvent> & { id: string } = { id };
+
+    Object.entries(data).forEach(([property, value]) => {
+      if (typeof property !== 'string' || value === undefined) {
+        throw new Error('Invalid property or value');
+      }
+      const newObjectProperty = parseProperty(property, value);
+
+      if (patchEvent.custom && newObjectProperty.custom) {
+        Object.assign(patchEvent.custom, newObjectProperty.custom);
+      } else {
+        Object.assign(patchEvent, newObjectProperty);
+      }
+    });
+
+    updateEvent(patchEvent);
+    Object.assign(patchEvent);
+
+    return { payload: 'success' };
   },
   /* Message Service */
   message: (payload) => {
@@ -67,36 +76,43 @@ const actionHandlers: Record<string, ActionHandler> = {
   },
   /* Playback */
   start: (payload) => {
+    if (payload === undefined) {
+      return successPayloadOrError(runtimeService.start(), 'Uable to start');
+    }
+
     if (payload && typeof payload === 'object') {
-      if ('next' in payload) {
-        runtimeService.startNext();
-        return { payload: 'start' };
-      }
       if ('index' in payload) {
         const eventIndex = numberOrError(payload.index);
         if (eventIndex <= 0) {
           throw new Error(`Event index out of range ${eventIndex}`);
         }
         // Indexes in frontend are 1 based
-        const success = runtimeService.startByIndex(eventIndex - 1);
-        if (!success) {
-          throw new Error(`Event index not recognised or out of range ${eventIndex}`);
-        }
-        return { payload: 'success' };
+        return successPayloadOrError(
+          runtimeService.startByIndex(eventIndex - 1),
+          `Event index not recognised or out of range ${eventIndex}`,
+        );
       }
+
       if ('id' in payload) {
         assert.isString(payload.id);
-        runtimeService.startById(payload.id);
-        return { payload: 'success' };
+        return successPayloadOrError(runtimeService.startById(payload.id), `Unable to start ID: ${payload.id}`);
       }
+
       if ('cue' in payload) {
-        assert.isString(payload.cue);
-        runtimeService.startByCue(payload.cue);
-        return { payload: 'success' };
+        const cue = extractCue(payload.cue);
+        return successPayloadOrError(runtimeService.startByCue(cue), `Unable to start CUE: ${cue}`);
       }
     }
-    runtimeService.start();
-    return { payload: 'start' };
+
+    if (payload === 'next') {
+      return successPayloadOrError(runtimeService.startNext(), 'Unable to start next event');
+    }
+
+    if (payload === 'previous') {
+      return successPayloadOrError(runtimeService.startPrevious(), 'Unable to start previous event');
+    }
+
+    throw new Error('No matching start function');
   },
   pause: () => {
     runtimeService.pause();
@@ -122,71 +138,88 @@ const actionHandlers: Record<string, ActionHandler> = {
           throw new Error(`Event index out of range ${eventIndex}`);
         }
         // Indexes in frontend are 1 based
-        runtimeService.loadByIndex(eventIndex - 1);
-        return { payload: 'success' };
+        return successPayloadOrError(
+          runtimeService.loadByIndex(eventIndex - 1),
+          `Event index not recognised or out of range ${eventIndex}`,
+        );
       }
+
       if ('id' in payload) {
-        assert.isDefined(payload.id);
-        runtimeService.loadById(payload.id.toString().toLowerCase());
-        return { payload: 'success' };
+        assert.isString(payload.id);
+        return successPayloadOrError(runtimeService.loadById(payload.id), `Unable to load ID: ${payload.id}`);
       }
+
       if ('cue' in payload) {
-        assert.isString(payload.cue);
-        runtimeService.loadByCue(payload.cue);
-        return { payload: 'success' };
-      }
-      if ('next' in payload) {
-        runtimeService.loadNext();
-        return { payload: 'success' };
-      }
-      if ('previous' in payload) {
-        runtimeService.loadPrevious();
-        return { payload: 'success' };
+        const cue = extractCue(payload.cue);
+        return successPayloadOrError(runtimeService.loadByCue(cue), `Unable to load CUE: ${cue}`);
       }
     }
-    throw new Error('No load method provided');
+
+    if (payload === 'next') {
+      return successPayloadOrError(runtimeService.loadNext(), 'Unable to load next event');
+    }
+
+    if (payload === 'previous') {
+      return successPayloadOrError(runtimeService.loadPrevious(), 'Unable to load previous event');
+    }
+    throw new Error('No matching method provided');
   },
   addtime: (payload) => {
-    const time = numberOrError(payload);
+    let time = 0;
+    if (payload && typeof payload === 'object') {
+      if ('add' in payload) {
+        time = numberOrError(payload.add);
+      } else if ('remove' in payload) {
+        time = numberOrError(payload.remove) * -1;
+      }
+    } else {
+      time = numberOrError(payload);
+    }
+    assert.isNumber(time);
     if (time === 0) {
       return { payload: 'success' };
     }
-    runtimeService.addTime(time * 1000);
+    runtimeService.addTime(time * 1000); //frontend is seconds based
     return { payload: 'success' };
   },
   /* Extra timers */
   extratimer: (payload) => {
-    if (payload && typeof payload === 'string') {
-      if (payload === SimplePlayback.Start) {
+    assert.isObject(payload);
+    if (!('1' in payload)) {
+      throw new Error('Invalid extratimer index');
+    }
+    const command = payload['1'];
+    if (typeof command === 'string') {
+      if (command === SimplePlayback.Start) {
         const reply = extraTimerService.start();
         return { payload: reply };
       }
-      if (payload === SimplePlayback.Pause) {
+      if (command === SimplePlayback.Pause) {
         const reply = extraTimerService.pause();
         return { payload: reply };
       }
-      if (payload === SimplePlayback.Stop) {
+      if (command === SimplePlayback.Stop) {
         const reply = extraTimerService.stop();
         return { payload: reply };
       }
-    }
-
-    if (payload && typeof payload === 'object') {
-      if ('settime' in payload) {
-        const time = numberOrError(payload.settime);
-        const reply = extraTimerService.setTime(time);
-        return { payload: reply };
+    } else if (command && typeof command === 'object') {
+      const reply = { payload: {} };
+      if ('duration' in command) {
+        const time = numberOrError(command.duration);
+        reply.payload = extraTimerService.setTime(time * 1000); //frontend is seconds based
       }
-      if ('direction' in payload) {
-        if (payload.direction === SimpleDirection.CountUp || payload.direction === SimpleDirection.CountDown) {
-          const reply = extraTimerService.setDirection(payload.direction);
-          return { payload: reply };
+      if ('direction' in command) {
+        if (command.direction === SimpleDirection.CountUp || command.direction === SimpleDirection.CountDown) {
+          reply.payload = extraTimerService.setDirection(command.direction);
         } else {
           throw new Error('Invalid direction payload');
         }
       }
+      if (!isEmptyObject(reply.payload)) {
+        return reply;
+      }
     }
-    throw new Error('Invalid extra-timer payload');
+    throw new Error('No matching method provided');
   },
 };
 
@@ -203,4 +236,21 @@ function numberOrError(value: unknown) {
     throw new Error('Payload is not a valid number');
   }
   return converted;
+}
+
+function extractCue(value: unknown): string {
+  if (typeof value === 'number') {
+    return String(value);
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  throw new Error('Payload is not a valid string or number');
+}
+
+function successPayloadOrError(success: boolean, error: string) {
+  if (!success) {
+    throw new Error(error);
+  }
+  return { payload: 'success' };
 }

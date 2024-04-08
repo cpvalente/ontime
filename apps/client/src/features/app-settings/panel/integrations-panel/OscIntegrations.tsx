@@ -8,7 +8,7 @@ import { generateId } from 'ontime-utils';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useOscSettings, { useOscSettingsMutation } from '../../../../common/hooks-query/useOscSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
-import { isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
+import { isASCII, isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
 import * as Panel from '../PanelUtils';
 
 import { cycles } from './integrationUtils';
@@ -65,7 +65,8 @@ export default function OscIntegrations() {
     prepend({
       id: generateId(),
       cycle: 'onLoad',
-      message: '',
+      address: '',
+      payload: '',
       enabled: false,
     });
   };
@@ -207,14 +208,15 @@ export default function OscIntegrations() {
               <tr>
                 <th>Enabled</th>
                 <th>Cycle</th>
-                <th className={style.fullWidth}>Message</th>
+                <th className={style.halfWidth}>Address</th>
+                <th className={style.halfWidth}>Payload</th>
                 <th />
               </tr>
             </thead>
             <tbody>
               {fields.map((field, index) => {
-                // @ts-expect-error -- not sure why it is not finding the type, it is ok
-                const maybeError = errors.subscriptions?.[index]?.message?.message;
+                const maybeAddressError = errors.subscriptions?.[index]?.address?.message;
+                const maybePayloadError = errors.subscriptions?.[index]?.payload?.message;
                 return (
                   <tr key={field.id}>
                     <td>
@@ -234,22 +236,40 @@ export default function OscIntegrations() {
                         ))}
                       </Select>
                     </td>
-                    <td className={style.fullWidth}>
+                    <td className={style.halfWidth}>
                       <Input
                         key={field.id}
                         size='sm'
                         variant='ontime-filled'
                         autoComplete='off'
-                        placeholder='/from-ontime/{{timer.current}}'
-                        {...register(`subscriptions.${index}.message`, {
+                        placeholder='/from-ontime/'
+                        {...register(`subscriptions.${index}.address`, {
                           required: { value: true, message: 'Required field' },
-                          pattern: {
-                            value: startsWithSlash,
-                            message: 'OSC messages should start with a forward slash',
+                          validate: {
+                            oscStartsWithSlash: (value) =>
+                              startsWithSlash.test(value) || 'OSC address should start with a forward slash',
+                            oscStringIsAscii: (value) =>
+                              isASCII.test(value) || 'OSC address only allow ASCII characters',
                           },
                         })}
                       />
-                      {maybeError && <Panel.Error>{maybeError}</Panel.Error>}
+                      {maybeAddressError && <Panel.Error>{maybeAddressError}</Panel.Error>}
+                    </td>
+                    <td className={style.halfWidth}>
+                      <Input
+                        key={field.id}
+                        size='sm'
+                        variant='ontime-filled'
+                        autoComplete='off'
+                        placeholder='{{timer.current}}'
+                        {...register(`subscriptions.${index}.payload`, {
+                          validate: {
+                            oscStringIsAscii: (value) =>
+                              isASCII.test(value) || 'OSC payloads only allow ASCII characters',
+                          },
+                        })}
+                      />
+                      {maybePayloadError && <Panel.Error>{maybePayloadError}</Panel.Error>}
                     </td>
                     <td>
                       <IconButton

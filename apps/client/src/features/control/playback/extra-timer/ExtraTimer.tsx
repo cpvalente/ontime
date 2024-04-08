@@ -61,11 +61,11 @@ export function ExtraTimer() {
 
 function ExtraTimeInput() {
   const time = useExtraTimerTime();
-  const { setTime } = setExtraTimer;
+  const { setDuration } = setExtraTimer;
 
   const handleTimeUpdate = (_field: string, value: string) => {
     const newTime = forgivingStringToMillis(value);
-    setTime(newTime);
+    setDuration(newTime / 1000); //frontend api is seconds based;
   };
 
   return (

@@ -116,7 +116,7 @@ export class SocketServer implements IAdapter {
 
           // Protocol specific stuff handled above
           try {
-            const reply = dispatchFromAdapter(type, { payload }, 'ws');
+            const reply = dispatchFromAdapter(type, payload, 'ws');
             if (reply) {
               ws.send(
                 JSON.stringify({
