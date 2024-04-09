@@ -1,6 +1,8 @@
-import { OntimeRundownEntry } from '../definitions/core/Rundown.type.js';
-import { OntimeBlock, OntimeDelay, OntimeEvent, SupportedEvent } from '../definitions/core/OntimeEvent.type.js';
-import { TimerLifeCycle, TimerLifeCycleKey } from '../definitions/core/TimerLifecycle.type.js';
+import type { OntimeBlock, OntimeDelay, OntimeEvent } from '../definitions/core/OntimeEvent.type.js';
+import { SupportedEvent } from '../definitions/core/OntimeEvent.type.js';
+import type { OntimeRundownEntry } from '../definitions/core/Rundown.type.js';
+import type { TimerLifeCycleKey } from '../definitions/core/TimerLifecycle.type.js';
+import { TimerLifeCycle } from '../definitions/core/TimerLifecycle.type.js';
 
 type MaybeEvent = OntimeRundownEntry | Partial<OntimeRundownEntry> | null | undefined;
 

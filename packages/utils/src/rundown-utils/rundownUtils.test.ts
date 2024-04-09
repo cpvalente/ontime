@@ -1,4 +1,5 @@
-import { OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
+import type { OntimeEvent, OntimeRundown } from 'ontime-types';
+import { SupportedEvent } from 'ontime-types';
 
 import { getLastEvent, getNext, getNextEvent, getPrevious, getPreviousEvent, swapEventData } from './rundownUtils';
 
