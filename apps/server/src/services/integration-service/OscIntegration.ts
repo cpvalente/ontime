@@ -5,60 +5,45 @@ import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplateNested } from './integrationUtils.js';
 import { isObject } from '../../utils/varUtils.js';
 import { logger } from '../../classes/Logger.js';
+import { OscServer } from '../../adapters/OscAdapter.js';
 
 /**
  * @description Class contains logic towards outgoing OSC communications
  * @class
  */
-export class OscIntegration implements IIntegration<OscSubscription> {
+export class OscIntegration implements IIntegration<OscSubscription, OSCSettings> {
   protected oscClient: null | Client;
+  protected oscServer: OscServer | null = null;
+
   subscriptions: OscSubscription[];
   targetIP: MaybeString;
   portOut: MaybeNumber;
+  portIn: MaybeNumber;
   enabledOut: boolean;
+  enabledIn: boolean;
 
   constructor() {
     this.oscClient = null;
     this.subscriptions = [];
     this.targetIP = null;
     this.portOut = null;
+    this.portIn = null;
     this.enabledOut = false;
+    this.enabledIn = false;
   }
 
   /**
    * Initializes oscClient
    */
   init(config: OSCSettings) {
-    const { targetIP, portOut, subscriptions, enabledOut } = config;
-    this.initSubscriptions(subscriptions);
+    const { targetIP, portOut, subscriptions, enabledOut, enabledIn, portIn } = config;
 
-    if (!enabledOut && this.enabledOut) {
-      this.targetIP = targetIP;
-      this.portOut = portOut;
-      this.enabledOut = enabledOut;
-      this.shutdown();
-      return;
-    }
-
-    if (this.oscClient && targetIP === this.targetIP && portOut === this.portOut) {
-      // nothing changed that would mean we need a new client
-      return;
-    }
-
-    this.targetIP = targetIP;
-    this.portOut = portOut;
-    this.enabledOut = enabledOut;
-
-    try {
-      this.oscClient = new Client(targetIP, portOut);
-    } catch (error) {
-      this.oscClient = null;
-      throw new Error(`Failed initialising OSC client: ${error}`);
-    }
-    return `OSC integration client connected to ${targetIP}:${portOut}`;
+    this.initTX(enabledOut, targetIP, portOut, subscriptions);
+    this.initRX(enabledIn, portIn);
+    // return `OSC integration client connected to ${targetIP}:${portOut}`;
   }
 
-  initSubscriptions(subscriptions: OscSubscription[]) {
+  private initSubscriptions(subscriptions: OscSubscription[]) {
     this.subscriptions = subscriptions;
   }
 
@@ -100,7 +85,59 @@ export class OscIntegration implements IIntegration<OscSubscription> {
     this.oscClient.send(message);
   }
 
+  private initTX(enabledOut: boolean, targetIP: string, portOut: number, subscriptions: OscSubscription[]) {
+    this.initSubscriptions(subscriptions);
+
+    if (!enabledOut && this.enabledOut) {
+      this.targetIP = targetIP;
+      this.portOut = portOut;
+      this.enabledOut = enabledOut;
+      this.shutdownTX();
+      return;
+    }
+
+    if (this.oscClient && targetIP === this.targetIP && portOut === this.portOut) {
+      // nothing changed that would mean we need a new client
+      return;
+    }
+
+    this.targetIP = targetIP;
+    this.portOut = portOut;
+    this.enabledOut = enabledOut;
+
+    try {
+      this.oscClient = new Client(targetIP, portOut);
+    } catch (error) {
+      this.oscClient = null;
+      throw new Error(`Failed initialising OSC client: ${error}`);
+    }
+  }
+
+  private initRX(enabledIn: boolean, portIn: number) {
+    if (!enabledIn && this.enabledIn) {
+      this.shutdownRX();
+      return;
+    }
+
+    // Start OSC Server
+    logger.info(LogOrigin.Rx, `Starting OSC Server on port: ${portIn}`);
+    this.oscServer = new OscServer(portIn);
+  }
+
   shutdown() {
+    this.shutdownTX();
+    this.shutdownRX();
+  }
+
+  private shutdownTX() {
+    logger.info(LogOrigin.Rx, 'Shutting down OSC integration');
+    if (this.oscServer) {
+      this.oscServer?.shutdown();
+      this.oscServer = null;
+    }
+  }
+
+  private shutdownRX() {
     logger.info(LogOrigin.Tx, 'Shutting down OSC integration');
     if (this.oscClient) {
       this.oscClient?.close();

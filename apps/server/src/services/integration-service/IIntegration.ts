@@ -2,10 +2,10 @@ import { TimerLifeCycle } from 'ontime-types';
 
 export type TimerLifeCycleKey = keyof typeof TimerLifeCycle;
 
-export default interface IIntegration<T> {
+export default interface IIntegration<T, C> {
   subscriptions: T[];
-  init: (config: unknown) => void;
+  init: (config: C) => void;
   dispatch: (action: TimerLifeCycleKey, state?: object) => void;
-  emit: (...args: unknown[]) => unknown;
+  emit: (...args: never[]) => unknown;
   shutdown: () => void;
 }

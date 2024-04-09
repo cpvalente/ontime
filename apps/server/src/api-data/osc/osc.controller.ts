@@ -23,6 +23,7 @@ export async function postOSC(req: Request, res: Response<OSCSettings | ErrorRes
     oscIntegration.init(oscSettings);
     // we persist the data after init to avoid persisting invalid data
     const result = await DataProvider.setOsc(oscSettings);
+
     res.send(result).status(200);
   } catch (error) {
     const message = getErrorMessage(error);

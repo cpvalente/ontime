@@ -36,14 +36,13 @@ async function startBackend() {
   }
 
   const ontimeServer = require(nodePath);
-  const { initAssets, startServer, startOSCServer, startIntegrations } = ontimeServer;
+  const { initAssets, startServer, startIntegrations } = ontimeServer;
 
   await initAssets();
 
   const result = await startServer();
   loaded = result.message;
 
-  await startOSCServer();
   await startIntegrations();
 
   return result.serverPort;

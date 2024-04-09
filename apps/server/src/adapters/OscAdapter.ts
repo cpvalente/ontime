@@ -1,4 +1,4 @@
-import { LogOrigin, OSCSettings } from 'ontime-types';
+import { LogOrigin } from 'ontime-types';
 
 import { Server } from 'node-osc';
 
@@ -10,8 +10,8 @@ import { dispatchFromAdapter } from '../api-integration/integration.controller.j
 export class OscServer implements IAdapter {
   private readonly osc: Server;
 
-  constructor(config: OSCSettings) {
-    this.osc = new Server(config.portIn, '0.0.0.0');
+  constructor(portIn: number) {
+    this.osc = new Server(portIn, '0.0.0.0');
 
     this.osc.on('error', (error) => logger.error(LogOrigin.Rx, `OSC IN: ${error}`));
 
@@ -53,7 +53,6 @@ export class OscServer implements IAdapter {
   }
 
   shutdown() {
-    console.log('Shutting down OSC Server');
     this.osc?.close();
   }
 }
