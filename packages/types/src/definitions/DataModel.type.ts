@@ -1,8 +1,8 @@
-import {
+import type {
   CustomFields,
   HttpSettings,
-  OSCSettings,
   OntimeRundown,
+  OSCSettings,
   ProjectData,
   Settings,
   URLPreset,

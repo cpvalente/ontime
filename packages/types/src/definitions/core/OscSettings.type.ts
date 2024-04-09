@@ -1,4 +1,4 @@
-import { TimerLifeCycleKey } from './TimerLifecycle.type.js';
+import type { TimerLifeCycleKey } from './TimerLifecycle.type.js';
 
 export type OscSubscription = {
   id: string;
