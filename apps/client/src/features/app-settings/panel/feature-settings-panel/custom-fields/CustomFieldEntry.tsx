@@ -4,11 +4,11 @@ import { IoPencil } from '@react-icons/all-files/io5/IoPencil';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { CustomField, CustomFieldLabel } from 'ontime-types';
 
-import Swatch from '../../../../common/components/input/colour-input/Swatch';
+import Swatch from '../../../../../common/components/input/colour-input/Swatch';
 
 import CustomFieldForm from './CustomFieldForm';
 
-import style from './ProjectSettingsPanel.module.scss';
+import style from '../FeatureSettings.module.scss';
 
 interface CustomFieldEntryProps {
   field: string;

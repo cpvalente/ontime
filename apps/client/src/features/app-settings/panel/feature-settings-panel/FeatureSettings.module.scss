@@ -4,7 +4,12 @@
 
 .actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.5px;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 1em;
 }
 
 .fieldForm {
@@ -19,4 +24,16 @@
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
+}
+
+.fit {
+  width: fit-content;
+}
+
+.aliasConstrain {
+  min-width: 12em;
+}
+
+.flex {
+  display: flex;
 }

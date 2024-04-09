@@ -3,12 +3,11 @@ import { ErrorBoundary } from '@sentry/react';
 import { useKeyDown } from '../../common/hooks/useKeyDown';
 
 import AboutPanel from './panel/about-panel/AboutPanel';
+import FeatureSettingsPanel from './panel/feature-settings-panel/FeatureSettingsPanel';
 import GeneralPanel from './panel/general-panel/GeneralPanel';
 import IntegrationsPanel from './panel/integrations-panel/IntegrationsPanel';
-import InterfacePanel from './panel/interface-panel/InterfacePanel';
 import LogPanel from './panel/log-panel/LogPanel';
 import ProjectPanel from './panel/project-panel/ProjectPanel';
-import ProjectSettingsPanel from './panel/project-settings-panel/ProjectSettingsPanel';
 import ShutdownPanel from './panel/shutdown-panel/ShutdownPanel';
 import SourcesPanel from './panel/sources-panel/SourcesPanel';
 import PanelContent from './panel-content/PanelContent';
@@ -28,9 +27,8 @@ export default function AppSettings() {
         <PanelContent onClose={close}>
           {panel === 'project' && <ProjectPanel location={location} />}
           {panel === 'general' && <GeneralPanel location={location} />}
-          {panel === 'project_settings' && <ProjectSettingsPanel />}
+          {panel === 'feature_settings' && <FeatureSettingsPanel location={location} />}
           {panel === 'sources' && <SourcesPanel />}
-          {panel === 'interface' && <InterfacePanel />}
           {panel === 'integrations' && <IntegrationsPanel location={location} />}
           {panel === 'about' && <AboutPanel />}
           {panel === 'log' && <LogPanel />}
