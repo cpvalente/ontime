@@ -33,7 +33,7 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
   const isLast = selectedEventIndex === numEvents - 1;
   const noEvents = numEvents === 0;
 
-  const disableGo = isRolling || noEvents || (isLast && !isArmed);
+  const disableGo = isRolling || noEvents || isLast;
   const disablePrev = isRolling || noEvents || isFirst;
 
   const playbackCan = validatePlayback(playback);
