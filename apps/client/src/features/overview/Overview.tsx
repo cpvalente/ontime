@@ -1,5 +1,5 @@
 import { memo, useMemo } from 'react';
-import { Alert, AlertIcon, AlertTitle } from '@chakra-ui/react';
+import { Alert, AlertIcon, Tooltip } from '@chakra-ui/react';
 import { millisToString } from 'ontime-utils';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
@@ -28,9 +28,9 @@ function _EditorOverview({ children }: { children: React.ReactNode }) {
     <div className={style.overview}>
       <ErrorBoundary>
         <div className={style.nav}>{children}</div>
+        <ConnectedIndicator />
         <div className={style.info}>
           <TitlesOverview />
-          <ConnectedIndicator />
           <div>
             <TimeRow label='Planned start' value={formatedTime(plannedStart)} className={style.start} />
             <TimeRow label='Actual start' value={formatedTime(actualStart)} className={style.start} />
@@ -132,9 +132,12 @@ function RuntimeOverview() {
 function ConnectedIndicator() {
   const { connected } = useAppMode();
   return (
-    <Alert hidden={!connected} status='error' variant='ontime-on-dark-warn' width=''>
-      <AlertIcon />
-      <AlertTitle>Server Disconnected !</AlertTitle>
+    <Alert status='error' variant='ontime-transparent-warn' marginLeft='10' width='10'>
+      <Tooltip label='Server Disconnected!'>
+        <span>
+          <AlertIcon hidden={!connected} className={style.blink} />
+        </span>
+      </Tooltip>
     </Alert>
   );
 }

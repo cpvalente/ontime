@@ -33,7 +33,7 @@ const theme = extendTheme({
     Alert: {
       variants: {
         'ontime-on-dark-info': { ...ontimeAlertOnDark },
-        'ontime-on-dark-warn': { ...ontimeRedAlertOnDark },
+        'ontime-transparent-warn': { ...ontimeRedAlertOnDark },
       },
     },
     Button: {
