@@ -11,7 +11,10 @@ export const settingPanels: Readonly<SettingsOption[]> = [
   {
     id: 'project',
     label: 'Project',
-    secondary: [{ id: 'project__manage', label: 'Manage projects' }],
+    secondary: [
+      { id: 'project__data', label: 'Project data' },
+      { id: 'project__manage', label: 'Manage projects' },
+    ],
   },
   {
     id: 'general',

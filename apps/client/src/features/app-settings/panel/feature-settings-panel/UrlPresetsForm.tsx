@@ -91,7 +91,7 @@ export default function UrlPresetsForm() {
     <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} data-testid='url-preset-form'>
       <Panel.Card>
         <Panel.SubHeader>
-          URL Presets
+          URL presets
           <div className={style.actionButtons}>
             <Button variant='ontime-ghosted' size='md' onClick={onReset} isDisabled={!canSubmit}>
               Revert to saved
