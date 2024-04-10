@@ -6,6 +6,7 @@ import { CustomFields, Message, OntimeEvent, ProjectData, Settings, SupportedEve
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
+import { ConnectedIndicator } from '../../../common/components/connected-indicator/ConnectedIndicator';
 import ProgressBar from '../../../common/components/progress-bar/ProgressBar';
 import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
@@ -99,6 +100,8 @@ export default function Backstage(props: BackstageProps) {
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
+      <ConnectedIndicator style={{ position: 'absolute', left: '1em', top: '0.5em' }} />
+
       <ViewParamsEditor paramFields={backstageOptions} />
       <div className='project-header'>
         {general.title}

@@ -1,11 +1,10 @@
 import { memo, useMemo } from 'react';
-import { Alert, AlertIcon, Tooltip } from '@chakra-ui/react';
 import { millisToString } from 'ontime-utils';
 
+import { ConnectedIndicator } from '../../common/components/connected-indicator/ConnectedIndicator';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import { useRuntimeOverview, useRuntimePlaybackOverview, useTimer } from '../../common/hooks/useSocket';
 import useProjectData from '../../common/hooks-query/useProjectData';
-import { useAppMode } from '../../common/stores/appModeStore';
 import { enDash } from '../../common/utils/styleUtils';
 
 import { TimeColumn, TimeRow } from './composite/TimeLayout';
@@ -127,18 +126,5 @@ function RuntimeOverview() {
       <TimeColumn label='Offset' value={offsetText} className={offsetClasses} />
       <TimeColumn label='Time now' value={formatedTime(clock)} />
     </>
-  );
-}
-
-function ConnectedIndicator() {
-  const { connected } = useAppMode();
-  return (
-    <Alert status='error' variant='ontime-transparent-warn' marginLeft='10' width='10'>
-      <Tooltip label='Server Disconnected!'>
-        <span>
-          <AlertIcon hidden={!connected} className={style.blink} />
-        </span>
-      </Tooltip>
-    </Alert>
   );
 }
