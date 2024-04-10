@@ -1,6 +1,6 @@
 import { extendTheme } from '@chakra-ui/react';
 
-import { ontimeAlertOnDark } from './OntimeAlert';
+import { ontimeAlertOnDark, ontimeRedAlertOnDark } from './OntimeAlert';
 import {
   ontimeButtonFilled,
   ontimeButtonGhosted,
@@ -33,6 +33,7 @@ const theme = extendTheme({
     Alert: {
       variants: {
         'ontime-on-dark-info': { ...ontimeAlertOnDark },
+        'ontime-on-dark-warn': { ...ontimeRedAlertOnDark },
       },
     },
     Button: {

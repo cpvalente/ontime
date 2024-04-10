@@ -1,9 +1,11 @@
 import { memo, useMemo } from 'react';
+import { Alert, AlertIcon, AlertTitle } from '@chakra-ui/react';
 import { millisToString } from 'ontime-utils';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import { useRuntimeOverview, useRuntimePlaybackOverview, useTimer } from '../../common/hooks/useSocket';
 import useProjectData from '../../common/hooks-query/useProjectData';
+import { useAppMode } from '../../common/stores/appModeStore';
 import { enDash } from '../../common/utils/styleUtils';
 
 import { TimeColumn, TimeRow } from './composite/TimeLayout';
@@ -28,6 +30,7 @@ function _EditorOverview({ children }: { children: React.ReactNode }) {
         <div className={style.nav}>{children}</div>
         <div className={style.info}>
           <TitlesOverview />
+          <ConnectedIndicator />
           <div>
             <TimeRow label='Planned start' value={formatedTime(plannedStart)} className={style.start} />
             <TimeRow label='Actual start' value={formatedTime(actualStart)} className={style.start} />
@@ -95,7 +98,7 @@ function TitlesOverview() {
 }
 
 function TimerOverview() {
-  const {current} = useTimer();
+  const { current } = useTimer();
 
   const display = millisToString(current);
 
@@ -123,5 +126,15 @@ function RuntimeOverview() {
       <TimeColumn label='Offset' value={offsetText} className={offsetClasses} />
       <TimeColumn label='Time now' value={formatedTime(clock)} />
     </>
+  );
+}
+
+function ConnectedIndicator() {
+  const { connected } = useAppMode();
+  return (
+    <Alert hidden={!connected} status='error' variant='ontime-on-dark-warn' width=''>
+      <AlertIcon />
+      <AlertTitle>Server Disconnected !</AlertTitle>
+    </Alert>
   );
 }
