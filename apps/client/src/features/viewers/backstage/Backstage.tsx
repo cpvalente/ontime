@@ -16,6 +16,7 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
+import { timerPlaceholderMin } from '../../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
@@ -90,7 +91,7 @@ export default function Backstage(props: BackstageProps) {
   const secondaryTextNext = getPropertyValue(eventNext, secondarySource);
   const secondaryTextNow = getPropertyValue(eventNow, secondarySource);
 
-  let stageTimer = millisToString(time.current, { fallback: '- - : - -' });
+  let stageTimer = millisToString(time.current, { fallback: timerPlaceholderMin });
   stageTimer = removeLeadingZero(stageTimer);
 
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
