@@ -67,6 +67,7 @@ function _CuesheetOverview({ children }: { children: React.ReactNode }) {
     <div className={style.overview}>
       <ErrorBoundary>
         <div className={style.nav}>{children}</div>
+        <ConnectedIndicator />
         <div className={style.info}>
           <TitlesOverview />
           <TimerOverview />
