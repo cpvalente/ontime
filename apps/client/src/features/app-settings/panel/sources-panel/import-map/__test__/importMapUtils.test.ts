@@ -26,9 +26,10 @@ describe('convertToImportMap', () => {
         { ontimeName: 'EmptyImportName', importName: '' },
         { ontimeName: '', importName: 'EmptyOntimeName' },
       ] as ImportCustom[],
+      linkEvents: false,
     };
 
-    const importMap = convertToImportMap(defaultNamedImporMap);
+    const { importMap } = convertToImportMap(defaultNamedImporMap);
     expect(importMap.custom).toStrictEqual({
       Custom1: 'custom1',
       Custom2: 'custom2',
