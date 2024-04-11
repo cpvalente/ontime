@@ -4,11 +4,11 @@ import { Button, Input } from '@chakra-ui/react';
 import { CustomField } from 'ontime-types';
 import { isAlphanumeric } from 'ontime-utils';
 
-import { maybeAxiosError } from '../../../../common/api/utils';
-import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
-import * as Panel from '../PanelUtils';
+import { maybeAxiosError } from '../../../../../common/api/utils';
+import SwatchSelect from '../../../../../common/components/input/colour-input/SwatchSelect';
+import * as Panel from '../../PanelUtils';
 
-import style from './ProjectSettingsPanel.module.scss';
+import style from '../FeatureSettings.module.scss';
 
 interface CustomFieldsFormProps {
   onSubmit: (field: CustomField) => Promise<void>;

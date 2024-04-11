@@ -5,13 +5,13 @@ test('URL preset feature, it should redirect to given URL', async ({ page }) => 
 
   // open settings
   await page.getByRole('button', { name: 'Toggle settings' }).click();
-  await page.getByRole('button', { name: 'App Settings' }).click();
+  await page.getByRole('button', { name: 'Feature Settings' }).click();
 
   // create preset
   await page.getByTestId('url-preset-form').scrollIntoViewIfNeeded();
 
-  await page.getByRole('button', { name: 'New' }).scrollIntoViewIfNeeded();
-  await page.getByRole('button', { name: 'New' }).click();
+  await page.getByTestId('url-preset-form').getByRole('button', { name: 'New' }).scrollIntoViewIfNeeded();
+  await page.getByTestId('url-preset-form').getByRole('button', { name: 'New' }).click();
 
   await page.getByTestId('field__alias_0').click();
   await page.getByTestId('field__alias_0').fill('testing');

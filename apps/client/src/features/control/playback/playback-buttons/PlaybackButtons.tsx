@@ -34,6 +34,7 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
   const noEvents = numEvents === 0;
 
   const disableGo = isRolling || noEvents || (isLast && !isArmed);
+  const disableNext = isRolling || noEvents || isLast;
   const disablePrev = isRolling || noEvents || isFirst;
 
   const playbackCan = validatePlayback(playback);
@@ -73,7 +74,7 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
           </TapButton>
         </Tooltip>
         <Tooltip label='Next event' openDelay={tooltipDelayMid}>
-          <TapButton onClick={setPlayback.next} disabled={disableGo}>
+          <TapButton onClick={setPlayback.next} disabled={disableNext}>
             <IoPlaySkipForward />
           </TapButton>
         </Tooltip>

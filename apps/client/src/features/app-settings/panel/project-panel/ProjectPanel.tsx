@@ -6,7 +6,7 @@ import ManageProjects from './ManageProjects';
 import ProjectData from './ProjectData';
 
 export default function ProjectPanel({ location }: PanelBaseProps) {
-  const projectRef = useScrollIntoView<HTMLDivElement>('project', location);
+  const projectRef = useScrollIntoView<HTMLDivElement>('data', location);
   const manageRef = useScrollIntoView<HTMLDivElement>('manage', location);
 
   return (

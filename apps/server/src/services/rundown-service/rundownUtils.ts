@@ -113,7 +113,7 @@ export function findNext(currentEventId?: string): OntimeEvent | null {
   }
 
   const currentIndex = timedEvents.findIndex((event) => event.id === currentEventId);
-  const newIndex = (currentIndex + 1) % timedEvents.length;
+  const newIndex = currentIndex + 1;
   const nextEvent = timedEvents.at(newIndex);
   return nextEvent ?? null;
 }

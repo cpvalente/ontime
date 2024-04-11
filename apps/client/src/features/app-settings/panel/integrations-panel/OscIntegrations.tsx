@@ -1,4 +1,4 @@
-import { useFieldArray, useForm } from 'react-hook-form';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { Button, IconButton, Input, Select, Switch } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
@@ -81,7 +81,7 @@ export default function OscIntegrations() {
   return (
     <Panel.Card>
       <Panel.SubHeader>
-        Open Sound Control
+        OSC settings
         <div className={style.flex}>
           <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
             Revert to saved
@@ -103,12 +103,18 @@ export default function OscIntegrations() {
 
       <Panel.Section as='form' id='osc-form' onSubmit={handleSubmit(onSubmit)} onKeyDown={preventEscape}>
         <Panel.Loader isLoading={isLoading} />
-        <Panel.Title>OSC Settings</Panel.Title>
+        <Panel.Title>General OSC settings</Panel.Title>
         {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
         <Panel.ListGroup>
           <Panel.ListItem>
             <Panel.Field title='OSC input' description='Allow control of Ontime through OSC' />
-            <Switch variant='ontime' size='lg' {...register('enabledIn')} />
+            <Controller
+              control={control}
+              name='enabledIn'
+              render={({ field: { onChange, value, ref } }) => (
+                <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
+              )}
+            />
           </Panel.ListItem>
           <Panel.ListItem>
             <Panel.Field
@@ -141,7 +147,13 @@ export default function OscIntegrations() {
         <Panel.ListGroup>
           <Panel.ListItem>
             <Panel.Field title='OSC output' description='Provide feedback from Ontime with OSC' />
-            <Switch variant='ontime' size='lg' {...register('enabledOut')} />
+            <Controller
+              control={control}
+              name='enabledOut'
+              render={({ field: { onChange, value, ref } }) => (
+                <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
+              )}
+            />
           </Panel.ListItem>
           <Panel.ListItem>
             <Panel.Field
@@ -196,7 +208,7 @@ export default function OscIntegrations() {
         <Panel.Divider />
 
         <Panel.Title>
-          OSC Integrations
+          OSC integrations
           <Button variant='ontime-subtle' size='sm' rightIcon={<IoAdd />} onClick={handleAddNewSubscription}>
             Add
           </Button>
