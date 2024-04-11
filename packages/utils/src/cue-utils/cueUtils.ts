@@ -1,4 +1,5 @@
-import { isOntimeEvent, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import type { OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import { isOntimeEvent } from 'ontime-types';
 
 import { getFirstEvent, getNextEvent, getPreviousEvent } from '../rundown-utils/rundownUtils.js';
 import { isNumeric } from '../types/types.js';
@@ -24,8 +25,8 @@ export function getIncrement(input: string): string {
       if (decimalPart === '.99') {
         decimalPart = '.100';
       } else {
-        const addDecimal = '0'.repeat(decimalPart.length - 2) + '1';
-        const incrementedDecimal = (Number(decimalPart) + Number('0.' + addDecimal)).toFixed(decimalPart.length - 1);
+        const addDecimal = `${'0'.repeat(decimalPart.length - 2)}1`;
+        const incrementedDecimal = (Number(decimalPart) + Number(`0.${addDecimal}`)).toFixed(decimalPart.length - 1);
         decimalPart = incrementedDecimal.toString().replace('0.', '.');
       }
       return `${prefix}${integerPart}${decimalPart}`;
@@ -35,7 +36,7 @@ export function getIncrement(input: string): string {
     return `${prefix}${integerPart}`;
   }
   // If no number is found, append "2" to the string and return the updated string
-  return input + '2';
+  return `${input}2`;
 }
 
 /**
@@ -84,7 +85,7 @@ export function getCueCandidate(rundown: OntimeRundown, insertAfterId?: string):
     if (previousEvent === null) {
       cue = '0.1';
     } else {
-      cue = previousEvent.cue + '.1';
+      cue = `${previousEvent.cue}.1`;
     }
   }
 

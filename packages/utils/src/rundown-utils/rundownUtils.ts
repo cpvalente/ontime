@@ -1,4 +1,5 @@
-import { isOntimeEvent, NormalisedRundown, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import type { NormalisedRundown, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import { isOntimeEvent } from 'ontime-types';
 
 /**
  * Gets first event in rundown, if it exists

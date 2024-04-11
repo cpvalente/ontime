@@ -1,33 +1,13 @@
 .quickAdd {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
   align-items: center;
-  margin: 0.25rem 0;
-  font-size: $inner-section-text-size;
-  padding: 0 0.75rem;
   gap: 1rem;
+
+  margin: 0.25rem 0;
+  font-size: calc(1rem - 3px);
+  padding-inline: calc(2em + 0.5rem) 0.75rem;
 }
 
-.btnRow {
-  justify-self: center;
-  display: flex;
-  gap: max(0.5rem, 2rem);
-
-  .quickBtn {
-    font-weight: 400;
-  }
-}
-
-.keyboard {
-  margin-left: 0.5rem;
-  padding: 0 0.25rem;
-  color: $label-gray;
-  border-radius: 2px;
-  background-color: $black-10
-}
-
-.options {
-  display: flex;
-  flex-direction: column;
-  white-space: nowrap;
+.quickBtn {
+  font-weight: 400;
 }

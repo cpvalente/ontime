@@ -9,7 +9,7 @@ $skip-opacity: 0.2;
   display: grid;
   grid-template-areas:
     'binder ...        ...     ...'
-    'binder pb-actions times   actions'
+    'binder pb-actions times   ...'
     'binder pb-actions title   title'
     'binder pb-actions estatus estatus'
     'binder ...        ...     ...';
@@ -55,7 +55,6 @@ $skip-opacity: 0.2;
     outline: 1px solid $block-cursor-color;
   }
 
-  /* we stop the eventActions from having opacity to fix issue with dropdown drawing order */
   &.past:not(.skip) {
     .timerNote,
     .statusElements,
@@ -151,12 +150,6 @@ $skip-opacity: 0.2;
     line-height: 1.25em;
     flex: 1;
   }
-}
-
-.eventActions {
-  grid-area: actions;
-  height: 100%;
-  text-align: end;
 }
 
 .progressBg {

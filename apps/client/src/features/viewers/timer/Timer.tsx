@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -11,21 +10,19 @@ import {
   TimerType,
   ViewSettings,
 } from 'ontime-types';
-import { MILLIS_PER_SECOND, millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getTimerOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
-import { timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
-import { getPropertyValue, getTimerByType, isStringBoolean } from '../common/viewUtils';
+import { getFormattedTimer, getPropertyValue, getTimerByType, isStringBoolean } from '../common/viewUtils';
 
 import './Timer.scss';
 
@@ -64,9 +61,7 @@ export default function Timer(props: TimerProps) {
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
-    document.title = 'ontime - Timer';
-  }, []);
+  useWindowTitle('Timer');
 
   // defer rendering until we load stylesheets
   if (!shouldRender) {
@@ -129,22 +124,11 @@ export default function Timer(props: TimerProps) {
   if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
 
   const stageTimer = getTimerByType(viewSettings.freezeEnd, time);
-  let display = millisToString(stageTimer, { fallback: timerPlaceholder });
-  if (stageTimer !== null) {
-    if (hideTimerSeconds) {
-      display = removeSeconds(display);
-    }
-    display = removeLeadingZero(display);
-    // last unit rounds up in negative timers
-    const isNegative =
-      (stageTimer ?? 0 < -MILLIS_PER_SECOND) && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
-    if (isNegative && display === '0') {
-      display = '-1';
-    }
-    if (display.length < 3) {
-      display = `${display} ${getLocalizedString('common.minutes')}`;
-    }
-  }
+  const display = getFormattedTimer(stageTimer, time.timerType, getLocalizedString('common.minutes'), {
+    removeSeconds: userOptions.hideTimerSeconds,
+    removeLeadingZero: true,
+  });
+
   const stageTimerCharacters = display.replace('/:/g', '').length;
 
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
@@ -162,7 +146,6 @@ export default function Timer(props: TimerProps) {
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
-      <NavigationMenu />
       <ViewParamsEditor paramFields={timerOptions} />
       <div className={showBlackout ? 'blackout blackout--active' : 'blackout'} />
       {!userOptions.hideMessage && (

@@ -1,15 +1,7 @@
 import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import {
-  isOntimeBlock,
-  isOntimeDelay,
-  isOntimeEvent,
-  MaybeNumber,
-  Playback,
-  RundownCached,
-  SupportedEvent,
-} from 'ontime-types';
+import { isOntimeEvent, MaybeNumber, Playback, RundownCached, SupportedEvent } from 'ontime-types';
 import { getFirstNormal, getNextNormal, getPreviousNormal } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
@@ -39,7 +31,6 @@ export default function Rundown({ data }: RundownProps) {
   const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
   const linkPrevious = eventSettings.linkPrevious;
-  const showQuickEntry = eventSettings.showQuickEntry;
 
   // cursor
   const { cursor, mode: appMode, setCursor } = useAppMode();
@@ -219,8 +210,10 @@ export default function Rundown({ data }: RundownProps) {
   // all events before the current selected are in the past
   let isPast = Boolean(featureData?.selectedEventId);
 
+  const isEditMode = appMode === AppMode.Edit;
+
   return (
-    <div className={style.eventContainer} ref={scrollRef} data-testid='rundown'>
+    <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext onDragEnd={handleOnDragEnd} sensors={sensors} collisionDetection={closestCenter}>
         <SortableContext items={statefulEntries} strategy={verticalListSortingStrategy}>
           <div className={style.list}>
@@ -248,6 +241,7 @@ export default function Rundown({ data }: RundownProps) {
                   thisId = eventId;
                 }
               }
+              const isFirst = index === 0;
               const isLast = index === order.length - 1;
               const isLoaded = featureData?.selectedEventId === event.id;
               const isNext = featureData?.nextEventId === event.id;
@@ -258,6 +252,7 @@ export default function Rundown({ data }: RundownProps) {
 
               return (
                 <Fragment key={event.id}>
+                  {isEditMode && (hasCursor || isFirst) && <QuickAddBlock previousEventId={previousEventId} />}
                   <div className={style.entryWrapper} data-testid={`entry-${eventIndex}`}>
                     {isOntimeEvent(event) && <div className={style.entryIndex}>{eventIndex}</div>}
                     <div className={style.entry} key={event.id} ref={hasCursor ? cursorRef : undefined}>
@@ -277,14 +272,7 @@ export default function Rundown({ data }: RundownProps) {
                       />
                     </div>
                   </div>
-                  {((showQuickEntry && hasCursor) || isLast) && (
-                    <QuickAddBlock
-                      showKbd={hasCursor}
-                      previousEventId={event.id}
-                      disableAddDelay={isOntimeDelay(event)}
-                      disableAddBlock={isOntimeBlock(event)}
-                    />
-                  )}
+                  {isEditMode && (hasCursor || isLast) && <QuickAddBlock previousEventId={event.id} />}
                 </Fragment>
               );
             })}

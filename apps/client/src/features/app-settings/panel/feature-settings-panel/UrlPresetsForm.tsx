@@ -15,7 +15,7 @@ import { handleLinks } from '../../../../common/utils/linkUtils';
 import { validateUrlPresetPath } from '../../../../common/utils/urlPresets';
 import * as Panel from '../PanelUtils';
 
-import style from './GeneralPanel.module.scss';
+import style from './FeatureSettings.module.scss';
 
 const urlPresetsDocs = 'https://docs.getontime.no/features/url-presets/';
 
@@ -91,7 +91,7 @@ export default function UrlPresetsForm() {
     <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} data-testid='url-preset-form'>
       <Panel.Card>
         <Panel.SubHeader>
-          URL Presets
+          URL presets
           <div className={style.actionButtons}>
             <Button variant='ontime-ghosted' size='md' onClick={onReset} isDisabled={!canSubmit}>
               Revert to saved

@@ -1,5 +1,5 @@
-import { MaybeNumber } from '../../index.js';
-import { Playback } from './Playback.type.js';
+import type { MaybeNumber } from '../../index.js';
+import type { Playback } from './Playback.type.js';
 
 export type TimerState = {
   addedTime: number; // time added by user, can be negative

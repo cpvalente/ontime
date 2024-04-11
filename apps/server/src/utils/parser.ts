@@ -49,15 +49,15 @@ export function getCustomFieldData(importMap: ImportMap): {
 } {
   const customFields = {};
   const customFieldImportKeys = {};
-  for (const key in importMap.custom) {
-    const ontimeName = key;
-    const importName = importMap.custom[key];
-    customFields[ontimeName] = {
+  for (const ontimeLabel in importMap.custom) {
+    const ontimeKey = ontimeLabel.toLowerCase();
+    const importLabel = importMap.custom[ontimeLabel].toLowerCase();
+    customFields[ontimeKey] = {
       type: 'string',
       colour: '',
-      label: ontimeName,
+      label: ontimeLabel,
     };
-    customFieldImportKeys[importName] = ontimeName;
+    customFieldImportKeys[importLabel] = ontimeKey;
   }
   return { customFields, customFieldImportKeys };
 }
@@ -230,8 +230,8 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
           }
 
           // check if it is a custom field
-          if (column in customFieldImportKeys) {
-            handlers.custom(rowIndex, j, column);
+          if (columnText in customFieldImportKeys) {
+            handlers.custom(rowIndex, j, columnText);
           }
 
           // else. we don't know how to handle this column
@@ -273,15 +273,26 @@ export const parseJson = async (jsonData: Partial<DatabaseModel>): Promise<Datab
     return null;
   }
 
+  let settings;
+
+  // check settings first to make sure we can parse it
+  try {
+    settings = parseSettings(jsonData);
+  } catch (error) {
+    // if we cant parse, return an empty project
+    console.log('ERROR: unable to parse settings, missing app or version');
+    return dbModel;
+  }
+
   const returnData: DatabaseModel = {
     rundown: parseRundown(jsonData),
-    project: parseProject(jsonData) ?? dbModel.project,
-    settings: parseSettings(jsonData) ?? dbModel.settings,
-    viewSettings: parseViewSettings(jsonData) ?? dbModel.viewSettings,
+    project: parseProject(jsonData),
+    settings,
+    viewSettings: parseViewSettings(jsonData),
     urlPresets: parseUrlPresets(jsonData),
     customFields: parseCustomFields(jsonData),
-    osc: parseOsc(jsonData) ?? dbModel.osc,
-    http: parseHttp(jsonData) ?? dbModel.http,
+    osc: parseOsc(jsonData),
+    http: parseHttp(jsonData),
   };
 
   return returnData;

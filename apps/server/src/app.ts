@@ -5,6 +5,7 @@ import express from 'express';
 import expressStaticGzip from 'express-static-gzip';
 import http, { type Server } from 'http';
 import cors from 'cors';
+import serverTiming from 'server-timing';
 
 // import utils
 import { resolve } from 'path';
@@ -24,7 +25,6 @@ import { appRouter } from './api-data/index.js';
 import { integrationRouter } from './api-integration/integration.router.js';
 
 // Import adapters
-import { OscServer } from './adapters/OscAdapter.js';
 import { socket } from './adapters/WebsocketAdapter.js';
 import { DataProvider } from './classes/data-provider/DataProvider.js';
 import { dbLoadingProcess } from './setup/loadDb.js';
@@ -54,6 +54,10 @@ if (!isProduction) {
 
 // Create express APP
 const app = express();
+if (process.env.NODE_ENV === 'development') {
+  // log more serever timings
+  app.use(serverTiming());
+}
 app.disable('x-powered-by');
 
 // setup cors for all routes
@@ -83,11 +87,15 @@ app.use(
   expressStaticGzip(reactAppPath, {
     enableBrotli: true,
     orderPreference: ['br'],
+    // when we build the client all the react subfiles will get a hashed name we can the immutable tag
+    // as the contents of a build file will never change without also changing its name
+    // so the client dose not need to revalidate the file contetnts with the server
+    serveStatic: { etag: false, lastModified: false, immutable: true, maxAge: '1y' },
   }),
 );
 
 app.get('*', (_req, res) => {
-  res.sendFile(resolve(resolvedPath(), 'index.html'));
+  res.sendFile(resolve(reactAppPath, 'index.html'));
 });
 
 // Implement catch all
@@ -120,7 +128,6 @@ enum OntimeStartOrder {
 
 let step = OntimeStartOrder.InitAssets;
 let expressServer: Server | null = null;
-let oscServer: OscServer | null = null;
 
 const checkStart = (currentState: OntimeStartOrder) => {
   if (step !== currentState) {
@@ -197,32 +204,6 @@ export const startServer = async () => {
 };
 
 /**
- * @description starts OSC server
- * @param overrideConfig
- * @return {Promise<void>}
- */
-export const startOSCServer = async (overrideConfig?: { port: number }) => {
-  checkStart(OntimeStartOrder.InitIO);
-
-  const { osc } = DataProvider.getData();
-
-  if (!osc.enabledIn) {
-    logger.info(LogOrigin.Rx, 'OSC Input Disabled');
-    return;
-  }
-
-  // Setup default port
-  const oscSettings = {
-    ...osc,
-    portIn: overrideConfig?.port || osc.portIn,
-  };
-
-  // Start OSC Server
-  logger.info(LogOrigin.Rx, `Starting OSC Server on port: ${oscSettings.portIn}`);
-  oscServer = new OscServer(oscSettings);
-};
-
-/**
  * starts integrations
  */
 export const startIntegrations = async (config?: { osc: OSCSettings; http: HttpSettings }) => {
@@ -270,7 +251,6 @@ export const shutdown = async (exitCode = 0) => {
 
   // TODO: Clear token
   expressServer?.close();
-  oscServer?.shutdown();
   runtimeService.shutdown();
   integrationService.shutdown();
   logger.shutdown();

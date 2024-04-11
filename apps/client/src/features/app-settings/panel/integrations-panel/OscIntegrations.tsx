@@ -1,4 +1,4 @@
-import { useFieldArray, useForm } from 'react-hook-form';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { Button, IconButton, Input, Select, Switch } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
@@ -8,7 +8,7 @@ import { generateId } from 'ontime-utils';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useOscSettings, { useOscSettingsMutation } from '../../../../common/hooks-query/useOscSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
-import { isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
+import { isASCII, isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
 import * as Panel from '../PanelUtils';
 
 import { cycles } from './integrationUtils';
@@ -65,7 +65,8 @@ export default function OscIntegrations() {
     prepend({
       id: generateId(),
       cycle: 'onLoad',
-      message: '',
+      address: '',
+      payload: '',
       enabled: false,
     });
   };
@@ -80,7 +81,7 @@ export default function OscIntegrations() {
   return (
     <Panel.Card>
       <Panel.SubHeader>
-        Open Sound Control
+        OSC settings
         <div className={style.flex}>
           <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
             Revert to saved
@@ -102,12 +103,18 @@ export default function OscIntegrations() {
 
       <Panel.Section as='form' id='osc-form' onSubmit={handleSubmit(onSubmit)} onKeyDown={preventEscape}>
         <Panel.Loader isLoading={isLoading} />
-        <Panel.Title>OSC Settings</Panel.Title>
+        <Panel.Title>General OSC settings</Panel.Title>
         {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
         <Panel.ListGroup>
           <Panel.ListItem>
             <Panel.Field title='OSC input' description='Allow control of Ontime through OSC' />
-            <Switch variant='ontime' size='lg' {...register('enabledIn')} />
+            <Controller
+              control={control}
+              name='enabledIn'
+              render={({ field: { onChange, value, ref } }) => (
+                <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
+              )}
+            />
           </Panel.ListItem>
           <Panel.ListItem>
             <Panel.Field
@@ -140,7 +147,13 @@ export default function OscIntegrations() {
         <Panel.ListGroup>
           <Panel.ListItem>
             <Panel.Field title='OSC output' description='Provide feedback from Ontime with OSC' />
-            <Switch variant='ontime' size='lg' {...register('enabledOut')} />
+            <Controller
+              control={control}
+              name='enabledOut'
+              render={({ field: { onChange, value, ref } }) => (
+                <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
+              )}
+            />
           </Panel.ListItem>
           <Panel.ListItem>
             <Panel.Field
@@ -195,7 +208,7 @@ export default function OscIntegrations() {
         <Panel.Divider />
 
         <Panel.Title>
-          OSC Integrations
+          OSC integrations
           <Button variant='ontime-subtle' size='sm' rightIcon={<IoAdd />} onClick={handleAddNewSubscription}>
             Add
           </Button>
@@ -207,14 +220,15 @@ export default function OscIntegrations() {
               <tr>
                 <th>Enabled</th>
                 <th>Cycle</th>
-                <th className={style.fullWidth}>Message</th>
+                <th className={style.halfWidth}>Address</th>
+                <th className={style.halfWidth}>Payload</th>
                 <th />
               </tr>
             </thead>
             <tbody>
               {fields.map((field, index) => {
-                // @ts-expect-error -- not sure why it is not finding the type, it is ok
-                const maybeError = errors.subscriptions?.[index]?.message?.message;
+                const maybeAddressError = errors.subscriptions?.[index]?.address?.message;
+                const maybePayloadError = errors.subscriptions?.[index]?.payload?.message;
                 return (
                   <tr key={field.id}>
                     <td>
@@ -234,22 +248,40 @@ export default function OscIntegrations() {
                         ))}
                       </Select>
                     </td>
-                    <td className={style.fullWidth}>
+                    <td className={style.halfWidth}>
                       <Input
                         key={field.id}
                         size='sm'
                         variant='ontime-filled'
                         autoComplete='off'
-                        placeholder='/from-ontime/{{timer.current}}'
-                        {...register(`subscriptions.${index}.message`, {
+                        placeholder='/from-ontime/'
+                        {...register(`subscriptions.${index}.address`, {
                           required: { value: true, message: 'Required field' },
-                          pattern: {
-                            value: startsWithSlash,
-                            message: 'OSC messages should start with a forward slash',
+                          validate: {
+                            oscStartsWithSlash: (value) =>
+                              startsWithSlash.test(value) || 'OSC address should start with a forward slash',
+                            oscStringIsAscii: (value) =>
+                              isASCII.test(value) || 'OSC address only allow ASCII characters',
                           },
                         })}
                       />
-                      {maybeError && <Panel.Error>{maybeError}</Panel.Error>}
+                      {maybeAddressError && <Panel.Error>{maybeAddressError}</Panel.Error>}
+                    </td>
+                    <td className={style.halfWidth}>
+                      <Input
+                        key={field.id}
+                        size='sm'
+                        variant='ontime-filled'
+                        autoComplete='off'
+                        placeholder='{{timer.current}}'
+                        {...register(`subscriptions.${index}.payload`, {
+                          validate: {
+                            oscStringIsAscii: (value) =>
+                              isASCII.test(value) || 'OSC payloads only allow ASCII characters',
+                          },
+                        })}
+                      />
+                      {maybePayloadError && <Panel.Error>{maybePayloadError}</Panel.Error>}
                     </td>
                     <td>
                       <IconButton

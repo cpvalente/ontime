@@ -1,8 +1,8 @@
-import { MessageState } from './MessageControl.type.js';
-import { TimerState } from './TimerState.type.js';
-import { Runtime } from './Runtime.type.js';
-import { OntimeEvent } from '../core/OntimeEvent.type.js';
-import { SimpleTimerState } from './ExtraTimer.type.js';
+import type { OntimeEvent } from '../core/OntimeEvent.type.js';
+import type { SimpleTimerState } from './ExtraTimer.type.js';
+import type { MessageState } from './MessageControl.type.js';
+import type { Runtime } from './Runtime.type.js';
+import type { TimerState } from './TimerState.type.js';
 
 export type RuntimeStore = {
   // timer data

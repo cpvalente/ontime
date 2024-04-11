@@ -1,32 +1,26 @@
 import { memo, useCallback, useRef } from 'react';
-import { Button, Checkbox, Tooltip } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
-import { useEditorSettings } from '../../../common/stores/editorSettings';
 import { useEmitLog } from '../../../common/stores/logger';
-import { deviceAlt } from '../../../common/utils/deviceUtils';
-import { tooltipDelayMid } from '../../../ontimeConfig';
 
 import style from './QuickAddBlock.module.scss';
 
 interface QuickAddBlockProps {
-  showKbd: boolean;
-  previousEventId: string;
-  disableAddDelay?: boolean;
-  disableAddBlock: boolean;
+  previousEventId?: string;
 }
 
-const QuickAddBlock = (props: QuickAddBlockProps) => {
-  const { showKbd, previousEventId, disableAddDelay = true, disableAddBlock } = props;
+export default memo(QuickAddBlock);
+
+function QuickAddBlock(props: QuickAddBlockProps) {
+  const { previousEventId } = props;
   const { addEvent } = useEventAction();
   const { emitError } = useEmitLog();
 
   const doLinkPrevious = useRef<HTMLInputElement | null>(null);
   const doPublic = useRef<HTMLInputElement | null>(null);
-
-  const { defaultPublic, linkPrevious } = useEditorSettings((state) => state.eventSettings);
 
   const handleCreateEvent = useCallback(
     (eventType: SupportedEvent) => {
@@ -72,56 +66,33 @@ const QuickAddBlock = (props: QuickAddBlockProps) => {
 
   return (
     <div className={style.quickAdd}>
-      <div className={style.btnRow}>
-        <Tooltip label='Add Event' openDelay={tooltipDelayMid}>
-          <Button
-            onClick={() => handleCreateEvent(SupportedEvent.Event)}
-            size='xs'
-            variant='ontime-subtle-white'
-            className={style.quickBtn}
-            data-testid='quick-add-event'
-            leftIcon={<IoAdd />}
-          >
-            Event {showKbd && <span className={style.keyboard}>{`${deviceAlt} + E`}</span>}
-          </Button>
-        </Tooltip>
-        <Tooltip label='Add Delay' openDelay={tooltipDelayMid}>
-          <Button
-            onClick={() => handleCreateEvent(SupportedEvent.Delay)}
-            size='xs'
-            variant='ontime-subtle-white'
-            disabled={disableAddDelay}
-            className={style.quickBtn}
-            data-testid='quick-add-delay'
-            leftIcon={<IoAdd />}
-          >
-            Delay {showKbd && <span className={style.keyboard}>{`${deviceAlt} + D`}</span>}
-          </Button>
-        </Tooltip>
-        <Tooltip label='Add Block' openDelay={tooltipDelayMid}>
-          <Button
-            onClick={() => handleCreateEvent(SupportedEvent.Block)}
-            size='xs'
-            variant='ontime-subtle-white'
-            disabled={disableAddBlock}
-            className={style.quickBtn}
-            data-testid='quick-add-block'
-            leftIcon={<IoAdd />}
-          >
-            Block {showKbd && <span className={style.keyboard}>{`${deviceAlt} + B`}</span>}
-          </Button>
-        </Tooltip>
-      </div>
-      <div className={style.options}>
-        <Checkbox ref={doLinkPrevious} size='sm' variant='ontime-ondark' defaultChecked={linkPrevious}>
-          Link to previous
-        </Checkbox>
-        <Checkbox ref={doPublic} size='sm' variant='ontime-ondark' defaultChecked={defaultPublic}>
-          Event is public
-        </Checkbox>
-      </div>
+      <Button
+        onClick={() => handleCreateEvent(SupportedEvent.Event)}
+        size='xs'
+        variant='ontime-subtle-white'
+        className={style.quickBtn}
+        leftIcon={<IoAdd />}
+      >
+        Event
+      </Button>
+      <Button
+        onClick={() => handleCreateEvent(SupportedEvent.Delay)}
+        size='xs'
+        variant='ontime-subtle-white'
+        className={style.quickBtn}
+        leftIcon={<IoAdd />}
+      >
+        Delay
+      </Button>
+      <Button
+        onClick={() => handleCreateEvent(SupportedEvent.Block)}
+        size='xs'
+        variant='ontime-subtle-white'
+        className={style.quickBtn}
+        leftIcon={<IoAdd />}
+      >
+        Block
+      </Button>
     </div>
   );
-};
-
-export default memo(QuickAddBlock);
+}

@@ -6,6 +6,7 @@ import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { extractPin } from '../../services/project-service/ProjectService.js';
 import { isDocker } from '../../setup/index.js';
+import { getErrorMessage } from 'ontime-utils';
 import { obfuscate } from 'ontime-utils';
 
 export async function getSettings(_req: Request, res: Response<Settings>) {
@@ -31,6 +32,7 @@ export async function postSettings(req: Request, res: Response<Settings | ErrorR
     const editorKey = extractPin(req.body?.editorKey, settings.editorKey);
     const operatorKey = extractPin(req.body?.operatorKey, settings.operatorKey);
     const serverPort = Number(req.body?.serverPort);
+    //TODO: should this not be part of the validator?
     if (isNaN(serverPort)) {
       return res.status(400).send({ message: `Invalid value found for server port: ${req.body?.serverPort}` });
     }
@@ -59,6 +61,7 @@ export async function postSettings(req: Request, res: Response<Settings | ErrorR
     await DataProvider.setSettings(newData);
     res.status(200).send(newData);
   } catch (error) {
-    res.status(400).send({ message: String(error) });
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
   }
 }

@@ -1,19 +1,27 @@
 export const ontimeMenuOnDark = {
   list: {
+    fontSize: 'calc(1rem - 2px)',
     borderRadius: '3px',
-    border: 'none',
-    bg: '#fff', // $gray-50
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    color: '#ececec', // $gray-1030
+    backgroundColor: '#202020', // $gray-1250
     zIndex: 100,
   },
   item: {
-    letterSpacing: '0.15px',
-    color: '#101010', // $gray-1350
-    bg: '#fff', //
+    backgroundColor: 'transparent',
+    paddingBlock: '0.5rem',
     _hover: {
-      backgroundColor: '#e2e2e2', // $gray-200
+      backgroundColor: 'rgba(0, 0, 0, 0.2)',
+      _disabled: {
+        backgroundColor: 'transparent',
+      },
+    },
+    _disabled: {
+      color: '#b1b1b1', // $gray-400
     },
   },
   divider: {
-    borderColor: '#cfcfcf', // $gray-200
+    borderColor: 'rgba(255, 255, 255, 0.07)',
+    opacity: 1,
   },
 };

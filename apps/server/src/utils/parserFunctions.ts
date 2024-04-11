@@ -1,156 +1,142 @@
-import { generateId } from 'ontime-utils';
 import {
-  OntimeRundown,
+  CustomFields,
+  DatabaseModel,
   HttpSettings,
+  HttpSubscription,
   OSCSettings,
+  OntimeBlock,
+  OntimeDelay,
+  OntimeEvent,
+  OntimeRundown,
+  OscSubscription,
   ProjectData,
   Settings,
-  ViewSettings,
-  OscSubscription,
-  DatabaseModel,
-  isOntimeEvent,
-  isOntimeDelay,
-  isOntimeBlock,
-  CustomFields,
-  isOntimeCycle,
-  HttpSubscription,
   URLPreset,
+  ViewSettings,
+  isOntimeBlock,
+  isOntimeCycle,
+  isOntimeDelay,
+  isOntimeEvent,
 } from 'ontime-types';
+import { generateId } from 'ontime-utils';
 
-import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { dbModel } from '../models/dataModel.js';
+import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { createEvent } from './parser.js';
 
 /**
- * Parse events array of an entry
- * @param {object} data - data object
- * @returns {object} - event object data
+ * Parse rundown array of an entry
  */
 export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
-  let newRundown: OntimeRundown = [];
-  if ('rundown' in data) {
-    console.log('Found rundown definition, importing...');
-    const rundown = [];
-    try {
-      let eventIndex = 0;
-      const ids = [];
-      for (const event of data.rundown) {
-        // double check unique ids
-        if (ids.includes(event?.id)) {
-          console.log('ERROR: ID collision on import, skipping');
-          continue;
-        }
-
-        if (isOntimeEvent(event)) {
-          eventIndex += 1;
-          const parsedEvent = createEvent(event, eventIndex.toString());
-          if (event != null) {
-            rundown.push(parsedEvent);
-            ids.push(parsedEvent.id);
-          }
-        } else if (isOntimeDelay(event)) {
-          rundown.push({
-            ...delayDef,
-            duration: event.duration,
-            id: event.id || generateId(),
-          });
-        } else if (isOntimeBlock(event)) {
-          rundown.push({ ...blockDef, title: event.title, id: event.id || generateId() });
-        } else {
-          console.log('ERROR: unkown event type, skipping');
-        }
-      }
-    } catch (error) {
-      console.log(`Error ${error}`);
-    }
-    // write to db
-    newRundown = rundown;
-    console.log(`Uploaded file with ${newRundown.length} entries`);
+  if (!data.rundown) {
+    return [];
   }
-  return newRundown;
+
+  console.log('Found rundown, importing...');
+
+  const rundown: OntimeRundown = [];
+  let eventIndex = 0;
+  const ids: string[] = [];
+
+  for (const event of data.rundown) {
+    if (ids.includes(event.id)) {
+      console.log('ERROR: ID collision on import, skipping');
+      continue;
+    }
+
+    const id = event.id || generateId();
+    let newEvent: OntimeEvent | OntimeDelay | OntimeBlock | null;
+
+    if (isOntimeEvent(event)) {
+      newEvent = createEvent(event, eventIndex.toString());
+      // skip if event is invalid
+      if (newEvent == null) {
+        continue;
+      }
+      eventIndex += 1;
+    } else if (isOntimeDelay(event)) {
+      newEvent = { ...delayDef, duration: event.duration, id };
+    } else if (isOntimeBlock(event)) {
+      newEvent = { ...blockDef, title: event.title, id };
+    } else {
+      console.log('ERROR: unknown event type, skipping');
+      continue;
+    }
+
+    if (newEvent) {
+      rundown.push(newEvent);
+      ids.push(id);
+    }
+  }
+
+  console.log(`Uploaded rundown with ${rundown.length} entries`);
+  return rundown;
 };
+
 /**
  * Parse event portion of an entry
- * @param {object} data - data object
- * @returns {object} - event object data
  */
 export const parseProject = (data: Partial<DatabaseModel>): ProjectData => {
-  let newProjectData: Partial<ProjectData> = {};
-  // we are adding this here to aid transition, should be removed once enough time has past that users have fully migrated
-  if ('project' in data) {
-    console.log('Found project data, importing...');
-    const project = data.project;
-
-    // filter known properties and write to db
-    newProjectData = {
-      ...dbModel.project,
-      title: project.title || dbModel.project.title,
-      description: project.description || dbModel.project.description,
-      publicUrl: project.publicUrl || dbModel.project.publicUrl,
-      publicInfo: project.publicInfo || dbModel.project.publicInfo,
-      backstageUrl: project.backstageUrl || dbModel.project.backstageUrl,
-      backstageInfo: project.backstageInfo || dbModel.project.backstageInfo,
-    };
+  if (!data.project) {
+    return { ...dbModel.project };
   }
-  return newProjectData as ProjectData;
+
+  console.log('Found project data, importing...');
+
+  return {
+    title: data.project.title ?? dbModel.project.title,
+    description: data.project.description ?? dbModel.project.description,
+    publicUrl: data.project.publicUrl ?? dbModel.project.publicUrl,
+    publicInfo: data.project.publicInfo ?? dbModel.project.publicInfo,
+    backstageUrl: data.project.backstageUrl ?? dbModel.project.backstageUrl,
+    backstageInfo: data.project.backstageInfo ?? dbModel.project.backstageInfo,
+  };
 };
 
 /**
  * Parse settings portion of an entry
- * @param {object} data - data object
- * @returns {object} - event object data
  */
-export const parseSettings = (data): Settings => {
-  let newSettings: Partial<Settings> = {};
-  if ('settings' in data) {
-    console.log('Found settings definition, importing...');
-    const s = data.settings;
-
-    // skip if file definition is missing
-    if (s?.app !== 'ontime' || s?.version == null) {
-      console.log('ERROR: unknown app version, skipping');
-    } else {
-      const settings = {
-        version: dbModel.settings.version,
-        serverPort: s.serverPort ?? dbModel.settings.serverPort,
-        editorKey: s.editorKey ?? null,
-        operatorKey: s.operatorKey ?? null,
-        timeFormat: s.timeFormat ?? '24',
-        language: s.language ?? 'en',
-      };
-
-      // write to db
-      newSettings = {
-        ...dbModel.settings,
-        ...settings,
-      };
-    }
+export const parseSettings = (data: Partial<DatabaseModel>): Settings => {
+  if (!data.settings) {
+    return { ...dbModel.settings };
   }
-  return newSettings as Settings;
+
+  // skip if file definition is missing
+  if (data.settings?.app !== 'ontime' || data.settings?.version == null) {
+    throw new Error('ERROR: unable to parse settings, missing app or version');
+  }
+
+  console.log('Found settings, importing...');
+
+  return {
+    app: dbModel.settings.app,
+    version: dbModel.settings.version,
+    serverPort: data.settings.serverPort ?? dbModel.settings.serverPort,
+    editorKey: data.settings.editorKey ?? null,
+    operatorKey: data.settings.operatorKey ?? null,
+    timeFormat: data.settings.timeFormat ?? '24',
+    language: data.settings.language ?? 'en',
+  };
 };
 
 /**
- * Parse settings portion of an entry
- * @param {object} data - data object
- * @returns {object} - event object data
+ * Parse view settings portion of an entry
  */
 export const parseViewSettings = (data: Partial<DatabaseModel>): ViewSettings => {
-  let newViews: Partial<ViewSettings> = {};
-  if ('viewSettings' in data) {
-    console.log('Found view definition, importing...');
-    const v = data.viewSettings;
-
-    const viewSettings = {
-      overrideStyles: v.overrideStyles ?? dbModel.viewSettings.overrideStyles,
-      normalColor: v.normalColor ?? dbModel.viewSettings.normalColor,
-      warningColor: v.warningColor ?? dbModel.viewSettings.warningColor,
-      dangerColor: v.dangerColor ?? dbModel.viewSettings.dangerColor,
-      endMessage: v.endMessage ?? dbModel.viewSettings.endMessage,
-    };
-
-    newViews = { ...viewSettings };
+  if (!data.viewSettings) {
+    return { ...dbModel.viewSettings };
   }
-  return newViews as ViewSettings;
+
+  console.log('Found view settings, importing...');
+
+  return {
+    dangerColor: data.viewSettings.dangerColor ?? dbModel.viewSettings.dangerColor,
+    endMessage: data.viewSettings.endMessage ?? dbModel.viewSettings.endMessage,
+    freezeEnd: data.viewSettings.freezeEnd ?? dbModel.viewSettings.freezeEnd,
+    normalColor: data.viewSettings.normalColor ?? dbModel.viewSettings.normalColor,
+    overrideStyles: data.viewSettings.overrideStyles ?? dbModel.viewSettings.overrideStyles,
+    warningColor: data.viewSettings.warningColor ?? dbModel.viewSettings.warningColor,
+  };
 };
 
 /**
@@ -162,28 +148,32 @@ export function sanitiseOscSubscriptions(subscriptions?: OscSubscription[]): Osc
   }
 
   return subscriptions.filter(
-    ({ id, cycle, message, enabled }) =>
-      typeof id === 'string' && isOntimeCycle(cycle) && typeof message === 'string' && typeof enabled === 'boolean',
+    ({ id, cycle, address, payload, enabled }) =>
+      typeof id === 'string' &&
+      isOntimeCycle(cycle) &&
+      typeof address === 'string' &&
+      typeof payload === 'string' &&
+      typeof enabled === 'boolean',
   );
 }
 
 /**
  * Parse osc portion of an entry
  */
-export const parseOsc = (data: { osc?: Partial<OSCSettings> }): OSCSettings => {
-  if ('osc' in data) {
-    console.log('Found OSC definition, importing...');
-
-    const loadedConfig = data.osc || {};
-    return {
-      portIn: loadedConfig.portIn ?? dbModel.osc.portIn,
-      portOut: loadedConfig.portOut ?? dbModel.osc.portOut,
-      targetIP: loadedConfig.targetIP ?? dbModel.osc.targetIP,
-      enabledIn: loadedConfig.enabledIn ?? dbModel.osc.enabledIn,
-      enabledOut: loadedConfig.enabledOut ?? dbModel.osc.enabledOut,
-      subscriptions: sanitiseOscSubscriptions(loadedConfig.subscriptions),
-    };
+export const parseOsc = (data: Partial<DatabaseModel>): OSCSettings => {
+  if (!data.osc) {
+    return { ...dbModel.osc };
   }
+  console.log('Found OSC settings, importing...');
+
+  return {
+    portIn: data.osc.portIn ?? dbModel.osc.portIn,
+    portOut: data.osc.portOut ?? dbModel.osc.portOut,
+    targetIP: data.osc.targetIP ?? dbModel.osc.targetIP,
+    enabledIn: data.osc.enabledIn ?? dbModel.osc.enabledIn,
+    enabledOut: data.osc.enabledOut ?? dbModel.osc.enabledOut,
+    subscriptions: sanitiseOscSubscriptions(data.osc.subscriptions),
+  };
 };
 
 /**
@@ -206,66 +196,70 @@ export function sanitiseHttpSubscriptions(subscriptions?: HttpSubscription[]): H
 
 /**
  * Parse Http portion of an entry
- * @param {object} data - data object
- * @param {boolean} enforce - whether to create a definition if one is missing
- * @returns {object} - event object data
  */
-export const parseHttp = (data: { http?: Partial<HttpSettings> }): HttpSettings => {
-  if ('http' in data) {
-    console.log('Found HTTP definition, importing...');
-
-    // TODO: this can be improved by only merging known keys
-    const loadedConfig = data?.http || {};
-
-    return {
-      enabledOut: loadedConfig.enabledOut ?? dbModel.http.enabledOut,
-      subscriptions: sanitiseHttpSubscriptions(loadedConfig.subscriptions),
-    };
+export const parseHttp = (data: Partial<DatabaseModel>): HttpSettings => {
+  if (!data.http) {
+    return { ...dbModel.http };
   }
+
+  console.log('Found HTTP settings, importing...');
+
+  return {
+    enabledOut: data.http.enabledOut ?? dbModel.http.enabledOut,
+    subscriptions: sanitiseHttpSubscriptions(data.http.subscriptions),
+  };
 };
 
 /**
  * Parse URL preset portion of an entry
- * @param {object} data - data object
- * @returns {object} - event object data
  */
 export const parseUrlPresets = (data: Partial<DatabaseModel>): URLPreset[] => {
-  const newPresets: URLPreset[] = [];
-  if ('urlPresets' in data) {
-    console.log('Found URL presets definition, importing...');
-    try {
-      for (const preset of data.urlPresets) {
-        const newPreset = {
-          enabled: preset.enabled ?? false,
-          alias: preset.alias ?? '',
-          pathAndParams: preset.pathAndParams ?? '',
-        };
-        newPresets.push(newPreset);
-      }
-      console.log(`Uploaded ${newPresets.length} preset(s)`);
-    } catch (error) {
-      console.log(`Error: ${error}`);
-    }
+  if (!data.urlPresets) {
+    return [];
   }
+
+  console.log('Found URL presets, importing...');
+
+  const newPresets: URLPreset[] = [];
+
+  for (const preset of data.urlPresets) {
+    const newPreset = {
+      enabled: preset.enabled ?? false,
+      alias: preset.alias ?? '',
+      pathAndParams: preset.pathAndParams ?? '',
+    };
+    newPresets.push(newPreset);
+  }
+
+  console.log(`Uploaded ${newPresets.length} preset(s)`);
+
   return newPresets;
 };
 
 /**
  * Parse customFields entry
- * @param {object} data - data object
- * @returns {object} - event object data
  */
 export const parseCustomFields = (data: Partial<DatabaseModel>): CustomFields => {
-  let newCustomFields: CustomFields = { ...dbModel.customFields };
-
-  if ('customFields' in data) {
-    console.log('Found Custom Fields definition, importing...');
-    try {
-      //TODO: validate
-      newCustomFields = { ...dbModel.customFields, ...data.customFields };
-    } catch (error) {
-      console.log(`Error: ${error}`);
-    }
+  if (typeof data.customFields !== 'object') {
+    return { ...dbModel.customFields };
   }
-  return { ...newCustomFields };
+
+  console.log('Found Custom Fields, importing...');
+
+  const newCustomFields: CustomFields = {};
+
+  for (const fieldLabel in data.customFields) {
+    const field = data.customFields[fieldLabel];
+    if (!field.label || !field.type || !field.colour) {
+      console.log('ERROR: missing required field, skipping');
+      continue;
+    }
+    newCustomFields[field.label] = {
+      type: field.type,
+      colour: field.colour,
+      label: field.label,
+    };
+  }
+
+  return newCustomFields;
 };

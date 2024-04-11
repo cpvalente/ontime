@@ -1,4 +1,4 @@
-import { EventCustomFields, EndAction, MaybeString, TimerType, TimeStrategy } from '../../index.js';
+import type { EndAction, EventCustomFields, MaybeString, TimerType, TimeStrategy } from '../../index.js';
 
 export enum SupportedEvent {
   Event = 'event',

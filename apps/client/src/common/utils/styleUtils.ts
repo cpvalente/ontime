@@ -33,3 +33,4 @@ export const cx = (classNames: any[]) => classNames.filter(Boolean).join(' ');
 export const enDash = '–';
 
 export const timerPlaceholder = '––:––:––';
+export const timerPlaceholderMin = '––:––';

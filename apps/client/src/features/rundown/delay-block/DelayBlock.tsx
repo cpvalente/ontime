@@ -2,35 +2,24 @@ import { useEffect, useRef } from 'react';
 import { Button } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
+import { IoCheckmarkDone } from '@react-icons/all-files/io5/IoCheckmarkDone';
 import { IoClose } from '@react-icons/all-files/io5/IoClose';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
-import { OntimeDelay, OntimeEvent } from 'ontime-types';
+import { OntimeDelay } from 'ontime-types';
 
 import DelayInput from '../../../common/components/input/delay-input/DelayInput';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { cx } from '../../../common/utils/styleUtils';
-import BlockActionMenu from '../event-block/composite/BlockActionMenu';
-import type { EventItemActions } from '../RundownEntry';
 
 import style from './DelayBlock.module.scss';
 
 interface DelayBlockProps {
   data: OntimeDelay;
   hasCursor: boolean;
-  actionHandler: (
-    action: EventItemActions,
-    payload?:
-      | number
-      | {
-          field: keyof Omit<OntimeEvent, 'duration'> | 'durationOverride';
-          value: unknown;
-        },
-  ) => void;
 }
 
 export default function DelayBlock(props: DelayBlockProps) {
-  const { data, hasCursor, actionHandler } = props;
+  const { data, hasCursor } = props;
   const { applyDelay, deleteEvent } = useEventAction();
   const handleRef = useRef<null | HTMLSpanElement>(null);
 
@@ -73,13 +62,12 @@ export default function DelayBlock(props: DelayBlockProps) {
       </span>
       <DelayInput eventId={data.id} duration={data.duration} />
       <div className={style.actionButtons}>
-        <Button onClick={applyDelayHandler} size='sm' leftIcon={<IoCheckmark />} variant='ontime-subtle-white'>
-          Apply
+        <Button onClick={applyDelayHandler} size='sm' leftIcon={<IoCheckmarkDone />} variant='ontime-ghosted-white'>
+          Make permanent
         </Button>
-        <Button onClick={cancelDelayHandler} size='sm' leftIcon={<IoClose />} variant='ontime-subtle-white'>
+        <Button onClick={cancelDelayHandler} size='sm' leftIcon={<IoClose />} variant='ontime-ghosted-white'>
           Cancel
         </Button>
-        <BlockActionMenu enableDelete actionHandler={actionHandler} />
       </div>
     </div>
   );

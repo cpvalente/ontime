@@ -3,10 +3,10 @@ import { useSearchParams } from 'react-router-dom';
 import { CustomFields, Message, OntimeEvent, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
 import { getLowerThirdOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { getPropertyValue } from '../common/viewUtils';
 
 import './LowerThird.scss';
@@ -142,10 +142,7 @@ export default function LowerThird(props: LowerProps) {
   const [playState, setPlayState] = useState<'pre' | 'in' | 'out'>('pre');
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
 
-  // set window title
-  useEffect(() => {
-    document.title = 'ontime - Lower Third';
-  }, []);
+  useWindowTitle('Lower Third');
 
   const trigger = useMemo(() => {
     if (options.trigger === TriggerType.Event) {
@@ -191,7 +188,6 @@ export default function LowerThird(props: LowerProps) {
 
   return (
     <div className='lower-third' style={{ backgroundColor: `#${options.key}` }}>
-      <NavigationMenu />
       <ViewParamsEditor paramFields={getLowerThirdOptions(customFields)} />
       <div
         className={`container container--${playState}`}

@@ -22,20 +22,32 @@ import { runtimeService } from '../runtime-service/RuntimeService.js';
 import * as cache from './rundownCache.js';
 import { getPlayableEvents } from './rundownUtils.js';
 
-function generateEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>) {
-  // we discard any UI provided events and add our own
+type PatchWithId = (Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) & { id: string };
+
+type CompleteEntry<T> = T extends Partial<OntimeEvent>
+  ? OntimeEvent
+  : T extends Partial<OntimeDelay>
+  ? OntimeDelay
+  : T extends Partial<OntimeBlock>
+  ? OntimeBlock
+  : never;
+
+function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>>(
+  eventData: T,
+): CompleteEntry<T> {
+  // we discard any UI provided IDs and add our own
   const id = cache.getUniqueId();
 
   if (isOntimeEvent(eventData)) {
-    return createEvent(eventData, getCueCandidate(cache.getPersistedRundown(), eventData?.after)) as OntimeEvent;
+    return createEvent(eventData, getCueCandidate(cache.getPersistedRundown(), eventData?.after)) as CompleteEntry<T>;
   }
 
   if (isOntimeDelay(eventData)) {
-    return { ...delayDef, duration: eventData.duration ?? 0, id } as OntimeDelay;
+    return { ...delayDef, duration: eventData.duration ?? 0, id } as CompleteEntry<T>;
   }
 
   if (isOntimeBlock(eventData)) {
-    return { ...blockDef, title: eventData?.title ?? '', id } as OntimeBlock;
+    return { ...blockDef, title: eventData?.title ?? '', id } as CompleteEntry<T>;
   }
 
   throw new Error('Invalid event type');
@@ -46,9 +58,7 @@ function generateEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | 
  * @param {object} eventData
  * @return {OntimeRundownEntry}
  */
-export async function addEvent(
-  eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>,
-): Promise<OntimeRundownEntry> {
+export async function addEvent(eventData: PatchWithId & { after?: string }): Promise<OntimeRundownEntry> {
   // if the user didnt provide an index, we add the event to start
   let atIndex = 0;
   if (eventData?.after !== undefined) {
@@ -62,15 +72,16 @@ export async function addEvent(
 
   // generate a fully formed event from the patch
   const eventToAdd = generateEvent(eventData);
+
   // modify rundown
   const scopedMutation = cache.mutateCache(cache.add);
-  const { newEvent } = await scopedMutation({ atIndex, event: eventToAdd as OntimeRundownEntry });
+  const { newEvent } = await scopedMutation({ atIndex, event: eventToAdd });
 
   // notify runtime that rundown has changed
   updateRuntimeOnChange();
 
   // notify timer and external services of change
-  notifyChanges({ timer: [newEvent.id], external: true });
+  notifyChanges({ timer: [eventData.id], external: true });
 
   return newEvent;
 }
@@ -81,7 +92,11 @@ export async function addEvent(
  */
 export async function deleteEvent(eventId: string) {
   const scopedMutation = cache.mutateCache(cache.remove);
-  await scopedMutation({ eventId });
+  const { didMutate } = await scopedMutation({ eventId });
+
+  if (didMutate === false) {
+    return;
+  }
 
   // notify runtime that rundown has changed
   updateRuntimeOnChange();
@@ -108,14 +123,18 @@ export async function deleteAllEvents() {
  * Apply patch to an element in rundown
  * @param patch
  */
-export async function editEvent(patch: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
+export async function editEvent(patch: PatchWithId) {
   if (isOntimeEvent(patch) && patch?.cue === '') {
     throw new Error('Cue value invalid');
   }
 
   const scopedMutation = cache.mutateCache(cache.edit);
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know patch has an id
-  const { newEvent } = await scopedMutation({ patch, eventId: patch.id! });
+  const { newEvent, didMutate } = await scopedMutation({ patch, eventId: patch.id });
+
+  // short circuit if nothing changed
+  if (didMutate === false) {
+    return newEvent;
+  }
 
   // notify runtime that rundown has changed
   updateRuntimeOnChange();
@@ -234,7 +253,7 @@ function notifyChanges(options: { timer?: boolean | string[]; external?: boolean
  * Overrides the rundown with the given
  * @param rundown
  */
-export async function initRundown(rundown: OntimeRundown, customFields: CustomFields) {
+export async function initRundown(rundown: Readonly<OntimeRundown>, customFields: Readonly<CustomFields>) {
   await cache.init(rundown, customFields);
 
   // notify runtime that rundown has changed

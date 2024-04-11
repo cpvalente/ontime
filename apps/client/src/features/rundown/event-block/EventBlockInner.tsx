@@ -14,10 +14,8 @@ import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontim
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
-import { EventItemActions } from '../RundownEntry';
 import TimeInputFlow from '../time-input-flow/TimeInputFlow';
 
-import BlockActionMenu from './composite/BlockActionMenu';
 import EventBlockPlayback from './composite/EventBlockPlayback';
 import EventBlockProgressBar from './composite/EventBlockProgressBar';
 
@@ -46,7 +44,6 @@ interface EventBlockInnerProps {
   loaded: boolean;
   playback?: Playback;
   isRolling: boolean;
-  actionHandler: (action: EventItemActions, payload?: any) => void;
 }
 
 const EventBlockInner = (props: EventBlockInnerProps) => {
@@ -68,7 +65,6 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     loaded,
     playback,
     isRolling,
-    actionHandler,
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
@@ -138,9 +134,6 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
             </span>
           </Tooltip>
         </div>
-      </div>
-      <div className={style.eventActions}>
-        <BlockActionMenu showClone enableDelete={!loaded} actionHandler={actionHandler} />
       </div>
     </>
   );

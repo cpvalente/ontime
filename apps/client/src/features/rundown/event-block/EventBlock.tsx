@@ -2,16 +2,16 @@ import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoCopyOutline } from '@react-icons/all-files/io5/IoCopyOutline';
+import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
 import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
 import { IoPeopleOutline } from '@react-icons/all-files/io5/IoPeopleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
+import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { EndAction, MaybeNumber, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useAppMode } from '../../../common/stores/appModeStore';
-import copyToClipboard from '../../../common/utils/copyToClipboard';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import type { EventItemActions } from '../RundownEntry';
 import { useEventIdSwapping } from '../useEventIdSwapping';
@@ -96,31 +96,25 @@ export default function EventBlock(props: EventBlockProps) {
     selectedEvents.size > 1
       ? [
           {
-            label: 'Visiblity',
-            group: [
-              {
-                label: 'Make public',
-                icon: IoPeople,
-                onClick: () =>
-                  actionHandler('update', {
-                    field: 'isPublic',
-                    value: true,
-                  }),
-              },
-              {
-                label: 'Make private',
-                icon: IoPeopleOutline,
-                onClick: () =>
-                  actionHandler('update', {
-                    field: 'isPublic',
-                    value: false,
-                  }),
-              },
-            ],
+            label: 'Make public',
+            icon: IoPeople,
+            onClick: () =>
+              actionHandler('update', {
+                field: 'isPublic',
+                value: true,
+              }),
+          },
+          {
+            label: 'Make private',
+            icon: IoPeopleOutline,
+            onClick: () =>
+              actionHandler('update', {
+                field: 'isPublic',
+                value: false,
+              }),
           },
         ]
       : [
-          { label: `Copy ID: ${eventId}`, icon: IoCopyOutline, onClick: () => copyToClipboard(eventId) },
           {
             label: 'Toggle public',
             icon: IoPeopleOutline,
@@ -145,6 +139,8 @@ export default function EventBlock(props: EventBlockProps) {
             },
             isDisabled: selectedEventId == null || selectedEventId === eventId,
           },
+          { withDivider: true, label: 'Clone', icon: IoDuplicateOutline, onClick: () => actionHandler('clone') },
+          { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
         ],
   );
 
@@ -281,7 +277,6 @@ export default function EventBlock(props: EventBlockProps) {
           loaded={loaded}
           playback={playback}
           isRolling={isRolling}
-          actionHandler={actionHandler}
         />
       )}
     </div>

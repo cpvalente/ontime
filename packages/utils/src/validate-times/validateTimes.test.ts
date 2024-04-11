@@ -1,4 +1,5 @@
-import { OntimeEvent, TimeStrategy } from 'ontime-types';
+import type { OntimeEvent } from 'ontime-types';
+import { TimeStrategy } from 'ontime-types';
 
 import { dayInMs } from '../timeConstants';
 import { calculateDuration, getLinkedTimes, validateTimes } from './validateTimes';

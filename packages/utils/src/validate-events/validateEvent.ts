@@ -1,4 +1,5 @@
-import { EndAction, MaybeString, TimerType, TimeStrategy } from 'ontime-types';
+import type { MaybeString } from 'ontime-types';
+import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
 
 /**
  * Check if a given value is a valid type of string, returns null otherwise

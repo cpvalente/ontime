@@ -1,6 +1,6 @@
 import { dayInMs } from '../timeConstants';
 import { MILLIS_PER_HOUR } from './conversionUtils';
-import { millisToString } from './timeFormatting';
+import { millisToString, removeLeadingZero } from './timeFormatting';
 
 describe('millisToString()', () => {
   it('returns fallback if millis is null', () => {
@@ -52,5 +52,12 @@ describe('millisToString()', () => {
     testScenarios.forEach((scenario) => {
       expect(millisToString(scenario.millis)).toBe(scenario.expected);
     });
+  });
+});
+
+describe('removeLeadingZero()', () => {
+  test('removes leading zero from timer', () => {
+    expect(removeLeadingZero('00:00:00')).toBe('0:00');
+    expect(removeLeadingZero('-00:08:47')).toBe('-8:47');
   });
 });

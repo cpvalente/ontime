@@ -3,12 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 import { CustomField, CustomFields, isOntimeEvent, OntimeEvent, SupportedEvent } from 'ontime-types';
 import { getFirstEventNormal, getLastEventNormal } from 'ontime-utils';
 
-import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
 import Empty from '../../common/components/state/Empty';
 import { getOperatorOptions } from '../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useOperator } from '../../common/hooks/useSocket';
+import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import useProjectData from '../../common/hooks-query/useProjectData';
 import useRundown from '../../common/hooks-query/useRundown';
@@ -57,10 +57,7 @@ export default function Operator() {
     topOffset: selectedOffset,
   });
 
-  // Set window title
-  useEffect(() => {
-    document.title = 'ontime - Operator';
-  }, []);
+  useWindowTitle('Operator');
 
   // reset scroll if nothing is selected
   useEffect(() => {
@@ -141,7 +138,6 @@ export default function Operator() {
 
   return (
     <div className={style.operatorContainer}>
-      <NavigationMenu />
       <ViewParamsEditor paramFields={operatorOptions} />
       {editEvent && <EditModal event={editEvent} onClose={() => setEditEvent(null)} />}
 

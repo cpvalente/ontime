@@ -1,6 +1,5 @@
 .header {
-  padding-left: 2rem;
-  padding-right: 1rem;
+  padding-inline: calc(2rem - 6px + 0.5rem) calc(1rem + 2px);
   
   display: flex;
   align-items: center;

@@ -318,7 +318,6 @@ describe('test parser edge cases', () => {
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
     const parseResponse = await parseJson(testData);
-    expect(console.log).toHaveBeenCalledWith('ERROR: unkown event type, skipping');
     expect(parseResponse?.rundown.length).toBe(0);
   });
 
@@ -332,7 +331,7 @@ describe('test parser edge cases', () => {
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
     await parseJson(testData);
-    expect(console.log).toHaveBeenCalledWith('ERROR: unknown app version, skipping');
+    expect(console.log).toHaveBeenCalledWith('ERROR: unable to parse settings, missing app or version');
   });
 });
 
@@ -564,6 +563,7 @@ describe('test views import', () => {
       normalColor: '#ffffffcc',
       warningColor: '#FFAB33',
       dangerColor: '#ED3333',
+      freezeEnd: false,
       endMessage: '',
       overrideStyles: false,
     };
@@ -581,7 +581,7 @@ describe('test views import', () => {
       },
     } as DatabaseModel;
     const parsed = parseViewSettings(testData);
-    expect(parsed).toStrictEqual({});
+    expect(parsed).toStrictEqual(dbModel.viewSettings);
   });
 });
 
@@ -591,7 +591,7 @@ describe('test import of v2 datamodel', () => {
       rundown: [
         { type: SupportedEvent.Block, title: 'block-title', id: 'block-id' },
         { type: SupportedEvent.Delay, duration: 0 },
-        { type: SupportedEvent.Event, title: 'block-title', id: 'block-id' },
+        { type: SupportedEvent.Event, title: 'event-title', id: 'event-id' },
       ],
       project: {
         title: '',
@@ -796,7 +796,7 @@ describe('parseExcel()', () => {
         'Skip',
         'Notes',
         't0',
-        'UpperCaseFromSheet',
+        'Test1',
         'test2',
         'test3',
         'test4',
@@ -859,8 +859,8 @@ describe('parseExcel()', () => {
     const importMap = {
       custom: {
         user0: 't0',
-        user1: 'UpperCaseFromSheet',
-        UpperCaseFromOntime: 'test2',
+        User1: 'Test1',
+        user2: 'test2',
         user3: 'test3',
         user4: 'test4',
         user5: 'test5',
@@ -885,7 +885,7 @@ describe('parseExcel()', () => {
         custom: {
           user0: { value: 'a0' },
           user1: { value: 'a1' },
-          UpperCaseFromOntime: { value: 'a2' },
+          user2: { value: 'a2' },
           user3: { value: 'a3' },
           user4: { value: 'a4' },
           user5: { value: 'a5' },
@@ -927,12 +927,12 @@ describe('parseExcel()', () => {
       user1: {
         type: 'string',
         colour: '',
-        label: 'user1',
+        label: 'User1',
       },
-      UpperCaseFromOntime: {
+      user2: {
         type: 'string',
         colour: '',
-        label: 'UpperCaseFromOntime',
+        label: 'user2',
       },
       user3: {
         type: 'string',

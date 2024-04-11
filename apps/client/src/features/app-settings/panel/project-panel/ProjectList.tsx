@@ -29,22 +29,21 @@ export default function ProjectList() {
   };
 
   const reorderedProjectFiles = useMemo(() => {
-    if (!data?.files?.length) return [];
+    if (!data.files?.length) return [];
 
     const currentlyLoadedIndex = files.findIndex((project) => project.filename === lastLoadedProject);
     const projectFiles = [...files];
     const current = projectFiles.splice(currentlyLoadedIndex, 1)?.[0];
 
     return [current, ...projectFiles];
-  }, [data.files.length, files, lastLoadedProject]);
+  }, [data.files?.length, files, lastLoadedProject]);
 
   return (
     <Panel.Table>
       <thead>
         <tr>
           <th className={style.containCell}>Project Name</th>
-          <th>Date Created</th>
-          <th>Date Modified</th>
+          <th>Last Used</th>
           <th />
         </tr>
       </thead>
@@ -53,7 +52,6 @@ export default function ProjectList() {
           <ProjectListItem
             key={project.filename}
             filename={project.filename}
-            createdAt={project.createdAt}
             updatedAt={project.updatedAt}
             onToggleEditMode={handleToggleEditMode}
             onSubmit={handleClear}

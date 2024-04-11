@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { MaybeNumber } from 'ontime-types';
+import type { MaybeNumber } from 'ontime-types';
 
 import { millisToHours, millisToMinutes, millisToSeconds } from './conversionUtils.js';
 
@@ -26,7 +26,6 @@ export function millisToString(millis?: MaybeNumber, options?: FormatOptions): s
   const seconds = millisToSeconds(absoluteMillis) % 60;
   const minutes = millisToMinutes(absoluteMillis) % 60;
   const hours = millisToHours(absoluteMillis);
-
   const isNegative = millis < 0;
 
   return `${isNegative ? '-' : ''}${[hours, minutes, seconds].map(pad).join(':')}`;
@@ -44,10 +43,10 @@ export function removeLeadingZero(timer: string): string {
     return timer.slice(3);
   }
   if (timer.startsWith('-00:0')) {
-    return timer.slice(5);
+    return `-${timer.slice(5)}`;
   }
   if (timer.startsWith('-00:')) {
-    return timer.slice(4);
+    return `-${timer.slice(4)}`;
   }
   return timer;
 }

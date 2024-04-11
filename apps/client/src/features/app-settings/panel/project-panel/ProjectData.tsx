@@ -56,7 +56,7 @@ export default function ProjectData() {
     <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)}>
       <Panel.Card>
         <Panel.SubHeader>
-          Project Data
+          Project data
           <div className={style.headerButtons}>
             <Button variant='ontime-ghosted' size='sm' onClick={onReset} isDisabled={isSubmitting || !isDirty}>
               Revert to saved

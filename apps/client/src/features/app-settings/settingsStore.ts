@@ -11,23 +11,28 @@ export const settingPanels: Readonly<SettingsOption[]> = [
   {
     id: 'project',
     label: 'Project',
-    secondary: [{ id: 'project__manage', label: 'Manage project files' }],
-  },
-  {
-    id: 'general',
-    label: 'General',
     secondary: [
-      { id: 'general__manage', label: 'Manage Ontime settings' },
-      { id: 'general__view', label: 'View settings' },
-      { id: 'general__urlpresets', label: 'URL presets' },
+      { id: 'project__data', label: 'Project data' },
+      { id: 'project__manage', label: 'Manage projects' },
     ],
   },
   {
-    id: 'project_settings',
-    label: 'Project Settings',
-    secondary: [{ id: 'project_settings__custom', label: 'Custom fields' }],
+    id: 'general',
+    label: 'App Settings',
+    secondary: [
+      { id: 'general__settings', label: 'General settings' },
+      { id: 'general__editor', label: 'Editor settings' },
+      { id: 'general__view', label: 'View settings' },
+    ],
   },
-  { id: 'interface', label: 'Interface', secondary: [{ id: 'general__editor', label: 'Editor settings' }] },
+  {
+    id: 'feature_settings',
+    label: 'Feature Settings',
+    secondary: [
+      { id: 'feature_settings__custom', label: 'Custom fields' },
+      { id: 'feature_settings__urlpresets', label: 'URL Presets' },
+    ],
+  },
   {
     id: 'sources',
     label: 'Data Sources',
@@ -51,9 +56,15 @@ export const settingPanels: Readonly<SettingsOption[]> = [
     label: 'About',
     split: true,
   },
+  {
+    id: 'shutdown',
+    label: 'Shutdown',
+    split: true,
+  },
 ] as const;
 
 export type SettingsOptionId = (typeof settingPanels)[number]['id'];
+
 export interface PanelBaseProps {
   location?: string;
 }

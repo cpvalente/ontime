@@ -1,4 +1,4 @@
-import { OSCSettings } from '../../definitions/core/OscSettings.type.js';
+import type { OSCSettings } from '../../definitions/core/OscSettings.type.js';
 
 export type NetworkInterface = {
   name: string;
@@ -15,7 +15,6 @@ export interface GetInfo {
 
 export type ProjectFile = {
   filename: string;
-  createdAt: string;
   updatedAt: string;
 };
 

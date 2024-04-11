@@ -4,10 +4,11 @@ import { Request, Response } from 'express';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { failIsNotArray } from '../../utils/routerUtils.js';
+import { getErrorMessage } from 'ontime-utils';
 
 export async function getUrlPresets(_req: Request, res: Response<URLPreset[]>) {
   const presets = DataProvider.getUrlPresets();
-  res.status(200).send(presets);
+  res.status(200).send(presets as URLPreset[]);
 }
 
 export async function postUrlPresets(req: Request, res: Response<URLPreset[] | ErrorResponse>) {
@@ -23,6 +24,7 @@ export async function postUrlPresets(req: Request, res: Response<URLPreset[] | E
     await DataProvider.setUrlPresets(newPresets);
     res.status(200).send(newPresets);
   } catch (error) {
-    res.status(400).send({ message: String(error) });
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
   }
 }
