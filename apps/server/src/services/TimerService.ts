@@ -151,11 +151,12 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     const hasChangedPlayback = TimerService.previousState.timer?.playback !== state.timer.playback;
     const hasImmediateChanges = hasNewLoaded || hasSkippedBack || justStarted || hasChangedPlayback;
 
+    if (hasChangedPlayback) {
+      eventStore.set('onAir', state.timer.playback !== Playback.Stop);
+    }
+
     if (hasImmediateChanges || (isTimeToUpdate && !deepEqual(TimerService.previousState?.timer, state.timer))) {
-      eventStore.batchSet({
-        timer: state.timer,
-        onAir: state.timer.playback !== Playback.Stop,
-      });
+      eventStore.set('timer', state.timer);
       TimerService.previousState.timer = { ...state.timer };
     }
 
