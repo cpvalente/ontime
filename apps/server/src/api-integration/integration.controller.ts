@@ -183,7 +183,7 @@ const actionHandlers: Record<string, ActionHandler> = {
     return { payload: 'success' };
   },
   /* Extra timers */
-  extratimer: (payload) => {
+  auxtimer: (payload) => {
     assert.isObject(payload);
     if (!('1' in payload)) {
       throw new Error('Invalid extratimer index');

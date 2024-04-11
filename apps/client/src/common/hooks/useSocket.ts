@@ -105,11 +105,11 @@ export const useExtraTimerControl = () => {
 };
 
 export const setExtraTimer = {
-  start: () => socketSendJson('extratimer', { '1': SimplePlayback.Start }),
-  pause: () => socketSendJson('extratimer', { '1': SimplePlayback.Pause }),
-  stop: () => socketSendJson('extratimer', { '1': SimplePlayback.Stop }),
-  setDirection: (direction: SimpleDirection) => socketSendJson('extratimer', { '1': { direction } }),
-  setDuration: (time: number) => socketSendJson('extratimer', { '1': { duration: time } }),
+  start: () => socketSendJson('auxtimer', { '1': SimplePlayback.Start }),
+  pause: () => socketSendJson('auxtimer', { '1': SimplePlayback.Pause }),
+  stop: () => socketSendJson('auxtimer', { '1': SimplePlayback.Stop }),
+  setDirection: (direction: SimpleDirection) => socketSendJson('auxtimer', { '1': { direction } }),
+  setDuration: (time: number) => socketSendJson('auxtimer', { '1': { duration: time } }),
 };
 
 export const useCuesheet = () => {
