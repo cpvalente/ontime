@@ -87,10 +87,10 @@ export default function SourcesPanel() {
     setImportFlow('none');
   };
 
-  const handleSubmitImportPreview = async (importMap: ImportMap) => {
+  const handleSubmitImportPreview = async (importMap: ImportMap, linkEvents: boolean) => {
     if (importFlow === 'excel') {
       try {
-        const previewData = await importRundownPreviewExcel(importMap);
+        const previewData = await importRundownPreviewExcel(importMap, linkEvents);
         setRundown(previewData.rundown);
         setCustomFields(previewData.customFields);
       } catch (error) {
@@ -100,7 +100,7 @@ export default function SourcesPanel() {
 
     if (importFlow === 'gsheet') {
       if (!sheetId) return;
-      await importRundownPreview(sheetId, importMap);
+      await importRundownPreview(sheetId, importMap, linkEvents);
     }
   };
 

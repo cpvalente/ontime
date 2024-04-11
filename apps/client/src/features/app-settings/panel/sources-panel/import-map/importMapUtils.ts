@@ -19,9 +19,10 @@ export const namedImportMap = {
   'Time warning': 'warning time',
   'Time danger': 'danger time',
   custom: [] as ImportCustom[],
+  linkEvents: false,
 };
 
-export function convertToImportMap(namedImportMap: NamedImportMap): ImportMap {
+export function convertToImportMap(namedImportMap: NamedImportMap): { importMap: ImportMap; linkEvents: boolean } {
   const custom = namedImportMap.custom.reduce((accumulator, { ontimeName, importName }) => {
     if (ontimeName && importName) {
       accumulator[ontimeName.trim()] = importName.trim();
@@ -30,21 +31,24 @@ export function convertToImportMap(namedImportMap: NamedImportMap): ImportMap {
   }, {});
 
   return {
-    worksheet: namedImportMap.Worksheet,
-    timeStart: namedImportMap.Start,
-    timeEnd: namedImportMap.End,
-    duration: namedImportMap.Duration,
-    cue: namedImportMap.Cue,
-    title: namedImportMap.Title,
-    isPublic: namedImportMap['Is Public'],
-    skip: namedImportMap.Skip,
-    note: namedImportMap.Note,
-    colour: namedImportMap.Colour,
-    endAction: namedImportMap['End action'],
-    timerType: namedImportMap['Timer type'],
-    timeWarning: namedImportMap['Time warning'],
-    timeDanger: namedImportMap['Time danger'],
-    custom,
+    importMap: {
+      worksheet: namedImportMap.Worksheet,
+      timeStart: namedImportMap.Start,
+      timeEnd: namedImportMap.End,
+      duration: namedImportMap.Duration,
+      cue: namedImportMap.Cue,
+      title: namedImportMap.Title,
+      isPublic: namedImportMap['Is Public'],
+      skip: namedImportMap.Skip,
+      note: namedImportMap.Note,
+      colour: namedImportMap.Colour,
+      endAction: namedImportMap['End action'],
+      timerType: namedImportMap['Timer type'],
+      timeWarning: namedImportMap['Time warning'],
+      timeDanger: namedImportMap['Time danger'],
+      custom,
+    },
+    linkEvents: namedImportMap.linkEvents,
   };
 }
 

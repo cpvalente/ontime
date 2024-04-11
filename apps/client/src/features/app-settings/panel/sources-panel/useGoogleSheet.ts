@@ -53,9 +53,9 @@ export default function useGoogleSheet() {
   };
 
   /** fetches data from a worksheet by its ID */
-  const importRundownPreview = async (sheetId: string, fileOptions: ImportMap) => {
+  const importRundownPreview = async (sheetId: string, fileOptions: ImportMap, linkEvents: boolean) => {
     try {
-      const data = await previewRundown(sheetId, fileOptions);
+      const data = await previewRundown(sheetId, fileOptions, linkEvents);
       setRundown(data.rundown);
       setCustomFields(data.customFields);
     } catch (error) {

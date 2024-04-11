@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Button, IconButton, Input, Select, Tooltip } from '@chakra-ui/react';
+import { Button, Checkbox, HStack, IconButton, Input, Select, Tooltip } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { ImportMap } from 'ontime-utils';
@@ -18,7 +18,7 @@ interface ImportMapFormProps {
   isSpreadsheet?: boolean;
   onCancel: () => void;
   onSubmitExport: (importMap: ImportMap) => Promise<void>;
-  onSubmitImport: (importMap: ImportMap) => Promise<void>;
+  onSubmitImport: (importMap: ImportMap, linkEvents: boolean) => Promise<void>;
 }
 
 export default function ImportMapForm(props: ImportMapFormProps) {
@@ -48,7 +48,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
 
   const handleExport = async (values: NamedImportMap) => {
     setLoading('export');
-    const importMap = convertToImportMap(values);
+    const { importMap } = convertToImportMap(values);
 
     await onSubmitExport(importMap);
     setLoading('');
@@ -61,9 +61,9 @@ export default function ImportMapForm(props: ImportMapFormProps) {
 
   const handleImportPreview = async (values: NamedImportMap) => {
     setLoading('import');
-    const importMap = convertToImportMap(values);
+    const { importMap, linkEvents } = convertToImportMap(values);
     persistImportMap(values);
-    await onSubmitImport(importMap);
+    await onSubmitImport(importMap, linkEvents);
     setLoading('');
   };
 
@@ -158,16 +158,25 @@ export default function ImportMapForm(props: ImportMapFormProps) {
               <tr key={importName as string}>
                 <td>{label}</td>
                 <td>
-                  <Input
-                    id={importName as string}
-                    size='sm'
-                    variant='ontime-filled'
-                    autoComplete='off'
-                    maxLength={25}
-                    defaultValue={importName as string}
-                    placeholder='Use default column name'
-                    {...register(label as keyof NamedImportMap)}
-                  />
+                  <HStack>
+                    <Input
+                      id={importName as string}
+                      size='sm'
+                      variant='ontime-filled'
+                      autoComplete='off'
+                      maxLength={25}
+                      defaultValue={importName as string}
+                      placeholder='Use default column name'
+                      {...register(label as keyof NamedImportMap)}
+                    />
+                    {label === 'Start' && (
+                      <Tooltip label='if the start time of an event matches the end time of the previous event they will be linked (not acreoss blocks or delays)'>
+                        <Checkbox defaultChecked {...register('linkEvents')}>
+                          Link
+                        </Checkbox>
+                      </Tooltip>
+                    )}
+                  </HStack>
                 </td>
                 <td className={style.singleActionCell} />
               </tr>
