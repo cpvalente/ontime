@@ -90,15 +90,15 @@ export const useInfoPanel = () => {
 };
 
 export const useExtraTimerTime = () => {
-  const featureSelector = (state: RuntimeStore) => state.timer1.current;
+  const featureSelector = (state: RuntimeStore) => state.auxtimer1.current;
 
   return useRuntimeStore(featureSelector);
 };
 
 export const useExtraTimerControl = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    playback: state.timer1.playback,
-    direction: state.timer1.direction,
+    playback: state.auxtimer1.playback,
+    direction: state.auxtimer1.direction,
   });
 
   return useRuntimeStore(featureSelector);

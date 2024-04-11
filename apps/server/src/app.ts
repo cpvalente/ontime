@@ -176,7 +176,7 @@ export const startServer = async () => {
     publicEventNow: state.publicEventNow,
     eventNext: state.eventNext,
     publicEventNext: state.publicEventNext,
-    timer1: {
+    auxtimer1: {
       duration: 0,
       current: 0,
       playback: SimplePlayback.Stop,

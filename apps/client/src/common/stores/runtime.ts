@@ -49,7 +49,7 @@ export const runtimeStorePlaceholder: RuntimeStore = {
   eventNext: null,
   publicEventNow: null,
   publicEventNext: null,
-  timer1: {
+  auxtimer1: {
     current: 0,
     direction: SimpleDirection.CountUp,
     duration: 0,
