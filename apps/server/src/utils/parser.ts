@@ -12,6 +12,7 @@ import {
   CustomFields,
   DatabaseModel,
   EventCustomFields,
+  isOntimeEvent,
   OntimeBlock,
   OntimeEvent,
   OntimeRundown,

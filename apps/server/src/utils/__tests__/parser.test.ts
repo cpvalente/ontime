@@ -1289,6 +1289,7 @@ describe('parseExcel()', () => {
     const result = parseExcel(testdata, importMap);
     expect(result.rundown.length).toBe(2);
     expect(result.rundown.at(0).type).toBe(SupportedEvent.Block);
+    expect(result.rundown.at(1).type).toBe(SupportedEvent.Event);
   });
 
   it('imports as events if there is no timer type column', () => {
@@ -1406,5 +1407,43 @@ describe('parseExcel()', () => {
     expect(events.at(5).timeStart).toEqual(35100000);
     expect(events.at(6).timeStart).toEqual(59400000);
     expect(events.at(7).timeStart).toEqual(78300000);
+  });
+
+  it('links events', () => {
+    const testData = [
+      ['Time Start', 'Time End', 'Title', 'Timer type', 'duration'],
+      ['4:30:00', '4:36:00', 'A', 'count-down'],
+      ['9:45:00', '10:56:00', 'B', 'count-down'],
+      ['10:56:00', '11:56:00', 'C', 'count-down'],
+      ['11:56:00', '12:56:00', 'D', 'count-down'],
+      ['', '', 'BLOCK', 'block'],
+      ['12:56:00', '13:56:00', 'E', 'count-down'],
+      ['13:56:00', '14:56:00', 'F', 'count-down'],
+      ['14:56:00', '', 'G', 'count-down', '01:00:00'],
+      ['15:56:00', '16:56:00', 'H', 'count-down'],
+      [],
+    ];
+
+    const importMap = {
+      worksheet: 'event schedule',
+      timeStart: 'time start',
+      timeEnd: 'time end',
+      duration: 'duration',
+
+      title: 'title',
+      timerType: 'timer type',
+      custom: {},
+    };
+    const result = parseExcel(testData, importMap);
+    const rundown = parseRundown(result, true);
+    const events = rundown.filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
+    expect(events.at(0).linkStart).toEqual(null);
+    expect(events.at(1).linkStart).toEqual(null);
+    expect(events.at(2).linkStart).toEqual(events.at(1).id);
+    expect(events.at(3).linkStart).toEqual(events.at(2).id);
+    expect(events.at(4).linkStart).toEqual(null);
+    expect(events.at(5).linkStart).toEqual(events.at(4).id);
+    expect(events.at(6).linkStart).toEqual(events.at(5).id);
+    expect(events.at(7).linkStart).toEqual(events.at(6).id); //Make sure it also works for duration
   });
 });

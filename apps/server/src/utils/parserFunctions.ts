@@ -27,7 +27,7 @@ import { createEvent } from './parser.js';
 /**
  * Parse rundown array of an entry
  */
-export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
+export const parseRundown = (data: Partial<DatabaseModel>, linkEvets = false): OntimeRundown => {
   if (!data.rundown) {
     return [];
   }
@@ -52,6 +52,10 @@ export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
       // skip if event is invalid
       if (newEvent == null) {
         continue;
+      }
+      const prevEvent = rundown.at(-1);
+      if (linkEvets && isOntimeEvent(prevEvent)) {
+        newEvent.linkStart = newEvent.timeStart === prevEvent.timeEnd ? prevEvent.id : null;
       }
       eventIndex += 1;
     } else if (isOntimeDelay(event)) {
