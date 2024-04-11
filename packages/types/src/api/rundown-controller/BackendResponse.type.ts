@@ -1,4 +1,4 @@
-import { OntimeRundownEntry } from '../../definitions/core/Rundown.type.js';
+import type { OntimeRundownEntry } from '../../definitions/core/Rundown.type.js';
 
 type EventId = string;
 export type NormalisedRundown = Record<EventId, OntimeRundownEntry>;

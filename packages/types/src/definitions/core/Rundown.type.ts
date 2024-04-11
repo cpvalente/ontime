@@ -1,4 +1,4 @@
-import { OntimeBlock, OntimeDelay, OntimeEvent } from './OntimeEvent.type.js';
+import type { OntimeBlock, OntimeDelay, OntimeEvent } from './OntimeEvent.type.js';
 
 export type OntimeRundownEntry = OntimeDelay | OntimeBlock | OntimeEvent;
 export type OntimeRundown = OntimeRundownEntry[];

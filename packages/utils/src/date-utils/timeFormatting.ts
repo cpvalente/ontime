@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { MaybeNumber } from 'ontime-types';
+import type { MaybeNumber } from 'ontime-types';
 
 import { millisToHours, millisToMinutes, millisToSeconds } from './conversionUtils.js';
 
