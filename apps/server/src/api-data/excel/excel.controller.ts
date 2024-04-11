@@ -1,9 +1,10 @@
 /**
  * This module encapsulates logic related to
- * Google Sheets
+ * Excel import
  */
 
 import { Request, Response } from 'express';
+import type { CustomFields, ErrorResponse, OntimeRundown } from 'ontime-types';
 import { generateRundownPreview, listWorksheets, saveExcelFile } from './excel.service.js';
 
 export async function postExcel(req: Request, res: Response) {
@@ -29,10 +30,19 @@ export async function getWorksheets(req: Request, res: Response) {
  * parses an Excel spreadsheet
  * @returns parsed result
  */
-export async function previewExcel(req: Request, res: Response) {
+export async function previewExcel(
+  req: Request,
+  res: Response<
+    | {
+        rundown: OntimeRundown;
+        customFields: CustomFields;
+      }
+    | ErrorResponse
+  >,
+) {
   try {
-    const { options } = req.body;
-    const data = generateRundownPreview(options);
+    const { options, link } = req.body;
+    const data = generateRundownPreview(options, link);
     res.status(200).send(data);
   } catch (error) {
     res.status(500).send({ message: String(error) });

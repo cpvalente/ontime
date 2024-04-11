@@ -32,7 +32,10 @@ export function listWorksheets() {
   return excelData.map((value) => value.name);
 }
 
-export function generateRundownPreview(options: ImportMap): { rundown: OntimeRundown; customFields: CustomFields } {
+export function generateRundownPreview(
+  options: ImportMap,
+  link = false,
+): { rundown: OntimeRundown; customFields: CustomFields } {
   const data = excelData.find(({ name }) => name.toLowerCase() === options.worksheet.toLowerCase())?.data;
 
   if (!data) {
@@ -42,7 +45,7 @@ export function generateRundownPreview(options: ImportMap): { rundown: OntimeRun
   const dataFromExcel = parseExcel(data, options);
 
   // we run the parsed data through an extra step to ensure the objects shape
-  const rundown = parseRundown(dataFromExcel);
+  const rundown = parseRundown(dataFromExcel, link);
   if (rundown.length === 0) {
     throw new Error(`Could not find data to import in the worksheet: ${options.worksheet}`);
   }

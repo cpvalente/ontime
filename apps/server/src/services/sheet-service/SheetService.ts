@@ -347,6 +347,7 @@ export async function upload(sheetId: string, options: ImportMap) {
 export async function download(
   sheetId: string,
   options: ImportMap,
+  link = false,
 ): Promise<{
   rundown: OntimeRundown;
   customFields: CustomFields;
@@ -365,7 +366,7 @@ export async function download(
   }
 
   const dataFromSheet = parseExcel(googleResponse.data.values, options);
-  const rundown = parseRundown(dataFromSheet);
+  const rundown = parseRundown(dataFromSheet, link);
   if (rundown.length < 1) {
     throw new Error('Sheet: Could not find data to import in the worksheet');
   }

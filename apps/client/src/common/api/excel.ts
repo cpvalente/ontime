@@ -34,9 +34,10 @@ export async function getWorksheetNames(): Promise<string[]> {
   return response.data;
 }
 
-export async function importRundownPreview(options: ImportMap): Promise<PreviewSpreadsheetResponse> {
+export async function importRundownPreview(options: ImportMap, link: boolean): Promise<PreviewSpreadsheetResponse> {
   const response: AxiosResponse<PreviewSpreadsheetResponse> = await axios.post(`${excelPath}/preview`, {
     options,
+    link,
   });
   return response.data;
 }

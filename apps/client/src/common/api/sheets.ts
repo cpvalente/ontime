@@ -53,11 +53,12 @@ export const revokeAuthentication = async (): Promise<{ authenticated: Authentic
 export const previewRundown = async (
   sheetId: string,
   options: ImportMap,
+  linkEvents: boolean,
 ): Promise<{
   rundown: OntimeRundown;
   customFields: CustomFields;
 }> => {
-  const response = await axios.post(`${sheetsPath}/${sheetId}/read`, { options });
+  const response = await axios.post(`${sheetsPath}/${sheetId}/read`, { options, linkEvents });
   return response.data;
 };
 
