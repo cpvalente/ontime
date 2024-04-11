@@ -32,8 +32,8 @@ export function ExtraTimer() {
     <div className={style.extraRow}>
       <ExtraTimeInput />
       <TapButton onClick={toggleDirection} aspect='tight'>
-        {direction === SimpleDirection.CountDown && <IoArrowDown />}
-        {direction === SimpleDirection.CountUp && <IoArrowUp />}
+        {direction === SimpleDirection.CountDown && <IoArrowDown data-testid='aux-timer-direction' />}
+        {direction === SimpleDirection.CountUp && <IoArrowUp data-testid='aux-timer-direction' />}
       </TapButton>
 
       <TapButton
@@ -42,7 +42,7 @@ export function ExtraTimer() {
         active={playback === SimplePlayback.Start}
         disabled={!userCan.start}
       >
-        <IoPlay />
+        <IoPlay data-testid='aux-timer-start' />
       </TapButton>
       <TapButton
         onClick={pause}
@@ -50,10 +50,10 @@ export function ExtraTimer() {
         active={playback === SimplePlayback.Pause}
         disabled={!userCan.pause}
       >
-        <IoPause />
+        <IoPause data-testid='aux-timer-pause' />
       </TapButton>
       <TapButton onClick={stop} theme={Playback.Stop} disabled={!userCan.stop}>
-        <IoStop />
+        <IoStop data-testid='aux-timer-stop' />
       </TapButton>
     </div>
   );
@@ -69,6 +69,6 @@ function ExtraTimeInput() {
   };
 
   return (
-    <TimeInput<'extraTimer'> submitHandler={handleTimeUpdate} name='extraTimer' time={time} placeholder='Timer 1' />
+    <TimeInput<'auxTimer'> submitHandler={handleTimeUpdate} name='auxTimer' time={time} placeholder='Aux Timer 1' />
   );
 }
