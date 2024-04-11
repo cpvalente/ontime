@@ -1,6 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
 import { Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
-import { MILLIS_PER_SECOND, millisToString, removeLeadingZero, removeSeconds } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import { MINIMAL_TIMER_OPTIONS } from '../../../common/components/view-params-editor/constants';
@@ -9,9 +8,8 @@ import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
-import { timerPlaceholder, timerPlaceholderMin } from '../../../common/utils/styleUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
-import { getTimerByType, isStringBoolean } from '../common/viewUtils';
+import { getFormattedTimer, getTimerByType, isStringBoolean } from '../common/viewUtils';
 
 import './MinimalTimer.scss';
 
@@ -148,28 +146,11 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
 
   const stageTimer = getTimerByType(viewSettings.freezeEnd, time);
-  const fallback = userOptions.hideTimerSeconds ? timerPlaceholderMin : timerPlaceholder;
-  let display = millisToString(stageTimer, { fallback });
-  if (stageTimer !== null) {
-    if (hideTimerSeconds) {
-      display = removeSeconds(display);
-    }
-    display = removeLeadingZero(display);
+  const display = getFormattedTimer(stageTimer, time.timerType, getLocalizedString('common.minutes'), {
+    removeSeconds: userOptions.hideTimerSeconds,
+    removeLeadingZero: true,
+  });
 
-    if (display.length < 3) {
-      display = `${display} ${getLocalizedString('common.minutes')}`;
-    }
-
-    const isNegative =
-      (stageTimer ?? 0) < -MILLIS_PER_SECOND && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
-    if (isNegative) {
-      // last unit rounds up in negative timers
-      if (display === '0') {
-        display = '1';
-      }
-      display = `-${display}`;
-    }
-  }
   const stageTimerCharacters = display.replace('/:/g', '').length;
 
   const timerFontSize = (89 / (stageTimerCharacters - 1)) * (userOptions.size || 1);
