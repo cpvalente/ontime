@@ -114,9 +114,9 @@ export const connectSocket = (preferredClientName?: string) => {
           updateDevTools({ publicEventNext: payload });
           break;
         }
-        case 'ontime-timer1': {
-          patchRuntime('timer1', payload);
-          updateDevTools({ timer1: payload });
+        case 'ontime-auxtimer1': {
+          patchRuntime('auxtimer1', payload);
+          updateDevTools({ auxtimer1: payload });
           break;
         }
       }

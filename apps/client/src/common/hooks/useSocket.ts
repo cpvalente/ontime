@@ -90,26 +90,26 @@ export const useInfoPanel = () => {
 };
 
 export const useExtraTimerTime = () => {
-  const featureSelector = (state: RuntimeStore) => state.timer1.current;
+  const featureSelector = (state: RuntimeStore) => state.auxtimer1.current;
 
   return useRuntimeStore(featureSelector);
 };
 
 export const useExtraTimerControl = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    playback: state.timer1.playback,
-    direction: state.timer1.direction,
+    playback: state.auxtimer1.playback,
+    direction: state.auxtimer1.direction,
   });
 
   return useRuntimeStore(featureSelector);
 };
 
 export const setExtraTimer = {
-  start: () => socketSendJson('extratimer', { '1': SimplePlayback.Start }),
-  pause: () => socketSendJson('extratimer', { '1': SimplePlayback.Pause }),
-  stop: () => socketSendJson('extratimer', { '1': SimplePlayback.Stop }),
-  setDirection: (direction: SimpleDirection) => socketSendJson('extratimer', { '1': { direction } }),
-  setDuration: (time: number) => socketSendJson('extratimer', { '1': { duration: time } }),
+  start: () => socketSendJson('auxtimer', { '1': SimplePlayback.Start }),
+  pause: () => socketSendJson('auxtimer', { '1': SimplePlayback.Pause }),
+  stop: () => socketSendJson('auxtimer', { '1': SimplePlayback.Stop }),
+  setDirection: (direction: SimpleDirection) => socketSendJson('auxtimer', { '1': { direction } }),
+  setDuration: (time: number) => socketSendJson('auxtimer', { '1': { duration: time } }),
 };
 
 export const useCuesheet = () => {
