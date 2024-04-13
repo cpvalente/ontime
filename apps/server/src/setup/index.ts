@@ -90,9 +90,12 @@ export const environment = {
 
 export const directories = {
   appDataPath,
-  srcDirectory,
-  externalsStartDirectory: resolveExternalDirectory(),
-  projectsDirectory: join(appDataPath, config.projects),
   dbDirectory: resolveDbDirectory(),
+  externalsStartDirectory: resolveExternalDirectory(),
+  externalStylesDirectory: join(resolveExternalDirectory(), 'styles'),
   lastLoadedProject: getLastLoadedProject(),
+  projectsDirectory: join(appDataPath, config.projects),
+  srcDirectory,
+  stylesDirectory: join(appDataPath, config.styles.directory),
+  stylesPath: join(appDataPath, config.styles.filename),
 };

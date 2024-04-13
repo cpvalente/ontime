@@ -1,16 +1,16 @@
 import { copyFileSync, existsSync } from 'fs';
-import { pathToStartStyles, resolveStylesDirectory, resolveStylesPath } from './index.js';
 import { ensureDirectory } from '../utils/fileManagement.js';
+import { directories } from './index.js';
 
 /**
  * @description ensures directories exist and populates stylesheet
  */
 export const populateStyles = () => {
-  ensureDirectory(resolveStylesDirectory);
+  ensureDirectory(directories.stylesDirectory);
   // if styles doesn't exist we want to use startup stylesheet
-  if (!existsSync(resolveStylesPath)) {
+  if (!existsSync(directories.stylesPath)) {
     try {
-      copyFileSync(pathToStartStyles, resolveStylesPath);
+      copyFileSync(directories.externalStylesDirectory, directories.stylesPath);
     } catch (_) {
       /* we do not handle this */
     }

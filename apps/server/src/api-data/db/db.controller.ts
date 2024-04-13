@@ -10,13 +10,13 @@ import {
 import type { Request, Response } from 'express';
 
 import { failEmptyObjects } from '../../utils/routerUtils.js';
-import { resolveDbPath, resolveProjectsDirectory } from '../../setup/index.js';
 
 import * as projectService from '../../services/project-service/ProjectService.js';
 import { ensureJsonExtension } from '../../utils/fileManagement.js';
 import { generateUniqueFileName } from '../../utils/generateUniqueFilename.js';
 import { appStateService } from '../../services/app-state-service/AppStateService.js';
 import { getErrorMessage } from 'ontime-utils';
+import { directories } from '../../setup/index.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   // all fields are optional in validation
@@ -49,7 +49,7 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
 export async function createProjectFile(req: Request, res: Response<{ filename: string } | ErrorResponse>) {
   try {
     const originalFilename = ensureJsonExtension(req.body.title || 'Untitled');
-    const filename = generateUniqueFileName(resolveProjectsDirectory, originalFilename);
+    const filename = generateUniqueFileName(directories.projectsDirectory, originalFilename);
     const errors = projectService.validateProjectFiles({ newFilename: filename });
 
     if (errors.length) {
@@ -78,7 +78,7 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
 
 export async function projectDownload(_req: Request, res: Response) {
   const fileTitle = projectService.getProjectTitle();
-  res.download(resolveDbPath, `${fileTitle}.json`, (error) => {
+  res.download(directories.dbDirectory, `${fileTitle}.json`, (error) => {
     if (error) {
       const message = getErrorMessage(error);
       res.status(500).send({ message });
