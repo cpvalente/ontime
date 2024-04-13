@@ -31,7 +31,7 @@ export default function AppSettings() {
           {panel === 'sources' && <SourcesPanel />}
           {panel === 'integrations' && <IntegrationsPanel location={location} />}
           {panel === 'about' && <AboutPanel />}
-          {panel === 'log' && <LogPanel />}
+          {panel === 'network' && <LogPanel />}
           {panel === 'shutdown' && <ShutdownPanel />}
         </PanelContent>
       </ErrorBoundary>

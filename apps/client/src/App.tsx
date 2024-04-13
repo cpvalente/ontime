@@ -9,7 +9,7 @@ import ErrorBoundary from './common/components/error-boundary/ErrorBoundary';
 import { AppContextProvider } from './common/context/AppContext';
 import useElectronEvent from './common/hooks/useElectronEvent';
 import { ontimeQueryClient } from './common/queryClient';
-import { socketClientName } from './common/stores/connectionName';
+import { getPreferredClientName } from './common/stores/clientList';
 import { connectSocket } from './common/utils/socket';
 import theme from './theme/theme';
 import { TranslationProvider } from './translation/TranslationProvider';
@@ -19,7 +19,7 @@ import AppRouter from './AppRouter';
 // @ts-expect-error no types from font import
 import('typeface-open-sans');
 
-const preferredClientName = socketClientName.getState().name;
+const preferredClientName = getPreferredClientName();
 connectSocket(preferredClientName);
 
 function App() {
