@@ -1,0 +1,21 @@
+.corner {
+  position: absolute;
+  top: 1rem;
+  right: 2rem;
+  z-index: 100;
+}
+
+.contentWrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+
+  position: relative;
+}
+
+.content {
+  margin: 1rem;
+  overflow-y: auto;
+  flex-grow: 1;
+}

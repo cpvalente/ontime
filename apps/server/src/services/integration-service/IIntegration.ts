@@ -1,24 +1,11 @@
-import { TimerLifeCycle, Subscription } from 'ontime-types';
+import { TimerLifeCycle } from 'ontime-types';
 
 export type TimerLifeCycleKey = keyof typeof TimerLifeCycle;
 
-export default interface IIntegration<T> {
-  subscriptions: Subscription<T>;
-  init: (config: unknown) => OperationReturn;
-  dispatch: (action: TimerLifeCycleKey, state?: object) => OperationReturn;
-  emit: (...args: unknown[]) => unknown;
+export default interface IIntegration<T, C> {
+  subscriptions: T[];
+  init: (config: C) => void;
+  dispatch: (action: TimerLifeCycleKey, state?: object) => void;
+  emit: (...args: never[]) => unknown;
   shutdown: () => void;
 }
-
-// either went well, or explain what failed
-type OperationReturn = ReturnOnSuccess | ReturnOnError;
-
-type ReturnOnSuccess = {
-  success: true;
-  message?: string;
-};
-
-type ReturnOnError = {
-  success: false;
-  message: string;
-};

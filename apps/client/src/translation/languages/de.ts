@@ -3,6 +3,7 @@ import { TranslationObject } from './en';
 export const langDe: TranslationObject = {
   'common.end_time': 'Endzeit',
   'common.expected_finish': 'Voraussichtliches Ende',
+  'common.minutes': 'min',
   'common.now': 'Jetzt',
   'common.next': 'Nächste',
   'common.public_message': 'Öffentliche Nachricht',

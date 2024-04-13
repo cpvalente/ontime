@@ -1,0 +1,9 @@
+.tag {
+  font-size: calc(1rem - 3px);
+  letter-spacing: 0.5px;
+  background-color: $gray-900;
+  color: $ui-white;
+  border-radius: 2px;
+  padding: 0 0.25rem;
+  white-space: nowrap;
+}

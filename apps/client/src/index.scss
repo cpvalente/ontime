@@ -1,9 +1,13 @@
-@use './theme/v2Styles' as *;
+@use './theme/ontimeStyles' as *;
+
+$track-color: $white-1;
+$thumb-color: $gray-1100;
+$thumb-color-hover: $gray-900;
 
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  scrollbar-color: #2b2b2b rgba(255, 255, 255, 0.01);
+  scrollbar-color: $thumb-color $track-color;
   scrollbar-width: thin;
 }
 
@@ -17,7 +21,7 @@
 body,
 html,
 .App {
-  font-size: 16px;
+  font-size: 15px;
   font-family: $ontime-font-family;
   margin: 0 auto;
   overflow: hidden;
@@ -29,15 +33,19 @@ html,
   background-color: $bg-container-l1;
 }
 
-@media (min-width: 1450px) and (max-width: 1666px) {
+/* smaller root size for MacOS laptops */
+@media (max-width: 1600px) {
   body,
   html,
   .App {
-    font-size: 15px;
+    font-size: 14px;
   }
 }
-// workaround for chakra
-// // https://github.com/chakra-ui/chakra-ui/issues/417
+
+/**
+ * workaround for chakra
+ * https://github.com/chakra-ui/chakra-ui/issues/417
+ */
 option {
   color: initial;
 }
@@ -45,21 +53,23 @@ option {
 /* width */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
 }
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.01);
+  background: $white-1;
   border-radius: 2px;
 }
 
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #2d2d2d;
+  background: $thumb-color;
   border-radius: 2px;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #404040;
+  background: $thumb-color-hover;
 }

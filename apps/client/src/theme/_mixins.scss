@@ -1,4 +1,4 @@
-@use "v2Styles" as *;
+@use "ontimeStyles" as *;
 
 //////////////////////////////////// general app elements
 
@@ -9,6 +9,7 @@
   cursor: pointer;
   transition-property: color;
   transition-duration: $transition-time-action;
+  white-space: nowrap;
 
   &:hover {
     color: $ontime-color;

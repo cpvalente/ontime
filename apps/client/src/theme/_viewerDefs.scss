@@ -1,12 +1,12 @@
-@use 'v2Styles' as *;
+@use 'ontimeStyles' as *;
 @use 'viewerCommon' as *;
-@use "ontimeColours" as *;
+@use 'ontimeColours' as *;
 
 // General
 $viewer-transition-time: 0.5s;
 
 // Text
-$viewer-font-family: "Open Sans", "Segoe UI", sans-serif; // --font-family-override
+$viewer-font-family: 'Open Sans', 'Segoe UI', sans-serif; // --font-family-override
 $viewer-opacity-disabled: 0.6;
 
 // General styling
@@ -25,6 +25,6 @@ $element-border-radius: 8px;
 // Properties related to timer
 $timer-color: rgba(white, 80%); // --timer-color-override
 $timer-finished-color: $playback-negative;
-$timer-bold-font-family: "Arial Black", sans-serif; // --card-background-color-override
+$timer-bold-font-family: 'Arial Black', sans-serif; // --card-background-color-override
 
 $external-color: rgba(white, 70%); // --external-color-override

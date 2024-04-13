@@ -35,22 +35,40 @@ const parse = (valueAsString: string): number => {
   return Math.abs(parsed);
 };
 
+const stripAMPM = (value: string) => {
+  const lowerValue = value.toLowerCase();
+  if (lowerValue.endsWith('am')) {
+    return { sansPostfix: lowerValue.substring(0, lowerValue.length - 2), pastNoon: false };
+  } else if (lowerValue.endsWith('pm')) {
+    return { sansPostfix: lowerValue.substring(0, lowerValue.length - 2), pastNoon: true };
+  } else {
+    return { sansPostfix: lowerValue, pastNoon: false };
+  }
+};
+
 /**
  * @description Parses a time string to millis, copied from client code
  * @param {string} value - time string
  * @param {boolean} fillLeft - autofill left = hours / right = seconds
  * @returns {number} - time string in millis
  */
-export const forgivingStringToMillis = (value: string, fillLeft = true): number => {
+export const forgivingStringToMillis = (value: string, fillLeft: boolean = true): number => {
   let millis = 0;
 
+  // check for AM/PM indicators
+  const { sansPostfix, pastNoon } = stripAMPM(value);
+
+  //if past noon indicated add 12 hours
+  if (pastNoon) {
+    millis = mth * 12;
+  }
   // split string at known separators    : , .
   const separatorRegex = /[\s,:.]+/;
-  const [first, second, third] = value.split(separatorRegex);
+  const [first, second, third] = sansPostfix.split(separatorRegex);
 
   if (first != null && second != null && third != null) {
     // if string has three sections, treat as [hours] [minutes] [seconds]
-    millis = parse(first) * mth;
+    millis += parse(first) * mth;
     millis += parse(second) * mtm;
     millis += parse(third) * mts;
   } else if (first != null && second == null && third == null) {
@@ -60,23 +78,23 @@ export const forgivingStringToMillis = (value: string, fillLeft = true): number 
       const hours = first.substring(0, 2);
       const minutes = first.substring(2, 4);
       const seconds = first.substring(4);
-      millis = parse(hours) * mth;
+      millis += parse(hours) * mth;
       millis += parse(minutes) * mtm;
       millis += parse(seconds) * mts;
     } else {
       // otherwise lets treat as [minutes]
-      millis = parse(first) * mtm;
+      millis += parse(first) * mtm;
     }
   }
   if (first != null && second != null && third == null) {
     // if string has two sections
     if (fillLeft) {
       // treat as [hours] [minutes]
-      millis = parse(first) * mth;
+      millis += parse(first) * mth;
       millis += parse(second) * mtm;
     } else {
       // treat as [minutes] [seconds]
-      millis = parse(first) * mtm;
+      millis += parse(first) * mtm;
       millis += parse(second) * mts;
     }
   }
@@ -87,7 +105,6 @@ export const forgivingStringToMillis = (value: string, fillLeft = true): number 
  * @description Parses an excel date using the correct parser
  * @param {string} excelDate
  * @returns {number} - time in milliseconds
-
  */
 export const parseExcelDate = (excelDate: unknown): number => {
   if (excelDate instanceof Date) {
@@ -102,16 +119,4 @@ export const parseExcelDate = (excelDate: unknown): number => {
   }
 
   return 0;
-};
-
-/**
- * @description Converts milliseconds to seconds -- Copied from client code
- * @param {number | null} millis - time in seconds
- * @returns {number} Amount in seconds
- */
-export const millisToSeconds = (millis: number | null): number => {
-  if (millis === null) {
-    return 0;
-  }
-  return millis < 0 ? Math.ceil(millis / mts) : Math.floor(millis / mts);
 };

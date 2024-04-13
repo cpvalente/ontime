@@ -1,14 +1,14 @@
-@use '../../theme/v2Styles' as *;
+.rundownWrapper {
+  height: calc(100% - 1.5rem);
+  width: 100%;
+}
 
-.eventContainer {
-  flex: 1;
-
-  margin-top: 1em;
+.rundownContainer {
+  margin-top: 1rem;
   display: flex;
   flex-direction: column;
-  padding: 0 4px;
+  padding-right: 4px; // size of scrollbar
   overflow-y: scroll;
-  -ms-overflow-style: -ms-autohiding-scrollbar;
   height: 100%;
 }
 

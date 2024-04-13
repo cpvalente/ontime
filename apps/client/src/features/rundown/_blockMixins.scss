@@ -1,17 +1,20 @@
 @use '../../theme/ontimeColours' as *;
-@use '../../theme/v2Styles' as *;
+@use '../../theme/ontimeStyles' as *;
+
+$block-width: 33rem;
 
 $block-gap: 0.25rem;
 $block-element-spacing: 0.25rem;
 $block-binder-width: 2rem;
 $block-clearance: 0.5rem;
-$block-border-radius: 0.5rem;
+$block-border-radius: 3px;
 $block-text-color: $gray-50;
 $block-bg: $gray-1250;
 $block-bg2: $gray-1050; // for delay and blocks
 $block-box-shadow: rgba(0, 0, 0, 0.5) 0 0 3px 2px;
 $secondary-block-height: 2.5rem;
-$block-cursor-color: $blue-400;
+$block-selected-color: $blue-400;
+$block-cursor-color: $orange-400;
 
 @mixin block-styling() {
   box-sizing: content-box;
@@ -21,6 +24,8 @@ $block-cursor-color: $blue-400;
   margin: 0.25rem 0.125rem;
   position: relative;
   color: $block-text-color;
+
+  min-width: $block-width;
 }
 
 @mixin block-spacing() {

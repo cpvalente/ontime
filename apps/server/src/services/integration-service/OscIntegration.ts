@@ -1,133 +1,144 @@
 import { ArgumentType, Client, Message } from 'node-osc';
-import { OSCSettings, OscSubscription, OscSubscriptionOptions } from 'ontime-types';
+import { LogOrigin, MaybeNumber, MaybeString, OSCSettings, OscSubscription } from 'ontime-types';
 
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplateNested } from './integrationUtils.js';
 import { isObject } from '../../utils/varUtils.js';
-import { dbModel } from '../../models/dataModel.js';
-import { validateOscSubscriptionObject } from '../../utils/parserFunctions.js';
-
-type Action = TimerLifeCycleKey | string;
+import { logger } from '../../classes/Logger.js';
+import { OscServer } from '../../adapters/OscAdapter.js';
 
 /**
  * @description Class contains logic towards outgoing OSC communications
  * @class
  */
-export class OscIntegration implements IIntegration<OscSubscriptionOptions> {
+export class OscIntegration implements IIntegration<OscSubscription, OSCSettings> {
   protected oscClient: null | Client;
-  subscriptions: OscSubscription;
+  protected oscServer: OscServer | null = null;
+
+  subscriptions: OscSubscription[];
+  targetIP: MaybeString;
+  portOut: MaybeNumber;
+  portIn: MaybeNumber;
+  enabledOut: boolean;
+  enabledIn: boolean;
 
   constructor() {
     this.oscClient = null;
-    this.subscriptions = dbModel.osc.subscriptions;
+    this.subscriptions = [];
+    this.targetIP = null;
+    this.portOut = null;
+    this.portIn = null;
+    this.enabledOut = false;
+    this.enabledIn = false;
   }
 
   /**
    * Initializes oscClient
    */
   init(config: OSCSettings) {
-    const { targetIP, portOut, subscriptions, enabledOut } = config;
+    const { targetIP, portOut, subscriptions, enabledOut, enabledIn, portIn } = config;
 
-    if (!enabledOut) {
-      this.oscClient?.close();
-      return {
-        success: false,
-        message: 'OSC output disabled',
-      };
+    this.initTX(enabledOut, targetIP, portOut, subscriptions);
+    this.initRX(enabledIn, portIn);
+    // return `OSC integration client connected to ${targetIP}:${portOut}`;
+  }
+
+  private initSubscriptions(subscriptions: OscSubscription[]) {
+    this.subscriptions = subscriptions;
+  }
+
+  dispatch(action: TimerLifeCycleKey, state?: object) {
+    // noop
+    if (!this.oscClient) {
+      return;
     }
 
+    for (let i = 0; i < this.subscriptions.length; i++) {
+      const { cycle, address, payload, enabled } = this.subscriptions[i];
+      if (cycle !== action || !enabled || !address) {
+        continue;
+      }
+      const parsedAddress = parseTemplateNested(address, state || {});
+      const parsedPayload = payload ? parseTemplateNested(payload, state || {}) : undefined;
+      try {
+        this.emit(parsedAddress, parsedPayload);
+      } catch (error) {
+        logger.error(LogOrigin.Tx, `OSC Integration: ${error}`);
+      }
+    }
+  }
+
+  emit(address: string, payload?: ArgumentType) {
+    if (!this.oscClient) {
+      return;
+    }
+
+    const message = new Message(address);
+    if (payload) {
+      if (isObject(payload)) {
+        message.append(JSON.stringify(payload));
+      } else {
+        message.append(payload);
+      }
+    }
+
+    this.oscClient.send(message);
+  }
+
+  private initTX(enabledOut: boolean, targetIP: string, portOut: number, subscriptions: OscSubscription[]) {
     this.initSubscriptions(subscriptions);
 
-    // runtime validation
-    const validateType = typeof targetIP !== 'string' || typeof portOut !== 'number';
-    const validateNull = !targetIP || !portOut;
-
-    if (validateType || validateNull) {
-      return {
-        success: false,
-        message: 'Config options incorrect',
-      };
+    if (!enabledOut && this.enabledOut) {
+      this.targetIP = targetIP;
+      this.portOut = portOut;
+      this.enabledOut = enabledOut;
+      this.shutdownTX();
+      return;
     }
+
+    if (this.oscClient && targetIP === this.targetIP && portOut === this.portOut) {
+      // nothing changed that would mean we need a new client
+      return;
+    }
+
+    this.targetIP = targetIP;
+    this.portOut = portOut;
+    this.enabledOut = enabledOut;
+
     try {
-      // this allows re-calling the init function during runtime
-      this.oscClient?.close();
       this.oscClient = new Client(targetIP, portOut);
-      return {
-        success: true,
-        message: `OSC integration client connected to ${targetIP}:${portOut}`,
-      };
     } catch (error) {
       this.oscClient = null;
-      return {
-        success: false,
-        message: `Failed initialising OSC Client: ${error}`,
-      };
+      throw new Error(`Failed initialising OSC client: ${error}`);
     }
   }
 
-  initSubscriptions(subscriptionOptions: OscSubscription) {
-    if (validateOscSubscriptionObject(subscriptionOptions)) {
-      this.subscriptions = { ...subscriptionOptions };
-    }
-  }
-
-  dispatch(action: Action, state?: object) {
-    if (!this.oscClient) {
-      return {
-        success: false,
-        message: 'Client not initialised',
-      };
+  private initRX(enabledIn: boolean, portIn: number) {
+    if (!enabledIn && this.enabledIn) {
+      this.shutdownRX();
+      return;
     }
 
-    if (!action) {
-      return {
-        success: false,
-        message: 'OSC called with no action',
-      };
-    }
-
-    // check subscriptions for action
-    const eventSubscriptions = this.subscriptions?.[action] || [];
-
-    eventSubscriptions.forEach((sub) => {
-      const { enabled, message } = sub;
-      if (enabled && message) {
-        const parsedMessage = parseTemplateNested(message, state || {});
-        this.emit(parsedMessage);
-      }
-    });
-  }
-
-  emit(path: string, payload?: ArgumentType) {
-    const message = new Message(path);
-    if (payload) {
-      try {
-        if (isObject(payload)) {
-          message.append(JSON.stringify(payload));
-        } else {
-          message.append(payload);
-        }
-      } catch (error) {
-        console.log('OSC ERROR', error, payload);
-      }
-    }
-
-    this.oscClient.send(message, (error) => {
-      if (error) {
-        return {
-          success: false,
-          message: `Error sending message: ${JSON.stringify(error)}`,
-        };
-      }
-      return {
-        success: true,
-        message: 'OSC Message sent',
-      };
-    });
+    // Start OSC Server
+    logger.info(LogOrigin.Rx, `Starting OSC Server on port: ${portIn}`);
+    this.oscServer = new OscServer(portIn);
   }
 
   shutdown() {
-    console.log('Shutting down OSC integration');
+    this.shutdownTX();
+    this.shutdownRX();
+  }
+
+  private shutdownTX() {
+    logger.info(LogOrigin.Rx, 'Shutting down OSC integration');
+    if (this.oscServer) {
+      this.oscServer?.shutdown();
+      this.oscServer = null;
+    }
+  }
+
+  private shutdownRX() {
+    logger.info(LogOrigin.Tx, 'Shutting down OSC integration');
     if (this.oscClient) {
       this.oscClient?.close();
       this.oscClient = null;

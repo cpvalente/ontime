@@ -2,7 +2,7 @@ import { Log, LogLevel } from 'ontime-types';
 import { generateId, millisToString } from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
-import { isProduction } from '../setup.js';
+import { isProduction } from '../setup/index.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
 
 class Logger {
@@ -54,7 +54,7 @@ class Logger {
    * @param origin
    * @param text
    */
-  emit(level, origin: string, text: string) {
+  emit(level: LogLevel, origin: string, text: string) {
     const log = {
       id: generateId(),
       level,

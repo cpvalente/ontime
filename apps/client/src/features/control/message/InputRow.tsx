@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { IconButton, Input } from '@chakra-ui/react';
 import { IoEye } from '@react-icons/all-files/io5/IoEye';
 import { IoEyeOffOutline } from '@react-icons/all-files/io5/IoEyeOffOutline';
@@ -22,9 +23,22 @@ interface InputRowProps {
 export default function InputRow(props: InputRowProps) {
   const { label, placeholder, text, visible, actionHandler, changeHandler, className, readonly } = props;
 
-  const handleInputChange = (newValue: string) => {
-    changeHandler(newValue);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const cursorPositionRef = useRef(0);
+
+  // sync cursor position with text
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.selectionStart = cursorPositionRef.current;
+      inputRef.current.selectionEnd = cursorPositionRef.current;
+    }
+  }, [text]);
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    cursorPositionRef.current = event.target.selectionStart ?? 0;
+    changeHandler(event.target.value);
   };
+
   const classes = cx([style.inputRow, className]);
 
   return (
@@ -32,12 +46,13 @@ export default function InputRow(props: InputRowProps) {
       <label className={`${style.label} ${visible ? style.active : ''}`}>{label}</label>
       <div className={style.inputItems}>
         <Input
+          ref={inputRef}
           size='sm'
           variant='ontime-filled'
           readOnly={readonly}
           disabled={readonly}
           value={text}
-          onChange={(event) => handleInputChange(event.target.value)}
+          onChange={handleInputChange}
           placeholder={placeholder}
         />
         {readonly ? (

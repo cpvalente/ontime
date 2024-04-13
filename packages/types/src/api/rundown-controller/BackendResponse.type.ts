@@ -1,6 +1,10 @@
-import { OntimeRundown } from '../../definitions/core/Rundown.type.js';
+import type { OntimeRundownEntry } from '../../definitions/core/Rundown.type.js';
 
-export interface GetRundownCached {
-  rundown: OntimeRundown;
+type EventId = string;
+export type NormalisedRundown = Record<EventId, OntimeRundownEntry>;
+
+export interface RundownCached {
+  rundown: NormalisedRundown;
+  order: EventId[];
   revision: number;
 }

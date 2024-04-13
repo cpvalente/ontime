@@ -1,4 +1,4 @@
-import { OSCSettings } from '../../definitions/core/OscSettings.type.js';
+import type { OSCSettings } from '../../definitions/core/OscSettings.type.js';
 
 export type NetworkInterface = {
   name: string;
@@ -12,3 +12,23 @@ export interface GetInfo {
   osc: OSCSettings;
   cssOverride: string;
 }
+
+export type ProjectFile = {
+  filename: string;
+  updatedAt: string;
+};
+
+export type ProjectFileList = ProjectFile[];
+
+export type ProjectFileListResponse = {
+  files: ProjectFileList;
+  lastLoadedProject: string;
+};
+
+export type MessageResponse = {
+  message: string;
+};
+
+export type ErrorResponse = MessageResponse;
+
+export type AuthenticationStatus = 'authenticated' | 'not_authenticated' | 'pending';

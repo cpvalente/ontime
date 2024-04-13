@@ -1,0 +1,18 @@
+.link {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  color: $blue-500;
+  transition-property: color;
+  transition-duration: $transition-time-action;
+  width: fit-content;
+
+  &.inline {
+    display: inline-flex;
+  }
+
+  &:hover {
+    color: $ontime-color;
+  }
+}

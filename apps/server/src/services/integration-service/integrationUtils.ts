@@ -1,10 +1,11 @@
-// any value inside double curly braces {{val}}
-import { formatDisplay } from 'ontime-utils';
+import { MaybeNumber } from 'ontime-types';
+import { millisToString, removeLeadingZero } from 'ontime-utils';
 
+// any value inside double curly braces {{val}}
 const placeholderRegex = /{{(.*?)}}/g;
 
 function formatDisplayFromString(value: string, hideZero = false): string {
-  let valueInNumber = null;
+  let valueInNumber: MaybeNumber = null;
 
   if (value !== 'null') {
     const parsedValue = Number(value);
@@ -12,12 +13,16 @@ function formatDisplayFromString(value: string, hideZero = false): string {
       valueInNumber = parsedValue;
     }
   }
-  return formatDisplay(valueInNumber, hideZero);
+  let formatted = millisToString(valueInNumber, { fallback: hideZero ? '00:00' : '00:00:00' });
+  if (hideZero) {
+    formatted = removeLeadingZero(formatted);
+  }
+  return formatted;
 }
 
-type AliasesDefinition = Record<string, { key: string; cb: (value: unknown) => string }>;
+type AliasesDefinition = Record<string, { key: string; cb: (value: string) => string }>;
 const quickAliases: AliasesDefinition = {
-  clock: { key: 'timer.clock', cb: (value: string) => formatDisplayFromString(value) },
+  clock: { key: 'clock', cb: (value: string) => formatDisplayFromString(value) },
   duration: { key: 'timer.duration', cb: (value: string) => formatDisplayFromString(value, true) },
   expectedEnd: {
     key: 'timer.expectedFinish',
@@ -44,7 +49,7 @@ export function parseTemplateNested(template: string, state: object, humanReadab
   for (const match of matches) {
     const variableName = match[1];
     const variableParts = variableName.split('.');
-    let value = undefined;
+    let value: string | undefined = undefined;
 
     if (variableParts[0] === 'human') {
       const lookupKey = variableParts[1];
@@ -57,9 +62,9 @@ export function parseTemplateNested(template: string, state: object, humanReadab
       }
     } else {
       // iterate through variable parts, and look for the property in the state object
-      value = variableParts.reduce((obj, key) => obj && obj[key], state);
+      value = variableParts.reduce((obj, key) => obj?.[key], state);
     }
-    if (typeof value !== 'undefined') {
+    if (value !== undefined) {
       parsedTemplate = parsedTemplate.replace(match[0], value);
     }
   }

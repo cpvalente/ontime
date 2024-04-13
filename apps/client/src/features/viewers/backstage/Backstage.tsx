@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
+import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Message, OntimeEvent, ProjectData, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
-import { formatDisplay } from 'ontime-utils';
+import { CustomFields, Message, OntimeEvent, ProjectData, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
+import { millisToString, removeLeadingZero } from 'ontime-utils';
 
-import { overrideStylesURL } from '../../../common/api/apiConstants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import { overrideStylesURL } from '../../../common/api/constants';
 import ProgressBar from '../../../common/components/progress-bar/ProgressBar';
 import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
@@ -14,25 +14,24 @@ import TitleCard from '../../../common/components/title-card/TitleCard';
 import { getBackstageOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { TimeManagerType } from '../../../common/models/TimeManager.type';
-import { formatTime } from '../../../common/utils/time';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
+import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
+import { timerPlaceholderMin } from '../../../common/utils/styleUtils';
+import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
+import { getPropertyValue } from '../common/viewUtils';
 
 import './Backstage.scss';
 
-const formatOptions = {
-  showSeconds: true,
-  format: 'hh:mm:ss a',
-};
-
 interface BackstageProps {
+  customFields: CustomFields;
   isMirrored: boolean;
   publ: Message;
   eventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
-  time: TimeManagerType;
+  time: ViewExtendedTimer;
   backstageEvents: OntimeEvent[];
   selectedId: string | null;
   general: ProjectData;
@@ -41,16 +40,26 @@ interface BackstageProps {
 }
 
 export default function Backstage(props: BackstageProps) {
-  const { isMirrored, publ, eventNow, eventNext, time, backstageEvents, selectedId, general, viewSettings, settings } =
-    props;
+  const {
+    customFields,
+    isMirrored,
+    publ,
+    eventNow,
+    eventNext,
+    time,
+    backstageEvents,
+    selectedId,
+    general,
+    viewSettings,
+    settings,
+  } = props;
+
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [blinkClass, setBlinkClass] = useState(false);
+  const [searchParams] = useSearchParams();
 
-  // Set window title
-  useEffect(() => {
-    document.title = 'ontime - Backstage Screen';
-  }, []);
+  useWindowTitle('Backstage');
 
   // blink on change
   useEffect(() => {
@@ -68,34 +77,29 @@ export default function Backstage(props: BackstageProps) {
     return null;
   }
 
-  const clock = formatTime(time.clock, formatOptions);
-  const startedAt = formatTime(time.startedAt, formatOptions);
+  const clock = formatTime(time.clock);
+  const startedAt = formatTime(time.startedAt);
   const isNegative = (time.current ?? 0) < 0;
-  const expectedFinish = isNegative
-    ? getLocalizedString('countdown.overtime')
-    : formatTime(time.expectedFinish, formatOptions);
+  const expectedFinish = isNegative ? getLocalizedString('countdown.overtime') : formatTime(time.expectedFinish);
 
   const qrSize = Math.max(window.innerWidth / 15, 128);
   const filteredEvents = backstageEvents.filter((event) => event.type === SupportedEvent.Event);
   const showPublicMessage = publ.text && publ.visible;
   const showProgress = time.playback !== 'stop';
 
-  let stageTimer;
-  if (time.current === null) {
-    stageTimer = '- - : - -';
-  } else {
-    stageTimer = formatDisplay(Math.abs(time.current), true);
-    if (isNegative) {
-      stageTimer = `-${stageTimer}`;
-    }
-  }
+  const secondarySource = searchParams.get('secondary-src');
+  const secondaryTextNext = getPropertyValue(eventNext, secondarySource);
+  const secondaryTextNow = getPropertyValue(eventNow, secondarySource);
+
+  let stageTimer = millisToString(time.current, { fallback: timerPlaceholderMin });
+  stageTimer = removeLeadingZero(stageTimer);
 
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
-  const backstageOptions = getBackstageOptions(settings?.timeFormat ?? '24');
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const backstageOptions = getBackstageOptions(defaultFormat, customFields);
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
-      <NavigationMenu />
       <ViewParamsEditor paramFields={backstageOptions} />
       <div className='project-header'>
         {general.title}
@@ -123,12 +127,7 @@ export default function Backstage(props: BackstageProps) {
               animate='visible'
               exit='exit'
             >
-              <TitleCard
-                label='now'
-                title={eventNow.title}
-                subtitle={eventNow.subtitle}
-                presenter={eventNow.presenter}
-              />
+              <TitleCard label='now' title={eventNow.title} secondary={secondaryTextNow} />
               <div className='timer-group'>
                 <div className='aux-timers'>
                   <div className='aux-timers__label'>{getLocalizedString('common.started_at')}</div>
@@ -163,12 +162,7 @@ export default function Backstage(props: BackstageProps) {
               animate='visible'
               exit='exit'
             >
-              <TitleCard
-                label='next'
-                title={eventNext.title}
-                subtitle={eventNext.subtitle}
-                presenter={eventNext.presenter}
-              />
+              <TitleCard label='next' title={eventNext.title} secondary={secondaryTextNext} />
             </motion.div>
           )}
         </AnimatePresence>

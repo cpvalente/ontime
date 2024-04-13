@@ -1,24 +1,27 @@
-
 .list {
   display: flex;
-  gap: 4px;
+  flex-wrap: wrap;
+  gap: 0.5rem
 }
 
 .swatch {
-  cursor: pointer;
-  aspect-ratio: 1;
   width: 2rem;
   height: 2rem;
-  border-radius: 16px;
-  border: 4px solid #262626;
+  aspect-ratio: 1;
+  border-radius: 99px;
+  border: 2px solid $gray-1200;
 
   &.selected {
-    border: 2px solid #578AF4;
+    border: 2px solid $blue-500;
+  }
+
+  &.selectable {
+    cursor: pointer;
   }
 }
 
 .center {
   display: grid;
   place-content: center;
-  color: #578AF4;
+  color: $ui-white;
 }

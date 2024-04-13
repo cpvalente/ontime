@@ -1,6 +1,3 @@
-@use '../../../theme/ontimeColours' as *;
-@use '../../../theme/v2Styles' as *;
-
 $label-colour: $gray-700;
 $active-colour: $gray-500;
 
@@ -12,7 +9,7 @@ $active-colour: $gray-500;
 }
 
 @mixin time {
-  font-family: "Open Sans Light", $ontime-font-family;
+  font-family: 'Open Sans Light', $ontime-font-family;
   font-size: 2rem;
   text-align: center;
 }
@@ -25,8 +22,7 @@ $active-colour: $gray-500;
   height: max-content;
   column-gap: 2rem;
 
-  grid-template-areas:
-      'event playback timer clock actions';
+  grid-template-areas: 'event playback timer clock actions';
   grid-template-columns: 1fr auto auto auto auto;
   align-items: center;
   justify-items: center;
@@ -94,11 +90,12 @@ $active-colour: $gray-500;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1.125rem;
   color: $label-colour;
   height: 100%;
+  font-size: 1rem;
 
-  .actionIcon {
+  .actionIcon,
+  .actionText {
     cursor: pointer;
 
     &.enabled {
@@ -108,6 +105,10 @@ $active-colour: $gray-500;
     &:hover {
       color: $active-colour;
     }
+  }
+
+  .actionIcon {
+    font-size: 1.25rem;
   }
 }
 

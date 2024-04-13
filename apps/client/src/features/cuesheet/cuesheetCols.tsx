@@ -1,10 +1,11 @@
 import { useCallback } from 'react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { OntimeEvent, OntimeRundownEntry, UserFields } from 'ontime-types';
+import { CustomFields, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import DelayIndicator from '../../common/components/delay-indicator/DelayIndicator';
+import RunningTime from '../viewers/common/running-time/RunningTime';
 
 import EditableCell from './cuesheet-table-elements/EditableCell';
 import { useCuesheetSettings } from './store/CuesheetSettings';
@@ -24,30 +25,45 @@ function MakeTimer({ getValue, row: { original } }: CellContext<OntimeRundownEnt
   return (
     <span className={style.time}>
       <DelayIndicator delayValue={delayValue} />
-      {millisToString(cellValue)}
+      <RunningTime value={cellValue} />
       {delayValue !== 0 && showDelayedTimes && (
-        <span className={style.delayedTime}>{` ${millisToString(cellValue + delayValue)}`}</span>
+        <RunningTime className={style.delayedTime} value={cellValue + delayValue} />
       )}
     </span>
   );
 }
 
-function MakeUserField({ getValue, row: { index }, column: { id }, table }: CellContext<OntimeRundownEntry, unknown>) {
+function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
       // @ts-expect-error -- we inject this into react-table
-      table.options.meta?.handleUpdate(index, id, newValue);
+      table.options.meta?.handleUpdate(row.index, column.id, newValue);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
-    [id, index],
+    [column.id, row.index],
   );
 
-  const initialValue = getValue() as string;
+  const event = row.original;
+  if (!isOntimeEvent(event)) {
+    return null;
+  }
+
+  // events dont necessarily contain all custom fields
+  const initialValue = event.custom[column.id]?.value ?? '';
 
   return <EditableCell value={initialValue} handleUpdate={update} />;
 }
 
-export function makeCuesheetColumns(userFields?: UserFields): ColumnDef<OntimeRundownEntry>[] {
+export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<OntimeRundownEntry>[] {
+  const dynamicCustomFields = Object.keys(customFields).map((key) => ({
+    accessorKey: key,
+    id: key,
+    header: customFields[key].label,
+    meta: { colour: customFields[key].colour },
+    cell: MakeCustomField,
+    size: 250,
+  }));
+
   return [
     {
       accessorKey: 'cue',
@@ -89,86 +105,17 @@ export function makeCuesheetColumns(userFields?: UserFields): ColumnDef<OntimeRu
       id: 'title',
       header: 'Title',
       cell: (row) => row.getValue(),
-    },
-    {
-      accessorKey: 'subtitle',
-      id: 'subtitle',
-      header: 'Subtitle',
-      cell: (row) => row.getValue(),
-    },
-    {
-      accessorKey: 'presenter',
-      id: 'presenter',
-      header: 'Presenter',
-      cell: (row) => row.getValue(),
+      size: 250,
     },
     {
       accessorKey: 'note',
       id: 'note',
       header: 'Note',
       cell: (row) => row.getValue(),
+      size: 250,
     },
-    {
-      accessorKey: 'user0',
-      id: 'user0',
-      header: userFields?.user0 || 'User 0',
-      cell: MakeUserField,
-    },
-    {
-      accessorKey: 'user1',
-      id: 'user1',
-      header: userFields?.user1 || 'User 1',
-      cell: MakeUserField,
-    },
-    {
-      accessorKey: 'user2',
-      id: 'user2',
-      header: userFields?.user2 || 'User 2',
-      cell: MakeUserField,
-    },
-    {
-      accessorKey: 'user3',
-      id: 'user3',
-      header: userFields?.user3 || 'User 3',
-      cell: MakeUserField,
-    },
-    {
-      accessorKey: 'user4',
-      id: 'user4',
-      header: userFields?.user4 || 'User 4',
-      cell: MakeUserField,
-    },
-    {
-      accessorKey: 'user5',
-      id: 'user5',
-      header: userFields?.user5 || 'User 5',
-      cell: MakeUserField,
-    },
-    {
-      accessorKey: 'user6',
-      id: 'user6',
-      header: userFields?.user6 || 'User 6',
-      cell: MakeUserField,
-    },
-    {
-      accessorKey: 'user7',
-      id: 'user7',
-      header: userFields?.user7 || 'User 7',
-      cell: MakeUserField,
-    },
-    {
-      accessorKey: 'user8',
-      id: 'user8',
-      header: userFields?.user8 || 'User 8',
-      cell: MakeUserField,
-    },
-    {
-      accessorKey: 'user9',
-      id: 'user9',
-      header: userFields?.user9 || 'User 9',
-      cell: MakeUserField,
-    },
+    ...dynamicCustomFields,
   ];
 }
 
-export const initialColumnOrder: string[] = makeCuesheetColumns().map((column) => column.id as string);
+export const initialColumnOrder: string[] = makeCuesheetColumns({}).map((column) => column.id as string);

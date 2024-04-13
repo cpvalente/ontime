@@ -4,6 +4,8 @@ import { Textarea, TextareaProps } from '@chakra-ui/react';
 import autosize from 'autosize/dist/autosize';
 
 export const AutoTextArea = (props: TextareaProps) => {
+  const { value } = props;
+
   const ref = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -12,7 +14,7 @@ export const AutoTextArea = (props: TextareaProps) => {
     return () => {
       autosize.destroy(node);
     };
-  }, []);
+  }, [value]);
 
   return (
     <Textarea

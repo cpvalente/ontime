@@ -1,24 +1,14 @@
-@use '../../theme/v2Styles' as *;
-@use '../../theme/ontimeColours' as *;
-
 .tableWrapper {
   width: 100%;
   height: 100vh;
-  padding: 1rem;
+  padding: 1rem 0.5rem;
 
   display: grid;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: 3rem auto 1fr;
   grid-template-areas:
-          'header'
+          'overview'
           'settings'
           'table';
   gap: 1rem;
-
-  background-color: $gray-1300;
-  color: white;
-
-  & > * {
-    border: 1px solid $white-10;
-    border-radius: 3px;
-  }
+  color: $ui-white;
 }

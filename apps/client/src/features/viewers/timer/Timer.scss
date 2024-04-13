@@ -30,6 +30,21 @@
     transition: $viewer-transition-time;
   }
 
+  .blackout {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity $viewer-transition-time;
+    &--active {
+      opacity: 1;
+    }
+  }
+
   /* =================== CLOCK ===================*/
 
   .clock-container {

@@ -1,212 +1,87 @@
 import {
+  CustomFields,
   LogOrigin,
-  OntimeBaseEvent,
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
-  Playback,
-  SupportedEvent,
+  OntimeRundownEntry,
+  isOntimeBlock,
+  isOntimeDelay,
+  isOntimeEvent,
+  OntimeRundown,
 } from 'ontime-types';
-import { generateId, getCueCandidate } from 'ontime-utils';
-import { DataProvider } from '../../classes/data-provider/DataProvider.js';
+import { getCueCandidate } from 'ontime-utils';
+
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
-import { MAX_EVENTS } from '../../settings.js';
-import { EventLoader, eventLoader } from '../../classes/event-loader/EventLoader.js';
-import { eventTimer } from '../TimerService.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
-import { runtimeCacheStore } from '../../stores/cachingStore.js';
-import {
-  cachedAdd,
-  cachedApplyDelay,
-  cachedClear,
-  cachedDelete,
-  cachedEdit,
-  cachedReorder,
-  cachedSwap,
-  delayedRundownCacheKey,
-} from './delayedRundown.utils.js';
 import { logger } from '../../classes/Logger.js';
-import { validateEvent } from '../../utils/parser.js';
-import { clock } from '../Clock.js';
+import { createEvent } from '../../utils/parser.js';
+import { updateRundownData } from '../../stores/runtimeState.js';
+import { runtimeService } from '../runtime-service/RuntimeService.js';
 
-/**
- * Forces rundown to be recalculated
- * To be used when we know the rundown has changed completely
- */
-export function forceReset() {
-  eventLoader.reset();
-  runtimeCacheStore.invalidate(delayedRundownCacheKey);
-}
+import * as cache from './rundownCache.js';
+import { getPlayableEvents } from './rundownUtils.js';
 
-/**
- * Checks if a list of IDs is in the current selection
- */
-const affectedLoaded = (affectedIds: string[]) => {
-  const now = eventLoader.loaded.selectedEventId;
-  const nowPublic = eventLoader.loaded.selectedPublicEventId;
-  const next = eventLoader.loaded.nextEventId;
-  const nextPublic = eventLoader.loaded.nextPublicEventId;
-  return (
-    affectedIds.includes(now) ||
-    affectedIds.includes(nowPublic) ||
-    affectedIds.includes(next) ||
-    affectedIds.includes(nextPublic)
-  );
-};
+type PatchWithId = (Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) & { id: string };
 
-/**
- * Checks if timer replaces the loaded next
- */
-const isNewNext = () => {
-  const timedEvents = EventLoader.getTimedEvents();
-  const now = eventLoader.loaded.selectedEventId;
-  const next = eventLoader.loaded.nextEventId;
+type CompleteEntry<T> = T extends Partial<OntimeEvent>
+  ? OntimeEvent
+  : T extends Partial<OntimeDelay>
+  ? OntimeDelay
+  : T extends Partial<OntimeBlock>
+  ? OntimeBlock
+  : never;
 
-  // check whether the index of now and next are consecutive
-  const indexNow = timedEvents.findIndex((event) => event.id === now);
-  const indexNext = timedEvents.findIndex((event) => event.id === next);
+function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>>(
+  eventData: T,
+): CompleteEntry<T> {
+  // we discard any UI provided IDs and add our own
+  const id = cache.getUniqueId();
 
-  if (indexNext - indexNow !== 1) {
-    return true;
-  }
-  // iterate through timed events and see if there are public events between nowPublic and nextPublic
-  const nowPublic = eventLoader.loaded.selectedPublicEventId;
-  const nextPublic = eventLoader.loaded.nextPublicEventId;
-
-  let foundNew = false;
-  let isAfter = false;
-  for (const event of timedEvents) {
-    if (!isAfter) {
-      if (event.id === nowPublic) {
-        isAfter = true;
-      }
-    } else {
-      if (event.id === nextPublic) {
-        break;
-      }
-      if (event.isPublic) {
-        foundNew = true;
-        break;
-      }
-    }
+  if (isOntimeEvent(eventData)) {
+    return createEvent(eventData, getCueCandidate(cache.getPersistedRundown(), eventData?.after)) as CompleteEntry<T>;
   }
 
-  return foundNew;
-};
-
-/**
- * Updates timer service when a relevant piece of data changes
- */
-export function updateTimer(affectedIds?: string[]) {
-  const runningEventId = eventLoader.loaded.selectedEventId;
-  const nextEventId = eventLoader.loaded.nextEventId;
-
-  if (runningEventId === null && nextEventId === null) {
-    return false;
+  if (isOntimeDelay(eventData)) {
+    return { ...delayDef, duration: eventData.duration ?? 0, id } as CompleteEntry<T>;
   }
 
-  // we need to reload in a few scenarios:
-  // 1. we are not confident that changes do not affect running event
-  const safeOption = typeof affectedIds === 'undefined';
-  // 2. the edited event is in memory (now or next) running
-  const eventInMemory = safeOption ? false : affectedLoaded(affectedIds);
-  // 3. the edited event replaces next event
-  const isNext = isNewNext();
-
-  if (safeOption) {
-    eventLoader.reset();
-    const { eventNow } = eventLoader.loadById(runningEventId) || {};
-    eventTimer.hotReload(eventNow);
-    return true;
+  if (isOntimeBlock(eventData)) {
+    return { ...blockDef, title: eventData?.title ?? '', id } as CompleteEntry<T>;
   }
 
-  if (eventInMemory) {
-    eventLoader.reset();
-
-    if (eventTimer.playback === Playback.Roll) {
-      const rollTimers = eventLoader.findRoll(clock.timeNow());
-      if (rollTimers === null) {
-        eventTimer.stop();
-      } else {
-        const { currentEvent, nextEvent } = rollTimers;
-        eventTimer.roll(currentEvent, nextEvent);
-      }
-    } else {
-      const { eventNow } = eventLoader.loadById(runningEventId) || {};
-      if (eventNow) {
-        eventTimer.hotReload(eventNow);
-      } else {
-        eventTimer.stop();
-      }
-    }
-    return true;
-  }
-
-  if (isNext) {
-    const { eventNow } = eventLoader.loadById(runningEventId) || {};
-    eventTimer.hotReload(eventNow);
-    return true;
-  }
-  return false;
+  throw new Error('Invalid event type');
 }
 
 /**
  * @description creates a new event with given data
  * @param {object} eventData
- * @return {unknown[]}
+ * @return {OntimeRundownEntry}
  */
-export async function addEvent(eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>) {
-  const numEvents = DataProvider.getRundownLength();
-  if (numEvents > MAX_EVENTS) {
-    throw new Error(`Reached limit number of ${MAX_EVENTS} events`);
-  }
-
-  let newEvent: Partial<OntimeBaseEvent> = {};
-  const id = generateId();
-
-  let insertIndex = 0;
+export async function addEvent(eventData: PatchWithId & { after?: string }): Promise<OntimeRundownEntry> {
+  // if the user didnt provide an index, we add the event to start
+  let atIndex = 0;
   if (eventData?.after !== undefined) {
-    const index = DataProvider.getIndexOf(eventData.after);
-    if (index < 0) {
+    const previousIndex = cache.getIndexOf(eventData.after);
+    if (previousIndex < 0) {
       logger.warning(LogOrigin.Server, `Could not find event with id ${eventData.after}`);
     } else {
-      insertIndex = index + 1;
+      atIndex = previousIndex + 1;
     }
   }
 
-  switch (eventData.type) {
-    case SupportedEvent.Event: {
-      newEvent = validateEvent(eventData, getCueCandidate(DataProvider.getRundown(), eventData?.after)) as OntimeEvent;
-      break;
-    }
-    case SupportedEvent.Delay:
-      newEvent = { ...delayDef, duration: eventData.duration, id } as OntimeDelay;
-      break;
-    case SupportedEvent.Block:
-      newEvent = { ...blockDef, title: eventData.title, id } as OntimeBlock;
-      break;
-  }
-  delete eventData.after;
+  // generate a fully formed event from the patch
+  const eventToAdd = generateEvent(eventData);
 
   // modify rundown
-  await cachedAdd(insertIndex, newEvent as OntimeEvent | OntimeDelay | OntimeBlock);
+  const scopedMutation = cache.mutateCache(cache.add);
+  const { newEvent } = await scopedMutation({ atIndex, event: eventToAdd });
 
-  notifyChanges({ timer: [id], external: true });
+  // notify runtime that rundown has changed
+  updateRuntimeOnChange();
 
-  // notify event loader that rundown size has changed
-  updateChangeNumEvents();
-
-  return newEvent;
-}
-
-export async function editEvent(eventData: Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) {
-  if (eventData.type === SupportedEvent.Event && eventData?.cue === '') {
-    throw new Error('Cue value invalid');
-  }
-
-  const newEvent = await cachedEdit(eventData.id, eventData);
-
-  notifyChanges({ timer: [newEvent.id], external: true });
+  // notify timer and external services of change
+  notifyChanges({ timer: [eventData.id], external: true });
 
   return newEvent;
 }
@@ -214,24 +89,76 @@ export async function editEvent(eventData: Partial<OntimeEvent> | Partial<Ontime
 /**
  * deletes event by its ID
  * @param eventId
- * @returns {Promise<void>}
  */
-export async function deleteEvent(eventId) {
-  await cachedDelete(eventId);
+export async function deleteEvent(eventId: string) {
+  const scopedMutation = cache.mutateCache(cache.remove);
+  const { didMutate } = await scopedMutation({ eventId });
 
+  if (didMutate === false) {
+    return;
+  }
+
+  // notify runtime that rundown has changed
+  updateRuntimeOnChange();
+
+  // notify timer and external services of change
   notifyChanges({ timer: [eventId], external: true });
-  // notify event loader that rundown size has changed
-  updateChangeNumEvents();
 }
 
 /**
  * deletes all events in database
- * @returns {Promise<void>}
  */
 export async function deleteAllEvents() {
-  await cachedClear();
+  const scopedMutation = cache.mutateCache(cache.removeAll);
+  await scopedMutation({});
 
-  notifyChanges({ timer: true, external: true, reset: true });
+  // notify event loader that rundown has changed
+  updateRuntimeOnChange();
+
+  // notify timer and external services of change
+  notifyChanges({ timer: true, external: true });
+}
+
+/**
+ * Apply patch to an element in rundown
+ * @param patch
+ */
+export async function editEvent(patch: PatchWithId) {
+  if (isOntimeEvent(patch) && patch?.cue === '') {
+    throw new Error('Cue value invalid');
+  }
+
+  const scopedMutation = cache.mutateCache(cache.edit);
+  const { newEvent, didMutate } = await scopedMutation({ patch, eventId: patch.id });
+
+  // short circuit if nothing changed
+  if (didMutate === false) {
+    return newEvent;
+  }
+
+  // notify runtime that rundown has changed
+  updateRuntimeOnChange();
+
+  // notify timer and external services of change
+  notifyChanges({ timer: [patch.id], external: true });
+
+  return newEvent;
+}
+
+/**
+ * Applies a patch to several elements in a rundown
+ * @param ids
+ * @param data
+ */
+export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>) {
+  const scopedMutation = cache.mutateCache(cache.batchEdit);
+  await scopedMutation({ patch: data, eventIds: ids });
+
+  // notify runtime that rundown has changed
+  updateRuntimeOnChange();
+
+  // notify timer and external services of change
+  notifyChanges({ timer: ids, external: true });
 }
 
 /**
@@ -239,19 +166,28 @@ export async function deleteAllEvents() {
  * @param {string} eventId - ID of event from, for sanity check
  * @param {number} from - index of event from
  * @param {number} to - index of event to
- * @returns {Promise<void>}
  */
 export async function reorderEvent(eventId: string, from: number, to: number) {
-  const reorderedItem = await cachedReorder(eventId, from, to);
+  const scopedMutation = cache.mutateCache(cache.reorder);
+  const reorderedItem = await scopedMutation({ eventId, from, to });
 
+  // notify runtime that rundown has changed
+  updateRuntimeOnChange();
+
+  // notify timer and external services of change
   notifyChanges({ timer: true, external: true });
 
   return reorderedItem;
 }
 
 export async function applyDelay(eventId: string) {
-  await cachedApplyDelay(eventId);
+  const scopedMutation = cache.mutateCache(cache.applyDelay);
+  await scopedMutation({ eventId });
 
+  // notify runtime that rundown has changed
+  updateRuntimeOnChange();
+
+  // notify timer and external services of change
   notifyChanges({ timer: true, external: true });
 }
 
@@ -262,8 +198,13 @@ export async function applyDelay(eventId: string) {
  * @returns {Promise<void>}
  */
 export async function swapEvents(from: string, to: string) {
-  await cachedSwap(from, to);
+  const scopedMutation = cache.mutateCache(cache.swap);
+  await scopedMutation({ fromId: from, toId: to });
 
+  // notify runtime that rundown has changed
+  updateRuntimeOnChange();
+
+  // notify timer and external services of change
   notifyChanges({ timer: true, external: true });
 }
 
@@ -271,29 +212,53 @@ export async function swapEvents(from: string, to: string) {
  * Forces update in the store
  * Called when we make changes to the rundown object
  */
-function updateChangeNumEvents() {
-  eventLoader.updateNumEvents();
+function updateRuntimeOnChange() {
+  const playableEvents = getPlayableEvents();
+  const numEvents = playableEvents.length;
+  const metadata = cache.getMetadata();
+
+  // schedule an update for the end of the event loop
+  setImmediate(() =>
+    updateRundownData({
+      numEvents,
+      ...metadata,
+    }),
+  );
 }
 
 /**
  * Notify services of changes in the rundown
  */
-export function notifyChanges(options: { timer?: boolean | string[]; external?: boolean; reset?: boolean }) {
+function notifyChanges(options: { timer?: boolean | string[]; external?: boolean }) {
   if (options.timer) {
-    // notify timer service of changed events
-    if (Array.isArray(options.timer)) {
-      updateTimer(options.timer);
-    }
-    updateTimer();
-  }
+    const playableEvents = getPlayableEvents();
 
-  if (options.reset) {
-    // force rundown to be recalculated
-    forceReset();
+    if (playableEvents.length === 0) {
+      runtimeService.stop();
+    } else {
+      // notify timer service of changed events
+      // timer can be true or an array of changed IDs
+      const affected = Array.isArray(options.timer) ? options.timer : undefined;
+      runtimeService.maybeUpdate(playableEvents, affected);
+    }
   }
 
   if (options.external) {
     // advice socket subscribers of change
     sendRefetch();
   }
+}
+
+/**
+ * Overrides the rundown with the given
+ * @param rundown
+ */
+export async function initRundown(rundown: Readonly<OntimeRundown>, customFields: Readonly<CustomFields>) {
+  await cache.init(rundown, customFields);
+
+  // notify runtime that rundown has changed
+  updateRuntimeOnChange();
+
+  // notify timer of change
+  notifyChanges({ timer: true });
 }

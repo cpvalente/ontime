@@ -1,8 +1,8 @@
 import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { OntimeRundown, Playback, SupportedEvent } from 'ontime-types';
-import { getFirst, getNext, getPrevious } from 'ontime-utils';
+import { isOntimeEvent, MaybeNumber, Playback, RundownCached, SupportedEvent } from 'ontime-types';
+import { getFirstNormal, getNextNormal, getPreviousNormal } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
@@ -19,30 +19,24 @@ import style from './Rundown.module.scss';
 const RundownEntry = lazy(() => import('./RundownEntry'));
 
 interface RundownProps {
-  entries: OntimeRundown;
+  data: RundownCached;
 }
 
-export default function Rundown(props: RundownProps) {
-  const { entries } = props;
-  const [statefulEntries, setStatefulEntries] = useState(entries);
+export default function Rundown({ data }: RundownProps) {
+  const { order, rundown } = data;
+  const [statefulEntries, setStatefulEntries] = useState(order);
 
   const featureData = useRundownEditor();
   const { addEvent, reorderEvent } = useEventAction();
   const eventSettings = useEditorSettings((state) => state.eventSettings);
   const defaultPublic = eventSettings.defaultPublic;
-  const startTimeIsLastEnd = eventSettings.startTimeIsLastEnd;
-  const showQuickEntry = eventSettings.showQuickEntry;
-
-  const isExtracted = window.location.pathname.includes('/rundown');
+  const linkPrevious = eventSettings.linkPrevious;
 
   // cursor
-  const cursor = useAppMode((state) => state.cursor);
-  const appMode = useAppMode((state) => state.mode);
-  const viewFollowsCursor = appMode === AppMode.Run;
-  const moveCursorTo = useAppMode((state) => state.setCursor);
+  const { cursor, mode: appMode, setCursor } = useAppMode();
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  useFollowComponent({ followRef: cursorRef, scrollRef: scrollRef, doFollow: true });
+  useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: appMode === AppMode.Run });
 
   // DND KIT
   const sensors = useSensors(useSensor(PointerSensor));
@@ -60,7 +54,7 @@ export default function Rundown(props: RundownProps) {
       }
 
       if (type === 'clone') {
-        const cursorEvent = entries.find((event) => event.id === cursor);
+        const cursorEvent = rundown[cursor];
         if (cursorEvent?.type === SupportedEvent.Event) {
           const newEvent = cloneEvent(cursorEvent, cursorEvent.id);
           addEvent(newEvent);
@@ -70,45 +64,52 @@ export default function Rundown(props: RundownProps) {
           type: SupportedEvent.Event,
         };
         const options = {
-          defaultPublic: defaultPublic,
-          startTimeIsLastEnd: startTimeIsLastEnd,
-          lastEventId: cursor,
           after: cursor,
+          defaultPublic,
+          lastEventId: cursor,
+          linkPrevious,
         };
         addEvent(newEvent, options);
       } else {
         addEvent({ type }, { after: cursor });
       }
     },
-    [addEvent, defaultPublic, entries, startTimeIsLastEnd],
+    [addEvent, rundown, defaultPublic, linkPrevious],
   );
 
   // Handle keyboard shortcuts
-  const handleKeyPress = useCallback(
+  const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       // handle held key
       if (event.repeat) return;
-      // Check if the alt key is pressed
-      if (event.altKey && (!event.ctrlKey || !event.shiftKey)) {
+
+      const modKeysAlt = event.altKey && !event.ctrlKey && !event.shiftKey;
+      const modKeysCtrlAlt = event.altKey && event.ctrlKey && !event.shiftKey;
+
+      if (modKeysAlt) {
         switch (event.code) {
           case 'ArrowDown': {
-            if (entries.length < 1) {
+            if (order.length < 1) {
               return;
             }
-            const nextEvent = cursor == null ? getFirst(entries) : getNext(entries, cursor);
+            const nextEvent =
+              cursor === null ? getFirstNormal(rundown, order) : getNextNormal(rundown, order, cursor)?.nextEvent;
             if (nextEvent) {
-              moveCursorTo(nextEvent.id, nextEvent.type === SupportedEvent.Event);
+              setCursor(nextEvent.id);
             }
             break;
           }
           case 'ArrowUp': {
-            if (entries.length < 1) {
+            if (order.length < 1) {
               return;
             }
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we check for this before
-            const previousEvent = cursor == null ? getFirst(entries) : getPrevious(entries, cursor);
+            const previousEvent =
+              cursor === null
+                ? getFirstNormal(rundown, order)
+                : getPreviousNormal(rundown, order, cursor).previousEvent;
             if (previousEvent) {
-              moveCursorTo(previousEvent.id, previousEvent.type === SupportedEvent.Event);
+              setCursor(previousEvent.id);
             }
             break;
           }
@@ -133,35 +134,50 @@ export default function Rundown(props: RundownProps) {
             break;
           }
         }
+      } else if (modKeysCtrlAlt) {
+        if (order.length < 2 || cursor == null) {
+          return;
+        }
+        // Alt + Ctrl + Arrow Down
+        if (event.code == 'ArrowDown') {
+          const { nextEvent, nextIndex } = getNextNormal(rundown, order, cursor);
+          if (nextEvent && nextIndex !== null) {
+            reorderEvent(cursor, nextIndex - 1, nextIndex);
+          }
+          // Alt + Ctrl + Arrow Up
+        } else if (event.code == 'ArrowUp') {
+          const { previousEvent, previousIndex } = getPreviousNormal(rundown, order, cursor);
+          if (previousEvent && previousIndex !== null) {
+            reorderEvent(cursor, previousIndex + 1, previousIndex);
+          }
+        }
       }
     },
-    [cursor, entries, insertAtCursor, moveCursorTo],
+    [order, cursor, rundown, setCursor, insertAtCursor, reorderEvent],
   );
 
   // we copy the state from the store here
   // to workaround async updates on the drag mutations
   useEffect(() => {
-    if (entries) {
-      setStatefulEntries(entries);
-    }
-  }, [entries]);
+    setStatefulEntries(order);
+  }, [order]);
 
   // listen to keys
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyPress);
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.removeEventListener('keydown', handleKeyPress);
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleKeyPress]);
+  }, [handleKeyDown]);
 
   useEffect(() => {
     // in run mode, we follow selection
-    if (!viewFollowsCursor || !featureData?.selectedEventId) {
+    if (appMode !== AppMode.Run || !featureData?.selectedEventId) {
       return;
     }
-    moveCursorTo(featureData.selectedEventId);
-  }, [featureData?.selectedEventId, viewFollowsCursor, moveCursorTo]);
+    setCursor(featureData.selectedEventId);
+  }, [appMode, featureData.selectedEventId, setCursor]);
 
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -179,71 +195,84 @@ export default function Rundown(props: RundownProps) {
     }
   };
 
-  if (statefulEntries?.length < 1) {
+  if (statefulEntries.length < 1) {
     return <RundownEmpty handleAddNew={() => insertAtCursor(SupportedEvent.Event, null)} />;
   }
 
-  let previousEnd = 0;
-  let thisEnd = 0;
+  let previousStart: MaybeNumber = null;
+  let previousEnd: MaybeNumber = null;
   let previousEventId: string | undefined;
+  let thisStart: MaybeNumber = null;
+  let thisEnd: MaybeNumber = null;
+  let thisId = previousEventId;
+
   let eventIndex = 0;
+  // all events before the current selected are in the past
   let isPast = Boolean(featureData?.selectedEventId);
 
+  const isEditMode = appMode === AppMode.Edit;
+
   return (
-    <div className={style.eventContainer} ref={scrollRef}>
+    <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext onDragEnd={handleOnDragEnd} sensors={sensors} collisionDetection={closestCenter}>
         <SortableContext items={statefulEntries} strategy={verticalListSortingStrategy}>
           <div className={style.list}>
-            {statefulEntries.map((entry, index) => {
+            {statefulEntries.map((eventId, index) => {
+              // we iterate through a stateful copy of order to make the operations smoother
+              // this means that this can be out of sync with order until the useEffect runs
+              // instead of writing all the logic guards, we simply short circuit rendering here
+              const event = rundown[eventId];
+              if (!event) {
+                return null;
+              }
               if (index === 0) {
                 eventIndex = 0;
               }
-              let isFirstEvent = false;
-              if (entry.type === SupportedEvent.Event) {
-                isFirstEvent = eventIndex === 0;
+              if (isOntimeEvent(event)) {
+                // event indexes are 1 based in frontend
                 eventIndex++;
+                previousStart = thisStart;
                 previousEnd = thisEnd;
-                thisEnd = entry.timeEnd;
-                previousEventId = entry.id;
+                previousEventId = thisId;
+
+                if (!event.skip) {
+                  thisStart = event.timeStart;
+                  thisEnd = event.timeEnd;
+                  thisId = eventId;
+                }
               }
-              const isLast = index === entries.length - 1;
-              const isSelected = featureData?.selectedEventId === entry.id;
-              const isNext = featureData?.nextEventId === entry.id;
-              const hasCursor = entry.id === cursor;
-              if (isSelected) {
+              const isFirst = index === 0;
+              const isLast = index === order.length - 1;
+              const isLoaded = featureData?.selectedEventId === event.id;
+              const isNext = featureData?.nextEventId === event.id;
+              const hasCursor = event.id === cursor;
+              if (isLoaded) {
                 isPast = false;
               }
 
               return (
-                <Fragment key={entry.id}>
+                <Fragment key={event.id}>
+                  {isEditMode && (hasCursor || isFirst) && <QuickAddBlock previousEventId={previousEventId} />}
                   <div className={style.entryWrapper} data-testid={`entry-${eventIndex}`}>
-                    {entry.type === SupportedEvent.Event && <div className={style.entryIndex}>{eventIndex}</div>}
-                    <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
+                    {isOntimeEvent(event) && <div className={style.entryIndex}>{eventIndex}</div>}
+                    <div className={style.entry} key={event.id} ref={hasCursor ? cursorRef : undefined}>
                       <RundownEntry
-                        type={entry.type}
+                        type={event.type}
                         isPast={isPast}
-                        isFirstEvent={isFirstEvent}
-                        data={entry}
-                        selected={isSelected}
+                        eventIndex={eventIndex}
+                        data={event}
+                        loaded={isLoaded}
                         hasCursor={hasCursor}
-                        next={isNext}
+                        isNext={isNext}
+                        previousStart={previousStart}
                         previousEnd={previousEnd}
                         previousEventId={previousEventId}
-                        playback={isSelected ? featureData.playback : undefined}
+                        playback={isLoaded ? featureData.playback : undefined}
                         isRolling={featureData.playback === Playback.Roll}
-                        disableEdit={isExtracted}
                       />
                     </div>
                   </div>
-                  {((showQuickEntry && hasCursor) || isLast) && (
-                    <QuickAddBlock
-                      showKbd={hasCursor}
-                      eventId={entry.id}
-                      previousEventId={previousEventId}
-                      disableAddDelay={entry.type === SupportedEvent.Delay}
-                      disableAddBlock={entry.type === SupportedEvent.Block}
-                    />
-                  )}
+                  {isEditMode && (hasCursor || isLast) && <QuickAddBlock previousEventId={event.id} />}
                 </Fragment>
               );
             })}

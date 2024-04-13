@@ -1,38 +1,38 @@
 import { extendTheme } from '@chakra-ui/react';
 
-import { ontimeAlertOnLight } from './OntimeAlert';
+import { ontimeAlertOnDark } from './OntimeAlert';
 import {
   ontimeButtonFilled,
   ontimeButtonGhosted,
+  ontimeButtonGhostedWhite,
   ontimeButtonOutlined,
   ontimeButtonSubtle,
-  ontimeButtonSubtleOnLight,
   ontimeButtonSubtleWhite,
-  ontimeGhostOnLight,
 } from './ontimeButton';
 import { ontimeCheckboxOnDark } from './ontimeCheckbox';
+import { ontimeDrawer } from './ontimeDrawer';
 import { ontimeEditable } from './ontimeEditable';
 import { ontimeMenuOnDark } from './ontimeMenu';
-import { ontimeModal, ontimeSmallModal, ontimeUploadModal } from './ontimeModal';
-import { ontimeProgressGray } from './OntimeProgress';
+import { ontimeModal } from './ontimeModal';
 import { ontimeBlockRadio } from './ontimeRadio';
 import { ontimeSelect } from './ontimeSelect';
-import { lightSwitch, ontimeSwitch } from './ontimeSwitch';
+import { ontimeSwitch } from './ontimeSwitch';
 import { ontimeTab } from './ontimeTab';
 import {
   ontimeInputFilled,
-  ontimeInputFilledOnLight,
+  ontimeInputGhosted,
   ontimeTextAreaFilled,
-  ontimeTextAreaFilledOnLight,
   ontimeTextAreaTransparent,
 } from './ontimeTextInputs';
 import { ontimeTooltip } from './ontimeTooltip';
 
 const theme = extendTheme({
+  initialColorMode: 'dark',
+  useSystemColorMode: false,
   components: {
     Alert: {
       variants: {
-        'ontime-on-light-info': { ...ontimeAlertOnLight },
+        'ontime-on-dark-info': { ...ontimeAlertOnDark },
       },
     },
     Button: {
@@ -46,14 +46,18 @@ const theme = extendTheme({
         'ontime-outlined': { ...ontimeButtonOutlined },
         'ontime-subtle': { ...ontimeButtonSubtle },
         'ontime-ghosted': { ...ontimeButtonGhosted },
+        'ontime-ghosted-white': { ...ontimeButtonGhostedWhite },
         'ontime-subtle-white': { ...ontimeButtonSubtleWhite },
-        'ontime-subtle-on-light': { ...ontimeButtonSubtleOnLight },
-        'ontime-ghost-on-light': { ...ontimeGhostOnLight },
       },
     },
     Checkbox: {
       variants: {
         'ontime-ondark': { ...ontimeCheckboxOnDark },
+      },
+    },
+    Drawer: {
+      variants: {
+        ontime: { ...ontimeDrawer },
       },
     },
     Editable: {
@@ -68,7 +72,7 @@ const theme = extendTheme({
       },
       variants: {
         'ontime-filled': { ...ontimeInputFilled },
-        'ontime-filled-on-light': { ...ontimeInputFilledOnLight },
+        'ontime-ghosted': { ...ontimeInputGhosted },
       },
     },
     Menu: {
@@ -77,15 +81,11 @@ const theme = extendTheme({
       },
     },
     Modal: {
+      baseStyle: {
+        background: 'rgba(0, 0, 0, 0.5)',
+      },
       variants: {
         ontime: { ...ontimeModal },
-        'ontime-small': { ...ontimeSmallModal },
-        'ontime-upload': { ...ontimeUploadModal },
-      },
-    },
-    Progress: {
-      variants: {
-        'ontime-on-light': { ...ontimeProgressGray },
       },
     },
     Radio: {
@@ -105,7 +105,6 @@ const theme = extendTheme({
       variants: {
         'ontime-filled': { ...ontimeTextAreaFilled },
         'ontime-transparent': { ...ontimeTextAreaTransparent },
-        'ontime-filled-on-light': { ...ontimeTextAreaFilledOnLight },
       },
     },
     Tooltip: {
@@ -114,7 +113,6 @@ const theme = extendTheme({
     Switch: {
       variants: {
         ontime: { ...ontimeSwitch },
-        'ontime-on-light': { ...lightSwitch },
       },
     },
     Select: {

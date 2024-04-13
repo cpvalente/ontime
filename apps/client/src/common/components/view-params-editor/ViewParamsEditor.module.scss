@@ -1,27 +1,9 @@
-@use '../../../theme/v2Styles' as *;
-@use '../../../theme/ontimeColours' as *;
-
-.drawerContent {
-  background-color: $gray-1250;
-}
-
-.drawerHeader {
-  @extend .drawerContent;
-  color: $section-white;
-}
-
 .drawerFooter {
-  @extend .drawerContent;
   display: flex;
-  justify-content: start;
-  gap: $element-spacing;
+  justify-content: end;
+  gap: $section-spacing;
 
-  button[type='reset'] {
-    padding: 0 2em;
-    margin-right: auto;
-  }
-
-  button[type='submit'] {
+  button {
     padding: 0 2em;
   }
 }
@@ -29,13 +11,16 @@
 .label {
   font-size: $inner-section-text-size;
   color: $label-gray;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem
 }
 
 .columnSection {
   display: flex;
-  padding: $element-spacing;
+  padding: $section-spacing 0;
   flex-direction: column;
-  gap: $element-inner-spacing;
+  gap: $element-spacing;
 }
 
 .title {

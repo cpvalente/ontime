@@ -1,18 +1,19 @@
-import { Playback, TimerType } from 'ontime-types';
+import { MaybeNumber, Playback, TimerType } from 'ontime-types';
 
-export type TimeManagerType = {
-  clock: number;
-  current: null | number;
-  elapsed: null | number;
-  duration: null | number;
-  timerBehaviour?: string;
-  timerType: TimerType;
-  expectedFinish: null | number;
+// first set extends TimerState
+export type ViewExtendedTimer = {
   addedTime: number;
-  startedAt: null | number;
-  finishedAt: null | number;
-  secondaryTimer: null | number;
-
-  finished: boolean;
+  current: MaybeNumber;
+  duration: MaybeNumber;
+  elapsed: MaybeNumber;
+  expectedFinish: MaybeNumber;
+  finishedAt: MaybeNumber;
   playback: Playback;
+  secondaryTimer: MaybeNumber;
+  startedAt: MaybeNumber;
+
+  clock: number;
+  timeDanger: MaybeNumber;
+  timeWarning: MaybeNumber;
+  timerType: TimerType;
 };

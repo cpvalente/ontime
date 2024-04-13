@@ -8,118 +8,123 @@ import {
   ViewSettings,
   DatabaseModel,
   OSCSettings,
-  UserFields,
-  Alias,
   Settings,
+  CustomFields,
+  HttpSettings,
+  URLPreset,
 } from 'ontime-types';
 
-import { data, db } from '../../modules/loadDb.js';
+import { data, db } from '../../setup/loadDb.js';
 import { safeMerge } from './DataProvider.utils.js';
+import { isTest } from '../../setup/index.js';
+
+type ReadonlyPromise<T> = Promise<Readonly<T>>;
 
 export class DataProvider {
   static getData() {
     return data;
   }
 
-  static async setProjectData(newData: Partial<ProjectData>) {
+  static async setProjectData(newData: Partial<ProjectData>): ReadonlyPromise<ProjectData> {
     data.project = { ...data.project, ...newData };
-    await this.persist();
+    this.persist();
     return data.project;
   }
 
-  static getProjectData() {
+  static getProjectData(): Readonly<ProjectData> {
     return data.project;
   }
 
-  static async setRundown(newData: OntimeRundown) {
+  static async setCustomFields(newData: CustomFields): ReadonlyPromise<CustomFields> {
+    data.customFields = { ...newData };
+    this.persist();
+    return data.customFields;
+  }
+
+  static getCustomFields(): Readonly<CustomFields> {
+    return data.customFields;
+  }
+
+  static async setRundown(newData: OntimeRundown): ReadonlyPromise<OntimeRundown> {
     data.rundown = [...newData];
-    await this.persist();
+    this.persist();
+    return data.rundown;
   }
 
-  static getIndexOf(eventId: string) {
-    return data.rundown.findIndex((e) => e.id === eventId);
-  }
-
-  static getRundownLength() {
-    return data.rundown.length;
-  }
-
-  static async clearRundown() {
-    data.rundown = [];
-    await db.write();
-  }
-
-  static getSettings() {
+  static getSettings(): Readonly<Settings> {
     return data.settings;
   }
 
-  static async setSettings(newData: Settings) {
+  static async setSettings(newData: Settings): ReadonlyPromise<Settings> {
     data.settings = { ...newData };
-    await this.persist();
+    this.persist();
+    return data.settings;
   }
 
-  static getOsc() {
+  static getOsc(): Readonly<OSCSettings> {
     return data.osc;
   }
 
-  static getHttp() {
+  static getHttp(): Readonly<HttpSettings> {
     return data.http;
   }
 
-  static getAliases() {
-    return data.aliases;
+  static getUrlPresets(): Readonly<URLPreset[]> {
+    return data.urlPresets;
   }
 
-  static async setAliases(newData: Alias[]) {
-    data.aliases = newData;
-    await this.persist();
+  static async setUrlPresets(newData: URLPreset[]): ReadonlyPromise<URLPreset[]> {
+    data.urlPresets = newData;
+    this.persist();
+    return data.urlPresets;
   }
 
-  static getUserFields() {
-    return { ...data.userFields };
+  static getViewSettings(): Readonly<ViewSettings> {
+    return data.viewSettings;
   }
 
-  static getViewSettings() {
-    return { ...data.viewSettings };
-  }
-
-  static async setViewSettings(newData: ViewSettings) {
+  static async setViewSettings(newData: ViewSettings): ReadonlyPromise<ViewSettings> {
     data.viewSettings = { ...newData };
-    await this.persist();
+    this.persist();
+    return data.viewSettings;
   }
 
-  static async setUserFields(newData: UserFields) {
-    data.userFields = { ...newData };
-    await this.persist();
-  }
-
-  static async setOsc(newData: OSCSettings) {
+  static async setOsc(newData: OSCSettings): ReadonlyPromise<OSCSettings> {
     data.osc = { ...newData };
-    await this.persist();
+    this.persist();
+    return data.osc;
   }
 
-  static async setHttp(newData) {
+  static async setHttp(newData: HttpSettings): ReadonlyPromise<HttpSettings> {
     data.http = { ...newData };
-    await this.persist();
+    this.persist();
+    return data.http;
   }
 
-  static getRundown() {
-    return [...data.rundown];
+  static getRundown(): Readonly<OntimeRundown> {
+    return data.rundown;
   }
 
-  static async persist() {
+  private static async persist() {
+    if (isTest) {
+      return;
+    }
     await db.write();
   }
 
-  static async mergeIntoData(newData: Partial<DatabaseModel>) {
+  static async mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<DatabaseModel> {
     const mergedData = safeMerge(data, newData);
     data.project = mergedData.project;
     data.settings = mergedData.settings;
     data.viewSettings = mergedData.viewSettings;
     data.osc = mergedData.osc;
-    data.aliases = mergedData.aliases;
-    data.userFields = mergedData.userFields;
+    data.http = mergedData.http;
+    data.urlPresets = mergedData.urlPresets;
+    data.customFields = mergedData.customFields;
     data.rundown = mergedData.rundown;
-    await this.persist();
+
+    this.persist();
+
+    return data;
   }
 }

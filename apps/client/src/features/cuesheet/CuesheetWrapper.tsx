@@ -1,38 +1,45 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { OntimeRundownEntry, ProjectData } from 'ontime-types';
+import { useCallback, useMemo } from 'react';
+import { IconButton, useDisclosure } from '@chakra-ui/react';
+import { IoApps } from '@react-icons/all-files/io5/IoApps';
+import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
+import { CustomFieldLabel, isOntimeEvent } from 'ontime-types';
 
+import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import Empty from '../../common/components/state/Empty';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useCuesheet } from '../../common/hooks/useSocket';
-import useRundown from '../../common/hooks-query/useRundown';
-import useUserFields from '../../common/hooks-query/useUserFields';
-import ExportModal, { ExportType } from '../modals/export-modal/ExportModal';
+import { useWindowTitle } from '../../common/hooks/useWindowTitle';
+import useCustomFields from '../../common/hooks-query/useCustomFields';
+import { useFlatRundown } from '../../common/hooks-query/useRundown';
+import { CuesheetOverview } from '../overview/Overview';
 
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
-import CuesheetTableHeader from './cuesheet-table-header/CuesheetTableHeader';
+import { useCuesheetSettings } from './store/CuesheetSettings';
 import Cuesheet from './Cuesheet';
 import { makeCuesheetColumns } from './cuesheetCols';
-import { makeCSV, makeTable } from './cuesheetUtils';
 
 import styles from './CuesheetWrapper.module.scss';
 
 export default function CuesheetWrapper() {
-  const { data: rundown } = useRundown();
-  const { data: userFields } = useUserFields();
-  const { updateEvent } = useEventAction();
+  // TODO: can we use the normalised rundown for the table?
+  const { data: flatRundown, status: rundownStatus } = useFlatRundown();
+  const { data: customFields } = useCustomFields();
+  const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
+
+  const { updateCustomField } = useEventAction();
   const featureData = useCuesheet();
-  const columns = useMemo(() => makeCuesheetColumns(userFields), [userFields]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [headerData, setheaderData] = useState<ProjectData | null>(null);
+  const columns = useMemo(() => makeCuesheetColumns(customFields), [customFields]);
+  const toggleSettings = useCuesheetSettings((state) => state.toggleSettings);
 
-  // Set window title
-  useEffect(() => {
-    document.title = 'ontime - Cuesheet';
-  }, []);
+  useWindowTitle('Cuesheet');
 
+  /**
+   * Handles updating a field
+   * Currently, only custom fields can be updated from the cuesheet
+   */
   const handleUpdate = useCallback(
-    async (rowIndex: number, accessor: keyof OntimeRundownEntry, payload: unknown) => {
-      if (!rundown) {
+    async (rowIndex: number, accessor: CustomFieldLabel, payload: unknown) => {
+      if (!flatRundown || rundownStatus !== 'success') {
         return;
       }
 
@@ -41,109 +48,66 @@ export default function CuesheetWrapper() {
       }
 
       // check if value is the same
-      const event = rundown[rowIndex];
-      if (!event) {
+      const event = flatRundown[rowIndex];
+      if (!event || !isOntimeEvent(event)) {
         return;
       }
 
-      if (event[accessor] === payload) {
+      const previousValue = event.custom[accessor]?.value;
+
+      if (previousValue === payload) {
         return;
       }
+
       // check if value is valid
-      // as of now, the fields do not have any validation
+      // in anticipation to different types of event here
       if (typeof payload !== 'string') {
         return;
       }
 
       // cleanup
       const cleanVal = payload.trim();
-      const mutationObject = {
-        id: event.id,
-        [accessor]: cleanVal,
-      };
 
       // submit
       try {
-        await updateEvent(mutationObject);
+        await updateCustomField(event.id, accessor, cleanVal);
       } catch (error) {
         console.error(error);
       }
     },
-    [updateEvent, rundown],
+    [flatRundown, rundownStatus, updateCustomField],
   );
 
-  const exportHandler = useCallback(
-    (headerData: ProjectData, exportType: ExportType) => {
-      if (!headerData || !rundown || !userFields) {
-        return;
-      }
-
-      let fileName = '';
-      let url = '';
-
-      if (exportType === 'json') {
-        const jsonContent = JSON.stringify({
-          headerData,
-          rundown,
-          userFields,
-        });
-
-        fileName = 'ontime export.json';
-
-        const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
-        url = URL.createObjectURL(blob);
-      } else if (exportType === 'csv') {
-        const sheetData = makeTable(headerData, rundown, userFields);
-        const csvContent = makeCSV(sheetData);
-
-        fileName = 'ontime export.csv';
-
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        url = URL.createObjectURL(blob);
-      } else {
-        console.error('Invalid export type: ', exportType);
-        return;
-      }
-
-      const link = document.createElement('a');
-      link.setAttribute('href', url);
-      link.setAttribute('download', fileName);
-      document.body.appendChild(link);
-      link.click();
-      // Clean up the URL.createObjectURL to release resources
-      URL.revokeObjectURL(url);
-      return;
-    },
-    [rundown, userFields],
-  );
-
-  const onModalClose = (exportType?: ExportType) => {
-    setIsModalOpen(false);
-
-    if (!exportType) {
-      return;
-    }
-
-    if (headerData) {
-      exportHandler(headerData, exportType);
-    }
-  };
-
-  const handleOpenModal = (projectData: ProjectData) => {
-    setheaderData(projectData);
-    setIsModalOpen(true);
-  };
-
-  if (!rundown || !userFields) {
+  if (!customFields || !flatRundown || rundownStatus !== 'success') {
     return <Empty text='Loading...' />;
   }
 
   return (
     <div className={styles.tableWrapper} data-testid='cuesheet'>
-      <CuesheetTableHeader handleExport={handleOpenModal} featureData={featureData} />
+      <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
+      <CuesheetOverview>
+        <IconButton
+          aria-label='Toggle settings'
+          variant='ontime-subtle-white'
+          size='lg'
+          icon={<IoApps />}
+          onClick={onOpen}
+        />
+        <IconButton
+          aria-label='Toggle navigation'
+          variant='ontime-subtle-white'
+          size='lg'
+          icon={<IoSettingsOutline />}
+          onClick={() => toggleSettings()}
+        />
+      </CuesheetOverview>
       <CuesheetProgress />
-      <Cuesheet data={rundown} columns={columns} handleUpdate={handleUpdate} selectedId={featureData.selectedEventId} />
-      <ExportModal isOpen={isModalOpen} onClose={onModalClose} />
+      <Cuesheet
+        data={flatRundown}
+        columns={columns}
+        handleUpdate={handleUpdate}
+        selectedId={featureData.selectedEventId}
+      />
     </div>
   );
 }

@@ -1,39 +1,31 @@
-import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Settings, ViewSettings } from 'ontime-types';
 
-import { overrideStylesURL } from '../../../common/api/apiConstants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import { overrideStylesURL } from '../../../common/api/constants';
 import { getClockOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { TimeManagerType } from '../../../common/models/TimeManager.type';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
+import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
-import { formatTime } from '../../../common/utils/time';
+import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import './Clock.scss';
 
 interface ClockProps {
   isMirrored: boolean;
-  time: TimeManagerType;
+  time: ViewExtendedTimer;
   viewSettings: ViewSettings;
   settings: Settings | undefined;
 }
-
-const formatOptions = {
-  showSeconds: true,
-  format: 'hh:mm:ss a',
-};
 
 export default function Clock(props: ClockProps) {
   const { isMirrored, time, viewSettings, settings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
-    document.title = 'ontime - Clock';
-  }, []);
+  useWindowTitle('Clock');
 
   // defer rendering until we load stylesheets
   if (!shouldRender) {
@@ -122,10 +114,11 @@ export default function Clock(props: ClockProps) {
     }
   }
 
-  const clock = formatTime(time.clock, formatOptions);
+  const clock = formatTime(time.clock);
   const clean = clock.replace('/:/g', '');
 
-  const clockOptions = getClockOptions(settings?.timeFormat ?? '24');
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const clockOptions = getClockOptions(defaultFormat);
 
   return (
     <div
@@ -137,7 +130,6 @@ export default function Clock(props: ClockProps) {
       }}
       data-testid='clock-view'
     >
-      <NavigationMenu />
       <ViewParamsEditor paramFields={clockOptions} />
       <SuperscriptTime
         time={clock}

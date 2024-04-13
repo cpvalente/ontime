@@ -2,19 +2,21 @@ import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
+import { splitVendorChunkPlugin } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 import svgrPlugin from 'vite-plugin-svgr';
 
 import { ONTIME_VERSION } from './src/ONTIME_VERSION';
 
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
-const isLocal = process.env.NODE_ENV === 'local';
+const isDev = process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'development';
 
 export default defineConfig({
   plugins: [
     react(),
+    splitVendorChunkPlugin(),
     svgrPlugin(),
-    !isLocal &&
+    !isDev &&
       sentryVitePlugin({
         org: 'get-ontime',
         project: 'ontime',
@@ -23,6 +25,12 @@ export default defineConfig({
         release: ONTIME_VERSION,
         deploy: {
           env: 'production',
+        },
+        bundleSizeOptimizations: {
+          excludeDebugStatements: true,
+          excludeReplayIframe: true,
+          excludeReplayShadowDom: true,
+          excludeReplayWorker: true,
         },
       }),
     compression({ algorithm: 'brotliCompress' }),
@@ -42,6 +50,16 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `
+        @use './src/theme/ontimeColours' as *;
+        @use './src/theme/ontimeStyles' as *;
+        `,
+      },
     },
   },
 });

@@ -1,13 +1,10 @@
 import { Tooltip } from '@chakra-ui/react';
-import { IoContract } from '@react-icons/all-files/io5/IoContract';
-import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoLocate } from '@react-icons/all-files/io5/IoLocate';
-import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 import { Playback, ProjectData } from 'ontime-types';
 
 import PlaybackIcon from '../../../common/components/playback-icon/PlaybackIcon';
-import useFullscreen from '../../../common/hooks/useFullscreen';
 import useProjectData from '../../../common/hooks-query/useProjectData';
+import { cx, enDash } from '../../../common/utils/styleUtils';
 import { tooltipDelayFast } from '../../../ontimeConfig';
 import { useCuesheetSettings } from '../store/CuesheetSettings';
 
@@ -27,10 +24,7 @@ interface CuesheetTableHeaderProps {
 
 export default function CuesheetTableHeader({ handleExport, featureData }: CuesheetTableHeaderProps) {
   const followSelected = useCuesheetSettings((state) => state.followSelected);
-  const showSettings = useCuesheetSettings((state) => state.showSettings);
-  const toggleSettings = useCuesheetSettings((state) => state.toggleSettings);
   const toggleFollow = useCuesheetSettings((state) => state.toggleFollow);
-  const { isFullScreen, toggleFullScreen } = useFullscreen();
   const { data: project } = useProjectData();
 
   const exportProject = () => {
@@ -41,15 +35,15 @@ export default function CuesheetTableHeader({ handleExport, featureData }: Cuesh
 
   const selected = !featureData.numEvents
     ? 'No events'
-    : `Event ${featureData.selectedEventIndex != null ? featureData.selectedEventIndex + 1 : '-'}/${
-        featureData.numEvents ? featureData.numEvents : '-'
+    : `Event ${featureData.selectedEventIndex != null ? featureData.selectedEventIndex + 1 : enDash}/${
+        featureData.numEvents ? featureData.numEvents : enDash
       }`;
 
   return (
     <div className={style.header}>
       <div className={style.event}>
-        <div className={style.title}>{project?.title || '-'}</div>
-        <div className={style.eventNow}>{featureData?.titleNow || '-'}</div>
+        <div className={style.title}>{project?.title || enDash}</div>
+        <div className={style.eventNow}>{featureData?.titleNow || enDash}</div>
       </div>
       <div className={style.playback}>
         <div className={style.playbackLabel}>{selected}</div>
@@ -58,23 +52,16 @@ export default function CuesheetTableHeader({ handleExport, featureData }: Cuesh
       <CuesheetTableHeaderTimers />
       <div className={style.headerActions}>
         <Tooltip openDelay={tooltipDelayFast} label='Toggle follow'>
-          <span onClick={() => toggleFollow()} className={`${style.actionIcon} ${followSelected ? style.enabled : ''}`}>
+          <span
+            onClick={() => toggleFollow()}
+            className={cx([style.actionIcon, followSelected ? style.enabled : null])}
+          >
             <IoLocate />
           </span>
         </Tooltip>
-        <Tooltip openDelay={tooltipDelayFast} label='Toggle settings'>
-          <span onClick={() => toggleSettings()} className={`${style.actionIcon} ${showSettings ? style.enabled : ''}`}>
-            <IoSettingsOutline />
-          </span>
-        </Tooltip>
-        <Tooltip openDelay={tooltipDelayFast} label='Toggle Fullscreen'>
-          <span onClick={() => toggleFullScreen()} className={style.actionIcon}>
-            {isFullScreen ? <IoContract /> : <IoExpand />}
-          </span>
-        </Tooltip>
         <Tooltip openDelay={tooltipDelayFast} label='Export rundown'>
-          <span className={style.actionIcon} onClick={exportProject}>
-            Export
+          <span className={style.actionText} onClick={exportProject}>
+            Export CSV
           </span>
         </Tooltip>
       </div>

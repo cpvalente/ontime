@@ -1,7 +1,8 @@
-import { Settings } from 'ontime-types';
-import { formatFromMillis, millisToString } from 'ontime-utils';
+import { MaybeNumber, Settings, TimeFormat } from 'ontime-types';
+import { formatFromMillis } from 'ontime-utils';
 
-import { APP_SETTINGS } from '../api/apiConstants';
+import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';
+import { APP_SETTINGS } from '../api/constants';
 import { ontimeQueryClient } from '../queryClient';
 
 /**
@@ -22,36 +23,75 @@ export const nowInMillis = () => {
 
 /**
  * @description Resolves format from url and store
- * @return {string|undefined}
+ * @return {string|null} A format string like "hh:mm:ss a" or null
  */
-export const resolveTimeFormat = () => {
+function getFormatFromParams() {
   const params = new URL(document.location.href).searchParams;
-  const urlOptions = params.get('format');
-  const settings: Settings | undefined = ontimeQueryClient.getQueryData(APP_SETTINGS);
+  return params.get('timeformat');
+}
 
-  return urlOptions || settings?.timeFormat;
-};
+/**
+ * Gets the format options from the applicaton settings
+ * @returns a string equivalent to the format, ie: hh:mm:ss a or HH:mm:ss
+ */
+export function getFormatFromSettings(): TimeFormat {
+  const settings: Settings | undefined = ontimeQueryClient.getQueryData(APP_SETTINGS);
+  return settings?.timeFormat ?? '24';
+}
+
+export function getDefaultFormat(
+  currentSettings?: TimeFormat,
+  format12: string = FORMAT_12,
+  format24: string = FORMAT_24,
+): string {
+  if (currentSettings === '12') {
+    return format12;
+  }
+  return format24;
+}
+
+function resolveTimeFormat(fallback12: string, fallback24: string): string {
+  // if the user has an option, we use that
+  const formatFromParams = getFormatFromParams();
+  if (formatFromParams) {
+    return formatFromParams;
+  }
+
+  // otherwise we use the view defined, with respect to the 12-24 hour settings
+  const formatFromSettings = getFormatFromSettings();
+  if (formatFromSettings === '12') {
+    return fallback12;
+  }
+
+  return fallback24;
+}
 
 type FormatOptions = {
-  showSeconds?: boolean;
-  format?: string;
+  format12: string;
+  format24: string;
 };
 
 /**
- * @description utility function to format a date in 12 or 24 hour format
- * @param {number | null} milliseconds
+ * @description viewer specific utility function to format a date in 12 or 24 hour format
+ * @param {MaybeNumber} milliseconds
  * @param {object} [options]
- * @param {boolean} [options.showSeconds]
- * @param {string} [options.format]
- * @param {function} resolver
+ * @param {string} [options.format.format12] format string if 12 hour time
+ * @param {string} [options.format.format24] format string if 24 hour time
+ * @param {Function} resolver DI for testing
  * @return {string}
  */
-export const formatTime = (milliseconds: number | null, options?: FormatOptions, resolver = resolveTimeFormat) => {
+export const formatTime = (
+  milliseconds: MaybeNumber,
+  options?: FormatOptions,
+  resolver = resolveTimeFormat,
+): string => {
   if (milliseconds === null) {
     return '...';
   }
-  const timeFormat = resolver();
-  const fallback = options?.showSeconds ? 'hh:mm:ss a' : 'hh:mm a';
-  const { showSeconds = false, format: formatString = fallback } = options || {};
-  return timeFormat === '12' ? formatFromMillis(milliseconds, formatString) : millisToString(milliseconds, showSeconds);
+
+  const timeFormat = resolver(options?.format12 ?? FORMAT_12, options?.format24 ?? FORMAT_24);
+  const display = formatFromMillis(Math.abs(milliseconds), timeFormat);
+
+  const isNegative = milliseconds < 0;
+  return `${isNegative ? '-' : ''}${display}`;
 };

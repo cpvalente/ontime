@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import { Playback } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { MaybeNumber, Playback } from 'ontime-types';
 
 import PlaybackIcon from '../../../common/components/playback-icon/PlaybackIcon';
-import { useTimer } from '../../../common/hooks/useSocket';
+import { useClock, useTimer } from '../../../common/hooks/useSocket';
 import { cx } from '../../../common/utils/styleUtils';
-import { formatTime } from '../../../common/utils/time';
+import ClockTime from '../../viewers/common/clock-time/ClockTime';
+import RunningTime from '../../viewers/common/running-time/RunningTime';
 
 import styles from './StatusBar.module.scss';
 
@@ -23,31 +23,32 @@ export default function StatusBarTimers(props: StatusBarTimersProps) {
   const { projectTitle, playback, selectedEventId, firstStart, firstId, lastEnd, lastId } = props;
 
   const timer = useTimer();
+  const { clock } = useClock();
 
-  const getTimeStart = () => {
+  const getTimeStart = (): MaybeNumber => {
     if (firstStart === undefined) {
-      return '...';
+      return null;
     }
 
     if (selectedEventId) {
       if (firstId === selectedEventId) {
-        return millisToString(timer.expectedFinish);
+        return timer.expectedFinish;
       }
     }
-    return millisToString(firstStart);
+    return firstStart;
   };
 
-  const getTimeEnd = () => {
+  const getTimeEnd = (): MaybeNumber => {
     if (lastEnd === undefined) {
-      return '...';
+      return null;
     }
 
     if (selectedEventId) {
       if (lastId === selectedEventId) {
-        return millisToString(timer.expectedFinish);
+        return timer.expectedFinish;
       }
     }
-    return millisToString(lastEnd);
+    return lastEnd;
   };
 
   const PlaybackIconComponent = useMemo(() => {
@@ -56,38 +57,30 @@ export default function StatusBarTimers(props: StatusBarTimersProps) {
     return <PlaybackIcon state={playback} skipTooltip className={classes} />;
   }, [playback]);
 
-  // use user defined format
-  const timeNow = formatTime(timer.clock, {
-    showSeconds: true,
-  });
-
-  const runningTime = millisToString(timer.current);
-  const elapsedTime = millisToString(timer.elapsed);
-
   return (
     <div className={styles.timers}>
       {PlaybackIconComponent}
       <div className={styles.timeNow}>
         <span className={styles.label}>Time now</span>
-        <span className={styles.timer}>{timeNow}</span>
+        <ClockTime className={styles.timer} value={clock} />
       </div>
       <div className={styles.elapsedTime}>
         <span className={styles.label}>Elapsed time</span>
-        <span className={styles.timer}>{elapsedTime}</span>
+        <RunningTime className={styles.timer} value={timer.elapsed} />
       </div>
       <div className={styles.runningTime}>
         <span className={styles.label}>Running timer</span>
-        <span className={styles.timer}>{runningTime}</span>
+        <RunningTime className={styles.timer} value={timer.current} />
       </div>
 
       <span className={styles.title}>{projectTitle}</span>
       <div className={styles.startTime}>
         <span className={styles.label}>Scheduled start</span>
-        <span className={styles.timer}>{getTimeStart()}</span>
+        <ClockTime className={styles.timer} value={getTimeStart()} />
       </div>
       <div className={styles.endTime}>
         <span className={styles.label}>Scheduled end</span>
-        <span className={styles.timer}>{getTimeEnd()}</span>
+        <ClockTime className={styles.timer} value={getTimeEnd()} />
       </div>
     </div>
   );

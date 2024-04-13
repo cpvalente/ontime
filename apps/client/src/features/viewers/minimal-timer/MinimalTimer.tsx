@@ -1,43 +1,40 @@
-import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
 
-import { overrideStylesURL } from '../../../common/api/apiConstants';
-import NavigationMenu from '../../../common/components/navigation-menu/NavigationMenu';
+import { overrideStylesURL } from '../../../common/api/constants';
 import { MINIMAL_TIMER_OPTIONS } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { TimeManagerType } from '../../../common/models/TimeManager.type';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
+import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
-import { isStringBoolean } from '../../../common/utils/viewUtils';
-import { formatTimerDisplay, getTimerByType } from '../common/viewerUtils';
+import { useTranslation } from '../../../translation/TranslationProvider';
+import { getFormattedTimer, getTimerByType, isStringBoolean } from '../common/viewUtils';
 
 import './MinimalTimer.scss';
 
 interface MinimalTimerProps {
   isMirrored: boolean;
   pres: TimerMessage;
-  time: TimeManagerType;
+  time: ViewExtendedTimer;
   viewSettings: ViewSettings;
 }
 
 export default function MinimalTimer(props: MinimalTimerProps) {
   const { isMirrored, pres, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+  const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
 
-  useEffect(() => {
-    document.title = 'ontime - Minimal Timer';
-  }, []);
+  useWindowTitle('Minimal Timer');
 
   // defer rendering until we load stylesheets
   if (!shouldRender) {
     return null;
   }
 
-  // get config from url: key, text, font, size, hideovertime
-  // eg. http://localhost:3000/minimal?key=f00&text=fff
-  // Check for user options
+  // TODO: this should be tied to the params
+  // USER OPTIONS
   const userOptions: OverridableOptions = {
     size: 1,
   };
@@ -126,30 +123,34 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const hideEndMessage = searchParams.get('hideendmessage');
   userOptions.hideEndMessage = isStringBoolean(hideEndMessage);
 
+  const hideTimerSeconds = searchParams.get('hideTimerSeconds');
+  userOptions.hideTimerSeconds = isStringBoolean(hideTimerSeconds);
+
   const timerIsTimeOfDay = time.timerType === TimerType.Clock;
 
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
-  const isNegative = (time.current ?? 0) < 0 && !timerIsTimeOfDay && time.timerType !== TimerType.CountUp;
+
   const showEndMessage = (time.current ?? 0) < 0 && viewSettings.endMessage && !hideEndMessage;
   const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
   const showFinished = finished && !userOptions?.hideOvertime && (time.timerType !== TimerType.Clock || showEndMessage);
 
   const showProgress = time.playback !== Playback.Stop;
-  const showWarning = (time.current ?? 1) < viewSettings.warningThreshold;
-  const showDanger = (time.current ?? 1) < viewSettings.dangerThreshold;
-  const showBlinking = pres.timerBlink;
-  const showBlackout = pres.timerBlackout;
+  const showWarning = (time.current ?? 1) < (time.timeWarning ?? 0);
+  const showDanger = (time.current ?? 1) < (time.timeDanger ?? 0);
+  const showBlinking = pres.blink;
+  const showBlackout = pres.blackout;
 
   let timerColor = viewSettings.normalColor;
   if (!timerIsTimeOfDay && showProgress && showWarning) timerColor = viewSettings.warningColor;
   if (!timerIsTimeOfDay && showProgress && showDanger) timerColor = viewSettings.dangerColor;
 
-  const stageTimer = getTimerByType(time);
-  let display = formatTimerDisplay(stageTimer);
-  if (isNegative) {
-    display = `-${display}`;
-  }
+  const stageTimer = getTimerByType(viewSettings.freezeEnd, time);
+  const display = getFormattedTimer(stageTimer, time.timerType, getLocalizedString('common.minutes'), {
+    removeSeconds: userOptions.hideTimerSeconds,
+    removeLeadingZero: true,
+  });
+
   const stageTimerCharacters = display.replace('/:/g', '').length;
 
   const timerFontSize = (89 / (stageTimerCharacters - 1)) * (userOptions.size || 1);
@@ -169,7 +170,6 @@ export default function MinimalTimer(props: MinimalTimerProps) {
       }}
       data-testid='minimal-timer'
     >
-      <NavigationMenu />
       <ViewParamsEditor paramFields={MINIMAL_TIMER_OPTIONS} />
       {!hideMessagesOverlay && (
         <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>

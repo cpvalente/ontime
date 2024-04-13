@@ -1,17 +1,14 @@
-import { TimerType } from '../TimerType.type.js';
-import { EndAction } from '../EndAction.type.js';
+import type { MaybeNumber } from '../../index.js';
+import type { Playback } from './Playback.type.js';
 
 export type TimerState = {
-  clock: number; // realtime clock
-  current: number | null; // running countdown
-  elapsed: number | null; // elapsed time in current timer
-  expectedFinish: number | null;
   addedTime: number; // time added by user, can be negative
-  startedAt: number | null;
-  finishedAt: number | null; // only if timer has already finished
-  secondaryTimer: number | null; // used for roll mode
-  selectedEventId: string | null;
-  duration: number | null;
-  timerType: TimerType | null;
-  endAction: EndAction | null;
+  current: MaybeNumber; // running countdown
+  duration: MaybeNumber; // normalised duration of current event
+  elapsed: MaybeNumber; // elapsed time in current timer
+  expectedFinish: MaybeNumber; // time we expect timer to finish
+  finishedAt: MaybeNumber; // only if timer has already finished
+  playback: Playback;
+  secondaryTimer: MaybeNumber; // used for roll mode
+  startedAt: MaybeNumber; // only if timer has already started
 };

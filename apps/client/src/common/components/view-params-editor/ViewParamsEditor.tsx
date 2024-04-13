@@ -1,5 +1,5 @@
 import { FormEvent, useEffect } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import {
   Button,
   Drawer,
@@ -12,30 +12,26 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
-import { useLocalStorage } from '../../../common/hooks/useLocalStorage';
-
 import ParamInput from './ParamInput';
 import { ParamField } from './types';
 
 import style from './ViewParamsEditor.module.scss';
 
 type ViewParamsObj = { [key: string]: string | FormDataEntryValue };
-type SavedViewParams = Record<string, ViewParamsObj>;
 
+/**
+ * Makes a new URLSearchParams object from the given params object
+ */
 const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj, paramFields: ParamField[]) => {
-  const defaultValues = paramFields.map(({ defaultValue }) => String(defaultValue));
+  const defaultValues = paramFields.reduce<Record<string, string>>((acc, { id, defaultValue }) => {
+    acc[id] = String(defaultValue);
+    return acc;
+  }, {});
 
   return Object.entries(paramsObj).reduce((newSearchParams, [id, value]) => {
-    if (typeof value === 'string' && value.length) {
-      if (defaultValues.includes(value)) {
-        return newSearchParams;
-      }
-
+    if (typeof value === 'string' && value.length && defaultValues[id] !== value) {
       newSearchParams.set(id, value);
-
-      return newSearchParams;
     }
-
     return newSearchParams;
   }, new URLSearchParams());
 };
@@ -47,8 +43,6 @@ interface EditFormDrawerProps {
 export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const { pathname } = useLocation();
-  const [storedViewParams, setStoredViewParams] = useLocalStorage<SavedViewParams>('ontime-views', {});
 
   useEffect(() => {
     const isEditing = searchParams.get('edit');
@@ -58,37 +52,16 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
     }
   }, [searchParams, onOpen]);
 
-  /**
-   * disabling this for now, this feature needs more testing
-   * - we seem to have a bug where this is conflicting with the aliases
-   * - I wonder if the logic below needs to be inside an effect, 
-   * both localStorage and searchParams should trigger a component update when they change
-
-  useEffect(() => {
-    const viewParamsObjFromLocalStorage = storedViewParams[pathname];
-
-    if (viewParamsObjFromLocalStorage !== undefined) {
-      const defaultSearchParams = getURLSearchParamsFromObj(viewParamsObjFromLocalStorage);
-      setSearchParams(defaultSearchParams);
-    }
-
-    // linter is asking for `setSearchParams` & `storedViewParams` in the useEffect deps
-    // rule is disabled since adding `setSearchParams` & `storedViewParams` results in unnecessary re-renders
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
-
-  */
-
-  const onCloseWithoutSaving = () => {
-    onClose();
-
+  const handleClose = () => {
     searchParams.delete('edit');
     setSearchParams(searchParams);
+
+    onClose();
   };
 
   const resetParams = () => {
-    setStoredViewParams({ ...storedViewParams, [pathname]: {} });
     setSearchParams();
+    onClose();
   };
 
   const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
@@ -96,21 +69,21 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
 
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, paramFields);
-
-    setStoredViewParams({ ...storedViewParams, [pathname]: newParamsObject });
     setSearchParams(newSearchParams);
+
+    onClose();
   };
 
   return (
-    <Drawer isOpen={isOpen} placement='right' onClose={onCloseWithoutSaving} size='lg'>
+    <Drawer isOpen={isOpen} placement='right' onClose={handleClose} variant='ontime' size='lg'>
       <DrawerOverlay />
       <DrawerContent>
-        <DrawerHeader className={style.drawerHeader}>
-          <DrawerCloseButton _hover={{ bg: '#ebedf0', color: '#333' }} size='lg' />
+        <DrawerHeader>
+          <DrawerCloseButton size='lg' />
           Customise
         </DrawerHeader>
 
-        <DrawerBody className={style.drawerContent}>
+        <DrawerBody>
           <form id='edit-params-form' onSubmit={onParamsFormSubmit}>
             {paramFields.map((field) => (
               <div key={field.title} className={style.columnSection}>
@@ -126,10 +99,7 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
 
         <DrawerFooter className={style.drawerFooter}>
           <Button variant='ontime-ghosted' onClick={resetParams} type='reset'>
-            Reset
-          </Button>
-          <Button variant='ontime-subtle' onClick={onCloseWithoutSaving}>
-            Cancel
+            Reset to default
           </Button>
           <Button variant='ontime-filled' form='edit-params-form' type='submit'>
             Save

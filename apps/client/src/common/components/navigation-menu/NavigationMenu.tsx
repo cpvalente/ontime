@@ -1,99 +1,79 @@
-import { KeyboardEvent, memo, useEffect, useRef, useState } from 'react';
+import { memo, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Link, useLocation, useSearchParams } from 'react-router-dom';
-import { useDisclosure } from '@chakra-ui/react';
-import { IoApps } from '@react-icons/all-files/io5/IoApps';
+import { Link } from 'react-router-dom';
+import {
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
+  useDisclosure,
+} from '@chakra-ui/react';
+import { useFullscreen } from '@mantine/hooks';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
 import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
-import { IoPencilSharp } from '@react-icons/all-files/io5/IoPencilSharp';
+import { IoLockClosedOutline } from '@react-icons/all-files/io5/IoLockClosedOutline';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 
 import { navigatorConstants } from '../../../viewerConfig';
 import useClickOutside from '../../hooks/useClickOutside';
-import useFullscreen from '../../hooks/useFullscreen';
 import { useViewOptionsStore } from '../../stores/viewOptions';
+import { isKeyEnter } from '../../utils/keyEvent';
 
 import RenameClientModal from './rename-client-modal/RenameClientModal';
 
 import style from './NavigationMenu.module.scss';
 
-function NavigationMenu() {
-  const location = useLocation();
+interface NavigationMenuProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
-  const { isFullScreen, toggleFullScreen } = useFullscreen();
+function NavigationMenu(props: NavigationMenuProps) {
+  const { isOpen, onClose } = props;
+
+  const { isOpen: isRenameOpen, onOpen: onRenameOpen, onClose: onRenameClose } = useDisclosure();
+
+  const { fullscreen, toggle } = useFullscreen();
   const { toggleMirror } = useViewOptionsStore();
-  const [showButton, setShowButton] = useState(false);
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [showMenu, setShowMenu] = useState(false);
+
   const menuRef = useRef<HTMLDivElement | null>(null);
 
-  useClickOutside(menuRef, () => setShowMenu(false));
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const toggleMenu = () => setShowMenu((prev) => !prev);
-
-  // show on mouse move
-  useEffect(() => {
-    let fadeOut: NodeJS.Timeout | null = null;
-    const setShowMenuTrue = () => {
-      setShowButton(true);
-      if (fadeOut) {
-        clearTimeout(fadeOut);
-      }
-      fadeOut = setTimeout(() => setShowButton(false), 3000);
-    };
-    document.addEventListener('mousemove', setShowMenuTrue);
-    return () => {
-      document.removeEventListener('mousemove', setShowMenuTrue);
-      if (fadeOut) {
-        clearTimeout(fadeOut);
-      }
-    };
-  }, []);
-
-  const isKeyEnter = (event: KeyboardEvent<HTMLDivElement>) => event.key === 'Enter';
-  const handleFullscreen = () => toggleFullScreen();
-  const handleMirror = () => toggleMirror();
-
-  const showEditFormDrawer = () => {
-    searchParams.set('edit', 'true');
-    setSearchParams(searchParams);
-  };
+  useClickOutside(menuRef, () => onClose);
 
   return createPortal(
     <div id='navigation-menu-portal' ref={menuRef}>
-      <RenameClientModal isOpen={isOpen} onClose={onClose} />
-      <div className={`${style.buttonContainer} ${!showButton && !showMenu ? style.hidden : ''}`}>
-        <button onClick={toggleMenu} aria-label='toggle menu' className={style.navButton}>
-          <IoApps />
-        </button>
-        <button className={style.button} onClick={showEditFormDrawer}>
-          <IoPencilSharp />
-        </button>
-        {showMenu && (
-          <div className={style.menuContainer} data-testid='navigation-menu'>
+      <RenameClientModal isOpen={isRenameOpen} onClose={onRenameClose} />
+      <Drawer placement='left' onClose={onClose} isOpen={isOpen} variant='ontime' data-testid='navigation__menu'>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerCloseButton size='lg' />
+            Ontime
+          </DrawerHeader>
+          <DrawerBody padding={0}>
             <div className={style.buttonsContainer}>
               <div
                 className={style.link}
                 tabIndex={0}
                 role='button'
-                onClick={handleFullscreen}
+                onClick={toggle}
                 onKeyDown={(event) => {
-                  isKeyEnter(event) && handleFullscreen();
+                  isKeyEnter(event) && toggle();
                 }}
               >
                 Toggle Fullscreen
-                {isFullScreen ? <IoContract /> : <IoExpand />}
+                {fullscreen ? <IoContract /> : <IoExpand />}
               </div>
               <div
                 className={style.link}
                 tabIndex={0}
                 role='button'
-                onClick={handleMirror}
+                onClick={() => toggleMirror()}
                 onKeyDown={(event) => {
-                  isKeyEnter(event) && handleMirror();
+                  isKeyEnter(event) && toggleMirror();
                 }}
               >
                 Flip Screen
@@ -103,20 +83,35 @@ function NavigationMenu() {
                 className={style.link}
                 tabIndex={0}
                 role='button'
-                onClick={onOpen}
+                onClick={onRenameOpen}
                 onKeyDown={(event) => {
-                  isKeyEnter(event) && onOpen();
+                  isKeyEnter(event) && onRenameOpen();
                 }}
               >
                 Rename Client
               </div>
             </div>
             <hr className={style.separator} />
-            <Link to='/cuesheet' className={style.link} tabIndex={0}>
+            <Link
+              to='/editor'
+              className={`${style.link} ${location.pathname === '/editor' ? style.current : ''}`}
+              tabIndex={0}
+            >
+              <IoLockClosedOutline />
+              Editor
+              <IoArrowUp className={style.linkIcon} />
+            </Link>
+            <Link
+              to='/cuesheet'
+              className={`${style.link} ${location.pathname === '/cuesheet' ? style.current : ''}`}
+              tabIndex={0}
+            >
+              <IoLockClosedOutline />
               Cuesheet
               <IoArrowUp className={style.linkIcon} />
             </Link>
-            <Link to='/op' className={style.link} tabIndex={0}>
+            <Link to='/op' className={`${style.link} ${location.pathname === '/op' ? style.current : ''}`} tabIndex={0}>
+              <IoLockClosedOutline />
               Operator
               <IoArrowUp className={style.linkIcon} />
             </Link>
@@ -132,11 +127,10 @@ function NavigationMenu() {
                 <IoArrowUp className={style.linkIcon} />
               </Link>
             ))}
-          </div>
-        )}
-      </div>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </div>,
-
     document.body,
   );
 }

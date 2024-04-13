@@ -14,7 +14,7 @@ export default function RundownEmpty(props: RundownEmptyProps) {
 
   return (
     <div className={style.alignCenter}>
-      <Empty text='No data yet' style={{ marginTop: '7vh' }} />
+      <Empty style={{ marginTop: '7vh' }} />
       <Button onClick={handleAddNew} variant='ontime-filled' className={style.spaceTop} leftIcon={<IoAdd />}>
         Create Event
       </Button>

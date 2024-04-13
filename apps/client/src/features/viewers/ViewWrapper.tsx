@@ -1,35 +1,47 @@
 import { ComponentType, useMemo } from 'react';
-import { TimeManagerType } from 'common/models/TimeManager.type';
-import { Message, OntimeEvent, ProjectData, Settings, SupportedEvent, TimerMessage, ViewSettings } from 'ontime-types';
+import { ViewExtendedTimer } from 'common/models/TimeManager.type';
+import {
+  CustomFields,
+  Message,
+  OntimeEvent,
+  ProjectData,
+  Settings,
+  SupportedEvent,
+  TimerMessage,
+  ViewSettings,
+} from 'ontime-types';
 import { useStore } from 'zustand';
 
+import ViewNavigationMenu from '../../common/components/navigation-menu/ViewNavigationMenu';
+import useCustomFields from '../../common/hooks-query/useCustomFields';
 import useProjectData from '../../common/hooks-query/useProjectData';
-import useRundown from '../../common/hooks-query/useRundown';
+import { useFlatRundown } from '../../common/hooks-query/useRundown';
 import useSettings from '../../common/hooks-query/useSettings';
 import useViewSettings from '../../common/hooks-query/useViewSettings';
-import { runtime } from '../../common/stores/runtime';
+import { runtimeStore } from '../../common/stores/runtime';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
 
 type WithDataProps = {
+  backstageEvents: OntimeEvent[];
+  customFields: CustomFields;
+  eventNext: OntimeEvent | null;
+  eventNow: OntimeEvent | null;
+  events: OntimeEvent[];
+  external: Message;
+  general: ProjectData;
   isMirrored: boolean;
+  lower: Message;
+  nextId: string | null;
+  onAir: boolean;
   pres: TimerMessage;
   publ: Message;
-  lower: Message;
-  external: Message;
-  eventNow: OntimeEvent | null;
-  publicEventNow: OntimeEvent | null;
-  eventNext: OntimeEvent | null;
   publicEventNext: OntimeEvent | null;
-  time: TimeManagerType;
-  events: OntimeEvent[];
-  backstageEvents: OntimeEvent[];
-  selectedId: string | null;
+  publicEventNow: OntimeEvent | null;
   publicSelectedId: string | null;
-  nextId: string | null;
-  general: ProjectData;
-  viewSettings: ViewSettings;
+  selectedId: string | null;
   settings: Settings | undefined;
-  onAir: boolean;
+  time: ViewExtendedTimer;
+  viewSettings: ViewSettings;
 };
 
 function getDisplayName(Component: React.ComponentType<any>): string {
@@ -42,10 +54,11 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     const isMirrored = useViewOptionsStore((state) => state.mirror);
 
     // HTTP API data
-    const { data: rundownData } = useRundown();
+    const { data: rundownData } = useFlatRundown();
     const { data: project } = useProjectData();
     const { data: viewSettings } = useViewSettings();
     const { data: settings } = useSettings();
+    const { data: customFields } = useCustomFields();
 
     const publicEvents = useMemo(() => {
       if (Array.isArray(rundownData)) {
@@ -55,23 +68,11 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     }, [rundownData]);
 
     // websocket data
-    const {
-      timer,
-      publicMessage,
-      timerMessage,
-      lowerMessage,
-      externalMessage,
-      playback,
-      onAir,
-      eventNext,
-      publicEventNext,
-      publicEventNow,
-      eventNow,
-      loaded,
-    } = useStore(runtime);
-    const publicSelectedId = loaded.selectedPublicEventId;
-    const selectedId = loaded.selectedEventId;
-    const nextId = loaded.nextEventId;
+    const { clock, timer, message, onAir, eventNext, publicEventNext, publicEventNow, eventNow } =
+      useStore(runtimeStore);
+    const publicSelectedId = publicEventNow?.id ?? null;
+    const selectedId = eventNow?.id ?? null;
+    const nextId = eventNext?.id ?? null;
 
     /******************************************/
     /***  + TimeManagerType                     ***/
@@ -81,7 +82,10 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
 
     const TimeManagerType = {
       ...timer,
-      playback,
+      clock,
+      timerType: eventNow?.timerType ?? null,
+      timeWarning: eventNow?.timeWarning ?? null,
+      timeDanger: eventNow?.timeWarning ?? null,
     };
 
     // prevent render until we get all the data we need
@@ -90,28 +94,32 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     }
 
     return (
-      <Component
-        {...props}
-        isMirrored={isMirrored}
-        pres={timerMessage}
-        publ={publicMessage}
-        lower={lowerMessage}
-        external={externalMessage}
-        eventNow={eventNow}
-        publicEventNow={publicEventNow}
-        eventNext={eventNext}
-        publicEventNext={publicEventNext}
-        time={TimeManagerType}
-        events={publicEvents}
-        backstageEvents={rundownData}
-        selectedId={selectedId}
-        publicSelectedId={publicSelectedId}
-        viewSettings={viewSettings}
-        settings={settings}
-        nextId={nextId}
-        general={project}
-        onAir={onAir}
-      />
+      <>
+        <ViewNavigationMenu />
+        <Component
+          {...props}
+          backstageEvents={rundownData}
+          customFields={customFields}
+          eventNext={eventNext}
+          eventNow={eventNow}
+          events={publicEvents}
+          external={message.external}
+          general={project}
+          isMirrored={isMirrored}
+          lower={message.lower}
+          nextId={nextId}
+          onAir={onAir}
+          pres={message.timer}
+          publ={message.public}
+          publicEventNext={publicEventNext}
+          publicEventNow={publicEventNow}
+          publicSelectedId={publicSelectedId}
+          selectedId={selectedId}
+          settings={settings}
+          time={TimeManagerType}
+          viewSettings={viewSettings}
+        />
+      </>
     );
   };
 

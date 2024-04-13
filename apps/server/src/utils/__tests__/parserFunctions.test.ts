@@ -1,162 +1,73 @@
 import { HttpSubscription, OscSubscription } from 'ontime-types';
-import {
-  validateOscSubscriptionObject,
-  validateOscSubscriptionCycle,
-  validateHttpSubscriptionCycle,
-  validateHttpSubscriptionObject,
-} from '../parserFunctions.js';
+import { sanitiseHttpSubscriptions, sanitiseOscSubscriptions } from '../parserFunctions.js';
 
-describe('validateOscSubscriptionCycle()', () => {
-  it('should return false when given an OscSubscription with an invalid property value', () => {
-    const invalidEntry = [{ message: 'test', enabled: 'not a boolean' }];
+describe('sanitiseOscSubscriptions()', () => {
+  it('returns an empty array if not an array', () => {
+    expect(sanitiseOscSubscriptions(undefined)).toEqual([]);
+    // @ts-expect-error -- data is external, we check bad types
+    expect(sanitiseOscSubscriptions({})).toEqual([]);
+    expect(sanitiseOscSubscriptions(null)).toEqual([]);
+  });
 
-    // @ts-expect-error -- since this comes from the client, we check things that typescript would have caught
-    const result = validateOscSubscriptionCycle(invalidEntry);
-    expect(result).toBe(false);
+  it('returns an array of valid entries', () => {
+    const oscSubscriptions: OscSubscription[] = [
+      { id: '1', cycle: 'onLoad', address: '/test', payload: 'test', enabled: true },
+      { id: '2', cycle: 'onStart', address: '/test', payload: 'test', enabled: false },
+      { id: '3', cycle: 'onPause', address: '/test', payload: 'test', enabled: true },
+      { id: '4', cycle: 'onStop', address: '/test', payload: 'test', enabled: false },
+      { id: '5', cycle: 'onUpdate', address: '/test', payload: 'test', enabled: true },
+      { id: '6', cycle: 'onFinish', address: '/test', payload: 'test', enabled: false },
+    ];
+    const sanitationResult = sanitiseOscSubscriptions(oscSubscriptions);
+    expect(sanitationResult).toStrictEqual(oscSubscriptions);
+  });
+
+  it('filters invalid entries', () => {
+    const oscSubscriptions = [
+      { id: '1', cycle: 'onLoad', address: 4, payload: 'test', enabled: true },
+      { cycle: 'onLoad', payload: 'test', enabled: true },
+      { id: '2', cycle: 'unknown', payload: 'test', enabled: false },
+      { id: '3', payload: 'test', enabled: true },
+      { id: '4', cycle: 'onStop', enabled: false },
+      { id: '5', cycle: 'onUpdate', payload: 'test' },
+      { id: '6', cycle: 'onFinish', payload: 'test', enabled: 'true' },
+    ];
+    const sanitationResult = sanitiseOscSubscriptions(oscSubscriptions as OscSubscription[]);
+    expect(sanitationResult.length).toBe(0);
   });
 });
 
-describe('validateOscSubscriptionObject()', () => {
-  it('should return true when given a valid OscSubscription', () => {
-    const validSubscription: OscSubscription = {
-      onLoad: [{ message: 'test', enabled: true }],
-      onStart: [{ message: 'test', enabled: false }],
-      onPause: [{ message: 'test', enabled: true }],
-      onStop: [{ message: 'test', enabled: false }],
-      onUpdate: [{ message: 'test', enabled: true }],
-      onFinish: [{ message: 'test', enabled: false }],
-    };
-
-    const result = validateOscSubscriptionObject(validSubscription);
-    expect(result).toBe(true);
+describe('sanitiseHttpSubscriptions()', () => {
+  it('returns an empty array if not an array', () => {
+    expect(sanitiseHttpSubscriptions(undefined)).toEqual([]);
+    // @ts-expect-error -- data is external, we check bad types
+    expect(sanitiseHttpSubscriptions({})).toEqual([]);
+    expect(sanitiseHttpSubscriptions(null)).toEqual([]);
   });
 
-  it('should return false when given undefined', () => {
-    const result = validateOscSubscriptionObject(undefined);
-    expect(result).toBe(false);
+  it('returns an array of valid entries', () => {
+    const httpSubscription: HttpSubscription[] = [
+      { id: '1', cycle: 'onLoad', message: 'http://test', enabled: true },
+      { id: '2', cycle: 'onStart', message: 'http://test', enabled: false },
+      { id: '3', cycle: 'onPause', message: 'http://test', enabled: true },
+      { id: '4', cycle: 'onStop', message: 'http://test', enabled: false },
+      { id: '5', cycle: 'onUpdate', message: 'http://test', enabled: true },
+      { id: '6', cycle: 'onFinish', message: 'http://test', enabled: false },
+    ];
+    const sanitationResult = sanitiseHttpSubscriptions(httpSubscription);
+    expect(sanitationResult).toStrictEqual(httpSubscription);
   });
 
-  it('should return false when given null', () => {
-    const result = validateOscSubscriptionObject(null);
-    expect(result).toBe(false);
-  });
-
-  it('should return false when given an empty object', () => {
-    // @ts-expect-error -- since this comes from the client, we check things that typescript would have caught
-    const result = validateOscSubscriptionObject({});
-    expect(result).toBe(false);
-  });
-
-  it('should return false when given an empty array', () => {
-    // @ts-expect-error -- since this comes from the client, we check things that typescript would have caught
-    const result = validateOscSubscriptionObject([]);
-    expect(result).toBe(false);
-  });
-
-  it('should return false when given an object that is not an OscSubscription', () => {
-    const invalidObject = { foo: 'bar' };
-
-    // @ts-expect-error -- since this comes from the client, we check things that typescript would have caught
-    const result = validateOscSubscriptionObject(invalidObject);
-    expect(result).toBe(false);
-  });
-
-  it('should return false when given an OscSubscription with a missing property', () => {
-    const invalidSubscription = {
-      onLoad: [{ message: 'test', enabled: true }],
-      onStart: [{ message: 'test', enabled: false }],
-      onPause: [{ message: 'test', enabled: true }],
-      // Missing onStop
-      onUpdate: [{ message: 'test', enabled: true }],
-      onFinish: [{ message: 'test', enabled: false }],
-    };
-
-    // @ts-expect-error -- since this comes from the client, we check things that typescript would have caught
-    const result = validateOscSubscriptionObject(invalidSubscription);
-    expect(result).toBe(false);
-  });
-});
-
-describe('validateHttpSubscriptionCycle()', () => {
-  it('should return false when given an HttpSubscription with an invalid property value', () => {
-    const invalidBoolean = [{ message: 'http://', enabled: 'not a boolean' }];
-    const invalidHttp = [{ message: 'test', enabled: true }];
-    const noFtp = [{ message: 'ftp://test', enabled: true }];
-    const noEmpty = [{ message: '', enabled: true }];
-
-    // @ts-expect-error -- since this comes from the client, we check things that typescript would have caught
-    expect(validateHttpSubscriptionCycle(invalidBoolean)).toBe(false);
-
-    expect(validateHttpSubscriptionCycle(invalidHttp)).toBe(false);
-    expect(validateHttpSubscriptionCycle(noFtp)).toBe(false);
-    expect(validateHttpSubscriptionCycle(noEmpty)).toBe(false);
-  });
-  it('should return true when given an HttpSubscription matches definition', () => {
-    const validHttp = [{ message: 'http://', enabled: true }];
-    const invalidHttps = [{ message: 'https://', enabled: true }];
-
-    expect(validateHttpSubscriptionCycle(validHttp)).toBe(true);
-    expect(validateHttpSubscriptionCycle(invalidHttps)).toBe(false);
-  });
-});
-
-describe('validateHttpSubscriptionObject()', () => {
-  it('should return true when given a valid HttpSubscription', () => {
-    const validSubscription: HttpSubscription = {
-      onLoad: [{ message: 'http://', enabled: true }],
-      onStart: [{ message: 'http://', enabled: false }],
-      onPause: [{ message: 'http://', enabled: true }],
-      onStop: [{ message: 'http://', enabled: false }],
-      onUpdate: [{ message: 'http://', enabled: true }],
-      onFinish: [{ message: 'http://', enabled: false }],
-    };
-
-    const result = validateHttpSubscriptionObject(validSubscription);
-    expect(result).toBe(true);
-  });
-
-  it('should return false when given undefined', () => {
-    const result = validateHttpSubscriptionObject(undefined);
-    expect(result).toBe(false);
-  });
-
-  it('should return false when given null', () => {
-    const result = validateHttpSubscriptionObject(null);
-    expect(result).toBe(false);
-  });
-
-  it('should return false when given an empty object', () => {
-    // @ts-expect-error -- since this comes from the client, we check things that typescript would have caught
-    const result = validateOscSubscriptionObject({});
-    expect(result).toBe(false);
-  });
-
-  it('should return false when given an empty array', () => {
-    // @ts-expect-error -- since this comes from the client, we check things that typescript would have caught
-    const result = validateHttpSubscriptionObject([]);
-    expect(result).toBe(false);
-  });
-
-  it('should return false when given an object that is not an HttpSubscription', () => {
-    const invalidObject = { foo: 'bar' };
-
-    // @ts-expect-error -- since this comes from the client, we check things that typescript would have caught
-    const result = validateHttpSubscriptionObject(invalidObject);
-    expect(result).toBe(false);
-  });
-
-  it('should return false when given an HttpSubscription with a missing property', () => {
-    const invalidSubscription = {
-      onLoad: [{ message: 'http://', enabled: true }],
-      onStart: [{ message: 'http://', enabled: false }],
-      onPause: [{ message: 'http://', enabled: true }],
-      // Missing onStop
-      onUpdate: [{ message: 'http://', enabled: true }],
-      onFinish: [{ message: 'http://', enabled: false }],
-    };
-
-    // @ts-expect-error -- since this comes from the client, we check things that typescript would have caught
-    const result = validateHttpSubscriptionObject(invalidSubscription);
-    expect(result).toBe(false);
+  it('filters invalid entries', () => {
+    const httpSubscription = [
+      { cycle: 'onLoad', message: 'http://test', enabled: true },
+      { id: '2', cycle: 'unknown', message: 'http://test', enabled: false },
+      { id: '3', message: 'http://test', enabled: true },
+      { id: '4', cycle: 'onStop', enabled: false },
+      { id: '5', cycle: 'onUpdate', message: 'http://test' },
+      { id: '6', cycle: 'onFinish', message: 'ftp://test', enabled: 'true' },
+    ];
+    const sanitationResult = sanitiseHttpSubscriptions(httpSubscription as HttpSubscription[]);
+    expect(sanitationResult.length).toBe(0);
   });
 });

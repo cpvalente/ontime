@@ -1,37 +1,5 @@
-import { formatFromMillis } from 'ontime-utils';
-
-import { mth, mtm, mts } from './timeConstants';
-
-export const timeFormat = 'HH:mm';
-export const timeFormatSeconds = 'HH:mm:ss';
-
-export function secondsInMillis(millis: number | null) {
-  if (!millis) {
-    return 0;
-  }
-  return Math.floor((millis % mtm) / mts);
-}
-
-/**
- * @description Converts milliseconds to seconds
- * @param {number | null} millis - time in seconds
- * @returns {number} Amount in seconds
- */
-export const millisToSeconds = (millis: number | null): number => {
-  if (millis === null) {
-    return 0;
-  }
-  return millis < 0 ? Math.ceil(millis / mts) : Math.floor(millis / mts);
-};
-
-/**
- * @description Converts milliseconds to seconds
- * @param {number} millis - time in milliseconds
- * @returns {number} Amount in seconds
- */
-export const millisToMinutes = (millis: number): number => {
-  return millis < 0 ? Math.ceil(millis / mtm) : Math.floor(millis / mtm);
-};
+import { MaybeNumber } from 'ontime-types';
+import { formatFromMillis, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 /**
  * @description safe parse string to int
@@ -78,17 +46,19 @@ function checkAmPm(value: string) {
  * @param {string} value
  */
 function checkMatchers(value: string) {
-  const hoursMatch = /(\d+)h/.exec(value);
+  const hoursMatch = /(\d+)h/i.exec(value);
   const hoursMatchValue = hoursMatch ? parse(hoursMatch[1]) : 0;
 
-  const minutesMatch = /(\d+)m/.exec(value);
+  const minutesMatch = /(\d+)m/i.exec(value);
   const minutesMatchValue = minutesMatch ? parse(minutesMatch[1]) : 0;
 
-  const secondsMatch = /(\d+)s/.exec(value);
+  const secondsMatch = /(\d+)s/i.exec(value);
   const secondsMatchValue = secondsMatch ? parse(secondsMatch[1]) : 0;
 
   if (hoursMatchValue > 0 || minutesMatchValue > 0 || secondsMatchValue > 0) {
-    return hoursMatchValue * mth + minutesMatchValue * mtm + secondsMatchValue * mts;
+    return (
+      hoursMatchValue * MILLIS_PER_HOUR + minutesMatchValue * MILLIS_PER_MINUTE + secondsMatchValue * MILLIS_PER_SECOND
+    );
   }
   return { hoursMatchValue };
 }
@@ -105,13 +75,13 @@ function inferSeparators(value: string, isAM: boolean, isPM: boolean) {
   let addAM = 0;
   if (length === 1) {
     if (isPM || isAM) {
-      inferredMillis = parse(value) * mth;
+      inferredMillis = parse(value) * MILLIS_PER_HOUR;
       if (isAM) {
         // this ensures we dont add 12 hours in the end
         addAM = inferredMillis;
       }
     } else {
-      inferredMillis = parse(value) * mtm;
+      inferredMillis = parse(value) * MILLIS_PER_MINUTE;
     }
   } else if (length === 2) {
     if (isPM || isAM) {
@@ -121,22 +91,22 @@ function inferSeparators(value: string, isAM: boolean, isPM: boolean) {
         addAM = 12;
       }
     } else {
-      inferredMillis = parse(value) * mtm;
+      inferredMillis = parse(value) * MILLIS_PER_MINUTE;
     }
   } else if (length === 3) {
-    inferredMillis = parse(value[0]) * mth + parse(value.substring(1)) * mtm;
+    inferredMillis = parse(value[0]) * MILLIS_PER_HOUR + parse(value.substring(1)) * MILLIS_PER_MINUTE;
   } else if (length === 4) {
-    inferredMillis = parse(value.substring(0, 2)) * mth + parse(value.substring(2)) * mtm;
+    inferredMillis = parse(value.substring(0, 2)) * MILLIS_PER_HOUR + parse(value.substring(2)) * MILLIS_PER_MINUTE;
   } else if (length === 5) {
     const hours = parse(value.substring(0, 2));
     const minutes = parse(value.substring(2, 4));
     const seconds = parse(value.substring(4));
-    inferredMillis = hours * mth + minutes * mtm + seconds * mts;
+    inferredMillis = hours * MILLIS_PER_HOUR + minutes * MILLIS_PER_MINUTE + seconds * MILLIS_PER_SECOND;
   } else if (length >= 6) {
     const hours = parse(value.substring(0, 2));
     const minutes = parse(value.substring(2, 4));
     const seconds = parse(value.substring(4));
-    inferredMillis = hours * mth + minutes * mtm + seconds * mts;
+    inferredMillis = hours * MILLIS_PER_HOUR + minutes * MILLIS_PER_MINUTE + seconds * MILLIS_PER_SECOND;
   }
   return { inferredMillis, addAM };
 }
@@ -167,9 +137,9 @@ export const forgivingStringToMillis = (value: string): number => {
 
   if (first != null && second != null && third != null) {
     // if string has three sections, treat as [hours] [minutes] [seconds]
-    millis = parse(first) * mth;
-    millis += parse(second) * mtm;
-    millis += parse(third) * mts;
+    millis = parse(first) * MILLIS_PER_HOUR;
+    millis += parse(second) * MILLIS_PER_MINUTE;
+    millis += parse(third) * MILLIS_PER_SECOND;
   } else if (first != null && second == null && third == null) {
     // we only have one section, infer separators
     const { inferredMillis, addAM } = inferSeparators(first, isAM, isPM);
@@ -177,30 +147,33 @@ export const forgivingStringToMillis = (value: string): number => {
     hoursMatchValue = addAM;
   }
   if (first != null && second != null && third == null) {
-    millis = parse(first) * mth;
-    millis += parse(second) * mtm;
+    millis = parse(first) * MILLIS_PER_HOUR;
+    millis += parse(second) * MILLIS_PER_MINUTE;
   }
 
   // Add 12 hours if it is PM
   if (isPM && hoursMatchValue < 12) {
-    millis += 12 * mth;
+    millis += 12 * MILLIS_PER_HOUR;
   }
   return millis;
 };
 
-export function millisToDelayString(millis: number | null): undefined | string | null {
+export function millisToDelayString(millis: MaybeNumber, format: 'compact' | 'expanded' = 'compact'): string {
   if (millis == null || millis === 0) {
-    return null;
+    return '';
   }
 
   const isNegative = millis < 0;
   const absMillis = Math.abs(millis);
+  const isCompact = format === 'compact';
+  const delayed = isCompact ? '+' : 'delayed by ';
+  const ahead = isCompact ? '-' : 'ahead by ';
 
-  if (absMillis < mtm) {
-    return `${isNegative ? '-' : '+'}${formatFromMillis(absMillis, 's')} sec`;
-  } else if (absMillis < mth && absMillis % mtm === 0) {
-    return `${isNegative ? '-' : '+'}${formatFromMillis(absMillis, 'm')} min`;
-  } else {
-    return `${isNegative ? '-' : '+'}${formatFromMillis(absMillis, 'HH:mm:ss')}`;
+  if (absMillis < MILLIS_PER_MINUTE) {
+    return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 's')} sec`;
+  } else if (absMillis < MILLIS_PER_HOUR && absMillis % MILLIS_PER_MINUTE === 0) {
+    return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 'm')} min`;
   }
+
+  return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 'HH:mm:ss')}`;
 }

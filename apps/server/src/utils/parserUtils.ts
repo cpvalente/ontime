@@ -1,4 +1,4 @@
-import fs from 'fs';
+import { unlink } from 'fs';
 import { deepmerge } from 'ontime-utils';
 
 /**
@@ -15,29 +15,13 @@ export const makeString = (val: unknown, fallback = ''): string => {
 
 /**
  * @description Delete file from system
- * @param {string} file - reference to file
  */
-export const deleteFile = async (file) => {
-  // delete a file
-  fs.unlink(file, (err) => {
-    if (err) {
-      console.log(err);
+export const deleteFile = async (filePath: string) => {
+  unlink(filePath, (error) => {
+    if (error) {
+      console.error('Could not delete file:', error);
     }
   });
-};
-
-/**
- * @description Delete file from system
- * @param {string} file - reference to file
- * @returns {boolean} - whether file is valid JSON
- */
-export const validateFile = (file) => {
-  try {
-    JSON.parse(fs.readFileSync(file, 'utf-8'));
-    return true;
-  } catch (err) {
-    return false;
-  }
 };
 
 /**
@@ -82,10 +66,12 @@ export function mergeObject<T extends object>(a: T, b: Partial<T>): T {
  * @description Removes undefined
  * @param {object} obj
  */
-export const removeUndefined = (obj: object) => {
-  const patched = {};
-  Object.keys({ ...obj })
-    .filter((key) => typeof obj[key] !== 'undefined')
-    .map((key) => (patched[key] = obj[key]));
-  return patched;
+export const removeUndefined = <T extends Record<string, unknown>>(obj: T): Partial<T> => {
+  return Object.keys(obj).reduce((patched, key) => {
+    if (typeof obj[key] !== 'undefined') {
+      // @ts-expect-error -- not sure how to type this
+      patched[key] = obj[key];
+    }
+    return patched;
+  }, {} as Partial<T>);
 };

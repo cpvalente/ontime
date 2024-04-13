@@ -1,10 +1,10 @@
 import { Log, RuntimeStore } from 'ontime-types';
 
-import { isProduction, RUNTIME, websocketUrl } from '../api/apiConstants';
+import { isProduction, RUNTIME, websocketUrl } from '../api/constants';
 import { ontimeQueryClient } from '../queryClient';
 import { socketClientName } from '../stores/connectionName';
 import { addLog } from '../stores/logger';
-import { runtime } from '../stores/runtime';
+import { patchRuntime, runtimeStore } from '../stores/runtime';
 
 export let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
@@ -12,6 +12,7 @@ const reconnectInterval = 1000;
 export let shouldReconnect = true;
 export let hasConnected = false;
 export let reconnectAttempts = 0;
+
 export const connectSocket = (preferredClientName?: string) => {
   websocket = new WebSocket(websocketUrl);
 
@@ -52,7 +53,6 @@ export const connectSocket = (preferredClientName?: string) => {
         return;
       }
 
-      // TODO: implement partial store updates
       switch (type) {
         case 'client-name': {
           socketClientName.getState().setName(payload);
@@ -63,52 +63,60 @@ export const connectSocket = (preferredClientName?: string) => {
           break;
         }
         case 'ontime': {
-          runtime.setState(payload as RuntimeStore);
+          runtimeStore.setState(payload as RuntimeStore);
           if (!isProduction) {
             ontimeQueryClient.setQueryData(RUNTIME, data.payload);
           }
           break;
         }
-        case 'ontime-playback': {
-          const state = runtime.getState();
-          state.playback = payload;
-          runtime.setState(state);
+        case 'ontime-clock': {
+          patchRuntime('clock', payload);
+          updateDevTools({ clock: payload });
           break;
         }
         case 'ontime-timer': {
-          const state = runtime.getState();
-          state.timer = payload;
-          runtime.setState(state);
-          break;
-        }
-        case 'ontime-loaded': {
-          const state = runtime.getState();
-          state.loaded = payload;
-          runtime.setState(state);
-          break;
-        }
-        case 'ontime-timerMessage': {
-          const state = runtime.getState();
-          state.timerMessage = payload;
-          runtime.setState(state);
-          break;
-        }
-        case 'ontime-publicMessage': {
-          const state = runtime.getState();
-          state.publicMessage = payload;
-          runtime.setState(state);
-          break;
-        }
-        case 'ontime-lowerMessage': {
-          const state = runtime.getState();
-          state.lowerMessage = payload;
-          runtime.setState(state);
+          patchRuntime('timer', payload);
+          updateDevTools({ timer: payload });
           break;
         }
         case 'ontime-onAir': {
-          const state = runtime.getState();
-          state.onAir = payload;
-          runtime.setState(state);
+          patchRuntime('onAir', payload);
+          updateDevTools({ onAir: payload });
+          break;
+        }
+        case 'ontime-message': {
+          patchRuntime('message', payload);
+          updateDevTools({ message: payload });
+          break;
+        }
+        case 'ontime-runtime': {
+          patchRuntime('runtime', payload);
+          updateDevTools({ runtime: payload });
+          break;
+        }
+        case 'ontime-eventNow': {
+          patchRuntime('eventNow', payload);
+          updateDevTools({ eventNow: payload });
+          break;
+        }
+        case 'ontime-publicEventNow': {
+          patchRuntime('publicEventNow', payload);
+          updateDevTools({ publicEventNow: payload });
+          break;
+        }
+        case 'ontime-eventNext': {
+          patchRuntime('eventNext', payload);
+          updateDevTools({ eventNext: payload });
+          break;
+        }
+        case 'ontime-publicEventNext': {
+          patchRuntime('publicEventNext', payload);
+          updateDevTools({ publicEventNext: payload });
+          break;
+        }
+        case 'ontime-auxtimer1': {
+          patchRuntime('auxtimer1', payload);
+          updateDevTools({ auxtimer1: payload });
           break;
         }
       }
@@ -137,3 +145,12 @@ export const socketSendJson = (type: string, payload?: unknown) => {
     }),
   );
 };
+
+function updateDevTools(newData: Partial<RuntimeStore>) {
+  if (!isProduction) {
+    ontimeQueryClient.setQueryData(RUNTIME, (oldData: RuntimeStore) => ({
+      ...oldData,
+      ...newData,
+    }));
+  }
+}

@@ -1,8 +1,6 @@
-@use '../../../theme/v2Styles' as *;
-@use '../../../theme/ontimeColours' as *;
 @use '../blockMixins' as *;
 
-$skip-opacity: 0.1;
+$skip-opacity: 0.2;
 
 .eventBlock {
   @include block-styling;
@@ -11,12 +9,12 @@ $skip-opacity: 0.1;
   display: grid;
   grid-template-areas:
     'binder ...        ...     ...'
-    'binder pb-actions times   actions'
-    'binder pb-actions title   next-ind'
+    'binder pb-actions times   ...'
+    'binder pb-actions title   title'
     'binder pb-actions estatus estatus'
     'binder ...        ...     ...';
 
-  grid-template-columns: $block-binder-width auto 1fr auto;
+  grid-template-columns: $block-binder-width 3rem 1fr auto;
   grid-template-rows: 0.25rem 2.25rem 2.25rem 2.25rem 0.25rem;
   align-items: center;
   padding-right: $block-clearance;
@@ -30,8 +28,8 @@ $skip-opacity: 0.1;
     --status-color-active-override: #{$green-400};
   }
 
-  &.selected {
-    background-color: $gray-1350;
+  &.loaded {
+    background-color: $gray-1325;
   }
 
   &.play {
@@ -49,13 +47,16 @@ $skip-opacity: 0.1;
     @include declare-overrides;
   }
 
+  &.selected {
+    outline: 1px solid $block-selected-color;
+  }
+
   &.hasCursor {
     outline: 1px solid $block-cursor-color;
   }
 
-  /* we stop the eventActions from having opacity to fix issue with dropdown drawing order */
   &.past:not(.skip) {
-    .delayNote,
+    .timerNote,
     .statusElements,
     .eventTitle,
     .eventNote,
@@ -70,7 +71,7 @@ $skip-opacity: 0.1;
   &.skip {
     border: 1px solid $white-3;
 
-    .delayNote,
+    .timerNote,
     .eventTitle,
     .eventNote,
     .binder,
@@ -128,34 +129,36 @@ $skip-opacity: 0.1;
   align-items: center;
   gap: $block-clearance;
   height: 100%;
-
-  .delayNote {
-    font-size: 0.75rem;
-    line-height: 0.8rem;
-    color: $ontime-delay-text;
-  }
 }
 
-.eventTitle {
+.titleSection {
   grid-area: title;
-  overflow: hidden;
-  max-height: calc(2.5em + 2px);
-  line-height: 1.25em;
-}
-
-.eventActions {
-  grid-area: actions;
   display: flex;
-  gap: $block-clearance;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+
+  .nextTag {
+    font-size: 1rem;
+    color: $orange-500;
+    letter-spacing: 0.03px;
+    font-weight: 600;
+  }
+
+  .eventTitle {
+    overflow: hidden;
+    max-height: calc(2.5em + 2px);
+    line-height: 1.25em;
+    flex: 1;
+  }
 }
 
 .progressBg {
   grid-area: progb;
-  border-radius: 2px;
+  border-radius: 1px;
   background-color: $gray-1100;
   opacity: 1;
   height: 100%;
+  overflow: hidden; /* clip foreground border radius*/
 }
 
 .progressBg.hidden {
@@ -188,40 +191,6 @@ $skip-opacity: 0.1;
 
   max-height: 2rem;
   overflow-y: hidden;
-}
-
-.nextTag {
-  grid-area: next-ind;
-  font-size: 1rem;
-  color: $orange-500;
-  letter-spacing: 0.03px;
-  font-weight: 600;
-  text-align: right;
-}
-
-.indicators {
-  grid-area: next-ind;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.5rem;
-
-  .indicator {
-    background-color: transparent;
-    margin: 0.4rem;
-    margin-right: 0;
-    border-radius: 0.7rem;
-    width: 0.7rem;
-    height: 0.7rem;
-  }
-  .indicator.delay {
-    background-color: $ontime-delay;
-  }
-  .indicator.nextDay,
-  .indicator.overlap,
-  .indicator.spacing {
-    background-color: $gray-600;
-  }
 }
 
 .eventStatus {

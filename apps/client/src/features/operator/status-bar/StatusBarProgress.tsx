@@ -1,7 +1,7 @@
 import { ViewSettings } from 'ontime-types';
 
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
-import { useTimer } from '../../../common/hooks/useSocket';
+import { useProgressData } from '../../../common/hooks/useSocket';
 
 import styles from './StatusBar.module.scss';
 
@@ -11,18 +11,17 @@ interface StatusBarProgressProps {
 
 export default function StatusBarProgress(props: StatusBarProgressProps) {
   const { viewSettings } = props;
-
-  const timer = useTimer();
-  const totalTime = (timer.duration ?? 0) + (timer.addedTime ?? 0);
+  const { addedTime, current, duration, timeWarning, timeDanger } = useProgressData();
+  const totalTime = (duration ?? 0) + (addedTime ?? 0);
 
   return (
     <MultiPartProgressBar
-      now={timer.current}
+      now={current}
       complete={totalTime}
       normalColor={viewSettings.normalColor}
-      warning={viewSettings.warningThreshold}
+      warning={timeWarning}
       warningColor={viewSettings.warningColor}
-      danger={viewSettings.dangerThreshold}
+      danger={timeDanger}
       dangerColor={viewSettings.dangerColor}
       className={styles.progressOverride}
     />

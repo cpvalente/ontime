@@ -3,6 +3,9 @@ enum Source {
   MIDI = 'MIDI',
 }
 
+/**
+ * Service manages retrieving current time from a managed time source
+ */
 class Clock {
   private static instance: Clock;
   private readonly source: Source;

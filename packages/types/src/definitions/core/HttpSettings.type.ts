@@ -1,9 +1,8 @@
-import { Subscription } from './Subscription.type.js';
+import type { TimerLifeCycleKey } from './TimerLifecycle.type.js';
 
-export type HttpSubscriptionOptions = { message: string; enabled: boolean };
-export type HttpSubscription = Subscription<HttpSubscriptionOptions>;
+export type HttpSubscription = { id: string; cycle: TimerLifeCycleKey; message: string; enabled: boolean };
 
 export interface HttpSettings {
   enabledOut: boolean;
-  subscriptions: HttpSubscription;
+  subscriptions: HttpSubscription[];
 }

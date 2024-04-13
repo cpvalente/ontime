@@ -1,16 +1,16 @@
-import { Playback } from 'ontime-types';
+import { MaybeNumber, MaybeString, Playback } from 'ontime-types';
 
-import { readFileSync } from 'fs';
-import { Writer } from 'steno';
-
-import { resolveRestoreFile } from '../setup.js';
+import { JSONFile } from 'lowdb/node';
+import { resolveRestoreFile } from '../setup/index.js';
+import { deepEqual } from 'fast-equals';
 
 export type RestorePoint = {
   playback: Playback;
-  selectedEventId: string | null;
-  startedAt: number | null;
-  addedTime: number | null;
-  pausedAt: number | null;
+  selectedEventId: MaybeString;
+  startedAt: MaybeNumber;
+  addedTime: number;
+  pausedAt: MaybeNumber;
+  firstStart: MaybeNumber;
 };
 
 /**
@@ -37,11 +37,15 @@ export function isRestorePoint(obj: unknown): obj is RestorePoint {
     return false;
   }
 
-  if (typeof restorePoint.addedTime !== 'number' && restorePoint.addedTime !== null) {
+  if (typeof restorePoint.addedTime !== 'number') {
     return false;
   }
 
   if (typeof restorePoint.pausedAt !== 'number' && restorePoint.pausedAt !== null) {
+    return false;
+  }
+
+  if (typeof restorePoint.firstStart !== 'number' && restorePoint.pausedAt !== null) {
     return false;
   }
 
@@ -57,33 +61,25 @@ export function isRestorePoint(obj: unknown): obj is RestorePoint {
  * that can then be restored when reopening
  */
 export class RestoreService {
-  private readonly filePath: string | null;
-
-  private lastStore: string | null;
-  private file: Writer | null;
+  private readonly filePath: MaybeString;
+  private readonly file: JSONFile<RestorePoint | null>;
   private failedCreateAttempts: number;
+  private savedState: RestorePoint | null;
 
   constructor(filePath: string) {
     this.filePath = filePath;
 
-    this.lastStore = null;
-    this.file = null;
+    this.savedState = null;
+    this.file = new JSONFile(this.filePath);
     this.failedCreateAttempts = 0;
-  }
-
-  /**
-   * Utility, creates a restore file
-   */
-  create() {
-    this.file = new Writer(this.filePath);
   }
 
   /**
    * Utility, reads from file
    * @private
    */
-  private read() {
-    return readFileSync(this.filePath, 'utf-8');
+  private async read() {
+    return this.file.read();
   }
 
   /**
@@ -91,13 +87,8 @@ export class RestoreService {
    * @throws
    * @param stringifiedState
    */
-  private async write(stringifiedState: string) {
-    // Create a file if it doesnt exist
-    if (!this.file) {
-      this.create();
-    }
-    // steno is async, and it uses a queue to avoid unnecessary re-writes
-    await this.file.write(stringifiedState);
+  private async write(data: RestorePoint) {
+    await this.file.write(data);
   }
 
   /**
@@ -110,15 +101,16 @@ export class RestoreService {
       return;
     }
 
-    const stringifiedStore = JSON.stringify(newState);
-    if (stringifiedStore !== this.lastStore) {
-      try {
-        await this.write(stringifiedStore);
-        this.lastStore = stringifiedStore;
-        this.failedCreateAttempts = 0;
-      } catch (_err) {
-        this.failedCreateAttempts += 1;
-      }
+    if (deepEqual(newState, this.savedState)) {
+      return;
+    }
+
+    try {
+      await this.write(newState);
+      this.savedState = { ...newState };
+      this.failedCreateAttempts = 0;
+    } catch (_error) {
+      this.failedCreateAttempts += 1;
     }
   }
 
@@ -126,34 +118,27 @@ export class RestoreService {
    * Attempts reading a restore point from a given file path
    * Returns null if none found, restore point otherwise
    */
-  load(): RestorePoint | null {
+  async load(): Promise<RestorePoint | null> {
     try {
-      const data = this.read();
-      const maybeRestorePoint = JSON.parse(data);
-
-      if (!isRestorePoint(maybeRestorePoint)) {
-        return null;
+      const maybeRestorePoint = await this.read();
+      if (isRestorePoint(maybeRestorePoint)) {
+        return maybeRestorePoint;
       }
-
-      return maybeRestorePoint;
     } catch (_error) {
       // no need to notify the user
-      return null;
     }
+    return null;
   }
 
   /**
    * Clears the restore file
    */
   async clear() {
-    if (this.file && this.failedCreateAttempts <= 3) {
-      try {
-        await this.file.write('');
-      } catch (_error) {
-        // nothing to do
-      }
+    try {
+      await this.file.write(null);
+    } catch (_error) {
+      // nothing to do
     }
-    this.file = undefined;
   }
 }
 

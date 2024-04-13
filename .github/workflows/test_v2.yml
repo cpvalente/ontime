@@ -17,7 +17,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18.18.2
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -73,7 +73,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18.18.2
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
@@ -98,3 +98,9 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 30
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: automated-screenshots
+          path: automated-screenshots/
+          retention-days: 14

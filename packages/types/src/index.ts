@@ -11,6 +11,7 @@ export {
   SupportedEvent,
 } from './definitions/core/OntimeEvent.type.js';
 export type { OntimeEntryCommonKeys, OntimeRundown, OntimeRundownEntry } from './definitions/core/Rundown.type.js';
+export { TimeStrategy } from './definitions/TimeStrategy.type.js';
 export { TimerType } from './definitions/TimerType.type.js';
 
 // ---> Project Data
@@ -21,38 +22,51 @@ export type { Settings } from './definitions/core/Settings.type.js';
 
 // ---> Views
 export type { ViewSettings } from './definitions/core/Views.type.js';
+export type { TimeFormat } from './definitions/core/TimeFormat.type.js';
 
-// ---> Aliases
-export type { Alias } from './definitions/core/Alias.type.js';
+// ---> URL Presets
+export type { URLPreset } from './definitions/core/UrlPreset.type.js';
 
-// ---> User Fields
-export type { UserFields } from './definitions/core/UserFields.type.js';
+// ---> Custom Fields
+export type {
+  CustomFields,
+  CustomField,
+  CustomFieldLabel,
+  EventCustomFields,
+} from './definitions/core/CustomFields.type.js';
 
 // ---> Integration, Subscription
-export type { Subscription } from './definitions/core/Subscription.type.js';
-
-// ---> OSC
-export type { OSCSettings, OscSubscription, OscSubscriptionOptions } from './definitions/core/OscSettings.type.js';
-
-// ---> HTTP
-export type { HttpSettings, HttpSubscription, HttpSubscriptionOptions } from './definitions/core/HttpSettings.type.js';
+export type { OSCSettings, OscSubscription } from './definitions/core/OscSettings.type.js';
+export type { HttpSettings, HttpSubscription } from './definitions/core/HttpSettings.type.js';
 
 // SERVER RESPONSES
-export type { NetworkInterface, GetInfo } from './api/ontime-controller/BackendResponse.type.js';
-export type { GetRundownCached } from './api/rundown-controller/BackendResponse.type.js';
+export type {
+  AuthenticationStatus,
+  NetworkInterface,
+  GetInfo,
+  ProjectFileList,
+  ProjectFile,
+  ErrorResponse,
+  ProjectFileListResponse,
+  MessageResponse,
+} from './api/ontime-controller/BackendResponse.type.js';
+export type { RundownCached, NormalisedRundown } from './api/rundown-controller/BackendResponse.type.js';
 
 // SERVER RUNTIME
 export { type Log, LogLevel, type LogMessage, LogOrigin } from './definitions/runtime/Logger.type.js';
 export { Playback } from './definitions/runtime/Playback.type.js';
 export { TimerLifeCycle } from './definitions/core/TimerLifecycle.type.js';
-export type { Message, TimerMessage } from './definitions/runtime/MessageControl.type.js';
+export type { Message, TimerMessage, MessageState } from './definitions/runtime/MessageControl.type.js';
 
-export type { Loaded } from './definitions/runtime/Playlist.type.js';
+export type { Runtime } from './definitions/runtime/Runtime.type.js';
 export type { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
 export type { TimerState } from './definitions/runtime/TimerState.type.js';
+
+// ---> Extra Timer
+export { type SimpleTimerState, SimplePlayback, SimpleDirection } from './definitions/runtime/ExtraTimer.type.js';
 
 // CLIENT
 
 // TYPE UTILITIES
-export { isOntimeBlock, isOntimeDelay, isOntimeEvent } from './utils/guards.js';
-export type { MaybeNumber } from './utils/utils.type.js';
+export { isOntimeBlock, isOntimeDelay, isOntimeEvent, isOntimeCycle, isKeyOfType } from './utils/guards.js';
+export type { DeepPartial, MaybeNumber, MaybeString } from './utils/utils.type.js';

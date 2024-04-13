@@ -22,10 +22,10 @@ import type { Server } from 'http';
 import getRandomName from '../utils/getRandomName.js';
 import { IAdapter } from './IAdapter.js';
 import { eventStore } from '../stores/EventStore.js';
-import { dispatchFromAdapter } from '../controllers/integrationController.js';
 import { logger } from '../classes/Logger.js';
+import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
 
-let instance;
+let instance: SocketServer | null = null;
 
 export class SocketServer implements IAdapter {
   private readonly MAX_PAYLOAD = 1024 * 256; // 256Kb
@@ -45,12 +45,12 @@ export class SocketServer implements IAdapter {
   }
 
   init(server: Server) {
-    this.wss = new WebSocketServer({ path: '/ws', server });
+    this.wss = new WebSocketServer({ path: '/ws', server, maxPayload: this.MAX_PAYLOAD });
 
     this.wss.on('connection', (ws) => {
       let clientId = getRandomName();
       this.clientIds.add(clientId);
-      logger.info(LogOrigin.Client, `${this.wss.clients.size} Connections with new: ${clientId}`);
+      logger.info(LogOrigin.Client, `${this.clientIds.size} Connections with new: ${clientId}`);
 
       // send store payload on connect
       ws.send(
@@ -70,16 +70,13 @@ export class SocketServer implements IAdapter {
       ws.on('error', console.error);
 
       ws.on('close', () => {
-        logger.info(LogOrigin.Client, `${this.wss.clients.size} Connections with disconnected: ${clientId}`);
         this.clientIds.delete(clientId);
+        logger.info(LogOrigin.Client, `${this.clientIds.size} Connections with disconnected: ${clientId}`);
       });
 
       ws.on('message', (data) => {
-        if (data.length > this.MAX_PAYLOAD) {
-          ws.close();
-        }
-
         try {
+          // @ts-expect-error -- ??
           const message = JSON.parse(data);
           const { type, payload } = message;
 
@@ -110,11 +107,6 @@ export class SocketServer implements IAdapter {
             return;
           }
 
-          if (type === 'hello') {
-            ws.send('hi');
-            return;
-          }
-
           if (type === 'ontime-log') {
             if (payload.level && payload.origin && payload.text) {
               logger.emit(payload.level, payload.origin, payload.text);
@@ -124,16 +116,14 @@ export class SocketServer implements IAdapter {
 
           // Protocol specific stuff handled above
           try {
-            const reply = dispatchFromAdapter(
-              type,
-              {
-                payload,
-              },
-              'ws',
-            );
+            const reply = dispatchFromAdapter(type, payload, 'ws');
             if (reply) {
-              const { topic, payload } = reply;
-              ws.send(topic, payload);
+              ws.send(
+                JSON.stringify({
+                  type: 'ontime-change',
+                  payload: reply.payload,
+                }),
+              );
             }
           } catch (error) {
             logger.error(LogOrigin.Rx, `WS IN: ${error}`);
@@ -148,8 +138,12 @@ export class SocketServer implements IAdapter {
   // message is any serializable value
   sendAsJson(message: unknown) {
     this.wss?.clients.forEach((client) => {
-      if (client !== this.wss && client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(message));
+      try {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(JSON.stringify(message));
+        }
+      } catch (_) {
+        /** We do not handle this error */
       }
     });
   }

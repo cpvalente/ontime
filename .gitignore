@@ -27,6 +27,7 @@ ontime.code-workspace
 test-results
 playwright-report
 /playwright/.cache/
+automated-screenshots
 
 # production
 build/
@@ -44,3 +45,6 @@ apps/server/src/preloaded-db/db.json
 
 # versioning file
 **/ONTIME_VERSION.js
+
+# temporary write files
+**.tmp

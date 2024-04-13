@@ -1,64 +1,81 @@
 import isEqual from 'react-fast-compare';
-import { Playback, RuntimeStore } from 'ontime-types';
-import { useStore } from 'zustand';
-import { createStore } from 'zustand/vanilla';
+import { Playback, RuntimeStore, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { createWithEqualityFn, useStoreWithEqualityFn } from 'zustand/traditional';
 
 export const runtimeStorePlaceholder: RuntimeStore = {
+  clock: 0,
   timer: {
-    clock: 0,
+    addedTime: 0,
     current: null,
+    duration: null,
     elapsed: null,
     expectedFinish: null,
-    addedTime: 0,
-    startedAt: null,
     finishedAt: null,
+    playback: Playback.Stop,
     secondaryTimer: null,
-    selectedEventId: null,
-    duration: null,
-    timerType: null,
-    endAction: null,
-  },
-  playback: Playback.Stop,
-  timerMessage: {
-    text: '',
-    visible: false,
-    timerBlink: false,
-    timerBlackout: false,
-  },
-  publicMessage: {
-    text: '',
-    visible: false,
-  },
-  lowerMessage: {
-    text: '',
-    visible: false,
-  },
-  externalMessage: {
-    text: '',
-    visible: false,
+    startedAt: null,
   },
   onAir: false,
-  loaded: {
-    numEvents: 0,
+  message: {
+    timer: {
+      text: '',
+      visible: false,
+      blink: false,
+      blackout: false,
+    },
+    public: {
+      text: '',
+      visible: false,
+    },
+    lower: {
+      text: '',
+      visible: false,
+    },
+    external: {
+      text: '',
+      visible: false,
+    },
+  },
+  runtime: {
     selectedEventIndex: null,
-    selectedEventId: null,
-    selectedPublicEventId: null,
-    nextEventId: null,
-    nextPublicEventId: null,
+    numEvents: 0,
+    offset: 0,
+    plannedStart: 0,
+    plannedEnd: 0,
+    actualStart: null,
+    expectedEnd: null,
   },
   eventNow: null,
   eventNext: null,
   publicEventNow: null,
   publicEventNext: null,
+  auxtimer1: {
+    current: 0,
+    direction: SimpleDirection.CountUp,
+    duration: 0,
+    playback: SimplePlayback.Stop,
+  },
 };
 
-export const runtime = createStore<RuntimeStore>(() => ({
-  ...runtimeStorePlaceholder,
-}));
+const deepCompare = <T>(a: T, b: T) => isEqual(a, b);
 
-export const deepCompare = <T>(a: T, b: T) => isEqual(a, b);
+export const runtimeStore = createWithEqualityFn<RuntimeStore>(
+  () => ({
+    ...runtimeStorePlaceholder,
+  }),
+  deepCompare,
+);
 
-export const useRuntimeStore = <T>(
-  selector: (state: RuntimeStore) => T,
-  equalityFn?: (a: unknown, b: unknown) => boolean,
-) => useStore(runtime, selector, equalityFn);
+export const useRuntimeStore = <T>(selector: (state: RuntimeStore) => T) =>
+  useStoreWithEqualityFn(runtimeStore, selector, deepCompare);
+
+/**
+ * Allows patching a property of the runtime store
+ * @param key
+ * @param value
+ */
+export function patchRuntime<K extends keyof RuntimeStore>(key: K, value: RuntimeStore[K]): void {
+  const state = runtimeStore.getState();
+  state[key] = value;
+  runtimeStore.setState({ ...state });
+}

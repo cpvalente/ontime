@@ -1,18 +1,21 @@
+import { LogOrigin } from 'ontime-types';
+
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { eventStore } from '../../stores/EventStore.js';
+import { logger } from '../../classes/Logger.js';
 
 class IntegrationService {
-  private integrations: IIntegration<unknown>[];
+  private integrations: IIntegration<unknown, unknown>[];
 
   constructor() {
     this.integrations = [];
   }
 
-  register(integrationService: IIntegration<unknown>) {
+  register(integrationService: IIntegration<unknown, unknown>) {
     this.integrations.push(integrationService);
   }
 
-  unregister(integrationService: IIntegration<unknown>) {
+  unregister(integrationService: IIntegration<unknown, unknown>) {
     this.integrations = this.integrations.filter((int) => int !== integrationService);
   }
 
@@ -24,7 +27,7 @@ class IntegrationService {
   }
 
   shutdown() {
-    console.log('Shutdown integrations');
+    logger.info(LogOrigin.Tx, 'Shutdown Integrations');
     this.integrations.forEach((integration) => {
       integration.shutdown();
     });

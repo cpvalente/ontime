@@ -8,10 +8,11 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "types": ["vitest/globals"],
-    "outDir": "dist"
+    "outDir": "dist",
+    "experimentalDecorators": true,
   },
   "include": [
-    "src/**/*"
+    "src/**/*.ts",
+    "src/**/*.js",
   ],
-  "exclude": ["node_modules", "build"],
 }

@@ -28,20 +28,21 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
   const isPlaying = playback === Playback.Play;
   const isPaused = playback === Playback.Pause;
   const isArmed = playback === Playback.Armed;
-  const isStopped = playback === Playback.Stop;
 
   const isFirst = selectedEventIndex === 0;
   const isLast = selectedEventIndex === numEvents - 1;
   const noEvents = numEvents === 0;
 
   const disableGo = isRolling || noEvents || (isLast && !isArmed);
-  const disablePrev = noEvents || isFirst;
+  const disableNext = isRolling || noEvents || isLast;
+  const disablePrev = isRolling || noEvents || isFirst;
 
   const playbackCan = validatePlayback(playback);
   const disableStart = !playbackCan.start;
   const disablePause = !playbackCan.pause;
   const disableRoll = !playbackCan.roll || noEvents;
   const disableStop = !playbackCan.stop;
+  const disableReload = !playbackCan.reload;
 
   const goModeText = selectedEventIndex === null || isArmed ? 'Start' : 'Next';
   const goModeAction = () => {
@@ -73,7 +74,7 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
           </TapButton>
         </Tooltip>
         <Tooltip label='Next event' openDelay={tooltipDelayMid}>
-          <TapButton onClick={setPlayback.next} disabled={disableGo}>
+          <TapButton onClick={setPlayback.next} disabled={disableNext}>
             <IoPlaySkipForward />
           </TapButton>
         </Tooltip>
@@ -83,7 +84,7 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
           <IoTime />
         </TapButton>
         <Tooltip label='Reload event' openDelay={tooltipDelayMid}>
-          <TapButton onClick={setPlayback.reload} disabled={isStopped}>
+          <TapButton onClick={setPlayback.reload} disabled={disableReload}>
             <IoReload className={style.invertX} />
           </TapButton>
         </Tooltip>

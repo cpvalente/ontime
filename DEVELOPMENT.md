@@ -9,8 +9,8 @@ Ontime consists of 3 distinct parts
 The steps below will assume you have locally installed the necessary dependencies.
 Other dependencies will be installed as part of the setup
 
-- __node__ (>=16.16)
-- __pnpm__ (>=7)
+- __node__ (~18.18.2)
+- __pnpm__ (>=8)
 - __docker__ (only necessary to run and build docker images)
 
 ## LOCAL DEVELOPMENT
@@ -97,3 +97,10 @@ Other useful commands
 
 - __List running processes__ by running `docker ps`
 - __Kill running process__ by running `docker kill <process-id>`
+
+## General Info
+
+# APP Building
+
+We build the app from app.js for almost all applications. The output file will still be named index.cjs. This is because of Electron.
+Building the app from index.ts only applies for applications that don't use electron. index.ts will take over the initialization of the server and UI when electron isn't present.

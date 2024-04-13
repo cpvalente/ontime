@@ -1,29 +1,31 @@
-@use '../../../theme/v2Styles' as *;
-
 .container {
-  display: grid;
-  place-content: center;
-  height: 100vh;
-  padding-bottom: 30vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 25vh;
 
-  background: $bg-container-l1;
   color: $ontime-color;
-  font-family: $ontime-font-family;
   font-weight: 200;
-  text-align: center;
-  font-size: 3vw;
+  font-size: 3rem;
 }
 
 .pin,
 .pin__failed {
-  padding: 20px;
+  display: flex;
+  gap: 0.125em;
+  padding-block: 0.5em;
 
   input {
-    border-radius: 50%;
+    border-radius: 99px;
+    border-color: $gray-500;
+
+    &:hover {
+      border-color: $blue-500;
+    }
   }
 
   button {
-    margin-left: 20px;
+    margin-left: 1em;
   }
 }
 
@@ -35,9 +37,9 @@
 
 @keyframes colourFade {
   from {
-    background: $action-blue;
+    background: $red-500;
   }
   to {
-    background: rgba($action-blue, 0);
+    background: rgba($red-500, 0);
   }
 }

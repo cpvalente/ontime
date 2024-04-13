@@ -1,14 +1,5 @@
-@use '../../theme/ontimeColours' as *;
-@use '../../theme/v2Styles' as *;
-
 $table-font-size: calc(1rem - 2px);
 $table-header-font-size: calc(1rem - 3px);
-
-@mixin ellipsis-overflow() {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 
 .cuesheetContainer {
   grid-area: table;
@@ -28,7 +19,8 @@ $table-header-font-size: calc(1rem - 3px);
     display: flex;
   }
 
-  th, td {
+  th,
+  td {
     margin: 1px;
     font-weight: inherit;
     font-size: inherit;
@@ -105,6 +97,9 @@ $table-header-font-size: calc(1rem - 3px);
     position: sticky;
     left: 47.5%; // center of the screen, ish
     padding: 0.5rem 0;
+    &:first-letter {
+      text-transform: uppercase;
+    }
   }
 }
 

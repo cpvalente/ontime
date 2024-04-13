@@ -1,6 +1,6 @@
 import { OntimeEvent, Playback } from 'ontime-types';
 
-import { TimeManagerType } from '../../../common/models/TimeManager.type';
+import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 
 export enum TimerMessage {
   toStart = 'to_start',
@@ -19,7 +19,7 @@ export const sanitiseTitle = (title: string | null) => (title ? title : '{no tit
  * Returns a parsed timer and relevant status message
  */
 export const fetchTimerData = (
-  time: TimeManagerType,
+  time: ViewExtendedTimer,
   follow: OntimeEvent,
   selectedId: string | null,
 ): { message: TimerMessage; timer: number } => {

@@ -3,54 +3,43 @@ import { create } from 'zustand';
 import { booleanFromLocalStorage } from '../utils/localStorage';
 
 type EditorSettings = {
-  showQuickEntry: boolean;
-  startTimeIsLastEnd: boolean;
+  linkPrevious: boolean;
   defaultPublic: boolean;
-  showNif: boolean;
+  defaultDuration: string;
 };
 
 type EditorSettingsStore = {
   eventSettings: EditorSettings;
   setLocalEventSettings: (newState: EditorSettings) => void;
-  setShowQuickEntry: (showQuickEntry: boolean) => void;
-  setStartTimeIsLastEnd: (startTimeIsLastEnd: boolean) => void;
+  setLinkPrevious: (linkPrevious: boolean) => void;
   setDefaultPublic: (defaultPublic: boolean) => void;
-  setShowNif: (showNif: boolean) => void;
+  setDefaultDuration: (defaultDuration: string) => void;
 };
 
 enum EditorSettingsKeys {
-  ShowQuickEntry = 'ontime-show-quick-entry',
-  StartTimeIsLastEnd = 'ontime-start-is-last-end',
+  LinkPrevious = 'ontime-link-previous',
   DefaultPublic = 'ontime-default-public',
-  ShowNif = 'ontime-show-nif',
+  DefaultDuration = 'ontime-default-duration',
 }
 
 export const useEditorSettings = create<EditorSettingsStore>((set) => ({
   eventSettings: {
-    showQuickEntry: booleanFromLocalStorage(EditorSettingsKeys.ShowQuickEntry, false),
-    startTimeIsLastEnd: booleanFromLocalStorage(EditorSettingsKeys.ShowQuickEntry, true),
-    defaultPublic: booleanFromLocalStorage(EditorSettingsKeys.ShowQuickEntry, true),
-    showNif: booleanFromLocalStorage(EditorSettingsKeys.ShowNif, true),
+    linkPrevious: booleanFromLocalStorage(EditorSettingsKeys.LinkPrevious, true),
+    defaultPublic: booleanFromLocalStorage(EditorSettingsKeys.DefaultPublic, true),
+    defaultDuration: localStorage.getItem(EditorSettingsKeys.DefaultDuration) ?? '00:10:00',
   },
 
   setLocalEventSettings: (value) =>
     set(() => {
-      localStorage.setItem(EditorSettingsKeys.ShowQuickEntry, String(value.showQuickEntry));
-      localStorage.setItem(EditorSettingsKeys.StartTimeIsLastEnd, String(value.startTimeIsLastEnd));
+      localStorage.setItem(EditorSettingsKeys.LinkPrevious, String(value.linkPrevious));
       localStorage.setItem(EditorSettingsKeys.DefaultPublic, String(value.defaultPublic));
       return { eventSettings: value };
     }),
 
-  setShowQuickEntry: (showQuickEntry) =>
+  setLinkPrevious: (linkPrevious) =>
     set((state) => {
-      localStorage.setItem(EditorSettingsKeys.ShowQuickEntry, String(showQuickEntry));
-      return { eventSettings: { ...state.eventSettings, showQuickEntry } };
-    }),
-
-  setStartTimeIsLastEnd: (startTimeIsLastEnd) =>
-    set((state) => {
-      localStorage.setItem(EditorSettingsKeys.StartTimeIsLastEnd, String(startTimeIsLastEnd));
-      return { eventSettings: { ...state.eventSettings, startTimeIsLastEnd } };
+      localStorage.setItem(EditorSettingsKeys.LinkPrevious, String(linkPrevious));
+      return { eventSettings: { ...state.eventSettings, linkPrevious } };
     }),
 
   setDefaultPublic: (defaultPublic) =>
@@ -59,9 +48,9 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => ({
       return { eventSettings: { ...state.eventSettings, defaultPublic } };
     }),
 
-  setShowNif: (showNif) =>
+  setDefaultDuration: (defaultDuration) =>
     set((state) => {
-      localStorage.setItem(EditorSettingsKeys.ShowNif, String(showNif));
-      return { eventSettings: { ...state.eventSettings, showNif } };
+      localStorage.setItem(EditorSettingsKeys.DefaultDuration, String(defaultDuration));
+      return { eventSettings: { ...state.eventSettings, defaultDuration } };
     }),
 }));

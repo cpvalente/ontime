@@ -4,7 +4,8 @@ import DelayIndicator from '../../../common/components/delay-indicator/DelayIndi
 import useLongPress from '../../../common/hooks/useLongPress';
 import { useTimer } from '../../../common/hooks/useSocket';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
-import { formatTime } from '../../../common/utils/time';
+import ClockTime from '../../viewers/common/clock-time/ClockTime';
+import RunningTime from '../../viewers/common/running-time/RunningTime';
 import type { EditEvent } from '../Operator';
 
 import style from './OperatorEvent.module.scss';
@@ -21,8 +22,7 @@ interface OperatorEventProps {
   delay?: number;
   isSelected: boolean;
   subscribed?: string;
-  subscribedAlias: string;
-  showSeconds: boolean;
+  subscribeLabel: string;
   isPast: boolean;
   selectedRef?: RefObject<HTMLDivElement>;
   onLongPress: (event: EditEvent) => void;
@@ -30,8 +30,8 @@ interface OperatorEventProps {
 
 // extract this to contain re-renders
 function RollingTime() {
-  const timer = useTimer();
-  return <>{formatTime(timer.current, { showSeconds: true, format: 'hh:mm:ss' })}</>;
+  const { current } = useTimer();
+  return <RunningTime value={current} />;
 }
 
 function OperatorEvent(props: OperatorEventProps) {
@@ -47,8 +47,7 @@ function OperatorEvent(props: OperatorEventProps) {
     delay,
     isSelected,
     subscribed,
-    subscribedAlias,
-    showSeconds,
+    subscribeLabel: subscribedAlias,
     isPast,
     selectedRef,
     onLongPress,
@@ -61,10 +60,6 @@ function OperatorEvent(props: OperatorEventProps) {
   };
 
   const mouseHandlers = useLongPress(handleLongPress, { threshold: 800 });
-
-  const start = formatTime(timeStart, { showSeconds });
-  const end = formatTime(timeEnd, { showSeconds });
-
   const cueColours = colour && getAccessibleColour(colour);
 
   const operatorClasses = cx([
@@ -82,13 +77,15 @@ function OperatorEvent(props: OperatorEventProps) {
 
       <span className={style.mainField}>{main}</span>
       <span className={style.schedule}>
-        {start} - {end}
+        <ClockTime value={timeStart} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
+        -
+        <ClockTime value={timeEnd} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
       </span>
 
       <span className={style.secondaryField}>{secondary}</span>
-      <span className={style.running}>
+      <span className={style.runningTime}>
         <DelayIndicator delayValue={delay} />
-        {isSelected ? <RollingTime /> : formatTime(duration, { showSeconds: true, format: 'hh:mm:ss' })}
+        {isSelected ? <RollingTime /> : <RunningTime value={duration} hideLeadingZero />}
       </span>
 
       <div className={style.fields}>

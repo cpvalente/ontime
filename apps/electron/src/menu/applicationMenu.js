@@ -121,6 +121,12 @@ function getApplicationMenu(isMac, askToQuit) {
                 await shell.openExternal('http://localhost:4001/cuesheet');
               },
             },
+            {
+              label: 'Operator',
+              click: async () => {
+                await shell.openExternal('http://localhost:4001/operator');
+              },
+            },
           ],
         },
         { type: 'separator' },
@@ -153,7 +159,7 @@ function getApplicationMenu(isMac, askToQuit) {
         {
           label: 'Online documentation',
           click: async () => {
-            await shell.openExternal('https://ontime.gitbook.io/');
+            await shell.openExternal('https://docs.getontime.no/');
           },
         },
       ],

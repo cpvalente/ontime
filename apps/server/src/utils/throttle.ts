@@ -8,7 +8,7 @@
  */
 export function throttle<T extends any[], U>(cb: (...args: T) => U, delay: number) {
   let shouldWait = false;
-  let waitingArgs;
+  let waitingArgs: T | null = null;
   const timeoutFunc = () => {
     if (waitingArgs == null) {
       shouldWait = false;
