@@ -63,7 +63,7 @@ export default function EventEditor() {
   );
 
   const handleOpenCustomManager = () => {
-    setSearchParams({ settings: 'project_settings__custom' });
+    setSearchParams({ settings: 'feature_settings__custom' });
   };
 
   if (!event) {
