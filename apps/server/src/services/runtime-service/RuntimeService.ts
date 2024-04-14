@@ -17,6 +17,7 @@ import {
 } from '../rundown-service/rundownUtils.js';
 import { integrationService } from '../integration-service/IntegrationService.js';
 import { timerConfig } from '../../config/config.js';
+import { ReportAction, add } from '../../classes/reporter/reporter.js';
 
 /**
  * Service manages runtime status of app
@@ -331,10 +332,11 @@ class RuntimeService {
     }
 
     const didStart = this.eventTimer?.start() ?? false;
-    logger.info(LogOrigin.Playback, `Play Mode ${state.timer.playback.toUpperCase()}`);
     if (didStart) {
       integrationService.dispatch(TimerLifeCycle.onStart);
+      add(state.eventNow.id, ReportAction.Start);
     }
+    logger.info(LogOrigin.Playback, `Play Mode ${state.timer.playback.toUpperCase()}`);
     return didStart;
   }
 
