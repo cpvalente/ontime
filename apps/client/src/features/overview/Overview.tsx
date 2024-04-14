@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react';
 import { millisToString } from 'ontime-utils';
 
+import { ConnectedIndicator } from '../../common/components/connected-indicator/ConnectedIndicator';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import { useRuntimeOverview, useRuntimePlaybackOverview, useTimer } from '../../common/hooks/useSocket';
 import useProjectData from '../../common/hooks-query/useProjectData';
@@ -26,6 +27,7 @@ function _EditorOverview({ children }: { children: React.ReactNode }) {
     <div className={style.overview}>
       <ErrorBoundary>
         <div className={style.nav}>{children}</div>
+        <ConnectedIndicator />
         <div className={style.info}>
           <TitlesOverview />
           <div>
@@ -64,6 +66,7 @@ function _CuesheetOverview({ children }: { children: React.ReactNode }) {
     <div className={style.overview}>
       <ErrorBoundary>
         <div className={style.nav}>{children}</div>
+        <ConnectedIndicator />
         <div className={style.info}>
           <TitlesOverview />
           <TimerOverview />
@@ -95,7 +98,7 @@ function TitlesOverview() {
 }
 
 function TimerOverview() {
-  const {current} = useTimer();
+  const { current } = useTimer();
 
   const display = millisToString(current);
 

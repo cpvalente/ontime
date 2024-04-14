@@ -2,6 +2,7 @@ import { Log, RuntimeStore } from 'ontime-types';
 
 import { isProduction, RUNTIME, websocketUrl } from '../api/constants';
 import { ontimeQueryClient } from '../queryClient';
+import { useAppMode } from '../stores/appModeStore';
 import { socketClientName } from '../stores/connectionName';
 import { addLog } from '../stores/logger';
 import { patchRuntime, runtimeStore } from '../stores/runtime';
@@ -20,6 +21,7 @@ export const connectSocket = (preferredClientName?: string) => {
     clearTimeout(reconnectTimeout as NodeJS.Timeout);
     hasConnected = true;
     reconnectAttempts = 0;
+    useAppMode.setState({ connected: true });
 
     if (preferredClientName) {
       socketSendJson('set-client-name', preferredClientName);
@@ -28,6 +30,8 @@ export const connectSocket = (preferredClientName?: string) => {
 
   websocket.onclose = () => {
     console.warn('WebSocket disconnected');
+    useAppMode.setState({ connected: false });
+
     if (shouldReconnect) {
       reconnectTimeout = setTimeout(() => {
         console.warn('WebSocket: attempting reconnect');

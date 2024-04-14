@@ -10,3 +10,16 @@ export const ontimeAlertOnDark = {
     color: '#578AF4', // $blue-500
   },
 };
+
+export const ontimeRedAlertOnDark = {
+  container: {
+    fontSize: 'calc(1rem - 1px)',
+    backgroundColor: '#0000', // $gray-1300
+    color: '#e2e2e2', // $gray-200
+    borderRadius: '3px',
+  },
+  icon: {
+    alignSelf: 'start',
+    color: 'red', // $blue-500
+  },
+};

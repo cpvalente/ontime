@@ -21,6 +21,8 @@ type AppModeStore = {
   setMode: (mode: AppMode) => void;
   cursor: string | null;
   setCursor: (cursor: string | null) => void;
+  connected: boolean;
+  setConnected: (c: boolean) => void;
 };
 
 export const useAppMode = create<AppModeStore>()((set) => ({
@@ -28,10 +30,11 @@ export const useAppMode = create<AppModeStore>()((set) => ({
   cursor: null,
   setMode: (mode: AppMode) => {
     persistModeToSession(mode);
-
     return set(() => {
       return { mode };
     });
   },
   setCursor: (cursor: string | null) => set(() => ({ cursor })),
+  connected: false,
+  setConnected: (connected: boolean) => set(() => ({ connected })),
 }));
