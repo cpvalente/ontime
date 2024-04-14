@@ -19,7 +19,16 @@
 
 # Ontime
 
-Ontime is an application for creating and managing event rundowns and timers.
+Ontime is a browser-based application that manages event rundowns, scheduling, and cueing.
+
+With Ontime, you can plan, track your schedule, manage automation and cross-department show information all in one place.
+
+Ontime is made by entertainment and broadcast engineers and used by
+- Conference organisers
+- Touring shows and receiving venues
+- Broadcasters and streamers
+- Theatres and opera houses
+- Houses of worship
 
 ### For live environments
 
