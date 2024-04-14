@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
+import { Playback } from 'ontime-types';
 import { MILLIS_PER_SECOND } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
@@ -13,11 +14,11 @@ import TapButton from '../tap-button/TapButton';
 import style from './AddTime.module.scss';
 
 interface AddTimeProps {
-  disableButtons: boolean;
+  playback: Playback;
 }
 
 export default function AddTime(props: AddTimeProps) {
-  const { disableButtons } = props;
+  const { playback } = props;
   const [time, setTime] = useState(300_000); // 5 minutes
 
   const handleTimeChange = (_field: string, value: string) => {
@@ -34,7 +35,8 @@ export default function AddTime(props: AddTimeProps) {
     }
   };
 
-  const doDisableButtons = disableButtons || time === 0;
+  const canAddTime = playback === Playback.Play || playback === Playback.Pause;
+  const doDisableButtons = !canAddTime || time === 0;
 
   return (
     <div className={style.addTime}>

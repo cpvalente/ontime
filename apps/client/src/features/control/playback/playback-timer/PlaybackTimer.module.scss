@@ -19,39 +19,36 @@
   justify-content: space-evenly;
 }
 
-.indRoll,
-.indDelay,
-.indNegative {
+.indicatorRoll,
+.indicatorDelay,
+.indicatorNegative {
   background-color: $black-10;
 }
 
-.indRoll,
-.indRollActive,
-.indDelay,
-.indDelayActive {
+.indicatorRoll,
+.indicatorDelay {
   margin: 0 auto;
   border-radius: 5px;
   width: 10px;
   height: 10px;
 }
 
-.indRollActive {
+.indicatorRoll[data-active='true'] {
   background-color: $ontime-roll;
 }
 
-.indNegative,
-.indNegativeActive {
+.indicatorDelay[data-active='true'] {
+  background-color: $ontime-delay;
+}
+
+.indicatorNegative {
   margin: 0 auto;
   width: 90%;
   height: 0.25rem;
-}
 
-.indNegativeActive {
-  background-color: $playback-negative;
-}
-
-.indDelayActive {
-  background-color: $ontime-delay;
+  &[data-active='true'] {
+    background-color: $playback-negative;
+  }
 }
 
 // ---------> LABELS

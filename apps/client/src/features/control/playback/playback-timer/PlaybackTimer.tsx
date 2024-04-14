@@ -1,9 +1,9 @@
+import { PropsWithChildren } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { Playback } from 'ontime-types';
 import { dayInMs, millisToMinutes, millisToSeconds, millisToString } from 'ontime-utils';
 
 import { useTimer } from '../../../../common/hooks/useSocket';
-import AddTime from '../add-time/AddTime';
 import TimerDisplay from '../timer-display/TimerDisplay';
 
 import style from './PlaybackTimer.module.scss';
@@ -12,8 +12,30 @@ interface PlaybackTimerProps {
   playback: Playback;
 }
 
-export default function PlaybackTimer(props: PlaybackTimerProps) {
-  const { playback } = props;
+function resolveAddedTimeLabel(addedTime: number) {
+  function resolveClosestUnit(ms: number) {
+    if (ms < 6000) {
+      return `${millisToSeconds(ms)} seconds`;
+    } else if (ms < 12000) {
+      return '1 minute';
+    } else {
+      return `${millisToMinutes(ms)} minutes`;
+    }
+  }
+
+  if (addedTime > 0) {
+    return `Added ${resolveClosestUnit(addedTime)}`;
+  }
+
+  if (addedTime < 0) {
+    return `Removed ${resolveClosestUnit(addedTime)}`;
+  }
+
+  return '';
+}
+
+export default function PlaybackTimer(props: PropsWithChildren<PlaybackTimerProps>) {
+  const { playback, children } = props;
   const timer = useTimer();
 
   const started = millisToString(timer.startedAt);
@@ -21,47 +43,23 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
   const finish = millisToString(expectedFinish);
 
   const isRolling = playback === Playback.Roll;
-  const isStopped = playback === Playback.Stop;
   const isWaiting = timer.secondaryTimer !== null && timer.secondaryTimer > 0 && timer.current === null;
-  const disableButtons = isStopped || isRolling;
   const isOvertime = timer.current !== null && timer.current < 0;
   const hasAddedTime = Boolean(timer.addedTime);
 
   const rollLabel = isRolling ? 'Roll mode active' : '';
 
-  const resolveAddedTimeLabel = () => {
-    function resolveClosestUnit(ms: number) {
-      if (ms < 6000) {
-        return `${millisToSeconds(ms)} seconds`;
-      } else if (ms < 12000) {
-        return '1 minute';
-      } else {
-        return `${millisToMinutes(ms)} minutes`;
-      }
-    }
-
-    if (timer.addedTime > 0) {
-      return `Added ${resolveClosestUnit(timer.addedTime)}`;
-    }
-
-    if (timer.addedTime < 0) {
-      return `Removed ${resolveClosestUnit(timer.addedTime)}`;
-    }
-
-    return '';
-  };
-
-  const addedTimeLabel = resolveAddedTimeLabel();
+  const addedTimeLabel = resolveAddedTimeLabel(timer.addedTime);
 
   return (
     <div className={style.timeContainer}>
       <div className={style.indicators}>
         <Tooltip label={rollLabel}>
-          <div className={isRolling ? style.indRollActive : style.indRoll} />
+          <div className={style.indicatorRoll} data-active={isRolling} />
         </Tooltip>
-        <div className={isOvertime ? style.indNegativeActive : style.indNegative} />
+        <div className={style.indicatorNegative} data-active={isOvertime} />
         <Tooltip label={addedTimeLabel}>
-          <div className={hasAddedTime ? style.indDelayActive : style.indDelay} />
+          <div className={style.indicatorDelay} data-active={hasAddedTime} />
         </Tooltip>
       </div>
       <TimerDisplay time={isWaiting ? timer.secondaryTimer : timer.current} />
@@ -81,7 +79,7 @@ export default function PlaybackTimer(props: PlaybackTimerProps) {
           </>
         )}
       </div>
-      <AddTime disableButtons={disableButtons} />
+      {children}
     </div>
   );
 }
