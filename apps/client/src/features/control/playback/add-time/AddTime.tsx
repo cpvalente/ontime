@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
