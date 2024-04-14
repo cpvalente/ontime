@@ -1,0 +1,16 @@
+.addTime {
+  grid-area: addtime;
+  display: flex;
+  flex-direction: column;
+  gap: $element-inner-spacing;
+}
+
+.addButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $element-inner-spacing;
+}
+
+.tallButtons {
+  height: 28px;
+}
