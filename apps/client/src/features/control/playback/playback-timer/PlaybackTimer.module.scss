@@ -1,16 +1,17 @@
 .timeContainer {
   display: grid;
   grid-template-areas:
-    'ind clk clk btn'
-    '... sta fin btn';
+    'indicators timer  addtime'
+    'status     status addtime';
   grid-template-rows: 1fr auto;
-  grid-template-columns: 1.25rem 1fr 1fr 5rem;
+  grid-template-columns: 1.25rem 1fr 6.5rem;
   gap: $element-inner-spacing;
-  justify-items: start;
 }
 
+// ---------> INDICATORS
+
 .indicators {
-  grid-area: ind;
+  grid-area: indicators;
   width: 100%;
   height: 100%;
   display: flex;
@@ -18,72 +19,46 @@
   justify-content: space-evenly;
 }
 
-.indRoll,
-.indDelay,
-.indNegative {
+.indicatorRoll,
+.indicatorDelay,
+.indicatorNegative {
   background-color: $black-10;
 }
 
-.indRoll,
-.indRollActive,
-.indDelay,
-.indDelayActive {
+.indicatorRoll,
+.indicatorDelay {
   margin: 0 auto;
-  border-radius: 6px;
-  width: 12px;
-  height: 12px;
+  border-radius: 5px;
+  width: 10px;
+  height: 10px;
 }
 
-.indRollActive {
+.indicatorRoll[data-active='true'] {
   background-color: $ontime-roll;
 }
 
-.indNegative,
-.indNegativeActive {
-  margin: 0 auto;
-  width: 90%;
-  height: 0.25rem;
-}
-
-.indNegativeActive {
-  background-color: $playback-negative;
-}
-
-.indDelayActive {
+.indicatorDelay[data-active='true'] {
   background-color: $ontime-delay;
 }
 
-.btn {
-  grid-area: btn;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  width: 100%;
-  gap: $element-inner-spacing;
+.indicatorNegative {
+  margin: 0 auto;
+  width: 90%;
+  height: 0.25rem;
+
+  &[data-active='true'] {
+    background-color: $playback-negative;
+  }
 }
 
-.minus {
-  grid-area: min;
-  display: flex;
-  flex-direction: column;
-}
+// ---------> LABELS
 
-.start,
-.finish,
-.roll {
+.status {
+  grid-area: status;
   height: 1.5rem;
-}
-
-.start {
-  grid-area: sta;
-}
-
-.finish {
-  grid-area: fin;
-}
-
-.roll {
-  grid-area: 2 / 2 / 2 / 4 ;
+  display: flex;
+  gap: $section-spacing;
+  margin-left: 1.5rem;
 }
 
 .tag {
