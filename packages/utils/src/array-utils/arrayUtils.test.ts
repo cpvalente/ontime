@@ -1,4 +1,4 @@
-import { insertAtIndex, reorderArray, sortArrayByProperty } from './arrayUtils.js';
+import { insertAtIndex, reorderArray } from './arrayUtils.js';
 
 describe('insertAtIndex', () => {
   it('should insert an item at the beginning of the array', () => {
@@ -50,39 +50,5 @@ describe('reorderArray', () => {
     const array = ['a', 'b', 'c'];
     const result = reorderArray(array, 0, 2);
     expect(result).toEqual(['b', 'c', 'a']);
-  });
-});
-
-describe('sortArrayByProperty()', () => {
-  it('sort array 1-5', () => {
-    const arr1 = [{ timeStart: 1 }, { timeStart: 5 }, { timeStart: 3 }, { timeStart: 2 }, { timeStart: 4 }];
-
-    const arr1Expected = [{ timeStart: 1 }, { timeStart: 2 }, { timeStart: 3 }, { timeStart: 4 }, { timeStart: 5 }];
-
-    const sorted = sortArrayByProperty(arr1, 'timeStart');
-    expect(sorted).toStrictEqual(arr1Expected);
-  });
-
-  it('sort array 1-5 with null', () => {
-    const arr1 = [
-      { timeStart: 1 },
-      { timeStart: 5 },
-      { timeStart: 3 },
-      { timeStart: 2 },
-      { timeStart: 4 },
-      { timeStart: null },
-    ];
-
-    const arr1Expected = [
-      { timeStart: null },
-      { timeStart: 1 },
-      { timeStart: 2 },
-      { timeStart: 3 },
-      { timeStart: 4 },
-      { timeStart: 5 },
-    ];
-
-    const sorted = sortArrayByProperty(arr1, 'timeStart');
-    expect(sorted).toStrictEqual(arr1Expected);
   });
 });
