@@ -22,7 +22,7 @@ describe('cloneEvent()', () => {
       timeWarning: 120000,
       timeDanger: 60000,
       custom: {
-        lighting: { value: '3' },
+        lighting: '3',
       } as EventCustomFields,
     } as OntimeEvent;
 

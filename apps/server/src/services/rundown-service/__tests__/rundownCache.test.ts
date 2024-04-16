@@ -304,15 +304,15 @@ describe('generate()', () => {
           type: SupportedEvent.Event,
           id: '1',
           custom: {
-            lighting: { value: 'event 1 lx' },
+            lighting: 'event 1 lx',
           } as EventCustomFields,
         } as OntimeEvent,
         {
           type: SupportedEvent.Event,
           id: '2',
           custom: {
-            lighting: { value: 'event 2 lx' },
-            sound: { value: 'event 2 sound' },
+            lighting: 'event 2 lx',
+            sound: 'event 2 sound',
           } as EventCustomFields,
         } as OntimeEvent,
       ];
@@ -322,10 +322,10 @@ describe('generate()', () => {
         lighting: ['1', '2'],
         sound: ['2'],
       });
-      expect((initResult.rundown['1'] as OntimeEvent).custom).toMatchObject({ lighting: { value: 'event 1 lx' } });
+      expect((initResult.rundown['1'] as OntimeEvent).custom).toMatchObject({ lighting: 'event 1 lx' });
       expect((initResult.rundown['2'] as OntimeEvent).custom).toMatchObject({
-        lighting: { value: 'event 2 lx' },
-        sound: { value: 'event 2 sound' },
+        lighting: 'event 2 lx',
+        sound: 'event 2 sound',
       });
     });
   });
