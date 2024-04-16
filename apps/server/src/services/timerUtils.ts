@@ -1,5 +1,5 @@
 import { MaybeNumber, MaybeString, OntimeEvent, TimerType } from 'ontime-types';
-import { dayInMs, sortArrayByProperty } from 'ontime-utils';
+import { dayInMs } from 'ontime-utils';
 import { RuntimeState } from '../stores/runtimeState.js';
 import { timerConfig } from '../config/config.js';
 
@@ -129,8 +129,7 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number): RollTime
   let timeToNext: number | null = null; // counter: time for next event
   let publicTimeToNext: number | null = null; // counter: time for next public event
 
-  const orderedEvents = sortArrayByProperty(rundown, 'timeStart');
-  const lastEvent = orderedEvents[orderedEvents.length - 1];
+  const lastEvent = rundown[rundown.length - 1];
   const lastNormalEnd = normaliseEndTime(lastEvent.timeStart, lastEvent.timeEnd);
 
   let nextEvent: OntimeEvent | null = null;
@@ -142,7 +141,7 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number): RollTime
     // we are past last end
     // preload first and find next
 
-    const firstEvent = orderedEvents[0];
+    const firstEvent = rundown[0];
     nextIndex = 0;
     nextEvent = firstEvent;
     timeToNext = firstEvent.timeStart + dayInMs - timeNow;
@@ -154,7 +153,7 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number): RollTime
       // look for next public
       // dev note: we feel that this is more efficient than filtering
       // since the next event will likely be close to the one playing
-      for (const event of orderedEvents) {
+      for (const event of rundown) {
         if (event.isPublic) {
           nextPublicEvent = event;
           // we need the index before this was sorted
@@ -169,7 +168,7 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number): RollTime
     // keep track of the end times when looking for public
     let publicTime = -1;
 
-    for (const event of orderedEvents) {
+    for (const event of rundown) {
       // When does the event end (handle midnight)
       const normalEnd = normaliseEndTime(event.timeStart, event.timeEnd);
 

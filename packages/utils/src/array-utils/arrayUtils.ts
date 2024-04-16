@@ -48,18 +48,3 @@ export function reorderArray<T>(array: T[], fromIndex: number, toIndex: number) 
   modifiedArray.splice(toIndex, 0, reorderedItem);
   return modifiedArray;
 }
-
-/**
- * @description Sorts an array of objects by given property
- * @param {array} arr - array to be sorted
- * @param {string} property - property to compare
- * @returns {array} copy of array sorted in ascending order
- */
-
-export const sortArrayByProperty = <T>(arr: T[], property: string): T[] => {
-  return [...arr].sort((a, b) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore -- its ok
-    return a[property] - b[property];
-  });
-};
