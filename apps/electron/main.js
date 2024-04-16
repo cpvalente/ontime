@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Menu, globalShortcut, Tray, dialog, ipcMain, shell, Notification } = require('electron');
 const path = require('path');
 const electronConfig = require('./electron.config');
+const { getApplicationMenu } = require('./src/menu/applicationMenu.js');
 
 const env = process.env.NODE_ENV || 'production';
 const isProduction = env === 'production';
@@ -162,8 +163,12 @@ app.whenReady().then(() => {
         ? electronConfig.reactAppUrl.production(port)
         : electronConfig.reactAppUrl.development(port);
 
+      const template = getApplicationMenu(isMac, askToQuit, clientUrl);
+      const menu = Menu.buildFromTemplate(template);
+      Menu.setApplicationMenu(menu);
+
       win
-        .loadURL(clientUrl)
+        .loadURL(`${clientUrl}/editor`)
         .then(() => {
           win.webContents.setBackgroundThrottling(false);
 
@@ -208,12 +213,10 @@ app.whenReady().then(() => {
   const trayMenuTemplate = getTrayMenu(bringToFront, askToQuit);
   const trayContextMenu = Menu.buildFromTemplate(trayMenuTemplate);
   tray.setContextMenu(trayContextMenu);
+
+  
 });
 
-const { getApplicationMenu } = require('./src/menu/applicationMenu.js');
-const template = getApplicationMenu(isMac, askToQuit);
-const menu = Menu.buildFromTemplate(template);
-Menu.setApplicationMenu(menu);
 
 // unregister shortcuts before quitting
 app.once('will-quit', () => {

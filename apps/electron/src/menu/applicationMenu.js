@@ -4,7 +4,7 @@ const { shell } = require('electron');
  * @param {boolean} isMac - Whether the target platform is mac
  * @param {function} askToQuit - function for quitting process
  */
-function getApplicationMenu(isMac, askToQuit) {
+function getApplicationMenu(isMac, askToQuit, urlBase) {
   return [
     ...(isMac
       ? [
@@ -63,68 +63,68 @@ function getApplicationMenu(isMac, askToQuit) {
               label: 'Timer',
               accelerator: 'CmdOrCtrl+V',
               click: async () => {
-                await shell.openExternal('http://localhost:4001/timer');
+                await shell.openExternal(`${urlBase}/timer`);
               },
             },
             {
               label: 'Clock',
               click: async () => {
-                await shell.openExternal('http://localhost:4001/clock');
+                await shell.openExternal(`${urlBase}/clock`);
               },
             },
             {
               label: 'Minimal Timer',
               click: async () => {
-                await shell.openExternal('http://localhost:4001/minimal');
+                await shell.openExternal(`${urlBase}/minimal`);
               },
             },
             {
               label: 'Backstage',
               click: async () => {
-                await shell.openExternal('http://localhost:4001/backstage');
+                await shell.openExternal(`${urlBase}/backstage`);
               },
             },
             {
               label: 'Public',
               click: async () => {
-                await shell.openExternal('http://localhost:4001/public');
+                await shell.openExternal(`${urlBase}/public`);
               },
             },
             {
               label: 'Lower Thirds',
               click: async () => {
-                await shell.openExternal('http://localhost:4001/lower');
+                await shell.openExternal(`${urlBase}/lower`);
               },
             },
             {
               label: 'Studio Clock',
               click: async () => {
-                await shell.openExternal('http://localhost:4001/studio');
+                await shell.openExternal(`${urlBase}/studio`);
               },
             },
             {
               label: 'Countdown',
               click: async () => {
-                await shell.openExternal('http://localhost:4001/countdown');
+                await shell.openExternal(`${urlBase}/countdown`);
               },
             },
             { type: 'separator' },
             {
               label: 'Editor',
               click: async () => {
-                await shell.openExternal('http://localhost:4001/editor');
+                await shell.openExternal(`${urlBase}/editor`);
               },
             },
             {
               label: 'Cuesheet',
               click: async () => {
-                await shell.openExternal('http://localhost:4001/cuesheet');
+                await shell.openExternal(`${urlBase}/cuesheet`);
               },
             },
             {
               label: 'Operator',
               click: async () => {
-                await shell.openExternal('http://localhost:4001/operator');
+                await shell.openExternal(`${urlBase}/operator`);
               },
             },
           ],
