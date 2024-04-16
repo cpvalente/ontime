@@ -34,7 +34,6 @@ type WithDataProps = {
   nextId: string | null;
   onAir: boolean;
   pres: TimerMessage;
-  publ: Message;
   publicEventNext: OntimeEvent | null;
   publicEventNow: OntimeEvent | null;
   publicSelectedId: string | null;
@@ -110,7 +109,6 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
           nextId={nextId}
           onAir={onAir}
           pres={message.timer}
-          publ={message.public}
           publicEventNext={publicEventNext}
           publicEventNow={publicEventNow}
           publicSelectedId={publicSelectedId}

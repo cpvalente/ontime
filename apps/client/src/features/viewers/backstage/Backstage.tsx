@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { CustomFields, Message, OntimeEvent, ProjectData, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
+import { CustomFields, OntimeEvent, ProjectData, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
@@ -28,7 +28,6 @@ import './Backstage.scss';
 interface BackstageProps {
   customFields: CustomFields;
   isMirrored: boolean;
-  publ: Message;
   eventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
   time: ViewExtendedTimer;
@@ -43,7 +42,6 @@ export default function Backstage(props: BackstageProps) {
   const {
     customFields,
     isMirrored,
-    publ,
     eventNow,
     eventNext,
     time,
@@ -84,7 +82,6 @@ export default function Backstage(props: BackstageProps) {
 
   const qrSize = Math.max(window.innerWidth / 15, 128);
   const filteredEvents = backstageEvents.filter((event) => event.type === SupportedEvent.Event);
-  const showPublicMessage = publ.text && publ.visible;
   const showProgress = time.playback !== 'stop';
 
   const secondarySource = searchParams.get('secondary-src');
@@ -172,11 +169,6 @@ export default function Backstage(props: BackstageProps) {
         <ScheduleNav className='schedule-nav-container' />
         <Schedule isProduction className='schedule-container' />
       </ScheduleProvider>
-
-      <div className={showPublicMessage ? 'public-container' : 'public-container public-container--hidden'}>
-        <div className='label'>{getLocalizedString('common.public_message')}</div>
-        <div className='message'>{publ.text}</div>
-      </div>
 
       <div className='info'>
         {general.backstageUrl && <QRCode value={general.backstageUrl} size={qrSize} level='L' className='qr' />}

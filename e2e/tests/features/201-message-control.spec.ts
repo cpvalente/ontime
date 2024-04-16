@@ -6,15 +6,6 @@ test('message control sends messages to screens', async ({ context }) => {
 
   await editorPage.goto('http://localhost:4001/messagecontrol');
 
-  // public screen message
-  await editorPage.getByPlaceholder('Shown in public and backstage screens').click();
-  await editorPage.getByPlaceholder('Shown in public and backstage screens').fill('testing public');
-  await editorPage.getByRole('button', { name: 'Toggle Public / Backstage screen message' }).click();
-
-  await featurePage.goto('http://localhost:4001/public');
-  await featurePage.waitForLoadState('load', { timeout: 5000 });
-  await featurePage.getByText('testing public').click({ timeout: 5000 });
-
   // lower third message
   await editorPage.getByPlaceholder('Shown in lower third').click();
   await editorPage.getByPlaceholder('Shown in lower third').fill('testing lower');

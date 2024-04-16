@@ -1,7 +1,7 @@
 import QRCode from 'react-qr-code';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { CustomFields, Message, OntimeEvent, ProjectData, Settings, ViewSettings } from 'ontime-types';
+import { CustomFields, OntimeEvent, ProjectData, Settings, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import Schedule from '../../../common/components/schedule/Schedule';
@@ -24,7 +24,6 @@ import './Public.scss';
 interface BackstageProps {
   customFields: CustomFields;
   isMirrored: boolean;
-  publ: Message;
   publicEventNow: OntimeEvent | null;
   publicEventNext: OntimeEvent | null;
   time: ViewExtendedTimer;
@@ -39,7 +38,6 @@ export default function Public(props: BackstageProps) {
   const {
     customFields,
     isMirrored,
-    publ,
     publicEventNow,
     publicEventNext,
     time,
@@ -61,7 +59,6 @@ export default function Public(props: BackstageProps) {
     return null;
   }
 
-  const showPublicMessage = publ.text && publ.visible;
   const clock = formatTime(time.clock);
   const qrSize = Math.max(window.innerWidth / 15, 128);
 
@@ -119,11 +116,6 @@ export default function Public(props: BackstageProps) {
         <ScheduleNav className='schedule-nav-container' />
         <Schedule className='schedule-container' />
       </ScheduleProvider>
-
-      <div className={showPublicMessage ? 'public-container' : 'public-container public-container--hidden'}>
-        <div className='label'>{getLocalizedString('common.public_message')}</div>
-        <div className='message'>{publ.text}</div>
-      </div>
 
       <div className='info'>
         {general.publicUrl && <QRCode value={general.publicUrl} size={qrSize} level='L' className='qr' />}

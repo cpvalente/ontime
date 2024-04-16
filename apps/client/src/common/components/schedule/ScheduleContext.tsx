@@ -24,6 +24,8 @@ interface ScheduleProviderProps {
   time?: number;
 }
 
+const numEventsPerPage = 10;
+
 export const ScheduleProvider = ({
   children,
   events,
@@ -37,7 +39,7 @@ export const ScheduleProvider = ({
   // look for overrides from views
   const hidePast = isStringBoolean(searchParams.get('hidePast'));
   const stopCycle = isStringBoolean(searchParams.get('stopCycle'));
-  const eventsPerPage = Number(searchParams.get('eventsPerPage') ?? 7);
+  const eventsPerPage = Number(searchParams.get('eventsPerPage') ?? numEventsPerPage);
 
   let selectedEventIndex = events.findIndex((event) => event.id === selectedEventId);
 
