@@ -6,16 +6,16 @@ import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
-import { setExtraTimer, useExtraTimerControl, useExtraTimerTime } from '../../../../common/hooks/useSocket';
+import { setAuxTimer, useAuxTimerControl, useAuxTimerTime } from '../../../../common/hooks/useSocket';
 import { forgivingStringToMillis } from '../../../../common/utils/dateConfig';
 import TapButton from '../tap-button/TapButton';
 
-import style from './ExtraTimer.module.scss';
+import style from './AuxTimer.module.scss';
 
-export function ExtraTimer() {
-  const { playback, direction } = useExtraTimerControl();
+export function AuxTimer() {
+  const { playback, direction } = useAuxTimerControl();
 
-  const { start, pause, stop, setDirection } = setExtraTimer;
+  const { start, pause, stop, setDirection } = setAuxTimer;
 
   const toggleDirection = () => {
     const newDirection = direction === SimpleDirection.CountDown ? SimpleDirection.CountUp : SimpleDirection.CountDown;
@@ -30,7 +30,7 @@ export function ExtraTimer() {
 
   return (
     <div className={style.extraRow}>
-      <ExtraTimeInput />
+      <AuxTimerInput />
       <TapButton onClick={toggleDirection} aspect='tight'>
         {direction === SimpleDirection.CountDown && <IoArrowDown data-testid='aux-timer-direction' />}
         {direction === SimpleDirection.CountUp && <IoArrowUp data-testid='aux-timer-direction' />}
@@ -59,9 +59,9 @@ export function ExtraTimer() {
   );
 }
 
-function ExtraTimeInput() {
-  const time = useExtraTimerTime();
-  const { setDuration } = setExtraTimer;
+function AuxTimerInput() {
+  const time = useAuxTimerTime();
+  const { setDuration } = setAuxTimer;
 
   const handleTimeUpdate = (_field: string, value: string) => {
     const newTime = forgivingStringToMillis(value);
