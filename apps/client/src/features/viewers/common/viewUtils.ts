@@ -50,7 +50,7 @@ export function getPropertyValue(event: OntimeEvent | null, property: MaybeStrin
 
   if (property.startsWith('custom-')) {
     const field = property.split('custom-')[1];
-    return event.custom?.[field]?.value;
+    return event.custom?.[field];
   }
 
   return event[property as keyof OntimeEvent] as string;

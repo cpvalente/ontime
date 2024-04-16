@@ -87,7 +87,7 @@ export const makeTable = (headerData: ProjectData, rundown: OntimeRundown, custo
         // for custom fields, we need to extract the value from the custom object
         if (field.startsWith('custom-')) {
           const fieldLabel = field.split('custom-')[1];
-          const value = entry.custom[fieldLabel]?.value;
+          const value = entry.custom[fieldLabel];
           row.push(parseField(fieldLabel, value));
         } else {
           // @ts-expect-error -- it is ok, we will just not have the data for other fields

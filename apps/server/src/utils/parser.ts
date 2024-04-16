@@ -214,7 +214,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
       } else if (j in customFieldIndexes) {
         const importKey = customFieldIndexes[j];
         const ontimeKey = customFieldImportKeys[importKey];
-        eventCustomFields[ontimeKey] = { value: makeString(column, '') };
+        eventCustomFields[ontimeKey] = makeString(column, '');
       } else {
         // 2. if there is no flag, lets see if we know the field type
         if (typeof column === 'string') {

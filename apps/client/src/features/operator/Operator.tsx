@@ -173,7 +173,7 @@ export default function Operator() {
 
             const mainField = main ? entry?.[main] || entry.title : entry.title;
             const secondaryField = getPropertyValue(entry, secondary) ?? '';
-            const subscribedData = entry.custom[subscribe]?.value;
+            const subscribedData = entry.custom[subscribe];
 
             return (
               <OperatorEvent
