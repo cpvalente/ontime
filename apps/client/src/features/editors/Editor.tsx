@@ -62,6 +62,15 @@ export default function Editor() {
 
   useWindowTitle('Editor');
 
+  // listen to shutdown request from electron process
+  useEffect(() => {
+    if (window.process?.type === 'renderer') {
+      window.ipcRenderer.on('user-request-shutdown', () => {
+        setLocation('shutdown');
+      });
+    }
+  }, [setLocation]);
+
   return (
     <div className={styles.mainContainer} data-testid='event-editor'>
       <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
