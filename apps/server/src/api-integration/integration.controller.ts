@@ -1,7 +1,7 @@
 import { DeepPartial, MessageState, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
-import { extraTimerService } from '../services/extra-timer-service/ExtraTimerService.js';
+import { auxTimerService } from '../services/aux-timer-service/AuxTimerService.js';
 import { messageService } from '../services/message-service/MessageService.js';
 import { validateMessage, validateTimerMessage } from '../services/message-service/messageUtils.js';
 import { runtimeService } from '../services/runtime-service/RuntimeService.js';
@@ -190,26 +190,26 @@ const actionHandlers: Record<string, ActionHandler> = {
     const command = payload['1'];
     if (typeof command === 'string') {
       if (command === SimplePlayback.Start) {
-        const reply = extraTimerService.start();
+        const reply = auxTimerService.start();
         return { payload: reply };
       }
       if (command === SimplePlayback.Pause) {
-        const reply = extraTimerService.pause();
+        const reply = auxTimerService.pause();
         return { payload: reply };
       }
       if (command === SimplePlayback.Stop) {
-        const reply = extraTimerService.stop();
+        const reply = auxTimerService.stop();
         return { payload: reply };
       }
     } else if (command && typeof command === 'object') {
       const reply = { payload: {} };
       if ('duration' in command) {
         const time = numberOrError(command.duration);
-        reply.payload = extraTimerService.setTime(time * 1000); //frontend is seconds based
+        reply.payload = auxTimerService.setTime(time * 1000); //frontend is seconds based
       }
       if ('direction' in command) {
         if (command.direction === SimpleDirection.CountUp || command.direction === SimpleDirection.CountDown) {
-          reply.payload = extraTimerService.setDirection(command.direction);
+          reply.payload = auxTimerService.setDirection(command.direction);
         } else {
           throw new Error('Invalid direction payload');
         }

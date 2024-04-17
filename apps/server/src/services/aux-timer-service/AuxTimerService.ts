@@ -6,7 +6,7 @@ import { eventStore } from '../../stores/EventStore.js';
 export type EmitFn = (state: SimpleTimerState) => void;
 export type GetTimeFn = () => number;
 
-export class ExtraTimerService {
+export class AuxTimerService {
   private timer: SimpleTimer;
   private interval: NodeJS.Timer | null = null;
   private emit: EmitFn;
@@ -76,4 +76,4 @@ function broadcastReturn(_target: any, _propertyKey: string, descriptor: Propert
 const emit = (state: SimpleTimerState) => eventStore.set('auxtimer1', state);
 const timeNow = () => Date.now();
 
-export const extraTimerService = new ExtraTimerService(emit, timeNow);
+export const auxTimerService = new AuxTimerService(emit, timeNow);

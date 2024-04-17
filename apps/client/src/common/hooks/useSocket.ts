@@ -86,13 +86,13 @@ export const useInfoPanel = () => {
   return useRuntimeStore(featureSelector);
 };
 
-export const useExtraTimerTime = () => {
+export const useAuxTimerTime = () => {
   const featureSelector = (state: RuntimeStore) => state.auxtimer1.current;
 
   return useRuntimeStore(featureSelector);
 };
 
-export const useExtraTimerControl = () => {
+export const useAuxTimerControl = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.auxtimer1.playback,
     direction: state.auxtimer1.direction,
@@ -101,7 +101,7 @@ export const useExtraTimerControl = () => {
   return useRuntimeStore(featureSelector);
 };
 
-export const setExtraTimer = {
+export const setAuxTimer = {
   start: () => socketSendJson('auxtimer', { '1': SimplePlayback.Start }),
   pause: () => socketSendJson('auxtimer', { '1': SimplePlayback.Pause }),
   stop: () => socketSendJson('auxtimer', { '1': SimplePlayback.Stop }),
