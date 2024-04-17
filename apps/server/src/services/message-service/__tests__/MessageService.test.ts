@@ -14,7 +14,6 @@ describe('MessageService', () => {
   it('should patch the message state', () => {
     const message = {
       timer: { text: 'new text', visible: true },
-      public: { text: 'public text', visible: false },
       lower: { text: 'lower text' },
       external: { visible: true },
     };
@@ -23,7 +22,6 @@ describe('MessageService', () => {
 
     expect(newState).toEqual({
       timer: { text: 'new text', visible: true, blackout: false, blink: false },
-      public: { text: 'public text', visible: false },
       lower: {
         text: 'lower text',
         visible: false,
@@ -38,14 +36,12 @@ describe('MessageService', () => {
   it('should not affect other properties when patching', () => {
     const initialMessage = {
       timer: { text: 'initial text', visible: true },
-      public: { text: 'public text', visible: false },
     };
 
     const newState = messageService.patch(initialMessage);
 
     expect(newState).toEqual({
       timer: { text: 'initial text', visible: true, blackout: false, blink: false },
-      public: { text: 'public text', visible: false },
       lower: {
         text: '',
         visible: false,

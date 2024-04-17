@@ -20,14 +20,6 @@ export default function MessageControl() {
   return (
     <div className={style.messageContainer}>
       <InputRow
-        label='Public / Backstage screen message'
-        placeholder='Shown in public and backstage screens'
-        text={message.public.text || ''}
-        visible={message.public.visible || false}
-        changeHandler={(newValue) => setMessage.publicText(newValue)}
-        actionHandler={() => setMessage.publicVisible(!message.public.visible)}
-      />
-      <InputRow
         label='Lower third message'
         placeholder='Shown in lower third'
         text={message.lower.text || ''}

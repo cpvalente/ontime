@@ -396,7 +396,7 @@ export const getBackstageOptions = (timeFormat: string, customFields: CustomFiel
       title: 'Events per page',
       description: 'Sets the number of events on the page, can cause overlow',
       type: 'number',
-      placeholder: '7 (default)',
+      placeholder: '10 (default)',
     },
     {
       id: 'secondary-src',
@@ -433,7 +433,7 @@ export const getPublicOptions = (timeFormat: string, customFields: CustomFields)
       title: 'Events per page',
       description: 'Sets the number of events on the page, can cause overlow',
       type: 'number',
-      placeholder: '7 (default)',
+      placeholder: '10 (default)',
     },
     {
       id: 'secondary-src',

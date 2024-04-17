@@ -10,7 +10,6 @@ export type TimerMessage = Message & {
 
 export type MessageState = {
   timer: TimerMessage;
-  public: Message;
   lower: Message;
   external: Message;
 };
