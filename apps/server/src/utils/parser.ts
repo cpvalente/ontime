@@ -91,6 +91,8 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
   let isPublicIndex: number | null = null;
   let skipIndex: number | null = null;
 
+  let linkStartIndex: number | null = null;
+
   // times: numbers
   let timeStartIndex: number | null = null;
   let timeEndIndex: number | null = null;
@@ -115,6 +117,10 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
       [importMap.timeStart]: (row: number, col: number) => {
         timeStartIndex = col;
         rundownMetadata['timeStart'] = { row, col };
+      },
+      [importMap.linkStart]: (row: number, col: number) => {
+        linkStartIndex = col;
+        rundownMetadata['linkStart'] = { row, col };
       },
       [importMap.timeEnd]: (row: number, col: number) => {
         timeEndIndex = col;
@@ -191,6 +197,8 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
         event.title = makeString(column, '');
       } else if (j === timeStartIndex) {
         event.timeStart = parseExcelDate(column);
+      } else if (j === linkStartIndex) {
+        event.linkStart = column == 'x' ? true : coerceBoolean(column);
       } else if (j === timeEndIndex) {
         event.timeEnd = parseExcelDate(column);
       } else if (j === durationIndex) {

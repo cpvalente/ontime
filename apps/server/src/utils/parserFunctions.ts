@@ -48,10 +48,15 @@ export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
     let newEvent: OntimeEvent | OntimeDelay | OntimeBlock | null;
 
     if (isOntimeEvent(event)) {
+      const tryToLink = event.linkStart;
       newEvent = createEvent(event, eventIndex.toString());
       // skip if event is invalid
       if (newEvent == null) {
         continue;
+      }
+      const prevEvent = rundown.at(-1);
+      if (tryToLink && isOntimeEvent(prevEvent)) {
+        newEvent.linkStart = prevEvent.id;
       }
       eventIndex += 1;
     } else if (isOntimeDelay(event)) {
