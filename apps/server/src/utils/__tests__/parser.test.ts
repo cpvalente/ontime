@@ -1407,4 +1407,46 @@ describe('parseExcel()', () => {
     expect(events.at(6).timeStart).toEqual(59400000);
     expect(events.at(7).timeStart).toEqual(78300000);
   });
+
+  it('link start', () => {
+    const testData = [
+      ['Time Start', 'Time End', 'Title', 'End Action', 'Public', 'Skip', 'Notes', 'Colour', 'cue', 'Link Start'],
+      ['4:30:00', '9:45:00', 'A', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102],
+      ['9:45:00', '10:56:00', 'C', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, 'x'],
+      ['10:56:00', '16:36:00', 'D', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102, 'x'],
+      ['21:45:00', '22:56:00', 'E', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103],
+      [],
+    ];
+
+    const importMap = {
+      worksheet: 'event schedule',
+      timeStart: 'time start',
+      linkStart: 'link start',
+      timeEnd: 'time end',
+      duration: 'duration',
+      cue: 'cue',
+      title: 'title',
+      isPublic: 'public',
+      skip: 'skip',
+      note: 'notes',
+      colour: 'colour',
+      endAction: 'end action',
+      timerType: 'timer type',
+      timeWarning: 'warning time',
+      timeDanger: 'danger time',
+      custom: {},
+    };
+    const result = parseExcel(testData, importMap);
+    const rundown = parseRundown(result);
+    const events = rundown.filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
+    expect(events.at(0).timeStart).toEqual(16200000);
+
+    expect(events.at(1).timeStart).toEqual(events.at(0).timeEnd);
+    expect(events.at(1).linkStart).toEqual(events.at(0).id);
+
+    expect(events.at(2).timeStart).toEqual(events.at(1).timeEnd);
+    expect(events.at(2).linkStart).toEqual(events.at(1).id);
+
+    expect(events.at(3).timeStart).toEqual(78300000);
+  });
 });
