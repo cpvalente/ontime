@@ -1407,4 +1407,37 @@ describe('parseExcel()', () => {
     expect(events.at(6).timeStart).toEqual(59400000);
     expect(events.at(7).timeStart).toEqual(78300000);
   });
+
+  it('handle leading and trailing whitespace', () => {
+    const testData = [
+      ['Time Start', 'Time End', ' Title', 'End Action', 'Public', 'Skip', 'Notes', 'Colour ', 'cue'],
+      ['4:30:00', '4:30:00', 'A song from the hearth', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102],
+    ];
+
+    const importMap = {
+      worksheet: 'event schedule',
+      timeStart: ' time start',
+      timeEnd: 'time end ',
+      duration: 'duration',
+      cue: 'cue',
+      title: 'title',
+      isPublic: 'public',
+      skip: 'skip',
+      note: 'notes',
+      colour: 'colour',
+      endAction: 'end action',
+      timerType: 'timer type',
+      timeWarning: 'warning time',
+      timeDanger: 'danger time',
+      custom: {},
+    };
+
+    const result = parseExcel(testData, importMap);
+    const rundown = parseRundown(result);
+    const events = rundown.filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
+    expect(events.at(0).timeStart).toEqual(16200000); //<--leading white space in MAP
+    expect(events.at(0).timeEnd).toEqual(16200000); //<--trailing white space in MAP
+    expect(events.at(0).title).toEqual('A song from the hearth'); //<--leading white space in Excel data
+    expect(events.at(0).colour).toEqual('#F00'); //<--trailing white space in Excel data
+  });
 });
