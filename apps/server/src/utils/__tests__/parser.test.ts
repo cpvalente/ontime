@@ -19,6 +19,7 @@ import { dbModel } from '../../models/dataModel.js';
 import { createEvent, getCustomFieldData, parseExcel, parseJson } from '../parser.js';
 import { makeString } from '../parserUtils.js';
 import { parseRundown, parseUrlPresets, parseViewSettings } from '../parserFunctions.js';
+import { ImportMap } from 'ontime-utils';
 
 describe('test json parser with valid def', () => {
   const testData: Partial<DatabaseModel> = {
@@ -734,6 +735,7 @@ describe('getCustomFieldData()', () => {
     const importMap = {
       worksheet: 'event schedule',
       timeStart: 'time start',
+      linkStart: 'link start',
       timeEnd: 'time end',
       duration: 'duration',
       cue: 'cue',
@@ -751,7 +753,7 @@ describe('getCustomFieldData()', () => {
         sound: 'sound',
         video: 'av',
       },
-    };
+    } as ImportMap;
 
     const result = getCustomFieldData(importMap);
     expect(result.customFields).toStrictEqual({

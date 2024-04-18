@@ -1,3 +1,4 @@
+import type { ImportMap } from '../spreadsheetImport';
 import { isImportMap } from '../spreadsheetImport';
 
 describe('isImportMap()', () => {
@@ -5,6 +6,7 @@ describe('isImportMap()', () => {
     const v3ImportMap = {
       worksheet: 'event schedule',
       timeStart: 'time start',
+      linkStart: 'link start',
       timeEnd: 'time end',
       duration: 'duration',
       cue: 'cue',
@@ -18,7 +20,7 @@ describe('isImportMap()', () => {
       timeWarning: 'warning time',
       timeDanger: 'danger time',
       custom: {},
-    };
+    } as ImportMap;
 
     expect(isImportMap(v3ImportMap)).toBe(true);
   });
@@ -27,6 +29,7 @@ describe('isImportMap()', () => {
     const v3ImportMap = {
       worksheet: 'event schedule',
       timeStart: 'time start',
+      linkStart: 'link start',
       timeEnd: 'time end',
       duration: 'duration',
       cue: 'cue',
@@ -43,7 +46,7 @@ describe('isImportMap()', () => {
         userDefined: 'userDefined',
         anotherOne: 'anotherOne',
       },
-    };
+    } as ImportMap;
 
     expect(isImportMap(v3ImportMap)).toBe(true);
   });

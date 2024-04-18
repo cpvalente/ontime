@@ -6,6 +6,7 @@ export type NamedImportMap = typeof namedImportMap;
 export const namedImportMap = {
   Worksheet: 'event schedule',
   Start: 'time start',
+  'Link Start': 'link start',
   End: 'time end',
   Duration: 'duration',
   Cue: 'cue',
@@ -32,6 +33,7 @@ export function convertToImportMap(namedImportMap: NamedImportMap): ImportMap {
   return {
     worksheet: namedImportMap.Worksheet,
     timeStart: namedImportMap.Start,
+    linkStart: namedImportMap['Link Start'],
     timeEnd: namedImportMap.End,
     duration: namedImportMap.Duration,
     cue: namedImportMap.Cue,
