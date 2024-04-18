@@ -6,7 +6,7 @@ export type NamedImportMap = typeof namedImportMap;
 export const namedImportMap = {
   Worksheet: 'event schedule',
   Start: 'time start',
-  'Link Start': 'link start',
+  'Link Start': 'link start', //TODO: better naming?
   End: 'time end',
   Duration: 'duration',
   Cue: 'cue',
@@ -21,6 +21,15 @@ export const namedImportMap = {
   'Time danger': 'danger time',
   custom: [] as ImportCustom[],
 };
+
+function isNamedImportMap(obj: unknown): obj is NamedImportMap {
+  if (typeof obj !== 'object' || obj === null) {
+    return false;
+  }
+
+  const keys = Object.keys(namedImportMap);
+  return keys.every((key) => Object.hasOwn(obj, key));
+}
 
 export function convertToImportMap(namedImportMap: NamedImportMap): ImportMap {
   const custom = namedImportMap.custom.reduce((accumulator, { ontimeName, importName }) => {
@@ -59,5 +68,9 @@ export function getPersistedOptions(): NamedImportMap {
   if (!options) {
     return namedImportMap;
   }
-  return JSON.parse(options);
+  const storedMap = JSON.parse(options);
+  if (!isNamedImportMap(storedMap)) {
+    return namedImportMap;
+  }
+  return storedMap;
 }

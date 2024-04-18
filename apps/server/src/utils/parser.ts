@@ -34,7 +34,7 @@ import {
   parseViewSettings,
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
-import { coerceBoolean } from './coerceType.js';
+import { coerceBooleanLoose } from './coerceType.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
@@ -198,7 +198,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
       } else if (j === timeStartIndex) {
         event.timeStart = parseExcelDate(column);
       } else if (j === linkStartIndex) {
-        event.linkStart = column == 'x' ? true : coerceBoolean(column);
+        event.linkStart = coerceBooleanLoose(column, 'x');
       } else if (j === timeEndIndex) {
         event.timeEnd = parseExcelDate(column);
       } else if (j === durationIndex) {
@@ -206,9 +206,9 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
       } else if (j === cueIndex) {
         event.cue = makeString(column, '');
       } else if (j === isPublicIndex) {
-        event.isPublic = column == 'x' ? true : coerceBoolean(column);
+        event.isPublic = coerceBooleanLoose(column, 'x');
       } else if (j === skipIndex) {
-        event.skip = column == 'x' ? true : coerceBoolean(column);
+        event.skip = coerceBooleanLoose(column, 'x');
       } else if (j === notesIndex) {
         event.note = makeString(column, '');
       } else if (j === endActionIndex) {

@@ -44,6 +44,16 @@ export function coerceBoolean(value: unknown): boolean {
   return Boolean(value);
 }
 
+export function coerceBooleanLoose(value: unknown, trueOption?: string): boolean {
+  if (value === undefined || value === null) {
+    return false;
+  }
+  if (value === trueOption) {
+    return true;
+  }
+  return coerceBoolean(value);
+}
+
 //TODO: write tests
 /**
  * @description Converts a value to a number if possible, throws otherwise
