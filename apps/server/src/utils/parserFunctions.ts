@@ -57,6 +57,7 @@ export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
       const prevEvent = rundown.at(-1);
       if (tryToLink && isOntimeEvent(prevEvent)) {
         newEvent.linkStart = prevEvent.id;
+        newEvent.timeStart = prevEvent.timeEnd;
       }
       eventIndex += 1;
     } else if (isOntimeDelay(event)) {

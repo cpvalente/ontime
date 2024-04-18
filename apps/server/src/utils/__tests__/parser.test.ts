@@ -1415,7 +1415,7 @@ describe('parseExcel()', () => {
       ['Time Start', 'Time End', 'Title', 'End Action', 'Public', 'Skip', 'Notes', 'Colour', 'cue', 'Link Start'],
       ['4:30:00', '9:45:00', 'A', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102],
       ['9:45:00', '10:56:00', 'C', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, 'x'],
-      ['10:56:00', '16:36:00', 'D', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102, 'x'],
+      ['10:00:00', '16:36:00', 'D', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102, 'x'], //<-- incorrect start times are overridden
       ['21:45:00', '22:56:00', 'E', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103],
       [],
     ];
