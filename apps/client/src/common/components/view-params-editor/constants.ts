@@ -249,12 +249,11 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
 export const getLowerThirdOptions = (customFields: CustomFields): ParamField[] => {
   const topSourceOptions = makeOptionsFromCustomFields(customFields, {
     title: 'Title',
-    lowerMsg: 'Lower Third Message',
   });
 
   const bottomSourceOptions = makeOptionsFromCustomFields(customFields, {
     title: 'Title',
-    lowerMsg: 'Lower Third Message',
+    none: 'None',
   });
 
   return [
@@ -267,7 +266,7 @@ export const getLowerThirdOptions = (customFields: CustomFields): ParamField[] =
         event: 'Event Load',
         manual: 'Manual',
       },
-      defaultValue: 'event',
+      defaultValue: 'manual',
     },
     {
       id: 'top-src',
@@ -283,7 +282,7 @@ export const getLowerThirdOptions = (customFields: CustomFields): ParamField[] =
       description: 'Select the data source for the bottom element',
       type: 'option',
       values: bottomSourceOptions,
-      defaultValue: 'lowerMsg',
+      defaultValue: 'none',
     },
     {
       id: 'top-colour',

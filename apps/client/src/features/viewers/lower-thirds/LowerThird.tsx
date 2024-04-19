@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { CustomFields, Message, OntimeEvent, ViewSettings } from 'ontime-types';
+import { CustomFields, OntimeEvent, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import { getLowerThirdOptions } from '../../../common/components/view-params-editor/constants';
@@ -11,14 +11,8 @@ import { getPropertyValue } from '../common/viewUtils';
 
 import './LowerThird.scss';
 
-enum TriggerType {
-  Event = 'event',
-  Manual = 'manual',
-}
-
 type LowerOptions = {
   width: number;
-  trigger: TriggerType;
   topSrc: string;
   bottomSrc: string;
   topColour: string;
@@ -38,12 +32,10 @@ interface LowerProps {
   customFields: CustomFields;
   eventNow: OntimeEvent | null;
   viewSettings: ViewSettings;
-  lower: Message;
 }
 
 const defaultOptions: Readonly<LowerOptions> = {
   width: 45,
-  trigger: TriggerType.Event,
   topSrc: 'title',
   bottomSrc: 'lowerMsg',
   topColour: '000000ff',
@@ -60,8 +52,14 @@ const defaultOptions: Readonly<LowerOptions> = {
 };
 
 export default function LowerThird(props: LowerProps) {
-  const { customFields, eventNow, lower, viewSettings } = props;
+  const { customFields, eventNow, viewSettings } = props;
   const [searchParams] = useSearchParams();
+  const previousId = useRef<string>();
+  const animationTimeout = useRef<NodeJS.Timeout>();
+  const [playState, setPlayState] = useState<'pre' | 'in' | 'out'>('pre');
+  useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+
+  useWindowTitle('Lower Third');
 
   const options = useMemo(() => {
     const newOptions = { ...defaultOptions };
@@ -69,11 +67,6 @@ export default function LowerThird(props: LowerProps) {
     const width = searchParams.get('width');
     if (width !== null) {
       newOptions.width = Number(width);
-    }
-
-    const trigger = Object.values(TriggerType).find((s) => s === searchParams.get('trigger'));
-    if (trigger) {
-      newOptions.trigger = trigger;
     }
 
     const topSrc = searchParams.get('top-src');
@@ -139,50 +132,51 @@ export default function LowerThird(props: LowerProps) {
     return newOptions;
   }, [searchParams]);
 
-  const [playState, setPlayState] = useState<'pre' | 'in' | 'out'>('pre');
-  useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
-
-  useWindowTitle('Lower Third');
-
-  const trigger = useMemo(() => {
-    if (options.trigger === TriggerType.Event) {
-      return eventNow?.id;
-    } else if (options.trigger === TriggerType.Manual) {
-      return lower.visible;
-    }
-    return false;
-  }, [eventNow?.id, lower.visible, options.trigger]);
-
-  // coordinate load-unload of lower third
+  // on unmount, cancel any ongoing animations
   useEffect(() => {
-    if (options.trigger === TriggerType.Event && trigger) {
+    return () => {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      clearTimeout(animationTimeout.current);
+    };
+  }, []);
+
+  // check if data has changed and schedule animations
+  useEffect(() => {
+    const hasChanged = eventNow?.id !== previousId.current;
+    if (!hasChanged) {
+      return;
+    }
+
+    previousId.current = eventNow?.id;
+    const animateOutInMs = options.delay * 1000 + options.transition * 1000;
+
+    const reschedule = (newState: 'pre' | 'in' | 'out') => {
+      clearTimeout(animationTimeout.current);
+      animationTimeout.current = setTimeout(() => setPlayState(newState), animateOutInMs);
+    };
+    if (eventNow?.id == null) {
+      setPlayState('out');
+      reschedule('pre');
+      return;
+    }
+
+    if (eventNow.id && !previousId.current) {
       setPlayState('in');
-      const animateOutInMs = options.delay * 1000 + options.transition * 1000;
-      const timeout = setTimeout(() => {
-        setPlayState('out');
-      }, animateOutInMs);
-      return () => clearTimeout(timeout);
-    } else if (options.trigger === TriggerType.Manual) {
-      setPlayState(trigger ? 'in' : 'out');
-    } else {
-      setPlayState('pre');
+      reschedule('out');
+      return;
     }
-    return () => null;
-  }, [options.delay, options.transition, options.trigger, trigger]);
 
-  const topText = useMemo(() => {
-    if (options.topSrc === 'lowerMsg') {
-      return lower.text;
+    if (playState === 'in') {
+      // event has changed, we just reschedule the timeout
+      reschedule('out');
+      return;
     }
-    return getPropertyValue(eventNow, options.topSrc) ?? '';
-  }, [eventNow, lower.text, options]);
+    setPlayState('in');
+    reschedule('out');
+  }, [eventNow?.id, options.delay, options.transition, playState, previousId]);
 
-  const bottomText = useMemo(() => {
-    if (options.bottomSrc === 'lowerMsg') {
-      return lower.text;
-    }
-    return getPropertyValue(eventNow, options.bottomSrc) ?? '';
-  }, [eventNow, lower.text, options]);
+  const topText = getPropertyValue(eventNow, options.topSrc) ?? '';
+  const bottomText = getPropertyValue(eventNow, options.bottomSrc) ?? '';
 
   const transition = `${options.transition}s`;
 

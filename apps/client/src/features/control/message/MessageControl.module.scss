@@ -10,3 +10,19 @@
   gap: $element-spacing;
   margin-top: -0.5rem;
 }
+
+.singleAction {
+  display: flex;
+  flex-direction: column;
+  gap: $element-spacing;
+  margin-top: $element-inner-spacing;
+}
+
+.label {
+  font-size: $inner-section-text-size;
+  color: $label-gray;
+
+  &.active {
+    color: $action-text-color;
+  }
+}

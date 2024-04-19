@@ -66,7 +66,6 @@ const actionHandlers: Record<string, ActionHandler> = {
 
     const patch: DeepPartial<MessageState> = {
       timer: 'timer' in payload ? validateTimerMessage(payload.timer) : undefined,
-      lower: 'lower' in payload ? validateMessage(payload.lower) : undefined,
       external: 'external' in payload ? validateMessage(payload.external) : undefined,
     };
 

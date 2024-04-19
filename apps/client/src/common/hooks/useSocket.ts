@@ -25,7 +25,6 @@ export const useOperator = () => {
 export const useMessageControl = () => {
   const featureSelector = (state: RuntimeStore) => ({
     timer: state.message.timer,
-    lower: state.message.lower,
     external: state.message.external,
     onAir: state.onAir,
   });
@@ -36,8 +35,6 @@ export const useMessageControl = () => {
 export const setMessage = {
   timerText: (payload: string) => socketSendJson('message', { timer: { text: payload } }),
   timerVisible: (payload: boolean) => socketSendJson('message', { timer: { visible: payload } }),
-  lowerText: (payload: string) => socketSendJson('message', { lower: { text: payload } }),
-  lowerVisible: (payload: boolean) => socketSendJson('message', { lower: { visible: payload } }),
   timerBlink: (payload: boolean) => socketSendJson('message', { timer: { blink: payload } }),
   timerBlackout: (payload: boolean) => socketSendJson('message', { timer: { blackout: payload } }),
 };
