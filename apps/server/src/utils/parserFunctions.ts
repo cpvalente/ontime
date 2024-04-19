@@ -18,7 +18,7 @@ import {
   isOntimeDelay,
   isOntimeEvent,
 } from 'ontime-types';
-import { generateId, getLastEvent, getPreviousEvent } from 'ontime-utils';
+import { generateId, getLastEvent } from 'ontime-utils';
 
 import { dbModel } from '../models/dataModel.js';
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';

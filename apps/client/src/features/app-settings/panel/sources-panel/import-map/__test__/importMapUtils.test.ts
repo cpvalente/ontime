@@ -7,7 +7,7 @@ describe('convertToImportMap', () => {
     const defaultNamedImporMap = {
       Worksheet: 'event schedule',
       Start: 'time start',
-      'Link Start': 'link start',
+      'Link start': 'link start',
       End: 'time end',
       Duration: 'duration',
       Cue: 'cue',
