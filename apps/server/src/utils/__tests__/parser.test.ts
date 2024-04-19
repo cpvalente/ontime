@@ -20,6 +20,7 @@ import { createEvent, getCustomFieldData, parseExcel, parseJson } from '../parse
 import { makeString } from '../parserUtils.js';
 import { parseRundown, parseUrlPresets, parseViewSettings } from '../parserFunctions.js';
 import { ImportMap } from 'ontime-utils';
+import * as cache from '../../services/rundown-service/rundownCache.js';
 
 describe('test json parser with valid def', () => {
   const testData: Partial<DatabaseModel> = {
@@ -1425,12 +1426,12 @@ describe('parseExcel()', () => {
         'Link Start',
         'Timer type',
       ],
-      ['4:30:00', '9:45:00', 'A', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102, '', 'count-down'],
+      ['4:30:00', '9:45:00', 'A', 'load-next', '', '', 'Rainbow chase', '#F00', 102, '', 'count-down'],
       ['9:45:00', '10:56:00', 'C', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, 'x', 'count-down'],
       ['10:00:00', '16:36:00', 'D', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102, 'x', 'count-down'], //<-- incorrect start times are overridden
       ['21:45:00', '22:56:00', 'E', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, '', 'count-down'],
       ['', '', 'BLOCK', '', '', '', '', '', '', '', 'block'],
-      ['00:0:00', '23:56:00', 'G', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, '', 'count-down'], //<-- link past blocks
+      ['00:0:00', '23:56:00', 'G', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, 'x', 'count-down'], //<-- link past blocks
       [],
     ];
 
@@ -1452,10 +1453,15 @@ describe('parseExcel()', () => {
       timeDanger: 'danger time',
       custom: {},
     };
+
     const result = parseExcel(testData, importMap);
     const rundown = parseRundown(result);
 
-    const events = rundown.filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
+    cache.init(rundown, {});
+    const cachedRundown = cache.get().rundown;
+
+    const events = Object.values(cachedRundown).filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
+
     expect(events.at(0).timeStart).toEqual(16200000);
 
     expect(events.at(1).timeStart).toEqual(events.at(0).timeEnd);

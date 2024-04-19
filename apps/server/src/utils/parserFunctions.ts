@@ -18,7 +18,7 @@ import {
   isOntimeDelay,
   isOntimeEvent,
 } from 'ontime-types';
-import { generateId, getPreviousEvent } from 'ontime-utils';
+import { generateId, getLastEvent, getPreviousEvent } from 'ontime-utils';
 
 import { dbModel } from '../models/dataModel.js';
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
@@ -49,10 +49,7 @@ export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
 
     if (isOntimeEvent(event)) {
       if (event.linkStart) {
-        const prevEvent = isOntimeEvent(rundown.at(-1))
-          ? rundown.at(-1)
-          : getPreviousEvent(rundown, rundown.at(-1).id).previousEvent;
-
+        const prevEvent = getLastEvent(rundown).lastEvent;
         event.linkStart = prevEvent.id;
       }
       newEvent = createEvent(event, eventIndex.toString());

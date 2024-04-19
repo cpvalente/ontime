@@ -42,7 +42,7 @@ export function convertToImportMap(namedImportMap: NamedImportMap): ImportMap {
   return {
     worksheet: namedImportMap.Worksheet,
     timeStart: namedImportMap.Start,
-    linkStart: namedImportMap['Link Start'],
+    linkStart: namedImportMap['Link start'],
     timeEnd: namedImportMap.End,
     duration: namedImportMap.Duration,
     cue: namedImportMap.Cue,
