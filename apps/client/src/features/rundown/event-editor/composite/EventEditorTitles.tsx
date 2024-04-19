@@ -3,7 +3,7 @@ import { Input } from '@chakra-ui/react';
 import { sanitiseCue } from 'ontime-utils';
 
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
-import { type EditorUpdateFields } from '../EventEditor';
+import { type EditorUpdateFields } from '../EventEditorWrapper';
 
 import EventTextArea from './EventTextArea';
 import EventTextInput from './EventTextInput';
@@ -17,10 +17,11 @@ interface EventEditorTitlesProps {
   note: string;
   colour: string;
   handleSubmit: (field: EditorUpdateFields, value: string) => void;
+  isMultiple?: boolean;
 }
 
 const EventEditorTitles = (props: EventEditorTitlesProps) => {
-  const { eventId, cue, title, note, colour, handleSubmit } = props;
+  const { eventId, cue, title, note, colour, handleSubmit, isMultiple } = props;
 
   const cueSubmitHandler = (_field: string, newValue: string) => {
     handleSubmit('cue', sanitiseCue(newValue));
@@ -46,7 +47,7 @@ const EventEditorTitles = (props: EventEditorTitlesProps) => {
       </div>
       <div>
         <label className={style.inputLabel}>Colour</label>
-        <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
+        <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} isMultiple={isMultiple} />
       </div>
       <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />
       <EventTextArea field='note' label='Note' initialValue={note} submitHandler={handleSubmit} />

@@ -8,10 +8,12 @@ interface ColourInputProps {
   value: string;
   name: 'colour';
   handleChange: (newValue: 'colour', name: string) => void;
+  isMultiple?: boolean;
 }
 
 const colours = [
   '',
+  'unkown',
   '#FFCC78', // $orange-400
   '#FFAB33', // $orange-600
   '#77C785', // $green-400
@@ -27,7 +29,7 @@ const colours = [
 ];
 
 export default function SwatchSelect(props: ColourInputProps) {
-  const { value, name, handleChange } = props;
+  const { value, name, handleChange, isMultiple } = props;
 
   const setColour = useCallback(
     (newValue: string) => {
@@ -40,9 +42,15 @@ export default function SwatchSelect(props: ColourInputProps) {
 
   return (
     <div className={style.list}>
-      {colours.map((colour) => (
-        <Swatch key={colour} color={colour} onClick={setColour} isSelected={value === colour} />
-      ))}
+      {colours
+        .filter((colour) => {
+          // Only include unkown if it is multiple
+          if (!isMultiple && colour === 'unkown') return false;
+          return true;
+        })
+        .map((colour) => (
+          <Swatch key={colour} color={colour} onClick={setColour} isSelected={value === colour} />
+        ))}
     </div>
   );
 }

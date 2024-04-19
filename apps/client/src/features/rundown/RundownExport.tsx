@@ -4,11 +4,10 @@ import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import { handleLinks } from '../../common/utils/linkUtils';
 import { cx } from '../../common/utils/styleUtils';
-
-import EventEditor from './event-editor/EventEditor';
 import RundownWrapper from './RundownWrapper';
 
 import style from './RundownExport.module.scss';
+import EventEditorWrapper from './event-editor/EventEditorWrapper';
 
 const RundownExport = () => {
   const isExtracted = window.location.pathname.includes('/rundown');
@@ -26,7 +25,7 @@ const RundownExport = () => {
         </div>
         <div className={style.side}>
           <ErrorBoundary>
-            <EventEditor />
+            <EventEditorWrapper />
           </ErrorBoundary>
         </div>
       </div>
