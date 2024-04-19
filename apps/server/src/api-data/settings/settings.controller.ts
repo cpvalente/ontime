@@ -17,7 +17,7 @@ export async function getSettings(_req: Request, res: Response<Settings>) {
   }
 
   if (settings.operatorKey) {
-    obfuscatedSettings.editorKey = obfuscate(settings.editorKey);
+    obfuscatedSettings.operatorKey = obfuscate(settings.operatorKey);
   }
 
   res.status(200).send(obfuscatedSettings);
