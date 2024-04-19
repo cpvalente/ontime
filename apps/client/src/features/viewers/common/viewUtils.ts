@@ -41,10 +41,7 @@ export function isStringBoolean(text: string | null) {
  * Considers custom fields
  */
 export function getPropertyValue(event: OntimeEvent | null, property: MaybeString): string | undefined {
-  if (!event) {
-    return undefined;
-  }
-  if (typeof property !== 'string') {
+  if (!event || typeof property !== 'string' || property === 'none') {
     return undefined;
   }
 

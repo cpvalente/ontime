@@ -14,7 +14,6 @@ describe('MessageService', () => {
   it('should patch the message state', () => {
     const message = {
       timer: { text: 'new text', visible: true },
-      lower: { text: 'lower text' },
       external: { visible: true },
     };
 
@@ -22,10 +21,6 @@ describe('MessageService', () => {
 
     expect(newState).toEqual({
       timer: { text: 'new text', visible: true, blackout: false, blink: false },
-      lower: {
-        text: 'lower text',
-        visible: false,
-      },
       external: {
         text: '',
         visible: true,
@@ -42,10 +37,6 @@ describe('MessageService', () => {
 
     expect(newState).toEqual({
       timer: { text: 'initial text', visible: true, blackout: false, blink: false },
-      lower: {
-        text: '',
-        visible: false,
-      },
       external: {
         text: '',
         visible: false,

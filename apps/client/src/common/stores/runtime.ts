@@ -23,10 +23,6 @@ export const runtimeStorePlaceholder: RuntimeStore = {
       blink: false,
       blackout: false,
     },
-    lower: {
-      text: '',
-      visible: false,
-    },
     external: {
       text: '',
       visible: false,
