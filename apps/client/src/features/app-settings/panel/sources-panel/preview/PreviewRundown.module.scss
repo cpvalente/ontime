@@ -12,6 +12,6 @@ tr .secondaryRow {
 }
 
 .linkStartActive {
-  color: var(--status-color-active-override, $active-indicator);
+  color: var($active-indicator);
   transform: rotate(-45deg);
 }

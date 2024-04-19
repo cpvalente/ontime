@@ -45,7 +45,7 @@ export function coerceBoolean(value: unknown): boolean {
 }
 
 export function coerceBooleanLoose(value: unknown, trueOption?: string): boolean {
-  if (value === undefined || value === null) {
+  if (value == null) {
     return false;
   }
   if (value === trueOption) {

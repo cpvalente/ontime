@@ -18,7 +18,7 @@ import {
   isOntimeDelay,
   isOntimeEvent,
 } from 'ontime-types';
-import { generateId } from 'ontime-utils';
+import { generateId, getPreviousEvent } from 'ontime-utils';
 
 import { dbModel } from '../models/dataModel.js';
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
@@ -48,17 +48,19 @@ export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
     let newEvent: OntimeEvent | OntimeDelay | OntimeBlock | null;
 
     if (isOntimeEvent(event)) {
-      const tryToLink = event.linkStart;
+      if (event.linkStart) {
+        const prevEvent = isOntimeEvent(rundown.at(-1))
+          ? rundown.at(-1)
+          : getPreviousEvent(rundown, rundown.at(-1).id).previousEvent;
+
+        event.linkStart = prevEvent.id;
+      }
       newEvent = createEvent(event, eventIndex.toString());
       // skip if event is invalid
       if (newEvent == null) {
         continue;
       }
-      const prevEvent = rundown.at(-1);
-      if (tryToLink && isOntimeEvent(prevEvent)) {
-        newEvent.linkStart = prevEvent.id;
-        newEvent.timeStart = prevEvent.timeEnd;
-      }
+
       eventIndex += 1;
     } else if (isOntimeDelay(event)) {
       newEvent = { ...delayDef, duration: event.duration, id };

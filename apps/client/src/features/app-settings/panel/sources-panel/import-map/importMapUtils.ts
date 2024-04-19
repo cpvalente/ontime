@@ -6,7 +6,7 @@ export type NamedImportMap = typeof namedImportMap;
 export const namedImportMap = {
   Worksheet: 'event schedule',
   Start: 'time start',
-  'Link Start': 'link start', //TODO: better naming?
+  'Link start': 'link start',
   End: 'time end',
   Duration: 'duration',
   Cue: 'cue',

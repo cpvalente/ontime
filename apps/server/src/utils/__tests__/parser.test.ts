@@ -1412,11 +1412,25 @@ describe('parseExcel()', () => {
 
   it('link start', () => {
     const testData = [
-      ['Time Start', 'Time End', 'Title', 'End Action', 'Public', 'Skip', 'Notes', 'Colour', 'cue', 'Link Start'],
-      ['4:30:00', '9:45:00', 'A', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102],
-      ['9:45:00', '10:56:00', 'C', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, 'x'],
-      ['10:00:00', '16:36:00', 'D', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102, 'x'], //<-- incorrect start times are overridden
-      ['21:45:00', '22:56:00', 'E', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103],
+      [
+        'Time Start',
+        'Time End',
+        'Title',
+        'End Action',
+        'Public',
+        'Skip',
+        'Notes',
+        'Colour',
+        'cue',
+        'Link Start',
+        'Timer type',
+      ],
+      ['4:30:00', '9:45:00', 'A', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102, '', 'count-down'],
+      ['9:45:00', '10:56:00', 'C', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, 'x', 'count-down'],
+      ['10:00:00', '16:36:00', 'D', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102, 'x', 'count-down'], //<-- incorrect start times are overridden
+      ['21:45:00', '22:56:00', 'E', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, '', 'count-down'],
+      ['', '', 'BLOCK', '', '', '', '', '', '', '', 'block'],
+      ['00:0:00', '23:56:00', 'G', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, '', 'count-down'], //<-- link past blocks
       [],
     ];
 
@@ -1440,6 +1454,7 @@ describe('parseExcel()', () => {
     };
     const result = parseExcel(testData, importMap);
     const rundown = parseRundown(result);
+
     const events = rundown.filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
     expect(events.at(0).timeStart).toEqual(16200000);
 
@@ -1450,5 +1465,8 @@ describe('parseExcel()', () => {
     expect(events.at(2).linkStart).toEqual(events.at(1).id);
 
     expect(events.at(3).timeStart).toEqual(78300000);
+
+    expect(events.at(4).timeStart).toEqual(events.at(3).timeEnd);
+    expect(events.at(4).linkStart).toEqual(events.at(3).id);
   });
 });
