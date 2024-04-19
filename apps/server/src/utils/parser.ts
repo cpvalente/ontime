@@ -74,7 +74,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
 
   for (const [key, value] of Object.entries(importMap)) {
     if (typeof value === 'string') {
-      importMap[key] = value.toLocaleLowerCase();
+      importMap[key] = value.toLocaleLowerCase().trim();
     }
   }
 
@@ -222,7 +222,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
           if (column.length === 0) {
             continue;
           }
-          const columnText = column.toLowerCase();
+          const columnText = column.toLowerCase().trim();
 
           // check if it is an ontime column
           if (handlers[columnText]) {
