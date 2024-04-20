@@ -72,7 +72,7 @@ export function getFirstEventNormal(
  */
 export function getLastNormal(rundown: NormalisedRundown, order: string[]) {
   const lastId = order.at(-1);
-  if (lastId == undefined) {
+  if (lastId === undefined) {
     return null;
   }
   return rundown[lastId] ?? null;
