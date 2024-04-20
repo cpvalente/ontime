@@ -21,7 +21,7 @@ import { useEditorSettings } from '../stores/editorSettings';
 import { forgivingStringToMillis } from '../utils/dateConfig';
 
 /**
- * @description Set of utilities for events
+ * @description Set of utilities for events //TODO: should this be called useEntryAction and so on
  */
 export const useEventAction = () => {
   const queryClient = useQueryClient();
