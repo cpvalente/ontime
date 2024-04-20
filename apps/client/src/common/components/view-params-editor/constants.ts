@@ -249,12 +249,11 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
 export const getLowerThirdOptions = (customFields: CustomFields): ParamField[] => {
   const topSourceOptions = makeOptionsFromCustomFields(customFields, {
     title: 'Title',
-    lowerMsg: 'Lower Third Message',
   });
 
   const bottomSourceOptions = makeOptionsFromCustomFields(customFields, {
     title: 'Title',
-    lowerMsg: 'Lower Third Message',
+    none: 'None',
   });
 
   return [
@@ -267,7 +266,7 @@ export const getLowerThirdOptions = (customFields: CustomFields): ParamField[] =
         event: 'Event Load',
         manual: 'Manual',
       },
-      defaultValue: 'event',
+      defaultValue: 'manual',
     },
     {
       id: 'top-src',
@@ -283,7 +282,7 @@ export const getLowerThirdOptions = (customFields: CustomFields): ParamField[] =
       description: 'Select the data source for the bottom element',
       type: 'option',
       values: bottomSourceOptions,
-      defaultValue: 'lowerMsg',
+      defaultValue: 'none',
     },
     {
       id: 'top-colour',
@@ -396,7 +395,7 @@ export const getBackstageOptions = (timeFormat: string, customFields: CustomFiel
       title: 'Events per page',
       description: 'Sets the number of events on the page, can cause overlow',
       type: 'number',
-      placeholder: '7 (default)',
+      placeholder: '10 (default)',
     },
     {
       id: 'secondary-src',
@@ -433,7 +432,7 @@ export const getPublicOptions = (timeFormat: string, customFields: CustomFields)
       title: 'Events per page',
       description: 'Sets the number of events on the page, can cause overlow',
       type: 'number',
-      placeholder: '7 (default)',
+      placeholder: '10 (default)',
     },
     {
       id: 'secondary-src',

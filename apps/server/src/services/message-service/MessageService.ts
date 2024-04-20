@@ -8,8 +8,6 @@ let instance: MessageService | null = null;
 
 class MessageService {
   timer: TimerMessage;
-  public: Message;
-  lower: Message;
   external: Message;
 
   private throttledSet: PublishFn;
@@ -38,16 +36,6 @@ class MessageService {
       blackout: false,
     };
 
-    this.public = {
-      text: '',
-      visible: false,
-    };
-
-    this.lower = {
-      text: '',
-      visible: false,
-    };
-
     this.external = {
       text: '',
       visible: false,
@@ -62,16 +50,12 @@ class MessageService {
   getState(): MessageState {
     return {
       timer: this.timer,
-      public: this.public,
-      lower: this.lower,
       external: this.external,
     };
   }
 
   patch(message: DeepPartial<MessageState>) {
     if (message.timer) this.timer = { ...this.timer, ...message.timer };
-    if (message.public) this.public = { ...this.public, ...message.public };
-    if (message.lower) this.lower = { ...this.lower, ...message.lower };
     if (message.external) this.external = { ...this.external, ...message.external };
 
     const newState = this.getState();

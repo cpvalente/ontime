@@ -83,7 +83,7 @@ export function handleCustomField(
       const oldData = mutableEvent.custom[field];
       const newLabel = customFieldChangelog[field];
 
-      mutableEvent.custom[newLabel] = { ...oldData };
+      mutableEvent.custom[newLabel] = oldData;
       delete mutableEvent.custom[field];
       addToCustomAssignment(newLabel, mutableEvent.id, assignedCustomFields);
       continue;

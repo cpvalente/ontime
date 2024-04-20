@@ -1,3 +1,5 @@
+@import "./MessageControl.module.scss";
+
 .inputItems {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -6,10 +8,5 @@
 }
 
 .label {
-  font-size: $inner-section-text-size;
-  color: $label-gray;
-
-  &.active {
-    color: $action-text-color;
-  }
+  @extend .label;
 }

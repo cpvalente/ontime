@@ -63,7 +63,7 @@ export type { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
 export type { TimerState } from './definitions/runtime/TimerState.type.js';
 
 // ---> Extra Timer
-export { type SimpleTimerState, SimplePlayback, SimpleDirection } from './definitions/runtime/ExtraTimer.type.js';
+export { type SimpleTimerState, SimplePlayback, SimpleDirection } from './definitions/runtime/AuxTimer.type.js';
 
 // CLIENT
 

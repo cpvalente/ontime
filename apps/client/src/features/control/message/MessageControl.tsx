@@ -17,29 +17,14 @@ export default function MessageControl() {
   const message = useMessageControl();
   const blink = message.timer.blink;
   const blackout = message.timer.blackout;
+
   return (
     <div className={style.messageContainer}>
       <InputRow
-        label='Public / Backstage screen message'
-        placeholder='Shown in public and backstage screens'
-        text={message.public.text || ''}
-        visible={message.public.visible || false}
-        changeHandler={(newValue) => setMessage.publicText(newValue)}
-        actionHandler={() => setMessage.publicVisible(!message.public.visible)}
-      />
-      <InputRow
-        label='Lower third message'
-        placeholder='Shown in lower third'
-        text={message.lower.text || ''}
-        visible={message.lower.visible || false}
-        changeHandler={(newValue) => setMessage.lowerText(newValue)}
-        actionHandler={() => setMessage.lowerVisible(!message.lower.visible)}
-      />
-      <InputRow
         label='Timer'
         placeholder='Message shown in stage timer'
-        text={message.timer.text || ''}
-        visible={message.timer.visible || false}
+        text={message.timer.text}
+        visible={message.timer.visible}
         changeHandler={(newValue) => setMessage.timerText(newValue)}
         actionHandler={() => setMessage.timerVisible(!message.timer.visible)}
       />
@@ -69,8 +54,8 @@ export default function MessageControl() {
         label='External Message (read only)'
         placeholder={enDash}
         readonly
-        text={message.external.text || ''}
-        visible={message.external.visible || false}
+        text={message.external.text}
+        visible={message.external.visible}
         changeHandler={noop}
         actionHandler={noop}
       />

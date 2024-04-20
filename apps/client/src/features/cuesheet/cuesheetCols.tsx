@@ -49,7 +49,7 @@ function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry,
   }
 
   // events dont necessarily contain all custom fields
-  const initialValue = event.custom[column.id]?.value ?? '';
+  const initialValue = event.custom[column.id] ?? '';
 
   return <EditableCell value={initialValue} handleUpdate={update} />;
 }

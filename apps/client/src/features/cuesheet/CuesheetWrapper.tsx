@@ -53,7 +53,7 @@ export default function CuesheetWrapper() {
         return;
       }
 
-      const previousValue = event.custom[accessor]?.value;
+      const previousValue = event.custom[accessor];
 
       if (previousValue === payload) {
         return;

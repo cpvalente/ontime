@@ -105,7 +105,7 @@ describe('handleCustomField()', () => {
       timeStart: 0,
       linkStart: '1',
       custom: {
-        lighting: { value: 'on' },
+        lighting: 'on',
       },
     };
     const assignedCustomFields = {};
@@ -114,7 +114,7 @@ describe('handleCustomField()', () => {
     expect(result).toBeUndefined();
     expect(assignedCustomFields).toStrictEqual({ lighting: ['2'] });
     expect(event.custom).toStrictEqual({
-      lighting: { value: 'on' },
+      lighting: 'on',
     });
   });
 
@@ -143,7 +143,7 @@ describe('handleCustomField()', () => {
       timeStart: 0,
       linkStart: '1',
       custom: {
-        sound: { value: 'on' },
+        sound: 'on',
       },
     };
     const assignedCustomFields = {};
@@ -152,7 +152,7 @@ describe('handleCustomField()', () => {
     expect(result).toBeUndefined();
     expect(assignedCustomFields).toStrictEqual({ video: ['2'] });
     expect(event.custom).toStrictEqual({
-      video: { value: 'on' },
+      video: 'on',
     });
   });
 
@@ -179,8 +179,8 @@ describe('handleCustomField()', () => {
       type: SupportedEvent.Event,
       id: 'event1',
       custom: {
-        field1: { value: 'value1' },
-        field2: { value: 'value2' },
+        field1: 'value1',
+        field2: 'value2',
       },
     };
 
@@ -189,11 +189,11 @@ describe('handleCustomField()', () => {
     handleCustomField(customFields, customFieldChangelog, mutableEvent, assignedCustomFields);
 
     // Check that field1 has been renamed to newField1 and the value reassigned
-    expect(mutableEvent.custom['newField1']).toStrictEqual({ value: 'value1' });
+    expect(mutableEvent.custom['newField1']).toStrictEqual('value1');
     expect(mutableEvent.custom['field1']).toBeUndefined();
 
     // Check that field2 has been processed
-    expect(mutableEvent.custom['field2']).toStrictEqual({ value: 'value2' });
+    expect(mutableEvent.custom['field2']).toStrictEqual('value2');
 
     // Check that assignedCustomFields has been updated correctly
     expect(assignedCustomFields).toStrictEqual({
@@ -232,7 +232,7 @@ describe('isDataStale()', () => {
         timeWarning: 1,
         timeDanger: 2,
         custom: {
-          lighting: { value: '3' },
+          lighting: '3',
         },
       }),
     ).toBe(false);

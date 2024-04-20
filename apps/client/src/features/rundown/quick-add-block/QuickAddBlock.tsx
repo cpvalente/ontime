@@ -72,6 +72,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
         variant='ontime-subtle-white'
         className={style.quickBtn}
         leftIcon={<IoAdd />}
+        color='#b1b1b1' // $gray-400
       >
         Event
       </Button>
@@ -81,6 +82,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
         variant='ontime-subtle-white'
         className={style.quickBtn}
         leftIcon={<IoAdd />}
+        color='#b1b1b1' // $gray-400
       >
         Delay
       </Button>
@@ -90,6 +92,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
         variant='ontime-subtle-white'
         className={style.quickBtn}
         leftIcon={<IoAdd />}
+        color='#b1b1b1' // $gray-400
       >
         Block
       </Button>

@@ -20,7 +20,7 @@
     ' header    header    header'
     ' progress  progress  schedule-nav'
     ' now       now       schedule'
-    ' message   message   info';
+    ' info      info      schedule';
 
   /* =================== HEADER + EXTRAS ===================*/
 
@@ -33,20 +33,7 @@
 
   .clock-container {
     margin-left: auto;
-  }
 
-  .public-container {
-    grid-area: message;
-
-    &--hidden {
-      opacity: 0;
-      transition: $viewer-transition-time;
-      transition-property: opacity;
-    }
-  }
-
-  .clock-container,
-  .public-container {
     .label {
       font-size: clamp(16px, 1.5vw, 24px);
       font-weight: 600;
@@ -59,11 +46,6 @@
       font-weight: 600;
       letter-spacing: 0.05em;
       line-height: 0.95em;
-    }
-
-    .message {
-      font-size: clamp(16px, 1.5vw, 24px);
-      font-weight: 400;
     }
   }
 
@@ -100,7 +82,6 @@
     grid-area: info;
     display: flex;
     gap: max(1vw, 16px);
-    align-self: flex-end;
     overflow: hidden;
 
     &__message {
@@ -112,7 +93,6 @@
     }
 
     .qr {
-      margin-left: clamp(16px, 5vw, 64px);;
       padding: 4px;
       background-color: white;
     }

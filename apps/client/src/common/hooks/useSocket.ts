@@ -25,8 +25,6 @@ export const useOperator = () => {
 export const useMessageControl = () => {
   const featureSelector = (state: RuntimeStore) => ({
     timer: state.message.timer,
-    public: state.message.public,
-    lower: state.message.lower,
     external: state.message.external,
     onAir: state.onAir,
   });
@@ -37,10 +35,6 @@ export const useMessageControl = () => {
 export const setMessage = {
   timerText: (payload: string) => socketSendJson('message', { timer: { text: payload } }),
   timerVisible: (payload: boolean) => socketSendJson('message', { timer: { visible: payload } }),
-  publicText: (payload: string) => socketSendJson('message', { public: { text: payload } }),
-  publicVisible: (payload: boolean) => socketSendJson('message', { public: { visible: payload } }),
-  lowerText: (payload: string) => socketSendJson('message', { lower: { text: payload } }),
-  lowerVisible: (payload: boolean) => socketSendJson('message', { lower: { visible: payload } }),
   timerBlink: (payload: boolean) => socketSendJson('message', { timer: { blink: payload } }),
   timerBlackout: (payload: boolean) => socketSendJson('message', { timer: { blackout: payload } }),
 };
@@ -89,13 +83,13 @@ export const useInfoPanel = () => {
   return useRuntimeStore(featureSelector);
 };
 
-export const useExtraTimerTime = () => {
+export const useAuxTimerTime = () => {
   const featureSelector = (state: RuntimeStore) => state.auxtimer1.current;
 
   return useRuntimeStore(featureSelector);
 };
 
-export const useExtraTimerControl = () => {
+export const useAuxTimerControl = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.auxtimer1.playback,
     direction: state.auxtimer1.direction,
@@ -104,7 +98,7 @@ export const useExtraTimerControl = () => {
   return useRuntimeStore(featureSelector);
 };
 
-export const setExtraTimer = {
+export const setAuxTimer = {
   start: () => socketSendJson('auxtimer', { '1': SimplePlayback.Start }),
   pause: () => socketSendJson('auxtimer', { '1': SimplePlayback.Pause }),
   stop: () => socketSendJson('auxtimer', { '1': SimplePlayback.Stop }),

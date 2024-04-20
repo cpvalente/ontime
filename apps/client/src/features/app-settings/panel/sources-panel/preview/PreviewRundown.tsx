@@ -112,7 +112,7 @@ export default function PreviewRundown(props: PreviewRundownProps) {
                   fieldHeaders.map((field) => {
                     let value = '';
                     if (field in event.custom) {
-                      value = event.custom[field].value;
+                      value = event.custom[field];
                     }
                     return <td key={field}>{value}</td>;
                   })}

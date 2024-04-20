@@ -74,7 +74,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
 
   for (const [key, value] of Object.entries(importMap)) {
     if (typeof value === 'string') {
-      importMap[key] = value.toLocaleLowerCase();
+      importMap[key] = value.toLocaleLowerCase().trim();
     }
   }
 
@@ -222,7 +222,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
       } else if (j in customFieldIndexes) {
         const importKey = customFieldIndexes[j];
         const ontimeKey = customFieldImportKeys[importKey];
-        eventCustomFields[ontimeKey] = { value: makeString(column, '') };
+        eventCustomFields[ontimeKey] = makeString(column, '');
       } else {
         // 2. if there is no flag, lets see if we know the field type
         if (typeof column === 'string') {
@@ -230,7 +230,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
           if (column.length === 0) {
             continue;
           }
-          const columnText = column.toLowerCase();
+          const columnText = column.toLowerCase().trim();
 
           // check if it is an ontime column
           if (handlers[columnText]) {

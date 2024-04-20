@@ -72,6 +72,9 @@
       font-family: var(--lowerThird-font-family-override), Lato, Arial, sans-serif;
       text-align: var(--lowerThird-text-align-override, left);
       white-space: nowrap;
+      &::after {
+        content: '\200b';
+      }
     }
 
     .data-top {
@@ -85,7 +88,6 @@
     }
   }
 }
-
 
 @keyframes in {
   0% {

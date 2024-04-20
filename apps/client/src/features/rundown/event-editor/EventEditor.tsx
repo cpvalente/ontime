@@ -54,7 +54,7 @@ export default function EventEditor() {
     (field: EditorUpdateFields, value: string) => {
       if (field.startsWith('custom-')) {
         const fieldLabel = field.split('custom-')[1];
-        updateEvent({ id: event?.id, custom: { [fieldLabel]: { value } } });
+        updateEvent({ id: event?.id, custom: { [fieldLabel]: value } });
       } else {
         updateEvent({ id: event?.id, [field]: value });
       }
@@ -111,7 +111,7 @@ export default function EventEditor() {
           {Object.keys(customFields).map((label) => {
             const key = `${event.id}-${label}`;
             const fieldName = `custom-${label}`;
-            const initialValue = event.custom[label]?.value ?? '';
+            const initialValue = event.custom[label] ?? '';
             const { backgroundColor, color } = getAccessibleColour(customFields[label].colour);
 
             return (

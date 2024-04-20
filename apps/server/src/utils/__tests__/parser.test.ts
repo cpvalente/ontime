@@ -886,16 +886,16 @@ describe('parseExcel()', () => {
         skip: false,
         note: 'Ballyhoo',
         custom: {
-          user0: { value: 'a0' },
-          user1: { value: 'a1' },
-          user2: { value: 'a2' },
-          user3: { value: 'a3' },
-          user4: { value: 'a4' },
-          user5: { value: 'a5' },
-          user6: { value: 'a6' },
-          user7: { value: 'a7' },
-          user8: { value: 'a8' },
-          user9: { value: 'a9' },
+          user0: 'a0',
+          user1: 'a1',
+          user2: 'a2',
+          user3: 'a3',
+          user4: 'a4',
+          user5: 'a5',
+          user6: 'a6',
+          user7: 'a7',
+          user8: 'a8',
+          user9: 'a9',
         },
         colour: 'red',
         type: 'event',
@@ -911,8 +911,8 @@ describe('parseExcel()', () => {
         skip: true,
         note: 'Rainbow chase',
         custom: {
-          user0: { value: 'b0' },
-          user5: { value: 'b5' },
+          user0: 'b0',
+          user5: 'b5',
         },
         colour: '#F00',
         type: 'event',
@@ -1409,6 +1409,39 @@ describe('parseExcel()', () => {
     expect(events.at(5).timeStart).toEqual(35100000);
     expect(events.at(6).timeStart).toEqual(59400000);
     expect(events.at(7).timeStart).toEqual(78300000);
+  });
+
+  it('handle leading and trailing whitespace', () => {
+    const testData = [
+      ['Time Start', 'Time End', ' Title', 'End Action', 'Public', 'Skip', 'Notes', 'Colour ', 'cue'],
+      ['4:30:00', '4:30:00', 'A song from the hearth', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102],
+    ];
+
+    const importMap = {
+      worksheet: 'event schedule',
+      timeStart: ' time start',
+      timeEnd: 'time end ',
+      duration: 'duration',
+      cue: 'cue',
+      title: 'title',
+      isPublic: 'public',
+      skip: 'skip',
+      note: 'notes',
+      colour: 'colour',
+      endAction: 'end action',
+      timerType: 'timer type',
+      timeWarning: 'warning time',
+      timeDanger: 'danger time',
+      custom: {},
+    };
+
+    const result = parseExcel(testData, importMap);
+    const rundown = parseRundown(result);
+    const events = rundown.filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
+    expect(events.at(0).timeStart).toEqual(16200000); //<--leading white space in MAP
+    expect(events.at(0).timeEnd).toEqual(16200000); //<--trailing white space in MAP
+    expect(events.at(0).title).toEqual('A song from the hearth'); //<--leading white space in Excel data
+    expect(events.at(0).colour).toEqual('#F00'); //<--trailing white space in Excel data
   });
 
   it('link start', () => {
