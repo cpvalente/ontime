@@ -1,5 +1,5 @@
 import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useState } from 'react';
-import { HotkeyItem, getHotkeyHandler } from '@mantine/hooks';
+import { getHotkeyHandler, HotkeyItem } from '@mantine/hooks';
 
 interface UseReactiveTextInputReturn {
   value: string;
