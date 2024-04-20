@@ -63,14 +63,22 @@ export function persistImportMap(options: NamedImportMap) {
   localStorage.setItem('ontime-import-options', JSON.stringify(options));
 }
 
-export function getPersistedOptions(): NamedImportMap {
+function getPersistImportMap(): unknown {
   const options = localStorage.getItem('ontime-import-options');
   if (!options) {
+    throw new Error('no import options found');
+  }
+  return JSON.parse(options);
+}
+
+export function getPersistedOptions(): NamedImportMap {
+  try {
+    const options = getPersistImportMap();
+    if (!isNamedImportMap(options)) {
+      return namedImportMap;
+    }
+    return options;
+  } catch {
     return namedImportMap;
   }
-  const storedMap = JSON.parse(options);
-  if (!isNamedImportMap(storedMap)) {
-    return namedImportMap;
-  }
-  return storedMap;
 }

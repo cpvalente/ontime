@@ -34,7 +34,6 @@ import {
   parseViewSettings,
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
-import { coerceBooleanLoose } from './coerceType.js';
 
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
@@ -42,6 +41,14 @@ export const JSON_MIME = 'application/json';
 type ExcelData = Pick<DatabaseModel, 'rundown' | 'customFields'> & {
   rundownMetadata: Record<string, { row: number; col: number }>;
 };
+
+function parseBooleanString(value: unknown): boolean {
+  // falsy values would be nullish or empty string
+  if (!value || typeof value !== 'string') {
+    return false;
+  }
+  return value.toLowerCase() !== 'false';
+}
 
 export function getCustomFieldData(importMap: ImportMap): {
   customFields: CustomFields;
@@ -198,7 +205,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
       } else if (j === timeStartIndex) {
         event.timeStart = parseExcelDate(column);
       } else if (j === linkStartIndex) {
-        event.linkStart = coerceBooleanLoose(column, 'x');
+        event.linkStart = parseBooleanString(column);
       } else if (j === timeEndIndex) {
         event.timeEnd = parseExcelDate(column);
       } else if (j === durationIndex) {
@@ -206,9 +213,9 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
       } else if (j === cueIndex) {
         event.cue = makeString(column, '');
       } else if (j === isPublicIndex) {
-        event.isPublic = coerceBooleanLoose(column, 'x');
+        event.isPublic = parseBooleanString(column);
       } else if (j === skipIndex) {
-        event.skip = coerceBooleanLoose(column, 'x');
+        event.skip = parseBooleanString(column);
       } else if (j === notesIndex) {
         event.note = makeString(column, '');
       } else if (j === endActionIndex) {
