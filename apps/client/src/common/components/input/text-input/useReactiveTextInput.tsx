@@ -1,4 +1,4 @@
-import { ChangeEvent, KeyboardEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useState } from 'react';
 
 interface UseReactiveTextInputReturn {
   value: string;
@@ -10,6 +10,7 @@ interface UseReactiveTextInputReturn {
 export default function useReactiveTextInput(
   initialText: string,
   submitCallback: (newValue: string) => void,
+  ref: RefObject<HTMLInputElement>,
   options?: {
     submitOnEnter?: boolean;
   },
@@ -66,6 +67,9 @@ export default function useReactiveTextInput(
       switch (key) {
         case 'Escape':
           setText(initialText);
+          if (ref.current) {
+            ref.current.blur();
+          }
           break;
         case 'Enter':
           if (options?.submitOnEnter) {
