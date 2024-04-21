@@ -56,7 +56,6 @@ const actionHandlers: Record<string, ActionHandler> = {
     });
 
     updateEvent(patchEvent);
-    Object.assign(patchEvent);
 
     return { payload: 'success' };
   },
@@ -75,7 +74,7 @@ const actionHandlers: Record<string, ActionHandler> = {
   /* Playback */
   start: (payload) => {
     if (payload === undefined) {
-      return successPayloadOrError(runtimeService.start(), 'Uable to start');
+      return successPayloadOrError(runtimeService.start(), 'Unable to start');
     }
 
     if (payload && typeof payload === 'object') {
