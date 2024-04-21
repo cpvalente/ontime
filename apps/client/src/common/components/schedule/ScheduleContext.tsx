@@ -24,7 +24,7 @@ interface ScheduleProviderProps {
   time?: number;
 }
 
-const numEventsPerPage = 10;
+const numEventsPerPage = 8;
 
 export const ScheduleProvider = ({
   children,
