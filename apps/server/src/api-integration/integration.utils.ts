@@ -10,7 +10,7 @@ const whitelistedPayload = {
   note: coerceString,
   cue: coerceString,
 
-  duration: (value: unknown) => coerceNumber(value) * 1000, //frontend is seconds based
+  duration: (value: unknown) => coerceNumber(value) * 1000,
 
   isPublic: coerceBoolean,
   skip: coerceBoolean,

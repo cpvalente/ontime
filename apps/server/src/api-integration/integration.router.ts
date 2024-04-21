@@ -5,7 +5,7 @@
  *
  */
 
-import { ErrorResponse, LogOrigin, RuntimeStore } from 'ontime-types';
+import { LogOrigin } from 'ontime-types';
 
 import express, { type Request, type Response } from 'express';
 
@@ -14,7 +14,6 @@ import { integrationPayloadFromPath } from '../adapters/utils/parse.js';
 
 import { dispatchFromAdapter } from './integration.controller.js';
 import { getErrorMessage } from 'ontime-utils';
-import { eventStore } from '../stores/EventStore.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
 
 export const integrationRouter = express.Router();
@@ -50,15 +49,5 @@ integrationRouter.get('/*', (req: Request, res: Response) => {
     const errorMessage = getErrorMessage(error);
     logger.error(LogOrigin.Rx, `HTTP IN: ${errorMessage}`);
     res.status(500).send({ message: errorMessage });
-  }
-});
-
-integrationRouter.get('/poll', (_req: Request, res: Response<Partial<RuntimeStore> | ErrorResponse>) => {
-  try {
-    const state = eventStore.poll();
-    res.status(200).send(state);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(500).send({ message: `Could not get sync data: ${message}` });
   }
 });
