@@ -39,7 +39,7 @@ let lastEnd: MaybeNumber = null;
 let links: Record<EventID, EventID> = {};
 
 /**
- * Object that contains renamings to custom fields
+ * Object that contains reference of renamed custom fields
  * Used to rename the custom fields in the events
  * @example
  * {
@@ -47,7 +47,7 @@ let links: Record<EventID, EventID> = {};
  *  lighting: lx
  * }
  */
-const customFieldChangelog = {};
+export const customFieldChangelog = {};
 
 /**
  * Keep track of which custom fields are used.
@@ -176,9 +176,7 @@ type RundownCache = {
  */
 export function get(): Readonly<RundownCache> {
   if (isStale) {
-    console.time('rundownCache__init');
     generate();
-    console.timeEnd('rundownCache__init');
   }
   return {
     rundown,
@@ -194,9 +192,7 @@ export function get(): Readonly<RundownCache> {
  */
 export function getMetadata() {
   if (isStale) {
-    console.time('rundownCache__init');
     generate();
-    console.timeEnd('rundownCache__init');
   }
 
   return {
@@ -237,9 +233,7 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
 
     // schedule a non priority cache update
     setImmediate(() => {
-      console.time('rundownCache__init');
       get();
-      console.timeEnd('rundownCache__init');
     });
 
     // defer writing to the database
@@ -410,14 +404,12 @@ function invalidateIfUsed(label: CustomFieldLabel) {
   // ... and schedule a cache update
   // schedule a non priority cache update
   setImmediate(() => {
-    console.time('rundownCache__init');
     generate();
-    console.timeEnd('rundownCache__init');
   });
 }
 
 /**
- * Scheduløes a non priority custom field persist
+ * Schedules a non priority custom field persist
  * @param persistedCustomFields
  */
 function scheduleCustomFieldPersist(persistedCustomFields: CustomFields) {

@@ -24,6 +24,7 @@ import {
   createCustomField,
   editCustomField,
   removeCustomField,
+  customFieldChangelog,
 } from '../rundownCache.js';
 
 describe('generate()', () => {
@@ -870,8 +871,55 @@ describe('custom fields', () => {
       };
 
       const customField = await editCustomField('sound', { label: 'Sound', type: 'string', colour: 'green' });
+      expect(customFieldChangelog).toStrictEqual({});
 
       expect(customField).toStrictEqual(expected);
+    });
+
+    it('renames a field to a new label', async () => {
+      const created = await createCustomField({ label: 'Video', type: 'string', colour: 'red' });
+
+      const expected = {
+        lighting: {
+          label: 'Lighting',
+          type: 'string',
+          colour: 'blue',
+        },
+        sound: {
+          label: 'Sound',
+          type: 'string',
+          colour: 'green',
+        },
+        video: {
+          label: 'Video',
+          type: 'string',
+          colour: 'red',
+        },
+      };
+
+      expect(created).toStrictEqual(expected);
+
+      const expectedAfter = {
+        lighting: {
+          label: 'Lighting',
+          type: 'string',
+          colour: 'blue',
+        },
+        sound: {
+          label: 'Sound',
+          type: 'string',
+          colour: 'green',
+        },
+        av: {
+          label: 'AV',
+          type: 'string',
+          colour: 'red',
+        },
+      };
+
+      const customField = await editCustomField('video', { label: 'AV', type: 'string', colour: 'red' });
+      expect(customField).toStrictEqual(expectedAfter);
+      expect(customFieldChangelog).toStrictEqual({ video: 'av' });
     });
   });
 
@@ -882,6 +930,11 @@ describe('custom fields', () => {
           label: 'Lighting',
           type: 'string',
           colour: 'blue',
+        },
+        av: {
+          label: 'AV',
+          type: 'string',
+          colour: 'red',
         },
       };
 
