@@ -126,7 +126,7 @@ export default function ViewSettingsForm() {
             <Panel.ListItem>
               <Panel.Field
                 title='Freeze timer on end'
-                description='Timer in views will stop from going negative after reaching'
+                description='Timer in views will stop from going negative and instead stop at 00:00:00'
               />
               <Controller
                 control={control}
