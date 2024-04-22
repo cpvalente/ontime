@@ -1,17 +1,22 @@
-import { Switch } from '@chakra-ui/react';
+import { Select, Switch } from '@chakra-ui/react';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
-import { useEditorSettings } from '../../../../common/stores/editorSettings';
+import { editorSettingsDefaults, useEditorSettings } from '../../../../common/stores/editorSettings';
 import { forgivingStringToMillis } from '../../../../common/utils/dateConfig';
 import * as Panel from '../PanelUtils';
 
 export default function EditorSettingsForm() {
-  const eventSettings = useEditorSettings((state) => state.eventSettings);
-  const setLinkPrevious = useEditorSettings((state) => state.setLinkPrevious);
-  const setDefaultPublic = useEditorSettings((state) => state.setDefaultPublic);
-  const setDefaultDuration = useEditorSettings((state) => state.setDefaultDuration);
+  const eventSettings = useEditorSettings((state) => state);
+
+  const setDefaultDuration = eventSettings.setDefaultDuration;
+  const setLinkPrevious = eventSettings.setLinkPrevious;
+  const setWarnTime = eventSettings.setWarnTime;
+  const setDangerTime = eventSettings.setDangerTime;
+  const setDefaultPublic = eventSettings.setDefaultPublic;
 
   const durationInMs = forgivingStringToMillis(eventSettings.defaultDuration);
+  const warnTimeInMs = forgivingStringToMillis(eventSettings.defaultWarnTime);
+  const dangerTimeInMs = forgivingStringToMillis(eventSettings.defaultDangerTime);
 
   return (
     <Panel.Section>
@@ -19,24 +24,21 @@ export default function EditorSettingsForm() {
         <Panel.SubHeader>Editor settings</Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
-          <Panel.Title>Rundown options</Panel.Title>
+          <Panel.Title>Rundown defaults for new events</Panel.Title>
           <Panel.ListGroup>
             <Panel.ListItem>
-              <Panel.Field
-                title='Default duration'
-                description='When creating a new event, what is the default duration'
-              />
+              <Panel.Field title='Default duration' description='Default duration for new events' />
               <TimeInput<'defaultDuration'>
                 name='defaultDuration'
                 submitHandler={(_field, value) => setDefaultDuration(value)}
                 time={durationInMs}
-                placeholder='00:10:00'
+                placeholder={editorSettingsDefaults.duration}
               />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
                 title='Link previous'
-                description='New events start time will be linked to the previous event'
+                description='Whether the start time of new events should be linked to the previous event end time'
               />
               <Switch
                 variant='ontime'
@@ -45,6 +47,46 @@ export default function EditorSettingsForm() {
                 onChange={(event) => setLinkPrevious(event.target.checked)}
               />
             </Panel.ListItem>
+            <Panel.ListItem>
+              <Panel.Field title='Timer type' description='Default type of timer for new events' />
+              <Select variant='ontime' size='sm' width='auto' isDisabled>
+                <option value='12'>Count down</option>
+                <option value='12'>Count up</option>
+                <option value='12'>Time to end</option>
+                <option value='12'>Clock</option>
+              </Select>
+            </Panel.ListItem>
+            <Panel.ListItem>
+              <Panel.Field title='End Action' description='Default end action for new events' />
+              <Select variant='ontime' size='sm' width='auto' isDisabled>
+                <option value='12'>None</option>
+                <option value='12'>Stop</option>
+                <option value='12'>Load next</option>
+                <option value='12'>Play next</option>
+              </Select>
+            </Panel.ListItem>
+          </Panel.ListGroup>
+          <Panel.ListGroup>
+            <Panel.ListItem>
+              <Panel.Field title='Warning time' description='Default threshold for warning time in an event' />
+              <TimeInput<'warnTime'>
+                name='warnTime'
+                submitHandler={(_field, value) => setWarnTime(value)}
+                time={warnTimeInMs}
+                placeholder={editorSettingsDefaults.warnTime}
+              />
+            </Panel.ListItem>
+            <Panel.ListItem>
+              <Panel.Field title='Danger time' description='When creating a new event, what is the default duration' />
+              <TimeInput<'dangerTime'>
+                name='dangerTime'
+                submitHandler={(_field, value) => setDangerTime(value)}
+                time={dangerTimeInMs}
+                placeholder={editorSettingsDefaults.dangerTime}
+              />
+            </Panel.ListItem>
+          </Panel.ListGroup>
+          <Panel.ListGroup>
             <Panel.ListItem>
               <Panel.Field title='Default public' description='New events will be public' />
               <Switch

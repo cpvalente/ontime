@@ -8,7 +8,6 @@ import { useEventAction } from '../../common/hooks/useEventAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
-import { useEditorSettings } from '../../common/stores/editorSettings';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
@@ -28,9 +27,6 @@ export default function Rundown({ data }: RundownProps) {
 
   const featureData = useRundownEditor();
   const { addEvent, reorderEvent } = useEventAction();
-  const eventSettings = useEditorSettings((state) => state.eventSettings);
-  const defaultPublic = eventSettings.defaultPublic;
-  const linkPrevious = eventSettings.linkPrevious;
 
   // cursor
   const { cursor, mode: appMode, setCursor } = useAppMode();
@@ -65,16 +61,14 @@ export default function Rundown({ data }: RundownProps) {
         };
         const options = {
           after: cursor,
-          defaultPublic,
           lastEventId: cursor,
-          linkPrevious,
         };
         addEvent(newEvent, options);
       } else {
         addEvent({ type }, { after: cursor });
       }
     },
-    [addEvent, rundown, defaultPublic, linkPrevious],
+    [addEvent, rundown],
   );
 
   // Handle keyboard shortcuts
