@@ -238,5 +238,28 @@ describe('getLastEvent', () => {
       const { lastEvent } = getLastEvent(testRundown as OntimeRundown);
       expect(lastEvent?.id).toBe('1');
     });
+
+    it('handles empty order', () => {
+      const testRundown = {
+        4: { id: '4', type: SupportedEvent.Block },
+        1: { id: '1', type: SupportedEvent.Event },
+        3: { id: '3', type: SupportedEvent.Event },
+        2: { id: '2', type: SupportedEvent.Delay },
+      };
+
+      const order: string[] = [];
+
+      const lastEntry = getLastNormal(testRundown as unknown as NormalisedRundown, order);
+      expect(lastEntry).toBe(null);
+    });
+
+    it('handles empty rundown', () => {
+      const testRundown = {};
+
+      const order = ['1', '2', '3', '4'];
+
+      const lastEntry = getLastNormal(testRundown as unknown as NormalisedRundown, order);
+      expect(lastEntry).toBe(null);
+    });
   });
 });
