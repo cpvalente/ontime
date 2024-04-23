@@ -1,16 +1,16 @@
 import { isColourHex } from 'ontime-utils';
 
-//TODO: write tests
 /**
  * @description Converts a value to a string if possible, throws otherwise
- * @param {unknown} value - Value to be converted to a string.
+ * @param {unknown} value - Value to be converted to a string, will only accept string or number.
  * @returns {string} - The converted value as a string.
  * @throws {Error} Throws an error if the value is null or undefined.
  */
 export function coerceString(value: unknown): string {
-  if (value == null) {
-    throw new Error('Invalid value received');
+  if (typeof value !== 'string' && typeof value !== 'number') {
+    throw new Error('Invalid string value received');
   }
+
   return String(value);
 }
 
