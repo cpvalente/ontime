@@ -9,15 +9,6 @@ import serverTiming from 'server-timing';
 
 // import utils
 import { resolve } from 'path';
-import {
-  srcDirectory,
-  environment,
-  isProduction,
-  resolveDbPath,
-  resolveExternalsDirectory,
-  resolveStylesDirectory,
-  resolvedPath,
-} from './setup/index.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 
 // Import Routers
@@ -43,13 +34,14 @@ import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
 import { initRundown } from './services/rundown-service/RundownService.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
+import { directories, environment } from './setup/index.js';
 
 console.log(`Starting Ontime version ${ONTIME_VERSION}`);
 
-if (!isProduction) {
+if (!environment.isProduction) {
   console.log(`Ontime running in ${environment} environment`);
-  console.log(`Ontime directory at ${srcDirectory} `);
-  console.log(`Ontime database at ${resolveDbPath}`);
+  console.log(`Ontime directory at ${directories.srcDirectory} `);
+  console.log(`Ontime database at ${directories.dbDirectory}`);
 }
 
 // Create express APP
@@ -75,8 +67,8 @@ app.use('/data', appRouter); // router for application data
 app.use('/api', integrationRouter); // router for integrations
 
 // serve static - css
-app.use('/external/styles', express.static(resolveStylesDirectory));
-app.use('/external/', express.static(resolveExternalsDirectory));
+app.use('/external/styles', express.static(directories.externalsStartDirectory + '/styles'));
+app.use('/external/', express.static(directories.externalsStartDirectory));
 app.use('/external', (req, res) => {
   res.status(404).send(`${req.originalUrl} not found`);
 });

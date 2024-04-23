@@ -5,9 +5,9 @@ import { Request, Response } from 'express';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { extractPin } from '../../services/project-service/ProjectService.js';
-import { isDocker } from '../../setup/index.js';
 import { getErrorMessage } from 'ontime-utils';
 import { obfuscate } from 'ontime-utils';
+import { environment } from '../../setup/index.js';
 
 export async function getSettings(_req: Request, res: Response<Settings>) {
   const settings = DataProvider.getSettings();
@@ -39,7 +39,7 @@ export async function postSettings(req: Request, res: Response<Settings | ErrorR
 
     const hasChangedPort = settings.serverPort !== serverPort;
 
-    if (isDocker && hasChangedPort) {
+    if (environment.isDocker && hasChangedPort) {
       return res.status(403).json({ message: 'Can`t change port when running inside docker' });
     }
 

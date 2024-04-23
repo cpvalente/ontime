@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 
 import { ensureDirectory } from './fileManagement.js';
-import { getAppDataPath, uploadsFolderPath } from '../setup/index.js';
+import { directories } from '../setup/index.js';
 
 function generateNewFileName(filePath: string, callback: (newName: string) => void) {
   const baseName = path.basename(filePath, path.extname(filePath));
@@ -30,24 +30,24 @@ function generateNewFileName(filePath: string, callback: (newName: string) => vo
 // Define multer storage object
 export const storage = multer.diskStorage({
   destination: function (_req, file, cb) {
-    const appDataPath = getAppDataPath();
+    const appDataPath = directories.appDataPath;
     if (appDataPath === '') {
       throw new Error('Could not resolve public folder for platform');
     }
 
-    ensureDirectory(uploadsFolderPath);
+    ensureDirectory(directories.projectsDirectory);
 
-    const filePath = path.join(uploadsFolderPath, file.originalname);
+    const filePath = path.join(directories.projectsDirectory, file.originalname);
 
     // Check if file already exists
     fs.access(filePath, fs.constants.F_OK, (err) => {
       if (err) {
         // File does not exist, can safely proceed to this destination
-        cb(null, uploadsFolderPath);
+        cb(null, directories.projectsDirectory);
       } else {
         generateNewFileName(filePath, (newName) => {
           file.originalname = newName;
-          cb(null, uploadsFolderPath);
+          cb(null, directories.projectsDirectory);
         });
       }
     });
