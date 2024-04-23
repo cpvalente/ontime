@@ -1,4 +1,5 @@
-import { ChangeEvent, memo, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, memo, useCallback, useEffect, useRef, useState } from 'react';
+import { getHotkeyHandler } from '@mantine/hooks';
 
 import { AutoTextArea } from '../../../common/components/input/auto-text-area/AutoTextArea';
 
@@ -12,7 +13,7 @@ const EditableCell = (props: EditableCellProps) => {
 
   // We need to keep and update the state of the cell normally
   const [value, setValue] = useState(initialValue);
-
+  const ref = useRef<HTMLInputElement>();
   const onChange = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => setValue(event.target.value), []);
 
   // We'll only update the external data when the input is blurred
@@ -27,9 +28,20 @@ const EditableCell = (props: EditableCellProps) => {
     <AutoTextArea
       size='sm'
       value={value}
+      inputref={ref}
       onChange={onChange}
       onBlur={onBlur}
       rows={1}
+      onKeyDown={getHotkeyHandler([
+        ['ctrl + Enter', () => ref.current?.blur()],
+        [
+          'Escape',
+          () => {
+            setValue(initialValue);
+            setTimeout(() => ref.current?.blur());
+          },
+        ],
+      ])}
       transition='none'
       spellCheck={false}
       style={{ padding: 0 }}
