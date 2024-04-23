@@ -1,4 +1,5 @@
 import { Select, Switch } from '@chakra-ui/react';
+import { EndAction, TimerType } from 'ontime-types';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { editorSettingsDefaults, useEditorSettings } from '../../../../common/stores/editorSettings';
@@ -50,19 +51,19 @@ export default function EditorSettingsForm() {
             <Panel.ListItem>
               <Panel.Field title='Timer type' description='Default type of timer for new events' />
               <Select variant='ontime' size='sm' width='auto' isDisabled>
-                <option value='12'>Count down</option>
-                <option value='12'>Count up</option>
-                <option value='12'>Time to end</option>
-                <option value='12'>Clock</option>
+                <option value={TimerType.CountDown}>Count down</option>
+                <option value={TimerType.CountUp}>Count up</option>
+                <option value={TimerType.TimeToEnd}>Time to end</option>
+                <option value={TimerType.Clock}>Clock</option>
               </Select>
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='End Action' description='Default end action for new events' />
               <Select variant='ontime' size='sm' width='auto' isDisabled>
-                <option value='12'>None</option>
-                <option value='12'>Stop</option>
-                <option value='12'>Load next</option>
-                <option value='12'>Play next</option>
+                <option value={EndAction.None}>None</option>
+                <option value={EndAction.Stop}>Stop</option>
+                <option value={EndAction.LoadNext}>Load next</option>
+                <option value={EndAction.PlayNext}>Play next</option>
               </Select>
             </Panel.ListItem>
           </Panel.ListGroup>
@@ -77,7 +78,7 @@ export default function EditorSettingsForm() {
               />
             </Panel.ListItem>
             <Panel.ListItem>
-              <Panel.Field title='Danger time' description='When creating a new event, what is the default duration' />
+              <Panel.Field title='Danger time' description='Default threshold for danger time in an event' />
               <TimeInput<'dangerTime'>
                 name='dangerTime'
                 submitHandler={(_field, value) => setDangerTime(value)}
