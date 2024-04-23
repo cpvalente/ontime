@@ -33,7 +33,7 @@ const EditableCell = (props: EditableCellProps) => {
       onBlur={onBlur}
       rows={1}
       onKeyDown={getHotkeyHandler([
-        ['ctrl + Enter', () => ref.current?.blur()],
+        ['ctrl + Enter', () => ref.current?.blur()], //TODO: maybe we can unify this with `useReactiveTextInput`
         [
           'Escape',
           () => {
