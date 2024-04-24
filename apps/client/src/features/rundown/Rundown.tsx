@@ -156,6 +156,8 @@ export default function Rundown({ data }: RundownProps) {
     ['ctrl + C', () => setEntryCopyId(cursor), { preventDefault: true }],
     ['ctrl + V', () => insertAtCursor('clone', entryCopyId), { preventDefault: true }],
     ['ctrl + shift + V', () => insertAtCursor('clone', entryCopyId, true), { preventDefault: true }],
+
+    ['alt + backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
   ]);
 
   // we copy the state from the store here
