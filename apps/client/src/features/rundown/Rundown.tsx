@@ -49,7 +49,6 @@ export default function Rundown({ data }: RundownProps) {
     (cursor: string | null) => {
       if (!cursor) return;
       const previous = getPreviousNormal(rundown, order, cursor).entry?.id ?? null;
-      //TODO: should we add a confirmation?
       deleteEvent(cursor);
       setCursor(previous);
     },
@@ -99,14 +98,17 @@ export default function Rundown({ data }: RundownProps) {
       if (order.length < 1) {
         return;
       }
-      const newCursor =
-        direction === 'up'
-          ? cursor === null
-            ? getLastNormal(rundown, order)?.id //<-- nothing selected and arrow down gives the first entry
-            : getPreviousNormal(rundown, order, cursor ?? '').entry?.id
-          : cursor === null
-          ? getFirstNormal(rundown, order)?.id //<-- nothing selected and arrow up gives the last entry
-          : getNextNormal(rundown, order, cursor ?? '')?.entry?.id;
+      let newCursor: string | undefined;
+      if (cursor === null) {
+        // there is no cursor, we select the first or last depending on direction if it exists
+        newCursor = direction === 'up' ? getLastNormal(rundown, order)?.id : getFirstNormal(rundown, order)?.id;
+      } else {
+        // otherwise we select the next or previous
+        newCursor =
+          direction === 'up'
+            ? getPreviousNormal(rundown, order, cursor).entry?.id
+            : getNextNormal(rundown, order, cursor).entry?.id;
+      }
 
       if (newCursor) {
         setCursor(newCursor);
