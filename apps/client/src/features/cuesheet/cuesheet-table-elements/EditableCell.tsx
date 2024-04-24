@@ -13,11 +13,23 @@ const EditableCell = (props: EditableCellProps) => {
 
   // We need to keep and update the state of the cell normally
   const [value, setValue] = useState(initialValue);
-  const ref = useRef<HTMLInputElement>();
+  const ref = useRef<HTMLAreaElement>();
   const onChange = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => setValue(event.target.value), []);
 
   // We'll only update the external data when the input is blurred
   const onBlur = useCallback(() => handleUpdate(value), [handleUpdate, value]);
+
+  //TODO: maybe we can unify this with `useReactiveTextInput`
+  const onKeyDown = getHotkeyHandler([
+    ['ctrl + Enter', () => ref.current?.blur()],
+    [
+      'Escape',
+      () => {
+        setValue(initialValue);
+        setTimeout(() => ref.current?.blur());
+      },
+    ],
+  ]);
 
   // If the initialValue is changed external, sync it up with our state
   useEffect(() => {
@@ -32,16 +44,7 @@ const EditableCell = (props: EditableCellProps) => {
       onChange={onChange}
       onBlur={onBlur}
       rows={1}
-      onKeyDown={getHotkeyHandler([
-        ['ctrl + Enter', () => ref.current?.blur()], //TODO: maybe we can unify this with `useReactiveTextInput`
-        [
-          'Escape',
-          () => {
-            setValue(initialValue);
-            setTimeout(() => ref.current?.blur());
-          },
-        ],
-      ])}
+      onKeyDown={onKeyDown}
       transition='none'
       spellCheck={false}
       style={{ padding: 0 }}

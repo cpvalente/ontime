@@ -7,5 +7,5 @@ type EntryCopyStore = {
 
 export const useEntryCopy = create<EntryCopyStore>()((set) => ({
   entryCopyId: null,
-  setEntryCopyId: (entryCopyId: string | null) => set(() => ({ entryCopyId })),
+  setEntryCopyId: (entryCopyId: string | null) => set({ entryCopyId }),
 }));

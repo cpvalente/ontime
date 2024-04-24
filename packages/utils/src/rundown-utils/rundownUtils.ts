@@ -70,7 +70,7 @@ export function getFirstEventNormal(
  * @param order
  * @returns
  */
-export function getLastNormal(rundown: NormalisedRundown, order: string[]): OntimeRundownEntry | null {
+export function getLastNormal(rundown: NormalisedRundown, order: string[]): OntimeRundownEntry | null {
   const lastId = order.at(-1);
   if (lastId === undefined) {
     return null;
