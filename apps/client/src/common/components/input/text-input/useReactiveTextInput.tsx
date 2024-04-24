@@ -5,7 +5,7 @@ interface UseReactiveTextInputReturn {
   value: string;
   onChange: (event: ChangeEvent) => void;
   onBlur: (event: ChangeEvent) => void;
-  onKeyDown: (event: KeyboardEvent<HTMLElement> | globalThis.KeyboardEvent) => void;
+  onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
 }
 
 export default function useReactiveTextInput(
