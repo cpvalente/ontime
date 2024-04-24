@@ -1,4 +1,4 @@
-import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useState } from 'react';
 import { getHotkeyHandler, HotkeyItem } from '@mantine/hooks';
 
 interface UseReactiveTextInputReturn {
@@ -69,7 +69,7 @@ export default function useReactiveTextInput(
     setTimeout(() => ref.current?.blur()); // Immediate timeout to ensure text is set before bluring
   }, [initialText, ref]);
 
-  const keyHandler = useCallback(() => {
+  const keyHandler = useMemo(() => {
     const hotKeys: HotkeyItem[] = [['Escape', handleEscape, { preventDefault: true }]];
 
     if (options?.submitOnEnter) {
