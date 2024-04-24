@@ -6,8 +6,13 @@ import { logger } from '../../classes/Logger.js';
 import { RestorePoint } from '../RestoreService.js';
 
 import * as runtimeState from '../../stores/runtimeState.js';
-import * as cache from '../rundown-service/rundownCache.js';
-import { getEventAtIndex, getEventWithId, getPlayableEvents } from '../rundown-service/rundownUtils.js';
+import {
+  getEventAtIndex,
+  getEventWithId,
+  getNormalisedRundown,
+  getPlayableEvents,
+  getRundown,
+} from '../rundown-service/rundownUtils.js';
 import { integrationService } from '../integration-service/IntegrationService.js';
 import { timerConfig } from '../../config/config.js';
 
@@ -236,7 +241,7 @@ class RuntimeService {
    */
   startByCue(cue: string): boolean {
     const state = runtimeState.getState();
-    const event = getNextEventWithCue(cache.getPersistedRundown(), cue, state.runtime.selectedEventIndex);
+    const event = getNextEventWithCue(getRundown(), cue, state.runtime.selectedEventIndex);
     if (!event) {
       return false;
     }
@@ -253,7 +258,7 @@ class RuntimeService {
    * @return {boolean} success - whether an event was loaded
    */
   loadById(eventId: string): boolean {
-    const event = cache.get().rundown[eventId];
+    const event = getNormalisedRundown().rundown[eventId];
     if (!event || !isOntimeEvent(event)) {
       return false;
     }
@@ -280,7 +285,7 @@ class RuntimeService {
    */
   loadByCue(cue: string): boolean {
     const state = runtimeState.getState();
-    const event = getNextEventWithCue(cache.getPersistedRundown(), cue, state.runtime.selectedEventIndex);
+    const event = getNextEventWithCue(getRundown(), cue, state.runtime.selectedEventIndex);
     if (!event) {
       return false;
     }
@@ -293,7 +298,7 @@ class RuntimeService {
    */
   loadPrevious(): boolean {
     const state = runtimeState.getState();
-    const previousEvent = getPreviousEvent(cache.getPersistedRundown(), state.eventNow?.id).previousEvent;
+    const previousEvent = getPreviousEvent(getRundown(), state.eventNow?.id).previousEvent;
     if (previousEvent) {
       return this.loadEvent(previousEvent);
     }
@@ -306,7 +311,7 @@ class RuntimeService {
    */
   loadNext(): boolean {
     const state = runtimeState.getState();
-    const nextEvent = getNextEvent(cache.getPersistedRundown(), state.eventNow?.id).nextEvent;
+    const nextEvent = getNextEvent(getRundown(), state.eventNow?.id).nextEvent;
     if (nextEvent) {
       return this.loadEvent(nextEvent);
     }

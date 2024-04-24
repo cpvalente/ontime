@@ -33,17 +33,10 @@ export function getPlayableEvents(): OntimeEvent[] {
 }
 
 /**
- * returns number of events that can be loaded
- * @return {number}
- */
-export function getNumEvents(): number {
-  return getPlayableEvents().length;
-}
-
-/**
  * returns an event given its index after filtering for OntimeEvents
  * @param {number} eventIndex
  * @return {OntimeEvent | undefined}
+ * @deprecated
  */
 export function getEventAtIndex(eventIndex: number): OntimeEvent | undefined {
   const timedEvents = getTimedEvents();
@@ -54,68 +47,9 @@ export function getEventAtIndex(eventIndex: number): OntimeEvent | undefined {
  * returns first event that matches a given ID
  * @param {string} eventId
  * @return {object | undefined}
+ * @deprecated
  */
 export function getEventWithId(eventId: string): OntimeEvent | undefined {
   const timedEvents = getTimedEvents();
   return timedEvents.find((event) => event.id === eventId);
-}
-
-/**
- * returns first event that matches a given cue
- * @param {string} targetCue
- * @param {number} currentEventIndex
- * @return {object | undefined}
- */
-export function getNextEventWithCue(targetCue: string, currentEventIndex = 0): OntimeEvent | undefined {
-  const timedEvents = getPlayableEvents();
-  const lowerCaseCue = targetCue.toLowerCase();
-
-  for (let i = currentEventIndex; i < timedEvents.length; i++) {
-    const event = timedEvents.at(i);
-    if (event && event.cue.toLowerCase() === lowerCaseCue) {
-      return event;
-    }
-  }
-}
-
-/**
- * finds the previous event
- * @return {object | undefined}
- */
-export function findPrevious(currentEventId?: string): OntimeEvent | null {
-  const timedEvents = getPlayableEvents();
-  if (!timedEvents || !timedEvents.length) {
-    return null;
-  }
-
-  // if there is no event running, go to first
-  if (!currentEventId) {
-    return timedEvents.at(0) ?? null;
-  }
-
-  const currentIndex = timedEvents.findIndex((event) => event.id === currentEventId);
-  const newIndex = Math.max(currentIndex - 1, 0);
-  const previousEvent = timedEvents.at(newIndex) ?? null;
-  return previousEvent;
-}
-
-/**
- * finds the next event
- * @return {object | undefined}
- */
-export function findNext(currentEventId?: string): OntimeEvent | null {
-  const timedEvents = getPlayableEvents();
-  if (!timedEvents || !timedEvents.length) {
-    return null;
-  }
-
-  // if there is no event running, go to first
-  if (!currentEventId) {
-    return timedEvents.at(0) ?? null;
-  }
-
-  const currentIndex = timedEvents.findIndex((event) => event.id === currentEventId);
-  const newIndex = currentIndex + 1;
-  const nextEvent = timedEvents.at(newIndex);
-  return nextEvent ?? null;
 }
