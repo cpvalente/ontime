@@ -21,7 +21,7 @@ const EditableCell = (props: EditableCellProps) => {
 
   //TODO: maybe we can unify this with `useReactiveTextInput`
   const onKeyDown = getHotkeyHandler([
-    ['ctrl + Enter', () => ref.current?.blur()],
+    ['mod + Enter', () => ref.current?.blur()],
     [
       'Escape',
       () => {

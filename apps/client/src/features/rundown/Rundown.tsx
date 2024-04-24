@@ -137,12 +137,12 @@ export default function Rundown({ data }: RundownProps) {
   useHotkeys([
     ['alt + ArrowDown', () => selectEntry(cursor, 'down'), { preventDefault: true }],
     ['alt + ArrowUp', () => selectEntry(cursor, 'up'), { preventDefault: true }],
-    ['alt + ctrl + ArrowDown', () => moveEntry(cursor, 'down'), { preventDefault: true }],
-    ['alt + ctrl + ArrowUp', () => moveEntry(cursor, 'up'), { preventDefault: true }],
+    ['alt + mod + ArrowDown', () => moveEntry(cursor, 'down'), { preventDefault: true }],
+    ['alt + mod + ArrowUp', () => moveEntry(cursor, 'up'), { preventDefault: true }],
 
     ['Escape', () => setCursor(null), { preventDefault: true }],
 
-    ['ctrl + Backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
+    ['mod + Backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
 
     ['alt + E', () => insertAtCursor(SupportedEvent.Event, cursor), { preventDefault: true }],
     ['alt + shift + E', () => insertAtCursor(SupportedEvent.Event, cursor, true), { preventDefault: true }],
@@ -153,9 +153,9 @@ export default function Rundown({ data }: RundownProps) {
     ['alt + D', () => insertAtCursor(SupportedEvent.Delay, cursor), { preventDefault: true }],
     ['alt + shift + D', () => insertAtCursor(SupportedEvent.Delay, cursor, true), { preventDefault: true }],
 
-    ['ctrl + C', () => setEntryCopyId(cursor), { preventDefault: true }],
-    ['ctrl + V', () => insertAtCursor('clone', entryCopyId), { preventDefault: true }],
-    ['ctrl + shift + V', () => insertAtCursor('clone', entryCopyId, true), { preventDefault: true }],
+    ['mod + C', () => setEntryCopyId(cursor), { preventDefault: true }],
+    ['mod + V', () => insertAtCursor('clone', entryCopyId), { preventDefault: true }],
+    ['mod + shift + V', () => insertAtCursor('clone', entryCopyId, true), { preventDefault: true }],
 
     ['alt + backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
   ]);

@@ -77,7 +77,7 @@ export default function useReactiveTextInput(
     }
 
     if (options?.submitOnCtrlEnter) {
-      hotKeys.push(['ctrl + Enter', () => handleSubmit(text)]);
+      hotKeys.push(['mod + Enter', () => handleSubmit(text)]);
     }
     return getHotkeyHandler(hotKeys);
   }, [handleEscape, handleSubmit, options?.submitOnCtrlEnter, options?.submitOnEnter, text]);
