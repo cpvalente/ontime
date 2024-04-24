@@ -17,6 +17,7 @@ export {
   getNext,
   getNextEvent,
   getNextEventNormal,
+  getNextEventWithCue,
   getNextNormal,
   getPrevious,
   getPreviousEvent,

@@ -1,7 +1,15 @@
 import type { OntimeEvent, OntimeRundown } from 'ontime-types';
 import { SupportedEvent } from 'ontime-types';
 
-import { getLastEvent, getNext, getNextEvent, getPrevious, getPreviousEvent, swapEventData } from './rundownUtils';
+import {
+  getLastEvent,
+  getNext,
+  getNextEvent,
+  getNextEventWithCue,
+  getPrevious,
+  getPreviousEvent,
+  swapEventData,
+} from './rundownUtils';
 
 describe('getNext()', () => {
   it('returns the next event of type event', () => {
@@ -208,5 +216,75 @@ describe('getLastEvent', () => {
 
     const { lastEvent } = getLastEvent(testRundown as OntimeRundown);
     expect(lastEvent?.id).toBe('1');
+  });
+});
+
+describe('getNextEventWithCue', () => {
+  it('returns the first event with cue', () => {
+    const testRundown = [
+      { id: '1', cue: 'A', type: SupportedEvent.Event },
+      { id: '2', cue: 'B', type: SupportedEvent.Event },
+      { id: '3', cue: 'C', type: SupportedEvent.Event },
+      { id: '4', cue: 'D', type: SupportedEvent.Event },
+      { id: '5', cue: 'E', type: SupportedEvent.Event },
+      { id: '6', cue: 'F', type: SupportedEvent.Event },
+    ];
+
+    const event = getNextEventWithCue(testRundown as OntimeRundown, 'd');
+    expect(event?.id).toBe('4');
+  });
+  it('returns the null if cue not found', () => {
+    const testRundown = [
+      { id: '1', cue: 'A', type: SupportedEvent.Event },
+      { id: '2', cue: 'B', type: SupportedEvent.Event },
+      { id: '3', cue: 'C', type: SupportedEvent.Event },
+      { id: '4', cue: 'D', type: SupportedEvent.Event },
+      { id: '5', cue: 'E', type: SupportedEvent.Event },
+      { id: '6', cue: 'F', type: SupportedEvent.Event },
+    ];
+
+    const event = getNextEventWithCue(testRundown as OntimeRundown, 'G');
+    expect(event).toBe(null);
+  });
+  it('returns the next event with cue given index', () => {
+    const testRundown = [
+      { id: '1', cue: 'A', type: SupportedEvent.Event },
+      { id: '2', cue: 'B', type: SupportedEvent.Event },
+      { id: '3', cue: 'C', type: SupportedEvent.Event },
+      { id: '4', cue: 'D', type: SupportedEvent.Event },
+      { id: '5', cue: 'E', type: SupportedEvent.Event },
+      { id: '6', cue: 'A', type: SupportedEvent.Event },
+    ];
+
+    const event = getNextEventWithCue(testRundown as OntimeRundown, 'A', 2);
+    expect(event?.id).toBe('6');
+  });
+  it('handles mixed entry types', () => {
+    const testRundown = [
+      { id: '1', cue: 'A', type: SupportedEvent.Event },
+      { id: '2', cue: 'B', type: SupportedEvent.Event },
+      { id: 'B1', type: SupportedEvent.Block },
+      { id: '3', cue: 'C', type: SupportedEvent.Event },
+      { id: '4', cue: 'D', type: SupportedEvent.Event },
+      { id: 'D1', type: SupportedEvent.Delay },
+      { id: '5', cue: 'E', type: SupportedEvent.Event },
+      { id: '6', cue: 'A', type: SupportedEvent.Event },
+    ];
+
+    const event = getNextEventWithCue(testRundown as OntimeRundown, 'A', 2);
+    expect(event?.id).toBe('6');
+  });
+  it('do not loop around', () => {
+    const testRundown = [
+      { id: '1', cue: 'A', type: SupportedEvent.Event },
+      { id: '2', cue: 'B', type: SupportedEvent.Event },
+      { id: '3', cue: 'C', type: SupportedEvent.Event },
+      { id: '4', cue: 'D', type: SupportedEvent.Event },
+      { id: '5', cue: 'E', type: SupportedEvent.Event },
+      { id: '6', cue: 'F', type: SupportedEvent.Event },
+    ];
+
+    const event = getNextEventWithCue(testRundown as OntimeRundown, 'A', 2);
+    expect(event).toBe(null);
   });
 });

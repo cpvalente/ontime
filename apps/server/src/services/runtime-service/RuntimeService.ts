@@ -1,20 +1,13 @@
-import { EndAction, LogOrigin, OntimeEvent, Playback, TimerLifeCycle } from 'ontime-types';
-import { millisToString, validatePlayback } from 'ontime-utils';
+import { EndAction, LogOrigin, OntimeEvent, Playback, TimerLifeCycle, isOntimeEvent } from 'ontime-types';
+import { getNextEvent, getPreviousEvent, millisToString, validatePlayback, getNextEventWithCue } from 'ontime-utils';
 
 import { TimerService } from '../TimerService.js';
 import { logger } from '../../classes/Logger.js';
 import { RestorePoint } from '../RestoreService.js';
 
 import * as runtimeState from '../../stores/runtimeState.js';
-
-import {
-  findNext,
-  findPrevious,
-  getEventAtIndex,
-  getNextEventWithCue,
-  getEventWithId,
-  getPlayableEvents,
-} from '../rundown-service/rundownUtils.js';
+import * as cache from '../rundown-service/rundownCache.js';
+import { getEventAtIndex, getEventWithId, getPlayableEvents } from '../rundown-service/rundownUtils.js';
 import { integrationService } from '../integration-service/IntegrationService.js';
 import { timerConfig } from '../../config/config.js';
 
@@ -242,7 +235,8 @@ class RuntimeService {
    * @return {boolean} success - whether an event was started
    */
   startByCue(cue: string): boolean {
-    const event = getNextEventWithCue(cue); //TODO: add index
+    const state = runtimeState.getState();
+    const event = getNextEventWithCue(cache.getPersistedRundown(), cue, state.runtime.selectedEventIndex);
     if (!event) {
       return false;
     }
@@ -259,8 +253,8 @@ class RuntimeService {
    * @return {boolean} success - whether an event was loaded
    */
   loadById(eventId: string): boolean {
-    const event = getEventWithId(eventId);
-    if (!event) {
+    const event = cache.get().rundown[eventId];
+    if (!event || !isOntimeEvent(event)) {
       return false;
     }
     return this.loadEvent(event);
@@ -285,7 +279,8 @@ class RuntimeService {
    * @return {boolean} success - whether an event was loaded
    */
   loadByCue(cue: string): boolean {
-    const event = getNextEventWithCue(cue); //TODO: add index
+    const state = runtimeState.getState();
+    const event = getNextEventWithCue(cache.getPersistedRundown(), cue, state.runtime.selectedEventIndex);
     if (!event) {
       return false;
     }
@@ -298,7 +293,7 @@ class RuntimeService {
    */
   loadPrevious(): boolean {
     const state = runtimeState.getState();
-    const previousEvent = findPrevious(state.eventNow?.id);
+    const previousEvent = getPreviousEvent(cache.getPersistedRundown(), state.eventNow?.id).previousEvent;
     if (previousEvent) {
       return this.loadEvent(previousEvent);
     }
@@ -311,7 +306,7 @@ class RuntimeService {
    */
   loadNext(): boolean {
     const state = runtimeState.getState();
-    const nextEvent = findNext(state.eventNow?.id);
+    const nextEvent = getNextEvent(cache.getPersistedRundown(), state.eventNow?.id).nextEvent;
     if (nextEvent) {
       return this.loadEvent(nextEvent);
     }

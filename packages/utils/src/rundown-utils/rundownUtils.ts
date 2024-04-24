@@ -323,3 +323,21 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA:
 
   return { newA, newB };
 };
+
+/**
+ * returns first event after the index that matches a given cue
+ */
+export function getNextEventWithCue(
+  rundown: OntimeRundownEntry[],
+  targetCue: string,
+  currentEventIndex = 0,
+): OntimeEvent | null {
+  const lowerCaseCue = targetCue.toLowerCase();
+  for (let i = currentEventIndex; i < rundown.length; i++) {
+    const entry = rundown.at(i);
+    if (isOntimeEvent(entry) && entry.cue.toLowerCase() === lowerCaseCue) {
+      return entry;
+    }
+  }
+  return null;
+}
