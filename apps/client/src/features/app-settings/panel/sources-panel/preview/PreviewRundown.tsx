@@ -1,5 +1,4 @@
 import { Fragment } from 'react';
-import { Box, HStack } from '@chakra-ui/react';
 import { IoLink } from '@react-icons/all-files/io5/IoLink';
 import { CustomFields, isOntimeBlock, isOntimeEvent, OntimeRundown } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
@@ -85,15 +84,9 @@ export default function PreviewRundown(props: PreviewRundownProps) {
                 </td>
                 <td className={style.nowrap}>{event.cue}</td>
                 <td>{event.title}</td>
-                <td>
-                  {event.linkStart ? (
-                    <HStack>
-                      <Box style={{ opacity: '50%' }}>{millisToString(event.timeStart)}</Box>
-                      <IoLink className={style.linkStartActive} />
-                    </HStack>
-                  ) : (
-                    millisToString(event.timeStart)
-                  )}
+                <td className={style.flex}>
+                  <span className={event.linkStart ? style.subdued : undefined}>{millisToString(event.timeStart)}</span>
+                  {event.linkStart && <IoLink className={style.linkStartActive} />}
                 </td>
                 <td>{millisToString(event.timeEnd)}</td>
                 <td>{millisToString(event.duration)}</td>

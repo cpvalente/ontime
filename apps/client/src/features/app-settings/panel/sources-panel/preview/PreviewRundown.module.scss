@@ -12,6 +12,16 @@ tr .secondaryRow {
 }
 
 .linkStartActive {
-  color: var($active-indicator);
+  color: $active-indicator;
   transform: rotate(-45deg);
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.subdued {
+  opacity: $opacity-disabled;
 }
