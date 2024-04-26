@@ -1401,7 +1401,7 @@ describe('updateRoll()', () => {
 });
 
 describe('getRuntimeOffset()', () => {
-  it('calculates the difference between schedule and actual start', () => {
+  it('is the difference between scheduled and when we actually started', () => {
     const state = {
       eventNow: {
         id: '1',
@@ -1409,7 +1409,7 @@ describe('getRuntimeOffset()', () => {
       },
       timer: {
         startedAt: 150,
-        addedTime: 10,
+        addedTime: 0,
         current: 0,
       },
       _timer: {
@@ -1421,10 +1421,33 @@ describe('getRuntimeOffset()', () => {
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
-    expect(offset).toBe(60);
+    expect(offset).toBe(50);
   });
 
-  it('adds the overtime time of the current timer', () => {
+  it('added time adds time ahead (negative offset)', () => {
+    const state = {
+      eventNow: {
+        id: '1',
+        timeStart: 100,
+      },
+      timer: {
+        startedAt: 150,
+        addedTime: 10,
+        current: 10,
+      },
+      _timer: {
+        pausedAt: null,
+      },
+      runtime: {
+        actualStart: 150,
+      },
+    } as RuntimeState;
+
+    const offset = getRuntimeOffset(state);
+    expect(offset).toBe(40);
+  });
+
+  it('considers running overtime (positive offset)', () => {
     const state = {
       eventNow: {
         id: '1',
@@ -1432,9 +1455,9 @@ describe('getRuntimeOffset()', () => {
         timeEnd: 140,
       },
       timer: {
-        startedAt: 100,
-        current: -10,
-        addedTime: 0,
+        startedAt: 100, // we started ontime
+        current: -10, // we are 10 seconds over
+        addedTime: 0, // we have not compensated with added time
       },
       _timer: {
         pausedAt: null,

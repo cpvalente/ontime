@@ -321,7 +321,7 @@ export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
   const startOffset = startedAt - timeStart;
   const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
 
-  return startOffset + addedTime + pausedTime + overtime;
+  return startOffset - addedTime + pausedTime + overtime;
 }
 
 /**
