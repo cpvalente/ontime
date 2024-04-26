@@ -18,10 +18,10 @@ $block-cursor-color: $orange-400;
 
 @mixin block-styling() {
   box-sizing: content-box;
-  border: 1px solid $white-10;
-  font-family: $ontime-font-family;
+  border: 1px solid $white-7;
   border-radius: $block-border-radius;
-  margin: 0.25rem 0.125rem;
+  margin-block: 0.25rem;
+  margin-right: 0.125rem;
   position: relative;
   color: $block-text-color;
 

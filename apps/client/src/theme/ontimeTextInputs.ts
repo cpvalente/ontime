@@ -32,7 +32,7 @@ export const ontimeInputGhosted = {
     backgroundColor: 'transparent',
     color: '#f6f6f6', // $gray-50
     _hover: {
-      backgroundColor: 'transparent', // $gray-1100
+      backgroundColor: 'transparent',
       border: '1px solid #2B5ABC', // $blue-500
     },
   },
