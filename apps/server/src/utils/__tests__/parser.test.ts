@@ -19,6 +19,8 @@ import { dbModel } from '../../models/dataModel.js';
 import { createEvent, getCustomFieldData, parseExcel, parseJson } from '../parser.js';
 import { makeString } from '../parserUtils.js';
 import { parseRundown, parseUrlPresets, parseViewSettings } from '../parserFunctions.js';
+import { ImportMap } from 'ontime-utils';
+import * as cache from '../../services/rundown-service/rundownCache.js';
 
 describe('test json parser with valid def', () => {
   const testData: Partial<DatabaseModel> = {
@@ -734,6 +736,7 @@ describe('getCustomFieldData()', () => {
     const importMap = {
       worksheet: 'event schedule',
       timeStart: 'time start',
+      linkStart: 'link start',
       timeEnd: 'time end',
       duration: 'duration',
       cue: 'cue',
@@ -751,7 +754,7 @@ describe('getCustomFieldData()', () => {
         sound: 'sound',
         video: 'av',
       },
-    };
+    } as ImportMap;
 
     const result = getCustomFieldData(importMap);
     expect(result.customFields).toStrictEqual({
@@ -1439,5 +1442,70 @@ describe('parseExcel()', () => {
     expect(events.at(0).timeEnd).toEqual(16200000); //<--trailing white space in MAP
     expect(events.at(0).title).toEqual('A song from the hearth'); //<--leading white space in Excel data
     expect(events.at(0).colour).toEqual('#F00'); //<--trailing white space in Excel data
+  });
+
+  it('link start', () => {
+    const testData = [
+      [
+        'Time Start',
+        'Time End',
+        'Title',
+        'End Action',
+        'Public',
+        'Skip',
+        'Notes',
+        'Colour',
+        'cue',
+        'Link Start',
+        'Timer type',
+      ],
+      ['4:30:00', '9:45:00', 'A', 'load-next', '', '', 'Rainbow chase', '#F00', 102, '', 'count-down'],
+      ['9:45:00', '10:56:00', 'C', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, 'x', 'count-down'],
+      ['10:00:00', '16:36:00', 'D', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102, 'x', 'count-down'], //<-- incorrect start times are overridden
+      ['21:45:00', '22:56:00', 'E', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, '', 'count-down'],
+      ['', '', 'BLOCK', '', '', '', '', '', '', '', 'block'],
+      ['00:0:00', '23:56:00', 'G', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, 'x', 'count-down'], //<-- link past blocks
+      [],
+    ];
+
+    const importMap = {
+      worksheet: 'event schedule',
+      timeStart: 'time start',
+      linkStart: 'link start',
+      timeEnd: 'time end',
+      duration: 'duration',
+      cue: 'cue',
+      title: 'title',
+      isPublic: 'public',
+      skip: 'skip',
+      note: 'notes',
+      colour: 'colour',
+      endAction: 'end action',
+      timerType: 'timer type',
+      timeWarning: 'warning time',
+      timeDanger: 'danger time',
+      custom: {},
+    };
+
+    const result = parseExcel(testData, importMap);
+    const rundown = parseRundown(result);
+
+    cache.init(rundown, {});
+    const cachedRundown = cache.get().rundown;
+
+    const events = Object.values(cachedRundown).filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
+
+    expect(events.at(0).timeStart).toEqual(16200000);
+
+    expect(events.at(1).timeStart).toEqual(events.at(0).timeEnd);
+    expect(events.at(1).linkStart).toEqual(events.at(0).id);
+
+    expect(events.at(2).timeStart).toEqual(events.at(1).timeEnd);
+    expect(events.at(2).linkStart).toEqual(events.at(1).id);
+
+    expect(events.at(3).timeStart).toEqual(78300000);
+
+    expect(events.at(4).timeStart).toEqual(events.at(3).timeEnd);
+    expect(events.at(4).linkStart).toEqual(events.at(3).id);
   });
 });
