@@ -293,12 +293,11 @@ export const updateRoll = (state: RuntimeState) => {
 
 /**
  * Calculates difference between the runtime and the schedule of an event
- * Positive offset is a delay
- * Negative offset is time ahead
- * @param state
- * @returns
+ * Positive offset is time ahead
+ * Negative offset is time delayed
  */
 export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
+  // nothing to calculate if there are no loaded events or if we havent started
   if (state.eventNow === null || state.runtime.actualStart === null) {
     return null;
   }
@@ -307,9 +306,10 @@ export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
   const { timeStart, timerType } = state.eventNow;
   const { addedTime, current, startedAt } = state.timer;
 
-  // if we havent started, the offset is the difference to the schedule
+  // if we havent started, but the timer is armed
+  // the offset is the difference to the schedule
   if (startedAt === null) {
-    return clock - timeStart;
+    return timeStart - clock;
   }
 
   const overtime = Math.abs(Math.min(current, 0));
@@ -318,10 +318,14 @@ export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
     return overtime;
   }
 
-  const startOffset = startedAt - timeStart;
+  const startOffset = timeStart - startedAt;
   const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
 
-  return startOffset - addedTime + pausedTime + overtime;
+  // startOffset - difference between scheduled start and actual start
+  // addedTime - time added by user (positive offset)
+  // pausedTime - time the playback was paused (negative offset)
+  // overtime - how long the timer has been over-running (negative offset)
+  return startOffset + addedTime - pausedTime - overtime;
 }
 
 /**
