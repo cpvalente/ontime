@@ -120,7 +120,7 @@ export class SocketServer implements IAdapter {
             if (reply) {
               ws.send(
                 JSON.stringify({
-                  type: 'ontime-change',
+                  type,
                   payload: reply.payload,
                 }),
               );

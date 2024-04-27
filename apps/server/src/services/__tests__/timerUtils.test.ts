@@ -1401,7 +1401,7 @@ describe('updateRoll()', () => {
 });
 
 describe('getRuntimeOffset()', () => {
-  it('calculates the difference between schedule and actual start', () => {
+  it('is the difference between scheduled and when we actually started', () => {
     const state = {
       eventNow: {
         id: '1',
@@ -1409,7 +1409,7 @@ describe('getRuntimeOffset()', () => {
       },
       timer: {
         startedAt: 150,
-        addedTime: 10,
+        addedTime: 0,
         current: 0,
       },
       _timer: {
@@ -1421,10 +1421,33 @@ describe('getRuntimeOffset()', () => {
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
-    expect(offset).toBe(60);
+    expect(offset).toBe(-50);
   });
 
-  it('adds the overtime time of the current timer', () => {
+  it('added time adds time ahead (positive offset)', () => {
+    const state = {
+      eventNow: {
+        id: '1',
+        timeStart: 100,
+      },
+      timer: {
+        startedAt: 150, // we started 50ms delayed
+        addedTime: 10, // we compensated with 10ms
+        current: 10, // we are 10ms into the timer
+      },
+      _timer: {
+        pausedAt: null,
+      },
+      runtime: {
+        actualStart: 150,
+      },
+    } as RuntimeState;
+
+    const offset = getRuntimeOffset(state);
+    expect(offset).toBe(-40);
+  });
+
+  it('considers running overtime (negative offset)', () => {
     const state = {
       eventNow: {
         id: '1',
@@ -1432,9 +1455,9 @@ describe('getRuntimeOffset()', () => {
         timeEnd: 140,
       },
       timer: {
-        startedAt: 100,
-        current: -10,
-        addedTime: 0,
+        startedAt: 100, // we started ontime
+        current: -10, // we are 10 seconds over
+        addedTime: 0, // we have not compensated with added time
       },
       _timer: {
         pausedAt: null,
@@ -1445,10 +1468,10 @@ describe('getRuntimeOffset()', () => {
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
-    expect(offset).toBe(10);
+    expect(offset).toBe(-10);
   });
 
-  it('accounts for paused time', () => {
+  it('paused time is delayed time (negative offset)', () => {
     const state = {
       eventNow: {
         id: '1',
@@ -1457,12 +1480,12 @@ describe('getRuntimeOffset()', () => {
       },
       clock: 150,
       timer: {
-        startedAt: 100,
-        current: 25,
+        startedAt: 100, // started on time
+        current: 25, // are 25ms into it
         addedTime: 0,
       },
       _timer: {
-        pausedAt: 125,
+        pausedAt: 125, // we have been paused for 25ms (see clock)
       },
       runtime: {
         actualStart: 100,
@@ -1470,33 +1493,19 @@ describe('getRuntimeOffset()', () => {
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
-    expect(offset).toBe(25);
+    expect(offset).toBe(-25);
   });
 
-  it('can only count once started', () => {
+  it('offset doesnt exist if we havent started', () => {
     const state = {
       clock: 78480789,
       eventNow: {
         id: 'd6a2ce',
-        type: 'event',
-        title: '',
         timeStart: 77400000,
         timeEnd: 81000000,
         duration: 3600000,
         timeStrategy: 'lock-duration',
         linkStart: null,
-        endAction: 'none',
-        timerType: 'count-down',
-        isPublic: true,
-        skip: false,
-        note: '',
-        colour: '',
-        cue: '1',
-        revision: 0,
-        timeWarning: 120000,
-        timeDanger: 60000,
-        custom: {},
-        delay: 0,
       },
       runtime: {
         selectedEventIndex: 0,
@@ -1530,8 +1539,6 @@ describe('getRuntimeOffset()', () => {
       clock: 79521653,
       eventNow: {
         id: '835242',
-        type: 'event',
-        title: '',
         timeStart: 81000000,
         timeEnd: 84600000,
         duration: 3600000,
@@ -1539,15 +1546,6 @@ describe('getRuntimeOffset()', () => {
         linkStart: null,
         endAction: 'none',
         timerType: 'count-down',
-        isPublic: true,
-        skip: false,
-        note: '',
-        colour: '',
-        cue: '2',
-        revision: 0,
-        timeWarning: 120000,
-        timeDanger: 60000,
-        custom: {},
         delay: 0,
       },
       runtime: {
@@ -1574,10 +1572,10 @@ describe('getRuntimeOffset()', () => {
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
-    expect(offset).toBe(79521653 - 81000000);
+    expect(offset).toBe(81000000 - 79521653); // clock - timestart
   });
 
-  it('handles time-to-end', () => {
+  it('with time-to-end, offsets dont exist if we are not in overtime', () => {
     const state = {
       clock: 80000000, // 22:13:20
       eventNow: {
@@ -1629,7 +1627,7 @@ describe('getRuntimeOffset()', () => {
     expect(offset).toBe(0);
   });
 
-  it('handles time-to-end with delays', () => {
+  it('with time-to-end, offset is the overtime', () => {
     const state = {
       clock: 82000000, // 22:46:40
       eventNow: {
@@ -1686,25 +1684,13 @@ describe('getRuntimeOffset()', () => {
       clock: 82000000, // 22:46:40 <--- starting 16 min after the scheduled end
       eventNow: {
         id: 'd6a2ce',
-        type: 'event',
-        title: '',
         timeStart: 77400000, // 21:30:00
         timeEnd: 81000000, // 22:30:00
         duration: 3600000, // 01:00:00
         timeStrategy: TimeStrategy.LockEnd,
         linkStart: null,
         endAction: EndAction.None,
-        timerType: TimerType.TimeToEnd,
-        isPublic: true,
-        skip: false,
-        note: '',
-        colour: '',
-        cue: '1',
-        revision: 0,
-        timeWarning: 120000,
-        timeDanger: 60000,
-        custom: {},
-        delay: 0,
+        timerType: TimerType.TimeToEnd, // <--- but this is time to end
       },
       runtime: {
         selectedEventIndex: 0,

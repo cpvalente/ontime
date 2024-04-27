@@ -105,17 +105,18 @@ export default function EventEditor() {
               Manage
             </Button>
           </div>
-          {Object.keys(customFields).map((label) => {
-            const key = `${event.id}-${label}`;
-            const fieldName = `custom-${label}`;
-            const initialValue = event.custom[label] ?? '';
-            const { backgroundColor, color } = getAccessibleColour(customFields[label].colour);
+          {Object.keys(customFields).map((fieldKey) => {
+            const key = `${event.id}-${fieldKey}`;
+            const fieldName = `custom-${fieldKey}`;
+            const initialValue = event.custom[fieldKey] ?? '';
+            const { backgroundColor, color } = getAccessibleColour(customFields[fieldKey].colour);
+            const labelText = customFields[fieldKey].label;
 
             return (
               <EventTextArea
                 key={key}
                 field={fieldName}
-                label={label}
+                label={labelText}
                 initialValue={initialValue}
                 submitHandler={handleSubmit}
                 className={style.decorated}

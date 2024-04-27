@@ -6,6 +6,7 @@ export type ImportMap = typeof defaultImportMap & { custom: ImportCustom };
 export const defaultImportMap = {
   worksheet: 'event schedule',
   timeStart: 'time start',
+  linkStart: 'link start',
   timeEnd: 'time end',
   duration: 'duration',
   cue: 'cue',

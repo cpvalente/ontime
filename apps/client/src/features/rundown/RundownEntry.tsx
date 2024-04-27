@@ -4,7 +4,6 @@ import { MaybeNumber, OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
 import { useAppMode } from '../../common/stores/appModeStore';
-import { useEditorSettings } from '../../common/stores/editorSettings';
 import { useEmitLog } from '../../common/stores/logger';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
@@ -61,10 +60,6 @@ export default function RundownEntry(props: RundownEntryProps) {
   const setCursor = useAppMode((state) => state.setCursor);
   const { selectedEvents, clearSelectedEvents } = useEventSelection();
 
-  const eventSettings = useEditorSettings((state) => state.eventSettings);
-  const defaultPublic = eventSettings.defaultPublic;
-  const linkPrevious = eventSettings.linkPrevious;
-
   const removeOpenEvent = useCallback(() => {
     if (selectedEvents.has(data.id)) {
       clearSelectedEvents();
@@ -88,9 +83,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         const newEvent = { type: SupportedEvent.Event };
         const options = {
           after: data.id,
-          defaultPublic,
           lastEventId: previousEventId,
-          linkPrevious,
         };
         return addEvent(newEvent, options);
       }
@@ -98,8 +91,6 @@ export default function RundownEntry(props: RundownEntryProps) {
         const newEvent = { type: SupportedEvent.Event };
         const options = {
           after: previousEventId,
-          defaultPublic,
-          linkPrevious,
         };
         return addEvent(newEvent, options);
       }

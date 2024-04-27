@@ -161,7 +161,7 @@ describe('mutation on runtimeState', () => {
       newState = getState();
       const firstStart = newState.clock;
       expect(newState.runtime.actualStart).toBe(newState.clock);
-      expect(newState.runtime.offset).toBe(newState.clock - event1.timeStart);
+      expect(newState.runtime.offset).toBe(event1.timeStart - newState.clock);
       expect(newState.runtime.expectedEnd).toBe(newState.runtime.offset + event2.timeEnd);
 
       // 3. Next event
@@ -170,7 +170,7 @@ describe('mutation on runtimeState', () => {
       newState = getState();
       expect(newState.runtime.actualStart).toBe(firstStart);
       // we are over-under, the difference between the schedule and the actual start
-      const delayBefore = newState.clock - event2.timeStart;
+      const delayBefore = event2.timeStart - newState.clock;
       expect(newState.runtime.offset).toBe(delayBefore);
       // finish is the difference between the runtime and the schedule
       expect(newState.runtime.expectedEnd).toBe(event2.timeEnd + newState.runtime.offset);
