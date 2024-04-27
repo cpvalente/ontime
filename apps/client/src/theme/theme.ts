@@ -75,6 +75,14 @@ const theme = extendTheme({
         'ontime-ghosted': { ...ontimeInputGhosted },
       },
     },
+    Kbd: {
+      baseStyle: {
+        borderRadius: '2px',
+        border: '1px solid rgba(255, 255, 255, 0.20)',
+        background: 'rgba(255, 255, 255, 0.10)',
+        color: 'white',
+      },
+    },
     Menu: {
       variants: {
         'ontime-on-dark': { ...ontimeMenuOnDark },
