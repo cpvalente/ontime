@@ -259,7 +259,8 @@ export const parseCustomFields = (data: Partial<DatabaseModel>): CustomFields =>
       console.log('ERROR: missing required field, skipping');
       continue;
     }
-    newCustomFields[field.label] = {
+    const key = field.label.toLowerCase();
+    newCustomFields[key] = {
       type: field.type,
       colour: field.colour,
       label: field.label,
