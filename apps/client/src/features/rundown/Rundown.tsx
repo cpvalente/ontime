@@ -9,7 +9,6 @@ import { useEventAction } from '../../common/hooks/useEventAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
-import { useEditorSettings } from '../../common/stores/editorSettings';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
@@ -30,9 +29,6 @@ export default function Rundown({ data }: RundownProps) {
 
   const featureData = useRundownEditor();
   const { addEvent, reorderEvent, deleteEvent } = useEventAction();
-  const eventSettings = useEditorSettings((state) => state.eventSettings);
-  const defaultPublic = eventSettings.defaultPublic;
-  const linkPrevious = eventSettings.linkPrevious;
 
   const { entryCopyId, setEntryCopyId } = useEntryCopy();
 
@@ -81,16 +77,14 @@ export default function Rundown({ data }: RundownProps) {
         };
         const options = {
           after: adjustedCursor,
-          defaultPublic,
           lastEventId: adjustedCursor,
-          linkPrevious,
         };
         addEvent(newEvent, options);
       } else {
         addEvent({ type }, { after: adjustedCursor });
       }
     },
-    [rundown, order, addEvent, defaultPublic, linkPrevious],
+    [rundown, order, addEvent],
   );
 
   const selectEntry = useCallback(
