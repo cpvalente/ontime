@@ -1,27 +1,15 @@
-import { OntimeEvent, Playback, RuntimeStore } from 'ontime-types';
+import { OntimeEvent } from 'ontime-types';
 
-import { deepEqual } from 'fast-equals';
-
-import { eventStore } from '../stores/EventStore.js';
 import * as runtimeState from '../stores/runtimeState.js';
-import type { RuntimeState, UpdateResult } from '../stores/runtimeState.js';
-
-import { restoreService } from './RestoreService.js';
+import type { UpdateResult } from '../stores/runtimeState.js';
 
 /**
  * Service manages Ontime's main timer
- * It is responsible for streaming the data to the event store
  */
 export class TimerService {
   private readonly _interval: NodeJS.Timer;
-  /** how often we update the socket */
-  static _updateInterval: number;
   /** how often we recalculate */
   static _refreshInterval: number;
-  /** last time we updated the socket */
-  static previousUpdate: number;
-  /** last known state */
-  static previousState: RuntimeState;
 
   /** when timer will be finished */
   private endCallback: NodeJS.Timer;
@@ -39,10 +27,6 @@ export class TimerService {
     updateInterval: number;
     onUpdateCallback: (updateResult: UpdateResult) => void;
   }) {
-    TimerService.previousUpdate = -1;
-    TimerService.previousState = {} as RuntimeState;
-
-    TimerService._updateInterval = timerConfig.updateInterval;
     TimerService._refreshInterval = timerConfig.refresh;
 
     this.onUpdateCallback = timerConfig.onUpdateCallback;
@@ -51,7 +35,6 @@ export class TimerService {
     }, TimerService._refreshInterval);
   }
 
-  @broadcastResult
   start() {
     if (!runtimeState.start()) {
       return false;
@@ -63,7 +46,6 @@ export class TimerService {
     return true;
   }
 
-  @broadcastResult
   pause() {
     if (!runtimeState.pause()) {
       return false;
@@ -74,7 +56,6 @@ export class TimerService {
     return true;
   }
 
-  @broadcastResult
   stop() {
     if (!runtimeState.stop()) {
       return false;
@@ -89,7 +70,6 @@ export class TimerService {
    * Adds time to running timer by given amount
    * @param {number} amount
    */
-  @broadcastResult
   addTime(amount: number): boolean {
     if (!runtimeState.addTime(amount)) {
       return false;
@@ -105,7 +85,6 @@ export class TimerService {
   /**
    * Update the app at regular intervals
    */
-  @broadcastResult
   update() {
     const updateResult = runtimeState.update();
     // pass the result to the parent
@@ -116,7 +95,6 @@ export class TimerService {
    * Loads roll information into timer service
    * @param {OntimeEvent[]} rundown -- list of events to run
    */
-  @broadcastResult
   roll(rundown: OntimeEvent[]) {
     runtimeState.roll(rundown);
   }
@@ -125,100 +103,4 @@ export class TimerService {
     clearInterval(this._interval);
     clearTimeout(this.endCallback);
   }
-}
-
-function broadcastResult(_target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
-  const originalMethod = descriptor.value;
-
-  descriptor.value = function (...args: any[]) {
-    // call the original method and get the state
-    const result = originalMethod.apply(this, args);
-    const state = runtimeState.getState();
-
-    // we do the comparison by explicitly for each property
-    // to apply custom logic for different datasets
-
-    // some of the data, we only update at intervals
-    const isTimeToUpdate =
-      state.clock < TimerService.previousUpdate ||
-      state.clock - TimerService.previousUpdate >= TimerService._updateInterval;
-
-    // some changes need an immediate update
-    const hasNewLoaded = state.eventNow?.id !== TimerService.previousState?.eventNow?.id;
-
-    const hasSkippedBack = state.clock < TimerService.previousUpdate;
-    const justStarted = !TimerService.previousState?.timer;
-    const hasChangedPlayback = TimerService.previousState.timer?.playback !== state.timer.playback;
-    const hasImmediateChanges = hasNewLoaded || hasSkippedBack || justStarted || hasChangedPlayback;
-
-    if (hasChangedPlayback) {
-      eventStore.set('onAir', state.timer.playback !== Playback.Stop);
-    }
-
-    if (hasImmediateChanges || (isTimeToUpdate && !deepEqual(TimerService.previousState?.timer, state.timer))) {
-      eventStore.set('timer', state.timer);
-      TimerService.previousState.timer = { ...state.timer };
-    }
-
-    if (hasChangedPlayback || (isTimeToUpdate && !deepEqual(TimerService.previousState?.runtime, state.runtime))) {
-      eventStore.set('runtime', state.runtime);
-      TimerService.previousState.runtime = { ...state.runtime };
-    }
-
-    // Update the events if they have changed
-    updateEventIfChanged('eventNow', state);
-    updateEventIfChanged('publicEventNow', state);
-    updateEventIfChanged('eventNext', state);
-    updateEventIfChanged('publicEventNext', state);
-
-    if (isTimeToUpdate) {
-      TimerService.previousUpdate = state.clock;
-      eventStore.set('clock', state.clock);
-      saveRestoreState(state);
-    }
-
-    // Helper function to update an event if it has changed
-    function updateEventIfChanged(eventKey: keyof RuntimeStore, state: RuntimeState) {
-      const previous = TimerService.previousState?.[eventKey];
-      const now = state[eventKey];
-
-      // if there was nothing, and there is nothing, noop
-      if (!previous?.id && !now?.id) {
-        return;
-      }
-
-      // if load status changed, save new
-      if (previous?.id !== now?.id) {
-        storeKey(eventKey);
-        return;
-      }
-
-      // maybe the event itself has changed
-      if (!deepEqual(TimerService.previousState?.[eventKey], state[eventKey])) {
-        storeKey(eventKey);
-        return;
-      }
-
-      function storeKey(eventKey: keyof RuntimeStore) {
-        eventStore.set(eventKey, state[eventKey]);
-        TimerService.previousState[eventKey] = { ...state[eventKey] };
-      }
-    }
-
-    // Helper function to save the restore state
-    function saveRestoreState(state: RuntimeState) {
-      restoreService.save({
-        playback: state.timer.playback,
-        selectedEventId: state.eventNow?.id ?? null,
-        startedAt: state.timer.startedAt,
-        addedTime: state.timer.addedTime,
-        pausedAt: state._timer.pausedAt,
-        firstStart: state.runtime.actualStart,
-      });
-    }
-
-    return result;
-  };
-
-  return descriptor;
 }
