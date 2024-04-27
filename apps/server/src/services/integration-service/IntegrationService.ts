@@ -1,7 +1,7 @@
 import { LogOrigin } from 'ontime-types';
 
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
-import { eventStore } from '../../stores/EventStore.js';
+import { getState } from '../../stores/runtimeState.js';
 import { logger } from '../../classes/Logger.js';
 
 class IntegrationService {
@@ -20,7 +20,14 @@ class IntegrationService {
   }
 
   dispatch(action: TimerLifeCycleKey) {
-    const state = eventStore.poll();
+    /**
+     * We currently get the state from the runtimeState store
+     * This solves an issue where the state is not updated until after the integrations have ran
+     * The workaround solves the issue with the tradeoff of
+     * - we do not have access to data outside runtimeState (eg: messages or auxtimers)
+     * - we couple the integrationService to runtimeState
+     */
+    const state = getState();
     this.integrations.forEach((integration) => {
       integration.dispatch(action, state);
     });
