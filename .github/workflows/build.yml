@@ -1,9 +1,8 @@
-name: Ontime build v3
+name: Ontime build
 
 on:
-# Only trigger manually for now for testing
-#   push:
-#     tags: [ "*" ]
+  push:
+    tags: [ "*" ]
   workflow_dispatch:
 
 jobs:
