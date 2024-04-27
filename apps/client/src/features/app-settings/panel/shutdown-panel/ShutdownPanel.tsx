@@ -20,6 +20,7 @@ export default function ShutdownPanel() {
 
   const sendShutdown = () => {
     sendToElectron('shutdown', 'now');
+    onClose();
   };
 
   return (
@@ -30,10 +31,10 @@ export default function ShutdownPanel() {
           This will shutdown the Ontime server. <br />
           The runtime state will be lost, but your project is kept for next time.
         </Panel.Paragraph>
-        <Button colorScheme='red' onClick={onOpen} isDisabled={!isElectron}>
+        <Button colorScheme='red' onClick={onOpen} maxWidth='350px' isDisabled={!isElectron}>
           Shutdown ontime
         </Button>
-        <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
+        <AlertDialog variant='ontime' isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
           <AlertDialogOverlay>
             <AlertDialogContent>
               <AlertDialogHeader fontSize='lg' fontWeight='bold'>
@@ -43,10 +44,10 @@ export default function ShutdownPanel() {
                 This will shutdown the Ontime server. <br /> Are you sure?
               </AlertDialogBody>
               <AlertDialogFooter>
-                <Button ref={cancelRef} onClick={onClose} variant='ghost'>
+                <Button ref={cancelRef} onClick={onClose} variant='ontime-ghosted-white'>
                   Cancel
                 </Button>
-                <Button colorScheme='red' onClick={sendShutdown}>
+                <Button colorScheme='red' onClick={sendShutdown} ml={4}>
                   Shutdown
                 </Button>
               </AlertDialogFooter>

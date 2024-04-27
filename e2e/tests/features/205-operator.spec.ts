@@ -5,6 +5,7 @@ test('smoke test operator', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
   await page.getByRole('button', { name: 'Edit' }).click();
   await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Delete all' }).click();
   await page.getByRole('button', { name: 'Create Event' }).click();
 
   await page.getByTestId('time-input-timeStart').fill('1m');
