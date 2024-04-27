@@ -1,7 +1,15 @@
-import type { OntimeEvent, OntimeRundown } from 'ontime-types';
+import type { NormalisedRundown, OntimeEvent, OntimeRundown } from 'ontime-types';
 import { SupportedEvent } from 'ontime-types';
 
-import { getLastEvent, getNext, getNextEvent, getPrevious, getPreviousEvent, swapEventData } from './rundownUtils';
+import {
+  getLastEvent,
+  getLastNormal,
+  getNext,
+  getNextEvent,
+  getPrevious,
+  getPreviousEvent,
+  swapEventData,
+} from './rundownUtils';
 
 describe('getNext()', () => {
   it('returns the next event of type event', () => {
@@ -85,9 +93,9 @@ describe('getPrevious()', () => {
       { id: '3', type: SupportedEvent.Event },
     ];
 
-    const { previousEvent, previousIndex } = getPrevious(testRundown as OntimeRundown, '3');
-    expect(previousEvent?.id).toBe('2');
-    expect(previousIndex).toBe(1);
+    const { entry, index } = getPrevious(testRundown as OntimeRundown, '3');
+    expect(entry?.id).toBe('2');
+    expect(index).toBe(1);
   });
   it('allow other event types', () => {
     const testRundown = [
@@ -97,9 +105,9 @@ describe('getPrevious()', () => {
       { id: '4', type: SupportedEvent.Event },
     ];
 
-    const { previousEvent, previousIndex } = getPrevious(testRundown as OntimeRundown, '3');
-    expect(previousEvent?.id).toBe('2');
-    expect(previousIndex).toBe(1);
+    const { entry, index } = getPrevious(testRundown as OntimeRundown, '3');
+    expect(entry?.id).toBe('2');
+    expect(index).toBe(1);
   });
   it('returns null if none found', () => {
     const testRundown = [
@@ -108,9 +116,9 @@ describe('getPrevious()', () => {
       { id: '4', type: SupportedEvent.Event },
     ];
 
-    const { previousEvent, previousIndex } = getPrevious(testRundown as OntimeRundown, '2');
-    expect(previousEvent).toBe(null);
-    expect(previousIndex).toBe(null);
+    const { entry, index } = getPrevious(testRundown as OntimeRundown, '2');
+    expect(entry).toBe(null);
+    expect(index).toBe(null);
   });
 });
 
@@ -208,5 +216,50 @@ describe('getLastEvent', () => {
 
     const { lastEvent } = getLastEvent(testRundown as OntimeRundown);
     expect(lastEvent?.id).toBe('1');
+  });
+
+  describe('getLastNormal', () => {
+    it('returns the last entry', () => {
+      const testRundown = {
+        4: { id: '4', type: SupportedEvent.Block },
+        1: { id: '1', type: SupportedEvent.Event },
+        3: { id: '3', type: SupportedEvent.Event },
+        2: { id: '2', type: SupportedEvent.Delay },
+      };
+
+      const order = ['1', '2', '3', '4'];
+
+      const lastEntry = getLastNormal(testRundown as unknown as NormalisedRundown, order);
+      expect(lastEntry?.id).toBe('4');
+    });
+    it('handles rundowns with a single event', () => {
+      const testRundown = [{ id: '1', type: SupportedEvent.Event }];
+
+      const { lastEvent } = getLastEvent(testRundown as OntimeRundown);
+      expect(lastEvent?.id).toBe('1');
+    });
+
+    it('handles empty order', () => {
+      const testRundown = {
+        4: { id: '4', type: SupportedEvent.Block },
+        1: { id: '1', type: SupportedEvent.Event },
+        3: { id: '3', type: SupportedEvent.Event },
+        2: { id: '2', type: SupportedEvent.Delay },
+      };
+
+      const order: string[] = [];
+
+      const lastEntry = getLastNormal(testRundown as unknown as NormalisedRundown, order);
+      expect(lastEntry).toBe(null);
+    });
+
+    it('handles empty rundown', () => {
+      const testRundown = {};
+
+      const order = ['1', '2', '3', '4'];
+
+      const lastEntry = getLastNormal(testRundown as unknown as NormalisedRundown, order);
+      expect(lastEntry).toBe(null);
+    });
   });
 });

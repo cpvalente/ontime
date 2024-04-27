@@ -13,6 +13,7 @@ import { useEventSelection } from '../useEventSelection';
 import EventEditorTimes from './composite/EventEditorTimes';
 import EventEditorTitles from './composite/EventEditorTitles';
 import EventTextArea from './composite/EventTextArea';
+import EventEditorEmpty from './EventEditorEmpty';
 
 import style from './EventEditor.module.scss';
 
@@ -67,11 +68,7 @@ export default function EventEditor() {
   };
 
   if (!event) {
-    return (
-      <div className={style.eventEditor} data-testid='editor-container'>
-        Select an event to edit
-      </div>
-    );
+    return <EventEditorEmpty />;
   }
 
   return (

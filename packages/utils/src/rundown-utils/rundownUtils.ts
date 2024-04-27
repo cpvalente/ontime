@@ -1,6 +1,8 @@
 import type { NormalisedRundown, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
 import { isOntimeEvent } from 'ontime-types';
 
+type IndexAndEntry = { entry: OntimeRundownEntry | null; index: number | null };
+
 /**
  * Gets first event in rundown, if it exists
  * @param {OntimeRundownEntry[]} rundown
@@ -60,6 +62,20 @@ export function getFirstEventNormal(
     }
   }
   return { firstEvent: null, firstIndex: null };
+}
+
+/**
+ * Gets last event in a normalised rundown, if it exists
+ * @param rundown
+ * @param order
+ * @returns
+ */
+export function getLastNormal(rundown: NormalisedRundown, order: string[]): OntimeRundownEntry | null {
+  const lastId = order.at(-1);
+  if (lastId === undefined) {
+    return null;
+  }
+  return rundown[lastId] ?? null;
 }
 
 /**
@@ -138,19 +154,15 @@ export function getNext(
  * @param currentId
  * @returns
  */
-export function getNextNormal(
-  rundown: NormalisedRundown,
-  order: string[],
-  currentId: string,
-): { nextEvent: OntimeRundownEntry | null; nextIndex: number | null } {
-  const index = order.findIndex((id) => id === currentId);
-  if (index !== -1 && index + 1 < order.length) {
-    const nextIndex = index + 1;
-    const nextId = order[nextIndex];
-    const nextEvent = rundown[nextId];
-    return { nextEvent, nextIndex };
+export function getNextNormal(rundown: NormalisedRundown, order: string[], currentId: string): IndexAndEntry {
+  const currentIndex = order.findIndex((id) => id === currentId);
+  if (currentIndex !== -1 && currentIndex + 1 < order.length) {
+    const index = currentIndex + 1;
+    const nextId = order[index];
+    const entry = rundown[nextId];
+    return { entry, index };
   } else {
-    return { nextEvent: null, nextIndex: null };
+    return { entry: null, index: null };
   }
 }
 
@@ -209,19 +221,15 @@ export function getNextEventNormal(
  * Gets previous entry in rundown, if it exists
  * @param {OntimeRundownEntry[]} rundown
  * @param {string} currentId
- * @return {{ previousEvent: OntimeRundownEntry | null; previousIndex: number | null } }
  */
-export function getPrevious(
-  rundown: OntimeRundownEntry[],
-  currentId: string,
-): { previousEvent: OntimeRundownEntry | null; previousIndex: number | null } {
-  const index = rundown.findIndex((event) => event.id === currentId);
-  if (index !== -1 && index - 1 >= 0) {
-    const previousIndex = index - 1;
-    const previousEvent = rundown[previousIndex];
-    return { previousEvent, previousIndex };
+export function getPrevious(rundown: OntimeRundownEntry[], currentId: string): IndexAndEntry {
+  const currentIndex = rundown.findIndex((event) => event.id === currentId);
+  if (currentIndex !== -1 && currentIndex - 1 >= 0) {
+    const index = currentIndex - 1;
+    const entry = rundown[index];
+    return { entry, index };
   } else {
-    return { previousEvent: null, previousIndex: null };
+    return { entry: null, index: null };
   }
 }
 
@@ -230,21 +238,16 @@ export function getPrevious(
  * @param rundown
  * @param order
  * @param {string} currentId
- * @return {{ previousEvent: OntimeRundownEntry | null; previousIndex: number | null } }
  */
-export function getPreviousNormal(
-  rundown: NormalisedRundown,
-  order: string[],
-  currentId: string,
-): { previousEvent: OntimeRundownEntry | null; previousIndex: number | null } {
-  const index = order.findIndex((id) => id === currentId);
-  if (index !== -1 && index - 1 >= 0) {
-    const previousIndex = index - 1;
-    const previousId = order[previousIndex];
-    const previousEvent = rundown[previousId];
-    return { previousEvent, previousIndex };
+export function getPreviousNormal(rundown: NormalisedRundown, order: string[], currentId: string): IndexAndEntry {
+  const currentIndex = order.findIndex((id) => id === currentId);
+  if (currentIndex !== -1 && currentIndex - 1 >= 0) {
+    const index = currentIndex - 1;
+    const previousId = order[index];
+    const entry = rundown[previousId];
+    return { entry, index };
   } else {
-    return { previousEvent: null, previousIndex: null };
+    return { entry: null, index: null };
   }
 }
 
