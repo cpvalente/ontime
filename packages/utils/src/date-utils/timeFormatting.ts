@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon';
 import type { MaybeNumber } from 'ontime-types';
 
 import { millisToHours, millisToMinutes, millisToSeconds } from './conversionUtils.js';
@@ -71,11 +70,60 @@ export function removeSeconds(timer: string): string {
 }
 
 /**
- * @description utility function to format a date in milliseconds using luxon
- * @param {number} millis
- * @param {string} format
- * @return {string}
+ * Formats a given date into a custom string format based on UTC time.
+ * 
+ * @param millis - The number of milliseconds.
+ * @param format - A string specifying the desired output format, with placeholders for year ('yyyy'), month ('MM'),
+ *                 day ('dd'), hour ('HH'), minute ('mm'), and second ('ss'). 
+ *                 For example, 'yyyy-MM-dd HH:mm:ss' will format the date as '2024-01-23 09:41:08'.
+ * 
+ * @returns The formatted date as a string according to the provided `format` string.
+ * 
+ * @throws Will throw an error if the date formatting fails or the regex match returns null, which should not happen
+ *         if the `Intl.DateTimeFormat` is correctly configured and the input `millis` is valid.
+ * 
+ * @throws Will throw an error if the input @param millis is smaller than zero.
  */
 export function formatFromMillis(millis: number, format: string): string {
-  return DateTime.fromMillis(millis).toUTC().toFormat(format);
+  if (millis < 0) {
+    throw new Error("Input `millis` can't be smaller than zero.");
+  }
+
+  const date: Date = new Date(millis);
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    hourCycle: 'h23',  // ensures hour is always two digits (00-23)
+    timeZone: 'UTC'
+  };
+
+  const formattedDate: string = date.toLocaleString('en-US', options);
+  
+  // Extract date and time components.
+  const match = formattedDate.match(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}):(\d{2}):(\d{2})/);
+  
+  if (!match) {
+    throw new Error("Date format mismatch or null result from regex match.");
+  }
+
+  const [_, month, day, year, hour, minute, second] = match;
+
+  const replacements: Record<string, string> = {
+    'yyyy': year,
+    'MM': month,
+    'dd': day,
+    'HH': hour,
+    'mm': minute,
+    'ss': second
+  };
+
+  // Replace each token in the format string with the corresponding date part.
+  return Object.keys(replacements).reduce(
+    (result: string, token: string) => result.replace(new RegExp(token, 'g'), replacements[token]), format
+  );
 }
