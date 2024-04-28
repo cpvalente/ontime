@@ -148,7 +148,7 @@ function getApplicationMenu(isMac, askToQuit, urlBase) {
       ],
     },
     {
-      role: 'elp',
+      role: 'help',
       submenu: [
         {
           label: 'See on github',
