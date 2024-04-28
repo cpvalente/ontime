@@ -68,6 +68,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.10.6
         version: 11.10.6(@emotion/react@11.10.6)(@types/react@18.0.26)(react@18.2.0)
+      '@fontsource/open-sans':
+        specifier: ^5.0.28
+        version: 5.0.28
       '@mantine/hooks':
         specifier: ^7.6.2
         version: 7.6.2(react@18.2.0)
@@ -122,9 +125,6 @@ importers:
       react-router-dom:
         specifier: ^6.3.0
         version: 6.6.2(react-dom@18.2.0)(react@18.2.0)
-      typeface-open-sans:
-        specifier: ^1.1.13
-        version: 1.1.13
       web-vitals:
         specifier: ^3.1.1
         version: 3.1.1
@@ -2320,6 +2320,10 @@ packages:
     resolution: {integrity: sha512-Kn7K8dx/5U6+cT1yEhpX1w4PCSg0M+XyRILPgvwcEBjerFWCwQj5sbr3/VmxqV0JGHCBCzyd6LxypEuehypY1w==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
+
+  /@fontsource/open-sans@5.0.28:
+    resolution: {integrity: sha512-hBvJHY76pJT/JynGUB5EXWhnzjYfLdcMn655J5p1v9lTT9HdQSy+keq2KPVXO2Htlg998BBa3p6u/jlrZ6w0kg==}
+    dev: false
 
   /@googleapis/sheets@5.0.5:
     resolution: {integrity: sha512-XMoONmgAJm2jYeTYHX4054VcEkElxlgqmnHvt0wAurzEHoGJLdUHhTAJXGPLgSs4WVMPtgU8HLrmk7/U+Qlw7A==}
@@ -9051,10 +9055,6 @@ packages:
 
   /typedarray@0.0.6:
     resolution: {integrity: sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==}
-    dev: false
-
-  /typeface-open-sans@1.1.13:
-    resolution: {integrity: sha512-lVGVHvYl7UJDFB9vN8r7NHw3sVm7Rjeow6b9AeABc/J+2mDaCkmcdVtw3QZnsJW39P+xm5zeggIj9gLHYGn9Iw==}
     dev: false
 
   /typescript@4.9.5:

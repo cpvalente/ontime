@@ -10,6 +10,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@fontsource/open-sans": "^5.0.28",
     "@mantine/hooks": "^7.6.2",
     "@react-icons/all-files": "^4.1.0",
     "@sentry/react": "^7.92.0",
@@ -28,7 +29,6 @@
     "react-hook-form": "^7.49.2",
     "react-qr-code": "^2.0.12",
     "react-router-dom": "^6.3.0",
-    "typeface-open-sans": "^1.1.13",
     "web-vitals": "^3.1.1",
     "zustand": "^4.5.0"
   },
