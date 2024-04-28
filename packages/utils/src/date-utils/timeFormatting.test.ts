@@ -70,6 +70,83 @@ describe('formatFromMillis()', () => {
     expect(formatFromMillis(millis, format)).toBe(expectedResult);
   });
 
+  it('milliseconds', () => {
+    const millis = 76211123; // Jan 1, 1970 21:10:11.123 UTC
+    const format = 'S';
+    const expectedResult = '123';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('seconds (no padding)', () => {
+    const millis = 76211123;
+    const format = 's';
+    const expectedResult = '11';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('seconds (padding)', () => {
+    const millis = 76211123;
+    const format = 'ss';
+    const expectedResult = '11';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('minute (no padding)', () => {
+    const millis = 76211123;
+    const format = 'm';
+    const expectedResult = '10';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('minute (padding)', () => {
+    const millis = 76211123;
+    const format = 'mm';
+    const expectedResult = '10';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('hour - 12 (no padding)', () => {
+    const millis = 76211123;
+    const format = 'h';
+    const expectedResult = '9';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('hour - 12 (padding)', () => {
+    const millis = 76211123;
+    const format = 'hh';
+    const expectedResult = '09';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('hour - 24 (no padding)', () => {
+    const millis = 76211123;
+    const format = 'H';
+    const expectedResult = '21';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('hour - 24 (padding)', () => {
+    const millis = 76211123;
+    const format = 'HH';
+    const expectedResult = '21';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('formatted time HH:mm:ss', () => {
+    const millis = 76211123;
+    const format = 'HH:mm:ss';
+    const expectedResult = '21:10:11';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('formatted time hh:mm a', () => {
+    const millis = 76211123;
+    const format = 'hh:mm a';
+    const expectedResult = '09:10 PM';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
   it('should throw an error if the date formatting does not match the expected regex', () => {
     const mockDate = vi.spyOn(Date.prototype, 'toLocaleString').mockImplementation(() => '01/23/24, 12:34:56');
 

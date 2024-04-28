@@ -73,8 +73,7 @@ export function removeSeconds(timer: string): string {
  * Formats a given date into a custom string format based on UTC time.
  * 
  * @param millis - The number of milliseconds.
- * @param format - A string specifying the desired output format, with placeholders for year ('yyyy'), month ('MM'),
- *                 day ('dd'), hour ('HH'), minute ('mm'), and second ('ss'). 
+ * @param format - A string specifying the desired output format. 
  *                 For example, 'yyyy-MM-dd HH:mm:ss' will format the date as '2024-01-23 09:41:08'.
  * 
  * @returns The formatted date as a string according to the provided `format` string.
@@ -91,39 +90,60 @@ export function formatFromMillis(millis: number, format: string): string {
 
   const date: Date = new Date(millis);
   const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false,
-    hourCycle: 'h23',  // ensures hour is always two digits (00-23)
-    timeZone: 'UTC'
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+      hourCycle: 'h23', // Ensures the hour is always two digits
+      timeZone: 'UTC'
   };
 
   const formattedDate: string = date.toLocaleString('en-US', options);
-  
+  const milliseconds: string = date.getUTCMilliseconds().toString().padStart(3, '0');
+
   // Extract date and time components.
   const match = formattedDate.match(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}):(\d{2}):(\d{2})/);
-  
   if (!match) {
-    throw new Error("Date format mismatch or null result from regex match.");
+      throw new Error("Date format mismatch or null result from regex match.");
   }
 
-  const [_, month, day, year, hour, minute, second] = match;
+  const [_, month, day, year, hour24, minute, second] = match;
+
+  // Calculate the 12-hour format by adjusting the 24-hour time.
+  const hour12 = ((parseInt(hour24) + 11) % 12 + 1);
 
   const replacements: Record<string, string> = {
-    'yyyy': year,
-    'MM': month,
-    'dd': day,
-    'HH': hour,
-    'mm': minute,
-    'ss': second
+      'yyyy': year,
+      'MM': month,
+      'dd': day,
+      'HH': hour24,
+      'mm': minute,
+      'ss': second,
+      'S': milliseconds,
+      'h': hour12.toString(), // Non-padded 12-hour format
+      'hh': hour12.toString().padStart(2, '0'), // Padded 12-hour format
+      'H': parseInt(hour24).toString(), // Non-padded 24-hour format
+      's': second,
+      'm': minute,
+      'a': parseInt(hour24) >= 12 ? 'PM' : 'AM'
   };
 
-  // Replace each token in the format string with the corresponding date part.
-  return Object.keys(replacements).reduce(
-    (result: string, token: string) => result.replace(new RegExp(token, 'g'), replacements[token]), format
-  );
+  return applyReplacements(format, replacements);
+}
+
+/**
+ * Applies replacements to a template string based on a dictionary of tokens and their corresponding values.
+ *
+ * @param {string} template - The format template string containing tokens to be replaced.
+ * @param {Record<string, string>} replacements - A record of tokens and their corresponding values.
+ * @returns {string} The formatted string with all tokens replaced by their values.
+ */
+function applyReplacements(template: string, replacements: Record<string, string>) {
+  return Object.keys(replacements).reduce((result, token) => {
+      const regex = new RegExp(`\\b${token}\\b`, 'g');
+      return result.replace(regex, replacements[token]);
+  }, template);
 }
