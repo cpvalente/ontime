@@ -13,10 +13,6 @@ import theme from './theme/theme';
 import { TranslationProvider } from './translation/TranslationProvider';
 import AppRouter from './AppRouter';
 
-// Load Open Sans typeface
-// @ts-expect-error no types from font import
-import('typeface-open-sans');
-
 const preferredClientName = socketClientName.getState().name;
 connectSocket(preferredClientName);
 
