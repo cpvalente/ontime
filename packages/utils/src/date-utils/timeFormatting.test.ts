@@ -63,13 +63,6 @@ describe('removeLeadingZero()', () => {
 });
 
 describe('formatFromMillis()', () => {
-  it('formats milliseconds to the specified format', () => {
-    const millis = 1620072000000; // May 3, 2021 20:00:00 UTC
-    const format = 'yyyy/MM/dd HH:mm:ss';
-    const expectedResult = '2021/05/03 20:00:00';
-    expect(formatFromMillis(millis, format)).toBe(expectedResult);
-  });
-
   it('milliseconds', () => {
     const millis = 76211123; // Jan 1, 1970 21:10:11.123 UTC
     const format = 'S';
@@ -147,11 +140,80 @@ describe('formatFromMillis()', () => {
     expect(formatFromMillis(millis, format)).toBe(expectedResult);
   });
 
-  it('should throw an error if the date formatting does not match the expected regex', () => {
-    const mockDate = vi.spyOn(Date.prototype, 'toLocaleString').mockImplementation(() => '01/23/24, 12:34:56');
+  it('milliseconds', () => {
+    const millis = 29167345; // 08:06:08.345
+    const format = 'S';
+    const expectedResult = '345';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
 
-    expect(() => formatFromMillis(Date.now(), 'yyyy-MM-dd HH:mm:ss')).toThrow('Date format mismatch or null result from regex match.');
+  it('seconds (no padding)', () => {
+    const millis = 29167345;
+    const format = 's';
+    const expectedResult = '7';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
 
-    mockDate.mockRestore();
+  it('seconds (padding)', () => {
+    const millis = 29167345;
+    const format = 'ss';
+    const expectedResult = '07';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('minute (no padding)', () => {
+    const millis = 29167345;
+    const format = 'm';
+    const expectedResult = '6';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('minute (padding)', () => {
+    const millis = 29167345;
+    const format = 'mm';
+    const expectedResult = '06';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('hour - 12 (no padding)', () => {
+    const millis = 29167345;
+    const format = 'h';
+    const expectedResult = '8';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('hour - 12 (padding)', () => {
+    const millis = 29167345;
+    const format = 'hh';
+    const expectedResult = '08';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('hour - 24 (no padding)', () => {
+    const millis = 29167345;
+    const format = 'H';
+    const expectedResult = '8';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('hour - 24 (padding)', () => {
+    const millis = 29167345;
+    const format = 'HH';
+    const expectedResult = '08';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('formatted time HH:mm:ss', () => {
+    const millis = 29167345;
+    const format = 'HH:mm:ss';
+    const expectedResult = '08:06:07';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('formatted time hh:mm a', () => {
+    const millis = 29167345;
+    const format = 'hh:mm a';
+    const expectedResult = '08:06 AM';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
   });
 });

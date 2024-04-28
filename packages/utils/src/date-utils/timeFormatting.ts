@@ -74,61 +74,41 @@ export function removeSeconds(timer: string): string {
  * 
  * @param millis - The number of milliseconds.
  * @param format - A string specifying the desired output format. 
- *                 For example, 'yyyy-MM-dd HH:mm:ss' will format the date as '2024-01-23 09:41:08'.
+ *                 For example, 'ss' will format the millis as '07' seconds.
  * 
  * @returns The formatted date as a string according to the provided `format` string.
+ *          If input `millis` is smaller than zero, it returns undefined.
  * 
- * @throws Will throw an error if the date formatting fails or the regex match returns null, which should not happen
- *         if the `Intl.DateTimeFormat` is correctly configured and the input `millis` is valid.
- * 
- * @throws Will throw an error if the input @param millis is smaller than zero.
  */
-export function formatFromMillis(millis: number, format: string): string {
+export function formatFromMillis(millis: number, format: string): string | undefined {
   if (millis < 0) {
-    throw new Error("Input `millis` can't be smaller than zero.");
+    return undefined;
   }
 
   const date: Date = new Date(millis);
-  const options: Intl.DateTimeFormatOptions = {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-      hourCycle: 'h23', // Ensures the hour is always two digits
-      timeZone: 'UTC'
-  };
 
-  const formattedDate: string = date.toLocaleString('en-US', options);
-  const milliseconds: string = date.getUTCMilliseconds().toString().padStart(3, '0');
-
-  // Extract date and time components.
-  const match = formattedDate.match(/(\d{2})\/(\d{2})\/(\d{4}), (\d{2}):(\d{2}):(\d{2})/);
-  if (!match) {
-      throw new Error("Date format mismatch or null result from regex match.");
-  }
-
-  const [_, month, day, year, hour24, minute, second] = match;
-
-  // Calculate the 12-hour format by adjusting the 24-hour time.
-  const hour12 = ((parseInt(hour24) + 11) % 12 + 1);
+  const hour24Padded = date.getUTCHours().toString().padStart(2, '0');
+  const hour24 = date.getUTCHours().toString();
+  const minutePadded = date.getUTCMinutes().toString().padStart(2, '0');
+  const minute = date.getUTCMinutes().toString();
+  const secondPadded = date.getUTCSeconds().toString().padStart(2, '0');
+  const second = date.getUTCSeconds().toString();
+  const milliseconds = date.getUTCMilliseconds().toString().padStart(3, '0');
+  const hour12 = ((date.getUTCHours() % 12) || 12).toString();
+  const hour12Padded = hour12.padStart(2, '0');
+  const amPm = date.getUTCHours() >= 12 ? 'PM' : 'AM';
 
   const replacements: Record<string, string> = {
-      'yyyy': year,
-      'MM': month,
-      'dd': day,
-      'HH': hour24,
-      'mm': minute,
-      'ss': second,
-      'S': milliseconds,
-      'h': hour12.toString(), // Non-padded 12-hour format
-      'hh': hour12.toString().padStart(2, '0'), // Padded 12-hour format
-      'H': parseInt(hour24).toString(), // Non-padded 24-hour format
-      's': second,
+      'HH': hour24Padded,
+      'H': hour24,
+      'hh': hour12Padded,
+      'h': hour12,
+      'mm': minutePadded,
       'm': minute,
-      'a': parseInt(hour24) >= 12 ? 'PM' : 'AM'
+      'ss': secondPadded,
+      's': second,
+      'S': milliseconds,
+      'a': amPm
   };
 
   return applyReplacements(format, replacements);
@@ -141,7 +121,7 @@ export function formatFromMillis(millis: number, format: string): string {
  * @param {Record<string, string>} replacements - A record of tokens and their corresponding values.
  * @returns {string} The formatted string with all tokens replaced by their values.
  */
-function applyReplacements(template: string, replacements: Record<string, string>) {
+function applyReplacements(template: string, replacements: Record<string, string>): string {
   return Object.keys(replacements).reduce((result, token) => {
       const regex = new RegExp(`\\b${token}\\b`, 'g');
       return result.replace(regex, replacements[token]);
