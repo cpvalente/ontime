@@ -18,7 +18,7 @@ function getApplicationMenu(isMac, askToQuit, urlBase) {
               { role: 'unhide' },
               { type: 'separator' },
               {
-                label: 'quit',
+                label: 'Quit',
                 click: () => askToQuit(),
                 accelerator: 'Cmd+Q',
               },
@@ -148,7 +148,7 @@ function getApplicationMenu(isMac, askToQuit, urlBase) {
       ],
     },
     {
-      role: 'help',
+      role: 'elp',
       submenu: [
         {
           label: 'See on github',
