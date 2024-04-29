@@ -1,4 +1,4 @@
-import { DeepPartial, MessageState, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { DeepPartial, LogOrigin, MessageState, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { auxTimerService } from '../services/aux-timer-service/AuxTimerService.js';
@@ -9,6 +9,8 @@ import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
 import { parseProperty, updateEvent } from './integration.utils.js';
+import { logger } from '../classes/Logger.js';
+import { getNormalisedRundown } from '../services/rundown-service/rundownUtils.js';
 
 //TODO: https://github.com/cpvalente/ontime/pull/854#discussion_r1555084605
 
@@ -22,7 +24,7 @@ export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'o
   }
 }
 
-type ActionHandler = (payload: unknown) => { payload: unknown };
+type ActionHandler = (payload: unknown) => { payload: unknown; refused?: boolean };
 
 const actionHandlers: Record<string, ActionHandler> = {
   /* General */
@@ -31,14 +33,16 @@ const actionHandlers: Record<string, ActionHandler> = {
     payload: eventStore.poll(),
   }),
   change: (payload) => {
-    assert.isObject(payload);
-    if (Object.keys(payload).length === 0) {
-      throw new Error('Payload is empty');
+    if (typeof payload != 'object') {
+      return refuseAction('Payload is not in the correct format');
     }
-
+    if (Object.keys(payload).length === 0) {
+      return refuseAction('Payload is empty');
+    }
+    const { rundown } = getNormalisedRundown();
     const id = Object.keys(payload).at(0);
-    if (!id) {
-      throw new Error('Missing Event ID');
+    if (!(id in rundown)) {
+      return refuseAction(`ID '${id}' not found`);
     }
 
     const data = payload[id as keyof typeof payload];
@@ -46,15 +50,19 @@ const actionHandlers: Record<string, ActionHandler> = {
 
     Object.entries(data).forEach(([property, value]) => {
       if (typeof property !== 'string' || value === undefined) {
-        throw new Error('Invalid property or value');
+        return refuseAction(`Invalid property or value`);
       }
       // all custom fields keys are lowercase
-      const newObjectProperty = parseProperty(property.toLowerCase(), value);
+      try {
+        const newObjectProperty = parseProperty(property.toLowerCase(), value);
 
-      if (patchEvent.custom && newObjectProperty.custom) {
-        Object.assign(patchEvent.custom, newObjectProperty.custom);
-      } else {
-        Object.assign(patchEvent, newObjectProperty);
+        if (patchEvent.custom && newObjectProperty.custom) {
+          Object.assign(patchEvent.custom, newObjectProperty.custom);
+        } else {
+          Object.assign(patchEvent, newObjectProperty);
+        }
+      } catch (err) {
+        return refuseAction(err);
       }
     });
 
@@ -64,15 +72,17 @@ const actionHandlers: Record<string, ActionHandler> = {
   },
   /* Message Service */
   message: (payload) => {
-    assert.isObject(payload);
-
-    const patch: DeepPartial<MessageState> = {
-      timer: 'timer' in payload ? validateTimerMessage(payload.timer) : undefined,
-      external: 'external' in payload ? validateMessage(payload.external) : undefined,
-    };
-
-    const newMessage = messageService.patch(patch);
-    return { payload: newMessage };
+    try {
+      assert.isObject(payload);
+      const patch: DeepPartial<MessageState> = {
+        timer: 'timer' in payload ? validateTimerMessage(payload.timer) : undefined,
+        external: 'external' in payload ? validateMessage(payload.external) : undefined,
+      };
+      const newMessage = messageService.patch(patch);
+      return { payload: newMessage };
+    } catch (err) {
+      return refuseAction(err);
+    }
   },
   /* Playback */
   start: (payload) => {
@@ -253,4 +263,9 @@ function successPayloadOrError(success: boolean, error: string) {
     throw new Error(error);
   }
   return { payload: 'success' };
+}
+
+function refuseAction(reason: string) {
+  logger.warning(LogOrigin.Rx, reason);
+  return { payload: reason, refused: true };
 }

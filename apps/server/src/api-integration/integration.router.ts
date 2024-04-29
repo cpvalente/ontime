@@ -44,7 +44,11 @@ integrationRouter.get('/*', (req: Request, res: Response) => {
       payload = query;
     }
     const reply = dispatchFromAdapter(action, payload, 'http');
-    res.status(202).json(reply);
+    if (reply.refused) {
+      res.status(400).json(reply);
+    } else {
+      res.status(202).json(reply);
+    }
   } catch (error) {
     const errorMessage = getErrorMessage(error);
     logger.error(LogOrigin.Rx, `HTTP IN: ${errorMessage}`);
