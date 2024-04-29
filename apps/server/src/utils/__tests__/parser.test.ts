@@ -1488,24 +1488,31 @@ describe('parseExcel()', () => {
     };
 
     const result = parseExcel(testData, importMap);
-    const rundown = parseRundown(result);
+    const initialRundown = parseRundown(result);
 
-    cache.init(rundown, {});
-    const cachedRundown = cache.get().rundown;
+    cache.init(initialRundown, {});
+    const { rundown, order } = cache.get();
 
-    const events = Object.values(cachedRundown).filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
+    const firstId = order.at(0); // A
+    const secondId = order.at(1); // C
+    const thirdId = order.at(2); // D
+    const fourthId = order.at(3); // E
+    const fifhtId = order.at(4); // Block
+    const sixthId = order.at(5); // G
 
-    expect(events.at(0).timeStart).toEqual(16200000);
+    expect((rundown[firstId] as OntimeEvent).timeStart).toEqual(16200000);
 
-    expect(events.at(1).timeStart).toEqual(events.at(0).timeEnd);
-    expect(events.at(1).linkStart).toEqual(events.at(0).id);
+    expect((rundown[secondId] as OntimeEvent).timeStart).toEqual((rundown[firstId] as OntimeEvent).timeEnd);
+    expect((rundown[secondId] as OntimeEvent).linkStart).toEqual((rundown[firstId] as OntimeEvent).id);
 
-    expect(events.at(2).timeStart).toEqual(events.at(1).timeEnd);
-    expect(events.at(2).linkStart).toEqual(events.at(1).id);
+    expect((rundown[thirdId] as OntimeEvent).timeStart).toEqual((rundown[secondId] as OntimeEvent).timeEnd);
+    expect((rundown[thirdId] as OntimeEvent).linkStart).toEqual((rundown[secondId] as OntimeEvent).id);
 
-    expect(events.at(3).timeStart).toEqual(78300000);
+    expect((rundown[fourthId] as OntimeEvent).timeStart).toEqual(78300000);
 
-    expect(events.at(4).timeStart).toEqual(events.at(3).timeEnd);
-    expect(events.at(4).linkStart).toEqual(events.at(3).id);
+    expect((rundown[fifhtId] as OntimeEvent).type).toEqual(SupportedEvent.Block);
+
+    expect((rundown[sixthId] as OntimeEvent).timeStart).toEqual((rundown[fourthId] as OntimeEvent).timeEnd);
+    expect((rundown[sixthId] as OntimeEvent).linkStart).toEqual((rundown[fourthId] as OntimeEvent).id);
   });
 });
