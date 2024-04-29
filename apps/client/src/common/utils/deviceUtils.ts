@@ -4,3 +4,5 @@ export function isMacOS() {
 }
 
 export const deviceAlt = isMacOS() ? '⌥' : 'Alt';
+
+export const deviceMod = isMacOS() ? '⌘' : 'Ctrl';

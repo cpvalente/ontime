@@ -1,4 +1,4 @@
-import { CSSProperties, useCallback } from 'react';
+import { CSSProperties, useCallback, useRef } from 'react';
 
 import { AutoTextArea } from '../../../../common/components/input/auto-text-area/AutoTextArea';
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
@@ -18,10 +18,12 @@ interface CountedTextAreaProps {
 
 export default function EventTextArea(props: CountedTextAreaProps) {
   const { className, field, label, initialValue, style: givenStyles, submitHandler } = props;
-
+  const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback((newValue: string) => submitHandler(field, newValue), [field, submitHandler]);
 
-  const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(initialValue, submitCallback);
+  const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(initialValue, submitCallback, ref, {
+    submitOnCtrlEnter: true,
+  });
   const classes = cx([style.inputLabel, className]);
 
   return (
@@ -31,6 +33,7 @@ export default function EventTextArea(props: CountedTextAreaProps) {
       </label>
       <AutoTextArea
         id={field}
+        inputref={ref}
         rows={1}
         size='sm'
         resize='none'

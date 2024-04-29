@@ -1,12 +1,27 @@
-  .center {
-    text-align: center;
-  }
+.center {
+  text-align: center;
+}
 
-  .nowrap {
-    white-space: nowrap;
-  }
+.nowrap {
+  white-space: nowrap;
+}
 
-  tr .secondaryRow {
-    background-color: $white-7;
-    padding-left: 2em;
-  }
+tr .secondaryRow {
+  background-color: $white-7;
+  padding-left: 2em;
+}
+
+.linkStartActive {
+  color: $active-indicator;
+  transform: rotate(-45deg);
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.subdued {
+  opacity: $opacity-disabled;
+}

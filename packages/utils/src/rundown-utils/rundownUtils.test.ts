@@ -1,8 +1,9 @@
-import type { OntimeEvent, OntimeRundown } from 'ontime-types';
+import type { NormalisedRundown, OntimeEvent, OntimeRundown } from 'ontime-types';
 import { SupportedEvent } from 'ontime-types';
 
 import {
   getLastEvent,
+  getLastNormal,
   getNext,
   getNextEvent,
   getNextEventWithCue,
@@ -93,9 +94,9 @@ describe('getPrevious()', () => {
       { id: '3', type: SupportedEvent.Event },
     ];
 
-    const { previousEvent, previousIndex } = getPrevious(testRundown as OntimeRundown, '3');
-    expect(previousEvent?.id).toBe('2');
-    expect(previousIndex).toBe(1);
+    const { entry, index } = getPrevious(testRundown as OntimeRundown, '3');
+    expect(entry?.id).toBe('2');
+    expect(index).toBe(1);
   });
   it('allow other event types', () => {
     const testRundown = [
@@ -105,9 +106,9 @@ describe('getPrevious()', () => {
       { id: '4', type: SupportedEvent.Event },
     ];
 
-    const { previousEvent, previousIndex } = getPrevious(testRundown as OntimeRundown, '3');
-    expect(previousEvent?.id).toBe('2');
-    expect(previousIndex).toBe(1);
+    const { entry, index } = getPrevious(testRundown as OntimeRundown, '3');
+    expect(entry?.id).toBe('2');
+    expect(index).toBe(1);
   });
   it('returns null if none found', () => {
     const testRundown = [
@@ -116,9 +117,9 @@ describe('getPrevious()', () => {
       { id: '4', type: SupportedEvent.Event },
     ];
 
-    const { previousEvent, previousIndex } = getPrevious(testRundown as OntimeRundown, '2');
-    expect(previousEvent).toBe(null);
-    expect(previousIndex).toBe(null);
+    const { entry, index } = getPrevious(testRundown as OntimeRundown, '2');
+    expect(entry).toBe(null);
+    expect(index).toBe(null);
   });
 });
 

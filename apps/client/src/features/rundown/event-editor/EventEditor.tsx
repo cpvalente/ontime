@@ -13,6 +13,7 @@ import { useEventSelection } from '../useEventSelection';
 import EventEditorTimes from './composite/EventEditorTimes';
 import EventEditorTitles from './composite/EventEditorTitles';
 import EventTextArea from './composite/EventTextArea';
+import EventEditorEmpty from './EventEditorEmpty';
 
 import style from './EventEditor.module.scss';
 
@@ -67,11 +68,7 @@ export default function EventEditor() {
   };
 
   if (!event) {
-    return (
-      <div className={style.eventEditor} data-testid='editor-container'>
-        Select an event to edit
-      </div>
-    );
+    return <EventEditorEmpty />;
   }
 
   return (
@@ -108,17 +105,18 @@ export default function EventEditor() {
               Manage
             </Button>
           </div>
-          {Object.keys(customFields).map((label) => {
-            const key = `${event.id}-${label}`;
-            const fieldName = `custom-${label}`;
-            const initialValue = event.custom[label] ?? '';
-            const { backgroundColor, color } = getAccessibleColour(customFields[label].colour);
+          {Object.keys(customFields).map((fieldKey) => {
+            const key = `${event.id}-${fieldKey}`;
+            const fieldName = `custom-${fieldKey}`;
+            const initialValue = event.custom[fieldKey] ?? '';
+            const { backgroundColor, color } = getAccessibleColour(customFields[fieldKey].colour);
+            const labelText = customFields[fieldKey].label;
 
             return (
               <EventTextArea
                 key={key}
                 field={fieldName}
-                label={label}
+                label={labelText}
                 initialValue={initialValue}
                 submitHandler={handleSubmit}
                 className={style.decorated}

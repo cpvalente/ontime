@@ -1,9 +1,8 @@
-name: Ontime test v3
+name: Ontime test
 
 on:
-# Only trigger manually for now for testing
-#   pull_request:
-#     branches: '*'
+  pull_request:
+    branches: '*'
   workflow_dispatch:
 
 jobs:

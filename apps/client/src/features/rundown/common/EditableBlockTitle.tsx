@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { Input } from '@chakra-ui/react';
 
 import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
@@ -17,7 +17,7 @@ interface TitleEditorProps {
 export default function EditableBlockTitle(props: TitleEditorProps) {
   const { title, eventId, placeholder, className } = props;
   const { updateEvent } = useEventAction();
-
+  const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback(
     (text: string) => {
       if (text === title) {
@@ -30,7 +30,7 @@ export default function EditableBlockTitle(props: TitleEditorProps) {
     [title, updateEvent, eventId],
   );
 
-  const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(title, submitCallback, {
+  const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(title, submitCallback, ref, {
     submitOnEnter: true,
   });
 
@@ -40,6 +40,7 @@ export default function EditableBlockTitle(props: TitleEditorProps) {
     <Input
       data-testid='block__title'
       variant='ontime-ghosted'
+      ref={ref}
       value={value}
       className={classes}
       placeholder={placeholder}

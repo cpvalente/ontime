@@ -1,12 +1,13 @@
 import { ImportCustom } from 'ontime-utils';
 
-import { convertToImportMap } from '../importMapUtils';
+import { convertToImportMap, NamedImportMap } from '../importMapUtils';
 
 describe('convertToImportMap', () => {
   it('converts a namedImportMap to a importMap', () => {
     const defaultNamedImporMap = {
       Worksheet: 'event schedule',
       Start: 'time start',
+      'Link start': 'link start',
       End: 'time end',
       Duration: 'duration',
       Cue: 'cue',
@@ -26,7 +27,7 @@ describe('convertToImportMap', () => {
         { ontimeName: 'EmptyImportName', importName: '' },
         { ontimeName: '', importName: 'EmptyOntimeName' },
       ] as ImportCustom[],
-    };
+    } as NamedImportMap;
 
     const importMap = convertToImportMap(defaultNamedImporMap);
     expect(importMap.custom).toStrictEqual({

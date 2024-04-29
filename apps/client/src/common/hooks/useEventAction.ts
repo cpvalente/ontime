@@ -21,11 +21,11 @@ import { useEditorSettings } from '../stores/editorSettings';
 import { forgivingStringToMillis } from '../utils/dateConfig';
 
 /**
- * @description Set of utilities for events
+ * @description Set of utilities for events //TODO: should this be called useEntryAction and so on
  */
 export const useEventAction = () => {
   const queryClient = useQueryClient();
-  const { defaultPublic, linkPrevious, defaultDuration } = useEditorSettings((state) => state.eventSettings);
+  const { defaultPublic, linkPrevious, defaultDuration, defaultWarnTime, defaultDangerTime } = useEditorSettings();
 
   /**
    * Calls mutation to add new event
@@ -48,6 +48,8 @@ export const useEventAction = () => {
       defaultPublic: boolean;
       linkPrevious: boolean;
       lastEventId: string;
+      defaultWarnTime: number;
+      defaultDangerTime: number;
     }>;
 
   /**
@@ -64,6 +66,8 @@ export const useEventAction = () => {
           defaultPublic: options?.defaultPublic ?? defaultPublic,
           lastEventId: options?.lastEventId,
           linkPrevious: options?.linkPrevious ?? linkPrevious,
+          defaultWarnTime,
+          defaultDangerTime,
         };
 
         if (applicationOptions.linkPrevious && applicationOptions?.lastEventId) {
@@ -85,6 +89,14 @@ export const useEventAction = () => {
         if (newEvent.duration === undefined && newEvent.timeEnd === undefined) {
           newEvent.duration = forgivingStringToMillis(defaultDuration);
         }
+
+        if (newEvent.timeDanger === undefined) {
+          newEvent.timeDanger = forgivingStringToMillis(defaultDangerTime);
+        }
+
+        if (newEvent.timeWarning === undefined) {
+          newEvent.timeWarning = forgivingStringToMillis(defaultWarnTime);
+        }
       }
 
       // handle adding options that concern all event type
@@ -98,7 +110,7 @@ export const useEventAction = () => {
         logAxiosError('Failed adding event', error);
       }
     },
-    [_addEventMutation, defaultDuration, defaultPublic, linkPrevious],
+    [_addEventMutation, defaultDangerTime, defaultDuration, defaultPublic, defaultWarnTime, linkPrevious, queryClient],
   );
 
   /**

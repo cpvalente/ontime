@@ -194,6 +194,8 @@ class RuntimeService {
     const success = runtimeState.load(event, timedEvents);
 
     if (success) {
+      // TODO: dispatch should happen after store update
+      // currently store update is handled in TimerService only
       integrationService.dispatch(TimerLifeCycle.onLoad);
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
     }

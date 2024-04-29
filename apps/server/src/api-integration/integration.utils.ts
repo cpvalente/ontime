@@ -10,7 +10,7 @@ const whitelistedPayload = {
   note: coerceString,
   cue: coerceString,
 
-  duration: (value: unknown) => coerceNumber(value) * 1000, //frontend is seconds based
+  duration: (value: unknown) => coerceNumber(value) * 1000,
 
   isPublic: coerceBoolean,
   skip: coerceBoolean,
@@ -27,7 +27,7 @@ export function parseProperty(property: string, value: unknown) {
       throw new Error(`Custom field ${customKey} not found`);
     }
     const parserFn = whitelistedPayload.custom;
-    return { custom: { [customKey]: { value: parserFn(value) } } };
+    return { custom: { [customKey]: parserFn(value) } };
   }
 
   if (!isKeyOfType(property, whitelistedPayload)) {

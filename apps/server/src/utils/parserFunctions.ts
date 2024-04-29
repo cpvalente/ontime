@@ -18,7 +18,7 @@ import {
   isOntimeDelay,
   isOntimeEvent,
 } from 'ontime-types';
-import { generateId } from 'ontime-utils';
+import { generateId, getLastEvent } from 'ontime-utils';
 
 import { dbModel } from '../models/dataModel.js';
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
@@ -48,11 +48,16 @@ export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
     let newEvent: OntimeEvent | OntimeDelay | OntimeBlock | null;
 
     if (isOntimeEvent(event)) {
+      if (event.linkStart) {
+        const prevEvent = getLastEvent(rundown).lastEvent;
+        event.linkStart = prevEvent.id;
+      }
       newEvent = createEvent(event, eventIndex.toString());
       // skip if event is invalid
       if (newEvent == null) {
         continue;
       }
+
       eventIndex += 1;
     } else if (isOntimeDelay(event)) {
       newEvent = { ...delayDef, duration: event.duration, id };
@@ -254,7 +259,8 @@ export const parseCustomFields = (data: Partial<DatabaseModel>): CustomFields =>
       console.log('ERROR: missing required field, skipping');
       continue;
     }
-    newCustomFields[field.label] = {
+    const key = field.label.toLowerCase();
+    newCustomFields[key] = {
       type: field.type,
       colour: field.colour,
       label: field.label,

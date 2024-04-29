@@ -1,4 +1,4 @@
-name: Docker Image CI Ontime V2
+name: Docker Image CI Ontime
 
 on:
   push:
@@ -13,14 +13,14 @@ jobs:
       CI: ''
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup env
       run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
     - name: Setup Node.js environment
-      uses: actions/setup-node@v3.6.0
+      uses: actions/setup-node@v4
       with:
-        version: 16.16.0
+        node-version: 18.18.2
 
     - name: Setup pnpm
       uses: pnpm/action-setup@v2

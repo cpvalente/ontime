@@ -48,7 +48,8 @@ const actionHandlers: Record<string, ActionHandler> = {
       if (typeof property !== 'string' || value === undefined) {
         throw new Error('Invalid property or value');
       }
-      const newObjectProperty = parseProperty(property, value);
+      // all custom fields keys are lowercase
+      const newObjectProperty = parseProperty(property.toLowerCase(), value);
 
       if (patchEvent.custom && newObjectProperty.custom) {
         Object.assign(patchEvent.custom, newObjectProperty.custom);
@@ -58,7 +59,6 @@ const actionHandlers: Record<string, ActionHandler> = {
     });
 
     updateEvent(patchEvent);
-    Object.assign(patchEvent);
 
     return { payload: 'success' };
   },
@@ -77,7 +77,7 @@ const actionHandlers: Record<string, ActionHandler> = {
   /* Playback */
   start: (payload) => {
     if (payload === undefined) {
-      return successPayloadOrError(runtimeService.start(), 'Uable to start');
+      return successPayloadOrError(runtimeService.start(), 'Unable to start');
     }
 
     if (payload && typeof payload === 'object') {

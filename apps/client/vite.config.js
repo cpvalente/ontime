@@ -52,6 +52,9 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  esbuild: {
+    legalComments: 'none',
+  },
   css: {
     preprocessorOptions: {
       scss: {

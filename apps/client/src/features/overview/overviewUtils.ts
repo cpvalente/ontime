@@ -38,10 +38,5 @@ export function getOffsetText(offset: MaybeNumber): string {
   if (offset === null) {
     return enDash;
   }
-  const isAhead = offset <= 0;
-  let offsetText = millisToString(Math.abs(offset), { fallback: enDash });
-  if (offsetText !== enDash) {
-    offsetText = isAhead ? `+${offsetText}` : `${enDash}${offsetText}`;
-  }
-  return offsetText;
+  return millisToString(offset, { fallback: enDash });
 }

@@ -33,5 +33,5 @@ export const useAppMode = create<AppModeStore>()((set) => ({
       return { mode };
     });
   },
-  setCursor: (cursor: string | null) => set(() => ({ cursor })),
+  setCursor: (cursor: string | null) => set({ cursor }),
 }));
