@@ -248,17 +248,40 @@ export const parseCustomFields = (data: Partial<DatabaseModel>): CustomFields =>
   if (typeof data.customFields !== 'object') {
     return { ...dbModel.customFields };
   }
-
   console.log('Found Custom Fields, importing...');
 
+  return sanitiseCustomFields(data.customFields);
+};
+
+export const sanitiseCustomFields = (data: object): CustomFields => {
   const newCustomFields: CustomFields = {};
 
-  for (const fieldLabel in data.customFields) {
-    const field = data.customFields[fieldLabel];
+  for (const fieldLabel in data) {
+    const field = data[fieldLabel];
     if (!('label' in field) || !('type' in field) || !('colour' in field)) {
       console.log('ERROR: missing required field, skipping');
       continue;
     }
+    if (typeof field.label != 'string' || typeof field.type != 'string' || typeof field.colour != 'string') {
+      console.log('ERROR: incorrect field type, skipping');
+      continue;
+    }
+
+    if (fieldLabel != field.label.toLowerCase()) {
+      console.log('ERROR: label and id musth match, skipping');
+      continue;
+    }
+
+    if (fieldLabel == '') {
+      console.log('ERROR: label must not be empty, skipping');
+      continue;
+    }
+
+    if (field.type != 'string') {
+      console.log('ERROR: incorrect field type, skipping');
+      continue;
+    }
+
     const key = field.label.toLowerCase();
     newCustomFields[key] = {
       type: field.type,
