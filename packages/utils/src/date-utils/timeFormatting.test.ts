@@ -1,6 +1,6 @@
 import { dayInMs } from '../timeConstants';
 import { MILLIS_PER_HOUR } from './conversionUtils';
-import { millisToString, removeLeadingZero } from './timeFormatting';
+import { formatFromMillis, millisToString, removeLeadingZero } from './timeFormatting';
 
 describe('millisToString()', () => {
   it('returns fallback if millis is null', () => {
@@ -59,5 +59,161 @@ describe('removeLeadingZero()', () => {
   test('removes leading zero from timer', () => {
     expect(removeLeadingZero('00:00:00')).toBe('0:00');
     expect(removeLeadingZero('-00:08:47')).toBe('-8:47');
+  });
+});
+
+describe('formatFromMillis()', () => {
+  it('milliseconds', () => {
+    const millis = 76211123; // Jan 1, 1970 21:10:11.123 UTC
+    const format = 'S';
+    const expectedResult = '123';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('seconds (no padding)', () => {
+    const millis = 76211123;
+    const format = 's';
+    const expectedResult = '11';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('seconds (padding)', () => {
+    const millis = 76211123;
+    const format = 'ss';
+    const expectedResult = '11';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('minute (no padding)', () => {
+    const millis = 76211123;
+    const format = 'm';
+    const expectedResult = '10';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('minute (padding)', () => {
+    const millis = 76211123;
+    const format = 'mm';
+    const expectedResult = '10';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('hour - 12 (no padding)', () => {
+    const millis = 76211123;
+    const format = 'h';
+    const expectedResult = '9';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('hour - 12 (padding)', () => {
+    const millis = 76211123;
+    const format = 'hh';
+    const expectedResult = '09';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('hour - 24 (no padding)', () => {
+    const millis = 76211123;
+    const format = 'H';
+    const expectedResult = '21';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('hour - 24 (padding)', () => {
+    const millis = 76211123;
+    const format = 'HH';
+    const expectedResult = '21';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('formatted time HH:mm:ss', () => {
+    const millis = 76211123;
+    const format = 'HH:mm:ss';
+    const expectedResult = '21:10:11';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('formatted time hh:mm a', () => {
+    const millis = 76211123;
+    const format = 'hh:mm a';
+    const expectedResult = '09:10 PM';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('milliseconds', () => {
+    const millis = 29167345; // 08:06:08.345
+    const format = 'S';
+    const expectedResult = '345';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('seconds (no padding)', () => {
+    const millis = 29167345;
+    const format = 's';
+    const expectedResult = '7';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('seconds (padding)', () => {
+    const millis = 29167345;
+    const format = 'ss';
+    const expectedResult = '07';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('minute (no padding)', () => {
+    const millis = 29167345;
+    const format = 'm';
+    const expectedResult = '6';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('minute (padding)', () => {
+    const millis = 29167345;
+    const format = 'mm';
+    const expectedResult = '06';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('hour - 12 (no padding)', () => {
+    const millis = 29167345;
+    const format = 'h';
+    const expectedResult = '8';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('hour - 12 (padding)', () => {
+    const millis = 29167345;
+    const format = 'hh';
+    const expectedResult = '08';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('hour - 24 (no padding)', () => {
+    const millis = 29167345;
+    const format = 'H';
+    const expectedResult = '8';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('hour - 24 (padding)', () => {
+    const millis = 29167345;
+    const format = 'HH';
+    const expectedResult = '08';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('formatted time HH:mm:ss', () => {
+    const millis = 29167345;
+    const format = 'HH:mm:ss';
+    const expectedResult = '08:06:07';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
+  });
+
+  it('formatted time hh:mm a', () => {
+    const millis = 29167345;
+    const format = 'hh:mm a';
+    const expectedResult = '08:06 AM';
+    expect(formatFromMillis(millis, format)).toBe(expectedResult);
   });
 });

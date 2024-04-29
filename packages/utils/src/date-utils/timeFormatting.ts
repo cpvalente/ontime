@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon';
 import type { MaybeNumber } from 'ontime-types';
 
 import { millisToHours, millisToMinutes, millisToSeconds } from './conversionUtils.js';
@@ -71,11 +70,60 @@ export function removeSeconds(timer: string): string {
 }
 
 /**
- * @description utility function to format a date in milliseconds using luxon
- * @param {number} millis
- * @param {string} format
- * @return {string}
+ * Formats a given date into a custom string format based on UTC time.
+ * 
+ * @param millis - The number of milliseconds.
+ * @param format - A string specifying the desired output format. 
+ *                 For example, 'ss' will format the millis as '07' seconds.
+ * 
+ * @returns The formatted date as a string according to the provided `format` string.
+ *          If input `millis` is smaller than zero, it returns undefined.
+ * 
  */
-export function formatFromMillis(millis: number, format: string): string {
-  return DateTime.fromMillis(millis).toUTC().toFormat(format);
+export function formatFromMillis(millis: number, format: string): string | undefined {
+  if (millis < 0) {
+    return undefined;
+  }
+
+  const date: Date = new Date(millis);
+
+  const hour24Padded = date.getUTCHours().toString().padStart(2, '0');
+  const hour24 = date.getUTCHours().toString();
+  const minutePadded = date.getUTCMinutes().toString().padStart(2, '0');
+  const minute = date.getUTCMinutes().toString();
+  const secondPadded = date.getUTCSeconds().toString().padStart(2, '0');
+  const second = date.getUTCSeconds().toString();
+  const milliseconds = date.getUTCMilliseconds().toString().padStart(3, '0');
+  const hour12 = ((date.getUTCHours() % 12) || 12).toString();
+  const hour12Padded = hour12.padStart(2, '0');
+  const amPm = date.getUTCHours() >= 12 ? 'PM' : 'AM';
+
+  const replacements: Record<string, string> = {
+      'HH': hour24Padded,
+      'H': hour24,
+      'hh': hour12Padded,
+      'h': hour12,
+      'mm': minutePadded,
+      'm': minute,
+      'ss': secondPadded,
+      's': second,
+      'S': milliseconds,
+      'a': amPm
+  };
+
+  return applyReplacements(format, replacements);
+}
+
+/**
+ * Applies replacements to a template string based on a dictionary of tokens and their corresponding values.
+ *
+ * @param {string} template - The format template string containing tokens to be replaced.
+ * @param {Record<string, string>} replacements - A record of tokens and their corresponding values.
+ * @returns {string} The formatted string with all tokens replaced by their values.
+ */
+function applyReplacements(template: string, replacements: Record<string, string>): string {
+  return Object.keys(replacements).reduce((result, token) => {
+      const regex = new RegExp(`\\b${token}\\b`, 'g');
+      return result.replace(regex, replacements[token]);
+  }, template);
 }
