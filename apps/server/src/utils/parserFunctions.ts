@@ -248,20 +248,24 @@ export const parseCustomFields = (data: Partial<DatabaseModel>): CustomFields =>
   if (typeof data.customFields !== 'object') {
     return { ...dbModel.customFields };
   }
-
   console.log('Found Custom Fields, importing...');
 
+  return sanitiseCustomFields(data.customFields);
+};
+
+export const sanitiseCustomFields = (data: object): CustomFields => {
   const newCustomFields: CustomFields = {};
 
-  for (const fieldLabel in data.customFields) {
-    const field = data.customFields[fieldLabel];
-    if (!field.label || !field.type || !field.colour) {
+  for (const fieldLabel in data) {
+    const field = data[fieldLabel];
+    if (!('label' in field) || field.label === '' || !('colour' in field) || typeof field.colour != 'string') {
       console.log('ERROR: missing required field, skipping');
       continue;
     }
+
     const key = field.label.toLowerCase();
     newCustomFields[key] = {
-      type: field.type,
+      type: 'string',
       colour: field.colour,
       label: field.label,
     };

@@ -1,5 +1,5 @@
-import { HttpSubscription, OscSubscription } from 'ontime-types';
-import { sanitiseHttpSubscriptions, sanitiseOscSubscriptions } from '../parserFunctions.js';
+import { CustomFields, HttpSubscription, OscSubscription } from 'ontime-types';
+import { sanitiseCustomFields, sanitiseHttpSubscriptions, sanitiseOscSubscriptions } from '../parserFunctions.js';
 
 describe('sanitiseOscSubscriptions()', () => {
   it('returns an empty array if not an array', () => {
@@ -69,5 +69,89 @@ describe('sanitiseHttpSubscriptions()', () => {
     ];
     const sanitationResult = sanitiseHttpSubscriptions(httpSubscription as HttpSubscription[]);
     expect(sanitationResult.length).toBe(0);
+  });
+});
+
+describe('sanitiseCustomFields()', () => {
+  it('returns an empty array if not an array', () => {
+    expect(sanitiseCustomFields({})).toEqual({});
+  });
+
+  it('returns an object of valid entries', () => {
+    const customFields: CustomFields = {
+      test: { label: 'test', type: 'string', colour: 'red' },
+      test2: { label: 'test2', type: 'string', colour: 'green' },
+      test3: { label: 'Test3', type: 'string', colour: '' },
+    };
+    const sanitationResult = sanitiseCustomFields(customFields);
+    expect(sanitationResult).toStrictEqual(customFields);
+  });
+
+  it('type is forced to be string', () => {
+    const customFields: CustomFields = {
+      // @ts-expect-error intentional bad data
+      test: { label: 'test', type: 'another', colour: 'red' },
+    };
+    const expectedCustomFields: CustomFields = {
+      test: { label: 'test', type: 'string', colour: 'red' },
+    };
+    const sanitationResult = sanitiseCustomFields(customFields);
+    expect(sanitationResult).toStrictEqual(expectedCustomFields);
+  });
+
+  it('colour must be a string', () => {
+    const customFields: CustomFields = {
+      // @ts-expect-error intentional bad data
+      test: { label: 'test', type: 'string', colour: 5 },
+    };
+    const sanitationResult = sanitiseCustomFields(customFields);
+    expect(sanitationResult).toStrictEqual({});
+  });
+
+  it('label can not be empty', () => {
+    const customFields: CustomFields = {
+      ['']: { label: '', type: 'string', colour: 'red' },
+    };
+    const sanitationResult = sanitiseCustomFields(customFields);
+    expect(sanitationResult).toStrictEqual({});
+  });
+
+  it('remove extra stuff', () => {
+    const customFields: CustomFields = {
+      // @ts-expect-error intentional bad data
+      test: { label: 'test', type: 'string', colour: 'red', extra: 'should be removed' },
+    };
+    const expectedCustomFields: CustomFields = {
+      test: { label: 'test', type: 'string', colour: 'red' },
+    };
+    const sanitationResult = sanitiseCustomFields(customFields);
+    expect(sanitationResult).toStrictEqual(expectedCustomFields);
+  });
+
+  it('enforece name cohesion', () => {
+    const customFields: CustomFields = {
+      test: { label: 'New Name', type: 'string', colour: 'red' },
+    };
+    const expectedCustomFields: CustomFields = {
+      ['new name']: { label: 'New Name', type: 'string', colour: 'red' },
+    };
+    const sanitationResult = sanitiseCustomFields(customFields);
+    expect(sanitationResult).toStrictEqual(expectedCustomFields);
+  });
+
+  it('filters invalid entries', () => {
+    const customFields: CustomFields = {
+      test: { label: 'test', type: 'string', colour: 'red' },
+      test2: { label: 'test2', type: 'string', colour: 'green' },
+      bad: { label: '', type: 'string', colour: '' },
+      test3: { label: 'Test3', type: 'string', colour: '' },
+    };
+    const expectedCustomFields: CustomFields = {
+      test: { label: 'test', type: 'string', colour: 'red' },
+      test2: { label: 'test2', type: 'string', colour: 'green' },
+      test3: { label: 'Test3', type: 'string', colour: '' },
+    };
+    const sanitationResult = sanitiseCustomFields(customFields);
+    expect(sanitationResult).toStrictEqual(expectedCustomFields);
   });
 });
