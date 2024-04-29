@@ -87,13 +87,16 @@ describe('sanitiseCustomFields()', () => {
     expect(sanitationResult).toStrictEqual(customFields);
   });
 
-  it('type must match', () => {
+  it('type is forced to be string', () => {
     const customFields: CustomFields = {
       // @ts-expect-error intentional bad data
       test: { label: 'test', type: 'another', colour: 'red' },
     };
+    const expectedCustomFields: CustomFields = {
+      test: { label: 'test', type: 'string', colour: 'red' },
+    };
     const sanitationResult = sanitiseCustomFields(customFields);
-    expect(sanitationResult).toStrictEqual({});
+    expect(sanitationResult).toStrictEqual(expectedCustomFields);
   });
 
   it('colour must be a string', () => {
@@ -125,12 +128,15 @@ describe('sanitiseCustomFields()', () => {
     expect(sanitationResult).toStrictEqual(expectedCustomFields);
   });
 
-  it('enforece name coheation', () => {
+  it('enforece name cohesion', () => {
     const customFields: CustomFields = {
-      test: { label: 'different name', type: 'string', colour: 'red' },
+      test: { label: 'New Name', type: 'string', colour: 'red' },
+    };
+    const expectedCustomFields: CustomFields = {
+      ['new name']: { label: 'New Name', type: 'string', colour: 'red' },
     };
     const sanitationResult = sanitiseCustomFields(customFields);
-    expect(sanitationResult).toStrictEqual({});
+    expect(sanitationResult).toStrictEqual(expectedCustomFields);
   });
 
   it('filters invalid entries', () => {

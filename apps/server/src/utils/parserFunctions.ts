@@ -258,33 +258,14 @@ export const sanitiseCustomFields = (data: object): CustomFields => {
 
   for (const fieldLabel in data) {
     const field = data[fieldLabel];
-    if (!('label' in field) || !('type' in field) || !('colour' in field)) {
+    if (!('label' in field) || field.label === '' || !('colour' in field) || typeof field.colour != 'string') {
       console.log('ERROR: missing required field, skipping');
-      continue;
-    }
-    if (typeof field.label != 'string' || typeof field.type != 'string' || typeof field.colour != 'string') {
-      console.log('ERROR: incorrect field type, skipping');
-      continue;
-    }
-
-    if (fieldLabel != field.label.toLowerCase()) {
-      console.log('ERROR: label and id musth match, skipping');
-      continue;
-    }
-
-    if (fieldLabel == '') {
-      console.log('ERROR: label must not be empty, skipping');
-      continue;
-    }
-
-    if (field.type != 'string') {
-      console.log('ERROR: incorrect field type, skipping');
       continue;
     }
 
     const key = field.label.toLowerCase();
     newCustomFields[key] = {
-      type: field.type,
+      type: 'string',
       colour: field.colour,
       label: field.label,
     };
