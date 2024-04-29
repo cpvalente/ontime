@@ -1,4 +1,28 @@
-import { coerceColour } from '../coerceType.js';
+import { coerceColour, coerceString } from '../coerceType.js';
+
+describe('coerceString', () => {
+  it('valid string', () => {
+    const string = coerceString('TEST');
+    expect(string).toBe('TEST');
+  });
+  it('valid number to string', () => {
+    const string = coerceString(12345);
+    expect(string).toBe('12345');
+  });
+  it('allow nullish values', () => {
+    const string = coerceString(0);
+    expect(string).toBe('0');
+  });
+  it('objects are dropped', () => {
+    expect(() => coerceString({ test: 'test' })).toThrowError(Error('Invalid string value received'));
+  });
+  it('undefinde is dropped', () => {
+    expect(() => coerceString(undefined)).toThrowError(Error('Invalid string value received'));
+  });
+  it('null is dropped', () => {
+    expect(() => coerceString(null)).toThrowError(Error('Invalid string value received'));
+  });
+});
 
 describe('parses a colour string that is', () => {
   it('valid hex', () => {

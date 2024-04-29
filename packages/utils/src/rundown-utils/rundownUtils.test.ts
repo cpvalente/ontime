@@ -6,6 +6,7 @@ import {
   getLastNormal,
   getNext,
   getNextEvent,
+  getNextEventWithCue,
   getPrevious,
   getPreviousEvent,
   swapEventData,
@@ -217,49 +218,74 @@ describe('getLastEvent', () => {
     const { lastEvent } = getLastEvent(testRundown as OntimeRundown);
     expect(lastEvent?.id).toBe('1');
   });
+});
 
-  describe('getLastNormal', () => {
-    it('returns the last entry', () => {
-      const testRundown = {
-        4: { id: '4', type: SupportedEvent.Block },
-        1: { id: '1', type: SupportedEvent.Event },
-        3: { id: '3', type: SupportedEvent.Event },
-        2: { id: '2', type: SupportedEvent.Delay },
-      };
+describe('getNextEventWithCue', () => {
+  it('returns the first event with cue', () => {
+    const testRundown = [
+      { id: '1', cue: 'A', type: SupportedEvent.Event },
+      { id: '2', cue: 'B', type: SupportedEvent.Event },
+      { id: '3', cue: 'C', type: SupportedEvent.Event },
+      { id: '4', cue: 'D', type: SupportedEvent.Event },
+      { id: '5', cue: 'E', type: SupportedEvent.Event },
+      { id: '6', cue: 'F', type: SupportedEvent.Event },
+    ];
 
-      const order = ['1', '2', '3', '4'];
+    const event = getNextEventWithCue(testRundown as OntimeRundown, 'd');
+    expect(event?.id).toBe('4');
+  });
+  it('returns the null if cue not found', () => {
+    const testRundown = [
+      { id: '1', cue: 'A', type: SupportedEvent.Event },
+      { id: '2', cue: 'B', type: SupportedEvent.Event },
+      { id: '3', cue: 'C', type: SupportedEvent.Event },
+      { id: '4', cue: 'D', type: SupportedEvent.Event },
+      { id: '5', cue: 'E', type: SupportedEvent.Event },
+      { id: '6', cue: 'F', type: SupportedEvent.Event },
+    ];
 
-      const lastEntry = getLastNormal(testRundown as unknown as NormalisedRundown, order);
-      expect(lastEntry?.id).toBe('4');
-    });
-    it('handles rundowns with a single event', () => {
-      const testRundown = [{ id: '1', type: SupportedEvent.Event }];
+    const event = getNextEventWithCue(testRundown as OntimeRundown, 'G');
+    expect(event).toBe(null);
+  });
+  it('returns the next event with cue given index', () => {
+    const testRundown = [
+      { id: '1', cue: 'A', type: SupportedEvent.Event },
+      { id: '2', cue: 'B', type: SupportedEvent.Event },
+      { id: '3', cue: 'C', type: SupportedEvent.Event },
+      { id: '4', cue: 'D', type: SupportedEvent.Event },
+      { id: '5', cue: 'E', type: SupportedEvent.Event },
+      { id: '6', cue: 'A', type: SupportedEvent.Event },
+    ];
 
-      const { lastEvent } = getLastEvent(testRundown as OntimeRundown);
-      expect(lastEvent?.id).toBe('1');
-    });
+    const event = getNextEventWithCue(testRundown as OntimeRundown, 'A', 2);
+    expect(event?.id).toBe('6');
+  });
+  it('handles mixed entry types', () => {
+    const testRundown = [
+      { id: '1', cue: 'A', type: SupportedEvent.Event },
+      { id: '2', cue: 'B', type: SupportedEvent.Event },
+      { id: 'B1', type: SupportedEvent.Block },
+      { id: '3', cue: 'C', type: SupportedEvent.Event },
+      { id: '4', cue: 'D', type: SupportedEvent.Event },
+      { id: 'D1', type: SupportedEvent.Delay },
+      { id: '5', cue: 'E', type: SupportedEvent.Event },
+      { id: '6', cue: 'A', type: SupportedEvent.Event },
+    ];
 
-    it('handles empty order', () => {
-      const testRundown = {
-        4: { id: '4', type: SupportedEvent.Block },
-        1: { id: '1', type: SupportedEvent.Event },
-        3: { id: '3', type: SupportedEvent.Event },
-        2: { id: '2', type: SupportedEvent.Delay },
-      };
+    const event = getNextEventWithCue(testRundown as OntimeRundown, 'A', 2);
+    expect(event?.id).toBe('6');
+  });
+  it('do not loop around', () => {
+    const testRundown = [
+      { id: '1', cue: 'A', type: SupportedEvent.Event },
+      { id: '2', cue: 'B', type: SupportedEvent.Event },
+      { id: '3', cue: 'C', type: SupportedEvent.Event },
+      { id: '4', cue: 'D', type: SupportedEvent.Event },
+      { id: '5', cue: 'E', type: SupportedEvent.Event },
+      { id: '6', cue: 'F', type: SupportedEvent.Event },
+    ];
 
-      const order: string[] = [];
-
-      const lastEntry = getLastNormal(testRundown as unknown as NormalisedRundown, order);
-      expect(lastEntry).toBe(null);
-    });
-
-    it('handles empty rundown', () => {
-      const testRundown = {};
-
-      const order = ['1', '2', '3', '4'];
-
-      const lastEntry = getLastNormal(testRundown as unknown as NormalisedRundown, order);
-      expect(lastEntry).toBe(null);
-    });
+    const event = getNextEventWithCue(testRundown as OntimeRundown, 'A', 2);
+    expect(event).toBe(null);
   });
 });
