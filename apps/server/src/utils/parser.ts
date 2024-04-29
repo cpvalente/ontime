@@ -180,7 +180,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
       },
       custom: (row: number, col: number, columnText: string) => {
         customFieldIndexes[col] = columnText;
-        rundownMetadata[`custom-${columnText}`] = { row, col };
+        rundownMetadata[`custom:${columnText}`] = { row, col };
       },
     } as const;
 

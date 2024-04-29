@@ -122,7 +122,7 @@ function getCellData(key: string, event: OntimeRundownEntry) {
       return { userEnteredValue: { stringValue: event[key] } };
     }
     if (key.startsWith('custom')) {
-      const customKey = key.split('-')[1];
+      const customKey = key.split(':')[1];
       return { userEnteredValue: { stringValue: event.custom[customKey] } };
     }
 
