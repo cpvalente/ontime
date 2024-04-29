@@ -255,7 +255,7 @@ export const parseCustomFields = (data: Partial<DatabaseModel>): CustomFields =>
 
   for (const fieldLabel in data.customFields) {
     const field = data.customFields[fieldLabel];
-    if (!field.label || !field.type || !field.colour) {
+    if (!('label' in field) || !('type' in field) || !('colour' in field)) {
       console.log('ERROR: missing required field, skipping');
       continue;
     }
