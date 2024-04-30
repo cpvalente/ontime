@@ -83,8 +83,7 @@ export class SocketServer implements IAdapter {
 
       ws.on('message', (data) => {
         try {
-          // @ts-expect-error -- ??
-          const message = JSON.parse(data);
+          const message = JSON.parse(data.toString());
           const { type, payload } = message;
 
           if (type === 'get-client-name') {
