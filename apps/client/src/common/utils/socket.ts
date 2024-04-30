@@ -2,7 +2,7 @@ import { Log, RuntimeStore } from 'ontime-types';
 
 import { isProduction, RUNTIME, websocketUrl } from '../api/constants';
 import { ontimeQueryClient } from '../queryClient';
-import { setCurrentClientName, setIdentify } from '../stores/clientStore';
+import { getPreferredClientName, setCurrentClientName, setIdentify } from '../stores/clientStore';
 import { addLog } from '../stores/logger';
 import { patchRuntime, runtimeStore } from '../stores/runtime';
 
@@ -64,6 +64,15 @@ export const connectSocket = (preferredClientName?: string) => {
         case 'ontime-identify': {
           const { clientName, state } = payload;
           setIdentify(clientName, state);
+          break;
+        }
+        case 'ontime-redirect': {
+          const { clientName, path } = payload;
+          if (clientName === getPreferredClientName()) {
+            console.log(clientName, path);
+            //TODO: find better way than hard redirect
+            window.location.href = `/${path}`;
+          }
           break;
         }
         case 'ontime-log': {

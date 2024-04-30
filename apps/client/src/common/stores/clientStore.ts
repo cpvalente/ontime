@@ -6,9 +6,6 @@ interface ClientStore {
 
   identify: Record<string, boolean>;
   setIdent: (clientName: string, value: boolean) => void;
-
-  redirect: string;
-  setRedirect: (value: string) => void;
 }
 
 const clientNameKey = 'ontime-client-name';
@@ -27,9 +24,6 @@ export const useClientStore = create<ClientStore>((set) => ({
 
   identify: {},
   setIdent: (clientName, value) => set((state) => (state.identify = { ...state.identify, [clientName]: value })),
-
-  redirect: '',
-  setRedirect: (value) => set({ redirect: value }),
 }));
 
 /**
@@ -52,11 +46,4 @@ export function setCurrentClientName(self: string): void {
  */
 export function setIdentify(clientName: string, value: boolean): void {
   return useClientStore.getState().setIdent(clientName, value);
-}
-
-/**
- * Allows setting redirect (outside react)
- */
-export function setRedirect(value: string): void {
-  return useClientStore.getState().setRedirect(value);
 }

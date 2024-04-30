@@ -18,3 +18,10 @@ export async function getClients(): Promise<string[]> {
 export async function setClientIdentify(id: string, state: boolean): Promise<void> {
   await axios.get(`${clientPath}/identify?target=${id}&state=${state}`);
 }
+
+/**
+ * HTTP GET
+ */
+export async function setClientRedirect(id: string, path: string): Promise<void> {
+  await axios.get(`${clientPath}/redirect?target=${id}&path=${path}`);
+}

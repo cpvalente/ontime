@@ -228,6 +228,10 @@ const actionHandlers: Record<string, ActionHandler> = {
 
     if (typeof payload == 'object') {
       if ('redirect' in payload) {
+        const targetClient = coerceString(payload.redirect['target']);
+        const path = coerceString(payload.redirect['path']);
+
+        socket.redirectClient(targetClient, path);
         return { payload: 'success' };
       }
 

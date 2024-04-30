@@ -146,6 +146,14 @@ export class SocketServer implements IAdapter {
     this.sendAsJson({ type: 'ontime-identify', payload: { clientName, state } });
   }
 
+  /**
+   * @param clientName the target client
+   * @param path new path
+   */
+  public redirectClient(clientName: string, path: string): void {
+    this.sendAsJson({ type: 'ontime-redirect', payload: { clientName, path } });
+  }
+
   // message is any serializable value
   sendAsJson(message: unknown) {
     this.wss?.clients.forEach((client) => {
