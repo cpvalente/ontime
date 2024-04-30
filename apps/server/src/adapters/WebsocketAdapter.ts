@@ -67,13 +67,6 @@ export class SocketServer implements IAdapter {
         }),
       );
 
-      ws.send(
-        JSON.stringify({
-          type: 'client-list',
-          payload: Array.from(this.clientIds),
-        }),
-      );
-
       ws.on('error', console.error);
 
       ws.on('close', () => {
@@ -113,16 +106,6 @@ export class SocketServer implements IAdapter {
             return;
           }
 
-          if (type === 'get-client-list') {
-            ws.send(
-              JSON.stringify({
-                type: 'client-list',
-                payload: Array.from(this.clientIds),
-              }),
-            );
-            return;
-          }
-
           if (type === 'ontime-log') {
             if (payload.level && payload.origin && payload.text) {
               logger.emit(payload.level, payload.origin, payload.text);
@@ -149,6 +132,10 @@ export class SocketServer implements IAdapter {
         }
       });
     });
+  }
+
+  public getClientList(): string[] {
+    return Array.from(this.clientIds);
   }
 
   // message is any serializable value

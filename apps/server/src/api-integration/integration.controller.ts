@@ -9,6 +9,7 @@ import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
 import { parseProperty, updateEvent } from './integration.utils.js';
+import { socket } from '../adapters/WebsocketAdapter.js';
 
 export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = type.toLowerCase();
@@ -218,6 +219,27 @@ const actionHandlers: Record<string, ActionHandler> = {
       }
     }
     throw new Error('No matching method provided');
+  },
+  wsclient: (payload) => {
+    if (typeof payload == 'string' && payload == 'list') {
+      return { payload: socket.getClientList() };
+    }
+
+    if (typeof payload == 'object') {
+      const type = Object.keys(payload).at(0);
+
+      if (type === 'redirect') {
+        return { payload: 'success' };
+      }
+
+      if (type === 'rename') {
+        return { payload: 'success' };
+      }
+
+      if (type === 'identify') {
+        return { payload: 'success' };
+      }
+    }
   },
 };
 

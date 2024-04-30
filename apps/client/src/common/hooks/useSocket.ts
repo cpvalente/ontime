@@ -154,8 +154,6 @@ export const useProgressData = () => {
 
 export const setClientName = (newName: string) => socketSendJson('set-client-name', newName);
 
-export const getClientList = () => socketSendJson('get-client-list');
-
 export const useRuntimeOverview = () => {
   const featureSelector = (state: RuntimeStore) => ({
     plannedStart: state.runtime.plannedStart,
