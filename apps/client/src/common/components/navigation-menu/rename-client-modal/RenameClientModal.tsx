@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 
 import { setClientName } from '../../../hooks/useSocket';
-import { useClientList } from '../../../stores/clientList';
+import { useClientStore } from '../../../stores/clientStore';
 
 interface RenameClientModalProps {
   isOpen: boolean;
@@ -19,8 +19,8 @@ interface RenameClientModalProps {
 }
 
 export default function RenameClientModal({ isOpen, onClose }: RenameClientModalProps) {
-  const clientName = useClientList((state) => state.self);
-  const persistName = useClientList((state) => state.setName);
+  const clientName = useClientStore((state) => state.self);
+  const persistName = useClientStore((state) => state.setName);
   const [newName, setNewName] = useState(clientName);
 
   useEffect(() => {

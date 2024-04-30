@@ -5,7 +5,7 @@ import { getClients } from '../api/clientRemote';
 import { CLIENT_LIST } from '../api/constants';
 
 export default function useClientRemote() {
-  const { data, status, isError, refetch } = useQuery({
+  const { data, isError, refetch } = useQuery({
     queryKey: CLIENT_LIST,
     queryFn: getClients,
     placeholderData: (previousData, _previousQuery) => previousData,
@@ -15,5 +15,5 @@ export default function useClientRemote() {
     networkMode: 'always',
   });
 
-  return { data: data ?? [], status, isError, refetch };
+  return { data: data ?? [], isError, refetch };
 }

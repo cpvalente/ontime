@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
+import IdentToast from './common/components/ident-toast/IdentToast';
 import Log from './features/log/Log';
 import withPreset from './features/PresetWrapper';
 import withData from './features/viewers/ViewWrapper';
@@ -36,6 +37,8 @@ const MessageControl = lazy(() => import('./features/control/message/MessageCont
 export default function AppRouter() {
   return (
     <Suspense fallback={null}>
+      <IdentToast />
+
       <Routes>
         <Route path='/' element={<Navigate to='/timer' />} />
         <Route path='/timer' element={<STimer />} />

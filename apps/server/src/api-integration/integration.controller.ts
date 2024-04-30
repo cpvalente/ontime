@@ -10,6 +10,7 @@ import * as assert from '../utils/assert.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
 import { parseProperty, updateEvent } from './integration.utils.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
+import { coerceBoolean, coerceString } from '../utils/coerceType.js';
 
 export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = type.toLowerCase();
@@ -226,17 +227,19 @@ const actionHandlers: Record<string, ActionHandler> = {
     }
 
     if (typeof payload == 'object') {
-      const type = Object.keys(payload).at(0);
-
-      if (type === 'redirect') {
+      if ('redirect' in payload) {
         return { payload: 'success' };
       }
 
-      if (type === 'rename') {
+      if ('rename' in payload) {
         return { payload: 'success' };
       }
 
-      if (type === 'identify') {
+      if ('identify' in payload) {
+        const targetClient = coerceString(payload.identify['target']);
+        const state = coerceBoolean(payload.identify['state']);
+
+        socket.identifyClient(targetClient, state);
         return { payload: 'success' };
       }
     }

@@ -2,7 +2,7 @@ import { Log, RuntimeStore } from 'ontime-types';
 
 import { isProduction, RUNTIME, websocketUrl } from '../api/constants';
 import { ontimeQueryClient } from '../queryClient';
-import { setCurrentClientName } from '../stores/clientList';
+import { setCurrentClientName, setIdentify } from '../stores/clientStore';
 import { addLog } from '../stores/logger';
 import { patchRuntime, runtimeStore } from '../stores/runtime';
 
@@ -59,6 +59,11 @@ export const connectSocket = (preferredClientName?: string) => {
           if (typeof payload === 'string') {
             setCurrentClientName(payload);
           }
+          break;
+        }
+        case 'ontime-identify': {
+          const { clientName, state } = payload;
+          setIdentify(clientName, state);
           break;
         }
         case 'ontime-log': {

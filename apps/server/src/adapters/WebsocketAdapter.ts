@@ -138,6 +138,14 @@ export class SocketServer implements IAdapter {
     return Array.from(this.clientIds);
   }
 
+  /**
+   * @param clientName the target client
+   * @param state weather to start or stop the idetyfier
+   */
+  public identifyClient(clientName: string, state: boolean): void {
+    this.sendAsJson({ type: 'ontime-identify', payload: { clientName, state } });
+  }
+
   // message is any serializable value
   sendAsJson(message: unknown) {
     this.wss?.clients.forEach((client) => {
