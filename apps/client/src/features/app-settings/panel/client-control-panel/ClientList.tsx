@@ -14,17 +14,17 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
-import { setClientIdentify, setClientRedirect } from '../../../../common/api/clientRemote';
-import useClientRemote from '../../../../common/hooks-query/useClientRemote';
+import { setClientRemote } from '../../../../common/hooks/useSocket';
 import { useClientStore } from '../../../../common/stores/clientStore';
 import * as Panel from '../PanelUtils';
 
 import style from './ClientControlPanel.module.scss';
 
 export default function ClientList() {
-  const { self, identify } = useClientStore();
-  const { data } = useClientRemote();
+  const { myName, clients } = useClientStore();
+  console.log(clients);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { setIdentify } = setClientRemote;
 
   const [redirectName, setRedirectName] = useState('');
 
@@ -33,8 +33,8 @@ export default function ClientList() {
     onOpen();
   };
 
-  const redirect = (path: string) => {
-    setClientRedirect(redirectName, path);
+  const redirect = (_path: string) => {
+    // setClientRedirect(redirectName, path);
     onClose();
   };
 
@@ -48,19 +48,19 @@ export default function ClientList() {
         </tr>
       </thead>
       <tbody>
-        {data.map((client) => {
-          const isCurrent = client === self;
-          const isIdent = client in identify && identify[client];
+        {Object.entries(clients).map(([name, client]) => {
+          const { identify } = client;
+          const isCurrent = name === myName;
           return (
-            <tr key={client} className={isCurrent ? style.current : undefined}>
-              <td className={style.fullWidth}>{isCurrent ? `${client} (self)` : client}</td>
+            <tr key={name} className={isCurrent ? style.current : undefined}>
+              <td className={style.fullWidth}>{isCurrent ? `${name} (self)` : name}</td>
               <td className={style.actionButtons}>
                 <Button
                   size='xs'
-                  className={`${isIdent ? style.blink : ''}`}
-                  variant={isIdent ? 'ontime-filled' : 'ontime-subtle'}
+                  className={`${identify ? style.blink : ''}`}
+                  variant={identify ? 'ontime-filled' : 'ontime-subtle'}
                   onClick={() => {
-                    setClientIdentify(client, !isIdent);
+                    setIdentify({ target: name, state: !identify });
                   }}
                   isActive
                 >
@@ -69,7 +69,7 @@ export default function ClientList() {
                 <Button size='xs' variant='ontime-subtle'>
                   Rename
                 </Button>
-                <Button size='xs' variant='ontime-subtle' isDisabled={isCurrent} onClick={() => openRedirect(client)}>
+                <Button size='xs' variant='ontime-subtle' isDisabled={isCurrent} onClick={() => openRedirect(name)}>
                   Redirect
                 </Button>
               </td>

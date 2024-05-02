@@ -14,7 +14,7 @@
  * Payload: adds necessary payload for the request to be completed
  */
 
-import { LogOrigin } from 'ontime-types';
+import { Client, ClientTypes, LogOrigin } from 'ontime-types';
 
 import { WebSocket, WebSocketServer } from 'ws';
 import type { Server } from 'http';
@@ -31,7 +31,7 @@ export class SocketServer implements IAdapter {
   private readonly MAX_PAYLOAD = 1024 * 256; // 256Kb
 
   private wss: WebSocketServer | null;
-  private readonly clientIds: Set<string>;
+  private readonly clients: Map<string, Client>;
 
   constructor() {
     if (instance) {
@@ -40,7 +40,7 @@ export class SocketServer implements IAdapter {
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
-    this.clientIds = new Set<string>();
+    this.clients = new Map<string, Client>();
     this.wss = null;
   }
 
@@ -49,8 +49,8 @@ export class SocketServer implements IAdapter {
 
     this.wss.on('connection', (ws) => {
       let clientId = getRandomName();
-      this.clientIds.add(clientId);
-      logger.info(LogOrigin.Client, `${this.clientIds.size} Connections with new: ${clientId}`);
+      this.clients.set(clientId, { type: ClientTypes.Unknown, identify: false, redirect: '' });
+      logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientId}`);
 
       // send store payload on connect
       ws.send(
@@ -67,11 +67,13 @@ export class SocketServer implements IAdapter {
         }),
       );
 
+      this.sendClientList();
+
       ws.on('error', console.error);
 
       ws.on('close', () => {
-        this.clientIds.delete(clientId);
-        logger.info(LogOrigin.Client, `${this.clientIds.size} Connections with disconnected: ${clientId}`);
+        this.clients.delete(clientId);
+        logger.info(LogOrigin.Client, `${this.clients.size} Connections with disconnected: ${clientId}`);
       });
 
       ws.on('message', (data) => {
@@ -92,9 +94,10 @@ export class SocketServer implements IAdapter {
           if (type === 'set-client-name') {
             if (payload) {
               const previousName = clientId;
+              const previousData = this.clients.get(clientId);
               clientId = payload;
-              this.clientIds.delete(previousName);
-              this.clientIds.add(clientId);
+              this.clients.delete(previousName);
+              this.clients.set(clientId, previousData);
               logger.info(LogOrigin.Client, `Client ${previousName} renamed to ${clientId}`);
             }
             ws.send(
@@ -103,6 +106,15 @@ export class SocketServer implements IAdapter {
                 payload: clientId,
               }),
             );
+            return;
+          }
+
+          if (type === 'set-client-identify') {
+            if (payload) {
+              const targetClient = this.clients.get(payload.target);
+              this.clients.set(payload.target, { ...targetClient, identify: payload.state });
+              this.sendClientList();
+            }
             return;
           }
 
@@ -134,32 +146,22 @@ export class SocketServer implements IAdapter {
     });
   }
 
+  sendClientList(): void {
+    const payload = Object.fromEntries(this.clients.entries());
+    this.sendAsJson({ type: 'client-list', payload });
+  }
+
   public getClientList(): string[] {
-    return Array.from(this.clientIds);
-  }
-
-  /**
-   * @param clientName the target client
-   * @param state weather to start or stop the idetyfier
-   */
-  public identifyClient(clientName: string, state: boolean): void {
-    this.sendAsJson({ type: 'ontime-identify', payload: { clientName, state } });
-  }
-
-  /**
-   * @param clientName the target client
-   * @param path new path
-   */
-  public redirectClient(clientName: string, path: string): void {
-    this.sendAsJson({ type: 'ontime-redirect', payload: { clientName, path } });
+    return Array.from(this.clients.keys());
   }
 
   // message is any serializable value
   sendAsJson(message: unknown) {
+    const stringifyed = JSON.stringify(message);
     this.wss?.clients.forEach((client) => {
       try {
         if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify(message));
+          client.send(stringifyed);
         }
       } catch (_) {
         /** We do not handle this error */

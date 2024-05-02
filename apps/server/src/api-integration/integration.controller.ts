@@ -9,8 +9,6 @@ import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
 import { parseProperty, updateEvent } from './integration.utils.js';
-import { socket } from '../adapters/WebsocketAdapter.js';
-import { coerceBoolean, coerceString } from '../utils/coerceType.js';
 
 export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = type.toLowerCase();
@@ -220,33 +218,6 @@ const actionHandlers: Record<string, ActionHandler> = {
       }
     }
     throw new Error('No matching method provided');
-  },
-  wsclient: (payload) => {
-    if (typeof payload == 'string' && payload == 'list') {
-      return { payload: socket.getClientList() };
-    }
-
-    if (typeof payload == 'object') {
-      if ('redirect' in payload) {
-        const targetClient = coerceString(payload.redirect['target']);
-        const path = coerceString(payload.redirect['path']);
-
-        socket.redirectClient(targetClient, path);
-        return { payload: 'success' };
-      }
-
-      if ('rename' in payload) {
-        return { payload: 'success' };
-      }
-
-      if ('identify' in payload) {
-        const targetClient = coerceString(payload.identify['target']);
-        const state = coerceBoolean(payload.identify['state']);
-
-        socket.identifyClient(targetClient, state);
-        return { payload: 'success' };
-      }
-    }
   },
 };
 

@@ -1,8 +1,8 @@
 import { Log, RuntimeStore } from 'ontime-types';
 
-import { isProduction, RUNTIME, websocketUrl } from '../api/constants';
+import { CLIENT_LIST, isProduction, RUNTIME, websocketUrl } from '../api/constants';
 import { ontimeQueryClient } from '../queryClient';
-import { getPreferredClientName, setCurrentClientName, setIdentify } from '../stores/clientStore';
+import { setClients, setCurrentClientName } from '../stores/clientStore';
 import { addLog } from '../stores/logger';
 import { patchRuntime, runtimeStore } from '../stores/runtime';
 
@@ -61,20 +61,15 @@ export const connectSocket = (preferredClientName?: string) => {
           }
           break;
         }
-        case 'ontime-identify': {
-          const { clientName, state } = payload;
-          setIdentify(clientName, state);
-          break;
-        }
-        case 'ontime-redirect': {
-          const { clientName, path } = payload;
-          if (clientName === getPreferredClientName()) {
-            console.log(clientName, path);
-            //TODO: find better way than hard redirect
-            window.location.href = `/${path}`;
+
+        case 'client-list': {
+          setClients(payload);
+          if (!isProduction) {
+            ontimeQueryClient.setQueryData(CLIENT_LIST, payload);
           }
           break;
         }
+
         case 'ontime-log': {
           addLog(payload as Log);
           break;
@@ -155,6 +150,8 @@ export const socketSend = (message: any) => {
 };
 
 export const socketSendJson = (type: string, payload?: unknown) => {
+  console.log(type, payload);
+
   socketSend(
     JSON.stringify({
       type,

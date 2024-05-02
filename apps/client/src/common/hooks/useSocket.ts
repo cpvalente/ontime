@@ -3,6 +3,10 @@ import { RuntimeStore, SimpleDirection, SimplePlayback } from 'ontime-types';
 import { useRuntimeStore } from '../stores/runtime';
 import { socketSendJson } from '../utils/socket';
 
+export const setClientRemote = {
+  setIdentify: (payload: { target: string; state: boolean }) => socketSendJson('set-client-identify', payload),
+};
+
 export const useRundownEditor = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.timer.playback,
