@@ -52,6 +52,20 @@ export class SocketServer implements IAdapter {
       this.clients.set(clientId, { type: ClientTypes.Unknown, identify: false, redirect: '' });
       logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientId}`);
 
+      // give the client a change to tell us thire prefed name
+      const giveNameTimeout = setTimeout(
+        () =>
+          ws.send(
+            JSON.stringify({
+              type: 'client-name',
+              payload: clientId,
+            }),
+          ),
+        100,
+      );
+      //then send the client list
+      setTimeout(() => this.sendClientList(), 120);
+
       // send store payload on connect
       ws.send(
         JSON.stringify({
@@ -59,15 +73,6 @@ export class SocketServer implements IAdapter {
           payload: eventStore.poll(),
         }),
       );
-
-      ws.send(
-        JSON.stringify({
-          type: 'client-name',
-          payload: clientId,
-        }),
-      );
-
-      this.sendClientList();
 
       ws.on('error', console.error);
 
@@ -92,6 +97,7 @@ export class SocketServer implements IAdapter {
           }
 
           if (type === 'set-client-name') {
+            clearTimeout(giveNameTimeout);
             if (payload) {
               const previousName = clientId;
               const previousData = this.clients.get(clientId);
@@ -113,6 +119,15 @@ export class SocketServer implements IAdapter {
             if (payload) {
               const targetClient = this.clients.get(payload.target);
               this.clients.set(payload.target, { ...targetClient, identify: payload.state });
+              this.sendClientList();
+            }
+            return;
+          }
+
+          if (type === 'set-client-redirect') {
+            if (payload) {
+              const targetClient = this.clients.get(payload.target);
+              this.clients.set(payload.target, { ...targetClient, redirect: payload.path });
               this.sendClientList();
             }
             return;
