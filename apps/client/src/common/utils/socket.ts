@@ -2,7 +2,7 @@ import { Log, RuntimeStore } from 'ontime-types';
 
 import { CLIENT_LIST, isProduction, RUNTIME, websocketUrl } from '../api/constants';
 import { ontimeQueryClient } from '../queryClient';
-import { setClients, setCurrentClientName } from '../stores/clientStore';
+import { getPreferredClientName, setClients, setCurrentClientName } from '../stores/clientStore';
 import { addLog } from '../stores/logger';
 import { patchRuntime, runtimeStore } from '../stores/runtime';
 
@@ -14,8 +14,10 @@ export let shouldReconnect = true;
 export let hasConnected = false;
 export let reconnectAttempts = 0;
 
-export const connectSocket = (preferredClientName?: string) => {
+export const connectSocket = () => {
   websocket = new WebSocket(websocketUrl);
+
+  const preferredClientName = getPreferredClientName();
 
   websocket.onopen = () => {
     clearTimeout(reconnectTimeout as NodeJS.Timeout);

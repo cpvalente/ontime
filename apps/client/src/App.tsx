@@ -7,14 +7,12 @@ import { ContextMenu } from './common/components/context-menu/ContextMenu';
 import ErrorBoundary from './common/components/error-boundary/ErrorBoundary';
 import { AppContextProvider } from './common/context/AppContext';
 import { ontimeQueryClient } from './common/queryClient';
-import { getPreferredClientName } from './common/stores/clientStore';
 import { connectSocket } from './common/utils/socket';
 import theme from './theme/theme';
 import { TranslationProvider } from './translation/TranslationProvider';
 import AppRouter from './AppRouter';
 
-const preferredClientName = getPreferredClientName();
-connectSocket(preferredClientName);
+connectSocket();
 
 function App() {
   return (
