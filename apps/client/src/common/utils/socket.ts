@@ -34,7 +34,8 @@ export const connectSocket = (preferredClientName?: string) => {
         console.warn('WebSocket: attempting reconnect');
         if (websocket && websocket.readyState === WebSocket.CLOSED) {
           reconnectAttempts += 1;
-          connectSocket();
+          //TODO: add some jitter and a bit of backoff
+          setTimeout(() => connectSocket());
         }
       }, reconnectInterval);
     }
@@ -150,8 +151,6 @@ export const socketSend = (message: any) => {
 };
 
 export const socketSendJson = (type: string, payload?: unknown) => {
-  console.log(type, payload);
-
   socketSend(
     JSON.stringify({
       type,

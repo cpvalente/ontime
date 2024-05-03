@@ -5,6 +5,7 @@ import { socketSendJson } from '../utils/socket';
 
 export const setClientRemote = {
   setIdentify: (payload: { target: string; state: boolean }) => socketSendJson('set-client-identify', payload),
+  setRedirect: (payload: { target: string; path: string }) => socketSendJson('set-client-redirect', payload),
 };
 
 export const useRundownEditor = () => {

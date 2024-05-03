@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { setClientRemote } from '../../hooks/useSocket';
 import { useClientStore } from '../../stores/clientStore';
@@ -7,7 +8,21 @@ import './Overlay.scss';
 
 export default function IdentifyOverlay() {
   const { clients, myName } = useClientStore();
-  const { setIdentify } = setClientRemote;
+  const { setIdentify, setRedirect } = setClientRemote;
+
+  //TODO: is this the right place for it
+  const navigate = useNavigate();
+
+  useMemo(() => {
+    if (myName && clients[myName] && clients[myName].redirect != '') {
+      const { redirect } = clients[myName];
+      if (redirect != window.location.pathname) {
+        navigate(redirect);
+      } else {
+        setRedirect({ target: myName, path: '' });
+      }
+    }
+  }, [clients, myName, navigate, setRedirect]);
 
   const showOverlay = useMemo(() => {
     return myName && clients[myName] && clients[myName].identify;

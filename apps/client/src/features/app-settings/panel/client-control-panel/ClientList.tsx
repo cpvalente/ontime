@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import {
   Button,
+  ButtonGroup,
+  IconButton,
   Input,
   InputGroup,
   InputLeftAddon,
@@ -13,6 +15,7 @@ import {
   ModalOverlay,
   useDisclosure,
 } from '@chakra-ui/react';
+import { IoClose } from '@react-icons/all-files/io5/IoClose';
 
 import { setClientRemote } from '../../../../common/hooks/useSocket';
 import { useClientStore } from '../../../../common/stores/clientStore';
@@ -22,9 +25,8 @@ import style from './ClientControlPanel.module.scss';
 
 export default function ClientList() {
   const { myName, clients } = useClientStore();
-  console.log(clients);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { setIdentify } = setClientRemote;
+  const { setIdentify, setRedirect } = setClientRemote;
 
   const [redirectName, setRedirectName] = useState('');
 
@@ -33,8 +35,8 @@ export default function ClientList() {
     onOpen();
   };
 
-  const redirect = (_path: string) => {
-    // setClientRedirect(redirectName, path);
+  const redirect = (path: string) => {
+    setRedirect({ target: redirectName, path });
     onClose();
   };
 
@@ -49,8 +51,9 @@ export default function ClientList() {
       </thead>
       <tbody>
         {Object.entries(clients).map(([name, client]) => {
-          const { identify } = client;
+          const { identify, redirect } = client;
           const isCurrent = name === myName;
+          const isRedirecting = redirect != '';
           return (
             <tr key={name} className={isCurrent ? style.current : undefined}>
               <td className={style.fullWidth}>{isCurrent ? `${name} (self)` : name}</td>
@@ -69,9 +72,18 @@ export default function ClientList() {
                 <Button size='xs' variant='ontime-subtle'>
                   Rename
                 </Button>
-                <Button size='xs' variant='ontime-subtle' isDisabled={isCurrent} onClick={() => openRedirect(name)}>
-                  Redirect
-                </Button>
+                <ButtonGroup size='xs' isAttached variant='ontime-subtle'>
+                  <Button isLoading={isRedirecting} isDisabled={isCurrent} onClick={() => openRedirect(name)}>
+                    Redirect
+                  </Button>
+                  {isRedirecting && (
+                    <IconButton
+                      aria-label='Cancel the redirect'
+                      icon={<IoClose />}
+                      onClick={() => setRedirect({ target: name, path: '' })}
+                    />
+                  )}
+                </ButtonGroup>
               </td>
             </tr>
           );
