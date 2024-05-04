@@ -1,5 +1,5 @@
 {
-  "name": "ontime-prerelease",
+  "name": "ontime",
   "version": "3.0.0-beta.3",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
@@ -13,7 +13,7 @@
   "main": "main.js",
   "devDependencies": {
     "electron": "^28.0.0",
-    "electron-builder": "^24.9.1",
+    "electron-builder": "^24.13.3",
     "eslint": "^8.53.0",
     "eslint-config-prettier": "^9.0.0",
     "prettier": "^3.0.3"
@@ -23,20 +23,27 @@
     "lint": "eslint . --quiet",
     "lint-staged": "eslint",
     "dev:electron": "cross-env NODE_ENV=development electron .",
-    "dist-win": "electron-builder --publish=never  --x64 --win",
-    "dist-mac": "electron-builder --publish=never  --mac",
-    "dist-linux": "electron-builder --publish=never  --x64 --linux",
+    "dist-win": "electron-builder --publish=never --x64 --win",
+    "dist-mac": "electron-builder --publish=never --mac",
+    "dist-linux": "electron-builder --publish=never --x64 --linux",
     "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf dist"
   },
   "build": {
-    "productName": "ontime-prerelease",
-    "appId": "no.lightdev.ontime.prerelease",
+    "productName": "ontime",
+    "appId": "no.lightdev.ontime",
     "asar": true,
     "dmg": {
       "artifactName": "ontime-macOS-${arch}.dmg",
       "icon": "icon.icns"
     },
     "mac": {
+      "notarize": {
+        "teamId": "MDAU6QK6R4"
+      },
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "./entitlements.plist",
+      "entitlementsInherit": "./entitlements.plist",
       "target": {
         "target": "dmg",
         "arch": [
