@@ -79,11 +79,13 @@ export class SocketServer implements IAdapter {
       ws.on('close', () => {
         this.clients.delete(clientId);
         logger.info(LogOrigin.Client, `${this.clients.size} Connections with disconnected: ${clientId}`);
+        this.sendClientList();
       });
 
       ws.on('message', (data) => {
         try {
-          const message = JSON.parse(data.toString());
+          //@ts-expect-error ???
+          const message = JSON.parse(data);
           const { type, payload } = message;
 
           if (type === 'get-client-name') {

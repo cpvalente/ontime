@@ -25,27 +25,27 @@ import style from './ClientControlPanel.module.scss';
 
 export default function ClientList() {
   const { myName, clients } = useClientStore();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isOpenRedirect, onOpen: onOpenRedirect, onClose: onCloseRedirect } = useDisclosure();
   const { setIdentify, setRedirect } = setClientRemote;
 
-  const [redirectName, setRedirectName] = useState('');
+  const [targetName, setTargetName] = useState('');
 
   const openRedirect = (clientName: string) => {
-    setRedirectName(clientName);
-    onOpen();
+    setTargetName(clientName);
+    onOpenRedirect();
   };
 
   const redirect = (path: string) => {
-    setRedirect({ target: redirectName, path });
-    onClose();
+    setRedirect({ target: targetName, path });
+    onCloseRedirect();
   };
 
   return (
     <Panel.Table>
-      <RedirectModal onClose={onClose} isOpen={isOpen} clientName={redirectName} onSubmit={redirect} />
+      <RedirectModal onClose={onCloseRedirect} isOpen={isOpenRedirect} clientName={targetName} onSubmit={redirect} />
       <thead>
         <tr>
-          <td className={style.fullWidth}>Client Name</td>
+          <td className={style.fullWidth}>Client Name (Tab id)</td>
           <td />
         </tr>
       </thead>
@@ -68,9 +68,6 @@ export default function ClientList() {
                   isActive
                 >
                   Identify
-                </Button>
-                <Button size='xs' variant='ontime-subtle'>
-                  Rename
                 </Button>
                 <ButtonGroup size='xs' isAttached variant='ontime-subtle'>
                   <Button isLoading={isRedirecting} isDisabled={isCurrent} onClick={() => openRedirect(name)}>
