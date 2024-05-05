@@ -5,6 +5,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import { ContextMenu } from './common/components/context-menu/ContextMenu';
 import ErrorBoundary from './common/components/error-boundary/ErrorBoundary';
+import IdentifyOverlay from './common/components/identify-overlay/IdentifyOverlay';
 import { AppContextProvider } from './common/context/AppContext';
 import { ontimeQueryClient } from './common/queryClient';
 import { connectSocket } from './common/utils/socket';
@@ -23,6 +24,7 @@ function App() {
             <div className='App'>
               <ErrorBoundary>
                 <TranslationProvider>
+                  <IdentifyOverlay />
                   <ContextMenu>
                     <AppRouter />
                   </ContextMenu>
