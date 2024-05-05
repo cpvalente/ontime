@@ -11,7 +11,6 @@ export default function IdentifyOverlay() {
   const { clients, id, name } = useClientStore();
   const { setIdentify, setRedirect } = setClientRemote;
 
-  //TODO: is this the right place for it
   const navigate = useNavigate();
 
   useEffect(() => {
