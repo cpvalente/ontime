@@ -6,6 +6,7 @@ export enum ClientTypes {
 }
 
 export type Client = {
+  name: string;
   type: ClientTypes;
   identify: boolean;
   redirect: string;

@@ -24,6 +24,7 @@ import { IAdapter } from './IAdapter.js';
 import { eventStore } from '../stores/EventStore.js';
 import { logger } from '../classes/Logger.js';
 import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
+import { generateId } from 'ontime-utils';
 
 let instance: SocketServer | null = null;
 
@@ -48,23 +49,26 @@ export class SocketServer implements IAdapter {
     this.wss = new WebSocketServer({ path: '/ws', server, maxPayload: this.MAX_PAYLOAD });
 
     this.wss.on('connection', (ws) => {
-      let clientId = getRandomName();
-      this.clients.set(clientId, { type: ClientTypes.Unknown, identify: false, redirect: '' });
+      const clientId = generateId();
+
+      this.clients.set(clientId, { type: ClientTypes.Unknown, identify: false, redirect: '', name: getRandomName() });
       logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientId}`);
 
-      // give the client a change to tell us thire prefed name
-      const giveNameTimeout = setTimeout(
-        () =>
-          ws.send(
-            JSON.stringify({
-              type: 'client-name',
-              payload: clientId,
-            }),
-          ),
-        100,
+      ws.send(
+        JSON.stringify({
+          type: 'client-id',
+          payload: clientId,
+        }),
       );
-      //then send the client list
-      setTimeout(() => this.sendClientList(), 120);
+
+      ws.send(
+        JSON.stringify({
+          type: 'client-name',
+          payload: this.clients.get(clientId).name,
+        }),
+      );
+
+      this.sendClientList();
 
       // send store payload on connect
       ws.send(
@@ -92,28 +96,26 @@ export class SocketServer implements IAdapter {
             ws.send(
               JSON.stringify({
                 type: 'client-name',
-                payload: clientId,
+                payload: this.clients.get(clientId).name,
               }),
             );
             return;
           }
 
           if (type === 'set-client-name') {
-            clearTimeout(giveNameTimeout);
             if (payload) {
-              const previousName = clientId;
               const previousData = this.clients.get(clientId);
-              clientId = payload;
-              this.clients.delete(previousName);
+              logger.info(LogOrigin.Client, `Client ${previousData.identify} renamed to ${payload}`);
+              previousData.name = payload;
               this.clients.set(clientId, previousData);
-              logger.info(LogOrigin.Client, `Client ${previousName} renamed to ${clientId}`);
             }
             ws.send(
               JSON.stringify({
                 type: 'client-name',
-                payload: clientId,
+                payload,
               }),
             );
+            this.sendClientList();
             return;
           }
 

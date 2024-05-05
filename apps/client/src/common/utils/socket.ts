@@ -2,7 +2,7 @@ import { Log, RuntimeStore } from 'ontime-types';
 
 import { CLIENT_LIST, isProduction, RUNTIME, websocketUrl } from '../api/constants';
 import { ontimeQueryClient } from '../queryClient';
-import { getPreferredClientName, setClients, setCurrentClientName } from '../stores/clientStore';
+import { getPreferredClientName, setClients, setCurrentClientId, setCurrentClientName } from '../stores/clientStore';
 import { addLog } from '../stores/logger';
 import { patchRuntime, runtimeStore } from '../stores/runtime';
 
@@ -37,7 +37,7 @@ export const connectSocket = () => {
         if (websocket && websocket.readyState === WebSocket.CLOSED) {
           reconnectAttempts += 1;
           //TODO: add some jitter and a bit of backoff
-          setTimeout(() => connectSocket());
+          connectSocket();
         }
       }, reconnectInterval);
     }
@@ -58,6 +58,13 @@ export const connectSocket = () => {
       }
 
       switch (type) {
+        case 'client-id': {
+          if (typeof payload === 'string') {
+            setCurrentClientId(payload);
+          }
+          break;
+        }
+
         case 'client-name': {
           if (typeof payload === 'string') {
             setCurrentClientName(payload);

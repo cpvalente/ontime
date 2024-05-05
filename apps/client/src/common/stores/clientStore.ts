@@ -2,8 +2,11 @@ import { Clients } from 'ontime-types';
 import { create } from 'zustand';
 
 interface ClientStore {
-  myName?: string;
+  name?: string;
   setMyName: (newValue: string) => void;
+
+  id: string;
+  setId: (newValue: string) => void;
 
   clients: Clients;
   setClients: (clients: Clients) => void;
@@ -16,12 +19,15 @@ function persistNameInStorage(newValue: string) {
 }
 
 export const useClientStore = create<ClientStore>((set) => ({
-  myName: localStorage.getItem(clientNameKey) ?? undefined,
+  name: localStorage.getItem(clientNameKey) ?? undefined,
   setMyName: (newValue: string) =>
     set(() => {
       persistNameInStorage(newValue);
-      return { myName: newValue };
+      return { name: newValue };
     }),
+
+  id: '',
+  setId: (id) => set({ id }),
 
   clients: {},
   setClients: (clients: Clients) => set({ clients }),
@@ -31,15 +37,21 @@ export const useClientStore = create<ClientStore>((set) => ({
  * Allows getting client name (outside react)
  */
 export function getPreferredClientName(): string | undefined {
-  return useClientStore.getState().myName;
+  return useClientStore.getState().name;
 }
 
 /**
  * Allows updating current client name (outside react)
  */
-export function setCurrentClientName(self: string): void {
-  const setName = useClientStore.getState().setMyName;
-  setName(self);
+export function setCurrentClientName(name: string): void {
+  useClientStore.getState().setMyName(name);
+}
+
+/**
+ * Allows updating current client name (outside react)
+ */
+export function setCurrentClientId(id: string): void {
+  useClientStore.getState().setId(id);
 }
 
 /**
