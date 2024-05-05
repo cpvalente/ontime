@@ -131,7 +131,8 @@ export class SocketServer implements IAdapter {
           if (type === 'set-client-redirect') {
             if (payload) {
               const targetClient = this.clients.get(payload.target);
-              this.clients.set(payload.target, { ...targetClient, redirect: payload.path });
+              const redirect = payload.path;
+              this.clients.set(payload.target, { ...targetClient, redirect });
               this.sendClientList();
             }
             return;

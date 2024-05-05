@@ -17,6 +17,7 @@ export default function IdentifyOverlay() {
     if (id && clients[id] && clients[id].redirect !== '') {
       const { redirect } = clients[id];
       if (redirect !== window.location.pathname) {
+        setRedirect({ target: id, path: '' });
         navigate(redirect);
       } else {
         setRedirect({ target: id, path: '' });
