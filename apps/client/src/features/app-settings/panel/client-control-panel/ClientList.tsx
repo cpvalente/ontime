@@ -98,12 +98,12 @@ export default function ClientList() {
                   >
                     Identify
                   </Button>
-                  <Button size='xs' variant='ontime-subtle' isDisabled={isCurrent} onClick={() => openRename(id)}>
+                  <Button size='xs' variant='ontime-subtle' onClick={() => openRename(id)}>
                     Rename
                   </Button>
 
                   <ButtonGroup size='xs' isAttached variant='ontime-subtle'>
-                    <Button isLoading={isRedirecting} isDisabled={isCurrent} onClick={() => openRedirect(id)}>
+                    <Button isLoading={isRedirecting} onClick={() => openRedirect(id)}>
                       Redirect
                     </Button>
                     {isRedirecting && (
