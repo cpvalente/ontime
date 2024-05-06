@@ -51,7 +51,13 @@ export class SocketServer implements IAdapter {
     this.wss.on('connection', (ws) => {
       const clientId = generateId();
 
-      this.clients.set(clientId, { type: ClientTypes.Unknown, identify: false, redirect: '', name: getRandomName() });
+      this.clients.set(clientId, {
+        type: ClientTypes.Unknown,
+        identify: false,
+        redirect: '',
+        name: getRandomName(),
+        rename: '',
+      });
       logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientId}`);
 
       ws.send(
@@ -133,6 +139,16 @@ export class SocketServer implements IAdapter {
               const targetClient = this.clients.get(payload.target);
               const redirect = payload.path;
               this.clients.set(payload.target, { ...targetClient, redirect });
+              this.sendClientList();
+            }
+            return;
+          }
+
+          if (type === 'set-client-rename') {
+            if (payload) {
+              const targetClient = this.clients.get(payload.target);
+              const rename = payload.name;
+              this.clients.set(payload.target, { ...targetClient, rename });
               this.sendClientList();
             }
             return;

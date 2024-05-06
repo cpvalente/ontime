@@ -17,6 +17,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 import { IoClose } from '@react-icons/all-files/io5/IoClose';
+import { Clients } from 'ontime-types';
 
 import { setClientRemote } from '../../../../common/hooks/useSocket';
 import { useClientStore } from '../../../../common/stores/clientStore';
@@ -30,36 +31,42 @@ export default function ClientList() {
   const { isOpen: isOpenRename, onOpen: onOpenRename, onClose: onCloseRename } = useDisclosure();
   const { setIdentify, setRedirect, setRename } = setClientRemote;
 
-  const [targetName, setTargetName] = useState('');
+  const [targetId, setTargetId] = useState('');
 
-  const openRename = (clientName: string) => {
-    setTargetName(clientName);
+  const openRename = (id: string) => {
+    setTargetId(id);
     onOpenRename();
   };
 
   const rename = (name: string) => {
-    setRename({ target: targetName, name });
+    setRename({ target: targetId, name });
     onCloseRename();
   };
 
-  const openRedirect = (clientName: string) => {
-    setTargetName(clientName);
+  const openRedirect = (id: string) => {
+    setTargetId(id);
     onOpenRedirect();
   };
 
   const redirect = (path: string) => {
-    setRedirect({ target: targetName, path });
+    setRedirect({ target: targetId, path });
     onCloseRedirect();
   };
 
   return (
     <>
-      <RedirectModal onClose={onCloseRedirect} isOpen={isOpenRedirect} clientName={targetName} onSubmit={redirect} />
-      <RenameModal onClose={onCloseRename} isOpen={isOpenRename} clientName={targetName} onSubmit={rename} />
+      <RedirectModal
+        onClose={onCloseRedirect}
+        isOpen={isOpenRedirect}
+        clients={clients}
+        id={targetId}
+        onSubmit={redirect}
+      />
+      <RenameModal onClose={onCloseRename} isOpen={isOpenRename} clients={clients} id={targetId} onSubmit={rename} />
       <Panel.Table>
         <thead>
           <tr>
-            <td className={style.fullWidth}>Client Name (Tab id)</td>
+            <td className={style.fullWidth}>Client Name (Connection id)</td>
             <td />
           </tr>
         </thead>
@@ -120,20 +127,21 @@ export default function ClientList() {
 function RedirectModal(props: {
   onClose: () => void;
   isOpen: boolean;
-  clientName: string;
+  id: string;
+  clients: Clients;
   onSubmit: (path: string) => void;
 }) {
-  const { onClose, isOpen, clientName, onSubmit } = props;
+  const { onClose, isOpen, id, clients, onSubmit } = props;
   const [path, setPath] = useState('');
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Redirect Client</ModalHeader>
+        <ModalHeader>Redirect {clients[id]?.name}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <div>Redirect {clientName} to a new URL</div>
+          <div>Redirect to a new URL</div>
           <InputGroup variant='ontime-filled' size='md'>
             {/* TODO: better description */}
             <InputLeftAddon>ontime:port/</InputLeftAddon>
@@ -158,26 +166,27 @@ function RedirectModal(props: {
 function RenameModal(props: {
   onClose: () => void;
   isOpen: boolean;
-  clientName: string;
+  id: string;
+  clients: Clients;
   onSubmit: (path: string) => void;
 }) {
-  const { onClose, isOpen, clientName, onSubmit } = props;
-  const [path, setPath] = useState(clientName);
+  const { onClose, isOpen, id, clients, onSubmit } = props;
+  const [name, setName] = useState(clients[id]?.name ?? '');
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Rename Client</ModalHeader>
+        <ModalHeader>Rename {clients[id]?.name}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <div>Rename {clientName}</div>
+          <div>All connections in this client will have the same name after a reload</div>
           <Input
             variant='ontime-filled'
             size='md'
             placeholder='new name'
-            value={path}
-            onChange={(event) => setPath(event.target.value)}
+            value={name}
+            onChange={(event) => setName(event.target.value)}
           />
         </ModalBody>
         <ModalFooter>
@@ -185,7 +194,7 @@ function RenameModal(props: {
             <Button size='md' variant='ontime-subtle' onClick={onClose}>
               Cancel
             </Button>
-            <Button size='md' variant='ontime-filled' onClick={() => onSubmit(path)}>
+            <Button size='md' variant='ontime-filled' onClick={() => onSubmit(name)}>
               Submit
             </Button>
           </div>

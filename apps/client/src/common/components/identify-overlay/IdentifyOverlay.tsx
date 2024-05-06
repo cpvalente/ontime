@@ -8,8 +8,8 @@ import { useClientStore } from '../../stores/clientStore';
 import './Overlay.scss';
 
 export default function IdentifyOverlay() {
-  const { clients, id, name } = useClientStore();
-  const { setIdentify, setRedirect } = setClientRemote;
+  const { clients, id, name, setMyName } = useClientStore();
+  const { setIdentify, setRedirect, setRename } = setClientRemote;
 
   const navigate = useNavigate();
 
@@ -25,13 +25,25 @@ export default function IdentifyOverlay() {
     }
   }, [clients, id, navigate, setRedirect]);
 
+  useEffect(() => {
+    if (id && clients[id] && clients[id].rename !== '') {
+      const { rename } = clients[id];
+      if (rename !== name) {
+        setRename({ target: id, name: '' });
+        setMyName(rename);
+      } else {
+        setRename({ target: id, name: '' });
+      }
+    }
+  }, [clients, id, name, setMyName, setRename]);
+
   const showOverlay = useMemo(() => {
     return id && clients[id] && clients[id].identify;
   }, [clients, id]);
 
   if (showOverlay) {
     return (
-      <div className='overlay' onClick={() => setIdentify({ target: id!, state: false })}>
+      <div className='overlay' onClick={() => setIdentify({ target: id, state: false })}>
         <h1>
           {name}
           <Badge>{id}</Badge>
