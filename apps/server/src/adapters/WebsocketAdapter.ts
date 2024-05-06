@@ -139,8 +139,8 @@ export class SocketServer implements IAdapter {
               const targetClient = this.clients.get(payload.target);
               const redirect = payload.path;
               this.clients.set(payload.target, { ...targetClient, redirect });
-              this.sendClientList();
             }
+            this.sendClientList();
             return;
           }
 
@@ -149,8 +149,8 @@ export class SocketServer implements IAdapter {
               const targetClient = this.clients.get(payload.target);
               const rename = payload.name;
               this.clients.set(payload.target, { ...targetClient, rename });
-              this.sendClientList();
             }
+            this.sendClientList();
             return;
           }
 

@@ -4,6 +4,7 @@ import { Badge } from '@chakra-ui/react';
 
 import { setClientRemote } from '../../hooks/useSocket';
 import { useClientStore } from '../../stores/clientStore';
+import { socketSendJson } from '../../utils/socket';
 
 import './Overlay.scss';
 
@@ -29,8 +30,7 @@ export default function IdentifyOverlay() {
     if (id && clients[id] && clients[id].rename !== '') {
       const { rename } = clients[id];
       if (rename !== name) {
-        setRename({ target: id, name: '' });
-        setMyName(rename);
+        socketSendJson('set-client-name', rename);
       } else {
         setRename({ target: id, name: '' });
       }
@@ -43,7 +43,7 @@ export default function IdentifyOverlay() {
 
   if (showOverlay) {
     return (
-      <div className='overlay' onClick={() => setIdentify({ target: id, state: false })}>
+      <div className='overlay' data-testid='identify-overlay' onClick={() => setIdentify({ target: id, state: false })}>
         <h1>
           {name}
           <Badge>{id}</Badge>
