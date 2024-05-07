@@ -54,9 +54,7 @@ export class SocketServer implements IAdapter {
       this.clients.set(clientId, {
         type: ClientTypes.Unknown,
         identify: false,
-        redirect: '',
         name: getRandomName(),
-        rename: '',
       });
       logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientId}`);
 
@@ -67,12 +65,7 @@ export class SocketServer implements IAdapter {
         }),
       );
 
-      ws.send(
-        JSON.stringify({
-          type: 'client-name',
-          payload: this.clients.get(clientId).name,
-        }),
-      );
+      nameThisClient(ws, this.clients.get(clientId).name);
 
       this.sendClientList();
 
@@ -94,17 +87,12 @@ export class SocketServer implements IAdapter {
 
       ws.on('message', (data) => {
         try {
-          //@ts-expect-error ???
+          // @ts-expect-error -- ??
           const message = JSON.parse(data);
           const { type, payload } = message;
 
           if (type === 'get-client-name') {
-            ws.send(
-              JSON.stringify({
-                type: 'client-name',
-                payload: this.clients.get(clientId).name,
-              }),
-            );
+            nameThisClient(ws, this.clients.get(clientId).name);
             return;
           }
 
@@ -115,12 +103,7 @@ export class SocketServer implements IAdapter {
               previousData.name = payload;
               this.clients.set(clientId, previousData);
             }
-            ws.send(
-              JSON.stringify({
-                type: 'client-name',
-                payload,
-              }),
-            );
+            nameThisClient(ws, this.clients.get(clientId).name);
             this.sendClientList();
             return;
           }
@@ -135,20 +118,18 @@ export class SocketServer implements IAdapter {
           }
 
           if (type === 'set-client-redirect') {
-            if (payload) {
-              const targetClient = this.clients.get(payload.target);
-              const redirect = payload.path;
-              this.clients.set(payload.target, { ...targetClient, redirect });
+            if (payload && this.clients.has(payload.target)) {
+              this.sendAsJson({ type: 'client-redirect', payload });
             }
-            this.sendClientList();
             return;
           }
 
           if (type === 'set-client-rename') {
-            if (payload) {
+            if (payload && this.clients.has(payload.target)) {
               const targetClient = this.clients.get(payload.target);
-              const rename = payload.name;
-              this.clients.set(payload.target, { ...targetClient, rename });
+              targetClient.name = payload.name;
+              this.clients.set(payload.target, targetClient);
+              nameThisClient(ws, this.clients.get(clientId).name);
             }
             this.sendClientList();
             return;
@@ -211,3 +192,12 @@ export class SocketServer implements IAdapter {
 }
 
 export const socket = new SocketServer();
+
+function nameThisClient(ws: WebSocket, newName: string) {
+  ws.send(
+    JSON.stringify({
+      type: 'client-name',
+      payload: newName,
+    }),
+  );
+}

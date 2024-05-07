@@ -1,57 +1,43 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@chakra-ui/react';
 
 import { setClientRemote } from '../../hooks/useSocket';
 import { useClientStore } from '../../stores/clientStore';
-import { socketSendJson } from '../../utils/socket';
 
 import './Overlay.scss';
 
 export default function IdentifyOverlay() {
-  const { clients, id, name, setMyName } = useClientStore();
-  const { setIdentify, setRedirect, setRename } = setClientRemote;
+  const { clients, id, name, redirect, setRedirect } = useClientStore();
+  const { setIdentify } = setClientRemote;
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (id && clients[id] && clients[id].redirect !== '') {
-      const { redirect } = clients[id];
+    console.log(redirect)
+    if (redirect !== '') {
       if (redirect !== window.location.pathname) {
-        setRedirect({ target: id, path: '' });
+        setRedirect('');
         navigate(redirect);
       } else {
-        setRedirect({ target: id, path: '' });
+        setRedirect('');
       }
     }
-  }, [clients, id, navigate, setRedirect]);
+  }, [navigate, redirect, setRedirect]);
 
-  useEffect(() => {
-    if (id && clients[id] && clients[id].rename !== '') {
-      const { rename } = clients[id];
-      if (rename !== name) {
-        socketSendJson('set-client-name', rename);
-      } else {
-        setRename({ target: id, name: '' });
-      }
-    }
-  }, [clients, id, name, setMyName, setRename]);
+  const showOverlay = id && clients[id] && clients[id].identify;
 
-  const showOverlay = useMemo(() => {
-    return id && clients[id] && clients[id].identify;
-  }, [clients, id]);
-
-  if (showOverlay) {
-    return (
-      <div className='overlay' data-testid='identify-overlay' onClick={() => setIdentify({ target: id, state: false })}>
-        <h1>
-          {name}
-          <Badge>{id}</Badge>
-        </h1>
-        <h3>Click to close</h3>
-      </div>
-    );
+  if (!showOverlay) {
+    return null;
   }
 
-  return null;
+  return (
+    <div className='overlay' data-testid='identify-overlay' onClick={() => setIdentify({ target: id, state: false })}>
+      <h1>
+        {name}
+        <Badge>{id}</Badge>
+      </h1>
+      <h3>Click to close</h3>
+    </div>
+  );
 }

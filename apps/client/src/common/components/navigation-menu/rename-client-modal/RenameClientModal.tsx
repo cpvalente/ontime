@@ -20,7 +20,7 @@ interface RenameClientModalProps {
 
 export default function RenameClientModal({ isOpen, onClose }: RenameClientModalProps) {
   const clientName = useClientStore((state) => state.name);
-  const persistName = useClientStore((state) => state.setMyName);
+  const persistName = useClientStore((state) => state.setName);
   const [newName, setNewName] = useState(clientName);
 
   useEffect(() => {

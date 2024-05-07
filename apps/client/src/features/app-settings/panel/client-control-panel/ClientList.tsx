@@ -3,7 +3,6 @@ import {
   Badge,
   Button,
   ButtonGroup,
-  IconButton,
   Input,
   InputGroup,
   InputLeftAddon,
@@ -16,7 +15,6 @@ import {
   ModalOverlay,
   useDisclosure,
 } from '@chakra-ui/react';
-import { IoClose } from '@react-icons/all-files/io5/IoClose';
 import { Clients } from 'ontime-types';
 
 import { setClientRemote } from '../../../../common/hooks/useSocket';
@@ -26,15 +24,15 @@ import * as Panel from '../PanelUtils';
 import style from './ClientControlPanel.module.scss';
 
 export default function ClientList() {
-  const { id: myId, clients } = useClientStore();
+  const { id, clients } = useClientStore();
   const { isOpen: isOpenRedirect, onOpen: onOpenRedirect, onClose: onCloseRedirect } = useDisclosure();
   const { isOpen: isOpenRename, onOpen: onOpenRename, onClose: onCloseRename } = useDisclosure();
   const { setIdentify, setRedirect, setRename } = setClientRemote;
 
   const [targetId, setTargetId] = useState('');
 
-  const openRename = (id: string) => {
-    setTargetId(id);
+  const openRename = (targetId: string) => {
+    setTargetId(targetId);
     onOpenRename();
   };
 
@@ -43,8 +41,8 @@ export default function ClientList() {
     onCloseRename();
   };
 
-  const openRedirect = (id: string) => {
-    setTargetId(id);
+  const openRedirect = (targetId: string) => {
+    setTargetId(targetId);
     onOpenRedirect();
   };
 
@@ -71,15 +69,14 @@ export default function ClientList() {
           </tr>
         </thead>
         <tbody>
-          {Object.entries(clients).map(([id, client]) => {
-            const { identify, redirect, name } = client;
-            const isCurrent = id === myId;
-            const isRedirecting = redirect != '';
+          {Object.entries(clients).map(([key, client]) => {
+            const { identify, name } = client;
+            const isCurrent = id === key;
             return (
-              <tr key={id} className={isCurrent ? style.current : undefined}>
+              <tr key={key} className={isCurrent ? style.current : undefined}>
                 <td className={style.badgeList}>
                   <Badge variant='outline' size='sx'>
-                    {id}
+                    {key}
                   </Badge>
                   <Badge hidden={!isCurrent} variant='outline' colorScheme='yellow' size='sx'>
                     self
@@ -92,27 +89,18 @@ export default function ClientList() {
                     className={`${identify ? style.blink : ''}`}
                     variant={identify ? 'ontime-filled' : 'ontime-subtle'}
                     onClick={() => {
-                      setIdentify({ target: id, state: !identify });
+                      setIdentify({ target: key, state: !identify });
                     }}
                     isActive
                   >
                     Identify
                   </Button>
-                  <Button size='xs' variant='ontime-subtle' onClick={() => openRename(id)}>
+                  <Button size='xs' variant='ontime-subtle' onClick={() => openRename(key)}>
                     Rename
                   </Button>
 
                   <ButtonGroup size='xs' isAttached variant='ontime-subtle'>
-                    <Button isLoading={isRedirecting} onClick={() => openRedirect(id)}>
-                      Redirect
-                    </Button>
-                    {isRedirecting && (
-                      <IconButton
-                        aria-label='Cancel the redirect'
-                        icon={<IoClose />}
-                        onClick={() => setRedirect({ target: id, path: '' })}
-                      />
-                    )}
+                    <Button onClick={() => openRedirect(key)}>Redirect</Button>
                   </ButtonGroup>
                 </td>
               </tr>
