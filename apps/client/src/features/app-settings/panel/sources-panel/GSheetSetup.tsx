@@ -33,6 +33,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
   const patchStepData = useSheetStore((state) => state.patchStepData);
   const authenticationStatus = useSheetStore((state) => state.authenticationStatus);
   const setAuthenticationStatus = useSheetStore((state) => state.setAuthenticationStatus);
+  const authenticationError = useSheetStore((state) => state.stepData.authenticate.error);
 
   /** Check if we are authenticated */
   const getAuthStatus = async () => {
@@ -44,6 +45,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
 
   /** check if the current session has been authenticated */
   useEffect(() => {
+    patchStepData({ authenticate: { available: false, error: '' } });
     untilAuthenticated();
   }, []);
 
@@ -150,7 +152,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
       </Panel.Title>
       <Panel.ListGroup>
         <Panel.Description>Upload Client Secret provided by Google</Panel.Description>
-        <Panel.Error>{undefined}</Panel.Error>
+        <Panel.Error>{authenticationError}</Panel.Error>
         <Input
           type='file'
           onChange={handleClientSecret}
