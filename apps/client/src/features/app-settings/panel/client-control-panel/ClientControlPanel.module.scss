@@ -8,12 +8,19 @@
 
 .actionButtons {
   display: flex;
-  gap: 0.5rem;
+  gap: $element-spacing;
+}
+
+.badgeList {
+  width: 100%;
+  * {
+    margin-right: $element-spacing;
+  }
 }
 
 .buttonSection {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: $element-spacing;
-  margin-top: -0.5rem;
+  margin-top: -$element-spacing;
 }

@@ -7,7 +7,7 @@ import ClientControlPanel from './panel/client-control-panel/ClientControlPanel'
 import FeatureSettingsPanel from './panel/feature-settings-panel/FeatureSettingsPanel';
 import GeneralPanel from './panel/general-panel/GeneralPanel';
 import IntegrationsPanel from './panel/integrations-panel/IntegrationsPanel';
-import LogPanel from './panel/log-panel/LogPanel';
+import NetworkLogPanel from './panel/network-panel/NetworkLogPanel';
 import ProjectPanel from './panel/project-panel/ProjectPanel';
 import ShutdownPanel from './panel/shutdown-panel/ShutdownPanel';
 import SourcesPanel from './panel/sources-panel/SourcesPanel';
@@ -33,7 +33,7 @@ export default function AppSettings() {
           {panel === 'integrations' && <IntegrationsPanel location={location} />}
           {panel === 'client_control' && <ClientControlPanel />}
           {panel === 'about' && <AboutPanel />}
-          {panel === 'network' && <LogPanel />}
+          {panel === 'network' && <NetworkLogPanel location={location} />}
           {panel === 'shutdown' && <ShutdownPanel />}
         </PanelContent>
       </ErrorBoundary>

@@ -6,7 +6,7 @@ import { handleLinks } from '../../../../common/utils/linkUtils';
 import Log from '../../../log/Log';
 import * as Panel from '../PanelUtils';
 
-import style from './LogExport.module.scss';
+import style from './NetworkLogExport.module.scss';
 
 export default function LogExport() {
   const extract = (event: MouseEvent) => {

@@ -66,7 +66,7 @@ export default function ClientList() {
       <Panel.Table>
         <thead>
           <tr>
-            <td className={style.fullWidth}>Client Name (Connection id)</td>
+            <td className={style.fullWidth}>Client Name (Connection ID)</td>
             <td />
           </tr>
         </thead>
@@ -77,14 +77,14 @@ export default function ClientList() {
             const isRedirecting = redirect != '';
             return (
               <tr key={id} className={isCurrent ? style.current : undefined}>
-                <td className={style.fullWidth}>
-                  {name}
+                <td className={style.badgeList}>
                   <Badge variant='outline' size='sx'>
                     {id}
                   </Badge>
                   <Badge hidden={!isCurrent} variant='outline' colorScheme='yellow' size='sx'>
                     self
                   </Badge>
+                  {name}
                 </td>
                 <td className={style.actionButtons}>
                   <Button
