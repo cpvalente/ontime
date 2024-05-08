@@ -44,7 +44,6 @@ export const connectSocket = () => {
         console.warn('WebSocket: attempting reconnect');
         if (websocket && websocket.readyState === WebSocket.CLOSED) {
           reconnectAttempts += 1;
-          //TODO: add some jitter and a bit of backoff
           connectSocket();
         }
       }, reconnectInterval);
