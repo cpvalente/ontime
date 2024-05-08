@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   Badge,
   Button,
-  ButtonGroup,
   Input,
   InputGroup,
   InputLeftAddon,
@@ -88,6 +87,7 @@ export default function ClientList() {
                     size='xs'
                     className={`${identify ? style.blink : ''}`}
                     variant={identify ? 'ontime-filled' : 'ontime-subtle'}
+                    data-testid={isCurrent ? '' : 'not-self-identify'}
                     onClick={() => {
                       setIdentify({ target: key, state: !identify });
                     }}
@@ -95,13 +95,23 @@ export default function ClientList() {
                   >
                     Identify
                   </Button>
-                  <Button size='xs' variant='ontime-subtle' onClick={() => openRename(key)}>
+                  <Button
+                    size='xs'
+                    variant='ontime-subtle'
+                    data-testid={isCurrent ? '' : 'not-self-rename'}
+                    onClick={() => openRename(key)}
+                  >
                     Rename
                   </Button>
 
-                  <ButtonGroup size='xs' isAttached variant='ontime-subtle'>
-                    <Button onClick={() => openRedirect(key)}>Redirect</Button>
-                  </ButtonGroup>
+                  <Button
+                    size='xs'
+                    variant='ontime-subtle'
+                    data-testid={isCurrent ? '' : 'not-self-redirect'}
+                    onClick={() => openRedirect(key)}
+                  >
+                    Redirect
+                  </Button>
                 </td>
               </tr>
             );
