@@ -99,6 +99,16 @@ export class SocketServer implements IAdapter {
             return;
           }
 
+          if (type === 'set-client-type') {
+            if (payload) {
+              const previousData = this.clients.get(clientId);
+              previousData.type = payload;
+              this.clients.set(clientId, previousData);
+            }
+            this.sendClientList();
+            return;
+          }
+
           if (type === 'set-client-name') {
             if (payload) {
               const previousData = this.clients.get(clientId);

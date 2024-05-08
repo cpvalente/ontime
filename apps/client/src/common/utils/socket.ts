@@ -1,4 +1,4 @@
-import { Log, RuntimeStore } from 'ontime-types';
+import { ClientTypes, Log, RuntimeStore } from 'ontime-types';
 
 import { CLIENT_LIST, isProduction, RUNTIME, websocketUrl } from '../api/constants';
 import { ontimeQueryClient } from '../queryClient';
@@ -33,6 +33,7 @@ export const connectSocket = () => {
 
     if (preferredClientName) {
       socketSendJson('set-client-name', preferredClientName);
+      socketSendJson('set-client-type', ClientTypes.Ontime);
     }
   };
 

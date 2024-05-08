@@ -14,7 +14,7 @@ import {
   ModalOverlay,
   useDisclosure,
 } from '@chakra-ui/react';
-import { Clients } from 'ontime-types';
+import { Clients, ClientTypes } from 'ontime-types';
 
 import { setClientRemote } from '../../../../common/hooks/useSocket';
 import { useClientStore } from '../../../../common/stores/clientStore';
@@ -69,11 +69,17 @@ export default function ClientList() {
         </thead>
         <tbody>
           {Object.entries(clients).map(([key, client]) => {
-            const { identify, name } = client;
+            const { identify, name, type } = client;
             const isCurrent = id === key;
+            const disableRedirect = isCurrent || type != ClientTypes.Ontime;
+            const disableRename = type != ClientTypes.Ontime;
+            const disableIdentify = isCurrent || type != ClientTypes.Ontime;
             return (
-              <tr key={key} className={isCurrent ? style.current : undefined}>
+              <tr key={key}>
                 <td className={style.badgeList}>
+                  <Badge variant='outline' size='sx' colorScheme={selectColorScheme[type]}>
+                    {type}
+                  </Badge>
                   <Badge variant='outline' size='sx'>
                     {key}
                   </Badge>
@@ -86,7 +92,7 @@ export default function ClientList() {
                   <Button
                     size='xs'
                     className={`${identify ? style.blink : ''}`}
-                    isDisabled={isCurrent}
+                    isDisabled={disableIdentify}
                     variant={identify ? 'ontime-filled' : 'ontime-subtle'}
                     data-testid={isCurrent ? '' : 'not-self-identify'}
                     onClick={() => {
@@ -98,6 +104,7 @@ export default function ClientList() {
                   <Button
                     size='xs'
                     variant='ontime-subtle'
+                    isDisabled={disableRename}
                     data-testid={isCurrent ? '' : 'not-self-rename'}
                     onClick={() => openRename(key)}
                   >
@@ -107,7 +114,7 @@ export default function ClientList() {
                   <Button
                     size='xs'
                     variant='ontime-subtle'
-                    isDisabled={isCurrent}
+                    isDisabled={disableRedirect}
                     data-testid={isCurrent ? '' : 'not-self-redirect'}
                     onClick={() => openRedirect(key)}
                   >
@@ -122,6 +129,13 @@ export default function ClientList() {
     </>
   );
 }
+
+const selectColorScheme: Record<ClientTypes, string> = {
+  [ClientTypes.Ontime]: 'blue',
+  [ClientTypes.Unknown]: 'gray',
+  [ClientTypes.Companion]: 'red',
+  [ClientTypes.Chataigne]: 'orange',
+};
 
 function RedirectModal(props: {
   onClose: () => void;
