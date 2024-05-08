@@ -10,7 +10,7 @@ import './Overlay.scss';
 export default function IdentifyOverlay() {
   const { clients, id, name, redirect, setRedirect } = useClientStore();
   const { setIdentify } = setClientRemote;
-
+  let identifyTimeout: NodeJS.Timeout | undefined = undefined;
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,8 +27,11 @@ export default function IdentifyOverlay() {
   const showOverlay = id && clients[id] && clients[id].identify;
 
   if (!showOverlay) {
+    clearTimeout(identifyTimeout);
     return null;
   }
+
+  identifyTimeout = setTimeout(() => setIdentify({ target: id, state: false }), 30000);
 
   return (
     <div className='overlay' data-testid='identify-overlay' onClick={() => setIdentify({ target: id, state: false })}>
