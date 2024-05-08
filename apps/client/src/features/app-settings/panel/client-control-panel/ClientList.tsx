@@ -27,7 +27,7 @@ export default function ClientList() {
   const { id, clients } = useClientStore();
   const { isOpen: isOpenRedirect, onOpen: onOpenRedirect, onClose: onCloseRedirect } = useDisclosure();
   const { isOpen: isOpenRename, onOpen: onOpenRename, onClose: onCloseRename } = useDisclosure();
-  const { setIdentify, setRedirect, setRename } = setClientRemote;
+  const { setIdentify, setRedirect, setClientName } = setClientRemote;
 
   const [targetId, setTargetId] = useState('');
 
@@ -37,7 +37,7 @@ export default function ClientList() {
   };
 
   const rename = (name: string) => {
-    setRename({ target: targetId, name });
+    setClientName({ target: targetId, name });
     onCloseRename();
   };
 

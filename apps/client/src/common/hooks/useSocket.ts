@@ -6,7 +6,7 @@ import { socketSendJson } from '../utils/socket';
 export const setClientRemote = {
   setIdentify: (payload: { target: string; state: boolean }) => socketSendJson('set-client-identify', payload),
   setRedirect: (payload: { target: string; path: string }) => socketSendJson('set-client-redirect', payload),
-  setRename: (payload: { target: string; name: string }) => socketSendJson('set-client-rename', payload),
+  setClientName: (payload: { target: string; name: string }) => socketSendJson('set-client-rename', payload),
 };
 
 export const useRundownEditor = () => {

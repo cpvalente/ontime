@@ -14,7 +14,6 @@ export default function IdentifyOverlay() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log(redirect)
     if (redirect !== '') {
       if (redirect !== window.location.pathname) {
         setRedirect('');

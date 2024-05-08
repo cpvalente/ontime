@@ -42,21 +42,21 @@ export const useClientStore = create<ClientStore>((set) => ({
 /**
  * Allows getting client name (outside react)
  */
-export function getPreferredClientName(): string | undefined {
+export function getClientName(): string | undefined {
   return useClientStore.getState().name;
 }
 
 /**
  * Allows updating current client name (outside react)
  */
-export function setCurrentClientName(name: string): void {
+export function setClientName(name: string): void {
   useClientStore.getState().setName(name);
 }
 
 /**
  * Allows updating current client name (outside react)
  */
-export function setCurrentClientId(id: string): void {
+export function setClientId(id: string): void {
   useClientStore.getState().setId(id);
 }
 

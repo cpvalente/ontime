@@ -28,11 +28,13 @@ import { generateId } from 'ontime-utils';
 
 let instance: SocketServer | null = null;
 
+type WsClient = Client & { ws: WebSocket };
+
 export class SocketServer implements IAdapter {
   private readonly MAX_PAYLOAD = 1024 * 256; // 256Kb
 
   private wss: WebSocketServer | null;
-  private readonly clients: Map<string, Client>;
+  private readonly clients: Map<string, WsClient>;
 
   constructor() {
     if (instance) {
@@ -41,7 +43,7 @@ export class SocketServer implements IAdapter {
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
-    this.clients = new Map<string, Client>();
+    this.clients = new Map<string, WsClient>();
     this.wss = null;
   }
 
@@ -55,6 +57,7 @@ export class SocketServer implements IAdapter {
         type: ClientTypes.Unknown,
         identify: false,
         name: getRandomName(),
+        ws,
       });
       logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientId}`);
 
@@ -65,7 +68,7 @@ export class SocketServer implements IAdapter {
         }),
       );
 
-      nameThisClient(ws, this.clients.get(clientId).name);
+      nameWsClient(ws, this.clients.get(clientId).name);
 
       this.sendClientList();
 
@@ -92,18 +95,18 @@ export class SocketServer implements IAdapter {
           const { type, payload } = message;
 
           if (type === 'get-client-name') {
-            nameThisClient(ws, this.clients.get(clientId).name);
+            nameWsClient(ws, this.clients.get(clientId).name);
             return;
           }
 
           if (type === 'set-client-name') {
             if (payload) {
               const previousData = this.clients.get(clientId);
-              logger.info(LogOrigin.Client, `Client ${previousData.identify} renamed to ${payload}`);
+              logger.info(LogOrigin.Client, `Client ${previousData.name} renamed to ${payload}`);
               previousData.name = payload;
               this.clients.set(clientId, previousData);
+              nameWsClient(ws, this.clients.get(clientId).name);
             }
-            nameThisClient(ws, this.clients.get(clientId).name);
             this.sendClientList();
             return;
           }
@@ -126,11 +129,15 @@ export class SocketServer implements IAdapter {
 
           if (type === 'set-client-rename') {
             if (payload && this.clients.has(payload.target)) {
-              const targetClient = this.clients.get(payload.target);
-              targetClient.name = payload.name;
-              this.clients.set(payload.target, targetClient);
-              nameThisClient(ws, this.clients.get(clientId).name);
+              const targetID = payload.target;
+              const newName = payload.name;
+              const targetClient = this.clients.get(targetID);
+              logger.info(LogOrigin.Client, `Client ${targetClient.name} renamed to ${newName}`);
+              targetClient.name = newName;
+              this.clients.set(targetID, targetClient);
+              nameWsClient(targetClient.ws, newName);
             }
+
             this.sendClientList();
             return;
           }
@@ -164,7 +171,11 @@ export class SocketServer implements IAdapter {
   }
 
   sendClientList(): void {
-    const payload = Object.fromEntries(this.clients.entries());
+    const payload = Array.from(this.clients.entries()).reduce((acc, [key, data]) => {
+      //We have to remove the WS part from the list before sending it to the clients
+      const { ws: _, ...dataExcludingWs } = data;
+      return Object.assign(acc, { [key]: dataExcludingWs });
+    }, {});
     this.sendAsJson({ type: 'client-list', payload });
   }
 
@@ -193,7 +204,7 @@ export class SocketServer implements IAdapter {
 
 export const socket = new SocketServer();
 
-function nameThisClient(ws: WebSocket, newName: string) {
+function nameWsClient(ws: WebSocket, newName: string) {
   ws.send(
     JSON.stringify({
       type: 'client-name',

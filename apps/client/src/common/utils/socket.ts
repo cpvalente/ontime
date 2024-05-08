@@ -4,11 +4,11 @@ import { CLIENT_LIST, isProduction, RUNTIME, websocketUrl } from '../api/constan
 import { ontimeQueryClient } from '../queryClient';
 import {
   getClientId,
-  getPreferredClientName,
+  getClientName,
+  setClientId,
+  setClientName,
   setClientRedirect,
   setClients,
-  setCurrentClientId,
-  setCurrentClientName,
 } from '../stores/clientStore';
 import { addLog } from '../stores/logger';
 import { patchRuntime, runtimeStore } from '../stores/runtime';
@@ -24,7 +24,7 @@ export let reconnectAttempts = 0;
 export const connectSocket = () => {
   websocket = new WebSocket(websocketUrl);
 
-  const preferredClientName = getPreferredClientName();
+  const preferredClientName = getClientName();
 
   websocket.onopen = () => {
     clearTimeout(reconnectTimeout as NodeJS.Timeout);
@@ -67,14 +67,14 @@ export const connectSocket = () => {
       switch (type) {
         case 'client-id': {
           if (typeof payload === 'string') {
-            setCurrentClientId(payload);
+            setClientId(payload);
           }
           break;
         }
 
         case 'client-name': {
           if (typeof payload === 'string') {
-            setCurrentClientName(payload);
+            setClientName(payload);
           }
           break;
         }
