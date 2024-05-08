@@ -86,12 +86,12 @@ export default function ClientList() {
                   <Button
                     size='xs'
                     className={`${identify ? style.blink : ''}`}
+                    isDisabled={isCurrent}
                     variant={identify ? 'ontime-filled' : 'ontime-subtle'}
                     data-testid={isCurrent ? '' : 'not-self-identify'}
                     onClick={() => {
                       setIdentify({ target: key, state: !identify });
                     }}
-                    isActive
                   >
                     Identify
                   </Button>
@@ -107,6 +107,7 @@ export default function ClientList() {
                   <Button
                     size='xs'
                     variant='ontime-subtle'
+                    isDisabled={isCurrent}
                     data-testid={isCurrent ? '' : 'not-self-redirect'}
                     onClick={() => openRedirect(key)}
                   >
