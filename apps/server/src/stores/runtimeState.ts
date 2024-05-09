@@ -23,7 +23,7 @@ const initialRuntime: Runtime = {
   plannedEnd: 0,
   actualStart: null,
   expectedEnd: null,
-};
+} as const;
 
 const initialTimer: TimerState = {
   addedTime: 0,
@@ -35,7 +35,7 @@ const initialTimer: TimerState = {
   playback: Playback.Stop,
   secondaryTimer: null,
   startedAt: null,
-};
+} as const;
 
 export type RuntimeState = {
   clock: number; // realtime clock
@@ -59,7 +59,7 @@ const runtimeState: RuntimeState = {
   publicEventNow: null,
   eventNext: null,
   publicEventNext: null,
-  runtime: initialRuntime,
+  runtime: { ...initialRuntime },
   timer: { ...initialTimer },
   _timer: {
     totalDelay: 0,
@@ -78,12 +78,9 @@ export function clear() {
   runtimeState.eventNext = null;
   runtimeState.publicEventNext = null;
 
-  runtimeState.runtime = {
-    ...initialRuntime,
-    // persist session stuff
-    actualStart: runtimeState.runtime.actualStart,
-    numEvents: runtimeState.runtime.numEvents,
-  };
+  runtimeState.runtime.offset = null;
+  runtimeState.runtime.actualStart = null;
+  runtimeState.runtime.expectedEnd = null;
 
   runtimeState.timer.playback = Playback.Stop;
   runtimeState.clock = clock.timeNow();
@@ -123,7 +120,7 @@ export function updateRundownData(rundownData: RundownData) {
 
   runtimeState.runtime.numEvents = rundownData.numEvents;
   runtimeState.runtime.plannedStart = rundownData.firstStart;
-  runtimeState.runtime.plannedEnd = rundownData.firstStart + rundownData.totalDuration;
+  runtimeState.runtime.plannedEnd = rundownData.lastEnd;
   runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
 }
 
