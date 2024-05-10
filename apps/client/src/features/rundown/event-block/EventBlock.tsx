@@ -242,13 +242,7 @@ export default function EventBlock(props: EventBlockProps) {
       onContextMenu={onContextMenu}
       id='event-block'
     >
-      <RundownIndicators
-        timeStart={timeStart}
-        timeEnd={timeEnd}
-        previousStart={previousStart}
-        previousEnd={previousEnd}
-        delay={delay}
-      />
+      <RundownIndicators timeStart={timeStart} previousStart={previousStart} previousEnd={previousEnd} delay={delay} />
 
       <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
         <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
