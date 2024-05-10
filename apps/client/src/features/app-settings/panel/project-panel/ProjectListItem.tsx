@@ -169,7 +169,7 @@ function ActionMenu({
         <MenuItem onClick={handleRename}>Rename</MenuItem>
         <MenuItem onClick={handleDuplicate}>Duplicate</MenuItem>
         <MenuItem onClick={handleDownload}>Download</MenuItem>
-        {current && <MenuItem onClick={handleExportCSV}>Export CSV Rundown</MenuItem>}
+        <MenuItem onClick={handleExportCSV}>Export CSV Rundown</MenuItem>
         <MenuItem isDisabled={current} onClick={handleDelete}>
           Delete
         </MenuItem>
