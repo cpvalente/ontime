@@ -77,7 +77,7 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
 }
 
 export async function projectDownload(_req: Request, res: Response) {
-  const fileTitle = projectService.getProjectTitle();
+  const fileTitle = projectService.getProjectTitle(); //TODO: the project title and file name are not the same
   res.download(resolveDbPath, `${fileTitle}.json`, (error) => {
     if (error) {
       const message = getErrorMessage(error);
