@@ -10,24 +10,41 @@ export function formatDelay(timeStart: number, delay: number): string | undefine
   return `New start ${timeTag}`;
 }
 
+/**
+ * Utility function checks whether a given event is the day after from its predecessor
+ * We consider an event to be the day after, if it begins before the start of the previous
+ * @example day after
+ * // 09:00 - 10:00
+ * // 08:00 - 10:30 <--- day after
+ * @example same day
+ * // 09:00 - 10:00
+ * // 09:30 - 10:30 <--- same day
+ */
+function checkIsNextDay(previousStart: number, timeStart: number): boolean {
+  return timeStart < previousStart;
+}
+
 export function formatOverlap(
   previousStart: MaybeNumber,
   previousEnd: MaybeNumber,
   timeStart: number,
-  timeEnd: number,
 ): string | undefined {
-  if (previousEnd === null) return;
+  const noPreviousElement = previousEnd === null || previousStart === null;
+  if (noPreviousElement) return;
 
   const overlap = previousEnd - timeStart;
   if (overlap === 0) return;
 
-  if (previousStart && timeStart < previousEnd) {
-    const overlap = timeEnd - previousStart;
-    if (overlap > 0) {
-      const overlapString = removeLeadingZero(millisToString(Math.abs(overlap)));
-      return `Overlap ${overlapString}`;
-    }
-    const gap = timeStart + dayInMs - previousEnd;
+  const previousCrossMidnight = previousStart > previousEnd;
+  const isNextDay = previousCrossMidnight
+    ? checkIsNextDay(previousEnd, timeStart) || previousEnd == 0 // exception for when previousEnd is precisely midnight
+    : checkIsNextDay(previousStart, timeStart);
+
+  const correctedPreviousEnd = previousCrossMidnight ? previousEnd + dayInMs : previousEnd;
+
+  if (isNextDay) {
+    const gap = dayInMs - correctedPreviousEnd + timeStart;
+    if (gap === 0) return;
     const gapString = removeLeadingZero(millisToString(Math.abs(gap)));
     return `Gap ${gapString} (next day)`;
   }

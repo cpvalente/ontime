@@ -104,3 +104,19 @@ export const validateProjectRename = [
     next();
   },
 ];
+
+/**
+ * @description Validates a download request which can include an optional project name.
+ */
+export const validateDownloadProject = [
+  body('fileName').isString().optional(),
+
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    next();
+  },
+];

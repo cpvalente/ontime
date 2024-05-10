@@ -16,6 +16,7 @@ import { uploadProjectFile } from './db.middleware.js';
 import {
   projectSanitiser,
   sanitizeProjectFilename,
+  validateDownloadProject,
   validateLoadProjectFile,
   validatePatchProjectFile,
   validateProjectDuplicate,
@@ -24,7 +25,7 @@ import {
 
 export const router = express.Router();
 
-router.get('/download', projectDownload);
+router.post('/download', validateDownloadProject, projectDownload);
 router.post('/upload', uploadProjectFile, postProjectFile);
 
 router.patch('/', validatePatchProjectFile, patchPartialProjectFile);
