@@ -18,49 +18,77 @@ function EventEditorEmpty() {
           <tbody>
             <tr>
               <td>
-                <Kbd>{deviceAlt}</Kbd> + <Kbd>↑</Kbd> / <Kbd>↓</Kbd>
+                <Kbd>{deviceAlt}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>↑</Kbd>
+                <AuxKey>/</AuxKey>
+                <Kbd>↓</Kbd>
               </td>
               <td>Select entry</td>
             </tr>
             <tr>
               <td>
-                <Kbd>{deviceAlt}</Kbd> + <Kbd>{deviceMod}</Kbd> + <Kbd>↑</Kbd> / <Kbd>↑</Kbd>
+                <Kbd>{deviceAlt}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>{deviceMod}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>↑</Kbd>
+                <AuxKey>/</AuxKey>
+                <Kbd>↑</Kbd>
               </td>
               <td>Reorder selected entry</td>
             </tr>
             <tr>
               <td>
-                <Kbd>{deviceAlt}</Kbd> + <Kbd>E</Kbd>
+                <Kbd>{deviceAlt}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>E</Kbd>
               </td>
               <td>Add event below</td>
             </tr>
             <tr>
               <td>
-                <Kbd>{deviceAlt}</Kbd> + <Kbd>↑</Kbd> + <Kbd>E</Kbd>
+                <Kbd>{deviceAlt}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>↑</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>E</Kbd>
               </td>
               <td>Add event above</td>
             </tr>
             <tr>
               <td>
-                <Kbd>{deviceAlt}</Kbd> + <Kbd>B</Kbd>
+                <Kbd>{deviceAlt}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>B</Kbd>
               </td>
               <td>Add block below</td>
             </tr>
             <tr>
               <td>
-                <Kbd>{deviceAlt}</Kbd> + <Kbd>↑</Kbd> + <Kbd>B</Kbd>
+                <Kbd>{deviceAlt}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>↑</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>B</Kbd>
               </td>
               <td>Add block above</td>
             </tr>
             <tr>
               <td>
-                <Kbd>{deviceAlt}</Kbd> + <Kbd>D</Kbd>
+                <Kbd>{deviceAlt}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>D</Kbd>
               </td>
               <td>Add delay below</td>
             </tr>
             <tr>
               <td>
-                <Kbd>{deviceAlt}</Kbd> + <Kbd>↑</Kbd> + <Kbd>D</Kbd>
+                <Kbd>{deviceAlt}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>↑</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>D</Kbd>
               </td>
               <td>Add delay above</td>
             </tr>
@@ -72,25 +100,35 @@ function EventEditorEmpty() {
             </tr>
             <tr>
               <td>
-                <Kbd>{deviceMod}</Kbd> + <Kbd>⌫</Kbd>
+                <Kbd>{deviceMod}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>⌫</Kbd>
               </td>
               <td>Delete selected entry</td>
             </tr>
             <tr>
               <td>
-                <Kbd>{deviceMod}</Kbd> + <Kbd>C</Kbd>
+                <Kbd>{deviceMod}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>C</Kbd>
               </td>
               <td>Copy selected entry</td>
             </tr>
             <tr>
               <td>
-                <Kbd>{deviceMod}</Kbd> + <Kbd>↑</Kbd> + <Kbd>V</Kbd>
+                <Kbd>{deviceMod}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>↑</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>V</Kbd>
               </td>
               <td>Paste above</td>
             </tr>
             <tr>
               <td>
-                <Kbd>{deviceMod}</Kbd> + <Kbd>V</Kbd>
+                <Kbd>{deviceMod}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>V</Kbd>
               </td>
               <td>Paste below</td>
             </tr>
@@ -99,4 +137,8 @@ function EventEditorEmpty() {
       </div>
     </div>
   );
+}
+
+function AuxKey({ children }: { children: React.ReactNode }) {
+  return <span className={style.divider}>{children}</span>;
 }
