@@ -13,20 +13,14 @@ export function formatedTime(time: MaybeNumber) {
 }
 
 /**
- * Calculates a day span from a number range
- * @param end
- * @returns
+ * Calculates how long a time is and how many days it spans
  */
 export function calculateEndAndDaySpan(end: MaybeNumber): [MaybeNumber, number] {
-  let maybeEnd = end;
-  let maybeDaySpan = 0;
-  if (end !== null) {
-    if (end > dayInMs) {
-      maybeEnd = end % dayInMs;
-      maybeDaySpan = Math.floor(end / dayInMs);
-    }
+  if (end !== null && end > dayInMs) {
+    return [end % dayInMs, Math.floor(end / dayInMs)];
   }
-  return [maybeEnd, maybeDaySpan];
+
+  return [end, 0];
 }
 
 /**
