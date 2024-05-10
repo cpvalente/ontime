@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Badge } from '@chakra-ui/react';
 import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { setClientRemote } from '../../hooks/useSocket';
@@ -28,19 +27,21 @@ export default function IdentifyOverlay() {
   const showOverlay = id && clients[id] && clients[id].identify;
 
   if (!showOverlay) {
+    console.log('clear');
+
     clearTimeout(identifyTimeout);
     return null;
   }
 
-  identifyTimeout = setTimeout(() => setIdentify({ target: id, state: false }), MILLIS_PER_MINUTE);
+  identifyTimeout = setTimeout(() => {
+    console.log('timeout');
+    setIdentify({ target: id, state: false });
+  }, MILLIS_PER_MINUTE);
 
   return (
     <div className='overlay' data-testid='identify-overlay' onClick={() => setIdentify({ target: id, state: false })}>
-      <h1>
-        {name}
-        <Badge>{id}</Badge>
-      </h1>
-      <h3>Click to close</h3>
+      <div className='name'>{name}</div>
+      <div className='message'>Click to close</div>
     </div>
   );
 }

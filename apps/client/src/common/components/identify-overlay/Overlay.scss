@@ -1,8 +1,45 @@
 .overlay {
-  position: fixed;
-  height: 100vh;
+  font-family: 'Open Sans';
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
   width: 100vw;
-  background: rgba(50, 50, 100, 0.75);
-  z-index: 1000;
+  height: 100vh;
+  padding: 0;
+  box-sizing: border-box;
+  --dot-bg: #101010;
+  --dot-color: #aec0e8;
+  --dot-size: 2px;
+  --dot-space: 22px;
+  border: 10px solid white;
+  background:
+    linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center /
+      var(--dot-space) var(--dot-space),
+    linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space)
+      var(--dot-space),
+    var(--dot-color);
+}
+
+.overlay {
   color: white;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  z-index: 100;
+  cursor: pointer;
+}
+
+.name {
+  font-weight: 600;
+  margin-top: -10vh;
+  line-height: 1em;
+  font-size: 15vw;
+  text-transform: uppercase;
+}
+
+.message {
+  color: #fefefe;
+  line-height: 0.8em;
+  font-size: 4vw;
 }
