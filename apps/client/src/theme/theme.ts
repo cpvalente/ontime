@@ -83,9 +83,13 @@ const theme = extendTheme({
     Kbd: {
       baseStyle: {
         borderRadius: '2px',
-        border: '1px solid rgba(255, 255, 255, 0.20)',
+        border: 'none',
         background: 'rgba(255, 255, 255, 0.10)',
-        color: 'white',
+        padding: '0.125rem 0.5rem',
+        color: '#f6f6f6', // $ui-white
+        fontWeight: 400,
+        boxShadow: '0px 0px 3px 0px rgba(0,0,0,0.4)',
+        fontSize: 'calc(1rem - 2px)',
       },
     },
     Menu: {
