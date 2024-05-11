@@ -2,6 +2,7 @@ import { OntimeEvent } from 'ontime-types';
 
 import * as runtimeState from '../stores/runtimeState.js';
 import type { UpdateResult } from '../stores/runtimeState.js';
+import { timerConfig } from '../config/config.js';
 
 /**
  * Service manages Ontime's main timer
@@ -41,7 +42,7 @@ export class TimerService {
     }
 
     const state = runtimeState.getState();
-    const endTime = state.timer.current - 10;
+    const endTime = state.timer.current - timerConfig.triggerAhead;
     this.endCallback = setTimeout(() => this.update(), endTime);
     return true;
   }
