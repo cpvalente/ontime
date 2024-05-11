@@ -19,26 +19,15 @@ export function getShouldClockUpdate(previousUpdate: number, now: number): boole
 
 /**
  * Checks whether we should update the timer value
- * - timer has slid (?)
  * - we have rolled into a new seconds unit
  */
-export function getShouldTimerUpdate(
-  previousValue: number,
-  currentValue: MaybeNumber,
-  previousUpdate: number,
-  now: number,
-): boolean {
+export function getShouldTimerUpdate(previousValue: number, currentValue: MaybeNumber): boolean {
   if (currentValue === null) {
     return false;
   }
-
-  const shouldForceUpdate = getForceUpdate(previousUpdate, now);
-  if (shouldForceUpdate) {
-    return true;
-  }
-
-  const shouldUpdateTimer = millisToSeconds(currentValue) !== millisToSeconds(previousValue + timerConfig.triggerAhead);
-
+  // we avoid trigger ahead since it can cause duplicate triggers
+  // we force the timer value to be negative because we need a ceiling reduction
+  const shouldUpdateTimer = millisToSeconds(-currentValue) !== millisToSeconds(-previousValue);
   return shouldUpdateTimer;
 }
 
@@ -47,7 +36,7 @@ export function getShouldTimerUpdate(
  * - if the clock has slid back
  * - if we have escaped the update rate (clock slid forward)
  */
-function getForceUpdate(previousUpdate: number, now: number): boolean {
+export function getForceUpdate(previousUpdate: number, now: number): boolean {
   const isClockBehind = now < previousUpdate;
   const hasExceededRate = now - previousUpdate >= timerConfig.notificationRate;
   return isClockBehind || hasExceededRate;

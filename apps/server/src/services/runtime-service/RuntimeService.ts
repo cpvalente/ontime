@@ -20,7 +20,7 @@ import {
   getPlayableEvents,
 } from '../rundown-service/rundownUtils.js';
 import { integrationService } from '../integration-service/IntegrationService.js';
-import { getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
+import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
 
 /**
  * Service manages runtime status of app
@@ -28,7 +28,8 @@ import { getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.uti
  */
 class RuntimeService {
   private eventTimer: TimerService | null = null;
-  private lastOnUpdate = -1;
+  private lastIntegrationClockUpdate = -1;
+  private lastIntegrationTimerValue = -1;
 
   /** last time we updated the socket */
   static previousTimerUpdate: number;
@@ -66,19 +67,25 @@ class RuntimeService {
       }
     }
 
-    // update normal cycle
-    if (newState.clock - this.lastOnUpdate >= timerConfig.notificationRate) {
-      const hasRunningTimer = Boolean(newState.eventNow) && newState.timer.playback === Playback.Play;
-      if (hasRunningTimer) {
-        process.nextTick(() => {
-          integrationService.dispatch(TimerLifeCycle.onUpdate);
-        });
-      }
+    const hasRunningTimer = Boolean(newState.eventNow) && newState.timer.playback === Playback.Play;
+    const shouldUpdateTimer =
+      hasRunningTimer && getShouldTimerUpdate(this.lastIntegrationTimerValue, newState.timer.current);
+
+    if (shouldUpdateTimer) {
+      process.nextTick(() => {
+        integrationService.dispatch(TimerLifeCycle.onUpdate);
+      });
+
+      this.lastIntegrationTimerValue = newState.timer.current;
+    }
+
+    const shouldUpdateClock = getShouldClockUpdate(this.lastIntegrationClockUpdate, newState.clock);
+    if (shouldUpdateClock) {
       process.nextTick(() => {
         integrationService.dispatch(TimerLifeCycle.onClock);
       });
 
-      this.lastOnUpdate = newState.clock;
+      this.lastIntegrationClockUpdate = newState.clock;
     }
 
     if (shouldCallRoll) {
@@ -522,12 +529,9 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // to apply custom logic for different datasets
 
     const shouldUpdateClock = getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock);
-    const shouldUpdateTimer = getShouldTimerUpdate(
-      RuntimeService.previousTimerValue,
-      state.timer.current,
-      RuntimeService.previousTimerUpdate,
-      state.clock,
-    );
+    const shouldForceTimerUpdate = getForceUpdate(RuntimeService.previousTimerUpdate, state.clock);
+    const shouldUpdateTimer =
+      shouldForceTimerUpdate || getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current);
 
     // some changes need an immediate update
     const hasNewLoaded = state.eventNow?.id !== RuntimeService.previousState?.eventNow?.id;
