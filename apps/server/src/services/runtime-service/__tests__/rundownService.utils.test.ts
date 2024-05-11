@@ -35,27 +35,28 @@ describe('getShouldTimerUpdate', () => {
   it('should return false when currentValue is null', () => {
     const previousValue = 0;
     const currentValue = null;
-    const previousUpdate = 0;
-    const now = 0;
-    const result = getShouldTimerUpdate(previousValue, currentValue, previousUpdate, now);
+    const result = getShouldTimerUpdate(previousValue, currentValue);
     expect(result).toBe(false);
   });
 
   it('should return true when timer is a second ahead', () => {
-    const previousValue = 5000;
-    const currentValue = 6500;
-    const previousUpdate = Date.now();
-    const now = Date.now();
-    const result = getShouldTimerUpdate(previousValue, currentValue, previousUpdate, now);
+    const previousValue = 6500;
+    const currentValue = 5000;
+    const result = getShouldTimerUpdate(previousValue, currentValue);
     expect(result).toBe(true);
   });
 
-  it('should return false when timer is not a second ahead and force update is not required', () => {
-    const previousValue = 5000;
-    const currentValue = 5500;
-    const previousUpdate = Date.now();
-    const now = Date.now();
-    const result = getShouldTimerUpdate(previousValue, currentValue, previousUpdate, now);
+  it('should return false when timer is not a second ahead', () => {
+    const previousValue = 5500;
+    const currentValue = 5200;
+    const result = getShouldTimerUpdate(previousValue, currentValue);
     expect(result).toBe(false);
+  });
+
+  it('timer value is ceiled', () => {
+    const previousValue = 5001; // 6
+    const currentValue = 4999; // 5
+    const result = getShouldTimerUpdate(previousValue, currentValue);
+    expect(result).toBe(true);
   });
 });
