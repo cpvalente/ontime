@@ -59,7 +59,14 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
         continue;
       }
       const parsedAddress = parseTemplateNested(address, state || {});
-      const parsedPayload = payload ? parseTemplateNested(payload, state || {}) : undefined;
+      let parsedPayload = payload ? parseTemplateNested(payload, state || {}) : undefined;
+
+      try {
+        const maybePayload = JSON.parse(parsedPayload);
+        parsedPayload = maybePayload;
+      } catch (_) {
+        /* we dont handle errors */
+      }
       try {
         this.emit(parsedAddress, parsedPayload);
       } catch (error) {
