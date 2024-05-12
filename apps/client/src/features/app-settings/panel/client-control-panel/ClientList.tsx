@@ -6,7 +6,8 @@ import { setClientRemote } from '../../../../common/hooks/useSocket';
 import { useClientStore } from '../../../../common/stores/clientStore';
 import * as Panel from '../PanelUtils';
 
-import { RedirectModal, RenameModal } from './Modal';
+import { RedirectModal } from './RedirectModal';
+import { RenameModal } from './RenameModal';
 
 import style from './ClientControlPanel.module.scss';
 
