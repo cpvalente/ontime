@@ -1,3 +1,5 @@
+import { MILLIS_PER_HOUR } from 'ontime-utils';
+
 import { formatDelay, formatOverlap } from '../EventBlock.utils';
 
 describe('formatDelay()', () => {
@@ -14,35 +16,47 @@ describe('formatOverlap()', () => {
     const previousStart = 0;
     const previousEnd = 60000; // 1 min
     const timeStart = 30000; // 30 sec
-    const timeEnd = 90000; // 1:30 min
-    const result = formatOverlap(previousStart, previousEnd, timeStart, timeEnd);
+    const result = formatOverlap(previousStart, previousEnd, timeStart);
     expect(result).toEqual('Overlap 0:30');
   });
 
+  it('bug #949 recognises an overlap between two times', () => {
+    const previousStart = 46800000; // 13:00:00
+    const previousEnd = 48600000; // 13:30:00
+    const timeStart = 48300000; // 13:25:00
+    const result = formatOverlap(previousStart, previousEnd, timeStart);
+    expect(result).toEqual('Overlap 5:00');
+  });
+
   it('handles events the day after, without overlap', () => {
-    const previousStart = new Date(0).setUTCHours(11);
-    const previousEnd = new Date(0).setUTCHours(12);
-    const timeStart = new Date(0).setUTCHours(6);
-    const timeEnd = new Date(0).setUTCHours(10);
-    const result = formatOverlap(previousStart, previousEnd, timeStart, timeEnd);
+    const previousStart = 11 * MILLIS_PER_HOUR;
+    const previousEnd = 12 * MILLIS_PER_HOUR;
+    const timeStart = 6 * MILLIS_PER_HOUR;
+    const result = formatOverlap(previousStart, previousEnd, timeStart);
     expect(result).toBe('Gap 18:00:00 (next day)');
   });
 
-  it('handles events the day after, with overlap', () => {
-    const previousStart = new Date(0).setUTCHours(9);
-    const previousEnd = new Date(0).setUTCHours(10);
-    const timeStart = new Date(0).setUTCHours(6);
-    const timeEnd = new Date(0).setUTCHours(11);
-    const result = formatOverlap(previousStart, previousEnd, timeStart, timeEnd);
-    expect(result).toBe('Overlap 02:00:00');
+  it('handles events the day after, with gap', () => {
+    const previousStart = 17 * MILLIS_PER_HOUR;
+    const previousEnd = 23 * MILLIS_PER_HOUR;
+    const timeStart = 9 * MILLIS_PER_HOUR;
+    const result = formatOverlap(previousStart, previousEnd, timeStart);
+    expect(result).toBe('Gap 10:00:00 (next day)');
   });
 
-  it('handles events the day after, with gap', () => {
-    const previousStart = new Date(0).setUTCHours(17);
-    const previousEnd = new Date(0).setUTCHours(23);
-    const timeStart = new Date(0).setUTCHours(9);
-    const timeEnd = new Date(0).setUTCHours(11);
-    const result = formatOverlap(previousStart, previousEnd, timeStart, timeEnd);
-    expect(result).toBe('Gap 10:00:00 (next day)');
+  it('handles events the day after, with previous ending at midnight', () => {
+    const previousStart = 23 * MILLIS_PER_HOUR; // 23:00:00
+    const previousEnd = 0; // 00:00:00
+    const timeStart = 1 * MILLIS_PER_HOUR; // 01:00:00
+    const result = formatOverlap(previousStart, previousEnd, timeStart);
+    expect(result).toBe('Gap 01:00:00 (next day)');
+  });
+
+  it('handles events the day after, with previous ending over midnight', () => {
+    const previousStart = 23 * MILLIS_PER_HOUR;
+    const previousEnd = 1 * MILLIS_PER_HOUR;
+    const timeStart = 2 * MILLIS_PER_HOUR;
+    const result = formatOverlap(previousStart, previousEnd, timeStart);
+    expect(result).toBe('Gap 01:00:00');
   });
 });
