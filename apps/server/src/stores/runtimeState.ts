@@ -81,6 +81,7 @@ export function clear() {
   runtimeState.runtime.offset = null;
   runtimeState.runtime.actualStart = null;
   runtimeState.runtime.expectedEnd = null;
+  runtimeState.runtime.selectedEventIndex = null;
 
   runtimeState.timer.playback = Playback.Stop;
   runtimeState.clock = clock.timeNow();
