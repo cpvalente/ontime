@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
@@ -10,8 +10,9 @@ import './Overlay.scss';
 export default function IdentifyOverlay() {
   const { clients, id, name, redirect, setRedirect } = useClientStore();
   const { setIdentify } = setClientRemote;
-  let identifyTimeout: NodeJS.Timeout | undefined = undefined;
+  const identifyTimeout = useRef<NodeJS.Timeout>();
   const navigate = useNavigate();
+  const showOverlay = clients[id]?.identify;
 
   useEffect(() => {
     if (redirect !== '') {
@@ -24,19 +25,28 @@ export default function IdentifyOverlay() {
     }
   }, [navigate, redirect, setRedirect]);
 
-  const showOverlay = id && clients[id] && clients[id].identify;
+  useEffect(() => {
+    if (showOverlay) {
+      identifyTimeout.current = setTimeout(() => {
+        setIdentify({ target: id, state: false });
+      }, MILLIS_PER_MINUTE);
+    } else {
+      if (identifyTimeout.current) {
+        clearTimeout(identifyTimeout.current);
+      }
+    }
+
+    return () => {
+      if (identifyTimeout.current) {
+        clearTimeout(identifyTimeout.current);
+      }
+    };
+  }, [clients, id, setIdentify, showOverlay]);
 
   if (!showOverlay) {
-    console.log('clear');
-
-    clearTimeout(identifyTimeout);
-    return null;
+    // eslint-disable-next-line react/jsx-no-useless-fragment
+    return <></>;
   }
-
-  identifyTimeout = setTimeout(() => {
-    console.log('timeout');
-    setIdentify({ target: id, state: false });
-  }, MILLIS_PER_MINUTE);
 
   return (
     <div className='overlay' data-testid='identify-overlay' onClick={() => setIdentify({ target: id, state: false })}>
