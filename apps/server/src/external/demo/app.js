@@ -66,9 +66,9 @@ const connectSocket = () => {
     switch (type) {
       case 'ontime': {
         // destructure known data from ontime
-        // see https://docs.getontime.no/api/osc-and-ws/
-        const { timer, playback } = payload;
-        updateTimerElement(playback, timer);
+        // see https://docs.getontime.no/api/data/runtime-data/
+        const { current, playback } = payload.timer;
+        updateTimerElement(playback, current);
         break;
       }
       case 'ontime-timer': {

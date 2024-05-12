@@ -95,7 +95,7 @@ function TitlesOverview() {
 }
 
 function TimerOverview() {
-  const {current} = useTimer();
+  const { current } = useTimer();
 
   const display = millisToString(current);
 

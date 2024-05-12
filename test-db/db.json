@@ -10,7 +10,7 @@
   },
   "settings": {
     "app": "ontime",
-    "version": "3.0.0",
+    "version": "3.0.0-beta.3",
     "serverPort": 4001,
     "editorKey": null,
     "operatorKey": null,
@@ -18,11 +18,12 @@
     "language": "en"
   },
   "viewSettings": {
-    "overrideStyles": false,
-    "normalColor": "#ffffffcc",
-    "warningColor": "#FFAB33",
     "dangerColor": "#ED3333",
-    "endMessage": ""
+    "endMessage": "",
+    "freezeEnd": false,
+    "normalColor": "#ffffffcc",
+    "overrideStyles": false,
+    "warningColor": "#FFAB33"
   },
   "urlPresets": [],
   "customFields": {},

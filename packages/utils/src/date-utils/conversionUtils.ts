@@ -5,7 +5,7 @@ export const MILLIS_PER_MINUTE = 1000 * 60;
 export const MILLIS_PER_HOUR = 1000 * 60 * 60;
 
 function convertMillis(millis: MaybeNumber, conversion: number) {
-  if (millis == null || millis === 0) {
+  if (!millis) {
     return 0;
   }
 

@@ -25,9 +25,9 @@ export default function useGoogleSheet() {
   /** whether the current session has been authenticated */
   const verifyAuth = async (): Promise<{ authenticated: AuthenticationStatus; sheetId: string } | void> => {
     try {
-      return verifyAuthenticationStatus();
-    } catch (_error) {
-      /** we do not handle errors here */
+      return await verifyAuthenticationStatus();
+    } catch (error) {
+      patchStepData({ authenticate: { available: false, error: maybeAxiosError(error) } });
     }
   };
 
@@ -37,18 +37,18 @@ export default function useGoogleSheet() {
     sheetId: string,
   ): Promise<{ verification_url: string; user_code: string } | void> => {
     try {
-      return requestConnection(file, sheetId);
-    } catch (_error) {
-      /** we do not handle errors here */
+      return await requestConnection(file, sheetId);
+    } catch (error) {
+      patchStepData({ authenticate: { available: false, error: maybeAxiosError(error) } });
     }
   };
 
   /** requests the revoking of an existing authenticated session */
   const revoke = async (): Promise<{ authenticated: AuthenticationStatus } | void> => {
     try {
-      return revokeAuthentication();
-    } catch (_error) {
-      /** we do not handle errors here */
+      return await revokeAuthentication();
+    } catch (error) {
+      patchStepData({ authenticate: { available: false, error: maybeAxiosError(error) } });
     }
   };
 

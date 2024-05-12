@@ -128,57 +128,42 @@ Found a bug? [Open an issue](https://github.com/cpvalente/ontime/issues/new).
 
 When installing the app you would see warning screens from the Operating System like:
 
+in Windows
+
 `Microsoft Defender SmartScreen prevented an unrecognised app from starting. Running this app might put your PC at risk.`
-
-or
-
-`Ontime can't be opened because it is from an unidentified developer`
 
 or in Linux
 
 `Could Not Display "ontime-linux.AppImage`
 
+We currently only sign MacOS releases. \
+Purchasing the certificates for both Mac and Windows would mean a recurrent expense which we are not able to cover.
+
 You can circumvent this by allowing the execution of the app manually.
 
-- In Windows: click more and select "Run Anyway"
-- in macOS: the solution in macOS is different across versions, please refer to
-  the [apple documentation](https://support.apple.com/en-gb/guide/mac-help/mh40616/mac)
-- In Linux: right-click the AppImage file -> Properties -> Permissions -> select Allow Executing
-  File as a Program
+- In Windows: click `more` -> `Run Anyway`
+- In Linux: right-click the AppImage file: `Properties` -> `Permissions` -> `Allow Executing File as a Program`
 
-Long story short: Ontime app is unsigned. \
-Purchasing the certificates for both Mac and Windows would mean a recurrent expense and is not a priority. \
-This is unlikely to change in future. \
 If you have tips on how to improve this or would like to sponsor the code signing,
 please [open an issue](https://github.com/cpvalente/ontime/issues/new)
-
-#### Safari
-
-There are known issues with Safari versions lower than 13:
-
-- Spacing and text styles might have small inconsistencies
-- Table view does not work
-
-There is no plan for any further work on this.
 
 ## Contributing
 
 Looking to contribute? All types of help are appreciated, from coding to testing and feature specification.
 
-If you are a developer and would like to contribute with some code, please open an issue to discuss before opening a
-Pull Request.
+If you are a developer and would like to contribute with code, please open an issue to discuss before opening a Pull Request.
 
 Information about the project setup can be found in the [development documentation](./DEVELOPMENT.md)
 
-## Help
+## Links
 
-Help is underway! ... and can be found [here](https://docs.getontime.no)
+See the [Ontime website](https://getontime.no) here and the link to the [documentation](https://docs.getontime.no)
 
 ## License
 
 This project is licensed under the terms of the GNU GPL v3
 
-## SPONSOR
+## Sponsor
 
 You can help the development of this project or say thank you with a one time donation. \
 See [the terms of donations](https://github.com/cpvalente/ontime/blob/master/.github/FUNDING.md).

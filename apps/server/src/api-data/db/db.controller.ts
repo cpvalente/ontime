@@ -6,17 +6,19 @@ import {
   ProjectData,
   ProjectFileListResponse,
 } from 'ontime-types';
+import { getErrorMessage } from 'ontime-utils';
 
+import { join } from 'path';
+import { existsSync } from 'fs';
 import type { Request, Response } from 'express';
 
 import { failEmptyObjects } from '../../utils/routerUtils.js';
-import { resolveDbPath, resolveProjectsDirectory } from '../../setup/index.js';
+import { resolveDbDirectory, resolveProjectsDirectory } from '../../setup/index.js';
 
 import * as projectService from '../../services/project-service/ProjectService.js';
 import { ensureJsonExtension } from '../../utils/fileManagement.js';
 import { generateUniqueFileName } from '../../utils/generateUniqueFilename.js';
 import { appStateService } from '../../services/app-state-service/AppStateService.js';
-import { getErrorMessage } from 'ontime-utils';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   // all fields are optional in validation
@@ -76,9 +78,30 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
   }
 }
 
-export async function projectDownload(_req: Request, res: Response) {
-  const fileTitle = projectService.getProjectTitle();
-  res.download(resolveDbPath, `${fileTitle}.json`, (error) => {
+/**
+ * Utility function finds the correct project file to download
+ */
+function selectProjectFile(fileName?: string) {
+  const projectsDirectory = resolveDbDirectory;
+  const fileToDownload = fileName ? ensureJsonExtension(fileName) : projectService.getProjectTitle();
+  const pathToFile = join(projectsDirectory, fileToDownload);
+
+  return { pathToFile, name: fileToDownload };
+}
+
+/**
+ * Allows downloading of a optionally given project files
+ * If no {filename} is provided, loaded file will be served
+ */
+export async function projectDownload(req: Request, res: Response) {
+  const { pathToFile, name } = selectProjectFile(req.body?.fileName);
+
+  // Check if the file exists before attempting to download
+  if (!existsSync(pathToFile)) {
+    return res.status(404).send({ message: `Project ${name} not found.` });
+  }
+
+  res.download(pathToFile, name, (error) => {
     if (error) {
       const message = getErrorMessage(error);
       res.status(500).send({ message });

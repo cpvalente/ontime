@@ -80,6 +80,8 @@ export function generate(
   links = {};
   firstStart = null;
   lastEnd = null;
+  totalDuration = 0;
+  totalDelay = 0;
 
   let accumulatedDelay = 0;
   let daySpan = 0;

@@ -6,16 +6,15 @@ import style from './RundownIndicators.module.scss';
 
 interface RundownIndicatorProps {
   timeStart: number;
-  timeEnd: number;
   previousStart: MaybeNumber;
   previousEnd: MaybeNumber;
   delay: number;
 }
 
 export default function RundownIndicators(props: RundownIndicatorProps) {
-  const { timeStart, timeEnd, previousStart, previousEnd, delay } = props;
+  const { timeStart, previousStart, previousEnd, delay } = props;
 
-  const hasOverlap = formatOverlap(previousStart, previousEnd, timeStart, timeEnd);
+  const hasOverlap = formatOverlap(previousStart, previousEnd, timeStart);
   const hasDelay = formatDelay(timeStart, delay);
 
   return (
