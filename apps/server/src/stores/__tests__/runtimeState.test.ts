@@ -168,7 +168,7 @@ describe('mutation on runtimeState', () => {
       load(event2, [event1, event2]);
       start();
       newState = getState();
-      expect(newState.runtime.actualStart).toBeCloseTo(firstStart, 1);
+      expect(newState.runtime.actualStart).toBeCloseTo(firstStart, 2);
       // we are over-under, the difference between the schedule and the actual start
       const delayBefore = event2.timeStart - newState.clock;
       expect(newState.runtime.offset).toBe(delayBefore);
