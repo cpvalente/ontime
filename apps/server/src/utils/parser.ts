@@ -43,6 +43,10 @@ type ExcelData = Pick<DatabaseModel, 'rundown' | 'customFields'> & {
 };
 
 function parseBooleanString(value: unknown): boolean {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
   // falsy values would be nullish or empty string
   if (!value || typeof value !== 'string') {
     return false;
