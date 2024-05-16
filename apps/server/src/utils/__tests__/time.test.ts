@@ -1,3 +1,4 @@
+import { MILLIS_PER_MINUTE } from 'ontime-utils';
 import { parseExcelDate } from '../time.js';
 
 describe('parseExcelDate', () => {
@@ -46,8 +47,18 @@ describe('parseExcelDate', () => {
     });
   });
 
+  describe('uses numeric fields as minutes', () => {
+    const invalidFields = [1, 10, 100];
+    invalidFields.forEach((field) => {
+      it(`handles ${field}`, () => {
+        const millis = parseExcelDate(field);
+        expect(millis).toBe(field * MILLIS_PER_MINUTE);
+      });
+    });
+  });
+
   describe('returns 0 on other strings', () => {
-    const invalidFields = ['10', 'test', ''];
+    const invalidFields = ['test', ''];
     invalidFields.forEach((field) => {
       it(`handles ${field}`, () => {
         const millis = parseExcelDate(field);

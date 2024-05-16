@@ -19,7 +19,7 @@ import { dbModel } from '../../models/dataModel.js';
 import { createEvent, getCustomFieldData, parseExcel, parseJson } from '../parser.js';
 import { makeString } from '../parserUtils.js';
 import { parseRundown, parseUrlPresets, parseViewSettings } from '../parserFunctions.js';
-import { ImportMap } from 'ontime-utils';
+import { ImportMap, MILLIS_PER_MINUTE } from 'ontime-utils';
 import * as cache from '../../services/rundown-service/rundownCache.js';
 
 describe('test json parser with valid def', () => {
@@ -1514,5 +1514,132 @@ describe('parseExcel()', () => {
 
     expect((rundown[sixthId] as OntimeEvent).timeStart).toEqual((rundown[fourthId] as OntimeEvent).timeEnd);
     expect((rundown[sixthId] as OntimeEvent).linkStart).toEqual((rundown[fourthId] as OntimeEvent).id);
+  });
+
+  it('#971 BUG: parses time fields and booleans', () => {
+    const testData = [
+      [
+        'Cue',
+        'Colour',
+        'Time Start',
+        'Time End',
+        'Duration',
+        'Link Start',
+        'Title',
+        'Note',
+        'Timer Type',
+        'End Action',
+        'Warning time',
+        'Danger time',
+        'Public',
+        'Skip',
+      ],
+      [
+        'SETUP',
+        '',
+        '1899-12-30T07:15:00.000Z',
+        '1899-12-30T08:30:00.000Z',
+        '',
+        'false',
+        'Setup',
+        '',
+        'time-to-end',
+        'none',
+        '15',
+        '00:05:00',
+        'FALSE',
+        'TRUE',
+      ],
+      [
+        'MEET1',
+        '#779BE7',
+        '1899-12-30T08:30:00.000Z',
+        '1899-12-30T10:00:00.000Z',
+        '',
+        'false',
+        'Meeting 1',
+        '',
+        'time-to-end',
+        'none',
+        15,
+        '00:05:00',
+        'TRUE',
+        'FALSE',
+      ],
+      [
+        'MEET2',
+        '#779BE7',
+        '1899-12-30T10:00:00.000Z',
+        '',
+        '60',
+        'false',
+        'Meeting 2',
+        '',
+        'time-to-end',
+        'none',
+        '13',
+        '5',
+        'TRUE',
+        'FALSE',
+      ],
+      [
+        'lunch',
+        '#77C785',
+        '',
+        '1899-12-30T11:30:00.000Z',
+        '',
+        'true',
+        'Lunch',
+        '',
+        'time-to-end',
+        'none',
+        13,
+        5,
+        'FALSE',
+        'FALSE',
+      ],
+      [
+        'MEET3',
+        '#779BE7',
+        '1899-12-30T11:30:00.000Z',
+        '',
+        90,
+        false,
+        'Meeting 3',
+        '',
+        'count-up',
+        'none',
+        '11',
+        5,
+        'TRUE',
+        'FALSE',
+      ],
+      ['MEET4', '#779BE7', '', '', 30, true, 'Meeting 4', '', 'count-up', 'none', 11, '00:05:00', 'TRUE', 'FALSE'],
+    ];
+
+    const parsedData = parseExcel(testData);
+    const { rundown } = parsedData;
+
+    // elements in bug report
+    // 15 is a number, in which case we parse it as a minutes value
+    expect((rundown.at(1) as OntimeEvent).timeWarning).toBe(15 * MILLIS_PER_MINUTE);
+
+    // in the case where a string is passed, we need to check whether it is an ISO 8601 date
+    expect((rundown.at(2) as OntimeEvent).duration).toBe(60 * MILLIS_PER_MINUTE);
+    expect((rundown.at(2) as OntimeEvent).timeDanger).toBe(5 * MILLIS_PER_MINUTE);
+
+    expect((rundown.at(3) as OntimeEvent).timeWarning).toBe(13 * MILLIS_PER_MINUTE);
+    expect((rundown.at(3) as OntimeEvent).timeDanger).toBe(5 * MILLIS_PER_MINUTE);
+
+    expect((rundown.at(4) as OntimeEvent).duration).toBe(90 * MILLIS_PER_MINUTE);
+    expect((rundown.at(4) as OntimeEvent).linkStart).toBe(false);
+    expect((rundown.at(4) as OntimeEvent).timeWarning).toBe(11 * MILLIS_PER_MINUTE);
+    expect((rundown.at(4) as OntimeEvent).timeDanger).toBe(5 * MILLIS_PER_MINUTE);
+
+    expect((rundown.at(5) as OntimeEvent).duration).toBe(30 * MILLIS_PER_MINUTE);
+
+    // if we get a boolean, we should just use that
+    expect((rundown.at(5) as OntimeEvent).linkStart).toBe(true);
+    expect((rundown.at(5) as OntimeEvent).timeWarning).toBe(11 * MILLIS_PER_MINUTE);
   });
 });
