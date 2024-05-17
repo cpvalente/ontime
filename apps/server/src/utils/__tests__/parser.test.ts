@@ -21,6 +21,7 @@ import { makeString } from '../parserUtils.js';
 import { parseRundown, parseUrlPresets, parseViewSettings } from '../parserFunctions.js';
 import { ImportMap, MILLIS_PER_MINUTE } from 'ontime-utils';
 import * as cache from '../../services/rundown-service/rundownCache.js';
+import { documentedExcelData } from './parser.test.utils.js';
 
 describe('test json parser with valid def', () => {
   const testData: Partial<DatabaseModel> = {
@@ -1641,5 +1642,31 @@ describe('parseExcel()', () => {
     // if we get a boolean, we should just use that
     expect((rundown.at(5) as OntimeEvent).linkStart).toBe(true);
     expect((rundown.at(5) as OntimeEvent).timeWarning).toBe(11 * MILLIS_PER_MINUTE);
+  });
+
+  it('parses example from the documents', () => {
+    const importWithCustomFields = {
+      worksheet: 'event schedule',
+      timeStart: 'time start',
+      linkStart: 'link start',
+      timeEnd: 'time end',
+      duration: 'duration',
+      cue: 'cue',
+      title: 'title',
+      isPublic: 'public',
+      skip: 'skip',
+      note: 'notes',
+      colour: 'colour',
+      endAction: 'end action',
+      timerType: 'timer type',
+      timeWarning: 'warning time',
+      timeDanger: 'danger time',
+      custom: {
+        artist: 'artist',
+        song: 'song',
+      },
+    };
+    const result = parseExcel(documentedExcelData, importWithCustomFields);
+    expect(result.rundown).toMatchSnapshot();
   });
 });
