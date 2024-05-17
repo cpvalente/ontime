@@ -6,8 +6,11 @@
   font-style: normal;
   font-display: swap;
   font-weight: 300;
-  src: url(@fontsource/open-sans/files/open-sans-latin-300-normal.woff2) format('woff2'), url(@fontsource/open-sans/files/open-sans-latin-300-normal.woff) format('woff');
-  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  src:
+    url(@fontsource/open-sans/files/open-sans-latin-300-normal.woff2) format('woff2'),
+    url(@fontsource/open-sans/files/open-sans-latin-300-normal.woff) format('woff');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 /* open-sans-latin-400-normal */
@@ -16,8 +19,11 @@
   font-style: normal;
   font-display: swap;
   font-weight: 400;
-  src: url(@fontsource/open-sans/files/open-sans-latin-400-normal.woff2) format('woff2'), url(@fontsource/open-sans/files/open-sans-latin-400-normal.woff) format('woff');
-  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  src:
+    url(@fontsource/open-sans/files/open-sans-latin-400-normal.woff2) format('woff2'),
+    url(@fontsource/open-sans/files/open-sans-latin-400-normal.woff) format('woff');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 /* open-sans-latin-600-normal */
@@ -26,10 +32,12 @@
   font-style: normal;
   font-display: swap;
   font-weight: 600;
-  src: url(@fontsource/open-sans/files/open-sans-latin-600-normal.woff2) format('woff2'), url(@fontsource/open-sans/files/open-sans-latin-600-normal.woff) format('woff');
-  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+  src:
+    url(@fontsource/open-sans/files/open-sans-latin-600-normal.woff2) format('woff2'),
+    url(@fontsource/open-sans/files/open-sans-latin-600-normal.woff) format('woff');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
-
 
 $track-color: $white-1;
 $thumb-color: $gray-1100;
@@ -49,11 +57,15 @@ $thumb-color-hover: $gray-900;
   box-sizing: inherit;
 }
 
+body {
+  font-size: 15px;
+  font-family: $ontime-font-family;
+  background-color: var(--background-color-override, $ui-black);
+}
+
 body,
 html,
 .App {
-  font-size: 15px;
-  font-family: $ontime-font-family;
   margin: 0 auto;
   overflow: hidden;
   overflow: clip;
@@ -61,7 +73,6 @@ html,
   -webkit-user-select: none;
   user-select: none;
   -webkit-app-region: drag;
-  background-color: $bg-container-l1;
 }
 
 /* smaller root size for MacOS laptops */
