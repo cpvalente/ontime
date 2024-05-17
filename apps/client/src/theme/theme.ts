@@ -84,7 +84,7 @@ const theme = extendTheme({
       baseStyle: {
         borderRadius: '2px',
         border: 'none',
-        background: 'rgba(255, 255, 255, 0.10)',
+        background: '#262626', // $gray-1200
         padding: '0.125rem 0.5rem',
         color: '#f6f6f6', // $ui-white
         fontWeight: 400,
