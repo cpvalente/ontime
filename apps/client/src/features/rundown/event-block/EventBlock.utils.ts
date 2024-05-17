@@ -1,5 +1,5 @@
 import { MaybeNumber } from 'ontime-types';
-import { dayInMs, millisToString, removeLeadingZero, removeTrailingZero } from 'ontime-utils';
+import { checkIsNextDay, dayInMs, millisToString, removeLeadingZero, removeTrailingZero } from 'ontime-utils';
 
 export function formatDelay(timeStart: number, delay: number): string | undefined {
   if (!delay) return;
@@ -8,20 +8,6 @@ export function formatDelay(timeStart: number, delay: number): string | undefine
 
   const timeTag = removeTrailingZero(millisToString(delayedStart));
   return `New start ${timeTag}`;
-}
-
-/**
- * Utility function checks whether a given event is the day after from its predecessor
- * We consider an event to be the day after, if it begins before the start of the previous
- * @example day after
- * // 09:00 - 10:00
- * // 08:00 - 10:30 <--- day after
- * @example same day
- * // 09:00 - 10:00
- * // 09:30 - 10:30 <--- same day
- */
-function checkIsNextDay(previousStart: number, timeStart: number): boolean {
-  return timeStart < previousStart;
 }
 
 export function formatOverlap(
