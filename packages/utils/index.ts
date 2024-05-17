@@ -65,6 +65,9 @@ export { validateEndAction, validateTimerType } from './src/validate-events/vali
 
 // feature business logic
 
+// feature business logic - rundown
+export { checkIsNextDay } from './src/date-utils/checkIsNextDay.js';
+
 // feature business logic - spreadsheet import
 export {
   type ImportCustom,

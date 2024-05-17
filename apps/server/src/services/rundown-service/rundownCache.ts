@@ -9,7 +9,7 @@ import {
   OntimeRundown,
   OntimeRundownEntry,
 } from 'ontime-types';
-import { generateId, deleteAtIndex, insertAtIndex, reorderArray, swapEventData } from 'ontime-utils';
+import { generateId, deleteAtIndex, insertAtIndex, reorderArray, swapEventData, checkIsNextDay } from 'ontime-utils';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
@@ -85,6 +85,7 @@ export function generate(
 
   let accumulatedDelay = 0;
   let daySpan = 0;
+  let previousStart: MaybeNumber = null;
   let previousEnd: MaybeNumber = null;
 
   for (let i = 0; i < initialRundown.length; i++) {
@@ -108,7 +109,7 @@ export function generate(
       lastEnd = updatedEvent.timeEnd;
 
       // check if we go over midnight, account for eventual gaps
-      const gapOverMidnight = previousEnd !== null && previousEnd > updatedEvent.timeStart;
+      const gapOverMidnight = previousStart !== null && checkIsNextDay(previousStart, updatedEvent.timeStart);
       const durationOverMidnight = updatedEvent.timeStart > updatedEvent.timeEnd;
       if (gapOverMidnight || durationOverMidnight) {
         daySpan++;
@@ -128,6 +129,7 @@ export function generate(
         accumulatedDelay = Math.max(accumulatedDelay - gap, 0);
       }
       updatedEvent.delay = accumulatedDelay;
+      previousStart = updatedEvent.timeStart;
       previousEnd = updatedEvent.timeEnd;
     }
 
