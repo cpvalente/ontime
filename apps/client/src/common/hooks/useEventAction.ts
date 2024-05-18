@@ -1,7 +1,14 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { isOntimeEvent, MaybeString, OntimeEvent, OntimeRundownEntry, RundownCached } from 'ontime-types';
-import { getLinkedTimes, getPreviousEventNormal, reorderArray, swapEventData } from 'ontime-utils';
+import {
+  dayInMs,
+  getLinkedTimes,
+  getPreviousEventNormal,
+  MILLIS_PER_SECOND,
+  reorderArray,
+  swapEventData,
+} from 'ontime-utils';
 
 import { RUNDOWN } from '../api/constants';
 import {
@@ -215,9 +222,12 @@ export const useEventAction = () => {
         newValMillis = forgivingStringToMillis(value);
       }
 
+      // dont allow timer values over 23:59:59
+      const cappedMillis = Math.min(newValMillis, dayInMs - MILLIS_PER_SECOND);
+
       const newEvent = {
         id: eventId,
-        [field]: newValMillis,
+        [field]: cappedMillis,
       };
       try {
         await _updateEventMutation.mutateAsync(newEvent);
