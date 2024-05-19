@@ -1,7 +1,7 @@
 import type { OntimeEvent } from 'ontime-types';
 import { TimeStrategy } from 'ontime-types';
 
-import { dayInMs } from '../timeConstants';
+import { dayInMs } from '../date-utils/conversionUtils';
 import { calculateDuration, getLinkedTimes, validateTimes } from './validateTimes';
 
 describe('validateTimes()', () => {

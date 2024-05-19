@@ -1,5 +1,4 @@
-import { dayInMs } from '../timeConstants';
-import { MILLIS_PER_HOUR } from './conversionUtils';
+import { dayInMs, MILLIS_PER_HOUR } from './conversionUtils';
 import { formatFromMillis, millisToString, removeLeadingZero } from './timeFormatting';
 
 describe('millisToString()', () => {

@@ -1,7 +1,7 @@
 import type { OntimeEvent } from 'ontime-types';
 import { TimeStrategy } from 'ontime-types';
 
-import { dayInMs } from '../timeConstants.js';
+import { dayInMs } from '../date-utils/conversionUtils.js';
 import { validateTimeStrategy } from '../validate-events/validateEvent.js';
 
 export function getLinkedTimes(
