@@ -1,3 +1,12 @@
+FROM node:18.18-alpine as builder
+ENV NODE_ENV=docker
+ENV ONTIME_DATA=/external/
+WORKDIR /app/
+RUN wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.shrc" SHELL="$(which sh)" sh -
+COPY . /app/
+RUN PNPM_HOME="/root/.local/share/pnpm" PATH="${PATH}:/root/.local/share/pnpm" pnpm i
+run PNPM_HOME="/root/.local/share/pnpm" PATH="${PATH}:/root/.local/share/pnpm" pnpm run build:localdocker
+
 FROM node:18.18-alpine
 
 # Set environment variables
@@ -9,12 +18,12 @@ ENV ONTIME_DATA=/external/
 WORKDIR /app/
 
 # Prepare UI
-COPY /apps/client/build ./client/
+COPY --from=builder /app/apps/client/build ./client/
 
 # Prepare Backend
-COPY /apps/server/dist/ ./server/
-COPY /demo-db/ ./preloaded-db/
-COPY /apps/server/src/external/ ./external/
+COPY --from=builder /app/apps/server/dist/ ./server/
+COPY ./demo-db/ ./preloaded-db/
+COPY --from=builder /app/apps/server/src/external/ ./external/
 
 # Export default ports
 EXPOSE 4001/tcp 8888/udp 9999/udp
