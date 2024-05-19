@@ -26,8 +26,9 @@ export {
   swapEventData,
 } from './src/rundown-utils/rundownUtils.js';
 
-// format utils
+// time format utils
 export {
+  dayInMs,
   MILLIS_PER_HOUR,
   MILLIS_PER_MINUTE,
   MILLIS_PER_SECOND,
@@ -45,9 +46,6 @@ export {
 } from './src/date-utils/timeFormatting.js';
 export { isAlphanumeric } from './src/regex-utils/isAlphanumeric.js';
 export { isColourHex } from './src/regex-utils/isColourHex.js';
-
-// time utils
-export { dayInMs, mts } from './src/timeConstants.js';
 
 // helpers from externals
 export { deepmerge } from './src/externals/deepmerge.js';
