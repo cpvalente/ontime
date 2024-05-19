@@ -88,8 +88,6 @@ While it should allow for a generic setup, it might need to be modified to fit y
 
 From the project root, run the following commands
 
-- __Install the project dependencies__ by running `pnpm i`
-- __Build packages__ by running `pnpm build:localdocker`
 - __Build docker image from__ by running `docker build -t getontime/ontime`
 - __Run docker image from compose__ by running `docker-compose up -d`
 
