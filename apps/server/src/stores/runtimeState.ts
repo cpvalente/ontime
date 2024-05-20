@@ -301,7 +301,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   }
 
   state.runtime.offset = getRuntimeOffset(state);
-  state.runtime.expectedEnd = state.runtime.plannedEnd + state.runtime.offset;
+  state.runtime.expectedEnd = state.runtime.plannedEnd - state.runtime.offset;
 
   return true;
 }
@@ -389,6 +389,7 @@ export function update(): UpdateResult {
 
   // update offset
   runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
+  runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
 
   return {
     hasTimerFinished,
