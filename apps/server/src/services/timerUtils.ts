@@ -322,10 +322,10 @@ export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
   const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
 
   // startOffset - difference between scheduled start and actual start
-  // addedTime - time added by user (positive offset)
+  // addedTime - time added by user (negative offset)
   // pausedTime - time the playback was paused (negative offset)
   // overtime - how long the timer has been over-running (negative offset)
-  return startOffset + addedTime - pausedTime - overtime;
+  return startOffset - addedTime - pausedTime - overtime;
 }
 
 /**
@@ -356,5 +356,5 @@ export function getExpectedEnd(state: RuntimeState): MaybeNumber {
   if (state.runtime.actualStart === null) {
     return null;
   }
-  return state.runtime.plannedEnd + state.runtime.offset + state._timer.totalDelay;
+  return state.runtime.plannedEnd - state.runtime.offset + state._timer.totalDelay;
 }
