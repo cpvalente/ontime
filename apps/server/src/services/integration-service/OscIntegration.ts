@@ -3,7 +3,6 @@ import { LogOrigin, MaybeNumber, MaybeString, OSCSettings, OscSubscription } fro
 
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplateNested } from './integrationUtils.js';
-import { isObject } from '../../utils/varUtils.js';
 import { logger } from '../../classes/Logger.js';
 import { OscServer } from '../../adapters/OscAdapter.js';
 
@@ -59,34 +58,26 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
         continue;
       }
       const parsedAddress = parseTemplateNested(address, state || {});
-      let parsedPayload = payload ? parseTemplateNested(payload, state || {}) : undefined;
+      const parsedPayload = payload ? parseTemplateNested(payload, state || {}) : undefined;
+
+      const parsedArguments = this.stringToOSCArgs(parsedPayload);
 
       try {
-        const maybePayload = JSON.parse(parsedPayload);
-        parsedPayload = maybePayload;
-      } catch (_) {
-        /* we dont handle errors */
-      }
-      try {
-        this.emit(parsedAddress, parsedPayload);
+        this.emit(parsedAddress, parsedArguments);
       } catch (error) {
         logger.error(LogOrigin.Tx, `OSC Integration: ${error}`);
       }
     }
   }
 
-  emit(address: string, payload?: ArgumentType) {
+  emit(address: string, args?: ArgumentType[]) {
     if (!this.oscClient) {
       return;
     }
 
     const message = new Message(address);
-    if (payload) {
-      if (isObject(payload)) {
-        message.append(JSON.stringify(payload));
-      } else {
-        message.append(payload);
-      }
+    if (args) {
+      message.append(args);
     }
 
     this.oscClient.send(message);
@@ -118,6 +109,44 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
       this.oscClient = null;
       throw new Error(`Failed initialising OSC client: ${error}`);
     }
+  }
+
+  private stringToOSCArgs(argsString): ArgumentType[] {
+
+    // NOTE: regex taken from https://stackoverflow.com/questions/4031900/split-a-string-by-whitespace-keeping-quoted-segments-allowing-escaped-quotes
+    const parseRegex = /\w+|"(?:\\"|[^"])+"/g;
+
+    const parsedArguments = argsString.match(parseRegex).map((argString: string) => {
+      const argAsNum = Number(argString);
+
+      // NOTE: number like: 1 2.0 33333
+      if (!Number.isNaN(argAsNum)) {
+        if (argString.includes('.')) {
+          return {
+            type: 'f',
+            value: argAsNum,
+          };
+        } else {
+          return {
+            type: 'i',
+            value: argAsNum,
+          };
+        }
+      }
+
+      if (argString.startsWith('"') && argString.endsWith('"')) {
+        // NOTE: "quoted string"
+        return {
+          type: 's',
+          value: argString.substring(1, argString.length - 1).replaceAll('\\"', '"'),
+        };
+      }
+      return {
+        type: 's',
+        value: argString,
+      };
+    });
+    return parsedArguments;
   }
 
   private initRX(enabledIn: boolean, portIn: number) {
