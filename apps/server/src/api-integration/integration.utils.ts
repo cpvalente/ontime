@@ -1,11 +1,10 @@
 import { OntimeEvent, isKeyOfType, isOntimeEvent } from 'ontime-types';
-import { MILLIS_PER_SECOND } from 'ontime-utils';
+import { MILLIS_PER_SECOND, maxDuration } from 'ontime-utils';
 
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { editEvent } from '../services/rundown-service/RundownService.js';
 import { getEventWithId } from '../services/rundown-service/rundownUtils.js';
 import { coerceBoolean, coerceColour, coerceNumber, coerceString } from '../utils/coerceType.js';
-import { maxDuration } from '../../../../packages/utils/src/date-utils/conversionUtils.js';
 
 const whitelistedPayload = {
   title: coerceString,
