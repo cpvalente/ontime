@@ -383,6 +383,7 @@ export function update(): UpdateResult {
 
   // update offset
   runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
+  runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
 
   return {
     hasTimerFinished,
