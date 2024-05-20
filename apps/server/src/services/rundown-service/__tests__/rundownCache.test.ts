@@ -161,12 +161,13 @@ describe('generate()', () => {
     const testRundown: OntimeRundown = [
       { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 200 } as OntimeEvent,
       { type: SupportedEvent.Event, id: '2', timeStart: 200, timeEnd: 300 } as OntimeEvent,
-      { type: SupportedEvent.Event, id: '3', timeStart: 300, timeEnd: 400 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: 'skipped', skip: true, timeStart: 300, timeEnd: 400 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500 } as OntimeEvent,
     ];
 
     const initResult = generate(testRundown);
-    expect(initResult.order.length).toBe(3);
-    expect(initResult.totalDuration).toBe(400 - 100);
+    expect(initResult.order.length).toBe(4);
+    expect(initResult.totalDuration).toBe(500 - 100);
   });
 
   it('calculates total duration across days with gap', () => {
