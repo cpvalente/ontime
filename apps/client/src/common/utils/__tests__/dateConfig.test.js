@@ -45,6 +45,34 @@ describe('test forgivingStringToMillis()', () => {
     }
   });
 
+  describe('#33 separators are parsed according to doc examples ', () => {
+    const ts = [
+      { value: '0.1', expect: MILLIS_PER_MINUTE },
+      { value: '0 1', expect: MILLIS_PER_MINUTE },
+      { value: '0:1', expect: MILLIS_PER_MINUTE },
+      { value: '0,1', expect: MILLIS_PER_MINUTE },
+      { value: '2.2.2', expect: 2 * MILLIS_PER_HOUR + 2 * MILLIS_PER_MINUTE + 2 * MILLIS_PER_SECOND },
+      { value: '2 2 2', expect: 2 * MILLIS_PER_HOUR + 2 * MILLIS_PER_MINUTE + 2 * MILLIS_PER_SECOND },
+      { value: '2:2:2', expect: 2 * MILLIS_PER_HOUR + 2 * MILLIS_PER_MINUTE + 2 * MILLIS_PER_SECOND },
+      { value: '2,2,2', expect: 2 * MILLIS_PER_HOUR + 2 * MILLIS_PER_MINUTE + 2 * MILLIS_PER_SECOND },
+      { value: '2,2,2', expect: 2 * MILLIS_PER_HOUR + 2 * MILLIS_PER_MINUTE + 2 * MILLIS_PER_SECOND },
+      { value: '10:', expect: 10 * MILLIS_PER_HOUR },
+      { value: ':10', expect: 10 * MILLIS_PER_MINUTE },
+      { value: '10', expect: 10 * MILLIS_PER_MINUTE },
+      { value: '120', expect: MILLIS_PER_HOUR + 20 * MILLIS_PER_MINUTE },
+      { value: '90m', expect: 90 * MILLIS_PER_MINUTE },
+      { value: '1.2', expect: MILLIS_PER_HOUR + 2 * MILLIS_PER_MINUTE },
+      { value: '1.2.3', expect: MILLIS_PER_HOUR + 2 * MILLIS_PER_MINUTE + 3 * MILLIS_PER_SECOND },
+      { value: '123456', expect: 12 * MILLIS_PER_HOUR + 34 * MILLIS_PER_MINUTE + 56 * MILLIS_PER_SECOND },
+    ];
+
+    for (const s of ts) {
+      it(`handles ${s.value}`, () => {
+        expect(forgivingStringToMillis(s.value)).toBe(s.expect);
+      });
+    }
+  });
+
   describe('parses time strings', () => {
     const ts = [
       { value: '1h2m3s', expect: MILLIS_PER_HOUR + 2 * MILLIS_PER_MINUTE + 3 * MILLIS_PER_SECOND },

@@ -1,4 +1,5 @@
-import { isTimeString } from 'ontime-utils';
+import { MILLIS_PER_MINUTE } from 'ontime-utils';
+import { isISO8601 } from '../../../../packages/utils/src/date-utils/isTimeString.js';
 
 const mts = 1000; // millis to seconds
 const mtm = 1000 * 60; // millis to minutes
@@ -49,10 +50,9 @@ const stripAMPM = (value: string) => {
 /**
  * @description Parses a time string to millis, copied from client code
  * @param {string} value - time string
- * @param {boolean} fillLeft - autofill left = hours / right = seconds
  * @returns {number} - time string in millis
  */
-export const forgivingStringToMillis = (value: string, fillLeft: boolean = true): number => {
+export const forgivingStringToMillis = (value: string): number => {
   let millis = 0;
 
   // check for AM/PM indicators
@@ -87,16 +87,9 @@ export const forgivingStringToMillis = (value: string, fillLeft: boolean = true)
     }
   }
   if (first != null && second != null && third == null) {
-    // if string has two sections
-    if (fillLeft) {
-      // treat as [hours] [minutes]
-      millis += parse(first) * mth;
-      millis += parse(second) * mtm;
-    } else {
-      // treat as [minutes] [seconds]
-      millis += parse(first) * mtm;
-      millis += parse(second) * mts;
-    }
+    // if string has two sections  treat as [hours] [minutes]
+    millis += parse(first) * mth;
+    millis += parse(second) * mtm;
   }
   return millis;
 };
@@ -109,13 +102,21 @@ export const forgivingStringToMillis = (value: string, fillLeft: boolean = true)
 export const parseExcelDate = (excelDate: unknown): number => {
   if (excelDate instanceof Date) {
     return dateToMillis(excelDate);
-  } else if (typeof excelDate === 'string') {
-    const date = new Date(excelDate);
-    if (date instanceof Date && !isNaN(date.getTime())) {
-      return dateToMillis(date);
-    } else if (isTimeString(excelDate)) {
-      return forgivingStringToMillis(excelDate);
+  }
+
+  if (typeof excelDate === 'string') {
+    if (isISO8601(excelDate)) {
+      const date = new Date(excelDate);
+      if (date instanceof Date && !isNaN(date.getTime())) {
+        return dateToMillis(date);
+      }
     }
+    return forgivingStringToMillis(excelDate);
+  }
+
+  // if the user uses a number value eg. 15, excel could format the cell as number
+  if (typeof excelDate === 'number') {
+    return excelDate * MILLIS_PER_MINUTE;
   }
 
   return 0;
