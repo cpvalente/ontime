@@ -29,6 +29,7 @@ export {
 // time format utils
 export {
   dayInMs,
+  maxDuration,
   MILLIS_PER_HOUR,
   MILLIS_PER_MINUTE,
   MILLIS_PER_SECOND,
