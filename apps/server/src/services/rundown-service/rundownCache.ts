@@ -102,17 +102,20 @@ export function generate(
       // update the persisted event
       initialRundown[i] = updatedEvent;
 
-      // update rundown duration
-      if (firstStart === null) {
-        firstStart = updatedEvent.timeStart;
-      }
-      lastEnd = updatedEvent.timeEnd;
+      // we need to generate the skip event, but dont want to use its times
+      if (!updatedEvent.skip) {
+        // update rundown duration
+        if (firstStart === null) {
+          firstStart = updatedEvent.timeStart;
+        }
+        lastEnd = updatedEvent.timeEnd;
 
-      // check if we go over midnight, account for eventual gaps
-      const gapOverMidnight = previousStart !== null && checkIsNextDay(previousStart, updatedEvent.timeStart);
-      const durationOverMidnight = updatedEvent.timeStart > updatedEvent.timeEnd;
-      if (gapOverMidnight || durationOverMidnight) {
-        daySpan++;
+        // check if we go over midnight, account for eventual gaps
+        const gapOverMidnight = previousStart !== null && checkIsNextDay(previousStart, updatedEvent.timeStart);
+        const durationOverMidnight = updatedEvent.timeStart > updatedEvent.timeEnd;
+        if (gapOverMidnight || durationOverMidnight) {
+          daySpan++;
+        }
       }
     }
 
@@ -120,7 +123,7 @@ export function generate(
     // !!! this must happen after handling the links
     if (isOntimeDelay(updatedEvent)) {
       accumulatedDelay += updatedEvent.duration;
-    } else if (isOntimeEvent(updatedEvent)) {
+    } else if (isOntimeEvent(updatedEvent) && !updatedEvent.skip) {
       const eventStart = updatedEvent.timeStart;
 
       // we only affect positive delays (time forwards)
