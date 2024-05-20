@@ -59,7 +59,6 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
       }
       const parsedAddress = parseTemplateNested(address, state || {});
       const parsedPayload = payload ? parseTemplateNested(payload, state || {}) : undefined;
-
       const parsedArguments = this.stringToOSCArgs(parsedPayload);
 
       try {
@@ -114,7 +113,7 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
   private stringToOSCArgs(argsString): ArgumentType[] {
 
     // NOTE: regex taken from https://stackoverflow.com/questions/4031900/split-a-string-by-whitespace-keeping-quoted-segments-allowing-escaped-quotes
-    const parseRegex = /\w+|"(?:\\"|[^"])+"/g;
+    const parseRegex = /[\w.]+|"(?:\\"|[^"])+"/g;
 
     const parsedArguments = argsString.match(parseRegex).map((argString: string) => {
       const argAsNum = Number(argString);
