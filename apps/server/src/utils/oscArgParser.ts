@@ -19,6 +19,16 @@ export function stringToOSCArgs(argsString: string | undefined): Argument[] {
       return { type: 's', value: argString.substring(1, argString.length - 1) };
     }
 
+    if (argString === 'TRUE') {
+      // NOTE: Boolean true
+      return { type: 'T', value: true };
+    }
+
+    if (argString === 'FALSE') {
+      // NOTE: Boolean false
+      return { type: 'F', value: false };
+    }
+
     // NOTE: string
     return { type: 's', value: argString };
   });
