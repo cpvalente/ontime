@@ -110,7 +110,7 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
     }
   }
 
-  private stringToOSCArgs(argsString): ArgumentType[] {
+  private stringToOSCArgs(argsString: string): ArgumentType[] {
 
     // NOTE: regex taken from https://stackoverflow.com/questions/4031900/split-a-string-by-whitespace-keeping-quoted-segments-allowing-escaped-quotes
     const parseRegex = /[\w.]+|"(?:\\"|[^"])+"/g;
