@@ -111,10 +111,12 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
     }
   }
 
-  private stringToOSCArgs(argsString: string): ArgumentType[] {
-    const matches = splitWhitespace(argsString);
-
+  private stringToOSCArgs(argsString: string | undefined): ArgumentType[] {
     const parsedArguments = new Array<ArgumentType>();
+    if (typeof argsString === 'undefined') {
+      return parsedArguments;
+    }
+    const matches = splitWhitespace(argsString);
 
     if (!matches) {
       parsedArguments.push({ type: 's', value: argsString });
