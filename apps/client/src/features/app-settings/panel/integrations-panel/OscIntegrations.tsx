@@ -221,7 +221,7 @@ export default function OscIntegrations() {
                 <th>Enabled</th>
                 <th>Cycle</th>
                 <th className={style.halfWidth}>Address</th>
-                <th className={style.halfWidth}>Payload</th>
+                <th className={style.halfWidth}>Arguments</th>
                 <th />
               </tr>
             </thead>
@@ -277,7 +277,7 @@ export default function OscIntegrations() {
                         {...register(`subscriptions.${index}.payload`, {
                           validate: {
                             oscStringIsAscii: (value) =>
-                              isASCIIorEmpty.test(value) || 'OSC payloads only allow ASCII characters',
+                              isASCIIorEmpty.test(value) || 'OSC arguments only allow ASCII characters',
                           },
                         })}
                       />
