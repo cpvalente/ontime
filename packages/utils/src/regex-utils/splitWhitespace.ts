@@ -6,7 +6,7 @@ const splitRegex = /\\?.|^$/g;
  * @param str string to split
  * @returns
  */
-export const splitWhitespace = (str: string): null | string[] => {
+export const splitWhitespace = (str: string, keepQuotes = true): null | string[] => {
   const match = str.match(splitRegex);
   if (!match || match[0] == '') {
     return null;
@@ -15,6 +15,9 @@ export const splitWhitespace = (str: string): null | string[] => {
     (accumulator, current) => {
       if (current === '"') {
         accumulator.inQuotes ^= 1;
+        if (keepQuotes) {
+          accumulator.array[accumulator.array.length - 1] += current.replace(/\\(.)/, '$1');
+        }
       } else if (!accumulator.inQuotes && current === ' ') {
         accumulator.array.push('');
       } else {

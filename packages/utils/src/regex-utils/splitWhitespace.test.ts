@@ -18,21 +18,26 @@ describe('test splitWhitespace() function', () => {
 
   it('2 items and quoted string', () => {
     const test = 'test test "more test"';
-    expect(splitWhitespace(test)).toStrictEqual(['test', 'test', 'more test']);
+    expect(splitWhitespace(test)).toStrictEqual(['test', 'test', '"more test"']);
+  });
+
+  it('quotes without spaces', () => {
+    const test = 'test test "moreTest"';
+    expect(splitWhitespace(test)).toStrictEqual(['test', 'test', '"moreTest"']);
   });
 
   it('escaped quotes', () => {
     const test = 'test test "more \\" test"';
-    expect(splitWhitespace(test)).toStrictEqual(['test', 'test', 'more " test']);
+    expect(splitWhitespace(test)).toStrictEqual(['test', 'test', '"more " test"']);
   });
 
   it('missing end quotes', () => {
     const test = 'test test "more test';
-    expect(splitWhitespace(test)).toStrictEqual(['test', 'test', 'more test']);
+    expect(splitWhitespace(test)).toStrictEqual(['test', 'test', '"more test']);
   });
 
   it('missing start quotes', () => {
     const test = 'test test more test"';
-    expect(splitWhitespace(test)).toStrictEqual(['test', 'test', 'more', 'test']);
+    expect(splitWhitespace(test)).toStrictEqual(['test', 'test', 'more', 'test"']);
   });
 });
