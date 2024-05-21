@@ -134,10 +134,8 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
       if (!Number.isNaN(argAsNum)) {
         argValue = argAsNum;
         argType = argString.includes('.') ? 'f' : 'i';
-      }
-
-      // NOTE: "quoted string"
-      if (argString.startsWith('"') && argString.endsWith('"')) {
+      } else if (argString.startsWith('"') && argString.endsWith('"')) {
+        // NOTE: "quoted string"
         argValue = argString.substring(1, argString.length - 1).replaceAll('\\"', '"');
       }
 
