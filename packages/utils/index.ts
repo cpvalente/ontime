@@ -45,6 +45,7 @@ export {
 } from './src/date-utils/timeFormatting.js';
 export { isAlphanumeric } from './src/regex-utils/isAlphanumeric.js';
 export { isColourHex } from './src/regex-utils/isColourHex.js';
+export { splitWhitespace } from './src/regex-utils/splitWhitespace.js';
 
 // time utils
 export { dayInMs, mts } from './src/timeConstants.js';

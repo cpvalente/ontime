@@ -5,6 +5,7 @@ import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplateNested } from './integrationUtils.js';
 import { logger } from '../../classes/Logger.js';
 import { OscServer } from '../../adapters/OscAdapter.js';
+import { splitWhitespace } from 'ontime-utils';
 
 /**
  * @description Class contains logic towards outgoing OSC communications
@@ -111,12 +112,9 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
   }
 
   private stringToOSCArgs(argsString: string): ArgumentType[] {
-    // NOTE: regex taken from https://stackoverflow.com/questions/4031900/split-a-string-by-whitespace-keeping-quoted-segments-allowing-escaped-quotes
-    const parseRegex = /[\w.]+|"(?:\\"|[^"])+"/g;
+    const matches = splitWhitespace(argsString);
 
-    const matches = argsString.match(parseRegex);
-
-    const parsedArguments = [];
+    const parsedArguments = new Array<ArgumentType>();
 
     if (!matches) {
       parsedArguments.push({ type: 's', value: argsString });
