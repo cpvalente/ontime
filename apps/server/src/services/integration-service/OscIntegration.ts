@@ -111,17 +111,16 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
   }
 
   private stringToOSCArgs(argsString: string): ArgumentType[] {
-
     // NOTE: regex taken from https://stackoverflow.com/questions/4031900/split-a-string-by-whitespace-keeping-quoted-segments-allowing-escaped-quotes
     const parseRegex = /[\w.]+|"(?:\\"|[^"])+"/g;
 
     const matches = argsString.match(parseRegex);
 
-    const parsedArguments = []
+    const parsedArguments = [];
 
-    if(!matches){
-      parsedArguments.push({type: 's', value: argsString})
-      return parsedArguments 
+    if (!matches) {
+      parsedArguments.push({ type: 's', value: argsString });
+      return parsedArguments;
     }
 
     matches.forEach((argString: string) => {
