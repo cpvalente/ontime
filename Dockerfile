@@ -1,13 +1,11 @@
-FROM node:18.18-alpine AS base
+FROM node:18.18-alpine AS builder
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
-
-FROM base AS builder
 COPY . /app
 WORKDIR /app
-RUN pnpm install --frozen-lockfile \
-    && pnpm turbo build:docker
+RUN pnpm --filter=ontime-ui --filter=ontime-server --filter=ontime-utils install --config.dedupe-peer-dependents=false --frozen-lockfile
+RUN pnpm --filter=ontime-ui --filter=ontime-server run build:docker
 
 FROM node:18.18-alpine
 
