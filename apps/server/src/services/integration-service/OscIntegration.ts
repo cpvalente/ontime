@@ -70,15 +70,13 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
     }
   }
 
-  emit(address: string, args?: ArgumentType[]) {
+  emit(address: string, args: ArgumentType[]) {
     if (!this.oscClient) {
       return;
     }
 
     const message = new Message(address);
-    if (args) {
-      message.append(args);
-    }
+    message.append(args);
 
     this.oscClient.send(message);
   }
@@ -112,37 +110,26 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
   }
 
   private stringToOSCArgs(argsString: string | undefined): ArgumentType[] {
-    const parsedArguments = new Array<ArgumentType>();
     if (typeof argsString === 'undefined') {
-      return parsedArguments;
+      return new Array<ArgumentType>();
     }
     const matches = splitWhitespace(argsString);
 
-    if (!matches) {
-      parsedArguments.push({ type: 's', value: argsString });
-      return parsedArguments;
-    }
-
-    matches.forEach((argString: string) => {
-      const argAsNum = Number(argString);
-
-      let argType: 'i' | 'f' | 's' = 's';
-      let argValue: string | number = argString;
-
-      // NOTE: number like: 1 2.0 33333
-      if (!Number.isNaN(argAsNum)) {
-        argValue = argAsNum;
-        argType = argString.includes('.') ? 'f' : 'i';
-      } else if (argString.startsWith('"') && argString.endsWith('"')) {
-        // NOTE: "quoted string"
-        argValue = argString.substring(1, argString.length - 1).replaceAll('\\"', '"');
+    const parsedArguments = matches.map((argString: string) => {
+      const maybeNumber = Number(argString);
+      if (!Number.isNaN(maybeNumber)) {
+        //NOTE: number like: 1 2.0 33333
+        return maybeNumber;
       }
 
-      parsedArguments.push({
-        type: argType,
-        value: argValue,
-      });
+      if (argString.startsWith('"') && argString.endsWith('"')) {
+        // NOTE: "quoted string" or "1234"
+        return argString.substring(1, argString.length - 1);
+      }
+
+      return argString;
     });
+
     return parsedArguments;
   }
 
