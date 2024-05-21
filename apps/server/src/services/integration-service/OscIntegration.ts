@@ -5,7 +5,7 @@ import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplateNested } from './integrationUtils.js';
 import { logger } from '../../classes/Logger.js';
 import { OscServer } from '../../adapters/OscAdapter.js';
-import { splitWhitespace } from 'ontime-utils';
+import { stringToOSCArgs } from '../../utils/oscArgParser.js';
 
 /**
  * @description Class contains logic towards outgoing OSC communications
@@ -60,7 +60,7 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
       }
       const parsedAddress = parseTemplateNested(address, state || {});
       const parsedPayload = payload ? parseTemplateNested(payload, state || {}) : undefined;
-      const parsedArguments = this.stringToOSCArgs(parsedPayload);
+      const parsedArguments = stringToOSCArgs(parsedPayload);
 
       try {
         this.emit(parsedAddress, parsedArguments);
@@ -75,6 +75,7 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
       return;
     }
 
+    //TODO: Look into using bundles
     const message = new Message(address);
     message.append(args);
 
@@ -107,30 +108,6 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
       this.oscClient = null;
       throw new Error(`Failed initialising OSC client: ${error}`);
     }
-  }
-
-  private stringToOSCArgs(argsString: string | undefined): ArgumentType[] {
-    if (typeof argsString === 'undefined') {
-      return new Array<ArgumentType>();
-    }
-    const matches = splitWhitespace(argsString);
-
-    const parsedArguments = matches.map((argString: string) => {
-      const maybeNumber = Number(argString);
-      if (!Number.isNaN(maybeNumber)) {
-        //NOTE: number like: 1 2.0 33333
-        return maybeNumber;
-      }
-
-      if (argString.startsWith('"') && argString.endsWith('"')) {
-        // NOTE: "quoted string" or "1234"
-        return argString.substring(1, argString.length - 1);
-      }
-
-      return argString;
-    });
-
-    return parsedArguments;
   }
 
   private initRX(enabledIn: boolean, portIn: number) {
