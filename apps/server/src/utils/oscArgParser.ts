@@ -1,26 +1,26 @@
-import { ArgumentType } from 'node-osc';
+import { Argument } from 'node-osc';
 import { splitWhitespace } from 'ontime-utils';
 
-export function stringToOSCArgs(argsString: string | undefined): ArgumentType[] {
+export function stringToOSCArgs(argsString: string | undefined): Argument[] {
   if (typeof argsString === 'undefined') {
-    return new Array<ArgumentType>();
+    return new Array<Argument>();
   }
   const matches = splitWhitespace(argsString);
 
-  const parsedArguments = matches.map((argString: string) => {
-    const maybeNumber = Number(argString);
-    if (!Number.isNaN(maybeNumber)) {
-      //NOTE: number like: 1 2.0 33333
-      //TODO: we cant foce a float with our current osc lib
-      return maybeNumber;
+  const parsedArguments: Argument[] = matches.map((argString: string) => {
+    const argAsNum = Number(argString);
+    // NOTE: number like: 1 2.0 33333
+    if (!Number.isNaN(argAsNum)) {
+      return { type: argString.includes('.') ? 'f' : 'i', value: argAsNum };
     }
 
     if (argString.startsWith('"') && argString.endsWith('"')) {
-      // NOTE: "quoted string" or "1234"
-      return argString.substring(1, argString.length - 1);
+      // NOTE: "quoted string"
+      return { type: 's', value: argString.substring(1, argString.length - 1) };
     }
 
-    return argString;
+    // NOTE: string
+    return { type: 's', value: argString };
   });
 
   return parsedArguments;
