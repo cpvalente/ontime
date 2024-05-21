@@ -1,11 +1,13 @@
-FROM node:18.18-alpine as builder
-ENV NODE_ENV=docker
-ENV ONTIME_DATA=/external/
-WORKDIR /app/
-RUN wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.shrc" SHELL="$(which sh)" sh -
-COPY . /app/
-RUN PNPM_HOME="/root/.local/share/pnpm" PATH="${PATH}:/root/.local/share/pnpm" pnpm i
-run PNPM_HOME="/root/.local/share/pnpm" PATH="${PATH}:/root/.local/share/pnpm" pnpm run build:localdocker
+FROM node:18.18-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+
+FROM base AS builder
+COPY . /app
+WORKDIR /app
+RUN pnpm install --frozen-lockfile \
+    && pnpm turbo build:docker
 
 FROM node:18.18-alpine
 
