@@ -115,35 +115,36 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
     // NOTE: regex taken from https://stackoverflow.com/questions/4031900/split-a-string-by-whitespace-keeping-quoted-segments-allowing-escaped-quotes
     const parseRegex = /[\w.]+|"(?:\\"|[^"])+"/g;
 
-    const parsedArguments = argsString.match(parseRegex).map((argString: string) => {
+    const matches = argsString.match(parseRegex);
+
+    const parsedArguments = []
+
+    if(!matches){
+      parsedArguments.push({type: 's', value: argsString})
+      return parsedArguments 
+    }
+
+    matches.forEach((argString: string) => {
       const argAsNum = Number(argString);
+
+      let argType: 'i' | 'f' | 's' = 's';
+      let argValue: string | number = argString;
 
       // NOTE: number like: 1 2.0 33333
       if (!Number.isNaN(argAsNum)) {
-        if (argString.includes('.')) {
-          return {
-            type: 'f',
-            value: argAsNum,
-          };
-        } else {
-          return {
-            type: 'i',
-            value: argAsNum,
-          };
-        }
+        argValue = argAsNum;
+        argType = argString.includes('.') ? 'f' : 'i';
       }
 
+      // NOTE: "quoted string"
       if (argString.startsWith('"') && argString.endsWith('"')) {
-        // NOTE: "quoted string"
-        return {
-          type: 's',
-          value: argString.substring(1, argString.length - 1).replaceAll('\\"', '"'),
-        };
+        argValue = argString.substring(1, argString.length - 1).replaceAll('\\"', '"');
       }
-      return {
-        type: 's',
-        value: argString,
-      };
+
+      parsedArguments.push({
+        type: argType,
+        value: argValue,
+      });
     });
     return parsedArguments;
   }
