@@ -1,8 +1,7 @@
-// const parseRegex = /[\w.]+|"(?:\\"|[^"])+"/g;
 const splitRegex = /\\?.|^$/g;
 
 /**
- * [link](https://stackoverflow.com/questions/4031900/split-a-string-by-whitespace-keeping-quoted-segments-allowing-escaped-quotes)
+ * adapted from {@link https://stackoverflow.com/questions/4031900/split-a-string-by-whitespace-keeping-quoted-segments-allowing-escaped-quotes this}
  * @param str string to split
  * @returns
  */
@@ -30,4 +29,3 @@ export const splitWhitespace = (str: string, keepQuotes = true): null | string[]
 
   return array;
 };
-// export const splitWhitespace = (str: string): null | string[] => str.match(parseRegex);
