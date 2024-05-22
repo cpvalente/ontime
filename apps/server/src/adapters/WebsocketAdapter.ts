@@ -28,13 +28,11 @@ import { generateId } from 'ontime-utils';
 
 let instance: SocketServer | null = null;
 
-type WsClient = Client & { ws: WebSocket };
-
 export class SocketServer implements IAdapter {
   private readonly MAX_PAYLOAD = 1024 * 256; // 256Kb
 
   private wss: WebSocketServer | null;
-  private readonly clients: Map<string, WsClient>;
+  private readonly clients: Map<string, Client>;
 
   constructor() {
     if (instance) {
@@ -43,7 +41,7 @@ export class SocketServer implements IAdapter {
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
-    this.clients = new Map<string, WsClient>();
+    this.clients = new Map<string, Client>();
     this.wss = null;
   }
 
@@ -57,8 +55,8 @@ export class SocketServer implements IAdapter {
         type: ClientTypes.Unknown,
         identify: false,
         name: getRandomName(),
-        ws,
       });
+
       logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientId}`);
 
       ws.send(
@@ -198,11 +196,7 @@ export class SocketServer implements IAdapter {
   }
 
   sendClientList(): void {
-    const payload = Array.from(this.clients.entries()).reduce((acc, [key, data]) => {
-      //We have to remove the WS part from the list before sending it to the clients
-      const { ws: _, ...dataExcludingWs } = data;
-      return Object.assign(acc, { [key]: dataExcludingWs });
-    }, {});
+    const payload = Object.fromEntries(this.clients.entries());
     this.sendAsJson({ type: 'client-list', payload });
   }
 
