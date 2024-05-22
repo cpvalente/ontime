@@ -68,7 +68,12 @@ export class SocketServer implements IAdapter {
         }),
       );
 
-      nameWsClient(ws, this.clients.get(clientId).name);
+      ws.send(
+        JSON.stringify({
+          type: 'client-name',
+          payload: this.clients.get(clientId).name,
+        }),
+      );
 
       this.sendClientList();
 
@@ -95,7 +100,12 @@ export class SocketServer implements IAdapter {
           const { type, payload } = message;
 
           if (type === 'get-client-name') {
-            nameWsClient(ws, this.clients.get(clientId).name);
+            ws.send(
+              JSON.stringify({
+                type: 'client-name',
+                payload: this.clients.get(clientId).name,
+              }),
+            );
             return;
           }
 
@@ -115,7 +125,12 @@ export class SocketServer implements IAdapter {
               logger.info(LogOrigin.Client, `Client ${previousData.name} renamed to ${payload}`);
               previousData.name = payload;
               this.clients.set(clientId, previousData);
-              nameWsClient(ws, this.clients.get(clientId).name);
+              ws.send(
+                JSON.stringify({
+                  type: 'client-name',
+                  payload: this.clients.get(clientId).name,
+                }),
+              );
             }
             this.sendClientList();
             return;
@@ -141,13 +156,15 @@ export class SocketServer implements IAdapter {
             if (payload && this.clients.has(payload.target)) {
               const targetID = payload.target;
               const newName = payload.name;
-              const targetClient = this.clients.get(targetID);
-              logger.info(LogOrigin.Client, `Client ${targetClient.name} renamed to ${newName}`);
-              targetClient.name = newName;
-              this.clients.set(targetID, targetClient);
-              nameWsClient(targetClient.ws, newName);
+              const previousData = this.clients.get(targetID);
+              logger.info(LogOrigin.Client, `Client ${previousData.name} renamed to ${newName}`);
+              previousData.name = newName;
+              this.clients.set(targetID, previousData);
+              this.sendAsJson({
+                type: 'client-rename',
+                payload: { name: newName, id: targetID },
+              });
             }
-
             this.sendClientList();
             return;
           }
@@ -213,12 +230,3 @@ export class SocketServer implements IAdapter {
 }
 
 export const socket = new SocketServer();
-
-function nameWsClient(ws: WebSocket, newName: string) {
-  ws.send(
-    JSON.stringify({
-      type: 'client-name',
-      payload: newName,
-    }),
-  );
-}

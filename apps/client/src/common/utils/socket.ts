@@ -79,6 +79,13 @@ export const connectSocket = () => {
           break;
         }
 
+        case 'client-rename': {
+          if (payload.id && payload.id === getClientId()) {
+            setClientName(payload.name);
+          }
+          break;
+        }
+
         case 'client-redirect': {
           if (typeof payload === 'object') {
             const id = getClientId();
