@@ -37,7 +37,7 @@ export function RedirectModal(props: {
         <ModalBody>
           <InputGroup variant='ontime-filled' size='md'>
             <InputLeftAddon>{host}</InputLeftAddon>
-            <Input placeholder='timer?bg=f00' value={path} onChange={(event) => setPath(event.target.value)} />
+            <Input placeholder='minimal?key=0000ffff' value={path} onChange={(event) => setPath(event.target.value)} />
           </InputGroup>
         </ModalBody>
         <ModalFooter>

@@ -8,8 +8,8 @@ test('redirect', async ({ context }) => {
   await remotePage.goto('http://localhost:4001/timer');
 
   await controllerPage.getByTestId('not-self-redirect').click();
-  await controllerPage.getByPlaceholder('newpath?and=params').click();
-  await controllerPage.getByPlaceholder('newpath?and=params').fill('clock');
+  await controllerPage.getByPlaceholder('minimal?key=0000ffff').click();
+  await controllerPage.getByPlaceholder('minimal?key=0000ffff').fill('clock');
   await controllerPage.getByRole('button', { name: 'Submit' }).click();
 
   await expect(remotePage.getByTestId('clock-view')).toBeVisible();
