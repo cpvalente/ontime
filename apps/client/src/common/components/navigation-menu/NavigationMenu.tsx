@@ -18,11 +18,12 @@ import { IoLockClosedOutline } from '@react-icons/all-files/io5/IoLockClosedOutl
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 
 import { navigatorConstants } from '../../../viewerConfig';
+import { RenameClientModal } from '../../components/client-modal/RenameClientModal';
 import useClickOutside from '../../hooks/useClickOutside';
+import { setClientName } from '../../hooks/useSocket';
+import { useClientStore } from '../../stores/clientStore';
 import { useViewOptionsStore } from '../../stores/viewOptions';
 import { isKeyEnter } from '../../utils/keyEvent';
-
-import RenameClientModal from './rename-client-modal/RenameClientModal';
 
 import style from './NavigationMenu.module.scss';
 
@@ -34,10 +35,16 @@ interface NavigationMenuProps {
 function NavigationMenu(props: NavigationMenuProps) {
   const { isOpen, onClose } = props;
 
-  const { isOpen: isRenameOpen, onOpen: onRenameOpen, onClose: onRenameClose } = useDisclosure();
+  const { id, clients } = useClientStore();
 
+  const { isOpen: isOpenRename, onOpen: onRenameOpen, onClose: onCloseRename } = useDisclosure();
   const { fullscreen, toggle } = useFullscreen();
   const { toggleMirror } = useViewOptionsStore();
+
+  const rename = (name: string) => {
+    setClientName(name);
+    onCloseRename();
+  };
 
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -45,7 +52,7 @@ function NavigationMenu(props: NavigationMenuProps) {
 
   return createPortal(
     <div id='navigation-menu-portal' ref={menuRef}>
-      <RenameClientModal isOpen={isRenameOpen} onClose={onRenameClose} />
+      <RenameClientModal onClose={onCloseRename} isOpen={isOpenRename} clients={clients} id={id} onSubmit={rename} />
       <Drawer placement='left' onClose={onClose} isOpen={isOpen} variant='ontime' data-testid='navigation__menu'>
         <DrawerOverlay />
         <DrawerContent>

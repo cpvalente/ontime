@@ -14,9 +14,9 @@ import {
 } from '@chakra-ui/react';
 import { Clients } from 'ontime-types';
 
-import style from './ClientControlPanel.module.scss';
+import style from './ClientModal.module.scss';
 
-export function RedirectModal(props: {
+export function RedirectClientModal(props: {
   onClose: () => void;
   isOpen: boolean;
   id: string;

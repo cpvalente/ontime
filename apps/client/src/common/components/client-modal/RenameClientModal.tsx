@@ -12,9 +12,9 @@ import {
 } from '@chakra-ui/react';
 import { Clients } from 'ontime-types';
 
-import style from './ClientControlPanel.module.scss';
+import style from './ClientModal.module.scss';
 
-export function RenameModal(props: {
+export function RenameClientModal(props: {
   onClose: () => void;
   isOpen: boolean;
   id: string;

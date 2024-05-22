@@ -2,12 +2,11 @@ import { useState } from 'react';
 import { Badge, Button, useDisclosure } from '@chakra-ui/react';
 import { ClientTypes } from 'ontime-types';
 
+import { RedirectClientModal } from '../../../../common/components/client-modal/RedirectClientModal';
+import { RenameClientModal } from '../../../../common/components/client-modal/RenameClientModal';
 import { setClientRemote } from '../../../../common/hooks/useSocket';
 import { useClientStore } from '../../../../common/stores/clientStore';
 import * as Panel from '../PanelUtils';
-
-import { RedirectModal } from './RedirectModal';
-import { RenameModal } from './RenameModal';
 
 import style from './ClientControlPanel.module.scss';
 
@@ -41,14 +40,20 @@ export default function ClientList() {
 
   return (
     <>
-      <RedirectModal
+      <RedirectClientModal
         onClose={onCloseRedirect}
         isOpen={isOpenRedirect}
         clients={clients}
         id={targetId}
         onSubmit={redirect}
       />
-      <RenameModal onClose={onCloseRename} isOpen={isOpenRename} clients={clients} id={targetId} onSubmit={rename} />
+      <RenameClientModal
+        onClose={onCloseRename}
+        isOpen={isOpenRename}
+        clients={clients}
+        id={targetId}
+        onSubmit={rename}
+      />
       <Panel.Table>
         <thead>
           <tr>
