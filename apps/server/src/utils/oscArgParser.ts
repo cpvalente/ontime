@@ -11,12 +11,12 @@ export function stringToOSCArgs(argsString: string | undefined): Argument[] {
     const argAsNum = Number(argString);
     // NOTE: number like: 1 2.0 33333
     if (!Number.isNaN(argAsNum)) {
-      return { type: argString.includes('.') ? 'f' : 'i', value: argAsNum };
+      return { type: argString.includes('.') ? 'float' : 'integer', value: argAsNum };
     }
 
     if (argString.startsWith('"') && argString.endsWith('"')) {
       // NOTE: "quoted string"
-      return { type: 's', value: argString.substring(1, argString.length - 1) };
+      return { type: 'string', value: argString.substring(1, argString.length - 1) };
     }
 
     if (argString === 'TRUE') {
@@ -30,7 +30,7 @@ export function stringToOSCArgs(argsString: string | undefined): Argument[] {
     }
 
     // NOTE: string
-    return { type: 's', value: argString };
+    return { type: 'string', value: argString };
   });
 
   return parsedArguments;

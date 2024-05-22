@@ -4,9 +4,9 @@ describe('test stringToOSCArgs()', () => {
   it('all types', () => {
     const test = 'test 1111 0.1111 TRUE FALSE';
     const expected = [
-      { type: 's', value: 'test' },
-      { type: 'i', value: 1111 },
-      { type: 'f', value: 0.1111 },
+      { type: 'string', value: 'test' },
+      { type: 'integer', value: 1111 },
+      { type: 'float', value: 0.1111 },
       { type: 'T', value: true },
       { type: 'F', value: false },
     ];
@@ -16,11 +16,11 @@ describe('test stringToOSCArgs()', () => {
   it('keep other types in strings', () => {
     const test = 'test "1111" "0.1111" "TRUE" "FALSE"';
     const expected = [
-      { type: 's', value: 'test' },
-      { type: 's', value: '1111' },
-      { type: 's', value: '0.1111' },
-      { type: 's', value: 'TRUE' },
-      { type: 's', value: 'FALSE' },
+      { type: 'string', value: 'test' },
+      { type: 'string', value: '1111' },
+      { type: 'string', value: '0.1111' },
+      { type: 'string', value: 'TRUE' },
+      { type: 'string', value: 'FALSE' },
     ];
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
@@ -28,9 +28,9 @@ describe('test stringToOSCArgs()', () => {
   it('keep spaces in quoted strings', () => {
     const test = '"test space" 1111 0.1111 TRUE FALSE';
     const expected = [
-      { type: 's', value: 'test space' },
-      { type: 'i', value: 1111 },
-      { type: 'f', value: 0.1111 },
+      { type: 'string', value: 'test space' },
+      { type: 'integer', value: 1111 },
+      { type: 'float', value: 0.1111 },
       { type: 'T', value: true },
       { type: 'F', value: false },
     ];
@@ -40,9 +40,9 @@ describe('test stringToOSCArgs()', () => {
   it('keep spaces escaped quotes', () => {
     const test = '"test \\" space" 1111 0.1111 TRUE FALSE';
     const expected = [
-      { type: 's', value: 'test " space' },
-      { type: 'i', value: 1111 },
-      { type: 'f', value: 0.1111 },
+      { type: 'string', value: 'test " space' },
+      { type: 'integer', value: 1111 },
+      { type: 'float', value: 0.1111 },
       { type: 'T', value: true },
       { type: 'F', value: false },
     ];
