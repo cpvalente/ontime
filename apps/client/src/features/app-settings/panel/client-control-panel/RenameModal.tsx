@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Button,
   Input,
@@ -22,7 +22,10 @@ export function RenameModal(props: {
   onSubmit: (path: string) => void;
 }) {
   const { onClose, isOpen, id, clients, onSubmit } = props;
-  const [name, setName] = useState(clients[id]?.name ?? '');
+  const [name, setName] = useState('');
+  useEffect(() => {
+    if (clients[id]?.name) setName(clients[id].name);
+  }, [clients, id]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
