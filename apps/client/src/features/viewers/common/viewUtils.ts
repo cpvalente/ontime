@@ -84,7 +84,7 @@ export function getFormattedTimer(
   }
 
   let display = millisToString(timeToParse);
-  if(options.removeLeadingZero) {
+  if (options.removeLeadingZero) {
     display = removeLeadingZero(display);
   }
 
