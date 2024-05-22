@@ -1,6 +1,6 @@
 import { stringToOSCArgs } from '../oscArgParser.js';
 
-describe('url is correctly formatted', () => {
+describe('test stringToOSCArgs()', () => {
   it('all types', () => {
     const test = 'test 1111 0.1111 TRUE FALSE';
     const expected = [
