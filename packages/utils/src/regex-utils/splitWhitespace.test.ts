@@ -6,6 +6,11 @@ describe('test splitWhitespace() function', () => {
     expect(splitWhitespace(test)).toStrictEqual(null);
   });
 
+  it('just space', () => {
+    const test = ' ';
+    expect(splitWhitespace(test)).toStrictEqual(null);
+  });
+
   it('1 item', () => {
     const test = 'test';
     expect(splitWhitespace(test)).toStrictEqual(['test']);
@@ -19,6 +24,11 @@ describe('test splitWhitespace() function', () => {
   it('2 items and quoted string', () => {
     const test = 'test test "more test"';
     expect(splitWhitespace(test)).toStrictEqual(['test', 'test', '"more test"']);
+  });
+
+  it('2 sapces', () => {
+    const test = 'test  test  "more  test"';
+    expect(splitWhitespace(test)).toStrictEqual(['test', 'test', '"more  test"']);
   });
 
   it('quotes without spaces', () => {
