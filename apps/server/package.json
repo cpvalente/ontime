@@ -2,7 +2,7 @@
   "name": "ontime-server",
   "type": "module",
   "main": "src/index.ts",
-  "version": "3.0.1",
+  "version": "3.0.3",
   "exports": "./src/index.js",
   "dependencies": {
     "@googleapis/sheets": "^5.0.5",
@@ -46,7 +46,7 @@
     "shx": "^0.3.4",
     "ts-node": "^10.9.1",
     "typescript": "^5.4.3",
-    "vitest": "^1.2.2"
+    "vitest": "^1.6.0"
   },
   "scripts": {
     "addversion": "node -p \"'export const ONTIME_VERSION = ' + JSON.stringify(require('../../package.json').version) + ';'\" > src/ONTIME_VERSION.js",

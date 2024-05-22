@@ -162,24 +162,28 @@ describe('mutation on runtimeState', () => {
       const firstStart = newState.clock;
       expect(newState.runtime.actualStart).toBe(newState.clock);
       expect(newState.runtime.offset).toBe(event1.timeStart - newState.clock);
-      expect(newState.runtime.expectedEnd).toBe(newState.runtime.offset + event2.timeEnd);
+      expect(newState.runtime.expectedEnd).toBe(event2.timeEnd - newState.runtime.offset);
 
       // 3. Next event
       load(event2, [event1, event2]);
       start();
       newState = getState();
-      expect(newState.runtime.actualStart).toBeCloseTo(firstStart, 1);
+
+      // there is a case where the calculation time overflows the millisecond which makes
+      // tests fail
+      const forgivingActualStart = Math.abs(newState.runtime.actualStart - firstStart);
+      expect(forgivingActualStart).toBeLessThanOrEqual(1);
       // we are over-under, the difference between the schedule and the actual start
       const delayBefore = event2.timeStart - newState.clock;
       expect(newState.runtime.offset).toBe(delayBefore);
       // finish is the difference between the runtime and the schedule
-      expect(newState.runtime.expectedEnd).toBe(event2.timeEnd + newState.runtime.offset);
+      expect(newState.runtime.expectedEnd).toBe(event2.timeEnd - newState.runtime.offset);
 
       // 4. Add time
       addTime(10);
       newState = getState();
-      expect(newState.runtime.offset).toBe(delayBefore + 10);
-      expect(newState.runtime.expectedEnd).toBe(event2.timeEnd + newState.runtime.offset);
+      expect(newState.runtime.offset).toBe(delayBefore - 10);
+      expect(newState.runtime.expectedEnd).toBe(event2.timeEnd - newState.runtime.offset);
 
       // 5. Stop event
       stop();

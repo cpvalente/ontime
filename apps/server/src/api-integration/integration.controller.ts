@@ -1,4 +1,5 @@
 import { DeepPartial, MessageState, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { MILLIS_PER_HOUR, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { auxTimerService } from '../services/aux-timer-service/AuxTimerService.js';
@@ -177,7 +178,13 @@ const actionHandlers: Record<string, ActionHandler> = {
     if (time === 0) {
       return { payload: 'success' };
     }
-    runtimeService.addTime(time * 1000); //frontend is seconds based
+
+    const timeToAdd = time * MILLIS_PER_SECOND; // frontend is seconds based
+    if (Math.abs(timeToAdd) > MILLIS_PER_HOUR) {
+      throw new Error(`Payload too large: ${time}`);
+    }
+
+    runtimeService.addTime(timeToAdd);
     return { payload: 'success' };
   },
   /* Extra timers */

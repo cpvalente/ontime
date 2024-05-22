@@ -97,12 +97,7 @@ function inferSeparators(value: string, isAM: boolean, isPM: boolean) {
     inferredMillis = parse(value[0]) * MILLIS_PER_HOUR + parse(value.substring(1)) * MILLIS_PER_MINUTE;
   } else if (length === 4) {
     inferredMillis = parse(value.substring(0, 2)) * MILLIS_PER_HOUR + parse(value.substring(2)) * MILLIS_PER_MINUTE;
-  } else if (length === 5) {
-    const hours = parse(value.substring(0, 2));
-    const minutes = parse(value.substring(2, 4));
-    const seconds = parse(value.substring(4));
-    inferredMillis = hours * MILLIS_PER_HOUR + minutes * MILLIS_PER_MINUTE + seconds * MILLIS_PER_SECOND;
-  } else if (length >= 6) {
+  } else if (length >= 5) {
     const hours = parse(value.substring(0, 2));
     const minutes = parse(value.substring(2, 4));
     const seconds = parse(value.substring(4));
@@ -147,6 +142,7 @@ export const forgivingStringToMillis = (value: string): number => {
     hoursMatchValue = addAM;
   }
   if (first != null && second != null && third == null) {
+    // if string has two sections, treat as [hours] [minutes]
     millis = parse(first) * MILLIS_PER_HOUR;
     millis += parse(second) * MILLIS_PER_MINUTE;
   }
@@ -155,6 +151,7 @@ export const forgivingStringToMillis = (value: string): number => {
   if (isPM && hoursMatchValue < 12) {
     millis += 12 * MILLIS_PER_HOUR;
   }
+
   return millis;
 };
 

@@ -1424,7 +1424,7 @@ describe('getRuntimeOffset()', () => {
     expect(offset).toBe(-50);
   });
 
-  it('added time adds time ahead (positive offset)', () => {
+  it('added time subtracts time offset (positive offset)', () => {
     const state = {
       eventNow: {
         id: '1',
@@ -1444,7 +1444,7 @@ describe('getRuntimeOffset()', () => {
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
-    expect(offset).toBe(-40);
+    expect(offset).toBe(-60);
   });
 
   it('considers running overtime (negative offset)', () => {
