@@ -17,24 +17,6 @@ jobs:
     - name: Setup env
       run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v4
-      with:
-        node-version: 18.18.2
-
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 8
-
-    - name: Install dependencies
-      run: pnpm install --frozen-lockfile
-
-    - name: Build project packages
-      env:
-        SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-      run: pnpm turbo build:docker
-
     - name: Docker Login
       uses: docker/login-action@v2.1.0
       with:
