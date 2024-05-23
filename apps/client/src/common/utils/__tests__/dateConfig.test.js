@@ -107,6 +107,10 @@ describe('test forgivingStringToMillis()', () => {
       { value: '9a', expect: 9 * MILLIS_PER_HOUR },
       { value: '9pm', expect: (12 + 9) * MILLIS_PER_HOUR },
       { value: '9p', expect: (12 + 9) * MILLIS_PER_HOUR },
+      { value: '10am', expect: 10 * MILLIS_PER_HOUR },
+      { value: '10a', expect: 10 * MILLIS_PER_HOUR },
+      { value: '10pm', expect: (12 + 10) * MILLIS_PER_HOUR },
+      { value: '10p', expect: (12 + 10) * MILLIS_PER_HOUR },
       { value: '12am', expect: 0 },
       { value: '12pm', expect: 12 * MILLIS_PER_HOUR },
     ];
