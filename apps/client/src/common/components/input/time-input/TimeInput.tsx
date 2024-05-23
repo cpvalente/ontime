@@ -4,9 +4,7 @@ import { millisToString } from 'ontime-utils';
 
 import { useEmitLog } from '../../../stores/logger';
 import { forgivingStringToMillis } from '../../../utils/dateConfig';
-import { cx } from '../../../utils/styleUtils';
 
-import style from './TimeInput.module.scss';
 interface TimeInputProps<T extends string> {
   name: T;
   submitHandler: (field: T, value: string) => void;
@@ -117,15 +115,13 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
     resetValue();
   }, [resetValue, time]);
 
-  const timeInputClasses = cx([style.timeInput, className]);
-
   return (
     <Input
       disabled={disabled}
       size='sm'
       ref={inputRef}
       data-testid={`time-input-${name}`}
-      className={timeInputClasses}
+      className={className}
       fontSize='1rem'
       type='text'
       placeholder={placeholder}
@@ -136,7 +132,10 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
       onKeyDown={onKeyDownHandler}
       value={value}
       maxLength={8}
+      maxWidth='7.5em'
+      letterSpacing='1px'
       autoComplete='off'
+      textAlign='center'
     />
   );
 }
