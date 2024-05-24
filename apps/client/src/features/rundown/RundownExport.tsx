@@ -3,6 +3,7 @@ import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 
 import { ContextMenu } from '../../common/components/context-menu/ContextMenu';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
+import { useAppMode } from '../../common/stores/appModeStore';
 import { handleLinks } from '../../common/utils/linkUtils';
 import { cx } from '../../common/utils/styleUtils';
 
@@ -13,6 +14,8 @@ import style from './RundownExport.module.scss';
 
 const RundownExport = () => {
   const isExtracted = window.location.pathname.includes('/rundown');
+  const appMode = useAppMode((state) => state.mode);
+  const hideSideBar = isExtracted && appMode === 'run';
 
   const classes = cx([style.rundownExport, isExtracted && style.extracted]);
 
@@ -27,11 +30,13 @@ const RundownExport = () => {
             </ContextMenu>
           </ErrorBoundary>
         </div>
-        <div className={style.side}>
-          <ErrorBoundary>
-            <EventEditor />
-          </ErrorBoundary>
-        </div>
+        {!hideSideBar && (
+          <div className={style.side}>
+            <ErrorBoundary>
+              <EventEditor />
+            </ErrorBoundary>
+          </div>
+        )}
       </div>
     </div>
   );
