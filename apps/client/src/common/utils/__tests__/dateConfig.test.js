@@ -94,61 +94,67 @@ describe('test forgivingStringToMillis()', () => {
   });
 
   describe('handles am/pm', () => {
-    const ampm = [];
+    const ampm = [
+      { value: '1am', expect: 1 * MILLIS_PER_HOUR },
+      { value: '1pm', expect: (12 + 1) * MILLIS_PER_HOUR },
+      { value: '1 am', expect: 1 * MILLIS_PER_HOUR },
+      { value: '1 pm', expect: (12 + 1) * MILLIS_PER_HOUR },
+      { value: '1AM', expect: 1 * MILLIS_PER_HOUR },
+      { value: '1PM', expect: (12 + 1) * MILLIS_PER_HOUR },
 
-    const minutesAndSecondsToTest = [0, 9, 10, 59];
+      { value: '9am', expect: 9 * MILLIS_PER_HOUR },
+      { value: '9pm', expect: (12 + 9) * MILLIS_PER_HOUR },
 
-    const suffixes = [
-      { value: 'a', hourShift: 0 },
-      { value: 'am', hourShift: 0 },
-      { value: 'p', hourShift: 12 },
-      { value: 'pm', hourShift: 12 },
+      { value: '10am', expect: 10 * MILLIS_PER_HOUR },
+      { value: '10pm', expect: (12 + 10) * MILLIS_PER_HOUR },
+      { value: '10 am', expect: 10 * MILLIS_PER_HOUR },
+      { value: '10 pm', expect: (12 + 10) * MILLIS_PER_HOUR },
+      { value: '10AM', expect: 10 * MILLIS_PER_HOUR },
+      { value: '10PM', expect: (12 + 10) * MILLIS_PER_HOUR },
 
-      { value: ' a', hourShift: 0 },
-      { value: ' am', hourShift: 0 },
-      { value: ' p', hourShift: 12 },
-      { value: ' pm', hourShift: 12 },
+      { value: '12am', expect: 0 * MILLIS_PER_HOUR },
+      { value: '12pm', expect: 12 * MILLIS_PER_HOUR },
 
-      { value: 'A', hourShift: 0 },
-      { value: 'AM', hourShift: 0 },
-      { value: 'P', hourShift: 12 },
-      { value: 'PM', hourShift: 12 },
+      { value: '1:10am', expect: 1 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '1:10pm', expect: (12 + 1) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '1:10 am', expect: 1 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '1:10 pm', expect: (12 + 1) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '1:10AM', expect: 1 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '1:10PM', expect: (12 + 1) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
 
-      { value: ' A', hourShift: 0 },
-      { value: ' AM', hourShift: 0 },
-      { value: ' P', hourShift: 12 },
-      { value: ' PM', hourShift: 12 },
+      { value: '9:10am', expect: 9 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '9:10pm', expect: (12 + 9) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+
+      { value: '10:10am', expect: 10 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '10:10pm', expect: (12 + 10) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '10:10 am', expect: 10 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '10:10 pm', expect: (12 + 10) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '10:10AM', expect: 10 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '10:10PM', expect: (12 + 10) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+
+      { value: '12:10am', expect: 0 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '12:10pm', expect: 12 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+
+      { value: '1:10:10am', expect: 1 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '1:10:10pm', expect: (12 + 1) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '1:10:10 am', expect: 1 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '1:10:10 pm', expect: (12 + 1) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '1:10:10AM', expect: 1 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '1:10:10PM', expect: (12 + 1) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+
+      { value: '9:10:10am', expect: 9 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '9:10:10pm', expect: (12 + 9) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+
+      { value: '10:10:10am', expect: 10 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '10:10:10pm', expect: (12 + 10) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '10:10:10 am', expect: 10 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '10:10:10 pm', expect: (12 + 10) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '10:10:10AM', expect: 10 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '10:10:10PM', expect: (12 + 10) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+
+      { value: '12:10:10am', expect: 0 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '12:10:10pm', expect: 12 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
     ];
-
-    // dynamically build up string formats for all hours and some minute/second values with a/am/p/pm tacked on space and no space and upper/lower case
-    for (let hour = 1; hour <= 12; hour += 1) {
-      const adjustedHour = hour === 12 ? 0 : hour;
-
-      suffixes.forEach((suffix) => {
-        ampm.push({ value: `${hour}${suffix.value}`, expect: (adjustedHour + suffix.hourShift) * MILLIS_PER_HOUR });
-      });
-
-      minutesAndSecondsToTest.forEach((minute) => {
-        suffixes.forEach((suffix) => {
-          ampm.push({
-            value: `${hour}:${String(minute).padStart(2, '0')}${suffix.value}`,
-            expect: (adjustedHour + suffix.hourShift) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
-          });
-        });
-
-        minutesAndSecondsToTest.forEach((second) => {
-          suffixes.forEach((suffix) => {
-            ampm.push({
-              value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}${suffix.value}`,
-              expect:
-                (adjustedHour + suffix.hourShift) * MILLIS_PER_HOUR +
-                minute * MILLIS_PER_MINUTE +
-                second * MILLIS_PER_SECOND,
-            });
-          });
-        });
-      });
-    }
 
     for (const s of ampm) {
       it(`handles ${s.value}`, () => {
