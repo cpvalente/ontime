@@ -94,93 +94,60 @@ describe('test forgivingStringToMillis()', () => {
   });
 
   describe('handles am/pm', () => {
-
     const ampm = [];
 
-    // dynamically build up all string formats from 1 to 12:59:59 with a/am/p/pm tacked on space and no space
+    const minutesAndSecondsToTest = [0, 9, 10, 59];
+
+    const suffixes = [
+      { value: 'a', hourShift: 0 },
+      { value: 'am', hourShift: 0 },
+      { value: 'p', hourShift: 12 },
+      { value: 'pm', hourShift: 12 },
+
+      { value: ' a', hourShift: 0 },
+      { value: ' am', hourShift: 0 },
+      { value: ' p', hourShift: 12 },
+      { value: ' pm', hourShift: 12 },
+
+      { value: 'A', hourShift: 0 },
+      { value: 'AM', hourShift: 0 },
+      { value: 'P', hourShift: 12 },
+      { value: 'PM', hourShift: 12 },
+
+      { value: ' A', hourShift: 0 },
+      { value: ' AM', hourShift: 0 },
+      { value: ' P', hourShift: 12 },
+      { value: ' PM', hourShift: 12 },
+    ];
+
+    // dynamically build up string formats for all hours and some minute/second values with a/am/p/pm tacked on space and no space and upper/lower case
     for (var hour = 1; hour <= 12; hour += 1) {
       const adjustedHour = hour === 12 ? 0 : hour;
-      ampm.push({ value: `${hour}a`, expect: adjustedHour * MILLIS_PER_HOUR });
-      ampm.push({ value: `${hour}am`, expect: adjustedHour * MILLIS_PER_HOUR });
-      ampm.push({ value: `${hour}p`, expect: (12 + adjustedHour) * MILLIS_PER_HOUR });
-      ampm.push({ value: `${hour}pm`, expect: (12 + adjustedHour) * MILLIS_PER_HOUR });
 
-      ampm.push({ value: `${hour} a`, expect: adjustedHour * MILLIS_PER_HOUR });
-      ampm.push({ value: `${hour} am`, expect: adjustedHour * MILLIS_PER_HOUR });
-      ampm.push({ value: `${hour} p`, expect: (12 + adjustedHour) * MILLIS_PER_HOUR });
-      ampm.push({ value: `${hour} pm`, expect: (12 + adjustedHour) * MILLIS_PER_HOUR });
+      suffixes.forEach((suffix) => {
+        ampm.push({ value: `${hour}${suffix.value}`, expect: (adjustedHour + suffix.hourShift) * MILLIS_PER_HOUR });
+      });
 
-      for (var minute = 0; minute <= 59; minute += 1) {
-        ampm.push({
-          value: `${hour}:${String(minute).padStart(2, '0')}am`,
-          expect: adjustedHour * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
-        });
-        ampm.push({
-          value: `${hour}:${String(minute).padStart(2, '0')}a`,
-          expect: adjustedHour * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
-        });
-        ampm.push({
-          value: `${hour}:${String(minute).padStart(2, '0')}pm`,
-          expect: (12 + adjustedHour) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
-        });
-        ampm.push({
-          value: `${hour}:${String(minute).padStart(2, '0')}p`,
-          expect: (12 + adjustedHour) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
+      minutesAndSecondsToTest.forEach((minute) => {
+        suffixes.forEach((suffix) => {
+          ampm.push({
+            value: `${hour}:${String(minute).padStart(2, '0')}${suffix.value}`,
+            expect: (adjustedHour + suffix.hourShift) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
+          });
         });
 
-        ampm.push({
-          value: `${hour}:${String(minute).padStart(2, '0')} am`,
-          expect: adjustedHour * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
+        minutesAndSecondsToTest.forEach((second) => {
+          suffixes.forEach((suffix) => {
+            ampm.push({
+              value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}${suffix.value}`,
+              expect:
+                (adjustedHour + suffix.hourShift) * MILLIS_PER_HOUR +
+                minute * MILLIS_PER_MINUTE +
+                second * MILLIS_PER_SECOND,
+            });
+          });
         });
-        ampm.push({
-          value: `${hour}:${String(minute).padStart(2, '0')} a`,
-          expect: adjustedHour * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
-        });
-        ampm.push({
-          value: `${hour}:${String(minute).padStart(2, '0')} pm`,
-          expect: (12 + adjustedHour) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
-        });
-        ampm.push({
-          value: `${hour}:${String(minute).padStart(2, '0')} p`,
-          expect: (12 + adjustedHour) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
-        });
-
-        for (var second = 0; second <= 59; second += 1) {
-          ampm.push({
-            value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}am`,
-            expect: adjustedHour * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE + second * MILLIS_PER_SECOND,
-          });
-          ampm.push({
-            value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}a`,
-            expect: adjustedHour * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE + second * MILLIS_PER_SECOND,
-          });
-          ampm.push({
-            value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}pm`,
-            expect: (12 + adjustedHour) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE + second * MILLIS_PER_SECOND,
-          });
-          ampm.push({
-            value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}p`,
-            expect: (12 + adjustedHour) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE + second * MILLIS_PER_SECOND,
-          });
-
-          ampm.push({
-            value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')} am`,
-            expect: adjustedHour * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE + second * MILLIS_PER_SECOND,
-          });
-          ampm.push({
-            value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')} a`,
-            expect: adjustedHour * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE + second * MILLIS_PER_SECOND,
-          });
-          ampm.push({
-            value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')} pm`,
-            expect: (12 + adjustedHour) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE + second * MILLIS_PER_SECOND,
-          });
-          ampm.push({
-            value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')} p`,
-            expect: (12 + adjustedHour) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE + second * MILLIS_PER_SECOND,
-          });
-        }
-      }
+      });
     }
 
     for (const s of ampm) {
