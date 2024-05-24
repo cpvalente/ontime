@@ -85,8 +85,13 @@ function inferSeparators(value: string, isAM: boolean, isPM: boolean) {
     }
   } else if (length === 2) {
     if (isPM || isAM) {
-      inferredMillis = parse(value) * MILLIS_PER_HOUR;
-      if (isAM || (isPM && value === '12')) {
+      if (value === '12' && isAM) {
+        inferredMillis = 0;
+      } else {
+        inferredMillis = parse(value) * MILLIS_PER_HOUR;
+      }
+
+      if (isAM || value === '12') {
         // this ensures we dont add 12 hours in the end
         addAM = 12;
       }
@@ -113,10 +118,6 @@ function inferSeparators(value: string, isAM: boolean, isPM: boolean) {
  */
 export const forgivingStringToMillis = (value: string): number => {
   value = value.toLowerCase();
-
-  if (value === '12am' || value === '12a') {
-    return 0;
-  }
 
   const { isAM, isPM, value: parsingValue } = checkAmPm(value);
   const maybeMillisFromMatchers = checkMatchers(parsingValue);
