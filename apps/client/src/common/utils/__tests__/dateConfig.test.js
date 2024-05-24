@@ -121,7 +121,7 @@ describe('test forgivingStringToMillis()', () => {
     ];
 
     // dynamically build up string formats for all hours and some minute/second values with a/am/p/pm tacked on space and no space and upper/lower case
-    for (var hour = 1; hour <= 12; hour += 1) {
+    for (let hour = 1; hour <= 12; hour += 1) {
       const adjustedHour = hour === 12 ? 0 : hour;
 
       suffixes.forEach((suffix) => {
