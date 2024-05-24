@@ -13,6 +13,8 @@ interface EventSelectionStore {
   anchoredIndex: number | null;
   setSelectedEvents: (selectionArgs: { id: string; index: number; selectMode: SelectionMode }) => void;
   clearSelectedEvents: () => void;
+  clearMultiSelect: () => void;
+  unselect: (id: string) => void;
 }
 
 export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
@@ -81,7 +83,17 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       });
     }
   },
-  clearSelectedEvents: () => set({ selectedEvents: new Set() }),
+  clearSelectedEvents: () => set({ selectedEvents: new Set(), anchoredIndex: null }),
+  clearMultiSelect: () => {
+    const { selectedEvents } = get();
+    const [firstSelected] = selectedEvents;
+    set({ selectedEvents: new Set(firstSelected || undefined), anchoredIndex: null });
+  },
+  unselect: (id: string) => {
+    const { selectedEvents } = get();
+    selectedEvents.delete(id);
+    set({ selectedEvents });
+  },
 }));
 
 export function getSelectionMode(event: MouseEvent): SelectionMode {

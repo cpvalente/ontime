@@ -90,9 +90,9 @@ export async function addEvent(eventData: PatchWithId & { after?: string }): Pro
  * deletes event by its ID
  * @param eventId
  */
-export async function deleteEvent(eventId: string) {
+export async function deleteEvent(eventIds: string[]) {
   const scopedMutation = cache.mutateCache(cache.remove);
-  const { didMutate } = await scopedMutation({ eventId });
+  const { didMutate } = await scopedMutation({ eventIds });
 
   if (didMutate === false) {
     return;
@@ -102,7 +102,7 @@ export async function deleteEvent(eventId: string) {
   updateRuntimeOnChange();
 
   // notify timer and external services of change
-  notifyChanges({ timer: [eventId], external: true });
+  notifyChanges({ timer: eventIds, external: true });
 }
 
 /**

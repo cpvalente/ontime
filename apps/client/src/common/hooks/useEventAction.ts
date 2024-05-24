@@ -337,7 +337,7 @@ export const useEventAction = () => {
   const _deleteEventMutation = useMutation({
     mutationFn: requestDelete,
     // we optimistically update here
-    onMutate: async (eventId) => {
+    onMutate: async (eventIds: string[]) => {
       // cancel ongoing queries
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
@@ -346,9 +346,11 @@ export const useEventAction = () => {
 
       if (previousData) {
         // optimistically update object
-        const newOrder = previousData.order.filter((id) => id !== eventId);
+        const newOrder = previousData.order.filter((id) => !eventIds.includes(id));
         const newRundown = { ...previousData.rundown };
-        delete newRundown[eventId];
+        for (const eventId of eventIds) {
+          delete newRundown[eventId];
+        }
 
         queryClient.setQueryData(RUNDOWN, {
           order: newOrder,
@@ -377,9 +379,9 @@ export const useEventAction = () => {
    * Deletes an event form the list
    */
   const deleteEvent = useCallback(
-    async (eventId: string) => {
+    async (eventIds: string[]) => {
       try {
-        await _deleteEventMutation.mutateAsync(eventId);
+        await _deleteEventMutation.mutateAsync(eventIds);
       } catch (error) {
         logAxiosError('Error deleting event', error);
       }
