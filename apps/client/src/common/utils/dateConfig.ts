@@ -112,6 +112,8 @@ function inferSeparators(value: string, isAM: boolean, isPM: boolean) {
  * @returns {number} - time string in millis
  */
 export const forgivingStringToMillis = (value: string): number => {
+  value = value.toLowerCase();
+
   if (value === '12am' || value === '12a') {
     return 0;
   }
