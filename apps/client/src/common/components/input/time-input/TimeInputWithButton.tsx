@@ -28,7 +28,7 @@ export default function TimeInputWithButton<T extends string>(props: PropsWithCh
         submitHandler={submitHandler}
         time={time}
         placeholder={placeholder}
-        className={style.inputField}
+        align='left'
         disabled={disabled}
       />
       {children}
