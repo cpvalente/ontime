@@ -94,26 +94,94 @@ describe('test forgivingStringToMillis()', () => {
   });
 
   describe('handles am/pm', () => {
-    const ampm = [
-      { value: '9:10:11am', expect: 9 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 11 * MILLIS_PER_SECOND },
-      { value: '9:10:11a', expect: 9 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 11 * MILLIS_PER_SECOND },
-      { value: '9:10:11pm', expect: (12 + 9) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 11 * MILLIS_PER_SECOND },
-      { value: '9:10:11p', expect: (12 + 9) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 11 * MILLIS_PER_SECOND },
-      { value: '9:10am', expect: 9 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
-      { value: '9:10a', expect: 9 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
-      { value: '9:10pm', expect: (12 + 9) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
-      { value: '9:10p', expect: (12 + 9) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
-      { value: '9am', expect: 9 * MILLIS_PER_HOUR },
-      { value: '9a', expect: 9 * MILLIS_PER_HOUR },
-      { value: '9pm', expect: (12 + 9) * MILLIS_PER_HOUR },
-      { value: '9p', expect: (12 + 9) * MILLIS_PER_HOUR },
-      { value: '10am', expect: 10 * MILLIS_PER_HOUR },
-      { value: '10a', expect: 10 * MILLIS_PER_HOUR },
-      { value: '10pm', expect: (12 + 10) * MILLIS_PER_HOUR },
-      { value: '10p', expect: (12 + 10) * MILLIS_PER_HOUR },
-      { value: '12am', expect: 0 },
-      { value: '12pm', expect: 12 * MILLIS_PER_HOUR },
-    ];
+
+    const ampm = [];
+
+    // dynamically build up all string formats from 1 to 12:59:59 with a/am/p/pm tacked on space and no space
+    for (var hour = 1; hour <= 12; hour += 1) {
+      const adjustedHour = hour === 12 ? 0 : hour;
+      ampm.push({ value: `${hour}a`, expect: adjustedHour * MILLIS_PER_HOUR });
+      ampm.push({ value: `${hour}am`, expect: adjustedHour * MILLIS_PER_HOUR });
+      ampm.push({ value: `${hour}p`, expect: (12 + adjustedHour) * MILLIS_PER_HOUR });
+      ampm.push({ value: `${hour}pm`, expect: (12 + adjustedHour) * MILLIS_PER_HOUR });
+
+      ampm.push({ value: `${hour} a`, expect: adjustedHour * MILLIS_PER_HOUR });
+      ampm.push({ value: `${hour} am`, expect: adjustedHour * MILLIS_PER_HOUR });
+      ampm.push({ value: `${hour} p`, expect: (12 + adjustedHour) * MILLIS_PER_HOUR });
+      ampm.push({ value: `${hour} pm`, expect: (12 + adjustedHour) * MILLIS_PER_HOUR });
+
+      for (var minute = 0; minute <= 59; minute += 1) {
+        ampm.push({
+          value: `${hour}:${String(minute).padStart(2, '0')}am`,
+          expect: adjustedHour * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
+        });
+        ampm.push({
+          value: `${hour}:${String(minute).padStart(2, '0')}a`,
+          expect: adjustedHour * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
+        });
+        ampm.push({
+          value: `${hour}:${String(minute).padStart(2, '0')}pm`,
+          expect: (12 + adjustedHour) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
+        });
+        ampm.push({
+          value: `${hour}:${String(minute).padStart(2, '0')}p`,
+          expect: (12 + adjustedHour) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
+        });
+
+        ampm.push({
+          value: `${hour}:${String(minute).padStart(2, '0')} am`,
+          expect: adjustedHour * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
+        });
+        ampm.push({
+          value: `${hour}:${String(minute).padStart(2, '0')} a`,
+          expect: adjustedHour * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
+        });
+        ampm.push({
+          value: `${hour}:${String(minute).padStart(2, '0')} pm`,
+          expect: (12 + adjustedHour) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
+        });
+        ampm.push({
+          value: `${hour}:${String(minute).padStart(2, '0')} p`,
+          expect: (12 + adjustedHour) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE,
+        });
+
+        for (var second = 0; second <= 59; second += 1) {
+          ampm.push({
+            value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}am`,
+            expect: adjustedHour * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE + second * MILLIS_PER_SECOND,
+          });
+          ampm.push({
+            value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}a`,
+            expect: adjustedHour * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE + second * MILLIS_PER_SECOND,
+          });
+          ampm.push({
+            value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}pm`,
+            expect: (12 + adjustedHour) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE + second * MILLIS_PER_SECOND,
+          });
+          ampm.push({
+            value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')}p`,
+            expect: (12 + adjustedHour) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE + second * MILLIS_PER_SECOND,
+          });
+
+          ampm.push({
+            value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')} am`,
+            expect: adjustedHour * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE + second * MILLIS_PER_SECOND,
+          });
+          ampm.push({
+            value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')} a`,
+            expect: adjustedHour * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE + second * MILLIS_PER_SECOND,
+          });
+          ampm.push({
+            value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')} pm`,
+            expect: (12 + adjustedHour) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE + second * MILLIS_PER_SECOND,
+          });
+          ampm.push({
+            value: `${hour}:${String(minute).padStart(2, '0')}:${String(second).padStart(2, '0')} p`,
+            expect: (12 + adjustedHour) * MILLIS_PER_HOUR + minute * MILLIS_PER_MINUTE + second * MILLIS_PER_SECOND,
+          });
+        }
+      }
+    }
 
     for (const s of ampm) {
       it(`handles ${s.value}`, () => {
