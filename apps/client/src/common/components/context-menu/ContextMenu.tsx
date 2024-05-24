@@ -75,6 +75,7 @@ export const ContextMenu = ({ children }: ContextMenuProps) => {
           w={1}
           h={1}
           style={{
+            position: 'fixed',
             left: coords.x,
             top: coords.y,
           }}
