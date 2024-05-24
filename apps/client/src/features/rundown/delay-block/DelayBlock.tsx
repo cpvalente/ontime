@@ -50,7 +50,7 @@ export default function DelayBlock(props: DelayBlockProps) {
   };
 
   const cancelDelayHandler = () => {
-    deleteEvent(data.id);
+    deleteEvent([data.id]);
   };
 
   const blockClasses = cx([style.delay, hasCursor ? style.hasCursor : null]);

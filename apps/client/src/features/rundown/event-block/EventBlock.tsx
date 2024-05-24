@@ -113,6 +113,7 @@ export default function EventBlock(props: EventBlockProps) {
                 value: false,
               }),
           },
+          { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
         ]
       : [
           {

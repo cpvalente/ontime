@@ -9,7 +9,7 @@ import {
   OntimeRundown,
   OntimeRundownEntry,
 } from 'ontime-types';
-import { generateId, deleteAtIndex, insertAtIndex, reorderArray, swapEventData, checkIsNextDay } from 'ontime-utils';
+import { generateId, insertAtIndex, reorderArray, swapEventData, checkIsNextDay } from 'ontime-utils';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
@@ -263,13 +263,12 @@ export function add({ persistedRundown, atIndex, event }: AddArgs): Required<Mut
   return { newRundown, newEvent, didMutate: true };
 }
 
-type RemoveArgs = MutationParams<{ eventId: string }>;
+type RemoveArgs = MutationParams<{ eventIds: string[] }>;
 
-export function remove({ persistedRundown, eventId }: RemoveArgs): MutatingReturn {
-  const atIndex = persistedRundown.findIndex((event) => event.id === eventId);
-  const newRundown = deleteAtIndex(atIndex, persistedRundown);
+export function remove({ persistedRundown, eventIds }: RemoveArgs): MutatingReturn {
+  const newRundown = persistedRundown.filter((event) => !eventIds.includes(event.id));
 
-  return { newRundown, didMutate: atIndex !== -1 };
+  return { newRundown, didMutate: persistedRundown.length !== newRundown.length };
 }
 
 export function removeAll(): MutatingReturn {
