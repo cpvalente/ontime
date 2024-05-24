@@ -11,11 +11,12 @@ interface TimeInputProps<T extends string> {
   time?: number;
   placeholder: string;
   disabled?: boolean;
+  align?: 'left' | 'center';
   className?: string;
 }
 
 export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
-  const { name, submitHandler, time = 0, placeholder, disabled, className } = props;
+  const { name, submitHandler, time = 0, placeholder, disabled, align = 'center', className } = props;
   const { emitError } = useEmitLog();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
@@ -135,7 +136,7 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
       maxWidth='7.5em'
       letterSpacing='1px'
       autoComplete='off'
-      textAlign='center'
+      textAlign={align}
     />
   );
 }
