@@ -1,5 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
-import { Input, InputGroup, InputLeftElement, Select, Switch } from '@chakra-ui/react';
+import { Input, InputGroup, InputLeftElement, Select, Switch, Tag } from '@chakra-ui/react';
+import { chakraComponents, Select as MultiSelect } from 'chakra-react-select';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 
@@ -31,6 +32,34 @@ export default function ParamInput(props: EditFormInputProps) {
           </option>
         ))}
       </Select>
+    );
+  }
+
+  if (type === 'multi-option') {
+    const optionFromParams = (searchParams.get(id) ?? '').split(',').map((value) => {
+      const selectedOption = paramField.values[value.toLocaleLowerCase()];
+      if (selectedOption) {
+        return { value: selectedOption.value, label: selectedOption.label, colour: selectedOption.colour };
+      }
+      return undefined;
+    });
+
+    //TODO:
+    // const defaultOptionValue = optionFromParams || defaultValue;
+
+    return (
+      <MultiSelect
+        placeholder={defaultValue ? undefined : 'Select options'}
+        // variant='ontime'
+        useBasicStyles
+        tagVariant='solid'
+        name={id}
+        isMulti
+        defaultValue={optionFromParams}
+        options={Object.values(paramField.values)}
+        components={customFieldsOptions}
+        delimiter=',' //TODO: this gest turned into '%2C' for url kan we comeup with something better
+      />
     );
   }
 
@@ -70,3 +99,17 @@ export default function ParamInput(props: EditFormInputProps) {
     </InputGroup>
   );
 }
+
+//FIXME: ???
+const customFieldsOptions = {
+  Option: ({ children, ...props }) => (
+    <chakraComponents.Option {...props}>
+      <Tag style={{ backgroundColor: props.data.colour, color: ' #101010' }}>{children}</Tag>
+    </chakraComponents.Option>
+  ),
+  MultiValueContainer: ({ children, ...props }) => (
+    <chakraComponents.MultiValueContainer {...props}>
+      <Tag style={{ backgroundColor: props.data.colour, color: ' #101010' }}>{children}</Tag>
+    </chakraComponents.MultiValueContainer>
+  ),
+};

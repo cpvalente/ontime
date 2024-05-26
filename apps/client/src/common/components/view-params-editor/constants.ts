@@ -453,8 +453,8 @@ export const getStudioClockOptions = (timeFormat: string): ParamField[] => [
 export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ParamField[] => {
   const fieldOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
 
-  const customFieldSelect = Object.keys(customFields).reduce((acc, key) => {
-    return { ...acc, [key]: `${capitaliseFirstLetter(key)}` };
+  const customFieldSelect = Object.entries(customFields).reduce((acc, [key, field]) => {
+    return { ...acc, [key]: { value: key, label: field.label, colour: field.colour } };
   }, {});
 
   return [
@@ -488,7 +488,6 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
       description: 'Choose a custom field to highlight',
       type: 'multi-option',
       values: customFieldSelect,
-      defaultValue: '',
     },
     {
       id: 'shouldEdit',
