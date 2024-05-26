@@ -102,12 +102,16 @@ export default function ParamInput(props: EditFormInputProps) {
 
 //FIXME: ???
 const customFieldsOptions = {
+  // @ts-expect-error: react type problems
   Option: ({ children, ...props }) => (
+    // @ts-expect-error: react type problems
     <chakraComponents.Option {...props}>
       <Tag style={{ backgroundColor: props.data.colour, color: ' #101010' }}>{children}</Tag>
     </chakraComponents.Option>
   ),
+  // @ts-expect-error: react type problems
   MultiValueContainer: ({ children, ...props }) => (
+    // @ts-expect-error: react type problems
     <chakraComponents.MultiValueContainer {...props}>
       <Tag style={{ backgroundColor: props.data.colour, color: ' #101010' }}>{children}</Tag>
     </chakraComponents.MultiValueContainer>
