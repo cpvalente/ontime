@@ -22,7 +22,6 @@ export default function EditModal(props: EditModalProps) {
     setLoading(true);
     inputRef.current?.forEach(async (element) => {
       if (element.dataset.field && element.defaultValue != element.value) {
-        console.log(element.dataset.field, element.value);
         await updateCustomField(event.id, element.dataset.field, element.value);
       }
     });
