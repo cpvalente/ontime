@@ -1,14 +1,12 @@
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from './conversionUtils.js';
 
 /**
- * @description Parses a time string to millis, auto-filling to the left
+ * @description Parses a user given time string to a value in milliseconds
  * @param {string} value - time string
- * @returns {number} - time string in millis
+ * @returns {number} - value in milliseconds
  */
 export function parseUserTime(value: string): number {
-  value = value.toLowerCase();
-
-  const { isAM, isPM, value: parsingValue } = checkAmPm(value);
+  const { isAM, isPM, value: parsingValue } = checkAmPm(value.toLowerCase());
   const maybeMillisFromMatchers = checkMatchers(parsingValue);
   if (maybeMillisFromMatchers !== null) {
     return maybeMillisFromMatchers;
@@ -18,9 +16,8 @@ export function parseUserTime(value: string): number {
   const separatorRegex = /[\s,:.]+/;
   const [first, second, third] = parsingValue.split(separatorRegex);
 
-  let addTwelve = isPM;
-
   let millis = 0;
+  let addTwelve = isPM;
 
   if (first != null && second != null && third != null) {
     // if string has three sections, treat as [hours] [minutes] [seconds]
@@ -31,7 +28,6 @@ export function parseUserTime(value: string): number {
       }
       addTwelve = false;
     }
-
     millis = hours * MILLIS_PER_HOUR;
     millis += parse(second) * MILLIS_PER_MINUTE;
     millis += parse(third) * MILLIS_PER_SECOND;
@@ -40,8 +36,7 @@ export function parseUserTime(value: string): number {
     const { inferredMillis, addAM } = inferSeparators(first, isAM, isPM);
     millis = inferredMillis;
     addTwelve = addAM < 12 && isPM;
-  }
-  if (first != null && second != null && third == null) {
+  } else if (first != null && second != null && third == null) {
     // if string has two sections, treat as [hours] [minutes]
     let hours = parse(first);
     if (hours === 12) {
@@ -50,12 +45,10 @@ export function parseUserTime(value: string): number {
       }
       addTwelve = false;
     }
-
     millis = hours * MILLIS_PER_HOUR;
     millis += parse(second) * MILLIS_PER_MINUTE;
   }
 
-  // Add 12 hours if needed
   if (addTwelve) {
     millis += 12 * MILLIS_PER_HOUR;
   }
@@ -73,6 +66,7 @@ function inferSeparators(value: string, isAM: boolean, isPM: boolean) {
   const length = value.length;
   let inferredMillis = 0;
   let addAM = 0;
+
   if (length === 1) {
     if (isPM || isAM) {
       inferredMillis = parse(value) * MILLIS_PER_HOUR;
@@ -135,29 +129,31 @@ function checkMatchers(value: string): number | null {
 
 /**
  * @description Utility function to check if a string contain am/pm indicators
+ * @description expects the value to be lowercased
  * @param {string} value
+ * @returns {Object}
+ * @returns {boolean} result.isAM - Whether we parsed an AM indicator
+ * @returns {boolean} result.isPM - Whether we parsed a PM indicator
+ * @returns {string} result.value - The original string with AM/PM indicator removed
  */
-function checkAmPm(value: string) {
-  let isPM = false;
-  let isAM = false;
-  if (value.toLowerCase().includes('pm')) {
-    isPM = true;
-    value = value.replace(/pm/i, '');
-  } else if (value.toLowerCase().includes('p')) {
-    isPM = true;
-    value = value.replace(/p/i, '');
+function checkAmPm(value: string): { isAM: boolean; isPM: boolean; value: string } {
+  if (value.endsWith('pm')) {
+    return { isAM: false, isPM: true, value: value.slice(0, -2) };
   }
 
-  // we need to remove am, but it doesn't actually change anything
-  if (value.toLowerCase().includes('am')) {
-    isAM = true;
-    value = value.replace(/am/i, '');
-  } else if (value.toLowerCase().includes('a')) {
-    isAM = true;
-    value = value.replace(/a/i, '');
+  if (value.endsWith('p')) {
+    return { isAM: false, isPM: true, value: value.slice(0, -1) };
   }
 
-  return { isAM, isPM, value };
+  if (value.endsWith('am')) {
+    return { isAM: true, isPM: false, value: value.slice(0, -2) };
+  }
+
+  if (value.endsWith('a')) {
+    return { isAM: true, isPM: false, value: value.slice(0, -1) };
+  }
+
+  return { isAM: false, isPM: false, value };
 }
 
 /**
@@ -166,7 +162,7 @@ function checkAmPm(value: string) {
  * @return {number}
  */
 function parse(valueAsString: string): number {
-  const parsed = parseInt(valueAsString, 10);
+  const parsed = Number(valueAsString);
   if (isNaN(parsed)) {
     return 0;
   }

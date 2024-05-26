@@ -1,5 +1,5 @@
-import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from "./conversionUtils";
-import { parseUserTime } from "./parseUserTime";
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from './conversionUtils';
+import { parseUserTime } from './parseUserTime';
 
 describe('test parseUserTime()', () => {
   describe('function handles time with no separators', () => {
