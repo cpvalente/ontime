@@ -1,11 +1,11 @@
 import { memo } from 'react';
 import { Select, Switch } from '@chakra-ui/react';
 import { EndAction, MaybeString, TimerType, TimeStrategy } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { millisToString, parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
-import { forgivingStringToMillis, millisToDelayString } from '../../../../common/utils/dateConfig';
+import { millisToDelayString } from '../../../../common/utils/dateConfig';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
 
 import style from '../EventEditor.module.scss';
@@ -51,7 +51,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
     }
 
     if (field === 'timeWarning' || field === 'timeDanger') {
-      const newTime = forgivingStringToMillis(value as string);
+      const newTime = parseUserTime(value as string);
       updateEvent({ id: eventId, [field]: newTime });
       return;
     }

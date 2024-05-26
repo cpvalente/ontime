@@ -1,9 +1,8 @@
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { Input, Radio, RadioGroup } from '@chakra-ui/react';
-import { millisToString } from 'ontime-utils';
+import { millisToString, parseUserTime } from 'ontime-utils';
 
 import { useEventAction } from '../../../hooks/useEventAction';
-import { forgivingStringToMillis } from '../../../utils/dateConfig';
 
 import style from './DelayInput.module.scss';
 
@@ -40,7 +39,7 @@ export default function DelayInput(props: DelayInputProps) {
     }
 
     const isNegative = newValue.startsWith('-');
-    let newMillis = forgivingStringToMillis(newValue);
+    let newMillis = parseUserTime(newValue);
 
     if (isNegative) {
       newMillis = newMillis * -1;
