@@ -19,6 +19,7 @@
     "@tanstack/react-table": "^8.11.3",
     "autosize": "^6.0.1",
     "axios": "^1.2.0",
+    "chakra-react-select": "^4.7.6",
     "color": "^4.2.3",
     "csv-stringify": "^6.4.5",
     "framer-motion": "^10.10.0",
