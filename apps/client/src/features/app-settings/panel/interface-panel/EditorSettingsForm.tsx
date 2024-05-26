@@ -1,9 +1,9 @@
 import { Select, Switch } from '@chakra-ui/react';
 import { EndAction, TimerType } from 'ontime-types';
+import { parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { editorSettingsDefaults, useEditorSettings } from '../../../../common/stores/editorSettings';
-import { forgivingStringToMillis } from '../../../../common/utils/dateConfig';
 import * as Panel from '../PanelUtils';
 
 export default function EditorSettingsForm() {
@@ -15,9 +15,9 @@ export default function EditorSettingsForm() {
   const setDangerTime = eventSettings.setDangerTime;
   const setDefaultPublic = eventSettings.setDefaultPublic;
 
-  const durationInMs = forgivingStringToMillis(eventSettings.defaultDuration);
-  const warnTimeInMs = forgivingStringToMillis(eventSettings.defaultWarnTime);
-  const dangerTimeInMs = forgivingStringToMillis(eventSettings.defaultDangerTime);
+  const durationInMs = parseUserTime(eventSettings.defaultDuration);
+  const warnTimeInMs = parseUserTime(eventSettings.defaultWarnTime);
+  const dangerTimeInMs = parseUserTime(eventSettings.defaultDangerTime);
 
   return (
     <Panel.Section>

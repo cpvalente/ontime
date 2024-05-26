@@ -45,6 +45,7 @@ export {
   removeSeconds,
   removeTrailingZero,
 } from './src/date-utils/timeFormatting.js';
+export { parseUserTime } from './src/date-utils/parseUserTime.js';
 export { isAlphanumeric } from './src/regex-utils/isAlphanumeric.js';
 export { isColourHex } from './src/regex-utils/isColourHex.js';
 

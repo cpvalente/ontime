@@ -6,6 +6,7 @@ import {
   getLinkedTimes,
   getPreviousEventNormal,
   MILLIS_PER_SECOND,
+  parseUserTime,
   reorderArray,
   swapEventData,
 } from 'ontime-utils';
@@ -25,7 +26,6 @@ import {
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
 import { useEditorSettings } from '../stores/editorSettings';
-import { forgivingStringToMillis } from '../utils/dateConfig';
 
 /**
  * @description Set of utilities for events //TODO: should this be called useEntryAction and so on
@@ -94,15 +94,15 @@ export const useEventAction = () => {
         }
 
         if (newEvent.duration === undefined && newEvent.timeEnd === undefined) {
-          newEvent.duration = forgivingStringToMillis(defaultDuration);
+          newEvent.duration = parseUserTime(defaultDuration);
         }
 
         if (newEvent.timeDanger === undefined) {
-          newEvent.timeDanger = forgivingStringToMillis(defaultDangerTime);
+          newEvent.timeDanger = parseUserTime(defaultDangerTime);
         }
 
         if (newEvent.timeWarning === undefined) {
-          newEvent.timeWarning = forgivingStringToMillis(defaultWarnTime);
+          newEvent.timeWarning = parseUserTime(defaultWarnTime);
         }
       }
 
@@ -217,9 +217,9 @@ export const useEventAction = () => {
       } else if (value.startsWith('+') || value.startsWith('p+') || value.startsWith('p +')) {
         // TODO: is this logic solid?
         const remainingString = value.substring(1);
-        newValMillis = getPreviousEnd() + forgivingStringToMillis(remainingString);
+        newValMillis = getPreviousEnd() + parseUserTime(remainingString);
       } else {
-        newValMillis = forgivingStringToMillis(value);
+        newValMillis = parseUserTime(value);
       }
 
       // dont allow timer values over 23:59:59

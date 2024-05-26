@@ -1,9 +1,8 @@
 import { FocusEvent, KeyboardEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { Input } from '@chakra-ui/react';
-import { millisToString } from 'ontime-utils';
+import { millisToString, parseUserTime } from 'ontime-utils';
 
 import { useEmitLog } from '../../../stores/logger';
-import { forgivingStringToMillis } from '../../../utils/dateConfig';
 
 interface TimeInputProps<T extends string> {
   name: T;
@@ -57,7 +56,7 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
         submitHandler(name, newValue);
       }
 
-      const valueInMillis = forgivingStringToMillis(newValue);
+      const valueInMillis = parseUserTime(newValue);
       if (valueInMillis === time) {
         return false;
       }

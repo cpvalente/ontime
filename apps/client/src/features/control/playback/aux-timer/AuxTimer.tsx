@@ -4,10 +4,10 @@ import { IoPause } from '@react-icons/all-files/io5/IoPause';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { setAuxTimer, useAuxTimerControl, useAuxTimerTime } from '../../../../common/hooks/useSocket';
-import { forgivingStringToMillis } from '../../../../common/utils/dateConfig';
 import TapButton from '../tap-button/TapButton';
 
 import style from './AuxTimer.module.scss';
@@ -64,7 +64,7 @@ function AuxTimerInput() {
   const { setDuration } = setAuxTimer;
 
   const handleTimeUpdate = (_field: string, value: string) => {
-    const newTime = forgivingStringToMillis(value);
+    const newTime = parseUserTime(value);
     setDuration(newTime / 1000); //frontend api is seconds based;
   };
 

@@ -2,12 +2,11 @@ import { Tooltip } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { Playback } from 'ontime-types';
-import { MILLIS_PER_HOUR, MILLIS_PER_SECOND } from 'ontime-utils';
+import { MILLIS_PER_HOUR, MILLIS_PER_SECOND, parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { useLocalStorage } from '../../../../common/hooks/useLocalStorage';
 import { setPlayback } from '../../../../common/hooks/useSocket';
-import { forgivingStringToMillis } from '../../../../common/utils/dateConfig';
 import { tooltipDelayMid } from '../../../../ontimeConfig';
 import TapButton from '../tap-button/TapButton';
 
@@ -22,7 +21,7 @@ export default function AddTime(props: AddTimeProps) {
   const [time, setTime] = useLocalStorage('add-time', 300_000); // 5 minutes
 
   const handleTimeChange = (_field: string, value: string) => {
-    const newTime = forgivingStringToMillis(value);
+    const newTime = parseUserTime(value);
     // cap add time to 1 hour
     setTime(Math.min(newTime, MILLIS_PER_HOUR));
   };
