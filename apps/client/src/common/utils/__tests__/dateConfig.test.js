@@ -95,20 +95,65 @@ describe('test forgivingStringToMillis()', () => {
 
   describe('handles am/pm', () => {
     const ampm = [
-      { value: '9:10:11am', expect: 9 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 11 * MILLIS_PER_SECOND },
-      { value: '9:10:11a', expect: 9 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 11 * MILLIS_PER_SECOND },
-      { value: '9:10:11pm', expect: (12 + 9) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 11 * MILLIS_PER_SECOND },
-      { value: '9:10:11p', expect: (12 + 9) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 11 * MILLIS_PER_SECOND },
-      { value: '9:10am', expect: 9 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
-      { value: '9:10a', expect: 9 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
-      { value: '9:10pm', expect: (12 + 9) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
-      { value: '9:10p', expect: (12 + 9) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '1am', expect: 1 * MILLIS_PER_HOUR },
+      { value: '1pm', expect: (12 + 1) * MILLIS_PER_HOUR },
+      { value: '1 am', expect: 1 * MILLIS_PER_HOUR },
+      { value: '1 pm', expect: (12 + 1) * MILLIS_PER_HOUR },
+      { value: '1AM', expect: 1 * MILLIS_PER_HOUR },
+      { value: '1PM', expect: (12 + 1) * MILLIS_PER_HOUR },
+
       { value: '9am', expect: 9 * MILLIS_PER_HOUR },
-      { value: '9a', expect: 9 * MILLIS_PER_HOUR },
       { value: '9pm', expect: (12 + 9) * MILLIS_PER_HOUR },
-      { value: '9p', expect: (12 + 9) * MILLIS_PER_HOUR },
-      { value: '12am', expect: 0 },
+
+      { value: '10am', expect: 10 * MILLIS_PER_HOUR },
+      { value: '10pm', expect: (12 + 10) * MILLIS_PER_HOUR },
+      { value: '10 am', expect: 10 * MILLIS_PER_HOUR },
+      { value: '10 pm', expect: (12 + 10) * MILLIS_PER_HOUR },
+      { value: '10AM', expect: 10 * MILLIS_PER_HOUR },
+      { value: '10PM', expect: (12 + 10) * MILLIS_PER_HOUR },
+
+      { value: '12am', expect: 0 * MILLIS_PER_HOUR },
       { value: '12pm', expect: 12 * MILLIS_PER_HOUR },
+
+      { value: '1:10am', expect: 1 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '1:10pm', expect: (12 + 1) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '1:10 am', expect: 1 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '1:10 pm', expect: (12 + 1) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '1:10AM', expect: 1 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '1:10PM', expect: (12 + 1) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+
+      { value: '9:10am', expect: 9 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '9:10pm', expect: (12 + 9) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+
+      { value: '10:10am', expect: 10 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '10:10pm', expect: (12 + 10) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '10:10 am', expect: 10 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '10:10 pm', expect: (12 + 10) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '10:10AM', expect: 10 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '10:10PM', expect: (12 + 10) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+
+      { value: '12:10am', expect: 0 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+      { value: '12:10pm', expect: 12 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE },
+
+      { value: '1:10:10am', expect: 1 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '1:10:10pm', expect: (12 + 1) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '1:10:10 am', expect: 1 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '1:10:10 pm', expect: (12 + 1) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '1:10:10AM', expect: 1 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '1:10:10PM', expect: (12 + 1) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+
+      { value: '9:10:10am', expect: 9 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '9:10:10pm', expect: (12 + 9) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+
+      { value: '10:10:10am', expect: 10 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '10:10:10pm', expect: (12 + 10) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '10:10:10 am', expect: 10 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '10:10:10 pm', expect: (12 + 10) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '10:10:10AM', expect: 10 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '10:10:10PM', expect: (12 + 10) * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+
+      { value: '12:10:10am', expect: 0 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
+      { value: '12:10:10pm', expect: 12 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE + 10 * MILLIS_PER_SECOND },
     ];
 
     for (const s of ampm) {

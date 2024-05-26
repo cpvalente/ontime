@@ -45,7 +45,7 @@ function checkAmPm(value: string) {
  * @description Utility function to check if a string contain h / m / s indicators
  * @param {string} value
  */
-function checkMatchers(value: string) {
+function checkMatchers(value: string): number | null {
   const hoursMatch = /(\d+)h/i.exec(value);
   const hoursMatchValue = hoursMatch ? parse(hoursMatch[1]) : 0;
 
@@ -60,7 +60,7 @@ function checkMatchers(value: string) {
       hoursMatchValue * MILLIS_PER_HOUR + minutesMatchValue * MILLIS_PER_MINUTE + secondsMatchValue * MILLIS_PER_SECOND
     );
   }
-  return { hoursMatchValue };
+  return null;
 }
 
 /**
@@ -85,8 +85,13 @@ function inferSeparators(value: string, isAM: boolean, isPM: boolean) {
     }
   } else if (length === 2) {
     if (isPM || isAM) {
-      inferredMillis = parse(value) * inferredMillis;
-      if (isAM) {
+      if (value === '12' && isAM) {
+        inferredMillis = 0;
+      } else {
+        inferredMillis = parse(value) * MILLIS_PER_HOUR;
+      }
+
+      if (isAM || value === '12') {
         // this ensures we dont add 12 hours in the end
         addAM = 12;
       }
@@ -112,43 +117,57 @@ function inferSeparators(value: string, isAM: boolean, isPM: boolean) {
  * @returns {number} - time string in millis
  */
 export const forgivingStringToMillis = (value: string): number => {
-  if (value === '12am') {
-    return 0;
-  }
+  value = value.toLowerCase();
 
   const { isAM, isPM, value: parsingValue } = checkAmPm(value);
   const maybeMillisFromMatchers = checkMatchers(parsingValue);
-  if (typeof maybeMillisFromMatchers === 'number') {
+  if (maybeMillisFromMatchers !== null) {
     return maybeMillisFromMatchers;
   }
-
-  let { hoursMatchValue } = maybeMillisFromMatchers;
-
-  let millis = 0;
 
   // split string at known separators    : , .
   const separatorRegex = /[\s,:.]+/;
   const [first, second, third] = parsingValue.split(separatorRegex);
 
+  let addTwelve = isPM;
+
+  let millis = 0;
+
   if (first != null && second != null && third != null) {
     // if string has three sections, treat as [hours] [minutes] [seconds]
-    millis = parse(first) * MILLIS_PER_HOUR;
+    let hours = parse(first);
+    if (hours === 12) {
+      if (isAM) {
+        hours = 0;
+      }
+      addTwelve = false;
+    }
+
+    millis = hours * MILLIS_PER_HOUR;
     millis += parse(second) * MILLIS_PER_MINUTE;
     millis += parse(third) * MILLIS_PER_SECOND;
   } else if (first != null && second == null && third == null) {
     // we only have one section, infer separators
     const { inferredMillis, addAM } = inferSeparators(first, isAM, isPM);
     millis = inferredMillis;
-    hoursMatchValue = addAM;
+    addTwelve = addAM < 12 && isPM;
   }
   if (first != null && second != null && third == null) {
     // if string has two sections, treat as [hours] [minutes]
-    millis = parse(first) * MILLIS_PER_HOUR;
+    let hours = parse(first);
+    if (hours === 12) {
+      if (isAM) {
+        hours = 0;
+      }
+      addTwelve = false;
+    }
+
+    millis = hours * MILLIS_PER_HOUR;
     millis += parse(second) * MILLIS_PER_MINUTE;
   }
 
-  // Add 12 hours if it is PM
-  if (isPM && hoursMatchValue < 12) {
+  // Add 12 hours if needed
+  if (addTwelve) {
     millis += 12 * MILLIS_PER_HOUR;
   }
 
