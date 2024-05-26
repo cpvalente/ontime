@@ -454,7 +454,7 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
   const fieldOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
 
   const customFieldSelect = Object.keys(customFields).reduce((acc, key) => {
-    return { ...acc, [key]: `Custom: ${capitaliseFirstLetter(key)}` };
+    return { ...acc, [key]: `${capitaliseFirstLetter(key)}` };
   }, {});
 
   return [
@@ -486,7 +486,7 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
       id: 'subscribe',
       title: 'Highlight Field',
       description: 'Choose a custom field to highlight',
-      type: 'option',
+      type: 'multi-option',
       values: customFieldSelect,
       defaultValue: '',
     },
