@@ -80,8 +80,11 @@ export const connectSocket = () => {
         }
 
         case 'client-rename': {
-          if (payload.id && payload.id === getClientId()) {
-            setClientName(payload.name);
+          if (typeof payload === 'object') {
+            const id = getClientId();
+            if (payload.target && payload.target === id) {
+              setClientName(payload.name);
+            }
           }
           break;
         }
