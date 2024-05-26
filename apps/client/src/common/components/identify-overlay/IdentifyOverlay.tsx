@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Progress } from '@chakra-ui/react';
 import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { setClientRemote } from '../../hooks/useSocket';
@@ -10,9 +11,9 @@ import './Overlay.scss';
 export default function IdentifyOverlay() {
   const { clients, id, name, redirect, setRedirect } = useClientStore();
   const { setIdentify } = setClientRemote;
-  const identifyTimeout = useRef<NodeJS.Timeout>();
   const navigate = useNavigate();
   const showOverlay = clients[id]?.identify;
+  const [identifyTimeout, setIdentifyTimeout] = useState(0);
 
   useEffect(() => {
     if (redirect !== '') {
@@ -27,21 +28,27 @@ export default function IdentifyOverlay() {
 
   useEffect(() => {
     if (showOverlay) {
-      identifyTimeout.current = setTimeout(() => {
-        setIdentify({ target: id, state: false });
-      }, MILLIS_PER_MINUTE);
+      setIdentifyTimeout(MILLIS_PER_MINUTE);
     } else {
-      if (identifyTimeout.current) {
-        clearTimeout(identifyTimeout.current);
-      }
+      setIdentifyTimeout(0);
     }
+  }, [showOverlay]);
+
+  useEffect(() => {
+    const progressInterval = setTimeout(() => {
+      if (identifyTimeout < tickRate) {
+        clearTimeout(progressInterval);
+        setIdentify({ target: id, identify: false });
+        setIdentifyTimeout(0);
+      } else {
+        setIdentifyTimeout((value) => value - tickRate);
+      }
+    }, tickRate);
 
     return () => {
-      if (identifyTimeout.current) {
-        clearTimeout(identifyTimeout.current);
-      }
+      clearTimeout(progressInterval);
     };
-  }, [clients, id, setIdentify, showOverlay]);
+  }, [id, identifyTimeout, setIdentify]);
 
   if (!showOverlay) {
     // eslint-disable-next-line react/jsx-no-useless-fragment
@@ -49,9 +56,16 @@ export default function IdentifyOverlay() {
   }
 
   return (
-    <div className='overlay' data-testid='identify-overlay' onClick={() => setIdentify({ target: id, state: false })}>
+    <div
+      className='overlay'
+      data-testid='identify-overlay'
+      onClick={() => setIdentify({ target: id, identify: false })}
+    >
       <div className='name'>{name}</div>
       <div className='message'>Click to close</div>
+      <Progress className='progress' value={(identifyTimeout / MILLIS_PER_MINUTE) * 100} size='lg' />
     </div>
   );
 }
+
+const tickRate = 30;

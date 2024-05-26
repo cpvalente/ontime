@@ -10,6 +10,7 @@ import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
 import { parseProperty, updateEvent } from './integration.utils.js';
+import { socket } from '../adapters/WebsocketAdapter.js';
 
 export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = type.toLowerCase();
@@ -224,6 +225,33 @@ const actionHandlers: Record<string, ActionHandler> = {
         return reply;
       }
     }
+    throw new Error('No matching method provided');
+  },
+  /* Client */
+  client: (payload) => {
+    assert.isObject(payload);
+    if (!('target' in payload) || typeof payload.target != 'string') {
+      throw new Error('No or invalid client target');
+    }
+
+    if ('rename' in payload && typeof payload.rename == 'string') {
+      const { target, rename } = payload;
+      socket.renameClient(target, rename);
+      return { payload: 'success' };
+    }
+
+    if ('redirect' in payload && typeof payload.redirect == 'string') {
+      const { target, redirect } = payload;
+      socket.redirectClient(target, redirect);
+      return { payload: 'success' };
+    }
+
+    if ('identify' in payload && typeof payload.identify == 'boolean') {
+      const { target, identify } = payload;
+      socket.identifyClient(target, identify);
+      return { payload: 'success' };
+    }
+
     throw new Error('No matching method provided');
   },
 };

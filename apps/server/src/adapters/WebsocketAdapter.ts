@@ -134,39 +134,6 @@ export class SocketServer implements IAdapter {
             return;
           }
 
-          if (type === 'set-client-identify') {
-            if (payload) {
-              const targetClient = this.clients.get(payload.target);
-              this.clients.set(payload.target, { ...targetClient, identify: payload.state });
-              this.sendClientList();
-            }
-            return;
-          }
-
-          if (type === 'set-client-redirect') {
-            if (payload && this.clients.has(payload.target)) {
-              this.sendAsJson({ type: 'client-redirect', payload });
-            }
-            return;
-          }
-
-          if (type === 'set-client-rename') {
-            if (payload && this.clients.has(payload.target)) {
-              const targetID = payload.target;
-              const newName = payload.name;
-              const previousData = this.clients.get(targetID);
-              logger.info(LogOrigin.Client, `Client ${previousData.name} renamed to ${newName}`);
-              previousData.name = newName;
-              this.clients.set(targetID, previousData);
-              this.sendAsJson({
-                type: 'client-rename',
-                payload: { name: newName, id: targetID },
-              });
-            }
-            this.sendClientList();
-            return;
-          }
-
           if (type === 'ontime-log') {
             if (payload.level && payload.origin && payload.text) {
               logger.emit(payload.level, payload.origin, payload.text);
@@ -195,7 +162,7 @@ export class SocketServer implements IAdapter {
     });
   }
 
-  sendClientList(): void {
+  private sendClientList(): void {
     const payload = Object.fromEntries(this.clients.entries());
     this.sendAsJson({ type: 'client-list', payload });
   }
@@ -204,8 +171,41 @@ export class SocketServer implements IAdapter {
     return Array.from(this.clients.keys());
   }
 
+  public renameClient(target: string, name: string) {
+    const previousData = this.clients.get(target);
+    if (!previousData) {
+      throw new Error(`Client "${target}" not found`);
+    }
+    logger.info(LogOrigin.Client, `Client ${previousData.name} renamed to ${name}`);
+    previousData.name = name;
+    this.clients.set(target, previousData);
+    this.sendAsJson({
+      type: 'client-rename',
+      payload: { name, target },
+    });
+    this.sendClientList();
+  }
+
+  public redirectClient(target: string, path: string) {
+    const previousData = this.clients.get(target);
+    if (!previousData) {
+      throw new Error(`Client "${target}" not found`);
+    }
+    this.sendAsJson({ type: 'client-redirect', payload: { target, path } });
+    this.sendClientList();
+  }
+
+  public identifyClient(target: string, identify: boolean) {
+    const previousData = this.clients.get(target);
+    if (!previousData) {
+      throw new Error(`Client "${target}" not found`);
+    }
+    this.clients.set(target, { ...previousData, identify });
+    this.sendClientList();
+  }
+
   // message is any serializable value
-  sendAsJson(message: unknown) {
+  public sendAsJson(message: unknown) {
     const stringifyed = JSON.stringify(message);
     this.wss?.clients.forEach((client) => {
       try {

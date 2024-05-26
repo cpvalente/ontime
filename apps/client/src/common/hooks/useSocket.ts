@@ -4,9 +4,9 @@ import { useRuntimeStore } from '../stores/runtime';
 import { socketSendJson } from '../utils/socket';
 
 export const setClientRemote = {
-  setIdentify: (payload: { target: string; state: boolean }) => socketSendJson('set-client-identify', payload),
-  setRedirect: (payload: { target: string; path: string }) => socketSendJson('set-client-redirect', payload),
-  setClientName: (payload: { target: string; name: string }) => socketSendJson('set-client-rename', payload),
+  setIdentify: (payload: { target: string; identify: boolean }) => socketSendJson('client', payload),
+  setRedirect: (payload: { target: string; redirect: string }) => socketSendJson('client', payload),
+  setClientName: (payload: { target: string; rename: string }) => socketSendJson('client', payload),
 };
 
 export const useRundownEditor = () => {

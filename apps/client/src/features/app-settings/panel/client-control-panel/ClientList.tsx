@@ -23,8 +23,8 @@ export default function ClientList() {
     onOpenRename();
   };
 
-  const rename = (name: string) => {
-    setClientName({ target: targetId, name });
+  const onRename = (rename: string) => {
+    setClientName({ target: targetId, rename });
     onCloseRename();
   };
 
@@ -33,8 +33,8 @@ export default function ClientList() {
     onOpenRedirect();
   };
 
-  const redirect = (path: string) => {
-    setRedirect({ target: targetId, path });
+  const onRedirect = (redirect: string) => {
+    setRedirect({ target: targetId, redirect });
     onCloseRedirect();
   };
 
@@ -45,14 +45,14 @@ export default function ClientList() {
         isOpen={isOpenRedirect}
         clients={clients}
         id={targetId}
-        onSubmit={redirect}
+        onSubmit={onRedirect}
       />
       <RenameClientModal
         onClose={onCloseRename}
         isOpen={isOpenRename}
         clients={clients}
         id={targetId}
-        onSubmit={rename}
+        onSubmit={onRename}
       />
       <Panel.Table>
         <thead>
@@ -90,7 +90,7 @@ export default function ClientList() {
                     variant={identify ? 'ontime-filled' : 'ontime-subtle'}
                     data-testid={isCurrent ? '' : 'not-self-identify'}
                     onClick={() => {
-                      setIdentify({ target: key, state: !identify });
+                      setIdentify({ target: key, identify: !identify });
                     }}
                   >
                     Identify
