@@ -38,6 +38,9 @@ export default function ClientList() {
     onCloseRedirect();
   };
 
+  const ontimeClients = Object.entries(clients).filter(([_, { type }]) => type === ClientTypes.Ontime);
+  const otherClients = Object.entries(clients).filter(([_, { type }]) => type !== ClientTypes.Ontime);
+
   return (
     <>
       <RedirectClientModal
@@ -54,6 +57,7 @@ export default function ClientList() {
         id={targetId}
         onSubmit={onRename}
       />
+      <Panel.Title>Ontime Clients</Panel.Title>
       <Panel.Table>
         <thead>
           <tr>
@@ -62,18 +66,12 @@ export default function ClientList() {
           </tr>
         </thead>
         <tbody>
-          {Object.entries(clients).map(([key, client]) => {
-            const { identify, name, type } = client;
+          {ontimeClients.map(([key, client]) => {
+            const { identify, name } = client;
             const isCurrent = id === key;
-            const disableRedirect = isCurrent || type != ClientTypes.Ontime;
-            const disableRename = type != ClientTypes.Ontime;
-            const disableIdentify = isCurrent || type != ClientTypes.Ontime;
             return (
               <tr key={key}>
                 <td className={style.badgeList}>
-                  <Badge variant='outline' size='sx' colorScheme={selectColorScheme[type]}>
-                    {type}
-                  </Badge>
                   <Badge variant='outline' size='sx'>
                     {key}
                   </Badge>
@@ -86,7 +84,7 @@ export default function ClientList() {
                   <Button
                     size='xs'
                     className={`${identify ? style.blink : ''}`}
-                    isDisabled={disableIdentify}
+                    isDisabled={isCurrent}
                     variant={identify ? 'ontime-filled' : 'ontime-subtle'}
                     data-testid={isCurrent ? '' : 'not-self-identify'}
                     onClick={() => {
@@ -98,7 +96,6 @@ export default function ClientList() {
                   <Button
                     size='xs'
                     variant='ontime-subtle'
-                    isDisabled={disableRename}
                     data-testid={isCurrent ? '' : 'not-self-rename'}
                     onClick={() => openRename(key)}
                   >
@@ -108,7 +105,7 @@ export default function ClientList() {
                   <Button
                     size='xs'
                     variant='ontime-subtle'
-                    isDisabled={disableRedirect}
+                    isDisabled={isCurrent}
                     data-testid={isCurrent ? '' : 'not-self-redirect'}
                     onClick={() => openRedirect(key)}
                   >
@@ -120,13 +117,33 @@ export default function ClientList() {
           })}
         </tbody>
       </Panel.Table>
+      <Panel.Divider></Panel.Divider>
+      <Panel.Title>Other Clients</Panel.Title>
+      <Panel.Table>
+        <thead>
+          <tr>
+            <td className={style.halfWidth}>Client Name (Connection ID)</td>
+            <td className={style.halfWidth}>Client type</td>
+          </tr>
+        </thead>
+        <tbody>
+          {otherClients.map(([key, client]) => {
+            const { name, type } = client;
+
+            return (
+              <tr key={key}>
+                <td className={style.badgeList}>
+                  <Badge variant='outline' size='sx'>
+                    {key}
+                  </Badge>
+                  {name}
+                </td>
+                <td>{type}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </Panel.Table>
     </>
   );
 }
-
-const selectColorScheme: Record<ClientTypes, string> = {
-  [ClientTypes.Ontime]: 'blue',
-  [ClientTypes.Unknown]: 'gray',
-  [ClientTypes.Companion]: 'red',
-  [ClientTypes.Chataigne]: 'orange',
-};

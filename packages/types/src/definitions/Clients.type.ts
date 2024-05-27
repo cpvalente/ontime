@@ -3,8 +3,6 @@ export type CustomFieldLabel = string;
 export enum ClientTypes {
   Unknown = 'unknown',
   Ontime = 'ontime',
-  Companion = 'companion',
-  Chataigne = 'chataigne',
 }
 
 export type Client = {

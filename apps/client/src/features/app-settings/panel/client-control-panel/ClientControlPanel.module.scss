@@ -7,6 +7,11 @@
   gap: $element-spacing;
 }
 
+.halfWidth {
+  width: 50%;
+  white-space: nowrap;
+}
+
 .badgeList {
   width: 100%;
   * {
