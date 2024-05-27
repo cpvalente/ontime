@@ -1,15 +1,14 @@
 import { Tooltip } from '@chakra-ui/react';
 import {
-  closestCenter,
+  closestCorners,
   DndContext,
   DragEndEvent,
-  KeyboardSensor,
   PointerSensor,
   TouchSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
 import { flexRender, HeaderGroup } from '@tanstack/react-table';
 import { OntimeRundownEntry } from 'ontime-types';
 
@@ -52,9 +51,6 @@ export default function CuesheetHeader(props: CuesheetHeaderProps) {
         tolerance: 50,
       },
     }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
   );
 
   return (
@@ -63,7 +59,7 @@ export default function CuesheetHeader(props: CuesheetHeaderProps) {
         const key = headerGroup.id;
 
         return (
-          <DndContext key={key} sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleOnDragEnd}>
+          <DndContext key={key} sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleOnDragEnd}>
             <tr key={headerGroup.id}>
               <th className={style.indexColumn}>
                 <Tooltip label='Event Order' openDelay={tooltipDelayFast}>
