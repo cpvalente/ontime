@@ -13,7 +13,12 @@
 - Download AppImage for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-linux.AppImage">Linux</a>
 - Get from <a href="https://hub.docker.com/r/getontime/ontime">Docker hub</a>
 
+## Using Ontime?
 
+Let us know!
+Ontime improves from the collaboration with its users. We would like to understand how you use Ontime and appreciate your feedback.
+
+We would also like to include a testimonials section in our ✨new website✨. It would be great to showcase the diversity of users running Ontime.
 
 # Ontime
 
