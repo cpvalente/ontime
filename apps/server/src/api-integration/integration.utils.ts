@@ -21,9 +21,9 @@ const defaultWhitelist = {
 
 const timerWhitelist = {
   ...defaultWhitelist,
-  duration: (value: unknown) => Math.min(0, Math.max(coerceNumber(value) * MILLIS_PER_SECOND, maxDuration)),
-  timeStart: (value: unknown) => Math.min(0, Math.max(coerceNumber(value) * MILLIS_PER_SECOND, maxDuration)),
-  timeEnd: (value: unknown) => Math.min(0, Math.max(coerceNumber(value) * MILLIS_PER_SECOND, maxDuration)),
+  duration: (value: unknown) => Math.max(0, Math.min(coerceNumber(value) * MILLIS_PER_SECOND, maxDuration)),
+  timeStart: (value: unknown) => Math.max(0, Math.min(coerceNumber(value) * MILLIS_PER_SECOND, maxDuration)),
+  timeEnd: (value: unknown) => Math.max(0, Math.min(coerceNumber(value) * MILLIS_PER_SECOND, maxDuration)),
 };
 
 function getWhitelist() {
@@ -64,6 +64,6 @@ export function updateEvent(patchEvent: Partial<OntimeEvent> & { id: string }) {
   if (!isOntimeEvent(event)) {
     throw new Error('Can only update events');
   }
-
+  console.log(patchEvent);
   editEvent(patchEvent);
 }
