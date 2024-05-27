@@ -103,7 +103,7 @@ export const getClockOptions = (timeFormat: string): ParamField[] => [
 ];
 
 export const getTimerOptions = (timeFormat: string, customFields: CustomFields): ParamField[] => {
-  const secondaryOptions = makeOptionsFromCustomFields(customFields);
+  const secondaryOptions = makeOptionsFromCustomFields(customFields, { note: 'Note' });
   return [
     getTimeOption(timeFormat),
     hideTimerSeconds,
