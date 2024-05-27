@@ -1,10 +1,10 @@
-import { OntimeEvent, isKeyOfType, isOntimeEvent } from 'ontime-types';
+import { EndAction, OntimeEvent, TimerType, isKeyOfType, isOntimeEvent } from 'ontime-types';
 import { MILLIS_PER_SECOND, maxDuration } from 'ontime-utils';
 
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { editEvent } from '../services/rundown-service/RundownService.js';
 import { getEventWithId } from '../services/rundown-service/rundownUtils.js';
-import { coerceBoolean, coerceColour, coerceNumber, coerceString } from '../utils/coerceType.js';
+import { coerceBoolean, coerceColour, coerceEnum, coerceNumber, coerceString } from '../utils/coerceType.js';
 
 /**
  *
@@ -36,6 +36,12 @@ const propertyConversion = {
   colour: coerceColour,
 
   custom: coerceString,
+
+  timeWarning: (value: unknown) => clampToMaxDuration(coerceNumber(value)),
+  timeDanger: (value: unknown) => clampToMaxDuration(coerceNumber(value)),
+
+  endAction: (value: unknown) => coerceEnum<EndAction>(value, Object.values(EndAction)),
+  timerType: (value: unknown) => coerceEnum<TimerType>(value, Object.values(TimerType)),
 
   duration: (value: unknown) => clampToMaxDuration(coerceNumber(rateLimit(value))),
   timeStart: (value: unknown) => clampToMaxDuration(coerceNumber(rateLimit(value))),
@@ -71,6 +77,6 @@ export function updateEvent(patchEvent: Partial<OntimeEvent> & { id: string }) {
   if (!isOntimeEvent(event)) {
     throw new Error('Can only update events');
   }
-  console.log(patchEvent);
+
   editEvent(patchEvent);
 }

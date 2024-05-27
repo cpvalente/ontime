@@ -1,6 +1,17 @@
 import { isColourHex } from 'ontime-utils';
 
 //TODO: write tests
+export function coerceEnum<T>(value: unknown, list: string[]): T {
+  if (typeof value !== 'string') {
+    throw new Error('Invalid value received');
+  }
+  if (!list.includes(value)) {
+    throw new Error('Not a valid option');
+  }
+  return value as T;
+}
+
+//TODO: write tests
 /**
  * @description Converts a value to a string if possible, throws otherwise
  * @param {unknown} value - Value to be converted to a string.
