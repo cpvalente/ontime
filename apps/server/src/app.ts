@@ -17,6 +17,7 @@ import {
   resolveExternalsDirectory,
   resolveStylesDirectory,
   resolvedPath,
+  clearUploadfolder,
 } from './setup/index.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 
@@ -143,6 +144,7 @@ const checkStart = (currentState: OntimeStartOrder) => {
 export const initAssets = async () => {
   checkStart(OntimeStartOrder.InitAssets);
   await dbLoadingProcess;
+  await clearUploadfolder();
   populateStyles();
   populateDemo();
 };
