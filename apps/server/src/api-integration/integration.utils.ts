@@ -6,7 +6,26 @@ import { editEvent } from '../services/rundown-service/RundownService.js';
 import { getEventWithId } from '../services/rundown-service/rundownUtils.js';
 import { coerceBoolean, coerceColour, coerceNumber, coerceString } from '../utils/coerceType.js';
 
-const defaultWhitelist = {
+/**
+ *
+ * @param {number} value time amount in seconds
+ * @returns {number} time in milliseconds clamped to 0 and max duration
+ */
+function clampToMaxDuration(value: number) {
+  return Math.max(0, Math.min(value * MILLIS_PER_SECOND, maxDuration));
+}
+
+let rateLimitTimeout: NodeJS.Timeout | null = null;
+
+function rateLimit(value: unknown) {
+  if (rateLimitTimeout) {
+    throw new Error('time endport rate limited');
+  }
+  rateLimitTimeout = setTimeout(() => (rateLimitTimeout = null), 1000);
+  return value;
+}
+
+const propertyConversion = {
   title: coerceString,
   note: coerceString,
   cue: coerceString,
@@ -17,37 +36,25 @@ const defaultWhitelist = {
   colour: coerceColour,
 
   custom: coerceString,
+
+  duration: (value: unknown) => clampToMaxDuration(coerceNumber(rateLimit(value))),
+  timeStart: (value: unknown) => clampToMaxDuration(coerceNumber(rateLimit(value))),
+  timeEnd: (value: unknown) => clampToMaxDuration(coerceNumber(rateLimit(value))),
 };
-
-const timerWhitelist = {
-  ...defaultWhitelist,
-  duration: (value: unknown) => Math.max(0, Math.min(coerceNumber(value) * MILLIS_PER_SECOND, maxDuration)),
-  timeStart: (value: unknown) => Math.max(0, Math.min(coerceNumber(value) * MILLIS_PER_SECOND, maxDuration)),
-  timeEnd: (value: unknown) => Math.max(0, Math.min(coerceNumber(value) * MILLIS_PER_SECOND, maxDuration)),
-};
-
-function getWhitelist() {
-  if (DataProvider.getSettings().apiAllowTimeChange) {
-    return timerWhitelist;
-  }
-
-  return defaultWhitelist;
-}
 
 export function parseProperty(property: string, value: unknown) {
-  const whitelist = getWhitelist();
   if (property.startsWith('custom:')) {
     const customKey = property.split(':')[1].toLocaleLowerCase(); // all custom fields keys are lowercase
     if (!(customKey in DataProvider.getCustomFields())) {
       throw new Error(`Custom field ${customKey} not found`);
     }
-    const parserFn = whitelist.custom;
+    const parserFn = propertyConversion.custom;
     return { custom: { [customKey]: parserFn(value) } };
   }
-  if (!isKeyOfType(property, whitelist)) {
+  if (!isKeyOfType(property, propertyConversion)) {
     throw new Error(`Property ${property} not permitted`);
   }
-  const parserFn = whitelist[property];
+  const parserFn = propertyConversion[property];
   return { [property]: parserFn(value) };
 }
 
