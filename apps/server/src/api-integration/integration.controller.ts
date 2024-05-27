@@ -47,8 +47,8 @@ const actionHandlers: Record<string, ActionHandler> = {
       if (typeof property !== 'string' || value === undefined) {
         throw new Error('Invalid property or value');
       }
-      // all custom fields keys are lowercase
-      const newObjectProperty = parseProperty(property.toLowerCase(), value);
+
+      const newObjectProperty = parseProperty(property, value);
 
       if (patchEvent.custom && newObjectProperty.custom) {
         Object.assign(patchEvent.custom, newObjectProperty.custom);
