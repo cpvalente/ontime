@@ -2,6 +2,8 @@ import { fileURLToPath } from 'url';
 import path, { dirname, join } from 'path';
 import fs from 'fs';
 
+import { rm } from 'fs/promises';
+
 import { config } from './config.js';
 import { ensureDirectory } from '../utils/fileManagement.js';
 
@@ -144,3 +146,11 @@ export const resolveCrashReportDirectory = getAppDataPath();
 
 // path to projects
 export const resolveProjectsDirectory = join(getAppDataPath(), config.projects);
+
+export async function clearUploadfolder() {
+  try {
+    await rm(uploadsFolderPath, { recursive: true });
+  } catch (_) {
+    //we dont care that there was no folder
+  }
+}
