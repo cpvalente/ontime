@@ -62,12 +62,13 @@ export default function ClientList() {
         <thead>
           <tr>
             <td className={style.fullWidth}>Client Name (Connection ID)</td>
+            <td className={style.fullWidth}>Path</td>
             <td />
           </tr>
         </thead>
         <tbody>
           {ontimeClients.map(([key, client]) => {
-            const { identify, name } = client;
+            const { identify, name, path } = client;
             const isCurrent = id === key;
             return (
               <tr key={key}>
@@ -80,6 +81,7 @@ export default function ClientList() {
                   </Badge>
                   {name}
                 </td>
+                <td className={style.pathList}>{path}</td>
                 <td className={style.actionButtons}>
                   <Button
                     size='xs'

@@ -7,8 +7,9 @@ export enum ClientTypes {
 
 export type Client = {
   name: string;
-  type: ClientTypes;
+  type: ClientTypes | string;
   identify: boolean;
+  path: string;
 };
 
 export type Clients = Record<string, Client>;

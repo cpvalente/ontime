@@ -55,6 +55,7 @@ export class SocketServer implements IAdapter {
         type: ClientTypes.Unknown,
         identify: false,
         name: getRandomName(),
+        path: '',
       });
 
       logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientId}`);
@@ -108,9 +109,19 @@ export class SocketServer implements IAdapter {
           }
 
           if (type === 'set-client-type') {
-            if (payload) {
+            if (payload && typeof payload == 'string') {
               const previousData = this.clients.get(clientId);
               previousData.type = payload;
+              this.clients.set(clientId, previousData);
+            }
+            this.sendClientList();
+            return;
+          }
+
+          if (type === 'set-client-path') {
+            if (payload && typeof payload == 'string') {
+              const previousData = this.clients.get(clientId);
+              previousData.path = payload;
               this.clients.set(clientId, previousData);
             }
             this.sendClientList();

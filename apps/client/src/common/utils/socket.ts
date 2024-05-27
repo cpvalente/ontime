@@ -34,6 +34,7 @@ export const connectSocket = () => {
     if (preferredClientName) {
       socketSendJson('set-client-name', preferredClientName);
       socketSendJson('set-client-type', ClientTypes.Ontime);
+      socketSendJson('set-client-path', location.pathname);
     }
   };
 

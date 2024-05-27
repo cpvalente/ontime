@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Progress } from '@chakra-ui/react';
 import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { setClientRemote } from '../../hooks/useSocket';
 import { useClientStore } from '../../stores/clientStore';
+import { socketSendJson } from '../../utils/socket';
 
 import './Overlay.scss';
 
@@ -12,19 +13,24 @@ export default function IdentifyOverlay() {
   const { clients, id, name, redirect, setRedirect } = useClientStore();
   const { setIdentify } = setClientRemote;
   const navigate = useNavigate();
+  const { pathname, search } = useLocation();
   const showOverlay = clients[id]?.identify;
   const [identifyTimeout, setIdentifyTimeout] = useState(0);
 
   useEffect(() => {
+    socketSendJson('set-client-path', pathname + search);
+  }, [pathname, search]);
+
+  useEffect(() => {
     if (redirect !== '') {
-      if (redirect !== window.location.pathname) {
+      if (redirect !== pathname + search) {
         setRedirect('');
         navigate(redirect);
       } else {
         setRedirect('');
       }
     }
-  }, [navigate, redirect, setRedirect]);
+  }, [pathname, navigate, redirect, setRedirect, search]);
 
   useEffect(() => {
     if (showOverlay) {
