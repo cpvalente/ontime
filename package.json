@@ -1,9 +1,8 @@
 {
   "name": "ontime",
-  "version": "3.0.0",
+  "version": "3.0.3",
   "description": "Time keeping for live events",
   "keywords": [
-    "lightdev",
     "ontime",
     "timer",
     "rundown"
@@ -30,7 +29,6 @@
     "build": "turbo run build",
     "build:local": "turbo run build:local",
     "build:electron": "turbo run build:electron",
-    "build:docker": "turbo run build:docker",
     "build:localdocker": "turbo run build:localdocker",
     "dist-win": "turbo run dist-win",
     "dist-mac": "turbo run dist-mac",

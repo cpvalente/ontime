@@ -1,8 +1,5 @@
-import { isTimeString } from 'ontime-utils';
-
-const mts = 1000; // millis to seconds
-const mtm = 1000 * 60; // millis to minutes
-const mth = 1000 * 60 * 60; // millis to hours
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
+import { isISO8601 } from '../../../../packages/utils/src/date-utils/isTimeString.js';
 
 export const timeFormat = 'HH:mm';
 export const timeFormatSeconds = 'HH:mm:ss';
@@ -19,7 +16,7 @@ export const dateToMillis = (date: Date): number => {
   const m = date.getMinutes();
   const s = date.getSeconds();
 
-  return h * mth + m * mtm + s * mts;
+  return h * MILLIS_PER_HOUR + m * MILLIS_PER_MINUTE + s * MILLIS_PER_SECOND;
 };
 
 /**
@@ -49,10 +46,9 @@ const stripAMPM = (value: string) => {
 /**
  * @description Parses a time string to millis, copied from client code
  * @param {string} value - time string
- * @param {boolean} fillLeft - autofill left = hours / right = seconds
  * @returns {number} - time string in millis
  */
-export const forgivingStringToMillis = (value: string, fillLeft: boolean = true): number => {
+export const forgivingStringToMillis = (value: string): number => {
   let millis = 0;
 
   // check for AM/PM indicators
@@ -60,7 +56,7 @@ export const forgivingStringToMillis = (value: string, fillLeft: boolean = true)
 
   //if past noon indicated add 12 hours
   if (pastNoon) {
-    millis = mth * 12;
+    millis = MILLIS_PER_HOUR * 12;
   }
   // split string at known separators    : , .
   const separatorRegex = /[\s,:.]+/;
@@ -68,9 +64,9 @@ export const forgivingStringToMillis = (value: string, fillLeft: boolean = true)
 
   if (first != null && second != null && third != null) {
     // if string has three sections, treat as [hours] [minutes] [seconds]
-    millis += parse(first) * mth;
-    millis += parse(second) * mtm;
-    millis += parse(third) * mts;
+    millis += parse(first) * MILLIS_PER_HOUR;
+    millis += parse(second) * MILLIS_PER_MINUTE;
+    millis += parse(third) * MILLIS_PER_SECOND;
   } else if (first != null && second == null && third == null) {
     // if string has one section,
     // could be a complete string like 121010 - 12:10:10
@@ -78,25 +74,18 @@ export const forgivingStringToMillis = (value: string, fillLeft: boolean = true)
       const hours = first.substring(0, 2);
       const minutes = first.substring(2, 4);
       const seconds = first.substring(4);
-      millis += parse(hours) * mth;
-      millis += parse(minutes) * mtm;
-      millis += parse(seconds) * mts;
+      millis += parse(hours) * MILLIS_PER_HOUR;
+      millis += parse(minutes) * MILLIS_PER_MINUTE;
+      millis += parse(seconds) * MILLIS_PER_SECOND;
     } else {
       // otherwise lets treat as [minutes]
-      millis += parse(first) * mtm;
+      millis += parse(first) * MILLIS_PER_MINUTE;
     }
   }
   if (first != null && second != null && third == null) {
-    // if string has two sections
-    if (fillLeft) {
-      // treat as [hours] [minutes]
-      millis += parse(first) * mth;
-      millis += parse(second) * mtm;
-    } else {
-      // treat as [minutes] [seconds]
-      millis += parse(first) * mtm;
-      millis += parse(second) * mts;
-    }
+    // if string has two sections  treat as [hours] [minutes]
+    millis += parse(first) * MILLIS_PER_HOUR;
+    millis += parse(second) * MILLIS_PER_MINUTE;
   }
   return millis;
 };
@@ -109,13 +98,21 @@ export const forgivingStringToMillis = (value: string, fillLeft: boolean = true)
 export const parseExcelDate = (excelDate: unknown): number => {
   if (excelDate instanceof Date) {
     return dateToMillis(excelDate);
-  } else if (typeof excelDate === 'string') {
-    const date = new Date(excelDate);
-    if (date instanceof Date && !isNaN(date.getTime())) {
-      return dateToMillis(date);
-    } else if (isTimeString(excelDate)) {
-      return forgivingStringToMillis(excelDate);
+  }
+
+  if (typeof excelDate === 'string') {
+    if (isISO8601(excelDate)) {
+      const date = new Date(excelDate);
+      if (date instanceof Date && !isNaN(date.getTime())) {
+        return dateToMillis(date);
+      }
     }
+    return forgivingStringToMillis(excelDate);
+  }
+
+  // if the user uses a number value eg. 15, excel could format the cell as number
+  if (typeof excelDate === 'number') {
+    return excelDate * MILLIS_PER_MINUTE;
   }
 
   return 0;

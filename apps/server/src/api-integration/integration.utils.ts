@@ -1,4 +1,5 @@
 import { OntimeEvent, isKeyOfType, isOntimeEvent } from 'ontime-types';
+import { MILLIS_PER_SECOND, maxDuration } from 'ontime-utils';
 
 import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { editEvent } from '../services/rundown-service/RundownService.js';
@@ -10,7 +11,7 @@ const whitelistedPayload = {
   note: coerceString,
   cue: coerceString,
 
-  duration: (value: unknown) => coerceNumber(value) * 1000,
+  duration: (value: unknown) => Math.max(coerceNumber(value) * MILLIS_PER_SECOND, maxDuration),
 
   isPublic: coerceBoolean,
   skip: coerceBoolean,

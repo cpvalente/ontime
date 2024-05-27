@@ -93,10 +93,10 @@ export default function UrlPresetsForm() {
         <Panel.SubHeader>
           URL presets
           <div className={style.actionButtons}>
-            <Button variant='ontime-ghosted' size='md' onClick={onReset} isDisabled={!canSubmit}>
+            <Button variant='ontime-ghosted' size='sm' onClick={onReset} isDisabled={!canSubmit}>
               Revert to saved
             </Button>
-            <Button variant='ontime-filled' size='md' type='submit' isDisabled={!canSubmit} isLoading={isSubmitting}>
+            <Button variant='ontime-filled' size='sm' type='submit' isDisabled={!canSubmit} isLoading={isSubmitting}>
               Save
             </Button>
           </div>

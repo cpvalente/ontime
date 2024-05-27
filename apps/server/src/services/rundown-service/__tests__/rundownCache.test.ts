@@ -161,12 +161,13 @@ describe('generate()', () => {
     const testRundown: OntimeRundown = [
       { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 200 } as OntimeEvent,
       { type: SupportedEvent.Event, id: '2', timeStart: 200, timeEnd: 300 } as OntimeEvent,
-      { type: SupportedEvent.Event, id: '3', timeStart: 300, timeEnd: 400 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: 'skipped', skip: true, timeStart: 300, timeEnd: 400 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500 } as OntimeEvent,
     ];
 
     const initResult = generate(testRundown);
-    expect(initResult.order.length).toBe(3);
-    expect(initResult.totalDuration).toBe(400 - 100);
+    expect(initResult.order.length).toBe(4);
+    expect(initResult.totalDuration).toBe(500 - 100);
   });
 
   it('calculates total duration across days with gap', () => {
@@ -346,8 +347,21 @@ describe('remove() mutation', () => {
   test('deletes an event from the rundown', () => {
     const mockEvent = { id: 'mock', cue: 'mock', type: SupportedEvent.Event } as OntimeEvent;
     const testRundown: OntimeRundown = [mockEvent];
-    const { newRundown } = remove({ eventId: mockEvent.id, persistedRundown: testRundown });
+    const { newRundown } = remove({ eventIds: [mockEvent.id], persistedRundown: testRundown });
     expect(newRundown.length).toBe(0);
+  });
+  test('deletes multiple events from the rundown', () => {
+    const testRundown: OntimeRundown = [
+      { type: SupportedEvent.Event, id: '1' } as OntimeEvent,
+      { type: SupportedEvent.Block, id: '2' } as OntimeBlock,
+      { type: SupportedEvent.Delay, id: '3' } as OntimeDelay,
+      { type: SupportedEvent.Event, id: '4' } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '5' } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '6' } as OntimeEvent,
+    ];
+    const { newRundown } = remove({ eventIds: ['1', '2', '3'], persistedRundown: testRundown });
+    expect(newRundown.length).toBe(3);
+    expect(newRundown.at(0).id).toBe('4');
   });
 });
 

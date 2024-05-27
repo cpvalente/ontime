@@ -1,4 +1,4 @@
-import { EndAction, LogOrigin, OntimeEvent, Playback, RuntimeStore, TimerLifeCycle } from 'ontime-types';
+import { EndAction, LogOrigin, MaybeNumber, OntimeEvent, Playback, RuntimeStore, TimerLifeCycle } from 'ontime-types';
 import { millisToString, validatePlayback } from 'ontime-utils';
 
 import { deepEqual } from 'fast-equals';
@@ -20,6 +20,7 @@ import {
   getPlayableEvents,
 } from '../rundown-service/rundownUtils.js';
 import { integrationService } from '../integration-service/IntegrationService.js';
+import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
 
 /**
  * Service manages runtime status of app
@@ -27,15 +28,20 @@ import { integrationService } from '../integration-service/IntegrationService.js
  */
 class RuntimeService {
   private eventTimer: TimerService | null = null;
-  private lastOnUpdate = -1;
+  private lastIntegrationClockUpdate = -1;
+  private lastIntegrationTimerValue = -1;
 
   /** last time we updated the socket */
-  static previousUpdate: number;
+  static previousTimerUpdate: number;
+  static previousTimerValue: MaybeNumber;
+  static previousClockUpdate: number;
   /** last known state */
   static previousState: RuntimeState;
 
   constructor() {
-    RuntimeService.previousUpdate = -1;
+    RuntimeService.previousTimerUpdate = -1;
+    RuntimeService.previousTimerValue = -1;
+    RuntimeService.previousClockUpdate = -1;
     RuntimeService.previousState = {} as RuntimeState;
   }
 
@@ -61,19 +67,25 @@ class RuntimeService {
       }
     }
 
-    // update normal cycle
-    if (newState.clock - this.lastOnUpdate >= timerConfig.notificationRate) {
-      const hasRunningTimer = Boolean(newState.eventNow) && newState.timer.playback === Playback.Play;
-      if (hasRunningTimer) {
-        process.nextTick(() => {
-          integrationService.dispatch(TimerLifeCycle.onUpdate);
-        });
-      }
+    const hasRunningTimer = Boolean(newState.eventNow) && newState.timer.playback === Playback.Play;
+    const shouldUpdateTimer =
+      hasRunningTimer && getShouldTimerUpdate(this.lastIntegrationTimerValue, newState.timer.current);
+
+    if (shouldUpdateTimer) {
+      process.nextTick(() => {
+        integrationService.dispatch(TimerLifeCycle.onUpdate);
+      });
+
+      this.lastIntegrationTimerValue = newState.timer.current;
+    }
+
+    const shouldUpdateClock = getShouldClockUpdate(this.lastIntegrationClockUpdate, newState.clock);
+    if (shouldUpdateClock) {
       process.nextTick(() => {
         integrationService.dispatch(TimerLifeCycle.onClock);
       });
 
-      this.lastOnUpdate = newState.clock;
+      this.lastIntegrationClockUpdate = newState.clock;
     }
 
     if (shouldCallRoll) {
@@ -516,29 +528,30 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // we do the comparison by explicitly for each property
     // to apply custom logic for different datasets
 
-    // some of the data, we only update at intervals
-    const isTimeToUpdate =
-      state.clock < RuntimeService.previousUpdate ||
-      state.clock - RuntimeService.previousUpdate >= timerConfig.notificationRate;
+    const shouldUpdateClock = getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock);
+    const shouldForceTimerUpdate = getForceUpdate(RuntimeService.previousTimerUpdate, state.clock);
+    const shouldUpdateTimer =
+      shouldForceTimerUpdate || getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current);
 
     // some changes need an immediate update
     const hasNewLoaded = state.eventNow?.id !== RuntimeService.previousState?.eventNow?.id;
 
-    const hasSkippedBack = state.clock < RuntimeService.previousUpdate;
     const justStarted = !RuntimeService.previousState?.timer;
     const hasChangedPlayback = RuntimeService.previousState.timer?.playback !== state.timer.playback;
-    const hasImmediateChanges = hasNewLoaded || hasSkippedBack || justStarted || hasChangedPlayback;
+    const hasImmediateChanges = hasNewLoaded || justStarted || hasChangedPlayback;
 
     if (hasChangedPlayback) {
       eventStore.set('onAir', state.timer.playback !== Playback.Stop);
     }
 
-    if (hasImmediateChanges || (isTimeToUpdate && !deepEqual(RuntimeService.previousState?.timer, state.timer))) {
+    if (hasImmediateChanges || (shouldUpdateTimer && !deepEqual(RuntimeService.previousState?.timer, state.timer))) {
+      RuntimeService.previousTimerUpdate = state.clock;
+      RuntimeService.previousTimerValue = state.timer.current;
       eventStore.set('timer', state.timer);
       RuntimeService.previousState.timer = { ...state.timer };
     }
 
-    if (hasChangedPlayback || (isTimeToUpdate && !deepEqual(RuntimeService.previousState?.runtime, state.runtime))) {
+    if (hasChangedPlayback || (shouldUpdateTimer && !deepEqual(RuntimeService.previousState?.runtime, state.runtime))) {
       eventStore.set('runtime', state.runtime);
       RuntimeService.previousState.runtime = { ...state.runtime };
     }
@@ -549,8 +562,8 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     updateEventIfChanged('eventNext', state);
     updateEventIfChanged('publicEventNext', state);
 
-    if (isTimeToUpdate) {
-      RuntimeService.previousUpdate = state.clock;
+    if (shouldUpdateClock) {
+      RuntimeService.previousClockUpdate = state.clock;
       eventStore.set('clock', state.clock);
       saveRestoreState(state);
     }

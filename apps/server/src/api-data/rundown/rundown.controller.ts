@@ -119,10 +119,10 @@ export async function rundownDelete(_req: Request, res: Response<MessageResponse
   }
 }
 
-export async function deleteEventById(req: Request, res: Response<MessageResponse | ErrorResponse>) {
+export async function deletesEventById(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
-    await deleteEvent(req.params.eventId);
-    res.status(204).send({ message: 'Event deleted' });
+    await deleteEvent(req.body.ids);
+    res.status(204).send({ message: 'Events deleted' });
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });

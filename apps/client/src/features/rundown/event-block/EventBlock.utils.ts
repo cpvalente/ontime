@@ -1,5 +1,5 @@
 import { MaybeNumber } from 'ontime-types';
-import { dayInMs, millisToString, removeLeadingZero, removeTrailingZero } from 'ontime-utils';
+import { checkIsNextDay, dayInMs, millisToString, removeLeadingZero, removeTrailingZero } from 'ontime-utils';
 
 export function formatDelay(timeStart: number, delay: number): string | undefined {
   if (!delay) return;
@@ -14,20 +14,23 @@ export function formatOverlap(
   previousStart: MaybeNumber,
   previousEnd: MaybeNumber,
   timeStart: number,
-  timeEnd: number,
 ): string | undefined {
-  if (previousEnd === null) return;
+  const noPreviousElement = previousEnd === null || previousStart === null;
+  if (noPreviousElement) return;
 
   const overlap = previousEnd - timeStart;
   if (overlap === 0) return;
 
-  if (previousStart && timeStart < previousEnd) {
-    const overlap = timeEnd - previousStart;
-    if (overlap > 0) {
-      const overlapString = removeLeadingZero(millisToString(Math.abs(overlap)));
-      return `Overlap ${overlapString}`;
-    }
-    const gap = timeStart + dayInMs - previousEnd;
+  const previousCrossMidnight = previousStart > previousEnd;
+  const isNextDay = previousCrossMidnight
+    ? checkIsNextDay(previousEnd, timeStart) || previousEnd == 0 // exception for when previousEnd is precisely midnight
+    : checkIsNextDay(previousStart, timeStart);
+
+  const correctedPreviousEnd = previousCrossMidnight ? previousEnd + dayInMs : previousEnd;
+
+  if (isNextDay) {
+    const gap = dayInMs - correctedPreviousEnd + timeStart;
+    if (gap === 0) return;
     const gapString = removeLeadingZero(millisToString(Math.abs(gap)));
     return `Gap ${gapString} (next day)`;
   }

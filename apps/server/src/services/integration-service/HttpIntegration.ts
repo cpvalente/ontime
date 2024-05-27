@@ -51,7 +51,24 @@ export class HttpIntegration implements IIntegration<HttpSubscription, HttpSetti
 
   emit(path: string) {
     got.get(path, { retry: { limit: 0 } }).catch((err) => {
-      logger.error(LogOrigin.Tx, `HTTP Integration: ${err.code}`);
+      logger.warning(LogOrigin.Tx, `HTTP Integration: ${err.message}`);
+
+      if (err.code === 'ECONNREFUSED') {
+        logger.warning(LogOrigin.Tx, `HTTP Integration: '${err.code}' The server refused the connection`);
+        return;
+      }
+
+      if (err.code === 'ENOTFOUND') {
+        logger.warning(LogOrigin.Tx, `HTTP Integration: '${err.code}' DNS lookup failed`);
+        return;
+      }
+
+      if (err.code === 'ETIMEDOUT') {
+        logger.warning(LogOrigin.Tx, `HTTP Integration: '${err.code}' The connection timed out`);
+        return;
+      }
+
+      logger.warning(LogOrigin.Tx, `HTTP Integration: ${err.code}`);
     });
   }
 

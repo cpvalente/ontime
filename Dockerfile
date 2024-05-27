@@ -1,3 +1,12 @@
+FROM node:18.18-alpine AS builder
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+COPY . /app
+WORKDIR /app
+RUN pnpm --filter=ontime-ui --filter=ontime-server --filter=ontime-utils install --config.dedupe-peer-dependents=false --frozen-lockfile
+RUN pnpm --filter=ontime-ui --filter=ontime-server run build:docker
+
 FROM node:18.18-alpine
 
 # Set environment variables
@@ -9,12 +18,12 @@ ENV ONTIME_DATA=/external/
 WORKDIR /app/
 
 # Prepare UI
-COPY /apps/client/build ./client/
+COPY --from=builder /app/apps/client/build ./client/
 
 # Prepare Backend
-COPY /apps/server/dist/ ./server/
-COPY /demo-db/ ./preloaded-db/
-COPY /apps/server/src/external/ ./external/
+COPY --from=builder /app/apps/server/dist/ ./server/
+COPY ./demo-db/ ./preloaded-db/
+COPY --from=builder /app/apps/server/src/external/ ./external/
 
 # Export default ports
 EXPOSE 4001/tcp 8888/udp 9999/udp

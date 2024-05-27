@@ -9,7 +9,7 @@ import {
   OntimeRundown,
   OntimeRundownEntry,
 } from 'ontime-types';
-import { generateId, deleteAtIndex, insertAtIndex, reorderArray, swapEventData } from 'ontime-utils';
+import { generateId, insertAtIndex, reorderArray, swapEventData, checkIsNextDay } from 'ontime-utils';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
@@ -85,6 +85,7 @@ export function generate(
 
   let accumulatedDelay = 0;
   let daySpan = 0;
+  let previousStart: MaybeNumber = null;
   let previousEnd: MaybeNumber = null;
 
   for (let i = 0; i < initialRundown.length; i++) {
@@ -101,17 +102,20 @@ export function generate(
       // update the persisted event
       initialRundown[i] = updatedEvent;
 
-      // update rundown duration
-      if (firstStart === null) {
-        firstStart = updatedEvent.timeStart;
-      }
-      lastEnd = updatedEvent.timeEnd;
+      // we need to generate the skip event, but dont want to use its times
+      if (!updatedEvent.skip) {
+        // update rundown duration
+        if (firstStart === null) {
+          firstStart = updatedEvent.timeStart;
+        }
+        lastEnd = updatedEvent.timeEnd;
 
-      // check if we go over midnight, account for eventual gaps
-      const gapOverMidnight = previousEnd !== null && previousEnd > updatedEvent.timeStart;
-      const durationOverMidnight = updatedEvent.timeStart > updatedEvent.timeEnd;
-      if (gapOverMidnight || durationOverMidnight) {
-        daySpan++;
+        // check if we go over midnight, account for eventual gaps
+        const gapOverMidnight = previousStart !== null && checkIsNextDay(previousStart, updatedEvent.timeStart);
+        const durationOverMidnight = updatedEvent.timeStart > updatedEvent.timeEnd;
+        if (gapOverMidnight || durationOverMidnight) {
+          daySpan++;
+        }
       }
     }
 
@@ -119,7 +123,7 @@ export function generate(
     // !!! this must happen after handling the links
     if (isOntimeDelay(updatedEvent)) {
       accumulatedDelay += updatedEvent.duration;
-    } else if (isOntimeEvent(updatedEvent)) {
+    } else if (isOntimeEvent(updatedEvent) && !updatedEvent.skip) {
       const eventStart = updatedEvent.timeStart;
 
       // we only affect positive delays (time forwards)
@@ -128,6 +132,7 @@ export function generate(
         accumulatedDelay = Math.max(accumulatedDelay - gap, 0);
       }
       updatedEvent.delay = accumulatedDelay;
+      previousStart = updatedEvent.timeStart;
       previousEnd = updatedEvent.timeEnd;
     }
 
@@ -258,13 +263,12 @@ export function add({ persistedRundown, atIndex, event }: AddArgs): Required<Mut
   return { newRundown, newEvent, didMutate: true };
 }
 
-type RemoveArgs = MutationParams<{ eventId: string }>;
+type RemoveArgs = MutationParams<{ eventIds: string[] }>;
 
-export function remove({ persistedRundown, eventId }: RemoveArgs): MutatingReturn {
-  const atIndex = persistedRundown.findIndex((event) => event.id === eventId);
-  const newRundown = deleteAtIndex(atIndex, persistedRundown);
+export function remove({ persistedRundown, eventIds }: RemoveArgs): MutatingReturn {
+  const newRundown = persistedRundown.filter((event) => !eventIds.includes(event.id));
 
-  return { newRundown, didMutate: atIndex !== -1 };
+  return { newRundown, didMutate: persistedRundown.length !== newRundown.length };
 }
 
 export function removeAll(): MutatingReturn {

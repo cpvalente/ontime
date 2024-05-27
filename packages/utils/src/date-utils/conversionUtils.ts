@@ -4,8 +4,11 @@ export const MILLIS_PER_SECOND = 1000;
 export const MILLIS_PER_MINUTE = 1000 * 60;
 export const MILLIS_PER_HOUR = 1000 * 60 * 60;
 
+export const dayInMs = 86400000;
+export const maxDuration = dayInMs - MILLIS_PER_SECOND;
+
 function convertMillis(millis: MaybeNumber, conversion: number) {
-  if (millis == null || millis === 0) {
+  if (!millis) {
     return 0;
   }
 

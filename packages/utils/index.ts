@@ -26,8 +26,10 @@ export {
   swapEventData,
 } from './src/rundown-utils/rundownUtils.js';
 
-// format utils
+// time format utils
 export {
+  dayInMs,
+  maxDuration,
   MILLIS_PER_HOUR,
   MILLIS_PER_MINUTE,
   MILLIS_PER_SECOND,
@@ -47,9 +49,6 @@ export { isAlphanumeric } from './src/regex-utils/isAlphanumeric.js';
 export { isColourHex } from './src/regex-utils/isColourHex.js';
 export { splitWhitespace } from './src/regex-utils/splitWhitespace.js';
 
-// time utils
-export { dayInMs, mts } from './src/timeConstants.js';
-
 // helpers from externals
 export { deepmerge } from './src/externals/deepmerge.js';
 
@@ -65,6 +64,9 @@ export { isNumeric } from './src/types/types.js';
 export { validateEndAction, validateTimerType } from './src/validate-events/validateEvent.js';
 
 // feature business logic
+
+// feature business logic - rundown
+export { checkIsNextDay } from './src/date-utils/checkIsNextDay.js';
 
 // feature business logic - spreadsheet import
 export {

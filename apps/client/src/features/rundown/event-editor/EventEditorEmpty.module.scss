@@ -14,21 +14,36 @@
   flex: 1;
   display: grid;
   place-content: center;
-  font-size: calc(1rem - 2px);
+  gap: 1rem;
 }
 
 .shortcuts {
-  margin-top: 0.5rem;
+  font-size: calc(1rem - 3px);
   border-collapse: separate;
-  border-spacing: 1rem 0;
+  border-spacing: 4rem 0;
 
   tr {
     td:nth-child(odd) {
+      text-align: left;
+    }
+    td:nth-child(even) {
       text-align: right;
     }
   }
 }
 
+.spacer {
+  height: 1rem;
+}
+
 .prompt {
   font-size: 1rem;
+  text-align: left;
+  margin-left: 4rem;
+}
+
+.divider {
+  display: inline-block;
+  text-align: center;
+  width: 1em;
 }
