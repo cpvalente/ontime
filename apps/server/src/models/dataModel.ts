@@ -19,7 +19,6 @@ export const dbModel: DatabaseModel = {
     operatorKey: null,
     timeFormat: '24',
     language: 'en',
-    apiAllowTimeChange: false,
   },
   viewSettings: {
     overrideStyles: false,

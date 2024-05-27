@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Select, Switch } from '@chakra-ui/react';
+import { Button, Input, Select } from '@chakra-ui/react';
 import { Settings } from 'ontime-types';
 
 import { postSettings } from '../../../../common/api/settings';
@@ -154,20 +154,6 @@ export default function GeneralPanelForm() {
                 <option value='es'>Spanish</option>
                 <option value='sv'>Swedish</option>
               </Select>
-            </Panel.ListItem>
-            <Panel.ListItem>
-              <Panel.Field
-                title='Allow API to change event times'
-                //TODO: @cpvalente can you help with better text
-                description='Changing an events time causes the whole rundown to recalculate so be careful about the rate at witch you do this'
-              />
-              <Switch
-                variant='ontime'
-                size='lg'
-                // defaultChecked={data.apiAllowTimeChange}
-                // onChange={(event) => setLinkPrevious(event.target.checked)}
-                {...register('apiAllowTimeChange')}
-              />
             </Panel.ListItem>
           </Panel.ListGroup>
         </Panel.Section>
