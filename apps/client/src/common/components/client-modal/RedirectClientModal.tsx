@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Button,
   Input,
@@ -25,6 +25,9 @@ export function RedirectClientModal(props: {
 }) {
   const { onClose, isOpen, id, clients, onSubmit } = props;
   const [path, setPath] = useState('');
+  useEffect(() => {
+    if (clients[id]?.path) setPath(clients[id].path);
+  }, [clients, id]);
 
   const host = `${window.location.origin}/`;
 
