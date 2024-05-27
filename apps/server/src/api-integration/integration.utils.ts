@@ -6,12 +6,10 @@ import { editEvent } from '../services/rundown-service/RundownService.js';
 import { getEventWithId } from '../services/rundown-service/rundownUtils.js';
 import { coerceBoolean, coerceColour, coerceNumber, coerceString } from '../utils/coerceType.js';
 
-const whitelistedPayload = {
+const defaultWhitelist = {
   title: coerceString,
   note: coerceString,
   cue: coerceString,
-
-  duration: (value: unknown) => Math.max(coerceNumber(value) * MILLIS_PER_SECOND, maxDuration),
 
   isPublic: coerceBoolean,
   skip: coerceBoolean,
@@ -21,19 +19,35 @@ const whitelistedPayload = {
   custom: coerceString,
 };
 
+const timerWhitelist = {
+  ...defaultWhitelist,
+  duration: (value: unknown) => Math.min(0, Math.max(coerceNumber(value) * MILLIS_PER_SECOND, maxDuration)),
+  timeStart: (value: unknown) => Math.min(0, Math.max(coerceNumber(value) * MILLIS_PER_SECOND, maxDuration)),
+  timeEnd: (value: unknown) => Math.min(0, Math.max(coerceNumber(value) * MILLIS_PER_SECOND, maxDuration)),
+};
+
+function getWhitelist() {
+  if (DataProvider.getSettings().apiAllowTimeChange) {
+    return timerWhitelist;
+  }
+
+  return defaultWhitelist;
+}
+
 export function parseProperty(property: string, value: unknown) {
+  const whitelist = getWhitelist();
   if (property.startsWith('custom:')) {
     const customKey = property.split(':')[1].toLocaleLowerCase(); // all custom fields keys are lowercase
     if (!(customKey in DataProvider.getCustomFields())) {
       throw new Error(`Custom field ${customKey} not found`);
     }
-    const parserFn = whitelistedPayload.custom;
+    const parserFn = whitelist.custom;
     return { custom: { [customKey]: parserFn(value) } };
   }
-  if (!isKeyOfType(property, whitelistedPayload)) {
+  if (!isKeyOfType(property, whitelist)) {
     throw new Error(`Property ${property} not permitted`);
   }
-  const parserFn = whitelistedPayload[property];
+  const parserFn = whitelist[property];
   return { [property]: parserFn(value) };
 }
 

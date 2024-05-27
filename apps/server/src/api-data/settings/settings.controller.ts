@@ -50,6 +50,8 @@ export async function postSettings(req: Request, res: Response<Settings | ErrorR
 
     const language = req.body?.language || 'en';
 
+    const apiAllowTimeChange = req.body?.apiAllowTimeChange || false;
+
     const newData = {
       ...settings,
       editorKey,
@@ -57,6 +59,7 @@ export async function postSettings(req: Request, res: Response<Settings | ErrorR
       timeFormat,
       language,
       serverPort,
+      apiAllowTimeChange,
     };
     await DataProvider.setSettings(newData);
     res.status(200).send(newData);

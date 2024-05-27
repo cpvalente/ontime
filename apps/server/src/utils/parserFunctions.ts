@@ -121,6 +121,7 @@ export const parseSettings = (data: Partial<DatabaseModel>): Settings => {
     operatorKey: data.settings.operatorKey ?? null,
     timeFormat: data.settings.timeFormat ?? '24',
     language: data.settings.language ?? 'en',
+    apiAllowTimeChange: data.settings.apiAllowTimeChange ?? false,
   };
 };
 

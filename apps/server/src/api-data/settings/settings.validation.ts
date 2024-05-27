@@ -10,6 +10,7 @@ export const validateSettings = [
   body('timeFormat').isString().isIn(['12', '24']),
   body('language').isString(),
   body('serverPort').isPort().optional(),
+  body('apiAllowTimeChange').isBoolean(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

@@ -8,4 +8,5 @@ export type Settings = {
   operatorKey: null | string;
   timeFormat: TimeFormat;
   language: string;
+  apiAllowTimeChange: boolean;
 };
