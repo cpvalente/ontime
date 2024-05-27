@@ -1,11 +1,11 @@
 import { Tooltip } from '@chakra-ui/react';
+import { useLocalStorage } from '@mantine/hooks';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { Playback } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
-import { useLocalStorage } from '../../../../common/hooks/useLocalStorage';
 import { setPlayback } from '../../../../common/hooks/useSocket';
 import { forgivingStringToMillis } from '../../../../common/utils/dateConfig';
 import { tooltipDelayMid } from '../../../../ontimeConfig';
@@ -19,7 +19,7 @@ interface AddTimeProps {
 
 export default function AddTime(props: AddTimeProps) {
   const { playback } = props;
-  const [time, setTime] = useLocalStorage('add-time', 300_000); // 5 minutes
+  const [time, setTime] = useLocalStorage({ key: 'add-time', defaultValue: 300_000 }); // 5 minutes
 
   const handleTimeChange = (_field: string, value: string) => {
     const newTime = forgivingStringToMillis(value);
