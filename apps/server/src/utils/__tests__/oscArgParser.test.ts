@@ -19,6 +19,12 @@ describe('test stringToOSCArgs()', () => {
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
+  it('empty is nothing', () => {
+    const test = '';
+    const expected = [];
+    expect(stringToOSCArgs(test)).toStrictEqual(expected);
+  });
+
   it('keep other types in strings', () => {
     const test = 'test "1111" "0.1111" "TRUE" "FALSE"';
     const expected = [

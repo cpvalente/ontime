@@ -2,7 +2,7 @@ import { Argument } from 'node-osc';
 import { splitWhitespace } from 'ontime-utils';
 
 export function stringToOSCArgs(argsString: string | undefined): Argument[] {
-  if (typeof argsString === 'undefined') {
+  if (typeof argsString === 'undefined' || argsString === '') {
     return new Array<Argument>();
   }
   const matches = splitWhitespace(argsString);
