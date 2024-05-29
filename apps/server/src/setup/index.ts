@@ -59,16 +59,12 @@ const currentDir = dirname(__dirname);
 export const srcDirectory = isProduction ? currentDir : path.join(currentDir, '../');
 
 // resolve path to external
-const productionPath = path.join(srcDirectory, '../../resources/extraResources/client');
+const productionPath = path.join(srcDirectory, 'client/');
 const devPath = path.join(srcDirectory, '../../client/build/');
-const dockerPath = path.join(srcDirectory, 'client/');
 
 export const resolvedPath = (): string => {
   if (isTest) {
     return devPath;
-  }
-  if (isDocker) {
-    return dockerPath;
   }
   if (isProduction) {
     return productionPath;
