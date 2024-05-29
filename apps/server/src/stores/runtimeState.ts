@@ -434,10 +434,11 @@ export function update(): UpdateResult {
 }
 
 export function roll(rundown: OntimeEvent[]) {
+  const selectedEventIndex = runtimeState.runtime.selectedEventIndex;
   clear();
-
   runtimeState.runtime.numEvents = rundown.length;
-  const { nextEvent, currentEvent } = getRollTimers(rundown, runtimeState.clock);
+
+  const { nextEvent, currentEvent } = getRollTimers(rundown, runtimeState.clock, selectedEventIndex);
 
   if (currentEvent) {
     // there is something running, load
