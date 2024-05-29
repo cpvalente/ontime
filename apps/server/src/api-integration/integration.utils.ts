@@ -12,7 +12,11 @@ import { coerceBoolean, coerceColour, coerceEnum, coerceNumber, coerceString } f
  * @returns {number} time in milliseconds clamped to 0 and max duration
  */
 function clampToMaxDuration(value: number) {
-  return Math.max(0, Math.min(value * MILLIS_PER_SECOND, maxDuration));
+  const valueInMillis = value * MILLIS_PER_SECOND;
+  if (valueInMillis > maxDuration || valueInMillis < 0) {
+    throw new Error('Times should be from 0 to 23:59:59');
+  }
+  return valueInMillis;
 }
 
 let rateLimitTimeout: NodeJS.Timeout | null = null;
