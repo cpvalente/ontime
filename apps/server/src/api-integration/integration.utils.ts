@@ -31,15 +31,15 @@ const propertyConversion = {
 
   custom: coerceString,
 
-  timeWarning: (value: unknown) => clampToMaxDuration(coerceNumber(value)),
-  timeDanger: (value: unknown) => clampToMaxDuration(coerceNumber(value)),
+  timeWarning: (value: unknown) => clampDuration(coerceNumber(value)),
+  timeDanger: (value: unknown) => clampDuration(coerceNumber(value)),
 
   endAction: (value: unknown) => coerceEnum<EndAction>(value, EndAction),
   timerType: (value: unknown) => coerceEnum<TimerType>(value, TimerType),
 
-  duration: (value: unknown) => clampToMaxDuration(coerceNumber(value)),
-  timeStart: (value: unknown) => clampToMaxDuration(coerceNumber(value)),
-  timeEnd: (value: unknown) => clampToMaxDuration(coerceNumber(value)),
+  duration: (value: unknown) => clampDuration(coerceNumber(value)),
+  timeStart: (value: unknown) => clampDuration(coerceNumber(value)),
+  timeEnd: (value: unknown) => clampDuration(coerceNumber(value)),
 };
 
 export function parseProperty(property: string, value: unknown) {
