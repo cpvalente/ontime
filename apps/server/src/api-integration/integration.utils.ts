@@ -11,7 +11,7 @@ import { coerceBoolean, coerceColour, coerceEnum, coerceNumber, coerceString } f
  * @param {number} value time amount in seconds
  * @returns {number} time in milliseconds clamped to 0 and max duration
  */
-function clampToMaxDuration(value: number) {
+function clampDuration(value: number) {
   const valueInMillis = value * MILLIS_PER_SECOND;
   if (valueInMillis > maxDuration || valueInMillis < 0) {
     throw new Error('Times should be from 0 to 23:59:59');
