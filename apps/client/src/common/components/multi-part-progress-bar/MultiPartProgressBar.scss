@@ -7,10 +7,6 @@ $progress-bar-br: 3px;
   position: relative;
   width: 100%;
   height: $progress-bar-size;
-  border-radius: $progress-bar-br;
-  background-color: var(--timer-progress-bg-override, $viewer-card-bg-color);
-  display: flex;
-  overflow: hidden;
 
   &--hidden {
     display: none;
@@ -18,31 +14,36 @@ $progress-bar-br: 3px;
   }
 }
 
+.multiprogress-bar__bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: $progress-bar-br;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
 .multiprogress-bar__indicator {
   position: absolute;
-  height: inherit;
-  background-color: black;
+  inset: 0;
+  margin: -1px;
+  margin-left: 0;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.multiprogress-bar__indicator-bar {
+  background-color: $ui-black;
   opacity: 0.8;
   transition: 1s linear;
   transition-property: width;
-  right: 0;
 }
 
 .multiprogress-bar__bg-normal {
-  position: absolute;
-  height: inherit;
-  right: 0;
-  width: 100%;
+  flex: 1;
 }
-
-.multiprogress-bar__bg-warning {
-  position: absolute;
-  height: inherit;
-  right: 0;
-}
-
-.multiprogress-bar__bg-danger {
-  position: absolute;
-  height: inherit;
-  right: 0;
-}
+// .multiprogress-bar__bg-warning {}
+// .multiprogress-bar__bg-danger {}
