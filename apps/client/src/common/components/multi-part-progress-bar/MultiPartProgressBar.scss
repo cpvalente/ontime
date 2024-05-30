@@ -45,5 +45,9 @@ $progress-bar-br: 3px;
 .multiprogress-bar__bg-normal {
   flex: 1;
 }
+
 // .multiprogress-bar__bg-warning {}
-// .multiprogress-bar__bg-danger {}
+
+.multiprogress-bar__bg-danger {
+  flex-shrink: 0;
+}

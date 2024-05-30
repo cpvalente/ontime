@@ -105,5 +105,7 @@
 }
 
 .progressOverride {
-  border-radius: 0;
+  & :global(.multiprogress-bar__bg) {
+    border-radius: 0;
+  }
 }
