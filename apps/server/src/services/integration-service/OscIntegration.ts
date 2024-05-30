@@ -3,9 +3,9 @@ import { LogOrigin, MaybeNumber, MaybeString, OSCSettings, OscSubscription } fro
 
 import IIntegration, { TimerLifeCycleKey } from './IIntegration.js';
 import { parseTemplateNested } from './integrationUtils.js';
-import { isObject } from '../../utils/varUtils.js';
 import { logger } from '../../classes/Logger.js';
 import { OscServer } from '../../adapters/OscAdapter.js';
+import { stringToOSCArgs } from '../../utils/oscArgParser.js';
 
 /**
  * @description Class contains logic towards outgoing OSC communications
@@ -60,27 +60,24 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
       }
       const parsedAddress = parseTemplateNested(address, state || {});
       const parsedPayload = payload ? parseTemplateNested(payload, state || {}) : undefined;
+      const parsedArguments = stringToOSCArgs(parsedPayload);
+
       try {
-        this.emit(parsedAddress, parsedPayload);
+        this.emit(parsedAddress, parsedArguments);
       } catch (error) {
         logger.error(LogOrigin.Tx, `OSC Integration: ${error}`);
       }
     }
   }
 
-  emit(address: string, payload?: ArgumentType) {
+  emit(address: string, args: ArgumentType[]) {
     if (!this.oscClient) {
       return;
     }
 
+    //TODO: Look into using bundles
     const message = new Message(address);
-    if (payload) {
-      if (isObject(payload)) {
-        message.append(JSON.stringify(payload));
-      } else {
-        message.append(payload);
-      }
-    }
+    message.append(args);
 
     this.oscClient.send(message);
   }
