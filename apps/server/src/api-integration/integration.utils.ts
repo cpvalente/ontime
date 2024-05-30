@@ -71,6 +71,5 @@ export function updateEvent(patchEvent: Partial<OntimeEvent> & { id: string }) {
   if (!isOntimeEvent(event)) {
     throw new Error('Can only update events');
   }
-  console.log(patchEvent)
   editEvent(patchEvent);
 }
