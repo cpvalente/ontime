@@ -41,6 +41,7 @@ export class AuxTimerService {
 
   @broadcastReturn
   pause() {
+    this.stopInterval();
     return this.timer.pause(this.getTime());
   }
 

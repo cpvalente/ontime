@@ -6,6 +6,7 @@ import {
   getLinkedTimes,
   getPreviousEventNormal,
   MILLIS_PER_SECOND,
+  parseUserTime,
   reorderArray,
   swapEventData,
 } from 'ontime-utils';
@@ -25,7 +26,6 @@ import {
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
 import { useEditorSettings } from '../stores/editorSettings';
-import { forgivingStringToMillis } from '../utils/dateConfig';
 
 /**
  * @description Set of utilities for events //TODO: should this be called useEntryAction and so on
@@ -94,15 +94,15 @@ export const useEventAction = () => {
         }
 
         if (newEvent.duration === undefined && newEvent.timeEnd === undefined) {
-          newEvent.duration = forgivingStringToMillis(defaultDuration);
+          newEvent.duration = parseUserTime(defaultDuration);
         }
 
         if (newEvent.timeDanger === undefined) {
-          newEvent.timeDanger = forgivingStringToMillis(defaultDangerTime);
+          newEvent.timeDanger = parseUserTime(defaultDangerTime);
         }
 
         if (newEvent.timeWarning === undefined) {
-          newEvent.timeWarning = forgivingStringToMillis(defaultWarnTime);
+          newEvent.timeWarning = parseUserTime(defaultWarnTime);
         }
       }
 
@@ -217,9 +217,9 @@ export const useEventAction = () => {
       } else if (value.startsWith('+') || value.startsWith('p+') || value.startsWith('p +')) {
         // TODO: is this logic solid?
         const remainingString = value.substring(1);
-        newValMillis = getPreviousEnd() + forgivingStringToMillis(remainingString);
+        newValMillis = getPreviousEnd() + parseUserTime(remainingString);
       } else {
-        newValMillis = forgivingStringToMillis(value);
+        newValMillis = parseUserTime(value);
       }
 
       // dont allow timer values over 23:59:59
@@ -337,7 +337,7 @@ export const useEventAction = () => {
   const _deleteEventMutation = useMutation({
     mutationFn: requestDelete,
     // we optimistically update here
-    onMutate: async (eventId) => {
+    onMutate: async (eventIds: string[]) => {
       // cancel ongoing queries
       await queryClient.cancelQueries({ queryKey: RUNDOWN });
 
@@ -346,9 +346,11 @@ export const useEventAction = () => {
 
       if (previousData) {
         // optimistically update object
-        const newOrder = previousData.order.filter((id) => id !== eventId);
+        const newOrder = previousData.order.filter((id) => !eventIds.includes(id));
         const newRundown = { ...previousData.rundown };
-        delete newRundown[eventId];
+        for (const eventId of eventIds) {
+          delete newRundown[eventId];
+        }
 
         queryClient.setQueryData(RUNDOWN, {
           order: newOrder,
@@ -377,9 +379,9 @@ export const useEventAction = () => {
    * Deletes an event form the list
    */
   const deleteEvent = useCallback(
-    async (eventId: string) => {
+    async (eventIds: string[]) => {
       try {
-        await _deleteEventMutation.mutateAsync(eventId);
+        await _deleteEventMutation.mutateAsync(eventIds);
       } catch (error) {
         logAxiosError('Error deleting event', error);
       }

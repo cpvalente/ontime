@@ -23,14 +23,13 @@ const whitelistedPayload = {
 
 export function parseProperty(property: string, value: unknown) {
   if (property.startsWith('custom:')) {
-    const customKey = property.split(':')[1];
+    const customKey = property.split(':')[1].toLocaleLowerCase(); // all custom fields keys are lowercase
     if (!(customKey in DataProvider.getCustomFields())) {
       throw new Error(`Custom field ${customKey} not found`);
     }
     const parserFn = whitelistedPayload.custom;
     return { custom: { [customKey]: parserFn(value) } };
   }
-
   if (!isKeyOfType(property, whitelistedPayload)) {
     throw new Error(`Property ${property} not permitted`);
   }

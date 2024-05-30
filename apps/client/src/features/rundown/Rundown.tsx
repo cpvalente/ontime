@@ -45,7 +45,7 @@ export default function Rundown({ data }: RundownProps) {
     (cursor: string | null) => {
       if (!cursor) return;
       const previous = getPreviousNormal(rundown, order, cursor).entry?.id ?? null;
-      deleteEvent(cursor);
+      deleteEvent([cursor]);
       setCursor(previous);
     },
     [deleteEvent, order, rundown, setCursor],

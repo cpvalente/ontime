@@ -4,18 +4,21 @@
 [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/cpvalente)
 [![](https://img.shields.io/static/v1?label=Buy%20me%20a%20coffee&message=%E2%9D%A4&logo=buymeacoffee&color=%23fe8e86)](https://www.buymeacoffee.com/cpvalente)
 
-## Download the latest releases here
-
-<div style="display: flex; justify-content: space-around">
-  <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-macOS-arm64.dmg"><img alt="Download MacOS" src="https://github.com/cpvalente/ontime/blob/master/.github/aux-images/mac-download.png"/></a>
-  <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-win64.exe"><img alt="Download Windows" src="https://github.com/cpvalente/ontime/blob/master/.github/aux-images/win-download.png"/></a>
-  <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-linux.AppImage"><img alt="Download Linux" src="https://github.com/cpvalente/ontime/blob/master/.github/aux-images/linux-download.png"/></a>
-  <a href="https://hub.docker.com/r/getontime/ontime"><img alt="Get from Dockerhub" src="https://github.com/cpvalente/ontime/blob/master/.github/aux-images/dockerhub.png"/></a>
-</div>
-
-<br />
-
+## Download the latest release
 <a href="https://www.buymeacoffee.com/cpvalente" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="32"></a>
+
+- Download for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-win64.exe">Windows</a>
+- Download for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-macOS-arm64.dmg">MacOS Arm</a>
+- Download for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-macOS-x64.dmg">MacOS Intel</a>
+- Download AppImage for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-linux.AppImage">Linux</a>
+- Get from <a href="https://hub.docker.com/r/getontime/ontime">Docker hub</a>
+
+## Using Ontime?
+
+Let us know!
+Ontime improves from the collaboration with its users. We would like to understand how you use Ontime and appreciate your feedback.
+
+We would also like to include a testimonials section in our ✨new website✨. It would be great to showcase the diversity of users running Ontime.
 
 # Ontime
 
@@ -24,6 +27,7 @@ Ontime is a browser-based application that manages event rundowns, scheduling, a
 With Ontime, you can plan, track your schedule, manage automation and cross-department show information all in one place.
 
 Ontime is made by entertainment and broadcast engineers and used by
+
 - Conference organisers
 - Touring shows and receiving venues
 - Broadcasters and streamers
@@ -99,16 +103,16 @@ More documentation is available [in our docs](https://docs.getontime.no)
 
 ## Main features
 
-* [x] Distribute data over network and render it in the browser
-* [x] Collaborative
-* [x] Extendable
-* [x] Send messages to different screen types
-* [x] Differentiate between backstage and public data
-* [x] Workflow for managing delays
-* [x] Rich protocol integrations for Control and Feedback
-* [x] For servers: use docker to run Ontime in in a server, configure from a browser anywhere
-* [x] Multi-platform (available on Windows, MacOS and Linux)
-* [x] Companion integration [follow link](https://bitfocus.io/connections/getontime-ontime)
+- [x] Distribute data over network and render it in the browser
+- [x] Collaborative
+- [x] Extendable
+- [x] Send messages to different screen types
+- [x] Differentiate between backstage and public data
+- [x] Workflow for managing delays
+- [x] Rich protocol integrations for Control and Feedback
+- [x] For servers: use docker to run Ontime in in a server, configure from a browser anywhere
+- [x] Multi-platform (available on Windows, MacOS and Linux)
+- [x] Companion integration [follow link](https://bitfocus.io/connections/getontime-ontime)
 
 ## Roadmap
 

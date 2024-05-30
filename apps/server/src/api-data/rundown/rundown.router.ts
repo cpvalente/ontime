@@ -1,7 +1,7 @@
 import express from 'express';
 
 import {
-  deleteEventById,
+  deletesEventById,
   rundownApplyDelay,
   rundownBatchPut,
   rundownDelete,
@@ -14,6 +14,7 @@ import {
 } from './rundown.controller.js';
 import {
   paramsMustHaveEventId,
+  rundownArrayOfIds,
   rundownBatchPutValidator,
   rundownPostValidator,
   rundownPutValidator,
@@ -35,5 +36,5 @@ router.patch('/reorder/', rundownReorderValidator, rundownReorder);
 router.patch('/swap', rundownSwapValidator, rundownSwap);
 router.patch('/applydelay/:eventId', paramsMustHaveEventId, rundownApplyDelay);
 
+router.delete('/', rundownArrayOfIds, deletesEventById);
 router.delete('/all', rundownDelete);
-router.delete('/:eventId', paramsMustHaveEventId, deleteEventById);
