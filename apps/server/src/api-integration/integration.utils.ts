@@ -19,16 +19,6 @@ function clampToMaxDuration(value: number) {
   return valueInMillis;
 }
 
-let rateLimitTimeout: NodeJS.Timeout | null = null;
-
-function rateLimit(value: unknown) {
-  if (rateLimitTimeout) {
-    throw new Error('time endport rate limited');
-  }
-  rateLimitTimeout = setTimeout(() => (rateLimitTimeout = null), 1000);
-  return value;
-}
-
 const propertyConversion = {
   title: coerceString,
   note: coerceString,
@@ -47,9 +37,9 @@ const propertyConversion = {
   endAction: (value: unknown) => coerceEnum<EndAction>(value, Object.values(EndAction)),
   timerType: (value: unknown) => coerceEnum<TimerType>(value, Object.values(TimerType)),
 
-  duration: (value: unknown) => clampToMaxDuration(coerceNumber(rateLimit(value))),
-  timeStart: (value: unknown) => clampToMaxDuration(coerceNumber(rateLimit(value))),
-  timeEnd: (value: unknown) => clampToMaxDuration(coerceNumber(rateLimit(value))),
+  duration: (value: unknown) => clampToMaxDuration(coerceNumber(value)),
+  timeStart: (value: unknown) => clampToMaxDuration(coerceNumber(value)),
+  timeEnd: (value: unknown) => clampToMaxDuration(coerceNumber(value)),
 };
 
 export function parseProperty(property: string, value: unknown) {
@@ -81,6 +71,6 @@ export function updateEvent(patchEvent: Partial<OntimeEvent> & { id: string }) {
   if (!isOntimeEvent(event)) {
     throw new Error('Can only update events');
   }
-
+  console.log(patchEvent)
   editEvent(patchEvent);
 }

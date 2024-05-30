@@ -100,7 +100,7 @@ export function handleCustomField(
 }
 
 /** List of event properties which do not need the rundown to be regenerated */
-enum regenerateWhitelist {
+export enum regenerateWhitelist {
   'id',
   'cue',
   'title',
