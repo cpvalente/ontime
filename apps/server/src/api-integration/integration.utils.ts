@@ -34,8 +34,8 @@ const propertyConversion = {
   timeWarning: (value: unknown) => clampToMaxDuration(coerceNumber(value)),
   timeDanger: (value: unknown) => clampToMaxDuration(coerceNumber(value)),
 
-  endAction: (value: unknown) => coerceEnum<EndAction>(value, Object.values(EndAction)),
-  timerType: (value: unknown) => coerceEnum<TimerType>(value, Object.values(TimerType)),
+  endAction: (value: unknown) => coerceEnum<EndAction>(value, EndAction),
+  timerType: (value: unknown) => coerceEnum<TimerType>(value, TimerType),
 
   duration: (value: unknown) => clampToMaxDuration(coerceNumber(value)),
   timeStart: (value: unknown) => clampToMaxDuration(coerceNumber(value)),
