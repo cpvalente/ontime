@@ -13,7 +13,7 @@ import { parseProperty, updateEvent } from './integration.utils.js';
 import { throttle } from '../utils/throttle.js';
 import { regenerateWhitelist } from '../services/rundown-service/rundownCacheUtils.js';
 
-const propertiesWhitelist = Object.freeze(Object.values(regenerateWhitelist));
+const propertiesWhitelist = Object.values(regenerateWhitelist);
 const throttledUpdateEvent = throttle(updateEvent, 20);
 
 export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
