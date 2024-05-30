@@ -51,32 +51,40 @@ export default function Rundown({ data }: RundownProps) {
     [deleteEvent, order, rundown, setCursor],
   );
 
-  const insertAtCursor = useCallback(
-    (type: SupportedEvent | 'clone', cursor: string | null, above = false) => {
+  const insertCopyAtCursor = useCallback(
+    (above = false) => {
       const adjustedCursor = above ? getPreviousNormal(rundown, order, cursor ?? '').entry?.id ?? null : cursor;
-
-      if (adjustedCursor === null) {
+      if (entryCopyId === null) {
         // we cant clone without selection
-        if (type === 'clone') {
-          return;
-        }
+        return;
+      }
+      const cloenEntry = rundown[entryCopyId];
+      if (cloenEntry?.type === SupportedEvent.Event) {
+        //TODO: we only clone events
+        //if we don't have a cursor add it to the top
+        const newEvent = cloneEvent(cloenEntry, adjustedCursor ?? undefined);
+        addEvent(newEvent);
+      }
+    },
+    [addEvent, cursor, entryCopyId, order, rundown],
+  );
+
+  const insertAtCursor = useCallback(
+    (type: SupportedEvent, above = false) => {
+      const adjustedCursor = above ? getPreviousNormal(rundown, order, cursor ?? '').entry?.id ?? null : cursor;
+      if (adjustedCursor === null) {
         // the only thing to do is adding an event at top
         addEvent({ type });
         return;
       }
 
-      if (type === 'clone') {
-        const cursorEvent = rundown[adjustedCursor];
-        if (cursorEvent?.type === SupportedEvent.Event) {
-          const newEvent = cloneEvent(cursorEvent, cursorEvent.id);
-          addEvent(newEvent);
-        }
-      } else if (type === SupportedEvent.Event) {
+      if (type === SupportedEvent.Event) {
         const newEvent = {
           type: SupportedEvent.Event,
         };
         const options = {
           after: adjustedCursor,
+          //TODO: this might be incorrect
           lastEventId: adjustedCursor,
         };
         addEvent(newEvent, options);
@@ -84,7 +92,7 @@ export default function Rundown({ data }: RundownProps) {
         addEvent({ type }, { after: adjustedCursor });
       }
     },
-    [rundown, order, addEvent],
+    [rundown, order, cursor, addEvent],
   );
 
   const selectEntry = useCallback(
@@ -138,18 +146,18 @@ export default function Rundown({ data }: RundownProps) {
 
     ['mod + Backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
 
-    ['alt + E', () => insertAtCursor(SupportedEvent.Event, cursor), { preventDefault: true }],
-    ['alt + shift + E', () => insertAtCursor(SupportedEvent.Event, cursor, true), { preventDefault: true }],
+    ['alt + E', () => insertAtCursor(SupportedEvent.Event), { preventDefault: true }],
+    ['alt + shift + E', () => insertAtCursor(SupportedEvent.Event, true), { preventDefault: true }],
 
-    ['alt + B', () => insertAtCursor(SupportedEvent.Block, cursor), { preventDefault: true }],
-    ['alt + shift + B', () => insertAtCursor(SupportedEvent.Block, cursor, true), { preventDefault: true }],
+    ['alt + B', () => insertAtCursor(SupportedEvent.Block), { preventDefault: true }],
+    ['alt + shift + B', () => insertAtCursor(SupportedEvent.Block, true), { preventDefault: true }],
 
-    ['alt + D', () => insertAtCursor(SupportedEvent.Delay, cursor), { preventDefault: true }],
-    ['alt + shift + D', () => insertAtCursor(SupportedEvent.Delay, cursor, true), { preventDefault: true }],
+    ['alt + D', () => insertAtCursor(SupportedEvent.Delay), { preventDefault: true }],
+    ['alt + shift + D', () => insertAtCursor(SupportedEvent.Delay, true), { preventDefault: true }],
 
     ['mod + C', () => setEntryCopyId(cursor), { preventDefault: true }],
-    ['mod + V', () => insertAtCursor('clone', entryCopyId), { preventDefault: true }],
-    ['mod + shift + V', () => insertAtCursor('clone', entryCopyId, true), { preventDefault: true }],
+    ['mod + V', () => insertCopyAtCursor(), { preventDefault: true }],
+    ['mod + shift + V', () => insertCopyAtCursor(true), { preventDefault: true }],
 
     ['alt + backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
   ]);
@@ -185,7 +193,7 @@ export default function Rundown({ data }: RundownProps) {
   };
 
   if (statefulEntries.length < 1) {
-    return <RundownEmpty handleAddNew={() => insertAtCursor(SupportedEvent.Event, null)} />;
+    return <RundownEmpty handleAddNew={() => insertAtCursor(SupportedEvent.Event)} />;
   }
 
   let previousStart: MaybeNumber = null;
