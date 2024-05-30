@@ -11,10 +11,9 @@ import * as assert from '../utils/assert.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
 import { parseProperty, updateEvent } from './integration.utils.js';
 import { throttle } from '../utils/throttle.js';
-import { regenerateWhitelist } from '../services/rundown-service/rundownCacheUtils.js';
+import { isDataStale } from '../services/rundown-service/rundownCacheUtils.js';
 
-const propertiesWhitelist = Object.values(regenerateWhitelist);
-const throttledUpdateEvent = throttle(updateEvent, 20);
+const throttledUpdateEvent = throttle(updateEvent, 2000);
 
 export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = type.toLowerCase();
@@ -48,18 +47,12 @@ const actionHandlers: Record<string, ActionHandler> = {
     const data = payload[id as keyof typeof payload];
     const patchEvent: Partial<OntimeEvent> & { id: string } = { id };
 
-    let throttleProperty = false;
-
     Object.entries(data).forEach(([property, value]) => {
       if (typeof property !== 'string' || value === undefined) {
         throw new Error('Invalid property or value');
       }
 
       const newObjectProperty = parseProperty(property, value);
-
-      if (!throttleProperty && !propertiesWhitelist.includes(Object.keys(newObjectProperty)[0])) {
-        throttleProperty = true;
-      }
 
       if (patchEvent.custom && newObjectProperty.custom) {
         Object.assign(patchEvent.custom, newObjectProperty.custom);
@@ -68,7 +61,7 @@ const actionHandlers: Record<string, ActionHandler> = {
       }
     });
 
-    if (throttleProperty) {
+    if (isDataStale(patchEvent)) {
       if (throttledUpdateEvent(patchEvent)) {
         return { payload: 'throttled' };
       }
