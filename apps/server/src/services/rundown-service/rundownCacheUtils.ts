@@ -123,6 +123,14 @@ export function isDataStale(patch: Partial<OntimeRundownEntry>): boolean {
 }
 
 /**
+ * given a key, returns whether it is whitelisted
+ * @param path
+ */
+export function willCauseRegeneration(key: keyof OntimeEvent): boolean {
+  return !(key in regenerateWhitelist);
+}
+
+/**
  * Given an event and a patch to that event checks whether there are actual changes to the dataset
  * @param existingEvent
  * @param newEvent
