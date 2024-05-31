@@ -217,16 +217,16 @@ export class SocketServer implements IAdapter {
 
   // message is any serializable value
   public sendAsJson(message: unknown) {
-    const stringifyed = JSON.stringify(message);
-    this.wss?.clients.forEach((client) => {
-      try {
+    try {
+      const stringifiedMessage = JSON.stringify(message);
+      this.wss?.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-          client.send(stringifyed);
+          client.send(stringifiedMessage);
         }
-      } catch (_) {
-        /** We do not handle this error */
-      }
-    });
+      });
+    } catch (_) {
+      /** We do not handle this error */
+    }
   }
 
   shutdown() {
