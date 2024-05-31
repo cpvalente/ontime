@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Progress } from '@chakra-ui/react';
 import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { setClientRemote } from '../../hooks/useSocket';
 import { useClientStore } from '../../stores/clientStore';
 import { socketSendJson } from '../../utils/socket';
+import ProgressBar from '../progress-bar/ProgressBar';
 
 import style from './Overlay.module.scss';
 const tickRate = 30;
@@ -67,13 +67,13 @@ export default function IdentifyOverlay() {
 
   return (
     <div
-      className='overlay'
+      className={style.overlay}
       data-testid='identify-overlay'
       onClick={() => setIdentify({ target: id, identify: false })}
     >
       <div className={style.name}>{name}</div>
       <div className={style.message}>Click to close</div>
-      <Progress className={style.progress} value={(identifyTimeout / MILLIS_PER_MINUTE) * 100} size='lg' />
+      <ProgressBar now={identifyTimeout} complete={MILLIS_PER_MINUTE} />
     </div>
   );
 }
