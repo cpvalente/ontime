@@ -1,6 +1,6 @@
 import type { MaybeNumber } from 'ontime-types';
 
-import { millisToHours, millisToMinutes, millisToSeconds } from './conversionUtils.js';
+import { millisToSeconds, secondsToHours, secondsToMinutes } from './conversionUtils.js';
 
 function pad(val: number): string {
   return String(val).padStart(2, '0');
@@ -21,11 +21,12 @@ export function millisToString(millis?: MaybeNumber, options?: FormatOptions): s
     return options?.fallback ?? '...';
   }
 
-  const absoluteMillis = Math.abs(millis);
-  const seconds = millisToSeconds(absoluteMillis) % 60;
-  const minutes = millisToMinutes(absoluteMillis) % 60;
-  const hours = millisToHours(absoluteMillis);
   const isNegative = millis < 0;
+
+  const totalSeconds = Math.abs(millisToSeconds(millis));
+  const seconds = totalSeconds % 60;
+  const minutes = secondsToMinutes(totalSeconds) % 60;
+  const hours = secondsToHours(totalSeconds);
 
   return `${isNegative ? '-' : ''}${[hours, minutes, seconds].map(pad).join(':')}`;
 }
@@ -71,14 +72,14 @@ export function removeSeconds(timer: string): string {
 
 /**
  * Formats a given date into a custom string format based on UTC time.
- * 
+ *
  * @param millis - The number of milliseconds.
- * @param format - A string specifying the desired output format. 
+ * @param format - A string specifying the desired output format.
  *                 For example, 'ss' will format the millis as '07' seconds.
- * 
+ *
  * @returns The formatted date as a string according to the provided `format` string.
  *          If input `millis` is smaller than zero, it returns undefined.
- * 
+ *
  */
 export function formatFromMillis(millis: number, format: string): string | undefined {
   if (millis < 0) {
@@ -94,21 +95,21 @@ export function formatFromMillis(millis: number, format: string): string | undef
   const secondPadded = date.getUTCSeconds().toString().padStart(2, '0');
   const second = date.getUTCSeconds().toString();
   const milliseconds = date.getUTCMilliseconds().toString().padStart(3, '0');
-  const hour12 = ((date.getUTCHours() % 12) || 12).toString();
+  const hour12 = (date.getUTCHours() % 12 || 12).toString();
   const hour12Padded = hour12.padStart(2, '0');
   const amPm = date.getUTCHours() >= 12 ? 'PM' : 'AM';
 
   const replacements: Record<string, string> = {
-      'HH': hour24Padded,
-      'H': hour24,
-      'hh': hour12Padded,
-      'h': hour12,
-      'mm': minutePadded,
-      'm': minute,
-      'ss': secondPadded,
-      's': second,
-      'S': milliseconds,
-      'a': amPm
+    HH: hour24Padded,
+    H: hour24,
+    hh: hour12Padded,
+    h: hour12,
+    mm: minutePadded,
+    m: minute,
+    ss: secondPadded,
+    s: second,
+    S: milliseconds,
+    a: amPm,
   };
 
   return applyReplacements(format, replacements);
@@ -123,7 +124,7 @@ export function formatFromMillis(millis: number, format: string): string | undef
  */
 function applyReplacements(template: string, replacements: Record<string, string>): string {
   return Object.keys(replacements).reduce((result, token) => {
-      const regex = new RegExp(`\\b${token}\\b`, 'g');
-      return result.replace(regex, replacements[token]);
+    const regex = new RegExp(`\\b${token}\\b`, 'g');
+    return result.replace(regex, replacements[token]);
   }, template);
 }
