@@ -12,7 +12,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import { Clients } from 'ontime-types';
+import { ClientList } from 'ontime-types';
 
 import style from './ClientModal.module.scss';
 
@@ -20,7 +20,7 @@ interface RedirectClientModalProps {
   onClose: () => void;
   isOpen: boolean;
   id: string;
-  clients: Clients;
+  clients: ClientList;
   onSubmit: (path: string) => void;
 }
 

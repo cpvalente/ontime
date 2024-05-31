@@ -66,7 +66,7 @@ export type { TimerState } from './definitions/runtime/TimerState.type.js';
 export { type SimpleTimerState, SimplePlayback, SimpleDirection } from './definitions/runtime/AuxTimer.type.js';
 
 // CLIENT
-export { type Client, type Clients, ClientTypes } from './definitions/Clients.type.js';
+export { type Client, type ClientList, ClientTypes } from './definitions/Clients.type.js';
 
 // TYPE UTILITIES
 export { isOntimeBlock, isOntimeDelay, isOntimeEvent, isOntimeCycle, isKeyOfType } from './utils/guards.js';

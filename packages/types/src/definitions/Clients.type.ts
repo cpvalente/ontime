@@ -12,4 +12,4 @@ export type Client = {
   path: string;
 };
 
-export type Clients = Record<string, Client>;
+export type ClientList = Record<string, Client>;

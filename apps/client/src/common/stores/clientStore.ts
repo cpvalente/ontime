@@ -1,4 +1,4 @@
-import { Clients } from 'ontime-types';
+import { ClientList } from 'ontime-types';
 import { create } from 'zustand';
 
 interface ClientStore {
@@ -11,8 +11,8 @@ interface ClientStore {
   redirect: string;
   setRedirect: (newValue: string) => void;
 
-  clients: Clients;
-  setClients: (clients: Clients) => void;
+  clients: ClientList;
+  setClients: (clients: ClientList) => void;
 }
 
 const clientNameKey = 'ontime-client-name';
@@ -36,7 +36,7 @@ export const useClientStore = create<ClientStore>((set) => ({
   setRedirect: (redirect: string) => set({ redirect }),
 
   clients: {},
-  setClients: (clients: Clients) => set({ clients }),
+  setClients: (clients: ClientList) => set({ clients }),
 }));
 
 /**
@@ -77,6 +77,6 @@ export function setClientRedirect(path: string): void {
 /**
  * Allows setting clients (outside react)
  */
-export function setClients(clients: Clients): void {
+export function setClients(clients: ClientList): void {
   return useClientStore.getState().setClients(clients);
 }
