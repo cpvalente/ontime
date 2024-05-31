@@ -231,13 +231,6 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     defaultValue: false,
   },
   {
-    id: 'hidemessages',
-    title: 'Hide Message Overlay',
-    description: 'Whether to hide the overlay from showing timer screen messages',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
     id: 'hideendmessage',
     title: 'Hide End Message',
     description: 'Whether to hide end message and continue showing the clock if timer is in overtime',

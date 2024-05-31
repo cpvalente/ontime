@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
-import { Playback, TimerMessage, TimerType, ViewSettings } from 'ontime-types';
+import { Playback, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import { MINIMAL_TIMER_OPTIONS } from '../../../common/components/view-params-editor/constants';
@@ -15,13 +15,12 @@ import './MinimalTimer.scss';
 
 interface MinimalTimerProps {
   isMirrored: boolean;
-  pres: TimerMessage;
   time: ViewExtendedTimer;
   viewSettings: ViewSettings;
 }
 
 export default function MinimalTimer(props: MinimalTimerProps) {
-  const { isMirrored, pres, time, viewSettings } = props;
+  const { isMirrored, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -117,9 +116,6 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const hideOvertime = searchParams.get('hideovertime');
   userOptions.hideOvertime = isStringBoolean(hideOvertime);
 
-  const hideMessagesOverlay = searchParams.get('hidemessages');
-  userOptions.hideMessagesOverlay = isStringBoolean(hideMessagesOverlay);
-
   const hideEndMessage = searchParams.get('hideendmessage');
   userOptions.hideEndMessage = isStringBoolean(hideEndMessage);
 
@@ -128,7 +124,6 @@ export default function MinimalTimer(props: MinimalTimerProps) {
 
   const timerIsTimeOfDay = time.timerType === TimerType.Clock;
 
-  const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
 
   const showEndMessage = (time.current ?? 0) < 0 && viewSettings.endMessage && !hideEndMessage;
@@ -138,8 +133,6 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const showProgress = time.playback !== Playback.Stop;
   const showWarning = (time.current ?? 1) < (time.timeWarning ?? 0);
   const showDanger = (time.current ?? 1) < (time.timeDanger ?? 0);
-  const showBlinking = pres.blink;
-  const showBlackout = pres.blackout;
 
   let timerColor = viewSettings.normalColor;
   if (!timerIsTimeOfDay && showProgress && showWarning) timerColor = viewSettings.warningColor;
@@ -155,10 +148,8 @@ export default function MinimalTimer(props: MinimalTimerProps) {
 
   const timerFontSize = (89 / (stageTimerCharacters - 1)) * (userOptions.size || 1);
 
-  const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''} ${
-    showBlinking ? (showOverlay ? '' : 'blink') : ''
-  }`;
-  const baseClasses = `minimal-timer ${isMirrored ? 'mirror' : ''} ${showBlackout ? 'blackout' : ''}`;
+  const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
+  const baseClasses = `minimal-timer ${isMirrored ? 'mirror' : ''}`;
 
   return (
     <div
@@ -171,15 +162,8 @@ export default function MinimalTimer(props: MinimalTimerProps) {
       data-testid='minimal-timer'
     >
       <ViewParamsEditor paramFields={MINIMAL_TIMER_OPTIONS} />
-      {!hideMessagesOverlay && (
-        <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
-          <div className={`message ${showBlinking ? 'blink' : ''}`}>{pres.text}</div>
-        </div>
-      )}
       {showEndMessage ? (
-        <div className={`end-message ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`}>
-          {viewSettings.endMessage}
-        </div>
+        <div className='end-message'>{viewSettings.endMessage}</div>
       ) : (
         <div
           className={timerClasses}
