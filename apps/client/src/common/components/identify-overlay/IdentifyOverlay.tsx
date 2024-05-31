@@ -7,7 +7,8 @@ import { setClientRemote } from '../../hooks/useSocket';
 import { useClientStore } from '../../stores/clientStore';
 import { socketSendJson } from '../../utils/socket';
 
-import './Overlay.scss';
+import style from './Overlay.module.scss';
+const tickRate = 30;
 
 export default function IdentifyOverlay() {
   const { clients, id, name, redirect, setRedirect } = useClientStore();
@@ -17,10 +18,12 @@ export default function IdentifyOverlay() {
   const showOverlay = clients[id]?.identify;
   const [identifyTimeout, setIdentifyTimeout] = useState(0);
 
+  // notify server of users new path if it changes
   useEffect(() => {
     socketSendJson('set-client-path', pathname + search);
   }, [pathname, search]);
 
+  // navigate to new path when received from server
   useEffect(() => {
     if (redirect !== '') {
       if (redirect !== pathname + search) {
@@ -32,6 +35,7 @@ export default function IdentifyOverlay() {
     }
   }, [pathname, navigate, redirect, setRedirect, search]);
 
+  // start timeout for indetify overlay
   useEffect(() => {
     if (showOverlay) {
       setIdentifyTimeout(MILLIS_PER_MINUTE);
@@ -40,6 +44,7 @@ export default function IdentifyOverlay() {
     }
   }, [showOverlay]);
 
+  // handle progressbar animation
   useEffect(() => {
     const progressInterval = setTimeout(() => {
       if (identifyTimeout < tickRate) {
@@ -57,8 +62,7 @@ export default function IdentifyOverlay() {
   }, [id, identifyTimeout, setIdentify]);
 
   if (!showOverlay) {
-    // eslint-disable-next-line react/jsx-no-useless-fragment
-    return <></>;
+    return null;
   }
 
   return (
@@ -67,11 +71,9 @@ export default function IdentifyOverlay() {
       data-testid='identify-overlay'
       onClick={() => setIdentify({ target: id, identify: false })}
     >
-      <div className='name'>{name}</div>
-      <div className='message'>Click to close</div>
-      <Progress className='progress' value={(identifyTimeout / MILLIS_PER_MINUTE) * 100} size='lg' />
+      <div className={style.name}>{name}</div>
+      <div className={style.message}>Click to close</div>
+      <Progress className={style.progress} value={(identifyTimeout / MILLIS_PER_MINUTE) * 100} size='lg' />
     </div>
   );
 }
-
-const tickRate = 30;

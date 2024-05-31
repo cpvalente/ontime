@@ -14,15 +14,19 @@ import { Clients } from 'ontime-types';
 
 import style from './ClientModal.module.scss';
 
-export function RenameClientModal(props: {
+interface RenameClientModalProps {
   onClose: () => void;
   isOpen: boolean;
   id: string;
   clients: Clients;
   onSubmit: (path: string) => void;
-}) {
+}
+
+export function RenameClientModal(props: RenameClientModalProps) {
   const { onClose, isOpen, id, clients, onSubmit } = props;
   const [name, setName] = useState('');
+
+  // when clientlist and id is populated get the relevant name to use a default value
   useEffect(() => {
     if (clients[id]?.name) setName(clients[id].name);
   }, [clients, id]);

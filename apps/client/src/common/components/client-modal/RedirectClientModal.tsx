@@ -16,15 +16,19 @@ import { Clients } from 'ontime-types';
 
 import style from './ClientModal.module.scss';
 
-export function RedirectClientModal(props: {
+interface RedirectClientModalProps {
   onClose: () => void;
   isOpen: boolean;
   id: string;
   clients: Clients;
   onSubmit: (path: string) => void;
-}) {
+}
+
+export function RedirectClientModal(props: RedirectClientModalProps) {
   const { onClose, isOpen, id, clients, onSubmit } = props;
   const [path, setPath] = useState('');
+
+  // when clientlist and id is populated get the relevant path to use a default value
   useEffect(() => {
     if (clients[id]?.path) setPath(clients[id].path);
   }, [clients, id]);
