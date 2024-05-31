@@ -15,6 +15,7 @@ import { ensureDirectory, getFilesFromFolder, removeFileExtension } from '../../
 import { dbModel } from '../../models/dataModel.js';
 import { deleteFile } from '../../utils/parserUtils.js';
 import { switchDb } from '../../setup/loadDb.js';
+import { startIntegrations } from '../../app.js';
 
 // init dependencies
 init();
@@ -209,7 +210,7 @@ export async function applyDataModel(data: Partial<DatabaseModel>, _options?: Op
   // TODO: allow partial project merge from options
   const { rundown, customFields, ...rest } = data;
   const newData = await DataProvider.mergeIntoData(rest);
-
+  startIntegrations();
   if (rundown != null) {
     initRundown(rundown, customFields ?? {});
   }
