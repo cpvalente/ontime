@@ -19,6 +19,8 @@ import * as projectService from '../../services/project-service/ProjectService.j
 import { ensureJsonExtension } from '../../utils/fileManagement.js';
 import { generateUniqueFileName } from '../../utils/generateUniqueFilename.js';
 import { appStateService } from '../../services/app-state-service/AppStateService.js';
+import { oscIntegration } from '../../services/integration-service/OscIntegration.js';
+import { httpIntegration } from '../../services/integration-service/HttpIntegration.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   // all fields are optional in validation
@@ -32,6 +34,10 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
     const patchDb: DatabaseModel = { rundown, project, settings, viewSettings, urlPresets, customFields, osc, http };
 
     const newData = await projectService.applyDataModel(patchDb);
+
+    oscIntegration.init(newData.osc);
+    httpIntegration.init(newData.http);
+
     res.status(200).send(newData);
   } catch (error) {
     const message = getErrorMessage(error);
