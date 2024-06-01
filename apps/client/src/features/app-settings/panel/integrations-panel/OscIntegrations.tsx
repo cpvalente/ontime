@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { Button, IconButton, Input, Select, Switch } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
@@ -39,6 +40,13 @@ export default function OscIntegrations() {
     name: 'subscriptions',
     control,
   });
+
+  // update form if we get new data from server
+  useEffect(() => {
+    if (data) {
+      reset(data);
+    }
+  }, [data, reset]);
 
   const onSubmit = async (values: OSCSettings) => {
     if (values.portIn === values.portOut) {
