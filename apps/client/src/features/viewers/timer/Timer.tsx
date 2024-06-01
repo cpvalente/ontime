@@ -76,6 +76,7 @@ export default function Timer(props: TimerProps) {
     hideMessage: false,
     hideTimerSeconds: false,
     hideClockSeconds: false,
+    removeLeadingZeros: true,
   };
 
   const hideClock = searchParams.get('hideClock');
@@ -96,6 +97,9 @@ export default function Timer(props: TimerProps) {
 
   const hideTimerSeconds = searchParams.get('hideTimerSeconds');
   userOptions.hideTimerSeconds = isStringBoolean(hideTimerSeconds);
+
+  const showLeadingZeros = searchParams.get('showLeadingZeros');
+  userOptions.removeLeadingZeros = !isStringBoolean(showLeadingZeros);
 
   const secondarySource = searchParams.get('secondary-src');
   const secondaryTextNow = getPropertyValue(eventNow, secondarySource);
@@ -126,7 +130,7 @@ export default function Timer(props: TimerProps) {
   const stageTimer = getTimerByType(viewSettings.freezeEnd, time);
   const display = getFormattedTimer(stageTimer, time.timerType, getLocalizedString('common.minutes'), {
     removeSeconds: userOptions.hideTimerSeconds,
-    removeLeadingZero: true,
+    removeLeadingZero: userOptions.removeLeadingZeros,
   });
 
   const stageTimerCharacters = display.replace('/:/g', '').length;
