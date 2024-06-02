@@ -20,11 +20,11 @@
   }
 
   .timer {
+    opacity: 1;
     font-family: var(--font-family-bold-override, $timer-bold-font-family) ;
     font-size: 20vw;
     position: relative;
-    color: var(--timer-color-override, $timer-color);
-    opacity: 1;
+    color: var(--timer-color-override, var(--phase-color));
     transition: $viewer-transition-time;
     transition-property: opacity;
     background-color: transparent;

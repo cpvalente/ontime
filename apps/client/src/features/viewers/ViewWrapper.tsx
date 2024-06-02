@@ -82,8 +82,6 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
       ...timer,
       clock,
       timerType: eventNow?.timerType ?? null,
-      timeWarning: eventNow?.timeWarning ?? null,
-      timeDanger: eventNow?.timeWarning ?? null,
     };
 
     // prevent render until we get all the data we need
