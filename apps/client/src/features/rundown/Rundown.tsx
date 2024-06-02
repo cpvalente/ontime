@@ -51,14 +51,14 @@ export default function Rundown({ data }: RundownProps) {
     [deleteEvent, order, rundown, setCursor],
   );
 
-  const insertCopyAtCursor = useCallback(
-    (above = false) => {
-      const adjustedCursor = above ? getPreviousNormal(rundown, order, cursor ?? '').entry?.id ?? null : cursor;
-      if (entryCopyId === null) {
+  const insertCopyAtId = useCallback(
+    (atId: string | null, copyId: string | null, above = false) => {
+      const adjustedCursor = above ? getPreviousNormal(rundown, order, atId ?? '').entry?.id ?? null : atId;
+      if (copyId === null) {
         // we cant clone without selection
         return;
       }
-      const cloenEntry = rundown[entryCopyId];
+      const cloenEntry = rundown[copyId];
       if (cloenEntry?.type === SupportedEvent.Event) {
         //TODO: we only clone events
         //if we don't have a cursor add it to the top
@@ -66,12 +66,12 @@ export default function Rundown({ data }: RundownProps) {
         addEvent(newEvent);
       }
     },
-    [addEvent, cursor, entryCopyId, order, rundown],
+    [addEvent, order, rundown],
   );
 
-  const insertAtCursor = useCallback(
-    (type: SupportedEvent, above = false) => {
-      const adjustedCursor = above ? getPreviousNormal(rundown, order, cursor ?? '').entry?.id ?? null : cursor;
+  const insertAtId = useCallback(
+    (type: SupportedEvent, id: string | null, above = false) => {
+      const adjustedCursor = above ? getPreviousNormal(rundown, order, id ?? '').entry?.id ?? null : id;
       if (adjustedCursor === null) {
         // the only thing to do is adding an event at top
         addEvent({ type });
@@ -92,7 +92,7 @@ export default function Rundown({ data }: RundownProps) {
         addEvent({ type }, { after: adjustedCursor });
       }
     },
-    [rundown, order, cursor, addEvent],
+    [rundown, order, addEvent],
   );
 
   const selectEntry = useCallback(
@@ -146,18 +146,18 @@ export default function Rundown({ data }: RundownProps) {
 
     ['mod + Backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
 
-    ['alt + E', () => insertAtCursor(SupportedEvent.Event), { preventDefault: true }],
-    ['alt + shift + E', () => insertAtCursor(SupportedEvent.Event, true), { preventDefault: true }],
+    ['alt + E', () => insertAtId(SupportedEvent.Event, cursor), { preventDefault: true }],
+    ['alt + shift + E', () => insertAtId(SupportedEvent.Event, cursor, true), { preventDefault: true }],
 
-    ['alt + B', () => insertAtCursor(SupportedEvent.Block), { preventDefault: true }],
-    ['alt + shift + B', () => insertAtCursor(SupportedEvent.Block, true), { preventDefault: true }],
+    ['alt + B', () => insertAtId(SupportedEvent.Block, cursor), { preventDefault: true }],
+    ['alt + shift + B', () => insertAtId(SupportedEvent.Block, cursor, true), { preventDefault: true }],
 
-    ['alt + D', () => insertAtCursor(SupportedEvent.Delay), { preventDefault: true }],
-    ['alt + shift + D', () => insertAtCursor(SupportedEvent.Delay, true), { preventDefault: true }],
+    ['alt + D', () => insertAtId(SupportedEvent.Delay, cursor), { preventDefault: true }],
+    ['alt + shift + D', () => insertAtId(SupportedEvent.Delay, cursor, true), { preventDefault: true }],
 
     ['mod + C', () => setEntryCopyId(cursor), { preventDefault: true }],
-    ['mod + V', () => insertCopyAtCursor(), { preventDefault: true }],
-    ['mod + shift + V', () => insertCopyAtCursor(true), { preventDefault: true }],
+    ['mod + V', () => insertCopyAtId(cursor, entryCopyId), { preventDefault: true }],
+    ['mod + shift + V', () => insertCopyAtId(cursor, entryCopyId, true), { preventDefault: true }],
 
     ['alt + backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
   ]);
@@ -193,7 +193,7 @@ export default function Rundown({ data }: RundownProps) {
   };
 
   if (statefulEntries.length < 1) {
-    return <RundownEmpty handleAddNew={() => insertAtCursor(SupportedEvent.Event)} />;
+    return <RundownEmpty handleAddNew={() => insertAtId(SupportedEvent.Event, cursor)} />;
   }
 
   let previousStart: MaybeNumber = null;
