@@ -22,10 +22,11 @@ import style from '../Cuesheet.module.scss';
 interface CuesheetHeaderProps {
   headerGroups: HeaderGroup<OntimeRundownEntry>[];
   saveColumnOrder: (fromId: string, toId: string) => void;
+  showIndexColumn: boolean;
 }
 
 export default function CuesheetHeader(props: CuesheetHeaderProps) {
-  const { headerGroups, saveColumnOrder } = props;
+  const { headerGroups, saveColumnOrder, showIndexColumn } = props;
 
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { delta, active, over } = event;
@@ -61,11 +62,13 @@ export default function CuesheetHeader(props: CuesheetHeaderProps) {
         return (
           <DndContext key={key} sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleOnDragEnd}>
             <tr key={headerGroup.id}>
-              <th className={style.indexColumn}>
-                <Tooltip label='Event Order' openDelay={tooltipDelayFast}>
-                  #
-                </Tooltip>
-              </th>
+              {showIndexColumn && (
+                <th className={style.indexColumn}>
+                  <Tooltip label='Event Order' openDelay={tooltipDelayFast}>
+                    #
+                  </Tooltip>
+                </th>
+              )}
               <SortableContext key={key} items={headerGroup.headers} strategy={horizontalListSortingStrategy}>
                 {headerGroup.headers.map((header) => {
                   const width = header.getSize();

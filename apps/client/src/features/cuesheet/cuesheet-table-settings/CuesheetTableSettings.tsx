@@ -24,11 +24,13 @@ function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
   const { columns, handleResetResizing, handleResetReordering, handleClearToggles } = props;
   const {
     followSelected,
+    showIndexColumn,
     toggleFollow,
     showPrevious,
     togglePreviousVisibility,
     showDelayBlock,
     showDelayedTimes,
+    toggleIndexColumn,
     toggleDelayedTimes,
     toggleDelayVisibility,
   } = useCuesheetSettings();
@@ -38,6 +40,9 @@ function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
       <div className={style.leftPanel}>
         <div className={style.sectionTitle}>Toggle column visibility</div>
         <div className={style.options}>
+          <label className={style.option}>
+            <Checkbox variant='ontime-ondark' defaultChecked={showIndexColumn} onChange={() => toggleIndexColumn()} />#
+          </label>
           {columns.map((column) => {
             const columnHeader = column.columnDef.header;
             const visible = column.getIsVisible();

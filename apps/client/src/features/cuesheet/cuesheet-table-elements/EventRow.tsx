@@ -8,6 +8,7 @@ const pastOpacity = '0.2';
 
 interface EventRowProps {
   eventIndex: number;
+  showIndexColumn: boolean;
   isPast?: boolean;
   selectedRef?: MutableRefObject<HTMLTableRowElement | null>;
   skip?: boolean;
@@ -15,7 +16,7 @@ interface EventRowProps {
 }
 
 function EventRow(props: PropsWithChildren<EventRowProps>) {
-  const { children, eventIndex, isPast, selectedRef, skip, colour } = props;
+  const { children, eventIndex, isPast, selectedRef, skip, colour, showIndexColumn } = props;
   const ownRef = useRef<HTMLTableRowElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -55,9 +56,11 @@ function EventRow(props: PropsWithChildren<EventRowProps>) {
       style={{ opacity: `${isPast ? pastOpacity : '1'}` }}
       ref={selectedRef ?? ownRef}
     >
-      <td className={style.indexColumn} style={{ backgroundColor: bgColour, color: textColour.color }}>
-        {eventIndex}
-      </td>
+      {showIndexColumn && (
+        <td className={style.indexColumn} style={{ backgroundColor: bgColour, color: textColour.color }}>
+          {eventIndex}
+        </td>
+      )}
       {isVisible ? children : null}
     </tr>
   );
