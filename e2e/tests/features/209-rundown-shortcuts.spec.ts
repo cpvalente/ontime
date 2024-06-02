@@ -125,3 +125,20 @@ test('Add event', async ({ page }) => {
   await page.getByTestId('entry-1').locator('#event-block div').filter({ hasText: '1' }).press('Alt+Shift+E');
   await expect(page.getByTestId('entry-1').locator('#event-block')).toContainText('0.1');
 });
+
+test('Delete event', async ({ page }) => {
+  await page.goto('http://localhost:4001/rundown');
+
+  // clear rundown
+  await page.goto('http://localhost:4001/rundown');
+  await page.getByRole('button', { name: 'Clear rundown' }).click();
+  await page.getByRole('button', { name: 'Delete all' }).click();
+
+  //create event
+  await page.getByRole('button', { name: 'Create Event' }).click();
+
+  //delete event
+  await page.locator('#event-block div').filter({ hasText: '1' }).click();
+  await page.getByTestId('entry-1').locator('#event-block div').filter({ hasText: '1' }).press('Alt+Backspace');
+  await expect(page.getByRole('button', { name: 'Create Event' })).toBeVisible();
+});
