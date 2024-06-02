@@ -3,6 +3,6 @@ export function isMacOS() {
   return userAgent.includes('macintosh') || userAgent.includes('mac os');
 }
 
-export const deviceAlt = isMacOS() ? '⌥' : 'Alt';
+export const deviceAlt = isMacOS() ? 'Option' : 'Alt';
 
-export const deviceMod = isMacOS() ? '⌘' : 'Ctrl';
+export const deviceMod = isMacOS() ? 'Cmd' : 'Ctrl';

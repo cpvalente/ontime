@@ -11,6 +11,10 @@ import * as assert from '../utils/assert.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
 import { parseProperty, updateEvent } from './integration.utils.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
+import { throttle } from '../utils/throttle.js';
+import { willCauseRegeneration } from '../services/rundown-service/rundownCacheUtils.js';
+
+const throttledUpdateEvent = throttle(updateEvent, 20);
 
 export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = type.toLowerCase();
@@ -44,12 +48,17 @@ const actionHandlers: Record<string, ActionHandler> = {
     const data = payload[id as keyof typeof payload];
     const patchEvent: Partial<OntimeEvent> & { id: string } = { id };
 
+    let shouldThrottle = false;
+
     Object.entries(data).forEach(([property, value]) => {
       if (typeof property !== 'string' || value === undefined) {
         throw new Error('Invalid property or value');
       }
 
       const newObjectProperty = parseProperty(property, value);
+
+      const key = Object.keys(newObjectProperty)[0] as keyof OntimeEvent;
+      shouldThrottle = willCauseRegeneration(key) || shouldThrottle;
 
       if (patchEvent.custom && newObjectProperty.custom) {
         Object.assign(patchEvent.custom, newObjectProperty.custom);
@@ -58,8 +67,13 @@ const actionHandlers: Record<string, ActionHandler> = {
       }
     });
 
-    updateEvent(patchEvent);
-
+    if (shouldThrottle) {
+      if (throttledUpdateEvent(patchEvent)) {
+        return { payload: 'throttled' };
+      }
+    } else {
+      updateEvent(patchEvent);
+    }
     return { payload: 'success' };
   },
   /* Message Service */

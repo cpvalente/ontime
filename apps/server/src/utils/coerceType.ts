@@ -1,5 +1,18 @@
 import { isColourHex } from 'ontime-utils';
 
+/**
+ * @description Converts a value to an item in the provided enume.
+ * @param {unknown} value - Value to be converted.
+ * @returns {T} - The converted value as key of the enum.
+ * @throws {Error} Throws an error value is not found in the enum.
+ */
+export function coerceEnum<T>(value: unknown, list: object): T {
+  if (typeof value !== 'string' || !(value in list)) {
+    throw new Error('Invalid value received');
+  }
+  return value as T;
+}
+
 //TODO: write tests
 /**
  * @description Converts a value to a string if possible, throws otherwise

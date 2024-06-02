@@ -110,7 +110,7 @@ describe('sanitiseCustomFields()', () => {
 
   it('label can not be empty', () => {
     const customFields: CustomFields = {
-      ['']: { label: '', type: 'string', colour: 'red' },
+      '': { label: '', type: 'string', colour: 'red' },
     };
     const sanitationResult = sanitiseCustomFields(customFields);
     expect(sanitationResult).toStrictEqual({});
@@ -133,7 +133,7 @@ describe('sanitiseCustomFields()', () => {
       test: { label: 'New Name', type: 'string', colour: 'red' },
     };
     const expectedCustomFields: CustomFields = {
-      ['new name']: { label: 'New Name', type: 'string', colour: 'red' },
+      'new name': { label: 'New Name', type: 'string', colour: 'red' },
     };
     const sanitationResult = sanitiseCustomFields(customFields);
     expect(sanitationResult).toStrictEqual(expectedCustomFields);

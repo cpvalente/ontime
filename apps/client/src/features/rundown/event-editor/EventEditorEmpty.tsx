@@ -40,7 +40,7 @@ function EventEditorEmpty() {
                 <AuxKey>+</AuxKey>
                 <Kbd>↑</Kbd>
                 <AuxKey>/</AuxKey>
-                <Kbd>↑</Kbd>
+                <Kbd>↓</Kbd>
               </td>
             </tr>
             <tr>
@@ -56,7 +56,7 @@ function EventEditorEmpty() {
               <td>
                 <Kbd>{deviceMod}</Kbd>
                 <AuxKey>+</AuxKey>
-                <Kbd>↑</Kbd>
+                <Kbd>Shift</Kbd>
                 <AuxKey>+</AuxKey>
                 <Kbd>V</Kbd>
               </td>
@@ -74,7 +74,7 @@ function EventEditorEmpty() {
               <td>
                 <Kbd>{deviceMod}</Kbd>
                 <AuxKey>+</AuxKey>
-                <Kbd>⌫</Kbd>
+                <Kbd>Backspace</Kbd>
               </td>
             </tr>
             <tr className={style.spacer} />
@@ -91,7 +91,7 @@ function EventEditorEmpty() {
               <td>
                 <Kbd>{deviceAlt}</Kbd>
                 <AuxKey>+</AuxKey>
-                <Kbd>↑</Kbd>
+                <Kbd>Shift</Kbd>
                 <AuxKey>+</AuxKey>
                 <Kbd>E</Kbd>
               </td>
@@ -109,7 +109,7 @@ function EventEditorEmpty() {
               <td>
                 <Kbd>{deviceAlt}</Kbd>
                 <AuxKey>+</AuxKey>
-                <Kbd>↑</Kbd>
+                <Kbd>Shift</Kbd>
                 <AuxKey>+</AuxKey>
                 <Kbd>B</Kbd>
               </td>
@@ -127,7 +127,7 @@ function EventEditorEmpty() {
               <td>
                 <Kbd>{deviceAlt}</Kbd>
                 <AuxKey>+</AuxKey>
-                <Kbd>↑</Kbd>
+                <Kbd>Shift</Kbd>
                 <AuxKey>+</AuxKey>
                 <Kbd>D</Kbd>
               </td>

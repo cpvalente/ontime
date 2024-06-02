@@ -1,4 +1,5 @@
 import { ErrorResponse, Settings } from 'ontime-types';
+import { getErrorMessage, obfuscate } from 'ontime-utils';
 
 import { Request, Response } from 'express';
 
@@ -6,8 +7,6 @@ import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { extractPin } from '../../services/project-service/ProjectService.js';
 import { isDocker } from '../../setup/index.js';
-import { getErrorMessage } from 'ontime-utils';
-import { obfuscate } from 'ontime-utils';
 
 export async function getSettings(_req: Request, res: Response<Settings>) {
   const settings = DataProvider.getSettings();
