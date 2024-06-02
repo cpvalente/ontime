@@ -209,6 +209,7 @@ export async function applyDataModel(data: Partial<DatabaseModel>, _options?: Op
   // TODO: allow partial project merge from options
   const { rundown, customFields, ...rest } = data;
   const newData = await DataProvider.mergeIntoData(rest);
+
   if (rundown != null) {
     initRundown(rundown, customFields ?? {});
   }
