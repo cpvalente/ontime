@@ -25,7 +25,7 @@ interface CuesheetProps {
 }
 
 export default function Cuesheet({ data, columns, handleUpdate, selectedId }: CuesheetProps) {
-  const { followSelected, showSettings, showDelayBlock, showPrevious } = useCuesheetSettings();
+  const { followSelected, showSettings, showDelayBlock, showPrevious, showIndexColumn } = useCuesheetSettings();
 
   const [columnVisibility, setColumnVisibility] = useLocalStorage({ key: 'table-hidden', defaultValue: {} });
   const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>({
@@ -112,7 +112,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
       )}
       <div ref={tableContainerRef} className={style.cuesheetContainer}>
         <table className={style.cuesheet}>
-          <CuesheetHeader headerGroups={headerGroups} saveColumnOrder={reorder} />
+          <CuesheetHeader headerGroups={headerGroups} saveColumnOrder={reorder} showIndexColumn={showIndexColumn} />
           <tbody>
             {rowModel.rows.map((row) => {
               const key = row.original.id;
@@ -165,6 +165,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
                     selectedRef={isSelected ? selectedRef : undefined}
                     skip={row.original.skip}
                     colour={row.original.colour}
+                    showIndexColumn={showIndexColumn}
                   >
                     {row.getVisibleCells().map((cell) => {
                       return (
