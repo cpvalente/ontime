@@ -21,6 +21,7 @@ import { generateUniqueFileName } from '../../utils/generateUniqueFilename.js';
 import { appStateService } from '../../services/app-state-service/AppStateService.js';
 import { oscIntegration } from '../../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../../services/integration-service/HttpIntegration.js';
+import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   // all fields are optional in validation
@@ -34,9 +35,6 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
     const patchDb: DatabaseModel = { rundown, project, settings, viewSettings, urlPresets, customFields, osc, http };
 
     const newData = await projectService.applyDataModel(patchDb);
-
-    oscIntegration.init(newData.osc);
-    httpIntegration.init(newData.http);
 
     res.status(200).send(newData);
   } catch (error) {
@@ -131,6 +129,12 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
     await projectService.handleUploadedFile(path, filename);
     await projectService.applyProjectFile(filename, options);
 
+    const oscSettings = await DataProvider.getOsc();
+    const httpSettings = await DataProvider.getHttp();
+
+    oscIntegration.init(oscSettings);
+    httpIntegration.init(httpSettings);
+
     res.status(201).send({
       message: `Loaded project ${filename}`,
     });
@@ -164,6 +168,12 @@ export async function loadProject(req: Request, res: Response<MessageResponse | 
     }
 
     await projectService.applyProjectFile(name);
+
+    const oscSettings = await DataProvider.getOsc();
+    const httpSettings = await DataProvider.getHttp();
+
+    oscIntegration.init(oscSettings);
+    httpIntegration.init(httpSettings);
 
     res.status(201).send({
       message: `Loaded project ${name}`,
