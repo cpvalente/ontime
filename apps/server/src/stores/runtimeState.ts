@@ -1,4 +1,4 @@
-import { MaybeNumber, OntimeEvent, Playback, Runtime, TimerState, TimerType } from 'ontime-types';
+import { MaybeNumber, OntimeEvent, Playback, Runtime, TimerPhase, TimerState, TimerType } from 'ontime-types';
 import { calculateDuration, dayInMs } from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
@@ -10,6 +10,7 @@ import {
   getExpectedFinish,
   getRollTimers,
   getRuntimeOffset,
+  getTimerPhase,
   skippedOutOfEvent,
   updateRoll,
 } from '../services/timerUtils.js';
@@ -32,6 +33,7 @@ const initialTimer: TimerState = {
   elapsed: null,
   expectedFinish: null, // TODO: expected finish could account for midnight, we cleanup in the clients
   finishedAt: null,
+  phase: TimerPhase.None,
   playback: Playback.Stop,
   secondaryTimer: null,
   startedAt: null,
@@ -300,6 +302,10 @@ export function start(state: RuntimeState = runtimeState): boolean {
     state.runtime.actualStart = state.clock;
   }
 
+  // update timer phase
+  runtimeState.timer.phase = getTimerPhase(runtimeState);
+
+  // update offset
   state.runtime.offset = getRuntimeOffset(state);
   state.runtime.expectedEnd = state.runtime.plannedEnd - state.runtime.offset;
 
@@ -386,6 +392,9 @@ export function update(): UpdateResult {
     runtimeState.timer.current = getCurrent(runtimeState);
     runtimeState.timer.duration = runtimeState.timer.current;
   }
+
+  // update timer phase
+  runtimeState.timer.phase = getTimerPhase(runtimeState);
 
   // update offset
   runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
