@@ -188,7 +188,7 @@ export class SocketServer implements IAdapter {
       throw new Error(`Client "${target}" not found`);
     }
     logger.info(LogOrigin.Client, `Client ${previousData.name} renamed to ${name}`);
-    previousData.name = name;
+    this.clients.set(target, { ...previousData, name });
     this.sendAsJson({
       type: 'client-rename',
       payload: { name, target },
@@ -209,7 +209,7 @@ export class SocketServer implements IAdapter {
     if (!previousData) {
       throw new Error(`Client "${target}" not found`);
     }
-    previousData.identify = identify;
+    this.clients.set(target, { ...previousData, identify });
     this.sendClientList();
   }
 
