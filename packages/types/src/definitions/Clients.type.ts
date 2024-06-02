@@ -1,5 +1,3 @@
-export type CustomFieldLabel = string;
-
 export type ClientType = 'unknown' | 'ontime' | string;
 
 export type Client = {
