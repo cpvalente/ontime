@@ -3,7 +3,6 @@ import { MaybeNumber, OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent 
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
-import { useAppMode } from '../../common/stores/appModeStore';
 import { useEmitLog } from '../../common/stores/logger';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
@@ -56,22 +55,15 @@ export default function RundownEntry(props: RundownEntryProps) {
   } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
-  const cursor = useAppMode((state) => state.cursor);
-  const setCursor = useAppMode((state) => state.setCursor);
   const { selectedEvents, unselect, clearSelectedEvents } = useEventSelection();
 
   const removeOpenEvent = useCallback(() => {
     unselect(data.id);
-    // clear cursor if we are deleting the event that is currently selected
-    if (cursor === data.id) {
-      setCursor(null);
-    }
-  }, [unselect, data.id, cursor, setCursor]);
+  }, [unselect, data.id]);
 
   const clearMultiSelection = useCallback(() => {
     clearSelectedEvents();
-    setCursor(null);
-  }, [clearSelectedEvents, setCursor]);
+  }, [clearSelectedEvents]);
 
   // Create / delete new events
   type FieldValue = {

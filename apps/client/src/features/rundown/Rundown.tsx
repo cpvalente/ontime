@@ -14,6 +14,7 @@ import { cloneEvent } from '../../common/utils/eventsManager';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
 import RundownEmpty from './RundownEmpty';
+import { useEventSelection } from './useEventSelection';
 
 import style from './Rundown.module.scss';
 
@@ -33,7 +34,9 @@ export default function Rundown({ data }: RundownProps) {
   const { entryCopyId, setEntryCopyId } = useEntryCopy();
 
   // cursor
-  const { cursor, mode: appMode, setCursor } = useAppMode();
+  const { mode: appMode } = useAppMode();
+  const { clearSelectedEvents, setSelectedEvents, cursor } = useEventSelection();
+
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: appMode === AppMode.Run });
@@ -44,11 +47,13 @@ export default function Rundown({ data }: RundownProps) {
   const deleteAtCursor = useCallback(
     (cursor: string | null) => {
       if (!cursor) return;
-      const previous = getPreviousNormal(rundown, order, cursor).entry?.id ?? null;
+      const { entry, index } = getPreviousNormal(rundown, order, cursor);
       deleteEvent([cursor]);
-      setCursor(previous);
+      if (entry && index !== null) {
+        setSelectedEvents({ id: entry.id, selectMode: 'click', index });
+      }
     },
-    [deleteEvent, order, rundown, setCursor],
+    [rundown, order, deleteEvent, setSelectedEvents],
   );
 
   const insertCopyAtId = useCallback(
@@ -100,23 +105,26 @@ export default function Rundown({ data }: RundownProps) {
       if (order.length < 1) {
         return;
       }
-      let newCursor: string | undefined;
+      let newCursor: string | null;
+      let newIndex: number | null;
       if (cursor === null) {
         // there is no cursor, we select the first or last depending on direction if it exists
-        newCursor = direction === 'up' ? getLastNormal(rundown, order)?.id : getFirstNormal(rundown, order)?.id;
+        newCursor =
+          (direction === 'up' ? getLastNormal(rundown, order)?.id : getFirstNormal(rundown, order)?.id) ?? null;
+        newIndex = direction === 'up' ? order.length : 0;
       } else {
         // otherwise we select the next or previous
-        newCursor =
-          direction === 'up'
-            ? getPreviousNormal(rundown, order, cursor).entry?.id
-            : getNextNormal(rundown, order, cursor).entry?.id;
+        const selecteted =
+          direction === 'up' ? getPreviousNormal(rundown, order, cursor) : getNextNormal(rundown, order, cursor);
+        newCursor = selecteted.entry?.id ?? null;
+        newIndex = selecteted.index;
       }
 
-      if (newCursor) {
-        setCursor(newCursor);
+      if (newCursor && newIndex !== null) {
+        setSelectedEvents({ id: newCursor, selectMode: 'click', index: newIndex });
       }
     },
-    [order, rundown, setCursor],
+    [order, rundown, setSelectedEvents],
   );
 
   const moveEntry = useCallback(
@@ -142,7 +150,7 @@ export default function Rundown({ data }: RundownProps) {
     ['alt + mod + ArrowDown', () => moveEntry(cursor, 'down'), { preventDefault: true }],
     ['alt + mod + ArrowUp', () => moveEntry(cursor, 'up'), { preventDefault: true }],
 
-    ['Escape', () => setCursor(null), { preventDefault: true }],
+    ['Escape', () => clearSelectedEvents(), { preventDefault: true }],
 
     ['mod + Backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
 
@@ -173,8 +181,9 @@ export default function Rundown({ data }: RundownProps) {
     if (appMode !== AppMode.Run || !featureData?.selectedEventId) {
       return;
     }
-    setCursor(featureData.selectedEventId);
-  }, [appMode, featureData.selectedEventId, setCursor]);
+    const index = order.findIndex((id) => id === featureData.selectedEventId);
+    setSelectedEvents({ id: featureData.selectedEventId, selectMode: 'click', index });
+  }, [appMode, featureData.selectedEventId, order, setSelectedEvents]);
 
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
