@@ -100,7 +100,7 @@ export function handleCustomField(
 }
 
 /** List of event properties which do not need the rundown to be regenerated */
-enum regenerateWhitelist {
+export enum regenerateWhitelist {
   'id',
   'cue',
   'title',
@@ -120,6 +120,14 @@ enum regenerateWhitelist {
  */
 export function isDataStale(patch: Partial<OntimeRundownEntry>): boolean {
   return Object.keys(patch).some((key) => !(key in regenerateWhitelist));
+}
+
+/**
+ * given a key, returns whether it is whitelisted
+ * @param path
+ */
+export function willCauseRegeneration(key: keyof OntimeEvent): boolean {
+  return !(key in regenerateWhitelist);
 }
 
 /**
