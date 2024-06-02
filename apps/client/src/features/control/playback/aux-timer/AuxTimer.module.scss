@@ -1,5 +1,12 @@
-.extraRow {
+.label {
+  display: block;
+  margin-top: 2rem;
+  font-size: $inner-section-text-size;
+  color: $label-gray;
+}
+
+.controls {
+  margin-top: 0.25rem;
   display: flex;
   gap: 0.5rem;
-  margin-top: 2rem;
 }
