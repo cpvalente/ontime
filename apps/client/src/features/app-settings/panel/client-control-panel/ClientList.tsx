@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Badge, Button, useDisclosure } from '@chakra-ui/react';
-import { ClientTypes } from 'ontime-types';
 
 import { RedirectClientModal } from '../../../../common/components/client-modal/RedirectClientModal';
 import { RenameClientModal } from '../../../../common/components/client-modal/RenameClientModal';
@@ -38,8 +37,8 @@ export default function ClientList() {
     onCloseRedirect();
   };
 
-  const ontimeClients = Object.entries(clients).filter(([_, { type }]) => type === ClientTypes.Ontime);
-  const otherClients = Object.entries(clients).filter(([_, { type }]) => type !== ClientTypes.Ontime);
+  const ontimeClients = Object.entries(clients).filter(([_, { type }]) => type === 'ontime');
+  const otherClients = Object.entries(clients).filter(([_, { type }]) => type !== 'ontime');
 
   return (
     <>

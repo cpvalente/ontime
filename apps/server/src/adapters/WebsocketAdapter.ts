@@ -14,7 +14,7 @@
  * Payload: adds necessary payload for the request to be completed
  */
 
-import { Client, ClientTypes, LogOrigin } from 'ontime-types';
+import { Client, LogOrigin } from 'ontime-types';
 
 import { WebSocket, WebSocketServer } from 'ws';
 import type { Server } from 'http';
@@ -52,7 +52,7 @@ export class SocketServer implements IAdapter {
       const clientId = generateId();
 
       this.clients.set(clientId, {
-        type: ClientTypes.Unknown,
+        type: 'unknown',
         identify: false,
         name: getRandomName(),
         path: '',
@@ -111,8 +111,7 @@ export class SocketServer implements IAdapter {
           if (type === 'set-client-type') {
             if (payload && typeof payload == 'string') {
               const previousData = this.clients.get(clientId);
-              previousData.type = payload;
-              this.clients.set(clientId, previousData);
+              this.clients.set(clientId, { ...previousData, type: payload });
             }
             this.sendClientList();
             return;
@@ -132,8 +131,7 @@ export class SocketServer implements IAdapter {
             if (payload) {
               const previousData = this.clients.get(clientId);
               logger.info(LogOrigin.Client, `Client ${previousData.name} renamed to ${payload}`);
-              previousData.name = payload;
-              this.clients.set(clientId, previousData);
+              this.clients.set(clientId, { ...previousData, name: payload });
               ws.send(
                 JSON.stringify({
                   type: 'client-name',

@@ -1,13 +1,10 @@
 export type CustomFieldLabel = string;
 
-export enum ClientTypes {
-  Unknown = 'unknown',
-  Ontime = 'ontime',
-}
+export type ClientType = 'unknown' | 'ontime' | string;
 
 export type Client = {
   name: string;
-  type: ClientTypes | string;
+  type: ClientType;
   identify: boolean;
   path: string;
 };
