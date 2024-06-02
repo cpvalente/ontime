@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
-import { Playback, TimerType, ViewSettings } from 'ontime-types';
+import { Playback, TimerPhase, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import { MINIMAL_TIMER_OPTIONS } from '../../../common/components/view-params-editor/constants';
@@ -126,13 +126,13 @@ export default function MinimalTimer(props: MinimalTimerProps) {
 
   const isPlaying = time.playback !== Playback.Pause;
 
-  const showEndMessage = (time.current ?? 0) < 0 && viewSettings.endMessage && !hideEndMessage;
-  const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
+  const finished = time.phase === TimerPhase.Negative;
+  const showEndMessage = finished && viewSettings.endMessage && !hideEndMessage;
   const showFinished = finished && !userOptions?.hideOvertime && (time.timerType !== TimerType.Clock || showEndMessage);
 
   const showProgress = time.playback !== Playback.Stop;
-  const showWarning = (time.current ?? 1) < (time.timeWarning ?? 0);
-  const showDanger = (time.current ?? 1) < (time.timeDanger ?? 0);
+  const showWarning = time.phase === TimerPhase.Warning;
+  const showDanger = time.phase === TimerPhase.Danger;
 
   let timerColor = viewSettings.normalColor;
   if (!timerIsTimeOfDay && showProgress && showWarning) timerColor = viewSettings.warningColor;
@@ -150,7 +150,6 @@ export default function MinimalTimer(props: MinimalTimerProps) {
 
   const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
   const baseClasses = `minimal-timer ${isMirrored ? 'mirror' : ''}`;
-
   return (
     <div
       className={showFinished ? `${baseClasses} minimal-timer--finished` : baseClasses}
@@ -168,12 +167,12 @@ export default function MinimalTimer(props: MinimalTimerProps) {
         <div
           className={timerClasses}
           style={{
-            color: timerColor,
             fontSize: `${timerFontSize}vw`,
             fontFamily: userOptions.font,
             top: userOptions.top,
             left: userOptions.left,
             backgroundColor: userOptions.textBackground,
+            '--phase-color': timerColor,
           }}
         >
           {display}

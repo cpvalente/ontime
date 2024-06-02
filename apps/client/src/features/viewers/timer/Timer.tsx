@@ -7,6 +7,7 @@ import {
   Playback,
   Settings,
   TimerMessage,
+  TimerPhase,
   TimerType,
   ViewSettings,
 } from 'ontime-types';
@@ -110,14 +111,14 @@ export default function Timer(props: TimerProps) {
 
   const timerIsTimeOfDay = time.timerType === TimerType.Clock;
 
-  const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
+  const finished = time.phase === TimerPhase.Negative;
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
 
-  const showEndMessage = (time.current ?? 1) < 0 && viewSettings.endMessage;
+  const showEndMessage = finished && viewSettings.endMessage;
   const showProgress = time.playback !== Playback.Stop;
   const showFinished = finished && (time.timerType !== TimerType.Clock || showEndMessage);
-  const showWarning = (time.current ?? 1) < (eventNow?.timeWarning ?? 0);
-  const showDanger = (time.current ?? 1) < (eventNow?.timeDanger ?? 0);
+  const showWarning = time.phase === TimerPhase.Warning;
+  const showDanger = time.phase === TimerPhase.Danger;
   const showBlinking = pres.blink;
   const showBlackout = pres.blackout;
   const showClock = time.timerType !== TimerType.Clock;
@@ -173,7 +174,7 @@ export default function Timer(props: TimerProps) {
             className={timerClasses}
             style={{
               fontSize: `${timerFontSize}vw`,
-              color: timerColor,
+              '--phase-color': timerColor,
             }}
           >
             {display}
