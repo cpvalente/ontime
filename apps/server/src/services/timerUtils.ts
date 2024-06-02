@@ -1,4 +1,4 @@
-import { MaybeNumber, MaybeString, OntimeEvent, TimerType } from 'ontime-types';
+import { MaybeNumber, MaybeString, OntimeEvent, Playback, TimerPhase, TimerType } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 import { RuntimeState } from '../stores/runtimeState.js';
 import { timerConfig } from '../config/config.js';
@@ -360,4 +360,44 @@ export function getExpectedEnd(state: RuntimeState): MaybeNumber {
     return null;
   }
   return state.runtime.plannedEnd - state.runtime.offset + state._timer.totalDelay;
+}
+
+/**
+ * Utility checks whether the playback is considered to be active
+ * @param state
+ * @returns
+ */
+function isPlaybackActive(state: RuntimeState): boolean {
+  return (
+    state.timer.playback === Playback.Play ||
+    state.timer.playback === Playback.Pause ||
+    state.timer.playback === Playback.Roll
+  );
+}
+
+/**
+ * Checks running timer to see which phase it currently is in
+ * @param state
+ */
+export function getTimerPhase(state: RuntimeState): TimerPhase {
+  if (!isPlaybackActive(state)) {
+    return TimerPhase.None;
+  }
+
+  const current = state.timer.current;
+  if (current < 0) {
+    return TimerPhase.Negative;
+  }
+
+  const danger = state.eventNow.timeDanger;
+  if (current <= danger) {
+    return TimerPhase.Danger;
+  }
+
+  const warning = state.eventNow.timeWarning;
+  if (current <= warning) {
+    return TimerPhase.Warning;
+  }
+
+  return TimerPhase.Default;
 }
