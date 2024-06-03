@@ -40,10 +40,6 @@ function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
       <div className={style.leftPanel}>
         <div className={style.sectionTitle}>Toggle column visibility</div>
         <div className={style.options}>
-          <label className={style.option}>
-            <Checkbox variant='ontime-ondark' defaultChecked={showIndexColumn} onChange={() => toggleIndexColumn()} />
-            Event Order
-          </label>
           {columns.map((column) => {
             const columnHeader = column.columnDef.header;
             const visible = column.getIsVisible();
@@ -68,6 +64,10 @@ function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
           <label className={style.option}>
             <Switch variant='ontime' size='sm' isChecked={showPrevious} onChange={() => togglePreviousVisibility()} />
             Show past events
+          </label>
+          <label className={style.option}>
+            <Switch variant='ontime' size='sm' isChecked={showIndexColumn} onChange={() => toggleIndexColumn()} />
+            Show Event Order
           </label>
         </div>
         <div className={style.sectionTitle}>Delay Flow</div>
