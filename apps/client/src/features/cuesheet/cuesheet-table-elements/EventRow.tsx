@@ -56,11 +56,9 @@ function EventRow(props: PropsWithChildren<EventRowProps>) {
       style={{ opacity: `${isPast ? pastOpacity : '1'}` }}
       ref={selectedRef ?? ownRef}
     >
-      {showIndexColumn && (
-        <td className={style.indexColumn} style={{ backgroundColor: bgColour, color: textColour.color }}>
-          {eventIndex}
-        </td>
-      )}
+      <td className={style.indexColumn} style={{ backgroundColor: bgColour, color: textColour.color }}>
+        {showIndexColumn && eventIndex}
+      </td>
       {isVisible ? children : null}
     </tr>
   );
