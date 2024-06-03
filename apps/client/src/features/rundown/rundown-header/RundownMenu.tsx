@@ -17,7 +17,6 @@ import { useEventSelection } from '../useEventSelection';
 
 export default function RundownMenu() {
   const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
-  const setCursor = useAppMode((state) => state.setCursor);
   const appMode = useAppMode((state) => state.mode);
   const { deleteAllEvents } = useEventAction();
 
@@ -27,9 +26,8 @@ export default function RundownMenu() {
   const deleteAll = useCallback(() => {
     deleteAllEvents();
     clearSelectedEvents();
-    setCursor(null);
     onClose();
-  }, [clearSelectedEvents, deleteAllEvents, onClose, setCursor]);
+  }, [clearSelectedEvents, deleteAllEvents, onClose]);
 
   return (
     <>
