@@ -26,8 +26,7 @@ export function getShouldTimerUpdate(previousValue: number, currentValue: MaybeN
     return false;
   }
   // we avoid trigger ahead since it can cause duplicate triggers
-  // we force the timer value to be negative because we need a ceiling reduction
-  const shouldUpdateTimer = millisToSeconds(-currentValue) !== millisToSeconds(-previousValue);
+  const shouldUpdateTimer = millisToSeconds(currentValue) !== millisToSeconds(previousValue);
   return shouldUpdateTimer;
 }
 

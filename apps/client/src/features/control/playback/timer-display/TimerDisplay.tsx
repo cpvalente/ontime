@@ -16,12 +16,9 @@ interface TimerDisplayProps {
 export default function TimerDisplay(props: TimerDisplayProps) {
   const { time } = props;
 
-  if (time == null) {
-    return <div className={style.timer}>{timerPlaceholder}</div>;
-  }
-
-  const isNegative = time < 0;
-  const display = millisToString(Math.abs(time), { fallback: timerPlaceholder });
+  const isNegative = (time ?? 0) < 0;
+  const display =
+    time == null ? timerPlaceholder : millisToString(time, { fallback: timerPlaceholder }).replace('-', '');
   const classes = cx([style.timer, isNegative ? style.finished : null]);
 
   return <div className={classes}>{display}</div>;

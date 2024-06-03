@@ -11,17 +11,29 @@ describe('millisToString()', () => {
     expect(millisToString(0)).toBe('00:00:00');
   });
 
-  it('shows negative timers', () => {
+  test('negative times are rounded up', () => {
     const testScenarios = [
-      { millis: -300, expected: '-00:00:00' },
+      { millis: 300, expected: '00:00:00' },
+      { millis: -300, expected: '-00:00:01' },
+      { millis: 1000, expected: '00:00:01' },
       { millis: -1000, expected: '-00:00:01' },
-      { millis: -1500, expected: '-00:00:01' },
+      { millis: 1500, expected: '00:00:01' },
+      { millis: -1500, expected: '-00:00:02' },
+      { millis: 60000 - 1, expected: '00:00:59' },
+      { millis: -(60000 - 1), expected: '-00:01:00' },
+      { millis: 60000, expected: '00:01:00' },
       { millis: -60000, expected: '-00:01:00' },
+      { millis: 600000, expected: '00:10:00' },
       { millis: -600000, expected: '-00:10:00' },
+      { millis: 3600000, expected: '01:00:00' },
       { millis: -3600000, expected: '-01:00:00' },
+      { millis: 36000000, expected: '10:00:00' },
       { millis: -36000000, expected: '-10:00:00' },
+      { millis: 86399000, expected: '23:59:59' },
       { millis: -86399000, expected: '-23:59:59' },
+      { millis: 86400000, expected: '24:00:00' },
       { millis: -86400000, expected: '-24:00:00' },
+      { millis: 86401000, expected: '24:00:01' },
       { millis: -86401000, expected: '-24:00:01' },
     ];
 
