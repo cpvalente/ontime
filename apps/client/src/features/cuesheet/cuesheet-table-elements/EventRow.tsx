@@ -61,7 +61,7 @@ function EventRow(props: PropsWithChildren<EventRowProps>) {
           {eventIndex}
         </td>
       ) : (
-        <td className={style.colourChipColumn} style={{ backgroundColor: bgColour }}></td>
+        <td className={style.colourChipColumn} style={{ backgroundColor: bgColour }} />
       )}
       {isVisible ? children : null}
     </tr>
