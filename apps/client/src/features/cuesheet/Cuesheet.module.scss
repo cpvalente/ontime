@@ -42,6 +42,16 @@ $table-header-font-size: calc(1rem - 3px);
     z-index: 1;
     background-color: $gray-1300;
   }
+  .colourChipColumn {
+    min-width: 0.75rem;
+    text-align: right;
+    font-weight: 400;
+
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background-color: $gray-1300;
+  }
 }
 
 .tableHeader {
