@@ -63,11 +63,10 @@ export default function Rundown({ data }: RundownProps) {
         // we cant clone without selection
         return;
       }
-      const cloenEntry = rundown[copyId];
-      if (cloenEntry?.type === SupportedEvent.Event) {
-        //TODO: we only clone events
-        //if we don't have a cursor add it to the top
-        const newEvent = cloneEvent(cloenEntry, adjustedCursor ?? undefined);
+      const cloneEntry = rundown[copyId];
+      if (cloneEntry?.type === SupportedEvent.Event) {
+        //if we don't have a cursor add the new event on top
+        const newEvent = cloneEvent(cloneEntry, adjustedCursor ?? undefined);
         addEvent(newEvent);
       }
     },
@@ -89,7 +88,6 @@ export default function Rundown({ data }: RundownProps) {
         };
         const options = {
           after: adjustedCursor,
-          //TODO: this might be incorrect
           lastEventId: adjustedCursor,
         };
         addEvent(newEvent, options);
@@ -114,10 +112,10 @@ export default function Rundown({ data }: RundownProps) {
         newIndex = direction === 'up' ? order.length : 0;
       } else {
         // otherwise we select the next or previous
-        const selecteted =
+        const selected =
           direction === 'up' ? getPreviousNormal(rundown, order, cursor) : getNextNormal(rundown, order, cursor);
-        newCursor = selecteted.entry?.id ?? null;
-        newIndex = selecteted.index;
+        newCursor = selected.entry?.id ?? null;
+        newIndex = selected.index;
       }
 
       if (newCursor && newIndex !== null) {

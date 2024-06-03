@@ -1,5 +1,5 @@
 import { MouseEvent } from 'react';
-import { isOntimeEvent, OntimeEvent, RundownCached } from 'ontime-types';
+import { isOntimeEvent, MaybeNumber, MaybeString, OntimeEvent, RundownCached } from 'ontime-types';
 import { create } from 'zustand';
 
 import { RUNDOWN } from '../../common/api/constants';
@@ -10,8 +10,8 @@ export type SelectionMode = 'shift' | 'click' | 'ctrl';
 
 interface EventSelectionStore {
   selectedEvents: Set<string>;
-  anchoredIndex: number | null;
-  cursor: string | null;
+  anchoredIndex: MaybeNumber;
+  cursor: MaybeString;
   setSelectedEvents: (selectionArgs: { id: string; index: number; selectMode: SelectionMode }) => void;
   clearSelectedEvents: () => void;
   clearMultiSelect: () => void;
