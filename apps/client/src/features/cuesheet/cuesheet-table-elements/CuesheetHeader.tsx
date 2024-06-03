@@ -1,4 +1,3 @@
-import { Tooltip } from '@chakra-ui/react';
 import {
   closestCorners,
   DndContext,
@@ -13,7 +12,6 @@ import { flexRender, HeaderGroup } from '@tanstack/react-table';
 import { OntimeRundownEntry } from 'ontime-types';
 
 import { getAccessibleColour } from '../../../common/utils/styleUtils';
-import { tooltipDelayFast } from '../../../ontimeConfig';
 
 import { SortableCell } from './SortableCell';
 
@@ -62,13 +60,7 @@ export default function CuesheetHeader(props: CuesheetHeaderProps) {
         return (
           <DndContext key={key} sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleOnDragEnd}>
             <tr key={headerGroup.id}>
-              {showIndexColumn && (
-                <th className={style.indexColumn}>
-                  <Tooltip label='Event Order' openDelay={tooltipDelayFast}>
-                    #
-                  </Tooltip>
-                </th>
-              )}
+              {showIndexColumn && <th className={style.indexColumn}>#</th>}
               <SortableContext key={key} items={headerGroup.headers} strategy={horizontalListSortingStrategy}>
                 {headerGroup.headers.map((header) => {
                   const width = header.getSize();

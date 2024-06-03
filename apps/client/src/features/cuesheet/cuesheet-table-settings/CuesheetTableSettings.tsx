@@ -41,7 +41,8 @@ function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
         <div className={style.sectionTitle}>Toggle column visibility</div>
         <div className={style.options}>
           <label className={style.option}>
-            <Checkbox variant='ontime-ondark' defaultChecked={showIndexColumn} onChange={() => toggleIndexColumn()} />#
+            <Checkbox variant='ontime-ondark' defaultChecked={showIndexColumn} onChange={() => toggleIndexColumn()} />
+            Event Order
           </label>
           {columns.map((column) => {
             const columnHeader = column.columnDef.header;
