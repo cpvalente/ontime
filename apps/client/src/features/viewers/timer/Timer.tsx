@@ -114,11 +114,12 @@ export default function Timer(props: TimerProps) {
   const finished = time.phase === TimerPhase.Negative;
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
 
+  const shouldShowModifiers = time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
   const showEndMessage = finished && viewSettings.endMessage;
   const showProgress = time.playback !== Playback.Stop;
-  const showFinished = finished && (time.timerType !== TimerType.Clock || showEndMessage);
-  const showWarning = time.phase === TimerPhase.Warning;
-  const showDanger = time.phase === TimerPhase.Danger;
+  const showFinished = finished && (shouldShowModifiers || showEndMessage);
+  const showWarning = shouldShowModifiers && time.phase === TimerPhase.Warning;
+  const showDanger = shouldShowModifiers && time.phase === TimerPhase.Danger;
   const showBlinking = pres.blink;
   const showBlackout = pres.blackout;
   const showClock = time.timerType !== TimerType.Clock;

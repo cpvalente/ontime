@@ -126,13 +126,14 @@ export default function MinimalTimer(props: MinimalTimerProps) {
 
   const isPlaying = time.playback !== Playback.Pause;
 
+  const shouldShowModifiers = time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
   const finished = time.phase === TimerPhase.Negative;
   const showEndMessage = finished && viewSettings.endMessage && !hideEndMessage;
-  const showFinished = finished && !userOptions?.hideOvertime && (time.timerType !== TimerType.Clock || showEndMessage);
+  const showFinished = finished && !userOptions?.hideOvertime && (shouldShowModifiers || showEndMessage);
 
   const showProgress = time.playback !== Playback.Stop;
-  const showWarning = time.phase === TimerPhase.Warning;
-  const showDanger = time.phase === TimerPhase.Danger;
+  const showWarning = shouldShowModifiers && time.phase === TimerPhase.Warning;
+  const showDanger = shouldShowModifiers && time.phase === TimerPhase.Danger;
 
   let timerColor = viewSettings.normalColor;
   if (!timerIsTimeOfDay && showProgress && showWarning) timerColor = viewSettings.warningColor;
