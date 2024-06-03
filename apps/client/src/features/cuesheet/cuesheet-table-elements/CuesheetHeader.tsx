@@ -60,7 +60,7 @@ export default function CuesheetHeader(props: CuesheetHeaderProps) {
         return (
           <DndContext key={key} sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleOnDragEnd}>
             <tr key={headerGroup.id}>
-              {showIndexColumn ? <th className={style.indexColumn}>#</th> : <th className={style.colourChipColumn} />}
+              <th className={style.indexColumn}>{showIndexColumn && '#'}</th>
               <SortableContext key={key} items={headerGroup.headers} strategy={horizontalListSortingStrategy}>
                 {headerGroup.headers.map((header) => {
                   const width = header.getSize();
