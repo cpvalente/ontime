@@ -30,6 +30,7 @@
     "build:local": "turbo run build:local",
     "build:electron": "turbo run build:electron",
     "build:localdocker": "turbo run build:localdocker",
+    "build:cli": "turbo run build:cli",
     "dist-win": "turbo run dist-win",
     "dist-mac": "turbo run dist-mac",
     "dist-linux": "turbo run dist-linux",

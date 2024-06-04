@@ -1,0 +1,49 @@
+name: Ontime CLI build
+
+on:
+  push:
+    tags: [ "*" ]
+  workflow_dispatch:
+
+jobs:
+  build_cli:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.18.2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build project packages
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+        run: pnpm build
+
+      - name: Copy server
+        run: mkdir -p apps/cli/server && cp apps/server/dist/index.cjs apps/cli/server/index.cjs
+      
+      - name: Copy client
+        run: cp -R apps/client/build apps/cli/client
+
+      - name: Copy external
+        run: cp -R apps/server/src/external apps/cli/external
+      
+      - name: Build CLI
+        run:  pnpm build:cli
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: './apps/cli/dist/*'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
