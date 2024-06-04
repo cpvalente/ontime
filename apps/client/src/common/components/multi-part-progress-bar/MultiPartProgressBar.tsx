@@ -40,7 +40,7 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
             />
           </div>
           <div className='multiprogress-bar__indicator'>
-            <div className='multiprogress-bar__indicator-bar' style={{ width: `${percentRemaining}%` }}></div>
+            <div className='multiprogress-bar__indicator-bar' style={{ width: `${percentRemaining}%` }} />
           </div>
         </>
       )}

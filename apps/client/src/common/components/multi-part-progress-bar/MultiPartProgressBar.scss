@@ -36,7 +36,7 @@ $progress-bar-br: 3px;
 }
 
 .multiprogress-bar__indicator-bar {
-  background-color: $ui-black;
+  background-color: var(--background-color-override, $ui-black);
   opacity: 0.8;
   transition: 1s linear;
   transition-property: width;
