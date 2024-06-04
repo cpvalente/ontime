@@ -12,6 +12,11 @@
     "license": "AGPL-3.0-only",
     "main": "main.js",
     "bin": "main.js",
+    "files": [
+        "client",
+        "external",
+        "server"
+    ],
     "scripts": {
         "dev": "nodemon main.js",
         "build:cli": "pkg ."
