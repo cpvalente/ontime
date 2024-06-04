@@ -13,11 +13,23 @@ interface MultiPartProgressBar {
   danger?: MaybeNumber;
   dangerColor: string;
   hidden?: boolean;
+  ignoreCssOverride?: boolean;
   className?: string;
 }
 
 export default function MultiPartProgressBar(props: MultiPartProgressBar) {
-  const { now, complete, normalColor, warning, warningColor, danger, dangerColor, hidden, className = '' } = props;
+  const {
+    now,
+    complete,
+    normalColor,
+    warning,
+    warningColor,
+    danger,
+    dangerColor,
+    hidden,
+    ignoreCssOverride,
+    className = '',
+  } = props;
 
   const percentRemaining = complete === 0 ? 0 : 100 - clamp(100 - (Math.max(now ?? 0, 0) * 100) / complete, 0, 100);
 
@@ -25,7 +37,11 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
   const warningWidth = warning ? clamp((warning / complete) * 100 - dangerWidth, 0, 100) : 0;
 
   return (
-    <div className={`multiprogress-bar ${hidden ? 'multiprogress-bar--hidden' : ''} ${className}`}>
+    <div
+      className={`multiprogress-bar ${hidden ? 'hidden' : ''} ${
+        ignoreCssOverride ? 'ignore-css-override' : ''
+      } ${className}`}
+    >
       {now !== null && (
         <>
           <div className='multiprogress-bar__bg'>

@@ -8,7 +8,7 @@ $progress-bar-br: 3px;
   width: 100%;
   height: $progress-bar-size;
 
-  &--hidden {
+  &.hidden {
     display: none;
     transition: display 0.5s;
   }
@@ -40,6 +40,10 @@ $progress-bar-br: 3px;
   opacity: 0.8;
   transition: 1s linear;
   transition-property: width;
+
+  .ignore-css-override & {
+    background-color: $ui-black;
+  }
 }
 
 .multiprogress-bar__bg-normal {

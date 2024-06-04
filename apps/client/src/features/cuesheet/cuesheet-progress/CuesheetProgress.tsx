@@ -19,6 +19,7 @@ export default function CuesheetProgress() {
       danger={timeDanger}
       dangerColor={data!.dangerColor}
       className={styles.progressOverride}
+      ignoreCssOverride
     />
   );
 }
