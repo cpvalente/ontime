@@ -52,7 +52,9 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
     try {
       setError(null);
 
-      const filename = filenamify(`${values.title == '' ? 'untitled' : values.title?.trim()}.json`, {
+      const maybeFileName = values.title === '' || values.title === undefined ? 'untitled' : values.title.trim();
+
+      const filename = filenamify(`${maybeFileName}.json`, {
         replacement: '_',
       });
 
