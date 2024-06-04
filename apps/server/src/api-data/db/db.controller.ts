@@ -70,7 +70,7 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
       backstageInfo: req.body?.backstageInfo ?? '',
     };
 
-    projectService.createProjectFile(filename, newProjectData);
+    await projectService.createProjectFile(filename, newProjectData);
 
     res.status(200).send({
       filename,
