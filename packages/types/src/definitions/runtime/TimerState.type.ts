@@ -7,6 +7,7 @@ export enum TimerPhase {
   Warning = 'warning',
   Danger = 'danger',
   Negative = 'negative',
+  Pending = 'pending', // used for waiting to roll
 }
 
 export type TimerState = {

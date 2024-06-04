@@ -385,6 +385,11 @@ export function getTimerPhase(state: RuntimeState): TimerPhase {
   }
 
   const current = state.timer.current;
+
+  if (current === null || state.eventNow === null) {
+    return TimerPhase.Pending;
+  }
+
   if (current < 0) {
     return TimerPhase.Negative;
   }
