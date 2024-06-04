@@ -391,7 +391,7 @@ export function getTimerPhase(state: RuntimeState): TimerPhase {
   }
 
   if (current < 0) {
-    return TimerPhase.Negative;
+    return TimerPhase.Overtime;
   }
 
   const danger = state.eventNow.timeDanger;

@@ -44,7 +44,7 @@ export default function PlaybackTimer(props: PropsWithChildren<PlaybackTimerProp
 
   const isRolling = playback === Playback.Roll;
   const isWaiting = timer.secondaryTimer !== null && timer.secondaryTimer > 0 && timer.current === null;
-  const isOvertime = timer.phase === TimerPhase.Negative;
+  const isOvertime = timer.phase === TimerPhase.Overtime;
   const hasAddedTime = Boolean(timer.addedTime);
 
   const rollLabel = isRolling ? 'Roll mode active' : '';

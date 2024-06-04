@@ -1779,7 +1779,7 @@ describe('getTimerPhase()', () => {
     expect(phase).toBe(TimerPhase.None);
   });
 
-  it('can be negative', () => {
+  it('can be in overtime', () => {
     const state = {
       timer: {
         addedTime: 0,
@@ -1794,7 +1794,7 @@ describe('getTimerPhase()', () => {
     } as RuntimeState;
 
     const phase = getTimerPhase(state);
-    expect(phase).toBe(TimerPhase.Negative);
+    expect(phase).toBe(TimerPhase.Overtime);
   });
 
   it('can be danger', () => {
