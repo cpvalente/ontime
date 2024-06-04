@@ -127,7 +127,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const isPlaying = time.playback !== Playback.Pause;
 
   const shouldShowModifiers = time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
-  const finished = time.phase === TimerPhase.Negative;
+  const finished = time.phase === TimerPhase.Overtime;
   const showEndMessage = finished && viewSettings.endMessage && !hideEndMessage;
   const showFinished = finished && !userOptions?.hideOvertime && (shouldShowModifiers || showEndMessage);
 

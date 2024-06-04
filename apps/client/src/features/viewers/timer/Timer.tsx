@@ -111,7 +111,7 @@ export default function Timer(props: TimerProps) {
 
   const timerIsTimeOfDay = time.timerType === TimerType.Clock;
 
-  const finished = time.phase === TimerPhase.Negative;
+  const finished = time.phase === TimerPhase.Overtime;
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
 
   const shouldShowModifiers = time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;

@@ -6,7 +6,7 @@ export enum TimerPhase {
   Default = 'default',
   Warning = 'warning',
   Danger = 'danger',
-  Negative = 'negative',
+  Overtime = 'overtime',
   Pending = 'pending', // used for waiting to roll
 }
 
