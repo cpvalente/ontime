@@ -389,12 +389,12 @@ export function getTimerPhase(state: RuntimeState): TimerPhase {
     return TimerPhase.Negative;
   }
 
-  const danger = state.eventNow.timeDanger;
+  const danger = state.eventNow?.timeDanger;
   if (current <= danger) {
     return TimerPhase.Danger;
   }
 
-  const warning = state.eventNow.timeWarning;
+  const warning = state.eventNow?.timeWarning;
   if (current <= warning) {
     return TimerPhase.Warning;
   }
