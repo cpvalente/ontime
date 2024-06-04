@@ -14,7 +14,7 @@ import {
 } from './db.controller.js';
 import { uploadProjectFile } from './db.middleware.js';
 import {
-  projectSanitiser,
+  validateNewProjectFile,
   sanitizeProjectFilename,
   validateDownloadProject,
   validateLoadProjectFile,
@@ -29,7 +29,7 @@ router.post('/download', validateDownloadProject, projectDownload);
 router.post('/upload', uploadProjectFile, postProjectFile);
 
 router.patch('/', validatePatchProjectFile, patchPartialProjectFile);
-router.post('/new', projectSanitiser, createProjectFile);
+router.post('/new', validateNewProjectFile, createProjectFile);
 
 router.get('/all', listProjects);
 

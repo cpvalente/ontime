@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { body, validationResult } from 'express-validator';
+import isValidFilename from 'valid-filename';
 
 import { ensureJsonExtension } from '../../utils/fileManagement.js';
 
-export const projectSanitiser = [
+export const validateNewProjectFile = [
   body('title').optional().isString().trim(),
   body('description').optional().isString().trim(),
   body('publicUrl').optional().isString().trim(),
@@ -11,6 +12,13 @@ export const projectSanitiser = [
   body('backstageUrl').optional().isString().trim(),
   body('backstageInfo').optional().isString().trim(),
   body('endMessage').optional().isString().trim(),
+  body('filename')
+    .exists()
+    .withMessage('Filename is required')
+    .isString()
+    .withMessage('Filename must be a string')
+    .custom(throwIsValidFilename)
+    .withMessage('Invalid file name'),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -50,7 +58,13 @@ export const validatePatchProjectFile = [
  * @description Validates the filename for loading a project file.
  */
 export const validateLoadProjectFile = [
-  body('filename').exists().withMessage('Filename is required').isString().withMessage('Filename must be a string'),
+  body('filename')
+    .exists()
+    .withMessage('Filename is required')
+    .isString()
+    .withMessage('Filename must be a string')
+    .custom(throwIsValidFilename)
+    .withMessage('Invalid file name'),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -71,7 +85,9 @@ export const validateProjectDuplicate = [
     .isString()
     .withMessage('New project filename must be a string')
     .isLength({ min: 1, max: 255 })
-    .withMessage('New project filename must be between 1 and 255 characters'),
+    .withMessage('New project filename must be between 1 and 255 characters')
+    .custom(throwIsValidFilename)
+    .withMessage('Invalid file name'),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -93,7 +109,9 @@ export const validateProjectRename = [
     .isString()
     .withMessage('Duplicate project filename must be a string')
     .isLength({ min: 1, max: 255 })
-    .withMessage('Duplicate project filename must be between 1 and 255 characters'),
+    .withMessage('Duplicate project filename must be between 1 and 255 characters')
+    .custom(throwIsValidFilename)
+    .withMessage('Invalid file name'),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -120,3 +138,9 @@ export const validateDownloadProject = [
     next();
   },
 ];
+
+function throwIsValidFilename(input: string, _meta) {
+  if (!isValidFilename(input)) {
+    throw new Error('invalid filename');
+  }
+}
