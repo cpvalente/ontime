@@ -1850,4 +1850,44 @@ describe('getTimerPhase()', () => {
     const phase = getTimerPhase(state);
     expect(phase).toBe(TimerPhase.Default);
   });
+
+  it('#1042 identifies waiting to roll', () => {
+    const state = {
+      clock: 55691050,
+      eventNow: null,
+      publicEventNow: null,
+      eventNext: null,
+      publicEventNext: null,
+      runtime: {
+        selectedEventIndex: null,
+        numEvents: 1,
+        offset: null,
+        plannedStart: 55860000,
+        plannedEnd: 55880000,
+        actualStart: null,
+        expectedEnd: null,
+      },
+      timer: {
+        addedTime: 0,
+        current: null,
+        duration: null,
+        elapsed: 0,
+        expectedFinish: null,
+        finishedAt: null,
+        phase: 'none',
+        playback: 'roll',
+        secondaryTimer: 168950,
+        startedAt: null,
+      },
+      _timer: {
+        forceFinish: null,
+        totalDelay: 0,
+        pausedAt: null,
+        secondaryTarget: 55860000,
+      },
+    } as RuntimeState;
+
+    const phase = getTimerPhase(state);
+    expect(phase).toBe(TimerPhase.Pending);
+  });
 });
