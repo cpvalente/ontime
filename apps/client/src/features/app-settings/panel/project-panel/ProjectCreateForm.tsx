@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input, Textarea } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
+import filenamify from 'filenamify';
 
 import { PROJECT_LIST } from '../../../../common/api/constants';
 import { createProject } from '../../../../common/api/db';
@@ -50,7 +51,10 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
   const handleSubmitCreate = async (values: ProjectCreateFormValues) => {
     try {
       setError(null);
-      const filename = values.title?.trim();
+
+      const filename = filenamify(`${values.title == '' ? 'untitled' : values.title?.trim()}.json`, {
+        replacement: '_',
+      });
 
       await createProject({
         ...values,

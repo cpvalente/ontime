@@ -101,6 +101,9 @@ importers:
       csv-stringify:
         specifier: ^6.4.5
         version: 6.4.5
+      filenamify:
+        specifier: ^6.0.0
+        version: 6.0.0
       framer-motion:
         specifier: ^10.10.0
         version: 10.11.2(react-dom@18.2.0)(react@18.2.0)
@@ -6035,6 +6038,13 @@ packages:
   /filename-reserved-regex@3.0.0:
     resolution: {integrity: sha512-hn4cQfU6GOT/7cFHXBqeBg2TbrMBgdD0kcjLhvSQYYwm3s4B6cjvBfb7nBALJLAXqmU5xajSa7X2NnUud/VCdw==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    dev: false
+
+  /filenamify@6.0.0:
+    resolution: {integrity: sha512-vqIlNogKeyD3yzrm0yhRMQg8hOVwYcYRfjEoODd49iCprMn4HL85gK3HcykQE53EPIpX3HcAbGA5ELQv216dAQ==}
+    engines: {node: '>=16'}
+    dependencies:
+      filename-reserved-regex: 3.0.0
     dev: false
 
   /fill-range@7.0.1:
