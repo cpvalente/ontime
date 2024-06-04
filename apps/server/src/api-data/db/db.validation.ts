@@ -143,4 +143,5 @@ function throwIsValidFilename(input: string, _meta) {
   if (!isValidFilename(input)) {
     throw new Error('invalid filename');
   }
+  return true;
 }
