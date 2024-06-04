@@ -1,0 +1,39 @@
+{
+    "name": "ontime-cli",
+    "version": "3.1.0",
+    "author": "Carlos Valente",
+    "description": "Time keeping for live events",
+    "repository": "https://github.com/cpvalente/ontime",
+    "keywords": [
+        "lighdev",
+        "ontime",
+        "timer"
+    ],
+    "license": "AGPL-3.0-only",
+    "main": "main.js",
+    "bin": "main.js",
+    "scripts": {
+        "dev": "nodemon main.js",
+        "build:cli": "pkg ."
+    },
+    "devDependencies": {
+        "eslint": "^8.53.0",
+        "eslint-config-prettier": "^9.0.0",
+        "nodemon": "^2.0.20",
+        "pkg": "^5.8.1",
+        "prettier": "^3.0.3"
+    },
+    "pkg":{
+        "assets": [
+            "client/**/*",
+            "external/**/*",
+            "server/index.cjs"
+        ],
+        "targets": [ 
+            "node18-macos-x64",
+            "node18-linux-x64",
+            "node18-win-x64"
+        ],
+        "outputPath": "dist"
+    }
+}
