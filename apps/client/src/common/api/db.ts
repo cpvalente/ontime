@@ -11,8 +11,8 @@ const dbPath = `${apiEntryUrl}/db`;
 /**
  * HTTP request to the current DB
  */
-async function getDb(fileName?: string): Promise<AxiosResponse<DatabaseModel>> {
-  return axios.post(`${dbPath}/download/`, { fileName });
+async function getDb(filename: string): Promise<AxiosResponse<DatabaseModel>> {
+  return axios.post(`${dbPath}/download/`, { filename });
 }
 
 /**
@@ -123,7 +123,7 @@ export async function renameProject(filename: string, newFilename: string): Prom
   const url = `${dbPath}/${filename}/rename`;
   const decodedUrl = decodeURIComponent(url);
   const res = await axios.put(decodedUrl, {
-    newFilename,
+    filename: newFilename,
   });
   return res.data;
 }

@@ -21,7 +21,6 @@
     "axios": "^1.2.0",
     "color": "^4.2.3",
     "csv-stringify": "^6.4.5",
-    "filenamify": "^6.0.0",
     "framer-motion": "^10.10.0",
     "react": "^18.2.0",
     "react-colorful": "^5.6.1",
