@@ -99,7 +99,7 @@ describe('parseNestedTemplate() -> resolveAliasData()', () => {
 });
 
 describe('parseNestedTemplate() -> stringToOSCArgs()', () => {
-  it.only('specific osc requirements', () => {
+  it('specific osc requirements', () => {
     const data = {
       not: {
         so: {
