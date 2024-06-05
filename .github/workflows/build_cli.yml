@@ -41,9 +41,16 @@ jobs:
       - name: Build CLI
         run:  pnpm build:cli
 
-      - name: Release
+      - name: Release Binary
         uses: softprops/action-gh-release@v1
         with:
           files: './apps/cli/dist/*'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Publish to NPM
+        run: pnpm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+        working-directory: ./apps/cli
