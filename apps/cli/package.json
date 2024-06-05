@@ -18,7 +18,6 @@
         "server"
     ],
     "scripts": {
-        "dev": "nodemon main.js",
         "build:cli": "pkg ."
     },
     "devDependencies": {
