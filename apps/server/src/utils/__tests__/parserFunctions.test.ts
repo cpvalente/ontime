@@ -198,19 +198,17 @@ describe('parseRundown() linking', () => {
   it('returns linked events', () => {
     const data: Partial<DatabaseModel> = {
       rundown: [
-        // @ts-expect-error - only the necessary parts
         {
           id: '1',
           type: SupportedEvent.Event,
           skip: false,
-        },
-        // @ts-expect-error - only the necessary parts
+        } as OntimeEvent,
         {
           id: '2',
           type: SupportedEvent.Event,
           linkStart: 'true',
           skip: false,
-        },
+        } as OntimeEvent,
       ],
     };
 
@@ -225,13 +223,12 @@ describe('parseRundown() linking', () => {
   it('returns unlinkd if no previous', () => {
     const data: Partial<DatabaseModel> = {
       rundown: [
-        // @ts-expect-error - only the necessary parts
         {
           id: '2',
           type: SupportedEvent.Event,
           linkStart: 'true',
           skip: false,
-        },
+        } as OntimeEvent,
       ],
     };
 
@@ -243,36 +240,33 @@ describe('parseRundown() linking', () => {
   it('returns linked events past blocks and delays', () => {
     const data: Partial<DatabaseModel> = {
       rundown: [
-        // @ts-expect-error - only the necessary parts
         {
           id: '1',
           type: SupportedEvent.Event,
           skip: false,
-        },
+        } as OntimeEvent,
         {
           id: 'delay1',
           type: SupportedEvent.Delay,
           duration: 0,
         },
-        // @ts-expect-error - only the necessary parts
         {
           id: '2',
           type: SupportedEvent.Event,
           linkStart: 'true',
           skip: false,
-        },
+        } as OntimeEvent,
         {
           id: 'block1',
           type: SupportedEvent.Block,
           title: '',
         },
-        // @ts-expect-error - only the necessary parts
         {
           id: '3',
           type: SupportedEvent.Event,
           linkStart: 'true',
           skip: false,
-        },
+        } as OntimeEvent,
       ],
     };
 
