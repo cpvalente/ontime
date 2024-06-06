@@ -50,11 +50,9 @@ export default function ParamInput(props: EditFormInputProps) {
   }
 
   if (type === 'multi-option') {
-    const optionFromParams = (searchParams.get(id) ?? '').toLocaleLowerCase().split(',');
-    //TODO:
-    const defaultOptionValue = optionFromParams || defaultValue?.toLocaleLowerCase().split(',');
+    const optionFromParams = (searchParams.get(id) ?? '').toLocaleLowerCase().split('_');
+    const defaultOptionValue = optionFromParams || defaultValue?.toLocaleLowerCase().split('_');
 
-    //TODO: , turned into '%2C' for url kan we comeup with something better
     return (
       <>
         <input name={id} hidden ref={inputRef}></input>
@@ -66,7 +64,8 @@ export default function ParamInput(props: EditFormInputProps) {
               type='checkbox'
               defaultValue={defaultOptionValue}
               onChange={(value) => {
-                if (inputRef.current) inputRef.current.value = typeof value === 'object' ? value.join() : value;
+                if (inputRef.current)
+                  inputRef.current.value = typeof value === 'object' ? value.filter((v) => v !== '').join('_') : value;
               }}
             >
               {Object.values(paramField.values).map((option) => {

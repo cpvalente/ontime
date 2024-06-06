@@ -116,7 +116,7 @@ export default function Operator() {
 
   const subscriptions = (searchParams.get('subscribe') ?? '')
     .toLocaleLowerCase()
-    .split(',')
+    .split('_')
     .filter((value) => Object.hasOwn(customFields, value));
 
   const canEdit = shouldEdit && subscriptions;
