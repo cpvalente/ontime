@@ -4,34 +4,6 @@ import { ensureJsonExtension } from '../../utils/fileManagement.js';
 import sanitize from 'sanitize-filename';
 
 /**
- * @description Validation chain for filename in the body.
- */
-const bodyFilename = (field: string) =>
-  body(field)
-    .exists()
-    .isString()
-    .trim()
-    .customSanitizer((input: string) => sanitize(input))
-    .withMessage('Failed to sanitize the filename')
-    .notEmpty()
-    .withMessage('Filename was empty or contained only invalid characters')
-    .customSanitizer((input: string) => ensureJsonExtension(input));
-
-/**
- * @description Validation chain for filename in the params.
- */
-const paramFilename = (field: string) =>
-  param(field)
-    .exists()
-    .isString()
-    .trim()
-    .customSanitizer((input: string) => sanitize(input))
-    .withMessage('Failed to sanitize the filename')
-    .notEmpty()
-    .withMessage('Filename was empty or contained only invalid characters')
-    .customSanitizer((input: string) => ensureJsonExtension(input));
-
-/**
  * @description Validates request for a new project.
  */
 export const validateNewProject = [
@@ -73,7 +45,15 @@ export const validatePatchProject = [
  * @description Validates request with filename in the body.
  */
 export const validateFilenameBody = [
-  bodyFilename('filename'),
+  body('filename')
+    .exists()
+    .isString()
+    .trim()
+    .customSanitizer((input: string) => sanitize(input))
+    .withMessage('Failed to sanitize the filename')
+    .notEmpty()
+    .withMessage('Filename was empty or contained only invalid characters')
+    .customSanitizer((input: string) => ensureJsonExtension(input)),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -89,7 +69,15 @@ export const validateFilenameBody = [
  * @description Validates request with filename in the params.
  */
 export const validateFilenameParam = [
-  paramFilename('filename'),
+  param('filename')
+    .exists()
+    .isString()
+    .trim()
+    .customSanitizer((input: string) => sanitize(input))
+    .withMessage('Failed to sanitize the filename')
+    .notEmpty()
+    .withMessage('Filename was empty or contained only invalid characters')
+    .customSanitizer((input: string) => ensureJsonExtension(input)),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
