@@ -53,10 +53,12 @@ export default function ParamInput(props: EditFormInputProps) {
     const optionFromParams = (searchParams.get(id) ?? '').toLocaleLowerCase().split('_');
     const defaultOptionValue = optionFromParams || defaultValue?.toLocaleLowerCase().split('_');
 
+    //TODO: it should work without as={Button}
+    //https://v2.chakra-ui.com/docs/components/menu/theming
     return (
       <>
         <input name={id} hidden ref={inputRef}></input>
-        <Menu closeOnSelect={false} variant='ontime'>
+        <Menu isLazy matchWidth closeOnSelect={false} variant='ontime-on-dark'>
           <MenuButton as={Button}>{paramField.title}</MenuButton>
           <MenuList>
             <MenuOptionGroup
