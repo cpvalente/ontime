@@ -11,7 +11,9 @@
     ],
     "license": "AGPL-3.0-only",
     "main": "main.js",
-    "bin": "main.js",
+    "bin": {
+        "ontime": "main.js"
+    },
     "files": [
         "client",
         "external",
