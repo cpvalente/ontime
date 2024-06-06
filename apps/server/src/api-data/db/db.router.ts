@@ -25,7 +25,7 @@ export const router = express.Router();
 router.post('/download', validateFilenameBody, projectDownload);
 router.post('/upload', uploadProjectFile, postProjectFile);
 
-router.patch('/', validateFilenameBody, validatePatchProject, patchPartialProjectFile);
+router.patch('/', validatePatchProject, patchPartialProjectFile);
 router.post('/new', validateFilenameBody, validateNewProject, createProjectFile);
 
 router.get('/all', listProjects);
