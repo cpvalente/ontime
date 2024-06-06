@@ -76,8 +76,13 @@ export default function SourcesPanel() {
       setAuthenticationStatus(result.authenticated);
       setSheetId(result.sheetId);
       if (result.authenticated === 'authenticated' && result.sheetId) {
-        const names = await getWorksheetNames(result.sheetId);
-        setWorksheets(names);
+        try {
+          const names = await getWorksheetNames(result.sheetId);
+          setWorksheets(names);
+        } catch (error) {
+          const message = maybeAxiosError(error);
+          setError(`Error getting worksheets: ${message}`);
+        }
       }
     }
     setImportFlow('gsheet');

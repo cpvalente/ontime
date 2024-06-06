@@ -1,23 +1,17 @@
-import { memo, useEffect } from 'react';
-import { Tooltip } from '@chakra-ui/react';
 import {
-  closestCenter,
+  closestCorners,
   DndContext,
   DragEndEvent,
-  KeyboardSensor,
   PointerSensor,
   TouchSensor,
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { horizontalListSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
 import { flexRender, HeaderGroup } from '@tanstack/react-table';
 import { OntimeRundownEntry } from 'ontime-types';
 
-import { useLocalStorage } from '../../../common/hooks/useLocalStorage';
 import { getAccessibleColour } from '../../../common/utils/styleUtils';
-import { tooltipDelayFast } from '../../../ontimeConfig';
-import { initialColumnOrder } from '../cuesheetCols';
 
 import { SortableCell } from './SortableCell';
 
@@ -25,17 +19,12 @@ import style from '../Cuesheet.module.scss';
 
 interface CuesheetHeaderProps {
   headerGroups: HeaderGroup<OntimeRundownEntry>[];
+  saveColumnOrder: (fromId: string, toId: string) => void;
+  showIndexColumn: boolean;
 }
 
-function CuesheetHeader(props: CuesheetHeaderProps) {
-  const { headerGroups } = props;
-  const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>('table-order', initialColumnOrder);
-
-  useEffect(() => {
-    if (!localStorage.getItem('table-order')) {
-      saveColumnOrder(initialColumnOrder);
-    }
-  }, [saveColumnOrder]);
+export default function CuesheetHeader(props: CuesheetHeaderProps) {
+  const { headerGroups, saveColumnOrder, showIndexColumn } = props;
 
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { delta, active, over } = event;
@@ -45,21 +34,7 @@ function CuesheetHeader(props: CuesheetHeaderProps) {
     // cancel if we do not have an over id
     if (over?.id == null) return;
 
-    // get index of from
-    const fromIndex = columnOrder.indexOf(active.id as string);
-
-    // get index of to
-    const toIndex = columnOrder.indexOf(over.id as string);
-
-    if (toIndex === -1) {
-      return;
-    }
-
-    const reorderedCols = [...columnOrder];
-    const reorderedItem = reorderedCols.splice(fromIndex, 1);
-    reorderedCols.splice(toIndex, 0, reorderedItem[0]);
-
-    saveColumnOrder(reorderedCols);
+    saveColumnOrder(active.id as string, over.id as string);
   };
 
   const sensors = useSensors(
@@ -75,9 +50,6 @@ function CuesheetHeader(props: CuesheetHeaderProps) {
         tolerance: 50,
       },
     }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
   );
 
   return (
@@ -86,13 +58,9 @@ function CuesheetHeader(props: CuesheetHeaderProps) {
         const key = headerGroup.id;
 
         return (
-          <DndContext key={key} sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleOnDragEnd}>
+          <DndContext key={key} sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleOnDragEnd}>
             <tr key={headerGroup.id}>
-              <th className={style.indexColumn}>
-                <Tooltip label='Event Order' openDelay={tooltipDelayFast}>
-                  #
-                </Tooltip>
-              </th>
+              <th className={style.indexColumn}>{showIndexColumn && '#'}</th>
               <SortableContext key={key} items={headerGroup.headers} strategy={horizontalListSortingStrategy}>
                 {headerGroup.headers.map((header) => {
                   const width = header.getSize();
@@ -119,5 +87,3 @@ function CuesheetHeader(props: CuesheetHeaderProps) {
     </thead>
   );
 }
-
-export default memo(CuesheetHeader);

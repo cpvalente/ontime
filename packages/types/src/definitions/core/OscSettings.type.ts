@@ -4,7 +4,7 @@ export type OscSubscription = {
   id: string;
   cycle: TimerLifeCycleKey;
   address: string;
-  payload: string;
+  payload: string; // TODO: we should be using arguments to keep in line with protocol language
   enabled: boolean;
 };
 

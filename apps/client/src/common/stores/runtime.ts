@@ -1,5 +1,5 @@
 import isEqual from 'react-fast-compare';
-import { Playback, RuntimeStore, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { Playback, RuntimeStore, SimpleDirection, SimplePlayback, TimerPhase } from 'ontime-types';
 import { createWithEqualityFn, useStoreWithEqualityFn } from 'zustand/traditional';
 
 export const runtimeStorePlaceholder: RuntimeStore = {
@@ -11,6 +11,7 @@ export const runtimeStorePlaceholder: RuntimeStore = {
     elapsed: null,
     expectedFinish: null,
     finishedAt: null,
+    phase: TimerPhase.None,
     playback: Playback.Stop,
     secondaryTimer: null,
     startedAt: null,

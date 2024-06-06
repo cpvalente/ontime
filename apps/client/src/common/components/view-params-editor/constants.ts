@@ -30,6 +30,14 @@ const hideTimerSeconds: ParamField = {
   defaultValue: false,
 };
 
+const showLeadingZeros: ParamField = {
+  id: 'showLeadingZeros',
+  title: 'Show leading zeros in timer',
+  description: 'Whether to show leading zeros in the running timer',
+  type: 'boolean',
+  defaultValue: false,
+};
+
 export const getClockOptions = (timeFormat: string): ParamField[] => [
   getTimeOption(timeFormat),
   {
@@ -103,10 +111,11 @@ export const getClockOptions = (timeFormat: string): ParamField[] => [
 ];
 
 export const getTimerOptions = (timeFormat: string, customFields: CustomFields): ParamField[] => {
-  const secondaryOptions = makeOptionsFromCustomFields(customFields);
+  const secondaryOptions = makeOptionsFromCustomFields(customFields, { note: 'Note' });
   return [
     getTimeOption(timeFormat),
     hideTimerSeconds,
+    showLeadingZeros,
     {
       id: 'hideClock',
       title: 'Hide Time Now',
@@ -227,13 +236,6 @@ export const MINIMAL_TIMER_OPTIONS: ParamField[] = [
     id: 'hideovertime',
     title: 'Hide Overtime',
     description: 'Whether to suppress overtime styles (red borders and red text)',
-    type: 'boolean',
-    defaultValue: false,
-  },
-  {
-    id: 'hidemessages',
-    title: 'Hide Message Overlay',
-    description: 'Whether to hide the overlay from showing timer screen messages',
     type: 'boolean',
     defaultValue: false,
   },

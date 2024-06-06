@@ -14,6 +14,7 @@ import { cloneEvent } from '../../common/utils/eventsManager';
 
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
 import RundownEmpty from './RundownEmpty';
+import { useEventSelection } from './useEventSelection';
 
 import style from './Rundown.module.scss';
 
@@ -33,7 +34,9 @@ export default function Rundown({ data }: RundownProps) {
   const { entryCopyId, setEntryCopyId } = useEntryCopy();
 
   // cursor
-  const { cursor, mode: appMode, setCursor } = useAppMode();
+  const { mode: appMode } = useAppMode();
+  const { clearSelectedEvents, setSelectedEvents, cursor } = useEventSelection();
+
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: appMode === AppMode.Run });
@@ -44,34 +47,42 @@ export default function Rundown({ data }: RundownProps) {
   const deleteAtCursor = useCallback(
     (cursor: string | null) => {
       if (!cursor) return;
-      const previous = getPreviousNormal(rundown, order, cursor).entry?.id ?? null;
-      deleteEvent(cursor);
-      setCursor(previous);
+      const { entry, index } = getPreviousNormal(rundown, order, cursor);
+      deleteEvent([cursor]);
+      if (entry && index !== null) {
+        setSelectedEvents({ id: entry.id, selectMode: 'click', index });
+      }
     },
-    [deleteEvent, order, rundown, setCursor],
+    [rundown, order, deleteEvent, setSelectedEvents],
   );
 
-  const insertAtCursor = useCallback(
-    (type: SupportedEvent | 'clone', cursor: string | null, above = false) => {
-      const adjustedCursor = above ? getPreviousNormal(rundown, order, cursor ?? '').entry?.id ?? null : cursor;
-
-      if (adjustedCursor === null) {
+  const insertCopyAtId = useCallback(
+    (atId: string | null, copyId: string | null, above = false) => {
+      const adjustedCursor = above ? getPreviousNormal(rundown, order, atId ?? '').entry?.id ?? null : atId;
+      if (copyId === null) {
         // we cant clone without selection
-        if (type === 'clone') {
-          return;
-        }
+        return;
+      }
+      const cloneEntry = rundown[copyId];
+      if (cloneEntry?.type === SupportedEvent.Event) {
+        //if we don't have a cursor add the new event on top
+        const newEvent = cloneEvent(cloneEntry, adjustedCursor ?? undefined);
+        addEvent(newEvent);
+      }
+    },
+    [addEvent, order, rundown],
+  );
+
+  const insertAtId = useCallback(
+    (type: SupportedEvent, id: string | null, above = false) => {
+      const adjustedCursor = above ? getPreviousNormal(rundown, order, id ?? '').entry?.id ?? null : id;
+      if (adjustedCursor === null) {
         // the only thing to do is adding an event at top
         addEvent({ type });
         return;
       }
 
-      if (type === 'clone') {
-        const cursorEvent = rundown[adjustedCursor];
-        if (cursorEvent?.type === SupportedEvent.Event) {
-          const newEvent = cloneEvent(cursorEvent, cursorEvent.id);
-          addEvent(newEvent);
-        }
-      } else if (type === SupportedEvent.Event) {
+      if (type === SupportedEvent.Event) {
         const newEvent = {
           type: SupportedEvent.Event,
         };
@@ -92,23 +103,26 @@ export default function Rundown({ data }: RundownProps) {
       if (order.length < 1) {
         return;
       }
-      let newCursor: string | undefined;
+      let newCursor: string | null;
+      let newIndex: number | null;
       if (cursor === null) {
         // there is no cursor, we select the first or last depending on direction if it exists
-        newCursor = direction === 'up' ? getLastNormal(rundown, order)?.id : getFirstNormal(rundown, order)?.id;
+        newCursor =
+          (direction === 'up' ? getLastNormal(rundown, order)?.id : getFirstNormal(rundown, order)?.id) ?? null;
+        newIndex = direction === 'up' ? order.length : 0;
       } else {
         // otherwise we select the next or previous
-        newCursor =
-          direction === 'up'
-            ? getPreviousNormal(rundown, order, cursor).entry?.id
-            : getNextNormal(rundown, order, cursor).entry?.id;
+        const selected =
+          direction === 'up' ? getPreviousNormal(rundown, order, cursor) : getNextNormal(rundown, order, cursor);
+        newCursor = selected.entry?.id ?? null;
+        newIndex = selected.index;
       }
 
-      if (newCursor) {
-        setCursor(newCursor);
+      if (newCursor && newIndex !== null) {
+        setSelectedEvents({ id: newCursor, selectMode: 'click', index: newIndex });
       }
     },
-    [order, rundown, setCursor],
+    [order, rundown, setSelectedEvents],
   );
 
   const moveEntry = useCallback(
@@ -134,22 +148,22 @@ export default function Rundown({ data }: RundownProps) {
     ['alt + mod + ArrowDown', () => moveEntry(cursor, 'down'), { preventDefault: true }],
     ['alt + mod + ArrowUp', () => moveEntry(cursor, 'up'), { preventDefault: true }],
 
-    ['Escape', () => setCursor(null), { preventDefault: true }],
+    ['Escape', () => clearSelectedEvents(), { preventDefault: true }],
 
     ['mod + Backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
 
-    ['alt + E', () => insertAtCursor(SupportedEvent.Event, cursor), { preventDefault: true }],
-    ['alt + shift + E', () => insertAtCursor(SupportedEvent.Event, cursor, true), { preventDefault: true }],
+    ['alt + E', () => insertAtId(SupportedEvent.Event, cursor), { preventDefault: true }],
+    ['alt + shift + E', () => insertAtId(SupportedEvent.Event, cursor, true), { preventDefault: true }],
 
-    ['alt + B', () => insertAtCursor(SupportedEvent.Block, cursor), { preventDefault: true }],
-    ['alt + shift + B', () => insertAtCursor(SupportedEvent.Block, cursor, true), { preventDefault: true }],
+    ['alt + B', () => insertAtId(SupportedEvent.Block, cursor), { preventDefault: true }],
+    ['alt + shift + B', () => insertAtId(SupportedEvent.Block, cursor, true), { preventDefault: true }],
 
-    ['alt + D', () => insertAtCursor(SupportedEvent.Delay, cursor), { preventDefault: true }],
-    ['alt + shift + D', () => insertAtCursor(SupportedEvent.Delay, cursor, true), { preventDefault: true }],
+    ['alt + D', () => insertAtId(SupportedEvent.Delay, cursor), { preventDefault: true }],
+    ['alt + shift + D', () => insertAtId(SupportedEvent.Delay, cursor, true), { preventDefault: true }],
 
     ['mod + C', () => setEntryCopyId(cursor), { preventDefault: true }],
-    ['mod + V', () => insertAtCursor('clone', entryCopyId), { preventDefault: true }],
-    ['mod + shift + V', () => insertAtCursor('clone', entryCopyId, true), { preventDefault: true }],
+    ['mod + V', () => insertCopyAtId(cursor, entryCopyId), { preventDefault: true }],
+    ['mod + shift + V', () => insertCopyAtId(cursor, entryCopyId, true), { preventDefault: true }],
 
     ['alt + backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
   ]);
@@ -165,8 +179,9 @@ export default function Rundown({ data }: RundownProps) {
     if (appMode !== AppMode.Run || !featureData?.selectedEventId) {
       return;
     }
-    setCursor(featureData.selectedEventId);
-  }, [appMode, featureData.selectedEventId, setCursor]);
+    const index = order.findIndex((id) => id === featureData.selectedEventId);
+    setSelectedEvents({ id: featureData.selectedEventId, selectMode: 'click', index });
+  }, [appMode, featureData.selectedEventId, order, setSelectedEvents]);
 
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -185,7 +200,7 @@ export default function Rundown({ data }: RundownProps) {
   };
 
   if (statefulEntries.length < 1) {
-    return <RundownEmpty handleAddNew={() => insertAtCursor(SupportedEvent.Event, null)} />;
+    return <RundownEmpty handleAddNew={() => insertAtId(SupportedEvent.Event, cursor)} />;
   }
 
   let previousStart: MaybeNumber = null;

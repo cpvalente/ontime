@@ -1,11 +1,12 @@
 import { MILLIS_PER_HOUR, dayInMs, millisToString } from 'ontime-utils';
-import { EndAction, OntimeEvent, Playback, TimeStrategy, TimerType } from 'ontime-types';
+import { EndAction, OntimeEvent, Playback, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 
 import {
   getCurrent,
   getExpectedFinish,
   getRollTimers,
   getRuntimeOffset,
+  getTimerPhase,
   getTotalDuration,
   normaliseEndTime,
   skippedOutOfEvent,
@@ -1754,5 +1755,139 @@ describe('getTotalDuration()', () => {
     const daySpan = 2;
     const duration = getTotalDuration(start, end, daySpan);
     expect(millisToString(duration)).toBe('62:00:00');
+  });
+});
+
+describe('getTimerPhase()', () => {
+  it('should be None if the timer is not running', () => {
+    const state = {
+      timer: {
+        addedTime: 0,
+        current: null,
+        duration: null,
+        elapsed: null,
+        expectedFinish: null,
+        finishedAt: null,
+        playback: Playback.Stop,
+        phase: TimerPhase.None,
+        secondaryTimer: null,
+        startedAt: null,
+      },
+    } as RuntimeState;
+
+    const phase = getTimerPhase(state);
+    expect(phase).toBe(TimerPhase.None);
+  });
+
+  it('can be in overtime', () => {
+    const state = {
+      timer: {
+        addedTime: 0,
+        current: -50,
+        duration: 1000,
+        playback: Playback.Play,
+      },
+      eventNow: {
+        timeDanger: 100,
+        timeWarning: 200,
+      },
+    } as RuntimeState;
+
+    const phase = getTimerPhase(state);
+    expect(phase).toBe(TimerPhase.Overtime);
+  });
+
+  it('can be danger', () => {
+    const state = {
+      timer: {
+        addedTime: 0,
+        current: 0,
+        duration: 1000,
+        playback: Playback.Play,
+      },
+      eventNow: {
+        timeDanger: 100,
+        timeWarning: 200,
+      },
+    } as RuntimeState;
+
+    const phase = getTimerPhase(state);
+    expect(phase).toBe(TimerPhase.Danger);
+  });
+
+  it('can be warning', () => {
+    const state = {
+      timer: {
+        addedTime: 0,
+        current: 150,
+        duration: 1000,
+        playback: Playback.Play,
+      },
+      eventNow: {
+        timeDanger: 100,
+        timeWarning: 200,
+      },
+    } as RuntimeState;
+
+    const phase = getTimerPhase(state);
+    expect(phase).toBe(TimerPhase.Warning);
+  });
+
+  it('it default if the timer is playing and there is none of the above', () => {
+    const state = {
+      timer: {
+        addedTime: 0,
+        current: 250,
+        duration: 1000,
+        playback: Playback.Play,
+      },
+      eventNow: {
+        timeDanger: 100,
+        timeWarning: 200,
+      },
+    } as RuntimeState;
+
+    const phase = getTimerPhase(state);
+    expect(phase).toBe(TimerPhase.Default);
+  });
+
+  it('#1042 identifies waiting to roll', () => {
+    const state = {
+      clock: 55691050,
+      eventNow: null,
+      publicEventNow: null,
+      eventNext: null,
+      publicEventNext: null,
+      runtime: {
+        selectedEventIndex: null,
+        numEvents: 1,
+        offset: null,
+        plannedStart: 55860000,
+        plannedEnd: 55880000,
+        actualStart: null,
+        expectedEnd: null,
+      },
+      timer: {
+        addedTime: 0,
+        current: null,
+        duration: null,
+        elapsed: 0,
+        expectedFinish: null,
+        finishedAt: null,
+        phase: 'none',
+        playback: 'roll',
+        secondaryTimer: 168950,
+        startedAt: null,
+      },
+      _timer: {
+        forceFinish: null,
+        totalDelay: 0,
+        pausedAt: null,
+        secondaryTarget: 55860000,
+      },
+    } as RuntimeState;
+
+    const phase = getTimerPhase(state);
+    expect(phase).toBe(TimerPhase.Pending);
   });
 });

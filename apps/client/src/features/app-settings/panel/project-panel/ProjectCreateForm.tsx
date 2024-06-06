@@ -50,7 +50,8 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
   const handleSubmitCreate = async (values: ProjectCreateFormValues) => {
     try {
       setError(null);
-      const filename = values.title?.trim();
+
+      const filename = values.title ?? 'untitled';
 
       await createProject({
         ...values,

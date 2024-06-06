@@ -4,10 +4,10 @@ import { IoPause } from '@react-icons/all-files/io5/IoPause';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { setAuxTimer, useAuxTimerControl, useAuxTimerTime } from '../../../../common/hooks/useSocket';
-import { forgivingStringToMillis } from '../../../../common/utils/dateConfig';
 import TapButton from '../tap-button/TapButton';
 
 import style from './AuxTimer.module.scss';
@@ -29,33 +29,36 @@ export function AuxTimer() {
   };
 
   return (
-    <div className={style.extraRow}>
-      <AuxTimerInput />
-      <TapButton onClick={toggleDirection} aspect='tight'>
-        {direction === SimpleDirection.CountDown && <IoArrowDown data-testid='aux-timer-direction' />}
-        {direction === SimpleDirection.CountUp && <IoArrowUp data-testid='aux-timer-direction' />}
-      </TapButton>
+    <label className={style.label}>
+      Auxiliary Timer
+      <div className={style.controls}>
+        <AuxTimerInput />
+        <TapButton onClick={toggleDirection} aspect='tight'>
+          {direction === SimpleDirection.CountDown && <IoArrowDown data-testid='aux-timer-direction' />}
+          {direction === SimpleDirection.CountUp && <IoArrowUp data-testid='aux-timer-direction' />}
+        </TapButton>
 
-      <TapButton
-        onClick={start}
-        theme={Playback.Play}
-        active={playback === SimplePlayback.Start}
-        disabled={!userCan.start}
-      >
-        <IoPlay data-testid='aux-timer-start' />
-      </TapButton>
-      <TapButton
-        onClick={pause}
-        theme={Playback.Pause}
-        active={playback === SimplePlayback.Pause}
-        disabled={!userCan.pause}
-      >
-        <IoPause data-testid='aux-timer-pause' />
-      </TapButton>
-      <TapButton onClick={stop} theme={Playback.Stop} disabled={!userCan.stop}>
-        <IoStop data-testid='aux-timer-stop' />
-      </TapButton>
-    </div>
+        <TapButton
+          onClick={start}
+          theme={Playback.Play}
+          active={playback === SimplePlayback.Start}
+          disabled={!userCan.start}
+        >
+          <IoPlay data-testid='aux-timer-start' />
+        </TapButton>
+        <TapButton
+          onClick={pause}
+          theme={Playback.Pause}
+          active={playback === SimplePlayback.Pause}
+          disabled={!userCan.pause}
+        >
+          <IoPause data-testid='aux-timer-pause' />
+        </TapButton>
+        <TapButton onClick={stop} theme={Playback.Stop} disabled={!userCan.stop}>
+          <IoStop data-testid='aux-timer-stop' />
+        </TapButton>
+      </div>
+    </label>
   );
 }
 
@@ -64,7 +67,7 @@ function AuxTimerInput() {
   const { setDuration } = setAuxTimer;
 
   const handleTimeUpdate = (_field: string, value: string) => {
-    const newTime = forgivingStringToMillis(value);
+    const newTime = parseUserTime(value);
     setDuration(newTime / 1000); //frontend api is seconds based;
   };
 

@@ -34,6 +34,12 @@ export function deleteAtIndex<T>(index: number, array: T[]) {
   return array.filter((_, i) => i !== index);
 }
 
+/**
+ * Reorders two objects in an array
+ * @param array
+ * @param fromIndex
+ * @param toIndex
+ */
 export function reorderArray<T>(array: T[], fromIndex: number, toIndex: number) {
   if (fromIndex === toIndex) {
     return array; // No change needed, return the original array

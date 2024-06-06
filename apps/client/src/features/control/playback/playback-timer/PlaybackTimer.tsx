@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
 import { Tooltip } from '@chakra-ui/react';
-import { Playback } from 'ontime-types';
+import { Playback, TimerPhase } from 'ontime-types';
 import { dayInMs, millisToMinutes, millisToSeconds, millisToString } from 'ontime-utils';
 
 import { useTimer } from '../../../../common/hooks/useSocket';
@@ -44,7 +44,7 @@ export default function PlaybackTimer(props: PropsWithChildren<PlaybackTimerProp
 
   const isRolling = playback === Playback.Roll;
   const isWaiting = timer.secondaryTimer !== null && timer.secondaryTimer > 0 && timer.current === null;
-  const isOvertime = timer.current !== null && timer.current < 0;
+  const isOvertime = timer.phase === TimerPhase.Overtime;
   const hasAddedTime = Boolean(timer.addedTime);
 
   const rollLabel = isRolling ? 'Roll mode active' : '';

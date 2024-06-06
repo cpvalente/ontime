@@ -1,4 +1,4 @@
-import { MaybeNumber, Playback, TimerType } from 'ontime-types';
+import { MaybeNumber, Playback, TimerPhase, TimerType } from 'ontime-types';
 
 // first set extends TimerState
 export type ViewExtendedTimer = {
@@ -8,12 +8,11 @@ export type ViewExtendedTimer = {
   elapsed: MaybeNumber;
   expectedFinish: MaybeNumber;
   finishedAt: MaybeNumber;
+  phase: TimerPhase;
   playback: Playback;
   secondaryTimer: MaybeNumber;
   startedAt: MaybeNumber;
 
   clock: number;
-  timeDanger: MaybeNumber;
-  timeWarning: MaybeNumber;
   timerType: TimerType;
 };

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { Button, IconButton, Input, Select, Switch } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
@@ -8,7 +9,7 @@ import { generateId } from 'ontime-utils';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useOscSettings, { useOscSettingsMutation } from '../../../../common/hooks-query/useOscSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
-import { isASCII, isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
+import { isASCII, isASCIIorEmpty, isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
 import * as Panel from '../PanelUtils';
 
 import { cycles } from './integrationUtils';
@@ -39,6 +40,13 @@ export default function OscIntegrations() {
     name: 'subscriptions',
     control,
   });
+
+  // update form if we get new data from server
+  useEffect(() => {
+    if (data) {
+      reset(data);
+    }
+  }, [data, reset]);
 
   const onSubmit = async (values: OSCSettings) => {
     if (values.portIn === values.portOut) {
@@ -221,7 +229,7 @@ export default function OscIntegrations() {
                 <th>Enabled</th>
                 <th>Cycle</th>
                 <th className={style.halfWidth}>Address</th>
-                <th className={style.halfWidth}>Payload</th>
+                <th className={style.halfWidth}>Arguments</th>
                 <th />
               </tr>
             </thead>
@@ -277,7 +285,7 @@ export default function OscIntegrations() {
                         {...register(`subscriptions.${index}.payload`, {
                           validate: {
                             oscStringIsAscii: (value) =>
-                              isASCII.test(value) || 'OSC payloads only allow ASCII characters',
+                              isASCIIorEmpty.test(value) || 'OSC arguments only allow ASCII characters',
                           },
                         })}
                       />

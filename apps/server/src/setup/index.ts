@@ -2,6 +2,8 @@ import { fileURLToPath } from 'url';
 import path, { dirname, join } from 'path';
 import fs from 'fs';
 
+import { rm } from 'fs/promises';
+
 import { config } from './config.js';
 import { ensureDirectory } from '../utils/fileManagement.js';
 
@@ -57,16 +59,12 @@ const currentDir = dirname(__dirname);
 export const srcDirectory = isProduction ? currentDir : path.join(currentDir, '../');
 
 // resolve path to external
-const productionPath = path.join(srcDirectory, '../../resources/extraResources/client');
+const productionPath = path.join(srcDirectory, 'client/');
 const devPath = path.join(srcDirectory, '../../client/build/');
-const dockerPath = path.join(srcDirectory, 'client/');
 
 export const resolvedPath = (): string => {
   if (isTest) {
     return devPath;
-  }
-  if (isDocker) {
-    return dockerPath;
   }
   if (isProduction) {
     return productionPath;
@@ -144,3 +142,11 @@ export const resolveCrashReportDirectory = getAppDataPath();
 
 // path to projects
 export const resolveProjectsDirectory = join(getAppDataPath(), config.projects);
+
+export async function clearUploadfolder() {
+  try {
+    await rm(uploadsFolderPath, { recursive: true });
+  } catch (_) {
+    //we dont care that there was no folder
+  }
+}

@@ -22,11 +22,12 @@ export function throttle<T extends any[], U>(cb: (...args: T) => U, delay: numbe
   return (...args: T) => {
     if (shouldWait) {
       waitingArgs = args;
-      return;
+      return true;
     }
 
     cb(...args);
     shouldWait = true;
     setTimeout(timeoutFunc, delay);
+    return false;
   };
 }

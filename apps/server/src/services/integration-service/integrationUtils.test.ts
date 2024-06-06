@@ -1,3 +1,4 @@
+import { stringToOSCArgs } from '../../utils/oscArgParser.js';
 import { parseTemplateNested } from './integrationUtils.js';
 
 describe('parseTemplateNested()', () => {
@@ -94,5 +95,75 @@ describe('parseNestedTemplate() -> resolveAliasData()', () => {
 
     const easyParse = parseTemplateNested('{{other.value}} to {{human.easy}} {{human.not.found}}', data, aliases);
     expect(easyParse).toBe('5 to testing-3 {{human.not.found}}');
+  });
+});
+
+describe('parseNestedTemplate() -> stringToOSCArgs()', () => {
+  it('specific osc requirements', () => {
+    const data = {
+      not: {
+        so: {
+          easy: 'data with space',
+          empty: '',
+          number: 1234,
+          stringNumber: '1234',
+        },
+      },
+    };
+
+    const payloads = [
+      {
+        test: '"string with space and {{not.so.easy}}"',
+        expect: [{ type: 'string', value: 'string with space and data with space' }],
+      },
+      {
+        test: '',
+        expect: [],
+      },
+      {
+        test: ' ',
+        expect: [],
+      },
+      {
+        test: '""',
+        expect: [{ type: 'string', value: '' }],
+      },
+      {
+        test: '"string with space and {{not.so.empty}}"',
+        expect: [{ type: 'string', value: 'string with space and ' }],
+      },
+      {
+        test: '"string with space and {{not.so.number}}"',
+        expect: [{ type: 'string', value: 'string with space and 1234' }],
+      },
+      {
+        test: '"string with space and {{not.so.stringNumber}}"',
+        expect: [{ type: 'string', value: 'string with space and 1234' }],
+      },
+      {
+        test: '"{{not.so.easy}}" 1',
+        expect: [
+          { type: 'string', value: 'data with space' },
+          { type: 'integer', value: 1 },
+        ],
+      },
+      {
+        test: '"{{not.so.empty}}" 1',
+        expect: [
+          { type: 'string', value: '' },
+          { type: 'integer', value: 1 },
+        ],
+      },
+      {
+        test: '',
+        expect: [],
+      },
+    ];
+
+    payloads.forEach((payload) => {
+      const parsedPayload = parseTemplateNested(payload.test, data);
+      const parsedArguments = stringToOSCArgs(parsedPayload);
+      expect(parsedArguments).toStrictEqual(payload.expect);
+    });
   });
 });

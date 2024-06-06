@@ -74,8 +74,8 @@ export async function requestApplyDelay(eventId: string): Promise<AxiosResponse<
 /**
  * HTTP request to delete given event
  */
-export async function requestDelete(eventId: string): Promise<AxiosResponse<MessageResponse>> {
-  return axios.delete(`${rundownPath}/${eventId}`);
+export async function requestDelete(eventIds: string[]): Promise<AxiosResponse<MessageResponse>> {
+  return axios.delete(rundownPath, { data: { ids: eventIds } });
 }
 
 /**

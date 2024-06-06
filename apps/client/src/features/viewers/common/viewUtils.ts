@@ -84,7 +84,9 @@ export function getFormattedTimer(
   }
 
   let display = millisToString(timeToParse);
-  display = removeLeadingZero(display);
+  if (options.removeLeadingZero) {
+    display = removeLeadingZero(display);
+  }
 
   if (options.removeSeconds) {
     display = formatDisplayWithMinutes(display, localisedMinutes);

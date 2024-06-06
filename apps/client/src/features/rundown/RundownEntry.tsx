@@ -3,7 +3,6 @@ import { MaybeNumber, OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent 
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
-import { useAppMode } from '../../common/stores/appModeStore';
 import { useEmitLog } from '../../common/stores/logger';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
@@ -56,20 +55,15 @@ export default function RundownEntry(props: RundownEntryProps) {
   } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
-  const cursor = useAppMode((state) => state.cursor);
-  const setCursor = useAppMode((state) => state.setCursor);
-  const { selectedEvents, clearSelectedEvents } = useEventSelection();
+  const { selectedEvents, unselect, clearSelectedEvents } = useEventSelection();
 
   const removeOpenEvent = useCallback(() => {
-    if (selectedEvents.has(data.id)) {
-      clearSelectedEvents();
-    }
+    unselect(data.id);
+  }, [unselect, data.id]);
 
-    // clear cursor if we are deleting the event that is currently selected
-    if (cursor === data.id) {
-      setCursor(null);
-    }
-  }, [selectedEvents, data.id, cursor, clearSelectedEvents, setCursor]);
+  const clearMultiSelection = useCallback(() => {
+    clearSelectedEvents();
+  }, [clearSelectedEvents]);
 
   // Create / delete new events
   type FieldValue = {
@@ -111,10 +105,12 @@ export default function RundownEntry(props: RundownEntryProps) {
         return swapEvents({ from: value as string, to: data.id });
       }
       case 'delete': {
-        if (selectedEvents.has(data.id)) {
-          removeOpenEvent();
+        if (selectedEvents.size > 1) {
+          clearMultiSelection();
+          return deleteEvent(Array.from(selectedEvents));
         }
-        return deleteEvent(data.id);
+        removeOpenEvent();
+        return deleteEvent([data.id]);
       }
       case 'clone': {
         const newEvent = cloneEvent(data as OntimeEvent, data.id);
@@ -134,7 +130,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         if (selectedEvents.size > 1) {
           const changes: Partial<OntimeEvent> = { [field]: value };
           batchUpdateEvents(changes, Array.from(selectedEvents));
-          return clearSelectedEvents();
+          return;
         }
         if (field in data) {
           // @ts-expect-error -- not sure how to type this
