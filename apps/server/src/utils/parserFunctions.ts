@@ -49,8 +49,8 @@ export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
 
     if (isOntimeEvent(event)) {
       if (event.linkStart) {
-        const prevEvent = getLastEvent(rundown).lastEvent;
-        event.linkStart = prevEvent.id;
+        const prevId = getLastEvent(rundown).lastEvent?.id ?? null;
+        event.linkStart = prevId;
       }
       newEvent = createEvent(event, eventIndex.toString());
       // skip if event is invalid
