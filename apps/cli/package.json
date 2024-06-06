@@ -1,5 +1,5 @@
 {
-    "name": "ontime-cli",
+    "name": "@getontime/cli",
     "version": "3.1.0",
     "author": "Carlos Valente",
     "description": "Time keeping for live events",
