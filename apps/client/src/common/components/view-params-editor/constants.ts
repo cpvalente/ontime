@@ -5,8 +5,8 @@ import { capitaliseFirstLetter } from '../../../features/viewers/common/viewUtil
 import { ParamField } from './types';
 
 const makeOptionsFromCustomFields = (customFields: CustomFields, additionalOptions?: Record<string, string>) => {
-  const customFieldOptions = Object.keys(customFields).reduce((acc, key) => {
-    return { ...acc, [`custom-${key}`]: `Custom: ${capitaliseFirstLetter(key)}` };
+  const customFieldOptions = Object.entries(customFields).reduce((acc, [key, value]) => {
+    return { ...acc, [`custom-${key}`]: `Custom: ${value.label}` };
   }, additionalOptions ?? {});
   return customFieldOptions;
 };
