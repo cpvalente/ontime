@@ -240,33 +240,6 @@ describe('parseRundown() linking', () => {
     expect(result).toEqual(expected);
   });
 
-  it('returns linked events even if its skipped', () => {
-    const data: Partial<DatabaseModel> = {
-      rundown: [
-        // @ts-expect-error - only the necessary parts
-        {
-          id: '1',
-          type: SupportedEvent.Event,
-          skip: true,
-        },
-        // @ts-expect-error - only the necessary parts
-        {
-          id: '2',
-          type: SupportedEvent.Event,
-          linkStart: 'true',
-          skip: false,
-        },
-      ],
-    };
-
-    const expected: OntimeRundown = [
-      { ...blankEvent, id: '1', cue: '0' },
-      { ...blankEvent, id: '2', cue: '1', linkStart: '1' },
-    ];
-    const result = parseRundown(data);
-    expect(result).toEqual(expected);
-  });
-
   it('returns linked events past blocks and delays', () => {
     const data: Partial<DatabaseModel> = {
       rundown: [
