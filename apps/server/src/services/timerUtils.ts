@@ -120,13 +120,13 @@ type RollTimers = {
  * @param {number} timeNow - time now in ms
  */
 export const getRollTimers = (rundown: OntimeEvent[], timeNow: number, currentIndex?: number | null): RollTimers => {
-  let nowIndex: number | null = null; // index of event now
-  let nowId: string | null = null; // id of event now
-  let publicIndex: number | null = null; // index of public event now
-  let nextIndex: number | null = null; // index of next event
-  let publicNextIndex: number | null = null; // index of next public event
-  let timeToNext: number | null = null; // counter: time for next event
-  let publicTimeToNext: number | null = null; // counter: time for next public event
+  let nowIndex: MaybeNumber = null; // index of event now
+  let nowId: MaybeString = null; // id of event now
+  let publicIndex: MaybeNumber = null; // index of public event now
+  let nextIndex: MaybeNumber = null; // index of next event
+  let publicNextIndex: MaybeNumber = null; // index of next public event
+  let timeToNext: MaybeNumber = null; // counter: time for next event
+  let publicTimeToNext: MaybeNumber = null; // counter: time for next public event
 
   const hasLoaded = currentIndex !== null;
   const canFilter = hasLoaded && currentIndex === rundown.length - 1;

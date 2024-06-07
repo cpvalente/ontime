@@ -466,6 +466,10 @@ export function roll(rundown: OntimeEvent[]) {
       current: endTime - runtimeState.clock,
     });
   } else if (nextEvent) {
+    if (nextEvent.isPublic) {
+      runtimeState.publicEventNext = nextEvent;
+    }
+    runtimeState.eventNext = nextEvent;
     // account for day after
     const nextStart = nextEvent.timeStart < runtimeState.clock ? nextEvent.timeStart + dayInMs : nextEvent.timeStart;
     // nothing now, but something coming up
