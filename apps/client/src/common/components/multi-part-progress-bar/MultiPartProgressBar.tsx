@@ -38,8 +38,8 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
 
   return (
     <div
-      className={`multiprogress-bar ${hidden ? 'hidden' : ''} ${
-        ignoreCssOverride ? 'ignore-css-override' : ''
+      className={`multiprogress-bar ${hidden ? 'multiprogress-bar--hidden' : ''} ${
+        ignoreCssOverride ? 'multiprogress-bar--ignore-css-override' : ''
       } ${className}`}
     >
       {now !== null && (

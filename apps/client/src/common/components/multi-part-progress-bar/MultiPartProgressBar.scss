@@ -8,7 +8,7 @@ $progress-bar-br: 3px;
   width: 100%;
   height: $progress-bar-size;
 
-  &.hidden {
+  &--hidden {
     display: none;
     transition: display 0.5s;
   }
@@ -18,7 +18,7 @@ $progress-bar-br: 3px;
   position: absolute;
   inset: 0;
   overflow: hidden;
-  border-radius: $progress-bar-br;
+  border-radius: var(--progress-bar-br, $progress-bar-br);
 
   display: flex;
   flex-direction: row;
@@ -41,7 +41,7 @@ $progress-bar-br: 3px;
   transition: 1s linear;
   transition-property: width;
 
-  .ignore-css-override & {
+  .multiprogress-bar--ignore-css-override & {
     background-color: $ui-black;
   }
 }
@@ -49,8 +49,6 @@ $progress-bar-br: 3px;
 .multiprogress-bar__bg-normal {
   flex: 1;
 }
-
-// .multiprogress-bar__bg-warning {}
 
 .multiprogress-bar__bg-danger {
   flex-shrink: 0;
