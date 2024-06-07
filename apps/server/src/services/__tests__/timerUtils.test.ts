@@ -978,6 +978,32 @@ describe('getRollTimers()', () => {
     expect(state).toStrictEqual(expected);
   });
 
+  it('loads upcoming event while waiting to roll', () => {
+    const singleEventList: Partial<OntimeEvent>[] = [
+      {
+        id: '1',
+        timeStart: 72000000, // 20:00
+        timeEnd: 72010000, // 20:10
+        isPublic: true,
+      },
+    ];
+    const now = 6000; // 00:01
+    const expected = {
+      nowIndex: null,
+      nowId: null,
+      publicIndex: null,
+      nextIndex: 0,
+      publicNextIndex: 0,
+      timeToNext: 72000000 - now,
+      nextEvent: singleEventList[0],
+      nextPublicEvent: singleEventList[0],
+      currentEvent: null,
+      currentPublicEvent: null,
+    };
+    const state = getRollTimers(singleEventList as OntimeEvent[], now);
+    expect(state).toStrictEqual(expected);
+  });
+
   it('handles roll that goes over midnight', () => {
     const singleEventList: Partial<OntimeEvent>[] = [
       {
@@ -1849,6 +1875,46 @@ describe('getTimerPhase()', () => {
 
     const phase = getTimerPhase(state);
     expect(phase).toBe(TimerPhase.Default);
+  });
+
+  it('#1042 identifies waiting to roll', () => {
+    const state = {
+      clock: 55691050,
+      eventNow: null,
+      publicEventNow: null,
+      eventNext: null,
+      publicEventNext: null,
+      runtime: {
+        selectedEventIndex: null,
+        numEvents: 1,
+        offset: null,
+        plannedStart: 55860000,
+        plannedEnd: 55880000,
+        actualStart: null,
+        expectedEnd: null,
+      },
+      timer: {
+        addedTime: 0,
+        current: null,
+        duration: null,
+        elapsed: 0,
+        expectedFinish: null,
+        finishedAt: null,
+        phase: 'none',
+        playback: 'roll',
+        secondaryTimer: 168950,
+        startedAt: null,
+      },
+      _timer: {
+        forceFinish: null,
+        totalDelay: 0,
+        pausedAt: null,
+        secondaryTarget: 55860000,
+      },
+    } as RuntimeState;
+
+    const phase = getTimerPhase(state);
+    expect(phase).toBe(TimerPhase.Pending);
   });
 
   it('#1042 identifies waiting to roll', () => {
