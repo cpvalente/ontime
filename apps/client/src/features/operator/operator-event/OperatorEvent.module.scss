@@ -94,6 +94,7 @@
   color: $ui-black;
   margin: 0.25rem 0;
   display: flex;
+  flex-wrap: wrap;
 
   .field {
     font-weight: 600;

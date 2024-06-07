@@ -2,7 +2,7 @@ import { CustomFields } from 'ontime-types';
 
 import { capitaliseFirstLetter } from '../../../features/viewers/common/viewUtils';
 
-import { ParamField } from './types';
+import { type ParamField } from './types';
 
 const makeOptionsFromCustomFields = (customFields: CustomFields, additionalOptions?: Record<string, string>) => {
   const customFieldOptions = Object.keys(customFields).reduce((acc, key) => {

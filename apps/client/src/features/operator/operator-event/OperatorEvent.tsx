@@ -90,7 +90,6 @@ function OperatorEvent(props: OperatorEventProps) {
 
       <div className={style.fields}>
         {subscribed &&
-          //TODO: could use some sort of dynamic multilyning if there is not enough space horisontaly
           subscribed
             .filter((field) => field.value)
             .map((field, index) => (
