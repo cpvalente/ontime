@@ -53,16 +53,21 @@ export default function ParamInput(props: EditFormInputProps) {
     const optionFromParams = (searchParams.get(id) ?? '').toLocaleLowerCase().split('_');
     const defaultOptionValue = optionFromParams || defaultValue?.toLocaleLowerCase().split('_');
 
-    //TODO: it should work without as={Button}
-    //https://v2.chakra-ui.com/docs/components/menu/theming
     return (
       <>
-        <input name={id} hidden ref={inputRef}></input>
-        <Menu isLazy matchWidth closeOnSelect={false} variant='ontime-on-dark'>
-          <MenuButton as={Button}>{paramField.title}</MenuButton>
+        <input name={id} hidden ref={inputRef} />
+        <Menu isLazy closeOnSelect={false} variant='ontime-on-dark'>
+          <MenuButton
+            as={Button}
+            variant='ontime-subtle-white'
+            position='relative'
+            width='fit-content'
+            fontWeight={400}
+          >
+            {paramField.title}
+          </MenuButton>
           <MenuList>
             <MenuOptionGroup
-              title='Select fields to display'
               type='checkbox'
               defaultValue={defaultOptionValue}
               onChange={(value) => {
@@ -71,9 +76,9 @@ export default function ParamInput(props: EditFormInputProps) {
               }}
             >
               {Object.values(paramField.values).map((option) => {
-                const { value, label, colour } = option;
+                const { value, label } = option;
                 return (
-                  <MenuItemOption backgroundColor={colour} color='black' value={value} key={value}>
+                  <MenuItemOption value={value} key={value}>
                     {label}
                   </MenuItemOption>
                 );
