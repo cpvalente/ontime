@@ -171,7 +171,7 @@ export default function Operator() {
               return null;
             }
 
-            const mainField = main ? entry?.[main] || entry.title : entry.title;
+            const mainField = main ? getPropertyValue(entry, main) ?? '' : entry.title;
             const secondaryField = getPropertyValue(entry, secondary) ?? '';
             const subscribedData = entry.custom[subscribe];
 

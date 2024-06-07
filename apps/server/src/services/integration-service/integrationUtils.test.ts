@@ -117,6 +117,18 @@ describe('parseNestedTemplate() -> stringToOSCArgs()', () => {
         expect: [{ type: 'string', value: 'string with space and data with space' }],
       },
       {
+        test: '',
+        expect: [],
+      },
+      {
+        test: ' ',
+        expect: [],
+      },
+      {
+        test: '""',
+        expect: [{ type: 'string', value: '' }],
+      },
+      {
         test: '"string with space and {{not.so.empty}}"',
         expect: [{ type: 'string', value: 'string with space and ' }],
       },
