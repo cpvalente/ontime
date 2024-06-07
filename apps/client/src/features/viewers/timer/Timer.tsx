@@ -106,6 +106,10 @@ export default function Timer(props: TimerProps) {
   const secondaryTextNow = getPropertyValue(eventNow, secondarySource);
   const secondaryTextNext = getPropertyValue(eventNext, secondarySource);
 
+  const main = searchParams.get('main');
+  const mainFieldNow = (main ? getPropertyValue(eventNow, main) : eventNow?.title) ?? '';
+  const mainFieldNext = (main ? getPropertyValue(eventNext, main) : eventNext?.title) ?? '';
+
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
 
@@ -215,7 +219,7 @@ export default function Timer(props: TimerProps) {
                 animate='visible'
                 exit='exit'
               >
-                <TitleCard label='now' title={eventNow.title} secondary={secondaryTextNow} />
+                <TitleCard label='now' title={mainFieldNow} secondary={secondaryTextNow} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -230,7 +234,7 @@ export default function Timer(props: TimerProps) {
                 animate='visible'
                 exit='exit'
               >
-                <TitleCard label='next' title={eventNext.title} secondary={secondaryTextNext} />
+                <TitleCard label='next' title={mainFieldNext} secondary={secondaryTextNext} />
               </motion.div>
             )}
           </AnimatePresence>

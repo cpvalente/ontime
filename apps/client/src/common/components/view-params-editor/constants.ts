@@ -5,8 +5,8 @@ import { capitaliseFirstLetter } from '../../../features/viewers/common/viewUtil
 import { ParamField } from './types';
 
 const makeOptionsFromCustomFields = (customFields: CustomFields, additionalOptions?: Record<string, string>) => {
-  const customFieldOptions = Object.keys(customFields).reduce((acc, key) => {
-    return { ...acc, [`custom-${key}`]: `Custom: ${capitaliseFirstLetter(key)}` };
+  const customFieldOptions = Object.entries(customFields).reduce((acc, [key, value]) => {
+    return { ...acc, [`custom-${key}`]: `Custom: ${value.label}` };
   }, additionalOptions ?? {});
   return customFieldOptions;
 };
@@ -111,6 +111,7 @@ export const getClockOptions = (timeFormat: string): ParamField[] => [
 ];
 
 export const getTimerOptions = (timeFormat: string, customFields: CustomFields): ParamField[] => {
+  const mainOptions = makeOptionsFromCustomFields(customFields, { title: 'Title' });
   const secondaryOptions = makeOptionsFromCustomFields(customFields, { note: 'Note' });
   return [
     getTimeOption(timeFormat),
@@ -122,6 +123,14 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
       description: 'Hides the Time Now field',
       type: 'boolean',
       defaultValue: false,
+    },
+    {
+      id: 'main',
+      title: 'Main text',
+      description: 'Select the data source for the main text',
+      type: 'option',
+      values: mainOptions,
+      defaultValue: 'Title',
     },
     {
       id: 'secondary-src',
