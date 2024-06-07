@@ -24,6 +24,7 @@ export default function StatusBarProgress(props: StatusBarProgressProps) {
       danger={timeDanger}
       dangerColor={viewSettings.dangerColor}
       className={styles.progressOverride}
+      ignoreCssOverride
     />
   );
 }
