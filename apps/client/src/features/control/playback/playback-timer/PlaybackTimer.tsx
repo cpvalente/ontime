@@ -43,7 +43,7 @@ export default function PlaybackTimer(props: PropsWithChildren<PlaybackTimerProp
   const finish = millisToString(expectedFinish);
 
   const isRolling = playback === Playback.Roll;
-  const isWaiting = timer.secondaryTimer !== null && timer.secondaryTimer > 0 && timer.current === null;
+  const isWaiting = timer.phase === TimerPhase.Pending;
   const isOvertime = timer.phase === TimerPhase.Overtime;
   const hasAddedTime = Boolean(timer.addedTime);
 
