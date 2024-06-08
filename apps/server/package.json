@@ -20,7 +20,7 @@
     "node-xlsx": "^0.23.0",
     "ontime-utils": "workspace:*",
     "sanitize-filename": "^1.6.3",
-    "steno": "^3.1.0",
+    "steno": "^4.0.2",
     "ts-essentials": "^9.4.1",
     "ws": "^8.13.0"
   },
