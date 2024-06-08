@@ -21,7 +21,6 @@
     "ontime-utils": "workspace:*",
     "sanitize-filename": "^1.6.3",
     "steno": "^4.0.2",
-    "ts-essentials": "^9.4.1",
     "ws": "^8.13.0"
   },
   "devDependencies": {
@@ -44,6 +43,7 @@
     "shx": "^0.3.4",
     "ts-node": "^10.9.1",
     "typescript": "^5.4.3",
+    "ts-essentials": "^9.4.1",
     "vitest": "^1.6.0"
   },
   "scripts": {
