@@ -138,7 +138,10 @@ export const resolveRestoreFile = join(getAppDataPath(), config.restoreFile);
 export const resolveSheetsDirectory = join(getAppDataPath(), config.sheets.directory);
 
 // path to crash reports
-export const resolveCrashReportDirectory = getAppDataPath();
+export const resolveCrashReportDirectory = join(getAppDataPath(), config.crash);
+
+// path to corrupted files
+export const resolveCorruptedFilesDirectory = join(getAppDataPath(), config.corrupt);
 
 // path to projects
 export const resolveProjectsDirectory = join(getAppDataPath(), config.projects);
