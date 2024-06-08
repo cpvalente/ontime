@@ -15,14 +15,15 @@ import { convertToImportMap, getPersistedOptions, NamedImportMap, persistImportM
 import style from '../SourcesPanel.module.scss';
 
 interface ImportMapFormProps {
-  isSpreadsheet?: boolean;
+  hasErrors: boolean;
+  isSpreadsheet: boolean;
   onCancel: () => void;
   onSubmitExport: (importMap: ImportMap) => Promise<void>;
   onSubmitImport: (importMap: ImportMap) => Promise<void>;
 }
 
 export default function ImportMapForm(props: ImportMapFormProps) {
-  const { isSpreadsheet, onCancel, onSubmitExport, onSubmitImport } = props;
+  const { hasErrors, isSpreadsheet, onCancel, onSubmitExport, onSubmitImport } = props;
   const namedImportMap = getPersistedOptions();
   const { revoke } = useGoogleSheet();
   const {
@@ -78,7 +79,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
   const isLoading = Boolean(loading);
   const canSubmitSpreadsheet = isSpreadsheet && !isLoading;
   const canSubmitGSheet = !isLoading;
-  const canSubmit = isValid && (canSubmitSpreadsheet || canSubmitGSheet);
+  const canSubmit = !hasErrors && isValid && (canSubmitSpreadsheet || canSubmitGSheet);
 
   return (
     <Panel.Section as='form' id='import-map'>
