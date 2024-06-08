@@ -134,11 +134,20 @@ export default function SourcesPanel() {
     await exportRundown(sheetId, importMap);
   };
 
+  const resetFlow = () => {
+    setImportFlow('none');
+    setRundown(null);
+    setHasFile('none');
+    setWorksheets(null);
+    setCustomFields(null);
+    setError('');
+  };
+
   const isExcelFlow = importFlow === 'excel';
   const isGSheetFlow = importFlow === 'gsheet';
   const isAuthenticated = authenticationStatus === 'authenticated';
   const showInput = importFlow === 'none';
-  const showSuccess = importFlow === 'finished';
+  const showCompleted = importFlow === 'finished';
   const showAuth = isGSheetFlow && !isAuthenticated;
   const showImportMap = (isGSheetFlow && isAuthenticated) || (isExcelFlow && hasFile === 'done');
   const showReview = rundown !== null && customFields !== null;
@@ -189,10 +198,18 @@ export default function SourcesPanel() {
               </div>
             </>
           )}
-          {showSuccess && (
-            <div className={style.successSection}>
-              <span>Import successful</span>
-              <Button variant='ontime-filled' size='sm' onClick={() => setImportFlow('none')}>
+          {showCompleted && (
+            <div className={style.finishSection}>
+              {error ? (
+                <span key='finish__error' className={style.error}>
+                  Import failed
+                </span>
+              ) : (
+                <span key='finish__success' className={style.success}>
+                  Import successful
+                </span>
+              )}
+              <Button variant='ontime-filled' size='sm' onClick={resetFlow}>
                 Return
               </Button>
             </div>
@@ -200,6 +217,7 @@ export default function SourcesPanel() {
           {showAuth && <GSheetSetup onCancel={cancelGSheetFlow} />}
           {showImportMap && !showReview && (
             <ImportMapForm
+              hasErrors={Boolean(error)}
               isSpreadsheet={isExcelFlow}
               onCancel={cancelImportMap}
               onSubmitExport={handleSubmitExport}
