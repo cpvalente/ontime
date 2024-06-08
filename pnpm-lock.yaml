@@ -294,9 +294,6 @@ importers:
       steno:
         specifier: ^4.0.2
         version: 4.0.2
-      ts-essentials:
-        specifier: ^9.4.1
-        version: 9.4.1(typescript@5.4.3)
       ws:
         specifier: ^8.13.0
         version: 8.13.0
@@ -352,6 +349,9 @@ importers:
       shx:
         specifier: ^0.3.4
         version: 0.3.4
+      ts-essentials:
+        specifier: ^9.4.1
+        version: 9.4.1(typescript@5.4.3)
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@18.11.18)(typescript@5.4.3)
@@ -9027,7 +9027,7 @@ packages:
         optional: true
     dependencies:
       typescript: 5.4.3
-    dev: false
+    dev: true
 
   /ts-node@10.9.1(@types/node@18.11.18)(typescript@5.4.3):
     resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
@@ -9224,6 +9224,7 @@ packages:
     resolution: {integrity: sha512-KrPd3PKaCLr78MalgiwJnA25Nm8HAmdwN3mYUYZgG/wizIo9EainNVQI9/yDavtVFRN2h3k8uf3GLHuhDMgEHg==}
     engines: {node: '>=14.17'}
     hasBin: true
+    dev: true
 
   /ufo@1.3.2:
     resolution: {integrity: sha512-o+ORpgGwaYQXgqGDwd+hkS4PuZ3QnmqMMxRuajK/a38L6fTpcE5GPIfrf+L/KemFzfUpeUQc1rRS1iDBozvnFA==}
