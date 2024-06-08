@@ -304,8 +304,8 @@ importers:
         specifier: ^1.6.3
         version: 1.6.3
       steno:
-        specifier: ^3.1.0
-        version: 3.2.0
+        specifier: ^4.0.2
+        version: 4.0.2
       ts-essentials:
         specifier: ^9.4.1
         version: 9.4.1(typescript@5.4.3)
@@ -8795,11 +8795,6 @@ packages:
   /std-env@3.6.0:
     resolution: {integrity: sha512-aFZ19IgVmhdB2uX599ve2kE6BIE3YMnQ6Gp6BURhW/oIzpXGKr878TQfAQZn1+i0Flcc/UKUy1gOlcfaUBCryg==}
     dev: true
-
-  /steno@3.2.0:
-    resolution: {integrity: sha512-zPKkv+LqoYffxrtD0GIVA08DvF6v1dW02qpP5XnERoobq9g3MKcTSBTi08gbGNFMNRo3TQV/6kBw811T1LUhKg==}
-    engines: {node: '>=16'}
-    dev: false
 
   /steno@4.0.2:
     resolution: {integrity: sha512-yhPIQXjrlt1xv7dyPQg2P17URmXbuM5pdGkpiMB3RenprfiBlvK415Lctfe0eshk90oA7/tNq7WEiMK8RSP39A==}
