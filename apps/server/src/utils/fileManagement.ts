@@ -35,6 +35,14 @@ export async function getFilesFromFolder(folderPath: string): Promise<string[]> 
  * @description Takes a filename and removes the extension
  * @param {string} filename - filename with extension
  */
-export const removeFileExtension = (filename: string): string => {
+export function removeFileExtension(filename: string): string {
   return parse(filename).name;
-};
+}
+
+/**
+ * Gets a file name from a path
+ * @param filePath
+ */
+export function getFileNameFromPath(filePath: string): string {
+  return parse(filePath).base;
+}

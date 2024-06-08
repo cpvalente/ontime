@@ -1,16 +1,17 @@
-import { DatabaseModel } from 'ontime-types';
+import { DatabaseModel, LogOrigin } from 'ontime-types';
 
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
 import { copyFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
-import { ensureDirectory } from '../utils/fileManagement.js';
+import { ensureDirectory, getFileNameFromPath } from '../utils/fileManagement.js';
 import { dbModel } from '../models/dataModel.js';
 
-import { pathToStartDb, resolveDbDirectory, resolveDbName } from './index.js';
+import { pathToStartDb, resolveCorruptedFilesDirectory, resolveDbDirectory, resolveDbName } from './index.js';
 import { parseProjectFile } from '../services/project-service/projectFileUtils.js';
 import { parseJson } from '../utils/parser.js';
+import { logger } from '../classes/Logger.js';
 
 /**
  * @description ensures directories exist and populates database
@@ -25,7 +26,7 @@ const populateDb = (directory: string, filename: string): string => {
   if (!existsSync(dbPath)) {
     try {
       const dbDirectory = resolveDbDirectory;
-      const startDbName = pathToStartDb.split('/').pop();
+      const startDbName = getFileNameFromPath(pathToStartDb);
 
       if (!startDbName) {
         throw new Error('Invalid path to start database');
@@ -44,6 +45,22 @@ const populateDb = (directory: string, filename: string): string => {
 };
 
 /**
+ * Handles a corrupted fle by copying it to a corrupted folder
+ * Eventual recovered data will be added to a new file
+ */
+function handleCorruptedDb(filePath: string, recoveredData?: DatabaseModel) {
+  try {
+    const fileName = getFileNameFromPath(filePath);
+    const newFilePath = join(resolveCorruptedFilesDirectory, fileName);
+
+    ensureDirectory(resolveCorruptedFilesDirectory);
+    copyFileSync(filePath, newFilePath);
+  } catch (_) {
+    /* we do not handle this */
+  }
+}
+
+/**
  * @description parses a json file to the adapter
  * It will create an empty file from the model if the parsing fails
  */
@@ -51,6 +68,12 @@ const parseDatabase = async (fileToRead: string, adapterToUse: Low<DatabaseModel
   try {
     // this will throw if file is not valid
     parseProjectFile(fileToRead);
+  } catch (error) {
+    logger.error(LogOrigin.Server, `Unable to parse project file: ${error}`);
+    handleCorruptedDb(fileToRead);
+  }
+
+  try {
     await adapterToUse.read();
   } catch (error) {
     adapterToUse.data = dbModel;

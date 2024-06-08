@@ -25,7 +25,7 @@ export function parseProjectFile(filePath: string): object {
   // at this point, we think this is a DatabaseModel
   // verify by looking for the required fields
   if (uploadedJson?.settings?.app !== 'ontime') {
-    throw new Error('Not a ontime project file');
+    throw new Error('Not an Ontime project file');
   }
   return uploadedJson;
 }
