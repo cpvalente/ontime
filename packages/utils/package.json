@@ -12,8 +12,8 @@
     "cleanup": "rm -rf .turbo && rm -rf node_modules"
   },
   "dependencies": {
-    "deepmerge-ts": "^5.1.0",
-    "nanoid": "^5.0.4"
+    "deepmerge-ts": "^7.0.3",
+    "nanoid": "^5.0.7"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^v7.12.0",
