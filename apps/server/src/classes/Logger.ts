@@ -4,6 +4,7 @@ import { generateId, millisToString } from 'ontime-utils';
 import { clock } from '../services/Clock.js';
 import { isProduction } from '../setup/index.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
+import { consoleRed } from '../utils/console.js';
 
 class Logger {
   private queue: Log[];
@@ -34,8 +35,13 @@ class Logger {
    * @param log
    */
   private _push(log: Log) {
-    if (!isProduction) {
-      console.log(`[${log.level}] \t ${log.origin} \t ${log.text}`);
+    if (!isProduction || log.level === LogLevel.Error) {
+      if (log.level === LogLevel.Error) {
+        consoleRed(`[${log.level}] \t ${log.origin} \t ${log.text}`);
+      } else {
+        // eslint-disable-next-line no-console
+        console.log(`[${log.level}] \t ${log.origin} \t ${log.text}`);
+      }
     }
 
     try {
@@ -96,7 +102,6 @@ class Logger {
    * Shutdown logger
    */
   shutdown() {
-    console.log('Shutting down logger');
     this.queue = [];
   }
 }
