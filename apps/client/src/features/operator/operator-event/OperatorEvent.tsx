@@ -92,8 +92,8 @@ function OperatorEvent(props: OperatorEventProps) {
         {subscribed &&
           subscribed
             .filter((field) => field.value)
-            .map((field, index) => (
-              <div key={index}>
+            .map((field) => (
+              <div key={field.id}>
                 <span className={style.field} style={{ backgroundColor: field.colour }}>
                   {field.label}
                 </span>

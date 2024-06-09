@@ -174,7 +174,6 @@ export const useEventAction = () => {
 
   const updateCustomField = useCallback(
     async (eventId: string, field: string, value: string) => {
-      console.log({ id: eventId, custom: { [field]: value } });
       updateEvent({ id: eventId, custom: { [field]: value } });
     },
     [updateEvent],

@@ -25,10 +25,6 @@ export default function EditModal(props: EditModalProps) {
         await updateCustomField(event.id, element.dataset.field, element.value);
       }
     });
-    // const newValue = inputRef.current?.value;
-    // if (newValue === undefined) {
-    //   return;
-    // }
 
     setLoading(false);
     onClose();
