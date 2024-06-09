@@ -35,8 +35,8 @@ class Logger {
    * @param log
    */
   private _push(log: Log) {
-    if (!isProduction || log.level === LogLevel.Error) {
-      if (log.level === LogLevel.Error) {
+    if (!isProduction || log.level === LogLevel.Severe) {
+      if (log.level === LogLevel.Severe) {
         consoleRed(`[${log.level}] \t ${log.origin} \t ${log.text}`);
       } else {
         // eslint-disable-next-line no-console
@@ -96,6 +96,15 @@ class Logger {
    */
   error(origin: string, text: string) {
     this.emit(LogLevel.Error, origin, text);
+  }
+
+  /**
+   * Utility to emit logging message of type SEVERE
+   * @param origin
+   * @param text
+   */
+  crash(origin: string, text: string) {
+    this.emit(LogLevel.Severe, origin, text);
   }
 
   /**
