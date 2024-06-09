@@ -55,7 +55,7 @@ export default function ParamInput(props: EditFormInputProps) {
 
     return (
       <>
-        <input name={id} hidden ref={inputRef} />
+        <input name={id} hidden ref={inputRef} defaultValue={searchParams.get(id) ?? ''} />
         <Menu isLazy closeOnSelect={false} variant='ontime-on-dark'>
           <MenuButton
             as={Button}
