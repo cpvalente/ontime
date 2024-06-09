@@ -5,6 +5,7 @@ import { useEventAction } from '../../../common/hooks/useEventAction';
 import type { EditEvent } from '../Operator';
 
 import style from './EditModal.module.scss';
+import { OntimeEvent } from 'ontime-types';
 
 interface EditModalProps {
   event: EditEvent;
@@ -14,17 +15,29 @@ interface EditModalProps {
 export default function EditModal(props: EditModalProps) {
   const { event, onClose } = props;
 
-  const { updateCustomField } = useEventAction();
+  const { updateEvent } = useEventAction();
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement[]>(new Array<HTMLTextAreaElement>());
 
   const handleSave = async () => {
+    if (!inputRef.current) return;
     setLoading(true);
-    inputRef.current?.forEach(async (element) => {
+
+    const patchObject: Partial<OntimeEvent> = { id: event.id };
+
+    inputRef.current.forEach((element) => {
       if (element.dataset.field && element.defaultValue != element.value) {
-        await updateCustomField(event.id, element.dataset.field, element.value);
+        if (patchObject.custom) {
+          patchObject.custom[element.dataset.field] = element.value;
+        } else {
+          Object.assign(patchObject, { custom: { [element.dataset.field]: element.value } });
+        }
       }
     });
+
+    if (patchObject.custom) {
+      await updateEvent(patchObject);
+    }
 
     setLoading(false);
     onClose();
