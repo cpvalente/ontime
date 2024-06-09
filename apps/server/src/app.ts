@@ -270,13 +270,13 @@ process.on('exit', (code) => console.log(`Ontime shutdown with code: ${code}`));
 
 process.on('unhandledRejection', async (error) => {
   generateCrashReport(error);
-  logger.error(LogOrigin.Server, `Uncaught exception | ${error}`);
+  logger.crash(LogOrigin.Server, `Uncaught exception | ${error}`);
   await shutdown(1);
 });
 
 process.on('uncaughtException', async (error) => {
   generateCrashReport(error);
-  logger.error(LogOrigin.Server, `Uncaught exception | ${error}`);
+  logger.crash(LogOrigin.Server, `Uncaught exception | ${error}`);
   await shutdown(1);
 });
 
