@@ -14,18 +14,18 @@ export function filterProjectFiles(files: Array<string>): Array<string> {
   });
 }
 
+/**
+ * Parses a project file and returns the JSON object
+ * @param filePath
+ * @returns
+ */
 export function parseProjectFile(filePath: string): object {
   if (!filePath.endsWith('.json')) {
     throw new Error('Invalid file type');
   }
 
   const rawdata = readFileSync(filePath, 'utf-8');
-  const uploadedJson = JSON.parse(rawdata);
+  const jsonData = JSON.parse(rawdata);
 
-  // at this point, we think this is a DatabaseModel
-  // verify by looking for the required fields
-  if (uploadedJson?.settings?.app !== 'ontime') {
-    throw new Error('Not a ontime project file');
-  }
-  return uploadedJson;
+  return jsonData;
 }

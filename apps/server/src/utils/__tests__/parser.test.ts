@@ -22,6 +22,11 @@ import { parseRundown, parseUrlPresets, parseViewSettings } from '../parserFunct
 import { ImportMap, MILLIS_PER_MINUTE } from 'ontime-utils';
 import * as cache from '../../services/rundown-service/rundownCache.js';
 
+const requiredSettings = {
+  app: 'ontime',
+  version: 'any',
+};
+
 describe('test json parser with valid def', () => {
   const testData: Partial<DatabaseModel> = {
     rundown: [
@@ -182,19 +187,15 @@ describe('test json parser with valid def', () => {
     viewSettings: {} as ViewSettings,
   };
 
-  let parseResponse;
-
-  beforeEach(async () => {
-    parseResponse = await parseJson(testData);
-  });
+  const { data } = parseJson(testData);
 
   it('has 7 events', () => {
-    const length = parseResponse?.rundown.length;
+    const length = data.rundown.length;
     expect(length).toBe(7);
   });
 
   it('first event is as a match', () => {
-    const first = parseResponse?.rundown[0];
+    const first = data.rundown[0];
     const expected = {
       title: 'Guest Welcoming',
       type: 'event',
@@ -204,7 +205,7 @@ describe('test json parser with valid def', () => {
   });
 
   it('second event is as a match', () => {
-    const second = parseResponse?.rundown[1];
+    const second = data.rundown[1];
     const expected = {
       title: 'Good Morning',
       type: 'event',
@@ -213,40 +214,36 @@ describe('test json parser with valid def', () => {
     expect(second).toMatchObject(expected);
   });
   it('third event end action is set as the default value', () => {
-    const third = parseResponse?.rundown[2];
-    expect(third.endAction).toStrictEqual(EndAction.None);
+    const third = data.rundown[2];
+    expect((third as OntimeEvent).endAction).toStrictEqual(EndAction.None);
   });
   it('fourth event timer type is set as the default value', () => {
-    const fourth = parseResponse?.rundown[3];
-    expect(fourth.timerType).toStrictEqual(TimerType.Clock);
+    const fourth = data.rundown[3];
+    expect((fourth as OntimeEvent).timerType).toStrictEqual(TimerType.Clock);
   });
 
   it('loaded event settings', () => {
-    const eventTitle = parseResponse?.project?.title;
+    const eventTitle = data.project.title;
     expect(eventTitle).toBe('This is a test definition');
   });
 
   it('endMessage to exist but be empty', () => {
-    const endMessage = parseResponse?.viewSettings?.endMessage;
+    const endMessage = data.viewSettings.endMessage;
     expect(endMessage).toBeDefined();
     expect(endMessage).toBe('');
   });
 
   it('settings are for right app and version', () => {
-    const settings = parseResponse?.settings;
+    const settings = data.settings;
     expect(settings.app).toBe('ontime');
     expect(settings.version).toEqual(expect.any(String));
-  });
-
-  it('missing settings', () => {
-    const settings = parseResponse?.settings;
-    expect(settings.osc_port).toBeUndefined();
   });
 });
 
 describe('test parser edge cases', () => {
-  it('stringifies necessary values', async () => {
+  it('stringifies necessary values', () => {
     const testData = {
+      settings: { ...requiredSettings },
       rundown: [
         {
           cue: 101,
@@ -260,13 +257,14 @@ describe('test parser edge cases', () => {
     };
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const parseResponse = await parseJson(testData);
-    expect(typeof (parseResponse.rundown[0] as OntimeEvent).cue).toBe('string');
-    expect(typeof (parseResponse.rundown[1] as OntimeEvent).cue).toBe('string');
+    const { data } = parseJson(testData);
+    expect(typeof (data.rundown[0] as OntimeEvent).cue).toBe('string');
+    expect(typeof (data.rundown[1] as OntimeEvent).cue).toBe('string');
   });
 
-  it('generates missing ids', async () => {
+  it('generates missing ids', () => {
     const testData = {
+      settings: { ...requiredSettings },
       rundown: [
         {
           title: 'Test Event',
@@ -276,13 +274,14 @@ describe('test parser edge cases', () => {
     };
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const parseResponse = await parseJson(testData);
-    expect(parseResponse.rundown[0].id).toBeDefined();
+    const { data } = parseJson(testData);
+    expect(data.rundown[0].id).toBeDefined();
   });
 
-  it('detects duplicate Ids', async () => {
+  it('detects duplicate Ids', () => {
     console.log = vi.fn();
     const testData = {
+      settings: { ...requiredSettings },
       rundown: [
         {
           title: 'Test Event 1',
@@ -298,14 +297,15 @@ describe('test parser edge cases', () => {
     };
 
     //@ts-expect-error -- we know this is wrong, testing imports outside domain
-    const parseResponse = await parseJson(testData);
-    expect(console.log).toHaveBeenCalledWith('ERROR: ID collision on import, skipping');
-    expect(parseResponse?.rundown.length).toBe(1);
+    const { data, errors } = parseJson(testData);
+    expect(data.rundown.length).toBe(1);
+    expect(errors.length).toBe(7);
   });
 
-  it('handles incomplete datasets', async () => {
+  it('handles incomplete datasets', () => {
     console.log = vi.fn();
     const testData = {
+      settings: { ...requiredSettings },
       rundown: [
         {
           title: 'Test Event 1',
@@ -319,11 +319,11 @@ describe('test parser edge cases', () => {
     };
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const parseResponse = await parseJson(testData);
-    expect(parseResponse?.rundown.length).toBe(0);
+    const { data } = parseJson(testData);
+    expect(data.rundown.length).toBe(0);
   });
 
-  it('skips unknown app and version settings', async () => {
+  it('skips unknown app and version settings', () => {
     console.log = vi.fn();
     const testData = {
       settings: {
@@ -332,13 +332,12 @@ describe('test parser edge cases', () => {
     };
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    await parseJson(testData);
-    expect(console.log).toHaveBeenCalledWith('ERROR: unable to parse settings, missing app or version');
+    expect(() => parseJson(testData)).toThrow();
   });
 });
 
 describe('test corrupt data', () => {
-  it('handles some empty events', async () => {
+  it('handles some empty events', () => {
     const emptyEvents = {
       rundown: [
         {},
@@ -376,11 +375,11 @@ describe('test corrupt data', () => {
     };
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const parsedDef = await parseJson(emptyEvents);
-    expect(parsedDef.rundown.length).toBe(2);
+    const { data } = parseJson(emptyEvents);
+    expect(data.rundown.length).toBe(2);
   });
 
-  it('handles all empty events', async () => {
+  it('handles all empty events', () => {
     const emptyEvents = {
       rundown: [{}, {}, {}, {}, {}, {}, {}, {}],
       project: {
@@ -401,11 +400,11 @@ describe('test corrupt data', () => {
     };
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const parsedDef = await parseJson(emptyEvents);
-    expect(parsedDef.rundown.length).toBe(0);
+    const { data } = parseJson(emptyEvents);
+    expect(data.rundown.length).toBe(0);
   });
 
-  it('handles missing project data', async () => {
+  it('handles missing project data', () => {
     const emptyProjectData = {
       rundown: [{}, {}, {}, {}, {}, {}, {}, {}],
       project: {},
@@ -419,11 +418,11 @@ describe('test corrupt data', () => {
     };
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const parsedDef = await parseJson(emptyProjectData);
+    const { data: parsedDef } = parseJson(emptyProjectData);
     expect(parsedDef.project).toStrictEqual(dbModel.project);
   });
 
-  it('handles missing settings', async () => {
+  it('handles missing settings', () => {
     const missingSettings = {
       rundown: [{}, {}, {}, {}, {}, {}, {}, {}],
       event: {},
@@ -434,16 +433,13 @@ describe('test corrupt data', () => {
     };
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const parsedDef = await parseJson(missingSettings);
-    expect(parsedDef.settings).toStrictEqual(dbModel.settings);
+    const { data } = parseJson(missingSettings);
+    expect(data.settings).toStrictEqual(dbModel.settings);
   });
 
-  it('fails with invalid JSON', async () => {
-    const invalidJSON = 'some random dataset';
-
+  it('fails with invalid JSON', () => {
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const parsedDef = await parseJson(invalidJSON);
-    expect(parsedDef).toBeNull();
+    expect(() => parseJson('some random dataset')).toThrow();
   });
 });
 
@@ -485,6 +481,9 @@ describe('test event validator', () => {
     };
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
     const validated = createEvent(event, 'not-used');
+    if (validated === null) {
+      throw new Error('unexpected value');
+    }
     expect(typeof validated.title).toEqual('string');
     expect(typeof validated.note).toEqual('string');
   });
@@ -496,6 +495,9 @@ describe('test event validator', () => {
     };
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
     const validated = createEvent(event);
+    if (validated === null) {
+      throw new Error('unexpected value');
+    }
     assertType<number>(validated.timeStart);
     assertType<number>(validated.timeEnd);
     assertType<number>(validated.duration);
@@ -510,6 +512,9 @@ describe('test event validator', () => {
     };
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
     const validated = createEvent(event);
+    if (validated === null) {
+      throw new Error('unexpected value');
+    }
     expect(typeof validated.title).toEqual('string');
   });
 });
@@ -588,7 +593,7 @@ describe('test views import', () => {
 });
 
 describe('test import of v2 datamodel', () => {
-  it('ignores deprecated fields and generates new ones', async () => {
+  it('ignores deprecated fields and generates new ones', () => {
     const v2ProjectFile = {
       rundown: [
         { type: SupportedEvent.Block, title: 'block-title', id: 'block-id' },
@@ -662,7 +667,7 @@ describe('test import of v2 datamodel', () => {
       },
     };
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const parsed = await parseJson(v2ProjectFile);
+    const { data: parsed, _errors } = parseJson(v2ProjectFile);
     expect(parsed.rundown.length).toBe(3);
     expect(parsed.rundown[0]).toMatchObject({ type: SupportedEvent.Block });
     expect(parsed.rundown[0]).toEqual(
@@ -787,7 +792,7 @@ describe('getCustomFieldData()', () => {
 });
 
 describe('parseExcel()', () => {
-  it('parses the example file', async () => {
+  it('parses the example file', () => {
     const testdata = [
       ['Ontime ┬À Schedule Template'],
       [],
@@ -980,7 +985,7 @@ describe('parseExcel()', () => {
     expect(parsedData.rundown[1]).toMatchObject(expectedParsedRundown[1]);
   });
 
-  it('parses a file without custom fields', async () => {
+  it('parses a file without custom fields', () => {
     const testdata = [
       ['Ontime ┬À Schedule Template'],
       [],
@@ -1293,7 +1298,7 @@ describe('parseExcel()', () => {
     };
     const result = parseExcel(testdata, importMap);
     expect(result.rundown.length).toBe(2);
-    expect(result.rundown.at(0).type).toBe(SupportedEvent.Block);
+    expect((result.rundown.at(0) as OntimeEvent).type).toBe(SupportedEvent.Block);
   });
 
   it('imports as events if there is no timer type column', () => {
@@ -1363,9 +1368,9 @@ describe('parseExcel()', () => {
     };
     const result = parseExcel(testdata, importMap);
     expect(result.rundown.length).toBe(2);
-    expect(result.rundown.at(0).type).toBe(SupportedEvent.Event);
+    expect((result.rundown.at(0) as OntimeEvent).type).toBe(SupportedEvent.Event);
     expect((result.rundown.at(0) as OntimeEvent).timerType).toBe(TimerType.CountDown);
-    expect(result.rundown.at(1).type).toBe(SupportedEvent.Event);
+    expect((result.rundown.at(1) as OntimeEvent).type).toBe(SupportedEvent.Event);
     expect((result.rundown.at(1) as OntimeEvent).timerType).toBe(TimerType.CountDown);
   });
 
@@ -1403,14 +1408,14 @@ describe('parseExcel()', () => {
     const result = parseExcel(testData, importMap);
     const rundown = parseRundown(result);
     const events = rundown.filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
-    expect(events.at(0).timeStart).toEqual(16200000);
-    expect(events.at(1).timeStart).toEqual(35100000);
-    expect(events.at(2).timeStart).toEqual(59400000);
-    expect(events.at(3).timeStart).toEqual(78300000);
-    expect(events.at(4).timeStart).toEqual(16200000);
-    expect(events.at(5).timeStart).toEqual(35100000);
-    expect(events.at(6).timeStart).toEqual(59400000);
-    expect(events.at(7).timeStart).toEqual(78300000);
+    expect((events.at(0) as OntimeEvent).timeStart).toEqual(16200000);
+    expect((events.at(1) as OntimeEvent).timeStart).toEqual(35100000);
+    expect((events.at(2) as OntimeEvent).timeStart).toEqual(59400000);
+    expect((events.at(3) as OntimeEvent).timeStart).toEqual(78300000);
+    expect((events.at(4) as OntimeEvent).timeStart).toEqual(16200000);
+    expect((events.at(5) as OntimeEvent).timeStart).toEqual(35100000);
+    expect((events.at(6) as OntimeEvent).timeStart).toEqual(59400000);
+    expect((events.at(7) as OntimeEvent).timeStart).toEqual(78300000);
   });
 
   it('handle leading and trailing whitespace', () => {
@@ -1440,10 +1445,10 @@ describe('parseExcel()', () => {
     const result = parseExcel(testData, importMap);
     const rundown = parseRundown(result);
     const events = rundown.filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
-    expect(events.at(0).timeStart).toEqual(16200000); //<--leading white space in MAP
-    expect(events.at(0).timeEnd).toEqual(16200000); //<--trailing white space in MAP
-    expect(events.at(0).title).toEqual('A song from the hearth'); //<--leading white space in Excel data
-    expect(events.at(0).colour).toEqual('#F00'); //<--trailing white space in Excel data
+    expect((events.at(0) as OntimeEvent).timeStart).toEqual(16200000); //<--leading white space in MAP
+    expect((events.at(0) as OntimeEvent).timeEnd).toEqual(16200000); //<--trailing white space in MAP
+    expect((events.at(0) as OntimeEvent).title).toEqual('A song from the hearth'); //<--leading white space in Excel data
+    expect((events.at(0) as OntimeEvent).colour).toEqual('#F00'); //<--trailing white space in Excel data
   });
 
   it('link start', () => {
@@ -1501,6 +1506,10 @@ describe('parseExcel()', () => {
     const fourthId = order.at(3); // E
     const fifhtId = order.at(4); // Block
     const sixthId = order.at(5); // G
+
+    if (!firstId || !secondId || !thirdId || !fourthId || !fifhtId || !sixthId) {
+      throw new Error('Unexpected value');
+    }
 
     expect((rundown[firstId] as OntimeEvent).timeStart).toEqual(16200000);
 

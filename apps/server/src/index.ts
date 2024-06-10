@@ -16,7 +16,7 @@ async function startOntime() {
     consoleHighlight('Request: Start integrations...');
     await startIntegrations();
   } catch (error) {
-    consoleError(`Request failed: ${error}`);
+    consoleError(`Request failed. ${error}`);
   }
 }
 
