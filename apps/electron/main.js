@@ -30,6 +30,10 @@ let win;
 let splash;
 let tray = null;
 
+/**
+ * Coordinates the node process startup
+ * @returns {number} server port - the port at which the backend has been started at
+ */
 async function startBackend() {
   // in dev mode, we expect both UI and server to be running
   if (!isProduction) {
@@ -62,6 +66,9 @@ function showNotification(title, text) {
   }).show();
 }
 
+/**
+ * Terminate node service and close electron app
+ */
 function appShutdown() {
   // terminate node service
   (async () => {
@@ -76,19 +83,28 @@ function appShutdown() {
   app.quit();
 }
 
+/**
+ * Sets Ontime window in focus
+ */
 function bringToFront() {
   win.show();
   win.focus();
 }
 
+/**
+ * Coordinates the shutdown process
+ */
 function askToQuit() {
   bringToFront();
   win.send('user-request-shutdown');
 }
 
+/**
+ * Allows processes to escalate errors to be shown in electron
+ * @param {string} error
+ */
 function escalateError(error) {
   dialog.showErrorBox('An unrecoverable error occurred', error);
-  app.quit();
 }
 
 // Ensure there isn't another instance of the app running already
@@ -108,6 +124,9 @@ if (!lock) {
   });
 }
 
+/**
+ * Coordinates creation of electron windows (splash and main)
+ */
 function createWindow() {
   splash = new BrowserWindow({
     width: 333,
@@ -196,12 +215,16 @@ app.whenReady().then(() => {
       console.log('ERROR: Ontime failed to start', error);
     });
 
-  // recreate window if no others open
+  /**
+   * recreate window if no others open
+   */
   app.on('activate', () => {
     win.show();
   });
 
-  // Hide on close
+  /**
+   * Hide on close
+   */
   win.on('close', function (event) {
     event.preventDefault();
     if (!isQuitting) {
@@ -220,7 +243,9 @@ app.whenReady().then(() => {
   tray.setContextMenu(trayContextMenu);
 });
 
-// unregister shortcuts before quitting
+/**
+ * Unregister shortcuts before quitting
+ */
 app.once('will-quit', () => {
   globalShortcut.unregisterAll();
 });
@@ -237,7 +262,9 @@ ipcMain.on('shutdown', () => {
   appShutdown();
 });
 
-// Window manipulation
+/**
+ * Handles requests to set window properties
+ */
 ipcMain.on('set-window', (event, arg) => {
   switch (arg) {
     case 'show-dev':
@@ -248,7 +275,9 @@ ipcMain.on('set-window', (event, arg) => {
   }
 });
 
-// Open links external
+/**
+ * Handles requests to open external links
+ */
 ipcMain.on('send-to-link', (event, arg) => {
   shell.openExternal(arg);
 });
