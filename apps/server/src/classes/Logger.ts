@@ -4,7 +4,7 @@ import { generateId, millisToString } from 'ontime-utils';
 import { clock } from '../services/Clock.js';
 import { isProduction } from '../setup/index.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
-import { consoleRed } from '../utils/console.js';
+import { consoleSubdued, consoleRed } from '../utils/console.js';
 
 class Logger {
   private queue: Log[];
@@ -47,8 +47,7 @@ class Logger {
       if (log.level === LogLevel.Severe) {
         consoleRed(`[${log.level}] \t ${log.origin} \t ${log.text}`);
       } else {
-        // eslint-disable-next-line no-console
-        console.log(`[${log.level}] \t ${log.origin} \t ${log.text}`);
+        consoleSubdued(`[${log.level}] \t ${log.origin} \t ${log.text}`);
       }
     }
 

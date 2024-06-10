@@ -20,7 +20,7 @@ import {
   clearUploadfolder,
 } from './setup/index.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
-import { consoleGreen } from './utils/console.js';
+import { consoleSuccess, consoleHighlight } from './utils/console.js';
 
 // Import Routers
 import { appRouter } from './api-data/index.js';
@@ -47,7 +47,8 @@ import { initRundown } from './services/rundown-service/RundownService.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { getNetworkInterfaces } from './utils/networkInterfaces.js';
 
-console.log(`Starting Ontime version ${ONTIME_VERSION}`);
+console.log('\n');
+consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
 
 if (!isProduction) {
   console.log(`Ontime running in ${environment} environment`);
@@ -205,8 +206,9 @@ export const startServer = async (
 
   expressServer.listen(serverPort, '0.0.0.0', () => {
     const nif = getNetworkInterfaces();
+    consoleSuccess(`Local: http://localhost:${serverPort}/editor`);
     for (const key of Object.keys(nif)) {
-      consoleGreen(`Ontime running on: http://${nif[key].address}:${serverPort}`);
+      consoleSuccess(`Network: http://${nif[key].address}:${serverPort}/editor`);
     }
   });
 
@@ -252,7 +254,7 @@ export const startIntegrations = async (config?: { osc: OSCSettings; http: HttpS
  * @return {Promise<void>}
  */
 export const shutdown = async (exitCode = 0) => {
-  console.log(`Ontime shutting down with code ${exitCode}`);
+  consoleHighlight(`Ontime shutting down with code ${exitCode}`);
 
   // clear the restore file if it was a normal exit
   // 0 means it was a SIGNAL
@@ -270,7 +272,7 @@ export const shutdown = async (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-process.on('exit', (code) => console.log(`Ontime shutdown with code: ${code}`));
+process.on('exit', (code) => consoleHighlight(`Ontime shutdown with code: ${code}`));
 
 process.on('unhandledRejection', async (error) => {
   generateCrashReport(error);
