@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { consoleHighlight, consoleRed } from './utils/console.js';
+import { consoleHighlight, consoleError } from './utils/console.js';
 import { initAssets, startIntegrations, startServer } from './app.js';
 
 async function startOntime() {
@@ -16,7 +16,7 @@ async function startOntime() {
     consoleHighlight('Request: Start integrations...');
     await startIntegrations();
   } catch (error) {
-    consoleRed(`Request failed: ${error}`);
+    consoleError(`Request failed: ${error}`);
   }
 }
 

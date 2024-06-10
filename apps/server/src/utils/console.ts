@@ -1,28 +1,28 @@
 /* eslint-disable no-console */
 
 /**
- * Utility function to log messages in green
+ * Utility function to log success messages
  */
 export function consoleSuccess(message: string) {
   console.log(inGreen(message));
 }
 
 /**
- * Utility function to log messages in red
+ * Utility function to log error messages
  */
-export function consoleRed(message: string) {
+export function consoleError(message: string) {
   console.error(inRed(message));
 }
 
 /**
- * Utility function to log messages with dimmed appearance
+ * Utility function to log highlighted messages
  */
 export function consoleHighlight(message: string) {
   console.log(inCyan(message));
 }
 
 /**
- * Utility function to log messages with dimmed appearance
+ * Utility function to log messages with subdued appearance
  */
 export function consoleSubdued(message: string) {
   console.log(inGray(message));
