@@ -31,6 +31,7 @@
     },
     "dist-win": {},
     "dist-mac": {},
+    "dist-mac:local": {},
     "dist-linux": {},
     "cleanup": {}
   }
