@@ -8,19 +8,26 @@ import { consoleRed } from '../utils/console.js';
 
 class Logger {
   private queue: Log[];
+  private escalateErrorFn: (error: string) => void | null;
 
   constructor() {
     this.queue = [];
+    this.escalateErrorFn = null;
   }
 
   /**
    * Enabling setup logger after init
    */
-  init() {
+  init(escalateErrorFn: (error: string) => void) {
     this.queue.forEach((log) => {
       this._push(log);
     });
     this.queue = [];
+
+    // we only get this when running in electron
+    if (escalateErrorFn) {
+      this.escalateErrorFn = escalateErrorFn;
+    }
   }
 
   private addToQueue(log: Log) {
@@ -105,6 +112,7 @@ class Logger {
    */
   crash(origin: string, text: string) {
     this.emit(LogLevel.Severe, origin, text);
+    this.escalateErrorFn?.(text);
   }
 
   /**

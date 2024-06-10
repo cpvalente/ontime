@@ -41,7 +41,7 @@ async function startBackend() {
 
   await initAssets();
 
-  const result = await startServer();
+  const result = await startServer(escalateError);
   loaded = result.message;
 
   await startIntegrations();
@@ -84,6 +84,11 @@ function bringToFront() {
 function askToQuit() {
   bringToFront();
   win.send('user-request-shutdown');
+}
+
+function escalateError(error) {
+  dialog.showErrorBox('An unrecoverable error occurred', error);
+  app.quit();
 }
 
 // Ensure there isn't another instance of the app running already
@@ -213,10 +218,7 @@ app.whenReady().then(() => {
   const trayMenuTemplate = getTrayMenu(bringToFront, askToQuit);
   const trayContextMenu = Menu.buildFromTemplate(trayMenuTemplate);
   tray.setContextMenu(trayContextMenu);
-
-  
 });
-
 
 // unregister shortcuts before quitting
 app.once('will-quit', () => {
