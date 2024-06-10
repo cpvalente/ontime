@@ -58,3 +58,12 @@ export function nameRecovered(filePath: string): string {
   newName = newName.replace(`.${extension}`, '');
   return `${newName} (recovered).${extension}`;
 }
+
+/**
+ * Utility checks whether a file exists at a given path
+ * @param filePath
+ * @returns {boolean}
+ */
+export function checkIfFileExists(filePath: string): boolean {
+  return existsSync(filePath);
+}

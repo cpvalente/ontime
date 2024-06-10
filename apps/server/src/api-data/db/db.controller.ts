@@ -17,7 +17,6 @@ import { resolveDbDirectory, resolveProjectsDirectory } from '../../setup/index.
 
 import * as projectService from '../../services/project-service/ProjectService.js';
 import { generateUniqueFileName } from '../../utils/generateUniqueFilename.js';
-import { appStateService } from '../../services/app-state-service/AppStateService.js';
 import { oscIntegration } from '../../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../../services/integration-service/HttpIntegration.js';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -250,7 +249,7 @@ export async function deleteProjectFile(req: Request, res: Response<MessageRespo
   try {
     const { filename } = req.params;
 
-    const { lastLoadedProject } = await appStateService.get();
+    const lastLoadedProject = await projectService.getLoadedProject();
 
     if (lastLoadedProject === filename) {
       return res.status(403).send({ message: 'Cannot delete currently loaded project' });

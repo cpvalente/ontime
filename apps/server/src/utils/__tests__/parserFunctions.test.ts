@@ -199,7 +199,6 @@ describe('sanitiseOscSubscriptions()', () => {
     expect(() => sanitiseOscSubscriptions(undefined)).toThrow();
     // @ts-expect-error -- data is external, we check bad types
     expect(() => sanitiseOscSubscriptions({})).toThrow();
-    // @ts-expect-error -- data is external, we check bad types
     expect(() => sanitiseOscSubscriptions(null)).toThrow();
   });
 
@@ -219,7 +218,6 @@ describe('sanitiseOscSubscriptions()', () => {
   });
 
   it('filters invalid entries', () => {
-    // @ts-expect-error -- data is external, we check bad types
     const oscSubscriptions = [
       { id: '1', cycle: 'onLoad', address: 4, payload: 'test', enabled: true },
       { cycle: 'onLoad', payload: 'test', enabled: true },
@@ -239,7 +237,6 @@ describe('sanitiseHttpSubscriptions()', () => {
     expect(() => sanitiseHttpSubscriptions(undefined)).toThrow();
     // @ts-expect-error -- data is external, we check bad types
     expect(() => sanitiseHttpSubscriptions({})).toThrow();
-    // @ts-expect-error -- data is external, we check bad types
     expect(() => sanitiseHttpSubscriptions(null)).toThrow();
   });
 
