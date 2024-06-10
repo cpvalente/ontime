@@ -9,10 +9,12 @@ import { consoleSubdued, consoleRed } from '../utils/console.js';
 class Logger {
   private queue: Log[];
   private escalateErrorFn: (error: string) => void | null;
+  private canLog = false;
 
   constructor() {
     this.queue = [];
     this.escalateErrorFn = null;
+    this.canLog = !isProduction;
   }
 
   /**
@@ -43,7 +45,7 @@ class Logger {
    * @param log
    */
   private _push(log: Log) {
-    if (!isProduction || log.level === LogLevel.Severe) {
+    if (this.canLog || log.level === LogLevel.Severe) {
       if (log.level === LogLevel.Severe) {
         consoleRed(`[${log.level}] \t ${log.origin} \t ${log.text}`);
       } else {
