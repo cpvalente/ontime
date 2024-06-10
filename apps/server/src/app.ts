@@ -50,7 +50,8 @@ import { getNetworkInterfaces } from './utils/networkInterfaces.js';
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
 
-if (!isProduction) {
+const canLog = isProduction;
+if (!canLog) {
   console.log(`Ontime running in ${environment} environment`);
   console.log(`Ontime directory at ${srcDirectory} `);
   console.log(`Ontime database at ${resolveDbPath}`);
@@ -59,7 +60,7 @@ if (!isProduction) {
 // Create express APP
 const app = express();
 if (process.env.NODE_ENV === 'development') {
-  // log more serever timings
+  // log server timings to requests
   app.use(serverTiming());
 }
 app.disable('x-powered-by');
