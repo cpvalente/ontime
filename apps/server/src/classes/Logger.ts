@@ -19,6 +19,7 @@ class Logger {
    * Enabling setup logger after init
    */
   init(escalateErrorFn: (error: string) => void) {
+    // flush logs from queue
     this.queue.forEach((log) => {
       this._push(log);
     });
