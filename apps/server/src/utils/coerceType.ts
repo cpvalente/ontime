@@ -92,8 +92,8 @@ export function coerceColour(value: unknown): string {
     }
     return lowerCaseValue;
   }
-  if (lowerCaseValue === 'none') {
-    return ''; // None colour the same as the UI 'Ø' button
+  if (lowerCaseValue === '') {
+    return lowerCaseValue; // None colour the same as the UI 'Ø' button
   }
   if (!(lowerCaseValue in cssColours)) {
     throw new Error('Invalid colour name received');
