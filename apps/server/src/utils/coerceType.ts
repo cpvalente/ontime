@@ -7,7 +7,7 @@ import { isColourHex } from 'ontime-utils';
  * @throws {Error} Throws an error value is not found in the enum.
  */
 export function coerceEnum<T>(value: unknown, list: object): T {
-  if (typeof value !== 'string' || !(value in list)) {
+  if (typeof value !== 'string' || !Object.values(list).includes(value)) {
     throw new Error('Invalid value received');
   }
   return value as T;
