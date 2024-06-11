@@ -19,26 +19,9 @@
         "external",
         "server"
     ],
-    "scripts": {
-        "build:cli": "pkg ."
-    },
     "devDependencies": {
         "eslint": "^8.53.0",
         "eslint-config-prettier": "^9.0.0",
-        "nodemon": "^2.0.20",
-        "pkg": "^5.8.1",
         "prettier": "^3.0.3"
-    },
-    "pkg":{
-        "assets": [
-            "client/**/*",
-            "external/**/*",
-            "server/index.cjs"
-        ],
-        "targets": [ 
-            "node18-linux-x64",
-            "node18-linux-arm64"
-        ],
-        "outputPath": "dist"
     }
 }

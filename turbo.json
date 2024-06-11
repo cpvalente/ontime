@@ -26,7 +26,6 @@
     "build:local": {},
     "build:electron": {},
     "build:localdocker": {},
-    "build:cli": {},
     "e2e": {
       "dependsOn": ["^build"]
     },
