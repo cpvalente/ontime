@@ -22,9 +22,9 @@ describe('parses a colour string that is', () => {
 
 describe('match a string to an enum that is', () => {
   enum testEnum {
-    'abc',
-    'def',
-    'ghi',
+    ABC = 'abc',
+    DEF = 'def',
+    GHI = 'ghi',
   }
   it('valid key', () => {
     const key = coerceEnum<testEnum>('abc', testEnum);
