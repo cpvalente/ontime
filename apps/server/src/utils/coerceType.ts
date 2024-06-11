@@ -90,7 +90,12 @@ export function coerceColour(value: unknown): string {
     if (!isColourHex(lowerCaseValue)) {
       throw new Error('Invalid hex colour received');
     }
-  } else if (!(lowerCaseValue in cssColours)) {
+    return lowerCaseValue;
+  }
+  if (lowerCaseValue === 'none') {
+    return ''; // None colour the same as the UI 'Ø' button
+  }
+  if (!(lowerCaseValue in cssColours)) {
     throw new Error('Invalid colour name received');
   }
   return lowerCaseValue;
@@ -98,7 +103,6 @@ export function coerceColour(value: unknown): string {
 
 //https://developer.mozilla.org/en-US/docs/Web/CSS/named-color
 const cssColours = {
-  ['']: '', // None colour the same as the UI 'Ø' button
   aliceblue: '#f0f8ff',
   antiquewhite: '#faebd7',
   aqua: '#00ffff',
