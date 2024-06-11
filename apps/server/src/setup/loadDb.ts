@@ -47,7 +47,7 @@ const populateDb = (directory: string, filename: string): string => {
 };
 
 /**
- * Handles a corrupted fle by copying it to a corrupted folder
+ * Handles a corrupted file by copying it to a corrupted folder
  * Eventual recovered data will be added to a new file
  */
 async function handleCorruptedDb(filePath: string) {
