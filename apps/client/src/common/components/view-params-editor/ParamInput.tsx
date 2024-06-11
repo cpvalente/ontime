@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Button,
@@ -97,14 +97,10 @@ function MultiOption(props: EditFormMultiOptionProps) {
   const { paramField } = props;
   const { id, defaultValue } = paramField;
 
-  const [paramState, setParamState] = useState<string>('');
-
   const optionFromParams = (searchParams.get(id) ?? '').toLocaleLowerCase();
   const defaultOptionValue = optionFromParams || defaultValue?.toLocaleLowerCase() || '';
 
-  useEffect(() => {
-    setParamState(defaultOptionValue);
-  }, [defaultOptionValue]);
+  const [paramState, setParamState] = useState<string>(defaultOptionValue);
 
   return (
     <>
