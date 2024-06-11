@@ -92,16 +92,19 @@ function OperatorEvent(props: OperatorEventProps) {
         {subscribed &&
           subscribed
             .filter((field) => field.value)
-            .map((field) => (
-              <div key={field.id}>
-                <span className={style.field} style={{ backgroundColor: field.colour }}>
-                  {field.label}
-                </span>
-                <span className={style.value} style={{ color: field.colour }}>
-                  {field.value}
-                </span>
-              </div>
-            ))}
+            .map((field) => {
+              const fieldClasses = cx([style.field, !field.colour ? style.noColour : null]);
+              return (
+                <div key={field.id}>
+                  <span className={fieldClasses} style={{ backgroundColor: field.colour }}>
+                    {field.label}
+                  </span>
+                  <span className={style.value} style={{ color: field.colour }}>
+                    {field.value}
+                  </span>
+                </div>
+              );
+            })}
       </div>
     </div>
   );

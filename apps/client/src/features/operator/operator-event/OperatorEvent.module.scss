@@ -20,9 +20,9 @@
   grid-template-rows: auto auto auto;
   column-gap: 0.5rem;
   grid-template-areas:
-  "binder main      schedule"
-  "binder secondary running"
-  "binder fields    fields";
+    'binder main      schedule'
+    'binder secondary running'
+    'binder fields    fields';
 
   &.subscribed {
     background-color: $gray-1250;
@@ -99,12 +99,18 @@
   .field {
     font-weight: 600;
     padding: 0 0.25rem;
-    background-color: var(--operator-highlight-override, $orange-600);
     margin-right: 0.25rem;
   }
 
+  .noColour {
+    outline: 0.15rem solid var(--operator-highlight-override, $ui-white);
+    outline-offset: -0.15rem;
+    padding-right: 0.3rem;
+    color: $ui-white;
+  }
+
   .value {
-    color: $orange-500;
+    color: var(--operator-highlight-override, $ui-white);
     margin-right: 1rem;
   }
 }
