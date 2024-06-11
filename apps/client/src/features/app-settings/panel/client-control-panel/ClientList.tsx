@@ -118,7 +118,7 @@ export default function ClientList() {
           })}
         </tbody>
       </Panel.Table>
-      <Panel.Divider></Panel.Divider>
+      <Panel.Divider />
       <Panel.Title>Other Clients</Panel.Title>
       <Panel.Table>
         <thead>
