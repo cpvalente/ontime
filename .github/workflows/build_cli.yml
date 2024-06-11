@@ -42,16 +42,6 @@ jobs:
       - name: Copy external
         run: cp -R apps/server/src/external apps/cli/external
       
-      - name: Build CLI
-        run:  pnpm build:cli
-
-      - name: Release Binary
-        uses: softprops/action-gh-release@v1
-        with:
-          files: './apps/cli/dist/*'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
       - name: Publish to NPM
         run: pnpm publish --access public
         env:
