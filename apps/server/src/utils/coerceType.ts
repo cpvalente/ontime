@@ -98,6 +98,7 @@ export function coerceColour(value: unknown): string {
 
 //https://developer.mozilla.org/en-US/docs/Web/CSS/named-color
 const cssColours = {
+  ['']: '', // None colour the same as the UI 'Ø' button
   aliceblue: '#f0f8ff',
   antiquewhite: '#faebd7',
   aqua: '#00ffff',
