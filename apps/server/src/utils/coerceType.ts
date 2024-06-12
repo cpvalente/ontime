@@ -90,7 +90,12 @@ export function coerceColour(value: unknown): string {
     if (!isColourHex(lowerCaseValue)) {
       throw new Error('Invalid hex colour received');
     }
-  } else if (!(lowerCaseValue in cssColours)) {
+    return lowerCaseValue;
+  }
+  if (lowerCaseValue === '') {
+    return lowerCaseValue; // None colour the same as the UI 'Ø' button
+  }
+  if (!(lowerCaseValue in cssColours)) {
     throw new Error('Invalid colour name received');
   }
   return lowerCaseValue;
