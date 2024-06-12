@@ -24,13 +24,13 @@ interface RenameClientModalProps {
 
 export function RenameClientModal(props: RenameClientModalProps) {
   const { onClose, isOpen, id, clients, onSubmit } = props;
-  const [name, setName] = useState(clients[id].name);
+  const [name, setName] = useState(clients[id]?.name ?? '');
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Rename: {clients[id].name}</ModalHeader>
+        <ModalHeader>Rename: {clients[id]?.name ?? ''}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Input

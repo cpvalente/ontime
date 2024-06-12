@@ -26,7 +26,7 @@ interface RedirectClientModalProps {
 
 export function RedirectClientModal(props: RedirectClientModalProps) {
   const { onClose, isOpen, id, clients, onSubmit } = props;
-  const [path, setPath] = useState(clients[id].path);
+  const [path, setPath] = useState(clients[id]?.path ?? '');
 
   const host = `${window.location.origin}/`;
 
@@ -34,7 +34,7 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
     <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Redirect: {clients[id].name}</ModalHeader>
+        <ModalHeader>Redirect: {clients[id]?.name ?? ''}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <InputGroup variant='ontime-filled' size='md'>
