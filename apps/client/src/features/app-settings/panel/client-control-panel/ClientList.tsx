@@ -42,20 +42,24 @@ export default function ClientList() {
 
   return (
     <>
-      <RedirectClientModal
-        onClose={onCloseRedirect}
-        isOpen={isOpenRedirect}
-        clients={clients}
-        id={targetId}
-        onSubmit={onRedirect}
-      />
-      <RenameClientModal
-        onClose={onCloseRename}
-        isOpen={isOpenRename}
-        clients={clients}
-        id={targetId}
-        onSubmit={onRename}
-      />
+      {isOpenRedirect && (
+        <RedirectClientModal
+          onClose={onCloseRedirect}
+          isOpen={isOpenRedirect}
+          clients={clients}
+          id={targetId}
+          onSubmit={onRedirect}
+        />
+      )}
+      {isOpenRename && (
+        <RenameClientModal
+          onClose={onCloseRename}
+          isOpen={isOpenRename}
+          clients={clients}
+          id={targetId}
+          onSubmit={onRename}
+        />
+      )}
       <Panel.Title>Ontime Clients</Panel.Title>
       <Panel.Table>
         <thead>

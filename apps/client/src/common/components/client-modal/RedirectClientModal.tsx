@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Button,
   Input,
@@ -26,12 +26,7 @@ interface RedirectClientModalProps {
 
 export function RedirectClientModal(props: RedirectClientModalProps) {
   const { onClose, isOpen, id, clients, onSubmit } = props;
-  const [path, setPath] = useState('');
-
-  // when clientlist and id is populated get the relevant path to use a default value
-  useEffect(() => {
-    if (clients[id]?.path) setPath(clients[id].path);
-  }, [clients, id]);
+  const [path, setPath] = useState(clients[id].path);
 
   const host = `${window.location.origin}/`;
 
@@ -39,7 +34,7 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
     <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Redirect {clients[id]?.name}</ModalHeader>
+        <ModalHeader>Redirect: {clients[id].name}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <InputGroup variant='ontime-filled' size='md'>

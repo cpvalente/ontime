@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Button,
   Input,
@@ -24,21 +24,15 @@ interface RenameClientModalProps {
 
 export function RenameClientModal(props: RenameClientModalProps) {
   const { onClose, isOpen, id, clients, onSubmit } = props;
-  const [name, setName] = useState('');
-
-  // when clientlist and id is populated get the relevant name to use a default value
-  useEffect(() => {
-    if (clients[id]?.name) setName(clients[id].name);
-  }, [clients, id]);
+  const [name, setName] = useState(clients[id].name);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Rename {clients[id]?.name}</ModalHeader>
+        <ModalHeader>Rename: {clients[id].name}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <div>All connections in this client will have the same name after a reload</div>
           <Input
             variant='ontime-filled'
             size='md'
