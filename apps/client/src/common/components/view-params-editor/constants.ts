@@ -1,8 +1,6 @@
 import { CustomFields } from 'ontime-types';
 
-import { capitaliseFirstLetter } from '../../../features/viewers/common/viewUtils';
-
-import { ParamField } from './types';
+import { type ParamField } from './types';
 
 const makeOptionsFromCustomFields = (customFields: CustomFields, additionalOptions?: Record<string, string>) => {
   const customFieldOptions = Object.entries(customFields).reduce((acc, [key, value]) => {
@@ -464,8 +462,8 @@ export const getStudioClockOptions = (timeFormat: string): ParamField[] => [
 export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ParamField[] => {
   const fieldOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
 
-  const customFieldSelect = Object.keys(customFields).reduce((acc, key) => {
-    return { ...acc, [key]: `Custom: ${capitaliseFirstLetter(key)}` };
+  const customFieldSelect = Object.entries(customFields).reduce((acc, [key, field]) => {
+    return { ...acc, [key]: { value: key, label: field.label, colour: field.colour } };
   }, {});
 
   return [
@@ -497,9 +495,8 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
       id: 'subscribe',
       title: 'Highlight Field',
       description: 'Choose a custom field to highlight',
-      type: 'option',
+      type: 'multi-option',
       values: customFieldSelect,
-      defaultValue: '',
     },
     {
       id: 'shouldEdit',

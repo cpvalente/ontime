@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { CustomField, CustomFields, isOntimeEvent, OntimeEvent, SupportedEvent } from 'ontime-types';
+import { isOntimeEvent, OntimeEvent, SupportedEvent } from 'ontime-types';
 import { getFirstEventNormal, getLastEventNormal } from 'ontime-utils';
 
 import Empty from '../../common/components/state/Empty';
@@ -27,11 +27,9 @@ import style from './Operator.module.scss';
 
 const selectedOffset = 50;
 
+export type Subscribed = { id: string; label: string; colour: string; value: string }[];
 type TitleFields = Pick<OntimeEvent, 'title'>;
-export type EditEvent = Pick<OntimeEvent, 'id' | 'cue'> & { fieldLabel?: string; fieldValue: string };
-export type PartialEdit = EditEvent & {
-  field: keyof CustomFields;
-};
+export type EditEvent = Pick<OntimeEvent, 'id' | 'cue'> & { subscriptions: Subscribed };
 
 export default function Operator() {
   const { data, status } = useRundown();
@@ -45,7 +43,7 @@ export default function Operator() {
   const { data: settings } = useSettings();
 
   const [showEditPrompt, setShowEditPrompt] = useState(false);
-  const [editEvent, setEditEvent] = useState<PartialEdit | null>(null);
+  const [editEvent, setEditEvent] = useState<EditEvent | null>(null);
 
   const [lockAutoScroll, setLockAutoScroll] = useState(false);
   const selectedRef = useRef<HTMLDivElement | null>(null);
@@ -102,16 +100,9 @@ export default function Operator() {
     debouncedHandleScroll();
   };
 
-  const handleEdit = useCallback(
-    (event: EditEvent) => {
-      const field = searchParams.get('subscribe') as keyof CustomField | null;
-
-      if (field) {
-        setEditEvent({ ...event, field });
-      }
-    },
-    [searchParams],
-  );
+  const handleEdit = useCallback((event: EditEvent) => {
+    setEditEvent({ ...event });
+  }, []);
 
   const missingData = !data || !customFields || !projectData;
   const isLoading = status === 'pending' || customFieldStatus === 'pending' || projectDataStatus === 'pending';
@@ -122,8 +113,13 @@ export default function Operator() {
 
   // get fields which the user subscribed to
   const shouldEdit = searchParams.get('shouldEdit');
-  const subscribe = searchParams.get('subscribe') as keyof CustomFields;
-  const canEdit = shouldEdit && subscribe;
+
+  const subscriptions = (searchParams.get('subscribe') ?? '')
+    .toLocaleLowerCase()
+    .split('_')
+    .filter((value) => Object.hasOwn(customFields, value));
+
+  const canEdit = shouldEdit && subscriptions;
 
   const main = searchParams.get('main') as keyof TitleFields | null;
   const secondary = searchParams.get('secondary');
@@ -173,7 +169,12 @@ export default function Operator() {
 
             const mainField = main ? getPropertyValue(entry, main) ?? '' : entry.title;
             const secondaryField = getPropertyValue(entry, secondary) ?? '';
-            const subscribedData = entry.custom[subscribe];
+            const subscribedData = subscriptions
+              ? subscriptions.map((id) => {
+                  const { label, colour } = customFields[id];
+                  return { id, label, colour, value: entry.custom[id] };
+                })
+              : null;
 
             return (
               <OperatorEvent
@@ -189,7 +190,6 @@ export default function Operator() {
                 delay={entry.delay}
                 isSelected={isSelected}
                 subscribed={subscribedData}
-                subscribeLabel={subscribe}
                 isPast={isPast}
                 selectedRef={isSelected ? selectedRef : undefined}
                 onLongPress={canEdit ? handleEdit : () => undefined}

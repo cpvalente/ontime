@@ -6,7 +6,7 @@ import { useTimer } from '../../../common/hooks/useSocket';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import ClockTime from '../../viewers/common/clock-time/ClockTime';
 import RunningTime from '../../viewers/common/running-time/RunningTime';
-import type { EditEvent } from '../Operator';
+import type { EditEvent, Subscribed } from '../Operator';
 
 import style from './OperatorEvent.module.scss';
 
@@ -21,8 +21,7 @@ interface OperatorEventProps {
   duration: number;
   delay?: number;
   isSelected: boolean;
-  subscribed?: string;
-  subscribeLabel: string;
+  subscribed: Subscribed | null;
   isPast: boolean;
   selectedRef?: RefObject<HTMLDivElement>;
   onLongPress: (event: EditEvent) => void;
@@ -47,7 +46,6 @@ function OperatorEvent(props: OperatorEventProps) {
     delay,
     isSelected,
     subscribed,
-    subscribeLabel: subscribedAlias,
     isPast,
     selectedRef,
     onLongPress,
@@ -56,7 +54,9 @@ function OperatorEvent(props: OperatorEventProps) {
   const handleLongPress = (event?: SyntheticEvent) => {
     // we dont have an event out of useLongPress
     event?.preventDefault();
-    onLongPress({ id, cue, fieldLabel: subscribedAlias, fieldValue: subscribed ?? '' });
+    if (subscribed) {
+      onLongPress({ id, cue, subscriptions: subscribed });
+    }
   };
 
   const mouseHandlers = useLongPress(handleLongPress, { threshold: 800 });
@@ -89,12 +89,22 @@ function OperatorEvent(props: OperatorEventProps) {
       </span>
 
       <div className={style.fields}>
-        {subscribed && (
-          <>
-            <span className={style.field}>{subscribedAlias}</span>
-            <span className={style.value}>{subscribed}</span>
-          </>
-        )}
+        {subscribed &&
+          subscribed
+            .filter((field) => field.value)
+            .map((field) => {
+              const fieldClasses = cx([style.field, !field.colour ? style.noColour : null]);
+              return (
+                <div key={field.id}>
+                  <span className={fieldClasses} style={{ backgroundColor: field.colour }}>
+                    {field.label}
+                  </span>
+                  <span className={style.value} style={{ color: field.colour }}>
+                    {field.value}
+                  </span>
+                </div>
+              );
+            })}
       </div>
     </div>
   );

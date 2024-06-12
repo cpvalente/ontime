@@ -1,5 +1,18 @@
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Input, InputGroup, InputLeftElement, Select, Switch } from '@chakra-ui/react';
+import {
+  Button,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Menu,
+  MenuButton,
+  MenuItemOption,
+  MenuList,
+  MenuOptionGroup,
+  Select,
+  Switch,
+} from '@chakra-ui/react';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 
@@ -32,6 +45,10 @@ export default function ParamInput(props: EditFormInputProps) {
         ))}
       </Select>
     );
+  }
+
+  if (type === 'multi-option') {
+    return <MultiOption paramField={paramField} />;
   }
 
   if (type === 'boolean') {
@@ -68,5 +85,49 @@ export default function ParamInput(props: EditFormInputProps) {
       {prefix && <InputLeftElement pointerEvents='none'>{prefix}</InputLeftElement>}
       <Input name={id} defaultValue={defaultStringValue} placeholder={placeholder} />
     </InputGroup>
+  );
+}
+
+interface EditFormMultiOptionProps {
+  paramField: ParamField & { type: 'multi-option' };
+}
+
+function MultiOption(props: EditFormMultiOptionProps) {
+  const [searchParams] = useSearchParams();
+  const { paramField } = props;
+  const { id, defaultValue } = paramField;
+
+  const optionFromParams = (searchParams.get(id) ?? '').toLocaleLowerCase();
+  const defaultOptionValue = optionFromParams || defaultValue?.toLocaleLowerCase() || '';
+
+  const [paramState, setParamState] = useState<string>(defaultOptionValue);
+
+  return (
+    <>
+      <input name={id} hidden readOnly value={paramState} />
+      <Menu isLazy closeOnSelect={false} variant='ontime-on-dark'>
+        <MenuButton as={Button} variant='ontime-subtle-white' position='relative' width='fit-content' fontWeight={400}>
+          {paramField.title}
+        </MenuButton>
+        <MenuList>
+          <MenuOptionGroup
+            type='checkbox'
+            value={paramState.split('_')}
+            onChange={(value) => {
+              setParamState(typeof value === 'object' ? value.filter((v) => v !== '').join('_') : value);
+            }}
+          >
+            {Object.values(paramField.values).map((option) => {
+              const { value, label } = option;
+              return (
+                <MenuItemOption value={value} key={value}>
+                  {label}
+                </MenuItemOption>
+              );
+            })}
+          </MenuOptionGroup>
+        </MenuList>
+      </Menu>
+    </>
   );
 }
