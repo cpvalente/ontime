@@ -18,12 +18,12 @@ import { IoLockClosedOutline } from '@react-icons/all-files/io5/IoLockClosedOutl
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 
 import { navigatorConstants } from '../../../viewerConfig';
-import { RenameClientModal } from '../client-modal/RenameClientModal';
 import useClickOutside from '../../hooks/useClickOutside';
 import { setClientName } from '../../hooks/useSocket';
 import { useClientStore } from '../../stores/clientStore';
 import { useViewOptionsStore } from '../../stores/viewOptions';
 import { isKeyEnter } from '../../utils/keyEvent';
+import { RenameClientModal } from '../client-modal/RenameClientModal';
 
 import style from './NavigationMenu.module.scss';
 
