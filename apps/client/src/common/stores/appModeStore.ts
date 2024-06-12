@@ -19,13 +19,10 @@ function persistModeToSession(mode: AppMode) {
 type AppModeStore = {
   mode: AppMode;
   setMode: (mode: AppMode) => void;
-  cursor: string | null;
-  setCursor: (cursor: string | null) => void;
 };
 
 export const useAppMode = create<AppModeStore>()((set) => ({
   mode: getModeFromSession(),
-  cursor: null,
   setMode: (mode: AppMode) => {
     persistModeToSession(mode);
 
@@ -33,5 +30,4 @@ export const useAppMode = create<AppModeStore>()((set) => ({
       return { mode };
     });
   },
-  setCursor: (cursor: string | null) => set({ cursor }),
 }));

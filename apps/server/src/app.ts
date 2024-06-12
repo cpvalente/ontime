@@ -20,6 +20,7 @@ import {
   clearUploadfolder,
 } from './setup/index.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
+import { consoleSuccess, consoleHighlight } from './utils/console.js';
 
 // Import Routers
 import { appRouter } from './api-data/index.js';
@@ -44,10 +45,13 @@ import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
 import { initRundown } from './services/rundown-service/RundownService.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
+import { getNetworkInterfaces } from './utils/networkInterfaces.js';
 
-console.log(`Starting Ontime version ${ONTIME_VERSION}`);
+console.log('\n');
+consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
 
-if (!isProduction) {
+const canLog = isProduction;
+if (!canLog) {
   console.log(`Ontime running in ${environment} environment`);
   console.log(`Ontime directory at ${srcDirectory} `);
   console.log(`Ontime database at ${resolveDbPath}`);
@@ -56,7 +60,7 @@ if (!isProduction) {
 // Create express APP
 const app = express();
 if (process.env.NODE_ENV === 'development') {
-  // log more serever timings
+  // log server timings to requests
   app.use(serverTiming());
 }
 app.disable('x-powered-by');
@@ -151,18 +155,16 @@ export const initAssets = async () => {
 
 /**
  * Starts servers
- * @return {Promise<string>}
  */
-export const startServer = async () => {
+export const startServer = async (
+  escalateErrorFn?: (error: string) => void,
+): Promise<{ message: string; serverPort: number }> => {
   checkStart(OntimeStartOrder.InitServer);
 
   const { serverPort } = DataProvider.getSettings();
 
-  const returnMessage = `Ontime is listening on port ${serverPort}`;
-
   expressServer = http.createServer(app);
   socket.init(expressServer);
-  logger.info(LogOrigin.Server, returnMessage);
 
   /**
    * Module initialises the services and provides initial payload for the store
@@ -186,6 +188,9 @@ export const startServer = async () => {
     },
   });
 
+  // initialise logging service, escalateErrorFn is only exists in electron
+  logger.init(escalateErrorFn);
+
   // initialise rundown service
   const persistedRundown = DataProvider.getRundown();
   const persistedCustomFields = DataProvider.getCustomFields();
@@ -200,7 +205,16 @@ export const startServer = async () => {
   // eventStore set is a dependency of the services that publish to it
   messageService.init(eventStore.set.bind(eventStore));
 
-  expressServer.listen(serverPort, '0.0.0.0');
+  expressServer.listen(serverPort, '0.0.0.0', () => {
+    const nif = getNetworkInterfaces();
+    consoleSuccess(`Local: http://localhost:${serverPort}/editor`);
+    for (const key of Object.keys(nif)) {
+      consoleSuccess(`Network: http://${nif[key].address}:${serverPort}/editor`);
+    }
+  });
+
+  const returnMessage = `Ontime is listening on port ${serverPort}`;
+  logger.info(LogOrigin.Server, returnMessage);
 
   return { message: returnMessage, serverPort };
 };
@@ -241,7 +255,7 @@ export const startIntegrations = async (config?: { osc: OSCSettings; http: HttpS
  * @return {Promise<void>}
  */
 export const shutdown = async (exitCode = 0) => {
-  console.log(`Ontime shutting down with code ${exitCode}`);
+  consoleHighlight(`Ontime shutting down with code ${exitCode}`);
 
   // clear the restore file if it was a normal exit
   // 0 means it was a SIGNAL
@@ -251,7 +265,6 @@ export const shutdown = async (exitCode = 0) => {
     await restoreService.clear();
   }
 
-  // TODO: Clear token
   expressServer?.close();
   runtimeService.shutdown();
   integrationService.shutdown();
@@ -260,19 +273,17 @@ export const shutdown = async (exitCode = 0) => {
   process.exit(exitCode);
 };
 
-process.on('exit', (code) => console.log(`Ontime shutdown with code: ${code}`));
+process.on('exit', (code) => consoleHighlight(`Ontime shutdown with code: ${code}`));
 
 process.on('unhandledRejection', async (error) => {
-  console.error('Error: unhandled rejection', error);
   generateCrashReport(error);
-  logger.error(LogOrigin.Server, `Error: unhandled rejection ${error}`);
+  logger.crash(LogOrigin.Server, `Uncaught exception | ${error}`);
   await shutdown(1);
 });
 
 process.on('uncaughtException', async (error) => {
-  console.error('Error: uncaught exception', error);
   generateCrashReport(error);
-  logger.error(LogOrigin.Server, `Error: uncaught exception ${error}`);
+  logger.crash(LogOrigin.Server, `Uncaught exception | ${error}`);
   await shutdown(1);
 });
 

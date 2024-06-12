@@ -1,5 +1,5 @@
 import { MouseEvent } from 'react';
-import { isOntimeEvent, OntimeEvent, RundownCached } from 'ontime-types';
+import { isOntimeEvent, MaybeNumber, MaybeString, OntimeEvent, RundownCached } from 'ontime-types';
 import { create } from 'zustand';
 
 import { RUNDOWN } from '../../common/api/constants';
@@ -10,7 +10,8 @@ export type SelectionMode = 'shift' | 'click' | 'ctrl';
 
 interface EventSelectionStore {
   selectedEvents: Set<string>;
-  anchoredIndex: number | null;
+  anchoredIndex: MaybeNumber;
+  cursor: MaybeString;
   setSelectedEvents: (selectionArgs: { id: string; index: number; selectMode: SelectionMode }) => void;
   clearSelectedEvents: () => void;
   clearMultiSelect: () => void;
@@ -20,13 +21,14 @@ interface EventSelectionStore {
 export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
   selectedEvents: new Set(),
   anchoredIndex: null,
+  cursor: null,
   setSelectedEvents: (selectionArgs) => {
     const { id, index, selectMode } = selectionArgs;
     const { selectedEvents, anchoredIndex } = get();
 
     // on click, we replace selection with event
     if (selectMode === 'click') {
-      return set({ selectedEvents: new Set([id]), anchoredIndex: index });
+      return set({ selectedEvents: new Set([id]), anchoredIndex: index, cursor: id });
     }
 
     // on ctrl + click, we toggle the selection of that event
@@ -39,6 +41,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
         return set({
           selectedEvents: selectedEvents.add(id),
           anchoredIndex: index,
+          cursor: id,
         });
       }
 
@@ -83,7 +86,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       });
     }
   },
-  clearSelectedEvents: () => set({ selectedEvents: new Set(), anchoredIndex: null }),
+  clearSelectedEvents: () => set({ selectedEvents: new Set(), anchoredIndex: null, cursor: null }),
   clearMultiSelect: () => {
     const { selectedEvents } = get();
     const [firstSelected] = selectedEvents;

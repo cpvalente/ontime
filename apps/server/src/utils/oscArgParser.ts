@@ -7,6 +7,10 @@ export function stringToOSCArgs(argsString: string | undefined): Argument[] {
   }
   const matches = splitWhitespace(argsString);
 
+  if (!matches) {
+    return new Array<Argument>();
+  }
+
   const parsedArguments: Argument[] = matches.map((argString: string) => {
     const argAsNum = Number(argString);
     // NOTE: number like: 1 2.0 33333

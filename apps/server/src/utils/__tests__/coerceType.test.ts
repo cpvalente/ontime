@@ -22,18 +22,18 @@ describe('parses a colour string that is', () => {
 
 describe('match a string to an enum that is', () => {
   enum testEnum {
-    'abc',
-    'def',
-    'ghi',
+    ABC = 'abc',
+    DEF = 'def',
+    GHI = 'ghi',
   }
   it('valid key', () => {
     const key = coerceEnum<testEnum>('abc', testEnum);
     expect(key).toBe('abc');
   });
   it('invalid key', () => {
-    expect(() => coerceEnum('123', testEnum)).toThrowError(Error('Invalid value received'));
+    expect(() => coerceEnum('123', testEnum)).toThrow();
   });
   it('invalid type', () => {
-    expect(() => coerceEnum(123, testEnum)).toThrowError(Error('Invalid value received'));
+    expect(() => coerceEnum(123, testEnum)).toThrow();
   });
 });

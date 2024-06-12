@@ -29,33 +29,36 @@ export function AuxTimer() {
   };
 
   return (
-    <div className={style.extraRow}>
-      <AuxTimerInput />
-      <TapButton onClick={toggleDirection} aspect='tight'>
-        {direction === SimpleDirection.CountDown && <IoArrowDown data-testid='aux-timer-direction' />}
-        {direction === SimpleDirection.CountUp && <IoArrowUp data-testid='aux-timer-direction' />}
-      </TapButton>
+    <label className={style.label}>
+      Auxiliary Timer
+      <div className={style.controls}>
+        <AuxTimerInput />
+        <TapButton onClick={toggleDirection} aspect='tight'>
+          {direction === SimpleDirection.CountDown && <IoArrowDown data-testid='aux-timer-direction' />}
+          {direction === SimpleDirection.CountUp && <IoArrowUp data-testid='aux-timer-direction' />}
+        </TapButton>
 
-      <TapButton
-        onClick={start}
-        theme={Playback.Play}
-        active={playback === SimplePlayback.Start}
-        disabled={!userCan.start}
-      >
-        <IoPlay data-testid='aux-timer-start' />
-      </TapButton>
-      <TapButton
-        onClick={pause}
-        theme={Playback.Pause}
-        active={playback === SimplePlayback.Pause}
-        disabled={!userCan.pause}
-      >
-        <IoPause data-testid='aux-timer-pause' />
-      </TapButton>
-      <TapButton onClick={stop} theme={Playback.Stop} disabled={!userCan.stop}>
-        <IoStop data-testid='aux-timer-stop' />
-      </TapButton>
-    </div>
+        <TapButton
+          onClick={start}
+          theme={Playback.Play}
+          active={playback === SimplePlayback.Start}
+          disabled={!userCan.start}
+        >
+          <IoPlay data-testid='aux-timer-start' />
+        </TapButton>
+        <TapButton
+          onClick={pause}
+          theme={Playback.Pause}
+          active={playback === SimplePlayback.Pause}
+          disabled={!userCan.pause}
+        >
+          <IoPause data-testid='aux-timer-pause' />
+        </TapButton>
+        <TapButton onClick={stop} theme={Playback.Stop} disabled={!userCan.stop}>
+          <IoStop data-testid='aux-timer-stop' />
+        </TapButton>
+      </div>
+    </label>
   );
 }
 

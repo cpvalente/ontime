@@ -109,7 +109,7 @@
     .timer {
       opacity: 1;
       font-family: var(--font-family-override, $viewer-font-family);
-      color: var(--timer-color-override, $timer-color);
+      color: var(--timer-color-override, var(--phase-color));
       line-height: 0.9em;
       text-align: center;
       letter-spacing: 0.05em;

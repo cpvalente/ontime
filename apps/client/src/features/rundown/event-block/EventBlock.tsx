@@ -11,7 +11,6 @@ import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { EndAction, MaybeNumber, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
-import { useAppMode } from '../../../common/stores/appModeStore';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import type { EventItemActions } from '../RundownEntry';
 import { useEventIdSwapping } from '../useEventIdSwapping';
@@ -88,7 +87,6 @@ export default function EventBlock(props: EventBlockProps) {
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
   const { selectedEvents, setSelectedEvents } = useEventSelection();
-  const setCursor = useAppMode((state) => state.setCursor);
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -231,7 +229,6 @@ export default function EventBlock(props: EventBlockProps) {
     const index = eventIndex - 1;
     const editMode = getSelectionMode(event);
     setSelectedEvents({ id: eventId, index, selectMode: editMode });
-    setCursor(eventId);
   };
 
   return (

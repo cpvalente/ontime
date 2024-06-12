@@ -4,6 +4,7 @@ import { booleanFromLocalStorage } from '../../../common/utils/localStorage';
 
 interface CuesheetSettings {
   showSettings: boolean;
+  showIndexColumn: boolean;
   followSelected: boolean;
   showPrevious: boolean;
   showDelayBlock: boolean;
@@ -12,6 +13,7 @@ interface CuesheetSettings {
   toggleSettings: (newValue?: boolean) => void;
   toggleFollow: (newValue?: boolean) => void;
   togglePreviousVisibility: (newValue?: boolean) => void;
+  toggleIndexColumn: (newValue?: boolean) => void;
   toggleDelayVisibility: (newValue?: boolean) => void;
   toggleDelayedTimes: (newValue?: boolean) => void;
 }
@@ -27,11 +29,13 @@ enum CuesheetKeys {
   Follow = 'ontime-cuesheet-follow-selected',
   DelayVisibility = 'ontime-cuesheet-show-delay',
   PreviousVisibility = 'ontime-cuesheet-show-previous',
+  ColumnIndex = 'ontime-cuesheet-show-index-column',
   DelayedTimes = 'ontime-cuesheet-show-delayed',
 }
 
 export const useCuesheetSettings = create<CuesheetSettings>()((set) => ({
   showSettings: false,
+  showIndexColumn: booleanFromLocalStorage(CuesheetKeys.ColumnIndex, true),
   followSelected: booleanFromLocalStorage(CuesheetKeys.Follow, false),
   showPrevious: booleanFromLocalStorage(CuesheetKeys.PreviousVisibility, true),
   showDelayBlock: booleanFromLocalStorage(CuesheetKeys.DelayVisibility, true),
@@ -43,6 +47,12 @@ export const useCuesheetSettings = create<CuesheetSettings>()((set) => ({
       const followSelected = toggle(state.followSelected, newValue);
       localStorage.setItem(CuesheetKeys.Follow, String(followSelected));
       return { followSelected };
+    }),
+  toggleIndexColumn: (newValue?: boolean) =>
+    set((state) => {
+      const showIndexColumn = toggle(state.showIndexColumn, newValue);
+      localStorage.setItem(CuesheetKeys.ColumnIndex, String(showIndexColumn));
+      return { showIndexColumn };
     }),
   togglePreviousVisibility: (newValue?: boolean) =>
     set((state) => {

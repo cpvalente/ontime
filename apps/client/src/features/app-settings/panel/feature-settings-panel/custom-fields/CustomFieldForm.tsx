@@ -67,7 +67,7 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
   return (
     <form onSubmit={handleSubmit(setupSubmit)} className={style.fieldForm}>
       <div className={style.column}>
-        <Panel.Description>Label</Panel.Description>
+        <Panel.Description>Label (only alphanumeric characters are allowed)</Panel.Description>
         {errors.label && <Panel.Error>{errors.label.message}</Panel.Error>}
         <Input
           {...register('label', {

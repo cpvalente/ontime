@@ -16,14 +16,14 @@
     "nanoid": "^5.0.4"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.10.0",
-    "@typescript-eslint/parser": "^6.10.0",
-    "eslint": "^8.53.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-prettier": "^5.0.1",
+    "@typescript-eslint/eslint-plugin": "^v7.12.0",
+    "@typescript-eslint/parser": "^7.12.0",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "ontime-types": "workspace:*",
-    "prettier": "^3.0.3",
+    "prettier": "^3.3.1",
     "typescript": "^5.4.3",
     "vitest": "^1.6.0"
   },

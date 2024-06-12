@@ -7,6 +7,7 @@ import {
   Playback,
   Settings,
   TimerMessage,
+  TimerPhase,
   TimerType,
   ViewSettings,
 } from 'ontime-types';
@@ -105,19 +106,24 @@ export default function Timer(props: TimerProps) {
   const secondaryTextNow = getPropertyValue(eventNow, secondarySource);
   const secondaryTextNext = getPropertyValue(eventNext, secondarySource);
 
+  const main = searchParams.get('main');
+  const mainFieldNow = (main ? getPropertyValue(eventNow, main) : eventNow?.title) ?? '';
+  const mainFieldNext = (main ? getPropertyValue(eventNext, main) : eventNext?.title) ?? '';
+
   const showOverlay = pres.text !== '' && pres.visible;
   const isPlaying = time.playback !== Playback.Pause;
 
   const timerIsTimeOfDay = time.timerType === TimerType.Clock;
 
-  const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
+  const finished = time.phase === TimerPhase.Overtime;
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
 
-  const showEndMessage = (time.current ?? 1) < 0 && viewSettings.endMessage;
+  const shouldShowModifiers = time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
+  const showEndMessage = finished && viewSettings.endMessage;
   const showProgress = time.playback !== Playback.Stop;
-  const showFinished = finished && (time.timerType !== TimerType.Clock || showEndMessage);
-  const showWarning = (time.current ?? 1) < (eventNow?.timeWarning ?? 0);
-  const showDanger = (time.current ?? 1) < (eventNow?.timeDanger ?? 0);
+  const showFinished = finished && (shouldShowModifiers || showEndMessage);
+  const showWarning = shouldShowModifiers && time.phase === TimerPhase.Warning;
+  const showDanger = shouldShowModifiers && time.phase === TimerPhase.Danger;
   const showBlinking = pres.blink;
   const showBlackout = pres.blackout;
   const showClock = time.timerType !== TimerType.Clock;
@@ -173,7 +179,7 @@ export default function Timer(props: TimerProps) {
             className={timerClasses}
             style={{
               fontSize: `${timerFontSize}vw`,
-              color: timerColor,
+              '--phase-color': timerColor,
             }}
           >
             {display}
@@ -213,7 +219,7 @@ export default function Timer(props: TimerProps) {
                 animate='visible'
                 exit='exit'
               >
-                <TitleCard label='now' title={eventNow.title} secondary={secondaryTextNow} />
+                <TitleCard label='now' title={mainFieldNow} secondary={secondaryTextNow} />
               </motion.div>
             )}
           </AnimatePresence>
@@ -228,7 +234,7 @@ export default function Timer(props: TimerProps) {
                 animate='visible'
                 exit='exit'
               >
-                <TitleCard label='next' title={eventNext.title} secondary={secondaryTextNext} />
+                <TitleCard label='next' title={mainFieldNext} secondary={secondaryTextNext} />
               </motion.div>
             )}
           </AnimatePresence>

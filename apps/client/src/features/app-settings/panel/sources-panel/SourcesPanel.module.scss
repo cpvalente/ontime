@@ -1,5 +1,5 @@
 .uploadSection,
-.successSection {
+.finishSection {
   margin-top: 1rem;
   display: flex;
   padding: 3rem 1rem;
@@ -15,12 +15,18 @@
   gap: 2rem;
 }
 
-.successSection {
-  color: $green-500;
+.finishSection {
   font-size: 1.5rem;
   text-align: center;
   flex-direction: column;
   gap: 1rem;
+
+  .error {
+    color: $red-500;
+  }
+  .success {
+    color: $green-500;
+  }
 }
 
 .buttonRow {

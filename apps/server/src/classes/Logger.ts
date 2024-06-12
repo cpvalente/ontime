@@ -4,22 +4,33 @@ import { generateId, millisToString } from 'ontime-utils';
 import { clock } from '../services/Clock.js';
 import { isProduction } from '../setup/index.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
+import { consoleSubdued, consoleRed } from '../utils/console.js';
 
 class Logger {
   private queue: Log[];
+  private escalateErrorFn: (error: string) => void | null;
+  private canLog = false;
 
   constructor() {
     this.queue = [];
+    this.escalateErrorFn = null;
+    this.canLog = !isProduction;
   }
 
   /**
    * Enabling setup logger after init
    */
-  init() {
+  init(escalateErrorFn: (error: string) => void) {
+    // flush logs from queue
     this.queue.forEach((log) => {
       this._push(log);
     });
     this.queue = [];
+
+    // we only get this when running in electron
+    if (escalateErrorFn) {
+      this.escalateErrorFn = escalateErrorFn;
+    }
   }
 
   private addToQueue(log: Log) {
@@ -34,8 +45,12 @@ class Logger {
    * @param log
    */
   private _push(log: Log) {
-    if (!isProduction) {
-      console.log(`[${log.level}] \t ${log.origin} \t ${log.text}`);
+    if (this.canLog || log.level === LogLevel.Severe) {
+      if (log.level === LogLevel.Severe) {
+        consoleRed(`[${log.level}] \t ${log.origin} \t ${log.text}`);
+      } else {
+        consoleSubdued(`[${log.level}] \t ${log.origin} \t ${log.text}`);
+      }
     }
 
     try {
@@ -93,10 +108,19 @@ class Logger {
   }
 
   /**
+   * Utility to emit logging message of type SEVERE
+   * @param origin
+   * @param text
+   */
+  crash(origin: string, text: string) {
+    this.emit(LogLevel.Severe, origin, text);
+    this.escalateErrorFn?.(text);
+  }
+
+  /**
    * Shutdown logger
    */
   shutdown() {
-    console.log('Shutting down logger');
     this.queue = [];
   }
 }

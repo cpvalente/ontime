@@ -1,9 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { body, validationResult } from 'express-validator';
-
+import { body, param, validationResult } from 'express-validator';
 import { ensureJsonExtension } from '../../utils/fileManagement.js';
+import sanitize from 'sanitize-filename';
 
-export const projectSanitiser = [
+/**
+ * @description Validates request for a new project.
+ */
+export const validateNewProject = [
   body('title').optional().isString().trim(),
   body('description').optional().isString().trim(),
   body('publicUrl').optional().isString().trim(),
@@ -19,18 +22,10 @@ export const projectSanitiser = [
   },
 ];
 
-export const sanitizeProjectFilename = (req: Request, _res: Response, next: NextFunction) => {
-  const { filename, newFilename } = req.body;
-  const { filename: projectName } = req.params;
-
-  req.body.filename = ensureJsonExtension(filename);
-  req.body.newFilename = ensureJsonExtension(newFilename);
-  req.params.filename = ensureJsonExtension(projectName);
-
-  next();
-};
-
-export const validatePatchProjectFile = [
+/**
+ * @description Validates request for pathing data in the project.
+ */
+export const validatePatchProject = [
   body('rundown').isArray().optional({ nullable: false }),
   body('project').isObject().optional({ nullable: false }),
   body('settings').isObject().optional({ nullable: false }),
@@ -47,31 +42,18 @@ export const validatePatchProjectFile = [
 ];
 
 /**
- * @description Validates the filename for loading a project file.
+ * @description Validates request with filename in the body.
  */
-export const validateLoadProjectFile = [
-  body('filename').exists().withMessage('Filename is required').isString().withMessage('Filename must be a string'),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-    next();
-  },
-];
-
-/**
- * @description Validates the filenames for duplicating a project.
- */
-export const validateProjectDuplicate = [
-  body('newFilename')
+export const validateFilenameBody = [
+  body('filename')
     .exists()
-    .withMessage('New project filename is required')
     .isString()
-    .withMessage('New project filename must be a string')
-    .isLength({ min: 1, max: 255 })
-    .withMessage('New project filename must be between 1 and 255 characters'),
+    .trim()
+    .customSanitizer((input: string) => sanitize(input))
+    .withMessage('Failed to sanitize the filename')
+    .notEmpty()
+    .withMessage('Filename was empty or contained only invalid characters')
+    .customSanitizer((input: string) => ensureJsonExtension(input)),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -84,32 +66,18 @@ export const validateProjectDuplicate = [
 ];
 
 /**
- * @description Validates the filenames for renaming a project.
+ * @description Validates request with filename in the params.
  */
-export const validateProjectRename = [
-  body('newFilename')
+export const validateFilenameParam = [
+  param('filename')
     .exists()
-    .withMessage('Duplicate project filename is required')
     .isString()
-    .withMessage('Duplicate project filename must be a string')
-    .isLength({ min: 1, max: 255 })
-    .withMessage('Duplicate project filename must be between 1 and 255 characters'),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-
-    next();
-  },
-];
-
-/**
- * @description Validates a download request which can include an optional project name.
- */
-export const validateDownloadProject = [
-  body('fileName').isString().optional(),
+    .trim()
+    .customSanitizer((input: string) => sanitize(input))
+    .withMessage('Failed to sanitize the filename')
+    .notEmpty()
+    .withMessage('Filename was empty or contained only invalid characters')
+    .customSanitizer((input: string) => ensureJsonExtension(input)),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
