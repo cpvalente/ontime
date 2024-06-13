@@ -98,6 +98,11 @@ class RuntimeService {
 
     if (timerPhaseChanged) {
       switch (newState.timer.phase) {
+        case TimerPhase.Warning:
+          process.nextTick(() => {
+            integrationService.dispatch(TimerLifeCycle.onWarning);
+          });
+          break;
         default:
           break;
       }
