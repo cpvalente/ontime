@@ -1,4 +1,4 @@
-import { EndAction, LogOrigin, MaybeNumber, OntimeEvent, Playback, RuntimeStore, TimerLifeCycle } from 'ontime-types';
+import { EndAction, LogOrigin, MaybeNumber, OntimeEvent, Playback, RuntimeStore, TimerLifeCycle, TimerPhase } from 'ontime-types';
 import { millisToString, validatePlayback } from 'ontime-utils';
 
 import { deepEqual } from 'fast-equals';
@@ -101,6 +101,11 @@ class RuntimeService {
         case TimerPhase.Warning:
           process.nextTick(() => {
             integrationService.dispatch(TimerLifeCycle.onWarning);
+          });
+          break;
+        case TimerPhase.Danger:
+          process.nextTick(() => {
+            integrationService.dispatch(TimerLifeCycle.onDanger);
           });
           break;
         default:
