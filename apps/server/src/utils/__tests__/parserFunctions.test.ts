@@ -33,6 +33,8 @@ describe('sanitiseOscSubscriptions()', () => {
       { id: '4', cycle: 'onStop', address: '/test', payload: 'test', enabled: false },
       { id: '5', cycle: 'onUpdate', address: '/test', payload: 'test', enabled: true },
       { id: '6', cycle: 'onFinish', address: '/test', payload: 'test', enabled: false },
+      { id: '7', cycle: 'onWarning', address: '/test', payload: 'test', enabled: false },
+      { id: '8', cycle: 'onDanger', address: '/test', payload: 'test', enabled: false },
     ];
     const sanitationResult = sanitiseOscSubscriptions(oscSubscriptions);
     expect(sanitationResult).toStrictEqual(oscSubscriptions);
@@ -69,6 +71,8 @@ describe('sanitiseHttpSubscriptions()', () => {
       { id: '4', cycle: 'onStop', message: 'http://test', enabled: false },
       { id: '5', cycle: 'onUpdate', message: 'http://test', enabled: true },
       { id: '6', cycle: 'onFinish', message: 'http://test', enabled: false },
+      { id: '7', cycle: 'onWarning', message: 'http://test', enabled: false },
+      { id: '8', cycle: 'onDanger', message: 'http://test', enabled: false },
     ];
     const sanitationResult = sanitiseHttpSubscriptions(httpSubscription);
     expect(sanitationResult).toStrictEqual(httpSubscription);
