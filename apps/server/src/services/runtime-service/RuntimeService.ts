@@ -93,6 +93,15 @@ class RuntimeService {
       const rundown = getPlayableEvents();
       this.eventTimer.roll(rundown);
     }
+
+    const timerPhaseChanged = RuntimeService.previousState.timer.phase !== newState.timer.phase;
+
+    if (timerPhaseChanged) {
+      switch (newState.timer.phase) {
+        default:
+          break;
+      }
+    }
   }
 
   /** delay initialisation until we have a restore point */
