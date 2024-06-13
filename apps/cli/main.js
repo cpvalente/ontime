@@ -15,6 +15,6 @@ async function startOntime() {
 
 startOntime();
 
-process.on('SIGINT',()=>{
-  shutdown()
-})
+process.on(['SIGHUP', 'SIGINT', 'SIGTERM'], () => {
+  shutdown();
+});
