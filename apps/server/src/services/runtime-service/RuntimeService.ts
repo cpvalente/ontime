@@ -94,7 +94,7 @@ class RuntimeService {
       this.eventTimer.roll(rundown);
     }
 
-    const timerPhaseChanged = RuntimeService.previousState.timer.phase !== newState.timer.phase;
+    const timerPhaseChanged = RuntimeService.previousState.timer?.phase !== newState.timer.phase;
 
     if (timerPhaseChanged) {
       switch (newState.timer.phase) {
