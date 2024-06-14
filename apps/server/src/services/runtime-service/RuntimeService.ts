@@ -1,4 +1,13 @@
-import { EndAction, LogOrigin, MaybeNumber, OntimeEvent, Playback, RuntimeStore, TimerLifeCycle, TimerPhase } from 'ontime-types';
+import {
+  EndAction,
+  LogOrigin,
+  MaybeNumber,
+  OntimeEvent,
+  Playback,
+  RuntimeStore,
+  TimerLifeCycle,
+  TimerPhase,
+} from 'ontime-types';
 import { millisToString, validatePlayback } from 'ontime-utils';
 
 import { deepEqual } from 'fast-equals';
