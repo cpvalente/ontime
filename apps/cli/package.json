@@ -1,0 +1,27 @@
+{
+    "name": "@getontime/cli",
+    "version": "3.1.0",
+    "author": "Carlos Valente",
+    "description": "Time keeping for live events",
+    "repository": "https://github.com/cpvalente/ontime",
+    "keywords": [
+        "lighdev",
+        "ontime",
+        "timer"
+    ],
+    "license": "AGPL-3.0-only",
+    "main": "main.js",
+    "bin": {
+        "ontime": "main.js"
+    },
+    "files": [
+        "client",
+        "external",
+        "server"
+    ],
+    "devDependencies": {
+        "eslint": "^8.53.0",
+        "eslint-config-prettier": "^9.0.0",
+        "prettier": "^3.0.3"
+    }
+}
