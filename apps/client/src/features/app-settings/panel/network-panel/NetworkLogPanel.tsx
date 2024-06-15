@@ -17,11 +17,11 @@ export default function NetworkLogPanel({ location }: PanelBaseProps) {
         <Panel.Paragraph>Ontime is streaming on the following network interfaces</Panel.Paragraph>
       </Panel.Section>
       <InfoNif />
-      <div ref={clientsRef}>
-        <ClientControlPanel />
-      </div>
       <div ref={logRef}>
         <LogExport />
+      </div>
+      <div ref={clientsRef}>
+        <ClientControlPanel />
       </div>
     </>
   );
