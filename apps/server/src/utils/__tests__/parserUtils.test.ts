@@ -30,7 +30,7 @@ describe('mergeObject()', () => {
   test('it handles falsy values', () => {
     const a = {
       first: 'yes',
-      second: 'yes',
+      second: 'yes' as string | null,
       third: 'yes',
     };
     const b = {

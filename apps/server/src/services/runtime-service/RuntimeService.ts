@@ -85,7 +85,7 @@ class RuntimeService {
         integrationService.dispatch(TimerLifeCycle.onUpdate);
       });
 
-      this.lastIntegrationTimerValue = newState.timer.current;
+      this.lastIntegrationTimerValue = newState.timer.current ?? -1;
     }
 
     const shouldUpdateClock = getShouldClockUpdate(this.lastIntegrationClockUpdate, newState.clock);

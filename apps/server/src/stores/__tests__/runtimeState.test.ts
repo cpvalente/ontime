@@ -160,6 +160,10 @@ describe('mutation on runtimeState', () => {
       start();
       newState = getState();
       const firstStart = newState.clock;
+      if (newState.runtime.offset === null) {
+        throw new Error('Value cannot be null at this stage');
+      }
+
       expect(newState.runtime.actualStart).toBe(newState.clock);
       expect(newState.runtime.offset).toBe(event1.timeStart - newState.clock);
       expect(newState.runtime.expectedEnd).toBe(event2.timeEnd - newState.runtime.offset);
@@ -167,7 +171,11 @@ describe('mutation on runtimeState', () => {
       // 3. Next event
       load(event2, [event1, event2]);
       start();
+
       newState = getState();
+      if (newState.runtime.actualStart === null || newState.runtime.offset === null) {
+        throw new Error('Value cannot be null at this stage');
+      }
 
       // there is a case where the calculation time overflows the millisecond which makes
       // tests fail
@@ -182,6 +190,10 @@ describe('mutation on runtimeState', () => {
       // 4. Add time
       addTime(10);
       newState = getState();
+      if (newState.runtime.offset === null) {
+        throw new Error('Value cannot be null at this stage');
+      }
+
       expect(newState.runtime.offset).toBe(delayBefore - 10);
       expect(newState.runtime.expectedEnd).toBe(event2.timeEnd - newState.runtime.offset);
 

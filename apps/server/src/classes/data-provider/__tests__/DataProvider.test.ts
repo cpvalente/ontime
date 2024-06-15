@@ -1,4 +1,4 @@
-import { DatabaseModel, OntimeRundown, Settings, URLPreset } from 'ontime-types';
+import { DatabaseModel, OntimeRundown, Settings, URLPreset, ViewSettings } from 'ontime-types';
 import { safeMerge } from '../DataProvider.utils.js';
 
 describe('safeMerge', () => {
@@ -49,7 +49,7 @@ describe('safeMerge', () => {
   } as DatabaseModel;
 
   it('returns existing data if new data is not provided', () => {
-    const mergedData = safeMerge(existing, undefined);
+    const mergedData = safeMerge(existing, {});
     expect(mergedData).toEqual(existing);
   });
 
@@ -136,6 +136,7 @@ describe('safeMerge', () => {
       rundown: [],
       project: {
         title: '',
+        description: '',
         publicUrl: '',
         publicInfo: '',
         backstageUrl: '',
@@ -153,13 +154,18 @@ describe('safeMerge', () => {
       viewSettings: {
         overrideStyles: false,
         endMessage: '',
-      },
+      } as ViewSettings,
       urlPresets: [],
+      customFields: {},
       osc: {
         portIn: 8888,
         portOut: 9999,
         targetIP: '127.0.0.1',
         enabledIn: false,
+        enabledOut: false,
+        subscriptions: [],
+      },
+      http: {
         enabledOut: false,
         subscriptions: [],
       },
