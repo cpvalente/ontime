@@ -885,7 +885,7 @@ describe('custom fields', () => {
       };
 
       const customField = await editCustomField('sound', { label: 'Sound', type: 'string', colour: 'green' });
-      expect(customFieldChangelog).toStrictEqual({});
+      expect(customFieldChangelog).toStrictEqual(new Map());
 
       expect(customField).toStrictEqual(expected);
     });
@@ -931,9 +931,15 @@ describe('custom fields', () => {
         },
       };
 
+      // We need to flush all scheduled tasks for the generate function to settle
+      vi.useFakeTimers();
       const customField = await editCustomField('video', { label: 'AV', type: 'string', colour: 'red' });
       expect(customField).toStrictEqual(expectedAfter);
-      expect(customFieldChangelog).toStrictEqual({ video: 'av' });
+      expect(customFieldChangelog).toStrictEqual(new Map([['video', 'av']]));
+      await editCustomField('av', { label: 'video' });
+      vi.runAllTimers();
+      expect(customFieldChangelog).toStrictEqual(new Map());
+      vi.useRealTimers();
     });
   });
 
@@ -945,8 +951,8 @@ describe('custom fields', () => {
           type: 'string',
           colour: 'blue',
         },
-        av: {
-          label: 'AV',
+        video: {
+          label: 'video',
           type: 'string',
           colour: 'red',
         },
