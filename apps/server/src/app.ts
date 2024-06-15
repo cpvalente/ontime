@@ -54,6 +54,7 @@ const canLog = isProduction;
 if (!canLog) {
   console.log(`Ontime running in ${environment} environment`);
   console.log(`Ontime directory at ${srcDirectory} `);
+  //TODO: if lastLoadedProject is empty This logs db.json somehow..?
   console.log(`Ontime database at ${resolveDbPath}`);
 }
 

@@ -3,17 +3,17 @@ import { getErrorMessage } from 'ontime-utils';
 
 import { Low } from 'lowdb';
 import { JSONFilePreset } from 'lowdb/node';
-import { copyFileSync, existsSync } from 'fs';
+import { copyFileSync, existsSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 import { ensureDirectory, getFileNameFromPath, nameRecovered } from '../utils/fileManagement.js';
 import { dbModel } from '../models/dataModel.js';
 import { parseProjectFile } from '../services/project-service/projectFileUtils.js';
 import { parseJson } from '../utils/parser.js';
-import { consoleError } from '../utils/console.js';
+import { consoleError, consoleHighlight } from '../utils/console.js';
 import { renameProjectFile } from '../services/project-service/ProjectService.js';
 
-import { pathToStartDb, resolveCorruptedFilesDirectory, resolveDbDirectory, resolveDbName } from './index.js';
+import { resolveCorruptedFilesDirectory, resolveDbDirectory, resolveDbName } from './index.js';
 
 /**
  * @description ensures directories exist and populates database
@@ -24,19 +24,13 @@ const populateDb = (directory: string, filename: string): string => {
   let dbPath = join(directory, filename);
 
   // if everything goes well, the DB in disk is the one loaded
-  // if dbInDisk doesn't exist we want to use startup db
+  // if dbInDisk doesn't exist we create an empty file from db model
   if (!existsSync(dbPath)) {
     try {
-      const dbDirectory = resolveDbDirectory;
-      const startDbName = pathToStartDb.split('/').pop();
-
-      if (!startDbName) {
-        throw new Error('Invalid path to start database');
-      }
-
-      const newFileDirectory = join(dbDirectory, 'new demo project.json');
-
-      copyFileSync(pathToStartDb, newFileDirectory);
+      consoleHighlight('No active DB found creating empty default');
+      //TODO: what if it already exists
+      const newFileDirectory = join(resolveDbDirectory, 'new empty project.json');
+      writeFileSync(newFileDirectory, JSON.stringify(dbModel));
       dbPath = newFileDirectory;
     } catch (_) {
       /* we do not handle this */
