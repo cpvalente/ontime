@@ -41,7 +41,7 @@ export function RenameClientModal(props: RenameClientModalProps) {
     <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Rename: {name}</ModalHeader>
+        <ModalHeader>Rename: {currentName}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Input
