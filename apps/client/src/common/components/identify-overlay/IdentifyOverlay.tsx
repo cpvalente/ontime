@@ -1,29 +1,39 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { setClientRemote } from '../../hooks/useSocket';
 import { useClientStore } from '../../stores/clientStore';
 
-import style from './Overlay.module.scss';
+import style from './IdentifyOverlay.module.scss';
 
 export default function IdentifyOverlay() {
   const clients = useClientStore((store) => store.clients);
   const id = useClientStore((store) => store.id);
   const name = useClientStore((store) => store.name);
+
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
   const { setIdentify } = setClientRemote;
   const showOverlay = clients[id]?.identify;
 
   const handleClose = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
     setIdentify({ target: id, identify: false });
   }, [id, setIdentify]);
 
   // start a timer that will close the overlay after some time
   useEffect(() => {
-    let timer: NodeJS.Timeout;
     if (showOverlay) {
-      timer = setTimeout(handleClose, MILLIS_PER_MINUTE);
+      timerRef.current = setTimeout(handleClose, MILLIS_PER_MINUTE);
     }
-    return () => clearTimeout(timer);
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
   }, [showOverlay, id, setIdentify, handleClose]);
 
   if (!showOverlay) {
