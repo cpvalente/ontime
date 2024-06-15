@@ -1,6 +1,4 @@
 .overlay {
-  font-family: 'Open Sans';
-  position: absolute;
   top: 0;
   left: 0;
   margin: 0;
@@ -8,21 +6,11 @@
   height: 100vh;
   padding: 0;
   box-sizing: border-box;
-  --dot-bg: #101010;
-  --dot-color: #aec0e8;
-  --dot-size: 2px;
-  --dot-space: 22px;
-  border: 10px solid white;
-  background:
-    linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center /
-      var(--dot-space) var(--dot-space),
-    linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%) center / var(--dot-space)
-      var(--dot-space),
-    var(--dot-color);
-}
 
-.overlay {
-  color: white;
+  border: 10px solid $ui-white;
+  background-color: $ui-black;
+
+  color: $ui-white;
   display: grid;
   place-content: center;
   text-align: center;
@@ -34,12 +22,12 @@
   font-weight: 600;
   margin-top: -10vh;
   line-height: 1em;
-  font-size: 15vw;
+  font-size: 12vw;
   text-transform: uppercase;
 }
 
 .message {
-  color: #fefefe;
-  line-height: 0.8em;
-  font-size: 4vw;
+  color: $label-gray;
+  line-height: 2em;
+  font-size: 3vw;
 }
