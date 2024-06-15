@@ -1,20 +1,30 @@
 import { Log, RuntimeStore } from 'ontime-types';
 
-import { isProduction, RUNTIME, websocketUrl } from '../api/constants';
+import { CLIENT_LIST, isProduction, RUNTIME, websocketUrl } from '../api/constants';
 import { ontimeQueryClient } from '../queryClient';
-import { socketClientName } from '../stores/connectionName';
+import {
+  getClientId,
+  getClientName,
+  setClientId,
+  setClientName,
+  setClientRedirect,
+  setClients,
+} from '../stores/clientStore';
 import { addLog } from '../stores/logger';
 import { patchRuntime, runtimeStore } from '../stores/runtime';
 
 export let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
 const reconnectInterval = 1000;
+
 export let shouldReconnect = true;
 export let hasConnected = false;
 export let reconnectAttempts = 0;
 
-export const connectSocket = (preferredClientName?: string) => {
+export const connectSocket = () => {
   websocket = new WebSocket(websocketUrl);
+
+  const preferredClientName = getClientName();
 
   websocket.onopen = () => {
     clearTimeout(reconnectTimeout as NodeJS.Timeout);
@@ -24,6 +34,9 @@ export const connectSocket = (preferredClientName?: string) => {
     if (preferredClientName) {
       socketSendJson('set-client-name', preferredClientName);
     }
+
+    socketSendJson('set-client-type', 'ontime');
+    socketSendJson('set-client-path', location.pathname);
   };
 
   websocket.onclose = () => {
@@ -54,10 +67,48 @@ export const connectSocket = (preferredClientName?: string) => {
       }
 
       switch (type) {
-        case 'client-name': {
-          socketClientName.getState().setName(payload);
+        case 'client-id': {
+          if (typeof payload === 'string') {
+            setClientId(payload);
+          }
           break;
         }
+
+        case 'client-name': {
+          if (typeof payload === 'string') {
+            setClientName(payload);
+          }
+          break;
+        }
+
+        case 'client-rename': {
+          if (typeof payload === 'object') {
+            const id = getClientId();
+            if (payload.target && payload.target === id) {
+              setClientName(payload.name);
+            }
+          }
+          break;
+        }
+
+        case 'client-redirect': {
+          if (typeof payload === 'object') {
+            const id = getClientId();
+            if (payload.target && payload.target === id) {
+              setClientRedirect(payload.path);
+            }
+          }
+          break;
+        }
+
+        case 'client-list': {
+          setClients(payload);
+          if (!isProduction) {
+            ontimeQueryClient.setQueryData(CLIENT_LIST, payload);
+          }
+          break;
+        }
+
         case 'ontime-log': {
           addLog(payload as Log);
           break;

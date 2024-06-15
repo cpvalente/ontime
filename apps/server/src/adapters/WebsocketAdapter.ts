@@ -14,7 +14,7 @@
  * Payload: adds necessary payload for the request to be completed
  */
 
-import { LogOrigin } from 'ontime-types';
+import { Client, LogOrigin } from 'ontime-types';
 
 import { WebSocket, WebSocketServer } from 'ws';
 import type { Server } from 'http';
@@ -24,6 +24,7 @@ import { IAdapter } from './IAdapter.js';
 import { eventStore } from '../stores/EventStore.js';
 import { logger } from '../classes/Logger.js';
 import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
+import { generateId } from 'ontime-utils';
 
 let instance: SocketServer | null = null;
 
@@ -31,7 +32,7 @@ export class SocketServer implements IAdapter {
   private readonly MAX_PAYLOAD = 1024 * 256; // 256Kb
 
   private wss: WebSocketServer | null;
-  private readonly clientIds: Set<string>;
+  private readonly clients: Map<string, Client>;
 
   constructor() {
     if (instance) {
@@ -40,7 +41,7 @@ export class SocketServer implements IAdapter {
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
-    this.clientIds = new Set<string>();
+    this.clients = new Map<string, Client>();
     this.wss = null;
   }
 
@@ -48,9 +49,32 @@ export class SocketServer implements IAdapter {
     this.wss = new WebSocketServer({ path: '/ws', server, maxPayload: this.MAX_PAYLOAD });
 
     this.wss.on('connection', (ws) => {
-      let clientId = getRandomName();
-      this.clientIds.add(clientId);
-      logger.info(LogOrigin.Client, `${this.clientIds.size} Connections with new: ${clientId}`);
+      const clientId = generateId();
+
+      this.clients.set(clientId, {
+        type: 'unknown',
+        identify: false,
+        name: getRandomName(),
+        path: '',
+      });
+
+      logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientId}`);
+
+      ws.send(
+        JSON.stringify({
+          type: 'client-id',
+          payload: clientId,
+        }),
+      );
+
+      ws.send(
+        JSON.stringify({
+          type: 'client-name',
+          payload: this.clients.get(clientId).name,
+        }),
+      );
+
+      this.sendClientList();
 
       // send store payload on connect
       ws.send(
@@ -60,18 +84,12 @@ export class SocketServer implements IAdapter {
         }),
       );
 
-      ws.send(
-        JSON.stringify({
-          type: 'client-name',
-          payload: clientId,
-        }),
-      );
-
       ws.on('error', console.error);
 
       ws.on('close', () => {
-        this.clientIds.delete(clientId);
-        logger.info(LogOrigin.Client, `${this.clientIds.size} Connections with disconnected: ${clientId}`);
+        this.clients.delete(clientId);
+        logger.info(LogOrigin.Client, `${this.clients.size} Connections with disconnected: ${clientId}`);
+        this.sendClientList();
       });
 
       ws.on('message', (data) => {
@@ -84,26 +102,44 @@ export class SocketServer implements IAdapter {
             ws.send(
               JSON.stringify({
                 type: 'client-name',
-                payload: clientId,
+                payload: this.clients.get(clientId).name,
               }),
             );
             return;
           }
 
+          if (type === 'set-client-type') {
+            if (payload && typeof payload == 'string') {
+              const previousData = this.clients.get(clientId);
+              this.clients.set(clientId, { ...previousData, type: payload });
+            }
+            this.sendClientList();
+            return;
+          }
+
+          if (type === 'set-client-path') {
+            if (payload && typeof payload == 'string') {
+              const previousData = this.clients.get(clientId);
+              previousData.path = payload;
+              this.clients.set(clientId, previousData);
+            }
+            this.sendClientList();
+            return;
+          }
+
           if (type === 'set-client-name') {
             if (payload) {
-              const previousName = clientId;
-              clientId = payload;
-              this.clientIds.delete(previousName);
-              this.clientIds.add(clientId);
-              logger.info(LogOrigin.Client, `Client ${previousName} renamed to ${clientId}`);
+              const previousData = this.clients.get(clientId);
+              logger.info(LogOrigin.Client, `Client ${previousData.name} renamed to ${payload}`);
+              this.clients.set(clientId, { ...previousData, name: payload });
+              ws.send(
+                JSON.stringify({
+                  type: 'client-name',
+                  payload: this.clients.get(clientId).name,
+                }),
+              );
             }
-            ws.send(
-              JSON.stringify({
-                type: 'client-name',
-                payload: clientId,
-              }),
-            );
+            this.sendClientList();
             return;
           }
 
@@ -135,17 +171,58 @@ export class SocketServer implements IAdapter {
     });
   }
 
-  // message is any serializable value
-  sendAsJson(message: unknown) {
-    this.wss?.clients.forEach((client) => {
-      try {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify(message));
-        }
-      } catch (_) {
-        /** We do not handle this error */
-      }
+  private sendClientList(): void {
+    const payload = Object.fromEntries(this.clients.entries());
+    this.sendAsJson({ type: 'client-list', payload });
+  }
+
+  public getClientList(): string[] {
+    return Array.from(this.clients.keys());
+  }
+
+  public renameClient(target: string, name: string) {
+    const previousData = this.clients.get(target);
+    if (!previousData) {
+      throw new Error(`Client "${target}" not found`);
+    }
+    logger.info(LogOrigin.Client, `Client ${previousData.name} renamed to ${name}`);
+    this.clients.set(target, { ...previousData, name });
+    this.sendAsJson({
+      type: 'client-rename',
+      payload: { name, target },
     });
+    this.sendClientList();
+  }
+
+  public redirectClient(target: string, path: string) {
+    const previousData = this.clients.get(target);
+    if (!previousData) {
+      throw new Error(`Client "${target}" not found`);
+    }
+    this.sendAsJson({ type: 'client-redirect', payload: { target, path } });
+  }
+
+  public identifyClient(target: string, identify: boolean) {
+    const previousData = this.clients.get(target);
+    if (!previousData) {
+      throw new Error(`Client "${target}" not found`);
+    }
+    this.clients.set(target, { ...previousData, identify });
+    this.sendClientList();
+  }
+
+  // message is any serializable value
+  public sendAsJson(message: unknown) {
+    try {
+      const stringifiedMessage = JSON.stringify(message);
+      this.wss?.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(stringifiedMessage);
+        }
+      });
+    } catch (_) {
+      /** We do not handle this error */
+    }
   }
 
   shutdown() {

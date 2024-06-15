@@ -1,0 +1,6 @@
+.buttonSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $element-spacing;
+  margin-top: -$element-spacing;
+}

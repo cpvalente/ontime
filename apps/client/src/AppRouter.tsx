@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 
+import { useClientPath } from './common/hooks/useClientPath';
 import Log from './features/log/Log';
 import withPreset from './features/PresetWrapper';
 import withData from './features/viewers/ViewWrapper';
@@ -34,6 +35,9 @@ const TimerControl = lazy(() => import('./features/control/playback/TimerControl
 const MessageControl = lazy(() => import('./features/control/message/MessageControlExport'));
 
 export default function AppRouter() {
+  // handle client path changes
+  useClientPath();
+
   return (
     <Suspense fallback={null}>
       <Routes>

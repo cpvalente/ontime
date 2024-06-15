@@ -19,10 +19,10 @@ import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 
 import { navigatorConstants } from '../../../viewerConfig';
 import useClickOutside from '../../hooks/useClickOutside';
+import { useClientStore } from '../../stores/clientStore';
 import { useViewOptionsStore } from '../../stores/viewOptions';
 import { isKeyEnter } from '../../utils/keyEvent';
-
-import RenameClientModal from './rename-client-modal/RenameClientModal';
+import { RenameClientModal } from '../client-modal/RenameClientModal';
 
 import style from './NavigationMenu.module.scss';
 
@@ -34,8 +34,10 @@ interface NavigationMenuProps {
 function NavigationMenu(props: NavigationMenuProps) {
   const { isOpen, onClose } = props;
 
-  const { isOpen: isRenameOpen, onOpen: onRenameOpen, onClose: onRenameClose } = useDisclosure();
+  const id = useClientStore((store) => store.id);
+  const name = useClientStore((store) => store.name);
 
+  const { isOpen: isOpenRename, onOpen: onRenameOpen, onClose: onCloseRename } = useDisclosure();
   const { fullscreen, toggle } = useFullscreen();
   const { toggleMirror } = useViewOptionsStore();
 
@@ -45,7 +47,7 @@ function NavigationMenu(props: NavigationMenuProps) {
 
   return createPortal(
     <div id='navigation-menu-portal' ref={menuRef}>
-      <RenameClientModal isOpen={isRenameOpen} onClose={onRenameClose} />
+      <RenameClientModal id={id} name={name} isOpen={isOpenRename} onClose={onCloseRename} />
       <Drawer placement='left' onClose={onClose} isOpen={isOpen} variant='ontime' data-testid='navigation__menu'>
         <DrawerOverlay />
         <DrawerContent>

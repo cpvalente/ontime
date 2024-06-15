@@ -50,7 +50,21 @@ export const settingPanels: Readonly<SettingsOption[]> = [
       { id: 'integrations__http', label: 'HTTP settings' },
     ],
   },
-  { id: 'log', label: 'Log', split: true },
+  {
+    id: 'network',
+    label: 'Network',
+    split: true,
+    secondary: [
+      {
+        id: 'network__log',
+        label: 'Application log',
+      },
+      {
+        id: 'network__clients',
+        label: 'Manage clients',
+      },
+    ],
+  },
   {
     id: 'about',
     label: 'About',

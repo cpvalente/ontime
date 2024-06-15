@@ -4,16 +4,15 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import ErrorBoundary from './common/components/error-boundary/ErrorBoundary';
+import IdentifyOverlay from './common/components/identify-overlay/IdentifyOverlay';
 import { AppContextProvider } from './common/context/AppContext';
 import { ontimeQueryClient } from './common/queryClient';
-import { socketClientName } from './common/stores/connectionName';
 import { connectSocket } from './common/utils/socket';
 import theme from './theme/theme';
 import { TranslationProvider } from './translation/TranslationProvider';
 import AppRouter from './AppRouter';
 
-const preferredClientName = socketClientName.getState().name;
-connectSocket(preferredClientName);
+connectSocket();
 
 function App() {
   return (
@@ -24,11 +23,15 @@ function App() {
             <div className='App'>
               <ErrorBoundary>
                 <TranslationProvider>
+                  <IdentifyOverlay />
                   <AppRouter />
                 </TranslationProvider>
               </ErrorBoundary>
               <ReactQueryDevtools initialIsOpen={false} />
             </div>
+            <ErrorBoundary>
+              <div id='identify-portal' />
+            </ErrorBoundary>
           </BrowserRouter>
         </AppContextProvider>
       </QueryClientProvider>
