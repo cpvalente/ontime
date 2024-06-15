@@ -412,6 +412,7 @@ function invalidateIfUsed(label: CustomFieldLabel) {
   // schedule a non priority cache update
   setImmediate(() => {
     generate();
+    DataProvider.setRundown(persistedRundown);
   });
 }
 
