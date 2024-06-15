@@ -58,8 +58,9 @@ export default function ProjectListItem({
         onSubmit();
       } catch (error) {
         setSubmitError(maybeAxiosError(error));
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
   };
 
@@ -71,10 +72,10 @@ export default function ProjectListItem({
       await onRefetch();
       await invalidateAllCaches();
     } catch (error) {
-      console.log('>>>>>>>>', maybeAxiosError(error));
       setSubmitError(maybeAxiosError(error));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleDelete = async (filename: string) => {
@@ -85,8 +86,9 @@ export default function ProjectListItem({
       await onRefetch();
     } catch (error) {
       setSubmitError(maybeAxiosError(error));
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleToggleEditMode = (editMode: EditMode, filename: string | null) => {
