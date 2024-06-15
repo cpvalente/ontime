@@ -127,8 +127,12 @@ function ActionMenu({
   onRefetch: () => Promise<void>;
 }) {
   const handleLoad = async () => {
-    await loadProject(filename);
-    await invalidateAllCaches();
+    try {
+      await loadProject(filename);
+      await invalidateAllCaches();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleRename = () => {

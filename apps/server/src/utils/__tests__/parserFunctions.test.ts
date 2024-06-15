@@ -33,8 +33,9 @@ describe('parseRundown()', () => {
   it('returns an empty array if no rundown is given', () => {
     const errorEmitter = vi.fn();
     const result = parseRundown({}, errorEmitter);
-    expect(result).toEqual([]);
-    expect(errorEmitter).toHaveBeenCalledOnce();
+    expect(result.rundown).toEqual([]);
+    expect(result.customFields).toEqual({});
+    expect(errorEmitter).toHaveBeenCalledTimes(2);
   });
 
   it('parses data, skipping invalid results', () => {
@@ -45,9 +46,9 @@ describe('parseRundown()', () => {
       {}, // no data
       { id: '2', title: 'test 2', skip: false }, // no type
     ] as OntimeRundown;
-    const result = parseRundown({ rundown }, errorEmitter);
-    expect(result.length).toEqual(1);
-    expect(result.at(0)).toMatchObject({ id: '1', type: SupportedEvent.Event, title: 'test', skip: false });
+    const { rundown: parsedRundown } = parseRundown({ rundown, customFields: {} }, errorEmitter);
+    expect(parsedRundown.length).toEqual(1);
+    expect(parsedRundown.at(0)).toMatchObject({ id: '1', type: SupportedEvent.Event, title: 'test', skip: false });
     expect(errorEmitter).toHaveBeenCalled();
   });
 });
@@ -391,6 +392,7 @@ describe('parseRundown() linking', () => {
           skip: false,
         } as OntimeEvent,
       ],
+      customFields: {},
     };
 
     const expected: OntimeRundown = [
@@ -398,7 +400,7 @@ describe('parseRundown() linking', () => {
       { ...blankEvent, id: '2', cue: '1', linkStart: '1' },
     ];
     const result = parseRundown(data);
-    expect(result).toEqual(expected);
+    expect(result.rundown).toEqual(expected);
   });
 
   it('returns unlinked if no previous', () => {
@@ -411,11 +413,12 @@ describe('parseRundown() linking', () => {
           skip: false,
         } as OntimeEvent,
       ],
+      customFields: {},
     };
 
     const expected: OntimeRundown = [{ ...blankEvent, id: '2', cue: '0' }];
     const result = parseRundown(data);
-    expect(result).toEqual(expected);
+    expect(result.rundown).toEqual(expected);
   });
 
   it('returns linked events past blocks and delays', () => {
@@ -449,6 +452,7 @@ describe('parseRundown() linking', () => {
           skip: false,
         } as OntimeEvent,
       ],
+      customFields: {},
     };
 
     const expected: OntimeRundown = [
@@ -459,6 +463,6 @@ describe('parseRundown() linking', () => {
       { ...blankEvent, id: '3', cue: '2', linkStart: '2' },
     ];
     const result = parseRundown(data);
-    expect(result).toEqual(expected);
+    expect(result.rundown).toEqual(expected);
   });
 });
