@@ -10,6 +10,7 @@ import { langIt } from './languages/it';
 import { langNo } from './languages/no';
 import { langPt } from './languages/pt';
 import { langSv } from './languages/sv';
+import { langPl } from './languages/pl';
 
 const translationsList = {
   en: langEn,
@@ -20,6 +21,7 @@ const translationsList = {
   no: langNo,
   pt: langPt,
   sv: langSv,
+  pl: langPl,
 };
 
 interface TranslationContextValue {
