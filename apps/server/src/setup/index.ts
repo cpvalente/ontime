@@ -83,7 +83,7 @@ export const uploadsFolderPath = join(getAppDataPath(), config.uploads);
 
 const ensureAppState = () => {
   ensureDirectory(getAppDataPath());
-  fs.writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: 'db.json' }));
+  fs.writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: 'new demo project.json' }));
 };
 
 const getLastLoadedProject = () => {

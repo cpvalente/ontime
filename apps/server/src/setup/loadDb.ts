@@ -34,7 +34,7 @@ const populateDb = (directory: string, filename: string): string => {
         throw new Error('Invalid path to start database');
       }
 
-      const newFileDirectory = join(dbDirectory, startDbName);
+      const newFileDirectory = join(dbDirectory, 'new demo project.json');
 
       copyFileSync(pathToStartDb, newFileDirectory);
       dbPath = newFileDirectory;
@@ -42,7 +42,6 @@ const populateDb = (directory: string, filename: string): string => {
       /* we do not handle this */
     }
   }
-
   return dbPath;
 };
 
