@@ -11,6 +11,7 @@ import {
   renameProject,
 } from '../../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';
+import * as Panel from '../PanelUtils';
 
 import ProjectForm, { ProjectFormValues } from './ProjectForm';
 
@@ -70,6 +71,7 @@ export default function ProjectListItem({
       await onRefetch();
       await invalidateAllCaches();
     } catch (error) {
+      console.log('>>>>>>>>', maybeAxiosError(error));
       setSubmitError(maybeAxiosError(error));
     }
     setLoading(false);
@@ -100,34 +102,43 @@ export default function ProjectListItem({
   const classes = current && !isCurrentlyBeingEdited ? style.current : undefined;
 
   return (
-    <tr key={filename} className={classes}>
-      {isCurrentlyBeingEdited ? (
-        <td colSpan={99}>
-          <ProjectForm
-            action={editingMode}
-            filename={filename}
-            onSubmit={editingMode === 'duplicate' ? handleSubmitAction('duplicate') : handleSubmitAction('rename')}
-            onCancel={handleCancel}
-            submitError={submitError}
-          />
-        </td>
-      ) : (
-        <>
-          <td className={style.containCell}>{filename}</td>
-          <td>{new Date(updatedAt).toLocaleString()}</td>
-          <td className={style.actionButton}>
-            <ActionMenu
-              current={current}
+    <>
+      {submitError && (
+        <tr key='filename-error'>
+          <td colSpan={99}>
+            <Panel.Error>{submitError}</Panel.Error>
+          </td>
+        </tr>
+      )}
+      <tr key={filename} className={classes}>
+        {isCurrentlyBeingEdited ? (
+          <td colSpan={99}>
+            <ProjectForm
+              action={editingMode}
               filename={filename}
-              onChangeEditMode={handleToggleEditMode}
-              onDelete={handleDelete}
-              onLoad={handleLoad}
-              isDisabled={loading}
+              onSubmit={editingMode === 'duplicate' ? handleSubmitAction('duplicate') : handleSubmitAction('rename')}
+              onCancel={handleCancel}
+              submitError={submitError}
             />
           </td>
-        </>
-      )}
-    </tr>
+        ) : (
+          <>
+            <td className={style.containCell}>{filename}</td>
+            <td>{new Date(updatedAt).toLocaleString()}</td>
+            <td className={style.actionButton}>
+              <ActionMenu
+                current={current}
+                filename={filename}
+                onChangeEditMode={handleToggleEditMode}
+                onDelete={handleDelete}
+                onLoad={handleLoad}
+                isDisabled={loading}
+              />
+            </td>
+          </>
+        )}
+      </tr>
+    </>
   );
 }
 
