@@ -317,6 +317,17 @@
     "dangerThreshold": 60000,
     "endMessage": ""
   },
+  "customFields": {
+    "song": {
+      "label": "Song",
+      "type": "string",
+      "colour": "#339E4E"
+    },
+    "artist": {
+      "label": "Artist",
+      "type": "string",
+      "colour": "#339E4E"
+    }},
   "urlPresets": [
     {
       "enabled": true,
