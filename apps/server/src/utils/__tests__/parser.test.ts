@@ -21,6 +21,7 @@ import { makeString } from '../parserUtils.js';
 import { parseRundown, parseUrlPresets, parseViewSettings } from '../parserFunctions.js';
 import { ImportMap, MILLIS_PER_MINUTE } from 'ontime-utils';
 import * as cache from '../../services/rundown-service/rundownCache.js';
+import { parse } from 'path';
 
 const requiredSettings = {
   app: 'ontime',
@@ -1406,7 +1407,7 @@ describe('parseExcel()', () => {
       custom: {},
     };
     const result = parseExcel(testData, importMap);
-    const rundown = parseRundown(result);
+    const { rundown } = parseRundown(result);
     const events = rundown.filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
     expect((events.at(0) as OntimeEvent).timeStart).toEqual(16200000);
     expect((events.at(1) as OntimeEvent).timeStart).toEqual(35100000);
@@ -1443,7 +1444,7 @@ describe('parseExcel()', () => {
     };
 
     const result = parseExcel(testData, importMap);
-    const rundown = parseRundown(result);
+    const { rundown } = parseRundown(result);
     const events = rundown.filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
     expect((events.at(0) as OntimeEvent).timeStart).toEqual(16200000); //<--leading white space in MAP
     expect((events.at(0) as OntimeEvent).timeEnd).toEqual(16200000); //<--trailing white space in MAP
@@ -1495,9 +1496,9 @@ describe('parseExcel()', () => {
     };
 
     const result = parseExcel(testData, importMap);
-    const initialRundown = parseRundown(result);
+    const parseResult = parseRundown(result);
 
-    cache.init(initialRundown, {});
+    cache.init(parseResult.rundown, parseResult.customFields);
     const { rundown, order } = cache.get();
 
     const firstId = order.at(0); // A
