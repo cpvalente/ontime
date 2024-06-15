@@ -117,5 +117,3 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
     ...dynamicCustomFields,
   ];
 }
-
-export const initialColumnOrder: string[] = makeCuesheetColumns({}).map((column) => column.id as string);
