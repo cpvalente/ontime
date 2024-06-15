@@ -120,7 +120,6 @@ export default function ProjectListItem({
               filename={filename}
               onSubmit={editingMode === 'duplicate' ? handleSubmitAction('duplicate') : handleSubmitAction('rename')}
               onCancel={handleCancel}
-              submitError={submitError}
             />
           </td>
         ) : (

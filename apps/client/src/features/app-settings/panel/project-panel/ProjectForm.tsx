@@ -13,10 +13,9 @@ interface ProjectFormProps {
   filename: string;
   onCancel: () => void;
   onSubmit: (values: ProjectFormValues) => Promise<void>;
-  submitError: string | null;
 }
 
-export default function ProjectForm({ action, filename, onSubmit, onCancel, submitError }: ProjectFormProps) {
+export default function ProjectForm({ action, filename, onSubmit, onCancel }: ProjectFormProps) {
   const {
     handleSubmit,
     register,
