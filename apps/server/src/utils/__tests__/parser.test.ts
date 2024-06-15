@@ -21,7 +21,6 @@ import { makeString } from '../parserUtils.js';
 import { parseRundown, parseUrlPresets, parseViewSettings } from '../parserFunctions.js';
 import { ImportMap, MILLIS_PER_MINUTE } from 'ontime-utils';
 import * as cache from '../../services/rundown-service/rundownCache.js';
-import { parse } from 'path';
 
 const requiredSettings = {
   app: 'ontime',

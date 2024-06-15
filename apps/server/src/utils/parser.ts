@@ -25,7 +25,6 @@ import { logger } from '../classes/Logger.js';
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { makeString } from './parserUtils.js';
 import {
-  parseCustomFields,
   parseHttp,
   parseOsc,
   parseProject,

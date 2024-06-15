@@ -16,7 +16,7 @@ import { cellRequestFromEvent, type ClientSecret, getA1Notation, validateClientS
 import { ImportMap } from 'ontime-utils';
 import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
-import { parseCustomFields, parseRundown } from '../../utils/parserFunctions.js';
+import { parseRundown } from '../../utils/parserFunctions.js';
 import { getRundown } from '../rundown-service/rundownUtils.js';
 
 const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';

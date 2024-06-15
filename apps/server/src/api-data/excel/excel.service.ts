@@ -11,7 +11,7 @@ import { existsSync } from 'fs';
 import xlsx from 'node-xlsx';
 
 import { parseExcel } from '../../utils/parser.js';
-import { parseCustomFields, parseRundown } from '../../utils/parserFunctions.js';
+import { parseRundown } from '../../utils/parserFunctions.js';
 import { deleteFile } from '../../utils/parserUtils.js';
 
 let excelData: { name: string; data: unknown[][] }[] = [];
