@@ -1,79 +1,37 @@
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useCallback, useEffect } from 'react';
 import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { setClientRemote } from '../../hooks/useSocket';
 import { useClientStore } from '../../stores/clientStore';
-import { socketSendJson } from '../../utils/socket';
-import ProgressBar from '../progress-bar/ProgressBar';
 
 import style from './Overlay.module.scss';
-const tickRate = 30;
 
 export default function IdentifyOverlay() {
-  const { clients, id, name, redirect, setRedirect } = useClientStore();
+  const { clients, id, name } = useClientStore();
   const { setIdentify } = setClientRemote;
-  const navigate = useNavigate();
-  const { pathname, search } = useLocation();
   const showOverlay = clients[id]?.identify;
-  const [identifyTimeout, setIdentifyTimeout] = useState(0);
 
-  // notify server of users new path if it changes
-  useEffect(() => {
-    socketSendJson('set-client-path', pathname + search);
-  }, [pathname, search]);
+  const handleClose = useCallback(() => {
+    setIdentify({ target: id, identify: false });
+  }, [id, setIdentify]);
 
-  // navigate to new path when received from server
+  // start a timer that will close the overlay after some time
   useEffect(() => {
-    if (redirect !== '') {
-      if (redirect !== pathname + search) {
-        setRedirect('');
-        navigate(redirect);
-      } else {
-        setRedirect('');
-      }
-    }
-  }, [pathname, navigate, redirect, setRedirect, search]);
-
-  // start timeout for indetify overlay
-  useEffect(() => {
+    let timer: NodeJS.Timeout;
     if (showOverlay) {
-      setIdentifyTimeout(MILLIS_PER_MINUTE);
-    } else {
-      setIdentifyTimeout(0);
+      timer = setTimeout(handleClose, MILLIS_PER_MINUTE);
     }
-  }, [showOverlay]);
-
-  // handle progressbar animation
-  useEffect(() => {
-    const progressInterval = setTimeout(() => {
-      if (identifyTimeout < tickRate) {
-        clearTimeout(progressInterval);
-        setIdentify({ target: id, identify: false });
-        setIdentifyTimeout(0);
-      } else {
-        setIdentifyTimeout((value) => value - tickRate);
-      }
-    }, tickRate);
-
-    return () => {
-      clearTimeout(progressInterval);
-    };
-  }, [id, identifyTimeout, setIdentify]);
+    return () => clearTimeout(timer);
+  }, [showOverlay, id, setIdentify, handleClose]);
 
   if (!showOverlay) {
     return null;
   }
 
   return (
-    <div
-      className={style.overlay}
-      data-testid='identify-overlay'
-      onClick={() => setIdentify({ target: id, identify: false })}
-    >
+    <div className={style.overlay} data-testid='identify-overlay' onClick={handleClose}>
       <div className={style.name}>{name}</div>
       <div className={style.message}>Click to close</div>
-      <ProgressBar now={identifyTimeout} complete={MILLIS_PER_MINUTE} />
     </div>
   );
 }
