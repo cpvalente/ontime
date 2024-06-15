@@ -43,7 +43,7 @@ jobs:
         run: cp -R apps/server/src/external apps/cli/external
       
       - name: Publish to NPM
-        run: pnpm publish --access public
+        run: pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
