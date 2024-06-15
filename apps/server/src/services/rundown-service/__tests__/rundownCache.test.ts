@@ -361,7 +361,7 @@ describe('remove() mutation', () => {
     ];
     const { newRundown } = remove({ eventIds: ['1', '2', '3'], persistedRundown: testRundown });
     expect(newRundown.length).toBe(3);
-    expect(newRundown.at(0).id).toBe('4');
+    expect(newRundown.at(0)?.id).toBe('4');
   });
 });
 
