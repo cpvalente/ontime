@@ -12,29 +12,40 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import { ClientList } from 'ontime-types';
+
+import { setClientRemote } from '../../hooks/useSocket';
 
 import style from './ClientModal.module.scss';
 
 interface RedirectClientModalProps {
-  onClose: () => void;
-  isOpen: boolean;
   id: string;
-  clients: ClientList;
-  onSubmit: (path: string) => void;
+  name?: string;
+  path?: string;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function RedirectClientModal(props: RedirectClientModalProps) {
-  const { onClose, isOpen, id, clients, onSubmit } = props;
-  const [path, setPath] = useState(clients[id]?.path ?? '');
+  const { id, isOpen, name = '', path: currentPath = '', onClose } = props;
+  const [path, setPath] = useState(currentPath);
+
+  const { setRedirect } = setClientRemote;
+
+  const handleRedirect = () => {
+    if (path !== currentPath && path !== '') {
+      setRedirect({ target: id, redirect: path });
+    }
+    onClose();
+  };
 
   const host = `${window.location.origin}/`;
+  const canSubmit = path !== currentPath && path !== '';
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Redirect: {clients[id]?.name ?? ''}</ModalHeader>
+        <ModalHeader>Redirect: {name}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <InputGroup variant='ontime-filled' size='md'>
@@ -47,7 +58,7 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
             <Button size='md' variant='ontime-subtle' onClick={onClose}>
               Cancel
             </Button>
-            <Button size='md' variant='ontime-filled' onClick={() => onSubmit(path)}>
+            <Button size='md' variant='ontime-filled' onClick={handleRedirect} isDisabled={!canSubmit}>
               Submit
             </Button>
           </div>

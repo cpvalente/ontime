@@ -10,27 +10,38 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import { ClientList } from 'ontime-types';
+
+import { setClientRemote } from '../../hooks/useSocket';
 
 import style from './ClientModal.module.scss';
 
 interface RenameClientModalProps {
-  onClose: () => void;
-  isOpen: boolean;
   id: string;
-  clients: ClientList;
-  onSubmit: (path: string) => void;
+  name?: string;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 export function RenameClientModal(props: RenameClientModalProps) {
-  const { onClose, isOpen, id, clients, onSubmit } = props;
-  const [name, setName] = useState(clients[id]?.name ?? '');
+  const { id, name: currentName = '', isOpen, onClose } = props;
+  const [name, setName] = useState(currentName);
+
+  const { setClientName } = setClientRemote;
+
+  const handleRename = () => {
+    if (name !== currentName && name !== '') {
+      setClientName({ target: id, rename: name });
+    }
+    onClose();
+  };
+
+  const canSubmit = name !== currentName && name !== '';
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Rename: {clients[id]?.name ?? ''}</ModalHeader>
+        <ModalHeader>Rename: {name}</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <Input
@@ -46,7 +57,7 @@ export function RenameClientModal(props: RenameClientModalProps) {
             <Button size='md' variant='ontime-subtle' onClick={onClose}>
               Cancel
             </Button>
-            <Button size='md' variant='ontime-filled' onClick={() => onSubmit(name)}>
+            <Button size='md' variant='ontime-filled' onClick={handleRename} isDisabled={!canSubmit}>
               Submit
             </Button>
           </div>

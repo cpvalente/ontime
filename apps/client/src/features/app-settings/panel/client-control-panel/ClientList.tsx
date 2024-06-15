@@ -13,7 +13,7 @@ export default function ClientList() {
   const { id, clients } = useClientStore();
   const { isOpen: isOpenRedirect, onOpen: onOpenRedirect, onClose: onCloseRedirect } = useDisclosure();
   const { isOpen: isOpenRename, onOpen: onOpenRename, onClose: onCloseRename } = useDisclosure();
-  const { setIdentify, setRedirect, setClientName } = setClientRemote;
+  const { setIdentify } = setClientRemote;
 
   const [targetId, setTargetId] = useState('');
 
@@ -22,133 +22,125 @@ export default function ClientList() {
     onOpenRename();
   };
 
-  const onRename = (rename: string) => {
-    setClientName({ target: targetId, rename });
-    onCloseRename();
-  };
-
   const openRedirect = (targetId: string) => {
     setTargetId(targetId);
     onOpenRedirect();
   };
 
-  const onRedirect = (redirect: string) => {
-    setRedirect({ target: targetId, redirect });
-    onCloseRedirect();
-  };
-
   const ontimeClients = Object.entries(clients).filter(([_, { type }]) => type === 'ontime');
   const otherClients = Object.entries(clients).filter(([_, { type }]) => type !== 'ontime');
+
+  const targetClient = clients[targetId];
 
   return (
     <>
       {isOpenRedirect && (
         <RedirectClientModal
-          onClose={onCloseRedirect}
-          isOpen={isOpenRedirect}
-          clients={clients}
           id={targetId}
-          onSubmit={onRedirect}
+          name={targetClient?.name}
+          path={targetClient?.path}
+          isOpen={isOpenRedirect}
+          onClose={onCloseRedirect}
         />
       )}
       {isOpenRename && (
-        <RenameClientModal
-          onClose={onCloseRename}
-          isOpen={isOpenRename}
-          clients={clients}
-          id={targetId}
-          onSubmit={onRename}
-        />
+        <RenameClientModal id={targetId} name={targetClient?.name} isOpen={isOpenRename} onClose={onCloseRename} />
       )}
-      <Panel.Title>Ontime Clients</Panel.Title>
-      <Panel.Table>
-        <thead>
-          <tr>
-            <td className={style.fullWidth}>Client Name (Connection ID)</td>
-            <td className={style.fullWidth}>Path</td>
-            <td />
-          </tr>
-        </thead>
-        <tbody>
-          {ontimeClients.map(([key, client]) => {
-            const { identify, name, path } = client;
-            const isCurrent = id === key;
-            return (
-              <tr key={key}>
-                <td className={style.badgeList}>
-                  <Badge variant='outline' size='sx'>
-                    {key}
-                  </Badge>
-                  <Badge hidden={!isCurrent} variant='outline' colorScheme='yellow' size='sx'>
-                    self
-                  </Badge>
-                  {name}
-                </td>
-                <td className={style.pathList}>{path}</td>
-                <td className={style.actionButtons}>
-                  <Button
-                    size='xs'
-                    className={`${identify ? style.blink : ''}`}
-                    isDisabled={isCurrent}
-                    variant={identify ? 'ontime-filled' : 'ontime-subtle'}
-                    data-testid={isCurrent ? '' : 'not-self-identify'}
-                    onClick={() => {
-                      setIdentify({ target: key, identify: !identify });
-                    }}
-                  >
-                    Identify
-                  </Button>
-                  <Button
-                    size='xs'
-                    variant='ontime-subtle'
-                    data-testid={isCurrent ? '' : 'not-self-rename'}
-                    onClick={() => openRename(key)}
-                  >
-                    Rename
-                  </Button>
+      <Panel.Section>
+        <Panel.Title>Ontime Clients</Panel.Title>
+        <Panel.Table>
+          <thead>
+            <tr>
+              <td className={style.fullWidth}>Client Name (Connection ID)</td>
+              <td className={style.fullWidth}>Path</td>
+              <td />
+            </tr>
+          </thead>
+          <tbody>
+            {ontimeClients.map(([key, client]) => {
+              const { identify, name, path } = client;
+              const isCurrent = id === key;
+              return (
+                <tr key={key}>
+                  <td className={style.badgeList}>
+                    <Badge variant='outline' size='xs'>
+                      {key}
+                    </Badge>
+                    {isCurrent && (
+                      <Badge variant='outline' colorScheme='yellow' size='xs'>
+                        self
+                      </Badge>
+                    )}
+                    {name}
+                  </td>
+                  {isCurrent ? <td /> : <td className={style.pathList}>{path}</td>}
+                  <td className={style.actionButtons}>
+                    <Button
+                      size='xs'
+                      className={`${identify ? style.blink : ''}`}
+                      isDisabled={isCurrent}
+                      variant={identify ? 'ontime-filled' : 'ontime-subtle'}
+                      data-testid={isCurrent ? '' : 'not-self-identify'}
+                      onClick={() => {
+                        setIdentify({ target: key, identify: !identify });
+                      }}
+                    >
+                      Identify
+                    </Button>
+                    <Button
+                      size='xs'
+                      variant='ontime-subtle'
+                      data-testid={isCurrent ? '' : 'not-self-rename'}
+                      onClick={() => openRename(key)}
+                    >
+                      Rename
+                    </Button>
 
-                  <Button
-                    size='xs'
-                    variant='ontime-subtle'
-                    isDisabled={isCurrent}
-                    data-testid={isCurrent ? '' : 'not-self-redirect'}
-                    onClick={() => openRedirect(key)}
-                  >
-                    Redirect
-                  </Button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </Panel.Table>
+                    <Button
+                      size='xs'
+                      variant='ontime-subtle'
+                      isDisabled={isCurrent}
+                      data-testid={isCurrent ? '' : 'not-self-redirect'}
+                      onClick={() => openRedirect(key)}
+                    >
+                      Redirect
+                    </Button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </Panel.Table>
+      </Panel.Section>
       <Panel.Divider />
-      <Panel.Title>Other Clients</Panel.Title>
-      <Panel.Table>
-        <thead>
-          <tr>
-            <td className={style.halfWidth}>Client Name (Connection ID)</td>
-            <td className={style.halfWidth}>Client type</td>
-          </tr>
-        </thead>
-        <tbody>
-          {otherClients.map(([key, client]) => {
-            const { name, type } = client;
+      <Panel.Section>
+        <Panel.Title>Other Clients</Panel.Title>
+        <Panel.Table>
+          <thead>
+            <tr>
+              <td className={style.halfWidth}>Client Name (Connection ID)</td>
+              <td className={style.halfWidth}>Client type</td>
+            </tr>
+          </thead>
+          <tbody>
+            {otherClients.map(([key, client]) => {
+              const { name, type } = client;
 
-            return (
-              <tr key={key}>
-                <td className={style.badgeList}>
-                  <Badge variant='outline' size='sx'>
-                    {key}
-                  </Badge>
-                  {name}
-                </td>
-                <td>{type}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </Panel.Table>
+              return (
+                <tr key={key}>
+                  <td className={style.badgeList}>
+                    <Badge variant='outline' size='sx'>
+                      {key}
+                    </Badge>
+                    {name}
+                  </td>
+                  <td>{type}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </Panel.Table>
+      </Panel.Section>
     </>
   );
 }
