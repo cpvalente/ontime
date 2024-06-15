@@ -137,10 +137,11 @@ export async function renameProjectFile(existingProjectFile: string, newName: st
   const projectFilePath = join(resolveProjectsDirectory, existingProjectFile);
   const newProjectFilePath = join(resolveProjectsDirectory, newName);
 
-  await rename(projectFilePath, newProjectFilePath);
-
   // Update the last loaded project config if current loaded project is the one being renamed
+  // we need to do this before renaming
   const lastLoadedProject = await getLoadedProject();
+
+  await rename(projectFilePath, newProjectFilePath);
 
   if (lastLoadedProject === existingProjectFile) {
     await appStateService.updateDatabaseConfig(newName);
