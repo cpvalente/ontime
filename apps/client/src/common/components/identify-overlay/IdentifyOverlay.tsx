@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { setClientRemote } from '../../hooks/useSocket';
@@ -7,6 +8,23 @@ import { useClientStore } from '../../stores/clientStore';
 import style from './IdentifyOverlay.module.scss';
 
 export default function IdentifyOverlay() {
+  const clients = useClientStore((store) => store.clients);
+  const id = useClientStore((store) => store.id);
+  const showOverlay = clients[id]?.identify;
+
+  if (!showOverlay) {
+    return null;
+  }
+
+  const portalRoot = document.getElementById('identify-portal');
+
+  if (!portalRoot) {
+    return null;
+  }
+  return createPortal(<Overlay />, portalRoot);
+}
+
+function Overlay() {
   const clients = useClientStore((store) => store.clients);
   const id = useClientStore((store) => store.id);
   const name = useClientStore((store) => store.name);
@@ -36,10 +54,7 @@ export default function IdentifyOverlay() {
     };
   }, [showOverlay, id, setIdentify, handleClose]);
 
-  if (!showOverlay) {
-    return null;
-  }
-
+    console.log('here2');
   return (
     <div className={style.overlay} data-testid='identify-overlay' onClick={handleClose}>
       <div className={style.name}>{name}</div>

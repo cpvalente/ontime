@@ -29,6 +29,9 @@ function App() {
               </ErrorBoundary>
               <ReactQueryDevtools initialIsOpen={false} />
             </div>
+            <ErrorBoundary>
+              <div id='identify-portal' />
+            </ErrorBoundary>
           </BrowserRouter>
         </AppContextProvider>
       </QueryClientProvider>
