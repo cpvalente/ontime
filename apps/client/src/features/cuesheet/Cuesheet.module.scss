@@ -47,11 +47,13 @@ $table-header-font-size: calc(1rem - 3px);
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: $gray-1300;
 
   font-size: $table-header-font-size;
   color: $gray-700;
-  font-weight: 400;
+
+  th {
+      background-color: $gray-1300;
+  }
 }
 
 .eventRow {
