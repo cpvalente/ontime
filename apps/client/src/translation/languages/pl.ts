@@ -1,4 +1,6 @@
-export const langEn = {
+import { TranslationObject } from './en';
+
+export const langPl: TranslationObject = {
   'common.end_time': 'Czas zakończenia',
   'common.expected_finish': 'Zakładany czas zakończenia',
   'common.minutes': 'min',
