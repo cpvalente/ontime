@@ -47,7 +47,7 @@ let links: Record<EventID, EventID> = {};
  *  lighting: lx
  * }
  */
-export const customFieldChangelog = {};
+export const customFieldChangelog = new Map<string, string>();
 
 /**
  * Keep track of which custom fields are used.
@@ -141,6 +141,7 @@ export function generate(
   }
 
   isStale = false;
+  customFieldChangelog.clear();
   totalDelay = accumulatedDelay;
   if (lastEnd !== null && firstStart !== null) {
     totalDuration = getTotalDuration(firstStart, lastEnd, daySpan);
@@ -411,6 +412,7 @@ function invalidateIfUsed(label: CustomFieldLabel) {
   // schedule a non priority cache update
   setImmediate(() => {
     generate();
+    DataProvider.setRundown(persistedRundown);
   });
 }
 
@@ -459,7 +461,7 @@ export const editCustomField = async (key: string, newField: Partial<CustomField
   }
 
   const existingField = persistedCustomFields[key];
-  if (existingField.type !== newField.type) {
+  if (newField.type !== undefined && existingField.type !== newField.type) {
     throw new Error('Change of field type is not allowed');
   }
 
@@ -468,7 +470,7 @@ export const editCustomField = async (key: string, newField: Partial<CustomField
 
   if (key !== newKey) {
     delete persistedCustomFields[key];
-    customFieldChangelog[key] = newKey;
+    customFieldChangelog.set(key, newKey);
   }
 
   scheduleCustomFieldPersist(persistedCustomFields);

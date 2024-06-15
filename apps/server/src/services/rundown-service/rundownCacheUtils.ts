@@ -73,15 +73,15 @@ export function addToCustomAssignment(
  */
 export function handleCustomField(
   customFields: CustomFields,
-  customFieldChangelog: Record<string, string>,
+  customFieldChangelog: Map<string, string>,
   mutableEvent: OntimeEvent,
   assignedCustomFields: Record<string, string[]>,
 ) {
   for (const field in mutableEvent.custom) {
     // rename the property if it is in the changelog
-    if (field in customFieldChangelog) {
+    if (customFieldChangelog.has(field)) {
       const oldData = mutableEvent.custom[field];
-      const newLabel = customFieldChangelog[field];
+      const newLabel = customFieldChangelog.get(field);
 
       mutableEvent.custom[newLabel] = oldData;
       delete mutableEvent.custom[field];

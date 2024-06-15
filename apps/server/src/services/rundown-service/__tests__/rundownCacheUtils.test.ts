@@ -96,7 +96,7 @@ describe('handleCustomField()', () => {
         label: 'sound',
       },
     } as CustomFields;
-    const customFieldChangelog = {};
+    const customFieldChangelog = new Map<string, string>();
 
     // @ts-expect-error -- partial event for testing
     const event: OntimeEvent = {
@@ -132,9 +132,7 @@ describe('handleCustomField()', () => {
       },
     } as CustomFields;
 
-    const customFieldChangelog = {
-      sound: 'video',
-    };
+    const customFieldChangelog = new Map([['sound', 'video']]);
 
     // @ts-expect-error -- partial event for testing
     const event: OntimeEvent = {
@@ -170,9 +168,7 @@ describe('handleCustomField()', () => {
       },
     } as CustomFields;
 
-    const customFieldChangelog = {
-      field1: 'newField1',
-    };
+    const customFieldChangelog = new Map([['field1', 'newField1']]);
 
     // @ts-expect-error -- partial event for testing
     const mutableEvent: OntimeEvent = {
