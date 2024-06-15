@@ -33,9 +33,10 @@ export const connectSocket = () => {
 
     if (preferredClientName) {
       socketSendJson('set-client-name', preferredClientName);
-      socketSendJson('set-client-type', 'ontime');
-      socketSendJson('set-client-path', location.pathname);
     }
+
+    socketSendJson('set-client-type', 'ontime');
+    socketSendJson('set-client-path', location.pathname);
   };
 
   websocket.onclose = () => {
