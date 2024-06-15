@@ -645,6 +645,8 @@ describe('test import of v2 datamodel', () => {
           onStop: [],
           onUpdate: [],
           onFinish: [],
+          onWarning: [],
+          onDanger: [],
         },
       },
       http: {

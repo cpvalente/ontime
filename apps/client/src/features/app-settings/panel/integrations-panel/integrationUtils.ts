@@ -14,4 +14,6 @@ export const cycles: CycleLabel[] = [
   { id: 5, label: 'Every second', value: 'onClock' },
   { id: 5, label: 'On Timer Update', value: 'onUpdate' },
   { id: 6, label: 'On Finish', value: 'onFinish' },
+  { id: 7, label: 'On Warning', value: 'onWarning' },
+  { id: 8, label: 'On Danger', value: 'onDanger' },
 ];
