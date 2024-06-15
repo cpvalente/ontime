@@ -73,12 +73,12 @@ $inner-padding: 1rem;
     top: 0;
     z-index: 3;
     box-shadow: 0 1px $white-10;
+    background-color: $gray-1350;
   }
 
   th {
     font-weight: 400;
     color: $gray-400;
-    background-color: $gray-1350;
     white-space: nowrap;
     text-transform: capitalize;
   }
