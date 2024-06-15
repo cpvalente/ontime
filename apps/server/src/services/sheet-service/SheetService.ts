@@ -365,10 +365,9 @@ export async function download(
   }
 
   const dataFromSheet = parseExcel(googleResponse.data.values, options);
-  const rundown = parseRundown(dataFromSheet);
+  const { customFields, rundown } = parseRundown(dataFromSheet);
   if (rundown.length < 1) {
     throw new Error('Sheet: Could not find data to import in the worksheet');
   }
-  const customFields = parseCustomFields(dataFromSheet);
   return { rundown, customFields };
 }

@@ -30,10 +30,16 @@ type ErrorEmitter = (message: string) => void;
 /**
  * Parse rundown array of an entry
  */
-export function parseRundown(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): OntimeRundown {
+export function parseRundown(
+  data: Partial<DatabaseModel>,
+  emitError?: ErrorEmitter,
+): { customFields: CustomFields; rundown: OntimeRundown } {
+  // check custom fields first
+  const parsedCustomFields = parseCustomFields(data, emitError);
+
   if (!data.rundown) {
     emitError?.('No data found to import');
-    return [];
+    return { customFields: parsedCustomFields, rundown: [] };
   }
 
   console.log('Found rundown, importing...');
@@ -56,11 +62,20 @@ export function parseRundown(data: Partial<DatabaseModel>, emitError?: ErrorEmit
         const prevId = getLastEvent(rundown).lastEvent?.id ?? null;
         event.linkStart = prevId;
       }
+
       newEvent = createEvent(event, eventIndex.toString());
       // skip if event is invalid
       if (newEvent == null) {
         emitError?.('Skipping event without payload');
         continue;
+      }
+
+      // for every field in custom, check that a key exists in customfields
+      for (const field in newEvent.custom) {
+        if (!Object.hasOwn(parsedCustomFields, field)) {
+          emitError?.(`Custom field ${field} not found`);
+          delete newEvent.custom[field];
+        }
       }
 
       eventIndex += 1;
@@ -80,7 +95,7 @@ export function parseRundown(data: Partial<DatabaseModel>, emitError?: ErrorEmit
   }
 
   console.log(`Uploaded rundown with ${rundown.length} entries`);
-  return rundown;
+  return { customFields: parsedCustomFields, rundown };
 }
 
 /**

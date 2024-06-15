@@ -308,13 +308,16 @@ export function parseJson(jsonData: Partial<DatabaseModel>): { data: DatabaseMod
     errors.push({ context, message });
   };
 
+  // we need to parse the custom fields first so they can be used in validating events
+  const { rundown, customFields } = parseRundown(jsonData, makeEmitError('Rundown'));
+
   const data: DatabaseModel = {
-    rundown: parseRundown(jsonData, makeEmitError('Rundown')),
+    rundown,
     project: parseProject(jsonData, makeEmitError('Project')),
     settings,
     viewSettings: parseViewSettings(jsonData, makeEmitError('View Settings')),
     urlPresets: parseUrlPresets(jsonData, makeEmitError('URL Presets')),
-    customFields: parseCustomFields(jsonData, makeEmitError('Custom Fields')),
+    customFields,
     osc: parseOsc(jsonData, makeEmitError('OSC')),
     http: parseHttp(jsonData, makeEmitError('HTTP')),
   };
