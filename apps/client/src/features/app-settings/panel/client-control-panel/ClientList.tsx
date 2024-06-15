@@ -10,7 +10,8 @@ import * as Panel from '../PanelUtils';
 import style from './ClientControlPanel.module.scss';
 
 export default function ClientList() {
-  const { id, clients } = useClientStore();
+  const id = useClientStore((store) => store.id);
+  const clients = useClientStore((store) => store.clients);
   const { isOpen: isOpenRedirect, onOpen: onOpenRedirect, onClose: onCloseRedirect } = useDisclosure();
   const { isOpen: isOpenRename, onOpen: onOpenRename, onClose: onCloseRename } = useDisclosure();
   const { setIdentify } = setClientRemote;
@@ -47,7 +48,7 @@ export default function ClientList() {
         <RenameClientModal id={targetId} name={targetClient?.name} isOpen={isOpenRename} onClose={onCloseRename} />
       )}
       <Panel.Section>
-        <Panel.Title>Ontime Clients</Panel.Title>
+        <Panel.Title>Ontime Clients ({ontimeClients.length})</Panel.Title>
         <Panel.Table>
           <thead>
             <tr>
@@ -114,7 +115,7 @@ export default function ClientList() {
       </Panel.Section>
       <Panel.Divider />
       <Panel.Section>
-        <Panel.Title>Other Clients</Panel.Title>
+        <Panel.Title>Other Clients ({otherClients.length})</Panel.Title>
         <Panel.Table>
           <thead>
             <tr>

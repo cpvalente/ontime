@@ -7,7 +7,9 @@ import { useClientStore } from '../../stores/clientStore';
 import style from './Overlay.module.scss';
 
 export default function IdentifyOverlay() {
-  const { clients, id, name } = useClientStore();
+  const clients = useClientStore((store) => store.clients);
+  const id = useClientStore((store) => store.id);
+  const name = useClientStore((store) => store.name);
   const { setIdentify } = setClientRemote;
   const showOverlay = clients[id]?.identify;
 
