@@ -19,4 +19,3 @@ export const langPl: TranslationObject = {
   'countdown.overtime': 'ponad czasem',
 };
 
-export type TranslationObject = Record<keyof typeof langEn, string>;
