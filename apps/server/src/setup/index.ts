@@ -6,6 +6,9 @@ import { rm } from 'fs/promises';
 
 import { config } from './config.js';
 import { ensureDirectory } from '../utils/fileManagement.js';
+import { consoleHighlight } from '../utils/console.js';
+
+const DEMO_PROJECT = 'demo project.json';
 
 // =================================================
 // resolve public path
@@ -81,9 +84,21 @@ export const resolveExternalsDirectory = join(isProduction ? getAppDataPath() : 
 export const appStatePath = join(getAppDataPath(), config.appState);
 export const uploadsFolderPath = join(getAppDataPath(), config.uploads);
 
-const ensureAppState = () => {
+// path to public db (these are needed before getLastLoadedProject)
+export const pathToStartDb = isTest
+  ? join(srcDirectory, '..', config.database.testdb, config.database.filename)
+  : join(srcDirectory, '/preloaded-db/', config.database.filename);
+export const resolveDbDirectory = join(testDbStartDirectory, isTest ? `../${config.database.testdb}` : config.projects);
+
+const ensureAppState = (firstStartup = false) => {
   ensureDirectory(getAppDataPath());
-  fs.writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: 'new empty project.json' }));
+  if (firstStartup) {
+    fs.writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: DEMO_PROJECT }));
+    ensureDirectory(resolveDbDirectory);
+    fs.copyFileSync(pathToStartDb, join(resolveDbDirectory, DEMO_PROJECT));
+  } else {
+    fs.writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: '' }));
+  }
 };
 
 const getLastLoadedProject = () => {
@@ -93,9 +108,11 @@ const getLastLoadedProject = () => {
       ensureAppState();
     }
     return appState.lastLoadedProject;
-  } catch {
+  } catch (_) {
     if (!isTest) {
-      ensureAppState();
+      consoleHighlight('No app state found, most lilky first startup');
+      ensureAppState(true);
+      return DEMO_PROJECT;
     }
   }
 };
@@ -103,13 +120,8 @@ const getLastLoadedProject = () => {
 const lastLoadedProject = isTest ? 'db.json' : getLastLoadedProject();
 
 // path to public db
-export const resolveDbDirectory = join(testDbStartDirectory, isTest ? `../${config.database.testdb}` : config.projects);
 export const resolveDbName = lastLoadedProject ? lastLoadedProject : config.database.filename;
 export const resolveDbPath = join(resolveDbDirectory, resolveDbName);
-
-export const pathToStartDb = isTest
-  ? join(srcDirectory, '..', config.database.testdb, config.database.filename)
-  : join(srcDirectory, '/preloaded-db/', config.database.filename);
 
 // path to public styles
 export const resolveStylesDirectory = join(externalsStartDirectory, config.styles.directory);
