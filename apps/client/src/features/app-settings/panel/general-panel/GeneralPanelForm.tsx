@@ -153,6 +153,7 @@ export default function GeneralPanelForm() {
                 <option value='pt'>Portuguese</option>
                 <option value='es'>Spanish</option>
                 <option value='sv'>Swedish</option>
+		<option value='pl'>Polish</option>
               </Select>
             </Panel.ListItem>
           </Panel.ListGroup>
