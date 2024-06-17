@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "alwaysStrict": true,
+    // "alwaysStrict": true,
     "strictNullChecks": false,
     "strictBindCallApply": true,
     "strictFunctionTypes": false,
