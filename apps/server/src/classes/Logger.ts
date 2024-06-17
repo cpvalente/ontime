@@ -8,7 +8,7 @@ import { consoleSubdued, consoleRed } from '../utils/console.js';
 
 class Logger {
   private queue: Log[];
-  private escalateErrorFn: (error: string) => void | null;
+  private escalateErrorFn: ((error: string) => void) | null;
   private canLog = false;
 
   constructor() {
@@ -20,7 +20,7 @@ class Logger {
   /**
    * Enabling setup logger after init
    */
-  init(escalateErrorFn: (error: string) => void) {
+  init(escalateErrorFn?: (error: string) => void) {
     // flush logs from queue
     this.queue.forEach((log) => {
       this._push(log);

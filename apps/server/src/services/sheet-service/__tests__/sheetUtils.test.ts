@@ -60,7 +60,7 @@ describe('cellRequestFromEvent()', () => {
       timeDanger: { row: 1, col: 41 },
     };
     const result = cellRequestFromEvent(event, 1, 1234, metadata);
-    expect(result.updateCells.rows[0].values[5].userEnteredValue.stringValue).toStrictEqual(event.note);
+    expect(result.updateCells?.rows?.at(0)?.values?.at(5)?.userEnteredValue?.stringValue).toStrictEqual(event.note);
   });
 
   test('number to timer', () => {
@@ -103,9 +103,10 @@ describe('cellRequestFromEvent()', () => {
       timeWarning: { row: 1, col: 40 },
       timeDanger: { row: 1, col: 41 },
     };
-    const result = cellRequestFromEvent(event, 1, 1234, metadata).updateCells.rows[0].values[10].userEnteredValue
-      .stringValue;
-    expect(result).toStrictEqual(millisToString(event.duration));
+    const result = cellRequestFromEvent(event, 1, 1234, metadata);
+    expect(result.updateCells?.rows?.at(0)?.values?.at(10)?.userEnteredValue?.stringValue).toStrictEqual(
+      millisToString(event.duration),
+    );
   });
 
   test('boolean to TRUE', () => {
@@ -149,8 +150,8 @@ describe('cellRequestFromEvent()', () => {
       timeDanger: { row: 1, col: 41 },
     };
     const result = cellRequestFromEvent(event, 1, 1234, metadata);
-    expect(result.updateCells.rows[0].values[11].userEnteredValue.boolValue).toStrictEqual(true);
-    expect(result.updateCells.rows[0].values[12].userEnteredValue.boolValue).toStrictEqual(false);
+    expect(result.updateCells?.rows?.at(0)?.values?.at(11)?.userEnteredValue?.boolValue).toStrictEqual(true);
+    expect(result.updateCells?.rows?.at(0)?.values?.at(12)?.userEnteredValue?.boolValue).toStrictEqual(false);
   });
 
   test('spacing in metadata', () => {
@@ -180,8 +181,8 @@ describe('cellRequestFromEvent()', () => {
       title: { row: 1, col: 6 },
     };
     const result = cellRequestFromEvent(event, 1, 1234, metadata);
-    expect(result.updateCells.rows[0].values[0].userEnteredValue.stringValue).toStrictEqual(event.cue);
-    expect(result.updateCells.rows[0].values[6].userEnteredValue.stringValue).toStrictEqual(event.title);
+    expect(result.updateCells?.rows?.at(0)?.values?.at(0)?.userEnteredValue?.stringValue).toStrictEqual(event.cue);
+    expect(result.updateCells?.rows?.at(0)?.values?.at(6)?.userEnteredValue?.stringValue).toStrictEqual(event.title);
   });
 
   test('metadata offset from zero', () => {
@@ -212,8 +213,8 @@ describe('cellRequestFromEvent()', () => {
       user0: { row: 1, col: 16 },
     };
     const result = cellRequestFromEvent(event, 1, 1234, metadata);
-    expect(result.updateCells.rows[0].values[0].userEnteredValue.stringValue).toStrictEqual(event.cue);
-    expect(result.updateCells.rows[0].values[1].userEnteredValue.stringValue).toStrictEqual(event.title);
+    expect(result.updateCells?.rows?.at(0)?.values?.at(0)?.userEnteredValue?.stringValue).toStrictEqual(event.cue);
+    expect(result.updateCells?.rows?.at(0)?.values?.at(1)?.userEnteredValue?.stringValue).toStrictEqual(event.title);
   });
 
   test('sheet setup', () => {
@@ -243,10 +244,10 @@ describe('cellRequestFromEvent()', () => {
       title: { row: 10, col: 6 },
     };
     const result1 = cellRequestFromEvent(event, 1, 1234, metadata);
-    expect(result1.updateCells.start.sheetId).toStrictEqual(1234);
+    expect(result1.updateCells?.start?.sheetId).toStrictEqual(1234);
     const result2 = cellRequestFromEvent(event, 10, 1234, metadata);
-    expect(result2.updateCells.start.rowIndex).toStrictEqual(21);
-    expect(result2.updateCells.start.columnIndex).toStrictEqual(5);
-    expect(result2.updateCells.fields).toStrictEqual('userEnteredValue');
+    expect(result2.updateCells?.start?.rowIndex).toStrictEqual(21);
+    expect(result2.updateCells?.start?.columnIndex).toStrictEqual(5);
+    expect(result2.updateCells?.fields).toStrictEqual('userEnteredValue');
   });
 });
