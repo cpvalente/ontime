@@ -1,16 +1,5 @@
 {
   "compilerOptions": {
-    // "alwaysStrict": true,
-    "strictNullChecks": false,
-    "strictBindCallApply": true,
-    "strictFunctionTypes": false,
-    "strictPropertyInitialization": false,
-    "noImplicitAny": false,
-    "noImplicitThis": false,
-    "useUnknownInCatchVariables": true,
-    "noImplicitOverride": true,
-    "noUncheckedIndexedAccess": true,
-    "noFallthroughCasesInSwitch": true,
     "target": "ESNext",
     "module": "Node16",
     "moduleResolution": "Node16",
