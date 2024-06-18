@@ -308,7 +308,7 @@ export function parseJson(jsonData: Partial<DatabaseModel>): { data: DatabaseMod
   };
 
   // we need to parse the custom fields first so they can be used in validating events
-  const { rundown, customFields } = parseRundown(jsonData, makeEmitError('Rundown'));
+  const { rundown, customFields } = parseRundown(jsonData, makeEmitError('Rundown')); //TODO: now that the custom parser is nested in here the error log is a bit confusing
 
   const data: DatabaseModel = {
     rundown,

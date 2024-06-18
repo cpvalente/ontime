@@ -301,7 +301,7 @@
   },
   "settings": {
     "app": "ontime",
-    "version": "2.0.0",
+    "version": "3.3.2",
     "serverPort": 4001,
     "editorKey": null,
     "operatorKey": null,
@@ -326,7 +326,7 @@
     "artist": {
       "label": "Artist",
       "type": "string",
-      "colour": "#339E4E"
+      "colour": "#3E75E8"
     }},
   "urlPresets": [
     {
