@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { useLocalStorage } from '@mantine/hooks';
+import { useCallback, useRef } from 'react';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import Color from 'color';
 import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
@@ -13,7 +12,7 @@ import DelayRow from './cuesheet-table-elements/DelayRow';
 import EventRow from './cuesheet-table-elements/EventRow';
 import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
 import { useCuesheetSettings } from './store/CuesheetSettings';
-import { initialColumnOrder } from './cuesheetCols';
+import useColumnManager from './useColumnManager';
 
 import style from './Cuesheet.module.scss';
 
@@ -27,22 +26,19 @@ interface CuesheetProps {
 export default function Cuesheet({ data, columns, handleUpdate, selectedId }: CuesheetProps) {
   const { followSelected, showSettings, showDelayBlock, showPrevious, showIndexColumn } = useCuesheetSettings();
 
-  const [columnVisibility, setColumnVisibility] = useLocalStorage({ key: 'table-hidden', defaultValue: {} });
-  const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>({
-    key: 'table-order',
-    defaultValue: initialColumnOrder,
-  });
-  const [columnSizing, setColumnSizing] = useLocalStorage({ key: 'table-sizes', defaultValue: {} });
+  const {
+    columnVisibility,
+    columnOrder,
+    columnSizing,
+    resetColumnOrder,
+    setColumnVisibility,
+    saveColumnOrder,
+    setColumnSizing,
+  } = useColumnManager(columns);
 
   const selectedRef = useRef<HTMLTableRowElement | null>(null);
   const tableContainerRef = useRef<HTMLDivElement | null>(null);
   useFollowComponent({ followRef: selectedRef, scrollRef: tableContainerRef, doFollow: followSelected });
-
-  // keep column order in sync with columns
-  useEffect(() => {
-    const order = columns.map((col) => col.id as string);
-    saveColumnOrder(order);
-  }, [columns, saveColumnOrder]);
 
   const table = useReactTable({
     data,
@@ -60,10 +56,6 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
     onColumnSizingChange: setColumnSizing,
     getCoreRowModel: getCoreRowModel(),
   });
-
-  const resetColumnOrder = () => {
-    saveColumnOrder(initialColumnOrder);
-  };
 
   const setAllVisible = () => {
     table.toggleAllColumnsVisible(true);

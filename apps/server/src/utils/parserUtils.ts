@@ -53,7 +53,7 @@ export function mergeObject<T extends object>(a: T, b: Partial<T>): T {
     }
 
     if (typeof bValue === 'object' && bValue !== null && typeof aValue === 'object' && aValue !== null) {
-      // @ts-expect-error -- library side, ignore for now
+      // @ts-expect-error -- not sure how to type this
       merged[key] = deepmerge(aValue, bValue);
     } else if (bValue !== undefined) {
       merged[key] = bValue;

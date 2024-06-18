@@ -5,6 +5,7 @@
  */
 
 import { AuthenticationStatus, CustomFields, LogOrigin, MaybeString, OntimeRundown } from 'ontime-types';
+import { ImportMap, getErrorMessage } from 'ontime-utils';
 
 import { sheets, sheets_v4 } from '@googleapis/sheets';
 import { Credentials, OAuth2Client } from 'google-auth-library';
@@ -13,7 +14,6 @@ import got from 'got';
 import { resolveSheetsDirectory } from '../../setup/index.js';
 import { ensureDirectory } from '../../utils/fileManagement.js';
 import { cellRequestFromEvent, type ClientSecret, getA1Notation, validateClientSecret } from './sheetUtils.js';
-import { ImportMap } from 'ontime-utils';
 import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
 import { parseRundown } from '../../utils/parserFunctions.js';
@@ -208,7 +208,8 @@ async function verifySheet(
     });
     return { worksheetOptions: spreadsheets.data.sheets.map((i) => i.properties.title) };
   } catch (error) {
-    throw new Error(`Failed to verify sheet: ${error.message}`);
+    const errorMessage = getErrorMessage(error);
+    throw new Error(`Failed to verify sheet: ${errorMessage}`);
   }
 }
 

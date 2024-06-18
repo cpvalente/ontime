@@ -7,6 +7,8 @@ on:
 
 jobs:
   build_cli:
+    permissions:
+      id-token: write
     runs-on: ubuntu-latest
 
     steps:
@@ -19,6 +21,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18.18.2
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
@@ -43,7 +46,7 @@ jobs:
         run: cp -R apps/server/src/external apps/cli/external
       
       - name: Publish to NPM
-        run: pnpm publish --access public
+        run: pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
