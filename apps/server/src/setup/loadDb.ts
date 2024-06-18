@@ -13,7 +13,7 @@ import { parseJson } from '../utils/parser.js';
 import { consoleError, consoleHighlight } from '../utils/console.js';
 import { renameProjectFile } from '../services/project-service/ProjectService.js';
 
-import { resolveCorruptedFilesDirectory, resolveDbDirectory, resolveDbName } from './index.js';
+import { appStatePath, resolveCorruptedFilesDirectory, resolveDbDirectory, resolveDbName } from './index.js';
 
 /**
  * @description ensures directories exist and populates database
@@ -27,10 +27,13 @@ const populateDb = (directory: string, filename: string): string => {
   // if dbInDisk doesn't exist we create an empty file from db model
   if (!existsSync(dbPath)) {
     try {
-      consoleHighlight('No active DB found creating empty default');
-      //TODO: what if it already exists
+      consoleHighlight('No active db found creating empty default');
       const newFileDirectory = join(resolveDbDirectory, 'new empty project.json');
-      writeFileSync(newFileDirectory, JSON.stringify(dbModel));
+      if (!existsSync(newFileDirectory)) {
+        // if it is already there dont override it
+        writeFileSync(newFileDirectory, JSON.stringify(dbModel));
+      }
+      writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: 'new empty project.json' }));
       dbPath = newFileDirectory;
     } catch (_) {
       /* we do not handle this */
