@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'url';
 import path, { dirname, join } from 'path';
-import fs from 'fs';
+import fs, { existsSync } from 'fs';
 
 import { rm } from 'fs/promises';
 
@@ -94,8 +94,12 @@ const ensureAppState = (firstStartup = false) => {
   ensureDirectory(getAppDataPath());
   if (firstStartup) {
     fs.writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: DEMO_PROJECT }));
+    const demoProjectPath = join(resolveDbDirectory, DEMO_PROJECT);
     ensureDirectory(resolveDbDirectory);
-    fs.copyFileSync(pathToStartDb, join(resolveDbDirectory, DEMO_PROJECT));
+    if (!existsSync(demoProjectPath)) {
+      // if it is already there dont override it
+      fs.copyFileSync(pathToStartDb, join(resolveDbDirectory, DEMO_PROJECT));
+    }
   } else {
     fs.writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: '' }));
   }
