@@ -21,6 +21,8 @@ import { getPropertyValue } from '../common/viewUtils';
 
 import './Public.scss';
 
+export const MotionTitleCard = motion(TitleCard);
+
 interface BackstageProps {
   customFields: CustomFields;
   isMirrored: boolean;
@@ -83,31 +85,33 @@ export default function Public(props: BackstageProps) {
       <div className='now-container'>
         <AnimatePresence>
           {publicEventNow && (
-            <motion.div
+            <MotionTitleCard
               className='event now'
               key='now'
               variants={titleVariants}
               initial='hidden'
               animate='visible'
               exit='exit'
-            >
-              <TitleCard label='now' title={publicEventNow.title} secondary={secondaryTextNow} />
-            </motion.div>
+              label='now'
+              title={publicEventNow.title}
+              secondary={secondaryTextNow}
+            />
           )}
         </AnimatePresence>
 
         <AnimatePresence>
           {publicEventNext && (
-            <motion.div
+            <MotionTitleCard
               className='event next'
               key='next'
               variants={titleVariants}
               initial='hidden'
               animate='visible'
               exit='exit'
-            >
-              <TitleCard label='next' title={publicEventNext.title} secondary={secondaryTextNext} />
-            </motion.div>
+              label='next'
+              title={publicEventNext.title}
+              secondary={secondaryTextNext}
+            />
           )}
         </AnimatePresence>
       </div>

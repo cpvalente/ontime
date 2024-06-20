@@ -25,6 +25,8 @@ import { getPropertyValue } from '../common/viewUtils';
 
 import './Backstage.scss';
 
+export const MotionTitleCard = motion(TitleCard);
+
 interface BackstageProps {
   customFields: CustomFields;
   isMirrored: boolean;
@@ -124,7 +126,7 @@ export default function Backstage(props: BackstageProps) {
               animate='visible'
               exit='exit'
             >
-              <TitleCard label='now' title={eventNow.title} secondary={secondaryTextNow} />
+              <TitleCard title={eventNow.title} secondary={secondaryTextNow} />
               <div className='timer-group'>
                 <div className='aux-timers'>
                   <div className='aux-timers__label'>{getLocalizedString('common.started_at')}</div>
@@ -151,16 +153,17 @@ export default function Backstage(props: BackstageProps) {
 
         <AnimatePresence>
           {eventNext && (
-            <motion.div
+            <MotionTitleCard
               className='event next'
               key='next'
               variants={titleVariants}
               initial='hidden'
               animate='visible'
               exit='exit'
-            >
-              <TitleCard label='next' title={eventNext.title} secondary={secondaryTextNext} />
-            </motion.div>
+              label='next'
+              title={eventNext.title}
+              secondary={secondaryTextNext}
+            />
           )}
         </AnimatePresence>
       </div>

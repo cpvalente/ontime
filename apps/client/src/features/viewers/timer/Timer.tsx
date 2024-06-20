@@ -43,6 +43,8 @@ const titleVariants = {
   },
 };
 
+export const MotionTitleCard = motion(TitleCard);
+
 interface TimerProps {
   customFields: CustomFields;
   eventNext: OntimeEvent | null;
@@ -211,31 +213,33 @@ export default function Timer(props: TimerProps) {
         <>
           <AnimatePresence>
             {eventNow?.title && (
-              <motion.div
+              <MotionTitleCard
                 className='event now'
                 key='now'
                 variants={titleVariants}
                 initial='hidden'
                 animate='visible'
                 exit='exit'
-              >
-                <TitleCard label='now' title={mainFieldNow} secondary={secondaryTextNow} />
-              </motion.div>
+                label='now'
+                title={mainFieldNow}
+                secondary={secondaryTextNow}
+              />
             )}
           </AnimatePresence>
 
           <AnimatePresence>
             {eventNext?.title && (
-              <motion.div
-                className='event next'
+              <MotionTitleCard
                 key='next'
                 variants={titleVariants}
                 initial='hidden'
                 animate='visible'
                 exit='exit'
-              >
-                <TitleCard label='next' title={mainFieldNext} secondary={secondaryTextNext} />
-              </motion.div>
+                label='next'
+                title={mainFieldNext}
+                secondary={secondaryTextNext}
+                className='event next'
+              />
             )}
           </AnimatePresence>
         </>

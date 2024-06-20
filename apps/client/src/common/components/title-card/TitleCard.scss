@@ -1,40 +1,42 @@
 @use '../../../theme/viewerDefs' as *;
 
 .title-card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
-.inline {
-  display: flex;
+.title-card__title,
+.title-card__secondary {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .title-card__title {
   font-weight: 600;
-  font-size: clamp(32px, 3.5vw, 50px);
+  font-size: clamp(1.5rem, 3vw, 3rem);
   color: var(--color-override, $viewer-color);
-  line-height: 1.1em;
+  line-height: 1.2em;
+}
+
+.title-card__secondary {
+  font-size: clamp(1rem, 2vw, 2.25rem);
+  color: var(--secondary-color-override, $viewer-secondary-color);
+  line-height: 1.2em;
 }
 
 .title-card__label {
+  position: absolute;
+  right: 1rem;
+  top: 0.5rem;
   font-size: clamp(1rem, 1.5vw, 1.5rem);
-  font-weight: 400;
   color: var(--secondary-color-override, $viewer-secondary-color);
   margin-left: auto;
   text-transform: uppercase;
 
   &--accent {
     color: var(--accent-color-override, $accent-color);
-  }
-}
-
-.title-card__secondary {
-  font-size: clamp(1.5rem, 2vw, 2.25rem);
-  color: var(--secondary-color-override, $viewer-secondary-color);
-  line-height: 1.1em;
-
-  &::after {
-    content: '\200b';
   }
 }
