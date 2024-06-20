@@ -96,10 +96,10 @@
   display: flex;
   flex-wrap: wrap;
 
+
   .field {
     font-weight: 600;
-    padding: 0 0.25rem;
-    margin-right: 0.25rem;
+    padding-inline: 0.25rem;
   }
 
   .noColour {
@@ -110,6 +110,8 @@
   }
 
   .value {
+    padding-inline: 0.25rem;
+    background-color: $gray-1250;
     color: var(--operator-highlight-override, $ui-white);
     margin-right: 1rem;
   }
