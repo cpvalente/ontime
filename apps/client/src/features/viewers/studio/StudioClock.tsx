@@ -36,7 +36,7 @@ export default function StudioClock(props: StudioClockProps) {
   // TODO: can we prevent the Flash of Unstyled Content on the 7segment fonts?
   // deferring rendering seems to affect styling (font and useFitText)
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
-  const { fontSize: titleFontSize, ref: titleRef } = useFitText({ maxFontSize: 500 });
+  const { fontSize: titleFontSize, ref: titleRef } = useFitText({ minFontSize: 150, maxFontSize: 500 });
 
   const activeIndicators = [...Array(12).keys()];
   const secondsIndicators = [...Array(60).keys()];

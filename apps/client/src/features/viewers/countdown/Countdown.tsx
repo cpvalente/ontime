@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { OntimeEvent, OntimeRundownEntry, Playback, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
-import { millisToString, removeLeadingZero } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import { getCountdownOptions } from '../../../common/components/view-params-editor/constants';
@@ -12,6 +11,7 @@ import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
+import { getFormattedTimer, isStringBoolean } from '../common/viewUtils';
 
 import { fetchTimerData, TimerMessage } from './countdown.helpers';
 import CountdownSelect from './CountdownSelect';
@@ -84,24 +84,17 @@ export default function Countdown(props: CountdownProps) {
   const standby = time.playback !== Playback.Play && time.playback !== Playback.Roll && selectedId === follow?.id;
   const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
   const isRunningFinished = finished && runningMessage === TimerMessage.running;
-  const isSelected = runningMessage === TimerMessage.running;
   const delayedTimerStyles = delay > 0 ? 'aux-timers__value--delayed' : '';
 
   const clock = formatTime(time.clock);
   const startTime = follow === null ? '...' : formatTime(follow.timeStart + delay);
   const endTime = follow === null ? '...' : formatTime(follow.timeEnd + delay);
 
-  const formatTimer = (): string => {
-    if (runningMessage === TimerMessage.ended) {
-      return formatTime(runningTimer, { format12: 'hh:mm a', format24: 'HH:mm' });
-    }
-    let formattedTime = millisToString(isSelected ? runningTimer : runningTimer + delay);
-    if (isSelected || runningMessage === TimerMessage.waiting) {
-      formattedTime = removeLeadingZero(formattedTime);
-    }
-    return formattedTime;
-  };
-  const formattedTimer = formatTimer();
+  const hideSeconds = searchParams.get('hideTimerSeconds');
+  const formattedTimer = getFormattedTimer(runningTimer, time.timerType, getLocalizedString('common.minutes'), {
+    removeSeconds: isStringBoolean(hideSeconds),
+    removeLeadingZero: false,
+  });
 
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const timeOption = getCountdownOptions(defaultFormat);
