@@ -15,7 +15,7 @@
   padding: min(2vh, 16px) clamp(16px, 10vw, 64px);
 
   display: grid;
-  grid-template-columns: auto;
+  grid-template-columns: 100%;
   grid-template-rows: auto 1fr auto auto auto;
   grid-template-areas:
     'clock'

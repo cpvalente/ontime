@@ -65,12 +65,15 @@
   font-size: 1.5rem;
   letter-spacing: 0.5px;
   color: $ui-white;
+
+  @include ellipsis-text;
 }
 
 .secondaryField {
   grid-area: secondary;
   font-size: 1.25rem;
   letter-spacing: 0.5px;
+  @include ellipsis-text;
 }
 
 .schedule {
