@@ -1,0 +1,72 @@
+$timeline-entry-height: 20px;
+
+.timeline {
+  flex: 1;
+}
+
+.timelineEvents {
+  position: relative;
+}
+
+.entryIndicator {
+  position: absolute;
+  background-color: var(--color, $ui-white);
+  height: $timeline-entry-height;
+}
+
+.entryContent {
+  position: absolute;
+  margin-top: $timeline-entry-height;
+  padding-top: var(--top, 0);
+  border-left: 2px solid var(--color, $ui-white);
+
+  color: $ui-white;
+
+  white-space: nowrap;
+
+  > div {
+    min-width: 100%;
+    padding-inline: 0.5em;
+    width: fit-content;
+    background-color: $ui-black;
+  }
+
+  &.lastElement {
+    border-left: none;
+    border-right: 2px solid var(--color, $ui-black);
+    text-align: right;
+
+    transform: translateX(-100%);
+  }
+}
+
+.start,
+.title {
+  font-weight: 600;
+}
+
+// for elapsed events, we can hide some stuff
+[data-status='finished'] {
+  color: $gray-500;
+  .status {
+    display: none
+  }
+}
+
+[data-status='live'] {
+  font-weight: 600;
+  color: $ui-white;
+
+  .status {
+    color: $active-red;
+  }
+}
+
+[data-status='future'] {
+  font-weight: 600;
+  color: $gray-300;
+
+  .status {
+    color: $green-500;
+  }
+}

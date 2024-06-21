@@ -95,3 +95,25 @@ export const formatTime = (
   const isNegative = milliseconds < 0;
   return `${isNegative ? '-' : ''}${display}`;
 };
+
+/**
+ * Handles case for formatting a duration time
+ * @param duration
+ * @returns
+ */
+export function formatDuration(duration: number): string {
+  if (duration === 0) {
+    return '0h 0m';
+  }
+
+  const hours = Math.floor(duration / 3600000);
+  const minutes = Math.floor((duration % 3600000) / 60000);
+  let result = '';
+  if (hours > 0) {
+    result += `${hours}h `;
+  }
+  if (minutes > 0) {
+    result += `${minutes}m`;
+  }
+  return result;
+}

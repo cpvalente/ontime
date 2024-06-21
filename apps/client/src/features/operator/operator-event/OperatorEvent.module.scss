@@ -30,7 +30,7 @@
 
   &.running {
     border-top: 1px solid $gray-1300;
-    background-color: var(--operator-running-bg-override, $red-700);
+    background-color: var(--operator-running-bg-override, $active-red);
   }
 
   &.past {

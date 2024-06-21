@@ -4,6 +4,7 @@ export const navigatorConstants = [
   { url: '/minimal', label: 'Minimal Timer' },
   { url: '/backstage', label: 'Backstage' },
   { url: '/public', label: 'Public' },
+  { url: '/timeline', label: 'Timeline' },
   { url: '/lower', label: 'Lower Thirds' },
   { url: '/studio', label: 'Studio Clock' },
   { url: '/countdown', label: 'Countdown' },

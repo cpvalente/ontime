@@ -4,6 +4,15 @@ import { isOntimeEvent } from 'ontime-types';
 type IndexAndEntry = { entry: OntimeRundownEntry | null; index: number | null };
 
 /**
+ * Gets an event with given if if it exists
+ * @param {OntimeRundownEntry[]} rundown
+ * @return {OntimeRundownEntry | null}
+ */
+export function getByEventId(rundown: OntimeRundownEntry[], eventId: string): OntimeRundownEntry | null {
+  return rundown.find((event) => event.id === eventId) ?? null;
+}
+
+/**
  * Gets first event in rundown, if it exists
  * @param {OntimeRundownEntry[]} rundown
  * @return {OntimeRundownEntry | null}
