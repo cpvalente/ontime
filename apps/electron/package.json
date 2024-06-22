@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "3.3.2",
+  "version": "3.4.0-alpha-timeline.2",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",

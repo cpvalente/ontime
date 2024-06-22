@@ -6,37 +6,40 @@ $timeline-entry-height: 20px;
 
 .timelineEvents {
   position: relative;
+  height: 100%;
 }
 
-.entryIndicator {
+.entryColumn {
   position: absolute;
-  background-color: var(--color, $ui-white);
-  height: $timeline-entry-height;
+  background-color: var(--lighter, $gray-500);
+  border-bottom: 0.25rem solid var(--color, $ui-white);
+  border-right: 1px solid $ui-black;
+  min-height: 80px;
+
+  &.fullHeight {
+    height: calc(100% - 4rem);
+  }
 }
 
 .entryContent {
-  position: absolute;
-  margin-top: $timeline-entry-height;
   padding-top: var(--top, 0);
-  border-left: 2px solid var(--color, $ui-white);
-
-  color: $ui-white;
-
-  white-space: nowrap;
-
-  > div {
-    min-width: 100%;
-    padding-inline: 0.5em;
-    width: fit-content;
-    background-color: $ui-black;
-  }
 
   &.lastElement {
-    border-left: none;
-    border-right: 2px solid var(--color, $ui-black);
     text-align: right;
-
     transform: translateX(-100%);
+  }
+}
+
+.entryText {
+  position: relative;
+  z-index: 2;
+  color: $ui-white;
+  padding-inline: 0.5em;
+  width: fit-content;
+  white-space: nowrap;
+
+  &.textBg {
+    background-color: var(--bg, $black-10);
   }
 }
 
@@ -49,7 +52,7 @@ $timeline-entry-height: 20px;
 [data-status='finished'] {
   color: $gray-500;
   .status {
-    display: none
+    display: none;
   }
 }
 

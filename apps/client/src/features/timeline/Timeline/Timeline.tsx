@@ -1,9 +1,11 @@
 import { memo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useViewportSize } from '@mantine/hooks';
 import { isOntimeEvent, MaybeNumber } from 'ontime-types';
 import { dayInMs, getFirstEventNormal, getLastEventNormal, MILLIS_PER_HOUR } from 'ontime-utils';
 
 import useRundown from '../../../common/hooks-query/useRundown';
+import { isStringBoolean } from '../../viewers/common/viewUtils';
 
 import { type ProgressStatus, TimelineEntry } from './TimelineEntry';
 import { TimelineMarkers } from './TimelineMarkers';
@@ -46,6 +48,8 @@ function Timeline(props: TimelineProps) {
   const { selectedEventId } = props;
   const { width: screenWidth } = useViewportSize();
   const timelineData = useTimeline();
+  const [searchParams] = useSearchParams();
+  const fullHeight = isStringBoolean(searchParams.get('fullHeight'));
 
   if (timelineData === null) {
     return null;
@@ -62,6 +66,7 @@ function Timeline(props: TimelineProps) {
   return (
     <div className={style.timeline}>
       <TimelineMarkers />
+      <ProgressBar startHour={startHour} endHour={endHour} />
       <div className={style.timelineEvents}>
         {order.map((eventId) => {
           // for now we dont render delays and blocks
@@ -92,7 +97,8 @@ function Timeline(props: TimelineProps) {
             event.duration,
             screenWidth,
           );
-          const estimatedRightPosition = elementLeftPosition + getEstimatedWidth(event.title);
+          const estimatedWidth = getEstimatedWidth(event.title);
+          const estimatedRightPosition = elementLeftPosition + estimatedWidth;
           const laneLevel = getLaneLevel(rightMostElements, elementLeftPosition);
 
           if (rightMostElements[laneLevel] === undefined || rightMostElements[laneLevel] < estimatedRightPosition) {
@@ -111,11 +117,12 @@ function Timeline(props: TimelineProps) {
               start={event.timeStart}
               title={event.title}
               width={elementWidth}
+              mayGrow={elementWidth < estimatedWidth}
+              fullHeight={fullHeight}
             />
           );
         })}
       </div>
-      <ProgressBar startHour={startHour} endHour={endHour} />
     </div>
   );
 }

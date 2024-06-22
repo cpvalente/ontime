@@ -1,5 +1,5 @@
 import { useClock } from '../../../common/hooks/useSocket';
-import { cx } from '../../../common/utils/styleUtils';
+import { alpha, cx } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../common/utils/time';
 
 import { getStatusLabel } from './timelineUtils';
@@ -18,6 +18,9 @@ interface TimelineEntry {
   start: number;
   title: string;
   width: number;
+
+  mayGrow: boolean;
+  fullHeight: boolean;
 }
 
 const laneHeight = 120;
@@ -27,39 +30,48 @@ const formatOptions = {
 };
 
 export function TimelineEntry(props: TimelineEntry) {
-  const { colour, duration, isLast, lane, left, status, start, title, width } = props;
+  const { colour, duration, isLast, lane, left, status, start, title, width, mayGrow, fullHeight } = props;
 
   const formattedStartTime = formatTime(start, formatOptions);
-  const formattedDuration = `Dur ${formatDuration(duration)}`;
+  const formattedDuration = formatDuration(duration);
 
+  const lighterColour = alpha(colour, 0.7);
+  const alphaColour = alpha(colour, 0.6);
+  const columnClasses = cx([style.entryColumn, fullHeight && style.fullHeight]);
   const contentClasses = cx([style.entryContent, isLast && style.lastElement]);
+  const textBgClasses = cx([style.entryText, mayGrow && style.textBg]);
 
   return (
-    <>
-      <div
-        className={style.entryIndicator}
-        style={{
-          '--color': colour,
-          left: `${left}px`,
-          width: `${width}px`,
-        }}
-      />
+    <div
+      className={columnClasses}
+      style={{
+        '--color': colour,
+        '--lighter': lighterColour ?? '',
+        left: `${left}px`,
+        width: `${width}px`,
+      }}
+    >
       <div
         className={contentClasses}
         data-status={status}
         style={{
           '--color': colour,
           '--top': `${lane * laneHeight}px`,
-          zIndex: 5 - lane,
-          left: `${left}px`,
         }}
       >
-        <div className={style.start}>{formattedStartTime}</div>
-        <div className={style.title}>{title}</div>
-        <div className={style.duration}>{formattedDuration}</div>
-        <TimelineEntryStatus status={status} start={start} />
+        <div
+          className={textBgClasses}
+          style={{
+            '--bg': alphaColour ?? '',
+          }}
+        >
+          <div className={style.start}>{formattedStartTime}</div>
+          <div className={style.title}>{title}</div>
+          <div className={style.duration}>{formattedDuration}</div>
+          <TimelineEntryStatus status={status} start={start} />
+        </div>
       </div>
-    </>
+    </div>
   );
 }
 

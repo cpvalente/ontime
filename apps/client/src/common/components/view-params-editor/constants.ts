@@ -511,5 +511,14 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
 export const getCountdownOptions = (timeFormat: string): ParamField[] => [getTimeOption(timeFormat), hideTimerSeconds];
 
 export const getProgressOptions = (timeFormat: string): ParamField[] => {
-  return [getTimeOption(timeFormat)];
+  return [
+    getTimeOption(timeFormat),
+    {
+      id: 'fullHeight',
+      title: 'Full height columns',
+      description: 'Whether the columns in the timeline should be the full height ',
+      type: 'boolean',
+      defaultValue: false,
+    },
+  ];
 };

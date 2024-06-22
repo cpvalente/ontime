@@ -1,19 +1,15 @@
 .markers {
   width: 100%;
   color: $ui-white;
-  background-color: $white-10;
   display: flex;
   height: 1rem;
   line-height: 1rem;
   font-size: calc(1rem - 2px);
   justify-content: space-evenly;
-  text-align: center;
 
-  & > * {
+  & > span {
     flex-grow: 1;
-  }
-
-  :nth-child(odd) {
-    background-color: $white-20;
+    border-left: 1px solid black;
+    height: 100vh;
   }
 }

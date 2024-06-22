@@ -4,7 +4,6 @@
 
   background-color: $ui-black;
   color: $ui-white;
-  text-transform: uppercase;
 
   display: flex;
   flex-direction: column;
@@ -38,11 +37,13 @@
   font-weight: 600;
 
   &.now {
-    color: $green-500;
+        color: $red-500;
+
   }
 
   &.next {
-    color: $red-500;
+        color: $green-500;
+
   }
 
   &.subdue {

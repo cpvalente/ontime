@@ -25,6 +25,19 @@ export const getAccessibleColour = (bgColour?: string): ColourCombination => {
 };
 
 /**
+ * Adds opacity to a given colour, returns undefined if invalid
+ */
+export function alpha(colour: string, amount: number): string | undefined {
+  try {
+    const withAlpha = Color(colour).alpha(amount).hexa();
+    return withAlpha;
+  } catch (_error) {
+    /* we do not handle errors here */
+  }
+  return;
+}
+
+/**
  * @description Creates a list of classnames from array of css module conditions
  * @param classNames - css modules objects
  */
