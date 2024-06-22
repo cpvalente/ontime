@@ -62,6 +62,7 @@ function Timeline(props: TimelineProps) {
   return (
     <div className={style.timeline}>
       <TimelineMarkers />
+      <ProgressBar startHour={startHour} endHour={endHour} />
       <div className={style.timelineEvents}>
         {order.map((eventId) => {
           // for now we dont render delays and blocks
@@ -115,7 +116,6 @@ function Timeline(props: TimelineProps) {
           );
         })}
       </div>
-      <ProgressBar startHour={startHour} endHour={endHour} />
     </div>
   );
 }

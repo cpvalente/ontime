@@ -1,7 +1,6 @@
 .markers {
   width: 100%;
   color: $ui-white;
-  background-color: $white-10;
   display: flex;
   height: 1rem;
   line-height: 1rem;
@@ -11,9 +10,16 @@
 
   & > * {
     flex-grow: 1;
-  }
+    position: relative;
 
-  :nth-child(odd) {
-    background-color: $white-20;
+    &::before {
+      content: '';
+      position: absolute;
+      left: -1px;
+      bottom: 0;
+      width: 3px;
+      height: 0.5rem;
+      background-color: white;
+    }
   }
 }

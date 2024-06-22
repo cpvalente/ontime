@@ -13,7 +13,11 @@ export function ProgressBar(props: ProgressBarProps) {
   const { startHour, endHour } = props;
   const { clock } = useClock();
 
-  const left = getRelativePositionX(startHour, endHour, clock);
+  const width = getRelativePositionX(startHour, endHour, clock);
 
-  return <div className={style.progressBar} style={{ width: `${left}%` }} />;
+  return (
+    <div className={style.progressBar}>
+      <div className={style.progress} style={{ width: `${width}%` }} />
+    </div>
+  );
 }

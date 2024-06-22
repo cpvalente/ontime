@@ -12,13 +12,14 @@ $timeline-entry-height: 20px;
   position: absolute;
   background-color: var(--color, $ui-white);
   height: $timeline-entry-height;
+  border-right: 1px solid rgba($ui-black, .4);
 }
 
 .entryContent {
   position: absolute;
   margin-top: $timeline-entry-height;
   padding-top: var(--top, 0);
-  border-left: 2px solid var(--color, $ui-white);
+  border-left: 4px solid var(--color, $ui-white);
 
   color: $ui-white;
 
@@ -28,15 +29,15 @@ $timeline-entry-height: 20px;
     min-width: 100%;
     padding-inline: 0.5em;
     width: fit-content;
-    background-color: $ui-black;
+    background-color: $gray-1200;
   }
 
   &.lastElement {
     border-left: none;
-    border-right: 2px solid var(--color, $ui-black);
+    border-right: 4px solid var(--color, $ui-black);
     text-align: right;
 
-    transform: translateX(-100%);
+    transform: translateX(calc(-100% + 4px));
   }
 }
 

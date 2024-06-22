@@ -1,6 +1,6 @@
 {
   "name": "ontime-ui",
-  "version": "3.3.2",
+  "version": "3.4.0-alpha-timeline",
   "private": true,
   "type": "module",
   "dependencies": {
