@@ -14,13 +14,15 @@ import { consoleError, consoleHighlight } from '../utils/console.js';
 import { renameProjectFile } from '../services/project-service/ProjectService.js';
 import { appStateService } from '../services/app-state-service/AppStateService.js';
 
-import { appStatePath, resolveCorruptedFilesDirectory, resolveDbDirectory, resolveDbName } from './index.js';
+import { resolveCorruptedFilesDirectory, resolveDbDirectory, resolveDbName } from './index.js';
+
+const newProjectName = 'new project.json';
 
 /**
  * @description ensures directories exist and populates database
  * @return {string} - path to db file
  */
-const populateDb = (directory: string, filename: string): string => {
+async function populateDb(directory: string, filename: string): Promise<string> {
   ensureDirectory(directory);
   let dbPath = join(directory, filename);
 
@@ -28,13 +30,13 @@ const populateDb = (directory: string, filename: string): string => {
   // if dbInDisk doesn't exist we create an empty file from db model
   if (!existsSync(dbPath)) {
     try {
-      consoleHighlight('No active db found creating empty default');
-      const newFileDirectory = join(resolveDbDirectory, 'new empty project.json');
+      consoleHighlight('No active DB found, creating new project');
+      const newFileDirectory = join(resolveDbDirectory, newProjectName);
       if (!existsSync(newFileDirectory)) {
         // if it is already there dont override it
         writeFileSync(newFileDirectory, JSON.stringify(dbModel));
       }
-      writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: 'new empty project.json' }));
+      await appStateService.updateDatabaseConfig(newProjectName);
       dbPath = newFileDirectory;
     } catch (_) {
       /* we do not handle this */
@@ -43,7 +45,7 @@ const populateDb = (directory: string, filename: string): string => {
     }
   }
   return dbPath;
-};
+}
 
 /**
  * Handles a corrupted file by copying it to a corrupted folder
@@ -66,7 +68,7 @@ async function handleCorruptedDb(filePath: string) {
  * @description loads ontime db
  */
 async function loadDb(directory: string, filename: string) {
-  const dbInDisk = populateDb(directory, filename);
+  const dbInDisk = await populateDb(directory, filename);
 
   let newData: DatabaseModel = dbModel;
   let errors = [];
