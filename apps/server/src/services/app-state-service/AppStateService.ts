@@ -14,27 +14,34 @@ interface Config {
 class AppStateService {
   private config: Low<Config>;
   private pathToFile: string;
+  private didInit = false;
 
   constructor(appStatePath: string) {
     this.pathToFile = appStatePath;
     const adapter = new JSONFile<Config>(this.pathToFile);
     this.config = new Low<Config>(adapter, null);
-
-    this.init();
   }
 
   private async init() {
     await this.config.read();
     await this.config.write();
+    this.didInit = true;
   }
 
   async get(): Promise<Config> {
+    if (!this.didInit) {
+      await this.init();
+    }
     await this.config.read();
     return this.config.data;
   }
 
   async updateDatabaseConfig(filename: string): Promise<void> {
     if (isTest) return;
+
+    if (!this.didInit) {
+      await this.init();
+    }
 
     this.config.data.lastLoadedProject = filename;
     await this.config.write();
