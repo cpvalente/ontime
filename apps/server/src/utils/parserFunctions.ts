@@ -248,7 +248,7 @@ export function parseHttp(data: Partial<DatabaseModel>, emitError?: ErrorEmitter
     emitError?.(getErrorMessage(error));
   }
 
-  if (newSubscriptions.length !== data.osc?.subscriptions.length) {
+  if (newSubscriptions.length !== data.http?.subscriptions.length) {
     emitError?.('Skipped invalid subscriptions');
   }
 
