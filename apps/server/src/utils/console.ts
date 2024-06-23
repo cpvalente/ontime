@@ -10,7 +10,7 @@ export function consoleSuccess(message: string) {
 /**
  * Utility function to log messages in red
  */
-export function consoleRed(message: string) {
+export function consoleError(message: string) {
   console.error(inRed(message));
 }
 

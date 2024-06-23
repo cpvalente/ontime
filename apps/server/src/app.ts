@@ -17,7 +17,6 @@ import {
   resolveExternalsDirectory,
   resolveStylesDirectory,
   resolvedPath,
-  clearUploadfolder,
 } from './setup/index.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { consoleSuccess, consoleHighlight } from './utils/console.js';
@@ -44,6 +43,9 @@ import { messageService } from './services/message-service/MessageService.js';
 import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
 import { initRundown } from './services/rundown-service/RundownService.js';
+
+// Utilities
+import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { getNetworkInterfaces } from './utils/networkInterfaces.js';
 
