@@ -8,6 +8,7 @@ import {
   getNextEvent,
   getPrevious,
   getPreviousEvent,
+  relevantBlock,
   swapEventData,
 } from './rundownUtils';
 
@@ -260,6 +261,40 @@ describe('getLastEvent', () => {
 
       const lastEntry = getLastNormal(testRundown as unknown as NormalisedRundown, order);
       expect(lastEntry).toBe(null);
+    });
+  });
+
+  describe('relevantBlock', () => {
+    const testRundown = {
+      h: { id: 'h', type: SupportedEvent.Event },
+      g: { id: 'g', type: SupportedEvent.Block },
+      f: { id: 'f', type: SupportedEvent.Event },
+      e: { id: 'e', type: SupportedEvent.Block },
+      a: { id: 'a', type: SupportedEvent.Event },
+      b: { id: 'b', type: SupportedEvent.Event },
+      c: { id: 'c', type: SupportedEvent.Event },
+      d: { id: 'd', type: SupportedEvent.Delay },
+    };
+
+    const order = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
+    it('returns the relevant block', () => {
+      const { block, index } = relevantBlock(testRundown as unknown as NormalisedRundown, order, 'h');
+
+      expect(block?.id).toBe('g');
+      expect(index).toBe(6);
+    });
+    it('returns the relevant block', () => {
+      const { block, index } = relevantBlock(testRundown as unknown as NormalisedRundown, order, 'f');
+
+      expect(block?.id).toBe('e');
+      expect(index).toBe(4);
+    });
+    it('returns the relevant block', () => {
+      const { block, index } = relevantBlock(testRundown as unknown as NormalisedRundown, order, 'a');
+
+      expect(block).toBe(null);
+      expect(index).toBe(null);
     });
   });
 });

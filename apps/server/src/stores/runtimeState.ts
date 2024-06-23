@@ -1,4 +1,13 @@
-import { MaybeNumber, OntimeEvent, Playback, Runtime, TimerPhase, TimerState, TimerType } from 'ontime-types';
+import {
+  MaybeNumber,
+  OntimeBlock,
+  OntimeEvent,
+  Playback,
+  Runtime,
+  TimerPhase,
+  TimerState,
+  TimerType,
+} from 'ontime-types';
 import { calculateDuration, dayInMs } from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
@@ -42,6 +51,7 @@ const initialTimer: TimerState = {
 export type RuntimeState = {
   clock: number; // realtime clock
   eventNow: OntimeEvent | null;
+  blockNow: OntimeBlock | null;
   publicEventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
   publicEventNext: OntimeEvent | null;
@@ -59,6 +69,7 @@ export type RuntimeState = {
 const runtimeState: RuntimeState = {
   clock: clock.timeNow(),
   eventNow: null,
+  blockNow: null,
   publicEventNow: null,
   eventNext: null,
   publicEventNext: null,
@@ -80,6 +91,7 @@ export function clear() {
   runtimeState.eventNow = null;
   runtimeState.publicEventNow = null;
   runtimeState.eventNext = null;
+  runtimeState.blockNow = null;
   runtimeState.publicEventNext = null;
 
   runtimeState.runtime.offset = null;
