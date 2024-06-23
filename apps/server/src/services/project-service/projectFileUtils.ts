@@ -5,7 +5,6 @@ import { extname } from 'path';
  * Given an array of file names, filters out any files that do not have a '.json' extension.
  * We assume these are project files
  * @param files
- * @returns
  */
 export function filterProjectFiles(files: Array<string>): Array<string> {
   return files.filter((file) => {
@@ -14,18 +13,19 @@ export function filterProjectFiles(files: Array<string>): Array<string> {
   });
 }
 
+/**
+ * Parses a project file and returns the JSON object
+ * @param filePath
+ * @throws It will throw an error if it cannot read or parse the file
+ */
 export function parseProjectFile(filePath: string): object {
   if (!filePath.endsWith('.json')) {
     throw new Error('Invalid file type');
   }
 
+  // we let the error bubble up to be handled in the consumer
   const rawdata = readFileSync(filePath, 'utf-8');
-  const uploadedJson = JSON.parse(rawdata);
+  const jsonData = JSON.parse(rawdata);
 
-  // at this point, we think this is a DatabaseModel
-  // verify by looking for the required fields
-  if (uploadedJson?.settings?.app !== 'ontime') {
-    throw new Error('Not a ontime project file');
-  }
-  return uploadedJson;
+  return jsonData;
 }

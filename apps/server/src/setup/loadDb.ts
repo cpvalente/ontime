@@ -1,78 +1,107 @@
 import { DatabaseModel } from 'ontime-types';
+import { getErrorMessage } from 'ontime-utils';
 
 import { Low } from 'lowdb';
-import { JSONFile } from 'lowdb/node';
-import { copyFileSync, existsSync } from 'fs';
+import { JSONFilePreset } from 'lowdb/node';
+import { copyFileSync, existsSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
-import { ensureDirectory } from '../utils/fileManagement.js';
+import { ensureDirectory, findSafeFileName, getFileNameFromPath, nameRecovered } from '../utils/fileManagement.js';
 import { dbModel } from '../models/dataModel.js';
-
-import { pathToStartDb, resolveDbDirectory, resolveDbName } from './index.js';
 import { parseProjectFile } from '../services/project-service/projectFileUtils.js';
 import { parseJson } from '../utils/parser.js';
+import { consoleError, consoleHighlight } from '../utils/console.js';
+import { renameProjectFile } from '../services/project-service/ProjectService.js';
+import { appStateService } from '../services/app-state-service/AppStateService.js';
+
+import { resolveCorruptedFilesDirectory, resolveDbDirectory, resolveDbName } from './index.js';
+
+const newProjectName = 'new project.json';
+
+async function createEmptyDb(): Promise<string> {
+  consoleHighlight('No active DB found, creating new project');
+  const newFileDirectory = join(resolveDbDirectory, newProjectName);
+  const safeFileDirectory = findSafeFileName(newFileDirectory);
+  writeFileSync(safeFileDirectory, JSON.stringify(dbModel));
+  const fileName = getFileNameFromPath(safeFileDirectory);
+  await appStateService.updateDatabaseConfig(fileName);
+  return safeFileDirectory;
+}
 
 /**
  * @description ensures directories exist and populates database
  * @return {string} - path to db file
  */
-const populateDb = (directory: string, filename: string): string => {
+async function populateDb(directory: string, filename: string): Promise<string> {
   ensureDirectory(directory);
   let dbPath = join(directory, filename);
 
   // if everything goes well, the DB in disk is the one loaded
-  // if dbInDisk doesn't exist we want to use startup db
+  // if dbInDisk doesn't exist we create an empty file from db model
   if (!existsSync(dbPath)) {
     try {
-      const dbDirectory = resolveDbDirectory;
-      const startDbName = pathToStartDb.split('/').pop();
-
-      if (!startDbName) {
-        throw new Error('Invalid path to start database');
-      }
-
-      const newFileDirectory = join(dbDirectory, startDbName);
-
-      copyFileSync(pathToStartDb, newFileDirectory);
-      dbPath = newFileDirectory;
+      dbPath = await createEmptyDb();
     } catch (_) {
       /* we do not handle this */
+      // TODO: without a DB, the app doesnt work, should we instead let the app crash?
+      consoleError('Unable to create DB');
     }
   }
-
   return dbPath;
-};
+}
 
 /**
- * @description parses a json file to the adapter
- * It will create an empty file from the model if the parsing fails
+ * Handles a corrupted file by copying it to a corrupted folder
+ * Eventual recovered data will be added to a new file
  */
-const parseDatabase = async (fileToRead: string, adapterToUse: Low<DatabaseModel>) => {
+async function handleCorruptedDb(filePath: string, canRecover: boolean) {
   try {
-    // this will throw if file is not valid
-    parseProjectFile(fileToRead);
-    await adapterToUse.read();
-  } catch (error) {
-    adapterToUse.data = dbModel;
-  }
+    const fileName = getFileNameFromPath(filePath);
+    const newFilePath = join(resolveCorruptedFilesDirectory, fileName);
 
-  return parseJson(adapterToUse.data);
-};
+    ensureDirectory(resolveCorruptedFilesDirectory);
+    copyFileSync(filePath, newFilePath);
+    if (canRecover) {
+      await renameProjectFile(fileName, nameRecovered(fileName));
+    }
+  } catch (_) {
+    /* we do not handle errors here */
+  }
+}
 
 /**
  * @description loads ontime db
  */
 async function loadDb(directory: string, filename: string) {
-  const dbInDisk = populateDb(directory, filename);
+  let dbInDisk = await populateDb(directory, filename);
 
-  const adapter = new JSONFile<DatabaseModel>(dbInDisk);
-  const db = new Low(adapter, dbModel);
+  let newData: DatabaseModel = dbModel;
+  let errors = [];
 
-  const data = await parseDatabase(dbInDisk, db);
-  db.data = data;
-  await db.write();
+  try {
+    const maybeProjectFile = parseProjectFile(dbInDisk);
+    const result = parseJson(maybeProjectFile);
 
-  return { db, data };
+    await appStateService.updateDatabaseConfig(filename);
+
+    newData = result.data;
+    errors = result.errors;
+  } catch (error) {
+    consoleError(`Unable to parse project file: ${getErrorMessage(error)}`);
+    // we get here if the JSON file is corrupt
+    await handleCorruptedDb(dbInDisk, false);
+    dbInDisk = await createEmptyDb();
+  } finally {
+    // here we handle whether the data is invalid in the domain level
+    if (errors.length > 0) {
+      await handleCorruptedDb(dbInDisk, true);
+    }
+  }
+
+  const db = await JSONFilePreset<DatabaseModel>(dbInDisk, newData);
+  db.data = newData;
+
+  return { db, data: newData };
 }
 
 export let db = {} as Low<DatabaseModel>;

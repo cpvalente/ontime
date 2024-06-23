@@ -1,11 +1,11 @@
 import { fileURLToPath } from 'url';
-import path, { dirname, join } from 'path';
-import fs from 'fs';
+import { dirname, join } from 'path';
+import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'fs';
 
-import { rm } from 'fs/promises';
-
-import { config } from './config.js';
 import { ensureDirectory } from '../utils/fileManagement.js';
+import { config } from './config.js';
+
+const DEMO_PROJECT = 'demo project.json';
 
 // =================================================
 // resolve public path
@@ -17,18 +17,18 @@ import { ensureDirectory } from '../utils/fileManagement.js';
 export function getAppDataPath(): string {
   // handle docker
   if (process.env.ONTIME_DATA) {
-    return path.join(process.env.ONTIME_DATA);
+    return join(process.env.ONTIME_DATA);
   }
 
   switch (process.platform) {
     case 'darwin': {
-      return path.join(process.env.HOME!, 'Library', 'Application Support', 'Ontime');
+      return join(process.env.HOME!, 'Library', 'Application Support', 'Ontime');
     }
     case 'win32': {
-      return path.join(process.env.APPDATA!, 'Ontime');
+      return join(process.env.APPDATA!, 'Ontime');
     }
     case 'linux': {
-      return path.join(process.env.HOME!, '.Ontime');
+      return join(process.env.HOME!, '.Ontime');
     }
     default: {
       throw new Error('Could not resolve public folder for platform');
@@ -56,11 +56,11 @@ if (import.meta.url) {
 // path to server src folder
 const currentDir = dirname(__dirname);
 // locally we are in src/setup, in the production build, this is a single file at src
-export const srcDirectory = isProduction ? currentDir : path.join(currentDir, '../');
+export const srcDirectory = isProduction ? currentDir : join(currentDir, '../');
 
 // resolve path to external
-const productionPath = path.join(srcDirectory, 'client/');
-const devPath = path.join(srcDirectory, '../../client/build/');
+const productionPath = join(srcDirectory, 'client/');
+const devPath = join(srcDirectory, '../../client/build/');
 
 export const resolvedPath = (): string => {
   if (isTest) {
@@ -81,21 +81,39 @@ export const resolveExternalsDirectory = join(isProduction ? getAppDataPath() : 
 export const appStatePath = join(getAppDataPath(), config.appState);
 export const uploadsFolderPath = join(getAppDataPath(), config.uploads);
 
-const ensureAppState = () => {
+// path to public db (these are needed before getLastLoadedProject)
+export const pathToStartDb = isTest
+  ? join(srcDirectory, '..', config.database.testdb, config.database.filename)
+  : join(srcDirectory, '/preloaded-db/', config.database.filename);
+export const resolveDbDirectory = join(testDbStartDirectory, isTest ? `../${config.database.testdb}` : config.projects);
+
+const ensureAppState = (firstStartup = false) => {
   ensureDirectory(getAppDataPath());
-  fs.writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: 'db.json' }));
+  if (firstStartup) {
+    writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: DEMO_PROJECT }));
+    const demoProjectPath = join(resolveDbDirectory, DEMO_PROJECT);
+    ensureDirectory(resolveDbDirectory);
+    if (!existsSync(demoProjectPath)) {
+      // if it is already there dont override it
+      copyFileSync(pathToStartDb, join(resolveDbDirectory, DEMO_PROJECT));
+    }
+  } else {
+    writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: '' }));
+  }
 };
 
 const getLastLoadedProject = () => {
   try {
-    const appState = JSON.parse(fs.readFileSync(appStatePath, 'utf8'));
+    const appState = JSON.parse(readFileSync(appStatePath, 'utf8'));
     if (!appState.lastLoadedProject) {
       ensureAppState();
     }
     return appState.lastLoadedProject;
-  } catch {
+  } catch (_) {
+    console.log('No app state found, assuming first start up');
     if (!isTest) {
-      ensureAppState();
+      ensureAppState(true);
+      return DEMO_PROJECT;
     }
   }
 };
@@ -103,13 +121,8 @@ const getLastLoadedProject = () => {
 const lastLoadedProject = isTest ? 'db.json' : getLastLoadedProject();
 
 // path to public db
-export const resolveDbDirectory = join(testDbStartDirectory, isTest ? `../${config.database.testdb}` : config.projects);
 export const resolveDbName = lastLoadedProject ? lastLoadedProject : config.database.filename;
 export const resolveDbPath = join(resolveDbDirectory, resolveDbName);
-
-export const pathToStartDb = isTest
-  ? join(srcDirectory, '..', config.database.testdb, config.database.filename)
-  : join(srcDirectory, '/preloaded-db/', config.database.filename);
 
 // path to public styles
 export const resolveStylesDirectory = join(externalsStartDirectory, config.styles.directory);
@@ -138,15 +151,10 @@ export const resolveRestoreFile = join(getAppDataPath(), config.restoreFile);
 export const resolveSheetsDirectory = join(getAppDataPath(), config.sheets.directory);
 
 // path to crash reports
-export const resolveCrashReportDirectory = getAppDataPath();
+export const resolveCrashReportDirectory = join(getAppDataPath(), config.crash);
+
+// path to corrupted files
+export const resolveCorruptedFilesDirectory = join(getAppDataPath(), config.corrupt);
 
 // path to projects
 export const resolveProjectsDirectory = join(getAppDataPath(), config.projects);
-
-export async function clearUploadfolder() {
-  try {
-    await rm(uploadsFolderPath, { recursive: true });
-  } catch (_) {
-    //we dont care that there was no folder
-  }
-}

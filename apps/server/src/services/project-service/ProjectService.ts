@@ -11,7 +11,12 @@ import { getNetworkInterfaces } from '../../utils/networkInterfaces.js';
 import { resolveProjectsDirectory, resolveStylesPath } from '../../setup/index.js';
 import { filterProjectFiles, parseProjectFile } from './projectFileUtils.js';
 import { appStateService } from '../app-state-service/AppStateService.js';
-import { ensureDirectory, getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
+import {
+  checkIfFileExists,
+  ensureDirectory,
+  getFilesFromFolder,
+  removeFileExtension,
+} from '../../utils/fileManagement.js';
 import { dbModel } from '../../models/dataModel.js';
 import { deleteFile } from '../../utils/parserUtils.js';
 import { switchDb } from '../../setup/loadDb.js';
@@ -89,17 +94,30 @@ export async function getProjectFiles(): Promise<ProjectFile[]> {
   return projectFiles;
 }
 
+export async function getLoadedProject(): Promise<string> {
+  const appState = await appStateService.get();
+
+  // TODO: we likely want a better handling of this case
+  // the file may no longer exist in the directory
+  const filePath = join(resolveProjectsDirectory, appState.lastLoadedProject);
+  if (!checkIfFileExists(filePath)) {
+    await appStateService.updateDatabaseConfig('');
+    return '';
+  }
+
+  return appState.lastLoadedProject;
+}
+
 /**
  * Gathers data related to the project list
  */
 export async function getProjectList(): Promise<ProjectFileListResponse> {
   const files = await getProjectFiles();
-  const appState = await appStateService.get();
-  const lastLoadedProject = removeFileExtension(appState.lastLoadedProject);
+  const projectFile = await getLoadedProject();
 
   return {
     files,
-    lastLoadedProject,
+    lastLoadedProject: removeFileExtension(projectFile),
   };
 }
 
@@ -120,10 +138,11 @@ export async function renameProjectFile(existingProjectFile: string, newName: st
   const projectFilePath = join(resolveProjectsDirectory, existingProjectFile);
   const newProjectFilePath = join(resolveProjectsDirectory, newName);
 
-  await rename(projectFilePath, newProjectFilePath);
-
   // Update the last loaded project config if current loaded project is the one being renamed
-  const { lastLoadedProject } = await appStateService.get();
+  // we need to do this before renaming
+  const lastLoadedProject = await getLoadedProject();
+
+  await rename(projectFilePath, newProjectFilePath);
 
   if (lastLoadedProject === existingProjectFile) {
     await appStateService.updateDatabaseConfig(newName);

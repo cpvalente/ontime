@@ -11,6 +11,7 @@ import {
   renameProject,
 } from '../../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';
+import * as Panel from '../PanelUtils';
 
 import ProjectForm, { ProjectFormValues } from './ProjectForm';
 
@@ -40,36 +41,53 @@ export default function ProjectListItem({
   onToggleEditMode,
 }: ProjectListItemProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmitRename = async (values: ProjectFormValues) => {
-    try {
+  const handleSubmitAction = (actionType: 'rename' | 'duplicate') => {
+    return async (values: ProjectFormValues) => {
+      setLoading(true);
       setSubmitError(null);
-
-      if (!values.filename) {
-        setSubmitError('Filename cannot be blank');
-        return;
+      try {
+        if (!values.filename) {
+          setSubmitError('Filename cannot be blank');
+          return;
+        }
+        const action = actionType === 'rename' ? renameProject : duplicateProject;
+        await action(filename, values.filename);
+        await onRefetch();
+        onSubmit();
+      } catch (error) {
+        setSubmitError(maybeAxiosError(error));
+      } finally {
+        setLoading(false);
       }
-      await renameProject(filename, values.filename);
+    };
+  };
+
+  const handleLoad = async (filename: string) => {
+    setLoading(true);
+    setSubmitError(null);
+    try {
+      await loadProject(filename);
       await onRefetch();
-      onSubmit();
+      await invalidateAllCaches();
     } catch (error) {
       setSubmitError(maybeAxiosError(error));
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSubmitDuplicate = async (values: ProjectFormValues) => {
+  const handleDelete = async (filename: string) => {
+    setLoading(true);
+    setSubmitError(null);
     try {
-      setSubmitError(null);
-
-      if (!values.filename) {
-        setSubmitError('Filename cannot be blank');
-        return;
-      }
-      await duplicateProject(filename, values.filename);
+      await deleteProject(filename);
       await onRefetch();
-      onSubmit();
     } catch (error) {
       setSubmitError(maybeAxiosError(error));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -86,50 +104,55 @@ export default function ProjectListItem({
   const classes = current && !isCurrentlyBeingEdited ? style.current : undefined;
 
   return (
-    <tr key={filename} className={classes}>
-      {isCurrentlyBeingEdited ? (
-        <td colSpan={99}>
-          <ProjectForm
-            action={editingMode}
-            filename={filename}
-            onSubmit={editingMode === 'duplicate' ? handleSubmitDuplicate : handleSubmitRename}
-            onCancel={handleCancel}
-            submitError={submitError}
-          />
-        </td>
-      ) : (
-        <>
-          <td className={style.containCell}>{filename}</td>
-          <td>{new Date(updatedAt).toLocaleString()}</td>
-          <td className={style.actionButton}>
-            <ActionMenu
-              current={current}
+    <>
+      {submitError && (
+        <tr key='filename-error'>
+          <td colSpan={99}>
+            <Panel.Error>{submitError}</Panel.Error>
+          </td>
+        </tr>
+      )}
+      <tr key={filename} className={classes}>
+        {isCurrentlyBeingEdited ? (
+          <td colSpan={99}>
+            <ProjectForm
+              action={editingMode}
               filename={filename}
-              onChangeEditMode={handleToggleEditMode}
-              onRefetch={onRefetch}
+              onSubmit={editingMode === 'duplicate' ? handleSubmitAction('duplicate') : handleSubmitAction('rename')}
+              onCancel={handleCancel}
             />
           </td>
-        </>
-      )}
-    </tr>
+        ) : (
+          <>
+            <td className={style.containCell}>{filename}</td>
+            <td>{new Date(updatedAt).toLocaleString()}</td>
+            <td className={style.actionButton}>
+              <ActionMenu
+                current={current}
+                filename={filename}
+                onChangeEditMode={handleToggleEditMode}
+                onDelete={handleDelete}
+                onLoad={handleLoad}
+                isDisabled={loading}
+              />
+            </td>
+          </>
+        )}
+      </tr>
+    </>
   );
 }
 
-function ActionMenu({
-  current,
-  filename,
-  onChangeEditMode,
-  onRefetch,
-}: {
+interface ActionMenuProps {
   current?: boolean;
   filename: string;
+  isDisabled: boolean;
   onChangeEditMode: (editMode: EditMode, filename: string) => void;
-  onRefetch: () => Promise<void>;
-}) {
-  const handleLoad = async () => {
-    await loadProject(filename);
-    await invalidateAllCaches();
-  };
+  onDelete: (filename: string) => void;
+  onLoad: (filename: string) => void;
+}
+function ActionMenu(props: ActionMenuProps) {
+  const { current, filename, isDisabled, onChangeEditMode, onDelete, onLoad } = props;
 
   const handleRename = () => {
     onChangeEditMode('rename', filename);
@@ -137,11 +160,6 @@ function ActionMenu({
 
   const handleDuplicate = () => {
     onChangeEditMode('duplicate', filename);
-  };
-
-  const handleDelete = async () => {
-    await deleteProject(filename);
-    await onRefetch();
   };
 
   const handleDownload = async () => {
@@ -161,16 +179,17 @@ function ActionMenu({
         color='#e2e2e2' // $gray-200
         variant='ontime-ghosted'
         size='sm'
+        isDisabled={isDisabled}
       />
       <MenuList>
-        <MenuItem onClick={handleLoad} isDisabled={current}>
+        <MenuItem onClick={() => onLoad(filename)} isDisabled={current}>
           Load
         </MenuItem>
         <MenuItem onClick={handleRename}>Rename</MenuItem>
         <MenuItem onClick={handleDuplicate}>Duplicate</MenuItem>
         <MenuItem onClick={handleDownload}>Download</MenuItem>
         <MenuItem onClick={handleExportCSV}>Export CSV Rundown</MenuItem>
-        <MenuItem isDisabled={current} onClick={handleDelete}>
+        <MenuItem isDisabled={current} onClick={() => onDelete(filename)}>
           Delete
         </MenuItem>
       </MenuList>
