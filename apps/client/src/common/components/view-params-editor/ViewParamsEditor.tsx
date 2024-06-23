@@ -40,6 +40,7 @@ interface EditFormDrawerProps {
   paramFields: ParamField[];
 }
 
+// TODO: this is a good candidate for memoisation, but needs the paramFields to be stable
 export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isOpen, onClose, onOpen } = useDisclosure();

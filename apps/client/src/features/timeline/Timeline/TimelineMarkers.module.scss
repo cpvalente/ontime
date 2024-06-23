@@ -1,0 +1,25 @@
+.markers {
+  width: 100%;
+  color: $ui-white;
+  display: flex;
+  height: 1rem;
+  line-height: 1rem;
+  font-size: calc(1rem - 2px);
+  justify-content: space-evenly;
+  text-align: center;
+
+  & > * {
+    flex-grow: 1;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: -1px;
+      bottom: 0;
+      width: 3px;
+      height: 0.5rem;
+      background-color: white;
+    }
+  }
+}

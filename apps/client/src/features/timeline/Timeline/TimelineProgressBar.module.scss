@@ -1,0 +1,13 @@
+.progressBar {
+  width: 100%;
+  height: 0.75rem;
+
+  transition-duration: 0.3s;
+  transition-property: left;
+  background-color: $gray-900;
+
+  .progress {
+    height: 100%;
+    background-color: $active-red;;
+  }
+}

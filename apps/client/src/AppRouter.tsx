@@ -17,6 +17,7 @@ const Countdown = lazy(() => import('./features/viewers/countdown/Countdown'));
 
 const Backstage = lazy(() => import('./features/viewers/backstage/Backstage'));
 const Public = lazy(() => import('./features/viewers/public/Public'));
+const Timeline = lazy(() => import('./features/timeline/TimelinePage'));
 const Lower = lazy(() => import('./features/viewers/lower-thirds/LowerThird'));
 const StudioClock = lazy(() => import('./features/viewers/studio/StudioClock'));
 
@@ -26,6 +27,7 @@ const SClock = withPreset(withData(ClockView));
 const SCountdown = withPreset(withData(Countdown));
 const SBackstage = withPreset(withData(Backstage));
 const SPublic = withPreset(withData(Public));
+const STimeline = withPreset(withData(Timeline));
 const SLowerThird = withPreset(withData(Lower));
 const SStudio = withPreset(withData(StudioClock));
 
@@ -59,6 +61,8 @@ export default function AppRouter() {
         <Route path='/lower' element={<SLowerThird />} />
 
         <Route path='/op' element={<Operator />} />
+
+        <Route path='/timeline' element={<STimeline />} />
 
         {/*/!* Protected Routes *!/*/}
         <Route path='/editor' element={<Editor />} />
