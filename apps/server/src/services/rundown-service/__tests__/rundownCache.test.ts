@@ -170,7 +170,7 @@ describe('generate()', () => {
     expect(initResult.totalDuration).toBe(500 - 100);
   });
 
-  it('calculates total duration with 0 durration events not caussing a next day', () => {
+  it('calculates total duration with 0 duration events without causing a next day', () => {
     const testRundown: OntimeRundown = [
       { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 100, duration: 0 } as OntimeEvent,
       { type: SupportedEvent.Event, id: '2', timeStart: 100, timeEnd: 300 } as OntimeEvent,
