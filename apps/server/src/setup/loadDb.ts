@@ -1,7 +1,7 @@
 import { DatabaseModel } from 'ontime-types';
 
 import { Low } from 'lowdb';
-import { JSONFile } from 'lowdb/node';
+import { JSONFilePreset } from 'lowdb/node';
 import { copyFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
@@ -11,6 +11,9 @@ import { dbModel } from '../models/dataModel.js';
 import { pathToStartDb, resolveDbDirectory, resolveDbName } from './index.js';
 import { parseProjectFile } from '../services/project-service/projectFileUtils.js';
 import { parseJson } from '../utils/parser.js';
+import { getErrorMessage } from 'ontime-utils';
+import { appStateService } from '../services/app-state-service/AppStateService.js';
+import { consoleError } from '../utils/console.js';
 
 /**
  * @description ensures directories exist and populates database
@@ -44,35 +47,29 @@ const populateDb = (directory: string, filename: string): string => {
 };
 
 /**
- * @description parses a json file to the adapter
- * It will create an empty file from the model if the parsing fails
- */
-const parseDatabase = async (fileToRead: string, adapterToUse: Low<DatabaseModel>) => {
-  try {
-    // this will throw if file is not valid
-    parseProjectFile(fileToRead);
-    await adapterToUse.read();
-  } catch (error) {
-    adapterToUse.data = dbModel;
-  }
-
-  return parseJson(adapterToUse.data);
-};
-
-/**
  * @description loads ontime db
  */
 async function loadDb(directory: string, filename: string) {
   const dbInDisk = populateDb(directory, filename);
 
-  const adapter = new JSONFile<DatabaseModel>(dbInDisk);
-  const db = new Low(adapter, dbModel);
+  let newData: DatabaseModel = dbModel;
 
-  const data = await parseDatabase(dbInDisk, db);
-  db.data = data;
-  await db.write();
+  try {
+    const maybeProjectFile = parseProjectFile(dbInDisk);
+    const result = parseJson(maybeProjectFile);
 
-  return { db, data };
+    await appStateService.updateDatabaseConfig(filename);
+
+    newData = result.data;
+  } catch (error) {
+    consoleError(`Unable to parse project file: ${getErrorMessage(error)}`);
+    // we get here if the JSON file is corrupt
+  }
+
+  const db = await JSONFilePreset<DatabaseModel>(dbInDisk, newData);
+  db.data = newData;
+
+  return { db, data: newData };
 }
 
 export let db = {} as Low<DatabaseModel>;
