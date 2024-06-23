@@ -170,6 +170,19 @@ describe('generate()', () => {
     expect(initResult.totalDuration).toBe(500 - 100);
   });
 
+  it('calculates total duration with 0 durration events not caussing a next day', () => {
+    const testRundown: OntimeRundown = [
+      { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 100, duration: 0 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '2', timeStart: 100, timeEnd: 300 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: 'skipped', skip: true, timeStart: 300, timeEnd: 400 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500 } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.order.length).toBe(4);
+    expect(initResult.totalDuration).toBe(500 - 100);
+  });
+
   it('calculates total duration across days with gap', () => {
     const testRundown: OntimeRundown = [
       {

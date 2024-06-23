@@ -87,6 +87,7 @@ export function generate(
   let daySpan = 0;
   let previousStart: MaybeNumber = null;
   let previousEnd: MaybeNumber = null;
+  let previousDuration: MaybeNumber = null;
 
   for (let i = 0; i < initialRundown.length; i++) {
     const currentEvent = initialRundown[i];
@@ -111,7 +112,8 @@ export function generate(
         lastEnd = updatedEvent.timeEnd;
 
         // check if we go over midnight, account for eventual gaps
-        const gapOverMidnight = previousStart !== null && checkIsNextDay(previousStart, updatedEvent.timeStart);
+        const gapOverMidnight =
+          previousStart !== null && checkIsNextDay(previousStart, updatedEvent.timeStart, previousDuration);
         const durationOverMidnight = updatedEvent.timeStart > updatedEvent.timeEnd;
         if (gapOverMidnight || durationOverMidnight) {
           daySpan++;
@@ -134,6 +136,7 @@ export function generate(
       updatedEvent.delay = accumulatedDelay;
       previousStart = updatedEvent.timeStart;
       previousEnd = updatedEvent.timeEnd;
+      previousDuration = updatedEvent.duration;
     }
 
     order.push(updatedEvent.id);
