@@ -8,7 +8,7 @@ import {
   getNextEvent,
   getPrevious,
   getPreviousEvent,
-  relevantBlock,
+  getRelevantBlock,
   swapEventData,
 } from './rundownUtils';
 
@@ -279,19 +279,19 @@ describe('getLastEvent', () => {
     const order = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
     it('returns the relevant block', () => {
-      const { block, index } = relevantBlock(testRundown as unknown as NormalisedRundown, order, 'h');
+      const { block, index } = getRelevantBlock(testRundown as unknown as NormalisedRundown, order, 'h');
 
       expect(block?.id).toBe('g');
       expect(index).toBe(6);
     });
     it('returns the relevant block', () => {
-      const { block, index } = relevantBlock(testRundown as unknown as NormalisedRundown, order, 'f');
+      const { block, index } = getRelevantBlock(testRundown as unknown as NormalisedRundown, order, 'f');
 
       expect(block?.id).toBe('e');
       expect(index).toBe(4);
     });
     it('returns the relevant block', () => {
-      const { block, index } = relevantBlock(testRundown as unknown as NormalisedRundown, order, 'a');
+      const { block, index } = getRelevantBlock(testRundown as unknown as NormalisedRundown, order, 'a');
 
       expect(block).toBe(null);
       expect(index).toBe(null);

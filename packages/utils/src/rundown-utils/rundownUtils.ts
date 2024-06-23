@@ -334,7 +334,7 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA:
  * @param {string} currentId
  * @return {{ block: OntimeBlock | null; index: number | null } }
  */
-export function relevantBlock(
+export function getRelevantBlock(
   rundown: NormalisedRundown,
   order: string[],
   currentId: string,

@@ -24,6 +24,7 @@ export {
   getPreviousEventNormal,
   getPreviousNormal,
   swapEventData,
+  getRelevantBlock,
 } from './src/rundown-utils/rundownUtils.js';
 
 // time format utils
