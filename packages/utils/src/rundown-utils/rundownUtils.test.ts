@@ -265,36 +265,31 @@ describe('getLastEvent', () => {
   });
 
   describe('relevantBlock', () => {
-    const testRundown = {
-      h: { id: 'h', type: SupportedEvent.Event },
-      g: { id: 'g', type: SupportedEvent.Block },
-      f: { id: 'f', type: SupportedEvent.Event },
-      e: { id: 'e', type: SupportedEvent.Block },
-      a: { id: 'a', type: SupportedEvent.Event },
-      b: { id: 'b', type: SupportedEvent.Event },
-      c: { id: 'c', type: SupportedEvent.Event },
-      d: { id: 'd', type: SupportedEvent.Delay },
-    };
-
-    const order = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+    const testRundown = [
+      { id: 'a', type: SupportedEvent.Event },
+      { id: 'b', type: SupportedEvent.Event },
+      { id: 'c', type: SupportedEvent.Event },
+      { id: 'd', type: SupportedEvent.Delay },
+      { id: 'e', type: SupportedEvent.Block },
+      { id: 'f', type: SupportedEvent.Event },
+      { id: 'g', type: SupportedEvent.Block },
+      { id: 'h', type: SupportedEvent.Event },
+    ];
 
     it('returns the relevant block', () => {
-      const { block, index } = getRelevantBlock(testRundown as unknown as NormalisedRundown, order, 'h');
+      const block = getRelevantBlock(testRundown as unknown as OntimeRundown, 'h');
 
       expect(block?.id).toBe('g');
-      expect(index).toBe(6);
     });
     it('returns the relevant block', () => {
-      const { block, index } = getRelevantBlock(testRundown as unknown as NormalisedRundown, order, 'f');
+      const block = getRelevantBlock(testRundown as unknown as OntimeRundown, 'f');
 
       expect(block?.id).toBe('e');
-      expect(index).toBe(4);
     });
     it('returns the relevant block', () => {
-      const { block, index } = getRelevantBlock(testRundown as unknown as NormalisedRundown, order, 'a');
+      const block = getRelevantBlock(testRundown as unknown as OntimeRundown, 'a');
 
       expect(block).toBe(null);
-      expect(index).toBe(null);
     });
   });
 });

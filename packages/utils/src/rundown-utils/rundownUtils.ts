@@ -332,26 +332,23 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA:
  * @param rundown
  * @param order
  * @param {string} currentId
- * @return {{ block: OntimeBlock | null; index: number | null } }
+ * @return {OntimeBlock | null}
  */
-export function getRelevantBlock(
-  rundown: NormalisedRundown,
-  order: string[],
-  currentId: string,
-): { block: OntimeBlock | null; index: number | null } {
-  const index = order.findIndex((id) => id === currentId);
+export function getRelevantBlock(rundown: OntimeRundown, currentId: string): OntimeBlock | null {
+  const index = rundown.findIndex(({ id }) => id === currentId);
 
   if (index === -1) {
-    return { block: null, index: null };
+    //id not found
+    return null;
   }
 
   for (let i = index; i > 0; i--) {
-    const maybeBlockId = order[i];
-    const maybeBlock = rundown[maybeBlockId];
+    const maybeBlock = rundown[i];
     if (isOntimeBlock(maybeBlock)) {
-      return { block: maybeBlock, index: i };
+      return maybeBlock;
     }
   }
 
-  return { block: null, index: null };
+  //no blocks exist before given id
+  return null;
 }
