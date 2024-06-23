@@ -42,6 +42,30 @@ export const validatePatchProject = [
 ];
 
 /**
+ * @description Validates request with newFilename in the body.
+ */
+export const validateNewFilenameBody = [
+  body('newFilename')
+    .exists()
+    .isString()
+    .trim()
+    .customSanitizer((input: string) => sanitize(input))
+    .withMessage('Failed to sanitize the filename')
+    .notEmpty()
+    .withMessage('Filename was empty or contained only invalid characters')
+    .customSanitizer((input: string) => ensureJsonExtension(input)),
+
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(422).json({ errors: errors.array() });
+    }
+
+    next();
+  },
+];
+
+/**
  * @description Validates request with filename in the body.
  */
 export const validateFilenameBody = [

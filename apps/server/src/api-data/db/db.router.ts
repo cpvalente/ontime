@@ -18,6 +18,7 @@ import {
   validatePatchProject,
   validateFilenameBody,
   validateFilenameParam,
+  validateNewFilenameBody,
 } from './db.validation.js';
 
 export const router = express.Router();
@@ -31,7 +32,7 @@ router.post('/new', validateFilenameBody, validateNewProject, createProjectFile)
 router.get('/all', listProjects);
 
 router.post('/load', validateFilenameBody, loadProject);
-router.post('/:filename/duplicate', validateFilenameParam, validateFilenameBody, duplicateProjectFile);
+router.post('/:filename/duplicate', validateFilenameParam, validateNewFilenameBody, duplicateProjectFile);
 router.put('/:filename/rename', validateFilenameParam, validateFilenameBody, renameProjectFile);
 router.delete('/:filename', validateFilenameParam, deleteProjectFile);
 
