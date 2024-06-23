@@ -58,10 +58,13 @@ export const storage = multer.diskStorage({
   },
 });
 
+/**
+ * Clears the directory that holds the uploads
+ */
 export async function clearUploadfolder() {
   try {
     await rm(uploadsFolderPath, { recursive: true });
   } catch (_) {
-    //we dont care that there was no folder
+    // we dont care that there was no folder
   }
 }
