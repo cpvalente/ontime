@@ -12,6 +12,7 @@ import { parseProjectFile } from '../services/project-service/projectFileUtils.j
 import { parseJson } from '../utils/parser.js';
 import { consoleError, consoleHighlight } from '../utils/console.js';
 import { renameProjectFile } from '../services/project-service/ProjectService.js';
+import { appStateService } from '../services/app-state-service/AppStateService.js';
 
 import { appStatePath, resolveCorruptedFilesDirectory, resolveDbDirectory, resolveDbName } from './index.js';
 
@@ -73,6 +74,9 @@ async function loadDb(directory: string, filename: string) {
   try {
     const maybeProjectFile = parseProjectFile(dbInDisk);
     const result = parseJson(maybeProjectFile);
+
+    await appStateService.updateDatabaseConfig(filename);
+
     newData = result.data;
     errors = result.errors;
   } catch (error) {
