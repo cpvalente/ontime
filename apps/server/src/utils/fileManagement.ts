@@ -60,6 +60,21 @@ export function nameRecovered(filePath: string): string {
 }
 
 /**
+ * Finds an unused file name by adding an increment
+ * @param filePath
+ * @param increment
+ * @returns
+ */
+export function findSafeFileName(filePath: string, increment = 1): string {
+  if (checkIfFileExists(filePath)) {
+    const extension = filePath.split('.').pop();
+    const newFilePath = filePath.replace(`.${extension}`, ` (${increment}).${extension}`);
+    return findSafeFileName(newFilePath, increment + 1);
+  }
+  return filePath;
+}
+
+/**
  * Utility checks whether a file exists at a given path
  * @param filePath
  * @returns {boolean}

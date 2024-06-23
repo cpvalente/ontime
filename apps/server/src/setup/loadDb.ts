@@ -6,7 +6,7 @@ import { JSONFilePreset } from 'lowdb/node';
 import { copyFileSync, existsSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
-import { ensureDirectory, getFileNameFromPath, nameRecovered } from '../utils/fileManagement.js';
+import { ensureDirectory, findSafeFileName, getFileNameFromPath, nameRecovered } from '../utils/fileManagement.js';
 import { dbModel } from '../models/dataModel.js';
 import { parseProjectFile } from '../services/project-service/projectFileUtils.js';
 import { parseJson } from '../utils/parser.js';
@@ -17,6 +17,16 @@ import { appStateService } from '../services/app-state-service/AppStateService.j
 import { resolveCorruptedFilesDirectory, resolveDbDirectory, resolveDbName } from './index.js';
 
 const newProjectName = 'new project.json';
+
+async function createEmptyDb(): Promise<string> {
+  consoleHighlight('No active DB found, creating new project');
+  const newFileDirectory = join(resolveDbDirectory, newProjectName);
+  const safeFileDirectory = findSafeFileName(newFileDirectory);
+  writeFileSync(safeFileDirectory, JSON.stringify(dbModel));
+  const fileName = getFileNameFromPath(safeFileDirectory);
+  await appStateService.updateDatabaseConfig(fileName);
+  return safeFileDirectory;
+}
 
 /**
  * @description ensures directories exist and populates database
@@ -30,14 +40,7 @@ async function populateDb(directory: string, filename: string): Promise<string> 
   // if dbInDisk doesn't exist we create an empty file from db model
   if (!existsSync(dbPath)) {
     try {
-      consoleHighlight('No active DB found, creating new project');
-      const newFileDirectory = join(resolveDbDirectory, newProjectName);
-      if (!existsSync(newFileDirectory)) {
-        // if it is already there dont override it
-        writeFileSync(newFileDirectory, JSON.stringify(dbModel));
-      }
-      await appStateService.updateDatabaseConfig(newProjectName);
-      dbPath = newFileDirectory;
+      dbPath = await createEmptyDb();
     } catch (_) {
       /* we do not handle this */
       // TODO: without a DB, the app doesnt work, should we instead let the app crash?
@@ -51,14 +54,16 @@ async function populateDb(directory: string, filename: string): Promise<string> 
  * Handles a corrupted file by copying it to a corrupted folder
  * Eventual recovered data will be added to a new file
  */
-async function handleCorruptedDb(filePath: string) {
+async function handleCorruptedDb(filePath: string, canRecover: boolean) {
   try {
     const fileName = getFileNameFromPath(filePath);
     const newFilePath = join(resolveCorruptedFilesDirectory, fileName);
 
     ensureDirectory(resolveCorruptedFilesDirectory);
     copyFileSync(filePath, newFilePath);
-    await renameProjectFile(fileName, nameRecovered(fileName));
+    if (canRecover) {
+      await renameProjectFile(fileName, nameRecovered(fileName));
+    }
   } catch (_) {
     /* we do not handle errors here */
   }
@@ -68,7 +73,7 @@ async function handleCorruptedDb(filePath: string) {
  * @description loads ontime db
  */
 async function loadDb(directory: string, filename: string) {
-  const dbInDisk = await populateDb(directory, filename);
+  let dbInDisk = await populateDb(directory, filename);
 
   let newData: DatabaseModel = dbModel;
   let errors = [];
@@ -83,10 +88,13 @@ async function loadDb(directory: string, filename: string) {
     errors = result.errors;
   } catch (error) {
     consoleError(`Unable to parse project file: ${getErrorMessage(error)}`);
-    handleCorruptedDb(dbInDisk);
+    // we get here if the JSON file is corrupt
+    await handleCorruptedDb(dbInDisk, false);
+    dbInDisk = await createEmptyDb();
   } finally {
+    // here we handle whether the data is invalid in the domain level
     if (errors.length > 0) {
-      handleCorruptedDb(dbInDisk);
+      await handleCorruptedDb(dbInDisk, true);
     }
   }
 
