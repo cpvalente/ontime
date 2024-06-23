@@ -1,6 +1,7 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { rm } from 'fs/promises';
 
 import { ensureDirectory } from './fileManagement.js';
 import { getAppDataPath, uploadsFolderPath } from '../setup/index.js';
@@ -56,3 +57,11 @@ export const storage = multer.diskStorage({
     cb(null, file.originalname);
   },
 });
+
+export async function clearUploadfolder() {
+  try {
+    await rm(uploadsFolderPath, { recursive: true });
+  } catch (_) {
+    //we dont care that there was no folder
+  }
+}

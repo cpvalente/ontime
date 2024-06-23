@@ -1,8 +1,6 @@
 import { fileURLToPath } from 'url';
-import path, { dirname, join } from 'path';
-import fs from 'fs';
-
-import { rm } from 'fs/promises';
+import { dirname, join } from 'path';
+import { readFileSync, writeFileSync } from 'fs';
 
 import { config } from './config.js';
 import { ensureDirectory } from '../utils/fileManagement.js';
@@ -17,18 +15,18 @@ import { ensureDirectory } from '../utils/fileManagement.js';
 export function getAppDataPath(): string {
   // handle docker
   if (process.env.ONTIME_DATA) {
-    return path.join(process.env.ONTIME_DATA);
+    return join(process.env.ONTIME_DATA);
   }
 
   switch (process.platform) {
     case 'darwin': {
-      return path.join(process.env.HOME!, 'Library', 'Application Support', 'Ontime');
+      return join(process.env.HOME!, 'Library', 'Application Support', 'Ontime');
     }
     case 'win32': {
-      return path.join(process.env.APPDATA!, 'Ontime');
+      return join(process.env.APPDATA!, 'Ontime');
     }
     case 'linux': {
-      return path.join(process.env.HOME!, '.Ontime');
+      return join(process.env.HOME!, '.Ontime');
     }
     default: {
       throw new Error('Could not resolve public folder for platform');
@@ -56,11 +54,11 @@ if (import.meta.url) {
 // path to server src folder
 const currentDir = dirname(__dirname);
 // locally we are in src/setup, in the production build, this is a single file at src
-export const srcDirectory = isProduction ? currentDir : path.join(currentDir, '../');
+export const srcDirectory = isProduction ? currentDir : join(currentDir, '../');
 
 // resolve path to external
-const productionPath = path.join(srcDirectory, 'client/');
-const devPath = path.join(srcDirectory, '../../client/build/');
+const productionPath = join(srcDirectory, 'client/');
+const devPath = join(srcDirectory, '../../client/build/');
 
 export const resolvedPath = (): string => {
   if (isTest) {
@@ -83,12 +81,12 @@ export const uploadsFolderPath = join(getAppDataPath(), config.uploads);
 
 const ensureAppState = () => {
   ensureDirectory(getAppDataPath());
-  fs.writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: 'db.json' }));
+  writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: 'db.json' }));
 };
 
 const getLastLoadedProject = () => {
   try {
-    const appState = JSON.parse(fs.readFileSync(appStatePath, 'utf8'));
+    const appState = JSON.parse(readFileSync(appStatePath, 'utf8'));
     if (!appState.lastLoadedProject) {
       ensureAppState();
     }
@@ -142,11 +140,3 @@ export const resolveCrashReportDirectory = getAppDataPath();
 
 // path to projects
 export const resolveProjectsDirectory = join(getAppDataPath(), config.projects);
-
-export async function clearUploadfolder() {
-  try {
-    await rm(uploadsFolderPath, { recursive: true });
-  } catch (_) {
-    //we dont care that there was no folder
-  }
-}
