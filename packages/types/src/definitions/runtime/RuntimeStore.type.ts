@@ -1,4 +1,4 @@
-import type { OntimeEvent } from '../core/OntimeEvent.type.js';
+import type { OntimeBlock, OntimeEvent } from '../core/OntimeEvent.type.js';
 import type { SimpleTimerState } from './AuxTimer.type.js';
 import type { MessageState } from './MessageControl.type.js';
 import type { Runtime } from './Runtime.type.js';
@@ -16,6 +16,7 @@ export type RuntimeStore = {
   // rundown data
   runtime: Runtime;
   eventNow: OntimeEvent | null;
+  blockNow: OntimeBlock | null;
   publicEventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
   publicEventNext: OntimeEvent | null;

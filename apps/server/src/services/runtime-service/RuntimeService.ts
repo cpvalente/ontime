@@ -27,6 +27,7 @@ import {
   getNextEventWithCue,
   getEventWithId,
   getPlayableEvents,
+  getRundown,
 } from '../rundown-service/rundownUtils.js';
 import { integrationService } from '../integration-service/IntegrationService.js';
 import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
@@ -99,8 +100,9 @@ class RuntimeService {
 
     if (shouldCallRoll) {
       // we dont call this.roll because we need to bypass the checks
-      const rundown = getPlayableEvents();
-      this.eventTimer.roll(rundown);
+      const playableEvents = getPlayableEvents();
+      const rundown = getRundown();
+      this.eventTimer.roll(playableEvents, rundown);
     }
 
     const timerPhaseChanged = RuntimeService.previousState.timer?.phase !== newState.timer.phase;
@@ -229,7 +231,8 @@ class RuntimeService {
       if (onlyChangedNow) {
         runtimeState.reload(eventNow);
       } else {
-        runtimeState.reloadAll(eventNow, playableEvents);
+        const rundown = getRundown();
+        runtimeState.reloadAll(eventNow, playableEvents, rundown);
       }
       return;
     }
@@ -253,8 +256,9 @@ class RuntimeService {
       return false;
     }
 
-    const timedEvents = getPlayableEvents();
-    const success = runtimeState.load(event, timedEvents);
+    const playableEvents = getPlayableEvents();
+    const rundown = getRundown();
+    const success = runtimeState.load(event, playableEvents, rundown);
 
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
@@ -497,7 +501,9 @@ class RuntimeService {
       return;
     }
 
-    this.eventTimer.roll(playableEvents);
+    const rundown = getRundown();
+
+    this.eventTimer.roll(playableEvents, rundown);
 
     const state = runtimeState.getState();
     const newState = state.timer.playback;
@@ -527,8 +533,9 @@ class RuntimeService {
       return;
     }
 
-    const timedEvents = getPlayableEvents();
-    runtimeState.resume(restorePoint, event, timedEvents);
+    const playableEvents = getPlayableEvents();
+    const rundown = getRundown();
+    runtimeState.resume(restorePoint, event, playableEvents, rundown);
     logger.info(LogOrigin.Playback, 'Resuming playback');
   }
 
@@ -586,6 +593,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     // Update the events if they have changed
     updateEventIfChanged('eventNow', state);
+    updateEventIfChanged('blockNow', state);
     updateEventIfChanged('publicEventNow', state);
     updateEventIfChanged('eventNext', state);
     updateEventIfChanged('publicEventNext', state);

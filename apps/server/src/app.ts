@@ -177,6 +177,7 @@ export const startServer = async (
     message: messageService.getState(),
     runtime: state.runtime,
     eventNow: state.eventNow,
+    blockNow: state.blockNow,
     publicEventNow: state.publicEventNow,
     eventNext: state.eventNext,
     publicEventNext: state.publicEventNext,
