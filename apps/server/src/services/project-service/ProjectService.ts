@@ -8,7 +8,7 @@ import { initRundown } from '../rundown-service/RundownService.js';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 import { getNetworkInterfaces } from '../../utils/networkInterfaces.js';
-import { resolveProjectsDirectory, resolveStylesPath } from '../../setup/index.js';
+import { appStatePath, resolveProjectsDirectory, resolveStylesPath } from '../../setup/index.js';
 import { filterProjectFiles, parseProjectFile } from './projectFileUtils.js';
 import { appStateService } from '../app-state-service/AppStateService.js';
 import {
@@ -49,7 +49,7 @@ export async function applyProjectFile(name: string, options?: Options) {
   await applyDataModel(data, options);
 
   // persist the project selection
-  await appStateService.updateDatabaseConfig(name);
+  await appStateService.updateDatabaseConfig(appStatePath, name);
 }
 
 /**
@@ -95,13 +95,13 @@ export async function getProjectFiles(): Promise<ProjectFile[]> {
 }
 
 export async function getLoadedProject(): Promise<string> {
-  const appState = await appStateService.get();
+  const appState = await appStateService.get(appStatePath);
 
   // TODO: we likely want a better handling of this case
   // the file may no longer exist in the directory
   const filePath = join(resolveProjectsDirectory, appState.lastLoadedProject);
   if (!checkIfFileExists(filePath)) {
-    await appStateService.updateDatabaseConfig('');
+    await appStateService.updateDatabaseConfig(appStatePath, '');
     return '';
   }
 
@@ -145,7 +145,7 @@ export async function renameProjectFile(existingProjectFile: string, newName: st
   await rename(projectFilePath, newProjectFilePath);
 
   if (lastLoadedProject === existingProjectFile) {
-    await appStateService.updateDatabaseConfig(newName);
+    await appStateService.updateDatabaseConfig(appStatePath, newName);
   }
 }
 
@@ -171,7 +171,7 @@ export async function createProjectFile(filename: string, projectData: ProjectDa
   // apply its data
   await applyDataModel(data);
 
-  appStateService.updateDatabaseConfig(filename);
+  appStateService.updateDatabaseConfig(appStatePath, filename);
 }
 
 /**

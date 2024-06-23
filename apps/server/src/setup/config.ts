@@ -2,6 +2,8 @@ export const config = {
   appState: 'app-state.json',
   corrupt: 'corrupt files',
   crash: 'crash',
+  newProjectName: 'new project.json',
+  demoProject: 'demo project.json',
   database: {
     testdb: 'test-db',
     directory: 'db',

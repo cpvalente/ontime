@@ -1,11 +1,8 @@
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'fs';
 
-import { ensureDirectory } from '../utils/fileManagement.js';
 import { config } from './config.js';
-
-const DEMO_PROJECT = 'demo project.json';
+import { appStateService } from '../services/app-state-service/AppStateService.js';
 
 // =================================================
 // resolve public path
@@ -87,41 +84,16 @@ export const pathToStartDb = isTest
   : join(srcDirectory, '/preloaded-db/', config.database.filename);
 export const resolveDbDirectory = join(testDbStartDirectory, isTest ? `../${config.database.testdb}` : config.projects);
 
-const ensureAppState = (firstStartup = false) => {
-  ensureDirectory(getAppDataPath());
-  if (firstStartup) {
-    writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: DEMO_PROJECT }));
-    const demoProjectPath = join(resolveDbDirectory, DEMO_PROJECT);
-    ensureDirectory(resolveDbDirectory);
-    if (!existsSync(demoProjectPath)) {
-      // if it is already there dont override it
-      copyFileSync(pathToStartDb, join(resolveDbDirectory, DEMO_PROJECT));
-    }
-  } else {
-    writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: '' }));
-  }
-};
+async function getLastLoadedProject(): Promise<string> {
+  const { lastLoadedProject } = await appStateService.get(appStatePath);
+  return lastLoadedProject;
+}
 
-const getLastLoadedProject = () => {
-  try {
-    const appState = JSON.parse(readFileSync(appStatePath, 'utf8'));
-    if (!appState.lastLoadedProject) {
-      ensureAppState();
-    }
-    return appState.lastLoadedProject;
-  } catch (_) {
-    console.log('No app state found, assuming first start up');
-    if (!isTest) {
-      ensureAppState(true);
-      return DEMO_PROJECT;
-    }
-  }
-};
-
+// used on app start up
 const lastLoadedProject = isTest ? 'db.json' : getLastLoadedProject();
 
 // path to public db
-export const resolveDbName = lastLoadedProject ? lastLoadedProject : config.database.filename;
+export const resolveDbName = lastLoadedProject ? await lastLoadedProject : config.database.filename;
 export const resolveDbPath = join(resolveDbDirectory, resolveDbName);
 
 // path to public styles

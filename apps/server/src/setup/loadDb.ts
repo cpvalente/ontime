@@ -14,17 +14,19 @@ import { consoleError, consoleHighlight } from '../utils/console.js';
 import { renameProjectFile } from '../services/project-service/ProjectService.js';
 import { appStateService } from '../services/app-state-service/AppStateService.js';
 
-import { resolveCorruptedFilesDirectory, resolveDbDirectory, resolveDbName } from './index.js';
+import { appStatePath, resolveCorruptedFilesDirectory, resolveDbDirectory, resolveDbName } from './index.js';
+import { config } from './config.js';
+import { demoDb } from '../models/demoProject.js';
 
-const newProjectName = 'new project.json';
-
-async function createEmptyDb(): Promise<string> {
-  consoleHighlight('No active DB found, creating new project');
-  const newFileDirectory = join(resolveDbDirectory, newProjectName);
+async function createNewDb(filename = config.newProjectName, data = dbModel): Promise<string> {
+  const newFileDirectory = join(resolveDbDirectory, filename);
   const safeFileDirectory = findSafeFileName(newFileDirectory);
-  writeFileSync(safeFileDirectory, JSON.stringify(dbModel));
+
+  writeFileSync(safeFileDirectory, JSON.stringify(data));
+
   const fileName = getFileNameFromPath(safeFileDirectory);
-  await appStateService.updateDatabaseConfig(fileName);
+  await appStateService.updateDatabaseConfig(appStatePath, fileName);
+
   return safeFileDirectory;
 }
 
@@ -34,13 +36,22 @@ async function createEmptyDb(): Promise<string> {
  */
 async function populateDb(directory: string, filename: string): Promise<string> {
   ensureDirectory(directory);
+
+  // if we dont have a filename, we load the demo project
+  if (!filename) {
+    consoleHighlight('No previously loaded file, creating demo project');
+    return createNewDb(config.demoProject, demoDb);
+  }
+
+  // otherwise we will attempt loading the database
   let dbPath = join(directory, filename);
 
   // if everything goes well, the DB in disk is the one loaded
   // if dbInDisk doesn't exist we create an empty file from db model
   if (!existsSync(dbPath)) {
     try {
-      dbPath = await createEmptyDb();
+      consoleHighlight('No active DB found, creating new project');
+      dbPath = await createNewDb();
     } catch (_) {
       /* we do not handle this */
       // TODO: without a DB, the app doesnt work, should we instead let the app crash?
@@ -82,7 +93,7 @@ async function loadDb(directory: string, filename: string) {
     const maybeProjectFile = parseProjectFile(dbInDisk);
     const result = parseJson(maybeProjectFile);
 
-    await appStateService.updateDatabaseConfig(filename);
+    await appStateService.updateDatabaseConfig(appStatePath, filename);
 
     newData = result.data;
     errors = result.errors;
@@ -90,7 +101,7 @@ async function loadDb(directory: string, filename: string) {
     consoleError(`Unable to parse project file: ${getErrorMessage(error)}`);
     // we get here if the JSON file is corrupt
     await handleCorruptedDb(dbInDisk, false);
-    dbInDisk = await createEmptyDb();
+    dbInDisk = await createNewDb();
   } finally {
     // here we handle whether the data is invalid in the domain level
     if (errors.length > 0) {
