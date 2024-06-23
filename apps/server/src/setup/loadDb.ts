@@ -37,6 +37,8 @@ const populateDb = (directory: string, filename: string): string => {
       dbPath = newFileDirectory;
     } catch (_) {
       /* we do not handle this */
+      // TODO: without a DB, the app doesnt work, should we instead let the app crash?
+      consoleError('Unable to create DB');
     }
   }
   return dbPath;

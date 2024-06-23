@@ -1,9 +1,10 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { rm } from 'fs/promises';
 
-import { ensureDirectory } from './fileManagement.js';
 import { getAppDataPath, uploadsFolderPath } from '../setup/index.js';
+import { ensureDirectory } from './fileManagement.js';
 
 function generateNewFileName(filePath: string, callback: (newName: string) => void) {
   const baseName = path.basename(filePath, path.extname(filePath));
@@ -56,3 +57,14 @@ export const storage = multer.diskStorage({
     cb(null, file.originalname);
   },
 });
+
+/**
+ * Clears the directory that holds the uploads
+ */
+export async function clearUploadfolder() {
+  try {
+    await rm(uploadsFolderPath, { recursive: true });
+  } catch (_) {
+    //we dont care that there was no folder
+  }
+}

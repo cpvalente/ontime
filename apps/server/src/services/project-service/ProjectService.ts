@@ -97,13 +97,14 @@ export async function getProjectFiles(): Promise<ProjectFile[]> {
 export async function getLoadedProject(): Promise<string> {
   const appState = await appStateService.get();
 
-  if (appState.lastLoadedProject) {
-    const filePath = join(resolveProjectsDirectory, appState.lastLoadedProject);
-    if (!checkIfFileExists(filePath)) {
-      await appStateService.updateDatabaseConfig('');
-      return '';
-    }
+  // TODO: we likely want a better handling of this case
+  // the file may no longer exist in the directory
+  const filePath = join(resolveProjectsDirectory, appState.lastLoadedProject);
+  if (!checkIfFileExists(filePath)) {
+    await appStateService.updateDatabaseConfig('');
+    return '';
   }
+
   return appState.lastLoadedProject;
 }
 
