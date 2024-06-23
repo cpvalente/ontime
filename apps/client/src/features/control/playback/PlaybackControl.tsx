@@ -3,7 +3,7 @@ import { Playback } from 'ontime-types';
 import { usePlaybackControl } from '../../../common/hooks/useSocket';
 
 import AddTime from './add-time/AddTime';
-import { AuxTimer } from './aux-timer/AuxTimer';
+import { AuxTimerDriven, AuxTimerSimple } from './aux-timer/AuxTimer';
 import PlaybackButtons from './playback-buttons/PlaybackButtons';
 import PlaybackTimer from './playback-timer/PlaybackTimer';
 
@@ -22,7 +22,8 @@ export default function PlaybackControl() {
         numEvents={data.numEvents}
         selectedEventIndex={data.selectedEventIndex}
       />
-      <AuxTimer />
+      <AuxTimerSimple />
+      <AuxTimerDriven />
     </div>
   );
 }

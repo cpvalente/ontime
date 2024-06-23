@@ -1,7 +1,9 @@
-import { SimpleDirection, SimpleTimerState } from 'ontime-types';
+import { DrivenTimerState, SimpleDirection, SimpleTimerState } from 'ontime-types';
+import type { PublishFn } from '../../stores/EventStore.js';
 
 import { SimpleTimer } from '../../classes/simple-timer/SimpleTimer.js';
 import { eventStore } from '../../stores/EventStore.js';
+import { throttle } from '../../utils/throttle.js';
 
 export type EmitFn = (state: SimpleTimerState) => void;
 export type GetTimeFn = () => number;
@@ -16,6 +18,10 @@ export class AuxTimerService {
     this.timer = new SimpleTimer();
     this.emit = emit;
     this.getTime = getTime;
+
+    this.throttledSetDriven = () => {
+      throw new Error('Published called before initialisation');
+    };
   }
 
   private startInterval() {
@@ -59,6 +65,21 @@ export class AuxTimerService {
   @broadcastReturn
   private update() {
     return this.timer.update(this.getTime());
+  }
+
+  init(publish: PublishFn) {
+    this.publish = publish;
+    this.throttledSetDriven = throttle((key, value) => this.publish?.(key, value), 100);
+  }
+
+  private throttledSetDriven: PublishFn;
+  private publish: PublishFn | null;
+  private drivenTimer: DrivenTimerState = { current: 0 };
+
+  drive(time: number) {
+    this.drivenTimer.current = time;
+    console.log(time)
+    this.throttledSetDriven('auxtimer2', this.drivenTimer);
   }
 }
 

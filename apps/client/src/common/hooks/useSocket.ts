@@ -95,6 +95,12 @@ export const useAuxTimerTime = () => {
   return useRuntimeStore(featureSelector);
 };
 
+export const useAuxTimerTime2 = () => {
+  const featureSelector = (state: RuntimeStore) => state.auxtimer2.current;
+
+  return useRuntimeStore(featureSelector);
+};
+
 export const useAuxTimerControl = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.auxtimer1.playback,

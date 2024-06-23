@@ -48,6 +48,9 @@ export const runtimeStorePlaceholder: RuntimeStore = {
     duration: 0,
     playback: SimplePlayback.Stop,
   },
+  auxtimer2: {
+    current: 0,
+  },
 };
 
 const deepCompare = <T>(a: T, b: T) => isEqual(a, b);

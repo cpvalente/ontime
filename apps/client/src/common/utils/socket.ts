@@ -170,6 +170,11 @@ export const connectSocket = () => {
           updateDevTools({ auxtimer1: payload });
           break;
         }
+        case 'ontime-auxtimer2': {
+          patchRuntime('auxtimer2', payload);
+          updateDevTools({ auxtimer2: payload });
+          break;
+        }
       }
     } catch (_) {
       // ignore unhandled
