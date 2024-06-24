@@ -16,8 +16,9 @@ import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { resolveDbDirectory, resolveProjectsDirectory } from '../../setup/index.js';
 
 import * as projectService from '../../services/project-service/ProjectService.js';
+import { doesProjectExist, upload, validateProjectFiles } from '../../services/project-service/projectServiceUtils.js';
 import { generateUniqueFileName } from '../../utils/generateUniqueFilename.js';
-import { appStateService } from '../../services/app-state-service/AppStateService.js';
+import { appStateProvider } from '../../services/app-state-service/AppStateService.js';
 import { oscIntegration } from '../../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../../services/integration-service/HttpIntegration.js';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -54,7 +55,7 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
 export async function createProjectFile(req: Request, res: Response<{ filename: string } | ErrorResponse>) {
   try {
     const filename = generateUniqueFileName(resolveProjectsDirectory, req.body.filename);
-    const errors = projectService.validateProjectFiles({ newFilename: filename });
+    const errors = validateProjectFiles({ newFilename: filename });
 
     if (errors.length) {
       return res.status(409).send({ message: 'Project with title already exists' });
@@ -113,7 +114,8 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
     const options = req.query;
     const { filename, path } = req.file;
 
-    await projectService.handleUploadedFile(path, filename);
+    // TODO: controller shouldnt consume this directly
+    await upload(path, filename);
     await projectService.applyProjectFile(filename, options);
 
     const oscSettings = await DataProvider.getOsc();
@@ -150,7 +152,7 @@ export async function listProjects(_req: Request, res: Response<ProjectFileListR
 export async function loadProject(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
     const name = req.body.filename;
-    if (!projectService.doesProjectExist(name)) {
+    if (!doesProjectExist(name)) {
       return res.status(404).send({ message: 'File not found' });
     }
 
@@ -186,7 +188,7 @@ export async function duplicateProjectFile(req: Request, res: Response<MessageRe
     const { filename } = req.params;
     const { newFilename } = req.body;
 
-    const errors = projectService.validateProjectFiles({ filename, newFilename });
+    const errors = validateProjectFiles({ filename, newFilename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
@@ -218,7 +220,7 @@ export async function renameProjectFile(req: Request, res: Response<MessageRespo
     const { filename: newFilename } = req.body;
     const { filename } = req.params;
 
-    const errors = projectService.validateProjectFiles({ filename, newFilename });
+    const errors = validateProjectFiles({ filename, newFilename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
@@ -250,13 +252,13 @@ export async function deleteProjectFile(req: Request, res: Response<MessageRespo
   try {
     const { filename } = req.params;
 
-    const { lastLoadedProject } = await appStateService.get();
+    const lastLoadedProject = await appStateProvider.getLastLoadedProject();
 
     if (lastLoadedProject === filename) {
       return res.status(403).send({ message: 'Cannot delete currently loaded project' });
     }
 
-    const errors = projectService.validateProjectFiles({ filename });
+    const errors = validateProjectFiles({ filename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
