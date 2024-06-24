@@ -5,8 +5,9 @@ import { Request, Response } from 'express';
 
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
-import { extractPin } from '../../services/project-service/ProjectService.js';
 import { isDocker } from '../../setup/index.js';
+
+import { extractPin } from './settings.utils.js';
 
 export async function getSettings(_req: Request, res: Response<Settings>) {
   const settings = DataProvider.getSettings();

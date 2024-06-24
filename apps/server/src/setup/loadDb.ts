@@ -12,7 +12,7 @@ import { pathToStartDb, resolveDbDirectory, resolveDbName } from './index.js';
 import { parseProjectFile } from '../services/project-service/projectFileUtils.js';
 import { parseJson } from '../utils/parser.js';
 import { getErrorMessage } from 'ontime-utils';
-import { appStateService } from '../services/app-state-service/AppStateService.js';
+import { appStateProvider } from '../services/app-state-service/AppStateService.js';
 import { consoleError } from '../utils/console.js';
 
 /**
@@ -58,7 +58,7 @@ async function loadDb(directory: string, filename: string) {
     const maybeProjectFile = parseProjectFile(dbInDisk);
     const result = parseJson(maybeProjectFile);
 
-    await appStateService.updateDatabaseConfig(filename);
+    await appStateProvider.updateDatabaseConfig(filename);
 
     newData = result.data;
   } catch (error) {
