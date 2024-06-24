@@ -13,11 +13,10 @@ import { existsSync } from 'fs';
 import type { Request, Response } from 'express';
 
 import { failEmptyObjects } from '../../utils/routerUtils.js';
-import { resolveDbDirectory, resolveProjectsDirectory } from '../../setup/index.js';
+import { resolveDbDirectory } from '../../setup/index.js';
 
 import * as projectService from '../../services/project-service/ProjectService.js';
 import { doesProjectExist, upload, validateProjectFiles } from '../../services/project-service/projectServiceUtils.js';
-import { generateUniqueFileName } from '../../utils/generateUniqueFilename.js';
 import { appStateProvider } from '../../services/app-state-service/AppStateService.js';
 import { oscIntegration } from '../../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../../services/integration-service/HttpIntegration.js';
@@ -53,27 +52,20 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
  *                         or a 500 status with an error message in case of an exception.
  */
 export async function createProjectFile(req: Request, res: Response<{ filename: string } | ErrorResponse>) {
+  const newProjectData: ProjectData = {
+    title: req.body?.title ?? '',
+    description: req.body?.description ?? '',
+    publicUrl: req.body?.publicUrl ?? '',
+    publicInfo: req.body?.publicInfo ?? '',
+    backstageUrl: req.body?.backstageUrl ?? '',
+    backstageInfo: req.body?.backstageInfo ?? '',
+  };
+
   try {
-    const filename = generateUniqueFileName(resolveProjectsDirectory, req.body.filename);
-    const errors = validateProjectFiles({ newFilename: filename });
-
-    if (errors.length) {
-      return res.status(409).send({ message: 'Project with title already exists' });
-    }
-
-    const newProjectData: ProjectData = {
-      title: req.body?.title ?? '',
-      description: req.body?.description ?? '',
-      publicUrl: req.body?.publicUrl ?? '',
-      publicInfo: req.body?.publicInfo ?? '',
-      backstageUrl: req.body?.backstageUrl ?? '',
-      backstageInfo: req.body?.backstageInfo ?? '',
-    };
-
-    await projectService.createProjectFile(filename, newProjectData);
+    const newFileName = await projectService.createProject(req.body.filename, newProjectData);
 
     res.status(200).send({
-      filename,
+      filename: newFileName,
     });
   } catch (error) {
     const message = getErrorMessage(error);
