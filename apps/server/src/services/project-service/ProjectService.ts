@@ -1,20 +1,19 @@
-import { DatabaseModel, GetInfo, ProjectData, ProjectFile, ProjectFileListResponse } from 'ontime-types';
+import { DatabaseModel, GetInfo, ProjectData, ProjectFileListResponse } from 'ontime-types';
 
-import { copyFile, rename, stat, writeFile } from 'fs/promises';
-import { existsSync } from 'fs';
-import { join } from 'path';
+import { copyFile, rename } from 'fs/promises';
 
 import { initRundown } from '../rundown-service/RundownService.js';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 import { getNetworkInterfaces } from '../../utils/networkInterfaces.js';
 import { resolveProjectsDirectory, resolveStylesPath } from '../../setup/index.js';
-import { filterProjectFiles, parseProjectFile } from './projectFileUtils.js';
-import { appStateService } from '../app-state-service/AppStateService.js';
-import { ensureDirectory, getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
+import { parseProjectFile } from './projectFileUtils.js';
+import { appStateProvider } from '../app-state-service/AppStateService.js';
+import { ensureDirectory, removeFileExtension } from '../../utils/fileManagement.js';
 import { dbModel } from '../../models/dataModel.js';
 import { deleteFile } from '../../utils/parserUtils.js';
 import { switchDb } from '../../setup/loadDb.js';
+import { getPathToProject, getProjectFiles } from './projectServiceUtils.js';
 
 // init dependencies
 init();
@@ -34,7 +33,7 @@ type Options = {
  * Handles a file from the upload folder and applies its data
  */
 export async function applyProjectFile(name: string, options?: Options) {
-  const filePath = join(resolveProjectsDirectory, name);
+  const filePath = getPathToProject(name);
   const data = parseProjectFile(filePath);
 
   // change LowDB to point to new file
@@ -44,49 +43,7 @@ export async function applyProjectFile(name: string, options?: Options) {
   await applyDataModel(data, options);
 
   // persist the project selection
-  await appStateService.updateDatabaseConfig(name);
-}
-
-/**
- * Copies a file from upload folder to the projects folder
- * @param filePath
- * @param name
- * @returns
- */
-export async function handleUploadedFile(filePath: string, name: string) {
-  const newFilePath = join(resolveProjectsDirectory, name);
-  await rename(filePath, newFilePath);
-  await deleteFile(filePath);
-  return name;
-}
-
-/**
- * Asynchronously retrieves and returns an array of project files from the 'uploads' folder.
- * Each file in the 'uploads' folder is checked, and only those with a '.json' extension are processed.
- * For each qualifying file, its metadata is retrieved, including filename, creation time, and last modification time.
- *
- * @returns {Promise<Array<ProjectFile>>} A promise that resolves to an array of ProjectFile objects,
- *                                        each representing a file in the 'uploads' folder with its metadata.
- *                                        The metadata includes the filename, creation or overwriting time (updatedAt)
- *
- * @throws {Error} Throws an error if there is an issue in reading the directory or fetching file statistics.
- */
-export async function getProjectFiles(): Promise<ProjectFile[]> {
-  const allFiles = await getFilesFromFolder(resolveProjectsDirectory);
-  const filteredFiles = filterProjectFiles(allFiles);
-
-  const projectFiles: ProjectFile[] = [];
-  for (const file of filteredFiles) {
-    const filePath = join(resolveProjectsDirectory, file);
-    const stats = await stat(filePath);
-
-    projectFiles.push({
-      filename: removeFileExtension(file),
-      updatedAt: stats.mtime.toISOString(),
-    });
-  }
-
-  return projectFiles;
+  await appStateProvider.updateDatabaseConfig(name);
 }
 
 /**
@@ -94,12 +51,11 @@ export async function getProjectFiles(): Promise<ProjectFile[]> {
  */
 export async function getProjectList(): Promise<ProjectFileListResponse> {
   const files = await getProjectFiles();
-  const appState = await appStateService.get();
-  const lastLoadedProject = removeFileExtension(appState.lastLoadedProject);
+  const lastLoadedProject = await appStateProvider.getLastLoadedProject();
 
   return {
     files,
-    lastLoadedProject,
+    lastLoadedProject: removeFileExtension(lastLoadedProject),
   };
 }
 
@@ -107,8 +63,8 @@ export async function getProjectList(): Promise<ProjectFileListResponse> {
  * Duplicates an existing project file
  */
 export async function duplicateProjectFile(existingProjectFile: string, newProjectFile: string) {
-  const projectFilePath = join(resolveProjectsDirectory, existingProjectFile);
-  const duplicateProjectFilePath = join(resolveProjectsDirectory, newProjectFile);
+  const projectFilePath = getPathToProject(existingProjectFile);
+  const duplicateProjectFilePath = getPathToProject(newProjectFile);
 
   return copyFile(projectFilePath, duplicateProjectFilePath);
 }
@@ -117,16 +73,16 @@ export async function duplicateProjectFile(existingProjectFile: string, newProje
  * Renames an existing project file
  */
 export async function renameProjectFile(existingProjectFile: string, newName: string) {
-  const projectFilePath = join(resolveProjectsDirectory, existingProjectFile);
-  const newProjectFilePath = join(resolveProjectsDirectory, newName);
+  const projectFilePath = getPathToProject(existingProjectFile);
+  const newProjectFilePath = getPathToProject(newName);
 
   await rename(projectFilePath, newProjectFilePath);
 
   // Update the last loaded project config if current loaded project is the one being renamed
-  const { lastLoadedProject } = await appStateService.get();
+  const lastLoadedProject = await appStateProvider.getLastLoadedProject();
 
   if (lastLoadedProject === existingProjectFile) {
-    await appStateService.updateDatabaseConfig(newName);
+    await appStateProvider.updateDatabaseConfig(newName);
   }
 }
 
@@ -143,8 +99,8 @@ export async function createProjectFile(filename: string, projectData: ProjectDa
   };
 
   // create new file
-  const newFile = join(resolveProjectsDirectory, filename);
   await writeFile(newFile, JSON.stringify(data));
+  const newFile = getPathToProject(filename);
 
   // change LowDB to point to new file
   await switchDb(filename);
@@ -152,14 +108,15 @@ export async function createProjectFile(filename: string, projectData: ProjectDa
   // apply its data
   await applyDataModel(data);
 
-  appStateService.updateDatabaseConfig(filename);
+  // update app state to point to new value
+  appStateProvider.updateDatabaseConfig(filename);
 }
 
 /**
  * Deletes a project file
  */
 export async function deleteProjectFile(filename: string) {
-  const projectFilePath = join(resolveProjectsDirectory, filename);
+  const projectFilePath = getPathToProject(filename);
   await deleteFile(projectFilePath);
 }
 
@@ -185,22 +142,6 @@ export async function getInfo(): Promise<GetInfo> {
 }
 
 /**
- * Business logic for resolving a string
- */
-export function extractPin(value: string | undefined | null, fallback: string | null): string | null {
-  if (value === null) {
-    return value;
-  }
-  if (typeof value === 'undefined') {
-    return fallback;
-  }
-  if (value.length === 0) {
-    return null;
-  }
-  return value;
-}
-
-/**
  * applies a partial database model
  */
 export async function applyDataModel(data: Partial<DatabaseModel>, _options?: Options) {
@@ -215,52 +156,4 @@ export async function applyDataModel(data: Partial<DatabaseModel>, _options?: Op
   }
 
   return newData;
-}
-
-/**
- * Checks whether a project of a given name exists
- * @param name
- */
-export function doesProjectExist(name: string): boolean {
-  const projectFilePath = join(resolveProjectsDirectory, name);
-  return existsSync(projectFilePath);
-}
-
-/**
- * @description Validates the existence of project files.
- * @param {object} projectFiles
- * @param {string} projectFiles.projectFilename
- * @param {string} projectFiles.newFilename
- *
- * @returns {Promise<Array<string>>} Array of errors
- *
- */
-export const validateProjectFiles = (projectFiles: { filename?: string; newFilename?: string }): Array<string> => {
-  const errors: string[] = [];
-
-  if (projectFiles.filename) {
-    const projectFilePath = join(resolveProjectsDirectory, projectFiles.filename);
-
-    if (!existsSync(projectFilePath)) {
-      errors.push('Project file does not exist');
-    }
-  }
-
-  if (projectFiles.newFilename) {
-    const projectFilePath = join(resolveProjectsDirectory, projectFiles.newFilename);
-
-    if (existsSync(projectFilePath)) {
-      errors.push('New project file already exists');
-    }
-  }
-
-  return errors;
-};
-
-/**
- * Get current project title or fallback
- */
-export function getProjectTitle(): string {
-  const { title } = DataProvider.getProjectData();
-  return title || 'ontime data';
 }
