@@ -88,10 +88,10 @@ const init = async () => {
 /**
  * Allows to switch the database to a new file
  */
-export const switchDb = async (newFileName: string) => {
-  const { db: newDb, data: newData } = await loadDb(resolveDbDirectory, newFileName);
+export const switchDb = async (filePath: string, data: DatabaseModel) => {
+  const newDb = await JSONFilePreset<DatabaseModel>(filePath, data);
   db = newDb;
-  data = newData;
+  data = newDb.data;
 };
 
 init();
