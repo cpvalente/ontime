@@ -14,6 +14,7 @@ import { dbModel } from '../../models/dataModel.js';
 import { deleteFile } from '../../utils/parserUtils.js';
 import { switchDb } from '../../setup/loadDb.js';
 import { getPathToProject, getProjectFiles } from './projectServiceUtils.js';
+import { parseJson } from '../../utils/parser.js';
 
 // init dependencies
 init();
@@ -36,8 +37,10 @@ export async function applyProjectFile(name: string, options?: Options) {
   const filePath = getPathToProject(name);
   const data = parseProjectFile(filePath);
 
+  const result = parseJson(data);
+
   // change LowDB to point to new file
-  await switchDb(name);
+  await switchDb(filePath, result.data);
 
   // apply data model
   await applyDataModel(data, options);
@@ -89,7 +92,7 @@ export async function renameProjectFile(existingProjectFile: string, newName: st
 /**
  * Creates a new project file and applies its result
  */
-export async function createProjectFile(filename: string, projectData: ProjectData) {
+export async function createProject(filename: string, projectData: ProjectData) {
   const data = {
     ...dbModel,
     project: {
@@ -98,14 +101,13 @@ export async function createProjectFile(filename: string, projectData: ProjectDa
     },
   };
 
-  // create new file
-  await writeFile(newFile, JSON.stringify(data));
   const newFile = getPathToProject(filename);
 
   // change LowDB to point to new file
-  await switchDb(filename);
+  await switchDb(newFile, data);
 
-  // apply its data
+  // apply data to running services
+  // we dont need to parse since we are creating a new file
   await applyDataModel(data);
 
   // update app state to point to new value
@@ -144,6 +146,7 @@ export async function getInfo(): Promise<GetInfo> {
 /**
  * applies a partial database model
  */
+// TODO: should be private as part of a load
 export async function applyDataModel(data: Partial<DatabaseModel>, _options?: Options) {
   runtimeService.stop();
 
