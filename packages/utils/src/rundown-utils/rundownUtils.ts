@@ -335,17 +335,17 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA:
  * @return {OntimeBlock | null}
  */
 export function getRelevantBlock(rundown: OntimeRundown, currentId: string): OntimeBlock | null {
-  const index = rundown.findIndex(({ id }) => id === currentId);
-
-  if (index === -1) {
-    //id not found
-    return null;
-  }
-
-  for (let i = index; i > 0; i--) {
-    const maybeBlock = rundown[i];
-    if (isOntimeBlock(maybeBlock)) {
-      return maybeBlock;
+  let now = false;
+  for (let i = rundown.length - 1; i > 0; i--) {
+    const entry = rundown[i];
+    if (!now && entry.id == currentId) {
+      //set the now flag when the current Id is found
+      now = true;
+      continue;
+    }
+    //the first block before 'now' is the relevant one
+    if (now && isOntimeBlock(entry)) {
+      return entry;
     }
   }
 
