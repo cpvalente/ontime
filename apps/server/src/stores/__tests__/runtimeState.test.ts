@@ -81,11 +81,12 @@ describe('mutation on runtimeState', () => {
     });
     test('normal playback cycle', () => {
       // 1. Load event
-      load(mockEvent, [mockEvent]);
+      load(mockEvent, [mockEvent], [mockEvent]);
       let newState = getState();
       expect(newState.eventNow?.id).toBe(mockEvent.id);
       expect(newState.timer.playback).toBe(Playback.Armed);
       expect(newState.clock).not.toBe(666);
+      expect(newState.blockNow).toBeNull();
 
       // 2. Start event
       let success = start();
@@ -150,11 +151,12 @@ describe('mutation on runtimeState', () => {
     initRundown([event1, event2], {});
     test('runtime offset', () => {
       // 1. Load event
-      load(event1, [event1, event2]);
+      load(event1, [event1, event2], [event1, event2]);
       let newState = getState();
       expect(newState.runtime.actualStart).toBeNull();
       expect(newState.runtime.plannedStart).toBe(0);
       expect(newState.runtime.plannedEnd).toBe(1500);
+      expect(newState.blockNow).toBeNull();
 
       // 2. Start event
       start();
@@ -169,7 +171,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.expectedEnd).toBe(event2.timeEnd - newState.runtime.offset);
 
       // 3. Next event
-      load(event2, [event1, event2]);
+      load(event2, [event1, event2], [event1, event2]);
       start();
 
       newState = getState();
@@ -186,6 +188,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.offset).toBe(delayBefore);
       // finish is the difference between the runtime and the schedule
       expect(newState.runtime.expectedEnd).toBe(event2.timeEnd - newState.runtime.offset);
+      expect(newState.blockNow).toBeNull();
 
       // 4. Add time
       addTime(10);
