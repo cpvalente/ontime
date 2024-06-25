@@ -289,7 +289,12 @@ describe('getLastEvent', () => {
     it('returns the relevant block', () => {
       const block = getRelevantBlock(testRundown as unknown as OntimeRundown, 'a');
 
-      expect(block).toBe(null);
+      expect(block).toBeNull();
+    });
+    it('also works on index 0', () => {
+      testRundown.unshift({ id: '0', type: SupportedEvent.Block });
+      const block = getRelevantBlock(testRundown as unknown as OntimeRundown, 'a');
+      expect(block?.id).toBe('0');
     });
   });
 });

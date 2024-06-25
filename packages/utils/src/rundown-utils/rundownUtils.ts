@@ -336,7 +336,7 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA:
  */
 export function getRelevantBlock(rundown: OntimeRundown, currentId: string): OntimeBlock | null {
   let now = false;
-  for (let i = rundown.length - 1; i > 0; i--) {
+  for (let i = rundown.length - 1; i >= 0; i--) {
     const entry = rundown[i];
     if (!now && entry.id == currentId) {
       //set the now flag when the current Id is found
