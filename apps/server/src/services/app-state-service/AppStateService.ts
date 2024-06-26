@@ -36,6 +36,11 @@ class AppState {
     return this.config.data;
   }
 
+  async isLastLoadedProject(projectName: string): Promise<boolean> {
+    const lastLoaded = await this.getLastLoadedProject();
+    return lastLoaded === projectName;
+  }
+
   async getLastLoadedProject(): Promise<string> {
     const data = await this.get();
     return data.lastLoadedProject;

@@ -17,7 +17,6 @@ import { resolveDbDirectory } from '../../setup/index.js';
 
 import * as projectService from '../../services/project-service/ProjectService.js';
 import { doesProjectExist, upload, validateProjectFiles } from '../../services/project-service/projectServiceUtils.js';
-import { appStateProvider } from '../../services/app-state-service/AppStateService.js';
 import { oscIntegration } from '../../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../../services/integration-service/HttpIntegration.js';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -241,28 +240,22 @@ export async function renameProjectFile(req: Request, res: Response<MessageRespo
  *                         or a 500 status with an error message in case of an exception.
  */
 export async function deleteProjectFile(req: Request, res: Response<MessageResponse | ErrorResponse>) {
+  const { filename } = req.params;
   try {
-    const { filename } = req.params;
-
-    const lastLoadedProject = await appStateProvider.getLastLoadedProject();
-
-    if (lastLoadedProject === filename) {
-      return res.status(403).send({ message: 'Cannot delete currently loaded project' });
-    }
-
-    const errors = validateProjectFiles({ filename });
-
-    if (errors.length) {
-      return res.status(409).send({ message: errors.join(', ') });
-    }
-
     await projectService.deleteProjectFile(filename);
 
-    res.status(204).send({
+    res.status(200).send({
       message: `Deleted project ${filename}`,
     });
   } catch (error) {
     const message = getErrorMessage(error);
+    if (message === 'Cannot delete currently loaded project') {
+      return res.status(403).send({ message });
+    }
+    if (message === 'Project file not found') {
+      return res.status(404).send({ message });
+    }
+
     res.status(500).send({ message });
   }
 }

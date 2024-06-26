@@ -13,7 +13,7 @@ import { ensureDirectory, removeFileExtension } from '../../utils/fileManagement
 import { dbModel } from '../../models/dataModel.js';
 import { deleteFile } from '../../utils/parserUtils.js';
 import { switchDb } from '../../setup/loadDb.js';
-import { getPathToProject, getProjectFiles } from './projectServiceUtils.js';
+import { doesProjectExist, getPathToProject, getProjectFiles } from './projectServiceUtils.js';
 import { parseJson } from '../../utils/parser.js';
 import { generateUniqueFileName } from '../../utils/generateUniqueFilename.js';
 
@@ -122,6 +122,15 @@ export async function createProject(filename: string, projectData: ProjectData) 
  * Deletes a project file
  */
 export async function deleteProjectFile(filename: string) {
+  const isLastLoadedProject = await appStateProvider.isLastLoadedProject(filename);
+  if (isLastLoadedProject) {
+    throw new Error('Cannot delete currently loaded project');
+  }
+
+  if (!doesProjectExist(filename)) {
+    throw new Error('Project file not found');
+  }
+
   const projectFilePath = getPathToProject(filename);
   await deleteFile(projectFilePath);
 }
