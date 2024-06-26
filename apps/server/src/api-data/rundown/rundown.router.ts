@@ -23,6 +23,7 @@ import {
   rundownReorderValidator,
   rundownSwapValidator,
 } from './rundown.validation.js';
+import { preventIfFrozen } from './rundown.middleware.js';
 
 export const router = express.Router();
 
@@ -35,9 +36,9 @@ router.post('/', rundownPostValidator, rundownPost);
 router.put('/', rundownPutValidator, rundownPut);
 router.put('/batch', rundownBatchPutValidator, rundownBatchPut);
 
-router.patch('/reorder/', rundownReorderValidator, rundownReorder);
-router.patch('/swap', rundownSwapValidator, rundownSwap);
+router.patch('/reorder/', rundownReorderValidator, preventIfFrozen, rundownReorder);
+router.patch('/swap', rundownSwapValidator, preventIfFrozen, rundownSwap);
 router.patch('/applydelay/:eventId', paramsMustHaveEventId, rundownApplyDelay);
 
-router.delete('/', rundownArrayOfIds, deletesEventById);
-router.delete('/all', rundownDelete);
+router.delete('/', rundownArrayOfIds, preventIfFrozen, deletesEventById);
+router.delete('/all', preventIfFrozen, rundownDelete);
