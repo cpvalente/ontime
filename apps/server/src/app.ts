@@ -188,6 +188,7 @@ export const startServer = async (
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
     },
+    frozen: false,
   });
 
   // initialise logging service, escalateErrorFn is only exists in electron
