@@ -175,16 +175,12 @@ export async function loadProject(req: Request, res: Response<MessageResponse | 
  *                         or a 500 status with an error message in case of an exception.
  */
 export async function duplicateProjectFile(req: Request, res: Response<MessageResponse | ErrorResponse>) {
+  // file to copy from
+  const { filename } = req.params;
+  // new file name
+  const { newFilename } = req.body;
+
   try {
-    const { filename } = req.params;
-    const { newFilename } = req.body;
-
-    const errors = validateProjectFiles({ filename, newFilename });
-
-    if (errors.length) {
-      return res.status(409).send({ message: errors.join(', ') });
-    }
-
     await projectService.duplicateProjectFile(filename, newFilename);
 
     res.status(201).send({
@@ -192,6 +188,10 @@ export async function duplicateProjectFile(req: Request, res: Response<MessageRe
     });
   } catch (error) {
     const message = getErrorMessage(error);
+    if (message.startsWith('Project file')) {
+      return res.status(403).send({ message });
+    }
+
     res.status(500).send({ message });
   }
 }

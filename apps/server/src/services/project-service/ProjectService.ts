@@ -66,9 +66,17 @@ export async function getProjectList(): Promise<ProjectFileListResponse> {
 /**
  * Duplicates an existing project file
  */
-export async function duplicateProjectFile(existingProjectFile: string, newProjectFile: string) {
-  const projectFilePath = getPathToProject(existingProjectFile);
-  const duplicateProjectFilePath = getPathToProject(newProjectFile);
+export async function duplicateProjectFile(originalFile: string, newFileName: string) {
+  if (!doesProjectExist(originalFile)) {
+    throw new Error('Project file not found');
+  }
+
+  if (doesProjectExist(newFileName)) {
+    throw new Error(`Project file with name ${newFileName} already exists`);
+  }
+
+  const projectFilePath = getPathToProject(originalFile);
+  const duplicateProjectFilePath = getPathToProject(newFileName);
 
   return copyFile(projectFilePath, duplicateProjectFilePath);
 }
