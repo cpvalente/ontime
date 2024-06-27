@@ -15,11 +15,11 @@ import type { Request, Response } from 'express';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { resolveDbDirectory } from '../../setup/index.js';
 
-import * as projectService from '../../services/project-service/ProjectService.js';
-import { doesProjectExist, upload, validateProjectFiles } from '../../services/project-service/projectServiceUtils.js';
+import { doesProjectExist, upload } from '../../services/project-service/projectServiceUtils.js';
 import { oscIntegration } from '../../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../../services/integration-service/HttpIntegration.js';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
+import * as projectService from '../../services/project-service/ProjectService.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   // all fields are optional in validation
@@ -208,16 +208,9 @@ export async function duplicateProjectFile(req: Request, res: Response<MessageRe
  */
 export async function renameProjectFile(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
-    const { filename: newFilename } = req.body;
+    const { newFilename } = req.body;
     const { filename } = req.params;
 
-    const errors = validateProjectFiles({ filename, newFilename });
-
-    if (errors.length) {
-      return res.status(409).send({ message: errors.join(', ') });
-    }
-
-    // Rename the file
     await projectService.renameProjectFile(filename, newFilename);
 
     res.status(201).send({
@@ -225,6 +218,10 @@ export async function renameProjectFile(req: Request, res: Response<MessageRespo
     });
   } catch (error) {
     const message = getErrorMessage(error);
+    if (message.startsWith('Project file')) {
+      return res.status(403).send({ message });
+    }
+
     res.status(500).send({ message });
   }
 }
