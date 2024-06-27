@@ -52,13 +52,14 @@ const populateDb = (directory: string, filename: string): string => {
 async function loadDb(directory: string, filename: string) {
   const dbInDisk = populateDb(directory, filename);
 
+  // TODO: should this be passed in somewhere?
   let newData: DatabaseModel = dbModel;
 
   try {
     const maybeProjectFile = parseProjectFile(dbInDisk);
     const result = parseJson(maybeProjectFile);
 
-    await appStateProvider.updateDatabaseConfig(filename);
+    await appStateProvider.setLastLoadedProject(filename);
 
     newData = result.data;
   } catch (error) {
@@ -88,10 +89,14 @@ const init = async () => {
 /**
  * Allows to switch the database to a new file
  */
-export const switchDb = async (filePath: string, data: DatabaseModel) => {
-  const newDb = await JSONFilePreset<DatabaseModel>(filePath, data);
+export const switchDb = async (filePath: string, initialData: DatabaseModel = dbModel) => {
+  const newDb = await JSONFilePreset<DatabaseModel>(filePath, initialData);
+
+  // Read the database to initialize it
+  await newDb.read();
+
   db = newDb;
-  data = newDb.data;
+  data = db.data;
 };
 
 init();

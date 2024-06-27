@@ -46,7 +46,7 @@ class AppState {
     return data.lastLoadedProject;
   }
 
-  async updateDatabaseConfig(filename: string): Promise<void> {
+  async setLastLoadedProject(filename: string): Promise<void> {
     if (isTest) return;
 
     if (!this.didInit) {
