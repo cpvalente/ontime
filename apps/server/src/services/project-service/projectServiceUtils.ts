@@ -60,35 +60,6 @@ export function doesProjectExist(name: string): boolean {
 }
 
 /**
- * @description Validates the existence of project files.
- * @param {object} projectFiles
- * @param {string} projectFiles.projectFilename
- * @param {string} projectFiles.newFilename
- *
- * @returns {Promise<Array<string>>} Array of errors
- *
- */
-export const validateProjectFiles = (projectFiles: { filename?: string; newFilename?: string }): Array<string> => {
-  const errors: string[] = [];
-
-  // current project must exist
-  if (projectFiles.filename) {
-    if (!doesProjectExist(projectFiles.filename)) {
-      errors.push('Project file does not exist');
-    }
-  }
-
-  // new project must NOT exist
-  if (projectFiles.newFilename) {
-    if (doesProjectExist(projectFiles.newFilename)) {
-      errors.push('New project file already exists');
-    }
-  }
-
-  return errors;
-};
-
-/**
  * Returns the absolute path to a project file
  */
 export function getPathToProject(name: string): string {

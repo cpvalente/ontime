@@ -123,7 +123,7 @@ export async function renameProject(filename: string, newFilename: string): Prom
   const url = `${dbPath}/${filename}/rename`;
   const decodedUrl = decodeURIComponent(url);
   const res = await axios.put(decodedUrl, {
-    filename: newFilename,
+    newFilename,
   });
   return res.data;
 }

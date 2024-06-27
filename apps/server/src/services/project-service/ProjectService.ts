@@ -14,7 +14,6 @@ import { dbModel } from '../../models/dataModel.js';
 import { deleteFile } from '../../utils/parserUtils.js';
 import { switchDb } from '../../setup/loadDb.js';
 import { doesProjectExist, getPathToProject, getProjectFiles } from './projectServiceUtils.js';
-import { parseJson } from '../../utils/parser.js';
 import { generateUniqueFileName } from '../../utils/generateUniqueFilename.js';
 
 // init dependencies
@@ -38,16 +37,14 @@ export async function applyProjectFile(name: string, options?: Options) {
   const filePath = getPathToProject(name);
   const data = parseProjectFile(filePath);
 
-  const result = parseJson(data);
-
   // change LowDB to point to new file
-  await switchDb(filePath, result.data);
+  await switchDb(filePath);
 
   // apply data model
   await applyDataModel(data, options);
 
   // persist the project selection
-  await appStateProvider.updateDatabaseConfig(name);
+  await appStateProvider.setLastLoadedProject(name);
 }
 
 /**
@@ -66,17 +63,17 @@ export async function getProjectList(): Promise<ProjectFileListResponse> {
 /**
  * Duplicates an existing project file
  */
-export async function duplicateProjectFile(originalFile: string, newFileName: string) {
+export async function duplicateProjectFile(originalFile: string, newFilename: string) {
   if (!doesProjectExist(originalFile)) {
     throw new Error('Project file not found');
   }
 
-  if (doesProjectExist(newFileName)) {
-    throw new Error(`Project file with name ${newFileName} already exists`);
+  if (doesProjectExist(newFilename)) {
+    throw new Error(`Project file with name ${newFilename} already exists`);
   }
 
   const projectFilePath = getPathToProject(originalFile);
-  const duplicateProjectFilePath = getPathToProject(newFileName);
+  const duplicateProjectFilePath = getPathToProject(newFilename);
 
   return copyFile(projectFilePath, duplicateProjectFilePath);
 }
@@ -84,17 +81,24 @@ export async function duplicateProjectFile(originalFile: string, newFileName: st
 /**
  * Renames an existing project file
  */
-export async function renameProjectFile(existingProjectFile: string, newName: string) {
-  const projectFilePath = getPathToProject(existingProjectFile);
-  const newProjectFilePath = getPathToProject(newName);
+export async function renameProjectFile(originalFile: string, newFilename: string) {
+  if (!doesProjectExist(originalFile)) {
+    throw new Error('Project file not found');
+  }
+
+  if (doesProjectExist(newFilename)) {
+    throw new Error(`Project file with name ${newFilename} already exists`);
+  }
+
+  const projectFilePath = getPathToProject(originalFile);
+  const newProjectFilePath = getPathToProject(newFilename);
 
   await rename(projectFilePath, newProjectFilePath);
 
   // Update the last loaded project config if current loaded project is the one being renamed
-  const lastLoadedProject = await appStateProvider.getLastLoadedProject();
-
-  if (lastLoadedProject === existingProjectFile) {
-    await appStateProvider.updateDatabaseConfig(newName);
+  const isLoaded = await appStateProvider.isLastLoadedProject(originalFile);
+  if (isLoaded) {
+    await applyProjectFile(newFilename);
   }
 }
 
@@ -121,7 +125,7 @@ export async function createProject(filename: string, projectData: ProjectData) 
   await applyDataModel(data);
 
   // update app state to point to new value
-  appStateProvider.updateDatabaseConfig(uniqueFileName);
+  appStateProvider.setLastLoadedProject(uniqueFileName);
 
   return uniqueFileName;
 }
