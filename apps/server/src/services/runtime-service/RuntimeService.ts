@@ -593,10 +593,13 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     // Update the events if they have changed
     updateEventIfChanged('eventNow', state);
-    updateEventIfChanged('blockNow', state);
     updateEventIfChanged('publicEventNow', state);
     updateEventIfChanged('eventNext', state);
     updateEventIfChanged('publicEventNext', state);
+
+    if (!deepEqual(RuntimeService?.previousState.blockState, state.blockState)) {
+      eventStore.set('blockState', state.blockState);
+    }
 
     if (shouldUpdateClock) {
       RuntimeService.previousClockUpdate = state.clock;

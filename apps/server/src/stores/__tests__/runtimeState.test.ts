@@ -86,7 +86,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.eventNow?.id).toBe(mockEvent.id);
       expect(newState.timer.playback).toBe(Playback.Armed);
       expect(newState.clock).not.toBe(666);
-      expect(newState.blockNow).toBeNull();
+      expect(newState.blockState.block).toBeNull();
 
       // 2. Start event
       let success = start();
@@ -156,7 +156,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.actualStart).toBeNull();
       expect(newState.runtime.plannedStart).toBe(0);
       expect(newState.runtime.plannedEnd).toBe(1500);
-      expect(newState.blockNow).toBeNull();
+      expect(newState.blockState.block).toBeNull();
 
       // 2. Start event
       start();
@@ -188,7 +188,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.offset).toBe(delayBefore);
       // finish is the difference between the runtime and the schedule
       expect(newState.runtime.expectedEnd).toBe(event2.timeEnd - newState.runtime.offset);
-      expect(newState.blockNow).toBeNull();
+      expect(newState.blockState.block).toBeNull();
 
       // 4. Add time
       addTime(10);

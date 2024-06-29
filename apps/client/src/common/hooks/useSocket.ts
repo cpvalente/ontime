@@ -115,7 +115,7 @@ export const setAuxTimer = {
 export const useCuesheet = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.timer.playback,
-    currentBlockId: state.blockNow?.id ?? null,
+    currentBlockId: state.blockState.block?.id ?? null,
     selectedEventId: state.eventNow?.id ?? null,
     selectedEventIndex: state.runtime.selectedEventIndex,
     numEvents: state.runtime.numEvents,
