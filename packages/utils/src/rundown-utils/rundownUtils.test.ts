@@ -8,6 +8,7 @@ import {
   getNextEvent,
   getPrevious,
   getPreviousEvent,
+  getRelevantBlock,
   swapEventData,
 } from './rundownUtils';
 
@@ -260,6 +261,40 @@ describe('getLastEvent', () => {
 
       const lastEntry = getLastNormal(testRundown as unknown as NormalisedRundown, order);
       expect(lastEntry).toBe(null);
+    });
+  });
+
+  describe('relevantBlock', () => {
+    const testRundown = [
+      { id: 'a', type: SupportedEvent.Event },
+      { id: 'b', type: SupportedEvent.Event },
+      { id: 'c', type: SupportedEvent.Event },
+      { id: 'd', type: SupportedEvent.Delay },
+      { id: 'e', type: SupportedEvent.Block },
+      { id: 'f', type: SupportedEvent.Event },
+      { id: 'g', type: SupportedEvent.Block },
+      { id: 'h', type: SupportedEvent.Event },
+    ];
+
+    it('returns the relevant block', () => {
+      const block = getRelevantBlock(testRundown as unknown as OntimeRundown, 'h');
+
+      expect(block?.id).toBe('g');
+    });
+    it('returns the relevant block', () => {
+      const block = getRelevantBlock(testRundown as unknown as OntimeRundown, 'f');
+
+      expect(block?.id).toBe('e');
+    });
+    it('returns the relevant block', () => {
+      const block = getRelevantBlock(testRundown as unknown as OntimeRundown, 'a');
+
+      expect(block).toBeNull();
+    });
+    it('also works on index 0', () => {
+      testRundown.unshift({ id: '0', type: SupportedEvent.Block });
+      const block = getRelevantBlock(testRundown as unknown as OntimeRundown, 'a');
+      expect(block?.id).toBe('0');
     });
   });
 });

@@ -1,5 +1,5 @@
-import type { NormalisedRundown, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
-import { isOntimeEvent } from 'ontime-types';
+import type { NormalisedRundown, OntimeBlock, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import { isOntimeBlock, isOntimeEvent } from 'ontime-types';
 
 type IndexAndEntry = { entry: OntimeRundownEntry | null; index: number | null };
 
@@ -326,3 +326,29 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA:
 
   return { newA, newB };
 };
+
+/**
+ * Gets relevant block element for a given ID
+ * @param rundown
+ * @param order
+ * @param {string} currentId
+ * @return {OntimeBlock | null}
+ */
+export function getRelevantBlock(rundown: OntimeRundown, currentId: string): OntimeBlock | null {
+  let now = false;
+  for (let i = rundown.length - 1; i >= 0; i--) {
+    const entry = rundown[i];
+    if (!now && entry.id == currentId) {
+      //set the now flag when the current Id is found
+      now = true;
+      continue;
+    }
+    //the first block before 'now' is the relevant one
+    if (now && isOntimeBlock(entry)) {
+      return entry;
+    }
+  }
+
+  //no blocks exist before given id
+  return null;
+}

@@ -107,6 +107,7 @@ export default function CuesheetWrapper() {
         columns={columns}
         handleUpdate={handleUpdate}
         selectedId={featureData.selectedEventId}
+        currentBlockId={featureData.currentBlockId}
       />
     </div>
   );
