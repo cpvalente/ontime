@@ -5,6 +5,7 @@ import {
   rundownApplyDelay,
   rundownBatchPut,
   rundownDelete,
+  rundownFrozenPost,
   rundownGetById,
   rundownGetNormalised,
   rundownGetPaginated,
@@ -17,6 +18,7 @@ import {
   paramsMustHaveEventId,
   rundownArrayOfIds,
   rundownBatchPutValidator,
+  rundownFrozenPostValidator,
   rundownGetPaginatedQueryParams,
   rundownPostValidator,
   rundownPutValidator,
@@ -32,6 +34,7 @@ router.get('/normalised', rundownGetNormalised);
 router.get('/:eventId', paramsMustHaveEventId, rundownGetById); // not used in Ontime frontend
 
 router.post('/', rundownPostValidator, rundownPost);
+router.post('/frozen', rundownFrozenPostValidator, rundownFrozenPost);
 
 router.put('/', rundownPutValidator, rundownPut);
 router.put('/batch', rundownBatchPutValidator, rundownBatchPut);

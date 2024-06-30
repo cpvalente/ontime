@@ -12,6 +12,7 @@ import {
   deleteEvent,
   editEvent,
   reorderEvent,
+  setFrozenState,
   swapEvents,
 } from '../../services/rundown-service/RundownService.js';
 import {
@@ -108,6 +109,21 @@ export async function rundownBatchPut(req: Request, res: Response<MessageRespons
     const { data, ids } = req.body;
     await batchEditEvents(ids, data);
     res.status(200).send({ message: 'Batch edit successful' });
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+}
+
+export async function rundownFrozenPost(req: Request, res: Response<MessageResponse | ErrorResponse>) {
+  if (failEmptyObjects(req.body, res)) {
+    return res.status(404);
+  }
+
+  try {
+    const { state } = req.body;
+    setFrozenState(state);
+    res.status(200).send({ message: `Rundown frozen state updated.` });
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });
