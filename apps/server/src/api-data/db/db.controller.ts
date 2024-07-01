@@ -257,7 +257,12 @@ export async function deleteProjectFile(req: Request, res: Response<MessageRespo
   }
 }
 
-export async function getInfo(_req: Request, res: Response<GetInfo>) {
-  const info = await projectService.getInfo();
-  res.status(200).send(info);
+export async function getInfo(_req: Request, res: Response<GetInfo | ErrorResponse>) {
+  try {
+    const info = await projectService.getInfo();
+    res.status(200).send(info);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(500).send({ message });
+  }
 }
