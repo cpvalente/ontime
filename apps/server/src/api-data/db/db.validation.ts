@@ -26,13 +26,22 @@ export const validateNewProject = [
  * @description Validates request for pathing data in the project.
  */
 export const validatePatchProject = [
+  // Custom validator to ensure the body is not empty
+  (req: Request, res: Response, next: NextFunction) => {
+    if (Object.keys(req.body).length === 0) {
+      return res.status(422).json({ errors: [{ msg: 'Request body cannot be empty' }] });
+    }
+    next();
+  },
+
   body('rundown').isArray().optional({ nullable: false }),
   body('project').isObject().optional({ nullable: false }),
   body('settings').isObject().optional({ nullable: false }),
   body('viewSettings').isObject().optional({ nullable: false }),
-  body('aliases').isArray().optional({ nullable: false }),
+  body('urlPresets').isArray().optional({ nullable: false }),
   body('customFields').isObject().optional({ nullable: false }),
   body('osc').isObject().optional({ nullable: false }),
+  body('http').isObject().optional({ nullable: false }),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

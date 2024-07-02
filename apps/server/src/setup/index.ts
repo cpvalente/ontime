@@ -56,10 +56,10 @@ const currentDir = dirname(__dirname);
 // locally we are in src/setup, in the production build, this is a single file at src
 export const srcDirectory = isProduction ? currentDir : join(currentDir, '../');
 
-// resolve path to external
+// TODO: simplify logic
+// resolve path to client
 const productionPath = join(srcDirectory, 'client/');
 const devPath = join(srcDirectory, '../../client/build/');
-
 export const resolvedPath = (): string => {
   if (isTest) {
     return devPath;
@@ -136,7 +136,10 @@ export const resolveRestoreFile = join(getAppDataPath(), config.restoreFile);
 export const resolveSheetsDirectory = join(getAppDataPath(), config.sheets.directory);
 
 // path to crash reports
-export const resolveCrashReportDirectory = getAppDataPath();
+export const resolveCrashReportDirectory = join(getAppDataPath(), config.crash);
 
 // path to projects
 export const resolveProjectsDirectory = join(getAppDataPath(), config.projects);
+
+// path to corrupt files
+export const resolveCorruptDirectory = join(getAppDataPath(), config.corrupt);

@@ -1,11 +1,10 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { rename, rm } from 'fs/promises';
+import { rm } from 'fs/promises';
 
 import { ensureDirectory } from './fileManagement.js';
 import { getAppDataPath, uploadsFolderPath } from '../setup/index.js';
-import { deleteFile } from './parserUtils.js';
 
 function generateNewFileName(filePath: string, callback: (newName: string) => void) {
   const baseName = path.basename(filePath, path.extname(filePath));
@@ -68,15 +67,4 @@ export async function clearUploadfolder() {
   } catch (_) {
     // we dont care that there was no folder
   }
-}
-
-/**
- * Copies a file from upload folder to a destination
- * @param filePath
- * @param name
- * @returns
- */
-export async function moveUploadedFile(fromUpload: string, toDestination: string) {
-  await rename(fromUpload, toDestination);
-  await deleteFile(fromUpload);
 }

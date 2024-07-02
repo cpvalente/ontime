@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ensureJsonExtension } from '../fileManagement.js';
+import { appendToName, ensureJsonExtension } from '../fileManagement.js';
 
 describe('ensureJsonExtension', () => {
   it('should add .json to a filename without an extension', () => {
@@ -24,5 +24,28 @@ describe('ensureJsonExtension', () => {
     const filename = 'my.test.file';
     const result = ensureJsonExtension(filename);
     expect(result).toBe('my.test.file.json');
+  });
+});
+
+describe('appendToName', () => {
+  it('appends a given string to a file name', () => {
+    const filename = 'file.json';
+    const append = '(recovered)';
+    const result = appendToName(filename, append);
+    expect(result).toBe('file (recovered).json');
+  });
+
+  it('handles paths', () => {
+    const path = '/Users/carlos/Library/Application Support/Ontime/projects/file.json';
+    const append = '(recovered)';
+    const result = appendToName(path, append);
+    expect(result).toBe('/Users/carlos/Library/Application Support/Ontime/projects/file (recovered).json');
+  });
+
+  it('handles multiple . in string', () => {
+    const path = 'strange.file.name.json';
+    const append = '(recovered)';
+    const result = appendToName(path, append);
+    expect(result).toBe('strange.file.name (recovered).json');
   });
 });

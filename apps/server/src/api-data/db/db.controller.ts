@@ -8,31 +8,17 @@ import {
 } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
-import { join } from 'path';
-import { existsSync } from 'fs';
 import type { Request, Response } from 'express';
 
-import { failEmptyObjects } from '../../utils/routerUtils.js';
-import { resolveDbDirectory } from '../../setup/index.js';
-
+import { doesProjectExist, handleUploaded } from '../../services/project-service/projectServiceUtils.js';
 import * as projectService from '../../services/project-service/ProjectService.js';
-import { doesProjectExist, upload, validateProjectFiles } from '../../services/project-service/projectServiceUtils.js';
-import { oscIntegration } from '../../services/integration-service/OscIntegration.js';
-import { httpIntegration } from '../../services/integration-service/HttpIntegration.js';
-import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
-  // all fields are optional in validation
-  if (failEmptyObjects(req.body, res)) {
-    res.status(400).send({ message: 'No field found to patch' });
-    return;
-  }
-
   try {
     const { rundown, project, settings, viewSettings, urlPresets, customFields, osc, http } = req.body;
     const patchDb: DatabaseModel = { rundown, project, settings, viewSettings, urlPresets, customFields, osc, http };
 
-    const newData = await projectService.applyDataModel(patchDb);
+    const newData = await projectService.patchCurrentProject(patchDb);
 
     res.status(200).send(newData);
   } catch (error) {
@@ -77,10 +63,8 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
  */
 export async function projectDownload(req: Request, res: Response) {
   const { filename } = req.body;
-  const pathToFile = join(resolveDbDirectory, filename);
-
-  // Check if the file exists before attempting to download
-  if (!existsSync(pathToFile)) {
+  const pathToFile = await doesProjectExist(filename);
+  if (!pathToFile) {
     return res.status(404).send({ message: `Project ${filename} not found.` });
   }
 
@@ -94,6 +78,7 @@ export async function projectDownload(req: Request, res: Response) {
 
 /**
  * uploads, parses and applies the data from a given file
+ * Pretty much loadProject but with the extra upload step
  */
 export async function postProjectFile(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   if (!req.file) {
@@ -102,24 +87,18 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
   }
 
   try {
-    const options = req.query;
     const { filename, path } = req.file;
-
-    // TODO: controller shouldnt consume this directly
-    await upload(path, filename);
-    await projectService.applyProjectFile(filename, options);
-
-    const oscSettings = await DataProvider.getOsc();
-    const httpSettings = await DataProvider.getHttp();
-
-    oscIntegration.init(oscSettings);
-    httpIntegration.init(httpSettings);
+    await handleUploaded(path, filename);
+    await projectService.loadProjectFile(filename);
 
     res.status(201).send({
       message: `Loaded project ${filename}`,
     });
   } catch (error) {
     const message = getErrorMessage(error);
+    if (message.startsWith('Project file')) {
+      return res.status(403).send({ message });
+    }
     res.status(400).send({ message });
   }
 }
@@ -143,23 +122,16 @@ export async function listProjects(_req: Request, res: Response<ProjectFileListR
 export async function loadProject(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
     const name = req.body.filename;
-    if (!doesProjectExist(name)) {
-      return res.status(404).send({ message: 'File not found' });
-    }
-
-    await projectService.applyProjectFile(name);
-
-    const oscSettings = await DataProvider.getOsc();
-    const httpSettings = await DataProvider.getHttp();
-
-    oscIntegration.init(oscSettings);
-    httpIntegration.init(httpSettings);
+    await projectService.loadProjectFile(name);
 
     res.status(201).send({
       message: `Loaded project ${name}`,
     });
   } catch (error) {
     const message = getErrorMessage(error);
+    if (message.startsWith('Project file')) {
+      return res.status(403).send({ message });
+    }
     res.status(500).send({ message });
   }
 }
@@ -208,16 +180,9 @@ export async function duplicateProjectFile(req: Request, res: Response<MessageRe
  */
 export async function renameProjectFile(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
-    const { filename: newFilename } = req.body;
+    const { newFilename } = req.body;
     const { filename } = req.params;
 
-    const errors = validateProjectFiles({ filename, newFilename });
-
-    if (errors.length) {
-      return res.status(409).send({ message: errors.join(', ') });
-    }
-
-    // Rename the file
     await projectService.renameProjectFile(filename, newFilename);
 
     res.status(201).send({
@@ -225,6 +190,10 @@ export async function renameProjectFile(req: Request, res: Response<MessageRespo
     });
   } catch (error) {
     const message = getErrorMessage(error);
+    if (message.startsWith('Project file')) {
+      return res.status(403).send({ message });
+    }
+
     res.status(500).send({ message });
   }
 }
@@ -260,7 +229,12 @@ export async function deleteProjectFile(req: Request, res: Response<MessageRespo
   }
 }
 
-export async function getInfo(_req: Request, res: Response<GetInfo>) {
-  const info = await projectService.getInfo();
-  res.status(200).send(info);
+export async function getInfo(_req: Request, res: Response<GetInfo | ErrorResponse>) {
+  try {
+    const info = await projectService.getInfo();
+    res.status(200).send(info);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(500).send({ message });
+  }
 }

@@ -33,7 +33,7 @@ router.get('/all', listProjects);
 
 router.post('/load', validateFilenameBody, loadProject);
 router.post('/:filename/duplicate', validateFilenameParam, validateNewFilenameBody, duplicateProjectFile);
-router.put('/:filename/rename', validateFilenameParam, validateFilenameBody, renameProjectFile);
+router.put('/:filename/rename', validateFilenameParam, validateNewFilenameBody, renameProjectFile);
 router.delete('/:filename', validateFilenameParam, deleteProjectFile);
 
 router.get('/info', getInfo);

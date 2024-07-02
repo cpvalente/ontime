@@ -1,24 +1,21 @@
-import { ProjectFile } from 'ontime-types';
+import { MaybeString, ProjectFile } from 'ontime-types';
 
-import { stat } from 'fs/promises';
-import { existsSync } from 'fs';
+import { access, rename, stat } from 'fs/promises';
 import { join } from 'path';
 
 import { resolveProjectsDirectory } from '../../setup/index.js';
-import { filterProjectFiles } from './projectFileUtils.js';
 import { getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
-import { moveUploadedFile } from '../../utils/upload.js';
+
+import { filterProjectFiles } from './projectFileUtils.js';
 
 /**
  * Handles the upload of a new project file
  * @param filePath
  * @param name
- * @returns
  */
-export async function upload(filePath: string, name: string) {
+export async function handleUploaded(filePath: string, name: string) {
   const newFilePath = join(resolveProjectsDirectory, name);
-  await moveUploadedFile(filePath, newFilePath);
-  return name;
+  await rename(filePath, newFilePath);
 }
 
 /**
@@ -54,39 +51,15 @@ export async function getProjectFiles(): Promise<ProjectFile[]> {
  * Checks whether a project of a given name exists
  * @param name
  */
-export function doesProjectExist(name: string): boolean {
-  const projectFilePath = join(resolveProjectsDirectory, name);
-  return existsSync(projectFilePath);
+export async function doesProjectExist(name: string): Promise<MaybeString> {
+  try {
+    const projectFilePath = getPathToProject(name);
+    await access(projectFilePath);
+    return projectFilePath;
+  } catch (_) {
+    return null;
+  }
 }
-
-/**
- * @description Validates the existence of project files.
- * @param {object} projectFiles
- * @param {string} projectFiles.projectFilename
- * @param {string} projectFiles.newFilename
- *
- * @returns {Promise<Array<string>>} Array of errors
- *
- */
-export const validateProjectFiles = (projectFiles: { filename?: string; newFilename?: string }): Array<string> => {
-  const errors: string[] = [];
-
-  // current project must exist
-  if (projectFiles.filename) {
-    if (!doesProjectExist(projectFiles.filename)) {
-      errors.push('Project file does not exist');
-    }
-  }
-
-  // new project must NOT exist
-  if (projectFiles.newFilename) {
-    if (doesProjectExist(projectFiles.newFilename)) {
-      errors.push('New project file already exists');
-    }
-  }
-
-  return errors;
-};
 
 /**
  * Returns the absolute path to a project file
