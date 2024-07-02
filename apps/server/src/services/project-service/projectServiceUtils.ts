@@ -1,24 +1,21 @@
 import { ProjectFile } from 'ontime-types';
 
-import { stat } from 'fs/promises';
-import { existsSync } from 'fs';
+import { access, rename, stat } from 'fs/promises';
 import { join } from 'path';
 
 import { resolveProjectsDirectory } from '../../setup/index.js';
-import { filterProjectFiles } from './projectFileUtils.js';
 import { getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
-import { moveUploadedFile } from '../../utils/upload.js';
+
+import { filterProjectFiles } from './projectFileUtils.js';
 
 /**
  * Handles the upload of a new project file
  * @param filePath
  * @param name
- * @returns
  */
-export async function upload(filePath: string, name: string) {
+export async function handleUploaded(filePath: string, name: string) {
   const newFilePath = join(resolveProjectsDirectory, name);
-  await moveUploadedFile(filePath, newFilePath);
-  return name;
+  await rename(filePath, newFilePath);
 }
 
 /**
@@ -54,9 +51,14 @@ export async function getProjectFiles(): Promise<ProjectFile[]> {
  * Checks whether a project of a given name exists
  * @param name
  */
-export function doesProjectExist(name: string): boolean {
-  const projectFilePath = join(resolveProjectsDirectory, name);
-  return existsSync(projectFilePath);
+export async function doesProjectExist(name: string): Promise<boolean> {
+  try {
+    const projectFilePath = join(resolveProjectsDirectory, name);
+    await access(projectFilePath);
+    return true;
+  } catch (_) {
+    return false;
+  }
 }
 
 /**

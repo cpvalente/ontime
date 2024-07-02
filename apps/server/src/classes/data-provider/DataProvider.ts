@@ -106,6 +106,7 @@ export class DataProvider {
   }
 
   private static async persist() {
+    // TODO: this is already handled by lowDb
     if (isTest) {
       return;
     }
