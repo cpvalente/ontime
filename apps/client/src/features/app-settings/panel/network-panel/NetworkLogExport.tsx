@@ -17,7 +17,7 @@ export default function LogExport() {
     <Panel.Section>
       <Panel.Card>
         <Panel.SubHeader>
-          Network log
+          Event log
           <Button
             variant='ontime-subtle'
             size='sm'
