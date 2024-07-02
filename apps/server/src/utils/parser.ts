@@ -12,6 +12,7 @@ import {
   CustomFields,
   DatabaseModel,
   EventCustomFields,
+  LogOrigin,
   OntimeBlock,
   OntimeEvent,
   OntimeRundown,
@@ -20,11 +21,10 @@ import {
   TimeStrategy,
 } from 'ontime-types';
 
+import { logger } from '../classes/Logger.js';
 import { event as eventDef } from '../models/eventsDefinition.js';
-import { dbModel } from '../models/dataModel.js';
 import { makeString } from './parserUtils.js';
 import {
-  parseCustomFields,
   parseHttp,
   parseOsc,
   parseProject,
@@ -282,40 +282,48 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
   };
 };
 
+export type ParsingError = {
+  context: string;
+  message: string;
+};
+
 /**
  * @description JSON parser function for ontime project file
  * @param {object} jsonData - project file to be parsed
  * @returns {object} - parsed object
  */
-export const parseJson = async (jsonData: Partial<DatabaseModel>): Promise<DatabaseModel | null> => {
+export function parseJson(jsonData: Partial<DatabaseModel>): { data: DatabaseModel; errors: ParsingError[] } {
   if (!jsonData || typeof jsonData !== 'object') {
-    return null;
+    throw new Error('Invalid JSON data');
   }
 
-  let settings;
+  // we need to parse settings first to make sure the data is ours
+  // this may throw
+  const settings = parseSettings(jsonData);
 
-  // check settings first to make sure we can parse it
-  try {
-    settings = parseSettings(jsonData);
-  } catch (error) {
-    // if we cant parse, return an empty project
-    console.log('ERROR: unable to parse settings, missing app or version');
-    return dbModel;
-  }
-
-  const returnData: DatabaseModel = {
-    rundown: parseRundown(jsonData),
-    project: parseProject(jsonData),
-    settings,
-    viewSettings: parseViewSettings(jsonData),
-    urlPresets: parseUrlPresets(jsonData),
-    customFields: parseCustomFields(jsonData),
-    osc: parseOsc(jsonData),
-    http: parseHttp(jsonData),
+  const errors: ParsingError[] = [];
+  const makeEmitError = (context: string) => (message: string) => {
+    logger.error(LogOrigin.Server, `Error parsing ${context}: ${message}`);
+    errors.push({ context, message });
   };
 
-  return returnData;
-};
+  // we need to parse the custom fields first so they can be used in validating events
+  // TODO: can we improve the readability of the error?
+  const { rundown, customFields } = parseRundown(jsonData, makeEmitError('Rundown'));
+
+  const data: DatabaseModel = {
+    rundown,
+    project: parseProject(jsonData, makeEmitError('Project')),
+    settings,
+    viewSettings: parseViewSettings(jsonData, makeEmitError('View Settings')),
+    urlPresets: parseUrlPresets(jsonData, makeEmitError('URL Presets')),
+    customFields,
+    osc: parseOsc(jsonData, makeEmitError('OSC')),
+    http: parseHttp(jsonData, makeEmitError('HTTP')),
+  };
+
+  return { data, errors };
+}
 
 /**
  * Function infers strategy for a patch with only partial timer data

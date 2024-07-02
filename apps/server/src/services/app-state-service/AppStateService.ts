@@ -8,10 +8,10 @@ interface Config {
 }
 
 /**
- * Service manages Ontime's runtime memory between boots
+ * Manages Ontime's runtime memory between boots
  */
 
-class AppStateService {
+class AppState {
   private config: Low<Config>;
   private pathToFile: string;
   private didInit = false;
@@ -28,12 +28,22 @@ class AppStateService {
     this.didInit = true;
   }
 
-  async get(): Promise<Config> {
+  private async get(): Promise<Config> {
     if (!this.didInit) {
       await this.init();
     }
     await this.config.read();
     return this.config.data;
+  }
+
+  async isLastLoadedProject(projectName: string): Promise<boolean> {
+    const lastLoaded = await this.getLastLoadedProject();
+    return lastLoaded === projectName;
+  }
+
+  async getLastLoadedProject(): Promise<string> {
+    const data = await this.get();
+    return data.lastLoadedProject;
   }
 
   async updateDatabaseConfig(filename: string): Promise<void> {
@@ -48,4 +58,4 @@ class AppStateService {
   }
 }
 
-export const appStateService = new AppStateService(appStatePath);
+export const appStateProvider = new AppState(appStatePath);

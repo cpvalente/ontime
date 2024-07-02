@@ -13,11 +13,10 @@ import { existsSync } from 'fs';
 import type { Request, Response } from 'express';
 
 import { failEmptyObjects } from '../../utils/routerUtils.js';
-import { resolveDbDirectory, resolveProjectsDirectory } from '../../setup/index.js';
+import { resolveDbDirectory } from '../../setup/index.js';
 
 import * as projectService from '../../services/project-service/ProjectService.js';
-import { generateUniqueFileName } from '../../utils/generateUniqueFilename.js';
-import { appStateService } from '../../services/app-state-service/AppStateService.js';
+import { doesProjectExist, upload, validateProjectFiles } from '../../services/project-service/projectServiceUtils.js';
 import { oscIntegration } from '../../services/integration-service/OscIntegration.js';
 import { httpIntegration } from '../../services/integration-service/HttpIntegration.js';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -52,27 +51,20 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
  *                         or a 500 status with an error message in case of an exception.
  */
 export async function createProjectFile(req: Request, res: Response<{ filename: string } | ErrorResponse>) {
+  const newProjectData: ProjectData = {
+    title: req.body?.title ?? '',
+    description: req.body?.description ?? '',
+    publicUrl: req.body?.publicUrl ?? '',
+    publicInfo: req.body?.publicInfo ?? '',
+    backstageUrl: req.body?.backstageUrl ?? '',
+    backstageInfo: req.body?.backstageInfo ?? '',
+  };
+
   try {
-    const filename = generateUniqueFileName(resolveProjectsDirectory, req.body.filename);
-    const errors = projectService.validateProjectFiles({ newFilename: filename });
-
-    if (errors.length) {
-      return res.status(409).send({ message: 'Project with title already exists' });
-    }
-
-    const newProjectData: ProjectData = {
-      title: req.body?.title ?? '',
-      description: req.body?.description ?? '',
-      publicUrl: req.body?.publicUrl ?? '',
-      publicInfo: req.body?.publicInfo ?? '',
-      backstageUrl: req.body?.backstageUrl ?? '',
-      backstageInfo: req.body?.backstageInfo ?? '',
-    };
-
-    await projectService.createProjectFile(filename, newProjectData);
+    const newFileName = await projectService.createProject(req.body.filename, newProjectData);
 
     res.status(200).send({
-      filename,
+      filename: newFileName,
     });
   } catch (error) {
     const message = getErrorMessage(error);
@@ -113,7 +105,8 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
     const options = req.query;
     const { filename, path } = req.file;
 
-    await projectService.handleUploadedFile(path, filename);
+    // TODO: controller shouldnt consume this directly
+    await upload(path, filename);
     await projectService.applyProjectFile(filename, options);
 
     const oscSettings = await DataProvider.getOsc();
@@ -150,7 +143,7 @@ export async function listProjects(_req: Request, res: Response<ProjectFileListR
 export async function loadProject(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
     const name = req.body.filename;
-    if (!projectService.doesProjectExist(name)) {
+    if (!doesProjectExist(name)) {
       return res.status(404).send({ message: 'File not found' });
     }
 
@@ -182,16 +175,12 @@ export async function loadProject(req: Request, res: Response<MessageResponse | 
  *                         or a 500 status with an error message in case of an exception.
  */
 export async function duplicateProjectFile(req: Request, res: Response<MessageResponse | ErrorResponse>) {
+  // file to copy from
+  const { filename } = req.params;
+  // new file name
+  const { newFilename } = req.body;
+
   try {
-    const { filename } = req.params;
-    const { newFilename } = req.body;
-
-    const errors = projectService.validateProjectFiles({ filename, newFilename });
-
-    if (errors.length) {
-      return res.status(409).send({ message: errors.join(', ') });
-    }
-
     await projectService.duplicateProjectFile(filename, newFilename);
 
     res.status(201).send({
@@ -199,6 +188,10 @@ export async function duplicateProjectFile(req: Request, res: Response<MessageRe
     });
   } catch (error) {
     const message = getErrorMessage(error);
+    if (message.startsWith('Project file')) {
+      return res.status(403).send({ message });
+    }
+
     res.status(500).send({ message });
   }
 }
@@ -218,7 +211,7 @@ export async function renameProjectFile(req: Request, res: Response<MessageRespo
     const { filename: newFilename } = req.body;
     const { filename } = req.params;
 
-    const errors = projectService.validateProjectFiles({ filename, newFilename });
+    const errors = validateProjectFiles({ filename, newFilename });
 
     if (errors.length) {
       return res.status(409).send({ message: errors.join(', ') });
@@ -247,28 +240,22 @@ export async function renameProjectFile(req: Request, res: Response<MessageRespo
  *                         or a 500 status with an error message in case of an exception.
  */
 export async function deleteProjectFile(req: Request, res: Response<MessageResponse | ErrorResponse>) {
+  const { filename } = req.params;
   try {
-    const { filename } = req.params;
-
-    const { lastLoadedProject } = await appStateService.get();
-
-    if (lastLoadedProject === filename) {
-      return res.status(403).send({ message: 'Cannot delete currently loaded project' });
-    }
-
-    const errors = projectService.validateProjectFiles({ filename });
-
-    if (errors.length) {
-      return res.status(409).send({ message: errors.join(', ') });
-    }
-
     await projectService.deleteProjectFile(filename);
 
-    res.status(204).send({
+    res.status(200).send({
       message: `Deleted project ${filename}`,
     });
   } catch (error) {
     const message = getErrorMessage(error);
+    if (message === 'Cannot delete currently loaded project') {
+      return res.status(403).send({ message });
+    }
+    if (message === 'Project file not found') {
+      return res.status(404).send({ message });
+    }
+
     res.status(500).send({ message });
   }
 }
