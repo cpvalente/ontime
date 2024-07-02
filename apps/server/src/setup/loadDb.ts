@@ -56,7 +56,7 @@ async function loadDb(directory: string, filename: string) {
   let newData: DatabaseModel = dbModel;
 
   try {
-    const maybeProjectFile = parseProjectFile(dbInDisk);
+    const maybeProjectFile = await parseProjectFile(dbInDisk);
     const result = parseJson(maybeProjectFile);
 
     await appStateProvider.setLastLoadedProject(filename);

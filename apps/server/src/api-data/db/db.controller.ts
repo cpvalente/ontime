@@ -14,11 +14,7 @@ import type { Request, Response } from 'express';
 
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { resolveDbDirectory } from '../../setup/index.js';
-
-import { doesProjectExist, upload } from '../../services/project-service/projectServiceUtils.js';
-import { oscIntegration } from '../../services/integration-service/OscIntegration.js';
-import { httpIntegration } from '../../services/integration-service/HttpIntegration.js';
-import { DataProvider } from '../../classes/data-provider/DataProvider.js';
+import { handleUploaded } from '../../services/project-service/projectServiceUtils.js';
 import * as projectService from '../../services/project-service/ProjectService.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
@@ -94,6 +90,7 @@ export async function projectDownload(req: Request, res: Response) {
 
 /**
  * uploads, parses and applies the data from a given file
+ * Pretty much loadProject but with the extra upload step
  */
 export async function postProjectFile(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   if (!req.file) {
@@ -102,24 +99,18 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
   }
 
   try {
-    const options = req.query;
     const { filename, path } = req.file;
-
-    // TODO: controller shouldnt consume this directly
-    await upload(path, filename);
-    await projectService.applyProjectFile(filename, options);
-
-    const oscSettings = await DataProvider.getOsc();
-    const httpSettings = await DataProvider.getHttp();
-
-    oscIntegration.init(oscSettings);
-    httpIntegration.init(httpSettings);
+    await handleUploaded(path, filename);
+    await projectService.loadProjectFile(filename);
 
     res.status(201).send({
       message: `Loaded project ${filename}`,
     });
   } catch (error) {
     const message = getErrorMessage(error);
+    if (message.startsWith('Project file')) {
+      return res.status(403).send({ message });
+    }
     res.status(400).send({ message });
   }
 }
@@ -143,23 +134,16 @@ export async function listProjects(_req: Request, res: Response<ProjectFileListR
 export async function loadProject(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
     const name = req.body.filename;
-    if (!doesProjectExist(name)) {
-      return res.status(404).send({ message: 'File not found' });
-    }
-
-    await projectService.applyProjectFile(name);
-
-    const oscSettings = await DataProvider.getOsc();
-    const httpSettings = await DataProvider.getHttp();
-
-    oscIntegration.init(oscSettings);
-    httpIntegration.init(httpSettings);
+    await projectService.loadProjectFile(name);
 
     res.status(201).send({
       message: `Loaded project ${name}`,
     });
   } catch (error) {
     const message = getErrorMessage(error);
+    if (message.startsWith('Project file')) {
+      return res.status(403).send({ message });
+    }
     res.status(500).send({ message });
   }
 }

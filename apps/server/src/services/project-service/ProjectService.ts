@@ -1,20 +1,27 @@
-import { DatabaseModel, GetInfo, ProjectData, ProjectFileListResponse } from 'ontime-types';
+import { DatabaseModel, GetInfo, LogOrigin, ProjectData, ProjectFileListResponse } from 'ontime-types';
 
 import { copyFile, rename } from 'fs/promises';
+import { join } from 'path';
 
-import { initRundown } from '../rundown-service/RundownService.js';
 import { DataProvider } from '../../classes/data-provider/DataProvider.js';
-import { runtimeService } from '../runtime-service/RuntimeService.js';
+import { logger } from '../../classes/Logger.js';
 import { getNetworkInterfaces } from '../../utils/networkInterfaces.js';
-import { resolveProjectsDirectory, resolveStylesPath } from '../../setup/index.js';
-import { parseProjectFile } from './projectFileUtils.js';
-import { appStateProvider } from '../app-state-service/AppStateService.js';
-import { ensureDirectory, removeFileExtension } from '../../utils/fileManagement.js';
+import { resolveCorruptDirectory, resolveProjectsDirectory, resolveStylesPath } from '../../setup/index.js';
+import { appendToName, ensureDirectory, removeFileExtension } from '../../utils/fileManagement.js';
 import { dbModel } from '../../models/dataModel.js';
 import { deleteFile } from '../../utils/parserUtils.js';
 import { switchDb } from '../../setup/loadDb.js';
-import { doesProjectExist, getPathToProject, getProjectFiles } from './projectServiceUtils.js';
 import { generateUniqueFileName } from '../../utils/generateUniqueFilename.js';
+import { parseJson } from '../../utils/parser.js';
+
+import { initRundown } from '../rundown-service/RundownService.js';
+import { appStateProvider } from '../app-state-service/AppStateService.js';
+import { runtimeService } from '../runtime-service/RuntimeService.js';
+import { oscIntegration } from '../integration-service/OscIntegration.js';
+import { httpIntegration } from '../integration-service/HttpIntegration.js';
+
+import { parseProjectFile } from './projectFileUtils.js';
+import { doesProjectExist, getPathToProject, getProjectFiles } from './projectServiceUtils.js';
 
 // init dependencies
 init();
@@ -26,25 +33,50 @@ function init() {
   ensureDirectory(resolveProjectsDirectory);
 }
 
-type Options = {
-  onlyRundown?: 'true' | 'false';
-};
-
 /**
- * Handles a file from the upload folder and applies its data
+ * Loads a data from a file into the runtime
  */
-export async function applyProjectFile(name: string, options?: Options) {
+export async function loadProjectFile(name: string) {
+  if (!(await doesProjectExist(name))) {
+    throw new Error('Project file not found');
+  }
+
   const filePath = getPathToProject(name);
-  const data = parseProjectFile(filePath);
+
+  // when loading a project file, we allow parsing to fail and interrupt the process
+  const fileData = await parseProjectFile(filePath);
+  const result = parseJson(fileData);
+
+  if (result.errors.length > 0) {
+    logger.warning(LogOrigin.Server, 'Project loaded with errors');
+
+    // move original file to corrupted
+    ensureDirectory(resolveCorruptDirectory);
+    copyFile(filePath, join(resolveCorruptDirectory, name));
+
+    // rename file to indicate recovery
+    const newName = appendToName(filePath, '(recovered)');
+    await rename(filePath, newName);
+  }
 
   // change LowDB to point to new file
-  await switchDb(filePath);
-
-  // apply data model
-  await applyDataModel(data, options);
+  await switchDb(filePath, result.data);
+  logger.info(LogOrigin.Server, `Loaded project ${name}`);
 
   // persist the project selection
   await appStateProvider.setLastLoadedProject(name);
+
+  // apply data model
+  runtimeService.stop();
+
+  const { rundown, customFields, osc, http } = result.data;
+
+  // apply the rundown
+  initRundown(rundown, customFields);
+
+  // apply integrations
+  oscIntegration.init(osc);
+  httpIntegration.init(http);
 }
 
 /**
@@ -64,11 +96,11 @@ export async function getProjectList(): Promise<ProjectFileListResponse> {
  * Duplicates an existing project file
  */
 export async function duplicateProjectFile(originalFile: string, newFilename: string) {
-  if (!doesProjectExist(originalFile)) {
+  if (!(await doesProjectExist(originalFile))) {
     throw new Error('Project file not found');
   }
 
-  if (doesProjectExist(newFilename)) {
+  if (await doesProjectExist(newFilename)) {
     throw new Error(`Project file with name ${newFilename} already exists`);
   }
 
@@ -82,11 +114,11 @@ export async function duplicateProjectFile(originalFile: string, newFilename: st
  * Renames an existing project file
  */
 export async function renameProjectFile(originalFile: string, newFilename: string) {
-  if (!doesProjectExist(originalFile)) {
+  if (!(await doesProjectExist(originalFile))) {
     throw new Error('Project file not found');
   }
 
-  if (doesProjectExist(newFilename)) {
+  if (await doesProjectExist(newFilename)) {
     throw new Error(`Project file with name ${newFilename} already exists`);
   }
 
@@ -98,7 +130,27 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
   // Update the last loaded project config if current loaded project is the one being renamed
   const isLoaded = await appStateProvider.isLastLoadedProject(originalFile);
   if (isLoaded) {
-    await applyProjectFile(newFilename);
+    const fileData = await parseProjectFile(newProjectFilePath);
+    const result = parseJson(fileData);
+
+    // change LowDB to point to new file
+    await switchDb(newProjectFilePath, result.data);
+    logger.info(LogOrigin.Server, `Loaded project ${newFilename}`);
+
+    // persist the project selection
+    await appStateProvider.setLastLoadedProject(newFilename);
+
+    // apply data model
+    runtimeService.stop();
+
+    const { rundown, customFields, osc, http } = result.data;
+
+    // apply the rundown
+    initRundown(rundown, customFields);
+
+    // apply integrations
+    oscIntegration.init(osc);
+    httpIntegration.init(http);
   }
 }
 
@@ -139,7 +191,7 @@ export async function deleteProjectFile(filename: string) {
     throw new Error('Cannot delete currently loaded project');
   }
 
-  if (!doesProjectExist(filename)) {
+  if (!(await doesProjectExist(filename))) {
     throw new Error('Project file not found');
   }
 
@@ -172,7 +224,7 @@ export async function getInfo(): Promise<GetInfo> {
  * applies a partial database model
  */
 // TODO: should be private as part of a load
-export async function applyDataModel(data: Partial<DatabaseModel>, _options?: Options) {
+export async function applyDataModel(data: Partial<DatabaseModel>) {
   runtimeService.stop();
 
   // TODO: allow partial project merge from options
