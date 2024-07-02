@@ -22,6 +22,7 @@ import { httpIntegration } from '../integration-service/HttpIntegration.js';
 
 import { parseProjectFile } from './projectFileUtils.js';
 import { doesProjectExist, getPathToProject, getProjectFiles } from './projectServiceUtils.js';
+import { parseRundown } from '../../utils/parserFunctions.js';
 
 // init dependencies
 init();
@@ -173,7 +174,7 @@ export async function createProject(filename: string, projectData: ProjectData) 
 
   // apply data to running services
   // we dont need to parse since we are creating a new file
-  await applyDataModel(data);
+  await patchCurrentProject(data);
 
   // update app state to point to new value
   appStateProvider.setLastLoadedProject(uniqueFileName);
@@ -222,16 +223,18 @@ export async function getInfo(): Promise<GetInfo> {
 /**
  * applies a partial database model
  */
-// TODO: should be private as part of a load
-export async function applyDataModel(data: Partial<DatabaseModel>) {
+export async function patchCurrentProject(data: Partial<DatabaseModel>) {
   runtimeService.stop();
 
-  // TODO: allow partial project merge from options
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars  -- we need to remove the fields before meging
   const { rundown, customFields, ...rest } = data;
+  // we can pass some stuff straight to the data provider
   const newData = await DataProvider.mergeIntoData(rest);
 
+  // ... but rundown and custom fields need to be checked
   if (rundown != null) {
-    initRundown(rundown, customFields ?? {});
+    const result = parseRundown(data);
+    initRundown(result.rundown, result.customFields);
   }
 
   return newData;

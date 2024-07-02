@@ -10,22 +10,15 @@ import { getErrorMessage } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
 
-import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { doesProjectExist, handleUploaded } from '../../services/project-service/projectServiceUtils.js';
 import * as projectService from '../../services/project-service/ProjectService.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
-  // all fields are optional in validation
-  if (failEmptyObjects(req.body, res)) {
-    res.status(400).send({ message: 'No field found to patch' });
-    return;
-  }
-
   try {
     const { rundown, project, settings, viewSettings, urlPresets, customFields, osc, http } = req.body;
     const patchDb: DatabaseModel = { rundown, project, settings, viewSettings, urlPresets, customFields, osc, http };
 
-    const newData = await projectService.applyDataModel(patchDb);
+    const newData = await projectService.patchCurrentProject(patchDb);
 
     res.status(200).send(newData);
   } catch (error) {
