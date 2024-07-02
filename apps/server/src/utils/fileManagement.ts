@@ -28,7 +28,7 @@ export function ensureJsonExtension(filename: string | undefined): string | unde
  * Lists all files in a directory
  */
 export async function getFilesFromFolder(folderPath: string): Promise<string[]> {
-  return await readdir(folderPath);
+  return readdir(folderPath);
 }
 
 /**
@@ -38,3 +38,12 @@ export async function getFilesFromFolder(folderPath: string): Promise<string[]> 
 export const removeFileExtension = (filename: string): string => {
   return parse(filename).name;
 };
+
+/**
+ * Appends a given string to a file name or path
+ * @example appendToName('file.json', '(recovered)') => 'file (recovered).json'
+ */
+export function appendToName(filePath: string, append: string): string {
+  const extension = filePath.split('.').pop();
+  return filePath.replace(`.${extension}`, ` ${append}.${extension}`);
+}
