@@ -1,8 +1,8 @@
 name: Ontime CLI build
 
 on:
-  push:
-    tags: [ "*" ]
+  release:
+    types: [published]
   workflow_dispatch:
 
 jobs:
