@@ -293,10 +293,6 @@ export type ParsingError = {
  * @returns {object} - parsed object
  */
 export function parseJson(jsonData: Partial<DatabaseModel>): { data: DatabaseModel; errors: ParsingError[] } {
-  if (!jsonData || typeof jsonData !== 'object') {
-    throw new Error('Invalid JSON data');
-  }
-
   // we need to parse settings first to make sure the data is ours
   // this may throw
   const settings = parseSettings(jsonData);
