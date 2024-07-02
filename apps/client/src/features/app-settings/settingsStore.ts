@@ -57,7 +57,7 @@ export const settingPanels: Readonly<SettingsOption[]> = [
     secondary: [
       {
         id: 'network__log',
-        label: 'Application log',
+        label: 'Event log',
       },
       {
         id: 'network__clients',
