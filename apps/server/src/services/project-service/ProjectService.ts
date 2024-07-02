@@ -56,7 +56,7 @@ export async function getProjectList(): Promise<ProjectFileListResponse> {
 
   return {
     files,
-    lastLoadedProject: removeFileExtension(lastLoadedProject),
+    lastLoadedProject: lastLoadedProject ? removeFileExtension(lastLoadedProject) : '',
   };
 }
 

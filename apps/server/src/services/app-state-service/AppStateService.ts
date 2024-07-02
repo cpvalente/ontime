@@ -4,7 +4,7 @@ import { JSONFile } from 'lowdb/node';
 import { appStatePath, isTest } from '../../setup/index.js';
 
 interface Config {
-  lastLoadedProject: string;
+  lastLoadedProject?: string;
 }
 
 /**
@@ -19,7 +19,7 @@ class AppState {
   constructor(appStatePath: string) {
     this.pathToFile = appStatePath;
     const adapter = new JSONFile<Config>(this.pathToFile);
-    this.config = new Low<Config>(adapter, null);
+    this.config = new Low<Config>(adapter, {});
   }
 
   private async init() {
@@ -41,7 +41,7 @@ class AppState {
     return lastLoaded === projectName;
   }
 
-  async getLastLoadedProject(): Promise<string> {
+  async getLastLoadedProject(): Promise<string | undefined> {
     const data = await this.get();
     return data.lastLoadedProject;
   }
