@@ -1,4 +1,4 @@
-import { ProjectFile } from 'ontime-types';
+import { MaybeString, ProjectFile } from 'ontime-types';
 
 import { access, rename, stat } from 'fs/promises';
 import { join } from 'path';
@@ -51,13 +51,13 @@ export async function getProjectFiles(): Promise<ProjectFile[]> {
  * Checks whether a project of a given name exists
  * @param name
  */
-export async function doesProjectExist(name: string): Promise<boolean> {
+export async function doesProjectExist(name: string): Promise<MaybeString> {
   try {
-    const projectFilePath = join(resolveProjectsDirectory, name);
+    const projectFilePath = getPathToProject(name);
     await access(projectFilePath);
-    return true;
+    return projectFilePath;
   } catch (_) {
-    return false;
+    return null;
   }
 }
 
