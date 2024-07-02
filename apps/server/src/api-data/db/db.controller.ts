@@ -8,13 +8,10 @@ import {
 } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
-import { join } from 'path';
-import { existsSync } from 'fs';
 import type { Request, Response } from 'express';
 
 import { failEmptyObjects } from '../../utils/routerUtils.js';
-import { resolveDbDirectory } from '../../setup/index.js';
-import { handleUploaded } from '../../services/project-service/projectServiceUtils.js';
+import { doesProjectExist, handleUploaded } from '../../services/project-service/projectServiceUtils.js';
 import * as projectService from '../../services/project-service/ProjectService.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
@@ -73,10 +70,8 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
  */
 export async function projectDownload(req: Request, res: Response) {
   const { filename } = req.body;
-  const pathToFile = join(resolveDbDirectory, filename);
-
-  // Check if the file exists before attempting to download
-  if (!existsSync(pathToFile)) {
+  const pathToFile = await doesProjectExist(filename);
+  if (!pathToFile) {
     return res.status(404).send({ message: `Project ${filename} not found.` });
   }
 

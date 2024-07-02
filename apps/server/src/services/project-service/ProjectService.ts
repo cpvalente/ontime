@@ -37,11 +37,10 @@ function init() {
  * Loads a data from a file into the runtime
  */
 export async function loadProjectFile(name: string) {
-  if (!(await doesProjectExist(name))) {
+  const filePath = await doesProjectExist(name);
+  if (filePath === null) {
     throw new Error('Project file not found');
   }
-
-  const filePath = getPathToProject(name);
 
   // when loading a project file, we allow parsing to fail and interrupt the process
   const fileData = await parseProjectFile(filePath);
@@ -96,45 +95,45 @@ export async function getProjectList(): Promise<ProjectFileListResponse> {
  * Duplicates an existing project file
  */
 export async function duplicateProjectFile(originalFile: string, newFilename: string) {
-  if (!(await doesProjectExist(originalFile))) {
+  const projectFilePath = await doesProjectExist(originalFile);
+  if (projectFilePath === null) {
     throw new Error('Project file not found');
   }
 
-  if (await doesProjectExist(newFilename)) {
+  const duplicateProjectFilePath = await doesProjectExist(newFilename);
+  if (duplicateProjectFilePath !== null) {
     throw new Error(`Project file with name ${newFilename} already exists`);
   }
 
-  const projectFilePath = getPathToProject(originalFile);
-  const duplicateProjectFilePath = getPathToProject(newFilename);
-
-  return copyFile(projectFilePath, duplicateProjectFilePath);
+  const pathToDuplicate = getPathToProject(newFilename);
+  return copyFile(projectFilePath, pathToDuplicate);
 }
 
 /**
  * Renames an existing project file
  */
 export async function renameProjectFile(originalFile: string, newFilename: string) {
-  if (!(await doesProjectExist(originalFile))) {
+  const projectFilePath = await doesProjectExist(originalFile);
+  if (projectFilePath === null) {
     throw new Error('Project file not found');
   }
 
-  if (await doesProjectExist(newFilename)) {
+  const newProjectFilePath = await doesProjectExist(newFilename);
+  if (newProjectFilePath !== null) {
     throw new Error(`Project file with name ${newFilename} already exists`);
   }
 
-  const projectFilePath = getPathToProject(originalFile);
-  const newProjectFilePath = getPathToProject(newFilename);
-
-  await rename(projectFilePath, newProjectFilePath);
+  const pathToRenamed = getPathToProject(newFilename);
+  await rename(projectFilePath, pathToRenamed);
 
   // Update the last loaded project config if current loaded project is the one being renamed
   const isLoaded = await appStateProvider.isLastLoadedProject(originalFile);
   if (isLoaded) {
-    const fileData = await parseProjectFile(newProjectFilePath);
+    const fileData = await parseProjectFile(pathToRenamed);
     const result = parseJson(fileData);
 
     // change LowDB to point to new file
-    await switchDb(newProjectFilePath, result.data);
+    await switchDb(pathToRenamed, result.data);
     logger.info(LogOrigin.Server, `Loaded project ${newFilename}`);
 
     // persist the project selection
@@ -191,11 +190,11 @@ export async function deleteProjectFile(filename: string) {
     throw new Error('Cannot delete currently loaded project');
   }
 
-  if (!(await doesProjectExist(filename))) {
+  const projectFilePath = await doesProjectExist(filename);
+  if (projectFilePath === null) {
     throw new Error('Project file not found');
   }
 
-  const projectFilePath = getPathToProject(filename);
   await deleteFile(projectFilePath);
 }
 
