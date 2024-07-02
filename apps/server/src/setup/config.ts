@@ -1,5 +1,6 @@
 export const config = {
   appState: 'app-state.json',
+  crash: 'crash logs',
   database: {
     testdb: 'test-db',
     directory: 'db',
