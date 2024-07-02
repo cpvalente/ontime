@@ -3,6 +3,7 @@ import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND, millisToString, removeLeadingZero
 
 import type { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { timerPlaceholder, timerPlaceholderMin } from '../../../common/utils/styleUtils';
+import { formatTime } from '../../../common/utils/time';
 
 type TimerTypeParams = Pick<ViewExtendedTimer, 'timerType' | 'current' | 'elapsed' | 'clock'>;
 
@@ -68,11 +69,13 @@ export function getFormattedTimer(
     return options.removeSeconds ? timerPlaceholderMin : timerPlaceholder;
   }
 
-  let timeToParse = timer;
+  if (timerType === TimerType.Clock) {
+    return formatTime(timer);
+  }
 
+  let timeToParse = timer;
   if (options.removeSeconds) {
-    const timerIsTimeOfDay = timerType === TimerType.Clock;
-    const isNegative = timeToParse < -MILLIS_PER_SECOND && !timerIsTimeOfDay && timerType !== TimerType.CountUp;
+    const isNegative = timeToParse < -MILLIS_PER_SECOND && timerType !== TimerType.CountUp;
     if (isNegative) {
       // in negative numbers, we need to round down
       timeToParse -= MILLIS_PER_MINUTE;
