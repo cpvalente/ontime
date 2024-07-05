@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync } from 'fs';
 import { readdir } from 'fs/promises';
-import { parse } from 'path';
+import { basename, extname, join, parse } from 'path';
 
 /**
  * @description Creates a directory if it doesn't exist
@@ -46,4 +46,42 @@ export const removeFileExtension = (filename: string): string => {
 export function appendToName(filePath: string, append: string): string {
   const extension = filePath.split('.').pop();
   return filePath.replace(`.${extension}`, ` ${append}.${extension}`);
+}
+
+/**
+ * Generates a unique file name within the specified directory.
+ * If a file with the same name already exists, appends a counter to the filename.
+ */
+export function generateUniqueFileName(directory: string, filename: string): string {
+  const extension = extname(filename);
+  const baseName = basename(filename, extension);
+
+  let counter = 0;
+  let uniqueFilename = filename;
+
+  while (fileExists(uniqueFilename)) {
+    counter++;
+    // Append counter to filename if the file exists.
+    uniqueFilename = `${baseName} (${counter})${extension}`;
+  }
+
+  return uniqueFilename;
+
+  function fileExists(name: string) {
+    return existsSync(join(directory, name));
+  }
+}
+
+/**
+ * retrieves the filename from a given path
+ */
+export function getFileNameFromPath(filePath: string): string {
+  return basename(filePath);
+}
+
+/**
+ * Utility naivly checks for paths on whether it includes directories
+ */
+export function isPath(filePath: string): boolean {
+  return filePath !== basename(filePath);
 }
