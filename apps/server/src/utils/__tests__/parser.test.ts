@@ -16,7 +16,7 @@ import {
 
 import { dbModel } from '../../models/dataModel.js';
 
-import { createEvent, getCustomFieldData, parseExcel, parseJson } from '../parser.js';
+import { createEvent, getCustomFieldData, parseExcel, parseDatabaseModel } from '../parser.js';
 import { makeString } from '../parserUtils.js';
 import { parseRundown, parseUrlPresets, parseViewSettings } from '../parserFunctions.js';
 import { ImportMap, MILLIS_PER_MINUTE } from 'ontime-utils';
@@ -26,6 +26,20 @@ const requiredSettings = {
   app: 'ontime',
   version: 'any',
 };
+
+// mock data provider
+beforeAll(() => {
+  vi.mock('../../classes/data-provider/DataProvider.js', () => {
+    return {
+      getDataProvider: vi.fn().mockImplementation(() => {
+        return {
+          setRundown: vi.fn().mockImplementation((newData) => newData),
+          setCustomFields: vi.fn().mockImplementation((newData) => newData),
+        };
+      }),
+    };
+  });
+});
 
 describe('test json parser with valid def', () => {
   const testData: Partial<DatabaseModel> = {
@@ -187,7 +201,7 @@ describe('test json parser with valid def', () => {
     viewSettings: {} as ViewSettings,
   };
 
-  const { data } = parseJson(testData);
+  const { data } = parseDatabaseModel(testData);
 
   it('has 7 events', () => {
     const length = data.rundown.length;
@@ -257,7 +271,7 @@ describe('test parser edge cases', () => {
     };
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const { data } = parseJson(testData);
+    const { data } = parseDatabaseModel(testData);
     expect(typeof (data.rundown[0] as OntimeEvent).cue).toBe('string');
     expect(typeof (data.rundown[1] as OntimeEvent).cue).toBe('string');
   });
@@ -274,7 +288,7 @@ describe('test parser edge cases', () => {
     };
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const { data } = parseJson(testData);
+    const { data } = parseDatabaseModel(testData);
     expect(data.rundown[0].id).toBeDefined();
   });
 
@@ -297,7 +311,7 @@ describe('test parser edge cases', () => {
     };
 
     //@ts-expect-error -- we know this is wrong, testing imports outside domain
-    const { data, errors } = parseJson(testData);
+    const { data, errors } = parseDatabaseModel(testData);
     expect(data.rundown.length).toBe(1);
     expect(errors.length).toBe(7);
   });
@@ -319,7 +333,7 @@ describe('test parser edge cases', () => {
     };
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const { data } = parseJson(testData);
+    const { data } = parseDatabaseModel(testData);
     expect(data.rundown.length).toBe(0);
   });
 
@@ -332,7 +346,7 @@ describe('test parser edge cases', () => {
     };
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    expect(() => parseJson(testData)).toThrow();
+    expect(() => parseDatabaseModel(testData)).toThrow();
   });
 });
 
@@ -375,7 +389,7 @@ describe('test corrupt data', () => {
     };
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const { data } = parseJson(emptyEvents);
+    const { data } = parseDatabaseModel(emptyEvents);
     expect(data.rundown.length).toBe(2);
   });
 
@@ -400,7 +414,7 @@ describe('test corrupt data', () => {
     };
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const { data } = parseJson(emptyEvents);
+    const { data } = parseDatabaseModel(emptyEvents);
     expect(data.rundown.length).toBe(0);
   });
 
@@ -418,7 +432,7 @@ describe('test corrupt data', () => {
     };
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const { data: parsedDef } = parseJson(emptyProjectData);
+    const { data: parsedDef } = parseDatabaseModel(emptyProjectData);
     expect(parsedDef.project).toStrictEqual(dbModel.project);
   });
 
@@ -433,13 +447,13 @@ describe('test corrupt data', () => {
     };
 
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const { data } = parseJson(missingSettings);
+    const { data } = parseDatabaseModel(missingSettings);
     expect(data.settings).toStrictEqual(dbModel.settings);
   });
 
   it('fails with invalid JSON', () => {
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    expect(() => parseJson('some random dataset')).toThrow();
+    expect(() => parseDatabaseModel('some random dataset')).toThrow();
   });
 });
 
@@ -667,7 +681,7 @@ describe('test import of v2 datamodel', () => {
       },
     };
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const { data: parsed, _errors } = parseJson(v2ProjectFile);
+    const { data: parsed, _errors } = parseDatabaseModel(v2ProjectFile);
     expect(parsed.rundown.length).toBe(3);
     expect(parsed.rundown[0]).toMatchObject({ type: SupportedEvent.Block });
     expect(parsed.rundown[0]).toEqual(

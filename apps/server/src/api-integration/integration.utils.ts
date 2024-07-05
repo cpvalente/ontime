@@ -1,17 +1,17 @@
 import { EndAction, OntimeEvent, TimerType, isKeyOfType, isOntimeEvent } from 'ontime-types';
 import { MILLIS_PER_SECOND, maxDuration } from 'ontime-utils';
 
-import { DataProvider } from '../classes/data-provider/DataProvider.js';
 import { editEvent } from '../services/rundown-service/RundownService.js';
 import { getEventWithId } from '../services/rundown-service/rundownUtils.js';
 import { coerceBoolean, coerceColour, coerceEnum, coerceNumber, coerceString } from '../utils/coerceType.js';
+import { getDataProvider } from '../classes/data-provider/DataProvider.js';
 
 /**
  *
  * @param {number} value time amount in seconds
  * @returns {number} time in milliseconds clamped to 0 and max duration
  */
-function clampDuration(value: number) {
+function clampDuration(value: number): number {
   const valueInMillis = value * MILLIS_PER_SECOND;
   if (valueInMillis > maxDuration || valueInMillis < 0) {
     throw new Error('Times should be from 0 to 23:59:59');
@@ -42,10 +42,11 @@ const propertyConversion = {
   timeEnd: (value: unknown) => clampDuration(coerceNumber(value)),
 };
 
-export function parseProperty(property: string, value: unknown) {
+export async function parseProperty(property: string, value: unknown) {
   if (property.startsWith('custom:')) {
     const customKey = property.split(':')[1].toLocaleLowerCase(); // all custom fields keys are lowercase
-    if (!(customKey in DataProvider.getCustomFields())) {
+    const customFields = getDataProvider().getCustomFields();
+    if (!(customKey in customFields)) {
       throw new Error(`Custom field ${customKey} not found`);
     }
     const parserFn = propertyConversion.custom;

@@ -63,7 +63,7 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
  */
 export async function projectDownload(req: Request, res: Response) {
   const { filename } = req.body;
-  const pathToFile = await doesProjectExist(filename);
+  const pathToFile = doesProjectExist(filename);
   if (!pathToFile) {
     return res.status(404).send({ message: `Project ${filename} not found.` });
   }
