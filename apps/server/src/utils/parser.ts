@@ -288,11 +288,11 @@ export type ParsingError = {
 };
 
 /**
- * @description JSON parser function for ontime project file
+ * @description handles parsing of ontime project file
  * @param {object} jsonData - project file to be parsed
  * @returns {object} - parsed object
  */
-export function parseJson(jsonData: Partial<DatabaseModel>): { data: DatabaseModel; errors: ParsingError[] } {
+export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): { data: DatabaseModel; errors: ParsingError[] } {
   // we need to parse settings first to make sure the data is ours
   // this may throw
   const settings = parseSettings(jsonData);
