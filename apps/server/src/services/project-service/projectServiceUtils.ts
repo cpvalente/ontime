@@ -1,12 +1,11 @@
-import { MaybeString, ProjectFile } from 'ontime-types';
+import { DatabaseModel, MaybeString, ProjectFile } from 'ontime-types';
 
-import { access, rename, stat } from 'fs/promises';
-import { join } from 'path';
+import { existsSync } from 'fs';
+import { copyFile, readFile, rename, stat } from 'fs/promises';
+import { extname, join } from 'path';
 
-import { resolveProjectsDirectory } from '../../setup/index.js';
+import { resolveCorruptDirectory, resolveProjectsDirectory } from '../../setup/index.js';
 import { getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
-
-import { filterProjectFiles } from './projectFileUtils.js';
 
 /**
  * Handles the upload of a new project file
@@ -51,14 +50,12 @@ export async function getProjectFiles(): Promise<ProjectFile[]> {
  * Checks whether a project of a given name exists
  * @param name
  */
-export async function doesProjectExist(name: string): Promise<MaybeString> {
-  try {
-    const projectFilePath = getPathToProject(name);
-    await access(projectFilePath);
+export function doesProjectExist(name: string): MaybeString {
+  const projectFilePath = getPathToProject(name);
+  if (existsSync(projectFilePath)) {
     return projectFilePath;
-  } catch (_) {
-    return null;
   }
+  return null;
 }
 
 /**
@@ -66,4 +63,44 @@ export async function doesProjectExist(name: string): Promise<MaybeString> {
  */
 export function getPathToProject(name: string): string {
   return join(resolveProjectsDirectory, name);
+}
+
+/**
+ * Makes a copy of a given project to the corrupted directory
+ */
+export async function copyCorruptFile(filePath: string, name: string): Promise<void> {
+  const newPath = join(resolveCorruptDirectory, name);
+  return copyFile(filePath, newPath);
+}
+
+/**
+ * Moves a file permanently to the corrupted directory
+ */
+export async function moveCorruptFile(filePath: string, name: string): Promise<void> {
+  const newPath = join(resolveCorruptDirectory, name);
+  return rename(filePath, newPath);
+}
+
+/**
+ * Given an array of file names, filters out any files that do not have a '.json' extension.
+ * We assume these are project files
+ */
+export function filterProjectFiles(files: Array<string>): Array<string> {
+  return files.filter((file) => {
+    const ext = extname(file).toLowerCase();
+    return ext === '.json';
+  });
+}
+
+/**
+ * Parses a project file and returns the JSON object
+ * @throws It will throw an error if it cannot read or parse the file
+ */
+export async function parseJsonFile(filePath: string): Promise<Partial<DatabaseModel>> {
+  if (!filePath.endsWith('.json')) {
+    throw new Error('Invalid file type');
+  }
+
+  const rawdata = await readFile(filePath, 'utf-8');
+  return JSON.parse(rawdata);
 }

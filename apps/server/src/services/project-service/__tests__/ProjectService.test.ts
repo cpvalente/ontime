@@ -1,6 +1,6 @@
 import { Mock } from 'vitest';
 
-import { appStateProvider } from '../../app-state-service/AppStateService.js';
+import { isLastLoadedProject } from '../../app-state-service/AppStateService.js';
 
 import { deleteProjectFile, duplicateProjectFile, renameProjectFile } from '../ProjectService.js';
 import { doesProjectExist } from '../projectServiceUtils.js';
@@ -13,9 +13,7 @@ vi.mock('../../../setup/loadDb.js', () => {
 });
 
 vi.mock('../../app-state-service/AppStateService.js', () => ({
-  appStateProvider: {
-    isLastLoadedProject: vi.fn(),
-  },
+  isLastLoadedProject: vi.fn(),
 }));
 
 vi.mock('../projectServiceUtils.js', () => ({
@@ -29,12 +27,12 @@ vi.mock('../projectServiceUtils.js', () => ({
  */
 describe('deleteProjectFile', () => {
   it('throws an error if trying to delete the currently loaded project', async () => {
-    (appStateProvider.isLastLoadedProject as Mock).mockResolvedValue(true);
+    (isLastLoadedProject as Mock).mockResolvedValue(true);
     await expect(deleteProjectFile('loadedProject')).rejects.toThrow('Cannot delete currently loaded project');
   });
 
   it('throws an error if the project file does not exist', async () => {
-    (appStateProvider.isLastLoadedProject as Mock).mockResolvedValue(false);
+    (isLastLoadedProject as Mock).mockResolvedValue(false);
     (doesProjectExist as Mock).mockReturnValue(null);
     await expect(deleteProjectFile('nonexistentProject')).rejects.toThrow('Project file not found');
   });
