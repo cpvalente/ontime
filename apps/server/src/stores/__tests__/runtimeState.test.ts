@@ -201,7 +201,7 @@ describe('mutation on runtimeState', () => {
       stop();
       newState = getState();
       expect(newState.runtime.actualStart).toBeNull();
-      expect(newState.runtime.offset).toBeNull();
+      expect(newState.runtime.offset).toBe(0);
       expect(newState.runtime.expectedEnd).toBeNull();
     });
 

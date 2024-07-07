@@ -19,7 +19,7 @@ import { timerConfig } from '../config/config.js';
 const initialRuntime: Runtime = {
   selectedEventIndex: null,
   numEvents: 0,
-  offset: null,
+  offset: 0,
   plannedStart: 0,
   plannedEnd: 0,
   actualStart: null,
@@ -82,7 +82,7 @@ export function clear() {
   runtimeState.eventNext = null;
   runtimeState.publicEventNext = null;
 
-  runtimeState.runtime.offset = null;
+  runtimeState.runtime.offset = 0;
   runtimeState.runtime.actualStart = null;
   runtimeState.runtime.expectedEnd = null;
   runtimeState.runtime.selectedEventIndex = null;
