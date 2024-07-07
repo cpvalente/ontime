@@ -1558,7 +1558,7 @@ describe('getRuntimeOffset()', () => {
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
-    expect(offset).toBe(null);
+    expect(offset).toBe(0);
   });
 
   it('handles loaded event', () => {

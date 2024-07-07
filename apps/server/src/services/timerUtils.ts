@@ -299,10 +299,10 @@ export const updateRoll = (state: RuntimeState) => {
  * Positive offset is time ahead
  * Negative offset is time delayed
  */
-export function getRuntimeOffset(state: RuntimeState): MaybeNumber {
+export function getRuntimeOffset(state: RuntimeState): number {
   // nothing to calculate if there are no loaded events or if we havent started
   if (state.eventNow === null || state.runtime.actualStart === null) {
-    return null;
+    return 0;
   }
 
   const { clock } = state;
