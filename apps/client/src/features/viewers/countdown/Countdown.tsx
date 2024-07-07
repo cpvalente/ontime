@@ -1,6 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { OntimeEvent, OntimeRundownEntry, Playback, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
+import {
+  OntimeEvent,
+  OntimeRundownEntry,
+  Playback,
+  Runtime,
+  Settings,
+  SupportedEvent,
+  ViewSettings,
+} from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import { getCountdownOptions } from '../../../common/components/view-params-editor/constants';
@@ -13,7 +21,7 @@ import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getFormattedTimer, isStringBoolean } from '../common/viewUtils';
 
-import { fetchTimerData, TimerMessage } from './countdown.helpers';
+import { fetchTimerData, getTimerItems, TimerMessage } from './countdown.helpers';
 import CountdownSelect from './CountdownSelect';
 
 import './Countdown.scss';
@@ -21,14 +29,15 @@ import './Countdown.scss';
 interface CountdownProps {
   isMirrored: boolean;
   backstageEvents: OntimeEvent[];
-  time: ViewExtendedTimer;
+  runtime: Runtime;
   selectedId: string | null;
-  viewSettings: ViewSettings;
   settings: Settings | undefined;
+  time: ViewExtendedTimer;
+  viewSettings: ViewSettings;
 }
 
 export default function Countdown(props: CountdownProps) {
-  const { isMirrored, backstageEvents, time, selectedId, viewSettings, settings } = props;
+  const { isMirrored, backstageEvents, runtime, selectedId, settings, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
   const { getLocalizedString } = useTranslation();
@@ -71,10 +80,10 @@ export default function Countdown(props: CountdownProps) {
       return;
     }
 
-    const { message, timer } = fetchTimerData(time, follow, selectedId);
+    const { message, timer } = fetchTimerData(time, follow, selectedId, runtime.offset);
     setRunningMessage(message);
     setRunningTimer(timer);
-  }, [follow, selectedId, time]);
+  }, [follow, selectedId, time, runtime.offset]);
 
   // defer rendering until we load stylesheets
   if (!shouldRender) {
@@ -87,8 +96,12 @@ export default function Countdown(props: CountdownProps) {
   const delayedTimerStyles = delay > 0 ? 'aux-timers__value--delayed' : '';
 
   const clock = formatTime(time.clock);
-  const startTime = follow === null ? '...' : formatTime(follow.timeStart + delay);
-  const endTime = follow === null ? '...' : formatTime(follow.timeEnd + delay);
+  const { scheduledStart, scheduledEnd, projectedStart, projectedEnd } = getTimerItems(
+    follow?.timeStart,
+    follow?.timeEnd,
+    delay,
+    runtime.offset,
+  );
 
   const hideSeconds = searchParams.get('hideTimerSeconds');
   const formattedTimer = getFormattedTimer(runningTimer, time.timerType, getLocalizedString('common.minutes'), {
@@ -122,13 +135,25 @@ export default function Countdown(props: CountdownProps) {
           {follow?.title && <div className='title'>{follow.title}</div>}
 
           <div className='timer-group'>
-            <div className='aux-timers'>
-              <div className='aux-timers__label'>{getLocalizedString('common.start_time')}</div>
-              <SuperscriptTime time={startTime} className={`aux-timers__value ${delayedTimerStyles}`} />
+            {projectedStart && projectedEnd && (
+              <div className='timer-group__projected-start'>
+                <div className='timer-group__label'>{getLocalizedString('common.projected_start')}</div>
+                <SuperscriptTime time={projectedStart} className={`timer-group__value ${delayedTimerStyles}`} />
+              </div>
+            )}
+            {projectedStart && projectedEnd && (
+              <div className='timer-group__projected-end'>
+                <div className='timer-group__label'>{getLocalizedString('common.projected_end')}</div>
+                <SuperscriptTime time={projectedEnd} className={`timer-group__value ${delayedTimerStyles}`} />
+              </div>
+            )}
+            <div className='timer-group__scheduled-start'>
+              <div className='timer-group__label'>{getLocalizedString('common.scheduled_start')}</div>
+              <SuperscriptTime time={scheduledStart} className={`timer-group__value ${delayedTimerStyles}`} />
             </div>
-            <div className='aux-timers'>
-              <div className='aux-timers__label'>{getLocalizedString('common.end_time')}</div>
-              <SuperscriptTime time={endTime} className={`aux-timers__value ${delayedTimerStyles}`} />
+            <div className='timer-group__scheduled-end'>
+              <div className='timer-group__label'>{getLocalizedString('common.scheduled_end')}</div>
+              <SuperscriptTime time={scheduledEnd} className={`timer-group__value ${delayedTimerStyles}`} />
             </div>
           </div>
         </div>
