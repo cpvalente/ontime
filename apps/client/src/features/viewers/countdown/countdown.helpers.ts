@@ -22,10 +22,14 @@ export const sanitiseTitle = (title: string | null) => (title ? title : '{no tit
  */
 export const fetchTimerData = (
   time: ViewExtendedTimer,
-  follow: OntimeEvent,
+  follow: OntimeEvent | null,
   selectedId: string | null,
   offset: number,
 ): { message: TimerMessage; timer: number } => {
+  if (follow === null) {
+    return { message: TimerMessage.unhandled, timer: 0 };
+  }
+
   if (selectedId === follow.id) {
     // if it is selected, it may not be running
     return {

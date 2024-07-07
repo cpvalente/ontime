@@ -7,6 +7,7 @@ import {
   Runtime,
   Settings,
   SupportedEvent,
+  TimerPhase,
   ViewSettings,
 } from 'ontime-types';
 
@@ -43,14 +44,12 @@ export default function Countdown(props: CountdownProps) {
   const { getLocalizedString } = useTranslation();
 
   const [follow, setFollow] = useState<OntimeEvent | null>(null);
-  const [runningTimer, setRunningTimer] = useState(0);
-  const [runningMessage, setRunningMessage] = useState<TimerMessage>(TimerMessage.unhandled);
   const [delay, setDelay] = useState(0);
 
   useWindowTitle('Countdown');
 
   // eg. http://localhost:4001/countdown?eventId=ei0us
-  // Check for user options
+  // update data to the event we are following
   useEffect(() => {
     if (!backstageEvents) {
       return;
@@ -58,6 +57,12 @@ export default function Countdown(props: CountdownProps) {
 
     const eventId = searchParams.get('eventid');
     const eventIndex = searchParams.get('event');
+
+    // if there is no event selected, we reset the data
+    if (!eventId && !eventIndex) {
+      setFollow(null);
+      return;
+    }
 
     let followThis: OntimeEvent | null = null;
     const events: OntimeEvent[] = [...backstageEvents].filter((event) => event.type === SupportedEvent.Event);
@@ -75,23 +80,15 @@ export default function Countdown(props: CountdownProps) {
     }
   }, [backstageEvents, searchParams]);
 
-  useEffect(() => {
-    if (!follow) {
-      return;
-    }
-
-    const { message, timer } = fetchTimerData(time, follow, selectedId, runtime.offset);
-    setRunningMessage(message);
-    setRunningTimer(timer);
-  }, [follow, selectedId, time, runtime.offset]);
-
   // defer rendering until we load stylesheets
   if (!shouldRender) {
     return null;
   }
 
+  const { message: runningMessage, timer: runningTimer } = fetchTimerData(time, follow, selectedId, runtime.offset);
+
   const standby = time.playback !== Playback.Play && time.playback !== Playback.Roll && selectedId === follow?.id;
-  const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
+  const finished = time.phase === TimerPhase.Overtime;
   const isRunningFinished = finished && runningMessage === TimerMessage.running;
   const delayedTimerStyles = delay > 0 ? 'aux-timers__value--delayed' : '';
 
