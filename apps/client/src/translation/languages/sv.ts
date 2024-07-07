@@ -1,13 +1,15 @@
 import { TranslationObject } from './en';
 
 export const langSv: TranslationObject = {
-  'common.end_time': 'Sluttid',
   'common.expected_finish': 'Förväntat slut',
   'common.minutes': 'min',
   'common.now': 'Nu',
   'common.next': 'Nästa',
   'common.public_message': 'Offentligt meddelande',
-  'common.start_time': 'Starttid',
+  'common.scheduled_start': 'Planerad start',
+  'common.scheduled_end': 'Planerad slut',
+  'common.projected_start': 'Beräknad start',
+  'common.projected_end': 'Beräknad slut',
   'common.stage_timer': 'Timer för scenen',
   'common.started_at': 'Började vid',
   'common.time_now': 'Klockan nu',

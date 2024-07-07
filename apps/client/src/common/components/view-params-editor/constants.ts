@@ -508,4 +508,14 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
   ];
 };
 
-export const getCountdownOptions = (timeFormat: string): ParamField[] => [getTimeOption(timeFormat), hideTimerSeconds];
+export const getCountdownOptions = (timeFormat: string): ParamField[] => [
+  getTimeOption(timeFormat),
+  hideTimerSeconds,
+  {
+    id: 'showProjected',
+    title: 'Show projected time',
+    description: 'Whether to show the projected delay of an event (taken from runtime offset).',
+    type: 'boolean',
+    defaultValue: false,
+  },
+];
