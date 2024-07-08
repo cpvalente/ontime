@@ -22,7 +22,7 @@ export const rundownPutValidator = [
 ];
 
 export const rundownFrozenPostValidator = [
-  body('state').isBoolean().exists(),
+  body('frozen').isBoolean().exists(),
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });

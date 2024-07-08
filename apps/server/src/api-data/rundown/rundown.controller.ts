@@ -121,8 +121,8 @@ export async function rundownFrozenPost(req: Request, res: Response<MessageRespo
   }
 
   try {
-    const { state } = req.body;
-    setFrozenState(state);
+    const { frozen } = req.body;
+    setFrozenState(frozen);
     res.status(200).send({ message: 'Rundown frozen state updated.' });
   } catch (error) {
     const message = getErrorMessage(error);
