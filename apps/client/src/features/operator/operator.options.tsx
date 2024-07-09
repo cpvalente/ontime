@@ -6,8 +6,11 @@ import { ViewOption } from '../../common/components/view-params-editor/types';
 export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ViewOption[] => {
   const fieldOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
 
-  const customFieldSelect = Object.entries(customFields).reduce((acc, [key, field]) => {
-    return { ...acc, [key]: { value: key, label: field.label, colour: field.colour } };
+  const customFieldSelect = Object.entries(customFields).reduce<
+    Record<string, { value: string; label: string; colour: string }>
+  >((acc, [key, field]) => {
+    acc[key] = { value: key, label: field.label, colour: field.colour };
+    return acc;
   }, {});
 
   return [
