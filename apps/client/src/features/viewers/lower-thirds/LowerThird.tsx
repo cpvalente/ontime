@@ -3,11 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 import { CustomFields, OntimeEvent, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import { getLowerThirdOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { getPropertyValue } from '../common/viewUtils';
+
+import { getLowerThirdOptions } from './lowerThird.options';
 
 import './LowerThird.scss';
 
@@ -182,7 +183,7 @@ export default function LowerThird(props: LowerProps) {
 
   return (
     <div className='lower-third' style={{ backgroundColor: `#${options.key}` }}>
-      <ViewParamsEditor paramFields={getLowerThirdOptions(customFields)} />
+      <ViewParamsEditor viewOptions={getLowerThirdOptions(customFields)} />
       <div
         className={`container container--${playState}`}
         style={{ minWidth: `${options.width}vw`, animationDuration: transition }}

@@ -13,7 +13,7 @@ import {
 } from '@chakra-ui/react';
 
 import ParamInput from './ParamInput';
-import { ParamField } from './types';
+import { isSection, ViewOption } from './types';
 
 import style from './ViewParamsEditor.module.scss';
 
@@ -22,25 +22,36 @@ type ViewParamsObj = { [key: string]: string | FormDataEntryValue };
 /**
  * Makes a new URLSearchParams object from the given params object
  */
-const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj, paramFields: ParamField[]) => {
-  const defaultValues = paramFields.reduce<Record<string, string>>((acc, { id, defaultValue }) => {
-    acc[id] = String(defaultValue);
-    return acc;
-  }, {});
+const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj, paramFields: ViewOption[]) => {
+  const newSearchParams = new URLSearchParams();
 
-  return Object.entries(paramsObj).reduce((newSearchParams, [id, value]) => {
+  // Convert paramFields to an object that contains default values
+  const defaultValues: Record<string, string> = {};
+  paramFields.forEach((option) => {
+    if (!isSection(option)) {
+      defaultValues[option.id] = String(option.defaultValue);
+    }
+
+    // extract persisted values
+    if ('type' in option && option.type === 'persist') {
+      newSearchParams.set(option.id, option.value);
+    }
+  });
+
+  // compare which values are different from the default values
+  Object.entries(paramsObj).forEach(([id, value]) => {
     if (typeof value === 'string' && value.length && defaultValues[id] !== value) {
       newSearchParams.set(id, value);
     }
-    return newSearchParams;
-  }, new URLSearchParams());
+  });
+  return newSearchParams;
 };
 
 interface EditFormDrawerProps {
-  paramFields: ParamField[];
+  viewOptions: ViewOption[];
 }
 
-export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
+export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { isOpen, onClose, onOpen } = useDisclosure();
 
@@ -68,7 +79,7 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
     formEvent.preventDefault();
 
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
-    const newSearchParams = getURLSearchParamsFromObj(newParamsObject, paramFields);
+    const newSearchParams = getURLSearchParamsFromObj(newParamsObject, viewOptions);
     setSearchParams(newSearchParams);
 
     onClose();
@@ -85,15 +96,29 @@ export default function ViewParamsEditor({ paramFields }: EditFormDrawerProps) {
 
         <DrawerBody>
           <form id='edit-params-form' onSubmit={onParamsFormSubmit}>
-            {paramFields.map((field) => (
-              <div key={field.title} className={style.columnSection}>
-                <label className={style.label}>
-                  <span className={style.title}>{field.title}</span>
-                  <span className={style.description}>{field.description}</span>
-                  <ParamInput key={field.title} paramField={field} />
-                </label>
-              </div>
-            ))}
+            {viewOptions.map((option) => {
+              if (isSection(option)) {
+                return (
+                  <div key={option.section} className={style.section}>
+                    {option.section}
+                  </div>
+                );
+              }
+
+              if (option.type === 'persist') {
+                return null;
+              }
+
+              return (
+                <div key={option.title} className={style.fieldSet}>
+                  <label className={style.label}>
+                    <span className={style.title}>{option.title}</span>
+                    <span className={style.description}>{option.description}</span>
+                    <ParamInput key={option.title} paramField={option} />
+                  </label>
+                </div>
+              );
+            })}
           </form>
         </DrawerBody>
 
