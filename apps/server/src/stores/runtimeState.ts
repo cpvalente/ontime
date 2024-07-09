@@ -236,6 +236,7 @@ export function resume(restorePoint: RestorePoint, event: OntimeEvent, rundown: 
  * @param {OntimeEvent} event only passed if we are changing the data if a playing timer
  */
 export function reload(event?: OntimeEvent) {
+  // we only pass an event for hot reloading, ie: the event has changed
   if (event) {
     runtimeState.eventNow = event;
 
@@ -243,7 +244,7 @@ export function reload(event?: OntimeEvent) {
     runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, runtimeState.eventNow.timeEnd);
     runtimeState.timer.current = getCurrent(runtimeState);
     runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
-    return;
+    return runtimeState.eventNow.id;
   }
   runtimeState.timer.playback = Playback.Armed;
 
@@ -257,6 +258,7 @@ export function reload(event?: OntimeEvent) {
   runtimeState.timer.addedTime = 0;
 
   runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
+  return runtimeState.eventNow.id;
 }
 
 /**
