@@ -12,7 +12,6 @@ import {
 } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import { getCountdownOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
@@ -23,6 +22,7 @@ import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getFormattedTimer, isStringBoolean } from '../common/viewUtils';
 
 import { fetchTimerData, getTimerItems, TimerMessage } from './countdown.helpers';
+import { getCountdownOptions } from './countdown.options';
 import CountdownSelect from './CountdownSelect';
 
 import './Countdown.scss';
@@ -106,12 +106,24 @@ export default function Countdown(props: CountdownProps) {
     removeLeadingZero: false,
   });
 
+  const persistParam = () => {
+    const eventId = searchParams.get('eventid');
+    if (eventId !== null) {
+      return { id: 'eventid', value: eventId };
+    }
+    const eventIndex = searchParams.get('event');
+    if (eventIndex !== null) {
+      return { id: 'eventindex', value: eventIndex };
+    }
+    return undefined;
+  };
+
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const timeOption = getCountdownOptions(defaultFormat);
+  const viewOptions = getCountdownOptions(defaultFormat, persistParam());
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
-      <ViewParamsEditor paramFields={timeOption} />
+      <ViewParamsEditor viewOptions={viewOptions} />
       {follow === null ? (
         <CountdownSelect events={backstageEvents} />
       ) : (
