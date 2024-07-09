@@ -2,11 +2,14 @@ import { CustomFields } from 'ontime-types';
 
 import type { ParamField } from './types';
 
-export const makeOptionsFromCustomFields = (customFields: CustomFields, additionalOptions?: Record<string, string>) => {
-  const customFieldOptions = Object.entries(customFields).reduce((acc, [key, value]) => {
-    return { ...acc, [`custom-${key}`]: `Custom: ${value.label}` };
-  }, additionalOptions ?? {});
-  return customFieldOptions;
+export const makeOptionsFromCustomFields = (
+  customFields: CustomFields,
+  additionalOptions: Record<string, string> = {},
+) => {
+  return Object.entries(customFields).reduce((options, [key, value]) => {
+    options[`custom-${key}`] = `Custom: ${value.label}`;
+    return options;
+  }, additionalOptions);
 };
 
 export const getTimeOption = (timeFormat: string): ParamField => {
