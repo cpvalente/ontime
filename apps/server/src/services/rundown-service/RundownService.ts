@@ -245,7 +245,7 @@ function notifyChanges(options: { timer?: boolean | string[]; external?: boolean
 
   if (options.external) {
     // advice socket subscribers of change
-    sendRefetch();
+    sendRefetch(Array.isArray(options.timer) ? options.timer : undefined);
   }
 }
 
