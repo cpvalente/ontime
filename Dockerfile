@@ -1,4 +1,4 @@
-FROM node:18.18-alpine AS builder
+FROM node:20-alpine AS builder
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
@@ -7,7 +7,7 @@ WORKDIR /app
 RUN pnpm --filter=ontime-ui --filter=ontime-server --filter=ontime-utils install --config.dedupe-peer-dependents=false --frozen-lockfile
 RUN pnpm --filter=ontime-ui --filter=ontime-server run build:docker
 
-FROM node:18.18-alpine
+FROM node:20-alpine
 
 # Set environment variables
 # Environment Variable to signal that we are running production

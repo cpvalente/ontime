@@ -31,7 +31,7 @@ let currentAuthCode: MaybeString = null;
 
 let currentSheetId: MaybeString = null;
 
-let pollInterval: NodeJS.Timer | null = null;
+let pollInterval: NodeJS.Timeout | null = null;
 let cleanupTimeout: NodeJS.Timeout | null = null;
 
 function reset() {
