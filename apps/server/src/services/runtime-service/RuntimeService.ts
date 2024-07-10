@@ -1,5 +1,6 @@
 import {
   EndAction,
+  isOntimeEvent,
   LogOrigin,
   MaybeNumber,
   OntimeEvent,
@@ -225,6 +226,9 @@ class RuntimeService {
       }
       // load stuff again, but keep running if our events still exist
       const eventNow = getEventWithId(state.eventNow.id);
+      if (!isOntimeEvent(eventNow)) {
+        return;
+      }
       const onlyChangedNow = affectedIds?.length === 1 && affectedIds.at(0) === eventNow.id;
       if (onlyChangedNow) {
         runtimeState.reload(eventNow);
@@ -272,7 +276,7 @@ class RuntimeService {
    */
   startById(eventId: string): boolean {
     const event = getEventWithId(eventId);
-    if (!event) {
+    if (!event || !isOntimeEvent(event)) {
       return false;
     }
     const loaded = this.loadEvent(event);
@@ -323,7 +327,7 @@ class RuntimeService {
    */
   loadById(eventId: string): boolean {
     const event = getEventWithId(eventId);
-    if (!event) {
+    if (!event || !isOntimeEvent(event)) {
       return false;
     }
     return this.loadEvent(event);
@@ -523,7 +527,7 @@ class RuntimeService {
     // the db would have to change for the event not to exist
     // we do not kow the reason for the crash, so we check anyway
     const event = getEventWithId(selectedEventId);
-    if (!event) {
+    if (!event || !isOntimeEvent(event)) {
       return;
     }
 

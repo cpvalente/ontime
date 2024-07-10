@@ -1,4 +1,5 @@
-import { ErrorResponse, MessageResponse, OntimeRundown, OntimeRundownEntry, RundownCached } from 'ontime-types';
+import { ErrorResponse, MessageResponse, OntimeRundownEntry, RundownCached, RundownPaginated } from 'ontime-types';
+import { getErrorMessage } from 'ontime-utils';
 
 import { Request, Response } from 'express';
 
@@ -13,17 +14,61 @@ import {
   reorderEvent,
   swapEvents,
 } from '../../services/rundown-service/RundownService.js';
-import { getNormalisedRundown, getRundown } from '../../services/rundown-service/rundownUtils.js';
-import { getErrorMessage } from 'ontime-utils';
-
-export async function rundownGetAll(_req: Request, res: Response<OntimeRundown>) {
-  const rundown = getRundown();
-  res.json(rundown);
-}
+import {
+  getEventWithId,
+  getNormalisedRundown,
+  getPaginated,
+  getRundown,
+} from '../../services/rundown-service/rundownUtils.js';
 
 export async function rundownGetNormalised(_req: Request, res: Response<RundownCached>) {
   const cachedRundown = getNormalisedRundown();
   res.json(cachedRundown);
+}
+
+export async function rundownGetById(req: Request, res: Response<OntimeRundownEntry | ErrorResponse>) {
+  const { eventId } = req.params;
+
+  try {
+    const event = getEventWithId(eventId);
+
+    if (!event) {
+      res.status(404).send({ message: 'Event not found' });
+      return;
+    }
+    res.status(200).json(event);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(500).json({ message });
+  }
+}
+
+export async function rundownGetPaginated(req: Request, res: Response<RundownPaginated | ErrorResponse>) {
+  const { limit, offset } = req.query;
+
+  if (limit == null && offset == null) {
+    return res.json({
+      rundown: getRundown(),
+      total: getRundown().length,
+    });
+  }
+
+  try {
+    let parsedOffset = Number(offset);
+    if (Number.isNaN(parsedOffset)) {
+      parsedOffset = 0;
+    }
+    let parsedLimit = Number(limit);
+    if (Number.isNaN(parsedLimit)) {
+      parsedLimit = Infinity;
+    }
+    const paginatedRundown = getPaginated(parsedOffset, parsedLimit);
+
+    res.status(200).json(paginatedRundown);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).json({ message });
+  }
 }
 
 export async function rundownPost(req: Request, res: Response<OntimeRundownEntry | ErrorResponse>) {
