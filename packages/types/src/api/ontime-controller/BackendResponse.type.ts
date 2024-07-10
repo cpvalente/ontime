@@ -1,4 +1,5 @@
 import type { OSCSettings } from '../../definitions/core/OscSettings.type.js';
+import type { OntimeRundown } from '../../definitions/core/Rundown.type.js';
 
 export type NetworkInterface = {
   name: string;
@@ -32,3 +33,8 @@ export type MessageResponse = {
 export type ErrorResponse = MessageResponse;
 
 export type AuthenticationStatus = 'authenticated' | 'not_authenticated' | 'pending';
+
+export type RundownPaginated = {
+  rundown: OntimeRundown;
+  total: number;
+};
