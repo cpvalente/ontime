@@ -116,10 +116,6 @@ export async function rundownBatchPut(req: Request, res: Response<MessageRespons
 }
 
 export async function rundownFrozenPost(req: Request, res: Response<MessageResponse | ErrorResponse>) {
-  if (failEmptyObjects(req.body, res)) {
-    return res.status(404);
-  }
-
   try {
     const { frozen } = req.body;
     setFrozenState(frozen);
