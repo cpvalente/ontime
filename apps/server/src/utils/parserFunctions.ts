@@ -1,4 +1,5 @@
 import {
+  CustomField,
   CustomFields,
   DatabaseModel,
   HttpSettings,
@@ -18,18 +19,27 @@ import {
   isOntimeDelay,
   isOntimeEvent,
 } from 'ontime-types';
-import { generateId, getLastEvent } from 'ontime-utils';
+import { generateId, getErrorMessage, getLastEvent } from 'ontime-utils';
 
 import { dbModel } from '../models/dataModel.js';
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { createEvent } from './parser.js';
 
+type ErrorEmitter = (message: string) => void;
+
 /**
  * Parse rundown array of an entry
  */
-export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
+export function parseRundown(
+  data: Partial<DatabaseModel>,
+  emitError?: ErrorEmitter,
+): { customFields: CustomFields; rundown: OntimeRundown } {
+  // check custom fields first
+  const parsedCustomFields = parseCustomFields(data, emitError);
+
   if (!data.rundown) {
-    return [];
+    emitError?.('No data found to import');
+    return { customFields: parsedCustomFields, rundown: [] };
   }
 
   console.log('Found rundown, importing...');
@@ -40,7 +50,7 @@ export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
 
   for (const event of data.rundown) {
     if (ids.includes(event.id)) {
-      console.log('ERROR: ID collision on import, skipping');
+      emitError?.('ID collision on event import, skipping');
       continue;
     }
 
@@ -52,10 +62,20 @@ export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
         const prevId = getLastEvent(rundown).lastEvent?.id ?? null;
         event.linkStart = prevId;
       }
+
       newEvent = createEvent(event, eventIndex.toString());
       // skip if event is invalid
       if (newEvent == null) {
+        emitError?.('Skipping event without payload');
         continue;
+      }
+
+      // for every field in custom, check that a key exists in customfields
+      for (const field in newEvent.custom) {
+        if (!Object.hasOwn(parsedCustomFields, field)) {
+          emitError?.(`Custom field ${field} not found`);
+          delete newEvent.custom[field];
+        }
       }
 
       eventIndex += 1;
@@ -64,7 +84,7 @@ export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
     } else if (isOntimeBlock(event)) {
       newEvent = { ...blockDef, title: event.title, id };
     } else {
-      console.log('ERROR: unknown event type, skipping');
+      emitError?.('Unknown event type, skipping');
       continue;
     }
 
@@ -75,14 +95,15 @@ export const parseRundown = (data: Partial<DatabaseModel>): OntimeRundown => {
   }
 
   console.log(`Uploaded rundown with ${rundown.length} entries`);
-  return rundown;
-};
+  return { customFields: parsedCustomFields, rundown };
+}
 
 /**
  * Parse event portion of an entry
  */
-export const parseProject = (data: Partial<DatabaseModel>): ProjectData => {
+export function parseProject(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): ProjectData {
   if (!data.project) {
+    emitError?.('No data found to import');
     return { ...dbModel.project };
   }
 
@@ -96,18 +117,14 @@ export const parseProject = (data: Partial<DatabaseModel>): ProjectData => {
     backstageUrl: data.project.backstageUrl ?? dbModel.project.backstageUrl,
     backstageInfo: data.project.backstageInfo ?? dbModel.project.backstageInfo,
   };
-};
+}
 
 /**
  * Parse settings portion of an entry
  */
-export const parseSettings = (data: Partial<DatabaseModel>): Settings => {
-  if (!data.settings) {
-    return { ...dbModel.settings };
-  }
-
+export function parseSettings(data: Partial<DatabaseModel>): Settings {
   // skip if file definition is missing
-  if (data.settings?.app !== 'ontime' || data.settings?.version == null) {
+  if (!data.settings || data.settings?.app !== 'ontime' || data.settings?.version == null) {
     throw new Error('ERROR: unable to parse settings, missing app or version');
   }
 
@@ -122,13 +139,14 @@ export const parseSettings = (data: Partial<DatabaseModel>): Settings => {
     timeFormat: data.settings.timeFormat ?? '24',
     language: data.settings.language ?? 'en',
   };
-};
+}
 
 /**
  * Parse view settings portion of an entry
  */
-export const parseViewSettings = (data: Partial<DatabaseModel>): ViewSettings => {
+export function parseViewSettings(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): ViewSettings {
   if (!data.viewSettings) {
+    emitError?.('No data found to import');
     return { ...dbModel.viewSettings };
   }
 
@@ -142,14 +160,14 @@ export const parseViewSettings = (data: Partial<DatabaseModel>): ViewSettings =>
     overrideStyles: data.viewSettings.overrideStyles ?? dbModel.viewSettings.overrideStyles,
     warningColor: data.viewSettings.warningColor ?? dbModel.viewSettings.warningColor,
   };
-};
+}
 
 /**
  * Sanitises an OSC Subscriptions array
  */
 export function sanitiseOscSubscriptions(subscriptions?: OscSubscription[]): OscSubscription[] {
   if (!Array.isArray(subscriptions)) {
-    return [];
+    throw new Error('ERROR: invalid OSC subscriptions');
   }
 
   return subscriptions.filter(
@@ -165,11 +183,24 @@ export function sanitiseOscSubscriptions(subscriptions?: OscSubscription[]): Osc
 /**
  * Parse osc portion of an entry
  */
-export const parseOsc = (data: Partial<DatabaseModel>): OSCSettings => {
+export function parseOsc(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): OSCSettings {
   if (!data.osc) {
+    emitError?.('No data found to import');
     return { ...dbModel.osc };
   }
+
   console.log('Found OSC settings, importing...');
+
+  let newSubscriptions: OscSubscription[] = [];
+  try {
+    newSubscriptions = sanitiseOscSubscriptions(data.osc.subscriptions);
+  } catch (error) {
+    emitError?.(getErrorMessage(error));
+  }
+
+  if (newSubscriptions.length !== data.osc.subscriptions.length) {
+    emitError?.('Skipped invalid subscriptions');
+  }
 
   return {
     portIn: data.osc.portIn ?? dbModel.osc.portIn,
@@ -177,16 +208,16 @@ export const parseOsc = (data: Partial<DatabaseModel>): OSCSettings => {
     targetIP: data.osc.targetIP ?? dbModel.osc.targetIP,
     enabledIn: data.osc.enabledIn ?? dbModel.osc.enabledIn,
     enabledOut: data.osc.enabledOut ?? dbModel.osc.enabledOut,
-    subscriptions: sanitiseOscSubscriptions(data.osc.subscriptions),
+    subscriptions: newSubscriptions,
   };
-};
+}
 
 /**
  * Sanitises an HTTP Subscriptions array
  */
 export function sanitiseHttpSubscriptions(subscriptions?: HttpSubscription[]): HttpSubscription[] {
   if (!Array.isArray(subscriptions)) {
-    return [];
+    throw new Error('ERROR: invalid HTTP subscriptions');
   }
 
   return subscriptions.filter(
@@ -202,24 +233,37 @@ export function sanitiseHttpSubscriptions(subscriptions?: HttpSubscription[]): H
 /**
  * Parse Http portion of an entry
  */
-export const parseHttp = (data: Partial<DatabaseModel>): HttpSettings => {
+export function parseHttp(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): HttpSettings {
   if (!data.http) {
+    emitError?.('No data found to import');
     return { ...dbModel.http };
   }
 
   console.log('Found HTTP settings, importing...');
 
+  let newSubscriptions: HttpSubscription[] = [];
+  try {
+    newSubscriptions = sanitiseHttpSubscriptions(data.http.subscriptions);
+  } catch (error) {
+    emitError?.(getErrorMessage(error));
+  }
+
+  if (newSubscriptions.length !== data.http?.subscriptions.length) {
+    emitError?.('Skipped invalid subscriptions');
+  }
+
   return {
     enabledOut: data.http.enabledOut ?? dbModel.http.enabledOut,
-    subscriptions: sanitiseHttpSubscriptions(data.http.subscriptions),
+    subscriptions: newSubscriptions,
   };
-};
+}
 
 /**
  * Parse URL preset portion of an entry
  */
-export const parseUrlPresets = (data: Partial<DatabaseModel>): URLPreset[] => {
+export function parseUrlPresets(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): URLPreset[] {
   if (!data.urlPresets) {
+    emitError?.('No data found to import');
     return [];
   }
 
@@ -239,31 +283,39 @@ export const parseUrlPresets = (data: Partial<DatabaseModel>): URLPreset[] => {
   console.log(`Uploaded ${newPresets.length} preset(s)`);
 
   return newPresets;
-};
+}
 
 /**
  * Parse customFields entry
  */
-export const parseCustomFields = (data: Partial<DatabaseModel>): CustomFields => {
+export function parseCustomFields(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): CustomFields {
   if (typeof data.customFields !== 'object') {
-    return { ...dbModel.customFields };
+    emitError?.('No data found to import');
+    return {};
   }
   console.log('Found Custom Fields, importing...');
 
-  return sanitiseCustomFields(data.customFields);
-};
+  const customFields = sanitiseCustomFields(data.customFields);
+  if (Object.keys(customFields).length !== Object.keys(data.customFields).length) {
+    emitError?.('Skipped invalid custom fields');
+  }
+  return customFields;
+}
 
-export const sanitiseCustomFields = (data: object): CustomFields => {
+export function sanitiseCustomFields(data: object): CustomFields {
   const newCustomFields: CustomFields = {};
 
-  for (const fieldLabel in data) {
-    const field = data[fieldLabel];
-    if (!('label' in field) || field.label === '' || !('colour' in field) || typeof field.colour != 'string') {
-      console.log('ERROR: missing required field, skipping');
+  for (const [_key, field] of Object.entries(data)) {
+    if (!isValidField(field)) {
       continue;
     }
 
+    // make a new key to avoid mismatches
     const key = field.label.toLowerCase();
+    if (key in newCustomFields) {
+      continue;
+    }
+
     newCustomFields[key] = {
       type: 'string',
       colour: field.colour,
@@ -271,5 +323,16 @@ export const sanitiseCustomFields = (data: object): CustomFields => {
     };
   }
 
+  function isValidField(data: unknown): data is CustomField {
+    return (
+      typeof data === 'object' &&
+      data !== null &&
+      'label' in data &&
+      data.label !== '' &&
+      'colour' in data &&
+      typeof data.colour === 'string'
+    );
+  }
+
   return newCustomFields;
-};
+}

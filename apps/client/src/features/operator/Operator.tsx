@@ -4,7 +4,6 @@ import { isOntimeEvent, OntimeEvent, SupportedEvent } from 'ontime-types';
 import { getFirstEventNormal, getLastEventNormal } from 'ontime-utils';
 
 import Empty from '../../common/components/state/Empty';
-import { getOperatorOptions } from '../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useOperator } from '../../common/hooks/useSocket';
@@ -22,6 +21,7 @@ import FollowButton from './follow-button/FollowButton';
 import OperatorBlock from './operator-block/OperatorBlock';
 import OperatorEvent from './operator-event/OperatorEvent';
 import StatusBar from './status-bar/StatusBar';
+import { getOperatorOptions } from './operator.options';
 
 import style from './Operator.module.scss';
 
@@ -134,7 +134,7 @@ export default function Operator() {
 
   return (
     <div className={style.operatorContainer}>
-      <ViewParamsEditor paramFields={operatorOptions} />
+      <ViewParamsEditor viewOptions={operatorOptions} />
       {editEvent && <EditModal event={editEvent} onClose={() => setEditEvent(null)} />}
 
       <StatusBar

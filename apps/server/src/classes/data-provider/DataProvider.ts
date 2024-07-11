@@ -1,7 +1,3 @@
-/**
- * Class Event Provider is a mediator for handling the local db
- * and adds logic specific to ontime data
- */
 import {
   ProjectData,
   OntimeRundown,
@@ -14,117 +10,165 @@ import {
   URLPreset,
 } from 'ontime-types';
 
-import { data, db } from '../../setup/loadDb.js';
+import type { Low } from 'lowdb';
+import { JSONFilePreset } from 'lowdb/node';
+
+import { isProduction, isTest } from '../../setup/index.js';
+import { isPath } from '../../utils/fileManagement.js';
+import { consoleError } from '../../utils/console.js';
+
 import { safeMerge } from './DataProvider.utils.js';
-import { isTest } from '../../setup/index.js';
 
 type ReadonlyPromise<T> = Promise<Readonly<T>>;
 
-export class DataProvider {
-  static getData() {
-    return data;
-  }
+let db = {} as Low<DatabaseModel>;
 
-  static async setProjectData(newData: Partial<ProjectData>): ReadonlyPromise<ProjectData> {
-    data.project = { ...data.project, ...newData };
-    this.persist();
-    return data.project;
-  }
-
-  static getProjectData(): Readonly<ProjectData> {
-    return data.project;
-  }
-
-  static async setCustomFields(newData: CustomFields): ReadonlyPromise<CustomFields> {
-    data.customFields = { ...newData };
-    this.persist();
-    return data.customFields;
-  }
-
-  static getCustomFields(): Readonly<CustomFields> {
-    return data.customFields;
-  }
-
-  static async setRundown(newData: OntimeRundown): ReadonlyPromise<OntimeRundown> {
-    data.rundown = [...newData];
-    this.persist();
-    return data.rundown;
-  }
-
-  static getSettings(): Readonly<Settings> {
-    return data.settings;
-  }
-
-  static async setSettings(newData: Settings): ReadonlyPromise<Settings> {
-    data.settings = { ...newData };
-    this.persist();
-    return data.settings;
-  }
-
-  static getOsc(): Readonly<OSCSettings> {
-    return data.osc;
-  }
-
-  static getHttp(): Readonly<HttpSettings> {
-    return data.http;
-  }
-
-  static getUrlPresets(): Readonly<URLPreset[]> {
-    return data.urlPresets;
-  }
-
-  static async setUrlPresets(newData: URLPreset[]): ReadonlyPromise<URLPreset[]> {
-    data.urlPresets = newData;
-    this.persist();
-    return data.urlPresets;
-  }
-
-  static getViewSettings(): Readonly<ViewSettings> {
-    return data.viewSettings;
-  }
-
-  static async setViewSettings(newData: ViewSettings): ReadonlyPromise<ViewSettings> {
-    data.viewSettings = { ...newData };
-    this.persist();
-    return data.viewSettings;
-  }
-
-  static async setOsc(newData: OSCSettings): ReadonlyPromise<OSCSettings> {
-    data.osc = { ...newData };
-    this.persist();
-    return data.osc;
-  }
-
-  static async setHttp(newData: HttpSettings): ReadonlyPromise<HttpSettings> {
-    data.http = { ...newData };
-    this.persist();
-    return data.http;
-  }
-
-  static getRundown(): Readonly<OntimeRundown> {
-    return data.rundown;
-  }
-
-  private static async persist() {
-    if (isTest) {
-      return;
+export async function initPersistence(filePath: string, fallbackData: DatabaseModel) {
+  if (!isProduction) {
+    if (!isPath(filePath)) {
+      consoleError(filePath);
+      consoleError(new Error('initPersistence should be called with a path').stack);
+      process.exit(0);
     }
-    await db.write();
   }
+  const newDb = await JSONFilePreset<DatabaseModel>(filePath, fallbackData);
 
-  static async mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<DatabaseModel> {
-    const mergedData = safeMerge(data, newData);
-    data.project = mergedData.project;
-    data.settings = mergedData.settings;
-    data.viewSettings = mergedData.viewSettings;
-    data.osc = mergedData.osc;
-    data.http = mergedData.http;
-    data.urlPresets = mergedData.urlPresets;
-    data.customFields = mergedData.customFields;
-    data.rundown = mergedData.rundown;
+  // Read the database to initialize it
+  newDb.data = fallbackData;
+  await newDb.write();
+  await newDb.read();
 
-    this.persist();
+  db = newDb;
+}
 
-    return data;
-  }
+export function getDataProvider() {
+  if (db === null) throw new Error('Database not initialized');
+
+  return {
+    getData,
+    setProjectData,
+    getProjectData,
+    setCustomFields,
+    getCustomFields,
+    setRundown,
+    getSettings,
+    setSettings,
+    getOsc,
+    getHttp,
+    getUrlPresets,
+    setUrlPresets,
+    getViewSettings,
+    setViewSettings,
+    setOsc,
+    setHttp,
+    getRundown,
+    mergeIntoData,
+  };
+}
+
+function getData(): Readonly<DatabaseModel> {
+  return db.data;
+}
+
+async function setProjectData(newData: Partial<ProjectData>): ReadonlyPromise<ProjectData> {
+  db.data.project = { ...db.data.project, ...newData };
+  await persist();
+  return db.data.project;
+}
+
+function getProjectData(): Readonly<ProjectData> {
+  return db.data.project;
+}
+
+async function setCustomFields(newData: CustomFields): ReadonlyPromise<CustomFields> {
+  db.data.customFields = { ...newData };
+  await persist();
+  return db.data.customFields;
+}
+
+function getCustomFields(): Readonly<CustomFields> {
+  return db.data.customFields;
+}
+
+async function setRundown(newData: OntimeRundown): ReadonlyPromise<OntimeRundown> {
+  db.data.rundown = [...newData];
+  await persist();
+  return db.data.rundown;
+}
+
+function getSettings(): Readonly<Settings> {
+  return db.data.settings;
+}
+
+async function setSettings(newData: Settings): ReadonlyPromise<Settings> {
+  db.data.settings = { ...newData };
+  await persist();
+  return db.data.settings;
+}
+
+function getOsc(): Readonly<OSCSettings> {
+  return db.data.osc;
+}
+
+function getHttp(): Readonly<HttpSettings> {
+  return db.data.http;
+}
+
+function getUrlPresets(): Readonly<URLPreset[]> {
+  return db.data.urlPresets;
+}
+
+async function setUrlPresets(newData: URLPreset[]): ReadonlyPromise<URLPreset[]> {
+  db.data.urlPresets = newData;
+  await persist();
+  return db.data.urlPresets;
+}
+
+function getViewSettings(): Readonly<ViewSettings> {
+  return db.data.viewSettings;
+}
+
+async function setViewSettings(newData: ViewSettings): ReadonlyPromise<ViewSettings> {
+  db.data.viewSettings = { ...newData };
+  await persist();
+  return db.data.viewSettings;
+}
+
+async function setOsc(newData: OSCSettings): ReadonlyPromise<OSCSettings> {
+  db.data.osc = { ...newData };
+  await persist();
+  return db.data.osc;
+}
+
+async function setHttp(newData: HttpSettings): ReadonlyPromise<HttpSettings> {
+  db.data.http = { ...newData };
+  await persist();
+  return db.data.http;
+}
+
+function getRundown(): Readonly<OntimeRundown> {
+  return db.data.rundown;
+}
+
+async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<DatabaseModel> {
+  const mergedData = safeMerge(db.data, newData);
+  db.data.project = mergedData.project;
+  db.data.settings = mergedData.settings;
+  db.data.viewSettings = mergedData.viewSettings;
+  db.data.osc = mergedData.osc;
+  db.data.http = mergedData.http;
+  db.data.urlPresets = mergedData.urlPresets;
+  db.data.customFields = mergedData.customFields;
+  db.data.rundown = mergedData.rundown;
+
+  await persist();
+  return db.data;
+}
+
+/**
+ * Handles persisting data to file
+ */
+async function persist() {
+  if (isTest) return;
+  await db.write();
 }

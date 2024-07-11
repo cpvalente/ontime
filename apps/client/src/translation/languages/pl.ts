@@ -1,13 +1,15 @@
 import { TranslationObject } from './en';
 
 export const langPl: TranslationObject = {
-  'common.end_time': 'Czas zakończenia',
   'common.expected_finish': 'Zakładany czas zakończenia',
   'common.minutes': 'min',
   'common.now': 'Teraz',
   'common.next': 'Następnie',
   'common.public_message': 'Wiadomość publiczna',
-  'common.start_time': 'Czas rozpoczęcia',
+  'common.scheduled_start': 'Planowany początek',
+  'common.scheduled_end': 'Planowany koniec',
+  'common.projected_start': 'Przewidywany początek',
+  'common.projected_end': 'Przewidywany koniec',
   'common.stage_timer': 'Timer Scena',
   'common.started_at': 'Rozpoczęte o',
   'common.time_now': 'Aktualny czas',
@@ -18,4 +20,3 @@ export const langPl: TranslationObject = {
   'countdown.waiting': 'Oczekiwanie na start',
   'countdown.overtime': 'ponad czasem',
 };
-

@@ -45,6 +45,19 @@ const makeMockState = (patch: RuntimeState): RuntimeState => {
   return deepmerge(mockState, patch);
 };
 
+beforeAll(() => {
+  vi.mock('../../classes/data-provider/DataProvider.js', () => {
+    return {
+      getDataProvider: vi.fn().mockImplementation(() => {
+        return {
+          setCustomFields: vi.fn().mockImplementation((newData) => newData),
+          setRundown: vi.fn().mockImplementation((newData) => newData),
+        };
+      }),
+    };
+  });
+});
+
 describe('mutation on runtimeState', () => {
   beforeEach(() => {
     clear();
@@ -204,7 +217,7 @@ describe('mutation on runtimeState', () => {
       stop();
       newState = getState();
       expect(newState.runtime.actualStart).toBeNull();
-      expect(newState.runtime.offset).toBeNull();
+      expect(newState.runtime.offset).toBe(0);
       expect(newState.runtime.expectedEnd).toBeNull();
     });
 

@@ -5,6 +5,7 @@ import {
   Message,
   OntimeEvent,
   ProjectData,
+  Runtime,
   Settings,
   SupportedEvent,
   TimerMessage,
@@ -36,6 +37,7 @@ type WithDataProps = {
   publicEventNext: OntimeEvent | null;
   publicEventNow: OntimeEvent | null;
   publicSelectedId: string | null;
+  runtime: Runtime;
   selectedId: string | null;
   settings: Settings | undefined;
   time: ViewExtendedTimer;
@@ -66,7 +68,7 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     }, [rundownData]);
 
     // websocket data
-    const { clock, timer, message, onAir, eventNext, publicEventNext, publicEventNow, eventNow } =
+    const { clock, timer, message, onAir, eventNext, publicEventNext, publicEventNow, eventNow, runtime } =
       useStore(runtimeStore);
     const publicSelectedId = publicEventNow?.id ?? null;
     const selectedId = eventNow?.id ?? null;
@@ -108,6 +110,7 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
           publicEventNext={publicEventNext}
           publicEventNow={publicEventNow}
           publicSelectedId={publicSelectedId}
+          runtime={runtime}
           selectedId={selectedId}
           settings={settings}
           time={TimeManagerType}

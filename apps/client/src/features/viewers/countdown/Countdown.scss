@@ -21,11 +21,11 @@
     flex-direction: column;
 
     &__title {
-      font-size: clamp(24px, 2vw, 32px);
+      font-size: clamp(1.5rem, 2vw, 2rem);
     }
 
     &__events {
-      font-size: clamp(16px, 1.5vw, 24px);
+      font-size: clamp(1rem, 1.5vw, 1.5rem);
       margin-top: 1em;
       overflow-y: auto;
       height: 70vh;
@@ -38,18 +38,18 @@
   .countdown-container {
     height: 100%;
     width: 100%;
-    gap: min(2vh, 16px);
-    padding: min(2vh, 16px) clamp(16px, 10vw, 64px);
+    gap: min(2vh, 1rem);
+    padding: min(2vh, 1rem) clamp(1rem, 10vw, 4rem);
 
     display: grid;
     grid-template-rows: auto auto auto auto 1fr;
     grid-template-columns: 100%;
     grid-template-areas:
-    'header'
-    'status'
-    'clock'
-    'title'
-    'timers';
+      'header'
+      'status'
+      'clock'
+      'title'
+      'timers';
 
     /* =================== HEADER + EXTRAS ===================*/
 
@@ -59,13 +59,13 @@
       font-weight: 600;
 
       .label {
-        font-size: clamp(16px, 1.5vw, 24px);
+        font-size: $timer-label-size;
         color: var(--label-color-override, $viewer-label-color);
         text-transform: uppercase;
       }
 
       .time {
-        font-size: clamp(32px, 3.5vw, 50px);
+        font-size: $timer-value-size;
         color: var(--secondary-color-override, $viewer-secondary-color);
         letter-spacing: 0.05em;
         line-height: 0.95em;
@@ -75,7 +75,7 @@
     .status {
       grid-area: status;
       color: var(--label-color-override, $viewer-label-color);
-      font-size: clamp(32px, 3.5vw, 50px);
+        font-size: clamp(2rem, 3.5vw, 3.5rem);
       font-weight: 600;
     }
 
@@ -105,7 +105,7 @@
     .title {
       grid-area: title;
       background-color: var(--card-background-color-override, $viewer-card-bg-color);
-      padding: 16px 24px;
+      padding: 1rem 1.5rem;
       border-radius: 8px;
 
       font-weight: 600;
@@ -119,28 +119,49 @@
 
     .timer-group {
       grid-area: timers;
-      display: flex;
-      justify-content: space-evenly;
-      align-items: flex-end;
+      display: grid;
+      grid-template-areas:
+        'projected-start projected-end'
+        'scheduled-start scheduled-end';
+      grid-template-columns: 1fr 1fr;
+      justify-items: center;
+      text-align: center;
+      row-gap: clamp(1rem, 5vh, 4rem);
+      
+      align-self: flex-end;
+      height: fit-content;
 
-      .aux-timers {
-        text-align: center;
-        font-size: clamp(24px, 1.75vw, 32px);
+      &__projected-start {
+        grid-area: projected-start;
+      }
 
-        &__label {
-          color: var(--label-color-override, $viewer-label-color);
-          text-transform: uppercase;
-        }
+      &__projected-end {
+        grid-area: projected-end;
+      }
 
-        &__value {
-          font-size: clamp(32px, 3.5vw, 50px);
-          color: var(--secondary-color-override, $viewer-secondary-color);
-          letter-spacing: 0.05em;
-          line-height: 0.95em;
+      &__scheduled-start {
+        grid-area: scheduled-start;
+      }
 
-          &--delayed {
-            color: $delay-color;
-          }
+      &__scheduled-end {
+        grid-area: scheduled-end;
+      }
+
+      &__label {
+        font-size: $timer-label-size;
+        color: var(--label-color-override, $viewer-label-color);
+        text-transform: uppercase;
+      }
+
+      &__value {
+        margin-top: 0.5rem;
+        font-size: $timer-value-size;
+        color: var(--secondary-color-override, $viewer-secondary-color);
+        letter-spacing: 0.05em;
+        line-height: 0.95em;
+
+        &--delayed {
+          color: $delay-color;
         }
       }
     }

@@ -16,7 +16,7 @@ import { ensureDirectory } from '../../utils/fileManagement.js';
 import { cellRequestFromEvent, type ClientSecret, getA1Notation, validateClientSecret } from './sheetUtils.js';
 import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
-import { parseCustomFields, parseRundown } from '../../utils/parserFunctions.js';
+import { parseRundown } from '../../utils/parserFunctions.js';
 import { getRundown } from '../rundown-service/rundownUtils.js';
 
 const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';
@@ -31,7 +31,7 @@ let currentAuthCode: MaybeString = null;
 
 let currentSheetId: MaybeString = null;
 
-let pollInterval: NodeJS.Timer | null = null;
+let pollInterval: NodeJS.Timeout | null = null;
 let cleanupTimeout: NodeJS.Timeout | null = null;
 
 function reset() {
@@ -366,10 +366,9 @@ export async function download(
   }
 
   const dataFromSheet = parseExcel(googleResponse.data.values, options);
-  const rundown = parseRundown(dataFromSheet);
+  const { customFields, rundown } = parseRundown(dataFromSheet);
   if (rundown.length < 1) {
     throw new Error('Sheet: Could not find data to import in the worksheet');
   }
-  const customFields = parseCustomFields(dataFromSheet);
   return { rundown, customFields };
 }

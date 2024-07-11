@@ -1,11 +1,9 @@
 import { DatabaseModel } from 'ontime-types';
 
 /**
- * Merges two data objects
- * @param {object} existing
- * @param {object} newData
+ * Merges a partial ontime project into a given ontime project
  */
-export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseModel>) {
+export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseModel>): DatabaseModel {
   const { rundown, project, settings, viewSettings, urlPresets, customFields, osc, http } = newData || {};
 
   return {

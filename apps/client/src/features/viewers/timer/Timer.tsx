@@ -15,7 +15,6 @@ import {
 import { overrideStylesURL } from '../../../common/api/constants';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import TitleCard from '../../../common/components/title-card/TitleCard';
-import { getTimerOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
@@ -24,6 +23,8 @@ import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getFormattedTimer, getPropertyValue, getTimerByType, isStringBoolean } from '../common/viewUtils';
+
+import { getTimerOptions } from './timer.options';
 
 import './Timer.scss';
 
@@ -158,7 +159,7 @@ export default function Timer(props: TimerProps) {
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
-      <ViewParamsEditor paramFields={timerOptions} />
+      <ViewParamsEditor viewOptions={timerOptions} />
       <div className={showBlackout ? 'blackout blackout--active' : 'blackout'} />
       {!userOptions.hideMessage && (
         <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>

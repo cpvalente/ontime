@@ -1,13 +1,15 @@
 import { TranslationObject } from './en';
 
 export const langFr: TranslationObject = {
-  'common.end_time': 'Termine à',
   'common.expected_finish': 'Fin estimée à',
   'common.minutes': 'min',
   'common.now': 'Maintenant',
   'common.next': 'A suivre',
   'common.public_message': 'Message public',
-  'common.start_time': 'Heure de début',
+  'common.scheduled_start': 'Début prévu',
+  'common.scheduled_end': 'Fin prévue',
+  'common.projected_start': 'Début projeté',
+  'common.projected_end': 'Fin projetée',
   'common.stage_timer': 'Minuteur de scène',
   'common.started_at': 'Commencé à',
   'common.time_now': 'Heure',

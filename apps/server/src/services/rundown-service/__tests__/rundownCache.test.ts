@@ -27,6 +27,19 @@ import {
   customFieldChangelog,
 } from '../rundownCache.js';
 
+beforeAll(() => {
+  vi.mock('../../../classes/data-provider/DataProvider.js', () => {
+    return {
+      getDataProvider: vi.fn().mockImplementation(() => {
+        return {
+          setCustomFields: vi.fn().mockImplementation((newData) => newData),
+          setRundown: vi.fn().mockImplementation((newData) => newData),
+        };
+      }),
+    };
+  });
+});
+
 describe('generate()', () => {
   it('creates normalised versions of a given rundown', () => {
     const testRundown: OntimeRundown = [
@@ -849,23 +862,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
 
 describe('custom fields', () => {
   describe('createCustomField()', () => {
-    beforeEach(() => {
-      vi.mock('../../classes/data-provider/DataProvider.js', () => {
-        return {
-          DataProvider: {
-            ...vi.fn().mockImplementation(() => {
-              return {};
-            }),
-            getCustomFields: vi.fn().mockReturnValue({}),
-            setCustomFields: vi.fn().mockImplementation((newData) => {
-              return newData;
-            }),
-            persist: vi.fn().mockReturnValue({}),
-          },
-        };
-      });
-    });
-
     it('creates a field from given parameters', async () => {
       const expected = {
         lighting: {

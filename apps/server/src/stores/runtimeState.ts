@@ -29,7 +29,7 @@ import { timerConfig } from '../config/config.js';
 const initialRuntime: Runtime = {
   selectedEventIndex: null,
   numEvents: 0,
-  offset: null,
+  offset: 0,
   plannedStart: 0,
   plannedEnd: 0,
   actualStart: null,
@@ -99,7 +99,7 @@ export function clear() {
   runtimeState.blockState.startedAt = null;
   runtimeState.publicEventNext = null;
 
-  runtimeState.runtime.offset = null;
+  runtimeState.runtime.offset = 0;
   runtimeState.runtime.actualStart = null;
   runtimeState.runtime.expectedEnd = null;
   runtimeState.runtime.selectedEventIndex = null;
@@ -268,6 +268,7 @@ export function resume(
  * @param {OntimeEvent} event only passed if we are changing the data if a playing timer
  */
 export function reload(event?: OntimeEvent) {
+  // we only pass an event for hot reloading, ie: the event has changed
   if (event) {
     runtimeState.eventNow = event;
 
@@ -275,7 +276,7 @@ export function reload(event?: OntimeEvent) {
     runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, runtimeState.eventNow.timeEnd);
     runtimeState.timer.current = getCurrent(runtimeState);
     runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
-    return;
+    return runtimeState.eventNow.id;
   }
   runtimeState.timer.playback = Playback.Armed;
 
@@ -291,6 +292,7 @@ export function reload(event?: OntimeEvent) {
   runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
 
   runtimeState.blockState.startedAt = null;
+  return runtimeState.eventNow.id;
 }
 
 /**

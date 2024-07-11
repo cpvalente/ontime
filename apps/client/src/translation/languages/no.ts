@@ -1,13 +1,15 @@
 import { TranslationObject } from './en';
 
 export const langNo: TranslationObject = {
-  'common.end_time': 'Sluttid',
   'common.expected_finish': 'Forventet slutt',
   'common.minutes': 'min',
   'common.now': 'Nå',
   'common.next': 'Neste',
   'common.public_message': 'Offentlig beskjed',
-  'common.start_time': 'Starttid',
+  'common.scheduled_start': 'Planlagt start',
+  'common.scheduled_end': 'Planlagt slutt',
+  'common.projected_start': 'Forventet start',
+  'common.projected_end': 'Forventet slutt',
   'common.stage_timer': 'Scenetimer',
   'common.started_at': 'Startet',
   'common.time_now': 'Klokken nå',

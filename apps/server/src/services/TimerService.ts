@@ -8,12 +8,12 @@ import { timerConfig } from '../config/config.js';
  * Service manages Ontime's main timer
  */
 export class TimerService {
-  private readonly _interval: NodeJS.Timer;
+  private readonly _interval: NodeJS.Timeout;
   /** how often we recalculate */
   static _refreshInterval: number;
 
   /** when timer will be finished */
-  private endCallback: NodeJS.Timer;
+  private endCallback: NodeJS.Timeout;
 
   private onUpdateCallback: (updateResult: UpdateResult) => void;
 

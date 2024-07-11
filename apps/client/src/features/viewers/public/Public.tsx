@@ -8,7 +8,6 @@ import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
 import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
 import TitleCard from '../../../common/components/title-card/TitleCard';
-import { getPublicOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
@@ -18,6 +17,8 @@ import { useTranslation } from '../../../translation/TranslationProvider';
 import { titleVariants } from '../common/animation';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getPropertyValue } from '../common/viewUtils';
+
+import { getPublicOptions } from './public.options';
 
 import './Public.scss';
 
@@ -73,7 +74,7 @@ export default function Public(props: BackstageProps) {
 
   return (
     <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>
-      <ViewParamsEditor paramFields={publicOptions} />
+      <ViewParamsEditor viewOptions={publicOptions} />
       <div className='project-header'>
         {general.title}
         <div className='clock-container'>

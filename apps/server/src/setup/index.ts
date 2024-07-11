@@ -1,6 +1,5 @@
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { readFileSync, writeFileSync } from 'fs';
 
 import { config } from './config.js';
 import { ensureDirectory } from '../utils/fileManagement.js';
@@ -56,10 +55,10 @@ const currentDir = dirname(__dirname);
 // locally we are in src/setup, in the production build, this is a single file at src
 export const srcDirectory = isProduction ? currentDir : join(currentDir, '../');
 
-// resolve path to external
+// TODO: simplify logic
+// resolve path to client
 const productionPath = join(srcDirectory, 'client/');
 const devPath = join(srcDirectory, '../../client/build/');
-
 export const resolvedPath = (): string => {
   if (isTest) {
     return devPath;
@@ -70,40 +69,21 @@ export const resolvedPath = (): string => {
   return devPath;
 };
 
-const testDbStartDirectory = isTest ? '../' : getAppDataPath();
-export const externalsStartDirectory = isProduction ? getAppDataPath() : join(srcDirectory, 'external');
+// resolve public directory
+export const resolvePublicDirectoy = getAppDataPath();
+ensureDirectory(resolvePublicDirectoy);
+
+const testDbStartDirectory = isTest ? '../' : resolvePublicDirectoy;
+export const externalsStartDirectory = isProduction ? resolvePublicDirectoy : join(srcDirectory, 'external');
 // TODO: we only need one when they are all in the same folder
-export const resolveExternalsDirectory = join(isProduction ? getAppDataPath() : srcDirectory, 'external');
+export const resolveExternalsDirectory = join(isProduction ? resolvePublicDirectoy : srcDirectory, 'external');
 
 // project files
-export const appStatePath = join(getAppDataPath(), config.appState);
-export const uploadsFolderPath = join(getAppDataPath(), config.uploads);
-
-const ensureAppState = () => {
-  ensureDirectory(getAppDataPath());
-  writeFileSync(appStatePath, JSON.stringify({ lastLoadedProject: 'db.json' }));
-};
-
-const getLastLoadedProject = () => {
-  try {
-    const appState = JSON.parse(readFileSync(appStatePath, 'utf8'));
-    if (!appState.lastLoadedProject) {
-      ensureAppState();
-    }
-    return appState.lastLoadedProject;
-  } catch {
-    if (!isTest) {
-      ensureAppState();
-    }
-  }
-};
-
-const lastLoadedProject = isTest ? 'db.json' : getLastLoadedProject();
+export const appStatePath = join(resolvePublicDirectoy, config.appState);
+export const uploadsFolderPath = join(resolvePublicDirectoy, config.uploads);
 
 // path to public db
 export const resolveDbDirectory = join(testDbStartDirectory, isTest ? `../${config.database.testdb}` : config.projects);
-export const resolveDbName = lastLoadedProject ? lastLoadedProject : config.database.filename;
-export const resolveDbPath = join(resolveDbDirectory, resolveDbName);
 
 export const pathToStartDb = isTest
   ? join(srcDirectory, '..', config.database.testdb, config.database.filename)
@@ -125,18 +105,22 @@ export const resolveDemoPath = config.demo.filename.map((file) => {
   return join(resolveDemoDirectory, file);
 });
 
+// path to demo project
 export const pathToStartDemo = config.demo.filename.map((file) => {
   return join(srcDirectory, '/external/demo/', file);
 });
 
 // path to restore file
-export const resolveRestoreFile = join(getAppDataPath(), config.restoreFile);
+export const resolveRestoreFile = join(resolvePublicDirectoy, config.restoreFile);
 
 // path to sheets folder
-export const resolveSheetsDirectory = join(getAppDataPath(), config.sheets.directory);
+export const resolveSheetsDirectory = join(resolvePublicDirectoy, config.sheets.directory);
 
 // path to crash reports
-export const resolveCrashReportDirectory = getAppDataPath();
+export const resolveCrashReportDirectory = join(resolvePublicDirectoy, config.crash);
 
 // path to projects
-export const resolveProjectsDirectory = join(getAppDataPath(), config.projects);
+export const resolveProjectsDirectory = join(resolvePublicDirectoy, config.projects);
+
+// path to corrupt files
+export const resolveCorruptDirectory = join(resolvePublicDirectoy, config.corrupt);

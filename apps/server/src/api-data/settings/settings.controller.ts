@@ -1,15 +1,16 @@
 import { ErrorResponse, Settings } from 'ontime-types';
 import { getErrorMessage, obfuscate } from 'ontime-utils';
 
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
-import { DataProvider } from '../../classes/data-provider/DataProvider.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
-import { extractPin } from '../../services/project-service/ProjectService.js';
 import { isDocker } from '../../setup/index.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+
+import { extractPin } from './settings.utils.js';
 
 export async function getSettings(_req: Request, res: Response<Settings>) {
-  const settings = DataProvider.getSettings();
+  const settings = getDataProvider().getSettings();
   const obfuscatedSettings = { ...settings };
   if (settings.editorKey) {
     obfuscatedSettings.editorKey = obfuscate(settings.editorKey);
@@ -27,7 +28,7 @@ export async function postSettings(req: Request, res: Response<Settings | ErrorR
     return;
   }
   try {
-    const settings = DataProvider.getSettings();
+    const settings = getDataProvider().getSettings();
     const editorKey = extractPin(req.body?.editorKey, settings.editorKey);
     const operatorKey = extractPin(req.body?.operatorKey, settings.operatorKey);
     const serverPort = Number(req.body?.serverPort);
@@ -57,7 +58,7 @@ export async function postSettings(req: Request, res: Response<Settings | ErrorR
       language,
       serverPort,
     };
-    await DataProvider.setSettings(newData);
+    await getDataProvider().setSettings(newData);
     res.status(200).send(newData);
   } catch (error) {
     const message = getErrorMessage(error);

@@ -19,7 +19,7 @@ export default function useLongPress(callback: () => void, options: LongPressOpt
   const { threshold = 400, onStart, onFinish, onCancel } = options;
   const isLongPressActive = useRef(false);
   const isPressed = useRef(false);
-  const timerId = useRef<NodeJS.Timer>();
+  const timerId = useRef<NodeJS.Timeout>();
 
   return useMemo(() => {
     const start = (event: SyntheticEvent) => {

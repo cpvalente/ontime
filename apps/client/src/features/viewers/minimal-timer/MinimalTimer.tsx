@@ -2,7 +2,6 @@ import { useSearchParams } from 'react-router-dom';
 import { Playback, TimerPhase, TimerType, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import { MINIMAL_TIMER_OPTIONS } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
@@ -10,6 +9,8 @@ import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import { getFormattedTimer, getTimerByType, isStringBoolean } from '../common/viewUtils';
+
+import { MINIMAL_TIMER_OPTIONS } from './minimalTimer.options';
 
 import './MinimalTimer.scss';
 
@@ -161,7 +162,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
       }}
       data-testid='minimal-timer'
     >
-      <ViewParamsEditor paramFields={MINIMAL_TIMER_OPTIONS} />
+      <ViewParamsEditor viewOptions={MINIMAL_TIMER_OPTIONS} />
       {showEndMessage ? (
         <div className='end-message'>{viewSettings.endMessage}</div>
       ) : (

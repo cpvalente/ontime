@@ -11,7 +11,7 @@ import { existsSync } from 'fs';
 import xlsx from 'node-xlsx';
 
 import { parseExcel } from '../../utils/parser.js';
-import { parseCustomFields, parseRundown } from '../../utils/parserFunctions.js';
+import { parseRundown } from '../../utils/parserFunctions.js';
 import { deleteFile } from '../../utils/parserUtils.js';
 
 let excelData: { name: string; data: unknown[][] }[] = [];
@@ -42,11 +42,10 @@ export function generateRundownPreview(options: ImportMap): { rundown: OntimeRun
   const dataFromExcel = parseExcel(data, options);
 
   // we run the parsed data through an extra step to ensure the objects shape
-  const rundown = parseRundown(dataFromExcel);
+  const { rundown, customFields } = parseRundown(dataFromExcel);
   if (rundown.length === 0) {
     throw new Error(`Could not find data to import in the worksheet: ${options.worksheet}`);
   }
-  const customFields = parseCustomFields(dataFromExcel);
 
   // clear the data
   excelData = [];
