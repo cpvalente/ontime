@@ -1,7 +1,7 @@
-FROM node:20-alpine AS builder
+FROM node:20-bullseye AS builder
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN npm install -g pnpm@9.5.0
 COPY . /app
 WORKDIR /app
 RUN pnpm --filter=ontime-ui --filter=ontime-server --filter=ontime-utils install --config.dedupe-peer-dependents=false --frozen-lockfile
