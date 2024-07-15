@@ -30,7 +30,7 @@ jobs:
       with:
         context: .
         file: ./Dockerfile
-        platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
+        platforms: linux/amd64,linux/arm64,linux/arm/v7
         # Push is a shorthand for --output=type=registry
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ github.event.release.tag_name }} , ${{ secrets.DOCKERHUB_USERNAME }}/ontime:latest
@@ -41,7 +41,7 @@ jobs:
       with:
         context: .
         file: ./Dockerfile
-        platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
+        platforms: linux/amd64,linux/arm64,linux/arm/v7
         # Push is a shorthand for --output=type=registry
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ github.event.release.tag_name }} , ${{ secrets.DOCKERHUB_USERNAME }}/ontime:nightly
