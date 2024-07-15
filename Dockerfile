@@ -13,7 +13,7 @@ FROM node:20-alpine
 # Environment Variable to signal that we are running production
 ENV NODE_ENV=docker
 # Ontime Data path
-ENV ONTIME_DATA=/external/
+ENV ONTIME_DATA=/data/
 
 WORKDIR /app/
 
