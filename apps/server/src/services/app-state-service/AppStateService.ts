@@ -1,9 +1,9 @@
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
 
-import { appStatePath, isProduction, isTest } from '../../setup/index.js';
+import { appStatePath, isTest } from '../../setup/index.js';
 import { isPath } from '../../utils/fileManagement.js';
-import { consoleError } from '../../utils/console.js';
+import { shouldCrashDev } from '../../utils/development.js';
 
 interface AppState {
   lastLoadedProject?: string;
@@ -27,13 +27,8 @@ export async function getLastLoadedProject(): Promise<string | undefined> {
 
 export async function setLastLoadedProject(filename: string): Promise<void> {
   if (isTest) return;
-  if (!isProduction) {
-    if (isPath(filename)) {
-      consoleError(filename);
-      consoleError(new Error('setLastLoadedProject should not be called with a path').stack);
-      process.exit(0);
-    }
-  }
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: shouldCrashDev(isPath(filename), 'setLastLoadedProject should not be called with a path');
 
   config.data.lastLoadedProject = filename;
   await config.write();

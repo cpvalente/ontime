@@ -13,24 +13,19 @@ import {
 import type { Low } from 'lowdb';
 import { JSONFilePreset } from 'lowdb/node';
 
-import { isProduction, isTest } from '../../setup/index.js';
+import { isTest } from '../../setup/index.js';
 import { isPath } from '../../utils/fileManagement.js';
-import { consoleError } from '../../utils/console.js';
 
 import { safeMerge } from './DataProvider.utils.js';
+import { shouldCrashDev } from '../../utils/development.js';
 
 type ReadonlyPromise<T> = Promise<Readonly<T>>;
 
 let db = {} as Low<DatabaseModel>;
 
 export async function initPersistence(filePath: string, fallbackData: DatabaseModel) {
-  if (!isProduction) {
-    if (!isPath(filePath)) {
-      consoleError(filePath);
-      consoleError(new Error('initPersistence should be called with a path').stack);
-      process.exit(0);
-    }
-  }
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: shouldCrashDev(!isPath(filePath), 'initPersistence should be called with a path');
   const newDb = await JSONFilePreset<DatabaseModel>(filePath, fallbackData);
 
   // Read the database to initialize it
