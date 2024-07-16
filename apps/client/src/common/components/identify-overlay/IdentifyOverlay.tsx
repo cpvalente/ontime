@@ -54,7 +54,6 @@ function Overlay() {
     };
   }, [showOverlay, id, setIdentify, handleClose]);
 
-    console.log('here2');
   return (
     <div className={style.overlay} data-testid='identify-overlay' onClick={handleClose}>
       <div className={style.name}>{name}</div>
