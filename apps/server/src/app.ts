@@ -263,6 +263,7 @@ export const shutdown = async (exitCode = 0) => {
   // clear the restore file if it was a normal exit
   // 0 means it was a SIGNAL
   // 1 means crash -> keep the file
+  // 2 means dev crash -> do nothing
   // 99 means there was a shutdown request from the UI
   if (exitCode === 0 || exitCode === 99) {
     await restoreService.clear();
