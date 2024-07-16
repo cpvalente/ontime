@@ -16,15 +16,15 @@
     "nanoid": "^5.0.7"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^v7.12.0",
-    "@typescript-eslint/parser": "^7.12.0",
+    "@typescript-eslint/eslint-plugin": "^v7.16.1",
+    "@typescript-eslint/parser": "^7.16.1",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "ontime-types": "workspace:*",
     "prettier": "^3.3.1",
-    "typescript": "^5.4.3",
+    "typescript": "^5.5.3",
     "vitest": "^1.6.0"
   },
   "sideEffects": false
