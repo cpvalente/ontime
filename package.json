@@ -25,7 +25,6 @@
     "dev:electron": "turbo run dev --filter=ontime",
     "dev:server": "turbo run dev --filter=ontime-server",
     "lint": "turbo run lint",
-    "lint-staged": "turbo run lint-staged --concurrency=1",
     "build": "turbo run build",
     "build:local": "turbo run build:local",
     "build:electron": "turbo run build:electron",
@@ -48,19 +47,8 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-playwright": "^1.5.2",
     "husky": "^8.0.3",
-    "lint-staged": "^15.1.0",
     "prettier": "^3.3.1",
     "turbo": "^1.11.2",
     "typescript": "^5.5.3"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "pnpm lint"
-    ]
   }
 }

@@ -61,7 +61,6 @@
     "build:localdocker": "cross-env NODE_ENV=local pnpm prebuild && esbuild src/index.ts --log-level=error --platform=node --format=cjs --minify --bundle --legal-comments=external --outfile=dist/docker.cjs",
     "build:debug": "pnpm prebuild && esbuild src/app.ts --platform=node --format=cjs --bundle --legal-comments=external --outfile=dist/index.cjs",
     "lint": "eslint . --quiet",
-    "lint-staged": "eslint",
     "test": "cross-env IS_TEST=true vitest",
     "test:pipeline": "cross-env IS_TEST=true vitest run",
     "typecheck": "tsc --noEmit",

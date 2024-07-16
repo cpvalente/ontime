@@ -15,10 +15,6 @@
     "lint": {
       "cache": false
     },
-    "lint-staged": {
-      "outputs": [],
-      "cache": false
-    },
     "typecheck": {
       "cache": false
     },

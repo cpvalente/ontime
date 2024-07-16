@@ -7,8 +7,7 @@
   "description": "shared typings for ontime",
   "scripts": {
     "cleanup": "rm -rf .turbo && rm -rf node_modules",
-    "lint": "eslint . --quiet",
-    "lint-staged": "eslint"
+    "lint": "eslint . --quiet"
   },
   "keywords": [],
   "author": "",
