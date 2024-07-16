@@ -386,7 +386,7 @@ export function getTimerPhase(state: RuntimeState): TimerPhase {
 
   const current = state.timer.current;
 
-  if (current === null || state.eventNow === null) {
+  if (current === null || state.eventNow === null || state.timer.secondaryTimer != null) {
     return TimerPhase.Pending;
   }
 
