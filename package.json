@@ -39,16 +39,16 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.42.1",
-    "@types/node": "^20.14.10",
-    "@typescript-eslint/eslint-plugin": "^v7.16.1",
-    "@typescript-eslint/parser": "^7.16.1",
+    "@types/node": "catalog:",
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
     "cross-env": "^7.0.3",
-    "eslint": "^8.56.0",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint": "catalog:",
+    "eslint-config-prettier": "catalog:",
     "eslint-plugin-playwright": "^1.5.2",
     "husky": "^8.0.3",
-    "prettier": "^3.3.1",
+    "prettier": "catalog:",
     "turbo": "^1.11.2",
-    "typescript": "^5.5.3"
+    "typescript": "catalog:"
   }
 }

@@ -13,9 +13,9 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^v7.16.1",
-    "@typescript-eslint/parser": "^7.16.1",
-    "eslint": "^8.56.0",
-    "typescript": "^5.5.3"
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
+    "eslint": "catalog:",
+    "typescript": "catalog:"
   }
 }

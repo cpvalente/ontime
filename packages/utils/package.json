@@ -15,15 +15,15 @@
     "nanoid": "^5.0.7"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^v7.16.1",
-    "@typescript-eslint/parser": "^7.16.1",
-    "eslint": "^8.56.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.1.3",
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
+    "eslint": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "eslint-plugin-prettier": "catalog:",
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "ontime-types": "workspace:*",
-    "prettier": "^3.3.1",
-    "typescript": "^5.5.3",
+    "prettier": "catalog:",
+    "typescript": "catalog:",
     "vitest": "^1.6.0"
   },
   "sideEffects": false
