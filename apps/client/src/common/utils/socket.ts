@@ -150,10 +150,9 @@ export const connectSocket = () => {
           updateDevTools({ eventNow: payload });
           break;
         }
-        case 'ontime-blockState': {
-          console.log(payload)
-          patchRuntime('blockState', payload);
-          updateDevTools({ blockState: payload });
+        case 'ontime-currentBlock': {
+          patchRuntime('currentBlock', payload);
+          updateDevTools({ currentBlock: payload });
           break;
         }
         case 'ontime-publicEventNow': {

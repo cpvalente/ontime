@@ -607,8 +607,8 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     updateEventIfChanged('eventNext', state);
     updateEventIfChanged('publicEventNext', state);
 
-    if (!deepEqual(RuntimeService?.previousState.blockState, state.blockState)) {
-      eventStore.set('blockState', state.blockState);
+    if (!deepEqual(RuntimeService?.previousState.currentBlock, state.currentBlock)) {
+      eventStore.set('currentBlock', state.currentBlock);
     }
 
     if (shouldUpdateClock) {

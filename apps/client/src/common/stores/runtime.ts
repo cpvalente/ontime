@@ -38,7 +38,7 @@ export const runtimeStorePlaceholder: RuntimeStore = {
     actualStart: null,
     expectedEnd: null,
   },
-  blockState: {
+  currentBlock: {
     block: null,
     startedAt: null,
   },

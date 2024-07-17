@@ -16,7 +16,7 @@ export type RuntimeStore = {
 
   // rundown data
   runtime: Runtime;
-  blockState: BlockState;
+  currentBlock: BlockState;
   eventNow: OntimeEvent | null;
   publicEventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;

@@ -52,7 +52,7 @@ const initialTimer: TimerState = {
 export type RuntimeState = {
   clock: number; // realtime clock
   eventNow: OntimeEvent | null;
-  blockState: BlockState;
+  currentBlock: BlockState;
   publicEventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
   publicEventNext: OntimeEvent | null;
@@ -69,7 +69,7 @@ export type RuntimeState = {
 
 const runtimeState: RuntimeState = {
   clock: clock.timeNow(),
-  blockState: {
+  currentBlock: {
     block: null,
     startedAt: null,
   },
@@ -95,8 +95,8 @@ export function clear() {
   runtimeState.eventNow = null;
   runtimeState.publicEventNow = null;
   runtimeState.eventNext = null;
-  runtimeState.blockState.block = null;
-  runtimeState.blockState.startedAt = null;
+  runtimeState.currentBlock.block = null;
+  runtimeState.currentBlock.startedAt = null;
   runtimeState.publicEventNext = null;
 
   runtimeState.runtime.offset = 0;
@@ -189,7 +189,7 @@ export function load(
 
 export function loadNow(event: OntimeEvent, playableEvents: OntimeEvent[], rundown: OntimeRundown) {
   runtimeState.eventNow = event;
-  runtimeState.blockState.block = getRelevantBlock(rundown, event.id);
+  runtimeState.currentBlock.block = getRelevantBlock(rundown, event.id);
 
   // check if current is also public
   if (event.isPublic) {
@@ -291,7 +291,7 @@ export function reload(event?: OntimeEvent) {
 
   runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
 
-  runtimeState.blockState.startedAt = null;
+  runtimeState.currentBlock.startedAt = null;
   return runtimeState.eventNow.id;
 }
 
@@ -330,8 +330,8 @@ export function start(state: RuntimeState = runtimeState): boolean {
     state.timer.startedAt = state.clock;
   }
 
-  if (state.blockState.startedAt === null) {
-    state.blockState.startedAt = state.clock;
+  if (state.currentBlock.startedAt === null) {
+    state.currentBlock.startedAt = state.clock;
   }
 
   state.timer.playback = Playback.Play;
