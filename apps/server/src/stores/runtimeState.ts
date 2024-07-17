@@ -1,5 +1,5 @@
 import {
-  BlockState,
+  CurrentBlockState ,
   MaybeNumber,
   OntimeEvent,
   OntimeRundown,
@@ -52,7 +52,7 @@ const initialTimer: TimerState = {
 export type RuntimeState = {
   clock: number; // realtime clock
   eventNow: OntimeEvent | null;
-  currentBlock: BlockState;
+  currentBlock: CurrentBlockState;
   publicEventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
   publicEventNext: OntimeEvent | null;
