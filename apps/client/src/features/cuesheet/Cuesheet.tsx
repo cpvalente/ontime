@@ -91,7 +91,6 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId, curr
 
   let eventIndex = 0;
   let isPast = Boolean(selectedId);
-  console.log(currentBlockId);
 
   return (
     <>
