@@ -22,7 +22,6 @@
   "scripts": {
     "postinstall": "",
     "lint": "eslint . --quiet",
-    "lint-staged": "eslint",
     "dev": "wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .",
     "dist-win": "electron-builder --publish=never --x64 --win",
     "dist-mac": "electron-builder --publish=never --mac",
