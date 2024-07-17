@@ -335,20 +335,20 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA:
  * @return {OntimeBlock | null}
  */
 export function getRelevantBlock(rundown: OntimeRundown, currentId: string): OntimeBlock | null {
-  let now = false;
+  let inBlock = false;
+  // Ittereate backwards throug the rundown to find the current event
   for (let i = rundown.length - 1; i >= 0; i--) {
     const entry = rundown[i];
-    if (!now && entry.id == currentId) {
-      //set the now flag when the current Id is found
-      now = true;
+    if (entry.id === currentId) {
+      //set the now flag when the current event is found
+      inBlock = true;
       continue;
     }
-    //the first block before 'now' is the relevant one
-    if (now && isOntimeBlock(entry)) {
+    //the first block before the current event is the relevant one
+    if (inBlock && isOntimeBlock(entry)) {
       return entry;
     }
   }
-
-  //no blocks exist before given id
+  //no blocks exist before current event
   return null;
 }
