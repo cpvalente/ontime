@@ -336,13 +336,12 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA:
  */
 export function getRelevantBlock(rundown: OntimeRundown, currentId: string): OntimeBlock | null {
   let inBlock = false;
-  // Ittereate backwards throug the rundown to find the current event
+  // Iterate backwards throug the rundown to find the current event
   for (let i = rundown.length - 1; i >= 0; i--) {
     const entry = rundown[i];
     if (entry.id === currentId) {
-      //set the now flag when the current event is found
+      //set the flag when the current event is found
       inBlock = true;
-      continue;
     }
     //the first block before the current event is the relevant one
     if (inBlock && isOntimeBlock(entry)) {
