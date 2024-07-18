@@ -46,7 +46,6 @@
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
     "eslint-plugin-playwright": "^1.5.2",
-    "husky": "^8.0.3",
     "prettier": "catalog:",
     "turbo": "^1.11.2",
     "typescript": "catalog:"
