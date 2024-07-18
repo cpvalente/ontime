@@ -22,7 +22,6 @@ COPY --from=builder /app/apps/client/build ./client/
 
 # Prepare Backend
 COPY --from=builder /app/apps/server/dist/ ./server/
-COPY ./demo-db/ ./preloaded-db/
 COPY --from=builder /app/apps/server/src/external/ ./external/
 
 # Export default ports
