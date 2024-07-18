@@ -73,7 +73,6 @@ export const resolvedPath = (): string => {
 export const resolvePublicDirectoy = getAppDataPath();
 ensureDirectory(resolvePublicDirectoy);
 
-const testDbStartDirectory = isTest ? '../' : resolvePublicDirectoy;
 export const externalsStartDirectory = isProduction ? resolvePublicDirectoy : join(srcDirectory, 'external');
 // TODO: we only need one when they are all in the same folder
 export const resolveExternalsDirectory = join(isProduction ? resolvePublicDirectoy : srcDirectory, 'external');
@@ -81,13 +80,6 @@ export const resolveExternalsDirectory = join(isProduction ? resolvePublicDirect
 // project files
 export const appStatePath = join(resolvePublicDirectoy, config.appState);
 export const uploadsFolderPath = join(resolvePublicDirectoy, config.uploads);
-
-// path to public db
-export const resolveDbDirectory = join(testDbStartDirectory, isTest ? `../${config.database.testdb}` : config.projects);
-
-export const pathToStartDb = isTest
-  ? join(srcDirectory, '..', config.database.testdb, config.database.filename)
-  : join(srcDirectory, '/preloaded-db/', config.database.filename);
 
 // path to public styles
 export const resolveStylesDirectory = join(externalsStartDirectory, config.styles.directory);

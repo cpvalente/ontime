@@ -5,7 +5,6 @@ export const config = {
   demoProject: 'demo project.json',
   newProject: 'new project.json',
   database: {
-    testdb: 'test-db',
     directory: 'db',
     filename: 'db.json',
   },
