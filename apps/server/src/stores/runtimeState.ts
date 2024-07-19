@@ -8,7 +8,7 @@ import {
   TimerPhase,
   TimerState,
 } from 'ontime-types';
-import { calculateDuration, dayInMs, getRelevantBlock } from 'ontime-utils';
+import { calculateDuration, dayInMs, filterPlayable, getRelevantBlock } from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
 import { RestorePoint } from '../services/RestoreService.js';
@@ -151,7 +151,6 @@ export function updateRundownData(rundownData: RundownData) {
  */
 export function load(
   event: OntimeEvent,
-  playableEvents: OntimeEvent[],
   rundown: OntimeRundown,
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
@@ -161,8 +160,8 @@ export function load(
 
   runtimeState.runtime.selectedEventIndex = eventIndex;
 
-  loadNow(event, playableEvents, rundown);
-  loadNext(playableEvents);
+  loadNow(event, rundown);
+  loadNext(rundown);
 
   runtimeState.clock = clock.timeNow();
   runtimeState.timer.playback = Playback.Armed;
@@ -183,7 +182,7 @@ export function load(
   return event.id === runtimeState.eventNow?.id;
 }
 
-export function loadNow(event: OntimeEvent, playableEvents: OntimeEvent[], rundown: OntimeRundown) {
+export function loadNow(event: OntimeEvent, rundown: OntimeRundown) {
   runtimeState.eventNow = event;
   runtimeState.currentBlock.block = getRelevantBlock(rundown, event.id);
 
@@ -199,6 +198,8 @@ export function loadNow(event: OntimeEvent, playableEvents: OntimeEvent[], rundo
       return;
     }
 
+    const playableEvents = filterPlayable(rundown);
+
     // iterate backwards to find it
     for (let i = runtimeState.runtime.selectedEventIndex; i >= 0; i--) {
       if (playableEvents[i].isPublic) {
@@ -209,7 +210,7 @@ export function loadNow(event: OntimeEvent, playableEvents: OntimeEvent[], rundo
   }
 }
 
-export function loadNext(playableEvents: OntimeEvent[]) {
+export function loadNext(rundown: OntimeRundown) {
   // assume there are no next events
   runtimeState.eventNext = null;
   runtimeState.publicEventNext = null;
@@ -218,6 +219,7 @@ export function loadNext(playableEvents: OntimeEvent[]) {
     return;
   }
 
+  const playableEvents = filterPlayable(rundown);
   const numEvents = playableEvents.length;
 
   if (runtimeState.runtime.selectedEventIndex < numEvents - 1) {
@@ -250,13 +252,8 @@ export function loadNext(playableEvents: OntimeEvent[]) {
  * @param playableEvents list of events availebe for playback
  * @param rundown the full rundown
  */
-export function resume(
-  restorePoint: RestorePoint,
-  event: OntimeEvent,
-  playableEvents: OntimeEvent[],
-  rundown: OntimeRundown,
-) {
-  load(event, playableEvents, rundown, restorePoint);
+export function resume(restorePoint: RestorePoint, event: OntimeEvent, rundown: OntimeRundown) {
+  load(event, rundown, restorePoint);
 }
 
 /**
@@ -298,9 +295,9 @@ export function reload(event?: OntimeEvent) {
  * @param playableEvents
  * @param rundown
  */
-export function reloadAll(eventNow: OntimeEvent, playableEvents: OntimeEvent[], rundown: OntimeRundown) {
-  loadNow(eventNow, playableEvents, rundown);
-  loadNext(playableEvents);
+export function reloadAll(eventNow: OntimeEvent, rundown: OntimeRundown) {
+  loadNow(eventNow, rundown);
+  loadNext(rundown);
   reload(eventNow);
 }
 
@@ -465,8 +462,10 @@ export function update(): UpdateResult {
   }
 }
 
-export function roll(playableEvents: OntimeEvent[], rundown: OntimeRundown) {
+export function roll(rundown: OntimeRundown) {
   const selectedEventIndex = runtimeState.runtime.selectedEventIndex;
+  const playableEvents = filterPlayable(rundown);
+
   clear();
   runtimeState.runtime.numEvents = playableEvents.length;
 
@@ -482,7 +481,7 @@ export function roll(playableEvents: OntimeEvent[], rundown: OntimeRundown) {
 
     // when we load a timer in roll, we do the same things as before
     // but also pre-populate some data as to the running state
-    load(currentEvent, playableEvents, rundown, {
+    load(currentEvent, rundown, {
       startedAt: currentEvent.timeStart,
       expectedFinish: currentEvent.timeEnd,
       current: endTime - runtimeState.clock,

@@ -1,4 +1,4 @@
-import { OntimeEvent, OntimeRundown } from 'ontime-types';
+import { OntimeRundown } from 'ontime-types';
 
 import * as runtimeState from '../stores/runtimeState.js';
 import type { UpdateResult } from '../stores/runtimeState.js';
@@ -106,8 +106,8 @@ export class TimerService {
    * Loads roll information into timer service
    * @param {OntimeEvent[]} rundown -- list of events to run
    */
-  roll(playableEvents: OntimeEvent[], rundown: OntimeRundown) {
-    runtimeState.roll(playableEvents, rundown);
+  roll(rundown: OntimeRundown) {
+    runtimeState.roll(rundown);
   }
 
   shutdown() {

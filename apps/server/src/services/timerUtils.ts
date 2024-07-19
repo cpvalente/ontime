@@ -127,10 +127,14 @@ type RollTimers = {
 
 /**
  * Finds loading information given a current rundown and time
- * @param {OntimeEvent[]} rundown - List of playable events
+ * @param {OntimeEvent[]} playableEvents - List of playable events
  * @param {number} timeNow - time now in ms
  */
-export const getRollTimers = (rundown: OntimeEvent[], timeNow: number, currentIndex?: number | null): RollTimers => {
+export const getRollTimers = (
+  playableEvents: OntimeEvent[],
+  timeNow: number,
+  currentIndex?: number | null,
+): RollTimers => {
   let nowIndex: MaybeNumber = null; // index of event now
   let nowId: MaybeString = null; // id of event now
   let publicIndex: MaybeNumber = null; // index of public event now
@@ -140,8 +144,8 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number, currentIn
   let publicTimeToNext: MaybeNumber = null; // counter: time for next public event
 
   const hasLoaded = currentIndex !== null;
-  const canFilter = hasLoaded && currentIndex === rundown.length - 1;
-  const filteredRundown = canFilter ? rundown.slice(currentIndex) : rundown;
+  const canFilter = hasLoaded && currentIndex === playableEvents.length - 1;
+  const filteredRundown = canFilter ? playableEvents.slice(currentIndex) : playableEvents;
 
   const lastEvent = filteredRundown.at(-1);
   const lastNormalEnd = normaliseEndTime(lastEvent.timeStart, lastEvent.timeEnd);
