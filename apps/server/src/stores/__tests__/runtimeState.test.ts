@@ -160,7 +160,7 @@ describe('mutation on runtimeState', () => {
     const event2 = { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500 };
     // force update
     initRundown([event1, event2], {});
-    test.only('runtime offset', () => {
+    test('runtime offset', () => {
       // 1. Load event
       load(event1, [event1, event2]);
       let newState = getState();
