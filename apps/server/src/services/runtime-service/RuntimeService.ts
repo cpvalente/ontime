@@ -96,9 +96,10 @@ class RuntimeService {
         }
 
         // we dont call this.roll because we need to bypass the checks
-        const rundown = getPlayableEvents();
+        const playable = getPlayableEvents();
+        const rundown = getRundown();
         // TODO: by not calling roll, we dont get the events
-        this.eventTimer.roll(rundown);
+        this.eventTimer.roll(playable, rundown);
       }
     }
 
