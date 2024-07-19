@@ -1,5 +1,5 @@
 import {
-  CurrentBlockState ,
+  CurrentBlockState,
   MaybeNumber,
   OntimeEvent,
   OntimeRundown,
@@ -7,7 +7,6 @@ import {
   Runtime,
   TimerPhase,
   TimerState,
-  TimerType,
 } from 'ontime-types';
 import { calculateDuration, dayInMs, getRelevantBlock } from 'ontime-utils';
 
