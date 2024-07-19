@@ -1,7 +1,6 @@
 import { MaybeNumber, MaybeString, OntimeEvent, Playback, TimerPhase, TimerType } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 import { RuntimeState } from '../stores/runtimeState.js';
-import { timerConfig } from '../config/config.js';
 
 /**
  * handle events that span over midnight
@@ -56,6 +55,12 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
  */
 
 export function getCurrent(state: RuntimeState): number {
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: {
+    if (state.eventNow === null || state.timer.duration === null) {
+      throw new Error('timerUtils.getCurrent: invalid state received');
+    }
+  }
   const { startedAt, duration, addedTime } = state.timer;
   const { timerType, timeStart, timeEnd } = state.eventNow;
   const { pausedAt } = state._timer;
@@ -88,6 +93,12 @@ export function getCurrent(state: RuntimeState): number {
  * @returns {boolean}
  */
 export function skippedOutOfEvent(state: RuntimeState, previousTime: number, skipLimit: number): boolean {
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: {
+    if (state.timer.expectedFinish === null || state.timer.startedAt === null) {
+      throw new Error('timerUtils.skippedOutOfEvent: invalid state received');
+    }
+  }
   const { startedAt, expectedFinish } = state.timer;
   const { clock } = state;
 
@@ -247,54 +258,6 @@ export const getRollTimers = (rundown: OntimeEvent[], timeNow: number, currentIn
 };
 
 /**
- * @description Implements update functions for roll mode
- * @param {RuntimeState}
- * @returns object with selection variables
- */
-export const updateRoll = (state: RuntimeState) => {
-  const { current, expectedFinish, startedAt, secondaryTimer } = state.timer;
-  const { secondaryTarget } = state._timer;
-  const { clock } = state;
-  const selectedEventId = state.eventNow?.id ?? null;
-
-  // timers
-  let updatedTimer = current;
-  let updatedSecondaryTimer = secondaryTimer;
-  // whether rollLoad should be called: force reload of events
-  let doRollLoad = false;
-  // whether finished event should trigger
-  let isPrimaryFinished = false;
-
-  if (selectedEventId && current !== null) {
-    // if we have something selected and a timer, we are running
-
-    const finishAt = expectedFinish >= startedAt ? expectedFinish : expectedFinish + dayInMs;
-    updatedTimer = finishAt - clock;
-
-    if (updatedTimer > dayInMs) {
-      updatedTimer -= dayInMs;
-    }
-
-    if (updatedTimer <= timerConfig.triggerAhead) {
-      isPrimaryFinished = true;
-      // we need a new event
-      doRollLoad = true;
-    }
-  } else if (secondaryTimer >= 0) {
-    // if secondaryTimer is running we are in waiting to roll
-
-    updatedSecondaryTimer = secondaryTarget - clock;
-
-    if (updatedSecondaryTimer <= 0) {
-      // we need a new event
-      doRollLoad = true;
-    }
-  }
-
-  return { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished: isPrimaryFinished };
-};
-
-/**
  * Calculates difference between the runtime and the schedule of an event
  * Positive offset is time ahead
  * Negative offset is time delayed
@@ -303,6 +266,14 @@ export function getRuntimeOffset(state: RuntimeState): number {
   // nothing to calculate if there are no loaded events or if we havent started
   if (state.eventNow === null || state.runtime.actualStart === null) {
     return 0;
+  }
+
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: {
+    // we know current exists as long as eventNow exists
+    if (state.timer.current === null) {
+      throw new Error('timerUtils.calculate: current must be set');
+    }
   }
 
   const { clock } = state;
@@ -356,7 +327,7 @@ export function getTotalDuration(firstStart: number, lastEnd: number, daySpan: n
  */
 export function getExpectedEnd(state: RuntimeState): MaybeNumber {
   // there is no expected end if we havent started
-  if (state.runtime.actualStart === null) {
+  if (state.runtime.actualStart === null || state.runtime.plannedEnd === null) {
     return null;
   }
   return state.runtime.plannedEnd - state.runtime.offset + state._timer.totalDelay;
@@ -367,7 +338,7 @@ export function getExpectedEnd(state: RuntimeState): MaybeNumber {
  * @param state
  * @returns
  */
-function isPlaybackActive(state: RuntimeState): boolean {
+export function isPlaybackActive(state: RuntimeState): boolean {
   return (
     state.timer.playback === Playback.Play ||
     state.timer.playback === Playback.Pause ||
@@ -386,7 +357,7 @@ export function getTimerPhase(state: RuntimeState): TimerPhase {
 
   const current = state.timer.current;
 
-  if (current === null || state.eventNow === null) {
+  if (current === null || state.eventNow === null || state.timer.secondaryTimer != null) {
     return TimerPhase.Pending;
   }
 

@@ -36,7 +36,6 @@ const mockState = {
   },
   _timer: {
     pausedAt: null,
-    secondaryTarget: null,
   },
 } as RuntimeState;
 

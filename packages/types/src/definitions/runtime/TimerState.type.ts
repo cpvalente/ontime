@@ -7,18 +7,27 @@ export enum TimerPhase {
   Warning = 'warning',
   Danger = 'danger',
   Overtime = 'overtime',
-  Pending = 'pending', // used for waiting to roll
+  /** used for waiting to roll */
+  Pending = 'pending',
 }
 
 export type TimerState = {
-  addedTime: number; // time added by user, can be negative
-  current: MaybeNumber; // running countdown
-  duration: MaybeNumber; // normalised duration of current event
-  elapsed: MaybeNumber; // elapsed time in current timer
-  expectedFinish: MaybeNumber; // time we expect timer to finish
-  finishedAt: MaybeNumber; // only if timer has already finished
+  /** time added by user, can be negative */
+  addedTime: number;
+  /** running countdown */
+  current: MaybeNumber;
+  /** normalised duration of current event */
+  duration: MaybeNumber;
+  /** elapsed time in current timer */
+  elapsed: MaybeNumber;
+  /** time we expect timer to finish */
+  expectedFinish: MaybeNumber;
+  /** only if timer has already finished */
+  finishedAt: MaybeNumber;
   phase: TimerPhase;
   playback: Playback;
-  secondaryTimer: MaybeNumber; // used for roll mode
-  startedAt: MaybeNumber; // only if timer has already started
+  /** used for roll mode */
+  secondaryTimer: MaybeNumber;
+  /** only if timer has already started */
+  startedAt: MaybeNumber;
 };
