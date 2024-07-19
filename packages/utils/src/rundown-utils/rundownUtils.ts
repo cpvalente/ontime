@@ -336,7 +336,7 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA:
  */
 export function getRelevantBlock(rundown: OntimeRundown, currentId: string): OntimeBlock | null {
   let inBlock = false;
-  // Iterate backwards throug the rundown to find the current event
+  // Iterate backwards through the rundown to find the current event
   for (let i = rundown.length - 1; i >= 0; i--) {
     const entry = rundown[i];
     if (entry.id === currentId) {
@@ -350,4 +350,20 @@ export function getRelevantBlock(rundown: OntimeRundown, currentId: string): Ont
   }
   //no blocks exist before current event
   return null;
+}
+
+/**
+ * returns all events that can be loaded
+ * @return {array}
+ */
+export function filterPlayable(rundown: OntimeRundown): OntimeEvent[] {
+  return rundown.filter((event) => isOntimeEvent(event) && !event.skip) as OntimeEvent[];
+}
+
+/**
+ * returns all events of type OntimeEvent
+ * @return {array}
+ */
+export function filterTimedEvents(rundown: OntimeRundown): OntimeEvent[] {
+  return rundown.filter((event) => isOntimeEvent(event)) as OntimeEvent[];
 }
