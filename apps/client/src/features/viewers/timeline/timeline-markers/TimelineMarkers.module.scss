@@ -1,0 +1,16 @@
+.markers {
+  width: 100%;
+  color: $ui-white;
+  display: flex;
+  height: 1rem;
+  line-height: 1rem;
+  margin-bottom: 0.25rem;
+  font-size: calc(1rem - 2px);
+  justify-content: space-evenly;
+
+  & > span {
+    flex-grow: 1;
+    border-left: 1px solid $white-7;
+    height: 100vh;
+  }
+}

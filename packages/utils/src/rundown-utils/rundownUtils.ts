@@ -327,6 +327,10 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA:
   return { newA, newB };
 };
 
+export function getEventWithId(rundown: OntimeRundown, id: string): OntimeRundownEntry | undefined {
+  return rundown.find((event) => event.id === id);
+}
+
 /**
  * Gets relevant block element for a given ID
  * @param rundown

@@ -60,6 +60,19 @@ function getApplicationMenu(isMac, askToQuit, urlBase, version, redirectWindow) 
           label: 'Ontime Views (opens in browser)',
           submenu: [
             {
+              label: 'Public',
+              click: async () => {
+                await shell.openExternal(`${urlBase}/public`);
+              },
+            },
+            {
+              label: 'Lower Thirds',
+              click: async () => {
+                await shell.openExternal(`${urlBase}/lower`);
+              },
+            },
+            { type: 'separator' },
+            {
               label: 'Timer',
               accelerator: 'CmdOrCtrl+V',
               click: async () => {
@@ -85,15 +98,9 @@ function getApplicationMenu(isMac, askToQuit, urlBase, version, redirectWindow) 
               },
             },
             {
-              label: 'Public',
+              label: 'Timeline',
               click: async () => {
-                await shell.openExternal(`${urlBase}/public`);
-              },
-            },
-            {
-              label: 'Lower Thirds',
-              click: async () => {
-                await shell.openExternal(`${urlBase}/lower`);
+                await shell.openExternal(`${urlBase}/timeline`);
               },
             },
             {

@@ -17,6 +17,10 @@ export const langEn = {
   'countdown.to_start': 'Time to start',
   'countdown.waiting': 'Waiting for event start',
   'countdown.overtime': 'in overtime',
+  'timeline.live': 'live',
+  'timeline.done': 'done',
+  'timeline.due': 'due',
+  'timeline.followedby': 'Followed by',
 };
 
 export type TranslationObject = Record<keyof typeof langEn, string>;

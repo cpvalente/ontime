@@ -45,7 +45,7 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
     {
       id: 'hidepast',
       title: 'Hide Past Events',
-      description: 'Whether to events that have passed',
+      description: 'Whether to hide events that have passed',
       type: 'boolean',
       defaultValue: false,
     },

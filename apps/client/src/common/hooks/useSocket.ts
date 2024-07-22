@@ -186,3 +186,12 @@ export const useRuntimePlaybackOverview = () => {
 
   return useRuntimeStore(featureSelector);
 };
+
+export const useTimelineStatus = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    clock: state.clock,
+    offset: state.runtime.offset,
+  });
+
+  return useRuntimeStore(featureSelector);
+};

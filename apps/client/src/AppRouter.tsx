@@ -27,6 +27,7 @@ const ClockView = React.lazy(() => import('./features/viewers/clock/Clock'));
 const Countdown = React.lazy(() => import('./features/viewers/countdown/Countdown'));
 
 const Backstage = React.lazy(() => import('./features/viewers/backstage/Backstage'));
+const Timeline = React.lazy(() => import('./features/viewers/timeline/TimelinePage'));
 const Public = React.lazy(() => import('./features/viewers/public/Public'));
 const Lower = React.lazy(() => import('./features/viewers/lower-thirds/LowerThird'));
 const StudioClock = React.lazy(() => import('./features/viewers/studio/StudioClock'));
@@ -39,6 +40,7 @@ const SBackstage = withPreset(withData(Backstage));
 const SPublic = withPreset(withData(Public));
 const SLowerThird = withPreset(withData(Lower));
 const SStudio = withPreset(withData(StudioClock));
+const STimeline = withPreset(withData(Timeline));
 
 const EditorFeatureWrapper = React.lazy(() => import('./features/EditorFeatureWrapper'));
 const RundownPanel = React.lazy(() => import('./features/rundown/RundownExport'));
@@ -74,26 +76,20 @@ export default function AppRouter() {
       <SentryRoutes>
         <Route path='/' element={<Navigate to='/timer' />} />
         <Route path='/timer' element={<STimer />} />
-
+        <Route path='/public' element={<SPublic />} />
         <Route path='/minimal' element={<SMinimalTimer />} />
-
         <Route path='/clock' element={<SClock />} />
 
         <Route path='/countdown' element={<SCountdown />} />
-
         <Route path='/backstage' element={<SBackstage />} />
-
-        <Route path='/public' element={<SPublic />} />
-
         <Route path='/studio' element={<SStudio />} />
-
         <Route path='/lower' element={<SLowerThird />} />
-
-        <Route path='/op' element={<Operator />} />
+        <Route path='/timeline' element={<STimeline />} />
 
         {/*/!* Protected Routes *!/*/}
         <Route path='/editor' element={<Editor />} />
         <Route path='/cuesheet' element={<Cuesheet />} />
+        <Route path='/op' element={<Operator />} />
 
         {/*/!* Protected Routes - Elements *!/*/}
         <Route
