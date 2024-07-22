@@ -83,7 +83,7 @@ describe('mutation on runtimeState', () => {
     vi.clearAllMocks();
   });
 
-  describe('playback operations', () => {
+  describe('playback operations', async () => {
     it('refuses if nothing is loaded', () => {
       let success = start(mockState);
       expect(success).toBe(false);
@@ -160,7 +160,7 @@ describe('mutation on runtimeState', () => {
     const event2 = { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500 };
     // force update
     vi.useFakeTimers();
-    initRundown([event1, event2], {});
+    await initRundown([event1, event2], {});
     vi.runAllTimers();
     vi.useRealTimers();
 
