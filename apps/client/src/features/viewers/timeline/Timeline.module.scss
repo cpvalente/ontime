@@ -1,0 +1,73 @@
+@use '../../../theme/viewerDefs' as *;
+
+$timeline-entry-height: 20px;
+$lane-height: 120px;
+
+.timeline {
+  flex: 1;
+  font-weight: 600;
+  color: $ui-white;
+}
+
+.timelineEvents {
+  position: relative;
+  top: 0.5rem;
+  height: 100%;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  border-inline: 1px solid $ui-black;
+  // avoiding content being larger than the view
+  height: calc(100% - 3rem);
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-top: 0.25rem;
+  padding-inline-start: 0.25rem;
+  overflow: hidden;
+  line-height: 1rem;
+
+  background-color: var(--lighter, $viewer-card-bg-color);
+  border-bottom: 2px solid $ui-black;
+  box-shadow: 0 0.25rem 0 0 var(--color, $ui-white);
+}
+
+.delay {
+  margin-top: -2rem;
+  margin-bottom: -1rem;
+}
+
+.timeOverview {
+  padding-top: 0.25rem;
+  padding-inline-start: 0.25em;
+  text-transform: capitalize;
+  white-space: normal;
+  height: 6rem;
+
+  &[data-status='done'] {
+    opacity: $opacity-disabled;
+  }
+
+  &[data-status='live'] {
+    .status {
+      color: $active-red;
+    }
+  }
+
+  &[data-status='future'] {
+    .status {
+      color: $green-500;
+    }
+  }
+}
+
+.cross {
+  text-decoration: line-through;
+}

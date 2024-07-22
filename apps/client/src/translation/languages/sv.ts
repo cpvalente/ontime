@@ -19,4 +19,8 @@ export const langSv: TranslationObject = {
   'countdown.to_start': 'Tid till start',
   'countdown.waiting': 'Väntar på att evenemanget ska starta',
   'countdown.overtime': 'i övertid',
+  'timeline.live': 'live',
+  'timeline.done': 'Avslutad',
+  'timeline.due': 'Väntande',
+  'timeline.followedby': 'Följt av',
 };

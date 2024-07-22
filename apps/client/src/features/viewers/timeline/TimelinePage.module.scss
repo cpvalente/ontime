@@ -1,0 +1,24 @@
+.timeline {
+  width: 100vw;
+  height: 100vh;
+
+  background-color: $ui-black;
+  color: $ui-white;
+
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.title {
+  padding-inline: 2rem;
+  font-size: 3.5rem;
+}
+
+.sections {
+  padding-inline: 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 1rem;
+  column-gap: 3rem;
+}
