@@ -83,7 +83,7 @@ describe('mutation on runtimeState', () => {
     vi.clearAllMocks();
   });
 
-  describe('playback operations', () => {
+  describe('playback operations', async () => {
     it('refuses if nothing is loaded', () => {
       let success = start(mockState);
       expect(success).toBe(false);
@@ -159,8 +159,12 @@ describe('mutation on runtimeState', () => {
     const event1 = { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000 };
     const event2 = { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500 };
     // force update
-    initRundown([event1, event2], {});
-    test('runtime offset', () => {
+    vi.useFakeTimers();
+    await initRundown([event1, event2], {});
+    vi.runAllTimers();
+    vi.useRealTimers();
+
+    test('runtime offset', async () => {
       // 1. Load event
       load(event1, [event1, event2]);
       let newState = getState();
