@@ -13,7 +13,7 @@
     "@fontsource/open-sans": "^5.0.28",
     "@mantine/hooks": "^7.6.2",
     "@react-icons/all-files": "^4.1.0",
-    "@sentry/react": "^7.92.0",
+    "@sentry/react": "^8.19.0",
     "@tanstack/react-query": "^5.17.9",
     "@tanstack/react-query-devtools": "^5.17.9",
     "@tanstack/react-table": "^8.11.3",
