@@ -34,3 +34,16 @@ export const enDash = '–';
 
 export const timerPlaceholder = '––:––:––';
 export const timerPlaceholderMin = '––:––';
+
+/**
+ * Adds opacity to a given colour if possible
+ */
+export function alpha(colour: string, amount: number): string {
+  try {
+    const withAlpha = Color(colour).alpha(amount).hexa();
+    return withAlpha;
+  } catch (_error) {
+    /* we do not handle errors here */
+  }
+  return colour;
+}

@@ -1,0 +1,25 @@
+.sectionTitle {
+  line-height: 1.2em;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+}
+
+.sectionContent {
+  min-height: 2em;
+  line-height: 1em;
+  font-size: 3rem;
+  text-transform: uppercase;
+  font-weight: 600;
+
+  &.now {
+    color: $red-500;
+  }
+
+  &.next {
+    color: $green-500;
+  }
+
+  &.subdue {
+    opacity: $opacity-disabled;
+  }
+}

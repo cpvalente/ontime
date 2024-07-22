@@ -1,5 +1,5 @@
 import { MaybeNumber, Settings, TimeFormat } from 'ontime-types';
-import { formatFromMillis } from 'ontime-utils';
+import { formatFromMillis, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';
 import { APP_SETTINGS } from '../api/constants';
@@ -9,17 +9,17 @@ import { ontimeQueryClient } from '../queryClient';
  * Returns current time in milliseconds
  * @returns {number}
  */
-export const nowInMillis = () => {
+export function nowInMillis(): number {
   const now = new Date();
 
   // extract milliseconds since midnight
-  let elapsed = now.getHours() * 3600000;
-  elapsed += now.getMinutes() * 60000;
-  elapsed += now.getSeconds() * 1000;
+  let elapsed = now.getHours() * MILLIS_PER_HOUR;
+  elapsed += now.getMinutes() * MILLIS_PER_MINUTE;
+  elapsed += now.getSeconds() * MILLIS_PER_SECOND;
   elapsed += now.getMilliseconds();
 
   return elapsed;
-};
+}
 
 /**
  * @description Resolves format from url and store
@@ -95,3 +95,26 @@ export const formatTime = (
   const isNegative = milliseconds < 0;
   return `${isNegative ? '-' : ''}${display}`;
 };
+
+/**
+ * Handles case for formatting a duration time
+ * @param duration
+ * @returns
+ */
+export function formatDuration(duration: number): string {
+  // durations should never be negative, we handle it here to flag if there is an issue in future
+  if (duration <= 0) {
+    return '0h 0m';
+  }
+
+  const hours = Math.floor(duration / MILLIS_PER_HOUR);
+  const minutes = Math.floor((duration % MILLIS_PER_HOUR) / MILLIS_PER_MINUTE);
+  let result = '';
+  if (hours > 0) {
+    result += `${hours}h `;
+  }
+  if (minutes > 0) {
+    result += `${minutes}m`;
+  }
+  return result;
+}
