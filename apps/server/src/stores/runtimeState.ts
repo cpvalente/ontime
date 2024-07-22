@@ -195,7 +195,7 @@ export function loadNow(event: OntimeEvent, rundown: OntimeRundown) {
   runtimeState.currentBlock.block = getRelevantBlock(rundown, event.id);
 
   //if we are still in the same block keep the startedAt time
-  if (runtimeState._prevCurrentBlock?.block?.id === runtimeState.currentBlock.block.id) {
+  if (runtimeState._prevCurrentBlock.block?.id === runtimeState.currentBlock.block?.id) {
     runtimeState.currentBlock.startedAt = runtimeState._prevCurrentBlock.startedAt;
   }
 
