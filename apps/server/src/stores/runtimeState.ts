@@ -62,6 +62,7 @@ export type RuntimeState = {
     totalDelay: number; // this value comes from rundown service
     pausedAt: MaybeNumber;
   };
+  _prevCurrentBlock: CurrentBlockState;
 };
 
 const runtimeState: RuntimeState = {
@@ -81,6 +82,10 @@ const runtimeState: RuntimeState = {
     totalDelay: 0,
     pausedAt: null,
   },
+  _prevCurrentBlock: {
+    block: null,
+    startedAt: null,
+  },
 };
 
 export function getState(): Readonly<RuntimeState> {
@@ -91,8 +96,11 @@ export function clear() {
   runtimeState.eventNow = null;
   runtimeState.publicEventNow = null;
   runtimeState.eventNext = null;
+
+  runtimeState._prevCurrentBlock = { ...runtimeState.currentBlock };
   runtimeState.currentBlock.block = null;
   runtimeState.currentBlock.startedAt = null;
+
   runtimeState.publicEventNext = null;
 
   runtimeState.runtime.offset = 0;
@@ -185,6 +193,11 @@ export function load(
 export function loadNow(event: OntimeEvent, rundown: OntimeRundown) {
   runtimeState.eventNow = event;
   runtimeState.currentBlock.block = getRelevantBlock(rundown, event.id);
+
+  //if we are still in the same block keep the startedAt time
+  if (runtimeState._prevCurrentBlock?.block?.id === runtimeState.currentBlock.block.id) {
+    runtimeState.currentBlock.startedAt = runtimeState._prevCurrentBlock.startedAt;
+  }
 
   // check if current is also public
   if (event.isPublic) {
@@ -323,6 +336,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   }
 
   if (state.currentBlock.startedAt === null) {
+    console.log('currentBlock.startedAt is null, setting new start');
     state.currentBlock.startedAt = state.clock;
   }
 
