@@ -626,6 +626,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     if (!deepEqual(RuntimeService?.previousState.currentBlock, state.currentBlock)) {
       eventStore.set('currentBlock', state.currentBlock);
+      RuntimeService.previousState.currentBlock = { ...state.currentBlock };
     }
 
     if (shouldUpdateClock) {
