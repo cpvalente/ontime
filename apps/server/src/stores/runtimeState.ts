@@ -16,12 +16,12 @@ import {
   getCurrent,
   getExpectedEnd,
   getExpectedFinish,
-  getRollTimers,
   getRuntimeOffset,
   getTimerPhase,
   isPlaybackActive,
 } from '../services/timerUtils.js';
 import { timerConfig } from '../config/config.js';
+import { getRollTimers } from '../services/rollUtils.js';
 
 const initialRuntime: Runtime = {
   selectedEventIndex: null, // changes if rundown changes or we load a new event
