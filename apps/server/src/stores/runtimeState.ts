@@ -477,16 +477,24 @@ export function update(): UpdateResult {
 }
 
 export function roll(rundown: OntimeRundown) {
-  const selectedEventIndex = runtimeState.runtime.selectedEventIndex;
+  // 1. if an event is running, we simply take over the playback
+  if (runtimeState.timer.playback === Playback.Play && runtimeState.runtime.selectedEventIndex) {
+    runtimeState.timer.playback = Playback.Roll;
+    return;
+  }
+
+  // 2. if there is no event running, we need to find the next event
   const playableEvents = filterPlayable(rundown);
+  if (playableEvents.length === 0) {
+    throw new Error('No playable events found');
+  }
 
   clear();
   runtimeState.runtime.numEvents = playableEvents.length;
-
-  const { nextEvent, currentEvent } = getRollTimers(playableEvents, runtimeState.clock, selectedEventIndex);
+  const { nextEvent, currentEvent } = getRollTimers(playableEvents, runtimeState.clock);
 
   if (currentEvent) {
-    // there is something running, load
+    // 2.1 there is something running, load
     runtimeState.timer.secondaryTimer = null;
 
     // account for event that finishes the day after
@@ -501,6 +509,7 @@ export function roll(rundown: OntimeRundown) {
       current: endTime - runtimeState.clock,
     });
   } else if (nextEvent) {
+    // 2.2 there is nothing running, but something coming up
     if (nextEvent.isPublic) {
       runtimeState.publicEventNext = nextEvent;
     }

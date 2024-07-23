@@ -1,4 +1,4 @@
-import type { NormalisedRundown, OntimeBlock, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import type { NormalisedRundown, OntimeBlock, OntimeEvent, OntimeRundown, OntimeRundownEntry, PlayableEvent } from 'ontime-types';
 import { isOntimeBlock, isOntimeEvent } from 'ontime-types';
 
 type IndexAndEntry = { entry: OntimeRundownEntry | null; index: number | null };
@@ -353,17 +353,8 @@ export function getRelevantBlock(rundown: OntimeRundown, currentId: string): Ont
 }
 
 /**
- * returns all events that can be loaded
- * @return {array}
+ * filters a rundown to events that can be played
  */
-export function filterPlayable(rundown: OntimeRundown): OntimeEvent[] {
-  return rundown.filter((event) => isOntimeEvent(event) && !event.skip) as OntimeEvent[];
-}
-
-/**
- * returns all events of type OntimeEvent
- * @return {array}
- */
-export function filterTimedEvents(rundown: OntimeRundown): OntimeEvent[] {
-  return rundown.filter((event) => isOntimeEvent(event)) as OntimeEvent[];
+export function filterPlayable(rundown: OntimeRundown): PlayableEvent[] {
+  return rundown.filter((event) => isOntimeEvent(event) && !event.skip) as PlayableEvent[];
 }

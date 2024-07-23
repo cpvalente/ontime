@@ -3,7 +3,6 @@ import { SupportedEvent } from 'ontime-types';
 
 import {
   filterPlayable,
-  filterTimedEvents,
   getLastEvent,
   getLastNormal,
   getNext,
@@ -300,24 +299,19 @@ describe('getLastEvent', () => {
     });
   });
 
-  describe('filter event', () => {
-    const eventA = { id: 'a', type: SupportedEvent.Event } as OntimeEvent;
-    const eventB = { id: 'b', skip: true, type: SupportedEvent.Event } as OntimeEvent;
-    const testRundown = [
-      eventA,
-      eventB,
-      { id: 'c', type: SupportedEvent.Delay },
-      { id: 'd', type: SupportedEvent.Block },
-    ];
+  describe('filterPlayable()', () => {
+    test('should return an array with only playable events', () => {
+      const eventA = { id: 'a', type: SupportedEvent.Event } as OntimeEvent;
+      const eventB = { id: 'b', skip: true, type: SupportedEvent.Event } as OntimeEvent;
+      const testRundown = [
+        eventA,
+        eventB,
+        { id: 'c', type: SupportedEvent.Delay },
+        { id: 'd', type: SupportedEvent.Block },
+      ];
 
-    test('filterPlayable', () => {
       const result = filterPlayable(testRundown as unknown as OntimeRundown);
       expect(result).toMatchObject([eventA]);
-    });
-
-    test('filterTimedEvents', () => {
-      const result = filterTimedEvents(testRundown as unknown as OntimeRundown);
-      expect(result).toMatchObject([eventA, eventB]);
     });
   });
 });

@@ -9,7 +9,7 @@ import {
   TimerLifeCycle,
   TimerPhase,
 } from 'ontime-types';
-import { filterPlayable, millisToString, validatePlayback } from 'ontime-utils';
+import { millisToString, validatePlayback } from 'ontime-utils';
 
 import { deepEqual } from 'fast-equals';
 
@@ -19,7 +19,7 @@ import type { RuntimeState } from '../../stores/runtimeState.js';
 import { timerConfig } from '../../config/config.js';
 import { eventStore } from '../../stores/EventStore.js';
 
-import { TimerService } from '../TimerService.js';
+import { EventTimer } from '../EventTimer.js';
 import { RestorePoint, restoreService } from '../RestoreService.js';
 import {
   findNext,
@@ -40,7 +40,7 @@ import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './ru
  * Coordinating with necessary services
  */
 class RuntimeService {
-  private eventTimer: TimerService;
+  private eventTimer: EventTimer;
   private lastIntegrationClockUpdate = -1;
   private lastIntegrationTimerValue = -1;
 
@@ -52,8 +52,8 @@ class RuntimeService {
   /** last known state */
   static previousState: RuntimeState;
 
-  constructor(timerService: TimerService) {
-    this.eventTimer = timerService;
+  constructor(eventTimer: EventTimer) {
+    this.eventTimer = eventTimer;
 
     RuntimeService.previousTimerUpdate = -1;
     RuntimeService.previousTimerValue = -1;
@@ -233,23 +233,23 @@ class RuntimeService {
     // 3. the edited event replaces next event
     let isNext = false;
 
+    // TODO: review logic
     if (safeOption || eventInMemory) {
-      if (state.timer.playback === Playback.Roll) {
-        this.roll();
-      }
-      // load stuff again, but keep running if our events still exist
-      const eventNow = getEventWithId(state.eventNow.id);
-      if (!isOntimeEvent(eventNow)) {
+      if (state.eventNow !== null) {
+        // load stuff again, but keep running if our events still exist
+        const eventNow = getEventWithId(state.eventNow.id);
+        if (!isOntimeEvent(eventNow)) {
+          return;
+        }
+        const onlyChangedNow = affectedIds?.length === 1 && affectedIds.at(0) === eventNow.id;
+        if (onlyChangedNow) {
+          runtimeState.reload(eventNow);
+        } else {
+          const rundown = getRundown();
+          runtimeState.reloadAll(eventNow, rundown);
+        }
         return;
       }
-      const onlyChangedNow = affectedIds?.length === 1 && affectedIds.at(0) === eventNow.id;
-      if (onlyChangedNow) {
-        runtimeState.reload(eventNow);
-      } else {
-        const rundown = getRundown();
-        runtimeState.reloadAll(eventNow, rundown);
-      }
-      return;
     }
 
     // Maybe the event will become the next
@@ -516,18 +516,17 @@ class RuntimeService {
       return;
     }
 
-    const rundown = getRundown();
-    const playableEvents = filterPlayable(rundown);
-    if (playableEvents.length === 0) {
-      logger.warning(LogOrigin.Server, 'Roll: no events found');
+    try {
+      const rundown = getRundown();
+      this.eventTimer.roll(rundown);
+
+      const state = runtimeState.getState();
+      const newState = state.timer.playback;
+      logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
+    } catch (error) {
+      logger.error(LogOrigin.Server, `Roll: ${error}`);
       return;
     }
-
-    this.eventTimer.roll(rundown);
-
-    const state = runtimeState.getState();
-    const newState = state.timer.playback;
-    logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
   }
 
   /**
@@ -570,7 +569,7 @@ class RuntimeService {
 }
 
 // calculate at 30fps, refresh at 1fps
-const eventTimer = new TimerService({
+const eventTimer = new EventTimer({
   refresh: timerConfig.updateRate,
   updateInterval: timerConfig.notificationRate,
 });

@@ -43,3 +43,5 @@ export type OntimeEvent = OntimeBaseEvent & {
   timeDanger: number;
   custom: EventCustomFields;
 };
+
+export type PlayableEvent = OntimeEvent & { skip: false };

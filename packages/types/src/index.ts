@@ -8,6 +8,7 @@ export {
   type OntimeDelay,
   type OntimeBlock,
   type OntimeEvent,
+  type PlayableEvent,
   SupportedEvent,
 } from './definitions/core/OntimeEvent.type.js';
 export type { OntimeEntryCommonKeys, OntimeRundown, OntimeRundownEntry } from './definitions/core/Rundown.type.js';
