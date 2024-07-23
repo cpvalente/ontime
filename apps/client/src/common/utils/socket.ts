@@ -36,7 +36,10 @@ export const connectSocket = () => {
     }
 
     socketSendJson('set-client-type', 'ontime');
-    socketSendJson('set-client-path', location.pathname);
+
+    //remove leading '/' from path
+    const fullPath = location.pathname.startsWith('/') ? location.pathname.slice(1) : location.pathname;
+    socketSendJson('set-client-path', fullPath);
   };
 
   websocket.onclose = () => {
