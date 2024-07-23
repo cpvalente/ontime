@@ -2,12 +2,15 @@ import type { NormalisedRundown, OntimeEvent, OntimeRundown } from 'ontime-types
 import { SupportedEvent } from 'ontime-types';
 
 import {
+  filterPlayable,
+  filterTimedEvents,
   getLastEvent,
   getLastNormal,
   getNext,
   getNextEvent,
   getPrevious,
   getPreviousEvent,
+  getRelevantBlock,
   swapEventData,
 } from './rundownUtils';
 
@@ -260,6 +263,61 @@ describe('getLastEvent', () => {
 
       const lastEntry = getLastNormal(testRundown as unknown as NormalisedRundown, order);
       expect(lastEntry).toBe(null);
+    });
+  });
+
+  describe('relevantBlock', () => {
+    const testRundown = [
+      { id: 'a', type: SupportedEvent.Event },
+      { id: 'b', type: SupportedEvent.Event },
+      { id: 'c', type: SupportedEvent.Event },
+      { id: 'd', type: SupportedEvent.Delay },
+      { id: 'e', type: SupportedEvent.Block },
+      { id: 'f', type: SupportedEvent.Event },
+      { id: 'g', type: SupportedEvent.Block },
+      { id: 'h', type: SupportedEvent.Event },
+    ];
+
+    it('returns the relevant block', () => {
+      const block = getRelevantBlock(testRundown as unknown as OntimeRundown, 'h');
+
+      expect(block?.id).toBe('g');
+    });
+    it('returns the relevant block', () => {
+      const block = getRelevantBlock(testRundown as unknown as OntimeRundown, 'f');
+
+      expect(block?.id).toBe('e');
+    });
+    it('returns the relevant block', () => {
+      const block = getRelevantBlock(testRundown as unknown as OntimeRundown, 'a');
+
+      expect(block).toBeNull();
+    });
+    it('also works on index 0', () => {
+      testRundown.unshift({ id: '0', type: SupportedEvent.Block });
+      const block = getRelevantBlock(testRundown as unknown as OntimeRundown, 'a');
+      expect(block?.id).toBe('0');
+    });
+  });
+
+  describe('filter event', () => {
+    const eventA = { id: 'a', type: SupportedEvent.Event } as OntimeEvent;
+    const eventB = { id: 'b', skip: true, type: SupportedEvent.Event } as OntimeEvent;
+    const testRundown = [
+      eventA,
+      eventB,
+      { id: 'c', type: SupportedEvent.Delay },
+      { id: 'd', type: SupportedEvent.Block },
+    ];
+
+    test('filterPlayable', () => {
+      const result = filterPlayable(testRundown as unknown as OntimeRundown);
+      expect(result).toMatchObject([eventA]);
+    });
+
+    test('filterTimedEvents', () => {
+      const result = filterTimedEvents(testRundown as unknown as OntimeRundown);
+      expect(result).toMatchObject([eventA, eventB]);
     });
   });
 });

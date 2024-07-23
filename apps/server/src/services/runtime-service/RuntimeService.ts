@@ -9,7 +9,7 @@ import {
   TimerLifeCycle,
   TimerPhase,
 } from 'ontime-types';
-import { millisToString, validatePlayback } from 'ontime-utils';
+import { filterPlayable, millisToString, validatePlayback } from 'ontime-utils';
 
 import { deepEqual } from 'fast-equals';
 
@@ -28,6 +28,7 @@ import {
   getNextEventWithCue,
   getEventWithId,
   getPlayableEvents,
+  getRundown,
 } from '../rundown-service/rundownUtils.js';
 import { skippedOutOfEvent } from '../timerUtils.js';
 import { integrationService } from '../integration-service/IntegrationService.js';
@@ -95,7 +96,7 @@ class RuntimeService {
         }
 
         // we dont call this.roll because we need to bypass the checks
-        const rundown = getPlayableEvents();
+        const rundown = getRundown();
         // TODO: by not calling roll, we dont get the events
         this.eventTimer.roll(rundown);
       }
@@ -217,7 +218,7 @@ class RuntimeService {
    * Called when the underlying data has changed,
    * we check if the change affects the runtime
    */
-  maybeUpdate(playableEvents: OntimeEvent[], affectedIds?: string[]) {
+  maybeUpdate(affectedIds?: string[]) {
     const state = runtimeState.getState();
     const hasLoadedElements = state.eventNow !== null || state.eventNext !== null;
     if (!hasLoadedElements) {
@@ -245,7 +246,8 @@ class RuntimeService {
       if (onlyChangedNow) {
         runtimeState.reload(eventNow);
       } else {
-        runtimeState.reloadAll(eventNow, playableEvents);
+        const rundown = getRundown();
+        runtimeState.reloadAll(eventNow, rundown);
       }
       return;
     }
@@ -253,7 +255,8 @@ class RuntimeService {
     // Maybe the event will become the next
     isNext = this.isNewNext();
     if (isNext) {
-      runtimeState.loadNext(playableEvents);
+      const rundown = getRundown();
+      runtimeState.loadNext(rundown);
     }
   }
 
@@ -269,8 +272,8 @@ class RuntimeService {
       return false;
     }
 
-    const timedEvents = getPlayableEvents();
-    const success = runtimeState.load(event, timedEvents);
+    const rundown = getRundown();
+    const success = runtimeState.load(event, rundown);
 
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
@@ -513,13 +516,14 @@ class RuntimeService {
       return;
     }
 
-    const playableEvents = getPlayableEvents();
+    const rundown = getRundown();
+    const playableEvents = filterPlayable(rundown);
     if (playableEvents.length === 0) {
       logger.warning(LogOrigin.Server, 'Roll: no events found');
       return;
     }
 
-    this.eventTimer.roll(playableEvents);
+    this.eventTimer.roll(rundown);
 
     const state = runtimeState.getState();
     const newState = state.timer.playback;
@@ -543,14 +547,14 @@ class RuntimeService {
     }
 
     // the db would have to change for the event not to exist
-    // we do not kow the reason for the crash, so we check anyway
+    // we do not know the reason for the crash, so we check anyway
     const event = getEventWithId(selectedEventId);
     if (!event || !isOntimeEvent(event)) {
       return;
     }
 
-    const timedEvents = getPlayableEvents();
-    runtimeState.resume(restorePoint, event, timedEvents);
+    const rundown = getRundown();
+    runtimeState.resume(restorePoint, event, rundown);
     logger.info(LogOrigin.Playback, 'Resuming playback');
   }
 
@@ -619,6 +623,11 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     updateEventIfChanged('publicEventNow', state);
     updateEventIfChanged('eventNext', state);
     updateEventIfChanged('publicEventNext', state);
+
+    if (!deepEqual(RuntimeService?.previousState.currentBlock, state.currentBlock)) {
+      eventStore.set('currentBlock', state.currentBlock);
+      RuntimeService.previousState.currentBlock = { ...state.currentBlock };
+    }
 
     if (shouldUpdateClock) {
       RuntimeService.previousClockUpdate = state.clock;
