@@ -4,7 +4,7 @@ const { shell } = require('electron');
  * @param {boolean} isMac - Whether the target platform is mac
  * @param {function} askToQuit - function for quitting process
  */
-function getApplicationMenu(isMac, askToQuit, urlBase) {
+function getApplicationMenu(isMac, askToQuit, urlBase, redirectCb) {
   return [
     ...(isMac
       ? [
@@ -150,6 +150,12 @@ function getApplicationMenu(isMac, askToQuit, urlBase) {
     {
       role: 'help',
       submenu: [
+        {
+          label: 'About',
+          click: async () => {
+            redirectCb('editor?settings=about');
+          },
+        },
         {
           label: 'See on github',
           click: async () => {
