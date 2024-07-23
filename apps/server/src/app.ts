@@ -19,7 +19,7 @@ import {
   resolvePublicDirectoy,
 } from './setup/index.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
-import { consoleSuccess, consoleHighlight } from './utils/console.js';
+import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
 
 // Import Routers
 import { appRouter } from './api-data/index.js';
@@ -285,12 +285,18 @@ export const shutdown = async (exitCode = 0) => {
 process.on('exit', (code) => consoleHighlight(`Ontime shutdown with code: ${code}`));
 
 process.on('unhandledRejection', async (error) => {
+  if (!isProduction && error instanceof Error && error.stack) {
+    consoleError(error.stack);
+  }
   generateCrashReport(error);
   logger.crash(LogOrigin.Server, `Uncaught exception | ${error}`);
   await shutdown(1);
 });
 
 process.on('uncaughtException', async (error) => {
+  if (!isProduction && error instanceof Error && error.stack) {
+    consoleError(error.stack);
+  }
   generateCrashReport(error);
   logger.crash(LogOrigin.Server, `Uncaught exception | ${error}`);
   await shutdown(1);
