@@ -33,6 +33,7 @@ function _EditorOverview({ children }: { children: React.ReactNode }) {
             <TimeRow label='Actual start' value={formatedTime(actualStart)} className={style.start} />
           </div>
           <ProgressOverview />
+          <CurrentBlockOverview />
           <RuntimeOverview />
           <div>
             <TimeRow label='Planned end' value={plannedEndText} className={style.end} daySpan={maybePlannedDaySpan} />
@@ -92,6 +93,16 @@ function TitlesOverview() {
       <div className={style.description}>{data.description}</div>
     </div>
   );
+}
+
+function CurrentBlockOverview() {
+  const { currentBlock, clock } = useRuntimePlaybackOverview();
+
+  // const offsetClasses = offset === null ? undefined : offset <= 0 ? style.behind : style.ahead;
+
+  const timeInBlock = formatedTime(currentBlock.startedAt === null ? null : clock - currentBlock.startedAt);
+
+  return <TimeColumn label='Time in block' value={timeInBlock} className={style.clock} />;
 }
 
 function TimerOverview() {

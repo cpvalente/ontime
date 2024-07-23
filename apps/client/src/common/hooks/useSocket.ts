@@ -180,6 +180,8 @@ export const useRuntimePlaybackOverview = () => {
     numEvents: state.runtime.numEvents,
     selectedEventIndex: state.runtime.selectedEventIndex,
     offset: state.runtime.offset,
+
+    currentBlock: state.currentBlock,
   });
 
   return useRuntimeStore(featureSelector);
