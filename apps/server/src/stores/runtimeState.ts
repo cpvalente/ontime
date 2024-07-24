@@ -8,7 +8,7 @@ import {
   TimerPhase,
   TimerState,
 } from 'ontime-types';
-import { calculateDuration, dayInMs, filterPlayable, getRelevantBlock } from 'ontime-utils';
+import { calculateDuration, dayInMs, filterPlayable, getRelevantBlock, millisToString } from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
 import { RestorePoint } from '../services/RestoreService.js';
@@ -153,7 +153,7 @@ export function updateRundownData(rundownData: RundownData) {
 /**
  * Loads a given event into state
  * @param event
- * @param {OntimeEvent[]} playableEvents list of events availebe for playback
+ * @param {OntimeEvent} event current event to load
  * @param {OntimeRundown} rundown the full rundown
  * @param initialData potential data from restore point
  */
@@ -194,7 +194,7 @@ export function loadNow(event: OntimeEvent, rundown: OntimeRundown) {
   runtimeState.eventNow = event;
   runtimeState.currentBlock.block = getRelevantBlock(rundown, event.id);
 
-  //if we are still in the same block keep the startedAt time
+  // if we are still in the same block keep the startedAt time
   if (runtimeState._prevCurrentBlock.block?.id === runtimeState.currentBlock.block?.id) {
     runtimeState.currentBlock.startedAt = runtimeState._prevCurrentBlock.startedAt;
   }
@@ -476,6 +476,7 @@ export function update(): UpdateResult {
   }
 }
 
+// TODO: roll should return a summary of loaded state for integrations
 export function roll(rundown: OntimeRundown) {
   // 1. if an event is running, we simply take over the playback
   if (runtimeState.timer.playback === Playback.Play && runtimeState.runtime.selectedEventIndex) {
@@ -490,36 +491,86 @@ export function roll(rundown: OntimeRundown) {
   }
 
   clear();
-  runtimeState.runtime.numEvents = playableEvents.length;
-  const { nextEvent, currentEvent } = getRollTimers(playableEvents, runtimeState.clock);
-
-  if (currentEvent) {
-    // 2.1 there is something running, load
-    runtimeState.timer.secondaryTimer = null;
-
-    // account for event that finishes the day after
-    const endTime =
-      currentEvent.timeEnd < currentEvent.timeStart ? currentEvent.timeEnd + dayInMs : currentEvent.timeEnd;
-
-    // when we load a timer in roll, we do the same things as before
-    // but also pre-populate some data as to the running state
-    load(currentEvent, rundown, {
-      startedAt: currentEvent.timeStart,
-      expectedFinish: currentEvent.timeEnd,
-      current: endTime - runtimeState.clock,
-    });
-  } else if (nextEvent) {
-    // 2.2 there is nothing running, but something coming up
-    if (nextEvent.isPublic) {
-      runtimeState.publicEventNext = nextEvent;
-    }
-    runtimeState.eventNext = nextEvent;
-    // account for day after
-    const nextStart = nextEvent.timeStart < runtimeState.clock ? nextEvent.timeStart + dayInMs : nextEvent.timeStart;
-    // nothing now, but something coming up
-    runtimeState.timer.phase = TimerPhase.Pending;
-    runtimeState.timer.secondaryTimer = nextStart - runtimeState.clock;
-  }
+  const { currentEvent, currentPublicEvent, nextEvent, nextPublicEvent, nextIndex, nowIndex } = getRollTimers(
+    playableEvents,
+    runtimeState.clock,
+  );
 
   runtimeState.timer.playback = Playback.Roll;
+  runtimeState.runtime.numEvents = playableEvents.length;
+  runtimeState.eventNow = currentEvent;
+  runtimeState.publicEventNow = currentPublicEvent;
+  runtimeState.eventNext = nextEvent;
+  runtimeState.publicEventNext = nextPublicEvent;
+  runtimeState.runtime.selectedEventIndex = nowIndex;
+
+  // nothing now, but something coming up
+  if (!runtimeState.eventNow && runtimeState.eventNext) {
+    // TODO: new stuff we want to change
+    // TODO: 1. when we are waiting, we load the event
+    runtimeState.runtime.selectedEventIndex = nextIndex;
+    runtimeState.eventNow = nextEvent;
+
+    // count down to event start
+    runtimeState.timer.phase = TimerPhase.Pending;
+    const normalisedNextStart =
+      runtimeState.eventNext.timeStart < runtimeState.clock
+        ? runtimeState.eventNext.timeStart + dayInMs
+        : runtimeState.eventNext.timeStart;
+    runtimeState.timer.secondaryTimer = normalisedNextStart - runtimeState.clock;
+
+    return;
+  }
+
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: {
+    if (runtimeState.eventNow === null) {
+      throw new Error('runtimeState.roll: invalid state received');
+    }
+  }
+
+  // there is something to run, load event
+  // account for event that finishes the day after
+  const endTime =
+    runtimeState.eventNow.timeEnd < runtimeState.eventNow.timeStart
+      ? runtimeState.eventNow.timeEnd + dayInMs
+      : runtimeState.eventNow.timeEnd;
+
+  // TODO: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // TODO: Need to create a load specific to roll
+  // TODO: We could reuse the load() but I am unsure whether generalising is a good idea
+  // TODO: - needs to setup time correctly (add time to match clock)
+  // TODO: - needs to load events, with the specific case of loading the next event if we are waiting
+  // TODO: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  loadRoll: {
+    // new stuff
+    // event started now
+    runtimeState.timer.startedAt = runtimeState.clock;
+    // TODO: do we need to set actual start?
+
+    // event will finish on time
+    // TODO: allowing expected finish to overflow may need client changes
+    runtimeState.timer.expectedFinish = endTime;
+
+    // we add time to allow timer to catch up
+    runtimeState.timer.addedTime = -(runtimeState.clock - runtimeState.eventNow.timeStart);
+
+    // state catch up
+    runtimeState.timer.elapsed = 0;
+
+    // from load() <---------------
+    runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, endTime);
+    runtimeState.timer.current = getCurrent(runtimeState);
+
+    // from loadNow() <---------------
+    runtimeState.currentBlock.block = getRelevantBlock(rundown, runtimeState.eventNow.id);
+    // if we are still in the same block keep the startedAt time
+    if (runtimeState._prevCurrentBlock.block?.id === runtimeState.currentBlock.block?.id) {
+      runtimeState.currentBlock.startedAt = runtimeState._prevCurrentBlock.startedAt;
+    }
+
+    // more new stuff, needs to be done after things are loaded
+    runtimeState.timer.phase = getTimerPhase(runtimeState);
+  }
 }
