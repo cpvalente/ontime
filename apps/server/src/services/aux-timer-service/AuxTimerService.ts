@@ -76,9 +76,9 @@ export class AuxTimerService {
   private publish: PublishFn | null;
   private drivenTimer: DrivenTimerState = { current: 0 };
 
+  //time in seconds
   drive(time: number) {
-    this.drivenTimer.current = time;
-    console.log(time)
+    this.drivenTimer.current = time * 1000;
     this.throttledSetDriven('auxtimer2', this.drivenTimer);
   }
 }
