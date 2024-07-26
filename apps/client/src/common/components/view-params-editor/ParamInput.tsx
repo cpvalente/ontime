@@ -27,6 +27,10 @@ export default function ParamInput(props: EditFormInputProps) {
   const { paramField } = props;
   const { id, type, defaultValue } = paramField;
 
+  if (type === 'persist') {
+    return null;
+  }
+
   if (type === 'option') {
     const optionFromParams = searchParams.get(id);
     const defaultOptionValue = optionFromParams || defaultValue;

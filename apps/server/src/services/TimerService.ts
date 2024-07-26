@@ -1,21 +1,23 @@
-import { OntimeEvent } from 'ontime-types';
+import { OntimeRundown } from 'ontime-types';
 
 import * as runtimeState from '../stores/runtimeState.js';
 import type { UpdateResult } from '../stores/runtimeState.js';
 import { timerConfig } from '../config/config.js';
 
+type UpdateCallbackFn = (updateResult: UpdateResult) => void;
+
 /**
  * Service manages Ontime's main timer
  */
 export class TimerService {
-  private readonly _interval: NodeJS.Timer;
+  private readonly _interval: NodeJS.Timeout;
   /** how often we recalculate */
   static _refreshInterval: number;
 
   /** when timer will be finished */
-  private endCallback: NodeJS.Timer;
+  private endCallback: NodeJS.Timeout | undefined = undefined;
 
-  private onUpdateCallback: (updateResult: UpdateResult) => void;
+  private onUpdateCallback: UpdateCallbackFn | undefined = undefined;
 
   /**
    * @constructor
@@ -23,17 +25,19 @@ export class TimerService {
    * @param {number} [timerConfig.updateInterval] how often we update the socket
    * @param {function} [timerConfig.onUpdateCallback] how often we update the socket
    */
-  constructor(timerConfig: {
-    refresh: number;
-    updateInterval: number;
-    onUpdateCallback: (updateResult: UpdateResult) => void;
-  }) {
+  constructor(timerConfig: { refresh: number; updateInterval: number }) {
     TimerService._refreshInterval = timerConfig.refresh;
-
-    this.onUpdateCallback = timerConfig.onUpdateCallback;
     this._interval = setInterval(() => {
       this.update();
     }, TimerService._refreshInterval);
+  }
+
+  /**
+   * Allows setting a callback for when the timer updates
+   * @param callback
+   */
+  setOnUpdateCallback(callback: (updateResult: UpdateResult) => void) {
+    this.onUpdateCallback = callback;
   }
 
   start() {
@@ -79,6 +83,12 @@ export class TimerService {
     // renew end callback
     clearTimeout(this.endCallback);
     const state = runtimeState.getState();
+    // eslint-disable-next-line no-unused-labels -- dev code path
+    DEV: {
+      if (state.timer.expectedFinish === null) {
+        throw new Error('TimerService.addTime: expectedFinish is negative');
+      }
+    }
     this.endCallback = setTimeout(() => this.update(), state.timer.expectedFinish);
     return true;
   }
@@ -89,14 +99,14 @@ export class TimerService {
   update() {
     const updateResult = runtimeState.update();
     // pass the result to the parent
-    this.onUpdateCallback(updateResult);
+    this.onUpdateCallback?.(updateResult);
   }
 
   /**
    * Loads roll information into timer service
    * @param {OntimeEvent[]} rundown -- list of events to run
    */
-  roll(rundown: OntimeEvent[]) {
+  roll(rundown: OntimeRundown) {
     runtimeState.roll(rundown);
   }
 

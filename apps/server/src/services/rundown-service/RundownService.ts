@@ -21,16 +21,18 @@ import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 import * as cache from './rundownCache.js';
 import { getPlayableEvents } from './rundownUtils.js';
+import { eventStore } from '../../stores/EventStore.js';
 
 type PatchWithId = (Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) & { id: string };
 
-type CompleteEntry<T> = T extends Partial<OntimeEvent>
-  ? OntimeEvent
-  : T extends Partial<OntimeDelay>
-  ? OntimeDelay
-  : T extends Partial<OntimeBlock>
-  ? OntimeBlock
-  : never;
+type CompleteEntry<T> =
+  T extends Partial<OntimeEvent>
+    ? OntimeEvent
+    : T extends Partial<OntimeDelay>
+      ? OntimeDelay
+      : T extends Partial<OntimeBlock>
+        ? OntimeBlock
+        : never;
 
 function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>>(
   eventData: T,
@@ -239,13 +241,13 @@ function notifyChanges(options: { timer?: boolean | string[]; external?: boolean
       // notify timer service of changed events
       // timer can be true or an array of changed IDs
       const affected = Array.isArray(options.timer) ? options.timer : undefined;
-      runtimeService.maybeUpdate(playableEvents, affected);
+      runtimeService.maybeUpdate(affected);
     }
   }
 
   if (options.external) {
     // advice socket subscribers of change
-    sendRefetch();
+    sendRefetch(Array.isArray(options.timer) ? options.timer : undefined);
   }
 }
 
@@ -261,4 +263,8 @@ export async function initRundown(rundown: Readonly<OntimeRundown>, customFields
 
   // notify timer of change
   notifyChanges({ timer: true });
+}
+
+export async function setFrozenState(state: boolean) {
+  eventStore.set('frozen', state);
 }

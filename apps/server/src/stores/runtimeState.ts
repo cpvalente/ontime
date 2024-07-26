@@ -1,9 +1,17 @@
-import { MaybeNumber, OntimeEvent, Playback, Runtime, TimerPhase, TimerState, TimerType } from 'ontime-types';
-import { calculateDuration, dayInMs } from 'ontime-utils';
+import {
+  CurrentBlockState,
+  MaybeNumber,
+  OntimeEvent,
+  OntimeRundown,
+  Playback,
+  Runtime,
+  TimerPhase,
+  TimerState,
+} from 'ontime-types';
+import { calculateDuration, dayInMs, filterPlayable, getRelevantBlock } from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
 import { RestorePoint } from '../services/RestoreService.js';
-
 import {
   getCurrent,
   getExpectedEnd,
@@ -11,37 +19,38 @@ import {
   getRollTimers,
   getRuntimeOffset,
   getTimerPhase,
-  skippedOutOfEvent,
-  updateRoll,
+  isPlaybackActive,
 } from '../services/timerUtils.js';
 import { timerConfig } from '../config/config.js';
 
 const initialRuntime: Runtime = {
-  selectedEventIndex: null,
-  numEvents: 0,
-  offset: null,
-  plannedStart: 0,
-  plannedEnd: 0,
-  actualStart: null,
-  expectedEnd: null,
+  selectedEventIndex: null, // changes if rundown changes or we load a new event
+  numEvents: 0, // change initiated by user
+  offset: 0, // changes at runtime
+  plannedStart: 0, // only changes if event changes
+  plannedEnd: 0, // only changes if event changes
+  actualStart: null, // set once we start the timer
+  expectedEnd: null, // changes with runtime, based on offset
 } as const;
 
 const initialTimer: TimerState = {
   addedTime: 0,
-  current: null,
-  duration: null,
-  elapsed: null,
-  expectedFinish: null, // TODO: expected finish could account for midnight, we cleanup in the clients
-  finishedAt: null,
-  phase: TimerPhase.None,
-  playback: Playback.Stop,
-  secondaryTimer: null,
-  startedAt: null,
+  current: null, // changes on every update
+  duration: null, // only changes if event changes
+  elapsed: null, // changes on every update
+  // TODO: expected finish could account for midnight, we cleanup in the clients
+  expectedFinish: null, // change can only be initiated by user
+  finishedAt: null, // can change on update or user action
+  phase: TimerPhase.None, // can change on update or user action
+  playback: Playback.Stop, // change initiated by user
+  secondaryTimer: null, // change on every update
+  startedAt: null, // change can only be initiated by user
 } as const;
 
 export type RuntimeState = {
   clock: number; // realtime clock
   eventNow: OntimeEvent | null;
+  currentBlock: CurrentBlockState;
   publicEventNow: OntimeEvent | null;
   eventNext: OntimeEvent | null;
   publicEventNext: OntimeEvent | null;
@@ -49,15 +58,19 @@ export type RuntimeState = {
   timer: TimerState;
   // private properties of the timer calculations
   _timer: {
-    forceFinish: MaybeNumber;
+    forceFinish: MaybeNumber; // wether we should declare an event as finished, will contain the finish time
     totalDelay: number; // this value comes from rundown service
     pausedAt: MaybeNumber;
-    secondaryTarget: MaybeNumber;
   };
+  _prevCurrentBlock: CurrentBlockState;
 };
 
 const runtimeState: RuntimeState = {
   clock: clock.timeNow(),
+  currentBlock: {
+    block: null,
+    startedAt: null,
+  },
   eventNow: null,
   publicEventNow: null,
   eventNext: null,
@@ -68,7 +81,10 @@ const runtimeState: RuntimeState = {
     forceFinish: null,
     totalDelay: 0,
     pausedAt: null,
-    secondaryTarget: null,
+  },
+  _prevCurrentBlock: {
+    block: null,
+    startedAt: null,
   },
 };
 
@@ -80,9 +96,14 @@ export function clear() {
   runtimeState.eventNow = null;
   runtimeState.publicEventNow = null;
   runtimeState.eventNext = null;
+
+  runtimeState._prevCurrentBlock = { ...runtimeState.currentBlock };
+  runtimeState.currentBlock.block = null;
+  runtimeState.currentBlock.startedAt = null;
+
   runtimeState.publicEventNext = null;
 
-  runtimeState.runtime.offset = null;
+  runtimeState.runtime.offset = 0;
   runtimeState.runtime.actualStart = null;
   runtimeState.runtime.expectedEnd = null;
   runtimeState.runtime.selectedEventIndex = null;
@@ -93,7 +114,6 @@ export function clear() {
 
   // we maintain the total delay
   runtimeState._timer.pausedAt = null;
-  runtimeState._timer.secondaryTarget = null;
 }
 
 /**
@@ -125,19 +145,21 @@ export function updateRundownData(rundownData: RundownData) {
 
   runtimeState.runtime.numEvents = rundownData.numEvents;
   runtimeState.runtime.plannedStart = rundownData.firstStart;
-  runtimeState.runtime.plannedEnd = rundownData.firstStart + rundownData.totalDuration;
+  runtimeState.runtime.plannedEnd =
+    rundownData.firstStart === null ? null : rundownData.firstStart + rundownData.totalDuration;
   runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
 }
 
 /**
  * Loads a given event into state
  * @param event
- * @param rundown
- * @param initialData
+ * @param {OntimeEvent[]} playableEvents list of events availebe for playback
+ * @param {OntimeRundown} rundown the full rundown
+ * @param initialData potential data from restore point
  */
 export function load(
   event: OntimeEvent,
-  rundown: OntimeEvent[],
+  rundown: OntimeRundown,
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
   clear();
@@ -168,8 +190,14 @@ export function load(
   return event.id === runtimeState.eventNow?.id;
 }
 
-export function loadNow(event: OntimeEvent, playableEvents: OntimeEvent[]) {
+export function loadNow(event: OntimeEvent, rundown: OntimeRundown) {
   runtimeState.eventNow = event;
+  runtimeState.currentBlock.block = getRelevantBlock(rundown, event.id);
+
+  //if we are still in the same block keep the startedAt time
+  if (runtimeState._prevCurrentBlock.block?.id === runtimeState.currentBlock.block?.id) {
+    runtimeState.currentBlock.startedAt = runtimeState._prevCurrentBlock.startedAt;
+  }
 
   // check if current is also public
   if (event.isPublic) {
@@ -183,6 +211,8 @@ export function loadNow(event: OntimeEvent, playableEvents: OntimeEvent[]) {
       return;
     }
 
+    const playableEvents = filterPlayable(rundown);
+
     // iterate backwards to find it
     for (let i = runtimeState.runtime.selectedEventIndex; i >= 0; i--) {
       if (playableEvents[i].isPublic) {
@@ -193,7 +223,7 @@ export function loadNow(event: OntimeEvent, playableEvents: OntimeEvent[]) {
   }
 }
 
-export function loadNext(playableEvents: OntimeEvent[]) {
+export function loadNext(rundown: OntimeRundown) {
   // assume there are no next events
   runtimeState.eventNext = null;
   runtimeState.publicEventNext = null;
@@ -202,6 +232,7 @@ export function loadNext(playableEvents: OntimeEvent[]) {
     return;
   }
 
+  const playableEvents = filterPlayable(rundown);
   const numEvents = playableEvents.length;
 
   if (runtimeState.runtime.selectedEventIndex < numEvents - 1) {
@@ -227,7 +258,14 @@ export function loadNext(playableEvents: OntimeEvent[]) {
   }
 }
 
-export function resume(restorePoint: RestorePoint, event: OntimeEvent, rundown: OntimeEvent[]) {
+/**
+ * Resume from restore point
+ * @param restorePoint
+ * @param event
+ * @param playableEvents list of events availebe for playback
+ * @param rundown the full rundown
+ */
+export function resume(restorePoint: RestorePoint, event: OntimeEvent, rundown: OntimeRundown) {
   load(event, rundown, restorePoint);
 }
 
@@ -236,6 +274,7 @@ export function resume(restorePoint: RestorePoint, event: OntimeEvent, rundown: 
  * @param {OntimeEvent} event only passed if we are changing the data if a playing timer
  */
 export function reload(event?: OntimeEvent) {
+  // we only pass an event for hot reloading, ie: the event has changed
   if (event) {
     runtimeState.eventNow = event;
 
@@ -243,7 +282,7 @@ export function reload(event?: OntimeEvent) {
     runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, runtimeState.eventNow.timeEnd);
     runtimeState.timer.current = getCurrent(runtimeState);
     runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
-    return;
+    return runtimeState.eventNow.id;
   }
   runtimeState.timer.playback = Playback.Armed;
 
@@ -257,6 +296,9 @@ export function reload(event?: OntimeEvent) {
   runtimeState.timer.addedTime = 0;
 
   runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
+
+  runtimeState.currentBlock.startedAt = null;
+  return runtimeState.eventNow.id;
 }
 
 /**
@@ -264,10 +306,11 @@ export function reload(event?: OntimeEvent) {
  * without interrupting timer
  * @param eventNow
  * @param playableEvents
+ * @param rundown
  */
-export function reloadAll(eventNow: OntimeEvent, playableEvents: OntimeEvent[]) {
-  loadNow(eventNow, playableEvents);
-  loadNext(playableEvents);
+export function reloadAll(eventNow: OntimeEvent, rundown: OntimeRundown) {
+  loadNow(eventNow, rundown);
+  loadNext(rundown);
   reload(eventNow);
 }
 
@@ -280,7 +323,6 @@ export function start(state: RuntimeState = runtimeState): boolean {
   }
   state.clock = clock.timeNow();
   state.timer.secondaryTimer = null;
-  state._timer.secondaryTarget = null;
 
   // add paused time if it exists
   if (state._timer.pausedAt) {
@@ -291,6 +333,11 @@ export function start(state: RuntimeState = runtimeState): boolean {
 
   if (state.timer.startedAt === null) {
     state.timer.startedAt = state.clock;
+  }
+
+  if (state.currentBlock.startedAt === null) {
+    console.log('currentBlock.startedAt is null, setting new start');
+    state.currentBlock.startedAt = state.clock;
   }
 
   state.timer.playback = Playback.Play;
@@ -372,87 +419,75 @@ export type UpdateResult = {
 };
 
 export function update(): UpdateResult {
-  let hasTimerFinished = false;
-  let shouldCallRoll = false; // we also need to call roll if a secondary timer has finished
+  // 0. there are some things we always do
+  runtimeState.clock = clock.timeNow(); // we update the clock on every update call
 
-  const previousTime = runtimeState.clock;
-  runtimeState.clock = clock.timeNow();
-
-  // we call integrations if we update timers
-  if (runtimeState.timer.playback === Playback.Roll) {
-    const result = onRollUpdate();
-    shouldCallRoll = result.doRoll;
-    hasTimerFinished = result.isFinished;
-  } else if (runtimeState.timer.startedAt !== null) {
-    // we only update timer if a timer has been started
-    const result = onPlayUpdate();
-    hasTimerFinished = result.isFinished;
-  } else if (runtimeState.eventNow?.timerType === TimerType.TimeToEnd) {
-    // or if we are in a time-to-end timer
-    runtimeState.timer.current = getCurrent(runtimeState);
-    runtimeState.timer.duration = runtimeState.timer.current;
+  // 1. is playback idle?
+  if (!isPlaybackActive(runtimeState)) {
+    return updateIfIdle();
   }
 
-  // update timer phase
-  runtimeState.timer.phase = getTimerPhase(runtimeState);
+  // 2. are we waiting to roll?
+  if (runtimeState.timer.playback === Playback.Roll && runtimeState.timer.secondaryTimer !== null) {
+    return updateIfWaitingToRoll(runtimeState.timer.secondaryTimer);
+  }
 
-  // update offset
+  // 3. at this point we know that we are playing an event
+  // reset data
+  runtimeState.timer.secondaryTimer = null;
+
+  // update timer state
+  if (!runtimeState.timer.duration) {
+    throw new Error('Timer duration is not set');
+  }
+
+  runtimeState.timer.current = getCurrent(runtimeState);
+  runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
+  runtimeState.timer.phase = getTimerPhase(runtimeState);
+  runtimeState.timer.elapsed = runtimeState.timer.duration - runtimeState.timer.current;
+
+  // update runtime, needs up-to-date timer state
   runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
   runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
 
-  return {
-    hasTimerFinished,
-    shouldCallRoll,
-  };
+  const finishedNow =
+    Boolean(runtimeState._timer.forceFinish) ||
+    (runtimeState.timer.current <= timerConfig.triggerAhead && runtimeState.timer.finishedAt === null);
 
-  function onRollUpdate() {
-    const hasSkippedOutOfEvent = skippedOutOfEvent(runtimeState, previousTime, timerConfig.skipLimit);
-    if (hasSkippedOutOfEvent) {
-      return { doRoll: true };
-    }
-    const { updatedTimer, updatedSecondaryTimer, doRollLoad, isFinished } = updateRoll(runtimeState);
-    runtimeState.timer.current = updatedTimer;
-    runtimeState.timer.secondaryTimer = updatedSecondaryTimer;
-    runtimeState.timer.elapsed = runtimeState.timer.duration - runtimeState.timer.current;
-
-    return { doRoll: doRollLoad, isFinished };
+  if (finishedNow) {
+    // reset state
+    runtimeState._timer.forceFinish;
+    runtimeState.timer.finishedAt = runtimeState._timer.forceFinish ?? runtimeState.clock;
+  } else {
+    runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
   }
 
-  function onPlayUpdate() {
-    let isFinished = false;
-    runtimeState.timer.current = getCurrent(runtimeState);
-    const shouldForceFinish = runtimeState._timer.forceFinish !== null;
-    const finishedNow =
-      shouldForceFinish ||
-      (runtimeState.timer.current <= timerConfig.triggerAhead && runtimeState.timer.finishedAt === null);
+  return { hasTimerFinished: finishedNow, shouldCallRoll: finishedNow };
 
-    if (runtimeState.timer.playback === Playback.Play && finishedNow) {
-      runtimeState.timer.finishedAt = runtimeState._timer.forceFinish ?? runtimeState.clock;
-      isFinished = true;
-    } else {
-      runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
-    }
+  function updateIfIdle() {
+    // if nothing is running, nothing to do
+    return { hasTimerFinished: false, shouldCallRoll: false };
+  }
 
-    if (shouldForceFinish) {
-      runtimeState._timer.forceFinish = null;
-    }
-    runtimeState.timer.elapsed = runtimeState.timer.duration - runtimeState.timer.current;
-
-    return { isFinished };
+  function updateIfWaitingToRoll(targetTime: number) {
+    runtimeState.timer.secondaryTimer = targetTime - runtimeState.clock;
+    runtimeState.timer.phase = TimerPhase.Pending;
+    return { hasTimerFinished: false, shouldCallRoll: runtimeState.timer.secondaryTimer < 0 };
   }
 }
 
-export function roll(rundown: OntimeEvent[]) {
+export function roll(rundown: OntimeRundown) {
   const selectedEventIndex = runtimeState.runtime.selectedEventIndex;
-  clear();
-  runtimeState.runtime.numEvents = rundown.length;
+  const playableEvents = filterPlayable(rundown);
 
-  const { nextEvent, currentEvent } = getRollTimers(rundown, runtimeState.clock, selectedEventIndex);
+  clear();
+  runtimeState.runtime.numEvents = playableEvents.length;
+
+  const { nextEvent, currentEvent } = getRollTimers(playableEvents, runtimeState.clock, selectedEventIndex);
 
   if (currentEvent) {
     // there is something running, load
     runtimeState.timer.secondaryTimer = null;
-    runtimeState._timer.secondaryTarget = null;
 
     // account for event that finishes the day after
     const endTime =
@@ -473,8 +508,8 @@ export function roll(rundown: OntimeEvent[]) {
     // account for day after
     const nextStart = nextEvent.timeStart < runtimeState.clock ? nextEvent.timeStart + dayInMs : nextEvent.timeStart;
     // nothing now, but something coming up
+    runtimeState.timer.phase = TimerPhase.Pending;
     runtimeState.timer.secondaryTimer = nextStart - runtimeState.clock;
-    runtimeState._timer.secondaryTarget = nextStart;
   }
 
   runtimeState.timer.playback = Playback.Roll;

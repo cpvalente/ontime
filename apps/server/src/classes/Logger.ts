@@ -4,7 +4,7 @@ import { generateId, millisToString } from 'ontime-utils';
 import { clock } from '../services/Clock.js';
 import { isProduction } from '../setup/index.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
-import { consoleSubdued, consoleRed } from '../utils/console.js';
+import { consoleSubdued, consoleError } from '../utils/console.js';
 
 class Logger {
   private queue: Log[];
@@ -47,7 +47,7 @@ class Logger {
   private _push(log: Log) {
     if (this.canLog || log.level === LogLevel.Severe) {
       if (log.level === LogLevel.Severe) {
-        consoleRed(`[${log.level}] \t ${log.origin} \t ${log.text}`);
+        consoleError(`[${log.level}] \t ${log.origin} \t ${log.text}`);
       } else {
         consoleSubdued(`[${log.level}] \t ${log.origin} \t ${log.text}`);
       }

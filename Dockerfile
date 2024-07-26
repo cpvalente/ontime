@@ -1,19 +1,19 @@
-FROM node:18.18-alpine AS builder
+FROM node:20-bullseye AS builder
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+RUN npm install -g pnpm@9.5.0
 COPY . /app
 WORKDIR /app
 RUN pnpm --filter=ontime-ui --filter=ontime-server --filter=ontime-utils install --config.dedupe-peer-dependents=false --frozen-lockfile
 RUN pnpm --filter=ontime-ui --filter=ontime-server run build:docker
 
-FROM node:18.18-alpine
+FROM node:20-alpine
 
 # Set environment variables
 # Environment Variable to signal that we are running production
 ENV NODE_ENV=docker
 # Ontime Data path
-ENV ONTIME_DATA=/external/
+ENV ONTIME_DATA=/data/
 
 WORKDIR /app/
 
@@ -22,7 +22,6 @@ COPY --from=builder /app/apps/client/build ./client/
 
 # Prepare Backend
 COPY --from=builder /app/apps/server/dist/ ./server/
-COPY ./demo-db/ ./preloaded-db/
 COPY --from=builder /app/apps/server/src/external/ ./external/
 
 # Export default ports

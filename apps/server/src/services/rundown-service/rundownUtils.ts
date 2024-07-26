@@ -1,4 +1,4 @@
-import { OntimeEvent, OntimeRundown, isOntimeEvent, RundownCached } from 'ontime-types';
+import { OntimeEvent, OntimeRundown, isOntimeEvent, RundownCached, OntimeRundownEntry } from 'ontime-types';
 
 import * as cache from './rundownCache.js';
 
@@ -53,9 +53,9 @@ export function getEventAtIndex(eventIndex: number): OntimeEvent | undefined {
  * @param {string} eventId
  * @return {object | undefined}
  */
-export function getEventWithId(eventId: string): OntimeEvent | undefined {
-  const timedEvents = getTimedEvents();
-  return timedEvents.find((event) => event.id === eventId);
+export function getEventWithId(eventId: string): OntimeRundownEntry | undefined {
+  const rundown = getRundown();
+  return rundown.find((event) => event.id === eventId);
 }
 
 /**
@@ -116,4 +116,20 @@ export function findNext(currentEventId?: string): OntimeEvent | null {
   const newIndex = currentIndex + 1;
   const nextEvent = timedEvents.at(newIndex);
   return nextEvent ?? null;
+}
+
+/**
+ * Returns a paginated rundown
+ * Exposes a getter function for the rundown for testing
+ */
+export function getPaginated(
+  offset: number,
+  limit: number,
+  source = getRundown,
+): { rundown: OntimeRundownEntry[]; total: number } {
+  const rundown = source();
+  return {
+    rundown: rundown.slice(Math.min(offset, rundown.length), Math.min(offset + limit, rundown.length)),
+    total: rundown.length,
+  };
 }

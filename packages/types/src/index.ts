@@ -49,6 +49,7 @@ export type {
   ErrorResponse,
   ProjectFileListResponse,
   MessageResponse,
+  RundownPaginated,
 } from './api/ontime-controller/BackendResponse.type.js';
 export type { RundownCached, NormalisedRundown } from './api/rundown-controller/BackendResponse.type.js';
 
@@ -61,6 +62,7 @@ export type { Message, TimerMessage, MessageState } from './definitions/runtime/
 export type { Runtime } from './definitions/runtime/Runtime.type.js';
 export type { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
 export { type TimerState, TimerPhase } from './definitions/runtime/TimerState.type.js';
+export type { CurrentBlockState } from './definitions/runtime/CurrentBlockState.type.js';
 
 // ---> Extra Timer
 export {

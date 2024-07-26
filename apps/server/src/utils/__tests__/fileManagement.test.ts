@@ -1,5 +1,12 @@
-import { describe, it, expect } from 'vitest';
-import { ensureJsonExtension } from '../fileManagement.js';
+import { describe, it, expect, Mock } from 'vitest';
+import * as fs from 'fs';
+
+import { appendToName, ensureJsonExtension, generateUniqueFileName } from '../fileManagement.js';
+
+// Mock fs.existsSync to control the test environment
+vi.mock('fs', () => ({
+  existsSync: vi.fn(),
+}));
 
 describe('ensureJsonExtension', () => {
   it('should add .json to a filename without an extension', () => {
@@ -24,5 +31,62 @@ describe('ensureJsonExtension', () => {
     const filename = 'my.test.file';
     const result = ensureJsonExtension(filename);
     expect(result).toBe('my.test.file.json');
+  });
+});
+
+describe('appendToName', () => {
+  it('appends a given string to a file name', () => {
+    const filename = 'file.json';
+    const append = '(recovered)';
+    const result = appendToName(filename, append);
+    expect(result).toBe('file (recovered).json');
+  });
+
+  it('handles paths', () => {
+    const path = '/Users/carlos/Library/Application Support/Ontime/projects/file.json';
+    const append = '(recovered)';
+    const result = appendToName(path, append);
+    expect(result).toBe('/Users/carlos/Library/Application Support/Ontime/projects/file (recovered).json');
+  });
+
+  it('handles multiple . in string', () => {
+    const path = 'strange.file.name.json';
+    const append = '(recovered)';
+    const result = appendToName(path, append);
+    expect(result).toBe('strange.file.name (recovered).json');
+  });
+});
+
+describe('generateUniqueFileName', () => {
+  const directory = '/test/directory';
+  const filename = 'testFile.txt';
+  const baseName = 'testFile';
+  const extension = '.txt';
+
+  beforeEach(() => {
+    // Clear all mocks before each test
+    vi.clearAllMocks();
+  });
+
+  it('should return original file name if there is no conflict', () => {
+    (fs.existsSync as Mock).mockReturnValue(false);
+    const uniqueFilename = generateUniqueFileName(directory, filename);
+    expect(uniqueFilename).toBe(filename);
+  });
+
+  it('should append a counter to the filename if a conflict exists', () => {
+    // Mock the first call to return true (file exists), then false
+    (fs.existsSync as Mock).mockReturnValueOnce(true).mockReturnValueOnce(false);
+    const expectedFilename = `${baseName} (1)${extension}`;
+    const uniqueFilename = generateUniqueFileName(directory, filename);
+    expect(uniqueFilename).toBe(expectedFilename);
+  });
+
+  it('should increment the counter for each conflict until a unique filename is found', () => {
+    // Mock the first two calls to return true (file exists), then false
+    (fs.existsSync as Mock).mockReturnValueOnce(true).mockReturnValueOnce(true).mockReturnValueOnce(false);
+    const expectedFilename = `${baseName} (2)${extension}`;
+    const uniqueFilename = generateUniqueFileName(directory, filename);
+    expect(uniqueFilename).toBe(expectedFilename);
   });
 });

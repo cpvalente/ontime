@@ -150,6 +150,11 @@ export const connectSocket = () => {
           updateDevTools({ eventNow: payload });
           break;
         }
+        case 'ontime-currentBlock': {
+          patchRuntime('currentBlock', payload);
+          updateDevTools({ currentBlock: payload });
+          break;
+        }
         case 'ontime-publicEventNow': {
           patchRuntime('publicEventNow', payload);
           updateDevTools({ publicEventNow: payload });

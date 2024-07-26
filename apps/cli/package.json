@@ -1,6 +1,6 @@
 {
     "name": "@getontime/cli",
-    "version": "3.3.2",
+    "version": "3.4.0",
     "author": "Carlos Valente",
     "description": "Time keeping for live events",
     "repository": "https://github.com/cpvalente/ontime",
@@ -20,8 +20,8 @@
         "server"
     ],
     "devDependencies": {
-        "eslint": "^8.53.0",
-        "eslint-config-prettier": "^9.0.0",
-        "prettier": "^3.0.3"
+        "eslint": "catalog:",
+        "eslint-config-prettier": "catalog:",
+        "prettier": "catalog:"
     }
 }

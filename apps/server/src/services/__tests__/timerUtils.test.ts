@@ -10,7 +10,6 @@ import {
   getTotalDuration,
   normaliseEndTime,
   skippedOutOfEvent,
-  updateRoll,
 } from '../timerUtils.js';
 import { RuntimeState } from '../../stores/runtimeState.js';
 
@@ -1237,196 +1236,6 @@ test('normaliseEndTime()', () => {
   expect(normaliseEndTime(t3.start, t3.end)).toBe(t3_expected);
 });
 
-describe('updateRoll()', () => {
-  it('it updates running events correctly', () => {
-    const timers = {
-      eventNow: {
-        id: '1',
-      },
-      clock: 11,
-      timer: {
-        current: 10,
-        expectedFinish: 100,
-        secondaryTimer: null,
-        startedAt: 1,
-      },
-      _timer: {
-        secondaryTarget: null,
-      },
-    } as RuntimeState;
-
-    const expected = {
-      updatedTimer: 100 - 11,
-      updatedSecondaryTimer: null, // usually clock - expectedFinish
-      doRollLoad: false,
-      isFinished: false,
-    };
-
-    expect(updateRoll(timers)).toStrictEqual(expected);
-
-    // test that it can jump time
-    timers.timer.expectedFinish = 1000;
-    timers.clock = 600;
-    expected.updatedTimer = 1000 - 600;
-
-    expect(updateRoll(timers)).toStrictEqual(expected);
-  });
-
-  it('it updates secondary timer', () => {
-    const timers = {
-      eventNow: null,
-      clock: 11,
-      timer: {
-        current: null,
-        expectedFinish: null,
-        secondaryTimer: 1,
-      },
-      _timer: {
-        secondaryTarget: 15,
-      },
-    } as RuntimeState;
-
-    const expected = {
-      updatedTimer: null,
-      updatedSecondaryTimer: 15 - 11, // countdown to secondary
-      doRollLoad: false,
-      isFinished: false,
-    };
-
-    expect(updateRoll(timers)).toStrictEqual(expected);
-  });
-
-  it('flags an event end', () => {
-    const timers = {
-      eventNow: {
-        id: '1',
-      },
-      clock: 12,
-      timer: {
-        startedAt: 0,
-        current: 10,
-        expectedFinish: 11,
-        secondaryTimer: null,
-      },
-      _timer: {
-        secondaryTarget: null,
-      },
-    } as RuntimeState;
-
-    const expected = {
-      updatedTimer: -1,
-      updatedSecondaryTimer: null,
-      doRollLoad: true,
-      isFinished: true,
-    };
-
-    expect(updateRoll(timers)).toStrictEqual(expected);
-  });
-
-  it('secondary events do not trigger event ends', () => {
-    const timers = {
-      eventNow: null,
-      clock: 16,
-      timer: {
-        startedAt: null,
-        current: null,
-        expectedFinish: null,
-        secondaryTimer: 1,
-      },
-      _timer: {
-        secondaryTarget: 15,
-      },
-    } as RuntimeState;
-
-    const expected = {
-      updatedTimer: null,
-      updatedSecondaryTimer: -1,
-      doRollLoad: true,
-      isFinished: false,
-    };
-
-    expect(updateRoll(timers)).toStrictEqual(expected);
-  });
-
-  it('when a secondary timer is finished, it prompts for new event load', () => {
-    const timers = {
-      eventNow: null,
-      clock: 15,
-      timer: {
-        current: null,
-        expectedFinish: null,
-        secondaryTimer: 0,
-      },
-      _timer: {
-        secondaryTarget: 15,
-      },
-    } as RuntimeState;
-
-    const expected = {
-      updatedTimer: null,
-      updatedSecondaryTimer: 0,
-      doRollLoad: true,
-      isFinished: false,
-    };
-
-    expect(updateRoll(timers)).toStrictEqual(expected);
-  });
-
-  it('counts over midnight', () => {
-    const timers = {
-      eventNow: {
-        id: '1',
-      },
-      clock: dayInMs - 10,
-      timer: {
-        current: 25,
-        expectedFinish: 10,
-        startedAt: 1000,
-        secondaryTimer: null,
-      },
-      _timer: {
-        secondaryTarget: null,
-      },
-    } as RuntimeState;
-
-    const expected = {
-      updatedTimer: 20,
-      updatedSecondaryTimer: null,
-      doRollLoad: false,
-      isFinished: false,
-    };
-
-    expect(updateRoll(timers)).toStrictEqual(expected);
-  });
-
-  it('rolls over midnight', () => {
-    const timers = {
-      eventNow: {
-        id: '1',
-      },
-      clock: 10,
-      timer: {
-        current: dayInMs,
-        expectedFinish: 10,
-        startedAt: 1000,
-        secondaryTimer: null,
-      },
-      _timer: {
-        secondaryTarget: null,
-      },
-    } as RuntimeState;
-
-    const expected = {
-      updatedTimer: dayInMs,
-      updatedSecondaryTimer: null,
-      doRollLoad: false,
-      isFinished: false,
-    };
-
-    expect(updateRoll(timers)).toStrictEqual(expected);
-  });
-});
-
 describe('getRuntimeOffset()', () => {
   it('is the difference between scheduled and when we actually started', () => {
     const state = {
@@ -1554,11 +1363,11 @@ describe('getRuntimeOffset()', () => {
         secondaryTimer: null,
         startedAt: null,
       },
-      _timer: { pausedAt: null, secondaryTarget: null },
+      _timer: { pausedAt: null },
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
-    expect(offset).toBe(null);
+    expect(offset).toBe(0);
   });
 
   it('handles loaded event', () => {
@@ -1595,7 +1404,7 @@ describe('getRuntimeOffset()', () => {
         secondaryTimer: null,
         startedAt: null,
       },
-      _timer: { pausedAt: null, secondaryTarget: null },
+      _timer: { pausedAt: null },
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
@@ -1630,7 +1439,7 @@ describe('getRuntimeOffset()', () => {
       runtime: {
         selectedEventIndex: 0,
         numEvents: 1,
-        offset: null,
+        offset: 0,
         plannedStart: 77400000, // 21:30:00
         plannedEnd: 81000000, // 22:30:00
         actualStart: 78000000, // 21:40:00
@@ -1647,7 +1456,7 @@ describe('getRuntimeOffset()', () => {
         secondaryTimer: null,
         startedAt: 78000000,
       },
-      _timer: { pausedAt: null, secondaryTarget: null },
+      _timer: { pausedAt: null },
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
@@ -1682,7 +1491,7 @@ describe('getRuntimeOffset()', () => {
       runtime: {
         selectedEventIndex: 0,
         numEvents: 1,
-        offset: null,
+        offset: 0,
         plannedStart: 77400000, // 21:30:00
         plannedEnd: 81000000, // 22:30:00
         actualStart: 78000000, // 21:40:00
@@ -1699,7 +1508,7 @@ describe('getRuntimeOffset()', () => {
         secondaryTimer: null,
         startedAt: 78000000,
       },
-      _timer: { pausedAt: null, secondaryTarget: null },
+      _timer: { pausedAt: null },
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
@@ -1722,7 +1531,7 @@ describe('getRuntimeOffset()', () => {
       runtime: {
         selectedEventIndex: 0,
         numEvents: 1,
-        offset: null,
+        offset: 0,
         plannedStart: 77400000, // 21:30:00
         plannedEnd: 81000000, // 22:30:00
         actualStart: 82000000, // 22:46:40 <--- started now
@@ -1739,7 +1548,7 @@ describe('getRuntimeOffset()', () => {
         secondaryTimer: null,
         startedAt: 82000000, // <--- started now
       },
-      _timer: { pausedAt: null, secondaryTarget: null },
+      _timer: { pausedAt: null },
     } as RuntimeState;
 
     const updateCurrent = getCurrent(state);
@@ -1887,7 +1696,7 @@ describe('getTimerPhase()', () => {
       runtime: {
         selectedEventIndex: null,
         numEvents: 1,
-        offset: null,
+        offset: 0,
         plannedStart: 55860000,
         plannedEnd: 55880000,
         actualStart: null,
@@ -1909,7 +1718,6 @@ describe('getTimerPhase()', () => {
         forceFinish: null,
         totalDelay: 0,
         pausedAt: null,
-        secondaryTarget: 55860000,
       },
     } as RuntimeState;
 
@@ -1927,7 +1735,7 @@ describe('getTimerPhase()', () => {
       runtime: {
         selectedEventIndex: null,
         numEvents: 1,
-        offset: null,
+        offset: 0,
         plannedStart: 55860000,
         plannedEnd: 55880000,
         actualStart: null,
@@ -1949,7 +1757,6 @@ describe('getTimerPhase()', () => {
         forceFinish: null,
         totalDelay: 0,
         pausedAt: null,
-        secondaryTarget: 55860000,
       },
     } as RuntimeState;
 

@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "3.3.2",
+  "version": "3.4.0",
   "description": "Time keeping for live events",
   "keywords": [
     "ontime",
@@ -16,8 +16,8 @@
   },
   "license": "AGPL-3.0-only",
   "engines": {
-    "node": "~18.18.2",
-    "pnpm": ">=8"
+    "node": "~20",
+    "pnpm": "~9"
   },
   "type": "module",
   "scripts": {
@@ -25,7 +25,6 @@
     "dev:electron": "turbo run dev --filter=ontime",
     "dev:server": "turbo run dev --filter=ontime-server",
     "lint": "turbo run lint",
-    "lint-staged": "turbo run lint-staged --concurrency=1",
     "build": "turbo run build",
     "build:local": "turbo run build:local",
     "build:electron": "turbo run build:electron",
@@ -40,27 +39,15 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.42.1",
-    "@types/node": "^18.11.18",
-    "@typescript-eslint/eslint-plugin": "^v7.12.0",
-    "@typescript-eslint/parser": "^7.12.0",
+    "@types/node": "catalog:",
+    "@typescript-eslint/eslint-plugin": "catalog:",
+    "@typescript-eslint/parser": "catalog:",
     "cross-env": "^7.0.3",
-    "eslint": "^8.56.0",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint": "catalog:",
+    "eslint-config-prettier": "catalog:",
     "eslint-plugin-playwright": "^1.5.2",
-    "husky": "^8.0.3",
-    "lint-staged": "^15.1.0",
-    "prettier": "^3.3.1",
+    "prettier": "catalog:",
     "turbo": "^1.11.2",
-    "typescript": "^5.4.3"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "pnpm lint"
-    ]
+    "typescript": "catalog:"
   }
 }

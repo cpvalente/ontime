@@ -10,7 +10,7 @@ export type GetTimeFn = () => number;
 
 export class AuxTimerService {
   private timer: SimpleTimer;
-  private interval: NodeJS.Timer | null = null;
+  private interval: NodeJS.Timeout | null = null;
   private emit: EmitFn;
   private getTime: GetTimeFn;
 

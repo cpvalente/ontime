@@ -1,4 +1,4 @@
-import { body, param, validationResult } from 'express-validator';
+import { body, param, query, validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
 
 export const rundownPostValidator = [
@@ -20,6 +20,15 @@ export const rundownPutValidator = [
     next();
   },
 ];
+
+export const rundownFrozenPostValidator = [
+  body('frozen').isBoolean().exists(),
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+]
 
 export const rundownBatchPutValidator = [
   body('data').isObject().exists(),
@@ -68,6 +77,17 @@ export const paramsMustHaveEventId = [
 export const rundownArrayOfIds = [
   body('ids').isArray().exists(),
   body('ids.*').isString(),
+
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
+
+export const rundownGetPaginatedQueryParams = [
+  query('offset').isNumeric().optional(),
+  query('limit').isNumeric().optional(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

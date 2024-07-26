@@ -28,3 +28,7 @@ $timer-finished-color: $playback-negative;
 $timer-bold-font-family: 'Arial Black', sans-serif; // --card-background-color-override
 
 $external-color: rgba(white, 70%); // --external-color-override
+
+// properties of other timers (clock and countdown)
+$timer-label-size: clamp(16px, 1.5vw, 24px);
+$timer-value-size: clamp(2rem, 3.5vw, 3.5rem);

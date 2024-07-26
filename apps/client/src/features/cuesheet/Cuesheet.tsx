@@ -21,11 +21,11 @@ interface CuesheetProps {
   columns: ColumnDef<OntimeRundownEntry>[];
   handleUpdate: (rowIndex: number, accessor: keyof OntimeRundownEntry, payload: unknown) => void;
   selectedId: string | null;
+  currentBlockId: string | null;
 }
 
-export default function Cuesheet({ data, columns, handleUpdate, selectedId }: CuesheetProps) {
+export default function Cuesheet({ data, columns, handleUpdate, selectedId, currentBlockId }: CuesheetProps) {
   const { followSelected, showSettings, showDelayBlock, showPrevious, showIndexColumn } = useCuesheetSettings();
-
   const {
     columnVisibility,
     columnOrder,
@@ -114,11 +114,16 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
               }
 
               if (isOntimeBlock(row.original)) {
+                if (isPast && !showPrevious && key !== currentBlockId) {
+                  return null;
+                }
                 return <BlockRow key={key} title={row.original.title} />;
               }
               if (isOntimeDelay(row.original)) {
+                if (isPast && !showPrevious) {
+                  return null;
+                }
                 const delayVal = row.original.duration;
-
                 if (!showDelayBlock || delayVal === 0) {
                   return null;
                 }
@@ -128,9 +133,6 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId }: Cu
               if (isOntimeEvent(row.original)) {
                 eventIndex++;
                 const isSelected = key === selectedId;
-                if (isSelected) {
-                  isPast = false;
-                }
 
                 if (isPast && !showPrevious) {
                   return null;

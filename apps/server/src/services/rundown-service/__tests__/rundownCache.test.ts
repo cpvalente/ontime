@@ -27,6 +27,19 @@ import {
   customFieldChangelog,
 } from '../rundownCache.js';
 
+beforeAll(() => {
+  vi.mock('../../../classes/data-provider/DataProvider.js', () => {
+    return {
+      getDataProvider: vi.fn().mockImplementation(() => {
+        return {
+          setCustomFields: vi.fn().mockImplementation((newData) => newData),
+          setRundown: vi.fn().mockImplementation((newData) => newData),
+        };
+      }),
+    };
+  });
+});
+
 describe('generate()', () => {
   it('creates normalised versions of a given rundown', () => {
     const testRundown: OntimeRundown = [
@@ -161,6 +174,19 @@ describe('generate()', () => {
     const testRundown: OntimeRundown = [
       { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 200 } as OntimeEvent,
       { type: SupportedEvent.Event, id: '2', timeStart: 200, timeEnd: 300 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: 'skipped', skip: true, timeStart: 300, timeEnd: 400 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500 } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.order.length).toBe(4);
+    expect(initResult.totalDuration).toBe(500 - 100);
+  });
+
+  it('calculates total duration with 0 duration events without causing a next day', () => {
+    const testRundown: OntimeRundown = [
+      { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 100, duration: 0 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '2', timeStart: 100, timeEnd: 300 } as OntimeEvent,
       { type: SupportedEvent.Event, id: 'skipped', skip: true, timeStart: 300, timeEnd: 400 } as OntimeEvent,
       { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500 } as OntimeEvent,
     ];
@@ -836,23 +862,6 @@ describe('calculateRuntimeDelaysFrom()', () => {
 
 describe('custom fields', () => {
   describe('createCustomField()', () => {
-    beforeEach(() => {
-      vi.mock('../../classes/data-provider/DataProvider.js', () => {
-        return {
-          DataProvider: {
-            ...vi.fn().mockImplementation(() => {
-              return {};
-            }),
-            getCustomFields: vi.fn().mockReturnValue({}),
-            setCustomFields: vi.fn().mockImplementation((newData) => {
-              return newData;
-            }),
-            persist: vi.fn().mockReturnValue({}),
-          },
-        };
-      });
-    });
-
     it('creates a field from given parameters', async () => {
       const expected = {
         lighting: {

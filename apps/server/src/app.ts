@@ -1,4 +1,4 @@
-import { HttpSettings, LogOrigin, OSCSettings, Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { LogOrigin, Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';
@@ -13,11 +13,10 @@ import {
   srcDirectory,
   environment,
   isProduction,
-  resolveDbPath,
   resolveExternalsDirectory,
   resolveStylesDirectory,
   resolvedPath,
-  clearUploadfolder,
+  resolvePublicDirectoy,
 } from './setup/index.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { consoleSuccess, consoleHighlight } from './utils/console.js';
@@ -28,8 +27,7 @@ import { integrationRouter } from './api-integration/integration.router.js';
 
 // Import adapters
 import { socket } from './adapters/WebsocketAdapter.js';
-import { DataProvider } from './classes/data-provider/DataProvider.js';
-import { dbLoadingProcess } from './setup/loadDb.js';
+import { getDataProvider } from './classes/data-provider/DataProvider.js';
 
 // Services
 import { integrationService } from './services/integration-service/IntegrationService.js';
@@ -44,6 +42,10 @@ import { messageService } from './services/message-service/MessageService.js';
 import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
 import { initRundown } from './services/rundown-service/RundownService.js';
+import { initialiseProject } from './services/project-service/ProjectService.js';
+
+// Utilities
+import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { getNetworkInterfaces } from './utils/networkInterfaces.js';
 import { auxTimerService } from './services/aux-timer-service/AuxTimerService.js';
@@ -54,8 +56,8 @@ consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
 const canLog = isProduction;
 if (!canLog) {
   console.log(`Ontime running in ${environment} environment`);
-  console.log(`Ontime directory at ${srcDirectory} `);
-  console.log(`Ontime database at ${resolveDbPath}`);
+  console.log(`Ontime source directory at ${srcDirectory} `);
+  console.log(`Ontime public directory at ${resolvePublicDirectoy} `);
 }
 
 // Create express APP
@@ -148,10 +150,11 @@ const checkStart = (currentState: OntimeStartOrder) => {
 
 export const initAssets = async () => {
   checkStart(OntimeStartOrder.InitAssets);
-  await dbLoadingProcess;
   await clearUploadfolder();
   populateStyles();
   populateDemo();
+  const project = await initialiseProject();
+  logger.info(LogOrigin.Server, `Initialised Ontime with ${project}`);
 };
 
 /**
@@ -161,8 +164,7 @@ export const startServer = async (
   escalateErrorFn?: (error: string) => void,
 ): Promise<{ message: string; serverPort: number }> => {
   checkStart(OntimeStartOrder.InitServer);
-
-  const { serverPort } = DataProvider.getSettings();
+  const { serverPort } = getDataProvider().getSettings();
 
   expressServer = http.createServer(app);
   socket.init(expressServer);
@@ -178,6 +180,10 @@ export const startServer = async (
     message: messageService.getState(),
     runtime: state.runtime,
     eventNow: state.eventNow,
+    currentBlock: {
+      block: null,
+      startedAt: null,
+    },
     publicEventNow: state.publicEventNow,
     eventNext: state.eventNext,
     publicEventNext: state.publicEventNext,
@@ -188,14 +194,15 @@ export const startServer = async (
       direction: SimpleDirection.CountDown,
     },
     auxtimer2: { current: 0 },
+    frozen: false,
   });
 
   // initialise logging service, escalateErrorFn is only exists in electron
   logger.init(escalateErrorFn);
 
   // initialise rundown service
-  const persistedRundown = DataProvider.getRundown();
-  const persistedCustomFields = DataProvider.getCustomFields();
+  const persistedRundown = getDataProvider().getRundown();
+  const persistedCustomFields = getDataProvider().getCustomFields();
   initRundown(persistedRundown, persistedCustomFields);
 
   // load restore point if it exists
@@ -226,11 +233,11 @@ export const startServer = async (
 /**
  * starts integrations
  */
-export const startIntegrations = async (config?: { osc: OSCSettings; http: HttpSettings }) => {
+export const startIntegrations = async () => {
   checkStart(OntimeStartOrder.InitIO);
 
   // if a config is not provided, we use the persisted one
-  const { osc, http } = config ?? DataProvider.getData();
+  const { osc, http } = getDataProvider().getData();
 
   if (osc) {
     logger.info(LogOrigin.Tx, 'Initialising OSC Integration...');
@@ -264,6 +271,7 @@ export const shutdown = async (exitCode = 0) => {
   // clear the restore file if it was a normal exit
   // 0 means it was a SIGNAL
   // 1 means crash -> keep the file
+  // 2 means dev crash -> do nothing
   // 99 means there was a shutdown request from the UI
   if (exitCode === 0 || exitCode === 99) {
     await restoreService.clear();

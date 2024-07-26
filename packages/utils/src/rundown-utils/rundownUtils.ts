@@ -1,5 +1,5 @@
-import type { NormalisedRundown, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
-import { isOntimeEvent } from 'ontime-types';
+import type { NormalisedRundown, OntimeBlock, OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import { isOntimeBlock, isOntimeEvent } from 'ontime-types';
 
 type IndexAndEntry = { entry: OntimeRundownEntry | null; index: number | null };
 
@@ -326,3 +326,44 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA:
 
   return { newA, newB };
 };
+
+/**
+ * Gets relevant block element for a given ID
+ * @param rundown
+ * @param order
+ * @param {string} currentId
+ * @return {OntimeBlock | null}
+ */
+export function getRelevantBlock(rundown: OntimeRundown, currentId: string): OntimeBlock | null {
+  let inBlock = false;
+  // Iterate backwards through the rundown to find the current event
+  for (let i = rundown.length - 1; i >= 0; i--) {
+    const entry = rundown[i];
+    if (entry.id === currentId) {
+      //set the flag when the current event is found
+      inBlock = true;
+    }
+    //the first block before the current event is the relevant one
+    if (inBlock && isOntimeBlock(entry)) {
+      return entry;
+    }
+  }
+  //no blocks exist before current event
+  return null;
+}
+
+/**
+ * returns all events that can be loaded
+ * @return {array}
+ */
+export function filterPlayable(rundown: OntimeRundown): OntimeEvent[] {
+  return rundown.filter((event) => isOntimeEvent(event) && !event.skip) as OntimeEvent[];
+}
+
+/**
+ * returns all events of type OntimeEvent
+ * @return {array}
+ */
+export function filterTimedEvents(rundown: OntimeRundown): OntimeEvent[] {
+  return rundown.filter((event) => isOntimeEvent(event)) as OntimeEvent[];
+}

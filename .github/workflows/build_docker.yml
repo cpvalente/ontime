@@ -1,8 +1,8 @@
 name: Docker Image CI Ontime
 
 on:
-  push:
-    tags: [ "*" ]
+  release:
+    types: [published]
   workflow_dispatch:
 
 jobs:
@@ -14,8 +14,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Setup env
-      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
     - name: Docker Login
       uses: docker/login-action@v2.1.0
@@ -32,10 +30,10 @@ jobs:
       with:
         context: .
         file: ./Dockerfile
-        platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
+        platforms: linux/amd64,linux/arm64,linux/arm/v7
         # Push is a shorthand for --output=type=registry
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ env.RELEASE_VERSION  }} , ${{ secrets.DOCKERHUB_USERNAME }}/ontime:latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ github.event.release.tag_name }} , ${{ secrets.DOCKERHUB_USERNAME }}/ontime:latest
 
     - name: Build and push pre-release
       if: github.event.release.prerelease == true
@@ -43,8 +41,8 @@ jobs:
       with:
         context: .
         file: ./Dockerfile
-        platforms: linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6
+        platforms: linux/amd64,linux/arm64,linux/arm/v7
         # Push is a shorthand for --output=type=registry
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ env.RELEASE_VERSION  }} , ${{ secrets.DOCKERHUB_USERNAME }}/ontime:nightly
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/ontime:${{ github.event.release.tag_name }} , ${{ secrets.DOCKERHUB_USERNAME }}/ontime:nightly
 

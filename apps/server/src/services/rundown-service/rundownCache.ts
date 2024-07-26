@@ -11,7 +11,7 @@ import {
 } from 'ontime-types';
 import { generateId, insertAtIndex, reorderArray, swapEventData, checkIsNextDay } from 'ontime-utils';
 
-import { DataProvider } from '../../classes/data-provider/DataProvider.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
 import { getTotalDuration } from '../timerUtils.js';
 import { apply } from './delayUtils.js';
@@ -59,8 +59,8 @@ export async function init(initialRundown: Readonly<OntimeRundown>, customFields
   persistedRundown = structuredClone(initialRundown) as OntimeRundown;
   persistedCustomFields = structuredClone(customFields);
   generate();
-  await DataProvider.setRundown(persistedRundown);
-  await DataProvider.setCustomFields(customFields);
+  await getDataProvider().setRundown(persistedRundown);
+  await getDataProvider().setCustomFields(customFields);
 }
 
 /**
@@ -87,6 +87,7 @@ export function generate(
   let daySpan = 0;
   let previousStart: MaybeNumber = null;
   let previousEnd: MaybeNumber = null;
+  let previousDuration: MaybeNumber = null;
 
   for (let i = 0; i < initialRundown.length; i++) {
     const currentEvent = initialRundown[i];
@@ -111,7 +112,8 @@ export function generate(
         lastEnd = updatedEvent.timeEnd;
 
         // check if we go over midnight, account for eventual gaps
-        const gapOverMidnight = previousStart !== null && checkIsNextDay(previousStart, updatedEvent.timeStart);
+        const gapOverMidnight =
+          previousStart !== null && checkIsNextDay(previousStart, updatedEvent.timeStart, previousDuration);
         const durationOverMidnight = updatedEvent.timeStart > updatedEvent.timeEnd;
         if (gapOverMidnight || durationOverMidnight) {
           daySpan++;
@@ -134,6 +136,7 @@ export function generate(
       updatedEvent.delay = accumulatedDelay;
       previousStart = updatedEvent.timeStart;
       previousEnd = updatedEvent.timeEnd;
+      previousDuration = updatedEvent.duration;
     }
 
     order.push(updatedEvent.id);
@@ -245,8 +248,8 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
     });
 
     // defer writing to the database
-    setImmediate(() => {
-      DataProvider.setRundown(persistedRundown);
+    setImmediate(async () => {
+      await getDataProvider().setRundown(persistedRundown);
     });
 
     return { newEvent, newRundown, didMutate };
@@ -410,9 +413,9 @@ function invalidateIfUsed(label: CustomFieldLabel) {
   }
   // ... and schedule a cache update
   // schedule a non priority cache update
-  setImmediate(() => {
+  setImmediate(async () => {
     generate();
-    DataProvider.setRundown(persistedRundown);
+    await getDataProvider().setRundown(persistedRundown);
   });
 }
 
@@ -421,8 +424,8 @@ function invalidateIfUsed(label: CustomFieldLabel) {
  * @param persistedCustomFields
  */
 function scheduleCustomFieldPersist(persistedCustomFields: CustomFields) {
-  setImmediate(() => {
-    DataProvider.setCustomFields(persistedCustomFields);
+  setImmediate(async () => {
+    await getDataProvider().setCustomFields(persistedCustomFields);
   });
 }
 

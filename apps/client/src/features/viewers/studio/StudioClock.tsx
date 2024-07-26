@@ -4,7 +4,6 @@ import { isOntimeEvent, Playback } from 'ontime-types';
 import { millisToString, removeSeconds } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import { getStudioClockOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
@@ -14,6 +13,7 @@ import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { isStringBoolean } from '../common/viewUtils';
 
+import { getStudioClockOptions } from './studioClock.options';
 import { secondsInMillis, trimRundown } from './studioClock.utils';
 
 import './StudioClock.scss';
@@ -75,7 +75,7 @@ export default function StudioClock(props: StudioClockProps) {
 
   return (
     <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
-      <ViewParamsEditor paramFields={studioClockOptions} />
+      <ViewParamsEditor viewOptions={studioClockOptions} />
       <div className='clock-container'>
         {hasAmPm && <div className='clock__ampm'>{hasAmPm}</div>}
         <div className={`studio-timer ${!hideSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>

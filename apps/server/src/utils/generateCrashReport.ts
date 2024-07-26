@@ -6,6 +6,7 @@ import { get } from '../services/rundown-service/rundownCache.js';
 import { getState } from '../stores/runtimeState.js';
 import { resolveCrashReportDirectory } from '../setup/index.js';
 
+import { ensureDirectory } from './fileManagement.js';
 /**
  * Writes a file to the crash report location
  * @param fileName
@@ -13,10 +14,12 @@ import { resolveCrashReportDirectory } from '../setup/index.js';
  */
 function writeToFile(fileName: string, content: object) {
   const path = join(resolveCrashReportDirectory, fileName);
+  ensureDirectory(resolveCrashReportDirectory);
+
   try {
     const textContent = JSON.stringify(content, null, 2);
     writeFileSync(path, textContent);
-  } catch (e_rror) {
+  } catch (_) {
     /** We do not handle the error here */
   }
 }

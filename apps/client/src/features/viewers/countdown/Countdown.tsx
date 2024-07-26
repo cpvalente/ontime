@@ -1,9 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { OntimeEvent, OntimeRundownEntry, Playback, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
+import {
+  OntimeEvent,
+  OntimeRundownEntry,
+  Playback,
+  Runtime,
+  Settings,
+  SupportedEvent,
+  TimerPhase,
+  ViewSettings,
+} from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import { getCountdownOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
@@ -13,7 +21,8 @@ import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getFormattedTimer, isStringBoolean } from '../common/viewUtils';
 
-import { fetchTimerData, TimerMessage } from './countdown.helpers';
+import { fetchTimerData, getTimerItems, TimerMessage } from './countdown.helpers';
+import { getCountdownOptions } from './countdown.options';
 import CountdownSelect from './CountdownSelect';
 
 import './Countdown.scss';
@@ -21,27 +30,26 @@ import './Countdown.scss';
 interface CountdownProps {
   isMirrored: boolean;
   backstageEvents: OntimeEvent[];
-  time: ViewExtendedTimer;
+  runtime: Runtime;
   selectedId: string | null;
-  viewSettings: ViewSettings;
   settings: Settings | undefined;
+  time: ViewExtendedTimer;
+  viewSettings: ViewSettings;
 }
 
 export default function Countdown(props: CountdownProps) {
-  const { isMirrored, backstageEvents, time, selectedId, viewSettings, settings } = props;
+  const { isMirrored, backstageEvents, runtime, selectedId, settings, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const [searchParams] = useSearchParams();
   const { getLocalizedString } = useTranslation();
 
   const [follow, setFollow] = useState<OntimeEvent | null>(null);
-  const [runningTimer, setRunningTimer] = useState(0);
-  const [runningMessage, setRunningMessage] = useState<TimerMessage>(TimerMessage.unhandled);
   const [delay, setDelay] = useState(0);
 
   useWindowTitle('Countdown');
 
   // eg. http://localhost:4001/countdown?eventId=ei0us
-  // Check for user options
+  // update data to the event we are following
   useEffect(() => {
     if (!backstageEvents) {
       return;
@@ -49,6 +57,12 @@ export default function Countdown(props: CountdownProps) {
 
     const eventId = searchParams.get('eventid');
     const eventIndex = searchParams.get('event');
+
+    // if there is no event selected, we reset the data
+    if (!eventId && !eventIndex) {
+      setFollow(null);
+      return;
+    }
 
     let followThis: OntimeEvent | null = null;
     const events: OntimeEvent[] = [...backstageEvents].filter((event) => event.type === SupportedEvent.Event);
@@ -66,29 +80,25 @@ export default function Countdown(props: CountdownProps) {
     }
   }, [backstageEvents, searchParams]);
 
-  useEffect(() => {
-    if (!follow) {
-      return;
-    }
-
-    const { message, timer } = fetchTimerData(time, follow, selectedId);
-    setRunningMessage(message);
-    setRunningTimer(timer);
-  }, [follow, selectedId, time]);
-
   // defer rendering until we load stylesheets
   if (!shouldRender) {
     return null;
   }
 
+  const { message: runningMessage, timer: runningTimer } = fetchTimerData(time, follow, selectedId, runtime.offset);
+
   const standby = time.playback !== Playback.Play && time.playback !== Playback.Roll && selectedId === follow?.id;
-  const finished = time.playback === Playback.Play && (time.current ?? 0) < 0 && time.startedAt;
+  const finished = time.phase === TimerPhase.Overtime;
   const isRunningFinished = finished && runningMessage === TimerMessage.running;
   const delayedTimerStyles = delay > 0 ? 'aux-timers__value--delayed' : '';
 
   const clock = formatTime(time.clock);
-  const startTime = follow === null ? '...' : formatTime(follow.timeStart + delay);
-  const endTime = follow === null ? '...' : formatTime(follow.timeEnd + delay);
+  const { scheduledStart, scheduledEnd, projectedStart, projectedEnd } = getTimerItems(
+    follow?.timeStart,
+    follow?.timeEnd,
+    delay,
+    runtime.offset,
+  );
 
   const hideSeconds = searchParams.get('hideTimerSeconds');
   const formattedTimer = getFormattedTimer(runningTimer, time.timerType, getLocalizedString('common.minutes'), {
@@ -96,12 +106,24 @@ export default function Countdown(props: CountdownProps) {
     removeLeadingZero: false,
   });
 
+  const persistParam = () => {
+    const eventId = searchParams.get('eventid');
+    if (eventId !== null) {
+      return { id: 'eventid', value: eventId };
+    }
+    const eventIndex = searchParams.get('event');
+    if (eventIndex !== null) {
+      return { id: 'eventindex', value: eventIndex };
+    }
+    return undefined;
+  };
+
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const timeOption = getCountdownOptions(defaultFormat);
+  const viewOptions = getCountdownOptions(defaultFormat, persistParam());
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
-      <ViewParamsEditor paramFields={timeOption} />
+      <ViewParamsEditor viewOptions={viewOptions} />
       {follow === null ? (
         <CountdownSelect events={backstageEvents} />
       ) : (
@@ -122,13 +144,25 @@ export default function Countdown(props: CountdownProps) {
           {follow?.title && <div className='title'>{follow.title}</div>}
 
           <div className='timer-group'>
-            <div className='aux-timers'>
-              <div className='aux-timers__label'>{getLocalizedString('common.start_time')}</div>
-              <SuperscriptTime time={startTime} className={`aux-timers__value ${delayedTimerStyles}`} />
+            {projectedStart && projectedEnd && (
+              <div className='timer-group__projected-start'>
+                <div className='timer-group__label'>{getLocalizedString('common.projected_start')}</div>
+                <SuperscriptTime time={projectedStart} className={`timer-group__value ${delayedTimerStyles}`} />
+              </div>
+            )}
+            {projectedStart && projectedEnd && (
+              <div className='timer-group__projected-end'>
+                <div className='timer-group__label'>{getLocalizedString('common.projected_end')}</div>
+                <SuperscriptTime time={projectedEnd} className={`timer-group__value ${delayedTimerStyles}`} />
+              </div>
+            )}
+            <div className='timer-group__scheduled-start'>
+              <div className='timer-group__label'>{getLocalizedString('common.scheduled_start')}</div>
+              <SuperscriptTime time={scheduledStart} className={`timer-group__value ${delayedTimerStyles}`} />
             </div>
-            <div className='aux-timers'>
-              <div className='aux-timers__label'>{getLocalizedString('common.end_time')}</div>
-              <SuperscriptTime time={endTime} className={`aux-timers__value ${delayedTimerStyles}`} />
+            <div className='timer-group__scheduled-end'>
+              <div className='timer-group__label'>{getLocalizedString('common.scheduled_end')}</div>
+              <SuperscriptTime time={scheduledEnd} className={`timer-group__value ${delayedTimerStyles}`} />
             </div>
           </div>
         </div>

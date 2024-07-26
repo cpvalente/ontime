@@ -2,7 +2,6 @@ import { useSearchParams } from 'react-router-dom';
 import { Settings, ViewSettings } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/constants';
-import { getClockOptions } from '../../../common/components/view-params-editor/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
@@ -10,6 +9,8 @@ import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
+
+import { getClockOptions } from './clock.options';
 
 import './Clock.scss';
 
@@ -130,7 +131,7 @@ export default function Clock(props: ClockProps) {
       }}
       data-testid='clock-view'
     >
-      <ViewParamsEditor paramFields={clockOptions} />
+      <ViewParamsEditor viewOptions={clockOptions} />
       <SuperscriptTime
         time={clock}
         className='clock'

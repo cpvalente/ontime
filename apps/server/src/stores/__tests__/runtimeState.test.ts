@@ -36,7 +36,6 @@ const mockState = {
   },
   _timer: {
     pausedAt: null,
-    secondaryTarget: null,
   },
 } as RuntimeState;
 
@@ -44,6 +43,19 @@ const mockState = {
 const makeMockState = (patch: RuntimeState): RuntimeState => {
   return deepmerge(mockState, patch);
 };
+
+beforeAll(() => {
+  vi.mock('../../classes/data-provider/DataProvider.js', () => {
+    return {
+      getDataProvider: vi.fn().mockImplementation(() => {
+        return {
+          setCustomFields: vi.fn().mockImplementation((newData) => newData),
+          setRundown: vi.fn().mockImplementation((newData) => newData),
+        };
+      }),
+    };
+  });
+});
 
 describe('mutation on runtimeState', () => {
   beforeEach(() => {
@@ -71,7 +83,7 @@ describe('mutation on runtimeState', () => {
     vi.clearAllMocks();
   });
 
-  describe('playback operations', () => {
+  describe('playback operations', async () => {
     it('refuses if nothing is loaded', () => {
       let success = start(mockState);
       expect(success).toBe(false);
@@ -86,6 +98,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.eventNow?.id).toBe(mockEvent.id);
       expect(newState.timer.playback).toBe(Playback.Armed);
       expect(newState.clock).not.toBe(666);
+      expect(newState.currentBlock.block).toBeNull();
 
       // 2. Start event
       let success = start();
@@ -147,14 +160,19 @@ describe('mutation on runtimeState', () => {
     const event1 = { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000 };
     const event2 = { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500 };
     // force update
-    initRundown([event1, event2], {});
-    test('runtime offset', () => {
+    vi.useFakeTimers();
+    await initRundown([event1, event2], {});
+    vi.runAllTimers();
+    vi.useRealTimers();
+
+    test('runtime offset', async () => {
       // 1. Load event
       load(event1, [event1, event2]);
       let newState = getState();
       expect(newState.runtime.actualStart).toBeNull();
       expect(newState.runtime.plannedStart).toBe(0);
       expect(newState.runtime.plannedEnd).toBe(1500);
+      expect(newState.currentBlock.block).toBeNull();
 
       // 2. Start event
       start();
@@ -186,6 +204,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.offset).toBe(delayBefore);
       // finish is the difference between the runtime and the schedule
       expect(newState.runtime.expectedEnd).toBe(event2.timeEnd - newState.runtime.offset);
+      expect(newState.currentBlock.block).toBeNull();
 
       // 4. Add time
       addTime(10);
@@ -201,7 +220,7 @@ describe('mutation on runtimeState', () => {
       stop();
       newState = getState();
       expect(newState.runtime.actualStart).toBeNull();
-      expect(newState.runtime.offset).toBeNull();
+      expect(newState.runtime.offset).toBe(0);
       expect(newState.runtime.expectedEnd).toBeNull();
     });
 

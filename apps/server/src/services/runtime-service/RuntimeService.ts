@@ -1,5 +1,6 @@
 import {
   EndAction,
+  isOntimeEvent,
   LogOrigin,
   MaybeNumber,
   OntimeEvent,
@@ -8,7 +9,7 @@ import {
   TimerLifeCycle,
   TimerPhase,
 } from 'ontime-types';
-import { millisToString, validatePlayback } from 'ontime-utils';
+import { filterPlayable, millisToString, validatePlayback } from 'ontime-utils';
 
 import { deepEqual } from 'fast-equals';
 
@@ -27,8 +28,11 @@ import {
   getNextEventWithCue,
   getEventWithId,
   getPlayableEvents,
+  getRundown,
 } from '../rundown-service/rundownUtils.js';
+import { skippedOutOfEvent } from '../timerUtils.js';
 import { integrationService } from '../integration-service/IntegrationService.js';
+
 import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
 
 /**
@@ -36,18 +40,21 @@ import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './ru
  * Coordinating with necessary services
  */
 class RuntimeService {
-  private eventTimer: TimerService | null = null;
+  private eventTimer: TimerService;
   private lastIntegrationClockUpdate = -1;
   private lastIntegrationTimerValue = -1;
 
   /** last time we updated the socket */
   static previousTimerUpdate: number;
-  static previousTimerValue: MaybeNumber;
+  static previousTimerValue: MaybeNumber; // previous timer value, could be null
   static previousClockUpdate: number;
+
   /** last known state */
   static previousState: RuntimeState;
 
-  constructor() {
+  constructor(timerService: TimerService) {
+    this.eventTimer = timerService;
+
     RuntimeService.previousTimerUpdate = -1;
     RuntimeService.previousTimerValue = -1;
     RuntimeService.previousClockUpdate = -1;
@@ -58,7 +65,45 @@ class RuntimeService {
   @broadcastResult
   checkTimerUpdate({ shouldCallRoll, hasTimerFinished }: runtimeState.UpdateResult) {
     const newState = runtimeState.getState();
-    if (hasTimerFinished) {
+
+    // 1. find if we need to dispatch integrations related to the phase
+    const timerPhaseChanged = RuntimeService.previousState.timer?.phase !== newState.timer.phase;
+    if (timerPhaseChanged) {
+      if (newState.timer.phase === TimerPhase.Warning) {
+        process.nextTick(() => {
+          integrationService.dispatch(TimerLifeCycle.onWarning);
+        });
+      } else if (newState.timer.phase === TimerPhase.Danger) {
+        process.nextTick(() => {
+          integrationService.dispatch(TimerLifeCycle.onDanger);
+        });
+      }
+    }
+
+    // 2. handle edge cases related to roll
+    if (newState.timer.playback === Playback.Roll) {
+      // check if we need to call roll again
+      const needsEvent =
+        newState.eventNow === null
+          ? true
+          : skippedOutOfEvent(newState, this.lastIntegrationClockUpdate, timerConfig.skipLimit);
+      const hasFinishedRoll = hasTimerFinished && shouldCallRoll;
+      if (shouldCallRoll || needsEvent) {
+        if (hasFinishedRoll) {
+          process.nextTick(() => {
+            integrationService.dispatch(TimerLifeCycle.onFinish);
+          });
+        }
+
+        // we dont call this.roll because we need to bypass the checks
+        const rundown = getRundown();
+        // TODO: by not calling roll, we dont get the events
+        this.eventTimer.roll(rundown);
+      }
+    }
+
+    // 3. find if we need to process actions related to the timer finishing
+    if (newState.timer.playback !== Playback.Roll && hasTimerFinished) {
       process.nextTick(() => {
         integrationService.dispatch(TimerLifeCycle.onFinish);
       });
@@ -76,10 +121,8 @@ class RuntimeService {
       }
     }
 
-    const hasRunningTimer = Boolean(newState.eventNow) && newState.timer.playback === Playback.Play;
-    const shouldUpdateTimer =
-      hasRunningTimer && getShouldTimerUpdate(this.lastIntegrationTimerValue, newState.timer.current);
-
+    // 4. find if we need to update the timer
+    const shouldUpdateTimer = getShouldTimerUpdate(this.lastIntegrationTimerValue, newState.timer.current);
     if (shouldUpdateTimer) {
       process.nextTick(() => {
         integrationService.dispatch(TimerLifeCycle.onUpdate);
@@ -88,6 +131,7 @@ class RuntimeService {
       this.lastIntegrationTimerValue = newState.timer.current ?? -1;
     }
 
+    // 5. find if we need to update the clock
     const shouldUpdateClock = getShouldClockUpdate(this.lastIntegrationClockUpdate, newState.clock);
     if (shouldUpdateClock) {
       process.nextTick(() => {
@@ -96,42 +140,12 @@ class RuntimeService {
 
       this.lastIntegrationClockUpdate = newState.clock;
     }
-
-    if (shouldCallRoll) {
-      // we dont call this.roll because we need to bypass the checks
-      const rundown = getPlayableEvents();
-      this.eventTimer.roll(rundown);
-    }
-
-    const timerPhaseChanged = RuntimeService.previousState.timer?.phase !== newState.timer.phase;
-
-    if (timerPhaseChanged) {
-      switch (newState.timer.phase) {
-        case TimerPhase.Warning:
-          process.nextTick(() => {
-            integrationService.dispatch(TimerLifeCycle.onWarning);
-          });
-          break;
-        case TimerPhase.Danger:
-          process.nextTick(() => {
-            integrationService.dispatch(TimerLifeCycle.onDanger);
-          });
-          break;
-        default:
-          break;
-      }
-    }
   }
 
   /** delay initialisation until we have a restore point */
   init(resumable: RestorePoint | null) {
     logger.info(LogOrigin.Server, 'Runtime service started');
-    // calculate at 30fps, refresh at 1fps
-    this.eventTimer = new TimerService({
-      refresh: timerConfig.updateRate,
-      updateInterval: timerConfig.notificationRate,
-      onUpdateCallback: (updateResult) => this.checkTimerUpdate(updateResult),
-    });
+    this.eventTimer.setOnUpdateCallback((updateResult) => this.checkTimerUpdate(updateResult));
 
     if (resumable) {
       this.resume(resumable);
@@ -204,7 +218,7 @@ class RuntimeService {
    * Called when the underlying data has changed,
    * we check if the change affects the runtime
    */
-  maybeUpdate(playableEvents: OntimeEvent[], affectedIds?: string[]) {
+  maybeUpdate(affectedIds?: string[]) {
     const state = runtimeState.getState();
     const hasLoadedElements = state.eventNow !== null || state.eventNext !== null;
     if (!hasLoadedElements) {
@@ -225,11 +239,15 @@ class RuntimeService {
       }
       // load stuff again, but keep running if our events still exist
       const eventNow = getEventWithId(state.eventNow.id);
+      if (!isOntimeEvent(eventNow)) {
+        return;
+      }
       const onlyChangedNow = affectedIds?.length === 1 && affectedIds.at(0) === eventNow.id;
       if (onlyChangedNow) {
         runtimeState.reload(eventNow);
       } else {
-        runtimeState.reloadAll(eventNow, playableEvents);
+        const rundown = getRundown();
+        runtimeState.reloadAll(eventNow, rundown);
       }
       return;
     }
@@ -237,7 +255,8 @@ class RuntimeService {
     // Maybe the event will become the next
     isNext = this.isNewNext();
     if (isNext) {
-      runtimeState.loadNext(playableEvents);
+      const rundown = getRundown();
+      runtimeState.loadNext(rundown);
     }
   }
 
@@ -253,8 +272,8 @@ class RuntimeService {
       return false;
     }
 
-    const timedEvents = getPlayableEvents();
-    const success = runtimeState.load(event, timedEvents);
+    const rundown = getRundown();
+    const success = runtimeState.load(event, rundown);
 
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
@@ -272,7 +291,7 @@ class RuntimeService {
    */
   startById(eventId: string): boolean {
     const event = getEventWithId(eventId);
-    if (!event) {
+    if (!event || !isOntimeEvent(event)) {
       return false;
     }
     const loaded = this.loadEvent(event);
@@ -323,7 +342,7 @@ class RuntimeService {
    */
   loadById(eventId: string): boolean {
     const event = getEventWithId(eventId);
-    if (!event) {
+    if (!event || !isOntimeEvent(event)) {
       return false;
     }
     return this.loadEvent(event);
@@ -476,7 +495,13 @@ class RuntimeService {
   reload() {
     const state = runtimeState.getState();
     if (state.eventNow) {
-      runtimeState.reload();
+      const eventId = runtimeState.reload();
+      if (eventId) {
+        logger.info(LogOrigin.Playback, `Loaded event with ID ${eventId}`);
+        process.nextTick(() => {
+          integrationService.dispatch(TimerLifeCycle.onLoad);
+        });
+      }
     }
   }
 
@@ -491,13 +516,14 @@ class RuntimeService {
       return;
     }
 
-    const playableEvents = getPlayableEvents();
+    const rundown = getRundown();
+    const playableEvents = filterPlayable(rundown);
     if (playableEvents.length === 0) {
       logger.warning(LogOrigin.Server, 'Roll: no events found');
       return;
     }
 
-    this.eventTimer.roll(playableEvents);
+    this.eventTimer.roll(rundown);
 
     const state = runtimeState.getState();
     const newState = state.timer.playback;
@@ -521,14 +547,14 @@ class RuntimeService {
     }
 
     // the db would have to change for the event not to exist
-    // we do not kow the reason for the crash, so we check anyway
+    // we do not know the reason for the crash, so we check anyway
     const event = getEventWithId(selectedEventId);
-    if (!event) {
+    if (!event || !isOntimeEvent(event)) {
       return;
     }
 
-    const timedEvents = getPlayableEvents();
-    runtimeState.resume(restorePoint, event, timedEvents);
+    const rundown = getRundown();
+    runtimeState.resume(restorePoint, event, rundown);
     logger.info(LogOrigin.Playback, 'Resuming playback');
   }
 
@@ -543,8 +569,16 @@ class RuntimeService {
   }
 }
 
-export const runtimeService = new RuntimeService();
+// calculate at 30fps, refresh at 1fps
+const eventTimer = new TimerService({
+  refresh: timerConfig.updateRate,
+  updateInterval: timerConfig.notificationRate,
+});
+export const runtimeService = new RuntimeService(eventTimer);
 
+/**
+ * Decorator manages side effects from updating the runtime
+ */
 function broadcastResult(_target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
   const originalMethod = descriptor.value;
 
@@ -589,6 +623,11 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     updateEventIfChanged('publicEventNow', state);
     updateEventIfChanged('eventNext', state);
     updateEventIfChanged('publicEventNext', state);
+
+    if (!deepEqual(RuntimeService?.previousState.currentBlock, state.currentBlock)) {
+      eventStore.set('currentBlock', state.currentBlock);
+      RuntimeService.previousState.currentBlock = { ...state.currentBlock };
+    }
 
     if (shouldUpdateClock) {
       RuntimeService.previousClockUpdate = state.clock;
