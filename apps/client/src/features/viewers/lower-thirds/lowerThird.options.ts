@@ -14,18 +14,6 @@ export const getLowerThirdOptions = (customFields: CustomFields): ViewOption[] =
   });
 
   return [
-    { section: 'View behaviour' },
-    {
-      id: 'trigger',
-      title: 'Animation Trigger',
-      description: '',
-      type: 'option',
-      values: {
-        event: 'Event Load',
-        manual: 'Manual',
-      },
-      defaultValue: 'manual',
-    },
     { section: 'Data sources' },
     {
       id: 'top-src',
