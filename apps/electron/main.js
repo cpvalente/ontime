@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Menu, globalShortcut, Tray, dialog, ipcMain, shell, Notification } = require('electron');
 const path = require('path');
 const electronConfig = require('./electron.config');
+const { version } = require('./package.json');
 const { getApplicationMenu } = require('./src/menu/applicationMenu.js');
 
 const env = process.env.NODE_ENV || 'production';
@@ -187,9 +188,7 @@ app.whenReady().then(() => {
         ? electronConfig.reactAppUrl.production(port)
         : electronConfig.reactAppUrl.development(port);
 
-      const template = getApplicationMenu(isMac, askToQuit, clientUrl, (path) => {
-        win.loadURL(`${clientUrl}/${path}`);
-      });
+      const template = getApplicationMenu(isMac, askToQuit, clientUrl, `v${version}`);
       const menu = Menu.buildFromTemplate(template);
       Menu.setApplicationMenu(menu);
 
