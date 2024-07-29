@@ -98,8 +98,6 @@ function TitlesOverview() {
 function CurrentBlockOverview() {
   const { currentBlock, clock } = useRuntimePlaybackOverview();
 
-  // const offsetClasses = offset === null ? undefined : offset <= 0 ? style.behind : style.ahead;
-
   const timeInBlock = formatedTime(currentBlock.startedAt === null ? null : clock - currentBlock.startedAt);
 
   return <TimeColumn label='Time in block' value={timeInBlock} className={style.clock} />;
