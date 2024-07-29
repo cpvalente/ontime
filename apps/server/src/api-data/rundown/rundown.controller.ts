@@ -1,4 +1,11 @@
-import { ErrorResponse, MessageResponse, OntimeRundownEntry, RundownCached, RundownPaginated } from 'ontime-types';
+import {
+  ErrorResponse,
+  MessageResponse,
+  OntimeRundown,
+  OntimeRundownEntry,
+  RundownCached,
+  RundownPaginated,
+} from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import { Request, Response } from 'express';
@@ -21,6 +28,11 @@ import {
   getPaginated,
   getRundown,
 } from '../../services/rundown-service/rundownUtils.js';
+
+export async function rundownGetAll(_req: Request, res: Response<OntimeRundown>) {
+  const rundown = getRundown();
+  res.json(rundown);
+}
 
 export async function rundownGetNormalised(_req: Request, res: Response<RundownCached>) {
   const cachedRundown = getNormalisedRundown();
