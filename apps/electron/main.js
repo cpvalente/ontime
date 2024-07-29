@@ -188,7 +188,9 @@ app.whenReady().then(() => {
         ? electronConfig.reactAppUrl.production(port)
         : electronConfig.reactAppUrl.development(port);
 
-      const template = getApplicationMenu(isMac, askToQuit, clientUrl, `v${version}`);
+      const template = getApplicationMenu(isMac, askToQuit, clientUrl, `v${version}`, (path) => {
+        win.loadURL(`${clientUrl}/${path}`);
+      });
       const menu = Menu.buildFromTemplate(template);
       Menu.setApplicationMenu(menu);
 
