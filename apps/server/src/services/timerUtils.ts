@@ -93,12 +93,11 @@ export function getCurrent(state: RuntimeState): number {
  * @returns {boolean}
  */
 export function skippedOutOfEvent(state: RuntimeState, previousTime: number, skipLimit: number): boolean {
-  // eslint-disable-next-line no-unused-labels -- dev code path
-  DEV: {
-    if (state.timer.expectedFinish === null || state.timer.startedAt === null) {
-      throw new Error('timerUtils.skippedOutOfEvent: invalid state received');
-    }
+  // we cant have skipped if we havent started
+  if (state.timer.expectedFinish === null || state.timer.startedAt === null) {
+    return false;
   }
+
   const { startedAt, expectedFinish } = state.timer;
   const { clock } = state;
 

@@ -34,7 +34,6 @@ export class EventTimer {
 
   /**
    * Allows setting a callback for when the timer updates
-   * @param callback
    */
   setOnUpdateCallback(callback: (updateResult: UpdateResult) => void) {
     this.onUpdateCallback = callback;
@@ -73,7 +72,6 @@ export class EventTimer {
 
   /**
    * Adds time to running timer by given amount
-   * @param {number} amount
    */
   addTime(amount: number): boolean {
     if (!runtimeState.addTime(amount)) {
@@ -104,7 +102,6 @@ export class EventTimer {
 
   /**
    * Loads roll information into timer service
-   * @param {OntimeEvent[]} rundown -- list of events to run
    */
   roll(rundown: OntimeRundown) {
     runtimeState.roll(rundown);

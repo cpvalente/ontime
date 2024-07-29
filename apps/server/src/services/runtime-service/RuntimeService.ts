@@ -1,6 +1,7 @@
 import {
   EndAction,
   isOntimeEvent,
+  isPlayableEvent,
   LogOrigin,
   MaybeNumber,
   OntimeEvent,
@@ -9,7 +10,7 @@ import {
   TimerLifeCycle,
   TimerPhase,
 } from 'ontime-types';
-import { millisToString, validatePlayback } from 'ontime-utils';
+import { filterPlayable, millisToString, validatePlayback } from 'ontime-utils';
 
 import { deepEqual } from 'fast-equals';
 
@@ -30,8 +31,8 @@ import {
   getPlayableEvents,
   getRundown,
 } from '../rundown-service/rundownUtils.js';
-import { skippedOutOfEvent } from '../timerUtils.js';
 import { integrationService } from '../integration-service/IntegrationService.js';
+import { checkNeedsEvent } from '../rollUtils.js';
 
 import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
 
@@ -83,12 +84,8 @@ class RuntimeService {
     // 2. handle edge cases related to roll
     if (newState.timer.playback === Playback.Roll) {
       // check if we need to call roll again
-      const needsEvent =
-        newState.eventNow === null
-          ? true
-          : skippedOutOfEvent(newState, this.lastIntegrationClockUpdate, timerConfig.skipLimit);
       const hasFinishedRoll = hasTimerFinished && shouldCallRoll;
-      if (shouldCallRoll || needsEvent) {
+      if (shouldCallRoll || checkNeedsEvent(newState, this.lastIntegrationClockUpdate)) {
         if (hasFinishedRoll) {
           process.nextTick(() => {
             integrationService.dispatch(TimerLifeCycle.onFinish);
@@ -97,7 +94,7 @@ class RuntimeService {
 
         // we dont call this.roll because we need to bypass the checks
         const rundown = getRundown();
-        // TODO: by not calling roll, we dont get the events
+        // TODO: by not calling this.roll, we dont get the events
         this.eventTimer.roll(rundown);
       }
     }
@@ -238,7 +235,7 @@ class RuntimeService {
       if (state.eventNow !== null) {
         // load stuff again, but keep running if our events still exist
         const eventNow = getEventWithId(state.eventNow.id);
-        if (!isOntimeEvent(eventNow)) {
+        if (!isOntimeEvent(eventNow) || !isPlayableEvent(eventNow)) {
           return;
         }
         const onlyChangedNow = affectedIds?.length === 1 && affectedIds.at(0) === eventNow.id;
@@ -246,7 +243,7 @@ class RuntimeService {
           runtimeState.reload(eventNow);
         } else {
           const rundown = getRundown();
-          runtimeState.reloadAll(eventNow, rundown);
+          runtimeState.reloadAll(rundown);
         }
         return;
       }
@@ -256,7 +253,8 @@ class RuntimeService {
     isNext = this.isNewNext();
     if (isNext) {
       const rundown = getRundown();
-      runtimeState.loadNext(rundown);
+      const playableEvents = filterPlayable(rundown);
+      runtimeState.loadNext(playableEvents);
     }
   }
 
@@ -267,7 +265,7 @@ class RuntimeService {
    */
   @broadcastResult
   loadEvent(event: OntimeEvent): boolean {
-    if (event.skip) {
+    if (!isPlayableEvent(event)) {
       logger.warning(LogOrigin.Playback, `Refused skipped event with ID ${event.id}`);
       return false;
     }
@@ -548,7 +546,7 @@ class RuntimeService {
     // the db would have to change for the event not to exist
     // we do not know the reason for the crash, so we check anyway
     const event = getEventWithId(selectedEventId);
-    if (!event || !isOntimeEvent(event)) {
+    if (!isOntimeEvent(event) || !isPlayableEvent(event)) {
       return;
     }
 
