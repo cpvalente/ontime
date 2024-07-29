@@ -38,7 +38,7 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
     onClose();
   };
 
-  const host = `${window.location.origin}/`;
+  const host = window.location.origin;
   const canSubmit = path !== currentPath && path !== '';
 
   return (
