@@ -12,9 +12,7 @@ export const useClientPath = () => {
 
   // notify of client path changes
   useEffect(() => {
-    //remove leading '/' from path
-    const fullPath = pathname + search;
-    socketSendJson('set-client-path', fullPath);
+    socketSendJson('set-client-path', pathname + search);
   }, [pathname, search]);
 
   // navigate to new path when received from server
