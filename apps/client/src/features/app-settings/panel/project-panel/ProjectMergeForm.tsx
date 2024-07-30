@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Button, Switch } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { PROJECT_DATA, PROJECT_LIST } from '../../../../common/api/constants';
+import { PROJECT_DATA } from '../../../../common/api/constants';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { mergeProjects } from '../../../../common/utils/mergeProjects';
 import * as Panel from '../PanelUtils';
@@ -17,6 +17,12 @@ interface ProjectMergeFromProps {
 
 type ProjectMergeFormValues = {
   project?: boolean;
+  rundown?: boolean;
+  viewSettings?: boolean;
+  urlPresets?: boolean;
+  customFields?: boolean;
+  osc?: boolean;
+  http?: boolean;
 };
 
 export default function ProjectMergeForm(props: ProjectMergeFromProps) {
