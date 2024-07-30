@@ -17,7 +17,8 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
   try {
     const { rundown, project, settings, viewSettings, urlPresets, customFields, osc, http } = req.body;
     const patchDb: DatabaseModel = { rundown, project, settings, viewSettings, urlPresets, customFields, osc, http };
-
+    
+    console.log('patch', patchDb, req.body)
     const newData = await projectService.patchCurrentProject(patchDb);
 
     res.status(200).send(newData);

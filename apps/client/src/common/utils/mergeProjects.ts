@@ -8,12 +8,10 @@ export async function mergeProjects(fileName: string, mergeKeys: object) {
 
   for (const key in mergeKeys) {
     if (isValidKey(key, data)) {
-      data[key];
-      Object.assign(patchObject, data[key]);
+      Object.assign(patchObject, { [key]: data[key] });
     }
   }
-  console.log(patchObject);
-  
+  await patchData(patchObject);
 }
 
 function isValidKey(key: string, obj: DatabaseModel): key is keyof DatabaseModel {
