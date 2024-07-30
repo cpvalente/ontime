@@ -170,9 +170,12 @@ export default function Operator() {
             const mainField = main ? getPropertyValue(entry, main) ?? '' : entry.title;
             const secondaryField = getPropertyValue(entry, secondary) ?? '';
             const subscribedData = subscriptions
-              ? subscriptions.map((id) => {
+              ? subscriptions.flatMap((id) => {
+                  if (!customFields[id]) {
+                    return [];
+                  }
                   const { label, colour } = customFields[id];
-                  return { id, label, colour, value: entry.custom[id] };
+                  return [{ id, label, colour, value: entry.custom[id] }];
                 })
               : null;
 
