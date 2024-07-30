@@ -91,11 +91,7 @@ class RuntimeService {
             integrationService.dispatch(TimerLifeCycle.onFinish);
           });
         }
-
-        // we dont call this.roll because we need to bypass the checks
-        const rundown = getRundown();
-        // TODO: by not calling this.roll, we dont get the events
-        this.eventTimer.roll(rundown);
+        this.roll(true);
       }
     }
 
@@ -405,14 +401,16 @@ class RuntimeService {
    */
   @broadcastResult
   start(): boolean {
-    const state = runtimeState.getState();
-    const canStart = validatePlayback(state.timer.playback).start;
+    const previousState = runtimeState.getState();
+    const canStart = validatePlayback(previousState.timer.playback).start;
     if (!canStart) {
       return false;
     }
 
     const didStart = this.eventTimer?.start() ?? false;
-    logger.info(LogOrigin.Playback, `Play Mode ${state.timer.playback.toUpperCase()}`);
+    const newState = runtimeState.getState();
+    logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
+
     if (didStart) {
       process.nextTick(() => {
         integrationService.dispatch(TimerLifeCycle.onStart);
@@ -507,23 +505,39 @@ class RuntimeService {
    * Sets playback to roll
    */
   @broadcastResult
-  roll() {
-    const beforeState = runtimeState.getState();
-    const canRoll = validatePlayback(beforeState.timer.playback).roll;
-    if (!canRoll) {
-      return;
+  roll(skipCheck: boolean = false) {
+    const previousState = runtimeState.getState();
+    if (!skipCheck) {
+      const canRoll = validatePlayback(previousState.timer.playback).roll;
+      if (!canRoll) {
+        return;
+      }
     }
 
     try {
       const rundown = getRundown();
-      this.eventTimer.roll(rundown);
+      const result = this.eventTimer.roll(rundown);
+      if (result.eventId !== previousState.eventNow?.id) {
+        logger.info(LogOrigin.Playback, `Loaded event with ID ${result.eventId}`);
+        process.nextTick(() => {
+          integrationService.dispatch(TimerLifeCycle.onLoad);
+        });
+      }
 
-      const state = runtimeState.getState();
-      const newState = state.timer.playback;
-      logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
+      if (result.didStart) {
+        process.nextTick(() => {
+          integrationService.dispatch(TimerLifeCycle.onStart);
+        });
+      }
     } catch (error) {
       logger.error(LogOrigin.Server, `Roll: ${error}`);
       return;
+    }
+
+    const newState = runtimeState.getState();
+
+    if (previousState.timer.playback !== newState.timer.playback) {
+      logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
     }
   }
 

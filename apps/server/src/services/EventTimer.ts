@@ -104,7 +104,7 @@ export class EventTimer {
    * Loads roll information into timer service
    */
   roll(rundown: OntimeRundown) {
-    runtimeState.roll(rundown);
+    return runtimeState.roll(rundown);
   }
 
   shutdown() {

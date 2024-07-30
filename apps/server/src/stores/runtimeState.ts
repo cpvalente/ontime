@@ -90,7 +90,17 @@ const runtimeState: RuntimeState = {
 };
 
 export function getState(): Readonly<RuntimeState> {
-  return runtimeState;
+  // create a shallow copy of the state
+  return {
+    ...runtimeState,
+    eventNow: runtimeState.eventNow ? { ...runtimeState.eventNow } : null,
+    eventNext: runtimeState.eventNext ? { ...runtimeState.eventNext } : null,
+    publicEventNow: runtimeState.publicEventNow ? { ...runtimeState.publicEventNow } : null,
+    publicEventNext: runtimeState.publicEventNext ? { ...runtimeState.publicEventNext } : null,
+    runtime: { ...runtimeState.runtime },
+    timer: { ...runtimeState.timer },
+    _timer: { ...runtimeState._timer },
+  };
 }
 
 export function clear() {
@@ -506,11 +516,11 @@ export function update(): UpdateResult {
 }
 
 // TODO: roll should return a summary of loaded state for integrations
-export function roll(rundown: OntimeRundown): { eventId: MaybeString; pending: boolean } {
+export function roll(rundown: OntimeRundown): { eventId: MaybeString; didStart: boolean } {
   // 1. if an event is running, we simply take over the playback
   if (runtimeState.timer.playback === Playback.Play && runtimeState.runtime.selectedEventIndex) {
     runtimeState.timer.playback = Playback.Roll;
-    return { eventId: runtimeState.eventNow?.id ?? null, pending: false };
+    return { eventId: runtimeState.eventNow?.id ?? null, didStart: false };
   }
 
   // 2. if there is no event running, we need to find the next event
@@ -547,7 +557,7 @@ export function roll(rundown: OntimeRundown): { eventId: MaybeString; pending: b
         ? runtimeState.eventNow.timeStart + dayInMs
         : runtimeState.eventNow.timeStart;
     runtimeState.timer.secondaryTimer = normalisedNextStart - runtimeState.clock;
-    return { eventId: runtimeState.eventNow.id, pending: false };
+    return { eventId: runtimeState.eventNow.id, didStart: false };
   }
 
   // there is something to run, load event
@@ -571,5 +581,5 @@ export function roll(rundown: OntimeRundown): { eventId: MaybeString; pending: b
 
   // update runtime
   runtimeState.runtime.actualStart = runtimeState.clock;
-  return { eventId: runtimeState.eventNow.id, pending: false };
+  return { eventId: runtimeState.eventNow.id, didStart: true };
 }
