@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Button, Switch } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { PROJECT_LIST } from '../../../../common/api/constants';
+import { PROJECT_DATA, PROJECT_LIST } from '../../../../common/api/constants';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { mergeProjects } from '../../../../common/utils/mergeProjects';
 import * as Panel from '../PanelUtils';
@@ -39,7 +39,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
       setError(null);
 
       await mergeProjects(fileName, values);
-      await queryClient.invalidateQueries({ queryKey: PROJECT_LIST });
+      await queryClient.invalidateQueries({ queryKey: PROJECT_DATA });
       onClose();
     } catch (error) {
       setError(maybeAxiosError(error));
