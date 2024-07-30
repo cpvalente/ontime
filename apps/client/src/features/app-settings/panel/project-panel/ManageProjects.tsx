@@ -9,11 +9,13 @@ import * as Panel from '../PanelUtils';
 
 import ProjectCreateForm from './ProjectCreateForm';
 import ProjectList from './ProjectList';
+import ProjectMergeForm from './ProjectMergeForm';
 
 import style from './ProjectPanel.module.scss';
 
 export default function ManageProjects() {
   const [isCreatingProject, setIsCreatingProject] = useState(false);
+  const [isMergeingProject, setIsMergeingProject] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState<'import' | null>(null);
 
@@ -21,6 +23,13 @@ export default function ManageProjects() {
 
   const handleToggleCreate = () => {
     setIsCreatingProject((prev) => !prev);
+    setIsMergeingProject(false);
+  };
+
+  const handleStartMerge = (filename: string) => {
+    console.log(filename);
+    setIsMergeingProject(true);
+    setIsCreatingProject(false);
   };
 
   const handleSelectFile = () => {
@@ -49,6 +58,7 @@ export default function ManageProjects() {
   };
 
   const handleCloseForm = () => {
+    setIsMergeingProject(false);
     setIsCreatingProject(false);
   };
 
@@ -70,7 +80,7 @@ export default function ManageProjects() {
               variant='ontime-subtle'
               onClick={handleSelectFile}
               size='sm'
-              isDisabled={Boolean(loading) || isCreatingProject}
+              isDisabled={Boolean(loading) || isCreatingProject || isMergeingProject}
               isLoading={loading === 'import'}
             >
               Import
@@ -79,7 +89,7 @@ export default function ManageProjects() {
               variant='ontime-subtle'
               onClick={handleToggleCreate}
               size='sm'
-              isDisabled={Boolean(loading) || isCreatingProject}
+              isDisabled={Boolean(loading) || isCreatingProject || isMergeingProject}
               rightIcon={<IoAdd />}
             >
               New
@@ -89,7 +99,8 @@ export default function ManageProjects() {
         {error && <Panel.Error>{error}</Panel.Error>}
         <Panel.Divider />
         {isCreatingProject && <ProjectCreateForm onClose={handleCloseForm} />}
-        <ProjectList />
+        {isMergeingProject && <ProjectMergeForm onClose={handleCloseForm} />}
+        <ProjectList onMerge={handleStartMerge} />
       </Panel.Card>
     </Panel.Section>
   );

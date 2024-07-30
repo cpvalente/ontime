@@ -28,6 +28,7 @@ interface ProjectListItemProps {
   onRefetch: () => Promise<void>;
   editingFilename: string | null;
   editingMode: EditMode | null;
+  onMerge: (filename: string) => void;
 }
 
 export default function ProjectListItem({
@@ -39,6 +40,7 @@ export default function ProjectListItem({
   onRefetch,
   onSubmit,
   onToggleEditMode,
+  onMerge,
 }: ProjectListItemProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -134,6 +136,7 @@ export default function ProjectListItem({
                 onDelete={handleDelete}
                 onLoad={handleLoad}
                 isDisabled={loading}
+                onMerge={onMerge}
               />
             </td>
           </>
@@ -150,9 +153,10 @@ interface ActionMenuProps {
   onChangeEditMode: (editMode: EditMode, filename: string) => void;
   onDelete: (filename: string) => void;
   onLoad: (filename: string) => void;
+  onMerge: (filename: string) => void;
 }
 function ActionMenu(props: ActionMenuProps) {
-  const { current, filename, isDisabled, onChangeEditMode, onDelete, onLoad } = props;
+  const { current, filename, isDisabled, onChangeEditMode, onDelete, onLoad, onMerge } = props;
 
   const handleRename = () => {
     onChangeEditMode('rename', filename);
@@ -184,6 +188,9 @@ function ActionMenu(props: ActionMenuProps) {
       <MenuList>
         <MenuItem onClick={() => onLoad(filename)} isDisabled={current}>
           Load
+        </MenuItem>
+        <MenuItem onClick={() => onMerge(filename)} isDisabled={current}>
+          Partial Load
         </MenuItem>
         <MenuItem onClick={handleRename}>Rename</MenuItem>
         <MenuItem onClick={handleDuplicate}>Duplicate</MenuItem>
