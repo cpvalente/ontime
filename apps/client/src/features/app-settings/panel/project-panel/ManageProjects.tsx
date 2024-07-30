@@ -15,7 +15,7 @@ import style from './ProjectPanel.module.scss';
 
 export default function ManageProjects() {
   const [isCreatingProject, setIsCreatingProject] = useState(false);
-  const [isMergeingProject, setIsMergeingProject] = useState(false);
+  const [isMergeingProject, setIsMergeingProject] = useState<string | false>(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState<'import' | null>(null);
 
@@ -26,9 +26,8 @@ export default function ManageProjects() {
     setIsMergeingProject(false);
   };
 
-  const handleStartMerge = (filename: string) => {
-    console.log(filename);
-    setIsMergeingProject(true);
+  const handleStartMerge = (fileName: string) => {
+    setIsMergeingProject(fileName);
     setIsCreatingProject(false);
   };
 
@@ -80,7 +79,7 @@ export default function ManageProjects() {
               variant='ontime-subtle'
               onClick={handleSelectFile}
               size='sm'
-              isDisabled={Boolean(loading) || isCreatingProject || isMergeingProject}
+              isDisabled={Boolean(loading) || isCreatingProject || Boolean(isMergeingProject)}
               isLoading={loading === 'import'}
             >
               Import
@@ -89,7 +88,7 @@ export default function ManageProjects() {
               variant='ontime-subtle'
               onClick={handleToggleCreate}
               size='sm'
-              isDisabled={Boolean(loading) || isCreatingProject || isMergeingProject}
+              isDisabled={Boolean(loading) || isCreatingProject || Boolean(isMergeingProject)}
               rightIcon={<IoAdd />}
             >
               New
@@ -99,7 +98,7 @@ export default function ManageProjects() {
         {error && <Panel.Error>{error}</Panel.Error>}
         <Panel.Divider />
         {isCreatingProject && <ProjectCreateForm onClose={handleCloseForm} />}
-        {isMergeingProject && <ProjectMergeForm onClose={handleCloseForm} />}
+        {isMergeingProject && <ProjectMergeForm onClose={handleCloseForm} fileName={isMergeingProject} />}
         <ProjectList onMerge={handleStartMerge} />
       </Panel.Card>
     </Panel.Section>

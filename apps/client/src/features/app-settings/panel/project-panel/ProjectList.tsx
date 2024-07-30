@@ -8,7 +8,7 @@ import ProjectListItem, { EditMode } from './ProjectListItem';
 import style from './ProjectPanel.module.scss';
 
 interface ProjectListProps {
-  onMerge: (name: string) => void;
+  onMerge: (fileName: string) => void;
 }
 
 export default function ProjectList(props: ProjectListProps) {
