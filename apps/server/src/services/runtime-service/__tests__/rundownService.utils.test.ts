@@ -1,6 +1,15 @@
 import { MILLIS_PER_MINUTE } from 'ontime-utils';
 import { getShouldClockUpdate, getShouldTimerUpdate } from '../rundownService.utils.js';
 
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(0);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 describe('getShouldClockUpdate()', () => {
   it('should return true when we slid forwards', () => {
     const previousUpdate = Date.now() - 2000; // 2 seconds ago
