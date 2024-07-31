@@ -1,17 +1,26 @@
 import { MILLIS_PER_MINUTE } from 'ontime-utils';
 import { getShouldClockUpdate, getShouldTimerUpdate } from '../rundownService.utils.js';
 
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.setSystemTime(0);
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 describe('getShouldClockUpdate()', () => {
   it('should return true when we slid forwards', () => {
-    const previousUpdate = Date.now() - 2000; // 2 seconds ago
-    const now = Date.now();
+    const previousUpdate = Date.now(); // 2 seconds ago
+    const now = Date.now() + 2000;
     const result = getShouldClockUpdate(previousUpdate, now);
     expect(result).toBe(true);
   });
 
   it('should return true when we slid backwards', () => {
-    const previousUpdate = Date.now();
-    const now = Date.now() - 2000; // 2 seconds ago
+    const previousUpdate = Date.now() + 2000;
+    const now = Date.now(); // 2 seconds ago
     const result = getShouldClockUpdate(previousUpdate, now);
     expect(result).toBe(true);
   });
@@ -24,8 +33,8 @@ describe('getShouldClockUpdate()', () => {
   });
 
   it('should return false when clock is not a second ahead and force update is not required', () => {
-    const previousUpdate = Date.now() - 32;
-    const now = Date.now();
+    const previousUpdate = Date.now();
+    const now = Date.now() + 32;
     const result = getShouldClockUpdate(previousUpdate, now);
     expect(result).toBe(false);
   });
