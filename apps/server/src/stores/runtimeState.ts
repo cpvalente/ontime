@@ -23,6 +23,8 @@ import {
 } from '../services/timerUtils.js';
 import { timerConfig } from '../config/config.js';
 
+import * as report from '../services/report-service/ReportService.js';
+
 const initialRuntime: Runtime = {
   selectedEventIndex: null, // changes if rundown changes or we load a new event
   numEvents: 0, // change initiated by user
@@ -162,6 +164,9 @@ export function load(
   rundown: OntimeRundown,
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
+  // report the event stop before clearing out state
+  report.eventStop(runtimeState);
+
   clear();
 
   const eventIndex = rundown.findIndex((eventInMemory) => eventInMemory.id === event.id);
@@ -298,6 +303,7 @@ export function reload(event?: OntimeEvent) {
   runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
 
   runtimeState.currentBlock.startedAt = null;
+  report.eventStop(runtimeState);
   return runtimeState.eventNow.id;
 }
 
@@ -321,6 +327,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   if (state.timer.playback === Playback.Play) {
     return false;
   }
+
   state.clock = clock.timeNow();
   state.timer.secondaryTimer = null;
 
@@ -356,6 +363,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   state.runtime.offset = getRuntimeOffset(state);
   state.runtime.expectedEnd = state.runtime.plannedEnd - state.runtime.offset;
 
+  report.eventStart(runtimeState);
   return true;
 }
 
@@ -374,6 +382,9 @@ export function stop(state: RuntimeState = runtimeState): boolean {
   if (state.timer.playback === Playback.Stop) {
     return false;
   }
+
+  // report the event stop before clearing out state
+  report.eventStop(runtimeState);
 
   clear();
   runtimeState.runtime.actualStart = null;

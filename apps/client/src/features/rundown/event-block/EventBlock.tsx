@@ -46,6 +46,7 @@ interface EventBlockProps {
   hasCursor: boolean;
   playback?: Playback;
   isRolling: boolean;
+  overUnder?: MaybeNumber;
   actionHandler: (
     action: EventItemActions,
     payload?:
@@ -83,6 +84,7 @@ export default function EventBlock(props: EventBlockProps) {
     hasCursor,
     playback,
     isRolling,
+    overUnder,
     actionHandler,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
@@ -269,6 +271,7 @@ export default function EventBlock(props: EventBlockProps) {
           loaded={loaded}
           playback={playback}
           isRolling={isRolling}
+          overUnder={overUnder}
         />
       )}
     </div>
