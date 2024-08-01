@@ -67,10 +67,34 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
       </Panel.Title>
       {error && <Panel.Error>{error}</Panel.Error>}
       <div className={style.innerColumn}>
-        <label>
-          Project data
+        <span className={style.toggleOption}>
+          <label>Project data</label>
           <Switch variant='ontime' size='md' defaultChecked={false} {...register('project')} />
-        </label>
+        </span>
+        <span className={style.toggleOption}>
+          <label>Rundown</label>
+          <Switch variant='ontime' size='md' defaultChecked={false} {...register('rundown')} />
+        </span>
+        <span className={style.toggleOption}>
+          <label>View Settings</label>
+          <Switch variant='ontime' size='md' defaultChecked={false} {...register('viewSettings')} />
+        </span>
+        <span className={style.toggleOption}>
+          <label>Url Presets</label>
+          <Switch variant='ontime' size='md' defaultChecked={false} {...register('urlPresets')} />
+        </span>
+        <span className={style.toggleOption}>
+          <label>Custom Fields</label>
+          <Switch variant='ontime' size='md' defaultChecked={false} {...register('customFields')} />
+        </span>
+        <span className={style.toggleOption}>
+          <label>OSC Integration</label>
+          <Switch variant='ontime' size='md' defaultChecked={false} {...register('osc')} />
+        </span>
+        <span className={style.toggleOption}>
+          <label>HTTP Integration</label>
+          <Switch variant='ontime' size='md' defaultChecked={false} {...register('http')} />
+        </span>
       </div>
     </Panel.Section>
   );
