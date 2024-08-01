@@ -515,7 +515,6 @@ export function update(): UpdateResult {
   }
 }
 
-// TODO: roll should return a summary of loaded state for integrations
 export function roll(rundown: OntimeRundown): { eventId: MaybeString; didStart: boolean } {
   // 1. if an event is running, we simply take over the playback
   if (runtimeState.timer.playback === Playback.Play && runtimeState.runtime.selectedEventIndex) {
@@ -569,7 +568,6 @@ export function roll(rundown: OntimeRundown): { eventId: MaybeString; didStart: 
       ? runtimeState.eventNow.timeEnd + dayInMs
       : runtimeState.eventNow.timeEnd;
   runtimeState.timer.startedAt = runtimeState.clock;
-  // TODO: allowing expected finish to overflow may need client changes
   runtimeState.timer.expectedFinish = endTime;
 
   // we add time to allow timer to catch up
