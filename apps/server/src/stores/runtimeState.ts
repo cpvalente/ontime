@@ -22,7 +22,7 @@ import {
   isPlaybackActive,
 } from '../services/timerUtils.js';
 import { timerConfig } from '../config/config.js';
-import { loadRoll } from '../services/rollUtils.js';
+import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 
 const initialRuntime: Runtime = {
   selectedEventIndex: null, // changes if rundown changes or we load a new event
@@ -508,9 +508,18 @@ export function update(): UpdateResult {
     return { hasTimerFinished: false, shouldCallRoll: false };
   }
 
-  function updateIfWaitingToRoll(targetTime: number) {
-    runtimeState.timer.secondaryTimer = targetTime - runtimeState.clock;
+  function updateIfWaitingToRoll() {
+    // eslint-disable-next-line no-unused-labels -- dev code path
+    DEV: {
+      if (runtimeState.eventNow === null) {
+        throw new Error('runtimeState.updateIfWaitingToRoll: invalid state received');
+      }
+    }
+
     runtimeState.timer.phase = TimerPhase.Pending;
+    // normalise start time
+    const targetTime = normaliseRollStart(runtimeState.eventNow.timeStart, runtimeState.clock);
+    runtimeState.timer.secondaryTimer = targetTime - runtimeState.clock;
     return { hasTimerFinished: false, shouldCallRoll: runtimeState.timer.secondaryTimer < 0 };
   }
 }

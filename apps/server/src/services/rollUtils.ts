@@ -94,3 +94,10 @@ export function checkNeedsEvent(state: RuntimeState, lastIntegrationClockUpdate:
   // time may have skipped
   return skippedOutOfEvent(state, lastIntegrationClockUpdate, timerConfig.skipLimit);
 }
+
+/**
+ * Utility function, checks whether the event start is the day after
+ */
+export function normaliseRollStart(start: number, clock: number) {
+  return start < clock ? start + dayInMs : start;
+}
