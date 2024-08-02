@@ -52,6 +52,9 @@ export const runtimeStorePlaceholder: RuntimeStore = {
     duration: 0,
     playback: SimplePlayback.Stop,
   },
+  auxtimer2: {
+    current: 0,
+  },
   frozen: false,
 };
 
