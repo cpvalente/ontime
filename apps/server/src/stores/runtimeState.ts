@@ -543,7 +543,30 @@ export function roll(rundown: OntimeRundown): { eventId: MaybeString; didStart: 
     return { eventId: runtimeState.eventNow?.id ?? null, didStart: false };
   }
 
-  // 2. if there is no event running, we need to find the next event
+  // 2. if there is an event armed, we use it
+  if (runtimeState.timer.playback === Playback.Armed && runtimeState.eventNow !== null) {
+    runtimeState.timer.playback = Playback.Roll;
+    // account for event that finishes the day after
+    const endTime =
+      runtimeState.eventNow.timeEnd < runtimeState.eventNow.timeStart
+        ? runtimeState.eventNow.timeEnd + dayInMs
+        : runtimeState.eventNow.timeEnd;
+    runtimeState.timer.startedAt = runtimeState.clock;
+    runtimeState.timer.expectedFinish = endTime;
+
+    // state catch up
+    runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, endTime);
+    runtimeState.timer.current = runtimeState.timer.duration;
+    runtimeState.timer.elapsed = 0;
+
+    // update runtime
+    if (!runtimeState.runtime.actualStart) {
+      runtimeState.runtime.actualStart = runtimeState.clock;
+    }
+    return { eventId: runtimeState.eventNow.id, didStart: true };
+  }
+
+  // 3. if there is no event running, we need to find the next event
   const timedEvents = filterTimedEvents(rundown);
   if (timedEvents.length === 0) {
     throw new Error('No playable events found');

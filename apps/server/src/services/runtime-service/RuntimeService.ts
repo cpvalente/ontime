@@ -90,8 +90,9 @@ class RuntimeService {
           process.nextTick(() => {
             integrationService.dispatch(TimerLifeCycle.onFinish);
           });
+          this.loadNext();
         }
-        this.roll(true);
+        this.rollLoaded();
       }
     }
 
@@ -497,6 +498,18 @@ class RuntimeService {
           integrationService.dispatch(TimerLifeCycle.onLoad);
         });
       }
+    }
+  }
+
+  /**
+   * Handles special case to call roll on a loaded event which we do not want to discard
+   */
+  rollLoaded() {
+    const rundown = getRundown();
+    try {
+      this.eventTimer.roll(rundown);
+    } catch (error) {
+      logger.error(LogOrigin.Server, `Roll: ${error}`);
     }
   }
 
