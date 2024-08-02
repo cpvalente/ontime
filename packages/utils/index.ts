@@ -9,6 +9,7 @@ export { getCueCandidate } from './src/cue-utils/cueUtils.js';
 export { generateId } from './src/generate-id/generateId.js';
 export {
   filterPlayable,
+  filterTimedEvents,
   getFirst,
   getFirstEvent,
   getFirstEventNormal,

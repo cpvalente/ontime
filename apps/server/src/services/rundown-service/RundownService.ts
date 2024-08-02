@@ -20,7 +20,7 @@ import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 import * as cache from './rundownCache.js';
-import { getPlayableEvents } from './rundownUtils.js';
+import { getPlayableEvents, getTimedEvents } from './rundownUtils.js';
 import { eventStore } from '../../stores/EventStore.js';
 
 type PatchWithId = (Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) & { id: string };
@@ -215,8 +215,8 @@ export async function swapEvents(from: string, to: string) {
  * Called when we make changes to the rundown object
  */
 function updateRuntimeOnChange() {
-  const playableEvents = getPlayableEvents();
-  const numEvents = playableEvents.length;
+  const timedEvents = getTimedEvents();
+  const numEvents = timedEvents.length;
   const metadata = cache.getMetadata();
 
   // schedule an update for the end of the event loop

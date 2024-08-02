@@ -10,7 +10,7 @@ import {
   TimerLifeCycle,
   TimerPhase,
 } from 'ontime-types';
-import { filterPlayable, millisToString, validatePlayback } from 'ontime-utils';
+import { millisToString, validatePlayback } from 'ontime-utils';
 
 import { deepEqual } from 'fast-equals';
 
@@ -28,8 +28,8 @@ import {
   getEventAtIndex,
   getNextEventWithCue,
   getEventWithId,
-  getPlayableEvents,
   getRundown,
+  getTimedEvents,
 } from '../rundown-service/rundownUtils.js';
 import { integrationService } from '../integration-service/IntegrationService.js';
 import { checkNeedsEvent } from '../rollUtils.js';
@@ -170,7 +170,7 @@ class RuntimeService {
   }
 
   private isNewNext() {
-    const timedEvents = getPlayableEvents();
+    const timedEvents = getTimedEvents();
     const state = runtimeState.getState();
     const now = state.eventNow?.id;
     const next = state.eventNext?.id;
@@ -248,15 +248,14 @@ class RuntimeService {
     // Maybe the event will become the next
     isNext = this.isNewNext();
     if (isNext) {
-      const rundown = getRundown();
-      const playableEvents = filterPlayable(rundown);
-      runtimeState.loadNext(playableEvents);
+      const timedEvents = getTimedEvents();
+      runtimeState.loadNext(timedEvents);
     }
   }
 
   /**
    * makes calls for loading and starting given event
-   * @param {OntimeEvent} event
+   * @param {PlayableEvent} event
    * @return {boolean} success - whether an event was loaded
    */
   @broadcastResult

@@ -1,5 +1,5 @@
-import { dayInMs } from 'ontime-utils';
-import { PlayableEvent, OntimeEvent, MaybeNumber } from 'ontime-types';
+import { dayInMs, getFirstEvent, getLastEvent } from 'ontime-utils';
+import { OntimeEvent, MaybeNumber, PlayableEvent, isPlayableEvent } from 'ontime-types';
 
 import { RuntimeState } from '../stores/runtimeState.js';
 import { timerConfig } from '../config/config.js';
@@ -10,17 +10,20 @@ import { normaliseEndTime, skippedOutOfEvent } from './timerUtils.js';
  * Finds current event in a rolling rundown
  */
 export function loadRoll(
-  playableEvents: PlayableEvent[],
+  timedEvents: OntimeEvent[],
   timeNow: number,
 ): {
-  event: OntimeEvent | null;
+  event: PlayableEvent | null;
   index: MaybeNumber;
   isPending?: boolean;
 } {
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know that this exists as long as the playbackEvents are not empty
-  const firstEvent = playableEvents[0];
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know that this exists as long as the playbackEvents are not empty
-  const lastEvent = playableEvents.at(-1)!;
+  const { firstEvent } = getFirstEvent(timedEvents);
+  const { lastEvent } = getLastEvent(timedEvents);
+
+  if (!firstEvent || !lastEvent) {
+    return { event: null, index: null };
+  }
+
   // check that the rundown wraps around midnight
   const wrapsAroundMidnight = firstEvent.timeStart > lastEvent.timeEnd;
 
@@ -39,9 +42,12 @@ export function loadRoll(
   // account for number of times we went over midnight
   let daySpan = 0;
 
-  for (let i = 0; i < playableEvents.length; i++) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know this cannot be undefined in this code path
-    const event = playableEvents.at(i)!;
+  for (let i = 0; i < timedEvents.length; i++) {
+    const event = timedEvents[i];
+
+    if (!isPlayableEvent(event)) {
+      continue;
+    }
 
     // we check if event crosses midnight
     if (event.timeStart > event.timeEnd) {
@@ -78,8 +84,8 @@ export function loadRoll(
     return { event, index: i, isPending: true };
   }
 
-  // we should never reach this point
-  return { event: null, index: null };
+  // in case we were unable to find anything, we load the first event
+  return { event: firstEvent, index: 0, isPending: true };
 }
 
 /**
