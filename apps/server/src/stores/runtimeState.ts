@@ -11,7 +11,7 @@ import {
   TimerPhase,
   TimerState,
 } from 'ontime-types';
-import { calculateDuration, dayInMs, filterTimedEvents, getRelevantBlock } from 'ontime-utils';
+import { calculateDuration, checkIsNow, dayInMs, filterTimedEvents, getRelevantBlock } from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
 import { RestorePoint } from '../services/RestoreService.js';
@@ -562,24 +562,36 @@ export function roll(rundown: OntimeRundown): { eventId: MaybeString; didStart: 
   // 2. if there is an event armed, we use it
   if (runtimeState.timer.playback === Playback.Armed && runtimeState.eventNow !== null) {
     runtimeState.timer.playback = Playback.Roll;
+
     // account for event that finishes the day after
-    const endTime =
+    const normalisedEndTime =
       runtimeState.eventNow.timeEnd < runtimeState.eventNow.timeStart
         ? runtimeState.eventNow.timeEnd + dayInMs
         : runtimeState.eventNow.timeEnd;
-    runtimeState.timer.startedAt = runtimeState.clock;
-    runtimeState.timer.expectedFinish = endTime;
+    runtimeState.timer.expectedFinish = normalisedEndTime;
 
     // state catch up
-    runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, endTime);
+    runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, normalisedEndTime);
     runtimeState.timer.current = runtimeState.timer.duration;
     runtimeState.timer.elapsed = 0;
 
-    // update runtime
-    if (!runtimeState.runtime.actualStart) {
-      runtimeState.runtime.actualStart = runtimeState.clock;
+    // check if the event is ready to start or if needs to be waited
+    const isNow = checkIsNow(runtimeState.eventNow.timeStart, runtimeState.eventNow.timeEnd, runtimeState.clock);
+
+    if (isNow) {
+      runtimeState.timer.startedAt = runtimeState.clock;
+
+      // update runtime
+      if (!runtimeState.runtime.actualStart) {
+        runtimeState.runtime.actualStart = runtimeState.clock;
+      }
+    } else {
+      runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, runtimeState.clock);
+      runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - runtimeState.clock;
+      runtimeState.timer.phase = TimerPhase.Pending;
     }
-    return { eventId: runtimeState.eventNow.id, didStart: true };
+
+    return { eventId: runtimeState.eventNow.id, didStart: isNow };
   }
 
   // 3. if there is no event running, we need to find the next event

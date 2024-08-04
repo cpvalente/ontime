@@ -70,6 +70,7 @@ export { validateEndAction, validateTimerType } from './src/validate-events/vali
 // feature business logic
 
 // feature business logic - rundown
+export { checkIsNow } from './src/date-utils/checkIsNow.js';
 export { checkIsNextDay } from './src/date-utils/checkIsNextDay.js';
 
 // feature business logic - spreadsheet import
