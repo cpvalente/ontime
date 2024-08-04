@@ -1,10 +1,7 @@
 import { dayInMs, getFirstEvent, getLastEvent } from 'ontime-utils';
 import { OntimeEvent, MaybeNumber, PlayableEvent, isPlayableEvent } from 'ontime-types';
 
-import { RuntimeState } from '../stores/runtimeState.js';
-import { timerConfig } from '../config/config.js';
-
-import { normaliseEndTime, skippedOutOfEvent } from './timerUtils.js';
+import { normaliseEndTime } from './timerUtils.js';
 
 /**
  * Finds current event in a rolling rundown
@@ -86,19 +83,6 @@ export function loadRoll(
 
   // in case we were unable to find anything, we load the first event
   return { event: firstEvent, index: 0, isPending: true };
-}
-
-/**
- * utility checks if we need to trigger an event load
- */
-export function checkNeedsEvent(state: RuntimeState, lastIntegrationClockUpdate: number): boolean {
-  // we may be waiting for the secondary timer to finish
-  if (state.timer.secondaryTimer !== null) {
-    return false;
-  }
-
-  // time may have skipped
-  return skippedOutOfEvent(state, lastIntegrationClockUpdate, timerConfig.skipLimit);
 }
 
 /**

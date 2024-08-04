@@ -32,9 +32,9 @@ import {
   getTimedEvents,
 } from '../rundown-service/rundownUtils.js';
 import { integrationService } from '../integration-service/IntegrationService.js';
-import { checkNeedsEvent } from '../rollUtils.js';
 
 import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
+import { skippedOutOfEvent } from '../timerUtils.js';
 
 /**
  * Service manages runtime status of app
@@ -64,7 +64,7 @@ class RuntimeService {
 
   /** Checks result of an update and notifies integrations as needed */
   @broadcastResult
-  checkTimerUpdate({ shouldCallRoll, hasTimerFinished }: runtimeState.UpdateResult) {
+  checkTimerUpdate({ hasTimerFinished, hasSecondaryTimerFinished }: runtimeState.UpdateResult) {
     const newState = runtimeState.getState();
 
     // 1. find if we need to dispatch integrations related to the phase
@@ -83,28 +83,36 @@ class RuntimeService {
 
     // 2. handle edge cases related to roll
     if (newState.timer.playback === Playback.Roll) {
-      // check if we need to call roll again
-      const hasFinishedRoll = hasTimerFinished && shouldCallRoll;
-      if (shouldCallRoll || checkNeedsEvent(newState, this.lastIntegrationClockUpdate)) {
-        if (hasFinishedRoll) {
-          process.nextTick(() => {
-            integrationService.dispatch(TimerLifeCycle.onFinish);
-          });
-          this.loadNext();
-        }
+      // check if we need to call any side effects
+
+      if (hasSecondaryTimerFinished) {
+        // if the secondary timer has finished, we need to call roll
+        // since event is already loaded
         this.rollLoaded();
+      } else if (hasTimerFinished) {
+        // if the timer has finished, we need to load next and keep rolling
+        process.nextTick(() => {
+          integrationService.dispatch(TimerLifeCycle.onFinish);
+        });
+        this.loadNext();
+        this.rollLoaded();
+      } else if (skippedOutOfEvent(newState, this.lastIntegrationClockUpdate, timerConfig.skipLimit)) {
+        // if we have skipped out of the event, we will recall roll
+        // to push the playback to the right place
+        // this comes with the caveat that we will lose our runtime data
+        this.roll(true);
       }
     }
 
     // 3. find if we need to process actions related to the timer finishing
-    if (newState.timer.playback !== Playback.Roll && hasTimerFinished) {
+    if (newState.timer.playback === Playback.Play && hasTimerFinished) {
       process.nextTick(() => {
         integrationService.dispatch(TimerLifeCycle.onFinish);
       });
 
       // handle end action if there was a timer playing
       // actions are added to the queue stack to ensure that the order of operations is maintained
-      if (newState.timer.playback === Playback.Play && newState.eventNow) {
+      if (newState.eventNow) {
         if (newState.eventNow.endAction === EndAction.Stop) {
           setTimeout(this.stop.bind(this), 0);
         } else if (newState.eventNow.endAction === EndAction.LoadNext) {

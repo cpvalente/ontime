@@ -63,6 +63,7 @@ export type RuntimeState = {
     forceFinish: MaybeNumber; // wether we should declare an event as finished, will contain the finish time
     totalDelay: number; // this value comes from rundown service
     pausedAt: MaybeNumber;
+    secondaryTarget: MaybeNumber;
   };
   _prevCurrentBlock: CurrentBlockState;
 };
@@ -83,6 +84,7 @@ const runtimeState: RuntimeState = {
     forceFinish: null,
     totalDelay: 0,
     pausedAt: null,
+    secondaryTarget: null,
   },
   _prevCurrentBlock: {
     block: null,
@@ -319,6 +321,23 @@ export function reload(event?: PlayableEvent): string | undefined {
     runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, runtimeState.eventNow.timeEnd);
     runtimeState.timer.current = getCurrent(runtimeState);
     runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
+
+    // handle edge cases with roll
+    if (runtimeState.timer.playback === Playback.Roll) {
+      // if waiting to roll, we update the targets and potentially start the timer
+      if (runtimeState._timer.secondaryTarget !== null) {
+        if (
+          runtimeState.eventNow.timeStart < runtimeState.clock &&
+          runtimeState.clock < runtimeState.eventNow.timeEnd
+        ) {
+          // if the event is now, we queue a start
+          runtimeState._timer.secondaryTarget = runtimeState.eventNow.timeStart;
+          runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - runtimeState.clock;
+        } else {
+          runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, runtimeState.clock);
+        }
+      }
+    }
     return runtimeState.eventNow.id;
   }
 
@@ -337,7 +356,6 @@ export function reload(event?: PlayableEvent): string | undefined {
   runtimeState.timer.elapsed = null;
   runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
 
-  // TODO: this seems incorrect
   runtimeState.currentBlock.startedAt = null;
   return runtimeState.eventNow.id;
 }
@@ -463,7 +481,7 @@ export function addTime(amount: number) {
 
 export type UpdateResult = {
   hasTimerFinished: boolean;
-  shouldCallRoll: boolean;
+  hasSecondaryTimerFinished: boolean;
 };
 
 export function update(): UpdateResult {
@@ -513,26 +531,24 @@ export function update(): UpdateResult {
     runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
   }
 
-  return { hasTimerFinished: finishedNow, shouldCallRoll: finishedNow };
+  return { hasTimerFinished: finishedNow, hasSecondaryTimerFinished: false };
 
   function updateIfIdle() {
     // if nothing is running, nothing to do
-    return { hasTimerFinished: false, shouldCallRoll: false };
+    return { hasTimerFinished: false, hasSecondaryTimerFinished: false };
   }
 
   function updateIfWaitingToRoll() {
     // eslint-disable-next-line no-unused-labels -- dev code path
     DEV: {
-      if (runtimeState.eventNow === null) {
+      if (runtimeState.eventNow === null || runtimeState._timer.secondaryTarget === null) {
         throw new Error('runtimeState.updateIfWaitingToRoll: invalid state received');
       }
     }
 
     runtimeState.timer.phase = TimerPhase.Pending;
-    // normalise start time
-    const targetTime = normaliseRollStart(runtimeState.eventNow.timeStart, runtimeState.clock);
-    runtimeState.timer.secondaryTimer = targetTime - runtimeState.clock;
-    return { hasTimerFinished: false, shouldCallRoll: runtimeState.timer.secondaryTimer < 0 };
+    runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - runtimeState.clock;
+    return { hasTimerFinished: false, hasSecondaryTimerFinished: runtimeState.timer.secondaryTimer < 0 };
   }
 }
 
@@ -595,11 +611,9 @@ export function roll(rundown: OntimeRundown): { eventId: MaybeString; didStart: 
   if (isPending) {
     // there is nothing now, but something coming up
     runtimeState.timer.phase = TimerPhase.Pending;
-    const normalisedNextStart =
-      runtimeState.eventNow.timeStart < runtimeState.clock
-        ? runtimeState.eventNow.timeStart + dayInMs
-        : runtimeState.eventNow.timeStart;
-    runtimeState.timer.secondaryTimer = normalisedNextStart - runtimeState.clock;
+    // we need to normalise start time in case it is the day after
+    runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, runtimeState.clock);
+    runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - runtimeState.clock;
 
     // preload timer properties
     runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, runtimeState.eventNow.timeEnd);
