@@ -8,6 +8,7 @@ export {
   type OntimeDelay,
   type OntimeBlock,
   type OntimeEvent,
+  type PlayableEvent,
   SupportedEvent,
 } from './definitions/core/OntimeEvent.type.js';
 export type { OntimeEntryCommonKeys, OntimeRundown, OntimeRundownEntry } from './definitions/core/Rundown.type.js';
@@ -71,5 +72,12 @@ export { type SimpleTimerState, SimplePlayback, SimpleDirection } from './defini
 export type { Client, ClientList, ClientType } from './definitions/Clients.type.js';
 
 // TYPE UTILITIES
-export { isOntimeBlock, isOntimeDelay, isOntimeEvent, isOntimeCycle, isKeyOfType } from './utils/guards.js';
+export {
+  isOntimeBlock,
+  isOntimeDelay,
+  isOntimeEvent,
+  isPlayableEvent,
+  isOntimeCycle,
+  isKeyOfType,
+} from './utils/guards.js';
 export type { DeepPartial, MaybeNumber, MaybeString } from './utils/utils.type.js';

@@ -9,7 +9,7 @@ type UpdateCallbackFn = (updateResult: UpdateResult) => void;
 /**
  * Service manages Ontime's main timer
  */
-export class TimerService {
+export class EventTimer {
   private readonly _interval: NodeJS.Timeout;
   /** how often we recalculate */
   static _refreshInterval: number;
@@ -26,15 +26,14 @@ export class TimerService {
    * @param {function} [timerConfig.onUpdateCallback] how often we update the socket
    */
   constructor(timerConfig: { refresh: number; updateInterval: number }) {
-    TimerService._refreshInterval = timerConfig.refresh;
+    EventTimer._refreshInterval = timerConfig.refresh;
     this._interval = setInterval(() => {
       this.update();
-    }, TimerService._refreshInterval);
+    }, EventTimer._refreshInterval);
   }
 
   /**
    * Allows setting a callback for when the timer updates
-   * @param callback
    */
   setOnUpdateCallback(callback: (updateResult: UpdateResult) => void) {
     this.onUpdateCallback = callback;
@@ -73,7 +72,6 @@ export class TimerService {
 
   /**
    * Adds time to running timer by given amount
-   * @param {number} amount
    */
   addTime(amount: number): boolean {
     if (!runtimeState.addTime(amount)) {
@@ -104,10 +102,9 @@ export class TimerService {
 
   /**
    * Loads roll information into timer service
-   * @param {OntimeEvent[]} rundown -- list of events to run
    */
   roll(rundown: OntimeRundown) {
-    runtimeState.roll(rundown);
+    return runtimeState.roll(rundown);
   }
 
   shutdown() {

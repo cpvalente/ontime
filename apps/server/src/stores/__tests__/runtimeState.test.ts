@@ -1,4 +1,4 @@
-import { OntimeEvent, Playback } from 'ontime-types';
+import { PlayableEvent, Playback } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
 
 import { RuntimeState, addTime, clear, getState, load, pause, start, stop } from '../runtimeState.js';
@@ -11,7 +11,8 @@ const mockEvent = {
   timeStart: 0,
   timeEnd: 1000,
   duration: 1000,
-} as OntimeEvent;
+  skip: false,
+} as PlayableEvent;
 
 const mockState = {
   clock: 666,
@@ -144,6 +145,7 @@ describe('mutation on runtimeState', () => {
 
       // 5. Stop event
       success = stop();
+      newState = getState();
       expect(success).toBe(true);
       expect(newState.eventNow).toBe(null);
       expect(newState.timer).toMatchObject({

@@ -1,4 +1,4 @@
-import type { OntimeBlock, OntimeDelay, OntimeEvent } from '../definitions/core/OntimeEvent.type.js';
+import type { OntimeBlock, OntimeDelay, OntimeEvent, PlayableEvent } from '../definitions/core/OntimeEvent.type.js';
 import { SupportedEvent } from '../definitions/core/OntimeEvent.type.js';
 import type { OntimeRundownEntry } from '../definitions/core/Rundown.type.js';
 import type { TimerLifeCycleKey } from '../definitions/core/TimerLifecycle.type.js';
@@ -8,6 +8,10 @@ type MaybeEvent = OntimeRundownEntry | Partial<OntimeRundownEntry> | null | unde
 
 export function isOntimeEvent(event: MaybeEvent): event is OntimeEvent {
   return event?.type === SupportedEvent.Event;
+}
+
+export function isPlayableEvent(event: OntimeEvent): event is PlayableEvent {
+  return !event.skip;
 }
 
 export function isOntimeDelay(event: MaybeEvent): event is OntimeDelay {
