@@ -151,8 +151,8 @@ interface ActionMenuProps {
   filename: string;
   isDisabled: boolean;
   onChangeEditMode: (editMode: EditMode, filename: string) => void;
-  onDelete: (filename: string) => void;
-  onLoad: (filename: string) => void;
+  onDelete: (filename: string) => Promise<void>;
+  onLoad: (filename: string) => Promise<void>;
   onMerge: (filename: string) => void;
 }
 function ActionMenu(props: ActionMenuProps) {

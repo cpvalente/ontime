@@ -11,7 +11,7 @@ const dbPath = `${apiEntryUrl}/db`;
 /**
  * HTTP request to the current DB
  */
-export async function getDb(filename: string): Promise<AxiosResponse<DatabaseModel>> {
+export function getDb(filename: string): Promise<AxiosResponse<DatabaseModel>> {
   return axios.post(`${dbPath}/download/`, { filename });
 }
 
