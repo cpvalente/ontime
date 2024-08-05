@@ -50,7 +50,7 @@ export default function ManageProjects() {
       const errorMessage = maybeAxiosError(error);
       setError(`Error uploading file: ${errorMessage}`);
     } finally {
-      invalidateAllCaches();
+      await invalidateAllCaches();
     }
 
     setLoading(null);

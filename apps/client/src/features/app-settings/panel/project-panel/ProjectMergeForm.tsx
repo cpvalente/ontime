@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Switch } from '@chakra-ui/react';
+import { Button, Switch, Tooltip } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { PROJECT_DATA } from '../../../../common/api/constants';
@@ -16,13 +16,12 @@ interface ProjectMergeFromProps {
 }
 
 type ProjectMergeFormValues = {
-  project?: boolean;
-  rundown?: boolean;
-  viewSettings?: boolean;
-  urlPresets?: boolean;
-  customFields?: boolean;
-  osc?: boolean;
-  http?: boolean;
+  project: boolean;
+  rundown: boolean;
+  viewSettings: boolean;
+  urlPresets: boolean;
+  osc: boolean;
+  http: boolean;
 };
 
 export default function ProjectMergeForm(props: ProjectMergeFromProps) {
@@ -68,31 +67,32 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
       {error && <Panel.Error>{error}</Panel.Error>}
       <div className={style.innerColumn}>
         <span className={style.toggleOption}>
-          <label>Project data</label>
+          <span>Project data</span>
           <Switch variant='ontime' size='md' defaultChecked={false} {...register('project')} />
         </span>
         <span className={style.toggleOption}>
-          <label>Rundown</label>
+          <span>
+            Rundown{' '}
+            <Tooltip label='The rundown requires the correct custom fields to be preset so they can only be imported together'>
+              (and Custom Filleds)
+            </Tooltip>
+          </span>
           <Switch variant='ontime' size='md' defaultChecked={false} {...register('rundown')} />
         </span>
         <span className={style.toggleOption}>
-          <label>View Settings</label>
+          <span>View Settings</span>
           <Switch variant='ontime' size='md' defaultChecked={false} {...register('viewSettings')} />
         </span>
         <span className={style.toggleOption}>
-          <label>Url Presets</label>
+          <span>Url Presets</span>
           <Switch variant='ontime' size='md' defaultChecked={false} {...register('urlPresets')} />
         </span>
         <span className={style.toggleOption}>
-          <label>Custom Fields</label>
-          <Switch variant='ontime' size='md' defaultChecked={false} {...register('customFields')} />
-        </span>
-        <span className={style.toggleOption}>
-          <label>OSC Integration</label>
+          <span>OSC Integration</span>
           <Switch variant='ontime' size='md' defaultChecked={false} {...register('osc')} />
         </span>
         <span className={style.toggleOption}>
-          <label>HTTP Integration</label>
+          <span>HTTP Integration</span>
           <Switch variant='ontime' size='md' defaultChecked={false} {...register('http')} />
         </span>
       </div>
