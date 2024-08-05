@@ -9,8 +9,9 @@ import { IoPlayForward } from '@react-icons/all-files/io5/IoPlayForward';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
-import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, MaybeNumber, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
+import { millisToDelayString } from '../../../common/utils/dateConfig';
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
@@ -44,6 +45,7 @@ interface EventBlockInnerProps {
   loaded: boolean;
   playback?: Playback;
   isRolling: boolean;
+  overUnder?: MaybeNumber;
 }
 
 const EventBlockInner = (props: EventBlockInnerProps) => {
@@ -65,6 +67,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     loaded,
     playback,
     isRolling,
+    overUnder,
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
@@ -104,6 +107,14 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           </Tooltip>
         )}
       </div>
+      {overUnder && (
+        <div className={style.overUnderSection}>
+          {/* TODO: better tooltip */}
+          <Tooltip label={`Event was palayd with and ${overUnder > 0 ? 'overrun' : 'underrun'}`} {...tooltipProps}>
+            <span className={overUnder > 0 ? style.over : style.under}>{millisToDelayString(overUnder)}</span>
+          </Tooltip>
+        </div>
+      )}
       <EventBlockPlayback
         eventId={eventId}
         skip={skip}

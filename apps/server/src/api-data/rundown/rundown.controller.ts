@@ -1,6 +1,7 @@
 import {
   ErrorResponse,
   MessageResponse,
+  OntimeReport,
   OntimeRundown,
   OntimeRundownEntry,
   RundownCached,
@@ -28,6 +29,7 @@ import {
   getPaginated,
   getRundown,
 } from '../../services/rundown-service/rundownUtils.js';
+import * as report from '../../services/report-service/ReportService.js';
 
 export async function rundownGetAll(_req: Request, res: Response<OntimeRundown>) {
   const rundown = getRundown();
@@ -196,4 +198,8 @@ export async function deletesEventById(req: Request, res: Response<MessageRespon
     const message = getErrorMessage(error);
     res.status(400).send({ message });
   }
+}
+
+export async function getReport(_req: Request, res: Response<OntimeReport>) {
+  res.json(report.generate());
 }

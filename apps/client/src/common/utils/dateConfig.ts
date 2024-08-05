@@ -3,8 +3,8 @@ import { formatFromMillis, MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-uti
 
 /**
  * Parses a value in millis to a string which encodes a delay
- * @param millis 
- * @param format 
+ * @param millis
+ * @param format
  */
 export function millisToDelayString(millis: MaybeNumber, format: 'compact' | 'expanded' = 'compact'): string {
   if (millis == null || millis === 0) {
@@ -19,8 +19,12 @@ export function millisToDelayString(millis: MaybeNumber, format: 'compact' | 'ex
 
   if (absMillis < MILLIS_PER_MINUTE) {
     return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 's')} sec`;
-  } else if (absMillis < MILLIS_PER_HOUR && absMillis % MILLIS_PER_MINUTE === 0) {
-    return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 'm')} min`;
+  } else if (absMillis < MILLIS_PER_HOUR) {
+    if (absMillis % MILLIS_PER_MINUTE === 0) {
+      return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 'm')} min`;
+    } else {
+      return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 'mm:ss')}`;
+    }
   }
 
   return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 'HH:mm:ss')}`;

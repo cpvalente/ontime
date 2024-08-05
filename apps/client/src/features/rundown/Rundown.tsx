@@ -2,7 +2,7 @@ import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react'
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useHotkeys } from '@mantine/hooks';
-import { isOntimeEvent, MaybeNumber, Playback, RundownCached, SupportedEvent } from 'ontime-types';
+import { isOntimeEvent, MaybeNumber, OntimeReport, Playback, RundownCached, SupportedEvent } from 'ontime-types';
 import { getFirstNormal, getLastNormal, getNextNormal, getPreviousNormal } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
@@ -22,9 +22,10 @@ const RundownEntry = lazy(() => import('./RundownEntry'));
 
 interface RundownProps {
   data: RundownCached;
+  report: OntimeReport;
 }
 
-export default function Rundown({ data }: RundownProps) {
+export default function Rundown({ data, report }: RundownProps) {
   const { order, rundown } = data;
   const [statefulEntries, setStatefulEntries] = useState(order);
 
@@ -226,6 +227,7 @@ export default function Rundown({ data }: RundownProps) {
               // this means that this can be out of sync with order until the useEffect runs
               // instead of writing all the logic guards, we simply short circuit rendering here
               const event = rundown[eventId];
+              let overUnder;
               if (!event) {
                 return null;
               }
@@ -244,6 +246,7 @@ export default function Rundown({ data }: RundownProps) {
                   thisEnd = event.timeEnd;
                   thisId = eventId;
                 }
+                overUnder = report[eventId]?.overUnder;
               }
               const isFirst = index === 0;
               const isLast = index === order.length - 1;
@@ -273,6 +276,7 @@ export default function Rundown({ data }: RundownProps) {
                         previousEventId={previousEventId}
                         playback={isLoaded ? featureData.playback : undefined}
                         isRolling={featureData.playback === Playback.Roll}
+                        overUnder={overUnder}
                       />
                     </div>
                   </div>

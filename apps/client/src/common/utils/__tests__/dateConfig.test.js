@@ -31,10 +31,16 @@ describe('millisToDelayString()', () => {
       expect(millisToDelayString(-720000)).toBe('-12 min');
     });
     it('shows a simple string with value in minutes and seconds', () => {
-      expect(millisToDelayString(630000)).toBe('+00:10:30');
+      expect(millisToDelayString(630000)).toBe('+10:30');
     });
     it('... and its negative counterpart', () => {
-      expect(millisToDelayString(-630000)).toBe('-00:10:30');
+      expect(millisToDelayString(-630000)).toBe('-10:30');
+    });
+    it('shows a simple string with value in hours, minutes and seconds', () => {
+      expect(millisToDelayString(4630000)).toBe('+01:17:10');
+    });
+    it('... and its negative counterpart', () => {
+      expect(millisToDelayString(-4630000)).toBe('-01:17:10');
     });
 
     const underAnHour = [60000, 360000, 720000];

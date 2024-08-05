@@ -15,6 +15,9 @@ export type { OntimeEntryCommonKeys, OntimeRundown, OntimeRundownEntry } from '.
 export { TimeStrategy } from './definitions/TimeStrategy.type.js';
 export { TimerType } from './definitions/TimerType.type.js';
 
+// ---> Reporter
+export type { ReportData, OntimeReport } from './definitions/core/Report.type.js';
+
 // ---> Project Data
 export type { ProjectData } from './definitions/core/ProjectData.type.js';
 

@@ -9,7 +9,7 @@ $skip-opacity: 0.2;
   display: grid;
   grid-template-areas:
     'binder ...        ...     ...'
-    'binder pb-actions times   ...'
+    'binder pb-actions times   over'
     'binder pb-actions title   title'
     'binder pb-actions estatus estatus'
     'binder ...        ...     ...';
@@ -129,6 +129,20 @@ $skip-opacity: 0.2;
   align-items: center;
   gap: $block-clearance;
   height: 100%;
+}
+
+.overUnderSection {
+  grid-area: over;
+  display: flex;
+  align-items: center;
+  gap: $block-clearance;
+  height: 100%;
+  .over {
+    color: red; //TODO: proper dynbamic color
+  }
+  .under {
+    color: green; //TODO: proper dynbamic color
+  }
 }
 
 .titleSection {

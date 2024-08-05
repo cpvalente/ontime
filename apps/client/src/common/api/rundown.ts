@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { MessageResponse, OntimeEvent, OntimeRundownEntry, RundownCached } from 'ontime-types';
+import { MessageResponse, OntimeEvent, OntimeReport, OntimeRundownEntry, RundownCached } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 
@@ -83,4 +83,12 @@ export async function requestDelete(eventIds: string[]): Promise<AxiosResponse<M
  */
 export async function requestDeleteAll(): Promise<AxiosResponse<MessageResponse>> {
   return axios.delete(`${rundownPath}/all`);
+}
+
+/**
+ * HTTP  get ontime report
+ */
+export async function fetchReport(): Promise<OntimeReport> {
+  const res = await axios.get(`${rundownPath}/report`);
+  return res.data;
 }
