@@ -15,7 +15,6 @@ import style from './TimelinePage.module.scss';
 
 interface TimelinePageProps {
   backstageEvents: OntimeEvent[];
-  events: OntimeEvent[];
   general: ProjectData;
   selectedId: MaybeString;
   settings: Settings | undefined;
@@ -28,14 +27,14 @@ interface TimelinePageProps {
  * There is little point splitting or memoising top level elements
  */
 export default function TimelinePage(props: TimelinePageProps) {
-  const { events, general, selectedId, settings, time } = props;
+  const { backstageEvents, general, selectedId, settings, time } = props;
 
   const { getLocalizedString } = useTranslation();
   const clock = formatTime(time.clock);
 
   const scopedRundown = useMemo(() => {
-    return getScopedRundown(events, selectedId);
-  }, [events, selectedId]);
+    return getScopedRundown(backstageEvents, selectedId);
+  }, [backstageEvents, selectedId]);
 
   const { now, next, followedBy } = useMemo(() => {
     return getUpcomingEvents(scopedRundown, selectedId);
