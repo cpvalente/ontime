@@ -65,7 +65,6 @@ export type RuntimeState = {
     pausedAt: MaybeNumber;
     secondaryTarget: MaybeNumber;
   };
-  _prevCurrentBlock: CurrentBlockState;
 };
 
 const runtimeState: RuntimeState = {
@@ -85,10 +84,6 @@ const runtimeState: RuntimeState = {
     totalDelay: 0,
     pausedAt: null,
     secondaryTarget: null,
-  },
-  _prevCurrentBlock: {
-    block: null,
-    startedAt: null,
   },
 };
 
@@ -111,7 +106,6 @@ export function clear() {
   runtimeState.publicEventNow = null;
   runtimeState.eventNext = null;
 
-  runtimeState._prevCurrentBlock = { ...runtimeState.currentBlock };
   runtimeState.currentBlock.block = null;
   runtimeState.currentBlock.startedAt = null;
 
@@ -172,6 +166,9 @@ export function load(
   rundown: OntimeRundown,
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
+  const prevBlockId = runtimeState.currentBlock.block?.id;
+  const prevBlockStartAt = runtimeState.currentBlock.startedAt;
+
   clear();
 
   // filter rundown
@@ -183,8 +180,9 @@ export function load(
   }
 
   // load events in memory along with their data
-  loadNow(rundown, timedEvents, eventIndex);
+  loadNow(timedEvents, eventIndex);
   loadNext(timedEvents, eventIndex);
+  loadBlock(rundown, prevBlockId, prevBlockStartAt);
 
   // update state
   runtimeState.timer.playback = Playback.Armed;
@@ -210,29 +208,17 @@ export function load(
 /**
  * Loads current event and its public counterpart
  */
-export function loadNow(
-  rundown: OntimeRundown,
-  timedEvents: OntimeEvent[],
-  eventIndex: MaybeNumber = runtimeState.runtime.selectedEventIndex,
-) {
+export function loadNow(timedEvents: OntimeEvent[], eventIndex: MaybeNumber = runtimeState.runtime.selectedEventIndex) {
   if (eventIndex === null) {
     // reset the state to indicate there is no selection
     runtimeState.runtime.selectedEventIndex = null;
     runtimeState.eventNow = null;
-    runtimeState.currentBlock.block = null;
-    runtimeState.currentBlock.startedAt = null;
     return;
   }
 
   const event = timedEvents[eventIndex] as PlayableEvent;
   runtimeState.runtime.selectedEventIndex = eventIndex;
   runtimeState.eventNow = event;
-  runtimeState.currentBlock.block = getRelevantBlock(rundown, event.id);
-
-  // if we are still in the same block keep the startedAt time
-  if (runtimeState._prevCurrentBlock.block?.id === runtimeState.currentBlock.block?.id) {
-    runtimeState.currentBlock.startedAt = runtimeState._prevCurrentBlock.startedAt;
-  }
 
   // check if current is also public
   if (event.isPublic) {
@@ -360,7 +346,6 @@ export function reload(event?: PlayableEvent): string | undefined {
   runtimeState.timer.elapsed = null;
   runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
 
-  runtimeState.currentBlock.startedAt = null;
   return runtimeState.eventNow.id;
 }
 
@@ -369,9 +354,10 @@ export function reload(event?: PlayableEvent): string | undefined {
  */
 export function reloadAll(rundown: OntimeRundown) {
   const timedEvents = filterTimedEvents(rundown);
-  loadNow(rundown, timedEvents);
+  loadNow(timedEvents);
   loadNext(timedEvents);
   reload(runtimeState.eventNow ?? undefined);
+  loadBlock(rundown);
 }
 
 export function start(state: RuntimeState = runtimeState): boolean {
@@ -586,6 +572,9 @@ export function roll(rundown: OntimeRundown): { eventId: MaybeString; didStart: 
       runtimeState.timer.startedAt = runtimeState.clock;
 
       // update runtime
+      if (runtimeState.currentBlock.startedAt === null) {
+        runtimeState.currentBlock.startedAt = runtimeState.clock;
+      }
       if (!runtimeState.runtime.actualStart) {
         runtimeState.runtime.actualStart = runtimeState.clock;
       }
@@ -604,12 +593,15 @@ export function roll(rundown: OntimeRundown): { eventId: MaybeString; didStart: 
     throw new Error('No playable events found');
   }
 
+  const prevBlockId = runtimeState.currentBlock.block?.id;
+  const prevBlockStartAt = runtimeState.currentBlock.startedAt;
   clear();
   const { index, isPending } = loadRoll(timedEvents, runtimeState.clock);
 
   // load events in memory along with their data
-  loadNow(rundown, timedEvents, index);
+  loadNow(timedEvents, index);
   loadNext(timedEvents, index);
+  loadBlock(rundown, prevBlockId, prevBlockStartAt);
 
   // update roll state
   runtimeState.timer.playback = Playback.Roll;
@@ -658,5 +650,33 @@ export function roll(rundown: OntimeRundown): { eventId: MaybeString; didStart: 
 
   // update runtime
   runtimeState.runtime.actualStart = runtimeState.clock;
+  runtimeState.currentBlock.startedAt = runtimeState.clock;
   return { eventId: runtimeState.eventNow.id, didStart: true };
+}
+
+function loadBlock(
+  rundown: OntimeRundown,
+  prevBlockId: string | undefined = runtimeState.currentBlock.block?.id,
+  prevBlockStartAt: number | null = runtimeState.currentBlock.startedAt,
+) {
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: {
+    if (runtimeState.eventNow === null) {
+      throw new Error('runtimeState.loadBlock: invalid state received');
+    }
+  }
+
+  runtimeState.currentBlock.block = getRelevantBlock(rundown, runtimeState.eventNow.id);
+
+  if (runtimeState.currentBlock.block === null) {
+    runtimeState.currentBlock.startedAt = null;
+    return;
+  }
+
+  // if we are still in the same block keep the startedAt time
+  if (prevBlockId === runtimeState.currentBlock.block.id) {
+    runtimeState.currentBlock.startedAt = prevBlockStartAt;
+  } else {
+    runtimeState.currentBlock.startedAt = null;
+  }
 }
