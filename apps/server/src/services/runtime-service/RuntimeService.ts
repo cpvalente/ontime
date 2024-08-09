@@ -231,19 +231,23 @@ class RuntimeService {
     // 1. we are not confident that changes do not affect running event (eg. all events where changed)
     const safeOption = typeof affectedIds === 'undefined';
     // 2. the edited event is in memory (now or next) running
+    // behind conditional to avoid doing unnecessary work
     const eventInMemory = safeOption ? false : this.affectsLoaded(affectedIds);
     // 3. the edited event replaces next event
     let isNext = false;
 
-    // TODO: review logic
+    // if we are not sure, or the event is in memory, we reload
     if (safeOption || eventInMemory) {
       if (state.eventNow !== null) {
         // load stuff again, but keep running if our events still exist
         const eventNow = getEventWithId(state.eventNow.id);
         if (!isOntimeEvent(eventNow) || !isPlayableEvent(eventNow)) {
+          // maybe the event was deleted or the skip state was changed
+          runtimeState.stop();
           return;
         }
         const onlyChangedNow = affectedIds?.length === 1 && affectedIds.at(0) === eventNow.id;
+
         if (onlyChangedNow) {
           runtimeState.reload(eventNow);
         } else {
