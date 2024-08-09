@@ -11,13 +11,12 @@ interface StatusBarProgressProps {
 
 export default function StatusBarProgress(props: StatusBarProgressProps) {
   const { viewSettings } = props;
-  const { addedTime, current, duration, timeWarning, timeDanger } = useProgressData();
-  const totalTime = (duration ?? 0) + (addedTime ?? 0);
+  const { current, duration, timeWarning, timeDanger } = useProgressData();
 
   return (
     <MultiPartProgressBar
       now={current}
-      complete={totalTime}
+      complete={duration}
       normalColor={viewSettings.normalColor}
       warning={timeWarning}
       warningColor={viewSettings.warningColor}

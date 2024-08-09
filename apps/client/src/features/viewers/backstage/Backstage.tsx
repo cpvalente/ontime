@@ -94,7 +94,6 @@ export default function Backstage(props: BackstageProps) {
   let stageTimer = millisToString(time.current, { fallback: timerPlaceholderMin });
   stageTimer = removeLeadingZero(stageTimer);
 
-  const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const backstageOptions = getBackstageOptions(defaultFormat, customFields);
 
@@ -111,8 +110,8 @@ export default function Backstage(props: BackstageProps) {
 
       <ProgressBar
         className='progress-container'
-        now={time.current ?? undefined}
-        complete={totalTime}
+        current={time.current}
+        duration={time.duration}
         hidden={!showProgress}
       />
 
