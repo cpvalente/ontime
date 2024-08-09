@@ -6,18 +6,17 @@ import styles from './CuesheetProgress.module.scss';
 
 export default function CuesheetProgress() {
   const { data } = useViewSettings();
-  const { addedTime, current, duration, timeWarning, timeDanger } = useProgressData();
-  const totalTime = (duration ?? 0) + (addedTime ?? 0);
+  const { current, duration, timeWarning, timeDanger } = useProgressData();
 
   return (
     <MultiPartProgressBar
       now={current}
-      complete={totalTime}
-      normalColor={data!.normalColor}
+      complete={duration}
+      normalColor={data.normalColor}
       warning={timeWarning}
-      warningColor={data!.warningColor}
+      warningColor={data.warningColor}
       danger={timeDanger}
-      dangerColor={data!.dangerColor}
+      dangerColor={data.dangerColor}
       className={styles.progressOverride}
       ignoreCssOverride
     />

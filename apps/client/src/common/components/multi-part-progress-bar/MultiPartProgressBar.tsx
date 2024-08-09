@@ -1,12 +1,12 @@
 import { MaybeNumber } from 'ontime-types';
 
-import { clamp } from '../../utils/math';
+import { getProgress } from '../../utils/getProgress';
 
 import './MultiPartProgressBar.scss';
 
 interface MultiPartProgressBar {
   now: MaybeNumber;
-  complete: number;
+  complete: MaybeNumber;
   normalColor: string;
   warning?: MaybeNumber;
   warningColor: string;
@@ -31,10 +31,9 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
     className = '',
   } = props;
 
-  const percentRemaining = complete === 0 ? 0 : 100 - clamp(100 - (Math.max(now ?? 0, 0) * 100) / complete, 0, 100);
-
-  const dangerWidth = danger ? clamp((danger / complete) * 100, 0, 100) : 0;
-  const warningWidth = warning ? clamp((warning / complete) * 100 - dangerWidth, 0, 100) : 0;
+  const percentRemaining = 100 - getProgress(now, complete);
+  const dangerWidth = danger ? 100 - getProgress(danger, complete) : 0;
+  const warningWidth = warning ? 100 - dangerWidth - getProgress(warning, complete) : 0;
 
   return (
     <div
