@@ -78,7 +78,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
 
   const isLoading = Boolean(loading);
   const canSubmitSpreadsheet = isSpreadsheet && !isLoading;
-  const canSubmitGSheet = !isLoading;
+  const canSubmitGSheet = !isLoading && !stepData.worksheet.error;
   const canSubmit = !hasErrors && isValid && (canSubmitSpreadsheet || canSubmitGSheet);
 
   return (
