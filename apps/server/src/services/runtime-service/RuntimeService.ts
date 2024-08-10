@@ -62,9 +62,12 @@ class RuntimeService {
     RuntimeService.previousState = {} as RuntimeState;
   }
 
-  /** Checks result of an update and notifies integrations as needed */
+  /**
+   * Checks result of an update and notifies integrations as needed
+   * This is the only exception of a private method that has broadcast result
+   * */
   @broadcastResult
-  checkTimerUpdate({ hasTimerFinished, hasSecondaryTimerFinished }: runtimeState.UpdateResult) {
+  private checkTimerUpdate({ hasTimerFinished, hasSecondaryTimerFinished }: runtimeState.UpdateResult) {
     const newState = runtimeState.getState();
 
     // 1. find if we need to dispatch integrations related to the phase
@@ -94,7 +97,7 @@ class RuntimeService {
         process.nextTick(() => {
           integrationService.dispatch(TimerLifeCycle.onFinish);
         });
-        this.loadNext();
+        this.handleLoadNext();
         this.rollLoaded();
       } else if (skippedOutOfEvent(newState, this.lastIntegrationClockUpdate, timerConfig.skipLimit)) {
         // if we have skipped out of the event, we will recall roll
@@ -145,7 +148,7 @@ class RuntimeService {
   }
 
   /** delay initialisation until we have a restore point */
-  init(resumable: RestorePoint | null) {
+  public init(resumable: RestorePoint | null) {
     logger.info(LogOrigin.Server, 'Runtime service started');
     this.eventTimer.setOnUpdateCallback((updateResult) => this.checkTimerUpdate(updateResult));
 
@@ -154,7 +157,7 @@ class RuntimeService {
     }
   }
 
-  shutdown() {
+  public shutdown() {
     if (this.eventTimer) {
       logger.info(LogOrigin.Server, 'Runtime service shutting down');
       this.eventTimer.shutdown();
@@ -220,7 +223,7 @@ class RuntimeService {
    * Called when the underlying data has changed,
    * we check if the change affects the runtime
    */
-  maybeUpdate(affectedIds?: string[]) {
+  public notifyOfChangedEvents(affectedIds?: string[]) {
     const state = runtimeState.getState();
     const hasLoadedElements = state.eventNow !== null || state.eventNext !== null;
     if (!hasLoadedElements) {
@@ -271,8 +274,7 @@ class RuntimeService {
    * @param {PlayableEvent} event
    * @return {boolean} success - whether an event was loaded
    */
-  @broadcastResult
-  loadEvent(event: OntimeEvent): boolean {
+  private loadEvent(event: OntimeEvent): boolean {
     if (!isPlayableEvent(event)) {
       logger.warning(LogOrigin.Playback, `Refused skipped event with ID ${event.id}`);
       return false;
@@ -295,7 +297,8 @@ class RuntimeService {
    * @param {string} eventId
    * @return {boolean} success - whether an event was started
    */
-  startById(eventId: string): boolean {
+  @broadcastResult
+  public startById(eventId: string): boolean {
     const event = getEventWithId(eventId);
     if (!event || !isOntimeEvent(event)) {
       return false;
@@ -304,7 +307,7 @@ class RuntimeService {
     if (!loaded) {
       return false;
     }
-    return this.start();
+    return this.handleStart();
   }
 
   /**
@@ -312,7 +315,8 @@ class RuntimeService {
    * @param {number} eventIndex
    * @return {boolean} success - whether an event was started
    */
-  startByIndex(eventIndex: number): boolean {
+  @broadcastResult
+  public startByIndex(eventIndex: number): boolean {
     const event = getEventAtIndex(eventIndex);
     if (!event) {
       return false;
@@ -321,7 +325,7 @@ class RuntimeService {
     if (!loaded) {
       return false;
     }
-    return this.start();
+    return this.handleStart();
   }
 
   /**
@@ -329,7 +333,8 @@ class RuntimeService {
    * @param {string} cue
    * @return {boolean} success - whether an event was started
    */
-  startByCue(cue: string): boolean {
+  @broadcastResult
+  public startByCue(cue: string): boolean {
     const event = getNextEventWithCue(cue); //TODO: add index
     if (!event) {
       return false;
@@ -338,7 +343,7 @@ class RuntimeService {
     if (!loaded) {
       return false;
     }
-    return this.start();
+    return this.handleStart();
   }
 
   /**
@@ -346,7 +351,8 @@ class RuntimeService {
    * @param {string} eventId
    * @return {boolean} success - whether an event was loaded
    */
-  loadById(eventId: string): boolean {
+  @broadcastResult
+  public loadById(eventId: string): boolean {
     const event = getEventWithId(eventId);
     if (!event || !isOntimeEvent(event)) {
       return false;
@@ -359,7 +365,8 @@ class RuntimeService {
    * @param {number} eventIndex
    * @return {boolean} success - whether an event was loaded
    */
-  loadByIndex(eventIndex: number): boolean {
+  @broadcastResult
+  public loadByIndex(eventIndex: number): boolean {
     const event = getEventAtIndex(eventIndex);
     if (!event) {
       return false;
@@ -372,7 +379,8 @@ class RuntimeService {
    * @param {string} cue
    * @return {boolean} success - whether an event was loaded
    */
-  loadByCue(cue: string): boolean {
+  @broadcastResult
+  public loadByCue(cue: string): boolean {
     const event = getNextEventWithCue(cue); //TODO: add index
     if (!event) {
       return false;
@@ -381,10 +389,12 @@ class RuntimeService {
   }
 
   /**
-   * Loads event before currently selected
-   * @return {boolean} success - whether an event was loaded
+   * Contains logic for loading the previous event
+   *
+   * we need to isolate handleLoadPrevious so we have control over the side effects
+   * startSelected being a private function does not trigger emits
    */
-  loadPrevious(): boolean {
+  private handleLoadPrevious(): boolean {
     const state = runtimeState.getState();
     const previousEvent = findPrevious(state.eventNow?.id);
     if (previousEvent) {
@@ -394,10 +404,21 @@ class RuntimeService {
   }
 
   /**
-   * Loads event after currently selected
-   * @return {boolean} success
+   * Loads event before currently selected
+   * @return {boolean} success - whether an event was loaded
    */
-  loadNext(): boolean {
+  @broadcastResult
+  public loadPrevious(): boolean {
+    return this.handleLoadPrevious();
+  }
+
+  /**
+   * Contains logic for loading the next event
+   *
+   * we need to isolate handleLoadNext so we have control over the side effects
+   * startSelected being a private function does not trigger emits
+   */
+  private handleLoadNext(): boolean {
     const state = runtimeState.getState();
     const nextEvent = findNext(state.eventNow?.id);
     if (nextEvent) {
@@ -409,10 +430,21 @@ class RuntimeService {
   }
 
   /**
-   * Starts playback on selected event
+   * Loads event after currently selected
+   * @return {boolean} success
    */
   @broadcastResult
-  start(): boolean {
+  public loadNext(): boolean {
+    return this.handleLoadNext();
+  }
+
+  /**
+   * Contains logic for starting selected event
+   *
+   * we need to isolate handleStart so we have control over the side effects
+   * startSelected being a private function does not trigger emits
+   */
+  private handleStart(): boolean {
     const previousState = runtimeState.getState();
     const canStart = validatePlayback(previousState.timer.playback).start;
     if (!canStart) {
@@ -432,34 +464,43 @@ class RuntimeService {
   }
 
   /**
+   * Starts playback on selected event
+   */
+  @broadcastResult
+  public start(): boolean {
+    return this.handleStart();
+  }
+
+  /**
    * Starts playback on previous event
    */
-  startPrevious(): boolean {
-    const hasPrevious = this.loadPrevious();
+  @broadcastResult
+  public startPrevious(): boolean {
+    const hasPrevious = this.handleLoadPrevious();
     if (!hasPrevious) {
       return false;
     }
 
-    return this.start();
+    return this.handleStart();
   }
 
   /**
    * Starts playback on next event
    */
-  startNext(): boolean {
-    const hasNext = this.loadNext();
+  @broadcastResult
+  public startNext(): boolean {
+    const hasNext = this.handleLoadNext();
     if (!hasNext) {
       return false;
     }
-
-    return this.start();
+    return this.handleStart();
   }
 
   /**
    * Pauses playback on selected event
    */
   @broadcastResult
-  pause() {
+  public pause() {
     const state = runtimeState.getState();
     const canPause = validatePlayback(state.timer.playback).pause;
     if (!canPause) {
@@ -477,7 +518,7 @@ class RuntimeService {
    * Stops timer and unloads any events
    */
   @broadcastResult
-  stop(): boolean {
+  public stop(): boolean {
     const state = runtimeState.getState();
     const canStop = validatePlayback(state.timer.playback).stop;
     if (!canStop) {
@@ -500,7 +541,7 @@ class RuntimeService {
    * Reloads current event
    */
   @broadcastResult
-  reload() {
+  public reload() {
     const state = runtimeState.getState();
     if (state.eventNow) {
       const eventId = runtimeState.reload();
@@ -516,7 +557,7 @@ class RuntimeService {
   /**
    * Handles special case to call roll on a loaded event which we do not want to discard
    */
-  rollLoaded() {
+  private rollLoaded() {
     const rundown = getRundown();
     try {
       this.eventTimer.roll(rundown);
@@ -529,7 +570,7 @@ class RuntimeService {
    * Sets playback to roll
    */
   @broadcastResult
-  roll(skipCheck: boolean = false) {
+  public roll(skipCheck: boolean = false) {
     const previousState = runtimeState.getState();
     if (!skipCheck) {
       const canRoll = validatePlayback(previousState.timer.playback).roll;
@@ -570,7 +611,7 @@ class RuntimeService {
    * @param restorePoint
    */
   @broadcastResult
-  resume(restorePoint: RestorePoint) {
+  public resume(restorePoint: RestorePoint) {
     const { selectedEventId, playback } = restorePoint;
     if (playback === Playback.Roll) {
       this.roll();
@@ -597,7 +638,8 @@ class RuntimeService {
    * Adds time to current event
    * @param {number} time - time to add in milliseconds
    */
-  addTime(time: number) {
+  @broadcastResult
+  public addTime(time: number) {
     if (this.eventTimer.addTime(time)) {
       logger.info(LogOrigin.Playback, `${time > 0 ? 'Added' : 'Removed'} ${millisToString(time)}`);
     }
@@ -613,6 +655,8 @@ export const runtimeService = new RuntimeService(eventTimer);
 
 /**
  * Decorator manages side effects from updating the runtime
+ * This should only be applied to functions that are exposed for consumption
+ * ie: whenever an external service makes a request, we update the state with the mutation result
  */
 function broadcastResult(_target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
   const originalMethod = descriptor.value;
