@@ -166,10 +166,10 @@ export function load(
   rundown: OntimeRundown,
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
-  const prevBlockId = runtimeState.currentBlock.block?.id;
-  const prevBlockStartAt = runtimeState.currentBlock.startedAt;
-
+  // we need to persist the current block state across loads
+  const prevCurrentBlock = { ...runtimeState.currentBlock };
   clear();
+  runtimeState.currentBlock = prevCurrentBlock;
 
   // filter rundown
   const timedEvents = filterTimedEvents(rundown);
@@ -182,7 +182,7 @@ export function load(
   // load events in memory along with their data
   loadNow(timedEvents, eventIndex);
   loadNext(timedEvents, eventIndex);
-  loadBlock(rundown, prevBlockId, prevBlockStartAt);
+  loadBlock(rundown);
 
   // update state
   runtimeState.timer.playback = Playback.Armed;
@@ -381,6 +381,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
     state.timer.startedAt = state.clock;
   }
 
+  // update block start time
   if (state.currentBlock.startedAt === null) {
     state.currentBlock.startedAt = state.clock;
   }
@@ -593,15 +594,17 @@ export function roll(rundown: OntimeRundown): { eventId: MaybeString; didStart: 
     throw new Error('No playable events found');
   }
 
-  const prevBlockId = runtimeState.currentBlock.block?.id;
-  const prevBlockStartAt = runtimeState.currentBlock.startedAt;
+  // we need to persist the current block state across loads
+  const prevCurrentBlock = { ...runtimeState.currentBlock };
   clear();
+  runtimeState.currentBlock = prevCurrentBlock;
+
   const { index, isPending } = loadRoll(timedEvents, runtimeState.clock);
 
   // load events in memory along with their data
   loadNow(timedEvents, index);
   loadNext(timedEvents, index);
-  loadBlock(rundown, prevBlockId, prevBlockStartAt);
+  loadBlock(rundown);
 
   // update roll state
   runtimeState.timer.playback = Playback.Roll;
@@ -650,33 +653,24 @@ export function roll(rundown: OntimeRundown): { eventId: MaybeString; didStart: 
 
   // update runtime
   runtimeState.runtime.actualStart = runtimeState.clock;
-  runtimeState.currentBlock.startedAt = runtimeState.clock;
   return { eventId: runtimeState.eventNow.id, didStart: true };
 }
 
-function loadBlock(
-  rundown: OntimeRundown,
-  prevBlockId: string | undefined = runtimeState.currentBlock.block?.id,
-  prevBlockStartAt: number | null = runtimeState.currentBlock.startedAt,
-) {
-  // eslint-disable-next-line no-unused-labels -- dev code path
-  DEV: {
-    if (runtimeState.eventNow === null) {
-      throw new Error('runtimeState.loadBlock: invalid state received');
-    }
-  }
-
-  runtimeState.currentBlock.block = getRelevantBlock(rundown, runtimeState.eventNow.id);
-
-  if (runtimeState.currentBlock.block === null) {
+function loadBlock(rundown: OntimeRundown) {
+  if (runtimeState.eventNow === null) {
+    // we need a loaded event to have a block
+    runtimeState.currentBlock.block = null;
     runtimeState.currentBlock.startedAt = null;
     return;
   }
 
-  // if we are still in the same block keep the startedAt time
-  if (prevBlockId === runtimeState.currentBlock.block.id) {
-    runtimeState.currentBlock.startedAt = prevBlockStartAt;
-  } else {
+  const newCurrentBlock = getRelevantBlock(rundown, runtimeState.eventNow.id);
+
+  // update time only if the block has changed
+  if (newCurrentBlock === null || newCurrentBlock.id !== runtimeState.currentBlock.block?.id) {
     runtimeState.currentBlock.startedAt = null;
   }
+
+  // update the block anyway
+  runtimeState.currentBlock.block = newCurrentBlock === null ? null : { ...newCurrentBlock };
 }

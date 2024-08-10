@@ -303,20 +303,21 @@ export function getEventWithId(rundown: OntimeRundown, id: string): OntimeRundow
  * Gets relevant block element for a given ID
  */
 export function getRelevantBlock(rundown: OntimeRundown, currentId: string): OntimeBlock | null {
-  let inBlock = false;
+  let foundCurrentEvent = false;
   // Iterate backwards through the rundown to find the current event
   for (let i = rundown.length - 1; i >= 0; i--) {
     const entry = rundown[i];
-    if (entry.id === currentId) {
-      //set the flag when the current event is found
-      inBlock = true;
+    if (!foundCurrentEvent && entry.id === currentId) {
+      // set the flag when the current event is found
+      foundCurrentEvent = true;
+      continue;
     }
-    //the first block before the current event is the relevant one
-    if (inBlock && isOntimeBlock(entry)) {
+    // the first block before the current event is the relevant one
+    if (foundCurrentEvent && isOntimeBlock(entry)) {
       return entry;
     }
   }
-  //no blocks exist before current event
+  // no blocks exist before current event
   return null;
 }
 

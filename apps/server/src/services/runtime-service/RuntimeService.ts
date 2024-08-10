@@ -66,7 +66,6 @@ class RuntimeService {
   @broadcastResult
   checkTimerUpdate({ hasTimerFinished, hasSecondaryTimerFinished }: runtimeState.UpdateResult) {
     const newState = runtimeState.getState();
-
     // 1. find if we need to dispatch integrations related to the phase
     const timerPhaseChanged = RuntimeService.previousState.timer?.phase !== newState.timer.phase;
     if (timerPhaseChanged) {
