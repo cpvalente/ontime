@@ -1,17 +1,21 @@
 import { useMemo } from 'react';
-import { MaybeString, OntimeEvent, ProjectData, Settings } from 'ontime-types';
+import { MaybeString, OntimeEvent, ProjectData, Settings, ViewSettings } from 'ontime-types';
 
+import { overrideStylesURL } from '../../../common/api/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
+import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
+import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 
 import Section from './timeline-section/TimelineSection';
 import Timeline from './Timeline';
 import { getTimelineOptions } from './timeline.options';
 import { getFormattedTimeToStart, getScopedRundown, getUpcomingEvents } from './timeline.utils';
 
-import style from './TimelinePage.module.scss';
+import './TimelinePage.scss';
 
 interface TimelinePageProps {
   backstageEvents: OntimeEvent[];
@@ -19,6 +23,7 @@ interface TimelinePageProps {
   selectedId: MaybeString;
   settings: Settings | undefined;
   time: ViewExtendedTimer;
+  viewSettings: ViewSettings;
 }
 
 /**
@@ -27,7 +32,8 @@ interface TimelinePageProps {
  * There is little point splitting or memoising top level elements
  */
 export default function TimelinePage(props: TimelinePageProps) {
-  const { backstageEvents, general, selectedId, settings, time } = props;
+  const { backstageEvents, general, selectedId, settings, time, viewSettings } = props;
+  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
 
   const { getLocalizedString } = useTranslation();
   const clock = formatTime(time.clock);
@@ -40,25 +46,44 @@ export default function TimelinePage(props: TimelinePageProps) {
     return getUpcomingEvents(scopedRundown, selectedId);
   }, [scopedRundown, selectedId]);
 
+  useWindowTitle('Timeline');
+
+  if (!shouldRender) {
+    return null;
+  }
+
   // populate options
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const progressOptions = getTimelineOptions(defaultFormat);
 
   const titleNow = now?.title ?? '-';
-  const dueText = getLocalizedString('timeline.due');
-  const nextText = next !== null ? `${next.title} · ${getFormattedTimeToStart(next, time.clock, dueText)}` : '-';
-  const followedByText =
-    followedBy !== null ? `${followedBy.title} · ${getFormattedTimeToStart(followedBy, time.clock, dueText)}` : '-';
+  const dueText = getLocalizedString('timeline.due').toUpperCase();
+  const nextText = next !== null ? next.title : '-';
+  const followedByText = followedBy !== null ? followedBy.title : '-';
+
+  const nextStatus = next !== null ? getFormattedTimeToStart(next, time.clock, dueText) : undefined;
+  const followedByStatus = followedBy !== null ? getFormattedTimeToStart(followedBy, time.clock, dueText) : undefined;
 
   return (
-    <div className={style.timeline}>
+    <div className='timeline'>
       <ViewParamsEditor viewOptions={progressOptions} />
-      <div className={style.title}>{general.title}</div>
-      <div className={style.sections}>
-        <Section title={getLocalizedString('common.time_now')} content={clock} category='now' />
-        <Section title={getLocalizedString('common.next')} content={nextText} category='next' />
+      <div className='project-header'>
+        {general.title}
+        <div className='clock-container'>
+          <div className='label'>{getLocalizedString('common.time_now')}</div>
+          <SuperscriptTime time={clock} className='time' />
+        </div>
+      </div>
+
+      <div className='title-grid'>
         <Section title={getLocalizedString('timeline.live')} content={titleNow} category='now' />
-        <Section title={getLocalizedString('timeline.followedby')} content={followedByText} category='next' />
+        <Section title={getLocalizedString('common.next')} status={nextStatus} content={nextText} category='next' />
+        <Section
+          title={getLocalizedString('timeline.followedby')}
+          status={followedByStatus}
+          content={followedByText}
+          category='next'
+        />
       </div>
       <Timeline selectedEventId={selectedId} rundown={scopedRundown} />
     </div>
