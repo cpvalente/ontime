@@ -620,7 +620,6 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // we do the comparison by explicitly for each property
     // to apply custom logic for different datasets
 
-    const shouldUpdateClock = getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock);
     const shouldForceTimerUpdate = getForceUpdate(RuntimeService.previousTimerUpdate, state.clock);
     const shouldUpdateTimer =
       shouldForceTimerUpdate || getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current);
@@ -654,10 +653,15 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     updateEventIfChanged('eventNext', state);
     updateEventIfChanged('publicEventNext', state);
 
+    let syncBlockStartAt = false;
+
     if (!deepEqual(RuntimeService?.previousState.currentBlock, state.currentBlock)) {
       eventStore.set('currentBlock', state.currentBlock);
       RuntimeService.previousState.currentBlock = { ...state.currentBlock };
+      syncBlockStartAt = true;
     }
+
+    const shouldUpdateClock = getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock) || syncBlockStartAt;
 
     if (shouldUpdateClock) {
       RuntimeService.previousClockUpdate = state.clock;
