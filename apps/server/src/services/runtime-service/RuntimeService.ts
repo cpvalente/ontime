@@ -544,14 +544,9 @@ class RuntimeService {
   public reload() {
     const state = runtimeState.getState();
     if (state.eventNow) {
-      const eventId = runtimeState.reload();
-      if (eventId) {
-        logger.info(LogOrigin.Playback, `Loaded event with ID ${eventId}`);
-        process.nextTick(() => {
-          integrationService.dispatch(TimerLifeCycle.onLoad);
-        });
-      }
+      return this.loadEvent(state.eventNow);
     }
+    return false;
   }
 
   /**
