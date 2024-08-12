@@ -14,8 +14,8 @@ export default function TimelineMarkers(props: TimelineMarkersProps) {
 
   return (
     <div className={style.markers}>
-      {elements.map((tag) => {
-        return <span key={tag}>{tag}</span>;
+      {elements.map((tag, index) => {
+        return <span key={`${index}-${tag}`}>{tag}</span>;
       })}
     </div>
   );
