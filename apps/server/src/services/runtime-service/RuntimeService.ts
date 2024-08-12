@@ -252,10 +252,10 @@ class RuntimeService {
         const onlyChangedNow = affectedIds?.length === 1 && affectedIds.at(0) === eventNow.id;
 
         if (onlyChangedNow) {
-          runtimeState.reload(eventNow);
+          runtimeState.updateLoaded(eventNow);
         } else {
           const rundown = getRundown();
-          runtimeState.reloadAll(rundown);
+          runtimeState.updateAll(rundown);
         }
         return;
       }
@@ -544,14 +544,9 @@ class RuntimeService {
   public reload() {
     const state = runtimeState.getState();
     if (state.eventNow) {
-      const eventId = runtimeState.reload();
-      if (eventId) {
-        logger.info(LogOrigin.Playback, `Loaded event with ID ${eventId}`);
-        process.nextTick(() => {
-          integrationService.dispatch(TimerLifeCycle.onLoad);
-        });
-      }
+      return this.loadEvent(state.eventNow);
     }
+    return false;
   }
 
   /**
