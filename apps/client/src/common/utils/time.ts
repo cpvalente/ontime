@@ -6,7 +6,7 @@ import { APP_SETTINGS } from '../api/constants';
 import { ontimeQueryClient } from '../queryClient';
 
 /**
- * Returns current time in milliseconds
+ * Returns current time in milliseconds from midnight
  * @returns {number}
  */
 export function nowInMillis(): number {
