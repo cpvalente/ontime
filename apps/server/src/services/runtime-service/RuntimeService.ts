@@ -252,10 +252,10 @@ class RuntimeService {
         const onlyChangedNow = affectedIds?.length === 1 && affectedIds.at(0) === eventNow.id;
 
         if (onlyChangedNow) {
-          runtimeState.reload(eventNow);
+          runtimeState.updateLoaded(eventNow);
         } else {
           const rundown = getRundown();
-          runtimeState.reloadAll(rundown);
+          runtimeState.updateAll(rundown);
         }
         return;
       }

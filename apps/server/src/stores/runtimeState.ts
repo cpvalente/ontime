@@ -307,7 +307,7 @@ export function resume(restorePoint: RestorePoint, event: PlayableEvent, rundown
  * We only pass an event if we are hot reloading
  * @param {PlayableEvent} event only passed if we are changing the data if a playing timer
  */
-export function reload(event?: PlayableEvent): string | undefined {
+export function updateLoaded(event?: PlayableEvent): string | undefined {
   // if there is no event loaded, nothing to do
   if (runtimeState.eventNow === null) {
     return;
@@ -363,11 +363,11 @@ export function reload(event?: PlayableEvent): string | undefined {
 /**
  * Used in situations when we want to hot-reload all events without interrupting timer
  */
-export function reloadAll(rundown: OntimeRundown) {
+export function updateAll(rundown: OntimeRundown) {
   const timedEvents = filterTimedEvents(rundown);
   loadNow(timedEvents);
   loadNext(timedEvents);
-  reload(runtimeState.eventNow ?? undefined);
+  updateLoaded(runtimeState.eventNow ?? undefined);
 }
 
 export function start(state: RuntimeState = runtimeState): boolean {
