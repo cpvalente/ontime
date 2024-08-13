@@ -150,7 +150,6 @@ export const useClock = () => {
 /** Used by the progress bar components */
 export const useProgressData = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    addedTime: state.timer.addedTime,
     current: state.timer.current,
     duration: state.timer.duration,
     timeWarning: state.eventNow?.timeWarning ?? null,

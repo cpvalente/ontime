@@ -1,22 +1,23 @@
-import { clamp } from '../../utils/math';
+import { MaybeNumber } from 'ontime-types';
+
+import { getProgress } from '../../utils/getProgress';
 
 import './ProgressBar.scss';
 
 interface ProgressBarProps {
-  now?: number;
-  complete?: number;
+  current: MaybeNumber;
+  duration: MaybeNumber;
   hidden?: boolean;
   className?: string;
 }
 
 export default function ProgressBar(props: ProgressBarProps) {
-  const { now = 0, complete = 100, hidden, className = '' } = props;
-
-  const percentComplete = clamp(100 - (Math.max(now, 0) * 100) / complete, 0, 100);
+  const { current, duration, hidden, className = '' } = props;
+  const progress = getProgress(current, duration);
 
   return (
     <div className={`progress-bar__bg ${hidden ? 'progress-bar__bg--hidden' : ''} ${className}`}>
-      <div className='progress-bar__indicator' style={{ width: `${percentComplete}%` }} />
+      <div className='progress-bar__indicator' style={{ width: `${progress}%` }} />
     </div>
   );
 }

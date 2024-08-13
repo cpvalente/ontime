@@ -241,7 +241,7 @@ function notifyChanges(options: { timer?: boolean | string[]; external?: boolean
       // notify timer service of changed events
       // timer can be true or an array of changed IDs
       const affected = Array.isArray(options.timer) ? options.timer : undefined;
-      runtimeService.maybeUpdate(affected);
+      runtimeService.notifyOfChangedEvents(affected);
     }
   }
 
