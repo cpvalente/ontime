@@ -69,7 +69,6 @@ class RuntimeService {
   @broadcastResult
   private checkTimerUpdate({ hasTimerFinished, hasSecondaryTimerFinished }: runtimeState.UpdateResult) {
     const newState = runtimeState.getState();
-
     // 1. find if we need to dispatch integrations related to the phase
     const timerPhaseChanged = RuntimeService.previousState.timer?.phase !== newState.timer.phase;
     if (timerPhaseChanged) {
@@ -664,7 +663,6 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // we do the comparison by explicitly for each property
     // to apply custom logic for different datasets
 
-    const shouldUpdateClock = getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock);
     const shouldForceTimerUpdate = getForceUpdate(RuntimeService.previousTimerUpdate, state.clock);
     const shouldUpdateTimer =
       shouldForceTimerUpdate || getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current);
@@ -698,10 +696,15 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     updateEventIfChanged('eventNext', state);
     updateEventIfChanged('publicEventNext', state);
 
+    let syncBlockStartAt = false;
+
     if (!deepEqual(RuntimeService?.previousState.currentBlock, state.currentBlock)) {
       eventStore.set('currentBlock', state.currentBlock);
       RuntimeService.previousState.currentBlock = { ...state.currentBlock };
+      syncBlockStartAt = true;
     }
+
+    const shouldUpdateClock = syncBlockStartAt || getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock);
 
     if (shouldUpdateClock) {
       RuntimeService.previousClockUpdate = state.clock;
