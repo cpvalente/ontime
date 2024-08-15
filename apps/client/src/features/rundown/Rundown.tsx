@@ -2,8 +2,15 @@ import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react'
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useHotkeys } from '@mantine/hooks';
-import { isOntimeEvent, MaybeNumber, Playback, RundownCached, SupportedEvent } from 'ontime-types';
-import { getFirstNormal, getLastNormal, getNextNormal, getPreviousNormal } from 'ontime-utils';
+import { isOntimeBlock, isOntimeEvent, MaybeNumber, Playback, RundownCached, SupportedEvent } from 'ontime-types';
+import {
+  getFirstNormal,
+  getLastNormal,
+  getNextBlockNormal,
+  getNextNormal,
+  getPreviousBlockNormal,
+  getPreviousNormal,
+} from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
@@ -98,28 +105,61 @@ export default function Rundown({ data }: RundownProps) {
     [rundown, order, addEvent],
   );
 
+  const selectBlock = useCallback(
+    (cursor: string | null, direction: 'up' | 'down') => {
+      if (order.length < 1) {
+        return;
+      }
+      let newCursor = cursor;
+      if (cursor === null) {
+        // there is no cursor, we select the first or last depending on direction
+        const selected = direction === 'up' ? getLastNormal(rundown, order) : getFirstNormal(rundown, order);
+
+        if (isOntimeBlock(selected)) {
+          setSelectedEvents({ id: selected.id, selectMode: 'click', index: direction === 'up' ? order.length : 0 });
+          return;
+        }
+        newCursor = selected?.id ?? null;
+      }
+
+      if (newCursor === null) {
+        return;
+      }
+
+      // otherwise we select the next or previous
+      const selected =
+        direction === 'up'
+          ? getPreviousBlockNormal(rundown, order, newCursor)
+          : getNextBlockNormal(rundown, order, newCursor);
+
+      if (selected.entry !== null && selected.index !== null) {
+        setSelectedEvents({ id: selected.entry.id, selectMode: 'click', index: selected.index });
+      }
+    },
+    [order, rundown, setSelectedEvents],
+  );
+
   const selectEntry = useCallback(
     (cursor: string | null, direction: 'up' | 'down') => {
       if (order.length < 1) {
         return;
       }
-      let newCursor: string | null;
-      let newIndex: number | null;
+
       if (cursor === null) {
         // there is no cursor, we select the first or last depending on direction if it exists
-        newCursor =
-          (direction === 'up' ? getLastNormal(rundown, order)?.id : getFirstNormal(rundown, order)?.id) ?? null;
-        newIndex = direction === 'up' ? order.length : 0;
-      } else {
-        // otherwise we select the next or previous
-        const selected =
-          direction === 'up' ? getPreviousNormal(rundown, order, cursor) : getNextNormal(rundown, order, cursor);
-        newCursor = selected.entry?.id ?? null;
-        newIndex = selected.index;
+        const selected = direction === 'up' ? getLastNormal(rundown, order) : getFirstNormal(rundown, order);
+        if (selected !== null) {
+          setSelectedEvents({ id: selected.id, selectMode: 'click', index: direction === 'up' ? order.length : 0 });
+        }
+        return;
       }
 
-      if (newCursor && newIndex !== null) {
-        setSelectedEvents({ id: newCursor, selectMode: 'click', index: newIndex });
+      // otherwise we select the next or previous
+      const selected =
+        direction === 'up' ? getPreviousNormal(rundown, order, cursor) : getNextNormal(rundown, order, cursor);
+
+      if (selected.entry !== null && selected.index !== null) {
+        setSelectedEvents({ id: selected.entry.id, selectMode: 'click', index: selected.index });
       }
     },
     [order, rundown, setSelectedEvents],
@@ -145,6 +185,10 @@ export default function Rundown({ data }: RundownProps) {
   useHotkeys([
     ['alt + ArrowDown', () => selectEntry(cursor, 'down'), { preventDefault: true }],
     ['alt + ArrowUp', () => selectEntry(cursor, 'up'), { preventDefault: true }],
+
+    ['alt + shift + ArrowDown', () => selectBlock(cursor, 'down'), { preventDefault: true }],
+    ['alt + shift + ArrowUp', () => selectBlock(cursor, 'up'), { preventDefault: true }],
+
     ['alt + mod + ArrowDown', () => moveEntry(cursor, 'down'), { preventDefault: true }],
     ['alt + mod + ArrowUp', () => moveEntry(cursor, 'up'), { preventDefault: true }],
 

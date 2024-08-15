@@ -302,6 +302,52 @@ export function getEventWithId(rundown: OntimeRundown, id: string): OntimeRundow
 /**
  * Gets relevant block element for a given ID
  */
+export function getPreviousBlockNormal(rundown: NormalisedRundown, order: string[], currentId: string): IndexAndEntry {
+  let foundCurrentEvent = false;
+  // Iterate backwards through the rundown to find the current event
+  for (let index = order.length - 1; index >= 0; index--) {
+    const id = order[index];
+    if (!foundCurrentEvent && id === currentId) {
+      // set the flag when the current event is found
+      foundCurrentEvent = true;
+      continue;
+    }
+    // the first block before the current event is the relevant one
+    const entry = rundown[id];
+    if (foundCurrentEvent && isOntimeBlock(entry)) {
+      return { entry, index };
+    }
+  }
+  // no blocks exist before current event
+  return { entry: null, index: null };
+}
+
+/**
+ * Gets next block element for a given ID
+ */
+export function getNextBlockNormal(rundown: NormalisedRundown, order: string[], currentId: string): IndexAndEntry {
+  let foundCurrentEvent = false;
+  // Iterate backwards through the rundown to find the current event
+  for (let index = 0; index < order.length; index++) {
+    const id = order[index];
+    if (!foundCurrentEvent && id === currentId) {
+      // set the flag when the current event is found
+      foundCurrentEvent = true;
+      continue;
+    }
+    // the first block before the current event is the relevant one
+    const entry = rundown[id];
+    if (foundCurrentEvent && isOntimeBlock(entry)) {
+      return { entry, index };
+    }
+  }
+  // no blocks exist before current event
+  return { entry: null, index: null };
+}
+
+/**
+ * Gets relevant block element for a given ID
+ */
 export function getRelevantBlock(rundown: OntimeRundown, currentId: string): OntimeBlock | null {
   let foundCurrentEvent = false;
   // Iterate backwards through the rundown to find the current event
