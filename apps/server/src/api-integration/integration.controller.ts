@@ -57,7 +57,7 @@ const actionHandlers: Record<string, ActionHandler> = {
       // parseProperty is async because of the data lock
       const newObjectProperty = parseProperty(property, value);
       const key = Object.keys(newObjectProperty)[0] as keyof OntimeEvent;
-      shouldThrottle = willCauseRegeneration(key) || shouldThrottle;
+      shouldThrottle = shouldThrottle || willCauseRegeneration(key);
       if (patchEvent.custom && newObjectProperty.custom) {
         Object.assign(patchEvent.custom, newObjectProperty.custom);
       } else {
