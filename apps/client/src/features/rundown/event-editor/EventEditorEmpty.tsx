@@ -25,6 +25,18 @@ function EventEditorEmpty() {
               </td>
             </tr>
             <tr>
+              <td>Select block</td>
+              <td>
+                <Kbd>{deviceAlt}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>Shift</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>↑</Kbd>
+                <AuxKey>/</AuxKey>
+                <Kbd>↓</Kbd>
+              </td>
+            </tr>
+            <tr>
               <td>Deselect entry</td>
               <td>
                 <Kbd>Esc</Kbd>
