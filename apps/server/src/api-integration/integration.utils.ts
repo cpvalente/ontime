@@ -42,7 +42,7 @@ const propertyConversion = {
   timeEnd: (value: unknown) => clampDuration(coerceNumber(value)),
 };
 
-export async function parseProperty(property: string, value: unknown) {
+export function parseProperty(property: string, value: unknown) {
   if (property.startsWith('custom:')) {
     const customKey = property.split(':')[1].toLocaleLowerCase(); // all custom fields keys are lowercase
     const customFields = getDataProvider().getCustomFields();
