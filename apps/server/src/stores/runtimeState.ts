@@ -193,7 +193,6 @@ export function load(
   // patch with potential provided data
   if (initialData) {
     patchTimer(initialData);
-
     const firstStart = initialData?.firstStart;
     if (firstStart === null || typeof firstStart === 'number') {
       runtimeState.runtime.actualStart = firstStart;
@@ -516,7 +515,7 @@ export function update(): UpdateResult {
 
   if (finishedNow) {
     // reset state
-    runtimeState._timer.forceFinish;
+    runtimeState._timer.forceFinish; //FIXME: what should happen here
     runtimeState.timer.finishedAt = runtimeState._timer.forceFinish ?? runtimeState.clock;
   } else {
     runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
@@ -588,6 +587,12 @@ export function roll(rundown: OntimeRundown): { eventId: MaybeString; didStart: 
     return { eventId: runtimeState.eventNow.id, didStart: isNow };
   }
 
+  let finishAdjust = 0;
+  if (runtimeState.timer.playback === Playback.Roll && runtimeState.timer.finishedAt !== null) {
+    // there is a chance that we finished slightly out of time
+    finishAdjust = Math.max(0, runtimeState.timer.expectedFinish - runtimeState.timer.finishedAt);
+  }
+
   // 3. if there is no event running, we need to find the next event
   const timedEvents = filterTimedEvents(rundown);
   if (timedEvents.length === 0) {
@@ -596,11 +601,12 @@ export function roll(rundown: OntimeRundown): { eventId: MaybeString; didStart: 
 
   // we need to persist the current block state across loads
   const prevCurrentBlock = { ...runtimeState.currentBlock };
+  const offset = runtimeState.runtime.offset;
   clear();
   runtimeState.currentBlock = prevCurrentBlock;
-
-  const { index, isPending } = loadRoll(timedEvents, runtimeState.clock);
-
+  runtimeState.runtime.offset = offset;
+  const offsetClock = runtimeState.clock + runtimeState.runtime.offset + finishAdjust;
+  const { index, isPending } = loadRoll(timedEvents, offsetClock);
   // load events in memory along with their data
   loadNow(timedEvents, index);
   loadNext(timedEvents, index);
@@ -623,7 +629,10 @@ export function roll(rundown: OntimeRundown): { eventId: MaybeString; didStart: 
     // there is nothing now, but something coming up
     runtimeState.timer.phase = TimerPhase.Pending;
     // we need to normalise start time in case it is the day after
-    runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, runtimeState.clock);
+    runtimeState._timer.secondaryTarget = normaliseRollStart(
+      runtimeState.eventNow.timeStart - runtimeState.runtime.offset,
+      runtimeState.clock,
+    );
     runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - runtimeState.clock;
 
     // preload timer properties
@@ -641,10 +650,10 @@ export function roll(rundown: OntimeRundown): { eventId: MaybeString; didStart: 
       ? runtimeState.eventNow.timeEnd + dayInMs
       : runtimeState.eventNow.timeEnd;
   runtimeState.timer.startedAt = runtimeState.clock;
-  runtimeState.timer.expectedFinish = endTime;
+  runtimeState.timer.expectedFinish = endTime - runtimeState.runtime.offset;
 
   // we add time to allow timer to catch up
-  runtimeState.timer.addedTime = -(runtimeState.clock - runtimeState.eventNow.timeStart);
+  // runtimeState.timer.addedTime = -(runtimeState.clock - runtimeState.eventNow.timeStart);
 
   // state catch up
   runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, endTime);

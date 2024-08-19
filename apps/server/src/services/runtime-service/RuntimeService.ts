@@ -9,6 +9,7 @@ import {
   RuntimeStore,
   TimerLifeCycle,
   TimerPhase,
+  TimerState,
 } from 'ontime-types';
 import { millisToString, validatePlayback } from 'ontime-utils';
 
@@ -96,7 +97,6 @@ class RuntimeService {
         process.nextTick(() => {
           integrationService.dispatch(TimerLifeCycle.onFinish);
         });
-        this.handleLoadNext();
         this.rollLoaded();
       } else if (skippedOutOfEvent(newState, this.lastIntegrationClockUpdate, timerConfig.skipLimit)) {
         // if we have skipped out of the event, we will recall roll
@@ -271,16 +271,17 @@ class RuntimeService {
   /**
    * makes calls for loading and starting given event
    * @param {PlayableEvent} event
+   * @param {Partial<TimerState & RestorePoint>} initialData
    * @return {boolean} success - whether an event was loaded
    */
-  private loadEvent(event: OntimeEvent): boolean {
+  private loadEvent(event: OntimeEvent, initialData?: Partial<TimerState & RestorePoint>): boolean {
     if (!isPlayableEvent(event)) {
       logger.warning(LogOrigin.Playback, `Refused skipped event with ID ${event.id}`);
       return false;
     }
 
     const rundown = getRundown();
-    const success = runtimeState.load(event, rundown);
+    const success = runtimeState.load(event, rundown, initialData);
 
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
@@ -416,11 +417,15 @@ class RuntimeService {
    *
    * we need to isolate handleLoadNext so we have control over the side effects
    * startSelected being a private function does not trigger emits
+   * and pass on runtime offset in case of roll mode
    */
   private handleLoadNext(): boolean {
     const state = runtimeState.getState();
     const nextEvent = findNext(state.eventNow?.id);
     if (nextEvent) {
+      if (state.timer.playback === Playback.Roll) {
+        return this.loadEvent(nextEvent, { firstStart: state.runtime.actualStart });
+      }
       return this.loadEvent(nextEvent);
     }
 

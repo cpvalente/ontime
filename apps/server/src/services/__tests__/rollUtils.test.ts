@@ -118,7 +118,18 @@ describe('loadRoll()', () => {
     expect(state).toStrictEqual(expected);
   });
 
-  it('should start the third event if timer is at 10', () => {
+  it('should also start the second event if timer is at 10', () => {
+    const now = 10;
+    const expected = {
+      event: timedEvents[1],
+      index: 1,
+    };
+
+    const state = loadRoll(timedEvents, now);
+    expect(state).toStrictEqual(expected);
+  });
+
+  it('should start the third event if timer is at 20', () => {
     const now = 20;
     const expected = {
       event: timedEvents[2],
