@@ -11,7 +11,7 @@ import {
   TimerPhase,
   TimerState,
 } from 'ontime-types';
-import { calculateDuration, checkIsNow, dayInMs, filterTimedEvents, getRelevantBlock } from 'ontime-utils';
+import { calculateDuration, checkIsNow, dayInMs, filterTimedEvents, getPreviousBlock } from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
 import { RestorePoint } from '../services/RestoreService.js';
@@ -664,7 +664,7 @@ function loadBlock(rundown: OntimeRundown) {
     return;
   }
 
-  const newCurrentBlock = getRelevantBlock(rundown, runtimeState.eventNow.id);
+  const newCurrentBlock = getPreviousBlock(rundown, runtimeState.eventNow.id);
 
   // update time only if the block has changed
   if (newCurrentBlock === null || newCurrentBlock.id !== runtimeState.currentBlock.block?.id) {

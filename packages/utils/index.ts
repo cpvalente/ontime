@@ -27,7 +27,7 @@ export {
   getPreviousEvent,
   getPreviousEventNormal,
   getPreviousNormal,
-  getRelevantBlock,
+  getPreviousBlock,
   getPreviousBlockNormal,
   swapEventData,
 } from './src/rundown-utils/rundownUtils.js';

@@ -348,7 +348,7 @@ export function getNextBlockNormal(rundown: NormalisedRundown, order: string[], 
 /**
  * Gets relevant block element for a given ID
  */
-export function getRelevantBlock(rundown: OntimeRundown, currentId: string): OntimeBlock | null {
+export function getPreviousBlock(rundown: OntimeRundown, currentId: string): OntimeBlock | null {
   let foundCurrentEvent = false;
   // Iterate backwards through the rundown to find the current event
   for (let i = rundown.length - 1; i >= 0; i--) {
