@@ -21,6 +21,7 @@ export default function PlaybackControl() {
         playback={data.playback}
         numEvents={data.numEvents}
         selectedEventIndex={data.selectedEventIndex}
+        timerPhase={data.timerPhase}
       />
       <AuxTimer />
     </div>

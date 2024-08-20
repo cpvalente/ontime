@@ -451,7 +451,7 @@ class RuntimeService {
    */
   private handleStart(): boolean {
     const previousState = runtimeState.getState();
-    const canStart = validatePlayback(previousState.timer.playback).start;
+    const canStart = validatePlayback(previousState.timer.playback, previousState.timer.phase).start;
     if (!canStart) {
       return false;
     }
@@ -507,7 +507,7 @@ class RuntimeService {
   @broadcastResult
   public pause() {
     const state = runtimeState.getState();
-    const canPause = validatePlayback(state.timer.playback).pause;
+    const canPause = validatePlayback(state.timer.playback, state.timer.phase).pause;
     if (!canPause) {
       return;
     }
@@ -525,7 +525,7 @@ class RuntimeService {
   @broadcastResult
   public stop(): boolean {
     const state = runtimeState.getState();
-    const canStop = validatePlayback(state.timer.playback).stop;
+    const canStop = validatePlayback(state.timer.playback, state.timer.phase).stop;
     if (!canStop) {
       return false;
     }
@@ -573,7 +573,7 @@ class RuntimeService {
   public roll(skipCheck: boolean = false) {
     const previousState = runtimeState.getState();
     if (!skipCheck) {
-      const canRoll = validatePlayback(previousState.timer.playback).roll;
+      const canRoll = validatePlayback(previousState.timer.playback, previousState.timer.phase).roll;
       if (!canRoll) {
         return;
       }

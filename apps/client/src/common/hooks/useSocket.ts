@@ -50,6 +50,7 @@ export const usePlaybackControl = () => {
     playback: state.timer.playback,
     selectedEventIndex: state.runtime.selectedEventIndex,
     numEvents: state.runtime.numEvents,
+    timerPhase: state.timer.phase,
   });
 
   return useRuntimeStore(featureSelector);

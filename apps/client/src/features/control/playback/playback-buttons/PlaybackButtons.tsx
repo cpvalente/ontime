@@ -6,7 +6,7 @@ import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward'
 import { IoReload } from '@react-icons/all-files/io5/IoReload';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
-import { Playback } from 'ontime-types';
+import { Playback, TimerPhase } from 'ontime-types';
 import { validatePlayback } from 'ontime-utils';
 
 import { setPlayback } from '../../../../common/hooks/useSocket';
@@ -19,10 +19,11 @@ interface PlaybackButtonsProps {
   playback: Playback;
   numEvents: number;
   selectedEventIndex: number | null;
+  timerPhase: TimerPhase;
 }
 
 export default function PlaybackButtons(props: PlaybackButtonsProps) {
-  const { playback, numEvents, selectedEventIndex } = props;
+  const { playback, numEvents, selectedEventIndex, timerPhase } = props;
 
   const isRolling = playback === Playback.Roll;
   const isPlaying = playback === Playback.Play;
@@ -37,7 +38,7 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
   const disableNext = isRolling || noEvents || isLast;
   const disablePrev = isRolling || noEvents || isFirst;
 
-  const playbackCan = validatePlayback(playback);
+  const playbackCan = validatePlayback(playback, timerPhase);
   const disableStart = !playbackCan.start;
   const disablePause = !playbackCan.pause;
   const disableRoll = !playbackCan.roll || noEvents;
