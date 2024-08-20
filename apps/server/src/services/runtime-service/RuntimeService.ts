@@ -9,6 +9,7 @@ import {
   RuntimeStore,
   TimerLifeCycle,
   TimerPhase,
+  TimerState,
 } from 'ontime-types';
 import { millisToString, validatePlayback } from 'ontime-utils';
 
@@ -86,18 +87,18 @@ class RuntimeService {
     // 2. handle edge cases related to roll
     if (newState.timer.playback === Playback.Roll) {
       // check if we need to call any side effects
-
+      const keepOffset = newState.runtime.offset;
       if (hasSecondaryTimerFinished) {
         // if the secondary timer has finished, we need to call roll
         // since event is already loaded
-        this.rollLoaded();
+        this.rollLoaded(keepOffset);
       } else if (hasTimerFinished) {
         // if the timer has finished, we need to load next and keep rolling
         process.nextTick(() => {
           integrationService.dispatch(TimerLifeCycle.onFinish);
         });
         this.handleLoadNext();
-        this.rollLoaded();
+        this.rollLoaded(keepOffset);
       } else if (skippedOutOfEvent(newState, this.lastIntegrationClockUpdate, timerConfig.skipLimit)) {
         // if we have skipped out of the event, we will recall roll
         // to push the playback to the right place
@@ -271,16 +272,17 @@ class RuntimeService {
   /**
    * makes calls for loading and starting given event
    * @param {PlayableEvent} event
+   * @param {Partial<TimerState & RestorePoint>} initialData
    * @return {boolean} success - whether an event was loaded
    */
-  private loadEvent(event: OntimeEvent): boolean {
+  private loadEvent(event: OntimeEvent, initialData?: Partial<TimerState & RestorePoint>): boolean {
     if (!isPlayableEvent(event)) {
       logger.warning(LogOrigin.Playback, `Refused skipped event with ID ${event.id}`);
       return false;
     }
 
     const rundown = getRundown();
-    const success = runtimeState.load(event, rundown);
+    const success = runtimeState.load(event, rundown, initialData);
 
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
@@ -416,11 +418,15 @@ class RuntimeService {
    *
    * we need to isolate handleLoadNext so we have control over the side effects
    * startSelected being a private function does not trigger emits
+   * and pass on runtime offset in case of roll mode
    */
   private handleLoadNext(): boolean {
     const state = runtimeState.getState();
     const nextEvent = findNext(state.eventNow?.id);
     if (nextEvent) {
+      if (state.timer.playback === Playback.Roll) {
+        return this.loadEvent(nextEvent, { firstStart: state.runtime.actualStart });
+      }
       return this.loadEvent(nextEvent);
     }
 
@@ -551,10 +557,10 @@ class RuntimeService {
   /**
    * Handles special case to call roll on a loaded event which we do not want to discard
    */
-  private rollLoaded() {
+  private rollLoaded(offset?: number) {
     const rundown = getRundown();
     try {
-      this.eventTimer.roll(rundown);
+      runtimeState.roll(rundown, offset);
     } catch (error) {
       logger.error(LogOrigin.Server, `Roll: ${error}`);
     }
@@ -575,7 +581,7 @@ class RuntimeService {
 
     try {
       const rundown = getRundown();
-      const result = this.eventTimer.roll(rundown);
+      const result = runtimeState.roll(rundown);
       if (result.eventId !== previousState.eventNow?.id) {
         logger.info(LogOrigin.Playback, `Loaded event with ID ${result.eventId}`);
         process.nextTick(() => {

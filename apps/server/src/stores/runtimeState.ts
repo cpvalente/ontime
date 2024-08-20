@@ -543,7 +543,7 @@ export function update(): UpdateResult {
   }
 }
 
-export function roll(rundown: OntimeRundown): { eventId: MaybeString; didStart: boolean } {
+export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString; didStart: boolean } {
   // 1. if an event is running, we simply take over the playback
   if (runtimeState.timer.playback === Playback.Play && runtimeState.runtime.selectedEventIndex !== null) {
     runtimeState.timer.playback = Playback.Roll;
