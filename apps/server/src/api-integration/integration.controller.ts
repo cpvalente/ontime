@@ -54,18 +54,15 @@ const actionHandlers: Record<string, ActionHandler> = {
       if (typeof property !== 'string' || value === undefined) {
         throw new Error('Invalid property or value');
       }
-
       // parseProperty is async because of the data lock
-      parseProperty(property, value).then((newObjectProperty) => {
-        const key = Object.keys(newObjectProperty)[0] as keyof OntimeEvent;
-        shouldThrottle = willCauseRegeneration(key) || shouldThrottle;
-
-        if (patchEvent.custom && newObjectProperty.custom) {
-          Object.assign(patchEvent.custom, newObjectProperty.custom);
-        } else {
-          Object.assign(patchEvent, newObjectProperty);
-        }
-      });
+      const newObjectProperty = parseProperty(property, value);
+      const key = Object.keys(newObjectProperty)[0] as keyof OntimeEvent;
+      shouldThrottle = shouldThrottle || willCauseRegeneration(key);
+      if (patchEvent.custom && newObjectProperty.custom) {
+        Object.assign(patchEvent.custom, newObjectProperty.custom);
+      } else {
+        Object.assign(patchEvent, newObjectProperty);
+      }
     });
 
     if (shouldThrottle) {
