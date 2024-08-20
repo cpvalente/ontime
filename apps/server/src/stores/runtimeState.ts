@@ -314,17 +314,15 @@ export function updateLoaded(event?: PlayableEvent): string | undefined {
 
     // handle edge cases with roll
     if (runtimeState.timer.playback === Playback.Roll) {
+      const offsetClock = runtimeState.clock + runtimeState.runtime.offset;
       // if waiting to roll, we update the targets and potentially start the timer
       if (runtimeState._timer.secondaryTarget !== null) {
-        if (
-          runtimeState.eventNow.timeStart < runtimeState.clock &&
-          runtimeState.clock < runtimeState.eventNow.timeEnd
-        ) {
+        if (runtimeState.eventNow.timeStart < offsetClock && offsetClock < runtimeState.eventNow.timeEnd) {
           // if the event is now, we queue a start
           runtimeState._timer.secondaryTarget = runtimeState.eventNow.timeStart;
-          runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - runtimeState.clock;
+          runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - offsetClock;
         } else {
-          runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, runtimeState.clock);
+          runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, offsetClock);
         }
       }
     }
@@ -516,7 +514,6 @@ export function update(): UpdateResult {
 
   if (finishedNow) {
     // reset state
-    runtimeState._timer.forceFinish;
     runtimeState.timer.finishedAt = runtimeState._timer.forceFinish ?? runtimeState.clock;
   } else {
     runtimeState.timer.expectedFinish = getExpectedFinish(runtimeState);
@@ -536,10 +533,11 @@ export function update(): UpdateResult {
         throw new Error('runtimeState.updateIfWaitingToRoll: invalid state received');
       }
     }
-
+    //account for offset
+    const offsetClock = runtimeState.clock + runtimeState.runtime.offset;
     runtimeState.timer.phase = TimerPhase.Pending;
-    runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - runtimeState.clock;
-    return { hasTimerFinished: false, hasSecondaryTimerFinished: runtimeState.timer.secondaryTimer < 0 };
+    runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - offsetClock;
+    return { hasTimerFinished: false, hasSecondaryTimerFinished: runtimeState.timer.secondaryTimer <= 0 };
   }
 }
 
@@ -551,7 +549,15 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
   }
 
   // 2. if there is an event armed, we use it
-  if (runtimeState.timer.playback === Playback.Armed && runtimeState.eventNow !== null) {
+  if (runtimeState.timer.playback === Playback.Armed || runtimeState.timer.phase === TimerPhase.Pending) {
+    // eslint-disable-next-line no-unused-labels -- dev code path
+    DEV: {
+      if (runtimeState.eventNow === null) {
+        throw new Error('runtimeState.roll: invalid state received');
+      }
+    }
+
+    runtimeState.runtime.offset = offset;
     runtimeState.timer.playback = Playback.Roll;
 
     // account for event that finishes the day after
@@ -561,14 +567,16 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
         : runtimeState.eventNow.timeEnd;
     runtimeState.timer.expectedFinish = normalisedEndTime;
 
+    //account for offset
+    const offsetClock = runtimeState.clock + runtimeState.runtime.offset;
+
     // state catch up
     runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, normalisedEndTime);
     runtimeState.timer.current = runtimeState.timer.duration;
     runtimeState.timer.elapsed = 0;
 
-    // check if the event is ready to start or if needs to be waited
-    const isNow = checkIsNow(runtimeState.eventNow.timeStart, runtimeState.eventNow.timeEnd, runtimeState.clock);
-
+    // check if the event is ready to start or if needs to be pending
+    const isNow = checkIsNow(runtimeState.eventNow.timeStart, runtimeState.eventNow.timeEnd, offsetClock);
     if (isNow) {
       runtimeState.timer.startedAt = runtimeState.clock;
 
@@ -579,9 +587,10 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
       if (!runtimeState.runtime.actualStart) {
         runtimeState.runtime.actualStart = runtimeState.clock;
       }
+      runtimeState.timer.secondaryTimer = null;
     } else {
-      runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, runtimeState.clock);
-      runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - runtimeState.clock;
+      runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, offsetClock);
+      runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - offsetClock;
       runtimeState.timer.phase = TimerPhase.Pending;
     }
 
@@ -599,7 +608,11 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
   clear();
   runtimeState.currentBlock = prevCurrentBlock;
 
-  const { index, isPending } = loadRoll(timedEvents, runtimeState.clock);
+  //account for offset but we only keep it if passed to us
+  runtimeState.runtime.offset = offset;
+  const offsetClock = runtimeState.clock + runtimeState.runtime.offset;
+
+  const { index, isPending } = loadRoll(timedEvents, offsetClock);
 
   // load events in memory along with their data
   loadNow(timedEvents, index);
@@ -623,8 +636,8 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
     // there is nothing now, but something coming up
     runtimeState.timer.phase = TimerPhase.Pending;
     // we need to normalise start time in case it is the day after
-    runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, runtimeState.clock);
-    runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - runtimeState.clock;
+    runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, offsetClock);
+    runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - offsetClock;
 
     // preload timer properties
     runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, runtimeState.eventNow.timeEnd);
