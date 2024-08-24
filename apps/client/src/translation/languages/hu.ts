@@ -1,0 +1,26 @@
+import { TranslationObject } from './en';
+
+export const langHu: TranslationObject = {
+  'common.expected_finish': 'Várható befejezés',
+  'common.minutes': 'perc',
+  'common.now': 'Most',
+  'common.next': 'Következő',
+  'common.public_message': 'Nyilvános közlemény',
+  'common.scheduled_start': 'Ütemezett kezdés',
+  'common.scheduled_end': 'Ütemezett befejezés',
+  'common.projected_start': 'Várható kezdés',
+  'common.projected_end': 'Várható befejezés',
+  'common.stage_timer': 'Színpadi időzítő',
+  'common.started_at': 'Kezdődött',
+  'common.time_now': 'Jelenlegi idő',
+  'countdown.ended': 'Esemény véget ért',
+  'countdown.running': 'Esemény folyamatban',
+  'countdown.select_event': 'Válassza ki a követendő eseményt',
+  'countdown.to_start': 'Idő kezdésig',
+  'countdown.waiting': 'Várakozás az esemény kezdetére',
+  'countdown.overtime': 'csúszik',
+  'timeline.live': 'élő',
+  'timeline.done': 'kész',
+  'timeline.due': 'esedékes',
+  'timeline.followedby': 'Követi',
+};

@@ -6,6 +6,7 @@ import { langDe } from './languages/de';
 import { langEn } from './languages/en';
 import { langEs } from './languages/es';
 import { langFr } from './languages/fr';
+import { langHU } from './languages/hu';
 import { langIt } from './languages/it';
 import { langNo } from './languages/no';
 import { langPl } from './languages/pl';
@@ -16,6 +17,7 @@ const translationsList = {
   en: langEn,
   es: langEs,
   fr: langFr,
+  hu: langHu,
   it: langIt,
   de: langDe,
   no: langNo,
