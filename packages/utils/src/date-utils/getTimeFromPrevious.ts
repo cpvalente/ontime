@@ -1,6 +1,5 @@
-import { checkIsNextDay } from './checkIsNextDay';
-import { checkOverlap } from './checkOverlap';
-import { dayInMs } from './conversionUtils';
+import { checkIsNextDay } from './checkIsNextDay.js';
+import { dayInMs } from './conversionUtils.js';
 
 /**
  * Utility returns the time elapsed (gap or overlap) from the previous
@@ -25,20 +24,22 @@ export function getTimeFromPrevious(
 
   // event is the day after
   if (checkIsNextDay(previousStart, currentStart, previousDuration)) {
-    // duration is difference between normalised start and previous end
+    // time from previous is difference between normalised start and previous end
     return currentStart + dayInMs - previousEnd;
   }
 
   // event has a gap from previous
   if (currentStart > previousEnd) {
+    // time from previous is difference between start and previous end
     return currentStart - previousEnd;
   }
 
   // event overlaps with previous
-  if (checkOverlap(previousStart, previousEnd, currentStart, currentEnd)) {
-    // duration is the amount of time the current event has over the previous
-    // this value must be capped at 0
-    return Math.max(currentEnd - previousEnd, 0);
+  // TODO: account for midnight roll
+  const overlap = previousEnd - currentStart;
+  if (overlap > 0) {
+    // time is a negative number indicating the amount of overlap
+    return -overlap;
   }
 
   // we need to make sure we return a number, but there are no business cases for this

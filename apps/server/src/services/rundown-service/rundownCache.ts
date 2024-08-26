@@ -11,7 +11,14 @@ import {
   OntimeRundownEntry,
   PlayableEvent,
 } from 'ontime-types';
-import { generateId, insertAtIndex, reorderArray, swapEventData, getTimeFromPrevious } from 'ontime-utils';
+import {
+  generateId,
+  insertAtIndex,
+  reorderArray,
+  swapEventData,
+  getTimeFromPrevious,
+  checkIsNextDay,
+} from 'ontime-utils';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
 import { apply } from './delayUtils.js';
@@ -83,7 +90,6 @@ export function generate(
   totalDuration = 0;
   totalDelay = 0;
 
-  let previousEntry: PlayableEvent | null = null;
   let lastEntry: PlayableEvent | null = null;
 
   for (let i = 0; i < initialRundown.length; i++) {
@@ -100,31 +106,48 @@ export function generate(
 
       // update rundown metadata, it only concerns playable events
       if (isPlayableEvent(currentEntry)) {
+        // fist start is always the first event
         if (firstStart === null) {
           firstStart = currentEntry.timeStart;
         }
-        // TODO: carry on last event
-        lastEnd = currentEntry.timeEnd;
 
         const timeFromPrevious: number = getTimeFromPrevious(
           currentEntry.timeStart,
           currentEntry.timeEnd,
-          previousEntry?.timeStart,
-          previousEntry?.timeEnd,
-          previousEntry?.duration,
+          lastEntry?.timeStart,
+          lastEntry?.timeEnd,
+          lastEntry?.duration,
         );
-        totalDuration += timeFromPrevious + currentEntry.duration;
+
+        if (timeFromPrevious === 0) {
+          // event starts on previous finish, we add its duration
+          totalDuration += currentEntry.duration;
+        } else if (timeFromPrevious > 0) {
+          // event has a gap, we add the gap and the duration
+          totalDuration += timeFromPrevious + currentEntry.duration;
+        } else if (timeFromPrevious < 0) {
+          // there is an overlap, we remove the overlap from the duration
+          // ensuring that the sum is not negative (ie: fully overlapped events)
+          // NOTE: we add the gap since it is a negative number
+          totalDuration += Math.max(currentEntry.duration + timeFromPrevious, 0);
+        }
 
         // remove eventual gaps from the accumulated delay
         // we only affect positive delays (time forwards)
-        if (totalDelay > 0 && previousEntry) {
-          const gap = Math.max(currentEntry.timeStart - previousEntry.timeEnd, 0);
-          totalDelay = Math.max(totalDelay - gap, 0);
+        if (totalDelay > 0 && timeFromPrevious > 0) {
+          totalDelay = Math.max(totalDelay - timeFromPrevious, 0);
         }
         // current event delay is the current accumulated delay
         currentEntry.delay = totalDelay;
-        // keep copy of event
-        previousEntry = currentEntry;
+
+        // lastEntry is the event with the latest end time
+        if (
+          lastEntry === null ||
+          currentEntry.timeEnd > lastEntry.timeEnd ||
+          checkIsNextDay(lastEntry.timeStart, currentEntry.timeStart, lastEntry.duration)
+        ) {
+          lastEntry = currentEntry;
+        }
       }
     }
 
@@ -147,9 +170,10 @@ export function generate(
     rundown[currentEntry.id] = currentEntry;
   }
 
+  lastEnd = lastEntry?.timeEnd ?? null;
   isStale = false;
   customFieldChangelog.clear();
-  return { rundown, order, links, totalDelay, totalDuration, assignedCustomProperties: assignedCustomFields };
+  return { rundown, order, links, totalDelay, totalDuration, assignedCustomFields };
 }
 
 /** Returns an ID guaranteed to be unique */
