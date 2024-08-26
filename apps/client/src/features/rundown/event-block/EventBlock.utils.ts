@@ -18,14 +18,13 @@ export function formatOverlap(
   const noPreviousElement = previousEnd === null || previousStart === null;
   if (noPreviousElement) return;
 
-  const overlap = previousEnd - timeStart;
-  if (overlap === 0) return;
+  const timeFromPrevious = previousEnd - timeStart;
+  if (timeFromPrevious === 0) return;
 
   const previousCrossMidnight = previousStart > previousEnd;
   const isNextDay = previousCrossMidnight
-    ? checkIsNextDay(previousEnd, timeStart) || previousEnd == 0 // exception for when previousEnd is precisely midnight
-    : checkIsNextDay(previousStart, timeStart);
-
+    ? previousEnd === 0 || checkIsNextDay(previousEnd, timeStart, previousEnd - previousStart) // exception for when previousEnd is precisely midnight
+    : checkIsNextDay(previousStart, timeStart, previousEnd - previousStart);
   const correctedPreviousEnd = previousCrossMidnight ? previousEnd + dayInMs : previousEnd;
 
   if (isNextDay) {
@@ -35,6 +34,6 @@ export function formatOverlap(
     return `Gap ${gapString} (next day)`;
   }
 
-  const overlapString = removeLeadingZero(millisToString(Math.abs(overlap)));
-  return `${overlap > 0 ? 'Overlap' : 'Gap'} ${overlapString}`;
+  const overlapString = removeLeadingZero(millisToString(Math.abs(timeFromPrevious)));
+  return `${timeFromPrevious > 0 ? 'Overlap' : 'Gap'} ${overlapString}`;
 }

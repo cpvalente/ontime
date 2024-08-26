@@ -10,7 +10,7 @@ import {
   TimeStrategy,
   TimerType,
 } from 'ontime-types';
-import { MILLIS_PER_HOUR, dayInMs, millisToString } from 'ontime-utils';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 
 import { calculateRuntimeDelays, getDelayAt, calculateRuntimeDelaysFrom } from '../delayUtils.js';
 import {
@@ -87,6 +87,65 @@ describe('generate()', () => {
     expect((initResult.rundown['4'] as OntimeEvent).delay).toBe(0);
     expect(initResult.totalDelay).toBe(0);
     expect(initResult.totalDuration).toBe(700 - 100);
+  });
+
+  it('accounts for overlaps in rundown', () => {
+    const testRundown: OntimeRundown = [
+      { type: SupportedEvent.Event, id: '1', timeStart: 9000, timeEnd: 10000, duration: 1000 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '2', timeStart: 9250, timeEnd: 9500, duration: 250 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '3', timeStart: 9500, timeEnd: 10500, duration: 1000 } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.totalDuration).toBe(10500 - 9000); // last end - first start
+  });
+
+  it('accounts for overlaps in rundown (with added gap)', () => {
+    const testRundown: OntimeRundown = [
+      { type: SupportedEvent.Event, id: '1', timeStart: 9000, timeEnd: 10000, duration: 1000 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '2', timeStart: 9250, timeEnd: 9500, duration: 250 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '3', timeStart: 9500, timeEnd: 10500, duration: 1000 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '4', timeStart: 15000, timeEnd: 20000, duration: 5000 } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.totalDuration).toBe(20000 - 9000); // last end - first start
+  });
+
+  it('accounts for overlaps in rundown (with multiple days)', () => {
+    const testRundown: OntimeRundown = [
+      {
+        type: SupportedEvent.Event,
+        id: '1',
+        timeStart: 9 * MILLIS_PER_HOUR,
+        timeEnd: 10 * MILLIS_PER_HOUR,
+        duration: MILLIS_PER_HOUR,
+      } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '2',
+        timeStart: 9 * MILLIS_PER_HOUR + 15 * MILLIS_PER_MINUTE,
+        timeEnd: 9 * MILLIS_PER_HOUR + 45 * MILLIS_PER_MINUTE,
+        duration: 30 * MILLIS_PER_MINUTE,
+      } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '3',
+        timeStart: 9 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+        timeEnd: 10 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+        duration: MILLIS_PER_HOUR,
+      } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '4',
+        timeStart: 9 * MILLIS_PER_HOUR,
+        timeEnd: 10 * MILLIS_PER_HOUR,
+        duration: MILLIS_PER_HOUR,
+      } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.totalDuration).toBe(dayInMs + MILLIS_PER_HOUR); // day + last end - first start
   });
 
   it('handles negative delays', () => {
@@ -362,7 +421,7 @@ describe('generate()', () => {
       ];
       const initResult = generate(testRundown, customProperties);
       expect(initResult.order.length).toBe(2);
-      expect(initResult.assignedCustomProperties).toMatchObject({
+      expect(initResult.assignedCustomFields).toMatchObject({
         lighting: ['1', '2'],
         sound: ['2'],
       });
@@ -497,20 +556,6 @@ describe('swap() mutation', () => {
     expect((newRundown[2] as OntimeEvent).revision).toBe(0);
   });
 });
-
-/**
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- */
 
 describe('calculateRuntimeDelays', () => {
   it('calculates all delays in a given rundown', () => {
