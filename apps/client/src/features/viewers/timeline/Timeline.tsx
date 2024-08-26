@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { useViewportSize } from '@mantine/hooks';
 import { isOntimeEvent, MaybeNumber, OntimeEvent } from 'ontime-types';
-import { dayInMs, getLastEvent, MILLIS_PER_HOUR } from 'ontime-utils';
+import { checkIsNextDay, dayInMs, getLastEvent, MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { useTimelineOverview } from '../../../common/hooks/useSocket';
 
@@ -60,7 +60,12 @@ function Timeline(props: TimelineProps) {
             // we need to offset the start to account for midnight
             hasTimelinePassedMidnight = previousEventStartTime !== null && event.timeStart < previousEventStartTime;
           }
-          const normalisedStart = hasTimelinePassedMidnight ? event.timeStart + dayInMs : event.timeStart;
+          // TODO: timeline must accumulate normalised time over days
+          const isNextDay =
+            previousEventStartTime !== null
+              ? checkIsNextDay(previousEventStartTime, event.timeStart, event.duration)
+              : false;
+          const normalisedStart = hasTimelinePassedMidnight || isNextDay ? event.timeStart + dayInMs : event.timeStart;
           previousEventStartTime = normalisedStart;
 
           const { left: elementLeftPosition, width: elementWidth } = getElementPosition(

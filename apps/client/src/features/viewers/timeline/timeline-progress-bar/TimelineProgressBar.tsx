@@ -12,6 +12,7 @@ interface ProgressBarProps {
 
 export default function ProgressBar(props: ProgressBarProps) {
   const { startHour, endHour } = props;
+  // TODO: how to account for days?
   const { clock } = useClock();
 
   const width = getRelativePositionX(startHour * MILLIS_PER_HOUR, endHour * MILLIS_PER_HOUR, clock);
