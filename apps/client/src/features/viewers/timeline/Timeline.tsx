@@ -1,7 +1,9 @@
 import { memo } from 'react';
 import { useViewportSize } from '@mantine/hooks';
 import { isOntimeEvent, MaybeNumber, OntimeEvent } from 'ontime-types';
-import { dayInMs, getFirstEvent, getLastEvent, MILLIS_PER_HOUR } from 'ontime-utils';
+import { dayInMs, getLastEvent, MILLIS_PER_HOUR } from 'ontime-utils';
+
+import { useTimelineOverview } from '../../../common/hooks/useSocket';
 
 import TimelineMarkers from './timeline-markers/TimelineMarkers';
 import ProgressBar from './timeline-progress-bar/TimelineProgressBar';
@@ -9,26 +11,6 @@ import { getElementPosition, getEndHour, getStartHour } from './timeline.utils';
 import { ProgressStatus, TimelineEntry } from './TimelineEntry';
 
 import style from './Timeline.module.scss';
-
-function useTimeline(rundown: OntimeEvent[]) {
-  const { firstEvent } = getFirstEvent(rundown);
-  const { lastEvent } = getLastEvent(rundown);
-  const firstStart = firstEvent?.timeStart ?? 0;
-  const lastEnd = lastEvent?.timeEnd ?? 0;
-  const normalisedLastEnd = lastEnd < firstStart ? lastEnd + dayInMs : lastEnd;
-
-  // we make sure the end accounts for delays
-  const accumulatedDelay = lastEvent?.delay ?? 0;
-  // timeline is padded to nearest hours (floor and ceil)
-  const startHour = getStartHour(firstStart);
-  const endHour = getEndHour(normalisedLastEnd + accumulatedDelay);
-
-  return {
-    rundown: rundown,
-    startHour,
-    endHour,
-  };
-}
 
 interface TimelineProps {
   selectedEventId: string | null;
@@ -38,15 +20,17 @@ interface TimelineProps {
 export default memo(Timeline);
 
 function Timeline(props: TimelineProps) {
-  const { selectedEventId, rundown: baseRundown } = props;
+  const { selectedEventId, rundown } = props;
   const { width: screenWidth } = useViewportSize();
-  const timelineData = useTimeline(baseRundown);
+  const { plannedStart, plannedEnd } = useTimelineOverview();
 
-  if (timelineData === null) {
+  if (plannedStart === null || plannedEnd === null) {
     return null;
   }
 
-  const { rundown, startHour, endHour } = timelineData;
+  const { lastEvent } = getLastEvent(rundown);
+  const startHour = getStartHour(plannedStart);
+  const endHour = getEndHour(plannedEnd + (lastEvent?.delay ?? 0));
 
   let hasTimelinePassedMidnight = false;
   let previousEventStartTime: MaybeNumber = null;
@@ -95,7 +79,7 @@ function Timeline(props: TimelineProps) {
               duration={event.duration}
               left={elementLeftPosition}
               status={eventStatus}
-              start={normalisedStart} // solve issues related to crossing midnight
+              start={normalisedStart} // dataset solves issues related to crossing midnight
               title={event.title}
               width={elementWidth}
             />

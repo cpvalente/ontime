@@ -38,6 +38,7 @@ export default function TimelinePage(props: TimelinePageProps) {
   const { getLocalizedString } = useTranslation();
   const clock = formatTime(time.clock);
 
+  // holds copy of the rundown with only relevant events
   const scopedRundown = useMemo(() => {
     return getScopedRundown(backstageEvents, selectedId);
   }, [backstageEvents, selectedId]);

@@ -70,13 +70,13 @@ describe('generate()', () => {
 
   it('accounts for gaps in rundown when calculating delays', () => {
     const testRundown: OntimeRundown = [
-      { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 200 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 200, duration: 100 } as OntimeEvent,
       { type: SupportedEvent.Delay, id: 'delay', duration: 200 } as OntimeDelay,
-      { type: SupportedEvent.Event, id: '2', timeStart: 200, timeEnd: 300 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '2', timeStart: 200, timeEnd: 300, duration: 100 } as OntimeEvent,
       { type: SupportedEvent.Block, id: 'block', title: 'break' } as OntimeBlock,
-      { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500, duration: 100 } as OntimeEvent,
       { type: SupportedEvent.Block, id: 'another-block', title: 'another-break' } as OntimeBlock,
-      { type: SupportedEvent.Event, id: '4', timeStart: 600, timeEnd: 700 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '4', timeStart: 600, timeEnd: 700, duration: 100 } as OntimeEvent,
     ];
 
     const initResult = generate(testRundown);
@@ -91,13 +91,13 @@ describe('generate()', () => {
 
   it('handles negative delays', () => {
     const testRundown: OntimeRundown = [
-      { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 200 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 200, duration: 100 } as OntimeEvent,
       { type: SupportedEvent.Delay, id: 'delay', duration: -200 } as OntimeDelay,
-      { type: SupportedEvent.Event, id: '2', timeStart: 200, timeEnd: 300 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '2', timeStart: 200, timeEnd: 300, duration: 100 } as OntimeEvent,
       { type: SupportedEvent.Block, id: 'block', title: 'break' } as OntimeBlock,
-      { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500, duration: 100 } as OntimeEvent,
       { type: SupportedEvent.Block, id: 'another-block', title: 'another-break' } as OntimeBlock,
-      { type: SupportedEvent.Event, id: '4', timeStart: 600, timeEnd: 700 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '4', timeStart: 600, timeEnd: 700, duration: 100 } as OntimeEvent,
     ];
 
     const initResult = generate(testRundown);
@@ -172,10 +172,17 @@ describe('generate()', () => {
 
   it('calculates total duration', () => {
     const testRundown: OntimeRundown = [
-      { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 200 } as OntimeEvent,
-      { type: SupportedEvent.Event, id: '2', timeStart: 200, timeEnd: 300 } as OntimeEvent,
-      { type: SupportedEvent.Event, id: 'skipped', skip: true, timeStart: 300, timeEnd: 400 } as OntimeEvent,
-      { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 200, duration: 100 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '2', timeStart: 200, timeEnd: 300, duration: 100 } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: 'skipped',
+        skip: true,
+        timeStart: 300,
+        timeEnd: 400,
+        duration: 100,
+      } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500, duration: 100 } as OntimeEvent,
     ];
 
     const initResult = generate(testRundown);
@@ -186,9 +193,16 @@ describe('generate()', () => {
   it('calculates total duration with 0 duration events without causing a next day', () => {
     const testRundown: OntimeRundown = [
       { type: SupportedEvent.Event, id: '1', timeStart: 100, timeEnd: 100, duration: 0 } as OntimeEvent,
-      { type: SupportedEvent.Event, id: '2', timeStart: 100, timeEnd: 300 } as OntimeEvent,
-      { type: SupportedEvent.Event, id: 'skipped', skip: true, timeStart: 300, timeEnd: 400 } as OntimeEvent,
-      { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500 } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '2', timeStart: 100, timeEnd: 300, duration: 200 } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: 'skipped',
+        skip: true,
+        timeStart: 300,
+        timeEnd: 400,
+        duration: 0,
+      } as OntimeEvent,
+      { type: SupportedEvent.Event, id: '3', timeStart: 400, timeEnd: 500, duration: 100 } as OntimeEvent,
     ];
 
     const initResult = generate(testRundown);
@@ -201,27 +215,28 @@ describe('generate()', () => {
       {
         type: SupportedEvent.Event,
         id: '1',
-        timeStart: new Date(0).setHours(9),
-        timeEnd: new Date(0).setHours(23),
+        timeStart: 9 * MILLIS_PER_HOUR,
+        timeEnd: 23 * MILLIS_PER_HOUR,
+        duration: (23 - 9) * MILLIS_PER_HOUR,
       } as OntimeEvent,
       {
         type: SupportedEvent.Event,
         id: '2',
-        timeStart: new Date(0).setHours(9),
-        timeEnd: new Date(0).setHours(23),
+        timeStart: 9 * MILLIS_PER_HOUR,
+        timeEnd: 23 * MILLIS_PER_HOUR,
+        duration: (23 - 9) * MILLIS_PER_HOUR,
       } as OntimeEvent,
       {
         type: SupportedEvent.Event,
         id: '3',
-        timeStart: new Date(0).setHours(9),
-        timeEnd: new Date(0).setHours(23),
+        timeStart: 9 * MILLIS_PER_HOUR,
+        timeEnd: 23 * MILLIS_PER_HOUR,
+        duration: (23 - 9) * MILLIS_PER_HOUR,
       } as OntimeEvent,
     ];
 
     const initResult = generate(testRundown);
-    const expectedDuration = (23 - 9 + 48) * MILLIS_PER_HOUR;
-    expect(millisToString(initResult.totalDuration)).toBe('62:00:00');
-    expect(initResult.totalDuration).toBe(expectedDuration);
+    expect(initResult.totalDuration).toBe((23 - 9 + 48) * MILLIS_PER_HOUR);
   });
 
   it('calculates total duration across days', () => {
@@ -229,20 +244,21 @@ describe('generate()', () => {
       {
         type: SupportedEvent.Event,
         id: '1',
-        timeStart: new Date(0).setHours(12),
-        timeEnd: new Date(0).setHours(22),
+        timeStart: 12 * MILLIS_PER_HOUR,
+        timeEnd: 22 * MILLIS_PER_HOUR,
+        duration: 10 * MILLIS_PER_HOUR,
       } as OntimeEvent,
       {
         type: SupportedEvent.Event,
         id: '2',
-        timeStart: new Date(0).setHours(22),
-        timeEnd: new Date(0).setHours(8),
+        timeStart: 22 * MILLIS_PER_HOUR,
+        timeEnd: 8 * MILLIS_PER_HOUR,
+        duration: (24 - 22 + 8) * MILLIS_PER_HOUR,
       } as OntimeEvent,
     ];
 
     const initResult = generate(testRundown);
     const expectedDuration = 8 * MILLIS_PER_HOUR + (dayInMs - 12 * MILLIS_PER_HOUR);
-    expect(millisToString(initResult.totalDuration)).toBe('20:00:00');
     expect(initResult.totalDuration).toBe(expectedDuration);
   });
 

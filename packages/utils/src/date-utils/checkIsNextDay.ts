@@ -8,6 +8,6 @@
  * 09:00 - 10:00
  * 09:30 - 10:30
  */
-export function checkIsNextDay(previousStart: number, timeStart: number, previousDuration?: number): boolean {
+export function checkIsNextDay(previousStart: number, timeStart: number, previousDuration: number): boolean {
   return previousDuration === 0 ? false : timeStart <= previousStart;
 }

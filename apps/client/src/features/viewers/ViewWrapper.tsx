@@ -39,7 +39,7 @@ type WithDataProps = {
   publicSelectedId: string | null;
   runtime: Runtime;
   selectedId: string | null;
-  settings: Settings | undefined;
+  settings: Settings | undefined; // TODO: what is the case for this being undefined?
   time: ViewExtendedTimer;
   viewSettings: ViewSettings;
 };

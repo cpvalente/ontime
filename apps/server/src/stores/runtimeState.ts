@@ -31,9 +31,9 @@ const initialRuntime: Runtime = {
   numEvents: 0, // change initiated by user
   offset: 0, // changes at runtime
   plannedStart: 0, // only changes if event changes
-  plannedEnd: 0, // only changes if event changes
+  plannedEnd: 0, // only changes if event changes, overflows over dayInMs
   actualStart: null, // set once we start the timer
-  expectedEnd: null, // changes with runtime, based on offset
+  expectedEnd: null, // changes with runtime, based on offset, overflows over dayInMs
 } as const;
 
 const initialTimer: TimerState = {
@@ -60,7 +60,7 @@ export type RuntimeState = {
   timer: TimerState;
   // private properties of the timer calculations
   _timer: {
-    forceFinish: MaybeNumber; // wether we should declare an event as finished, will contain the finish time
+    forceFinish: MaybeNumber; // whether we should declare an event as finished, will contain the finish time
     totalDelay: number; // this value comes from rundown service
     pausedAt: MaybeNumber;
     secondaryTarget: MaybeNumber;
@@ -149,6 +149,7 @@ type RundownData = {
  * @param playableRundown
  */
 export function updateRundownData(rundownData: RundownData) {
+  // we keep this in private state since there is no UI use case for it
   runtimeState._timer.totalDelay = rundownData.totalDelay;
 
   runtimeState.runtime.numEvents = rundownData.numEvents;
