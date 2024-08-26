@@ -1,5 +1,3 @@
-import { OntimeRundown } from 'ontime-types';
-
 import * as runtimeState from '../stores/runtimeState.js';
 import type { UpdateResult } from '../stores/runtimeState.js';
 import { timerConfig } from '../config/config.js';
@@ -98,13 +96,6 @@ export class EventTimer {
     const updateResult = runtimeState.update();
     // pass the result to the parent
     this.onUpdateCallback?.(updateResult);
-  }
-
-  /**
-   * Loads roll information into timer service
-   */
-  roll(rundown: OntimeRundown) {
-    return runtimeState.roll(rundown);
   }
 
   shutdown() {

@@ -1,7 +1,7 @@
-import { PlayableEvent, Playback } from 'ontime-types';
+import { PlayableEvent, Playback, TimerPhase } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
 
-import { RuntimeState, addTime, clear, getState, load, pause, start, stop } from '../runtimeState.js';
+import { RuntimeState, addTime, clear, getState, load, pause, roll, start, stop } from '../runtimeState.js';
 import { initRundown } from '../../services/rundown-service/RundownService.js';
 
 const mockEvent = {
@@ -227,7 +227,103 @@ describe('mutation on runtimeState', () => {
     });
 
     test.todo('runtime offset on timers in overtime', () => {});
+  });
+});
 
-    test.todo('roll mode', () => {});
+describe('roll mode', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime('jan 1 00:00');
+    clear();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  describe('normal roll', () => {
+    const rundown = [
+      { ...mockEvent, id: '1', timeStart: 1000, duration: 1000, timeEnd: 2000 },
+      { ...mockEvent, id: '2', timeStart: 2000, duration: 1000, timeEnd: 3000 },
+      { ...mockEvent, id: '3', timeStart: 3000, duration: 1000, timeEnd: 4000 },
+    ] as PlayableEvent[];
+
+    test('pending event', () => {
+      const { eventId, didStart } = roll(rundown);
+      const state = getState();
+
+      expect(eventId).toBe('1');
+      expect(didStart).toBe(false);
+      expect(state.timer.phase).toBe(TimerPhase.Pending);
+      expect(state.timer.secondaryTimer).toBe(1000);
+    });
+
+    test('roll events', () => {
+      vi.setSystemTime('jan 1 00:00:01');
+      let result = roll(rundown);
+      expect(result).toStrictEqual({ eventId: '1', didStart: true });
+
+      vi.setSystemTime('jan 1 00:00:02');
+      result = roll(rundown);
+      expect(result).toStrictEqual({ eventId: '2', didStart: true });
+
+      vi.setSystemTime('jan 1 00:00:03:500');
+      result = roll(rundown);
+      expect(result).toStrictEqual({ eventId: '3', didStart: true });
+    });
+  });
+
+  describe('roll takover', () => {
+    const rundown = [
+      { ...mockEvent, id: '1', timeStart: 1000, duration: 1000, timeEnd: 2000 },
+      { ...mockEvent, id: '2', timeStart: 2000, duration: 1000, timeEnd: 3000 },
+      { ...mockEvent, id: '3', timeStart: 3000, duration: 1000, timeEnd: 4000 },
+    ] as PlayableEvent[];
+
+    test('from load', () => {
+      load(rundown[2], rundown);
+      const result = roll(rundown);
+      expect(result).toStrictEqual({ eventId: '3', didStart: false });
+      const state = getState();
+      expect(state.timer.phase).toBe(TimerPhase.Pending);
+      expect(state.timer.secondaryTimer).toBe(3000);
+    });
+
+    test('from play', () => {
+      load(rundown[0], rundown);
+      start();
+      const result = roll(rundown);
+      expect(result).toStrictEqual({ eventId: '1', didStart: false });
+      expect(getState().runtime.offset).toBe(1000);
+    });
+  });
+
+  describe('roll continue with offset', () => {
+    test('no gaps', () => {
+      const rundown = [
+        { ...mockEvent, id: '1', timeStart: 1000, duration: 1000, timeEnd: 2000 },
+        { ...mockEvent, id: '2', timeStart: 2000, duration: 1000, timeEnd: 3000 },
+        { ...mockEvent, id: '3', timeStart: 3000, duration: 1000, timeEnd: 4000 },
+      ] as PlayableEvent[];
+
+      load(rundown[0], rundown);
+      start();
+      let result = roll(rundown, getState().runtime.offset);
+      expect(result).toStrictEqual({ eventId: '1', didStart: false });
+      expect(getState().runtime.offset).toBe(1000);
+
+      vi.setSystemTime('jan 1 00:00:01');
+      result = roll(rundown, getState().runtime.offset);
+      expect(result).toStrictEqual({ eventId: '2', didStart: true });
+      expect(getState().runtime.offset).toBe(1000);
+
+      vi.setSystemTime('jan 1 00:00:02');
+      result = roll(rundown, getState().runtime.offset);
+      expect(result).toStrictEqual({ eventId: '3', didStart: true });
+      expect(getState().runtime.offset).toBe(1000);
+    });
+
+    test.todo('with gaps', () => {
+      //this is a bit involved as it also depends somewhat on the RintimeService
+    });
   });
 });
