@@ -75,6 +75,8 @@ export { validateEndAction, validateTimerType } from './src/validate-events/vali
 // feature business logic - rundown
 export { checkIsNow } from './src/date-utils/checkIsNow.js';
 export { checkIsNextDay } from './src/date-utils/checkIsNextDay.js';
+export { checkOverlap } from './src/date-utils/checkOverlap.js';
+export { getTimeFromPrevious } from './src/date-utils/getTimeFromPrevious.js';
 
 // feature business logic - spreadsheet import
 export {

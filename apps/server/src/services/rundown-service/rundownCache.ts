@@ -4,16 +4,16 @@ import {
   CustomFields,
   isOntimeDelay,
   isOntimeEvent,
+  isPlayableEvent,
   MaybeNumber,
   OntimeEvent,
   OntimeRundown,
   OntimeRundownEntry,
+  PlayableEvent,
 } from 'ontime-types';
-import { generateId, insertAtIndex, reorderArray, swapEventData, checkIsNextDay } from 'ontime-utils';
-
+import { generateId, insertAtIndex, reorderArray, swapEventData, getTimeFromPrevious } from 'ontime-utils';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
-import { getTotalDuration } from '../timerUtils.js';
 import { apply } from './delayUtils.js';
 import { handleCustomField, handleLink, hasChanges, isDataStale } from './rundownCacheUtils.js';
 
@@ -83,73 +83,72 @@ export function generate(
   totalDuration = 0;
   totalDelay = 0;
 
-  let accumulatedDelay = 0;
-  let daySpan = 0;
-  let previousStart: MaybeNumber = null;
-  let previousEnd: MaybeNumber = null;
-  let previousDuration: MaybeNumber = null;
+  let previousEntry: PlayableEvent | null = null;
+  let lastEntry: PlayableEvent | null = null;
 
   for (let i = 0; i < initialRundown.length; i++) {
-    const currentEvent = initialRundown[i];
-    const updatedEvent = { ...currentEvent };
+    // TODO: filter properties that should not be persisted (eg: delay)
+    // we assign a reference to the current entry, this will be mutated in place
+    const currentEntry = initialRundown[i];
 
-    if (isOntimeEvent(updatedEvent)) {
-      // 1. handle links
-      handleLink(i, initialRundown, updatedEvent, links);
+    if (isOntimeEvent(currentEntry)) {
+      // 1. handle links - mutates updatedEvent
+      handleLink(i, initialRundown, currentEntry, links);
 
-      // 2. handle custom fields
-      handleCustomField(customFields, customFieldChangelog, updatedEvent, assignedCustomFields);
+      // 2. handle custom fields - mutates updatedEvent
+      handleCustomField(customFields, customFieldChangelog, currentEntry, assignedCustomFields);
 
-      // update the persisted event
-      initialRundown[i] = updatedEvent;
-
-      // we need to generate the skip event, but dont want to use its times
-      if (!updatedEvent.skip) {
-        // update rundown duration
+      // update rundown metadata, it only concerns playable events
+      if (isPlayableEvent(currentEntry)) {
         if (firstStart === null) {
-          firstStart = updatedEvent.timeStart;
+          firstStart = currentEntry.timeStart;
         }
-        lastEnd = updatedEvent.timeEnd;
+        // TODO: carry on last event
+        lastEnd = currentEntry.timeEnd;
 
-        // check if we go over midnight, account for eventual gaps
-        const gapOverMidnight =
-          previousStart !== null && checkIsNextDay(previousStart, updatedEvent.timeStart, previousDuration);
-        const durationOverMidnight = updatedEvent.timeStart > updatedEvent.timeEnd;
-        if (gapOverMidnight || durationOverMidnight) {
-          daySpan++;
+        const timeFromPrevious: number = getTimeFromPrevious(
+          currentEntry.timeStart,
+          currentEntry.timeEnd,
+          previousEntry?.timeStart,
+          previousEntry?.timeEnd,
+          previousEntry?.duration,
+        );
+        totalDuration += timeFromPrevious + currentEntry.duration;
+
+        // remove eventual gaps from the accumulated delay
+        // we only affect positive delays (time forwards)
+        if (totalDelay > 0 && previousEntry) {
+          const gap = Math.max(currentEntry.timeStart - previousEntry.timeEnd, 0);
+          totalDelay = Math.max(totalDelay - gap, 0);
         }
+        // current event delay is the current accumulated delay
+        currentEntry.delay = totalDelay;
+        // keep copy of event
+        previousEntry = currentEntry;
       }
     }
 
     // calculate delays
     // !!! this must happen after handling the links
-    if (isOntimeDelay(updatedEvent)) {
-      accumulatedDelay += updatedEvent.duration;
-    } else if (isOntimeEvent(updatedEvent) && !updatedEvent.skip) {
-      const eventStart = updatedEvent.timeStart;
-
-      // we only affect positive delays (time forwards)
-      if (accumulatedDelay > 0 && previousEnd) {
-        const gap = Math.max(eventStart - previousEnd, 0);
-        accumulatedDelay = Math.max(accumulatedDelay - gap, 0);
-      }
-      updatedEvent.delay = accumulatedDelay;
-      previousStart = updatedEvent.timeStart;
-      previousEnd = updatedEvent.timeEnd;
-      previousDuration = updatedEvent.duration;
+    if (isOntimeDelay(currentEntry)) {
+      totalDelay += currentEntry.duration;
     }
 
-    order.push(updatedEvent.id);
-    rundown[updatedEvent.id] = { ...updatedEvent };
+    // eslint-disable-next-line no-unused-labels -- dev code path
+    DEV: {
+      if (totalDuration < 0) {
+        throw new Error('rundownCache.generate: invalid data');
+      }
+    }
+
+    // add id to order
+    order.push(currentEntry.id);
+    // add entry to rundown
+    rundown[currentEntry.id] = currentEntry;
   }
 
   isStale = false;
   customFieldChangelog.clear();
-  totalDelay = accumulatedDelay;
-  if (lastEnd !== null && firstStart !== null) {
-    totalDuration = getTotalDuration(firstStart, lastEnd, daySpan);
-  }
-
   return { rundown, order, links, totalDelay, totalDuration, assignedCustomProperties: assignedCustomFields };
 }
 
