@@ -11,6 +11,7 @@ export type RestorePoint = {
   addedTime: number;
   pausedAt: MaybeNumber;
   firstStart: MaybeNumber;
+  blockStartAt: MaybeNumber;
 };
 
 /**
@@ -45,7 +46,11 @@ export function isRestorePoint(obj: unknown): obj is RestorePoint {
     return false;
   }
 
-  if (typeof restorePoint.firstStart !== 'number' && restorePoint.pausedAt !== null) {
+  if (typeof restorePoint.firstStart !== 'number' && restorePoint.firstStart !== null) {
+    return false;
+  }
+
+  if (typeof restorePoint.blockStartAt !== 'number' && restorePoint.blockStartAt !== null) {
     return false;
   }
 
