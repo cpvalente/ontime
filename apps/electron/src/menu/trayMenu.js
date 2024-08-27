@@ -6,7 +6,7 @@
 function getTrayMenu(showApp, askToQuit) {
   return [
     {
-      label: 'Show App (Alt + 1)',
+      label: 'Show App',
       click: () => showApp(),
     },
     {
