@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { MaybeNumber, OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
+import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
@@ -32,8 +32,8 @@ interface RundownEntryProps {
   eventIndex: number;
   hasCursor: boolean;
   isNext: boolean;
-  previousStart: MaybeNumber;
-  previousEnd: MaybeNumber;
+  previousStart?: number;
+  previousEnd?: number;
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
   isRolling: boolean; // we need to know even if not related to this event

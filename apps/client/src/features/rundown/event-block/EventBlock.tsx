@@ -8,7 +8,7 @@ import { IoPeopleOutline } from '@react-icons/all-files/io5/IoPeopleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
-import { EndAction, MaybeNumber, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
@@ -36,8 +36,8 @@ interface EventBlockProps {
   title: string;
   note: string;
   delay: number;
-  previousStart: MaybeNumber;
-  previousEnd: MaybeNumber;
+  previousStart?: number;
+  previousEnd?: number;
   colour: string;
   isPast: boolean;
   isNext: boolean;
