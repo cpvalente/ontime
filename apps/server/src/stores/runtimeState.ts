@@ -193,15 +193,16 @@ export function load(
   // patch with potential provided data
   if (initialData) {
     patchTimer(initialData);
-
     const firstStart = initialData?.firstStart;
     if (firstStart === null || typeof firstStart === 'number') {
       runtimeState.runtime.actualStart = firstStart;
       runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
       runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
     }
+    if (typeof initialData.blockStartAt === 'number') {
+      runtimeState.currentBlock.startedAt = initialData.blockStartAt;
+    }
   }
-
   return event.id === runtimeState.eventNow?.id;
 }
 
@@ -679,8 +680,13 @@ function loadBlock(rundown: OntimeRundown) {
 
   const newCurrentBlock = getPreviousBlock(rundown, runtimeState.eventNow.id);
 
+  // test all block change posibiletys
+  const formNoBlockToBlock = runtimeState.currentBlock.block === null && newCurrentBlock !== null;
+  const formBlockToNoBlock = runtimeState.currentBlock.block !== null && newCurrentBlock === null;
+  const formBlockToNewBlock = runtimeState.currentBlock.block?.id !== newCurrentBlock?.id;
+
   // update time only if the block has changed
-  if (newCurrentBlock === null || newCurrentBlock.id !== runtimeState.currentBlock.block?.id) {
+  if (formNoBlockToBlock || formBlockToNoBlock || formBlockToNewBlock) {
     runtimeState.currentBlock.startedAt = null;
   }
 
