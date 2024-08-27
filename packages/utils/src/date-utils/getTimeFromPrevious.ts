@@ -7,13 +7,12 @@ import { dayInMs } from './conversionUtils.js';
  */
 export function getTimeFromPrevious(
   currentStart: number,
-  currentEnd: number,
   previousStart?: number,
   previousEnd?: number,
   previousDuration?: number,
 ): number {
   // there is no previous event
-  if (previousStart == null || previousEnd == null || previousDuration == null) {
+  if (previousStart === undefined || previousEnd === undefined || previousDuration === undefined) {
     return 0;
   }
 
@@ -35,7 +34,6 @@ export function getTimeFromPrevious(
   }
 
   // event overlaps with previous
-  // TODO: account for midnight roll
   const overlap = previousEnd - currentStart;
   if (overlap > 0) {
     // time is a negative number indicating the amount of overlap
