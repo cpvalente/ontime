@@ -1,5 +1,14 @@
 import { MaybeNumber } from 'ontime-types';
-import { checkIsNextDay, dayInMs, millisToString, removeLeadingZero, removeTrailingZero } from 'ontime-utils';
+import {
+  calculateDuration,
+  checkIsNextDay,
+  dayInMs,
+  getTimeFromPrevious,
+  millisToString,
+  removeTrailingZero,
+} from 'ontime-utils';
+
+import { formatDuration } from '../../../common/utils/time';
 
 export function formatDelay(timeStart: number, delay: number): string | undefined {
   if (!delay) return;
@@ -18,22 +27,20 @@ export function formatOverlap(
   const noPreviousElement = previousEnd === null || previousStart === null;
   if (noPreviousElement) return;
 
-  const timeFromPrevious = previousEnd - timeStart;
+  const normalisedDuration = calculateDuration(previousStart, previousEnd);
+  const timeFromPrevious = getTimeFromPrevious(timeStart, previousStart, previousEnd, normalisedDuration);
   if (timeFromPrevious === 0) return;
 
-  const previousCrossMidnight = previousStart > previousEnd;
-  const isNextDay = previousCrossMidnight
-    ? previousEnd === 0 || checkIsNextDay(previousEnd, timeStart, previousEnd - previousStart) // exception for when previousEnd is precisely midnight
-    : checkIsNextDay(previousStart, timeStart, previousEnd - previousStart);
-  const correctedPreviousEnd = previousCrossMidnight ? previousEnd + dayInMs : previousEnd;
+  if (checkIsNextDay(previousStart, timeStart, normalisedDuration)) {
+    const previousCrossMidnight = previousStart > previousEnd;
+    const normalisedPreviousEnd = previousCrossMidnight ? previousEnd + dayInMs : previousEnd;
 
-  if (isNextDay) {
-    const gap = dayInMs - correctedPreviousEnd + timeStart;
+    const gap = dayInMs - normalisedPreviousEnd + timeStart;
     if (gap === 0) return;
-    const gapString = removeLeadingZero(millisToString(Math.abs(gap)));
+    const gapString = formatDuration(Math.abs(gap), false);
     return `Gap ${gapString} (next day)`;
   }
 
-  const overlapString = removeLeadingZero(millisToString(Math.abs(timeFromPrevious)));
-  return `${timeFromPrevious > 0 ? 'Overlap' : 'Gap'} ${overlapString}`;
+  const overlapString = formatDuration(Math.abs(timeFromPrevious), false);
+  return `${timeFromPrevious < 0 ? 'Overlap' : 'Gap'} ${overlapString}`;
 }

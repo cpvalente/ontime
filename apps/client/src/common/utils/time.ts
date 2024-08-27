@@ -101,7 +101,7 @@ export const formatTime = (
  * @param duration
  * @returns
  */
-export function formatDuration(duration: number): string {
+export function formatDuration(duration: number, hideSeconds = true): string {
   // durations should never be negative, we handle it here to flag if there is an issue in future
   if (duration <= 0) {
     return '0h 0m';
@@ -111,10 +111,17 @@ export function formatDuration(duration: number): string {
   const minutes = Math.floor((duration % MILLIS_PER_HOUR) / MILLIS_PER_MINUTE);
   let result = '';
   if (hours > 0) {
-    result += `${hours}h `;
+    result += `${hours}h`;
   }
   if (minutes > 0) {
     result += `${minutes}m`;
+  }
+
+  if (!hideSeconds) {
+    const seconds = Math.floor((duration % MILLIS_PER_MINUTE) / MILLIS_PER_SECOND);
+    if (seconds > 0) {
+      result += `${seconds}s`;
+    }
   }
   return result;
 }

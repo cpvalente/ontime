@@ -113,7 +113,6 @@ export function generate(
 
         const timeFromPrevious: number = getTimeFromPrevious(
           currentEntry.timeStart,
-          currentEntry.timeEnd,
           lastEntry?.timeStart,
           lastEntry?.timeEnd,
           lastEntry?.duration,
@@ -155,13 +154,6 @@ export function generate(
     // !!! this must happen after handling the links
     if (isOntimeDelay(currentEntry)) {
       totalDelay += currentEntry.duration;
-    }
-
-    // eslint-disable-next-line no-unused-labels -- dev code path
-    DEV: {
-      if (totalDuration < 0) {
-        throw new Error('rundownCache.generate: invalid data');
-      }
     }
 
     // add id to order
