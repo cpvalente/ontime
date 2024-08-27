@@ -11,14 +11,7 @@ import {
   OntimeRundownEntry,
   PlayableEvent,
 } from 'ontime-types';
-import {
-  generateId,
-  insertAtIndex,
-  reorderArray,
-  swapEventData,
-  getTimeFromPrevious,
-  checkIsNextDay,
-} from 'ontime-utils';
+import { generateId, insertAtIndex, reorderArray, swapEventData, getTimeFromPrevious, isNewLatest } from 'ontime-utils';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
 import { apply } from './delayUtils.js';
@@ -140,11 +133,7 @@ export function generate(
         currentEntry.delay = totalDelay;
 
         // lastEntry is the event with the latest end time
-        if (
-          lastEntry === null ||
-          currentEntry.timeEnd > lastEntry.timeEnd ||
-          checkIsNextDay(lastEntry.timeStart, currentEntry.timeStart, lastEntry.duration)
-        ) {
+        if (isNewLatest(currentEntry.timeStart, currentEntry.timeEnd, lastEntry?.timeStart, lastEntry?.timeEnd)) {
           lastEntry = currentEntry;
         }
       }

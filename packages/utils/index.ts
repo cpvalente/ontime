@@ -76,6 +76,7 @@ export { validateEndAction, validateTimerType } from './src/validate-events/vali
 export { checkIsNow } from './src/date-utils/checkIsNow.js';
 export { checkIsNextDay } from './src/date-utils/checkIsNextDay.js';
 export { getTimeFromPrevious } from './src/date-utils/getTimeFromPrevious.js';
+export { isNewLatest } from './src/date-utils/isNewLatest.js';
 
 // feature business logic - spreadsheet import
 export {

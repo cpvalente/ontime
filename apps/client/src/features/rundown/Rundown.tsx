@@ -2,7 +2,15 @@ import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react'
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useHotkeys } from '@mantine/hooks';
-import { isOntimeBlock, isOntimeEvent, MaybeNumber, Playback, RundownCached, SupportedEvent } from 'ontime-types';
+import {
+  isOntimeBlock,
+  isOntimeEvent,
+  isPlayableEvent,
+  PlayableEvent,
+  Playback,
+  RundownCached,
+  SupportedEvent,
+} from 'ontime-types';
 import {
   getFirstNormal,
   getLastNormal,
@@ -10,6 +18,7 @@ import {
   getNextNormal,
   getPreviousBlockNormal,
   getPreviousNormal,
+  isNewLatest,
 } from 'ontime-utils';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
@@ -247,11 +256,9 @@ export default function Rundown({ data }: RundownProps) {
     return <RundownEmpty handleAddNew={() => insertAtId(SupportedEvent.Event, cursor)} />;
   }
 
-  let previousStart: MaybeNumber = null;
-  let previousEnd: MaybeNumber = null;
+  let lastEntry: PlayableEvent | undefined; // used by indicators
+  let thisEntry: PlayableEvent | undefined;
   let previousEventId: string | undefined;
-  let thisStart: MaybeNumber = null;
-  let thisEnd: MaybeNumber = null;
   let thisId = previousEventId;
 
   let eventIndex = 0;
@@ -279,13 +286,14 @@ export default function Rundown({ data }: RundownProps) {
               if (isOntimeEvent(event)) {
                 // event indexes are 1 based in frontend
                 eventIndex++;
-                previousStart = thisStart;
-                previousEnd = thisEnd;
                 previousEventId = thisId;
+                lastEntry = thisEntry;
 
-                if (!event.skip) {
-                  thisStart = event.timeStart;
-                  thisEnd = event.timeEnd;
+                if (isPlayableEvent(event)) {
+                  // populate previous entry
+                  if (isNewLatest(event.timeStart, event.timeEnd, lastEntry?.timeStart, lastEntry?.timeEnd)) {
+                    thisEntry = event;
+                  }
                   thisId = eventId;
                 }
               }
@@ -312,8 +320,8 @@ export default function Rundown({ data }: RundownProps) {
                         loaded={isLoaded}
                         hasCursor={hasCursor}
                         isNext={isNext}
-                        previousStart={previousStart}
-                        previousEnd={previousEnd}
+                        previousStart={lastEntry?.timeStart}
+                        previousEnd={lastEntry?.timeEnd}
                         previousEventId={previousEventId}
                         playback={isLoaded ? featureData.playback : undefined}
                         isRolling={featureData.playback === Playback.Roll}
