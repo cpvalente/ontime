@@ -512,8 +512,8 @@ class RuntimeService {
       return;
     }
     this.eventTimer?.pause();
-    const newState = state.timer.playback;
-    logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
+    const newState = runtimeState.getState();
+    logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
     process.nextTick(() => {
       integrationService.dispatch(TimerLifeCycle.onPause);
     });
@@ -531,8 +531,8 @@ class RuntimeService {
     }
     const didStop = this.eventTimer?.stop();
     if (didStop) {
-      const newState = state.timer.playback;
-      logger.info(LogOrigin.Playback, `Play Mode ${newState.toUpperCase()}`);
+      const newState = runtimeState.getState();
+      logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
       process.nextTick(() => {
         integrationService.dispatch(TimerLifeCycle.onStop);
       });

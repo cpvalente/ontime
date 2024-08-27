@@ -5,7 +5,7 @@ import { Playback, TimerPhase } from 'ontime-types';
  */
 export function validatePlayback(currentPlayback: Playback, timerPhase: TimerPhase) {
   return {
-    start: currentPlayback !== Playback.Stop,
+    start: currentPlayback !== Playback.Stop && currentPlayback !== Playback.Play,
     pause: currentPlayback === Playback.Play,
     roll: currentPlayback !== Playback.Roll && timerPhase !== TimerPhase.Overtime,
     stop: currentPlayback !== Playback.Stop,
