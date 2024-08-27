@@ -98,7 +98,7 @@ function getApplicationMenu(isMac, askToQuit, urlBase, version, redirectWindow) 
               },
             },
             {
-              label: 'Timeline',
+              label: 'Timeline (beta)',
               click: async () => {
                 await shell.openExternal(`${urlBase}/timeline`);
               },

@@ -3,7 +3,7 @@ export const navigatorConstants = [
   { url: '/clock', label: 'Clock' },
   { url: '/minimal', label: 'Minimal Timer' },
   { url: '/backstage', label: 'Backstage' },
-  { url: '/timeline', label: 'Timeline' },
+  { url: '/timeline', label: 'Timeline (beta)' },
   { url: '/public', label: 'Public' },
   { url: '/lower', label: 'Lower Thirds' },
   { url: '/studio', label: 'Studio Clock' },
