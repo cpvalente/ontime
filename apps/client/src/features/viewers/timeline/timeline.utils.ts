@@ -1,4 +1,4 @@
-import { isOntimeEvent, MaybeString, OntimeEvent } from 'ontime-types';
+import { isOntimeEvent, MaybeString, OntimeEvent, OntimeRundown } from 'ontime-types';
 import {
   dayInMs,
   getEventWithId,
@@ -87,7 +87,7 @@ export function getStatusLabel(timeToStart: number, status: ProgressStatus): str
   return formatDuration(timeToStart);
 }
 
-export function getScopedRundown(rundown: OntimeEvent[], selectedEventId: MaybeString): OntimeEvent[] {
+export function getScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeString): OntimeRundown {
   if (rundown.length === 0) {
     return [];
   }
@@ -106,7 +106,7 @@ export function getScopedRundown(rundown: OntimeEvent[], selectedEventId: MaybeS
   }
 
   if (hideBackstage) {
-    scopedRundown = scopedRundown.filter((event) => event.isPublic);
+    scopedRundown = scopedRundown.filter((event) => !isOntimeEvent(event) || event.isPublic);
   }
 
   return scopedRundown;
@@ -121,7 +121,7 @@ type UpcomingEvents = {
 /**
  * Returns upcoming events from current: now, next and followedBy
  */
-export function getUpcomingEvents(events: OntimeEvent[], selectedId: MaybeString): UpcomingEvents {
+export function getUpcomingEvents(events: OntimeRundown, selectedId: MaybeString): UpcomingEvents {
   if (events.length === 0) {
     return { now: null, next: null, followedBy: null };
   }
