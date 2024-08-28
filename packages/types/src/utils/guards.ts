@@ -11,7 +11,7 @@ export function isOntimeEvent(event: MaybeEvent): event is OntimeEvent {
 }
 
 export function isPlayableEvent(event: OntimeEvent): event is PlayableEvent {
-  return !event.skip;
+  return !event?.skip;
 }
 
 export function isOntimeDelay(event: MaybeEvent): event is OntimeDelay {

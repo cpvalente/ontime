@@ -57,4 +57,11 @@ describe('checkIsNextDay', () => {
     const timeStart = 2 * MILLIS_PER_HOUR;
     expect(checkIsNextDay(previousStart, timeStart, previousDuration)).toBeTruthy();
   });
+
+  it('should account for normalised start over multiple days', () => {
+    const previousStart = 90000000; // 25:00:00
+    const previousDuration = 1 * MILLIS_PER_HOUR;
+    const timeStart = 0;
+    expect(checkIsNextDay(previousStart, timeStart, previousDuration)).toBeTruthy();
+  });
 });

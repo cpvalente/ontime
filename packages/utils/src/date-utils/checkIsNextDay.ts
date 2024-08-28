@@ -24,8 +24,9 @@ export function checkIsNextDay(previousStart: number, timeStart: number, previou
     return false;
   }
 
-  if (timeStart <= previousStart) {
-    const normalisedPreviousEnd = previousStart + previousDuration;
+  const cappedStart = previousStart % dayInMs;
+  if (timeStart <= cappedStart) {
+    const normalisedPreviousEnd = cappedStart + previousDuration;
     if (normalisedPreviousEnd === dayInMs) {
       return true;
     }

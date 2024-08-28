@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { useViewportSize } from '@mantine/hooks';
-import { isOntimeEvent, MaybeNumber, OntimeEvent } from 'ontime-types';
+import { isOntimeEvent, isPlayableEvent, MaybeNumber, OntimeRundown } from 'ontime-types';
 import { checkIsNextDay, dayInMs, getLastEvent, MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { useTimelineOverview } from '../../../common/hooks/useSocket';
@@ -14,7 +14,7 @@ import style from './Timeline.module.scss';
 
 interface TimelineProps {
   selectedEventId: string | null;
-  rundown: OntimeEvent[];
+  rundown: OntimeRundown;
 }
 
 export default memo(Timeline);
@@ -27,15 +27,14 @@ function Timeline(props: TimelineProps) {
   if (plannedStart === null || plannedEnd === null) {
     return null;
   }
-
   const { lastEvent } = getLastEvent(rundown);
   const startHour = getStartHour(plannedStart);
   const endHour = getEndHour(plannedEnd + (lastEvent?.delay ?? 0));
 
-  let hasTimelinePassedMidnight = false;
   let previousEventStartTime: MaybeNumber = null;
   // we use selectedEventId as a signifier on whether the timeline is live
   let eventStatus: ProgressStatus = selectedEventId ? 'done' : 'future';
+  let elapsedDays = 0;
 
   return (
     <div className={style.timeline}>
@@ -44,7 +43,7 @@ function Timeline(props: TimelineProps) {
       <div className={style.timelineEvents}>
         {rundown.map((event) => {
           // for now we dont render delays and blocks
-          if (!isOntimeEvent(event)) {
+          if (!isOntimeEvent(event) || !isPlayableEvent(event)) {
             return null;
           }
 
@@ -56,17 +55,14 @@ function Timeline(props: TimelineProps) {
             eventStatus = 'live';
           }
 
-          if (!hasTimelinePassedMidnight) {
-            // we need to offset the start to account for midnight
-            hasTimelinePassedMidnight = previousEventStartTime !== null && event.timeStart < previousEventStartTime;
+          // we only need to check for next day if we have a previous event
+          if (
+            previousEventStartTime !== null &&
+            checkIsNextDay(previousEventStartTime, event.timeStart, event.duration)
+          ) {
+            elapsedDays++;
           }
-          // TODO: timeline must accumulate normalised time over days
-          const isNextDay =
-            previousEventStartTime !== null
-              ? checkIsNextDay(previousEventStartTime, event.timeStart, event.duration)
-              : false;
-          const normalisedStart = hasTimelinePassedMidnight || isNextDay ? event.timeStart + dayInMs : event.timeStart;
-          previousEventStartTime = normalisedStart;
+          const normalisedStart = event.timeStart + elapsedDays * dayInMs;
 
           const { left: elementLeftPosition, width: elementWidth } = getElementPosition(
             startHour * MILLIS_PER_HOUR,
@@ -75,6 +71,9 @@ function Timeline(props: TimelineProps) {
             event.duration,
             screenWidth,
           );
+
+          // prepare values for next iteration
+          previousEventStartTime = normalisedStart;
 
           return (
             <TimelineEntry
