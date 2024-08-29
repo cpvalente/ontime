@@ -1,4 +1,11 @@
-import { DeepPartial, MessageState, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
+import {
+  DeepPartial,
+  MessageState,
+  OntimeEvent,
+  SimpleDirection,
+  SimplePlayback,
+  SimpleTimerState,
+} from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
@@ -13,6 +20,7 @@ import { parseProperty, updateEvent } from './integration.utils.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { throttle } from '../utils/throttle.js';
 import { willCauseRegeneration } from '../services/rundown-service/rundownCacheUtils.js';
+import { coerceEnum, coerceNumber } from '../utils/coerceType.js';
 
 const throttledUpdateEvent = throttle(updateEvent, 20);
 
@@ -203,32 +211,42 @@ const actionHandlers: Record<string, ActionHandler> = {
   /* Extra timers */
   auxtimer: (payload) => {
     assert.isObject(payload);
+
+    if ('2' in payload) {
+      const value = coerceNumber(payload['2']);
+      const reply = auxTimerService.drive(value);
+      return { payload: reply };
+    }
+
     if (!('1' in payload)) {
       throw new Error('Invalid auxtimer index');
     }
-    const command = payload['1'];
-    if (typeof command === 'string') {
-      if (command === SimplePlayback.Start) {
-        const reply = auxTimerService.start();
-        return { payload: reply };
-      }
-      if (command === SimplePlayback.Pause) {
-        const reply = auxTimerService.pause();
-        return { payload: reply };
-      }
-      if (command === SimplePlayback.Stop) {
-        const reply = auxTimerService.stop();
-        return { payload: reply };
-      }
-    } else if (command && typeof command === 'object') {
+
+    const maybeCommand = payload['1'];
+
+    if (typeof maybeCommand === 'string') {
+      const command = coerceEnum<SimplePlayback>(maybeCommand, SimplePlayback);
+      const actions: Record<SimplePlayback, () => SimpleTimerState> = {
+        [SimplePlayback.Start]: auxTimerService.start,
+        [SimplePlayback.Stop]: auxTimerService.stop,
+        [SimplePlayback.Pause]: auxTimerService.pause,
+      };
+      const reply = actions[command].apply(auxTimerService);
+      return { payload: reply };
+    }
+
+    if (typeof maybeCommand === 'object') {
       const reply = { payload: {} };
-      if ('duration' in command) {
-        const time = numberOrError(command.duration);
+      if ('duration' in maybeCommand) {
+        const time = numberOrError(maybeCommand.duration);
         reply.payload = auxTimerService.setTime(time * 1000); //frontend is seconds based
       }
-      if ('direction' in command) {
-        if (command.direction === SimpleDirection.CountUp || command.direction === SimpleDirection.CountDown) {
-          reply.payload = auxTimerService.setDirection(command.direction);
+      if ('direction' in maybeCommand) {
+        if (
+          maybeCommand.direction === SimpleDirection.CountUp ||
+          maybeCommand.direction === SimpleDirection.CountDown
+        ) {
+          reply.payload = auxTimerService.setDirection(maybeCommand.direction);
         } else {
           throw new Error('Invalid direction payload');
         }

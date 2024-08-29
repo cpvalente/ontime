@@ -66,7 +66,12 @@ export { type TimerState, TimerPhase } from './definitions/runtime/TimerState.ty
 export type { CurrentBlockState } from './definitions/runtime/CurrentBlockState.type.js';
 
 // ---> Extra Timer
-export { type SimpleTimerState, SimplePlayback, SimpleDirection } from './definitions/runtime/AuxTimer.type.js';
+export {
+  type SimpleTimerState,
+  SimplePlayback,
+  SimpleDirection,
+  type DrivenTimerState,
+} from './definitions/runtime/AuxTimer.type.js';
 
 // CLIENT
 export type { Client, ClientList, ClientType } from './definitions/Clients.type.js';

@@ -15,3 +15,7 @@ export type SimpleTimerState = {
   playback: SimplePlayback;
   direction: SimpleDirection;
 };
+
+export type DrivenTimerState = {
+  current: number;
+};

@@ -48,6 +48,7 @@ import { initialiseProject } from './services/project-service/ProjectService.js'
 import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { getNetworkInterfaces } from './utils/networkInterfaces.js';
+import { auxTimerService } from './services/aux-timer-service/AuxTimerService.js';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -192,6 +193,7 @@ export const startServer = async (
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
     },
+    auxtimer2: { current: 0 },
     frozen: false,
   });
 
@@ -211,6 +213,7 @@ export const startServer = async (
 
   // eventStore set is a dependency of the services that publish to it
   messageService.init(eventStore.set.bind(eventStore));
+  auxTimerService.init(eventStore.set.bind(eventStore));
 
   expressServer.listen(serverPort, '0.0.0.0', () => {
     const nif = getNetworkInterfaces();
