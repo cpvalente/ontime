@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { IconButton } from '@chakra-ui/react';
 import { IoPencil } from '@react-icons/all-files/io5/IoPencil';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
-import { CustomField, CustomFieldLabel } from 'ontime-types';
+import { CustomField, CustomFieldLabel, CustomFieldType } from 'ontime-types';
 
 import Swatch from '../../../../../common/components/input/colour-input/Swatch';
 
@@ -14,12 +14,13 @@ interface CustomFieldEntryProps {
   field: string;
   colour: string;
   label: string;
+  type: CustomFieldType;
   onEdit: (label: CustomFieldLabel, patch: CustomField) => Promise<void>;
   onDelete: (label: CustomFieldLabel) => Promise<void>;
 }
 
 export default function CustomFieldEntry(props: CustomFieldEntryProps) {
-  const { colour, label, onEdit, onDelete, field } = props;
+  const { colour, label, onEdit, onDelete, field, type } = props;
   const [isEditing, setIsEditing] = useState(false);
 
   const handleEdit = async (patch: CustomField) => {
@@ -36,6 +37,7 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
             onSubmit={handleEdit}
             initialColour={colour}
             initialLabel={label}
+            initialType={type}
           />
         </td>
       </tr>
@@ -48,6 +50,7 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
         <Swatch color={colour} />
       </td>
       <td className={style.fullWidth}>{label}</td>
+      <td>{type}</td>
       <td className={style.actions}>
         <IconButton
           size='sm'

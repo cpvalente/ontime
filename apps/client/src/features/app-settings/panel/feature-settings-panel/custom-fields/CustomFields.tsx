@@ -73,17 +73,19 @@ export default function CustomFields() {
               <tr>
                 <th>Colour</th>
                 <th>Name</th>
+                <th>Type</th>
                 <th />
               </tr>
             </thead>
             <tbody>
-              {Object.entries(data).map(([key, { colour, label }]) => {
+              {Object.entries(data).map(([key, { colour, label, type }]) => {
                 return (
                   <CustomFieldEntry
                     key={key}
                     field={key}
                     colour={colour}
                     label={label}
+                    type={type}
                     onEdit={handleEditField}
                     onDelete={handleDelete}
                   />
