@@ -100,7 +100,7 @@ export default function EditorSettingsForm() {
           </Panel.ListGroup>
         </Panel.Section>
         <Panel.Section>
-          <Panel.Title>Play mode</Panel.Title>
+          <Panel.Title>Run mode</Panel.Title>
           <Panel.ListGroup>
             <Panel.ListItem>
               <Panel.Field
