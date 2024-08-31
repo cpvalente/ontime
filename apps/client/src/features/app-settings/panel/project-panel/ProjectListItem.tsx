@@ -11,13 +11,15 @@ import {
   renameProject,
 } from '../../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';
+import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../PanelUtils';
 
 import ProjectForm, { ProjectFormValues } from './ProjectForm';
+import ProjectMergeForm from './ProjectMergeForm';
 
 import style from './ProjectPanel.module.scss';
 
-export type EditMode = 'rename' | 'duplicate' | null;
+export type EditMode = 'rename' | 'duplicate' | 'merge' | null;
 
 interface ProjectListItemProps {
   current?: boolean;
@@ -28,7 +30,6 @@ interface ProjectListItemProps {
   onRefetch: () => Promise<void>;
   editingFilename: string | null;
   editingMode: EditMode | null;
-  onMerge: (filename: string) => void;
 }
 
 export default function ProjectListItem({
@@ -40,7 +41,6 @@ export default function ProjectListItem({
   onRefetch,
   onSubmit,
   onToggleEditMode,
-  onMerge,
 }: ProjectListItemProps) {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -102,8 +102,10 @@ export default function ProjectListItem({
     handleToggleEditMode(null, null);
   };
 
-  const isCurrentlyBeingEdited = editingMode && filename === editingFilename;
-  const classes = current && !isCurrentlyBeingEdited ? style.current : undefined;
+  const isCurrentlyBeingEdited = filename === editingFilename;
+  const showProjectForm = (editingMode === 'rename' || editingMode === 'duplicate') && filename === editingFilename;
+  const showMergeForm = editingMode === 'merge' && isCurrentlyBeingEdited;
+  const classes = cx([current && !isCurrentlyBeingEdited && style.current, isCurrentlyBeingEdited && style.isEditing]);
 
   return (
     <>
@@ -115,7 +117,7 @@ export default function ProjectListItem({
         </tr>
       )}
       <tr key={filename} className={classes}>
-        {isCurrentlyBeingEdited ? (
+        {showProjectForm ? (
           <td colSpan={99}>
             <ProjectForm
               action={editingMode}
@@ -127,7 +129,7 @@ export default function ProjectListItem({
         ) : (
           <>
             <td className={style.containCell}>{filename}</td>
-            <td>{new Date(updatedAt).toLocaleString()}</td>
+            <td>{current ? 'Currently loaded' : new Date(updatedAt).toLocaleString()}</td>
             <td className={style.actionButton}>
               <ActionMenu
                 current={current}
@@ -135,13 +137,20 @@ export default function ProjectListItem({
                 onChangeEditMode={handleToggleEditMode}
                 onDelete={handleDelete}
                 onLoad={handleLoad}
-                isDisabled={loading}
-                onMerge={onMerge}
+                isDisabled={loading || showMergeForm}
+                onMerge={(filename) => handleToggleEditMode('merge', filename)}
               />
             </td>
           </>
         )}
       </tr>
+      {showMergeForm && (
+        <tr>
+          <td colSpan={99}>
+            <ProjectMergeForm onClose={handleCancel} fileName={filename} />
+          </td>
+        </tr>
+      )}
     </>
   );
 }
