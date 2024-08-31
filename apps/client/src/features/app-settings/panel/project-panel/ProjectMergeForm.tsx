@@ -4,9 +4,11 @@ import { Button, Switch } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { PROJECT_DATA } from '../../../../common/api/constants';
+import { getDb, patchData } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
-import { mergeProjects } from '../../../../common/utils/mergeProjects';
 import * as Panel from '../PanelUtils';
+
+import { makeProjectPatch } from './project.utils';
 
 import style from './ProjectPanel.module.scss';
 
@@ -48,10 +50,21 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
   });
 
   const handleSubmitCreate = async (values: ProjectMergeFormValues) => {
+    const allFalse = Object.values(values).every((value) => !value);
+    if (allFalse) {
+      setError('At least one option must be selected');
+      return;
+    }
+
     try {
       setError(null);
 
-      await mergeProjects(fileName, values);
+      // make patch object
+      const { data } = await getDb(fileName);
+      const patch = await makeProjectPatch(data, values);
+
+      // request patch
+      await patchData(patch);
       await queryClient.invalidateQueries({ queryKey: PROJECT_DATA });
       onClose();
     } catch (error) {
@@ -62,7 +75,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
   return (
     <Panel.Section as='form' onSubmit={handleSubmit(handleSubmitCreate)}>
       <Panel.Title>
-        Partial load project
+        Merge {`"${fileName}"`}
         <div className={style.createActionButtons}>
           <Button onClick={onClose} variant='ontime-ghosted' size='sm' isDisabled={isSubmitting}>
             Cancel
@@ -80,7 +93,10 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
       </Panel.Title>
       {error && <Panel.Error>{error}</Panel.Error>}
       <div className={style.innerColumn}>
-        <Panel.Description>Select data to load from {`"${fileName}"`} into the current project</Panel.Description>
+        <Panel.Description>
+          Select partial data from {`"${fileName}"`} to merge into the current project.
+          <br /> This process is irreversible.
+        </Panel.Description>
         <label className={style.toggleOption}>
           <Switch variant='ontime' {...register('project')} />
           Project data

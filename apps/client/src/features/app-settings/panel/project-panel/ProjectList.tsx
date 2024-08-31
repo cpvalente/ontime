@@ -7,12 +7,7 @@ import ProjectListItem, { EditMode } from './ProjectListItem';
 
 import style from './ProjectPanel.module.scss';
 
-interface ProjectListProps {
-  onMerge: (fileName: string) => void;
-}
-
-export default function ProjectList(props: ProjectListProps) {
-  const { onMerge } = props;
+export default function ProjectList() {
   const { data, refetch } = useProjectList();
   const { files, lastLoadedProject } = data;
 
@@ -64,7 +59,6 @@ export default function ProjectList(props: ProjectListProps) {
             editingFilename={editingFilename}
             editingMode={editingMode}
             current={project.filename === lastLoadedProject}
-            onMerge={onMerge}
           />
         ))}
       </tbody>
