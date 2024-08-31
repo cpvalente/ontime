@@ -13,7 +13,7 @@ import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import Section from './timeline-section/TimelineSection';
 import Timeline from './Timeline';
 import { getTimelineOptions } from './timeline.options';
-import { getFormattedTimeToStart, getScopedRundown, getUpcomingEvents } from './timeline.utils';
+import { getFormattedTimeToStart, getUpcomingEvents, useScopedRundown } from './timeline.utils';
 
 import './TimelinePage.scss';
 
@@ -34,14 +34,10 @@ interface TimelinePageProps {
 export default function TimelinePage(props: TimelinePageProps) {
   const { backstageEvents, general, selectedId, settings, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
-
+  // holds copy of the rundown with only relevant events
+  const scopedRundown = useScopedRundown(backstageEvents, selectedId);
   const { getLocalizedString } = useTranslation();
   const clock = formatTime(time.clock);
-
-  // holds copy of the rundown with only relevant events
-  const scopedRundown = useMemo(() => {
-    return getScopedRundown(backstageEvents, selectedId);
-  }, [backstageEvents, selectedId]);
 
   const { now, next, followedBy } = useMemo(() => {
     return getUpcomingEvents(scopedRundown, selectedId);
