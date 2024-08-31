@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { isOntimeEvent, MaybeString, OntimeEvent, OntimeRundown } from 'ontime-types';
 import {
   dayInMs,
@@ -87,29 +89,34 @@ export function getStatusLabel(timeToStart: number, status: ProgressStatus): str
   return formatDuration(timeToStart);
 }
 
-export function getScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeString): OntimeRundown {
-  if (rundown.length === 0) {
-    return [];
-  }
+export function useScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeString): OntimeRundown {
+  const [searchParams] = useSearchParams();
 
-  const params = new URL(document.location.href).searchParams;
-  const hideBackstage = isStringBoolean(params.get('hideBackstage'));
-  const hidePast = isStringBoolean(params.get('hidePast'));
-
-  let scopedRundown = [...rundown];
-
-  if (hidePast && selectedEventId) {
-    const currentIndex = rundown.findIndex((event) => event.id === selectedEventId);
-    if (currentIndex >= 0) {
-      scopedRundown = scopedRundown.slice(currentIndex);
+  const data = useMemo(() => {
+    if (rundown.length === 0) {
+      return [];
     }
-  }
 
-  if (hideBackstage) {
-    scopedRundown = scopedRundown.filter((event) => !isOntimeEvent(event) || event.isPublic);
-  }
+    const hideBackstage = isStringBoolean(searchParams.get('hideBackstage'));
+    const hidePast = isStringBoolean(searchParams.get('hidePast'));
 
-  return scopedRundown;
+    let scopedRundown = [...rundown];
+
+    if (hidePast && selectedEventId) {
+      const currentIndex = rundown.findIndex((event) => event.id === selectedEventId);
+      if (currentIndex >= 0) {
+        scopedRundown = scopedRundown.slice(currentIndex);
+      }
+    }
+
+    if (hideBackstage) {
+      scopedRundown = scopedRundown.filter((event) => !isOntimeEvent(event) || event.isPublic);
+    }
+
+    return scopedRundown;
+  }, [rundown, searchParams, selectedEventId]);
+
+  return data;
 }
 
 type UpcomingEvents = {
