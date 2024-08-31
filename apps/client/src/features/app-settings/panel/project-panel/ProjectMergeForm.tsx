@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Switch, Tooltip } from '@chakra-ui/react';
+import { Button, Switch } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { PROJECT_DATA } from '../../../../common/api/constants';
@@ -32,8 +32,16 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
   const {
     handleSubmit,
     register,
-    formState: { isSubmitting, isValid },
+    formState: { isSubmitting, isValid, isDirty },
   } = useForm<ProjectMergeFormValues>({
+    defaultValues: {
+      project: false,
+      rundown: false,
+      viewSettings: false,
+      urlPresets: false,
+      osc: false,
+      http: false,
+    },
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -54,47 +62,49 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
   return (
     <Panel.Section as='form' onSubmit={handleSubmit(handleSubmitCreate)}>
       <Panel.Title>
-        Partially load {`"${fileName}"`} into this project
+        Partial load project
         <div className={style.createActionButtons}>
           <Button onClick={onClose} variant='ontime-ghosted' size='sm' isDisabled={isSubmitting}>
             Cancel
           </Button>
-          <Button isDisabled={!isValid} type='submit' isLoading={isSubmitting} variant='ontime-filled' size='sm'>
+          <Button
+            isDisabled={!isValid || !isDirty}
+            type='submit'
+            isLoading={isSubmitting}
+            variant='ontime-filled'
+            size='sm'
+          >
             Merge
           </Button>
         </div>
       </Panel.Title>
       {error && <Panel.Error>{error}</Panel.Error>}
       <div className={style.innerColumn}>
+        <Panel.Description>Select data to load from {`"${fileName}"`} into the current project</Panel.Description>
+        <label className={style.toggleOption}>
+          <Switch variant='ontime' {...register('project')} />
+          Project data
+        </label>
+        <label className={style.toggleOption}>
+          <Switch variant='ontime' {...register('rundown')} />
+          Rundown + Custom Fields
+        </label>
+        <label className={style.toggleOption}>
+          <Switch variant='ontime' {...register('viewSettings')} />
+          View Settings
+        </label>
         <span className={style.toggleOption}>
-          <span>Project data</span>
-          <Switch variant='ontime' size='md' defaultChecked={false} {...register('project')} />
+          <Switch variant='ontime' {...register('urlPresets')} />
+          URL Presets
         </span>
-        <span className={style.toggleOption}>
-          <span>
-            Rundown{' '}
-            <Tooltip label='The rundown requires the correct custom fields to be preset so they can only be imported together'>
-              (and Custom Filleds)
-            </Tooltip>
-          </span>
-          <Switch variant='ontime' size='md' defaultChecked={false} {...register('rundown')} />
-        </span>
-        <span className={style.toggleOption}>
-          <span>View Settings</span>
-          <Switch variant='ontime' size='md' defaultChecked={false} {...register('viewSettings')} />
-        </span>
-        <span className={style.toggleOption}>
-          <span>Url Presets</span>
-          <Switch variant='ontime' size='md' defaultChecked={false} {...register('urlPresets')} />
-        </span>
-        <span className={style.toggleOption}>
-          <span>OSC Integration</span>
-          <Switch variant='ontime' size='md' defaultChecked={false} {...register('osc')} />
-        </span>
-        <span className={style.toggleOption}>
-          <span>HTTP Integration</span>
-          <Switch variant='ontime' size='md' defaultChecked={false} {...register('http')} />
-        </span>
+        <label className={style.toggleOption}>
+          <Switch variant='ontime' {...register('osc')} />
+          OSC Integration
+        </label>
+        <label className={style.toggleOption}>
+          <Switch variant='ontime' {...register('http')} />
+          HTTP Integration
+        </label>
       </div>
     </Panel.Section>
   );
