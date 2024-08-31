@@ -42,6 +42,11 @@ $orange-active: #f60;
   grid-template-areas: 'clock schedule';
   text-transform: uppercase;
 
+  &.hide-right {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'clock';
+  }
+
   .clock-container {
     grid-area: clock;
     display: grid;

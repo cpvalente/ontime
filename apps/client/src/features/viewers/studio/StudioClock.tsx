@@ -1,7 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
-import type { OntimeEvent, OntimeRundown, Settings, ViewSettings } from 'ontime-types';
-import { isOntimeEvent, Playback } from 'ontime-types';
-import { millisToString, removeSeconds } from 'ontime-utils';
+import type { MaybeString, OntimeEvent, OntimeRundown, Settings, ViewSettings } from 'ontime-types';
+import { Playback } from 'ontime-types';
+import { millisToString, removeSeconds, secondsInMillis } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
@@ -10,11 +10,10 @@ import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
-import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { isStringBoolean } from '../common/viewUtils';
 
 import { getStudioClockOptions } from './studioClock.options';
-import { secondsInMillis, trimRundown } from './studioClock.utils';
+import StudioClockSchedule from './StudioClockSchedule';
 
 import './StudioClock.scss';
 
@@ -23,8 +22,8 @@ interface StudioClockProps {
   eventNext: OntimeEvent | null;
   time: ViewExtendedTimer;
   backstageEvents: OntimeRundown;
-  selectedId: string | null;
-  nextId: string | null;
+  selectedId: MaybeString;
+  nextId: MaybeString;
   onAir: boolean;
   viewSettings: ViewSettings;
   settings: Settings | undefined;
@@ -38,15 +37,12 @@ export default function StudioClock(props: StudioClockProps) {
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { fontSize: titleFontSize, ref: titleRef } = useFitText({ minFontSize: 150, maxFontSize: 500 });
 
-  const activeIndicators = [...Array(12).keys()];
-  const secondsIndicators = [...Array(60).keys()];
-
-  // TODO: fit titles on screen
-  const MAX_TITLES = 11;
-
   const [searchParams] = useSearchParams();
 
   useWindowTitle('Studio Clock');
+
+  const activeIndicators = [...Array(12).keys()];
+  const secondsIndicators = [...Array(60).keys()];
 
   let clock = formatTime(time.clock);
   let hasAmPm = '';
@@ -65,8 +61,7 @@ export default function StudioClock(props: StudioClockProps) {
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const studioClockOptions = getStudioClockOptions(defaultFormat);
 
-  const delayed = backstageEvents.filter((event) => isOntimeEvent(event)) as OntimeEvent[];
-  const trimmedRundown = trimRundown(delayed, selectedId, MAX_TITLES);
+  const hideRight = isStringBoolean(searchParams.get('hideRight'));
   let timer = millisToString(time.current, { fallback: '---' });
   const hideSeconds = isStringBoolean(searchParams.get('hideTimerSeconds'));
   if (time.current != null && hideSeconds) {
@@ -74,7 +69,10 @@ export default function StudioClock(props: StudioClockProps) {
   }
 
   return (
-    <div className={`studio-clock ${isMirrored ? 'mirror' : ''}`} data-testid='studio-view'>
+    <div
+      className={`studio-clock ${isMirrored ? 'mirror' : ''} ${hideRight ? 'hide-right' : ''}`}
+      data-testid='studio-view'
+    >
       <ViewParamsEditor viewOptions={studioClockOptions} />
       <div className='clock-container'>
         {hasAmPm && <div className='clock__ampm'>{hasAmPm}</div>}
@@ -114,31 +112,9 @@ export default function StudioClock(props: StudioClockProps) {
           ))}
         </div>
       </div>
-      <div className='schedule-container'>
-        <div
-          className={onAir ? 'onAir' : 'onAir onAir--idle'}
-          data-testid={onAir ? 'on-air-enabled' : 'on-air-disabled'}
-        >
-          ON AIR
-        </div>
-        <ul className='schedule'>
-          {trimmedRundown.map((event) => {
-            const start = formatTime(event.timeStart + (event?.delay ?? 0), { format12: 'h:mm a', format24: 'HH:mm' });
-            const isSelected = event.id === selectedId;
-            const isNext = event.id === nextId;
-            const classes = `schedule__item schedule__item${isSelected ? '--now' : isNext ? '--next' : '--future'}`;
-            return (
-              <li key={event.id} className={classes}>
-                <span className='event'>
-                  <span className='event__colour' style={{ backgroundColor: `${event.colour}` }} />
-                  <SuperscriptTime time={start} />
-                </span>
-                <span>{event.title}</span>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+      {!hideRight && (
+        <StudioClockSchedule rundown={backstageEvents} selectedId={selectedId} nextId={nextId} onAir={onAir} />
+      )}
     </div>
   );
 }

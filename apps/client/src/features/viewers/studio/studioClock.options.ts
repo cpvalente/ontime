@@ -6,4 +6,12 @@ export const getStudioClockOptions = (timeFormat: string): ViewOption[] => [
   getTimeOption(timeFormat),
   { section: 'Timer Options' },
   hideTimerSeconds,
+  { section: 'Element visibility' },
+  {
+    id: 'hideRight',
+    title: 'Hide right section',
+    description: 'Hides the right section with On Air indicator and the schedule',
+    type: 'boolean',
+    defaultValue: false,
+  },
 ];
