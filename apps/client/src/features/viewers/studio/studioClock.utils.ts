@@ -1,5 +1,4 @@
-import { MaybeNumber, OntimeEvent } from 'ontime-types';
-import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
+import { OntimeEvent } from 'ontime-types';
 
 /**
  * @description Returns trimmed event list array
@@ -19,16 +18,4 @@ export function trimRundown(rundown: OntimeEvent[], selectedId: string | null, l
   const endIndex = Math.min(startIndex + limit, rundown.length);
   const trimmedRundown = rundown.slice(startIndex, endIndex);
   return trimmedRundown;
-}
-
-/**
- * @description Returns amount of seconds in a date given in milliseconds. For studio clock second indicator
- * @param {MaybeNumber} millis time to format
- * @returns amount of elapsed seconds
- */
-export function secondsInMillis(millis: MaybeNumber): number {
-  if (!millis) {
-    return 0;
-  }
-  return Math.floor((millis % MILLIS_PER_MINUTE) / MILLIS_PER_SECOND);
 }

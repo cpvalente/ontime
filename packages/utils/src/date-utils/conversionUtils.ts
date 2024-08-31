@@ -64,3 +64,15 @@ export function secondsToMinutes(seconds: number): number {
 export function secondsToHours(seconds: number): number {
   return Math.floor(seconds / 3600);
 }
+
+/**
+ * @description Returns amount of seconds in a date given in milliseconds. For studio clock second indicator
+ * @param {MaybeNumber} millis time to format
+ * @returns amount of elapsed seconds
+ */
+export function secondsInMillis(millis: MaybeNumber): number {
+  if (!millis) {
+    return 0;
+  }
+  return Math.floor((millis % MILLIS_PER_MINUTE) / MILLIS_PER_SECOND);
+}

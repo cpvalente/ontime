@@ -42,6 +42,7 @@ export {
   millisToHours,
   millisToMinutes,
   millisToSeconds,
+  secondsInMillis,
 } from './src/date-utils/conversionUtils.js';
 export { isTimeString } from './src/date-utils/isTimeString.js';
 export {

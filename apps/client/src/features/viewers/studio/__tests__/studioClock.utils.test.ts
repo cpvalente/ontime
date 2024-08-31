@@ -1,6 +1,6 @@
 import { OntimeEvent } from 'ontime-types';
 
-import { secondsInMillis, trimRundown } from '../studioClock.utils';
+import { trimRundown } from '../studioClock.utils';
 
 describe('test trimEventlist function', () => {
   const limit = 8;
@@ -116,16 +116,5 @@ describe('test trimEventlist function', () => {
     const l = trimRundown(testData as OntimeEvent[], selectedId, limit);
     expect(l.length).toBe(limit);
     expect(l).toStrictEqual(expected);
-  });
-});
-
-describe('secondsInMillis()', () => {
-  it('return 0 if value is null', () => {
-    expect(secondsInMillis(null)).toBe(0);
-  });
-  it('returns the seconds value of a millis date', () => {
-    const date = 1686255053619; // Thu Jun 08 2023 20:10:53
-    const seconds = secondsInMillis(date);
-    expect(seconds).toBe(53);
   });
 });
