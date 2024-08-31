@@ -126,13 +126,12 @@ export function getUpcomingEvents(events: OntimeRundown, selectedId: MaybeString
     return { now: null, next: null, followedBy: null };
   }
 
-  const now = selectedId ? getEventWithId(events, selectedId) : getFirstEvent(events)?.firstEvent;
-
+  let now = selectedId ? getEventWithId(events, selectedId) : null;
   if (!isOntimeEvent(now)) {
-    return { now: null, next: null, followedBy: null };
+    now = null;
   }
 
-  const next = getNextEvent(events, now.id)?.nextEvent;
+  const next = now ? getNextEvent(events, now.id)?.nextEvent : getFirstEvent(events).firstEvent;
   const followedBy = next ? getNextEvent(events, next.id)?.nextEvent : null;
 
   // Return the titles, handling nulls appropriately
