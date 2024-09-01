@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { CustomFields } from 'ontime-types';
 
-import { queryRefetchInterval } from '../../ontimeConfig';
+import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { CUSTOM_FIELDS } from '../api/constants';
 import { getCustomFields } from '../api/customFields';
 
@@ -14,7 +14,7 @@ export default function useCustomFields() {
     placeholderData: (previousData, _previousQuery) => previousData,
     retry: 5,
     retryDelay: (attempt) => attempt * 2500,
-    refetchInterval: queryRefetchInterval,
+    refetchInterval: queryRefetchIntervalSlow,
     networkMode: 'always',
   });
 

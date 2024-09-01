@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { NormalisedRundown, OntimeRundown, RundownCached } from 'ontime-types';
 
-import { queryRefetchInterval } from '../../ontimeConfig';
+import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { RUNDOWN } from '../api/constants';
 import { fetchNormalisedRundown } from '../api/rundown';
 
@@ -16,7 +16,7 @@ export default function useRundown() {
     placeholderData: (previousData, _previousQuery) => previousData,
     retry: 5,
     retryDelay: (attempt) => attempt * 2500,
-    refetchInterval: queryRefetchInterval,
+    refetchInterval: queryRefetchIntervalSlow,
     networkMode: 'always',
   });
   return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
