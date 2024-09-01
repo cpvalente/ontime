@@ -3,7 +3,7 @@
 }
 
 .isEditing {
-  color:  $blue-500;
+  color: $blue-500;
 }
 
 .actionButton {
@@ -53,10 +53,9 @@
   display: flex;
   flex-direction: column;
   gap: 1em;
-}
 
-.toggleOption {
-  display: flex;
-  flex-direction: row;
-  gap: 1em;
+  label {
+    display: flex;
+    gap: 1em;
+  }
 }

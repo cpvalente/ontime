@@ -97,27 +97,27 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
           Select partial data from {`"${fileName}"`} to merge into the current project.
           <br /> This process is irreversible.
         </Panel.Description>
-        <label className={style.toggleOption}>
+        <label>
           <Switch variant='ontime' {...register('project')} />
           Project data
         </label>
-        <label className={style.toggleOption}>
+        <label>
           <Switch variant='ontime' {...register('rundown')} />
           Rundown + Custom Fields
         </label>
-        <label className={style.toggleOption}>
+        <label>
           <Switch variant='ontime' {...register('viewSettings')} />
           View Settings
         </label>
-        <span className={style.toggleOption}>
+        <label>
           <Switch variant='ontime' {...register('urlPresets')} />
           URL Presets
-        </span>
-        <label className={style.toggleOption}>
+        </label>
+        <label>
           <Switch variant='ontime' {...register('osc')} />
           OSC Integration
         </label>
-        <label className={style.toggleOption}>
+        <label>
           <Switch variant='ontime' {...register('http')} />
           HTTP Integration
         </label>
