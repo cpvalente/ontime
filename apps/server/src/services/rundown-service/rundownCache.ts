@@ -215,6 +215,7 @@ export function getMetadata() {
     lastEnd,
     totalDelay,
     totalDuration,
+    revision,
   };
 }
 
@@ -242,6 +243,12 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
     isStale = true;
 
     const { newEvent, newRundown, didMutate } = mutation({ ...params, persistedRundown });
+
+    // early return without calling side effects
+    if (!didMutate) {
+      isStale = false;
+      return { newEvent, newRundown, didMutate };
+    }
 
     revision = revision + 1;
     persistedRundown = newRundown;

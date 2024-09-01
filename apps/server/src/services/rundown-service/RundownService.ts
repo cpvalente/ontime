@@ -247,7 +247,11 @@ function notifyChanges(options: { timer?: boolean | string[]; external?: boolean
 
   if (options.external) {
     // advice socket subscribers of change
-    sendRefetch(Array.isArray(options.timer) ? options.timer : undefined);
+    const payload = {
+      changes: Array.isArray(options.timer) ? options.timer : undefined,
+      revision: cache.getMetadata().revision,
+    };
+    sendRefetch(payload);
   }
 }
 

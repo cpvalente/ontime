@@ -1,6 +1,6 @@
-import { Log, RuntimeStore } from 'ontime-types';
+import { Log, RundownCached, RuntimeStore } from 'ontime-types';
 
-import { CLIENT_LIST, isProduction, RUNTIME, websocketUrl } from '../api/constants';
+import { CLIENT_LIST, CUSTOM_FIELDS, isProduction, RUNDOWN, RUNTIME, websocketUrl } from '../api/constants';
 import { ontimeQueryClient } from '../queryClient';
 import {
   getClientId,
@@ -174,6 +174,17 @@ export const connectSocket = () => {
         case 'ontime-auxtimer1': {
           patchRuntime('auxtimer1', payload);
           updateDevTools({ auxtimer1: payload });
+          break;
+        }
+        case 'ontime-refetch': {
+          // the refetch message signals that the rundown has changed in the server side
+          const { revision } = payload;
+          const currentRevision = ontimeQueryClient.getQueryData<RundownCached>(RUNDOWN)?.revision ?? -1;
+
+          if (revision > currentRevision) {
+            ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
+            ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
+          }
           break;
         }
       }
