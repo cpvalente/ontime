@@ -9,7 +9,7 @@ export type ProjectFormValues = {
 };
 
 interface ProjectFormProps {
-  action: 'duplicate' | 'rename';
+  action: 'duplicate' | 'rename' | 'merge';
   filename: string;
   onCancel: () => void;
   onSubmit: (values: ProjectFormValues) => Promise<void>;
