@@ -666,6 +666,42 @@ class RuntimeService {
       logger.info(LogOrigin.Playback, `${time > 0 ? 'Added' : 'Removed'} ${millisToString(time)}`);
     }
   }
+
+  /**
+   * Utility calculates the speed factor necessary to finish on time
+   * @returns {number} speed factor needed to meet schedule
+   */
+  public calculateSpeed(): number {
+    return runtimeState.calculateSpeed();
+  }
+
+  /**
+   * @returns {number} speed factor currently applied
+   */
+  public getSpeed(): number {
+    return runtimeState.getSpeed();
+  }
+
+  /**
+   * Applies a speed factor to current timer
+   * @param {number} speed - speed factor
+   * @returns {number} applied speed factor
+   */
+  public setSpeed(speed: number): number {
+    // TODO: validate state
+    // TODO: validate value
+    runtimeState.setSpeed(speed);
+    return runtimeState.getSpeed();
+  }
+
+  /**
+   * Resets the speed of the current timer
+   * @returns {number} applied speed factor
+   */
+  public resetSpeed(): number {
+    runtimeState.resetSpeed();
+    return runtimeState.getSpeed();
+  }
 }
 
 // calculate at 30fps, refresh at 1fps

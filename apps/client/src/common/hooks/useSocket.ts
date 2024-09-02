@@ -41,6 +41,17 @@ export const useExternalMessageInput = createSelector((state: RuntimeStore) => (
   visible: state.message.timer.secondarySource === 'external',
 }));
 
+export const useTimerSchedule = createSelector((state: RuntimeStore) => ({
+  startedAt: state.timer.startedAt,
+  expectedFinish: state.timer.expectedFinish,
+  phase: state.timer.phase,
+  playback: state.timer.playback,
+}));
+
+export const useTimerCurrent = createSelector((state: RuntimeStore) => ({
+  current: state.timer.current,
+}));
+
 export const useMessagePreview = createSelector((state: RuntimeStore) => ({
   blink: state.message.timer.blink,
   blackout: state.message.timer.blackout,
@@ -112,6 +123,16 @@ export const setAuxTimer = {
   stop: () => socketSendJson('auxtimer', { '1': SimplePlayback.Stop }),
   setDirection: (direction: SimpleDirection) => socketSendJson('auxtimer', { '1': { direction } }),
   setDuration: (time: number) => socketSendJson('auxtimer', { '1': { duration: time } }),
+};
+
+export const useTimerSpeed = createSelector((state: RuntimeStore) => ({
+  speed: state.timer.speed,
+}));
+
+export const setTimerSpeed = {
+  calculateSpeed: () => socketSendJson('calculate-speed'),
+  getSpeed: () => socketSendJson('get-speed'),
+  setSpeed: (speed: number) => socketSendJson('set-speed', speed),
 };
 
 export const useSelectedEventId = createSelector((state: RuntimeStore) => ({

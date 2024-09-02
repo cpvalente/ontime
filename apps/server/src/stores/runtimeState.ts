@@ -350,6 +350,33 @@ export function updateAll(rundown: OntimeRundown) {
   loadBlock(rundown);
 }
 
+export function setSpeed(speed: number) {
+  runtimeState.timer.speed = speed;
+}
+
+export function resetSpeed() {
+  runtimeState.timer.speed = 1.0;
+}
+
+export function getSpeed() {
+  return runtimeState.timer.speed;
+}
+
+export function calculateSpeed() {
+  // TODO: what should this return if no timer is running?
+  if (runtimeState.eventNow !== null) {
+    const timeToDesiredFinish = runtimeState.eventNow.timeEnd - runtimeState.clock;
+    const timeToActualFinish = runtimeState.timer.expectedFinish - runtimeState.clock;
+    const factor = 1 / (timeToDesiredFinish / timeToActualFinish);
+
+    // TODO: this can produce negative speeds (i.e. the desired finish time is in the past)
+    // TODO: should there be some clamping or rounding on this number?
+    return factor;
+  }
+
+  return 1.0;
+}
+
 export function start(state: RuntimeState = runtimeState): boolean {
   if (state.eventNow === null) {
     return false;
@@ -464,6 +491,7 @@ export type UpdateResult = {
 };
 
 export function update(): UpdateResult {
+  const timeSinceLastUpdate = clock.timeNow() - runtimeState.clock;
   // 0. there are some things we always do
   const previousClock = runtimeState.clock;
   runtimeState.clock = clock.timeNow(); // we update the clock on every update call
@@ -488,6 +516,12 @@ export function update(): UpdateResult {
     if (runtimeState.timer.duration === null) {
       throw new Error('runtimeState.update: invalid state received');
     }
+  }
+
+  const catchUpMultiplier = 1 - runtimeState.timer.speed;
+
+  if (runtimeState.timer.playback === Playback.Play) {
+    runtimeState.timer.addedTime += timeSinceLastUpdate * catchUpMultiplier;
   }
 
   // update timer state
