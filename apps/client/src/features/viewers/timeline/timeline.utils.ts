@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { isOntimeEvent, MaybeString, OntimeEvent, OntimeRundown } from 'ontime-types';
+import { isOntimeEvent, isPlayableEvent, MaybeString, OntimeEvent, OntimeRundown, PlayableEvent } from 'ontime-types';
 import {
   dayInMs,
   getEventWithId,
   getFirstEvent,
   getNextEvent,
+  getTimeFromPrevious,
+  isNewLatest,
   MILLIS_PER_HOUR,
   millisToString,
   removeSeconds,
@@ -89,31 +91,80 @@ export function getStatusLabel(timeToStart: number, status: ProgressStatus): str
   return formatDuration(timeToStart);
 }
 
-export function useScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeString): OntimeRundown {
+interface ScopedRundownData {
+  scopedRundown: PlayableEvent[];
+  firstStart: number;
+  totalDuration: number;
+}
+
+export function useScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeString): ScopedRundownData {
   const [searchParams] = useSearchParams();
 
   const data = useMemo(() => {
     if (rundown.length === 0) {
-      return [];
+      return { scopedRundown: [], firstStart: 0, totalDuration: 0 };
     }
 
     const hideBackstage = isStringBoolean(searchParams.get('hideBackstage'));
     const hidePast = isStringBoolean(searchParams.get('hidePast'));
 
-    let scopedRundown = [...rundown];
+    const scopedRundown: PlayableEvent[] = [];
+    let selectedIndex = selectedEventId ? Infinity : -1;
+    let firstStart = null;
+    let totalDuration = 0;
+    let lastEntry: PlayableEvent | null = null;
 
-    if (hidePast && selectedEventId) {
-      const currentIndex = rundown.findIndex((event) => event.id === selectedEventId);
-      if (currentIndex >= 0) {
-        scopedRundown = scopedRundown.slice(currentIndex);
+    for (let i = 0; i < rundown.length; i++) {
+      const currentEntry = rundown[i];
+      // we only deal with playableEvents
+      if (isOntimeEvent(currentEntry) && isPlayableEvent(currentEntry)) {
+        if (currentEntry.id === selectedEventId) {
+          selectedIndex = i;
+        }
+
+        // maybe filter past
+        if (hidePast && i < selectedIndex) {
+          continue;
+        }
+
+        // maybe filter backstage
+        if (!currentEntry.isPublic && hideBackstage) {
+          continue;
+        }
+
+        // add to scopedRundown
+        scopedRundown.push(currentEntry);
+
+        /**
+         * Derive timers
+         * This logic is partially from rundownCache.generate
+         * With the addition of deriving the current day offset
+         */
+        if (firstStart === null) {
+          firstStart = currentEntry.timeStart;
+        }
+
+        const timeFromPrevious: number = getTimeFromPrevious(
+          currentEntry.timeStart,
+          lastEntry?.timeStart,
+          lastEntry?.timeEnd,
+          lastEntry?.duration,
+        );
+
+        if (timeFromPrevious === 0) {
+          totalDuration += currentEntry.duration;
+        } else if (timeFromPrevious > 0) {
+          totalDuration += timeFromPrevious + currentEntry.duration;
+        } else if (timeFromPrevious < 0) {
+          totalDuration += Math.max(currentEntry.duration + timeFromPrevious, 0);
+        }
+        if (isNewLatest(currentEntry.timeStart, currentEntry.timeEnd, lastEntry?.timeStart, lastEntry?.timeEnd)) {
+          lastEntry = currentEntry;
+        }
       }
     }
 
-    if (hideBackstage) {
-      scopedRundown = scopedRundown.filter((event) => !isOntimeEvent(event) || event.isPublic);
-    }
-
-    return scopedRundown;
+    return { scopedRundown, firstStart: firstStart ?? 0, totalDuration };
   }, [rundown, searchParams, selectedEventId]);
 
   return data;

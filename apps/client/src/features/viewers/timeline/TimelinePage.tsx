@@ -35,7 +35,7 @@ export default function TimelinePage(props: TimelinePageProps) {
   const { backstageEvents, general, selectedId, settings, time, viewSettings } = props;
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   // holds copy of the rundown with only relevant events
-  const scopedRundown = useScopedRundown(backstageEvents, selectedId);
+  const { scopedRundown, firstStart, totalDuration } = useScopedRundown(backstageEvents, selectedId);
   const { getLocalizedString } = useTranslation();
   const clock = formatTime(time.clock);
 
@@ -82,7 +82,12 @@ export default function TimelinePage(props: TimelinePageProps) {
           category='next'
         />
       </div>
-      <Timeline selectedEventId={selectedId} rundown={scopedRundown} />
+      <Timeline
+        firstStart={firstStart}
+        rundown={scopedRundown}
+        selectedEventId={selectedId}
+        totalDuration={totalDuration}
+      />
     </div>
   );
 }

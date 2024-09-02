@@ -3,33 +3,33 @@ import { useViewportSize } from '@mantine/hooks';
 import { isOntimeEvent, isPlayableEvent, MaybeNumber, OntimeRundown } from 'ontime-types';
 import { checkIsNextDay, dayInMs, getLastEvent, MILLIS_PER_HOUR } from 'ontime-utils';
 
-import { useTimelineOverview } from '../../../common/hooks/useSocket';
-
 import TimelineMarkers from './timeline-markers/TimelineMarkers';
-import ProgressBar from './timeline-progress-bar/TimelineProgressBar';
+import TimelineProgressBar from './timeline-progress-bar/TimelineProgressBar';
 import { getElementPosition, getEndHour, getStartHour } from './timeline.utils';
 import { ProgressStatus, TimelineEntry } from './TimelineEntry';
 
 import style from './Timeline.module.scss';
 
 interface TimelineProps {
-  selectedEventId: string | null;
+  firstStart: number;
   rundown: OntimeRundown;
+  selectedEventId: string | null;
+  totalDuration: number;
 }
 
 export default memo(Timeline);
 
 function Timeline(props: TimelineProps) {
-  const { selectedEventId, rundown } = props;
+  const { firstStart, rundown, selectedEventId, totalDuration } = props;
   const { width: screenWidth } = useViewportSize();
-  const { plannedStart, plannedEnd } = useTimelineOverview();
 
-  if (plannedStart === null || plannedEnd === null) {
+  if (totalDuration === 0) {
     return null;
   }
+
   const { lastEvent } = getLastEvent(rundown);
-  const startHour = getStartHour(plannedStart);
-  const endHour = getEndHour(plannedEnd + (lastEvent?.delay ?? 0));
+  const startHour = getStartHour(firstStart);
+  const endHour = getEndHour(firstStart + totalDuration + (lastEvent?.delay ?? 0));
 
   let previousEventStartTime: MaybeNumber = null;
   // we use selectedEventId as a signifier on whether the timeline is live
@@ -39,7 +39,7 @@ function Timeline(props: TimelineProps) {
   return (
     <div className={style.timeline}>
       <TimelineMarkers startHour={startHour} endHour={endHour} />
-      <ProgressBar startHour={startHour} endHour={endHour} />
+      <TimelineProgressBar startHour={startHour} endHour={endHour} />
       <div className={style.timelineEvents}>
         {rundown.map((event) => {
           // for now we dont render delays and blocks
