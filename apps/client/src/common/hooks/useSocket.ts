@@ -187,15 +187,6 @@ export const useRuntimePlaybackOverview = () => {
   return useRuntimeStore(featureSelector);
 };
 
-export const useTimelineOverview = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    plannedStart: state.runtime.plannedStart,
-    plannedEnd: state.runtime.plannedEnd,
-  });
-
-  return useRuntimeStore(featureSelector);
-};
-
 export const useTimelineStatus = () => {
   const featureSelector = (state: RuntimeStore) => ({
     clock: state.clock,
