@@ -1,0 +1,69 @@
+.panelContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+// TODO: unify panel label
+.label {
+  display: block;
+  font-size: $inner-section-text-size;
+  color: $label-gray;
+}
+
+.highlight {
+  color: $orange-600;
+}
+
+.speedContainer {
+  background-color: $gray-1100;
+  width: 100%;
+  height: 4px;
+  border-radius: 1px;
+  position: relative;
+  overflow: hidden;
+}
+
+.speedRegular {
+  position: absolute;
+  left: 0;
+  height: 100%;
+  width: 33.33%;
+  background-color: $ui-white;
+}
+
+.speedOverride {
+  position: absolute;
+  background-color: $orange-700;
+  left: 0;
+  height: 100%;
+  width: calc(var(--override, 0) * 1%);
+}
+
+.labels {
+  margin-top: 0.25rem;
+  font-size: calc(1rem - 3px);
+  color: $label-gray;
+  position: relative;
+
+  > span {
+    position: absolute;
+    transform: translateX(-50%);
+  }
+
+  &:last-child {
+    transform: translateX(-100%);
+  }
+
+  .override {
+    color: $gray-1100;
+    background-color: $orange-600;
+    padding: 0 0.25rem;
+    border-radius: 2px;
+    top: calc(-4px - 0.5rem); // speed + gap * 2
+    transform: translateY(-100%);
+    // TODO: account for case where we translate all the way left
+    font-weight: 600;
+  }
+}
