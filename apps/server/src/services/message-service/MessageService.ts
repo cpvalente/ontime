@@ -1,68 +1,63 @@
-import { DeepPartial, Message, TimerMessage, MessageState } from 'ontime-types';
+import { TimerMessage, MessageState } from 'ontime-types';
+import { DeepPartial } from 'ts-essentials';
 
 import { throttle } from '../../utils/throttle.js';
-
 import type { PublishFn } from '../../stores/EventStore.js';
 
-let instance: MessageService | null = null;
+const defaultTimer: TimerMessage = {
+  text: '',
+  visible: false,
+  blink: false,
+  blackout: false,
+  secondarySource: null,
+};
 
-class MessageService {
-  timer: TimerMessage;
-  external: Message;
+let timer = { ...defaultTimer };
+let external = '';
 
-  private throttledSet: PublishFn;
-  private publish: PublishFn | null;
+let throttledSet: PublishFn | null = null;
 
-  constructor() {
-    if (instance) {
-      throw new Error('There can be only one');
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
-    instance = this;
-
-    this.throttledSet = () => {
-      throw new Error('Published called before initialisation');
-    };
-
-    this.clear();
-  }
-
-  clear() {
-    this.timer = {
-      text: '',
-      visible: false,
-      blink: false,
-      blackout: false,
-    };
-
-    this.external = {
-      text: '',
-      visible: false,
-    };
-  }
-
-  init(publish: PublishFn) {
-    this.publish = publish;
-    this.throttledSet = throttle((key, value) => this.publish?.(key, value), 100);
-  }
-
-  getState(): MessageState {
-    return {
-      timer: this.timer,
-      external: this.external,
-    };
-  }
-
-  patch(message: DeepPartial<MessageState>) {
-    if (message.timer) this.timer = { ...this.timer, ...message.timer };
-    if (message.external) this.external = { ...this.external, ...message.external };
-
-    const newState = this.getState();
-
-    this.throttledSet('message', newState);
-    return newState;
-  }
+/**
+ * Initialises the message service with a publish function
+ * @param publishFn
+ */
+export function init(publishFn: PublishFn) {
+  throttledSet = throttle(publishFn, 100);
 }
 
-export const messageService = new MessageService();
+/**
+ * Exposes function to reset the internal state
+ */
+export function clear() {
+  timer = { ...defaultTimer };
+  external = '';
+}
+
+/**
+ * Exposes the internal state of the message service
+ */
+export function getState(): MessageState {
+  return {
+    external,
+    timer,
+  };
+}
+
+/**
+ * Utility function allows patching internal object
+ */
+export function patch(patch: DeepPartial<MessageState>): MessageState {
+  // we cannot call patch before init
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: {
+    if (throttledSet === null) {
+      throw new Error('MessageService.patch() called before init()');
+    }
+  }
+
+  if ('timer' in patch) timer = { ...timer, ...patch.timer };
+  if ('external' in patch && patch.external !== undefined) external = patch.external;
+  const newState = getState();
+  throttledSet?.('message', newState);
+  return newState;
+}

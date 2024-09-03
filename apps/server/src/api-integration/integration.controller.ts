@@ -1,9 +1,11 @@
-import { DeepPartial, MessageState, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { MessageState, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_SECOND } from 'ontime-utils';
+
+import { DeepPartial } from 'ts-essentials';
 
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { auxTimerService } from '../services/aux-timer-service/AuxTimerService.js';
-import { messageService } from '../services/message-service/MessageService.js';
+import * as messageService from '../services/message-service/MessageService.js';
 import { validateMessage, validateTimerMessage } from '../services/message-service/messageUtils.js';
 import { runtimeService } from '../services/runtime-service/RuntimeService.js';
 import { eventStore } from '../stores/EventStore.js';
@@ -13,6 +15,8 @@ import { parseProperty, updateEvent } from './integration.utils.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { throttle } from '../utils/throttle.js';
 import { willCauseRegeneration } from '../services/rundown-service/rundownCacheUtils.js';
+
+import { handleLegacyMessageConversion } from './integration.legacy.js';
 
 const throttledUpdateEvent = throttle(updateEvent, 20);
 
@@ -78,9 +82,12 @@ const actionHandlers: Record<string, ActionHandler> = {
   message: (payload) => {
     assert.isObject(payload);
 
+    // TODO: remove this once we feel its been enough time, ontime 3.6.0, 20/09/2024
+    const migratedPayload = handleLegacyMessageConversion(payload);
+
     const patch: DeepPartial<MessageState> = {
-      timer: 'timer' in payload ? validateTimerMessage(payload.timer) : undefined,
-      external: 'external' in payload ? validateMessage(payload.external) : undefined,
+      timer: 'timer' in migratedPayload ? validateTimerMessage(migratedPayload.timer) : undefined,
+      external: 'external' in migratedPayload ? validateMessage(migratedPayload.external) : undefined,
     };
 
     const newMessage = messageService.patch(patch);

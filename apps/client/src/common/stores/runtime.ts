@@ -23,11 +23,9 @@ export const runtimeStorePlaceholder: RuntimeStore = {
       visible: false,
       blink: false,
       blackout: false,
+      secondarySource: null,
     },
-    external: {
-      text: '',
-      visible: false,
-    },
+    external: '',
   },
   runtime: {
     selectedEventIndex: null,

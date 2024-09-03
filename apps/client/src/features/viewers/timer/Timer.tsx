@@ -2,11 +2,11 @@ import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   CustomFields,
-  Message,
+  MessageState,
   OntimeEvent,
   Playback,
   Settings,
-  TimerMessage,
+  SimpleTimerState,
   TimerPhase,
   TimerType,
   ViewSettings,
@@ -48,19 +48,19 @@ const titleVariants = {
 export const MotionTitleCard = motion(TitleCard);
 
 interface TimerProps {
+  auxTimer: SimpleTimerState;
   customFields: CustomFields;
   eventNext: OntimeEvent | null;
   eventNow: OntimeEvent | null;
-  external: Message;
   isMirrored: boolean;
-  pres: TimerMessage;
+  message: MessageState;
   settings: Settings | undefined;
   time: ViewExtendedTimer;
   viewSettings: ViewSettings;
 }
 
 export default function Timer(props: TimerProps) {
-  const { customFields, isMirrored, pres, eventNow, eventNext, time, viewSettings, external, settings } = props;
+  const { auxTimer, customFields, eventNow, eventNext, isMirrored, message, settings, time, viewSettings } = props;
 
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
@@ -114,7 +114,7 @@ export default function Timer(props: TimerProps) {
   const mainFieldNow = (main ? getPropertyValue(eventNow, main) : eventNow?.title) ?? '';
   const mainFieldNext = (main ? getPropertyValue(eventNext, main) : eventNext?.title) ?? '';
 
-  const showOverlay = pres.text !== '' && pres.visible;
+  const showOverlay = message.timer.text !== '' && message.timer.visible;
   const isPlaying = time.playback !== Playback.Pause;
 
   const timerIsTimeOfDay = time.timerType === TimerType.Clock;
@@ -128,10 +128,20 @@ export default function Timer(props: TimerProps) {
   const showFinished = finished && (shouldShowModifiers || showEndMessage);
   const showWarning = shouldShowModifiers && time.phase === TimerPhase.Warning;
   const showDanger = shouldShowModifiers && time.phase === TimerPhase.Danger;
-  const showBlinking = pres.blink;
-  const showBlackout = pres.blackout;
   const showClock = time.timerType !== TimerType.Clock;
-  const showExternal = external.visible && external.text;
+
+  const secondaryContent = ((): string | undefined => {
+    if (message.timer.secondarySource === 'aux') {
+      return getFormattedTimer(auxTimer.current, TimerType.CountDown, getLocalizedString('common.minutes'), {
+        removeSeconds: userOptions.hideTimerSeconds,
+        removeLeadingZero: userOptions.removeLeadingZeros,
+      });
+    }
+    if (message.timer.secondarySource === 'external' && message.external) {
+      return message.external;
+    }
+    return;
+  })();
 
   let timerColor = viewSettings.normalColor;
   if (!timerIsTimeOfDay && showProgress && showWarning) timerColor = viewSettings.warningColor;
@@ -146,13 +156,14 @@ export default function Timer(props: TimerProps) {
   const stageTimerCharacters = display.replace('/:/g', '').length;
 
   const baseClasses = `stage-timer ${isMirrored ? 'mirror' : ''}`;
+
   let timerFontSize = 89 / (stageTimerCharacters - 1);
   // we need to shrink the timer if the external is going to be there
-  if (showExternal) {
+  if (secondaryContent) {
     timerFontSize *= 0.8;
   }
   const externalFontSize = timerFontSize * 0.4;
-  const timerContainerClasses = `timer-container ${showBlinking ? (showOverlay ? '' : 'blink') : ''}`;
+  const timerContainerClasses = `timer-container ${message.timer.blink ? (showOverlay ? '' : 'blink') : ''}`;
   const timerClasses = `timer ${!isPlaying ? 'timer--paused' : ''} ${showFinished ? 'timer--finished' : ''}`;
 
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
@@ -161,11 +172,11 @@ export default function Timer(props: TimerProps) {
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
       <ViewParamsEditor viewOptions={timerOptions} />
-      <div className={showBlackout ? 'blackout blackout--active' : 'blackout'} />
+      <div className={message.timer.blackout ? 'blackout blackout--active' : 'blackout'} />
       {!userOptions.hideMessage && (
         <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
-          <FitText mode='multi' min={32} max={256} className={`message ${showBlinking ? 'blink' : ''}`}>
-            {pres.text}
+          <FitText mode='multi' min={32} max={256} className={`message ${message.timer.blink ? 'blink' : ''}`}>
+            {message.timer.text}
           </FitText>
         </div>
       )}
@@ -192,10 +203,10 @@ export default function Timer(props: TimerProps) {
           </div>
         )}
         <div
-          className={`external${showExternal ? '' : ' external--hidden'}`}
+          className={`external${secondaryContent ? '' : ' external--hidden'}`}
           style={{ fontSize: `${externalFontSize}vw` }}
         >
-          {external.text}
+          {secondaryContent}
         </div>
       </div>
 

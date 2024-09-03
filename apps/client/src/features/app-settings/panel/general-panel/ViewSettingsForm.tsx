@@ -147,7 +147,7 @@ export default function ViewSettingsForm() {
                 variant='ontime-filled'
                 maxLength={150}
                 width='275px'
-                placeholder='Message shown when timer reaches end'
+                placeholder='Shown when timer reaches end'
                 {...register('endMessage')}
               />
             </Panel.ListItem>

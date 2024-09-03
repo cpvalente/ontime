@@ -21,10 +21,6 @@ import EventBlockProgressBar from './composite/EventBlockProgressBar';
 
 import style from './EventBlock.module.scss';
 
-const tooltipProps = {
-  openDelay: tooltipDelayMid,
-};
-
 interface EventBlockInnerProps {
   timeStart: number;
   timeEnd: number;
@@ -98,11 +94,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
       </div>
       <div className={style.titleSection}>
         <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
-        {isNext && (
-          <Tooltip label='Next event' {...tooltipProps}>
-            <span className={style.nextTag}>UP NEXT</span>
-          </Tooltip>
-        )}
+        {isNext && <span className={style.nextTag}>UP NEXT</span>}
       </div>
       <EventBlockPlayback
         eventId={eventId}
@@ -118,17 +110,17 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           {loaded && <EventBlockProgressBar />}
         </div>
         <div className={style.eventStatus} tabIndex={-1}>
-          <Tooltip label={`Time type: ${timerType}`} {...tooltipProps}>
+          <Tooltip label={`Time type: ${timerType}`} openDelay={tooltipDelayMid}>
             <span>
               <TimerIcon type={timerType} className={style.statusIcon} />
             </span>
           </Tooltip>
-          <Tooltip label={`End action: ${endAction}`} {...tooltipProps}>
+          <Tooltip label={`End action: ${endAction}`} openDelay={tooltipDelayMid}>
             <span>
               <EndActionIcon action={endAction} className={style.statusIcon} />
             </span>
           </Tooltip>
-          <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} {...tooltipProps}>
+          <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} openDelay={tooltipDelayMid}>
             <span>
               <IoPeople className={`${style.statusIcon} ${isPublic ? style.active : style.disabled}`} />
             </span>
