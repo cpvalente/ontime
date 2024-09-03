@@ -246,6 +246,43 @@ describe('loadRoll() handle edge cases with midnight', () => {
   });
 });
 
+describe('loadRoll() handle rundowns with several days', () => {
+  it('should find the correct event, when we have many days', () => {
+    const now = 11 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE;
+    const timedEvents = [
+      {
+        id: '0',
+        timeStart: 10 * MILLIS_PER_HOUR,
+        timeEnd: 11 * MILLIS_PER_HOUR,
+      },
+      {
+        id: '2',
+        timeStart: 11 * MILLIS_PER_HOUR,
+        timeEnd: 12 * MILLIS_PER_HOUR,
+      },
+      {
+        id: '3',
+        timeStart: 12 * MILLIS_PER_HOUR,
+        timeEnd: 13 * MILLIS_PER_HOUR,
+      },
+      {
+        id: '4',
+        timeStart: 11 * MILLIS_PER_HOUR,
+        timeEnd: 12 * MILLIS_PER_HOUR,
+      },
+    ];
+
+    const state = loadRoll(prepareTimedEvents(timedEvents), now);
+    const expected = {
+      event: timedEvents[1],
+      index: 1,
+    };
+    expect(state).toMatchObject(expected);
+  });
+
+  });
+});
+
 describe('loadRoll() handle edge cases with before and after start', () => {
   it('should prepare first event, if we are not yet in the rundown start', () => {
     const now = 7 * MILLIS_PER_HOUR;
@@ -302,7 +339,7 @@ describe('loadRoll() handle edge cases with before and after start', () => {
       index: 0,
     };
     const state = loadRoll(singleEventList, now);
-    expect(state.isPending).toBeUndefined();
+    expect(state.isPending).toBeUndefined(); // we are playing the event
     expect(state).toStrictEqual(expected);
   });
 
@@ -443,6 +480,7 @@ describe('loadRoll() test that roll behaviour multi day event edge cases', () =>
     };
 
     const state = loadRoll(eventlist, now);
+    expect(state.isPending).toBeUndefined(); // we are playing the event
     expect(state).toStrictEqual(expected);
   });
 });
