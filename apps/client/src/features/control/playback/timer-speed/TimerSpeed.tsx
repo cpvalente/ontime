@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import { Button } from '@chakra-ui/react';
+
+import { setTimerSpeed, useTimerSpeed } from '../../../../common/hooks/useSocket';
 
 import style from './TimerSpeed.module.scss';
 
@@ -8,21 +11,30 @@ function mapRange(value: number, fromA_start: number, fromA_end: number, toB_sta
 }
 
 export default function TimerSpeed() {
-  const newSpeed = 1.23;
+  // TODO: this is the speed currently in place
+  const { speed: _currentSpeed } = useTimerSpeed();
+
+  // TODO: new speed comes from reply from server
+  const [newSpeed, _setNewSpeed] = useState(1.23);
   const newSpeedIndicator = mapRange(newSpeed, 0.5, 2.0, 0, 100);
+  const { getSpeedAdjust, setSpeed, resetSpeed } = setTimerSpeed;
 
   console.log('newSpeedIndicator', newSpeedIndicator);
 
   const handleApply = () => {
     console.log('timerSpeedControl.apply');
+    // TODO: add dynamic value
+    setSpeed(1.0);
   };
 
   const handleReset = () => {
     console.log('timerSpeedControl.apply');
+    resetSpeed();
   };
 
   const handleMeetSchedule = () => {
     console.log('timerSpeedControl.apply');
+    getSpeedAdjust();
   };
 
   return (

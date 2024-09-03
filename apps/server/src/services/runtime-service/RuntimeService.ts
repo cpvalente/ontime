@@ -644,6 +644,41 @@ class RuntimeService {
       logger.info(LogOrigin.Playback, `${time > 0 ? 'Added' : 'Removed'} ${millisToString(time)}`);
     }
   }
+
+  /**
+   * Utility calculates the speed factor necessary to finish on time
+   */
+  public getSpeed(): number {
+    // TODO: call function that calculates speed factor
+    console.log('runtimeService.getSpeed');
+    return 0;
+  }
+
+  /**
+   * Applies a speed factor to current time
+   * @param {number} time - time to add in milliseconds
+   * @returns {number} applied speed factor after mutation
+   */
+  public setSpeed(time: number): number {
+    // TODO: validate state
+    // TODO: validate value
+    // TODO: call mutating function in state
+    console.log('runtimeService.setSpeed', time);
+    // TODO: return speed factor after mutating
+    return 0;
+  }
+
+  /**
+   * Resets the speed of the current time to 1
+   * @returns {number} applied speed factor after mutation
+   */
+  public resetSpeed(): number {
+    // TODO: validate state
+    // TODO: call mutating function in state
+    console.log('runtimeService.resetSpeed');
+    // TODO: return speed factor after mutating
+    return 1.0;
+  }
 }
 
 // calculate at 30fps, refresh at 1fps
