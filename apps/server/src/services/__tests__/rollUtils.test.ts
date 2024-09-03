@@ -1,7 +1,8 @@
-import { OntimeEvent, SupportedEvent } from 'ontime-types';
+import { isOntimeEvent, OntimeEvent, SupportedEvent } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { loadRoll } from '../rollUtils.js';
+import { testKendal } from './rollUtils.mock.js';
 
 const baseEvent = {
   type: SupportedEvent.Event,
@@ -246,6 +247,22 @@ describe('loadRoll() handle edge cases with midnight', () => {
   });
 });
 
+describe('loadRoll() handle rundowns with several days', () => {
+  it('should find the correct event, when we have many days', () => {
+    const now = 21 * MILLIS_PER_HOUR + 51 * MILLIS_PER_MINUTE;
+    const timedEvents: OntimeEvent[] = testKendal.filter((event) => isOntimeEvent(event));
+
+    const state = loadRoll(timedEvents, now);
+    const expected = {
+      event: timedEvents[20],
+      index: 20,
+    };
+    expect(state.event?.title).toBe('ARTIST NAME LAST');
+    expect(state.event?.cue).toBe('SF1.20');
+    expect(state).toStrictEqual(expected);
+  });
+});
+
 describe('loadRoll() handle edge cases with before and after start', () => {
   it('should prepare first event, if we are not yet in the rundown start', () => {
     const now = 7 * MILLIS_PER_HOUR;
@@ -302,7 +319,7 @@ describe('loadRoll() handle edge cases with before and after start', () => {
       index: 0,
     };
     const state = loadRoll(singleEventList, now);
-    expect(state.isPending).toBeUndefined();
+    expect(state.isPending).toBeUndefined(); // we are playing the event
     expect(state).toStrictEqual(expected);
   });
 
@@ -443,6 +460,7 @@ describe('loadRoll() test that roll behaviour multi day event edge cases', () =>
     };
 
     const state = loadRoll(eventlist, now);
+    expect(state.isPending).toBeUndefined(); // we are playing the event
     expect(state).toStrictEqual(expected);
   });
 });

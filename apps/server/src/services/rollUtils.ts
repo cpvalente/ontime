@@ -21,20 +21,6 @@ export function loadRoll(
     return { event: null, index: null };
   }
 
-  // check that the rundown wraps around midnight
-  const wrapsAroundMidnight = firstEvent.timeStart > lastEvent.timeEnd;
-
-  if (!wrapsAroundMidnight) {
-    // check whether we are before or after the rundown
-    const lastNormalEnd = normaliseEndTime(lastEvent.timeStart, lastEvent.timeEnd);
-    const isAfterRundown = timeNow > lastNormalEnd;
-    const isBeforeRundown = timeNow < firstEvent.timeStart && !isAfterRundown;
-
-    if (isAfterRundown || isBeforeRundown) {
-      return { event: firstEvent, index: 0, isPending: true };
-    }
-  }
-
   // we know we are in the middle of the rundown and we need to find the current event
   // account for number of times we went over midnight
   let daySpan = 0;
