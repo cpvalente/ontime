@@ -40,7 +40,7 @@ $panel-gap: 0.5rem;
   .playback,
   .messages {
     position: relative;
-    border-radius: 8px;
+    border-radius: var(--editor--panel__br);
     background-color: $bg-container-l2;
     padding: 1rem;
   }
@@ -61,4 +61,11 @@ $panel-gap: 0.5rem;
 
 .content {
   padding-top: 1.5rem;
+}
+
+.contentColumnLayout {
+  display: flex;
+  flex-direction: column;
+  gap: $section-spacing;
+  color: $ui-white;
 }

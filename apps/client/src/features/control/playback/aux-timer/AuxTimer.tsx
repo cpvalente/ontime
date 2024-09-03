@@ -68,7 +68,7 @@ function AuxTimerInput() {
 
   const handleTimeUpdate = (_field: string, value: string) => {
     const newTime = parseUserTime(value);
-    setDuration(newTime / 1000); //frontend api is seconds based;
+    setDuration(newTime / 1000); // frontend api is seconds based
   };
 
   return (

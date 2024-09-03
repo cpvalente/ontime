@@ -1,4 +1,4 @@
-import { messageService } from '../MessageService.js';
+import * as messageService from '../MessageService.js';
 
 describe('MessageService', () => {
   const publishFunction = () => {};
@@ -14,17 +14,14 @@ describe('MessageService', () => {
   it('should patch the message state', () => {
     const message = {
       timer: { text: 'new text', visible: true },
-      external: { visible: true },
+      external: 'external',
     };
 
     const newState = messageService.patch(message);
 
     expect(newState).toEqual({
-      timer: { text: 'new text', visible: true, blackout: false, blink: false },
-      external: {
-        text: '',
-        visible: true,
-      },
+      timer: { text: 'new text', visible: true, blackout: false, blink: false, secondarySource: null },
+      external: 'external',
     });
   });
 
@@ -36,11 +33,8 @@ describe('MessageService', () => {
     const newState = messageService.patch(initialMessage);
 
     expect(newState).toEqual({
-      timer: { text: 'initial text', visible: true, blackout: false, blink: false },
-      external: {
-        text: '',
-        visible: false,
-      },
+      timer: { text: 'initial text', visible: true, blackout: false, blink: false, secondarySource: null },
+      external: '',
     });
   });
 });
