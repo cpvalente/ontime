@@ -495,7 +495,7 @@ export function update(): UpdateResult {
 
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: {
-    if (!runtimeState.timer.duration) {
+    if (runtimeState.timer.duration === null) {
       throw new Error('runtimeState.update: invalid state received');
     }
   }
