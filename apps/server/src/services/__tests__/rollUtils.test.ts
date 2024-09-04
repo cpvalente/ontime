@@ -280,6 +280,42 @@ describe('loadRoll() handle rundowns with several days', () => {
     expect(state).toMatchObject(expected);
   });
 
+  it('should find the correct event, when we have events of zero duration', () => {
+    const now = 20 * MILLIS_PER_HOUR + 37 * MILLIS_PER_MINUTE;
+    const timedEvents = [
+      {
+        id: '0',
+        timeStart: 18 * MILLIS_PER_HOUR,
+        timeEnd: 19 * MILLIS_PER_HOUR,
+      },
+      {
+        id: '1 no duration',
+        timeStart: 0,
+        timeEnd: 0,
+      },
+      {
+        id: '2',
+        timeStart: 19 * MILLIS_PER_HOUR,
+        timeEnd: 20 * MILLIS_PER_HOUR,
+      },
+      {
+        id: '3 no duration',
+        timeStart: 0,
+        timeEnd: 0,
+      },
+      {
+        id: '4',
+        timeStart: 20 * MILLIS_PER_HOUR,
+        timeEnd: 21 * MILLIS_PER_HOUR,
+      },
+    ];
+
+    const state = loadRoll(prepareTimedEvents(timedEvents), now);
+    const expected = {
+      event: timedEvents[4],
+      index: 4,
+    };
+    expect(state).toMatchObject(expected);
   });
 });
 
