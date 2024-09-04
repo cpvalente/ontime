@@ -31,6 +31,10 @@ export function loadRoll(
       continue;
     }
 
+    if (event.duration === 0) {
+      continue;
+    }
+
     // we check if event crosses midnight
     if (event.timeStart > event.timeEnd) {
       daySpan++;
