@@ -120,8 +120,10 @@ export function clear() {
   runtimeState.clock = clock.timeNow();
   runtimeState.timer = { ...initialTimer };
 
-  // we maintain the total delay
+  // when clearing, we maintain the total delay from the rundown
+  runtimeState._timer.forceFinish = null;
   runtimeState._timer.pausedAt = null;
+  runtimeState._timer.secondaryTarget = null;
 }
 
 /**
