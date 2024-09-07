@@ -9,6 +9,8 @@ import {
   parseUserTime,
   reorderArray,
   swapEventData,
+  validateEndAction,
+  validateTimerType,
 } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/constants';
@@ -32,7 +34,15 @@ import { useEditorSettings } from '../stores/editorSettings';
  */
 export const useEventAction = () => {
   const queryClient = useQueryClient();
-  const { defaultPublic, linkPrevious, defaultDuration, defaultWarnTime, defaultDangerTime } = useEditorSettings();
+  const {
+    defaultPublic,
+    linkPrevious,
+    defaultDuration,
+    defaultWarnTime,
+    defaultDangerTime,
+    defaultTimerType,
+    defaultEndAction,
+  } = useEditorSettings();
 
   /**
    * Calls mutation to add new event
@@ -46,17 +56,17 @@ export const useEventAction = () => {
     networkMode: 'always',
   });
 
+  // options to any new block (event / delay / block)
   type BaseOptions = {
     after?: string;
   };
 
+  // options to blocks of type OntimeEvent
   type EventOptions = BaseOptions &
     Partial<{
       defaultPublic: boolean;
       linkPrevious: boolean;
       lastEventId: string;
-      defaultWarnTime: number;
-      defaultDangerTime: number;
     }>;
 
   /**
@@ -68,13 +78,12 @@ export const useEventAction = () => {
 
       // ************* CHECK OPTIONS specific to events
       if (isOntimeEvent(newEvent)) {
+        // merge creation time options with event settings
         const applicationOptions = {
           after: options?.after,
           defaultPublic: options?.defaultPublic ?? defaultPublic,
           lastEventId: options?.lastEventId,
           linkPrevious: options?.linkPrevious ?? linkPrevious,
-          defaultWarnTime,
-          defaultDangerTime,
         };
 
         if (applicationOptions.linkPrevious && applicationOptions?.lastEventId) {
@@ -89,6 +98,7 @@ export const useEventAction = () => {
           }
         }
 
+        // Override event with options from editor settings
         if (applicationOptions.defaultPublic) {
           newEvent.isPublic = true;
         }
@@ -104,6 +114,14 @@ export const useEventAction = () => {
         if (newEvent.timeWarning === undefined) {
           newEvent.timeWarning = parseUserTime(defaultWarnTime);
         }
+
+        if (newEvent.timerType === undefined) {
+          newEvent.timerType = validateTimerType(defaultTimerType);
+        }
+
+        if (newEvent.endAction === undefined) {
+          newEvent.endAction = validateEndAction(defaultEndAction);
+        }
       }
 
       // handle adding options that concern all event type
@@ -117,7 +135,17 @@ export const useEventAction = () => {
         logAxiosError('Failed adding event', error);
       }
     },
-    [_addEventMutation, defaultDangerTime, defaultDuration, defaultPublic, defaultWarnTime, linkPrevious, queryClient],
+    [
+      _addEventMutation,
+      defaultDangerTime,
+      defaultDuration,
+      defaultEndAction,
+      defaultPublic,
+      defaultTimerType,
+      defaultWarnTime,
+      linkPrevious,
+      queryClient,
+    ],
   );
 
   /**
