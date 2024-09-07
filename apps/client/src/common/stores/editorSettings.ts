@@ -1,3 +1,5 @@
+import { EndAction, TimerType } from 'ontime-types';
+import { validateEndAction, validateTimerType } from 'ontime-utils';
 import { create } from 'zustand';
 
 import { booleanFromLocalStorage } from '../utils/localStorage';
@@ -8,11 +10,15 @@ type EditorSettingsStore = {
   defaultWarnTime: string;
   defaultDangerTime: string;
   defaultPublic: boolean;
+  defaultTimerType: TimerType;
+  defaultEndAction: EndAction;
   setDefaultDuration: (defaultDuration: string) => void;
   setLinkPrevious: (linkPrevious: boolean) => void;
   setWarnTime: (warnTime: string) => void;
   setDangerTime: (dangerTime: string) => void;
   setDefaultPublic: (defaultPublic: boolean) => void;
+  setDefaultTimerType: (defaultTimerType: TimerType) => void;
+  setDefaultEndAction: (defaultEndAction: EndAction) => void;
 };
 
 export const editorSettingsDefaults = {
@@ -21,6 +27,8 @@ export const editorSettingsDefaults = {
   warnTime: '00:02:00', // 120000 same as backend
   dangerTime: '00:01:00', // 60000 same as backend
   isPublic: true,
+  timerType: TimerType.CountDown,
+  endAction: EndAction.None,
 };
 
 enum EditorSettingsKeys {
@@ -29,6 +37,8 @@ enum EditorSettingsKeys {
   DefaultWarnTime = 'ontime-default-warn-time',
   DefaultDangerTime = 'ontime-default-danger-time',
   DefaultPublic = 'ontime-default-public',
+  DefaultTimerType = 'ontime-default-timer-type',
+  DefaultEndAction = 'ontime-default-end-action',
 }
 
 export const useEditorSettings = create<EditorSettingsStore>((set) => {
@@ -38,6 +48,14 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => {
     defaultWarnTime: localStorage.getItem(EditorSettingsKeys.DefaultWarnTime) ?? editorSettingsDefaults.warnTime,
     defaultDangerTime: localStorage.getItem(EditorSettingsKeys.DefaultDangerTime) ?? editorSettingsDefaults.dangerTime,
     defaultPublic: booleanFromLocalStorage(EditorSettingsKeys.DefaultPublic, editorSettingsDefaults.isPublic),
+    defaultTimerType: validateTimerType(
+      localStorage.getItem(EditorSettingsKeys.DefaultTimerType),
+      editorSettingsDefaults.timerType,
+    ),
+    defaultEndAction: validateEndAction(
+      localStorage.getItem(EditorSettingsKeys.DefaultEndAction),
+      editorSettingsDefaults.endAction,
+    ),
 
     setDefaultDuration: (defaultDuration) =>
       set(() => {
@@ -64,6 +82,16 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => {
       set(() => {
         localStorage.setItem(EditorSettingsKeys.DefaultPublic, String(defaultPublic));
         return { defaultPublic };
+      }),
+    setDefaultTimerType: (defaultTimerType) =>
+      set(() => {
+        localStorage.setItem(EditorSettingsKeys.DefaultTimerType, String(defaultTimerType));
+        return { defaultTimerType };
+      }),
+    setDefaultEndAction: (defaultEndAction) =>
+      set(() => {
+        localStorage.setItem(EditorSettingsKeys.DefaultEndAction, String(defaultEndAction));
+        return { defaultEndAction };
       }),
   };
 });

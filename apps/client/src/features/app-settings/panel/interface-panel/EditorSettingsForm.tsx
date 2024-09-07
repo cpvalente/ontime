@@ -7,17 +7,26 @@ import { editorSettingsDefaults, useEditorSettings } from '../../../../common/st
 import * as Panel from '../PanelUtils';
 
 export default function EditorSettingsForm() {
-  const eventSettings = useEditorSettings((state) => state);
+  const {
+    defaultDuration,
+    linkPrevious,
+    defaultWarnTime,
+    defaultDangerTime,
+    defaultPublic,
+    defaultTimerType,
+    defaultEndAction,
+    setDefaultDuration,
+    setLinkPrevious,
+    setWarnTime,
+    setDangerTime,
+    setDefaultPublic,
+    setDefaultTimerType,
+    setDefaultEndAction,
+  } = useEditorSettings((state) => state);
 
-  const setDefaultDuration = eventSettings.setDefaultDuration;
-  const setLinkPrevious = eventSettings.setLinkPrevious;
-  const setWarnTime = eventSettings.setWarnTime;
-  const setDangerTime = eventSettings.setDangerTime;
-  const setDefaultPublic = eventSettings.setDefaultPublic;
-
-  const durationInMs = parseUserTime(eventSettings.defaultDuration);
-  const warnTimeInMs = parseUserTime(eventSettings.defaultWarnTime);
-  const dangerTimeInMs = parseUserTime(eventSettings.defaultDangerTime);
+  const durationInMs = parseUserTime(defaultDuration);
+  const warnTimeInMs = parseUserTime(defaultWarnTime);
+  const dangerTimeInMs = parseUserTime(defaultDangerTime);
 
   return (
     <Panel.Section>
@@ -44,13 +53,19 @@ export default function EditorSettingsForm() {
               <Switch
                 variant='ontime'
                 size='lg'
-                defaultChecked={eventSettings.linkPrevious}
+                defaultChecked={linkPrevious}
                 onChange={(event) => setLinkPrevious(event.target.checked)}
               />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='Timer type' description='Default type of timer for new events' />
-              <Select variant='ontime' size='sm' width='auto' isDisabled>
+              <Select
+                variant='ontime'
+                size='sm'
+                width='auto'
+                value={defaultTimerType}
+                onChange={(event) => setDefaultTimerType(event.target.value as TimerType)}
+              >
                 <option value={TimerType.CountDown}>Count down</option>
                 <option value={TimerType.CountUp}>Count up</option>
                 <option value={TimerType.TimeToEnd}>Time to end</option>
@@ -59,7 +74,13 @@ export default function EditorSettingsForm() {
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='End Action' description='Default end action for new events' />
-              <Select variant='ontime' size='sm' width='auto' isDisabled>
+              <Select
+                variant='ontime'
+                size='sm'
+                width='auto'
+                value={defaultEndAction}
+                onChange={(event) => setDefaultEndAction(event.target.value as EndAction)}
+              >
                 <option value={EndAction.None}>None</option>
                 <option value={EndAction.Stop}>Stop</option>
                 <option value={EndAction.LoadNext}>Load next</option>
@@ -93,7 +114,7 @@ export default function EditorSettingsForm() {
               <Switch
                 variant='ontime'
                 size='lg'
-                defaultChecked={eventSettings.defaultPublic}
+                defaultChecked={defaultPublic}
                 onChange={(event) => setDefaultPublic(event.target.checked)}
               />
             </Panel.ListItem>
