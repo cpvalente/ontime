@@ -123,7 +123,8 @@ export const useTimerSpeed = () => {
 };
 
 export const setTimerSpeed = {
-  getSpeedAdjust: () => socketSendJson('get-speed'),
+  calculateSpeed: () => socketSendJson('calculate-speed'),
+  getSpeed: () => socketSendJson('get-speed'),
   setSpeed: (speed: number) => socketSendJson('set-speed', speed),
   resetSpeed: () => socketSendJson('reset-speed'),
 };

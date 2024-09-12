@@ -240,6 +240,10 @@ const actionHandlers: Record<string, ActionHandler> = {
     throw new Error('No matching method provided');
   },
   /* Speed */
+  'calculate-speed': () => {
+    const factor = runtimeService.calculateSpeed();
+    return { payload: factor };
+  },
   'get-speed': () => {
     const factor = runtimeService.getSpeed();
     return { payload: factor };

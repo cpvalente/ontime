@@ -361,6 +361,23 @@ export function updateAll(rundown: OntimeRundown) {
   loadBlock(rundown);
 }
 
+export function setSpeed(speed: number) {
+  runtimeState.timer.speed = speed;
+}
+
+export function resetSpeed() {
+  runtimeState.timer.speed = 1.0;
+}
+
+export function getSpeed() {
+  return runtimeState.timer.speed;
+}
+
+export function calculateSpeed() {
+  // TODO: calculate speed needed for timer to meet schedule
+  return 1.0;
+}
+
 export function start(state: RuntimeState = runtimeState): boolean {
   if (state.eventNow === null) {
     return false;

@@ -647,37 +647,38 @@ class RuntimeService {
 
   /**
    * Utility calculates the speed factor necessary to finish on time
+   * @returns {number} speed factor needed to meet schedule
+   */
+  public calculateSpeed(): number {
+    return runtimeState.calculateSpeed();
+  }
+
+  /**
+   * @returns {number} speed factor currently applied
    */
   public getSpeed(): number {
-    // TODO: call function that calculates speed factor
-    console.log('runtimeService.getSpeed');
-    return 0;
+    return runtimeState.getSpeed();
   }
 
   /**
-   * Applies a speed factor to current time
-   * @param {number} time - time to add in milliseconds
-   * @returns {number} applied speed factor after mutation
+   * Applies a speed factor to current timer
+   * @param {number} speed - speed factor
+   * @returns {number} applied speed factor
    */
-  public setSpeed(time: number): number {
+  public setSpeed(speed: number): number {
     // TODO: validate state
     // TODO: validate value
-    // TODO: call mutating function in state
-    console.log('runtimeService.setSpeed', time);
-    // TODO: return speed factor after mutating
-    return 0;
+    runtimeState.setSpeed(speed);
+    return runtimeState.getSpeed();
   }
 
   /**
-   * Resets the speed of the current time to 1
-   * @returns {number} applied speed factor after mutation
+   * Resets the speed of the current timer
+   * @returns {number} applied speed factor
    */
   public resetSpeed(): number {
-    // TODO: validate state
-    // TODO: call mutating function in state
-    console.log('runtimeService.resetSpeed');
-    // TODO: return speed factor after mutating
-    return 1.0;
+    runtimeState.resetSpeed();
+    return runtimeState.getSpeed();
   }
 }
 

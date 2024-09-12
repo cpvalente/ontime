@@ -17,24 +17,24 @@ export default function TimerSpeed() {
   // TODO: new speed comes from reply from server
   const [newSpeed, _setNewSpeed] = useState(1.23);
   const newSpeedIndicator = mapRange(newSpeed, 0.5, 2.0, 0, 100);
-  const { getSpeedAdjust, setSpeed, resetSpeed } = setTimerSpeed;
+  const { calculateSpeed, setSpeed, resetSpeed } = setTimerSpeed;
 
   console.log('newSpeedIndicator', newSpeedIndicator);
 
   const handleApply = () => {
     console.log('timerSpeedControl.apply');
     // TODO: add dynamic value
-    setSpeed(1.0);
+    setSpeed(1.23);
   };
 
   const handleReset = () => {
-    console.log('timerSpeedControl.apply');
+    console.log('timerSpeedControl.reset');
     resetSpeed();
   };
 
   const handleMeetSchedule = () => {
-    console.log('timerSpeedControl.apply');
-    getSpeedAdjust();
+    console.log('timerSpeedControl.calculate');
+    calculateSpeed();
   };
 
   return (
