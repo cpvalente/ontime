@@ -167,36 +167,28 @@
 
   .message-overlay {
     position: fixed;
-    width: 100%;
-    height: 100%;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: $viewer-overlay-bg-color;
-    z-index: -1;
+    padding: 2vw;
+    background: var(--background-color-override, $viewer-background-color);
     opacity: 0;
-    transition: $viewer-transition-time;
+    transition: opacity $viewer-transition-time;
+    z-index: 2;
 
     &--active {
       opacity: 1;
-      transition: $viewer-transition-time;
-      transition-property: opacity;
-      z-index: 2;
     }
   }
 
   .message {
-    width: inherit;
-    padding: 2vw;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    color: $viewer-color;
-    transform: translate(-50%, -50%);
-    -ms-transform: translate(-50%, -50%);
-    font-size: 15vw;
-    line-height: 30vh;
+    display: grid;
+    place-content: center;
+    height: 100%;
+    width: 100%;
+
+    color: var(--color-override, $viewer-color);
     text-align: center;
     font-weight: 600;
   }
