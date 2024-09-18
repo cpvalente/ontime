@@ -120,6 +120,9 @@ $orange-active: #f60;
   }
 
   .next-title {
+    height: 12.5vh;
+    width: 70%;
+
     font-family: monospace;
     font-weight: 400;
     color: var(--studio-active-label, $cyan-active);
