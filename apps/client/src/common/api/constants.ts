@@ -18,6 +18,7 @@ const location = window.location;
 const socketProtocol = location.protocol === 'https:' ? 'wss' : 'ws';
 export const isProduction = import.meta.env.MODE === 'production';
 export const isDev = !isProduction;
+export const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
 // resolve port
 const STATIC_PORT = 4001;

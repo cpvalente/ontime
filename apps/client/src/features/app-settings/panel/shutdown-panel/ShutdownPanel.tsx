@@ -10,6 +10,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
+import { isLocalhost } from '../../../../common/api/constants';
 import useElectronEvent from '../../../../common/hooks/useElectronEvent';
 import * as Panel from '../PanelUtils';
 
@@ -31,7 +32,7 @@ export default function ShutdownPanel() {
           This will shutdown the Ontime server. <br />
           The runtime state will be lost, but your project is kept for next time.
         </Panel.Paragraph>
-        <Button colorScheme='red' onClick={onOpen} maxWidth='350px' isDisabled={!isElectron}>
+        <Button colorScheme='red' onClick={onOpen} maxWidth='350px' isDisabled={!(isElectron || isLocalhost)}>
           Shutdown ontime
         </Button>
         <Panel.Description>Note: Ontime can only be shutdown from the machine it is running in.</Panel.Description>
