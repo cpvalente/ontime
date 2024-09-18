@@ -13,6 +13,7 @@ import {
 } from 'ontime-types';
 
 import { overrideStylesURL } from '../../../common/api/constants';
+import { FitText } from '../../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
@@ -163,7 +164,9 @@ export default function Timer(props: TimerProps) {
       <div className={showBlackout ? 'blackout blackout--active' : 'blackout'} />
       {!userOptions.hideMessage && (
         <div className={showOverlay ? 'message-overlay message-overlay--active' : 'message-overlay'}>
-          <div className={`message ${showBlinking ? 'blink' : ''}`}>{pres.text}</div>
+          <FitText mode='multi' min={32} max={256} className={`message ${showBlinking ? 'blink' : ''}`}>
+            {pres.text}
+          </FitText>
         </div>
       )}
 
