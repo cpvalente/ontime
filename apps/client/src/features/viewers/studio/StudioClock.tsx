@@ -4,8 +4,8 @@ import { Playback } from 'ontime-types';
 import { millisToString, removeSeconds, secondsInMillis } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
+import { FitText } from '../../../common/components/fit-text/FitText';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
-import useFitText from '../../../common/hooks/useFitText';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
@@ -32,14 +32,16 @@ interface StudioClockProps {
 export default function StudioClock(props: StudioClockProps) {
   const { isMirrored, eventNext, time, backstageEvents, selectedId, nextId, onAir, viewSettings, settings } = props;
 
-  // TODO: can we prevent the Flash of Unstyled Content on the 7segment fonts?
-  // deferring rendering seems to affect styling (font and useFitText)
-  useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
-  const { fontSize: titleFontSize, ref: titleRef } = useFitText({ minFontSize: 150, maxFontSize: 500 });
+  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
 
   const [searchParams] = useSearchParams();
 
   useWindowTitle('Studio Clock');
+
+  // defer rendering until we load stylesheets
+  if (!shouldRender) {
+    return null;
+  }
 
   const activeIndicators = [...Array(12).keys()];
   const secondsIndicators = [...Array(60).keys()];
@@ -77,13 +79,7 @@ export default function StudioClock(props: StudioClockProps) {
       <div className='clock-container'>
         {hasAmPm && <div className='clock__ampm'>{hasAmPm}</div>}
         <div className={`studio-timer ${!hideSeconds ? 'studio-timer--with-seconds' : ''}`}>{clock}</div>
-        <div
-          ref={titleRef}
-          className='next-title'
-          style={{ fontSize: titleFontSize, height: '12.5vh', width: '100%', maxWidth: '80%' }}
-        >
-          {eventNext?.title}
-        </div>
+        <FitText className='next-title'>{eventNext?.title}</FitText>
         <div
           className={`
             next-countdown ${isNegative ? ' next-countdown--overtime' : ''} ${isPaused ? ' next-countdown--paused' : ''}
