@@ -34,6 +34,7 @@ export default function ShutdownPanel() {
         <Button colorScheme='red' onClick={onOpen} maxWidth='350px' isDisabled={!isElectron}>
           Shutdown ontime
         </Button>
+        <Panel.Description>Note: Ontime can only be shutdown from the machine it is running in.</Panel.Description>
         <AlertDialog variant='ontime' isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
           <AlertDialogOverlay>
             <AlertDialogContent>
