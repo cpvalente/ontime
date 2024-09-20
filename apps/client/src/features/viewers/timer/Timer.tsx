@@ -203,7 +203,7 @@ export default function Timer(props: TimerProps) {
           </div>
         )}
         <div
-          className={`external${secondaryContent ? '' : ' external--hidden'}`}
+          className={`secondary${secondaryContent ? '' : ' secondary--hidden'}`}
           style={{ fontSize: `${externalFontSize}vw` }}
         >
           {secondaryContent}

@@ -210,7 +210,7 @@ export const startServer = async (
   runtimeService.init(maybeRestorePoint);
 
   // eventStore set is a dependency of the services that publish to it
-  messageService.init(eventStore.set);
+  messageService.init((key, value) => eventStore.set(key, value));
 
   expressServer.listen(serverPort, '0.0.0.0', () => {
     const nif = getNetworkInterfaces();
