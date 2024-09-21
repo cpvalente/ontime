@@ -11,10 +11,11 @@ interface EventTextInputProps extends InputProps {
   label: string;
   initialValue: string;
   submitHandler: (field: EditorUpdateFields, value: string) => void;
+  placeholder?: string;
 }
 
 export default function EventTextInput(props: EventTextInputProps) {
-  const { field, label, initialValue, submitHandler, maxLength } = props;
+  const { field, label, initialValue, submitHandler, maxLength, placeholder } = props;
   const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback((newValue: string) => submitHandler(field, newValue), [field, submitHandler]);
 
@@ -34,6 +35,7 @@ export default function EventTextInput(props: EventTextInputProps) {
         variant='ontime-filled'
         data-testid='input-textfield'
         value={value}
+        placeholder={placeholder}
         maxLength={maxLength || 100}
         onChange={onChange}
         onBlur={onBlur}

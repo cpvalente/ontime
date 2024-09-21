@@ -7,7 +7,7 @@ import { useAppMode } from '../../common/stores/appModeStore';
 import { handleLinks } from '../../common/utils/linkUtils';
 import { cx } from '../../common/utils/styleUtils';
 
-import EventEditor from './event-editor/EventEditor';
+import EventEditorWrapper from './event-editor/EventEditorWrapper';
 import RundownWrapper from './RundownWrapper';
 
 import style from './RundownExport.module.scss';
@@ -33,7 +33,7 @@ const RundownExport = () => {
         {!hideSideBar && (
           <div className={style.side}>
             <ErrorBoundary>
-              <EventEditor />
+              <EventEditorWrapper />
             </ErrorBoundary>
           </div>
         )}

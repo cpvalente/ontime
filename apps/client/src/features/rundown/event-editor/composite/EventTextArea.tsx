@@ -13,11 +13,12 @@ interface CountedTextAreaProps {
   label: string;
   initialValue: string;
   style?: CSSProperties;
+  placeholder?: string;
   submitHandler: (field: EditorUpdateFields, value: string) => void;
 }
 
 export default function EventTextArea(props: CountedTextAreaProps) {
-  const { className, field, label, initialValue, style: givenStyles, submitHandler } = props;
+  const { className, field, label, initialValue, style: givenStyles, submitHandler, placeholder } = props;
   const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback((newValue: string) => submitHandler(field, newValue), [field, submitHandler]);
 
@@ -35,6 +36,7 @@ export default function EventTextArea(props: CountedTextAreaProps) {
         id={field}
         inputref={ref}
         rows={1}
+        placeholder={placeholder}
         size='sm'
         resize='none'
         variant='ontime-filled'
