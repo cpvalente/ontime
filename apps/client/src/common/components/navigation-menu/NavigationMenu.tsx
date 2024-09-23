@@ -1,6 +1,6 @@
-import { memo, useRef } from 'react';
+import { memo, PropsWithChildren, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Drawer,
   DrawerBody,
@@ -19,9 +19,12 @@ import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 
 import { navigatorConstants } from '../../../viewerConfig';
 import useClickOutside from '../../hooks/useClickOutside';
+import useElectronEvent from '../../hooks/useElectronEvent';
 import { useClientStore } from '../../stores/clientStore';
 import { useViewOptionsStore } from '../../stores/viewOptions';
 import { isKeyEnter } from '../../utils/keyEvent';
+import { handleLinks } from '../../utils/linkUtils';
+import { cx } from '../../utils/styleUtils';
 import { RenameClientModal } from '../client-modal/RenameClientModal';
 
 import style from './NavigationMenu.module.scss';
@@ -40,6 +43,7 @@ function NavigationMenu(props: NavigationMenuProps) {
   const { isOpen: isOpenRename, onOpen: onRenameOpen, onClose: onCloseRename } = useDisclosure();
   const { fullscreen, toggle } = useFullscreen();
   const { toggleMirror } = useViewOptionsStore();
+  const location = useLocation();
 
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -96,44 +100,61 @@ function NavigationMenu(props: NavigationMenuProps) {
             <hr className={style.separator} />
             <Link
               to='/editor'
-              className={`${style.link} ${location.pathname === '/editor' ? style.current : ''}`}
               tabIndex={0}
+              className={`${style.link} ${location.pathname === '/editor' && style.current}`}
             >
               <IoLockClosedOutline />
               Editor
               <IoArrowUp className={style.linkIcon} />
             </Link>
-            <Link
-              to='/cuesheet'
-              className={`${style.link} ${location.pathname === '/cuesheet' ? style.current : ''}`}
-              tabIndex={0}
-            >
+            <ClientLink to='cuesheet' current={location.pathname === '/cuesheet'}>
               <IoLockClosedOutline />
               Cuesheet
               <IoArrowUp className={style.linkIcon} />
-            </Link>
-            <Link to='/op' className={`${style.link} ${location.pathname === '/op' ? style.current : ''}`} tabIndex={0}>
+            </ClientLink>
+            <ClientLink to='op' current={location.pathname === '/op'}>
               <IoLockClosedOutline />
               Operator
               <IoArrowUp className={style.linkIcon} />
-            </Link>
+            </ClientLink>
             <hr className={style.separator} />
             {navigatorConstants.map((route) => (
-              <Link
-                key={route.url}
-                to={route.url}
-                className={`${style.link} ${route.url === location.pathname ? style.current : undefined}`}
-                tabIndex={0}
-              >
+              <ClientLink key={route.url} to={route.url} current={location.pathname === `/${route.url}`}>
                 {route.label}
                 <IoArrowUp className={style.linkIcon} />
-              </Link>
+              </ClientLink>
             ))}
           </DrawerBody>
         </DrawerContent>
       </Drawer>
     </div>,
     document.body,
+  );
+}
+
+interface ClientLinkProps {
+  current: boolean;
+  to: string;
+}
+
+function ClientLink(props: PropsWithChildren<ClientLinkProps>) {
+  const { current, to, children } = props;
+  const { isElectron } = useElectronEvent();
+
+  const classes = cx([style.link, current && style.current]);
+
+  if (isElectron) {
+    return (
+      <button className={classes} tabIndex={0} onClick={(event) => handleLinks(event, to)}>
+        {children}
+      </button>
+    );
+  }
+
+  return (
+    <Link to={`/${to}`} className={classes} tabIndex={0}>
+      {children}
+    </Link>
   );
 }
 
