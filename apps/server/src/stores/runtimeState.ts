@@ -266,6 +266,9 @@ export function loadNext(
     return;
   }
 
+  // temporarily reset this value to simplify loop logic
+  runtimeState.eventNext = null;
+
   for (let i = eventIndex + 1; i < timedEvents.length; i++) {
     const event = timedEvents[i];
     // we dont deal with events that are not playable
