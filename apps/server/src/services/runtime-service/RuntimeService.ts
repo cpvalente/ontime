@@ -232,7 +232,7 @@ class RuntimeService {
 
     // we need to reload in a few scenarios:
     // 1. we are not confident that changes do not affect running event (eg. all events where changed)
-    const safeOption = typeof affectedIds === 'undefined';
+    const safeOption = affectedIds === undefined;
     // 2. the edited event is in memory (now or next) running
     // behind conditional to avoid doing unnecessary work
     const eventInMemory = safeOption ? false : this.affectsLoaded(affectedIds);
