@@ -8,9 +8,9 @@ import { deepmerge } from 'ontime-utils';
  * @returns {string} - value as string or fallback if not possible
  */
 export const makeString = (val: unknown, fallback = ''): string => {
-  if (typeof val === 'string') return val;
+  if (typeof val === 'string') return val.trim();
   else if (val == null || val.constructor === Object) return fallback;
-  return val.toString();
+  return val.toString().trim();
 };
 
 /**
