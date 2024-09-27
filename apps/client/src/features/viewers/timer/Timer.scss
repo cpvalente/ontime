@@ -129,20 +129,22 @@
     }
   }
 
-  .external {
+  .secondary {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    margin-top: 0.25em;
+    padding-block: 0.25em;
 
     font-weight: 600;
     text-align: center;
     color: var(--external-color-override, $external-color);
     letter-spacing: 0.5px;
     line-height: 0.9em;
-    padding-bottom: 0.2em;
     transition-property: opacity, height;
     transition-duration: $viewer-transition-time;
-    border-top: 1px solid rgba(white, 0.1);
+    border-top: 1px solid color-mix(in srgb, var(--external-color-override, $external-color) 10%, transparent);
 
     &--hidden {
       opacity: 0;

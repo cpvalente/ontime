@@ -1,14 +1,12 @@
-export type Message = {
+export type TimerMessage = {
   text: string;
   visible: boolean;
-};
-
-export type TimerMessage = Message & {
   blink: boolean;
   blackout: boolean;
+  secondarySource: 'aux' | 'external' | null;
 };
 
 export type MessageState = {
   timer: TimerMessage;
-  external: Message;
+  external: string;
 };

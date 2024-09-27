@@ -58,7 +58,7 @@ export type { RundownCached, NormalisedRundown } from './api/rundown-controller/
 export { type Log, LogLevel, type LogMessage, LogOrigin } from './definitions/runtime/Logger.type.js';
 export { Playback } from './definitions/runtime/Playback.type.js';
 export { TimerLifeCycle } from './definitions/core/TimerLifecycle.type.js';
-export type { Message, TimerMessage, MessageState } from './definitions/runtime/MessageControl.type.js';
+export type { TimerMessage, MessageState } from './definitions/runtime/MessageControl.type.js';
 
 export type { Runtime } from './definitions/runtime/Runtime.type.js';
 export type { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
@@ -80,4 +80,4 @@ export {
   isOntimeCycle,
   isKeyOfType,
 } from './utils/guards.js';
-export type { DeepPartial, MaybeNumber, MaybeString } from './utils/utils.type.js';
+export type { MaybeNumber, MaybeString } from './utils/utils.type.js';

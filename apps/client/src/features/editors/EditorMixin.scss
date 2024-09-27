@@ -1,10 +1,18 @@
 @use '../../theme/ontimeColours' as *;
 @use '../../theme/ontimeStyles' as *;
 
-@mixin absolute-top-right($distance) {
+// declare editor specific styling constants
+:root {
+  --editor--panel__br: 8px;
+}
+
+@mixin corner() {
+  display: none;
+  transform: rotate(45deg);
+
   position: absolute;
-  top: $distance;
-  right: $distance;
+  top: 0.5rem;
+  right: 0.5rem;
   cursor: pointer;
   color: $ui-white;
   transition-property: color;
@@ -15,17 +23,11 @@
   }
 }
 
-@mixin corner() {
-  display: none;
-  @include absolute-top-right(0.5rem);
-  transform: rotate(45deg);
-}
-
 @mixin panel() {
   display: flex;
 
   position: relative;
-  border-radius: 8px;
+  border-radius: var(--editor--panel__br);
   height: 100%;
   background-color: $bg-container-l2;
   padding: 1rem;

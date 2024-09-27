@@ -1,4 +1,4 @@
-import { RuntimeStore, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { RuntimeStore, SimpleDirection, SimplePlayback, TimerMessage } from 'ontime-types';
 
 import { useRuntimeStore } from '../stores/runtime';
 import { socketSendJson } from '../utils/socket';
@@ -28,11 +28,43 @@ export const useOperator = () => {
   return useRuntimeStore(featureSelector);
 };
 
-export const useMessageControl = () => {
+export const useTimerViewControl = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    timer: state.message.timer,
-    external: state.message.external,
-    onAir: state.onAir,
+    blackout: state.message.timer.blackout,
+    blink: state.message.timer.blink,
+    secondarySource: state.message.timer.secondarySource,
+  });
+
+  return useRuntimeStore(featureSelector);
+};
+
+export const useTimerMessageInput = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    text: state.message.timer.text,
+    visible: state.message.timer.visible,
+  });
+
+  return useRuntimeStore(featureSelector);
+};
+
+export const useExternalMessageInput = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    text: state.message.external,
+    visible: state.message.timer.secondarySource === 'external',
+  });
+
+  return useRuntimeStore(featureSelector);
+};
+
+export const useMessagePreview = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    blink: state.message.timer.blink,
+    blackout: state.message.timer.blackout,
+    phase: state.timer.phase,
+    showAuxTimer: state.message.timer.secondarySource === 'aux',
+    showExternalMessage: state.message.timer.secondarySource === 'external' && Boolean(state.message.external),
+    showTimerMessage: state.message.timer.visible && Boolean(state.message.timer.text),
+    timerType: state.eventNow?.timerType ?? null,
   });
 
   return useRuntimeStore(featureSelector);
@@ -41,8 +73,11 @@ export const useMessageControl = () => {
 export const setMessage = {
   timerText: (payload: string) => socketSendJson('message', { timer: { text: payload } }),
   timerVisible: (payload: boolean) => socketSendJson('message', { timer: { visible: payload } }),
+  externalText: (payload: string) => socketSendJson('message', { external: payload }),
   timerBlink: (payload: boolean) => socketSendJson('message', { timer: { blink: payload } }),
   timerBlackout: (payload: boolean) => socketSendJson('message', { timer: { blackout: payload } }),
+  timerSecondary: (payload: TimerMessage['secondarySource']) =>
+    socketSendJson('message', { timer: { secondarySource: payload } }),
 };
 
 export const usePlaybackControl = () => {

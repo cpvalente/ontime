@@ -2,13 +2,13 @@ import { ComponentType, useMemo } from 'react';
 import { ViewExtendedTimer } from 'common/models/TimeManager.type';
 import {
   CustomFields,
-  Message,
+  MessageState,
   OntimeEvent,
   ProjectData,
   Runtime,
   Settings,
+  SimpleTimerState,
   SupportedEvent,
-  TimerMessage,
   ViewSettings,
 } from 'ontime-types';
 import { useStore } from 'zustand';
@@ -23,17 +23,17 @@ import { runtimeStore } from '../../common/stores/runtime';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
 
 type WithDataProps = {
+  auxTimer: SimpleTimerState;
   backstageEvents: OntimeEvent[];
   customFields: CustomFields;
   eventNext: OntimeEvent | null;
   eventNow: OntimeEvent | null;
   events: OntimeEvent[];
-  external: Message;
   general: ProjectData;
   isMirrored: boolean;
+  message: MessageState;
   nextId: string | null;
   onAir: boolean;
-  pres: TimerMessage;
   publicEventNext: OntimeEvent | null;
   publicEventNow: OntimeEvent | null;
   publicSelectedId: string | null;
@@ -68,7 +68,7 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     }, [rundownData]);
 
     // websocket data
-    const { clock, timer, message, onAir, eventNext, publicEventNext, publicEventNow, eventNow, runtime } =
+    const { clock, timer, message, onAir, eventNext, publicEventNext, publicEventNow, eventNow, runtime, auxtimer1 } =
       useStore(runtimeStore);
     const publicSelectedId = publicEventNow?.id ?? null;
     const selectedId = eventNow?.id ?? null;
@@ -96,17 +96,17 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
         <ViewNavigationMenu />
         <Component
           {...props}
+          auxTimer={auxtimer1}
           backstageEvents={rundownData}
           customFields={customFields}
           eventNext={eventNext}
           eventNow={eventNow}
           events={publicEvents}
-          external={message.external}
           general={project}
           isMirrored={isMirrored}
+          message={message}
           nextId={nextId}
           onAir={onAir}
-          pres={message.timer}
           publicEventNext={publicEventNext}
           publicEventNow={publicEventNow}
           publicSelectedId={publicSelectedId}

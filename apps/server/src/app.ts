@@ -38,7 +38,7 @@ import { populateStyles } from './setup/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
 import { runtimeService } from './services/runtime-service/RuntimeService.js';
 import { restoreService } from './services/RestoreService.js';
-import { messageService } from './services/message-service/MessageService.js';
+import * as messageService from './services/message-service/MessageService.js';
 import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
 import { initRundown } from './services/rundown-service/RundownService.js';
@@ -198,7 +198,7 @@ export const startServer = async (
   // initialise logging service, escalateErrorFn is only exists in electron
   logger.init(escalateErrorFn);
 
-  // initialise rundown service
+  // initialise rundown service 
   const persistedRundown = getDataProvider().getRundown();
   const persistedCustomFields = getDataProvider().getCustomFields();
   initRundown(persistedRundown, persistedCustomFields);
@@ -210,7 +210,7 @@ export const startServer = async (
   runtimeService.init(maybeRestorePoint);
 
   // eventStore set is a dependency of the services that publish to it
-  messageService.init(eventStore.set.bind(eventStore));
+  messageService.init((key, value) => eventStore.set(key, value));
 
   expressServer.listen(serverPort, '0.0.0.0', () => {
     const nif = getNetworkInterfaces();
