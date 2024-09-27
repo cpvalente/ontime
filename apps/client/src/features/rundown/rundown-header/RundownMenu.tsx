@@ -7,7 +7,6 @@ import {
   AlertDialogHeader,
   AlertDialogOverlay,
   Button,
-  Switch,
   useDisclosure,
 } from '@chakra-ui/react';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
@@ -15,8 +14,6 @@ import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useAppMode } from '../../../common/stores/appModeStore';
 import { useEventSelection } from '../useEventSelection';
-
-import style from './RundownHeader.module.scss';
 
 export default function RundownMenu() {
   const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
@@ -34,21 +31,16 @@ export default function RundownMenu() {
 
   return (
     <>
-      <div className={style.controls}>
-        <Switch size='md' variant='ontime' onClick={onOpen} isDisabled={appMode !== 'run'}>
-          Freeze
-        </Switch>
-        <Button
-          size='sm'
-          variant='ontime-outlined'
-          leftIcon={<IoTrash />}
-          onClick={onOpen}
-          color='#FA5656'
-          isDisabled={appMode === 'run'}
-        >
-          Clear rundown
-        </Button>
-      </div>
+      <Button
+        size='sm'
+        variant='ontime-outlined'
+        leftIcon={<IoTrash />}
+        onClick={onOpen}
+        color='#FA5656'
+        isDisabled={appMode === 'run'}
+      >
+        Clear rundown
+      </Button>
 
       <AlertDialog variant='ontime' isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
         <AlertDialogOverlay>
