@@ -37,7 +37,7 @@ export default function RundownMenu() {
         leftIcon={<IoTrash />}
         onClick={onOpen}
         color='#FA5656'
-        isDisabled={appMode === 'run'}
+        isDisabled={appMode !== 'edit'}
       >
         Clear rundown
       </Button>

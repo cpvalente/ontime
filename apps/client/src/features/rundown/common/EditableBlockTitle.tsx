@@ -3,6 +3,7 @@ import { Input } from '@chakra-ui/react';
 
 import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
 import { useEventAction } from '../../../common/hooks/useEventAction';
+import { AppMode, useAppMode } from '../../../common/stores/appModeStore';
 import { cx } from '../../../common/utils/styleUtils';
 
 import style from './TitleEditor.module.scss';
@@ -17,6 +18,9 @@ interface TitleEditorProps {
 export default function EditableBlockTitle(props: TitleEditorProps) {
   const { title, eventId, placeholder, className } = props;
   const { updateEvent } = useEventAction();
+  const appMode = useAppMode((state) => state.mode);
+  const isRundownFrozen = appMode === AppMode.Freeze;
+
   const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback(
     (text: string) => {
@@ -51,6 +55,7 @@ export default function EditableBlockTitle(props: TitleEditorProps) {
       fontWeight='600'
       letterSpacing='0.25px'
       paddingLeft='0'
+      isDisabled={isRundownFrozen}
     />
   );
 }

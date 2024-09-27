@@ -10,12 +10,14 @@
 
 .timeAction {
   opacity: 0.4;
-  cursor: pointer;
   padding-right: 0.5em;
 
   &.active {
     opacity: 1;
     color: var(--status-color-active-override, $active-indicator);
+  }
+  &:disabled {
+    cursor: not-allowed;
   }
   .fourtyfive {
     transform: rotate(-45deg);
