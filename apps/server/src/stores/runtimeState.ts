@@ -374,7 +374,17 @@ export function getSpeed() {
 }
 
 export function calculateSpeed() {
-  // TODO: calculate speed needed for timer to meet schedule
+  // TODO: what should this return if no timer is running?
+  if (runtimeState.eventNow !== null) {
+    const timeToDesiredFinish = runtimeState.eventNow.timeEnd - runtimeState.clock;
+    const timeToActualFinish = runtimeState.timer.expectedFinish - runtimeState.clock;
+    const factor = 1 / (timeToDesiredFinish / timeToActualFinish);
+
+    // TODO: this can produce negative speeds (i.e. the desired finish time is in the past)
+    // TODO: should there be some clamping or rounding on this number?
+    return factor;
+  }
+
   return 1.0;
 }
 
