@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { PROJECT_DATA } from '../../../../common/api/constants';
 import { getDb, patchData } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../PanelUtils';
 
 import { makeProjectPatch } from './project.utils';
@@ -92,7 +93,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
         </div>
       </Panel.Title>
       {error && <Panel.Error>{error}</Panel.Error>}
-      <div className={style.innerColumn}>
+      <Panel.Section className={cx([style.innerColumn, style.inlineLabels])}>
         <Panel.Description>
           Select partial data from {`"${fileName}"`} to merge into the current project.
           <br /> This process is irreversible.
@@ -121,7 +122,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
           <Switch variant='ontime' {...register('http')} />
           HTTP Integration
         </label>
-      </div>
+      </Panel.Section>
     </Panel.Section>
   );
 }
