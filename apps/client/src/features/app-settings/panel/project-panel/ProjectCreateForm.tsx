@@ -78,7 +78,7 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
         </div>
       </Panel.Title>
       {error && <Panel.Error>{error}</Panel.Error>}
-      <div className={style.innerColumn}>
+      <Panel.Section className={style.innerColumn}>
         <label>
           Project title
           <Input
@@ -145,7 +145,7 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
             {...register('backstageUrl')}
           />
         </label>
-      </div>
+      </Panel.Section>
     </Panel.Section>
   );
 }
