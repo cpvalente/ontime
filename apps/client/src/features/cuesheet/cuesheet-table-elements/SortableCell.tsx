@@ -4,8 +4,6 @@ import { CSS } from '@dnd-kit/utilities';
 import { Header } from '@tanstack/react-table';
 import { OntimeRundownEntry } from 'ontime-types';
 
-import { cx } from '../../../common/utils/styleUtils';
-
 import styles from '../Cuesheet.module.scss';
 
 interface SortableCellProps {
@@ -29,8 +27,6 @@ export function SortableCell({ header, style, children }: SortableCellProps) {
     transition,
   };
 
-  const resizerClasses = cx([styles.resizer, header.column.getIsResizing() ? styles.isResizing : null]);
-
   return (
     <th ref={setNodeRef} style={dragStyle} colSpan={colSpan}>
       <div {...attributes} {...listeners}>
@@ -41,7 +37,7 @@ export function SortableCell({ header, style, children }: SortableCellProps) {
           onMouseDown: header.getResizeHandler(),
           onTouchStart: header.getResizeHandler(),
         }}
-        className={resizerClasses}
+        className={styles.resizer}
       />
     </th>
   );

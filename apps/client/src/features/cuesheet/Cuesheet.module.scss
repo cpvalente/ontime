@@ -50,9 +50,15 @@ $table-header-font-size: calc(1rem - 3px);
 
   font-size: $table-header-font-size;
   color: $gray-700;
+}
 
-  th {
-      background-color: $gray-1300;
+th {
+  background-color: $gray-1300;
+
+  &:hover {
+    .resizer {
+      width: 0.5rem;
+    }
   }
 }
 
@@ -126,30 +132,19 @@ $table-header-font-size: calc(1rem - 3px);
 
 .resizer {
   cursor: col-resize;
-  opacity: 0;
+  opacity: $opacity-disabled;
   display: inline-block;
-  width: 3px;
+  width: 0;
   height: 100%;
   position: absolute;
   right: 0;
   top: 0;
-  transform: translateX(50%);
   background-color: $action-blue;
 
   user-select: none;
   touch-action: none;
 
-  transition-duration: $transition-time-action;
-  transition-property: width, background-color;
-
   &:hover {
-    opacity: $opacity-disabled;
-    width: 6px;
-  }
-
-  &.isResizing {
     opacity: 1;
-    width: 6px;
-    background-color: $action-blue;
   }
 }
