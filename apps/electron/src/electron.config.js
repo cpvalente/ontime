@@ -7,7 +7,7 @@ module.exports = {
     production: (port = 4001) => `http://localhost:${port}`,
   },
   server: {
-    pathToEntrypoint: '../extraResources/server/index.cjs',
+    pathToEntrypoint: '../../extraResources/server/index.cjs',
   },
   assets: {
     pathToAssets: './assets/',
