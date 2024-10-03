@@ -1,18 +1,20 @@
 const { app, BrowserWindow, Menu, globalShortcut, Tray, dialog, ipcMain, shell, Notification } = require('electron');
 const path = require('path');
-const electronConfig = require('./electron.config');
-const { version } = require('./package.json');
-const { getApplicationMenu } = require('./src/menu/applicationMenu.js');
 
-const env = process.env.NODE_ENV || 'production';
-const isProduction = env === 'production';
-const isMac = process.platform === 'darwin';
-const isWindows = process.platform === 'win32';
+const { getApplicationMenu } = require('./menu/applicationMenu.js');
+const { getTrayMenu } = require('./menu/trayMenu.js');
 
-// path to server
-const nodePath = isProduction
-  ? path.join(__dirname, electronConfig.server.pathToEntrypoint)
-  : path.join(__dirname, '../server/dist/index.cjs');
+const electronConfig = require('./electron.config.js');
+const {
+  env,
+  isProduction,
+  isWindows,
+  nodePath,
+  getClientUrl,
+  trayIcon,
+  appIcon,
+  getServerUrl,
+} = require('./external.js');
 
 if (!isProduction) {
   console.log(`Electron running in ${env} environment`);
@@ -20,10 +22,13 @@ if (!isProduction) {
   process.traceProcessWarnings = true;
 }
 
-// path to icons
-const trayIcon = path.join(__dirname, electronConfig.assets.pathToAssets, 'background.png');
-const appIcon = path.join(__dirname, electronConfig.assets.pathToAssets, 'logo.png');
-let loaded = 'Nothing loaded';
+/** Flag holds server loading state */
+let loaded = 'Ontime running';
+
+/**
+ * Flag whether user has requested a quit
+ * Used to coordinate window closes without exit
+ */
 let isQuitting = false;
 
 // initialise
@@ -56,13 +61,13 @@ async function startBackend() {
 
 /**
  * @description utility function to create a notification
- * @param title
- * @param text
+ * @param {string} title - Notification title
+ * @param {string} body - Notification body
  */
-function showNotification(title, text) {
+function showNotification(title, body) {
   new Notification({
     title,
-    body: text,
+    body,
     silent: true,
   }).show();
 }
@@ -141,7 +146,7 @@ function createWindow() {
     skipTaskbar: true,
   });
   splash.setIgnoreMouseEvents(true);
-  const splashPath = path.join('file://', __dirname, '/src/splash/splash.html');
+  const splashPath = path.join('file://', __dirname, '/splash/splash.html');
   splash.loadURL(splashPath);
 
   win = new BrowserWindow({
@@ -156,7 +161,7 @@ function createWindow() {
     enableWebSQL: false,
     darkTheme: true,
     webPreferences: {
-      preload: path.join(__dirname, './src/preload.js'),
+      preload: path.join(__dirname, './preload.js'),
       nodeIntegration: true,
       contextIsolation: false,
     },
@@ -173,18 +178,19 @@ app.whenReady().then(() => {
   }
 
   createWindow();
-
   startBackend()
     .then((port) => {
-      // Load page served by node or use React dev run
-      const clientUrl = isProduction
-        ? electronConfig.reactAppUrl.production(port)
-        : electronConfig.reactAppUrl.development(port);
-
-      const template = getApplicationMenu(isMac, askToQuit, clientUrl, `v${version}`, (path) => {
-        win.loadURL(`${clientUrl}/${path}`);
-      });
-      const menu = Menu.buildFromTemplate(template);
+      const clientUrl = getClientUrl(port);
+      const serverUrl = getServerUrl(port);
+      const menu = getApplicationMenu(
+        askToQuit,
+        clientUrl,
+        serverUrl,
+        (path) => {
+          win.loadURL(`${clientUrl}/${path}`);
+        },
+        (url) => win.webContents.downloadURL(url),
+      );
       Menu.setApplicationMenu(menu);
 
       win
@@ -229,13 +235,9 @@ app.whenReady().then(() => {
     }
   });
 
-  // create tray
+  // create tray and set its context menu
   tray = new Tray(trayIcon);
-
-  // Define context menu
-  const { getTrayMenu } = require('./src/menu/trayMenu.js');
-  const trayMenuTemplate = getTrayMenu(bringToFront, askToQuit);
-  const trayContextMenu = Menu.buildFromTemplate(trayMenuTemplate);
+  const trayContextMenu = getTrayMenu(bringToFront, askToQuit);
   tray.setContextMenu(trayContextMenu);
 });
 
@@ -261,7 +263,7 @@ ipcMain.on('shutdown', () => {
 /**
  * Handles requests to set window properties
  */
-ipcMain.on('set-window', (event, arg) => {
+ipcMain.on('set-window', (_event, arg) => {
   switch (arg) {
     case 'show-dev':
       win.webContents.openDevTools({ mode: 'detach' });
@@ -274,6 +276,10 @@ ipcMain.on('set-window', (event, arg) => {
 /**
  * Handles requests to open external links
  */
-ipcMain.on('send-to-link', (event, arg) => {
-  shell.openExternal(arg);
+ipcMain.on('send-to-link', (_event, arg) => {
+  try {
+    shell.openExternal(arg);
+  } catch (_error) {
+    /** unhandled error */
+  }
 });

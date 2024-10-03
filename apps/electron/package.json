@@ -10,7 +10,7 @@
     "timer"
   ],
   "license": "AGPL-3.0-only",
-  "main": "main.js",
+  "main": "src/main.js",
   "devDependencies": {
     "electron": "^31.2.0",
     "electron-builder": "^24.13.3",
@@ -77,7 +77,7 @@
     },
     "files": [
       "**/*",
-      "assets/",
+      "src/assets/",
       "!**/{yarn.lock,yarn-error.log}",
       "!**/{pnpm-lock.yaml}",
       "!**/{test,tests,__test__,__tests__}",
@@ -85,7 +85,7 @@
       "!*{.spec.js,*.test.js,*.spec.ts,.test.ts}"
     ],
     "directories": {
-      "buildResources": "./assets/"
+      "buildResources": "./src/assets/"
     },
     "extraResources": [
       {
