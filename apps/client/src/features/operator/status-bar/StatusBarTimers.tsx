@@ -8,6 +8,7 @@ import ClockTime from '../../viewers/common/clock-time/ClockTime';
 import RunningTime from '../../viewers/common/running-time/RunningTime';
 
 import styles from './StatusBar.module.scss';
+import { useTranslation } from '../../../../../client/src/translation/TranslationProvider';
 
 interface StatusBarTimersProps {
   projectTitle: string;
@@ -24,6 +25,8 @@ export default function StatusBarTimers(props: StatusBarTimersProps) {
 
   const timer = useTimer();
   const { clock } = useClock();
+
+  const { getLocalizedString } = useTranslation();
 
   const getTimeStart = (): MaybeNumber => {
     if (firstStart === undefined) {
@@ -61,25 +64,25 @@ export default function StatusBarTimers(props: StatusBarTimersProps) {
     <div className={styles.timers}>
       {PlaybackIconComponent}
       <div className={styles.timeNow}>
-        <span className={styles.label}>Time now</span>
+        <span className={styles.label}>{getLocalizedString('common.time_now')}</span>
         <ClockTime className={styles.timer} value={clock} />
       </div>
       <div className={styles.elapsedTime}>
-        <span className={styles.label}>Elapsed time</span>
+        <span className={styles.label}>{getLocalizedString('common.time_now')}Elapsed time</span>
         <RunningTime className={styles.timer} value={timer.elapsed} />
       </div>
       <div className={styles.runningTime}>
-        <span className={styles.label}>Running timer</span>
+        <span className={styles.label}>{getLocalizedString('countdown.running')}</span>
         <RunningTime className={styles.timer} value={timer.current} />
       </div>
 
       <span className={styles.title}>{projectTitle}</span>
       <div className={styles.startTime}>
-        <span className={styles.label}>Scheduled start</span>
+        <span className={styles.label}>{getLocalizedString('common.scheduled_start')}</span>
         <ClockTime className={styles.timer} value={getTimeStart()} />
       </div>
       <div className={styles.endTime}>
-        <span className={styles.label}>Scheduled end</span>
+        <span className={styles.label}>{getLocalizedString('common.scheduled_end')}</span>
         <ClockTime className={styles.timer} value={getTimeEnd()} />
       </div>
     </div>
