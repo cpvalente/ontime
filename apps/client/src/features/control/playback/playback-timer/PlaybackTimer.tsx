@@ -8,6 +8,8 @@ import TimerDisplay from '../timer-display/TimerDisplay';
 
 import style from './PlaybackTimer.module.scss';
 
+import { useTranslation } from '../../../../translation/TranslationProvider';
+
 interface PlaybackTimerProps {
   playback: Playback;
 }
@@ -51,6 +53,8 @@ export default function PlaybackTimer(props: PropsWithChildren<PlaybackTimerProp
 
   const addedTimeLabel = resolveAddedTimeLabel(timer.addedTime);
 
+  const { getLocalizedString } = useTranslation();
+
   return (
     <div className={style.timeContainer}>
       <div className={style.indicators}>
@@ -69,11 +73,11 @@ export default function PlaybackTimer(props: PropsWithChildren<PlaybackTimerProp
         ) : (
           <>
             <span className={style.start}>
-              <span className={style.tag}>Started at</span>
+              <span className={style.tag}>{getLocalizedString('common.started_at')}</span>
               <span className={style.time}>{started}</span>
             </span>
             <span className={style.finish}>
-              <span className={style.tag}>Expect end</span>
+              <span className={style.tag}>{getLocalizedString('common.projected_end')}</span>
               <span className={style.time}>{finish}</span>
             </span>
           </>

@@ -8,10 +8,13 @@ import { enDash } from '../../common/utils/styleUtils';
 
 import { TimeColumn, TimeRow } from './composite/TimeLayout';
 import { calculateEndAndDaySpan, formatedTime, getOffsetText } from './overviewUtils';
+import { useTranslation } from '../../translation/TranslationProvider';
 
 import style from './Overview.module.scss';
 
 export const EditorOverview = memo(_EditorOverview);
+
+
 
 function _EditorOverview({ children }: { children: React.ReactNode }) {
   const { plannedEnd, plannedStart, actualStart, expectedEnd } = useRuntimeOverview();
@@ -21,6 +24,7 @@ function _EditorOverview({ children }: { children: React.ReactNode }) {
 
   const [maybeExpectedEnd, maybeExpectedDaySpan] = useMemo(() => calculateEndAndDaySpan(expectedEnd), [expectedEnd]);
   const expectedEndText = formatedTime(maybeExpectedEnd);
+  const { getLocalizedString } = useTranslation();
 
   return (
     <div className={style.overview}>
@@ -29,16 +33,16 @@ function _EditorOverview({ children }: { children: React.ReactNode }) {
         <div className={style.info}>
           <TitlesOverview />
           <div>
-            <TimeRow label='Planned start' value={formatedTime(plannedStart)} className={style.start} />
-            <TimeRow label='Actual start' value={formatedTime(actualStart)} className={style.start} />
+            <TimeRow label={getLocalizedString('common.scheduled_start')} value={formatedTime(plannedStart)} className={style.start} />
+            <TimeRow label={getLocalizedString('common.started_at')} value={formatedTime(actualStart)} className={style.start} />
           </div>
           <ProgressOverview />
           <CurrentBlockOverview />
           <RuntimeOverview />
           <div>
-            <TimeRow label='Planned end' value={plannedEndText} className={style.end} daySpan={maybePlannedDaySpan} />
+            <TimeRow label={getLocalizedString('common.scheduled_end')} value={plannedEndText} className={style.end} daySpan={maybePlannedDaySpan} />
             <TimeRow
-              label='Expected end'
+              label={getLocalizedString('common.projected_end')}
               value={expectedEndText}
               className={style.end}
               daySpan={maybeExpectedDaySpan}
@@ -60,6 +64,7 @@ function _CuesheetOverview({ children }: { children: React.ReactNode }) {
 
   const [maybeExpectedEnd, maybeExpectedDaySpan] = useMemo(() => calculateEndAndDaySpan(expectedEnd), [expectedEnd]);
   const expectedEndText = formatedTime(maybeExpectedEnd);
+  const { getLocalizedString } = useTranslation();
 
   return (
     <div className={style.overview}>
@@ -70,9 +75,9 @@ function _CuesheetOverview({ children }: { children: React.ReactNode }) {
           <TimerOverview />
           <RuntimeOverview />
           <div>
-            <TimeRow label='Planned end' value={plannedEndText} className={style.end} daySpan={maybePlannedDaySpan} />
+            <TimeRow label={getLocalizedString('common.scheduled_end')} value={plannedEndText} className={style.end} daySpan={maybePlannedDaySpan} />
             <TimeRow
-              label='Expected end'
+              label={getLocalizedString('common.projected_end')}
               value={expectedEndText}
               className={style.end}
               daySpan={maybeExpectedDaySpan}
@@ -97,18 +102,20 @@ function TitlesOverview() {
 
 function CurrentBlockOverview() {
   const { currentBlock, clock } = useRuntimePlaybackOverview();
-
+  
   const timeInBlock = formatedTime(currentBlock.startedAt === null ? null : clock - currentBlock.startedAt);
+  const { getLocalizedString } = useTranslation();
 
-  return <TimeColumn label='Time in block' value={timeInBlock} className={style.clock} />;
+  return <TimeColumn label={getLocalizedString('common.elapsed_time')} value={timeInBlock} className={style.clock} />;
 }
 
 function TimerOverview() {
   const { current } = useTimer();
 
   const display = millisToString(current);
+  const { getLocalizedString } = useTranslation();
 
-  return <TimeColumn label='Running timer' value={display} />;
+  return <TimeColumn label={getLocalizedString('countdown.running')} value={display} />;
 }
 
 function ProgressOverview() {
@@ -117,8 +124,9 @@ function ProgressOverview() {
   const current = selectedEventIndex !== null ? selectedEventIndex + 1 : enDash;
   const ofTotal = numEvents || enDash;
   const progressText = numEvents ? `${current} of ${ofTotal}` : '-';
+  const { getLocalizedString } = useTranslation();
 
-  return <TimeColumn label='Progress' value={progressText} />;
+  return <TimeColumn label={getLocalizedString('common.progress')} value={progressText} />;
 }
 
 function RuntimeOverview() {
@@ -126,11 +134,12 @@ function RuntimeOverview() {
 
   const offsetText = getOffsetText(offset);
   const offsetClasses = offset === null ? undefined : offset <= 0 ? style.behind : style.ahead;
+  const { getLocalizedString } = useTranslation();
 
   return (
     <>
-      <TimeColumn label='Offset' value={offsetText} className={offsetClasses} />
-      <TimeColumn label='Time now' value={formatedTime(clock)} />
+      <TimeColumn label={getLocalizedString('common.offset')} value={offsetText} className={offsetClasses} />
+      <TimeColumn label={getLocalizedString('common.time_now')} value={formatedTime(clock)} />
     </>
   );
 }

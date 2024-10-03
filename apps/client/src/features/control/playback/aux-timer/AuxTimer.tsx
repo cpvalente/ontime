@@ -11,10 +11,11 @@ import { setAuxTimer, useAuxTimerControl, useAuxTimerTime } from '../../../../co
 import TapButton from '../tap-button/TapButton';
 
 import style from './AuxTimer.module.scss';
+import { useTranslation } from '../../../../translation/TranslationProvider';
 
 export function AuxTimer() {
   const { playback, direction } = useAuxTimerControl();
-
+  const { getLocalizedString } = useTranslation();
   const { start, pause, stop, setDirection } = setAuxTimer;
 
   const toggleDirection = () => {
@@ -30,7 +31,7 @@ export function AuxTimer() {
 
   return (
     <label className={style.label}>
-      Auxiliary Timer
+      {getLocalizedString('common.aux_time')}
       <div className={style.controls}>
         <AuxTimerInput />
         <TapButton onClick={toggleDirection} aspect='tight'>

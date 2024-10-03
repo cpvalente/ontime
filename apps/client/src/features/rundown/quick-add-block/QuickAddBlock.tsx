@@ -7,6 +7,8 @@ import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useEmitLog } from '../../../common/stores/logger';
 
 import style from './QuickAddBlock.module.scss';
+import { useTranslation } from '../../../translation/TranslationProvider';
+
 
 interface QuickAddBlockProps {
   previousEventId?: string;
@@ -21,6 +23,8 @@ function QuickAddBlock(props: QuickAddBlockProps) {
 
   const doLinkPrevious = useRef<HTMLInputElement | null>(null);
   const doPublic = useRef<HTMLInputElement | null>(null);
+
+  const { getLocalizedString } = useTranslation();
 
   const handleCreateEvent = useCallback(
     (eventType: SupportedEvent) => {
@@ -74,7 +78,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
         leftIcon={<IoAdd />}
         color='#b1b1b1' // $gray-400
       >
-        Event
+        {getLocalizedString('editor.event')}
       </Button>
       <Button
         onClick={() => handleCreateEvent(SupportedEvent.Delay)}
@@ -84,7 +88,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
         leftIcon={<IoAdd />}
         color='#b1b1b1' // $gray-400
       >
-        Delay
+        {getLocalizedString('editor.delay')}
       </Button>
       <Button
         onClick={() => handleCreateEvent(SupportedEvent.Block)}
@@ -94,7 +98,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
         leftIcon={<IoAdd />}
         color='#b1b1b1' // $gray-400
       >
-        Block
+        {getLocalizedString('editor.block')}
       </Button>
     </div>
   );
