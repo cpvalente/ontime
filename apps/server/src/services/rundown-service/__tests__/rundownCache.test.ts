@@ -1,4 +1,5 @@
 import {
+  CustomFieldType,
   CustomFields,
   EndAction,
   EventCustomFields,
@@ -393,12 +394,12 @@ describe('generate()', () => {
       const customProperties: CustomFields = {
         lighting: {
           label: 'lighting',
-          type: 'string',
+          type: CustomFieldType.String,
           colour: 'red',
         },
         sound: {
           label: 'sound',
-          type: 'string',
+          type: CustomFieldType.String,
           colour: 'red',
         },
       };
@@ -932,14 +933,14 @@ describe('custom fields', () => {
         },
       };
 
-      const customField = await createCustomField({ label: 'Lighting', type: 'string', colour: 'blue' });
+      const customField = await createCustomField({ label: 'Lighting', type: CustomFieldType.String, colour: 'blue' });
       expect(customField).toStrictEqual(expected);
     });
   });
 
   describe('editCustomField()', () => {
     it('edits a field with a given label', async () => {
-      await createCustomField({ label: 'Sound', type: 'string', colour: 'blue' });
+      await createCustomField({ label: 'Sound', type: CustomFieldType.String, colour: 'blue' });
 
       const expected = {
         lighting: {
@@ -954,14 +955,18 @@ describe('custom fields', () => {
         },
       };
 
-      const customField = await editCustomField('sound', { label: 'Sound', type: 'string', colour: 'green' });
+      const customField = await editCustomField('sound', {
+        label: 'Sound',
+        type: CustomFieldType.String,
+        colour: 'green',
+      });
       expect(customFieldChangelog).toStrictEqual(new Map());
 
       expect(customField).toStrictEqual(expected);
     });
 
     it('renames a field to a new label', async () => {
-      const created = await createCustomField({ label: 'Video', type: 'string', colour: 'red' });
+      const created = await createCustomField({ label: 'Video', type: CustomFieldType.String, colour: 'red' });
 
       const expected = {
         lighting: {
@@ -1003,7 +1008,7 @@ describe('custom fields', () => {
 
       // We need to flush all scheduled tasks for the generate function to settle
       vi.useFakeTimers();
-      const customField = await editCustomField('video', { label: 'AV', type: 'string', colour: 'red' });
+      const customField = await editCustomField('video', { label: 'AV', type: CustomFieldType.String, colour: 'red' });
       expect(customField).toStrictEqual(expectedAfter);
       expect(customFieldChangelog).toStrictEqual(new Map([['video', 'av']]));
       await editCustomField('av', { label: 'video' });

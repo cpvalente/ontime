@@ -1,7 +1,12 @@
 export type CustomFieldLabel = string;
 
+export enum CustomFieldType {
+  String = 'string',
+  Markdown = 'markdown',
+}
+
 export type CustomField = {
-  type: 'string';
+  type: CustomFieldType;
   colour: string;
   label: CustomFieldLabel;
 };
