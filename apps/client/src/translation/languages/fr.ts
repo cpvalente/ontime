@@ -13,7 +13,7 @@ export const langFr: TranslationObject = {
   'common.stage_timer': 'Minuteur de scène',
   'common.started_at': 'Commencé à',
   'common.time_now': 'Heure',
-  'commom.elapsed_time': 'Elapsed Time',
+  'common.elapsed_time': 'Elapsed Time',
   'countdown.ended': 'Évènement terminé à',
   'countdown.running': 'Évènement en cours',
   'countdown.select_event': 'Sélectionnez un évènement à suivre',

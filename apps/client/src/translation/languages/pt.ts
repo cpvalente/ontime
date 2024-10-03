@@ -13,6 +13,7 @@ export const langPt: TranslationObject = {
   'common.stage_timer': 'Temporizador do presentador',
   'common.started_at': 'Iniciado em',
   'common.time_now': 'Hora atual',
+  'common.elapsed_time': 'Elapsed Time',
   'countdown.ended': 'Evento encerrado às',
   'countdown.running': 'Evento em andamento',
   'countdown.select_event': 'Selecione um evento para acompanhar',
