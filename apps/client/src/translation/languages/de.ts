@@ -13,6 +13,7 @@ export const langDe: TranslationObject = {
   'common.stage_timer': 'Bühnen-Timer',
   'common.started_at': 'Gestartet am',
   'common.time_now': 'Aktuelle Zeit',
+  'commom.elapsed_time': 'Elapsed Time',
   'countdown.ended': 'Veranstaltung endete um',
   'countdown.running': 'Veranstaltung läuft',
   'countdown.select_event': 'Wählen Sie eine Veranstaltung aus, um sie zu verfolgen',

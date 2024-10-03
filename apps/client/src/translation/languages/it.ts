@@ -13,6 +13,7 @@ export const langIt: TranslationObject = {
   'common.stage_timer': 'Orologio Palco',
   'common.started_at': 'Iniziato Alle',
   'common.time_now': 'Ora attuale',
+  'commom.elapsed_time': 'Elapsed Time',
   'countdown.ended': 'Evento finito alle',
   'countdown.running': 'Evento in corso',
   'countdown.select_event': 'Seleziona un evento da seguire',

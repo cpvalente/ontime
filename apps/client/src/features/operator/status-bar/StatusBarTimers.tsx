@@ -68,7 +68,7 @@ export default function StatusBarTimers(props: StatusBarTimersProps) {
         <ClockTime className={styles.timer} value={clock} />
       </div>
       <div className={styles.elapsedTime}>
-        <span className={styles.label}>{getLocalizedString('common.time_now')}Elapsed time</span>
+        <span className={styles.label}>{getLocalizedString('commom.elapsed_time')}</span>
         <RunningTime className={styles.timer} value={timer.elapsed} />
       </div>
       <div className={styles.runningTime}>

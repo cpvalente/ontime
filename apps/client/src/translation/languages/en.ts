@@ -11,6 +11,7 @@ export const langEn = {
   'common.stage_timer': 'Stage Timer',
   'common.started_at': 'Started At',
   'common.time_now': 'Time now',
+  'commom.elapsed_time': 'Elapsed Time',
   'countdown.ended': 'Event ended at',
   'countdown.running': 'Event running',
   'countdown.select_event': 'Select an event to follow',
