@@ -17,6 +17,7 @@ const env = process.env.NODE_ENV || 'production';
 const isProduction = env === 'production';
 const isMac = process.platform === 'darwin';
 const isWindows = process.platform === 'win32';
+const isLinux = process.platform === 'linux';
 
 const releaseTag = `v${version}`;
 
@@ -43,6 +44,32 @@ const getServerUrl = (port) => `http://localhost:${port}`;
 /** Resolves URL path to download resources */
 const downloadPath = '/data/db/';
 
+/**
+ * @description Returns public path depending on OS
+ * This is the correct path for the app running in production mode
+ */
+function getAppDataPath() {
+  if (isMac) {
+    return path.join(process.env.HOME, 'Library', 'Application Support', 'Ontime');
+  }
+
+  if (isWindows) {
+    return path.join(process.env.APPDATA, 'Ontime');
+  }
+
+  if (isLinux) {
+    return path.join(process.env.HOME, '.Ontime');
+  }
+
+  return '';
+}
+
+const projectsPath = path.join(getAppDataPath(), 'projects');
+const corruptProjectsPath = path.join(getAppDataPath(), 'corrupt files');
+const crashLogPath = path.join(getAppDataPath(), 'crash logs');
+const stylesPath = path.join(getAppDataPath(), 'styles');
+const externalPath = path.join(getAppDataPath(), 'external');
+
 /** path to tray icon */
 const trayIcon = path.join(__dirname, electronConfig.assets.pathToAssets, 'background.png');
 /** path to app icon directory */
@@ -60,6 +87,11 @@ module.exports = {
   nodePath,
   getClientUrl,
   getServerUrl,
+  projectsPath,
+  corruptProjectsPath,
+  crashLogPath,
+  stylesPath,
+  externalPath,
   downloadPath,
   trayIcon,
   appIcon,

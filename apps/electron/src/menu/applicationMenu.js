@@ -1,6 +1,18 @@
 const { Menu, shell } = require('electron');
 
-const { linkToGitHub, linkToDocs, linkToDiscord, isMac, releaseTag, downloadPath } = require('../external');
+const {
+  linkToGitHub,
+  linkToDocs,
+  linkToDiscord,
+  isMac,
+  releaseTag,
+  projectsPath,
+  corruptProjectsPath,
+  crashLogPath,
+  stylesPath,
+  externalPath,
+  downloadPath,
+} = require('../external');
 
 /**
  * Creates the application menu
@@ -81,6 +93,18 @@ function makeFileMenu(serverUrl, redirectWindow, download) {
         label: 'Download project',
         click: downloadProject,
       },
+      { type: 'separator' },
+      {
+        label: 'Open directory',
+        submenu: [
+          makeItemOpenInDesktop('Projects', projectsPath),
+          makeItemOpenInDesktop('Corrupted projects', corruptProjectsPath),
+          makeItemOpenInDesktop('Crash logs', crashLogPath),
+          makeItemOpenInDesktop('CSS override', stylesPath),
+          makeItemOpenInDesktop('External', externalPath),
+        ],
+      },
+      { type: 'separator' },
       { role: isMac ? 'close' : 'quit' },
     ],
   };
@@ -95,20 +119,20 @@ function makeViewMenu(clientUrl) {
   return {
     label: 'Views',
     submenu: [
-      makeItemOpenInShell('Public', `${clientUrl}/public`),
-      makeItemOpenInShell('Lower Thirds', `${clientUrl}/lower`),
+      makeItemOpenInBrowser('Public', `${clientUrl}/public`),
+      makeItemOpenInBrowser('Lower Thirds', `${clientUrl}/lower`),
       { type: 'separator' },
-      makeItemOpenInShell('Timer', `${clientUrl}/timer`),
-      makeItemOpenInShell('Minimal Timer', `${clientUrl}/minimal`),
-      makeItemOpenInShell('Clock', `${clientUrl}/clock`),
-      makeItemOpenInShell('Backstage', `${clientUrl}/backstage`),
-      makeItemOpenInShell('Timeline (beta)', `${clientUrl}/timeline`),
-      makeItemOpenInShell('Studio Clock', `${clientUrl}/studio`),
-      makeItemOpenInShell('Countdown', `${clientUrl}/countdown`),
+      makeItemOpenInBrowser('Timer', `${clientUrl}/timer`),
+      makeItemOpenInBrowser('Minimal Timer', `${clientUrl}/minimal`),
+      makeItemOpenInBrowser('Clock', `${clientUrl}/clock`),
+      makeItemOpenInBrowser('Backstage', `${clientUrl}/backstage`),
+      makeItemOpenInBrowser('Timeline (beta)', `${clientUrl}/timeline`),
+      makeItemOpenInBrowser('Studio Clock', `${clientUrl}/studio`),
+      makeItemOpenInBrowser('Countdown', `${clientUrl}/countdown`),
       { type: 'separator' },
-      makeItemOpenInShell('Editor', `${clientUrl}/editor`),
-      makeItemOpenInShell('Cuesheet', `${clientUrl}/cuesheet`),
-      makeItemOpenInShell('Operator', `${clientUrl}/op`),
+      makeItemOpenInBrowser('Editor', `${clientUrl}/editor`),
+      makeItemOpenInBrowser('Cuesheet', `${clientUrl}/cuesheet`),
+      makeItemOpenInBrowser('Operator', `${clientUrl}/op`),
 
       { type: 'separator' },
       { role: 'forceReload' },
@@ -238,9 +262,9 @@ function makeHelpMenu(redirectWindow) {
       {
         type: 'separator',
       },
-      makeItemOpenInShell('See on github', linkToGitHub),
-      makeItemOpenInShell('Online documentation', linkToDocs),
-      makeItemOpenInShell('Join us on Discord', linkToDiscord),
+      makeItemOpenInBrowser('See on github', linkToGitHub),
+      makeItemOpenInBrowser('Online documentation', linkToDocs),
+      makeItemOpenInBrowser('Join us on Discord', linkToDiscord),
     ],
   };
 }
@@ -251,12 +275,31 @@ function makeHelpMenu(redirectWindow) {
  * @param {string} url
  * @returns {object} - MenuItem
  */
-function makeItemOpenInShell(label, url) {
+function makeItemOpenInBrowser(label, url) {
   return {
     label: `${label} ↗`,
     click: async () => {
       try {
         await shell.openExternal(url);
+      } catch (_error) {
+        /** unhandled error */
+      }
+    },
+  };
+}
+
+/**
+ * Utility function to open a file in the OS explorer / finder
+ * @param {string} label
+ * @param {string} path
+ * @returns {object} - MenuItem
+ */
+function makeItemOpenInDesktop(label, path) {
+  return {
+    label,
+    click: () => {
+      try {
+        shell.openPath(path);
       } catch (_error) {
         /** unhandled error */
       }
