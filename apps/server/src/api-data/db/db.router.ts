@@ -2,6 +2,7 @@ import express from 'express';
 
 import {
   createProjectFile,
+  currentProjectDownload,
   deleteProjectFile,
   duplicateProjectFile,
   getInfo,
@@ -23,6 +24,7 @@ import {
 
 export const router = express.Router();
 
+router.get('/', currentProjectDownload);
 router.post('/download', validateFilenameBody, projectDownload);
 router.post('/upload', uploadProjectFile, postProjectFile);
 
