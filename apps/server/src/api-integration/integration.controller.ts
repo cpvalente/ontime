@@ -230,8 +230,9 @@ const actionHandlers: Record<string, ActionHandler> = {
     } else if (command && typeof command === 'object') {
       const reply = { payload: {} };
       if ('duration' in command) {
-        const time = numberOrError(command.duration);
-        reply.payload = auxTimerService.setTime(time * 1000); //frontend is seconds based
+        // convert duration in seconds to ms
+        const timeInMs = numberOrError(command.duration) * 1000;
+        reply.payload = auxTimerService.setTime(timeInMs);
       }
       if ('direction' in command) {
         if (command.direction === SimpleDirection.CountUp || command.direction === SimpleDirection.CountDown) {
