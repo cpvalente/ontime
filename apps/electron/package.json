@@ -113,13 +113,6 @@
         ]
       },
       {
-        "from": "../server/src/preloaded-db/",
-        "to": "extraResources/preloaded-db/",
-        "filter": [
-          "**/*"
-        ]
-      },
-      {
         "from": "../server/src/external/",
         "to": "extraResources/external/",
         "filter": [
