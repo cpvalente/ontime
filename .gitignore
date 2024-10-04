@@ -40,9 +40,6 @@ dist/
 ontime-db
 ontime-external/
 
-# working database
-apps/server/src/preloaded-db/db.json
-
 # versioning file
 **/ONTIME_VERSION.js
 
