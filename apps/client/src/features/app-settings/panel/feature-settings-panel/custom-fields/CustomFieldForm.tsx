@@ -6,6 +6,7 @@ import { isAlphanumeric } from 'ontime-utils';
 
 import { maybeAxiosError } from '../../../../../common/api/utils';
 import SwatchSelect from '../../../../../common/components/input/colour-input/SwatchSelect';
+import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
 import * as Panel from '../../PanelUtils';
 
 import style from '../FeatureSettings.module.scss';
@@ -19,6 +20,8 @@ interface CustomFieldsFormProps {
 
 export default function CustomFieldForm(props: CustomFieldsFormProps) {
   const { onSubmit, onCancel, initialColour, initialLabel } = props;
+  const { data, refetch } = useCustomFields();
+
   // we use this to force an update
   const [_, setColour] = useState(initialColour || '');
 
@@ -75,6 +78,7 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
             validate: (value) => {
               if (value.trim().length === 0) return 'Required field';
               if (!isAlphanumeric(value)) return 'Only alphanumeric characters are allowed';
+              if (Object.keys(data).includes(value)) return 'Custom fields must be unique';
               return true;
             },
           })}
