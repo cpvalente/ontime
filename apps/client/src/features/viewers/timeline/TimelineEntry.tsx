@@ -1,4 +1,5 @@
-import { useTimelineStatus } from '../../../common/hooks/useSocket';
+import { useTimelineStatus, useTimer } from '../../../common/hooks/useSocket';
+import { getProgress } from '../../../common/utils/getProgress';
 import { alpha, cx } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -48,6 +49,7 @@ export function TimelineEntry(props: TimelineEntryProps) {
         width: `${width}px`,
       }}
     >
+      {status === 'live' ? <ActiveBlock /> : <div data-status={status} className={style.timelineBlock} />}
       <div
         className={contentClasses}
         data-status={status}
@@ -77,7 +79,7 @@ interface TimelineEntryStatusProps {
   status: ProgressStatus;
 }
 
-// we isolate this component to avoid isolate re-renders provoked by the clock changes
+// extract component to isolate re-renders provoked by the clock changes
 function TimelineEntryStatus(props: TimelineEntryStatusProps) {
   const { delay, start, status } = props;
   const { clock, offset } = useTimelineStatus();
@@ -92,4 +94,11 @@ function TimelineEntryStatus(props: TimelineEntryStatusProps) {
   }
 
   return <div className={style.status}>{statusText}</div>;
+}
+
+/** Generates a block level progress bar */
+function ActiveBlock() {
+  const { current, duration } = useTimer();
+  const progress = getProgress(current, duration);
+  return <div data-status='live' className={style.timelineBlock} style={{ '--progress': `${progress}%` }} />;
 }
