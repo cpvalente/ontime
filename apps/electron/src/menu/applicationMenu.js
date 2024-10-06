@@ -4,6 +4,7 @@ const {
   linkToGitHub,
   linkToDocs,
   linkToDiscord,
+  isProduction,
   isMac,
   releaseTag,
   projectsPath,
@@ -30,6 +31,7 @@ function getApplicationMenu(askToQuit, clientUrl, serverUrl, redirectWindow, dow
     makeViewMenu(clientUrl),
     makeSettingsMenu(redirectWindow),
     makeHelpMenu(redirectWindow),
+    ...(isProduction ? [] : [{ label: 'Dev', submenu: [{ role: 'toggleDevTools' }] }]),
   ];
   return Menu.buildFromTemplate(template);
 }
