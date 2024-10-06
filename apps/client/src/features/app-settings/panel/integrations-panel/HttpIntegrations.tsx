@@ -158,10 +158,6 @@ export default function HttpIntegrations() {
                           placeholder='http://third-party/vt1/{{timer.current}}'
                           {...register(`subscriptions.${index}.message`, {
                             required: { value: true, message: 'Required field' },
-                            pattern: {
-                              value: startsWithHttp,
-                              message: 'HTTP messages should start with http://',
-                            },
                           })}
                         />
                         {maybeError && <Panel.Error>{maybeError}</Panel.Error>}
