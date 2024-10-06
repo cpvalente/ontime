@@ -113,6 +113,14 @@ function escalateError(error) {
   dialog.showErrorBox('An unrecoverable error occurred', error);
 }
 
+/**
+ * Allows electron to ask react app redirect
+ * @param string location
+ */
+function redirectWindow(location) {
+  win.webContents.send('request-editor-location', location);
+}
+
 // Ensure there isn't another instance of the app running already
 const lock = app.requestSingleInstanceLock();
 if (!lock) {
@@ -182,14 +190,8 @@ app.whenReady().then(() => {
     .then((port) => {
       const clientUrl = getClientUrl(port);
       const serverUrl = getServerUrl(port);
-      const menu = getApplicationMenu(
-        askToQuit,
-        clientUrl,
-        serverUrl,
-        (path) => {
-          win.loadURL(`${clientUrl}/${path}`);
-        },
-        (url) => win.webContents.downloadURL(url),
+      const menu = getApplicationMenu(askToQuit, clientUrl, serverUrl, redirectWindow, (url) =>
+        win.webContents.downloadURL(url),
       );
       Menu.setApplicationMenu(menu);
 

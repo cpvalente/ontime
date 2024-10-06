@@ -79,15 +79,15 @@ function makeFileMenu(serverUrl, redirectWindow, download) {
     submenu: [
       {
         label: 'New project...',
-        click: () => redirectWindow('editor?settings=project__manage&create=true'),
+        click: () => redirectWindow('/editor?settings=project__manage&create=true'),
       },
       {
         label: 'Edit project info',
-        click: () => redirectWindow('editor?settings=project__data'),
+        click: () => redirectWindow('/editor?settings=project__data'),
       },
       {
         label: 'Manage projects...',
-        click: () => redirectWindow('editor?settings=project__manage'),
+        click: () => redirectWindow('/editor?settings=project__manage'),
       },
       {
         label: 'Download project',
@@ -158,18 +158,18 @@ function makeSettingsMenu(redirectWindow) {
       {
         label: 'Open Settings',
         accelerator: 'CommandOrControl+,',
-        click: () => redirectWindow('editor?settings=project'),
+        click: () => redirectWindow('/editor?settings=project'),
       },
       {
         label: 'Project',
         submenu: [
           {
             label: 'Project data',
-            click: () => redirectWindow('editor?settings=project__data'),
+            click: () => redirectWindow('/editor?settings=project__data'),
           },
           {
             label: 'Manage projects',
-            click: () => redirectWindow('editor?settings=project__manage'),
+            click: () => redirectWindow('/editor?settings=project__manage'),
           },
         ],
       },
@@ -178,15 +178,15 @@ function makeSettingsMenu(redirectWindow) {
         submenu: [
           {
             label: 'General settings',
-            click: () => redirectWindow('editor?settings=general__settings'),
+            click: () => redirectWindow('/editor?settings=general__settings'),
           },
           {
             label: 'Editor settings',
-            click: () => redirectWindow('editor?settings=general__editor'),
+            click: () => redirectWindow('/editor?settings=general__editor'),
           },
           {
             label: 'View settings',
-            click: () => redirectWindow('editor?settings=general__view'),
+            click: () => redirectWindow('/editor?settings=general__view'),
           },
         ],
       },
@@ -195,11 +195,11 @@ function makeSettingsMenu(redirectWindow) {
         submenu: [
           {
             label: 'Custom fields',
-            click: () => redirectWindow('editor?settings=feature_settings__custom'),
+            click: () => redirectWindow('/editor?settings=feature_settings__custom'),
           },
           {
             label: 'URL presets',
-            click: () => redirectWindow('editor?settings=feature_settings__urlpresets'),
+            click: () => redirectWindow('/editor?settings=feature_settings__urlpresets'),
           },
         ],
       },
@@ -208,11 +208,11 @@ function makeSettingsMenu(redirectWindow) {
         submenu: [
           {
             label: 'Import spreadsheet',
-            click: () => redirectWindow('editor?settings=sources__xlsx'),
+            click: () => redirectWindow('/editor?settings=sources__xlsx'),
           },
           {
             label: 'Sync with Google Sheet',
-            click: () => redirectWindow('editor?settings=sources__gsheet'),
+            click: () => redirectWindow('/editor?settings=sources__gsheet'),
           },
         ],
       },
@@ -221,11 +221,11 @@ function makeSettingsMenu(redirectWindow) {
         submenu: [
           {
             label: 'OSC settings',
-            click: () => redirectWindow('editor?settings=integrations__osc'),
+            click: () => redirectWindow('/editor?settings=integrations__osc'),
           },
           {
             label: 'HTTP settings',
-            click: () => redirectWindow('editor?settings=integrations__http'),
+            click: () => redirectWindow('/editor?settings=integrations__http'),
           },
         ],
       },
@@ -234,11 +234,11 @@ function makeSettingsMenu(redirectWindow) {
         submenu: [
           {
             label: 'Event log',
-            click: () => redirectWindow('editor?settings=network__log'),
+            click: () => redirectWindow('/editor?settings=network__log'),
           },
           {
             label: 'Manage cleints',
-            click: () => redirectWindow('editor?settings=network__clients'),
+            click: () => redirectWindow('/editor?settings=network__clients'),
           },
         ],
       },
@@ -257,7 +257,7 @@ function makeHelpMenu(redirectWindow) {
     submenu: [
       {
         label: `Ontime ${releaseTag}`,
-        click: () => redirectWindow('editor?settings=about'),
+        click: () => redirectWindow('/editor?settings=about'),
       },
       {
         type: 'separator',
