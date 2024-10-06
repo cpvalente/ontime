@@ -56,12 +56,7 @@ describe('getCSSPosition()', () => {
 describe('makeTimelineSections', () => {
   it('creates an array between the hours given, end excluded', () => {
     const result = makeTimelineSections(11, 17);
-    expect(result).toEqual(['11:00', '12:00', '13:00', '14:00', '15:00', '16:00']);
-  });
-
-  it('wraps around midnight', () => {
-    const result = makeTimelineSections(22, 26);
-    expect(result).toEqual(['22:00', '23:00', '00:00', '01:00']);
+    expect(result).toEqual([11, 12, 13, 14, 15, 16]);
   });
 });
 

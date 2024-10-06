@@ -4,7 +4,6 @@ import { isOntimeEvent, isPlayableEvent, MaybeNumber, OntimeRundown } from 'onti
 import { checkIsNextDay, dayInMs, getLastEvent, MILLIS_PER_HOUR } from 'ontime-utils';
 
 import TimelineMarkers from './timeline-markers/TimelineMarkers';
-import TimelineProgressBar from './timeline-progress-bar/TimelineProgressBar';
 import { getElementPosition, getEndHour, getStartHour } from './timeline.utils';
 import { ProgressStatus, TimelineEntry } from './TimelineEntry';
 
@@ -39,57 +38,54 @@ function Timeline(props: TimelineProps) {
   return (
     <div className={style.timeline}>
       <TimelineMarkers startHour={startHour} endHour={endHour} />
-      <TimelineProgressBar startHour={startHour} endHour={endHour} />
-      <div className={style.timelineEvents}>
-        {rundown.map((event) => {
-          // for now we dont render delays and blocks
-          if (!isOntimeEvent(event) || !isPlayableEvent(event)) {
-            return null;
-          }
+      {rundown.map((event) => {
+        // for now we dont render delays and blocks
+        if (!isOntimeEvent(event) || !isPlayableEvent(event)) {
+          return null;
+        }
 
-          // keep track of progress of rundown
-          if (eventStatus === 'live') {
-            eventStatus = 'future';
-          }
-          if (event.id === selectedEventId) {
-            eventStatus = 'live';
-          }
+        // keep track of progress of rundown
+        if (eventStatus === 'live') {
+          eventStatus = 'future';
+        }
+        if (event.id === selectedEventId) {
+          eventStatus = 'live';
+        }
 
-          // we only need to check for next day if we have a previous event
-          if (
-            previousEventStartTime !== null &&
-            checkIsNextDay(previousEventStartTime, event.timeStart, event.duration)
-          ) {
-            elapsedDays++;
-          }
-          const normalisedStart = event.timeStart + elapsedDays * dayInMs;
+        // we only need to check for next day if we have a previous event
+        if (
+          previousEventStartTime !== null &&
+          checkIsNextDay(previousEventStartTime, event.timeStart, event.duration)
+        ) {
+          elapsedDays++;
+        }
+        const normalisedStart = event.timeStart + elapsedDays * dayInMs;
 
-          const { left: elementLeftPosition, width: elementWidth } = getElementPosition(
-            startHour * MILLIS_PER_HOUR,
-            endHour * MILLIS_PER_HOUR,
-            normalisedStart + (event.delay ?? 0),
-            event.duration,
-            screenWidth,
-          );
+        const { left: elementLeftPosition, width: elementWidth } = getElementPosition(
+          startHour * MILLIS_PER_HOUR,
+          endHour * MILLIS_PER_HOUR,
+          normalisedStart + (event.delay ?? 0),
+          event.duration,
+          screenWidth,
+        );
 
-          // prepare values for next iteration
-          previousEventStartTime = normalisedStart;
+        // prepare values for next iteration
+        previousEventStartTime = normalisedStart;
 
-          return (
-            <TimelineEntry
-              key={event.id}
-              colour={event.colour}
-              delay={event.delay ?? 0}
-              duration={event.duration}
-              left={elementLeftPosition}
-              status={eventStatus}
-              start={normalisedStart} // dataset solves issues related to crossing midnight
-              title={event.title}
-              width={elementWidth}
-            />
-          );
-        })}
-      </div>
+        return (
+          <TimelineEntry
+            key={event.id}
+            colour={event.colour}
+            delay={event.delay ?? 0}
+            duration={event.duration}
+            left={elementLeftPosition}
+            status={eventStatus}
+            start={normalisedStart} // dataset solves issues related to crossing midnight
+            title={event.title}
+            width={elementWidth}
+          />
+        );
+      })}
     </div>
   );
 }

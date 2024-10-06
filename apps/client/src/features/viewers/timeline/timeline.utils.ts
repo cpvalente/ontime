@@ -9,8 +9,6 @@ import {
   getTimeFromPrevious,
   isNewLatest,
   MILLIS_PER_HOUR,
-  millisToString,
-  removeSeconds,
 } from 'ontime-utils';
 
 import { clamp } from '../../../common/utils/math';
@@ -71,7 +69,7 @@ export function getEndHour(endTime: number): number {
 export function makeTimelineSections(firstHour: number, lastHour: number) {
   const timelineSections = [];
   for (let i = firstHour; i < lastHour; i++) {
-    timelineSections.push(removeSeconds(millisToString((i % 24) * MILLIS_PER_HOUR)));
+    timelineSections.push(i);
   }
   return timelineSections;
 }
