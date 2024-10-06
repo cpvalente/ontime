@@ -41,6 +41,7 @@ export function TimelineEntry(props: TimelineEntryProps) {
   return (
     <div
       className={columnClasses}
+      data-status={status}
       style={{
         '--color': colour,
         '--lighter': lighterColour ?? '',
@@ -48,6 +49,7 @@ export function TimelineEntry(props: TimelineEntryProps) {
         width: `${width}px`,
       }}
     >
+      <div className={style.timelineBlock} />
       <div
         className={contentClasses}
         data-status={status}
@@ -76,7 +78,7 @@ interface TimelineEntryStatusProps {
   start: number;
 }
 
-// we isolate this component to avoid isolate re-renders provoked by the clock changes
+// extract component to isolate re-renders provoked by the clock changes
 function TimelineEntryStatus(props: TimelineEntryStatusProps) {
   const { status, start } = props;
   const { clock, offset } = useTimelineStatus();

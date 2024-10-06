@@ -85,6 +85,14 @@
     font-size: 3rem;
     text-transform: uppercase;
     font-weight: 600;
+
+    max-height: 2em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .section-content--now {

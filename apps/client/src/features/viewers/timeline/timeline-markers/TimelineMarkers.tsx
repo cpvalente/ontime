@@ -7,6 +7,7 @@ interface TimelineMarkersProps {
   endHour: number;
 }
 
+/** Creates a line for every hour in the timeline */
 export default function TimelineMarkers(props: TimelineMarkersProps) {
   const { startHour, endHour } = props;
 
@@ -14,9 +15,9 @@ export default function TimelineMarkers(props: TimelineMarkersProps) {
 
   return (
     <div className={style.markers}>
-      {elements.map((tag, index) => {
-        return <span key={`${index}-${tag}`}>{tag}</span>;
-      })}
+      {elements.map((tag) => (
+        <span key={tag} />
+      ))}
     </div>
   );
 }
