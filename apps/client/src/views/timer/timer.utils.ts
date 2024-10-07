@@ -189,3 +189,18 @@ export function getCardData(
     nextSecondary,
   };
 }
+
+/**
+ * Whether the end of timer sound should play for a given phase transition
+ * We only sound the transition into overtime from a phase that was already counting,
+ * which keeps a client that connects or reloads mid-overtime silent
+ */
+export function shouldPlayEndSound(previousPhase: TimerPhase | null, phase: TimerPhase): boolean {
+  if (phase !== TimerPhase.Overtime) {
+    return false;
+  }
+
+  return (
+    previousPhase === TimerPhase.Default || previousPhase === TimerPhase.Warning || previousPhase === TimerPhase.Danger
+  );
+}

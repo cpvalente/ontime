@@ -195,6 +195,24 @@
     font-weight: 600;
   }
 
+  .sound-prompt {
+    position: absolute;
+    bottom: $view-block-padding;
+    left: $view-inline-padding;
+    padding: 0.5em 0.75em;
+    border-radius: $element-border-radius;
+    background-color: $viewer-card-bg-color;
+    color: $viewer-secondary-color;
+    font-size: $timer-label-size;
+    text-transform: uppercase;
+    pointer-events: none;
+    transition: opacity $viewer-transition-time;
+
+    &--hidden {
+      opacity: 0;
+    }
+  }
+
   /* =================== LOGO ===================*/
   .logo {
     position: absolute;

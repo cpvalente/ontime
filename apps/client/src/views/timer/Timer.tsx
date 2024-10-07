@@ -8,6 +8,7 @@ import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
+import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import { useTimerSocket } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { cx } from '../../common/utils/styleUtils';
@@ -30,6 +31,7 @@ import {
   getTotalTime,
 } from './timer.utils';
 import { TimerData, useTimerData } from './useTimerData';
+import { useTimerSound } from './useTimerSound';
 
 import './Timer.scss';
 
@@ -66,6 +68,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
     freezeOvertime,
     freezeMessage,
     hidePhase,
+    endSound,
     font,
     keyColour,
     timerColour,
@@ -74,6 +77,8 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
 
   const { getLocalizedString } = useTranslation();
   const localisedMinutes = getLocalizedString('common.minutes');
+
+  const showSoundPrompt = useTimerSound(time.phase, endSound);
 
   // gather modifiers
   const viewTimerType = timerType ?? timerTypeNow;
@@ -156,6 +161,8 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
 
       <ViewParamsEditor target={OntimeView.Timer} viewOptions={timerOptions} />
 
+      {showSoundPrompt && <SoundPermissionPrompt />}
+
       <div className={cx(['blackout', message.timer.blackout && 'blackout--active'])} />
 
       {!hideMessage && (
@@ -224,6 +231,16 @@ function TimerAutoTickingClock({ clockFormat }: { clockFormat: MaybeString }) {
     <div className='clock-container'>
       <div className='label'>{getLocalizedString('common.time_now')}</div>
       <SuperscriptTime time={formattedClock} className='clock' />
+    </div>
+  );
+}
+
+function SoundPermissionPrompt() {
+  const isUserActive = useFadeOutOnInactivity(true);
+
+  return (
+    <div className={cx(['sound-prompt', !isUserActive && 'sound-prompt--hidden'])} aria-live='polite'>
+      Interact with the page (click/tap or press any key) to enable sound
     </div>
   );
 }
