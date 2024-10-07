@@ -1,9 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 import { Playback, TimerPhase, TimerType, ViewSettings } from 'ontime-types';
 
-import { overrideStylesURL } from '../../../common/api/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
-import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
@@ -22,16 +20,10 @@ interface MinimalTimerProps {
 
 export default function MinimalTimer(props: MinimalTimerProps) {
   const { isMirrored, time, viewSettings } = props;
-  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
 
   useWindowTitle('Minimal Timer');
-
-  // defer rendering until we load stylesheets
-  if (!shouldRender) {
-    return null;
-  }
 
   // TODO: this should be tied to the params
   // USER OPTIONS

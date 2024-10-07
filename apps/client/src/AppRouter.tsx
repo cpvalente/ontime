@@ -14,6 +14,7 @@ import { useClientPath } from './common/hooks/useClientPath';
 import Log from './features/log/Log';
 import withPreset from './features/PresetWrapper';
 import withData from './features/viewers/ViewWrapper';
+import ViewLoader from './views/ViewLoader';
 import { ONTIME_VERSION } from './ONTIME_VERSION';
 import { sentryDsn, sentryRecommendedIgnore } from './sentry.config';
 
@@ -75,16 +76,72 @@ export default function AppRouter() {
     <React.Suspense fallback={null}>
       <SentryRoutes>
         <Route path='/' element={<Navigate to='/timer' />} />
-        <Route path='/timer' element={<STimer />} />
-        <Route path='/public' element={<SPublic />} />
-        <Route path='/minimal' element={<SMinimalTimer />} />
-        <Route path='/clock' element={<SClock />} />
-
-        <Route path='/countdown' element={<SCountdown />} />
-        <Route path='/backstage' element={<SBackstage />} />
-        <Route path='/studio' element={<SStudio />} />
+        <Route
+          path='/timer'
+          element={
+            <ViewLoader>
+              <STimer />
+            </ViewLoader>
+          }
+        />
+        <Route
+          path='/public'
+          element={
+            <ViewLoader>
+              <SPublic />
+            </ViewLoader>
+          }
+        />
+        <Route
+          path='/minimal'
+          element={
+            <ViewLoader>
+              <SMinimalTimer />
+            </ViewLoader>
+          }
+        />
+        <Route
+          path='/clock'
+          element={
+            <ViewLoader>
+              <SClock />
+            </ViewLoader>
+          }
+        />
+        <Route
+          path='/countdown'
+          element={
+            <ViewLoader>
+              <SCountdown />
+            </ViewLoader>
+          }
+        />
+        <Route
+          path='/backstage'
+          element={
+            <ViewLoader>
+              <SBackstage />
+            </ViewLoader>
+          }
+        />
+        <Route
+          path='/studio'
+          element={
+            <ViewLoader>
+              <SStudio />
+            </ViewLoader>
+          }
+        />
+        {/*/!* Lower third cannot have a loading screen *!/*/}
         <Route path='/lower' element={<SLowerThird />} />
-        <Route path='/timeline' element={<STimeline />} />
+        <Route
+          path='/timeline'
+          element={
+            <ViewLoader>
+              <STimeline />
+            </ViewLoader>
+          }
+        />
 
         {/*/!* Protected Routes *!/*/}
         <Route path='/editor' element={<Editor />} />
