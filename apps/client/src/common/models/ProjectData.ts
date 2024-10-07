@@ -7,4 +7,5 @@ export const projectDataPlaceholder: ProjectData = {
   publicInfo: '',
   backstageUrl: '',
   backstageInfo: '',
+  projectImage: '',
 };

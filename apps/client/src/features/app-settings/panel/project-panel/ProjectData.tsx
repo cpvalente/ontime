@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input, Textarea } from '@chakra-ui/react';
 import { type ProjectData } from 'ontime-types';
@@ -12,6 +12,7 @@ import style from './ProjectPanel.module.scss';
 
 export default function ProjectData() {
   const { data, status, refetch } = useProjectData();
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
 
   const {
     handleSubmit,
@@ -34,8 +35,23 @@ export default function ProjectData() {
     }
   }, [data, reset]);
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageBase64(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const onSubmit = async (formData: ProjectData) => {
     try {
+      if (imageBase64) {
+        formData.projectImage = imageBase64;
+      }
+
       await postProjectData(formData);
     } catch (error) {
       const message = maybeAxiosError(error);
@@ -85,6 +101,10 @@ export default function ProjectData() {
               autoComplete='off'
               {...register('title')}
             />
+          </label>
+          <label>
+            Image
+            <Input variant='ontime-filled' size='sm' type='file' accept='image/*' onChange={handleFileChange} />
           </label>
           <label>
             Project description

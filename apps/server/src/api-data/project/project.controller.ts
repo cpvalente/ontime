@@ -25,6 +25,7 @@ export async function postProjectData(req: Request, res: Response<ProjectData | 
       backstageUrl: req.body?.backstageUrl,
       backstageInfo: req.body?.backstageInfo,
       endMessage: req.body?.endMessage,
+      projectImage: req.body?.projectImage,
     });
     const newData = await getDataProvider().setProjectData(newEvent);
     res.status(200).send(newData);

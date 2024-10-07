@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input } from '@chakra-ui/react';
 
@@ -6,6 +6,7 @@ import style from './ProjectPanel.module.scss';
 
 export type ProjectFormValues = {
   filename: string;
+  fileBase64?: string;
 };
 
 interface ProjectFormProps {
@@ -16,6 +17,8 @@ interface ProjectFormProps {
 }
 
 export default function ProjectForm({ action, filename, onSubmit, onCancel }: ProjectFormProps) {
+  const [fileBase64, setFileBase64] = useState<string | null>(null);
+
   const {
     handleSubmit,
     register,
@@ -33,8 +36,28 @@ export default function ProjectForm({ action, filename, onSubmit, onCancel }: Pr
     setFocus('filename');
   }, [setFocus]);
 
+  // Convert image to base64
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFileBase64(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleFormSubmit = async (formData: ProjectFormValues) => {
+    // Add fileBase64 to formData if it exists
+    if (fileBase64) {
+      formData.fileBase64 = fileBase64;
+    }
+    await onSubmit(formData);
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className={style.form}>
+    <form onSubmit={handleSubmit(handleFormSubmit)} className={style.form}>
       <Input
         className={style.formInput}
         id='filename'
@@ -45,6 +68,17 @@ export default function ProjectForm({ action, filename, onSubmit, onCancel }: Pr
         autoComplete='off'
         {...register('filename', { required: true })}
       />
+
+      {/* Add file input */}
+      <Input
+        className={style.formInput}
+        id='fileInput'
+        size='sm'
+        type='file'
+        accept='image/*'
+        onChange={handleFileChange}
+      />
+
       <div className={style.actionButtons}>
         <Button onClick={onCancel} size='sm' variant='ontime-ghosted' disabled={isSubmitting}>
           Cancel

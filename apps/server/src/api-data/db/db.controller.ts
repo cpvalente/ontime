@@ -39,6 +39,7 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
         publicInfo: req.body?.publicInfo ?? '',
         backstageUrl: req.body?.backstageUrl ?? '',
         backstageInfo: req.body?.backstageInfo ?? '',
+        projectImage: req.body?.projectImage ?? undefined,
       },
     });
 

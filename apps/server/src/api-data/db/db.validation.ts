@@ -13,6 +13,7 @@ export const validateNewProject = [
   body('publicInfo').optional().isString().trim(),
   body('backstageUrl').optional().isString().trim(),
   body('backstageInfo').optional().isString().trim(),
+  body('projectImage').optional().isString().trim(),
   body('endMessage').optional().isString().trim(),
 
   (req: Request, res: Response, next: NextFunction) => {
