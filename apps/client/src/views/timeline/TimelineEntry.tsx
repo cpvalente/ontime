@@ -1,8 +1,8 @@
-import { useTimelineStatus, useTimer } from '../../../common/hooks/useSocket';
-import { getProgress } from '../../../common/utils/getProgress';
-import { alpha, cx } from '../../../common/utils/styleUtils';
-import { formatDuration, formatTime } from '../../../common/utils/time';
-import { useTranslation } from '../../../translation/TranslationProvider';
+import { useTimelineStatus, useTimer } from '../../common/hooks/useSocket';
+import { getProgress } from '../../common/utils/getProgress';
+import { alpha, cx } from '../../common/utils/styleUtils';
+import { formatDuration, formatTime } from '../../common/utils/time';
+import { useTranslation } from '../../translation/TranslationProvider';
 
 import { getStatusLabel, getTimeToStart } from './timeline.utils';
 

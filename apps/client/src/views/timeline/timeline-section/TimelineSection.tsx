@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { MaybeString } from 'ontime-types';
 
-import { cx } from '../../../../common/utils/styleUtils';
+import { cx } from '../../../common/utils/styleUtils';
 
 interface SectionProps {
   category: 'now' | 'next';

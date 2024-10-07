@@ -11,9 +11,9 @@ import {
   MILLIS_PER_HOUR,
 } from 'ontime-utils';
 
-import { clamp } from '../../../common/utils/math';
-import { formatDuration } from '../../../common/utils/time';
-import { isStringBoolean } from '../common/viewUtils';
+import { clamp } from '../../common/utils/math';
+import { formatDuration } from '../../common/utils/time';
+import { isStringBoolean } from '../../features/viewers/common/viewUtils';
 
 import type { ProgressStatus } from './TimelineEntry';
 
