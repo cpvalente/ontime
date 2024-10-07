@@ -176,6 +176,14 @@ export const useTimer = () => {
   return useRuntimeStore(featureSelector);
 };
 
+export const useTimerPhase = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    phase: state.timer.phase,
+  });
+
+  return useRuntimeStore(featureSelector);
+};
+
 export const useClock = () => {
   const featureSelector = (state: RuntimeStore) => ({
     clock: state.clock,
