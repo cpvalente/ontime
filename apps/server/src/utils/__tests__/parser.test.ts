@@ -729,26 +729,37 @@ describe('test import of v2 datamodel', () => {
 
 describe('makeString()', () => {
   it('converts variables to string', () => {
-    let val = 2;
-    let expected = '2';
-    let converted = makeString(val);
-    expect(converted).toBe(expected);
+    const cases = [
+      {
+        val: 2,
+        expected: '2',
+      },
+      {
+        val: 2.22222222,
+        expected: '2.22222222',
+      },
+      {
+        val: ['testing'],
+        expected: 'testing',
+      },
+      {
+        val: ' testing    ',
+        expected: 'testing',
+      },
+      {
+        val: { doing: 'testing' },
+        expected: 'fallback',
+      },
+      {
+        val: undefined,
+        expected: 'fallback',
+      },
+    ];
 
-    val = 2.22222222;
-    expected = '2.22222222';
-    converted = makeString(val);
-    expect(converted).toBe(expected);
-
-    // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    val = ['testing'];
-    expected = 'testing';
-    converted = makeString(val);
-    expect(converted).toBe(expected);
-
-    // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    val = { doing: 'testing' };
-    converted = makeString(val, 'fallback');
-    expect(converted).toBe('fallback');
+    cases.forEach(({ val, expected }) => {
+      const converted = makeString(val, 'fallback');
+      expect(converted).toBe(expected);
+    });
   });
 });
 
@@ -1222,6 +1233,7 @@ describe('parseExcel()', () => {
     expect(result.rundown.length).toBe(1);
     expect((result.rundown.at(0) as OntimeEvent).title).toBe('A song from the hearth');
   });
+
   it('imports blocks', () => {
     const testdata = [
       [
@@ -1386,6 +1398,126 @@ describe('parseExcel()', () => {
     expect((result.rundown.at(0) as OntimeEvent).timerType).toBe(TimerType.CountDown);
     expect((result.rundown.at(1) as OntimeEvent).type).toBe(SupportedEvent.Event);
     expect((result.rundown.at(1) as OntimeEvent).timerType).toBe(TimerType.CountDown);
+  });
+
+  it('imports as events if timer type is empty or has whitespace', () => {
+    const testdata = [
+      [
+        'Time Start',
+        'Time End',
+        'Title',
+        'End Action',
+        'Public',
+        'Skip',
+        'Notes',
+        'test0',
+        'test1',
+        'test2',
+        'test3',
+        'test4',
+        'test5',
+        'test6',
+        'test7',
+        'test8',
+        'test9',
+        'Colour',
+        'cue',
+        'Timer type',
+      ],
+      [
+        '',
+        '',
+        '',
+        '',
+        'x',
+        '',
+        'Ballyhoo',
+        'a0',
+        'a1',
+        'a2',
+        'a3',
+        'a4',
+        'a5',
+        'a6',
+        'a7',
+        'a8',
+        'a9',
+        'red',
+        101,
+        ' ',
+      ],
+      [
+        '1899-12-30T08:00:00.000Z',
+        '1899-12-30T08:30:00.000Z',
+        'A song from the hearth',
+        'load-next',
+        '',
+        'x',
+        'Rainbow chase',
+        'b0',
+        '',
+        '',
+        '',
+        '',
+        'b5',
+        '',
+        '',
+        '',
+        '',
+        '#F00',
+        102,
+        undefined,
+      ],
+      [
+        '1899-12-30T08:00:00.000Z',
+        '1899-12-30T08:30:00.000Z',
+        'A song from the hearth',
+        'load-next',
+        '',
+        'x',
+        'Rainbow chase',
+        'b0',
+        '',
+        '',
+        '',
+        '',
+        'b5',
+        '',
+        '',
+        '',
+        '',
+        '#F00',
+        103,
+        ' count-up ',
+      ],
+      [],
+    ];
+
+    const importMap = {
+      worksheet: 'event schedule',
+      timeStart: 'time start',
+      timeEnd: 'time end',
+      duration: 'duration',
+      cue: 'cue',
+      title: 'title',
+      isPublic: 'public',
+      skip: 'skip',
+      note: 'notes',
+      colour: 'colour',
+      endAction: 'end action',
+      timerType: 'timer type',
+      timeWarning: 'warning time',
+      timeDanger: 'danger time',
+      custom: {},
+    };
+    const result = parseExcel(testdata, importMap);
+    expect(result.rundown.length).toBe(3);
+    expect((result.rundown.at(0) as OntimeEvent).type).toBe(SupportedEvent.Event);
+    expect((result.rundown.at(0) as OntimeEvent).timerType).toBe(TimerType.CountDown);
+    expect((result.rundown.at(1) as OntimeEvent).type).toBe(SupportedEvent.Event);
+    expect((result.rundown.at(1) as OntimeEvent).timerType).toBe(TimerType.CountDown);
+    expect((result.rundown.at(2) as OntimeEvent).type).toBe(SupportedEvent.Event);
+    expect((result.rundown.at(2) as OntimeEvent).timerType).toBe(TimerType.CountUp);
   });
 
   it('am/pm conversion to 24h', () => {

@@ -195,11 +195,12 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
       const column = row[j];
       // 1. we check if we have set a flag for a known field
       if (j === timerTypeIndex) {
-        if (column === 'block') {
+        const maybeTimeType = makeString(column, '');
+        if (maybeTimeType === 'block') {
           event.type = SupportedEvent.Block;
-        } else if (column === '' || isKnownTimerType(column)) {
+        } else if (maybeTimeType === '' || isKnownTimerType(maybeTimeType)) {
           event.type = SupportedEvent.Event;
-          event.timerType = validateTimerType(column);
+          event.timerType = validateTimerType(maybeTimeType);
         } else {
           // if it is not a block or a known type, we dont import it
           return;
