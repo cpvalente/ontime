@@ -2,17 +2,15 @@ import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { CustomFields, OntimeEvent, ProjectData, Settings, SupportedEvent, ViewSettings } from 'ontime-types';
+import { CustomFields, OntimeEvent, ProjectData, Settings, SupportedEvent } from 'ontime-types';
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 
-import { overrideStylesURL } from '../../../common/api/constants';
 import ProgressBar from '../../../common/components/progress-bar/ProgressBar';
 import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
 import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
-import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { timerPlaceholderMin } from '../../../common/utils/styleUtils';
@@ -37,25 +35,12 @@ interface BackstageProps {
   backstageEvents: OntimeEvent[];
   selectedId: string | null;
   general: ProjectData;
-  viewSettings: ViewSettings;
   settings: Settings | undefined;
 }
 
 export default function Backstage(props: BackstageProps) {
-  const {
-    customFields,
-    isMirrored,
-    eventNow,
-    eventNext,
-    time,
-    backstageEvents,
-    selectedId,
-    general,
-    viewSettings,
-    settings,
-  } = props;
+  const { customFields, isMirrored, eventNow, eventNext, time, backstageEvents, selectedId, general, settings } = props;
 
-  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [blinkClass, setBlinkClass] = useState(false);
   const [searchParams] = useSearchParams();
@@ -72,11 +57,6 @@ export default function Backstage(props: BackstageProps) {
 
     return () => clearTimeout(timer);
   }, [selectedId]);
-
-  // defer rendering until we load stylesheets
-  if (!shouldRender) {
-    return null;
-  }
 
   const clock = formatTime(time.clock);
   const startedAt = formatTime(time.startedAt);

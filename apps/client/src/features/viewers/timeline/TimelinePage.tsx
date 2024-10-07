@@ -1,9 +1,7 @@
 import { useMemo } from 'react';
-import { MaybeString, OntimeEvent, ProjectData, Runtime, Settings, ViewSettings } from 'ontime-types';
+import { MaybeString, OntimeEvent, ProjectData, Runtime, Settings } from 'ontime-types';
 
-import { overrideStylesURL } from '../../../common/api/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
-import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatDuration, formatTime, getDefaultFormat } from '../../../common/utils/time';
@@ -24,7 +22,6 @@ interface TimelinePageProps {
   selectedId: MaybeString;
   settings: Settings | undefined;
   time: ViewExtendedTimer;
-  viewSettings: ViewSettings;
 }
 
 /**
@@ -33,8 +30,7 @@ interface TimelinePageProps {
  * There is little point splitting or memoising top level elements
  */
 export default function TimelinePage(props: TimelinePageProps) {
-  const { backstageEvents, general, runtime, selectedId, settings, time, viewSettings } = props;
-  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+  const { backstageEvents, general, runtime, selectedId, settings, time } = props;
   // holds copy of the rundown with only relevant events
   const { scopedRundown, firstStart, totalDuration } = useScopedRundown(backstageEvents, selectedId);
   const { getLocalizedString } = useTranslation();
@@ -45,10 +41,6 @@ export default function TimelinePage(props: TimelinePageProps) {
   }, [scopedRundown, selectedId]);
 
   useWindowTitle('Timeline');
-
-  if (!shouldRender) {
-    return null;
-  }
 
   // populate options
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
