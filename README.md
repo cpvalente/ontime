@@ -14,8 +14,10 @@
 - Download AppImage for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-linux.AppImage">Linux</a>
 - Get from <a href="https://hub.docker.com/r/getontime/ontime">Docker hub</a>
 
-## Using Ontime?
+## Need help?
+We do our best to have most topics covered by the documentation. However, if your question is not covered, you are welcome to [fill in a bug report in an issue](https://github.com/cpvalente/ontime/issues), [ask a question in GitHub discussions](https://github.com/cpvalente/ontime/discussions) or hop in the [discord server](https://discord.com/invite/eje3CSUEXm) for a chat.
 
+## Using Ontime?
 Let us know!
 Ontime improves from the collaboration with its users. We would like to understand how you use Ontime and appreciate your feedback.
 
@@ -34,6 +36,16 @@ Ontime is made by entertainment and broadcast engineers and used by
 - Broadcasters and streamers
 - Theatres and opera houses
 - Houses of worship
+
+## Main features
+- [x] **Multiplatform**: Available for Windows / MacOS, Linux. You can also self host with the docker image
+- [x] **In any device**: Ontime is available in the local network to any device with a browser, eg: tablets, mobile phones, laptops, signage, media servers...
+- [x] **Made for teams**: Ontime caters to different roles in your production team: directors, operators, backstage and front of house signage...
+- [x] **Delay workflows**: Manage and communicate runtime delays in real-time to your team
+- [x] **Automatable**: Ontime can be fully or partially controlled by an operator, or run standalone with the system clock
+- [x] **Focus on integrations**: Use one of the APIs provided (OSC, HTTP, Websocket) or the available [Companion module](https://bitfocus.io/connections/getontime-ontime) to integrate into your workflow (vMix, disguise, Qlab, OBS)
+
+... and a lot more ...
 
 ### For live environments
 
@@ -83,6 +95,7 @@ IP.ADDRESS:4001/clock      > Simple clock view
 IP.ADDRESS:4001/backstage  > Stage Manager / Backstage view
 IP.ADDRESS:4001/countdown  > Countdown to anything
 IP.ADDRESS:4001/studio     > Studio Clock
+IP.ADDRESS:4001/timeline   > Timeline
 ```
 
 ```
@@ -100,26 +113,13 @@ IP.ADDRESS:4001/cuesheet  > realtime cuesheets for collaboration
 IP.ADDRESS:4001/operator  > automated views for operators
 ```
 
-More documentation is available [in our docs](https://docs.getontime.no)
-
-## Main features
-
-- [x] Distribute data over network and render it in the browser
-- [x] Collaborative
-- [x] Extendable
-- [x] Send messages to different screen types
-- [x] Differentiate between backstage and public data
-- [x] Workflow for managing delays
-- [x] Rich protocol integrations for Control and Feedback
-- [x] For servers: use docker to run Ontime in in a server, configure from a browser anywhere
-- [x] Multi-platform (available on Windows, MacOS and Linux)
-- [x] Companion integration [follow link](https://bitfocus.io/connections/getontime-ontime)
+More information is available [in our docs](https://docs.getontime.no)
 
 ## Roadmap
 
 ### Continued development
 
-Ontime is under active development. We continue adding and tweaking features in collaboration with users.
+Ontime is under active development. We continue adding and improving features in collaboration with users.
 
 Have an idea? Reach out via [email](mail@getontime.no)
 or [open an issue](https://github.com/cpvalente/ontime/issues/new)
@@ -161,8 +161,9 @@ If you are a developer and would like to contribute with code, please open an is
 Information about the project setup can be found in the [development documentation](./DEVELOPMENT.md)
 
 ## Links
-
-See the [Ontime website](https://getontime.no) here and the link to the [documentation](https://docs.getontime.no)
+- [Ontime website](https://getontime.no) 
+- [Documentation](https://docs.getontime.no)
+- [Ontime discord server](https://discord.com/invite/eje3CSUEXm)
 
 ## License
 
