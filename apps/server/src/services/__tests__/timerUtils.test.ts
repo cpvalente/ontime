@@ -1040,7 +1040,7 @@ describe('getRuntimeOffset()', () => {
     state.timer.current = updateCurrent;
     const offset = getRuntimeOffset(state);
     expect(millisToString(offset)).toBe('-00:16:40');
-    expect(offset).toBe(81000000 - 82000000); // <-- now - planned end
+    expect(offset).toBe(81000000 - 82000000); // <-- planned end - now
   });
 });
 
