@@ -140,7 +140,7 @@ export function getRuntimeOffset(state: RuntimeState): number {
     return timeStart - clock;
   }
 
-  const overtime = Math.abs(Math.min(current, 0));
+  const overtime = Math.min(current, 0);
   // in time-to-end, offset is overtime
   if (timerType === TimerType.TimeToEnd) {
     return overtime;
@@ -153,7 +153,7 @@ export function getRuntimeOffset(state: RuntimeState): number {
   // addedTime - time added by user (negative offset)
   // pausedTime - time the playback was paused (negative offset)
   // overtime - how long the timer has been over-running (negative offset)
-  return startOffset - addedTime - pausedTime - overtime;
+  return startOffset - addedTime - pausedTime + overtime;
 }
 
 /**

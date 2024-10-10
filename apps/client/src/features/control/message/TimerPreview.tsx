@@ -52,7 +52,7 @@ export default function TimerPreview() {
       <div className={contentClasses}>
         <div
           className={style.mainContent}
-          data-phase={phase}
+          data-phase={showColourOverride && phase}
           style={showColourOverride ? { '--override-colour': overrideColour } : {}}
         >
           {main}
