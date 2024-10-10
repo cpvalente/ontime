@@ -306,8 +306,7 @@ export function sanitiseCustomFields(data: object): CustomFields {
       continue;
     }
 
-    // make a new key to avoid mismatches
-    const key = field.label.toLowerCase();
+    const key = field.label;
     if (key in newCustomFields) {
       continue;
     }
