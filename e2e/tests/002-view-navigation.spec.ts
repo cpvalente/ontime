@@ -8,15 +8,15 @@ test.describe('test view navigation feature', () => {
 
     await page.getByRole('button', { name: 'toggle menu' }).click();
     await page.locator('data-test-id=navigation__menu');
-    await page.getByRole('link', { name: 'Clock', exact: true }).click();
-    await page.locator('data-test-id=clock-view');
-    await expect(page).toHaveURL('http://localhost:4001/clock');
-
-    await page.getByRole('button', { name: 'toggle menu' }).click();
-    await page.locator('data-test-id=navigation__menu');
     await page.getByRole('link', { name: 'Minimal Timer' }).click();
     await page.locator('data-test-id=minimal-timer');
     await expect(page).toHaveURL('http://localhost:4001/minimal');
+
+    await page.getByRole('button', { name: 'toggle menu' }).click();
+    await page.locator('data-test-id=navigation__menu');
+    await page.getByRole('link', { name: 'Wall Clock', exact: true }).click();
+    await page.locator('data-test-id=clock-view');
+    await expect(page).toHaveURL('http://localhost:4001/clock');
 
     await page.getByRole('button', { name: 'toggle menu' }).click();
     await page.locator('data-test-id=navigation__menu');

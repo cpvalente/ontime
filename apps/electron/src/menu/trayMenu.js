@@ -1,19 +1,22 @@
+const { Menu } = require('electron');
+
 /**
- * Build description of tray context menu
+ * Creates the application tray menu
  * @param {function} showApp - function for making the window visible
  * @param {function} askToQuit - function for quitting process
+ * @returns {Menu} - application tray menu
  */
 function getTrayMenu(showApp, askToQuit) {
-  return [
+  return Menu.buildFromTemplate([
     {
       label: 'Show App',
-      click: () => showApp(),
+      click: showApp,
     },
     {
       label: 'Shutdown',
-      click: () => askToQuit(),
+      click: askToQuit,
     },
-  ];
+  ]);
 }
 
 module.exports = { getTrayMenu };

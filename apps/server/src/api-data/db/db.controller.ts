@@ -59,6 +59,19 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
 }
 
 /**
+ * Allows downloading of current project file
+ */
+export async function currentProjectDownload(_req: Request, res: Response) {
+  const { filename, pathToFile } = await projectService.getCurrentProject();
+  res.download(pathToFile, filename, (error) => {
+    if (error) {
+      const message = getErrorMessage(error);
+      res.status(500).send({ message });
+    }
+  });
+}
+
+/**
  * Allows downloading of project files
  */
 export async function projectDownload(req: Request, res: Response) {

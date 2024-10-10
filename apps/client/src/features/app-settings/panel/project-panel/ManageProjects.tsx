@@ -1,4 +1,5 @@
 import { ChangeEvent, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Button, Input } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 
@@ -13,14 +14,17 @@ import ProjectList from './ProjectList';
 import style from './ProjectPanel.module.scss';
 
 export default function ManageProjects() {
-  const [isCreatingProject, setIsCreatingProject] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState<'import' | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const isCreatingProject = searchParams.get('create') === 'true';
+
   const handleToggleCreate = () => {
-    setIsCreatingProject((prev) => !prev);
+    searchParams.set('create', isCreatingProject ? 'false' : 'true');
+    setSearchParams(searchParams);
   };
 
   const handleSelectFile = () => {
@@ -49,7 +53,8 @@ export default function ManageProjects() {
   };
 
   const handleCloseForm = () => {
-    setIsCreatingProject(false);
+    searchParams.delete('create');
+    setSearchParams(searchParams);
   };
 
   return (

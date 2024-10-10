@@ -105,23 +105,19 @@ function NavigationMenu(props: NavigationMenuProps) {
             >
               <IoLockClosedOutline />
               Editor
-              <IoArrowUp className={style.linkIcon} />
             </Link>
             <ClientLink to='cuesheet' current={location.pathname === '/cuesheet'}>
               <IoLockClosedOutline />
               Cuesheet
-              <IoArrowUp className={style.linkIcon} />
             </ClientLink>
             <ClientLink to='op' current={location.pathname === '/op'}>
               <IoLockClosedOutline />
               Operator
-              <IoArrowUp className={style.linkIcon} />
             </ClientLink>
             <hr className={style.separator} />
             {navigatorConstants.map((route) => (
               <ClientLink key={route.url} to={route.url} current={location.pathname === `/${route.url}`}>
                 {route.label}
-                <IoArrowUp className={style.linkIcon} />
               </ClientLink>
             ))}
           </DrawerBody>
@@ -147,6 +143,7 @@ function ClientLink(props: PropsWithChildren<ClientLinkProps>) {
     return (
       <button className={classes} tabIndex={0} onClick={(event) => handleLinks(event, to)}>
         {children}
+        <IoArrowUp className={style.linkIcon} />
       </button>
     );
   }
