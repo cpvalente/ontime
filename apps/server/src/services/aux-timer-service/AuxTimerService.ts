@@ -2,6 +2,7 @@ import { SimpleDirection, SimpleTimerState } from 'ontime-types';
 
 import { SimpleTimer } from '../../classes/simple-timer/SimpleTimer.js';
 import { eventStore } from '../../stores/EventStore.js';
+import { timerConfig } from '../../config/config.js';
 
 export type EmitFn = (state: SimpleTimerState) => void;
 export type GetTimeFn = () => number;
@@ -13,7 +14,7 @@ export class AuxTimerService {
   private getTime: GetTimeFn;
 
   constructor(emit: EmitFn, getTime: GetTimeFn) {
-    this.timer = new SimpleTimer();
+    this.timer = new SimpleTimer(timerConfig.auxTimerDefault);
     this.emit = emit;
     this.getTime = getTime;
   }
@@ -30,7 +31,7 @@ export class AuxTimerService {
 
   @broadcastReturn
   setDirection(direction: SimpleDirection) {
-    return this.timer.setDirection(direction);
+    return this.timer.setDirection(direction, this.getTime());
   }
 
   @broadcastReturn

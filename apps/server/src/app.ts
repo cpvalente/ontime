@@ -48,6 +48,7 @@ import { initialiseProject } from './services/project-service/ProjectService.js'
 import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { getNetworkInterfaces } from './utils/networkInterfaces.js';
+import { timerConfig } from './config/config.js';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -187,8 +188,8 @@ export const startServer = async (
     eventNext: state.eventNext,
     publicEventNext: state.publicEventNext,
     auxtimer1: {
-      duration: 0,
-      current: 0,
+      duration: timerConfig.auxTimerDefault,
+      current: timerConfig.auxTimerDefault,
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
     },
@@ -198,7 +199,7 @@ export const startServer = async (
   // initialise logging service, escalateErrorFn is only exists in electron
   logger.init(escalateErrorFn);
 
-  // initialise rundown service 
+  // initialise rundown service
   const persistedRundown = getDataProvider().getRundown();
   const persistedCustomFields = getDataProvider().getCustomFields();
   initRundown(persistedRundown, persistedCustomFields);
