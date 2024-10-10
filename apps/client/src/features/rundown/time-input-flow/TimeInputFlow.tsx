@@ -9,6 +9,7 @@ import { MaybeString, OntimeEvent, TimeStrategy } from 'ontime-types';
 
 import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
 import { useEventAction } from '../../../common/hooks/useEventAction';
+import { AppMode, useAppMode } from '../../../common/stores/appModeStore';
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayFast } from '../../../ontimeConfig';
 
@@ -29,6 +30,7 @@ type TimeActions = 'timeStart' | 'timeEnd' | 'duration';
 const TimeInputFlow = (props: EventBlockTimerProps) => {
   const { eventId, timeStart, timeEnd, duration, timeStrategy, linkStart, delay } = props;
   const { updateEvent, updateTimer, linkTimer } = useEventAction();
+  const appMode = useAppMode((state) => state.mode);
 
   // In sync with EventEditorTimes
   const handleSubmit = (field: TimeActions, value: string) => {
@@ -56,6 +58,8 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
   const activeEnd = cx([style.timeAction, isLockedEnd ? style.active : null]);
   const activeDuration = cx([style.timeAction, isLockedDuration ? style.active : null]);
 
+  const isRundownFrozen = appMode === AppMode.Freeze;
+
   return (
     <>
       <TimeInputWithButton<TimeActions>
@@ -64,9 +68,14 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         time={timeStart}
         hasDelay={hasDelay}
         placeholder='Start'
-        disabled={Boolean(linkStart)}
+        disabled={isRundownFrozen || Boolean(linkStart)}
       >
-        <InputRightElement className={activeStart} onClick={() => handleLink(!linkStart)}>
+        <InputRightElement
+          className={activeStart}
+          onClick={() => handleLink(!linkStart)}
+          as='button'
+          disabled={isRundownFrozen}
+        >
           <span className={style.timeLabel}>S</span>
           <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
         </InputRightElement>
@@ -77,13 +86,15 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         submitHandler={handleSubmit}
         time={timeEnd}
         hasDelay={hasDelay}
-        disabled={isLockedDuration}
+        disabled={isRundownFrozen || isLockedDuration}
         placeholder='End'
       >
         <InputRightElement
+          as='button'
           className={activeEnd}
           onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}
           data-testid='lock__end'
+          disabled={isRundownFrozen}
         >
           <span className={style.timeLabel}>E</span>
           {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
@@ -94,13 +105,15 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         name='duration'
         submitHandler={handleSubmit}
         time={duration}
-        disabled={isLockedEnd}
+        disabled={isRundownFrozen || isLockedEnd}
         placeholder='Duration'
       >
         <InputRightElement
+          as='button'
           className={activeDuration}
           onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}
           data-testid='lock__duration'
+          disabled={isRundownFrozen}
         >
           <span className={style.timeLabel}>D</span>
           {isLockedDuration ? <IoLockClosed /> : <IoLockOpenOutline />}
