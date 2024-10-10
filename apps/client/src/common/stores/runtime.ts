@@ -15,6 +15,7 @@ export const runtimeStorePlaceholder: RuntimeStore = {
     playback: Playback.Stop,
     secondaryTimer: null,
     startedAt: null,
+    speed: 1.0,
   },
   onAir: false,
   message: {
