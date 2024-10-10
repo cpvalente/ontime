@@ -200,16 +200,6 @@ export function getUpcomingEvents(events: OntimeRundown, selectedId: MaybeString
   };
 }
 
-export function getFormattedTimeToStart(event: OntimeEvent, now: number, dueText: string): string {
-  const timeToStart = event.timeStart - now;
-
-  if (timeToStart < 0) {
-    return dueText;
-  }
-
-  return `T - ${formatDuration(timeToStart)}`;
-}
-
 /**
  * Utility function calculates time to start
  */
