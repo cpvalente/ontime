@@ -26,6 +26,8 @@ import {
 import { timerConfig } from '../config/config.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 
+import * as report from '../services/report-service/ReportService.js';
+
 const initialRuntime: Runtime = {
   selectedEventIndex: null, // changes if rundown changes or we load a new event
   numEvents: 0, // change initiated by user
@@ -169,6 +171,9 @@ export function load(
   rundown: OntimeRundown,
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
+  // report the event stop before clearing out state
+  report.eventStop(runtimeState);
+
   // we need to persist the current block state across loads
   const prevCurrentBlock = { ...runtimeState.currentBlock };
   clear();
@@ -407,6 +412,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   state.runtime.offset = getRuntimeOffset(state);
   state.runtime.expectedEnd = state.runtime.plannedEnd - state.runtime.offset;
 
+  report.eventStart(runtimeState);
   return true;
 }
 
@@ -425,6 +431,9 @@ export function stop(state: RuntimeState = runtimeState): boolean {
   if (state.timer.playback === Playback.Stop) {
     return false;
   }
+
+  // report the event stop before clearing out state
+  report.eventStop(runtimeState);
 
   clear();
   runtimeState.runtime.actualStart = null;
