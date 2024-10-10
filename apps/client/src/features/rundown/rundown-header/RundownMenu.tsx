@@ -15,6 +15,8 @@ import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useAppMode } from '../../../common/stores/appModeStore';
 import { useEventSelection } from '../useEventSelection';
 
+import { useTranslation } from '../../../translation/TranslationProvider';
+
 export default function RundownMenu() {
   const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
   const appMode = useAppMode((state) => state.mode);
@@ -29,6 +31,8 @@ export default function RundownMenu() {
     onClose();
   }, [clearSelectedEvents, deleteAllEvents, onClose]);
 
+  const { getLocalizedString } = useTranslation();
+
   return (
     <>
       <Button
@@ -39,23 +43,23 @@ export default function RundownMenu() {
         color='#FA5656'
         isDisabled={appMode === 'run'}
       >
-        Clear rundown
+        {getLocalizedString('editor.clear')}
       </Button>
       <AlertDialog variant='ontime' isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
         <AlertDialogOverlay>
           <AlertDialogContent>
             <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-              Clear rundown
+              '{getLocalizedString('editor.clear')}'
             </AlertDialogHeader>
             <AlertDialogBody>
-              You will lose all data in your rundown. <br /> Are you sure?
+            {getLocalizedString('alert.clear_rundown')}
             </AlertDialogBody>
             <AlertDialogFooter>
               <Button ref={cancelRef} onClick={onClose} variant='ontime-ghosted-white'>
-                Cancel
+              {getLocalizedString('global.cancel')}
               </Button>
               <Button colorScheme='red' onClick={deleteAll} ml={4}>
-                Delete all
+              {getLocalizedString('global.delete_all')}
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>

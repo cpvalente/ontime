@@ -16,6 +16,8 @@ import EventTextArea from './composite/EventTextArea';
 import EventEditorEmpty from './EventEditorEmpty';
 
 import style from './EventEditor.module.scss';
+import { useTranslation } from '../../../translation/TranslationProvider'
+
 
 export type EventEditorSubmitActions = keyof OntimeEvent;
 
@@ -71,6 +73,9 @@ export default function EventEditor() {
     return <EventEditorEmpty />;
   }
 
+  const { getLocalizedString } = useTranslation();
+
+
   return (
     <div className={style.eventEditor} data-testid='editor-container'>
       <div className={style.content}>
@@ -100,9 +105,9 @@ export default function EventEditor() {
         />
         <div className={style.column}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span>Custom Fields</span>
+            <span>{getLocalizedString('global.custom_fields')}</span>
             <Button variant='ontime-subtle' size='sm' onClick={handleOpenCustomManager}>
-              Manage
+            {getLocalizedString('global.manage')}
             </Button>
           </div>
           {Object.keys(customFields).map((fieldKey) => {
