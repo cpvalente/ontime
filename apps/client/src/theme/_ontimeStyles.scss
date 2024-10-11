@@ -3,8 +3,6 @@
 $transition-time-action: 0.1s;
 $transition-time-feedback: 0.3s;
 
-$blinking-time: 1.2s;
-
 $component-border-radius-md: 3px;
 $component-border-radius-sm: 2px;
 
@@ -61,10 +59,13 @@ $text-body-size: calc(1rem - 1px);
 $min-tablet: 500px;
 
 .blink {
-  animation: blink $blinking-time linear infinite;
+  animation: blink 1s step-start infinite;
 }
 
 @keyframes blink {
+  0% {
+    opacity: 100%;
+  }
   50% {
     opacity: 20%;
   }
