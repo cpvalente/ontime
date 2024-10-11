@@ -20,6 +20,16 @@ import style from './ViewParamsEditor.module.scss';
 type ViewParamsObj = { [key: string]: string | FormDataEntryValue };
 
 /**
+ * Utility remove the # character from a hex string
+ */
+function sanitiseColour(colour: string) {
+  if (colour.startsWith('#')) {
+    return colour.substring(1);
+  }
+  return colour;
+}
+
+/**
  * Makes a new URLSearchParams object from the given params object
  */
 const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj, paramFields: ViewOption[]) => {
@@ -41,7 +51,9 @@ const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj, paramFields: ViewOp
   // compare which values are different from the default values
   Object.entries(paramsObj).forEach(([id, value]) => {
     if (typeof value === 'string' && value.length && defaultValues[id] !== value) {
-      newSearchParams.set(id, value);
+      // we dont know which values contain colours
+      // unfortunately this means we run all the strings through the sanitation
+      newSearchParams.set(id, sanitiseColour(value));
     }
   });
   return newSearchParams;

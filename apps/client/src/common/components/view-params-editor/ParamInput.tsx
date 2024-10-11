@@ -81,6 +81,17 @@ export default function ParamInput(props: EditFormInputProps) {
     );
   }
 
+  if (type === 'colour') {
+    const currentvalue = `#${searchParams.get(id) ?? defaultValue}`;
+
+    return (
+      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <Input type='color' variant='ontime-filled' name={id} defaultValue={currentvalue} />
+        <span>{`Current colour: ${currentvalue.toUpperCase()}`}</span>
+      </div>
+    );
+  }
+
   const defaultStringValue = searchParams.get(id) ?? defaultValue;
   const { prefix, placeholder } = paramField;
 
