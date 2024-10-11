@@ -128,6 +128,7 @@ describe('parseHttp()', () => {
         { id: '1', cycle: 'onLoad', message: 'http://', enabled: true }, // OK
         {}, // no data
         { id: '2', cycle: 'onStart', enabled: true }, // no message
+        { id: '3', cycle: 'onLoad', message: '/test', enabled: true }, // doesnt start with http
       ],
     } as HttpSettings;
     const result = parseHttp({ http }, errorEmitter);
