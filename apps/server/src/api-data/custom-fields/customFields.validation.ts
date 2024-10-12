@@ -1,4 +1,4 @@
-import { isAlphanumeric } from 'ontime-utils';
+import { isAlphanumericWithSpace } from 'ontime-utils';
 
 import { Request, Response, NextFunction } from 'express';
 import { body, param, validationResult } from 'express-validator';
@@ -9,7 +9,7 @@ export const validateCustomField = [
     .isString()
     .trim()
     .custom((value) => {
-      return isAlphanumeric(value);
+      return isAlphanumericWithSpace(value);
     }),
   body('type').exists().isString().trim(),
   body('colour').exists().isString().trim(),

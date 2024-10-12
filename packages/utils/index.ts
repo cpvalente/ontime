@@ -53,9 +53,11 @@ export {
   removeTrailingZero,
 } from './src/date-utils/timeFormatting.js';
 export { parseUserTime } from './src/date-utils/parseUserTime.js';
-export { isAlphanumeric } from './src/regex-utils/isAlphanumeric.js';
+export { isAlphanumeric, isAlphanumericWithSpace } from './src/regex-utils/isAlphanumeric.js';
 export { isColourHex } from './src/regex-utils/isColourHex.js';
 export { splitWhitespace } from './src/regex-utils/splitWhitespace.js';
+
+export { customFieldLabelToKey } from './src/customField-utils/customFieldLabelToKey.js';
 
 // helpers from externals
 export { deepmerge } from './src/externals/deepmerge.js';
