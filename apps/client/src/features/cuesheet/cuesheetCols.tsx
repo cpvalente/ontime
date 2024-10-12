@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { CustomFields, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
+import { CustomFields, CustomFieldType, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import DelayIndicator from '../../common/components/delay-indicator/DelayIndicator';
@@ -48,10 +48,12 @@ function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry,
     return null;
   }
 
+  const meta = column.columnDef.meta ?? {};
+  const type = 'type' in meta ? meta.type : CustomFieldType.String;
   // events dont necessarily contain all custom fields
   const initialValue = event.custom[column.id] ?? '';
 
-  return <EditableCell value={initialValue} handleUpdate={update} />;
+  return <EditableCell value={initialValue} handleUpdate={update} isMarkdown={type === CustomFieldType.Markdown} />;
 }
 
 export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<OntimeRundownEntry>[] {
@@ -59,7 +61,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
     accessorKey: key,
     id: key,
     header: customFields[key].label,
-    meta: { colour: customFields[key].colour },
+    meta: { colour: customFields[key].colour, type: customFields[key].type },
     cell: MakeCustomField,
     size: 250,
   }));
