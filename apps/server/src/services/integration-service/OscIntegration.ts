@@ -85,7 +85,7 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
   private initTX(enabledOut: boolean, targetIP: string, portOut: number, subscriptions: OscSubscription[]) {
     this.initSubscriptions(subscriptions);
 
-    if (!enabledOut && this.enabledOut) {
+    if (!enabledOut) {
       this.targetIP = targetIP;
       this.portOut = portOut;
       this.enabledOut = enabledOut;
@@ -112,7 +112,7 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
   }
 
   private initRX(enabledIn: boolean, portIn: number) {
-    if (!enabledIn && this.enabledIn) {
+    if (!enabledIn) {
       this.shutdownRX();
       return;
     }
@@ -128,7 +128,7 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
   }
 
   private shutdownTX() {
-    logger.info(LogOrigin.Rx, 'Shutting down OSC integration');
+    logger.info(LogOrigin.Rx, 'Closing OSC Client');
     if (this.oscServer) {
       this.oscServer?.shutdown();
       this.oscServer = null;
@@ -136,7 +136,7 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
   }
 
   private shutdownRX() {
-    logger.info(LogOrigin.Tx, 'Shutting down OSC integration');
+    logger.info(LogOrigin.Tx, 'Closing OSC Server');
     if (this.oscClient) {
       this.oscClient?.close();
       this.oscClient = null;
