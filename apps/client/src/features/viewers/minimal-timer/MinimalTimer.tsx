@@ -169,6 +169,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
         <div
           className={timerClasses}
           style={{
+            color: userOptions.textColour,
             fontSize: `${timerFontSize}vw`,
             fontFamily: userOptions.font,
             top: userOptions.top,
