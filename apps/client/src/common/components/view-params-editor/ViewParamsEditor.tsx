@@ -50,10 +50,13 @@ const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj, paramFields: ViewOp
 
   // compare which values are different from the default values
   Object.entries(paramsObj).forEach(([id, value]) => {
-    if (typeof value === 'string' && value.length && defaultValues[id] !== value) {
+    if (typeof value === 'string' && value.length) {
       // we dont know which values contain colours
       // unfortunately this means we run all the strings through the sanitation
-      newSearchParams.set(id, sanitiseColour(value));
+      const valueWithoutHash = sanitiseColour(value);
+      if (defaultValues[id] !== valueWithoutHash) {
+        newSearchParams.set(id, valueWithoutHash);
+      }
     }
   });
   return newSearchParams;
