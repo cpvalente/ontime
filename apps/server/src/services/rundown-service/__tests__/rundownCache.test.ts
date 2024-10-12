@@ -925,7 +925,7 @@ describe('custom fields', () => {
   describe('createCustomField()', () => {
     it('creates a field from given parameters', async () => {
       const expected = {
-        lighting: {
+        Lighting: {
           label: 'Lighting',
           type: 'string',
           colour: 'blue',
@@ -942,19 +942,19 @@ describe('custom fields', () => {
       await createCustomField({ label: 'Sound', type: 'string', colour: 'blue' });
 
       const expected = {
-        lighting: {
+        Lighting: {
           label: 'Lighting',
           type: 'string',
           colour: 'blue',
         },
-        sound: {
+        Sound: {
           label: 'Sound',
           type: 'string',
           colour: 'green',
         },
       };
 
-      const customField = await editCustomField('sound', { label: 'Sound', type: 'string', colour: 'green' });
+      const customField = await editCustomField('Sound', { label: 'Sound', type: 'string', colour: 'green' });
       expect(customFieldChangelog).toStrictEqual(new Map());
 
       expect(customField).toStrictEqual(expected);
@@ -964,17 +964,17 @@ describe('custom fields', () => {
       const created = await createCustomField({ label: 'Video', type: 'string', colour: 'red' });
 
       const expected = {
-        lighting: {
+        Lighting: {
           label: 'Lighting',
           type: 'string',
           colour: 'blue',
         },
-        sound: {
+        Sound: {
           label: 'Sound',
           type: 'string',
           colour: 'green',
         },
-        video: {
+        Video: {
           label: 'Video',
           type: 'string',
           colour: 'red',
@@ -984,17 +984,17 @@ describe('custom fields', () => {
       expect(created).toStrictEqual(expected);
 
       const expectedAfter = {
-        lighting: {
+        Lighting: {
           label: 'Lighting',
           type: 'string',
           colour: 'blue',
         },
-        sound: {
+        Sound: {
           label: 'Sound',
           type: 'string',
           colour: 'green',
         },
-        av: {
+        AV: {
           label: 'AV',
           type: 'string',
           colour: 'red',
@@ -1003,10 +1003,10 @@ describe('custom fields', () => {
 
       // We need to flush all scheduled tasks for the generate function to settle
       vi.useFakeTimers();
-      const customField = await editCustomField('video', { label: 'AV', type: 'string', colour: 'red' });
+      const customField = await editCustomField('Video', { label: 'AV', type: 'string', colour: 'red' });
       expect(customField).toStrictEqual(expectedAfter);
-      expect(customFieldChangelog).toStrictEqual(new Map([['video', 'av']]));
-      await editCustomField('av', { label: 'video' });
+      expect(customFieldChangelog).toStrictEqual(new Map([['Video', 'AV']]));
+      await editCustomField('AV', { label: 'Video' });
       vi.runAllTimers();
       expect(customFieldChangelog).toStrictEqual(new Map());
       vi.useRealTimers();
@@ -1016,19 +1016,19 @@ describe('custom fields', () => {
   describe('removeCustomField()', () => {
     it('deletes a field with a given label', async () => {
       const expected = {
-        lighting: {
+        Lighting: {
           label: 'Lighting',
           type: 'string',
           colour: 'blue',
         },
-        video: {
-          label: 'video',
+        Video: {
+          label: 'Video',
           type: 'string',
           colour: 'red',
         },
       };
 
-      const customField = await removeCustomField('sound');
+      const customField = await removeCustomField('Sound');
 
       expect(customField).toStrictEqual(expected);
     });
