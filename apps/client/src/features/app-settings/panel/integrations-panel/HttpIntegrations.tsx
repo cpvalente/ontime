@@ -8,6 +8,7 @@ import { generateId } from 'ontime-utils';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { useHttpSettings, usePostHttpSettings } from '../../../../common/hooks-query/useHttpSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
+import { startsWithHttp } from '../../../../common/utils/regex';
 import * as Panel from '../PanelUtils';
 
 import { cycles } from './integrationUtils';
@@ -157,6 +158,10 @@ export default function HttpIntegrations() {
                           placeholder='http://third-party/vt1/{{timer.current}}'
                           {...register(`subscriptions.${index}.message`, {
                             required: { value: true, message: 'Required field' },
+                            pattern: {
+                              value: startsWithHttp,
+                              message: 'HTTP messages should start with http://',
+                            },
                           })}
                         />
                         {maybeError && <Panel.Error>{maybeError}</Panel.Error>}

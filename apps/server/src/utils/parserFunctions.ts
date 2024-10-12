@@ -222,7 +222,11 @@ export function sanitiseHttpSubscriptions(subscriptions?: HttpSubscription[]): H
 
   return subscriptions.filter(
     ({ id, cycle, message, enabled }) =>
-      typeof id === 'string' && isOntimeCycle(cycle) && typeof message === 'string' && typeof enabled === 'boolean',
+      typeof id === 'string' &&
+      isOntimeCycle(cycle) &&
+      typeof message === 'string' &&
+      message.startsWith('http://') &&
+      typeof enabled === 'boolean',
   );
 }
 
