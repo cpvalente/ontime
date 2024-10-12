@@ -104,6 +104,7 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
 
     try {
       this.oscClient = new Client(targetIP, portOut);
+      logger.info(LogOrigin.Rx, `Starting OSC Client on port: ${portOut}`);
     } catch (error) {
       this.oscClient = null;
       throw new Error(`Failed initialising OSC client: ${error}`);
