@@ -6,12 +6,13 @@ import { millisToString, parseUserTime } from 'ontime-utils';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
+import { multipleValuesPlaceholder } from '../../../../common/utils/multiValueText';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
 
 import style from '../EventEditor.module.scss';
+type HandledActions = 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
 
-interface EventEditorTimesProps {
-  eventId: string;
+interface EventEditorTimesCoreProps {
   timeStart: number;
   timeEnd: number;
   duration: number;
@@ -25,67 +26,90 @@ interface EventEditorTimesProps {
   timeDanger: number;
 }
 
-type HandledActions = 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
+interface EventEditorTimesMultiProps extends Partial<EventEditorTimesCoreProps> {
+  isMultiple: true;
+  id: string[];
+}
 
-const EventEditorTimes = (props: EventEditorTimesProps) => {
-  const {
-    eventId,
-    timeStart,
-    timeEnd,
-    duration,
-    timeStrategy,
-    linkStart,
-    delay,
-    isPublic,
-    endAction,
-    timerType,
-    timeWarning,
-    timeDanger,
-  } = props;
-  const { updateEvent } = useEventAction();
+interface EventEditorTimesProps extends EventEditorTimesCoreProps {
+  isMultiple?: false;
+  id: string;
+}
+
+const EventEditorTimes = ({
+  id,
+  timeStart,
+  timeEnd,
+  duration,
+  timeStrategy,
+  linkStart,
+  delay,
+  isPublic,
+  endAction,
+  timerType,
+  timeWarning,
+  timeDanger,
+  isMultiple,
+}: EventEditorTimesProps | EventEditorTimesMultiProps) => {
+  const { updateEvent, batchUpdateEvents } = useEventAction();
 
   const handleSubmit = (field: HandledActions, value: string | boolean) => {
     if (field === 'isPublic') {
-      updateEvent({ id: eventId, isPublic: !(value as boolean) });
+      if (isMultiple) {
+        batchUpdateEvents({ isPublic: !(value as boolean) }, id);
+      } else {
+        updateEvent({ id, isPublic: !(value as boolean) });
+      }
       return;
     }
 
     if (field === 'timeWarning' || field === 'timeDanger') {
       const newTime = parseUserTime(value as string);
-      updateEvent({ id: eventId, [field]: newTime });
+      if (isMultiple) {
+        batchUpdateEvents({ [field]: newTime }, id);
+      } else {
+        updateEvent({ id, [field]: newTime });
+      }
       return;
     }
 
     if (field === 'timerType' || field === 'endAction') {
-      updateEvent({ id: eventId, [field]: value });
+      if (isMultiple) {
+        batchUpdateEvents({ [field]: value }, id);
+      } else {
+        updateEvent({ id, [field]: value });
+      }
       return;
     }
   };
 
   const hasDelay = delay !== 0;
-  const delayLabel = hasDelay
-    ? `Event is ${millisToDelayString(delay, 'expanded')}. New schedule ${millisToString(
-        timeStart + delay,
-      )} → ${millisToString(timeEnd + delay)}`
-    : '';
+  const delayLabel =
+    !isMultiple && hasDelay
+      ? `Event is ${millisToDelayString(delay, 'expanded')}. New schedule ${millisToString(
+          timeStart + delay,
+        )} → ${millisToString(timeEnd + delay)}`
+      : '';
 
   return (
     <div className={style.column}>
-      <div>
-        <div className={style.inputLabel}>Event schedule</div>
-        <div className={style.inline}>
-          <TimeInputFlow
-            eventId={eventId}
-            timeStart={timeStart}
-            timeEnd={timeEnd}
-            duration={duration}
-            timeStrategy={timeStrategy}
-            linkStart={linkStart}
-            delay={delay}
-          />
+      {!isMultiple ? (
+        <div>
+          <div className={style.inputLabel}>Event schedule</div>
+          <div className={style.inline}>
+            <TimeInputFlow
+              eventId={id}
+              timeStart={timeStart}
+              timeEnd={timeEnd}
+              duration={duration}
+              timeStrategy={timeStrategy}
+              linkStart={linkStart}
+              delay={delay}
+            />
+          </div>
+          <div className={style.delayLabel}>{delayLabel}</div>
         </div>
-        <div className={style.delayLabel}>{delayLabel}</div>
-      </div>
+      ) : null}
 
       <div className={style.splitTwo}>
         <div>
@@ -135,8 +159,13 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
       <div>
         <span className={style.inputLabel}>Event Visibility</span>
         <label className={style.switchLabel}>
-          <Switch size='md' isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
-          {isPublic ? 'Public' : 'Private'}
+          <Switch
+            size='md'
+            isChecked={isPublic}
+            onChange={() => handleSubmit('isPublic', isPublic ?? false)}
+            variant='ontime'
+          />
+          {isMultiple && isPublic === undefined ? multipleValuesPlaceholder : isPublic ? 'Public' : 'Private'}
         </label>
       </div>
     </div>
