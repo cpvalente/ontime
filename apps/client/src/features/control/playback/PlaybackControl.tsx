@@ -6,6 +6,7 @@ import AddTime from './add-time/AddTime';
 import { AuxTimer } from './aux-timer/AuxTimer';
 import PlaybackButtons from './playback-buttons/PlaybackButtons';
 import PlaybackTimer from './playback-timer/PlaybackTimer';
+import TimerSpeed from './timer-speed/TimerSpeed';
 
 import style from './PlaybackControl.module.scss';
 
@@ -23,6 +24,7 @@ export default function PlaybackControl() {
         selectedEventIndex={data.selectedEventIndex}
         timerPhase={data.timerPhase}
       />
+      <TimerSpeed />
       <AuxTimer />
     </div>
   );
