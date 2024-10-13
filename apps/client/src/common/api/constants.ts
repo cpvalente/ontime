@@ -32,5 +32,6 @@ export const projectDataURL = `${serverURL}/project`;
 export const rundownURL = `${serverURL}/events`;
 export const ontimeURL = `${serverURL}/ontime`;
 
-export const stylesPath = 'external/styles/override.css';
-export const overrideStylesURL = `${serverURL}/${stylesPath}`;
+export const userAssetsPath = 'user';
+export const cssOverridePath = 'styles/override.css';
+export const overrideStylesURL = `${serverURL}/${userAssetsPath}/${cssOverridePath}`;

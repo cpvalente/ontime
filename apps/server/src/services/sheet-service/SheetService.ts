@@ -11,13 +11,12 @@ import { sheets, sheets_v4 } from '@googleapis/sheets';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import got from 'got';
 
-import { publicDir } from '../../setup/index.js';
-import { ensureDirectory } from '../../utils/fileManagement.js';
-import { cellRequestFromEvent, type ClientSecret, getA1Notation, validateClientSecret } from './sheetUtils.js';
 import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
 import { parseRundown } from '../../utils/parserFunctions.js';
 import { getRundown } from '../rundown-service/rundownUtils.js';
+
+import { cellRequestFromEvent, type ClientSecret, getA1Notation, validateClientSecret } from './sheetUtils.js';
 
 const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';
 const codesUrl = 'https://oauth2.googleapis.com/device/code';
@@ -57,7 +56,6 @@ function reset() {
  */
 export function init() {
   reset();
-  ensureDirectory(publicDir.sheetsDir);
 }
 
 /**
