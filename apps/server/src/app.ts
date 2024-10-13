@@ -76,7 +76,9 @@ app.use('/data', appRouter); // router for application data
 app.use('/api', integrationRouter); // router for integrations
 
 // serve static external files
-app.use('/external/', express.static(publicDir.externalDir));
+app.use('/external', express.static(publicDir.externalDir));
+app.use('/user', express.static(publicDir.userDir));
+
 // if the user reaches to the root, we show a 404
 app.use('/external', (req, res) => {
   res.status(404).send(`${req.originalUrl} not found`);
