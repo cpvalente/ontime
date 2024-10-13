@@ -1,5 +1,6 @@
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useState } from 'react';
 import { Button, ButtonGroup, IconButton, Tooltip } from '@chakra-ui/react';
+import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { IoCopy } from '@react-icons/all-files/io5/IoCopy';
 
 import { tooltipDelayFast } from '../../../ontimeConfig';
@@ -7,26 +8,34 @@ import { Size } from '../../models/Util.type';
 import copyToClipboard from '../../utils/copyToClipboard';
 
 interface CopyTagProps {
+  copyValue: string;
   label: string;
-  className?: string;
   size?: Size;
   disabled?: boolean;
+  onClick?: () => void;
 }
 
 export default function CopyTag(props: PropsWithChildren<CopyTagProps>) {
-  const { label, className, size = 'xs', disabled, children } = props;
+  const { copyValue, label, size = 'xs', disabled, children, onClick } = props;
+  const [copied, setCopied] = useState(false);
 
-  const handleClick = () => copyToClipboard(children as string);
+  const handleClick = () => {
+    copyToClipboard(copyValue);
+    setCopied(true);
+
+    // reset copied state
+    setTimeout(() => setCopied(false), 1000);
+  };
 
   return (
     <Tooltip label={label} openDelay={tooltipDelayFast}>
-      <ButtonGroup size={size} isAttached className={className}>
-        <Button variant='ontime-subtle' tabIndex={-1} isDisabled={disabled}>
+      <ButtonGroup size={size} isAttached>
+        <Button variant='ontime-subtle' tabIndex={-1} onClick={onClick} isDisabled={disabled}>
           {children}
         </Button>
         <IconButton
           aria-label={label}
-          icon={<IoCopy />}
+          icon={copied ? <IoCheckmark /> : <IoCopy />}
           variant='ontime-filled'
           tabIndex={-1}
           onClick={handleClick}

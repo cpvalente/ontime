@@ -193,7 +193,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
         <Panel.ListGroup>
           <div className={style.buttonRow}>
             {isAuthenticating && <Spinner />}
-            <CopyTag label='Google Auth Key' disabled={!canAuthenticate} size='sm'>
+            <CopyTag copyValue={authKey ?? ''} label='Google Auth Key' disabled={!canAuthenticate} size='sm'>
               {authKey ? authKey : 'Upload files to generate Auth Key'}
             </CopyTag>
             <Button
