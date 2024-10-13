@@ -62,6 +62,7 @@ export type { TimerMessage, MessageState } from './definitions/runtime/MessageCo
 
 export type { Runtime } from './definitions/runtime/Runtime.type.js';
 export type { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
+export { runtimeStorePlaceholder } from './definitions/runtime/RuntimeStore.js';
 export { type TimerState, TimerPhase } from './definitions/runtime/TimerState.type.js';
 export type { CurrentBlockState } from './definitions/runtime/CurrentBlockState.type.js';
 
