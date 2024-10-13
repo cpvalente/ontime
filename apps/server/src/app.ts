@@ -210,9 +210,6 @@ export const startServer = async (
   // TODO: pass event store to rundownservice
   runtimeService.init(maybeRestorePoint);
 
-  // eventStore set is a dependency of the services that publish to it
-  messageService.init((key, value) => eventStore.set(key, value));
-
   expressServer.listen(serverPort, '0.0.0.0', () => {
     const nif = getNetworkInterfaces();
     consoleSuccess(`Local: http://localhost:${serverPort}/editor`);

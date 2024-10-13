@@ -1,12 +1,6 @@
 import * as messageService from '../MessageService.js';
 
 describe('MessageService', () => {
-  const publishFunction = () => {};
-
-  beforeAll(() => {
-    messageService.init(publishFunction);
-  });
-
   beforeEach(() => {
     messageService.clear();
   });
