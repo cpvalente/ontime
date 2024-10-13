@@ -4,7 +4,7 @@ import { join } from 'path';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { get } from '../services/rundown-service/rundownCache.js';
 import { getState } from '../stores/runtimeState.js';
-import { resolveCrashReportDirectory } from '../setup/index.js';
+import { publicDir } from '../setup/index.js';
 
 import { ensureDirectory } from './fileManagement.js';
 /**
@@ -13,8 +13,8 @@ import { ensureDirectory } from './fileManagement.js';
  * @param content
  */
 function writeToFile(fileName: string, content: object) {
-  const path = join(resolveCrashReportDirectory, fileName);
-  ensureDirectory(resolveCrashReportDirectory);
+  const path = join(publicDir.crashDir, fileName);
+  ensureDirectory(publicDir.crashDir);
 
   try {
     const textContent = JSON.stringify(content, null, 2);

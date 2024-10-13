@@ -1,18 +1,26 @@
+/**
+ * This file handles resolving paths for the server resources
+ * There are two main directories
+ * - 1. the installation directory, exposed by __dirname
+ * - 2. the public directory, exposed by getAppDataPath()
+ */
+
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
 import { config } from './config.js';
 import { ensureDirectory } from '../utils/fileManagement.js';
-
-// =================================================
-// resolve public path
+import { isProduction } from '../externals.js';
 
 /**
- * @description Returns public path depending on OS
+ * Returns public path depending on OS
  * This is the correct path for the app running in production mode
  */
 export function getAppDataPath(): string {
-  // handle docker
+  /**
+   * If we are running in docker, the ONTIME_DATA environment variable
+   * allows moving the public directory to a user defined location
+   */
   if (process.env.ONTIME_DATA) {
     return join(process.env.ONTIME_DATA);
   }
@@ -33,86 +41,86 @@ export function getAppDataPath(): string {
   }
 }
 
-// =================================================
-// resolve running environment
-const env = process.env.NODE_ENV || 'production';
+/**
+ * 1. Paths relative to the installation (or source in development)
+ * ------------------------------------------------------------------
+ */
 
-export const isTest = Boolean(process.env.IS_TEST);
-export const environment = isTest ? 'test' : env;
-export const isDocker = env === 'docker';
-export const isProduction = isDocker || (env === 'production' && !isTest);
-
-// =================================================
-// Resolve directory paths
-
-// resolve file URL in both CJS and ESM (build and dev)
+/** resolve file URL in both CJS and ESM (build and dev) */
 if (import.meta.url) {
   globalThis.__dirname = fileURLToPath(import.meta.url);
 }
 
-// path to server src folder
 const currentDir = dirname(__dirname);
-// locally we are in src/setup, in the production build, this is a single file at src
-export const srcDirectory = isProduction ? currentDir : join(currentDir, '../');
 
-// TODO: simplify logic
-// resolve path to client
-const productionPath = join(srcDirectory, 'client/');
-const devPath = join(srcDirectory, '../../client/build/');
-export const resolvedPath = (): string => {
-  if (isTest) {
-    return devPath;
-  }
-  if (isProduction) {
-    return productionPath;
-  }
-  return devPath;
+/**
+ * path to server src folder
+ * when running in dev, this file is located in src/setup, so we go one level up
+ * */
+const srcDirectory = isProduction ? currentDir : join(currentDir, '../');
+
+export const srcDir = {
+  root: srcDirectory,
+  /** Path to the react app */
+  clientDir: isProduction ? join(srcDirectory, 'client/') : join(srcDirectory, '../../client/build/'),
+  /** Path to the demo app */
+  demoDir: join(srcDirectory, '/external/demo/'),
+} as const;
+
+export const srcFiles = {
+  /** Path to bundled CSS  */
+  cssOverride: join(srcDir.root, '/external/styles/', config.styles.filename),
 };
 
-// resolve public directory
-export const resolvePublicDirectoy = getAppDataPath();
-ensureDirectory(resolvePublicDirectoy);
+/**
+ * 2. Paths relative to the user public directory
+ * ------------------------------------------------
+ */
 
-export const externalsStartDirectory = isProduction ? resolvePublicDirectoy : join(srcDirectory, 'external');
-// TODO: we only need one when they are all in the same folder
-export const resolveExternalsDirectory = join(isProduction ? resolvePublicDirectoy : srcDirectory, 'external');
+/** Resolve root to public directory */
+const resolvePublicDirectory = getAppDataPath();
+// Ensure directory tree is created
+ensureDirectory(resolvePublicDirectory);
 
-// project files
-export const appStatePath = join(resolvePublicDirectoy, config.appState);
-export const uploadsFolderPath = join(resolvePublicDirectoy, config.uploads);
+/**
+ * Path to external
+ * This is unique in the way that we use the src directory in development
+ * For simplicity we still bundle this in the public directory object
+ */
+const externalsStartDirectory = isProduction ? resolvePublicDirectory : join(srcDirectory, 'external');
 
-// path to public styles
-export const resolveStylesDirectory = join(externalsStartDirectory, config.styles.directory);
-export const resolveStylesPath = join(resolveStylesDirectory, config.styles.filename);
+export const publicDir = {
+  root: resolvePublicDirectory,
+  /** path to sheets folder */
+  sheetsDir: join(resolvePublicDirectory, config.sheets.directory),
+  /** path to crash reports folder */
+  crashDir: join(resolvePublicDirectory, config.crash),
+  /** path to projects folder */
+  projectsDir: join(resolvePublicDirectory, config.projects),
+  /** path to corrupt folder */
+  corruptDir: join(resolvePublicDirectory, config.corrupt),
+  /** path to uploads folder */
+  uploadsDir: join(resolvePublicDirectory, config.uploads),
+  /** path to external folder */
+  externalDir: externalsStartDirectory,
+  /** path to demo project folder */
+  demoDir: join(
+    externalsStartDirectory,
+    isProduction ? '/external/' : '', // move to external folder in production
+    config.demo.directory,
+  ),
+  /** path to external styles override */
+  stylesDir: join(externalsStartDirectory, config.styles.directory),
+} as const;
 
-export const pathToStartStyles = join(srcDirectory, '/external/styles/', config.styles.filename);
-
-// path to public demo
-export const resolveDemoDirectory = join(
-  externalsStartDirectory,
-  isProduction ? '/external/' : '', // move to external folder in production
-  config.demo.directory,
-);
-export const resolveDemoPath = config.demo.filename.map((file) => {
-  return join(resolveDemoDirectory, file);
-});
-
-// path to demo project
-export const pathToStartDemo = config.demo.filename.map((file) => {
-  return join(srcDirectory, '/external/demo/', file);
-});
-
-// path to restore file
-export const resolveRestoreFile = join(resolvePublicDirectoy, config.restoreFile);
-
-// path to sheets folder
-export const resolveSheetsDirectory = join(resolvePublicDirectoy, config.sheets.directory);
-
-// path to crash reports
-export const resolveCrashReportDirectory = join(resolvePublicDirectoy, config.crash);
-
-// path to projects
-export const resolveProjectsDirectory = join(resolvePublicDirectoy, config.projects);
-
-// path to corrupt files
-export const resolveCorruptDirectory = join(resolvePublicDirectoy, config.corrupt);
+/**
+ * Resolve path to specific files
+ */
+export const publicFiles = {
+  /** path to app state file */
+  appState: join(publicDir.root, config.appState),
+  /** path to restore file */
+  restoreFile: join(publicDir.root, config.restoreFile),
+  /** path to CSS override file */
+  cssOverride: join(publicDir.stylesDir, config.styles.filename),
+};

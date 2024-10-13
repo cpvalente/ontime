@@ -1,8 +1,9 @@
 import { MaybeNumber, MaybeString, Playback } from 'ontime-types';
 
 import { JSONFile } from 'lowdb/node';
-import { resolveRestoreFile } from '../setup/index.js';
 import { deepEqual } from 'fast-equals';
+
+import { publicFiles } from '../setup/index.js';
 
 export type RestorePoint = {
   playback: Playback;
@@ -147,4 +148,4 @@ export class RestoreService {
   }
 }
 
-export const restoreService = new RestoreService(resolveRestoreFile);
+export const restoreService = new RestoreService(publicFiles.restoreFile);

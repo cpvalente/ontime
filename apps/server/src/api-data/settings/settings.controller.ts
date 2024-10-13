@@ -3,8 +3,8 @@ import { getErrorMessage, obfuscate } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
 
+import { isDocker } from '../../externals.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
-import { isDocker } from '../../setup/index.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
 import { extractPin } from './settings.utils.js';

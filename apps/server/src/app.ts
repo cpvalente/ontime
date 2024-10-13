@@ -9,15 +9,8 @@ import serverTiming from 'server-timing';
 
 // import utils
 import { resolve } from 'path';
-import {
-  srcDirectory,
-  environment,
-  isProduction,
-  resolveExternalsDirectory,
-  resolveStylesDirectory,
-  resolvedPath,
-  resolvePublicDirectoy,
-} from './setup/index.js';
+import { publicDir, srcDir } from './setup/index.js';
+import { environment, isProduction } from './externals.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
 
@@ -56,8 +49,8 @@ consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
 const canLog = isProduction;
 if (!canLog) {
   console.log(`Ontime running in ${environment} environment`);
-  console.log(`Ontime source directory at ${srcDirectory} `);
-  console.log(`Ontime public directory at ${resolvePublicDirectoy} `);
+  console.log(`Ontime source directory at ${srcDir.root} `);
+  console.log(`Ontime public directory at ${publicDir.root} `);
 }
 
 // Create express APP
@@ -82,17 +75,16 @@ app.use(express.json({ limit: '1mb' }));
 app.use('/data', appRouter); // router for application data
 app.use('/api', integrationRouter); // router for integrations
 
-// serve static - css
-app.use('/external/styles', express.static(resolveStylesDirectory));
-app.use('/external/', express.static(resolveExternalsDirectory));
+// serve static external files
+app.use('/external/', express.static(publicDir.externalDir));
+// if the user reaches to the root, we show a 404
 app.use('/external', (req, res) => {
   res.status(404).send(`${req.originalUrl} not found`);
 });
 
 // serve static - react, in dev/test mode we fetch the React app from module
-const reactAppPath = resolvedPath();
 app.use(
-  expressStaticGzip(reactAppPath, {
+  expressStaticGzip(srcDir.clientDir, {
     enableBrotli: true,
     orderPreference: ['br'],
     // when we build the client all the react subfiles will get a hashed name we can the immutable tag
@@ -103,7 +95,7 @@ app.use(
 );
 
 app.get('*', (_req, res) => {
-  res.sendFile(resolve(reactAppPath, 'index.html'));
+  res.sendFile(resolve(srcDir.clientDir, 'index.html'));
 });
 
 // Implement catch all
