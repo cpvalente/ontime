@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input } from '@chakra-ui/react';
 import { CustomField } from 'ontime-types';
-import { isAlphanumeric } from 'ontime-utils';
+import { isAlphanumericWithSpace } from 'ontime-utils';
 
 import { maybeAxiosError } from '../../../../../common/api/utils';
 import SwatchSelect from '../../../../../common/components/input/colour-input/SwatchSelect';
@@ -16,10 +16,11 @@ interface CustomFieldsFormProps {
   onCancel: () => void;
   initialColour?: string;
   initialLabel?: string;
+  initialKey?: string;
 }
 
 export default function CustomFieldForm(props: CustomFieldsFormProps) {
-  const { onSubmit, onCancel, initialColour, initialLabel } = props;
+  const { onSubmit, onCancel, initialColour, initialLabel, initialKey } = props;
   const { data } = useCustomFields();
 
   // we use this to force an update
@@ -34,7 +35,7 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
     getValues,
     formState: { errors, isSubmitting, isValid, isDirty },
   } = useForm({
-    defaultValues: { label: initialLabel || '', colour: initialColour || '' },
+    defaultValues: { label: initialLabel || '', colour: initialColour || '', key: initialKey || '' },
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -75,9 +76,10 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
         <Input
           {...register('label', {
             required: { value: true, message: 'Required field' },
+            onChange: () => setValue('key', getValues('label').replaceAll(' ', '_')),
             validate: (value) => {
               if (value.trim().length === 0) return 'Required field';
-              if (!isAlphanumeric(value)) return 'Only alphanumeric characters are allowed';
+              if (!isAlphanumericWithSpace(value)) return 'Only alphanumeric characters and space are allowed';
               if (Object.keys(data).includes(value)) return 'Custom fields must be unique';
               return true;
             },
@@ -86,6 +88,11 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
           variant='ontime-filled'
           autoComplete='off'
         />
+      </div>
+      <div className={style.column}>
+        {/* TODO: better style and description */}
+        <Panel.Description>Key (The key is generated from the label for use in Integrations and API)</Panel.Description>
+        <Input {...register('key')} disabled size='sm' variant='ontime-filled' autoComplete='off' />
       </div>
 
       <div>
