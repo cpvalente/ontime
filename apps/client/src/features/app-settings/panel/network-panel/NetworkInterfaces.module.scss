@@ -4,3 +4,8 @@
   gap: $section-spacing;
   row-gap: $element-inner-spacing;
 }
+
+.goIcon {
+  transform: rotate(45deg);
+  margin-left: 0.25rem;
+}
