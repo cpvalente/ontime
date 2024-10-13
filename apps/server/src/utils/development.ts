@@ -1,4 +1,4 @@
-import { isProduction } from '../setup/index.js';
+import { isProduction } from '../externals.js';
 import { consoleError } from '../utils/console.js';
 
 /**

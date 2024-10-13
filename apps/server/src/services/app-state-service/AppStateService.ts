@@ -1,7 +1,8 @@
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
 
-import { appStatePath, isTest } from '../../setup/index.js';
+import { publicFiles } from '../../setup/index.js';
+import { isTest } from '../../externals.js';
 import { isPath } from '../../utils/fileManagement.js';
 import { shouldCrashDev } from '../../utils/development.js';
 
@@ -9,7 +10,7 @@ interface AppState {
   lastLoadedProject?: string;
 }
 
-const adapter = new JSONFile<AppState>(appStatePath);
+const adapter = new JSONFile<AppState>(publicFiles.appState);
 const config = new Low<AppState>(adapter, {});
 
 export async function isLastLoadedProject(projectName: string): Promise<boolean> {

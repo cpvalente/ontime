@@ -4,7 +4,7 @@ import { existsSync } from 'fs';
 import { copyFile, readFile, rename, stat } from 'fs/promises';
 import { extname, join } from 'path';
 
-import { resolveCorruptDirectory, resolveProjectsDirectory } from '../../setup/index.js';
+import { publicDir } from '../../setup/index.js';
 import { getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
 
 /**
@@ -13,7 +13,7 @@ import { getFilesFromFolder, removeFileExtension } from '../../utils/fileManagem
  * @param name
  */
 export async function handleUploaded(filePath: string, name: string) {
-  const newFilePath = join(resolveProjectsDirectory, name);
+  const newFilePath = join(publicDir.projectsDir, name);
   await rename(filePath, newFilePath);
 }
 
@@ -29,12 +29,12 @@ export async function handleUploaded(filePath: string, name: string) {
  * @throws {Error} Throws an error if there is an issue in reading the directory or fetching file statistics.
  */
 export async function getProjectFiles(): Promise<ProjectFile[]> {
-  const allFiles = await getFilesFromFolder(resolveProjectsDirectory);
+  const allFiles = await getFilesFromFolder(publicDir.projectsDir);
   const filteredFiles = filterProjectFiles(allFiles);
 
   const projectFiles: ProjectFile[] = [];
   for (const file of filteredFiles) {
-    const filePath = join(resolveProjectsDirectory, file);
+    const filePath = join(publicDir.projectsDir, file);
     const stats = await stat(filePath);
 
     projectFiles.push({
@@ -62,14 +62,14 @@ export function doesProjectExist(name: string): MaybeString {
  * Returns the absolute path to a project file
  */
 export function getPathToProject(name: string): string {
-  return join(resolveProjectsDirectory, name);
+  return join(publicDir.projectsDir, name);
 }
 
 /**
  * Makes a copy of a given project to the corrupted directory
  */
 export async function copyCorruptFile(filePath: string, name: string): Promise<void> {
-  const newPath = join(resolveCorruptDirectory, name);
+  const newPath = join(publicDir.corruptDir, name);
   return copyFile(filePath, newPath);
 }
 
@@ -77,7 +77,7 @@ export async function copyCorruptFile(filePath: string, name: string): Promise<v
  * Moves a file permanently to the corrupted directory
  */
 export async function moveCorruptFile(filePath: string, name: string): Promise<void> {
-  const newPath = join(resolveCorruptDirectory, name);
+  const newPath = join(publicDir.corruptDir, name);
   return rename(filePath, newPath);
 }
 

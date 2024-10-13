@@ -11,7 +11,7 @@ import { sheets, sheets_v4 } from '@googleapis/sheets';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import got from 'got';
 
-import { resolveSheetsDirectory } from '../../setup/index.js';
+import { publicDir } from '../../setup/index.js';
 import { ensureDirectory } from '../../utils/fileManagement.js';
 import { cellRequestFromEvent, type ClientSecret, getA1Notation, validateClientSecret } from './sheetUtils.js';
 import { parseExcel } from '../../utils/parser.js';
@@ -57,7 +57,7 @@ function reset() {
  */
 export function init() {
   reset();
-  ensureDirectory(resolveSheetsDirectory);
+  ensureDirectory(publicDir.sheetsDir);
 }
 
 /**
