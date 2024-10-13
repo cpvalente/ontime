@@ -14,7 +14,7 @@ const {
   trayIcon,
   appIcon,
   getServerUrl,
-} = require('./external.js');
+} = require('./externals.js');
 
 if (!isProduction) {
   console.log(`Electron running in ${env} environment`);
