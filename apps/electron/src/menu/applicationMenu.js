@@ -13,7 +13,7 @@ const {
   stylesPath,
   externalPath,
   downloadPath,
-} = require('../external');
+} = require('../externals.js');
 
 /**
  * Creates the application menu
