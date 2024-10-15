@@ -126,6 +126,30 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
 }
 
 /**
+ * Uploads an image file to be used as a project image.
+ * The image file is saved in the uploads directory.
+ */
+export async function postProjectImage(req: Request, res: Response<MessageResponse | ErrorResponse>) {
+  if (!req.file) {
+    res.status(400).send({ message: 'File not found' });
+    return;
+  }
+
+  try {
+    const { filename, path } = req.file;
+
+    await handleUploaded(path, filename);
+
+    res.status(201).send({
+      message: `Saved project image ${filename}`,
+    });
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(500).send({ message });
+  }
+}
+
+/**
  * Retrieves and lists all project files from the uploads directory.
  */
 export async function listProjects(_req: Request, res: Response<ProjectFileListResponse | ErrorResponse>) {

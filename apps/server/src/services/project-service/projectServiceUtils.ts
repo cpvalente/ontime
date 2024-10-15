@@ -8,7 +8,7 @@ import { publicDir } from '../../setup/index.js';
 import { getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
 
 /**
- * Handles the upload of a new project file
+ * Handles the upload of a new project file or image.
  * @param filePath
  * @param name
  */
