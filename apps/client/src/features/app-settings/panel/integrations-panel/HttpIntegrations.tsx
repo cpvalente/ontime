@@ -60,7 +60,7 @@ export default function HttpIntegrations() {
       id: generateId(),
       cycle: 'onLoad',
       message: '',
-      enabled: false,
+      enabled: true,
     });
   };
 

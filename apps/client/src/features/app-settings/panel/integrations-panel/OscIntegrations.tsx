@@ -75,7 +75,7 @@ export default function OscIntegrations() {
       cycle: 'onLoad',
       address: '',
       payload: '',
-      enabled: false,
+      enabled: true,
     });
   };
 

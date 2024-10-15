@@ -78,7 +78,7 @@ export default function UrlPresetsForm() {
 
   const addNew = () => {
     prepend({
-      enabled: false,
+      enabled: true,
       alias: '',
       pathAndParams: '',
     });

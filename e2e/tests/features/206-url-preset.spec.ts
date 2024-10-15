@@ -19,8 +19,6 @@ test('URL preset feature, it should redirect to given URL', async ({ page }) => 
   await page.getByTestId('field__url_0').click();
   await page.getByTestId('field__url_0').fill('countdown');
 
-  await page.getByTestId('field__enable_0').click();
-
   await page.getByTestId('url-preset-form').getByRole('button', { name: 'Save', exact: true }).click();
 
   // make sure preset works
