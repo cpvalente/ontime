@@ -3,3 +3,4 @@ export const apiRepoLatest = 'https://api.github.com/repos/cpvalente/ontime/rele
 export const websiteUrl = 'https://www.getontime.no';
 
 export const documentationUrl = 'https://docs.getontime.no';
+export const customFieldsDocsUrl = 'https://docs.getontime.no/features/custom-fields/';
