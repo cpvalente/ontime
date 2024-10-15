@@ -1,4 +1,6 @@
+import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { usePrevious } from '@mantine/hooks';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   CustomFields,
@@ -12,12 +14,14 @@ import {
   ViewSettings,
 } from 'ontime-types';
 
+import sound from '../../../assets/sounds/buzzer.mp3';
 import { overrideStylesURL } from '../../../common/api/constants';
 import { FitText } from '../../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { useTimerPhase } from '../../../common/hooks/useSocket';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
@@ -59,12 +63,28 @@ interface TimerProps {
   viewSettings: ViewSettings;
 }
 
+const usePhaseEvent = () => {
+  const { phase } = useTimerPhase();
+  const previousValue = usePrevious(phase);
+
+  const audio = useMemo(() => new Audio(sound), []);
+
+  if (previousValue !== TimerPhase.None && previousValue !== phase && phase === TimerPhase.Overtime) {
+    try {
+      audio.play();
+    } catch (error) {
+      console.error('Audio playback prevented', error);
+    }
+  }
+};
+
 export default function Timer(props: TimerProps) {
   const { auxTimer, customFields, eventNow, eventNext, isMirrored, message, settings, time, viewSettings } = props;
 
   const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
+  usePhaseEvent();
 
   useWindowTitle('Timer');
 
