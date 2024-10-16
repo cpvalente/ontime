@@ -6,11 +6,11 @@ import { publicDir, srcDir } from './index.js';
  * @description ensures directories exist and populates demo folder
  */
 export const populateDemo = () => {
-  ensureDirectory(publicDir.demoDir);
+  ensureDirectory(publicDir.externalDemoDir);
 
   // even if demo exist we want to use startup demo
   try {
-    copyDirectory(srcDir.demoDir, publicDir.demoDir);
+    copyDirectory(srcDir.externalDemoDir, publicDir.externalDemoDir);
   } catch (_) {
     /* we do not handle this */
   }
