@@ -18,6 +18,7 @@ import TimeInputFlow from '../time-input-flow/TimeInputFlow';
 
 import EventBlockPlayback from './composite/EventBlockPlayback';
 import EventBlockProgressBar from './composite/EventBlockProgressBar';
+import EventBlockReporter from './composite/EventBlockReporter';
 
 import style from './EventBlock.module.scss';
 
@@ -91,6 +92,9 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           timeStrategy={timeStrategy}
           linkStart={linkStart}
         />
+      </div>
+      <div className={style.repotSection}>
+        <EventBlockReporter id={eventId}></EventBlockReporter>
       </div>
       <div className={style.titleSection}>
         <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
