@@ -73,7 +73,7 @@ export const srcDir = {
   /** Path to the react app */
   clientDir: isProduction ? join(srcDirectory, 'client/') : join(srcDirectory, '../../client/build/'),
   /** Path to the demo app */
-  demoDir: join(srcDirectory, 'external', config.demo.directory),
+  demoDir: join(srcDirectory, 'external', config.demo),
 } as const;
 
 export const srcFiles = {
@@ -109,12 +109,15 @@ export const publicDir = {
   /** path to uploads folder */
   uploadsDir: join(resolvePublicDirectory, config.uploads),
   /** path to external folder */
-  externalDir: externalsStartDirectory,
+  externalDir: join(
+    externalsStartDirectory,
+    isProduction ? config.external : '', // move to external folder in production
+  ),
   /** path to demo project folder */
   demoDir: join(
     externalsStartDirectory,
     isProduction ? '/external/' : '', // move to external folder in production
-    config.demo.directory,
+    config.demo,
   ),
   /** path to user folder */
   userDir: join(resolvePublicDirectory, config.user),
