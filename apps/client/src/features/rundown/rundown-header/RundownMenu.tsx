@@ -37,10 +37,11 @@ export default function RundownMenu() {
         leftIcon={<IoTrash />}
         onClick={onOpen}
         color='#FA5656'
-        isDisabled={appMode === 'run'}
+        isDisabled={appMode !== 'edit'}
       >
         Clear rundown
       </Button>
+
       <AlertDialog variant='ontime' isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
         <AlertDialogOverlay>
           <AlertDialogContent>

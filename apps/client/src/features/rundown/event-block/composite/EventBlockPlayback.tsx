@@ -8,6 +8,7 @@ import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircle
 import TooltipActionBtn from '../../../../common/components/buttons/TooltipActionBtn';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { setEventPlayback } from '../../../../common/hooks/useSocket';
+import { AppMode, useAppMode } from '../../../../common/stores/appModeStore';
 import { tooltipDelayMid } from '../../../../ontimeConfig';
 
 import style from '../EventBlock.module.scss';
@@ -39,6 +40,8 @@ interface EventBlockPlaybackProps {
 const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
   const { eventId, skip, isPlaying, isPaused, loaded, disablePlayback } = props;
   const { updateEvent } = useEventAction();
+  const appMode = useAppMode((state) => state.mode);
+  const isRundownFrozen = appMode === AppMode.Freeze;
 
   const toggleSkip = (event: MouseEvent) => {
     event.stopPropagation();
@@ -100,7 +103,7 @@ const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
         {...blockBtnStyle}
         clickHandler={toggleSkip}
         tabIndex={-1}
-        isDisabled={loaded}
+        isDisabled={isRundownFrozen || loaded}
       />
       <TooltipActionBtn
         variant='ontime-subtle-white'

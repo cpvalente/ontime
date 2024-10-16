@@ -7,6 +7,7 @@ import CopyTag from '../../../common/components/copy-tag/CopyTag';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import useRundown from '../../../common/hooks-query/useRundown';
+import { AppMode, useAppMode } from '../../../common/stores/appModeStore';
 import { getAccessibleColour } from '../../../common/utils/styleUtils';
 import { useEventSelection } from '../useEventSelection';
 
@@ -28,6 +29,8 @@ export default function EventEditor() {
   const { order, rundown } = data;
   const { updateEvent } = useEventAction();
   const [_searchParams, setSearchParams] = useSearchParams();
+  const appMode = useAppMode((state) => state.mode);
+  const isRundownFrozen = appMode === AppMode.Freeze;
 
   const [event, setEvent] = useState<OntimeEvent | null>(null);
 
@@ -88,6 +91,7 @@ export default function EventEditor() {
           timerType={event.timerType}
           timeWarning={event.timeWarning}
           timeDanger={event.timeDanger}
+          isRundownFrozen={isRundownFrozen}
         />
         <EventEditorTitles
           key={`${event.id}-titles`}
@@ -97,6 +101,7 @@ export default function EventEditor() {
           note={event.note}
           colour={event.colour}
           handleSubmit={handleSubmit}
+          isRundownFrozen={isRundownFrozen}
         />
         <div className={style.column}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
