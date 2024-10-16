@@ -11,6 +11,7 @@ import { router as settingsRouter } from './settings/settings.router.js';
 import { router as sheetsRouter } from './sheets/sheets.router.js';
 import { router as excelRouter } from './excel/excel.router.js';
 import { router as viewSettingsRouter } from './view-settings/viewSettings.router.js';
+import { router as reportRouter } from './report/report.router.js';
 
 export const appRouter = express.Router();
 
@@ -25,6 +26,7 @@ appRouter.use('/sheets', sheetsRouter);
 appRouter.use('/excel', excelRouter);
 appRouter.use('/url-presets', urlPresetsRouter);
 appRouter.use('/view-settings', viewSettingsRouter);
+appRouter.use('/report', reportRouter);
 
 //we don't want to redirect to react index when using api routes
 appRouter.all('/*', (_req, res) => {
