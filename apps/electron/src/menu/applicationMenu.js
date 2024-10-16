@@ -140,7 +140,10 @@ function makeViewMenu(clientUrl) {
       { role: 'forceReload' },
       { type: 'separator' },
       { role: 'resetZoom' },
-      { role: 'zoomIn' },
+      // NOTE: I still contend this zoomin mess is an electron bug
+      { role: 'zoomIn', accelerator: 'CmdOrCtrl+Plus' },
+      { role: 'zoomIn', accelerator: 'CmdOrCtrl+=', visible: false },
+      { role: 'zoomIn', accelerator: 'CmdOrCtrl+numadd', visible: false },
       { role: 'zoomOut' },
       { type: 'separator' },
       { role: 'togglefullscreen' },
