@@ -70,35 +70,38 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
 
   return (
     <form onSubmit={handleSubmit(setupSubmit)} className={style.fieldForm}>
-      <div className={style.column}>
-        <Panel.Description>Label (only alphanumeric characters are allowed)</Panel.Description>
-        {errors.label && <Panel.Error>{errors.label.message}</Panel.Error>}
-        <Input
-          {...register('label', {
-            required: { value: true, message: 'Required field' },
-            onChange: () => setValue('key', getValues('label').replaceAll(' ', '_')),
-            validate: (value) => {
-              if (value.trim().length === 0) return 'Required field';
-              if (!isAlphanumericWithSpace(value)) return 'Only alphanumeric characters and space are allowed';
-              if (Object.keys(data).includes(value)) return 'Custom fields must be unique';
-              return true;
-            },
-          })}
-          size='sm'
-          variant='ontime-filled'
-          autoComplete='off'
-        />
-      </div>
-      <div className={style.column}>
-        {/* TODO: better style and description */}
-        <Panel.Description>Key (The key is generated from the label for use in Integrations and API)</Panel.Description>
-        <Input {...register('key')} disabled size='sm' variant='ontime-filled' autoComplete='off' />
+      <div className={style.twoCols}>
+        <div>
+          <Panel.Description>Label (only alphanumeric characters are allowed)</Panel.Description>
+          {errors.label && <Panel.Error>{errors.label.message}</Panel.Error>}
+          <Input
+            {...register('label', {
+              required: { value: true, message: 'Required field' },
+              onChange: () => setValue('key', getValues('label').replaceAll(' ', '_')),
+              validate: (value) => {
+                if (value.trim().length === 0) return 'Required field';
+                if (!isAlphanumericWithSpace(value)) return 'Only alphanumeric characters and space are allowed';
+                if (Object.keys(data).includes(value)) return 'Custom fields must be unique';
+                return true;
+              },
+            })}
+            size='sm'
+            variant='ontime-filled'
+            autoComplete='off'
+          />
+        </div>
+
+        <div>
+          <Panel.Description>Key (auto-generated value for use in Integrations and API)</Panel.Description>
+          <Input {...register('key')} disabled size='sm' variant='ontime-filled' autoComplete='off' />
+        </div>
       </div>
 
       <div>
         <Panel.Description>Colour</Panel.Description>
         <SwatchSelect name='colour' value={colour} handleChange={(_field, value) => handleSelectColour(value)} />
       </div>
+
       {errors.root && <Panel.Error>{errors.root.message}</Panel.Error>}
       <div className={style.buttonRow}>
         <Button size='sm' variant='ontime-ghosted' onClick={onCancel}>

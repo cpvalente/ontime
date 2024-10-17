@@ -44,17 +44,14 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
     );
   }
 
-  console.log(field)
-
   return (
     <tr>
       <td>
         <Swatch color={colour} />
       </td>
-      <td className={style.fullWidth}>{label}</td>
+      <td className={style.halfWidth}>{label}</td>
       <td className={style.fullWidth}>
-        {/* TODO: better description */}
-        <CopyTag label='The key can be used in Integrations and API'>{field}</CopyTag>
+        <CopyTag label='Copy key to use in integrations'>{field}</CopyTag>
       </td>
       <td className={style.actions}>
         <IconButton
