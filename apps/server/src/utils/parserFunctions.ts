@@ -305,12 +305,12 @@ export function parseCustomFields(data: Partial<DatabaseModel>, emitError?: Erro
 export function sanitiseCustomFields(data: object): CustomFields {
   const newCustomFields: CustomFields = {};
 
-  for (const [_key, field] of Object.entries(data)) {
+  for (const [originalKey, field] of Object.entries(data)) {
     if (!isValidField(field)) {
       continue;
     }
 
-    const key = field.label;
+    const key = originalKey.toLocaleLowerCase() === field.label.toLocaleLowerCase() ? originalKey : field.label;
     if (key in newCustomFields) {
       continue;
     }
