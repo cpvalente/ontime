@@ -5,12 +5,19 @@ import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { ImportMap } from 'ontime-utils';
 
+import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
 import { isAlphanumeric } from '../../../../../common/utils/regex';
 import * as Panel from '../../PanelUtils';
 import useGoogleSheet from '../useGoogleSheet';
 import { useSheetStore } from '../useSheetStore';
 
-import { convertToImportMap, getPersistedOptions, NamedImportMap, persistImportMap } from './importMapUtils';
+import {
+  addExistingCustomFields,
+  convertToImportMap,
+  getPersistedOptions,
+  NamedImportMap,
+  persistImportMap,
+} from './importMapUtils';
 
 import style from '../SourcesPanel.module.scss';
 
@@ -24,7 +31,8 @@ interface ImportMapFormProps {
 
 export default function ImportMapForm(props: ImportMapFormProps) {
   const { hasErrors, isSpreadsheet, onCancel, onSubmitExport, onSubmitImport } = props;
-  const namedImportMap = getPersistedOptions();
+  const { data } = useCustomFields();
+  const namedImportMap = addExistingCustomFields(getPersistedOptions(), data);
   const { revoke } = useGoogleSheet();
   const {
     control,
