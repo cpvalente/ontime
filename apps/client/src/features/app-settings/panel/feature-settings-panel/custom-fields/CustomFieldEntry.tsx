@@ -51,7 +51,9 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
       </td>
       <td className={style.halfWidth}>{label}</td>
       <td className={style.fullWidth}>
-        <CopyTag label='Copy key to use in integrations'>{field}</CopyTag>
+        <CopyTag label='Copy key to use in integrations' copyValue={field}>
+          {field}
+        </CopyTag>
       </td>
       <td className={style.actions}>
         <IconButton
