@@ -34,7 +34,7 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
     getValues,
     formState: { errors, isSubmitting, isValid, isDirty },
   } = useForm({
-    defaultValues: { label: initialLabel || '', colour: initialColour || '' },
+    defaultValues: { label: initialLabel || '', colour: initialColour || '', key: initialLabel || '' },
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -75,6 +75,7 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
         <Input
           {...register('label', {
             required: { value: true, message: 'Required field' },
+            onChange: () => setValue('key', getValues('label')),
             validate: (value) => {
               if (value.trim().length === 0) return 'Required field';
               if (!isAlphanumeric(value)) return 'Only alphanumeric characters are allowed';
@@ -86,6 +87,11 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
           variant='ontime-filled'
           autoComplete='off'
         />
+      </div>
+      <div className={style.column}>
+        {/* TODO: better style and description */}
+        <Panel.Description>Key (The key is generated from the label for use in Integrations and API)</Panel.Description>
+        <Input {...register('key')} disabled size='sm' variant='ontime-filled' autoComplete='off' />
       </div>
 
       <div>

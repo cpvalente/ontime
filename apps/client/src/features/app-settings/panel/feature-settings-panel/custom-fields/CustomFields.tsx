@@ -73,6 +73,7 @@ export default function CustomFields() {
               <tr>
                 <th>Colour</th>
                 <th>Name</th>
+                <th></th>
                 <th />
               </tr>
             </thead>
