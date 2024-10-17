@@ -447,7 +447,7 @@ function scheduleCustomFieldPersist(persistedCustomFields: CustomFields) {
  */
 export const createCustomField = async (field: CustomField) => {
   const { label, type, colour } = field;
-  const key = label.toLowerCase();
+  const key = label;
   // check if label already exists
   const alreadyExists = Object.hasOwn(persistedCustomFields, key);
 
