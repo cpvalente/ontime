@@ -20,7 +20,7 @@ interface CustomFieldsFormProps {
 
 export default function CustomFieldForm(props: CustomFieldsFormProps) {
   const { onSubmit, onCancel, initialColour, initialLabel } = props;
-  const { data, refetch } = useCustomFields();
+  const { data } = useCustomFields();
 
   // we use this to force an update
   const [_, setColour] = useState(initialColour || '');
