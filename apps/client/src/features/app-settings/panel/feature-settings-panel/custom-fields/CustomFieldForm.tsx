@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input } from '@chakra-ui/react';
 import { CustomField } from 'ontime-types';
-import { isAlphanumericWithSpace } from 'ontime-utils';
+import { customFieldLabelToKey, isAlphanumericWithSpace } from 'ontime-utils';
 
 import { maybeAxiosError } from '../../../../../common/api/utils';
 import SwatchSelect from '../../../../../common/components/input/colour-input/SwatchSelect';
@@ -77,7 +77,7 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
           <Input
             {...register('label', {
               required: { value: true, message: 'Required field' },
-              onChange: () => setValue('key', getValues('label').replaceAll(' ', '_')),
+              onChange: () => setValue('key', customFieldLabelToKey(getValues('label')) ?? 'N/A'),
               validate: (value) => {
                 if (value.trim().length === 0) return 'Required field';
                 if (!isAlphanumericWithSpace(value)) return 'Only alphanumeric characters and space are allowed';
