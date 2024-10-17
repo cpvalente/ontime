@@ -93,8 +93,8 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           linkStart={linkStart}
         />
       </div>
-      <div className={style.repotSection}>
-        <EventBlockReporter id={eventId} timeStart={timeStart}></EventBlockReporter>
+      <div className={style.reportSection}>
+        <EventBlockReporter id={eventId} timeStart={timeStart} />
       </div>
       <div className={style.titleSection}>
         <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />

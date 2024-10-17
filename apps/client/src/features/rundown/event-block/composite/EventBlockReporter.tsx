@@ -20,10 +20,7 @@ export default function EventBlockReporter(props: { id: string; timeStart: numbe
 
   const timeUntil = formatDuration(getTimeToStart(clock, timeStart, 0, offset), false);
 
-  return (
-    <div className={style.chip}>
-      <div className={style.even}>{reportDisplay}</div>
-      <div className={style.odd}>{timeUntil}</div>
-    </div>
-  );
+  // we show report display if the event is over
+  // otherwise we show time until
+  return <div className={style.chip}>{report ? reportDisplay : timeUntil}</div>;
 }
