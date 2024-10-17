@@ -1,3 +1,7 @@
+.halfWidth {
+  width: 50%;
+}
+
 .fullWidth {
   width: 100%;
 }
@@ -36,4 +40,10 @@
 
 .flex {
   display: flex;
+}
+
+.twoCols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }

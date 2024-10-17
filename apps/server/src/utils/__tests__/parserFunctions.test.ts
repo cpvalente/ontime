@@ -279,7 +279,7 @@ describe('sanitiseCustomFields()', () => {
     const customFields: CustomFields = {
       test: { label: 'test', type: 'string', colour: 'red' },
       test2: { label: 'test2', type: 'string', colour: 'green' },
-      test3: { label: 'Test3', type: 'string', colour: '' },
+      Test3: { label: 'Test3', type: 'string', colour: '' },
     };
     const sanitationResult = sanitiseCustomFields(customFields);
     expect(sanitationResult).toStrictEqual(customFields);
@@ -328,10 +328,32 @@ describe('sanitiseCustomFields()', () => {
 
   it('enforce name cohesion', () => {
     const customFields: CustomFields = {
-      test: { label: 'New Name', type: 'string', colour: 'red' },
+      test: { label: 'NewName', type: 'string', colour: 'red' },
     };
     const expectedCustomFields: CustomFields = {
-      'new name': { label: 'New Name', type: 'string', colour: 'red' },
+      NewName: { label: 'NewName', type: 'string', colour: 'red' },
+    };
+    const sanitationResult = sanitiseCustomFields(customFields);
+    expect(sanitationResult).toStrictEqual(expectedCustomFields);
+  });
+
+  it('allow old keys', () => {
+    const customFields: CustomFields = {
+      test: { label: 'Test', type: 'string', colour: 'red' },
+    };
+    const expectedCustomFields: CustomFields = {
+      test: { label: 'Test', type: 'string', colour: 'red' },
+    };
+    const sanitationResult = sanitiseCustomFields(customFields);
+    expect(sanitationResult).toStrictEqual(expectedCustomFields);
+  });
+
+  it('labels with space', () => {
+    const customFields: CustomFields = {
+      Test_with_Space: { label: 'Test with Space', type: 'string', colour: 'red' },
+    };
+    const expectedCustomFields: CustomFields = {
+      Test_with_Space: { label: 'Test with Space', type: 'string', colour: 'red' },
     };
     const sanitationResult = sanitiseCustomFields(customFields);
     expect(sanitationResult).toStrictEqual(expectedCustomFields);
@@ -342,12 +364,12 @@ describe('sanitiseCustomFields()', () => {
       test: { label: 'test', type: 'string', colour: 'red' },
       test2: { label: 'test2', type: 'string', colour: 'green' },
       bad: { label: '', type: 'string', colour: '' },
-      test3: { label: 'Test3', type: 'string', colour: '' },
+      Test3: { label: 'Test3', type: 'string', colour: '' },
     };
     const expectedCustomFields: CustomFields = {
       test: { label: 'test', type: 'string', colour: 'red' },
       test2: { label: 'test2', type: 'string', colour: 'green' },
-      test3: { label: 'Test3', type: 'string', colour: '' },
+      Test3: { label: 'Test3', type: 'string', colour: '' },
     };
     const sanitationResult = sanitiseCustomFields(customFields);
     expect(sanitationResult).toStrictEqual(expectedCustomFields);

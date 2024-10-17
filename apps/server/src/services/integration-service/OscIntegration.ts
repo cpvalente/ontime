@@ -78,6 +78,7 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
     //TODO: Look into using bundles
     const message = new Message(address);
     message.append(args);
+    console.log(message);
 
     this.oscClient.send(message);
   }
@@ -85,7 +86,7 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
   private initTX(enabledOut: boolean, targetIP: string, portOut: number, subscriptions: OscSubscription[]) {
     this.initSubscriptions(subscriptions);
 
-    if (!enabledOut && this.enabledOut) {
+    if (!enabledOut) {
       this.targetIP = targetIP;
       this.portOut = portOut;
       this.enabledOut = enabledOut;
@@ -104,6 +105,7 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
 
     try {
       this.oscClient = new Client(targetIP, portOut);
+      logger.info(LogOrigin.Tx, `Starting OSC Clint on port: ${portOut}`);
     } catch (error) {
       this.oscClient = null;
       throw new Error(`Failed initialising OSC client: ${error}`);
@@ -111,7 +113,7 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
   }
 
   private initRX(enabledIn: boolean, portIn: number) {
-    if (!enabledIn && this.enabledIn) {
+    if (!enabledIn) {
       this.shutdownRX();
       return;
     }
