@@ -1,4 +1,4 @@
-import { isAlphanumericWithSpace } from '../regex-utils/isAlphanumeric';
+import { isAlphanumericWithSpace } from '../regex-utils/isAlphanumeric.js';
 
 /**
  * @description Transforms a Custom field label into a valid key or returns null if not possible
