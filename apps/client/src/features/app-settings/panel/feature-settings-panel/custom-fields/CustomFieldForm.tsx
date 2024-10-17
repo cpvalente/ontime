@@ -16,10 +16,11 @@ interface CustomFieldsFormProps {
   onCancel: () => void;
   initialColour?: string;
   initialLabel?: string;
+  initialKey?: string;
 }
 
 export default function CustomFieldForm(props: CustomFieldsFormProps) {
-  const { onSubmit, onCancel, initialColour, initialLabel } = props;
+  const { onSubmit, onCancel, initialColour, initialLabel, initialKey } = props;
   const { data } = useCustomFields();
 
   // we use this to force an update
@@ -34,7 +35,7 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
     getValues,
     formState: { errors, isSubmitting, isValid, isDirty },
   } = useForm({
-    defaultValues: { label: initialLabel || '', colour: initialColour || '', key: initialLabel || '' },
+    defaultValues: { label: initialLabel || '', colour: initialColour || '', key: initialKey || '' },
     resetOptions: {
       keepDirtyValues: true,
     },

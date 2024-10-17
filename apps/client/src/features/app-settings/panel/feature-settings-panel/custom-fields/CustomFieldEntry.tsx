@@ -37,6 +37,7 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
             onSubmit={handleEdit}
             initialColour={colour}
             initialLabel={label}
+            initialKey={field}
           />
         </td>
       </tr>
