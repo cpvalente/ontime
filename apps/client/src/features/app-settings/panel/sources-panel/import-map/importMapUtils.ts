@@ -1,3 +1,4 @@
+import { CustomFields } from 'ontime-types';
 import { ImportCustom, ImportMap } from 'ontime-utils';
 
 export type NamedImportMap = typeof namedImportMap;
@@ -81,4 +82,20 @@ export function getPersistedOptions(): NamedImportMap {
   } catch {
     return namedImportMap;
   }
+}
+
+export function addExistingCustomFields(importMap: NamedImportMap, customFields: CustomFields): NamedImportMap {
+  const custom = importMap.custom;
+  Object.entries(customFields).forEach(([key, { label }]) => {
+    if (
+      !custom.some((ic) => {
+        return ic.ontimeName === key;
+      })
+    ) {
+      // const ontimeName = key as unknown as string;
+      custom.push({ ontimeName: key, importName: label });
+    }
+  });
+
+  return importMap;
 }
