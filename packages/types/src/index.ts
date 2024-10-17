@@ -37,6 +37,7 @@ export type {
 } from './definitions/core/CustomFields.type.js';
 
 // ---> Integration, Subscription
+export type { CompanionSettings } from './definitions/core/CompanionSettings.type.js';
 export type { OSCSettings, OscSubscription } from './definitions/core/OscSettings.type.js';
 export type { HttpSettings, HttpSubscription } from './definitions/core/HttpSettings.type.js';
 

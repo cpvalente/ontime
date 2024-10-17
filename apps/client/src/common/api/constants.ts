@@ -2,6 +2,7 @@
 export const APP_INFO = ['appinfo'];
 export const APP_SETTINGS = ['appSettings'];
 export const CUSTOM_FIELDS = ['customFields'];
+export const COMPANION_SETTINGS = ['companionSettings'];
 export const HTTP_SETTINGS = ['httpSettings'];
 export const OSC_SETTINGS = ['oscSettings'];
 export const PROJECT_DATA = ['project'];

@@ -8,6 +8,7 @@ import {
   CustomFields,
   HttpSettings,
   URLPreset,
+  CompanionSettings,
 } from 'ontime-types';
 
 import type { Low } from 'lowdb';
@@ -48,12 +49,14 @@ export function getDataProvider() {
     setRundown,
     getSettings,
     setSettings,
+    getCompanion,
     getOsc,
     getHttp,
     getUrlPresets,
     setUrlPresets,
     getViewSettings,
     setViewSettings,
+    setCompanion,
     setOsc,
     setHttp,
     getRundown,
@@ -101,6 +104,10 @@ async function setSettings(newData: Settings): ReadonlyPromise<Settings> {
   return db.data.settings;
 }
 
+function getCompanion(): Readonly<CompanionSettings> {
+  return db.data.companion;
+}
+
 function getOsc(): Readonly<OSCSettings> {
   return db.data.osc;
 }
@@ -129,6 +136,12 @@ async function setViewSettings(newData: ViewSettings): ReadonlyPromise<ViewSetti
   return db.data.viewSettings;
 }
 
+async function setCompanion(newData: CompanionSettings): ReadonlyPromise<CompanionSettings> {
+  db.data.companion = { ...newData };
+  await persist();
+  return db.data.companion;
+}
+
 async function setOsc(newData: OSCSettings): ReadonlyPromise<OSCSettings> {
   db.data.osc = { ...newData };
   await persist();
@@ -150,6 +163,7 @@ async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<D
   db.data.project = mergedData.project;
   db.data.settings = mergedData.settings;
   db.data.viewSettings = mergedData.viewSettings;
+  db.data.companion = mergedData.companion;
   db.data.osc = mergedData.osc;
   db.data.http = mergedData.http;
   db.data.urlPresets = mergedData.urlPresets;

@@ -46,6 +46,7 @@ export const settingPanels: Readonly<SettingsOption[]> = [
     id: 'integrations',
     label: 'Integrations',
     secondary: [
+      { id: 'integrations__companion', label: 'Companion settings' },
       { id: 'integrations__osc', label: 'OSC settings' },
       { id: 'integrations__http', label: 'HTTP settings' },
     ],

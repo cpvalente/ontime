@@ -1,4 +1,5 @@
 import type {
+  CompanionSettings,
   CustomFields,
   HttpSettings,
   OntimeRundown,
@@ -16,6 +17,7 @@ export type DatabaseModel = {
   viewSettings: ViewSettings;
   urlPresets: URLPreset[];
   customFields: CustomFields;
+  companion: CompanionSettings;
   osc: OSCSettings;
   http: HttpSettings;
 };

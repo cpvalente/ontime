@@ -5,6 +5,7 @@ import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import { PanelBaseProps } from '../../settingsStore';
 import * as Panel from '../PanelUtils';
 
+import CompanionIntegrations from './CompanionIntegrations';
 import HttpIntegrations from './HttpIntegrations';
 import OscIntegrations from './OscIntegrations';
 
@@ -12,6 +13,7 @@ const integrationDocsUrl = 'https://docs.getontime.no/api/integrations/';
 
 export default function IntegrationsPanel({ location }: PanelBaseProps) {
   const oscRef = useScrollIntoView<HTMLDivElement>('osc', location);
+  const companionRef = useScrollIntoView<HTMLDivElement>('companion', location);
   const httpRef = useScrollIntoView<HTMLDivElement>('http', location);
 
   return (
@@ -30,6 +32,9 @@ export default function IntegrationsPanel({ location }: PanelBaseProps) {
         </Alert>
       </Panel.Section>
       <Panel.Section>
+        <div ref={companionRef}>
+          <CompanionIntegrations />
+        </div>
         <div ref={oscRef}>
           <OscIntegrations />
         </div>
