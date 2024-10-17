@@ -42,6 +42,7 @@ import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { getNetworkInterfaces } from './utils/networkInterfaces.js';
 import { timerConfig } from './config/config.js';
+import { companionIntegration } from './services/integration-service/CompanionIntegration.js';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -224,7 +225,7 @@ export const startIntegrations = async () => {
   checkStart(OntimeStartOrder.InitIO);
 
   // if a config is not provided, we use the persisted one
-  const { osc, http } = getDataProvider().getData();
+  const { osc, http, companion } = getDataProvider().getData();
 
   if (osc) {
     logger.info(LogOrigin.Tx, 'Initialising OSC Integration...');
@@ -243,6 +244,16 @@ export const startIntegrations = async () => {
       integrationService.register(httpIntegration);
     } catch (error) {
       logger.error(LogOrigin.Tx, `HTTP Integration initialisation failed: ${error}`);
+    }
+  }
+
+  if (companion) {
+    logger.info(LogOrigin.Tx, 'Initialising Companion Integration...');
+    try {
+      companionIntegration.init(companion);
+      integrationService.register(companionIntegration);
+    } catch (error) {
+      logger.error(LogOrigin.Tx, `Companion Integration initialisation failed: ${error}`);
     }
   }
 };

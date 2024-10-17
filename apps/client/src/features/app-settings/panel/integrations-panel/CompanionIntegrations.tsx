@@ -1,19 +1,26 @@
 import { useEffect } from 'react';
-import { Controller, useForm } from 'react-hook-form';
-import { Button, Input, Switch } from '@chakra-ui/react';
-import { OSCSettings } from 'ontime-types';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { Button, IconButton, Input, Select, Switch } from '@chakra-ui/react';
+import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
+import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { CompanionSettings } from 'ontime-types';
+import { generateId } from 'ontime-utils';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
-import useOscSettings, { useOscSettingsMutation } from '../../../../common/hooks-query/useOscSettings';
+import useCompanionSettings, {
+  useCompanionSettingsMutation,
+} from '../../../../common/hooks-query/useCompanionSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
 import { isIPAddress, isOnlyNumbers } from '../../../../common/utils/regex';
 import * as Panel from '../PanelUtils';
 
+import { cycles } from './integrationUtils';
+
 import style from './IntegrationsPanel.module.css';
 
 export default function CompanionIntegrations() {
-  const { data, status } = useOscSettings();
-  const { mutateAsync } = useOscSettingsMutation();
+  const { data, status } = useCompanionSettings();
+  const { mutateAsync } = useCompanionSettingsMutation();
 
   const {
     control,
@@ -22,13 +29,18 @@ export default function CompanionIntegrations() {
     register,
     setError,
     formState: { errors, isSubmitting, isDirty, isValid },
-  } = useForm<OSCSettings>({
+  } = useForm<CompanionSettings>({
     mode: 'onBlur',
     defaultValues: data,
     values: data,
     resetOptions: {
       keepDirtyValues: true,
     },
+  });
+
+  const { fields, prepend, remove } = useFieldArray({
+    name: 'subscriptions',
+    control,
   });
 
   // update form if we get new data from server
@@ -38,13 +50,8 @@ export default function CompanionIntegrations() {
     }
   }, [data, reset]);
 
-  const onSubmit = async (values: OSCSettings) => {
-    if (values.portIn === values.portOut) {
-      setError('portIn', { message: 'OSC IN and OUT Ports cant be the same' });
-      return;
-    }
-
-    const parsedValues = { ...values, portIn: Number(values.portIn), portOut: Number(values.portOut) };
+  const onSubmit = async (values: CompanionSettings) => {
+    const parsedValues = { ...values, portOut: Number(values.portOut) };
     try {
       await mutateAsync(parsedValues);
     } catch (error) {
@@ -57,6 +64,22 @@ export default function CompanionIntegrations() {
       event.preventDefault();
       event.stopPropagation();
     }
+  };
+
+  const handleAddNewSubscription = () => {
+    prepend({
+      id: generateId(),
+      cycle: 'onLoad',
+      page: 1,
+      row: 0,
+      column: 0,
+      action: 'press',
+      enabled: true,
+    });
+  };
+
+  const handleDeleteSubscription = (index: number) => {
+    remove(index);
   };
 
   const canSubmit = !isSubmitting && isDirty && isValid;
@@ -74,7 +97,7 @@ export default function CompanionIntegrations() {
             variant='ontime-filled'
             size='sm'
             type='submit'
-            form='osc-form'
+            form='comapnion-form'
             isDisabled={!canSubmit}
             isLoading={isSubmitting}
           >
@@ -85,7 +108,7 @@ export default function CompanionIntegrations() {
 
       <Panel.Divider />
 
-      <Panel.Section as='form' id='osc-form' onSubmit={handleSubmit(onSubmit)} onKeyDown={preventEscape}>
+      <Panel.Section as='form' id='comapnion-form' onSubmit={handleSubmit(onSubmit)} onKeyDown={preventEscape}>
         <Panel.Loader isLoading={isLoading} />
         {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
         <Panel.ListGroup>
@@ -144,6 +167,135 @@ export default function CompanionIntegrations() {
             />
           </Panel.ListItem>
         </Panel.ListGroup>
+
+        <Panel.Divider />
+
+        <Panel.Title>
+          Companion integrations
+          <Button variant='ontime-subtle' size='sm' rightIcon={<IoAdd />} onClick={handleAddNewSubscription}>
+            Add
+          </Button>
+        </Panel.Title>
+
+        {fields.length > 0 && (
+          <Panel.Table>
+            <thead>
+              <tr>
+                <th>Enabled</th>
+                <th className={style.fifthWidth}>Cycle</th>
+                <th className={style.fifthWidth}>Page</th>
+                <th className={style.fifthWidth}>Row</th>
+                <th className={style.fifthWidth}>Col</th>
+                <th className={style.fifthWidth}>Action</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {fields.map((field, index) => {
+                const maybePageError = errors.subscriptions?.[index]?.page?.message;
+                const maybeRowError = errors.subscriptions?.[index]?.row?.message;
+                const maybeColError = errors.subscriptions?.[index]?.column?.message;
+                return (
+                  <tr key={field.id}>
+                    <td>
+                      <Switch variant='ontime' {...register(`subscriptions.${index}.enabled`)} />
+                    </td>
+                    <td className={style.autoWidth}>
+                      <Select
+                        size='sm'
+                        variant='ontime'
+                        className={style.fitContents}
+                        {...register(`subscriptions.${index}.cycle`)}
+                      >
+                        {cycles.map((cycle) => (
+                          <option key={cycle.id} value={cycle.value}>
+                            {cycle.label}
+                          </option>
+                        ))}
+                      </Select>
+                    </td>
+                    <td className={style.fifthWidth}>
+                      <Input
+                        size='sm'
+                        variant='ontime-filled'
+                        autoComplete='off'
+                        placeholder='1'
+                        {...register(`subscriptions.${index}.page`, {
+                          required: { value: true, message: 'Required field' },
+                          max: { value: 99, message: 'Page must be within range 1 - 99' },
+                          min: { value: 1, message: 'Page must be within range 1 - 99' },
+                          pattern: {
+                            value: isOnlyNumbers,
+                            message: 'Value should be numeric',
+                          },
+                        })}
+                      />
+                      {maybePageError && <Panel.Error>{maybePageError}</Panel.Error>}
+                    </td>
+                    <td className={style.fifthWidth}>
+                      <Input
+                        size='sm'
+                        variant='ontime-filled'
+                        autoComplete='off'
+                        placeholder='1'
+                        {...register(`subscriptions.${index}.row`, {
+                          required: { value: true, message: 'Required field' },
+                          max: { value: 99, message: 'Row must be within range 1 - 99' },
+                          min: { value: 0, message: 'Row must be within range 1 - 99' },
+                          pattern: {
+                            value: isOnlyNumbers,
+                            message: 'Value should be numeric',
+                          },
+                        })}
+                      />
+                      {maybeRowError && <Panel.Error>{maybeRowError}</Panel.Error>}
+                    </td>
+                    <td className={style.fifthWidth}>
+                      <Input
+                        size='sm'
+                        variant='ontime-filled'
+                        autoComplete='off'
+                        placeholder='1'
+                        {...register(`subscriptions.${index}.column`, {
+                          required: { value: true, message: 'Required field' },
+                          max: { value: 99, message: 'Column must be within range 1 - 99' },
+                          min: { value: 0, message: 'Column must be within range 1 - 99' },
+                          pattern: {
+                            value: isOnlyNumbers,
+                            message: 'Value should be numeric',
+                          },
+                        })}
+                      />
+                      {maybeColError && <Panel.Error>{maybeColError}</Panel.Error>}
+                    </td>
+                    <td className={style.autoWidth}>
+                      <Select
+                        size='sm'
+                        variant='ontime'
+                        className={style.fitContents}
+                        {...register(`subscriptions.${index}.action`)}
+                      >
+                        <option value='press'>PRESS</option>
+                        <option value='down'>DOWN</option>
+                        <option value='up'>UP</option>
+                      </Select>
+                    </td>
+                    <td>
+                      <IconButton
+                        size='sm'
+                        variant='ontime-ghosted'
+                        color='#FA5656' // $red-500
+                        icon={<IoTrash />}
+                        aria-label='Delete entry'
+                        onClick={() => handleDeleteSubscription(index)}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Panel.Table>
+        )}
       </Panel.Section>
     </Panel.Card>
   );

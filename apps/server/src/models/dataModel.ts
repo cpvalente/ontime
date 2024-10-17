@@ -42,4 +42,10 @@ export const dbModel: DatabaseModel = {
     enabledOut: false,
     subscriptions: [],
   },
+  companion: {
+    portOut: 8000,
+    targetIP: '127.0.0.1',
+    enabledOut: false,
+    subscriptions: [],
+  },
 };

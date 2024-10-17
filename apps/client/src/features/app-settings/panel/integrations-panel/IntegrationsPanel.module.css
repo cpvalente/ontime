@@ -6,6 +6,10 @@
   width: 50%;
 }
 
+.fifthWidth {
+  width: 25%;
+}
+
 .fitContents.fitContents {
   width: max-content; /* override chakra */
 }

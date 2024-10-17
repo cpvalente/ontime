@@ -406,4 +406,10 @@ export const demoDb: DatabaseModel = {
     enabledOut: false,
     subscriptions: [],
   },
+  companion: {
+    enabledOut: false,
+    targetIP: '127.0.0.1',
+    portOut: 8000,
+    subscriptions: [],
+  },
 };

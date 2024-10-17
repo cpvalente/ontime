@@ -25,6 +25,7 @@ import { logger } from '../classes/Logger.js';
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { makeString } from './parserUtils.js';
 import {
+  parseCompanion,
   parseHttp,
   parseOsc,
   parseProject,
@@ -315,6 +316,7 @@ export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): { data: Da
     viewSettings: parseViewSettings(jsonData, makeEmitError('View Settings')),
     urlPresets: parseUrlPresets(jsonData, makeEmitError('URL Presets')),
     customFields,
+    companion: parseCompanion(jsonData, makeEmitError('Companion')),
     osc: parseOsc(jsonData, makeEmitError('OSC')),
     http: parseHttp(jsonData, makeEmitError('HTTP')),
   };

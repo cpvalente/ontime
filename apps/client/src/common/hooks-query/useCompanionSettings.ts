@@ -18,7 +18,7 @@ export default function useCompanionSettings() {
   });
 
   return {
-    data: data ?? { enabledOut: false, targetIP: '127.0.0.1', portOut: 8000 },
+    data: data ?? { enabledOut: false, targetIP: '127.0.0.1', portOut: 8000, subscriptions: [] },
     status,
     isFetching,
     isError,
@@ -26,7 +26,7 @@ export default function useCompanionSettings() {
   };
 }
 
-export function useOscSettingsMutation() {
+export function useCompanionSettingsMutation() {
   const { isPending, mutateAsync } = useMutation({
     mutationFn: postCompanion,
     onError: (error) => logAxiosError('Error saving OSC settings', error),

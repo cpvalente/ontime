@@ -5,6 +5,7 @@ import type { Request, Response } from 'express';
 
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { companionIntegration } from '../../services/integration-service/CompanionIntegration.js';
 
 export async function getCompanion(_req: Request, res: Response<CompanionSettings>) {
   const companion = getDataProvider().getCompanion();
@@ -18,8 +19,7 @@ export async function postCompanion(req: Request, res: Response<CompanionSetting
 
   try {
     const companionSettings = req.body;
-
-    // oscIntegration.init(companionSettings);
+    companionIntegration.init(companionSettings);
     // we persist the data after init to avoid persisting invalid data
     const result = await getDataProvider().setCompanion(companionSettings);
 

@@ -3,6 +3,7 @@ import express from 'express';
 import { router as urlPresetsRouter } from './url-presets/urlPresets.router.js';
 import { router as customFieldsRouter } from './custom-fields/customFields.router.js';
 import { router as dbRouter } from './db/db.router.js';
+import { router as comapnionRouter } from './companion/companion.router.js';
 import { router as httpRouter } from './http/http.router.js';
 import { router as oscRouter } from './osc/osc.router.js';
 import { router as projectRouter } from './project/project.router.js';
@@ -16,6 +17,7 @@ export const appRouter = express.Router();
 
 appRouter.use('/custom-fields', customFieldsRouter);
 appRouter.use('/db', dbRouter);
+appRouter.use('/companion', comapnionRouter);
 appRouter.use('/http', httpRouter);
 appRouter.use('/osc', oscRouter);
 appRouter.use('/project', projectRouter);

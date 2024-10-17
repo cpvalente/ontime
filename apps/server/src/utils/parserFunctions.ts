@@ -1,4 +1,6 @@
 import {
+  CompanionSettings,
+  CompanionSubscription,
   CustomField,
   CustomFields,
   DatabaseModel,
@@ -159,6 +161,63 @@ export function parseViewSettings(data: Partial<DatabaseModel>, emitError?: Erro
     normalColor: data.viewSettings.normalColor ?? dbModel.viewSettings.normalColor,
     overrideStyles: data.viewSettings.overrideStyles ?? dbModel.viewSettings.overrideStyles,
     warningColor: data.viewSettings.warningColor ?? dbModel.viewSettings.warningColor,
+  };
+}
+
+/**
+ * Sanitises an Companion Subscriptions array
+ */
+export function sanitiseCompanionSubscriptions(subscriptions?: CompanionSubscription[]): CompanionSubscription[] {
+  if (!Array.isArray(subscriptions)) {
+    throw new Error('ERROR: invalid Companion subscriptions');
+  }
+
+  return subscriptions.filter(
+    ({ id, cycle, page, row, column, action, enabled }) =>
+      typeof id === 'string' &&
+      isOntimeCycle(cycle) &&
+      typeof page === 'number' &&
+      99 > page &&
+      page >= 1 &&
+      typeof row === 'number' &&
+      99 > row &&
+      row >= 0 &&
+      typeof column === 'number' &&
+      99 > column &&
+      column >= 0 &&
+      typeof action === 'string' &&
+      ['press', 'down', 'up'].includes(action) &&
+      typeof enabled === 'boolean',
+  );
+}
+
+/**
+ * Parse companion portion of an entry
+ */
+export function parseCompanion(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): CompanionSettings {
+  if (!data.companion) {
+    emitError?.('No data found to import');
+    return { ...dbModel.companion };
+  }
+
+  console.log('Found Companion settings, importing...');
+
+  let newSubscriptions: CompanionSubscription[] = [];
+  try {
+    newSubscriptions = sanitiseCompanionSubscriptions(data.companion.subscriptions);
+  } catch (error) {
+    emitError?.(getErrorMessage(error));
+  }
+
+  if (newSubscriptions.length !== data.companion.subscriptions.length) {
+    emitError?.('Skipped invalid subscriptions');
+  }
+
+  return {
+    portOut: data.companion.portOut ?? dbModel.companion.portOut,
+    targetIP: data.companion.targetIP ?? dbModel.companion.targetIP,
+    enabledOut: data.companion.enabledOut ?? dbModel.companion.enabledOut,
+    subscriptions: newSubscriptions,
   };
 }
 
