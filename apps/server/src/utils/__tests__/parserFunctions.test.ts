@@ -348,6 +348,17 @@ describe('sanitiseCustomFields()', () => {
     expect(sanitationResult).toStrictEqual(expectedCustomFields);
   });
 
+  it('labels with space', () => {
+    const customFields: CustomFields = {
+      Test_with_Space: { label: 'Test with Space', type: 'string', colour: 'red' },
+    };
+    const expectedCustomFields: CustomFields = {
+      Test_with_Space: { label: 'Test with Space', type: 'string', colour: 'red' },
+    };
+    const sanitationResult = sanitiseCustomFields(customFields);
+    expect(sanitationResult).toStrictEqual(expectedCustomFields);
+  });
+
   it('filters invalid entries', () => {
     const customFields: CustomFields = {
       test: { label: 'test', type: 'string', colour: 'red' },

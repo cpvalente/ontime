@@ -43,6 +43,8 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
     );
   }
 
+  console.log(field)
+
   return (
     <tr>
       <td>

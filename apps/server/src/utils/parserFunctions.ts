@@ -19,7 +19,13 @@ import {
   isOntimeDelay,
   isOntimeEvent,
 } from 'ontime-types';
-import { generateId, getErrorMessage, getLastEvent } from 'ontime-utils';
+import {
+  customFieldLabelToKey,
+  generateId,
+  getErrorMessage,
+  getLastEvent,
+  isAlphanumericWithSpace,
+} from 'ontime-utils';
 
 import { dbModel } from '../models/dataModel.js';
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
@@ -310,7 +316,13 @@ export function sanitiseCustomFields(data: object): CustomFields {
       continue;
     }
 
-    const key = originalKey.toLocaleLowerCase() === field.label.toLocaleLowerCase() ? originalKey : field.label;
+    if (!isAlphanumericWithSpace(field.label)) {
+      continue;
+    }
+
+    const keyFromLabel = customFieldLabelToKey(field.label);
+    //Test label and key cohesion, but allow old lowercased keys to stay
+    const key = originalKey.toLocaleLowerCase() === keyFromLabel.toLocaleLowerCase() ? originalKey : keyFromLabel;
     if (key in newCustomFields) {
       continue;
     }
