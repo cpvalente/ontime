@@ -9,6 +9,7 @@ interface CuesheetSettings {
   showPrevious: boolean;
   showDelayBlock: boolean;
   showDelayedTimes: boolean;
+  showSeconds: boolean;
 
   toggleSettings: (newValue?: boolean) => void;
   toggleFollow: (newValue?: boolean) => void;
@@ -16,6 +17,7 @@ interface CuesheetSettings {
   toggleIndexColumn: (newValue?: boolean) => void;
   toggleDelayVisibility: (newValue?: boolean) => void;
   toggleDelayedTimes: (newValue?: boolean) => void;
+  toggleSecondsVisibility: (newValue?: boolean) => void;
 }
 
 function toggle(oldValue: boolean, value?: boolean) {
@@ -31,6 +33,7 @@ enum CuesheetKeys {
   PreviousVisibility = 'ontime-cuesheet-show-previous',
   ColumnIndex = 'ontime-cuesheet-show-index-column',
   DelayedTimes = 'ontime-cuesheet-show-delayed',
+  Seconds = 'ontime-cuesheet-show-sceconds',
 }
 
 export const useCuesheetSettings = create<CuesheetSettings>()((set) => ({
@@ -40,6 +43,7 @@ export const useCuesheetSettings = create<CuesheetSettings>()((set) => ({
   showPrevious: booleanFromLocalStorage(CuesheetKeys.PreviousVisibility, true),
   showDelayBlock: booleanFromLocalStorage(CuesheetKeys.DelayVisibility, true),
   showDelayedTimes: booleanFromLocalStorage(CuesheetKeys.DelayedTimes, false),
+  showSeconds: booleanFromLocalStorage(CuesheetKeys.Seconds, true),
 
   toggleSettings: (newValue?: boolean) => set((state) => ({ showSettings: toggle(state.showSettings, newValue) })),
   toggleFollow: (newValue?: boolean) =>
@@ -71,5 +75,11 @@ export const useCuesheetSettings = create<CuesheetSettings>()((set) => ({
       const showDelayedTimes = toggle(state.showDelayedTimes, newValue);
       localStorage.setItem(CuesheetKeys.DelayedTimes, String(showDelayedTimes));
       return { showDelayedTimes };
+    }),
+  toggleSecondsVisibility: (newValue?: boolean) =>
+    set((state) => {
+      const showSeconds = toggle(state.showSeconds, newValue);
+      localStorage.setItem(CuesheetKeys.Seconds, String(showSeconds));
+      return { showSeconds };
     }),
 }));

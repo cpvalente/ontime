@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { CustomFields, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
 
 import DelayIndicator from '../../common/components/delay-indicator/DelayIndicator';
 import RunningTime from '../viewers/common/running-time/RunningTime';
@@ -18,17 +17,28 @@ function makePublic(row: CellContext<OntimeRundownEntry, unknown>) {
 }
 
 function MakeTimer({ getValue, row: { original } }: CellContext<OntimeRundownEntry, unknown>) {
-  const showDelayedTimes = useCuesheetSettings((state) => state.showDelayedTimes);
+  const { showDelayedTimes, showSeconds } = useCuesheetSettings((state) => state);
   const cellValue = (getValue() as number | null) ?? 0;
   const delayValue = (original as OntimeEvent)?.delay ?? 0;
 
   return (
     <span className={style.time}>
       <DelayIndicator delayValue={delayValue} />
-      <RunningTime value={cellValue} />
+      <RunningTime value={cellValue} hideSeconds={!showSeconds} />
       {delayValue !== 0 && showDelayedTimes && (
-        <RunningTime className={style.delayedTime} value={cellValue + delayValue} />
+        <RunningTime className={style.delayedTime} value={cellValue + delayValue} hideSeconds={!showSeconds} />
       )}
+    </span>
+  );
+}
+
+function MakeDuration({ getValue }: CellContext<OntimeRundownEntry, unknown>) {
+  const showSeconds = useCuesheetSettings((state) => state.showSeconds);
+  const cellValue = (getValue() as number | null) ?? 0;
+
+  return (
+    <span className={style.time}>
+      <RunningTime value={cellValue} hideSeconds={!showSeconds} />
     </span>
   );
 }
@@ -97,7 +107,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       accessorKey: 'duration',
       id: 'duration',
       header: 'Duration',
-      cell: (row) => millisToString(row.getValue() as number | null),
+      cell: MakeDuration,
       size: 75,
     },
     {
