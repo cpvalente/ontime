@@ -479,7 +479,7 @@ export const editCustomField = async (key: string, newField: Partial<CustomField
     throw new Error('Change of field type is not allowed');
   }
 
-  const newKey = newField.label.toLowerCase();
+  const newKey = newField.label;
   persistedCustomFields[newKey] = { ...existingField, ...newField };
 
   if (key !== newKey) {
