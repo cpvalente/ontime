@@ -67,7 +67,7 @@ function getAppDataPath() {
 const projectsPath = path.join(getAppDataPath(), 'projects');
 const corruptProjectsPath = path.join(getAppDataPath(), 'corrupt files');
 const crashLogPath = path.join(getAppDataPath(), 'crash logs');
-const stylesPath = path.join(getAppDataPath(), 'styles');
+const stylesPath = path.join(getAppDataPath(), 'user', 'styles');
 const externalPath = path.join(getAppDataPath(), 'external');
 
 /** path to tray icon */

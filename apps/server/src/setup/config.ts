@@ -17,6 +17,7 @@ export const config = {
     directory: 'sheets',
   },
   restoreFile: 'ontime.restore',
+  user: 'user',
   styles: {
     directory: 'styles',
     filename: 'override.css',
