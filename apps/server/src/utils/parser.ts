@@ -1,4 +1,5 @@
 import {
+  customFieldLabelToKey,
   defaultImportMap,
   generateId,
   type ImportMap,
@@ -64,7 +65,7 @@ export function getCustomFieldData(
   const customFields = {};
   const customFieldImportKeys = {};
   for (const ontimeLabel in importMap.custom) {
-    const ontimeKey = ontimeLabel.toLowerCase();
+    const ontimeKey = customFieldLabelToKey(ontimeLabel);
     const importLabel = importMap.custom[ontimeLabel].toLowerCase();
     const colour = ontimeKey in existingCustomFields ? existingCustomFields[ontimeKey].colour : '';
     customFields[ontimeKey] = {
