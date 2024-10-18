@@ -975,7 +975,7 @@ describe('parseExcel()', () => {
         note: 'Ballyhoo',
         custom: {
           user0: 'a0',
-          user1: 'a1',
+          User1: 'a1',
           user2: 'a2',
           user3: 'a3',
           user4: 'a4',
@@ -1010,7 +1010,7 @@ describe('parseExcel()', () => {
 
     const existingCustomFields: CustomFields = {
       user0: { type: 'string', colour: 'red', label: 'user0' },
-      user1: { type: 'string', colour: 'green', label: 'user1' },
+      User1: { type: 'string', colour: 'green', label: 'user1' },
       user2: { type: 'string', colour: 'blue', label: 'user2' },
     };
 
@@ -1021,7 +1021,7 @@ describe('parseExcel()', () => {
         colour: 'red',
         label: 'user0',
       },
-      user1: {
+      User1: {
         type: 'string',
         colour: 'green',
         label: 'User1',
