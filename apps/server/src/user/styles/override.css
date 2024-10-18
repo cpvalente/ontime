@@ -59,13 +59,13 @@
     --studio-overtime: #101010;
     
     /** View specific features: /lower */
-    --lowerThird-font-family-override: 'Times New Roman';
+    --lowerThird-font-family-override: 'Courier New';
     --lowerThird-top-font-weight-override: bold;
     --lowerThird-bottom-font-weight-override: bold;
     --lowerThird-top-font-style-override: normal;
     --lowerThird-bottom-font-style-override: italic;
     --lowerThird-line-height-override: 1vh;
-    --lowerThird-text-align-override: center;
+    --lowerThird-text-align-override: end;
 }
 
 /** 
