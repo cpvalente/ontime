@@ -118,6 +118,13 @@
         "filter": [
           "**/*"
         ]
+      },
+      {
+        "from": "../server/src/user/",
+        "to": "extraResources/user/",
+        "filter": [
+          "**/*"
+        ]
       }
     ]
   }
