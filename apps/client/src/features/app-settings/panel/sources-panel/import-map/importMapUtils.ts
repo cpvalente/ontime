@@ -1,4 +1,3 @@
-import { CustomFields } from 'ontime-types';
 import { ImportCustom, ImportMap } from 'ontime-utils';
 
 export type NamedImportMap = typeof namedImportMap;
@@ -82,24 +81,4 @@ export function getPersistedOptions(): NamedImportMap {
   } catch {
     return namedImportMap;
   }
-}
-
-// add existing custom fields to an importmap if they don't already exist
-export function addExistingCustomFields(importMap: NamedImportMap, customFields: CustomFields): NamedImportMap {
-  const customFieldsInImportMap = importMap.custom;
-
-  // keep all customfieds that are already diffind in the importmap
-  const newCustomFields = new Array(...customFieldsInImportMap);
-  Object.entries(customFields).forEach(([key, { label }]) => {
-    if (
-      !customFieldsInImportMap.some((customFieldFromImportMap) => {
-        return customFieldFromImportMap.ontimeName === key;
-      })
-    ) {
-      // If the custom field dosn't exist in the import map we add it
-      newCustomFields.push({ ontimeName: key, importName: label });
-    }
-  });
-
-  return { ...importMap, custom: newCustomFields };
 }

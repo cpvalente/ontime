@@ -11,13 +11,7 @@ import * as Panel from '../../PanelUtils';
 import useGoogleSheet from '../useGoogleSheet';
 import { useSheetStore } from '../useSheetStore';
 
-import {
-  addExistingCustomFields,
-  convertToImportMap,
-  getPersistedOptions,
-  NamedImportMap,
-  persistImportMap,
-} from './importMapUtils';
+import { convertToImportMap, getPersistedOptions, NamedImportMap, persistImportMap } from './importMapUtils';
 
 import style from '../SourcesPanel.module.scss';
 
@@ -31,8 +25,7 @@ interface ImportMapFormProps {
 
 export default function ImportMapForm(props: ImportMapFormProps) {
   const { hasErrors, isSpreadsheet, onCancel, onSubmitExport, onSubmitImport } = props;
-  const { data } = useCustomFields();
-  const namedImportMap = addExistingCustomFields(getPersistedOptions(), data);
+  const namedImportMap = getPersistedOptions();
   const { revoke } = useGoogleSheet();
   const {
     control,
