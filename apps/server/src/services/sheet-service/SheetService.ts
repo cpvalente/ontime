@@ -366,7 +366,7 @@ export async function download(
     throw new Error(`Sheet read failed: ${googleResponse.statusText}`);
   }
 
-  const dataFromSheet = parseExcel(googleResponse.data.values, options);
+  const dataFromSheet = parseExcel(googleResponse.data.values, getCustomFields(), options);
   const { customFields, rundown } = parseRundown(dataFromSheet);
   if (rundown.length < 1) {
     throw new Error('Sheet: Could not find data to import in the worksheet');
