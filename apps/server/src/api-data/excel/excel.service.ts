@@ -14,6 +14,7 @@ import type { WorkBook } from 'xlsx';
 import { parseExcel } from '../../utils/parser.js';
 import { parseRundown } from '../../utils/parserFunctions.js';
 import { deleteFile } from '../../utils/parserUtils.js';
+import { getCustomFields } from '../../services/rundown-service/rundownCache.js';
 
 let excelData: WorkBook;
 
@@ -42,7 +43,7 @@ export function generateRundownPreview(options: ImportMap): { rundown: OntimeRun
 
   const arrayOfData: any[][] = xlsx.utils.sheet_to_json(data, { header: 1, blankrows: false, raw: false });
 
-  const dataFromExcel = parseExcel(arrayOfData, options);
+  const dataFromExcel = parseExcel(arrayOfData, getCustomFields(), options);
   // we run the parsed data through an extra step to ensure the objects shape
   const { rundown, customFields } = parseRundown(dataFromExcel);
   if (rundown.length === 0) {

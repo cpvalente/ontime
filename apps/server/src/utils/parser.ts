@@ -54,7 +54,10 @@ function parseBooleanString(value: unknown): boolean {
   return value.toLowerCase() !== 'false';
 }
 
-export function getCustomFieldData(importMap: ImportMap): {
+export function getCustomFieldData(
+  importMap: ImportMap,
+  existingCustomFields: CustomFields,
+): {
   customFields: CustomFields;
   customFieldImportKeys: Record<keyof CustomFields, string>;
 } {
@@ -63,9 +66,10 @@ export function getCustomFieldData(importMap: ImportMap): {
   for (const ontimeLabel in importMap.custom) {
     const ontimeKey = ontimeLabel.toLowerCase();
     const importLabel = importMap.custom[ontimeLabel].toLowerCase();
+    const colour = ontimeKey in existingCustomFields ? existingCustomFields[ontimeKey].colour : '';
     customFields[ontimeKey] = {
       type: 'string',
-      colour: '',
+      colour,
       label: ontimeLabel,
     };
     customFieldImportKeys[importLabel] = ontimeKey;
@@ -79,7 +83,11 @@ export function getCustomFieldData(importMap: ImportMap): {
  * @param {ImportOptions} options - an object that contains the import map
  * @returns {object} - parsed object
  */
-export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>): ExcelData => {
+export const parseExcel = (
+  excelData: unknown[][],
+  existingCustomFields: CustomFields,
+  options?: Partial<ImportMap>,
+): ExcelData => {
   const rundownMetadata = {};
   const importMap: ImportMap = { ...defaultImportMap, ...options };
 
@@ -89,7 +97,7 @@ export const parseExcel = (excelData: unknown[][], options?: Partial<ImportMap>)
     }
   }
 
-  const { customFields, customFieldImportKeys } = getCustomFieldData(importMap);
+  const { customFields, customFieldImportKeys } = getCustomFieldData(importMap, existingCustomFields);
   const rundown: OntimeRundown = [];
 
   // title stuff: strings

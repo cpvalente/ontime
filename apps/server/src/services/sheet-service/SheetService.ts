@@ -18,6 +18,7 @@ import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
 import { parseRundown } from '../../utils/parserFunctions.js';
 import { getRundown } from '../rundown-service/rundownUtils.js';
+import { getCustomFields } from '../rundown-service/rundownCache.js';
 
 const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';
 const codesUrl = 'https://oauth2.googleapis.com/device/code';
@@ -288,7 +289,7 @@ export async function upload(sheetId: string, options: ImportMap) {
     throw new Error(`Sheet read failed: ${readResponse.statusText}`);
   }
 
-  const { rundownMetadata } = parseExcel(readResponse.data.values, options);
+  const { rundownMetadata } = parseExcel(readResponse.data.values, getCustomFields(), options);
   const rundown = getRundown();
   const titleRow = Object.values(rundownMetadata)[0]['row'];
   const updateRundown = Array<sheets_v4.Schema$Request>();

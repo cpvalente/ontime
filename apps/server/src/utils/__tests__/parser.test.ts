@@ -2,6 +2,7 @@
 import { assertType, vi } from 'vitest';
 
 import {
+  CustomFields,
   DatabaseModel,
   EndAction,
   OntimeEvent,
@@ -788,7 +789,7 @@ describe('getCustomFieldData()', () => {
       },
     } as ImportMap;
 
-    const result = getCustomFieldData(importMap);
+    const result = getCustomFieldData(importMap, {});
     expect(result.customFields).toStrictEqual({
       lighting: {
         type: 'string',
@@ -798,6 +799,61 @@ describe('getCustomFieldData()', () => {
       sound: {
         type: 'string',
         colour: '',
+        label: 'sound',
+      },
+      video: {
+        type: 'string',
+        colour: '',
+        label: 'video',
+      },
+    });
+
+    // it is an inverted record of <importKey, ontimeKey>
+    expect(result.customFieldImportKeys).toStrictEqual({
+      lx: 'lighting',
+      sound: 'sound',
+      av: 'video',
+    });
+  });
+  it('keeps colour information from existing fields', () => {
+    const importMap = {
+      worksheet: 'event schedule',
+      timeStart: 'time start',
+      linkStart: 'link start',
+      timeEnd: 'time end',
+      duration: 'duration',
+      cue: 'cue',
+      title: 'title',
+      isPublic: 'public',
+      skip: 'skip',
+      note: 'notes',
+      colour: 'colour',
+      endAction: 'end action',
+      timerType: 'timer type',
+      timeWarning: 'warning time',
+      timeDanger: 'danger time',
+      custom: {
+        lighting: 'lx',
+        sound: 'sound',
+        video: 'av',
+      },
+    } as ImportMap;
+
+    const customFields: CustomFields = {
+      lighting: { label: 'lx', type: 'string', colour: 'red' },
+      sound: { label: 'sound', type: 'string', colour: 'green' },
+    };
+
+    const result = getCustomFieldData(importMap, customFields);
+    expect(result.customFields).toStrictEqual({
+      lighting: {
+        type: 'string',
+        colour: 'red',
+        label: 'lighting',
+      },
+      sound: {
+        type: 'string',
+        colour: 'green',
         label: 'sound',
       },
       video: {
@@ -952,21 +1008,27 @@ describe('parseExcel()', () => {
       },
     ];
 
-    const parsedData = parseExcel(testdata, importMap);
+    const existingCustomFields: CustomFields = {
+      user0: { type: 'string', colour: 'red', label: 'user0' },
+      user1: { type: 'string', colour: 'green', label: 'user1' },
+      user2: { type: 'string', colour: 'blue', label: 'user2' },
+    };
+
+    const parsedData = parseExcel(testdata, existingCustomFields, importMap);
     expect(parsedData.customFields).toStrictEqual({
       user0: {
         type: 'string',
-        colour: '',
+        colour: 'red',
         label: 'user0',
       },
       user1: {
         type: 'string',
-        colour: '',
+        colour: 'green',
         label: 'User1',
       },
       user2: {
         type: 'string',
-        colour: '',
+        colour: 'blue',
         label: 'user2',
       },
       user3: {
@@ -1123,7 +1185,7 @@ describe('parseExcel()', () => {
       },
     ];
 
-    const parsedData = parseExcel(testdata, importMap);
+    const parsedData = parseExcel(testdata, {}, importMap);
     expect(parsedData.customFields).toStrictEqual({
       niu1: {
         type: 'string',
@@ -1229,7 +1291,7 @@ describe('parseExcel()', () => {
       timeDanger: 'danger time',
       custom: {},
     };
-    const result = parseExcel(testdata, importMap);
+    const result = parseExcel(testdata, {}, importMap);
     expect(result.rundown.length).toBe(1);
     expect((result.rundown.at(0) as OntimeEvent).title).toBe('A song from the hearth');
   });
@@ -1322,7 +1384,7 @@ describe('parseExcel()', () => {
       timeDanger: 'danger time',
       custom: {},
     };
-    const result = parseExcel(testdata, importMap);
+    const result = parseExcel(testdata, {}, importMap);
     expect(result.rundown.length).toBe(2);
     expect((result.rundown.at(0) as OntimeEvent).type).toBe(SupportedEvent.Block);
   });
@@ -1392,7 +1454,7 @@ describe('parseExcel()', () => {
       timeDanger: 'danger time',
       custom: {},
     };
-    const result = parseExcel(testdata, importMap);
+    const result = parseExcel(testdata, {}, importMap);
     expect(result.rundown.length).toBe(2);
     expect((result.rundown.at(0) as OntimeEvent).type).toBe(SupportedEvent.Event);
     expect((result.rundown.at(0) as OntimeEvent).timerType).toBe(TimerType.CountDown);
@@ -1510,7 +1572,7 @@ describe('parseExcel()', () => {
       timeDanger: 'danger time',
       custom: {},
     };
-    const result = parseExcel(testdata, importMap);
+    const result = parseExcel(testdata, {}, importMap);
     expect(result.rundown.length).toBe(3);
     expect((result.rundown.at(0) as OntimeEvent).type).toBe(SupportedEvent.Event);
     expect((result.rundown.at(0) as OntimeEvent).timerType).toBe(TimerType.CountDown);
@@ -1551,7 +1613,7 @@ describe('parseExcel()', () => {
       timeDanger: 'danger time',
       custom: {},
     };
-    const result = parseExcel(testData, importMap);
+    const result = parseExcel(testData, {}, importMap);
     const { rundown } = parseRundown(result);
     const events = rundown.filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
     expect((events.at(0) as OntimeEvent).timeStart).toEqual(16200000);
@@ -1588,7 +1650,7 @@ describe('parseExcel()', () => {
       custom: {},
     };
 
-    const result = parseExcel(testData, importMap);
+    const result = parseExcel(testData, {}, importMap);
     const { rundown } = parseRundown(result);
     const events = rundown.filter((e) => e.type === SupportedEvent.Event) as OntimeEvent[];
     expect((events.at(0) as OntimeEvent).timeStart).toEqual(16200000); //<--leading white space in MAP
@@ -1640,7 +1702,7 @@ describe('parseExcel()', () => {
       custom: {},
     };
 
-    const result = parseExcel(testData, importMap);
+    const result = parseExcel(testData, {}, importMap);
     const parseResult = parseRundown(result);
 
     cache.init(parseResult.rundown, parseResult.customFields);
@@ -1774,7 +1836,7 @@ describe('parseExcel()', () => {
       ['MEET4', '#779BE7', '', '', 30, true, 'Meeting 4', '', 'count-up', 'none', 11, '00:05:00', 'TRUE', 'FALSE'],
     ];
 
-    const parsedData = parseExcel(testData);
+    const parsedData = parseExcel(testData, {});
     const { rundown } = parsedData;
 
     // elements in bug report
