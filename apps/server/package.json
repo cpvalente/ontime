@@ -17,11 +17,11 @@
     "lowdb": "^7.0.1",
     "multer": "^1.4.5-lts.1",
     "node-osc": "^9.0.2",
-    "node-xlsx": "^0.23.0",
     "ontime-utils": "workspace:*",
     "sanitize-filename": "^1.6.3",
     "steno": "^4.0.2",
-    "ws": "^8.13.0"
+    "ws": "^8.13.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
