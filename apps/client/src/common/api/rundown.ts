@@ -84,3 +84,10 @@ export async function requestDelete(eventIds: string[]): Promise<AxiosResponse<M
 export async function requestDeleteAll(): Promise<AxiosResponse<MessageResponse>> {
   return axios.delete(`${rundownPath}/all`);
 }
+
+/**
+ * HTTP request to freeze rundown
+ */
+export async function requestToggleRundownFreeze(frozen: boolean): Promise<AxiosResponse<MessageResponse>> {
+  return axios.post(`${rundownPath}/frozen`, { frozen });
+}

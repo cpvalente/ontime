@@ -24,6 +24,7 @@ import {
   requestPostEvent,
   requestPutEvent,
   requestReorderEvent,
+  requestToggleRundownFreeze,
   SwapEntry,
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
@@ -604,6 +605,31 @@ export const useEventAction = () => {
     [_swapEvents],
   );
 
+  /**
+   * Calls mutation to freeze events
+   * @private
+   */
+  const _toggleFreezeEvents = useMutation({
+    mutationFn: requestToggleRundownFreeze,
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: RUNDOWN });
+    },
+  });
+
+  /**
+   * Freezes all changes to events
+   */
+  const toggleFreezeEvents = useCallback(
+    async (frozen: boolean) => {
+      try {
+        await _toggleFreezeEvents.mutateAsync(frozen);
+      } catch (error) {
+        logAxiosError('Error freezing events', error);
+      }
+    },
+    [_toggleFreezeEvents],
+  );
+
   return {
     addEvent,
     applyDelay,
@@ -616,5 +642,6 @@ export const useEventAction = () => {
     updateEvent,
     updateTimer,
     updateCustomField,
+    toggleFreezeEvents,
   };
 };
