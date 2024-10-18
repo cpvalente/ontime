@@ -6,10 +6,12 @@ import { ViewOption } from '../../../common/components/view-params-editor/types'
 export const getLowerThirdOptions = (customFields: CustomFields): ViewOption[] => {
   const topSourceOptions = makeOptionsFromCustomFields(customFields, {
     title: 'Title',
+    note: 'Note',
   });
 
   const bottomSourceOptions = makeOptionsFromCustomFields(customFields, {
     title: 'Title',
+    note: 'Note',
     none: 'None',
   });
 

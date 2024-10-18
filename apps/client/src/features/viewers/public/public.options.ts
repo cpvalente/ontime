@@ -4,7 +4,7 @@ import { getTimeOption, makeOptionsFromCustomFields } from '../../../common/comp
 import { ViewOption } from '../../../common/components/view-params-editor/types';
 
 export const getPublicOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
-  const secondaryOptions = makeOptionsFromCustomFields(customFields);
+  const secondaryOptions = makeOptionsFromCustomFields(customFields, { note: 'Note' });
 
   return [
     { section: 'Clock Options' },
