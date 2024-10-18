@@ -41,7 +41,7 @@ export function generateRundownPreview(options: ImportMap): { rundown: OntimeRun
     throw new Error(`Could not find data to import, maybe the worksheet name is incorrect: ${options.worksheet}`);
   }
 
-  const arrayOfData: any[][] = xlsx.utils.sheet_to_json(data, { header: 1, blankrows: false, raw: false });
+  const arrayOfData: unknown[][] = xlsx.utils.sheet_to_json(data, { header: 1, blankrows: false, raw: false });
 
   const dataFromExcel = parseExcel(arrayOfData, getCustomFields(), options);
   // we run the parsed data through an extra step to ensure the objects shape
