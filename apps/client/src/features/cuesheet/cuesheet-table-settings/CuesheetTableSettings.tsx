@@ -29,7 +29,7 @@ function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
     showPrevious,
     togglePreviousVisibility,
     showDelayBlock,
-    showSeconds,
+    hideSeconds,
     showDelayedTimes,
     toggleIndexColumn,
     toggleDelayedTimes,
@@ -83,8 +83,8 @@ function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
             Show delay blocks
           </label>
           <label className={style.option}>
-            <Switch variant='ontime' size='sm' isChecked={showSeconds} onChange={() => toggleSecondsVisibility()} />
-            Show seconds
+            <Switch variant='ontime' size='sm' isChecked={hideSeconds} onChange={() => toggleSecondsVisibility()} />
+            Hide seconds
           </label>
         </div>
       </div>

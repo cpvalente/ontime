@@ -17,30 +17,27 @@ function makePublic(row: CellContext<OntimeRundownEntry, unknown>) {
 }
 
 function MakeTimer({ getValue, row: { original } }: CellContext<OntimeRundownEntry, unknown>) {
-  const { showDelayedTimes, showSeconds } = useCuesheetSettings((state) => state);
+  const showDelayedTimes = useCuesheetSettings((state) => state.showDelayedTimes);
+  const hideSeconds = useCuesheetSettings((state) => state.hideSeconds);
   const cellValue = (getValue() as number | null) ?? 0;
   const delayValue = (original as OntimeEvent)?.delay ?? 0;
 
   return (
     <span className={style.time}>
       <DelayIndicator delayValue={delayValue} />
-      <RunningTime value={cellValue} hideSeconds={!showSeconds} />
+      <RunningTime value={cellValue} hideSeconds={hideSeconds} />
       {delayValue !== 0 && showDelayedTimes && (
-        <RunningTime className={style.delayedTime} value={cellValue + delayValue} hideSeconds={!showSeconds} />
+        <RunningTime className={style.delayedTime} value={cellValue + delayValue} hideSeconds={hideSeconds} />
       )}
     </span>
   );
 }
 
 function MakeDuration({ getValue }: CellContext<OntimeRundownEntry, unknown>) {
-  const showSeconds = useCuesheetSettings((state) => state.showSeconds);
+  const hideSeconds = useCuesheetSettings((state) => state.hideSeconds);
   const cellValue = (getValue() as number | null) ?? 0;
 
-  return (
-    <span className={style.time}>
-      <RunningTime value={cellValue} hideSeconds={!showSeconds} />
-    </span>
-  );
+  return <RunningTime value={cellValue} hideSeconds={hideSeconds} />;
 }
 
 function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
