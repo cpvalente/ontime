@@ -78,7 +78,6 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
     //TODO: Look into using bundles
     const message = new Message(address);
     message.append(args);
-    console.log(message);
 
     this.oscClient.send(message);
   }
