@@ -1,6 +1,9 @@
 // DATA MODEL
 export type { DatabaseModel } from './definitions/DataModel.type.js';
 
+// ---> Reporter
+export type { ReportData, OntimeReport } from './definitions/core/Report.type.js';
+
 // ---> Rundown
 export { EndAction } from './definitions/EndAction.type.js';
 export {

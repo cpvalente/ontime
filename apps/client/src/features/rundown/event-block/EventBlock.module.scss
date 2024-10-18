@@ -9,7 +9,7 @@ $skip-opacity: 0.2;
   display: grid;
   grid-template-areas:
     'binder ...        ...     ...'
-    'binder pb-actions times   ...'
+    'binder pb-actions times   report'
     'binder pb-actions title   title'
     'binder pb-actions estatus estatus'
     'binder ...        ...     ...';
@@ -80,6 +80,10 @@ $skip-opacity: 0.2;
       opacity: $skip-opacity;
     }
   }
+}
+
+.reportSection {
+  grid-area: report;
 }
 
 .binder {
