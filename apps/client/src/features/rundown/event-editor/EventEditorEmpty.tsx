@@ -15,6 +15,23 @@ function EventEditorEmpty() {
         <table className={style.shortcuts}>
           <tbody>
             <tr>
+              <td>Find in rundown</td>
+              <td>
+                <Kbd>{deviceMod}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>F</Kbd>
+              </td>
+            </tr>
+            <tr>
+              <td>Open Settings</td>
+              <td>
+                <Kbd>{deviceMod}</Kbd>
+                <AuxKey>+</AuxKey>
+                <Kbd>,</Kbd>
+              </td>
+            </tr>
+            <tr className={style.spacer} />
+            <tr>
               <td>Select entry</td>
               <td>
                 <Kbd>{deviceAlt}</Kbd>

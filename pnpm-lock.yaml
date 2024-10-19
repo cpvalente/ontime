@@ -4,30 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-catalogs:
-  default:
-    '@types/node':
-      specifier: 20.14.10
-      version: 20.14.10
-    '@typescript-eslint/eslint-plugin':
-      specifier: 7.16.1
-      version: 7.16.1
-    '@typescript-eslint/parser':
-      specifier: 7.16.1
-      version: 7.16.1
-    eslint:
-      specifier: 8.56.0
-      version: 8.56.0
-    eslint-plugin-prettier:
-      specifier: 5.1.3
-      version: 5.1.3
-    prettier:
-      specifier: 3.3.1
-      version: 3.3.1
-    typescript:
-      specifier: 5.5.3
-      version: 5.5.3
-
 importers:
 
   .:
@@ -102,8 +78,8 @@ importers:
         specifier: ^5.0.28
         version: 5.0.28
       '@mantine/hooks':
-        specifier: ^7.6.2
-        version: 7.6.2(react@18.3.1)
+        specifier: ^7.13.3
+        version: 7.13.3(react@18.3.1)
       '@react-icons/all-files':
         specifier: ^4.1.0
         version: 4.1.0(react@18.3.1)
@@ -1673,8 +1649,8 @@ packages:
     resolution: {integrity: sha512-9QOtNffcOF/c1seMCDnjckb3R9WHcG34tky+FHpNKKCW0wc/scYLwMtO+ptyGUfMW0/b/n4qRiALlaFHc9Oj7Q==}
     engines: {node: '>= 10.0.0'}
 
-  '@mantine/hooks@7.6.2':
-    resolution: {integrity: sha512-ZrOgrZHoIGCDKrr2/9njDgK0al+jjusYQFlmR0YyEFyRtgY6eNSI4zuYLcAPx1haHmUm5RsLBrqY6Iy/TLdGXA==}
+  '@mantine/hooks@7.13.3':
+    resolution: {integrity: sha512-r2c+Z8CdvPKFeOwg6mSJmxOp9K/ave5ZFR7eJbgv4wQU8K1CAS5f5ven9K5uUX8Vf9B5dFnSaSgYp9UY3vOWTw==}
     peerDependencies:
       react: ^18.2.0
 
@@ -6796,7 +6772,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@mantine/hooks@7.6.2(react@18.3.1)':
+  '@mantine/hooks@7.13.3(react@18.3.1)':
     dependencies:
       react: 18.3.1
 
