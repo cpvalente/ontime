@@ -66,10 +66,12 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         placeholder='Start'
         disabled={Boolean(linkStart)}
       >
-        <InputRightElement className={activeStart} onClick={() => handleLink(!linkStart)}>
-          <span className={style.timeLabel}>S</span>
-          <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
-        </InputRightElement>
+        <Tooltip label='Link start to previous end' shouldWrapChildren openDelay={0}>
+          <InputRightElement className={activeStart} onClick={() => handleLink(!linkStart)}>
+            <span className={style.timeLabel}>S</span>
+            <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
+          </InputRightElement>
+        </Tooltip>
       </TimeInputWithButton>
 
       <TimeInputWithButton<TimeActions>
@@ -80,14 +82,16 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         disabled={isLockedDuration}
         placeholder='End'
       >
-        <InputRightElement
-          className={activeEnd}
-          onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}
-          data-testid='lock__end'
-        >
-          <span className={style.timeLabel}>E</span>
-          {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
-        </InputRightElement>
+        <Tooltip label='Lock end' shouldWrapChildren openDelay={0}>
+          <InputRightElement
+            className={activeEnd}
+            onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}
+            data-testid='lock__end'
+          >
+            <span className={style.timeLabel}>E</span>
+            {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
+          </InputRightElement>
+        </Tooltip>
       </TimeInputWithButton>
 
       <TimeInputWithButton<TimeActions>
@@ -97,14 +101,16 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         disabled={isLockedEnd}
         placeholder='Duration'
       >
-        <InputRightElement
-          className={activeDuration}
-          onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}
-          data-testid='lock__duration'
-        >
-          <span className={style.timeLabel}>D</span>
-          {isLockedDuration ? <IoLockClosed /> : <IoLockOpenOutline />}
-        </InputRightElement>
+        <Tooltip label='Lock duration' shouldWrapChildren openDelay={0}>
+          <InputRightElement
+            className={activeDuration}
+            onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}
+            data-testid='lock__duration'
+          >
+            <span className={style.timeLabel}>D</span>
+            {isLockedDuration ? <IoLockClosed /> : <IoLockOpenOutline />}
+          </InputRightElement>
+        </Tooltip>
       </TimeInputWithButton>
 
       {overMidnight && (
