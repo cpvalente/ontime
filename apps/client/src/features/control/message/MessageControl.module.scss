@@ -22,7 +22,7 @@
 }
 
 .corner {
-  transform: rotate(45deg);
+  @include rotate-fourty-five;
 
   position: absolute;
   top: 0.5rem;

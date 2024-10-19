@@ -72,9 +72,33 @@ $button-size: 3rem;
 
 .linkIcon {
   margin-left: auto;
-  transform: rotate(45deg);
+  @include rotate-fourty-five;
 }
 
 .separator {
   border-color: $border-color-ondark;
+}
+
+.sectionHeader {
+  font-size: calc(1rem - 2px);
+  margin-left: 1rem;
+  color: $gray-700;
+}
+
+.bottom {
+  margin-top: auto;
+  margin-bottom: 1rem;
+}
+
+.interfaces {
+  padding: 0.5rem 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.goIcon {
+  @include rotate-fourty-five;
+  margin-left: 0.25rem;
+  margin-bottom: 0.25rem;
 }
