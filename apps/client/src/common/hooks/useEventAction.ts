@@ -9,8 +9,6 @@ import {
   parseUserTime,
   reorderArray,
   swapEventData,
-  validateEndAction,
-  validateTimerType,
 } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/constants';
@@ -37,6 +35,7 @@ export const useEventAction = () => {
   const {
     defaultPublic,
     linkPrevious,
+    defaultTimeStrategy,
     defaultDuration,
     defaultWarnTime,
     defaultDangerTime,
@@ -116,11 +115,15 @@ export const useEventAction = () => {
         }
 
         if (newEvent.timerType === undefined) {
-          newEvent.timerType = validateTimerType(defaultTimerType);
+          newEvent.timerType = defaultTimerType;
         }
 
         if (newEvent.endAction === undefined) {
-          newEvent.endAction = validateEndAction(defaultEndAction);
+          newEvent.endAction = defaultEndAction;
+        }
+
+        if (newEvent.timeStrategy === undefined) {
+          newEvent.timeStrategy = defaultTimeStrategy;
         }
       }
 
@@ -142,6 +145,7 @@ export const useEventAction = () => {
       defaultEndAction,
       defaultPublic,
       defaultTimerType,
+      defaultTimeStrategy,
       defaultWarnTime,
       linkPrevious,
       queryClient,

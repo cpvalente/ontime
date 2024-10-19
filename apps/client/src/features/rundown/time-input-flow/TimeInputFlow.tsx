@@ -10,7 +10,7 @@ import { MaybeString, OntimeEvent, TimeStrategy } from 'ontime-types';
 import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { cx } from '../../../common/utils/styleUtils';
-import { tooltipDelayFast } from '../../../ontimeConfig';
+import { tooltipDelayFast, tooltipDelayMid } from '../../../ontimeConfig';
 
 import style from './TimeInputFlow.module.scss';
 
@@ -66,7 +66,7 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         placeholder='Start'
         disabled={Boolean(linkStart)}
       >
-        <Tooltip label='Link start to previous end' shouldWrapChildren openDelay={0}>
+        <Tooltip label='Link start to previous end' openDelay={tooltipDelayMid}>
           <InputRightElement className={activeStart} onClick={() => handleLink(!linkStart)}>
             <span className={style.timeLabel}>S</span>
             <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
@@ -82,7 +82,7 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         disabled={isLockedDuration}
         placeholder='End'
       >
-        <Tooltip label='Lock end' shouldWrapChildren openDelay={0}>
+        <Tooltip label='Lock end' openDelay={tooltipDelayMid}>
           <InputRightElement
             className={activeEnd}
             onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}
@@ -101,7 +101,7 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         disabled={isLockedEnd}
         placeholder='Duration'
       >
-        <Tooltip label='Lock duration' shouldWrapChildren openDelay={0}>
+        <Tooltip label='Lock duration' openDelay={tooltipDelayMid}>
           <InputRightElement
             className={activeDuration}
             onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}
