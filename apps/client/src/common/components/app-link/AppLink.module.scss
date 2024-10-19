@@ -8,5 +8,5 @@
 .linkIcon {
   margin-left: $element-inner-spacing;
   display: inline-block;
-  transform: rotate(45deg);
+  @include rotate-fourty-five;
 }

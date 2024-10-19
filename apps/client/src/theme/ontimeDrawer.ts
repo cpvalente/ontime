@@ -4,6 +4,8 @@ export const ontimeDrawer = {
     backgroundColor: '#202020', // $gray-1250
   },
   body: {
+    display: 'flex',
+    flexDirection: 'column',
     color: '#fefefe', // $gray-50
     backgroundColor: '#202020', // $gray-1250
   },

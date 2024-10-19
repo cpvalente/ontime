@@ -6,6 +6,7 @@
 }
 
 .goIcon {
-  transform: rotate(45deg);
+  @include rotate-fourty-five;
   margin-left: 0.25rem;
+  margin-bottom: 0.25rem;
 }
