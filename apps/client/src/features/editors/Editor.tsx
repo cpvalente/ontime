@@ -1,15 +1,17 @@
 import { lazy, useCallback, useEffect } from 'react';
 import { IconButton, useDisclosure } from '@chakra-ui/react';
+import { useHotkeys } from '@mantine/hooks';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoClose } from '@react-icons/all-files/io5/IoClose';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
 import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
-import useElectronEvent from '../../common/hooks/useElectronEvent';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import AppSettings from '../app-settings/AppSettings';
 import useAppSettingsNavigation from '../app-settings/useAppSettingsNavigation';
 import { EditorOverview } from '../overview/Overview';
+
+import Finder from './finder/Finder';
 
 import styles from './Editor.module.scss';
 
@@ -19,47 +21,8 @@ const MessageControl = lazy(() => import('../control/message/MessageControlExpor
 
 export default function Editor() {
   const { isOpen: isSettingsOpen, setLocation, close } = useAppSettingsNavigation();
-  const { isElectron } = useElectronEvent();
   const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
-
-  const toggleSettings = useCallback(() => {
-    if (isSettingsOpen) {
-      close();
-    } else {
-      setLocation('project');
-    }
-  }, [close, isSettingsOpen, setLocation]);
-
-  // Handle keyboard shortcuts
-  const handleKeyPress = useCallback(
-    (event: KeyboardEvent) => {
-      // handle held key
-      if (event.repeat) return;
-
-      // check if the ctrl key is pressed
-      if (event.ctrlKey || event.metaKey) {
-        // ctrl + , (settings)
-        if (event.key === ',') {
-          toggleSettings();
-          event.preventDefault();
-          event.stopPropagation();
-        }
-      }
-    },
-    [toggleSettings],
-  );
-
-  // register ctrl + , to open settings
-  useEffect(() => {
-    if (isElectron) {
-      document.addEventListener('keydown', handleKeyPress);
-    }
-    return () => {
-      if (isElectron) {
-        document.removeEventListener('keydown', handleKeyPress);
-      }
-    };
-  }, [handleKeyPress, isElectron]);
+  const { isOpen: isFinderOpen, onToggle: onFinderToggle, onClose: onFinderClose } = useDisclosure();
 
   useWindowTitle('Editor');
 
@@ -72,8 +35,23 @@ export default function Editor() {
     }
   }, [setLocation]);
 
+  const toggleSettings = useCallback(() => {
+    if (isSettingsOpen) {
+      close();
+    } else {
+      setLocation('project');
+    }
+  }, [close, isSettingsOpen, setLocation]);
+
+  useHotkeys([
+    ['mod + ,', toggleSettings],
+    ['mod + f', onFinderToggle],
+    ['Escape', onFinderClose],
+  ]);
+
   return (
     <div className={styles.mainContainer} data-testid='event-editor'>
+      <Finder isOpen={isFinderOpen} onClose={onFinderClose} />
       <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
       <EditorOverview>
         <IconButton
