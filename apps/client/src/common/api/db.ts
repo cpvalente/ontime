@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { DatabaseModel, GetInfo, MessageResponse, ProjectData, ProjectFileListResponse } from 'ontime-types';
+import { DatabaseModel, MessageResponse, ProjectData, ProjectFileListResponse } from 'ontime-types';
 
 import { makeCSV, makeTable } from '../../features/cuesheet/cuesheetUtils';
 
@@ -135,14 +135,6 @@ export async function deleteProject(filename: string): Promise<MessageResponse> 
   const url = `${dbPath}/${filename}`;
   const decodedUrl = decodeURIComponent(url);
   const res = await axios.delete(decodedUrl);
-  return res.data;
-}
-
-/**
- * HTTP request to retrieve application info
- */
-export async function getInfo(): Promise<GetInfo> {
-  const res = await axios.get(`${dbPath}/info`);
   return res.data;
 }
 
