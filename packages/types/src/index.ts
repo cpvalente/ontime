@@ -51,6 +51,7 @@ export type {
   ProjectFileListResponse,
   MessageResponse,
   RundownPaginated,
+  SessionStats,
 } from './api/ontime-controller/BackendResponse.type.js';
 export type { RundownCached, NormalisedRundown } from './api/rundown-controller/BackendResponse.type.js';
 
