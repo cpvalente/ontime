@@ -5,7 +5,6 @@ import {
   currentProjectDownload,
   deleteProjectFile,
   duplicateProjectFile,
-  getInfo,
   listProjects,
   loadProject,
   patchPartialProjectFile,
@@ -37,5 +36,3 @@ router.post('/load', validateFilenameBody, loadProject);
 router.post('/:filename/duplicate', validateFilenameParam, validateNewFilenameBody, duplicateProjectFile);
 router.put('/:filename/rename', validateFilenameParam, validateNewFilenameBody, renameProjectFile);
 router.delete('/:filename', validateFilenameParam, deleteProjectFile);
-
-router.get('/info', getInfo);

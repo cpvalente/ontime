@@ -1,11 +1,4 @@
-import {
-  DatabaseModel,
-  ErrorResponse,
-  GetInfo,
-  MessageResponse,
-  ProjectData,
-  ProjectFileListResponse,
-} from 'ontime-types';
+import { DatabaseModel, ErrorResponse, MessageResponse, ProjectData, ProjectFileListResponse } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
@@ -238,16 +231,6 @@ export async function deleteProjectFile(req: Request, res: Response<MessageRespo
       return res.status(404).send({ message });
     }
 
-    res.status(500).send({ message });
-  }
-}
-
-export async function getInfo(_req: Request, res: Response<GetInfo | ErrorResponse>) {
-  try {
-    const info = await projectService.getInfo();
-    res.status(200).send(info);
-  } catch (error) {
-    const message = getErrorMessage(error);
     res.status(500).send({ message });
   }
 }
