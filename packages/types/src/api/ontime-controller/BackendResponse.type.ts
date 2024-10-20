@@ -23,7 +23,7 @@ export interface GetInfo {
   version: string;
   serverPort: number;
   osc: OSCSettings;
-  cssOverride: string;
+  publicDir: string;
 }
 
 export type ProjectFile = {

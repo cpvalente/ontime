@@ -84,8 +84,8 @@ export default function ViewSettingsForm() {
         <Alert status='info' variant='ontime-on-dark-info'>
           <AlertIcon />
           <AlertDescription>
-            You can override the styles of the viewers with a custom CSS file. <br />
-            {info?.cssOverride && `In your installation the file is at ${info?.cssOverride}`}
+            You can the Ontime views or customise its styles by modifying the provided CSS file. <br />
+            The CSS file is in the user directory at {`${info.publicDir}/user/styles/override.css`}
             <br />
             <br />
             <ExternalLink href={cssOverrideDocsUrl}>See the docs</ExternalLink>
