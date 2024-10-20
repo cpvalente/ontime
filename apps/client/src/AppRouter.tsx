@@ -17,6 +17,7 @@ import withData from './features/viewers/ViewWrapper';
 import ViewLoader from './views/ViewLoader';
 import { ONTIME_VERSION } from './ONTIME_VERSION';
 import { sentryDsn, sentryRecommendedIgnore } from './sentry.config';
+import { Playback, TimerPhase, TimerType } from 'ontime-types';
 
 const Editor = React.lazy(() => import('./features/editors/ProtectedEditor'));
 const Cuesheet = React.lazy(() => import('./features/cuesheet/ProtectedCuesheet'));
@@ -24,6 +25,7 @@ const Operator = React.lazy(() => import('./features/operator/OperatorExport'));
 
 const TimerView = React.lazy(() => import('./features/viewers/timer/Timer'));
 const MinimalTimerView = React.lazy(() => import('./features/viewers/minimal-timer/MinimalTimer'));
+const PopOutTimer = React.lazy(() => import('./features/viewers/pop-out-clock/PopOutTimer'));
 const ClockView = React.lazy(() => import('./features/viewers/clock/Clock'));
 const Countdown = React.lazy(() => import('./features/viewers/countdown/Countdown'));
 
@@ -74,6 +76,30 @@ export default function AppRouter() {
 
   return (
     <React.Suspense fallback={null}>
+      <PopOutTimer 
+      isMirrored={false} 
+      time={{
+        addedTime: 0,
+        current: null,
+        duration: null,
+        elapsed: null,
+        expectedFinish: null,
+        finishedAt: null,
+        phase: TimerPhase.Default,
+        playback: Playback.Play,
+        secondaryTimer: null,
+        startedAt: null,
+        clock: 0,
+        timerType: TimerType.CountDown
+      }} 
+      viewSettings={{
+        dangerColor: '',
+        endMessage: '',
+        freezeEnd: false,
+        normalColor: '',
+        overrideStyles: false,
+        warningColor: ''
+      }} />
       <SentryRoutes>
         <Route path='/' element={<Navigate to='/timer' />} />
         <Route
