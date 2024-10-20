@@ -3,6 +3,8 @@ import { setMessage, useExternalMessageInput, useTimerMessageInput } from '../..
 import InputRow from './InputRow';
 import TimerControlsPreview from './TimerViewControl';
 
+import { useTranslation } from '../../../translation/TranslationProvider';
+
 export default function MessageControl() {
   return (
     <>
@@ -15,11 +17,12 @@ export default function MessageControl() {
 
 function TimerMessageInput() {
   const { text, visible } = useTimerMessageInput();
+  const { getLocalizedString } = useTranslation();
 
   return (
     <InputRow
-      label='Timer Message'
-      placeholder='Message shown fullscreen in stage timer'
+      label={getLocalizedString('timer.message')}
+      placeholder={getLocalizedString('timer.message.plac')}
       text={text}
       visible={visible}
       changeHandler={(newValue) => setMessage.timerText(newValue)}
@@ -39,10 +42,12 @@ function ExternalInput() {
     }
   };
 
+  const { getLocalizedString } = useTranslation();
+
   return (
     <InputRow
-      label='External Message'
-      placeholder='Message shown as secondary text in stage timer'
+      label={getLocalizedString('timer.external')}
+      placeholder={getLocalizedString('timer.external.plac')}
       text={text}
       visible={visible}
       changeHandler={(newValue) => setMessage.externalText(newValue)}

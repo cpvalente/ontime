@@ -8,6 +8,9 @@ import {
 } from 'ontime-utils';
 
 import { formatDuration } from '../../../common/utils/time';
+import { useTranslation } from '../../../translation/TranslationProvider'
+
+
 
 export function formatDelay(timeStart: number, delay: number): string | undefined {
   if (!delay) return;
@@ -19,9 +22,11 @@ export function formatDelay(timeStart: number, delay: number): string | undefine
 }
 
 export function formatOverlap(timeStart: number, previousStart?: number, previousEnd?: number): string | undefined {
+  
+  const { getLocalizedString } = useTranslation();
   const noPreviousElement = previousEnd === undefined || previousStart === undefined;
   if (noPreviousElement) return;
-
+  
   const normalisedDuration = calculateDuration(previousStart, previousEnd);
   const timeFromPrevious = getTimeFromPrevious(timeStart, previousStart, previousEnd, normalisedDuration);
   if (timeFromPrevious === 0) return;
@@ -37,5 +42,9 @@ export function formatOverlap(timeStart: number, previousStart?: number, previou
   }
 
   const overlapString = formatDuration(Math.abs(timeFromPrevious), false);
-  return `${timeFromPrevious < 0 ? 'Overlap' : 'Gap'} ${overlapString}`;
+  //return `${timeFromPrevious < 0 ? 'Overlap' : 'Gap'} ${overlapString}`;
+  return `${timeFromPrevious < 0 ? 'Overlap':''} ${getLocalizedString('editor.gap')} - ${overlapString}`;
+  
+
+
 }
