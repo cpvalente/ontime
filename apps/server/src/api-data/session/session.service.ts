@@ -1,7 +1,7 @@
 import { GetInfo, SessionStats } from 'ontime-types';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { publicFiles } from '../../setup/index.js';
+import { publicDir } from '../../setup/index.js';
 import { getNetworkInterfaces } from '../../utils/networkInterfaces.js';
 import { socket } from '../../adapters/WebsocketAdapter.js';
 import { getLastRequest } from '../../api-integration/integration.controller.js';
@@ -44,6 +44,6 @@ export async function getInfo(): Promise<GetInfo> {
     version,
     serverPort,
     osc,
-    cssOverride: publicFiles.cssOverride,
+    publicDir: publicDir.root,
   };
 }
