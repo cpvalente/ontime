@@ -19,15 +19,22 @@ import { willCauseRegeneration } from '../services/rundown-service/rundownCacheU
 import { handleLegacyMessageConversion } from './integration.legacy.js';
 
 const throttledUpdateEvent = throttle(updateEvent, 20);
+let lastRequest: Date | null = null;
 
 export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = type.toLowerCase();
   const handler = actionHandlers[action];
+  lastRequest = new Date();
+
   if (handler) {
     return handler(payload);
   } else {
     throw new Error(`Unhandled message ${type}`);
   }
+}
+
+export function getLastRequest() {
+  return lastRequest;
 }
 
 type ActionHandler = (payload: unknown) => { payload: unknown };

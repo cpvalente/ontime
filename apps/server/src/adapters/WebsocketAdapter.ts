@@ -33,6 +33,7 @@ export class SocketServer implements IAdapter {
 
   private wss: WebSocketServer | null;
   private readonly clients: Map<string, Client>;
+  private lastConnection: Date | null = null;
 
   constructor() {
     if (instance) {
@@ -58,6 +59,7 @@ export class SocketServer implements IAdapter {
         path: '',
       });
 
+      this.lastConnection = new Date();
       logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientId}`);
 
       ws.send(
@@ -169,6 +171,13 @@ export class SocketServer implements IAdapter {
         }
       });
     });
+  }
+
+  getStats() {
+    return {
+      connectedClients: this.clients.size,
+      lastConnection: this.lastConnection,
+    };
   }
 
   private sendClientList(): void {

@@ -293,6 +293,10 @@ class RuntimeService {
     return success;
   }
 
+  public getRuntimeState() {
+    return { playback: runtimeState.getState().timer.playback };
+  }
+
   /**
    * starts event matching given ID
    * @param {string} eventId
