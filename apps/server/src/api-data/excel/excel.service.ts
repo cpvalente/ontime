@@ -8,13 +8,15 @@ import { ImportMap } from 'ontime-utils';
 
 import { extname } from 'path';
 import { existsSync } from 'fs';
-import xlsx from 'node-xlsx';
+import xlsx from 'xlsx';
+import type { WorkBook } from 'xlsx';
 
 import { parseExcel } from '../../utils/parser.js';
 import { parseRundown } from '../../utils/parserFunctions.js';
 import { deleteFile } from '../../utils/parserUtils.js';
+import { getCustomFields } from '../../services/rundown-service/rundownCache.js';
 
-let excelData: { name: string; data: unknown[][] }[] = [];
+let excelData: WorkBook = xlsx.utils.book_new();
 
 export async function saveExcelFile(filePath: string) {
   if (!existsSync(filePath)) {
@@ -23,24 +25,25 @@ export async function saveExcelFile(filePath: string) {
   if (extname(filePath) != '.xlsx') {
     throw new Error('Wrong file format');
   }
-  excelData = xlsx.parse(filePath, { cellDates: true });
+  excelData = xlsx.readFile(filePath, { cellDates: true, cellFormula: false });
 
   await deleteFile(filePath);
 }
 
-export function listWorksheets() {
-  return excelData.map((value) => value.name);
+export function listWorksheets(): string[] {
+  return excelData.SheetNames;
 }
 
 export function generateRundownPreview(options: ImportMap): { rundown: OntimeRundown; customFields: CustomFields } {
-  const data = excelData.find(({ name }) => name.toLowerCase() === options.worksheet.toLowerCase())?.data;
+  const data = excelData.Sheets[options.worksheet];
 
   if (!data) {
     throw new Error(`Could not find data to import, maybe the worksheet name is incorrect: ${options.worksheet}`);
   }
 
-  const dataFromExcel = parseExcel(data, options);
+  const arrayOfData: unknown[][] = xlsx.utils.sheet_to_json(data, { header: 1, blankrows: false, raw: false });
 
+  const dataFromExcel = parseExcel(arrayOfData, getCustomFields(), options);
   // we run the parsed data through an extra step to ensure the objects shape
   const { rundown, customFields } = parseRundown(dataFromExcel);
   if (rundown.length === 0) {
@@ -48,7 +51,7 @@ export function generateRundownPreview(options: ImportMap): { rundown: OntimeRun
   }
 
   // clear the data
-  excelData = [];
+  excelData = undefined;
 
   return { rundown, customFields };
 }

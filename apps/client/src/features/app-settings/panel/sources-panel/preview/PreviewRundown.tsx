@@ -24,7 +24,8 @@ export default function PreviewRundown(props: PreviewRundownProps) {
   // we only count Ontime Events which are 1 based in client
   let eventIndex = 0;
 
-  const fieldHeaders = Object.keys(customFields);
+  const fieldKeys = Object.keys(customFields);
+  const fieldLabels = fieldKeys.map((key) => customFields[key].label);
 
   return (
     <Panel.Table>
@@ -44,8 +45,8 @@ export default function PreviewRundown(props: PreviewRundownProps) {
           <th>Colour</th>
           <th>Timer Type</th>
           <th>End Action</th>
-          {fieldHeaders.map((field) => (
-            <th key={field}>{field}</th>
+          {fieldLabels.map((label) => (
+            <th key={label}>{label}</th>
           ))}
         </tr>
       </thead>
@@ -102,7 +103,7 @@ export default function PreviewRundown(props: PreviewRundownProps) {
                   <Tag>{event.endAction}</Tag>
                 </td>
                 {isOntimeEvent(event) &&
-                  fieldHeaders.map((field) => {
+                  fieldKeys.map((field) => {
                     let value = '';
                     if (field in event.custom) {
                       value = event.custom[field];

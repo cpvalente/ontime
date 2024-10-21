@@ -3,9 +3,8 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import { Button, IconButton, Input, Select, Tooltip } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
-import { ImportMap } from 'ontime-utils';
+import { ImportMap, isAlphanumericWithSpace } from 'ontime-utils';
 
-import { isAlphanumeric } from '../../../../../common/utils/regex';
 import * as Panel from '../../PanelUtils';
 import useGoogleSheet from '../useGoogleSheet';
 import { useSheetStore } from '../useSheetStore';
@@ -190,9 +189,10 @@ export default function ImportMapForm(props: ImportMapFormProps) {
                     defaultValue={ontimeName}
                     placeholder='Name of the field as shown in Ontime'
                     {...register(`custom.${index}.ontimeName`, {
-                      pattern: {
-                        value: isAlphanumeric,
-                        message: 'Custom field name must be alphanumeric',
+                      validate: (value) => {
+                        if (!isAlphanumericWithSpace(value))
+                          return 'Only alphanumeric characters and space are allowed';
+                        return true;
                       },
                     })}
                   />
