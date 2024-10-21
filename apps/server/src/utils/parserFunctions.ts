@@ -322,6 +322,7 @@ export function sanitiseCustomFields(data: object): CustomFields {
 
     const keyFromLabel = customFieldLabelToKey(field.label);
     //Test label and key cohesion, but allow old lowercased keys to stay
+    //TODO: the `toLocaleLowerCase` part here is to conserve keys from old projects and could be removed at some point (okt. 2024)
     const key = originalKey.toLocaleLowerCase() === keyFromLabel.toLocaleLowerCase() ? originalKey : keyFromLabel;
     if (key in newCustomFields) {
       continue;
