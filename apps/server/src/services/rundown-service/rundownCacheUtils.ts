@@ -44,6 +44,11 @@ export function handleLink(
     return;
   }
 
+  // sometimes the client cannot set the previous event
+  if (mutableEvent.linkStart === 'true') {
+    mutableEvent.linkStart = linkedEvent.id;
+  }
+
   links[linkedEvent.id] = mutableEvent.id;
 
   const timePatch = getLinkedTimes(mutableEvent, linkedEvent);
