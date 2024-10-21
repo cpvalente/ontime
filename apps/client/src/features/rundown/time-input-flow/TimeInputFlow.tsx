@@ -5,7 +5,7 @@ import { IoLink } from '@react-icons/all-files/io5/IoLink';
 import { IoLockClosed } from '@react-icons/all-files/io5/IoLockClosed';
 import { IoLockOpenOutline } from '@react-icons/all-files/io5/IoLockOpenOutline';
 import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
-import { MaybeString, OntimeEvent, TimeStrategy } from 'ontime-types';
+import { MaybeString, TimeStrategy } from 'ontime-types';
 
 import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
 import { useEventAction } from '../../../common/hooks/useEventAction';
@@ -28,7 +28,7 @@ type TimeActions = 'timeStart' | 'timeEnd' | 'duration';
 
 const TimeInputFlow = (props: EventBlockTimerProps) => {
   const { eventId, timeStart, timeEnd, duration, timeStrategy, linkStart, delay } = props;
-  const { updateEvent, updateTimer, linkTimer } = useEventAction();
+  const { updateEvent, updateTimer } = useEventAction();
 
   // In sync with EventEditorTimes
   const handleSubmit = (field: TimeActions, value: string) => {
@@ -36,14 +36,11 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
   };
 
   const handleChangeStrategy = (timeStrategy: TimeStrategy) => {
-    const newEvent: Partial<OntimeEvent> = { id: eventId, timeStrategy };
-    updateEvent(newEvent);
+    updateEvent({ id: eventId, timeStrategy });
   };
 
   const handleLink = (doLink: boolean) => {
-    // the string doesnt mean much for now, not more than an intent to link
-    // we imagine that we can leverage this to create offsets p+10
-    linkTimer(eventId, doLink ? 'p' : null);
+    updateEvent({ id: eventId, linkStart: doLink ? 'true' : null });
   };
 
   const overMidnight = timeStart > timeEnd;
