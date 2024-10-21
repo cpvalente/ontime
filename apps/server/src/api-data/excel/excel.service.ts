@@ -16,7 +16,7 @@ import { parseRundown } from '../../utils/parserFunctions.js';
 import { deleteFile } from '../../utils/parserUtils.js';
 import { getCustomFields } from '../../services/rundown-service/rundownCache.js';
 
-let excelData: WorkBook;
+let excelData: WorkBook = xlsx.utils.book_new();
 
 export async function saveExcelFile(filePath: string) {
   if (!existsSync(filePath)) {
