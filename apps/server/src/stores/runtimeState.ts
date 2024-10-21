@@ -26,6 +26,8 @@ import {
 import { timerConfig } from '../config/config.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 
+import * as report from '../services/report-service/ReportService.js';
+
 const initialRuntime: Runtime = {
   selectedEventIndex: null, // changes if rundown changes or we load a new event
   numEvents: 0, // change initiated by user
@@ -102,6 +104,8 @@ export function getState(): Readonly<RuntimeState> {
 }
 
 export function clear() {
+  // we report event stop every time a the runtime state is cleared, to make sure we dont loose an event
+  report.eventStop(runtimeState);
   runtimeState.eventNow = null;
   runtimeState.publicEventNow = null;
   runtimeState.eventNext = null;
@@ -169,6 +173,9 @@ export function load(
   rundown: OntimeRundown,
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
+  // report the event stop before clearing out state
+  // report.eventStop(runtimeState);
+
   // we need to persist the current block state across loads
   const prevCurrentBlock = { ...runtimeState.currentBlock };
   clear();
@@ -407,6 +414,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   state.runtime.offset = getRuntimeOffset(state);
   state.runtime.expectedEnd = state.runtime.plannedEnd - state.runtime.offset;
 
+  report.eventStart(runtimeState);
   return true;
 }
 
@@ -595,6 +603,7 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
         runtimeState.runtime.actualStart = runtimeState.clock;
       }
       runtimeState.timer.secondaryTimer = null;
+      report.eventStart(runtimeState);
     } else {
       runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, offsetClock);
       runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - offsetClock;
@@ -673,6 +682,7 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
 
   // update runtime
   runtimeState.runtime.actualStart = runtimeState.clock;
+  report.eventStart(runtimeState);
   return { eventId: runtimeState.eventNow.id, didStart: true };
 }
 
