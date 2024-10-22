@@ -2,7 +2,7 @@
   "name": "ontime-server",
   "type": "module",
   "main": "src/index.ts",
-  "version": "3.6.2",
+  "version": "3.6.2-beta1",
   "exports": "./src/index.js",
   "dependencies": {
     "@googleapis/sheets": "^5.0.5",
