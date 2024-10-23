@@ -714,7 +714,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       syncBlockStartAt = true;
     }
 
-    const shouldUpdateClock = syncBlockStartAt || getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock);
+    const shouldUpdateClock = syncBlockStartAt || shouldUpdateTimer;
 
     if (shouldUpdateClock) {
       RuntimeService.previousClockUpdate = state.clock;
