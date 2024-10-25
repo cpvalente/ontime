@@ -70,6 +70,17 @@ export default function SourcesPanel() {
     fileInputRef.current?.click();
   };
 
+  const resetFlow = () => {
+    // we purposely omit clearing the authentication status
+    setImportFlow('none');
+    setRundown(null);
+    setHasFile('none');
+    setWorksheets(null);
+    setCustomFields(null);
+    setError('');
+    setSheetId(null);
+  };
+
   const openGSheetFlow = async () => {
     const result = await verifyAuth();
     if (result) {
@@ -89,7 +100,7 @@ export default function SourcesPanel() {
   };
 
   const cancelGSheetFlow = () => {
-    setImportFlow('none');
+    resetFlow();
   };
 
   const handleSubmitImportPreview = async (importMap: ImportMap) => {
@@ -110,9 +121,7 @@ export default function SourcesPanel() {
   };
 
   const cancelImportMap = async () => {
-    setImportFlow('none');
-    setHasFile('none');
-    setWorksheets(null);
+    resetFlow();
     if (authenticationStatus === 'authenticated') {
       const result = await verifyAuth();
       if (result) {
@@ -127,20 +136,12 @@ export default function SourcesPanel() {
     setHasFile('none');
     setWorksheets(null);
     setCustomFields(null);
+    setError('');
   };
 
   const handleSubmitExport = async (importMap: ImportMap) => {
     if (!sheetId) return;
     await exportRundown(sheetId, importMap);
-  };
-
-  const resetFlow = () => {
-    setImportFlow('none');
-    setRundown(null);
-    setHasFile('none');
-    setWorksheets(null);
-    setCustomFields(null);
-    setError('');
   };
 
   const isExcelFlow = importFlow === 'excel';
