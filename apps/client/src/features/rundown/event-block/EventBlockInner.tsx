@@ -111,7 +111,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         </div>
         <div className={style.eventStatus} tabIndex={-1}>
           <Tooltip label={`Time type: ${timerType}`} openDelay={tooltipDelayMid}>
-            <span>
+            <span className={cx([timerType === TimerType.TimeToEnd && style.active])}>
               <TimerIcon type={timerType} className={style.statusIcon} />
             </span>
           </Tooltip>
@@ -151,6 +151,8 @@ function EndActionIcon(props: { action: EndAction; className: string }) {
 
 function TimerIcon(props: { type: TimerType; className: string }) {
   const { type, className } = props;
+  const maybeActiveClasses = cx([type === TimerType.TimeToEnd && style.active, className]);
+
   if (type === TimerType.CountUp) {
     return <IoArrowUp className={className} />;
   }
@@ -158,7 +160,7 @@ function TimerIcon(props: { type: TimerType; className: string }) {
     return <IoTime className={className} />;
   }
   if (type === TimerType.TimeToEnd) {
-    return <IoFlag className={className} />;
+    return <IoFlag className={maybeActiveClasses} />;
   }
   return <IoArrowDown className={className} />;
 }

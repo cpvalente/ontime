@@ -244,6 +244,7 @@ export default function EventBlock(props: EventBlockProps) {
     playback ? style[playback] : null,
     isSelected ? style.selected : null,
     hasCursor ? style.hasCursor : null,
+    timerType === TimerType.TimeToEnd ? style.timeToEnd : null,
   ]);
 
   const handleFocusClick = (event: MouseEvent) => {
@@ -271,7 +272,13 @@ export default function EventBlock(props: EventBlockProps) {
       onContextMenu={onContextMenu}
       id='event-block'
     >
-      <RundownIndicators timeStart={timeStart} previousStart={previousStart} previousEnd={previousEnd} delay={delay} />
+      <RundownIndicators
+        timeStart={timeStart}
+        previousStart={previousStart}
+        previousEnd={previousEnd}
+        delay={delay}
+        timeToEnd={timerType === TimerType.TimeToEnd}
+      />
 
       <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
         <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>

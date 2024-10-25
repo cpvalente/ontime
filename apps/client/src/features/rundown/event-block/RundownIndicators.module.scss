@@ -27,3 +27,9 @@ $gap-left: calc(2rem + 0.25rem + 3rem);
 .gap {
   @include indicator($blue-500);
 }
+
+.timeToEnd {
+  @include indicator($gray-1200);
+  outline: 1px solid $active-indicator;
+  outline-offset: -1px;
+}

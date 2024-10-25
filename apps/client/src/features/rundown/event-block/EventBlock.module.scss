@@ -1,6 +1,8 @@
 @use '../blockMixins' as *;
 
 $skip-opacity: 0.2;
+$skip-border: color-mix(in srgb, $red-700, transparent 60%); // 60 is opacity disabled
+$active-border: color-mix(in srgb, $active-indicator, transparent 60%);  // 60 is opacity disabled
 
 .eventBlock {
   @include block-styling;
@@ -55,6 +57,10 @@ $skip-opacity: 0.2;
     outline: 1px solid $block-cursor-color;
   }
 
+  &.timeToEnd {
+    border: 1px solid $active-border;
+  }
+
   &.past:not(.skip) {
     .timerNote,
     .statusElements,
@@ -69,7 +75,7 @@ $skip-opacity: 0.2;
   }
 
   &.skip {
-    border: 1px solid $white-3;
+    border: 1px solid $skip-border;
 
     .timerNote,
     .eventTitle,
