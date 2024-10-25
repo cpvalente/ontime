@@ -121,7 +121,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
         <thead>
           <tr>
             <th>Ontime field</th>
-            <th>From spreadsheet name</th>
+            <th>Column name in spreadsheet</th>
             <th className={style.singleActionCell} />
           </tr>
         </thead>
