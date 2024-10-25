@@ -17,7 +17,6 @@ import withData from './features/viewers/ViewWrapper';
 import ViewLoader from './views/ViewLoader';
 import { ONTIME_VERSION } from './ONTIME_VERSION';
 import { sentryDsn, sentryRecommendedIgnore } from './sentry.config';
-import { Playback, TimerPhase, TimerType } from 'ontime-types';
 
 const Editor = React.lazy(() => import('./features/editors/ProtectedEditor'));
 const Cuesheet = React.lazy(() => import('./features/cuesheet/ProtectedCuesheet'));
@@ -37,6 +36,7 @@ const StudioClock = React.lazy(() => import('./features/viewers/studio/StudioClo
 
 const STimer = withPreset(withData(TimerView));
 const SMinimalTimer = withPreset(withData(MinimalTimerView));
+const SPopOutTimer = withPreset(withData(PopOutTimer));
 const SClock = withPreset(withData(ClockView));
 const SCountdown = withPreset(withData(Countdown));
 const SBackstage = withPreset(withData(Backstage));
@@ -76,30 +76,6 @@ export default function AppRouter() {
 
   return (
     <React.Suspense fallback={null}>
-      <PopOutTimer 
-      isMirrored={false} 
-      time={{
-        addedTime: 0,
-        current: null,
-        duration: null,
-        elapsed: null,
-        expectedFinish: null,
-        finishedAt: null,
-        phase: TimerPhase.Default,
-        playback: Playback.Play,
-        secondaryTimer: null,
-        startedAt: null,
-        clock: 0,
-        timerType: TimerType.CountDown
-      }} 
-      viewSettings={{
-        dangerColor: '',
-        endMessage: '',
-        freezeEnd: false,
-        normalColor: '',
-        overrideStyles: false,
-        warningColor: ''
-      }} />
       <SentryRoutes>
         <Route path='/' element={<Navigate to='/timer' />} />
         <Route
@@ -107,6 +83,14 @@ export default function AppRouter() {
           element={
             <ViewLoader>
               <STimer />
+            </ViewLoader>
+          }
+        />
+        <Route
+          path='/pop'
+          element={
+            <ViewLoader>
+              <SPopOutTimer />
             </ViewLoader>
           }
         />
