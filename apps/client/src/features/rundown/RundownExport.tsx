@@ -1,11 +1,11 @@
 import { memo } from 'react';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 
 import { ContextMenu } from '../../common/components/context-menu/ContextMenu';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import { useAppMode } from '../../common/stores/appModeStore';
 import { handleLinks } from '../../common/utils/linkUtils';
 import { cx } from '../../common/utils/styleUtils';
+import { Corner } from '../editors/editor-utils/EditorUtils';
 
 import EventEditor from './event-editor/EventEditor';
 import RundownWrapper from './RundownWrapper';
@@ -24,7 +24,7 @@ const RundownExport = () => {
       <div className={style.rundown}>
         <div className={style.list}>
           <ErrorBoundary>
-            {!isExtracted && <IoArrowUp className={style.corner} onClick={(event) => handleLinks(event, 'rundown')} />}
+            {!isExtracted && <Corner onClick={(event) => handleLinks(event, 'rundown')} />}
             <ContextMenu>
               <RundownWrapper />
             </ContextMenu>

@@ -4,10 +4,6 @@ $min-playback-width: 27rem;
 $max-playback-width: 30rem;
 $panel-gap: 0.5rem;
 
-.corner {
-  @include editor.corner;
-}
-
 .mainContainer {
   background-color: $ui-black;
   width: 100%;
@@ -30,11 +26,6 @@ $panel-gap: 0.5rem;
   display: flex;
   gap: $panel-gap;
   overflow: hidden;
-
-  .corner {
-    /* we show this if the component hasnt been extracted */
-    display: inline;
-  }
 
   .rundown,
   .playback,

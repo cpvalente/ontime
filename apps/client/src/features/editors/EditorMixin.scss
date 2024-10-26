@@ -6,23 +6,6 @@
   --editor--panel__br: 8px;
 }
 
-@mixin corner() {
-  display: none;
-  transform: rotate(45deg);
-
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  cursor: pointer;
-  color: $ui-white;
-  transition-property: color;
-  transition-duration: $transition-time-action;
-
-  &:hover {
-    color: $ontime-color;
-  }
-}
-
 @mixin panel() {
   display: flex;
 
@@ -31,9 +14,4 @@
   height: 100%;
   background-color: $bg-container-l2;
   padding: 1rem;
-
-  .corner {
-    /* we show this if the component hasnt been extracted */
-    display: inline;
-  }
 }

@@ -1,0 +1,22 @@
+.corner {
+  transform: rotate(45deg);
+
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  cursor: pointer;
+  color: $ui-white;
+  transition-property: color;
+  transition-duration: $transition-time-action;
+  border-radius: 99px;
+
+  // similar styles to ontime-button-subtle
+  background-color: $gray-1050;
+  outline: 2px solid $gray-1050;
+
+  &:hover {
+    color: $ontime-color;
+    background-color: $gray-1000;
+    outline: 2px solid $gray-1000;
+  }
+}
