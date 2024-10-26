@@ -9,7 +9,7 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import { useHttpSettings, usePostHttpSettings } from '../../../../common/hooks-query/useHttpSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
 import { startsWithHttp } from '../../../../common/utils/regex';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import { cycles } from './integrationUtils';
 

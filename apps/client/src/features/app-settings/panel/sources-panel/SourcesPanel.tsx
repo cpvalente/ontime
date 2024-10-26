@@ -12,7 +12,7 @@ import {
 import { getWorksheetNames } from '../../../../common/api/sheets';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { validateExcelImport } from '../../../../common/utils/uploadUtils';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import ImportMapForm from './import-map/ImportMapForm';
 import GSheetInfo from './GSheetInfo';

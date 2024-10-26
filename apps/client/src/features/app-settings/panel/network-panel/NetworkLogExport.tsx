@@ -4,7 +4,7 @@ import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 
 import { handleLinks } from '../../../../common/utils/linkUtils';
 import Log from '../../../log/Log';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './NetworkLogExport.module.scss';
 

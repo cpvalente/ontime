@@ -3,7 +3,7 @@ import { Alert, AlertDescription, AlertIcon } from '@chakra-ui/react';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import HttpIntegrations from './HttpIntegrations';
 import OscIntegrations from './OscIntegrations';

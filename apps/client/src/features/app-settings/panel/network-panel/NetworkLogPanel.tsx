@@ -1,7 +1,7 @@
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
+import * as Panel from '../../panel-utils/PanelUtils';
 import ClientControlPanel from '../client-control-panel/ClientControlPanel';
-import * as Panel from '../PanelUtils';
 
 import InfoNif from './NetworkInterfaces';
 import LogExport from './NetworkLogExport';

@@ -5,7 +5,7 @@ import { millisToString } from 'ontime-utils';
 
 import Tag from '../../../../../common/components/tag/Tag';
 import { getAccessibleColour } from '../../../../../common/utils/styleUtils';
-import * as Panel from '../../PanelUtils';
+import * as Panel from '../../../panel-utils/PanelUtils';
 
 import style from './PreviewRundown.module.scss';
 

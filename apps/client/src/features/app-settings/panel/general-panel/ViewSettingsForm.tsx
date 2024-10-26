@@ -9,7 +9,7 @@ import ExternalLink from '../../../../common/components/external-link/ExternalLi
 import { PopoverPickerRHF } from '../../../../common/components/input/popover-picker/PopoverPicker';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './GeneralPanel.module.scss';
 
@@ -139,7 +139,7 @@ export default function ViewSettingsForm() {
             <Panel.ListItem>
               <Panel.Field
                 title='End message'
-                description='Message to show on negative timers if not frozen. If not provided, timer will continue'
+                description='Message to show in negative timers if not frozen. If not provided, timer will continue'
               />
               <Input
                 size='sm'

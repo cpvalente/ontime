@@ -6,7 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { PROJECT_LIST } from '../../../../common/api/constants';
 import { createProject } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './ProjectPanel.module.scss';
 

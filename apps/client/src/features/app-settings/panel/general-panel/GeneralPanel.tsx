@@ -1,7 +1,7 @@
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
+import * as Panel from '../../panel-utils/PanelUtils';
 import EditorSettingsForm from '../interface-panel/EditorSettingsForm';
-import * as Panel from '../PanelUtils';
 
 import GeneralPanelForm from './GeneralPanelForm';
 import ViewSettingsForm from './ViewSettingsForm';

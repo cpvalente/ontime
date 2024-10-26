@@ -1,4 +1,4 @@
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import ClientList from './ClientList';
 

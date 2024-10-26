@@ -2,7 +2,7 @@ import { HTMLAttributes, ReactNode } from 'react';
 
 import { cx } from '../../../common/utils/styleUtils';
 
-import style from './Panel.module.scss';
+import style from './PanelUtils.module.scss';
 
 export function Header({ children }: { children: ReactNode }) {
   return <h2 className={style.header}>{children}</h2>;

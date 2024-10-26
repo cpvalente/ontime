@@ -4,7 +4,7 @@ import { parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { editorSettingsDefaults, useEditorSettings } from '../../../../common/stores/editorSettings';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 export default function EditorSettingsForm() {
   const {

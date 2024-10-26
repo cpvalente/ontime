@@ -12,7 +12,7 @@ import {
 } from '../../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';
 import { cx } from '../../../../common/utils/styleUtils';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import ProjectForm, { ProjectFormValues } from './ProjectForm';
 import ProjectMergeForm from './ProjectMergeForm';
