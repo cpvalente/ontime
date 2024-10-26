@@ -25,6 +25,8 @@ export const ontimeModal = {
     color: '#fefefe', // $gray-50
   },
   footer: {
-    padding: '0.5rem',
+    padding: '1rem',
+    display: 'flex',
+    gap: '0.5rem',
   },
 };
