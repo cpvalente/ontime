@@ -10,6 +10,7 @@ import useViewSettings from '../../../common/hooks-query/useViewSettings';
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
+import { Corner } from '../../editors/editor-utils/EditorUtils';
 
 import style from './MessageControl.module.scss';
 
@@ -48,7 +49,7 @@ export default function TimerPreview() {
 
   return (
     <div className={style.preview}>
-      <IoArrowUp className={style.corner} onClick={(event) => handleLinks(event, 'timer')} />
+      <Corner onClick={(event) => handleLinks(event, 'timer')} />
       <div className={contentClasses}>
         <div
           className={style.mainContent}
