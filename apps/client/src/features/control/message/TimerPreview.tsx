@@ -25,6 +25,7 @@ export default function TimerPreview() {
     if (showTimerMessage) return 'Message';
     if (phase === TimerPhase.Pending) return 'Standby to start';
     if (phase === TimerPhase.Overtime && data.endMessage) return 'Custom end message';
+    if (timerType === TimerType.TimeToEnd) return 'Time to end';
     return 'Timer';
   })();
 
