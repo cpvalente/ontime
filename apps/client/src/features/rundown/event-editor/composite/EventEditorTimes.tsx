@@ -82,6 +82,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             timeStrategy={timeStrategy}
             linkStart={linkStart}
             delay={delay}
+            timerType={timerType}
           />
         </div>
         <div className={style.delayLabel}>{delayLabel}</div>

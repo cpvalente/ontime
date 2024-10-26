@@ -90,6 +90,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           delay={delay}
           timeStrategy={timeStrategy}
           linkStart={linkStart}
+          timerType={timerType}
         />
       </div>
       <div className={style.titleSection}>
