@@ -1,6 +1,6 @@
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import { documentationUrl, githubUrl, websiteUrl } from '../../../../externals';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import AppVersion from './AppVersion';
 

@@ -7,7 +7,7 @@ import { PROJECT_DATA } from '../../../../common/api/constants';
 import { getDb, patchData } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { cx } from '../../../../common/utils/styleUtils';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import { makeProjectPatch } from './project.utils';
 

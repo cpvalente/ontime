@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { useProjectList } from '../../../../common/hooks-query/useProjectList';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import ProjectListItem, { EditMode } from './ProjectListItem';
 

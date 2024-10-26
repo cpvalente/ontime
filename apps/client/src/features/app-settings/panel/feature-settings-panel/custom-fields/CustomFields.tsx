@@ -7,7 +7,7 @@ import { deleteCustomField, editCustomField, postCustomField } from '../../../..
 import ExternalLink from '../../../../../common/components/external-link/ExternalLink';
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
 import { customFieldsDocsUrl } from '../../../../../externals';
-import * as Panel from '../../PanelUtils';
+import * as Panel from '../../../panel-utils/PanelUtils';
 
 import CustomFieldEntry from './CustomFieldEntry';
 import CustomFieldForm from './CustomFieldForm';

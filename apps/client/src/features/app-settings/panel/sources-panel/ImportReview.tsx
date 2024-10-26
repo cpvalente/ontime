@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@chakra-ui/react';
 import { CustomFields, OntimeRundown } from 'ontime-types';
 
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import PreviewSpreadsheet from './preview/PreviewRundown';
 import useGoogleSheet from './useGoogleSheet';

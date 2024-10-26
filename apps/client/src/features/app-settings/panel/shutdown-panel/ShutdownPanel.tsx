@@ -12,7 +12,7 @@ import {
 
 import { isLocalhost } from '../../../../common/api/constants';
 import useElectronEvent from '../../../../common/hooks/useElectronEvent';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 export default function ShutdownPanel() {
   const { isElectron, sendToElectron } = useElectronEvent();

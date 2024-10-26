@@ -7,7 +7,7 @@ import { customFieldLabelToKey, isAlphanumericWithSpace } from 'ontime-utils';
 import { maybeAxiosError } from '../../../../../common/api/utils';
 import SwatchSelect from '../../../../../common/components/input/colour-input/SwatchSelect';
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
-import * as Panel from '../../PanelUtils';
+import * as Panel from '../../../panel-utils/PanelUtils';
 
 import style from '../FeatureSettings.module.scss';
 
