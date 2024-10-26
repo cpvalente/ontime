@@ -18,7 +18,7 @@ import useAppSettingsNavigation from './useAppSettingsNavigation';
 import style from './AppSettings.module.scss';
 
 export default function AppSettings() {
-  const { close, panel, location } = useAppSettingsNavigation();
+  const { close, panel, location, setLocation } = useAppSettingsNavigation();
   useKeyDown(close, 'Escape');
 
   return (
@@ -26,7 +26,7 @@ export default function AppSettings() {
       <ErrorBoundary>
         <PanelList selectedPanel={panel} location={location} />
         <PanelContent onClose={close}>
-          {panel === 'project' && <ProjectPanel location={location} />}
+          {panel === 'project' && <ProjectPanel location={location} setLocation={setLocation} />}
           {panel === 'general' && <GeneralPanel location={location} />}
           {panel === 'feature_settings' && <FeatureSettingsPanel location={location} />}
           {panel === 'sources' && <SourcesPanel />}

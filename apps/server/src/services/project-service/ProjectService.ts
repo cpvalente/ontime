@@ -1,4 +1,4 @@
-import { DatabaseModel, LogOrigin, ProjectData, ProjectFileListResponse } from 'ontime-types';
+import { DatabaseModel, LogOrigin, ProjectFileListResponse } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import { copyFile, rename } from 'fs/promises';
@@ -38,6 +38,7 @@ import {
   moveCorruptFile,
   parseJsonFile,
 } from './projectServiceUtils.js';
+import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 
 // init dependencies
 init();
@@ -263,14 +264,8 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
 /**
  * Creates a new project file and applies its result
  */
-export async function createProject(filename: string, projectData: ProjectData) {
-  const data: DatabaseModel = {
-    ...dbModel,
-    project: {
-      ...dbModel.project,
-      ...projectData,
-    },
-  };
+export async function createProject(filename: string, initialData: Partial<DatabaseModel>) {
+  const data = safeMerge(dbModel, initialData);
 
   const uniqueFileName = generateUniqueFileName(publicDir.projectsDir, filename);
   const newFile = getPathToProject(uniqueFileName);

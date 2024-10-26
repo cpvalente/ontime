@@ -10,6 +10,7 @@ import {
   patchPartialProjectFile,
   postProjectFile,
   projectDownload,
+  quickProjectFile,
   renameProjectFile,
 } from './db.controller.js';
 import { uploadProjectFile } from './db.middleware.js';
@@ -19,6 +20,7 @@ import {
   validateFilenameBody,
   validateFilenameParam,
   validateNewFilenameBody,
+  validateQuickProject,
 } from './db.validation.js';
 
 export const router = express.Router();
@@ -29,6 +31,7 @@ router.post('/upload', uploadProjectFile, postProjectFile);
 
 router.patch('/', validatePatchProject, patchPartialProjectFile);
 router.post('/new', validateFilenameBody, validateNewProject, createProjectFile);
+router.post('/quick', validateQuickProject, quickProjectFile);
 
 router.get('/all', listProjects);
 

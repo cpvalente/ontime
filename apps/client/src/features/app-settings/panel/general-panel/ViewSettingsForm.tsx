@@ -126,7 +126,7 @@ export default function ViewSettingsForm() {
             <Panel.ListItem>
               <Panel.Field
                 title='Freeze timer on end'
-                description='Timer in views will stop from going negative and instead stop at 00:00:00'
+                description='When a timer hits 00:00:00, it freezes instead of going negative. It invalidates the End Message.'
               />
               <Controller
                 control={control}
@@ -139,7 +139,7 @@ export default function ViewSettingsForm() {
             <Panel.ListItem>
               <Panel.Field
                 title='End message'
-                description='Message to show in negative timers if not frozen. If not provided, timer will continue'
+                description='Message for negative timers; applies only if the timer isn`t frozen on End. If no message is provided, it continues into negative time'
               />
               <Input
                 size='sm'

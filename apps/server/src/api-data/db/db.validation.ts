@@ -23,6 +23,28 @@ export const validateNewProject = [
 ];
 
 /**
+ * @description Validates request for a quick project.
+ */
+export const validateQuickProject = [
+  // Project fields
+  body('project.title').isString().trim(),
+
+  // Settings fields
+  body('settings.timeFormat').optional().isIn(['12', '24']),
+  body('settings.language').optional().isString().trim(),
+
+  // ViewSettings fields
+  body('viewSettings.freezeEnd').optional().isBoolean(),
+  body('viewSettings.endMessage').optional().isString().trim(),
+
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
+
+/**
  * @description Validates request for pathing data in the project.
  */
 export const validatePatchProject = [
