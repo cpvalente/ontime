@@ -15,8 +15,6 @@ import {
 
 import { setClientRemote } from '../../hooks/useSocket';
 
-import style from './ClientModal.module.scss';
-
 interface RedirectClientModalProps {
   id: string;
   name?: string;
@@ -54,14 +52,12 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
           </InputGroup>
         </ModalBody>
         <ModalFooter>
-          <div className={style.buttonSection}>
-            <Button size='md' variant='ontime-subtle' onClick={onClose}>
-              Cancel
-            </Button>
-            <Button size='md' variant='ontime-filled' onClick={handleRedirect} isDisabled={!canSubmit}>
-              Submit
-            </Button>
-          </div>
+          <Button size='md' variant='ontime-subtle' onClick={onClose}>
+            Cancel
+          </Button>
+          <Button size='md' variant='ontime-filled' onClick={handleRedirect} isDisabled={!canSubmit}>
+            Submit
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

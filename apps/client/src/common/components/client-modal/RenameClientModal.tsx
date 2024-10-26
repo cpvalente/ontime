@@ -13,8 +13,6 @@ import {
 
 import { setClientRemote } from '../../hooks/useSocket';
 
-import style from './ClientModal.module.scss';
-
 interface RenameClientModalProps {
   id: string;
   name?: string;
@@ -53,14 +51,12 @@ export function RenameClientModal(props: RenameClientModalProps) {
           />
         </ModalBody>
         <ModalFooter>
-          <div className={style.buttonSection}>
-            <Button size='md' variant='ontime-subtle' onClick={onClose}>
-              Cancel
-            </Button>
-            <Button size='md' variant='ontime-filled' onClick={handleRename} isDisabled={!canSubmit}>
-              Submit
-            </Button>
-          </div>
+          <Button size='md' variant='ontime-subtle' onClick={onClose}>
+            Cancel
+          </Button>
+          <Button size='md' variant='ontime-filled' onClick={handleRename} isDisabled={!canSubmit}>
+            Submit
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

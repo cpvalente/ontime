@@ -20,7 +20,7 @@ import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { navigatorConstants } from '../../../viewerConfig';
 import { isLocalhost, serverPort } from '../../api/constants';
 import useClickOutside from '../../hooks/useClickOutside';
-import useElectronEvent from '../../hooks/useElectronEvent';
+import { useElectronEvent } from '../../hooks/useElectronEvent';
 import useInfo from '../../hooks-query/useInfo';
 import { useClientStore } from '../../stores/clientStore';
 import { useViewOptionsStore } from '../../stores/viewOptions';

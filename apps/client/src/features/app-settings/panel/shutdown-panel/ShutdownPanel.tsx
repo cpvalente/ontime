@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 
 import { isLocalhost } from '../../../../common/api/constants';
-import useElectronEvent from '../../../../common/hooks/useElectronEvent';
+import { useElectronEvent } from '../../../../common/hooks/useElectronEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 export default function ShutdownPanel() {
