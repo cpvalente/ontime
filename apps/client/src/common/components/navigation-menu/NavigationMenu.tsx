@@ -57,7 +57,7 @@ function NavigationMenu(props: NavigationMenuProps) {
       <RenameClientModal id={id} name={name} isOpen={isOpenRename} onClose={onCloseRename} />
       <Drawer placement='left' onClose={onClose} isOpen={isOpen} variant='ontime' data-testid='navigation__menu'>
         <DrawerOverlay />
-        <DrawerContent maxWidth='21rem'>
+        <DrawerContent maxWidth='22rem'>
           <DrawerHeader>
             <DrawerCloseButton size='lg' />
             Ontime
