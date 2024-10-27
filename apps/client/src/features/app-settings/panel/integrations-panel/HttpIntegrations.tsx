@@ -27,7 +27,7 @@ export default function HttpIntegrations() {
     setError,
     formState: { errors, isSubmitting, isDirty, isValid },
   } = useForm<HttpSettings>({
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: data,
     values: data,
     resetOptions: {

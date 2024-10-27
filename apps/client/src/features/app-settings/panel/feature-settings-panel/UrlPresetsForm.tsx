@@ -33,7 +33,7 @@ export default function UrlPresetsForm() {
     setError,
     formState: { isSubmitting, isDirty, isValid, errors },
   } = useForm<FormData>({
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: { data },
     values: { data },
     resetOptions: {

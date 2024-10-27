@@ -31,7 +31,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
     register,
     formState: { errors, isValid },
   } = useForm<NamedImportMap>({
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: namedImportMap,
     values: namedImportMap,
   });
