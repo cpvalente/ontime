@@ -58,7 +58,7 @@ export default function Finder(props: FinderProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
       <ModalOverlay />
-      <ModalContent maxWidth='40vw'>
+      <ModalContent maxWidth='max(640px, 40vw)'>
         <ModalBody onKeyDown={navigate}>
           <Input size='lg' onChange={debouncedFind} variant='ontime-filled' placeholder='Search...' />
           <ul className={style.scrollContainer} onMouseMove={handleMouseMoveEvent}>
