@@ -28,7 +28,7 @@ export default function OscIntegrations() {
     setError,
     formState: { errors, isSubmitting, isDirty, isValid },
   } = useForm<OSCSettings>({
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: data,
     values: data,
     resetOptions: {
