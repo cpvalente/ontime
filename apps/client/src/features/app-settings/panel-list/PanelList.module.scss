@@ -63,3 +63,14 @@ ul {
     color: $blue-400;
   }
 }
+
+.attention {
+  color: $red-400;  
+  &::before {
+    content: '';
+    width: 0.5em;
+    height: 0.5em;
+    border-radius: 99px;
+    background-color: $red-400;
+  }
+}

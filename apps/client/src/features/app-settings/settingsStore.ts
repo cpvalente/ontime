@@ -1,11 +1,25 @@
-import { create } from 'zustand';
+import { version } from '../../../../../package.json';
+import { getLatestVersion } from '../../common/api/external';
 
 export type SettingsOption = {
   id: string;
   label: string;
   secondary?: Readonly<SettingsOption[]>;
   split?: boolean;
+  attention?: string;
 };
+
+async function getHasUpdates(): Promise<string | undefined> {
+  try {
+    const latest = await getLatestVersion();
+    if (!latest.version.includes(version)) {
+      return 'New version available';
+    }
+  } catch {
+    /* we dont handle errors*/
+  }
+  return;
+}
 
 export const settingPanels: Readonly<SettingsOption[]> = [
   {
@@ -69,6 +83,7 @@ export const settingPanels: Readonly<SettingsOption[]> = [
     id: 'about',
     label: 'About',
     split: true,
+    attention: await getHasUpdates(),
   },
   {
     id: 'shutdown',
@@ -82,25 +97,3 @@ export type SettingsOptionId = (typeof settingPanels)[number]['id'];
 export interface PanelBaseProps {
   location?: string;
 }
-
-type SettingsStore = {
-  unsavedChanges: Set<SettingsOptionId>;
-  hasUnsavedChanges: (panelId: SettingsOptionId) => boolean;
-  addUnsavedChanges: (panelId: SettingsOptionId) => void;
-  removeUnsavedChanges: (panelId: SettingsOptionId) => void;
-};
-
-export const useSettingsStore = create<SettingsStore>((set, get) => ({
-  unsavedChanges: new Set(),
-  hasUnsavedChanges: (panelId: SettingsOptionId) => get().unsavedChanges.has(panelId),
-  addUnsavedChanges: (panelId: SettingsOptionId) =>
-    set((state) => {
-      state.unsavedChanges.add(panelId);
-      return { unsavedChanges: new Set(state.unsavedChanges) };
-    }),
-  removeUnsavedChanges: (panelId: SettingsOptionId) =>
-    set((state) => {
-      state.unsavedChanges.delete(panelId);
-      return { unsavedChanges: new Set(state.unsavedChanges) };
-    }),
-}));
