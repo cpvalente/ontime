@@ -4,14 +4,19 @@ import { useNavigate } from 'react-router-dom';
 const isElectron = window.process?.type === 'renderer';
 const ipcRenderer = isElectron ? window.require('electron').ipcRenderer : null;
 
-export default function useElectronEvent() {
-  const navigate = useNavigate();
-
+export function useElectronEvent() {
   const sendToElectron = useCallback((channel: string, args?: string | Record<string, unknown>) => {
     if (isElectron && ipcRenderer) {
       ipcRenderer.send(channel, args);
     }
   }, []);
+
+  return { isElectron, sendToElectron };
+}
+
+export function useElectronListener() {
+  const navigate = useNavigate();
+  const { isElectron } = useElectronEvent();
 
   // listen to requests to change the editor location
   useEffect(() => {
@@ -25,7 +30,5 @@ export default function useElectronEvent() {
     return () => {
       ipcRenderer?.removeAllListeners();
     };
-  }, [navigate]);
-
-  return { isElectron, sendToElectron };
+  }, [isElectron, navigate]);
 }

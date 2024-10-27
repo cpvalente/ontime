@@ -6,6 +6,7 @@ import { IoClose } from '@react-icons/all-files/io5/IoClose';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
 import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
+import { useElectronListener } from '../../common/hooks/useElectronEvent';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import AppSettings from '../app-settings/AppSettings';
 import useAppSettingsNavigation from '../app-settings/useAppSettingsNavigation';
@@ -25,6 +26,9 @@ export default function Editor() {
   const { isOpen: isFinderOpen, onToggle: onFinderToggle, onClose: onFinderClose } = useDisclosure();
 
   useWindowTitle('Editor');
+
+  // we need to register the listener to change the editor location
+  useElectronListener();
 
   // listen to shutdown request from electron process
   useEffect(() => {

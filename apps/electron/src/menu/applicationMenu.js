@@ -81,14 +81,18 @@ function makeFileMenu(serverUrl, redirectWindow, download) {
     submenu: [
       {
         label: 'New project...',
-        click: () => redirectWindow('/editor?settings=project__manage&create=true'),
+        click: () => redirectWindow('/editor?settings=project__manage&new=true'),
       },
       {
-        label: 'Edit project info',
+        label: 'Quick start...',
+        click: () => redirectWindow('/editor?settings=project__create'),
+      },
+      {
+        label: 'Edit project info...',
         click: () => redirectWindow('/editor?settings=project__data'),
       },
       {
-        label: 'Manage projects...',
+        label: 'Manage projects',
         click: () => redirectWindow('/editor?settings=project__manage'),
       },
       {
