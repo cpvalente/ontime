@@ -1,5 +1,5 @@
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
-import { PanelBaseProps } from '../../settingsStore';
+import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../PanelUtils';
 
 import ManageProjects from './ManageProjects';

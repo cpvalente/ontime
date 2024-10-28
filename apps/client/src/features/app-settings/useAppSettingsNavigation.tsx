@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { SettingsOptionId } from './settingsStore';
+import { SettingsOptionId } from './useAppSettingsMenu';
 
 const settingsKey = 'settings';
 
