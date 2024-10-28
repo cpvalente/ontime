@@ -67,6 +67,8 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
 
   const colour = getValues('colour');
   const canSubmit = isDirty && isValid;
+  // if initial values are given, we can assume we are in edit mode
+  const isEditMode = initialKey !== undefined;
 
   return (
     <form onSubmit={handleSubmit(setupSubmit)} className={style.fieldForm}>
@@ -81,7 +83,9 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
               validate: (value) => {
                 if (value.trim().length === 0) return 'Required field';
                 if (!isAlphanumericWithSpace(value)) return 'Only alphanumeric characters and space are allowed';
-                if (Object.keys(data).includes(value)) return 'Custom fields must be unique';
+                if (!isEditMode) {
+                  if (isEditMode && Object.keys(data).includes(value)) return 'Custom fields must be unique';
+                }
                 return true;
               },
             })}
@@ -92,7 +96,7 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
         </div>
 
         <div>
-          <Panel.Description>Key (auto-generated value for use in Integrations and API)</Panel.Description>
+          <Panel.Description>Key (use in Integrations and API)</Panel.Description>
           <Input {...register('key')} disabled size='sm' variant='ontime-filled' autoComplete='off' />
         </div>
       </div>
