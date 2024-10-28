@@ -1,5 +1,6 @@
 import { PropsWithChildren, useCallback, useContext } from 'react';
 
+import { isLocalhost } from '../../api/constants';
 import { AppContext } from '../../context/AppContext';
 
 import PinPage from './PinPage';
@@ -9,7 +10,6 @@ interface ProtectRouteProps {
 }
 
 export default function ProtectRoute({ permission, children }: PropsWithChildren<ProtectRouteProps>) {
-  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   const { editorAuth, operatorAuth, validate } = useContext(AppContext);
 
   const handleValidation = useCallback(
@@ -29,7 +29,7 @@ export default function ProtectRoute({ permission, children }: PropsWithChildren
     return false;
   };
 
-  if (isLocal || hasRelevantAuth()) {
+  if (isLocalhost || hasRelevantAuth()) {
     // eslint-disable-next-line react/jsx-no-useless-fragment -- trying to make typescript happy
     return <>{children}</>;
   }
