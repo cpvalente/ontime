@@ -43,14 +43,7 @@
     
     /** Colour used for external message and aux timer in /timer */
     --external-color-override: #161616;
-    
-    /** View specific features: /cuesheet */
-    --cuesheet-running-bg-override: #D20300;
-    
-    /** View specific features: /op */
-    --operator-running-bg-override: #D20300;
-    --operator-highlight-override: #FFAB33;
-    
+        
     /** View specific features: /studio */
     --studio-active: #101010;
     --studio-idle: #cfcfcf;

@@ -30,7 +30,7 @@
 
   &.running {
     border-top: 1px solid $gray-1300;
-    background-color: var(--operator-running-bg-override, $active-red);
+    background-color: $active-red;
   }
 
   &.past {
@@ -105,7 +105,7 @@
   }
 
   .noColour {
-    outline: 0.15rem solid var(--operator-highlight-override, $ui-white);
+    outline: 0.15rem solid $ui-white;
     outline-offset: -0.15rem;
     padding-right: 0.3rem;
     color: $ui-white;
@@ -114,7 +114,7 @@
   .value {
     padding-inline: 0.25rem;
     background-color: $gray-1250;
-    color: var(--operator-highlight-override, $ui-white);
+    color: $ui-white;
     margin-right: 1rem;
   }
 }
