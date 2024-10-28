@@ -40,12 +40,16 @@ ul {
     background-color: $gray-1100;
   }
 
-  &.unsaved::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 3px;
-    background-color: $blue-400;
+  &.highlight {
+    color: $red-400;
+
+    &::before {
+      content: '';
+      width: 0.5em;
+      height: 0.5em;
+      border-radius: 99px;
+      background-color: $red-400;
+    }
   }
 
   &.split {

@@ -1,13 +1,16 @@
-import { create } from 'zustand';
+import { useMemo } from 'react';
+
+import useAppVersion from '../../common/hooks-query/useAppVersion';
 
 export type SettingsOption = {
   id: string;
   label: string;
   secondary?: Readonly<SettingsOption[]>;
   split?: boolean;
+  highlight?: string;
 };
 
-export const settingPanels: Readonly<SettingsOption[]> = [
+const staticOptions = [
   {
     id: 'project',
     label: 'Project',
@@ -77,30 +80,19 @@ export const settingPanels: Readonly<SettingsOption[]> = [
   },
 ] as const;
 
-export type SettingsOptionId = (typeof settingPanels)[number]['id'];
+export type SettingsOptionId = (typeof staticOptions)[number]['id'];
 
-export interface PanelBaseProps {
-  location?: string;
+export function useAppSettingsMenu() {
+  const { data } = useAppVersion();
+
+  const options: Readonly<SettingsOption[]> = useMemo(
+    () =>
+      staticOptions.map((option) => ({
+        ...option,
+        highlight: option.id === 'about' && data.hasUpdates ? 'New version available' : undefined,
+      })),
+    [data],
+  );
+
+  return { options };
 }
-
-type SettingsStore = {
-  unsavedChanges: Set<SettingsOptionId>;
-  hasUnsavedChanges: (panelId: SettingsOptionId) => boolean;
-  addUnsavedChanges: (panelId: SettingsOptionId) => void;
-  removeUnsavedChanges: (panelId: SettingsOptionId) => void;
-};
-
-export const useSettingsStore = create<SettingsStore>((set, get) => ({
-  unsavedChanges: new Set(),
-  hasUnsavedChanges: (panelId: SettingsOptionId) => get().unsavedChanges.has(panelId),
-  addUnsavedChanges: (panelId: SettingsOptionId) =>
-    set((state) => {
-      state.unsavedChanges.add(panelId);
-      return { unsavedChanges: new Set(state.unsavedChanges) };
-    }),
-  removeUnsavedChanges: (panelId: SettingsOptionId) =>
-    set((state) => {
-      state.unsavedChanges.delete(panelId);
-      return { unsavedChanges: new Set(state.unsavedChanges) };
-    }),
-}));

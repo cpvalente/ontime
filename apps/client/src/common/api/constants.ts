@@ -1,6 +1,7 @@
 // keys in tanstack store
 export const APP_INFO = ['appinfo'];
 export const APP_SETTINGS = ['appSettings'];
+export const APP_VERSION = ['appVersion'];
 export const CUSTOM_FIELDS = ['customFields'];
 export const HTTP_SETTINGS = ['httpSettings'];
 export const OSC_SETTINGS = ['oscSettings'];
