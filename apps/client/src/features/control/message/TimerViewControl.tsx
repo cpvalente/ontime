@@ -6,6 +6,8 @@ import TimerPreview from './TimerPreview';
 
 import style from './MessageControl.module.scss';
 
+import { useTranslation } from '../../../translation/TranslationProvider';
+
 export default function TimerControlsPreview() {
   const { blackout, blink, secondarySource } = useTimerViewControl();
 
@@ -17,6 +19,8 @@ export default function TimerControlsPreview() {
     }
   };
 
+  const { getLocalizedString } = useTranslation();
+
   return (
     <div className={style.previewContainer}>
       <TimerPreview />
@@ -27,14 +31,14 @@ export default function TimerControlsPreview() {
           variant={secondarySource === 'aux' ? 'ontime-filled' : 'ontime-subtle'}
           onClick={() => toggleSecondary('aux')}
         >
-          Show Aux timer
+          {getLocalizedString('timer.show_auxtime')}
         </Button>
         <Button
           size='sm'
           variant={secondarySource === 'external' ? 'ontime-filled' : 'ontime-subtle'}
           onClick={() => toggleSecondary('external')}
         >
-          Show external
+          {getLocalizedString('timer.show_external')}
         </Button>
 
         <hr className={style.divider} />
@@ -45,7 +49,7 @@ export default function TimerControlsPreview() {
           onClick={() => setMessage.timerBlink(!blink)}
           data-testid='toggle timer blink'
         >
-          Blink
+          {getLocalizedString('timer.blink')}
         </Button>
         <Button
           size='sm'
@@ -54,7 +58,7 @@ export default function TimerControlsPreview() {
           onClick={() => setMessage.timerBlackout(!blackout)}
           data-testid='toggle timer blackout'
         >
-          Blackout screen
+          {getLocalizedString('timer.blackout')}
         </Button>
       </div>
     </div>
