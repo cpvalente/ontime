@@ -3,7 +3,7 @@ import {
   ErrorResponse,
   MessageResponse,
   ProjectFileListResponse,
-  ProjectImageResponse,
+  ProjectLogoResponse,
 } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
@@ -49,7 +49,7 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
         publicInfo: req.body?.publicInfo ?? '',
         backstageUrl: req.body?.backstageUrl ?? '',
         backstageInfo: req.body?.backstageInfo ?? '',
-        projectImage: req.body?.projectImage ?? undefined,
+        projectLogo: req.body?.projectLogo ?? undefined,
       },
     });
 
@@ -136,10 +136,10 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
 }
 
 /**
- * Uploads an image file to be used as a project image.
+ * Uploads an image file to be used as a project logo.
  * The image file is saved in the uploads directory.
  */
-export async function postProjectImage(req: Request, res: Response<ProjectImageResponse | ErrorResponse>) {
+export async function postProjectLogo(req: Request, res: Response<ProjectLogoResponse | ErrorResponse>) {
   if (!req.file) {
     res.status(400).send({ message: 'File not found' });
     return;

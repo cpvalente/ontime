@@ -122,7 +122,7 @@ export function parseProject(data: Partial<DatabaseModel>, emitError?: ErrorEmit
     publicInfo: data.project.publicInfo ?? dbModel.project.publicInfo,
     backstageUrl: data.project.backstageUrl ?? dbModel.project.backstageUrl,
     backstageInfo: data.project.backstageInfo ?? dbModel.project.backstageInfo,
-    projectImage: data.project.projectImage ?? dbModel.project.projectImage,
+    projectLogo: data.project.projectLogo ?? dbModel.project.projectLogo,
   };
 }
 

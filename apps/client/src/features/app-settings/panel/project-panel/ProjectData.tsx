@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Button, Input, Textarea } from '@chakra-ui/react';
 import { type ProjectData } from 'ontime-types';
 
-import { postProjectData, projectPath, uploadProjectImage } from '../../../../common/api/project';
+import { postProjectData, projectPath, uploadProjectLogo } from '../../../../common/api/project';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useProjectData from '../../../../common/hooks-query/useProjectData';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -36,14 +36,14 @@ export default function ProjectData() {
 
   const [logoFilename, setLogoFilename] = useState<string | null>(null);
 
-  const handleUploadImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUploadProjectLogo = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
     if (!file) {
       return;
     }
 
-    const response = await uploadProjectImage(file);
+    const response = await uploadProjectLogo(file);
     setLogoFilename(response.data.logoFilename);
   };
 
@@ -100,8 +100,8 @@ export default function ProjectData() {
             />
           </label>
           <label>
-            Image
-            <Input variant='ontime-filled' size='sm' type='file' accept='image/*' onChange={handleUploadImage} />
+            Project logo
+            <Input variant='ontime-filled' size='sm' type='file' accept='image/*' onChange={handleUploadProjectLogo} />
             {logoFilename ? <img src={`${projectPath}/logos/${logoFilename}`} alt='Project logo' /> : null}
           </label>
           <label>

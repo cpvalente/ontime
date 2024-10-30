@@ -42,7 +42,7 @@ export type MessageResponse = {
   message: string;
 };
 
-export type ProjectImageResponse = {
+export type ProjectLogoResponse = {
   logoFilename: string;
 };
 

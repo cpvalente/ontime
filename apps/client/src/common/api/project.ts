@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { ProjectData, ProjectImageResponse } from 'ontime-types';
+import { ProjectData, ProjectLogoResponse } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 
@@ -21,9 +21,9 @@ export async function postProjectData(data: ProjectData): Promise<AxiosResponse<
 }
 
 /**
- * HTTP request to upload a project image
+ * HTTP request to upload a project logo
  */
-export async function uploadProjectImage(file: File): Promise<AxiosResponse<ProjectImageResponse>> {
+export async function uploadProjectLogo(file: File): Promise<AxiosResponse<ProjectLogoResponse>> {
   const formData = new FormData();
   formData.append('image', file);
   const response = await axios.post(`${projectPath}/upload`, formData, {
