@@ -5,16 +5,24 @@ import { copyFile, readFile, rename, stat } from 'fs/promises';
 import { extname, join } from 'path';
 
 import { publicDir } from '../../setup/index.js';
-import { getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
+import { ensureDirectory, getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
 
 /**
- * Handles the upload of a new project file or image.
+ * Handles the upload of a new project file.
  * @param filePath
  * @param name
  */
 export async function handleUploaded(filePath: string, name: string) {
   const newFilePath = join(publicDir.projectsDir, name);
   await rename(filePath, newFilePath);
+}
+
+export async function handleImageUpload(filePath: string, name: string): Promise<string> {
+  ensureDirectory(publicDir.logoDir);
+  const newFilePath = join(publicDir.logoDir, name);
+  await rename(filePath, newFilePath);
+
+  return name;
 }
 
 /**

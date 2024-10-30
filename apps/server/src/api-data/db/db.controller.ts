@@ -1,9 +1,19 @@
-import { DatabaseModel, ErrorResponse, MessageResponse, ProjectFileListResponse } from 'ontime-types';
+import {
+  DatabaseModel,
+  ErrorResponse,
+  MessageResponse,
+  ProjectFileListResponse,
+  ProjectImageResponse,
+} from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
 
-import { doesProjectExist, handleUploaded } from '../../services/project-service/projectServiceUtils.js';
+import {
+  doesProjectExist,
+  handleImageUpload,
+  handleUploaded,
+} from '../../services/project-service/projectServiceUtils.js';
 import * as projectService from '../../services/project-service/ProjectService.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
@@ -129,7 +139,7 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
  * Uploads an image file to be used as a project image.
  * The image file is saved in the uploads directory.
  */
-export async function postProjectImage(req: Request, res: Response<MessageResponse | ErrorResponse>) {
+export async function postProjectImage(req: Request, res: Response<ProjectImageResponse | ErrorResponse>) {
   if (!req.file) {
     res.status(400).send({ message: 'File not found' });
     return;
@@ -138,10 +148,10 @@ export async function postProjectImage(req: Request, res: Response<MessageRespon
   try {
     const { filename, path } = req.file;
 
-    await handleUploaded(path, filename);
+    const logoFilename = await handleImageUpload(path, filename);
 
     res.status(201).send({
-      message: `Saved project image ${filename}`,
+      logoFilename,
     });
   } catch (error) {
     const message = getErrorMessage(error);

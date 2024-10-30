@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Button, Input, Textarea } from '@chakra-ui/react';
 import { type ProjectData } from 'ontime-types';
 
-import { postProjectData } from '../../../../common/api/project';
+import { postProjectData, projectPath, uploadProjectImage } from '../../../../common/api/project';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useProjectData from '../../../../common/hooks-query/useProjectData';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -12,7 +12,6 @@ import style from './ProjectPanel.module.scss';
 
 export default function ProjectData() {
   const { data, status, refetch } = useProjectData();
-  const [imageBase64, setImageBase64] = useState<string | null>(null);
 
   const {
     handleSubmit,
@@ -35,23 +34,21 @@ export default function ProjectData() {
     }
   }, [data, reset]);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const [logoFilename, setLogoFilename] = useState<string | null>(null);
+
+  const handleUploadImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImageBase64(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+
+    if (!file) {
+      return;
     }
+
+    const response = await uploadProjectImage(file);
+    setLogoFilename(response.data.logoFilename);
   };
 
   const onSubmit = async (formData: ProjectData) => {
     try {
-      if (imageBase64) {
-        formData.projectImage = imageBase64;
-      }
-
       await postProjectData(formData);
     } catch (error) {
       const message = maybeAxiosError(error);
@@ -104,7 +101,8 @@ export default function ProjectData() {
           </label>
           <label>
             Image
-            <Input variant='ontime-filled' size='sm' type='file' accept='image/*' onChange={handleFileChange} />
+            <Input variant='ontime-filled' size='sm' type='file' accept='image/*' onChange={handleUploadImage} />
+            {logoFilename ? <img src={`${projectPath}/logos/${logoFilename}`} alt='Project logo' /> : null}
           </label>
           <label>
             Project description

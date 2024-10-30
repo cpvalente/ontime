@@ -1,9 +1,9 @@
 import axios, { AxiosResponse } from 'axios';
-import { ProjectData } from 'ontime-types';
+import { ProjectData, ProjectImageResponse } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 
-const projectPath = `${apiEntryUrl}/project`;
+export const projectPath = `${apiEntryUrl}/project`;
 
 /**
  * HTTP request to fetch project data
@@ -18,4 +18,19 @@ export async function getProjectData(): Promise<ProjectData> {
  */
 export async function postProjectData(data: ProjectData): Promise<AxiosResponse<ProjectData>> {
   return axios.post(projectPath, data);
+}
+
+/**
+ * HTTP request to upload a project image
+ */
+export async function uploadProjectImage(file: File): Promise<AxiosResponse<ProjectImageResponse>> {
+  const formData = new FormData();
+  formData.append('image', file);
+  const response = await axios.post(`${projectPath}/upload`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response;
 }
