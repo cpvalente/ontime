@@ -137,7 +137,7 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
 
 /**
  * Uploads an image file to be used as a project logo.
- * The image file is saved in the uploads directory.
+ * The image file is saved in the logo directory.
  */
 export async function postProjectLogo(req: Request, res: Response<ProjectLogoResponse | ErrorResponse>) {
   if (!req.file) {

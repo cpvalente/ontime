@@ -21,7 +21,6 @@ type ProjectCreateFormValues = {
   publicUrl?: string;
   backstageInfo?: string;
   backstageUrl?: string;
-  projectLogo?: string;
 };
 
 export default function ProjectCreateForm(props: ProjectCreateFromProps) {
@@ -90,10 +89,6 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
             autoComplete='off'
             {...register('title')}
           />
-        </label>
-        <label>
-          Project logo
-          <Input variant='ontime-filled' size='sm' autoComplete='off' {...register('projectLogo')} />
         </label>
         <label>
           Project description

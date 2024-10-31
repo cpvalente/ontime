@@ -6,7 +6,6 @@ import style from './ProjectPanel.module.scss';
 
 export type ProjectFormValues = {
   filename: string;
-  fileBase64?: string;
 };
 
 interface ProjectFormProps {
@@ -46,7 +45,6 @@ export default function ProjectForm({ action, filename, onSubmit, onCancel }: Pr
         autoComplete='off'
         {...register('filename', { required: true })}
       />
-
       <div className={style.actionButtons}>
         <Button onClick={onCancel} size='sm' variant='ontime-ghosted' disabled={isSubmitting}>
           Cancel
