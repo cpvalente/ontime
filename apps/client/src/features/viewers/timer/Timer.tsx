@@ -160,6 +160,7 @@ export default function Timer(props: TimerProps) {
 
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const timerOptions = getTimerOptions(defaultFormat, customFields);
+  const disableProgress = timerIsTimeOfDay || time.timerType === TimerType.None;
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
@@ -205,7 +206,7 @@ export default function Timer(props: TimerProps) {
       {!userOptions.hideProgress && (
         <MultiPartProgressBar
           className={isPlaying ? 'progress-container' : 'progress-container progress-container--paused'}
-          now={timerIsTimeOfDay ? null : time.current}
+          now={disableProgress ? null : time.current}
           complete={totalTime}
           normalColor={viewSettings.normalColor}
           warning={eventNow?.timeWarning}
