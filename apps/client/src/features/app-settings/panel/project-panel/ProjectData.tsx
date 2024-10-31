@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input, Textarea } from '@chakra-ui/react';
 import { type ProjectData } from 'ontime-types';
@@ -19,6 +19,8 @@ export default function ProjectData() {
     reset,
     formState: { isSubmitting, isValid, isDirty },
     setError,
+    watch,
+    setValue,
   } = useForm({
     defaultValues: data,
     values: data,
@@ -34,8 +36,6 @@ export default function ProjectData() {
     }
   }, [data, reset]);
 
-  const [logoFilename, setLogoFilename] = useState<string | null>(null);
-
   const handleUploadProjectLogo = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
@@ -43,8 +43,16 @@ export default function ProjectData() {
       return;
     }
 
-    const response = await uploadProjectLogo(file);
-    setLogoFilename(response.data.logoFilename);
+    try {
+      const response = await uploadProjectLogo(file);
+
+      setValue('projectLogo', response.data.logoFilename, {
+        shouldDirty: true,
+      });
+    } catch (error) {
+      const message = maybeAxiosError(error);
+      setError('projectLogo', { message });
+    }
   };
 
   const onSubmit = async (formData: ProjectData) => {
@@ -101,8 +109,10 @@ export default function ProjectData() {
           </label>
           <label>
             Project logo
+            {watch('projectLogo') ? (
+              <img src={`${projectPath}/logos/${watch('projectLogo')}`} alt='Project logo' />
+            ) : null}
             <Input variant='ontime-filled' size='sm' type='file' accept='image/*' onChange={handleUploadProjectLogo} />
-            {logoFilename ? <img src={`${projectPath}/logos/${logoFilename}`} alt='Project logo' /> : null}
           </label>
           <label>
             Project description

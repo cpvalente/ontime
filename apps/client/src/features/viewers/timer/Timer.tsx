@@ -1,10 +1,12 @@
 import { useSearchParams } from 'react-router-dom';
+import { projectPath } from 'common/api/project';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   CustomFields,
   MessageState,
   OntimeEvent,
   Playback,
+  ProjectData,
   Settings,
   SimpleTimerState,
   TimerPhase,
@@ -50,6 +52,7 @@ interface TimerProps {
   customFields: CustomFields;
   eventNext: OntimeEvent | null;
   eventNow: OntimeEvent | null;
+  general: ProjectData;
   isMirrored: boolean;
   message: MessageState;
   settings: Settings | undefined;
@@ -58,7 +61,10 @@ interface TimerProps {
 }
 
 export default function Timer(props: TimerProps) {
-  const { auxTimer, customFields, eventNow, eventNext, isMirrored, message, settings, time, viewSettings } = props;
+  const { auxTimer, customFields, eventNow, eventNext, general, isMirrored, message, settings, time, viewSettings } =
+    props;
+
+  const projectLogo = general?.projectLogo;
 
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -168,6 +174,8 @@ export default function Timer(props: TimerProps) {
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
+      {projectLogo ? <img src={`${projectPath}/logos/${projectLogo}`} alt='Project logo' /> : null}
+
       <ViewParamsEditor viewOptions={timerOptions} />
       <div className={message.timer.blackout ? 'blackout blackout--active' : 'blackout'} />
       {!userOptions.hideMessage && (
