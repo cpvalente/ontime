@@ -2,6 +2,7 @@ import { memo, useEffect, useState } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
+import { IoBan } from '@react-icons/all-files/io5/IoBan';
 import { IoFlag } from '@react-icons/all-files/io5/IoFlag';
 import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
@@ -157,6 +158,9 @@ function TimerIcon(props: { type: TimerType; className: string }) {
   }
   if (type === TimerType.Clock) {
     return <IoTime className={className} />;
+  }
+  if (type === TimerType.None) {
+    return <IoBan className={className} />;
   }
   if (type === TimerType.TimeToEnd) {
     const classes = cx([style.active, className]);

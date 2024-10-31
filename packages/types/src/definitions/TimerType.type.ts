@@ -3,4 +3,5 @@ export enum TimerType {
   CountUp = 'count-up',
   TimeToEnd = 'time-to-end',
   Clock = 'clock',
+  None = 'none',
 }
