@@ -6,8 +6,7 @@
   max-width: 18.75rem;
   min-width: 5em;
 
-  font-family: var(--font-family-override, $viewer-font-family);
-  color: var(--timer-color-override, $timer-color);
+  color: $timer-color;
   line-height: 0.9em;
   text-align: center;
   letter-spacing: 0.1em;
