@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -14,7 +13,7 @@ import {
   ViewSettings,
 } from 'ontime-types';
 
-import { serverPort } from '../../../common/api/constants';
+import { projectLogoPath } from '../../../common/api/constants';
 import { FitText } from '../../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import TitleCard from '../../../common/components/title-card/TitleCard';
@@ -22,7 +21,6 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
-import { getProjectLogoPath, getServerPort } from '../../../common/utils/timerUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getFormattedTimer, getPropertyValue, getTimerByType, isStringBoolean } from '../common/viewUtils';
@@ -174,15 +172,9 @@ export default function Timer(props: TimerProps) {
   const timerOptions = getTimerOptions(defaultFormat, customFields);
   const disableProgress = timerIsTimeOfDay || time.timerType === TimerType.None;
 
-  // Try to use the imported serverPort first, fall back to utility if it fails
-  const projectLogoPath = useMemo(() => {
-    const port = typeof serverPort !== 'undefined' ? serverPort : getServerPort();
-    return getProjectLogoPath(port);
-  }, []);
-
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
-      {projectLogoPath ? <img src={`${projectLogoPath}${projectLogo}`} alt='Project logo' className='logo' /> : null}
+      {projectLogo ? <img src={`${projectLogoPath}/${projectLogo}`} alt='Project logo' className='logo' /> : null}
 
       <ViewParamsEditor viewOptions={timerOptions} />
       <div className={message.timer.blackout ? 'blackout blackout--active' : 'blackout'} />
