@@ -3,7 +3,8 @@ import { useForm } from 'react-hook-form';
 import { Button, Input, Textarea } from '@chakra-ui/react';
 import { type ProjectData } from 'ontime-types';
 
-import { postProjectData, projectPath, uploadProjectLogo } from '../../../../common/api/project';
+import { projectLogoPath } from '../../../../common/api/constants';
+import { postProjectData, uploadProjectLogo } from '../../../../common/api/project';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useProjectData from '../../../../common/hooks-query/useProjectData';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -110,7 +111,7 @@ export default function ProjectData() {
           <label>
             Project logo
             {watch('projectLogo') ? (
-              <img src={`${projectPath}/logos/${watch('projectLogo')}`} alt='Project logo' />
+              <img src={`${projectLogoPath}/${watch('projectLogo')}`} alt='Project logo' />
             ) : null}
             <Input variant='ontime-filled' size='sm' type='file' accept='image/*' onChange={handleUploadProjectLogo} />
           </label>

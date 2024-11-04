@@ -3,7 +3,7 @@ import { ProjectData, ProjectLogoResponse } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 
-export const projectPath = `${apiEntryUrl}/project`;
+const projectPath = `${apiEntryUrl}/project`;
 
 /**
  * HTTP request to fetch project data
