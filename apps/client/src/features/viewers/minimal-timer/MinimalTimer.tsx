@@ -115,6 +115,9 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const hideTimerSeconds = searchParams.get('hideTimerSeconds');
   userOptions.hideTimerSeconds = isStringBoolean(hideTimerSeconds);
 
+  const showLeadingZeros = searchParams.get('showLeadingZeros');
+  userOptions.removeLeadingZeros = !isStringBoolean(showLeadingZeros);
+
   const timerIsTimeOfDay = time.timerType === TimerType.Clock;
 
   const isPlaying = time.playback !== Playback.Pause;
@@ -135,7 +138,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const stageTimer = getTimerByType(viewSettings.freezeEnd, time);
   const display = getFormattedTimer(stageTimer, time.timerType, getLocalizedString('common.minutes'), {
     removeSeconds: userOptions.hideTimerSeconds,
-    removeLeadingZero: true,
+    removeLeadingZero: userOptions.removeLeadingZeros,
   });
 
   const stageTimerCharacters = display.replace('/:/g', '').length;
