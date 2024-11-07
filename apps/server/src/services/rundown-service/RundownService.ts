@@ -228,10 +228,16 @@ function updateRuntimeOnChange() {
   );
 }
 
+type NotifyChangesOptions = {
+  timer?: boolean | string[]; // whether to notify the timer, could be a yes / no or an array of affected IDs
+  external?: boolean; // whether to notify external services
+  reload?: boolean; // major change, clients should consider refetching everything
+};
+
 /**
  * Notify services of changes in the rundown
  */
-function notifyChanges(options: { timer?: boolean | string[]; external?: boolean }) {
+function notifyChanges(options: NotifyChangesOptions) {
   if (options.timer) {
     const playableEvents = getPlayableEvents();
 
@@ -249,6 +255,7 @@ function notifyChanges(options: { timer?: boolean | string[]; external?: boolean
     // advice socket subscribers of change
     const payload = {
       changes: Array.isArray(options.timer) ? options.timer : undefined,
+      reload: options.reload,
       revision: cache.getMetadata().revision,
     };
     sendRefetch(payload);
@@ -266,7 +273,7 @@ export async function initRundown(rundown: Readonly<OntimeRundown>, customFields
   updateRuntimeOnChange();
 
   // notify timer of change
-  notifyChanges({ timer: true });
+  notifyChanges({ timer: true, external: true, reload: true });
 }
 
 export async function setFrozenState(state: boolean) {
