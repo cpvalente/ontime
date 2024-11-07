@@ -64,8 +64,6 @@ export default function Timer(props: TimerProps) {
   const { auxTimer, customFields, eventNow, eventNext, general, isMirrored, message, settings, time, viewSettings } =
     props;
 
-  const projectLogo = general?.projectLogo;
-
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
 
@@ -174,7 +172,7 @@ export default function Timer(props: TimerProps) {
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
-      {projectLogo ? <img src={`${projectLogoPath}/${projectLogo}`} alt='Project logo' className='logo' /> : null}
+      {general?.projectLogo && <img src={`${projectLogoPath}/${general.projectLogo}`} className='logo' />}
 
       <ViewParamsEditor viewOptions={timerOptions} />
       <div className={message.timer.blackout ? 'blackout blackout--active' : 'blackout'} />

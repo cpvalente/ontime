@@ -69,7 +69,7 @@ app.options('*', cors());
 
 // Implement middleware
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '1mb' }));
 
 // Implement route endpoints
 app.use('/data', appRouter); // router for application data

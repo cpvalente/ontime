@@ -197,10 +197,9 @@
 
   .logo {
     position: absolute;
-    top: 0;
-    left: 0;
-    padding: 2vw;
-    opacity: 0.5;
-    z-index: 2;
+    top: 2vw;
+    left: 2vw;
+    max-width: min(200px, 20vw);
+    max-height: min(100px, 20vh);
   }
 }

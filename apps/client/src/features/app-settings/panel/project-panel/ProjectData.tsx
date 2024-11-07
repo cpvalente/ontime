@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { ChangeEvent, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input, Textarea } from '@chakra-ui/react';
 import { type ProjectData } from 'ontime-types';
@@ -7,6 +7,7 @@ import { projectLogoPath } from '../../../../common/api/constants';
 import { postProjectData, uploadProjectLogo } from '../../../../common/api/project';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useProjectData from '../../../../common/hooks-query/useProjectData';
+import { validateLogo } from '../../../../common/utils/uploadUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './ProjectPanel.module.scss';
@@ -18,7 +19,7 @@ export default function ProjectData() {
     handleSubmit,
     register,
     reset,
-    formState: { isSubmitting, isValid, isDirty },
+    formState: { isSubmitting, isValid, isDirty, errors },
     setError,
     watch,
     setValue,
@@ -37,14 +38,16 @@ export default function ProjectData() {
     }
   }, [data, reset]);
 
-  const handleUploadProjectLogo = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUploadProjectLogo = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    setError('projectLogo', { message: '' });
 
     if (!file) {
       return;
     }
 
     try {
+      validateLogo(file);
       const response = await uploadProjectLogo(file);
 
       setValue('projectLogo', response.data.logoFilename, {
@@ -110,10 +113,17 @@ export default function ProjectData() {
           </label>
           <label>
             Project logo
-            {watch('projectLogo') ? (
-              <img src={`${projectLogoPath}/${watch('projectLogo')}`} alt='Project logo' />
-            ) : null}
-            <Input variant='ontime-filled' size='sm' type='file' accept='image/*' onChange={handleUploadProjectLogo} />
+            <div className={style.flex}>
+              <Input
+                variant='ontime-filled'
+                size='sm'
+                type='file'
+                accept='image/*'
+                onChange={handleUploadProjectLogo}
+              />
+              {watch('projectLogo') && <img src={`${projectLogoPath}/${watch('projectLogo')}`} width={100} />}
+            </div>
+            {errors?.projectLogo?.message && <Panel.Error>{errors.projectLogo.message}</Panel.Error>}
           </label>
           <label>
             Project description
