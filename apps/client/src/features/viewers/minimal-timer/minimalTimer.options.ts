@@ -1,9 +1,10 @@
-import { hideTimerSeconds } from '../../../common/components/view-params-editor/constants';
+import { hideTimerSeconds, showLeadingZeros } from '../../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../../common/components/view-params-editor/types';
 
 export const MINIMAL_TIMER_OPTIONS: ViewOption[] = [
   { section: 'Timer Options' },
   hideTimerSeconds,
+  showLeadingZeros,
   { section: 'Element visibility' },
   {
     id: 'hideovertime',
