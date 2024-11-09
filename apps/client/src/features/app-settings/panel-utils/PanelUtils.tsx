@@ -74,6 +74,14 @@ export function Description({ children }: { children: ReactNode }) {
   return <div className={style.fieldDescription}>{children}</div>;
 }
 
+export function Highlight({ children }: { children: ReactNode }) {
+  return <code className={style.highlight}>{children}</code>;
+}
+
+export function BlockQuote({ children }: { children: ReactNode }) {
+  return <blockquote className={style.blockquote}>{children}</blockquote>;
+}
+
 export function Error({ children }: { children: ReactNode }) {
   return <div className={style.fieldError}>{children}</div>;
 }

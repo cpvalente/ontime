@@ -49,6 +49,18 @@ $inner-padding: 1rem;
   border-radius: 3px;
 }
 
+.highlight {
+  font-size: calc(1rem - 2px);
+  color: $orange-500;
+  padding-inline: 0.25rem;
+}
+
+.blockquote {
+  padding-left: 0.5rem;
+  border-left: 2px solid $gray-100;
+  background-color: $white-3;
+}
+
 .error {
   font-size: $inner-section-text-size;
   display: block;
