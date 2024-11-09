@@ -105,12 +105,25 @@ export default function UrlPresetsForm() {
         <Alert status='info' variant='ontime-on-dark-info'>
           <AlertIcon />
           <AlertDescription>
-            URL Presets
+            URL presets are user defined aliases to Ontime URLs
             <br />
             <br />
-            Custom presets allow providing a short name for any ontime URL. <br />
-            - Providing dynamic URLs for automation or unattended screens <br />- Simplifying complex URLs
+            <b>Preset Name</b> <br />
+            The alias for the URL. This will be the URL you will be calling. eg: <br />
+            <Panel.BlockQuote>
+              Preset name <Panel.Highlight>cam3</Panel.Highlight> called as{' '}
+              <Panel.Highlight>http://localhost:4001/cam3</Panel.Highlight>
+            </Panel.BlockQuote>
             <br />
+            <b>URL Segment</b> <br />
+            The corresponding alias path and configuration parameters. eg: <br />
+            <Panel.BlockQuote>
+              URL segment <Panel.Highlight>backstage?hidePast=true&stopCycle=true</Panel.Highlight> corresponds to
+              complete URL
+              <Panel.Highlight>http://localhost:4001/backstage?hidePast=true&stopCycle=true</Panel.Highlight>
+            </Panel.BlockQuote>
+            <br />
+            You will need to save the changes before the presets are functional.
             <br />
             <ExternalLink href={urlPresetsDocs}>See the docs</ExternalLink>
           </AlertDescription>
@@ -130,8 +143,8 @@ export default function UrlPresetsForm() {
             <thead>
               <tr>
                 <th className={style.fit}>Active</th>
-                <th className={style.aliasConstrain}>Preset</th>
-                <th className={style.fullWidth}>URL</th>
+                <th className={style.aliasConstrain}>Preset name</th>
+                <th className={style.fullWidth}>URL segment</th>
                 <th />
               </tr>
             </thead>
