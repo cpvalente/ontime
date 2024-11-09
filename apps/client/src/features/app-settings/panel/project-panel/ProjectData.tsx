@@ -4,7 +4,7 @@ import { Button, Input, Textarea } from '@chakra-ui/react';
 import { type ProjectData } from 'ontime-types';
 
 import { projectLogoPath } from '../../../../common/api/constants';
-import { postProjectData, uploadProjectLogo } from '../../../../common/api/project';
+import { deleteProjectLogo, postProjectData, uploadProjectLogo } from '../../../../common/api/project';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useProjectData from '../../../../common/hooks-query/useProjectData';
 import { validateLogo } from '../../../../common/utils/uploadUtils';
@@ -40,7 +40,6 @@ export default function ProjectData() {
 
   const handleUploadProjectLogo = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    setError('projectLogo', { message: '' });
 
     if (!file) {
       return;
@@ -53,6 +52,16 @@ export default function ProjectData() {
       setValue('projectLogo', response.data.logoFilename, {
         shouldDirty: true,
       });
+    } catch (error) {
+      const message = maybeAxiosError(error);
+      setError('projectLogo', { message });
+    }
+  };
+
+  const handleDeleteProjectLogo = async () => {
+    try {
+      await deleteProjectLogo();
+      setValue('projectLogo', '');
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('projectLogo', { message });
@@ -114,13 +123,24 @@ export default function ProjectData() {
           <label>
             Project logo
             <div className={style.flex}>
-              <Input
-                variant='ontime-filled'
-                size='sm'
-                type='file'
-                accept='image/*'
-                onChange={handleUploadProjectLogo}
-              />
+              <div>
+                <Input
+                  variant='ontime-filled'
+                  size='sm'
+                  type='file'
+                  accept='image/*'
+                  onChange={handleUploadProjectLogo}
+                />
+                <Button
+                  size='sm'
+                  variant='ontime-filled'
+                  isDisabled={isSubmitting || !watch('projectLogo')}
+                  onClick={handleDeleteProjectLogo}
+                  type='button'
+                >
+                  Delete
+                </Button>
+              </div>
               {watch('projectLogo') && <img src={`${projectLogoPath}/${watch('projectLogo')}`} width={100} />}
             </div>
             {errors?.projectLogo?.message && <Panel.Error>{errors.projectLogo.message}</Panel.Error>}

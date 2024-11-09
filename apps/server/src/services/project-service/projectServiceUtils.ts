@@ -1,7 +1,7 @@
 import { DatabaseModel, MaybeString, ProjectFile } from 'ontime-types';
 
 import { existsSync } from 'fs';
-import { copyFile, readFile, rename, stat } from 'fs/promises';
+import { copyFile, readFile, rename, stat, unlink } from 'fs/promises';
 import { extname, join } from 'path';
 
 import { publicDir } from '../../setup/index.js';
@@ -23,6 +23,13 @@ export async function handleImageUpload(filePath: string, name: string): Promise
   await rename(filePath, newFilePath);
 
   return name;
+}
+
+export async function handleImageDelete(name: string): Promise<void> {
+  const filePath = join(publicDir.logoDir, name);
+  if (existsSync(filePath)) {
+    await unlink(filePath);
+  }
 }
 
 /**

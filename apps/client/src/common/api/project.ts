@@ -34,3 +34,10 @@ export async function uploadProjectLogo(file: File): Promise<AxiosResponse<Proje
 
   return response;
 }
+
+/**
+ * HTTP request to delete a project logo
+ */
+export async function deleteProjectLogo(): Promise<void> {
+  await axios.delete(`${projectPath}/logos`);
+}
