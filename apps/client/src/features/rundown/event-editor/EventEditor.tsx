@@ -5,7 +5,6 @@ import { CustomFieldLabel, isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import CopyTag from '../../../common/components/copy-tag/CopyTag';
 import { useEventAction } from '../../../common/hooks/useEventAction';
-import { useFrozen } from '../../../common/hooks/useSocket';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import useRundown from '../../../common/hooks-query/useRundown';
 import { getAccessibleColour } from '../../../common/utils/styleUtils';
@@ -29,7 +28,6 @@ export default function EventEditor() {
   const { order, rundown } = data;
   const { updateEvent } = useEventAction();
   const [_searchParams, setSearchParams] = useSearchParams();
-  const { frozen } = useFrozen();
 
   const [event, setEvent] = useState<OntimeEvent | null>(null);
 
@@ -90,7 +88,6 @@ export default function EventEditor() {
           timerType={event.timerType}
           timeWarning={event.timeWarning}
           timeDanger={event.timeDanger}
-          frozen={frozen}
         />
         <EventEditorTitles
           key={`${event.id}-titles`}
@@ -100,7 +97,6 @@ export default function EventEditor() {
           note={event.note}
           colour={event.colour}
           handleSubmit={handleSubmit}
-          frozen={frozen}
         />
         <div className={style.column}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

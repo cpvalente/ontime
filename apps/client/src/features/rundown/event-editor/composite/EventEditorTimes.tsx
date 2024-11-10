@@ -5,6 +5,7 @@ import { millisToString, parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
+import { useFrozen } from '../../../../common/hooks/useSocket';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
 
@@ -23,7 +24,6 @@ interface EventEditorTimesProps {
   timerType: TimerType;
   timeWarning: number;
   timeDanger: number;
-  frozen: boolean;
 }
 
 type HandledActions = 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
@@ -42,9 +42,9 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
     timerType,
     timeWarning,
     timeDanger,
-    frozen,
   } = props;
   const { updateEvent } = useEventAction();
+  const { frozen } = useFrozen();
 
   const handleSubmit = (field: HandledActions, value: string | boolean) => {
     if (field === 'isPublic') {

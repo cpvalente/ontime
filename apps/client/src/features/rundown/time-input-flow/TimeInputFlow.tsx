@@ -9,7 +9,6 @@ import { MaybeString, TimerType, TimeStrategy } from 'ontime-types';
 
 import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
 import { useEventAction } from '../../../common/hooks/useEventAction';
-import { useFrozen } from '../../../common/hooks/useSocket';
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayFast, tooltipDelayMid } from '../../../ontimeConfig';
 
@@ -29,7 +28,6 @@ interface EventBlockTimerProps {
 type TimeActions = 'timeStart' | 'timeEnd' | 'duration';
 
 const TimeInputFlow = (props: EventBlockTimerProps) => {
-  const { frozen } = useFrozen();
   const { eventId, timeStart, timeEnd, duration, timeStrategy, linkStart, delay, timerType } = props;
   const { updateEvent, updateTimer } = useEventAction();
 
@@ -72,7 +70,7 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         time={timeStart}
         hasDelay={hasDelay}
         placeholder='Start'
-        disabled={frozen || Boolean(linkStart)}
+        disabled={Boolean(linkStart)}
       >
         <Tooltip label='Link start to previous end' openDelay={tooltipDelayMid}>
           <InputRightElement className={activeStart} onClick={() => handleLink(!linkStart)} as='button'>
@@ -87,7 +85,7 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         submitHandler={handleSubmit}
         time={timeEnd}
         hasDelay={hasDelay}
-        disabled={frozen || isLockedDuration}
+        disabled={isLockedDuration}
         placeholder='End'
       >
         <Tooltip label='Lock end' openDelay={tooltipDelayMid} as='button'>
@@ -106,7 +104,7 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         name='duration'
         submitHandler={handleSubmit}
         time={duration}
-        disabled={frozen || isLockedEnd}
+        disabled={isLockedEnd}
         placeholder='Duration'
       >
         <Tooltip label='Lock duration' openDelay={tooltipDelayMid}>

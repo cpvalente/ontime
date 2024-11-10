@@ -3,6 +3,7 @@ import { Input } from '@chakra-ui/react';
 import { sanitiseCue } from 'ontime-utils';
 
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
+import { useFrozen } from '../../../../common/hooks/useSocket';
 import { type EditorUpdateFields } from '../EventEditor';
 
 import EventTextArea from './EventTextArea';
@@ -16,12 +17,12 @@ interface EventEditorTitlesProps {
   title: string;
   note: string;
   colour: string;
-  frozen: boolean;
   handleSubmit: (field: EditorUpdateFields, value: string) => void;
 }
 
 const EventEditorTitles = (props: EventEditorTitlesProps) => {
-  const { eventId, cue, title, note, colour, handleSubmit, frozen } = props;
+  const { eventId, cue, title, note, colour, handleSubmit } = props;
+  const { frozen } = useFrozen();
 
   const cueSubmitHandler = (_field: string, newValue: string) => {
     handleSubmit('cue', sanitiseCue(newValue));

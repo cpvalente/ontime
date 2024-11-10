@@ -1,6 +1,7 @@
 import { PropsWithChildren } from 'react';
 import { InputGroup } from '@chakra-ui/react';
 
+import { useFrozen } from '../../../../common/hooks/useSocket';
 import { cx } from '../../../utils/styleUtils';
 
 import TimeInput from './TimeInput';
@@ -18,6 +19,7 @@ interface TimeInputWithButtonProps<T extends string> {
 
 export default function TimeInputWithButton<T extends string>(props: PropsWithChildren<TimeInputWithButtonProps<T>>) {
   const { name, submitHandler, time, hasDelay, placeholder, disabled, children } = props;
+  const { frozen } = useFrozen();
 
   const inputClasses = cx([style.timeInput, hasDelay ? style.delayed : null]);
 
@@ -29,7 +31,7 @@ export default function TimeInputWithButton<T extends string>(props: PropsWithCh
         time={time}
         placeholder={placeholder}
         align='left'
-        disabled={disabled}
+        disabled={frozen || disabled}
       />
       {children}
     </InputGroup>
