@@ -11,16 +11,7 @@ const appModeKey = 'ontime-app-mode';
 function getModeFromSession() {
   const appModeFromSessionStorage = sessionStorage.getItem(appModeKey);
 
-  switch (appModeFromSessionStorage) {
-    case AppMode.Run:
-      return AppMode.Run;
-    case AppMode.Edit:
-      return AppMode.Edit;
-    case AppMode.Freeze:
-      return AppMode.Freeze;
-    default:
-      return AppMode.Run;
-  }
+  return appModeFromSessionStorage === AppMode.Run ? AppMode.Run : AppMode.Edit;
 }
 
 function persistModeToSession(mode: AppMode) {
