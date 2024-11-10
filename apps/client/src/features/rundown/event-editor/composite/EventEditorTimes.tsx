@@ -23,7 +23,7 @@ interface EventEditorTimesProps {
   timerType: TimerType;
   timeWarning: number;
   timeDanger: number;
-  isRundownFrozen: boolean;
+  frozen: boolean;
 }
 
 type HandledActions = 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
@@ -42,7 +42,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
     timerType,
     timeWarning,
     timeDanger,
-    isRundownFrozen,
+    frozen,
   } = props;
   const { updateEvent } = useEventAction();
 
@@ -105,7 +105,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             value={timerType}
             onChange={(event) => handleSubmit('timerType', event.target.value)}
             variant='ontime'
-            disabled={isRundownFrozen}
+            disabled={frozen}
           >
             <option value={TimerType.CountDown}>Count down</option>
             <option value={TimerType.CountUp}>Count up</option>
@@ -128,7 +128,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             value={endAction}
             onChange={(event) => handleSubmit('endAction', event.target.value)}
             variant='ontime'
-            disabled={isRundownFrozen}
+            disabled={frozen}
           >
             <option value={EndAction.None}>None</option>
             <option value={EndAction.Stop}>Stop</option>
@@ -146,7 +146,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             isChecked={isPublic}
             onChange={() => handleSubmit('isPublic', isPublic)}
             variant='ontime'
-            disabled={isRundownFrozen}
+            disabled={frozen}
           />
           {isPublic ? 'Public' : 'Private'}
         </label>

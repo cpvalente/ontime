@@ -16,12 +16,12 @@ interface EventEditorTitlesProps {
   title: string;
   note: string;
   colour: string;
-  isRundownFrozen: boolean;
+  frozen: boolean;
   handleSubmit: (field: EditorUpdateFields, value: string) => void;
 }
 
 const EventEditorTitles = (props: EventEditorTitlesProps) => {
-  const { eventId, cue, title, note, colour, handleSubmit, isRundownFrozen } = props;
+  const { eventId, cue, title, note, colour, handleSubmit, frozen } = props;
 
   const cueSubmitHandler = (_field: string, newValue: string) => {
     handleSubmit('cue', sanitiseCue(newValue));
@@ -49,27 +49,15 @@ const EventEditorTitles = (props: EventEditorTitlesProps) => {
           initialValue={cue}
           submitHandler={cueSubmitHandler}
           maxLength={10}
-          disabled={isRundownFrozen}
+          disabled={frozen}
         />
       </div>
       <div>
         <label className={style.inputLabel}>Colour</label>
         <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
       </div>
-      <EventTextInput
-        field='title'
-        label='Title'
-        initialValue={title}
-        submitHandler={handleSubmit}
-        disabled={isRundownFrozen}
-      />
-      <EventTextArea
-        field='note'
-        label='Note'
-        initialValue={note}
-        submitHandler={handleSubmit}
-        disabled={isRundownFrozen}
-      />
+      <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} disabled={frozen} />
+      <EventTextArea field='note' label='Note' initialValue={note} submitHandler={handleSubmit} disabled={frozen} />
     </div>
   );
 };
