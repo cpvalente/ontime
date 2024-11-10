@@ -6,7 +6,7 @@ import { type ProjectData } from 'ontime-types';
 import { postProjectData } from '../../../../common/api/project';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useProjectData from '../../../../common/hooks-query/useProjectData';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './ProjectPanel.module.scss';
 
@@ -81,7 +81,7 @@ export default function ProjectData() {
               variant='ontime-filled'
               size='sm'
               maxLength={50}
-              placeholder='Your project name'
+              placeholder='Project title is shown in production views'
               autoComplete='off'
               {...register('title')}
             />

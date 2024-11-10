@@ -21,22 +21,6 @@
   position: relative;
 }
 
-.corner {
-  transform: rotate(45deg);
-
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  cursor: pointer;
-  color: $ui-white;
-  transition-property: color;
-  transition-duration: $transition-time-action;
-
-  &:hover {
-    color: $ontime-color;
-  }
-}
-
 .options {
   display: flex;
   flex-direction: column;

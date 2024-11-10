@@ -11,13 +11,13 @@ import { sheets, sheets_v4 } from '@googleapis/sheets';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import got from 'got';
 
-import { resolveSheetsDirectory } from '../../setup/index.js';
-import { ensureDirectory } from '../../utils/fileManagement.js';
-import { cellRequestFromEvent, type ClientSecret, getA1Notation, validateClientSecret } from './sheetUtils.js';
 import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
 import { parseRundown } from '../../utils/parserFunctions.js';
 import { getRundown } from '../rundown-service/rundownUtils.js';
+import { getCustomFields } from '../rundown-service/rundownCache.js';
+
+import { cellRequestFromEvent, type ClientSecret, getA1Notation, validateClientSecret } from './sheetUtils.js';
 
 const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';
 const codesUrl = 'https://oauth2.googleapis.com/device/code';
@@ -57,7 +57,6 @@ function reset() {
  */
 export function init() {
   reset();
-  ensureDirectory(resolveSheetsDirectory);
 }
 
 /**
@@ -288,7 +287,7 @@ export async function upload(sheetId: string, options: ImportMap) {
     throw new Error(`Sheet read failed: ${readResponse.statusText}`);
   }
 
-  const { rundownMetadata } = parseExcel(readResponse.data.values, options);
+  const { rundownMetadata } = parseExcel(readResponse.data.values, getCustomFields(), options);
   const rundown = getRundown();
   const titleRow = Object.values(rundownMetadata)[0]['row'];
   const updateRundown = Array<sheets_v4.Schema$Request>();
@@ -365,7 +364,7 @@ export async function download(
     throw new Error(`Sheet read failed: ${googleResponse.statusText}`);
   }
 
-  const dataFromSheet = parseExcel(googleResponse.data.values, options);
+  const dataFromSheet = parseExcel(googleResponse.data.values, getCustomFields(), options);
   const { customFields, rundown } = parseRundown(dataFromSheet);
   if (rundown.length < 1) {
     throw new Error('Sheet: Could not find data to import in the worksheet');

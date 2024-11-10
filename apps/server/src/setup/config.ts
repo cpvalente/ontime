@@ -8,15 +8,14 @@ export const config = {
     directory: 'db',
     filename: 'db.json',
   },
-  demo: {
-    directory: 'demo',
-    filename: ['app.js', 'index.html', 'styles.css'],
-  },
+  external: 'external',
+  demo: 'demo',
   projects: 'projects',
   sheets: {
     directory: 'sheets',
   },
   restoreFile: 'ontime.restore',
+  user: 'user',
   styles: {
     directory: 'styles',
     filename: 'override.css',

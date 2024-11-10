@@ -23,6 +23,8 @@ export function maybeAxiosError(error: unknown) {
       }
     }
     return `${statusText}: ${data}`;
+  } else if (error instanceof Error) {
+    return error.message;
   } else {
     if (typeof error !== 'string') {
       return JSON.stringify(error);

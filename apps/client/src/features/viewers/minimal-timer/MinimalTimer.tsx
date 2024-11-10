@@ -1,9 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 import { Playback, TimerPhase, TimerType, ViewSettings } from 'ontime-types';
 
-import { overrideStylesURL } from '../../../common/api/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
-import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
@@ -22,16 +20,10 @@ interface MinimalTimerProps {
 
 export default function MinimalTimer(props: MinimalTimerProps) {
   const { isMirrored, time, viewSettings } = props;
-  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
 
   useWindowTitle('Minimal Timer');
-
-  // defer rendering until we load stylesheets
-  if (!shouldRender) {
-    return null;
-  }
 
   // TODO: this should be tied to the params
   // USER OPTIONS
@@ -123,14 +115,18 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const hideTimerSeconds = searchParams.get('hideTimerSeconds');
   userOptions.hideTimerSeconds = isStringBoolean(hideTimerSeconds);
 
+  const showLeadingZeros = searchParams.get('showLeadingZeros');
+  userOptions.removeLeadingZeros = !isStringBoolean(showLeadingZeros);
+
   const timerIsTimeOfDay = time.timerType === TimerType.Clock;
 
   const isPlaying = time.playback !== Playback.Pause;
 
-  const shouldShowModifiers = time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
+  const shouldShowModifiers = time.timerType === TimerType.CountDown || time.timerType === TimerType.TimeToEnd;
   const finished = time.phase === TimerPhase.Overtime;
-  const showEndMessage = finished && viewSettings.endMessage && !hideEndMessage;
-  const showFinished = finished && !userOptions?.hideOvertime && (shouldShowModifiers || showEndMessage);
+  const showEndMessage = shouldShowModifiers && finished && viewSettings.endMessage && !hideEndMessage;
+  const showFinished =
+    shouldShowModifiers && finished && !userOptions?.hideOvertime && (shouldShowModifiers || showEndMessage);
 
   const showProgress = time.playback !== Playback.Stop;
   const showWarning = shouldShowModifiers && time.phase === TimerPhase.Warning;
@@ -143,7 +139,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
   const stageTimer = getTimerByType(viewSettings.freezeEnd, time);
   const display = getFormattedTimer(stageTimer, time.timerType, getLocalizedString('common.minutes'), {
     removeSeconds: userOptions.hideTimerSeconds,
-    removeLeadingZero: true,
+    removeLeadingZero: userOptions.removeLeadingZeros,
   });
 
   const stageTimerCharacters = display.replace('/:/g', '').length;
@@ -169,6 +165,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
         <div
           className={timerClasses}
           style={{
+            color: userOptions.textColour,
             fontSize: `${timerFontSize}vw`,
             fontFamily: userOptions.font,
             top: userOptions.top,

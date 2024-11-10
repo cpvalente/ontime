@@ -2,6 +2,7 @@ import { memo, useEffect, useState } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
+import { IoBan } from '@react-icons/all-files/io5/IoBan';
 import { IoFlag } from '@react-icons/all-files/io5/IoFlag';
 import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
@@ -90,6 +91,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           delay={delay}
           timeStrategy={timeStrategy}
           linkStart={linkStart}
+          timerType={timerType}
         />
       </div>
       <div className={style.titleSection}>
@@ -157,8 +159,12 @@ function TimerIcon(props: { type: TimerType; className: string }) {
   if (type === TimerType.Clock) {
     return <IoTime className={className} />;
   }
+  if (type === TimerType.None) {
+    return <IoBan className={className} />;
+  }
   if (type === TimerType.TimeToEnd) {
-    return <IoFlag className={className} />;
+    const classes = cx([style.active, className]);
+    return <IoFlag className={classes} />;
   }
   return <IoArrowDown className={className} />;
 }

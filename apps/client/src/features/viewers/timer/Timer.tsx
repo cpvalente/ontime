@@ -12,12 +12,10 @@ import {
   ViewSettings,
 } from 'ontime-types';
 
-import { overrideStylesURL } from '../../../common/api/constants';
 import { FitText } from '../../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import TitleCard from '../../../common/components/title-card/TitleCard';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
-import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
@@ -62,16 +60,10 @@ interface TimerProps {
 export default function Timer(props: TimerProps) {
   const { auxTimer, customFields, eventNow, eventNext, isMirrored, message, settings, time, viewSettings } = props;
 
-  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
 
   useWindowTitle('Timer');
-
-  // defer rendering until we load stylesheets
-  if (!shouldRender) {
-    return null;
-  }
 
   // USER OPTIONS
   const userOptions = {
@@ -122,10 +114,14 @@ export default function Timer(props: TimerProps) {
   const finished = time.phase === TimerPhase.Overtime;
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
 
-  const shouldShowModifiers = time.timerType !== TimerType.Clock && time.timerType !== TimerType.CountUp;
-  const showEndMessage = finished && viewSettings.endMessage;
-  const showProgress = time.playback !== Playback.Stop;
-  const showFinished = finished && (shouldShowModifiers || showEndMessage);
+  const shouldShowModifiers = time.timerType === TimerType.CountDown || time.timerType === TimerType.TimeToEnd;
+  const showEndMessage = shouldShowModifiers && finished && viewSettings.endMessage;
+  const showProgress =
+    eventNow !== null &&
+    time.timerType !== TimerType.None &&
+    time.timerType !== TimerType.Clock &&
+    time.playback !== Playback.Stop;
+  const showFinished = shouldShowModifiers && finished && (shouldShowModifiers || showEndMessage);
   const showWarning = shouldShowModifiers && time.phase === TimerPhase.Warning;
   const showDanger = shouldShowModifiers && time.phase === TimerPhase.Danger;
   const showClock = time.timerType !== TimerType.Clock;
@@ -168,6 +164,7 @@ export default function Timer(props: TimerProps) {
 
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const timerOptions = getTimerOptions(defaultFormat, customFields);
+  const disableProgress = timerIsTimeOfDay || time.timerType === TimerType.None;
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
@@ -213,7 +210,7 @@ export default function Timer(props: TimerProps) {
       {!userOptions.hideProgress && (
         <MultiPartProgressBar
           className={isPlaying ? 'progress-container' : 'progress-container progress-container--paused'}
-          now={timerIsTimeOfDay ? null : time.current}
+          now={disableProgress ? null : time.current}
           complete={totalTime}
           normalColor={viewSettings.normalColor}
           warning={eventNow?.timeWarning}

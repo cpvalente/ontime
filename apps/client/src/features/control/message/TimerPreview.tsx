@@ -1,6 +1,7 @@
 import { Tooltip } from '@chakra-ui/react';
 import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
+import { IoBan } from '@react-icons/all-files/io5/IoBan';
 import { IoFlag } from '@react-icons/all-files/io5/IoFlag';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { TimerPhase, TimerType } from 'ontime-types';
@@ -8,8 +9,9 @@ import { TimerPhase, TimerType } from 'ontime-types';
 import { useMessagePreview } from '../../../common/hooks/useSocket';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
 import { handleLinks } from '../../../common/utils/linkUtils';
-import { cx } from '../../../common/utils/styleUtils';
+import { cx, timerPlaceholder } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
+import { Corner } from '../../editors/editor-utils/EditorUtils';
 
 import style from './MessageControl.module.scss';
 
@@ -24,6 +26,9 @@ export default function TimerPreview() {
     if (showTimerMessage) return 'Message';
     if (phase === TimerPhase.Pending) return 'Standby to start';
     if (phase === TimerPhase.Overtime && data.endMessage) return 'Custom end message';
+    if (timerType === TimerType.TimeToEnd) return 'Time to end';
+    if (timerType === TimerType.Clock) return 'Clock';
+    if (timerType === TimerType.None) return timerPlaceholder;
     return 'Timer';
   })();
 
@@ -48,7 +53,7 @@ export default function TimerPreview() {
 
   return (
     <div className={style.preview}>
-      <IoArrowUp className={style.corner} onClick={(event) => handleLinks(event, 'timer')} />
+      <Corner onClick={(event) => handleLinks(event, 'timer')} />
       <div className={contentClasses}>
         <div
           className={style.mainContent}
@@ -71,6 +76,9 @@ export default function TimerPreview() {
         </Tooltip>
         <Tooltip label='Time type: Time to end' openDelay={tooltipDelayMid} shouldWrapChildren>
           <IoFlag className={style.statusIcon} data-active={timerType === TimerType.TimeToEnd} />
+        </Tooltip>
+        <Tooltip label='Time type: None' openDelay={tooltipDelayMid} shouldWrapChildren>
+          <IoBan className={style.statusIcon} data-active={timerType === TimerType.None} />
         </Tooltip>
       </div>
     </div>

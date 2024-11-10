@@ -1,9 +1,10 @@
-import { hideTimerSeconds } from '../../../common/components/view-params-editor/constants';
+import { hideTimerSeconds, showLeadingZeros } from '../../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../../common/components/view-params-editor/types';
 
 export const MINIMAL_TIMER_OPTIONS: ViewOption[] = [
   { section: 'Timer Options' },
   hideTimerSeconds,
+  showLeadingZeros,
   { section: 'Element visibility' },
   {
     id: 'hideovertime',
@@ -23,26 +24,23 @@ export const MINIMAL_TIMER_OPTIONS: ViewOption[] = [
   {
     id: 'key',
     title: 'Key Colour',
-    description: 'Background colour in hexadecimal',
-    prefix: '#',
-    type: 'string',
-    placeholder: '00000000 (default)',
+    description: 'Background or key colour for entire view. Default: #000000',
+    type: 'colour',
+    defaultValue: '000000',
   },
   {
     id: 'text',
     title: 'Text Colour',
-    description: 'Text colour in hexadecimal',
-    prefix: '#',
-    type: 'string',
-    placeholder: 'fffff (default)',
+    description: 'Text colour. Default: #FFFFFF',
+    type: 'colour',
+    defaultValue: 'FFFFFF',
   },
   {
     id: 'textbg',
     title: 'Text Background',
-    description: 'Colour of text background in hexadecimal',
-    prefix: '#',
-    type: 'string',
-    placeholder: '00000000 (default)',
+    description: 'Background colour for timer text. Default: #FFF0 (transparent)',
+    type: 'colour',
+    defaultValue: 'FFF0',
   },
   {
     id: 'font',

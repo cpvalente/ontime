@@ -3,8 +3,9 @@ import path from 'path';
 import fs from 'fs';
 import { rm } from 'fs/promises';
 
+import { getAppDataPath, publicDir } from '../setup/index.js';
+
 import { ensureDirectory } from './fileManagement.js';
-import { getAppDataPath, uploadsFolderPath } from '../setup/index.js';
 
 function generateNewFileName(filePath: string, callback: (newName: string) => void) {
   const baseName = path.basename(filePath, path.extname(filePath));
@@ -36,19 +37,19 @@ export const storage = multer.diskStorage({
       throw new Error('Could not resolve public folder for platform');
     }
 
-    ensureDirectory(uploadsFolderPath);
+    ensureDirectory(publicDir.uploadsDir);
 
-    const filePath = path.join(uploadsFolderPath, file.originalname);
+    const filePath = path.join(publicDir.uploadsDir, file.originalname);
 
     // Check if file already exists
     fs.access(filePath, fs.constants.F_OK, (err) => {
       if (err) {
         // File does not exist, can safely proceed to this destination
-        cb(null, uploadsFolderPath);
+        cb(null, publicDir.uploadsDir);
       } else {
         generateNewFileName(filePath, (newName) => {
           file.originalname = newName;
-          cb(null, uploadsFolderPath);
+          cb(null, publicDir.uploadsDir);
         });
       }
     });
@@ -63,7 +64,7 @@ export const storage = multer.diskStorage({
  */
 export async function clearUploadfolder() {
   try {
-    await rm(uploadsFolderPath, { recursive: true });
+    await rm(publicDir.uploadsDir, { recursive: true });
   } catch (_) {
     // we dont care that there was no folder
   }

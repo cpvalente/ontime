@@ -1,17 +1,7 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { isOntimeEvent, MaybeString, OntimeEvent, OntimeRundownEntry, RundownCached } from 'ontime-types';
-import {
-  dayInMs,
-  getLinkedTimes,
-  getPreviousEventNormal,
-  MILLIS_PER_SECOND,
-  parseUserTime,
-  reorderArray,
-  swapEventData,
-  validateEndAction,
-  validateTimerType,
-} from 'ontime-utils';
+import { isOntimeEvent, OntimeEvent, OntimeRundownEntry, RundownCached } from 'ontime-types';
+import { dayInMs, MILLIS_PER_SECOND, parseUserTime, reorderArray, swapEventData } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/constants';
 import {
@@ -38,6 +28,7 @@ export const useEventAction = () => {
   const {
     defaultPublic,
     linkPrevious,
+    defaultTimeStrategy,
     defaultDuration,
     defaultWarnTime,
     defaultDangerTime,
@@ -117,11 +108,15 @@ export const useEventAction = () => {
         }
 
         if (newEvent.timerType === undefined) {
-          newEvent.timerType = validateTimerType(defaultTimerType);
+          newEvent.timerType = defaultTimerType;
         }
 
         if (newEvent.endAction === undefined) {
-          newEvent.endAction = validateEndAction(defaultEndAction);
+          newEvent.endAction = defaultEndAction;
+        }
+
+        if (newEvent.timeStrategy === undefined) {
+          newEvent.timeStrategy = defaultTimeStrategy;
         }
       }
 
@@ -143,6 +138,7 @@ export const useEventAction = () => {
       defaultEndAction,
       defaultPublic,
       defaultTimerType,
+      defaultTimeStrategy,
       defaultWarnTime,
       linkPrevious,
       queryClient,
@@ -258,44 +254,6 @@ export const useEventAction = () => {
         id: eventId,
         [field]: cappedMillis,
       };
-      try {
-        await _updateEventMutation.mutateAsync(newEvent);
-      } catch (error) {
-        logAxiosError('Error updating event', error);
-      }
-    },
-    [_updateEventMutation, queryClient],
-  );
-
-  /**
-   * Toggles link of an event to the previous
-   */
-  const linkTimer = useCallback(
-    async (eventId: string, linkStart: MaybeString) => {
-      let newEvent: Partial<OntimeEvent> = { id: eventId };
-
-      if (!linkStart) {
-        newEvent.linkStart = null;
-      } else {
-        const cachedRundown = queryClient.getQueryData<RundownCached>(RUNDOWN);
-        if (!cachedRundown) {
-          return;
-        }
-        const currentEvent = cachedRundown.rundown[eventId] as OntimeEvent;
-        if (!isOntimeEvent(currentEvent)) {
-          return;
-        }
-        const { previousEvent } = getPreviousEventNormal(cachedRundown.rundown, cachedRundown.order, eventId);
-
-        if (!previousEvent) {
-          newEvent.linkStart = null;
-        } else {
-          newEvent.linkStart = previousEvent.id;
-          const timePatch = getLinkedTimes(currentEvent, previousEvent);
-          newEvent = { ...newEvent, ...timePatch };
-        }
-      }
-
       try {
         await _updateEventMutation.mutateAsync(newEvent);
       } catch (error) {
@@ -636,7 +594,6 @@ export const useEventAction = () => {
     batchUpdateEvents,
     deleteEvent,
     deleteAllEvents,
-    linkTimer,
     reorderEvent,
     swapEvents,
     updateEvent,

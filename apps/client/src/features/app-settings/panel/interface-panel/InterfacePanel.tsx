@@ -1,6 +1,6 @@
 import { Alert, AlertDescription, AlertIcon } from '@chakra-ui/react';
 
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import EditorSettingsForm from './EditorSettingsForm';
 

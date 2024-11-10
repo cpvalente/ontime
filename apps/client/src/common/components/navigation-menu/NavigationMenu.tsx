@@ -18,14 +18,17 @@ import { IoLockClosedOutline } from '@react-icons/all-files/io5/IoLockClosedOutl
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 
 import { navigatorConstants } from '../../../viewerConfig';
+import { isLocalhost, serverPort } from '../../api/constants';
 import useClickOutside from '../../hooks/useClickOutside';
-import useElectronEvent from '../../hooks/useElectronEvent';
+import { useElectronEvent } from '../../hooks/useElectronEvent';
+import useInfo from '../../hooks-query/useInfo';
 import { useClientStore } from '../../stores/clientStore';
 import { useViewOptionsStore } from '../../stores/viewOptions';
 import { isKeyEnter } from '../../utils/keyEvent';
-import { handleLinks } from '../../utils/linkUtils';
+import { handleLinks, openLink } from '../../utils/linkUtils';
 import { cx } from '../../utils/styleUtils';
 import { RenameClientModal } from '../client-modal/RenameClientModal';
+import CopyTag from '../copy-tag/CopyTag';
 
 import style from './NavigationMenu.module.scss';
 
@@ -54,7 +57,7 @@ function NavigationMenu(props: NavigationMenuProps) {
       <RenameClientModal id={id} name={name} isOpen={isOpenRename} onClose={onCloseRename} />
       <Drawer placement='left' onClose={onClose} isOpen={isOpen} variant='ontime' data-testid='navigation__menu'>
         <DrawerOverlay />
-        <DrawerContent>
+        <DrawerContent maxWidth='22rem'>
           <DrawerHeader>
             <DrawerCloseButton size='lg' />
             Ontime
@@ -105,30 +108,66 @@ function NavigationMenu(props: NavigationMenuProps) {
             >
               <IoLockClosedOutline />
               Editor
-              <IoArrowUp className={style.linkIcon} />
             </Link>
             <ClientLink to='cuesheet' current={location.pathname === '/cuesheet'}>
               <IoLockClosedOutline />
               Cuesheet
-              <IoArrowUp className={style.linkIcon} />
             </ClientLink>
             <ClientLink to='op' current={location.pathname === '/op'}>
               <IoLockClosedOutline />
               Operator
-              <IoArrowUp className={style.linkIcon} />
             </ClientLink>
             <hr className={style.separator} />
             {navigatorConstants.map((route) => (
               <ClientLink key={route.url} to={route.url} current={location.pathname === `/${route.url}`}>
                 {route.label}
-                <IoArrowUp className={style.linkIcon} />
               </ClientLink>
             ))}
+            {isLocalhost && <OtherAddresses currentLocation={location.pathname} />}
           </DrawerBody>
         </DrawerContent>
       </Drawer>
     </div>,
     document.body,
+  );
+}
+
+interface OtherAddressesProps {
+  currentLocation: string;
+}
+
+function OtherAddresses(props: OtherAddressesProps) {
+  const { currentLocation } = props;
+  const { data } = useInfo();
+
+  // there is no point showing this if we only have one interface
+  if (data.networkInterfaces.length < 2) {
+    return null;
+  }
+
+  return (
+    <div className={style.bottom}>
+      <div className={style.sectionHeader}>Accessible on external networks</div>
+      <div className={style.interfaces}>
+        {data?.networkInterfaces?.map((nif) => {
+          if (nif.name === 'localhost') {
+            return null;
+          }
+
+          const address = `http://${nif.address}:${serverPort}${currentLocation}`;
+          return (
+            <CopyTag
+              key={nif.name}
+              copyValue={address}
+              onClick={() => openLink(address)}
+              label='Copy IP or navigate to address'
+            >
+              {nif.address} <IoArrowUp className={style.goIcon} />
+            </CopyTag>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -147,6 +186,7 @@ function ClientLink(props: PropsWithChildren<ClientLinkProps>) {
     return (
       <button className={classes} tabIndex={0} onClick={(event) => handleLinks(event, to)}>
         {children}
+        <IoArrowUp className={style.linkIcon} />
       </button>
     );
   }

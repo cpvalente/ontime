@@ -1,0 +1,8 @@
+.scrollContainer {
+  max-height: 70vh;
+  overflow: auto;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}

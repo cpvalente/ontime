@@ -23,10 +23,11 @@ type MultiOptionsField = {
 type StringField = { type: 'string'; defaultValue?: string; prefix?: string; placeholder?: string };
 type NumberField = { type: 'number'; defaultValue?: number; prefix?: string; placeholder?: string };
 type BooleanField = { type: 'boolean'; defaultValue: boolean };
+type ColourField = { type: 'colour'; defaultValue: string; placeholder?: string };
 type PersistedField = { type: 'persist'; defaultValue?: string; value: string };
 
 export type ParamField = BaseField &
-  (StringField | BooleanField | NumberField | OptionsField | MultiOptionsField | PersistedField);
+  (OptionsField | MultiOptionsField | StringField | NumberField | BooleanField | ColourField | PersistedField);
 export type ViewOption = ParamSection | ParamField;
 
 /**

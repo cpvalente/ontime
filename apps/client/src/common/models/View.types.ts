@@ -15,4 +15,5 @@ export type OverridableOptions = {
   language?: string;
   showProgressBar?: boolean;
   hideTimerSeconds?: boolean;
+  removeLeadingZeros?: boolean;
 };

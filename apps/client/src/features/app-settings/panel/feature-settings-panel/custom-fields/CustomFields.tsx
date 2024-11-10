@@ -6,12 +6,11 @@ import { CustomField, CustomFieldLabel } from 'ontime-types';
 import { deleteCustomField, editCustomField, postCustomField } from '../../../../../common/api/customFields';
 import ExternalLink from '../../../../../common/components/external-link/ExternalLink';
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
-import * as Panel from '../../PanelUtils';
+import { customFieldsDocsUrl } from '../../../../../externals';
+import * as Panel from '../../../panel-utils/PanelUtils';
 
 import CustomFieldEntry from './CustomFieldEntry';
 import CustomFieldForm from './CustomFieldForm';
-
-const customFieldsDocsUrl = 'https://docs.getontime.no/features/custom-fields/';
 
 export default function CustomFields() {
   const { data, refetch } = useCustomFields();
@@ -59,9 +58,14 @@ export default function CustomFields() {
           <Alert status='info' variant='ontime-on-dark-info'>
             <AlertIcon />
             <AlertDescription>
-              Custom fields allow for additional information to be added to an event (eg. light, sound, camera). <br />
+              Custom fields allow for additional information to be added to an event.
               <br />
-              This data is not used by Ontime.
+              <br />
+              This data is not used by Ontime, but provides place for cueing or department specific information (eg.
+              light, sound, camera).
+              <br />
+              <br />
+              Custom fields can be used width the Integrations feature using the generated key.
               <ExternalLink href={customFieldsDocsUrl}>See the docs</ExternalLink>
             </AlertDescription>
           </Alert>
@@ -73,6 +77,7 @@ export default function CustomFields() {
               <tr>
                 <th>Colour</th>
                 <th>Name</th>
+                <th>Key (used in Integrations)</th>
                 <th />
               </tr>
             </thead>

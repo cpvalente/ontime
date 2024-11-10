@@ -3,11 +3,13 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
+import { IoLink } from '@react-icons/all-files/io5/IoLink';
 import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
 import { IoPeopleOutline } from '@react-icons/all-files/io5/IoPeopleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
 import { EndAction, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
@@ -94,6 +96,24 @@ export default function EventBlock(props: EventBlockProps) {
     selectedEvents.size > 1
       ? [
           {
+            label: 'Link to previous',
+            icon: IoLink,
+            onClick: () =>
+              actionHandler('update', {
+                field: 'linkStart',
+                value: 'true',
+              }),
+          },
+          {
+            label: 'Unlink from previous',
+            icon: IoUnlink,
+            onClick: () =>
+              actionHandler('update', {
+                field: 'linkStart',
+                value: null,
+              }),
+          },
+          {
             label: 'Make public',
             icon: IoPeople,
             onClick: () =>
@@ -101,6 +121,7 @@ export default function EventBlock(props: EventBlockProps) {
                 field: 'isPublic',
                 value: true,
               }),
+            withDivider: true,
           },
           {
             label: 'Make private',
@@ -115,6 +136,15 @@ export default function EventBlock(props: EventBlockProps) {
         ]
       : [
           {
+            label: 'Toggle link to previous',
+            icon: IoLink,
+            onClick: () =>
+              actionHandler('update', {
+                field: 'linkStart',
+                value: linkStart ? null : 'true',
+              }),
+          },
+          {
             label: 'Toggle public',
             icon: IoPeopleOutline,
             onClick: () =>
@@ -122,6 +152,7 @@ export default function EventBlock(props: EventBlockProps) {
                 field: 'isPublic',
                 value: !isPublic,
               }),
+            withDivider: true,
           },
           {
             label: 'Add to swap',

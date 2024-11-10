@@ -1,0 +1,17 @@
+.markers {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  justify-content: space-evenly;
+
+  & > span {
+    flex-grow: 1;
+
+    &:not(:first-child) {
+      border-left: 1px solid $white-7;
+    }
+  }
+}

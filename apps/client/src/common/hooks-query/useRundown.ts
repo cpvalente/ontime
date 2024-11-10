@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { NormalisedRundown, OntimeRundown, RundownCached } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { RUNDOWN } from '../api/constants';
 import { fetchNormalisedRundown } from '../api/rundown';
+
+import useProjectData from './useProjectData';
 
 // revision is -1 so that the remote revision is higher
 const cachedRundownPlaceholder = { order: [] as string[], rundown: {} as NormalisedRundown, revision: -1 };
@@ -24,7 +26,9 @@ export default function useRundown() {
 
 export function useFlatRundown() {
   const { data, status } = useRundown();
+  const { data: projectData } = useProjectData();
 
+  const loadedProject = useRef<string>('');
   const [prevRevision, setPrevRevision] = useState<number>(-1);
   const [flatRunDown, setFlatRunDown] = useState<OntimeRundown>([]);
 
@@ -36,6 +40,15 @@ export function useFlatRundown() {
       setPrevRevision(data.revision);
     }
   }, [data.order, data.revision, data.rundown, prevRevision]);
+
+  // TODO: should we have a project id field?
+  // invalidate current version if project changes
+  useEffect(() => {
+    if (projectData?.title !== loadedProject.current) {
+      setPrevRevision(-1);
+      loadedProject.current = projectData?.title ?? '';
+    }
+  }, [projectData]);
 
   return { data: flatRunDown, status };
 }

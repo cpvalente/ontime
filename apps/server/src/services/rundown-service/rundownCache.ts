@@ -11,7 +11,15 @@ import {
   OntimeRundownEntry,
   PlayableEvent,
 } from 'ontime-types';
-import { generateId, insertAtIndex, reorderArray, swapEventData, getTimeFromPrevious, isNewLatest } from 'ontime-utils';
+import {
+  generateId,
+  insertAtIndex,
+  reorderArray,
+  swapEventData,
+  getTimeFromPrevious,
+  isNewLatest,
+  customFieldLabelToKey,
+} from 'ontime-utils';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
 import { apply } from './delayUtils.js';
@@ -447,7 +455,7 @@ function scheduleCustomFieldPersist(persistedCustomFields: CustomFields) {
  */
 export const createCustomField = async (field: CustomField) => {
   const { label, type, colour } = field;
-  const key = label.toLowerCase();
+  const key = customFieldLabelToKey(label);
   // check if label already exists
   const alreadyExists = Object.hasOwn(persistedCustomFields, key);
 
@@ -479,7 +487,7 @@ export const editCustomField = async (key: string, newField: Partial<CustomField
     throw new Error('Change of field type is not allowed');
   }
 
-  const newKey = newField.label.toLowerCase();
+  const newKey = customFieldLabelToKey(newField.label);
   persistedCustomFields[newKey] = { ...existingField, ...newField };
 
   if (key !== newKey) {

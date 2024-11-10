@@ -1,15 +1,16 @@
 import { Select, Switch } from '@chakra-ui/react';
-import { EndAction, TimerType } from 'ontime-types';
+import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { editorSettingsDefaults, useEditorSettings } from '../../../../common/stores/editorSettings';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 export default function EditorSettingsForm() {
   const {
     defaultDuration,
     linkPrevious,
+    defaultTimeStrategy,
     defaultWarnTime,
     defaultDangerTime,
     defaultPublic,
@@ -17,6 +18,7 @@ export default function EditorSettingsForm() {
     defaultEndAction,
     setDefaultDuration,
     setLinkPrevious,
+    setTimeStrategy,
     setWarnTime,
     setDangerTime,
     setDefaultPublic,
@@ -37,15 +39,6 @@ export default function EditorSettingsForm() {
           <Panel.Title>Rundown defaults for new events</Panel.Title>
           <Panel.ListGroup>
             <Panel.ListItem>
-              <Panel.Field title='Default duration' description='Default duration for new events' />
-              <TimeInput<'defaultDuration'>
-                name='defaultDuration'
-                submitHandler={(_field, value) => setDefaultDuration(value)}
-                time={durationInMs}
-                placeholder={editorSettingsDefaults.duration}
-              />
-            </Panel.ListItem>
-            <Panel.ListItem>
               <Panel.Field
                 title='Link previous'
                 description='Whether the start time of new events should be linked to the previous event end time'
@@ -55,6 +48,33 @@ export default function EditorSettingsForm() {
                 size='lg'
                 defaultChecked={linkPrevious}
                 onChange={(event) => setLinkPrevious(event.target.checked)}
+              />
+            </Panel.ListItem>
+            <Panel.ListItem>
+              <Panel.Field
+                title='Timer strategy'
+                description='Which time should be maintained when event schedule is recalculated'
+              />
+              <Select
+                variant='ontime'
+                size='sm'
+                width='auto'
+                value={defaultTimeStrategy}
+                onChange={(event) => setTimeStrategy(event.target.value as TimeStrategy)}
+              >
+                <option value={TimeStrategy.LockDuration}>Duration</option>
+                <option value={TimeStrategy.LockEnd}>End Time</option>
+              </Select>
+            </Panel.ListItem>
+          </Panel.ListGroup>
+          <Panel.ListGroup>
+            <Panel.ListItem>
+              <Panel.Field title='Default duration' description='Default duration for new events' />
+              <TimeInput<'defaultDuration'>
+                name='defaultDuration'
+                submitHandler={(_field, value) => setDefaultDuration(value)}
+                time={durationInMs}
+                placeholder={editorSettingsDefaults.duration}
               />
             </Panel.ListItem>
             <Panel.ListItem>
@@ -70,6 +90,7 @@ export default function EditorSettingsForm() {
                 <option value={TimerType.CountUp}>Count up</option>
                 <option value={TimerType.TimeToEnd}>Time to end</option>
                 <option value={TimerType.Clock}>Clock</option>
+                <option value={TimerType.None}>None</option>
               </Select>
             </Panel.ListItem>
             <Panel.ListItem>

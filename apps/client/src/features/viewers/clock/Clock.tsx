@@ -1,9 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
-import { Settings, ViewSettings } from 'ontime-types';
+import { Settings } from 'ontime-types';
 
-import { overrideStylesURL } from '../../../common/api/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
-import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { OverridableOptions } from '../../../common/models/View.types';
@@ -17,21 +15,14 @@ import './Clock.scss';
 interface ClockProps {
   isMirrored: boolean;
   time: ViewExtendedTimer;
-  viewSettings: ViewSettings;
   settings: Settings | undefined;
 }
 
 export default function Clock(props: ClockProps) {
-  const { isMirrored, time, viewSettings, settings } = props;
-  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+  const { isMirrored, time, settings } = props;
   const [searchParams] = useSearchParams();
 
   useWindowTitle('Clock');
-
-  // defer rendering until we load stylesheets
-  if (!shouldRender) {
-    return null;
-  }
 
   // get config from url: key, text, font, size, hidenav
   // eg. http://localhost:3000/clock?key=f00&text=fff

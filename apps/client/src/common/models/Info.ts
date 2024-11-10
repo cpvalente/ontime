@@ -7,5 +7,5 @@ export const ontimePlaceholderInfo: GetInfo = {
   version: '2.0.0',
   serverPort: 4001,
   osc: oscPlaceholderSettings,
-  cssOverride: '',
+  publicDir: '',
 };

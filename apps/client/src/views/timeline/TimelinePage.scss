@@ -1,0 +1,109 @@
+@use '../../theme/viewerDefs' as *;
+
+.timeline {
+  width: 100vw;
+  height: 100vh;
+  padding-top: 0.5rem;
+
+  font-family: var(--font-family-override, $viewer-font-family);
+  background: var(--background-color-override, $viewer-background-color);
+  color: var(--color-override, $viewer-color);
+
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  .project-header {
+    padding-inline: 2rem;
+    font-size: clamp(32px, 4.5vw, 64px);
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .clock-container {
+    .label {
+      font-size: clamp(16px, 1.5vw, 24px);
+      font-weight: 600;
+      color: var(--label-color-override, $viewer-label-color);
+      text-transform: uppercase;
+    }
+
+    .time {
+      font-size: clamp(32px, 3.5vw, 50px);
+      font-weight: 600;
+      color: var(--secondary-color-override, $viewer-secondary-color);
+      letter-spacing: 0.05em;
+      line-height: 0.95em;
+    }
+  }
+
+  .title-grid {
+    display: grid;
+    grid-template-columns: 2fr 3fr;
+    row-gap: 1rem;
+    column-gap: 2rem;
+    grid-template-areas:
+      'now next'
+      'now following';
+    padding-inline: 2rem;
+  }
+
+  .section {
+    background-color: var(--card-background-color-override, $viewer-card-bg-color);
+    padding: 0.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-radius: $element-border-radius;
+  }
+
+  .section--now {
+    grid-area: now;
+  }
+
+  .section-title {
+    line-height: 1em;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 600;
+  }
+
+  .section-title__label {
+    text-transform: uppercase;
+  }
+
+  .section-title__status {
+    color: $green-500;
+  }
+
+  .section-content {
+    min-height: 2em;
+    line-height: 1em;
+    font-size: 3rem;
+    text-transform: uppercase;
+    font-weight: 600;
+
+    max-height: 2em;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .section-content--now {
+    color: $red-500;
+  }
+
+  .section-content--next {
+    color: $green-500;
+  }
+
+  .section-content--subdue {
+    opacity: $opacity-disabled;
+  }
+}

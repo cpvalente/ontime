@@ -1,11 +1,10 @@
-import { DatabaseModel, GetInfo, LogOrigin, ProjectData, ProjectFileListResponse } from 'ontime-types';
+import { DatabaseModel, LogOrigin, ProjectFileListResponse } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import { copyFile, rename } from 'fs/promises';
 
 import { logger } from '../../classes/Logger.js';
-import { getNetworkInterfaces } from '../../utils/networkInterfaces.js';
-import { resolveCorruptDirectory, resolveProjectsDirectory, resolveStylesPath } from '../../setup/index.js';
+import { publicDir } from '../../setup/index.js';
 import {
   appendToName,
   ensureDirectory,
@@ -39,6 +38,7 @@ import {
   moveCorruptFile,
   parseJsonFile,
 } from './projectServiceUtils.js';
+import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 
 // init dependencies
 init();
@@ -47,8 +47,15 @@ init();
  * Ensure services has its dependencies initialized
  */
 function init() {
-  ensureDirectory(resolveProjectsDirectory);
-  ensureDirectory(resolveCorruptDirectory);
+  ensureDirectory(publicDir.projectsDir);
+  ensureDirectory(publicDir.corruptDir);
+}
+
+export async function getCurrentProject() {
+  const filename = await getLastLoadedProject();
+  const pathToFile = getPathToProject(filename);
+
+  return { filename, pathToFile };
 }
 
 /**
@@ -56,7 +63,7 @@ function init() {
  * to be composed in the loading functions
  */
 async function loadDemoProject(): Promise<string> {
-  const pathToNewFile = generateUniqueFileName(resolveProjectsDirectory, config.demoProject);
+  const pathToNewFile = generateUniqueFileName(publicDir.projectsDir, config.demoProject);
   await initPersistence(getPathToProject(pathToNewFile), demoDb);
   const newName = getFileNameFromPath(pathToNewFile);
   await setLastLoadedProject(newName);
@@ -68,7 +75,7 @@ async function loadDemoProject(): Promise<string> {
  * to be composed in the loading functions
  */
 async function loadNewProject(): Promise<string> {
-  const pathToNewFile = generateUniqueFileName(resolveProjectsDirectory, config.newProject);
+  const pathToNewFile = generateUniqueFileName(publicDir.projectsDir, config.newProject);
   await initPersistence(getPathToProject(pathToNewFile), dbModel);
   const newName = getFileNameFromPath(pathToNewFile);
   await setLastLoadedProject(newName);
@@ -257,16 +264,10 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
 /**
  * Creates a new project file and applies its result
  */
-export async function createProject(filename: string, projectData: ProjectData) {
-  const data: DatabaseModel = {
-    ...dbModel,
-    project: {
-      ...dbModel.project,
-      ...projectData,
-    },
-  };
+export async function createProject(filename: string, initialData: Partial<DatabaseModel>) {
+  const data = safeMerge(dbModel, initialData);
 
-  const uniqueFileName = generateUniqueFileName(resolveProjectsDirectory, filename);
+  const uniqueFileName = generateUniqueFileName(publicDir.projectsDir, filename);
   const newFile = getPathToProject(uniqueFileName);
 
   // change LowDB to point to new file
@@ -297,27 +298,6 @@ export async function deleteProjectFile(filename: string) {
   }
 
   await deleteFile(projectFilePath);
-}
-
-/**
- * Adds business logic to gathering data for the info endpoint
- */
-export async function getInfo(): Promise<GetInfo> {
-  const { version, serverPort } = getDataProvider().getSettings();
-  const osc = getDataProvider().getOsc();
-
-  // get nif and inject localhost
-  const ni = getNetworkInterfaces();
-  ni.unshift({ name: 'localhost', address: '127.0.0.1' });
-  const cssOverride = resolveStylesPath;
-
-  return {
-    networkInterfaces: ni,
-    version,
-    serverPort,
-    osc,
-    cssOverride,
-  };
 }
 
 /**

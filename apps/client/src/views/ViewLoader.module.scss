@@ -1,0 +1,73 @@
+@use '../theme/viewerDefs' as *;
+
+$dot-size: 0.5rem;
+$dot-spacing: 1.5rem;
+
+.loader {
+  display: grid;
+  place-items: center;
+  background-color: var(--background-color-override, $viewer-background-color);
+  height: 100vh;
+}
+
+.ellipsis {
+  display: inline-block;
+  position: relative;
+  width: 5rem;
+
+  div {
+    position: absolute;
+    width: $dot-size;
+    height: $dot-size;
+    border-radius: 50%;
+    background-color: var(--accent-color-override, $ontime-color);
+    animation-timing-function: cubic-bezier(0, 1, 1, 0);
+
+    &:nth-child(1) {
+      left: $dot-size;
+      animation: lds-ellipsis1 0.6s infinite;
+    }
+
+    &:nth-child(2) {
+      left: $dot-size;
+      animation: lds-ellipsis2 0.6s infinite;
+    }
+
+    &:nth-child(3) {
+      left: calc($dot-size + $dot-spacing);
+      animation: lds-ellipsis2 0.6s infinite;
+    }
+
+    &:nth-child(4) {
+      left: calc($dot-size + 2 * $dot-spacing);
+      animation: lds-ellipsis3 0.6s infinite;
+    }
+  }
+}
+
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate($dot-spacing, 0);
+  }
+}
+
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}

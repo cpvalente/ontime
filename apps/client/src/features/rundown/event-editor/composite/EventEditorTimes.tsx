@@ -84,6 +84,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             timeStrategy={timeStrategy}
             linkStart={linkStart}
             delay={delay}
+            timerType={timerType}
           />
         </div>
         <div className={style.delayLabel}>{delayLabel}</div>
@@ -110,6 +111,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             <option value={TimerType.CountUp}>Count up</option>
             <option value={TimerType.TimeToEnd}>Time to end</option>
             <option value={TimerType.Clock}>Clock</option>
+            <option value={TimerType.None}>None</option>
           </Select>
         </div>
         <div>

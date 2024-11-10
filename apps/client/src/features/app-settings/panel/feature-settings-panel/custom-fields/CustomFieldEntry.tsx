@@ -4,6 +4,7 @@ import { IoPencil } from '@react-icons/all-files/io5/IoPencil';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { CustomField, CustomFieldLabel } from 'ontime-types';
 
+import CopyTag from '../../../../../common/components/copy-tag/CopyTag';
 import Swatch from '../../../../../common/components/input/colour-input/Swatch';
 
 import CustomFieldForm from './CustomFieldForm';
@@ -36,6 +37,7 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
             onSubmit={handleEdit}
             initialColour={colour}
             initialLabel={label}
+            initialKey={field}
           />
         </td>
       </tr>
@@ -47,7 +49,12 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
       <td>
         <Swatch color={colour} />
       </td>
-      <td className={style.fullWidth}>{label}</td>
+      <td className={style.halfWidth}>{label}</td>
+      <td className={style.fullWidth}>
+        <CopyTag label='Copy key to use in integrations' copyValue={field}>
+          {field}
+        </CopyTag>
+      </td>
       <td className={style.actions}>
         <IconButton
           size='sm'

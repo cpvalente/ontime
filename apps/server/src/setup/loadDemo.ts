@@ -1,20 +1,18 @@
-import { copyFile } from 'fs/promises';
-import { pathToStartDemo, resolveDemoDirectory, resolveDemoPath } from './index.js';
-import { ensureDirectory } from '../utils/fileManagement.js';
+import { copyFileSync } from 'fs';
+import { copyDirectory, ensureDirectory } from '../utils/fileManagement.js';
+
+import { publicDir, publicFiles, srcDir, srcFiles } from './index.js';
 
 /**
  * @description ensures directories exist and populates demo folder
  */
 export const populateDemo = () => {
-  ensureDirectory(resolveDemoDirectory);
-  // even if demo exist we want to use startup demo
+  ensureDirectory(publicDir.demoDir);
+
   try {
-    Promise.all(
-      resolveDemoPath.map((to, index) => {
-        const from = pathToStartDemo[index];
-        return copyFile(from, to);
-      }),
-    );
+    copyFileSync(srcFiles.externalReadme, publicFiles.externalReadme);
+    // even if demo exist we want to use startup demo
+    copyDirectory(srcDir.demoDir, publicDir.demoDir);
   } catch (_) {
     /* we do not handle this */
   }

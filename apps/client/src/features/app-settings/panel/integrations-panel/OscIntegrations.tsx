@@ -10,7 +10,7 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import useOscSettings, { useOscSettingsMutation } from '../../../../common/hooks-query/useOscSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
 import { isASCII, isASCIIorEmpty, isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import { cycles } from './integrationUtils';
 
@@ -28,7 +28,7 @@ export default function OscIntegrations() {
     setError,
     formState: { errors, isSubmitting, isDirty, isValid },
   } = useForm<OSCSettings>({
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: data,
     values: data,
     resetOptions: {
@@ -75,7 +75,7 @@ export default function OscIntegrations() {
       cycle: 'onLoad',
       address: '',
       payload: '',
-      enabled: false,
+      enabled: true,
     });
   };
 

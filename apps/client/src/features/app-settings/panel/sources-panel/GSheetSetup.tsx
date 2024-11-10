@@ -7,7 +7,7 @@ import { getWorksheetNames } from '../../../../common/api/sheets';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import CopyTag from '../../../../common/components/copy-tag/CopyTag';
 import { openLink } from '../../../../common/utils/linkUtils';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import useGoogleSheet from './useGoogleSheet';
 import { useSheetStore } from './useSheetStore';
@@ -193,7 +193,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
         <Panel.ListGroup>
           <div className={style.buttonRow}>
             {isAuthenticating && <Spinner />}
-            <CopyTag label='Google Auth Key' disabled={!canAuthenticate} size='sm'>
+            <CopyTag copyValue={authKey ?? ''} label='Google Auth Key' disabled={!canAuthenticate} size='sm'>
               {authKey ? authKey : 'Upload files to generate Auth Key'}
             </CopyTag>
             <Button

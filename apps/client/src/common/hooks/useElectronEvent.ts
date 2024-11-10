@@ -1,11 +1,34 @@
-export default function useElectronEvent() {
-  const isElectron = window?.process?.type === 'renderer';
+import { useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-  const sendToElectron = (channel: string, args?: string | Record<string, unknown>) => {
-    if (isElectron) {
-      window?.ipcRenderer.send(channel, args);
+const isElectron = window.process?.type === 'renderer';
+const ipcRenderer = isElectron ? window.require('electron').ipcRenderer : null;
+
+export function useElectronEvent() {
+  const sendToElectron = useCallback((channel: string, args?: string | Record<string, unknown>) => {
+    if (isElectron && ipcRenderer) {
+      ipcRenderer.send(channel, args);
     }
-  };
+  }, []);
 
   return { isElectron, sendToElectron };
+}
+
+export function useElectronListener() {
+  const navigate = useNavigate();
+  const { isElectron } = useElectronEvent();
+
+  // listen to requests to change the editor location
+  useEffect(() => {
+    if (isElectron) {
+      ipcRenderer.on('request-editor-location', (_event: unknown, location: string) => {
+        navigate(location, { relative: 'route' });
+      });
+    }
+
+    // Clean the listener after the component is dismounted
+    return () => {
+      ipcRenderer?.removeAllListeners();
+    };
+  }, [isElectron, navigate]);
 }

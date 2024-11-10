@@ -9,7 +9,7 @@ import ExternalLink from '../../../../common/components/external-link/ExternalLi
 import { PopoverPickerRHF } from '../../../../common/components/input/popover-picker/PopoverPicker';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './GeneralPanel.module.scss';
 
@@ -84,8 +84,8 @@ export default function ViewSettingsForm() {
         <Alert status='info' variant='ontime-on-dark-info'>
           <AlertIcon />
           <AlertDescription>
-            You can override the styles of the viewers with a custom CSS file. <br />
-            {info?.cssOverride && `In your installation the file is at ${info?.cssOverride}`}
+            You can the Ontime views or customise its styles by modifying the provided CSS file. <br />
+            The CSS file is in the user directory at {`${info.publicDir}/user/styles/override.css`}
             <br />
             <br />
             <ExternalLink href={cssOverrideDocsUrl}>See the docs</ExternalLink>
@@ -126,7 +126,7 @@ export default function ViewSettingsForm() {
             <Panel.ListItem>
               <Panel.Field
                 title='Freeze timer on end'
-                description='Timer in views will stop from going negative and instead stop at 00:00:00'
+                description='When a timer hits 00:00:00, it freezes instead of going negative. It invalidates the End Message.'
               />
               <Controller
                 control={control}
@@ -139,7 +139,7 @@ export default function ViewSettingsForm() {
             <Panel.ListItem>
               <Panel.Field
                 title='End message'
-                description='Message to show on negative timers if not frozen. If not provided, timer will continue'
+                description='Message for negative timers; applies only if the timer isn`t frozen on End. If no message is provided, it continues into negative time'
               />
               <Input
                 size='sm'

@@ -1,6 +1,6 @@
 {
   "name": "ontime-ui",
-  "version": "3.6.1",
+  "version": "3.7.0",
   "private": true,
   "type": "module",
   "dependencies": {
@@ -11,7 +11,7 @@
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@fontsource/open-sans": "^5.0.28",
-    "@mantine/hooks": "^7.6.2",
+    "@mantine/hooks": "^7.13.3",
     "@react-icons/all-files": "^4.1.0",
     "@sentry/react": "^8.19.0",
     "@tanstack/react-query": "^5.17.9",
@@ -26,7 +26,7 @@
     "react-colorful": "^5.6.1",
     "react-dom": "^18.3.1",
     "react-fast-compare": "^3.2.2",
-    "react-hook-form": "^7.49.2",
+    "react-hook-form": "^7.53.1",
     "react-qr-code": "^2.0.12",
     "react-router-dom": "^6.3.0",
     "web-vitals": "^3.1.1",

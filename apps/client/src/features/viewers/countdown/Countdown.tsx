@@ -1,19 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import {
-  OntimeEvent,
-  OntimeRundownEntry,
-  Playback,
-  Runtime,
-  Settings,
-  SupportedEvent,
-  TimerPhase,
-  ViewSettings,
-} from 'ontime-types';
+import { OntimeEvent, OntimeRundownEntry, Playback, Runtime, Settings, SupportedEvent, TimerPhase } from 'ontime-types';
 
-import { overrideStylesURL } from '../../../common/api/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
-import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
@@ -34,12 +23,10 @@ interface CountdownProps {
   selectedId: string | null;
   settings: Settings | undefined;
   time: ViewExtendedTimer;
-  viewSettings: ViewSettings;
 }
 
 export default function Countdown(props: CountdownProps) {
-  const { isMirrored, backstageEvents, runtime, selectedId, settings, time, viewSettings } = props;
-  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+  const { isMirrored, backstageEvents, runtime, selectedId, settings, time } = props;
   const [searchParams] = useSearchParams();
   const { getLocalizedString } = useTranslation();
 
@@ -79,11 +66,6 @@ export default function Countdown(props: CountdownProps) {
       setDelay(delayToEvent);
     }
   }, [backstageEvents, searchParams]);
-
-  // defer rendering until we load stylesheets
-  if (!shouldRender) {
-    return null;
-  }
 
   const { message: runningMessage, timer: runningTimer } = fetchTimerData(time, follow, selectedId, runtime.offset);
 

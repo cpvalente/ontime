@@ -1,63 +1,40 @@
-import { TimerMessage, MessageState } from 'ontime-types';
+import { MessageState, runtimeStorePlaceholder } from 'ontime-types';
 import { DeepPartial } from 'ts-essentials';
 
 import { throttle } from '../../utils/throttle.js';
-import type { PublishFn } from '../../stores/EventStore.js';
-
-const defaultTimer: TimerMessage = {
-  text: '',
-  visible: false,
-  blink: false,
-  blackout: false,
-  secondarySource: null,
-};
-
-let timer = { ...defaultTimer };
-let external = '';
-
-let throttledSet: PublishFn | null = null;
+import { eventStore, type PublishFn } from '../../stores/EventStore.js';
 
 /**
- * Initialises the message service with a publish function
- * @param publishFn
+ * Create a throttled version of the set function
  */
-export function init(publishFn: PublishFn) {
-  throttledSet = throttle(publishFn, 100);
-}
+const throttledSet: PublishFn = throttle(eventStore.set, 100);
 
 /**
  * Exposes function to reset the internal state
  */
 export function clear() {
-  timer = { ...defaultTimer };
-  external = '';
+  throttledSet('message', {
+    ...runtimeStorePlaceholder.message,
+  });
 }
 
 /**
  * Exposes the internal state of the message service
  */
 export function getState(): MessageState {
-  return {
-    external,
-    timer,
-  };
+  return eventStore.get('message');
 }
 
 /**
  * Utility function allows patching internal object
  */
 export function patch(patch: DeepPartial<MessageState>): MessageState {
-  // we cannot call patch before init
-  // eslint-disable-next-line no-unused-labels -- dev code path
-  DEV: {
-    if (throttledSet === null) {
-      throw new Error('MessageService.patch() called before init()');
-    }
-  }
+  // make a copy of the state in store
+  const newState = { ...getState() };
 
-  if ('timer' in patch) timer = { ...timer, ...patch.timer };
-  if ('external' in patch && patch.external !== undefined) external = patch.external;
-  const newState = getState();
-  throttledSet?.('message', newState);
+  if ('timer' in patch) newState.timer = { ...newState.timer, ...patch.timer };
+  if ('external' in patch && patch.external !== undefined) newState.external = patch.external;
+
+  throttledSet('message', newState);
   return newState;
 }

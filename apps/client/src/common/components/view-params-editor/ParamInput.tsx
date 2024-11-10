@@ -16,6 +16,7 @@ import {
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 
+import InlineColourPicker from './InlineColourPicker';
 import { ParamField } from './types';
 
 interface EditFormInputProps {
@@ -23,8 +24,8 @@ interface EditFormInputProps {
 }
 
 export default function ParamInput(props: EditFormInputProps) {
-  const [searchParams] = useSearchParams();
   const { paramField } = props;
+  const [searchParams] = useSearchParams();
   const { id, type, defaultValue } = paramField;
 
   if (type === 'persist') {
@@ -79,6 +80,12 @@ export default function ParamInput(props: EditFormInputProps) {
         />
       </InputGroup>
     );
+  }
+
+  if (type === 'colour') {
+    const currentvalue = `#${searchParams.get(id) ?? defaultValue}`;
+
+    return <InlineColourPicker name={id} value={currentvalue} />;
   }
 
   const defaultStringValue = searchParams.get(id) ?? defaultValue;

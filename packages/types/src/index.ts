@@ -51,7 +51,9 @@ export type {
   ProjectFileListResponse,
   MessageResponse,
   RundownPaginated,
+  SessionStats,
 } from './api/ontime-controller/BackendResponse.type.js';
+export type { QuickStartData } from './api/db/db.type.js';
 export type { RundownCached, NormalisedRundown } from './api/rundown-controller/BackendResponse.type.js';
 
 // SERVER RUNTIME
@@ -62,6 +64,7 @@ export type { TimerMessage, MessageState } from './definitions/runtime/MessageCo
 
 export type { Runtime } from './definitions/runtime/Runtime.type.js';
 export type { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
+export { runtimeStorePlaceholder } from './definitions/runtime/RuntimeStore.js';
 export { type TimerState, TimerPhase } from './definitions/runtime/TimerState.type.js';
 export type { CurrentBlockState } from './definitions/runtime/CurrentBlockState.type.js';
 

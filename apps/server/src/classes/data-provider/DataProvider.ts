@@ -13,11 +13,11 @@ import {
 import type { Low } from 'lowdb';
 import { JSONFilePreset } from 'lowdb/node';
 
-import { isTest } from '../../setup/index.js';
 import { isPath } from '../../utils/fileManagement.js';
+import { shouldCrashDev } from '../../utils/development.js';
+import { isTest } from '../../externals.js';
 
 import { safeMerge } from './DataProvider.utils.js';
-import { shouldCrashDev } from '../../utils/development.js';
 
 type ReadonlyPromise<T> = Promise<Readonly<T>>;
 

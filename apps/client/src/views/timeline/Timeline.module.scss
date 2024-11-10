@@ -1,0 +1,114 @@
+@use '../../theme/viewerDefs' as *;
+
+$timeline-height: 1rem;
+$timeline-color: color-mix(in srgb, transparent 60%, var(--background-color-override, $viewer-background-color));
+
+.timeline {
+  flex: 1;
+  font-weight: 600;
+  color: var(--color-override, $viewer-color);
+  background: var(--background-color-override, $viewer-background-color);
+  box-sizing: content-box;
+  // create progress background
+  box-shadow: inset 0 1rem 0 0 var(--card-background-color-override, $viewer-card-bg-color);
+  position: relative;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  border-left: 1px solid var(--background-color-override, $viewer-background-color);
+  // avoiding content being larger than the view
+  height: calc(100% - 3rem);
+}
+
+// generate combined timeline
+.timelineBlock {
+  height: $timeline-height;
+  background: $timeline-color;
+  width: 100%;
+
+  &[data-status='done'] {
+    background: $active-red;
+  }
+
+  &[data-status='live'] {
+    background: linear-gradient(to right, $active-red var(--progress, 0%), $timeline-color var(--progress, 0%));
+  }
+}
+
+.smallArea {
+  .content {
+    gap: 0rem;
+    writing-mode: vertical-rl;
+  }
+
+  .timeOverview {
+    opacity: 0;
+  }
+}
+
+.hide {
+  // hide text elements
+  & > div {
+    display: none;
+  }
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding-top: 0.25rem;
+  padding-inline-start: 0.25rem;
+  overflow: hidden;
+  line-height: 1rem;
+
+  background-color: var(--lighter, var(--card-background-color-override, $viewer-card-bg-color));
+  border-bottom: 2px solid var(--background-color-override, $viewer-background-color);
+  border-top: 2px solid var(--background-color-override, $viewer-background-color);
+  box-shadow: 0 0.25rem 0 0 var(--color, $gray-300);
+
+  &[data-status='done'] {
+    opacity: $opacity-disabled;
+  }
+
+  &[data-status='live'] {
+    box-shadow: 0 0.25rem 0 0 $active-red;
+  }
+}
+
+.delay {
+  margin-top: -2rem;
+  margin-bottom: -1rem;
+}
+
+.timeOverview {
+  padding-top: 0.25rem;
+  padding-inline-start: 0.25em;
+  text-transform: capitalize;
+  white-space: normal;
+  height: 6rem;
+
+  &[data-status='done'] {
+    opacity: $opacity-disabled;
+  }
+
+  &[data-status='live'] {
+    .status {
+      color: $active-red;
+    }
+  }
+
+  &[data-status='future'] {
+    .status {
+      color: $green-500;
+    }
+  }
+}
+
+.cross {
+  text-decoration: line-through;
+}

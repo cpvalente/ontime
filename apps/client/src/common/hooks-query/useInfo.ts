@@ -3,7 +3,7 @@ import { GetInfo } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { APP_INFO } from '../api/constants';
-import { getInfo } from '../api/db';
+import { getInfo } from '../api/session';
 import { ontimePlaceholderInfo } from '../models/Info';
 
 export default function useInfo() {

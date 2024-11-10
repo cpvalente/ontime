@@ -1,4 +1,4 @@
-import { CSSProperties, useCallback, useEffect, useState } from 'react';
+import { CSSProperties, memo, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@chakra-ui/react';
 import { CustomFieldLabel, isOntimeEvent, OntimeEvent } from 'ontime-types';
@@ -131,10 +131,32 @@ export default function EventEditor() {
           })}
         </div>
       </div>
-      <div className={style.footer}>
-        <CopyTag label='OSC trigger by id'>{`/ontime/load/id "${event.id}"`}</CopyTag>
-        <CopyTag label='OSC trigger by cue'>{`/ontime/load/cue "${event.cue}"`}</CopyTag>
-      </div>
+      <EventEditorFooter id={event.id} cue={event.cue} />
+    </div>
+  );
+}
+
+interface EventEditorFooterProps {
+  id: string;
+  cue: string;
+}
+
+const EventEditorFooter = memo(_EventEditorFooter);
+
+function _EventEditorFooter(props: EventEditorFooterProps) {
+  const { id, cue } = props;
+
+  const loadById = `/ontime/load/id "${id}"`;
+  const loadByCue = `/ontime/load/cue "${cue}"`;
+
+  return (
+    <div className={style.footer}>
+      <CopyTag copyValue={loadById} label='OSC trigger by ID'>
+        {loadById}
+      </CopyTag>
+      <CopyTag copyValue={loadByCue} label='OSC trigger by cue'>
+        {loadByCue}
+      </CopyTag>
     </div>
   );
 }

@@ -86,11 +86,6 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
       timerType: eventNow?.timerType ?? null,
     };
 
-    // prevent render until we get all the data we need
-    if (!viewSettings) {
-      return null;
-    }
-
     return (
       <>
         <ViewNavigationMenu />

@@ -23,6 +23,8 @@ export function getTimerByType(freezeEnd: boolean, timerObject?: TimerTypeParams
       return Math.abs(timerObject.elapsed ?? 0);
     case TimerType.Clock:
       return timerObject.clock;
+    case TimerType.None:
+      return null;
     default: {
       const exhaustiveCheck: never = timerObject.timerType;
       return exhaustiveCheck;

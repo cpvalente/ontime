@@ -9,6 +9,13 @@ export class SimpleTimer {
   };
   private startedAt: number | null = null;
   private pausedAt: number | null = null;
+  private initialDuration = 0;
+
+  constructor(initialTime: number = 0) {
+    this.state.duration = initialTime;
+    this.initialDuration = initialTime;
+    this.state.current = initialTime;
+  }
 
   public reset() {
     this.state = {
@@ -25,14 +32,19 @@ export class SimpleTimer {
    */
   public setTime(time: number): SimpleTimerState {
     this.state.duration = time;
+    this.initialDuration = time;
     this.state.current = time;
     return this.state;
   }
 
-  public setDirection(direction: SimpleDirection): SimpleTimerState {
-    this.state.playback = SimplePlayback.Stop;
-    this.state.current = this.state.duration;
+  public setDirection(direction: SimpleDirection, timeNow: number): SimpleTimerState {
+    // if we are playing, we need to reset the targets
+    if (this.state.playback === SimplePlayback.Start) {
+      this.startedAt = timeNow;
+      this.state.duration = this.state.current;
+    }
     this.state.direction = direction;
+    this.update(timeNow);
     return this.state;
   }
 
@@ -57,7 +69,8 @@ export class SimpleTimer {
 
   public stop(): SimpleTimerState {
     this.state.playback = SimplePlayback.Stop;
-    this.state.current = this.state.duration;
+    this.state.duration = this.initialDuration;
+    this.state.current = this.initialDuration;
     this.startedAt = null;
     return this.state;
   }

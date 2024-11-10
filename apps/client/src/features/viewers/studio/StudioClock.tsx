@@ -1,12 +1,10 @@
 import { useSearchParams } from 'react-router-dom';
-import type { MaybeString, OntimeEvent, OntimeRundown, Settings, ViewSettings } from 'ontime-types';
+import type { MaybeString, OntimeEvent, OntimeRundown, Settings } from 'ontime-types';
 import { Playback } from 'ontime-types';
 import { millisToString, removeSeconds, secondsInMillis } from 'ontime-utils';
 
-import { overrideStylesURL } from '../../../common/api/constants';
 import { FitText } from '../../../common/components/fit-text/FitText';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
-import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
@@ -25,23 +23,15 @@ interface StudioClockProps {
   selectedId: MaybeString;
   nextId: MaybeString;
   onAir: boolean;
-  viewSettings: ViewSettings;
   settings: Settings | undefined;
 }
 
 export default function StudioClock(props: StudioClockProps) {
-  const { isMirrored, eventNext, time, backstageEvents, selectedId, nextId, onAir, viewSettings, settings } = props;
-
-  const { shouldRender } = useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+  const { isMirrored, eventNext, time, backstageEvents, selectedId, nextId, onAir, settings } = props;
 
   const [searchParams] = useSearchParams();
 
   useWindowTitle('Studio Clock');
-
-  // defer rendering until we load stylesheets
-  if (!shouldRender) {
-    return null;
-  }
 
   const activeIndicators = [...Array(12).keys()];
   const secondsIndicators = [...Array(60).keys()];

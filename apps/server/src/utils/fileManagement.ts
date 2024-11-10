@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync } from 'fs';
-import { readdir } from 'fs/promises';
+import { readdir, copyFile } from 'fs/promises';
 import { basename, extname, join, parse } from 'path';
 
 /**
@@ -80,8 +80,28 @@ export function getFileNameFromPath(filePath: string): string {
 }
 
 /**
- * Utility naivly checks for paths on whether it includes directories
+ * Utility naively checks for paths on whether it includes directories
  */
 export function isPath(filePath: string): boolean {
   return filePath !== basename(filePath);
+}
+
+/**
+ * Recursively copies a directory and its contents.
+ * @param {string} src - The source directory.
+ * @param {string} dest - The destination directory.
+ */
+export async function copyDirectory(src: string, dest: string) {
+  const entries = await readdir(src, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const srcPath = join(src, entry.name);
+    const destPath = join(dest, entry.name);
+
+    if (entry.isDirectory()) {
+      await copyDirectory(srcPath, destPath);
+    } else {
+      await copyFile(srcPath, destPath);
+    }
+  }
 }

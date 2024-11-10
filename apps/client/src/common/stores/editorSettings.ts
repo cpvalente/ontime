@@ -1,5 +1,5 @@
-import { EndAction, TimerType } from 'ontime-types';
-import { validateEndAction, validateTimerType } from 'ontime-utils';
+import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
+import { validateEndAction, validateTimerType, validateTimeStrategy } from 'ontime-utils';
 import { create } from 'zustand';
 
 import { booleanFromLocalStorage } from '../utils/localStorage';
@@ -7,6 +7,7 @@ import { booleanFromLocalStorage } from '../utils/localStorage';
 type EditorSettingsStore = {
   defaultDuration: string;
   linkPrevious: boolean;
+  defaultTimeStrategy: TimeStrategy;
   defaultWarnTime: string;
   defaultDangerTime: string;
   defaultPublic: boolean;
@@ -14,6 +15,7 @@ type EditorSettingsStore = {
   defaultEndAction: EndAction;
   setDefaultDuration: (defaultDuration: string) => void;
   setLinkPrevious: (linkPrevious: boolean) => void;
+  setTimeStrategy: (timeStrategy: TimeStrategy) => void;
   setWarnTime: (warnTime: string) => void;
   setDangerTime: (dangerTime: string) => void;
   setDefaultPublic: (defaultPublic: boolean) => void;
@@ -24,6 +26,7 @@ type EditorSettingsStore = {
 export const editorSettingsDefaults = {
   duration: '00:10:00',
   linkPrevious: true,
+  timeStrategy: TimeStrategy.LockDuration,
   warnTime: '00:02:00', // 120000 same as backend
   dangerTime: '00:01:00', // 60000 same as backend
   isPublic: true,
@@ -34,6 +37,7 @@ export const editorSettingsDefaults = {
 enum EditorSettingsKeys {
   DefaultDuration = 'ontime-default-duration',
   LinkPrevious = 'ontime-link-previous',
+  DefaultTimeStrategy = 'ontime-time-strategy',
   DefaultWarnTime = 'ontime-default-warn-time',
   DefaultDangerTime = 'ontime-default-danger-time',
   DefaultPublic = 'ontime-default-public',
@@ -45,6 +49,10 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => {
   return {
     defaultDuration: localStorage.getItem(EditorSettingsKeys.DefaultDuration) ?? editorSettingsDefaults.duration,
     linkPrevious: booleanFromLocalStorage(EditorSettingsKeys.LinkPrevious, editorSettingsDefaults.linkPrevious),
+    defaultTimeStrategy: validateTimeStrategy(
+      localStorage.getItem(EditorSettingsKeys.DefaultTimeStrategy),
+      editorSettingsDefaults.timeStrategy,
+    ),
     defaultWarnTime: localStorage.getItem(EditorSettingsKeys.DefaultWarnTime) ?? editorSettingsDefaults.warnTime,
     defaultDangerTime: localStorage.getItem(EditorSettingsKeys.DefaultDangerTime) ?? editorSettingsDefaults.dangerTime,
     defaultPublic: booleanFromLocalStorage(EditorSettingsKeys.DefaultPublic, editorSettingsDefaults.isPublic),
@@ -68,6 +76,12 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => {
         localStorage.setItem(EditorSettingsKeys.LinkPrevious, String(linkPrevious));
         return { linkPrevious };
       }),
+    setTimeStrategy: (defaultTimeStrategy) =>
+      set(() => {
+        localStorage.setItem(EditorSettingsKeys.DefaultTimeStrategy, String(defaultTimeStrategy));
+        return { defaultTimeStrategy };
+      }),
+
     setWarnTime: (defaultWarnTime) =>
       set(() => {
         localStorage.setItem(EditorSettingsKeys.DefaultWarnTime, String(defaultWarnTime));

@@ -12,6 +12,7 @@ export const ontimeModal = {
     minHeight: 'min(200px, 10vh)',
     backgroundColor: '#202020', // $gray-1250
     color: '#fefefe', // $gray-50
+    border: '1px solid #2d2d2d', // $gray-1100
   },
   body: {
     padding: '1rem',
@@ -24,6 +25,8 @@ export const ontimeModal = {
     color: '#fefefe', // $gray-50
   },
   footer: {
-    padding: '0.5rem',
+    padding: '1rem',
+    display: 'flex',
+    gap: '0.5rem',
   },
 };

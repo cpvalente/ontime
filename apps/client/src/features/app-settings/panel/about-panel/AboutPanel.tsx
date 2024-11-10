@@ -1,9 +1,8 @@
-import { version } from '../../../../../package.json';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import { documentationUrl, githubUrl, websiteUrl } from '../../../../externals';
-import * as Panel from '../PanelUtils';
+import * as Panel from '../../panel-utils/PanelUtils';
 
-import CheckUpdatesButton from './CheckUpdatesButton';
+import AppVersion from './AppVersion';
 
 export default function AboutPanel() {
   return (
@@ -23,8 +22,7 @@ export default function AboutPanel() {
       </Panel.Section>
       <Panel.Section>
         <Panel.SubHeader>Current version</Panel.SubHeader>
-        <Panel.Paragraph>{`You are currently using Ontime ${version}`}</Panel.Paragraph>
-        <CheckUpdatesButton version={version} />
+        <AppVersion />
       </Panel.Section>
     </>
   );

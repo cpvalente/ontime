@@ -88,7 +88,7 @@ describe('SimpleTimer count-down', () => {
     });
 
     test('count-up mode', () => {
-      const initialState = timer.setDirection(SimpleDirection.CountUp);
+      const initialState = timer.setDirection(SimpleDirection.CountUp, 0);
       expect(initialState.current).toBe(initialTime);
 
       let newState = timer.start(0);
@@ -114,16 +114,68 @@ describe('SimpleTimer count-down', () => {
       expect(newState).toStrictEqual(expected);
     });
 
-    test('changing direction stops the timer', () => {
-      const newState = timer.setDirection(SimpleDirection.CountDown);
-      const expected: SimpleTimerState = {
-        duration: initialTime,
-        current: initialTime,
-        direction: SimpleDirection.CountDown,
-        playback: SimplePlayback.Stop,
-      };
+    test('changing direction keeps the current time', () => {
+      timer.reset();
+      timer.setTime(1000);
 
-      expect(newState).toStrictEqual(expected);
+      const initialState = timer.setDirection(SimpleDirection.CountUp, 0);
+      expect(initialState.current).toBe(1000);
+
+      let newState = timer.start(0);
+      expect(newState).toStrictEqual({
+        duration: 1000,
+        current: 1000,
+        direction: SimpleDirection.CountUp,
+        playback: SimplePlayback.Start,
+      });
+
+      newState = timer.update(100);
+      expect(newState).toStrictEqual({
+        duration: 1000,
+        current: initialTime + 100,
+        direction: SimpleDirection.CountUp,
+        playback: SimplePlayback.Start,
+      });
+
+      newState = timer.update(500);
+      expect(newState).toStrictEqual({
+        duration: 1000,
+        current: 1500,
+        direction: SimpleDirection.CountUp,
+        playback: SimplePlayback.Start,
+      });
+
+      newState = timer.setDirection(SimpleDirection.CountDown, 600);
+      expect(newState).toStrictEqual({
+        duration: 1500,
+        current: 1500,
+        direction: SimpleDirection.CountDown,
+        playback: SimplePlayback.Start,
+      });
+
+      newState = timer.update(700);
+      expect(newState).toStrictEqual({
+        duration: 1500,
+        current: 1400,
+        direction: SimpleDirection.CountDown,
+        playback: SimplePlayback.Start,
+      });
+
+      newState = timer.setDirection(SimpleDirection.CountUp, 700);
+      expect(newState).toStrictEqual({
+        duration: 1400,
+        current: 1400,
+        direction: SimpleDirection.CountUp,
+        playback: SimplePlayback.Start,
+      });
+
+      newState = timer.update(800);
+      expect(newState).toStrictEqual({
+        duration: 1400,
+        current: 1500,
+        direction: SimpleDirection.CountUp,
+        playback: SimplePlayback.Start,
+      });
     });
   });
 });
