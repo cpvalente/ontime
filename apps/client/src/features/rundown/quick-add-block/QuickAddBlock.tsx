@@ -4,6 +4,7 @@ import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
+import { useFrozen } from '../../../common/hooks/useSocket';
 import { useEmitLog } from '../../../common/stores/logger';
 
 import style from './QuickAddBlock.module.scss';
@@ -18,6 +19,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
   const { previousEventId } = props;
   const { addEvent } = useEventAction();
   const { emitError } = useEmitLog();
+  const { frozen } = useFrozen();
 
   const doLinkPrevious = useRef<HTMLInputElement | null>(null);
   const doPublic = useRef<HTMLInputElement | null>(null);
@@ -73,6 +75,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
         className={style.quickBtn}
         leftIcon={<IoAdd />}
         color='#b1b1b1' // $gray-400
+        isDisabled={frozen}
       >
         Event
       </Button>
@@ -83,6 +86,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
         className={style.quickBtn}
         leftIcon={<IoAdd />}
         color='#b1b1b1' // $gray-400
+        isDisabled={frozen}
       >
         Delay
       </Button>
@@ -93,6 +97,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
         className={style.quickBtn}
         leftIcon={<IoAdd />}
         color='#b1b1b1' // $gray-400
+        isDisabled={frozen}
       >
         Block
       </Button>
