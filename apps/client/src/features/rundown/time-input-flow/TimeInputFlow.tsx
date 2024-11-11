@@ -88,11 +88,12 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         disabled={isLockedDuration}
         placeholder='End'
       >
-        <Tooltip label='Lock end' openDelay={tooltipDelayMid} as='button'>
+        <Tooltip label='Lock end' openDelay={tooltipDelayMid}>
           <InputRightElement
             className={activeEnd}
             onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}
             data-testid='lock__end'
+            as='button'
           >
             <span className={style.timeLabel}>E</span>
             {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
