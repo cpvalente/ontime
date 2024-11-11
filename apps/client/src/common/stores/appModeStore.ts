@@ -9,9 +9,7 @@ export enum AppMode {
 const appModeKey = 'ontime-app-mode';
 
 function getModeFromSession() {
-  const appModeFromSessionStorage = sessionStorage.getItem(appModeKey);
-
-  return appModeFromSessionStorage === AppMode.Run ? AppMode.Run : AppMode.Edit;
+  return sessionStorage.getItem(appModeKey) === AppMode.Run ? AppMode.Run : AppMode.Edit;
 }
 
 function persistModeToSession(mode: AppMode) {
