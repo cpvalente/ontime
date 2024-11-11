@@ -14,11 +14,10 @@ interface CountedTextAreaProps {
   initialValue: string;
   style?: CSSProperties;
   submitHandler: (field: EditorUpdateFields, value: string) => void;
-  disabled?: boolean;
 }
 
 export default function EventTextArea(props: CountedTextAreaProps) {
-  const { className, field, label, initialValue, style: givenStyles, submitHandler, disabled } = props;
+  const { className, field, label, initialValue, style: givenStyles, submitHandler } = props;
   const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback((newValue: string) => submitHandler(field, newValue), [field, submitHandler]);
 
@@ -41,7 +40,6 @@ export default function EventTextArea(props: CountedTextAreaProps) {
         variant='ontime-filled'
         data-testid='input-textarea'
         value={value}
-        isDisabled={disabled}
         onChange={onChange}
         onBlur={onBlur}
         onKeyDown={onKeyDown}

@@ -11,11 +11,10 @@ interface EventTextInputProps extends InputProps {
   label: string;
   initialValue: string;
   submitHandler: (field: EditorUpdateFields, value: string) => void;
-  disabled?: boolean;
 }
 
 export default function EventTextInput(props: EventTextInputProps) {
-  const { field, label, initialValue, submitHandler, maxLength, disabled } = props;
+  const { field, label, initialValue, submitHandler, maxLength } = props;
   const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback((newValue: string) => submitHandler(field, newValue), [field, submitHandler]);
 
@@ -40,7 +39,6 @@ export default function EventTextInput(props: EventTextInputProps) {
         onBlur={onBlur}
         onKeyDown={onKeyDown}
         autoComplete='off'
-        disabled={disabled}
       />
     </div>
   );
