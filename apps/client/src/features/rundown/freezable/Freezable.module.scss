@@ -1,0 +1,7 @@
+.frozen {
+  cursor: not-allowed;
+
+  & * {
+    pointer-events: none;
+  }
+}
