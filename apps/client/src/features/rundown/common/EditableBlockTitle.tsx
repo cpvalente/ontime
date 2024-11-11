@@ -17,7 +17,6 @@ interface TitleEditorProps {
 export default function EditableBlockTitle(props: TitleEditorProps) {
   const { title, eventId, placeholder, className } = props;
   const { updateEvent } = useEventAction();
-
   const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback(
     (text: string) => {
