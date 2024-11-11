@@ -15,6 +15,7 @@ import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontim
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
+import Freezable from '../freezable/Freezable';
 import TimeInputFlow from '../time-input-flow/TimeInputFlow';
 
 import EventBlockPlayback from './composite/EventBlockPlayback';
@@ -95,7 +96,9 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         />
       </div>
       <div className={style.titleSection}>
-        <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
+        <Freezable>
+          <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
+        </Freezable>
         {isNext && <span className={style.nextTag}>UP NEXT</span>}
       </div>
       <EventBlockPlayback

@@ -5,8 +5,8 @@ import { millisToString, parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
-import { useFrozen } from '../../../../common/hooks/useSocket';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
+import Freezable from '../../../../features/rundown/freezable/Freezable';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
 
 import style from '../EventEditor.module.scss';
@@ -44,7 +44,6 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
     timeDanger,
   } = props;
   const { updateEvent } = useEventAction();
-  const { frozen } = useFrozen();
 
   const handleSubmit = (field: HandledActions, value: string | boolean) => {
     if (field === 'isPublic') {
@@ -97,59 +96,62 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           </label>
           <TimeInput name='timeWarning' submitHandler={handleSubmit} time={timeWarning} placeholder='Duration' />
         </div>
-        <div>
-          <label className={style.inputLabel}>Timer Type</label>
-          <Select
-            size='sm'
-            name='timerType'
-            value={timerType}
-            onChange={(event) => handleSubmit('timerType', event.target.value)}
-            variant='ontime'
-            disabled={frozen}
-          >
-            <option value={TimerType.CountDown}>Count down</option>
-            <option value={TimerType.CountUp}>Count up</option>
-            <option value={TimerType.TimeToEnd}>Time to end</option>
-            <option value={TimerType.Clock}>Clock</option>
-            <option value={TimerType.None}>None</option>
-          </Select>
-        </div>
+        <Freezable>
+          <div>
+            <label className={style.inputLabel}>Timer Type</label>
+            <Select
+              size='sm'
+              name='timerType'
+              value={timerType}
+              onChange={(event) => handleSubmit('timerType', event.target.value)}
+              variant='ontime'
+            >
+              <option value={TimerType.CountDown}>Count down</option>
+              <option value={TimerType.CountUp}>Count up</option>
+              <option value={TimerType.TimeToEnd}>Time to end</option>
+              <option value={TimerType.Clock}>Clock</option>
+              <option value={TimerType.None}>None</option>
+            </Select>
+          </div>
+        </Freezable>
         <div>
           <label className={style.inputLabel} htmlFor='timeDanger'>
             Danger Time
           </label>
           <TimeInput name='timeDanger' submitHandler={handleSubmit} time={timeDanger} placeholder='Duration' />
         </div>
-        <div>
-          <label className={style.inputLabel}>End Action</label>
-          <Select
-            size='sm'
-            name='endAction'
-            value={endAction}
-            onChange={(event) => handleSubmit('endAction', event.target.value)}
-            variant='ontime'
-            disabled={frozen}
-          >
-            <option value={EndAction.None}>None</option>
-            <option value={EndAction.Stop}>Stop</option>
-            <option value={EndAction.LoadNext}>Load Next</option>
-            <option value={EndAction.PlayNext}>Play Next</option>
-          </Select>
-        </div>
+        <Freezable>
+          <div>
+            <label className={style.inputLabel}>End Action</label>
+            <Select
+              size='sm'
+              name='endAction'
+              value={endAction}
+              onChange={(event) => handleSubmit('endAction', event.target.value)}
+              variant='ontime'
+            >
+              <option value={EndAction.None}>None</option>
+              <option value={EndAction.Stop}>Stop</option>
+              <option value={EndAction.LoadNext}>Load Next</option>
+              <option value={EndAction.PlayNext}>Play Next</option>
+            </Select>
+          </div>
+        </Freezable>
       </div>
 
       <div>
         <span className={style.inputLabel}>Event Visibility</span>
-        <label className={style.switchLabel}>
-          <Switch
-            size='md'
-            isChecked={isPublic}
-            onChange={() => handleSubmit('isPublic', isPublic)}
-            variant='ontime'
-            disabled={frozen}
-          />
-          {isPublic ? 'Public' : 'Private'}
-        </label>
+        <Freezable>
+          <label className={style.switchLabel}>
+            <Switch
+              size='md'
+              isChecked={isPublic}
+              onChange={() => handleSubmit('isPublic', isPublic)}
+              variant='ontime'
+            />
+            {isPublic ? 'Public' : 'Private'}
+          </label>
+        </Freezable>
       </div>
     </div>
   );

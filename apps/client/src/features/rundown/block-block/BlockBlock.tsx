@@ -6,6 +6,7 @@ import { OntimeBlock } from 'ontime-types';
 
 import { cx } from '../../../common/utils/styleUtils';
 import EditableBlockTitle from '../common/EditableBlockTitle';
+import Freezable from '../freezable/Freezable';
 
 import BlockDelete from './BlockDelete';
 
@@ -45,7 +46,9 @@ export default function BlockBlock(props: BlockBlockProps) {
       <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
         <IoReorderTwo />
       </span>
-      <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Block title' />
+      <Freezable>
+        <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Block title' />
+      </Freezable>
       <BlockDelete onDelete={onDelete} />
     </div>
   );
