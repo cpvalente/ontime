@@ -569,9 +569,6 @@ export const useEventAction = () => {
    */
   const _toggleFreezeEvents = useMutation({
     mutationFn: requestToggleRundownFreeze,
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: RUNDOWN });
-    },
   });
 
   /**
