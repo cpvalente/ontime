@@ -114,10 +114,8 @@ export default function Operator() {
   // get fields which the user subscribed to
   const shouldEdit = searchParams.get('shouldEdit');
 
-  const subscriptions = (searchParams.get('subscribe') ?? '')
-    .split('_')
-    .filter((value) => Object.hasOwn(customFields, value));
-
+  // subscriptions is a MultiSelect and may have multiple values
+  const subscriptions = searchParams.getAll('subscribe').filter((value) => Object.hasOwn(customFields, value));
   const canEdit = shouldEdit && subscriptions;
 
   const main = searchParams.get('main') as keyof TitleFields | null;
