@@ -13,6 +13,7 @@ import {
   Select,
   Switch,
 } from '@chakra-ui/react';
+import { IoChevronDown } from '@react-icons/all-files/io5/IoChevronDown';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 
@@ -108,25 +109,21 @@ function MultiOption(props: EditFormMultiOptionProps) {
   const { paramField } = props;
   const { id, defaultValue } = paramField;
 
-  const optionFromParams = (searchParams.get(id) ?? '').toLocaleLowerCase();
-  const defaultOptionValue = optionFromParams || defaultValue?.toLocaleLowerCase() || '';
-
-  const [paramState, setParamState] = useState<string>(defaultOptionValue);
+  const optionFromParams = searchParams.getAll(id);
+  const [paramState, setParamState] = useState<string[]>(optionFromParams || defaultValue || ['']);
 
   return (
     <>
       <input name={id} hidden readOnly value={paramState} />
       <Menu isLazy closeOnSelect={false} variant='ontime-on-dark'>
         <MenuButton as={Button} variant='ontime-subtle-white' position='relative' width='fit-content' fontWeight={400}>
-          {paramField.title}
+          {paramField.title} <IoChevronDown style={{ display: 'inline' }} />
         </MenuButton>
         <MenuList>
           <MenuOptionGroup
             type='checkbox'
-            value={paramState.split('_')}
-            onChange={(value) => {
-              setParamState(typeof value === 'object' ? value.filter((v) => v !== '').join('_') : value);
-            }}
+            value={paramState}
+            onChange={(value) => setParamState(Array.isArray(value) ? value : [value])}
           >
             {Object.values(paramField.values).map((option) => {
               const { value, label } = option;
