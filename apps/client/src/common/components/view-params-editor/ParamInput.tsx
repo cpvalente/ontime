@@ -13,6 +13,7 @@ import {
   Select,
   Switch,
 } from '@chakra-ui/react';
+import { IoChevronDown } from '@react-icons/all-files/io5/IoChevronDown';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 
@@ -118,7 +119,7 @@ function MultiOption(props: EditFormMultiOptionProps) {
       <input name={id} hidden readOnly value={paramState} />
       <Menu isLazy closeOnSelect={false} variant='ontime-on-dark'>
         <MenuButton as={Button} variant='ontime-subtle-white' position='relative' width='fit-content' fontWeight={400}>
-          {paramField.title}
+          {paramField.title} <IoChevronDown style={{ display: 'inline' }} />
         </MenuButton>
         <MenuList>
           <MenuOptionGroup
