@@ -66,66 +66,72 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
   return (
     <>
       <Freezable>
-        <TimeInputWithButton<TimeActions>
-          name='timeStart'
-          submitHandler={handleSubmit}
-          time={timeStart}
-          hasDelay={hasDelay}
-          placeholder='Start'
-          disabled={Boolean(linkStart)}
-        >
-          <Tooltip label='Link start to previous end' openDelay={tooltipDelayMid}>
-            <InputRightElement className={activeStart} onClick={() => handleLink(!linkStart)} as='button'>
-              <span className={style.timeLabel}>S</span>
-              <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
-            </InputRightElement>
-          </Tooltip>
-        </TimeInputWithButton>
+        {() => (
+          <TimeInputWithButton<TimeActions>
+            name='timeStart'
+            submitHandler={handleSubmit}
+            time={timeStart}
+            hasDelay={hasDelay}
+            placeholder='Start'
+            disabled={Boolean(linkStart)}
+          >
+            <Tooltip label='Link start to previous end' openDelay={tooltipDelayMid}>
+              <InputRightElement className={activeStart} onClick={() => handleLink(!linkStart)} as='button'>
+                <span className={style.timeLabel}>S</span>
+                <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
+              </InputRightElement>
+            </Tooltip>
+          </TimeInputWithButton>
+        )}
       </Freezable>
 
       <Freezable>
-        <TimeInputWithButton<TimeActions>
-          name='timeEnd'
-          submitHandler={handleSubmit}
-          time={timeEnd}
-          hasDelay={hasDelay}
-          disabled={isLockedDuration}
-          placeholder='End'
-        >
-          <Tooltip label='Lock end' openDelay={tooltipDelayMid}>
-            <InputRightElement
-              className={activeEnd}
-              onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}
-              data-testid='lock__end'
-              as='button'
-            >
-              <span className={style.timeLabel}>E</span>
-              {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
-            </InputRightElement>
-          </Tooltip>
-        </TimeInputWithButton>
+        {() => (
+          <TimeInputWithButton<TimeActions>
+            name='timeEnd'
+            submitHandler={handleSubmit}
+            time={timeEnd}
+            hasDelay={hasDelay}
+            disabled={isLockedDuration}
+            placeholder='End'
+          >
+            <Tooltip label='Lock end' openDelay={tooltipDelayMid}>
+              <InputRightElement
+                className={activeEnd}
+                onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}
+                data-testid='lock__end'
+                as='button'
+              >
+                <span className={style.timeLabel}>E</span>
+                {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
+              </InputRightElement>
+            </Tooltip>
+          </TimeInputWithButton>
+        )}
       </Freezable>
 
       <Freezable>
-        <TimeInputWithButton<TimeActions>
-          name='duration'
-          submitHandler={handleSubmit}
-          time={duration}
-          disabled={isLockedEnd}
-          placeholder='Duration'
-        >
-          <Tooltip label='Lock duration' openDelay={tooltipDelayMid}>
-            <InputRightElement
-              className={activeDuration}
-              onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}
-              as='button'
-              data-testid='lock__duration'
-            >
-              <span className={style.timeLabel}>D</span>
-              {isLockedDuration ? <IoLockClosed /> : <IoLockOpenOutline />}
-            </InputRightElement>
-          </Tooltip>
-        </TimeInputWithButton>
+        {() => (
+          <TimeInputWithButton<TimeActions>
+            name='duration'
+            submitHandler={handleSubmit}
+            time={duration}
+            disabled={isLockedEnd}
+            placeholder='Duration'
+          >
+            <Tooltip label='Lock duration' openDelay={tooltipDelayMid}>
+              <InputRightElement
+                className={activeDuration}
+                onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}
+                as='button'
+                data-testid='lock__duration'
+              >
+                <span className={style.timeLabel}>D</span>
+                {isLockedDuration ? <IoLockClosed /> : <IoLockOpenOutline />}
+              </InputRightElement>
+            </Tooltip>
+          </TimeInputWithButton>
+        )}
       </Freezable>
 
       {warnings.length > 0 && (

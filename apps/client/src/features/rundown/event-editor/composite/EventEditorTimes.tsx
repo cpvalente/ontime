@@ -97,22 +97,24 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           <TimeInput name='timeWarning' submitHandler={handleSubmit} time={timeWarning} placeholder='Duration' />
         </div>
         <Freezable>
-          <div>
-            <label className={style.inputLabel}>Timer Type</label>
-            <Select
-              size='sm'
-              name='timerType'
-              value={timerType}
-              onChange={(event) => handleSubmit('timerType', event.target.value)}
-              variant='ontime'
-            >
-              <option value={TimerType.CountDown}>Count down</option>
-              <option value={TimerType.CountUp}>Count up</option>
-              <option value={TimerType.TimeToEnd}>Time to end</option>
-              <option value={TimerType.Clock}>Clock</option>
-              <option value={TimerType.None}>None</option>
-            </Select>
-          </div>
+          {() => (
+            <div>
+              <label className={style.inputLabel}>Timer Type</label>
+              <Select
+                size='sm'
+                name='timerType'
+                value={timerType}
+                onChange={(event) => handleSubmit('timerType', event.target.value)}
+                variant='ontime'
+              >
+                <option value={TimerType.CountDown}>Count down</option>
+                <option value={TimerType.CountUp}>Count up</option>
+                <option value={TimerType.TimeToEnd}>Time to end</option>
+                <option value={TimerType.Clock}>Clock</option>
+                <option value={TimerType.None}>None</option>
+              </Select>
+            </div>
+          )}
         </Freezable>
         <div>
           <label className={style.inputLabel} htmlFor='timeDanger'>
@@ -121,36 +123,40 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           <TimeInput name='timeDanger' submitHandler={handleSubmit} time={timeDanger} placeholder='Duration' />
         </div>
         <Freezable>
-          <div>
-            <label className={style.inputLabel}>End Action</label>
-            <Select
-              size='sm'
-              name='endAction'
-              value={endAction}
-              onChange={(event) => handleSubmit('endAction', event.target.value)}
-              variant='ontime'
-            >
-              <option value={EndAction.None}>None</option>
-              <option value={EndAction.Stop}>Stop</option>
-              <option value={EndAction.LoadNext}>Load Next</option>
-              <option value={EndAction.PlayNext}>Play Next</option>
-            </Select>
-          </div>
+          {() => (
+            <div>
+              <label className={style.inputLabel}>End Action</label>
+              <Select
+                size='sm'
+                name='endAction'
+                value={endAction}
+                onChange={(event) => handleSubmit('endAction', event.target.value)}
+                variant='ontime'
+              >
+                <option value={EndAction.None}>None</option>
+                <option value={EndAction.Stop}>Stop</option>
+                <option value={EndAction.LoadNext}>Load Next</option>
+                <option value={EndAction.PlayNext}>Play Next</option>
+              </Select>
+            </div>
+          )}
         </Freezable>
       </div>
 
       <div>
         <span className={style.inputLabel}>Event Visibility</span>
         <Freezable>
-          <label className={style.switchLabel}>
-            <Switch
-              size='md'
-              isChecked={isPublic}
-              onChange={() => handleSubmit('isPublic', isPublic)}
-              variant='ontime'
-            />
-            {isPublic ? 'Public' : 'Private'}
-          </label>
+          {() => (
+            <label className={style.switchLabel}>
+              <Switch
+                size='md'
+                isChecked={isPublic}
+                onChange={() => handleSubmit('isPublic', isPublic)}
+                variant='ontime'
+              />
+              {isPublic ? 'Public' : 'Private'}
+            </label>
+          )}
         </Freezable>
       </div>
     </div>

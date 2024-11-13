@@ -97,7 +97,14 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
       </div>
       <div className={style.titleSection}>
         <Freezable>
-          <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
+          {() => (
+            <EditableBlockTitle
+              title={title}
+              eventId={eventId}
+              placeholder='Event title'
+              className={style.eventTitle}
+            />
+          )}
         </Freezable>
         {isNext && <span className={style.nextTag}>UP NEXT</span>}
       </div>

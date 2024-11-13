@@ -42,14 +42,16 @@ export default function BlockBlock(props: BlockBlockProps) {
   const blockClasses = cx([style.block, hasCursor ? style.hasCursor : null]);
 
   return (
-    <div className={blockClasses} ref={setNodeRef} style={dragStyle}>
-      <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
-        <IoReorderTwo />
-      </span>
-      <Freezable>
-        <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Block title' />
-      </Freezable>
-      <BlockDelete onDelete={onDelete} />
-    </div>
+    <Freezable>
+      {() => (
+        <div className={blockClasses} ref={setNodeRef} style={dragStyle}>
+          <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
+            <IoReorderTwo />
+          </span>
+          <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Block title' />
+          <BlockDelete onDelete={onDelete} />
+        </div>
+      )}
+    </Freezable>
   );
 }

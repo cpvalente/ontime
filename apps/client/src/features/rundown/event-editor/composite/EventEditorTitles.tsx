@@ -44,7 +44,15 @@ const EventEditorTitles = (props: EventEditorTitlesProps) => {
           />
         </div>
         <Freezable>
-          <EventTextInput field='cue' label='Cue' initialValue={cue} submitHandler={cueSubmitHandler} maxLength={10} />
+          {() => (
+            <EventTextInput
+              field='cue'
+              label='Cue'
+              initialValue={cue}
+              submitHandler={cueSubmitHandler}
+              maxLength={10}
+            />
+          )}
         </Freezable>
       </div>
       <div>
@@ -52,10 +60,10 @@ const EventEditorTitles = (props: EventEditorTitlesProps) => {
         <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
       </div>
       <Freezable>
-        <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />
+        {() => <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />}
       </Freezable>
       <Freezable>
-        <EventTextArea field='note' label='Note' initialValue={note} submitHandler={handleSubmit} />
+        {() => <EventTextArea field='note' label='Note' initialValue={note} submitHandler={handleSubmit} />}
       </Freezable>
     </div>
   );
