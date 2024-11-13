@@ -115,7 +115,6 @@ export default function Operator() {
   const shouldEdit = searchParams.get('shouldEdit');
 
   const subscriptions = (searchParams.get('subscribe') ?? '')
-    .toLocaleLowerCase()
     .split('_')
     .filter((value) => Object.hasOwn(customFields, value));
 
