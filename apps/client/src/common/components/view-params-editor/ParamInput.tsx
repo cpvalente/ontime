@@ -109,10 +109,8 @@ function MultiOption(props: EditFormMultiOptionProps) {
   const { paramField } = props;
   const { id, defaultValue } = paramField;
 
-  const optionFromParams = (searchParams.get(id) ?? '').toLocaleLowerCase();
-  const defaultOptionValue = optionFromParams || defaultValue?.toLocaleLowerCase() || '';
-
-  const [paramState, setParamState] = useState<string>(defaultOptionValue);
+  const optionFromParams = searchParams.getAll(id);
+  const [paramState, setParamState] = useState<string[]>(optionFromParams || defaultValue || ['']);
 
   return (
     <>
@@ -124,10 +122,8 @@ function MultiOption(props: EditFormMultiOptionProps) {
         <MenuList>
           <MenuOptionGroup
             type='checkbox'
-            value={paramState.split('_')}
-            onChange={(value) => {
-              setParamState(typeof value === 'object' ? value.filter((v) => v !== '').join('_') : value);
-            }}
+            value={paramState}
+            onChange={(value) => setParamState(Array.isArray(value) ? value : [value])}
           >
             {Object.values(paramField.values).map((option) => {
               const { value, label } = option;

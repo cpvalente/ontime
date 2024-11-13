@@ -55,10 +55,28 @@ const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj, paramFields: ViewOp
       // unfortunately this means we run all the strings through the sanitation
       const valueWithoutHash = sanitiseColour(value);
       if (defaultValues[id] !== valueWithoutHash) {
-        newSearchParams.set(id, valueWithoutHash);
+        handleValueString(id, value);
       }
     }
   });
+
+  /** Utility function contains logic to add a value into the searchParams object */
+  function handleValueString(id: string, value: string) {
+    const maybeMultipleValues = value.split(',');
+
+    // we need to check if the value contains comma separated list, for the case of the multi-select data
+    if (Array.isArray(maybeMultipleValues) && maybeMultipleValues.length > 1) {
+      const added = new Set();
+      maybeMultipleValues.forEach((v) => {
+        if (!added.has(v)) {
+          added.add(v);
+          newSearchParams.append(id, v);
+        }
+      });
+    } else {
+      newSearchParams.set(id, value);
+    }
+  }
   return newSearchParams;
 };
 
