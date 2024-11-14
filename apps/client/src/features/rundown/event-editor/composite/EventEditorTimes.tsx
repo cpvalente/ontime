@@ -104,7 +104,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           <TimeInput name='timeWarning' submitHandler={handleSubmit} time={timeWarning} placeholder='Duration' />
         </div>
         <Freezable as='div'>
-          {({ FrozenIcon }) => (
+          {({ frozen, FrozenIcon }) => (
             <>
               <label className={style.inputLabel}>
                 Timer Type <FrozenIcon />
@@ -114,7 +114,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
                 name='timerType'
                 value={timerType}
                 onChange={(event) => handleSubmit('timerType', event.target.value)}
-                variant='ontime'
+                variant={frozen ? 'ontime-readonly' : 'ontime'}
               >
                 <option value={TimerType.CountDown}>Count down</option>
                 <option value={TimerType.CountUp}>Count up</option>
@@ -132,7 +132,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           <TimeInput name='timeDanger' submitHandler={handleSubmit} time={timeDanger} placeholder='Duration' />
         </div>
         <Freezable as='div'>
-          {({ FrozenIcon }) => (
+          {({ frozen, FrozenIcon }) => (
             <>
               <label className={style.inputLabel}>
                 End Action <FrozenIcon />
@@ -142,7 +142,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
                 name='endAction'
                 value={endAction}
                 onChange={(event) => handleSubmit('endAction', event.target.value)}
-                variant='ontime'
+                variant={frozen ? 'ontime-readonly' : 'ontime'}
               >
                 <option value={EndAction.None}>None</option>
                 <option value={EndAction.Stop}>Stop</option>
