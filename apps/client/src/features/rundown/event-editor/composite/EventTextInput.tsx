@@ -24,7 +24,7 @@ export default function EventTextInput(props: EventTextInputProps) {
   });
 
   return (
-    <Freezable as='div'>
+    <Freezable>
       {({ frozen, FrozenIcon }) => (
         <>
           <label className={style.inputLabel} htmlFor={field}>
