@@ -23,3 +23,15 @@ export const ontimeSelect = {
     color: '#e2e2e2', // $gray-200
   },
 };
+
+export const ontimeSelectReadonly = {
+  field: {
+    ...ontimeSelect.field,
+    backgroundColor: '#151515',
+    border: '1px solid #9d9d9d',
+  },
+  icon: {
+    height: '0px',
+    width: '0px',
+  },
+};
