@@ -72,29 +72,31 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
 
   return (
     <div className={style.column}>
-      <Freezable as='div'>
-        {({ FrozenIcon }) => (
-          <>
-            <div className={style.inputLabel}>
+      <div>
+        <Freezable as='div' className={style.inputLabel}>
+          {({ FrozenIcon }) => (
+            <>
               Event schedule
               <FrozenIcon />
-            </div>
-            <div className={style.inline}>
-              <TimeInputFlow
-                eventId={eventId}
-                timeStart={timeStart}
-                timeEnd={timeEnd}
-                duration={duration}
-                timeStrategy={timeStrategy}
-                linkStart={linkStart}
-                delay={delay}
-                timerType={timerType}
-              />
-            </div>
-            <div className={style.delayLabel}>{delayLabel}</div>
-          </>
-        )}
-      </Freezable>
+            </>
+          )}
+        </Freezable>
+
+        <div className={style.inline}>
+          <TimeInputFlow
+            eventId={eventId}
+            timeStart={timeStart}
+            timeEnd={timeEnd}
+            duration={duration}
+            timeStrategy={timeStrategy}
+            linkStart={linkStart}
+            delay={delay}
+            timerType={timerType}
+          />
+        </div>
+
+        <div className={style.delayLabel}>{delayLabel}</div>
+      </div>
 
       <div className={style.splitTwo}>
         <div>

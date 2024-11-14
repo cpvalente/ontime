@@ -83,20 +83,18 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
 
   return !renderInner ? null : (
     <>
-      <Freezable as='div' className={style.eventTimers}>
-        {() => (
-          <TimeInputFlow
-            eventId={eventId}
-            timeStart={timeStart}
-            timeEnd={timeEnd}
-            duration={duration}
-            delay={delay}
-            timeStrategy={timeStrategy}
-            linkStart={linkStart}
-            timerType={timerType}
-          />
-        )}
-      </Freezable>
+      <div className={style.eventTimers}>
+        <TimeInputFlow
+          eventId={eventId}
+          timeStart={timeStart}
+          timeEnd={timeEnd}
+          duration={duration}
+          delay={delay}
+          timeStrategy={timeStrategy}
+          linkStart={linkStart}
+          timerType={timerType}
+        />
+      </div>
       <div className={style.titleSection}>
         <Freezable>
           {() => (

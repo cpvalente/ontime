@@ -66,9 +66,9 @@ function QuickAddBlock(props: QuickAddBlockProps) {
   );
 
   return (
-    <Freezable>
-      {({ frozen }) => (
-        <div className={style.quickAdd}>
+    <div className={style.quickAdd}>
+      <Freezable>
+        {({ frozen }) => (
           <Button
             onClick={() => handleCreateEvent(SupportedEvent.Event)}
             size='xs'
@@ -80,6 +80,11 @@ function QuickAddBlock(props: QuickAddBlockProps) {
           >
             Event
           </Button>
+        )}
+      </Freezable>
+
+      <Freezable>
+        {({ frozen }) => (
           <Button
             onClick={() => handleCreateEvent(SupportedEvent.Delay)}
             size='xs'
@@ -91,6 +96,11 @@ function QuickAddBlock(props: QuickAddBlockProps) {
           >
             Delay
           </Button>
+        )}
+      </Freezable>
+
+      <Freezable>
+        {({ frozen }) => (
           <Button
             onClick={() => handleCreateEvent(SupportedEvent.Block)}
             size='xs'
@@ -102,8 +112,8 @@ function QuickAddBlock(props: QuickAddBlockProps) {
           >
             Block
           </Button>
-        </div>
-      )}
-    </Freezable>
+        )}
+      </Freezable>
+    </div>
   );
 }
