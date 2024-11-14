@@ -29,7 +29,7 @@ export default function EventTextArea(props: CountedTextAreaProps) {
 
   return (
     <Freezable>
-      {({ FrozenIcon }) => (
+      {({ frozen, FrozenIcon }) => (
         <>
           <label className={classes} htmlFor={field} style={givenStyles}>
             {label} <FrozenIcon />
@@ -40,7 +40,7 @@ export default function EventTextArea(props: CountedTextAreaProps) {
             rows={1}
             size='sm'
             resize='none'
-            variant='ontime-filled'
+            variant={frozen ? 'ontime-readonly' : 'ontime-filled'}
             data-testid='input-textarea'
             value={value}
             onChange={onChange}

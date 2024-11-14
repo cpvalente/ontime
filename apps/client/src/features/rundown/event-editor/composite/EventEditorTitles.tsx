@@ -36,7 +36,7 @@ const EventEditorTitles = (props: EventEditorTitlesProps) => {
           <Input
             id='eventId'
             size='sm'
-            variant='ontime-filled'
+            variant='ontime-readonly'
             data-testid='input-textfield'
             value={eventId}
             readOnly

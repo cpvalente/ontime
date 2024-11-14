@@ -25,7 +25,7 @@ export default function EventTextInput(props: EventTextInputProps) {
 
   return (
     <Freezable as='div'>
-      {({ FrozenIcon }) => (
+      {({ frozen, FrozenIcon }) => (
         <>
           <label className={style.inputLabel} htmlFor={field}>
             {label} <FrozenIcon />
@@ -34,7 +34,7 @@ export default function EventTextInput(props: EventTextInputProps) {
             id={field}
             ref={ref}
             size='sm'
-            variant='ontime-filled'
+            variant={frozen ? 'ontime-readonly' : 'ontime-filled'}
             data-testid='input-textfield'
             value={value}
             maxLength={maxLength || 100}
