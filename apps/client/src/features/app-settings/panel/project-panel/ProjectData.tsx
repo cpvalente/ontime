@@ -60,7 +60,9 @@ export default function ProjectData() {
     }
   };
 
-  const uploadInputRef = useRef<HTMLInputElement>(null);
+  const { ref, ...projectLogoRest } = register('projectLogo');
+
+  const uploadInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleClickUpload = () => {
     uploadInputRef.current?.click();
@@ -127,23 +129,28 @@ export default function ProjectData() {
           <Panel.Section style={{ marginTop: 0 }}>
             <label>
               Project logo
+              <Input
+                variant='ontime-filled'
+                size='sm'
+                type='file'
+                style={{ display: 'none' }}
+                accept='image/*'
+                {...projectLogoRest}
+                ref={(e) => {
+                  ref(e);
+                  uploadInputRef.current = e;
+                }}
+                onChange={handleUploadProjectLogo}
+              />
               <Panel.Card>
                 <div className={style.uploadLogoContainer}>
                   <div>
-                    <Input
-                      variant='ontime-filled'
-                      size='sm'
-                      type='file'
-                      style={{ display: 'none' }}
-                      accept='image/*'
-                      onChange={handleUploadProjectLogo}
-                      ref={uploadInputRef}
-                    />
                     <div>
                       <div className={style.uploadLogoSection}>
                         <Button
                           variant='ontime-filled'
                           size='sm'
+                          isDisabled={isSubmitting}
                           leftIcon={<IoDownloadOutline />}
                           onClick={handleClickUpload}
                           type='button'
