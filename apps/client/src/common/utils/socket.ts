@@ -1,16 +1,9 @@
 import { Log, RundownCached, RuntimeStore } from 'ontime-types';
 
-import { CLIENT_LIST, CUSTOM_FIELDS, isProduction, RUNDOWN, RUNTIME, websocketUrl } from '../api/constants';
+import { isProduction, websocketUrl } from '../../externals';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
-import {
-  getClientId,
-  getClientName,
-  setClientId,
-  setClientName,
-  setClientRedirect,
-  setClients,
-} from '../stores/clientStore';
+import { getClientId, getClientName, setClientId, setClientName, setClients } from '../stores/clientStore';
 import { addLog } from '../stores/logger';
 import { patchRuntime, runtimeStore } from '../stores/runtime';
 
