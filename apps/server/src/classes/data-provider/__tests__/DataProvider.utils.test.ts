@@ -11,6 +11,7 @@ describe('safeMerge', () => {
       backstageUrl: 'existing backstageUrl',
       publicInfo: 'existing backstageInfo',
       backstageInfo: 'existing backstageInfo',
+      projectLogo: null,
     },
     settings: {
       app: 'ontime',
