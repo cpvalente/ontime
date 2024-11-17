@@ -4,7 +4,7 @@ import { Button, Input, Textarea } from '@chakra-ui/react';
 import { type ProjectData } from 'ontime-types';
 
 import { projectLogoPath } from '../../../../common/api/constants';
-import { deleteProjectLogo, postProjectData, uploadProjectLogo } from '../../../../common/api/project';
+import { postProjectData, uploadProjectLogo } from '../../../../common/api/project';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useProjectData from '../../../../common/hooks-query/useProjectData';
 import { validateLogo } from '../../../../common/utils/uploadUtils';
@@ -58,14 +58,10 @@ export default function ProjectData() {
     }
   };
 
-  const handleDeleteProjectLogo = async () => {
-    try {
-      await deleteProjectLogo();
-      setValue('projectLogo', '');
-    } catch (error) {
-      const message = maybeAxiosError(error);
-      setError('projectLogo', { message });
-    }
+  const handleDeleteLogo = () => {
+    setValue('projectLogo', '', {
+      shouldDirty: true,
+    });
   };
 
   const onSubmit = async (formData: ProjectData) => {
@@ -135,7 +131,7 @@ export default function ProjectData() {
                   size='sm'
                   variant='ontime-filled'
                   isDisabled={isSubmitting || !watch('projectLogo')}
-                  onClick={handleDeleteProjectLogo}
+                  onClick={handleDeleteLogo}
                   type='button'
                 >
                   Delete
