@@ -9,7 +9,7 @@ import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { publicDir } from '../../setup/index.js';
 
-export async function getProjectData(_req: Request, res: Response<ProjectData>) {
+export function getProjectData(_req: Request, res: Response<ProjectData>) {
   res.json(getDataProvider().getProjectData());
 }
 
@@ -38,9 +38,9 @@ export async function postProjectData(req: Request, res: Response<ProjectData | 
     if (!newData.projectLogo && currentProjectData.projectLogo) {
       const filePath = join(publicDir.logoDir, currentProjectData.projectLogo);
 
-      if (filePath) {
-        deleteFile(filePath);
-      }
+      deleteFile(filePath).catch((_error) => {
+        /** we do not handle this error */
+      });
     }
 
     res.status(200).send(newData);
