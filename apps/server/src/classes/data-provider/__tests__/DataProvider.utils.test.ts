@@ -11,6 +11,7 @@ describe('safeMerge', () => {
       backstageUrl: 'existing backstageUrl',
       publicInfo: 'existing backstageInfo',
       backstageInfo: 'existing backstageInfo',
+      projectLogo: null,
     },
     settings: {
       app: 'ontime',
@@ -77,6 +78,7 @@ describe('safeMerge', () => {
       publicInfo: 'new public info',
       backstageUrl: 'existing backstageUrl',
       backstageInfo: 'existing backstageInfo',
+      projectLogo: null,
     });
   });
 

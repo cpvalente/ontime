@@ -1,11 +1,15 @@
-import { useEffect } from 'react';
+import { ChangeEvent, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input, Textarea } from '@chakra-ui/react';
+import { IoDownloadOutline } from '@react-icons/all-files/io5/IoDownloadOutline';
+import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { type ProjectData } from 'ontime-types';
 
-import { postProjectData } from '../../../../common/api/project';
+import { projectLogoPath } from '../../../../common/api/constants';
+import { postProjectData, uploadProjectLogo } from '../../../../common/api/project';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useProjectData from '../../../../common/hooks-query/useProjectData';
+import { validateLogo } from '../../../../common/utils/uploadUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './ProjectPanel.module.scss';
@@ -17,8 +21,10 @@ export default function ProjectData() {
     handleSubmit,
     register,
     reset,
-    formState: { isSubmitting, isValid, isDirty },
+    formState: { isSubmitting, isValid, isDirty, errors },
     setError,
+    watch,
+    setValue,
   } = useForm({
     defaultValues: data,
     values: data,
@@ -33,6 +39,40 @@ export default function ProjectData() {
       reset(data);
     }
   }, [data, reset]);
+
+  const handleUploadProjectLogo = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      validateLogo(file);
+      const response = await uploadProjectLogo(file);
+
+      setValue('projectLogo', response.data.logoFilename, {
+        shouldDirty: true,
+      });
+    } catch (error) {
+      const message = maybeAxiosError(error);
+      setError('projectLogo', { message });
+    }
+  };
+
+  const { ref, ...projectLogoRest } = register('projectLogo');
+
+  const uploadInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleClickUpload = () => {
+    uploadInputRef.current?.click();
+  };
+
+  const handleDeleteLogo = () => {
+    setValue('projectLogo', null, {
+      shouldDirty: true,
+    });
+  };
 
   const onSubmit = async (formData: ProjectData) => {
     try {
@@ -86,6 +126,53 @@ export default function ProjectData() {
               {...register('title')}
             />
           </label>
+          <Panel.Section style={{ marginTop: 0 }}>
+            <label>
+              Project logo
+              <Input
+                variant='ontime-filled'
+                size='sm'
+                type='file'
+                style={{ display: 'none' }}
+                accept='image/*'
+                {...projectLogoRest}
+                ref={(e) => {
+                  ref(e);
+                  uploadInputRef.current = e;
+                }}
+                onChange={handleUploadProjectLogo}
+              />
+              <Panel.Card className={style.uploadLogoCard}>
+                {watch('projectLogo') ? (
+                  <>
+                    <img src={`${projectLogoPath}/${watch('projectLogo')}`} />
+                    <Button
+                      size='sm'
+                      variant='ontime-filled'
+                      isDisabled={isSubmitting || !watch('projectLogo')}
+                      leftIcon={<IoTrash />}
+                      onClick={handleDeleteLogo}
+                      type='button'
+                    >
+                      Delete
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant='ontime-filled'
+                    size='sm'
+                    isDisabled={isSubmitting}
+                    leftIcon={<IoDownloadOutline />}
+                    onClick={handleClickUpload}
+                    type='button'
+                  >
+                    Upload logo
+                  </Button>
+                )}
+                {errors?.projectLogo?.message && <Panel.Error>{errors.projectLogo.message}</Panel.Error>}
+              </Panel.Card>
+            </label>
+          </Panel.Section>
           <label>
             Project description
             <Input

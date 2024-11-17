@@ -42,6 +42,10 @@ export type MessageResponse = {
   message: string;
 };
 
+export type ProjectLogoResponse = {
+  logoFilename: string;
+};
+
 export type ErrorResponse = MessageResponse;
 
 export type AuthenticationStatus = 'authenticated' | 'not_authenticated' | 'pending';

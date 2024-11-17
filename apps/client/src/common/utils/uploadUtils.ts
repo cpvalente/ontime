@@ -34,7 +34,7 @@ export function validateProjectFile(file: File) {
 
   // Limit file size of a project file to around 1MB
   if (file.size > 1_000_000) {
-    throw new Error('File size limit (10MB) exceeded');
+    throw new Error('File size limit (1MB) exceeded');
   }
 }
 
@@ -44,4 +44,20 @@ export function isExcelFile(file: File | null) {
 
 export function isOntimeFile(file: File | null) {
   return file?.name.endsWith('.json');
+}
+
+/**
+ * Collection of rules for pre-validating a project file
+ * @param file
+ */
+export function validateLogo(file: File) {
+  // Check if file is empty
+  if (file.size === 0) {
+    throw new Error('File is empty');
+  }
+
+  // Limit file size of a project file to around 1MB
+  if (file.size > 1_000_000) {
+    throw new Error('File size limit (1MB) exceeded');
+  }
 }

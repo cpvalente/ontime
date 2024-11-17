@@ -60,6 +60,34 @@ describe('parseProject()', () => {
     expect(result).toBeTypeOf('object');
     expect(errorEmitter).toHaveBeenCalledOnce();
   });
+
+  it('test migration with adding the logo field v3.8.0', () => {
+    const errorEmitter = vi.fn();
+    const result = parseProject(
+      {
+        //@ts-expect-error -- checking migration when the logo field is added
+        project: {
+          title: 'title',
+          description: 'description',
+          publicUrl: 'publicUrl',
+          publicInfo: 'publicInfo',
+          backstageUrl: 'backstageUrl',
+          backstageInfo: 'backstageInfo',
+        },
+      },
+      errorEmitter,
+    );
+    expect(result).toStrictEqual({
+      title: 'title',
+      description: 'description',
+      publicUrl: 'publicUrl',
+      publicInfo: 'publicInfo',
+      backstageUrl: 'backstageUrl',
+      backstageInfo: 'backstageInfo',
+      projectLogo: null,
+    });
+    expect(errorEmitter).not.toHaveBeenCalled();
+  });
 });
 
 describe('parseSettings()', () => {
