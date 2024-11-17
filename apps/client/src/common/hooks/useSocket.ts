@@ -230,3 +230,11 @@ export const useTimelineStatus = () => {
 
   return useRuntimeStore(featureSelector);
 };
+
+export const usePing = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    ping: state.ping,
+  });
+
+  return useRuntimeStore(featureSelector);
+};

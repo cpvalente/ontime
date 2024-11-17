@@ -100,6 +100,16 @@ export class SocketServer implements IAdapter {
           const message = JSON.parse(data);
           const { type, payload } = message;
 
+          if (type === 'ping') {
+            ws.send(
+              JSON.stringify({
+                type: 'pong',
+                payload,
+              }),
+            );
+            return;
+          }
+
           if (type === 'get-client-name') {
             ws.send(
               JSON.stringify({

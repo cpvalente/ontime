@@ -1,4 +1,8 @@
+import { useEffect } from 'react';
+
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
+import { usePing } from '../../../../common/hooks/useSocket';
+import { socketSendJson } from '../../../../common/utils/socket';
 import { isOntimeCloud } from '../../../../externals';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -15,7 +19,7 @@ export default function NetworkLogPanel({ location }: PanelBaseProps) {
     <>
       <Panel.Header>Network</Panel.Header>
       <Panel.Section>
-        {isOntimeCloud && <Panel.SubHeader>Ontime cloud</Panel.SubHeader>}
+        {isOntimeCloud && <OntimeCloudStats />}
         <Panel.Paragraph>Ontime is streaming on the following network interfaces</Panel.Paragraph>
       </Panel.Section>
       <InfoNif />
@@ -26,5 +30,31 @@ export default function NetworkLogPanel({ location }: PanelBaseProps) {
         <ClientControlPanel />
       </div>
     </>
+  );
+}
+
+function OntimeCloudStats() {
+  const { ping } = usePing();
+
+  /**
+   * Send immediate ping request, and keep sending on an interval
+   */
+  useEffect(() => {
+    socketSendJson('ping', new Date());
+
+    const doPing = setInterval(() => {
+      socketSendJson('ping', new Date());
+    }, 5000);
+
+    return () => {
+      clearInterval(doPing);
+    };
+  }, []);
+
+  return (
+    <Panel.SubHeader>
+      Ontime cloud
+      <Panel.Description>Current ping: {ping}ms</Panel.Description>
+    </Panel.SubHeader>
   );
 }
