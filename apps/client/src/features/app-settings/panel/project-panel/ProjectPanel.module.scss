@@ -68,13 +68,19 @@
   height: 100px;
 }
 
-.uploadLogoSection {
+.uploadLogoCard {
   display: flex;
   gap: 1rem;
-}
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
 
-.uploadLogoContainer {
-  display: flex;
-  gap: 1rem;
-  justify-content: space-between;
+  background-color: $gray-1350;
+  border: 1px solid $white-10;
+  border-radius: 3px;
+
+  img {
+    max-width: 250px;
+    height: auto;
+  }
 }

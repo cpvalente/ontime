@@ -35,9 +35,9 @@ export function Paragraph({ children }: { children: ReactNode }) {
   return <p className={style.paragraph}>{children}</p>;
 }
 
-export function Card({ children, ...props }: { children: ReactNode } & JSX.IntrinsicElements['div']) {
+export function Card({ children, className, ...props }: { children: ReactNode } & JSX.IntrinsicElements['div']) {
   return (
-    <div className={style.card} {...props}>
+    <div className={cx([style.card, className])} {...props}>
       {children}
     </div>
   );

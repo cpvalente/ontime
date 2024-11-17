@@ -142,36 +142,33 @@ export default function ProjectData() {
                 }}
                 onChange={handleUploadProjectLogo}
               />
-              <Panel.Card>
-                <div className={style.uploadLogoContainer}>
-                  <div>
-                    <div>
-                      <div className={style.uploadLogoSection}>
-                        <Button
-                          variant='ontime-filled'
-                          size='sm'
-                          isDisabled={isSubmitting}
-                          leftIcon={<IoDownloadOutline />}
-                          onClick={handleClickUpload}
-                          type='button'
-                        >
-                          Upload logo
-                        </Button>
-                        <Button
-                          size='sm'
-                          variant='ontime-filled'
-                          isDisabled={isSubmitting || !watch('projectLogo')}
-                          leftIcon={<IoTrash />}
-                          onClick={handleDeleteLogo}
-                          type='button'
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                  {watch('projectLogo') && <img src={`${projectLogoPath}/${watch('projectLogo')}`} width={100} />}
-                </div>
+              <Panel.Card className={style.uploadLogoCard}>
+                {watch('projectLogo') ? (
+                  <>
+                    <img src={`${projectLogoPath}/${watch('projectLogo')}`} />
+                    <Button
+                      size='sm'
+                      variant='ontime-filled'
+                      isDisabled={isSubmitting || !watch('projectLogo')}
+                      leftIcon={<IoTrash />}
+                      onClick={handleDeleteLogo}
+                      type='button'
+                    >
+                      Delete
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    variant='ontime-filled'
+                    size='sm'
+                    isDisabled={isSubmitting}
+                    leftIcon={<IoDownloadOutline />}
+                    onClick={handleClickUpload}
+                    type='button'
+                  >
+                    Upload logo
+                  </Button>
+                )}
                 {errors?.projectLogo?.message && <Panel.Error>{errors.projectLogo.message}</Panel.Error>}
               </Panel.Card>
             </label>
