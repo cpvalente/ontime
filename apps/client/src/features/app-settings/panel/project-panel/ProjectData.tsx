@@ -1,6 +1,8 @@
-import { ChangeEvent, useEffect } from 'react';
+import { ChangeEvent, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input, Textarea } from '@chakra-ui/react';
+import { IoDownloadOutline } from '@react-icons/all-files/io5/IoDownloadOutline';
+import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { type ProjectData } from 'ontime-types';
 
 import { projectLogoPath } from '../../../../common/api/constants';
@@ -56,6 +58,12 @@ export default function ProjectData() {
       const message = maybeAxiosError(error);
       setError('projectLogo', { message });
     }
+  };
+
+  const uploadInputRef = useRef<HTMLInputElement>(null);
+
+  const handleClickUpload = () => {
+    uploadInputRef.current?.click();
   };
 
   const handleDeleteLogo = () => {
@@ -116,31 +124,51 @@ export default function ProjectData() {
               {...register('title')}
             />
           </label>
-          <label>
-            Project logo
-            <div className={style.flex}>
-              <div>
-                <Input
-                  variant='ontime-filled'
-                  size='sm'
-                  type='file'
-                  accept='image/*'
-                  onChange={handleUploadProjectLogo}
-                />
-                <Button
-                  size='sm'
-                  variant='ontime-filled'
-                  isDisabled={isSubmitting || !watch('projectLogo')}
-                  onClick={handleDeleteLogo}
-                  type='button'
-                >
-                  Delete
-                </Button>
-              </div>
-              {watch('projectLogo') && <img src={`${projectLogoPath}/${watch('projectLogo')}`} width={100} />}
-            </div>
-            {errors?.projectLogo?.message && <Panel.Error>{errors.projectLogo.message}</Panel.Error>}
-          </label>
+          <Panel.Section style={{ marginTop: 0 }}>
+            <label>
+              Project logo
+              <Panel.Card>
+                <div className={style.uploadLogoContainer}>
+                  <div>
+                    <Input
+                      variant='ontime-filled'
+                      size='sm'
+                      type='file'
+                      style={{ display: 'none' }}
+                      accept='image/*'
+                      onChange={handleUploadProjectLogo}
+                      ref={uploadInputRef}
+                    />
+                    <div>
+                      <div className={style.uploadLogoSection}>
+                        <Button
+                          variant='ontime-filled'
+                          size='sm'
+                          leftIcon={<IoDownloadOutline />}
+                          onClick={handleClickUpload}
+                          type='button'
+                        >
+                          Upload logo
+                        </Button>
+                        <Button
+                          size='sm'
+                          variant='ontime-filled'
+                          isDisabled={isSubmitting || !watch('projectLogo')}
+                          leftIcon={<IoTrash />}
+                          onClick={handleDeleteLogo}
+                          type='button'
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                  {watch('projectLogo') && <img src={`${projectLogoPath}/${watch('projectLogo')}`} width={100} />}
+                </div>
+                {errors?.projectLogo?.message && <Panel.Error>{errors.projectLogo.message}</Panel.Error>}
+              </Panel.Card>
+            </label>
+          </Panel.Section>
           <label>
             Project description
             <Input
