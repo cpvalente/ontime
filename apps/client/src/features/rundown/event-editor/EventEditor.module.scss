@@ -41,7 +41,9 @@
 }
 
 .inputLabel {
-  display: block;
+  display: flex;
+  align-items: center;
+  column-gap: 0.3rem;
   font-size: calc(1rem - 3px);
   color: $label-gray;
   margin-bottom: 0.25rem;

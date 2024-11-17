@@ -73,7 +73,15 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
   return (
     <div className={style.column}>
       <div>
-        <div className={style.inputLabel}>Event schedule</div>
+        <Freezable as='div' className={style.inputLabel}>
+          {({ FrozenIcon }) => (
+            <>
+              Event schedule
+              <FrozenIcon />
+            </>
+          )}
+        </Freezable>
+
         <div className={style.inline}>
           <TimeInputFlow
             eventId={eventId}
@@ -86,6 +94,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             timerType={timerType}
           />
         </div>
+
         <div className={style.delayLabel}>{delayLabel}</div>
       </div>
 
@@ -96,16 +105,18 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           </label>
           <TimeInput name='timeWarning' submitHandler={handleSubmit} time={timeWarning} placeholder='Duration' />
         </div>
-        <Freezable>
-          {() => (
-            <div>
-              <label className={style.inputLabel}>Timer Type</label>
+        <Freezable as='div'>
+          {({ frozen, FrozenIcon }) => (
+            <>
+              <label className={style.inputLabel}>
+                Timer Type <FrozenIcon />
+              </label>
               <Select
                 size='sm'
                 name='timerType'
                 value={timerType}
                 onChange={(event) => handleSubmit('timerType', event.target.value)}
-                variant='ontime'
+                variant={frozen ? 'ontime-readonly' : 'ontime'}
               >
                 <option value={TimerType.CountDown}>Count down</option>
                 <option value={TimerType.CountUp}>Count up</option>
@@ -113,7 +124,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
                 <option value={TimerType.Clock}>Clock</option>
                 <option value={TimerType.None}>None</option>
               </Select>
-            </div>
+            </>
           )}
         </Freezable>
         <div>
@@ -122,31 +133,35 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           </label>
           <TimeInput name='timeDanger' submitHandler={handleSubmit} time={timeDanger} placeholder='Duration' />
         </div>
-        <Freezable>
-          {() => (
-            <div>
-              <label className={style.inputLabel}>End Action</label>
+        <Freezable as='div'>
+          {({ frozen, FrozenIcon }) => (
+            <>
+              <label className={style.inputLabel}>
+                End Action <FrozenIcon />
+              </label>
               <Select
                 size='sm'
                 name='endAction'
                 value={endAction}
                 onChange={(event) => handleSubmit('endAction', event.target.value)}
-                variant='ontime'
+                variant={frozen ? 'ontime-readonly' : 'ontime'}
               >
                 <option value={EndAction.None}>None</option>
                 <option value={EndAction.Stop}>Stop</option>
                 <option value={EndAction.LoadNext}>Load Next</option>
                 <option value={EndAction.PlayNext}>Play Next</option>
               </Select>
-            </div>
+            </>
           )}
         </Freezable>
       </div>
 
-      <div>
-        <span className={style.inputLabel}>Event Visibility</span>
-        <Freezable>
-          {() => (
+      <Freezable as='div'>
+        {({ FrozenIcon }) => (
+          <>
+            <span className={style.inputLabel}>
+              Event Visibility <FrozenIcon />
+            </span>
             <label className={style.switchLabel}>
               <Switch
                 size='md'
@@ -156,9 +171,9 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
               />
               {isPublic ? 'Public' : 'Private'}
             </label>
-          )}
-        </Freezable>
-      </div>
+          </>
+        )}
+      </Freezable>
     </div>
   );
 };

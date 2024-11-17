@@ -15,13 +15,15 @@ import { ontimeEditable } from './ontimeEditable';
 import { ontimeMenuOnDark } from './ontimeMenu';
 import { ontimeModal } from './ontimeModal';
 import { ontimeBlockRadio } from './ontimeRadio';
-import { ontimeSelect } from './ontimeSelect';
+import { ontimeSelect, ontimeSelectReadonly } from './ontimeSelect';
 import { ontimeSwitch } from './ontimeSwitch';
 import { ontimeTab } from './ontimeTab';
 import {
   ontimeInputFilled,
   ontimeInputGhosted,
+  ontimeInputReadonly,
   ontimeTextAreaFilled,
+  ontimeTextAreaReadonly,
   ontimeTextAreaTransparent,
 } from './ontimeTextInputs';
 import { ontimeTooltip } from './ontimeTooltip';
@@ -78,6 +80,7 @@ const theme = extendTheme({
       variants: {
         'ontime-filled': { ...ontimeInputFilled },
         'ontime-ghosted': { ...ontimeInputGhosted },
+        'ontime-readonly': { ...ontimeInputReadonly },
       },
     },
     Kbd: {
@@ -122,6 +125,9 @@ const theme = extendTheme({
       variants: {
         'ontime-filled': { ...ontimeTextAreaFilled },
         'ontime-transparent': { ...ontimeTextAreaTransparent },
+        'ontime-readonly': {
+          ...ontimeTextAreaReadonly,
+        },
       },
     },
     Tooltip: {
@@ -135,6 +141,9 @@ const theme = extendTheme({
     Select: {
       variants: {
         ontime: { ...ontimeSelect },
+        'ontime-readonly': {
+          ...ontimeSelectReadonly,
+        },
       },
     },
   },

@@ -3,7 +3,6 @@ import { Input } from '@chakra-ui/react';
 import { sanitiseCue } from 'ontime-utils';
 
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
-import Freezable from '../../../../features/rundown/freezable/Freezable';
 import { type EditorUpdateFields } from '../EventEditor';
 
 import EventTextArea from './EventTextArea';
@@ -37,34 +36,21 @@ const EventEditorTitles = (props: EventEditorTitlesProps) => {
           <Input
             id='eventId'
             size='sm'
-            variant='ontime-filled'
+            variant='ontime-readonly'
             data-testid='input-textfield'
             value={eventId}
             readOnly
           />
         </div>
-        <Freezable>
-          {() => (
-            <EventTextInput
-              field='cue'
-              label='Cue'
-              initialValue={cue}
-              submitHandler={cueSubmitHandler}
-              maxLength={10}
-            />
-          )}
-        </Freezable>
+
+        <EventTextInput field='cue' label='Cue' initialValue={cue} submitHandler={cueSubmitHandler} maxLength={10} />
       </div>
       <div>
         <label className={style.inputLabel}>Colour</label>
         <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
       </div>
-      <Freezable>
-        {() => <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />}
-      </Freezable>
-      <Freezable>
-        {() => <EventTextArea field='note' label='Note' initialValue={note} submitHandler={handleSubmit} />}
-      </Freezable>
+      <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />
+      <EventTextArea field='note' label='Note' initialValue={note} submitHandler={handleSubmit} />
     </div>
   );
 };
