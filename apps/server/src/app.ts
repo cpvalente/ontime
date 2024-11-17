@@ -188,6 +188,7 @@ export const startServer = async (
       direction: SimpleDirection.CountDown,
     },
     frozen: false,
+    ping: -1,
   });
 
   // initialise logging service, escalateErrorFn is only exists in electron

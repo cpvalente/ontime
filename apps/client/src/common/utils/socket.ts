@@ -1,9 +1,17 @@
 import { Log, RundownCached, RuntimeStore } from 'ontime-types';
 
 import { isProduction, websocketUrl } from '../../externals';
+import { CLIENT_LIST, CUSTOM_FIELDS, RUNDOWN, RUNTIME } from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
-import { getClientId, getClientName, setClientId, setClientName, setClients } from '../stores/clientStore';
+import {
+  getClientId,
+  getClientName,
+  setClientId,
+  setClientName,
+  setClientRedirect,
+  setClients,
+} from '../stores/clientStore';
 import { addLog } from '../stores/logger';
 import { patchRuntime, runtimeStore } from '../stores/runtime';
 
@@ -62,6 +70,12 @@ export const connectSocket = () => {
       }
 
       switch (type) {
+        case 'pong': {
+          const offset = (new Date().getTime() - new Date(payload).getTime()) * 0.5;
+          patchRuntime('ping', offset);
+          updateDevTools({ ping: offset }, ['PING']);
+          break;
+        }
         case 'client-id': {
           if (typeof payload === 'string') {
             setClientId(payload);
@@ -210,9 +224,9 @@ export const socketSendJson = (type: string, payload?: unknown) => {
   );
 };
 
-function updateDevTools(newData: Partial<RuntimeStore>) {
+function updateDevTools(newData: Partial<RuntimeStore>, store = RUNTIME) {
   if (!isProduction) {
-    ontimeQueryClient.setQueryData(RUNTIME, (oldData: RuntimeStore) => ({
+    ontimeQueryClient.setQueryData(store, (oldData: RuntimeStore) => ({
       ...oldData,
       ...newData,
     }));

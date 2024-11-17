@@ -27,4 +27,5 @@ export type RuntimeStore = {
 
   // flags
   frozen: boolean;
+  ping: number;
 };
