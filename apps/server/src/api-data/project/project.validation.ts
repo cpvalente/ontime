@@ -9,7 +9,7 @@ export const projectSanitiser = [
   body('backstageUrl').optional().isString().trim(),
   body('backstageInfo').optional().isString().trim(),
   body('endMessage').optional().isString().trim(),
-  body('projectLogo').optional().isString().trim(),
+  body('projectLogo').optional({ nullable: true }).isString().trim(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

@@ -59,7 +59,7 @@ export default function ProjectData() {
   };
 
   const handleDeleteLogo = () => {
-    setValue('projectLogo', '', {
+    setValue('projectLogo', null, {
       shouldDirty: true,
     });
   };
