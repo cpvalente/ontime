@@ -78,6 +78,7 @@ describe('safeMerge', () => {
       publicInfo: 'new public info',
       backstageUrl: 'existing backstageUrl',
       backstageInfo: 'existing backstageInfo',
+      projectLogo: null,
     });
   });
 
