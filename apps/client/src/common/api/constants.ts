@@ -1,3 +1,5 @@
+import { serverURL } from '../../externals';
+
 // keys in tanstack store
 export const APP_INFO = ['appinfo'];
 export const APP_SETTINGS = ['appSettings'];
@@ -14,19 +16,7 @@ export const URL_PRESETS = ['urlpresets'];
 export const VIEW_SETTINGS = ['viewSettings'];
 export const CLIENT_LIST = ['clientList'];
 
-// resolve location
-const location = window.location;
-const socketProtocol = location.protocol === 'https:' ? 'wss' : 'ws';
-export const isProduction = import.meta.env.MODE === 'production';
-export const isDev = !isProduction;
-export const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-
-// resolve port
-const STATIC_PORT = 4001;
-export const serverPort = isProduction ? location.port : STATIC_PORT;
-export const serverURL = `${location.protocol}//${location.hostname}:${serverPort}`;
-export const websocketUrl = `${socketProtocol}://${location.hostname}:${serverPort}/ws`;
-
+// API URLs
 export const apiEntryUrl = `${serverURL}/data`;
 
 export const projectDataURL = `${serverURL}/project`;

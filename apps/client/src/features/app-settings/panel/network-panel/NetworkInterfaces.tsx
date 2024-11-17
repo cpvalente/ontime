@@ -1,9 +1,9 @@
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 
-import { serverPort } from '../../../../common/api/constants';
 import CopyTag from '../../../../common/components/copy-tag/CopyTag';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import { openLink } from '../../../../common/utils/linkUtils';
+import { serverPort } from '../../../../externals';
 
 import style from './NetworkInterfaces.module.scss';
 

@@ -17,8 +17,8 @@ import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoLockClosedOutline } from '@react-icons/all-files/io5/IoLockClosedOutline';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 
+import { isLocalhost, serverPort } from '../../../externals';
 import { navigatorConstants } from '../../../viewerConfig';
-import { isLocalhost, serverPort } from '../../api/constants';
 import useClickOutside from '../../hooks/useClickOutside';
 import { useElectronEvent } from '../../hooks/useElectronEvent';
 import useInfo from '../../hooks-query/useInfo';

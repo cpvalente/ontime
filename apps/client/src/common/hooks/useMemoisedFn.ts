@@ -6,7 +6,7 @@
 
 import { useMemo, useRef } from 'react';
 
-import { isDev } from '../api/constants';
+import { isDev } from '../../externals';
 
 type noop = (this: any, ...args: any[]) => any;
 

@@ -1,6 +1,6 @@
 import { PropsWithChildren, useCallback, useContext } from 'react';
 
-import { isLocalhost } from '../../api/constants';
+import { isLocalhost } from '../../../externals';
 import { AppContext } from '../../context/AppContext';
 
 import PinPage from './PinPage';

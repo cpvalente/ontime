@@ -39,7 +39,7 @@
     "build": "vite build",
     "build:local": "cross-env NODE_ENV=local vite build",
     "build:electron": "cross-env NODE_ENV=local vite build",
-    "build:docker": "vite build",
+    "build:docker": "cross-env VITE_IS_CLOUD=true vite build",
     "build:localdocker": "cross-env NODE_ENV=local vite build",
     "lint": "eslint . --quiet",
     "test": "vitest",
