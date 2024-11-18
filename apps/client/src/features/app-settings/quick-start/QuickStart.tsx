@@ -114,6 +114,7 @@ export default function QuickStart(props: QuickStartProps) {
                   <option value='es'>Spanish</option>
                   <option value='sv'>Swedish</option>
                   <option value='pl'>Polish</option>
+                  <option value='zh'>Chinese (Simplified)</option>
                 </Select>
               </Panel.ListItem>
             </Panel.ListGroup>
