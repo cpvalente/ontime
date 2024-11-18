@@ -204,6 +204,13 @@ $orange-active: #f60;
       background-color: var(--studio-idle, $red-idle);
     }
   }
+  .logo {
+    position: absolute;
+    top: 2vw;
+    right: 2vw;
+    max-width: min(200px, 20vw);
+    max-height: min(100px, 20vh);
+  }
 }
 
 @media only screen and (max-width: 1200px) {

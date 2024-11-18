@@ -5,4 +5,5 @@ export type ProjectData = {
   publicInfo: string;
   backstageUrl: string;
   backstageInfo: string;
+  projectLogo: string | null;
 };

@@ -5,6 +5,7 @@ import {
   MessageState,
   OntimeEvent,
   Playback,
+  ProjectData,
   Settings,
   SimpleTimerState,
   TimerPhase,
@@ -15,6 +16,7 @@ import {
 import { FitText } from '../../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import TitleCard from '../../../common/components/title-card/TitleCard';
+import ViewLogo from '../../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
@@ -50,6 +52,7 @@ interface TimerProps {
   customFields: CustomFields;
   eventNext: OntimeEvent | null;
   eventNow: OntimeEvent | null;
+  general: ProjectData;
   isMirrored: boolean;
   message: MessageState;
   settings: Settings | undefined;
@@ -58,7 +61,8 @@ interface TimerProps {
 }
 
 export default function Timer(props: TimerProps) {
-  const { auxTimer, customFields, eventNow, eventNext, isMirrored, message, settings, time, viewSettings } = props;
+  const { auxTimer, customFields, eventNow, eventNext, general, isMirrored, message, settings, time, viewSettings } =
+    props;
 
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -168,6 +172,8 @@ export default function Timer(props: TimerProps) {
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
+      {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
+
       <ViewParamsEditor viewOptions={timerOptions} />
       <div className={message.timer.blackout ? 'blackout blackout--active' : 'blackout'} />
       {!userOptions.hideMessage && (

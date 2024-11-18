@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
-import { Settings } from 'ontime-types';
+import { ProjectData, Settings } from 'ontime-types';
 
+import ViewLogo from '../../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
@@ -13,13 +14,14 @@ import { getClockOptions } from './clock.options';
 import './Clock.scss';
 
 interface ClockProps {
+  general: ProjectData;
   isMirrored: boolean;
   time: ViewExtendedTimer;
   settings: Settings | undefined;
 }
 
 export default function Clock(props: ClockProps) {
-  const { isMirrored, time, settings } = props;
+  const { general, isMirrored, time, settings } = props;
   const [searchParams] = useSearchParams();
 
   useWindowTitle('Clock');
@@ -122,6 +124,7 @@ export default function Clock(props: ClockProps) {
       }}
       data-testid='clock-view'
     >
+      {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
       <ViewParamsEditor viewOptions={clockOptions} />
       <SuperscriptTime
         time={clock}

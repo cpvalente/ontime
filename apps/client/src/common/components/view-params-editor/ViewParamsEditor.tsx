@@ -55,7 +55,7 @@ const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj, paramFields: ViewOp
       // unfortunately this means we run all the strings through the sanitation
       const valueWithoutHash = sanitiseColour(value);
       if (defaultValues[id] !== valueWithoutHash) {
-        handleValueString(id, value);
+        handleValueString(id, valueWithoutHash);
       }
     }
   });

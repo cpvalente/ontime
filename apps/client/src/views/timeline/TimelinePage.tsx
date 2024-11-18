@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { MaybeString, OntimeEvent, ProjectData, Runtime, Settings } from 'ontime-types';
 
+import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
@@ -71,9 +72,10 @@ export default function TimelinePage(props: TimelinePageProps) {
     }
   }
   return (
-    <div className='timeline'>
+    <div className='timeline' data-testid='timeline-view'>
       <ViewParamsEditor viewOptions={progressOptions} />
       <div className='project-header'>
+        {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
         {general.title}
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>

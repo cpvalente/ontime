@@ -21,4 +21,5 @@ export const config = {
     filename: 'override.css',
   },
   uploads: 'uploads',
+  logo: 'logo',
 };

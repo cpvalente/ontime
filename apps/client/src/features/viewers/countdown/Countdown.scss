@@ -33,6 +33,14 @@
     }
   }
 
+  .logo {
+    position: absolute;
+    top: 2vw;
+    left: 2vw;
+    max-width: min(200px, 20vw);
+    max-height: min(100px, 20vh);
+  }
+
   /* =================== MAIN - EVENT CONTAINER ===================*/
 
   .countdown-container {
@@ -75,7 +83,7 @@
     .status {
       grid-area: status;
       color: var(--label-color-override, $viewer-label-color);
-        font-size: clamp(2rem, 3.5vw, 3.5rem);
+      font-size: clamp(2rem, 3.5vw, 3.5rem);
       font-weight: 600;
     }
 
@@ -127,7 +135,7 @@
       justify-items: center;
       text-align: center;
       row-gap: clamp(1rem, 5vh, 4rem);
-      
+
       align-self: flex-end;
       height: fit-content;
 

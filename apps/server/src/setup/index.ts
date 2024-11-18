@@ -129,6 +129,7 @@ export const publicDir = {
   userDir: join(resolvePublicDirectory, config.user),
   /** path to external styles override */
   stylesDir: join(resolvePublicDirectory, config.user, config.styles.directory),
+  logoDir: join(resolvePublicDirectory, config.user, config.logo),
 } as const;
 
 /**
