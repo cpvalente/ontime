@@ -12,6 +12,7 @@ import { langNo } from './languages/no';
 import { langPl } from './languages/pl';
 import { langPt } from './languages/pt';
 import { langSv } from './languages/sv';
+import { langZhCn } from './languages/zh';
 
 const translationsList = {
   en: langEn,
@@ -24,6 +25,7 @@ const translationsList = {
   pt: langPt,
   sv: langSv,
   pl: langPl,
+  zh: langZhCn,
 };
 
 interface TranslationContextValue {
@@ -36,6 +38,8 @@ export const TranslationContext = createContext<TranslationContextValue>({
 
 export const TranslationProvider = ({ children }: PropsWithChildren) => {
   const { data } = useSettings();
+
+  console.log('....', data.language)
 
   const getLocalizedString = useCallback(
     (key: keyof typeof langEn, lang = data?.language || 'en'): string => {
