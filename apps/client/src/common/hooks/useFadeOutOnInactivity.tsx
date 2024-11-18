@@ -3,17 +3,17 @@ import { useEffect, useState } from 'react';
 import { debounce } from '../../common/utils/debounce';
 
 export const useFadeOutOnInactivity = () => {
-  const [showButton, setShowButton] = useState(false);
+  const [isMouseMoved, setIsMouseMoved] = useState(false);
 
   // show on mouse move
   useEffect(() => {
     let fadeOut: NodeJS.Timeout | null = null;
     const setShowMenuTrue = () => {
-      setShowButton(true);
+      setIsMouseMoved(true);
       if (fadeOut) {
         clearTimeout(fadeOut);
       }
-      fadeOut = setTimeout(() => setShowButton(false), 3000);
+      fadeOut = setTimeout(() => setIsMouseMoved(false), 3000);
     };
 
     const debouncedShowMenu = debounce(setShowMenuTrue, 1000);
@@ -27,5 +27,5 @@ export const useFadeOutOnInactivity = () => {
     };
   }, []);
 
-  return showButton;
+  return isMouseMoved;
 };
