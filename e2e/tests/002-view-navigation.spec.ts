@@ -57,6 +57,12 @@ test.describe('test view navigation feature', () => {
 
     await page.getByRole('button', { name: 'toggle menu' }).click();
     page.locator('data-test-id=navigation__menu');
+    await page.getByRole('link', { name: 'Project Info' }).click();
+    page.locator('data-test-id=project-view');
+    await expect(page).toHaveURL('http://localhost:4001/info');
+
+    await page.getByRole('button', { name: 'toggle menu' }).click();
+    page.locator('data-test-id=navigation__menu');
     await page.getByRole('link', { name: 'Timer', exact: true }).click();
     page.locator('data-test-id=timer-view');
     await expect(page).toHaveURL('http://localhost:4001/timer');
