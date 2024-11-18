@@ -26,9 +26,7 @@ function ViewNavigationMenu() {
   if (isViewLocked) {
     return (
       <div className={style.buttonContainer}>
-        <div className={style.lockIcon}>
-          <IoLockClosedOutline />
-        </div>
+        <IoLockClosedOutline className={style.lockIcon} />
       </div>
     );
   }

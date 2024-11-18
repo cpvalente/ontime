@@ -39,7 +39,10 @@ $button-size: 3rem;
 }
 
 .lockIcon {
-  @extend .button;
+  font-size: 1.5rem;
+  display: grid;
+  place-content: center;
+  border-radius: 3px;
   background-color: transparent;
   color: $active-indicator;
   cursor: default;
