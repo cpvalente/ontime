@@ -13,10 +13,18 @@
   place-content: center;
 
   .clock {
-    font-family: var(--font-family-bold-override, $timer-bold-font-family) ;
+    font-family: var(--font-family-bold-override, $timer-bold-font-family);
     font-size: 20vw;
     position: relative;
     color: var(--timer-color-override, $timer-color);
     letter-spacing: 0.05em;
+  }
+
+  .logo {
+    position: absolute;
+    top: 2vw;
+    left: 2vw;
+    max-width: min(200px, 20vw);
+    max-height: min(100px, 20vh);
   }
 }

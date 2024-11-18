@@ -1,7 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { OntimeEvent, OntimeRundownEntry, Playback, Runtime, Settings, SupportedEvent, TimerPhase } from 'ontime-types';
+import {
+  OntimeEvent,
+  OntimeRundownEntry,
+  Playback,
+  ProjectData,
+  Runtime,
+  Settings,
+  SupportedEvent,
+  TimerPhase,
+} from 'ontime-types';
 
+import ViewLogo from '../../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
@@ -17,8 +27,9 @@ import CountdownSelect from './CountdownSelect';
 import './Countdown.scss';
 
 interface CountdownProps {
-  isMirrored: boolean;
   backstageEvents: OntimeEvent[];
+  general: ProjectData;
+  isMirrored: boolean;
   runtime: Runtime;
   selectedId: string | null;
   settings: Settings | undefined;
@@ -26,7 +37,7 @@ interface CountdownProps {
 }
 
 export default function Countdown(props: CountdownProps) {
-  const { isMirrored, backstageEvents, runtime, selectedId, settings, time } = props;
+  const { backstageEvents, general, isMirrored, runtime, selectedId, settings, time } = props;
   const [searchParams] = useSearchParams();
   const { getLocalizedString } = useTranslation();
 
@@ -105,6 +116,7 @@ export default function Countdown(props: CountdownProps) {
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>
+      {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
       <ViewParamsEditor viewOptions={viewOptions} />
       {follow === null ? (
         <CountdownSelect events={backstageEvents} />

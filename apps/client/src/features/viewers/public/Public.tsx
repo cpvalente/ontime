@@ -7,6 +7,7 @@ import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
 import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
 import TitleCard from '../../../common/components/title-card/TitleCard';
+import ViewLogo from '../../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
@@ -24,26 +25,26 @@ export const MotionTitleCard = motion(TitleCard);
 
 interface BackstageProps {
   customFields: CustomFields;
+  general: ProjectData;
   isMirrored: boolean;
   publicEventNow: OntimeEvent | null;
   publicEventNext: OntimeEvent | null;
   time: ViewExtendedTimer;
   events: OntimeEvent[];
   publicSelectedId: string | null;
-  general: ProjectData;
   settings: Settings | undefined;
 }
 
 export default function Public(props: BackstageProps) {
   const {
     customFields,
+    general,
     isMirrored,
     publicEventNow,
     publicEventNext,
     time,
     events,
     publicSelectedId,
-    general,
     settings,
   } = props;
 
@@ -66,6 +67,7 @@ export default function Public(props: BackstageProps) {
     <div className={`public-screen ${isMirrored ? 'mirror' : ''}`} data-testid='public-view'>
       <ViewParamsEditor viewOptions={publicOptions} />
       <div className='project-header'>
+        {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
         {general.title}
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>
