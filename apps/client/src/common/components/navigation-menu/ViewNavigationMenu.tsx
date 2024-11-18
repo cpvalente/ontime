@@ -1,14 +1,12 @@
 import { memo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useDisclosure } from '@chakra-ui/react';
-import { IoLockClosedOutline } from '@react-icons/all-files/io5/IoLockClosedOutline';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 
 import FloatingNavigation from './FloatingNavigation';
 import NavigationMenu from './NavigationMenu';
-
-import style from './NavigationMenu.module.scss';
+import ViewLockedIcon from './ViewLockedIcon';
 
 function ViewNavigationMenu() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,11 +22,7 @@ function ViewNavigationMenu() {
   const toggleMenu = () => (isMenuOpen ? onMenuClose() : onMenuOpen());
 
   if (isViewLocked) {
-    return (
-      <div className={style.buttonContainer}>
-        <IoLockClosedOutline className={style.lockIcon} />
-      </div>
-    );
+    return <ViewLockedIcon />;
   }
 
   return (
