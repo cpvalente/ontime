@@ -38,6 +38,16 @@ $button-size: 3rem;
   border-radius: 3px;
 }
 
+.lockIcon {
+  font-size: 1.5rem;
+  display: grid;
+  place-content: center;
+  border-radius: 3px;
+  background-color: transparent;
+  color: $active-indicator;
+  cursor: default;
+}
+
 .navButton {
   @extend .button;
   z-index: 3;

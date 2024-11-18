@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
-import { debounce } from '../../utils/debounce';
+import { useFadeOutOnInactivity } from '../../../common/hooks/useFadeOutOnInactivity';
 
 import style from './NavigationMenu.module.scss';
 
@@ -13,32 +12,10 @@ interface FloatingNavigationProps {
 
 export default function FloatingNavigation(props: FloatingNavigationProps) {
   const { toggleMenu, toggleSettings } = props;
-  const [showButton, setShowButton] = useState(false);
-
-  // show on mouse move
-  useEffect(() => {
-    let fadeOut: NodeJS.Timeout | null = null;
-    const setShowMenuTrue = () => {
-      setShowButton(true);
-      if (fadeOut) {
-        clearTimeout(fadeOut);
-      }
-      fadeOut = setTimeout(() => setShowButton(false), 3000);
-    };
-
-    const debouncedShowMenu = debounce(setShowMenuTrue, 1000);
-
-    document.addEventListener('mousemove', debouncedShowMenu);
-    return () => {
-      document.removeEventListener('mousemove', debouncedShowMenu);
-      if (fadeOut) {
-        clearTimeout(fadeOut);
-      }
-    };
-  }, []);
+  const isButtonShown = useFadeOutOnInactivity();
 
   return (
-    <div className={`${style.buttonContainer} ${!showButton ? style.hidden : ''}`}>
+    <div className={`${style.buttonContainer} ${!isButtonShown ? style.hidden : ''}`}>
       <button
         onClick={toggleMenu}
         aria-label='toggle menu'
