@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
-import { Playback, TimerPhase, TimerType, ViewSettings } from 'ontime-types';
+import { Playback, ProjectData, TimerPhase, TimerType, ViewSettings } from 'ontime-types';
 
+import ViewLogo from '../../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
@@ -13,13 +14,14 @@ import { MINIMAL_TIMER_OPTIONS } from './minimalTimer.options';
 import './MinimalTimer.scss';
 
 interface MinimalTimerProps {
+  general: ProjectData;
   isMirrored: boolean;
   time: ViewExtendedTimer;
   viewSettings: ViewSettings;
 }
 
 export default function MinimalTimer(props: MinimalTimerProps) {
-  const { isMirrored, time, viewSettings } = props;
+  const { general, isMirrored, time, viewSettings } = props;
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
 
@@ -158,6 +160,7 @@ export default function MinimalTimer(props: MinimalTimerProps) {
       }}
       data-testid='minimal-timer'
     >
+      {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
       <ViewParamsEditor viewOptions={MINIMAL_TIMER_OPTIONS} />
       {showEndMessage ? (
         <div className='end-message'>{viewSettings.endMessage}</div>

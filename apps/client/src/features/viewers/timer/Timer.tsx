@@ -13,10 +13,10 @@ import {
   ViewSettings,
 } from 'ontime-types';
 
-import { projectLogoPath } from '../../../common/api/constants';
 import { FitText } from '../../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import TitleCard from '../../../common/components/title-card/TitleCard';
+import ViewLogo from '../../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
@@ -172,7 +172,7 @@ export default function Timer(props: TimerProps) {
 
   return (
     <div className={showFinished ? `${baseClasses} stage-timer--finished` : baseClasses} data-testid='timer-view'>
-      {general?.projectLogo && <img src={`${projectLogoPath}/${general.projectLogo}`} className='logo' />}
+      {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
 
       <ViewParamsEditor viewOptions={timerOptions} />
       <div className={message.timer.blackout ? 'blackout blackout--active' : 'blackout'} />

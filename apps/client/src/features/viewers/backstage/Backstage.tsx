@@ -10,6 +10,7 @@ import Schedule from '../../../common/components/schedule/Schedule';
 import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
 import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
 import TitleCard from '../../../common/components/title-card/TitleCard';
+import ViewLogo from '../../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
@@ -27,19 +28,19 @@ import './Backstage.scss';
 export const MotionTitleCard = motion(TitleCard);
 
 interface BackstageProps {
-  customFields: CustomFields;
-  isMirrored: boolean;
-  eventNow: OntimeEvent | null;
-  eventNext: OntimeEvent | null;
-  time: ViewExtendedTimer;
   backstageEvents: OntimeEvent[];
-  selectedId: string | null;
+  customFields: CustomFields;
+  eventNext: OntimeEvent | null;
+  eventNow: OntimeEvent | null;
   general: ProjectData;
+  isMirrored: boolean;
+  time: ViewExtendedTimer;
+  selectedId: string | null;
   settings: Settings | undefined;
 }
 
 export default function Backstage(props: BackstageProps) {
-  const { customFields, isMirrored, eventNow, eventNext, time, backstageEvents, selectedId, general, settings } = props;
+  const { backstageEvents, customFields, eventNext, eventNow, general, time, isMirrored, selectedId, settings } = props;
 
   const { getLocalizedString } = useTranslation();
   const [blinkClass, setBlinkClass] = useState(false);
@@ -81,6 +82,7 @@ export default function Backstage(props: BackstageProps) {
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
       <ViewParamsEditor viewOptions={backstageOptions} />
       <div className='project-header'>
+        {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
         {general.title}
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>

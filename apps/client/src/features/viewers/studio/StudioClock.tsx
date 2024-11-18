@@ -1,9 +1,10 @@
 import { useSearchParams } from 'react-router-dom';
-import type { MaybeString, OntimeEvent, OntimeRundown, Settings } from 'ontime-types';
+import type { MaybeString, OntimeEvent, OntimeRundown, ProjectData, Settings } from 'ontime-types';
 import { Playback } from 'ontime-types';
 import { millisToString, removeSeconds, secondsInMillis } from 'ontime-utils';
 
 import { FitText } from '../../../common/components/fit-text/FitText';
+import ViewLogo from '../../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
@@ -16,10 +17,11 @@ import StudioClockSchedule from './StudioClockSchedule';
 import './StudioClock.scss';
 
 interface StudioClockProps {
-  isMirrored: boolean;
-  eventNext: OntimeEvent | null;
-  time: ViewExtendedTimer;
   backstageEvents: OntimeRundown;
+  eventNext: OntimeEvent | null;
+  general: ProjectData;
+  isMirrored: boolean;
+  time: ViewExtendedTimer;
   selectedId: MaybeString;
   nextId: MaybeString;
   onAir: boolean;
@@ -27,7 +29,7 @@ interface StudioClockProps {
 }
 
 export default function StudioClock(props: StudioClockProps) {
-  const { isMirrored, eventNext, time, backstageEvents, selectedId, nextId, onAir, settings } = props;
+  const { backstageEvents, eventNext, general, isMirrored, time, selectedId, nextId, onAir, settings } = props;
 
   const [searchParams] = useSearchParams();
 
@@ -65,6 +67,7 @@ export default function StudioClock(props: StudioClockProps) {
       className={`studio-clock ${isMirrored ? 'mirror' : ''} ${hideRight ? 'hide-right' : ''}`}
       data-testid='studio-view'
     >
+      {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
       <ViewParamsEditor viewOptions={studioClockOptions} />
       <div className='clock-container'>
         {hasAmPm && <div className='clock__ampm'>{hasAmPm}</div>}

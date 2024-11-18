@@ -29,6 +29,12 @@
     font-size: clamp(32px, 4.5vw, 64px);
     font-weight: 600;
     display: flex;
+    gap: 1rem;
+  }
+
+  .logo {
+    max-width: min(200px, 20vw);
+    max-height: min(100px, 20vh);
   }
 
   .clock-container {
