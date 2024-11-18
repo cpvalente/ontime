@@ -2,6 +2,7 @@ import { useCallback, useRef } from 'react';
 import { Input, InputProps } from '@chakra-ui/react';
 
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
+import Freezable from '../../../../features/rundown/freezable/Freezable';
 import { EditorUpdateFields } from '../EventEditor';
 
 import style from '../EventEditor.module.scss';
@@ -23,23 +24,27 @@ export default function EventTextInput(props: EventTextInputProps) {
   });
 
   return (
-    <div>
-      <label className={style.inputLabel} htmlFor={field}>
-        {label}
-      </label>
-      <Input
-        id={field}
-        ref={ref}
-        size='sm'
-        variant='ontime-filled'
-        data-testid='input-textfield'
-        value={value}
-        maxLength={maxLength || 100}
-        onChange={onChange}
-        onBlur={onBlur}
-        onKeyDown={onKeyDown}
-        autoComplete='off'
-      />
-    </div>
+    <Freezable>
+      {({ frozen, FrozenIcon }) => (
+        <>
+          <label className={style.inputLabel} htmlFor={field}>
+            {label} <FrozenIcon />
+          </label>
+          <Input
+            id={field}
+            ref={ref}
+            size='sm'
+            variant={frozen ? 'ontime-readonly' : 'ontime-filled'}
+            data-testid='input-textfield'
+            value={value}
+            maxLength={maxLength || 100}
+            onChange={onChange}
+            onBlur={onBlur}
+            onKeyDown={onKeyDown}
+            autoComplete='off'
+          />
+        </>
+      )}
+    </Freezable>
   );
 }

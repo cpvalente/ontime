@@ -5,6 +5,7 @@ import { SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useEmitLog } from '../../../common/stores/logger';
+import Freezable from '../freezable/Freezable';
 
 import style from './QuickAddBlock.module.scss';
 
@@ -66,36 +67,53 @@ function QuickAddBlock(props: QuickAddBlockProps) {
 
   return (
     <div className={style.quickAdd}>
-      <Button
-        onClick={() => handleCreateEvent(SupportedEvent.Event)}
-        size='xs'
-        variant='ontime-subtle-white'
-        className={style.quickBtn}
-        leftIcon={<IoAdd />}
-        color='#b1b1b1' // $gray-400
-      >
-        Event
-      </Button>
-      <Button
-        onClick={() => handleCreateEvent(SupportedEvent.Delay)}
-        size='xs'
-        variant='ontime-subtle-white'
-        className={style.quickBtn}
-        leftIcon={<IoAdd />}
-        color='#b1b1b1' // $gray-400
-      >
-        Delay
-      </Button>
-      <Button
-        onClick={() => handleCreateEvent(SupportedEvent.Block)}
-        size='xs'
-        variant='ontime-subtle-white'
-        className={style.quickBtn}
-        leftIcon={<IoAdd />}
-        color='#b1b1b1' // $gray-400
-      >
-        Block
-      </Button>
+      <Freezable>
+        {({ frozen }) => (
+          <Button
+            onClick={() => handleCreateEvent(SupportedEvent.Event)}
+            size='xs'
+            variant='ontime-subtle-white'
+            className={style.quickBtn}
+            leftIcon={<IoAdd />}
+            color='#b1b1b1' // $gray-400
+            isDisabled={frozen}
+          >
+            Event
+          </Button>
+        )}
+      </Freezable>
+
+      <Freezable>
+        {({ frozen }) => (
+          <Button
+            onClick={() => handleCreateEvent(SupportedEvent.Delay)}
+            size='xs'
+            variant='ontime-subtle-white'
+            className={style.quickBtn}
+            leftIcon={<IoAdd />}
+            color='#b1b1b1' // $gray-400
+            isDisabled={frozen}
+          >
+            Delay
+          </Button>
+        )}
+      </Freezable>
+
+      <Freezable>
+        {({ frozen }) => (
+          <Button
+            onClick={() => handleCreateEvent(SupportedEvent.Block)}
+            size='xs'
+            variant='ontime-subtle-white'
+            className={style.quickBtn}
+            leftIcon={<IoAdd />}
+            color='#b1b1b1' // $gray-400
+            isDisabled={frozen}
+          >
+            Block
+          </Button>
+        )}
+      </Freezable>
     </div>
   );
 }

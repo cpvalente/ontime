@@ -3,6 +3,7 @@ import { CSSProperties, useCallback, useRef } from 'react';
 import { AutoTextArea } from '../../../../common/components/input/auto-text-area/AutoTextArea';
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
 import { cx } from '../../../../common/utils/styleUtils';
+import Freezable from '../../../../features/rundown/freezable/Freezable';
 import { EditorUpdateFields } from '../EventEditor';
 
 import style from '../EventEditor.module.scss';
@@ -27,23 +28,27 @@ export default function EventTextArea(props: CountedTextAreaProps) {
   const classes = cx([style.inputLabel, className]);
 
   return (
-    <div>
-      <label className={classes} htmlFor={field} style={givenStyles}>
-        {label}
-      </label>
-      <AutoTextArea
-        id={field}
-        inputref={ref}
-        rows={1}
-        size='sm'
-        resize='none'
-        variant='ontime-filled'
-        data-testid='input-textarea'
-        value={value}
-        onChange={onChange}
-        onBlur={onBlur}
-        onKeyDown={onKeyDown}
-      />
-    </div>
+    <Freezable>
+      {({ frozen, FrozenIcon }) => (
+        <>
+          <label className={classes} htmlFor={field} style={givenStyles}>
+            {label} <FrozenIcon />
+          </label>
+          <AutoTextArea
+            id={field}
+            inputref={ref}
+            rows={1}
+            size='sm'
+            resize='none'
+            variant={frozen ? 'ontime-readonly' : 'ontime-filled'}
+            data-testid='input-textarea'
+            value={value}
+            onChange={onChange}
+            onBlur={onBlur}
+            onKeyDown={onKeyDown}
+          />
+        </>
+      )}
+    </Freezable>
   );
 }

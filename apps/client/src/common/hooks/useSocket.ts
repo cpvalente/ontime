@@ -148,6 +148,11 @@ export const setAuxTimer = {
   setDuration: (time: number) => socketSendJson('auxtimer', { '1': { duration: time } }),
 };
 
+export const useFrozen = () => {
+  const featureSelector = (state: RuntimeStore) => ({ frozen: state.frozen });
+  return useRuntimeStore(featureSelector);
+};
+
 export const useCuesheet = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.timer.playback,

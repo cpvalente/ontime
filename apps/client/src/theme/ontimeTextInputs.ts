@@ -38,6 +38,14 @@ export const ontimeInputGhosted = {
   },
 };
 
+export const ontimeInputReadonly = {
+  field: {
+    ...commonStyles,
+    backgroundColor: '#151515',
+    border: '1px solid #9d9d9d',
+  },
+};
+
 export const ontimeTextAreaFilled = {
   ...commonStyles,
 };
@@ -48,4 +56,10 @@ export const ontimeTextAreaTransparent = {
   _hover: {
     backgroundColor: 'rgba(255, 255, 255, 0.10)', // $white-10
   },
+};
+
+export const ontimeTextAreaReadonly = {
+  ...commonStyles,
+  backgroundColor: '#151515',
+  border: '1px solid #9d9d9d',
 };
