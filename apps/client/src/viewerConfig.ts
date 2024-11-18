@@ -8,6 +8,7 @@ export const navigatorConstants = [
   { url: 'lower', label: 'Lower Thirds' },
   { url: 'studio', label: 'Studio Clock' },
   { url: 'countdown', label: 'Countdown' },
+  { url: 'info', label: 'Project Info' },
 ];
 
 // default time format to use for users in 12 hour clocks

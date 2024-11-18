@@ -32,12 +32,14 @@ const Timeline = React.lazy(() => import('./views/timeline/TimelinePage'));
 const Public = React.lazy(() => import('./features/viewers/public/Public'));
 const Lower = React.lazy(() => import('./features/viewers/lower-thirds/LowerThird'));
 const StudioClock = React.lazy(() => import('./features/viewers/studio/StudioClock'));
+const ProjectInfo = React.lazy(() => import('./views/project-info/ProjectInfo'));
 
 const STimer = withPreset(withData(TimerView));
 const SMinimalTimer = withPreset(withData(MinimalTimerView));
 const SClock = withPreset(withData(ClockView));
 const SCountdown = withPreset(withData(Countdown));
 const SBackstage = withPreset(withData(Backstage));
+const SProjectInfo = withPreset(withData(ProjectInfo));
 const SPublic = withPreset(withData(Public));
 const SLowerThird = withPreset(withData(Lower));
 const SStudio = withPreset(withData(StudioClock));
@@ -139,6 +141,14 @@ export default function AppRouter() {
           element={
             <ViewLoader>
               <STimeline />
+            </ViewLoader>
+          }
+        />
+        <Route
+          path='/info'
+          element={
+            <ViewLoader>
+              <SProjectInfo />
             </ViewLoader>
           }
         />

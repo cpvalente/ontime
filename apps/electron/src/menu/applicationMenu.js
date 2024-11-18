@@ -139,6 +139,7 @@ function makeViewMenu(clientUrl) {
       makeItemOpenInBrowser('Editor', `${clientUrl}/editor`),
       makeItemOpenInBrowser('Cuesheet', `${clientUrl}/cuesheet`),
       makeItemOpenInBrowser('Operator', `${clientUrl}/op`),
+      makeItemOpenInBrowser('Project info', `${clientUrl}/info`),
 
       { type: 'separator' },
       { role: 'forceReload' },

@@ -1,0 +1,48 @@
+@use '../../theme/viewerDefs' as *;
+
+.project {
+  margin: 0;
+  box-sizing: border-box; /* reset */
+  overflow: hidden;
+  width: 100%; /* restrict the page width to viewport */
+  height: 100vh;
+
+  font-family: var(--font-family-override, $viewer-font-family);
+  background: var(--background-color-override, $viewer-background-color);
+  color: var(--color-override, $viewer-color);
+  padding: min(2vh, 16px) clamp(16px, 10vw, 64px);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .logo {
+    max-width: min(200px, 30vw);
+    max-height: min(100px, 20vh);
+  }
+
+  .info {
+    flex: 1;
+    max-height: 100%;
+    overflow-y: auto;
+    width: min(calc(100vw - 4rem), 800px);
+    font-size: clamp(16px, 1.5vw, 24px);
+  }
+
+  .info__label {
+    font-weight: 600;
+    color: var(--label-color-override, $viewer-label-color);
+    text-transform: uppercase;
+  }
+  .info__label {
+    margin-top: 1rem;
+  }
+
+
+  a.info__value {
+    color: $action-text-color;
+    &:hover {
+      color: $ontime-color;
+    }
+  }
+}
