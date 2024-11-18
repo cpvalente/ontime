@@ -72,7 +72,7 @@ export default function TimelinePage(props: TimelinePageProps) {
     }
   }
   return (
-    <div className='timeline'>
+    <div className='timeline' data-testid='timeline-view'>
       <ViewParamsEditor viewOptions={progressOptions} />
       <div className='project-header'>
         {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
