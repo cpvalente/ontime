@@ -214,8 +214,8 @@ export default function Rundown({ data }: RundownProps) {
     ['alt + D', () => insertAtId(SupportedEvent.Delay, cursor), { preventDefault: true }],
     ['alt + shift + D', () => insertAtId(SupportedEvent.Delay, cursor, true), { preventDefault: true }],
 
-    ['mod + C', () => setEntryCopyId(cursor), { preventDefault: true }],
-    ['mod + V', () => insertCopyAtId(cursor, entryCopyId), { preventDefault: true }],
+    ['mod + C', () => setEntryCopyId(cursor)],
+    ['mod + V', () => insertCopyAtId(cursor, entryCopyId)],
     ['mod + shift + V', () => insertCopyAtId(cursor, entryCopyId, true), { preventDefault: true }],
 
     ['alt + backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
