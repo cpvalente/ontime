@@ -45,7 +45,7 @@ $table-header-font-size: calc(1rem - 3px);
 
 .tableHeader {
   position: sticky;
-  top: 0;
+  top: -1px;
   z-index: 10;
 
   font-size: $table-header-font-size;
@@ -54,6 +54,7 @@ $table-header-font-size: calc(1rem - 3px);
 
 th {
   background-color: $gray-1300;
+  padding-left: 0.25rem;
 
   &:hover {
     .resizer {
