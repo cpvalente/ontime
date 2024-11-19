@@ -36,6 +36,12 @@ export default function ProjectInfoProps(props: ProjectInfoProps) {
             <div className='info__value'>{general.title}</div>
           </>
         )}
+        {general.description && (
+          <>
+            <div className='info__label'>Description</div>
+            <div className='info__value'>{general.description}</div>
+          </>
+        )}
         <BackstageInfo general={general} />
         <PublicInfo general={general} />
       </div>
