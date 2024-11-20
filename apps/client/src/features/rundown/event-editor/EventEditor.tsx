@@ -22,7 +22,7 @@ export type EventEditorSubmitActions = keyof OntimeEvent;
 export type EditorUpdateFields = 'cue' | 'title' | 'note' | 'colour' | CustomFieldLabel;
 
 export default function EventEditor() {
-  const selectedEvents = useEventSelection((state) => state.selectedEvents);
+  const { selectedEvents } = useEventSelection(); //don't use state selector so we get all updates to selectedEvents
   const { data } = useRundown();
   const { data: customFields } = useCustomFields();
   const { order, rundown } = data;
@@ -51,6 +51,8 @@ export default function EventEditor() {
     }
   }, [order, rundown, selectedEvents]);
 
+  const multiSelect = selectedEvents.size > 1;
+
   const handleSubmit = useCallback(
     (field: EditorUpdateFields, value: string) => {
       if (field.startsWith('custom-')) {
@@ -72,7 +74,7 @@ export default function EventEditor() {
   }
 
   return (
-    <div className={style.eventEditor} data-testid='editor-container'>
+    <div className={`${style.eventEditor} ${multiSelect ? style.multi : ''}`} data-testid='editor-container'>
       <div className={style.content}>
         <EventEditorTimes
           key={`${event.id}-times`}
