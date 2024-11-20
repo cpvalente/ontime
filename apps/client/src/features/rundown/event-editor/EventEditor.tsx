@@ -64,23 +64,6 @@ export default function EventEditor() {
 
   const multiSelect = selectedEvents.size > 1;
 
-  // const handleSubmit = useCallback(
-  //   //TODO: the value type
-  //   (field: EditorUpdateFields, value: string | boolean | number) => {
-  //     if (field.startsWith('custom-')) {
-  //       const fieldLabel = field.split('custom-')[1];
-  //       multiSelect
-  //         ? batchUpdateEvents({ custom: { [fieldLabel]: value as string } }, Array.from(selectedEvents))
-  //         : updateEvent({ id: event?.id, custom: { [fieldLabel]: value as string } });
-  //     } else {
-  //       multiSelect
-  //         ? batchUpdateEvents({ [field]: value }, Array.from(selectedEvents))
-  //         : updateEvent({ id: event?.id, [field]: value });
-  //     }
-  //   },
-  //   [multiSelect, batchUpdateEvents, selectedEvents, updateEvent, event?.id],
-  // );
-
   const handleSubmit = useCallback(
     (patch: EditorUpdateFields) => {
       multiSelect ? batchUpdateEvents(patch, Array.from(selectedEvents)) : updateEvent({ id: event?.id, ...patch });
@@ -100,7 +83,6 @@ export default function EventEditor() {
     <div className={`${style.eventEditor} ${multiSelect ? style.multi : ''}`} data-testid='editor-container'>
       <div className={style.content}>
         <EventEditorTimes
-          isMulti={multiSelect}
           key={`${event.id}-times`}
           eventId={event.id}
           timeStart={event.timeStart}

@@ -27,12 +27,20 @@ interface EventEditorTimesProps {
   handleSubmit: EditorSubmitHandler;
 }
 
-type HandledActions = 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
+type HandledActions =
+  | 'timerType'
+  | 'endAction'
+  | 'isPublic'
+  | 'timeWarning'
+  | 'timeDanger'
+  | 'timeStart'
+  | 'timeEnd'
+  | 'duration'
+  | 'timeStrategy'
+  | 'linkStart';
 
 const EventEditorTimes = (props: EventEditorTimesProps) => {
   const {
-    isMulti,
-    eventId,
     timeStart,
     timeEnd,
     duration,
@@ -47,19 +55,26 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
     handleSubmit,
   } = props;
 
-  const handleSubmitWrapper = (field: HandledActions, value: string | boolean) => {
+  const handleSubmitWrapper = (field: HandledActions, value: string | boolean | null) => {
     if (field === 'isPublic') {
       handleSubmit({ isPublic: !(value as boolean) });
       return;
     }
 
-    if (field === 'timeWarning' || field === 'timeDanger') {
+    if (
+      field === 'timeWarning' ||
+      field === 'timeDanger' ||
+      field === 'timeStart' ||
+      field === 'timeEnd' ||
+      field === 'duration'
+    ) {
+      //FIXME: loss of th  `p` and `+`  smart entry
       const newTime = parseUserTime(value as string);
       handleSubmit({ [field]: newTime });
       return;
     }
 
-    if (field === 'timerType' || field === 'endAction') {
+    if (field === 'timerType' || field === 'endAction' || field === 'timeStrategy' || field === 'linkStart') {
       handleSubmit({ [field]: value });
       return;
     }
@@ -78,7 +93,6 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
         <div className={style.inputLabel}>Event schedule</div>
         <div className={style.inline}>
           <TimeInputFlow
-            eventId={eventId}
             timeStart={timeStart}
             timeEnd={timeEnd}
             duration={duration}
@@ -86,7 +100,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             linkStart={linkStart}
             delay={delay}
             timerType={timerType}
-            disableStartend={isMulti}
+            handleSubmit={handleSubmitWrapper}
           />
         </div>
         <div className={style.delayLabel}>{delayLabel}</div>

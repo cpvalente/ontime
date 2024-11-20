@@ -8,14 +8,13 @@ import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
 import { MaybeString, TimerType, TimeStrategy } from 'ontime-types';
 
 import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
-import { useEventAction } from '../../../common/hooks/useEventAction';
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayFast, tooltipDelayMid } from '../../../ontimeConfig';
 
 import style from './TimeInputFlow.module.scss';
+type TimeActions = 'timeStart' | 'timeEnd' | 'duration' | 'timeStrategy' | 'linkStart';
 
 interface EventBlockTimerProps {
-  eventId: string;
   timeStart: number;
   timeEnd: number;
   duration: number;
@@ -24,25 +23,19 @@ interface EventBlockTimerProps {
   delay: number;
   timerType: TimerType;
   disableStartend?: boolean;
+  handleSubmit: (field: TimeActions, value: string | null) => void;
 }
 
-type TimeActions = 'timeStart' | 'timeEnd' | 'duration';
-
 const TimeInputFlow = (props: EventBlockTimerProps) => {
-  const { eventId, timeStart, timeEnd, duration, timeStrategy, linkStart, delay, timerType, disableStartend } = props;
-  const { updateEvent, updateTimer } = useEventAction();
-
-  // In sync with EventEditorTimes
-  const handleSubmit = (field: TimeActions, value: string) => {
-    updateTimer(eventId, field, value);
-  };
+  const { timeStart, timeEnd, duration, timeStrategy, linkStart, delay, timerType, disableStartend, handleSubmit } =
+    props;
 
   const handleChangeStrategy = (timeStrategy: TimeStrategy) => {
-    updateEvent({ id: eventId, timeStrategy });
+    handleSubmit('timeStrategy', timeStrategy);
   };
 
   const handleLink = (doLink: boolean) => {
-    updateEvent({ id: eventId, linkStart: doLink ? 'true' : null });
+    handleSubmit('linkStart', doLink ? 'true' : null);
   };
 
   const warnings = [];

@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
@@ -11,7 +11,9 @@ import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward'
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
+import { parseUserTime } from 'ontime-utils';
 
+import { useEventAction } from '../../../common/hooks/useEventAction';
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
@@ -80,11 +82,25 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     playBtnStyles._hover = {};
   }
 
+  const { updateEvent } = useEventAction();
+
+  const handleSubmit = useCallback(
+    (field: string, value: string | null) => {
+      if (field === 'timeStart' || field === 'timeEnd' || field === 'duration') {
+        //FIXME: loss of th  `p` and `+`  smart entry
+        const newTime = parseUserTime(value as string);
+        updateEvent({ id: eventId, [field]: newTime });
+      } else {
+        updateEvent({ id: eventId, [field]: value });
+      }
+    },
+    [eventId, updateEvent],
+  );
+
   return !renderInner ? null : (
     <>
       <div className={style.eventTimers}>
         <TimeInputFlow
-          eventId={eventId}
           timeStart={timeStart}
           timeEnd={timeEnd}
           duration={duration}
@@ -92,6 +108,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           timeStrategy={timeStrategy}
           linkStart={linkStart}
           timerType={timerType}
+          handleSubmit={handleSubmit}
         />
       </div>
       <div className={style.titleSection}>
