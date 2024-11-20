@@ -4,13 +4,14 @@ import { EndAction, MaybeString, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
-import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
+import { type EditorSubmitHandler } from '../EventEditor';
 
 import style from '../EventEditor.module.scss';
 
 interface EventEditorTimesProps {
+  isMulti?: boolean;
   eventId: string;
   timeStart: number;
   timeEnd: number;
@@ -23,12 +24,14 @@ interface EventEditorTimesProps {
   timerType: TimerType;
   timeWarning: number;
   timeDanger: number;
+  handleSubmit: EditorSubmitHandler;
 }
 
 type HandledActions = 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
 
 const EventEditorTimes = (props: EventEditorTimesProps) => {
   const {
+    isMulti,
     eventId,
     timeStart,
     timeEnd,
@@ -41,23 +44,23 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
     timerType,
     timeWarning,
     timeDanger,
+    handleSubmit,
   } = props;
-  const { updateEvent } = useEventAction();
 
-  const handleSubmit = (field: HandledActions, value: string | boolean) => {
+  const handleSubmitWrapper = (field: HandledActions, value: string | boolean) => {
     if (field === 'isPublic') {
-      updateEvent({ id: eventId, isPublic: !(value as boolean) });
+      handleSubmit({ isPublic: !(value as boolean) });
       return;
     }
 
     if (field === 'timeWarning' || field === 'timeDanger') {
       const newTime = parseUserTime(value as string);
-      updateEvent({ id: eventId, [field]: newTime });
+      handleSubmit({ [field]: newTime });
       return;
     }
 
     if (field === 'timerType' || field === 'endAction') {
-      updateEvent({ id: eventId, [field]: value });
+      handleSubmit({ [field]: value });
       return;
     }
   };
@@ -83,6 +86,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             linkStart={linkStart}
             delay={delay}
             timerType={timerType}
+            disableStartend={isMulti}
           />
         </div>
         <div className={style.delayLabel}>{delayLabel}</div>
@@ -93,7 +97,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           <label className={style.inputLabel} htmlFor='timeWarning'>
             Warning Time
           </label>
-          <TimeInput name='timeWarning' submitHandler={handleSubmit} time={timeWarning} placeholder='Duration' />
+          <TimeInput name='timeWarning' submitHandler={handleSubmitWrapper} time={timeWarning} placeholder='Duration' />
         </div>
         <div>
           <label className={style.inputLabel}>Timer Type</label>
@@ -101,7 +105,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             size='sm'
             name='timerType'
             value={timerType}
-            onChange={(event) => handleSubmit('timerType', event.target.value)}
+            onChange={(event) => handleSubmitWrapper('timerType', event.target.value)}
             variant='ontime'
           >
             <option value={TimerType.CountDown}>Count down</option>
@@ -115,7 +119,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           <label className={style.inputLabel} htmlFor='timeDanger'>
             Danger Time
           </label>
-          <TimeInput name='timeDanger' submitHandler={handleSubmit} time={timeDanger} placeholder='Duration' />
+          <TimeInput name='timeDanger' submitHandler={handleSubmitWrapper} time={timeDanger} placeholder='Duration' />
         </div>
         <div>
           <label className={style.inputLabel}>End Action</label>
@@ -123,7 +127,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
             size='sm'
             name='endAction'
             value={endAction}
-            onChange={(event) => handleSubmit('endAction', event.target.value)}
+            onChange={(event) => handleSubmitWrapper('endAction', event.target.value)}
             variant='ontime'
           >
             <option value={EndAction.None}>None</option>
@@ -137,7 +141,12 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
       <div>
         <span className={style.inputLabel}>Event Visibility</span>
         <label className={style.switchLabel}>
-          <Switch size='md' isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
+          <Switch
+            size='md'
+            isChecked={isPublic}
+            onChange={() => handleSubmitWrapper('isPublic', isPublic)}
+            variant='ontime'
+          />
           {isPublic ? 'Public' : 'Private'}
         </label>
       </div>

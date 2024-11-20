@@ -23,12 +23,13 @@ interface EventBlockTimerProps {
   linkStart: MaybeString;
   delay: number;
   timerType: TimerType;
+  disableStartend?: boolean;
 }
 
 type TimeActions = 'timeStart' | 'timeEnd' | 'duration';
 
 const TimeInputFlow = (props: EventBlockTimerProps) => {
-  const { eventId, timeStart, timeEnd, duration, timeStrategy, linkStart, delay, timerType } = props;
+  const { eventId, timeStart, timeEnd, duration, timeStrategy, linkStart, delay, timerType, disableStartend } = props;
   const { updateEvent, updateTimer } = useEventAction();
 
   // In sync with EventEditorTimes
@@ -70,7 +71,7 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         time={timeStart}
         hasDelay={hasDelay}
         placeholder='Start'
-        disabled={Boolean(linkStart)}
+        disabled={Boolean(linkStart || disableStartend)}
       >
         <Tooltip label='Link start to previous end' openDelay={tooltipDelayMid}>
           <InputRightElement className={activeStart} onClick={() => handleLink(!linkStart)}>
@@ -85,7 +86,7 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         submitHandler={handleSubmit}
         time={timeEnd}
         hasDelay={hasDelay}
-        disabled={isLockedDuration}
+        disabled={isLockedDuration || disableStartend}
         placeholder='End'
       >
         <Tooltip label='Lock end' openDelay={tooltipDelayMid}>
@@ -104,7 +105,7 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         name='duration'
         submitHandler={handleSubmit}
         time={duration}
-        disabled={isLockedEnd}
+        disabled={isLockedEnd || disableStartend}
         placeholder='Duration'
       >
         <Tooltip label='Lock duration' openDelay={tooltipDelayMid}>

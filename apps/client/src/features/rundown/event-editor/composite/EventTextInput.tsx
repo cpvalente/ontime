@@ -2,21 +2,24 @@ import { useCallback, useRef } from 'react';
 import { Input, InputProps } from '@chakra-ui/react';
 
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
-import { EditorUpdateFields } from '../EventEditor';
+import { EditorSubmitHandler, EditorUpdateFields } from '../EventEditor';
 
 import style from '../EventEditor.module.scss';
 
 interface EventTextInputProps extends InputProps {
-  field: EditorUpdateFields;
+  field: keyof EditorUpdateFields;
   label: string;
   initialValue: string;
-  submitHandler: (field: EditorUpdateFields, value: string) => void;
+  submitHandler: EditorSubmitHandler;
 }
 
 export default function EventTextInput(props: EventTextInputProps) {
   const { field, label, initialValue, submitHandler, maxLength } = props;
   const ref = useRef<HTMLInputElement | null>(null);
-  const submitCallback = useCallback((newValue: string) => submitHandler(field, newValue), [field, submitHandler]);
+  const submitCallback = useCallback(
+    (newValue: string) => submitHandler({ [field]: newValue }),
+    [field, submitHandler],
+  );
 
   const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(initialValue, submitCallback, ref, {
     submitOnEnter: true,

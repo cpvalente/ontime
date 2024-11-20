@@ -3,23 +3,28 @@ import { CSSProperties, useCallback, useRef } from 'react';
 import { AutoTextArea } from '../../../../common/components/input/auto-text-area/AutoTextArea';
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
 import { cx } from '../../../../common/utils/styleUtils';
-import { EditorUpdateFields } from '../EventEditor';
+import { EditorSubmitHandler, EditorUpdateFields } from '../EventEditor';
 
 import style from '../EventEditor.module.scss';
 
 interface CountedTextAreaProps {
   className?: string;
-  field: EditorUpdateFields;
+  field: keyof EditorUpdateFields | string;
+  forCustom?: boolean;
   label: string;
   initialValue: string;
   style?: CSSProperties;
-  submitHandler: (field: EditorUpdateFields, value: string) => void;
+  submitHandler: EditorSubmitHandler;
 }
 
 export default function EventTextArea(props: CountedTextAreaProps) {
-  const { className, field, label, initialValue, style: givenStyles, submitHandler } = props;
+  const { className, field, label, initialValue, style: givenStyles, submitHandler, forCustom } = props;
   const ref = useRef<HTMLInputElement | null>(null);
-  const submitCallback = useCallback((newValue: string) => submitHandler(field, newValue), [field, submitHandler]);
+  const submitCallback = useCallback(
+    (newValue: string) =>
+      forCustom ? submitHandler({ custom: { [field]: newValue } }) : submitHandler({ [field]: newValue }),
+    [field, forCustom, submitHandler],
+  );
 
   const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(initialValue, submitCallback, ref, {
     submitOnCtrlEnter: true,
