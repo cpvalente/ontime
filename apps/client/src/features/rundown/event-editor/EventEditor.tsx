@@ -1,7 +1,7 @@
 import { CSSProperties, memo, useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@chakra-ui/react';
-import { CustomFieldLabel, isOntimeEvent, OntimeEvent } from 'ontime-types';
+import { isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import CopyTag from '../../../common/components/copy-tag/CopyTag';
 import { useEventAction } from '../../../common/hooks/useEventAction';
@@ -17,16 +17,27 @@ import EventEditorEmpty from './EventEditorEmpty';
 
 import style from './EventEditor.module.scss';
 
-export type EventEditorSubmitActions = keyof OntimeEvent;
+// export type EventEditorSubmitActions = keyof OntimeEvent;
 
-export type EditorUpdateFields = 'cue' | 'title' | 'note' | 'colour' | CustomFieldLabel;
+export type EditorUpdateFields = Partial<Omit<OntimeEvent, 'id'>>;
+export type EditorSubmitHandler = (patch: EditorUpdateFields) => void;
+// | 'cue'
+// | 'title'
+// | 'note'
+// | 'colour'
+// | CustomFieldLabel
+// | 'timeStart'
+// | 'timeEnd'
+// | 'duration'
+// | 'linkStart'
+// | 'timeStrategy';
 
 export default function EventEditor() {
-  const selectedEvents = useEventSelection((state) => state.selectedEvents);
+  const { selectedEvents } = useEventSelection(); //don't use state selector so we get all updates to selectedEvents
   const { data } = useRundown();
   const { data: customFields } = useCustomFields();
   const { order, rundown } = data;
-  const { updateEvent } = useEventAction();
+  const { updateEvent, batchUpdateEvents } = useEventAction();
   const [_searchParams, setSearchParams] = useSearchParams();
 
   const [event, setEvent] = useState<OntimeEvent | null>(null);
@@ -51,16 +62,13 @@ export default function EventEditor() {
     }
   }, [order, rundown, selectedEvents]);
 
+  const multiSelect = selectedEvents.size > 1;
+
   const handleSubmit = useCallback(
-    (field: EditorUpdateFields, value: string) => {
-      if (field.startsWith('custom-')) {
-        const fieldLabel = field.split('custom-')[1];
-        updateEvent({ id: event?.id, custom: { [fieldLabel]: value } });
-      } else {
-        updateEvent({ id: event?.id, [field]: value });
-      }
+    (patch: EditorUpdateFields) => {
+      multiSelect ? batchUpdateEvents(patch, Array.from(selectedEvents)) : updateEvent({ id: event?.id, ...patch });
     },
-    [event?.id, updateEvent],
+    [multiSelect, batchUpdateEvents, selectedEvents, updateEvent, event?.id],
   );
 
   const handleOpenCustomManager = () => {
@@ -72,7 +80,7 @@ export default function EventEditor() {
   }
 
   return (
-    <div className={style.eventEditor} data-testid='editor-container'>
+    <div className={`${style.eventEditor} ${multiSelect ? style.multi : ''}`} data-testid='editor-container'>
       <div className={style.content}>
         <EventEditorTimes
           key={`${event.id}-times`}
@@ -88,6 +96,7 @@ export default function EventEditor() {
           timerType={event.timerType}
           timeWarning={event.timeWarning}
           timeDanger={event.timeDanger}
+          handleSubmit={handleSubmit}
         />
         <EventEditorTitles
           key={`${event.id}-titles`}
@@ -107,7 +116,6 @@ export default function EventEditor() {
           </div>
           {Object.keys(customFields).map((fieldKey) => {
             const key = `${event.id}-${fieldKey}`;
-            const fieldName = `custom-${fieldKey}`;
             const initialValue = event.custom[fieldKey] ?? '';
             const { backgroundColor, color } = getAccessibleColour(customFields[fieldKey].colour);
             const labelText = customFields[fieldKey].label;
@@ -115,7 +123,8 @@ export default function EventEditor() {
             return (
               <EventTextArea
                 key={key}
-                field={fieldName}
+                field={fieldKey}
+                forCustom
                 label={labelText}
                 initialValue={initialValue}
                 submitHandler={handleSubmit}

@@ -8,14 +8,13 @@ import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
 import { MaybeString, TimerType, TimeStrategy } from 'ontime-types';
 
 import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
-import { useEventAction } from '../../../common/hooks/useEventAction';
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayFast, tooltipDelayMid } from '../../../ontimeConfig';
 
 import style from './TimeInputFlow.module.scss';
+type TimeActions = 'timeStart' | 'timeEnd' | 'duration' | 'timeStrategy' | 'linkStart';
 
 interface EventBlockTimerProps {
-  eventId: string;
   timeStart: number;
   timeEnd: number;
   duration: number;
@@ -23,25 +22,20 @@ interface EventBlockTimerProps {
   linkStart: MaybeString;
   delay: number;
   timerType: TimerType;
+  disableStartend?: boolean;
+  handleSubmit: (field: TimeActions, value: string | null) => void;
 }
 
-type TimeActions = 'timeStart' | 'timeEnd' | 'duration';
-
 const TimeInputFlow = (props: EventBlockTimerProps) => {
-  const { eventId, timeStart, timeEnd, duration, timeStrategy, linkStart, delay, timerType } = props;
-  const { updateEvent, updateTimer } = useEventAction();
-
-  // In sync with EventEditorTimes
-  const handleSubmit = (field: TimeActions, value: string) => {
-    updateTimer(eventId, field, value);
-  };
+  const { timeStart, timeEnd, duration, timeStrategy, linkStart, delay, timerType, disableStartend, handleSubmit } =
+    props;
 
   const handleChangeStrategy = (timeStrategy: TimeStrategy) => {
-    updateEvent({ id: eventId, timeStrategy });
+    handleSubmit('timeStrategy', timeStrategy);
   };
 
   const handleLink = (doLink: boolean) => {
-    updateEvent({ id: eventId, linkStart: doLink ? 'true' : null });
+    handleSubmit('linkStart', doLink ? 'true' : null);
   };
 
   const warnings = [];
@@ -70,7 +64,7 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         time={timeStart}
         hasDelay={hasDelay}
         placeholder='Start'
-        disabled={Boolean(linkStart)}
+        disabled={Boolean(linkStart || disableStartend)}
       >
         <Tooltip label='Link start to previous end' openDelay={tooltipDelayMid}>
           <InputRightElement className={activeStart} onClick={() => handleLink(!linkStart)}>
@@ -85,7 +79,7 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         submitHandler={handleSubmit}
         time={timeEnd}
         hasDelay={hasDelay}
-        disabled={isLockedDuration}
+        disabled={isLockedDuration || disableStartend}
         placeholder='End'
       >
         <Tooltip label='Lock end' openDelay={tooltipDelayMid}>
@@ -104,7 +98,7 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
         name='duration'
         submitHandler={handleSubmit}
         time={duration}
-        disabled={isLockedEnd}
+        disabled={isLockedEnd || disableStartend}
         placeholder='Duration'
       >
         <Tooltip label='Lock duration' openDelay={tooltipDelayMid}>

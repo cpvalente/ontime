@@ -92,6 +92,6 @@ export function getCueCandidate(rundown: OntimeRundown, insertAfterId?: string):
   return cue;
 }
 
-export function sanitiseCue(cue: string) {
+export function sanitiseCue(cue: string = '') {
   return cue.replaceAll(' ', '').replaceAll(',', '.');
 }
