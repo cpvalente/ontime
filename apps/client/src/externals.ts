@@ -1,3 +1,4 @@
+import { version } from '../../../package.json';
 /**
  * This file contains a list of constants that may need to be resolved at runtime
  */
@@ -5,11 +6,13 @@
 export const githubUrl = 'https://www.github.com/cpvalente/ontime';
 export const apiRepoLatest = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
 export const websiteUrl = 'https://www.getontime.no';
+export const discordUrl = 'https://discord.com/invite/eje3CSUEXm';
 
 export const documentationUrl = 'https://docs.getontime.no';
 export const customFieldsDocsUrl = 'https://docs.getontime.no/features/custom-fields/';
 
 // resolve environment
+export const appVersion = version;
 export const isProduction = import.meta.env.MODE === 'production';
 export const isDev = !isProduction;
 export const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
