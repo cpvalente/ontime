@@ -1,5 +1,5 @@
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
-import { documentationUrl, githubUrl, websiteUrl } from '../../../../externals';
+import { discordUrl, documentationUrl, githubUrl, websiteUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import AppVersion from './AppVersion';
@@ -19,6 +19,7 @@ export default function AboutPanel() {
         <Panel.SubHeader>Links</Panel.SubHeader>
         <ExternalLink href={documentationUrl}>Read the docs</ExternalLink>
         <ExternalLink href={githubUrl}>Follow the project on GitHub</ExternalLink>
+        <ExternalLink href={discordUrl}>Discord server</ExternalLink>f
       </Panel.Section>
       <Panel.Section>
         <Panel.SubHeader>Current version</Panel.SubHeader>
