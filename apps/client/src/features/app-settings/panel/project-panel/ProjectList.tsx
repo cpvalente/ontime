@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
-import { useProjectList } from '../../../../common/hooks-query/useProjectList';
+import { useOrderedProjectList } from '../../../../common/hooks-query/useProjectList';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import ProjectListItem, { EditMode } from './ProjectListItem';
@@ -8,8 +8,7 @@ import ProjectListItem, { EditMode } from './ProjectListItem';
 import style from './ProjectPanel.module.scss';
 
 export default function ProjectList() {
-  const { data, refetch } = useProjectList();
-  const { files, lastLoadedProject } = data;
+  const { data, refetch } = useOrderedProjectList();
 
   const [editingMode, setEditingMode] = useState<EditMode | null>(null);
   const [editingFilename, setEditingFilename] = useState<string | null>(null);
@@ -28,16 +27,6 @@ export default function ProjectList() {
     await refetch();
   };
 
-  const reorderedProjectFiles = useMemo(() => {
-    if (!data.files?.length) return [];
-
-    const currentlyLoadedIndex = files.findIndex((project) => project.filename === lastLoadedProject);
-    const projectFiles = [...files];
-    const current = projectFiles.splice(currentlyLoadedIndex, 1)?.[0];
-
-    return [current, ...projectFiles];
-  }, [data.files?.length, files, lastLoadedProject]);
-
   return (
     <Panel.Table>
       <thead>
@@ -48,7 +37,7 @@ export default function ProjectList() {
         </tr>
       </thead>
       <tbody>
-        {reorderedProjectFiles.map((project) => (
+        {data.reorderedProjectFiles.map((project) => (
           <ProjectListItem
             key={project.filename}
             filename={project.filename}
@@ -58,7 +47,7 @@ export default function ProjectList() {
             onRefetch={handleRefetch}
             editingFilename={editingFilename}
             editingMode={editingMode}
-            current={project.filename === lastLoadedProject}
+            current={project.filename === data.lastLoadedProject}
           />
         ))}
       </tbody>
