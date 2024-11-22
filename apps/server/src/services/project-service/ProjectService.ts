@@ -59,10 +59,9 @@ export async function getCurrentProject() {
 }
 
 /**
- * Private function loads a demo project
- * to be composed in the loading functions
+ * Loads the demo project
  */
-async function loadDemoProject(): Promise<string> {
+export async function loadDemoProject(): Promise<string> {
   const pathToNewFile = generateUniqueFileName(publicDir.projectsDir, config.demoProject);
   await initPersistence(getPathToProject(pathToNewFile), demoDb);
   const newName = getFileNameFromPath(pathToNewFile);
