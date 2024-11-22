@@ -1,0 +1,64 @@
+.sections {
+  display: grid;
+  grid-template-columns: 1fr 5fr;
+  gap: 2rem;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.header {
+  font-size: 1.5rem;
+}
+
+.logo {
+  max-width: 100px;
+  height: auto;
+}
+
+.buttonRow {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: end;
+}
+
+.tableContainer {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.table {
+  width: 100%;
+
+  tbody {
+    background-color: $gray-1300;
+    tr {
+      &:has(:hover) {
+        background-color: $gray-1350;
+      }
+    }
+  }
+
+  tr {
+    height: 2rem;
+  }
+
+  th,
+  td {
+    padding-inline: 0.5rem;
+  }
+
+  th {
+    text-align: left;
+    font-size: calc(1rem - 3px);
+    color: $label-gray;
+  }
+}
+
+.current {
+  background-color: $blue-700;
+}
