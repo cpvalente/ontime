@@ -12,6 +12,7 @@ import {
   setClientRedirect,
   setClients,
 } from '../stores/clientStore';
+import { addDialog } from '../stores/dialogStore';
 import { addLog } from '../stores/logger';
 import { patchRuntime, runtimeStore } from '../stores/runtime';
 
@@ -114,6 +115,13 @@ export const connectSocket = () => {
           setClients(payload);
           if (!isProduction) {
             ontimeQueryClient.setQueryData(CLIENT_LIST, payload);
+          }
+          break;
+        }
+
+        case 'dialog': {
+          if (payload.dialog === 'welcome') {
+            addDialog('welcome');
           }
           break;
         }
