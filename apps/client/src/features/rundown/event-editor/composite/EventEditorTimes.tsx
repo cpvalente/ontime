@@ -6,6 +6,7 @@ import { millisToString, parseUserTime } from 'ontime-utils';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
+import * as Editor from '../../../editors/editor-utils/EditorUtils';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
 
 import style from '../EventEditor.module.scss';
@@ -72,7 +73,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
   return (
     <div className={style.column}>
       <div>
-        <div className={style.inputLabel}>Event schedule</div>
+        <Editor.Label>Event schedule</Editor.Label>
         <div className={style.inline}>
           <TimeInputFlow
             eventId={eventId}
@@ -90,15 +91,20 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
 
       <div className={style.splitTwo}>
         <div>
-          <label className={style.inputLabel} htmlFor='timeWarning'>
-            Warning Time
-          </label>
-          <TimeInput name='timeWarning' submitHandler={handleSubmit} time={timeWarning} placeholder='Duration' />
+          <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
+          <TimeInput
+            id='timeWarning'
+            name='timeWarning'
+            submitHandler={handleSubmit}
+            time={timeWarning}
+            placeholder='Duration'
+          />
         </div>
         <div>
-          <label className={style.inputLabel}>Timer Type</label>
+          <Editor.Label htmlFor='timerType'>Timer Type</Editor.Label>
           <Select
             size='sm'
+            id='timerType'
             name='timerType'
             value={timerType}
             onChange={(event) => handleSubmit('timerType', event.target.value)}
@@ -112,14 +118,19 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
           </Select>
         </div>
         <div>
-          <label className={style.inputLabel} htmlFor='timeDanger'>
-            Danger Time
-          </label>
-          <TimeInput name='timeDanger' submitHandler={handleSubmit} time={timeDanger} placeholder='Duration' />
+          <Editor.Label htmlFor='timeDanger'>Danger Time</Editor.Label>
+          <TimeInput
+            id='timeDanger'
+            name='timeDanger'
+            submitHandler={handleSubmit}
+            time={timeDanger}
+            placeholder='Duration'
+          />
         </div>
         <div>
-          <label className={style.inputLabel}>End Action</label>
+          <Editor.Label htmlFor='endAction'>End Action</Editor.Label>
           <Select
+            id='endAction'
             size='sm'
             name='endAction'
             value={endAction}
@@ -135,11 +146,17 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
       </div>
 
       <div>
-        <span className={style.inputLabel}>Event Visibility</span>
-        <label className={style.switchLabel}>
-          <Switch size='md' isChecked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} variant='ontime' />
+        <Editor.Label htmlFor='isPublic'>Event Visibility</Editor.Label>
+        <Editor.Label className={style.switchLabel}>
+          <Switch
+            id='isPublic'
+            size='md'
+            isChecked={isPublic}
+            onChange={() => handleSubmit('isPublic', isPublic)}
+            variant='ontime'
+          />
           {isPublic ? 'Public' : 'Private'}
-        </label>
+        </Editor.Label>
       </div>
     </div>
   );

@@ -40,13 +40,6 @@
   gap: 1rem;
 }
 
-.inputLabel {
-  display: block;
-  font-size: calc(1rem - 3px);
-  color: $label-gray;
-  margin-bottom: 0.25rem;
-}
-
 .decorated {
   color: var(--decorator-color, $ui-white);
   background-color: var(--decorator-bg, $gray-1100);
@@ -58,7 +51,6 @@
 .delayLabel {
   font-size: calc(1rem - 3px);
   color: $ontime-delay-text;
-  margin-top: 0.25rem;
 
   &::after {
     content: '\200b';
@@ -66,8 +58,6 @@
 }
 
 .switchLabel {
-  font-size: calc(1rem - 3px);
-  color: $label-gray;
   display: flex;
   align-items: center;
   gap: 0.5rem;

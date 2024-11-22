@@ -20,3 +20,20 @@
     outline: 2px solid $gray-1000;
   }
 }
+
+.header {
+  font-size: 1.5rem;
+}
+
+.title {
+  font-size: 1rem;
+  color: $label-gray;
+}
+
+.label {
+  display: block;
+  font-size: calc(1rem - 3px);
+  color: $label-gray;
+  margin-bottom: 0.25rem;
+  max-width: max-content; // prevent label from taking entire row
+}
