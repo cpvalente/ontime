@@ -5,6 +5,7 @@ import { millisToString, parseUserTime } from 'ontime-utils';
 import { useEmitLog } from '../../../stores/logger';
 
 interface TimeInputProps<T extends string> {
+  id?: T;
   name: T;
   submitHandler: (field: T, value: string) => void;
   time?: number;
@@ -15,7 +16,7 @@ interface TimeInputProps<T extends string> {
 }
 
 export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
-  const { name, submitHandler, time = 0, placeholder, disabled, align = 'center', className } = props;
+  const { id, name, submitHandler, time = 0, placeholder, disabled, align = 'center', className } = props;
   const { emitError } = useEmitLog();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [value, setValue] = useState<string>('');
@@ -117,6 +118,7 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
 
   return (
     <Input
+      id={id}
       disabled={disabled}
       size='sm'
       ref={inputRef}

@@ -2,9 +2,8 @@ import { useCallback, useRef } from 'react';
 import { Input, InputProps } from '@chakra-ui/react';
 
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
+import * as Editor from '../../../editors/editor-utils/EditorUtils';
 import { EditorUpdateFields } from '../EventEditor';
-
-import style from '../EventEditor.module.scss';
 
 interface EventTextInputProps extends InputProps {
   field: EditorUpdateFields;
@@ -24,9 +23,7 @@ export default function EventTextInput(props: EventTextInputProps) {
 
   return (
     <div>
-      <label className={style.inputLabel} htmlFor={field}>
-        {label}
-      </label>
+      <Editor.Label htmlFor={field}>{label}</Editor.Label>
       <Input
         id={field}
         ref={ref}

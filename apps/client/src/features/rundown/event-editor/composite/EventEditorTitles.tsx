@@ -3,6 +3,7 @@ import { Input } from '@chakra-ui/react';
 import { sanitiseCue } from 'ontime-utils';
 
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
+import * as Editor from '../../../editors/editor-utils/EditorUtils';
 import { type EditorUpdateFields } from '../EventEditor';
 
 import EventTextArea from './EventTextArea';
@@ -30,9 +31,7 @@ const EventEditorTitles = (props: EventEditorTitlesProps) => {
     <div className={style.column}>
       <div className={style.splitTwo}>
         <div>
-          <label className={style.inputLabel} htmlFor='eventId'>
-            Event ID (read only)
-          </label>
+          <Editor.Label htmlFor='eventId'>Event ID (read only)</Editor.Label>
           <Input
             id='eventId'
             size='sm'
@@ -45,7 +44,7 @@ const EventEditorTitles = (props: EventEditorTitlesProps) => {
         <EventTextInput field='cue' label='Cue' initialValue={cue} submitHandler={cueSubmitHandler} maxLength={10} />
       </div>
       <div>
-        <label className={style.inputLabel}>Colour</label>
+        <Editor.Label>Colour</Editor.Label>
         <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
       </div>
       <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />

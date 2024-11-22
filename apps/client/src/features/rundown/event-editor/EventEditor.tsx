@@ -8,6 +8,7 @@ import { useEventAction } from '../../../common/hooks/useEventAction';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import useRundown from '../../../common/hooks-query/useRundown';
 import { getAccessibleColour } from '../../../common/utils/styleUtils';
+import * as Editor from '../../editors/editor-utils/EditorUtils';
 import { useEventSelection } from '../useEventSelection';
 
 import EventEditorTimes from './composite/EventEditorTimes';
@@ -100,7 +101,7 @@ export default function EventEditor() {
         />
         <div className={style.column}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span>Custom Fields</span>
+            <Editor.Title>Custom Fields</Editor.Title>
             <Button variant='ontime-subtle' size='sm' onClick={handleOpenCustomManager}>
               Manage
             </Button>
