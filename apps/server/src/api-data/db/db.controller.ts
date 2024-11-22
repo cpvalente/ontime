@@ -193,6 +193,25 @@ export async function loadProject(req: Request, res: Response<MessageResponse | 
 }
 
 /**
+ * Loads the demo project
+ */
+export async function loadDemo(req: Request, res: Response<MessageResponse | ErrorResponse>) {
+  try {
+    const projectName = await projectService.loadDemoProject();
+
+    res.status(201).send({
+      message: `Loaded demo project: ${projectName}`,
+    });
+  } catch (error) {
+    const message = getErrorMessage(error);
+    if (message.startsWith('Project file')) {
+      return res.status(403).send({ message });
+    }
+    res.status(500).send({ message });
+  }
+}
+
+/**
  * Duplicates a project file.
  * Receives the original project filename (`filename`) from the request parameters
  * and the filename for the duplicate (`newFilename`) from the request body.

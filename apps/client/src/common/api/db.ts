@@ -113,6 +113,14 @@ export async function loadProject(filename: string): Promise<MessageResponse> {
 }
 
 /**
+ * HTTP request to load the demo project file
+ */
+export async function loadDemo(): Promise<MessageResponse> {
+  const res = await axios.post(`${dbPath}/demo`);
+  return res.data;
+}
+
+/**
  * HTTP request to duplicate a project file
  */
 export async function duplicateProject(filename: string, newFilename: string): Promise<MessageResponse> {
