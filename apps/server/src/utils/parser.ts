@@ -26,6 +26,7 @@ import { logger } from '../classes/Logger.js';
 import { event as eventDef } from '../models/eventsDefinition.js';
 import { makeString } from './parserUtils.js';
 import {
+  parseAutomations,
   parseHttp,
   parseOsc,
   parseProject,
@@ -333,6 +334,7 @@ export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): { data: Da
     customFields,
     osc: parseOsc(jsonData, makeEmitError('OSC')),
     http: parseHttp(jsonData, makeEmitError('HTTP')),
+    automation: parseAutomations(jsonData),
   };
 
   return { data, errors };

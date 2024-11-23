@@ -1,4 +1,5 @@
 import type {
+  AutomationSettings,
   CustomFields,
   HttpSettings,
   OntimeRundown,
@@ -18,4 +19,5 @@ export type DatabaseModel = {
   customFields: CustomFields;
   osc: OSCSettings;
   http: HttpSettings;
+  automation: AutomationSettings;
 };

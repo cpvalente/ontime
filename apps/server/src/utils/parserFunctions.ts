@@ -1,4 +1,5 @@
 import {
+  AutomationSettings,
   CustomField,
   CustomFields,
   DatabaseModel,
@@ -288,6 +289,18 @@ export function parseUrlPresets(data: Partial<DatabaseModel>, emitError?: ErrorE
   console.log(`Uploaded ${newPresets.length} preset(s)`);
 
   return newPresets;
+}
+
+// TODO: not implemented yet
+export function parseAutomations(_data: Partial<DatabaseModel>): AutomationSettings {
+  console.log('Automations not implemented');
+  return {
+    enabledAutomations: true,
+    enabledOscIn: true,
+    oscPortIn: 8888,
+    automations: [],
+    blueprints: {},
+  };
 }
 
 /**
