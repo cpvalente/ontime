@@ -21,13 +21,14 @@ const {
  * @param {string} clientUrl - base url for the application
  * @param {string} serverUrl - base url for the application
  * @param {function} redirectWindow - function to redirect main window content
+ * @param {function} showDialog - asks the react app to show a user dialog
  * @param {function} download - function to download a resource from url
  * @returns {Menu} - application menu
  */
-function getApplicationMenu(askToQuit, clientUrl, serverUrl, redirectWindow, download) {
+function getApplicationMenu(askToQuit, clientUrl, serverUrl, redirectWindow, showDialog, download) {
   const template = [
     ...(isMac ? [makeMacMenu(askToQuit)] : []),
-    makeFileMenu(serverUrl, redirectWindow, download),
+    makeFileMenu(serverUrl, redirectWindow, showDialog, download),
     makeViewMenu(clientUrl),
     makeSettingsMenu(redirectWindow),
     makeHelpMenu(redirectWindow),
@@ -53,7 +54,7 @@ function makeMacMenu(askToQuit) {
       { type: 'separator' },
       {
         label: 'Quit',
-        click: () => askToQuit(),
+        click: askToQuit,
         accelerator: isMac ? 'Cmd+Q' : 'Alt+F4',
       },
     ],
@@ -64,10 +65,11 @@ function makeMacMenu(askToQuit) {
  * Utility function generates the file menu
  * @param {string} serverUrl - base url for the application
  * @param {function} redirectWindow - function to redirect main window content
+ * @param {function} showDialog - asks the react app to show a user dialog
  * @param {function} download - function to download a resource from url
  * @returns {Object}
  */
-function makeFileMenu(serverUrl, redirectWindow, download) {
+function makeFileMenu(serverUrl, redirectWindow, showDialog, download) {
   const downloadProject = () => {
     try {
       download(serverUrl + downloadPath);
@@ -82,6 +84,10 @@ function makeFileMenu(serverUrl, redirectWindow, download) {
       {
         label: 'New project...',
         click: () => redirectWindow('/editor?settings=project__manage&new=true'),
+      },
+      {
+        label: 'Load...',
+        click: () => showDialog('welcome'),
       },
       {
         label: 'Quick start...',

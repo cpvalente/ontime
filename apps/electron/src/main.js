@@ -114,11 +114,19 @@ function escalateError(error) {
 }
 
 /**
- * Allows electron to ask react app redirect
- * @param string location
+ * Allows electron to ask the react app to redirect
+ * @param {string} location
  */
 function redirectWindow(location) {
   win.webContents.send('request-editor-location', location);
+}
+
+/**
+ * Asks the react app to show a user dialog
+ * @param {string} name
+ */
+function showDialog(name) {
+  win.webContents.send('dialog', name);
 }
 
 // Ensure there isn't another instance of the app running already
@@ -190,7 +198,7 @@ app.whenReady().then(() => {
     .then((port) => {
       const clientUrl = getClientUrl(port);
       const serverUrl = getServerUrl(port);
-      const menu = getApplicationMenu(askToQuit, clientUrl, serverUrl, redirectWindow, (url) =>
+      const menu = getApplicationMenu(askToQuit, clientUrl, serverUrl, redirectWindow, showDialog, (url) =>
         win.webContents.downloadURL(url),
       );
       Menu.setApplicationMenu(menu);
