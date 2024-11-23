@@ -24,9 +24,7 @@ import { customFieldLabelToKey, generateId, getErrorMessage, isAlphanumericWithS
 
 import { dbModel } from '../models/dataModel.js';
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
-import { createEvent } from './parser.js';
-
-type ErrorEmitter = (message: string) => void;
+import { createEvent, type ErrorEmitter } from './parser.js';
 
 /**
  * Parse rundown array of an entry

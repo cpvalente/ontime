@@ -47,6 +47,13 @@ describe('safeMerge', () => {
       enabledOut: false,
       subscriptions: [],
     },
+    automation: {
+      enabledAutomations: false,
+      enabledOscIn: false,
+      oscPortIn: 8000,
+      automations: [],
+      blueprints: {},
+    },
   } as DatabaseModel;
 
   it('returns existing data if new data is not provided', () => {

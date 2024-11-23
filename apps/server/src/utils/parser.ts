@@ -22,8 +22,10 @@ import {
   TimeStrategy,
 } from 'ontime-types';
 
+import { parseAutomationSettings } from '../api-data/automation/automation.parser.js';
 import { logger } from '../classes/Logger.js';
 import { event as eventDef } from '../models/eventsDefinition.js';
+
 import { makeString } from './parserUtils.js';
 import {
   parseHttp,
@@ -36,6 +38,7 @@ import {
 } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
 
+export type ErrorEmitter = (message: string) => void;
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
 
@@ -333,6 +336,7 @@ export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): { data: Da
     customFields,
     osc: parseOsc(jsonData, makeEmitError('OSC')),
     http: parseHttp(jsonData, makeEmitError('HTTP')),
+    automation: parseAutomationSettings(jsonData),
   };
 
   return { data, errors };

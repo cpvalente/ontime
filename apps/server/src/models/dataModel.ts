@@ -43,4 +43,11 @@ export const dbModel: DatabaseModel = {
     enabledOut: false,
     subscriptions: [],
   },
+  automation: {
+    enabledAutomations: true,
+    enabledOscIn: true,
+    oscPortIn: 8888,
+    automations: [],
+    blueprints: {},
+  },
 };
