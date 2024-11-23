@@ -1,5 +1,6 @@
 import express from 'express';
 
+import { router as automationsRouter } from './automation/automation.router.js';
 import { router as urlPresetsRouter } from './url-presets/urlPresets.router.js';
 import { router as customFieldsRouter } from './custom-fields/customFields.router.js';
 import { router as dbRouter } from './db/db.router.js';
@@ -15,6 +16,7 @@ import { router as viewSettingsRouter } from './view-settings/viewSettings.route
 
 export const appRouter = express.Router();
 
+appRouter.use('/automations', automationsRouter);
 appRouter.use('/custom-fields', customFieldsRouter);
 appRouter.use('/db', dbRouter);
 appRouter.use('/http', httpRouter);
