@@ -1,6 +1,8 @@
 import { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { addDialog } from '../stores/dialogStore';
+
 const isElectron = window.process?.type === 'renderer';
 const ipcRenderer = isElectron ? window.require('electron').ipcRenderer : null;
 
@@ -23,6 +25,12 @@ export function useElectronListener() {
     if (isElectron) {
       ipcRenderer.on('request-editor-location', (_event: unknown, location: string) => {
         navigate(location, { relative: 'route' });
+      });
+
+      ipcRenderer.on('dialog', (_event: unknown, dialog: string) => {
+        if (dialog === 'welcome') {
+          addDialog('welcome');
+        }
       });
     }
 
