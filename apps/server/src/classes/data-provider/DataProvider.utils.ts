@@ -13,6 +13,7 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
     customFields = existing.customFields,
     osc = {},
     http = {},
+    automation = existing.automation,
   } = newData;
 
   return {
@@ -23,7 +24,6 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
     viewSettings: { ...existing.viewSettings, ...viewSettings },
     urlPresets: urlPresets ?? existing.urlPresets,
     customFields: customFields ?? existing.customFields,
-    osc: { ...existing.osc, ...osc },
-    http: { ...existing.http, ...http },
+    automation: { ...existing.automation, ...automation },
   };
 }
