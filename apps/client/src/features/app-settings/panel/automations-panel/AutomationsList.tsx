@@ -1,0 +1,109 @@
+import { useMemo, useState } from 'react';
+import { Button } from '@chakra-ui/react';
+import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
+import { Automation, NormalisedAutomationBlueprint } from 'ontime-types';
+
+import { deleteAutomation } from '../../../../common/api/automation';
+import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
+import * as Panel from '../../panel-utils/PanelUtils';
+
+import AutomationForm from './AutomationForm';
+import AutomationsListItem from './AutomationsListItem';
+import { checkDuplicates } from './automationUtils';
+
+interface AutomationsListProps {
+  automations: Automation[];
+  blueprints: NormalisedAutomationBlueprint;
+}
+
+export default function AutomationsList(props: AutomationsListProps) {
+  const { automations, blueprints } = props;
+  const [showForm, setShowForm] = useState(false);
+  const { refetch } = useAutomationSettings();
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteAutomation(id);
+    } catch (error) {
+      /** nothing yet */
+    } finally {
+      refetch();
+    }
+  };
+
+  const postSubmit = () => {
+    setShowForm(false);
+    refetch();
+  };
+
+  const duplicates = useMemo(() => checkDuplicates(automations), [automations]);
+
+  // there is no point letting user creating an automation if there are no blueprints
+  const canAdd = Object.keys(blueprints).length > 0;
+
+  return (
+    <Panel.Card>
+      <Panel.SubHeader>
+        Manage automations
+        <Button
+          variant='ontime-subtle'
+          rightIcon={<IoAdd />}
+          size='sm'
+          type='submit'
+          form='osc-form'
+          isDisabled={!canAdd}
+          isLoading={false}
+          onClick={() => setShowForm(true)}
+        >
+          New
+        </Button>
+      </Panel.SubHeader>
+      <Panel.Divider />
+      <Panel.Section>
+        {duplicates && (
+          <Panel.Error>
+            You have created multiple links between the same trigger and blueprint which can performance issues.
+          </Panel.Error>
+        )}
+        {showForm && (
+          <AutomationForm blueprints={blueprints} onCancel={() => setShowForm(false)} postSubmit={postSubmit} />
+        )}
+        <Panel.Table>
+          <thead>
+            <tr>
+              <th style={{ width: '35%' }}>Title</th>
+              <th style={{ width: '25%' }}>Trigger</th>
+              <th style={{ width: '25%' }}>Blueprint</th>
+              <th style={{ width: '15%' }} />
+            </tr>
+          </thead>
+          <tbody>
+            {!showForm && automations.length === 0 && (
+              <Panel.TableEmpty
+                label='Create a blueprint before adding automations'
+                handleClick={canAdd ? () => setShowForm(true) : undefined}
+              />
+            )}
+            {automations.map((automation, index) => {
+              // TODO: do we have issues with AutomationListItem not knowing the blueprint id?
+              const blueprintTitle = blueprints[automation.blueprintId].title;
+              return (
+                <AutomationsListItem
+                  key={automation.id}
+                  blueprints={blueprints}
+                  id={automation.id}
+                  title={automation.title}
+                  trigger={automation.trigger}
+                  blueprintTitle={blueprintTitle}
+                  duplicate={duplicates?.includes(index)}
+                  handleDelete={() => handleDelete(automation.id)}
+                  postSubmit={postSubmit}
+                />
+              );
+            })}
+          </tbody>
+        </Panel.Table>
+      </Panel.Section>
+    </Panel.Card>
+  );
+}

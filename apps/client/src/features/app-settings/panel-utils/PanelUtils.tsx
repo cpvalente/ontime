@@ -1,4 +1,4 @@
-import { HTMLAttributes, ReactNode } from 'react';
+import { HTMLAttributes, PropsWithChildren, ReactNode } from 'react';
 import { Button } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 
@@ -55,20 +55,19 @@ export function Card({ children, className, ...props }: { children: ReactNode } 
 }
 
 export function Table({ className, children }: { className?: string; children: ReactNode }) {
-  const classes = cx([style.table, className]);
   return (
     <div className={style.pad}>
-      <table className={classes}>{children}</table>
+      <table className={cx([style.table, className])}>{children}</table>
     </div>
   );
 }
 
-export function TableEmpty({ handleClick }: { handleClick: () => void }) {
+export function TableEmpty({ label, handleClick }: { label?: string; handleClick?: () => void }) {
   return (
     <tr className={style.empty}>
       <td colSpan={99}>
-        <div>No data yet</div>
-        <Button onClick={handleClick} variant='ontime-subtle' rightIcon={<IoAdd />} size='sm'>
+        <div>{label ?? 'No data yet'}</div>
+        <Button onClick={handleClick} isDisabled={!handleClick} variant='ontime-filled' rightIcon={<IoAdd />} size='sm'>
           New
         </Button>
       </td>
@@ -121,6 +120,25 @@ export function Loader({ isLoading }: { isLoading: boolean }) {
   return (
     <div className={style.overlay}>
       <div className={style.loader} />
+    </div>
+  );
+}
+
+export function InlineElements({
+  children,
+  relation = 'component',
+  align = 'start',
+  className,
+  ...elementProps
+}: PropsWithChildren<
+  HTMLAttributes<HTMLDivElement> & {
+    relation?: 'inner' | 'component' | 'section';
+    align?: 'start' | 'end';
+  }
+>) {
+  return (
+    <div {...elementProps} className={cx([style.inlineElements, style[relation], style[align], className])}>
+      {children}
     </div>
   );
 }

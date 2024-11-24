@@ -1,0 +1,92 @@
+.outerColumn {
+  gap: 2rem;
+  margin-bottom: 2rem;
+
+  h3 {
+    font-size: 1rem;
+  }
+}
+
+.innerColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.matchRadio {
+  display: flex;
+  gap: 1rem;
+}
+
+.ruleSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.titleSection,
+.filterSection,
+.oscSection,
+.httpSection,
+.companionSection {
+  display: grid;
+  grid-gap: 1rem;
+
+  button {
+    align-self: end;
+  }
+}
+
+.titleSection,
+.ruleSection,
+.filterSection,
+.oscSection,
+.httpSection,
+.companionSection {
+  label {
+    font-size: calc(1rem - 3px);
+    color: $label-gray;
+  }
+}
+
+
+.titleSection {
+  grid-template-columns: 1fr;
+}
+
+.filterSection {
+  grid-template-columns: 2fr 1fr 2fr auto;
+}
+
+.oscSection {
+  grid-template-columns: 1fr 1fr 2fr 2fr auto;
+}
+
+.httpSection {
+  grid-template-columns: 1fr auto;
+}
+
+.actions {
+  justify-content: flex-end;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.outputCard {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+}
+
+.outputTag {
+  font-size: calc(1rem - 3px);
+  color: $gray-200;
+  font-weight: 600;
+  padding-inline: 0.5rem;
+  align-self: center;
+  justify-self: center;
+  rotate: -90deg;
+}
