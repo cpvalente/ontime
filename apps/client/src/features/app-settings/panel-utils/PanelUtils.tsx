@@ -44,16 +44,15 @@ export function Card({ children, className, ...props }: { children: ReactNode } 
 }
 
 export function Table({ className, children }: { className?: string; children: ReactNode }) {
-  const classes = cx([style.table, className]);
   return (
     <div className={style.pad}>
-      <table className={classes}>{children}</table>
+      <table className={cx([style.table, className])}>{children}</table>
     </div>
   );
 }
 
-export function ListGroup({ children }: { children: ReactNode }) {
-  return <ul className={style.listGroup}>{children}</ul>;
+export function ListGroup({ className, children }: { className?: string; children: ReactNode }) {
+  return <ul className={cx([style.listGroup, className])}>{children}</ul>;
 }
 
 export function ListItem({ children }: { children: ReactNode }) {
