@@ -10,7 +10,6 @@
   flex-direction: column;
   height: 100%;
   width: 100%;
-
   position: relative;
 }
 
@@ -18,4 +17,5 @@
   margin: 1rem;
   overflow-y: auto;
   flex-grow: 1;
+  padding-bottom: 300px;
 }

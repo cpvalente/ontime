@@ -55,10 +55,9 @@ export function Card({ children, className, ...props }: { children: ReactNode } 
 }
 
 export function Table({ className, children }: { className?: string; children: ReactNode }) {
-  const classes = cx([style.table, className]);
   return (
     <div className={style.pad}>
-      <table className={classes}>{children}</table>
+      <table className={cx([style.table, className])}>{children}</table>
     </div>
   );
 }
@@ -123,4 +122,8 @@ export function Loader({ isLoading }: { isLoading: boolean }) {
       <div className={style.loader} />
     </div>
   );
+}
+
+export function InlineSiblings({ children }: { children: ReactNode }) {
+  return <div className={style.inlineSiblings}>{children}</div>;
 }
