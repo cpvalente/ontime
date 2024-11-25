@@ -10,7 +10,7 @@ import serverTiming from 'server-timing';
 // import utils
 import { resolve } from 'path';
 import { publicDir, srcDir } from './setup/index.js';
-import { environment, isProduction } from './externals.js';
+import { environment, isProduction, updateRouterPrefix } from './externals.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
 
@@ -53,9 +53,12 @@ if (!canLog) {
   console.log(`Ontime public directory at ${publicDir.root} `);
 }
 
+// calls an update to the client router prefix
+updateRouterPrefix();
+
 // Create express APP
 const app = express();
-if (process.env.NODE_ENV === 'development') {
+if (!isProduction) {
   // log server timings to requests
   app.use(serverTiming());
 }
