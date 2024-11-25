@@ -19,7 +19,7 @@ import TimeInputFlow from '../time-input-flow/TimeInputFlow';
 
 import EventBlockPlayback from './composite/EventBlockPlayback';
 import EventBlockProgressBar from './composite/EventBlockProgressBar';
-import EventBlockReporter from './composite/EventBlockReporter';
+import EventBlockChip from './composite/EventBlockReporter';
 
 import style from './EventBlock.module.scss';
 
@@ -96,7 +96,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         timerType={timerType}
         className={style.eventTimers}
       />
-      <EventBlockReporter
+      <EventBlockChip
         className={style.reportSection}
         id={eventId}
         timeStart={timeStart}
