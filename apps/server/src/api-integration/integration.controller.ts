@@ -17,6 +17,7 @@ import { throttle } from '../utils/throttle.js';
 import { willCauseRegeneration } from '../services/rundown-service/rundownCacheUtils.js';
 
 import { handleLegacyMessageConversion } from './integration.legacy.js';
+import { coerceBoolean } from '../utils/coerceType.js';
 
 const throttledUpdateEvent = throttle(updateEvent, 20);
 let lastRequest: Date | null = null;
@@ -280,6 +281,11 @@ const actionHandlers: Record<string, ActionHandler> = {
     }
 
     throw new Error('No matching method provided');
+  },
+  freeze: (payload) => {
+    const newFreezeState = coerceBoolean(payload);
+    eventStore.set('frozen', newFreezeState);
+    return { payload: 'success' };
   },
 };
 
