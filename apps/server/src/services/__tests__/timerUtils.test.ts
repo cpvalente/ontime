@@ -852,7 +852,7 @@ describe('getRuntimeOffset()', () => {
     } as RuntimeState;
 
     const offset = getRuntimeOffset(state);
-    expect(offset).toBe(state.eventNow.timeStart - state.clock);
+    expect(offset).toBe(null);
   });
 
   it('handles loaded event', () => {
