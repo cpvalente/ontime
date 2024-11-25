@@ -67,7 +67,7 @@ export default function Finder(props: FinderProps) {
             {results.length > 0 &&
               results.map((event, index) => {
                 const isSelected = selected === index;
-                const displayIndex = event.type === SupportedEvent.Block ? '-' : event.index;
+                const displayIndex = event.type === SupportedEvent.Block ? '-' : event.index + 1;
                 const colour = event.type === SupportedEvent.Event ? event.colour : '';
 
                 return (
