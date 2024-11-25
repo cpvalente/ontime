@@ -38,6 +38,13 @@ export function coerceBoolean(value: unknown): boolean {
   if (value == null) {
     throw new Error('Invalid value received');
   }
+  if (typeof value === 'boolean') {
+    return value;
+  }
+  if (typeof value === 'object') {
+    //Drop object, we can not know how to coerce them
+    throw new Error('Invalid value received');
+  }
   if (typeof value === 'string') {
     const lowerCaseValue = value.toLocaleLowerCase();
     switch (lowerCaseValue) {
@@ -54,7 +61,11 @@ export function coerceBoolean(value: unknown): boolean {
         throw new Error('Invalid value received');
     }
   }
-  return Boolean(value);
+  if (typeof value === 'number') {
+    return Boolean(value);
+  }
+
+  throw new Error('Invalid value received');
 }
 
 //TODO: write tests
