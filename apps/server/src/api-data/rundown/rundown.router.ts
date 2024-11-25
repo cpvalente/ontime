@@ -26,7 +26,7 @@ import {
   rundownReorderValidator,
   rundownSwapValidator,
 } from './rundown.validation.js';
-import { preventIfFrozen } from './rundown.middleware.js';
+import { preventBatchIfFrozen, preventIfFrozen, preventPutIfFrozen } from './rundown.middleware.js';
 
 export const router = express.Router();
 
@@ -35,11 +35,11 @@ router.get('/paginated', rundownGetPaginatedQueryParams, rundownGetPaginated); /
 router.get('/normalised', rundownGetNormalised);
 router.get('/:eventId', paramsMustHaveEventId, rundownGetById); // not used in Ontime frontend
 
-router.post('/', rundownPostValidator, rundownPost);
+router.post('/', rundownPostValidator, preventIfFrozen, rundownPost);
 router.post('/frozen', rundownFrozenPostValidator, rundownFrozenPost);
 
-router.put('/', rundownPutValidator, rundownPut);
-router.put('/batch', rundownBatchPutValidator, rundownBatchPut);
+router.put('/', rundownPutValidator, preventPutIfFrozen, rundownPut);
+router.put('/batch', rundownBatchPutValidator, preventBatchIfFrozen, rundownBatchPut);
 
 router.patch('/reorder/', rundownReorderValidator, preventIfFrozen, rundownReorder);
 router.patch('/swap', rundownSwapValidator, preventIfFrozen, rundownSwap);
