@@ -117,6 +117,7 @@ export function formatDuration(duration: number, hideSeconds = true): string {
     result += `${minutes}m`;
   }
 
+  //TODO: what should the timeline display when there is less than a second left
   if (!hideSeconds) {
     const seconds = Math.floor((duration % MILLIS_PER_MINUTE) / MILLIS_PER_SECOND);
     if (seconds > 0) {
@@ -124,4 +125,11 @@ export function formatDuration(duration: number, hideSeconds = true): string {
     }
   }
   return result;
+}
+
+/**
+ * Utility function calculates time to start
+ */
+export function getTimeToStart(now: number, start: number, delay: number, offset: number): number {
+  return start + delay - now - offset;
 }

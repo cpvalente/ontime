@@ -1,6 +1,6 @@
 import { dayInMs } from 'ontime-utils';
 
-import { getElementPosition, getTimeToStart, makeTimelineSections } from '../timeline.utils';
+import { getElementPosition, makeTimelineSections } from '../timeline.utils';
 
 describe('getCSSPosition()', () => {
   it('accounts for rundown with one event', () => {
@@ -57,36 +57,5 @@ describe('makeTimelineSections', () => {
   it('creates an array between the hours given, end excluded', () => {
     const result = makeTimelineSections(11, 17);
     expect(result).toEqual([11, 12, 13, 14, 15, 16]);
-  });
-});
-
-describe('getTimeToStart()', () => {
-  it("is the gap between now and the event's start time accounted for delays", () => {
-    const now = 150;
-    const start = 150;
-    const delay = 50;
-
-    const result = getTimeToStart(now, start, delay, 0);
-    expect(result).toBe(50);
-  });
-
-  it('accounts for offsets when running behind', () => {
-    const now = 150;
-    const start = 150;
-    const delay = 50;
-    const offset = -50; // running behind
-
-    const result = getTimeToStart(now, start, delay, offset);
-    expect(result).toBe(50 + 50);
-  });
-
-  it('accounts for offsets when running ahead', () => {
-    const now = 150;
-    const start = 150;
-    const delay = 50;
-    const offset = 10; // running behind
-
-    const result = getTimeToStart(now, start, delay, offset);
-    expect(result).toBe(50 - 10);
   });
 });

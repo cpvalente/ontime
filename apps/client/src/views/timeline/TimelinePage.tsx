@@ -5,14 +5,14 @@ import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
-import { formatDuration, formatTime, getDefaultFormat } from '../../common/utils/time';
+import { formatDuration, formatTime, getDefaultFormat, getTimeToStart } from '../../common/utils/time';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
 import { useTranslation } from '../../translation/TranslationProvider';
 
 import Section from './timeline-section/TimelineSection';
 import Timeline from './Timeline';
 import { getTimelineOptions } from './timeline.options';
-import { getTimeToStart, getUpcomingEvents, useScopedRundown } from './timeline.utils';
+import { getUpcomingEvents, useScopedRundown } from './timeline.utils';
 
 import './TimelinePage.scss';
 

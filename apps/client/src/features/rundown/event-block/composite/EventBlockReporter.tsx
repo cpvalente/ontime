@@ -2,13 +2,12 @@ import { Tooltip } from '@chakra-ui/react';
 import { OntimeEvent, ReportData } from 'ontime-types';
 import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
-import { useReportStatus } from '../../../../common/hooks/useSocket';
+import { usePlayback, useTimeUntil } from '../../../../common/hooks/useSocket';
 import useReport from '../../../../common/hooks-query/useReport';
 import useRundown from '../../../../common/hooks-query/useRundown';
 import { cx } from '../../../../common/utils/styleUtils';
-import { formatDuration } from '../../../../common/utils/time';
+import { formatDuration, getTimeToStart } from '../../../../common/utils/time';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
-import { getTimeToStart } from '../../../../views/timeline/timeline.utils';
 
 import style from './EventBlockReporter.module.scss';
 

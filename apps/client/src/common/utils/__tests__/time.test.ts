@@ -1,4 +1,4 @@
-import { formatTime, nowInMillis } from '../time';
+import { formatTime, getTimeToStart, nowInMillis } from '../time';
 
 describe('nowInMillis()', () => {
   it('should return the current time in milliseconds', () => {
@@ -36,5 +36,36 @@ describe('formatTime()', () => {
     const ms = 1 * 60 * 60 * 1000;
     const time = formatTime(-ms, { format12: 'hh:mm a', format24: 'HH:mm' }, (_format12, format24) => format24);
     expect(time).toStrictEqual('-01:00');
+  });
+});
+
+describe('getTimeToStart()', () => {
+  it("is the gap between now and the event's start time accounted for delays", () => {
+    const now = 150;
+    const start = 150;
+    const delay = 50;
+
+    const result = getTimeToStart(now, start, delay, 0);
+    expect(result).toBe(50);
+  });
+
+  it('accounts for offsets when running behind', () => {
+    const now = 150;
+    const start = 150;
+    const delay = 50;
+    const offset = -50; // running behind
+
+    const result = getTimeToStart(now, start, delay, offset);
+    expect(result).toBe(50 + 50);
+  });
+
+  it('accounts for offsets when running ahead', () => {
+    const now = 150;
+    const start = 150;
+    const delay = 50;
+    const offset = 10; // running behind
+
+    const result = getTimeToStart(now, start, delay, offset);
+    expect(result).toBe(50 - 10);
   });
 });
