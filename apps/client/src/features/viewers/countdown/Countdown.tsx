@@ -78,7 +78,12 @@ export default function Countdown(props: CountdownProps) {
     }
   }, [backstageEvents, searchParams]);
 
-  const { message: runningMessage, timer: runningTimer } = fetchTimerData(time, follow, selectedId, runtime.offset);
+  const { message: runningMessage, timer: runningTimer } = fetchTimerData(
+    time,
+    follow,
+    selectedId,
+    runtime.offset ?? 0,
+  );
 
   const standby = time.playback !== Playback.Play && time.playback !== Playback.Roll && selectedId === follow?.id;
   const finished = time.phase === TimerPhase.Overtime;
@@ -90,7 +95,7 @@ export default function Countdown(props: CountdownProps) {
     follow?.timeStart,
     follow?.timeEnd,
     delay,
-    runtime.offset,
+    runtime.offset ?? 0,
   );
 
   const hideSeconds = searchParams.get('hideTimerSeconds');

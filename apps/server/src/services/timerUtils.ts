@@ -119,7 +119,7 @@ export function skippedOutOfEvent(state: RuntimeState, previousTime: number, ski
 export function getRuntimeOffset(state: RuntimeState): number {
   // nothing to calculate if there are no loaded events or if we havent started
   if (state.eventNow === null || state.runtime.actualStart === null) {
-    return 0;
+    return null;
   }
 
   // eslint-disable-next-line no-unused-labels -- dev code path

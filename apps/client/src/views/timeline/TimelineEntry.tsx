@@ -86,7 +86,7 @@ function TimelineEntryStatus(props: TimelineEntryStatusProps) {
   const { getLocalizedString } = useTranslation();
 
   // start times need to be normalised in a rundown that crosses midnight
-  let statusText = getStatusLabel(getTimeToStart(clock, start, delay, offset), status);
+  let statusText = getStatusLabel(getTimeToStart(clock, start, delay, offset ?? 0), status);
   if (statusText === 'live') {
     statusText = getLocalizedString('timeline.live');
   } else if (statusText === 'pending') {

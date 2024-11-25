@@ -11,7 +11,14 @@ import {
   TimerPhase,
   TimerState,
 } from 'ontime-types';
-import { calculateDuration, checkIsNow, dayInMs, filterTimedEvents, getPreviousBlock, isPlaybackActive } from 'ontime-utils';
+import {
+  calculateDuration,
+  checkIsNow,
+  dayInMs,
+  filterTimedEvents,
+  getPreviousBlock,
+  isPlaybackActive,
+} from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
 import { RestorePoint } from '../services/RestoreService.js';
@@ -30,7 +37,7 @@ import * as report from '../services/report-service/ReportService.js';
 const initialRuntime: Runtime = {
   selectedEventIndex: null, // changes if rundown changes or we load a new event
   numEvents: 0, // change initiated by user
-  offset: 0, // changes at runtime
+  offset: null, // changes at runtime
   plannedStart: 0, // only changes if event changes
   plannedEnd: 0, // only changes if event changes, overflows over dayInMs
   actualStart: null, // set once we start the timer
@@ -114,7 +121,7 @@ export function clear() {
 
   runtimeState.publicEventNext = null;
 
-  runtimeState.runtime.offset = 0;
+  runtimeState.runtime.offset = null;
   runtimeState.runtime.actualStart = null;
   runtimeState.runtime.expectedEnd = null;
   runtimeState.runtime.selectedEventIndex = null;

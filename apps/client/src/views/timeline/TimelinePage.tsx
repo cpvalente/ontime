@@ -55,7 +55,7 @@ export default function TimelinePage(props: TimelinePageProps) {
   let followedByStatus: string | undefined;
 
   if (next !== null) {
-    const timeToStart = getTimeToStart(time.clock, next.timeStart, next?.delay ?? 0, runtime.offset);
+    const timeToStart = getTimeToStart(time.clock, next.timeStart, next?.delay ?? 0, runtime.offset ?? 0);
     if (timeToStart < 0) {
       nextStatus = dueText;
     } else {
@@ -64,7 +64,7 @@ export default function TimelinePage(props: TimelinePageProps) {
   }
 
   if (followedBy !== null) {
-    const timeToStart = getTimeToStart(time.clock, followedBy.timeStart, followedBy?.delay ?? 0, runtime.offset);
+    const timeToStart = getTimeToStart(time.clock, followedBy.timeStart, followedBy?.delay ?? 0, runtime.offset ?? 0);
     if (timeToStart < 0) {
       followedByStatus = dueText;
     } else {
