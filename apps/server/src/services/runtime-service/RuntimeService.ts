@@ -715,7 +715,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     if (shouldUpdateClock) {
       RuntimeService.previousClockUpdate = state.clock;
-      eventStore.set('clock', state.clock);
+      eventStore.set('clock', state.clock); //TODO: this still causes a bit of trouble but not as bad lets leave it for a bit (nov. 2024)
       saveRestoreState(state); //TODO: we should find another interval for this
     }
 

@@ -1,11 +1,14 @@
 import { OntimeReport, ReportData } from 'ontime-types';
 import { RuntimeState } from '../../stores/runtimeState.js';
 
+//TODO: there seams to be some actions that should invalidate reports
+// events timer edits?
+// event delete
+
 const report = new Map<string, ReportData>();
 const blankReportData: ReportData = {
   startAt: null,
   endAt: null,
-  overUnder: null,
 } as const;
 
 export function generate(): OntimeReport {
@@ -52,7 +55,4 @@ export function eventStop(state: RuntimeState) {
   }
 
   prevReport.endAt = state.clock;
-  const expectedDuration = state.eventNow.duration;
-  const actualDuration = prevReport.endAt - prevReport.startAt;
-  prevReport.overUnder = actualDuration - expectedDuration;
 }
