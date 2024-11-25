@@ -3,6 +3,7 @@ import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontim
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
+import useReportAction from '../../common/hooks/useReportActions';
 import { useEmitLog } from '../../common/stores/logger';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
@@ -22,7 +23,9 @@ export type EventItemActions =
   | 'delete'
   | 'clone'
   | 'update'
-  | 'swap';
+  | 'swap'
+  | 'clear-report'
+  | 'clear-all-reports';
 
 interface RundownEntryProps {
   type: SupportedEvent;
@@ -55,6 +58,7 @@ export default function RundownEntry(props: RundownEntryProps) {
   } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
+  const { clearReport, clearAllReports } = useReportAction();
   const { selectedEvents, unselect, clearSelectedEvents } = useEventSelection();
 
   const removeOpenEvent = useCallback(() => {
@@ -111,6 +115,14 @@ export default function RundownEntry(props: RundownEntryProps) {
         }
         removeOpenEvent();
         return deleteEvent([data.id]);
+      }
+      case 'clear-report': {
+        clearReport(data.id);
+        break;
+      }
+      case 'clear-all-reports': {
+        clearAllReports();
+        break;
       }
       case 'clone': {
         const newEvent = cloneEvent(data as OntimeEvent, data.id);

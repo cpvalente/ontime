@@ -169,6 +169,13 @@ export default function EventBlock(props: EventBlockProps) {
             },
             isDisabled: selectedEventId == null || selectedEventId === eventId,
           },
+          {
+            withDivider: true,
+            label: 'Clear this report',
+            icon: IoTrash,
+            onClick: () => actionHandler('clear-report'),
+          },
+          { label: 'Clear all reports', icon: IoTrash, onClick: () => actionHandler('clear-all-reports') },
           { withDivider: true, label: 'Clone', icon: IoDuplicateOutline, onClick: () => actionHandler('clone') },
           { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
         ],
