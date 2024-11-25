@@ -15,27 +15,40 @@ import style from './EventBlockReporter.module.scss';
 interface EventBlockReporterProps {
   id: string;
   timeStart: number;
-  isPastOrLoaded: boolean;
+  isPast: boolean;
+  isLoaded: boolean;
   className: string;
 }
 
 //TODO: what about gaps and overlaps
 export default function EventBlockReporter(props: EventBlockReporterProps) {
-  const { id, timeStart, isPastOrLoaded, className } = props;
+  const { id, timeStart, isPast, isLoaded, className } = props;
   const { data } = useReport();
   const {
     data: { rundown },
   } = useRundown();
   const { clock, offset, playback } = useReportStatus();
+
   const report: ReportData | undefined = data[id];
-
-  const showReport =
-    isPastOrLoaded || //we are playing but is past
-    !isPlaybackActive(playback); //If we are not playing never show until time
-
   const thisEvent = rundown[id] as OntimeEvent;
 
-  if (showReport && report && report.startAt !== null && report.endAt !== null) {
+  if (isLoaded) {
+    return null;
+  }
+
+  if (isPlaybackActive(playback) && !isPast) {
+    const timeUntil = getTimeToStart(clock, timeStart, 0, offset);
+    const isDue = timeUntil <= MILLIS_PER_SECOND;
+    const timeDisplay = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > MILLIS_PER_MINUTE * 2)}`;
+
+    return (
+      <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
+        <div className={cx([style.chip, isDue ? style.due : null, className])}>{timeDisplay}</div>
+      </Tooltip>
+    );
+  }
+
+  if (report && report.startAt !== null && report.endAt !== null) {
     const expectedDuration = thisEvent.duration;
     const actualDuration = report.endAt - report.startAt;
     const overUnder = actualDuration - expectedDuration;
@@ -52,18 +65,6 @@ export default function EventBlockReporter(props: EventBlockReporterProps) {
         </Tooltip>
       );
     }
-  }
-
-  if (!showReport) {
-    const timeUntil = getTimeToStart(clock, timeStart, 0, offset);
-    const isDue = timeUntil <= MILLIS_PER_SECOND;
-    const timeDisplay = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > MILLIS_PER_MINUTE * 2)}`;
-
-    return (
-      <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
-        <div className={cx([style.chip, className])}>{timeDisplay}</div>
-      </Tooltip>
-    );
   }
 
   return null;

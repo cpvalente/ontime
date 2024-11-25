@@ -100,7 +100,8 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         className={style.reportSection}
         id={eventId}
         timeStart={timeStart}
-        isPastOrLoaded={isPast || loaded}
+        isPast={isPast}
+        isLoaded={loaded}
       />
       <div className={style.titleSection}>
         <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />

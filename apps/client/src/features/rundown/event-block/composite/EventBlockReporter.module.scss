@@ -15,4 +15,8 @@
   &.under {
     color: $playback-ahead;
   }
+
+  &.due {
+    color: $warning-orange;
+  }
 }
