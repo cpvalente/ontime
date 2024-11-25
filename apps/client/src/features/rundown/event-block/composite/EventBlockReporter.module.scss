@@ -7,11 +7,12 @@
   padding: 0.125rem 0.5rem;
   border-radius: 2px;
   margin-top: 2px;
-}
 
-.over {
-  color: $playback-negative;
-}
-.under {
-  color: $active-indicator; //TODO: is this the right color
+  &.over {
+    color: $playback-negative;
+  }
+
+  &.under {
+    color: $playback-ahead;
+  }
 }
