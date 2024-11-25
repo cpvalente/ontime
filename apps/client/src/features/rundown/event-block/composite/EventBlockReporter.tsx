@@ -1,9 +1,11 @@
+import { Tooltip } from '@chakra-ui/react';
 import { Playback, ReportData } from 'ontime-types';
 import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { useReportStatus } from '../../../../common/hooks/useSocket';
 import useReport from '../../../../common/hooks-query/useReport';
 import { formatDuration } from '../../../../common/utils/time';
+import { tooltipDelayFast } from '../../../../ontimeConfig';
 import { getTimeToStart } from '../../../../views/timeline/timeline.utils';
 
 import style from './EventBlockReporter.module.scss';
@@ -26,24 +28,23 @@ export default function EventBlockReporter(props: { id: string; timeStart: numbe
     //TODO: show seconds if less the 5 minutes?
     const reportDisplay = `${isNegative ? '-' : ''}${formatDuration(overUnder, overUnder > MILLIS_PER_MINUTE * 5)}`;
 
-    // we show report display if the event is over
-    // otherwise we show time until
-
-    if (showReport) {
-      return <div className={`${style.chip} ${isNegative ? style.under : style.over}`}>{reportDisplay}</div>;
-    }
+    return (
+      <Tooltip label='Offset from lats run' openDelay={tooltipDelayFast}>
+        <div className={`${style.chip} ${isNegative ? style.under : style.over}`}>{reportDisplay}</div>
+      </Tooltip>
+    );
   }
 
   if (!showReport) {
     const timeUntil = getTimeToStart(clock, timeStart, 0, offset);
-    const isDue = timeUntil <= 0;
+    const isDue = timeUntil <= MILLIS_PER_SECOND;
     const timeDisplay = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > MILLIS_PER_MINUTE * 5)}`;
 
-    if (id === '71193c') {
-      console.log(timeUntil);
-      // console.log(formatDuration(timeUntil, false));
-    }
-    return <div className={`${style.chip} `}>{timeDisplay}</div>;
+    return (
+      <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
+        <div className={`${style.chip} `}>{timeDisplay}</div>
+      </Tooltip>
+    );
   }
 
   return null;
