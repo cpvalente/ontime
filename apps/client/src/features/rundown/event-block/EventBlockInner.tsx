@@ -42,6 +42,7 @@ interface EventBlockInnerProps {
   loaded: boolean;
   playback?: Playback;
   isRolling: boolean;
+  isPast: boolean;
 }
 
 const EventBlockInner = (props: EventBlockInnerProps) => {
@@ -63,6 +64,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     loaded,
     playback,
     isRolling,
+    isPast,
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
@@ -96,7 +98,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
         />
       </div>
       <div className={style.reportSection}>
-        <EventBlockReporter id={eventId} timeStart={timeStart} />
+        <EventBlockReporter id={eventId} timeStart={timeStart} isPastOrLoaded={isPast || loaded} />
       </div>
       <div className={style.titleSection}>
         <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />

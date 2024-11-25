@@ -298,6 +298,7 @@ export default function EventBlock(props: EventBlockProps) {
           isNext={isNext}
           skip={skip}
           loaded={loaded}
+          isPast={isPast}
           playback={playback}
           isRolling={isRolling}
         />
