@@ -5,6 +5,8 @@ import { editEvent } from '../services/rundown-service/RundownService.js';
 import { getEventWithId } from '../services/rundown-service/rundownUtils.js';
 import { coerceBoolean, coerceColour, coerceEnum, coerceNumber, coerceString } from '../utils/coerceType.js';
 import { getDataProvider } from '../classes/data-provider/DataProvider.js';
+import { eventStore } from '../stores/EventStore.js';
+import { freezeFields } from '../api-data/rundown/rundown.middleware.js';
 
 /**
  *
@@ -54,6 +56,9 @@ export function parseProperty(property: string, value: unknown) {
   }
   if (!isKeyOfType(property, propertyConversion)) {
     throw new Error(`Property ${property} not permitted`);
+  }
+  if (eventStore.get('frozen') && freezeFields.includes(property)) {
+    throw new Error(`Property ${property} not permitted when frozen`);
   }
   const parserFn = propertyConversion[property];
   return { [property]: parserFn(value) };

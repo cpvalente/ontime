@@ -1,7 +1,7 @@
 import { eventStore } from '../../stores/EventStore.js';
 import { type OntimeEvent } from 'ontime-types';
 
-const freezeFields: Array<keyof OntimeEvent> = [
+export const freezeFields: Array<keyof OntimeEvent> = [
   'linkStart',
   'timerType',
   'timeStrategy',
