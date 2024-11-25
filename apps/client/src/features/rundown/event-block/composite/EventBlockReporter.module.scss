@@ -1,0 +1,47 @@
+.chip {
+  position: relative;
+  width: 8rem;
+}
+.even {
+  animation: 5s blink-even linear alternate infinite;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.odd {
+  animation: 5s blink-odd linear alternate infinite;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+@keyframes blink-even {
+  0% {
+    opacity: 0%;
+  }
+  48% {
+    opacity: 0%;
+  }
+  52% {
+    opacity: 100%;
+  }
+  100% {
+    opacity: 100%;
+  }
+}
+
+@keyframes blink-odd {
+  0% {
+    opacity: 100%;
+  }
+  48% {
+    opacity: 100%;
+  }
+  52% {
+    opacity: 0%;
+  }
+  100% {
+    opacity: 0%;
+  }
+}
