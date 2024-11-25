@@ -1,4 +1,4 @@
-@use './ontimeColours' as *;
+@use "./ontimeColours" as *;
 
 $transition-time-action: 0.1s;
 $transition-time-feedback: 0.3s;
@@ -17,11 +17,11 @@ $active-red: $red-700;
 
 // playback colours
 $playback-start: $green-600;
-$ontime-roll: #0274b6;
-$ontime-delay: #f57c13;
-$ontime-delay-text: #e69056;
+$ontime-roll: #0274B6;
+$ontime-delay: #F57C13;
+$ontime-delay-text: #E69056;
 $ontime-paused: #c05621;
-$ontime-stop: #e4281e;
+$ontime-stop: #E4281E;
 $playback-negative: $red-500;
 $playback-ahead: $green-500;
 $active-indicator: #8bb33d;
@@ -49,7 +49,7 @@ $section-spacing: 1rem;
 $main-spacing: 2rem;
 
 // interface text
-$ontime-font-family: 'Open Sans', 'Segoe UI', sans-serif;
+$ontime-font-family: "Open Sans", "Segoe UI", sans-serif;
 $label-gray: $gray-400;
 $secondary-text-gray: $gray-400;
 $section-white: $ui-white;
