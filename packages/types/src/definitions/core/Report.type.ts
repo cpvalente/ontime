@@ -1,4 +1,4 @@
-import type { MaybeNumber } from '../../utils/utils.type';
+import type { MaybeNumber } from '../../utils/utils.type.js';
 
 export type ReportData = {
   startAt: MaybeNumber;
