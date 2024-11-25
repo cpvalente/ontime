@@ -1,6 +1,6 @@
 import { Tooltip } from '@chakra-ui/react';
-import { Playback, ReportData } from 'ontime-types';
-import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
+import { ReportData } from 'ontime-types';
+import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { useReportStatus } from '../../../../common/hooks/useSocket';
 import useReport from '../../../../common/hooks-query/useReport';
@@ -26,8 +26,8 @@ export default function EventBlockReporter(props: EventBlockReporterProps) {
   const report: ReportData | undefined = data[id];
 
   const showReport =
-    (playback !== Playback.Play && playback !== Playback.Roll) || //If we are not playing never show until time
-    isPastOrLoaded; //we are playing but is past
+    isPastOrLoaded || //we are playing but is past
+    !isPlaybackActive(playback); //If we are not playing never show until time
 
   if (report && showReport && report.overUnder !== null && Math.abs(report.overUnder) > MILLIS_PER_SECOND) {
     const isNegative = (report?.overUnder ?? 0) < 0;

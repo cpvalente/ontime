@@ -1,5 +1,5 @@
-import { MaybeNumber, Playback, TimerPhase, TimerType } from 'ontime-types';
-import { dayInMs } from 'ontime-utils';
+import { MaybeNumber, TimerPhase, TimerType } from 'ontime-types';
+import { dayInMs, isPlaybackActive } from 'ontime-utils';
 import { RuntimeState } from '../stores/runtimeState.js';
 
 /**
@@ -188,24 +188,11 @@ export function getExpectedEnd(state: RuntimeState): MaybeNumber {
 }
 
 /**
- * Utility checks whether the playback is considered to be active
- * @param state
- * @returns
- */
-export function isPlaybackActive(state: RuntimeState): boolean {
-  return (
-    state.timer.playback === Playback.Play ||
-    state.timer.playback === Playback.Pause ||
-    state.timer.playback === Playback.Roll
-  );
-}
-
-/**
  * Checks running timer to see which phase it currently is in
  * @param state
  */
 export function getTimerPhase(state: RuntimeState): TimerPhase {
-  if (!isPlaybackActive(state)) {
+  if (!isPlaybackActive(state.timer.playback)) {
     return TimerPhase.None;
   }
 
