@@ -29,8 +29,8 @@ export default function EventBlockReporter(props: EventBlockReporterProps) {
     const isNegative = (report?.overUnder ?? 0) < 0;
     const overUnder = Math.abs(report?.overUnder);
 
-    //TODO: show seconds if less the 5 minutes?
-    const reportDisplay = `${isNegative ? '-' : ''}${formatDuration(overUnder, overUnder > MILLIS_PER_MINUTE * 5)}`;
+    //show seconds if the amount is less than 2 minutes as it could then represent up to 50% of the actual value?
+    const reportDisplay = `${isNegative ? '-' : ''}${formatDuration(overUnder, overUnder > MILLIS_PER_MINUTE * 2)}`;
 
     return (
       <Tooltip label='Offset from lats run' openDelay={tooltipDelayFast}>
@@ -42,7 +42,7 @@ export default function EventBlockReporter(props: EventBlockReporterProps) {
   if (!showReport) {
     const timeUntil = getTimeToStart(clock, timeStart, 0, offset);
     const isDue = timeUntil <= MILLIS_PER_SECOND;
-    const timeDisplay = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > MILLIS_PER_MINUTE * 5)}`;
+    const timeDisplay = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > MILLIS_PER_MINUTE * 2)}`;
 
     return (
       <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
