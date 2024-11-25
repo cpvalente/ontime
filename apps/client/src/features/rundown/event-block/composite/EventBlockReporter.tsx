@@ -1,4 +1,5 @@
 import { Tooltip } from '@chakra-ui/react';
+import { useDebouncedValue } from '@mantine/hooks';
 import { Playback, ReportData } from 'ontime-types';
 import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
@@ -13,8 +14,9 @@ import style from './EventBlockReporter.module.scss';
 export default function EventBlockReporter(props: { id: string; timeStart: number; isPastOrLoaded: boolean }) {
   const { id, timeStart, isPastOrLoaded } = props;
   const { data } = useReport();
-  const { clock, offset, playback } = useReportStatus();
-
+  const status = useReportStatus();
+  const [debouncedStatus] = useDebouncedValue(status, 200);
+  const { clock, offset, playback } = debouncedStatus;
   const report: ReportData | undefined = data[id];
 
   const showReport =
