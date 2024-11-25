@@ -7,7 +7,6 @@ let mockState = {} as RuntimeState;
 const blankReportData: ReportData = {
   startAt: null,
   endAt: null,
-  overUnder: null,
 } as const;
 
 beforeEach(() => {
@@ -68,6 +67,6 @@ describe('reporter', () => {
 
     mockState.clock = 1666;
     eventStop(mockState);
-    expect(generate()).toMatchObject({ test: { ...blankReportData, startAt: 666, endAt: 1666, overUnder: 500 } });
+    expect(generate()).toMatchObject({ test: { ...blankReportData, startAt: 666, endAt: 1666 } });
   });
 });
