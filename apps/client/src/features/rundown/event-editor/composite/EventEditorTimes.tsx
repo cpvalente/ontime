@@ -74,18 +74,17 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
     <div className={style.column}>
       <div>
         <Editor.Label>Event schedule</Editor.Label>
-        <div className={style.inline}>
-          <TimeInputFlow
-            eventId={eventId}
-            timeStart={timeStart}
-            timeEnd={timeEnd}
-            duration={duration}
-            timeStrategy={timeStrategy}
-            linkStart={linkStart}
-            delay={delay}
-            timerType={timerType}
-          />
-        </div>
+        <TimeInputFlow
+          eventId={eventId}
+          timeStart={timeStart}
+          timeEnd={timeEnd}
+          duration={duration}
+          timeStrategy={timeStrategy}
+          linkStart={linkStart}
+          delay={delay}
+          timerType={timerType}
+          className={style.inline}
+        />
         <div className={style.delayLabel}>{delayLabel}</div>
       </div>
 

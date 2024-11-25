@@ -1,31 +1,35 @@
 import { Tooltip } from '@chakra-ui/react';
-import { useDebouncedValue } from '@mantine/hooks';
 import { Playback, ReportData } from 'ontime-types';
 import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { useReportStatus } from '../../../../common/hooks/useSocket';
 import useReport from '../../../../common/hooks-query/useReport';
+import { cx } from '../../../../common/utils/styleUtils';
 import { formatDuration } from '../../../../common/utils/time';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
 import { getTimeToStart } from '../../../../views/timeline/timeline.utils';
 
 import style from './EventBlockReporter.module.scss';
 
-type EventBlockReporterProps = { id: string; timeStart: number; isPastOrLoaded: boolean };
+interface EventBlockReporterProps {
+  id: string;
+  timeStart: number;
+  isPastOrLoaded: boolean;
+  className: string;
+}
 
+//TODO: what about gaps and overlaps
 export default function EventBlockReporter(props: EventBlockReporterProps) {
-  const { id, timeStart, isPastOrLoaded } = props;
+  const { id, timeStart, isPastOrLoaded, className } = props;
   const { data } = useReport();
-  const status = useReportStatus();
-  const [debouncedStatus] = useDebouncedValue(status, 200);
-  const { clock, offset, playback } = debouncedStatus;
+  const { clock, offset, playback } = useReportStatus();
   const report: ReportData | undefined = data[id];
 
   const showReport =
     (playback !== Playback.Play && playback !== Playback.Roll) || //If we are not playing never show until time
     isPastOrLoaded; //we are playing but is past
 
-  if (report && report.overUnder !== null && showReport) {
+  if (report && showReport && report.overUnder !== null && Math.abs(report.overUnder) > MILLIS_PER_SECOND) {
     const isNegative = (report?.overUnder ?? 0) < 0;
     const overUnder = Math.abs(report?.overUnder);
 
@@ -34,7 +38,7 @@ export default function EventBlockReporter(props: EventBlockReporterProps) {
 
     return (
       <Tooltip label='Offset from lats run' openDelay={tooltipDelayFast}>
-        <div className={`${style.chip} ${isNegative ? style.under : style.over}`}>{reportDisplay}</div>
+        <div className={cx([style.chip, className, isNegative ? style.under : style.over])}>{reportDisplay}</div>
       </Tooltip>
     );
   }
@@ -46,7 +50,7 @@ export default function EventBlockReporter(props: EventBlockReporterProps) {
 
     return (
       <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
-        <div className={`${style.chip} `}>{timeDisplay}</div>
+        <div className={cx([style.chip, className])}>{timeDisplay}</div>
       </Tooltip>
     );
   }

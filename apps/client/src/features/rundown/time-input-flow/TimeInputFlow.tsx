@@ -23,12 +23,13 @@ interface EventBlockTimerProps {
   linkStart: MaybeString;
   delay: number;
   timerType: TimerType;
+  className?: string;
 }
 
 type TimeActions = 'timeStart' | 'timeEnd' | 'duration';
 
 const TimeInputFlow = (props: EventBlockTimerProps) => {
-  const { eventId, timeStart, timeEnd, duration, timeStrategy, linkStart, delay, timerType } = props;
+  const { eventId, timeStart, timeEnd, duration, timeStrategy, linkStart, delay, timerType, className } = props;
   const { updateEvent, updateTimer } = useEventAction();
 
   // In sync with EventEditorTimes
@@ -63,7 +64,7 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
   const activeDuration = cx([style.timeAction, isLockedDuration ? style.active : null]);
 
   return (
-    <>
+    <div className={className}>
       <TimeInputWithButton<TimeActions>
         name='timeStart'
         submitHandler={handleSubmit}
@@ -126,7 +127,7 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
           </Tooltip>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

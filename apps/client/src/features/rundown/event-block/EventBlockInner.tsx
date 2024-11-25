@@ -85,21 +85,23 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
 
   return !renderInner ? null : (
     <>
-      <div className={style.eventTimers}>
-        <TimeInputFlow
-          eventId={eventId}
-          timeStart={timeStart}
-          timeEnd={timeEnd}
-          duration={duration}
-          delay={delay}
-          timeStrategy={timeStrategy}
-          linkStart={linkStart}
-          timerType={timerType}
-        />
-      </div>
-      <div className={style.reportSection}>
-        <EventBlockReporter id={eventId} timeStart={timeStart} isPastOrLoaded={isPast || loaded} />
-      </div>
+      <TimeInputFlow
+        eventId={eventId}
+        timeStart={timeStart}
+        timeEnd={timeEnd}
+        duration={duration}
+        delay={delay}
+        timeStrategy={timeStrategy}
+        linkStart={linkStart}
+        timerType={timerType}
+        className={style.eventTimers}
+      />
+      <EventBlockReporter
+        className={style.reportSection}
+        id={eventId}
+        timeStart={timeStart}
+        isPastOrLoaded={isPast || loaded}
+      />
       <div className={style.titleSection}>
         <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
         {isNext && <span className={style.nextTag}>UP NEXT</span>}
