@@ -1,6 +1,7 @@
 import { RuntimeStore } from 'ontime-types';
 
 import { socket } from '../adapters/WebsocketAdapter.js';
+import { clock } from '../services/Clock.js';
 
 export type PublishFn = <T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) => void;
 
@@ -25,6 +26,7 @@ export const eventStore = {
     socket.sendAsJson({
       type: `ontime-${key}`,
       payload: value,
+      clock: clock.timeNow(),
     });
   },
   batchSet(values: Partial<RuntimeStore>) {
