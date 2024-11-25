@@ -238,3 +238,12 @@ export const usePing = () => {
 
   return useRuntimeStore(featureSelector);
 };
+export const useReportStatus = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    clock: state.clock,
+    offset: state.runtime.offset,
+    playback: state.timer.playback,
+  });
+
+  return useRuntimeStore(featureSelector);
+};

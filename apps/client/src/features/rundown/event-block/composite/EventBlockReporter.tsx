@@ -1,7 +1,7 @@
 import { Playback, ReportData } from 'ontime-types';
-import { MILLIS_PER_MINUTE } from 'ontime-utils';
+import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
-import { useOperator, useTimelineStatus } from '../../../../common/hooks/useSocket';
+import { useReportStatus } from '../../../../common/hooks/useSocket';
 import useReport from '../../../../common/hooks-query/useReport';
 import { formatDuration } from '../../../../common/utils/time';
 import { getTimeToStart } from '../../../../views/timeline/timeline.utils';
@@ -11,8 +11,7 @@ import style from './EventBlockReporter.module.scss';
 export default function EventBlockReporter(props: { id: string; timeStart: number; isPastOrLoaded: boolean }) {
   const { id, timeStart, isPastOrLoaded } = props;
   const { data } = useReport();
-  const { clock, offset } = useTimelineStatus();
-  const { playback } = useOperator(); //TODO: we need the playback state here somehow
+  const { clock, offset, playback } = useReportStatus();
 
   const report: ReportData | undefined = data[id];
 
