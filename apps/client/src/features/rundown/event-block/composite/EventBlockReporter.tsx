@@ -11,7 +11,9 @@ import { getTimeToStart } from '../../../../views/timeline/timeline.utils';
 
 import style from './EventBlockReporter.module.scss';
 
-export default function EventBlockReporter(props: { id: string; timeStart: number; isPastOrLoaded: boolean }) {
+type EventBlockReporterProps = { id: string; timeStart: number; isPastOrLoaded: boolean };
+
+export default function EventBlockReporter(props: EventBlockReporterProps) {
   const { id, timeStart, isPastOrLoaded } = props;
   const { data } = useReport();
   const status = useReportStatus();

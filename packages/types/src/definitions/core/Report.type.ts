@@ -1,6 +1,8 @@
+import type { MaybeNumber } from '../../utils/utils.type';
+
 export type ReportData = {
-  startAt: number | null;
-  endAt: number | null;
-  overUnder: number | null;
+  startAt: MaybeNumber;
+  endAt: MaybeNumber;
+  overUnder: MaybeNumber;
 };
 export type OntimeReport = Record<string, ReportData>;
