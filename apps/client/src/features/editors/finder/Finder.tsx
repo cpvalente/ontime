@@ -1,6 +1,6 @@
 import { KeyboardEvent, useState } from 'react';
 import { Input, Modal, ModalBody, ModalContent, ModalFooter, ModalOverlay } from '@chakra-ui/react';
-import { useDebounceCallback } from '@mantine/hooks';
+import { useDebouncedCallback } from '@mantine/hooks';
 import { isOntimeEvent, SupportedEvent } from 'ontime-types';
 
 import { useEventSelection } from '../../rundown/useEventSelection';
@@ -20,7 +20,7 @@ export default function Finder(props: FinderProps) {
   const [selected, setSelected] = useState(0);
 
   const setSelectedEvents = useEventSelection((state) => state.setSelectedEvents);
-  const debouncedFind = useDebounceCallback(find, 100);
+  const debouncedFind = useDebouncedCallback(find, 100);
 
   const navigate = (event: KeyboardEvent<HTMLDivElement>) => {
     // all operations need results
