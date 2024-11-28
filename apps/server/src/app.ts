@@ -320,6 +320,7 @@ async function serverTryDesiredPort(server: http.Server, desiredPort: number): P
       if (testForPortInUser(e)) {
         logger.error(LogOrigin.Server, `Failed open the desired port: ${desiredPort} | to moving to Ephemeral port`);
         server.listen(0, '0.0.0.0', () => {
+          // @ts-expect-error TODO: find proper documentation for this api
           const port: number = server.address().port;
           res(port);
         });
@@ -328,6 +329,7 @@ async function serverTryDesiredPort(server: http.Server, desiredPort: number): P
       }
     });
     server.listen(desiredPort, '0.0.0.0', () => {
+      // @ts-expect-error TODO: find proper documentation for this api
       const port: number = server.address().port;
       res(port);
     });
