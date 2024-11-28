@@ -55,6 +55,14 @@ const staticOptions = [
     ],
   },
   {
+    id: 'automations',
+    label: 'Automations',
+    secondary: [
+      { id: 'automations__settings', label: 'Automation settings' },
+      { id: 'automations__manage', label: 'Manage automations' },
+    ],
+  },
+  {
     id: 'network',
     label: 'Network',
     split: true,
