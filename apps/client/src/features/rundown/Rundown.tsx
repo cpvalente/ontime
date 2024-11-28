@@ -256,10 +256,12 @@ export default function Rundown({ data }: RundownProps) {
     return <RundownEmpty handleAddNew={() => insertAtId(SupportedEvent.Event, cursor)} />;
   }
 
-  let lastEntry: PlayableEvent | undefined; // used by indicators
-  let thisEntry: PlayableEvent | undefined;
-  let previousEventId: string | undefined;
-  let thisId = previousEventId;
+  // last event is used to calculate relative timings
+  let lastEvent: PlayableEvent | undefined; // used by indicators
+  let thisEvent: PlayableEvent | undefined;
+  // previous entry is used to infer position in the rundown for new events
+  let previousEntryId: string | undefined;
+  let thisId = previousEntryId;
 
   let eventIndex = 0;
   // all events before the current selected are in the past
@@ -272,63 +274,64 @@ export default function Rundown({ data }: RundownProps) {
       <DndContext onDragEnd={handleOnDragEnd} sensors={sensors} collisionDetection={closestCenter}>
         <SortableContext items={statefulEntries} strategy={verticalListSortingStrategy}>
           <div className={style.list}>
-            {statefulEntries.map((eventId, index) => {
+            {statefulEntries.map((entryId, index) => {
               // we iterate through a stateful copy of order to make the operations smoother
               // this means that this can be out of sync with order until the useEffect runs
               // instead of writing all the logic guards, we simply short circuit rendering here
-              const event = rundown[eventId];
-              if (!event) {
+              const entry = rundown[entryId];
+              if (!entry) {
                 return null;
               }
               if (index === 0) {
                 eventIndex = 0;
               }
-              if (isOntimeEvent(event)) {
+              previousEntryId = thisId;
+              thisId = entryId;
+              if (isOntimeEvent(entry)) {
                 // event indexes are 1 based in frontend
                 eventIndex++;
-                previousEventId = thisId;
-                lastEntry = thisEntry;
+                lastEvent = thisEvent;
 
-                if (isPlayableEvent(event)) {
+                if (isPlayableEvent(entry)) {
                   // populate previous entry
-                  if (isNewLatest(event.timeStart, event.timeEnd, lastEntry?.timeStart, lastEntry?.timeEnd)) {
-                    thisEntry = event;
+                  if (isNewLatest(entry.timeStart, entry.timeEnd, lastEvent?.timeStart, lastEvent?.timeEnd)) {
+                    thisEvent = entry;
                   }
-                  thisId = eventId;
                 }
               }
               const isFirst = index === 0;
               const isLast = index === order.length - 1;
-              const isLoaded = featureData?.selectedEventId === event.id;
-              const isNext = featureData?.nextEventId === event.id;
-              const hasCursor = event.id === cursor;
+              const isLoaded = featureData?.selectedEventId === entry.id;
+              const isNext = featureData?.nextEventId === entry.id;
+              const hasCursor = entry.id === cursor;
               if (isLoaded) {
                 isPast = false;
               }
 
               return (
-                <Fragment key={event.id}>
-                  {isEditMode && (hasCursor || isFirst) && <QuickAddBlock previousEventId={previousEventId} />}
+                <Fragment key={entry.id}>
+                  {isEditMode && (hasCursor || isFirst) && <QuickAddBlock previousEventId={previousEntryId} />}
                   <div className={style.entryWrapper} data-testid={`entry-${eventIndex}`}>
-                    {isOntimeEvent(event) && <div className={style.entryIndex}>{eventIndex}</div>}
-                    <div className={style.entry} key={event.id} ref={hasCursor ? cursorRef : undefined}>
+                    {isOntimeEvent(entry) && <div className={style.entryIndex}>{eventIndex}</div>}
+                    <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
                       <RundownEntry
-                        type={event.type}
+                        type={entry.type}
                         isPast={isPast}
                         eventIndex={eventIndex}
-                        data={event}
+                        data={entry}
                         loaded={isLoaded}
                         hasCursor={hasCursor}
                         isNext={isNext}
-                        previousStart={lastEntry?.timeStart}
-                        previousEnd={lastEntry?.timeEnd}
-                        previousEventId={previousEventId}
+                        previousStart={lastEvent?.timeStart}
+                        previousEnd={lastEvent?.timeEnd}
+                        previousEntryId={previousEntryId}
+                        previousEventId={lastEvent?.id}
                         playback={isLoaded ? featureData.playback : undefined}
                         isRolling={featureData.playback === Playback.Roll}
                       />
                     </div>
                   </div>
-                  {isEditMode && (hasCursor || isLast) && <QuickAddBlock previousEventId={event.id} />}
+                  {isEditMode && (hasCursor || isLast) && <QuickAddBlock previousEventId={entry.id} />}
                 </Fragment>
               );
             })}
