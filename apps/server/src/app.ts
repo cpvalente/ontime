@@ -3,7 +3,7 @@ import { LogOrigin, Playback, SimpleDirection, SimplePlayback } from 'ontime-typ
 import 'dotenv/config';
 import express from 'express';
 import expressStaticGzip from 'express-static-gzip';
-import http, { type Server } from 'http';
+import http, { Server } from 'http';
 import cors from 'cors';
 import serverTiming from 'server-timing';
 
@@ -158,9 +158,15 @@ export const startServer = async (
   escalateErrorFn?: (error: string) => void,
 ): Promise<{ message: string; serverPort: number }> => {
   checkStart(OntimeStartOrder.InitServer);
-  const { serverPort } = getDataProvider().getSettings();
+  const settings = getDataProvider().getSettings();
+  const { serverPort } = settings;
 
   expressServer = http.createServer(app);
+
+  // the express server must be started before the socket otherwise the on error eventlissner will not attach properly
+  const resultPort = await serverTryDesiredPort(expressServer, serverPort);
+  await getDataProvider().setSettings({ ...settings, serverPort: resultPort });
+
   socket.init(expressServer);
 
   /**
@@ -205,19 +211,20 @@ export const startServer = async (
   // TODO: pass event store to rundownservice
   runtimeService.init(maybeRestorePoint);
 
-  expressServer.listen(serverPort, '0.0.0.0', () => {
-    const nif = getNetworkInterfaces();
-    consoleSuccess(`Local: http://localhost:${serverPort}/editor`);
-    for (const key in nif) {
-      const address = nif[key].address;
-      consoleSuccess(`Network: http://${address}:${serverPort}/editor`);
-    }
-  });
+  const nif = getNetworkInterfaces();
+  consoleSuccess(`Local: http://localhost:${resultPort}/editor`);
+  for (const key in nif) {
+    const address = nif[key].address;
+    consoleSuccess(`Network: http://${address}:${resultPort}/editor`);
+  }
 
-  const returnMessage = `Ontime is listening on port ${serverPort}`;
+  const returnMessage = `Ontime is listening on port ${resultPort}`;
   logger.info(LogOrigin.Server, returnMessage);
 
-  return { message: returnMessage, serverPort };
+  return {
+    message: returnMessage,
+    serverPort: resultPort,
+  };
 };
 
 /**
@@ -282,7 +289,7 @@ process.on('unhandledRejection', async (error) => {
     consoleError(error.stack);
   }
   generateCrashReport(error);
-  logger.crash(LogOrigin.Server, `Uncaught exception | ${error}`);
+  logger.crash(LogOrigin.Server, `Uncaught rejection | ${error}`);
   await shutdown(1);
 });
 
@@ -299,3 +306,37 @@ process.on('uncaughtException', async (error) => {
 process.once('SIGHUP', async () => shutdown(0));
 process.once('SIGINT', async () => shutdown(0));
 process.once('SIGTERM', async () => shutdown(0));
+
+/**
+ * @description tries to open the server with the desired port, and if getting a `EADDRINUSE` will change to an efemeral port
+ * @param {http.Server}server http server object
+ * @param {number}desiredPort the desired port
+ * @returns {number} the resulting port number
+ * @throws any other server errors will result in a throw
+ */
+async function serverTryDesiredPort(server: http.Server, desiredPort: number): Promise<number> {
+  return new Promise((res) => {
+    expressServer.once('error', (e) => {
+      if (testForPortInUser(e)) {
+        logger.error(LogOrigin.Server, `Failed open the desired port: ${desiredPort} | to moving to Ephemeral port`);
+        server.listen(0, '0.0.0.0', () => {
+          const port: number = server.address().port;
+          res(port);
+        });
+      } else {
+        throw e;
+      }
+    });
+    server.listen(desiredPort, '0.0.0.0', () => {
+      const port: number = server.address().port;
+      res(port);
+    });
+  });
+}
+
+function testForPortInUser(err: unknown) {
+  if (typeof err === 'object' && 'code' in err && err.code === 'EADDRINUSE') {
+    return true;
+  }
+  return false;
+}
