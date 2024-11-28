@@ -33,7 +33,10 @@ export default defineConfig({
           excludeReplayWorker: true,
         },
       }),
-    compression({ algorithm: 'brotliCompress' }),
+    compression({
+      algorithm: 'brotliCompress',
+      exclude: /\.(html)$/, // Exclude HTML files from compression so we can change the base property at runtime
+    }),
   ],
   server: {
     port: 3000,
