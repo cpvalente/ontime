@@ -68,7 +68,9 @@ export default function ProjectData() {
     uploadInputRef.current?.click();
   };
 
-  const handleDeleteLogo = () => {
+  const handleDeleteLogo = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
     setValue('projectLogo', null, {
       shouldDirty: true,
     });

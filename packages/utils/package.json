@@ -24,7 +24,7 @@
     "ontime-types": "workspace:*",
     "prettier": "catalog:",
     "typescript": "catalog:",
-    "vitest": "^1.6.0"
+    "vitest": "catalog:"
   },
   "sideEffects": false
 }
