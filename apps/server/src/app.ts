@@ -156,15 +156,16 @@ export const initAssets = async () => {
  */
 export const startServer = async (
   escalateErrorFn?: (error: string) => void,
-): Promise<{ message: string; serverPort: number }> => {
+): Promise<{ message: string; serverPort: number; portError: boolean }> => {
   checkStart(OntimeStartOrder.InitServer);
   const settings = getDataProvider().getSettings();
-  const { serverPort } = settings;
+  const { serverPort: desiredPort } = settings;
 
   expressServer = http.createServer(app);
 
   // the express server must be started before the socket otherwise the on error eventlissner will not attach properly
-  const resultPort = await serverTryDesiredPort(expressServer, serverPort);
+  const resultPort = await serverTryDesiredPort(expressServer, desiredPort);
+  const portError = resultPort !== desiredPort;
   await getDataProvider().setSettings({ ...settings, serverPort: resultPort });
 
   socket.init(expressServer);
@@ -224,6 +225,7 @@ export const startServer = async (
   return {
     message: returnMessage,
     serverPort: resultPort,
+    portError,
   };
 };
 
