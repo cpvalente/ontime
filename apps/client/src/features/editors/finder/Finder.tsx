@@ -67,8 +67,8 @@ export default function Finder(props: FinderProps) {
             {results.length > 0 &&
               results.map((entry, index) => {
                 const isSelected = selected === index;
-                const displayIndex = entry.type === SupportedEvent.Event ? entry.eventIndex : '';
-                const displayCue = entry.type === SupportedEvent.Event ? entry.cue : '-';
+                const displayIndex = entry.type === SupportedEvent.Event ? entry.eventIndex : '-';
+                const displayCue = entry.type === SupportedEvent.Event ? entry.cue : '';
                 const colour = entry.type === SupportedEvent.Event ? entry.colour : '';
 
                 return (
@@ -80,10 +80,10 @@ export default function Finder(props: FinderProps) {
                     onClick={submit}
                   >
                     <div className={style.data}>
-                      <div className={style.cue} style={{ '--color': colour }}>
-                        {displayCue}
+                      <div className={style.index} style={{ '--color': colour }}>
+                        {displayIndex}
                       </div>
-                      <div className={style.index}>{displayIndex}</div>
+                      <div className={style.cue}>{displayCue}</div>
                       <div className={style.title}>{entry.title}</div>
                     </div>
                     {isSelected && <span>Go ⏎</span>}
