@@ -2,7 +2,6 @@ import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
-import { splitVendorChunkPlugin } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 import svgrPlugin from 'vite-plugin-svgr';
 
@@ -14,7 +13,6 @@ const isDev = process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'deve
 export default defineConfig({
   plugins: [
     react(),
-    splitVendorChunkPlugin(),
     svgrPlugin(),
     !isDev &&
       sentryVitePlugin({
@@ -33,7 +31,10 @@ export default defineConfig({
           excludeReplayWorker: true,
         },
       }),
-    compression({ algorithm: 'brotliCompress' }),
+    compression({
+      algorithm: 'brotliCompress',
+      exclude: /\.(html)$/, // Exclude HTML files from compression so we can change the base property at runtime
+    }),
   ],
   server: {
     port: 3000,
@@ -46,6 +47,16 @@ export default defineConfig({
   build: {
     outDir: './build',
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // Split vendor code
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        },
+      },
+    },
   },
   resolve: {
     alias: {
