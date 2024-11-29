@@ -17,9 +17,9 @@ import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import TimeInputFlow from '../time-input-flow/TimeInputFlow';
 
+import EventBlockChip from './composite/EventBlockChip';
 import EventBlockPlayback from './composite/EventBlockPlayback';
 import EventBlockProgressBar from './composite/EventBlockProgressBar';
-import EventBlockChip from './composite/EventBlockReporter';
 
 import style from './EventBlock.module.scss';
 

@@ -249,7 +249,6 @@ export const useTimeUntil = () => {
   const featureSelector = (state: RuntimeStore) => ({
     clock: state.clock,
     offset: state.runtime.offset,
-    playback: state.timer.playback,
   });
 
   return useRuntimeStore(featureSelector);

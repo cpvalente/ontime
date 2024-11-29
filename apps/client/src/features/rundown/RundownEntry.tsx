@@ -58,7 +58,7 @@ export default function RundownEntry(props: RundownEntryProps) {
   } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
-  const { clearReport, clearAllReports } = useReportAction();
+  const reportAction = useReportAction();
   const { selectedEvents, unselect, clearSelectedEvents } = useEventSelection();
 
   const removeOpenEvent = useCallback(() => {
@@ -117,11 +117,11 @@ export default function RundownEntry(props: RundownEntryProps) {
         return deleteEvent([data.id]);
       }
       case 'clear-report': {
-        clearReport(data.id);
+        reportAction.clear(data.id);
         break;
       }
       case 'clear-all-reports': {
-        clearAllReports();
+        reportAction.clearAll();
         break;
       }
       case 'clone': {
