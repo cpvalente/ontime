@@ -128,18 +128,18 @@ export class OscIntegration implements IIntegration<OscSubscription, OSCSettings
   }
 
   private shutdownTX() {
-    logger.info(LogOrigin.Rx, 'Shutting down OSC integration');
-    if (this.oscServer) {
-      this.oscServer?.shutdown();
-      this.oscServer = null;
+    if (this.oscClient) {
+      logger.info(LogOrigin.Tx, 'Shutting down OSC integration');
+      this.oscClient?.close();
+      this.oscClient = null;
     }
   }
 
   private shutdownRX() {
-    logger.info(LogOrigin.Tx, 'Shutting down OSC integration');
-    if (this.oscClient) {
-      this.oscClient?.close();
-      this.oscClient = null;
+    if (this.oscServer) {
+      logger.info(LogOrigin.Rx, 'Shutting down OSC integration');
+      this.oscServer?.shutdown();
+      this.oscServer = null;
     }
   }
 }
