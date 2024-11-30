@@ -39,8 +39,6 @@ export const TranslationContext = createContext<TranslationContextValue>({
 export const TranslationProvider = ({ children }: PropsWithChildren) => {
   const { data } = useSettings();
 
-  console.log('....', data.language)
-
   const getLocalizedString = useCallback(
     (key: keyof typeof langEn, lang = data?.language || 'en'): string => {
       if (lang in translationsList) {
