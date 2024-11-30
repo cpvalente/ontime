@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { isOntimeBlock, isOntimeEvent, MaybeString, SupportedEvent } from 'ontime-types';
 
 import { useFlatRundown } from '../../../common/hooks-query/useRundown';
@@ -28,6 +28,17 @@ export default function useFinder() {
   const { data } = useFlatRundown();
   const [results, setResults] = useState<FilterableEntry[]>([]);
   const [error, setError] = useState<MaybeString>(null);
+  const lastSearchString = useRef('');
+
+  /** clear results when source data changes */
+  useEffect(() => {
+    setResults([]);
+    setError(null);
+    // fake a submit event to re-run the search
+    if (lastSearchString.current) {
+      find({ target: { value: lastSearchString.current } } as ChangeEvent<HTMLInputElement>);
+    }
+  }, [data]);
 
   /** Returns a single item with a matching index */
   const searchByIndex = (searchString: string) => {
@@ -155,6 +166,7 @@ export default function useFinder() {
     }
 
     const searchValue = event.target.value.toLowerCase();
+    lastSearchString.current = searchValue;
 
     if (searchValue.startsWith('index ')) {
       const searchString = searchValue.replace('index ', '').trim();
