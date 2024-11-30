@@ -202,7 +202,6 @@ export const startServer = async (
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
     },
-    frozen: false,
     ping: -1,
   });
 
