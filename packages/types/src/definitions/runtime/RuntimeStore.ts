@@ -51,6 +51,5 @@ export const runtimeStorePlaceholder: RuntimeStore = {
     duration: 0,
     playback: SimplePlayback.Stop,
   },
-  frozen: false,
   ping: -1,
 };
