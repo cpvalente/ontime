@@ -148,6 +148,21 @@ export const setAuxTimer = {
   setDuration: (time: number) => socketSendJson('auxtimer', { '1': { duration: time } }),
 };
 
+export const useTimerSpeed = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    speed: state.timer.speed,
+  });
+
+  return useRuntimeStore(featureSelector);
+};
+
+export const setTimerSpeed = {
+  calculateSpeed: () => socketSendJson('calculate-speed'),
+  getSpeed: () => socketSendJson('get-speed'),
+  setSpeed: (speed: number) => socketSendJson('set-speed', speed),
+  resetSpeed: () => socketSendJson('reset-speed'),
+};
+
 export const useCuesheet = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.timer.playback,

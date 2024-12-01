@@ -1,7 +1,7 @@
 import { PropsWithChildren } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { Playback, TimerPhase } from 'ontime-types';
-import { dayInMs, millisToMinutes, millisToSeconds, millisToString } from 'ontime-utils';
+import { millisToMinutes, millisToSeconds } from 'ontime-utils';
 
 import { useTimer } from '../../../../common/hooks/useSocket';
 import TimerDisplay from '../timer-display/TimerDisplay';
@@ -38,16 +38,22 @@ export default function PlaybackTimer(props: PropsWithChildren<PlaybackTimerProp
   const { playback, children } = props;
   const timer = useTimer();
 
-  const started = millisToString(timer.startedAt);
-  const expectedFinish = timer.expectedFinish !== null ? timer.expectedFinish % dayInMs : null;
-  const finish = millisToString(expectedFinish);
-
   const isRolling = playback === Playback.Roll;
   const isWaiting = timer.phase === TimerPhase.Pending;
   const isOvertime = timer.phase === TimerPhase.Overtime;
   const hasAddedTime = Boolean(timer.addedTime);
 
-  const rollLabel = isRolling ? 'Roll mode active' : '';
+  // TODO: can we remove this from the timer area?
+  const rollLabel = (() => {
+    if (!isRolling) {
+      return '';
+    }
+    if (isWaiting) {
+      return 'Roll: Countdown to start';
+    }
+
+    return 'Roll mode active';
+  })();
 
   const addedTimeLabel = resolveAddedTimeLabel(timer.addedTime);
 
@@ -63,22 +69,6 @@ export default function PlaybackTimer(props: PropsWithChildren<PlaybackTimerProp
         </Tooltip>
       </div>
       <TimerDisplay time={isWaiting ? timer.secondaryTimer : timer.current} />
-      <div className={style.status}>
-        {isWaiting ? (
-          <span className={style.rolltag}>Roll: Countdown to start</span>
-        ) : (
-          <>
-            <span className={style.start}>
-              <span className={style.tag}>Started at</span>
-              <span className={style.time}>{started}</span>
-            </span>
-            <span className={style.finish}>
-              <span className={style.tag}>Expect end</span>
-              <span className={style.time}>{finish}</span>
-            </span>
-          </>
-        )}
-      </div>
       {children}
     </div>
   );

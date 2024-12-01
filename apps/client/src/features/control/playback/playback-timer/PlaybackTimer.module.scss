@@ -1,9 +1,6 @@
 .timeContainer {
   display: grid;
-  grid-template-areas:
-    'indicators timer  addtime'
-    'status     status addtime';
-  grid-template-rows: 1fr auto;
+  grid-template-areas:'indicators timer addtime';
   grid-template-columns: 1.25rem 1fr 6.5rem;
   gap: $element-inner-spacing;
 }
@@ -52,14 +49,6 @@
 }
 
 // ---------> LABELS
-
-.status {
-  grid-area: status;
-  height: 1.5rem;
-  display: flex;
-  gap: $section-spacing;
-  margin-left: 1.5rem;
-}
 
 .tag {
   color: $label-gray;
