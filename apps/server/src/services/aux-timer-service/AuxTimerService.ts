@@ -58,6 +58,11 @@ export class AuxTimerService {
   }
 
   @broadcastReturn
+  addTime(millis: number) {
+    return this.timer.setTime(this.timer.state.current + millis);
+  }
+
+  @broadcastReturn
   private update() {
     return this.timer.update(this.getTime());
   }

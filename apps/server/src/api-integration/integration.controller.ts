@@ -241,6 +241,11 @@ const actionHandlers: Record<string, ActionHandler> = {
         const timeInMs = numberOrError(command.duration) * 1000;
         reply.payload = auxTimerService.setTime(timeInMs);
       }
+      if ('addtime' in command) {
+        // convert addTime in seconds to ms
+        const timeInMs = numberOrError(command.addtime) * 1000;
+        reply.payload = auxTimerService.addTime(timeInMs);
+      }
       if ('direction' in command) {
         if (command.direction === SimpleDirection.CountUp || command.direction === SimpleDirection.CountDown) {
           reply.payload = auxTimerService.setDirection(command.direction);
