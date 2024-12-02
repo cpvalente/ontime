@@ -175,7 +175,7 @@ export const startServer = async (
   const { serverPort } = getDataProvider().getSettings();
 
   expressServer = http.createServer(app);
-  socket.init(expressServer);
+  socket.init(expressServer, prefix);
 
   /**
    * Module initialises the services and provides initial payload for the store
