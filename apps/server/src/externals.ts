@@ -28,7 +28,7 @@ export function updateRouterPrefix(prefix: string | undefined = process.env.ROUT
   try {
     const data = readFileSync(indexFile, { encoding: 'utf-8', flag: 'r' }).replace(
       /<base href="[^"]*">/g,
-      `<base href="${prefix}>"`,
+      `<base href="${prefix}" />`,
     );
     writeFileSync(indexFile, data, { encoding: 'utf-8', flag: 'w' });
   } catch (_error) {
