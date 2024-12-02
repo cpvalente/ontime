@@ -11,6 +11,7 @@ const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 const isDev = process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'development';
 
 export default defineConfig({
+  base: './', // Ontime cloud: we use relative paths to allow them to reference a dynamic base set at runtime
   plugins: [
     react(),
     svgrPlugin(),
@@ -33,7 +34,7 @@ export default defineConfig({
       }),
     compression({
       algorithm: 'brotliCompress',
-      exclude: /\.(html)$/, // Exclude HTML files from compression so we can change the base property at runtime
+      exclude: /\.(html)$/, // Ontime cloud: Exclude HTML files from compression so we can change the base property at runtime
     }),
   ],
   server: {

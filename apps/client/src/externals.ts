@@ -22,7 +22,25 @@ export const isOntimeCloud = Boolean(import.meta.env.VITE_IS_CLOUD);
 const socketProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 
 // resolve port
-const STATIC_PORT = 4001;
+const STATIC_PORT = 4001; // this is used as a fallback port for development
 export const serverPort = isProduction ? window.location.port : STATIC_PORT;
-export const serverURL = `${window.location.protocol}//${location.hostname}:${serverPort}`;
-export const websocketUrl = `${socketProtocol}://${location.hostname}:${serverPort}/ws`;
+export const baseURI = resolveBaseURI();
+export const serverURL = `${window.location.protocol}//${window.location.hostname}:${serverPort}${baseURI}`;
+export const websocketUrl = `${socketProtocol}://${window.location.hostname}:${serverPort}${baseURI}/ws`;
+
+/**
+ * Resolves a base URI for a client that is not at the root segment
+ * ie: https://cloud.getontime.com/client-hash/timer
+ * This is necessary for ontime cloud and should otherwise not affect the client
+ */
+function resolveBaseURI() {
+  if (!isOntimeCloud) {
+    return '';
+  }
+  const [_, base, location] = window.location.pathname.split('/');
+  if (!location) {
+    return '';
+  }
+
+  return `/${base}`;
+}

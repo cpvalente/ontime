@@ -47,8 +47,8 @@ export class SocketServer implements IAdapter {
     this.wss = null;
   }
 
-  init(server: Server) {
-    this.wss = new WebSocketServer({ path: '/ws', server, maxPayload: this.MAX_PAYLOAD });
+  init(server: Server, prefix?: string) {
+    this.wss = new WebSocketServer({ path: `${prefix}/ws`, server, maxPayload: this.MAX_PAYLOAD });
 
     this.wss.on('connection', (ws) => {
       const clientId = generateId();
