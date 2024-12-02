@@ -54,7 +54,7 @@ if (!canLog) {
 }
 
 // calls an update to the client router prefix
-updateRouterPrefix();
+const prefix = updateRouterPrefix();
 
 // Create express APP
 const app = express();
@@ -75,17 +75,16 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '1mb' }));
 
 // Implement route endpoints
-app.use('/data', appRouter); // router for application data
-app.use('/api', integrationRouter); // router for integrations
+app.use(`${prefix}/data`, appRouter); // router for application data
+app.use(`${prefix}/api`, integrationRouter); // router for integrations
 
 // serve static external files
-app.use('/external', express.static(publicDir.externalDir));
-app.use('/user', express.static(publicDir.userDir));
-
-// if the user reaches to the root, we show a 404
-app.use('/external', (req, res) => {
+app.use(`${prefix}/external`, express.static(publicDir.externalDir));
+app.use(`${prefix}/external`, (req, res) => {
+  // if the user reaches to the root, we show a 404
   res.status(404).send(`${req.originalUrl} not found`);
 });
+app.use(`${prefix}/user`, express.static(publicDir.userDir));
 
 // serve static - react, in dev/test mode we fetch the React app from module
 app.use(
