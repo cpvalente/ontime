@@ -88,6 +88,7 @@ app.use(`${prefix}/user`, express.static(publicDir.userDir));
 
 // serve static - react, in dev/test mode we fetch the React app from module
 app.use(
+  prefix,
   expressStaticGzip(srcDir.clientDir, {
     enableBrotli: true,
     orderPreference: ['br'],
