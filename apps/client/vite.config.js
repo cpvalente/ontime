@@ -11,6 +11,7 @@ const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 const isDev = process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'development';
 
 export default defineConfig({
+  base: './',
   plugins: [
     react(),
     svgrPlugin(),
