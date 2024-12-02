@@ -77,6 +77,8 @@ export const srcDir = {
 } as const;
 
 export const srcFiles = {
+  /** Path to start index.html */
+  clientIndexHtml: join(srcDir.clientDir, 'index.html'),
   /** Path to bundled CSS  */
   cssOverride: join(srcDir.root, config.user, config.styles.directory, config.styles.filename),
   /** Path to bundled external readme */
