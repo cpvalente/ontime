@@ -24,5 +24,7 @@ const socketProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 // resolve port
 const STATIC_PORT = 4001;
 export const serverPort = isProduction ? window.location.port : STATIC_PORT;
-export const serverURL = `${window.location.protocol}//${location.hostname}:${serverPort}`;
-export const websocketUrl = `${socketProtocol}://${location.hostname}:${serverPort}/ws`;
+export const baseURI =
+  document.baseURI.split('/').at(-2)?.length ?? 0 > 0 ? `/${document.baseURI.split('/').at(-2)}` : ''; //TODO: is there an better/correct way
+export const serverURL = `${window.location.protocol}//${location.hostname}:${serverPort}${baseURI}`;
+export const websocketUrl = `${socketProtocol}://${location.hostname}:${serverPort}${baseURI}/ws`;

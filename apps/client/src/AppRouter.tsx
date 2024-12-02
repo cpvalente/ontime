@@ -15,6 +15,7 @@ import Log from './features/log/Log';
 import withPreset from './features/PresetWrapper';
 import withData from './features/viewers/ViewWrapper';
 import ViewLoader from './views/ViewLoader';
+import { baseURI } from './externals';
 import { ONTIME_VERSION } from './ONTIME_VERSION';
 import { sentryDsn, sentryRecommendedIgnore } from './sentry.config';
 
@@ -77,9 +78,9 @@ export default function AppRouter() {
   return (
     <React.Suspense fallback={null}>
       <SentryRoutes>
-        <Route path='/' element={<Navigate to='/timer' />} />
+        <Route path={baseURI} element={<Navigate to={`${baseURI}/timer`} />} />
         <Route
-          path='/timer'
+          path={`${baseURI}/timer`}
           element={
             <ViewLoader>
               <STimer />
@@ -87,7 +88,7 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/public'
+          path={`${baseURI}/public`}
           element={
             <ViewLoader>
               <SPublic />
@@ -95,7 +96,7 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/minimal'
+          path={`${baseURI}/minimal`}
           element={
             <ViewLoader>
               <SMinimalTimer />
@@ -103,7 +104,7 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/clock'
+          path={`${baseURI}/clock`}
           element={
             <ViewLoader>
               <SClock />
@@ -111,7 +112,7 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/countdown'
+          path={`${baseURI}/countdown`}
           element={
             <ViewLoader>
               <SCountdown />
@@ -119,7 +120,7 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/backstage'
+          path={`${baseURI}'/backstage`}
           element={
             <ViewLoader>
               <SBackstage />
@@ -127,7 +128,7 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/studio'
+          path={`${baseURI}/studio`}
           element={
             <ViewLoader>
               <SStudio />
@@ -135,9 +136,9 @@ export default function AppRouter() {
           }
         />
         {/*/!* Lower third cannot have a loading screen *!/*/}
-        <Route path='/lower' element={<SLowerThird />} />
+        <Route path={`${baseURI}/lower`} element={<SLowerThird />} />
         <Route
-          path='/timeline'
+          path={`${baseURI}/timeline`}
           element={
             <ViewLoader>
               <STimeline />
@@ -145,7 +146,7 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/info'
+          path={`${baseURI}/info`}
           element={
             <ViewLoader>
               <SProjectInfo />
@@ -154,13 +155,13 @@ export default function AppRouter() {
         />
 
         {/*/!* Protected Routes *!/*/}
-        <Route path='/editor' element={<Editor />} />
-        <Route path='/cuesheet' element={<Cuesheet />} />
-        <Route path='/op' element={<Operator />} />
+        <Route path={`${baseURI}/editor`} element={<Editor />} />
+        <Route path={`${baseURI}/cuesheet`} element={<Cuesheet />} />
+        <Route path={`${baseURI}/op`} element={<Operator />} />
 
         {/*/!* Protected Routes - Elements *!/*/}
         <Route
-          path='/rundown'
+          path={`${baseURI}/rundown`}
           element={
             <EditorFeatureWrapper>
               <RundownPanel />
@@ -168,7 +169,7 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/timercontrol'
+          path={`${baseURI}/timercontrol`}
           element={
             <EditorFeatureWrapper>
               <TimerControl />
@@ -176,7 +177,7 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/messagecontrol'
+          path={`${baseURI}/messagecontrol`}
           element={
             <EditorFeatureWrapper>
               <MessageControl />
@@ -184,7 +185,7 @@ export default function AppRouter() {
           }
         />
         <Route
-          path='/log'
+          path={`${baseURI}/log`}
           element={
             <EditorFeatureWrapper>
               <Log />
@@ -192,7 +193,7 @@ export default function AppRouter() {
           }
         />
         {/*/!* Send to default if nothing found *!/*/}
-        <Route path='*' element={<STimer />} />
+        <Route path={`${baseURI}*`} element={<STimer />} />
       </SentryRoutes>
     </React.Suspense>
   );
