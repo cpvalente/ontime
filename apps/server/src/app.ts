@@ -111,7 +111,8 @@ app.use(
   }),
 );
 
-app.get('*', (_req, res) => {
+app.get(`${prefix}/*`, (_req, res) => {
+  console.log(_req.path);
   res.sendFile(resolve(srcDir.clientDir, 'index.html'));
 });
 
