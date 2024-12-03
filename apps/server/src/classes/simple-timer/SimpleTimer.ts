@@ -4,6 +4,7 @@ export class SimpleTimer {
   state: SimpleTimerState = {
     duration: 0,
     current: 0,
+    addedTime: 0,
     playback: SimplePlayback.Stop,
     direction: SimpleDirection.CountDown,
   };
@@ -21,6 +22,7 @@ export class SimpleTimer {
     this.state = {
       duration: 0,
       current: 0,
+      addedTime: 0,
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
     };
@@ -34,6 +36,15 @@ export class SimpleTimer {
     this.state.duration = time;
     this.initialDuration = time;
     this.state.current = time;
+    return this.state;
+  }
+
+  /**
+   * Adds an amount of time to the timer
+   * @param time - time in milliseconds
+   */
+  public addTime(time: number): SimpleTimerState {
+    this.state.addedTime += time;
     return this.state;
   }
 
@@ -71,6 +82,7 @@ export class SimpleTimer {
     this.state.playback = SimplePlayback.Stop;
     this.state.duration = this.initialDuration;
     this.state.current = this.initialDuration;
+    this.state.addedTime = 0;
     this.startedAt = null;
     return this.state;
   }
@@ -78,7 +90,7 @@ export class SimpleTimer {
   public update(timeNow: number): SimpleTimerState {
     if (this.state.playback === SimplePlayback.Start) {
       // we know startedAt is not null since we are in play mode
-      const elapsed = timeNow - this.startedAt;
+      const elapsed = timeNow - this.startedAt - this.state.addedTime;
       if (this.state.direction === SimpleDirection.CountDown) {
         this.state.current = this.state.duration - elapsed;
       } else if (this.state.direction === SimpleDirection.CountUp) {

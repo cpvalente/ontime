@@ -12,6 +12,7 @@ export enum SimpleDirection {
 export type SimpleTimerState = {
   duration: number;
   current: number;
+  addedTime: number;
   playback: SimplePlayback;
   direction: SimpleDirection;
 };
