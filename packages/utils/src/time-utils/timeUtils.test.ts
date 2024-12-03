@@ -1,6 +1,6 @@
 import { type OntimeEvent, type RundownCached, SupportedEvent } from 'ontime-types';
 
-import { MILLIS_PER_SECOND } from '../date-utils/conversionUtils';
+import { dayInMs, MILLIS_PER_SECOND } from '../date-utils/conversionUtils';
 import { calculateExpectedStart } from './timeUtils';
 
 //TODO: cross midnight
@@ -114,6 +114,87 @@ describe('calculateExpectedStart()', () => {
       });
     });
   });
+
+  describe('events crossing midnight', () => {
+    const rundownCached: RundownCached = {
+      rundown: {
+        event1: {
+          id: 'event1',
+          type: SupportedEvent.Event,
+          timeStart: dayInMs - 1 * MILLIS_PER_SECOND,
+          timeEnd: dayInMs,
+        } as OntimeEvent,
+        event2: {
+          id: 'event2',
+          type: SupportedEvent.Event,
+          timeStart: 0 * MILLIS_PER_SECOND,
+          timeEnd: 1 * MILLIS_PER_SECOND,
+        } as OntimeEvent,
+      },
+      order: ['event1', 'event2'],
+      revision: 0,
+    };
+    test('nothing loaded', () => {
+      const clock = 0 * MILLIS_PER_SECOND;
+      const currentTimer = null;
+      const offset = null;
+      const selectedEventIndex = null;
+      expect(calculateExpectedStart(rundownCached, offset, clock, selectedEventIndex, currentTimer)).toEqual({});
+    });
+
+    test('ontime beginning off event', () => {
+      const clock = dayInMs - 2 * MILLIS_PER_SECOND;
+      const currentTimer = 1 * MILLIS_PER_SECOND;
+      const offset = 0;
+      const selectedEventIndex = 0;
+      expect(calculateExpectedStart(rundownCached, offset, clock, selectedEventIndex, currentTimer)).toEqual({
+        event2: {
+          expectedStart: 0 * MILLIS_PER_SECOND,
+          timeUntil: 2 * MILLIS_PER_SECOND,
+        },
+      });
+    });
+
+    test('ontime end off event', () => {
+      const clock = dayInMs;
+      const currentTimer = 0 * MILLIS_PER_SECOND;
+      const offset = 0;
+      const selectedEventIndex = 0;
+      expect(calculateExpectedStart(rundownCached, offset, clock, selectedEventIndex, currentTimer)).toEqual({
+        event2: {
+          expectedStart: 0 * MILLIS_PER_SECOND,
+          timeUntil: 0 * MILLIS_PER_SECOND,
+        },
+      });
+    });
+
+    test('offset behind', () => {
+      const clock = 0 * MILLIS_PER_SECOND;
+      const currentTimer = 1 * MILLIS_PER_SECOND;
+      const offset = -1 * MILLIS_PER_SECOND;
+      const selectedEventIndex = 0;
+      expect(calculateExpectedStart(rundownCached, offset, clock, selectedEventIndex, currentTimer)).toEqual({
+        event2: {
+          expectedStart: 1 * MILLIS_PER_SECOND,
+          timeUntil: 1 * MILLIS_PER_SECOND,
+        },
+      });
+    });
+
+    test('offset ahead', () => {
+      const clock = dayInMs - 2 * MILLIS_PER_SECOND;
+      const currentTimer = 1 * MILLIS_PER_SECOND;
+      const offset = 1 * MILLIS_PER_SECOND;
+      const selectedEventIndex = 0;
+      expect(calculateExpectedStart(rundownCached, offset, clock, selectedEventIndex, currentTimer)).toEqual({
+        event2: {
+          expectedStart: dayInMs - 1 * MILLIS_PER_SECOND,
+          timeUntil: 1 * MILLIS_PER_SECOND,
+        },
+      });
+    });
+  });
+
   describe('overtime', () => {
     const rundownCached: RundownCached = {
       rundown: {
