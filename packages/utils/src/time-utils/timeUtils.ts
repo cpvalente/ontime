@@ -45,7 +45,6 @@ export function calculateExpectedStart(
 
     const expectedStart = (timeStart - consumedOffset) % dayInMs;
     const expectedStartDayCorrected = expectedStart < 0 ? dayInMs + expectedStart : expectedStart;
-    console.log({ id, clock, timeStart, timeEnd, dayLeft: dayInMs - clock, expectedStart, expectedStartDayCorrected });
     const timeUntil =
       clock > expectedStartDayCorrected
         ? expectedStartDayCorrected + (dayInMs - clock)
