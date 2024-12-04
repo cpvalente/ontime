@@ -38,12 +38,8 @@ export class SimpleTimer {
   }
 
   public addTime(millis: number, timeNow: number): SimpleTimerState {
-    if (this.state.playback === SimplePlayback.Stop) {
-      this.state.duration += millis;
-      this.state.current += millis;
-      return this.state;
-    }
     this.state.duration += millis;
+    this.state.current += millis; // optimistic update of curret value in case of pause or stop
     return this.update(timeNow);
   }
 

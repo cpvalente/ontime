@@ -195,5 +195,23 @@ describe('SimpleTimer count-down', () => {
       timer.stop();
       expect(timer.state).toMatchObject({ current: 1000, duration: 1000 });
     });
+
+    test('adding time affects paused timer', () => {
+      timer.reset();
+
+      timer.setTime(1000);
+      timer.start(0);
+      timer.update(100);
+      expect(timer.state).toMatchObject({ current: 900, duration: 1000 });
+
+      timer.pause(200);
+      expect(timer.state).toMatchObject({ current: 900, duration: 1000 });
+
+      timer.addTime(1000, 200);
+      expect(timer.state).toMatchObject({ current: 1900, duration: 2000 });
+
+      timer.start(300);
+      expect(timer.state).toMatchObject({ current: 1800, duration: 2000 });
+    });
   });
 });
