@@ -186,7 +186,8 @@ describe('SimpleTimer count-down', () => {
       timer.update(100);
       expect(timer.state).toMatchObject({ current: 900, duration: 1000 });
 
-      timer.addTime(1000, 200);
+      timer.addTime(1000);
+      timer.update(200);
       expect(timer.state).toMatchObject({ current: 1800, duration: 2000 });
 
       timer.update(300);
@@ -207,7 +208,8 @@ describe('SimpleTimer count-down', () => {
       timer.pause(200);
       expect(timer.state).toMatchObject({ current: 900, duration: 1000 });
 
-      timer.addTime(1000, 200);
+      timer.addTime(1000);
+      timer.update(200);
       expect(timer.state).toMatchObject({ current: 1900, duration: 2000 });
 
       timer.start(300);
@@ -220,7 +222,7 @@ describe('SimpleTimer count-down', () => {
       timer.setTime(1000);
       expect(timer.state).toMatchObject({ current: 1000, duration: 1000 });
 
-      timer.addTime(1000, 0);
+      timer.addTime(1000);
       expect(timer.state).toMatchObject({ current: 2000, duration: 2000 });
 
       timer.start(0);

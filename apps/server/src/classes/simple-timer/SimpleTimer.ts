@@ -37,10 +37,12 @@ export class SimpleTimer {
     return this.state;
   }
 
-  public addTime(millis: number, timeNow: number): SimpleTimerState {
+  public addTime(millis: number): SimpleTimerState {
     this.state.duration += millis;
-    this.state.current += millis; // optimistic update of curret value in case of pause or stop
-    return this.update(timeNow);
+    // the value of current will be overridden when update is called,
+    // but if we are in pause or stop state it will not be changed so we do it here
+    this.state.current += millis;
+    return this.state;
   }
 
   public setDirection(direction: SimpleDirection, timeNow: number): SimpleTimerState {
