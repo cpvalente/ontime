@@ -37,6 +37,16 @@ export class SimpleTimer {
     return this.state;
   }
 
+  public addTime(millis: number, timeNow: number): SimpleTimerState {
+    if (this.state.playback === SimplePlayback.Stop) {
+      this.state.duration += millis;
+      this.state.current += millis;
+      return this.state;
+    }
+    this.state.duration += millis;
+    return this.update(timeNow);
+  }
+
   public setDirection(direction: SimpleDirection, timeNow: number): SimpleTimerState {
     // if we are playing, we need to reset the targets
     if (this.state.playback === SimplePlayback.Start) {
