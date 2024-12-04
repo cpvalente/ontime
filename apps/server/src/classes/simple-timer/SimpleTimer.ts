@@ -37,6 +37,14 @@ export class SimpleTimer {
     return this.state;
   }
 
+  public addTime(millis: number): SimpleTimerState {
+    this.state.duration += millis;
+    // the value of current will be overridden when update is called,
+    // but if we are in pause or stop state it will not be changed so we do it here
+    this.state.current += millis;
+    return this.state;
+  }
+
   public setDirection(direction: SimpleDirection, timeNow: number): SimpleTimerState {
     // if we are playing, we need to reset the targets
     if (this.state.playback === SimplePlayback.Start) {

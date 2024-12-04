@@ -1,4 +1,4 @@
-import { SimpleDirection, SimpleTimerState } from 'ontime-types';
+import { SimpleDirection, SimplePlayback, SimpleTimerState } from 'ontime-types';
 
 import { SimpleTimer } from '../../classes/simple-timer/SimpleTimer.js';
 import { eventStore } from '../../stores/EventStore.js';
@@ -59,7 +59,11 @@ export class AuxTimerService {
 
   @broadcastReturn
   addTime(millis: number) {
-    return this.timer.setTime(this.timer.state.current + millis);
+    if (this.timer.state.playback === SimplePlayback.Start) {
+      this.timer.addTime(millis);
+      return this.timer.update(this.getTime());
+    }
+    return this.timer.addTime(millis);
   }
 
   @broadcastReturn
