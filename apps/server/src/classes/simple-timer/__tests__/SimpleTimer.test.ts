@@ -177,5 +177,23 @@ describe('SimpleTimer count-down', () => {
         playback: SimplePlayback.Start,
       });
     });
+
+    test('adding time affects final result', () => {
+      timer.reset();
+
+      timer.setTime(1000);
+      timer.start(0);
+      timer.update(100);
+      expect(timer.state).toMatchObject({ current: 900, duration: 1000 });
+
+      timer.addTime(1000, 200);
+      expect(timer.state).toMatchObject({ current: 1800, duration: 2000 });
+
+      timer.update(300);
+      expect(timer.state).toMatchObject({ current: 1700, duration: 2000 });
+
+      timer.stop();
+      expect(timer.state).toMatchObject({ current: 1000, duration: 1000 });
+    });
   });
 });
