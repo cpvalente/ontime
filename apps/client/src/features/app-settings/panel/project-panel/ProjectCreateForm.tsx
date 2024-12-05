@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { PROJECT_LIST } from '../../../../common/api/constants';
 import { createProject } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import { documentationUrl, websiteUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './ProjectPanel.module.scss';
@@ -118,7 +119,7 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
           <Input
             variant='ontime-filled'
             size='sm'
-            placeholder='www.getontime.no'
+            placeholder={websiteUrl}
             autoComplete='off'
             {...register('publicUrl')}
           />
@@ -140,7 +141,7 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
           <Input
             variant='ontime-filled'
             size='sm'
-            placeholder='http://docs.getontime.no'
+            placeholder={documentationUrl}
             autoComplete='off'
             {...register('backstageUrl')}
           />
