@@ -39,6 +39,7 @@ dist/
 # docker utils
 ontime-db
 ontime-external/
+ontime-data/
 
 # versioning file
 **/ONTIME_VERSION.js
