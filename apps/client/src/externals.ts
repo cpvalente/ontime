@@ -34,9 +34,12 @@ export const websocketUrl = resolveUrl('ws', 'ws');
 function resolveUrl(protocol: 'http' | 'ws', path: string) {
   const url = new URL(window.location.origin);
 
-  // check if protocol URL is secure
-  url.protocol = protocol === 'http' ? 'http' : 'ws';
-  url.protocol += window.location.protocol === 'https:' ? 's' : '';
+  // generate ws url
+  if (protocol === 'ws') {
+    // ensure we remain in a secure context
+    const isSecure = window.location.protocol === 'https:';
+    url.protocol = isSecure ? 'wss' : 'ws';
+  }
 
   // make path name relative to the base URI
   url.pathname = baseURI ? `${baseURI}/${path}` : path;
