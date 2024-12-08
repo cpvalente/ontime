@@ -10,6 +10,7 @@ export const OSC_SETTINGS = ['oscSettings'];
 export const PROJECT_DATA = ['project'];
 export const PROJECT_LIST = ['projectList'];
 export const RUNDOWN = ['rundown'];
+export const REPORT = ['report'];
 export const RUNTIME = ['runtimeStore'];
 export const SHEET_STATE = ['sheetState'];
 export const URL_PRESETS = ['urlpresets'];

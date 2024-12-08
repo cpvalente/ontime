@@ -9,7 +9,7 @@ $skip-opacity: 0.2;
   display: grid;
   grid-template-areas:
     'binder ...        ...     ...'
-    'binder pb-actions times   ...'
+    'binder pb-actions times   report'
     'binder pb-actions title   title'
     'binder pb-actions estatus estatus'
     'binder ...        ...     ...';
@@ -82,6 +82,10 @@ $skip-opacity: 0.2;
   }
 }
 
+.reportSection {
+  grid-area: report;
+}
+
 .binder {
   grid-area: binder;
   height: 100%;
@@ -139,7 +143,7 @@ $skip-opacity: 0.2;
 
   .nextTag {
     font-size: 1rem;
-    color: $orange-500;
+    color: $warning-orange;
     letter-spacing: 0.03px;
     font-weight: 600;
   }

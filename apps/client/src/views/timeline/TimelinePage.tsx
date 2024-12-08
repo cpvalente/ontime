@@ -5,14 +5,14 @@ import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
-import { formatDuration, formatTime, getDefaultFormat } from '../../common/utils/time';
+import { formatDuration, formatTime, getDefaultFormat, getTimeToStart } from '../../common/utils/time';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
 import { useTranslation } from '../../translation/TranslationProvider';
 
 import Section from './timeline-section/TimelineSection';
 import Timeline from './Timeline';
 import { getTimelineOptions } from './timeline.options';
-import { getTimeToStart, getUpcomingEvents, useScopedRundown } from './timeline.utils';
+import { getUpcomingEvents, useScopedRundown } from './timeline.utils';
 
 import './TimelinePage.scss';
 
@@ -55,7 +55,7 @@ export default function TimelinePage(props: TimelinePageProps) {
   let followedByStatus: string | undefined;
 
   if (next !== null) {
-    const timeToStart = getTimeToStart(time.clock, next.timeStart, next?.delay ?? 0, runtime.offset);
+    const timeToStart = getTimeToStart(time.clock, next.timeStart, next?.delay ?? 0, runtime.offset ?? 0);
     if (timeToStart < 0) {
       nextStatus = dueText;
     } else {
@@ -64,7 +64,7 @@ export default function TimelinePage(props: TimelinePageProps) {
   }
 
   if (followedBy !== null) {
-    const timeToStart = getTimeToStart(time.clock, followedBy.timeStart, followedBy?.delay ?? 0, runtime.offset);
+    const timeToStart = getTimeToStart(time.clock, followedBy.timeStart, followedBy?.delay ?? 0, runtime.offset ?? 0);
     if (timeToStart < 0) {
       followedByStatus = dueText;
     } else {

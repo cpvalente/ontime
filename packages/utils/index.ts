@@ -89,3 +89,5 @@ export {
   defaultImportMap,
   isImportMap,
 } from './src/feature/spreadsheet-import/spreadsheetImport.js';
+
+export { isPlaybackActive } from './src/playback-utils/playbackstate.js';

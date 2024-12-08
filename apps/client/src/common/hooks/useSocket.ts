@@ -183,6 +183,13 @@ export const useClock = () => {
   return useRuntimeStore(featureSelector);
 };
 
+export const usePlayback = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    playback: state.timer.playback,
+  });
+  return useRuntimeStore(featureSelector);
+};
+
 /** Used by the progress bar components */
 export const useProgressData = () => {
   const featureSelector = (state: RuntimeStore) => ({
@@ -234,6 +241,14 @@ export const useTimelineStatus = () => {
 export const usePing = () => {
   const featureSelector = (state: RuntimeStore) => ({
     ping: state.ping,
+  });
+
+  return useRuntimeStore(featureSelector);
+};
+export const useTimeUntil = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    clock: state.clock,
+    offset: state.runtime.offset,
   });
 
   return useRuntimeStore(featureSelector);

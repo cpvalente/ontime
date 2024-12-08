@@ -175,6 +175,7 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.plannedStart).toBe(0);
       expect(newState.runtime.plannedEnd).toBe(1500);
       expect(newState.currentBlock.block).toBeNull();
+      expect(newState.runtime.offset).toBe(null);
 
       // 2. Start event
       start();
@@ -222,7 +223,7 @@ describe('mutation on runtimeState', () => {
       stop();
       newState = getState();
       expect(newState.runtime.actualStart).toBeNull();
-      expect(newState.runtime.offset).toBe(0);
+      expect(newState.runtime.offset).toBeNull();
       expect(newState.runtime.expectedEnd).toBeNull();
     });
 
