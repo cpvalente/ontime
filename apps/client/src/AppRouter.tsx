@@ -24,6 +24,7 @@ const Operator = React.lazy(() => import('./features/operator/OperatorExport'));
 
 const TimerView = React.lazy(() => import('./features/viewers/timer/Timer'));
 const MinimalTimerView = React.lazy(() => import('./features/viewers/minimal-timer/MinimalTimer'));
+const PopOutTimer = React.lazy(() => import('./features/viewers/pop-out-clock/PopOutTimer'));
 const ClockView = React.lazy(() => import('./features/viewers/clock/Clock'));
 const Countdown = React.lazy(() => import('./features/viewers/countdown/Countdown'));
 
@@ -36,6 +37,7 @@ const ProjectInfo = React.lazy(() => import('./views/project-info/ProjectInfo'))
 
 const STimer = withPreset(withData(TimerView));
 const SMinimalTimer = withPreset(withData(MinimalTimerView));
+const SPopOutTimer = withPreset(withData(PopOutTimer));
 const SClock = withPreset(withData(ClockView));
 const SCountdown = withPreset(withData(Countdown));
 const SBackstage = withPreset(withData(Backstage));
@@ -83,6 +85,14 @@ export default function AppRouter() {
           element={
             <ViewLoader>
               <STimer />
+            </ViewLoader>
+          }
+        />
+        <Route
+          path='/pop'
+          element={
+            <ViewLoader>
+              <SPopOutTimer />
             </ViewLoader>
           }
         />
