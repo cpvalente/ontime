@@ -39,10 +39,13 @@ function resolveUrl(protocol: 'http' | 'ws', path: string) {
     // ensure we remain in a secure context
     const isSecure = window.location.protocol === 'https:';
     url.protocol = isSecure ? 'wss' : 'ws';
+    url.pathname = 'ws';
   }
 
-  // make path name relative to the base URI
-  url.pathname = baseURI ? `${baseURI}/${path}` : path;
+  if (protocol === 'http') {
+    // make path name relative to the base URI, we cannot do this for the socket URL
+    url.pathname = baseURI ? `${baseURI}/${path}` : path;
+  }
 
   // in development mode, we use the React port for UI, but need the requests to target the server
   if (isDev) {
