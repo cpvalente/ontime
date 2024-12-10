@@ -32,9 +32,9 @@ export function getTimerByType(freezeEnd: boolean, timerObject?: TimerTypeParams
   }
 }
 
-export function isStringBoolean(text: string | null) {
+export function isStringBoolean(text: string | null, fallback = false): boolean {
   if (text === null) {
-    return false;
+    return fallback;
   }
   return text?.toLowerCase() === 'true' || text === '1';
 }

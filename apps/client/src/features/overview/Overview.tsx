@@ -52,7 +52,7 @@ function _EditorOverview({ children }: { children: React.ReactNode }) {
 
 export const CuesheetOverview = memo(_CuesheetOverview);
 
-function _CuesheetOverview({ children }: { children: React.ReactNode }) {
+function _CuesheetOverview() {
   const { plannedEnd, expectedEnd } = useRuntimeOverview();
 
   const [maybePlannedEnd, maybePlannedDaySpan] = useMemo(() => calculateEndAndDaySpan(plannedEnd), [plannedEnd]);
@@ -64,7 +64,6 @@ function _CuesheetOverview({ children }: { children: React.ReactNode }) {
   return (
     <div className={style.overview}>
       <ErrorBoundary>
-        <div className={style.nav}>{children}</div>
         <div className={style.info}>
           <TitlesOverview />
           <TimerOverview />
@@ -86,6 +85,10 @@ function _CuesheetOverview({ children }: { children: React.ReactNode }) {
 
 function TitlesOverview() {
   const { data } = useProjectData();
+
+  if (!data.title && !data.description) {
+    return null;
+  }
 
   return (
     <div>
