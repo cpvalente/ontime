@@ -44,7 +44,7 @@ function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry,
   const update = useCallback(
     (newValue: string) => {
       // @ts-expect-error -- we inject this into react-table
-      table.options.meta?.handleUpdate(row.index, column.id, newValue);
+      table.options.meta?.handleUpdate(row.index, `custom_${column.id}`, newValue);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
     [column.id, row.index],

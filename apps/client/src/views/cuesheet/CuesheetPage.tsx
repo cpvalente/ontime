@@ -26,7 +26,7 @@ export default function CuesheetPage() {
   const { data: customFields } = useCustomFields();
   const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
 
-  const { updateCustomField } = useEventAction();
+  const { updateCustomField, updateEvent } = useEventAction();
   const featureData = useCuesheet();
   const columns = useMemo(() => makeCuesheetColumns(customFields), [customFields]);
   const toggleSettings = useCuesheetSettings((state) => state.toggleSettings);
@@ -53,29 +53,35 @@ export default function CuesheetPage() {
         return;
       }
 
-      const previousValue = event.custom[accessor];
+      if (typeof accessor === 'string' && accessor.startsWith('custom_')) {
+        const previousValue = event.custom[accessor];
 
-      if (previousValue === payload) {
+        if (previousValue === payload) {
+          return;
+        }
+
+        // check if value is valid
+        // in anticipation to different types of event here
+        if (typeof payload !== 'string') {
+          return;
+        }
+
+        // cleanup
+        const cleanVal = payload.trim();
+
+        // submit
+        try {
+          const key = accessor.split('custom_')[1];
+          await updateCustomField(event.id, key, cleanVal);
+        } catch (error) {
+          console.error(error);
+        }
         return;
       }
 
-      // check if value is valid
-      // in anticipation to different types of event here
-      if (typeof payload !== 'string') {
-        return;
-      }
-
-      // cleanup
-      const cleanVal = payload.trim();
-
-      // submit
-      try {
-        await updateCustomField(event.id, accessor, cleanVal);
-      } catch (error) {
-        console.error(error);
-      }
+      updateEvent({ id: event.id, [accessor]: payload });
     },
-    [flatRundown, rundownStatus, updateCustomField],
+    [flatRundown, rundownStatus, updateCustomField, updateEvent],
   );
 
   if (!customFields || !flatRundown || rundownStatus !== 'success') {
