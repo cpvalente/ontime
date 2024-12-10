@@ -1,12 +1,13 @@
 import { DatabaseModel, LogOrigin, ProjectFileListResponse } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
-import { copyFile, rename } from 'fs/promises';
+import { copyFile } from 'fs/promises';
 
 import { logger } from '../../classes/Logger.js';
 import { publicDir } from '../../setup/index.js';
 import {
   appendToName,
+  dockerSafeRename,
   ensureDirectory,
   generateUniqueFileName,
   getFileNameFromPath,
@@ -93,7 +94,7 @@ async function handleCorruptedFile(filePath: string, fileName: string): Promise<
 
   // and make a new file with the recovered data
   const newPath = appendToName(filePath, '(recovered)');
-  await rename(filePath, newPath);
+  await dockerSafeRename(filePath, newPath);
   return getFileNameFromPath(newPath);
 }
 
@@ -231,7 +232,7 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
   }
 
   const pathToRenamed = getPathToProject(newFilename);
-  await rename(projectFilePath, pathToRenamed);
+  await dockerSafeRename(projectFilePath, pathToRenamed);
 
   // Update the last loaded project config if current loaded project is the one being renamed
   const isLoaded = await isLastLoadedProject(originalFile);
