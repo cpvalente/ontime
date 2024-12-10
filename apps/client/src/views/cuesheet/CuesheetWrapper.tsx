@@ -11,7 +11,7 @@ import { useCuesheet } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import { useFlatRundown } from '../../common/hooks-query/useRundown';
-import { CuesheetOverview } from '../overview/Overview';
+import { CuesheetOverview } from '../../features/overview/Overview';
 
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
 import { useCuesheetSettings } from './store/CuesheetSettings';

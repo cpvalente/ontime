@@ -19,7 +19,7 @@ import { ONTIME_VERSION } from './ONTIME_VERSION';
 import { sentryDsn, sentryRecommendedIgnore } from './sentry.config';
 
 const Editor = React.lazy(() => import('./features/editors/ProtectedEditor'));
-const Cuesheet = React.lazy(() => import('./features/cuesheet/ProtectedCuesheet'));
+const Cuesheet = React.lazy(() => import('./views/cuesheet/ProtectedCuesheet'));
 const Operator = React.lazy(() => import('./features/operator/OperatorExport'));
 
 const TimerView = React.lazy(() => import('./features/viewers/timer/Timer'));

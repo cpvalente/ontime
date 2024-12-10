@@ -4,7 +4,7 @@ import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { CustomFields, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
 
 import DelayIndicator from '../../common/components/delay-indicator/DelayIndicator';
-import RunningTime from '../viewers/common/running-time/RunningTime';
+import RunningTime from '../../features/viewers/common/running-time/RunningTime';
 
 import EditableCell from './cuesheet-table-elements/EditableCell';
 import { useCuesheetSettings } from './store/CuesheetSettings';

@@ -1,6 +1,6 @@
 import { useClock, useTimer } from '../../../common/hooks/useSocket';
-import ClockTime from '../../viewers/common/clock-time/ClockTime';
-import RunningTime from '../../viewers/common/running-time/RunningTime';
+import ClockTime from '../../../features/viewers/common/clock-time/ClockTime';
+import RunningTime from '../../../features/viewers/common/running-time/RunningTime';
 
 import style from './CuesheetTableHeader.module.scss';
 
