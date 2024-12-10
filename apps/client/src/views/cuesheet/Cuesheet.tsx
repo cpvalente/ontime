@@ -11,7 +11,7 @@ import CuesheetHeader from './cuesheet-table-elements/CuesheetHeader';
 import DelayRow from './cuesheet-table-elements/DelayRow';
 import EventRow from './cuesheet-table-elements/EventRow';
 import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
-import { useCuesheetSettings } from './store/CuesheetSettings';
+import { useCuesheetSettings } from './store/cuesheetSettingsStore';
 import useColumnManager from './useColumnManager';
 
 import style from './Cuesheet.module.scss';

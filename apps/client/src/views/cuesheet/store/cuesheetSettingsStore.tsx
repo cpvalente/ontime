@@ -2,7 +2,7 @@ import { create } from 'zustand';
 
 import { booleanFromLocalStorage } from '../../../common/utils/localStorage';
 
-interface CuesheetSettings {
+interface CuesheetSettingsStore {
   showSettings: boolean;
   showIndexColumn: boolean;
   followSelected: boolean;
@@ -36,7 +36,7 @@ enum CuesheetKeys {
   Seconds = 'ontime-cuesheet-hide-sceconds',
 }
 
-export const useCuesheetSettings = create<CuesheetSettings>()((set) => ({
+export const useCuesheetSettings = create<CuesheetSettingsStore>()((set) => ({
   showSettings: false,
   showIndexColumn: booleanFromLocalStorage(CuesheetKeys.ColumnIndex, true),
   followSelected: booleanFromLocalStorage(CuesheetKeys.Follow, false),

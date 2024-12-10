@@ -6,7 +6,7 @@ import PlaybackIcon from '../../../common/components/playback-icon/PlaybackIcon'
 import useProjectData from '../../../common/hooks-query/useProjectData';
 import { cx, enDash } from '../../../common/utils/styleUtils';
 import { tooltipDelayFast } from '../../../ontimeConfig';
-import { useCuesheetSettings } from '../store/CuesheetSettings';
+import { useCuesheetSettings } from '../store/cuesheetSettingsStore';
 
 import CuesheetTableHeaderTimers from './CuesheetTableHeaderTimers';
 

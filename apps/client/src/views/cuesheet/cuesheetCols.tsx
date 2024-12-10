@@ -7,7 +7,7 @@ import DelayIndicator from '../../common/components/delay-indicator/DelayIndicat
 import RunningTime from '../../features/viewers/common/running-time/RunningTime';
 
 import EditableCell from './cuesheet-table-elements/EditableCell';
-import { useCuesheetSettings } from './store/CuesheetSettings';
+import { useCuesheetSettings } from './store/cuesheetSettingsStore';
 
 import style from './Cuesheet.module.scss';
 
