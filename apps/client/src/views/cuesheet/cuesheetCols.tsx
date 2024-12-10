@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
+import { Checkbox } from '@chakra-ui/react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { CustomFields, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
 
@@ -11,9 +11,25 @@ import { useCuesheetSettings } from './store/cuesheetSettingsStore';
 
 import style from './Cuesheet.module.scss';
 
-function makePublic(row: CellContext<OntimeRundownEntry, unknown>) {
-  const cellValue = row.getValue();
-  return cellValue ? <IoCheckmark className={style.check} /> : '';
+function MakePublic({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
+  const update = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      // @ts-expect-error -- we inject this into react-table
+      table.options.meta?.handleUpdate(row.index, column.id, event.target.checked);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
+    [column.id, row.index],
+  );
+
+  const event = row.original;
+  if (!isOntimeEvent(event)) {
+    return null;
+  }
+
+  const isChecked = event.isPublic;
+
+  //TODO: css styleing
+  return <Checkbox onChange={update} isChecked={isChecked} />;
 }
 
 function MakeTimer({ getValue, row: { original } }: CellContext<OntimeRundownEntry, unknown>) {
@@ -83,7 +99,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       accessorKey: 'isPublic',
       id: 'isPublic',
       header: 'Public',
-      cell: makePublic,
+      cell: MakePublic,
       size: 45,
     },
     {
