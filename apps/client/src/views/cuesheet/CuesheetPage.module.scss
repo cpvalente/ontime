@@ -5,9 +5,10 @@
   padding: 1rem 0.5rem;
 
   display: grid;
-  grid-template-rows: 3rem auto 1fr;
+  grid-template-rows: 3rem auto auto 1fr;
   grid-template-areas:
           'overview'
+          'progress'
           'settings'
           'table';
   gap: 1rem;

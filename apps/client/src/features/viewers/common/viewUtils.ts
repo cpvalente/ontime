@@ -32,9 +32,13 @@ export function getTimerByType(freezeEnd: boolean, timerObject?: TimerTypeParams
   }
 }
 
-export function isStringBoolean(text: string | null) {
+/**
+ * Parses a string to semantically verify if it represents a true value
+ * Used in the context of parsing search params
+ */
+export function isStringBoolean(text: string | null, fallback = false): boolean {
   if (text === null) {
-    return false;
+    return fallback;
   }
   return text?.toLowerCase() === 'true' || text === '1';
 }

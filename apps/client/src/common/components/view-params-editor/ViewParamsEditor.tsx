@@ -82,10 +82,12 @@ const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj, paramFields: ViewOp
 
 interface EditFormDrawerProps {
   viewOptions: ViewOption[];
+  onSubmitCb?: (searchParams: URLSearchParams) => void;
 }
 
-// TODO: this is a good candidate for memoisation, but needs the paramFields to be stable
-export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
+// TODO: this is a good candidate for memoisation, but needs the viewOptions and onSubmitCb to be stable
+export default function ViewParamsEditor(props: EditFormDrawerProps) {
+  const { viewOptions, onSubmitCb } = props;
   const [searchParams, setSearchParams] = useSearchParams();
   const { isOpen, onClose, onOpen } = useDisclosure();
 
@@ -116,7 +118,7 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, viewOptions);
     setSearchParams(newSearchParams);
 
-    onClose();
+    onSubmitCb?.(newSearchParams);
   };
 
   return (

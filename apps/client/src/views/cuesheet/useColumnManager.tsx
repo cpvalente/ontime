@@ -1,7 +1,10 @@
 import { useCallback, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useLocalStorage } from '@mantine/hooks';
 import { ColumnDef } from '@tanstack/react-table';
 import { OntimeRundownEntry } from 'ontime-types';
+
+// TODO: persist column order to params
 
 export default function useColumnManager(columns: ColumnDef<OntimeRundownEntry>[]) {
   const [columnVisibility, setColumnVisibility] = useLocalStorage({ key: 'table-hidden', defaultValue: {} });
@@ -10,6 +13,7 @@ export default function useColumnManager(columns: ColumnDef<OntimeRundownEntry>[
     defaultValue: columns.map((col) => col.id as string),
   });
   const [columnSizing, setColumnSizing] = useLocalStorage({ key: 'table-sizes', defaultValue: {} });
+  const [_, setSearchParams] = useSearchParams();
 
   // if the columns change, we update the dataset
   useEffect(() => {
@@ -27,8 +31,12 @@ export default function useColumnManager(columns: ColumnDef<OntimeRundownEntry>[
 
     if (shouldReplace) {
       saveColumnOrder(newColumns);
+      const columns = newColumns.join(',');
+      const searchParams = new URLSearchParams();
+      searchParams.set('columns', columns);
+      setSearchParams(searchParams);
     }
-  }, [columnOrder, columns, saveColumnOrder]);
+  }, [columnOrder, columns, saveColumnOrder, setSearchParams]);
 
   const resetColumnOrder = useCallback(() => {
     saveColumnOrder(columns.map((col) => col.id as string));

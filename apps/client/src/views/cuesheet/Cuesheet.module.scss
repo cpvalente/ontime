@@ -45,11 +45,11 @@ $table-header-font-size: calc(1rem - 3px);
 
 .tableHeader {
   position: sticky;
-  top: -1px;
+  top: 0;
   z-index: 10;
-
+  background-color: $ui-black;
   font-size: $table-header-font-size;
-  color: $gray-700;
+  color: $label-gray;
 }
 
 th {

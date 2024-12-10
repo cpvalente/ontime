@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { IconButton, useDisclosure } from '@chakra-ui/react';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
@@ -14,7 +15,6 @@ import { useFlatRundown } from '../../common/hooks-query/useRundown';
 import { CuesheetOverview } from '../../features/overview/Overview';
 
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
-import { useCuesheetSettings } from './store/cuesheetSettingsStore';
 import Cuesheet from './Cuesheet';
 import { makeCuesheetColumns } from './cuesheetCols';
 
@@ -24,14 +24,21 @@ export default function CuesheetPage() {
   // TODO: can we use the normalised rundown for the table?
   const { data: flatRundown, status: rundownStatus } = useFlatRundown();
   const { data: customFields } = useCustomFields();
-  const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
 
   const { updateCustomField } = useEventAction();
   const featureData = useCuesheet();
   const columns = useMemo(() => makeCuesheetColumns(customFields), [customFields]);
-  const toggleSettings = useCuesheetSettings((state) => state.toggleSettings);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
 
   useWindowTitle('Cuesheet');
+
+  /** Handles showing the view params edit drawer */
+  const showEditFormDrawer = useCallback(() => {
+    searchParams.set('edit', 'true');
+    setSearchParams(searchParams);
+  }, [searchParams, setSearchParams]);
 
   /**
    * Handles updating a field
@@ -87,18 +94,18 @@ export default function CuesheetPage() {
       <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
       <CuesheetOverview>
         <IconButton
-          aria-label='Toggle settings'
+          aria-label='Toggle navigation'
           variant='ontime-subtle-white'
           size='lg'
           icon={<IoApps />}
           onClick={onOpen}
         />
         <IconButton
-          aria-label='Toggle navigation'
+          aria-label='Toggle settings'
           variant='ontime-subtle-white'
           size='lg'
           icon={<IoSettingsOutline />}
-          onClick={() => toggleSettings()}
+          onClick={showEditFormDrawer}
         />
       </CuesheetOverview>
       <CuesheetProgress />
