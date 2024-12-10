@@ -1,11 +1,11 @@
 import ProtectRoute from '../../common/components/protect-route/ProtectRoute';
 
-import CuesheetWrapper from './CuesheetWrapper';
+import CuesheetPage from './CuesheetPage';
 
 export default function ProtectedCuesheet() {
   return (
     <ProtectRoute permission='operator'>
-      <CuesheetWrapper />
+      <CuesheetPage />
     </ProtectRoute>
   );
 }

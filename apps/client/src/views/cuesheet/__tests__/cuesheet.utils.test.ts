@@ -1,4 +1,6 @@
-import { makeCSV, makeTable, parseField } from '../cuesheetUtils';
+import { ProjectData } from 'ontime-types';
+
+import { makeCSV, makeTable, parseField } from '../cuesheet.utils';
 
 describe('parseField()', () => {
   it('returns a string from given millis on timeStart, TimeEnd and duration', () => {
@@ -27,6 +29,7 @@ describe('parseField()', () => {
   });
 
   it('returns an empty string on undefined fields', () => {
+    // @ts-expect-error -- testing user data with missing fields
     expect(parseField('title')).toBe('');
   });
 
@@ -51,6 +54,7 @@ describe('makeTable()', () => {
     const headerData = {
       title: 'test title',
       description: 'test description',
+      projectLogo: 'test logo',
     };
     const tableData = [
       {
@@ -66,8 +70,48 @@ describe('makeTable()', () => {
       lighting: { label: 'test' },
     };
 
-    const table = makeTable(headerData, tableData, customFields);
-    expect(table).toMatchSnapshot();
+    // @ts-expect-error -- testing user data with missing fields
+    const table = makeTable(headerData as ProjectData, tableData, customFields);
+    expect(table).not.toContain('test logo');
+    expect(table).toMatchInlineSnapshot(`
+      [
+        [
+          "Ontime · Rundown export",
+        ],
+        [
+          "Project title: test title",
+        ],
+        [
+          "Project description: test description",
+        ],
+        [
+          "Time Start",
+          "Time End",
+          "Duration",
+          "ID",
+          "Colour",
+          "Cue",
+          "Title",
+          "Note",
+          "Is Public? (x)",
+          "Skip?",
+          "lighting",
+        ],
+        [
+          "00:00:00",
+          "00:00:00",
+          "...",
+          "",
+          "",
+          "",
+          "test title 1",
+          "",
+          "x",
+          "",
+          "",
+        ],
+      ]
+    `);
   });
 });
 

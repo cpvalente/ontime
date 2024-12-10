@@ -3,7 +3,7 @@ import { Button, Checkbox, Switch } from '@chakra-ui/react';
 import { Column } from '@tanstack/react-table';
 import { OntimeRundownEntry } from 'ontime-types';
 
-import { useCuesheetSettings } from '../store/CuesheetSettings';
+import { useCuesheetSettings } from '../store/cuesheetSettingsStore';
 
 import style from './CuesheetTableSettings.module.scss';
 

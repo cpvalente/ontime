@@ -14,13 +14,13 @@ import { useFlatRundown } from '../../common/hooks-query/useRundown';
 import { CuesheetOverview } from '../../features/overview/Overview';
 
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
-import { useCuesheetSettings } from './store/CuesheetSettings';
+import { useCuesheetSettings } from './store/cuesheetSettingsStore';
 import Cuesheet from './Cuesheet';
 import { makeCuesheetColumns } from './cuesheetCols';
 
-import styles from './CuesheetWrapper.module.scss';
+import styles from './CuesheetPage.module.scss';
 
-export default function CuesheetWrapper() {
+export default function CuesheetPage() {
   // TODO: can we use the normalised rundown for the table?
   const { data: flatRundown, status: rundownStatus } = useFlatRundown();
   const { data: customFields } = useCustomFields();
