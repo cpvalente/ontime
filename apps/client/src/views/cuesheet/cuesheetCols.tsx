@@ -56,11 +56,11 @@ function MakeDuration({ getValue }: CellContext<OntimeRundownEntry, unknown>) {
   return <RunningTime value={cellValue} hideSeconds={hideSeconds} />;
 }
 
-function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
+function MakeMultilineField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
       // @ts-expect-error -- we inject this into react-table
-      table.options.meta?.handleUpdate(row.index, `custom_${column.id}`, newValue);
+      table.options.meta?.handleUpdate(row.index, column.id, newValue);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
     [column.id, row.index],
@@ -71,8 +71,7 @@ function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry,
     return null;
   }
 
-  // events dont necessarily contain all custom fields
-  const initialValue = event.custom[column.id] ?? '';
+  const initialValue = event[column.id as keyof OntimeRundownEntry] ?? '';
 
   return <EditableCell value={initialValue} handleUpdate={update} />;
 }
@@ -80,10 +79,10 @@ function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry,
 export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<OntimeRundownEntry>[] {
   const dynamicCustomFields = Object.keys(customFields).map((key) => ({
     accessorKey: key,
-    id: key,
+    id: `custom_${key}`,
     header: customFields[key].label,
     meta: { colour: customFields[key].colour },
-    cell: MakeCustomField,
+    cell: MakeMultilineField,
     size: 250,
   }));
 
@@ -134,7 +133,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       accessorKey: 'note',
       id: 'note',
       header: 'Note',
-      cell: (row) => row.getValue(),
+      cell: MakeMultilineField,
       size: 250,
     },
     ...dynamicCustomFields,
