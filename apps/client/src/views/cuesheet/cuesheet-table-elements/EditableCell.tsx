@@ -17,7 +17,11 @@ const EditableCell = (props: EditableCellProps) => {
   const onChange = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => setValue(event.target.value), []);
 
   // We'll only update the external data when the input is blurred
-  const onBlur = useCallback(() => handleUpdate(value), [handleUpdate, value]);
+  const onBlur = useCallback(() => {
+    const trimmedValue = value.trim();
+    handleUpdate(trimmedValue);
+    setValue(trimmedValue); // we trim the value here so it matches what comes back from the server later
+  }, [handleUpdate, value]);
 
   //TODO: maybe we can unify this with `useReactiveTextInput`
   const onKeyDown = getHotkeyHandler([

@@ -66,13 +66,10 @@ export default function CuesheetPage() {
           return;
         }
 
-        // cleanup
-        const cleanVal = payload.trim();
-
         // submit
         try {
           const key = accessor.split('custom_')[1];
-          await updateCustomField(event.id, key, cleanVal);
+          await updateCustomField(event.id, key, payload);
         } catch (error) {
           console.error(error);
         }
