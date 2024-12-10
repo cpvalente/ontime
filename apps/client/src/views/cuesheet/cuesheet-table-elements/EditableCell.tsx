@@ -1,4 +1,5 @@
 import { ChangeEvent, memo, useCallback, useEffect, useRef, useState } from 'react';
+import { Input } from '@chakra-ui/react';
 import { getHotkeyHandler } from '@mantine/hooks';
 
 import { AutoTextArea } from '../../../common/components/input/auto-text-area/AutoTextArea';
@@ -6,15 +7,19 @@ import { AutoTextArea } from '../../../common/components/input/auto-text-area/Au
 interface EditableCellProps {
   value: string;
   handleUpdate: (newValue: string) => void;
+  isMultiLine: boolean;
 }
 
 const EditableCell = (props: EditableCellProps) => {
-  const { value: initialValue, handleUpdate } = props;
+  const { value: initialValue, handleUpdate, isMultiLine } = props;
 
   // We need to keep and update the state of the cell normally
   const [value, setValue] = useState(initialValue);
-  const ref = useRef<HTMLAreaElement>();
-  const onChange = useCallback((event: ChangeEvent<HTMLTextAreaElement>) => setValue(event.target.value), []);
+  const ref = useRef<HTMLInputElement>(null);
+  const onChange = useCallback(
+    (event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => setValue(event.target.value),
+    [],
+  );
 
   // We'll only update the external data when the input is blurred
   const onBlur = useCallback(() => {
@@ -25,7 +30,7 @@ const EditableCell = (props: EditableCellProps) => {
 
   //TODO: maybe we can unify this with `useReactiveTextInput`
   const onKeyDown = getHotkeyHandler([
-    ['mod + Enter', () => ref.current?.blur()],
+    isMultiLine ? ['mod + Enter', () => ref.current?.blur()] : ['Enter', () => ref.current?.blur()],
     [
       'Escape',
       () => {
@@ -40,18 +45,35 @@ const EditableCell = (props: EditableCellProps) => {
     setValue(initialValue);
   }, [initialValue]);
 
+  if (isMultiLine) {
+    return (
+      <AutoTextArea
+        size='sm'
+        value={value}
+        inputref={ref}
+        onChange={onChange}
+        onBlur={onBlur}
+        rows={1}
+        onKeyDown={onKeyDown}
+        transition='none'
+        spellCheck={false}
+        style={{ padding: 0 }}
+      />
+    );
+  }
+
   return (
-    <AutoTextArea
+    <Input
       size='sm'
+      variant='ontime-transparent'
+      overflow='hidden'
+      w='100%'
       value={value}
-      inputref={ref}
+      ref={ref}
       onChange={onChange}
       onBlur={onBlur}
-      rows={1}
       onKeyDown={onKeyDown}
-      transition='none'
       spellCheck={false}
-      style={{ padding: 0 }}
     />
   );
 };
