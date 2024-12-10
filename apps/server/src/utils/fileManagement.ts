@@ -1,5 +1,5 @@
-import { existsSync, mkdirSync } from 'fs';
-import { readdir, copyFile } from 'fs/promises';
+import { existsSync, mkdirSync, PathLike } from 'fs';
+import { readdir, copyFile, unlink } from 'fs/promises';
 import { basename, extname, join, parse } from 'path';
 
 /**
@@ -104,4 +104,9 @@ export async function copyDirectory(src: string, dest: string) {
       await copyFile(srcPath, destPath);
     }
   }
+}
+
+export async function dockerSafeRename(oldPath: PathLike, newPath: PathLike) {
+  await copyFile(oldPath, newPath);
+  await unlink(oldPath);
 }
