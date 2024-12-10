@@ -68,12 +68,11 @@ export default function CuesheetPage() {
           return;
         }
 
-        // submit
         try {
           const key = accessor.split('custom_')[1];
           await updateCustomField(event.id, key, payload);
-        } catch (error) {
-          console.error(error);
+        } catch (_error) {
+          /** unhandled error */
         }
         return;
       }
