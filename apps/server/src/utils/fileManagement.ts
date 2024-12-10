@@ -106,6 +106,10 @@ export async function copyDirectory(src: string, dest: string) {
   }
 }
 
+/** 
+ * workaround avoids origin errors in docker deployments
+ * EXDEV cross-device link not permitted
+ */
 export async function dockerSafeRename(oldPath: PathLike, newPath: PathLike) {
   await copyFile(oldPath, newPath);
   await unlink(oldPath);
