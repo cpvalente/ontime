@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { IconButton, useDisclosure } from '@chakra-ui/react';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
-import { CustomFieldLabel, isOntimeEvent } from 'ontime-types';
+import { CustomFieldLabel, isKeyOfType, isOntimeEvent } from 'ontime-types';
 
 import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import Empty from '../../common/components/state/Empty';
@@ -53,9 +53,11 @@ export default function CuesheetPage() {
         return;
       }
 
+      // is it a custom fields
       if (typeof accessor === 'string' && accessor.startsWith('custom_')) {
         const previousValue = event.custom[accessor];
 
+        // skip if there is no value change
         if (previousValue === payload) {
           return;
         }
@@ -73,6 +75,16 @@ export default function CuesheetPage() {
         } catch (error) {
           console.error(error);
         }
+        return;
+      }
+
+      // all other fields
+      if (!isKeyOfType(accessor, event)) {
+        return;
+      }
+      const previousValue = event[accessor];
+      // skip if there is no value change
+      if (previousValue === payload) {
         return;
       }
 
