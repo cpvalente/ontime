@@ -1,10 +1,6 @@
 import { useCallback, useMemo } from 'react';
-import { IconButton, useDisclosure } from '@chakra-ui/react';
-import { IoApps } from '@react-icons/all-files/io5/IoApps';
-import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 import { CustomFieldLabel, isOntimeEvent } from 'ontime-types';
 
-import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import Empty from '../../common/components/state/Empty';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useCuesheet } from '../../common/hooks/useSocket';
@@ -14,7 +10,6 @@ import { useFlatRundown } from '../../common/hooks-query/useRundown';
 import { CuesheetOverview } from '../../features/overview/Overview';
 
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
-import { useCuesheetSettings } from './store/cuesheetSettingsStore';
 import Cuesheet from './Cuesheet';
 import { makeCuesheetColumns } from './cuesheetCols';
 
@@ -24,12 +19,12 @@ export default function CuesheetPage() {
   // TODO: can we use the normalised rundown for the table?
   const { data: flatRundown, status: rundownStatus } = useFlatRundown();
   const { data: customFields } = useCustomFields();
-  const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
 
   const { updateCustomField } = useEventAction();
   const featureData = useCuesheet();
+  // TODO: the order of the fields comes form the columns
+  // TODO: get the order from params (if it exists) and pass to makeCuesheetColumns
   const columns = useMemo(() => makeCuesheetColumns(customFields), [customFields]);
-  const toggleSettings = useCuesheetSettings((state) => state.toggleSettings);
 
   useWindowTitle('Cuesheet');
 
@@ -84,23 +79,7 @@ export default function CuesheetPage() {
 
   return (
     <div className={styles.tableWrapper} data-testid='cuesheet'>
-      <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
-      <CuesheetOverview>
-        <IconButton
-          aria-label='Toggle settings'
-          variant='ontime-subtle-white'
-          size='lg'
-          icon={<IoApps />}
-          onClick={onOpen}
-        />
-        <IconButton
-          aria-label='Toggle navigation'
-          variant='ontime-subtle-white'
-          size='lg'
-          icon={<IoSettingsOutline />}
-          onClick={() => toggleSettings()}
-        />
-      </CuesheetOverview>
+      <CuesheetOverview />
       <CuesheetProgress />
       <Cuesheet
         data={flatRundown}
