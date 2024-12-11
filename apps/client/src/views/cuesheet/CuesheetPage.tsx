@@ -57,15 +57,13 @@ export default function CuesheetPage() {
       if (previousValue === payload) {
         return;
       }
-      console.log(rowIndex, accessor, payload);
-      console.log(event.id, accessor, payload);
       updateCustomField(event.id, accessor, payload);
     },
     [flatRundown, rundownStatus, updateCustomField],
   );
 
   /**
-   * Handles updating fields
+   * Handles updating all other string fields
    */
   const handleUpdate = useCallback(
     async (rowIndex: number, accessor: keyof OntimeEvent, payload: string) => {
