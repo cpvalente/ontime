@@ -21,6 +21,7 @@ import { ontimeTab } from './ontimeTab';
 import {
   ontimeInputFilled,
   ontimeInputGhosted,
+  ontimeInputTransparent,
   ontimeTextAreaFilled,
   ontimeTextAreaTransparent,
 } from './ontimeTextInputs';
@@ -78,6 +79,7 @@ const theme = extendTheme({
       variants: {
         'ontime-filled': { ...ontimeInputFilled },
         'ontime-ghosted': { ...ontimeInputGhosted },
+        'ontime-transparent': { ...ontimeInputTransparent },
       },
     },
     Kbd: {

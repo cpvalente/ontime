@@ -1,19 +1,37 @@
 import { useCallback } from 'react';
-import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
+import { Checkbox } from '@chakra-ui/react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { CustomFields, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
 
 import DelayIndicator from '../../common/components/delay-indicator/DelayIndicator';
 import RunningTime from '../../features/viewers/common/running-time/RunningTime';
 
-import EditableCell from './cuesheet-table-elements/EditableCell';
+import MultiLineCell from './cuesheet-table-elements/MultiLineCell';
+import SingleLineCell from './cuesheet-table-elements/SingleLineCell';
 import { useCuesheetSettings } from './store/cuesheetSettingsStore';
 
 import style from './Cuesheet.module.scss';
 
-function makePublic(row: CellContext<OntimeRundownEntry, unknown>) {
-  const cellValue = row.getValue();
-  return cellValue ? <IoCheckmark className={style.check} /> : '';
+function MakePublic({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
+  const update = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      // @ts-expect-error -- we inject this into react-table
+      table.options.meta?.handleUpdate(row.index, column.id, event.target.checked);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
+    [column.id, row.index],
+  );
+
+  const event = row.original;
+  if (!isOntimeEvent(event)) {
+    return null;
+  }
+
+  const isChecked = event.isPublic;
+
+  return (
+    <Checkbox variant='ontime-ondark' onChange={update} isChecked={isChecked} style={{ verticalAlign: 'middle' }} />
+  );
 }
 
 function MakeTimer({ getValue, row: { original } }: CellContext<OntimeRundownEntry, unknown>) {
@@ -40,7 +58,7 @@ function MakeDuration({ getValue }: CellContext<OntimeRundownEntry, unknown>) {
   return <RunningTime value={cellValue} hideSeconds={hideSeconds} />;
 }
 
-function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
+function MakeMultiLineField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
       // @ts-expect-error -- we inject this into react-table
@@ -55,10 +73,49 @@ function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry,
     return null;
   }
 
-  // events dont necessarily contain all custom fields
+  const initialValue = event[column.id as keyof OntimeRundownEntry] ?? '';
+
+  return <MultiLineCell initialValue={initialValue} handleUpdate={update} />;
+}
+
+function MakeSingleLineField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
+  const update = useCallback(
+    (newValue: string) => {
+      // @ts-expect-error -- we inject this into react-table
+      table.options.meta?.handleUpdate(row.index, column.id, newValue);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
+    [column.id, row.index],
+  );
+
+  const event = row.original;
+  if (!isOntimeEvent(event)) {
+    return null;
+  }
+
+  const initialValue = event[column.id as keyof OntimeRundownEntry] ?? '';
+
+  return <SingleLineCell initialValue={initialValue} handleUpdate={update} />;
+}
+
+function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
+  const update = useCallback(
+    (newValue: string) => {
+      // @ts-expect-error -- we inject this into react-table
+      table.options.meta?.handleUpdateCustom(row.index, column.id, newValue);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
+    [column.id, row.index],
+  );
+
+  const event = row.original;
+  if (!isOntimeEvent(event)) {
+    return null;
+  }
+
   const initialValue = event.custom[column.id] ?? '';
 
-  return <EditableCell value={initialValue} handleUpdate={update} />;
+  return <MultiLineCell initialValue={initialValue} handleUpdate={update} />;
 }
 
 export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<OntimeRundownEntry>[] {
@@ -83,7 +140,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       accessorKey: 'isPublic',
       id: 'isPublic',
       header: 'Public',
-      cell: makePublic,
+      cell: MakePublic,
       size: 45,
     },
     {
@@ -111,14 +168,14 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       accessorKey: 'title',
       id: 'title',
       header: 'Title',
-      cell: (row) => row.getValue(),
+      cell: MakeSingleLineField,
       size: 250,
     },
     {
       accessorKey: 'note',
       id: 'note',
       header: 'Note',
-      cell: (row) => row.getValue(),
+      cell: MakeMultiLineField,
       size: 250,
     },
     ...dynamicCustomFields,
