@@ -125,7 +125,7 @@ function RuntimeOverview() {
   const { clock, offset } = useRuntimePlaybackOverview();
 
   const offsetText = getOffsetText(offset);
-  const offsetClasses = offset === null ? undefined : offset <= 0 ? style.behind : style.ahead;
+  const offsetClasses = offset === null ? undefined : offset >= 0 ? style.ahead : style.behind;
 
   return (
     <>

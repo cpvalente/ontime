@@ -1,10 +1,10 @@
 import { useTimelineStatus, useTimer } from '../../common/hooks/useSocket';
 import { getProgress } from '../../common/utils/getProgress';
 import { alpha, cx } from '../../common/utils/styleUtils';
-import { formatDuration, formatTime } from '../../common/utils/time';
+import { formatDuration, formatTime, getTimeToStart } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
 
-import { getStatusLabel, getTimeToStart } from './timeline.utils';
+import { getStatusLabel } from './timeline.utils';
 
 import style from './Timeline.module.scss';
 
@@ -86,7 +86,7 @@ function TimelineEntryStatus(props: TimelineEntryStatusProps) {
   const { getLocalizedString } = useTranslation();
 
   // start times need to be normalised in a rundown that crosses midnight
-  let statusText = getStatusLabel(getTimeToStart(clock, start, delay, offset), status);
+  let statusText = getStatusLabel(getTimeToStart(clock, start, delay, offset ?? 0), status);
   if (statusText === 'live') {
     statusText = getLocalizedString('timeline.live');
   } else if (statusText === 'pending') {

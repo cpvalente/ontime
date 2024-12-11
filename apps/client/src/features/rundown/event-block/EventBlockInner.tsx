@@ -17,6 +17,7 @@ import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import TimeInputFlow from '../time-input-flow/TimeInputFlow';
 
+import EventBlockChip from './composite/EventBlockChip';
 import EventBlockPlayback from './composite/EventBlockPlayback';
 import EventBlockProgressBar from './composite/EventBlockProgressBar';
 
@@ -41,6 +42,7 @@ interface EventBlockInnerProps {
   loaded: boolean;
   playback?: Playback;
   isRolling: boolean;
+  isPast: boolean;
 }
 
 const EventBlockInner = (props: EventBlockInnerProps) => {
@@ -62,6 +64,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
     loaded,
     playback,
     isRolling,
+    isPast,
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
@@ -82,18 +85,24 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
 
   return !renderInner ? null : (
     <>
-      <div className={style.eventTimers}>
-        <TimeInputFlow
-          eventId={eventId}
-          timeStart={timeStart}
-          timeEnd={timeEnd}
-          duration={duration}
-          delay={delay}
-          timeStrategy={timeStrategy}
-          linkStart={linkStart}
-          timerType={timerType}
-        />
-      </div>
+      <TimeInputFlow
+        eventId={eventId}
+        timeStart={timeStart}
+        timeEnd={timeEnd}
+        duration={duration}
+        delay={delay}
+        timeStrategy={timeStrategy}
+        linkStart={linkStart}
+        timerType={timerType}
+        className={style.eventTimers}
+      />
+      <EventBlockChip
+        className={style.reportSection}
+        id={eventId}
+        timeStart={timeStart}
+        isPast={isPast}
+        isLoaded={loaded}
+      />
       <div className={style.titleSection}>
         <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
         {isNext && <span className={style.nextTag}>UP NEXT</span>}
