@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { IconButton, useDisclosure } from '@chakra-ui/react';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
-import { CustomFieldLabel, isKeyOfType, isOntimeEvent } from 'ontime-types';
+import { CustomFieldLabel, isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import Empty from '../../common/components/state/Empty';
@@ -34,11 +34,10 @@ export default function CuesheetPage() {
   useWindowTitle('Cuesheet');
 
   /**
-   * Handles updating a field
-   * Currently, only custom fields can be updated from the cuesheet
+   * Handles updating a custom field
    */
-  const handleUpdate = useCallback(
-    async (rowIndex: number, accessor: CustomFieldLabel, payload: unknown) => {
+  const handleUpdateCustom = useCallback(
+    async (rowIndex: number, accessor: CustomFieldLabel, payload: string) => {
       if (!flatRundown || rundownStatus !== 'success') {
         return;
       }
@@ -53,43 +52,46 @@ export default function CuesheetPage() {
         return;
       }
 
-      // is it a custom fields
-      if (typeof accessor === 'string' && accessor.startsWith('custom_')) {
-        const previousValue = event.custom[accessor];
-
-        // skip if there is no value change
-        if (previousValue === payload) {
-          return;
-        }
-
-        // check if value is valid
-        // in anticipation to different types of event here
-        if (typeof payload !== 'string') {
-          return;
-        }
-
-        try {
-          const key = accessor.split('custom_')[1];
-          await updateCustomField(event.id, key, payload);
-        } catch (_error) {
-          /** unhandled error */
-        }
-        return;
-      }
-
-      // all other fields
-      if (!isKeyOfType(accessor, event)) {
-        return;
-      }
-      const previousValue = event[accessor];
       // skip if there is no value change
+      const previousValue = event.custom[accessor];
+      if (previousValue === payload) {
+        return;
+      }
+      console.log(rowIndex, accessor, payload);
+      console.log(event.id, accessor, payload);
+      updateCustomField(event.id, accessor, payload);
+    },
+    [flatRundown, rundownStatus, updateCustomField],
+  );
+
+  /**
+   * Handles updating fields
+   */
+  const handleUpdate = useCallback(
+    async (rowIndex: number, accessor: keyof OntimeEvent, payload: string) => {
+      if (!flatRundown || rundownStatus !== 'success') {
+        return;
+      }
+
+      if (rowIndex == null || accessor == null || payload == null) {
+        return;
+      }
+
+      // check if value is the same
+      const event = flatRundown[rowIndex];
+      if (!event || !isOntimeEvent(event)) {
+        return;
+      }
+
+      // skip if there is no value change
+      const previousValue = event[accessor];
       if (previousValue === payload) {
         return;
       }
 
       updateEvent({ id: event.id, [accessor]: payload });
     },
-    [flatRundown, rundownStatus, updateCustomField, updateEvent],
+    [flatRundown, rundownStatus, updateEvent],
   );
 
   if (!customFields || !flatRundown || rundownStatus !== 'success') {
@@ -120,6 +122,7 @@ export default function CuesheetPage() {
         data={flatRundown}
         columns={columns}
         handleUpdate={handleUpdate}
+        handleUpdateCustom={handleUpdateCustom}
         selectedId={featureData.selectedEventId}
         currentBlockId={featureData.currentBlockId}
       />

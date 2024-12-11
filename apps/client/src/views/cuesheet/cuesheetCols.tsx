@@ -6,7 +6,8 @@ import { CustomFields, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'on
 import DelayIndicator from '../../common/components/delay-indicator/DelayIndicator';
 import RunningTime from '../../features/viewers/common/running-time/RunningTime';
 
-import EditableCell from './cuesheet-table-elements/EditableCell';
+import MultiLineCell from './cuesheet-table-elements/MultiLineCell';
+import SingleLineCell from './cuesheet-table-elements/SingleLineCell';
 import { useCuesheetSettings } from './store/cuesheetSettingsStore';
 
 import style from './Cuesheet.module.scss';
@@ -57,7 +58,7 @@ function MakeDuration({ getValue }: CellContext<OntimeRundownEntry, unknown>) {
   return <RunningTime value={cellValue} hideSeconds={hideSeconds} />;
 }
 
-function MakeField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>, isMultiLine: boolean) {
+function MakeMultiLineField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
       // @ts-expect-error -- we inject this into react-table
@@ -74,16 +75,56 @@ function MakeField({ row, column, table }: CellContext<OntimeRundownEntry, unkno
 
   const initialValue = event[column.id as keyof OntimeRundownEntry] ?? '';
 
-  return <EditableCell isMultiLine={isMultiLine} value={initialValue} handleUpdate={update} />;
+  return <MultiLineCell initialValue={initialValue} handleUpdate={update} />;
+}
+
+function MakeSingleLineField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
+  const update = useCallback(
+    (newValue: string) => {
+      // @ts-expect-error -- we inject this into react-table
+      table.options.meta?.handleUpdate(row.index, column.id, newValue);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
+    [column.id, row.index],
+  );
+
+  const event = row.original;
+  if (!isOntimeEvent(event)) {
+    return null;
+  }
+
+  const initialValue = event[column.id as keyof OntimeRundownEntry] ?? '';
+
+  return <SingleLineCell initialValue={initialValue} handleUpdate={update} />;
+}
+
+function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
+  const update = useCallback(
+    (newValue: string) => {
+      // @ts-expect-error -- we inject this into react-table
+      table.options.meta?.handleUpdateCustom(row.index, column.id, newValue);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
+    [column.id, row.index],
+  );
+
+  const event = row.original;
+  if (!isOntimeEvent(event)) {
+    return null;
+  }
+
+  const initialValue = event.custom[column.id] ?? '';
+
+  return <MultiLineCell initialValue={initialValue} handleUpdate={update} />;
 }
 
 export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<OntimeRundownEntry>[] {
   const dynamicCustomFields = Object.keys(customFields).map((key) => ({
     accessorKey: key,
-    id: `custom_${key}`,
+    id: key,
     header: customFields[key].label,
     meta: { colour: customFields[key].colour },
-    cell: (context: CellContext<OntimeRundownEntry, unknown>) => MakeField(context, true),
+    cell: MakeCustomField,
     size: 250,
   }));
 
@@ -127,14 +168,14 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       accessorKey: 'title',
       id: 'title',
       header: 'Title',
-      cell: (context: CellContext<OntimeRundownEntry, unknown>) => MakeField(context, false),
+      cell: MakeSingleLineField,
       size: 250,
     },
     {
       accessorKey: 'note',
       id: 'note',
       header: 'Note',
-      cell: (context: CellContext<OntimeRundownEntry, unknown>) => MakeField(context, true),
+      cell: MakeMultiLineField,
       size: 250,
     },
     ...dynamicCustomFields,

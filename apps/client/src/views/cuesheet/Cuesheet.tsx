@@ -1,7 +1,14 @@
 import { useCallback, useRef } from 'react';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import Color from 'color';
-import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import {
+  CustomFieldLabel,
+  isOntimeBlock,
+  isOntimeDelay,
+  isOntimeEvent,
+  OntimeRundown,
+  OntimeRundownEntry,
+} from 'ontime-types';
 
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { getAccessibleColour } from '../../common/utils/styleUtils';
@@ -19,12 +26,20 @@ import style from './Cuesheet.module.scss';
 interface CuesheetProps {
   data: OntimeRundown;
   columns: ColumnDef<OntimeRundownEntry>[];
-  handleUpdate: (rowIndex: number, accessor: keyof OntimeRundownEntry, payload: unknown) => void;
+  handleUpdate: (rowIndex: number, accessor: keyof OntimeRundownEntry, payload: string) => void;
+  handleUpdateCustom: (rowIndex: number, accessor: CustomFieldLabel, payload: string) => void;
   selectedId: string | null;
   currentBlockId: string | null;
 }
 
-export default function Cuesheet({ data, columns, handleUpdate, selectedId, currentBlockId }: CuesheetProps) {
+export default function Cuesheet({
+  data,
+  columns,
+  handleUpdate,
+  handleUpdateCustom,
+  selectedId,
+  currentBlockId,
+}: CuesheetProps) {
   const { followSelected, showSettings, showDelayBlock, showPrevious, showIndexColumn } = useCuesheetSettings();
   const {
     columnVisibility,
@@ -51,6 +66,7 @@ export default function Cuesheet({ data, columns, handleUpdate, selectedId, curr
     },
     meta: {
       handleUpdate,
+      handleUpdateCustom,
     },
     onColumnVisibilityChange: setColumnVisibility,
     onColumnSizingChange: setColumnSizing,
