@@ -28,8 +28,9 @@ function MakePublic({ row, column, table }: CellContext<OntimeRundownEntry, unkn
 
   const isChecked = event.isPublic;
 
-  //TODO: css styleing
-  return <Checkbox onChange={update} isChecked={isChecked} />;
+  return (
+    <Checkbox variant='ontime-ondark' onChange={update} isChecked={isChecked} style={{ verticalAlign: 'middle' }} />
+  );
 }
 
 function MakeTimer({ getValue, row: { original } }: CellContext<OntimeRundownEntry, unknown>) {
