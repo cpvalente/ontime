@@ -10,6 +10,7 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import useOscSettings, { useOscSettingsMutation } from '../../../../common/hooks-query/useOscSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
 import { isASCII, isASCIIorEmpty, isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
+import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import { cycles } from './integrationUtils';
@@ -106,6 +107,9 @@ export default function OscIntegrations() {
           </Button>
         </div>
       </Panel.SubHeader>
+      {isOntimeCloud && (
+        <Panel.Highlight>For security reasons OSC integrations are not available in the cloud service.</Panel.Highlight>
+      )}
 
       <Panel.Divider />
 
