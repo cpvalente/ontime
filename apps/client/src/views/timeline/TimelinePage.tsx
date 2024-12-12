@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
 import { MaybeString, OntimeEvent, ProjectData, Runtime, Settings } from 'ontime-types';
+import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
+import useTimeUntil from '../../common/hooks/useTimeUntil';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
 import { formatDuration, formatTime, getDefaultFormat } from '../../common/utils/time';
@@ -12,7 +14,7 @@ import { useTranslation } from '../../translation/TranslationProvider';
 import Section from './timeline-section/TimelineSection';
 import Timeline from './Timeline';
 import { getTimelineOptions } from './timeline.options';
-import { getTimeToStart, getUpcomingEvents, useScopedRundown } from './timeline.utils';
+import {  getUpcomingEvents, useScopedRundown } from './timeline.utils';
 
 import './TimelinePage.scss';
 
@@ -31,7 +33,7 @@ interface TimelinePageProps {
  * There is little point splitting or memoising top level elements
  */
 export default function TimelinePage(props: TimelinePageProps) {
-  const { backstageEvents, general, runtime, selectedId, settings, time } = props;
+  const { backstageEvents, general, selectedId, settings, time } = props;
   // holds copy of the rundown with only relevant events
   const { scopedRundown, firstStart, totalDuration } = useScopedRundown(backstageEvents, selectedId);
   const { getLocalizedString } = useTranslation();
@@ -48,29 +50,12 @@ export default function TimelinePage(props: TimelinePageProps) {
   const progressOptions = getTimelineOptions(defaultFormat);
 
   const titleNow = now?.title ?? '-';
-  const dueText = getLocalizedString('timeline.due').toUpperCase();
   const nextText = next !== null ? next.title : '-';
   const followedByText = followedBy !== null ? followedBy.title : '-';
-  let nextStatus: string | undefined;
-  let followedByStatus: string | undefined;
 
-  if (next !== null) {
-    const timeToStart = getTimeToStart(time.clock, next.timeStart, next?.delay ?? 0, runtime.offset);
-    if (timeToStart < 0) {
-      nextStatus = dueText;
-    } else {
-      nextStatus = `T - ${formatDuration(timeToStart)}`;
-    }
-  }
+  const nextStatus = StableTimeUntil(next?.id);
+  const followedByStatus = StableTimeUntil(followedBy?.id);
 
-  if (followedBy !== null) {
-    const timeToStart = getTimeToStart(time.clock, followedBy.timeStart, followedBy?.delay ?? 0, runtime.offset);
-    if (timeToStart < 0) {
-      followedByStatus = dueText;
-    } else {
-      followedByStatus = `T - ${formatDuration(timeToStart)}`;
-    }
-  }
   return (
     <div className='timeline' data-testid='timeline-view'>
       <ViewParamsEditor viewOptions={progressOptions} />
@@ -101,4 +86,29 @@ export default function TimelinePage(props: TimelinePageProps) {
       />
     </div>
   );
+}
+
+function StableTimeUntil(id: string | undefined) {
+  const expectedRundown = useTimeUntil();
+  const { getLocalizedString } = useTranslation();
+
+  const lazyTimeToStart = useMemo(() => {
+    if (id === undefined) {
+      return;
+    }
+    const thisEvent = expectedRundown[id];
+
+    if (thisEvent === undefined) {
+      return;
+    }
+
+    const { timeUntil } = thisEvent;
+    // if the event is due, we dont need need the accurate value
+    if (timeUntil <= MILLIS_PER_SECOND) {
+      return getLocalizedString('timeline.due').toUpperCase();
+    }
+    return `T - ${formatDuration(timeUntil)}`;
+  }, [expectedRundown, getLocalizedString, id]);
+
+  return lazyTimeToStart;
 }
