@@ -1,6 +1,6 @@
 import { Log, RundownCached, RuntimeStore } from 'ontime-types';
 
-import { isProduction, websocketUrl } from '../../externals';
+import { isProduction, resolveFullPathURI, websocketUrl } from '../../externals';
 import { CLIENT_LIST, CUSTOM_FIELDS, RUNDOWN, RUNTIME } from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
@@ -40,7 +40,7 @@ export const connectSocket = () => {
 
     socketSendJson('set-client-type', 'ontime');
 
-    socketSendJson('set-client-path', location.pathname + location.search);
+    socketSendJson('set-client-path', resolveFullPathURI());
   };
 
   websocket.onclose = () => {
