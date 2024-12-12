@@ -73,3 +73,15 @@ function resolveBaseURI(): string {
 
   return base;
 }
+
+/**
+ * Resolves a path URI for a client
+ * ie: https://cloud.getontime.com/client-hash/timer?parm=1
+ *                                             ^^^^^
+ */
+export function resolveFullPathURI(): string {
+  const { pathname, search, hash } = window.location;
+  // in ontime cloud, the base tag is set by the server
+  const base = resolveBaseURI();
+  return pathname.replace(base, '') + search + hash;
+}

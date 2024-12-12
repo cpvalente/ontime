@@ -133,8 +133,7 @@ export class SocketServer implements IAdapter {
           if (type === 'set-client-path') {
             if (payload && typeof payload == 'string') {
               const previousData = this.clients.get(clientId);
-              previousData.path = payload;
-              this.clients.set(clientId, previousData);
+              this.clients.set(clientId, { ...previousData, path: payload });
 
               if (payload.includes('editor') && this.isFirstEditor) {
                 this.isFirstEditor = false;

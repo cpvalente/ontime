@@ -12,6 +12,7 @@ export const useClientPath = () => {
 
   // notify of client path changes
   useEffect(() => {
+    // pathname from useLocation dose not contain the base element of the URI
     socketSendJson('set-client-path', pathname + search);
   }, [pathname, search]);
 
