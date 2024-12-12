@@ -16,11 +16,17 @@ export const useRuntimeStore = <T>(selector: (state: RuntimeStore) => T) =>
 
 /**
  * Allows patching a property of the runtime store
- * @param key
- * @param value
  */
-export function patchRuntime<K extends keyof RuntimeStore>(key: K, value: RuntimeStore[K]): void {
+export function patchRuntimeProperty<K extends keyof RuntimeStore>(key: K, value: RuntimeStore[K]) {
   const state = runtimeStore.getState();
   state[key] = value;
   runtimeStore.setState({ ...state });
+}
+
+/**
+ * Allows patching the entire runtime store
+ */
+export function patchRuntime(patch: Partial<RuntimeStore>) {
+  const state = runtimeStore.getState();
+  runtimeStore.setState({ ...state, ...patch });
 }

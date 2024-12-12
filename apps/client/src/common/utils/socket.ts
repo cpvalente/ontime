@@ -14,7 +14,7 @@ import {
 } from '../stores/clientStore';
 import { addDialog } from '../stores/dialogStore';
 import { addLog } from '../stores/logger';
-import { patchRuntime, runtimeStore } from '../stores/runtime';
+import { patchRuntime, patchRuntimeProperty } from '../stores/runtime';
 
 export let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
@@ -39,12 +39,14 @@ export const connectSocket = () => {
     }
 
     socketSendJson('set-client-type', 'ontime');
-
     socketSendJson('set-client-path', location.pathname + location.search);
+    setOnlineStatus(true);
   };
 
   websocket.onclose = () => {
     console.warn('WebSocket disconnected');
+    setOnlineStatus(false);
+
     if (shouldReconnect) {
       reconnectTimeout = setTimeout(() => {
         console.warn('WebSocket: attempting reconnect');
@@ -73,8 +75,8 @@ export const connectSocket = () => {
       switch (type) {
         case 'pong': {
           const offset = (new Date().getTime() - new Date(payload).getTime()) * 0.5;
-          patchRuntime('ping', offset);
-          updateDevTools({ ping: offset }, ['PING']);
+          patchRuntimeProperty('ping', offset);
+          updateDevTools({ ping: offset });
           break;
         }
         case 'client-id': {
@@ -131,64 +133,65 @@ export const connectSocket = () => {
           break;
         }
         case 'ontime': {
-          runtimeStore.setState(payload as RuntimeStore);
-          if (!isProduction) {
-            ontimeQueryClient.setQueryData(RUNTIME, data.payload);
-          }
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars -- removing the key from the payload
+          const { ping, ...serverPayload } = payload as Partial<RuntimeStore>;
+
+          patchRuntime(serverPayload);
+          updateDevTools(serverPayload);
           break;
         }
         case 'ontime-clock': {
-          patchRuntime('clock', payload);
+          patchRuntimeProperty('clock', payload);
           updateDevTools({ clock: payload });
           break;
         }
         case 'ontime-timer': {
-          patchRuntime('timer', payload);
+          patchRuntimeProperty('timer', payload);
           updateDevTools({ timer: payload });
           break;
         }
         case 'ontime-onAir': {
-          patchRuntime('onAir', payload);
+          patchRuntimeProperty('onAir', payload);
           updateDevTools({ onAir: payload });
           break;
         }
         case 'ontime-message': {
-          patchRuntime('message', payload);
+          patchRuntimeProperty('message', payload);
           updateDevTools({ message: payload });
           break;
         }
         case 'ontime-runtime': {
-          patchRuntime('runtime', payload);
+          patchRuntimeProperty('runtime', payload);
           updateDevTools({ runtime: payload });
           break;
         }
         case 'ontime-eventNow': {
-          patchRuntime('eventNow', payload);
+          patchRuntimeProperty('eventNow', payload);
           updateDevTools({ eventNow: payload });
           break;
         }
         case 'ontime-currentBlock': {
-          patchRuntime('currentBlock', payload);
+          patchRuntimeProperty('currentBlock', payload);
           updateDevTools({ currentBlock: payload });
           break;
         }
         case 'ontime-publicEventNow': {
-          patchRuntime('publicEventNow', payload);
+          patchRuntimeProperty('publicEventNow', payload);
           updateDevTools({ publicEventNow: payload });
           break;
         }
         case 'ontime-eventNext': {
-          patchRuntime('eventNext', payload);
+          patchRuntimeProperty('eventNext', payload);
           updateDevTools({ eventNext: payload });
           break;
         }
         case 'ontime-publicEventNext': {
-          patchRuntime('publicEventNext', payload);
+          patchRuntimeProperty('publicEventNext', payload);
           updateDevTools({ publicEventNext: payload });
           break;
         }
         case 'ontime-auxtimer1': {
-          patchRuntime('auxtimer1', payload);
+          patchRuntimeProperty('auxtimer1', payload);
           updateDevTools({ auxtimer1: payload });
           break;
         }
@@ -232,11 +235,23 @@ export const socketSendJson = (type: string, payload?: unknown) => {
   );
 };
 
-function updateDevTools(newData: Partial<RuntimeStore>, store = RUNTIME) {
+function updateDevTools(newData: Partial<RuntimeStore>) {
   if (!isProduction) {
-    ontimeQueryClient.setQueryData(store, (oldData: RuntimeStore) => ({
+    ontimeQueryClient.setQueryData(RUNTIME, (oldData: RuntimeStore) => ({
       ...oldData,
       ...newData,
     }));
   }
+}
+
+/**
+ * Allows setting the status of the client
+ * We leverage the ping as an indication of the client's online status
+ * @example ping < 0 - client is offline
+ * @example ping > 0 -> client is online
+ */
+function setOnlineStatus(status: boolean) {
+  const derivedPing = status ? 1 : -1;
+  patchRuntimeProperty('ping', derivedPing);
+  updateDevTools({ ping: derivedPing });
 }
