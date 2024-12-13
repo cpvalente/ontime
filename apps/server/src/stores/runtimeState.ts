@@ -11,7 +11,14 @@ import {
   TimerPhase,
   TimerState,
 } from 'ontime-types';
-import { calculateDuration, checkIsNow, dayInMs, filterTimedEvents, getPreviousBlock } from 'ontime-utils';
+import {
+  calculateDuration,
+  checkIsNow,
+  dayInMs,
+  filterTimedEvents,
+  getPreviousBlock,
+  isPlaybackActive,
+} from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
 import { RestorePoint } from '../services/RestoreService.js';
@@ -21,15 +28,16 @@ import {
   getExpectedFinish,
   getRuntimeOffset,
   getTimerPhase,
-  isPlaybackActive,
 } from '../services/timerUtils.js';
 import { timerConfig } from '../config/config.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 
+import * as report from '../services/report-service/ReportService.js';
+
 const initialRuntime: Runtime = {
   selectedEventIndex: null, // changes if rundown changes or we load a new event
   numEvents: 0, // change initiated by user
-  offset: 0, // changes at runtime
+  offset: null, // changes at runtime
   plannedStart: 0, // only changes if event changes
   plannedEnd: 0, // only changes if event changes, overflows over dayInMs
   actualStart: null, // set once we start the timer
@@ -102,6 +110,8 @@ export function getState(): Readonly<RuntimeState> {
 }
 
 export function clear() {
+  // we report event stop every time a the runtime state is cleared, to make sure we dont loose an event
+  report.eventStop(runtimeState);
   runtimeState.eventNow = null;
   runtimeState.publicEventNow = null;
   runtimeState.eventNext = null;
@@ -111,7 +121,7 @@ export function clear() {
 
   runtimeState.publicEventNext = null;
 
-  runtimeState.runtime.offset = 0;
+  runtimeState.runtime.offset = null;
   runtimeState.runtime.actualStart = null;
   runtimeState.runtime.expectedEnd = null;
   runtimeState.runtime.selectedEventIndex = null;
@@ -169,6 +179,9 @@ export function load(
   rundown: OntimeRundown,
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
+  // report the event stop before clearing out state
+  // report.eventStop(runtimeState);
+
   // we need to persist the current block state across loads
   const prevCurrentBlock = { ...runtimeState.currentBlock };
   clear();
@@ -407,6 +420,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   state.runtime.offset = getRuntimeOffset(state);
   state.runtime.expectedEnd = state.runtime.plannedEnd - state.runtime.offset;
 
+  report.eventStart(runtimeState);
   return true;
 }
 
@@ -485,7 +499,7 @@ export function update(): UpdateResult {
   runtimeState.clock = clock.timeNow(); // we update the clock on every update call
 
   // 1. is playback idle?
-  if (!isPlaybackActive(runtimeState)) {
+  if (!isPlaybackActive(runtimeState.timer.playback)) {
     return updateIfIdle();
   }
 
@@ -595,6 +609,7 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
         runtimeState.runtime.actualStart = runtimeState.clock;
       }
       runtimeState.timer.secondaryTimer = null;
+      report.eventStart(runtimeState);
     } else {
       runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, offsetClock);
       runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - offsetClock;
@@ -673,6 +688,7 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
 
   // update runtime
   runtimeState.runtime.actualStart = runtimeState.clock;
+  report.eventStart(runtimeState);
   return { eventId: runtimeState.eventNow.id, didStart: true };
 }
 
