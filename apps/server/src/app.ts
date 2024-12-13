@@ -10,7 +10,7 @@ import { extname } from 'node:path';
 
 // import utils
 import { publicDir, srcDir, srcFiles } from './setup/index.js';
-import { environment, isProduction, updateRouterPrefix } from './externals.js';
+import { environment, isOntimeCloud, isProduction, updateRouterPrefix } from './externals.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
 
@@ -249,16 +249,6 @@ export const startIntegrations = async () => {
   // if a config is not provided, we use the persisted one
   const { osc, http } = getDataProvider().getData();
 
-  if (osc) {
-    logger.info(LogOrigin.Tx, 'Initialising OSC Integration...');
-    try {
-      oscIntegration.init(osc);
-      integrationService.register(oscIntegration);
-    } catch (error) {
-      logger.error(LogOrigin.Tx, 'OSC Integration initialisation failed');
-    }
-  }
-
   if (http) {
     logger.info(LogOrigin.Tx, 'Initialising HTTP Integration...');
     try {
@@ -266,6 +256,21 @@ export const startIntegrations = async () => {
       integrationService.register(httpIntegration);
     } catch (error) {
       logger.error(LogOrigin.Tx, `HTTP Integration initialisation failed: ${error}`);
+    }
+  }
+
+  if (isOntimeCloud) {
+    logger.info(LogOrigin.Tx, 'Skipping OSC in Cloud environment...');
+    return;
+  }
+
+  if (osc) {
+    logger.info(LogOrigin.Tx, 'Initialising OSC Integration...');
+    try {
+      oscIntegration.init(osc);
+      integrationService.register(oscIntegration);
+    } catch (error) {
+      logger.error(LogOrigin.Tx, 'OSC Integration initialisation failed');
     }
   }
 };

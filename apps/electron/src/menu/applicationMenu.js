@@ -29,6 +29,7 @@ function getApplicationMenu(askToQuit, clientUrl, serverUrl, redirectWindow, sho
   const template = [
     ...(isMac ? [makeMacMenu(askToQuit)] : []),
     makeFileMenu(serverUrl, redirectWindow, showDialog, download),
+    makeEditMenu(),
     makeViewMenu(clientUrl),
     makeSettingsMenu(redirectWindow),
     makeHelpMenu(redirectWindow),
@@ -57,6 +58,22 @@ function makeMacMenu(askToQuit) {
         click: askToQuit,
         accelerator: isMac ? 'Cmd+Q' : 'Alt+F4',
       },
+    ],
+  };
+}
+
+/**
+ * Utility function generates the edit menu
+ * @returns {Object}
+ */
+function makeEditMenu() {
+  return {
+    label: 'Edit',
+    submenu: [
+      { label: 'Cut', accelerator: 'CmdOrCtrl+X', role: 'cut' },
+      { label: 'Copy', accelerator: 'CmdOrCtrl+C', role: 'copy' },
+      { label: 'Paste', accelerator: 'CmdOrCtrl+V', role: 'paste' },
+      { label: 'Select All', accelerator: 'CmdOrCtrl+A', role: 'selectAll' },
     ],
   };
 }
@@ -253,7 +270,7 @@ function makeSettingsMenu(redirectWindow) {
             click: () => redirectWindow('/editor?settings=network__log'),
           },
           {
-            label: 'Manage cleints',
+            label: 'Manage clients',
             click: () => redirectWindow('/editor?settings=network__clients'),
           },
         ],
