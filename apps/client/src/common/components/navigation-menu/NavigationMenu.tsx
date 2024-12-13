@@ -45,7 +45,7 @@ function NavigationMenu(props: NavigationMenuProps) {
 
   const { isOpen: isOpenRename, onOpen: onRenameOpen, onClose: onCloseRename } = useDisclosure();
   const { fullscreen, toggle } = useFullscreen();
-  const { toggleMirror } = useViewOptionsStore();
+  const { mirror, toggleMirror } = useViewOptionsStore();
   const location = useLocation();
 
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -65,7 +65,7 @@ function NavigationMenu(props: NavigationMenuProps) {
           <DrawerBody padding={0}>
             <div className={style.buttonsContainer}>
               <div
-                className={style.link}
+                className={cx([style.link, fullscreen && style.current])}
                 tabIndex={0}
                 role='button'
                 onClick={toggle}
@@ -77,7 +77,7 @@ function NavigationMenu(props: NavigationMenuProps) {
                 {fullscreen ? <IoContract /> : <IoExpand />}
               </div>
               <div
-                className={style.link}
+                className={cx([style.link, mirror && style.current])}
                 tabIndex={0}
                 role='button'
                 onClick={() => toggleMirror()}
