@@ -11,6 +11,9 @@ import {
   DrawerOverlay,
   useDisclosure,
 } from '@chakra-ui/react';
+import { IoWarning } from '@react-icons/all-files/io5/IoWarning';
+
+import useViewSettings from '../../../common/hooks-query/useViewSettings';
 
 import ParamInput from './ParamInput';
 import { isSection, ViewOption } from './types';
@@ -87,6 +90,8 @@ interface EditFormDrawerProps {
 // TODO: this is a good candidate for memoisation, but needs the paramFields to be stable
 export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { data: viewSettings } = useViewSettings();
+
   const { isOpen, onClose, onOpen } = useDisclosure();
 
   useEffect(() => {
@@ -156,13 +161,24 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
           </form>
         </DrawerBody>
 
-        <DrawerFooter className={style.drawerFooter}>
-          <Button variant='ontime-ghosted' onClick={resetParams} type='reset'>
-            Reset to default
-          </Button>
-          <Button variant='ontime-filled' form='edit-params-form' type='submit'>
-            Save
-          </Button>
+        <DrawerFooter>
+          <div className={style.drawerFooter}>
+            {viewSettings.overrideStyles && (
+              <div className={style.warningLabel}>
+                <IoWarning />
+                <span>Custom CSS styles are active. Saving these changes may disrupt your current settings</span>
+              </div>
+            )}
+
+            <div className={style.buttonsContainer}>
+              <Button variant='ontime-ghosted' onClick={resetParams} type='reset'>
+                Reset to default
+              </Button>
+              <Button variant='ontime-filled' form='edit-params-form' type='submit'>
+                Save
+              </Button>
+            </div>
+          </div>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

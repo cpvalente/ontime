@@ -1,11 +1,26 @@
 .drawerFooter {
   display: flex;
-  justify-content: end;
+  flex-direction: column;
   gap: $section-spacing;
+  width: 100%;
 
   button {
     padding: 0 2em;
   }
+}
+
+.buttonsContainer {
+  display: flex;
+  justify-content: end;
+  gap: $section-spacing;
+}
+
+.warningLabel {
+  display: inherit;
+  align-items: center;
+  gap: $element-spacing;
+  font-size: $inner-section-text-size;
+  color: $warning-orange;
 }
 
 .label {
