@@ -39,7 +39,6 @@ export const connectSocket = () => {
     }
 
     socketSendJson('set-client-type', 'ontime');
-    socketSendJson('set-client-path', location.pathname + location.search);
     setOnlineStatus(true);
   };
 
