@@ -53,7 +53,7 @@ export default function Welcome(props: WelcomeProps) {
   };
 
   return (
-    <Modal isOpen onClose={handleClose} variant='ontime'>
+    <Modal isOpen onClose={handleClose} closeOnOverlayClick={false} variant='ontime'>
       <ModalOverlay />
       <ModalContent maxWidth='max(640px, 40vw)'>
         <ModalCloseButton />
