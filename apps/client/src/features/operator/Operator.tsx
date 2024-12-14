@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { isOntimeEvent, OntimeEvent, SupportedEvent } from 'ontime-types';
 import { getFirstEventNormal, getLastEventNormal } from 'ontime-utils';
 
-import Empty from '../../common/components/state/Empty';
+import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useOperator } from '../../common/hooks/useSocket';
@@ -108,7 +108,7 @@ export default function Operator() {
   const isLoading = status === 'pending' || customFieldStatus === 'pending' || projectDataStatus === 'pending';
 
   if (missingData || isLoading) {
-    return <Empty text='Loading...' />;
+    return <EmptyPage text='Loading...' />;
   }
 
   // get fields which the user subscribed to
