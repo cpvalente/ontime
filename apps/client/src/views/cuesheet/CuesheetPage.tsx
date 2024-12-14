@@ -5,7 +5,7 @@ import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline'
 import { CustomFieldLabel, isOntimeEvent } from 'ontime-types';
 
 import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
-import Empty from '../../common/components/state/Empty';
+import EmptyPage from '../../common/components/state/EmptyPage';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import { useCuesheet } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
@@ -79,7 +79,7 @@ export default function CuesheetPage() {
   );
 
   if (!customFields || !flatRundown || rundownStatus !== 'success') {
-    return <Empty text='Loading...' />;
+    return <EmptyPage text='Loading...' />;
   }
 
   return (
