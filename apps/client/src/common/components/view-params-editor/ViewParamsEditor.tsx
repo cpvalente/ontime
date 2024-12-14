@@ -11,7 +11,7 @@ import {
   DrawerOverlay,
   useDisclosure,
 } from '@chakra-ui/react';
-import { IoWarning } from '@react-icons/all-files/io5/IoWarning';
+import { IoAlertCircle } from '@react-icons/all-files/io5/IoAlertCircle';
 
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
 
@@ -134,6 +134,12 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
         </DrawerHeader>
 
         <DrawerBody>
+          {viewSettings.overrideStyles && (
+            <div className={style.infoLabel}>
+              <IoAlertCircle />
+              This view style is being modified by a custom CSS file. <br />
+            </div>
+          )}
           <form id='edit-params-form' onSubmit={onParamsFormSubmit}>
             {viewOptions.map((option) => {
               if (isSection(option)) {
@@ -161,24 +167,13 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
           </form>
         </DrawerBody>
 
-        <DrawerFooter>
-          <div className={style.drawerFooter}>
-            {viewSettings.overrideStyles && (
-              <div className={style.warningLabel}>
-                <IoWarning />
-                <span>Custom CSS styles are active. Saving these changes may disrupt your current settings</span>
-              </div>
-            )}
-
-            <div className={style.buttonsContainer}>
-              <Button variant='ontime-ghosted' onClick={resetParams} type='reset'>
-                Reset to default
-              </Button>
-              <Button variant='ontime-filled' form='edit-params-form' type='submit'>
-                Save
-              </Button>
-            </div>
-          </div>
+        <DrawerFooter className={style.drawerFooter}>
+          <Button variant='ontime-ghosted' onClick={resetParams} type='reset'>
+            Reset to default
+          </Button>
+          <Button variant='ontime-filled' form='edit-params-form' type='submit'>
+            Save
+          </Button>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
