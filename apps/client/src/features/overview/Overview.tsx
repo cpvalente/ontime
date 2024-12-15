@@ -87,6 +87,10 @@ function _CuesheetOverview({ children }: { children: React.ReactNode }) {
 function TitlesOverview() {
   const { data } = useProjectData();
 
+  if (!data.title && !data.description) {
+    return null;
+  }
+
   return (
     <div>
       <div className={style.title}>{data.title}</div>
