@@ -115,8 +115,6 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, viewOptions);
     setSearchParams(newSearchParams);
-
-    onClose();
   };
 
   return (
