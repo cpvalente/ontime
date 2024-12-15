@@ -1,24 +1,20 @@
 .tableSettings {
   grid-area: settings;
-  padding: 1rem;
-  background-color: $ui-black;
+  padding: 0.5rem 1rem;
   display: flex;
+  gap: 5rem;
   font-size: $inner-section-text-size;
-}
 
-.leftPanel {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  gap: 0.5rem;
+  @media (max-width: $small-screen) {
+    gap: 1rem;
+  }
 }
 
 .sectionTitle {
-  color: $gray-700;
   text-transform: uppercase;
 }
 
-.options {
+.row {
   display: flex;
   flex-wrap: wrap;
   column-gap: 1rem;
@@ -30,12 +26,4 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-.rightPanel {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-
-  padding-left: 2rem;
 }
