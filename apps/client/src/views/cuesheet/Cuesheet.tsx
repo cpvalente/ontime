@@ -40,7 +40,7 @@ export default function Cuesheet({
   selectedId,
   currentBlockId,
 }: CuesheetProps) {
-  const { followSelected, showSettings, showDelayBlock, showPrevious, showIndexColumn } = useCuesheetSettings();
+  const { followSelected, showDelayBlock, showPrevious, showIndexColumn } = useCuesheetSettings();
   const {
     columnVisibility,
     columnOrder,
@@ -110,14 +110,12 @@ export default function Cuesheet({
 
   return (
     <>
-      {showSettings && (
-        <CuesheetTableSettings
-          columns={allLeafColumns}
-          handleResetResizing={resetColumnResizing}
-          handleResetReordering={resetColumnOrder}
-          handleClearToggles={setAllVisible}
-        />
-      )}
+      <CuesheetTableSettings
+        columns={allLeafColumns}
+        handleResetResizing={resetColumnResizing}
+        handleResetReordering={resetColumnOrder}
+        handleClearToggles={setAllVisible}
+      />
       <div ref={tableContainerRef} className={style.cuesheetContainer}>
         <table className={style.cuesheet}>
           <CuesheetHeader headerGroups={headerGroups} saveColumnOrder={reorder} showIndexColumn={showIndexColumn} />
