@@ -18,7 +18,7 @@ import CuesheetHeader from './cuesheet-table-elements/CuesheetHeader';
 import DelayRow from './cuesheet-table-elements/DelayRow';
 import EventRow from './cuesheet-table-elements/EventRow';
 import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
-import { useCuesheetSettings } from './store/cuesheetSettingsStore';
+import { useCuesheetOptions } from './cuesheet.options';
 import useColumnManager from './useColumnManager';
 
 import style from './Cuesheet.module.scss';
@@ -40,7 +40,7 @@ export default function Cuesheet({
   selectedId,
   currentBlockId,
 }: CuesheetProps) {
-  const { followSelected, showDelayBlock, showPrevious, showIndexColumn } = useCuesheetSettings();
+  const { followSelected, hideDelays, hidePast, hideIndexColumn } = useCuesheetOptions();
   const {
     columnVisibility,
     columnOrder,
@@ -118,7 +118,7 @@ export default function Cuesheet({
       />
       <div ref={tableContainerRef} className={style.cuesheetContainer}>
         <table className={style.cuesheet}>
-          <CuesheetHeader headerGroups={headerGroups} saveColumnOrder={reorder} showIndexColumn={showIndexColumn} />
+          <CuesheetHeader headerGroups={headerGroups} saveColumnOrder={reorder} showIndexColumn={!hideIndexColumn} />
           <tbody>
             {rowModel.rows.map((row) => {
               const key = row.original.id;
@@ -128,17 +128,17 @@ export default function Cuesheet({
               }
 
               if (isOntimeBlock(row.original)) {
-                if (isPast && !showPrevious && key !== currentBlockId) {
+                if (isPast && hidePast && key !== currentBlockId) {
                   return null;
                 }
                 return <BlockRow key={key} title={row.original.title} />;
               }
               if (isOntimeDelay(row.original)) {
-                if (isPast && !showPrevious) {
+                if (isPast && hidePast) {
                   return null;
                 }
                 const delayVal = row.original.duration;
-                if (!showDelayBlock || delayVal === 0) {
+                if (hideDelays || delayVal === 0) {
                   return null;
                 }
 
@@ -148,7 +148,7 @@ export default function Cuesheet({
                 eventIndex++;
                 const isSelected = key === selectedId;
 
-                if (isPast && !showPrevious) {
+                if (isPast && hidePast) {
                   return null;
                 }
 
@@ -173,7 +173,7 @@ export default function Cuesheet({
                     selectedRef={isSelected ? selectedRef : undefined}
                     skip={row.original.skip}
                     colour={row.original.colour}
-                    showIndexColumn={showIndexColumn}
+                    showIndexColumn={!hideIndexColumn}
                   >
                     {row.getVisibleCells().map((cell) => {
                       return (
