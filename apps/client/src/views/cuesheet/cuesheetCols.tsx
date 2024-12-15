@@ -8,7 +8,7 @@ import RunningTime from '../../features/viewers/common/running-time/RunningTime'
 
 import MultiLineCell from './cuesheet-table-elements/MultiLineCell';
 import SingleLineCell from './cuesheet-table-elements/SingleLineCell';
-import { useCuesheetSettings } from './store/cuesheetSettingsStore';
+import { useCuesheetOptions } from './cuesheet.options';
 
 import style from './Cuesheet.module.scss';
 
@@ -35,27 +35,26 @@ function MakePublic({ row, column, table }: CellContext<OntimeRundownEntry, unkn
 }
 
 function MakeTimer({ getValue, row: { original } }: CellContext<OntimeRundownEntry, unknown>) {
-  const showDelayedTimes = useCuesheetSettings((state) => state.showDelayedTimes);
-  const hideSeconds = useCuesheetSettings((state) => state.hideSeconds);
+  const { showDelayedTimes, hideTableSeconds } = useCuesheetOptions();
   const cellValue = (getValue() as number | null) ?? 0;
   const delayValue = (original as OntimeEvent)?.delay ?? 0;
 
   return (
     <span className={style.time}>
       <DelayIndicator delayValue={delayValue} />
-      <RunningTime value={cellValue} hideSeconds={hideSeconds} />
+      <RunningTime value={cellValue} hideSeconds={hideTableSeconds} />
       {delayValue !== 0 && showDelayedTimes && (
-        <RunningTime className={style.delayedTime} value={cellValue + delayValue} hideSeconds={hideSeconds} />
+        <RunningTime className={style.delayedTime} value={cellValue + delayValue} hideSeconds={hideTableSeconds} />
       )}
     </span>
   );
 }
 
 function MakeDuration({ getValue }: CellContext<OntimeRundownEntry, unknown>) {
-  const hideSeconds = useCuesheetSettings((state) => state.hideSeconds);
+  const { hideTableSeconds } = useCuesheetOptions();
   const cellValue = (getValue() as number | null) ?? 0;
 
-  return <RunningTime value={cellValue} hideSeconds={hideSeconds} />;
+  return <RunningTime value={cellValue} hideSeconds={hideTableSeconds} />;
 }
 
 function MakeMultiLineField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
