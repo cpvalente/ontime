@@ -5,7 +5,7 @@ import { IoLink } from '@react-icons/all-files/io5/IoLink';
 import { IoLockClosed } from '@react-icons/all-files/io5/IoLockClosed';
 import { IoLockOpenOutline } from '@react-icons/all-files/io5/IoLockOpenOutline';
 import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
-import { MaybeString, TimerType, TimeStrategy } from 'ontime-types';
+import { MaybeString, TimeStrategy } from 'ontime-types';
 
 import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
 import { useEventAction } from '../../../common/hooks/useEventAction';
@@ -16,19 +16,19 @@ import style from './TimeInputFlow.module.scss';
 
 interface EventBlockTimerProps {
   eventId: string;
+  isTimeToEnd: boolean;
   timeStart: number;
   timeEnd: number;
   duration: number;
   timeStrategy: TimeStrategy;
   linkStart: MaybeString;
   delay: number;
-  timerType: TimerType;
 }
 
 type TimeActions = 'timeStart' | 'timeEnd' | 'duration';
 
-const TimeInputFlow = (props: EventBlockTimerProps) => {
-  const { eventId, timeStart, timeEnd, duration, timeStrategy, linkStart, delay, timerType } = props;
+function TimeInputFlow(props: EventBlockTimerProps) {
+  const { eventId, isTimeToEnd, timeStart, timeEnd, duration, timeStrategy, linkStart, delay } = props;
   const { updateEvent, updateTimer } = useEventAction();
 
   // In sync with EventEditorTimes
@@ -49,8 +49,8 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
     warnings.push('Over midnight');
   }
 
-  if (timerType === TimerType.TimeToEnd) {
-    warnings.push('Time to end');
+  if (isTimeToEnd) {
+    warnings.push('Target event scheduled end');
   }
 
   const hasDelay = delay !== 0;
@@ -128,6 +128,6 @@ const TimeInputFlow = (props: EventBlockTimerProps) => {
       )}
     </>
   );
-};
+}
 
 export default memo(TimeInputFlow);

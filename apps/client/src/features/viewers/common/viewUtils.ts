@@ -5,16 +5,22 @@ import type { ViewExtendedTimer } from '../../../common/models/TimeManager.type'
 import { timerPlaceholder, timerPlaceholderMin } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
 
-type TimerTypeParams = Pick<ViewExtendedTimer, 'timerType' | 'current' | 'elapsed' | 'clock'>;
+type TimerTypeParams = Pick<ViewExtendedTimer, 'isTimeToEnd' | 'timerType' | 'current' | 'elapsed' | 'clock'>;
 
 export function getTimerByType(freezeEnd: boolean, timerObject?: TimerTypeParams): number | null {
   if (!timerObject) {
     return null;
   }
 
+  if (timerObject.isTimeToEnd) {
+    if (timerObject.current === null) {
+      return null;
+    }
+    return freezeEnd ? Math.max(timerObject.current, 0) : timerObject.current;
+  }
+
   switch (timerObject.timerType) {
     case TimerType.CountDown:
-    case TimerType.TimeToEnd:
       if (timerObject.current === null) {
         return null;
       }

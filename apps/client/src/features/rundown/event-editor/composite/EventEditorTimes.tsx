@@ -18,6 +18,7 @@ interface EventEditorTimesProps {
   duration: number;
   timeStrategy: TimeStrategy;
   linkStart: MaybeString;
+  isTimeToEnd: boolean;
   delay: number;
   isPublic: boolean;
   endAction: EndAction;
@@ -26,9 +27,9 @@ interface EventEditorTimesProps {
   timeDanger: number;
 }
 
-type HandledActions = 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
+type HandledActions = 'isTimeToEnd' | 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
 
-const EventEditorTimes = (props: EventEditorTimesProps) => {
+function EventEditorTimes(props: EventEditorTimesProps) {
   const {
     eventId,
     timeStart,
@@ -36,6 +37,7 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
     duration,
     timeStrategy,
     linkStart,
+    isTimeToEnd,
     delay,
     isPublic,
     endAction,
@@ -48,6 +50,11 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
   const handleSubmit = (field: HandledActions, value: string | boolean) => {
     if (field === 'isPublic') {
       updateEvent({ id: eventId, isPublic: !(value as boolean) });
+      return;
+    }
+
+    if (field === 'isTimeToEnd') {
+      updateEvent({ id: eventId, isTimeToEnd: !(value as boolean) });
       return;
     }
 
@@ -71,95 +78,115 @@ const EventEditorTimes = (props: EventEditorTimesProps) => {
     : '';
 
   return (
-    <div className={style.column}>
-      <div>
-        <Editor.Label>Event schedule</Editor.Label>
-        <div className={style.inline}>
-          <TimeInputFlow
-            eventId={eventId}
-            timeStart={timeStart}
-            timeEnd={timeEnd}
-            duration={duration}
-            timeStrategy={timeStrategy}
-            linkStart={linkStart}
-            delay={delay}
-            timerType={timerType}
-          />
+    <>
+      <div className={style.column}>
+        <div>
+          <Editor.Label>Event schedule</Editor.Label>
+          <div className={style.inline}>
+            <TimeInputFlow
+              eventId={eventId}
+              timeStart={timeStart}
+              timeEnd={timeEnd}
+              duration={duration}
+              timeStrategy={timeStrategy}
+              linkStart={linkStart}
+              delay={delay}
+              isTimeToEnd={isTimeToEnd}
+            />
+          </div>
+          <div className={style.delayLabel}>{delayLabel}</div>
         </div>
-        <div className={style.delayLabel}>{delayLabel}</div>
-      </div>
 
-      <div className={style.splitTwo}>
-        <div>
-          <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
-          <TimeInput
-            id='timeWarning'
-            name='timeWarning'
-            submitHandler={handleSubmit}
-            time={timeWarning}
-            placeholder='Duration'
-          />
-        </div>
-        <div>
-          <Editor.Label htmlFor='timerType'>Timer Type</Editor.Label>
-          <Select
-            size='sm'
-            id='timerType'
-            name='timerType'
-            value={timerType}
-            onChange={(event) => handleSubmit('timerType', event.target.value)}
-            variant='ontime'
-          >
-            <option value={TimerType.CountDown}>Count down</option>
-            <option value={TimerType.CountUp}>Count up</option>
-            <option value={TimerType.TimeToEnd}>Time to end</option>
-            <option value={TimerType.Clock}>Clock</option>
-            <option value={TimerType.None}>None</option>
-          </Select>
-        </div>
-        <div>
-          <Editor.Label htmlFor='timeDanger'>Danger Time</Editor.Label>
-          <TimeInput
-            id='timeDanger'
-            name='timeDanger'
-            submitHandler={handleSubmit}
-            time={timeDanger}
-            placeholder='Duration'
-          />
-        </div>
-        <div>
-          <Editor.Label htmlFor='endAction'>End Action</Editor.Label>
-          <Select
-            id='endAction'
-            size='sm'
-            name='endAction'
-            value={endAction}
-            onChange={(event) => handleSubmit('endAction', event.target.value)}
-            variant='ontime'
-          >
-            <option value={EndAction.None}>None</option>
-            <option value={EndAction.Stop}>Stop</option>
-            <option value={EndAction.LoadNext}>Load Next</option>
-            <option value={EndAction.PlayNext}>Play Next</option>
-          </Select>
+        <Editor.Title>Event behaviour</Editor.Title>
+        <div className={style.splitTwo}>
+          <div>
+            <Editor.Label htmlFor='endAction'>End Action</Editor.Label>
+            <Select
+              id='endAction'
+              size='sm'
+              name='endAction'
+              value={endAction}
+              onChange={(event) => handleSubmit('endAction', event.target.value)}
+              variant='ontime'
+            >
+              <option value={EndAction.None}>None</option>
+              <option value={EndAction.Stop}>Stop rundown</option>
+              <option value={EndAction.LoadNext}>Load next event</option>
+              <option value={EndAction.PlayNext}>Play next event</option>
+            </Select>
+          </div>
+          <div>
+            <Editor.Label htmlFor='timeToEnd'>Target Event Scheduled End</Editor.Label>
+            <Editor.Label className={style.switchLabel}>
+              <Switch
+                id='timeToEnd'
+                size='md'
+                isChecked={isTimeToEnd}
+                onChange={() => handleSubmit('isTimeToEnd', isTimeToEnd)}
+                variant='ontime'
+              />
+              {isTimeToEnd ? 'On' : 'Off'}
+            </Editor.Label>
+          </div>
         </div>
       </div>
+      <div className={style.column}>
+        <Editor.Title>Display options</Editor.Title>
+        <div className={style.splitTwo}>
+          <div>
+            <Editor.Label htmlFor='timerType'>Timer Type</Editor.Label>
+            <Select
+              size='sm'
+              id='timerType'
+              name='timerType'
+              value={timerType}
+              onChange={(event) => handleSubmit('timerType', event.target.value)}
+              variant='ontime'
+            >
+              <option value={TimerType.CountDown}>Count down</option>
+              <option value={TimerType.CountUp}>Count up</option>
+              <option value={TimerType.Clock}>Clock</option>
+              <option value={TimerType.None}>None</option>
+            </Select>
+          </div>
+          <div>
+            <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
+            <TimeInput
+              id='timeWarning'
+              name='timeWarning'
+              submitHandler={handleSubmit}
+              time={timeWarning}
+              placeholder='Duration'
+            />
+          </div>
 
-      <div>
-        <Editor.Label htmlFor='isPublic'>Event Visibility</Editor.Label>
-        <Editor.Label className={style.switchLabel}>
-          <Switch
-            id='isPublic'
-            size='md'
-            isChecked={isPublic}
-            onChange={() => handleSubmit('isPublic', isPublic)}
-            variant='ontime'
-          />
-          {isPublic ? 'Public' : 'Private'}
-        </Editor.Label>
+          <div>
+            <Editor.Label htmlFor='isPublic'>Event Visibility</Editor.Label>
+            <Editor.Label className={style.switchLabel}>
+              <Switch
+                id='isPublic'
+                size='md'
+                isChecked={isPublic}
+                onChange={() => handleSubmit('isPublic', isPublic)}
+                variant='ontime'
+              />
+              {isPublic ? 'Public' : 'Private'}
+            </Editor.Label>
+          </div>
+          <div>
+            <Editor.Label htmlFor='timeDanger'>Danger Time</Editor.Label>
+            <TimeInput
+              id='timeDanger'
+              name='timeDanger'
+              submitHandler={handleSubmit}
+              time={timeDanger}
+              placeholder='Duration'
+            />
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
-};
+}
 
 export default memo(EventEditorTimes);

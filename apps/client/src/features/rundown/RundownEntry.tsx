@@ -150,6 +150,7 @@ export default function RundownEntry(props: RundownEntryProps) {
   if (data.type === SupportedEvent.Event) {
     return (
       <EventBlock
+        eventId={data.id}
         eventIndex={eventIndex}
         cue={data.cue}
         timeStart={data.timeStart}
@@ -157,7 +158,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         duration={data.duration}
         timeStrategy={data.timeStrategy}
         linkStart={data.linkStart}
-        eventId={data.id}
+        isTimeToEnd={data.isTimeToEnd}
         isPublic={data.isPublic}
         endAction={data.endAction}
         timerType={data.timerType}

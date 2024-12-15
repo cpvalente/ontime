@@ -9,6 +9,7 @@ import {
   Settings,
   SimpleTimerState,
   SupportedEvent,
+  TimerType,
   ViewSettings,
 } from 'ontime-types';
 import { useStore } from 'zustand';
@@ -74,16 +75,14 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     const selectedId = eventNow?.id ?? null;
     const nextId = eventNext?.id ?? null;
 
-    /******************************************/
-    /***  + TimeManagerType                     ***/
-    /***  WRAP INFORMATION RELATED TO TIME  ***/
-    /***  --------------------------------  ***/
-    /******************************************/
-
-    const TimeManagerType = {
+    /**
+     * Contains an extended timer object with properties from the current event
+     */
+    const timeManagerType: ViewExtendedTimer = {
       ...timer,
       clock,
-      timerType: eventNow?.timerType ?? null,
+      timerType: eventNow?.timerType ?? TimerType.CountDown,
+      isTimeToEnd: eventNow?.isTimeToEnd ?? false,
     };
 
     return (
@@ -108,7 +107,7 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
           runtime={runtime}
           selectedId={selectedId}
           settings={settings}
-          time={TimeManagerType}
+          time={timeManagerType}
           viewSettings={viewSettings}
         />
       </>
