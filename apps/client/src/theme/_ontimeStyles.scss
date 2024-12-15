@@ -57,6 +57,7 @@ $text-body-size: calc(1rem - 1px);
 
 // media queries
 $min-tablet: 500px;
+$small-screen: 800px;
 
 .blink {
   animation: blink 1s step-start infinite;
