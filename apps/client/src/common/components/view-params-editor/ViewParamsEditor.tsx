@@ -11,6 +11,9 @@ import {
   DrawerOverlay,
   useDisclosure,
 } from '@chakra-ui/react';
+import { IoAlertCircle } from '@react-icons/all-files/io5/IoAlertCircle';
+
+import useViewSettings from '../../../common/hooks-query/useViewSettings';
 
 import ParamInput from './ParamInput';
 import { isSection, ViewOption } from './types';
@@ -87,6 +90,8 @@ interface EditFormDrawerProps {
 // TODO: this is a good candidate for memoisation, but needs the paramFields to be stable
 export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { data: viewSettings } = useViewSettings();
+
   const { isOpen, onClose, onOpen } = useDisclosure();
 
   useEffect(() => {
@@ -127,6 +132,12 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
         </DrawerHeader>
 
         <DrawerBody>
+          {viewSettings.overrideStyles && (
+            <div className={style.infoLabel}>
+              <IoAlertCircle />
+              This view style is being modified by a custom CSS file. <br />
+            </div>
+          )}
           <form id='edit-params-form' onSubmit={onParamsFormSubmit}>
             {viewOptions.map((option) => {
               if (isSection(option)) {
