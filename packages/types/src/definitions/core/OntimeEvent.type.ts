@@ -29,6 +29,7 @@ export type OntimeEvent = OntimeBaseEvent & {
   note: string;
   endAction: EndAction;
   timerType: TimerType;
+  isTimeToEnd: boolean;
   linkStart: MaybeString; // ID of event to link to
   timeStrategy: TimeStrategy;
   timeStart: number;

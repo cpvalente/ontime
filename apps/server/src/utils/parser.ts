@@ -13,8 +13,8 @@ import {
   CustomFields,
   DatabaseModel,
   EventCustomFields,
+  isOntimeBlock,
   LogOrigin,
-  OntimeBlock,
   OntimeEvent,
   OntimeRundown,
   SupportedEvent,
@@ -271,10 +271,11 @@ export const parseExcel = (
 
     // if any data was found in row, push to array
     const keysFound = Object.keys(event).length + Object.keys(eventCustomFields).length;
+    console.log('keys found ---->', event)
     if (keysFound > 0) {
       // if it is a Block type drop all other filed
-      if (event.type === SupportedEvent.Block) {
-        rundown.push({ type: event.type, id: event.id, title: event.title } as OntimeBlock);
+      if (isOntimeBlock(event)) {
+        rundown.push({ type: event.type, id: event.id, title: event.title });
       } else {
         if (timerTypeIndex === null) {
           event.timerType = TimerType.CountDown;
@@ -360,7 +361,6 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     patchEvent?.duration ?? originalEvent.duration,
     patchEvent?.timeStrategy ?? inferStrategy(patchEvent?.timeEnd, patchEvent?.duration, originalEvent.timeStrategy),
   );
-  const maybeLinkStart = patchEvent.linkStart !== undefined ? patchEvent.linkStart : originalEvent.linkStart;
 
   return {
     id: originalEvent.id,
@@ -370,9 +370,10 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     timeEnd,
     duration,
     timeStrategy,
-    linkStart: validateLinkStart(maybeLinkStart),
+    linkStart: validateLinkStart(patchEvent.linkStart),
     endAction: validateEndAction(patchEvent.endAction, originalEvent.endAction),
     timerType: validateTimerType(patchEvent.timerType, originalEvent.timerType),
+    isTimeToEnd: typeof patchEvent.isTimeToEnd === 'boolean' ? patchEvent.isTimeToEnd : originalEvent.isTimeToEnd,
     isPublic: typeof patchEvent.isPublic === 'boolean' ? patchEvent.isPublic : originalEvent.isPublic,
     skip: typeof patchEvent.skip === 'boolean' ? patchEvent.skip : originalEvent.skip,
     note: makeString(patchEvent.note, originalEvent.note),
@@ -389,17 +390,19 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
 /**
  * @description Enforces formatting for events
  * @param {object} eventArgs - attributes of event
- * @param cueFallback
+ * @param {number} eventIndex - can be a string when we pass the a suggested cue name
  * @returns {object|null} - formatted object or null in case is invalid
  */
-export const createEvent = (eventArgs: Partial<OntimeEvent>, cueFallback: string): OntimeEvent | null => {
+export const createEvent = (eventArgs: Partial<OntimeEvent>, eventIndex: number | string): OntimeEvent | null => {
   if (Object.keys(eventArgs).length === 0) {
     return null;
   }
 
+  const cue = typeof eventIndex === 'number' ? String(eventIndex + 1) : eventIndex;
+
   const baseEvent = {
     id: eventArgs?.id ?? generateId(),
-    cue: cueFallback,
+    cue,
     ...eventDef,
   };
   const event = createPatch(baseEvent, eventArgs);

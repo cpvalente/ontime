@@ -18,8 +18,8 @@ describe('validateEndAction()', () => {
 
 describe('validateTimerType()', () => {
   it('recognises a string representation of an action', () => {
-    const timerType = validateTimerType('time-to-end');
-    expect(timerType).toBe(TimerType.TimeToEnd);
+    const timerType = validateTimerType('count-up');
+    expect(timerType).toBe(TimerType.CountUp);
   });
   it('returns fallback otherwise', () => {
     const emptyType = validateTimerType('', TimerType.Clock);

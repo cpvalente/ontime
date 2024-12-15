@@ -463,7 +463,7 @@ describe('test event validator', () => {
     const event = {
       title: 'test',
     };
-    const validated = createEvent(event, 'test');
+    const validated = createEvent(event, 1);
 
     expect(validated).toEqual(
       expect.objectContaining({
@@ -471,12 +471,13 @@ describe('test event validator', () => {
         note: expect.any(String),
         timeStart: expect.any(Number),
         timeEnd: expect.any(Number),
+        isTimeToEnd: expect.any(Boolean),
         isPublic: expect.any(Boolean),
         skip: expect.any(Boolean),
         revision: expect.any(Number),
         type: expect.any(String),
         id: expect.any(String),
-        cue: 'test',
+        cue: '2',
         colour: expect.any(String),
         custom: expect.any(Object),
       }),
@@ -485,7 +486,7 @@ describe('test event validator', () => {
 
   it('fails an empty object', () => {
     const event = {};
-    const validated = createEvent(event, 'none');
+    const validated = createEvent(event, 1);
     expect(validated).toEqual(null);
   });
 
@@ -495,7 +496,7 @@ describe('test event validator', () => {
       note: '1899-12-30T08:00:10.000Z',
     };
     // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    const validated = createEvent(event, 'not-used');
+    const validated = createEvent(event, 1);
     if (validated === null) {
       throw new Error('unexpected value');
     }
@@ -1659,7 +1660,7 @@ describe('parseExcel()', () => {
     expect((events.at(0) as OntimeEvent).colour).toEqual('#F00'); //<--trailing white space in Excel data
   });
 
-  it('link start', () => {
+  it('parses link start and checks that is applicable', () => {
     const testData = [
       [
         'Time Start',
@@ -1675,11 +1676,11 @@ describe('parseExcel()', () => {
         'Timer type',
       ],
       ['4:30:00', '9:45:00', 'A', 'load-next', '', '', 'Rainbow chase', '#F00', 102, '', 'count-down'],
-      ['9:45:00', '10:56:00', 'C', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, 'x', 'count-down'],
-      ['10:00:00', '16:36:00', 'D', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102, 'x', 'count-down'], //<-- incorrect start times are overridden
-      ['21:45:00', '22:56:00', 'E', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, '', 'count-down'],
+      ['9:45:00', '10:56:00', 'B', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, 'x', 'count-down'],
+      ['10:00:00', '16:36:00', 'C', 'load-next', 'x', '', 'Rainbow chase', '#F00', 102, 'x', 'count-down'], // <-- incorrect start times are overridden
+      ['21:45:00', '22:56:00', 'D', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, '', 'count-down'],
       ['', '', 'BLOCK', '', '', '', '', '', '', '', 'block'],
-      ['00:0:00', '23:56:00', 'G', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, 'x', 'count-down'], //<-- link past blocks
+      ['00:0:00', '23:56:00', 'E', 'load-next', 'x', '', 'Rainbow chase', '#0F0', 103, 'x', 'count-down'], // <-- link past blocks
       [],
     ];
 
@@ -1709,30 +1710,46 @@ describe('parseExcel()', () => {
     const { rundown, order } = cache.get();
 
     const firstId = order.at(0); // A
-    const secondId = order.at(1); // C
-    const thirdId = order.at(2); // D
-    const fourthId = order.at(3); // E
-    const fifhtId = order.at(4); // Block
-    const sixthId = order.at(5); // G
+    const secondId = order.at(1); // B
+    const thirdId = order.at(2); // C
+    const fourthId = order.at(3); // D
+    const fifthId = order.at(4); // Block
+    const sixthId = order.at(5); // E
 
-    if (!firstId || !secondId || !thirdId || !fourthId || !fifhtId || !sixthId) {
+    if (!firstId || !secondId || !thirdId || !fourthId || !fifthId || !sixthId) {
       throw new Error('Unexpected value');
     }
 
-    expect((rundown[firstId] as OntimeEvent).timeStart).toEqual(16200000);
-
-    expect((rundown[secondId] as OntimeEvent).timeStart).toEqual((rundown[firstId] as OntimeEvent).timeEnd);
-    expect((rundown[secondId] as OntimeEvent).linkStart).toEqual((rundown[firstId] as OntimeEvent).id);
-
-    expect((rundown[thirdId] as OntimeEvent).timeStart).toEqual((rundown[secondId] as OntimeEvent).timeEnd);
-    expect((rundown[thirdId] as OntimeEvent).linkStart).toEqual((rundown[secondId] as OntimeEvent).id);
-
-    expect((rundown[fourthId] as OntimeEvent).timeStart).toEqual(78300000);
-
-    expect((rundown[fifhtId] as OntimeEvent).type).toEqual(SupportedEvent.Block);
-
-    expect((rundown[sixthId] as OntimeEvent).timeStart).toEqual((rundown[fourthId] as OntimeEvent).timeEnd);
-    expect((rundown[sixthId] as OntimeEvent).linkStart).toEqual((rundown[fourthId] as OntimeEvent).id);
+    expect(rundown).toMatchObject({
+      [firstId]: {
+        title: 'A',
+        timeStart: 16200000,
+      },
+      [secondId]: {
+        title: 'B',
+        timeStart: (rundown[firstId] as OntimeEvent).timeEnd,
+        linkStart: (rundown[firstId] as OntimeEvent).id,
+      },
+      [thirdId]: {
+        title: 'C',
+        timeStart: (rundown[secondId] as OntimeEvent).timeEnd,
+        linkStart: (rundown[secondId] as OntimeEvent).id,
+      },
+      [fourthId]: {
+        title: 'D',
+        timeStart: 78300000,
+        linkStart: null,
+      },
+      [fifthId]: {
+        title: 'BLOCK',
+        type: SupportedEvent.Block,
+      },
+      [sixthId]: {
+        title: 'E',
+        timeStart: (rundown[fourthId] as OntimeEvent).timeEnd,
+        linkStart: (rundown[fourthId] as OntimeEvent).id,
+      },
+    });
   });
 
   it('#971 BUG: parses time fields and booleans', () => {
@@ -1762,7 +1779,7 @@ describe('parseExcel()', () => {
         'false',
         'Setup',
         '',
-        'time-to-end',
+        'count-down',
         'none',
         '15',
         '00:05:00',
@@ -1778,7 +1795,7 @@ describe('parseExcel()', () => {
         'false',
         'Meeting 1',
         '',
-        'time-to-end',
+        'count-down',
         'none',
         15,
         '00:05:00',
@@ -1794,7 +1811,7 @@ describe('parseExcel()', () => {
         'false',
         'Meeting 2',
         '',
-        'time-to-end',
+        'count-down',
         'none',
         '13',
         '5',
@@ -1810,7 +1827,7 @@ describe('parseExcel()', () => {
         'true',
         'Lunch',
         '',
-        'time-to-end',
+        'count-down',
         'none',
         13,
         5,
@@ -1839,26 +1856,46 @@ describe('parseExcel()', () => {
     const parsedData = parseExcel(testData, {});
     const { rundown } = parsedData;
 
+    // '15' as a string is parsed by smart time entry as minutes
+    expect(rundown[0]).toMatchObject({
+      cue: 'SETUP',
+      timeWarning: 15 * MILLIS_PER_MINUTE,
+    });
+
     // elements in bug report
     // 15 is a number, in which case we parse it as a minutes value
-    expect((rundown.at(1) as OntimeEvent).timeWarning).toBe(15 * MILLIS_PER_MINUTE);
+    expect(rundown[1]).toMatchObject({
+      cue: 'MEET1',
+      timeWarning: 15 * MILLIS_PER_MINUTE,
+    });
 
     // in the case where a string is passed, we need to check whether it is an ISO 8601 date
-    expect((rundown.at(2) as OntimeEvent).duration).toBe(60 * MILLIS_PER_MINUTE);
-    expect((rundown.at(2) as OntimeEvent).timeDanger).toBe(5 * MILLIS_PER_MINUTE);
+    expect(rundown[2]).toMatchObject({
+      cue: 'MEET2',
+      duration: 60 * MILLIS_PER_MINUTE,
+      timeDanger: 5 * MILLIS_PER_MINUTE,
+    });
 
-    expect((rundown.at(3) as OntimeEvent).timeWarning).toBe(13 * MILLIS_PER_MINUTE);
-    expect((rundown.at(3) as OntimeEvent).timeDanger).toBe(5 * MILLIS_PER_MINUTE);
+    expect(rundown[3]).toMatchObject({
+      cue: 'lunch',
+      timeWarning: 13 * MILLIS_PER_MINUTE,
+      timeDanger: 5 * MILLIS_PER_MINUTE,
+    });
 
-    expect((rundown.at(4) as OntimeEvent).duration).toBe(90 * MILLIS_PER_MINUTE);
-    expect((rundown.at(4) as OntimeEvent).linkStart).toBe(false);
-    expect((rundown.at(4) as OntimeEvent).timeWarning).toBe(11 * MILLIS_PER_MINUTE);
-    expect((rundown.at(4) as OntimeEvent).timeDanger).toBe(5 * MILLIS_PER_MINUTE);
+    expect(rundown[4]).toMatchObject({
+      cue: 'MEET3',
+      duration: 90 * MILLIS_PER_MINUTE,
+      linkStart: false,
+      timeWarning: 11 * MILLIS_PER_MINUTE,
+      timeDanger: 5 * MILLIS_PER_MINUTE,
+    });
 
-    expect((rundown.at(5) as OntimeEvent).duration).toBe(30 * MILLIS_PER_MINUTE);
-
-    // if we get a boolean, we should just use that
-    expect((rundown.at(5) as OntimeEvent).linkStart).toBe(true);
-    expect((rundown.at(5) as OntimeEvent).timeWarning).toBe(11 * MILLIS_PER_MINUTE);
+    expect(rundown[5]).toMatchObject({
+      cue: 'MEET4',
+      duration: 30 * MILLIS_PER_MINUTE,
+      timeWarning: 11 * MILLIS_PER_MINUTE,
+      // if we get a boolean, we should just use that
+      linkStart: true,
+    });
   });
 });

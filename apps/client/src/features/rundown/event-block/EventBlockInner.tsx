@@ -23,12 +23,13 @@ import EventBlockProgressBar from './composite/EventBlockProgressBar';
 import style from './EventBlock.module.scss';
 
 interface EventBlockInnerProps {
+  eventId: string;
   timeStart: number;
   timeEnd: number;
   duration: number;
   timeStrategy: TimeStrategy;
   linkStart: MaybeString;
-  eventId: string;
+  isTimeToEnd: boolean;
   eventIndex: number;
   isPublic: boolean;
   endAction: EndAction;
@@ -43,14 +44,15 @@ interface EventBlockInnerProps {
   isRolling: boolean;
 }
 
-const EventBlockInner = (props: EventBlockInnerProps) => {
+function EventBlockInner(props: EventBlockInnerProps) {
   const {
+    eventId,
     timeStart,
     timeEnd,
     duration,
     timeStrategy,
     linkStart,
-    eventId,
+    isTimeToEnd,
     isPublic = true,
     endAction,
     timerType,
@@ -91,7 +93,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
           delay={delay}
           timeStrategy={timeStrategy}
           linkStart={linkStart}
-          timerType={timerType}
+          isTimeToEnd={isTimeToEnd}
         />
       </div>
       <div className={style.titleSection}>
@@ -122,6 +124,11 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
               <EndActionIcon action={endAction} className={style.statusIcon} />
             </span>
           </Tooltip>
+          <Tooltip label={`${isTimeToEnd ? 'Time to End' : 'Count from start'}`} openDelay={tooltipDelayMid}>
+            <span>
+              <IoFlag className={`${style.statusIcon} ${isTimeToEnd ? style.active : style.disabled}`} />
+            </span>
+          </Tooltip>
           <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} openDelay={tooltipDelayMid}>
             <span>
               <IoPeople className={`${style.statusIcon} ${isPublic ? style.active : style.disabled}`} />
@@ -131,7 +138,7 @@ const EventBlockInner = (props: EventBlockInnerProps) => {
       </div>
     </>
   );
-};
+}
 
 export default memo(EventBlockInner);
 
@@ -161,10 +168,6 @@ function TimerIcon(props: { type: TimerType; className: string }) {
   }
   if (type === TimerType.None) {
     return <IoBan className={className} />;
-  }
-  if (type === TimerType.TimeToEnd) {
-    const classes = cx([style.active, className]);
-    return <IoFlag className={classes} />;
   }
   return <IoArrowDown className={className} />;
 }

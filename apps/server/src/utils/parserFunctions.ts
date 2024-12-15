@@ -12,6 +12,7 @@ import {
   OscSubscription,
   ProjectData,
   Settings,
+  TimerType,
   URLPreset,
   ViewSettings,
   isOntimeBlock,
@@ -19,13 +20,7 @@ import {
   isOntimeDelay,
   isOntimeEvent,
 } from 'ontime-types';
-import {
-  customFieldLabelToKey,
-  generateId,
-  getErrorMessage,
-  getLastEvent,
-  isAlphanumericWithSpace,
-} from 'ontime-utils';
+import { customFieldLabelToKey, generateId, getErrorMessage, isAlphanumericWithSpace } from 'ontime-utils';
 
 import { dbModel } from '../models/dataModel.js';
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
@@ -52,6 +47,7 @@ export function parseRundown(
 
   const rundown: OntimeRundown = [];
   let eventIndex = 0;
+  let previousId: string | null = null;
   const ids: string[] = [];
 
   for (const event of data.rundown) {
@@ -64,12 +60,13 @@ export function parseRundown(
     let newEvent: OntimeEvent | OntimeDelay | OntimeBlock | null;
 
     if (isOntimeEvent(event)) {
+      const maybeEvent = runEventMigrations({ ...event, id });
+
       if (event.linkStart) {
-        const prevId = getLastEvent(rundown).lastEvent?.id ?? null;
-        event.linkStart = prevId;
+        maybeEvent.linkStart = previousId;
       }
 
-      newEvent = createEvent(event, eventIndex.toString());
+      newEvent = createEvent(maybeEvent, eventIndex);
       // skip if event is invalid
       if (newEvent == null) {
         emitError?.('Skipping event without payload');
@@ -84,6 +81,7 @@ export function parseRundown(
         }
       }
 
+      previousId = id;
       eventIndex += 1;
     } else if (isOntimeDelay(event)) {
       newEvent = { ...delayDef, duration: event.duration, id };
@@ -348,4 +346,23 @@ export function sanitiseCustomFields(data: object): CustomFields {
   }
 
   return newCustomFields;
+}
+
+/**
+ * Time to end was moved from a TimerType to a standalone boolean
+ * Released as part of v3.10.0
+ */
+function migrateTimeToEnd(event: any): OntimeEvent {
+  if (event.timerType === 'time-to-end') {
+    event.timerType = TimerType.CountDown;
+    event.isTimeToEnd = true;
+  }
+  return event;
+}
+
+/**
+ * Mutating function migrates event data entries
+ */
+function runEventMigrations(event: any): OntimeEvent {
+  return migrateTimeToEnd(event);
 }

@@ -65,6 +65,7 @@ export const useMessagePreview = () => {
     showExternalMessage: state.message.timer.secondarySource === 'external' && Boolean(state.message.external),
     showTimerMessage: state.message.timer.visible && Boolean(state.message.timer.text),
     timerType: state.eventNow?.timerType ?? null,
+    isTimeToEnd: state.eventNow?.isTimeToEnd ?? false,
   });
 
   return useRuntimeStore(featureSelector);
