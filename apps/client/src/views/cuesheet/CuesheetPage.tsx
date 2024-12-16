@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { IconButton, useDisclosure } from '@chakra-ui/react';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
-import { CustomFieldLabel, isOntimeEvent } from 'ontime-types';
+import { CustomFieldLabel, isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import EmptyPage from '../../common/components/state/EmptyPage';
@@ -26,7 +26,7 @@ export default function CuesheetPage() {
   const { data: customFields } = useCustomFields();
   const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
 
-  const { updateCustomField } = useEventAction();
+  const { updateCustomField, updateEvent } = useEventAction();
   const featureData = useCuesheet();
   const columns = useMemo(() => makeCuesheetColumns(customFields), [customFields]);
   const toggleSettings = useCuesheetSettings((state) => state.toggleSettings);
@@ -34,11 +34,10 @@ export default function CuesheetPage() {
   useWindowTitle('Cuesheet');
 
   /**
-   * Handles updating a field
-   * Currently, only custom fields can be updated from the cuesheet
+   * Handles updating a custom field
    */
-  const handleUpdate = useCallback(
-    async (rowIndex: number, accessor: CustomFieldLabel, payload: unknown) => {
+  const handleUpdateCustom = useCallback(
+    async (rowIndex: number, accessor: CustomFieldLabel, payload: string) => {
       if (!flatRundown || rundownStatus !== 'success') {
         return;
       }
@@ -53,29 +52,44 @@ export default function CuesheetPage() {
         return;
       }
 
+      // skip if there is no value change
       const previousValue = event.custom[accessor];
+      if (previousValue === payload) {
+        return;
+      }
+      updateCustomField(event.id, accessor, payload);
+    },
+    [flatRundown, rundownStatus, updateCustomField],
+  );
 
+  /**
+   * Handles updating all other string fields
+   */
+  const handleUpdate = useCallback(
+    async (rowIndex: number, accessor: keyof OntimeEvent, payload: string) => {
+      if (!flatRundown || rundownStatus !== 'success') {
+        return;
+      }
+
+      if (rowIndex == null || accessor == null || payload == null) {
+        return;
+      }
+
+      // check if value is the same
+      const event = flatRundown[rowIndex];
+      if (!event || !isOntimeEvent(event)) {
+        return;
+      }
+
+      // skip if there is no value change
+      const previousValue = event[accessor];
       if (previousValue === payload) {
         return;
       }
 
-      // check if value is valid
-      // in anticipation to different types of event here
-      if (typeof payload !== 'string') {
-        return;
-      }
-
-      // cleanup
-      const cleanVal = payload.trim();
-
-      // submit
-      try {
-        await updateCustomField(event.id, accessor, cleanVal);
-      } catch (error) {
-        console.error(error);
-      }
+      updateEvent({ id: event.id, [accessor]: payload });
     },
-    [flatRundown, rundownStatus, updateCustomField],
+    [flatRundown, rundownStatus, updateEvent],
   );
 
   if (!customFields || !flatRundown || rundownStatus !== 'success') {
@@ -106,6 +120,8 @@ export default function CuesheetPage() {
         data={flatRundown}
         columns={columns}
         handleUpdate={handleUpdate}
+        handleUpdateCustom={handleUpdateCustom}
+        //TODO: stabilizer selectedEventId and currentBlockId
         selectedId={featureData.selectedEventId}
         currentBlockId={featureData.currentBlockId}
       />
