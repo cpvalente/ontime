@@ -1,3 +1,6 @@
+// time utils
+export { calculateExpectedStart } from './src/time-utils/timeUtils.js';
+
 // runtime utils
 export { validatePlayback } from './src/validate-action/validatePlayback.js';
 export { isKnownTimerType, validateLinkStart, validateTimeStrategy } from './src/validate-events/validateEvent.js';
