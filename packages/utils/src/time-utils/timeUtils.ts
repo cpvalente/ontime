@@ -1,6 +1,8 @@
 import type { MaybeNumber, RundownCached } from 'ontime-types';
 import { isOntimeEvent } from 'ontime-types';
 
+import { dayInMs } from '../date-utils/conversionUtils';
+
 export function calculateExpectedStart(
   rundownCached: RundownCached,
   offset: MaybeNumber,
@@ -35,16 +37,20 @@ export function calculateExpectedStart(
     const { timeStart, timeEnd } = event;
 
     const gap = previousEnd === null ? 0 : timeStart - previousEnd;
-
     if (gap > 0 && consumedOverTime < 0 && consumedOffset < 0) {
       const consume = Math.max(Math.min(gap - (gap + consumedOverTime), 0), gap);
       consumedOffset = Math.min(consumedOffset + consume, 0);
       consumedOverTime = Math.min(consumedOverTime + consume, 0);
     }
 
-    const expectedStart = timeStart - consumedOffset;
-    const timeUntil = expectedStart - clock;
-    expectedStarts[id] = { expectedStart, timeUntil };
+    const expectedStart = (timeStart - consumedOffset) % dayInMs;
+    const expectedStartDayCorrected = expectedStart < 0 ? dayInMs + expectedStart : expectedStart;
+    console.log({ id, clock, timeStart, timeEnd, dayLeft: dayInMs - clock, expectedStart, expectedStartDayCorrected });
+    const timeUntil =
+      clock > expectedStartDayCorrected
+        ? expectedStartDayCorrected + (dayInMs - clock)
+        : expectedStartDayCorrected - clock;
+    expectedStarts[id] = { expectedStart: expectedStartDayCorrected, timeUntil };
 
     previousEnd = timeEnd;
   });
