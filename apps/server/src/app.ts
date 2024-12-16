@@ -177,7 +177,7 @@ export const initAssets = async () => {
  */
 export const startServer = async (
   escalateErrorFn?: (error: string) => void,
-): Promise<{ message: string; serverPort: number; portError: boolean }> => {
+): Promise<{ message: string; serverPort: number }> => {
   checkStart(OntimeStartOrder.InitServer);
   const settings = getDataProvider().getSettings();
   const { serverPort: desiredPort } = settings;
@@ -186,7 +186,6 @@ export const startServer = async (
 
   // the express server must be started before the socket otherwise the on error eventlissner will not attach properly
   const resultPort = await serverTryDesiredPort(expressServer, desiredPort);
-  const portError = resultPort !== desiredPort;
   await getDataProvider().setSettings({ ...settings, serverPort: resultPort });
 
   socket.init(expressServer, prefix);
@@ -245,7 +244,6 @@ export const startServer = async (
   return {
     message: returnMessage,
     serverPort: resultPort,
-    portError,
   };
 };
 
@@ -345,7 +343,7 @@ async function serverTryDesiredPort(server: http.Server, desiredPort: number): P
   return new Promise((res) => {
     expressServer.once('error', (e) => {
       if (testForPortInUser(e)) {
-        logger.error(LogOrigin.Server, `Failed open the desired port: ${desiredPort} | to moving to Ephemeral port`);
+        logger.crash(LogOrigin.Server, `Failed open the desired port: ${desiredPort} | to moving to Ephemeral port`);
         server.listen(0, '0.0.0.0', () => {
           // @ts-expect-error TODO: find proper documentation for this api
           const port: number = server.address().port;

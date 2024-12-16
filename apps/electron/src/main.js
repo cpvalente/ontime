@@ -23,7 +23,7 @@ if (!isProduction) {
 }
 
 /** Flag holds server loading state */
-let loaded = 'Ontime running';
+let loaded = 'Ontime starting';
 
 /**
  * Flag whether user has requested a quit
