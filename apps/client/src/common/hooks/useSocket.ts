@@ -231,6 +231,17 @@ export const useTimelineStatus = () => {
   return useRuntimeStore(featureSelector);
 };
 
+export const useTimeUntilData = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    clock: state.clock,
+    offset: state.runtime.offset,
+    currentTimer: state.timer.current,
+    selectedEventIndex: state.runtime.selectedEventIndex,
+  });
+
+  return useRuntimeStore(featureSelector);
+};
+
 export const usePing = () => {
   const featureSelector = (state: RuntimeStore) => ({
     ping: state.ping,
