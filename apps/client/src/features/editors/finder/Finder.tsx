@@ -1,7 +1,7 @@
 import { KeyboardEvent, useState } from 'react';
 import { Input, Modal, ModalBody, ModalContent, ModalFooter, ModalOverlay } from '@chakra-ui/react';
 import { useDebouncedCallback } from '@mantine/hooks';
-import { isOntimeEvent, SupportedEvent } from 'ontime-types';
+import { SupportedEvent } from 'ontime-types';
 
 import { useEventSelection } from '../../rundown/useEventSelection';
 
@@ -65,14 +65,15 @@ export default function Finder(props: FinderProps) {
             {error && <li className={style.error}>{error}</li>}
             {results.length === 0 && <li className={style.empty}>No results</li>}
             {results.length > 0 &&
-              results.map((event, index) => {
+              results.map((entry, index) => {
                 const isSelected = selected === index;
-                const displayIndex = event.type === SupportedEvent.Block ? '-' : event.index;
-                const colour = event.type === SupportedEvent.Event ? event.colour : '';
+                const displayIndex = entry.type === SupportedEvent.Event ? entry.eventIndex : '-';
+                const displayCue = entry.type === SupportedEvent.Event ? entry.cue : '';
+                const colour = entry.type === SupportedEvent.Event ? entry.colour : '';
 
                 return (
                   <li
-                    key={event.id}
+                    key={entry.id}
                     className={style.entry}
                     data-selected={isSelected}
                     data-index={index}
@@ -82,8 +83,8 @@ export default function Finder(props: FinderProps) {
                       <div className={style.index} style={{ '--color': colour }}>
                         {displayIndex}
                       </div>
-                      {isOntimeEvent(event) && <div className={style.cue}>{event.cue}</div>}
-                      <div className={style.title}>{event.title}</div>
+                      <div className={style.cue}>{displayCue}</div>
+                      <div className={style.title}>{entry.title}</div>
                     </div>
                     {isSelected && <span>Go ⏎</span>}
                   </li>

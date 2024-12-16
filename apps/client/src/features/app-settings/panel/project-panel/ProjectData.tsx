@@ -10,6 +10,7 @@ import { postProjectData, uploadProjectLogo } from '../../../../common/api/proje
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useProjectData from '../../../../common/hooks-query/useProjectData';
 import { validateLogo } from '../../../../common/utils/uploadUtils';
+import { documentationUrl, websiteUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './ProjectPanel.module.scss';
@@ -203,7 +204,7 @@ export default function ProjectData() {
             <Input
               variant='ontime-filled'
               size='sm'
-              placeholder='www.getontime.no'
+              placeholder={websiteUrl}
               autoComplete='off'
               {...register('publicUrl')}
             />
@@ -225,7 +226,7 @@ export default function ProjectData() {
             <Input
               variant='ontime-filled'
               size='sm'
-              placeholder='http://docs.getontime.no'
+              placeholder={documentationUrl}
               autoComplete='off'
               {...register('backstageUrl')}
             />

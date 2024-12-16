@@ -11,6 +11,7 @@ import { connectSocket } from './common/utils/socket';
 import theme from './theme/theme';
 import { TranslationProvider } from './translation/TranslationProvider';
 import AppRouter from './AppRouter';
+import { baseURI } from './externals';
 
 connectSocket();
 
@@ -19,7 +20,7 @@ function App() {
     <ChakraProvider disableGlobalStyle resetCSS theme={theme}>
       <QueryClientProvider client={ontimeQueryClient}>
         <AppContextProvider>
-          <BrowserRouter>
+          <BrowserRouter basename={baseURI}>
             <div className='App'>
               <ErrorBoundary>
                 <TranslationProvider>

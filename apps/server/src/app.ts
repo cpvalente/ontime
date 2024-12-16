@@ -6,11 +6,11 @@ import expressStaticGzip from 'express-static-gzip';
 import http, { Server } from 'http';
 import cors from 'cors';
 import serverTiming from 'server-timing';
-import { extname, resolve } from 'path';
+import { extname } from 'node:path';
 
 // import utils
-import { publicDir, srcDir } from './setup/index.js';
-import { environment, isProduction, updateRouterPrefix } from './externals.js';
+import { publicDir, srcDir, srcFiles } from './setup/index.js';
+import { environment, isOntimeCloud, isProduction, updateRouterPrefix } from './externals.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
 
@@ -53,8 +53,14 @@ if (!canLog) {
   console.log(`Ontime public directory at ${publicDir.root} `);
 }
 
-// calls an update to the client router prefix
-updateRouterPrefix();
+/**
+ * When running in Ontime cloud, the client is not at the root segment
+ * ie: https://cloud.getontime.com/client-hash/timer
+ * This means:
+ * - changing the base path in the index.html file
+ * - prepending all express routes with the given prefix
+ */
+const prefix = updateRouterPrefix();
 
 // Create express APP
 const app = express();
@@ -75,20 +81,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json({ limit: '1mb' }));
 
 // Implement route endpoints
-app.use('/data', appRouter); // router for application data
-app.use('/api', integrationRouter); // router for integrations
+app.use(`${prefix}/data`, appRouter); // router for application data
+app.use(`${prefix}/api`, integrationRouter); // router for integrations
 
 // serve static external files
-app.use('/external', express.static(publicDir.externalDir));
-app.use('/user', express.static(publicDir.userDir));
-
-// if the user reaches to the root, we show a 404
-app.use('/external', (req, res) => {
+app.use(`${prefix}/external`, express.static(publicDir.externalDir));
+app.use(`${prefix}/external`, (req, res) => {
+  // if the user reaches to the root, we show a 404
   res.status(404).send(`${req.originalUrl} not found`);
 });
+app.use(`${prefix}/user`, express.static(publicDir.userDir));
 
 // serve static - react, in dev/test mode we fetch the React app from module
 app.use(
+  prefix,
   expressStaticGzip(srcDir.clientDir, {
     enableBrotli: true,
     orderPreference: ['br'],
@@ -111,8 +117,8 @@ app.use(
   }),
 );
 
-app.get('*', (_req, res) => {
-  res.sendFile(resolve(srcDir.clientDir, 'index.html'));
+app.get(`${prefix}/*`, (_req, res) => {
+  res.sendFile(srcFiles.clientIndexHtml);
 });
 
 // Implement catch all
@@ -183,7 +189,7 @@ export const startServer = async (
   const portError = resultPort !== desiredPort;
   await getDataProvider().setSettings({ ...settings, serverPort: resultPort });
 
-  socket.init(expressServer);
+  socket.init(expressServer, prefix);
 
   /**
    * Module initialises the services and provides initial payload for the store
@@ -209,7 +215,6 @@ export const startServer = async (
       playback: SimplePlayback.Stop,
       direction: SimpleDirection.CountDown,
     },
-    frozen: false,
     ping: -1,
   });
 
@@ -228,10 +233,10 @@ export const startServer = async (
   runtimeService.init(maybeRestorePoint);
 
   const nif = getNetworkInterfaces();
-  consoleSuccess(`Local: http://localhost:${resultPort}/editor`);
+  consoleSuccess(`Local: http://localhost:${resultPort}${prefix}/editor`);
   for (const key in nif) {
     const address = nif[key].address;
-    consoleSuccess(`Network: http://${address}:${resultPort}/editor`);
+    consoleSuccess(`Network: http://${address}:${resultPort}${prefix}/editor`);
   }
 
   const returnMessage = `Ontime is listening on port ${resultPort}`;
@@ -253,16 +258,6 @@ export const startIntegrations = async () => {
   // if a config is not provided, we use the persisted one
   const { osc, http } = getDataProvider().getData();
 
-  if (osc) {
-    logger.info(LogOrigin.Tx, 'Initialising OSC Integration...');
-    try {
-      oscIntegration.init(osc);
-      integrationService.register(oscIntegration);
-    } catch (error) {
-      logger.error(LogOrigin.Tx, 'OSC Integration initialisation failed');
-    }
-  }
-
   if (http) {
     logger.info(LogOrigin.Tx, 'Initialising HTTP Integration...');
     try {
@@ -270,6 +265,21 @@ export const startIntegrations = async () => {
       integrationService.register(httpIntegration);
     } catch (error) {
       logger.error(LogOrigin.Tx, `HTTP Integration initialisation failed: ${error}`);
+    }
+  }
+
+  if (isOntimeCloud) {
+    logger.info(LogOrigin.Tx, 'Skipping OSC in Cloud environment...');
+    return;
+  }
+
+  if (osc) {
+    logger.info(LogOrigin.Tx, 'Initialising OSC Integration...');
+    try {
+      oscIntegration.init(osc);
+      integrationService.register(oscIntegration);
+    } catch (error) {
+      logger.error(LogOrigin.Tx, 'OSC Integration initialisation failed');
     }
   }
 };

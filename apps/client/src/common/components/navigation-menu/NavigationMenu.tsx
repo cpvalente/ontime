@@ -17,7 +17,7 @@ import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoLockClosedOutline } from '@react-icons/all-files/io5/IoLockClosedOutline';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 
-import { isLocalhost, serverPort } from '../../../externals';
+import { isLocalhost } from '../../../externals';
 import { navigatorConstants } from '../../../viewerConfig';
 import useClickOutside from '../../hooks/useClickOutside';
 import { useElectronEvent } from '../../hooks/useElectronEvent';
@@ -25,7 +25,7 @@ import useInfo from '../../hooks-query/useInfo';
 import { useClientStore } from '../../stores/clientStore';
 import { useViewOptionsStore } from '../../stores/viewOptions';
 import { isKeyEnter } from '../../utils/keyEvent';
-import { handleLinks, openLink } from '../../utils/linkUtils';
+import { handleLinks, linkToOtherHost, openLink } from '../../utils/linkUtils';
 import { cx } from '../../utils/styleUtils';
 import { RenameClientModal } from '../client-modal/RenameClientModal';
 import CopyTag from '../copy-tag/CopyTag';
@@ -45,7 +45,7 @@ function NavigationMenu(props: NavigationMenuProps) {
 
   const { isOpen: isOpenRename, onOpen: onRenameOpen, onClose: onCloseRename } = useDisclosure();
   const { fullscreen, toggle } = useFullscreen();
-  const { toggleMirror } = useViewOptionsStore();
+  const { mirror, toggleMirror } = useViewOptionsStore();
   const location = useLocation();
 
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -65,7 +65,7 @@ function NavigationMenu(props: NavigationMenuProps) {
           <DrawerBody padding={0}>
             <div className={style.buttonsContainer}>
               <div
-                className={style.link}
+                className={cx([style.link, fullscreen && style.current])}
                 tabIndex={0}
                 role='button'
                 onClick={toggle}
@@ -77,7 +77,7 @@ function NavigationMenu(props: NavigationMenuProps) {
                 {fullscreen ? <IoContract /> : <IoExpand />}
               </div>
               <div
-                className={style.link}
+                className={cx([style.link, mirror && style.current])}
                 tabIndex={0}
                 role='button'
                 onClick={() => toggleMirror()}
@@ -154,7 +154,8 @@ function OtherAddresses(props: OtherAddressesProps) {
             return null;
           }
 
-          const address = `http://${nif.address}:${serverPort}${currentLocation}`;
+          const address = linkToOtherHost(nif.address, currentLocation);
+
           return (
             <CopyTag
               key={nif.name}

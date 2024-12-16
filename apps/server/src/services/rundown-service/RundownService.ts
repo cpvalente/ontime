@@ -21,7 +21,6 @@ import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 import * as cache from './rundownCache.js';
 import { getPlayableEvents, getTimedEvents } from './rundownUtils.js';
-import { eventStore } from '../../stores/EventStore.js';
 
 type PatchWithId = (Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) & { id: string };
 
@@ -274,8 +273,4 @@ export async function initRundown(rundown: Readonly<OntimeRundown>, customFields
 
   // notify timer of change
   notifyChanges({ timer: true, external: true, reload: true });
-}
-
-export async function setFrozenState(state: boolean) {
-  eventStore.set('frozen', state);
 }

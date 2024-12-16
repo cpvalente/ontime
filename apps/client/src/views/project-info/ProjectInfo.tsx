@@ -1,6 +1,7 @@
 import { ProjectData } from 'ontime-types';
 
 import Empty from '../../common/components/state/Empty';
+import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
@@ -16,13 +17,32 @@ interface ProjectInfoProps {
   isMirrored: boolean;
 }
 
-export default function ProjectInfoProps(props: ProjectInfoProps) {
+export default function ProjectInfo(props: ProjectInfoProps) {
   const { general, isMirrored } = props;
 
   useWindowTitle('Project info');
 
   if (!general) {
     return <Empty text='No data found' />;
+  }
+
+  if (!general) {
+    return (
+      <>
+        <ViewParamsEditor viewOptions={projectInfoOptions} />
+        return <EmptyPage text='No data found' />;
+      </>
+    );
+  }
+
+  const isEmpty = Object.values(general).every((value) => !value);
+  if (isEmpty) {
+    return (
+      <>
+        <ViewParamsEditor viewOptions={projectInfoOptions} />
+        <EmptyPage text='The project has no data yet' />;
+      </>
+    );
   }
 
   return (

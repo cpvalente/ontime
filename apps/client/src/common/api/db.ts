@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import { DatabaseModel, MessageResponse, ProjectData, ProjectFileListResponse, QuickStartData } from 'ontime-types';
 
-import { makeCSV, makeTable } from '../../features/cuesheet/cuesheetUtils';
+import { makeCSV, makeTable } from '../../views/cuesheet/cuesheet.utils';
 
 import { apiEntryUrl } from './constants';
 import { createBlob, downloadBlob } from './utils';

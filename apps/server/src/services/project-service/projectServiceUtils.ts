@@ -1,11 +1,16 @@
 import { DatabaseModel, MaybeString, ProjectFile } from 'ontime-types';
 
 import { existsSync } from 'fs';
-import { copyFile, readFile, rename, stat } from 'fs/promises';
+import { copyFile, readFile, stat } from 'fs/promises';
 import { extname, join } from 'path';
 
 import { publicDir } from '../../setup/index.js';
-import { ensureDirectory, getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
+import {
+  dockerSafeRename,
+  ensureDirectory,
+  getFilesFromFolder,
+  removeFileExtension,
+} from '../../utils/fileManagement.js';
 
 /**
  * Handles the upload of a new project file
@@ -14,13 +19,13 @@ import { ensureDirectory, getFilesFromFolder, removeFileExtension } from '../../
  */
 export async function handleUploaded(filePath: string, name: string) {
   const newFilePath = join(publicDir.projectsDir, name);
-  await rename(filePath, newFilePath);
+  await dockerSafeRename(filePath, newFilePath);
 }
 
 export async function handleImageUpload(filePath: string, name: string): Promise<string> {
   ensureDirectory(publicDir.logoDir);
   const newFilePath = join(publicDir.logoDir, name);
-  await rename(filePath, newFilePath);
+  await dockerSafeRename(filePath, newFilePath);
 
   return name;
 }
@@ -86,7 +91,7 @@ export async function copyCorruptFile(filePath: string, name: string): Promise<v
  */
 export async function moveCorruptFile(filePath: string, name: string): Promise<void> {
   const newPath = join(publicDir.corruptDir, name);
-  return rename(filePath, newPath);
+  return dockerSafeRename(filePath, newPath);
 }
 
 /**

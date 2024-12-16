@@ -238,3 +238,12 @@ export const usePing = () => {
 
   return useRuntimeStore(featureSelector);
 };
+
+/** convert ping into a derived value which changes less often */
+export const useIsOnline = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    isOnline: state.ping > 0,
+  });
+
+  return useRuntimeStore(featureSelector);
+};

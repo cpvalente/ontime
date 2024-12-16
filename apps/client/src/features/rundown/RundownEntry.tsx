@@ -34,6 +34,7 @@ interface RundownEntryProps {
   isNext: boolean;
   previousStart?: number;
   previousEnd?: number;
+  previousEntryId?: string;
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
   isRolling: boolean; // we need to know even if not related to this event
@@ -48,6 +49,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     isNext,
     previousStart,
     previousEnd,
+    previousEntryId,
     previousEventId,
     playback,
     isRolling,
@@ -84,7 +86,7 @@ export default function RundownEntry(props: RundownEntryProps) {
       case 'event-before': {
         const newEvent = { type: SupportedEvent.Event };
         const options = {
-          after: previousEventId,
+          after: previousEntryId,
         };
         return addEvent(newEvent, options);
       }
@@ -92,13 +94,13 @@ export default function RundownEntry(props: RundownEntryProps) {
         return addEvent({ type: SupportedEvent.Delay }, { after: data.id });
       }
       case 'delay-before': {
-        return addEvent({ type: SupportedEvent.Delay }, { after: previousEventId });
+        return addEvent({ type: SupportedEvent.Delay }, { after: previousEntryId });
       }
       case 'block': {
         return addEvent({ type: SupportedEvent.Block }, { after: data.id });
       }
       case 'block-before': {
-        return addEvent({ type: SupportedEvent.Block }, { after: previousEventId });
+        return addEvent({ type: SupportedEvent.Block }, { after: previousEntryId });
       }
       case 'swap': {
         const { value } = payload as FieldValue;
