@@ -121,6 +121,7 @@ export default function CuesheetPage() {
         columns={columns}
         handleUpdate={handleUpdate}
         handleUpdateCustom={handleUpdateCustom}
+        //TODO: stabilizer selectedEventId and currentBlockId
         selectedId={featureData.selectedEventId}
         currentBlockId={featureData.currentBlockId}
       />
