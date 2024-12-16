@@ -775,6 +775,7 @@ describe('getCustomFieldData()', () => {
       duration: 'duration',
       cue: 'cue',
       title: 'title',
+      isTimeToEnd: 'time to end',
       isPublic: 'public',
       skip: 'skip',
       note: 'notes',
@@ -825,6 +826,7 @@ describe('getCustomFieldData()', () => {
       duration: 'duration',
       cue: 'cue',
       title: 'title',
+      isTimeToEnd: 'time to end',
       isPublic: 'public',
       skip: 'skip',
       note: 'notes',
@@ -884,6 +886,7 @@ describe('parseExcel()', () => {
         'Title',
         'End Action',
         'Timer type',
+        'Time to end',
         'Public',
         'Skip',
         'Notes',
@@ -906,7 +909,8 @@ describe('parseExcel()', () => {
         'Guest Welcome',
         '',
         '',
-        'x',
+        'x', // <-- time to end
+        'x', // <-- public
         '',
         'Ballyhoo',
         'a0',
@@ -928,7 +932,8 @@ describe('parseExcel()', () => {
         'A song from the hearth',
         'load-next',
         'clock',
-        '',
+        'x', // <-- time to end
+        '', // <-- public
         'x',
         'Rainbow chase',
         'b0',
@@ -972,6 +977,7 @@ describe('parseExcel()', () => {
         timerType: 'count-down',
         endAction: 'none',
         isPublic: true,
+        isTimeToEnd: true,
         skip: false,
         note: 'Ballyhoo',
         custom: {
@@ -995,6 +1001,7 @@ describe('parseExcel()', () => {
         timeEnd: 30600000,
         title: 'A song from the hearth',
         timerType: 'clock',
+        isTimeToEnd: true,
         endAction: 'load-next',
         isPublic: false,
         skip: true,
@@ -1455,12 +1462,17 @@ describe('parseExcel()', () => {
       timeDanger: 'danger time',
       custom: {},
     };
+
     const result = parseExcel(testdata, {}, importMap);
     expect(result.rundown.length).toBe(2);
-    expect((result.rundown.at(0) as OntimeEvent).type).toBe(SupportedEvent.Event);
-    expect((result.rundown.at(0) as OntimeEvent).timerType).toBe(TimerType.CountDown);
-    expect((result.rundown.at(1) as OntimeEvent).type).toBe(SupportedEvent.Event);
-    expect((result.rundown.at(1) as OntimeEvent).timerType).toBe(TimerType.CountDown);
+    expect(result.rundown[0]).toMatchObject({
+      type: SupportedEvent.Event,
+      timerType: TimerType.CountDown,
+    });
+    expect(result.rundown[1]).toMatchObject({
+      type: SupportedEvent.Event,
+      timerType: TimerType.CountDown,
+    });
   });
 
   it('imports as events if timer type is empty or has whitespace', () => {
