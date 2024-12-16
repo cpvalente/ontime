@@ -1,20 +1,18 @@
 import { useMemo } from 'react';
 import { MaybeString, OntimeEvent, ProjectData, Runtime, Settings } from 'ontime-types';
-import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
-import useTimeUntil from '../../common/hooks/useTimeUntil';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
-import { formatDuration, formatTime, getDefaultFormat } from '../../common/utils/time';
+import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
 import { useTranslation } from '../../translation/TranslationProvider';
 
 import Section from './timeline-section/TimelineSection';
 import Timeline from './Timeline';
 import { getTimelineOptions } from './timeline.options';
-import {  getUpcomingEvents, useScopedRundown } from './timeline.utils';
+import { getUpcomingEvents, StableTimeUntil, useScopedRundown } from './timeline.utils';
 
 import './TimelinePage.scss';
 
@@ -86,29 +84,4 @@ export default function TimelinePage(props: TimelinePageProps) {
       />
     </div>
   );
-}
-
-function StableTimeUntil(id: string | undefined) {
-  const expectedRundown = useTimeUntil();
-  const { getLocalizedString } = useTranslation();
-
-  const lazyTimeToStart = useMemo(() => {
-    if (id === undefined) {
-      return;
-    }
-    const thisEvent = expectedRundown[id];
-
-    if (thisEvent === undefined) {
-      return;
-    }
-
-    const { timeUntil } = thisEvent;
-    // if the event is due, we dont need need the accurate value
-    if (timeUntil <= MILLIS_PER_SECOND) {
-      return getLocalizedString('timeline.due').toUpperCase();
-    }
-    return `T - ${formatDuration(timeUntil)}`;
-  }, [expectedRundown, getLocalizedString, id]);
-
-  return lazyTimeToStart;
 }

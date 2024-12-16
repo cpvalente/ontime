@@ -9,11 +9,14 @@ import {
   getTimeFromPrevious,
   isNewLatest,
   MILLIS_PER_HOUR,
+  MILLIS_PER_SECOND,
 } from 'ontime-utils';
 
+import useTimeUntil from '../../common/hooks/useTimeUntil';
 import { clamp } from '../../common/utils/math';
 import { formatDuration } from '../../common/utils/time';
 import { isStringBoolean } from '../../features/viewers/common/viewUtils';
+import { useTranslation } from '../../translation/TranslationProvider';
 
 import type { ProgressStatus } from './TimelineEntry';
 
@@ -77,16 +80,12 @@ export function makeTimelineSections(firstHour: number, lastHour: number) {
 /**
  * Returns a formatted label for a progress status
  */
-export function getStatusLabel(timeToStart: number, status: ProgressStatus): string {
+export function getStatusLabel(timeToStart: string, status: ProgressStatus): string {
   if (status === 'done' || status === 'live') {
     return status;
   }
 
-  if (timeToStart < 0) {
-    return 'pending';
-  }
-
-  return formatDuration(timeToStart);
+  return timeToStart;
 }
 
 interface ScopedRundownData {
@@ -198,9 +197,27 @@ export function getUpcomingEvents(events: OntimeRundown, selectedId: MaybeString
   };
 }
 
-/**
- * Utility function calculates time to start
- */
-export function getTimeToStart(now: number, start: number, delay: number, offset: number): number {
-  return start + delay - now - offset;
+export function StableTimeUntil(id: string | undefined) {
+  const expectedRundown = useTimeUntil();
+  const { getLocalizedString } = useTranslation();
+
+  const lazyTimeToStart = useMemo(() => {
+    if (id === undefined) {
+      return;
+    }
+    const thisEvent = expectedRundown[id];
+
+    if (thisEvent === undefined) {
+      return;
+    }
+
+    const { timeUntil } = thisEvent;
+    // if the event is due, we dont need need the accurate value
+    if (timeUntil <= MILLIS_PER_SECOND) {
+      return getLocalizedString('timeline.due').toUpperCase();
+    }
+    return `T - ${formatDuration(timeUntil)}`;
+  }, [expectedRundown, getLocalizedString, id]);
+
+  return lazyTimeToStart;
 }

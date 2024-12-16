@@ -8,51 +8,68 @@ export function calculateExpectedStart(
   offset: MaybeNumber,
   clock: number,
   selectedEventIndex: MaybeNumber,
-  currentTimer: MaybeNumber,
 ) {
-  if (selectedEventIndex === null || offset === null) {
+  if (offset === null || selectedEventIndex === null) {
     // If nothing is selected then it is just the planed starts
     return {};
   }
 
   const { order, rundown } = rundownCached;
-  const expectedStarts: Record<string, { expectedStart: number; timeUntil: number }> = {};
+  const expectedStarts: Record<
+    string,
+    { expectedStart: MaybeNumber; expectedEnd: number; timeUntil: MaybeNumber } | null
+  > = {};
 
+  let previousExpectedEnd = 0;
   let eventCounter = 0;
-  let previousEnd: MaybeNumber = null;
-  let consumedOverTime = Math.min(currentTimer ?? 0, 0);
-  let consumedOffset = offset;
+
   order.forEach((id) => {
     const event = rundown[id];
     if (!isOntimeEvent(event)) {
       return;
     }
-    if (eventCounter <= selectedEventIndex) {
+
+    // There are no valid values for previous events
+    if (eventCounter < selectedEventIndex) {
       eventCounter++;
-      previousEnd = event.timeEnd;
+      expectedStarts[id] = null;
       return;
     }
-    eventCounter++;
 
-    const { timeStart, timeEnd } = event;
+    const { timeStart, linkStart, duration, timeEnd } = event;
 
-    const gap = previousEnd === null ? 0 : timeStart - previousEnd;
-    if (gap > 0 && consumedOverTime < 0 && consumedOffset < 0) {
-      const consume = Math.max(Math.min(gap - (gap + consumedOverTime), 0), gap);
-      consumedOffset = Math.min(consumedOffset + consume, 0);
-      consumedOverTime = Math.min(consumedOverTime + consume, 0);
+    // The selected event only has an expected end value
+    if (eventCounter === selectedEventIndex) {
+      eventCounter++;
+      const expectedEnd = (timeEnd - offset) % dayInMs;
+      expectedStarts[id] = { expectedStart: null, expectedEnd, timeUntil: null };
+      previousExpectedEnd = expectedEnd;
+      return;
     }
 
-    const expectedStart = (timeStart - consumedOffset) % dayInMs;
-    const expectedStartDayCorrected = expectedStart < 0 ? dayInMs + expectedStart : expectedStart;
-    const timeUntil =
-      clock > expectedStartDayCorrected
-        ? expectedStartDayCorrected + (dayInMs - clock)
-        : expectedStartDayCorrected - clock;
-    expectedStarts[id] = { expectedStart: expectedStartDayCorrected, timeUntil };
+    // for events that are not linked we assume that the user wants it to start at this exact time
+    // but if the previous event will not manage to finis before that we expect it to be pushed out
+    if (linkStart === null) {
+      const expectedStart = (timeStart < previousExpectedEnd ? previousExpectedEnd : timeStart) % dayInMs;
+      const timeUntil = dayCorrectedTimeUntil(clock, expectedStart);
+      const expectedEnd = (expectedStart + duration) % dayInMs;
+      expectedStarts[id] = { expectedStart, expectedEnd, timeUntil };
+      previousExpectedEnd = expectedEnd;
+      return;
+    }
 
-    previousEnd = timeEnd;
+    //if the event is linked it must always start at the ending time of the previous event
+    const expectedStart = previousExpectedEnd;
+    const timeUntil = dayCorrectedTimeUntil(clock, expectedStart);
+    const expectedEnd = (expectedStart + duration) % dayInMs;
+    expectedStarts[id] = { expectedStart, expectedEnd, timeUntil };
+    previousExpectedEnd = expectedEnd;
   });
 
   return expectedStarts;
+}
+
+function dayCorrectedTimeUntil(clock: number, expectedStart: number) {
+  // return expectedStart - clock;
+  return clock <= expectedStart ? expectedStart - clock : expectedStart + (dayInMs - clock);
 }

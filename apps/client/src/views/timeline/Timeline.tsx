@@ -82,6 +82,7 @@ function Timeline(props: TimelineProps) {
             status={eventStatus}
             start={normalisedStart} // dataset solves issues related to crossing midnight
             title={event.title}
+            id={event.id}
             width={elementWidth}
           />
         );

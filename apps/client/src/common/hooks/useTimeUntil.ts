@@ -6,7 +6,7 @@ import { useTimeUntilData } from './useSocket';
 
 export default function useTimeUntil() {
   const { data: rundownCached } = useRundown();
-  const { offset, clock, currentTimer, selectedEventIndex } = useTimeUntilData();
+  const { offset, clock, selectedEventIndex } = useTimeUntilData();
 
-  return calculateExpectedStart(rundownCached, offset, clock, selectedEventIndex, currentTimer);
+  return calculateExpectedStart(rundownCached, offset, clock, selectedEventIndex);
 }

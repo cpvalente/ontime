@@ -235,7 +235,6 @@ export const useTimeUntilData = () => {
   const featureSelector = (state: RuntimeStore) => ({
     clock: state.clock,
     offset: state.runtime.offset,
-    currentTimer: state.timer.current,
     selectedEventIndex: state.runtime.selectedEventIndex,
   });
 

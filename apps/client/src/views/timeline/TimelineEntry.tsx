@@ -1,10 +1,10 @@
-import { useTimelineStatus, useTimer } from '../../common/hooks/useSocket';
+import { useTimer } from '../../common/hooks/useSocket';
 import { getProgress } from '../../common/utils/getProgress';
 import { alpha, cx } from '../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
 
-import { getStatusLabel, getTimeToStart } from './timeline.utils';
+import { getStatusLabel, StableTimeUntil } from './timeline.utils';
 
 import style from './Timeline.module.scss';
 
@@ -19,6 +19,7 @@ interface TimelineEntryProps {
   start: number;
   title: string;
   width: number;
+  id: string;
 }
 
 const formatOptions = {
@@ -27,7 +28,7 @@ const formatOptions = {
 };
 
 export function TimelineEntry(props: TimelineEntryProps) {
-  const { colour, delay, duration, left, status, start, title, width } = props;
+  const { colour, delay, duration, left, status, start, title, width, id } = props;
 
   const formattedStartTime = formatTime(start, formatOptions);
   const formattedDuration = formatDuration(duration);
@@ -65,7 +66,7 @@ export function TimelineEntry(props: TimelineEntryProps) {
         {status !== 'done' && (
           <>
             <div className={style.duration}>{formattedDuration}</div>
-            <TimelineEntryStatus delay={delay} start={start} status={status} />
+            <TimelineEntryStatus id={id} status={status} />
           </>
         )}
       </div>
@@ -74,19 +75,17 @@ export function TimelineEntry(props: TimelineEntryProps) {
 }
 
 interface TimelineEntryStatusProps {
-  delay: number;
-  start: number;
   status: ProgressStatus;
+  id: string;
 }
 
 // extract component to isolate re-renders provoked by the clock changes
 function TimelineEntryStatus(props: TimelineEntryStatusProps) {
-  const { delay, start, status } = props;
-  const { clock, offset } = useTimelineStatus();
+  const { status, id } = props;
   const { getLocalizedString } = useTranslation();
 
   // start times need to be normalised in a rundown that crosses midnight
-  let statusText = getStatusLabel(getTimeToStart(clock, start, delay, offset), status);
+  let statusText = getStatusLabel(StableTimeUntil(id) ?? '', status);
   if (statusText === 'live') {
     statusText = getLocalizedString('timeline.live');
   } else if (statusText === 'pending') {
