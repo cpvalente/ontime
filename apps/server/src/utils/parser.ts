@@ -110,6 +110,7 @@ export const parseExcel = (
   // options: booleans
   let isPublicIndex: number | null = null;
   let skipIndex: number | null = null;
+  let isTimeToEndIndex: number | null = null;
 
   let linkStartIndex: number | null = null;
 
@@ -158,6 +159,10 @@ export const parseExcel = (
       [importMap.title]: (row: number, col: number) => {
         titleIndex = col;
         rundownMetadata['title'] = { row, col };
+      },
+      [importMap.isTimeToEnd]: (row: number, col: number) => {
+        isTimeToEndIndex = col;
+        rundownMetadata['isTimeToEnd'] = { row, col };
       },
       [importMap.isPublic]: (row: number, col: number) => {
         isPublicIndex = col;
@@ -226,6 +231,8 @@ export const parseExcel = (
         event.duration = parseExcelDate(column);
       } else if (j === cueIndex) {
         event.cue = makeString(column, '');
+      } else if (j === isTimeToEndIndex) {
+        event.isTimeToEnd = parseBooleanString(column);
       } else if (j === isPublicIndex) {
         event.isPublic = parseBooleanString(column);
       } else if (j === skipIndex) {
@@ -271,7 +278,6 @@ export const parseExcel = (
 
     // if any data was found in row, push to array
     const keysFound = Object.keys(event).length + Object.keys(eventCustomFields).length;
-    console.log('keys found ---->', event)
     if (keysFound > 0) {
       // if it is a Block type drop all other filed
       if (isOntimeBlock(event)) {
