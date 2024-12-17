@@ -17,9 +17,9 @@ import CuesheetEventEditor from '../../features/rundown/event-editor/CuesheetEve
 
 import CuesheetDnd from './cuesheet-dnd/CuesheetDnd';
 import CuesheetProgress from './cuesheet-progress/CuesheetProgress';
+import { makeCuesheetColumns } from './cuesheet-table/cuesheet-table-elements/cuesheetCols';
 import CuesheetTable from './cuesheet-table/CuesheetTable';
 import { cuesheetOptions } from './cuesheet.options';
-import { makeCuesheetColumns } from './cuesheet-table/cuesheet-table-elements/cuesheetCols';
 
 import styles from './CuesheetPage.module.scss';
 
