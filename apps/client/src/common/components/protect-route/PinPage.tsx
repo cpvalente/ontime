@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { IconButton, PinInput, PinInputField } from '@chakra-ui/react';
+import { IconButton } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
+
+import { PinInput } from '../../../components/ui/pin-input';
 
 import style from './ProtectRoute.module.scss';
 
@@ -47,16 +49,11 @@ export default function PinPage(props: PinPageProps) {
           mask
           autoFocus
           value={pin}
-          onChange={(value) => {
+          onValueChange={(value) => {
             setFailed(false);
             setPin(value);
           }}
-        >
-          <PinInputField />
-          <PinInputField />
-          <PinInputField />
-          <PinInputField />
-        </PinInput>
+        />
         <IconButton
           variant='ontime-filled'
           aria-label='Enter'

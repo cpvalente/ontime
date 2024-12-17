@@ -1,4 +1,4 @@
-import { Button, ButtonGroup } from '@chakra-ui/react';
+import { Button, Group } from '@chakra-ui/react';
 
 import { AppMode, useAppMode } from '../../../common/stores/appModeStore';
 
@@ -14,14 +14,14 @@ export default function RundownHeader() {
 
   return (
     <div className={style.header}>
-      <ButtonGroup isAttached>
+      <Group attached>
         <Button size='sm' variant={appMode === AppMode.Run ? 'ontime-filled' : 'ontime-subtle'} onClick={setRunMode}>
           Run
         </Button>
         <Button size='sm' variant={appMode === AppMode.Edit ? 'ontime-filled' : 'ontime-subtle'} onClick={setEditMode}>
           Edit
         </Button>
-      </ButtonGroup>
+      </Group>
       <RundownMenu />
     </div>
   );

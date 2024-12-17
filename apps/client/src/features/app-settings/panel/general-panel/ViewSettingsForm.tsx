@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, AlertDescription, AlertIcon, Button, Input, Switch } from '@chakra-ui/react';
+import { Button, Input } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -9,6 +9,8 @@ import ExternalLink from '../../../../common/components/external-link/ExternalLi
 import { PopoverPickerRHF } from '../../../../common/components/input/popover-picker/PopoverPicker';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
+import { Alert } from '../../../../components/ui/alert';
+import { Switch } from '../../../../components/ui/switch';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './GeneralPanel.module.scss';
@@ -81,16 +83,20 @@ export default function ViewSettingsForm() {
           </div>
         </Panel.SubHeader>
         <Panel.Divider />
-        <Alert status='info' variant='ontime-on-dark-info'>
-          <AlertIcon />
-          <AlertDescription>
-            You can the Ontime views or customise its styles by modifying the provided CSS file. <br />
-            The CSS file is in the user directory at {`${info.publicDir}/user/styles/override.css`}
-            <br />
-            <br />
-            <ExternalLink href={cssOverrideDocsUrl}>See the docs</ExternalLink>
-          </AlertDescription>
-        </Alert>
+        <Alert
+          status='info'
+          variant='ontime-on-dark-info'
+          title={
+            <>
+              {/* <AlertIcon /> */}
+              You can the Ontime views or customise its styles by modifying the provided CSS file. <br />
+              The CSS file is in the user directory at {`${info.publicDir}/user/styles/override.css`}
+              <br />
+              <br />
+              <ExternalLink href={cssOverrideDocsUrl}>See the docs</ExternalLink>
+            </>
+          }
+        ></Alert>
         <Panel.Section>
           <Panel.Loader isLoading={isLoading} />
           <Panel.ListGroup>

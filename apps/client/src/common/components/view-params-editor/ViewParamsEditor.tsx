@@ -2,13 +2,13 @@ import { FormEvent, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Button,
-  Drawer,
+  DrawerBackdrop,
   DrawerBody,
-  DrawerCloseButton,
+  DrawerCloseTrigger,
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
-  DrawerOverlay,
+  DrawerRoot,
   useDisclosure,
 } from '@chakra-ui/react';
 import { IoAlertCircle } from '@react-icons/all-files/io5/IoAlertCircle';
@@ -92,7 +92,7 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: viewSettings } = useViewSettings();
 
-  const { isOpen, onClose, onOpen } = useDisclosure();
+  const { open: isOpen, onClose, onOpen } = useDisclosure();
 
   useEffect(() => {
     const isEditing = searchParams.get('edit');
@@ -123,11 +123,11 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
   };
 
   return (
-    <Drawer isOpen={isOpen} placement='right' onClose={handleClose} variant='ontime' size='lg'>
-      <DrawerOverlay />
+    <DrawerRoot isOpen={isOpen} placement='end' onClose={handleClose} variant='ontime' size='lg'>
+      <DrawerBackdrop />
       <DrawerContent>
         <DrawerHeader>
-          <DrawerCloseButton size='lg' />
+          <DrawerCloseTrigger size='lg' />
           Customise
         </DrawerHeader>
 
@@ -174,6 +174,6 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
           </Button>
         </DrawerFooter>
       </DrawerContent>
-    </Drawer>
+    </DrawerRoot>
   );
 }

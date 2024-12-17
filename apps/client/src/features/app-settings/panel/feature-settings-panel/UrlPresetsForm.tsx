@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Alert, AlertDescription, AlertIcon, Button, IconButton, Input, Switch } from '@chakra-ui/react';
+import { Button, IconButton, Input } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoOpenOutline } from '@react-icons/all-files/io5/IoOpenOutline';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
@@ -13,6 +13,8 @@ import ExternalLink from '../../../../common/components/external-link/ExternalLi
 import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
 import { handleLinks } from '../../../../common/utils/linkUtils';
 import { validateUrlPresetPath } from '../../../../common/utils/urlPresets';
+import { Alert } from '../../../../components/ui/alert';
+import { Switch } from '../../../../components/ui/switch';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './FeatureSettings.module.scss';
@@ -102,32 +104,36 @@ export default function UrlPresetsForm() {
           </div>
         </Panel.SubHeader>
         <Panel.Divider />
-        <Alert status='info' variant='ontime-on-dark-info'>
-          <AlertIcon />
-          <AlertDescription>
-            URL presets are user defined aliases to Ontime URLs
-            <br />
-            <br />
-            <b>Preset Name</b> <br />
-            The alias for the URL. This will be the URL you will be calling. eg: <br />
-            <Panel.BlockQuote>
-              Preset name <Panel.Highlight>cam3</Panel.Highlight> called as{' '}
-              <Panel.Highlight>http://localhost:4001/cam3</Panel.Highlight>
-            </Panel.BlockQuote>
-            <br />
-            <b>URL Segment</b> <br />
-            The corresponding alias path and configuration parameters. eg: <br />
-            <Panel.BlockQuote>
-              URL segment <Panel.Highlight>backstage?hidePast=true&stopCycle=true</Panel.Highlight> corresponds to
-              complete URL
-              <Panel.Highlight>http://localhost:4001/backstage?hidePast=true&stopCycle=true</Panel.Highlight>
-            </Panel.BlockQuote>
-            <br />
-            You will need to save the changes before the presets are functional.
-            <br />
-            <ExternalLink href={urlPresetsDocs}>See the docs</ExternalLink>
-          </AlertDescription>
-        </Alert>
+        <Alert
+          status='info'
+          variant='ontime-on-dark-info'
+          title={
+            <>
+              {/* <AlertIcon /> */}
+              URL presets are user defined aliases to Ontime URLs
+              <br />
+              <br />
+              <b>Preset Name</b> <br />
+              The alias for the URL. This will be the URL you will be calling. eg: <br />
+              <Panel.BlockQuote>
+                Preset name <Panel.Highlight>cam3</Panel.Highlight> called as{' '}
+                <Panel.Highlight>http://localhost:4001/cam3</Panel.Highlight>
+              </Panel.BlockQuote>
+              <br />
+              <b>URL Segment</b> <br />
+              The corresponding alias path and configuration parameters. eg: <br />
+              <Panel.BlockQuote>
+                URL segment <Panel.Highlight>backstage?hidePast=true&stopCycle=true</Panel.Highlight> corresponds to
+                complete URL
+                <Panel.Highlight>http://localhost:4001/backstage?hidePast=true&stopCycle=true</Panel.Highlight>
+              </Panel.BlockQuote>
+              <br />
+              You will need to save the changes before the presets are functional.
+              <br />
+              <ExternalLink href={urlPresetsDocs}>See the docs</ExternalLink>
+            </>
+          }
+        />
         <Panel.Section>
           <Panel.Loader isLoading={isLoading} />
           <Panel.Title>
@@ -203,10 +209,11 @@ export default function UrlPresetsForm() {
                         onClick={() => remove(index)}
                         variant='ontime-ghosted'
                         color='#FA5656' // $red-500
-                        icon={<IoTrash />}
                         aria-label='Delete entry'
                         data-testid={`field__delete_${index}`}
-                      />
+                      >
+                        <IoTrash />
+                      </IconButton>
                     </td>
                   </tr>
                 );

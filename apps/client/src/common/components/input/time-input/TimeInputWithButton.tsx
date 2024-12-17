@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
-import { InputGroup } from '@chakra-ui/react';
 
+import { InputGroup } from '../../../../components/ui/input-group';
 import { cx } from '../../../utils/styleUtils';
 
 import TimeInput from './TimeInput';

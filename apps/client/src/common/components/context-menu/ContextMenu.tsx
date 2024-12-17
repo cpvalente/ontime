@@ -2,9 +2,11 @@
 // https://github.com/lukasbach/chakra-ui-contextmenu/blob/main/src/ContextMenu.tsx
 
 import { ReactElement } from 'react';
-import { Menu, MenuButton, MenuGroup, MenuList } from '@chakra-ui/react';
 import { IconType } from '@react-icons/all-files';
 import { create } from 'zustand';
+
+import { Button } from '../../../components/ui/button';
+import { MenuContent, MenuItemGroup, MenuRoot, MenuTrigger } from '../../../components/ui/menu';
 
 import { ContextMenuOption } from './ContextMenuOption';
 
@@ -68,32 +70,35 @@ export const ContextMenu = ({ children }: ContextMenuProps) => {
     <>
       {children}
       <div className={style.contextMenuBackdrop} />
-      <Menu isOpen size='sm' gutter={0} onClose={onClose} isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
-        <MenuButton
-          className={style.contextMenuButton}
-          aria-hidden
-          w={1}
-          h={1}
-          style={{
-            position: 'fixed',
-            left: coords.x,
-            top: coords.y,
-          }}
-        />
-        <MenuList>
+      <MenuRoot isOpen size='sm' gutter={0} onClose={onClose} isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
+        <MenuTrigger asChild>
+          <Button
+            className={style.contextMenuButton}
+            aria-hidden
+            w={1}
+            h={1}
+            style={{
+              position: 'fixed',
+              left: coords.x,
+              top: coords.y,
+            }}
+          />
+        </MenuTrigger>
+
+        <MenuContent>
           {options.map((option) =>
             isOptionWithGroup(option) ? (
-              <MenuGroup key={option.label} title={option.label}>
+              <MenuItemGroup key={option.label} title={option.label}>
                 {option.group.map((groupOption) => (
                   <ContextMenuOption key={groupOption.label} {...groupOption} />
                 ))}
-              </MenuGroup>
+              </MenuItemGroup>
             ) : (
               <ContextMenuOption key={option.label} {...option} />
             ),
           )}
-        </MenuList>
-      </Menu>
+        </MenuContent>
+      </MenuRoot>
     </>
   );
 };

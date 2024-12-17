@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
+import { IconButton, MenuSelectionDetails } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 
 import {
@@ -12,6 +12,7 @@ import {
 } from '../../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';
 import { cx } from '../../../../common/utils/styleUtils';
+import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from '../../../../components/ui/menu';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import ProjectForm, { ProjectFormValues } from './ProjectForm';
@@ -183,32 +184,56 @@ function ActionMenu(props: ActionMenuProps) {
     await downloadCSV(filename);
   };
 
+  const onMenuSelect = ({ value }: MenuSelectionDetails) => {
+    switch (value) {
+      case 'rename':
+        return handleRename();
+      case 'duplicate':
+        return handleDuplicate();
+      case 'load':
+        return onLoad(filename);
+      case 'partialLoad':
+        return onMerge(filename);
+      case 'delete':
+        return onDelete(filename);
+      case 'download':
+        return handleDownload();
+      case 'exportCSV':
+        return handleExportCSV();
+
+      default:
+        return;
+    }
+  };
+
   return (
-    <Menu variant='ontime-on-dark' size='sm'>
-      <MenuButton
-        as={IconButton}
-        aria-label='Options'
-        icon={<IoEllipsisHorizontal />}
-        color='#e2e2e2' // $gray-200
-        variant='ontime-ghosted'
-        size='sm'
-        isDisabled={isDisabled}
-      />
-      <MenuList>
-        <MenuItem onClick={() => onLoad(filename)} isDisabled={current}>
+    <MenuRoot variant='ontime-on-dark' size='sm' onSelect={onMenuSelect}>
+      <MenuTrigger asChild>
+        <IconButton
+          aria-label='Options'
+          icon={<IoEllipsisHorizontal />}
+          color='#e2e2e2' // $gray-200
+          variant='ontime-ghosted'
+          size='sm'
+          isDisabled={isDisabled}
+        />
+      </MenuTrigger>
+
+      <MenuContent>
+        <MenuItem value='load' disabled={current}>
           Load
         </MenuItem>
-        <MenuItem onClick={() => onMerge(filename)} isDisabled={current}>
+        <MenuItem value='partialLoad' disabled={current}>
           Partial Load
         </MenuItem>
-        <MenuItem onClick={handleRename}>Rename</MenuItem>
-        <MenuItem onClick={handleDuplicate}>Duplicate</MenuItem>
-        <MenuItem onClick={handleDownload}>Download</MenuItem>
-        <MenuItem onClick={handleExportCSV}>Export CSV Rundown</MenuItem>
-        <MenuItem isDisabled={current} onClick={() => onDelete(filename)}>
+        <MenuItem value='rename'>Rename</MenuItem>
+        <MenuItem value='duplicate'>Duplicate</MenuItem>
+        <MenuItem value='download'>Download</MenuItem>
+        <MenuItem value='exportCSV'>Export CSV Rundown</MenuItem>
+        <MenuItem value='delete' disabled={current}>
           Delete
         </MenuItem>
-      </MenuList>
-    </Menu>
+      </MenuContent>
+    </MenuRoot>
   );
 }

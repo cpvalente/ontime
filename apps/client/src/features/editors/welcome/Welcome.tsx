@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react';
+import { Button, DialogBackdrop, DialogBody, DialogCloseTrigger, DialogContent, DialogRoot } from '@chakra-ui/react';
 
 import { loadDemo, loadProject } from '../../../common/api/db';
 import { invalidateAllCaches } from '../../../common/api/utils';
@@ -53,11 +53,12 @@ export default function Welcome(props: WelcomeProps) {
   };
 
   return (
-    <Modal isOpen onClose={handleClose} closeOnOverlayClick={false} variant='ontime'>
-      <ModalOverlay />
-      <ModalContent maxWidth='max(640px, 40vw)'>
-        <ModalCloseButton />
-        <ModalBody>
+    <DialogRoot open onOpenChange={handleClose} closeOnInteractOutside={false} variant='ontime'>
+      <DialogBackdrop />
+      {/* maxWidth='max(640px, 40vw)' */}
+      <DialogContent>
+        <DialogCloseTrigger />
+        <DialogBody>
           <div className={style.sections}>
             <div className={style.column}>
               <img src='ontime-logo.png' alt='ontime' className={style.logo} />
@@ -92,8 +93,8 @@ export default function Welcome(props: WelcomeProps) {
               </div>
             </div>
           </div>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+        </DialogBody>
+      </DialogContent>
+    </DialogRoot>
   );
 }

@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import {
   Button,
+  DialogBackdrop,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
   Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
 } from '@chakra-ui/react';
 
 import { setClientRemote } from '../../hooks/useSocket';
@@ -36,12 +36,12 @@ export function RenameClientModal(props: RenameClientModalProps) {
   const canSubmit = name !== currentName && name !== '';
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Rename: {currentName}</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
+    <DialogRoot isOpen={isOpen} onClose={onClose} variant='ontime'>
+      <DialogBackdrop />
+      <DialogContent>
+        <DialogHeader>Rename: {currentName}</DialogHeader>
+        <DialogCloseTrigger />
+        <DialogBody>
           <Input
             variant='ontime-filled'
             size='md'
@@ -49,16 +49,16 @@ export function RenameClientModal(props: RenameClientModalProps) {
             value={name}
             onChange={(event) => setName(event.target.value)}
           />
-        </ModalBody>
-        <ModalFooter>
+        </DialogBody>
+        <DialogFooter>
           <Button size='md' variant='ontime-subtle' onClick={onClose}>
             Cancel
           </Button>
           <Button size='md' variant='ontime-filled' onClick={handleRename} isDisabled={!canSubmit}>
             Submit
           </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </DialogFooter>
+      </DialogContent>
+    </DialogRoot>
   );
 }

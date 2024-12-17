@@ -2,12 +2,12 @@ import { memo, PropsWithChildren, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Drawer,
+  DrawerBackdrop,
   DrawerBody,
-  DrawerCloseButton,
+  DrawerCloseTrigger,
   DrawerContent,
   DrawerHeader,
-  DrawerOverlay,
+  DrawerRoot,
   useDisclosure,
 } from '@chakra-ui/react';
 import { useFullscreen } from '@mantine/hooks';
@@ -55,11 +55,12 @@ function NavigationMenu(props: NavigationMenuProps) {
   return createPortal(
     <div id='navigation-menu-portal' ref={menuRef}>
       <RenameClientModal id={id} name={name} isOpen={isOpenRename} onClose={onCloseRename} />
-      <Drawer placement='left' onClose={onClose} isOpen={isOpen} variant='ontime' data-testid='navigation__menu'>
-        <DrawerOverlay />
-        <DrawerContent maxWidth='22rem'>
+      <DrawerRoot placement='end' onClose={onClose} isOpen={isOpen} variant='ontime' data-testid='navigation__menu'>
+        <DrawerBackdrop />
+        {/* maxWidth='22rem' */}
+        <DrawerContent>
           <DrawerHeader>
-            <DrawerCloseButton size='lg' />
+            <DrawerCloseTrigger size='lg' />
             Ontime
           </DrawerHeader>
           <DrawerBody padding={0}>
@@ -126,7 +127,7 @@ function NavigationMenu(props: NavigationMenuProps) {
             {isLocalhost && <OtherAddresses currentLocation={location.pathname} />}
           </DrawerBody>
         </DrawerContent>
-      </Drawer>
+      </DrawerRoot>
     </div>,
     document.body,
   );
