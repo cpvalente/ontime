@@ -9,6 +9,8 @@ import {
   isOntimeDelay,
   isOntimeEvent,
   OntimeRundown,
+  PatchWithId,
+  EventPostPayload,
 } from 'ontime-types';
 import { getCueCandidate } from 'ontime-utils';
 
@@ -22,8 +24,6 @@ import { runtimeService } from '../runtime-service/RuntimeService.js';
 import * as cache from './rundownCache.js';
 import { getPlayableEvents, getTimedEvents } from './rundownUtils.js';
 
-type PatchWithId = (Partial<OntimeEvent> | Partial<OntimeBlock> | Partial<OntimeDelay>) & { id: string };
-
 type CompleteEntry<T> =
   T extends Partial<OntimeEvent>
     ? OntimeEvent
@@ -35,12 +35,13 @@ type CompleteEntry<T> =
 
 function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>>(
   eventData: T,
+  afterId?: string,
 ): CompleteEntry<T> {
   // we discard any UI provided IDs and add our own
   const id = cache.getUniqueId();
 
   if (isOntimeEvent(eventData)) {
-    return createEvent(eventData, getCueCandidate(cache.getPersistedRundown(), eventData?.after)) as CompleteEntry<T>;
+    return createEvent(eventData, getCueCandidate(cache.getPersistedRundown(), afterId)) as CompleteEntry<T>;
   }
 
   if (isOntimeDelay(eventData)) {
@@ -59,9 +60,11 @@ function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | P
  * @param {object} eventData
  * @return {OntimeRundownEntry}
  */
-export async function addEvent(eventData: PatchWithId & { after?: string }): Promise<OntimeRundownEntry> {
+export async function addEvent(eventData: EventPostPayload): Promise<OntimeRundownEntry> {
   // if the user didnt provide an index, we add the event to start
   let atIndex = 0;
+  let afterId: string | undefined = eventData?.after;
+
   if (eventData?.after !== undefined) {
     const previousIndex = cache.getIndexOf(eventData.after);
     if (previousIndex < 0) {
@@ -69,10 +72,20 @@ export async function addEvent(eventData: PatchWithId & { after?: string }): Pro
     } else {
       atIndex = previousIndex + 1;
     }
+  } else if (eventData?.before !== undefined) {
+    const previousIndex = cache.getIndexOf(eventData.before);
+    if (previousIndex < 0) {
+      logger.warning(LogOrigin.Server, `Could not find event with id ${eventData.before}`);
+    } else {
+      atIndex = previousIndex;
+      if (previousIndex > 0) {
+        afterId = cache.getPersistedRundown()[atIndex - 1].id;
+      }
+    }
   }
 
   // generate a fully formed event from the patch
-  const eventToAdd = generateEvent(eventData);
+  const eventToAdd = generateEvent(eventData, afterId);
 
   // modify rundown
   const scopedMutation = cache.mutateCache(cache.add);

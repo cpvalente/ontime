@@ -149,16 +149,18 @@ export const setAuxTimer = {
   setDuration: (time: number) => socketSendJson('auxtimer', { '1': { duration: time } }),
 };
 
-export const useCuesheet = () => {
+export const useSelectedEventId = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    playback: state.timer.playback,
-    currentBlockId: state.currentBlock.block?.id ?? null,
     selectedEventId: state.eventNow?.id ?? null,
-    selectedEventIndex: state.runtime.selectedEventIndex,
-    numEvents: state.runtime.numEvents,
-    titleNow: state.eventNow?.title || '',
   });
 
+  return useRuntimeStore(featureSelector);
+};
+
+export const useCurrentBlockId = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    currentBlockId: state.currentBlock.block?.id ?? null,
+  });
   return useRuntimeStore(featureSelector);
 };
 
