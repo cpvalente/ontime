@@ -22,7 +22,8 @@ const MultiLineCell = (props: MultiLineCellProps) => {
       inputref={ref}
       rows={1}
       size='sm'
-      style={{ padding: 0 }}
+      padding={0}
+      fontSize='1rem'
       transition='none'
       variant='ontime-transparent'
       value={value}
