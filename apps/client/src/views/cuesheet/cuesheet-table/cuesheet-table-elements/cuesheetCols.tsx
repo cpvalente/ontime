@@ -109,7 +109,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       accessorKey: 'cue',
       id: 'cue',
       header: 'Cue',
-      cell: (row) => row.getValue(),
+      cell: MakeSingleLineField,
       size: 75,
     },
     {
