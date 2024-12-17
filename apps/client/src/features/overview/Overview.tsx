@@ -1,10 +1,10 @@
-import { memo, useMemo } from 'react';
+import { memo, PropsWithChildren, ReactNode, useMemo } from 'react';
 import { millisToString } from 'ontime-utils';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
-import { useRuntimeOverview, useRuntimePlaybackOverview, useTimer } from '../../common/hooks/useSocket';
+import { useIsOnline, useRuntimeOverview, useRuntimePlaybackOverview, useTimer } from '../../common/hooks/useSocket';
 import useProjectData from '../../common/hooks-query/useProjectData';
-import { enDash } from '../../common/utils/styleUtils';
+import { cx, enDash } from '../../common/utils/styleUtils';
 
 import { TimeColumn, TimeRow } from './composite/TimeLayout';
 import { calculateEndAndDaySpan, formatedTime, getOffsetText } from './overviewUtils';
@@ -13,7 +13,7 @@ import style from './Overview.module.scss';
 
 export const EditorOverview = memo(_EditorOverview);
 
-function _EditorOverview({ children }: { children: React.ReactNode }) {
+function _EditorOverview({ children }: PropsWithChildren) {
   const { plannedEnd, plannedStart, actualStart, expectedEnd } = useRuntimeOverview();
 
   const [maybePlannedEnd, maybePlannedDaySpan] = useMemo(() => calculateEndAndDaySpan(plannedEnd), [plannedEnd]);
@@ -23,36 +23,26 @@ function _EditorOverview({ children }: { children: React.ReactNode }) {
   const expectedEndText = formatedTime(maybeExpectedEnd);
 
   return (
-    <div className={style.overview}>
-      <ErrorBoundary>
-        <div className={style.nav}>{children}</div>
-        <div className={style.info}>
-          <TitlesOverview />
-          <div>
-            <TimeRow label='Planned start' value={formatedTime(plannedStart)} className={style.start} />
-            <TimeRow label='Actual start' value={formatedTime(actualStart)} className={style.start} />
-          </div>
-          <ProgressOverview />
-          <CurrentBlockOverview />
-          <RuntimeOverview />
-          <div>
-            <TimeRow label='Planned end' value={plannedEndText} className={style.end} daySpan={maybePlannedDaySpan} />
-            <TimeRow
-              label='Expected end'
-              value={expectedEndText}
-              className={style.end}
-              daySpan={maybeExpectedDaySpan}
-            />
-          </div>
-        </div>
-      </ErrorBoundary>
-    </div>
+    <OverviewWrapper navElements={children}>
+      <TitlesOverview />
+      <div>
+        <TimeRow label='Planned start' value={formatedTime(plannedStart)} className={style.start} />
+        <TimeRow label='Actual start' value={formatedTime(actualStart)} className={style.start} />
+      </div>
+      <ProgressOverview />
+      <CurrentBlockOverview />
+      <RuntimeOverview />
+      <div>
+        <TimeRow label='Planned end' value={plannedEndText} className={style.end} daySpan={maybePlannedDaySpan} />
+        <TimeRow label='Expected end' value={expectedEndText} className={style.end} daySpan={maybeExpectedDaySpan} />
+      </div>
+    </OverviewWrapper>
   );
 }
 
 export const CuesheetOverview = memo(_CuesheetOverview);
 
-function _CuesheetOverview({ children }: { children: React.ReactNode }) {
+function _CuesheetOverview({ children }: PropsWithChildren) {
   const { plannedEnd, expectedEnd } = useRuntimeOverview();
 
   const [maybePlannedEnd, maybePlannedDaySpan] = useMemo(() => calculateEndAndDaySpan(plannedEnd), [plannedEnd]);
@@ -62,23 +52,29 @@ function _CuesheetOverview({ children }: { children: React.ReactNode }) {
   const expectedEndText = formatedTime(maybeExpectedEnd);
 
   return (
-    <div className={style.overview}>
+    <OverviewWrapper navElements={children}>
+      <TitlesOverview />
+      <TimerOverview />
+      <RuntimeOverview />
+      <div>
+        <TimeRow label='Planned end' value={plannedEndText} className={style.end} daySpan={maybePlannedDaySpan} />
+        <TimeRow label='Expected end' value={expectedEndText} className={style.end} daySpan={maybeExpectedDaySpan} />
+      </div>
+    </OverviewWrapper>
+  );
+}
+
+interface OverviewWrapperProps {
+  navElements: ReactNode;
+}
+
+function OverviewWrapper({ navElements, children }: PropsWithChildren<OverviewWrapperProps>) {
+  const { isOnline } = useIsOnline();
+  return (
+    <div className={cx([style.overview, !isOnline && style.isOffline])}>
       <ErrorBoundary>
-        <div className={style.nav}>{children}</div>
-        <div className={style.info}>
-          <TitlesOverview />
-          <TimerOverview />
-          <RuntimeOverview />
-          <div>
-            <TimeRow label='Planned end' value={plannedEndText} className={style.end} daySpan={maybePlannedDaySpan} />
-            <TimeRow
-              label='Expected end'
-              value={expectedEndText}
-              className={style.end}
-              daySpan={maybeExpectedDaySpan}
-            />
-          </div>
-        </div>
+        <div className={style.nav}>{navElements}</div>
+        <div className={style.info}>{children}</div>
       </ErrorBoundary>
     </div>
   );
