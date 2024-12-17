@@ -1,4 +1,5 @@
 import { memo, MutableRefObject, PropsWithChildren, useLayoutEffect, useRef, useState } from 'react';
+import Color from 'color';
 
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
 
@@ -17,9 +18,6 @@ function EventRow(props: PropsWithChildren<EventRowProps>) {
   const { children, eventIndex, isPast, selectedRef, skip, colour, showIndexColumn } = props;
   const ownRef = useRef<HTMLTableRowElement>(null);
   const [isVisible, setIsVisible] = useState(false);
-
-  const textColour = getAccessibleColour(colour);
-  const bgColour = textColour.backgroundColor;
 
   useLayoutEffect(() => {
     const observer = new IntersectionObserver(
@@ -48,13 +46,16 @@ function EventRow(props: PropsWithChildren<EventRowProps>) {
     };
   }, [ownRef, selectedRef]);
 
+  const { color, backgroundColor } = getAccessibleColour(colour);
+  const mutedText = Color(color).fade(0.4).hexa();
+
   return (
     <tr
       className={cx([style.eventRow, skip ?? style.skip])}
       style={{ opacity: `${isPast ? '0.2' : '1'}` }}
       ref={selectedRef ?? ownRef}
     >
-      <td className={style.indexColumn} style={{ backgroundColor: bgColour, color: textColour.color }}>
+      <td className={style.indexColumn} style={{ backgroundColor, color: mutedText }}>
         {showIndexColumn && eventIndex}
       </td>
       {isVisible ? children : null}
