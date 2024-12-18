@@ -40,6 +40,7 @@ beforeAll(() => {
   });
 });
 
+//TODO: Test day offset
 describe('generate()', () => {
   it('creates normalised versions of a given rundown', () => {
     const testRundown: OntimeRundown = [

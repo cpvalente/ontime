@@ -6,6 +6,7 @@ import {
   isOntimeBlock,
   isOntimeEvent,
   isPlayableEvent,
+  MaybeNumber,
   PlayableEvent,
   Playback,
   RundownCached,
@@ -18,6 +19,7 @@ import {
   getNextNormal,
   getPreviousBlockNormal,
   getPreviousNormal,
+  getTimeFromPrevious,
   isNewLatest,
 } from 'ontime-utils';
 
@@ -267,6 +269,8 @@ export default function Rundown({ data }: RundownProps) {
   // all events before the current selected are in the past
   let isPast = Boolean(featureData?.selectedEventId);
 
+  let overlapOrGap: MaybeNumber = null;
+
   const isEditMode = appMode === AppMode.Edit;
 
   return (
@@ -285,6 +289,7 @@ export default function Rundown({ data }: RundownProps) {
               if (index === 0) {
                 eventIndex = 0;
               }
+              overlapOrGap = null;
               previousEntryId = thisId;
               thisId = entryId;
               if (isOntimeEvent(entry)) {
@@ -293,6 +298,14 @@ export default function Rundown({ data }: RundownProps) {
                 lastEvent = thisEvent;
 
                 if (isPlayableEvent(entry)) {
+                  overlapOrGap = getTimeFromPrevious(
+                    entry.timeStart,
+                    entry.dayOffset,
+                    lastEvent?.timeStart,
+                    lastEvent?.duration,
+                    lastEvent?.dayOffset,
+                  );
+
                   // populate previous entry
                   if (
                     isNewLatest(
@@ -331,10 +344,7 @@ export default function Rundown({ data }: RundownProps) {
                         loaded={isLoaded}
                         hasCursor={hasCursor}
                         isNext={isNext}
-                        previousStart={lastEvent?.timeStart}
-                        previousEnd={lastEvent?.timeEnd}
-                        previousEntryId={previousEntryId}
-                        previousEventId={lastEvent?.id}
+                        overlapOrGap={overlapOrGap}
                         playback={isLoaded ? featureData.playback : undefined}
                         isRolling={featureData.playback === Playback.Roll}
                       />
