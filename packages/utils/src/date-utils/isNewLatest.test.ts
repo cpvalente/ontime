@@ -3,7 +3,7 @@ import { isNewLatest } from './isNewLatest';
 
 describe('isNewLatest', () => {
   it('should be true if there is no previous', () => {
-    expect(isNewLatest(0, 60000)).toBeTruthy();
+    expect(isNewLatest(0, 60000, 0)).toBeTruthy();
   });
 
   it('should be true if it starts when the previous finishes', () => {
@@ -11,7 +11,7 @@ describe('isNewLatest', () => {
     const nowEnd = 11 * MILLIS_PER_HOUR;
     const previousStart = 9 * MILLIS_PER_HOUR;
     const previousEnd = 10 * MILLIS_PER_HOUR;
-    expect(isNewLatest(nowStart, nowEnd, previousStart, previousEnd)).toBeTruthy();
+    expect(isNewLatest(nowStart, nowEnd, 0, previousStart, previousEnd, 0)).toBeTruthy();
   });
 
   it('should be true if it starts the same day the previous finishes', () => {
@@ -19,7 +19,7 @@ describe('isNewLatest', () => {
     const nowEnd = 23 * MILLIS_PER_HOUR;
     const previousStart = 9 * MILLIS_PER_HOUR;
     const previousEnd = 20 * MILLIS_PER_HOUR;
-    expect(isNewLatest(nowStart, nowEnd, previousStart, previousEnd)).toBeTruthy();
+    expect(isNewLatest(nowStart, nowEnd, 0, previousStart, previousEnd, 0)).toBeTruthy();
   });
 
   it('should be true if it finishes after the previous, accounting for passing midnight', () => {
@@ -27,7 +27,7 @@ describe('isNewLatest', () => {
     const nowEnd = 3 * MILLIS_PER_HOUR;
     const previousStart = 23 * MILLIS_PER_HOUR;
     const previousEnd = 2 * MILLIS_PER_HOUR;
-    expect(isNewLatest(nowStart, nowEnd, previousStart, previousEnd)).toBeTruthy();
+    expect(isNewLatest(nowStart, nowEnd, 1, previousStart, previousEnd, 0)).toBeTruthy();
   });
 
   it('should be true if it the next day', () => {
@@ -35,7 +35,7 @@ describe('isNewLatest', () => {
     const nowEnd = 10 * MILLIS_PER_HOUR;
     const previousStart = 9 * MILLIS_PER_HOUR;
     const previousEnd = 11 * MILLIS_PER_HOUR;
-    expect(isNewLatest(nowStart, nowEnd, previousStart, previousEnd)).toBeTruthy();
+    expect(isNewLatest(nowStart, nowEnd, 1, previousStart, previousEnd, 0)).toBeTruthy();
   });
 
   it('should be true if it the next day (2)', () => {
@@ -43,6 +43,6 @@ describe('isNewLatest', () => {
     const nowEnd = 11 * MILLIS_PER_HOUR;
     const previousStart = 9 * MILLIS_PER_HOUR;
     const previousEnd = 11 * MILLIS_PER_HOUR;
-    expect(isNewLatest(nowStart, nowEnd, previousStart, previousEnd)).toBeTruthy();
+    expect(isNewLatest(nowStart, nowEnd, 1, previousStart, previousEnd, 0)).toBeTruthy();
   });
 });
