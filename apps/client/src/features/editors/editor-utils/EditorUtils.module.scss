@@ -8,7 +8,7 @@
   color: $ui-white;
   transition-property: color;
   transition-duration: $transition-time-action;
-  border-radius: 99px;
+  border-radius: $component-border-radius-full;
 
   // similar styles to ontime-button-subtle
   background-color: $gray-1050;
@@ -27,13 +27,16 @@
 
 .title {
   font-size: 1rem;
-  color: $ui-white;
+  color: $title-gray;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .label {
   display: block;
-  font-size: calc(1rem - 3px);
+  font-size: $aux-text-size;
   color: $label-gray;
-  margin-bottom: 0.25rem;
+  margin-bottom: $element-inner-spacing;
   max-width: max-content; // prevent label from taking entire row
 }
