@@ -10,7 +10,7 @@ import ViewLockedIcon from './ViewLockedIcon';
 
 function ViewNavigationMenu() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
+  const { open: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
 
   const isViewLocked = isStringBoolean(searchParams.get('locked'));
 

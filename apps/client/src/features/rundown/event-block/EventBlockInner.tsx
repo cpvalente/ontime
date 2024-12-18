@@ -1,5 +1,4 @@
 import { memo, useEffect, useState } from 'react';
-import { Tooltip } from '@chakra-ui/react';
 import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoBan } from '@react-icons/all-files/io5/IoBan';
@@ -13,6 +12,7 @@ import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { cx } from '../../../common/utils/styleUtils';
+import { Tooltip } from '../../../components/ui/tooltip';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import TimeInputFlow from '../time-input-flow/TimeInputFlow';
@@ -114,22 +114,22 @@ function EventBlockInner(props: EventBlockInnerProps) {
           {loaded && <EventBlockProgressBar />}
         </div>
         <div className={style.eventStatus} tabIndex={-1}>
-          <Tooltip label={`Time type: ${timerType}`} openDelay={tooltipDelayMid}>
+          <Tooltip content={`Time type: ${timerType}`} openDelay={tooltipDelayMid}>
             <span>
               <TimerIcon type={timerType} className={style.statusIcon} />
             </span>
           </Tooltip>
-          <Tooltip label={`End action: ${endAction}`} openDelay={tooltipDelayMid}>
+          <Tooltip content={`End action: ${endAction}`} openDelay={tooltipDelayMid}>
             <span>
               <EndActionIcon action={endAction} className={style.statusIcon} />
             </span>
           </Tooltip>
-          <Tooltip label={`${isTimeToEnd ? 'Time to End' : 'Count from start'}`} openDelay={tooltipDelayMid}>
+          <Tooltip content={`${isTimeToEnd ? 'Time to End' : 'Count from start'}`} openDelay={tooltipDelayMid}>
             <span>
               <IoFlag className={`${style.statusIcon} ${isTimeToEnd ? style.active : style.disabled}`} />
             </span>
           </Tooltip>
-          <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} openDelay={tooltipDelayMid}>
+          <Tooltip content={`${isPublic ? 'Event is public' : 'Event is private'}`} openDelay={tooltipDelayMid}>
             <span>
               <IoPeople className={`${style.statusIcon} ${isPublic ? style.active : style.disabled}`} />
             </span>

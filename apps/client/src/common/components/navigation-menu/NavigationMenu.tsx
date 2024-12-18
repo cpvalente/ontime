@@ -1,15 +1,7 @@
 import { memo, PropsWithChildren, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router-dom';
-import {
-  DrawerBackdrop,
-  DrawerBody,
-  DrawerCloseTrigger,
-  DrawerContent,
-  DrawerHeader,
-  DrawerRoot,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 import { useFullscreen } from '@mantine/hooks';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
@@ -17,6 +9,15 @@ import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoLockClosedOutline } from '@react-icons/all-files/io5/IoLockClosedOutline';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 
+import { Button } from '../../../components/ui/button';
+import {
+  DrawerBackdrop,
+  DrawerBody,
+  DrawerContent,
+  DrawerHeader,
+  DrawerRoot,
+  DrawerTrigger,
+} from '../../../components/ui/drawer';
 import { isLocalhost } from '../../../externals';
 import { navigatorConstants } from '../../../viewerConfig';
 import useClickOutside from '../../hooks/useClickOutside';
@@ -43,7 +44,7 @@ function NavigationMenu(props: NavigationMenuProps) {
   const id = useClientStore((store) => store.id);
   const name = useClientStore((store) => store.name);
 
-  const { isOpen: isOpenRename, onOpen: onRenameOpen, onClose: onCloseRename } = useDisclosure();
+  const { open: isOpenRename, onOpen: onRenameOpen, onClose: onCloseRename } = useDisclosure();
   const { fullscreen, toggle } = useFullscreen();
   const { mirror, toggleMirror } = useViewOptionsStore();
   const location = useLocation();
@@ -55,13 +56,13 @@ function NavigationMenu(props: NavigationMenuProps) {
   return createPortal(
     <div id='navigation-menu-portal' ref={menuRef}>
       <RenameClientModal id={id} name={name} isOpen={isOpenRename} onClose={onCloseRename} />
-      <DrawerRoot placement='end' onClose={onClose} isOpen={isOpen} variant='ontime' data-testid='navigation__menu'>
+      <DrawerRoot placement='end' onOpenChange={onClose} open={isOpen} variant='ontime' data-testid='navigation__menu'>
         <DrawerBackdrop />
-        {/* maxWidth='22rem' */}
         <DrawerContent>
           <DrawerHeader>
-            <DrawerCloseTrigger size='lg' />
-            Ontime
+            <DrawerTrigger asChild>
+              <Button size='lg'>Ontime</Button>
+            </DrawerTrigger>
           </DrawerHeader>
           <DrawerBody padding={0}>
             <div className={style.buttonsContainer}>

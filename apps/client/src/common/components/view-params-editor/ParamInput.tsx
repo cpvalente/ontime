@@ -1,19 +1,12 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import {
-  Button,
-  Input,
-  MenuContent,
-  MenuItem,
-  MenuRadioItemGroup,
-  MenuRoot,
-  MenuTrigger,
-  Select,
-  Switch,
-} from '@chakra-ui/react';
+import { Button, Input } from '@chakra-ui/react';
 import { IoChevronDown } from '@react-icons/all-files/io5/IoChevronDown';
 
 import { InputGroup } from '../../../components/ui/input-group';
+import { MenuContent, MenuItem, MenuRadioItemGroup, MenuRoot, MenuTrigger } from '../../../components/ui/menu';
+import { NativeSelectField, NativeSelectRoot } from '../../../components/ui/native-select';
+import { Switch } from '../../../components/ui/switch';
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 
 import InlineColourPicker from './InlineColourPicker';
@@ -37,18 +30,19 @@ export default function ParamInput(props: EditFormInputProps) {
     const defaultOptionValue = optionFromParams || defaultValue;
 
     return (
-      <Select
-        placeholder={defaultValue ? undefined : 'Select an option'}
-        variant='ontime'
-        name={id}
-        defaultValue={defaultOptionValue}
-      >
-        {Object.entries(paramField.values).map(([key, value]) => (
-          <option key={key} value={key}>
-            {value}
-          </option>
-        ))}
-      </Select>
+      <NativeSelectRoot variant='ontime'>
+        <NativeSelectField
+          name={id}
+          defaultValue={defaultOptionValue}
+          placeholder={defaultValue ? undefined : 'Select an option'}
+        >
+          {Object.entries(paramField.values).map(([key, value]) => (
+            <option key={key} value={key}>
+              {value}
+            </option>
+          ))}
+        </NativeSelectField>
+      </NativeSelectRoot>
     );
   }
 
@@ -120,8 +114,8 @@ function MultiOption(props: EditFormMultiOptionProps) {
         </MenuTrigger>
         <MenuContent>
           <MenuRadioItemGroup
-            value={paramState}
-            onChange={(value) => setParamState(Array.isArray(value) ? value : [value])}
+          // value={paramState}
+          // onChange={(value) => setParamState(Array.isArray(value) ? value : [value])}
           >
             {Object.values(paramField.values).map((option) => {
               const { value, label } = option;

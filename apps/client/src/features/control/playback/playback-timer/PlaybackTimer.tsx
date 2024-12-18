@@ -1,10 +1,10 @@
 import { PropsWithChildren } from 'react';
-import { Tooltip } from '@chakra-ui/react';
 import { Playback, TimerPhase } from 'ontime-types';
 import { dayInMs, millisToString } from 'ontime-utils';
 
 import { useTimer } from '../../../../common/hooks/useSocket';
 import { formatDuration } from '../../../../common/utils/time';
+import { Tooltip } from '../../../../components/ui/tooltip';
 import TimerDisplay from '../timer-display/TimerDisplay';
 
 import style from './PlaybackTimer.module.scss';
@@ -45,11 +45,11 @@ export default function PlaybackTimer(props: PropsWithChildren<PlaybackTimerProp
   return (
     <div className={style.timeContainer}>
       <div className={style.indicators}>
-        <Tooltip label={rollLabel}>
+        <Tooltip content={rollLabel}>
           <div className={style.indicatorRoll} data-active={isRolling} />
         </Tooltip>
         <div className={style.indicatorNegative} data-active={isOvertime} />
-        <Tooltip label={addedTimeLabel}>
+        <Tooltip content={addedTimeLabel}>
           <div className={style.indicatorDelay} data-active={hasAddedTime} />
         </Tooltip>
       </div>

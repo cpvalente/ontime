@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import { Button, IconButton, Input, Select, Switch } from '@chakra-ui/react';
+import { Button, IconButton, Input } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { OSCSettings } from 'ontime-types';
@@ -10,6 +10,8 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import useOscSettings, { useOscSettingsMutation } from '../../../../common/hooks-query/useOscSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
 import { isASCII, isASCIIorEmpty, isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
+import { NativeSelectField, NativeSelectRoot } from '../../../../components/ui/native-select';
+import { Switch } from '../../../../components/ui/switch';
 import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -124,7 +126,13 @@ export default function OscIntegrations() {
               control={control}
               name='enabledIn'
               render={({ field: { onChange, value, ref } }) => (
-                <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
+                <Switch
+                  variant='ontime'
+                  size='lg'
+                  isChecked={value}
+                  onCheckedChange={({ checked }) => onChange(checked)}
+                  ref={ref}
+                />
               )}
             />
           </Panel.ListItem>
@@ -247,18 +255,15 @@ export default function OscIntegrations() {
                       <Switch variant='ontime' {...register(`subscriptions.${index}.enabled`)} />
                     </td>
                     <td className={style.autoWidth}>
-                      <Select
-                        size='sm'
-                        variant='ontime'
-                        className={style.fitContents}
-                        {...register(`subscriptions.${index}.cycle`)}
-                      >
-                        {cycles.map((cycle) => (
-                          <option key={cycle.id} value={cycle.value}>
-                            {cycle.label}
-                          </option>
-                        ))}
-                      </Select>
+                      <NativeSelectRoot size='sm' variant='ontime'>
+                        <NativeSelectField className={style.fitContents} {...register(`subscriptions.${index}.cycle`)}>
+                          {cycles.map((cycle) => (
+                            <option key={cycle.id} value={cycle.value}>
+                              {cycle.label}
+                            </option>
+                          ))}
+                        </NativeSelectField>
+                      </NativeSelectRoot>
                     </td>
                     <td className={style.halfWidth}>
                       <Input
@@ -300,10 +305,11 @@ export default function OscIntegrations() {
                         size='sm'
                         variant='ontime-ghosted'
                         color='#FA5656' // $red-500
-                        icon={<IoTrash />}
                         aria-label='Delete entry'
                         onClick={() => handleDeleteSubscription(index)}
-                      />
+                      >
+                        <IoTrash />
+                      </IconButton>
                     </td>
                   </tr>
                 );
