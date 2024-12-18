@@ -99,10 +99,15 @@ class RuntimeService {
         });
         this.handleLoadNext();
         this.rollLoaded(keepOffset);
-      } else if (skippedOutOfEvent(newState, this.lastIntegrationClockUpdate, timerConfig.skipLimit)) {
+      } else if (
+        // if there is no previous clock, we could not have skipped
+        RuntimeService.previousState?.clock &&
+        skippedOutOfEvent(newState, RuntimeService.previousState.clock, timerConfig.skipLimit)
+      ) {
         // if we have skipped out of the event, we will recall roll
         // to push the playback to the right place
         // this comes with the caveat that we will lose our runtime data
+        logger.warning(LogOrigin.Playback, 'Time skip detected, reloading roll');
         this.roll(true);
       }
     }
