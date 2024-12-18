@@ -1,4 +1,4 @@
-import { PropsWithChildren } from 'react';
+import { ReactNode } from 'react';
 
 import { InputGroup } from '../../../../components/ui/input-group';
 import { cx } from '../../../utils/styleUtils';
@@ -14,15 +14,23 @@ interface TimeInputWithButtonProps<T extends string> {
   hasDelay?: boolean;
   disabled?: boolean;
   placeholder: string;
+  startElement?: ReactNode;
+  endElement?: ReactNode;
 }
 
-export default function TimeInputWithButton<T extends string>(props: PropsWithChildren<TimeInputWithButtonProps<T>>) {
-  const { name, submitHandler, time, hasDelay, placeholder, disabled, children } = props;
+export default function TimeInputWithButton<T extends string>(props: TimeInputWithButtonProps<T>) {
+  const { name, submitHandler, time, hasDelay, placeholder, disabled, startElement, endElement } = props;
 
   const inputClasses = cx([style.timeInput, hasDelay ? style.delayed : null]);
 
   return (
-    <InputGroup size='sm' className={inputClasses} width='fit-content'>
+    <InputGroup
+      size='sm'
+      className={inputClasses}
+      width='fit-content'
+      startElement={startElement}
+      endElement={endElement}
+    >
       <TimeInput<T>
         name={name}
         submitHandler={submitHandler}
@@ -31,7 +39,6 @@ export default function TimeInputWithButton<T extends string>(props: PropsWithCh
         align='left'
         disabled={disabled}
       />
-      {children}
     </InputGroup>
   );
 }

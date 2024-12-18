@@ -1,22 +1,21 @@
 import { useRef } from 'react';
-import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
-  Button,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { Button, useDisclosure } from '@chakra-ui/react';
 
 import { useElectronEvent } from '../../../../common/hooks/useElectronEvent';
+import {
+  DialogBackdrop,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
+} from '../../../../components/ui/dialog';
 import { isLocalhost, isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 export default function ShutdownPanel() {
   const { isElectron, sendToElectron } = useElectronEvent();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { open, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef<HTMLButtonElement | null>(null);
 
   const sendShutdown = () => {
@@ -46,26 +45,25 @@ export default function ShutdownPanel() {
         {!canShutdown && (
           <Panel.Description>Note: Ontime can only be shutdown from the machine it is running in.</Panel.Description>
         )}
-        <AlertDialog variant='ontime' isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
-          <AlertDialogOverlay>
-            <AlertDialogContent>
-              <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-                Ontime Shutdown
-              </AlertDialogHeader>
-              <AlertDialogBody>
-                This will shutdown the Ontime server. <br /> Are you sure?
-              </AlertDialogBody>
-              <AlertDialogFooter>
-                <Button ref={cancelRef} onClick={onClose} variant='ontime-ghosted-white'>
-                  Cancel
-                </Button>
-                <Button colorScheme='red' onClick={sendShutdown} disabled={!canShutdown}>
-                  Shutdown
-                </Button>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialogOverlay>
-        </AlertDialog>
+        <DialogRoot variant='ontime' open={open} leastDestructiveRef={cancelRef} onOpenChange={onClose}>
+          <DialogBackdrop />
+          <DialogContent>
+            <DialogHeader fontSize='lg' fontWeight='bold'>
+              Ontime Shutdown
+            </DialogHeader>
+            <DialogBody>
+              This will shutdown the Ontime server. <br /> Are you sure?
+            </DialogBody>
+            <DialogFooter>
+              <Button ref={cancelRef} onClick={onClose} variant='ontime-ghosted-white'>
+                Cancel
+              </Button>
+              <Button colorScheme='red' onClick={sendShutdown} disabled={!canShutdown}>
+                Shutdown
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </DialogRoot>
       </Panel.Section>
     </>
   );

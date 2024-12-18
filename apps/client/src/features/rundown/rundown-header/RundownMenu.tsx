@@ -1,18 +1,17 @@
 import { useCallback, useRef } from 'react';
-import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
-  Button,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { Button, useDisclosure } from '@chakra-ui/react';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useAppMode } from '../../../common/stores/appModeStore';
+import {
+  DialogBackdrop,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
+} from '../../../components/ui/dialog';
 import { useEventSelection } from '../useEventSelection';
 
 export default function RundownMenu() {
@@ -20,7 +19,7 @@ export default function RundownMenu() {
   const appMode = useAppMode((state) => state.mode);
   const { deleteAllEvents } = useEventAction();
 
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { open: isOpen, onOpen, onClose } = useDisclosure();
   const cancelRef = useRef<HTMLButtonElement | null>(null);
 
   const deleteAll = useCallback(() => {
@@ -41,26 +40,25 @@ export default function RundownMenu() {
       >
         Clear rundown
       </Button>
-      <AlertDialog variant='ontime' isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-              Clear rundown
-            </AlertDialogHeader>
-            <AlertDialogBody>
-              You will lose all data in your rundown. <br /> Are you sure?
-            </AlertDialogBody>
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose} variant='ontime-ghosted-white'>
-                Cancel
-              </Button>
-              <Button colorScheme='red' onClick={deleteAll} ml={4}>
-                Delete all
-              </Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
+      <DialogRoot variant='ontime' isOpen={isOpen} leastDestructiveRef={cancelRef} onOpenChange={onClose}>
+        <DialogBackdrop />
+        <DialogContent>
+          <DialogHeader fontSize='lg' fontWeight='bold'>
+            Clear rundown
+          </DialogHeader>
+          <DialogBody>
+            You will lose all data in your rundown. <br /> Are you sure?
+          </DialogBody>
+          <DialogFooter>
+            <Button ref={cancelRef} onClick={onClose} variant='ontime-ghosted-white'>
+              Cancel
+            </Button>
+            <Button colorScheme='red' onClick={deleteAll} ml={4}>
+              Delete all
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </DialogRoot>
     </>
   );
 }
