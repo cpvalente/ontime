@@ -23,7 +23,8 @@ export function formatOverlap(timeStart: number, previousStart?: number, previou
   if (noPreviousElement) return;
 
   const normalisedDuration = calculateDuration(previousStart, previousEnd);
-  const timeFromPrevious = getTimeFromPrevious(timeStart, previousStart, previousEnd, normalisedDuration);
+  //FIXME: use day offset
+  const timeFromPrevious = getTimeFromPrevious(timeStart, 0, previousStart, previousEnd, normalisedDuration);
   if (timeFromPrevious === 0) return;
 
   if (checkIsNextDay(previousStart, timeStart, normalisedDuration)) {
