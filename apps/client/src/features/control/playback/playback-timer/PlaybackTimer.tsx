@@ -1,9 +1,10 @@
 import { PropsWithChildren } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { Playback, TimerPhase } from 'ontime-types';
-import { dayInMs, millisToMinutes, millisToSeconds, millisToString } from 'ontime-utils';
+import { dayInMs, millisToString } from 'ontime-utils';
 
 import { useTimer } from '../../../../common/hooks/useSocket';
+import { formatDuration } from '../../../../common/utils/time';
 import TimerDisplay from '../timer-display/TimerDisplay';
 
 import style from './PlaybackTimer.module.scss';
@@ -13,22 +14,12 @@ interface PlaybackTimerProps {
 }
 
 function resolveAddedTimeLabel(addedTime: number) {
-  function resolveClosestUnit(ms: number) {
-    if (ms < 6000) {
-      return `${millisToSeconds(ms)} seconds`;
-    } else if (ms < 12000) {
-      return '1 minute';
-    } else {
-      return `${millisToMinutes(ms)} minutes`;
-    }
-  }
-
   if (addedTime > 0) {
-    return `Added ${resolveClosestUnit(addedTime)}`;
+    return `Added ${formatDuration(addedTime, false)}`;
   }
 
   if (addedTime < 0) {
-    return `Removed ${resolveClosestUnit(addedTime)}`;
+    return `Removed ${formatDuration(Math.abs(addedTime), false)}`;
   }
 
   return '';
