@@ -11,7 +11,14 @@ import {
   TimerPhase,
   TimerState,
 } from 'ontime-types';
-import { calculateDuration, checkIsNow, dayInMs, filterTimedEvents, getPreviousBlock } from 'ontime-utils';
+import {
+  calculateDuration,
+  checkIsNow,
+  dayInMs,
+  filterTimedEvents,
+  getPreviousBlock,
+  isPlaybackActive,
+} from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
 import { RestorePoint } from '../services/RestoreService.js';
@@ -21,7 +28,6 @@ import {
   getExpectedFinish,
   getRuntimeOffset,
   getTimerPhase,
-  isPlaybackActive,
 } from '../services/timerUtils.js';
 import { timerConfig } from '../config/config.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
@@ -485,7 +491,7 @@ export function update(): UpdateResult {
   runtimeState.clock = clock.timeNow(); // we update the clock on every update call
 
   // 1. is playback idle?
-  if (!isPlaybackActive(runtimeState)) {
+  if (!isPlaybackActive(runtimeState.timer.playback)) {
     return updateIfIdle();
   }
 
