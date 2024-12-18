@@ -115,7 +115,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         return deleteEvent([data.id]);
       }
       case 'clone': {
-        const newEvent = cloneEvent(data as OntimeEvent, data.id);
+        const newEvent = cloneEvent(data as OntimeEvent);
         addEvent(newEvent, { after: data.id });
         break;
       }

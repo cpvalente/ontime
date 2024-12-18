@@ -1,14 +1,14 @@
 import { memo, useCallback, useRef } from 'react';
+import { Input } from '@chakra-ui/react';
 
-import { AutoTextArea } from '../../../common/components/input/auto-text-area/AutoTextArea';
-import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
+import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
 
-interface MultiLineCellProps {
+interface SingleLineCellProps {
   initialValue: string;
   handleUpdate: (newValue: string) => void;
 }
 
-const MultiLineCell = (props: MultiLineCellProps) => {
+const SingleLineCell = (props: SingleLineCellProps) => {
   const { initialValue, handleUpdate } = props;
   const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback((newValue: string) => handleUpdate(newValue), [handleUpdate]);
@@ -18,20 +18,18 @@ const MultiLineCell = (props: MultiLineCellProps) => {
   });
 
   return (
-    <AutoTextArea
-      inputref={ref}
-      rows={1}
-      size='sm'
-      style={{ padding: 0 }}
-      transition='none'
+    <Input
+      ref={ref}
+      size='sx'
       variant='ontime-transparent'
       value={value}
       onChange={onChange}
       onBlur={onBlur}
       onKeyDown={onKeyDown}
       spellCheck={false}
+      autoComplete='off'
     />
   );
 };
 
-export default memo(MultiLineCell);
+export default memo(SingleLineCell);

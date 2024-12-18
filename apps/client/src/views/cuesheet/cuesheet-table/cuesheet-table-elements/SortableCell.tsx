@@ -4,7 +4,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Header } from '@tanstack/react-table';
 import { OntimeRundownEntry } from 'ontime-types';
 
-import styles from '../Cuesheet.module.scss';
+import styles from '../CuesheetTable.module.scss';
 
 interface SortableCellProps {
   header: Header<OntimeRundownEntry, unknown>;

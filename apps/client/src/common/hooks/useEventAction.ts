@@ -1,6 +1,14 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { isOntimeEvent, OntimeEvent, OntimeRundownEntry, RundownCached } from 'ontime-types';
+import {
+  isOntimeEvent,
+  OntimeBlock,
+  OntimeDelay,
+  OntimeEvent,
+  OntimeRundownEntry,
+  RundownCached,
+  TransientEventPayload,
+} from 'ontime-types';
 import { dayInMs, MILLIS_PER_SECOND, parseUserTime, reorderArray, swapEventData } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/constants';
@@ -18,6 +26,16 @@ import {
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
 import { useEditorSettings } from '../stores/editorSettings';
+
+export type EventOptions = Partial<{
+  // options to any new block (event / delay / block)
+  after: string;
+  before: string;
+  // options to blocks of type OntimeEvent
+  defaultPublic: boolean;
+  linkPrevious: boolean;
+  lastEventId: string;
+}>;
 
 /**
  * @description Set of utilities for events //TODO: should this be called useEntryAction and so on
@@ -47,31 +65,19 @@ export const useEventAction = () => {
     networkMode: 'always',
   });
 
-  // options to any new block (event / delay / block)
-  type BaseOptions = {
-    after?: string;
-  };
-
-  // options to blocks of type OntimeEvent
-  type EventOptions = BaseOptions &
-    Partial<{
-      defaultPublic: boolean;
-      linkPrevious: boolean;
-      lastEventId: string;
-    }>;
-
   /**
    * Adds an event to rundown
    */
   const addEvent = useCallback(
-    async (event: Partial<OntimeRundownEntry>, options?: EventOptions) => {
-      const newEvent: Partial<OntimeRundownEntry> = { ...event };
+    async (event: Partial<OntimeEvent | OntimeDelay | OntimeBlock>, options?: EventOptions) => {
+      const newEvent: TransientEventPayload = { ...event };
 
       // ************* CHECK OPTIONS specific to events
       if (isOntimeEvent(newEvent)) {
         // merge creation time options with event settings
         const applicationOptions = {
           after: options?.after,
+          before: options?.before,
           defaultPublic: options?.defaultPublic ?? defaultPublic,
           lastEventId: options?.lastEventId,
           linkPrevious: options?.linkPrevious ?? linkPrevious,
@@ -121,11 +127,16 @@ export const useEventAction = () => {
 
       // handle adding options that concern all event type
       if (options?.after) {
+        // @ts-expect-error -- not sure how to type this, <after> is a transient property
         newEvent.after = options.after;
+      }
+      if (options?.before) {
+        // @ts-expect-error -- not sure how to type this, <before> is a transient property
+        newEvent.before = options.before;
       }
 
       try {
-        await _addEventMutation.mutateAsync(newEvent);
+        await _addEventMutation.mutateAsync(newEvent as TransientEventPayload);
       } catch (error) {
         logAxiosError('Failed adding event', error);
       }

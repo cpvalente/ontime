@@ -1,5 +1,5 @@
-$table-font-size: calc(1rem - 2px);
-$table-header-font-size: calc(1rem - 3px);
+$table-font-size: 1rem;
+$table-header-font-size: calc(1rem - 2px);
 
 .cuesheetContainer {
   grid-area: table;
@@ -33,13 +33,22 @@ $table-header-font-size: calc(1rem - 3px);
 .tableHeader,
 .eventRow {
   .indexColumn {
-    min-width: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    
+    min-width: 3em; // allow for 3-digit numbers
     text-align: right;
     font-weight: 400;
+    font-size: $table-header-font-size;
     position: sticky;
     left: 0;
     z-index: 1;
-    background-color: $gray-1300;
+    background-color: $gray-1300; // will be overridden inline
+  }
+
+  .actionColumn {
+    width: calc(1.5rem + 0.5rem); // sm button size (--chakra-sizes-6) + 2 * padding
   }
 }
 
@@ -49,7 +58,8 @@ $table-header-font-size: calc(1rem - 3px);
   z-index: 10;
   background-color: $ui-black;
   font-size: $table-header-font-size;
-  color: $label-gray;}
+  color: $label-gray;
+}
 
 th {
   background-color: $gray-1300;

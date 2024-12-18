@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { MessageResponse, OntimeEvent, OntimeRundownEntry, RundownCached } from 'ontime-types';
+import { MessageResponse, OntimeEvent, OntimeRundownEntry, RundownCached, TransientEventPayload } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 
@@ -16,7 +16,7 @@ export async function fetchNormalisedRundown(): Promise<RundownCached> {
 /**
  * HTTP request to post new event
  */
-export async function requestPostEvent(data: Partial<OntimeRundownEntry>): Promise<AxiosResponse<OntimeRundownEntry>> {
+export async function requestPostEvent(data: TransientEventPayload): Promise<AxiosResponse<OntimeRundownEntry>> {
   return axios.post(rundownPath, data);
 }
 
