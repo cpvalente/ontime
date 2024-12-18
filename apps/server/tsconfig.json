@@ -2,8 +2,8 @@
   "compilerOptions": {
     "strict": false,
     "target": "ESNext",
-    "module": "Node16",
-    "moduleResolution": "Node16",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
     "allowSyntheticDefaultImports": true,
     "allowJs": true,
     "esModuleInterop": true,
