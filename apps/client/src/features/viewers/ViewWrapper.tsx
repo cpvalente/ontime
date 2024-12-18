@@ -82,7 +82,7 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
       ...timer,
       clock,
       timerType: eventNow?.timerType ?? TimerType.CountDown,
-      isTimeToEnd: eventNow?.isTimeToEnd ?? false,
+      countToEnd: eventNow?.countToEnd ?? false,
     };
 
     return (
