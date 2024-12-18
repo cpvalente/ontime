@@ -10,7 +10,8 @@ import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
-import { EndAction, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, MaybeNumber, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
+import { calculateDuration, checkIsNextDay } from 'ontime-utils';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
@@ -49,6 +50,7 @@ interface EventBlockProps {
   hasCursor: boolean;
   playback?: Playback;
   isRolling: boolean;
+  accumulatedGap: MaybeNumber;
   actionHandler: (
     action: EventItemActions,
     payload?:
@@ -87,6 +89,7 @@ export default function EventBlock(props: EventBlockProps) {
     hasCursor,
     playback,
     isRolling,
+    accumulatedGap,
     actionHandler,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
@@ -264,6 +267,11 @@ export default function EventBlock(props: EventBlockProps) {
     setSelectedEvents({ id: eventId, index, selectMode: editMode });
   };
 
+  const isNextDay =
+    previousStart === undefined || previousEnd === undefined
+      ? false
+      : checkIsNextDay(previousStart ?? 0, timeStart, calculateDuration(previousStart, previousEnd));
+
   return (
     <div
       className={blockClasses}
@@ -304,6 +312,8 @@ export default function EventBlock(props: EventBlockProps) {
           playback={playback}
           isRolling={isRolling}
           isPast={isPast}
+          accumulatedGap={accumulatedGap}
+          isNextDay={isNextDay}
         />
       )}
     </div>
