@@ -151,7 +151,16 @@ export function generate(
         currentEntry.delay = totalDelay;
 
         // lastEntry is the event with the latest end time
-        if (isNewLatest(currentEntry.timeStart, currentEntry.timeEnd, lastEntry?.timeStart, lastEntry?.timeEnd)) {
+        if (
+          isNewLatest(
+            currentEntry.timeStart,
+            currentEntry.timeEnd,
+            currentEntry.dayOffset,
+            lastEntry?.timeStart,
+            lastEntry?.timeEnd,
+            lastEntry?.dayOffset,
+          )
+        ) {
           lastEntry = currentEntry;
         }
       }

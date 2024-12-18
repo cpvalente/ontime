@@ -1,16 +1,27 @@
-import { checkIsNextDay } from './checkIsNextDay.js';
+import { dayInMs } from './conversionUtils.js';
 
 /**
  * Checks whether a new element is the latest in the list
  */
-export function isNewLatest(timeStart: number, timeEnd: number, previousStart?: number, previousEnd?: number): boolean {
+export function isNewLatest(
+  timeStart: number,
+  duration: number,
+  dayOffset: number,
+  previousStart?: number,
+  previousDuration?: number,
+  previousDayOffset?: number,
+): boolean {
   // true if there is no previous
-  if (previousStart === undefined || previousEnd === undefined) {
+  if (previousStart === undefined || previousDuration === undefined || previousDayOffset === undefined) {
     return true;
   }
 
+  const timeStartDayAdjust = timeStart + dayOffset * dayInMs;
+  const timeEnd = timeStart + duration;
+  const previousEnd = previousStart + previousDuration + previousDayOffset * dayInMs;
+
   // true if it starts after the previous is finished
-  if (timeStart >= previousEnd) {
+  if (timeStartDayAdjust >= previousEnd) {
     return true;
   }
 
@@ -19,6 +30,5 @@ export function isNewLatest(timeStart: number, timeEnd: number, previousStart?: 
     return true;
   }
 
-  // true if it is the day after
-  return checkIsNextDay(previousStart, timeStart, previousEnd - previousStart);
+  return false;
 }
