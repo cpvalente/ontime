@@ -349,13 +349,13 @@ export function sanitiseCustomFields(data: object): CustomFields {
 }
 
 /**
- * Time to end was moved from a TimerType to a standalone boolean
+ * Time to end was moved from a TimerType to a standalone boolean named count to end
  * Released as part of v3.10.0
  */
 function migrateTimeToEnd(event: any): OntimeEvent {
   if (event.timerType === 'time-to-end') {
     event.timerType = TimerType.CountDown;
-    event.isTimeToEnd = true;
+    event.countToEnd = true;
   }
   return event;
 }

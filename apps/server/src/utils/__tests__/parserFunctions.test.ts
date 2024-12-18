@@ -532,7 +532,7 @@ describe('parseRundown() migrations', () => {
     expect(result.rundown[0]).toMatchObject({
       id: '1',
       timerType: TimerType.CountDown,
-      isTimeToEnd: true,
+      countToEnd: true,
     });
   });
 
@@ -542,7 +542,7 @@ describe('parseRundown() migrations', () => {
     expect(result.rundown[0]).toMatchObject({
       id: '1',
       timerType: TimerType.CountDown,
-      isTimeToEnd: false,
+      countToEnd: false,
     });
   });
 });

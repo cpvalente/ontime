@@ -15,7 +15,7 @@ export const event: Omit<OntimeEvent, 'id' | 'delay' | 'cue'> = {
   timerType: TimerType.CountDown,
   timeStrategy: TimeStrategy.LockDuration,
   linkStart: null,
-  isTimeToEnd: false,
+  countToEnd: false,
   timeStart: 0,
   timeEnd: 0,
   duration: 0,
