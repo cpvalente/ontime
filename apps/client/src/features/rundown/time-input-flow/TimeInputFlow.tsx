@@ -16,7 +16,7 @@ import style from './TimeInputFlow.module.scss';
 
 interface EventBlockTimerProps {
   eventId: string;
-  isTimeToEnd: boolean;
+  countToEnd: boolean;
   timeStart: number;
   timeEnd: number;
   duration: number;
@@ -26,7 +26,7 @@ interface EventBlockTimerProps {
 }
 
 function TimeInputFlow(props: EventBlockTimerProps) {
-  const { eventId, isTimeToEnd, timeStart, timeEnd, duration, timeStrategy, linkStart, delay } = props;
+  const { eventId, countToEnd, timeStart, timeEnd, duration, timeStrategy, linkStart, delay } = props;
   const { updateEvent, updateTimer } = useEventAction();
 
   // In sync with EventEditorTimes
@@ -47,8 +47,8 @@ function TimeInputFlow(props: EventBlockTimerProps) {
     warnings.push('Over midnight');
   }
 
-  if (isTimeToEnd) {
-    warnings.push('Target event scheduled end');
+  if (countToEnd) {
+    warnings.push('Count to End');
   }
 
   const hasDelay = delay !== 0;

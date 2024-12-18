@@ -61,7 +61,7 @@ export default function EventEditor(props: EventEditorProps) {
         duration={event.duration}
         timeStrategy={event.timeStrategy}
         linkStart={event.linkStart}
-        isTimeToEnd={event.isTimeToEnd}
+        countToEnd={event.countToEnd}
         delay={event.delay ?? 0}
         isPublic={event.isPublic}
         endAction={event.endAction}

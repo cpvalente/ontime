@@ -29,7 +29,6 @@ const EventEditorTitles = (props: EventEditorTitlesProps) => {
 
   return (
     <div className={style.column}>
-      <Editor.Title>Event data</Editor.Title>
       <div className={style.splitTwo}>
         <div>
           <Editor.Label htmlFor='eventId'>Event ID (read only)</Editor.Label>
