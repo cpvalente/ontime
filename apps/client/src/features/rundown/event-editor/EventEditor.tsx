@@ -79,14 +79,14 @@ export default function EventEditor(props: EventEditorProps) {
         handleSubmit={handleSubmit}
       />
       <div className={style.column}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Editor.Title>Custom Fields</Editor.Title>
+        <Editor.Title>
+          Custom Fields
           {isEditor && (
             <Button variant='ontime-subtle' size='sm' onClick={handleOpenCustomManager}>
               Manage
             </Button>
           )}
-        </div>
+        </Editor.Title>
         {Object.keys(customFields).map((fieldKey) => {
           const key = `${event.id}-${fieldKey}`;
           const fieldName = `custom-${fieldKey}`;

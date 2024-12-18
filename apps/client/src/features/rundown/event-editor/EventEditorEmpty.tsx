@@ -1,7 +1,8 @@
-import { memo } from 'react';
+import { memo, PropsWithChildren } from 'react';
 import { Kbd } from '@chakra-ui/react';
 
 import { deviceAlt, deviceMod } from '../../../common/utils/deviceUtils';
+import * as Editor from '../../editors/editor-utils/EditorUtils';
 
 import style from './EventEditorEmpty.module.scss';
 
@@ -11,7 +12,7 @@ function EventEditorEmpty() {
   return (
     <div className={style.eventEditor} data-testid='editor-container'>
       <div className={style.shortcutSection}>
-        <div className={style.prompt}>Rundown shortcuts:</div>
+        <Editor.Title className={style.prompt}>Rundown shortcuts</Editor.Title>
         <table className={style.shortcuts}>
           <tbody>
             <tr>
@@ -168,6 +169,6 @@ function EventEditorEmpty() {
   );
 }
 
-function AuxKey({ children }: { children: React.ReactNode }) {
+function AuxKey({ children }: PropsWithChildren) {
   return <span className={style.divider}>{children}</span>;
 }
