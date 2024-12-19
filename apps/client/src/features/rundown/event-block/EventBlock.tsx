@@ -31,7 +31,7 @@ interface EventBlockProps {
   duration: number;
   timeStrategy: TimeStrategy;
   linkStart: MaybeString;
-  isTimeToEnd: boolean;
+  countToEnd: boolean;
   eventIndex: number;
   isPublic: boolean;
   endAction: EndAction;
@@ -69,7 +69,7 @@ export default function EventBlock(props: EventBlockProps) {
     duration,
     timeStrategy,
     linkStart,
-    isTimeToEnd,
+    countToEnd,
     isPublic = true,
     eventIndex,
     endAction,
@@ -288,7 +288,7 @@ export default function EventBlock(props: EventBlockProps) {
           timeEnd={timeEnd}
           duration={duration}
           linkStart={linkStart}
-          isTimeToEnd={isTimeToEnd}
+          countToEnd={countToEnd}
           timeStrategy={timeStrategy}
           eventId={eventId}
           eventIndex={eventIndex}

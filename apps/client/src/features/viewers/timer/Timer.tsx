@@ -118,7 +118,7 @@ export default function Timer(props: TimerProps) {
   const finished = time.phase === TimerPhase.Overtime;
   const totalTime = (time.duration ?? 0) + (time.addedTime ?? 0);
 
-  const shouldShowModifiers = time.timerType === TimerType.CountDown || time.isTimeToEnd;
+  const shouldShowModifiers = time.timerType === TimerType.CountDown || time.countToEnd;
   const showEndMessage = shouldShowModifiers && finished && viewSettings.endMessage;
   const showProgress =
     eventNow !== null &&
