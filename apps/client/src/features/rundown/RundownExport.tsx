@@ -7,7 +7,7 @@ import { handleLinks } from '../../common/utils/linkUtils';
 import { cx } from '../../common/utils/styleUtils';
 import { Corner } from '../editors/editor-utils/EditorUtils';
 
-import EventEditor from './event-editor/EventEditor';
+import RundownEventEditor from './event-editor/RundownEventEditor';
 import RundownWrapper from './RundownWrapper';
 
 import style from './RundownExport.module.scss';
@@ -33,7 +33,7 @@ const RundownExport = () => {
         {!hideSideBar && (
           <div className={style.side}>
             <ErrorBoundary>
-              <EventEditor />
+              <RundownEventEditor />
             </ErrorBoundary>
           </div>
         )}

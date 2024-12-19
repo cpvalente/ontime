@@ -1,38 +1,15 @@
 import { useCallback } from 'react';
-import { Checkbox } from '@chakra-ui/react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { CustomFields, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
 
-import DelayIndicator from '../../common/components/delay-indicator/DelayIndicator';
-import RunningTime from '../../features/viewers/common/running-time/RunningTime';
+import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
+import RunningTime from '../../../../features/viewers/common/running-time/RunningTime';
+import { useCuesheetOptions } from '../../cuesheet.options';
 
-import MultiLineCell from './cuesheet-table-elements/MultiLineCell';
-import SingleLineCell from './cuesheet-table-elements/SingleLineCell';
-import { useCuesheetOptions } from './cuesheet.options';
+import MultiLineCell from './MultiLineCell';
+import SingleLineCell from './SingleLineCell';
 
-import style from './Cuesheet.module.scss';
-
-function MakePublic({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
-  const update = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      // @ts-expect-error -- we inject this into react-table
-      table.options.meta?.handleUpdate(row.index, column.id, event.target.checked);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
-    [column.id, row.index],
-  );
-
-  const event = row.original;
-  if (!isOntimeEvent(event)) {
-    return null;
-  }
-
-  const isChecked = event.isPublic;
-
-  return (
-    <Checkbox variant='ontime-ondark' onChange={update} isChecked={isChecked} style={{ verticalAlign: 'middle' }} />
-  );
-}
+import style from '../CuesheetTable.module.scss';
 
 function MakeTimer({ getValue, row: { original } }: CellContext<OntimeRundownEntry, unknown>) {
   const { showDelayedTimes, hideTableSeconds } = useCuesheetOptions();
@@ -132,15 +109,8 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       accessorKey: 'cue',
       id: 'cue',
       header: 'Cue',
-      cell: (row) => row.getValue(),
+      cell: MakeSingleLineField,
       size: 75,
-    },
-    {
-      accessorKey: 'isPublic',
-      id: 'isPublic',
-      header: 'Public',
-      cell: MakePublic,
-      size: 45,
     },
     {
       accessorKey: 'timeStart',

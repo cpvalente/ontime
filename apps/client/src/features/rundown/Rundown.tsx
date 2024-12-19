@@ -6,6 +6,7 @@ import {
   isOntimeBlock,
   isOntimeEvent,
   isPlayableEvent,
+  MaybeString,
   PlayableEvent,
   Playback,
   RundownCached,
@@ -21,7 +22,7 @@ import {
   isNewLatest,
 } from 'ontime-utils';
 
-import { useEventAction } from '../../common/hooks/useEventAction';
+import { type EventOptions, useEventAction } from '../../common/hooks/useEventAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
@@ -82,36 +83,36 @@ export default function Rundown({ data }: RundownProps) {
       const cloneEntry = rundown[copyId];
       if (cloneEntry?.type === SupportedEvent.Event) {
         //if we don't have a cursor add the new event on top
-        const newEvent = cloneEvent(cloneEntry, adjustedCursor ?? undefined);
-        addEvent(newEvent);
+        const newEvent = cloneEvent(cloneEntry);
+        addEvent(newEvent, { after: adjustedCursor ?? undefined });
       }
     },
     [addEvent, order, rundown],
   );
 
   const insertAtId = useCallback(
-    (type: SupportedEvent, id: string | null, above = false) => {
-      const adjustedCursor = above ? getPreviousNormal(rundown, order, id ?? '').entry?.id ?? null : id;
-      if (adjustedCursor === null) {
-        // the only thing to do is adding an event at top
-        addEvent({ type });
-        return;
-      }
+    (type: SupportedEvent, id: MaybeString, above = false) => {
+      const options: EventOptions =
+        id === null
+          ? {}
+          : {
+              after: above ? undefined : id,
+              before: above ? id : undefined,
+            };
 
       if (type === SupportedEvent.Event) {
         const newEvent = {
           type: SupportedEvent.Event,
         };
-        const options = {
-          after: adjustedCursor,
-          lastEventId: adjustedCursor,
-        };
+        if (!above && id) {
+          options.lastEventId = id;
+        }
         addEvent(newEvent, options);
       } else {
-        addEvent({ type }, { after: adjustedCursor });
+        addEvent({ type }, options);
       }
     },
-    [rundown, order, addEvent],
+    [addEvent],
   );
 
   const selectBlock = useCallback(
