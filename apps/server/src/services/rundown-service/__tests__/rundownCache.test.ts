@@ -40,6 +40,7 @@ beforeAll(() => {
   });
 });
 
+//TODO: Test day offset
 describe('generate()', () => {
   it('creates normalised versions of a given rundown', () => {
     const testRundown: OntimeRundown = [
@@ -265,6 +266,9 @@ describe('generate()', () => {
     ];
 
     const initResult = generate(testRundown);
+    expect((initResult.rundown['1'] as OntimeEvent).dayOffset).toBe(0);
+    expect((initResult.rundown['2'] as OntimeEvent).dayOffset).toBe(0);
+    expect((initResult.rundown['3'] as OntimeEvent).dayOffset).toBe(0);
     expect(initResult.order.length).toBe(4);
     expect(initResult.totalDuration).toBe(500 - 100);
   });
@@ -295,6 +299,11 @@ describe('generate()', () => {
     ];
 
     const initResult = generate(testRundown);
+
+    expect((initResult.rundown['1'] as OntimeEvent).dayOffset).toBe(0);
+    expect((initResult.rundown['2'] as OntimeEvent).dayOffset).toBe(1);
+    expect((initResult.rundown['3'] as OntimeEvent).dayOffset).toBe(2);
+
     expect(initResult.totalDuration).toBe((23 - 9 + 48) * MILLIS_PER_HOUR);
   });
 
