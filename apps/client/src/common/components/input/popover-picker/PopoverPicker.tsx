@@ -23,20 +23,20 @@ interface PopoverPickerProps {
 }
 
 export default function PopoverPicker(props: PopoverPickerProps) {
-  const { color, onChange } = props;
+  const { color, icon, hasInput, onChange } = props;
 
   return (
     <Popover>
       <PopoverTrigger>
-        {props.icon ? (
-          <div className={style.icon}>{props.icon}</div>
+        {icon ? (
+          <div className={style.icon}>{icon}</div>
         ) : (
           <div className={style.swatch} style={{ backgroundColor: color }} />
         )}
       </PopoverTrigger>
       <PopoverContent style={{ width: 'auto' }}>
         <HexAlphaColorPicker color={color} onChange={onChange} />
-        {props.hasInput && <HexColorInput color={color} onChange={onChange} />}
+        {hasInput && <HexColorInput color={color} onChange={onChange} className={style.colorInput} prefixed />}
       </PopoverContent>
     </Popover>
   );
