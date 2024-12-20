@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef } from 'react';
+import { forwardRef, memo, useCallback, useImperativeHandle, useRef } from 'react';
 import { Input } from '@chakra-ui/react';
 
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
@@ -6,18 +6,31 @@ import useReactiveTextInput from '../../../../common/components/input/text-input
 interface SingleLineCellProps {
   initialValue: string;
   handleUpdate: (newValue: string) => void;
+  handleCancelUpdate?: () => void;
 }
 
-export default memo(SingleLineCell);
-
-function SingleLineCell(props: SingleLineCellProps) {
-  const { initialValue, handleUpdate } = props;
+const SingleLineCell = forwardRef((props: SingleLineCellProps, inputRef) => {
+  const { initialValue, handleUpdate, handleCancelUpdate } = props;
   const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback((newValue: string) => handleUpdate(newValue), [handleUpdate]);
 
   const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(initialValue, submitCallback, ref, {
+    submitOnEnter: true, // single line should submit on enter
     submitOnCtrlEnter: true,
+    onCancelUpdate: handleCancelUpdate,
   });
+
+  // expose a subset of the methods to the parent
+  useImperativeHandle(inputRef, () => {
+    return {
+      focus() {
+        ref.current?.focus();
+      },
+      select() {
+        ref.current?.select();
+      },
+    };
+  }, [ref]);
 
   return (
     <Input
@@ -34,4 +47,8 @@ function SingleLineCell(props: SingleLineCellProps) {
       autoComplete='off'
     />
   );
-}
+});
+
+SingleLineCell.displayName = 'SingleLineCell';
+
+export default memo(SingleLineCell);

@@ -1,0 +1,16 @@
+/* element attempts matching input styles */
+.textInput {
+  padding-top: 0.25rem;
+  height: 2rem;
+  background-color: transparent;
+  border-radius: 3px;
+
+  &.muted {
+    color: $label-gray;
+  }
+
+  &:hover {
+    background-color: $gray-1100;
+    cursor: text;
+  }
+}
