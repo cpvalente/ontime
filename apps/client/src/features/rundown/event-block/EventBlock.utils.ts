@@ -1,12 +1,5 @@
 import type { MaybeNumber } from 'ontime-types';
-import {
-  calculateDuration,
-  checkIsNextDay,
-  dayInMs,
-  getTimeFromPrevious,
-  millisToString,
-  removeTrailingZero,
-} from 'ontime-utils';
+import { millisToString, removeTrailingZero } from 'ontime-utils';
 
 import { formatDuration } from '../../../common/utils/time';
 
@@ -19,32 +12,9 @@ export function formatDelay(timeStart: number, delay: number): string | undefine
   return `New start ${timeTag}`;
 }
 
-export function formatOverlap(gap: MaybeNumber): string | undefined {
+export function formatOverlap(gap: MaybeNumber, isNextDay: boolean): string | undefined {
   if (gap === null || gap === 0) return;
 
   const overlapString = formatDuration(Math.abs(gap), false);
-  return `${gap < 0 ? 'Overlap' : 'Gap'} ${overlapString}`;
-}
-
-export function formatOverlapOld(timeStart: number, previousStart?: number, previousEnd?: number): string | undefined {
-  const noPreviousElement = previousEnd === undefined || previousStart === undefined;
-  if (noPreviousElement) return;
-
-  const normalisedDuration = calculateDuration(previousStart, previousEnd);
-  //FIXME: use day offset
-  const timeFromPrevious = getTimeFromPrevious(timeStart, 0, previousStart, previousEnd, normalisedDuration);
-  if (timeFromPrevious === 0) return;
-
-  if (checkIsNextDay(previousStart, timeStart, normalisedDuration)) {
-    const previousCrossMidnight = previousStart > previousEnd;
-    const normalisedPreviousEnd = previousCrossMidnight ? previousEnd + dayInMs : previousEnd;
-
-    const gap = dayInMs - normalisedPreviousEnd + timeStart;
-    if (gap === 0) return;
-    const gapString = formatDuration(Math.abs(gap), false);
-    return `Gap ${gapString} (next day)`;
-  }
-
-  const overlapString = formatDuration(Math.abs(timeFromPrevious), false);
-  return `${timeFromPrevious < 0 ? 'Overlap' : 'Gap'} ${overlapString}`;
+  return `${gap < 0 ? 'Overlap' : 'Gap'} ${overlapString}${isNextDay ? ' (next day)' : ''}`;
 }

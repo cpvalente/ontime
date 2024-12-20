@@ -24,10 +24,11 @@ interface RundownEntryProps {
   overlapOrGap: MaybeNumber;
   playback?: Playback; // we only care about this if this event is playing
   isRolling: boolean; // we need to know even if not related to this event
+  isNextDay: boolean;
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const { isPast, data, loaded, hasCursor, isNext, overlapOrGap, playback, isRolling, eventIndex } = props;
+  const { isPast, data, loaded, hasCursor, isNext, overlapOrGap, playback, isRolling, eventIndex, isNextDay } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
   const { selectedEvents, unselect, clearSelectedEvents } = useEventSelection();
@@ -120,6 +121,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         hasCursor={hasCursor}
         playback={playback}
         isRolling={isRolling}
+        isNextDay={isNextDay}
         actionHandler={actionHandler}
       />
     );
