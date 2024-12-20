@@ -48,16 +48,15 @@ export function calculateAccumulatedGap(
 ): MaybeNumber {
   if (previousEvent === undefined) return null;
 
-  const normalisedDuration = calculateDuration(previousEvent.timeStart, previousEvent.timeEnd);
   const timeFromPrevious = getTimeFromPrevious(
     currentEvent.timeStart,
     previousEvent.timeStart,
     previousEvent.timeEnd,
-    normalisedDuration,
+    previousEvent.duration,
   );
   if (timeFromPrevious === 0 && accGap === null) return null;
 
-  if (checkIsNextDay(previousEvent.timeStart, currentEvent.timeStart, normalisedDuration)) {
+  if (checkIsNextDay(previousEvent.timeStart, currentEvent.timeStart, previousEvent.duration)) {
     const previousCrossMidnight = previousEvent.timeStart > previousEvent.timeEnd;
     const normalisedPreviousEnd = previousCrossMidnight ? previousEvent.timeEnd + dayInMs : previousEvent.timeEnd;
 
