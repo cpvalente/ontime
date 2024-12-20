@@ -8,7 +8,9 @@ interface MultiLineCellProps {
   handleUpdate: (newValue: string) => void;
 }
 
-const MultiLineCell = (props: MultiLineCellProps) => {
+export default memo(MultiLineCell);
+
+function MultiLineCell(props: MultiLineCellProps) {
   const { initialValue, handleUpdate } = props;
   const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback((newValue: string) => handleUpdate(newValue), [handleUpdate]);
@@ -22,8 +24,12 @@ const MultiLineCell = (props: MultiLineCellProps) => {
       inputref={ref}
       rows={1}
       size='sm'
-      padding={0}
-      fontSize='1rem'
+      style={{
+        minHeight: '2rem',
+        padding: '0',
+        paddingTop: '0.25rem',
+        fontSize: '1rem',
+      }}
       transition='none'
       variant='ontime-transparent'
       value={value}
@@ -33,6 +39,4 @@ const MultiLineCell = (props: MultiLineCellProps) => {
       spellCheck={false}
     />
   );
-};
-
-export default memo(MultiLineCell);
+}

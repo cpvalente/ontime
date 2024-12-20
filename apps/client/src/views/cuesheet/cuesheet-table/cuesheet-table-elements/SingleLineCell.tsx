@@ -8,7 +8,9 @@ interface SingleLineCellProps {
   handleUpdate: (newValue: string) => void;
 }
 
-const SingleLineCell = (props: SingleLineCellProps) => {
+export default memo(SingleLineCell);
+
+function SingleLineCell(props: SingleLineCellProps) {
   const { initialValue, handleUpdate } = props;
   const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback((newValue: string) => handleUpdate(newValue), [handleUpdate]);
@@ -20,8 +22,10 @@ const SingleLineCell = (props: SingleLineCellProps) => {
   return (
     <Input
       ref={ref}
-      size='sx'
+      size='sm'
       variant='ontime-transparent'
+      padding={0}
+      fontSize='md'
       value={value}
       onChange={onChange}
       onBlur={onBlur}
@@ -30,6 +34,4 @@ const SingleLineCell = (props: SingleLineCellProps) => {
       autoComplete='off'
     />
   );
-};
-
-export default memo(SingleLineCell);
+}
