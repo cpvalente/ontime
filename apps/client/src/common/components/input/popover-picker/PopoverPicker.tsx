@@ -36,7 +36,7 @@ export default function PopoverPicker(props: PopoverPickerProps) {
       </PopoverTrigger>
       <PopoverContent style={{ width: 'auto' }}>
         <HexAlphaColorPicker color={color} onChange={onChange} />
-        {hasInput && <HexColorInput color={color} onChange={onChange} className={style.colorInput} prefixed />}
+        {hasInput && <HexColorInput color={color} onChange={onChange} className={style.input} prefixed />}
       </PopoverContent>
     </Popover>
   );
