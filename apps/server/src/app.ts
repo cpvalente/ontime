@@ -10,7 +10,7 @@ import { extname } from 'node:path';
 
 // import utils
 import { publicDir, srcDir, srcFiles } from './setup/index.js';
-import { environment, isOntimeCloud, isProduction, updateRouterPrefix } from './externals.js';
+import { environment, isDocker, isOntimeCloud, isProduction, updateRouterPrefix } from './externals.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
 
@@ -342,6 +342,7 @@ process.once('SIGTERM', async () => shutdown(0));
 async function serverTryDesiredPort(server: http.Server, desiredPort: number): Promise<number> {
   return new Promise((res) => {
     expressServer.once('error', (e) => {
+      if (isDocker) throw e; // we should only move ports if we are in a desktp environment
       if (testForPortInUser(e)) {
         logger.crash(LogOrigin.Server, `Failed open the desired port: ${desiredPort} | to moving to Ephemeral port`);
         server.listen(0, '0.0.0.0', () => {
