@@ -7,6 +7,7 @@ import {
   isOntimeEvent,
   isPlayableEvent,
   MaybeString,
+  MaybeNumber,
   PlayableEvent,
   Playback,
   RundownCached,
@@ -29,6 +30,7 @@ import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
+import { calculateAccumulatedGap } from './event-block/EventBlock.utils';
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
 import RundownEmpty from './RundownEmpty';
 import { useEventSelection } from './useEventSelection';
@@ -268,6 +270,8 @@ export default function Rundown({ data }: RundownProps) {
   // all events before the current selected are in the past
   let isPast = Boolean(featureData?.selectedEventId);
 
+  let accumulatedGap: MaybeNumber = null;
+
   const isEditMode = appMode === AppMode.Edit;
 
   return (
@@ -294,6 +298,10 @@ export default function Rundown({ data }: RundownProps) {
                 lastEvent = thisEvent;
 
                 if (isPlayableEvent(entry)) {
+                  if (!isPast) {
+                    //TODO: how to handle overlaps
+                    accumulatedGap = calculateAccumulatedGap(accumulatedGap, entry, lastEvent);
+                  }
                   // populate previous entry
                   if (isNewLatest(entry.timeStart, entry.timeEnd, lastEvent?.timeStart, lastEvent?.timeEnd)) {
                     thisEvent = entry;
@@ -329,6 +337,7 @@ export default function Rundown({ data }: RundownProps) {
                         previousEventId={lastEvent?.id}
                         playback={isLoaded ? featureData.playback : undefined}
                         isRolling={featureData.playback === Playback.Roll}
+                        accumulatedGap={accumulatedGap}
                       />
                     </div>
                   </div>
