@@ -48,7 +48,10 @@ const EventEditorTitles = (props: EventEditorTitlesProps) => {
       </div>
       <div>
         <Editor.Label>Colour</Editor.Label>
-        <EventColorPicker name='colour' value={colour} icon={<IoEyedrop size={15} />} handleChange={handleSubmit} />
+        <div className={style.colorSettings}>
+          <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
+          <EventColorPicker name='colour' value={colour} icon={<IoEyedrop size={15} />} handleChange={handleSubmit} />
+        </div>
       </div>
       <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />
       <EventTextArea field='note' label='Note' initialValue={note} submitHandler={handleSubmit} />
