@@ -50,6 +50,7 @@ export default function TimeInputDuration(props: TimeInputDurationProps) {
       // we dont know the values in the rundown, escalate to handler
       if (newValue.startsWith('p') || newValue.startsWith('+')) {
         onSubmit(newValue);
+        return;
       }
 
       const valueInMillis = parseUserTime(newValue);
