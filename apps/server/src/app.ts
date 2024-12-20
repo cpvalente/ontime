@@ -176,9 +176,11 @@ export const initAssets = async () => {
  * Starts servers
  */
 export const startServer = async (
-  escalateErrorFn?: (error: string) => void,
+  escalateErrorFn?: (error: string, unrecoverable: boolean) => void,
 ): Promise<{ message: string; serverPort: number }> => {
   checkStart(OntimeStartOrder.InitServer);
+  // initialise logging service, escalateErrorFn is only exists in electron
+  logger.init(escalateErrorFn);
   const settings = getDataProvider().getSettings();
   const { serverPort: desiredPort } = settings;
 
@@ -216,9 +218,6 @@ export const startServer = async (
     },
     ping: -1,
   });
-
-  // initialise logging service, escalateErrorFn is only exists in electron
-  logger.init(escalateErrorFn);
 
   // initialise rundown service
   const persistedRundown = getDataProvider().getRundown();

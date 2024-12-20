@@ -109,8 +109,13 @@ function askToQuit() {
  * Allows processes to escalate errors to be shown in electron
  * @param {string} error
  */
-function escalateError(error) {
-  dialog.showErrorBox('An unrecoverable error occurred', error);
+function escalateError(error, unrecoverable = true) {
+  if (unrecoverable) {
+    dialog.showErrorBox('An unrecoverable error occurred', error);
+    //TODO: should we quit here
+  } else {
+    dialog.showErrorBox('An error occurred', error);
+  }
 }
 
 /**

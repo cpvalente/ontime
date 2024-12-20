@@ -8,7 +8,7 @@ import { isProduction } from '../externals.js';
 
 class Logger {
   private queue: Log[];
-  private escalateErrorFn: ((error: string) => void) | null;
+  private escalateErrorFn: ((error: string, unrecoverable: boolean) => void) | null;
   private canLog = false;
 
   constructor() {
@@ -20,7 +20,7 @@ class Logger {
   /**
    * Enabling setup logger after init
    */
-  init(escalateErrorFn?: (error: string) => void) {
+  init(escalateErrorFn?: (error: string, unrecoverable: boolean) => void) {
     // flush logs from queue
     this.queue.forEach((log) => {
       this._push(log);
@@ -103,8 +103,11 @@ class Logger {
    * @param origin
    * @param text
    */
-  error(origin: string, text: string) {
+  error(origin: string, text: string, notifyElectron = false) {
     this.emit(LogLevel.Error, origin, text);
+    if (notifyElectron) {
+      this.escalateErrorFn?.(text, false);
+    }
   }
 
   /**
@@ -114,7 +117,7 @@ class Logger {
    */
   crash(origin: string, text: string) {
     this.emit(LogLevel.Severe, origin, text);
-    this.escalateErrorFn?.(text);
+    this.escalateErrorFn?.(text, true);
   }
 
   /**
