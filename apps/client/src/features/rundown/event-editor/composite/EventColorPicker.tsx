@@ -1,3 +1,4 @@
+import { debounceWithValue } from '../../../../common/utils/debounce';
 import PopoverPicker from '../../../../common/components/input/popover-picker/PopoverPicker';
 import style from './EventColorPicker.module.scss';
 import { ReactNode, useCallback } from 'react';
@@ -12,9 +13,9 @@ interface EventColorPickerProps {
 export default function EventColorPicker(props: EventColorPickerProps) {
   const { name, value, icon, handleChange } = props;
 
-  const debouncedChange = (value: string) => {
+  const debouncedChange = debounceWithValue((value: string) => {
     setColour(value);
-  };
+  }, 250);
 
   const setColour = useCallback(
     (newValue: string) => {
