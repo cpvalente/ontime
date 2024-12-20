@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import type { MaybeNumber } from 'ontime-types';
-import { dayInMs, isPlaybackActive, MILLIS_PER_SECOND } from 'ontime-utils';
+import { dayInMs, isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { usePlayback, useTimelineStatus } from '../../../../common/hooks/useSocket';
 import { cx } from '../../../../common/utils/styleUtils';
@@ -71,7 +71,9 @@ function EventUntil(props: EventUntilProps) {
     const timeUntil = offsetTimestart - clock;
     const isDue = timeUntil < MILLIS_PER_SECOND;
     return [
-      isDue ? getLocalizedString('timeline.due').toUpperCase() : `${formatDuration(Math.abs(timeUntil), false)}`,
+      isDue
+        ? getLocalizedString('timeline.due').toUpperCase()
+        : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`,
       isDue,
     ];
   }, [accumulatedGap, clock, getLocalizedString, isNextAndLinked, offset, timeStart]);
@@ -84,10 +86,6 @@ function EventUntil(props: EventUntilProps) {
     <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
       <div className={cx([style.chip, isDue ? style.due : null, className])}>
         <div>{timeUntilString}</div>
-        <div>gap: {formatDuration(accumulatedGap ?? 0, false)}</div>
-        {/* <div>o: {formatDuration(Math.abs(offset), false)}</div>
-        <div>ref: {formatDuration(refreceStartTime, false)}</div>
-        <div>rel: {formatDuration(relativeStartTime, false)}</div> */}
       </div>
     </Tooltip>
   );
