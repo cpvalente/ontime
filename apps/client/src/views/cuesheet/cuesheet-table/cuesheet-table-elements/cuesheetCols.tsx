@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { CustomFields, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
+import { CustomFields, isOntimeEvent, OntimeEvent, OntimeRundownEntry, TimeStrategy } from 'ontime-types';
 
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
 import RunningTime from '../../../../features/viewers/common/running-time/RunningTime';
@@ -8,6 +8,7 @@ import { useCuesheetOptions } from '../../cuesheet.options';
 
 import MultiLineCell from './MultiLineCell';
 import SingleLineCell from './SingleLineCell';
+import TimeInputDuration from './TimeInputDuration';
 
 import style from '../CuesheetTable.module.scss';
 
@@ -27,11 +28,18 @@ function MakeTimer({ getValue, row: { original } }: CellContext<OntimeRundownEnt
   );
 }
 
-function MakeDuration({ getValue }: CellContext<OntimeRundownEntry, unknown>) {
-  const { hideTableSeconds } = useCuesheetOptions();
-  const cellValue = (getValue() as number | null) ?? 0;
+function MakeDuration({ getValue, row, table }: CellContext<OntimeRundownEntry, unknown>) {
+  const update = useCallback(
+    (newValue: string) => {
+      table.options.meta?.handleUpdateTimer(row.original.id, 'duration', newValue);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
+    [row.original.id],
+  );
 
-  return <RunningTime value={cellValue} hideSeconds={hideTableSeconds} />;
+  const duration = (getValue() as number | null) ?? 0;
+  const isDurationLocked = (row.original as OntimeEvent)?.timeStrategy === TimeStrategy.LockDuration;
+  return <TimeInputDuration initialValue={duration} onSubmit={update} lockedValue={isDurationLocked} />;
 }
 
 function MakeMultiLineField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
