@@ -14,3 +14,17 @@
   box-shadow: 0 0 0 1px $blue-300;
 }
 
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 20px;
+  border: 0.2px solid white;
+  box-shadow: 0 0 0 0.2px $gray-300;
+  cursor: pointer;
+
+  transition-property: box-shadow;
+  transition-duration: $transition-time-action;
+}
