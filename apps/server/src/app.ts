@@ -343,10 +343,16 @@ async function serverTryDesiredPort(server: http.Server, desiredPort: number): P
     expressServer.once('error', (e) => {
       if (isDocker) throw e; // we should only move ports if we are in a desktp environment
       if (testForPortInUser(e)) {
-        logger.crash(LogOrigin.Server, `Failed open the desired port: ${desiredPort} | to moving to Ephemeral port`);
         server.listen(0, '0.0.0.0', () => {
           // @ts-expect-error TODO: find proper documentation for this api
           const port: number = server.address().port;
+
+          logger.error(
+            LogOrigin.Server,
+            `Failed open the desired port: ${desiredPort} \nMoved to an Ephemeral port: ${port}`,
+            true,
+          );
+
           res(port);
         });
       } else {
