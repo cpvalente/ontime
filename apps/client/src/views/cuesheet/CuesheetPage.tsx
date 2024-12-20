@@ -3,12 +3,10 @@ import { useSearchParams } from 'react-router-dom';
 import { IconButton, Modal, ModalContent, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
-import { CustomFieldLabel, isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
-import { useEventAction } from '../../common/hooks/useEventAction';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import { useFlatRundown } from '../../common/hooks-query/useRundown';
@@ -32,7 +30,6 @@ export default function CuesheetPage() {
   const { isOpen: isEventEditorOpen, onOpen: onEventEditorOpen, onClose: onEventEditorClose } = useDisclosure();
   const [eventId, setEventId] = useState<string | null>(null);
 
-  const { updateCustomField, updateEvent } = useEventAction();
   const columns = useMemo(() => makeCuesheetColumns(customFields), [customFields]);
 
   useWindowTitle('Cuesheet');
@@ -42,65 +39,6 @@ export default function CuesheetPage() {
     searchParams.set('edit', 'true');
     setSearchParams(searchParams);
   }, [searchParams, setSearchParams]);
-
-  /**
-   * Handles updating a custom field
-   */
-  const handleUpdateCustom = useCallback(
-    async (rowIndex: number, accessor: CustomFieldLabel, payload: string) => {
-      if (!flatRundown || rundownStatus !== 'success') {
-        return;
-      }
-
-      if (rowIndex == null || accessor == null || payload == null) {
-        return;
-      }
-
-      // check if value is the same
-      const event = flatRundown[rowIndex];
-      if (!event || !isOntimeEvent(event)) {
-        return;
-      }
-
-      // skip if there is no value change
-      const previousValue = event.custom[accessor];
-      if (previousValue === payload) {
-        return;
-      }
-      updateCustomField(event.id, accessor, payload);
-    },
-    [flatRundown, rundownStatus, updateCustomField],
-  );
-
-  /**
-   * Handles updating all other string fields
-   */
-  const handleUpdate = useCallback(
-    async (rowIndex: number, accessor: keyof OntimeEvent, payload: string) => {
-      if (!flatRundown || rundownStatus !== 'success') {
-        return;
-      }
-
-      if (rowIndex == null || accessor == null || payload == null) {
-        return;
-      }
-
-      // check if value is the same
-      const event = flatRundown[rowIndex];
-      if (!event || !isOntimeEvent(event)) {
-        return;
-      }
-
-      // skip if there is no value change
-      const previousValue = event[accessor];
-      if (previousValue === payload) {
-        return;
-      }
-
-      updateEvent({ id: event.id, [accessor]: payload });
-    },
-    [flatRundown, rundownStatus, updateEvent],
-  );
 
   /**
    * Handles setting the edit modal target and visibility
@@ -151,13 +89,7 @@ export default function CuesheetPage() {
         </CuesheetOverview>
         <CuesheetProgress />
         <CuesheetDnd columns={columns}>
-          <CuesheetTable
-            data={flatRundown}
-            columns={columns}
-            handleUpdate={handleUpdate}
-            handleUpdateCustom={handleUpdateCustom}
-            showModal={setShowModal}
-          />
+          <CuesheetTable data={flatRundown} columns={columns} showModal={setShowModal} />
         </CuesheetDnd>
       </div>
     </>

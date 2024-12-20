@@ -4,15 +4,16 @@ import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHoriz
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import Color from 'color';
 import {
-  CustomFieldLabel,
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
   MaybeString,
+  OntimeEvent,
   OntimeRundown,
   OntimeRundownEntry,
 } from 'ontime-types';
 
+import { useEventAction } from '../../../common/hooks/useEventAction';
 import useFollowComponent from '../../../common/hooks/useFollowComponent';
 import { useSelectedEventId } from '../../../common/hooks/useSocket';
 import { getAccessibleColour } from '../../../common/utils/styleUtils';
@@ -31,14 +32,13 @@ import style from './CuesheetTable.module.scss';
 interface CuesheetTableProps {
   data: OntimeRundown;
   columns: ColumnDef<OntimeRundownEntry>[];
-  handleUpdate: (rowIndex: number, accessor: keyof OntimeRundownEntry, payload: string) => void;
-  handleUpdateCustom: (rowIndex: number, accessor: CustomFieldLabel, payload: string) => void;
   showModal: (eventId: MaybeString) => void;
 }
 
 export default function CuesheetTable(props: CuesheetTableProps) {
-  const { data, columns, handleUpdate, handleUpdateCustom, showModal } = props;
+  const { data, columns, showModal } = props;
 
+  const { updateEvent } = useEventAction();
   const { selectedEventId } = useSelectedEventId();
   const { followSelected, hideDelays, hidePast, hideIndexColumn } = useCuesheetOptions();
   const { columnVisibility, columnOrder, columnSizing, resetColumnOrder, setColumnVisibility, setColumnSizing } =
@@ -57,13 +57,32 @@ export default function CuesheetTable(props: CuesheetTableProps) {
       columnVisibility,
       columnSizing,
     },
-    meta: {
-      handleUpdate,
-      handleUpdateCustom,
-    },
     onColumnVisibilityChange: setColumnVisibility,
     onColumnSizingChange: setColumnSizing,
     getCoreRowModel: getCoreRowModel(),
+    meta: {
+      handleUpdate: async (rowIndex: number, accessor: string, payload: string, isCustom = false) => {
+        // check if value is the same
+        const event = data[rowIndex];
+        if (!event || !isOntimeEvent(event)) {
+          return;
+        }
+
+        // skip if there is no value change
+        const key = accessor as keyof OntimeEvent;
+        const previousValue = event[key];
+        if (previousValue === payload) {
+          return;
+        }
+
+        if (isCustom) {
+          updateEvent({ id: event.id, custom: { [accessor]: payload } });
+          return;
+        }
+
+        updateEvent({ id: event.id, [accessor]: payload });
+      },
+    },
   });
 
   const setAllVisible = () => {

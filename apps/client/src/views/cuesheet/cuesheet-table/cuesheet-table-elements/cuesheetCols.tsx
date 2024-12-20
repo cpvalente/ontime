@@ -37,8 +37,7 @@ function MakeDuration({ getValue }: CellContext<OntimeRundownEntry, unknown>) {
 function MakeMultiLineField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
-      // @ts-expect-error -- we inject this into react-table
-      table.options.meta?.handleUpdate(row.index, column.id, newValue);
+      table.options.meta?.handleUpdate(row.index, column.id, newValue, false);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
     [column.id, row.index],
@@ -57,8 +56,7 @@ function MakeMultiLineField({ row, column, table }: CellContext<OntimeRundownEnt
 function MakeSingleLineField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
-      // @ts-expect-error -- we inject this into react-table
-      table.options.meta?.handleUpdate(row.index, column.id, newValue);
+      table.options.meta?.handleUpdate(row.index, column.id, newValue, false);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
     [column.id, row.index],
@@ -77,8 +75,7 @@ function MakeSingleLineField({ row, column, table }: CellContext<OntimeRundownEn
 function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
-      // @ts-expect-error -- we inject this into react-table
-      table.options.meta?.handleUpdateCustom(row.index, column.id, newValue);
+      table.options.meta?.handleUpdate(row.index, column.id, newValue, true);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
     [column.id, row.index],
