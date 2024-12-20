@@ -40,7 +40,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
 
   const { updateEvent, updateTimer } = useEventAction();
   const { selectedEventId } = useSelectedEventId();
-  const { followSelected, hideDelays, hidePast, hideIndexColumn } = useCuesheetOptions();
+  const { followSelected, hideDelays, hidePast } = useCuesheetOptions();
   const { columnVisibility, columnOrder, columnSizing, resetColumnOrder, setColumnVisibility, setColumnSizing } =
     useColumnManager(columns);
 
@@ -115,7 +115,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
       />
       <div ref={tableContainerRef} className={style.cuesheetContainer}>
         <table className={style.cuesheet} id='cuesheet'>
-          <CuesheetHeader headerGroups={headerGroups} showIndexColumn={!hideIndexColumn} />
+          <CuesheetHeader headerGroups={headerGroups} />
           <tbody>
             {rowModel.rows.map((row, index) => {
               const key = row.original.id;
@@ -168,7 +168,6 @@ export default function CuesheetTable(props: CuesheetTableProps) {
                       selectedRef={isSelected ? selectedRef : undefined}
                       skip={entry.skip}
                       colour={entry.colour}
-                      showIndexColumn={!hideIndexColumn}
                     >
                       {row.getVisibleCells().map((cell) => {
                         return (

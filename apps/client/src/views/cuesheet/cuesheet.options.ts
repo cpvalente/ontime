@@ -11,6 +11,13 @@ import { isStringBoolean } from '../../features/viewers/common/viewUtils';
 export const cuesheetOptions: ViewOption[] = [
   { section: 'Table options' },
   {
+    id: 'showActionMenu',
+    title: 'Show action menu',
+    description: 'Whether to show the action menu for every row in the table',
+    type: 'boolean',
+    defaultValue: false,
+  },
+  {
     id: 'hideTableSeconds',
     title: 'Hide seconds in table',
     description: 'Whether to hide seconds in the time fields displayed in the table',
@@ -56,6 +63,7 @@ export const cuesheetOptions: ViewOption[] = [
 ];
 
 type CuesheetOptions = {
+  showActionMenu: boolean;
   hideTableSeconds: boolean;
   followSelected: boolean;
   hidePast: boolean;
@@ -71,6 +79,7 @@ type CuesheetOptions = {
 export function getOptionsFromParams(searchParams: URLSearchParams): CuesheetOptions {
   // we manually make an object that matches the key above
   return {
+    showActionMenu: isStringBoolean(searchParams.get('showActionMenu')),
     hideTableSeconds: isStringBoolean(searchParams.get('hideTableSeconds')),
     followSelected: isStringBoolean(searchParams.get('followSelected')),
     hidePast: isStringBoolean(searchParams.get('hidePast')),
