@@ -4,7 +4,7 @@ import { millisToString } from 'ontime-utils';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import { useIsOnline, useRuntimeOverview, useRuntimePlaybackOverview, useTimer } from '../../common/hooks/useSocket';
 import useProjectData from '../../common/hooks-query/useProjectData';
-import { cx, enDash } from '../../common/utils/styleUtils';
+import { cx, enDash, timerPlaceholder } from '../../common/utils/styleUtils';
 
 import { TimeColumn, TimeRow } from './composite/TimeLayout';
 import { calculateEndAndDaySpan, formatedTime, getOffsetText } from './overviewUtils';
@@ -26,15 +26,37 @@ function _EditorOverview({ children }: PropsWithChildren) {
     <OverviewWrapper navElements={children}>
       <TitlesOverview />
       <div>
-        <TimeRow label='Planned start' value={formatedTime(plannedStart)} className={style.start} />
-        <TimeRow label='Actual start' value={formatedTime(actualStart)} className={style.start} />
+        <TimeRow
+          label='Planned start'
+          value={formatedTime(plannedStart)}
+          className={style.start}
+          muted={plannedStart === null}
+        />
+        <TimeRow
+          label='Actual start'
+          value={formatedTime(actualStart)}
+          className={style.start}
+          muted={actualStart === null}
+        />
       </div>
       <ProgressOverview />
       <CurrentBlockOverview />
       <RuntimeOverview />
       <div>
-        <TimeRow label='Planned end' value={plannedEndText} className={style.end} daySpan={maybePlannedDaySpan} />
-        <TimeRow label='Expected end' value={expectedEndText} className={style.end} daySpan={maybeExpectedDaySpan} />
+        <TimeRow
+          label='Planned end'
+          value={plannedEndText}
+          className={style.end}
+          daySpan={maybePlannedDaySpan}
+          muted={maybePlannedEnd === null}
+        />
+        <TimeRow
+          label='Expected end'
+          value={expectedEndText}
+          className={style.end}
+          daySpan={maybeExpectedDaySpan}
+          muted={maybeExpectedEnd === null}
+        />
       </div>
     </OverviewWrapper>
   );
@@ -57,8 +79,20 @@ function _CuesheetOverview({ children }: PropsWithChildren) {
       <TimerOverview />
       <RuntimeOverview />
       <div>
-        <TimeRow label='Planned end' value={plannedEndText} className={style.end} daySpan={maybePlannedDaySpan} />
-        <TimeRow label='Expected end' value={expectedEndText} className={style.end} daySpan={maybeExpectedDaySpan} />
+        <TimeRow
+          label='Planned end'
+          value={plannedEndText}
+          className={style.end}
+          daySpan={maybePlannedDaySpan}
+          muted={maybePlannedEnd === null}
+        />
+        <TimeRow
+          label='Expected end'
+          value={expectedEndText}
+          className={style.end}
+          daySpan={maybeExpectedDaySpan}
+          muted={maybeExpectedEnd === null}
+        />
       </div>
     </OverviewWrapper>
   );
@@ -100,15 +134,22 @@ function CurrentBlockOverview() {
 
   const timeInBlock = formatedTime(currentBlock.startedAt === null ? null : clock - currentBlock.startedAt);
 
-  return <TimeColumn label='Time in block' value={timeInBlock} className={style.clock} />;
+  return (
+    <TimeColumn
+      label='Time in block'
+      value={timeInBlock}
+      className={style.clock}
+      muted={currentBlock.startedAt === null}
+    />
+  );
 }
 
 function TimerOverview() {
   const { current } = useTimer();
 
-  const display = millisToString(current);
+  const display = millisToString(current, { fallback: timerPlaceholder });
 
-  return <TimeColumn label='Running timer' value={display} />;
+  return <TimeColumn label='Running timer' value={display} muted={current === null} />;
 }
 
 function ProgressOverview() {

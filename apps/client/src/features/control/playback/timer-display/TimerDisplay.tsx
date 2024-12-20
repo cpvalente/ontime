@@ -19,7 +19,7 @@ export default function TimerDisplay(props: TimerDisplayProps) {
   const isNegative = (time ?? 0) < 0;
   const display =
     time == null ? timerPlaceholder : millisToString(time, { fallback: timerPlaceholder }).replace('-', '');
-  const classes = cx([style.timer, isNegative ? style.finished : null]);
+  const classes = cx([style.timer, isNegative ? style.finished : null, time === null && style.muted]);
 
   return <div className={classes}>{display}</div>;
 }
