@@ -1,6 +1,5 @@
 import { useRef } from 'react';
-import { IconButton, Menu, MenuButton } from '@chakra-ui/react';
-import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
+import { Menu } from '@chakra-ui/react';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import Color from 'color';
 import {
@@ -11,6 +10,7 @@ import {
   OntimeEvent,
   OntimeRundown,
   OntimeRundownEntry,
+  TimeField,
 } from 'ontime-types';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
@@ -38,7 +38,7 @@ interface CuesheetTableProps {
 export default function CuesheetTable(props: CuesheetTableProps) {
   const { data, columns, showModal } = props;
 
-  const { updateEvent } = useEventAction();
+  const { updateEvent, updateTimer } = useEventAction();
   const { selectedEventId } = useSelectedEventId();
   const { followSelected, hideDelays, hidePast, hideIndexColumn } = useCuesheetOptions();
   const { columnVisibility, columnOrder, columnSizing, resetColumnOrder, setColumnVisibility, setColumnSizing } =
@@ -61,7 +61,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
     onColumnSizingChange: setColumnSizing,
     getCoreRowModel: getCoreRowModel(),
     meta: {
-      handleUpdate: async (rowIndex: number, accessor: string, payload: string, isCustom = false) => {
+      handleUpdate: (rowIndex: number, accessor: string, payload: string, isCustom = false) => {
         // check if value is the same
         const event = data[rowIndex];
         if (!event || !isOntimeEvent(event)) {
@@ -81,6 +81,10 @@ export default function CuesheetTable(props: CuesheetTableProps) {
         }
 
         updateEvent({ id: event.id, [accessor]: payload });
+      },
+      handleUpdateTimer: (eventId: string, field: TimeField, payload) => {
+        // the timer element already contains logic to avoid submitting a unchanged value
+        updateTimer(eventId, field, payload, true);
       },
     },
   });
@@ -166,15 +170,6 @@ export default function CuesheetTable(props: CuesheetTableProps) {
                       colour={entry.colour}
                       showIndexColumn={!hideIndexColumn}
                     >
-                      <td>
-                        <MenuButton
-                          as={IconButton}
-                          size='sm'
-                          aria-label='Options'
-                          icon={<IoEllipsisHorizontal />}
-                          variant='ontime-subtle'
-                        />
-                      </td>
                       {row.getVisibleCells().map((cell) => {
                         return (
                           <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}>
