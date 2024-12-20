@@ -1,4 +1,6 @@
 import { memo, MutableRefObject, PropsWithChildren, useLayoutEffect, useRef, useState } from 'react';
+import { IconButton, MenuButton } from '@chakra-ui/react';
+import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 import Color from 'color';
 
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
@@ -55,6 +57,15 @@ function EventRow(props: PropsWithChildren<EventRowProps>) {
       style={{ opacity: `${isPast ? '0.2' : '1'}` }}
       ref={selectedRef ?? ownRef}
     >
+      <td className={style.actionColumn}>
+        <MenuButton
+          as={IconButton}
+          size='sm'
+          aria-label='Options'
+          icon={<IoEllipsisHorizontal />}
+          variant='ontime-subtle'
+        />
+      </td>
       <td className={style.indexColumn} style={{ backgroundColor, color: mutedText }}>
         {showIndexColumn && eventIndex}
       </td>
