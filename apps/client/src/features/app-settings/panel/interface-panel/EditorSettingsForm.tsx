@@ -88,7 +88,6 @@ export default function EditorSettingsForm() {
               >
                 <option value={TimerType.CountDown}>Count down</option>
                 <option value={TimerType.CountUp}>Count up</option>
-                <option value={TimerType.TimeToEnd}>Time to end</option>
                 <option value={TimerType.Clock}>Clock</option>
                 <option value={TimerType.None}>None</option>
               </Select>

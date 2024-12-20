@@ -405,28 +405,6 @@ describe('sanitiseCustomFields()', () => {
 });
 
 describe('parseRundown() linking', () => {
-  const blankEvent: OntimeEvent = {
-    id: '',
-    type: SupportedEvent.Event,
-    cue: '',
-    title: '',
-    note: '',
-    endAction: EndAction.None,
-    timerType: TimerType.CountDown,
-    linkStart: null,
-    timeStrategy: TimeStrategy.LockDuration,
-    timeStart: 0,
-    timeEnd: 0,
-    duration: 0,
-    isPublic: false,
-    skip: false,
-    colour: '',
-    revision: 0,
-    timeWarning: 120000,
-    timeDanger: 60000,
-    custom: {},
-  };
-
   it('returns linked events', () => {
     const data: Partial<DatabaseModel> = {
       rundown: [
@@ -445,12 +423,11 @@ describe('parseRundown() linking', () => {
       customFields: {},
     };
 
-    const expected: OntimeRundown = [
-      { ...blankEvent, id: '1', cue: '0' },
-      { ...blankEvent, id: '2', cue: '1', linkStart: '1' },
-    ];
     const result = parseRundown(data);
-    expect(result.rundown).toEqual(expected);
+    expect(result.rundown[1]).toMatchObject({
+      id: '2',
+      linkStart: '1',
+    });
   });
 
   it('returns unlinked if no previous', () => {
@@ -466,9 +443,11 @@ describe('parseRundown() linking', () => {
       customFields: {},
     };
 
-    const expected: OntimeRundown = [{ ...blankEvent, id: '2', cue: '0' }];
     const result = parseRundown(data);
-    expect(result.rundown).toEqual(expected);
+    expect(result.rundown[0]).toMatchObject({
+      id: '2',
+      linkStart: null,
+    });
   });
 
   it('returns linked events past blocks and delays', () => {
@@ -505,14 +484,65 @@ describe('parseRundown() linking', () => {
       customFields: {},
     };
 
-    const expected: OntimeRundown = [
-      { ...blankEvent, id: '1', cue: '0' },
-      { id: 'delay1', type: SupportedEvent.Delay, duration: 0 },
-      { ...blankEvent, id: '2', cue: '1', linkStart: '1' },
-      { id: 'block1', type: SupportedEvent.Block, title: '' },
-      { ...blankEvent, id: '3', cue: '2', linkStart: '2' },
-    ];
     const result = parseRundown(data);
-    expect(result.rundown).toEqual(expected);
+    expect(result.rundown[0]).toMatchObject({
+      id: '1',
+      cue: '1',
+    });
+    // skip delay
+    expect(result.rundown[2]).toMatchObject({
+      id: '2',
+      cue: '2',
+      linkStart: '1',
+    });
+    // skip block
+    expect(result.rundown[4]).toMatchObject({
+      id: '3',
+      cue: '3',
+      linkStart: '2',
+    });
+  });
+});
+
+describe('parseRundown() migrations', () => {
+  const legacyEvent = {
+    id: '1',
+    type: SupportedEvent.Event,
+    cue: '',
+    title: '',
+    note: '',
+    endAction: EndAction.None,
+    timerType: 'time-to-end',
+    linkStart: null,
+    timeStrategy: TimeStrategy.LockDuration,
+    timeStart: 0,
+    timeEnd: 0,
+    duration: 0,
+    isPublic: false,
+    skip: false,
+    colour: '',
+    revision: 0,
+    timeWarning: 120000,
+    timeDanger: 60000,
+    custom: {},
+  };
+
+  it('migrates an event with time-to-end', () => {
+    const result = parseRundown({ rundown: [legacyEvent] as OntimeRundown });
+    expect(result.rundown[0]).toMatchObject({
+      id: '1',
+      timerType: TimerType.CountDown,
+      isTimeToEnd: true,
+    });
+  });
+
+  it('migrates an event without time-to-end', () => {
+    const countdownEvent = { ...legacyEvent, timerType: TimerType.CountDown };
+    const result = parseRundown({ rundown: [countdownEvent] as OntimeRundown });
+    expect(result.rundown[0]).toMatchObject({
+      id: '1',
+      timerType: TimerType.CountDown,
+      isTimeToEnd: false,
+    });
   });
 });

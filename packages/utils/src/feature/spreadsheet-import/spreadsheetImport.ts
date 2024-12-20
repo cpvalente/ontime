@@ -11,6 +11,7 @@ export const defaultImportMap = {
   duration: 'duration',
   cue: 'cue',
   title: 'title',
+  isTimeToEnd: 'time to end',
   isPublic: 'public',
   skip: 'skip',
   note: 'notes',

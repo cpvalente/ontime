@@ -3,6 +3,8 @@ import { Request, Response, NextFunction } from 'express';
 
 export const rundownPostValidator = [
   body('type').isString().exists().isIn(['event', 'delay', 'block']),
+  body('after').optional().isString(),
+  body('before').optional().isString(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

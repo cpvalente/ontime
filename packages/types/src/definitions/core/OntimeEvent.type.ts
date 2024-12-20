@@ -9,7 +9,6 @@ export enum SupportedEvent {
 export type OntimeBaseEvent = {
   type: SupportedEvent;
   id: string;
-  after?: string; // used when creating an event to indicate its position in rundown
 };
 
 export type OntimeDelay = OntimeBaseEvent & {
@@ -29,6 +28,7 @@ export type OntimeEvent = OntimeBaseEvent & {
   note: string;
   endAction: EndAction;
   timerType: TimerType;
+  isTimeToEnd: boolean;
   linkStart: MaybeString; // ID of event to link to
   timeStrategy: TimeStrategy;
   timeStart: number;

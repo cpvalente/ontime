@@ -16,4 +16,8 @@
   &.finished {
     color: $timer-finished-color;
   }
+
+  &.muted {
+    color: $muted-gray;
+  }
 }

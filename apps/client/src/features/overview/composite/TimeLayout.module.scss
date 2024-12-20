@@ -44,6 +44,10 @@
     content: "*";
     vertical-align: super;
     font-size: 0.75em;
-    color: $blue-500;
+    color: $info-blue;
   }
+}
+
+.muted {
+  color: $muted-gray;
 }
