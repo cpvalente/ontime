@@ -5,7 +5,7 @@ import { IoLink } from '@react-icons/all-files/io5/IoLink';
 import { IoLockClosed } from '@react-icons/all-files/io5/IoLockClosed';
 import { IoLockOpenOutline } from '@react-icons/all-files/io5/IoLockOpenOutline';
 import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
-import { MaybeString, TimeStrategy } from 'ontime-types';
+import { MaybeString, TimeField, TimeStrategy } from 'ontime-types';
 
 import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
 import { useEventAction } from '../../../common/hooks/useEventAction';
@@ -25,14 +25,12 @@ interface EventBlockTimerProps {
   delay: number;
 }
 
-type TimeActions = 'timeStart' | 'timeEnd' | 'duration';
-
 function TimeInputFlow(props: EventBlockTimerProps) {
   const { eventId, isTimeToEnd, timeStart, timeEnd, duration, timeStrategy, linkStart, delay } = props;
   const { updateEvent, updateTimer } = useEventAction();
 
   // In sync with EventEditorTimes
-  const handleSubmit = (field: TimeActions, value: string) => {
+  const handleSubmit = (field: TimeField, value: string) => {
     updateTimer(eventId, field, value);
   };
 
@@ -64,7 +62,7 @@ function TimeInputFlow(props: EventBlockTimerProps) {
 
   return (
     <>
-      <TimeInputWithButton<TimeActions>
+      <TimeInputWithButton<TimeField>
         name='timeStart'
         submitHandler={handleSubmit}
         time={timeStart}
@@ -80,7 +78,7 @@ function TimeInputFlow(props: EventBlockTimerProps) {
         </Tooltip>
       </TimeInputWithButton>
 
-      <TimeInputWithButton<TimeActions>
+      <TimeInputWithButton<TimeField>
         name='timeEnd'
         submitHandler={handleSubmit}
         time={timeEnd}
@@ -100,7 +98,7 @@ function TimeInputFlow(props: EventBlockTimerProps) {
         </Tooltip>
       </TimeInputWithButton>
 
-      <TimeInputWithButton<TimeActions>
+      <TimeInputWithButton<TimeField>
         name='duration'
         submitHandler={handleSubmit}
         time={duration}
