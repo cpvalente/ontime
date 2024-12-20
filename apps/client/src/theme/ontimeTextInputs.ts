@@ -43,7 +43,7 @@ export const ontimeInputTransparent = {
     ...commonStyles,
     backgroundColor: 'transparent',
     _hover: {
-      backgroundColor: 'rgba(255, 255, 255, 0.10)', // $white-10
+      backgroundColor: '#2d2d2d', // $gray-1100
     },
   },
 };
@@ -56,6 +56,6 @@ export const ontimeTextAreaTransparent = {
   ...commonStyles,
   backgroundColor: 'transparent',
   _hover: {
-    backgroundColor: 'rgba(255, 255, 255, 0.10)', // $white-10
+    backgroundColor: '#2d2d2d', // $gray-1100
   },
 };

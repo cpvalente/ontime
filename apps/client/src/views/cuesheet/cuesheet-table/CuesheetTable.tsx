@@ -150,10 +150,10 @@ export default function CuesheetTable(props: CuesheetTableProps) {
                       <td>
                         <MenuButton
                           as={IconButton}
-                          size='xs'
+                          size='sm'
                           aria-label='Options'
                           icon={<IoEllipsisHorizontal />}
-                          variant='ontime-ghosted'
+                          variant='ontime-subtle'
                         />
                       </td>
                       {row.getVisibleCells().map((cell) => {

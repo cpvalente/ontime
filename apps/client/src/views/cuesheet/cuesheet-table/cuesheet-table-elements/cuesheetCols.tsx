@@ -102,6 +102,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
     meta: { colour: customFields[key].colour },
     cell: MakeCustomField,
     size: 250,
+    minSize: 75,
   }));
 
   return [
@@ -111,6 +112,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       header: 'Cue',
       cell: MakeSingleLineField,
       size: 75,
+      minSize: 40,
     },
     {
       accessorKey: 'timeStart',
@@ -118,6 +120,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       header: 'Start',
       cell: MakeTimer,
       size: 75,
+      minSize: 75,
     },
     {
       accessorKey: 'timeEnd',
@@ -125,6 +128,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       header: 'End',
       cell: MakeTimer,
       size: 75,
+      minSize: 75,
     },
     {
       accessorKey: 'duration',
@@ -132,6 +136,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       header: 'Duration',
       cell: MakeDuration,
       size: 75,
+      minSize: 75,
     },
     {
       accessorKey: 'title',
@@ -139,6 +144,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       header: 'Title',
       cell: MakeSingleLineField,
       size: 250,
+      minSize: 75,
     },
     {
       accessorKey: 'note',
@@ -146,6 +152,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       header: 'Note',
       cell: MakeMultiLineField,
       size: 250,
+      minSize: 75,
     },
     ...dynamicCustomFields,
   ];
