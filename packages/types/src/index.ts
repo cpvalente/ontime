@@ -9,6 +9,7 @@ export {
   type OntimeBlock,
   type OntimeEvent,
   type PlayableEvent,
+  type TimeField,
   SupportedEvent,
 } from './definitions/core/OntimeEvent.type.js';
 export type { OntimeEntryCommonKeys, OntimeRundown, OntimeRundownEntry } from './definitions/core/Rundown.type.js';

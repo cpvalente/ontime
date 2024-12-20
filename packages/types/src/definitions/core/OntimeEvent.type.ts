@@ -45,3 +45,4 @@ export type OntimeEvent = OntimeBaseEvent & {
 };
 
 export type PlayableEvent = OntimeEvent & { skip: false };
+export type TimeField = 'timeStart' | 'timeEnd' | 'duration';
