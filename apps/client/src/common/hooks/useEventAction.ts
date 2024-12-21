@@ -242,7 +242,7 @@ export const useEventAction = () => {
 
       // dont allow timer values over 23:59:59
       const cappedMillis = Math.min(newValMillis, dayInMs - MILLIS_PER_SECOND);
-      const newEvent = {
+      const newEvent: Partial<OntimeEvent> = {
         id: eventId,
         [field]: cappedMillis,
       };
@@ -253,9 +253,13 @@ export const useEventAction = () => {
           newEvent.timeStrategy = TimeStrategy.LockEnd;
         } else if (field === 'duration') {
           newEvent.timeStrategy = TimeStrategy.LockDuration;
-        } else if (field === 'timeStart' && value === '') {
-          // if user removes the time start, we should link to the previous
-          newEvent.linkStart = 'true';
+        } else if (field === 'timeStart') {
+          if (value === '') {
+            // if user removes the time start, we should link to the previous
+            newEvent.linkStart = 'true';
+          } else {
+            newEvent.linkStart = null;
+          }
         }
       }
 

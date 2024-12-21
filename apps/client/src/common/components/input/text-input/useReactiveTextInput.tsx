@@ -16,6 +16,7 @@ export default function useReactiveTextInput(
     submitOnEnter?: boolean;
     submitOnCtrlEnter?: boolean;
     onCancelUpdate?: () => void;
+    allowSubmitSameValue?: boolean;
   },
 ): UseReactiveTextInputReturn {
   const [text, setText] = useState<string>(initialText);
@@ -48,7 +49,7 @@ export default function useReactiveTextInput(
   const handleSubmit = useCallback(
     (valueToSubmit: string) => {
       // No need to update if it hasn't changed
-      if (valueToSubmit === initialText) {
+      if (valueToSubmit === initialText && !options?.allowSubmitSameValue) {
         options?.onCancelUpdate?.();
       } else {
         const cleanVal = valueToSubmit.trim();
