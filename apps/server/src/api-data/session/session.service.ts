@@ -2,11 +2,11 @@ import { GetInfo, SessionStats } from 'ontime-types';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { publicDir } from '../../setup/index.js';
-import { getNetworkInterfaces } from '../../utils/networkInterfaces.js';
 import { socket } from '../../adapters/WebsocketAdapter.js';
 import { getLastRequest } from '../../api-integration/integration.controller.js';
 import { getLastLoadedProject } from '../../services/app-state-service/AppStateService.js';
 import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
+import { getNetworkInterfaces } from '../../utils/network.js';
 
 const startedAt = new Date();
 

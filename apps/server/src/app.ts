@@ -40,9 +40,8 @@ import { initialiseProject } from './services/project-service/ProjectService.js'
 // Utilities
 import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
-import { getNetworkInterfaces } from './utils/networkInterfaces.js';
 import { timerConfig } from './config/config.js';
-import { serverTryDesiredPort } from './utils/network.js';
+import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
