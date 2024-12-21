@@ -186,7 +186,7 @@ export const startServer = async (
 
   expressServer = http.createServer(app);
 
-  // the express server must be started before the socket otherwise the on error eventlissner will not attach properly
+  // the express server must be started before the socket otherwise the on error event listener will not attach properly
   const resultPort = await serverTryDesiredPort(expressServer, desiredPort);
   await getDataProvider().setSettings({ ...settings, serverPort: resultPort });
 
