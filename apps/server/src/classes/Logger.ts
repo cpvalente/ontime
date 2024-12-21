@@ -103,9 +103,9 @@ class Logger {
    * @param origin
    * @param text
    */
-  error(origin: string, text: string, notifyElectron = false) {
+  error(origin: string, text: string, escalate = false) {
     this.emit(LogLevel.Error, origin, text);
-    if (notifyElectron) {
+    if (escalate) {
       this.escalateErrorFn?.(text, false);
     }
   }
