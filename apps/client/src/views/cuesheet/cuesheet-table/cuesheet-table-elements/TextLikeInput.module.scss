@@ -1,12 +1,15 @@
 /* element attempts matching input styles */
 .textInput {
-  padding-top: 0.25rem;
   height: 2rem;
   background-color: transparent;
   border-radius: 3px;
 
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
   &.muted {
-    color: $label-gray;
+    color: $muted-gray;
   }
 
   &:hover {
