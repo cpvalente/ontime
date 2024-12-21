@@ -41,8 +41,9 @@ export default function TimeInputDuration(props: TimeInputDurationProps) {
     (newValue: string) => {
       setIsEditing(false);
 
-      // Check if there is anything there
+      // if the user sends an empty string, we want to clear the value
       if (newValue === '') {
+        onSubmit(newValue);
         return;
       }
 
@@ -59,14 +60,15 @@ export default function TimeInputDuration(props: TimeInputDurationProps) {
         return;
       }
 
-      if (valueInMillis === initialValue) {
+      // if the value is the same, we may still want to push the lock change
+      if (valueInMillis === initialValue && lockedValue) {
         return;
       }
 
       onSubmit(newValue);
       setValue(Number(newValue));
     },
-    [initialValue, onSubmit],
+    [initialValue, lockedValue, onSubmit],
   );
 
   // duration times have a special format
@@ -77,6 +79,7 @@ export default function TimeInputDuration(props: TimeInputDurationProps) {
     <SingleLineCell
       ref={inputRef}
       initialValue={timeString}
+      allowSubmitSameValue={!lockedValue} // if the value is not locked, submitting will lock the value
       handleUpdate={handleUpdate}
       handleCancelUpdate={handleFakeBlur}
     />

@@ -225,38 +225,32 @@ export const useEventAction = () => {
    */
   const updateTimer = useCallback(
     async (eventId: string, field: TimeField, value: string, lockOnUpdate?: boolean) => {
-      let newValMillis = 0;
-
-      // check for previous keyword
-      if (value === 'p' || value === 'prev' || value === 'previous') {
-        newValMillis = getPreviousEnd();
-
-        // check for adding time keyword
-      } else if (value.startsWith('+') || value.startsWith('p+') || value.startsWith('p +')) {
-        // TODO: is this logic solid?
-        const remainingString = value.substring(1);
-        newValMillis = getPreviousEnd() + parseUserTime(remainingString);
-      } else {
-        newValMillis = parseUserTime(value);
+      // an empty value with no lock has no domain validity
+      if (!lockOnUpdate && value === '') {
+        return;
       }
 
-      // dont allow timer values over 23:59:59
-      const cappedMillis = Math.min(newValMillis, dayInMs - MILLIS_PER_SECOND);
-      const newEvent = {
+      const newEvent: Partial<OntimeEvent> = {
         id: eventId,
-        [field]: cappedMillis,
       };
 
       // check if we should lock the field
       if (lockOnUpdate) {
         if (field === 'timeEnd') {
-          newEvent.timeStrategy = TimeStrategy.LockEnd;
+          // an empty value indicates that we should unlock the field
+          newEvent.timeStrategy = value === '' ? TimeStrategy.LockDuration : TimeStrategy.LockEnd;
+          newEvent.timeEnd = value === '' ? undefined : calculateNewValue();
         } else if (field === 'duration') {
-          newEvent.timeStrategy = TimeStrategy.LockDuration;
-        } else if (field === 'timeStart' && value === '') {
-          // if user removes the time start, we should link to the previous
-          newEvent.linkStart = 'true';
+          // an empty value indicates that we should unlock the field
+          newEvent.timeStrategy = value === '' ? TimeStrategy.LockEnd : TimeStrategy.LockDuration;
+          newEvent.duration = value === '' ? undefined : calculateNewValue();
+        } else if (field === 'timeStart') {
+          // an empty values means we should link to the previous
+          newEvent.linkStart = value === '' ? 'true' : null;
+          newEvent.timeStart = value === '' ? undefined : calculateNewValue();
         }
+      } else {
+        newEvent[field] = calculateNewValue();
       }
 
       try {
@@ -265,6 +259,31 @@ export const useEventAction = () => {
         logAxiosError('Error updating event', error);
       }
 
+      /**
+       * Utility function to calculate the new time value
+       */
+      function calculateNewValue(): number {
+        let newValMillis = 0;
+
+        // check for previous keyword
+        if (value === 'p' || value === 'prev' || value === 'previous') {
+          newValMillis = getPreviousEnd();
+
+          // check for adding time keyword
+        } else if (value.startsWith('+') || value.startsWith('p+') || value.startsWith('p +')) {
+          // TODO: is this logic solid?
+          const remainingString = value.substring(1);
+          newValMillis = getPreviousEnd() + parseUserTime(remainingString);
+        } else {
+          newValMillis = parseUserTime(value);
+        }
+        // dont allow timer values over 23:59:59
+        return Math.min(newValMillis, dayInMs - MILLIS_PER_SECOND);
+      }
+
+      /**
+       * Utility function to get the previous event end time
+       */
       function getPreviousEnd(): number {
         const cachedRundown = queryClient.getQueryData<RundownCached>(RUNDOWN);
 

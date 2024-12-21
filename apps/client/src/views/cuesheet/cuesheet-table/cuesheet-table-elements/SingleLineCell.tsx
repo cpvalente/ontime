@@ -5,16 +5,18 @@ import useReactiveTextInput from '../../../../common/components/input/text-input
 
 interface SingleLineCellProps {
   initialValue: string;
+  allowSubmitSameValue?: boolean;
   handleUpdate: (newValue: string) => void;
   handleCancelUpdate?: () => void;
 }
 
 const SingleLineCell = forwardRef((props: SingleLineCellProps, inputRef) => {
-  const { initialValue, handleUpdate, handleCancelUpdate } = props;
+  const { initialValue, allowSubmitSameValue, handleUpdate, handleCancelUpdate } = props;
   const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback((newValue: string) => handleUpdate(newValue), [handleUpdate]);
 
   const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(initialValue, submitCallback, ref, {
+    allowSubmitSameValue,
     submitOnEnter: true, // single line should submit on enter
     submitOnCtrlEnter: true,
     onCancelUpdate: handleCancelUpdate,
