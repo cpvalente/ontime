@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "pipeline":{
+  "tasks": {
     "dev": {
       "cache": false
     },
@@ -23,7 +23,9 @@
     "build:electron": {},
     "build:localdocker": {},
     "e2e": {
-      "dependsOn": ["^build"]
+      "dependsOn": [
+        "^build"
+      ]
     },
     "dist-win": {},
     "dist-mac": {},
