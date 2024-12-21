@@ -121,16 +121,6 @@ th {
   margin: 0 auto;
 }
 
-.time {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-
-  > * {
-    @include ellipsis-overflow;
-  }
-}
-
 .delayedTime {
   color: $ontime-delay-text;
   font-size: calc(1rem - 2px);
