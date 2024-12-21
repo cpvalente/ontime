@@ -16,9 +16,7 @@ export async function serverTryDesiredPort(server: http.Server, desiredPort: num
       if (isDocker) throw e; // we should only move ports if we are in a desktop environment
       if (testForPortInUser(e)) {
         server.listen(0, '0.0.0.0', () => {
-          // @ts-expect-error TODO: find proper documentation for this api
-          const port: number = server.address().port;
-
+          const port = getPort(server);
           logger.error(
             LogOrigin.Server,
             `Failed open the desired port: ${desiredPort} \nMoved to an Ephemeral port: ${port}`,
@@ -32,8 +30,7 @@ export async function serverTryDesiredPort(server: http.Server, desiredPort: num
       }
     });
     server.listen(desiredPort, '0.0.0.0', () => {
-      // @ts-expect-error TODO: find proper documentation for this api
-      const port: number = server.address().port;
+      const port = getPort(server);
       res(port);
     });
   });
@@ -44,4 +41,12 @@ function testForPortInUser(err: unknown) {
     return true;
   }
   return false;
+}
+
+function getPort(server: http.Server) {
+  const address = server.address();
+  if (typeof address !== 'object') {
+    throw new Error('unknown port type, can not proceed');
+  }
+  return address.port;
 }
