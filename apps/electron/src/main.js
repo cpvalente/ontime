@@ -112,7 +112,7 @@ function askToQuit() {
 function escalateError(error, unrecoverable = true) {
   if (unrecoverable) {
     dialog.showErrorBox('An unrecoverable error occurred', error);
-    //TODO: should we quit here
+    appShutdown();
   } else {
     dialog.showErrorBox('An error occurred', error);
   }
