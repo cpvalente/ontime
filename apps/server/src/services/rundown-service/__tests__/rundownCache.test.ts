@@ -40,6 +40,7 @@ beforeAll(() => {
   });
 });
 
+//TODO: Test day offset
 describe('generate()', () => {
   it('creates normalised versions of a given rundown', () => {
     const testRundown: OntimeRundown = [
@@ -66,6 +67,47 @@ describe('generate()', () => {
     expect(initResult.order.length).toBe(2);
     expect((initResult.rundown['2'] as OntimeEvent).delay).toBe(100);
     expect(initResult.totalDelay).toBe(100);
+  });
+
+  //TODO: find more ways the events cross midnight
+  it('accounts for gaps in rundown', () => {
+    const testRundown: OntimeRundown = [
+      {
+        type: SupportedEvent.Event,
+        id: '1',
+        timeStart: 11 * MILLIS_PER_HOUR,
+        timeEnd: 12 * MILLIS_PER_HOUR,
+        duration: 1 * MILLIS_PER_HOUR,
+      } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '2',
+        timeStart: 6 * MILLIS_PER_HOUR,
+        timeEnd: 7 * MILLIS_PER_HOUR,
+        duration: 1 * MILLIS_PER_HOUR,
+      } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '3',
+        timeStart: 22 * MILLIS_PER_HOUR,
+        timeEnd: 0 * MILLIS_PER_HOUR,
+        duration: 2 * MILLIS_PER_HOUR,
+      } as OntimeEvent,
+      {
+        type: SupportedEvent.Event,
+        id: '4',
+        timeStart: 1 * MILLIS_PER_HOUR,
+        timeEnd: 2 * MILLIS_PER_HOUR,
+        duration: 1 * MILLIS_PER_HOUR,
+      } as OntimeEvent,
+    ];
+
+    const initResult = generate(testRundown);
+    expect(initResult.order.length).toBe(4);
+    expect((initResult.rundown['1'] as OntimeEvent).dayOffset).toBe(0);
+    expect((initResult.rundown['2'] as OntimeEvent).dayOffset).toBe(1);
+    expect((initResult.rundown['3'] as OntimeEvent).dayOffset).toBe(1);
+    expect((initResult.rundown['4'] as OntimeEvent).dayOffset).toBe(2);
   });
 
   it('accounts for gaps in rundown when calculating delays', () => {
@@ -265,6 +307,9 @@ describe('generate()', () => {
     ];
 
     const initResult = generate(testRundown);
+    expect((initResult.rundown['1'] as OntimeEvent).dayOffset).toBe(0);
+    expect((initResult.rundown['2'] as OntimeEvent).dayOffset).toBe(0);
+    expect((initResult.rundown['3'] as OntimeEvent).dayOffset).toBe(0);
     expect(initResult.order.length).toBe(4);
     expect(initResult.totalDuration).toBe(500 - 100);
   });
@@ -295,6 +340,11 @@ describe('generate()', () => {
     ];
 
     const initResult = generate(testRundown);
+
+    expect((initResult.rundown['1'] as OntimeEvent).dayOffset).toBe(0);
+    expect((initResult.rundown['2'] as OntimeEvent).dayOffset).toBe(1);
+    expect((initResult.rundown['3'] as OntimeEvent).dayOffset).toBe(2);
+
     expect(initResult.totalDuration).toBe((23 - 9 + 48) * MILLIS_PER_HOUR);
   });
 
