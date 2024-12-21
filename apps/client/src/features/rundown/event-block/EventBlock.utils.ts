@@ -1,3 +1,4 @@
+import { MaybeNumber, PlayableEvent } from 'ontime-types';
 import {
   calculateDuration,
   checkIsNextDay,
@@ -38,4 +39,30 @@ export function formatOverlap(timeStart: number, previousStart?: number, previou
 
   const overlapString = formatDuration(Math.abs(timeFromPrevious), false);
   return `${timeFromPrevious < 0 ? 'Overlap' : 'Gap'} ${overlapString}`;
+}
+
+export function calculateAccumulatedGap(
+  accGap: MaybeNumber,
+  currentEvent: PlayableEvent,
+  previousEvent?: PlayableEvent,
+): MaybeNumber {
+  if (previousEvent === undefined) return null;
+
+  const timeFromPrevious = getTimeFromPrevious(
+    currentEvent.timeStart,
+    previousEvent.timeStart,
+    previousEvent.timeEnd,
+    previousEvent.duration,
+  );
+  if (timeFromPrevious === 0 && accGap === null) return null;
+
+  if (checkIsNextDay(previousEvent.timeStart, currentEvent.timeStart, previousEvent.duration)) {
+    const previousCrossMidnight = previousEvent.timeStart > previousEvent.timeEnd;
+    const normalisedPreviousEnd = previousCrossMidnight ? previousEvent.timeEnd + dayInMs : previousEvent.timeEnd;
+
+    const gap = dayInMs - normalisedPreviousEnd + currentEvent.timeStart;
+    if (gap === 0 && accGap === null) return null;
+    return gap + (accGap ?? 0);
+  }
+  return timeFromPrevious + (accGap ?? 0);
 }
