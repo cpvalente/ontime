@@ -1,6 +1,7 @@
-import { debounce } from '../../../../common/utils/debounce';
-import PopoverPicker from '../../../../common/components/input/popover-picker/PopoverPicker';
 import { IoEyedrop } from '@react-icons/all-files/io5/IoEyedrop';
+
+import PopoverPicker from '../../../../common/components/input/popover-picker/PopoverPicker';
+import { debounce } from '../../../../common/utils/debounce';
 
 interface SwatchPickerProps {
   color: string;

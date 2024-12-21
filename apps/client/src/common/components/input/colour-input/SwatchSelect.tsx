@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 
 import Swatch from './Swatch';
+import SwatchPicker from './SwatchPicker';
 
 import style from './SwatchSelect.module.scss';
-import SwatchPicker from './SwatchPicker';
 
 interface ColourInputProps {
   value: string;

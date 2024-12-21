@@ -1,10 +1,10 @@
+import { ReactNode } from 'react';
 import { HexAlphaColorPicker, HexColorInput } from 'react-colorful';
 import { useController, UseControllerProps } from 'react-hook-form';
 import { Popover, PopoverContent, PopoverTrigger } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
 import style from './PopoverPicker.module.scss';
-import { ReactNode } from 'react';
 
 export function PopoverPickerRHF(props: UseControllerProps<ViewSettings>) {
   const { name, control } = props;
