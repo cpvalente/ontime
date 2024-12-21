@@ -10,7 +10,7 @@ import { extname } from 'node:path';
 
 // import utils
 import { publicDir, srcDir, srcFiles } from './setup/index.js';
-import { environment, isDocker, isOntimeCloud, isProduction, updateRouterPrefix } from './externals.js';
+import { environment, isOntimeCloud, isProduction, updateRouterPrefix } from './externals.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
 
@@ -42,6 +42,7 @@ import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { getNetworkInterfaces } from './utils/networkInterfaces.js';
 import { timerConfig } from './config/config.js';
+import { serverTryDesiredPort } from './utils/network.js';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -330,46 +331,3 @@ process.on('uncaughtException', async (error) => {
 process.once('SIGHUP', async () => shutdown(0));
 process.once('SIGINT', async () => shutdown(0));
 process.once('SIGTERM', async () => shutdown(0));
-
-/**
- * @description tries to open the server with the desired port, and if getting a `EADDRINUSE` will change to an efemeral port
- * @param {http.Server}server http server object
- * @param {number}desiredPort the desired port
- * @returns {number} the resulting port number
- * @throws any other server errors will result in a throw
- */
-async function serverTryDesiredPort(server: http.Server, desiredPort: number): Promise<number> {
-  return new Promise((res) => {
-    expressServer.once('error', (e) => {
-      if (isDocker) throw e; // we should only move ports if we are in a desktop environment
-      if (testForPortInUser(e)) {
-        server.listen(0, '0.0.0.0', () => {
-          // @ts-expect-error TODO: find proper documentation for this api
-          const port: number = server.address().port;
-
-          logger.error(
-            LogOrigin.Server,
-            `Failed open the desired port: ${desiredPort} \nMoved to an Ephemeral port: ${port}`,
-            true,
-          );
-
-          res(port);
-        });
-      } else {
-        throw e;
-      }
-    });
-    server.listen(desiredPort, '0.0.0.0', () => {
-      // @ts-expect-error TODO: find proper documentation for this api
-      const port: number = server.address().port;
-      res(port);
-    });
-  });
-}
-
-function testForPortInUser(err: unknown) {
-  if (typeof err === 'object' && 'code' in err && err.code === 'EADDRINUSE') {
-    return true;
-  }
-  return false;
-}
