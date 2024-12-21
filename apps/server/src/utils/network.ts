@@ -40,27 +40,37 @@ export function getNetworkInterfaces(): { name: string; address: string }[] {
  * @throws any other server errors will result in a throw
  */
 export async function serverTryDesiredPort(server: http.Server, desiredPort: number): Promise<number> {
-  return new Promise((res) => {
+  return new Promise((resolve, reject) => {
     server.once('error', (e) => {
-      if (isDocker) throw e; // we should only move ports if we are in a desktop environment
+      if (isDocker) reject('test rejection'); // we should only move ports if we are in a desktop environment
       if (testForPortInUser(e)) {
         server.listen(0, '0.0.0.0', () => {
-          const port = getPort(server);
+          const address = server.address();
+          if (typeof address !== 'object') {
+            reject('unknown port type, can not proceed');
+            return; // the return is needed here to let TS know that we wont continue
+          }
+          const port = address.port;
           logger.error(
             LogOrigin.Server,
             `Failed open the desired port: ${desiredPort} \nMoved to an Ephemeral port: ${port}`,
             true,
           );
 
-          res(port);
+          resolve(port);
         });
       } else {
         throw e;
       }
     });
     server.listen(desiredPort, '0.0.0.0', () => {
-      const port = getPort(server);
-      res(port);
+      const address = server.address();
+      if (typeof address !== 'object') {
+        reject('unknown port type, can not proceed');
+        return; // the return is needed here to let TS know that we wont continue
+      }
+      const port = address.port;
+      resolve(port);
     });
   });
 }
@@ -70,12 +80,4 @@ function testForPortInUser(err: unknown) {
     return true;
   }
   return false;
-}
-
-function getPort(server: http.Server) {
-  const address = server.address();
-  if (typeof address !== 'object') {
-    throw new Error('unknown port type, can not proceed');
-  }
-  return address.port;
 }
