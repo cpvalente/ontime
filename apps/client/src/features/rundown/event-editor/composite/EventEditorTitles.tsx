@@ -1,7 +1,6 @@
 import { memo } from 'react';
 import { Input } from '@chakra-ui/react';
 import { sanitiseCue } from 'ontime-utils';
-import { IoEyedrop } from '@react-icons/all-files/io5/IoEyedrop';
 
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
 import * as Editor from '../../../editors/editor-utils/EditorUtils';
@@ -50,7 +49,7 @@ const EventEditorTitles = (props: EventEditorTitlesProps) => {
         <Editor.Label>Colour</Editor.Label>
         <div className={style.colorSettings}>
           <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
-          <EventColorPicker name='colour' value={colour} icon={<IoEyedrop size={15} />} handleChange={handleSubmit} />
+          <EventColorPicker name='colour' value={colour} handleChange={handleSubmit} />
         </div>
       </div>
       <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />

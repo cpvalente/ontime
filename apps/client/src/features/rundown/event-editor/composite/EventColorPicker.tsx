@@ -1,17 +1,16 @@
 import { debounceWithValue } from '../../../../common/utils/debounce';
 import PopoverPicker from '../../../../common/components/input/popover-picker/PopoverPicker';
-import style from './EventColorPicker.module.scss';
-import { ReactNode, useCallback } from 'react';
+import { useCallback } from 'react';
+import { IoEyedrop } from '@react-icons/all-files/io5/IoEyedrop';
 
 interface EventColorPickerProps {
   name: 'colour';
   value: string;
-  icon: ReactNode;
   handleChange: (newValue: 'colour', name: string) => void;
 }
 
 export default function EventColorPicker(props: EventColorPickerProps) {
-  const { name, value, icon, handleChange } = props;
+  const { name, value, handleChange } = props;
 
   const debouncedChange = debounceWithValue((value: string) => {
     setColour(value);
@@ -26,10 +25,5 @@ export default function EventColorPicker(props: EventColorPickerProps) {
     [handleChange, name, value],
   );
 
-  return (
-    <div className={style.inline}>
-      <PopoverPicker color={value} onChange={debouncedChange} icon={icon} hasInput={true} />
-      <input type='hidden' name={name} value={value} />
-    </div>
-  );
+  return <PopoverPicker color={value} onChange={debouncedChange} icon={<IoEyedrop />} hasInput />;
 }

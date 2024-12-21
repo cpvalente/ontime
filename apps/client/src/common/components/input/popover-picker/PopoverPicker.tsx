@@ -28,11 +28,9 @@ export default function PopoverPicker(props: PopoverPickerProps) {
   return (
     <Popover>
       <PopoverTrigger>
-        {icon ? (
-          <div className={style.icon}>{icon}</div>
-        ) : (
-          <div className={style.swatch} style={{ backgroundColor: color }} />
-        )}
+        <div className={style.swatch} style={{ backgroundColor: color }}>
+          {icon ?? null}
+        </div>
       </PopoverTrigger>
       <PopoverContent style={{ width: 'auto' }}>
         <HexAlphaColorPicker color={color} onChange={onChange} />
