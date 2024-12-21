@@ -1,4 +1,4 @@
-import { debounceWithValue } from '../../../../common/utils/debounce';
+import { debounce } from '../../../../common/utils/debounce';
 import PopoverPicker from '../../../../common/components/input/popover-picker/PopoverPicker';
 import { IoEyedrop } from '@react-icons/all-files/io5/IoEyedrop';
 
@@ -10,7 +10,7 @@ interface SwatchPickerProps {
 export default function SwatchPicker(props: SwatchPickerProps) {
   const { color, onChange } = props;
 
-  const debouncedChange = debounceWithValue((value: string) => {
+  const debouncedChange = debounce((value: string) => {
     onChange(value);
   }, 250);
 

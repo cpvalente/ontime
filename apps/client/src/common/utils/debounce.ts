@@ -1,25 +1,12 @@
-export function debounce(callback: () => void, wait: number) {
+export function debounce(callback: (...args) => void, wait: number) {
   let timeout: NodeJS.Timeout | null;
-  return () => {
+  return (...args) => {
     if (timeout) {
       return;
     }
     timeout = setTimeout(() => {
       timeout = null;
-      callback();
-    }, wait);
-  };
-}
-
-export function debounceWithValue(callback: (value: string) => void, wait: number) {
-  let timeout: NodeJS.Timeout | null;
-  return (value: string) => {
-    if (timeout) {
-      return;
-    }
-    timeout = setTimeout(() => {
-      timeout = null;
-      callback(value);
+      callback(...args);
     }, wait);
   };
 }
