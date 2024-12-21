@@ -179,7 +179,7 @@ export const startServer = async (
   escalateErrorFn?: (error: string, unrecoverable: boolean) => void,
 ): Promise<{ message: string; serverPort: number }> => {
   checkStart(OntimeStartOrder.InitServer);
-  // initialise logging service, escalateErrorFn is only exists in electron
+  // initialise logging service, escalateErrorFn only exists in electron
   logger.init(escalateErrorFn);
   const settings = getDataProvider().getSettings();
   const { serverPort: desiredPort } = settings;
