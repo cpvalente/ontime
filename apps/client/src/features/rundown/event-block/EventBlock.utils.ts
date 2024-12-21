@@ -12,6 +12,12 @@ export function formatDelay(timeStart: number, delay: number): string | undefine
   return `New start ${timeTag}`;
 }
 
+/**
+ * Creates a string representation of the overlap or gap between two events.
+ * @example formatOverlap(1000, false) => "Gap 1s"
+ * @example formatOverlap(-1000, false) => "Overlap 1s"
+ * @example formatOverlap(1000, true) => "Gap 1s (next day)"
+ */
 export function formatOverlap(gap: MaybeNumber, isNextDay: boolean): string | undefined {
   if (gap === null || gap === 0) return;
 
