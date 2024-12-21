@@ -28,6 +28,10 @@ declare module '@tanstack/react-table' {
   interface TableMeta<TData extends RowData> {
     handleUpdate: (rowIndex: number, accessor: string, payload: string, isCustom: boolean) => void;
     handleUpdateTimer: (eventId: string, field: TimeField, payload: string) => void;
+    options: {
+      showDelayedTimes: boolean;
+      hideTableSeconds: boolean;
+    };
   }
 }
 

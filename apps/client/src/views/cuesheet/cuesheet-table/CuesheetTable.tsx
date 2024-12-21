@@ -40,7 +40,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
 
   const { updateEvent, updateTimer } = useEventAction();
   const { selectedEventId } = useSelectedEventId();
-  const { followSelected, hideDelays, hidePast } = useCuesheetOptions();
+  const { followSelected, hideDelays, hidePast, showDelayedTimes, hideTableSeconds } = useCuesheetOptions();
   const { columnVisibility, columnOrder, columnSizing, resetColumnOrder, setColumnVisibility, setColumnSizing } =
     useColumnManager(columns);
 
@@ -85,6 +85,10 @@ export default function CuesheetTable(props: CuesheetTableProps) {
       handleUpdateTimer: (eventId: string, field: TimeField, payload) => {
         // the timer element already contains logic to avoid submitting a unchanged value
         updateTimer(eventId, field, payload, true);
+      },
+      options: {
+        showDelayedTimes,
+        hideTableSeconds,
       },
     },
   });
