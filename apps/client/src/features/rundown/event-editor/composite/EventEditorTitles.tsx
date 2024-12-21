@@ -10,7 +10,6 @@ import EventTextArea from './EventTextArea';
 import EventTextInput from './EventTextInput';
 
 import style from '../EventEditor.module.scss';
-import EventColorPicker from './EventColorPicker';
 
 interface EventEditorTitlesProps {
   eventId: string;
@@ -49,7 +48,6 @@ const EventEditorTitles = (props: EventEditorTitlesProps) => {
         <Editor.Label>Colour</Editor.Label>
         <div className={style.colorSettings}>
           <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
-          <EventColorPicker name='colour' value={colour} handleChange={handleSubmit} />
         </div>
       </div>
       <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />
