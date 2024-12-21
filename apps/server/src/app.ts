@@ -341,7 +341,7 @@ process.once('SIGTERM', async () => shutdown(0));
 async function serverTryDesiredPort(server: http.Server, desiredPort: number): Promise<number> {
   return new Promise((res) => {
     expressServer.once('error', (e) => {
-      if (isDocker) throw e; // we should only move ports if we are in a desktp environment
+      if (isDocker) throw e; // we should only move ports if we are in a desktop environment
       if (testForPortInUser(e)) {
         server.listen(0, '0.0.0.0', () => {
           // @ts-expect-error TODO: find proper documentation for this api
