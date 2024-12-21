@@ -18,7 +18,7 @@ export type Automation = {
 
 export type AutomationFilter = {
   field: string; // this should be a key of a OntimeEvent + custom fields
-  operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains';
+  operator: 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains' | 'not_contains';
   value: string; // we use string but would coerce to the field value
 };
 
@@ -150,6 +150,8 @@ export function testConditions(
         return fieldValue < value;
       case 'contains':
         return typeof fieldValue === 'string' && fieldValue.includes(value);
+      case 'not_contains':
+        return typeof fieldValue === 'string' && !fieldValue.includes(value);
       default:
         return false;
     }
