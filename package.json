@@ -47,7 +47,8 @@
     "eslint-config-prettier": "catalog:",
     "eslint-plugin-playwright": "^1.5.2",
     "prettier": "catalog:",
-    "turbo": "^1.11.2",
+    "turbo": "^2.3.3",
     "typescript": "catalog:"
-  }
+  },
+  "packageManager": "pnpm@9.15.0"
 }
