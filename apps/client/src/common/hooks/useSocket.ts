@@ -251,7 +251,6 @@ export const useIsOnline = () => {
   return useRuntimeStore(featureSelector);
 };
 
-/** convert ping into a derived value which changes less often */
 export const usePlayback = () => {
   const featureSelector = (state: RuntimeStore) => ({
     playback: state.timer.playback,
