@@ -57,6 +57,21 @@ export default function AutomationSettings() {
         onKeyDown={() => console.log('prevent escapee')}
       >
         <Panel.Loader isLoading={false} />
+        <Panel.Title>Automation</Panel.Title>
+        {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
+        <Panel.ListGroup>
+          <Panel.ListItem>
+            <Panel.Field title='Enable automations' description='Allow Ontime to send messages on lifecycle triggers' />
+            <Controller
+              control={control}
+              name='enabledIn'
+              render={({ field: { onChange, value, ref } }) => (
+                <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
+              )}
+            />
+          </Panel.ListItem>
+        </Panel.ListGroup>
+
         <Panel.Title>OSC Input</Panel.Title>
         {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
         <Panel.ListGroup>
@@ -91,20 +106,6 @@ export default function AutomationSettings() {
                   message: 'Value should be numeric',
                 },
               })}
-            />
-          </Panel.ListItem>
-        </Panel.ListGroup>
-        <Panel.Title>Automation</Panel.Title>
-        {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
-        <Panel.ListGroup>
-          <Panel.ListItem>
-            <Panel.Field title='Enable automations' description='Allow Ontime to send messages on lifecycle triggers' />
-            <Controller
-              control={control}
-              name='enabledIn'
-              render={({ field: { onChange, value, ref } }) => (
-                <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
-              )}
             />
           </Panel.ListItem>
         </Panel.ListGroup>
