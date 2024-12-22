@@ -33,7 +33,7 @@ export function getNetworkInterfaces(): { name: string; address: string }[] {
 }
 
 /**
- * @description tries to open the server with the desired port, and if getting a `EADDRINUSE` will change to an efemeral port
+ * @description tries to open the server with the desired port, and if getting a `EADDRINUSE` will change to an random port assigned by the OS
  * @param {http.Server}server http server object
  * @param {number}desiredPort the desired port
  * @returns {number} the resulting port number
@@ -42,7 +42,7 @@ export function getNetworkInterfaces(): { name: string; address: string }[] {
 export async function serverTryDesiredPort(server: http.Server, desiredPort: number): Promise<number> {
   return new Promise((resolve, reject) => {
     server.once('error', (e) => {
-      if (isDocker) reject('test rejection'); // we should only move ports if we are in a desktop environment
+      if (isDocker) reject(e); // we should only move ports if we are in a desktop environment
       if (testForPortInUser(e)) {
         server.listen(0, '0.0.0.0', () => {
           const address = server.address();
@@ -50,17 +50,16 @@ export async function serverTryDesiredPort(server: http.Server, desiredPort: num
             reject('unknown port type, can not proceed');
             return; // the return is needed here to let TS know that we wont continue
           }
-          const port = address.port;
           logger.error(
             LogOrigin.Server,
-            `Failed open the desired port: ${desiredPort} \nMoved to an Ephemeral port: ${port}`,
+            `Failed open the desired port: ${desiredPort} \nMoved to an Ephemeral port: ${address.port}`,
             true,
           );
 
-          resolve(port);
+          resolve(address.port);
         });
       } else {
-        throw e;
+        reject(e);
       }
     });
     server.listen(desiredPort, '0.0.0.0', () => {
@@ -69,8 +68,7 @@ export async function serverTryDesiredPort(server: http.Server, desiredPort: num
         reject('unknown port type, can not proceed');
         return; // the return is needed here to let TS know that we wont continue
       }
-      const port = address.port;
-      resolve(port);
+      resolve(address.port);
     });
   });
 }
