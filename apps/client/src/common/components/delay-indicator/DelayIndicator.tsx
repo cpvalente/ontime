@@ -9,32 +9,23 @@ import style from './DelayIndicator.module.scss';
 
 interface DelayIndicatorProps {
   delayValue?: number;
+  tooltipPrefix?: string;
 }
 
 export default function DelayIndicator(props: DelayIndicatorProps) {
-  const { delayValue } = props;
+  const { delayValue, tooltipPrefix } = props;
 
-  if (typeof delayValue === 'number') {
-    if (delayValue < 0) {
-      return (
-        <Tooltip openDelay={tooltipDelayFast} label={millisToDelayString(delayValue)}>
-          <span className={style.delaySymbol}>
-            <IoChevronDown />
-          </span>
-        </Tooltip>
-      );
-    }
-
-    if (delayValue > 0) {
-      return (
-        <Tooltip openDelay={tooltipDelayFast} label={millisToDelayString(delayValue)}>
-          <span className={style.delaySymbol}>
-            <IoChevronUp />
-          </span>
-        </Tooltip>
-      );
-    }
+  if (typeof delayValue !== 'number' || delayValue === 0) {
+    return null;
   }
 
-  return null;
+  const delayString = tooltipPrefix
+    ? `${tooltipPrefix} ${millisToDelayString(delayValue)}`
+    : millisToDelayString(delayValue);
+
+  return (
+    <Tooltip openDelay={tooltipDelayFast} label={delayString}>
+      <span className={style.delaySymbol}>{delayValue < 0 ? <IoChevronDown /> : <IoChevronUp />}</span>
+    </Tooltip>
+  );
 }

@@ -8,8 +8,13 @@
   align-items: center;
   gap: 0.25rem;
 
+  &.delayed {
+    color: $ontime-delay-text;
+  }
+
   &.muted {
-    color: $muted-gray;
+    // we use opacity instead of colour to handle delayed values
+    opacity: 0.4;
   }
 
   &:hover {

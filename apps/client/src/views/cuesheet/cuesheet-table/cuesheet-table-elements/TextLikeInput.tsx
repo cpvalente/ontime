@@ -7,12 +7,13 @@ import style from './TextLikeInput.module.scss';
 export default memo(TextLikeInput);
 
 interface TextLikeInputProps extends HTMLAttributes<HTMLSpanElement> {
+  delayed?: boolean;
   muted?: boolean;
 }
 
 function TextLikeInput(props: PropsWithChildren<TextLikeInputProps>) {
-  const { muted, children, className, ...elementProps } = props;
-  const classes = cx([style.textInput, muted && style.muted, className]);
+  const { delayed, muted, children, className, ...elementProps } = props;
+  const classes = cx([style.textInput, delayed && style.delayed, muted && style.muted, className]);
   return (
     <div className={classes} {...elementProps} tabIndex={0}>
       {children}

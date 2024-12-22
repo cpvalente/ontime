@@ -7,13 +7,14 @@ import TextLikeInput from './TextLikeInput';
 interface TimeInputDurationProps {
   initialValue: number;
   lockedValue: boolean;
+  delayed?: boolean;
   onSubmit: (value: string) => void;
 }
 
 export default memo(TimeInputDuration);
 
 function TimeInputDuration(props: PropsWithChildren<TimeInputDurationProps>) {
-  const { initialValue, lockedValue, onSubmit, children } = props;
+  const { initialValue, lockedValue, delayed, onSubmit, children } = props;
 
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialValue);
@@ -81,7 +82,7 @@ function TimeInputDuration(props: PropsWithChildren<TimeInputDurationProps>) {
       handleCancelUpdate={handleFakeBlur}
     />
   ) : (
-    <TextLikeInput onClick={handleFakeFocus} onFocus={handleFakeFocus} muted={!lockedValue}>
+    <TextLikeInput onClick={handleFakeFocus} onFocus={handleFakeFocus} muted={!lockedValue} delayed={delayed}>
       {children}
     </TextLikeInput>
   );
