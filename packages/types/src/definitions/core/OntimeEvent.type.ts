@@ -38,11 +38,13 @@ export type OntimeEvent = OntimeBaseEvent & {
   skip: boolean;
   colour: string;
   revision: number;
-  delay?: number; // calculated at runtime
+  delay: number; // calculated at runtime
   timeWarning: number;
   timeDanger: number;
   custom: EventCustomFields;
 };
+
+export type DatabaseOntimeEvent = Omit<OntimeEvent, 'delay'>;
 
 export type PlayableEvent = OntimeEvent & { skip: false };
 export type TimeField = 'timeStart' | 'timeEnd' | 'duration';
