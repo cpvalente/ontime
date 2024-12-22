@@ -6,7 +6,7 @@ import { MILLIS_PER_HOUR } from 'ontime-utils';
  * Small utility to fill in the necessary data for the test
  */
 function makeOntimeEvent(event: Partial<OntimeEvent>): OntimeEvent {
-  return { ...event, type: SupportedEvent.Event, revision: 1 } as OntimeEvent;
+  return { ...event, type: SupportedEvent.Event, revision: 1, dayOffset: 0 } as OntimeEvent;
 }
 
 /**
@@ -178,24 +178,24 @@ describe('apply()', () => {
       makeOntimeDelay(2 * MILLIS_PER_HOUR),
       makeOntimeEvent({
         id: '1',
-        timeStart: 46800000, // 13:00:00
-        timeEnd: 50400000, // 14:00:00
+        timeStart: 13 * MILLIS_PER_HOUR, // 13:00:00
+        timeEnd: 14 * MILLIS_PER_HOUR, // 14:00:00
         duration: MILLIS_PER_HOUR,
       }),
       // gap 1h
       makeOntimeEvent({
         id: '2',
-        timeStart: 54000000, // 15:00:00
-        timeEnd: 57600000, // 16:00:00
+        timeStart: 15 * MILLIS_PER_HOUR, // 15:00:00
+        timeEnd: 16 * MILLIS_PER_HOUR, // 16:00:00
         duration: MILLIS_PER_HOUR,
       }),
     ];
 
     const updatedRundown = apply('delay', testRundown);
     expect(updatedRundown).toMatchObject([
-      { id: '1', timeStart: 54000000 /* 16 */, revision: 2 },
+      { id: '1', timeStart: 15 * MILLIS_PER_HOUR, revision: 2 },
       // gap 1h (2h - 1h)
-      { id: '2', timeStart: 57600000 /* 16 */, revision: 2 },
+      { id: '2', timeStart: 16 * MILLIS_PER_HOUR, revision: 2 },
     ]);
   });
 

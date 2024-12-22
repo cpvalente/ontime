@@ -19,6 +19,7 @@ import {
   getTimeFromPrevious,
   isNewLatest,
   customFieldLabelToKey,
+  checkIsNextDay,
 } from 'ontime-utils';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
@@ -91,6 +92,8 @@ export function generate(
   totalDuration = 0;
   totalDelay = 0;
 
+  let dayOffset = 0;
+
   let lastEntry: PlayableEvent | null = null;
 
   for (let i = 0; i < initialRundown.length; i++) {
@@ -112,11 +115,18 @@ export function generate(
           firstStart = currentEntry.timeStart;
         }
 
+        const isNextDay =
+          lastEntry === null ? 0 : checkIsNextDay(lastEntry.timeStart, currentEntry.timeStart, lastEntry.duration);
+
+        dayOffset += isNextDay ? 1 : 0;
+        currentEntry.dayOffset = dayOffset;
+
         const timeFromPrevious: number = getTimeFromPrevious(
           currentEntry.timeStart,
+          currentEntry.dayOffset,
           lastEntry?.timeStart,
-          lastEntry?.timeEnd,
           lastEntry?.duration,
+          lastEntry?.dayOffset,
         );
 
         if (timeFromPrevious === 0) {
