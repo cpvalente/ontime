@@ -6,6 +6,7 @@ import {
   isOntimeBlock,
   isOntimeEvent,
   isPlayableEvent,
+  MaybeNumber,
   MaybeString,
   PlayableEvent,
   Playback,
@@ -19,6 +20,7 @@ import {
   getNextNormal,
   getPreviousBlockNormal,
   getPreviousNormal,
+  getTimeFromPrevious,
   isNewLatest,
 } from 'ontime-utils';
 
@@ -268,6 +270,9 @@ export default function Rundown({ data }: RundownProps) {
   // all events before the current selected are in the past
   let isPast = Boolean(featureData?.selectedEventId);
 
+  let gapTime: MaybeNumber = null;
+  let isNextDay = false;
+
   const isEditMode = appMode === AppMode.Edit;
 
   return (
@@ -286,16 +291,36 @@ export default function Rundown({ data }: RundownProps) {
               if (index === 0) {
                 eventIndex = 0;
               }
+              gapTime = null;
+              isNextDay = false;
               previousEntryId = thisId;
               thisId = entryId;
               if (isOntimeEvent(entry)) {
                 // event indexes are 1 based in frontend
                 eventIndex++;
                 lastEvent = thisEvent;
+                isNextDay = lastEvent?.dayOffset !== entry.dayOffset;
 
                 if (isPlayableEvent(entry)) {
+                  gapTime = getTimeFromPrevious(
+                    entry.timeStart,
+                    entry.dayOffset,
+                    lastEvent?.timeStart,
+                    lastEvent?.duration,
+                    lastEvent?.dayOffset,
+                  );
+
                   // populate previous entry
-                  if (isNewLatest(entry.timeStart, entry.timeEnd, lastEvent?.timeStart, lastEvent?.timeEnd)) {
+                  if (
+                    isNewLatest(
+                      entry.timeStart,
+                      entry.duration,
+                      entry.dayOffset,
+                      lastEvent?.timeStart,
+                      lastEvent?.duration,
+                      lastEvent?.dayOffset,
+                    )
+                  ) {
                     thisEvent = entry;
                   }
                 }
@@ -323,10 +348,8 @@ export default function Rundown({ data }: RundownProps) {
                         loaded={isLoaded}
                         hasCursor={hasCursor}
                         isNext={isNext}
-                        previousStart={lastEvent?.timeStart}
-                        previousEnd={lastEvent?.timeEnd}
-                        previousEntryId={previousEntryId}
-                        previousEventId={lastEvent?.id}
+                        isNextDay={isNextDay}
+                        gapTime={gapTime}
                         playback={isLoaded ? featureData.playback : undefined}
                         isRolling={featureData.playback === Playback.Roll}
                       />

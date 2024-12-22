@@ -1,18 +1,20 @@
-import { formatDelay, formatOverlap } from './EventBlock.utils';
+import type { MaybeNumber } from 'ontime-types';
+
+import { formatDelay, formatGap } from './EventBlock.utils';
 
 import style from './RundownIndicators.module.scss';
 
 interface RundownIndicatorProps {
   timeStart: number;
-  previousStart?: number;
-  previousEnd?: number;
+  gapTime: MaybeNumber;
   delay: number;
+  isNextDay: boolean;
 }
 
 export default function RundownIndicators(props: RundownIndicatorProps) {
-  const { timeStart, previousStart, previousEnd, delay } = props;
+  const { timeStart, delay, gapTime, isNextDay } = props;
 
-  const hasOverlap = formatOverlap(timeStart, previousStart, previousEnd);
+  const hasOverlap = formatGap(gapTime, isNextDay);
   const hasDelay = formatDelay(timeStart, delay);
 
   return (

@@ -135,9 +135,10 @@ export function apply(eventId: string, rundown: OntimeRundown): OntimeRundown {
     if (lastEntry !== null) {
       const timeFromPrevious: number = getTimeFromPrevious(
         currentEntry.timeStart,
+        currentEntry.dayOffset,
         lastEntry.timeStart,
-        lastEntry.timeEnd,
         lastEntry.duration,
+        lastEntry.dayOffset,
       );
 
       // when applying negative delays, we need to unlink the event
