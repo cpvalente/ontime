@@ -39,7 +39,7 @@ interface EventBlockProps {
   title: string;
   note: string;
   delay: number;
-  overlapOrGap: MaybeNumber;
+  gapTime: MaybeNumber;
   colour: string;
   isPast: boolean;
   isNext: boolean;
@@ -77,7 +77,7 @@ export default function EventBlock(props: EventBlockProps) {
     title,
     note,
     delay,
-    overlapOrGap,
+    gapTime,
     colour,
     isPast,
     isNext,
@@ -273,7 +273,7 @@ export default function EventBlock(props: EventBlockProps) {
       onContextMenu={onContextMenu}
       id='event-block'
     >
-      <RundownIndicators timeStart={timeStart} overlapOrGap={overlapOrGap} delay={delay} isNextDay={isNextDay} />
+      <RundownIndicators timeStart={timeStart} gapTime={gapTime} delay={delay} isNextDay={isNextDay} />
 
       <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
         <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>

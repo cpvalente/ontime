@@ -21,14 +21,14 @@ interface RundownEntryProps {
   eventIndex: number;
   hasCursor: boolean;
   isNext: boolean;
-  overlapOrGap: MaybeNumber;
+  gapTime: MaybeNumber;
   playback?: Playback; // we only care about this if this event is playing
   isRolling: boolean; // we need to know even if not related to this event
   isNextDay: boolean;
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const { isPast, data, loaded, hasCursor, isNext, overlapOrGap, playback, isRolling, eventIndex, isNextDay } = props;
+  const { isPast, data, loaded, hasCursor, isNext, gapTime, playback, isRolling, eventIndex, isNextDay } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
   const { selectedEvents, unselect, clearSelectedEvents } = useEventSelection();
@@ -112,7 +112,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         title={data.title}
         note={data.note}
         delay={data.delay ?? 0}
-        overlapOrGap={overlapOrGap}
+        gapTime={gapTime}
         colour={data.colour}
         isPast={isPast}
         isNext={isNext}
