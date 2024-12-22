@@ -48,6 +48,7 @@ interface EventBlockProps {
   hasCursor: boolean;
   playback?: Playback;
   isRolling: boolean;
+  isNextDay: boolean;
   actionHandler: (
     action: EventItemActions,
     payload?:
@@ -85,6 +86,7 @@ export default function EventBlock(props: EventBlockProps) {
     hasCursor,
     playback,
     isRolling,
+    isNextDay,
     actionHandler,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
@@ -271,7 +273,7 @@ export default function EventBlock(props: EventBlockProps) {
       onContextMenu={onContextMenu}
       id='event-block'
     >
-      <RundownIndicators timeStart={timeStart} overlapOrGap={overlapOrGap} delay={delay} />
+      <RundownIndicators timeStart={timeStart} overlapOrGap={overlapOrGap} delay={delay} isNextDay={isNextDay} />
 
       <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
         <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>

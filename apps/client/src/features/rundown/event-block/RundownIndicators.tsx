@@ -8,12 +8,13 @@ interface RundownIndicatorProps {
   timeStart: number;
   overlapOrGap: MaybeNumber;
   delay: number;
+  isNextDay: boolean;
 }
 
 export default function RundownIndicators(props: RundownIndicatorProps) {
-  const { timeStart, delay, overlapOrGap } = props;
+  const { timeStart, delay, overlapOrGap, isNextDay } = props;
 
-  const hasOverlap = formatOverlap(overlapOrGap);
+  const hasOverlap = formatOverlap(overlapOrGap, isNextDay);
   const hasDelay = formatDelay(timeStart, delay);
 
   return (

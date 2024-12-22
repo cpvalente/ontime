@@ -271,6 +271,7 @@ export default function Rundown({ data }: RundownProps) {
   let isPast = Boolean(featureData?.selectedEventId);
 
   let overlapOrGap: MaybeNumber = null;
+  let isNextDay = false;
 
   const isEditMode = appMode === AppMode.Edit;
 
@@ -291,12 +292,14 @@ export default function Rundown({ data }: RundownProps) {
                 eventIndex = 0;
               }
               overlapOrGap = null;
+              isNextDay = false;
               previousEntryId = thisId;
               thisId = entryId;
               if (isOntimeEvent(entry)) {
                 // event indexes are 1 based in frontend
                 eventIndex++;
                 lastEvent = thisEvent;
+                isNextDay = lastEvent?.dayOffset !== entry.dayOffset;
 
                 if (isPlayableEvent(entry)) {
                   overlapOrGap = getTimeFromPrevious(
@@ -345,6 +348,7 @@ export default function Rundown({ data }: RundownProps) {
                         loaded={isLoaded}
                         hasCursor={hasCursor}
                         isNext={isNext}
+                        isNextDay={isNextDay}
                         overlapOrGap={overlapOrGap}
                         playback={isLoaded ? featureData.playback : undefined}
                         isRolling={featureData.playback === Playback.Roll}
