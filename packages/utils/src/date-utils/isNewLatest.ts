@@ -6,7 +6,7 @@ import { dayInMs } from './conversionUtils.js';
 export function isNewLatest(
   timeStart: number,
   duration: number,
-  dayOffset: number,
+  dayOffset: number = 0,
   previousStart?: number,
   previousDuration?: number,
   previousDayOffset?: number,

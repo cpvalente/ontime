@@ -142,11 +142,12 @@ export function useScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeS
           firstStart = currentEntry.timeStart;
         }
 
-        const timeFromPrevious: number = getTimeFromPrevious(
+        const timeFromPrevious = getTimeFromPrevious(
           currentEntry.timeStart,
+          currentEntry.dayOffset,
           lastEntry?.timeStart,
-          lastEntry?.timeEnd,
           lastEntry?.duration,
+          lastEntry?.dayOffset,
         );
 
         if (timeFromPrevious === 0) {
@@ -156,7 +157,16 @@ export function useScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeS
         } else if (timeFromPrevious < 0) {
           totalDuration += Math.max(currentEntry.duration + timeFromPrevious, 0);
         }
-        if (isNewLatest(currentEntry.timeStart, currentEntry.timeEnd, lastEntry?.timeStart, lastEntry?.timeEnd)) {
+        if (
+          isNewLatest(
+            currentEntry.timeStart,
+            currentEntry.duration,
+            currentEntry.dayOffset,
+            lastEntry?.timeStart,
+            lastEntry?.duration,
+            lastEntry?.dayOffset,
+          )
+        ) {
           lastEntry = currentEntry;
         }
       }

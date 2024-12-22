@@ -11,7 +11,7 @@ import { dayInMs } from './conversionUtils.js';
  */
 export function getTimeFromPrevious(
   currentStart: number,
-  currentDayOffset: number,
+  currentDayOffset: number = 0,
   previousStart?: number,
   previousDuration?: number,
   previousDayOffset?: number,

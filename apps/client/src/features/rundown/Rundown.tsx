@@ -295,7 +295,16 @@ export default function Rundown({ data }: RundownProps) {
 
                 if (isPlayableEvent(entry)) {
                   // populate previous entry
-                  if (isNewLatest(entry.timeStart, entry.timeEnd, lastEvent?.timeStart, lastEvent?.timeEnd)) {
+                  if (
+                    isNewLatest(
+                      entry.timeStart,
+                      entry.duration,
+                      entry.dayOffset,
+                      lastEvent?.timeStart,
+                      lastEvent?.duration,
+                      lastEvent?.dayOffset,
+                    )
+                  ) {
                     thisEvent = entry;
                   }
                 }
