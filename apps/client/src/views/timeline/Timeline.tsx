@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { useViewportSize } from '@mantine/hooks';
-import { isOntimeEvent, isPlayableEvent, MaybeNumber, OntimeRundown } from 'ontime-types';
-import { checkIsNextDay, dayInMs, getLastEvent, MILLIS_PER_HOUR } from 'ontime-utils';
+import { isOntimeEvent, isPlayableEvent, OntimeRundown } from 'ontime-types';
+import { dayInMs, getLastEvent, MILLIS_PER_HOUR } from 'ontime-utils';
 
 import TimelineMarkers from './timeline-markers/TimelineMarkers';
 import { getElementPosition, getEndHour, getStartHour } from './timeline.utils';
@@ -30,10 +30,8 @@ function Timeline(props: TimelineProps) {
   const startHour = getStartHour(firstStart);
   const endHour = getEndHour(firstStart + totalDuration + (lastEvent?.delay ?? 0));
 
-  let previousEventStartTime: MaybeNumber = null;
   // we use selectedEventId as a signifier on whether the timeline is live
   let eventStatus: ProgressStatus = selectedEventId ? 'done' : 'future';
-  let elapsedDays = 0;
 
   return (
     <div className={style.timeline}>
@@ -52,14 +50,7 @@ function Timeline(props: TimelineProps) {
           eventStatus = 'live';
         }
 
-        // we only need to check for next day if we have a previous event
-        if (
-          previousEventStartTime !== null &&
-          checkIsNextDay(previousEventStartTime, event.timeStart, event.duration)
-        ) {
-          elapsedDays++;
-        }
-        const normalisedStart = event.timeStart + elapsedDays * dayInMs;
+        const normalisedStart = event.timeStart + (event.dayOffset ?? 0) * dayInMs;
 
         const { left: elementLeftPosition, width: elementWidth } = getElementPosition(
           startHour * MILLIS_PER_HOUR,
@@ -68,9 +59,6 @@ function Timeline(props: TimelineProps) {
           event.duration,
           screenWidth,
         );
-
-        // prepare values for next iteration
-        previousEventStartTime = normalisedStart;
 
         return (
           <TimelineEntry
