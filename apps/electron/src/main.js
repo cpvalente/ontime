@@ -109,7 +109,7 @@ function askToQuit() {
  * Allows processes to escalate errors to be shown in electron
  * @param {string} error
  */
-function escalateError(error, unrecoverable = true) {
+function escalateError(error, unrecoverable = false) {
   if (unrecoverable) {
     dialog.showErrorBox('An unrecoverable error occurred', error);
     appShutdown();
