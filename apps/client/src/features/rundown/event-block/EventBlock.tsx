@@ -10,7 +10,7 @@ import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
-import { EndAction, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, MaybeNumber, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
@@ -39,8 +39,7 @@ interface EventBlockProps {
   title: string;
   note: string;
   delay: number;
-  previousStart?: number;
-  previousEnd?: number;
+  overlapOrGap: MaybeNumber;
   colour: string;
   isPast: boolean;
   isNext: boolean;
@@ -77,8 +76,7 @@ export default function EventBlock(props: EventBlockProps) {
     title,
     note,
     delay,
-    previousStart,
-    previousEnd,
+    overlapOrGap,
     colour,
     isPast,
     isNext,
@@ -273,7 +271,7 @@ export default function EventBlock(props: EventBlockProps) {
       onContextMenu={onContextMenu}
       id='event-block'
     >
-      <RundownIndicators timeStart={timeStart} previousStart={previousStart} previousEnd={previousEnd} delay={delay} />
+      <RundownIndicators timeStart={timeStart} overlapOrGap={overlapOrGap} delay={delay} />
 
       <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
         <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>

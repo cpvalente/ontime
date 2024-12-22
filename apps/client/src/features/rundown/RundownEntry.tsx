@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
+import { MaybeNumber, OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
@@ -11,18 +11,7 @@ import DelayBlock from './delay-block/DelayBlock';
 import EventBlock from './event-block/EventBlock';
 import { useEventSelection } from './useEventSelection';
 
-export type EventItemActions =
-  | 'set-cursor'
-  | 'event'
-  | 'event-before'
-  | 'delay'
-  | 'delay-before'
-  | 'block'
-  | 'block-before'
-  | 'delete'
-  | 'clone'
-  | 'update'
-  | 'swap';
+export type EventItemActions = 'delete' | 'clone' | 'update' | 'swap';
 
 interface RundownEntryProps {
   type: SupportedEvent;
@@ -32,29 +21,13 @@ interface RundownEntryProps {
   eventIndex: number;
   hasCursor: boolean;
   isNext: boolean;
-  previousStart?: number;
-  previousEnd?: number;
-  previousEntryId?: string;
-  previousEventId?: string;
+  overlapOrGap: MaybeNumber;
   playback?: Playback; // we only care about this if this event is playing
   isRolling: boolean; // we need to know even if not related to this event
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
-  const {
-    isPast,
-    data,
-    loaded,
-    hasCursor,
-    isNext,
-    previousStart,
-    previousEnd,
-    previousEntryId,
-    previousEventId,
-    playback,
-    isRolling,
-    eventIndex,
-  } = props;
+  const { isPast, data, loaded, hasCursor, isNext, overlapOrGap, playback, isRolling, eventIndex } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
   const { selectedEvents, unselect, clearSelectedEvents } = useEventSelection();
@@ -75,33 +48,6 @@ export default function RundownEntry(props: RundownEntryProps) {
 
   const actionHandler = useMemoisedFn((action: EventItemActions, payload?: number | FieldValue) => {
     switch (action) {
-      case 'event': {
-        const newEvent = { type: SupportedEvent.Event };
-        const options = {
-          after: data.id,
-          lastEventId: previousEventId,
-        };
-        return addEvent(newEvent, options);
-      }
-      case 'event-before': {
-        const newEvent = { type: SupportedEvent.Event };
-        const options = {
-          after: previousEntryId,
-        };
-        return addEvent(newEvent, options);
-      }
-      case 'delay': {
-        return addEvent({ type: SupportedEvent.Delay }, { after: data.id });
-      }
-      case 'delay-before': {
-        return addEvent({ type: SupportedEvent.Delay }, { after: previousEntryId });
-      }
-      case 'block': {
-        return addEvent({ type: SupportedEvent.Block }, { after: data.id });
-      }
-      case 'block-before': {
-        return addEvent({ type: SupportedEvent.Block }, { after: previousEntryId });
-      }
       case 'swap': {
         const { value } = payload as FieldValue;
         return swapEvents({ from: value as string, to: data.id });
@@ -165,8 +111,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         title={data.title}
         note={data.note}
         delay={data.delay ?? 0}
-        previousStart={previousStart}
-        previousEnd={previousEnd}
+        overlapOrGap={overlapOrGap}
         colour={data.colour}
         isPast={isPast}
         isNext={isNext}

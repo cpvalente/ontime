@@ -1,3 +1,4 @@
+import type { MaybeNumber } from 'ontime-types';
 import {
   calculateDuration,
   checkIsNextDay,
@@ -18,7 +19,14 @@ export function formatDelay(timeStart: number, delay: number): string | undefine
   return `New start ${timeTag}`;
 }
 
-export function formatOverlap(timeStart: number, previousStart?: number, previousEnd?: number): string | undefined {
+export function formatOverlap(gap: MaybeNumber): string | undefined {
+  if (gap === null || gap === 0) return;
+
+  const overlapString = formatDuration(Math.abs(gap), false);
+  return `${gap < 0 ? 'Overlap' : 'Gap'} ${overlapString}`;
+}
+
+export function formatOverlapOld(timeStart: number, previousStart?: number, previousEnd?: number): string | undefined {
   const noPreviousElement = previousEnd === undefined || previousStart === undefined;
   if (noPreviousElement) return;
 
