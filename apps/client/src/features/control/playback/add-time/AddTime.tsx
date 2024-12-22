@@ -47,7 +47,7 @@ export default function AddTime(props: AddTimeProps) {
             onClick={() => handleAddTime('remove')}
             disabled={doDisableButtons}
             className={style.tallButtons}
-            name='removetime'
+            aria-label='removetime'
           >
             <IoRemove />
           </TapButton>
@@ -57,7 +57,7 @@ export default function AddTime(props: AddTimeProps) {
             onClick={() => handleAddTime('add')}
             disabled={doDisableButtons}
             className={style.tallButtons}
-            name='addtime'
+            aria-label='addtime'
           >
             <IoAdd />
           </TapButton>
