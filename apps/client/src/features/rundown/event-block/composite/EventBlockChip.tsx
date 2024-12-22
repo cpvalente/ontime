@@ -7,7 +7,6 @@ import { usePlayback, useTimelineStatus } from '../../../../common/hooks/useSock
 import { cx } from '../../../../common/utils/styleUtils';
 import { formatDuration } from '../../../../common/utils/time';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
-import { useTranslation } from '../../../../translation/TranslationProvider';
 
 import style from './EventBlockChip.module.scss';
 
@@ -61,7 +60,6 @@ interface EventUntilProps {
 function EventUntil(props: EventUntilProps) {
   const { timeStart, className, accumulatedGap, isNextAndLinked } = props;
   const { clock, offset } = useTimelineStatus();
-  const { getLocalizedString } = useTranslation();
 
   const [timeUntilString, isDue] = useMemo(() => {
     const gap = accumulatedGap ?? 0;
@@ -70,13 +68,8 @@ function EventUntil(props: EventUntilProps) {
     const offsetTimestart = timeStart - consumedOffset;
     const timeUntil = offsetTimestart - clock;
     const isDue = timeUntil < MILLIS_PER_SECOND;
-    return [
-      isDue
-        ? getLocalizedString('timeline.due').toUpperCase()
-        : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`,
-      isDue,
-    ];
-  }, [accumulatedGap, clock, getLocalizedString, isNextAndLinked, offset, timeStart]);
+    return [isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`, isDue];
+  }, [accumulatedGap, clock, isNextAndLinked, offset, timeStart]);
 
   if (offset === null) {
     return null; //TODO: change offset to a maybe number
