@@ -43,12 +43,22 @@ export default function AddTime(props: AddTimeProps) {
       <TimeInput name='addtime' submitHandler={handleTimeChange} time={time} placeholder='Add time' />
       <div className={style.addButtons}>
         <Tooltip label='Remove time' openDelay={tooltipDelayMid} shouldWrapChildren>
-          <TapButton onClick={() => handleAddTime('remove')} disabled={doDisableButtons} className={style.tallButtons}>
+          <TapButton
+            onClick={() => handleAddTime('remove')}
+            disabled={doDisableButtons}
+            className={style.tallButtons}
+            name='removetime'
+          >
             <IoRemove />
           </TapButton>
         </Tooltip>
         <Tooltip label='Add time' openDelay={tooltipDelayMid} shouldWrapChildren>
-          <TapButton onClick={() => handleAddTime('add')} disabled={doDisableButtons} className={style.tallButtons}>
+          <TapButton
+            onClick={() => handleAddTime('add')}
+            disabled={doDisableButtons}
+            className={style.tallButtons}
+            name='addtime'
+          >
             <IoAdd />
           </TapButton>
         </Tooltip>
