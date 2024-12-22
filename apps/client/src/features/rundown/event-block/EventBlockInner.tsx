@@ -10,7 +10,7 @@ import { IoPlayForward } from '@react-icons/all-files/io5/IoPlayForward';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
-import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, MaybeNumber, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
@@ -44,6 +44,8 @@ interface EventBlockInnerProps {
   playback?: Playback;
   isRolling: boolean;
   isPast: boolean;
+  accumulatedGap: MaybeNumber;
+  isNextDay: boolean;
 }
 
 function EventBlockInner(props: EventBlockInnerProps) {
@@ -67,6 +69,8 @@ function EventBlockInner(props: EventBlockInnerProps) {
     playback,
     isRolling,
     isPast,
+    accumulatedGap,
+    isNextDay,
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
@@ -100,11 +104,15 @@ function EventBlockInner(props: EventBlockInnerProps) {
         />
       </div>
       <EventBlockChip
-        className={style.reportSection}
+        className={style.chipSection}
         id={eventId}
         timeStart={timeStart}
         isPast={isPast}
         isLoaded={loaded}
+        accumulatedGap={accumulatedGap}
+        isNext={isNext}
+        isLinked={linkStart !== null}
+        isNextDay={isNextDay}
       />
       <div className={style.titleSection}>
         <EditableBlockTitle title={title} eventId={eventId} placeholder='Event title' className={style.eventTitle} />
