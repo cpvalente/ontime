@@ -3,8 +3,8 @@ import { formatFromMillis, MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-uti
 
 /**
  * Parses a value in millis to a string which encodes a delay
- * @param millis 
- * @param format 
+ * @param millis
+ * @param format
  */
 export function millisToDelayString(millis: MaybeNumber, format: 'compact' | 'expanded' = 'compact'): string {
   if (millis == null || millis === 0) {

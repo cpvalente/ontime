@@ -24,15 +24,16 @@ function MakeStart({ getValue, row, table }: CellContext<OntimeRundownEntry, unk
   const isStartLocked = (row.original as OntimeEvent).linkStart === null;
   const delayValue = (row.original as OntimeEvent)?.delay ?? 0;
 
-  let formattedTime = millisToString(startTime);
+  const displayTime = showDelayedTimes ? startTime + delayValue : startTime;
+  let formattedTime = millisToString(displayTime);
   if (hideTableSeconds) {
     formattedTime = removeSeconds(formattedTime);
   }
 
   return (
-    <TimeInput initialValue={startTime} onSubmit={update} lockedValue={isStartLocked}>
+    <TimeInput initialValue={startTime} onSubmit={update} lockedValue={isStartLocked} delayed={delayValue !== 0}>
       {formattedTime}
-      {delayValue !== 0 && showDelayedTimes && <DelayIndicator delayValue={delayValue} />}
+      <DelayIndicator delayValue={delayValue} tooltipPrefix={millisToString(startTime)} />
     </TimeInput>
   );
 }
@@ -43,21 +44,24 @@ function MakeEnd({ getValue, row, table }: CellContext<OntimeRundownEntry, unkno
   }
 
   const { handleUpdateTimer } = table.options.meta;
-  const { hideTableSeconds } = table.options.meta.options;
+  const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
 
   const update = (newValue: string) => handleUpdateTimer(row.original.id, 'timeEnd', newValue);
 
   const endTime = getValue() as number;
   const isEndLocked = (row.original as OntimeEvent).timeStrategy === TimeStrategy.LockEnd;
+  const delayValue = (row.original as OntimeEvent)?.delay ?? 0;
 
-  let formattedTime = millisToString(endTime);
+  const displayTime = showDelayedTimes ? endTime + delayValue : endTime;
+  let formattedTime = millisToString(displayTime);
   if (hideTableSeconds) {
     formattedTime = removeSeconds(formattedTime);
   }
 
   return (
-    <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked}>
+    <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked} delayed={delayValue !== 0}>
       {formattedTime}
+      <DelayIndicator delayValue={delayValue} tooltipPrefix={millisToString(endTime)} />
     </TimeInput>
   );
 }
