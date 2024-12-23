@@ -44,7 +44,7 @@ export default function SwatchSelect(props: ColourInputProps) {
       {colours.map((colour) => (
         <Swatch key={colour} color={colour} onClick={setColour} isSelected={value === colour} />
       ))}
-      <SwatchPicker color={value} onChange={setColour} />
+      <SwatchPicker color={value} onChange={setColour} isSelected={!colours.includes(value)} />
     </div>
   );
 }
