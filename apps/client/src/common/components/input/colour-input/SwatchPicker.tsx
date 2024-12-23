@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react';
 import { IoEyedrop } from '@react-icons/all-files/io5/IoEyedrop';
 
 import PopoverPicker from '../../../../common/components/input/popover-picker/PopoverPicker';
@@ -10,10 +11,18 @@ interface SwatchPickerProps {
 
 export default function SwatchPicker(props: SwatchPickerProps) {
   const { color, onChange } = props;
+  const [value, setValue] = useState(color);
 
-  const debouncedChange = debounce((value: string) => {
-    onChange(value);
-  }, 250);
+  const debouncedOnChange = useCallback(
+    debounce((newValue: string) => {
+      onChange(newValue);
+    }, 500),
+    [onChange],
+  );
 
-  return <PopoverPicker color={color} onChange={debouncedChange} icon={<IoEyedrop />} hasInput />;
+  useEffect(() => {
+    debouncedOnChange(value);
+  }, [value, debouncedOnChange]);
+
+  return <PopoverPicker color={value} onChange={setValue} icon={<IoEyedrop />} hasInput />;
 }
