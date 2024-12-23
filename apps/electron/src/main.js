@@ -23,7 +23,7 @@ if (!isProduction) {
 }
 
 /** Flag holds server loading state */
-let loaded = 'Ontime running';
+let loaded = 'Ontime starting';
 
 /**
  * Flag whether user has requested a quit
@@ -109,8 +109,13 @@ function askToQuit() {
  * Allows processes to escalate errors to be shown in electron
  * @param {string} error
  */
-function escalateError(error) {
-  dialog.showErrorBox('An unrecoverable error occurred', error);
+function escalateError(error, unrecoverable = false) {
+  if (unrecoverable) {
+    dialog.showErrorBox('An unrecoverable error occurred', error);
+    appShutdown();
+  } else {
+    dialog.showErrorBox('An error occurred', error);
+  }
 }
 
 /**

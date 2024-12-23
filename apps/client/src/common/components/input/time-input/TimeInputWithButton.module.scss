@@ -2,6 +2,8 @@ $input-delayed-border-color: $ontime-delay-text;
 
 .timeInput {
   border: 1px solid transparent;
+  color: $label-gray;
+
   &.delayed {
     border: 1px solid $input-delayed-border-color;
   }

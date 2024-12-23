@@ -7,6 +7,8 @@ import {
   OntimeEvent,
   OntimeRundownEntry,
   RundownCached,
+  TimeField,
+  TimeStrategy,
   TransientEventPayload,
 } from 'ontime-types';
 import { dayInMs, MILLIS_PER_SECOND, parseUserTime, reorderArray, swapEventData } from 'ontime-utils';
@@ -214,13 +216,75 @@ export const useEventAction = () => {
     [updateEvent],
   );
 
-  type TimeField = 'timeStart' | 'timeEnd' | 'duration';
   /**
    * Updates time of existing event
+   * @param eventId {string} - id of the event
+   * @param field {TimeField} - field to update
+   * @param value {string} - new value string to be parsed
+   * @param lockOnUpdate {boolean} - whether we will apply the lock / release on update
    */
   const updateTimer = useCallback(
-    async (eventId: string, field: TimeField, value: string) => {
-      const getPreviousEnd = (): number => {
+    async (eventId: string, field: TimeField, value: string, lockOnUpdate?: boolean) => {
+      // an empty value with no lock has no domain validity
+      if (!lockOnUpdate && value === '') {
+        return;
+      }
+
+      const newEvent: Partial<OntimeEvent> = {
+        id: eventId,
+      };
+
+      // check if we should lock the field
+      if (lockOnUpdate) {
+        if (field === 'timeEnd') {
+          // an empty value indicates that we should unlock the field
+          newEvent.timeStrategy = value === '' ? TimeStrategy.LockDuration : TimeStrategy.LockEnd;
+          newEvent.timeEnd = value === '' ? undefined : calculateNewValue();
+        } else if (field === 'duration') {
+          // an empty value indicates that we should unlock the field
+          newEvent.timeStrategy = value === '' ? TimeStrategy.LockEnd : TimeStrategy.LockDuration;
+          newEvent.duration = value === '' ? undefined : calculateNewValue();
+        } else if (field === 'timeStart') {
+          // an empty values means we should link to the previous
+          newEvent.linkStart = value === '' ? 'true' : null;
+          newEvent.timeStart = value === '' ? undefined : calculateNewValue();
+        }
+      } else {
+        newEvent[field] = calculateNewValue();
+      }
+
+      try {
+        await _updateEventMutation.mutateAsync(newEvent);
+      } catch (error) {
+        logAxiosError('Error updating event', error);
+      }
+
+      /**
+       * Utility function to calculate the new time value
+       */
+      function calculateNewValue(): number {
+        let newValMillis = 0;
+
+        // check for previous keyword
+        if (value === 'p' || value === 'prev' || value === 'previous') {
+          newValMillis = getPreviousEnd();
+
+          // check for adding time keyword
+        } else if (value.startsWith('+') || value.startsWith('p+') || value.startsWith('p +')) {
+          // TODO: is this logic solid?
+          const remainingString = value.substring(1);
+          newValMillis = getPreviousEnd() + parseUserTime(remainingString);
+        } else {
+          newValMillis = parseUserTime(value);
+        }
+        // dont allow timer values over 23:59:59
+        return Math.min(newValMillis, dayInMs - MILLIS_PER_SECOND);
+      }
+
+      /**
+       * Utility function to get the previous event end time
+       */
+      function getPreviousEnd(): number {
         const cachedRundown = queryClient.getQueryData<RundownCached>(RUNDOWN);
 
         if (!cachedRundown?.order || !cachedRundown?.rundown) {
@@ -240,34 +304,6 @@ export const useEventAction = () => {
           }
         }
         return previousEnd;
-      };
-
-      let newValMillis = 0;
-
-      // check for previous keyword
-      if (value === 'p' || value === 'prev' || value === 'previous') {
-        newValMillis = getPreviousEnd();
-
-        // check for adding time keyword
-      } else if (value.startsWith('+') || value.startsWith('p+') || value.startsWith('p +')) {
-        // TODO: is this logic solid?
-        const remainingString = value.substring(1);
-        newValMillis = getPreviousEnd() + parseUserTime(remainingString);
-      } else {
-        newValMillis = parseUserTime(value);
-      }
-
-      // dont allow timer values over 23:59:59
-      const cappedMillis = Math.min(newValMillis, dayInMs - MILLIS_PER_SECOND);
-
-      const newEvent = {
-        id: eventId,
-        [field]: cappedMillis,
-      };
-      try {
-        await _updateEventMutation.mutateAsync(newEvent);
-      } catch (error) {
-        logAxiosError('Error updating event', error);
       }
     },
     [_updateEventMutation, queryClient],

@@ -61,7 +61,7 @@ export default function EventEditor(props: EventEditorProps) {
         duration={event.duration}
         timeStrategy={event.timeStrategy}
         linkStart={event.linkStart}
-        isTimeToEnd={event.isTimeToEnd}
+        countToEnd={event.countToEnd}
         delay={event.delay ?? 0}
         isPublic={event.isPublic}
         endAction={event.endAction}
@@ -79,14 +79,14 @@ export default function EventEditor(props: EventEditorProps) {
         handleSubmit={handleSubmit}
       />
       <div className={style.column}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Editor.Title>Custom Fields</Editor.Title>
+        <Editor.Title>
+          Custom Fields
           {isEditor && (
             <Button variant='ontime-subtle' size='sm' onClick={handleOpenCustomManager}>
               Manage
             </Button>
           )}
-        </div>
+        </Editor.Title>
         {Object.keys(customFields).map((fieldKey) => {
           const key = `${event.id}-${fieldKey}`;
           const fieldName = `custom-${fieldKey}`;

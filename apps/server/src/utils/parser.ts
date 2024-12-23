@@ -110,7 +110,7 @@ export const parseExcel = (
   // options: booleans
   let isPublicIndex: number | null = null;
   let skipIndex: number | null = null;
-  let isTimeToEndIndex: number | null = null;
+  let countToEndIndex: number | null = null;
 
   let linkStartIndex: number | null = null;
 
@@ -160,9 +160,9 @@ export const parseExcel = (
         titleIndex = col;
         rundownMetadata['title'] = { row, col };
       },
-      [importMap.isTimeToEnd]: (row: number, col: number) => {
-        isTimeToEndIndex = col;
-        rundownMetadata['isTimeToEnd'] = { row, col };
+      [importMap.countToEnd]: (row: number, col: number) => {
+        countToEndIndex = col;
+        rundownMetadata['countToEnd'] = { row, col };
       },
       [importMap.isPublic]: (row: number, col: number) => {
         isPublicIndex = col;
@@ -231,8 +231,8 @@ export const parseExcel = (
         event.duration = parseExcelDate(column);
       } else if (j === cueIndex) {
         event.cue = makeString(column, '');
-      } else if (j === isTimeToEndIndex) {
-        event.isTimeToEnd = parseBooleanString(column);
+      } else if (j === countToEndIndex) {
+        event.countToEnd = parseBooleanString(column);
       } else if (j === isPublicIndex) {
         event.isPublic = parseBooleanString(column);
       } else if (j === skipIndex) {
@@ -379,7 +379,7 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     linkStart: validateLinkStart(patchEvent.linkStart),
     endAction: validateEndAction(patchEvent.endAction, originalEvent.endAction),
     timerType: validateTimerType(patchEvent.timerType, originalEvent.timerType),
-    isTimeToEnd: typeof patchEvent.isTimeToEnd === 'boolean' ? patchEvent.isTimeToEnd : originalEvent.isTimeToEnd,
+    countToEnd: typeof patchEvent.countToEnd === 'boolean' ? patchEvent.countToEnd : originalEvent.countToEnd,
     isPublic: typeof patchEvent.isPublic === 'boolean' ? patchEvent.isPublic : originalEvent.isPublic,
     skip: typeof patchEvent.skip === 'boolean' ? patchEvent.skip : originalEvent.skip,
     note: makeString(patchEvent.note, originalEvent.note),

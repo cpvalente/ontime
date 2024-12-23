@@ -29,7 +29,7 @@ const EventEditorTitles = (props: EventEditorTitlesProps) => {
 
   return (
     <div className={style.column}>
-      <Editor.Title>Event data</Editor.Title>
+      <Editor.Title>Event Data</Editor.Title>
       <div className={style.splitTwo}>
         <div>
           <Editor.Label htmlFor='eventId'>Event ID (read only)</Editor.Label>
@@ -46,9 +46,7 @@ const EventEditorTitles = (props: EventEditorTitlesProps) => {
       </div>
       <div>
         <Editor.Label>Colour</Editor.Label>
-        <div className={style.colorSettings}>
-          <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
-        </div>
+        <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
       </div>
       <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />
       <EventTextArea field='note' label='Note' initialValue={note} submitHandler={handleSubmit} />

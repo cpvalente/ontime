@@ -1,13 +1,15 @@
 import { memo, MutableRefObject, PropsWithChildren, useLayoutEffect, useRef, useState } from 'react';
+import { IconButton, MenuButton } from '@chakra-ui/react';
+import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 import Color from 'color';
 
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
+import { useCuesheetOptions } from '../../cuesheet.options';
 
 import style from '../CuesheetTable.module.scss';
 
 interface EventRowProps {
   eventIndex: number;
-  showIndexColumn: boolean;
   isPast?: boolean;
   selectedRef?: MutableRefObject<HTMLTableRowElement | null>;
   skip?: boolean;
@@ -15,7 +17,8 @@ interface EventRowProps {
 }
 
 function EventRow(props: PropsWithChildren<EventRowProps>) {
-  const { children, eventIndex, isPast, selectedRef, skip, colour, showIndexColumn } = props;
+  const { children, eventIndex, isPast, selectedRef, skip, colour } = props;
+  const { hideIndexColumn, showActionMenu } = useCuesheetOptions();
   const ownRef = useRef<HTMLTableRowElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -55,9 +58,22 @@ function EventRow(props: PropsWithChildren<EventRowProps>) {
       style={{ opacity: `${isPast ? '0.2' : '1'}` }}
       ref={selectedRef ?? ownRef}
     >
-      <td className={style.indexColumn} style={{ backgroundColor, color: mutedText }}>
-        {showIndexColumn && eventIndex}
-      </td>
+      {showActionMenu && (
+        <td className={style.actionColumn}>
+          <MenuButton
+            as={IconButton}
+            size='sm'
+            aria-label='Options'
+            icon={<IoEllipsisHorizontal />}
+            variant='ontime-subtle'
+          />
+        </td>
+      )}
+      {!hideIndexColumn && (
+        <td className={style.indexColumn} style={{ backgroundColor, color: mutedText }}>
+          {eventIndex}
+        </td>
+      )}
       {isVisible ? children : null}
     </tr>
   );

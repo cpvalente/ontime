@@ -3,7 +3,7 @@ import { LogOrigin, Playback, SimpleDirection, SimplePlayback } from 'ontime-typ
 import 'dotenv/config';
 import express from 'express';
 import expressStaticGzip from 'express-static-gzip';
-import http, { type Server } from 'http';
+import http, { Server } from 'http';
 import cors from 'cors';
 import serverTiming from 'server-timing';
 import { extname } from 'node:path';
@@ -40,8 +40,8 @@ import { initialiseProject } from './services/project-service/ProjectService.js'
 // Utilities
 import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
-import { getNetworkInterfaces } from './utils/networkInterfaces.js';
 import { timerConfig } from './config/config.js';
+import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -176,12 +176,20 @@ export const initAssets = async () => {
  * Starts servers
  */
 export const startServer = async (
-  escalateErrorFn?: (error: string) => void,
+  escalateErrorFn?: (error: string, unrecoverable: boolean) => void,
 ): Promise<{ message: string; serverPort: number }> => {
   checkStart(OntimeStartOrder.InitServer);
-  const { serverPort } = getDataProvider().getSettings();
+  // initialise logging service, escalateErrorFn only exists in electron
+  logger.init(escalateErrorFn);
+  const settings = getDataProvider().getSettings();
+  const { serverPort: desiredPort } = settings;
 
   expressServer = http.createServer(app);
+
+  // the express server must be started before the socket otherwise the on error event listener will not attach properly
+  const resultPort = await serverTryDesiredPort(expressServer, desiredPort);
+  await getDataProvider().setSettings({ ...settings, serverPort: resultPort });
+
   socket.init(expressServer, prefix);
 
   /**
@@ -211,9 +219,6 @@ export const startServer = async (
     ping: -1,
   });
 
-  // initialise logging service, escalateErrorFn is only exists in electron
-  logger.init(escalateErrorFn);
-
   // initialise rundown service
   const persistedRundown = getDataProvider().getRundown();
   const persistedCustomFields = getDataProvider().getCustomFields();
@@ -225,19 +230,20 @@ export const startServer = async (
   // TODO: pass event store to rundownservice
   runtimeService.init(maybeRestorePoint);
 
-  expressServer.listen(serverPort, '0.0.0.0', () => {
-    const nif = getNetworkInterfaces();
-    consoleSuccess(`Local: http://localhost:${serverPort}${prefix}/editor`);
-    for (const key in nif) {
-      const address = nif[key].address;
-      consoleSuccess(`Network: http://${address}:${serverPort}${prefix}/editor`);
-    }
-  });
+  const nif = getNetworkInterfaces();
+  consoleSuccess(`Local: http://localhost:${resultPort}${prefix}/editor`);
+  for (const key in nif) {
+    const address = nif[key].address;
+    consoleSuccess(`Network: http://${address}:${resultPort}${prefix}/editor`);
+  }
 
-  const returnMessage = `Ontime is listening on port ${serverPort}`;
+  const returnMessage = `Ontime is listening on port ${resultPort}`;
   logger.info(LogOrigin.Server, returnMessage);
 
-  return { message: returnMessage, serverPort };
+  return {
+    message: returnMessage,
+    serverPort: resultPort,
+  };
 };
 
 /**
@@ -307,7 +313,7 @@ process.on('unhandledRejection', async (error) => {
     consoleError(error.stack);
   }
   generateCrashReport(error);
-  logger.crash(LogOrigin.Server, `Uncaught exception | ${error}`);
+  logger.crash(LogOrigin.Server, `Uncaught rejection | ${error}`);
   await shutdown(1);
 });
 

@@ -1,44 +1,95 @@
 import { useCallback } from 'react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { CustomFields, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
+import { CustomFields, isOntimeEvent, OntimeEvent, OntimeRundownEntry, TimeStrategy } from 'ontime-types';
+import { millisToString, removeSeconds } from 'ontime-utils';
 
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
-import RunningTime from '../../../../features/viewers/common/running-time/RunningTime';
-import { useCuesheetOptions } from '../../cuesheet.options';
+import { formatDuration } from '../../../../common/utils/time';
 
 import MultiLineCell from './MultiLineCell';
 import SingleLineCell from './SingleLineCell';
+import TimeInput from './TimeInput';
 
-import style from '../CuesheetTable.module.scss';
+function MakeStart({ getValue, row, table }: CellContext<OntimeRundownEntry, unknown>) {
+  if (!table.options.meta) {
+    return null;
+  }
 
-function MakeTimer({ getValue, row: { original } }: CellContext<OntimeRundownEntry, unknown>) {
-  const { showDelayedTimes, hideTableSeconds } = useCuesheetOptions();
-  const cellValue = (getValue() as number | null) ?? 0;
-  const delayValue = (original as OntimeEvent)?.delay ?? 0;
+  const { handleUpdateTimer } = table.options.meta;
+  const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
+
+  const update = (newValue: string) => handleUpdateTimer(row.original.id, 'timeStart', newValue);
+
+  const startTime = getValue() as number;
+  const isStartLocked = (row.original as OntimeEvent).linkStart === null;
+  const delayValue = (row.original as OntimeEvent)?.delay ?? 0;
+
+  const displayTime = showDelayedTimes ? startTime + delayValue : startTime;
+  let formattedTime = millisToString(displayTime);
+  if (hideTableSeconds) {
+    formattedTime = removeSeconds(formattedTime);
+  }
 
   return (
-    <span className={style.time}>
-      <DelayIndicator delayValue={delayValue} />
-      <RunningTime value={cellValue} hideSeconds={hideTableSeconds} />
-      {delayValue !== 0 && showDelayedTimes && (
-        <RunningTime className={style.delayedTime} value={cellValue + delayValue} hideSeconds={hideTableSeconds} />
-      )}
-    </span>
+    <TimeInput initialValue={startTime} onSubmit={update} lockedValue={isStartLocked} delayed={delayValue !== 0}>
+      {formattedTime}
+      <DelayIndicator delayValue={delayValue} tooltipPrefix={millisToString(startTime)} />
+    </TimeInput>
   );
 }
 
-function MakeDuration({ getValue }: CellContext<OntimeRundownEntry, unknown>) {
-  const { hideTableSeconds } = useCuesheetOptions();
-  const cellValue = (getValue() as number | null) ?? 0;
+function MakeEnd({ getValue, row, table }: CellContext<OntimeRundownEntry, unknown>) {
+  if (!table.options.meta) {
+    return null;
+  }
 
-  return <RunningTime value={cellValue} hideSeconds={hideTableSeconds} />;
+  const { handleUpdateTimer } = table.options.meta;
+  const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
+
+  const update = (newValue: string) => handleUpdateTimer(row.original.id, 'timeEnd', newValue);
+
+  const endTime = getValue() as number;
+  const isEndLocked = (row.original as OntimeEvent).timeStrategy === TimeStrategy.LockEnd;
+  const delayValue = (row.original as OntimeEvent)?.delay ?? 0;
+
+  const displayTime = showDelayedTimes ? endTime + delayValue : endTime;
+  let formattedTime = millisToString(displayTime);
+  if (hideTableSeconds) {
+    formattedTime = removeSeconds(formattedTime);
+  }
+
+  return (
+    <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked} delayed={delayValue !== 0}>
+      {formattedTime}
+      <DelayIndicator delayValue={delayValue} tooltipPrefix={millisToString(endTime)} />
+    </TimeInput>
+  );
+}
+
+function MakeDuration({ getValue, row, table }: CellContext<OntimeRundownEntry, unknown>) {
+  if (!table.options.meta) {
+    return null;
+  }
+
+  const { handleUpdateTimer } = table.options.meta;
+
+  const update = (newValue: string) => handleUpdateTimer(row.original.id, 'duration', newValue);
+
+  const duration = getValue() as number;
+  const isDurationLocked = (row.original as OntimeEvent).timeStrategy === TimeStrategy.LockDuration;
+  const formattedDuration = formatDuration(duration, false);
+
+  return (
+    <TimeInput initialValue={duration} onSubmit={update} lockedValue={isDurationLocked}>
+      {formattedDuration}
+    </TimeInput>
+  );
 }
 
 function MakeMultiLineField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
-      // @ts-expect-error -- we inject this into react-table
-      table.options.meta?.handleUpdate(row.index, column.id, newValue);
+      table.options.meta?.handleUpdate(row.index, column.id, newValue, false);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
     [column.id, row.index],
@@ -57,8 +108,7 @@ function MakeMultiLineField({ row, column, table }: CellContext<OntimeRundownEnt
 function MakeSingleLineField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
-      // @ts-expect-error -- we inject this into react-table
-      table.options.meta?.handleUpdate(row.index, column.id, newValue);
+      table.options.meta?.handleUpdate(row.index, column.id, newValue, false);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
     [column.id, row.index],
@@ -77,8 +127,7 @@ function MakeSingleLineField({ row, column, table }: CellContext<OntimeRundownEn
 function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
-      // @ts-expect-error -- we inject this into react-table
-      table.options.meta?.handleUpdateCustom(row.index, column.id, newValue);
+      table.options.meta?.handleUpdate(row.index, column.id, newValue, true);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
     [column.id, row.index],
@@ -102,6 +151,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
     meta: { colour: customFields[key].colour },
     cell: MakeCustomField,
     size: 250,
+    minSize: 75,
   }));
 
   return [
@@ -111,20 +161,23 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       header: 'Cue',
       cell: MakeSingleLineField,
       size: 75,
+      minSize: 40,
     },
     {
       accessorKey: 'timeStart',
       id: 'timeStart',
       header: 'Start',
-      cell: MakeTimer,
+      cell: MakeStart,
       size: 75,
+      minSize: 75,
     },
     {
       accessorKey: 'timeEnd',
       id: 'timeEnd',
       header: 'End',
-      cell: MakeTimer,
+      cell: MakeEnd,
       size: 75,
+      minSize: 75,
     },
     {
       accessorKey: 'duration',
@@ -132,6 +185,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       header: 'Duration',
       cell: MakeDuration,
       size: 75,
+      minSize: 75,
     },
     {
       accessorKey: 'title',
@@ -139,6 +193,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       header: 'Title',
       cell: MakeSingleLineField,
       size: 250,
+      minSize: 75,
     },
     {
       accessorKey: 'note',
@@ -146,6 +201,7 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
       header: 'Note',
       cell: MakeMultiLineField,
       size: 250,
+      minSize: 75,
     },
     ...dynamicCustomFields,
   ];

@@ -1,5 +1,6 @@
 import { memo } from 'react';
-import { Select, Switch } from '@chakra-ui/react';
+import { Select, Switch, Tooltip } from '@chakra-ui/react';
+import { IoInformationCircle } from '@react-icons/all-files/io5/IoInformationCircle';
 import { EndAction, MaybeString, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
@@ -18,7 +19,7 @@ interface EventEditorTimesProps {
   duration: number;
   timeStrategy: TimeStrategy;
   linkStart: MaybeString;
-  isTimeToEnd: boolean;
+  countToEnd: boolean;
   delay: number;
   isPublic: boolean;
   endAction: EndAction;
@@ -27,7 +28,7 @@ interface EventEditorTimesProps {
   timeDanger: number;
 }
 
-type HandledActions = 'isTimeToEnd' | 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
+type HandledActions = 'countToEnd' | 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
 
 function EventEditorTimes(props: EventEditorTimesProps) {
   const {
@@ -37,7 +38,7 @@ function EventEditorTimes(props: EventEditorTimesProps) {
     duration,
     timeStrategy,
     linkStart,
-    isTimeToEnd,
+    countToEnd,
     delay,
     isPublic,
     endAction,
@@ -53,8 +54,8 @@ function EventEditorTimes(props: EventEditorTimesProps) {
       return;
     }
 
-    if (field === 'isTimeToEnd') {
-      updateEvent({ id: eventId, isTimeToEnd: !(value as boolean) });
+    if (field === 'countToEnd') {
+      updateEvent({ id: eventId, countToEnd: !(value as boolean) });
       return;
     }
 
@@ -80,8 +81,8 @@ function EventEditorTimes(props: EventEditorTimesProps) {
   return (
     <>
       <div className={style.column}>
+        <Editor.Title>Event schedule</Editor.Title>
         <div>
-          <Editor.Label>Event schedule</Editor.Label>
           <div className={style.inline}>
             <TimeInputFlow
               eventId={eventId}
@@ -91,13 +92,16 @@ function EventEditorTimes(props: EventEditorTimesProps) {
               timeStrategy={timeStrategy}
               linkStart={linkStart}
               delay={delay}
-              isTimeToEnd={isTimeToEnd}
+              countToEnd={countToEnd}
+              showLabels
             />
           </div>
           <div className={style.delayLabel}>{delayLabel}</div>
         </div>
+      </div>
 
-        <Editor.Title>Event behaviour</Editor.Title>
+      <div className={style.column}>
+        <Editor.Title>Event Behaviour</Editor.Title>
         <div className={style.splitTwo}>
           <div>
             <Editor.Label htmlFor='endAction'>End Action</Editor.Label>
@@ -116,22 +120,30 @@ function EventEditorTimes(props: EventEditorTimesProps) {
             </Select>
           </div>
           <div>
-            <Editor.Label htmlFor='timeToEnd'>Target Event Scheduled End</Editor.Label>
+            <Editor.Label htmlFor='countToEnd'>Count to End</Editor.Label>
             <Editor.Label className={style.switchLabel}>
               <Switch
-                id='timeToEnd'
+                id='countToEnd'
                 size='md'
-                isChecked={isTimeToEnd}
-                onChange={() => handleSubmit('isTimeToEnd', isTimeToEnd)}
+                isChecked={countToEnd}
+                onChange={() => handleSubmit('countToEnd', countToEnd)}
                 variant='ontime'
               />
-              {isTimeToEnd ? 'On' : 'Off'}
+              {countToEnd ? 'On' : 'Off'}
             </Editor.Label>
           </div>
         </div>
       </div>
+
       <div className={style.column}>
-        <Editor.Title>Display options</Editor.Title>
+        <Editor.Title>
+          <Tooltip label='Changes how the timer is displayed in different views. It is not reflected in the rundown'>
+            <span>
+              Display Options
+              <IoInformationCircle className={style.tooltipIcon} />
+            </span>
+          </Tooltip>
+        </Editor.Title>
         <div className={style.splitTwo}>
           <div>
             <Editor.Label htmlFor='timerType'>Timer Type</Editor.Label>

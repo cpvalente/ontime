@@ -32,23 +32,19 @@ $table-header-font-size: calc(1rem - 2px);
 
 .tableHeader,
 .eventRow {
+  .actionColumn {
+    width: calc(2rem + 0.5rem); // sm button size (--chakra-sizes-8) + 2 * padding
+    background-color: transparent;
+  }
+
   .indexColumn {
     display: flex;
     align-items: center;
     justify-content: end;
-    
-    min-width: 3em; // allow for 3-digit numbers
-    text-align: right;
-    font-weight: 400;
-    font-size: $table-header-font-size;
-    position: sticky;
-    left: 0;
-    z-index: 1;
-    background-color: $gray-1300; // will be overridden inline
-  }
 
-  .actionColumn {
-    width: calc(1.5rem + 0.5rem); // sm button size (--chakra-sizes-6) + 2 * padding
+    min-width: 3em; // allow for 3-digit numbers
+    font-size: $table-header-font-size;
+    background-color: $gray-1300; // will be overridden inline
   }
 }
 
@@ -123,16 +119,6 @@ th {
 .check {
   font-size: 1.5rem;
   margin: 0 auto;
-}
-
-.time {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-
-  > * {
-    @include ellipsis-overflow;
-  }
 }
 
 .delayedTime {

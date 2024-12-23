@@ -15,6 +15,8 @@ export default function useReactiveTextInput(
   options?: {
     submitOnEnter?: boolean;
     submitOnCtrlEnter?: boolean;
+    onCancelUpdate?: () => void;
+    allowSubmitSameValue?: boolean;
   },
 ): UseReactiveTextInputReturn {
   const [text, setText] = useState<string>(initialText);
@@ -47,7 +49,9 @@ export default function useReactiveTextInput(
   const handleSubmit = useCallback(
     (valueToSubmit: string) => {
       // No need to update if it hasn't changed
-      if (valueToSubmit !== initialText) {
+      if (valueToSubmit === initialText && !options?.allowSubmitSameValue) {
+        options?.onCancelUpdate?.();
+      } else {
         const cleanVal = valueToSubmit.trim();
         submitCallback(cleanVal);
         if (cleanVal !== valueToSubmit) {
@@ -56,7 +60,7 @@ export default function useReactiveTextInput(
       }
       setTimeout(() => ref.current?.blur()); // Immediate timeout to ensure text is set before bluring
     },
-    [initialText, ref, submitCallback],
+    [initialText, options, ref, submitCallback],
   );
 
   /**
@@ -66,8 +70,9 @@ export default function useReactiveTextInput(
   const handleEscape = useCallback(() => {
     // No need to update if it hasn't changed
     setText(initialText);
+    options?.onCancelUpdate?.();
     setTimeout(() => ref.current?.blur()); // Immediate timeout to ensure text is set before bluring
-  }, [initialText, ref]);
+  }, [initialText, options, ref]);
 
   const keyHandler = useMemo(() => {
     const hotKeys: HotkeyItem[] = [['Escape', handleEscape, { preventDefault: true }]];

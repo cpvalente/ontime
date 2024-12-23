@@ -1,18 +1,19 @@
 import { useRef } from 'react';
-import { IconButton, Menu, MenuButton } from '@chakra-ui/react';
-import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
+import { Menu } from '@chakra-ui/react';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import Color from 'color';
 import {
-  CustomFieldLabel,
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
   MaybeString,
+  OntimeEvent,
   OntimeRundown,
   OntimeRundownEntry,
+  TimeField,
 } from 'ontime-types';
 
+import { useEventAction } from '../../../common/hooks/useEventAction';
 import useFollowComponent from '../../../common/hooks/useFollowComponent';
 import { useSelectedEventId } from '../../../common/hooks/useSocket';
 import { getAccessibleColour } from '../../../common/utils/styleUtils';
@@ -31,16 +32,15 @@ import style from './CuesheetTable.module.scss';
 interface CuesheetTableProps {
   data: OntimeRundown;
   columns: ColumnDef<OntimeRundownEntry>[];
-  handleUpdate: (rowIndex: number, accessor: keyof OntimeRundownEntry, payload: string) => void;
-  handleUpdateCustom: (rowIndex: number, accessor: CustomFieldLabel, payload: string) => void;
   showModal: (eventId: MaybeString) => void;
 }
 
 export default function CuesheetTable(props: CuesheetTableProps) {
-  const { data, columns, handleUpdate, handleUpdateCustom, showModal } = props;
+  const { data, columns, showModal } = props;
 
+  const { updateEvent, updateTimer } = useEventAction();
   const { selectedEventId } = useSelectedEventId();
-  const { followSelected, hideDelays, hidePast, hideIndexColumn } = useCuesheetOptions();
+  const { followSelected, hideDelays, hidePast, showDelayedTimes, hideTableSeconds } = useCuesheetOptions();
   const { columnVisibility, columnOrder, columnSizing, resetColumnOrder, setColumnVisibility, setColumnSizing } =
     useColumnManager(columns);
 
@@ -57,13 +57,40 @@ export default function CuesheetTable(props: CuesheetTableProps) {
       columnVisibility,
       columnSizing,
     },
-    meta: {
-      handleUpdate,
-      handleUpdateCustom,
-    },
     onColumnVisibilityChange: setColumnVisibility,
     onColumnSizingChange: setColumnSizing,
     getCoreRowModel: getCoreRowModel(),
+    meta: {
+      handleUpdate: (rowIndex: number, accessor: string, payload: string, isCustom = false) => {
+        // check if value is the same
+        const event = data[rowIndex];
+        if (!event || !isOntimeEvent(event)) {
+          return;
+        }
+
+        // skip if there is no value change
+        const key = accessor as keyof OntimeEvent;
+        const previousValue = event[key];
+        if (previousValue === payload) {
+          return;
+        }
+
+        if (isCustom) {
+          updateEvent({ id: event.id, custom: { [accessor]: payload } });
+          return;
+        }
+
+        updateEvent({ id: event.id, [accessor]: payload });
+      },
+      handleUpdateTimer: (eventId: string, field: TimeField, payload) => {
+        // the timer element already contains logic to avoid submitting a unchanged value
+        updateTimer(eventId, field, payload, true);
+      },
+      options: {
+        showDelayedTimes,
+        hideTableSeconds,
+      },
+    },
   });
 
   const setAllVisible = () => {
@@ -92,7 +119,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
       />
       <div ref={tableContainerRef} className={style.cuesheetContainer}>
         <table className={style.cuesheet} id='cuesheet'>
-          <CuesheetHeader headerGroups={headerGroups} showIndexColumn={!hideIndexColumn} />
+          <CuesheetHeader headerGroups={headerGroups} />
           <tbody>
             {rowModel.rows.map((row, index) => {
               const key = row.original.id;
@@ -145,17 +172,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
                       selectedRef={isSelected ? selectedRef : undefined}
                       skip={entry.skip}
                       colour={entry.colour}
-                      showIndexColumn={!hideIndexColumn}
                     >
-                      <td>
-                        <MenuButton
-                          as={IconButton}
-                          size='xs'
-                          aria-label='Options'
-                          icon={<IoEllipsisHorizontal />}
-                          variant='ontime-ghosted'
-                        />
-                      </td>
                       {row.getVisibleCells().map((cell) => {
                         return (
                           <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}>

@@ -28,7 +28,7 @@ export type OntimeEvent = OntimeBaseEvent & {
   note: string;
   endAction: EndAction;
   timerType: TimerType;
-  isTimeToEnd: boolean;
+  countToEnd: boolean;
   linkStart: MaybeString; // ID of event to link to
   timeStrategy: TimeStrategy;
   timeStart: number;
@@ -45,3 +45,4 @@ export type OntimeEvent = OntimeBaseEvent & {
 };
 
 export type PlayableEvent = OntimeEvent & { skip: false };
+export type TimeField = 'timeStart' | 'timeEnd' | 'duration';

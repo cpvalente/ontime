@@ -29,7 +29,7 @@ interface EventBlockInnerProps {
   duration: number;
   timeStrategy: TimeStrategy;
   linkStart: MaybeString;
-  isTimeToEnd: boolean;
+  countToEnd: boolean;
   eventIndex: number;
   isPublic: boolean;
   endAction: EndAction;
@@ -52,7 +52,7 @@ function EventBlockInner(props: EventBlockInnerProps) {
     duration,
     timeStrategy,
     linkStart,
-    isTimeToEnd,
+    countToEnd,
     isPublic = true,
     endAction,
     timerType,
@@ -93,7 +93,7 @@ function EventBlockInner(props: EventBlockInnerProps) {
           delay={delay}
           timeStrategy={timeStrategy}
           linkStart={linkStart}
-          isTimeToEnd={isTimeToEnd}
+          countToEnd={countToEnd}
         />
       </div>
       <div className={style.titleSection}>
@@ -124,9 +124,9 @@ function EventBlockInner(props: EventBlockInnerProps) {
               <EndActionIcon action={endAction} className={style.statusIcon} />
             </span>
           </Tooltip>
-          <Tooltip label={`${isTimeToEnd ? 'Time to End' : 'Count from start'}`} openDelay={tooltipDelayMid}>
+          <Tooltip label={`${countToEnd ? 'Count to End' : 'Count duration'}`} openDelay={tooltipDelayMid}>
             <span>
-              <IoFlag className={`${style.statusIcon} ${isTimeToEnd ? style.active : style.disabled}`} />
+              <IoFlag className={`${style.statusIcon} ${countToEnd ? style.active : style.disabled}`} />
             </span>
           </Tooltip>
           <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} openDelay={tooltipDelayMid}>
