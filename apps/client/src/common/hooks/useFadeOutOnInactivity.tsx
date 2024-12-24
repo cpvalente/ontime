@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { debounce } from '../../common/utils/debounce';
+import { throttle } from '../../common/utils/throttle';
 
 export const useFadeOutOnInactivity = () => {
   const [isMouseMoved, setIsMouseMoved] = useState(false);
@@ -16,11 +16,11 @@ export const useFadeOutOnInactivity = () => {
       fadeOut = setTimeout(() => setIsMouseMoved(false), 3000);
     };
 
-    const debouncedShowMenu = debounce(setShowMenuTrue, 1000);
+    const throttledShowMenu = throttle(setShowMenuTrue, 1000);
 
-    document.addEventListener('mousemove', debouncedShowMenu);
+    document.addEventListener('mousemove', throttledShowMenu);
     return () => {
-      document.removeEventListener('mousemove', debouncedShowMenu);
+      document.removeEventListener('mousemove', throttledShowMenu);
       if (fadeOut) {
         clearTimeout(fadeOut);
       }
