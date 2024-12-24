@@ -1,6 +1,6 @@
-export function throttle(callback: (...args) => void, wait: number) {
+export function throttle<T extends any[]>(callback: (...args: T) => void, wait: number) {
   let timeout: NodeJS.Timeout | null;
-  return (...args) => {
+  return (...args: T) => {
     if (timeout) {
       return;
     }
