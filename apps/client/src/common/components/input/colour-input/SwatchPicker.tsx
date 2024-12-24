@@ -29,7 +29,7 @@ export default function SwatchPicker(props: SwatchPickerProps) {
   );
 
   return (
-    <div className={`${classes}`}>
+    <div className={classes}>
       <PopoverPicker
         color={isSelected ? color : ''}
         onChange={debouncedOnChange}
