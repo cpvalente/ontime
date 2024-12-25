@@ -37,6 +37,7 @@ export default function EventBlockChip(props: EventBlockChipProps) {
   }
 
   if (playbackActive) {
+    // we extracted the component to avoid unnecessary calculations and re-renders
     return (
       <EventUntil
         className={className}
@@ -70,10 +71,6 @@ function EventUntil(props: EventUntilProps) {
     const isDue = timeUntil < MILLIS_PER_SECOND;
     return [isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`, isDue];
   }, [accumulatedGap, clock, isNextAndLinked, offset, timeStart]);
-
-  if (offset === null) {
-    return null; //TODO: change offset to a maybe number
-  }
 
   return (
     <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
