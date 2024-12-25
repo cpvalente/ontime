@@ -1,7 +1,7 @@
 import type {
   CustomFields,
-  DatabaseOntimeRundown,
   HttpSettings,
+  OntimeRundown,
   OSCSettings,
   ProjectData,
   Settings,
@@ -10,7 +10,7 @@ import type {
 } from '../index.js';
 
 export type DatabaseModel = {
-  rundown: DatabaseOntimeRundown;
+  rundown: OntimeRundown;
   project: ProjectData;
   settings: Settings;
   viewSettings: ViewSettings;

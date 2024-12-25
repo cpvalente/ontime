@@ -1,6 +1,6 @@
 import {
   ProjectData,
-  DatabaseOntimeRundown,
+  OntimeRundown,
   ViewSettings,
   DatabaseModel,
   OSCSettings,
@@ -85,7 +85,7 @@ function getCustomFields(): Readonly<CustomFields> {
   return db.data.customFields;
 }
 
-async function setRundown(newData: DatabaseOntimeRundown): ReadonlyPromise<DatabaseOntimeRundown> {
+async function setRundown(newData: OntimeRundown): ReadonlyPromise<OntimeRundown> {
   db.data.rundown = [...newData];
   await persist();
   return db.data.rundown;
@@ -141,7 +141,7 @@ async function setHttp(newData: HttpSettings): ReadonlyPromise<HttpSettings> {
   return db.data.http;
 }
 
-function getRundown(): Readonly<DatabaseOntimeRundown> {
+function getRundown(): Readonly<OntimeRundown> {
   return db.data.rundown;
 }
 
