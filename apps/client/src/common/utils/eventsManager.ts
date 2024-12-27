@@ -24,6 +24,7 @@ export const cloneEvent = (event: OntimeEvent): ClonedEvent => {
     skip: event.skip,
     colour: event.colour,
     revision: 0,
+    delay: 0, //force delay to zero, will be populated by the server
     timeWarning: event.timeWarning,
     timeDanger: event.timeDanger,
     custom: {},
