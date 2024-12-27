@@ -28,7 +28,7 @@ export default function PopoverPicker(props: PopoverPickerProps) {
   return (
     <Popover>
       <PopoverTrigger>
-        <div className={`${style.swatch}`} style={{ backgroundColor: color }}>
+        <div className={style.swatch} style={{ backgroundColor: color }}>
           {icon ?? null}
         </div>
       </PopoverTrigger>
