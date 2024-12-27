@@ -2,6 +2,8 @@ import {
   CustomField,
   CustomFieldLabel,
   CustomFields,
+  DatabaseOntimeRundown,
+  isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
   isPlayableEvent,
@@ -63,10 +65,10 @@ export const customFieldChangelog = new Map<string, string>();
  */
 let assignedCustomFields: Record<CustomFieldLabel, EventID[]> = {};
 
-export async function init(initialRundown: Readonly<OntimeRundown>, customFields: Readonly<CustomFields>) {
-  persistedRundown = structuredClone(initialRundown) as OntimeRundown;
+export async function init(initialRundown: Readonly<DatabaseOntimeRundown>, customFields: Readonly<CustomFields>) {
+  const copyInitialRundown = structuredClone(initialRundown) as DatabaseOntimeRundown;
   persistedCustomFields = structuredClone(customFields);
-  generate();
+  generate(copyInitialRundown);
   await getDataProvider().setRundown(persistedRundown);
   await getDataProvider().setCustomFields(customFields);
 }
@@ -76,7 +78,7 @@ export async function init(initialRundown: Readonly<OntimeRundown>, customFields
  * @param rundown
  */
 export function generate(
-  initialRundown: OntimeRundown = persistedRundown,
+  initialRundown: DatabaseOntimeRundown | OntimeRundown = persistedRundown,
   customFields: CustomFields = persistedCustomFields,
 ) {
   // we decided to re-write this dataset for every change
@@ -98,6 +100,7 @@ export function generate(
     // we assign a reference to the current entry, this will be mutated in place
     const currentEntry = initialRundown[i];
 
+    //inside this if block all conversions from the database type to the normal onime type should be handled
     if (isOntimeEvent(currentEntry)) {
       // 1. handle links - mutates updatedEvent
       handleLink(i, initialRundown, currentEntry, links);
@@ -144,13 +147,19 @@ export function generate(
         if (isNewLatest(currentEntry.timeStart, currentEntry.timeEnd, lastEntry?.timeStart, lastEntry?.timeEnd)) {
           lastEntry = currentEntry;
         }
+      } else {
+        currentEntry.delay = 0; //FIXME: what should be done about skipped events
       }
-    }
-
-    // calculate delays
-    // !!! this must happen after handling the links
-    if (isOntimeDelay(currentEntry)) {
+    } else if (isOntimeDelay(currentEntry)) {
+      // calculate delays
+      // !!! this must happen after handling the links
       totalDelay += currentEntry.duration;
+    } else if (isOntimeBlock(currentEntry)) {
+      // calculate block - nothing yet
+    } else {
+      // unknown - type skip it
+      // this is needed to get the type guard working when we assign the entry to the rundown
+      continue;
     }
 
     // add id to order

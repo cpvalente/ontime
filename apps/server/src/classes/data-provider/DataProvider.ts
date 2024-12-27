@@ -8,6 +8,13 @@ import {
   CustomFields,
   HttpSettings,
   URLPreset,
+  DatabaseOntimeRundown,
+  isOntimeEvent,
+  DatabaseOntimeEvent,
+  isOntimeBlock,
+  isOntimeDelay,
+  OntimeBlock,
+  OntimeDelay,
 } from 'ontime-types';
 
 import type { Low } from 'lowdb';
@@ -85,8 +92,46 @@ function getCustomFields(): Readonly<CustomFields> {
   return db.data.customFields;
 }
 
-async function setRundown(newData: OntimeRundown): ReadonlyPromise<OntimeRundown> {
-  db.data.rundown = [...newData];
+function dropNonPersistedKeys(newData: OntimeRundown): DatabaseOntimeRundown {
+  const databaseRundown = newData.map((entry) => {
+    if (isOntimeEvent(entry)) {
+      const databaseEntry: DatabaseOntimeEvent = {
+        type: entry.type,
+        id: entry.id,
+        cue: entry.cue,
+        title: entry.title,
+        note: entry.note,
+        endAction: entry.endAction,
+        timerType: entry.timerType,
+        countToEnd: entry.countToEnd,
+        linkStart: entry.linkStart,
+        timeStrategy: entry.timeStrategy,
+        timeStart: entry.timeStart,
+        timeEnd: entry.timeEnd,
+        duration: entry.duration,
+        isPublic: entry.isPublic,
+        skip: entry.skip,
+        colour: entry.colour,
+        revision: entry.revision, //TODO: should we drop this?
+        timeWarning: entry.timeWarning,
+        timeDanger: entry.timeDanger,
+        custom: { ...entry.custom },
+      };
+      return databaseEntry;
+    }
+    if (isOntimeBlock(entry)) {
+      return { ...entry } as OntimeBlock;
+    }
+    if (isOntimeDelay(entry)) {
+      return { ...entry } as OntimeDelay;
+    }
+  });
+
+  return databaseRundown;
+}
+
+async function setRundown(newData: OntimeRundown): ReadonlyPromise<DatabaseOntimeRundown> {
+  db.data.rundown = dropNonPersistedKeys(newData);
   await persist();
   return db.data.rundown;
 }
@@ -141,7 +186,7 @@ async function setHttp(newData: HttpSettings): ReadonlyPromise<HttpSettings> {
   return db.data.http;
 }
 
-function getRundown(): Readonly<OntimeRundown> {
+function getRundown(): Readonly<DatabaseOntimeRundown> {
   return db.data.rundown;
 }
 
