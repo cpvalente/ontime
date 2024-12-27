@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 
 import Swatch from './Swatch';
+import SwatchPicker from './SwatchPicker';
 
 import style from './SwatchSelect.module.scss';
 
@@ -43,6 +44,7 @@ export default function SwatchSelect(props: ColourInputProps) {
       {colours.map((colour) => (
         <Swatch key={colour} color={colour} onClick={setColour} isSelected={value === colour} />
       ))}
+      <SwatchPicker color={value} onChange={setColour} isSelected={!colours.includes(value)} />
     </div>
   );
 }

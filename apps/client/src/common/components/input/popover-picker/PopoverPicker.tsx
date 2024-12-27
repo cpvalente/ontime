@@ -1,4 +1,5 @@
-import { HexAlphaColorPicker } from 'react-colorful';
+import { ReactNode } from 'react';
+import { HexAlphaColorPicker, HexColorInput } from 'react-colorful';
 import { useController, UseControllerProps } from 'react-hook-form';
 import { Popover, PopoverContent, PopoverTrigger } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
@@ -16,19 +17,24 @@ export function PopoverPickerRHF(props: UseControllerProps<ViewSettings>) {
 
 interface PopoverPickerProps {
   color: string;
+  icon?: ReactNode;
+  hasInput?: boolean;
   onChange: (color: string) => void;
 }
 
 export default function PopoverPicker(props: PopoverPickerProps) {
-  const { color, onChange } = props;
+  const { color, icon, hasInput, onChange } = props;
 
   return (
     <Popover>
       <PopoverTrigger>
-        <div className={style.swatch} style={{ backgroundColor: color }} />
+        <div className={style.swatch} style={{ backgroundColor: color }}>
+          {icon ?? null}
+        </div>
       </PopoverTrigger>
       <PopoverContent style={{ width: 'auto' }}>
         <HexAlphaColorPicker color={color} onChange={onChange} />
+        {hasInput && <HexColorInput color={color} onChange={onChange} className={style.input} prefixed />}
       </PopoverContent>
     </Popover>
   );
