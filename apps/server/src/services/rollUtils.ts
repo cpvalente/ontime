@@ -1,5 +1,5 @@
 import { dayInMs, getFirstEvent } from 'ontime-utils';
-import { OntimeEvent, MaybeNumber, PlayableEvent, isPlayableEvent } from 'ontime-types';
+import { MaybeNumber, PlayableEvent, isPlayableEvent, OntimeEventDAO } from 'ontime-types';
 
 import { normaliseEndTime } from './timerUtils.js';
 
@@ -7,7 +7,7 @@ import { normaliseEndTime } from './timerUtils.js';
  * Finds current event in a rolling rundown
  */
 export function loadRoll(
-  timedEvents: OntimeEvent[],
+  timedEvents: OntimeEventDAO[],
   timeNow: number,
 ): {
   event: PlayableEvent | null;

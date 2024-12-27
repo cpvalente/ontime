@@ -3,8 +3,9 @@ import {
   isPlayableEvent,
   MaybeNumber,
   MaybeString,
-  OntimeEvent,
+  OntimeEventDAO,
   OntimeRundown,
+  OntimeRundownDAO,
   PlayableEvent,
   Playback,
   Runtime,
@@ -172,7 +173,7 @@ export function updateRundownData(rundownData: RundownData) {
  */
 export function load(
   event: PlayableEvent,
-  rundown: OntimeRundown,
+  rundown: OntimeRundownDAO,
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
   // we need to persist the current block state across loads
@@ -218,7 +219,10 @@ export function load(
 /**
  * Loads current event and its public counterpart
  */
-export function loadNow(timedEvents: OntimeEvent[], eventIndex: MaybeNumber = runtimeState.runtime.selectedEventIndex) {
+export function loadNow(
+  timedEvents: OntimeEventDAO[],
+  eventIndex: MaybeNumber = runtimeState.runtime.selectedEventIndex,
+) {
   if (eventIndex === null) {
     // reset the state to indicate there is no selection
     runtimeState.runtime.selectedEventIndex = null;
@@ -262,7 +266,7 @@ export function loadNow(timedEvents: OntimeEvent[], eventIndex: MaybeNumber = ru
  * Loads the next event and its public counterpart
  */
 export function loadNext(
-  timedEvents: OntimeEvent[],
+  timedEvents: OntimeEventDAO[],
   eventIndex: MaybeNumber = runtimeState.runtime.selectedEventIndex,
 ) {
   if (eventIndex === null) {
@@ -682,7 +686,7 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
   return { eventId: runtimeState.eventNow.id, didStart: true };
 }
 
-function loadBlock(rundown: OntimeRundown) {
+function loadBlock(rundown: OntimeRundownDAO) {
   if (runtimeState.eventNow === null) {
     // we need a loaded event to have a block
     runtimeState.currentBlock.block = null;

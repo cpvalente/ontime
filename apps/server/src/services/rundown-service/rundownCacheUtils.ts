@@ -1,18 +1,18 @@
 import {
   OntimeEvent,
   isOntimeEvent,
-  OntimeRundown,
   CustomFieldLabel,
   CustomFields,
   OntimeRundownEntry,
   OntimeBaseEvent,
+  OntimeRundownDAO,
 } from 'ontime-types';
 import { getLinkedTimes } from 'ontime-utils';
 
 /**
  * Get linked event
  */
-export function getLink(currentIndex: number, rundown: OntimeRundown): OntimeEvent | null {
+export function getLink(currentIndex: number, rundown: OntimeRundownDAO): OntimeEvent | null {
   // currently the link is the previous event
   for (let i = currentIndex - 1; i >= 0; i--) {
     const event = rundown[i];
@@ -30,7 +30,7 @@ export function getLink(currentIndex: number, rundown: OntimeRundown): OntimeEve
  */
 export function handleLink(
   currentIndex: number,
-  rundown: OntimeRundown,
+  rundown: OntimeRundownDAO,
   mutableEvent: OntimeEvent,
   links: Record<string, string>,
 ): void {

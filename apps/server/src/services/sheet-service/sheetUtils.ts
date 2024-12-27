@@ -1,4 +1,4 @@
-import { isOntimeBlock, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
+import { isOntimeBlock, isOntimeEvent, OntimeRundownEntryDAO } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { sheets_v4 } from '@googleapis/sheets';
@@ -69,7 +69,7 @@ export function getA1Notation(row: number, column: number): string {
  * @returns {sheets_v4.Schema} - list of update requests
  */
 export function cellRequestFromEvent(
-  event: OntimeRundownEntry,
+  event: OntimeRundownEntryDAO,
   index: number,
   worksheetId: number,
   metadata,
@@ -113,7 +113,7 @@ export function cellRequestFromEvent(
   };
 }
 
-function getCellData(key: string, event: OntimeRundownEntry) {
+function getCellData(key: string, event: OntimeRundownEntryDAO) {
   if (isOntimeEvent(event)) {
     if (key === 'blank') {
       return {};

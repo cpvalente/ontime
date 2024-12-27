@@ -5,10 +5,9 @@ import {
   HttpSettings,
   HttpSubscription,
   OSCSettings,
-  OntimeBlock,
-  OntimeDelay,
   OntimeEvent,
-  OntimeRundown,
+  OntimeRundownDAO,
+  OntimeRundownEntryDAO,
   OscSubscription,
   ProjectData,
   Settings,
@@ -34,7 +33,7 @@ type ErrorEmitter = (message: string) => void;
 export function parseRundown(
   data: Partial<DatabaseModel>,
   emitError?: ErrorEmitter,
-): { customFields: CustomFields; rundown: OntimeRundown } {
+): { customFields: CustomFields; rundown: OntimeRundownDAO } {
   // check custom fields first
   const parsedCustomFields = parseCustomFields(data, emitError);
 
@@ -45,7 +44,7 @@ export function parseRundown(
 
   console.log('Found rundown, importing...');
 
-  const rundown: OntimeRundown = [];
+  const rundown: OntimeRundownDAO = [];
   let eventIndex = 0;
   let previousId: string | null = null;
   const ids: string[] = [];
@@ -57,7 +56,7 @@ export function parseRundown(
     }
 
     const id = event.id || generateId();
-    let newEvent: OntimeEvent | OntimeDelay | OntimeBlock | null;
+    let newEvent: OntimeRundownEntryDAO | null;
 
     if (isOntimeEvent(event)) {
       const maybeEvent = runEventMigrations({ ...event, id });

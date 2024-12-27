@@ -4,7 +4,7 @@
  * @link https://developers.google.com/identity/protocols/oauth2/limited-input-device
  */
 
-import { AuthenticationStatus, CustomFields, LogOrigin, MaybeString, OntimeRundown } from 'ontime-types';
+import { AuthenticationStatus, CustomFields, LogOrigin, MaybeString, OntimeRundownDAO } from 'ontime-types';
 import { ImportMap, getErrorMessage } from 'ontime-utils';
 
 import { sheets, sheets_v4 } from '@googleapis/sheets';
@@ -348,7 +348,7 @@ export async function download(
   sheetId: string,
   options: ImportMap,
 ): Promise<{
-  rundown: OntimeRundown;
+  rundown: OntimeRundownDAO;
   customFields: CustomFields;
 }> {
   const { range } = await verifyWorksheet(sheetId, options.worksheet);

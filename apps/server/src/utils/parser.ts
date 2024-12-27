@@ -16,6 +16,7 @@ import {
   isOntimeBlock,
   LogOrigin,
   OntimeEvent,
+  OntimeEventDAO,
   OntimeRundown,
   SupportedEvent,
   TimerType,
@@ -356,7 +357,7 @@ function inferStrategy(end: unknown, duration: unknown, fallback: TimeStrategy):
   return fallback;
 }
 
-export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<OntimeEvent>): OntimeEvent {
+export function createPatch(originalEvent: OntimeEventDAO, patchEvent: Partial<OntimeEventDAO>): OntimeEventDAO {
   if (Object.keys(patchEvent).length === 0) {
     return originalEvent;
   }
@@ -399,7 +400,7 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
  * @param {number} eventIndex - can be a string when we pass the a suggested cue name
  * @returns {object|null} - formatted object or null in case is invalid
  */
-export const createEvent = (eventArgs: Partial<OntimeEvent>, eventIndex: number | string): OntimeEvent | null => {
+export const createEvent = (eventArgs: Partial<OntimeEvent>, eventIndex: number | string): OntimeEventDAO | null => {
   if (Object.keys(eventArgs).length === 0) {
     return null;
   }

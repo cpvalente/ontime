@@ -1,4 +1,4 @@
-import type { OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import type { OntimeEventDAO, OntimeRundownDAO, OntimeRundownEntryDAO } from 'ontime-types';
 import { isOntimeEvent } from 'ontime-types';
 
 import { getFirstEvent, getNextEvent, getPreviousEvent } from '../rundown-utils/rundownUtils.js';
@@ -44,7 +44,7 @@ export function getIncrement(input: string): string {
  * @param rundown {OntimeRundown}
  * @param insertAfterId {string}
  */
-export function getCueCandidate(rundown: OntimeRundown, insertAfterId?: string): string {
+export function getCueCandidate(rundown: OntimeRundownDAO, insertAfterId?: string): string {
   function addAtTop() {
     const firstEventCue = getFirstEvent(rundown).firstEvent?.cue;
 
@@ -67,9 +67,9 @@ export function getCueCandidate(rundown: OntimeRundown, insertAfterId?: string):
   }
 
   // get elements around
-  let previousEvent: OntimeRundownEntry | undefined | null | OntimeEvent = rundown.at(afterIndex);
+  let previousEvent: OntimeRundownEntryDAO | undefined | null | OntimeEventDAO = rundown.at(afterIndex);
   if (!isOntimeEvent(previousEvent)) {
-    previousEvent = getPreviousEvent(rundown, insertAfterId).previousEvent as null | OntimeEvent;
+    previousEvent = getPreviousEvent(rundown, insertAfterId).previousEvent as null | OntimeEventDAO;
   }
 
   let cue = '1';

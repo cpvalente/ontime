@@ -1,14 +1,14 @@
 import {
   EndAction,
-  OntimeBlock,
-  OntimeDelay,
-  OntimeEvent,
+  type OntimeBlock,
+  type OntimeDelay,
+  type OntimeEventDAO,
   SupportedEvent,
   TimeStrategy,
   TimerType,
 } from 'ontime-types';
 
-export const event: Omit<OntimeEvent, 'id' | 'delay' | 'cue'> = {
+export const event: Omit<OntimeEventDAO, 'id' | 'cue'> = {
   title: '',
   note: '',
   endAction: EndAction.None,

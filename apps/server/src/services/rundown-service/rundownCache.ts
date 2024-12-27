@@ -7,8 +7,10 @@ import {
   isPlayableEvent,
   MaybeNumber,
   OntimeEvent,
-  OntimeRundown,
+  OntimeEventDAO,
+  OntimeRundownDAO,
   OntimeRundownEntry,
+  OntimeRundownEntryDAO,
   PlayableEvent,
 } from 'ontime-types';
 import {
@@ -28,11 +30,11 @@ import { handleCustomField, handleLink, hasChanges, isDataStale } from './rundow
 type EventID = string;
 type NormalisedRundown = Record<EventID, OntimeRundownEntry>;
 
-let persistedRundown: OntimeRundown = [];
+let persistedRundown: OntimeRundownDAO = [];
 let persistedCustomFields: CustomFields = {};
 
 /** Utility function gets to expose data */
-export const getPersistedRundown = (): OntimeRundown => persistedRundown;
+export const getPersistedRundown = (): OntimeRundownDAO => persistedRundown;
 export const getCustomFields = (): CustomFields => persistedCustomFields;
 
 let rundown: NormalisedRundown = {};
@@ -63,8 +65,8 @@ export const customFieldChangelog = new Map<string, string>();
  */
 let assignedCustomFields: Record<CustomFieldLabel, EventID[]> = {};
 
-export async function init(initialRundown: Readonly<OntimeRundown>, customFields: Readonly<CustomFields>) {
-  persistedRundown = structuredClone(initialRundown) as OntimeRundown;
+export async function init(initialRundown: Readonly<OntimeRundownDAO>, customFields: Readonly<CustomFields>) {
+  persistedRundown = structuredClone(initialRundown) as OntimeRundownDAO;
   persistedCustomFields = structuredClone(customFields);
   generate();
   await getDataProvider().setRundown(persistedRundown);
@@ -76,7 +78,7 @@ export async function init(initialRundown: Readonly<OntimeRundown>, customFields
  * @param rundown
  */
 export function generate(
-  initialRundown: OntimeRundown = persistedRundown,
+  initialRundown: OntimeRundownDAO = persistedRundown,
   customFields: CustomFields = persistedCustomFields,
 ) {
   // we decided to re-write this dataset for every change
@@ -155,8 +157,10 @@ export function generate(
 
     // add id to order
     order.push(currentEntry.id);
+
     // add entry to rundown
-    rundown[currentEntry.id] = currentEntry;
+    // we need to cast since we do not guard that OntimeEventDAOs get passed, but these will be caught by the isOntimeEvent guard
+    rundown[currentEntry.id] = currentEntry as OntimeRundownEntry;
   }
 
   lastEnd = lastEntry?.timeEnd ?? null;
@@ -227,11 +231,11 @@ export function getMetadata() {
   };
 }
 
-type CommonParams = { persistedRundown: OntimeRundown };
+type CommonParams = { persistedRundown: OntimeRundownDAO };
 type MutationParams<T> = T & CommonParams;
 type MutatingReturn = {
-  newRundown: OntimeRundown;
-  newEvent?: OntimeRundownEntry;
+  newRundown: OntimeRundownDAO;
+  newEvent?: OntimeRundownEntryDAO;
   didMutate: boolean;
 };
 type MutatingFn<T extends object> = (params: MutationParams<T>) => MutatingReturn;
@@ -304,14 +308,14 @@ export function removeAll(): MutatingReturn {
  * @param patch
  * @returns
  */
-function makeEvent(eventFromRundown: OntimeRundownEntry, patch: Partial<OntimeRundownEntry>): OntimeRundownEntry {
+function makeEvent<T extends OntimeRundownEntryDAO>(eventFromRundown: T, patch: Partial<T>): T {
   if (isOntimeEvent(eventFromRundown)) {
-    const newEvent = createPatch(eventFromRundown, patch as OntimeEvent);
+    const newEvent = createPatch(eventFromRundown, patch as Partial<OntimeEventDAO>);
     newEvent.revision++;
-    return newEvent;
+    return newEvent as T;
   }
   // TODO: exhaustive check
-  return { ...eventFromRundown, ...patch } as OntimeRundownEntry;
+  return { ...eventFromRundown, ...patch };
 }
 
 type EditArgs = MutationParams<{ eventId: string; patch: Partial<OntimeRundownEntry> }>;
@@ -342,7 +346,8 @@ export function edit({ persistedRundown, eventId, patch }: EditArgs): Required<M
   const makeStale = isDataStale(patch);
 
   if (!makeStale) {
-    rundown[newEvent.id] = newEvent;
+    // delay will be calculated by the generate function
+    rundown[newEvent.id] = { ...newEvent, delay: 0 } as OntimeEvent;
   }
 
   isStale = makeStale;

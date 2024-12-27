@@ -2,8 +2,11 @@ import type {
   NormalisedRundown,
   OntimeBlock,
   OntimeEvent,
+  OntimeEventDAO,
   OntimeRundown,
+  OntimeRundownDAO,
   OntimeRundownEntry,
+  OntimeRundownEntryDAO,
   PlayableEvent,
 } from 'ontime-types';
 import { isOntimeBlock, isOntimeEvent, isPlayableEvent } from 'ontime-types';
@@ -13,7 +16,7 @@ type IndexAndEntry = { entry: OntimeRundownEntry | null; index: number | null };
 /**
  * Gets first event in rundown, if it exists
  */
-export function getFirst(rundown: OntimeRundown) {
+export function getFirst(rundown: OntimeRundownDAO) {
   return rundown.length ? rundown[0] : null;
 }
 
@@ -31,7 +34,7 @@ export function getFirstNormal(rundown: NormalisedRundown, order: string[]) {
 /**
  * Gets first scheduled event in rundown, if it exists
  */
-export function getFirstEvent(rundown: OntimeRundown): {
+export function getFirstEvent(rundown: OntimeRundownDAO): {
   firstEvent: PlayableEvent | null;
   firstIndex: number | null;
 } {
@@ -78,7 +81,7 @@ export function getLastNormal(rundown: NormalisedRundown, order: string[]): Onti
 /**
  * Gets last scheduled event in rundown, if it exists
  */
-export function getLastEvent(rundown: OntimeRundown): {
+export function getLastEvent(rundown: OntimeRundownDAO): {
   lastEvent: PlayableEvent | null;
   lastIndex: number | null;
 } {
@@ -123,9 +126,9 @@ export function getLastEventNormal(
  * Gets next entry in rundown, if it exists
  */
 export function getNext(
-  rundown: OntimeRundown,
+  rundown: OntimeRundownDAO,
   currentId: string,
-): { nextEvent: OntimeRundownEntry | null; nextIndex: number | null } {
+): { nextEvent: OntimeRundownEntryDAO | null; nextIndex: number | null } {
   const index = rundown.findIndex((event) => event.id === currentId);
   if (index !== -1 && index + 1 < rundown.length) {
     const nextIndex = index + 1;
@@ -155,9 +158,9 @@ export function getNextNormal(rundown: NormalisedRundown, order: string[], curre
  * Gets next scheduled event in rundown, if it exists
  */
 export function getNextEvent(
-  rundown: OntimeRundown,
+  rundown: OntimeRundownDAO,
   currentId: string,
-): { nextEvent: OntimeEvent | null; nextIndex: number | null } {
+): { nextEvent: OntimeEventDAO | null; nextIndex: number | null } {
   const index = rundown.findIndex((event) => event.id === currentId);
   if (index < 0) {
     return { nextEvent: null, nextIndex: null };
@@ -228,9 +231,9 @@ export function getPreviousNormal(rundown: NormalisedRundown, order: string[], c
  * Gets previous scheduled event in rundown, if it exists
  */
 export function getPreviousEvent(
-  rundown: OntimeRundown,
+  rundown: OntimeRundownDAO,
   currentId: string,
-): { previousEvent: OntimeEvent | null; previousIndex: number | null } {
+): { previousEvent: OntimeEventDAO | null; previousIndex: number | null } {
   const index = rundown.findIndex((event) => event.id === currentId);
   if (index < 0) {
     return { previousEvent: null, previousIndex: null };
@@ -295,7 +298,7 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA:
   return { newA, newB };
 };
 
-export function getEventWithId(rundown: OntimeRundown, id: string): OntimeRundownEntry | undefined {
+export function getEventWithId(rundown: OntimeRundownDAO, id: string): OntimeRundownEntryDAO | undefined {
   return rundown.find((event) => event.id === id);
 }
 
@@ -348,7 +351,7 @@ export function getNextBlockNormal(rundown: NormalisedRundown, order: string[], 
 /**
  * Gets relevant block element for a given ID
  */
-export function getPreviousBlock(rundown: OntimeRundown, currentId: string): OntimeBlock | null {
+export function getPreviousBlock(rundown: OntimeRundownDAO, currentId: string): OntimeBlock | null {
   let foundCurrentEvent = false;
   // Iterate backwards through the rundown to find the current event
   for (let i = rundown.length - 1; i >= 0; i--) {
@@ -370,13 +373,13 @@ export function getPreviousBlock(rundown: OntimeRundown, currentId: string): Ont
 /**
  * filters a rundown to timed events
  */
-export function filterPlayable(rundown: OntimeRundown): PlayableEvent[] {
+export function filterPlayable(rundown: OntimeRundownDAO): PlayableEvent[] {
   return rundown.filter((event) => isOntimeEvent(event) && !event.skip) as PlayableEvent[];
 }
 
 /**
  * filters a rundown to events that can be played
  */
-export function filterTimedEvents(rundown: OntimeRundown): OntimeEvent[] {
-  return rundown.filter((event) => isOntimeEvent(event)) as OntimeEvent[];
+export function filterTimedEvents(rundown: OntimeRundownDAO): OntimeEventDAO[] {
+  return rundown.filter((event) => isOntimeEvent(event)) as OntimeEventDAO[];
 }

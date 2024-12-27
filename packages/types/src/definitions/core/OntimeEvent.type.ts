@@ -21,6 +21,28 @@ export type OntimeBlock = OntimeBaseEvent & {
   title: string;
 };
 
+export type OntimeEventDAO = OntimeBaseEvent & {
+  type: SupportedEvent.Event;
+  cue: string;
+  title: string;
+  note: string;
+  endAction: EndAction;
+  timerType: TimerType;
+  countToEnd: boolean;
+  linkStart: MaybeString; // ID of event to link to
+  timeStrategy: TimeStrategy;
+  timeStart: number;
+  timeEnd: number;
+  duration: number;
+  isPublic: boolean;
+  skip: boolean;
+  colour: string;
+  revision: number;
+  timeWarning: number;
+  timeDanger: number;
+  custom: EventCustomFields;
+};
+
 export type OntimeEvent = OntimeBaseEvent & {
   type: SupportedEvent.Event;
   cue: string;
@@ -38,7 +60,7 @@ export type OntimeEvent = OntimeBaseEvent & {
   skip: boolean;
   colour: string;
   revision: number;
-  delay?: number; // calculated at runtime
+  delay: number; // calculated at runtime
   timeWarning: number;
   timeDanger: number;
   custom: EventCustomFields;

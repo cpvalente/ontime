@@ -1,4 +1,11 @@
-import { OntimeEvent, OntimeRundown, RundownCached, OntimeRundownEntry, PlayableEvent } from 'ontime-types';
+import {
+  OntimeEvent,
+  RundownCached,
+  PlayableEvent,
+  OntimeRundownDAO,
+  OntimeEventDAO,
+  OntimeRundownEntryDAO,
+} from 'ontime-types';
 import { filterPlayable, filterTimedEvents } from 'ontime-utils';
 
 import * as cache from './rundownCache.js';
@@ -13,14 +20,14 @@ export function getNormalisedRundown(): RundownCached {
 /**
  * returns entire unfiltered rundown
  */
-export function getRundown(): OntimeRundown {
+export function getRundown(): OntimeRundownDAO {
   return cache.getPersistedRundown();
 }
 
 /**
  * returns all events of type OntimeEvent
  */
-export function getTimedEvents(): OntimeEvent[] {
+export function getTimedEvents(): OntimeEventDAO[] {
   return filterTimedEvents(getRundown());
 }
 
@@ -34,7 +41,7 @@ export function getPlayableEvents(): PlayableEvent[] {
 /**
  * returns an event given its index after filtering for OntimeEvents
  */
-export function getEventAtIndex(eventIndex: number): OntimeEvent | undefined {
+export function getEventAtIndex(eventIndex: number): OntimeEventDAO | undefined {
   const timedEvents = getTimedEvents();
   return timedEvents.at(eventIndex);
 }
@@ -42,7 +49,7 @@ export function getEventAtIndex(eventIndex: number): OntimeEvent | undefined {
 /**
  * returns first event that matches a given ID
  */
-export function getEventWithId(eventId: string): OntimeRundownEntry | undefined {
+export function getEventWithId(eventId: string): OntimeRundownEntryDAO | undefined {
   const rundown = getRundown();
   return rundown.find((event) => event.id === eventId);
 }
@@ -110,7 +117,7 @@ export function getPaginated(
   offset: number,
   limit: number,
   source = getRundown,
-): { rundown: OntimeRundownEntry[]; total: number } {
+): { rundown: OntimeRundownEntryDAO[]; total: number } {
   const rundown = source();
   return {
     rundown: rundown.slice(Math.min(offset, rundown.length), Math.min(offset + limit, rundown.length)),

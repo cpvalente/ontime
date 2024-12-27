@@ -8,9 +8,10 @@ import {
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
-  OntimeRundown,
   PatchWithId,
   EventPostPayload,
+  OntimeRundownDAO,
+  OntimeEventDAO,
 } from 'ontime-types';
 import { getCueCandidate } from 'ontime-utils';
 
@@ -33,7 +34,7 @@ type CompleteEntry<T> =
         ? OntimeBlock
         : never;
 
-function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>>(
+function generateEvent<T extends Partial<OntimeEventDAO> | Partial<OntimeDelay> | Partial<OntimeBlock>>(
   eventData: T,
   afterId?: string,
 ): CompleteEntry<T> {
@@ -278,7 +279,7 @@ function notifyChanges(options: NotifyChangesOptions) {
  * Overrides the rundown with the given
  * @param rundown
  */
-export async function initRundown(rundown: Readonly<OntimeRundown>, customFields: Readonly<CustomFields>) {
+export async function initRundown(rundown: Readonly<OntimeRundownDAO>, customFields: Readonly<CustomFields>) {
   await cache.init(rundown, customFields);
 
   // notify runtime that rundown has changed

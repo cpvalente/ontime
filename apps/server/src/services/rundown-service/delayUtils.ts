@@ -1,4 +1,11 @@
-import { OntimeRundown, isOntimeDelay, isOntimeBlock, isOntimeEvent, OntimeEvent } from 'ontime-types';
+import {
+  OntimeRundown,
+  isOntimeDelay,
+  isOntimeBlock,
+  isOntimeEvent,
+  OntimeEvent,
+  OntimeRundownDAO,
+} from 'ontime-types';
 import { getTimeFromPrevious, deleteAtIndex } from 'ontime-utils';
 
 /**
@@ -93,7 +100,7 @@ export function getDelayAt(eventIndex: number, rundown: OntimeRundown): number {
  * Applies delay from given event ID, deletes the delay event after
  * @throws {Error} if event ID not found or is not a delay
  */
-export function apply(eventId: string, rundown: OntimeRundown): OntimeRundown {
+export function apply(eventId: string, rundown: OntimeRundownDAO): OntimeRundownDAO {
   const delayIndex = rundown.findIndex((event) => event.id === eventId);
   const delayEvent = rundown.at(delayIndex);
 

@@ -6,7 +6,7 @@ import { OntimeEvent, SupportedEvent } from 'ontime-types';
  * @param {string} [after]
  * @return {OntimeEvent} clean event
  */
-type ClonedEvent = Omit<OntimeEvent, 'id' | 'cue'>;
+type ClonedEvent = Omit<OntimeEvent, 'id' | 'cue' | 'delay'>; // we dont want to clone derived or unique properties
 export const cloneEvent = (event: OntimeEvent): ClonedEvent => {
   return {
     type: SupportedEvent.Event,
