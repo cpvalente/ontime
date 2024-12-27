@@ -163,6 +163,20 @@ $inner-padding: 1rem;
   animation: animloader 1s ease-in infinite;
 }
 
+.empty {
+  background-color: $black-10;
+  text-align: center;
+  color: $muted-gray;
+  
+  td {    
+    padding: 2rem;
+  }
+
+  button {
+    margin-top: 1rem;
+  }
+}
+
 @keyframes animloader {
   0% {
     transform: scale(0);

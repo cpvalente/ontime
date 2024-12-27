@@ -1,4 +1,6 @@
 import { HTMLAttributes, ReactNode } from 'react';
+import { Button } from '@chakra-ui/react';
+import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 
 import { cx } from '../../../common/utils/styleUtils';
 
@@ -52,8 +54,21 @@ export function Table({ className, children }: { className?: string; children: R
   );
 }
 
-export function ListGroup({ children }: { children: ReactNode }) {
-  return <ul className={style.listGroup}>{children}</ul>;
+export function TableEmpty({ handleClick }: { handleClick: () => void }) {
+  return (
+    <tr className={style.empty}>
+      <td colSpan={99}>
+        <div>No data yet</div>
+        <Button onClick={handleClick} variant='ontime-subtle' rightIcon={<IoAdd />} size='sm'>
+          New
+        </Button>
+      </td>
+    </tr>
+  );
+}
+
+export function ListGroup({ className, children }: { className?: string; children: ReactNode }) {
+  return <ul className={cx([style.listGroup, className])}>{children}</ul>;
 }
 
 export function ListItem({ children }: { children: ReactNode }) {

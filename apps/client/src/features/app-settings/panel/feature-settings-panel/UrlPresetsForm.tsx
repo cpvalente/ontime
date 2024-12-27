@@ -149,6 +149,7 @@ export default function UrlPresetsForm() {
               </tr>
             </thead>
             <tbody>
+              {fields.length === 0 && <Panel.TableEmpty handleClick={addNew} />}
               {fields.map((preset, index) => {
                 const maybeAliasError = errors.data?.[index]?.alias?.message;
                 const maybeUrlError = errors.data?.[index]?.pathAndParams?.message;
