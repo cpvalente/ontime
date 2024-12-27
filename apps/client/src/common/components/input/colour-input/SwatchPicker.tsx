@@ -14,12 +14,25 @@ interface SwatchPickerProps {
   onChange: (name: string) => void;
 }
 
+const getIconColor = (color: string, isSelected: boolean) => {
+  if (isSelected) {
+    try {
+      const isLight = Color(color).isLight();
+      return isLight ? '#000000' : '#ffffff';
+    } catch (_error) {
+      /* we are not handling the error here */
+    }
+  }
+
+  return '#ffffff';
+};
+
 export default function SwatchPicker(props: SwatchPickerProps) {
   const { color, onChange, isSelected } = props;
 
   const classes = cx([style.swatch, isSelected ? style.selected : null, style.selectable]);
 
-  const iconColor = Color(color).isLight() && isSelected ? '#000000' : '#FFFFFF';
+  const iconColor = getIconColor(color, isSelected ?? false);
 
   const debouncedOnChange = useCallback(
     debounce((newValue: string) => {
