@@ -93,7 +93,7 @@ function getCustomFields(): Readonly<CustomFields> {
 }
 
 function dropNonPersistedKeys(newData: OntimeRundown): DatabaseOntimeRundown {
-  const databaseRundown = newData.map((entry) => {
+  const databaseRundown = newData.flatMap((entry) => {
     if (isOntimeEvent(entry)) {
       const databaseEntry: DatabaseOntimeEvent = {
         type: entry.type,
@@ -125,6 +125,7 @@ function dropNonPersistedKeys(newData: OntimeRundown): DatabaseOntimeRundown {
     if (isOntimeDelay(entry)) {
       return { ...entry } as OntimeDelay;
     }
+    return []; //This would most likely never happen
   });
 
   return databaseRundown;
