@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import PopoverPicker from '../input/popover-picker/PopoverPicker';
+import SwatchPicker from '../input/colour-input/SwatchPicker';
 
 import style from './InlineColourPicker.module.scss';
 
@@ -20,13 +20,9 @@ export default function InlineColourPicker(props: InlineColourPickerProps) {
   const { name, value } = props;
   const [colour, setColour] = useState(() => ensureHex(value));
 
-  const debouncedChange = (value: string) => {
-    setColour(value);
-  };
-
   return (
     <div className={style.inline}>
-      <PopoverPicker color={colour} onChange={debouncedChange} />
+      <SwatchPicker color={colour} onChange={setColour} />
       <input type='hidden' name={name} value={colour} />
     </div>
   );
