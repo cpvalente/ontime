@@ -18,7 +18,7 @@ import { isPath } from '../../utils/fileManagement.js';
 import { shouldCrashDev } from '../../utils/development.js';
 import { isTest } from '../../externals.js';
 
-import { dropNonPersistedKeys, safeMerge } from './DataProvider.utils.js';
+import { rundownToDatabaseRundown, safeMerge } from './DataProvider.utils.js';
 
 type ReadonlyPromise<T> = Promise<Readonly<T>>;
 
@@ -87,7 +87,7 @@ function getCustomFields(): Readonly<CustomFields> {
 }
 
 async function setRundown(newData: OntimeRundown): ReadonlyPromise<DatabaseOntimeRundown> {
-  db.data.rundown = dropNonPersistedKeys(newData);
+  db.data.rundown = rundownToDatabaseRundown(newData);
   await persist();
   return db.data.rundown;
 }

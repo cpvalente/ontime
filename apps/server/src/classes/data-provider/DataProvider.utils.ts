@@ -5,8 +5,6 @@ import {
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
-  OntimeBlock,
-  OntimeDelay,
   OntimeRundown,
 } from 'ontime-types';
 
@@ -38,40 +36,20 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
   };
 }
 
-export function dropNonPersistedKeys(newData: OntimeRundown): DatabaseOntimeRundown {
+export function rundownToDatabaseRundown(newData: OntimeRundown): DatabaseOntimeRundown {
   const databaseRundown = newData.flatMap((entry) => {
-    if (isOntimeEvent(entry)) {
-      const databaseEntry: DatabaseOntimeEvent = {
-        type: entry.type,
-        id: entry.id,
-        cue: entry.cue,
-        title: entry.title,
-        note: entry.note,
-        endAction: entry.endAction,
-        timerType: entry.timerType,
-        countToEnd: entry.countToEnd,
-        linkStart: entry.linkStart,
-        timeStrategy: entry.timeStrategy,
-        timeStart: entry.timeStart,
-        timeEnd: entry.timeEnd,
-        duration: entry.duration,
-        isPublic: entry.isPublic,
-        skip: entry.skip,
-        colour: entry.colour,
-        revision: entry.revision,
-        timeWarning: entry.timeWarning,
-        timeDanger: entry.timeDanger,
-        custom: { ...entry.custom },
-      };
-      return databaseEntry;
+    const entryClone = structuredClone(entry);
+    if (isOntimeEvent(entryClone)) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { delay, ...dbEvent } = entryClone;
+      return dbEvent satisfies DatabaseOntimeEvent as DatabaseOntimeEvent;
     }
-    if (isOntimeBlock(entry)) {
-      return { ...entry } as OntimeBlock;
+    if (isOntimeBlock(entryClone)) {
+      return entryClone;
     }
-    if (isOntimeDelay(entry)) {
-      return { ...entry } as OntimeDelay;
+    if (isOntimeDelay(entryClone)) {
+      return entryClone;
     }
-    return []; //This would most likely never happen
   });
 
   return databaseRundown;

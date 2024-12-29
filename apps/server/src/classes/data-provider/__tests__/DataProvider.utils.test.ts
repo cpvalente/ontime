@@ -8,7 +8,7 @@ import {
   URLPreset,
   ViewSettings,
 } from 'ontime-types';
-import { dropNonPersistedKeys, safeMerge } from '../DataProvider.utils.js';
+import { rundownToDatabaseRundown, safeMerge } from '../DataProvider.utils.js';
 import { event } from '../../../models/eventsDefinition.js';
 
 describe('safeMerge', () => {
@@ -231,7 +231,7 @@ describe('drop keys', () => {
   });
   it('drops delay key', () => {
     const testRundown: OntimeRundown = [{ ...fullEvent }];
-    const result = dropNonPersistedKeys(testRundown);
+    const result = rundownToDatabaseRundown(testRundown);
     expect(result).toEqual([{ id: '1', ...dbEvent }]);
   });
 });
