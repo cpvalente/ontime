@@ -1,4 +1,4 @@
-import { LogOrigin, Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { LogOrigin, Playback, runtimeStorePlaceholder, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import 'dotenv/config';
 import express from 'express';
@@ -200,7 +200,7 @@ export const startServer = async (
     clock: state.clock,
     timer: state.timer,
     onAir: state.timer.playback !== Playback.Stop,
-    message: messageService.getState(),
+    message: { ...runtimeStorePlaceholder.message },
     runtime: state.runtime,
     eventNow: state.eventNow,
     currentBlock: {
@@ -223,6 +223,9 @@ export const startServer = async (
   const persistedRundown = getDataProvider().getRundown();
   const persistedCustomFields = getDataProvider().getCustomFields();
   initRundown(persistedRundown, persistedCustomFields);
+
+  // initialise message service
+  messageService.init(eventStore.set, eventStore.get);
 
   // load restore point if it exists
   const maybeRestorePoint = await restoreService.load();
