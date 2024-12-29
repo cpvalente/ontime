@@ -1,4 +1,14 @@
-import { DatabaseModel } from 'ontime-types';
+import {
+  DatabaseModel,
+  DatabaseOntimeEvent,
+  DatabaseOntimeRundown,
+  isOntimeBlock,
+  isOntimeDelay,
+  isOntimeEvent,
+  OntimeBlock,
+  OntimeDelay,
+  OntimeRundown,
+} from 'ontime-types';
 
 /**
  * Merges a partial ontime project into a given ontime project
@@ -26,4 +36,43 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
     osc: { ...existing.osc, ...osc },
     http: { ...existing.http, ...http },
   };
+}
+
+export function dropNonPersistedKeys(newData: OntimeRundown): DatabaseOntimeRundown {
+  const databaseRundown = newData.flatMap((entry) => {
+    if (isOntimeEvent(entry)) {
+      const databaseEntry: DatabaseOntimeEvent = {
+        type: entry.type,
+        id: entry.id,
+        cue: entry.cue,
+        title: entry.title,
+        note: entry.note,
+        endAction: entry.endAction,
+        timerType: entry.timerType,
+        countToEnd: entry.countToEnd,
+        linkStart: entry.linkStart,
+        timeStrategy: entry.timeStrategy,
+        timeStart: entry.timeStart,
+        timeEnd: entry.timeEnd,
+        duration: entry.duration,
+        isPublic: entry.isPublic,
+        skip: entry.skip,
+        colour: entry.colour,
+        revision: entry.revision,
+        timeWarning: entry.timeWarning,
+        timeDanger: entry.timeDanger,
+        custom: { ...entry.custom },
+      };
+      return databaseEntry;
+    }
+    if (isOntimeBlock(entry)) {
+      return { ...entry } as OntimeBlock;
+    }
+    if (isOntimeDelay(entry)) {
+      return { ...entry } as OntimeDelay;
+    }
+    return []; //This would most likely never happen
+  });
+
+  return databaseRundown;
 }

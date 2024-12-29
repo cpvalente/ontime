@@ -9,12 +9,6 @@ import {
   HttpSettings,
   URLPreset,
   DatabaseOntimeRundown,
-  isOntimeEvent,
-  DatabaseOntimeEvent,
-  isOntimeBlock,
-  isOntimeDelay,
-  OntimeBlock,
-  OntimeDelay,
 } from 'ontime-types';
 
 import type { Low } from 'lowdb';
@@ -24,7 +18,7 @@ import { isPath } from '../../utils/fileManagement.js';
 import { shouldCrashDev } from '../../utils/development.js';
 import { isTest } from '../../externals.js';
 
-import { safeMerge } from './DataProvider.utils.js';
+import { dropNonPersistedKeys, safeMerge } from './DataProvider.utils.js';
 
 type ReadonlyPromise<T> = Promise<Readonly<T>>;
 
@@ -90,45 +84,6 @@ async function setCustomFields(newData: CustomFields): ReadonlyPromise<CustomFie
 
 function getCustomFields(): Readonly<CustomFields> {
   return db.data.customFields;
-}
-
-function dropNonPersistedKeys(newData: OntimeRundown): DatabaseOntimeRundown {
-  const databaseRundown = newData.flatMap((entry) => {
-    if (isOntimeEvent(entry)) {
-      const databaseEntry: DatabaseOntimeEvent = {
-        type: entry.type,
-        id: entry.id,
-        cue: entry.cue,
-        title: entry.title,
-        note: entry.note,
-        endAction: entry.endAction,
-        timerType: entry.timerType,
-        countToEnd: entry.countToEnd,
-        linkStart: entry.linkStart,
-        timeStrategy: entry.timeStrategy,
-        timeStart: entry.timeStart,
-        timeEnd: entry.timeEnd,
-        duration: entry.duration,
-        isPublic: entry.isPublic,
-        skip: entry.skip,
-        colour: entry.colour,
-        revision: entry.revision,
-        timeWarning: entry.timeWarning,
-        timeDanger: entry.timeDanger,
-        custom: { ...entry.custom },
-      };
-      return databaseEntry;
-    }
-    if (isOntimeBlock(entry)) {
-      return { ...entry } as OntimeBlock;
-    }
-    if (isOntimeDelay(entry)) {
-      return { ...entry } as OntimeDelay;
-    }
-    return []; //This would most likely never happen
-  });
-
-  return databaseRundown;
 }
 
 async function setRundown(newData: OntimeRundown): ReadonlyPromise<DatabaseOntimeRundown> {
