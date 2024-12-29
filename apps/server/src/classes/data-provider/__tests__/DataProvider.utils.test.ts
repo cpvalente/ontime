@@ -1,5 +1,15 @@
-import { DatabaseModel, OntimeRundown, Settings, URLPreset, ViewSettings } from 'ontime-types';
-import { safeMerge } from '../DataProvider.utils.js';
+import {
+  DatabaseModel,
+  DatabaseOntimeEvent,
+  OntimeEvent,
+  OntimeRundown,
+  Settings,
+  SupportedEvent,
+  URLPreset,
+  ViewSettings,
+} from 'ontime-types';
+import { dropNonPersistedKeys, safeMerge } from '../DataProvider.utils.js';
+import { event } from '../../../models/eventsDefinition.js';
 
 describe('safeMerge', () => {
   const existing = {
@@ -208,5 +218,20 @@ describe('safeMerge', () => {
     //@ts-expect-error -- testing partial merge
     const result = safeMerge(existing, newData);
     expect(result.customFields).toEqual(expected);
+  });
+});
+
+describe('drop keys', () => {
+  let fullEvent: OntimeEvent = { id: '1', cue: '#1', type: SupportedEvent.Event, ...event };
+  let dbEvent = fullEvent as DatabaseOntimeEvent;
+  beforeEach(() => {
+    fullEvent = { id: '1', cue: '#1', type: SupportedEvent.Event, ...event };
+    dbEvent = fullEvent;
+    delete (dbEvent as OntimeEvent).delay;
+  });
+  it('drops delay key', () => {
+    const testRundown: OntimeRundown = [{ ...fullEvent }];
+    const result = dropNonPersistedKeys(testRundown);
+    expect(result).toEqual([{ id: '1', ...dbEvent }]);
   });
 });
