@@ -112,7 +112,7 @@ function dropNonPersistedKeys(newData: OntimeRundown): DatabaseOntimeRundown {
         isPublic: entry.isPublic,
         skip: entry.skip,
         colour: entry.colour,
-        revision: entry.revision, //TODO: should we drop this?
+        revision: entry.revision,
         timeWarning: entry.timeWarning,
         timeDanger: entry.timeDanger,
         custom: { ...entry.custom },
