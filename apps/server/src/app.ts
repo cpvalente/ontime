@@ -2,11 +2,13 @@ import { LogOrigin, Playback, runtimeStorePlaceholder, SimpleDirection, SimplePl
 
 import 'dotenv/config';
 import express from 'express';
-import expressStaticGzip from 'express-static-gzip';
 import http, { Server } from 'http';
 import cors from 'cors';
 import serverTiming from 'server-timing';
-import { extname } from 'node:path';
+
+// Import middleware configuration
+import { bodyParser } from './middleware/bodyParser.js';
+import { compressedStatic } from './middleware/staticGZip.js';
 
 // import utils
 import { publicDir, srcDir, srcFiles } from './setup/index.js';
@@ -77,8 +79,8 @@ app.use(cors());
 app.options('*', cors());
 
 // Implement middleware
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json({ limit: '1mb' }));
+app.use(bodyParser);
+app.use(prefix, compressedStatic);
 
 // Implement route endpoints
 app.use(`${prefix}/data`, appRouter); // router for application data
@@ -91,31 +93,6 @@ app.use(`${prefix}/external`, (req, res) => {
   res.status(404).send(`${req.originalUrl} not found`);
 });
 app.use(`${prefix}/user`, express.static(publicDir.userDir));
-
-// serve static - react, in dev/test mode we fetch the React app from module
-app.use(
-  prefix,
-  expressStaticGzip(srcDir.clientDir, {
-    enableBrotli: true,
-    orderPreference: ['br'],
-    // when we build the client the file names contain a unique hash for the build
-    // this allows us to use the immutable tag
-    // as the contents of a build file will never change without also changing its name
-    // meaning that the client does not need to revalidate the contents with the server
-    serveStatic: {
-      etag: false,
-      lastModified: false,
-      immutable: true,
-      maxAge: '1y',
-      setHeaders: (res, file) => {
-        // make sure the HTML files are always revalidated
-        if (extname(file) === '.html') {
-          res.setHeader('Cache-Control', 'public, max-age=0');
-        }
-      },
-    },
-  }),
-);
 
 app.get(`${prefix}/*`, (_req, res) => {
   res.sendFile(srcFiles.clientIndexHtml);
