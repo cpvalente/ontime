@@ -1,9 +1,11 @@
 import { LogOrigin } from 'ontime-types';
-import { logger } from '../classes/Logger.js';
-import { isDocker } from '../externals.js';
-import http from 'http';
 
+import type { Server } from 'http';
 import { networkInterfaces } from 'os';
+import { AddressInfo } from 'net';
+
+import { isDocker, isProduction } from '../externals.js';
+import { logger } from '../classes/Logger.js';
 
 /**
  * @description Gets information on IPV4 non-internal interfaces
@@ -34,48 +36,64 @@ export function getNetworkInterfaces(): { name: string; address: string }[] {
 
 /**
  * @description tries to open the server with the desired port, and if getting a `EADDRINUSE` will change to an random port assigned by the OS
- * @param {http.Server}server http server object
- * @param {number}desiredPort the desired port
+ * @param {http.Server} server http server object
+ * @param {number} desiredPort the desired port
  * @returns {number} the resulting port number
  * @throws any other server errors will result in a throw
  */
-export async function serverTryDesiredPort(server: http.Server, desiredPort: number): Promise<number> {
+export function serverTryDesiredPort(server: Server, desiredPort: number): Promise<number> {
   return new Promise((resolve, reject) => {
-    server.once('error', (e) => {
-      if (isDocker) reject(e); // we should only move ports if we are in a desktop environment
-      if (testForPortInUser(e)) {
-        server.listen(0, '0.0.0.0', () => {
-          const address = server.address();
-          if (typeof address !== 'object') {
-            reject('unknown port type, can not proceed');
-            return; // the return is needed here to let TS know that we wont continue
-          }
-          logger.error(
-            LogOrigin.Server,
-            `Failed open the desired port: ${desiredPort} \nMoved to an Ephemeral port: ${address.port}`,
-            true,
-          );
-
-          resolve(address.port);
-        });
-      } else {
-        reject(e);
+    server.once('error', (error) => {
+      // we should only move ports if we are in a desktop environment
+      if (isDocker || !isProduction) {
+        reject(error);
+        return;
       }
+
+      if (!isPortInUseError(error)) {
+        reject(error);
+        return;
+      }
+
+      // if we get an address in use error, we will try to open the server in an ephemeral port
+      // port 0 will assign an ephemeral port
+      server.listen(0, '0.0.0.0', () => {
+        const address = server.address();
+        if (!isAddressInfo(address)) {
+          reject(new Error('Unknown port type, unable to proceed'));
+          return;
+        }
+        logger.error(
+          LogOrigin.Server,
+          `Failed open the desired port: ${desiredPort} \nMoved to an Ephemeral port: ${address.port}`,
+          true,
+        );
+
+        resolve(address.port);
+      });
     });
+
     server.listen(desiredPort, '0.0.0.0', () => {
       const address = server.address();
-      if (typeof address !== 'object') {
-        reject('unknown port type, can not proceed');
-        return; // the return is needed here to let TS know that we wont continue
+      if (!isAddressInfo(address)) {
+        reject(new Error('Unknown port type, unable to proceed'));
+        return;
       }
       resolve(address.port);
     });
   });
 }
 
-function testForPortInUser(err: unknown) {
-  if (typeof err === 'object' && 'code' in err && err.code === 'EADDRINUSE') {
-    return true;
-  }
-  return false;
+/**
+ * Guard verifies that the given address is a usable AddressInfo object
+ */
+function isAddressInfo(address: string | AddressInfo | null): address is AddressInfo {
+  return typeof address === 'object' && address !== null;
+}
+
+/**
+ * Checks whether a given error is a port in use error
+ */
+function isPortInUseError(err: Error): boolean {
+  return typeof err === 'object' && err !== null && 'code' in err && err.code === 'EADDRINUSE';
 }
