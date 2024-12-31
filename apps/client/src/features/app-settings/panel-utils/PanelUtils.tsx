@@ -24,10 +24,19 @@ type SectionProps<C extends AllowedTags> = {
   children: ReactNode;
 } & JSX.IntrinsicElements[C];
 
-export function Section<C extends AllowedTags = 'div'>({ as, children, ...props }: SectionProps<C>) {
+export function Section<C extends AllowedTags = 'div'>({ as, className, children, ...props }: SectionProps<C>) {
   const Element = as ?? 'div';
   return (
-    <Element className={style.section} {...(props as HTMLAttributes<HTMLElement>)}>
+    <Element className={cx([style.section, className])} {...(props as HTMLAttributes<HTMLElement>)}>
+      {children}
+    </Element>
+  );
+}
+
+export function Indent<C extends AllowedTags = 'div'>({ as, className, children, ...props }: SectionProps<C>) {
+  const Element = as ?? 'div';
+  return (
+    <Element className={cx([style.indent, className])} {...(props as HTMLAttributes<HTMLElement>)}>
       {children}
     </Element>
   );
