@@ -39,7 +39,7 @@ let persistedCustomFields: CustomFields = {};
 export const getPersistedRundown = (): OntimeRundown => persistedRundown;
 export const getCustomFields = (): CustomFields => persistedCustomFields;
 
-let rundown: NormalisedRundown = {};
+let normalisedRundown: NormalisedRundown = {};
 let order: EventID[] = [];
 let revision = 0;
 let isStale = true;
@@ -87,7 +87,7 @@ export function generate(
   // instead of maintaining logic to update it
 
   assignedCustomFields = {};
-  rundown = {};
+  normalisedRundown = {};
   order = [];
   links = {};
   firstStart = null;
@@ -167,7 +167,7 @@ export function generate(
     // add id to order
     order.push(currentEntry.id);
     // add entry to rundown
-    rundown[currentEntry.id] = currentEntry;
+    normalisedRundown[currentEntry.id] = currentEntry;
   }
 
   lastEnd = lastEntry?.timeEnd ?? null;
@@ -175,7 +175,7 @@ export function generate(
   customFieldChangelog.clear();
 
   //The return value is used for testing
-  return { rundown, order, links, totalDelay, totalDuration, assignedCustomFields };
+  return { rundown: normalisedRundown, order, links, totalDelay, totalDuration, assignedCustomFields };
 }
 
 /** Returns an ID guaranteed to be unique */
@@ -186,7 +186,7 @@ export function getUniqueId(): string {
   let id = '';
   do {
     id = generateId();
-  } while (Object.hasOwn(rundown, id));
+  } while (Object.hasOwn(normalisedRundown, id));
   return id;
 }
 
@@ -215,7 +215,7 @@ export function get(): Readonly<RundownCache> {
     generate();
   }
   return {
-    rundown,
+    rundown: normalisedRundown,
     order,
     revision,
     totalDelay,
@@ -334,7 +334,7 @@ type EditArgs = MutationParams<{ eventId: string; patch: Partial<OntimeRundownEn
  */
 export function edit({ rundown, eventId, patch }: EditArgs): Required<MutatingReturn> {
   const indexAt = rundown.findIndex((event) => event.id === eventId);
-
+  console.log(eventId, patch);
   if (indexAt < 0) {
     throw new Error('Event not found');
   }
@@ -344,8 +344,10 @@ export function edit({ rundown, eventId, patch }: EditArgs): Required<MutatingRe
   }
 
   const eventInMemory = rundown[indexAt];
+  console.log(eventInMemory);
+
   if (!hasChanges(eventInMemory, patch)) {
-    isStale = false;
+    isStale = isStale || false; // !!! only the generate function clears the state state
     return { newRundown: rundown, newEvent: eventInMemory, didMutate: false };
   }
 
@@ -361,7 +363,7 @@ export function edit({ rundown, eventId, patch }: EditArgs): Required<MutatingRe
     rundown[newEvent.id] = newEvent;
   }
 
-  isStale = makeStale;
+  isStale = isStale || makeStale; // !!! only the generate function clears the state state
   return { newRundown, newEvent, didMutate: true };
 }
 
