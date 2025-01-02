@@ -152,6 +152,7 @@ describe('safeMerge', () => {
         publicInfo: '',
         backstageUrl: '',
         backstageInfo: '',
+        projectLogo: null,
       },
       settings: {
         app: 'ontime',
