@@ -1,4 +1,4 @@
-import { insertAtIndex, reorderArray } from './arrayUtils.js';
+import { deleteAtIndex, insertAtIndex, reorderArray } from './arrayUtils.js';
 
 describe('insertAtIndex', () => {
   it('should insert an item at the beginning of the array', () => {
@@ -24,6 +24,39 @@ describe('insertAtIndex', () => {
     const result = insertAtIndex(1, 5, array);
     expect(result).toEqual([1, 5, 2, 3]);
     expect(array).toEqual([1, 2, 3]); // Original array should remain unchanged
+  });
+});
+
+describe('deleteAtIndex', () => {
+  it('should delete an item at the beginning of the array', () => {
+    const array = [1, 2, 3, 4];
+    const result = deleteAtIndex(0, array);
+    expect(result).toEqual([2, 3, 4]);
+  });
+
+  it('should delete an item at the end of the array', () => {
+    const array = [1, 2, 3, 4];
+    const result = deleteAtIndex(3, array);
+    expect(result).toEqual([1, 2, 3]);
+  });
+
+  it('should delete an item in the middle of the array', () => {
+    const array = [1, 2, 3, 4];
+    const result = deleteAtIndex(2, array);
+    expect(result).toEqual([1, 2, 4]);
+  });
+
+  it('should return a new array and not modify the original array', () => {
+    const array = [1, 2, 3, 4];
+    const result = deleteAtIndex(1, array);
+    expect(result).toEqual([1, 3, 4]);
+    expect(array).toEqual([1, 2, 3, 4]); // Original array should remain unchanged
+  });
+
+  it('should return the original array if the index is out of bounds', () => {
+    const array = [1, 2, 3, 4];
+    const result = deleteAtIndex(10, array);
+    expect(result).toEqual([1, 2, 3, 4]);
   });
 });
 

@@ -2,12 +2,21 @@ import { MessageState, runtimeStorePlaceholder } from 'ontime-types';
 import { DeepPartial } from 'ts-essentials';
 
 import { throttle } from '../../utils/throttle.js';
-import { eventStore, type PublishFn } from '../../stores/EventStore.js';
+import type { StoreGetter, PublishFn } from '../../stores/EventStore.js';
 
 /**
  * Create a throttled version of the set function
  */
-const throttledSet: PublishFn = throttle(eventStore.set, 100);
+let throttledSet: PublishFn = () => undefined;
+let storeGet: StoreGetter = (_key: string) => undefined;
+
+/**
+ * Allows providing store interfaces
+ */
+export function init(storeSetter: PublishFn, storeGetter: StoreGetter) {
+  throttledSet = throttle(storeSetter, 100);
+  storeGet = storeGetter;
+}
 
 /**
  * Exposes function to reset the internal state
@@ -22,7 +31,7 @@ export function clear() {
  * Exposes the internal state of the message service
  */
 export function getState(): MessageState {
-  return eventStore.get('message');
+  return storeGet('message');
 }
 
 /**
