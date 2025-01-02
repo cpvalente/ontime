@@ -6,7 +6,7 @@ import { ViewSettings } from 'ontime-types';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { postViewSettings } from '../../../../common/api/viewSettings';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
-import { PopoverPickerRHF } from '../../../../common/components/input/popover-picker/PopoverPicker';
+import { SwatchPickerRHF } from '../../../../common/components/input/colour-input/SwatchPicker';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -111,15 +111,15 @@ export default function ViewSettingsForm() {
           <Panel.ListGroup>
             <Panel.ListItem>
               <Panel.Field title='Timer colour' description='Default colour of a running timer' />
-              <PopoverPickerRHF name='normalColor' control={control} />
+              <SwatchPickerRHF name='normalColor' control={control} />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='Warning colour' description='Colour of a running timer in warning mode' />
-              <PopoverPickerRHF name='warningColor' control={control} />
+              <SwatchPickerRHF name='warningColor' control={control} />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='Danger colour' description='Colour of a running timer in danger mode' />
-              <PopoverPickerRHF name='dangerColor' control={control} />
+              <SwatchPickerRHF name='dangerColor' control={control} />
             </Panel.ListItem>
           </Panel.ListGroup>
           <Panel.ListGroup>
