@@ -41,7 +41,7 @@ function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | P
   const id = cache.getUniqueId();
 
   if (isOntimeEvent(eventData)) {
-    return createEvent(eventData, getCueCandidate(cache.getPersistedRundown(), afterId)) as CompleteEntry<T>;
+    return createEvent(eventData, getCueCandidate(cache.getCachedRundown(), afterId)) as CompleteEntry<T>;
   }
 
   if (isOntimeDelay(eventData)) {
@@ -79,7 +79,7 @@ export async function addEvent(eventData: EventPostPayload): Promise<OntimeRundo
     } else {
       atIndex = previousIndex;
       if (previousIndex > 0) {
-        afterId = cache.getPersistedRundown()[atIndex - 1].id;
+        afterId = cache.getCachedRundown()[atIndex - 1].id;
       }
     }
   }
