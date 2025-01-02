@@ -37,19 +37,17 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
 }
 
 export function rundownToDatabaseRundown(newData: OntimeRundown): DatabaseOntimeRundown {
-  const databaseRundown = newData.flatMap((entry) => {
+  const databaseRundown = newData.map((entry) => {
     const entryClone = structuredClone(entry);
     if (isOntimeEvent(entryClone)) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { delay, ...dbEvent } = entryClone;
       return dbEvent satisfies DatabaseOntimeEvent as DatabaseOntimeEvent;
     }
-    if (isOntimeBlock(entryClone)) {
+    if (isOntimeBlock(entryClone) || isOntimeDelay(entryClone)) {
       return entryClone;
     }
-    if (isOntimeDelay(entryClone)) {
-      return entryClone;
-    }
+    throw new Error('Unknown entry type');
   });
 
   return databaseRundown;
