@@ -76,7 +76,8 @@ export async function init(initialRundown: Readonly<DatabaseOntimeRundown>, cust
 }
 
 /**
- * Utility initialises cache
+ * Utility generate cache
+ * @private should not be called outside of `rundownCache.ts`
  */
 export function generate(
   initialRundown: DatabaseOntimeRundown | OntimeRundown = persistedRundown,
@@ -172,6 +173,8 @@ export function generate(
   lastEnd = lastEntry?.timeEnd ?? null;
   isStale = false;
   customFieldChangelog.clear();
+
+  //The return value is used for testing
   return { rundown, order, links, totalDelay, totalDuration, assignedCustomFields };
 }
 
@@ -461,37 +464,37 @@ function invalidateIfUsed(label: CustomFieldLabel) {
 /**
  * Utility for scheduling a non priority custom field persist
  */
-function scheduleCustomFieldPersist(persistedCustomFields: CustomFields) {
+function scheduleCustomFieldPersist() {
   setImmediate(async () => {
-    await getDataProvider().setCustomFields(persistedCustomFields);
+    await getDataProvider().setCustomFields(cachedCustomFields);
   });
 }
 
 /**
  * Sanitises and creates a custom field in the database
  */
-export const createCustomField = async (field: CustomField) => {
+export function createCustomField(field: CustomField): CustomFields {
   const { label, type, colour } = field;
   const key = customFieldLabelToKey(label);
   // check if label already exists
-  const alreadyExists = Object.hasOwn(cachedRundown, key);
+  const alreadyExists = Object.hasOwn(cachedCustomFields, key);
 
   if (alreadyExists) {
     throw new Error('Label already exists');
   }
 
   // update object and persist
-  cachedRundown[key] = { label, type, colour };
+  cachedCustomFields[key] = { label, type, colour };
 
-  scheduleCustomFieldPersist(cachedCustomFields);
+  scheduleCustomFieldPersist();
 
   return cachedCustomFields;
-};
+}
 
 /**
  * Edits an existing custom field in the database
  */
-export const editCustomField = async (key: string, newField: Partial<CustomField>) => {
+export function editCustomField(key: string, newField: Partial<CustomField>): CustomFields {
   if (!(key in cachedCustomFields)) {
     throw new Error('Could not find label');
   }
@@ -509,22 +512,22 @@ export const editCustomField = async (key: string, newField: Partial<CustomField
     customFieldChangelog.set(key, newKey);
   }
 
-  scheduleCustomFieldPersist(cachedCustomFields);
+  scheduleCustomFieldPersist();
   invalidateIfUsed(key);
 
   return cachedCustomFields;
-};
+}
 
 /**
  * Deletes a custom field from the database
  */
-export const removeCustomField = async (label: string) => {
+export function removeCustomField(label: string): CustomFields {
   if (label in cachedCustomFields) {
     delete cachedCustomFields[label];
   }
 
-  scheduleCustomFieldPersist(cachedCustomFields);
+  scheduleCustomFieldPersist();
   invalidateIfUsed(label);
 
   return cachedCustomFields;
-};
+}
