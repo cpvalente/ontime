@@ -38,14 +38,13 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
 
 export function rundownToDAO(newData: OntimeRundown): OntimeRundownDAO {
   const databaseRundown = newData.map((entry) => {
-    const entryClone = structuredClone(entry);
-    if (isOntimeEvent(entryClone)) {
+    if (isOntimeEvent(entry)) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { delay, ...dbEvent } = entryClone;
-      return dbEvent satisfies OntimeEventDAO as OntimeEventDAO;
+      const { delay, custom, ...eventDAO } = entry;
+      return { ...eventDAO, custom: { ...custom } } satisfies OntimeEventDAO as OntimeEventDAO;
     }
-    if (isOntimeBlock(entryClone) || isOntimeDelay(entryClone)) {
-      return entryClone;
+    if (isOntimeBlock(entry) || isOntimeDelay(entry)) {
+      return { ...entry };
     }
     throw new Error('Unknown entry type');
   });
