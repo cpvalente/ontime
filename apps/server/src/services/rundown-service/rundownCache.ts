@@ -109,7 +109,6 @@ export function generate(
   let lastEntry: PlayableEvent | null = null;
 
   for (let i = 0; i < initialRundown.length; i++) {
-    // TODO: filter properties that should not be persisted (eg: delay)
     // we assign a reference to the current entry, this will be mutated in place
     const currentEntry = initialRundown[i];
 
