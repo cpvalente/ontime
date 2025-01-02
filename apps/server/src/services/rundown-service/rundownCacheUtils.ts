@@ -32,7 +32,7 @@ export function getLink(currentIndex: number, rundown: OntimeRundownDAO): Ontime
 export function handleLink(
   currentIndex: number,
   rundown: OntimeRundownDAO,
-  mutableEvent: OntimeEvent,
+  mutableEvent: OntimeEventDAO,
   links: Record<string, string>,
 ): void {
   if (!mutableEvent.linkStart) {
@@ -80,7 +80,7 @@ export function addToCustomAssignment(
 export function handleCustomField(
   customFields: CustomFields,
   customFieldChangelog: Map<string, string>,
-  mutableEvent: OntimeEvent,
+  mutableEvent: OntimeEventDAO,
   assignedCustomFields: Record<string, string[]>,
 ) {
   for (const field in mutableEvent.custom) {
