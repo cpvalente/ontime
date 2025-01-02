@@ -14,7 +14,7 @@ export function getNormalisedRundown(): RundownCached {
  * returns entire unfiltered rundown
  */
 export function getRundown(): OntimeRundown {
-  return cache.getCachedRundown();
+  return cache.getPersistedRundown();
 }
 
 /**

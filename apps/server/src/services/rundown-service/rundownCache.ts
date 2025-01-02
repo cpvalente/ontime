@@ -30,14 +30,14 @@ import { handleCustomField, handleLink, hasChanges, isDataStale } from './rundow
 type EventID = string;
 type NormalisedRundown = Record<EventID, OntimeRundownEntry>;
 
-let cachedRundown: OntimeRundown = [];
-let cachedCustomFields: CustomFields = {};
+let persistedRundown: OntimeRundown = [];
+let persistedCustomFields: CustomFields = {};
 
 /**
  * Get the cached rundown without triggering regeneration
  */
-export const getCachedRundown = (): OntimeRundown => cachedRundown;
-export const getCustomFields = (): CustomFields => cachedCustomFields;
+export const getPersistedRundown = (): OntimeRundown => persistedRundown;
+export const getCustomFields = (): CustomFields => persistedCustomFields;
 
 let rundown: NormalisedRundown = {};
 let order: EventID[] = [];
@@ -263,7 +263,7 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
      */
     isStale = true;
 
-    const { newEvent, newRundown, didMutate } = mutation({ ...params, rundown: cachedRundown });
+    const { newEvent, newRundown, didMutate } = mutation({ ...params, rundown: persistedRundown });
 
     // early return without calling side effects
     if (!didMutate) {
@@ -272,7 +272,7 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
     }
 
     revision = revision + 1;
-    cachedRundown = newRundown;
+    persistedRundown = newRundown;
 
     // schedule a non priority cache update
     setImmediate(() => {
@@ -281,7 +281,7 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
 
     // defer writing to the database
     setImmediate(async () => {
-      await getDataProvider().setRundown(cachedRundown);
+      await getDataProvider().setRundown(persistedRundown);
     });
 
     return { newEvent, newRundown, didMutate };
@@ -457,7 +457,7 @@ function invalidateIfUsed(label: CustomFieldLabel) {
   // schedule a non priority cache update
   setImmediate(async () => {
     generate();
-    await getDataProvider().setRundown(cachedRundown);
+    await getDataProvider().setRundown(persistedRundown);
   });
 }
 
@@ -466,7 +466,7 @@ function invalidateIfUsed(label: CustomFieldLabel) {
  */
 function scheduleCustomFieldPersist() {
   setImmediate(async () => {
-    await getDataProvider().setCustomFields(cachedCustomFields);
+    await getDataProvider().setCustomFields(persistedCustomFields);
   });
 }
 
@@ -477,57 +477,57 @@ export function createCustomField(field: CustomField): CustomFields {
   const { label, type, colour } = field;
   const key = customFieldLabelToKey(label);
   // check if label already exists
-  const alreadyExists = Object.hasOwn(cachedCustomFields, key);
+  const alreadyExists = Object.hasOwn(persistedCustomFields, key);
 
   if (alreadyExists) {
     throw new Error('Label already exists');
   }
 
   // update object and persist
-  cachedCustomFields[key] = { label, type, colour };
+  persistedCustomFields[key] = { label, type, colour };
 
   scheduleCustomFieldPersist();
 
-  return cachedCustomFields;
+  return persistedCustomFields;
 }
 
 /**
  * Edits an existing custom field in the database
  */
 export function editCustomField(key: string, newField: Partial<CustomField>): CustomFields {
-  if (!(key in cachedCustomFields)) {
+  if (!(key in persistedCustomFields)) {
     throw new Error('Could not find label');
   }
 
-  const existingField = cachedCustomFields[key];
+  const existingField = persistedCustomFields[key];
   if (newField.type !== undefined && existingField.type !== newField.type) {
     throw new Error('Change of field type is not allowed');
   }
 
   const newKey = customFieldLabelToKey(newField.label);
-  cachedCustomFields[newKey] = { ...existingField, ...newField };
+  persistedCustomFields[newKey] = { ...existingField, ...newField };
 
   if (key !== newKey) {
-    delete cachedCustomFields[key];
+    delete persistedCustomFields[key];
     customFieldChangelog.set(key, newKey);
   }
 
   scheduleCustomFieldPersist();
   invalidateIfUsed(key);
 
-  return cachedCustomFields;
+  return persistedCustomFields;
 }
 
 /**
  * Deletes a custom field from the database
  */
 export function removeCustomField(label: string): CustomFields {
-  if (label in cachedCustomFields) {
-    delete cachedCustomFields[label];
+  if (label in persistedCustomFields) {
+    delete persistedCustomFields[label];
   }
 
   scheduleCustomFieldPersist();
   invalidateIfUsed(label);
 
-  return cachedCustomFields;
+  return persistedCustomFields;
 }
