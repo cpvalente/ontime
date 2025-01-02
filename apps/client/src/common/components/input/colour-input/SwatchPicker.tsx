@@ -12,6 +12,7 @@ interface SwatchPickerProps {
   color: string;
   isSelected?: boolean;
   onChange: (name: string) => void;
+  alwaysDisplayColor?: boolean;
 }
 
 const getIconColor = (color: string, isSelected: boolean) => {
@@ -28,11 +29,11 @@ const getIconColor = (color: string, isSelected: boolean) => {
 };
 
 export default function SwatchPicker(props: SwatchPickerProps) {
-  const { color, onChange, isSelected } = props;
+  const { color, onChange, isSelected, alwaysDisplayColor } = props;
 
   const classes = cx([style.swatch, isSelected ? style.selected : null, style.selectable]);
 
-  const iconColor = getIconColor(color, isSelected ?? false);
+  const iconColor = getIconColor(color, (alwaysDisplayColor || isSelected) ?? false);
 
   const debouncedOnChange = useCallback(
     debounce((newValue: string) => {
@@ -41,10 +42,12 @@ export default function SwatchPicker(props: SwatchPickerProps) {
     [onChange],
   );
 
+  const displayColor = alwaysDisplayColor || isSelected ? color : '';
+
   return (
     <div className={classes}>
       <PopoverPicker
-        color={isSelected ? color : ''}
+        color={displayColor}
         onChange={debouncedOnChange}
         icon={<IoEyedrop color={iconColor} />}
         hasInput

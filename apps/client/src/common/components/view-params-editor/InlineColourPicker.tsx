@@ -22,7 +22,8 @@ export default function InlineColourPicker(props: InlineColourPickerProps) {
 
   return (
     <div className={style.inline}>
-      <SwatchPicker color={colour} onChange={setColour} />
+      <SwatchPicker color={colour} onChange={setColour} alwaysDisplayColor />
+      <span>{colour}</span>
       <input type='hidden' name={name} value={colour} />
     </div>
   );
