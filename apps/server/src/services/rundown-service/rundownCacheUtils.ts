@@ -1,19 +1,18 @@
 import {
-  OntimeEvent,
   isOntimeEvent,
   CustomFieldLabel,
   CustomFields,
   OntimeRundownEntry,
   OntimeBaseEvent,
-  OntimeRundownDAO,
-  OntimeEventDAO,
+  OntimeEvent,
+  OntimeRundown,
 } from 'ontime-types';
 import { getLinkedTimes } from 'ontime-utils';
 
 /**
  * Get linked event
  */
-export function getLink(currentIndex: number, rundown: OntimeRundownDAO): OntimeEventDAO | null {
+export function getLink(currentIndex: number, rundown: OntimeRundown): OntimeEvent | null {
   // currently the link is the previous event
   for (let i = currentIndex - 1; i >= 0; i--) {
     const event = rundown[i];
@@ -31,8 +30,8 @@ export function getLink(currentIndex: number, rundown: OntimeRundownDAO): Ontime
  */
 export function handleLink(
   currentIndex: number,
-  rundown: OntimeRundownDAO,
-  mutableEvent: OntimeEventDAO,
+  rundown: OntimeRundown,
+  mutableEvent: OntimeEvent,
   links: Record<string, string>,
 ): void {
   if (!mutableEvent.linkStart) {
@@ -80,7 +79,7 @@ export function addToCustomAssignment(
 export function handleCustomField(
   customFields: CustomFields,
   customFieldChangelog: Map<string, string>,
-  mutableEvent: OntimeEventDAO,
+  mutableEvent: OntimeEvent,
   assignedCustomFields: Record<string, string[]>,
 ) {
   for (const field in mutableEvent.custom) {

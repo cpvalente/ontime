@@ -1,12 +1,12 @@
-import type { OntimeEventDAO } from 'ontime-types';
+import type { OntimeEvent } from 'ontime-types';
 import { TimeStrategy } from 'ontime-types';
 
 import { dayInMs } from '../date-utils/conversionUtils.js';
 import { validateTimeStrategy } from '../validate-events/validateEvent.js';
 
 export function getLinkedTimes(
-  target: OntimeEventDAO,
-  source: OntimeEventDAO,
+  target: OntimeEvent,
+  source: OntimeEvent,
 ): { timeStart: number; duration: number; timeEnd: number } {
   const lockEnd = target.timeStrategy === TimeStrategy.LockEnd;
   const lockDuration = target.timeStrategy === TimeStrategy.LockDuration;

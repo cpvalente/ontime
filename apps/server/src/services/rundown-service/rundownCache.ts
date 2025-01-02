@@ -79,9 +79,9 @@ export const customFieldChangelog = new Map<string, string>();
 let assignedCustomFields: Record<CustomFieldLabel, EventID[]> = {};
 
 export async function init(initialRundown: Readonly<OntimeRundownDAO>, customFields: Readonly<CustomFields>) {
-  const copyInitialRundown = structuredClone(initialRundown) as OntimeRundownDAO;
+  persistedRundown = structuredClone(initialRundown) as OntimeRundown; // we can cast out of the DAO type here since generate will ensure the conversion
   persistedCustomFields = structuredClone(customFields);
-  generate(copyInitialRundown);
+  generate();
   await getDataProvider().setRundown(persistedRundown);
   await getDataProvider().setCustomFields(customFields);
 }
@@ -91,7 +91,7 @@ export async function init(initialRundown: Readonly<OntimeRundownDAO>, customFie
  * @private should not be called outside of `rundownCache.ts`
  */
 export function generate(
-  initialRundown: OntimeRundownDAO = persistedRundown,
+  initialRundown: OntimeRundown = persistedRundown,
   customFields: CustomFields = persistedCustomFields,
 ) {
   // we decided to re-write this dataset for every change
@@ -112,8 +112,11 @@ export function generate(
     // we assign a reference to the current entry, this will be mutated in place
     const currentEntry = initialRundown[i];
 
-    //inside this if statement all conversions from the database type to the normal ontime type should be handled
     if (isOntimeEvent(currentEntry)) {
+      // inside this if statement all conversions from the database type to the normal ontime type should be handled
+      // all fields not present in the DAO object can safely be set to a default value as the generator will recalculate them
+      currentEntry.delay = 0;
+
       // 1. handle links - mutates updatedEvent
       handleLink(i, initialRundown, currentEntry, links);
 
@@ -159,8 +162,6 @@ export function generate(
         if (isNewLatest(currentEntry.timeStart, currentEntry.timeEnd, lastEntry?.timeStart, lastEntry?.timeEnd)) {
           lastEntry = currentEntry;
         }
-      } else {
-        currentEntry.delay = 0; //FIXME: what should be done about skipped events
       }
     } else if (isOntimeDelay(currentEntry)) {
       // calculate delays
