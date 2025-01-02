@@ -443,7 +443,7 @@ export function swap({ rundown, fromId, toId }: SwapArgs): MutatingReturn {
 }
 
 /**
- * Utility for invalidaing service cache if a custom field is used
+ * Utility for invalidating service cache if a custom field is used
  */
 function invalidateIfUsed(label: CustomFieldLabel) {
   if (label in assignedCustomFields) {
