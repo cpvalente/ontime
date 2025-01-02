@@ -80,7 +80,7 @@ export async function init(initialRundown: Readonly<OntimeRundownDAO>, customFie
  * @private should not be called outside of `rundownCache.ts`
  */
 export function generate(
-  initialRundown: OntimeRundownDAO | OntimeRundown = persistedRundown,
+  initialRundown: OntimeRundownDAO = persistedRundown,
   customFields: CustomFields = persistedCustomFields,
 ) {
   // we decided to re-write this dataset for every change
@@ -334,7 +334,6 @@ type EditArgs = MutationParams<{ eventId: string; patch: Partial<OntimeRundownEn
  */
 export function edit({ rundown, eventId, patch }: EditArgs): Required<MutatingReturn> {
   const indexAt = rundown.findIndex((event) => event.id === eventId);
-  console.log(eventId, patch);
   if (indexAt < 0) {
     throw new Error('Event not found');
   }
@@ -344,7 +343,6 @@ export function edit({ rundown, eventId, patch }: EditArgs): Required<MutatingRe
   }
 
   const eventInMemory = rundown[indexAt];
-  console.log(eventInMemory);
 
   if (!hasChanges(eventInMemory, patch)) {
     isStale = isStale || false; // !!! only the generate function clears the state state
@@ -360,7 +358,7 @@ export function edit({ rundown, eventId, patch }: EditArgs): Required<MutatingRe
   const makeStale = isDataStale(patch);
 
   if (!makeStale) {
-    rundown[newEvent.id] = newEvent;
+    normalisedRundown[newEvent.id] = newEvent;
   }
 
   isStale = isStale || makeStale; // !!! only the generate function clears the state state
@@ -478,6 +476,11 @@ function scheduleCustomFieldPersist() {
 export function createCustomField(field: CustomField): CustomFields {
   const { label, type, colour } = field;
   const key = customFieldLabelToKey(label);
+
+  if (key === null) {
+    throw new Error('Unable to convert label to a valid key');
+  }
+
   // check if label already exists
   const alreadyExists = Object.hasOwn(persistedCustomFields, key);
 
@@ -506,7 +509,14 @@ export function editCustomField(key: string, newField: Partial<CustomField>): Cu
     throw new Error('Change of field type is not allowed');
   }
 
+  if (newField.label === undefined) {
+    throw new Error('Missing label');
+  }
+
   const newKey = customFieldLabelToKey(newField.label);
+  if (newKey === null) {
+    throw new Error('Unable to convert label to a valid key');
+  }
   persistedCustomFields[newKey] = { ...existingField, ...newField };
 
   if (key !== newKey) {
