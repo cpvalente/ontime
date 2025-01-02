@@ -100,7 +100,7 @@ export function generate(
     // we assign a reference to the current entry, this will be mutated in place
     const currentEntry = initialRundown[i];
 
-    //inside this if block all conversions from the database type to the normal onime type should be handled
+    //inside this if statement all conversions from the database type to the normal ontime type should be handled
     if (isOntimeEvent(currentEntry)) {
       // 1. handle links - mutates updatedEvent
       handleLink(i, initialRundown, currentEntry, links);
