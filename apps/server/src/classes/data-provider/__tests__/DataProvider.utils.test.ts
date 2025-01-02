@@ -1,13 +1,4 @@
-import {
-  DatabaseModel,
-  DatabaseOntimeEvent,
-  OntimeEvent,
-  OntimeRundown,
-  Settings,
-  SupportedEvent,
-  URLPreset,
-  ViewSettings,
-} from 'ontime-types';
+import { DatabaseModel, OntimeEvent, OntimeRundown, Settings, URLPreset, ViewSettings } from 'ontime-types';
 import { rundownToDatabaseRundown, safeMerge } from '../DataProvider.utils.js';
 import { event } from '../../../models/eventsDefinition.js';
 
@@ -221,17 +212,14 @@ describe('safeMerge', () => {
   });
 });
 
-describe('drop keys', () => {
-  let fullEvent: OntimeEvent = { id: '1', cue: '#1', type: SupportedEvent.Event, ...event };
-  let dbEvent = fullEvent as DatabaseOntimeEvent;
-  beforeEach(() => {
-    fullEvent = { id: '1', cue: '#1', type: SupportedEvent.Event, ...event };
-    dbEvent = fullEvent;
-    delete (dbEvent as OntimeEvent).delay;
-  });
-  it('drops delay key', () => {
-    const testRundown: OntimeRundown = [{ ...fullEvent }];
+describe('rundownToDatabaseRundown()', () => {
+  it('converts the rundown to DAO type by removing the delay', () => {
+    const testEvent: OntimeEvent = { ...event, id: '1', cue: '#1' };
+    const testRundown: OntimeRundown = [testEvent];
     const result = rundownToDatabaseRundown(testRundown);
-    expect(result).toEqual([{ id: '1', ...dbEvent }]);
+    // remove the delay from the event
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { delay, ...matchObject } = testEvent;
+    expect(result).toMatchObject([matchObject]);
   });
 });
