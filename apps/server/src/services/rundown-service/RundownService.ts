@@ -10,7 +10,7 @@ import {
   isOntimeEvent,
   PatchWithId,
   EventPostPayload,
-  DatabaseOntimeRundown,
+  OntimeRundownDAO,
 } from 'ontime-types';
 import { getCueCandidate } from 'ontime-utils';
 
@@ -278,7 +278,7 @@ function notifyChanges(options: NotifyChangesOptions) {
  * Overrides the rundown with the given
  * @param rundown
  */
-export async function initRundown(rundown: Readonly<DatabaseOntimeRundown>, customFields: Readonly<CustomFields>) {
+export async function initRundown(rundown: Readonly<OntimeRundownDAO>, customFields: Readonly<CustomFields>) {
   await cache.init(rundown, customFields);
 
   // notify runtime that rundown has changed

@@ -1,5 +1,5 @@
 import { DatabaseModel, OntimeEvent, OntimeRundown, Settings, URLPreset, ViewSettings } from 'ontime-types';
-import { rundownToDatabaseRundown, safeMerge } from '../DataProvider.utils.js';
+import { rundownToDAO, safeMerge } from '../DataProvider.utils.js';
 import { event } from '../../../models/eventsDefinition.js';
 
 describe('safeMerge', () => {
@@ -216,7 +216,7 @@ describe('rundownToDatabaseRundown()', () => {
   it('converts the rundown to DAO type by removing the delay', () => {
     const testEvent: OntimeEvent = { ...event, id: '1', cue: '#1' };
     const testRundown: OntimeRundown = [testEvent];
-    const result = rundownToDatabaseRundown(testRundown);
+    const result = rundownToDAO(testRundown);
     // remove the delay from the event
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { delay, ...matchObject } = testEvent;

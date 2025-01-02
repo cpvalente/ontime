@@ -1,9 +1,18 @@
-import type { DatabaseOntimeEvent, OntimeBlock, OntimeDelay, OntimeEvent } from './OntimeEvent.type.js';
+import type { OntimeBlock, OntimeDelay, OntimeEvent, OntimeEventDAO } from './OntimeEvent.type.js';
 
 export type OntimeRundownEntry = OntimeDelay | OntimeBlock | OntimeEvent;
-export type DatabaseOntimeRundownEntry = OntimeDelay | OntimeBlock | DatabaseOntimeEvent;
 export type OntimeRundown = OntimeRundownEntry[];
-export type DatabaseOntimeRundown = DatabaseOntimeRundownEntry[];
+
+/**
+ * This is the Data Accese type for `OntimeRundownEntry`
+ * and is used when a rundonw is stored in the database
+ */
+export type OntimeRundownEntryDAO = OntimeDelay | OntimeBlock | OntimeEventDAO;
+/**
+ * This is the Data Accese type for `OntimeRundown`
+ * and is used when a rundonw is stored in the database
+ */
+export type OntimeRundownDAO = OntimeRundownEntryDAO[];
 
 // we need to create a manual union type since keys cannot be used in type unions
 export type OntimeEntryCommonKeys = keyof OntimeEvent | keyof OntimeDelay | keyof OntimeBlock;

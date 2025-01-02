@@ -44,7 +44,11 @@ export type OntimeEvent = OntimeBaseEvent & {
   custom: EventCustomFields;
 };
 
-export type DatabaseOntimeEvent = Omit<OntimeEvent, 'delay'>;
+/**
+ * This is the Data Accese type for `OntimeEvent`
+ * and is used when a rundonw is stored in the database
+ */
+export type OntimeEventDAO = Omit<OntimeEvent, 'delay'>;
 
 export type PlayableEvent = OntimeEvent & { skip: false };
 export type TimeField = 'timeStart' | 'timeEnd' | 'duration';

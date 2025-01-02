@@ -2,7 +2,7 @@ import {
   CustomField,
   CustomFieldLabel,
   CustomFields,
-  DatabaseOntimeRundown,
+  OntimeRundownDAO,
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
@@ -67,8 +67,8 @@ export const customFieldChangelog = new Map<string, string>();
  */
 let assignedCustomFields: Record<CustomFieldLabel, EventID[]> = {};
 
-export async function init(initialRundown: Readonly<DatabaseOntimeRundown>, customFields: Readonly<CustomFields>) {
-  const copyInitialRundown = structuredClone(initialRundown) as DatabaseOntimeRundown;
+export async function init(initialRundown: Readonly<OntimeRundownDAO>, customFields: Readonly<CustomFields>) {
+  const copyInitialRundown = structuredClone(initialRundown) as OntimeRundownDAO;
   persistedCustomFields = structuredClone(customFields);
   generate(copyInitialRundown);
   await getDataProvider().setRundown(persistedRundown);
@@ -80,7 +80,7 @@ export async function init(initialRundown: Readonly<DatabaseOntimeRundown>, cust
  * @private should not be called outside of `rundownCache.ts`
  */
 export function generate(
-  initialRundown: DatabaseOntimeRundown | OntimeRundown = persistedRundown,
+  initialRundown: OntimeRundownDAO | OntimeRundown = persistedRundown,
   customFields: CustomFields = persistedCustomFields,
 ) {
   // we decided to re-write this dataset for every change

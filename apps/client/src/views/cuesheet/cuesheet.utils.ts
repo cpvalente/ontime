@@ -1,11 +1,11 @@
 import { stringify } from 'csv-stringify/browser/esm/sync';
 import {
   CustomFields,
-  DatabaseOntimeRundown,
   isOntimeDelay,
   isOntimeEvent,
   MaybeNumber,
   OntimeEntryCommonKeys,
+  OntimeRundownDAO,
   ProjectData,
 } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
@@ -34,13 +34,13 @@ export const parseField = (field: CsvHeaderKey, data: unknown): string => {
 /**
  * @description Creates an array of arrays usable by xlsx for export
  * @param {ProjectData} headerData
- * @param {OntimeRundown} rundown
+ * @param {OntimeRundownDAO} rundown
  * @param {CustomFields} customFields
  * @return {(string[])[]}
  */
 export const makeTable = (
   headerData: ProjectData,
-  rundown: DatabaseOntimeRundown,
+  rundown: OntimeRundownDAO,
   customFields: CustomFields,
 ): string[][] => {
   // create metadata header row

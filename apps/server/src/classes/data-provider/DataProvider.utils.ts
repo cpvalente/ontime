@@ -1,7 +1,7 @@
 import {
   DatabaseModel,
-  DatabaseOntimeEvent,
-  DatabaseOntimeRundown,
+  OntimeEventDAO,
+  OntimeRundownDAO,
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
@@ -36,13 +36,13 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
   };
 }
 
-export function rundownToDatabaseRundown(newData: OntimeRundown): DatabaseOntimeRundown {
+export function rundownToDAO(newData: OntimeRundown): OntimeRundownDAO {
   const databaseRundown = newData.map((entry) => {
     const entryClone = structuredClone(entry);
     if (isOntimeEvent(entryClone)) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { delay, ...dbEvent } = entryClone;
-      return dbEvent satisfies DatabaseOntimeEvent as DatabaseOntimeEvent;
+      return dbEvent satisfies OntimeEventDAO as OntimeEventDAO;
     }
     if (isOntimeBlock(entryClone) || isOntimeDelay(entryClone)) {
       return entryClone;
