@@ -1,4 +1,6 @@
 import { HTMLAttributes, ReactNode } from 'react';
+import { Button } from '@chakra-ui/react';
+import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 
 import { cx } from '../../../common/utils/styleUtils';
 
@@ -22,10 +24,19 @@ type SectionProps<C extends AllowedTags> = {
   children: ReactNode;
 } & JSX.IntrinsicElements[C];
 
-export function Section<C extends AllowedTags = 'div'>({ as, children, ...props }: SectionProps<C>) {
+export function Section<C extends AllowedTags = 'div'>({ as, className, children, ...props }: SectionProps<C>) {
   const Element = as ?? 'div';
   return (
-    <Element className={style.section} {...(props as HTMLAttributes<HTMLElement>)}>
+    <Element className={cx([style.section, className])} {...(props as HTMLAttributes<HTMLElement>)}>
+      {children}
+    </Element>
+  );
+}
+
+export function Indent<C extends AllowedTags = 'div'>({ as, className, children, ...props }: SectionProps<C>) {
+  const Element = as ?? 'div';
+  return (
+    <Element className={cx([style.indent, className])} {...(props as HTMLAttributes<HTMLElement>)}>
       {children}
     </Element>
   );
@@ -52,8 +63,21 @@ export function Table({ className, children }: { className?: string; children: R
   );
 }
 
-export function ListGroup({ children }: { children: ReactNode }) {
-  return <ul className={style.listGroup}>{children}</ul>;
+export function TableEmpty({ handleClick }: { handleClick: () => void }) {
+  return (
+    <tr className={style.empty}>
+      <td colSpan={99}>
+        <div>No data yet</div>
+        <Button onClick={handleClick} variant='ontime-subtle' rightIcon={<IoAdd />} size='sm'>
+          New
+        </Button>
+      </td>
+    </tr>
+  );
+}
+
+export function ListGroup({ className, children }: { className?: string; children: ReactNode }) {
+  return <ul className={cx([style.listGroup, className])}>{children}</ul>;
 }
 
 export function ListItem({ children }: { children: ReactNode }) {

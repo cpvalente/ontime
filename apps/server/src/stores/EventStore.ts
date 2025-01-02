@@ -3,6 +3,7 @@ import { RuntimeStore } from 'ontime-types';
 import { socket } from '../adapters/WebsocketAdapter.js';
 
 export type PublishFn = <T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) => void;
+export type StoreGetter = <T extends keyof RuntimeStore>(key: T) => Partial<RuntimeStore>[T];
 
 let store: Partial<RuntimeStore> = {};
 
