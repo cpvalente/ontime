@@ -34,7 +34,7 @@ let cachedRundown: OntimeRundown = [];
 let cachedCustomFields: CustomFields = {};
 
 /**
- * Will not triggering a regeneration
+ * Get the cached rundown without triggering regeneration
  */
 export const getCachedRundown = (): OntimeRundown => cachedRundown;
 export const getCustomFields = (): CustomFields => cachedCustomFields;
@@ -77,7 +77,6 @@ export async function init(initialRundown: Readonly<DatabaseOntimeRundown>, cust
 
 /**
  * Utility initialises cache
- * @param rundown
  */
 export function generate(
   initialRundown: DatabaseOntimeRundown | OntimeRundown = persistedRundown,
@@ -406,14 +405,18 @@ export function reorder({ rundown, eventId, from, to }: ReorderArgs): Required<M
 }
 
 type ApplyDelayArgs = MutationParams<{ eventId: string }>;
-
+/**
+ * Apply a delay
+ */
 export function applyDelay({ rundown, eventId }: ApplyDelayArgs): MutatingReturn {
   const newRundown = apply(eventId, rundown);
   return { newRundown, didMutate: true };
 }
 
 type SwapArgs = MutationParams<{ fromId: string; toId: string }>;
-
+/**
+ * Swap two entries
+ */
 export function swap({ rundown, fromId, toId }: SwapArgs): MutatingReturn {
   const indexA = rundown.findIndex((event) => event.id === fromId);
   const eventA = rundown.at(indexA);
@@ -437,8 +440,7 @@ export function swap({ rundown, fromId, toId }: SwapArgs): MutatingReturn {
 }
 
 /**
- * Invalidates service cache if a custom field is used
- * @param label
+ * Utility for invalidaing service cache if a custom field is used
  */
 function invalidateIfUsed(label: CustomFieldLabel) {
   if (label in assignedCustomFields) {
@@ -457,8 +459,7 @@ function invalidateIfUsed(label: CustomFieldLabel) {
 }
 
 /**
- * Schedules a non priority custom field persist
- * @param persistedCustomFields
+ * Utility for scheduling a non priority custom field persist
  */
 function scheduleCustomFieldPersist(persistedCustomFields: CustomFields) {
   setImmediate(async () => {
@@ -468,8 +469,6 @@ function scheduleCustomFieldPersist(persistedCustomFields: CustomFields) {
 
 /**
  * Sanitises and creates a custom field in the database
- * @param field
- * @returns
  */
 export const createCustomField = async (field: CustomField) => {
   const { label, type, colour } = field;
@@ -491,9 +490,6 @@ export const createCustomField = async (field: CustomField) => {
 
 /**
  * Edits an existing custom field in the database
- * @param key
- * @param newField
- * @returns
  */
 export const editCustomField = async (key: string, newField: Partial<CustomField>) => {
   if (!(key in cachedCustomFields)) {
@@ -521,7 +517,6 @@ export const editCustomField = async (key: string, newField: Partial<CustomField
 
 /**
  * Deletes a custom field from the database
- * @param label
  */
 export const removeCustomField = async (label: string) => {
   if (label in cachedCustomFields) {
