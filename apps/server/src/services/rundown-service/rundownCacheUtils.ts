@@ -1,19 +1,19 @@
 import {
   OntimeEvent,
   isOntimeEvent,
-  OntimeRundown,
   CustomFieldLabel,
   CustomFields,
   OntimeRundownEntry,
   OntimeBaseEvent,
   OntimeRundownDAO,
+  OntimeEventDAO,
 } from 'ontime-types';
 import { getLinkedTimes } from 'ontime-utils';
 
 /**
  * Get linked event
  */
-export function getLink(currentIndex: number, rundown: OntimeRundown | OntimeRundownDAO): OntimeEvent | null {
+export function getLink(currentIndex: number, rundown: OntimeRundownDAO): OntimeEventDAO | null {
   // currently the link is the previous event
   for (let i = currentIndex - 1; i >= 0; i--) {
     const event = rundown[i];
@@ -31,7 +31,7 @@ export function getLink(currentIndex: number, rundown: OntimeRundown | OntimeRun
  */
 export function handleLink(
   currentIndex: number,
-  rundown: OntimeRundown | OntimeRundownDAO, //We can accept both types as we dont care about delay
+  rundown: OntimeRundownDAO,
   mutableEvent: OntimeEvent,
   links: Record<string, string>,
 ): void {
@@ -87,7 +87,7 @@ export function handleCustomField(
     // rename the property if it is in the changelog
     if (customFieldChangelog.has(field)) {
       const oldData = mutableEvent.custom[field];
-      const newLabel = customFieldChangelog.get(field);
+      const newLabel = customFieldChangelog.get(field) as string; // it os OK to cast to string here since we already checked that it existed
 
       mutableEvent.custom[newLabel] = oldData;
       delete mutableEvent.custom[field];
@@ -144,6 +144,6 @@ export function willCauseRegeneration(key: keyof OntimeEvent): boolean {
  */
 export function hasChanges<T extends OntimeBaseEvent>(existingEvent: T, newEvent: Partial<T>): boolean {
   return Object.keys(newEvent).some(
-    (key) => !Object.hasOwn(existingEvent, key) || existingEvent[key] !== newEvent[key],
+    (key) => !Object.hasOwn(existingEvent, key) || existingEvent[key as keyof T] !== newEvent[key as keyof T],
   );
 }
