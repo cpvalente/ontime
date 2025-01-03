@@ -4,13 +4,13 @@ export type OntimeRundownEntry = OntimeDelay | OntimeBlock | OntimeEvent;
 export type OntimeRundown = OntimeRundownEntry[];
 
 /**
- * This is the Data Accese type for `OntimeRundownEntry`
- * and is used when a rundonw is stored in the database
+ * This is the Data Access type for `OntimeRundownEntry`
+ * and is used when a rundown is stored in the database
  */
 export type OntimeRundownEntryDAO = OntimeDelay | OntimeBlock | OntimeEventDAO;
 /**
- * This is the Data Accese type for `OntimeRundown`
- * and is used when a rundonw is stored in the database
+ * This is the Data Access type for `OntimeRundown`
+ * and is used when a rundown is stored in the database
  */
 export type OntimeRundownDAO = OntimeRundownEntryDAO[];
 
