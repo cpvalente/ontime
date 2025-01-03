@@ -8,6 +8,7 @@ import {
   CustomFields,
   HttpSettings,
   URLPreset,
+  OntimeRundownDAO,
 } from 'ontime-types';
 
 import type { Low } from 'lowdb';
@@ -17,7 +18,7 @@ import { isPath } from '../../utils/fileManagement.js';
 import { shouldCrashDev } from '../../utils/development.js';
 import { isTest } from '../../externals.js';
 
-import { safeMerge } from './DataProvider.utils.js';
+import { rundownToDAO, safeMerge } from './DataProvider.utils.js';
 
 type ReadonlyPromise<T> = Promise<Readonly<T>>;
 
@@ -85,8 +86,8 @@ function getCustomFields(): Readonly<CustomFields> {
   return db.data.customFields;
 }
 
-async function setRundown(newData: OntimeRundown): ReadonlyPromise<OntimeRundown> {
-  db.data.rundown = [...newData];
+async function setRundown(newData: OntimeRundown): ReadonlyPromise<OntimeRundownDAO> {
+  db.data.rundown = rundownToDAO(newData);
   await persist();
   return db.data.rundown;
 }
@@ -141,7 +142,7 @@ async function setHttp(newData: HttpSettings): ReadonlyPromise<HttpSettings> {
   return db.data.http;
 }
 
-function getRundown(): Readonly<OntimeRundown> {
+function getRundown(): Readonly<OntimeRundownDAO> {
   return db.data.rundown;
 }
 

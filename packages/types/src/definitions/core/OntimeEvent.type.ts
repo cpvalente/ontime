@@ -38,11 +38,17 @@ export type OntimeEvent = OntimeBaseEvent & {
   skip: boolean;
   colour: string;
   revision: number;
-  delay?: number; // calculated at runtime
+  delay: number; // calculated at runtime
   timeWarning: number;
   timeDanger: number;
   custom: EventCustomFields;
 };
+
+/**
+ * This is the Data Access type for `OntimeEvent`
+ * and is used when a rundown is stored in the database
+ */
+export type OntimeEventDAO = Omit<OntimeEvent, 'delay'>;
 
 export type PlayableEvent = OntimeEvent & { skip: false };
 export type TimeField = 'timeStart' | 'timeEnd' | 'duration';

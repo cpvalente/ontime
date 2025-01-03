@@ -5,6 +5,7 @@ export type { DatabaseModel } from './definitions/DataModel.type.js';
 export { EndAction } from './definitions/EndAction.type.js';
 export {
   type OntimeBaseEvent,
+  type OntimeEventDAO,
   type OntimeDelay,
   type OntimeBlock,
   type OntimeEvent,
@@ -12,7 +13,13 @@ export {
   type TimeField,
   SupportedEvent,
 } from './definitions/core/OntimeEvent.type.js';
-export type { OntimeEntryCommonKeys, OntimeRundown, OntimeRundownEntry } from './definitions/core/Rundown.type.js';
+export type {
+  OntimeEntryCommonKeys,
+  OntimeRundown,
+  OntimeRundownEntry,
+  OntimeRundownEntryDAO,
+  OntimeRundownDAO,
+} from './definitions/core/Rundown.type.js';
 export { TimeStrategy } from './definitions/TimeStrategy.type.js';
 export { TimerType } from './definitions/TimerType.type.js';
 

@@ -24,6 +24,7 @@ export const cloneEvent = (event: OntimeEvent): ClonedEvent => {
     skip: event.skip,
     colour: event.colour,
     revision: 0,
+    delay: 0,
     timeWarning: event.timeWarning,
     timeDanger: event.timeDanger,
     custom: {},
