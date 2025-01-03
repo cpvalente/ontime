@@ -8,6 +8,7 @@ import {
   CustomFields,
   HttpSettings,
   URLPreset,
+  AutomationSettings,
 } from 'ontime-types';
 
 import type { Low } from 'lowdb';
@@ -56,6 +57,8 @@ export function getDataProvider() {
     setViewSettings,
     setOsc,
     setHttp,
+    getAutomation,
+    setAutomation,
     getRundown,
     mergeIntoData,
   };
@@ -137,8 +140,19 @@ async function setOsc(newData: OSCSettings): ReadonlyPromise<OSCSettings> {
 
 async function setHttp(newData: HttpSettings): ReadonlyPromise<HttpSettings> {
   db.data.http = { ...newData };
+
   await persist();
   return db.data.http;
+}
+
+function getAutomation(): Readonly<AutomationSettings> {
+  return db.data.automation;
+}
+
+async function setAutomation(newData: AutomationSettings): ReadonlyPromise<AutomationSettings> {
+  db.data.automation = { ...newData };
+  await persist();
+  return db.data.automation;
 }
 
 function getRundown(): Readonly<OntimeRundown> {
@@ -150,6 +164,7 @@ async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<D
   db.data.project = mergedData.project;
   db.data.settings = mergedData.settings;
   db.data.viewSettings = mergedData.viewSettings;
+  db.data.automation = mergedData.automation;
   db.data.osc = mergedData.osc;
   db.data.http = mergedData.http;
   db.data.urlPresets = mergedData.urlPresets;

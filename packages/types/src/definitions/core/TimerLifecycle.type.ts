@@ -11,3 +11,5 @@ export enum TimerLifeCycle {
 }
 
 export type TimerLifeCycleKey = keyof typeof TimerLifeCycle;
+
+export const timerLifecycleValues = Object.keys(TimerLifeCycle);
