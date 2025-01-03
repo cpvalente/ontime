@@ -39,7 +39,7 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
 export function rundownToDAO(newData: OntimeRundown): OntimeRundownDAO {
   const databaseRundown = newData.map((entry) => {
     if (isOntimeEvent(entry)) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- we use destructuring to remove unwanted keys
       const { delay, custom, ...eventDAO } = entry;
       return { ...eventDAO, custom: { ...custom } } satisfies OntimeEventDAO as OntimeEventDAO;
     }
