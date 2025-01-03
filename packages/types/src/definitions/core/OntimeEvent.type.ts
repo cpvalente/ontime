@@ -45,8 +45,8 @@ export type OntimeEvent = OntimeBaseEvent & {
 };
 
 /**
- * This is the Data Accese type for `OntimeEvent`
- * and is used when a rundonw is stored in the database
+ * This is the Data Access type for `OntimeEvent`
+ * and is used when a rundown is stored in the database
  */
 export type OntimeEventDAO = Omit<OntimeEvent, 'delay'>;
 
