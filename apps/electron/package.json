@@ -13,7 +13,7 @@
   "main": "src/main.js",
   "devDependencies": {
     "electron": "^31.2.0",
-    "electron-builder": "^24.13.3",
+    "electron-builder": "^25.1.8",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
     "prettier": "catalog:",
