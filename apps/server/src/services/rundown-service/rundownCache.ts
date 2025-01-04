@@ -49,10 +49,10 @@ let revision = 0;
  */
 let isStale = true;
 
-/** Allows safely setting the stale state without accedentaly clearing it */
-const setIsStale = (newValue: boolean) => {
-  isStale = isStale || newValue;
-};
+/** Allows safely setting the stale state without accidentally clearing it */
+function setIsStale() {
+  isStale = true;
+}
 
 let totalDelay = 0;
 let totalDuration = 0;
@@ -94,6 +94,10 @@ export function generate(
   initialRundown: OntimeRundown = persistedRundown,
   customFields: CustomFields = persistedCustomFields,
 ) {
+  function clearIsStale() {
+    isStale = false;
+  }
+
   // we decided to re-write this dataset for every change
   // instead of maintaining logic to update it
 
@@ -182,7 +186,7 @@ export function generate(
   }
 
   lastEnd = lastEntry?.timeEnd ?? null;
-  isStale = false;
+  clearIsStale();
   customFieldChangelog.clear();
 
   //The return value is used for testing
@@ -300,7 +304,7 @@ type AddArgs = MutationParams<{ atIndex: number; event: OntimeRundownEntry }>;
 export function add({ rundown, atIndex, event }: AddArgs): Required<MutatingReturn> {
   const newEvent: OntimeRundownEntry = { ...event };
   const newRundown = insertAtIndex(atIndex, newEvent, rundown);
-  setIsStale(true);
+  setIsStale();
   return { newRundown, newEvent, didMutate: true };
 }
 
@@ -311,12 +315,12 @@ type RemoveArgs = MutationParams<{ eventIds: string[] }>;
 export function remove({ rundown, eventIds }: RemoveArgs): MutatingReturn {
   const newRundown = rundown.filter((event) => !eventIds.includes(event.id));
   const didMutate = rundown.length !== newRundown.length;
-  setIsStale(didMutate);
+  if (didMutate) setIsStale();
   return { newRundown, didMutate };
 }
 
 export function removeAll(): MutatingReturn {
-  setIsStale(true);
+  setIsStale();
   return { newRundown: [], didMutate: true };
 }
 
@@ -361,11 +365,12 @@ export function edit({ rundown, eventId, patch }: EditArgs): Required<MutatingRe
   // check whether the data warrants recalculation of cache
   const makeStale = isDataStale(patch);
 
-  if (!makeStale) {
+  if (makeStale) {
+    setIsStale();
+  } else {
     normalisedRundown[newEvent.id] = newEvent;
   }
 
-  setIsStale(makeStale);
   return { newRundown, newEvent, didMutate: true };
 }
 
@@ -388,7 +393,7 @@ export function batchEdit({ rundown, eventIds, patch }: BatchEditArgs): Mutating
       newRundown.push(rundown[i]);
     }
   }
-  setIsStale(true);
+  setIsStale();
   return { newRundown, didMutate: true };
 }
 
@@ -409,7 +414,7 @@ export function reorder({ rundown, eventId, from, to }: ReorderArgs): Required<M
       event.revision += 1;
     }
   }
-  setIsStale(true);
+  setIsStale();
   return { newRundown, newEvent: newRundown.at(from) as OntimeRundownEntry, didMutate: true };
 }
 
@@ -419,7 +424,7 @@ type ApplyDelayArgs = MutationParams<{ eventId: string }>;
  */
 export function applyDelay({ rundown, eventId }: ApplyDelayArgs): MutatingReturn {
   const newRundown = apply(eventId, rundown);
-  setIsStale(true);
+  setIsStale();
   return { newRundown, didMutate: true };
 }
 
@@ -446,7 +451,7 @@ export function swap({ rundown, fromId, toId }: SwapArgs): MutatingReturn {
   newRundown[indexB] = newB;
   (newRundown[indexB] as OntimeEvent).revision += 1;
 
-  setIsStale(true);
+  setIsStale();
   return { newRundown, didMutate: true };
 }
 
@@ -455,11 +460,11 @@ export function swap({ rundown, fromId, toId }: SwapArgs): MutatingReturn {
  */
 function invalidateIfUsed(label: CustomFieldLabel) {
   if (label in assignedCustomFields) {
-    setIsStale(true);
+    setIsStale();
   }
   // if the field was in use, we mark the cache as stale
   if (label in assignedCustomFields) {
-    setIsStale(true);
+    setIsStale();
   }
   // ... and schedule a cache update
   // schedule a non priority cache update
