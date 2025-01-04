@@ -5,7 +5,7 @@ import {
   isOntimeEvent,
   MaybeNumber,
   OntimeEntryCommonKeys,
-  OntimeRundownDAO,
+  OntimeRundown,
   ProjectData,
 } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
@@ -34,15 +34,11 @@ export const parseField = (field: CsvHeaderKey, data: unknown): string => {
 /**
  * @description Creates an array of arrays usable by xlsx for export
  * @param {ProjectData} headerData
- * @param {OntimeRundownDAO} rundown
+ * @param {OntimeRundown} rundown
  * @param {CustomFields} customFields
  * @return {(string[])[]}
  */
-export const makeTable = (
-  headerData: ProjectData,
-  rundown: OntimeRundownDAO,
-  customFields: CustomFields,
-): string[][] => {
+export const makeTable = (headerData: ProjectData, rundown: OntimeRundown, customFields: CustomFields): string[][] => {
   // create metadata header row
   const data = [['Ontime · Rundown export']];
   if (headerData.title) data.push([`Project title: ${headerData.title}`]);

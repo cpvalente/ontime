@@ -2,7 +2,6 @@ import {
   CustomField,
   CustomFieldLabel,
   CustomFields,
-  OntimeRundownDAO,
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
@@ -78,8 +77,8 @@ export const customFieldChangelog = new Map<string, string>();
  */
 let assignedCustomFields: Record<CustomFieldLabel, EventID[]> = {};
 
-export async function init(initialRundown: Readonly<OntimeRundownDAO>, customFields: Readonly<CustomFields>) {
-  persistedRundown = structuredClone(initialRundown) as OntimeRundown; // we can cast out of the DAO type here since generate will ensure the conversion
+export async function init(initialRundown: Readonly<OntimeRundown>, customFields: Readonly<CustomFields>) {
+  persistedRundown = structuredClone(initialRundown) as OntimeRundown;
   persistedCustomFields = structuredClone(customFields);
   generate();
   await getDataProvider().setRundown(persistedRundown);
@@ -117,8 +116,6 @@ export function generate(
     const currentEntry = initialRundown[i];
 
     if (isOntimeEvent(currentEntry)) {
-      // inside this if statement all conversions from the database type to the normal ontime type should be handled
-      // all fields not present in the DAO object can safely be set to a default value as the generator will recalculate them
       currentEntry.delay = 0;
 
       // 1. handle links - mutates updatedEvent

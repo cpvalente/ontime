@@ -1,14 +1,5 @@
-import {
-  DatabaseModel,
-  OntimeEvent,
-  OntimeEventDAO,
-  OntimeRundown,
-  Settings,
-  URLPreset,
-  ViewSettings,
-} from 'ontime-types';
-import { rundownToDAO, safeMerge } from '../DataProvider.utils.js';
-import { event } from '../../../models/eventsDefinition.js';
+import { DatabaseModel, OntimeRundown, Settings, URLPreset, ViewSettings } from 'ontime-types';
+import { safeMerge } from '../DataProvider.utils.js';
 
 describe('safeMerge', () => {
   const existing = {
@@ -218,24 +209,5 @@ describe('safeMerge', () => {
     //@ts-expect-error -- testing partial merge
     const result = safeMerge(existing, newData);
     expect(result.customFields).toEqual(expected);
-  });
-});
-
-describe('rundownToDatabaseRundown()', () => {
-  it('converts the rundown to DAO type by removing the delay', () => {
-    const testEvent: OntimeEvent = { ...event, id: '1', cue: '#1', custom: { c1: 'test1', c2: 'test2' } };
-    const testRundown: OntimeRundown = [testEvent];
-    const result = rundownToDAO(testRundown);
-    // remove the delay from the event
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { delay, ...matchObject } = testEvent;
-    expect(result).toStrictEqual([matchObject]);
-
-    const { custom } = testEvent;
-    const resultEvent = result[0] as OntimeEventDAO;
-
-    //make sure that the contents match but that it is not a shalow copy
-    expect(resultEvent.custom).toStrictEqual(custom);
-    assert(resultEvent.custom != custom);
   });
 });

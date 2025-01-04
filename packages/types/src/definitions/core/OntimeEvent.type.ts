@@ -44,11 +44,5 @@ export type OntimeEvent = OntimeBaseEvent & {
   custom: EventCustomFields;
 };
 
-/**
- * This is the Data Access type for `OntimeEvent`
- * and is used when a rundown is stored in the database
- */
-export type OntimeEventDAO = Omit<OntimeEvent, 'delay'>;
-
 export type PlayableEvent = OntimeEvent & { skip: false };
 export type TimeField = 'timeStart' | 'timeEnd' | 'duration';
