@@ -939,7 +939,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
 
 describe('custom fields', () => {
   describe('createCustomField()', () => {
-    it('creates a field from given parameters', async () => {
+    it('creates a field from given parameters', () => {
       const expected = {
         Lighting: {
           label: 'Lighting',
@@ -954,8 +954,8 @@ describe('custom fields', () => {
   });
 
   describe('editCustomField()', () => {
-    it('edits a field with a given label', async () => {
-      await createCustomField({ label: 'Sound', type: 'string', colour: 'blue' });
+    it('edits a field with a given label', () => {
+      createCustomField({ label: 'Sound', type: 'string', colour: 'blue' });
 
       const expected = {
         Lighting: {
@@ -970,14 +970,14 @@ describe('custom fields', () => {
         },
       };
 
-      const customField = await editCustomField('Sound', { label: 'Sound', type: 'string', colour: 'green' });
+      const customField = editCustomField('Sound', { label: 'Sound', type: 'string', colour: 'green' });
       expect(customFieldChangelog).toStrictEqual(new Map());
 
       expect(customField).toStrictEqual(expected);
     });
 
-    it('renames a field to a new label', async () => {
-      const created = await createCustomField({ label: 'Video', type: 'string', colour: 'red' });
+    it('renames a field to a new label', () => {
+      const created = createCustomField({ label: 'Video', type: 'string', colour: 'red' });
 
       const expected = {
         Lighting: {
@@ -1019,10 +1019,10 @@ describe('custom fields', () => {
 
       // We need to flush all scheduled tasks for the generate function to settle
       vi.useFakeTimers();
-      const customField = await editCustomField('Video', { label: 'AV', type: 'string', colour: 'red' });
+      const customField = editCustomField('Video', { label: 'AV', type: 'string', colour: 'red' });
       expect(customField).toStrictEqual(expectedAfter);
       expect(customFieldChangelog).toStrictEqual(new Map([['Video', 'AV']]));
-      await editCustomField('AV', { label: 'Video' });
+      editCustomField('AV', { label: 'Video' });
       vi.runAllTimers();
       expect(customFieldChangelog).toStrictEqual(new Map());
       vi.useRealTimers();
@@ -1030,7 +1030,7 @@ describe('custom fields', () => {
   });
 
   describe('removeCustomField()', () => {
-    it('deletes a field with a given label', async () => {
+    it('deletes a field with a given label', () => {
       const expected = {
         Lighting: {
           label: 'Lighting',
@@ -1044,7 +1044,7 @@ describe('custom fields', () => {
         },
       };
 
-      const customField = await removeCustomField('Sound');
+      const customField = removeCustomField('Sound');
 
       expect(customField).toStrictEqual(expected);
     });

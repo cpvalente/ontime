@@ -267,7 +267,7 @@ type MutatingFn<T extends object> = (params: MutationParams<T>) => MutatingRetur
  * ensures order of operations when performing mutations
  */
 export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
-  async function scopedMutation(params: T) {
+  function scopedMutation(params: T) {
     const { newEvent, newRundown, didMutate } = mutation({ ...params, rundown: persistedRundown });
 
     // early return without calling side effects
