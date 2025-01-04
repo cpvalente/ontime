@@ -36,7 +36,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.TEAMID }}
           CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
           CSC_LINK: ${{ secrets.CSC_LINK }}
-        run: pnpm dist-mac
+        run: pnpm dist-mac --env-mode=loose
         timeout-minutes: 60
 
       - name: Release
