@@ -12,11 +12,7 @@ export {
   type TimeField,
   SupportedEvent,
 } from './definitions/core/OntimeEvent.type.js';
-export type {
-  OntimeEntryCommonKeys,
-  OntimeRundown,
-  OntimeRundownEntry,
-} from './definitions/core/Rundown.type.js';
+export type { OntimeEntryCommonKeys, OntimeRundown, OntimeRundownEntry } from './definitions/core/Rundown.type.js';
 export { TimeStrategy } from './definitions/TimeStrategy.type.js';
 export { TimerType } from './definitions/TimerType.type.js';
 

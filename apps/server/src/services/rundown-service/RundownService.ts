@@ -8,9 +8,9 @@ import {
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
+  OntimeRundown,
   PatchWithId,
   EventPostPayload,
-  OntimeRundown,
 } from 'ontime-types';
 import { getCueCandidate } from 'ontime-utils';
 

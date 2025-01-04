@@ -1,11 +1,11 @@
 import {
+  OntimeEvent,
   isOntimeEvent,
+  OntimeRundown,
   CustomFieldLabel,
   CustomFields,
   OntimeRundownEntry,
   OntimeBaseEvent,
-  OntimeEvent,
-  OntimeRundown,
 } from 'ontime-types';
 import { getLinkedTimes } from 'ontime-utils';
 
