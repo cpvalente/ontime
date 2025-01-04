@@ -1,5 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
+  "globalEnv": ["NODE_ENV", "GITHUB_TOKEN"],
   "tasks": {
     "dev": {
       "cache": false
@@ -18,9 +19,13 @@
     "typecheck": {
       "cache": false
     },
-    "build": {},
+    "build": {
+      "env": ["SENTRY_AUTH_TOKEN"]
+    },
     "build:local": {},
-    "build:electron": {},
+    "build:electron": {
+      "env": ["SENTRY_AUTH_TOKEN"]
+    },
     "build:localdocker": {},
     "e2e": {
       "dependsOn": [
@@ -28,7 +33,9 @@
       ]
     },
     "dist-win": {},
-    "dist-mac": {},
+    "dist-mac": {
+      "env": ["APPLEID", "APPLEIDPASS", "TEAMID", "CSC_KEY_PASSWORD", "CSC_LINK"]
+    },
     "dist-mac:local": {},
     "dist-linux": {},
     "cleanup": {}
