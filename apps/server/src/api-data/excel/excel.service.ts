@@ -51,7 +51,7 @@ export function generateRundownPreview(options: ImportMap): { rundown: OntimeRun
   }
 
   // clear the data
-  excelData = undefined;
+  excelData = xlsx.utils.book_new();
 
   return { rundown, customFields };
 }

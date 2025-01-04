@@ -550,7 +550,7 @@ describe('test aliases import', () => {
           pathAndParams: 'testpathAndParams',
         },
       ],
-    } as DatabaseModel;
+    } as unknown as DatabaseModel;
 
     const parsed = parseUrlPresets(testData);
     expect(parsed.length).toBe(1);
@@ -602,7 +602,7 @@ describe('test views import', () => {
         app: 'ontime',
         version: '2.0.0',
       },
-    } as DatabaseModel;
+    } as unknown as DatabaseModel;
     const parsed = parseViewSettings(testData);
     expect(parsed).toStrictEqual(dbModel.viewSettings);
   });

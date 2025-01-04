@@ -1,4 +1,4 @@
-import { isOntimeBlock, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
+import { isOntimeBlock, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { sheets_v4 } from '@googleapis/sheets';
@@ -29,7 +29,16 @@ export type ClientSecret = {
  * @returns
  */
 export function validateClientSecret(clientSecret: object): clientSecret is ClientSecret {
-  return requiredClientKeys.every((key) => Object.keys(clientSecret['installed']).includes(key));
+  if (!('installed' in clientSecret)) {
+    return false;
+  }
+
+  const { installed } = clientSecret;
+  if (typeof installed !== 'object' || installed === null) {
+    return false;
+  }
+
+  return requiredClientKeys.every((key) => Object.keys(installed).includes(key));
 }
 
 /**
@@ -65,14 +74,14 @@ export function getA1Notation(row: number, column: number): string {
  * @param {OntimeRundownEntry} event
  * @param {number} index - index of the event
  * @param {number} worksheetId
- * @param {any} metadata - object with all the cell positions of the title of each attribute
+ * @param {object} metadata - object with all the cell positions of the title of each attribute
  * @returns {sheets_v4.Schema} - list of update requests
  */
 export function cellRequestFromEvent(
   event: OntimeRundownEntry,
   index: number,
   worksheetId: number,
-  metadata,
+  metadata: object,
 ): sheets_v4.Schema$Request {
   const rowData = Object.entries(metadata)
     .filter(([_, value]) => value !== undefined)
@@ -113,7 +122,7 @@ export function cellRequestFromEvent(
   };
 }
 
-function getCellData(key: string, event: OntimeRundownEntry) {
+function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeRundownEntry) {
   if (isOntimeEvent(event)) {
     if (key === 'blank') {
       return {};
