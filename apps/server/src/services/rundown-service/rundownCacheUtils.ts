@@ -112,6 +112,7 @@ export enum regenerateWhitelist {
   'note',
   'endAction',
   'timerType',
+  'countToEnd',
   'isPublic',
   'colour',
   'timeWarning',
