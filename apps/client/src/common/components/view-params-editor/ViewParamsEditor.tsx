@@ -1,7 +1,11 @@
 import { FormEvent, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { Portal, useDisclosure } from '@chakra-ui/react';
+import { IoAlertCircle } from '@react-icons/all-files/io5/IoAlertCircle';
+
+import useViewSettings from '../../../common/hooks-query/useViewSettings';
+import { Button } from '../../../components/ui/button';
 import {
-  Button,
   DrawerBackdrop,
   DrawerBody,
   DrawerCloseTrigger,
@@ -9,12 +13,7 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerRoot,
-  Portal,
-  useDisclosure,
-} from '@chakra-ui/react';
-import { IoAlertCircle } from '@react-icons/all-files/io5/IoAlertCircle';
-
-import useViewSettings from '../../../common/hooks-query/useViewSettings';
+} from '../../../components/ui/drawer';
 
 import ParamInput from './ParamInput';
 import { isSection, ViewOption } from './types';
@@ -121,6 +120,8 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
     const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, viewOptions);
     setSearchParams(newSearchParams);
+
+    onClose();
   };
 
   return (

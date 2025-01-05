@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Button } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { CustomField, CustomFieldLabel } from 'ontime-types';
 
@@ -7,6 +6,7 @@ import { deleteCustomField, editCustomField, postCustomField } from '../../../..
 import ExternalLink from '../../../../../common/components/external-link/ExternalLink';
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
 import { Alert } from '../../../../../components/ui/alert';
+import { Button } from '../../../../../components/ui/button';
 import { customFieldsDocsUrl } from '../../../../../externals';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
@@ -50,15 +50,14 @@ export default function CustomFields() {
       <Panel.Card>
         <Panel.SubHeader>
           Custom fields
-          <Button variant='ontime-subtle' rightIcon={<IoAdd />} size='sm' onClick={handleInitiateCreate}>
-            New
+          <Button variant='ontime-subtle' size='sm' onClick={handleInitiateCreate}>
+            New <IoAdd />
           </Button>
         </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
           <Alert
             status='info'
-            variant='ontime-on-dark-info'
             title={
               <>
                 {/* <AlertIcon /> */}

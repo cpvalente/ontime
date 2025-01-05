@@ -8,7 +8,7 @@ import { ontimeKBDRecipe } from './ontimeKBD';
 import { ontimeMenuRecipe } from './ontimeMenu';
 import { ontimeDialogRecipe } from './ontimeModal';
 import { ontimeRadioGroupRecipe } from './ontimeRadio';
-import { ontimeSelectRecipe } from './ontimeSelect';
+import { ontimeNativeSelectRecipe, ontimeSelectRecipe } from './ontimeSelect';
 import { ontimeSwitchRecipe } from './ontimeSwitch';
 import { ontimeTabRecipe } from './ontimeTab';
 import { ontimeInputRecipe, ontimeTextareaRecipe } from './ontimeTextInputs';
@@ -23,7 +23,8 @@ const system = createSystem(defaultConfig, {
       drawer: ontimeDrawerRecipe,
       menu: ontimeMenuRecipe,
       radioGroup: ontimeRadioGroupRecipe,
-      nativeSelect: ontimeSelectRecipe,
+      select: ontimeSelectRecipe,
+      nativeSelect: ontimeNativeSelectRecipe,
       switch: ontimeSwitchRecipe,
       tabs: ontimeTabRecipe,
       tooltip: ontimeTooltipRecipe,
