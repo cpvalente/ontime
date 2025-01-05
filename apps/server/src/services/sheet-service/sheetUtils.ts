@@ -2,6 +2,7 @@ import { isOntimeBlock, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'o
 import { millisToString } from 'ontime-utils';
 
 import { sheets_v4 } from '@googleapis/sheets';
+import { isObject } from '../../utils/assert.js';
 
 // we expect client secret file to contain the following keys
 const requiredClientKeys = [
@@ -26,19 +27,21 @@ export type ClientSecret = {
 /**
  * Guard validates a given client secrets file
  * @param clientSecret
- * @returns
+ * @throws
  */
 export function validateClientSecret(clientSecret: object): clientSecret is ClientSecret {
   if (!('installed' in clientSecret)) {
-    return false;
+    throw new Error('Missing "installed" object');
   }
 
   const { installed } = clientSecret;
-  if (typeof installed !== 'object' || installed === null) {
-    return false;
+  isObject(installed);
+
+  if (requiredClientKeys.every((key) => Object.keys(installed).includes(key))) {
+    return;
   }
 
-  return requiredClientKeys.every((key) => Object.keys(installed).includes(key));
+  throw new Error('Missing keys in "installed" object');
 }
 
 /**
