@@ -60,18 +60,20 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
           size='sm'
           variant='ontime-ghosted'
           color='#e2e2e2' // $gray-200
-          icon={<IoPencil />}
           aria-label='Edit entry'
           onClick={() => setIsEditing(true)}
-        />
+        >
+          <IoPencil />
+        </IconButton>
         <IconButton
           size='sm'
           variant='ontime-ghosted'
           color='#FA5656' // $red-500
-          icon={<IoTrash />}
           aria-label='Delete entry'
           onClick={() => onDelete(field)}
-        />
+        >
+          <IoTrash />
+        </IconButton>
       </td>
     </tr>
   );

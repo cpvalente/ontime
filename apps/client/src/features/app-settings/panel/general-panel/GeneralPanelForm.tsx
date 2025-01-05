@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
 import { Settings } from 'ontime-types';
 
 import { postSettings } from '../../../../common/api/settings';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useSettings from '../../../../common/hooks-query/useSettings';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
+import { Button } from '../../../../components/ui/button';
 import { NativeSelectField, NativeSelectRoot } from '../../../../components/ui/native-select';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -68,14 +69,14 @@ export default function GeneralPanelForm() {
         <Panel.SubHeader>
           General settings
           <div className={style.actionButtons}>
-            <Button isDisabled={!isDirty || isSubmitting} variant='ontime-ghosted' size='sm' onClick={onReset}>
+            <Button disabled={!isDirty || isSubmitting} variant='ontime-ghosted' size='sm' onClick={onReset}>
               Revert to saved
             </Button>
             <Button
               type='submit'
               form='app-settings'
-              isLoading={isSubmitting}
-              isDisabled={disableSubmit}
+              loading={isSubmitting}
+              disabled={disableSubmit}
               variant='ontime-filled'
               size='sm'
             >
@@ -134,15 +135,11 @@ export default function GeneralPanelForm() {
                 description='Default time format to show in views 12 /24 hours'
                 error={errors.timeFormat?.message}
               />
-              <NativeSelectRoot
-                variant='ontime'
-                size='sm'
-                width='auto'
-                isDisabled={disableInputs}
-                {...register('timeFormat')}
-              >
-                <NativeSelectField value='12'>12 hours 11:00:10 PM</NativeSelectField>
-                <NativeSelectField value='24'>24 hours 23:00:10</NativeSelectField>
+              <NativeSelectRoot size='sm' disabled={disableInputs}>
+                <NativeSelectField width='auto' {...register('timeFormat')}>
+                  <option value='12'>12 hours 11:00:10 PM</option>
+                  <option value='24'>24 hours 23:00:10</option>
+                </NativeSelectField>
               </NativeSelectRoot>
             </Panel.ListItem>
             <Panel.ListItem>
@@ -151,24 +148,20 @@ export default function GeneralPanelForm() {
                 description='Language to be displayed in views'
                 error={errors.language?.message}
               />
-              <NativeSelectRoot
-                variant='ontime'
-                size='sm'
-                width='auto'
-                isDisabled={disableInputs}
-                {...register('language')}
-              >
-                <NativeSelectField value='en'>English</NativeSelectField>
-                <NativeSelectField value='fr'>French</NativeSelectField>
-                <NativeSelectField value='de'>German</NativeSelectField>
-                <NativeSelectField value='hu'>Hungarian</NativeSelectField>
-                <NativeSelectField value='it'>Italian</NativeSelectField>
-                <NativeSelectField value='no'>Norwegian</NativeSelectField>
-                <NativeSelectField value='pt'>Portuguese</NativeSelectField>
-                <NativeSelectField value='es'>Spanish</NativeSelectField>
-                <NativeSelectField value='sv'>Swedish</NativeSelectField>
-                <NativeSelectField value='pl'>Polish</NativeSelectField>
-                <NativeSelectField value='zh'>Chinese (Simplified)</NativeSelectField>
+              <NativeSelectRoot size='sm' disabled={disableInputs}>
+                <NativeSelectField {...register('language')} width='auto'>
+                  <option value='en'>English</option>
+                  <option value='fr'>French</option>
+                  <option value='de'>German</option>
+                  <option value='hu'>Hungarian</option>
+                  <option value='it'>Italian</option>
+                  <option value='no'>Norwegian</option>
+                  <option value='pt'>Portuguese</option>
+                  <option value='es'>Spanish</option>
+                  <option value='sv'>Swedish</option>
+                  <option value='pl'>Polish</option>
+                  <option value='zh'>Chinese (Simplified)</option>
+                </NativeSelectField>
               </NativeSelectRoot>
             </Panel.ListItem>
           </Panel.ListGroup>

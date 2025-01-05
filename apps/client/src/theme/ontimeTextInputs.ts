@@ -1,3 +1,5 @@
+import { defineRecipe } from '@chakra-ui/react';
+
 const commonStyles = {
   fontWeight: '400',
   backgroundColor: '#262626', // $gray-1200
@@ -20,42 +22,62 @@ const commonStyles = {
   },
 };
 
-export const ontimeInputFilled = {
-  field: {
-    ...commonStyles,
-  },
-};
-
-export const ontimeInputGhosted = {
-  field: {
-    ...commonStyles,
-    backgroundColor: 'transparent',
-    color: '#f6f6f6', // $gray-50
-    _hover: {
-      backgroundColor: 'transparent',
-      border: '1px solid #2B5ABC', // $blue-500
-    },
-  },
-};
-
-export const ontimeInputTransparent = {
-  field: {
-    ...commonStyles,
-    backgroundColor: 'transparent',
-    _hover: {
-      backgroundColor: 'rgba(255, 255, 255, 0.10)', // $white-10
-    },
-  },
-};
-
-export const ontimeTextAreaFilled = {
+const ontimeInputFilled = {
   ...commonStyles,
 };
 
-export const ontimeTextAreaTransparent = {
+const ontimeInputGhosted = {
+  ...commonStyles,
+  backgroundColor: 'transparent',
+  color: '#f6f6f6', // $gray-50
+  _hover: {
+    backgroundColor: 'transparent',
+    border: '1px solid #2B5ABC', // $blue-500
+  },
+};
+
+const ontimeInputTransparent = {
   ...commonStyles,
   backgroundColor: 'transparent',
   _hover: {
     backgroundColor: 'rgba(255, 255, 255, 0.10)', // $white-10
   },
 };
+
+const ontimeTextAreaFilled = {
+  ...commonStyles,
+};
+
+const ontimeTextAreaTransparent = {
+  ...commonStyles,
+  backgroundColor: 'transparent',
+  _hover: {
+    backgroundColor: 'rgba(255, 255, 255, 0.10)', // $white-10
+  },
+};
+
+export const ontimeTextareaRecipe = defineRecipe({
+  base: {
+    borderRadius: '3px',
+    border: '1px',
+  },
+  variants: {
+    variant: {
+      'ontime-filled': { ...ontimeTextAreaFilled },
+      'ontime-transparent': { ...ontimeTextAreaTransparent },
+    },
+  },
+});
+
+export const ontimeInputRecipe = defineRecipe({
+  base: {
+    borderRadius: '3px',
+  },
+  variants: {
+    variant: {
+      'ontime-filled': { ...ontimeInputFilled },
+      'ontime-ghosted': { ...ontimeInputGhosted },
+      'ontime-transparent': { ...ontimeInputTransparent },
+    },
+  },
+});

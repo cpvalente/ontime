@@ -9,6 +9,7 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerRoot,
+  Portal,
   useDisclosure,
 } from '@chakra-ui/react';
 import { IoAlertCircle } from '@react-icons/all-files/io5/IoAlertCircle';
@@ -123,57 +124,59 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
   };
 
   return (
-    <DrawerRoot open={isOpen} placement='end' onOpenChange={handleClose} variant='ontime' size='lg'>
-      <DrawerBackdrop />
-      <DrawerContent>
-        <DrawerHeader>
-          {/* <DrawerCloseTrigger size='lg' /> */}
-          Customise
-        </DrawerHeader>
+    <Portal>
+      <DrawerRoot open={isOpen} placement='end' onOpenChange={handleClose} size='lg'>
+        <DrawerBackdrop />
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerCloseTrigger />
+            Customise
+          </DrawerHeader>
 
-        <DrawerBody>
-          {viewSettings.overrideStyles && (
-            <div className={style.infoLabel}>
-              <IoAlertCircle />
-              This view style is being modified by a custom CSS file. <br />
-            </div>
-          )}
-          <form id='edit-params-form' onSubmit={onParamsFormSubmit}>
-            {viewOptions.map((option) => {
-              if (isSection(option)) {
+          <DrawerBody>
+            {viewSettings.overrideStyles && (
+              <div className={style.infoLabel}>
+                <IoAlertCircle />
+                This view style is being modified by a custom CSS file. <br />
+              </div>
+            )}
+            <form id='edit-params-form' onSubmit={onParamsFormSubmit}>
+              {viewOptions.map((option) => {
+                if (isSection(option)) {
+                  return (
+                    <div key={option.section} className={style.section}>
+                      {option.section}
+                    </div>
+                  );
+                }
+
+                if (option.type === 'persist') {
+                  return null;
+                }
+
                 return (
-                  <div key={option.section} className={style.section}>
-                    {option.section}
+                  <div key={option.title} className={style.fieldSet}>
+                    <label className={style.label}>
+                      <span className={style.title}>{option.title}</span>
+                      <span className={style.description}>{option.description}</span>
+                      <ParamInput key={option.title} paramField={option} />
+                    </label>
                   </div>
                 );
-              }
+              })}
+            </form>
+          </DrawerBody>
 
-              if (option.type === 'persist') {
-                return null;
-              }
-
-              return (
-                <div key={option.title} className={style.fieldSet}>
-                  <label className={style.label}>
-                    <span className={style.title}>{option.title}</span>
-                    <span className={style.description}>{option.description}</span>
-                    <ParamInput key={option.title} paramField={option} />
-                  </label>
-                </div>
-              );
-            })}
-          </form>
-        </DrawerBody>
-
-        <DrawerFooter className={style.drawerFooter}>
-          <Button variant='ontime-ghosted' onClick={resetParams} type='reset'>
-            Reset to default
-          </Button>
-          <Button variant='ontime-filled' form='edit-params-form' type='submit'>
-            Save
-          </Button>
-        </DrawerFooter>
-      </DrawerContent>
-    </DrawerRoot>
+          <DrawerFooter className={style.drawerFooter}>
+            <Button variant='ontime-ghosted' onClick={resetParams} type='reset'>
+              Reset to default
+            </Button>
+            <Button variant='ontime-filled' form='edit-params-form' type='submit'>
+              Save
+            </Button>
+          </DrawerFooter>
+        </DrawerContent>
+      </DrawerRoot>
+    </Portal>
   );
 }

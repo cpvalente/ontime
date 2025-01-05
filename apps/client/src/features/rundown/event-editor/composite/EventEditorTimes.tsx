@@ -5,7 +5,7 @@ import { millisToString, parseUserTime } from 'ontime-utils';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
-import { SelectItem, SelectRoot } from '../../../../components/ui/select';
+import { NativeSelectField, NativeSelectRoot } from '../../../../components/ui/native-select';
 import { Switch } from '../../../../components/ui/switch';
 import * as Editor from '../../../editors/editor-utils/EditorUtils';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
@@ -102,19 +102,19 @@ function EventEditorTimes(props: EventEditorTimesProps) {
         <div className={style.splitTwo}>
           <div>
             <Editor.Label htmlFor='endAction'>End Action</Editor.Label>
-            <SelectRoot
-              id='endAction'
-              size='sm'
-              name='endAction'
-              value={[endAction]}
-              onChange={(event) => handleSubmit('timerType', event.currentTarget.value)}
-              variant='ontime'
-            >
-              <SelectItem item={EndAction.None}>None</SelectItem>
-              <SelectItem item={EndAction.Stop}>Stop rundown</SelectItem>
-              <SelectItem item={EndAction.LoadNext}>Load next event</SelectItem>
-              <SelectItem item={EndAction.PlayNext}>Play next event</SelectItem>
-            </SelectRoot>
+            <NativeSelectRoot size='sm'>
+              <NativeSelectField
+                name='endAction'
+                id='endAction'
+                value={[endAction]}
+                onChange={(event) => handleSubmit('timerType', event.currentTarget.value)}
+              >
+                <option value={EndAction.None}>None</option>
+                <option value={EndAction.Stop}>Stop rundown</option>
+                <option value={EndAction.LoadNext}>Load next event</option>
+                <option value={EndAction.PlayNext}>Play next event</option>
+              </NativeSelectField>
+            </NativeSelectRoot>
           </div>
           <div>
             <Editor.Label htmlFor='timeToEnd'>Target Event Scheduled End</Editor.Label>
@@ -122,9 +122,8 @@ function EventEditorTimes(props: EventEditorTimesProps) {
               <Switch
                 id='timeToEnd'
                 size='md'
-                isChecked={isTimeToEnd}
-                onChange={() => handleSubmit('isTimeToEnd', isTimeToEnd)}
-                variant='ontime'
+                checked={isTimeToEnd}
+                onCheckedChange={() => handleSubmit('isTimeToEnd', isTimeToEnd)}
               />
               {isTimeToEnd ? 'On' : 'Off'}
             </Editor.Label>
@@ -136,19 +135,19 @@ function EventEditorTimes(props: EventEditorTimesProps) {
         <div className={style.splitTwo}>
           <div>
             <Editor.Label htmlFor='timerType'>Timer Type</Editor.Label>
-            <SelectRoot
-              size='sm'
-              id='timerType'
-              name='timerType'
-              value={[timerType]}
-              onChange={(event) => handleSubmit('timerType', event.currentTarget.value)}
-              variant='ontime'
-            >
-              <SelectItem item={TimerType.CountDown}>Count down</SelectItem>
-              <SelectItem item={TimerType.CountUp}>Count up</SelectItem>
-              <SelectItem item={TimerType.Clock}>Clock</SelectItem>
-              <SelectItem item={TimerType.None}>None</SelectItem>
-            </SelectRoot>
+            <NativeSelectRoot size='sm'>
+              <NativeSelectField
+                id='timerType'
+                name='timerType'
+                value={[timerType]}
+                onChange={(event) => handleSubmit('timerType', event.currentTarget.value)}
+              >
+                <option value={TimerType.CountDown}>Count down</option>
+                <option value={TimerType.CountUp}>Count up</option>
+                <option value={TimerType.Clock}>Clock</option>
+                <option value={TimerType.None}>None</option>
+              </NativeSelectField>
+            </NativeSelectRoot>
           </div>
           <div>
             <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
@@ -167,9 +166,8 @@ function EventEditorTimes(props: EventEditorTimesProps) {
               <Switch
                 id='isPublic'
                 size='md'
-                isChecked={isPublic}
-                onChange={() => handleSubmit('isPublic', isPublic)}
-                variant='ontime'
+                checked={isPublic}
+                onCheckedChange={() => handleSubmit('isPublic', isPublic)}
               />
               {isPublic ? 'Public' : 'Private'}
             </Editor.Label>

@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Textarea } from '@chakra-ui/react';
+import { Input, Textarea } from '@chakra-ui/react';
 import { IoDownloadOutline } from '@react-icons/all-files/io5/IoDownloadOutline';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { type ProjectData } from 'ontime-types';
@@ -10,6 +10,7 @@ import { postProjectData, uploadProjectLogo } from '../../../../common/api/proje
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useProjectData from '../../../../common/hooks-query/useProjectData';
 import { validateLogo } from '../../../../common/utils/uploadUtils';
+import { Button } from '../../../../components/ui/button';
 import { documentationUrl, websiteUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -101,15 +102,15 @@ export default function ProjectData() {
         <Panel.SubHeader>
           Project data
           <div className={style.headerButtons}>
-            <Button variant='ontime-ghosted' size='sm' onClick={onReset} isDisabled={isSubmitting || !isDirty}>
+            <Button variant='ontime-ghosted' size='sm' onClick={onReset} disabled={isSubmitting || !isDirty}>
               Revert to saved
             </Button>
             <Button
               variant='ontime-filled'
               size='sm'
               type='submit'
-              isDisabled={!isDirty || !isValid}
-              isLoading={isSubmitting}
+              disabled={!isDirty || !isValid}
+              loading={isSubmitting}
             >
               Save
             </Button>
@@ -152,24 +153,22 @@ export default function ProjectData() {
                     <Button
                       size='sm'
                       variant='ontime-filled'
-                      isDisabled={isSubmitting || !watch('projectLogo')}
-                      leftIcon={<IoTrash />}
+                      disabled={isSubmitting || !watch('projectLogo')}
                       onClick={handleDeleteLogo}
                       type='button'
                     >
-                      Delete
+                      <IoTrash /> Delete
                     </Button>
                   </>
                 ) : (
                   <Button
                     variant='ontime-filled'
                     size='sm'
-                    isDisabled={isSubmitting}
-                    leftIcon={<IoDownloadOutline />}
+                    disabled={isSubmitting}
                     onClick={handleClickUpload}
                     type='button'
                   >
-                    Upload logo
+                    <IoDownloadOutline /> Upload logo
                   </Button>
                 )}
                 {errors?.projectLogo?.message && <Panel.Error>{errors.projectLogo.message}</Panel.Error>}

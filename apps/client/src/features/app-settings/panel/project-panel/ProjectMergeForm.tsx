@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Button, Switch } from '@chakra-ui/react';
+import { Controller, useForm } from 'react-hook-form';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { PROJECT_DATA } from '../../../../common/api/constants';
 import { getDb, patchData } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { cx } from '../../../../common/utils/styleUtils';
+import { Button } from '../../../../components/ui/button';
+import { Switch } from '../../../../components/ui/switch';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import { makeProjectPatch } from './project.utils';
@@ -34,7 +35,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
 
   const {
     handleSubmit,
-    register,
+    control,
     formState: { isSubmitting, isValid, isDirty },
   } = useForm<ProjectMergeFormValues>({
     defaultValues: {
@@ -78,13 +79,13 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
       <Panel.Title>
         Merge {`"${fileName}"`}
         <div className={style.createActionButtons}>
-          <Button onClick={onClose} variant='ontime-ghosted' size='sm' isDisabled={isSubmitting}>
+          <Button onClick={onClose} variant='ontime-ghosted' size='sm' disabled={isSubmitting}>
             Cancel
           </Button>
           <Button
-            isDisabled={!isValid || !isDirty}
+            disabled={!isValid || !isDirty}
             type='submit'
-            isLoading={isSubmitting}
+            loading={isSubmitting}
             variant='ontime-filled'
             size='sm'
           >
@@ -98,30 +99,66 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
           Select partial data from {`"${fileName}"`} to merge into the current project.
           <br /> This process is irreversible.
         </Panel.Description>
-        <label>
-          <Switch variant='ontime' {...register('project')} />
-          Project data
-        </label>
-        <label>
-          <Switch variant='ontime' {...register('rundown')} />
-          Rundown + Custom Fields
-        </label>
-        <label>
-          <Switch variant='ontime' {...register('viewSettings')} />
-          View Settings
-        </label>
-        <label>
-          <Switch variant='ontime' {...register('urlPresets')} />
-          URL Presets
-        </label>
-        <label>
-          <Switch variant='ontime' {...register('osc')} />
-          OSC Integration
-        </label>
-        <label>
-          <Switch variant='ontime' {...register('http')} />
-          HTTP Integration
-        </label>
+        <Controller
+          name='project'
+          control={control}
+          render={({ field }) => (
+            <label>
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              Project data
+            </label>
+          )}
+        />
+        <Controller
+          name='rundown'
+          control={control}
+          render={({ field }) => (
+            <label>
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              Rundown + Custom Fields
+            </label>
+          )}
+        />
+        <Controller
+          name='viewSettings'
+          control={control}
+          render={({ field }) => (
+            <label>
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              View Settings
+            </label>
+          )}
+        />
+        <Controller
+          name='urlPresets'
+          control={control}
+          render={({ field }) => (
+            <label>
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              URL Presets
+            </label>
+          )}
+        />
+        <Controller
+          name='osc'
+          control={control}
+          render={({ field }) => (
+            <label>
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              OSC Integration
+            </label>
+          )}
+        />
+        <Controller
+          name='http'
+          control={control}
+          render={({ field }) => (
+            <label>
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              HTTP Integration
+            </label>
+          )}
+        />
       </Panel.Section>
     </Panel.Section>
   );

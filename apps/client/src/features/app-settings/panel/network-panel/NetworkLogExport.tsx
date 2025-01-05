@@ -1,8 +1,8 @@
 import { MouseEvent } from 'react';
-import { Button } from '@chakra-ui/react';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 
 import { handleLinks } from '../../../../common/utils/linkUtils';
+import { Button } from '../../../../components/ui/button';
 import Log from '../../../log/Log';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -18,13 +18,8 @@ export default function LogExport() {
       <Panel.Card>
         <Panel.SubHeader>
           Event log
-          <Button
-            variant='ontime-subtle'
-            size='sm'
-            rightIcon={<IoArrowUp className={style.iconRotate} />}
-            onClick={extract}
-          >
-            Extract
+          <Button variant='ontime-subtle' size='sm' onClick={extract}>
+            Extract <IoArrowUp className={style.iconRotate} />
           </Button>
         </Panel.SubHeader>
         <Panel.Divider />

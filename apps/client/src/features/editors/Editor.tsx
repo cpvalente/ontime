@@ -23,8 +23,8 @@ const MessageControl = lazy(() => import('../control/message/MessageControlExpor
 
 export default function Editor() {
   const { isOpen: isSettingsOpen, setLocation, close } = useAppSettingsNavigation();
-  const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isFinderOpen, onToggle: onFinderToggle, onClose: onFinderClose } = useDisclosure();
+  const { open: isMenuOpen, onOpen, onClose } = useDisclosure();
+  const { open: isFinderOpen, onToggle: onFinderToggle, onClose: onFinderClose } = useDisclosure();
 
   useWindowTitle('Editor');
 
@@ -60,20 +60,17 @@ export default function Editor() {
       <Finder isOpen={isFinderOpen} onClose={onFinderClose} />
       <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
       <EditorOverview>
-        <IconButton
-          aria-label='Toggle navigation'
-          variant='ontime-subtle-white'
-          size='lg'
-          icon={<IoApps />}
-          onClick={onOpen}
-        />
+        <IconButton aria-label='Toggle navigation' variant='ontime-subtle-white' size='lg' onClick={onOpen}>
+          <IoApps />
+        </IconButton>
         <IconButton
           aria-label='Toggle settings'
           variant={isSettingsOpen ? 'ontime-subtle' : 'ontime-subtle-white'}
           size='lg'
-          icon={isSettingsOpen ? <IoClose /> : <IoSettingsOutline />}
           onClick={toggleSettings}
-        />
+        >
+          {isSettingsOpen ? <IoClose /> : <IoSettingsOutline />}
+        </IconButton>
       </EditorOverview>
       {isSettingsOpen ? (
         <AppSettings />

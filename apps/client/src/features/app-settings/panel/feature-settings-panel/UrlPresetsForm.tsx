@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Button, IconButton, Input } from '@chakra-ui/react';
+import { IconButton, Input } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoOpenOutline } from '@react-icons/all-files/io5/IoOpenOutline';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
@@ -14,6 +14,7 @@ import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
 import { handleLinks } from '../../../../common/utils/linkUtils';
 import { validateUrlPresetPath } from '../../../../common/utils/urlPresets';
 import { Alert } from '../../../../components/ui/alert';
+import { Button } from '../../../../components/ui/button';
 import { Switch } from '../../../../components/ui/switch';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -95,10 +96,10 @@ export default function UrlPresetsForm() {
         <Panel.SubHeader>
           URL presets
           <div className={style.actionButtons}>
-            <Button variant='ontime-ghosted' size='sm' onClick={onReset} isDisabled={!canSubmit}>
+            <Button variant='ontime-ghosted' size='sm' onClick={onReset} disabled={!canSubmit}>
               Revert to saved
             </Button>
-            <Button variant='ontime-filled' size='sm' type='submit' isDisabled={!canSubmit} isLoading={isSubmitting}>
+            <Button variant='ontime-filled' size='sm' type='submit' disabled={!canSubmit} loading={isSubmitting}>
               Save
             </Button>
           </div>
@@ -106,7 +107,6 @@ export default function UrlPresetsForm() {
         <Panel.Divider />
         <Alert
           status='info'
-          variant='ontime-on-dark-info'
           title={
             <>
               {/* <AlertIcon /> */}
@@ -138,8 +138,8 @@ export default function UrlPresetsForm() {
           <Panel.Loader isLoading={isLoading} />
           <Panel.Title>
             Manage presets
-            <Button variant='ontime-subtle' rightIcon={<IoAdd />} size='sm' onClick={addNew}>
-              New
+            <Button variant='ontime-subtle' size='sm' onClick={addNew}>
+              New <IoAdd />
             </Button>
           </Panel.Title>
           {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
@@ -161,11 +161,7 @@ export default function UrlPresetsForm() {
                 return (
                   <tr key={preset.id}>
                     <td className={style.fit}>
-                      <Switch
-                        {...register(`data.${index}.enabled`)}
-                        variant='ontime'
-                        data-testid={`field__enable_${index}`}
-                      />
+                      <Switch {...register(`data.${index}.enabled`)} data-testid={`field__enable_${index}`} />
                     </td>
                     <td className={style.aliasConstrain}>
                       <Input

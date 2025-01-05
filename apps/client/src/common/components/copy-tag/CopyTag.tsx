@@ -1,8 +1,9 @@
 import { PropsWithChildren, useState } from 'react';
-import { Button, Group, IconButton } from '@chakra-ui/react';
+import { Group, IconButton } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { IoCopy } from '@react-icons/all-files/io5/IoCopy';
 
+import { Button } from '../../../components/ui/button';
 import { Tooltip } from '../../../components/ui/tooltip';
 import { tooltipDelayFast } from '../../../ontimeConfig';
 import { Size } from '../../models/Util.type';
@@ -29,19 +30,21 @@ export default function CopyTag(props: PropsWithChildren<CopyTagProps>) {
   };
 
   return (
-    <Tooltip label={label} openDelay={tooltipDelayFast}>
+    <Tooltip content={label} openDelay={tooltipDelayFast}>
       <Group attached>
-        <Button variant='ontime-subtle' tabIndex={-1} onClick={onClick} isDisabled={disabled} size={size}>
+        <Button variant='ontime-subtle' tabIndex={-1} onClick={onClick} disabled={disabled} size={size}>
           {children}
         </Button>
         <IconButton
           aria-label={label}
-          icon={copied ? <IoCheckmark /> : <IoCopy />}
           variant='ontime-filled'
           tabIndex={-1}
           onClick={handleClick}
-          isDisabled={disabled}
-        />
+          disabled={disabled}
+          size={size}
+        >
+          {copied ? <IoCheckmark /> : <IoCopy />}
+        </IconButton>
       </Group>
     </Tooltip>
   );

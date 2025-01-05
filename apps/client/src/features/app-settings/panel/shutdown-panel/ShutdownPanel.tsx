@@ -1,7 +1,8 @@
 import { useRef } from 'react';
-import { Button, useDisclosure } from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 
 import { useElectronEvent } from '../../../../common/hooks/useElectronEvent';
+import { Button } from '../../../../components/ui/button';
 import {
   DialogBackdrop,
   DialogBody,
@@ -39,13 +40,13 @@ export default function ShutdownPanel() {
             The runtime state will be lost, but your project is kept for next time.
           </Panel.Paragraph>
         )}
-        <Button colorScheme='red' onClick={onOpen} maxWidth='350px' isDisabled={!(isElectron || isLocalhost)}>
+        <Button colorScheme='red' onClick={onOpen} maxWidth='350px' disabled={!(isElectron || isLocalhost)}>
           Shutdown ontime
         </Button>
         {!canShutdown && (
           <Panel.Description>Note: Ontime can only be shutdown from the machine it is running in.</Panel.Description>
         )}
-        <DialogRoot variant='ontime' open={open} leastDestructiveRef={cancelRef} onOpenChange={onClose}>
+        <DialogRoot open={open} initialFocusEl={() => cancelRef.current} onOpenChange={onClose}>
           <DialogBackdrop />
           <DialogContent>
             <DialogHeader fontSize='lg' fontWeight='bold'>

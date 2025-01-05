@@ -1,7 +1,8 @@
 import { HexAlphaColorPicker } from 'react-colorful';
 import { useController, UseControllerProps } from 'react-hook-form';
-import { Popover, PopoverContent, PopoverTrigger } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
+
+import { PopoverBody, PopoverContent, PopoverRoot, PopoverTrigger } from '../../../../components/ui/popover';
 
 import style from './PopoverPicker.module.scss';
 
@@ -23,13 +24,15 @@ export default function PopoverPicker(props: PopoverPickerProps) {
   const { color, onChange } = props;
 
   return (
-    <Popover>
+    <PopoverRoot>
       <PopoverTrigger>
         <div className={style.swatch} style={{ backgroundColor: color }} />
       </PopoverTrigger>
       <PopoverContent style={{ width: 'auto' }}>
-        <HexAlphaColorPicker color={color} onChange={onChange} />
+        <PopoverBody>
+          <HexAlphaColorPicker color={color} onChange={onChange} />
+        </PopoverBody>
       </PopoverContent>
-    </Popover>
+    </PopoverRoot>
   );
 }

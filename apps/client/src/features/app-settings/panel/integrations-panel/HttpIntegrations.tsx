@@ -1,5 +1,5 @@
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import { Button, IconButton, Input } from '@chakra-ui/react';
+import { IconButton, Input } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { HttpSettings } from 'ontime-types';
@@ -9,6 +9,7 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import { useHttpSettings, usePostHttpSettings } from '../../../../common/hooks-query/useHttpSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
 import { startsWithHttp } from '../../../../common/utils/regex';
+import { Button } from '../../../../components/ui/button';
 import { NativeSelectField, NativeSelectRoot } from '../../../../components/ui/native-select';
 import { Switch } from '../../../../components/ui/switch';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -79,7 +80,7 @@ export default function HttpIntegrations() {
         <Panel.SubHeader>
           HTTP settings
           <div className={style.flex}>
-            <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
+            <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} disabled={!canSubmit}>
               Revert to saved
             </Button>
             <Button
@@ -87,8 +88,8 @@ export default function HttpIntegrations() {
               size='sm'
               type='submit'
               form='http-form'
-              isDisabled={!canSubmit}
-              isLoading={isSubmitting}
+              disabled={!canSubmit}
+              loading={isSubmitting}
             >
               Save
             </Button>
@@ -105,7 +106,7 @@ export default function HttpIntegrations() {
                 control={control}
                 name='enabledOut'
                 render={({ field: { onChange, value, ref } }) => (
-                  <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
+                  <Switch size='lg' checked={value} onCheckedChange={onChange} ref={ref} />
                 )}
               />
             </Panel.ListItem>
@@ -136,20 +137,20 @@ export default function HttpIntegrations() {
                   return (
                     <tr key={integration.id}>
                       <td>
-                        <Switch variant='ontime' {...register(`subscriptions.${index}.enabled`)} />
+                        <Switch {...register(`subscriptions.${index}.enabled`)} />
                       </td>
                       <td className={style.autoWidth}>
-                        <NativeSelectRoot
-                          size='sm'
-                          variant='ontime'
-                          className={style.fitContents}
-                          {...register(`subscriptions.${index}.cycle`)}
-                        >
-                          {cycles.map((cycle) => (
-                            <NativeSelectField key={cycle.id} value={cycle.value}>
-                              {cycle.label}
-                            </NativeSelectField>
-                          ))}
+                        <NativeSelectRoot size='sm'>
+                          <NativeSelectField
+                            className={style.fitContents}
+                            {...register(`subscriptions.${index}.cycle`)}
+                          >
+                            {cycles.map((cycle) => (
+                              <option key={cycle.id} value={cycle.value}>
+                                {cycle.label}
+                              </option>
+                            ))}
+                          </NativeSelectField>
                         </NativeSelectRoot>
                       </td>
                       <td className={style.fullWidth}>

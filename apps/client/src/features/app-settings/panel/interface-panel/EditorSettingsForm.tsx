@@ -45,7 +45,6 @@ export default function EditorSettingsForm() {
                 description='Whether the start time of new events should be linked to the previous event end time'
               />
               <Switch
-                variant='ontime'
                 size='lg'
                 defaultChecked={linkPrevious}
                 onCheckedChange={(event) => setLinkPrevious(event.checked)}
@@ -56,7 +55,7 @@ export default function EditorSettingsForm() {
                 title='Timer strategy'
                 description='Which time should be maintained when event schedule is recalculated'
               />
-              <NativeSelectRoot variant='ontime' size='sm' width='auto'>
+              <NativeSelectRoot size='sm' width='auto'>
                 <NativeSelectField
                   value={defaultTimeStrategy}
                   onChange={(event) => setTimeStrategy(event.target.value as TimeStrategy)}
@@ -79,7 +78,7 @@ export default function EditorSettingsForm() {
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='Timer type' description='Default type of timer for new events' />
-              <NativeSelectRoot size='sm' width='auto' variant='ontime'>
+              <NativeSelectRoot size='sm' width='auto'>
                 <NativeSelectField
                   value={defaultTimerType}
                   onChange={(event) => setDefaultTimerType(event.target.value as TimerType)}
@@ -93,7 +92,7 @@ export default function EditorSettingsForm() {
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='End Action' description='Default end action for new events' />
-              <NativeSelectRoot variant='ontime' size='sm' width='auto'>
+              <NativeSelectRoot size='sm' width='auto'>
                 <NativeSelectField
                   value={defaultEndAction}
                   onChange={(event) => setDefaultEndAction(event.target.value as EndAction)}
@@ -130,7 +129,6 @@ export default function EditorSettingsForm() {
             <Panel.ListItem>
               <Panel.Field title='Default public' description='New events will be public' />
               <Switch
-                variant='ontime'
                 size='lg'
                 defaultChecked={defaultPublic}
                 onCheckedChange={(event) => setDefaultPublic(event.checked)}
@@ -146,14 +144,14 @@ export default function EditorSettingsForm() {
                 title='Show quick entry'
                 description='Whether the quick entry buttons show above / under selected event'
               />
-              <Switch variant='ontime' size='lg' defaultChecked={false} disabled />
+              <Switch size='lg' defaultChecked={false} disabled />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
                 title='Follow playback'
                 description='Whether view automatically follows the event being played'
               />
-              <Switch variant='ontime' size='lg' defaultChecked disabled />
+              <Switch size='lg' defaultChecked disabled />
             </Panel.ListItem>
           </Panel.ListGroup>
         </Panel.Section>
@@ -165,14 +163,14 @@ export default function EditorSettingsForm() {
                 title='Show quick entry'
                 description='Whether the quick entry buttons show above / under selected event'
               />
-              <Switch variant='ontime' size='lg' defaultChecked disabled />
+              <Switch size='lg' defaultChecked disabled />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
                 title='Follow playback'
                 description='Whether view automatically follows the event being played'
               />
-              <Switch variant='ontime' size='lg' defaultChecked={false} disabled />
+              <Switch size='lg' defaultChecked={false} disabled />
             </Panel.ListItem>
           </Panel.ListGroup>
         </Panel.Section>

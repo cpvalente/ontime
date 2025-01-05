@@ -70,7 +70,7 @@ export const ContextMenu = ({ children }: ContextMenuProps) => {
     <>
       {children}
       <div className={style.contextMenuBackdrop} />
-      <MenuRoot isOpen size='sm' gutter={0} onClose={onClose} isLazy lazyBehavior='unmount' variant='ontime-on-dark'>
+      <MenuRoot open size='sm' onOpenChange={onClose} lazyMount>
         <MenuTrigger asChild>
           <Button
             className={style.contextMenuButton}

@@ -8,12 +8,13 @@ interface TooltipActionBtnProps extends IconButtonProps {
   tooltip: string;
   openDelay?: number;
   icon: ReactNode;
+  disabled?: boolean;
 }
 
 export default function TooltipActionBtn(props: TooltipActionBtnProps) {
   const { clickHandler, icon, size = 'xs', tooltip, openDelay = 0, className, ...rest } = props;
   return (
-    <Tooltip label={tooltip} openDelay={openDelay}>
+    <Tooltip content={tooltip} openDelay={openDelay}>
       <IconButton {...rest} size={size} onClick={clickHandler} className={className}>
         {icon}
       </IconButton>

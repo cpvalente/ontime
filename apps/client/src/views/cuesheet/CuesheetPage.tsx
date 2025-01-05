@@ -27,7 +27,7 @@ export default function CuesheetPage() {
   const { data: flatRundown, status: rundownStatus } = useFlatRundown();
   const { data: customFields } = useCustomFields();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
+  const { open: isMenuOpen, onOpen, onClose } = useDisclosure();
 
   const { updateCustomField, updateEvent } = useEventAction();
   const featureData = useCuesheet();
@@ -109,20 +109,12 @@ export default function CuesheetPage() {
       <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
       <ViewParamsEditor viewOptions={cuesheetOptions} />
       <CuesheetOverview>
-        <IconButton
-          aria-label='Toggle navigation'
-          variant='ontime-subtle-white'
-          size='lg'
-          icon={<IoApps />}
-          onClick={onOpen}
-        />
-        <IconButton
-          aria-label='Toggle settings'
-          variant='ontime-subtle-white'
-          size='lg'
-          icon={<IoSettingsOutline />}
-          onClick={showEditFormDrawer}
-        />
+        <IconButton aria-label='Toggle navigation' variant='ontime-subtle-white' size='lg' onClick={onOpen}>
+          <IoApps />
+        </IconButton>
+        <IconButton aria-label='Toggle settings' variant='ontime-subtle-white' size='lg' onClick={showEditFormDrawer}>
+          <IoSettingsOutline />
+        </IconButton>
       </CuesheetOverview>
       <CuesheetProgress />
       <Cuesheet

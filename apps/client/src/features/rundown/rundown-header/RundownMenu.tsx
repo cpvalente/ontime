@@ -1,9 +1,10 @@
 import { useCallback, useRef } from 'react';
-import { Button, useDisclosure } from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useAppMode } from '../../../common/stores/appModeStore';
+import { Button } from '../../../components/ui/button';
 import {
   DialogBackdrop,
   DialogBody,
@@ -30,17 +31,10 @@ export default function RundownMenu() {
 
   return (
     <>
-      <Button
-        size='sm'
-        variant='ontime-outlined'
-        leftIcon={<IoTrash />}
-        onClick={onOpen}
-        color='#FA5656'
-        isDisabled={appMode === 'run'}
-      >
-        Clear rundown
+      <Button size='sm' variant='ontime-outlined' onClick={onOpen} color='#FA5656' disabled={appMode === 'run'}>
+        <IoTrash /> Clear rundown
       </Button>
-      <DialogRoot variant='ontime' isOpen={isOpen} leastDestructiveRef={cancelRef} onOpenChange={onClose}>
+      <DialogRoot open={isOpen} initialFocusEl={() => cancelRef.current} onOpenChange={onClose}>
         <DialogBackdrop />
         <DialogContent>
           <DialogHeader fontSize='lg' fontWeight='bold'>
@@ -53,7 +47,7 @@ export default function RundownMenu() {
             <Button ref={cancelRef} onClick={onClose} variant='ontime-ghosted-white'>
               Cancel
             </Button>
-            <Button colorScheme='red' onClick={deleteAll} ml={4}>
+            <Button color='red' onClick={deleteAll} ml={4}>
               Delete all
             </Button>
           </DialogFooter>

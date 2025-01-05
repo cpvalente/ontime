@@ -1,7 +1,6 @@
-import { memo, PropsWithChildren, useRef } from 'react';
-import { createPortal } from 'react-dom';
+import { memo, PropsWithChildren } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useDisclosure } from '@chakra-ui/react';
+import { Portal, useDisclosure } from '@chakra-ui/react';
 import { useFullscreen } from '@mantine/hooks';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 import { IoContract } from '@react-icons/all-files/io5/IoContract';
@@ -9,18 +8,16 @@ import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoLockClosedOutline } from '@react-icons/all-files/io5/IoLockClosedOutline';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 
-import { Button } from '../../../components/ui/button';
 import {
   DrawerBackdrop,
   DrawerBody,
+  DrawerCloseTrigger,
   DrawerContent,
   DrawerHeader,
   DrawerRoot,
-  DrawerTrigger,
 } from '../../../components/ui/drawer';
 import { isLocalhost } from '../../../externals';
 import { navigatorConstants } from '../../../viewerConfig';
-import useClickOutside from '../../hooks/useClickOutside';
 import { useElectronEvent } from '../../hooks/useElectronEvent';
 import useInfo from '../../hooks-query/useInfo';
 import { useClientStore } from '../../stores/clientStore';
@@ -49,88 +46,84 @@ function NavigationMenu(props: NavigationMenuProps) {
   const { mirror, toggleMirror } = useViewOptionsStore();
   const location = useLocation();
 
-  const menuRef = useRef<HTMLDivElement | null>(null);
-
-  useClickOutside(menuRef, () => onClose);
-
-  return createPortal(
-    <div id='navigation-menu-portal' ref={menuRef}>
-      <RenameClientModal id={id} name={name} isOpen={isOpenRename} onClose={onCloseRename} />
-      <DrawerRoot placement='end' onOpenChange={onClose} open={isOpen} variant='ontime' data-testid='navigation__menu'>
-        <DrawerBackdrop />
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTrigger asChild>
-              <Button size='lg'>Ontime</Button>
-            </DrawerTrigger>
-          </DrawerHeader>
-          <DrawerBody padding={0}>
-            <div className={style.buttonsContainer}>
-              <div
-                className={cx([style.link, fullscreen && style.current])}
-                tabIndex={0}
-                role='button'
-                onClick={toggle}
-                onKeyDown={(event) => {
-                  isKeyEnter(event) && toggle();
-                }}
-              >
-                Toggle Fullscreen
-                {fullscreen ? <IoContract /> : <IoExpand />}
+  return (
+    <Portal>
+      <div id='navigation-menu-portal'>
+        <RenameClientModal id={id} name={name} isOpen={isOpenRename} onClose={onCloseRename} />
+        <DrawerRoot placement='start' onOpenChange={onClose} open={isOpen} data-testid='navigation__menu'>
+          <DrawerBackdrop />
+          <DrawerContent>
+            <DrawerHeader>
+              Ontime
+              <DrawerCloseTrigger />
+            </DrawerHeader>
+            <DrawerBody padding={0}>
+              <div className={style.buttonsContainer}>
+                <div
+                  className={cx([style.link, fullscreen && style.current])}
+                  tabIndex={0}
+                  role='button'
+                  onClick={toggle}
+                  onKeyDown={(event) => {
+                    isKeyEnter(event) && toggle();
+                  }}
+                >
+                  Toggle Fullscreen
+                  {fullscreen ? <IoContract /> : <IoExpand />}
+                </div>
+                <div
+                  className={cx([style.link, mirror && style.current])}
+                  tabIndex={0}
+                  role='button'
+                  onClick={() => toggleMirror()}
+                  onKeyDown={(event) => {
+                    isKeyEnter(event) && toggleMirror();
+                  }}
+                >
+                  Flip Screen
+                  <IoSwapVertical />
+                </div>
+                <div
+                  className={style.link}
+                  tabIndex={0}
+                  role='button'
+                  onClick={onRenameOpen}
+                  onKeyDown={(event) => {
+                    isKeyEnter(event) && onRenameOpen();
+                  }}
+                >
+                  Rename Client
+                </div>
               </div>
-              <div
-                className={cx([style.link, mirror && style.current])}
+              <hr className={style.separator} />
+              <Link
+                to='/editor'
                 tabIndex={0}
-                role='button'
-                onClick={() => toggleMirror()}
-                onKeyDown={(event) => {
-                  isKeyEnter(event) && toggleMirror();
-                }}
+                className={`${style.link} ${location.pathname === '/editor' && style.current}`}
               >
-                Flip Screen
-                <IoSwapVertical />
-              </div>
-              <div
-                className={style.link}
-                tabIndex={0}
-                role='button'
-                onClick={onRenameOpen}
-                onKeyDown={(event) => {
-                  isKeyEnter(event) && onRenameOpen();
-                }}
-              >
-                Rename Client
-              </div>
-            </div>
-            <hr className={style.separator} />
-            <Link
-              to='/editor'
-              tabIndex={0}
-              className={`${style.link} ${location.pathname === '/editor' && style.current}`}
-            >
-              <IoLockClosedOutline />
-              Editor
-            </Link>
-            <ClientLink to='cuesheet' current={location.pathname === '/cuesheet'}>
-              <IoLockClosedOutline />
-              Cuesheet
-            </ClientLink>
-            <ClientLink to='op' current={location.pathname === '/op'}>
-              <IoLockClosedOutline />
-              Operator
-            </ClientLink>
-            <hr className={style.separator} />
-            {navigatorConstants.map((route) => (
-              <ClientLink key={route.url} to={route.url} current={location.pathname === `/${route.url}`}>
-                {route.label}
+                <IoLockClosedOutline />
+                Editor
+              </Link>
+              <ClientLink to='cuesheet' current={location.pathname === '/cuesheet'}>
+                <IoLockClosedOutline />
+                Cuesheet
               </ClientLink>
-            ))}
-            {isLocalhost && <OtherAddresses currentLocation={location.pathname} />}
-          </DrawerBody>
-        </DrawerContent>
-      </DrawerRoot>
-    </div>,
-    document.body,
+              <ClientLink to='op' current={location.pathname === '/op'}>
+                <IoLockClosedOutline />
+                Operator
+              </ClientLink>
+              <hr className={style.separator} />
+              {navigatorConstants.map((route) => (
+                <ClientLink key={route.url} to={route.url} current={location.pathname === `/${route.url}`}>
+                  {route.label}
+                </ClientLink>
+              ))}
+              {isLocalhost && <OtherAddresses currentLocation={location.pathname} />}
+            </DrawerBody>
+          </DrawerContent>
+        </DrawerRoot>
+      </div>
+    </Portal>
   );
 }
 

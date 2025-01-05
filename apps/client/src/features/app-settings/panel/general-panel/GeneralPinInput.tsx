@@ -18,7 +18,6 @@ export default function GeneralPinInput(props: PropsWithChildren<GeneralPinInput
 
   return (
     <InputGroup
-      size='sm'
       width='100px'
       startElement={
         <IconButton
@@ -26,9 +25,10 @@ export default function GeneralPinInput(props: PropsWithChildren<GeneralPinInput
           onMouseUp={() => setVisible(false)}
           size='sm'
           variant='ontime-ghosted'
-          icon={<IoEyeOutline />}
           aria-label='Show pin code'
-        />
+        >
+          <IoEyeOutline />
+        </IconButton>
       }
     >
       <Input
@@ -37,7 +37,7 @@ export default function GeneralPinInput(props: PropsWithChildren<GeneralPinInput
         maxLength={4}
         {...register(formName)}
         placeholder='-'
-        isDisabled={isDisabled}
+        disabled={isDisabled}
       />
     </InputGroup>
   );

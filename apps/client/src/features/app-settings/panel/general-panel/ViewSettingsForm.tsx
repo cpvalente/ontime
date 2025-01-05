@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Button, Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -10,6 +10,7 @@ import { PopoverPickerRHF } from '../../../../common/components/input/popover-pi
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
 import { Alert } from '../../../../components/ui/alert';
+import { Button } from '../../../../components/ui/button';
 import { Switch } from '../../../../components/ui/switch';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -74,10 +75,10 @@ export default function ViewSettingsForm() {
         <Panel.SubHeader>
           View settings
           <div className={style.actionButtons}>
-            <Button isDisabled={!isDirty} variant='ontime-ghosted' size='sm' onClick={onReset}>
+            <Button disabled={!isDirty} variant='ontime-ghosted' size='sm' onClick={onReset}>
               Revert to saved
             </Button>
-            <Button type='submit' isLoading={isSubmitting} isDisabled={!isDirty} variant='ontime-filled' size='sm'>
+            <Button type='submit' loading={isSubmitting} disabled={!isDirty} variant='ontime-filled' size='sm'>
               Save
             </Button>
           </div>
@@ -85,7 +86,6 @@ export default function ViewSettingsForm() {
         <Panel.Divider />
         <Alert
           status='info'
-          variant='ontime-on-dark-info'
           title={
             <>
               {/* <AlertIcon /> */}
@@ -96,7 +96,7 @@ export default function ViewSettingsForm() {
               <ExternalLink href={cssOverrideDocsUrl}>See the docs</ExternalLink>
             </>
           }
-        ></Alert>
+        />
         <Panel.Section>
           <Panel.Loader isLoading={isLoading} />
           <Panel.ListGroup>
@@ -109,7 +109,7 @@ export default function ViewSettingsForm() {
                 control={control}
                 name='overrideStyles'
                 render={({ field: { onChange, value, ref } }) => (
-                  <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
+                  <Switch size='lg' checked={value} onCheckedChange={onChange} ref={ref} />
                 )}
               />
             </Panel.ListItem>
@@ -138,7 +138,7 @@ export default function ViewSettingsForm() {
                 control={control}
                 name='freezeEnd'
                 render={({ field: { onChange, value, ref } }) => (
-                  <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
+                  <Switch size='lg' checked={value} onCheckedChange={onChange} ref={ref} />
                 )}
               />
             </Panel.ListItem>

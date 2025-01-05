@@ -1,9 +1,10 @@
 import { useCallback } from 'react';
-import { Checkbox } from '@chakra-ui/react';
+import { CheckboxCheckedChangeDetails } from '@chakra-ui/react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { CustomFields, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
 
 import DelayIndicator from '../../common/components/delay-indicator/DelayIndicator';
+import { Checkbox } from '../../components/ui/checkbox';
 import RunningTime from '../../features/viewers/common/running-time/RunningTime';
 
 import MultiLineCell from './cuesheet-table-elements/MultiLineCell';
@@ -14,9 +15,9 @@ import style from './Cuesheet.module.scss';
 
 function MakePublic({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
   const update = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+    ({ checked }: CheckboxCheckedChangeDetails) => {
       // @ts-expect-error -- we inject this into react-table
-      table.options.meta?.handleUpdate(row.index, column.id, event.target.checked);
+      table.options.meta?.handleUpdate(row.index, column.id, checked);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
     [column.id, row.index],
@@ -29,9 +30,7 @@ function MakePublic({ row, column, table }: CellContext<OntimeRundownEntry, unkn
 
   const isChecked = event.isPublic;
 
-  return (
-    <Checkbox variant='ontime-ondark' onChange={update} isChecked={isChecked} style={{ verticalAlign: 'middle' }} />
-  );
+  return <Checkbox onCheckedChange={update} checked={isChecked} style={{ verticalAlign: 'middle' }} />;
 }
 
 function MakeTimer({ getValue, row: { original } }: CellContext<OntimeRundownEntry, unknown>) {

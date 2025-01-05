@@ -12,10 +12,6 @@ import { tooltipDelayMid } from '../../../../ontimeConfig';
 
 import style from '../EventBlock.module.scss';
 
-const blockBtnStyle = {
-  size: 'sm',
-};
-
 type StyleVariant = {
   'aria-label': string;
   tooltip: string;
@@ -97,19 +93,19 @@ const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
         backgroundColor={skip ? '#B20000' : undefined}
         _hover={{ backgroundColor: '#FF7878' }}
         {...tooltipProps}
-        {...blockBtnStyle}
+        size='sm'
         clickHandler={toggleSkip}
         tabIndex={-1}
-        isDisabled={loaded}
+        disabled={loaded}
       />
       <TooltipActionBtn
         variant='ontime-subtle-white'
         aria-label='Load event'
         tooltip='Load event'
         icon={<IoReload className={style.flip} />}
-        isDisabled={disablePlayback}
+        disabled={disablePlayback}
         {...tooltipProps}
-        {...blockBtnStyle}
+        size='sm'
         clickHandler={load}
         tabIndex={-1}
       />
@@ -118,9 +114,9 @@ const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
         aria-label='Start event'
         tooltip='Start event'
         icon={!isPlaying ? <IoPlay /> : <IoPause />}
-        isDisabled={disablePlayback}
+        disabled={disablePlayback}
         {...tooltipProps}
-        {...blockBtnStyle}
+        size='sm'
         {...buttonVariant}
         clickHandler={actionHandler}
         tabIndex={-1}
