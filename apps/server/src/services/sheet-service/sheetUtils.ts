@@ -85,7 +85,7 @@ export function cellRequestFromEvent(
 ): sheets_v4.Schema$Request {
   const rowData = Object.entries(metadata)
     .filter(([_, value]) => value !== undefined)
-    .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [string, { col: number; row: number }][];
+    .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [keyof OntimeEvent | 'blank', { col: number; row: number }][];
 
   const titleCol = rowData[0][1].col;
 
@@ -135,14 +135,13 @@ function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeRundownEntry
       return { userEnteredValue: { stringValue: event.custom[customKey] } };
     }
 
-    const dataType = typeof event[key];
-    if (dataType === 'number') {
+    if (typeof event[key] === 'number') {
       return { userEnteredValue: { stringValue: millisToString(event[key]) } };
     }
-    if (dataType === 'string') {
+    if (typeof event[key] === 'string') {
       return { userEnteredValue: { stringValue: event[key] } };
     }
-    if (dataType === 'boolean') {
+    if (typeof event[key] === 'boolean') {
       return { userEnteredValue: { boolValue: event[key] } };
     }
   }
