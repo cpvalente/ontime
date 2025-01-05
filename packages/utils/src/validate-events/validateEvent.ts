@@ -2,7 +2,7 @@ import type { MaybeString } from 'ontime-types';
 import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
 
 /**
- * Check if a given value is a valid type of string, returns null otherwise
+ * Check if a given value is a valid type of string, returns the fallback otherwise
  * @param {MaybeString} maybeLinkStart
  * @returns {MaybeString}
  */
