@@ -207,16 +207,17 @@ function ActionMenu(props: ActionMenuProps) {
   };
 
   return (
-    <MenuRoot variant='ontime-on-dark' size='sm' onSelect={onMenuSelect}>
+    <MenuRoot size='sm' onSelect={onMenuSelect}>
       <MenuTrigger asChild>
         <IconButton
           aria-label='Options'
-          icon={<IoEllipsisHorizontal />}
           color='#e2e2e2' // $gray-200
           variant='ontime-ghosted'
           size='sm'
-          isDisabled={isDisabled}
-        />
+          disabled={isDisabled}
+        >
+          <IoEllipsisHorizontal />
+        </IconButton>
       </MenuTrigger>
 
       <MenuContent>

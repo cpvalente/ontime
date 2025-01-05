@@ -17,11 +17,12 @@ export default function BlockDelete(props: BlockDeleteProps) {
     <IconButton
       aria-label='Delete'
       size='sm'
-      icon={<IoTrash />}
       variant='ontime-subtle'
       color='#FA5656'
       onClick={onDelete}
-      isDisabled={isRunMode}
-    />
+      disabled={isRunMode}
+    >
+      <IoTrash />
+    </IconButton>
   );
 }

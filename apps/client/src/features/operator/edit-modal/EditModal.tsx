@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
-import { Button, Textarea } from '@chakra-ui/react';
+import { Textarea } from '@chakra-ui/react';
 import { OntimeEvent } from 'ontime-types';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
+import { Button } from '../../../components/ui/button';
 import type { EditEvent } from '../Operator';
 
 import style from './EditModal.module.scss';
@@ -65,10 +66,10 @@ export default function EditModal(props: EditModalProps) {
         );
       })}
       <div className={style.buttonRow}>
-        <Button variant='ontime-subtle' onClick={onClose} isDisabled={loading}>
+        <Button variant='ontime-subtle' onClick={onClose} disabled={loading}>
           Cancel
         </Button>
-        <Button variant='ontime-filled' onClick={handleSave} isDisabled={loading}>
+        <Button variant='ontime-filled' onClick={handleSave} disabled={loading}>
           Save
         </Button>
       </div>

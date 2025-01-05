@@ -54,14 +54,9 @@ export default function PinPage(props: PinPageProps) {
             setPin(value);
           }}
         />
-        <IconButton
-          variant='ontime-filled'
-          aria-label='Enter'
-          size='lg'
-          isRound
-          icon={<IoCheckmark />}
-          onClick={validate}
-        />
+        <IconButton variant='ontime-filled' aria-label='Enter' size='lg' rounded='full' onClick={validate}>
+          <IoCheckmark />
+        </IconButton>
       </div>
     </div>
   );

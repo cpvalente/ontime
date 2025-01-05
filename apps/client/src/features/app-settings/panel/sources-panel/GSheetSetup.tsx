@@ -1,5 +1,5 @@
 import { ChangeEvent, useEffect, useState } from 'react';
-import { Button, Input, Spinner } from '@chakra-ui/react';
+import { Input, Spinner } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { IoShieldCheckmarkOutline } from '@react-icons/all-files/io5/IoShieldCheckmarkOutline';
 
@@ -7,6 +7,7 @@ import { getWorksheetNames } from '../../../../common/api/sheets';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import CopyTag from '../../../../common/components/copy-tag/CopyTag';
 import { openLink } from '../../../../common/utils/linkUtils';
+import { Button } from '../../../../components/ui/button';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import useGoogleSheet from './useGoogleSheet';
@@ -141,7 +142,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
       <Panel.Title>
         Sync with Google Sheet (experimental)
         {isAuthenticated ? (
-          <Button variant='ontime-subtle' size='sm' onClick={handleRevoke} isLoading={loading === 'cancel'}>
+          <Button variant='ontime-subtle' size='sm' onClick={handleRevoke} loading={loading === 'cancel'}>
             Revoke Authentication
           </Button>
         ) : (
@@ -180,12 +181,11 @@ export default function GSheetSetup(props: GSheetSetupProps) {
             <Button
               variant='ontime-subtle'
               size='sm'
-              leftIcon={<IoCheckmark />}
               onClick={handleConnect}
-              isDisabled={!canConnect || isLoading}
-              isLoading={loading === 'connect'}
+              disabled={!canConnect || isLoading}
+              loading={loading === 'connect'}
             >
-              Connect
+              <IoCheckmark /> Connect
             </Button>
           </div>
         </Panel.ListGroup>
@@ -196,13 +196,8 @@ export default function GSheetSetup(props: GSheetSetupProps) {
             <CopyTag copyValue={authKey ?? ''} label='Google Auth Key' disabled={!canAuthenticate} size='sm'>
               {authKey ? authKey : 'Upload files to generate Auth Key'}
             </CopyTag>
-            <Button
-              variant='ontime-filled'
-              size='sm'
-              leftIcon={<IoShieldCheckmarkOutline />}
-              onClick={handleAuthenticate}
-              isDisabled={!canAuthenticate}
-            >
+            <Button variant='ontime-filled' size='sm' onClick={handleAuthenticate} disabled={!canAuthenticate}>
+              <IoShieldCheckmarkOutline />
               Authenticate
             </Button>
           </div>
