@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
 import { CustomField } from 'ontime-types';
 import { customFieldLabelToKey, isAlphanumericWithSpace } from 'ontime-utils';
 
 import { maybeAxiosError } from '../../../../../common/api/utils';
 import SwatchSelect from '../../../../../common/components/input/colour-input/SwatchSelect';
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
+import { Button } from '../../../../../components/ui/button';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
 import style from '../FeatureSettings.module.scss';
@@ -111,7 +112,7 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
         <Button size='sm' variant='ontime-ghosted' onClick={onCancel}>
           Cancel
         </Button>
-        <Button size='sm' type='submit' variant='ontime-filled' isDisabled={!canSubmit} isLoading={isSubmitting}>
+        <Button size='sm' type='submit' variant='ontime-filled' disabled={!canSubmit} loading={isSubmitting}>
           Save
         </Button>
       </div>

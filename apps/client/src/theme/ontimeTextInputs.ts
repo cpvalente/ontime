@@ -1,6 +1,6 @@
-import { defineRecipe } from '@chakra-ui/react';
+import { defineRecipe, SystemStyleObject } from '@chakra-ui/react';
 
-const commonStyles = {
+const commonStyles: SystemStyleObject = {
   fontWeight: '400',
   backgroundColor: '#262626', // $gray-1200
   color: '#e2e2e2', // $gray-200
@@ -22,11 +22,11 @@ const commonStyles = {
   },
 };
 
-const ontimeInputFilled = {
+const ontimeInputFilled: SystemStyleObject = {
   ...commonStyles,
 };
 
-const ontimeInputGhosted = {
+const ontimeInputGhosted: SystemStyleObject = {
   ...commonStyles,
   backgroundColor: 'transparent',
   color: '#f6f6f6', // $gray-50
@@ -36,7 +36,7 @@ const ontimeInputGhosted = {
   },
 };
 
-const ontimeInputTransparent = {
+const ontimeInputTransparent: SystemStyleObject = {
   ...commonStyles,
   backgroundColor: 'transparent',
   _hover: {
@@ -44,11 +44,11 @@ const ontimeInputTransparent = {
   },
 };
 
-const ontimeTextAreaFilled = {
+const ontimeTextAreaFilled: SystemStyleObject = {
   ...commonStyles,
 };
 
-const ontimeTextAreaTransparent = {
+const ontimeTextAreaTransparent: SystemStyleObject = {
   ...commonStyles,
   backgroundColor: 'transparent',
   _hover: {

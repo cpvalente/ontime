@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
+
+import { Button } from '../../../../components/ui/button';
 
 import style from './ProjectPanel.module.scss';
 
@@ -52,7 +54,7 @@ export default function ProjectForm({ action, filename, onSubmit, onCancel }: Pr
         <Button
           size='sm'
           variant='ontime-filled'
-          isDisabled={!isDirty || !isValid || isSubmitting}
+          disabled={!isDirty || !isValid || isSubmitting}
           type='submit'
           className={style.saveButton}
         >
