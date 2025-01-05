@@ -6,8 +6,11 @@ import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
  * @param {MaybeString} maybeLinkStart
  * @returns {MaybeString}
  */
-export function validateLinkStart(maybeLinkStart: unknown): MaybeString {
-  return typeof maybeLinkStart === 'string' ? maybeLinkStart : null;
+export function validateLinkStart(maybeLinkStart: unknown, fallback: MaybeString = null): MaybeString {
+  if (typeof maybeLinkStart === 'string' || maybeLinkStart === null) {
+    return maybeLinkStart;
+  }
+  return fallback;
 }
 
 /**
