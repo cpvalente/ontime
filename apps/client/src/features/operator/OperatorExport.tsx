@@ -10,7 +10,7 @@ import Operator from './Operator';
 
 export default function OperatorExport() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const { open: isOpen, onOpen, onClose } = useDisclosure();
 
   const showEditFormDrawer = useCallback(() => {
     searchParams.set('edit', 'true');
