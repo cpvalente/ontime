@@ -54,7 +54,7 @@ export default function RundownMenu() {
             <Button ref={cancelRef} onClick={onClose} variant='ontime-ghosted-white'>
               Cancel
             </Button>
-            <Button color='red' onClick={deleteAll} ml={4}>
+            <Button colorPalette='red' onClick={deleteAll} ml={4}>
               Delete all
             </Button>
           </DialogFooter>

@@ -40,7 +40,7 @@ export default function ShutdownPanel() {
             The runtime state will be lost, but your project is kept for next time.
           </Panel.Paragraph>
         )}
-        <Button colorScheme='red' onClick={onOpen} maxWidth='350px' disabled={!(isElectron || isLocalhost)}>
+        <Button colorPalette='red' onClick={onOpen} maxWidth='350px' disabled={!(isElectron || isLocalhost)}>
           Shutdown ontime
         </Button>
         {!canShutdown && (
@@ -59,7 +59,7 @@ export default function ShutdownPanel() {
               <Button ref={cancelRef} onClick={onClose} variant='ontime-ghosted-white'>
                 Cancel
               </Button>
-              <Button colorScheme='red' onClick={sendShutdown} disabled={!canShutdown}>
+              <Button colorPalette='red' onClick={sendShutdown} disabled={!canShutdown}>
                 Shutdown
               </Button>
             </DialogFooter>
