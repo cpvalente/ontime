@@ -46,7 +46,7 @@ function NavigationMenu(props: NavigationMenuProps) {
         <DrawerRoot placement='start' onOpenChange={onClose} open={isOpen} data-testid='navigation__menu'>
           <DrawerBackdrop />
           <DrawerContent>
-            <DrawerHeader>
+            <DrawerHeader fontSize='xl' fontWeight='semibold'>
               Ontime
               <DrawerCloseTrigger />
             </DrawerHeader>
