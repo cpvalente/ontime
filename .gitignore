@@ -28,6 +28,7 @@ test-results
 playwright-report
 /playwright/.cache/
 automated-screenshots
+e2e/tests/fixtures/tmp/*
 
 # production
 build/
