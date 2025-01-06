@@ -4,11 +4,13 @@ import { alertAnatomy } from '@chakra-ui/react/anatomy';
 export const ontimeAlertRecipe = defineSlotRecipe({
   slots: alertAnatomy.keys(),
   base: {
-    content: {
+    root: {
       fontSize: 'calc(1rem - 1px)',
-      backgroundColor: '#202020', // $gray-1200
-      color: '#e2e2e2', // $gray-200
       borderRadius: '3px',
+      backgroundColor: '#202020 !important', // $gray-1200
+    },
+    title: {
+      color: '#e2e2e2', // $gray-200
     },
     indicator: {
       alignSelf: 'start',
