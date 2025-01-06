@@ -204,7 +204,7 @@ export default function UrlPresetsForm() {
                     <td className={style.flex}>
                       <TooltipActionBtn
                         size='sm'
-                        isDisabled={!canTest}
+                        disabled={!canTest}
                         clickHandler={(event) => handleLinks(event, preset.alias)}
                         tooltip='Test preset'
                         aria-label='Test preset'

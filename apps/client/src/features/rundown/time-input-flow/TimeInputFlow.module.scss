@@ -3,7 +3,7 @@
   z-index: 100;
   font-size: 0.75rem;
   font-weight: 600;
-  top: 2px;
+  top: 0px;
   right: 4px;
   color: inherit;
 }
@@ -11,12 +11,17 @@
 .timeAction {
   opacity: 0.4;
   cursor: pointer;
-  background-color: transparent;
-  padding-left: 0;
+  padding-right: 0.5em;
+  background: transparent;
+
+  &.hover {
+    background: transparent;
+  }
 
   &.active {
     opacity: 1;
     color: var(--status-color-active-override, $active-indicator);
+    background: transparent;
   }
   .fourtyfive {
     transform: rotate(-45deg);

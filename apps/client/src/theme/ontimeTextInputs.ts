@@ -1,10 +1,12 @@
 import { defineRecipe, SystemStyleObject } from '@chakra-ui/react';
 
 const commonStyles: SystemStyleObject = {
+  // is this the best way to re-enable box-sizing: border-box?
+  boxSizing: 'border-box !important',
   fontWeight: '400',
   backgroundColor: '#262626', // $gray-1200
   color: '#e2e2e2', // $gray-200
-  outline: '1px solid transparent',
+  border: '1px solid transparent',
   borderRadius: '3px',
   _hover: {
     backgroundColor: '#2d2d2d', // $gray-1100
@@ -12,7 +14,7 @@ const commonStyles: SystemStyleObject = {
   _focus: {
     backgroundColor: '#2d2d2d', // $gray-1000
     color: '#f6f6f6', // $gray-50
-    outline: '1px solid #578AF4', // $blue-500
+    border: '1px solid #578AF4', // $blue-500
   },
   _placeholder: { color: '#9d9d9d' }, // $gray-500
   _disabled: {
@@ -32,7 +34,7 @@ const ontimeInputGhosted: SystemStyleObject = {
   color: '#f6f6f6', // $gray-50
   _hover: {
     backgroundColor: 'transparent',
-    outline: '1px solid #2B5ABC', // $blue-500
+    border: '1px solid #2B5ABC', // $blue-500
   },
 };
 
@@ -59,7 +61,7 @@ const ontimeTextAreaTransparent: SystemStyleObject = {
 export const ontimeTextareaRecipe = defineRecipe({
   base: {
     borderRadius: '3px',
-    outline: '1px',
+    border: '1px',
   },
   variants: {
     variant: {
