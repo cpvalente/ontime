@@ -4,7 +4,7 @@ import { IconButton, Input } from '@chakra-ui/react';
 import { IoEyeOutline } from '@react-icons/all-files/io5/IoEyeOutline';
 import { Settings } from 'ontime-types';
 
-import { InputGroup } from '../../../../components/ui/input-group';
+import { InputGroup } from '../../../../common/components/ui/input-group';
 
 interface GeneralPinInputProps {
   register: UseFormRegister<Settings>;

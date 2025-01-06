@@ -5,9 +5,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { PROJECT_DATA } from '../../../../common/api/constants';
 import { getDb, patchData } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import { Button } from '../../../../common/components/ui/button';
+import { Switch } from '../../../../common/components/ui/switch';
 import { cx } from '../../../../common/utils/styleUtils';
-import { Button } from '../../../../components/ui/button';
-import { Switch } from '../../../../components/ui/switch';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import { makeProjectPatch } from './project.utils';

@@ -3,7 +3,13 @@ import { Input } from '@chakra-ui/react';
 import { useDebouncedCallback } from '@mantine/hooks';
 import { SupportedEvent } from 'ontime-types';
 
-import { DialogBackdrop, DialogBody, DialogContent, DialogFooter, DialogRoot } from '../../../components/ui/dialog';
+import {
+  DialogBackdrop,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogRoot,
+} from '../../../common/components/ui/dialog';
 import { useEventSelection } from '../../rundown/useEventSelection';
 
 import useFinder from './useFinder';

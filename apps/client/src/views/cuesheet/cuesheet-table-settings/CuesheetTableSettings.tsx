@@ -2,8 +2,8 @@ import { memo, ReactNode } from 'react';
 import { Column } from '@tanstack/react-table';
 import { OntimeRundownEntry } from 'ontime-types';
 
-import { Button } from '../../../components/ui/button';
-import { Checkbox } from '../../../components/ui/checkbox';
+import { Button } from '../../../common/components/ui/button';
+import { Checkbox } from '../../../common/components/ui/checkbox';
 import * as Editor from '../../../features/editors/editor-utils/EditorUtils';
 
 import style from './CuesheetTableSettings.module.scss';

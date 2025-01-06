@@ -5,8 +5,8 @@ import { Playback } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_SECOND, parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
+import { Tooltip } from '../../../../common/components/ui/tooltip';
 import { setPlayback } from '../../../../common/hooks/useSocket';
-import { Tooltip } from '../../../../components/ui/tooltip';
 import { tooltipDelayMid } from '../../../../ontimeConfig';
 import TapButton from '../tap-button/TapButton';
 

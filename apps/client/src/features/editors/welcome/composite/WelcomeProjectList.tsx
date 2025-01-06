@@ -1,5 +1,5 @@
+import { Button } from '../../../../common/components/ui/button';
 import { useOrderedProjectList } from '../../../../common/hooks-query/useProjectList';
-import { Button } from '../../../../components/ui/button';
 
 import style from '../Welcome.module.scss';
 

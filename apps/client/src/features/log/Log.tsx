@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 import { LogOrigin } from 'ontime-types';
 
+import { Button } from '../../common/components/ui/button';
 import { clearLogs, useLogData } from '../../common/stores/logger';
-import { Button } from '../../components/ui/button';
 
 import style from './Log.module.scss';
 

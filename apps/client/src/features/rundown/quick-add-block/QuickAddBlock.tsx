@@ -2,9 +2,9 @@ import { memo, useCallback, useRef } from 'react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { SupportedEvent } from 'ontime-types';
 
+import { Button } from '../../../common/components/ui/button';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useEmitLog } from '../../../common/stores/logger';
-import { Button } from '../../../components/ui/button';
 
 import style from './QuickAddBlock.module.scss';
 

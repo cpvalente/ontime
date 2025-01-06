@@ -7,9 +7,9 @@ import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { OntimeDelay } from 'ontime-types';
 
 import DelayInput from '../../../common/components/input/delay-input/DelayInput';
+import { Button } from '../../../common/components/ui/button';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { cx } from '../../../common/utils/styleUtils';
-import { Button } from '../../../components/ui/button';
 
 import style from './DelayBlock.module.scss';
 

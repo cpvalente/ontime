@@ -1,7 +1,7 @@
 import { PropsWithChildren } from 'react';
 import { IoClose } from '@react-icons/all-files/io5/IoClose';
 
-import { Button } from '../../../components/ui/button';
+import { Button } from '../../../common/components/ui/button';
 
 import style from './PanelContent.module.scss';
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { CustomFields, OntimeRundown } from 'ontime-types';
 
-import { Button } from '../../../../components/ui/button';
+import { Button } from '../../../../common/components/ui/button';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import PreviewSpreadsheet from './preview/PreviewRundown';

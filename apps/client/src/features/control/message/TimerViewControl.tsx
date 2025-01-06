@@ -1,5 +1,5 @@
+import { Button } from '../../../common/components/ui/button';
 import { setMessage, useTimerViewControl } from '../../../common/hooks/useSocket';
-import { Button } from '../../../components/ui/button';
 
 import TimerPreview from './TimerPreview';
 

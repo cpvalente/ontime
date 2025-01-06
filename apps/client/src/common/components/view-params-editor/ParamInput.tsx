@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { createListCollection, Input } from '@chakra-ui/react';
 
-import { InputGroup } from '../../../components/ui/input-group';
-import { NativeSelectField, NativeSelectRoot } from '../../../components/ui/native-select';
-import { SelectContent, SelectItem, SelectRoot, SelectTrigger, SelectValueText } from '../../../components/ui/select';
-import { Switch } from '../../../components/ui/switch';
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
+import { InputGroup } from '../ui/input-group';
+import { NativeSelectField, NativeSelectRoot } from '../ui/native-select';
+import { SelectContent, SelectItem, SelectRoot, SelectTrigger, SelectValueText } from '../ui/select';
+import { Switch } from '../ui/switch';
 
 import InlineColourPicker from './InlineColourPicker';
 import { ParamField } from './types';

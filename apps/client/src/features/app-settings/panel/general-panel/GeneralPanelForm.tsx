@@ -5,10 +5,10 @@ import { Settings } from 'ontime-types';
 
 import { postSettings } from '../../../../common/api/settings';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import { Button } from '../../../../common/components/ui/button';
+import { NativeSelectField, NativeSelectRoot } from '../../../../common/components/ui/native-select';
 import useSettings from '../../../../common/hooks-query/useSettings';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
-import { Button } from '../../../../components/ui/button';
-import { NativeSelectField, NativeSelectRoot } from '../../../../components/ui/native-select';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import GeneralPinInput from './GeneralPinInput';

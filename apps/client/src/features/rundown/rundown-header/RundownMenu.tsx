@@ -2,9 +2,7 @@ import { useCallback, useRef } from 'react';
 import { useDisclosure } from '@chakra-ui/react';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 
-import { useEventAction } from '../../../common/hooks/useEventAction';
-import { useAppMode } from '../../../common/stores/appModeStore';
-import { Button } from '../../../components/ui/button';
+import { Button } from '../../../common/components/ui/button';
 import {
   DialogBackdrop,
   DialogBody,
@@ -12,7 +10,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogRoot,
-} from '../../../components/ui/dialog';
+} from '../../../common/components/ui/dialog';
+import { useEventAction } from '../../../common/hooks/useEventAction';
+import { useAppMode } from '../../../common/stores/appModeStore';
 import { useEventSelection } from '../useEventSelection';
 
 export default function RundownMenu() {

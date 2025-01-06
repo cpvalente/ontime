@@ -2,9 +2,9 @@ import { PropsWithChildren } from 'react';
 import { Playback, TimerPhase } from 'ontime-types';
 import { dayInMs, millisToString } from 'ontime-utils';
 
+import { Tooltip } from '../../../../common/components/ui/tooltip';
 import { useTimer } from '../../../../common/hooks/useSocket';
 import { formatDuration } from '../../../../common/utils/time';
-import { Tooltip } from '../../../../components/ui/tooltip';
 import TimerDisplay from '../timer-display/TimerDisplay';
 
 import style from './PlaybackTimer.module.scss';

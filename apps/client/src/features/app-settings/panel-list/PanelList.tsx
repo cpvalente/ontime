@@ -1,8 +1,8 @@
 import { Fragment } from 'react';
 
+import { Tooltip } from '../../../common/components/ui/tooltip';
 import { isKeyEnter } from '../../../common/utils/keyEvent';
 import { cx } from '../../../common/utils/styleUtils';
-import { Tooltip } from '../../../components/ui/tooltip';
 import { tooltipDelayFast } from '../../../ontimeConfig';
 import { SettingsOption, SettingsOptionId, useAppSettingsMenu } from '../useAppSettingsMenu';
 import useAppSettingsNavigation from '../useAppSettingsNavigation';

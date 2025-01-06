@@ -7,12 +7,12 @@ import { OSCSettings } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
+import { Button } from '../../../../common/components/ui/button';
+import { NativeSelectField, NativeSelectRoot } from '../../../../common/components/ui/native-select';
+import { Switch } from '../../../../common/components/ui/switch';
 import useOscSettings, { useOscSettingsMutation } from '../../../../common/hooks-query/useOscSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
 import { isASCII, isASCIIorEmpty, isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
-import { Button } from '../../../../components/ui/button';
-import { NativeSelectField, NativeSelectRoot } from '../../../../components/ui/native-select';
-import { Switch } from '../../../../components/ui/switch';
 import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 

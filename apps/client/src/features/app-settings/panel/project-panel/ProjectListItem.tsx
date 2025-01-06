@@ -11,8 +11,8 @@ import {
   renameProject,
 } from '../../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';
+import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from '../../../../common/components/ui/menu';
 import { cx } from '../../../../common/utils/styleUtils';
-import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from '../../../../components/ui/menu';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import ProjectForm, { ProjectFormValues } from './ProjectForm';

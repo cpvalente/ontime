@@ -1,4 +1,4 @@
-import { MenuItem, MenuSeparator } from '../../../components/ui/menu';
+import { MenuItem, MenuSeparator } from '../ui/menu';
 
 import { OptionWithoutGroup } from './ContextMenu';
 

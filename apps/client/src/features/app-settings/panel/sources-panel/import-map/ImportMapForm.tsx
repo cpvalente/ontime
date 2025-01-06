@@ -5,9 +5,9 @@ import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { ImportMap, isAlphanumericWithSpace } from 'ontime-utils';
 
-import { Button } from '../../../../../components/ui/button';
-import { NativeSelectField, NativeSelectRoot } from '../../../../../components/ui/native-select';
-import { Tooltip } from '../../../../../components/ui/tooltip';
+import { Button } from '../../../../../common/components/ui/button';
+import { NativeSelectField, NativeSelectRoot } from '../../../../../common/components/ui/native-select';
+import { Tooltip } from '../../../../../common/components/ui/tooltip';
 import * as Panel from '../../../panel-utils/PanelUtils';
 import useGoogleSheet from '../useGoogleSheet';
 import { useSheetStore } from '../useSheetStore';

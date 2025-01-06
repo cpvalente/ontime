@@ -8,14 +8,6 @@ import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
 import { IoLockClosedOutline } from '@react-icons/all-files/io5/IoLockClosedOutline';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 
-import {
-  DrawerBackdrop,
-  DrawerBody,
-  DrawerCloseTrigger,
-  DrawerContent,
-  DrawerHeader,
-  DrawerRoot,
-} from '../../../components/ui/drawer';
 import { isLocalhost } from '../../../externals';
 import { navigatorConstants } from '../../../viewerConfig';
 import { useElectronEvent } from '../../hooks/useElectronEvent';
@@ -27,6 +19,7 @@ import { handleLinks, linkToOtherHost, openLink } from '../../utils/linkUtils';
 import { cx } from '../../utils/styleUtils';
 import { RenameClientModal } from '../client-modal/RenameClientModal';
 import CopyTag from '../copy-tag/CopyTag';
+import { DrawerBackdrop, DrawerBody, DrawerCloseTrigger, DrawerContent, DrawerHeader, DrawerRoot } from '../ui/drawer';
 
 import style from './NavigationMenu.module.scss';
 

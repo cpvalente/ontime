@@ -1,8 +1,8 @@
 import { MouseEvent } from 'react';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 
+import { Button } from '../../../../common/components/ui/button';
 import { handleLinks } from '../../../../common/utils/linkUtils';
-import { Button } from '../../../../components/ui/button';
 import Log from '../../../log/Log';
 import * as Panel from '../../panel-utils/PanelUtils';
 

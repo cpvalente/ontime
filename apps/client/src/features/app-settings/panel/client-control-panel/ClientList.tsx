@@ -3,9 +3,9 @@ import { Badge, useDisclosure } from '@chakra-ui/react';
 
 import { RedirectClientModal } from '../../../../common/components/client-modal/RedirectClientModal';
 import { RenameClientModal } from '../../../../common/components/client-modal/RenameClientModal';
+import { Button } from '../../../../common/components/ui/button';
 import { setClientRemote } from '../../../../common/hooks/useSocket';
 import { useClientStore } from '../../../../common/stores/clientStore';
-import { Button } from '../../../../components/ui/button';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './ClientControlPanel.module.scss';

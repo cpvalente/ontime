@@ -3,11 +3,11 @@ import { useSearchParams } from 'react-router-dom';
 import { CustomFieldLabel, isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import CopyTag from '../../../common/components/copy-tag/CopyTag';
+import { Button } from '../../../common/components/ui/button';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import useRundown from '../../../common/hooks-query/useRundown';
 import { getAccessibleColour } from '../../../common/utils/styleUtils';
-import { Button } from '../../../components/ui/button';
 import * as Editor from '../../editors/editor-utils/EditorUtils';
 import { useEventSelection } from '../useEventSelection';
 

@@ -5,8 +5,8 @@ import { ReactElement } from 'react';
 import { IconType } from '@react-icons/all-files';
 import { create } from 'zustand';
 
-import { Button } from '../../../components/ui/button';
-import { MenuContent, MenuItemGroup, MenuRoot, MenuTrigger } from '../../../components/ui/menu';
+import { Button } from '../ui/button';
+import { MenuContent, MenuItemGroup, MenuRoot, MenuTrigger } from '../ui/menu';
 
 import { ContextMenuOption } from './ContextMenuOption';
 

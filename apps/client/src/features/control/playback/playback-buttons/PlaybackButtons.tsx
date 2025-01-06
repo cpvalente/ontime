@@ -8,8 +8,8 @@ import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { Playback, TimerPhase } from 'ontime-types';
 import { validatePlayback } from 'ontime-utils';
 
+import { Tooltip } from '../../../../common/components/ui/tooltip';
 import { setPlayback } from '../../../../common/hooks/useSocket';
-import { Tooltip } from '../../../../components/ui/tooltip';
 import { tooltipDelayMid } from '../../../../ontimeConfig';
 import TapButton from '../tap-button/TapButton';
 

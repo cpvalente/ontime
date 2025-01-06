@@ -6,8 +6,8 @@ import { IoShieldCheckmarkOutline } from '@react-icons/all-files/io5/IoShieldChe
 import { getWorksheetNames } from '../../../../common/api/sheets';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import CopyTag from '../../../../common/components/copy-tag/CopyTag';
+import { Button } from '../../../../common/components/ui/button';
 import { openLink } from '../../../../common/utils/linkUtils';
-import { Button } from '../../../../components/ui/button';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import useGoogleSheet from './useGoogleSheet';

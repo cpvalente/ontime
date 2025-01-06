@@ -8,9 +8,9 @@ import { type ProjectData } from 'ontime-types';
 import { projectLogoPath } from '../../../../common/api/constants';
 import { postProjectData, uploadProjectLogo } from '../../../../common/api/project';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import { Button } from '../../../../common/components/ui/button';
 import useProjectData from '../../../../common/hooks-query/useProjectData';
 import { validateLogo } from '../../../../common/utils/uploadUtils';
-import { Button } from '../../../../components/ui/button';
 import { documentationUrl, websiteUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 

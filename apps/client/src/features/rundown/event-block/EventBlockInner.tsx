@@ -11,8 +11,8 @@ import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
+import { Tooltip } from '../../../common/components/ui/tooltip';
 import { cx } from '../../../common/utils/styleUtils';
-import { Tooltip } from '../../../components/ui/tooltip';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import TimeInputFlow from '../time-input-flow/TimeInputFlow';

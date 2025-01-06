@@ -7,11 +7,11 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import { postViewSettings } from '../../../../common/api/viewSettings';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import { PopoverPickerRHF } from '../../../../common/components/input/popover-picker/PopoverPicker';
+import { Alert } from '../../../../common/components/ui/alert';
+import { Button } from '../../../../common/components/ui/button';
+import { Switch } from '../../../../common/components/ui/switch';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
-import { Alert } from '../../../../components/ui/alert';
-import { Button } from '../../../../components/ui/button';
-import { Switch } from '../../../../components/ui/switch';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './GeneralPanel.module.scss';

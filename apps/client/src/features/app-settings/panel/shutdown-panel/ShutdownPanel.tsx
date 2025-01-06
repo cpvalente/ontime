@@ -1,8 +1,7 @@
 import { useRef } from 'react';
 import { useDisclosure } from '@chakra-ui/react';
 
-import { useElectronEvent } from '../../../../common/hooks/useElectronEvent';
-import { Button } from '../../../../components/ui/button';
+import { Button } from '../../../../common/components/ui/button';
 import {
   DialogBackdrop,
   DialogBody,
@@ -10,7 +9,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogRoot,
-} from '../../../../components/ui/dialog';
+} from '../../../../common/components/ui/dialog';
+import { useElectronEvent } from '../../../../common/hooks/useElectronEvent';
 import { isLocalhost, isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 

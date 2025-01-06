@@ -6,8 +6,7 @@ import { parseUserTime } from 'ontime-utils';
 import { quickProject } from '../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../common/api/utils';
 import TimeInput from '../../../common/components/input/time-input/TimeInput';
-import { editorSettingsDefaults, useEditorSettings } from '../../../common/stores/editorSettings';
-import { Button } from '../../../components/ui/button';
+import { Button } from '../../../common/components/ui/button';
 import {
   DialogBackdrop,
   DialogBody,
@@ -16,9 +15,10 @@ import {
   DialogFooter,
   DialogHeader,
   DialogRoot,
-} from '../../../components/ui/dialog';
-import { NativeSelectField, NativeSelectRoot } from '../../../components/ui/native-select';
-import { Switch } from '../../../components/ui/switch';
+} from '../../../common/components/ui/dialog';
+import { NativeSelectField, NativeSelectRoot } from '../../../common/components/ui/native-select';
+import { Switch } from '../../../common/components/ui/switch';
+import { editorSettingsDefaults, useEditorSettings } from '../../../common/stores/editorSettings';
 import * as Panel from '../panel-utils/PanelUtils';
 
 import { quickStartDefaults } from './quickStart.utils';

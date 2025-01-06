@@ -1,6 +1,6 @@
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
+import { Alert } from '../../../../common/components/ui/alert';
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
-import { Alert } from '../../../../components/ui/alert';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 

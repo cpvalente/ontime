@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { loadDemo, loadProject } from '../../../common/api/db';
 import { invalidateAllCaches } from '../../../common/api/utils';
 import ExternalLink from '../../../common/components/external-link/ExternalLink';
-import { Button } from '../../../components/ui/button';
+import { Button } from '../../../common/components/ui/button';
 import {
   DialogBackdrop,
   DialogBody,
   DialogCloseTrigger,
   DialogContent,
   DialogRoot,
-} from '../../../components/ui/dialog';
+} from '../../../common/components/ui/dialog';
 import { appVersion, discordUrl, documentationUrl, websiteUrl } from '../../../externals';
 
 import ImportProjectButton from './composite/ImportProjectButton';

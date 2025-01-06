@@ -2,9 +2,9 @@ import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
+import { NativeSelectField, NativeSelectRoot } from '../../../../common/components/ui/native-select';
+import { Switch } from '../../../../common/components/ui/switch';
 import { editorSettingsDefaults, useEditorSettings } from '../../../../common/stores/editorSettings';
-import { NativeSelectField, NativeSelectRoot } from '../../../../components/ui/native-select';
-import { Switch } from '../../../../components/ui/switch';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 export default function EditorSettingsForm() {

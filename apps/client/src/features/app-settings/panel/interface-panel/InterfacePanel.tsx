@@ -1,4 +1,4 @@
-import { Alert } from '../../../../components/ui/alert';
+import { Alert } from '../../../../common/components/ui/alert';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import EditorSettingsForm from './EditorSettingsForm';

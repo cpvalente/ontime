@@ -3,11 +3,11 @@ import { Group, IconButton } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { IoCopy } from '@react-icons/all-files/io5/IoCopy';
 
-import { Button } from '../../../components/ui/button';
-import { Tooltip } from '../../../components/ui/tooltip';
 import { tooltipDelayFast } from '../../../ontimeConfig';
 import { Size } from '../../models/Util.type';
 import copyToClipboard from '../../utils/copyToClipboard';
+import { Button } from '../ui/button';
+import { Tooltip } from '../ui/tooltip';
 
 interface CopyTagProps {
   copyValue: string;

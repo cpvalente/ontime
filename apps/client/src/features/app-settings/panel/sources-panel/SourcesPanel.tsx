@@ -11,8 +11,8 @@ import {
 } from '../../../../common/api/excel';
 import { getWorksheetNames } from '../../../../common/api/sheets';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import { Button } from '../../../../common/components/ui/button';
 import { validateExcelImport } from '../../../../common/utils/uploadUtils';
-import { Button } from '../../../../components/ui/button';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import ImportMapForm from './import-map/ImportMapForm';

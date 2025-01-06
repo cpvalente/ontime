@@ -1,7 +1,7 @@
 import { MouseEvent, ReactNode } from 'react';
 import { IconButton, IconButtonProps } from '@chakra-ui/react';
 
-import { Tooltip } from '../../../components/ui/tooltip';
+import { Tooltip } from '../ui/tooltip';
 
 interface TooltipActionBtnProps extends IconButtonProps {
   clickHandler: (event: MouseEvent) => void | Promise<void>;

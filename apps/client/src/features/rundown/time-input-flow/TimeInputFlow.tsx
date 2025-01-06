@@ -7,10 +7,10 @@ import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
 import { MaybeString, TimeStrategy } from 'ontime-types';
 
 import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
+import { Button } from '../../../common/components/ui/button';
+import { Tooltip } from '../../../common/components/ui/tooltip';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { cx } from '../../../common/utils/styleUtils';
-import { Button } from '../../../components/ui/button';
-import { Tooltip } from '../../../components/ui/tooltip';
 import { tooltipDelayFast, tooltipDelayMid } from '../../../ontimeConfig';
 
 import style from './TimeInputFlow.module.scss';

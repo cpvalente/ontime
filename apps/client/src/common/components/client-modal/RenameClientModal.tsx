@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Input, Portal } from '@chakra-ui/react';
 
-import { Button } from '../../../components/ui/button';
+import { setClientRemote } from '../../hooks/useSocket';
+import { Button } from '../ui/button';
 import {
   DialogBackdrop,
   DialogBody,
@@ -10,8 +11,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogRoot,
-} from '../../../components/ui/dialog';
-import { setClientRemote } from '../../hooks/useSocket';
+} from '../ui/dialog';
 
 interface RenameClientModalProps {
   id: string;

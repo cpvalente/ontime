@@ -2,8 +2,8 @@ import { useRef, useState } from 'react';
 import { Textarea } from '@chakra-ui/react';
 import { OntimeEvent } from 'ontime-types';
 
+import { Button } from '../../../common/components/ui/button';
 import { useEventAction } from '../../../common/hooks/useEventAction';
-import { Button } from '../../../components/ui/button';
 import type { EditEvent } from '../Operator';
 
 import style from './EditModal.module.scss';

@@ -5,8 +5,8 @@ import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 
 import { uploadProjectFile } from '../../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';
+import { Button } from '../../../../common/components/ui/button';
 import { validateProjectFile } from '../../../../common/utils/uploadUtils';
-import { Button } from '../../../../components/ui/button';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import ProjectCreateForm from './ProjectCreateForm';

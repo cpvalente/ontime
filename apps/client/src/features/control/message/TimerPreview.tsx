@@ -5,11 +5,11 @@ import { IoFlag } from '@react-icons/all-files/io5/IoFlag';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { TimerPhase, TimerType } from 'ontime-types';
 
+import { Tooltip } from '../../../common/components/ui/tooltip';
 import { useMessagePreview } from '../../../common/hooks/useSocket';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx, timerPlaceholder } from '../../../common/utils/styleUtils';
-import { Tooltip } from '../../../components/ui/tooltip';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import { Corner } from '../../editors/editor-utils/EditorUtils';
 

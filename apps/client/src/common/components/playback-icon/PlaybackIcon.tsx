@@ -3,8 +3,8 @@ import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { Playback } from 'ontime-types';
 
-import { Tooltip } from '../../../components/ui/tooltip';
 import { tooltipDelayFast } from '../../../ontimeConfig';
+import { Tooltip } from '../ui/tooltip';
 
 interface PlaybackIconProps {
   state: Playback;

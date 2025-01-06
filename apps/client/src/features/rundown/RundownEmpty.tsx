@@ -1,7 +1,7 @@
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 
 import Empty from '../../common/components/state/Empty';
-import { Button } from '../../components/ui/button';
+import { Button } from '../../common/components/ui/button';
 
 import style from './Rundown.module.scss';
 

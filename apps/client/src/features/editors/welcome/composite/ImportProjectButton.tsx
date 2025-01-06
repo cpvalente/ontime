@@ -8,8 +8,8 @@ import { Input } from '@chakra-ui/react';
 
 import { uploadProjectFile } from '../../../../common/api/db';
 import { invalidateAllCaches } from '../../../../common/api/utils';
+import { Button } from '../../../../common/components/ui/button';
 import { validateProjectFile } from '../../../../common/utils/uploadUtils';
-import { Button } from '../../../../components/ui/button';
 
 interface ImportProjectButtonProps {
   onFinish: () => void;

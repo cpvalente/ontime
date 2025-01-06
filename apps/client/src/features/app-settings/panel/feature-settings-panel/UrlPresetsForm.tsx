@@ -10,12 +10,12 @@ import { postUrlPresets } from '../../../../common/api/urlPresets';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import TooltipActionBtn from '../../../../common/components/buttons/TooltipActionBtn';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
+import { Alert } from '../../../../common/components/ui/alert';
+import { Button } from '../../../../common/components/ui/button';
+import { Switch } from '../../../../common/components/ui/switch';
 import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
 import { handleLinks } from '../../../../common/utils/linkUtils';
 import { validateUrlPresetPath } from '../../../../common/utils/urlPresets';
-import { Alert } from '../../../../components/ui/alert';
-import { Button } from '../../../../components/ui/button';
-import { Switch } from '../../../../components/ui/switch';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './FeatureSettings.module.scss';

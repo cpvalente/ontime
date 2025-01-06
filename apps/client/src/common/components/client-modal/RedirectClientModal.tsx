@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Input } from '@chakra-ui/react';
 
-import { Button } from '../../../components/ui/button';
+import { setClientRemote } from '../../hooks/useSocket';
+import { Button } from '../ui/button';
 import {
   DialogBackdrop,
   DialogBody,
@@ -10,9 +11,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogRoot,
-} from '../../../components/ui/dialog';
-import { InputGroup } from '../../../components/ui/input-group';
-import { setClientRemote } from '../../hooks/useSocket';
+} from '../ui/dialog';
+import { InputGroup } from '../ui/input-group';
 
 interface RedirectClientModalProps {
   id: string;

@@ -4,9 +4,9 @@ import { CustomField, CustomFieldLabel } from 'ontime-types';
 
 import { deleteCustomField, editCustomField, postCustomField } from '../../../../../common/api/customFields';
 import ExternalLink from '../../../../../common/components/external-link/ExternalLink';
+import { Alert } from '../../../../../common/components/ui/alert';
+import { Button } from '../../../../../common/components/ui/button';
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
-import { Alert } from '../../../../../components/ui/alert';
-import { Button } from '../../../../../components/ui/button';
 import { customFieldsDocsUrl } from '../../../../../externals';
 import * as Panel from '../../../panel-utils/PanelUtils';
 

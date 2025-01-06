@@ -2,7 +2,7 @@ import { HexAlphaColorPicker } from 'react-colorful';
 import { useController, UseControllerProps } from 'react-hook-form';
 import { ViewSettings } from 'ontime-types';
 
-import { PopoverBody, PopoverContent, PopoverRoot, PopoverTrigger } from '../../../../components/ui/popover';
+import { PopoverBody, PopoverContent, PopoverRoot, PopoverTrigger } from '../../ui/popover';
 
 import style from './PopoverPicker.module.scss';
 

@@ -1,5 +1,5 @@
+import { Tooltip } from '../../../common/components/ui/tooltip';
 import { cx } from '../../../common/utils/styleUtils';
-import { Tooltip } from '../../../components/ui/tooltip';
 
 import style from './TimeLayout.module.scss';
 

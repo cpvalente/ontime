@@ -6,12 +6,12 @@ import { HttpSettings } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
+import { Button } from '../../../../common/components/ui/button';
+import { NativeSelectField, NativeSelectRoot } from '../../../../common/components/ui/native-select';
+import { Switch } from '../../../../common/components/ui/switch';
 import { useHttpSettings, usePostHttpSettings } from '../../../../common/hooks-query/useHttpSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
 import { startsWithHttp } from '../../../../common/utils/regex';
-import { Button } from '../../../../components/ui/button';
-import { NativeSelectField, NativeSelectRoot } from '../../../../components/ui/native-select';
-import { Switch } from '../../../../components/ui/switch';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import { cycles } from './integrationUtils';

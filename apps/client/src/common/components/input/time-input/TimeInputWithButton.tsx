@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 
-import { InputGroup } from '../../../../components/ui/input-group';
 import { cx } from '../../../utils/styleUtils';
+import { InputGroup } from '../../ui/input-group';
 
 import TimeInput from './TimeInput';
 

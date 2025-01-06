@@ -3,10 +3,10 @@ import { EndAction, MaybeString, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
+import { NativeSelectField, NativeSelectRoot } from '../../../../common/components/ui/native-select';
+import { Switch } from '../../../../common/components/ui/switch';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
-import { NativeSelectField, NativeSelectRoot } from '../../../../components/ui/native-select';
-import { Switch } from '../../../../components/ui/switch';
 import * as Editor from '../../../editors/editor-utils/EditorUtils';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
 
