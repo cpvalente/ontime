@@ -11,7 +11,8 @@
 .timeAction {
   opacity: 0.4;
   cursor: pointer;
-  padding-right: 0.5em;
+  background-color: transparent;
+  padding-left: 0;
 
   &.active {
     opacity: 1;
