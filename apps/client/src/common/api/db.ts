@@ -12,7 +12,7 @@ const dbPath = `${apiEntryUrl}/db`;
  * HTTP request to the current DB
  */
 export function getDb(filename: string): Promise<AxiosResponse<DatabaseModel>> {
-  return axios.post(`${dbPath}/download/`, { filename });
+  return axios.post(`${dbPath}/download`, { filename });
 }
 
 /**
