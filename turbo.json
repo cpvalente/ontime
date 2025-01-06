@@ -3,10 +3,12 @@
   "globalEnv": ["NODE_ENV", "GITHUB_TOKEN"],
   "tasks": {
     "dev": {
-      "cache": false
+      "cache": false,
+      "persistent": true
     },
     "dev:server": {
-      "cache": false
+      "cache": false,
+      "persistent": true
     },
     "dev:test": {
       "cache": false
