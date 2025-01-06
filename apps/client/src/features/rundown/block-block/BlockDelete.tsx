@@ -16,7 +16,7 @@ export default function BlockDelete(props: BlockDeleteProps) {
   return (
     <IconButton
       aria-label='Delete'
-      size='sm'
+      size='xs'
       variant='ontime-subtle'
       color='#FA5656'
       onClick={onDelete}

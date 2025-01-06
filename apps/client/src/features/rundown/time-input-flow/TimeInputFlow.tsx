@@ -76,7 +76,7 @@ function TimeInputFlow(props: EventBlockTimerProps) {
           disabled={Boolean(linkStart)}
           endElement={
             <Tooltip content='Link start to previous end' openDelay={tooltipDelayMid}>
-              <Button className={activeStart} onClick={() => handleLink(!linkStart)}>
+              <Button className={activeStart} onClick={() => handleLink(!linkStart)} size='2xs'>
                 <span className={style.timeLabel}>S</span>
                 <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
               </Button>
@@ -100,6 +100,7 @@ function TimeInputFlow(props: EventBlockTimerProps) {
                 className={activeEnd}
                 onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}
                 data-testid='lock__end'
+                size='2xs'
               >
                 <span className={style.timeLabel}>E</span>
                 {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
@@ -123,6 +124,7 @@ function TimeInputFlow(props: EventBlockTimerProps) {
                 className={activeDuration}
                 onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}
                 data-testid='lock__duration'
+                size='2xs'
               >
                 <span className={style.timeLabel}>D</span>
                 {isLockedDuration ? <IoLockClosed /> : <IoLockOpenOutline />}

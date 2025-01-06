@@ -50,7 +50,7 @@ export default function EditableBlockTitle(props: TitleEditorProps) {
       autoComplete='off'
       fontWeight='600'
       letterSpacing='0.25px'
-      paddingLeft='0'
+      paddingInline={0}
     />
   );
 }

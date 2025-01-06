@@ -18,7 +18,7 @@ $skip-opacity: 0.2;
   grid-template-rows: 0.25rem 2.25rem 2.25rem 2.25rem 0.25rem;
   align-items: center;
   padding-right: $block-clearance;
-  gap: 2px;
+  gap: 4px;
 
   transition-property: background-color;
   transition-duration: $transition-time-feedback;

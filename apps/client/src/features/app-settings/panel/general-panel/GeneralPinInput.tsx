@@ -20,11 +20,11 @@ export default function GeneralPinInput(props: PropsWithChildren<GeneralPinInput
   return (
     <InputGroup
       width='100px'
-      startElement={
+      endElement={
         <IconButton
           onMouseDown={() => setVisible(true)}
           onMouseUp={() => setVisible(false)}
-          size='sm'
+          size='xs'
           variant='ontime-ghosted'
           aria-label='Show pin code'
         >

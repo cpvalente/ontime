@@ -1,8 +1,7 @@
-@import "./MessageControl.module.scss";
+@import './MessageControl.module.scss';
 
 .inputItems {
-  display: grid;
-  grid-template-columns: 1fr auto;
+  display: flex;
   gap: $element-spacing;
   margin-top: $element-inner-spacing;
 }
