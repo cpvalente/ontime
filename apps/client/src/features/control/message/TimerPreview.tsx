@@ -16,7 +16,7 @@ import { Corner } from '../../editors/editor-utils/EditorUtils';
 import style from './MessageControl.module.scss';
 
 export default function TimerPreview() {
-  const { blink, blackout, isTimeToEnd, phase, showAuxTimer, showExternalMessage, showTimerMessage, timerType } =
+  const { blink, blackout, countToEnd, phase, showAuxTimer, showExternalMessage, showTimerMessage, timerType } =
     useMessagePreview();
   const { data } = useViewSettings();
 
@@ -28,7 +28,7 @@ export default function TimerPreview() {
     if (phase === TimerPhase.Pending) return 'Standby to start';
     if (phase === TimerPhase.Overtime && data.endMessage) return 'Custom end message';
     if (timerType === TimerType.Clock) return 'Clock';
-    if (isTimeToEnd) return 'Target event scheduled end';
+    if (countToEnd) return 'Count to End';
     return 'Timer';
   })();
 
@@ -77,8 +77,8 @@ export default function TimerPreview() {
         <Tooltip content='Time type: None' openDelay={tooltipDelayMid}>
           <IoBan className={style.statusIcon} data-active={timerType === TimerType.None} />
         </Tooltip>
-        <Tooltip content={isTimeToEnd ? 'Count to schedule' : 'Count from start'} openDelay={tooltipDelayMid}>
-          <IoFlag className={style.statusIcon} data-active={isTimeToEnd} />
+        <Tooltip content={countToEnd ? 'Count to end' : 'Count duration'} openDelay={tooltipDelayMid}>
+          <IoFlag className={style.statusIcon} data-active={countToEnd} />
         </Tooltip>
       </div>
     </div>

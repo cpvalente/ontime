@@ -2,31 +2,32 @@ import * as messageService from '../MessageService.js';
 
 describe('MessageService', () => {
   beforeEach(() => {
+    // at runtime, the store is instantiated before the message service
+    const store = {};
+    const storeSetter = (key, value) => (store[key] = value);
+    const storeGetter = (key) => store[key];
+    messageService.init(storeSetter, storeGetter);
     messageService.clear();
   });
 
   it('should patch the message state', () => {
-    const message = {
+    const newState = messageService.patch({
       timer: { text: 'new text', visible: true },
       external: 'external',
-    };
+    });
 
-    const newState = messageService.patch(message);
-
-    expect(newState).toEqual({
+    expect(newState).toMatchObject({
       timer: { text: 'new text', visible: true, blackout: false, blink: false, secondarySource: null },
       external: 'external',
     });
   });
 
   it('should not affect other properties when patching', () => {
-    const initialMessage = {
+    const newState = messageService.patch({
       timer: { text: 'initial text', visible: true },
-    };
+    });
 
-    const newState = messageService.patch(initialMessage);
-
-    expect(newState).toEqual({
+    expect(newState).toMatchObject({
       timer: { text: 'initial text', visible: true, blackout: false, blink: false, secondarySource: null },
       external: '',
     });

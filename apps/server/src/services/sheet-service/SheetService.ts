@@ -74,10 +74,11 @@ export function revoke(): ReturnType<typeof hasAuth> {
  */
 export function handleClientSecret(clientSecret: string): ClientSecret {
   const clientSecretObject = JSON.parse(clientSecret);
-  const isValid = validateClientSecret(clientSecretObject);
 
-  if (!isValid) {
-    throw new Error('Client secret invalid');
+  try {
+    validateClientSecret(clientSecretObject);
+  } catch (error) {
+    throw new Error(`Client secret is invalid: ${error}`);
   }
 
   return clientSecretObject;

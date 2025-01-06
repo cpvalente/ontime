@@ -86,7 +86,7 @@ function getCustomFields(): Readonly<CustomFields> {
 }
 
 async function setRundown(newData: OntimeRundown): ReadonlyPromise<OntimeRundown> {
-  db.data.rundown = [...newData];
+  db.data.rundown = newData;
   await persist();
   return db.data.rundown;
 }

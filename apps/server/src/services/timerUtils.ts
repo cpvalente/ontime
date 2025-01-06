@@ -1,5 +1,5 @@
-import { MaybeNumber, Playback, TimerPhase } from 'ontime-types';
-import { dayInMs } from 'ontime-utils';
+import { MaybeNumber, TimerPhase } from 'ontime-types';
+import { dayInMs, isPlaybackActive } from 'ontime-utils';
 import { RuntimeState } from '../stores/runtimeState.js';
 
 /**
@@ -19,7 +19,7 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
     return null;
   }
 
-  const { isTimeToEnd, timeEnd } = state.eventNow;
+  const { countToEnd, timeEnd } = state.eventNow;
   const { pausedAt } = state._timer;
   const { clock } = state;
 
@@ -33,7 +33,7 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
 
   const pausedTime = pausedAt != null ? clock - pausedAt : 0;
 
-  if (isTimeToEnd) {
+  if (countToEnd) {
     return timeEnd + addedTime + pausedTime;
   }
 
@@ -62,11 +62,11 @@ export function getCurrent(state: RuntimeState): number {
     }
   }
   const { startedAt, duration, addedTime } = state.timer;
-  const { isTimeToEnd, timeStart, timeEnd } = state.eventNow;
+  const { countToEnd, timeStart, timeEnd } = state.eventNow;
   const { pausedAt } = state._timer;
   const { clock } = state;
 
-  if (isTimeToEnd) {
+  if (countToEnd) {
     const isEventOverMidnight = timeStart > timeEnd;
     const correctDay = isEventOverMidnight ? dayInMs : 0;
     return correctDay - clock + timeEnd + addedTime;
@@ -131,7 +131,7 @@ export function getRuntimeOffset(state: RuntimeState): number {
   }
 
   const { clock } = state;
-  const { isTimeToEnd, timeStart } = state.eventNow;
+  const { countToEnd, timeStart } = state.eventNow;
   const { addedTime, current, startedAt } = state.timer;
 
   // if we havent started, but the timer is armed
@@ -142,7 +142,7 @@ export function getRuntimeOffset(state: RuntimeState): number {
 
   const overtime = Math.min(current, 0);
   // in time-to-end, offset is overtime
-  if (isTimeToEnd) {
+  if (countToEnd) {
     return overtime;
   }
 
@@ -188,24 +188,11 @@ export function getExpectedEnd(state: RuntimeState): MaybeNumber {
 }
 
 /**
- * Utility checks whether the playback is considered to be active
- * @param state
- * @returns
- */
-export function isPlaybackActive(state: RuntimeState): boolean {
-  return (
-    state.timer.playback === Playback.Play ||
-    state.timer.playback === Playback.Pause ||
-    state.timer.playback === Playback.Roll
-  );
-}
-
-/**
  * Checks running timer to see which phase it currently is in
  * @param state
  */
 export function getTimerPhase(state: RuntimeState): TimerPhase {
-  if (!isPlaybackActive(state)) {
+  if (!isPlaybackActive(state.timer.playback)) {
     return TimerPhase.None;
   }
 

@@ -1,8 +1,8 @@
 import { memo } from 'react';
 
-import { millisToDelayString } from '../../../common/utils/dateConfig';
+import { millisToDelayString } from '../../../../common/utils/dateConfig';
 
-import style from '../Cuesheet.module.scss';
+import style from '../CuesheetTable.module.scss';
 
 interface DelayRowProps {
   duration: number;

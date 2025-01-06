@@ -1,6 +1,16 @@
 import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { isOntimeEvent, OntimeEvent, OntimeRundownEntry, RundownCached } from 'ontime-types';
+import {
+  isOntimeEvent,
+  OntimeBlock,
+  OntimeDelay,
+  OntimeEvent,
+  OntimeRundownEntry,
+  RundownCached,
+  TimeField,
+  TimeStrategy,
+  TransientEventPayload,
+} from 'ontime-types';
 import { dayInMs, MILLIS_PER_SECOND, parseUserTime, reorderArray, swapEventData } from 'ontime-utils';
 
 import { RUNDOWN } from '../api/constants';
@@ -18,6 +28,16 @@ import {
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
 import { useEditorSettings } from '../stores/editorSettings';
+
+export type EventOptions = Partial<{
+  // options to any new block (event / delay / block)
+  after: string;
+  before: string;
+  // options to blocks of type OntimeEvent
+  defaultPublic: boolean;
+  linkPrevious: boolean;
+  lastEventId: string;
+}>;
 
 /**
  * @description Set of utilities for events //TODO: should this be called useEntryAction and so on
@@ -47,31 +67,19 @@ export const useEventAction = () => {
     networkMode: 'always',
   });
 
-  // options to any new block (event / delay / block)
-  type BaseOptions = {
-    after?: string;
-  };
-
-  // options to blocks of type OntimeEvent
-  type EventOptions = BaseOptions &
-    Partial<{
-      defaultPublic: boolean;
-      linkPrevious: boolean;
-      lastEventId: string;
-    }>;
-
   /**
    * Adds an event to rundown
    */
   const addEvent = useCallback(
-    async (event: Partial<OntimeRundownEntry>, options?: EventOptions) => {
-      const newEvent: Partial<OntimeRundownEntry> = { ...event };
+    async (event: Partial<OntimeEvent | OntimeDelay | OntimeBlock>, options?: EventOptions) => {
+      const newEvent: TransientEventPayload = { ...event };
 
       // ************* CHECK OPTIONS specific to events
       if (isOntimeEvent(newEvent)) {
         // merge creation time options with event settings
         const applicationOptions = {
           after: options?.after,
+          before: options?.before,
           defaultPublic: options?.defaultPublic ?? defaultPublic,
           lastEventId: options?.lastEventId,
           linkPrevious: options?.linkPrevious ?? linkPrevious,
@@ -121,11 +129,16 @@ export const useEventAction = () => {
 
       // handle adding options that concern all event type
       if (options?.after) {
+        // @ts-expect-error -- not sure how to type this, <after> is a transient property
         newEvent.after = options.after;
+      }
+      if (options?.before) {
+        // @ts-expect-error -- not sure how to type this, <before> is a transient property
+        newEvent.before = options.before;
       }
 
       try {
-        await _addEventMutation.mutateAsync(newEvent);
+        await _addEventMutation.mutateAsync(newEvent as TransientEventPayload);
       } catch (error) {
         logAxiosError('Failed adding event', error);
       }
@@ -203,13 +216,75 @@ export const useEventAction = () => {
     [updateEvent],
   );
 
-  type TimeField = 'timeStart' | 'timeEnd' | 'duration';
   /**
    * Updates time of existing event
+   * @param eventId {string} - id of the event
+   * @param field {TimeField} - field to update
+   * @param value {string} - new value string to be parsed
+   * @param lockOnUpdate {boolean} - whether we will apply the lock / release on update
    */
   const updateTimer = useCallback(
-    async (eventId: string, field: TimeField, value: string) => {
-      const getPreviousEnd = (): number => {
+    async (eventId: string, field: TimeField, value: string, lockOnUpdate?: boolean) => {
+      // an empty value with no lock has no domain validity
+      if (!lockOnUpdate && value === '') {
+        return;
+      }
+
+      const newEvent: Partial<OntimeEvent> = {
+        id: eventId,
+      };
+
+      // check if we should lock the field
+      if (lockOnUpdate) {
+        if (field === 'timeEnd') {
+          // an empty value indicates that we should unlock the field
+          newEvent.timeStrategy = value === '' ? TimeStrategy.LockDuration : TimeStrategy.LockEnd;
+          newEvent.timeEnd = value === '' ? undefined : calculateNewValue();
+        } else if (field === 'duration') {
+          // an empty value indicates that we should unlock the field
+          newEvent.timeStrategy = value === '' ? TimeStrategy.LockEnd : TimeStrategy.LockDuration;
+          newEvent.duration = value === '' ? undefined : calculateNewValue();
+        } else if (field === 'timeStart') {
+          // an empty values means we should link to the previous
+          newEvent.linkStart = value === '' ? 'true' : null;
+          newEvent.timeStart = value === '' ? undefined : calculateNewValue();
+        }
+      } else {
+        newEvent[field] = calculateNewValue();
+      }
+
+      try {
+        await _updateEventMutation.mutateAsync(newEvent);
+      } catch (error) {
+        logAxiosError('Error updating event', error);
+      }
+
+      /**
+       * Utility function to calculate the new time value
+       */
+      function calculateNewValue(): number {
+        let newValMillis = 0;
+
+        // check for previous keyword
+        if (value === 'p' || value === 'prev' || value === 'previous') {
+          newValMillis = getPreviousEnd();
+
+          // check for adding time keyword
+        } else if (value.startsWith('+') || value.startsWith('p+') || value.startsWith('p +')) {
+          // TODO: is this logic solid?
+          const remainingString = value.substring(1);
+          newValMillis = getPreviousEnd() + parseUserTime(remainingString);
+        } else {
+          newValMillis = parseUserTime(value);
+        }
+        // dont allow timer values over 23:59:59
+        return Math.min(newValMillis, dayInMs - MILLIS_PER_SECOND);
+      }
+
+      /**
+       * Utility function to get the previous event end time
+       */
+      function getPreviousEnd(): number {
         const cachedRundown = queryClient.getQueryData<RundownCached>(RUNDOWN);
 
         if (!cachedRundown?.order || !cachedRundown?.rundown) {
@@ -229,34 +304,6 @@ export const useEventAction = () => {
           }
         }
         return previousEnd;
-      };
-
-      let newValMillis = 0;
-
-      // check for previous keyword
-      if (value === 'p' || value === 'prev' || value === 'previous') {
-        newValMillis = getPreviousEnd();
-
-        // check for adding time keyword
-      } else if (value.startsWith('+') || value.startsWith('p+') || value.startsWith('p +')) {
-        // TODO: is this logic solid?
-        const remainingString = value.substring(1);
-        newValMillis = getPreviousEnd() + parseUserTime(remainingString);
-      } else {
-        newValMillis = parseUserTime(value);
-      }
-
-      // dont allow timer values over 23:59:59
-      const cappedMillis = Math.min(newValMillis, dayInMs - MILLIS_PER_SECOND);
-
-      const newEvent = {
-        id: eventId,
-        [field]: cappedMillis,
-      };
-      try {
-        await _updateEventMutation.mutateAsync(newEvent);
-      } catch (error) {
-        logAxiosError('Error updating event', error);
       }
     },
     [_updateEventMutation, queryClient],

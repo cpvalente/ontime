@@ -75,7 +75,7 @@ export default function ClientList() {
                     )}
                     {name}
                   </td>
-                  {isCurrent ? <td /> : <td className={style.pathList}>{path}</td>}
+                  <td className={style.pathList}>{path}</td>
                   <td className={style.actionButtons}>
                     <Button
                       size='xs'

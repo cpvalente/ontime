@@ -1,12 +1,12 @@
-export function debounce(callback: () => void, wait: number) {
+export function debounce<T extends any[]>(callback: (...args: T) => void, wait: number) {
   let timeout: NodeJS.Timeout | null;
-  return () => {
+  return (...args: T) => {
     if (timeout) {
-      return;
+      clearTimeout(timeout);
     }
     timeout = setTimeout(() => {
       timeout = null;
-      callback();
+      callback(...args);
     }, wait);
   };
 }

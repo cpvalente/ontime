@@ -1,7 +1,8 @@
-import { isOntimeBlock, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
+import { isOntimeBlock, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { sheets_v4 } from '@googleapis/sheets';
+import { isObject } from '../../utils/assert.js';
 
 // we expect client secret file to contain the following keys
 const requiredClientKeys = [
@@ -26,10 +27,21 @@ export type ClientSecret = {
 /**
  * Guard validates a given client secrets file
  * @param clientSecret
- * @returns
+ * @throws
  */
 export function validateClientSecret(clientSecret: object): clientSecret is ClientSecret {
-  return requiredClientKeys.every((key) => Object.keys(clientSecret['installed']).includes(key));
+  if (!('installed' in clientSecret)) {
+    throw new Error('Missing "installed" object');
+  }
+
+  const { installed } = clientSecret;
+  isObject(installed);
+
+  if (requiredClientKeys.every((key) => Object.keys(installed).includes(key))) {
+    return;
+  }
+
+  throw new Error('Missing keys in "installed" object');
 }
 
 /**
@@ -65,18 +77,18 @@ export function getA1Notation(row: number, column: number): string {
  * @param {OntimeRundownEntry} event
  * @param {number} index - index of the event
  * @param {number} worksheetId
- * @param {any} metadata - object with all the cell positions of the title of each attribute
+ * @param {object} metadata - object with all the cell positions of the title of each attribute
  * @returns {sheets_v4.Schema} - list of update requests
  */
 export function cellRequestFromEvent(
   event: OntimeRundownEntry,
   index: number,
   worksheetId: number,
-  metadata,
+  metadata: object,
 ): sheets_v4.Schema$Request {
   const rowData = Object.entries(metadata)
     .filter(([_, value]) => value !== undefined)
-    .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [string, { col: number; row: number }][];
+    .sort(([_a, a], [_b, b]) => a['col'] - b['col']) as [keyof OntimeEvent | 'blank', { col: number; row: number }][];
 
   const titleCol = rowData[0][1].col;
 
@@ -113,7 +125,7 @@ export function cellRequestFromEvent(
   };
 }
 
-function getCellData(key: string, event: OntimeRundownEntry) {
+function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeRundownEntry) {
   if (isOntimeEvent(event)) {
     if (key === 'blank') {
       return {};
@@ -126,14 +138,13 @@ function getCellData(key: string, event: OntimeRundownEntry) {
       return { userEnteredValue: { stringValue: event.custom[customKey] } };
     }
 
-    const dataType = typeof event[key];
-    if (dataType === 'number') {
+    if (typeof event[key] === 'number') {
       return { userEnteredValue: { stringValue: millisToString(event[key]) } };
     }
-    if (dataType === 'string') {
+    if (typeof event[key] === 'string') {
       return { userEnteredValue: { stringValue: event[key] } };
     }
-    if (dataType === 'boolean') {
+    if (typeof event[key] === 'boolean') {
       return { userEnteredValue: { boolValue: event[key] } };
     }
   }

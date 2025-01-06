@@ -156,9 +156,14 @@ export default function UrlPresetsForm() {
               </tr>
             </thead>
             <tbody>
+              {fields.length === 0 && <Panel.TableEmpty handleClick={addNew} />}
               {fields.map((preset, index) => {
                 const maybeAliasError = errors.data?.[index]?.alias?.message;
                 const maybeUrlError = errors.data?.[index]?.pathAndParams?.message;
+                // only saved and enabled URLs can be tested
+                const canTest =
+                  preset.alias && preset.enabled && preset.pathAndParams && !maybeAliasError && !maybeUrlError;
+
                 return (
                   <tr key={preset.id}>
                     <td className={style.fit}>
@@ -199,6 +204,7 @@ export default function UrlPresetsForm() {
                     <td className={style.flex}>
                       <TooltipActionBtn
                         size='sm'
+                        isDisabled={!canTest}
                         clickHandler={(event) => handleLinks(event, preset.alias)}
                         tooltip='Test preset'
                         aria-label='Test preset'

@@ -9,7 +9,6 @@ export enum SupportedEvent {
 export type OntimeBaseEvent = {
   type: SupportedEvent;
   id: string;
-  after?: string; // used when creating an event to indicate its position in rundown
 };
 
 export type OntimeDelay = OntimeBaseEvent & {
@@ -29,7 +28,7 @@ export type OntimeEvent = OntimeBaseEvent & {
   note: string;
   endAction: EndAction;
   timerType: TimerType;
-  isTimeToEnd: boolean;
+  countToEnd: boolean;
   linkStart: MaybeString; // ID of event to link to
   timeStrategy: TimeStrategy;
   timeStart: number;
@@ -39,10 +38,11 @@ export type OntimeEvent = OntimeBaseEvent & {
   skip: boolean;
   colour: string;
   revision: number;
-  delay?: number; // calculated at runtime
+  delay: number; // calculated at runtime
   timeWarning: number;
   timeDanger: number;
   custom: EventCustomFields;
 };
 
 export type PlayableEvent = OntimeEvent & { skip: false };
+export type TimeField = 'timeStart' | 'timeEnd' | 'duration';

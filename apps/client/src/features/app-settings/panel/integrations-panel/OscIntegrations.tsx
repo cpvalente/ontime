@@ -12,7 +12,7 @@ import { IconButton } from '../../../../common/components/ui/icon-button';
 import { NativeSelectField, NativeSelectRoot } from '../../../../common/components/ui/native-select';
 import { Switch } from '../../../../common/components/ui/switch';
 import useOscSettings, { useOscSettingsMutation } from '../../../../common/hooks-query/useOscSettings';
-import { isKeyEscape } from '../../../../common/utils/keyEvent';
+import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isASCII, isASCIIorEmpty, isIPAddress, isOnlyNumbers, startsWithSlash } from '../../../../common/utils/regex';
 import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -64,13 +64,6 @@ export default function OscIntegrations() {
       await mutateAsync(parsedValues);
     } catch (error) {
       setError('root', { message: maybeAxiosError(error) });
-    }
-  };
-
-  const preventEscape = (event: React.KeyboardEvent) => {
-    if (isKeyEscape(event)) {
-      event.preventDefault();
-      event.stopPropagation();
     }
   };
 

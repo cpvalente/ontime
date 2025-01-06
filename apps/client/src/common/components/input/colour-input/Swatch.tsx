@@ -16,11 +16,11 @@ export default function Swatch(props: SwatchProps) {
   const handleClick = () => {
     onClick?.(color);
   };
-  const classes = cx([style.swatch, isSelected ? style.selected : null, onClick ? style.selectable : null]);
+  const classes = cx([style.swatch, isSelected && style.selected, onClick && style.selectable]);
 
   if (!color) {
     return (
-      <div className={`${classes} ${style.center}`} onClick={handleClick}>
+      <div className={classes} onClick={handleClick}>
         <IoBan />
       </div>
     );

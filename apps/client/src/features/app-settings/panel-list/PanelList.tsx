@@ -70,7 +70,7 @@ function PanelListItem(props: PanelListItemProps) {
       </li>
       {panel.secondary?.map((secondary) => {
         const id = secondary.id.split('__')[1];
-        const secondaryClasses = cx([style.secondary, location === id ? style.active : null]);
+        const secondaryClasses = cx([style.secondary, isSelected && location === id ? style.active : null]);
         return (
           <li
             key={secondary.id}

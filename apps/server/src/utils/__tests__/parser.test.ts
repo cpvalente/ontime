@@ -471,7 +471,7 @@ describe('test event validator', () => {
         note: expect.any(String),
         timeStart: expect.any(Number),
         timeEnd: expect.any(Number),
-        isTimeToEnd: expect.any(Boolean),
+        countToEnd: expect.any(Boolean),
         isPublic: expect.any(Boolean),
         skip: expect.any(Boolean),
         revision: expect.any(Number),
@@ -550,7 +550,7 @@ describe('test aliases import', () => {
           pathAndParams: 'testpathAndParams',
         },
       ],
-    } as DatabaseModel;
+    } as unknown as DatabaseModel;
 
     const parsed = parseUrlPresets(testData);
     expect(parsed.length).toBe(1);
@@ -602,7 +602,7 @@ describe('test views import', () => {
         app: 'ontime',
         version: '2.0.0',
       },
-    } as DatabaseModel;
+    } as unknown as DatabaseModel;
     const parsed = parseViewSettings(testData);
     expect(parsed).toStrictEqual(dbModel.viewSettings);
   });
@@ -775,7 +775,7 @@ describe('getCustomFieldData()', () => {
       duration: 'duration',
       cue: 'cue',
       title: 'title',
-      isTimeToEnd: 'time to end',
+      countToEnd: 'count to end',
       isPublic: 'public',
       skip: 'skip',
       note: 'notes',
@@ -826,7 +826,7 @@ describe('getCustomFieldData()', () => {
       duration: 'duration',
       cue: 'cue',
       title: 'title',
-      isTimeToEnd: 'time to end',
+      countToEnd: 'count to end',
       isPublic: 'public',
       skip: 'skip',
       note: 'notes',
@@ -886,7 +886,7 @@ describe('parseExcel()', () => {
         'Title',
         'End Action',
         'Timer type',
-        'Time to end',
+        'Count to end',
         'Public',
         'Skip',
         'Notes',
@@ -909,7 +909,7 @@ describe('parseExcel()', () => {
         'Guest Welcome',
         '',
         '',
-        'x', // <-- time to end
+        'x', // <-- count to end
         'x', // <-- public
         '',
         'Ballyhoo',
@@ -932,7 +932,7 @@ describe('parseExcel()', () => {
         'A song from the hearth',
         'load-next',
         'clock',
-        'x', // <-- time to end
+        'x', // <-- count to end
         '', // <-- public
         'x',
         'Rainbow chase',
@@ -977,7 +977,7 @@ describe('parseExcel()', () => {
         timerType: 'count-down',
         endAction: 'none',
         isPublic: true,
-        isTimeToEnd: true,
+        countToEnd: true,
         skip: false,
         note: 'Ballyhoo',
         custom: {
@@ -1001,7 +1001,7 @@ describe('parseExcel()', () => {
         timeEnd: 30600000,
         title: 'A song from the hearth',
         timerType: 'clock',
-        isTimeToEnd: true,
+        countToEnd: true,
         endAction: 'load-next',
         isPublic: false,
         skip: true,

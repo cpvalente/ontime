@@ -2,12 +2,16 @@ import type { MaybeString } from 'ontime-types';
 import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
 
 /**
- * Check if a given value is a valid type of string, returns null otherwise
+ * Check if a given value is a valid type linkStart, returns the fallback otherwise
+ * linkStart can be a string (id of an event to link) or null (unlinked)
  * @param {MaybeString} maybeLinkStart
  * @returns {MaybeString}
  */
-export function validateLinkStart(maybeLinkStart: unknown): MaybeString {
-  return typeof maybeLinkStart === 'string' ? maybeLinkStart : null;
+export function validateLinkStart(maybeLinkStart: unknown, fallback: MaybeString = null): MaybeString {
+  if (typeof maybeLinkStart === 'string' || maybeLinkStart === null) {
+    return maybeLinkStart as MaybeString;
+  }
+  return fallback;
 }
 
 /**

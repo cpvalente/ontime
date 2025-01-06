@@ -438,7 +438,7 @@ describe('add() mutation', () => {
   test('adds an event to the rundown', () => {
     const mockEvent = { id: 'mock', cue: 'mock', type: SupportedEvent.Event } as OntimeEvent;
     const testRundown: OntimeRundown = [];
-    const { newRundown } = add({ atIndex: 0, event: mockEvent, persistedRundown: testRundown });
+    const { newRundown } = add({ atIndex: 0, event: mockEvent, rundown: testRundown });
     expect(newRundown.length).toBe(1);
     expect(newRundown[0]).toMatchObject(mockEvent);
   });
@@ -448,7 +448,7 @@ describe('remove() mutation', () => {
   test('deletes an event from the rundown', () => {
     const mockEvent = { id: 'mock', cue: 'mock', type: SupportedEvent.Event } as OntimeEvent;
     const testRundown: OntimeRundown = [mockEvent];
-    const { newRundown } = remove({ eventIds: [mockEvent.id], persistedRundown: testRundown });
+    const { newRundown } = remove({ eventIds: [mockEvent.id], rundown: testRundown });
     expect(newRundown.length).toBe(0);
   });
   test('deletes multiple events from the rundown', () => {
@@ -460,7 +460,7 @@ describe('remove() mutation', () => {
       { type: SupportedEvent.Event, id: '5' } as OntimeEvent,
       { type: SupportedEvent.Event, id: '6' } as OntimeEvent,
     ];
-    const { newRundown } = remove({ eventIds: ['1', '2', '3'], persistedRundown: testRundown });
+    const { newRundown } = remove({ eventIds: ['1', '2', '3'], rundown: testRundown });
     expect(newRundown.length).toBe(3);
     expect(newRundown.at(0)?.id).toBe('4');
   });
@@ -474,7 +474,7 @@ describe('edit() mutation', () => {
     const { newRundown, newEvent } = edit({
       eventId: mockEvent.id,
       patch: mockEventPatch,
-      persistedRundown: testRundown,
+      rundown: testRundown,
     });
     expect(newRundown.length).toBe(1);
     expect(newEvent).toMatchObject({
@@ -487,7 +487,7 @@ describe('edit() mutation', () => {
 
 describe('batchEdit() mutation', () => {
   it('should correctly apply the patch to the events with the given IDs', () => {
-    const persistedRundown: OntimeRundown = [
+    const testRundown: OntimeRundown = [
       { id: '1', type: SupportedEvent.Event, cue: 'data1' } as OntimeEvent,
       { id: '2', type: SupportedEvent.Event, cue: 'data2' } as OntimeEvent,
       { id: '3', type: SupportedEvent.Event, cue: 'data3' } as OntimeEvent,
@@ -495,7 +495,7 @@ describe('batchEdit() mutation', () => {
     const eventIds = ['1', '3'];
     const patch = { cue: 'newData' };
 
-    const { newRundown } = batchEdit({ persistedRundown, eventIds, patch });
+    const { newRundown } = batchEdit({ rundown: testRundown, eventIds, patch });
 
     expect(newRundown).toMatchObject([
       { id: '1', type: SupportedEvent.Event, cue: 'newData' },
@@ -507,16 +507,16 @@ describe('batchEdit() mutation', () => {
 
 describe('reorder() mutation', () => {
   it('should correctly reorder two events', () => {
-    const persistedRundown: OntimeRundown = [
+    const testRundown: OntimeRundown = [
       { id: '1', type: SupportedEvent.Event, cue: 'data1', revision: 0 } as OntimeEvent,
       { id: '2', type: SupportedEvent.Event, cue: 'data2', revision: 0 } as OntimeEvent,
       { id: '3', type: SupportedEvent.Event, cue: 'data3', revision: 0 } as OntimeEvent,
     ];
     const { newRundown } = reorder({
-      persistedRundown,
-      eventId: persistedRundown[0].id,
+      rundown: testRundown,
+      eventId: testRundown[0].id,
       from: 0,
-      to: persistedRundown.length - 1,
+      to: testRundown.length - 1,
     });
 
     expect(newRundown).toMatchObject([
@@ -529,15 +529,15 @@ describe('reorder() mutation', () => {
 
 describe('swap() mutation', () => {
   it('should correctly swap data between events', () => {
-    const persistedRundown: OntimeRundown = [
+    const testRundown: OntimeRundown = [
       { id: '1', type: SupportedEvent.Event, cue: 'data1', timeStart: 1, revision: 0 } as OntimeEvent,
       { id: '2', type: SupportedEvent.Event, cue: 'data2', timeStart: 2, revision: 0 } as OntimeEvent,
       { id: '3', type: SupportedEvent.Event, cue: 'data3', timeStart: 3, revision: 0 } as OntimeEvent,
     ];
     const { newRundown } = swap({
-      persistedRundown,
-      fromId: persistedRundown[0].id,
-      toId: persistedRundown[1].id,
+      rundown: testRundown,
+      fromId: testRundown[0].id,
+      toId: testRundown[1].id,
     });
 
     expect((newRundown[0] as OntimeEvent).id).toBe('1');
@@ -565,7 +565,7 @@ describe('calculateRuntimeDelays', () => {
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
-        isTimeToEnd: false,
+        countToEnd: false,
         timeStrategy: TimeStrategy.LockEnd,
         linkStart: null,
         timeStart: 600000,
@@ -576,6 +576,7 @@ describe('calculateRuntimeDelays', () => {
         colour: '',
         type: SupportedEvent.Event,
         revision: 0,
+        delay: 0,
         timeWarning: 120000,
         timeDanger: 60000,
         id: '659e1',
@@ -592,7 +593,7 @@ describe('calculateRuntimeDelays', () => {
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
-        isTimeToEnd: false,
+        countToEnd: false,
         timeStrategy: TimeStrategy.LockEnd,
         linkStart: null,
         timeStart: 1200000,
@@ -603,6 +604,7 @@ describe('calculateRuntimeDelays', () => {
         colour: '',
         type: SupportedEvent.Event,
         revision: 0,
+        delay: 0,
         timeWarning: 120000,
         timeDanger: 60000,
         id: '1c48f',
@@ -619,7 +621,7 @@ describe('calculateRuntimeDelays', () => {
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
-        isTimeToEnd: false,
+        countToEnd: false,
         timeStrategy: TimeStrategy.LockEnd,
         linkStart: null,
         timeStart: 600000,
@@ -630,6 +632,7 @@ describe('calculateRuntimeDelays', () => {
         colour: '',
         type: SupportedEvent.Event,
         revision: 0,
+        delay: 0,
         timeWarning: 120000,
         timeDanger: 60000,
         id: 'd48c2',
@@ -646,7 +649,7 @@ describe('calculateRuntimeDelays', () => {
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
-        isTimeToEnd: false,
+        countToEnd: false,
         timeStrategy: TimeStrategy.LockEnd,
         linkStart: null,
         timeStart: 1200000,
@@ -657,6 +660,7 @@ describe('calculateRuntimeDelays', () => {
         colour: '',
         type: SupportedEvent.Event,
         revision: 0,
+        delay: 0,
         timeWarning: 120000,
         timeDanger: 60000,
         id: '2f185',
@@ -682,7 +686,7 @@ describe('getDelayAt()', () => {
       note: '',
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
-      isTimeToEnd: false,
+      countToEnd: false,
       timeStrategy: TimeStrategy.LockEnd,
       linkStart: null,
       timeStart: 600000,
@@ -710,7 +714,7 @@ describe('getDelayAt()', () => {
       note: '',
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
-      isTimeToEnd: false,
+      countToEnd: false,
       timeStrategy: TimeStrategy.LockEnd,
       linkStart: null,
       timeStart: 1200000,
@@ -738,7 +742,7 @@ describe('getDelayAt()', () => {
       note: '',
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
-      isTimeToEnd: false,
+      countToEnd: false,
       timeStrategy: TimeStrategy.LockEnd,
       linkStart: null,
       timeStart: 600000,
@@ -766,7 +770,7 @@ describe('getDelayAt()', () => {
       note: '',
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
-      isTimeToEnd: false,
+      countToEnd: false,
       timeStrategy: TimeStrategy.LockEnd,
       linkStart: null,
       timeStart: 1200000,
@@ -820,7 +824,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
-        isTimeToEnd: false,
+        countToEnd: false,
         timeStrategy: TimeStrategy.LockEnd,
         linkStart: null,
         timeStart: 600000,
@@ -848,7 +852,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
-        isTimeToEnd: false,
+        countToEnd: false,
         timeStrategy: TimeStrategy.LockEnd,
         linkStart: null,
         timeStart: 1200000,
@@ -876,7 +880,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
-        isTimeToEnd: false,
+        countToEnd: false,
         timeStrategy: TimeStrategy.LockEnd,
         linkStart: null,
         timeStart: 600000,
@@ -904,7 +908,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
         note: '',
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
-        isTimeToEnd: false,
+        countToEnd: false,
         timeStrategy: TimeStrategy.LockEnd,
         linkStart: null,
         timeStart: 1200000,
@@ -935,7 +939,7 @@ describe('calculateRuntimeDelaysFrom()', () => {
 
 describe('custom fields', () => {
   describe('createCustomField()', () => {
-    it('creates a field from given parameters', async () => {
+    it('creates a field from given parameters', () => {
       const expected = {
         Lighting: {
           label: 'Lighting',
@@ -944,14 +948,14 @@ describe('custom fields', () => {
         },
       };
 
-      const customField = await createCustomField({ label: 'Lighting', type: 'string', colour: 'blue' });
+      const customField = createCustomField({ label: 'Lighting', type: 'string', colour: 'blue' });
       expect(customField).toStrictEqual(expected);
     });
   });
 
   describe('editCustomField()', () => {
-    it('edits a field with a given label', async () => {
-      await createCustomField({ label: 'Sound', type: 'string', colour: 'blue' });
+    it('edits a field with a given label', () => {
+      createCustomField({ label: 'Sound', type: 'string', colour: 'blue' });
 
       const expected = {
         Lighting: {
@@ -966,14 +970,14 @@ describe('custom fields', () => {
         },
       };
 
-      const customField = await editCustomField('Sound', { label: 'Sound', type: 'string', colour: 'green' });
+      const customField = editCustomField('Sound', { label: 'Sound', type: 'string', colour: 'green' });
       expect(customFieldChangelog).toStrictEqual(new Map());
 
       expect(customField).toStrictEqual(expected);
     });
 
-    it('renames a field to a new label', async () => {
-      const created = await createCustomField({ label: 'Video', type: 'string', colour: 'red' });
+    it('renames a field to a new label', () => {
+      const created = createCustomField({ label: 'Video', type: 'string', colour: 'red' });
 
       const expected = {
         Lighting: {
@@ -1015,10 +1019,10 @@ describe('custom fields', () => {
 
       // We need to flush all scheduled tasks for the generate function to settle
       vi.useFakeTimers();
-      const customField = await editCustomField('Video', { label: 'AV', type: 'string', colour: 'red' });
+      const customField = editCustomField('Video', { label: 'AV', type: 'string', colour: 'red' });
       expect(customField).toStrictEqual(expectedAfter);
       expect(customFieldChangelog).toStrictEqual(new Map([['Video', 'AV']]));
-      await editCustomField('AV', { label: 'Video' });
+      editCustomField('AV', { label: 'Video' });
       vi.runAllTimers();
       expect(customFieldChangelog).toStrictEqual(new Map());
       vi.useRealTimers();
@@ -1026,7 +1030,7 @@ describe('custom fields', () => {
   });
 
   describe('removeCustomField()', () => {
-    it('deletes a field with a given label', async () => {
+    it('deletes a field with a given label', () => {
       const expected = {
         Lighting: {
           label: 'Lighting',
@@ -1040,7 +1044,7 @@ describe('custom fields', () => {
         },
       };
 
-      const customField = await removeCustomField('Sound');
+      const customField = removeCustomField('Sound');
 
       expect(customField).toStrictEqual(expected);
     });

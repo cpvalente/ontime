@@ -86,7 +86,7 @@ export function handleCustomField(
     // rename the property if it is in the changelog
     if (customFieldChangelog.has(field)) {
       const oldData = mutableEvent.custom[field];
-      const newLabel = customFieldChangelog.get(field);
+      const newLabel = customFieldChangelog.get(field) as string; // it os OK to cast to string here since we already checked that it existed
 
       mutableEvent.custom[newLabel] = oldData;
       delete mutableEvent.custom[field];
@@ -112,6 +112,7 @@ export enum regenerateWhitelist {
   'note',
   'endAction',
   'timerType',
+  'countToEnd',
   'isPublic',
   'colour',
   'timeWarning',
@@ -143,6 +144,6 @@ export function willCauseRegeneration(key: keyof OntimeEvent): boolean {
  */
 export function hasChanges<T extends OntimeBaseEvent>(existingEvent: T, newEvent: Partial<T>): boolean {
   return Object.keys(newEvent).some(
-    (key) => !Object.hasOwn(existingEvent, key) || existingEvent[key] !== newEvent[key],
+    (key) => !Object.hasOwn(existingEvent, key) || existingEvent[key as keyof T] !== newEvent[key as keyof T],
   );
 }

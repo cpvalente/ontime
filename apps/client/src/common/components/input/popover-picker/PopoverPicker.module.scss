@@ -1,16 +1,20 @@
-.swatch {
-  width: 24px;
-  height: 24px;
-  border-radius: 12px;
-  border: 1px solid white;
-  box-shadow: 0 0 0 1px $gray-300;
-  cursor: pointer;
+.input {
+  color: $gray-200;
+  border: 1px solid transparent;
+  border-radius: 0 0 8px 8px;
+  background-color: $gray-1200;
+  padding: 0 0.5rem;
+  font-size: 1rem;
+  height: 2rem;
+  outline: none;
 
-  transition-property: box-shadow;
-  transition-duration: $transition-time-action;
+  &:hover {
+    background-color: $gray-1100;
+  }
+
+  &:focus {
+    background-color: $gray-1000;
+    color: $gray-50;
+    border: 1px solid $blue-500;
+  }
 }
-
-.swatch:hover {
-  box-shadow: 0 0 0 1px $blue-300;
-}
-
