@@ -376,7 +376,7 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     timeEnd,
     duration,
     timeStrategy,
-    linkStart: validateLinkStart(patchEvent.linkStart),
+    linkStart: validateLinkStart(patchEvent.linkStart, originalEvent.linkStart),
     endAction: validateEndAction(patchEvent.endAction, originalEvent.endAction),
     timerType: validateTimerType(patchEvent.timerType, originalEvent.timerType),
     countToEnd: typeof patchEvent.countToEnd === 'boolean' ? patchEvent.countToEnd : originalEvent.countToEnd,
