@@ -15,19 +15,19 @@ describe('test stringToOSCArgs()', () => {
 
   it('empty is nothing', () => {
     const test = undefined;
-    const expected = [];
+    const expected: any[] = [];
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
   it('empty is nothing', () => {
     const test = '';
-    const expected = [];
+    const expected: any[] = [];
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
   it('1 space is nothing', () => {
     const test = ' ';
-    const expected = [];
+    const expected: any[] = [];
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
