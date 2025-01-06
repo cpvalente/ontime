@@ -31,8 +31,15 @@ export default function RundownMenu() {
 
   return (
     <>
-      <Button size='sm' variant='ontime-outlined' onClick={onOpen} color='#FA5656' disabled={appMode === 'run'}>
-        <IoTrash /> Clear rundown
+      <Button
+        size='xs'
+        variant='ontime-outlined'
+        onClick={onOpen}
+        color='#FA5656'
+        disabled={appMode === 'run'}
+        fontSize='sm'
+      >
+        <IoTrash size='xs' /> Clear rundown
       </Button>
       <DialogRoot open={isOpen} initialFocusEl={() => cancelRef.current} onOpenChange={onClose}>
         <DialogBackdrop />

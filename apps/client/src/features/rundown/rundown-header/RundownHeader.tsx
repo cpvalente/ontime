@@ -16,10 +16,20 @@ export default function RundownHeader() {
   return (
     <div className={style.header}>
       <Group attached>
-        <Button size='sm' variant={appMode === AppMode.Run ? 'ontime-filled' : 'ontime-subtle'} onClick={setRunMode}>
+        <Button
+          size='xs'
+          fontSize='sm'
+          variant={appMode === AppMode.Run ? 'ontime-filled' : 'ontime-subtle'}
+          onClick={setRunMode}
+        >
           Run
         </Button>
-        <Button size='sm' variant={appMode === AppMode.Edit ? 'ontime-filled' : 'ontime-subtle'} onClick={setEditMode}>
+        <Button
+          size='xs'
+          fontSize='sm'
+          variant={appMode === AppMode.Edit ? 'ontime-filled' : 'ontime-subtle'}
+          onClick={setEditMode}
+        >
           Edit
         </Button>
       </Group>

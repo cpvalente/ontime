@@ -68,27 +68,24 @@ function QuickAddBlock(props: QuickAddBlockProps) {
     <div className={style.quickAdd}>
       <Button
         onClick={() => handleCreateEvent(SupportedEvent.Event)}
-        size='xs'
+        size='2xs'
         variant='ontime-subtle-white'
-        className={style.quickBtn}
         color='#b1b1b1' // $gray-400
       >
         <IoAdd /> Event
       </Button>
       <Button
         onClick={() => handleCreateEvent(SupportedEvent.Delay)}
-        size='xs'
+        size='2xs'
         variant='ontime-subtle-white'
-        className={style.quickBtn}
         color='#b1b1b1' // $gray-400
       >
         <IoAdd /> Delay
       </Button>
       <Button
         onClick={() => handleCreateEvent(SupportedEvent.Block)}
-        size='xs'
+        size='2xs'
         variant='ontime-subtle-white'
-        className={style.quickBtn}
         color='#b1b1b1' // $gray-400
       >
         <IoAdd /> Block

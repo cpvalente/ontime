@@ -5,15 +5,21 @@ export const ontimeSwitchRecipe = defineSlotRecipe({
   slots: switchAnatomy.keys(),
   base: {
     thumb: {
-      outline: '1px solid transparent',
+      outline: '2px solid transparent',
+    },
+    root: {
+      '& > [data-state="unchecked"]': {
+        background: '#2d2d2d', // $gray-1100
+      },
+      _checked: {
+        '& > [data-state="checked"]': {
+          background: '#2B5ABC', // $blue-700
+        },
+      },
     },
     control: {
-      background: '#2d2d2d', // $gray-1100
-      _checked: {
-        background: '#2B5ABC', // $blue-700
-      },
       _focus: {
-        outline: '1px solid #578AF4', // $blue-500
+        outline: '2px solid #578AF4', // $blue-500
       },
     },
   },

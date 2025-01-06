@@ -38,11 +38,13 @@ export const ontimeSelectRecipe = defineSlotRecipe({
 export const ontimeNativeSelectRecipe = defineSlotRecipe({
   slots: nativeSelectAnatomy.keys(),
   base: {
-    field: {
-      color: '#e2e2e2', // $gray-200
+    root: {
+      background: '#262626', // $gray-1100
       borderRadius: '3px',
       fontWeight: '400',
-      background: '#262626', // $gray-1100
+      color: '#e2e2e2', // $gray-200
+    },
+    field: {
       border: '0',
       _hover: {
         background: '#404040', // $gray-1000

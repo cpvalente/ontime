@@ -23,9 +23,7 @@ const commonStyles: SystemStyleObject = {
 };
 
 export const ontimeInputFilled = {
-  field: {
-    ...commonStyles,
-  },
+  ...commonStyles,
 };
 
 const ontimeInputGhosted: SystemStyleObject = {
