@@ -1,5 +1,4 @@
 import { useRef } from 'react';
-import { Menu } from '@chakra-ui/react';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import Color from 'color';
 import {
@@ -13,6 +12,7 @@ import {
   TimeField,
 } from 'ontime-types';
 
+import { MenuRoot } from '../../../common/components/ui/menu';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import useFollowComponent from '../../../common/hooks/useFollowComponent';
 import { useSelectedEventId } from '../../../common/hooks/useSocket';
@@ -165,7 +165,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
                 }
 
                 return (
-                  <Menu key={key} variant='ontime-on-dark' size='sm' isLazy>
+                  <MenuRoot key={key} size='sm' lazyMount>
                     <EventRow
                       eventIndex={eventIndex}
                       isPast={isPast}
@@ -182,7 +182,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
                       })}
                     </EventRow>
                     <CuesheetTableMenu event={entry} entryIndex={index} showModal={showModal} />
-                  </Menu>
+                  </MenuRoot>
                 );
               }
 

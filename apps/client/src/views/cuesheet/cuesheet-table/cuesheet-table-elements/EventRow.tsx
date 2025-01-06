@@ -1,8 +1,8 @@
 import { memo, MutableRefObject, PropsWithChildren, useLayoutEffect, useRef, useState } from 'react';
-import { IconButton, MenuButton } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 import Color from 'color';
 
+import { IconButton } from '../../../../common/components/ui/icon-button';
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { useCuesheetOptions } from '../../cuesheet.options';
 
@@ -60,13 +60,9 @@ function EventRow(props: PropsWithChildren<EventRowProps>) {
     >
       {showActionMenu && (
         <td className={style.actionColumn}>
-          <MenuButton
-            as={IconButton}
-            size='sm'
-            aria-label='Options'
-            icon={<IoEllipsisHorizontal />}
-            variant='ontime-subtle'
-          />
+          <IconButton size='sm' aria-label='Options' variant='ontime-subtle'>
+            <IoEllipsisHorizontal />
+          </IconButton>
         </td>
       )}
       {!hideIndexColumn && (
