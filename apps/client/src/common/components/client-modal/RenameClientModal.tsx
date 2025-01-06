@@ -3,15 +3,7 @@ import { Input, Portal } from '@chakra-ui/react';
 
 import { setClientRemote } from '../../hooks/useSocket';
 import { Button } from '../ui/button';
-import {
-  DialogBackdrop,
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogRoot,
-} from '../ui/dialog';
+import { DialogBody, DialogCloseTrigger, DialogContent, DialogFooter, DialogHeader, DialogRoot } from '../ui/dialog';
 
 interface RenameClientModalProps {
   id: string;
@@ -38,7 +30,6 @@ export function RenameClientModal(props: RenameClientModalProps) {
   return (
     <Portal>
       <DialogRoot open={isOpen} onOpenChange={onClose}>
-        <DialogBackdrop />
         <DialogContent>
           <DialogHeader>Rename: {currentName}</DialogHeader>
           <DialogCloseTrigger />
