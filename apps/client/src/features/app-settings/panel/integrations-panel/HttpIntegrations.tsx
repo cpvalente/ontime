@@ -106,7 +106,7 @@ export default function HttpIntegrations() {
                 control={control}
                 name='enabledOut'
                 render={({ field: { onChange, value, ref } }) => (
-                  <Switch size='lg' checked={value} onCheckedChange={onChange} ref={ref} />
+                  <Switch size='lg' checked={value} onChange={onChange} ref={ref} />
                 )}
               />
             </Panel.ListItem>
@@ -137,7 +137,13 @@ export default function HttpIntegrations() {
                   return (
                     <tr key={integration.id}>
                       <td>
-                        <Switch {...register(`subscriptions.${index}.enabled`)} />
+                        <Controller
+                          control={control}
+                          name={`subscriptions.${index}.enabled`}
+                          render={({ field: { onChange, value, ref } }) => (
+                            <Switch size='lg' checked={value} onChange={onChange} ref={ref} />
+                          )}
+                        />
                       </td>
                       <td className={style.autoWidth}>
                         <NativeSelectRoot size='sm'>

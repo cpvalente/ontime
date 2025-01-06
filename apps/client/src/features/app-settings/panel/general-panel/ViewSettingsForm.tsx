@@ -109,7 +109,7 @@ export default function ViewSettingsForm() {
                 control={control}
                 name='overrideStyles'
                 render={({ field: { onChange, value, ref } }) => (
-                  <Switch size='lg' checked={value} onCheckedChange={onChange} ref={ref} />
+                  <Switch size='lg' checked={value} onChange={onChange} ref={ref} />
                 )}
               />
             </Panel.ListItem>

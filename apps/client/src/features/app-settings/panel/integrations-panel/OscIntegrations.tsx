@@ -127,7 +127,7 @@ export default function OscIntegrations() {
               control={control}
               name='enabledIn'
               render={({ field: { onChange, value, ref } }) => (
-                <Switch size='lg' checked={value} onCheckedChange={({ checked }) => onChange(checked)} ref={ref} />
+                <Switch size='lg' checked={value} onChange={onChange} ref={ref} />
               )}
             />
           </Panel.ListItem>
@@ -166,7 +166,7 @@ export default function OscIntegrations() {
               control={control}
               name='enabledOut'
               render={({ field: { onChange, value, ref } }) => (
-                <Switch size='lg' checked={value} onCheckedChange={onChange} ref={ref} />
+                <Switch size='lg' checked={value} onChange={onChange} ref={ref} />
               )}
             />
           </Panel.ListItem>

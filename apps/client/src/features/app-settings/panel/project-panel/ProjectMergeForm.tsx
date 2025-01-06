@@ -104,7 +104,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
           control={control}
           render={({ field }) => (
             <label>
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              <Switch checked={field.value} onChange={field.onChange} />
               Project data
             </label>
           )}
@@ -114,7 +114,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
           control={control}
           render={({ field }) => (
             <label>
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              <Switch checked={field.value} onChange={field.onChange} />
               Rundown + Custom Fields
             </label>
           )}
@@ -124,7 +124,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
           control={control}
           render={({ field }) => (
             <label>
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              <Switch checked={field.value} onChange={field.onChange} />
               View Settings
             </label>
           )}
@@ -134,7 +134,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
           control={control}
           render={({ field }) => (
             <label>
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              <Switch checked={field.value} onChange={field.onChange} />
               URL Presets
             </label>
           )}
@@ -144,7 +144,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
           control={control}
           render={({ field }) => (
             <label>
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              <Switch checked={field.value} onChange={field.onChange} />
               OSC Integration
             </label>
           )}
@@ -154,7 +154,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
           control={control}
           render={({ field }) => (
             <label>
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              <Switch checked={field.value} onChange={field.onChange} />
               HTTP Integration
             </label>
           )}

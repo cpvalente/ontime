@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { IconButton, Input } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoOpenOutline } from '@react-icons/all-files/io5/IoOpenOutline';
@@ -161,7 +161,13 @@ export default function UrlPresetsForm() {
                 return (
                   <tr key={preset.id}>
                     <td className={style.fit}>
-                      <Switch {...register(`data.${index}.enabled`)} data-testid={`field__enable_${index}`} />
+                      <Controller
+                        control={control}
+                        name={`data.${index}.enabled`}
+                        render={({ field: { onChange, value, ref } }) => (
+                          <Switch size='lg' checked={value} onChange={onChange} ref={ref} />
+                        )}
+                      />
                     </td>
                     <td className={style.aliasConstrain}>
                       <Input

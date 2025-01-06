@@ -154,7 +154,7 @@ export default function QuickStart(props: QuickStartProps) {
                   control={control}
                   name='viewSettings.freezeEnd'
                   render={({ field: { onChange, value, ref } }) => (
-                    <Switch size='lg' checked={value} onCheckedChange={onChange} ref={ref} />
+                    <Switch size='lg' checked={value} onChange={onChange} ref={ref} />
                   )}
                 />
               </Panel.ListItem>
