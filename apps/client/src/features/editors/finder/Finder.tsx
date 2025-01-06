@@ -1,8 +1,9 @@
 import { KeyboardEvent, useState } from 'react';
-import { DialogBackdrop, DialogBody, DialogContent, DialogFooter, DialogRoot, Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
 import { useDebouncedCallback } from '@mantine/hooks';
 import { SupportedEvent } from 'ontime-types';
 
+import { DialogBackdrop, DialogBody, DialogContent, DialogFooter, DialogRoot } from '../../../components/ui/dialog';
 import { useEventSelection } from '../../rundown/useEventSelection';
 
 import useFinder from './useFinder';
@@ -56,10 +57,9 @@ export default function Finder(props: FinderProps) {
   };
 
   return (
-    <DialogRoot open={isOpen} onOpenChange={onClose} variant='ontime'>
+    <DialogRoot open={isOpen} onOpenChange={onClose}>
       <DialogBackdrop />
-      {/* maxWidth='max(640px, 40vw)' */}
-      <DialogContent>
+      <DialogContent maxWidth='max(640px, 40vw)'>
         <DialogBody onKeyDown={navigate}>
           <Input size='lg' onChange={debouncedFind} variant='ontime-filled' placeholder='Search...' />
           <ul className={style.scrollContainer} onMouseMove={handleMouseMoveEvent}>

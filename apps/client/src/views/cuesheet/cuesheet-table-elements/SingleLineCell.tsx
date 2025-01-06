@@ -20,7 +20,7 @@ const SingleLineCell = (props: SingleLineCellProps) => {
   return (
     <Input
       ref={ref}
-      size='sx'
+      size='sm'
       variant='ontime-transparent'
       value={value}
       onChange={onChange}
