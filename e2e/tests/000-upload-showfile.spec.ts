@@ -61,8 +61,13 @@ test('project file download', async ({ page }) => {
 
   // Wait for the download process to complete and save the downloaded file somewhere.
   await download.saveAs(fileToDownload);
-  await expect(download.failure()).toMatchObject({});
+  expect(download.failure()).toMatchObject({});
+
   const original = JSON.parse(await readFile(fileToUpload, { encoding: 'utf-8' }));
   const fromServer = JSON.parse(await readFile(fileToDownload, { encoding: 'utf-8' }));
-  await expect(original).toEqual(fromServer);
+
+  // when a file is parsed, the server will write the version number to the project file
+  original.settings.version = 'not-important';
+  fromServer.settings.version = 'not-important';
+  expect(original).toMatchObject(fromServer);
 });
