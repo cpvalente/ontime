@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { IconButton } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 
+import { IconButton } from '../ui/icon-button';
 import { PinInput } from '../ui/pin-input';
 
 import style from './ProtectRoute.module.scss';
+
+const DEFAULT_PIN_VALUE = ['', '', '', ''];
 
 interface PinPageProps {
   permission: 'editor' | 'operator';
@@ -13,14 +15,14 @@ interface PinPageProps {
 
 export default function PinPage(props: PinPageProps) {
   const { permission, handleValidation } = props;
-  const [pin, setPin] = useState('');
+  const [pin, setPin] = useState(DEFAULT_PIN_VALUE);
   const [failed, setFailed] = useState(false);
 
   const validate = useCallback(() => {
-    const isValid = handleValidation(pin);
+    const isValid = handleValidation(pin.join(''));
     if (!isValid) {
       setFailed(true);
-      setPin('');
+      setPin(DEFAULT_PIN_VALUE);
     }
   }, [handleValidation, pin]);
 
@@ -49,7 +51,7 @@ export default function PinPage(props: PinPageProps) {
           mask
           autoFocus
           value={pin}
-          onValueChange={(value) => {
+          onValueChange={({ value }) => {
             setFailed(false);
             setPin(value);
           }}

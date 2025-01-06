@@ -1,5 +1,5 @@
 import { PropsWithChildren, useState } from 'react';
-import { Group, IconButton } from '@chakra-ui/react';
+import { Group } from '@chakra-ui/react';
 import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 import { IoCopy } from '@react-icons/all-files/io5/IoCopy';
 
@@ -7,6 +7,7 @@ import { tooltipDelayFast } from '../../../ontimeConfig';
 import { Size } from '../../models/Util.type';
 import copyToClipboard from '../../utils/copyToClipboard';
 import { Button } from '../ui/button';
+import { IconButton } from '../ui/icon-button';
 import { Tooltip } from '../ui/tooltip';
 
 interface CopyTagProps {

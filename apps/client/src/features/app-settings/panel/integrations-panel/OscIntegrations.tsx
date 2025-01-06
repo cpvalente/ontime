@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import { IconButton, Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { OSCSettings } from 'ontime-types';
@@ -8,6 +8,7 @@ import { generateId } from 'ontime-utils';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { Button } from '../../../../common/components/ui/button';
+import { IconButton } from '../../../../common/components/ui/icon-button';
 import { NativeSelectField, NativeSelectRoot } from '../../../../common/components/ui/native-select';
 import { Switch } from '../../../../common/components/ui/switch';
 import useOscSettings, { useOscSettingsMutation } from '../../../../common/hooks-query/useOscSettings';

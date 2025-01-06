@@ -1,9 +1,10 @@
 import { PropsWithChildren, useState } from 'react';
 import { UseFormRegister } from 'react-hook-form';
-import { IconButton, Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
 import { IoEyeOutline } from '@react-icons/all-files/io5/IoEyeOutline';
 import { Settings } from 'ontime-types';
 
+import { IconButton } from '../../../../common/components/ui/icon-button';
 import { InputGroup } from '../../../../common/components/ui/input-group';
 
 interface GeneralPinInputProps {

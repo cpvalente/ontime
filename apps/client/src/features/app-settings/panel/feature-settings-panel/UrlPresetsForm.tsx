@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import { IconButton, Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoOpenOutline } from '@react-icons/all-files/io5/IoOpenOutline';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
@@ -12,6 +12,7 @@ import TooltipActionBtn from '../../../../common/components/buttons/TooltipActio
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import { Alert } from '../../../../common/components/ui/alert';
 import { Button } from '../../../../common/components/ui/button';
+import { IconButton } from '../../../../common/components/ui/icon-button';
 import { Switch } from '../../../../common/components/ui/switch';
 import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
 import { handleLinks } from '../../../../common/utils/linkUtils';

@@ -1,6 +1,6 @@
-import { IconButton } from '@chakra-ui/react';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 
+import { IconButton } from '../../../common/components/ui/icon-button';
 import { AppMode, useAppMode } from '../../../common/stores/appModeStore';
 
 interface BlockDeleteProps {

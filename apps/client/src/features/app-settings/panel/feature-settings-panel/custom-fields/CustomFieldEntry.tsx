@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { IconButton } from '@chakra-ui/react';
 import { IoPencil } from '@react-icons/all-files/io5/IoPencil';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { CustomField, CustomFieldLabel } from 'ontime-types';
 
 import CopyTag from '../../../../../common/components/copy-tag/CopyTag';
 import Swatch from '../../../../../common/components/input/colour-input/Swatch';
+import { IconButton } from '../../../../../common/components/ui/icon-button';
 
 import CustomFieldForm from './CustomFieldForm';
 

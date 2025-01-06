@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IconButton, MenuSelectionDetails } from '@chakra-ui/react';
+import { MenuSelectionDetails } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 
 import {
@@ -11,6 +11,7 @@ import {
   renameProject,
 } from '../../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';
+import { IconButton } from '../../../../common/components/ui/icon-button';
 import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from '../../../../common/components/ui/menu';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
