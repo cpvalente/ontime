@@ -4,7 +4,6 @@ import { ontimeAlertRecipe } from './ontimeAlert';
 import { ontimeButtonRecipe } from './ontimeButton';
 import { ontimeCheckboxRecipe } from './ontimeCheckbox';
 import { ontimeDrawerRecipe } from './ontimeDrawer';
-import { ontimeKBDRecipe } from './ontimeKBD';
 import { ontimeMenuRecipe } from './ontimeMenu';
 import { ontimeDialogRecipe } from './ontimeModal';
 import { ontimeRadioGroupRecipe } from './ontimeRadio';
@@ -32,7 +31,6 @@ const system = createSystem(defaultConfig, {
     recipes: {
       button: ontimeButtonRecipe,
       input: ontimeInputRecipe,
-      kbd: ontimeKBDRecipe,
       textarea: ontimeTextareaRecipe,
     },
   },
