@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 
+import { readFile } from 'fs/promises';
+
 const fileToUpload = 'e2e/tests/fixtures/test-db.json';
+const fileToDownload = 'e2e/tests/fixtures/tmp/test-db.json';
 
 test('project file upload', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
@@ -33,4 +36,33 @@ test('project file upload', async ({ page }) => {
 
   const thirdTitle = page.getByTestId('entry-3').getByTestId('block__title');
   await expect(thirdTitle).toHaveValue('Lithuania');
+});
+
+test('project file download', async ({ page }) => {
+  await page.goto('http://localhost:4001/editor');
+
+  // close the welcome modal if it is open
+  await page.keyboard.down('Escape');
+
+  await page.getByRole('button', { name: 'toggle settings' }).click();
+  await page.getByRole('button', { name: 'Project', exact: true }).click();
+
+  // workaround to download
+  // https://playwright.dev/docs/api/class-download
+  const downloadPromise = page.waitForEvent('download');
+
+  await page
+    .getByRole('row', { name: RegExp('^test-db') })
+    .getByLabel('Options')
+    .click();
+  await page.getByRole('menuitem', { name: 'Download' }).click();
+
+  const download = await downloadPromise;
+
+  // Wait for the download process to complete and save the downloaded file somewhere.
+  await download.saveAs(fileToDownload);
+  await expect(download.failure()).toMatchObject({});
+  const original = JSON.parse(await readFile(fileToUpload, { encoding: 'utf-8' }));
+  const fromServer = JSON.parse(await readFile(fileToDownload, { encoding: 'utf-8' }));
+  await expect(original).toEqual(fromServer);
 });
