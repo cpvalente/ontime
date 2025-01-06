@@ -1,6 +1,5 @@
-import { Button } from '@chakra-ui/react';
-
 import { setMessage, useTimerViewControl } from '../../../common/hooks/useSocket';
+import { Button } from '../../../components/ui/button';
 
 import TimerPreview from './TimerPreview';
 

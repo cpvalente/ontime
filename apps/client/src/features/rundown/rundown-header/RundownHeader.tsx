@@ -1,6 +1,7 @@
-import { Button, Group } from '@chakra-ui/react';
+import { Group } from '@chakra-ui/react';
 
 import { AppMode, useAppMode } from '../../../common/stores/appModeStore';
+import { Button } from '../../../components/ui/button';
 
 import RundownMenu from './RundownMenu';
 

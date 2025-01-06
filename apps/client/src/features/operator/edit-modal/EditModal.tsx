@@ -59,7 +59,7 @@ export default function EditModal(props: EditModalProps) {
               placeholder={`Add value for ${field.label} field`}
               defaultValue={field.value}
               data-field={field.id}
-              isDisabled={loading}
+              disabled={loading}
               resize='none'
             />
           </div>

@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
-import { Button } from '@chakra-ui/react';
 import { LogOrigin } from 'ontime-types';
 
 import { clearLogs, useLogData } from '../../common/stores/logger';
+import { Button } from '../../components/ui/button';
 
 import style from './Log.module.scss';
 

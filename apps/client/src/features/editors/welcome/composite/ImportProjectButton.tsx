@@ -4,11 +4,12 @@
  */
 
 import { ChangeEvent, useRef } from 'react';
-import { Button, Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
 
 import { uploadProjectFile } from '../../../../common/api/db';
 import { invalidateAllCaches } from '../../../../common/api/utils';
 import { validateProjectFile } from '../../../../common/utils/uploadUtils';
+import { Button } from '../../../../components/ui/button';
 
 interface ImportProjectButtonProps {
   onFinish: () => void;

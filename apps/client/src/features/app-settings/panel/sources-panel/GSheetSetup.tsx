@@ -160,7 +160,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
           accept='.json'
           size='sm'
           variant='ontime-filled'
-          isDisabled={isLoading || canAuthenticate}
+          disabled={isLoading || canAuthenticate}
         />
       </Panel.ListGroup>
       <Panel.ListGroup>
@@ -172,7 +172,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
           autoComplete='off'
           placeholder='Sheet ID'
           onChange={(event) => setSheetId(event.target.value)}
-          isDisabled={isLoading || canAuthenticate}
+          disabled={isLoading || canAuthenticate}
         />
       </Panel.ListGroup>
       {!canAuthenticate ? (

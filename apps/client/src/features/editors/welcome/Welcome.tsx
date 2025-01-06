@@ -1,9 +1,16 @@
 import { useNavigate } from 'react-router-dom';
-import { Button, DialogBackdrop, DialogBody, DialogCloseTrigger, DialogContent, DialogRoot } from '@chakra-ui/react';
 
 import { loadDemo, loadProject } from '../../../common/api/db';
 import { invalidateAllCaches } from '../../../common/api/utils';
 import ExternalLink from '../../../common/components/external-link/ExternalLink';
+import { Button } from '../../../components/ui/button';
+import {
+  DialogBackdrop,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogRoot,
+} from '../../../components/ui/dialog';
 import { appVersion, discordUrl, documentationUrl, websiteUrl } from '../../../externals';
 
 import ImportProjectButton from './composite/ImportProjectButton';
@@ -53,10 +60,10 @@ export default function Welcome(props: WelcomeProps) {
   };
 
   return (
-    <DialogRoot open onOpenChange={handleClose} closeOnInteractOutside={false} variant='ontime'>
+    <DialogRoot open onOpenChange={handleClose} closeOnInteractOutside={false}>
       <DialogBackdrop />
-      {/* maxWidth='max(640px, 40vw)' */}
-      <DialogContent>
+
+      <DialogContent maxWidth='max(640px, 40vw)'>
         <DialogCloseTrigger />
         <DialogBody>
           <div className={style.sections}>

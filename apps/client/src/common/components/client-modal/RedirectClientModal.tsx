@@ -1,15 +1,16 @@
 import { useState } from 'react';
+import { Input } from '@chakra-ui/react';
+
+import { Button } from '../../../components/ui/button';
 import {
-  Button,
+  DialogBackdrop,
   DialogBody,
   DialogCloseTrigger,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogRoot,
-  Input,
-} from '@chakra-ui/react';
-
+} from '../../../components/ui/dialog';
 import { InputGroup } from '../../../components/ui/input-group';
 import { setClientRemote } from '../../hooks/useSocket';
 
@@ -38,21 +39,27 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
   const canSubmit = path !== currentPath && path !== '';
 
   return (
-    <DialogRoot isOpen={isOpen} onClose={onClose} variant='ontime'>
-      {/* <ModalOverlay /> */}
+    <DialogRoot open={isOpen} onOpenChange={onClose}>
+      <DialogBackdrop />
       <DialogContent>
         <DialogHeader>Redirect: {name}</DialogHeader>
         <DialogCloseTrigger />
         <DialogBody>
-          <InputGroup variant='ontime-filled' size='md' startElement={host}>
-            <Input placeholder='minimal?key=0000ffff' value={path} onChange={(event) => setPath(event.target.value)} />
+          <InputGroup startElement={host}>
+            <Input
+              placeholder='minimal?key=0000ffff'
+              variant='ontime-filled'
+              size='md'
+              value={path}
+              onChange={(event) => setPath(event.target.value)}
+            />
           </InputGroup>
         </DialogBody>
         <DialogFooter>
           <Button size='md' variant='ontime-subtle' onClick={onClose}>
             Cancel
           </Button>
-          <Button size='md' variant='ontime-filled' onClick={handleRedirect} isDisabled={!canSubmit}>
+          <Button size='md' variant='ontime-filled' onClick={handleRedirect} disabled={!canSubmit}>
             Submit
           </Button>
         </DialogFooter>

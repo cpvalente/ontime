@@ -125,12 +125,7 @@ function TimeInputFlow(props: EventBlockTimerProps) {
 
       {warnings.length > 0 && (
         <div className={style.timerNote}>
-          <Tooltip
-            content={warnings.join(' - ')}
-            openDelay={tooltipDelayFast}
-            variant='ontime-ondark'
-            shouldWrapChildren
-          >
+          <Tooltip content={warnings.join(' - ')} openDelay={tooltipDelayFast}>
             <IoAlertCircleOutline />
           </Tooltip>
         </div>

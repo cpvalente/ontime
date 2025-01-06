@@ -1,6 +1,5 @@
-import { Button } from '@chakra-ui/react';
-
 import { useOrderedProjectList } from '../../../../common/hooks-query/useProjectList';
+import { Button } from '../../../../components/ui/button';
 
 import style from '../Welcome.module.scss';
 
