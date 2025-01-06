@@ -13,7 +13,7 @@ export interface TooltipProps extends ChakraTooltip.RootProps {
 export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(function Tooltip(props, ref) {
   const { showArrow, children, disabled, portalled, content, contentProps, portalRef, ...rest } = props;
 
-  // eslint-disable-next-line -- we need to return children in a Fragment
+  // eslint-disable-next-line -- we need to return children in Fragment
   if (disabled) return <>{children}</>;
 
   return (
