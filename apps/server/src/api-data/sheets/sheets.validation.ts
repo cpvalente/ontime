@@ -8,7 +8,7 @@ export const validateRequestConnection = [
     .exists()
     .isString()
     .isLength({
-      min: 40,
+      min: 20,
       max: 100,
     })
     .withMessage('Sheet ID is usually 44 characters long'),
