@@ -12,13 +12,13 @@ interface RundownIndicatorProps {
 export default function RundownIndicators(props: RundownIndicatorProps) {
   const { timeStart, delay, gap, isNextDay } = props;
 
-  const hasOverlap = formatGap(gap, isNextDay);
+  const hasGap = formatGap(gap, isNextDay);
   const hasDelay = formatDelay(timeStart, delay);
 
   return (
     <div className={style.indicators}>
       {hasDelay && <div className={style.delay}>{hasDelay}</div>}
-      {hasOverlap && <div className={style.gap}>{hasOverlap}</div>}
+      {hasGap && <div className={style.gap}>{hasGap}</div>}
     </div>
   );
 }
