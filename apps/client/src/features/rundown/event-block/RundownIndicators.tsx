@@ -1,4 +1,4 @@
-import { formatDelay, formatOverlap } from './EventBlock.utils';
+import { formatDelay, formatGap } from './EventBlock.utils';
 
 import style from './RundownIndicators.module.scss';
 
@@ -12,7 +12,7 @@ interface RundownIndicatorProps {
 export default function RundownIndicators(props: RundownIndicatorProps) {
   const { timeStart, delay, gap, isNextDay } = props;
 
-  const hasOverlap = formatOverlap(gap, isNextDay);
+  const hasOverlap = formatGap(gap, isNextDay);
   const hasDelay = formatDelay(timeStart, delay);
 
   return (

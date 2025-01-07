@@ -10,7 +10,7 @@ export function formatDelay(timeStart: number, delay: number): string | undefine
   const timeTag = removeTrailingZero(millisToString(delayedStart));
   return `New start ${timeTag}`;
 }
-export function formatOverlap(gap: number, isNextDay: boolean) {
+export function formatGap(gap: number, isNextDay: boolean) {
   if (gap === 0) return;
 
   const gapString = formatDuration(Math.abs(gap), false);
