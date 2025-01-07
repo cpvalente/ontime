@@ -21,6 +21,7 @@ import {
   isNewLatest,
   customFieldLabelToKey,
   checkIsNextDay,
+  dayInMs,
 } from 'ontime-utils';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
@@ -129,8 +130,9 @@ export function generate(
       handleCustomField(customFields, customFieldChangelog, currentEntry, assignedCustomFields);
 
       if (lastEntry) {
+        const lastEntryCrossedMidnight = lastEntry.timeStart + lastEntry.duration > dayInMs;
         const isNextDay = checkIsNextDay(lastEntry.timeStart, currentEntry.timeStart, lastEntry.duration);
-        totalDays += isNextDay ? 1 : 0; //TODO: should we count in days or millis
+        totalDays += isNextDay || lastEntryCrossedMidnight ? 1 : 0; //TODO: should we count in days or millis
       }
       currentEntry.dayOffset = totalDays;
 

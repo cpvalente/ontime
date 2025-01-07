@@ -32,8 +32,7 @@ interface RundownEntryProps {
   eventIndex: number;
   hasCursor: boolean;
   isNext: boolean;
-  previousStart?: number;
-  previousEnd?: number;
+  isNextDay: boolean;
   previousEntryId?: string;
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
@@ -47,13 +46,12 @@ export default function RundownEntry(props: RundownEntryProps) {
     loaded,
     hasCursor,
     isNext,
-    previousStart,
-    previousEnd,
     previousEntryId,
     previousEventId,
     playback,
     isRolling,
     eventIndex,
+    isNextDay,
   } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
@@ -165,8 +163,6 @@ export default function RundownEntry(props: RundownEntryProps) {
         title={data.title}
         note={data.note}
         delay={data.delay ?? 0}
-        previousStart={previousStart}
-        previousEnd={previousEnd}
         colour={data.colour}
         isPast={isPast}
         isNext={isNext}
@@ -175,6 +171,8 @@ export default function RundownEntry(props: RundownEntryProps) {
         hasCursor={hasCursor}
         playback={playback}
         isRolling={isRolling}
+        gap={data.gap}
+        isNextDay={isNextDay}
         actionHandler={actionHandler}
       />
     );

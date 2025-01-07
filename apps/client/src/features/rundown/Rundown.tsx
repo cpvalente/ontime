@@ -13,6 +13,7 @@ import {
   SupportedEvent,
 } from 'ontime-types';
 import {
+  dayInMs,
   getFirstNormal,
   getLastNormal,
   getNextBlockNormal,
@@ -267,7 +268,7 @@ export default function Rundown({ data }: RundownProps) {
   let eventIndex = 0;
   // all events before the current selected are in the past
   let isPast = Boolean(featureData?.selectedEventId);
-
+  let isNextDay = false;
   const isEditMode = appMode === AppMode.Edit;
 
   return (
@@ -286,6 +287,7 @@ export default function Rundown({ data }: RundownProps) {
               if (index === 0) {
                 eventIndex = 0;
               }
+              isNextDay = false;
               previousEntryId = thisId;
               thisId = entryId;
               if (isOntimeEvent(entry)) {
@@ -294,8 +296,15 @@ export default function Rundown({ data }: RundownProps) {
                 lastEvent = thisEvent;
 
                 if (isPlayableEvent(entry)) {
-                  // populate previous entry
+                  if (
+                    lastEvent &&
+                    !(lastEvent.timeStart + lastEvent.duration > dayInMs) &&
+                    entry.dayOffset > lastEvent.dayOffset
+                  ) {
+                    isNextDay = true;
+                  }
                   if (isNewLatest(entry, lastEvent)) {
+                    // populate previous entry
                     thisEvent = entry;
                   }
                 }
@@ -323,12 +332,11 @@ export default function Rundown({ data }: RundownProps) {
                         loaded={isLoaded}
                         hasCursor={hasCursor}
                         isNext={isNext}
-                        previousStart={lastEvent?.timeStart}
-                        previousEnd={lastEvent?.timeEnd}
                         previousEntryId={previousEntryId}
                         previousEventId={lastEvent?.id}
                         playback={isLoaded ? featureData.playback : undefined}
                         isRolling={featureData.playback === Playback.Roll}
+                        isNextDay={isNextDay}
                       />
                     </div>
                   </div>
