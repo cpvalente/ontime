@@ -1,48 +1,55 @@
 import { MILLIS_PER_HOUR } from './conversionUtils';
 import { isNewLatest } from './isNewLatest';
 
+//TODO: this test should be updated if could be passed by a function always returning true
+
 describe('isNewLatest', () => {
   it('should be true if there is no previous', () => {
-    expect(isNewLatest(0, 60000)).toBeTruthy();
+    expect(isNewLatest({ timeStart: 0, duration: MILLIS_PER_HOUR, dayOffset: 0 })).toBe(true);
   });
 
   it('should be true if it starts when the previous finishes', () => {
-    const nowStart = 10 * MILLIS_PER_HOUR;
-    const nowEnd = 11 * MILLIS_PER_HOUR;
-    const previousStart = 9 * MILLIS_PER_HOUR;
-    const previousEnd = 10 * MILLIS_PER_HOUR;
-    expect(isNewLatest(nowStart, nowEnd, previousStart, previousEnd)).toBeTruthy();
+    expect(
+      isNewLatest(
+        { timeStart: 10 * MILLIS_PER_HOUR, duration: MILLIS_PER_HOUR, dayOffset: 0 },
+        { timeStart: 9 * MILLIS_PER_HOUR, duration: MILLIS_PER_HOUR, dayOffset: 0 },
+      ),
+    ).toBe(true);
   });
 
   it('should be true if it starts the same day the previous finishes', () => {
-    const nowStart = 22 * MILLIS_PER_HOUR;
-    const nowEnd = 23 * MILLIS_PER_HOUR;
-    const previousStart = 9 * MILLIS_PER_HOUR;
-    const previousEnd = 20 * MILLIS_PER_HOUR;
-    expect(isNewLatest(nowStart, nowEnd, previousStart, previousEnd)).toBeTruthy();
+    expect(
+      isNewLatest(
+        { timeStart: 22 * MILLIS_PER_HOUR, duration: MILLIS_PER_HOUR, dayOffset: 0 },
+        { timeStart: 9 * MILLIS_PER_HOUR, duration: MILLIS_PER_HOUR, dayOffset: 0 },
+      ),
+    ).toBe(true);
   });
 
   it('should be true if it finishes after the previous, accounting for passing midnight', () => {
-    const nowStart = 1 * MILLIS_PER_HOUR;
-    const nowEnd = 3 * MILLIS_PER_HOUR;
-    const previousStart = 23 * MILLIS_PER_HOUR;
-    const previousEnd = 2 * MILLIS_PER_HOUR;
-    expect(isNewLatest(nowStart, nowEnd, previousStart, previousEnd)).toBeTruthy();
+    expect(
+      isNewLatest(
+        { timeStart: 1 * MILLIS_PER_HOUR, duration: 2 * MILLIS_PER_HOUR, dayOffset: 1 },
+        { timeStart: 23 * MILLIS_PER_HOUR, duration: 2 * MILLIS_PER_HOUR, dayOffset: 0 },
+      ),
+    ).toBe(true);
   });
 
   it('should be true if it the next day', () => {
-    const nowStart = 8 * MILLIS_PER_HOUR;
-    const nowEnd = 10 * MILLIS_PER_HOUR;
-    const previousStart = 9 * MILLIS_PER_HOUR;
-    const previousEnd = 11 * MILLIS_PER_HOUR;
-    expect(isNewLatest(nowStart, nowEnd, previousStart, previousEnd)).toBeTruthy();
+    expect(
+      isNewLatest(
+        { timeStart: 8 * MILLIS_PER_HOUR, duration: 2 * MILLIS_PER_HOUR, dayOffset: 1 },
+        { timeStart: 9 * MILLIS_PER_HOUR, duration: 2 * MILLIS_PER_HOUR, dayOffset: 0 },
+      ),
+    ).toBe(true);
   });
 
   it('should be true if it the next day (2)', () => {
-    const nowStart = 9 * MILLIS_PER_HOUR;
-    const nowEnd = 11 * MILLIS_PER_HOUR;
-    const previousStart = 9 * MILLIS_PER_HOUR;
-    const previousEnd = 11 * MILLIS_PER_HOUR;
-    expect(isNewLatest(nowStart, nowEnd, previousStart, previousEnd)).toBeTruthy();
+    expect(
+      isNewLatest(
+        { timeStart: 9 * MILLIS_PER_HOUR, duration: 2 * MILLIS_PER_HOUR, dayOffset: 1 },
+        { timeStart: 9 * MILLIS_PER_HOUR, duration: 11 * MILLIS_PER_HOUR, dayOffset: 0 },
+      ),
+    ).toBe(true);
   });
 });

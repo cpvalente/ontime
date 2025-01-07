@@ -156,7 +156,7 @@ export function useScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeS
         } else if (timeFromPrevious < 0) {
           totalDuration += Math.max(currentEntry.duration + timeFromPrevious, 0);
         }
-        if (isNewLatest(currentEntry.timeStart, currentEntry.timeEnd, lastEntry?.timeStart, lastEntry?.timeEnd)) {
+        if (isNewLatest(currentEntry, lastEntry)) {
           lastEntry = currentEntry;
         }
       }

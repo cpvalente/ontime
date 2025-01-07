@@ -295,7 +295,7 @@ export default function Rundown({ data }: RundownProps) {
 
                 if (isPlayableEvent(entry)) {
                   // populate previous entry
-                  if (isNewLatest(entry.timeStart, entry.timeEnd, lastEvent?.timeStart, lastEvent?.timeEnd)) {
+                  if (isNewLatest(entry, lastEvent)) {
                     thisEvent = entry;
                   }
                 }
