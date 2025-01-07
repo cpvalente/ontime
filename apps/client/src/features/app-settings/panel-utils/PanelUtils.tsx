@@ -68,8 +68,8 @@ export function TableEmpty({ handleClick }: { handleClick: () => void }) {
     <tr className={style.empty}>
       <td colSpan={99}>
         <div>No data yet</div>
-        <Button onClick={handleClick} variant='ontime-subtle' rightIcon={<IoAdd />} size='sm'>
-          New
+        <Button onClick={handleClick} variant='ontime-subtle' size='sm'>
+          New <IoAdd />
         </Button>
       </td>
     </tr>
