@@ -28,9 +28,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       # Run code quality per package
-      - name: React - Run linter +  TypeScript checks
+      - name: React - Run linter + ChakraUI typegen +  TypeScript checks
         if: always()
-        run: pnpm lint && tsc --noEmit
+        run: pnpm lint && pnpm typegen && tsc --noEmit
         working-directory: ./apps/client
 
       - name: Server - Run linter +  TypeScript checks
