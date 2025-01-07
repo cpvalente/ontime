@@ -41,6 +41,7 @@
     "build:docker": "cross-env VITE_IS_DOCKER=true vite build",
     "build:localdocker": "cross-env NODE_ENV=local vite build",
     "lint": "eslint . --quiet",
+    "typegen": "chakra typegen src/theme/theme.ts",
     "test": "vitest",
     "test:pipeline": "vitest run",
     "cleanup": "rm -rf .turbo && rm -rf node_modules && rm -rf build",
@@ -59,6 +60,7 @@
     ]
   },
   "devDependencies": {
+    "@chakra-ui/cli": "^3.2.5",
     "@sentry/vite-plugin": "^2.16.1",
     "@tanstack/eslint-plugin-query": "^5.8.4",
     "@testing-library/jest-dom": "^5.16.5",
