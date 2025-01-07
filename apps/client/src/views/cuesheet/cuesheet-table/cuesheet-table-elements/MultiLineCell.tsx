@@ -12,7 +12,7 @@ export default memo(MultiLineCell);
 
 function MultiLineCell(props: MultiLineCellProps) {
   const { initialValue, handleUpdate } = props;
-  const ref = useRef<HTMLInputElement | null>(null);
+  const ref = useRef<HTMLTextAreaElement | null>(null);
   const submitCallback = useCallback((newValue: string) => handleUpdate(newValue), [handleUpdate]);
 
   const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(initialValue, submitCallback, ref, {
@@ -21,7 +21,7 @@ function MultiLineCell(props: MultiLineCellProps) {
 
   return (
     <AutoTextArea
-      inputref={ref}
+      ref={ref}
       rows={1}
       size='sm'
       style={{

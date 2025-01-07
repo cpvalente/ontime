@@ -11,7 +11,7 @@ interface UseReactiveTextInputReturn {
 export default function useReactiveTextInput(
   initialText: string,
   submitCallback: (newValue: string) => void,
-  ref: RefObject<HTMLInputElement>,
+  ref: RefObject<HTMLInputElement | HTMLTextAreaElement>,
   options?: {
     submitOnEnter?: boolean;
     submitOnCtrlEnter?: boolean;
