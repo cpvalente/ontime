@@ -1,5 +1,5 @@
 import { OntimeRundown, isOntimeDelay, isOntimeBlock, isOntimeEvent, OntimeEvent } from 'ontime-types';
-import { getTimeFromPrevious, deleteAtIndex } from 'ontime-utils';
+import { deleteAtIndex } from 'ontime-utils';
 
 /**
  * Calculates all delays in a given rundown
@@ -133,16 +133,14 @@ export function apply(eventId: string, rundown: OntimeRundown): OntimeRundown {
 
     // if the event is not linked, we try and maintain gaps
     if (lastEntry !== null) {
-      const timeFromPrevious: number = getTimeFromPrevious(currentEntry, lastEntry);
-
       // when applying negative delays, we need to unlink the event
       // if the previous event was fully consumed by the delay
       if (currentEntry.linkStart && delayValue < 0 && lastEntry.timeStart + delayValue < 0) {
         shouldUnlink = true;
       }
 
-      if (timeFromPrevious > 0) {
-        delayValue = Math.max(delayValue - timeFromPrevious, 0);
+      if (currentEntry.gap > 0) {
+        delayValue = Math.max(delayValue - currentEntry.gap, 0);
       }
 
       if (delayValue === 0) {
