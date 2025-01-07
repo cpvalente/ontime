@@ -20,6 +20,7 @@ import {
   getTimeFromPrevious,
   isNewLatest,
   customFieldLabelToKey,
+  checkIsNextDay,
 } from 'ontime-utils';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
@@ -55,6 +56,7 @@ function setIsStale() {
 
 let totalDelay = 0;
 let totalDuration = 0;
+let totalDays = 0;
 let firstStart: MaybeNumber = null;
 let lastEnd: MaybeNumber = null;
 
@@ -107,6 +109,7 @@ export function generate(
   firstStart = null;
   lastEnd = null;
   totalDuration = 0;
+  totalDays = 0;
   totalDelay = 0;
 
   let lastEntry: PlayableEvent | null = null;
@@ -123,6 +126,12 @@ export function generate(
 
       // 2. handle custom fields - mutates updatedEvent
       handleCustomField(customFields, customFieldChangelog, currentEntry, assignedCustomFields);
+
+      if (lastEntry) {
+        const isNextDay = checkIsNextDay(lastEntry.timeStart, currentEntry.timeStart, lastEntry.duration);
+        totalDays += isNextDay ? 1 : 0; //TODO: should we count in days or millis
+      }
+      currentEntry.dayOffset = totalDays;
 
       // update rundown metadata, it only concerns playable events
       if (isPlayableEvent(currentEntry)) {
@@ -160,7 +169,7 @@ export function generate(
         currentEntry.delay = totalDelay;
 
         // lastEntry is the event with the latest end time
-        if (isNewLatest(currentEntry.timeStart, currentEntry.timeEnd, lastEntry?.timeStart, lastEntry?.timeEnd)) {
+        if (isNewLatest(currentEntry, lastEntry)) {
           lastEntry = currentEntry;
         }
       }
