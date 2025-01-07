@@ -1,11 +1,17 @@
 .drawerFooter {
   display: flex;
-  justify-content: end;  
+  justify-content: end;
   gap: $section-spacing;
 
   button {
     padding: 0 2em;
   }
+}
+
+.drawerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .infoLabel {
