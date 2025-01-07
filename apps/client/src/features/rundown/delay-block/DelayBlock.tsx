@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
+import { IoCheckmarkDone } from 'react-icons/io5';
+import { IoClose } from 'react-icons/io5';
+import { IoReorderTwo } from 'react-icons/io5';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IoCheckmarkDone } from '@react-icons/all-files/io5/IoCheckmarkDone';
-import { IoClose } from '@react-icons/all-files/io5/IoClose';
-import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { OntimeDelay } from 'ontime-types';
 
 import DelayInput from '../../../common/components/input/delay-input/DelayInput';

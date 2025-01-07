@@ -1,4 +1,4 @@
-import { IoLocate } from '@react-icons/all-files/io5/IoLocate';
+import { IoLocate } from 'react-icons/io5';
 
 import { cx } from '../../../common/utils/styleUtils';
 

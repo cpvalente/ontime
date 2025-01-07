@@ -1,5 +1,5 @@
 import type { HTMLAttributes, LabelHTMLAttributes } from 'react';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
+import { IoArrowUp } from 'react-icons/io5';
 import { type IconBaseProps } from '@react-icons/all-files/lib';
 
 import { cx } from '../../../common/utils/styleUtils';

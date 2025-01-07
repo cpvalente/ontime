@@ -1,12 +1,12 @@
 import { memo, PropsWithChildren } from 'react';
+import { IoArrowUp } from 'react-icons/io5';
+import { IoContract } from 'react-icons/io5';
+import { IoExpand } from 'react-icons/io5';
+import { IoLockClosedOutline } from 'react-icons/io5';
+import { IoSwapVertical } from 'react-icons/io5';
 import { Link, useLocation } from 'react-router-dom';
 import { Portal, useDisclosure } from '@chakra-ui/react';
 import { useFullscreen } from '@mantine/hooks';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-import { IoContract } from '@react-icons/all-files/io5/IoContract';
-import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
-import { IoLockClosedOutline } from '@react-icons/all-files/io5/IoLockClosedOutline';
-import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 
 import { isLocalhost } from '../../../externals';
 import { navigatorConstants } from '../../../viewerConfig';

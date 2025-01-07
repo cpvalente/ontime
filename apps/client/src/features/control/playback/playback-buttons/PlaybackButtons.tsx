@@ -1,10 +1,10 @@
-import { IoPause } from '@react-icons/all-files/io5/IoPause';
-import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
-import { IoPlaySkipBack } from '@react-icons/all-files/io5/IoPlaySkipBack';
-import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
-import { IoReload } from '@react-icons/all-files/io5/IoReload';
-import { IoStop } from '@react-icons/all-files/io5/IoStop';
-import { IoTime } from '@react-icons/all-files/io5/IoTime';
+import { IoPause } from 'react-icons/io5';
+import { IoPlay } from 'react-icons/io5';
+import { IoPlaySkipBack } from 'react-icons/io5';
+import { IoPlaySkipForward } from 'react-icons/io5';
+import { IoReload } from 'react-icons/io5';
+import { IoStop } from 'react-icons/io5';
+import { IoTime } from 'react-icons/io5';
 import { Playback, TimerPhase } from 'ontime-types';
 import { validatePlayback } from 'ontime-utils';
 

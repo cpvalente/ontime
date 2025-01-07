@@ -1,5 +1,5 @@
 import { memo, MutableRefObject, PropsWithChildren, useLayoutEffect, useRef, useState } from 'react';
-import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
+import { IoEllipsisHorizontal } from 'react-icons/io5';
 import Color from 'color';
 
 import { IconButton } from '../../../../common/components/ui/icon-button';

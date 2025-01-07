@@ -1,6 +1,6 @@
 import { useState } from 'react';
+import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { MenuSelectionDetails } from '@chakra-ui/react';
-import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 
 import {
   deleteProject,

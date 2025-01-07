@@ -1,5 +1,5 @@
 import { memo, useCallback, useRef } from 'react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
+import { IoAdd } from 'react-icons/io5';
 import { SupportedEvent } from 'ontime-types';
 
 import { Button } from '../../../common/components/ui/button';

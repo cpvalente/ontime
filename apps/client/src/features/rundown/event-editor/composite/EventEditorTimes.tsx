@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { IoInformationCircle } from '@react-icons/all-files/io5/IoInformationCircle';
+import { IoInformationCircle } from 'react-icons/io5';
 import { EndAction, MaybeString, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
 

@@ -1,15 +1,15 @@
 import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { IoAdd } from 'react-icons/io5';
+import { IoDuplicateOutline } from 'react-icons/io5';
+import { IoLink } from 'react-icons/io5';
+import { IoPeople } from 'react-icons/io5';
+import { IoPeopleOutline } from 'react-icons/io5';
+import { IoReorderTwo } from 'react-icons/io5';
+import { IoSwapVertical } from 'react-icons/io5';
+import { IoTrash } from 'react-icons/io5';
+import { IoUnlink } from 'react-icons/io5';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
-import { IoLink } from '@react-icons/all-files/io5/IoLink';
-import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
-import { IoPeopleOutline } from '@react-icons/all-files/io5/IoPeopleOutline';
-import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
-import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
-import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
 import { EndAction, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { ContextMenu } from '../../../common/components/context-menu/ContextMenu';

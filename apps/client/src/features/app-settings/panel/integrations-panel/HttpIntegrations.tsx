@@ -1,7 +1,7 @@
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { IoAdd } from 'react-icons/io5';
+import { IoTrash } from 'react-icons/io5';
 import { Input } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { HttpSettings } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 

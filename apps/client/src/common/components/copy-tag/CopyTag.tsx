@@ -1,7 +1,7 @@
 import { PropsWithChildren, useState } from 'react';
+import { IoCheckmark } from 'react-icons/io5';
+import { IoCopy } from 'react-icons/io5';
 import { Group } from '@chakra-ui/react';
-import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
-import { IoCopy } from '@react-icons/all-files/io5/IoCopy';
 
 import { tooltipDelayFast } from '../../../ontimeConfig';
 import { Size } from '../../models/Util.type';

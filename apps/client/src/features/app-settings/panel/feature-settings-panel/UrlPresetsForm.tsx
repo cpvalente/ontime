@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { IoAdd } from 'react-icons/io5';
+import { IoOpenOutline } from 'react-icons/io5';
+import { IoTrash } from 'react-icons/io5';
 import { Input } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoOpenOutline } from '@react-icons/all-files/io5/IoOpenOutline';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { URLPreset } from 'ontime-types';
 
 import { postUrlPresets } from '../../../../common/api/urlPresets';

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
+import { IoCheckmark } from 'react-icons/io5';
 
 import { IconButton } from '../ui/icon-button';
 import { PinInput } from '../ui/pin-input';

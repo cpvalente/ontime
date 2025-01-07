@@ -1,9 +1,9 @@
-import { Tooltip } from '@chakra-ui/react';
-import { IoChevronDown } from '@react-icons/all-files/io5/IoChevronDown';
-import { IoChevronUp } from '@react-icons/all-files/io5/IoChevronUp';
+import { IoChevronDown } from 'react-icons/io5';
+import { IoChevronUp } from 'react-icons/io5';
 
 import { tooltipDelayFast } from '../../../ontimeConfig';
 import { millisToDelayString } from '../../utils/dateConfig';
+import { Tooltip } from '../ui/tooltip';
 
 import style from './DelayIndicator.module.scss';
 
@@ -24,7 +24,7 @@ export default function DelayIndicator(props: DelayIndicatorProps) {
     : millisToDelayString(delayValue);
 
   return (
-    <Tooltip openDelay={tooltipDelayFast} label={delayString}>
+    <Tooltip openDelay={tooltipDelayFast} content={delayString}>
       <span className={style.delaySymbol}>{delayValue < 0 ? <IoChevronDown /> : <IoChevronUp />}</span>
     </Tooltip>
   );

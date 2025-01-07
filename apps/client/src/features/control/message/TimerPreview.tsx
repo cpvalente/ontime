@@ -1,8 +1,8 @@
-import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-import { IoBan } from '@react-icons/all-files/io5/IoBan';
-import { IoFlag } from '@react-icons/all-files/io5/IoFlag';
-import { IoTime } from '@react-icons/all-files/io5/IoTime';
+import { IoArrowDown } from 'react-icons/io5';
+import { IoArrowUp } from 'react-icons/io5';
+import { IoBan } from 'react-icons/io5';
+import { IoFlag } from 'react-icons/io5';
+import { IoTime } from 'react-icons/io5';
 import { TimerPhase, TimerType } from 'ontime-types';
 
 import { Tooltip } from '../../../common/components/ui/tooltip';

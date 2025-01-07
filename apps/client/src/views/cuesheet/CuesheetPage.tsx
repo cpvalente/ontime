@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
+import { IoApps } from 'react-icons/io5';
+import { IoSettingsOutline } from 'react-icons/io5';
 import { useSearchParams } from 'react-router-dom';
 import { useDisclosure } from '@chakra-ui/react';
-import { IoApps } from '@react-icons/all-files/io5/IoApps';
-import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
 import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import EmptyPage from '../../common/components/state/EmptyPage';

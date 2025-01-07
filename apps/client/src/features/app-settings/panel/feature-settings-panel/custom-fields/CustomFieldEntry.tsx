@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { IoPencil } from '@react-icons/all-files/io5/IoPencil';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { IoPencil } from 'react-icons/io5';
+import { IoTrash } from 'react-icons/io5';
 import { CustomField, CustomFieldLabel } from 'ontime-types';
 
 import CopyTag from '../../../../../common/components/copy-tag/CopyTag';

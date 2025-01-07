@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import { IoClose } from '@react-icons/all-files/io5/IoClose';
+import { IoClose } from 'react-icons/io5';
 
 import { Button } from '../../../common/components/ui/button';
 

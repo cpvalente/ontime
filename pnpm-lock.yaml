@@ -107,9 +107,6 @@ importers:
       '@mantine/hooks':
         specifier: ^7.13.3
         version: 7.13.3(react@18.3.1)
-      '@react-icons/all-files':
-        specifier: ^4.1.0
-        version: 4.1.0(react@18.3.1)
       '@sentry/react':
         specifier: ^8.43.0
         version: 8.45.0(react@18.3.1)
@@ -1258,11 +1255,6 @@ packages:
     resolution: {integrity: sha512-Gq9rmS54mjBL/7/MvBaNOBwbfnh7beHvS6oS4srqXFcQHpQCV1+c8JXWE8VLPyRDhgS3H8x8A7hztqI9VnwrAQ==}
     engines: {node: '>=16'}
     hasBin: true
-
-  '@react-icons/all-files@4.1.0':
-    resolution: {integrity: sha512-hxBI2UOuVaI3O/BhQfhtb4kcGn9ft12RWAFVMUeNjqqhLsHvFtzIkFaptBJpFDANTKoDfdVoHTKZDlwKCACbMQ==}
-    peerDependencies:
-      react: '*'
 
   '@remix-run/router@1.2.1':
     resolution: {integrity: sha512-XiY0IsyHR+DXYS5vBxpoBe/8veTeoRpMHP+vDosLZxL5bnpetzI0igkxkLZS235ldLzyfkxF+2divEwWHP3vMQ==}
@@ -5724,10 +5716,6 @@ snapshots:
   '@playwright/test@1.42.1':
     dependencies:
       playwright: 1.42.1
-
-  '@react-icons/all-files@4.1.0(react@18.3.1)':
-    dependencies:
-      react: 18.3.1
 
   '@remix-run/router@1.2.1': {}
 

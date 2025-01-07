@@ -1,4 +1,4 @@
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
+import { IoAdd } from 'react-icons/io5';
 
 import Empty from '../../common/components/state/Empty';
 import { Button } from '../../common/components/ui/button';

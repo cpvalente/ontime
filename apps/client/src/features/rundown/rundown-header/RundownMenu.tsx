@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
+import { IoTrash } from 'react-icons/io5';
 import { useDisclosure } from '@chakra-ui/react';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 
 import { Button } from '../../../common/components/ui/button';
 import {

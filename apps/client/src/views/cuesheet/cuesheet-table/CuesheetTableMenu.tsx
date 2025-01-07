@@ -1,9 +1,9 @@
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
-import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { IoAdd } from 'react-icons/io5';
+import { IoArrowDown } from 'react-icons/io5';
+import { IoArrowUp } from 'react-icons/io5';
+import { IoDuplicateOutline } from 'react-icons/io5';
+import { IoOptions } from 'react-icons/io5';
+import { IoTrash } from 'react-icons/io5';
 import { OntimeEvent, SupportedEvent } from 'ontime-types';
 
 import { MenuContent, MenuItem, MenuSeparator } from '../../../common/components/ui/menu';

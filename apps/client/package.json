@@ -11,7 +11,6 @@
     "@emotion/react": "^11.14.0",
     "@fontsource/open-sans": "^5.0.28",
     "@mantine/hooks": "^7.13.3",
-    "@react-icons/all-files": "^4.1.0",
     "@sentry/react": "^8.43.0",
     "@tanstack/react-query": "^5.62.7",
     "@tanstack/react-query-devtools": "^5.62.7",

@@ -1,4 +1,4 @@
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { IoTrash } from 'react-icons/io5';
 
 import { IconButton } from '../../../common/components/ui/icon-button';
 import { AppMode, useAppMode } from '../../../common/stores/appModeStore';

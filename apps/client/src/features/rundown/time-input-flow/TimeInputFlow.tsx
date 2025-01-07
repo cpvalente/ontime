@@ -1,9 +1,9 @@
 import { memo } from 'react';
-import { IoAlertCircleOutline } from '@react-icons/all-files/io5/IoAlertCircleOutline';
-import { IoLink } from '@react-icons/all-files/io5/IoLink';
-import { IoLockClosed } from '@react-icons/all-files/io5/IoLockClosed';
-import { IoLockOpenOutline } from '@react-icons/all-files/io5/IoLockOpenOutline';
-import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
+import { IoAlertCircleOutline } from 'react-icons/io5';
+import { IoLink } from 'react-icons/io5';
+import { IoLockClosed } from 'react-icons/io5';
+import { IoLockOpenOutline } from 'react-icons/io5';
+import { IoUnlink } from 'react-icons/io5';
 import { MaybeString, TimeField, TimeStrategy } from 'ontime-types';
 
 import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';

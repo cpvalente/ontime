@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { IconType } from '@react-icons/all-files';
+import { IconType } from 'react-icons';
 
 import { MenuContent, MenuContextTrigger, MenuItemGroup, MenuRoot } from '../ui/menu';
 

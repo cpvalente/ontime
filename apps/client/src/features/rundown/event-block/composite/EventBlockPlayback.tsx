@@ -1,9 +1,9 @@
 import { memo, MouseEvent } from 'react';
-import { IoPause } from '@react-icons/all-files/io5/IoPause';
-import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
-import { IoReload } from '@react-icons/all-files/io5/IoReload';
-import { IoRemoveCircle } from '@react-icons/all-files/io5/IoRemoveCircle';
-import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircleOutline';
+import { IoPause } from 'react-icons/io5';
+import { IoPlay } from 'react-icons/io5';
+import { IoReload } from 'react-icons/io5';
+import { IoRemoveCircle } from 'react-icons/io5';
+import { IoRemoveCircleOutline } from 'react-icons/io5';
 
 import TooltipActionBtn from '../../../../common/components/buttons/TooltipActionBtn';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
