@@ -27,7 +27,7 @@ test('delay blocks add time to events', async ({ page }) => {
   await page.getByText('New start 00:12').click();
 
   // make negative delay
-  await page.getByText('Subtract time').click();
+  await page.getByTestId('subtract-time').click();
   await page.getByText('New start 00:08').click();
 
   // apply delay
