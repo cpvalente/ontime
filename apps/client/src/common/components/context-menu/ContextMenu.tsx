@@ -30,7 +30,7 @@ interface ContextMenuProps {
 export const ContextMenu = ({ children, options }: ContextMenuProps) => {
   return (
     <MenuRoot lazyMount unmountOnExit>
-      <MenuContextTrigger textAlign='left' w='full'>
+      <MenuContextTrigger textAlign='left' w='full' as='div'>
         {children}
       </MenuContextTrigger>
       <MenuContent>
