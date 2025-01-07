@@ -142,12 +142,7 @@ export function useScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeS
           firstStart = currentEntry.timeStart;
         }
 
-        const timeFromPrevious: number = getTimeFromPrevious(
-          currentEntry.timeStart,
-          lastEntry?.timeStart,
-          lastEntry?.timeEnd,
-          lastEntry?.duration,
-        );
+        const timeFromPrevious: number = getTimeFromPrevious(currentEntry, lastEntry);
 
         if (timeFromPrevious === 0) {
           totalDuration += currentEntry.duration;

@@ -133,12 +133,7 @@ export function apply(eventId: string, rundown: OntimeRundown): OntimeRundown {
 
     // if the event is not linked, we try and maintain gaps
     if (lastEntry !== null) {
-      const timeFromPrevious: number = getTimeFromPrevious(
-        currentEntry.timeStart,
-        lastEntry.timeStart,
-        lastEntry.timeEnd,
-        lastEntry.duration,
-      );
+      const timeFromPrevious: number = getTimeFromPrevious(currentEntry, lastEntry);
 
       // when applying negative delays, we need to unlink the event
       // if the previous event was fully consumed by the delay

@@ -1,6 +1,6 @@
 import type { OntimeEvent } from 'ontime-types';
 
-import { dayInMs } from './conversionUtils';
+import { dayInMs } from './conversionUtils.js';
 
 /**
  * Checks whether a new element is the latest in the list
