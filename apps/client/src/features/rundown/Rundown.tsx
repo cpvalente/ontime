@@ -13,7 +13,7 @@ import {
   SupportedEvent,
 } from 'ontime-types';
 import {
-  dayInMs,
+  checkIsNextDay,
   getFirstNormal,
   getLastNormal,
   getNextBlockNormal,
@@ -296,13 +296,7 @@ export default function Rundown({ data }: RundownProps) {
                 lastEvent = thisEvent;
 
                 if (isPlayableEvent(entry)) {
-                  if (
-                    lastEvent &&
-                    !(lastEvent.timeStart + lastEvent.duration > dayInMs) &&
-                    entry.dayOffset > lastEvent.dayOffset
-                  ) {
-                    isNextDay = true;
-                  }
+                  isNextDay = checkIsNextDay(entry, lastEvent);
                   if (isNewLatest(entry, lastEvent)) {
                     // populate previous entry
                     thisEvent = entry;

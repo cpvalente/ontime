@@ -1,8 +1,10 @@
+import type { OntimeEvent } from 'ontime-types';
+
 import { dayInMs } from './conversionUtils.js';
 
 /**
  * Utility function checks whether a given event is the day after from its predecessor
- * We consider an event to be the day after, if it begins before the start of the previous
+ * We consider an event to be the day after, if it begins on a new day
  * @example day after
  * 09:00 - 10:00
  * 08:00 - 10:30
@@ -19,23 +21,23 @@ import { dayInMs } from './conversionUtils.js';
  * 22:00 - 02:00
  * 01:00 - 03:00
  */
-export function checkIsNextDay(previousStart: number, timeStart: number, previousDuration: number): boolean {
-  if (previousDuration === 0) {
+export function checkIsNextDay(
+  current: Pick<OntimeEvent, 'timeStart' | 'dayOffset'>,
+  previous?: Pick<OntimeEvent, 'timeStart' | 'duration' | 'dayOffset'> | null,
+): boolean {
+  if (!previous) {
     return false;
   }
 
-  const cappedStart = previousStart % dayInMs;
-  if (timeStart <= cappedStart) {
-    const normalisedPreviousEnd = cappedStart + previousDuration;
-    if (normalisedPreviousEnd === dayInMs) {
-      return true;
-    }
-    // handle exception for an event that finishes exactly at midnight
-    if (normalisedPreviousEnd > dayInMs) {
-      return false;
-    }
-    return true;
+  // if the day offsets are the samme it can't be the next day
+  if (current.dayOffset <= previous.dayOffset) {
+    return false;
   }
 
-  return false;
+  // if the previous event crossed midnight then the current is the same day as that
+  if (previous.timeStart + previous.duration > dayInMs) {
+    return false;
+  }
+
+  return true;
 }
