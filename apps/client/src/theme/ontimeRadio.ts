@@ -4,22 +4,31 @@ import { radioGroupAnatomy } from '@chakra-ui/react/anatomy';
 export const ontimeRadioGroupRecipe = defineSlotRecipe({
   slots: radioGroupAnatomy.keys(),
   base: {
-    itemControl: {
-      borderColor: '#262626', // $gray-1200
-      backgroundColor: '#262626', // $gray-1200
-      _checked: {
-        borderColor: '#262626', // $gray-1200
-        color: '#3182ce', // $action-blue
-        backgroundColor: '#3182ce', // $action-blue
-      },
-      _hover: {
-        color: '#3182ce', // $action-blue
-        backgroundColor: '#3182ce', // $action-blue
-        outline: 'none',
+    root: {
+      '& .dot': {
+        display: 'none',
       },
     },
-    label: {
-      fontSize: '0.7em',
+    item: {
+      cursor: 'pointer',
+    },
+    itemControl: {
+      cursor: 'pointer',
+      border: '2px solid #262626 !important', // $gray-1200
+      backgroundColor: '#262626', // $gray-1200
+      _checked: {
+        backgroundColor: '#3182ce !important', // $action-blue,
+        _hover: {
+          border: '3px solid #2b6cb0 !important', // $gray-1200
+        },
+      },
+      _hover: {
+        color: '#3182ce !important!', // $action-blue
+        backgroundColor: '#3182ce !important', // $action-blue,
+      },
+    },
+    itemText: {
+      fontSize: '0.8em',
       letterSpacing: '0.3px',
       color: '#9d9d9d', // $gray-500
       _checked: {

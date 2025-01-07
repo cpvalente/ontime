@@ -14,14 +14,9 @@
   padding-right: 0.5em;
   background: transparent;
 
-  &.hover {
-    background: transparent;
-  }
-
   &.active {
     opacity: 1;
     color: var(--status-color-active-override, $active-indicator);
-    background: transparent;
   }
   .fourtyfive {
     transform: rotate(-45deg);

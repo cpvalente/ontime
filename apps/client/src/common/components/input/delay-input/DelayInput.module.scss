@@ -6,13 +6,12 @@ $input-font-size: 15px;
   align-items: center;
   font-size: $text-body-size;
 
-
   .inputField {
     font-size: $input-font-size;
     letter-spacing: 1px;
     max-width: 7em;
     padding-left: 16px;
-    color: $ontime-delay-text
+    color: $ontime-delay-text;
   }
 }
 
