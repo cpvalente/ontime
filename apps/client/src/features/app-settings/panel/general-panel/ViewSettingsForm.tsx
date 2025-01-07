@@ -88,7 +88,6 @@ export default function ViewSettingsForm() {
           status='info'
           title={
             <>
-              {/* <AlertIcon /> */}
               You can the Ontime views or customise its styles by modifying the provided CSS file. <br />
               The CSS file is in the user directory at {`${info.publicDir}/user/styles/override.css`}
               <br />

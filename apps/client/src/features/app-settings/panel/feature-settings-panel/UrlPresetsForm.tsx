@@ -110,7 +110,6 @@ export default function UrlPresetsForm() {
           status='info'
           title={
             <>
-              {/* <AlertIcon /> */}
               URL presets are user defined aliases to Ontime URLs
               <br />
               <br />

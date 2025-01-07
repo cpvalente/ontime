@@ -60,7 +60,6 @@ export default function CustomFields() {
             status='info'
             title={
               <>
-                {/* <AlertIcon /> */}
                 Custom fields allow for additional information to be added to an event.
                 <br />
                 <br />

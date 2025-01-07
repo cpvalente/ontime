@@ -13,7 +13,6 @@ export default function InterfacePanel() {
           variant='ontime-on-dark-info'
           title={
             <>
-              {/* <AlertIcon /> */}
               Interface settings
               <br />
               <br />

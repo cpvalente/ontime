@@ -22,7 +22,6 @@ export default function IntegrationsPanel({ location }: PanelBaseProps) {
           variant='ontime-on-dark-info'
           title={
             <>
-              {/* <AlertIcon /> */}
               Integrations allow Ontime to receive commands or send its data to other systems in your workflow. <br />
               <br />
               Currently supported protocols are OSC (Open Sound Control), HTTP and Websockets. <br />
