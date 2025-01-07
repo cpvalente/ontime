@@ -1,8 +1,6 @@
 import { defineRecipe, SystemStyleObject } from '@chakra-ui/react';
 
 const commonStyles: SystemStyleObject = {
-  // is this the best way to re-enable box-sizing: border-box?
-  boxSizing: 'border-box !important',
   fontWeight: '400',
   backgroundColor: '#262626', // $gray-1200
   color: '#e2e2e2', // $gray-200

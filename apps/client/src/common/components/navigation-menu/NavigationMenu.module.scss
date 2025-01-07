@@ -48,6 +48,12 @@ $button-size: 3rem;
   cursor: default;
 }
 
+.navHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .navButton {
   @extend .button;
   z-index: 3;

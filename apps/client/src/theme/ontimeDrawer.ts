@@ -5,6 +5,8 @@ export const ontimeDrawerRecipe = defineSlotRecipe({
   slots: drawerAnatomy.keys(),
   base: {
     header: {
+      fontSize: '1.25rem',
+      fontWeight: 'semibold',
       color: '#fefefe', // $gray-50
       backgroundColor: '#202020', // $gray-1250
     },

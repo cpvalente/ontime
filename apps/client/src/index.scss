@@ -57,10 +57,12 @@ $thumb-color-hover: $gray-900;
   box-sizing: inherit;
 }
 
-body, html {
+body,
+html {
   font-size: 15px;
   font-family: $ontime-font-family;
   background-color: var(--background-color-override, $ui-black);
+  box-sizing: border-box;
 }
 
 body,

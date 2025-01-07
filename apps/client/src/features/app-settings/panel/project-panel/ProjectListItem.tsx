@@ -208,7 +208,7 @@ function ActionMenu(props: ActionMenuProps) {
   };
 
   return (
-    <MenuRoot size='sm' onSelect={onMenuSelect}>
+    <MenuRoot onSelect={onMenuSelect} size='md'>
       <MenuTrigger asChild>
         <IconButton
           aria-label='Options'

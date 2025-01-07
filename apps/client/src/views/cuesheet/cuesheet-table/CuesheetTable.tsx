@@ -165,7 +165,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
                 }
 
                 return (
-                  <MenuRoot key={key} size='sm' lazyMount>
+                  <MenuRoot key={key} lazyMount>
                     <EventRow
                       eventIndex={eventIndex}
                       isPast={isPast}
