@@ -1,6 +1,5 @@
 import { memo } from 'react';
 
-import { ContextMenu } from '../../common/components/context-menu/ContextMenu';
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import { useAppMode } from '../../common/stores/appModeStore';
 import { handleLinks } from '../../common/utils/linkUtils';
@@ -25,9 +24,7 @@ const RundownExport = () => {
         <div className={style.list}>
           <ErrorBoundary>
             {!isExtracted && <Corner onClick={(event) => handleLinks(event, 'rundown')} />}
-            <ContextMenu>
-              <RundownWrapper />
-            </ContextMenu>
+            <RundownWrapper />
           </ErrorBoundary>
         </div>
         {!hideSideBar && (

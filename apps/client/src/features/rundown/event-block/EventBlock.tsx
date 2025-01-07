@@ -12,7 +12,7 @@ import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
 import { EndAction, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
-import { useContextMenu } from '../../../common/hooks/useContextMenu';
+import { ContextMenu } from '../../../common/components/context-menu/ContextMenu';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import type { EventItemActions } from '../RundownEntry';
 import { useEventIdSwapping } from '../useEventIdSwapping';
@@ -94,7 +94,7 @@ export default function EventBlock(props: EventBlockProps) {
   const handleRef = useRef<null | HTMLSpanElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  const [onContextMenu] = useContextMenu<HTMLDivElement>(
+  const options =
     selectedEvents.size > 1
       ? [
           {
@@ -173,8 +173,7 @@ export default function EventBlock(props: EventBlockProps) {
           },
           { withDivider: true, label: 'Clone', icon: IoDuplicateOutline, onClick: () => actionHandler('clone') },
           { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
-        ],
-  );
+        ];
 
   const {
     isDragging,
@@ -265,46 +264,46 @@ export default function EventBlock(props: EventBlockProps) {
   };
 
   return (
-    <div
-      className={blockClasses}
-      ref={setNodeRef}
-      style={dragStyle}
-      onClick={handleFocusClick}
-      onContextMenu={onContextMenu}
-      id='event-block'
-    >
-      <RundownIndicators timeStart={timeStart} previousStart={previousStart} previousEnd={previousEnd} delay={delay} />
-
-      <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
-        <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
-          <IoReorderTwo />
-        </span>
-        <span className={style.cue}>{cue}</span>
-      </div>
-
-      {isVisible && (
-        <EventBlockInner
+    <ContextMenu options={options}>
+      <div className={blockClasses} ref={setNodeRef} style={dragStyle} onClick={handleFocusClick} id='event-block'>
+        <RundownIndicators
           timeStart={timeStart}
-          timeEnd={timeEnd}
-          duration={duration}
-          linkStart={linkStart}
-          countToEnd={countToEnd}
-          timeStrategy={timeStrategy}
-          eventId={eventId}
-          eventIndex={eventIndex}
-          isPublic={isPublic}
-          endAction={endAction}
-          timerType={timerType}
-          title={title}
-          note={note}
+          previousStart={previousStart}
+          previousEnd={previousEnd}
           delay={delay}
-          isNext={isNext}
-          skip={skip}
-          loaded={loaded}
-          playback={playback}
-          isRolling={isRolling}
         />
-      )}
-    </div>
+
+        <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
+          <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
+            <IoReorderTwo />
+          </span>
+          <span className={style.cue}>{cue}</span>
+        </div>
+
+        {isVisible && (
+          <EventBlockInner
+            timeStart={timeStart}
+            timeEnd={timeEnd}
+            duration={duration}
+            linkStart={linkStart}
+            countToEnd={countToEnd}
+            timeStrategy={timeStrategy}
+            eventId={eventId}
+            eventIndex={eventIndex}
+            isPublic={isPublic}
+            endAction={endAction}
+            timerType={timerType}
+            title={title}
+            note={note}
+            delay={delay}
+            isNext={isNext}
+            skip={skip}
+            loaded={loaded}
+            playback={playback}
+            isRolling={isRolling}
+          />
+        )}
+      </div>
+    </ContextMenu>
   );
 }
