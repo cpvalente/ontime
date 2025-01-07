@@ -29,7 +29,7 @@ const SelectClearTrigger = React.forwardRef<HTMLButtonElement, ChakraSelect.Clea
   function SelectClearTrigger(props, ref) {
     return (
       <ChakraSelect.ClearTrigger asChild {...props} ref={ref}>
-        <CloseButton size='xs' variant='plain' focusVisibleRing='inside' focusRingWidth='2px' pointerEvents='auto' />
+        <CloseButton variant='plain' focusVisibleRing='inside' focusRingWidth='2px' pointerEvents='auto' />
       </ChakraSelect.ClearTrigger>
     );
   },

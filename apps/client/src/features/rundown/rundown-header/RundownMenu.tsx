@@ -39,7 +39,7 @@ export default function RundownMenu() {
         disabled={appMode === 'run'}
         fontSize='sm'
       >
-        <IoTrash size='xs' /> Clear rundown
+        <IoTrash /> Clear rundown
       </Button>
       <DialogRoot open={isOpen} initialFocusEl={() => cancelRef.current} onOpenChange={onClose}>
         <DialogBackdrop />
