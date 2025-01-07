@@ -14,8 +14,8 @@ export function isNewLatest(
     return true;
   }
 
-  const currentEndDayAdjusted = currentEvent.timeStart + currentEvent.duration + currentEvent.dayOffset * dayInMs;
-  const previousEndDayAdjusted = previousEvent.timeStart + previousEvent.duration + previousEvent.dayOffset * dayInMs;
+  const normalisedCurrentEnd = currentEvent.timeStart + currentEvent.duration + currentEvent.dayOffset * dayInMs;
+  const normalisedPreviousEnd = previousEvent.timeStart + previousEvent.duration + previousEvent.dayOffset * dayInMs;
 
-  return currentEndDayAdjusted >= previousEndDayAdjusted;
+  return normalisedCurrentEnd >= normalisedPreviousEnd;
 }

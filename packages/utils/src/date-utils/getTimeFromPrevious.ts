@@ -15,20 +15,20 @@ export function getTimeFromPrevious(
     return 0;
   }
 
-  const currentStartDayAdjusted = current.timeStart + current.dayOffset * dayInMs;
-  const previousEndDayAdjusted = previous.timeStart + previous.duration + previous.dayOffset * dayInMs;
+  const normalisedCurrentStart = current.timeStart + current.dayOffset * dayInMs;
+  const normalisedPreviousEnd = previous.timeStart + previous.duration + previous.dayOffset * dayInMs;
 
   // event is linked to previous
-  if (currentStartDayAdjusted === previousEndDayAdjusted) {
+  if (normalisedCurrentStart === normalisedPreviousEnd) {
     return 0;
   }
 
   // event has a gap from previous
-  if (currentStartDayAdjusted > previousEndDayAdjusted) {
+  if (normalisedCurrentStart > normalisedPreviousEnd) {
     // time from previous is difference between start and previous end
-    return currentStartDayAdjusted - previousEndDayAdjusted;
+    return normalisedCurrentStart - normalisedPreviousEnd;
   }
 
   // event overlaps with previous
-  return currentStartDayAdjusted - previousEndDayAdjusted;
+  return normalisedCurrentStart - normalisedPreviousEnd;
 }
