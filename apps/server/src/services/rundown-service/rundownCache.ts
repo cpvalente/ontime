@@ -132,7 +132,7 @@ export function generate(
       if (lastEntry) {
         const lastEntryCrossedMidnight = lastEntry.timeStart + lastEntry.duration > dayInMs;
         const isNextDay = checkIsNextDay(lastEntry.timeStart, currentEntry.timeStart, lastEntry.duration);
-        totalDays += isNextDay || lastEntryCrossedMidnight ? 1 : 0; //TODO: should we count in days or millis
+        totalDays += isNextDay || lastEntryCrossedMidnight ? 1 : 0;
       }
       currentEntry.dayOffset = totalDays;
 
