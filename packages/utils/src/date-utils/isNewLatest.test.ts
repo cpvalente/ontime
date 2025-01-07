@@ -1,8 +1,6 @@
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from './conversionUtils';
 import { isNewLatest } from './isNewLatest';
 
-//TODO: this test should be updated if could be passed by a function always returning true
-
 describe('isNewLatest', () => {
   it('should be true if there is no previous', () => {
     const current = { timeStart: 0, duration: MILLIS_PER_HOUR, dayOffset: 0 };
