@@ -39,6 +39,7 @@ export type OntimeEvent = OntimeBaseEvent & {
   colour: string;
   revision: number;
   delay: number; // calculated at runtime
+  dayOffset: number; // calculated at runtime
   timeWarning: number;
   timeDanger: number;
   custom: EventCustomFields;
