@@ -13,7 +13,7 @@ export function formatDelay(timeStart: number, delay: number): string | undefine
 export function formatGap(gap: number, isNextDay: boolean) {
   if (gap === 0) {
     if (isNextDay) {
-      //We show a next day warning eaven if there is no gap
+      // We show a next day warning even if there is no gap
       return '(next day)';
     }
     return;

@@ -29,12 +29,12 @@ export function checkIsNextDay(
     return false;
   }
 
-  // if the day offsets are the samme it can't be the next day
+  // if the day offsets are the same it can't be the next day
   if (current.dayOffset <= previous.dayOffset) {
     return false;
   }
 
-  // if the previous event crossed midnight then the current is the same day as that
+  // if the previous event crossed midnight then the current is the same day
   if (previous.timeStart + previous.duration > dayInMs) {
     return false;
   }
