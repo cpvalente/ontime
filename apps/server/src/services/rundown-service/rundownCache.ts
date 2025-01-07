@@ -120,6 +120,7 @@ export function generate(
 
     if (isOntimeEvent(currentEntry)) {
       currentEntry.delay = 0;
+      currentEntry.gap = 0;
 
       // 1. handle links - mutates updatedEvent
       handleLink(i, initialRundown, currentEntry, links);
@@ -140,30 +141,25 @@ export function generate(
           firstStart = currentEntry.timeStart;
         }
 
-        const timeFromPrevious: number = getTimeFromPrevious(
-          currentEntry.timeStart,
-          lastEntry?.timeStart,
-          lastEntry?.timeEnd,
-          lastEntry?.duration,
-        );
+        currentEntry.gap = getTimeFromPrevious(currentEntry, lastEntry);
 
-        if (timeFromPrevious === 0) {
+        if (currentEntry.gap === 0) {
           // event starts on previous finish, we add its duration
           totalDuration += currentEntry.duration;
-        } else if (timeFromPrevious > 0) {
+        } else if (currentEntry.gap > 0) {
           // event has a gap, we add the gap and the duration
-          totalDuration += timeFromPrevious + currentEntry.duration;
-        } else if (timeFromPrevious < 0) {
+          totalDuration += currentEntry.gap + currentEntry.duration;
+        } else if (currentEntry.gap < 0) {
           // there is an overlap, we remove the overlap from the duration
           // ensuring that the sum is not negative (ie: fully overlapped events)
           // NOTE: we add the gap since it is a negative number
-          totalDuration += Math.max(currentEntry.duration + timeFromPrevious, 0);
+          totalDuration += Math.max(currentEntry.duration + currentEntry.gap, 0);
         }
 
         // remove eventual gaps from the accumulated delay
         // we only affect positive delays (time forwards)
-        if (totalDelay > 0 && timeFromPrevious > 0) {
-          totalDelay = Math.max(totalDelay - timeFromPrevious, 0);
+        if (totalDelay > 0 && currentEntry.gap > 0) {
+          totalDelay = Math.max(totalDelay - currentEntry.gap, 0);
         }
         // current event delay is the current accumulated delay
         currentEntry.delay = totalDelay;
