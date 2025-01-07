@@ -19,7 +19,6 @@ export default function IntegrationsPanel({ location }: PanelBaseProps) {
       <Panel.Section>
         <Alert
           status='info'
-          variant='ontime-on-dark-info'
           title={
             <>
               Integrations allow Ontime to receive commands or send its data to other systems in your workflow. <br />

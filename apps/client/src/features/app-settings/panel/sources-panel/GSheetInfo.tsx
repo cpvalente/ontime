@@ -6,7 +6,6 @@ export default function GSheetInfo() {
   return (
     <Alert
       status='info'
-      variant='ontime-on-dark-info'
       title={
         <>
           Ontime allows you to synchronize your rundown with a Google Sheet.

@@ -10,7 +10,6 @@ export default function InterfacePanel() {
       <Panel.Section>
         <Alert
           status='info'
-          variant='ontime-on-dark-info'
           title={
             <>
               Interface settings
