@@ -20,13 +20,11 @@ import {
   getTimeFromPrevious,
   isNewLatest,
   customFieldLabelToKey,
-  checkIsNextDay,
-  dayInMs,
 } from 'ontime-utils';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
 import { apply } from './delayUtils.js';
-import { handleCustomField, handleLink, hasChanges, isDataStale } from './rundownCacheUtils.js';
+import { calculateDayOffset, handleCustomField, handleLink, hasChanges, isDataStale } from './rundownCacheUtils.js';
 
 type EventID = string;
 type NormalisedRundown = Record<EventID, OntimeRundownEntry>;
@@ -129,11 +127,7 @@ export function generate(
       // 2. handle custom fields - mutates updatedEvent
       handleCustomField(customFields, customFieldChangelog, currentEntry, assignedCustomFields);
 
-      if (lastEntry) {
-        const lastEntryCrossedMidnight = lastEntry.timeStart + lastEntry.duration > dayInMs;
-        const isNextDay = checkIsNextDay(lastEntry.timeStart, currentEntry.timeStart, lastEntry.duration);
-        totalDays += isNextDay || lastEntryCrossedMidnight ? 1 : 0;
-      }
+      totalDays += calculateDayOffset(currentEntry, lastEntry);
       currentEntry.dayOffset = totalDays;
 
       // update rundown metadata, it only concerns playable events
