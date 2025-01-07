@@ -111,8 +111,8 @@ function EventEditorTimes(props: EventEditorTimesProps) {
               <NativeSelectField
                 name='endAction'
                 id='endAction'
-                value={[endAction]}
-                onChange={(event) => handleSubmit('timerType', event.currentTarget.value)}
+                value={endAction}
+                onChange={(event) => handleSubmit('endAction', event.currentTarget.value)}
               >
                 <option value={EndAction.None}>None</option>
                 <option value={EndAction.Stop}>Stop rundown</option>
@@ -152,7 +152,7 @@ function EventEditorTimes(props: EventEditorTimesProps) {
               <NativeSelectField
                 id='timerType'
                 name='timerType'
-                value={[timerType]}
+                value={timerType}
                 onChange={(event) => handleSubmit('timerType', event.currentTarget.value)}
               >
                 <option value={TimerType.CountDown}>Count down</option>
