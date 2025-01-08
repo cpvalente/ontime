@@ -1,5 +1,3 @@
-'use client';
-
 import * as React from 'react';
 import type { CollectionItem } from '@chakra-ui/react';
 import { Portal, Select as ChakraSelect } from '@chakra-ui/react';
@@ -29,7 +27,7 @@ const SelectClearTrigger = React.forwardRef<HTMLButtonElement, ChakraSelect.Clea
   function SelectClearTrigger(props, ref) {
     return (
       <ChakraSelect.ClearTrigger asChild {...props} ref={ref}>
-        <CloseButton variant='plain' focusVisibleRing='inside' focusRingWidth='2px' pointerEvents='auto' />
+        <CloseButton size='xs' variant='plain' focusVisibleRing='inside' focusRingWidth='2px' pointerEvents='auto' />
       </ChakraSelect.ClearTrigger>
     );
   },

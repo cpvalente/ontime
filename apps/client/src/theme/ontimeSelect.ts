@@ -23,6 +23,11 @@ export const ontimeSelectRecipe = defineSlotRecipe({
         },
       },
     },
+    content: {
+      width: 'full',
+      color: '#fff',
+      background: '#262626', // $gray-1100
+    },
     valueText: {
       color: '#e2e2e2', // $gray-200
     },

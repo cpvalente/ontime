@@ -105,29 +105,25 @@ function MultiOption(props: EditFormMultiOptionProps) {
   const options = createListCollection({ items: values });
 
   return (
-    <>
-      <input name={id} hidden readOnly value={paramState} />
-      <SelectRoot
-        multiple
-        collection={options}
-        fontWeight={400}
-        lazyMount
-        value={paramState}
-        onValueChange={({ value }) => setParamState(value)}
-      >
-        <SelectTrigger>
-          <SelectValueText placeholder={defaultValue ?? 'Select an option'} />
-        </SelectTrigger>
-        <SelectContent width='fit-content'>
-          {options.items.map((option) => {
-            return (
-              <SelectItem item={option} key={option.value}>
-                {option.label}
-              </SelectItem>
-            );
-          })}
-        </SelectContent>
-      </SelectRoot>
-    </>
+    <SelectRoot
+      name={id}
+      multiple
+      collection={options}
+      fontWeight={400}
+      lazyMount
+      value={paramState}
+      onValueChange={({ value }) => setParamState(value)}
+    >
+      <SelectTrigger>
+        <SelectValueText placeholder={defaultValue ?? 'Select an option'} />
+      </SelectTrigger>
+      <SelectContent portalled={false}>
+        {options.items.map((option) => (
+          <SelectItem item={option} key={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </SelectRoot>
   );
 }
