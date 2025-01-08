@@ -17,7 +17,7 @@ test('show warning when event crosses midnight', async ({ page }) => {
   await page.getByTestId('entry-3').getByTestId('time-input-duration').fill('2h');
   await page.getByTestId('entry-3').getByTestId('time-input-duration').press('Enter');
 
-  await expect(page.getByTestId('entry-3').getByLabel('warning').getByRole('img')).toBeVisible();
+  await expect(page.getByTestId('entry-3').getByTestId('event-warning')).toBeVisible();
 });
 
 test('show warning when event starts next day midnight', async ({ page }) => {
