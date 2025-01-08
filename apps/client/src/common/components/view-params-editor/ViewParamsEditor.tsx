@@ -1,7 +1,7 @@
 import { FormEvent, useEffect } from 'react';
 import { IoAlertCircle } from 'react-icons/io5';
 import { useSearchParams } from 'react-router-dom';
-import { Portal, useDisclosure } from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
 import { Button } from '../ui/button';
@@ -135,59 +135,57 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
   };
 
   return (
-    <Portal>
-      <DrawerRoot open={isOpen} placement='end' onOpenChange={handleClose} size='lg'>
-        <DrawerBackdrop />
-        <DrawerContent>
-          <DrawerHeader className={style.drawerHeader}>
-            Customise
-            <DrawerCloseTrigger />
-          </DrawerHeader>
+    <DrawerRoot open={isOpen} placement='end' onOpenChange={handleClose} size='lg'>
+      <DrawerBackdrop zIndex={10} />
+      <DrawerContent positionerZIndex={10} portalled>
+        <DrawerHeader className={style.drawerHeader}>
+          Customise
+          <DrawerCloseTrigger />
+        </DrawerHeader>
 
-          <DrawerBody>
-            {viewSettings.overrideStyles && (
-              <div className={style.infoLabel}>
-                <IoAlertCircle />
-                This view style is being modified by a custom CSS file. <br />
-              </div>
-            )}
-            <form id='edit-params-form' onSubmit={onParamsFormSubmit}>
-              {viewOptions.map((option) => {
-                if (isSection(option)) {
-                  return (
-                    <div key={option.section} className={style.section}>
-                      {option.section}
-                    </div>
-                  );
-                }
-
-                if (option.type === 'persist') {
-                  return null;
-                }
-
+        <DrawerBody>
+          {viewSettings.overrideStyles && (
+            <div className={style.infoLabel}>
+              <IoAlertCircle />
+              This view style is being modified by a custom CSS file. <br />
+            </div>
+          )}
+          <form id='edit-params-form' onSubmit={onParamsFormSubmit}>
+            {viewOptions.map((option) => {
+              if (isSection(option)) {
                 return (
-                  <div key={option.title} className={style.fieldSet}>
-                    <label className={style.label}>
-                      <span className={style.title}>{option.title}</span>
-                      <span className={style.description}>{option.description}</span>
-                      <ParamInput key={option.title} paramField={option} />
-                    </label>
+                  <div key={option.section} className={style.section}>
+                    {option.section}
                   </div>
                 );
-              })}
-            </form>
-          </DrawerBody>
+              }
 
-          <DrawerFooter className={style.drawerFooter}>
-            <Button variant='ontime-ghosted' onClick={resetParams} type='reset'>
-              Reset to default
-            </Button>
-            <Button variant='ontime-filled' form='edit-params-form' type='submit'>
-              Save
-            </Button>
-          </DrawerFooter>
-        </DrawerContent>
-      </DrawerRoot>
-    </Portal>
+              if (option.type === 'persist') {
+                return null;
+              }
+
+              return (
+                <div key={option.title} className={style.fieldSet}>
+                  <label className={style.label}>
+                    <span className={style.title}>{option.title}</span>
+                    <span className={style.description}>{option.description}</span>
+                    <ParamInput key={option.title} paramField={option} />
+                  </label>
+                </div>
+              );
+            })}
+          </form>
+        </DrawerBody>
+
+        <DrawerFooter className={style.drawerFooter}>
+          <Button variant='ontime-ghosted' onClick={resetParams} type='reset'>
+            Reset to default
+          </Button>
+          <Button variant='ontime-filled' form='edit-params-form' type='submit'>
+            Save
+          </Button>
+        </DrawerFooter>
+      </DrawerContent>
+    </DrawerRoot>
   );
 }

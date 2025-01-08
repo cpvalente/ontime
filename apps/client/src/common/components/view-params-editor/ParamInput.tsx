@@ -109,15 +109,15 @@ function MultiOption(props: EditFormMultiOptionProps) {
       name={id}
       multiple
       collection={options}
-      fontWeight={400}
-      lazyMount
       value={paramState}
       onValueChange={({ value }) => setParamState(value)}
+      lazyMount
+      unmountOnExit
     >
       <SelectTrigger>
         <SelectValueText placeholder={defaultValue ?? 'Select an option'} />
       </SelectTrigger>
-      <SelectContent portalled={false}>
+      <SelectContent>
         {options.items.map((option) => (
           <SelectItem item={option} key={option.value}>
             {option.label}
