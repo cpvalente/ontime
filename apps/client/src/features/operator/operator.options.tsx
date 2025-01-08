@@ -6,8 +6,8 @@ import { ViewOption } from '../../common/components/view-params-editor/types';
 export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ViewOption[] => {
   const fieldOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
 
-  const customFieldSelect = Object.entries(customFields).map(([_key, value]) => ({
-    value: value.label,
+  const customFieldSelect = Object.entries(customFields).map(([key, value]) => ({
+    value: key,
     label: value.label,
   }));
 
