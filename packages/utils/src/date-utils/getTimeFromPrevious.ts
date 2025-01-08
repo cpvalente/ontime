@@ -3,8 +3,7 @@ import type { OntimeEvent } from 'ontime-types';
 import { dayInMs } from './conversionUtils.js';
 
 /**
- * Utility returns the time elapsed (gap or overlap) from the previous
- * It uses deconstructed parameters to simplify implementation in UI
+ * Utility returns the gap from previous event
  */
 export function getTimeFromPrevious(
   current: Pick<OntimeEvent, 'timeStart' | 'dayOffset'>,

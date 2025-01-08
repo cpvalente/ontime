@@ -110,7 +110,7 @@ export function useScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeS
     let selectedIndex = selectedEventId ? Infinity : -1;
     let firstStart = null;
     let totalDuration = 0;
-    let lastEntry: PlayableEvent | null = null;
+    let lastEntry: PlayableEvent | undefined;
 
     for (let i = 0; i < rundown.length; i++) {
       const currentEntry = rundown[i];
