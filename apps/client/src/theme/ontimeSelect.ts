@@ -59,6 +59,9 @@ export const ontimeNativeSelectRecipe = defineSlotRecipe({
           background: '#262626', // $gray-1100
         },
       },
+      '& option': {
+        color: '#fff',
+      },
     },
     indicator: {
       color: '#e2e2e2', // $gray-200
