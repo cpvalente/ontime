@@ -1,7 +1,7 @@
 import { hideTimerSeconds } from '../../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../../common/components/view-params-editor/types';
 
-export const MINIMAL_TIMER_OPTIONS: ViewOption[] = [
+export const POPOUT_TIMER_OPTIONS: ViewOption[] = [
   { section: 'Timer Options' },
   hideTimerSeconds,
   { section: 'Element visibility' },
@@ -57,35 +57,5 @@ export const MINIMAL_TIMER_OPTIONS: ViewOption[] = [
     description: 'Scales the current style (0.5 = 50% 1 = 100% 2 = 200%)',
     type: 'number',
     placeholder: '1 (default)',
-  },
-  {
-    id: 'alignx',
-    title: 'Align Horizontal',
-    description: 'Moves the horizontally in page to start = left | center | end = right',
-    type: 'option',
-    values: { start: 'Start', center: 'Center', end: 'End' },
-    defaultValue: 'center',
-  },
-  {
-    id: 'offsetx',
-    title: 'Offset Horizontal',
-    description: 'Offsets the timer horizontal position by a given amount in pixels',
-    type: 'number',
-    placeholder: '0 (default)',
-  },
-  {
-    id: 'aligny',
-    title: 'Align Vertical',
-    description: 'Moves the vertically in page to start = left | center | end = right',
-    type: 'option',
-    values: { start: 'Start', center: 'Center', end: 'End' },
-    defaultValue: 'center',
-  },
-  {
-    id: 'offsety',
-    title: 'Offset Vertical',
-    description: 'Offsets the timer vertical position by a given amount in pixels',
-    type: 'number',
-    placeholder: '0 (default)',
   },
 ];

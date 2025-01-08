@@ -1,6 +1,6 @@
 @use '../../../theme/viewerDefs' as *;
 
-.minimal-timer {
+.popput-timer {
   margin: 0;
   box-sizing: border-box; /* reset */
   overflow: hidden;
@@ -19,10 +19,14 @@
     transition: $viewer-transition-time;
   }
 
+  .mirror {
+    transform: rotate(180deg);
+  }
+
   .timer {
     opacity: 1;
     font-family: var(--font-family-bold-override, $timer-bold-font-family);
-    font-size: 15vw;
+    font-size: 20vw;
     position: relative;
     color: var(--timer-color-override, var(--phase-color));
     transition: $viewer-transition-time;
@@ -49,5 +53,13 @@
     font-weight: 600;
     color: $timer-finished-color;
     padding: 0;
+  }
+
+  .logo {
+    position: absolute;
+    top: 2vw;
+    left: 2vw;
+    max-width: min(200px, 20vw);
+    max-height: min(100px, 20vh);
   }
 }
