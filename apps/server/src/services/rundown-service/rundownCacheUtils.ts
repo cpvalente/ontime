@@ -152,7 +152,7 @@ export function hasChanges<T extends OntimeBaseEvent>(existingEvent: T, newEvent
  * Utility for calculating if the current events should have a day offset
  * @param current the current event under test
  * @param previous the previous event
- * @returns 0 or 1 for easy acumelation with the total days
+ * @returns 0 or 1 for easy accumulation with the total days
  */
 export function calculateDayOffset(
   current: Pick<OntimeEvent, 'timeStart'>,
