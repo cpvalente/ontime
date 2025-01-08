@@ -21,7 +21,7 @@ export default function WelcomeProjectList(props: WelcomeProjectListProps) {
               <td>{project.filename}</td>
               <td>Loaded from last session</td>
               <td>
-                <Button variant='ontime-subtle' size='sm' onClick={onClose}>
+                <Button variant='ontime-subtle' size='2xs' onClick={onClose}>
                   Continue
                 </Button>
               </td>
@@ -33,7 +33,7 @@ export default function WelcomeProjectList(props: WelcomeProjectListProps) {
             <td>{project.filename}</td>
             <td>{new Date(project.updatedAt).toLocaleString()}</td>
             <td>
-              <Button variant='ontime-subtle' size='sm' onClick={() => loadProject(project.filename)}>
+              <Button variant='ontime-subtle' size='2xs' onClick={() => loadProject(project.filename)}>
                 Load
               </Button>
             </td>
