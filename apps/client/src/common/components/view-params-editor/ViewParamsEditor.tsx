@@ -117,7 +117,17 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
   const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
     formEvent.preventDefault();
 
-    const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
+    const newParamsObject: Record<string, string> = {};
+
+    new FormData(formEvent.currentTarget).forEach((value, key) => {
+      // handle multi-select values by concating new values
+      if (key in newParamsObject) {
+        newParamsObject[key] = newParamsObject[key].concat(`,${value}`);
+      } else {
+        newParamsObject[key] = String(value);
+      }
+    });
+
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, viewOptions);
     setSearchParams(newSearchParams);
 
