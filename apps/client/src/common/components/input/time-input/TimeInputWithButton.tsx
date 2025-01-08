@@ -24,7 +24,13 @@ export default function TimeInputWithButton<T extends string>(props: TimeInputWi
   const inputClasses = cx([style.timeInput, hasDelay ? style.delayed : null]);
 
   return (
-    <InputGroup className={inputClasses} startElement={startElement} endElement={endElement}>
+    <InputGroup
+      className={inputClasses}
+      startElement={startElement}
+      endElement={endElement}
+      startElementProps={{ padding: 0 }}
+      endElementProps={{ padding: 0 }}
+    >
       <TimeInput<T>
         name={name}
         submitHandler={submitHandler}

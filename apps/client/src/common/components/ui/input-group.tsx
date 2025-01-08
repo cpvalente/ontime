@@ -29,7 +29,7 @@ export const InputGroup = React.forwardRef<HTMLDivElement, InputGroupProps>(func
   return (
     <Group ref={ref} {...rest}>
       {startElement && (
-        <InputElement pointerEvents='none' {...startElementProps} padding={0}>
+        <InputElement pointerEvents='none' {...startElementProps}>
           {startElement}
         </InputElement>
       )}
@@ -41,7 +41,7 @@ export const InputGroup = React.forwardRef<HTMLDivElement, InputGroupProps>(func
         ...children.props,
       })}
       {endElement && (
-        <InputElement placement='end' {...endElementProps} padding={0}>
+        <InputElement placement='end' {...endElementProps}>
           {endElement}
         </InputElement>
       )}
