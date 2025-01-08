@@ -1,4 +1,4 @@
-import { millisToSeconds } from 'ontime-utils';
+import { millisToUISeconds } from 'ontime-utils';
 
 import { timerConfig } from '../../config/config.js';
 import { MaybeNumber, Playback } from 'ontime-types';
@@ -13,7 +13,7 @@ export function getShouldClockUpdate(previousUpdate: number, now: number): boole
   if (shouldForceUpdate) {
     return true;
   }
-  const isClockSecondAhead = millisToSeconds(now) !== millisToSeconds(previousUpdate + timerConfig.triggerAhead);
+  const isClockSecondAhead = millisToUISeconds(now) !== millisToUISeconds(previousUpdate + timerConfig.triggerAhead);
   return isClockSecondAhead;
 }
 
@@ -26,7 +26,7 @@ export function getShouldTimerUpdate(previousValue: number, currentValue: MaybeN
     return false;
   }
   // we avoid trigger ahead since it can cause duplicate triggers
-  const shouldUpdateTimer = millisToSeconds(currentValue) !== millisToSeconds(previousValue);
+  const shouldUpdateTimer = millisToUISeconds(currentValue) !== millisToUISeconds(previousValue);
   return shouldUpdateTimer;
 }
 

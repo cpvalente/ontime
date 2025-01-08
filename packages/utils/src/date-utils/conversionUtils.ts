@@ -29,6 +29,33 @@ export function millisToSeconds(millis: MaybeNumber): number {
   return convertMillis(millis, MILLIS_PER_SECOND);
 }
 
+export function millisToUISeconds(millis: MaybeNumber): number {
+  if (millis === null) {
+    return 0;
+  }
+
+  const isNegative = millis < 0;
+  const val = Math.abs(millis);
+
+  const remainder = val % MILLIS_PER_SECOND;
+
+  if (isNegative) {
+    if (remainder <= 1000 - 32) {
+      const ret = Math.ceil(millis / MILLIS_PER_SECOND);
+      // eslint-disable-next-line no-compare-neg-zero
+      return ret === -0 ? 0 : ret;
+    }
+
+    return Math.floor(millis / MILLIS_PER_SECOND);
+  }
+
+  if (remainder <= 32) {
+    return Math.floor(val / MILLIS_PER_SECOND);
+  }
+
+  return Math.ceil(val / MILLIS_PER_SECOND);
+}
+
 /**
  * Converts value in milliseconds to minutes
  * @param millis

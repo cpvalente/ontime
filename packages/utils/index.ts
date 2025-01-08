@@ -42,6 +42,7 @@ export {
   millisToHours,
   millisToMinutes,
   millisToSeconds,
+  millisToUISeconds,
   secondsInMillis,
 } from './src/date-utils/conversionUtils.js';
 export { isISO8601, isTimeString } from './src/date-utils/isTimeString.js';

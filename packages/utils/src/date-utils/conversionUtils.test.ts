@@ -1,4 +1,52 @@
-import { millisToHours, millisToMinutes, millisToSeconds, secondsInMillis } from './conversionUtils';
+import { millisToHours, millisToMinutes, millisToSeconds, millisToUISeconds, secondsInMillis } from './conversionUtils';
+
+describe('millisToUITimer()', () => {
+  test('null values', () => {
+    const t = { val: null, result: 0 };
+    expect(millisToUISeconds(t.val)).toBe(t.result);
+  });
+  test('1 sec', () => {
+    const t = { val: 1000, result: 1 };
+    expect(millisToUISeconds(t.val)).toBe(t.result);
+  });
+  test('alsmot 1 sec', () => {
+    const t = { val: 1032, result: 1 };
+    expect(millisToUISeconds(t.val)).toBe(t.result);
+  });
+  test('just past 1 sec', () => {
+    const t = { val: 1000 - 32, result: 1 };
+    expect(millisToUISeconds(t.val)).toBe(t.result);
+  });
+  test('half way 1 sec', () => {
+    const t = { val: 500, result: 1 };
+    expect(millisToUISeconds(t.val)).toBe(t.result);
+  });
+
+  test('zero', () => {
+    const t = { val: 32, result: 0 };
+    expect(millisToUISeconds(t.val)).toBe(t.result);
+  });
+
+  test('zero', () => {
+    const t = { val: 0, result: 0 };
+    expect(millisToUISeconds(t.val)).toBe(t.result);
+  });
+
+  test('negative', () => {
+    const t = { val: -32, result: 0 };
+    expect(millisToUISeconds(t.val)).toBe(t.result);
+  });
+
+  test('negative', () => {
+    const t = { val: -1000 + 33, result: 0 };
+    expect(millisToUISeconds(t.val)).toBe(t.result);
+  });
+
+  test('negative', () => {
+    const t = { val: -1000 + 31, result: -1 };
+    expect(millisToUISeconds(t.val)).toBe(t.result);
+  });
+});
 
 describe('millisToSecond()', () => {
   test('null values', () => {
