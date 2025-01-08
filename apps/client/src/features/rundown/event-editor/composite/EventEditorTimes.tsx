@@ -148,7 +148,8 @@ function EventEditorTimes(props: EventEditorTimesProps) {
         <div className={style.splitTwo}>
           <div>
             <Editor.Label htmlFor='timerType'>Timer Type</Editor.Label>
-            <NativeSelectRoot size='sm'>
+            {/* select size="sm" is 2rem and input size="sm" is 2.25rem */}
+            <NativeSelectRoot height='2.25rem'>
               <NativeSelectField
                 id='timerType'
                 name='timerType'

@@ -16,7 +16,6 @@ $skip-opacity: 0.2;
 
   grid-template-columns: $block-binder-width 3rem 1fr auto;
   grid-template-rows: 0.25rem 2.25rem 2.25rem 2.25rem 0.25rem;
-  align-items: center;
   padding-right: $block-clearance;
   gap: 4px;
 
@@ -120,7 +119,7 @@ $skip-opacity: 0.2;
   display: flex;
   flex-direction: column;
   margin: 0 0.5rem;
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
 
 .eventTimers {

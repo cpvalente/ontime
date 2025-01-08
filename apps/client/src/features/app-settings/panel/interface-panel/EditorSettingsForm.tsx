@@ -55,7 +55,7 @@ export default function EditorSettingsForm() {
                 title='Timer strategy'
                 description='Which time should be maintained when event schedule is recalculated'
               />
-              <NativeSelectRoot size='sm' width='auto'>
+              <NativeSelectRoot size='sm'>
                 <NativeSelectField
                   value={defaultTimeStrategy}
                   onChange={(event) => setTimeStrategy(event.target.value as TimeStrategy)}
@@ -78,7 +78,7 @@ export default function EditorSettingsForm() {
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='Timer type' description='Default type of timer for new events' />
-              <NativeSelectRoot size='sm' width='auto'>
+              <NativeSelectRoot size='sm'>
                 <NativeSelectField
                   value={defaultTimerType}
                   onChange={(event) => setDefaultTimerType(event.target.value as TimerType)}
@@ -92,7 +92,7 @@ export default function EditorSettingsForm() {
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='End Action' description='Default end action for new events' />
-              <NativeSelectRoot size='sm' width='auto'>
+              <NativeSelectRoot size='sm'>
                 <NativeSelectField
                   value={defaultEndAction}
                   onChange={(event) => setDefaultEndAction(event.target.value as EndAction)}

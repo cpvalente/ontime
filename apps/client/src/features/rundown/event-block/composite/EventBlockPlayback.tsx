@@ -93,7 +93,7 @@ const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
         backgroundColor={skip ? '#B20000' : undefined}
         _hover={{ backgroundColor: '#FF7878' }}
         {...tooltipProps}
-        size='xs'
+        size='sm'
         clickHandler={toggleSkip}
         tabIndex={-1}
         disabled={loaded}
@@ -105,7 +105,7 @@ const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
         icon={<IoReload className={style.flip} />}
         disabled={disablePlayback}
         {...tooltipProps}
-        size='xs'
+        size='sm'
         clickHandler={load}
         tabIndex={-1}
       />
@@ -116,7 +116,7 @@ const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
         icon={!isPlaying ? <IoPlay /> : <IoPause />}
         disabled={disablePlayback}
         {...tooltipProps}
-        size='xs'
+        size='sm'
         {...buttonVariant}
         clickHandler={actionHandler}
         tabIndex={-1}
