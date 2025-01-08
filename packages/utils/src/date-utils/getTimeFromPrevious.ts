@@ -7,7 +7,7 @@ import { dayInMs } from './conversionUtils.js';
  */
 export function getTimeFromPrevious(
   current: Pick<OntimeEvent, 'timeStart' | 'dayOffset'>,
-  previous?: Pick<OntimeEvent, 'timeStart' | 'duration' | 'dayOffset'> | null,
+  previous?: Pick<OntimeEvent, 'timeStart' | 'duration' | 'dayOffset'>,
 ): number {
   // there is no previous event
   if (!previous) {
