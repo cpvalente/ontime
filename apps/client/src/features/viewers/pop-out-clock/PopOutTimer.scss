@@ -21,8 +21,8 @@
 
   .timer {
     opacity: 1;
-    font-family: var(--font-family-bold-override, $timer-bold-font-family) ;
-    font-size: 20vw;
+    font-family: var(--font-family-bold-override, $timer-bold-font-family);
+    font-size: 15vw;
     position: relative;
     color: var(--timer-color-override, var(--phase-color));
     transition: $viewer-transition-time;
@@ -43,11 +43,11 @@
   /* =================== OVERLAY ===================*/
 
   .end-message {
-      text-align: center;
-      font-size: 12vw;
-      line-height: 0.9em;
-      font-weight: 600;
-      color: $timer-finished-color;
-      padding: 0;
-    }
+    text-align: center;
+    font-size: 12vw;
+    line-height: 0.9em;
+    font-weight: 600;
+    color: $timer-finished-color;
+    padding: 0;
+  }
 }
