@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Input } from '@chakra-ui/react';
+import { Group, Input, InputAddon } from '@chakra-ui/react';
 
 import { setClientRemote } from '../../hooks/useSocket';
 import { Button } from '../ui/button';
@@ -12,7 +12,8 @@ import {
   DialogHeader,
   DialogRoot,
 } from '../ui/dialog';
-import { InputGroup } from '../ui/input-group';
+
+import styles from './RedirectClientModal.module.scss';
 
 interface RedirectClientModalProps {
   id: string;
@@ -45,7 +46,8 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
         <DialogHeader>Redirect: {name}</DialogHeader>
         <DialogCloseTrigger />
         <DialogBody>
-          <InputGroup startElement={host}>
+          <Group gap={0}>
+            <InputAddon className={styles.localhostInputAddon}>{host}</InputAddon>
             <Input
               placeholder='minimal?key=0000ffff'
               variant='ontime-filled'
@@ -53,7 +55,7 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
               value={path}
               onChange={(event) => setPath(event.target.value)}
             />
-          </InputGroup>
+          </Group>
         </DialogBody>
         <DialogFooter>
           <Button size='md' variant='ontime-subtle' onClick={onClose}>
