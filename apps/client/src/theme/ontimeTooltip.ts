@@ -8,6 +8,7 @@ export const ontimeTooltipRecipe = defineSlotRecipe({
       backgroundColor: '#2d2d2d', // $gray-1100
       color: '#ececec', // $gray-100
       padding: '2px 8px',
+      fontSize: 'sm',
     },
   },
 });
