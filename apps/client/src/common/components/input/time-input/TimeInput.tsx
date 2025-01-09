@@ -121,7 +121,7 @@ export default function TimeInput<T extends string>(props: TimeInputProps<T>) {
     <Input
       id={id}
       disabled={disabled}
-      size='sm'
+      size='xs'
       ref={inputRef}
       data-testid={`time-input-${name}`}
       className={className}

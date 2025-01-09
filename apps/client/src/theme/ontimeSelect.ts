@@ -4,6 +4,9 @@ import { nativeSelectAnatomy, selectAnatomy } from '@chakra-ui/react/anatomy';
 export const ontimeSelectRecipe = defineSlotRecipe({
   slots: selectAnatomy.keys(),
   base: {
+    root: {
+      fontSize: 'sm',
+    },
     control: {
       borderRadius: '3px',
       fontWeight: '400',
@@ -44,6 +47,7 @@ export const ontimeNativeSelectRecipe = defineSlotRecipe({
   slots: nativeSelectAnatomy.keys(),
   base: {
     root: {
+      fontSize: 'sm',
       background: '#262626', // $gray-1100
       borderRadius: '3px',
       fontWeight: '400',
