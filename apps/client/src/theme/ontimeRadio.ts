@@ -14,17 +14,17 @@ export const ontimeRadioGroupRecipe = defineSlotRecipe({
     },
     itemControl: {
       cursor: 'pointer',
-      border: '2px solid #262626 !important', // $gray-1200
+      border: '2px solid #262626', // $gray-1200
       backgroundColor: '#262626', // $gray-1200
       _checked: {
-        backgroundColor: '#3182ce !important', // $action-blue,
+        backgroundColor: '#3182ce', // $action-blue,
         _hover: {
-          border: '3px solid #2b6cb0 !important', // $gray-1200
+          border: '3px solid #2b6cb0', // $gray-1200
         },
       },
       _hover: {
-        color: '#3182ce !important!', // $action-blue
-        backgroundColor: '#3182ce !important', // $action-blue,
+        color: '#3182ce', // $action-blue
+        backgroundColor: '#3182ce', // $action-blue,
       },
     },
     itemText: {

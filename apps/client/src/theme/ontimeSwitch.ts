@@ -7,16 +7,19 @@ export const ontimeSwitchRecipe = defineSlotRecipe({
     root: {
       fontSize: 'sm',
       '& > [data-state="unchecked"]': {
-        background: '#2d2d2d', // $gray-1100
+        backgroundColor: '#2d2d2d', // $gray-1100
       },
       _checked: {
         '& > [data-state="checked"]': {
-          background: '#2B5ABC', // $blue-700
+          backgroundColor: '#2B5ABC', // $blue-700
         },
+      },
+      '& [data-part="thumb"]': {
+        backgroundColor: '#fff !important',
       },
     },
     thumb: {
-      outline: '2px solid transparent',
+      border: '2px solid transparent',
     },
     control: {
       _focus: {

@@ -6,8 +6,10 @@ export const ontimeCheckboxRecipe = defineSlotRecipe({
   base: {
     root: {
       fontSize: 'sm',
+      cursor: 'pointer',
     },
     control: {
+      border: '1px solid #2d2d2d !important', // $gray-1100
       backgroundColor: '#2d2d2d', // $gray-1100
       _disabled: {
         color: 'white',
@@ -16,7 +18,8 @@ export const ontimeCheckboxRecipe = defineSlotRecipe({
         opacity: 0.6,
       },
       _checked: {
-        borderColor: '#3182ce !important', // $action-blue
+        border: '1px solid #3182ce !important', // $action-blue
+        color: '#fff !important',
         backgroundColor: '#3182ce !important', //$action-blue
         _disabled: {
           color: 'white',

@@ -7,7 +7,6 @@ export const ontimeAlertRecipe = defineSlotRecipe({
     root: {
       fontSize: 'calc(1rem - 1px)',
       borderRadius: '3px',
-      backgroundColor: '#202020 !important', // $gray-1200
     },
     title: {
       color: '#e2e2e2', // $gray-200
