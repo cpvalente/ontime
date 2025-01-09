@@ -1,5 +1,5 @@
 import { Fragment } from 'react';
-import { IoLink } from '@react-icons/all-files/io5/IoLink';
+import { IoLink } from 'react-icons/io5';
 import { CustomFields, isOntimeBlock, isOntimeEvent, OntimeRundown } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 

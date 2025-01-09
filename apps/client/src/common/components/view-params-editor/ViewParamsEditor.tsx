@@ -1,19 +1,19 @@
 import { FormEvent, useEffect } from 'react';
+import { IoAlertCircle } from 'react-icons/io5';
 import { useSearchParams } from 'react-router-dom';
+import { useDisclosure } from '@chakra-ui/react';
+
+import useViewSettings from '../../../common/hooks-query/useViewSettings';
+import { Button } from '../ui/button';
 import {
-  Button,
-  Drawer,
+  DrawerBackdrop,
   DrawerBody,
-  DrawerCloseButton,
+  DrawerCloseTrigger,
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
-  DrawerOverlay,
-  useDisclosure,
-} from '@chakra-ui/react';
-import { IoAlertCircle } from '@react-icons/all-files/io5/IoAlertCircle';
-
-import useViewSettings from '../../../common/hooks-query/useViewSettings';
+  DrawerRoot,
+} from '../ui/drawer';
 
 import ParamInput from './ParamInput';
 import { isSection, ViewOption } from './types';
@@ -92,7 +92,7 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: viewSettings } = useViewSettings();
 
-  const { isOpen, onClose, onOpen } = useDisclosure();
+  const { open: isOpen, onClose, onOpen } = useDisclosure();
 
   useEffect(() => {
     const isEditing = searchParams.get('edit');
@@ -117,18 +117,30 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
   const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
     formEvent.preventDefault();
 
-    const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
+    const newParamsObject: Record<string, string> = {};
+
+    new FormData(formEvent.currentTarget).forEach((value, key) => {
+      // handle multi-select values by concating new values
+      if (key in newParamsObject) {
+        newParamsObject[key] = newParamsObject[key].concat(`,${value}`);
+      } else {
+        newParamsObject[key] = String(value);
+      }
+    });
+
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, viewOptions);
     setSearchParams(newSearchParams);
+
+    onClose();
   };
 
   return (
-    <Drawer isOpen={isOpen} placement='right' onClose={handleClose} variant='ontime' size='lg'>
-      <DrawerOverlay />
-      <DrawerContent>
-        <DrawerHeader>
-          <DrawerCloseButton size='lg' />
+    <DrawerRoot open={isOpen} placement='end' onOpenChange={handleClose} size='lg' trapFocus={false}>
+      <DrawerBackdrop zIndex={15} />
+      <DrawerContent positionerZIndex={15} portalled={false}>
+        <DrawerHeader className={style.drawerHeader}>
           Customise
+          <DrawerCloseTrigger />
         </DrawerHeader>
 
         <DrawerBody>
@@ -174,6 +186,6 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
           </Button>
         </DrawerFooter>
       </DrawerContent>
-    </Drawer>
+    </DrawerRoot>
   );
 }

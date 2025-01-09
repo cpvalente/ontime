@@ -12,7 +12,7 @@
       "vitest/globals"
     ],
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "skipLibCheck": true,
@@ -32,7 +32,10 @@
     "preserveConstEnums": true,
     "allowJs": true,
     "baseUrl": "src",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": [
     "src"

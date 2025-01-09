@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
-import { Tooltip } from '@chakra-ui/react';
 
+import { Tooltip } from '../../../common/components/ui/tooltip';
 import { isKeyEnter } from '../../../common/utils/keyEvent';
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayFast } from '../../../ontimeConfig';
@@ -26,7 +26,7 @@ export default function PanelList({ selectedPanel, location }: PanelListProps) {
         const isSelected = selectedPanel === panel.id;
         if (panel.highlight) {
           return (
-            <Tooltip key={panel.id} label={panel.highlight} openDelay={tooltipDelayFast} shouldWrapChildren>
+            <Tooltip key={panel.id} content={panel.highlight} openDelay={tooltipDelayFast}>
               <PanelListItem panel={panel} location={location} isSelected={isSelected} />
             </Tooltip>
           );

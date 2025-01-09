@@ -1,8 +1,15 @@
 import { KeyboardEvent, useState } from 'react';
-import { Input, Modal, ModalBody, ModalContent, ModalFooter, ModalOverlay } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
 import { useDebouncedCallback } from '@mantine/hooks';
 import { SupportedEvent } from 'ontime-types';
 
+import {
+  DialogBackdrop,
+  DialogBody,
+  DialogContent,
+  DialogFooter,
+  DialogRoot,
+} from '../../../common/components/ui/dialog';
 import { useEventSelection } from '../../rundown/useEventSelection';
 
 import useFinder from './useFinder';
@@ -56,10 +63,10 @@ export default function Finder(props: FinderProps) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
-      <ModalOverlay />
-      <ModalContent maxWidth='max(640px, 40vw)'>
-        <ModalBody onKeyDown={navigate}>
+    <DialogRoot open={isOpen} onOpenChange={onClose}>
+      <DialogBackdrop />
+      <DialogContent maxWidth='max(640px, 40vw)'>
+        <DialogBody onKeyDown={navigate}>
           <Input size='lg' onChange={debouncedFind} variant='ontime-filled' placeholder='Search...' />
           <ul className={style.scrollContainer} onMouseMove={handleMouseMoveEvent}>
             {error && <li className={style.error}>{error}</li>}
@@ -91,12 +98,12 @@ export default function Finder(props: FinderProps) {
                 );
               })}
           </ul>
-        </ModalBody>
-        <ModalFooter className={style.footer}>
+        </DialogBody>
+        <DialogFooter className={style.footer}>
           Use the keywords <span className={style.em}>cue</span>, <span className={style.em}>index</span> or
           <span className={style.em}>title</span> to filter search
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </DialogFooter>
+      </DialogContent>
+    </DialogRoot>
   );
 }

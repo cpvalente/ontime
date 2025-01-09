@@ -1,21 +1,12 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import {
-  Button,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  Menu,
-  MenuButton,
-  MenuItemOption,
-  MenuList,
-  MenuOptionGroup,
-  Select,
-  Switch,
-} from '@chakra-ui/react';
-import { IoChevronDown } from '@react-icons/all-files/io5/IoChevronDown';
+import { createListCollection, Input } from '@chakra-ui/react';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
+import { InputGroup } from '../ui/input-group';
+import { NativeSelectField, NativeSelectRoot } from '../ui/native-select';
+import { SelectContent, SelectItem, SelectRoot, SelectTrigger, SelectValueText } from '../ui/select';
+import { Switch } from '../ui/switch';
 
 import InlineColourPicker from './InlineColourPicker';
 import { ParamField } from './types';
@@ -38,18 +29,19 @@ export default function ParamInput(props: EditFormInputProps) {
     const defaultOptionValue = optionFromParams || defaultValue;
 
     return (
-      <Select
-        placeholder={defaultValue ? undefined : 'Select an option'}
-        variant='ontime'
-        name={id}
-        defaultValue={defaultOptionValue}
-      >
-        {Object.entries(paramField.values).map(([key, value]) => (
-          <option key={key} value={key}>
-            {value}
-          </option>
-        ))}
-      </Select>
+      <NativeSelectRoot>
+        <NativeSelectField
+          name={id}
+          defaultValue={defaultOptionValue}
+          placeholder={defaultValue ? undefined : 'Select an option'}
+        >
+          {Object.entries(paramField.values).map(([key, value]) => (
+            <option key={key} value={key}>
+              {value}
+            </option>
+          ))}
+        </NativeSelectField>
+      </NativeSelectRoot>
     );
   }
 
@@ -61,7 +53,7 @@ export default function ParamInput(props: EditFormInputProps) {
     const defaultCheckedValue = isStringBoolean(searchParams.get(id)) || defaultValue;
 
     // checked value should be 'true', so it can be captured by the form event
-    return <Switch variant='ontime' name={id} defaultChecked={defaultCheckedValue} value='true' />;
+    return <Switch name={id} defaultChecked={defaultCheckedValue} value='true' />;
   }
 
   if (type === 'number') {
@@ -69,8 +61,7 @@ export default function ParamInput(props: EditFormInputProps) {
     const defaultNumberValue = searchParams.get(id) ?? defaultValue;
 
     return (
-      <InputGroup variant='ontime-filled'>
-        {prefix && <InputLeftElement pointerEvents='none'>{prefix}</InputLeftElement>}
+      <InputGroup startElement={prefix ?? null}>
         <Input
           type='number'
           step='any'
@@ -93,9 +84,8 @@ export default function ParamInput(props: EditFormInputProps) {
   const { prefix, placeholder } = paramField;
 
   return (
-    <InputGroup variant='ontime-filled'>
-      {prefix && <InputLeftElement pointerEvents='none'>{prefix}</InputLeftElement>}
-      <Input name={id} defaultValue={defaultStringValue} placeholder={placeholder} />
+    <InputGroup startElement={prefix ?? null}>
+      <Input name={id} defaultValue={defaultStringValue} placeholder={placeholder} variant='ontime-filled' />
     </InputGroup>
   );
 }
@@ -107,35 +97,33 @@ interface EditFormMultiOptionProps {
 function MultiOption(props: EditFormMultiOptionProps) {
   const [searchParams] = useSearchParams();
   const { paramField } = props;
-  const { id, defaultValue } = paramField;
+  const { id, defaultValue, values } = paramField;
 
   const optionFromParams = searchParams.getAll(id);
-  const [paramState, setParamState] = useState<string[]>(optionFromParams || defaultValue || ['']);
+  const [paramState, setParamState] = useState<string[]>(optionFromParams || [defaultValue] || ['']);
+
+  const options = createListCollection({ items: values });
 
   return (
-    <>
-      <input name={id} hidden readOnly value={paramState} />
-      <Menu isLazy closeOnSelect={false} variant='ontime-on-dark'>
-        <MenuButton as={Button} variant='ontime-subtle-white' position='relative' width='fit-content' fontWeight={400}>
-          {paramField.title} <IoChevronDown style={{ display: 'inline' }} />
-        </MenuButton>
-        <MenuList>
-          <MenuOptionGroup
-            type='checkbox'
-            value={paramState}
-            onChange={(value) => setParamState(Array.isArray(value) ? value : [value])}
-          >
-            {Object.values(paramField.values).map((option) => {
-              const { value, label } = option;
-              return (
-                <MenuItemOption value={value} key={value}>
-                  {label}
-                </MenuItemOption>
-              );
-            })}
-          </MenuOptionGroup>
-        </MenuList>
-      </Menu>
-    </>
+    <SelectRoot
+      name={id}
+      multiple
+      collection={options}
+      value={paramState}
+      onValueChange={({ value }) => setParamState(value)}
+      lazyMount
+      unmountOnExit
+    >
+      <SelectTrigger>
+        <SelectValueText placeholder={defaultValue ?? 'Select an option'} />
+      </SelectTrigger>
+      <SelectContent>
+        {options.items.map((option) => (
+          <SelectItem item={option} key={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </SelectRoot>
   );
 }

@@ -1,4 +1,4 @@
-import { IoBan } from '@react-icons/all-files/io5/IoBan';
+import { IoBan } from 'react-icons/io5';
 
 import { cx } from '../../../utils/styleUtils';
 

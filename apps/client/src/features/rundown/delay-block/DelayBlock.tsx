@@ -1,13 +1,13 @@
 import { useEffect, useRef } from 'react';
-import { Button } from '@chakra-ui/react';
+import { IoCheckmarkDone } from 'react-icons/io5';
+import { IoClose } from 'react-icons/io5';
+import { IoReorderTwo } from 'react-icons/io5';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IoCheckmarkDone } from '@react-icons/all-files/io5/IoCheckmarkDone';
-import { IoClose } from '@react-icons/all-files/io5/IoClose';
-import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { OntimeDelay } from 'ontime-types';
 
 import DelayInput from '../../../common/components/input/delay-input/DelayInput';
+import { Button } from '../../../common/components/ui/button';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { cx } from '../../../common/utils/styleUtils';
 
@@ -62,11 +62,11 @@ export default function DelayBlock(props: DelayBlockProps) {
       </span>
       <DelayInput eventId={data.id} duration={data.duration} />
       <div className={style.actionButtons}>
-        <Button onClick={applyDelayHandler} size='sm' leftIcon={<IoCheckmarkDone />} variant='ontime-ghosted-white'>
-          Make permanent
+        <Button onClick={applyDelayHandler} size='sm' variant='ontime-ghosted-white'>
+          <IoCheckmarkDone /> Make permanent
         </Button>
-        <Button onClick={cancelDelayHandler} size='sm' leftIcon={<IoClose />} variant='ontime-ghosted-white'>
-          Cancel
+        <Button onClick={cancelDelayHandler} size='sm' variant='ontime-ghosted-white'>
+          <IoClose /> Cancel
         </Button>
       </div>
     </div>

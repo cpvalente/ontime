@@ -1,10 +1,12 @@
 import { memo } from 'react';
-import { Select, Switch, Tooltip } from '@chakra-ui/react';
-import { IoInformationCircle } from '@react-icons/all-files/io5/IoInformationCircle';
+import { IoInformationCircle } from 'react-icons/io5';
 import { EndAction, MaybeString, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
+import { NativeSelectField, NativeSelectRoot } from '../../../../common/components/ui/native-select';
+import { Switch } from '../../../../common/components/ui/switch';
+import { Tooltip } from '../../../../common/components/ui/tooltip';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
 import * as Editor from '../../../editors/editor-utils/EditorUtils';
@@ -105,19 +107,19 @@ function EventEditorTimes(props: EventEditorTimesProps) {
         <div className={style.splitTwo}>
           <div>
             <Editor.Label htmlFor='endAction'>End Action</Editor.Label>
-            <Select
-              id='endAction'
-              size='sm'
-              name='endAction'
-              value={endAction}
-              onChange={(event) => handleSubmit('endAction', event.target.value)}
-              variant='ontime'
-            >
-              <option value={EndAction.None}>None</option>
-              <option value={EndAction.Stop}>Stop rundown</option>
-              <option value={EndAction.LoadNext}>Load next event</option>
-              <option value={EndAction.PlayNext}>Play next event</option>
-            </Select>
+            <NativeSelectRoot size='sm'>
+              <NativeSelectField
+                name='endAction'
+                id='endAction'
+                value={endAction}
+                onChange={(event) => handleSubmit('endAction', event.currentTarget.value)}
+              >
+                <option value={EndAction.None}>None</option>
+                <option value={EndAction.Stop}>Stop rundown</option>
+                <option value={EndAction.LoadNext}>Load next event</option>
+                <option value={EndAction.PlayNext}>Play next event</option>
+              </NativeSelectField>
+            </NativeSelectRoot>
           </div>
           <div>
             <Editor.Label htmlFor='countToEnd'>Count to End</Editor.Label>
@@ -125,9 +127,8 @@ function EventEditorTimes(props: EventEditorTimesProps) {
               <Switch
                 id='countToEnd'
                 size='md'
-                isChecked={countToEnd}
+                checked={countToEnd}
                 onChange={() => handleSubmit('countToEnd', countToEnd)}
-                variant='ontime'
               />
               {countToEnd ? 'On' : 'Off'}
             </Editor.Label>
@@ -137,7 +138,7 @@ function EventEditorTimes(props: EventEditorTimesProps) {
 
       <div className={style.column}>
         <Editor.Title>
-          <Tooltip label='Changes how the timer is displayed in different views. It is not reflected in the rundown'>
+          <Tooltip content='Changes how the timer is displayed in different views. It is not reflected in the rundown'>
             <span>
               Display Options
               <IoInformationCircle className={style.tooltipIcon} />
@@ -147,19 +148,20 @@ function EventEditorTimes(props: EventEditorTimesProps) {
         <div className={style.splitTwo}>
           <div>
             <Editor.Label htmlFor='timerType'>Timer Type</Editor.Label>
-            <Select
-              size='sm'
-              id='timerType'
-              name='timerType'
-              value={timerType}
-              onChange={(event) => handleSubmit('timerType', event.target.value)}
-              variant='ontime'
-            >
-              <option value={TimerType.CountDown}>Count down</option>
-              <option value={TimerType.CountUp}>Count up</option>
-              <option value={TimerType.Clock}>Clock</option>
-              <option value={TimerType.None}>None</option>
-            </Select>
+
+            <NativeSelectRoot size='sm'>
+              <NativeSelectField
+                id='timerType'
+                name='timerType'
+                value={timerType}
+                onChange={(event) => handleSubmit('timerType', event.currentTarget.value)}
+              >
+                <option value={TimerType.CountDown}>Count down</option>
+                <option value={TimerType.CountUp}>Count up</option>
+                <option value={TimerType.Clock}>Clock</option>
+                <option value={TimerType.None}>None</option>
+              </NativeSelectField>
+            </NativeSelectRoot>
           </div>
           <div>
             <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
@@ -178,9 +180,8 @@ function EventEditorTimes(props: EventEditorTimesProps) {
               <Switch
                 id='isPublic'
                 size='md'
-                isChecked={isPublic}
-                onChange={() => handleSubmit('isPublic', isPublic)}
-                variant='ontime'
+                checked={isPublic}
+                onCheckedChange={() => handleSubmit('isPublic', isPublic)}
               />
               {isPublic ? 'Public' : 'Private'}
             </Editor.Label>

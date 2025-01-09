@@ -5,10 +5,11 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import ErrorBoundary from './common/components/error-boundary/ErrorBoundary';
 import IdentifyOverlay from './common/components/identify-overlay/IdentifyOverlay';
+import { ColorModeProvider } from './common/components/ui/color-mode';
 import { AppContextProvider } from './common/context/AppContext';
 import { ontimeQueryClient } from './common/queryClient';
 import { connectSocket } from './common/utils/socket';
-import theme from './theme/theme';
+import system from './theme/theme';
 import { TranslationProvider } from './translation/TranslationProvider';
 import AppRouter from './AppRouter';
 import { baseURI } from './externals';
@@ -17,22 +18,24 @@ connectSocket();
 
 function App() {
   return (
-    <ChakraProvider disableGlobalStyle resetCSS theme={theme}>
+    <ChakraProvider value={system}>
       <QueryClientProvider client={ontimeQueryClient}>
         <AppContextProvider>
           <BrowserRouter basename={baseURI}>
-            <div className='App'>
+            <ColorModeProvider>
+              <div className='App'>
+                <ErrorBoundary>
+                  <TranslationProvider>
+                    <IdentifyOverlay />
+                    <AppRouter />
+                  </TranslationProvider>
+                </ErrorBoundary>
+                <ReactQueryDevtools initialIsOpen={false} />
+              </div>
               <ErrorBoundary>
-                <TranslationProvider>
-                  <IdentifyOverlay />
-                  <AppRouter />
-                </TranslationProvider>
+                <div id='identify-portal' />
               </ErrorBoundary>
-              <ReactQueryDevtools initialIsOpen={false} />
-            </div>
-            <ErrorBoundary>
-              <div id='identify-portal' />
-            </ErrorBoundary>
+            </ColorModeProvider>
           </BrowserRouter>
         </AppContextProvider>
       </QueryClientProvider>

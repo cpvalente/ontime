@@ -1,4 +1,4 @@
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
+import { IoArrowUp } from 'react-icons/io5';
 
 import CopyTag from '../../../../common/components/copy-tag/CopyTag';
 import useInfo from '../../../../common/hooks-query/useInfo';

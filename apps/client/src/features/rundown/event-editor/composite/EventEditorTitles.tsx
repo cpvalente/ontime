@@ -35,7 +35,7 @@ const EventEditorTitles = (props: EventEditorTitlesProps) => {
           <Editor.Label htmlFor='eventId'>Event ID (read only)</Editor.Label>
           <Input
             id='eventId'
-            size='sm'
+            size='xs'
             variant='ontime-filled'
             data-testid='input-textfield'
             value={eventId}

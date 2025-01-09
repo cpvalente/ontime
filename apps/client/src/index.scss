@@ -54,10 +54,11 @@ $thumb-color-hover: $gray-900;
 *,
 *:before,
 *:after {
-  box-sizing: inherit;
+  box-sizing: border-box;
 }
 
-body, html {
+body,
+html {
   font-size: 15px;
   font-family: $ontime-font-family;
   background-color: var(--background-color-override, $ui-black);
@@ -82,14 +83,6 @@ html,
   .App {
     font-size: 14px;
   }
-}
-
-/**
- * workaround for chakra
- * https://github.com/chakra-ui/chakra-ui/issues/417
- */
-option {
-  color: initial;
 }
 
 /* width */

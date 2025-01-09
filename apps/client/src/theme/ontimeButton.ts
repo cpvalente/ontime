@@ -1,4 +1,6 @@
-export const ontimeButtonFilled = {
+import { defineRecipe, SystemStyleObject } from '@chakra-ui/react';
+
+const ontimeButtonFilled: SystemStyleObject = {
   background: '#2B5ABC', // $blue-700
   color: '#fff', // pure-white
   border: '1px solid #2B5ABC', // $blue-700
@@ -15,7 +17,7 @@ export const ontimeButtonFilled = {
   },
 };
 
-export const ontimeButtonOutlined = {
+const ontimeButtonOutlined: SystemStyleObject = {
   backgroundColor: '#2d2d2d', // $gray-1100
   color: '#e2e2e2', // $blue-400
   border: '1px solid rgba(255, 255, 255, 0.10)', // white-10
@@ -31,7 +33,7 @@ export const ontimeButtonOutlined = {
   },
 };
 
-export const ontimeButtonSubtle = {
+const ontimeButtonSubtle: SystemStyleObject = {
   backgroundColor: '#303030', // $gray-1050
   color: '#779BE7', // $blue-400
   border: '1px solid transparent',
@@ -48,7 +50,7 @@ export const ontimeButtonSubtle = {
 };
 
 // TODO: revise colours
-export const ontimeButtonGhostedWhite = {
+const ontimeButtonGhostedWhite: SystemStyleObject = {
   ...ontimeButtonSubtle,
   backgroundColor: 'transparent',
   color: 'white',
@@ -60,7 +62,7 @@ export const ontimeButtonGhostedWhite = {
   },
 };
 
-export const ontimeButtonGhosted = {
+const ontimeButtonGhosted: SystemStyleObject = {
   ...ontimeButtonSubtle,
   backgroundColor: 'transparent',
   _hover: {
@@ -71,8 +73,26 @@ export const ontimeButtonGhosted = {
   },
 };
 
-export const ontimeButtonSubtleWhite = {
+const ontimeButtonSubtleWhite: SystemStyleObject = {
   ...ontimeButtonSubtle,
   color: '#f6f6f6', // $gray-50
   fontWeight: 600,
 };
+
+export const ontimeButtonRecipe = defineRecipe({
+  base: {
+    letterSpacing: '0.3px',
+    fontWeight: '400',
+    borderRadius: '3px',
+  },
+  variants: {
+    variant: {
+      'ontime-filled': { ...ontimeButtonFilled },
+      'ontime-outlined': { ...ontimeButtonOutlined },
+      'ontime-subtle': { ...ontimeButtonSubtle },
+      'ontime-ghosted': { ...ontimeButtonGhosted },
+      'ontime-ghosted-white': { ...ontimeButtonGhostedWhite },
+      'ontime-subtle-white': { ...ontimeButtonSubtleWhite },
+    },
+  },
+});
