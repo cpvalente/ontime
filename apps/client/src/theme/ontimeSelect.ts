@@ -35,7 +35,21 @@ export const ontimeSelectRecipe = defineSlotRecipe({
       color: '#e2e2e2', // $gray-200
     },
     trigger: {
-      border: 0,
+      border: 'none',
+      _focus: {
+        background: '#404040', // $gray-1000
+        color: '#f6f6f6', // $gray-50
+        border: '1px solid #578AF4 !important', // $blue-500
+      },
+    },
+    item: {
+      cursor: 'pointer',
+      _hover: {
+        background: '#2B5ABC',
+      },
+      _highlighted: {
+        background: '#2B5ABC',
+      },
     },
     indicator: {
       color: '#e2e2e2', // $gray-200
