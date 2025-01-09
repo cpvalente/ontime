@@ -5,7 +5,6 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import ErrorBoundary from './common/components/error-boundary/ErrorBoundary';
 import IdentifyOverlay from './common/components/identify-overlay/IdentifyOverlay';
-import { ColorModeProvider } from './common/components/ui/color-mode';
 import { AppContextProvider } from './common/context/AppContext';
 import { ontimeQueryClient } from './common/queryClient';
 import { connectSocket } from './common/utils/socket';
@@ -22,20 +21,18 @@ function App() {
       <QueryClientProvider client={ontimeQueryClient}>
         <AppContextProvider>
           <BrowserRouter basename={baseURI}>
-            <ColorModeProvider>
-              <div className='App'>
-                <ErrorBoundary>
-                  <TranslationProvider>
-                    <IdentifyOverlay />
-                    <AppRouter />
-                  </TranslationProvider>
-                </ErrorBoundary>
-                <ReactQueryDevtools initialIsOpen={false} />
-              </div>
+            <div className='App'>
               <ErrorBoundary>
-                <div id='identify-portal' />
+                <TranslationProvider>
+                  <IdentifyOverlay />
+                  <AppRouter />
+                </TranslationProvider>
               </ErrorBoundary>
-            </ColorModeProvider>
+              <ReactQueryDevtools initialIsOpen={false} />
+            </div>
+            <ErrorBoundary>
+              <div id='identify-portal' />
+            </ErrorBoundary>
           </BrowserRouter>
         </AppContextProvider>
       </QueryClientProvider>
