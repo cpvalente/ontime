@@ -110,7 +110,7 @@ export function useScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeS
     let selectedIndex = selectedEventId ? Infinity : -1;
     let firstStart = null;
     let totalDuration = 0;
-    let lastEntry: PlayableEvent | null = null;
+    let lastEntry: PlayableEvent | undefined;
 
     for (let i = 0; i < rundown.length; i++) {
       const currentEntry = rundown[i];
@@ -142,12 +142,7 @@ export function useScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeS
           firstStart = currentEntry.timeStart;
         }
 
-        const timeFromPrevious: number = getTimeFromPrevious(
-          currentEntry.timeStart,
-          lastEntry?.timeStart,
-          lastEntry?.timeEnd,
-          lastEntry?.duration,
-        );
+        const timeFromPrevious: number = getTimeFromPrevious(currentEntry, lastEntry);
 
         if (timeFromPrevious === 0) {
           totalDuration += currentEntry.duration;
@@ -156,7 +151,7 @@ export function useScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeS
         } else if (timeFromPrevious < 0) {
           totalDuration += Math.max(currentEntry.duration + timeFromPrevious, 0);
         }
-        if (isNewLatest(currentEntry.timeStart, currentEntry.timeEnd, lastEntry?.timeStart, lastEntry?.timeEnd)) {
+        if (isNewLatest(currentEntry, lastEntry)) {
           lastEntry = currentEntry;
         }
       }

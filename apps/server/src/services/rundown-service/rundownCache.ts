@@ -24,7 +24,7 @@ import {
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
 import { apply } from './delayUtils.js';
-import { handleCustomField, handleLink, hasChanges, isDataStale } from './rundownCacheUtils.js';
+import { calculateDayOffset, handleCustomField, handleLink, hasChanges, isDataStale } from './rundownCacheUtils.js';
 
 type EventID = string;
 type NormalisedRundown = Record<EventID, OntimeRundownEntry>;
@@ -55,6 +55,7 @@ function setIsStale() {
 
 let totalDelay = 0;
 let totalDuration = 0;
+let totalDays = 0;
 let firstStart: MaybeNumber = null;
 let lastEnd: MaybeNumber = null;
 
@@ -107,6 +108,7 @@ export function generate(
   firstStart = null;
   lastEnd = null;
   totalDuration = 0;
+  totalDays = 0;
   totalDelay = 0;
 
   let lastEntry: PlayableEvent | null = null;
@@ -117,12 +119,16 @@ export function generate(
 
     if (isOntimeEvent(currentEntry)) {
       currentEntry.delay = 0;
+      currentEntry.gap = 0;
 
       // 1. handle links - mutates updatedEvent
       handleLink(i, initialRundown, currentEntry, links);
 
       // 2. handle custom fields - mutates updatedEvent
       handleCustomField(customFields, customFieldChangelog, currentEntry, assignedCustomFields);
+
+      totalDays += calculateDayOffset(currentEntry, lastEntry);
+      currentEntry.dayOffset = totalDays;
 
       // update rundown metadata, it only concerns playable events
       if (isPlayableEvent(currentEntry)) {
@@ -131,36 +137,31 @@ export function generate(
           firstStart = currentEntry.timeStart;
         }
 
-        const timeFromPrevious: number = getTimeFromPrevious(
-          currentEntry.timeStart,
-          lastEntry?.timeStart,
-          lastEntry?.timeEnd,
-          lastEntry?.duration,
-        );
+        currentEntry.gap = getTimeFromPrevious(currentEntry, lastEntry);
 
-        if (timeFromPrevious === 0) {
+        if (currentEntry.gap === 0) {
           // event starts on previous finish, we add its duration
           totalDuration += currentEntry.duration;
-        } else if (timeFromPrevious > 0) {
+        } else if (currentEntry.gap > 0) {
           // event has a gap, we add the gap and the duration
-          totalDuration += timeFromPrevious + currentEntry.duration;
-        } else if (timeFromPrevious < 0) {
+          totalDuration += currentEntry.gap + currentEntry.duration;
+        } else if (currentEntry.gap < 0) {
           // there is an overlap, we remove the overlap from the duration
           // ensuring that the sum is not negative (ie: fully overlapped events)
           // NOTE: we add the gap since it is a negative number
-          totalDuration += Math.max(currentEntry.duration + timeFromPrevious, 0);
+          totalDuration += Math.max(currentEntry.duration + currentEntry.gap, 0);
         }
 
         // remove eventual gaps from the accumulated delay
         // we only affect positive delays (time forwards)
-        if (totalDelay > 0 && timeFromPrevious > 0) {
-          totalDelay = Math.max(totalDelay - timeFromPrevious, 0);
+        if (totalDelay > 0 && currentEntry.gap > 0) {
+          totalDelay = Math.max(totalDelay - currentEntry.gap, 0);
         }
         // current event delay is the current accumulated delay
         currentEntry.delay = totalDelay;
 
         // lastEntry is the event with the latest end time
-        if (isNewLatest(currentEntry.timeStart, currentEntry.timeEnd, lastEntry?.timeStart, lastEntry?.timeEnd)) {
+        if (isNewLatest(currentEntry, lastEntry)) {
           lastEntry = currentEntry;
         }
       }

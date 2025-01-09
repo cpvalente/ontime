@@ -25,6 +25,8 @@ export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
   type: SupportedEvent.Event,
   revision: 0,
   delay: 0,
+  dayOffset: 0,
+  gap: 0,
   timeWarning: 120000,
   timeDanger: 60000,
   custom: {},

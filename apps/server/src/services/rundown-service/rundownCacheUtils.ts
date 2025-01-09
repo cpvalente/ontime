@@ -7,7 +7,7 @@ import {
   OntimeRundownEntry,
   OntimeBaseEvent,
 } from 'ontime-types';
-import { getLinkedTimes } from 'ontime-utils';
+import { dayInMs, getLinkedTimes } from 'ontime-utils';
 
 /**
  * Get linked event
@@ -146,4 +146,37 @@ export function hasChanges<T extends OntimeBaseEvent>(existingEvent: T, newEvent
   return Object.keys(newEvent).some(
     (key) => !Object.hasOwn(existingEvent, key) || existingEvent[key as keyof T] !== newEvent[key as keyof T],
   );
+}
+
+/**
+ * Utility for calculating if the current events should have a day offset
+ * @param current the current event under test
+ * @param previous the previous event
+ * @returns 0 or 1 for easy accumulation with the total days
+ */
+export function calculateDayOffset(
+  current: Pick<OntimeEvent, 'timeStart'>,
+  previous?: Pick<OntimeEvent, 'timeStart' | 'duration'>,
+) {
+  // if there is no previous there can't be a day offset
+  if (!previous) {
+    return 0;
+  }
+
+  // if the previous events duration is zero it will push the current event to next day
+  if (previous.duration === 0) {
+    return 0;
+  }
+
+  // if the previous event crossed midnight then the current event is in the next day
+  if (previous.timeStart + previous.duration >= dayInMs) {
+    return 1;
+  }
+
+  // if the current events starts at the same time or before the previous event then it is the next day
+  if (current.timeStart <= previous.timeStart) {
+    return 1;
+  }
+
+  return 0;
 }
