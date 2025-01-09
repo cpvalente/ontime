@@ -28,7 +28,7 @@ function CuesheetTableSettings(props: CuesheetTableSettingsProps) {
             const visible = column.getIsVisible();
             return (
               <label key={`${column.id}-${visible}`} className={style.option}>
-                <Checkbox defaultChecked={visible} onChange={column.getToggleVisibilityHandler()} />
+                <Checkbox defaultChecked={visible} onChange={column.getToggleVisibilityHandler()} size='sm' />
                 {columnHeader as ReactNode}
               </label>
             );
