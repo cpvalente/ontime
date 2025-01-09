@@ -65,11 +65,11 @@ export default function ClientList() {
               return (
                 <tr key={key}>
                   <td className={style.badgeList}>
-                    <Badge variant='surface' size='sm'>
+                    <Badge variant='subtle' size='sm'>
                       {key}
                     </Badge>
                     {isCurrent && (
-                      <Badge variant='surface' colorPalette='yellow' size='sm'>
+                      <Badge variant='subtle' colorPalette='yellow' size='sm'>
                         self
                       </Badge>
                     )}
@@ -131,7 +131,7 @@ export default function ClientList() {
               return (
                 <tr key={key}>
                   <td className={style.badgeList}>
-                    <Badge variant='surface' size='sm'>
+                    <Badge variant='subtle' size='sm'>
                       {key}
                     </Badge>
                     {name}
