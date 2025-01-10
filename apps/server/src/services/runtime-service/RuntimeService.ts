@@ -11,7 +11,7 @@ import {
   TimerPhase,
   TimerState,
 } from 'ontime-types';
-import { isPlaybackActive, millisToString, validatePlayback } from 'ontime-utils';
+import { millisToString, validatePlayback } from 'ontime-utils';
 
 import { deepEqual } from 'fast-equals';
 
@@ -36,7 +36,6 @@ import { integrationService } from '../integration-service/IntegrationService.js
 
 import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
 import { skippedOutOfEvent } from '../timerUtils.js';
-import { clock } from '../Clock.js';
 
 /**
  * Service manages runtime status of app
@@ -693,7 +692,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       hasImmediateChanges || shouldUpdateClock || shouldForceTimerUpdate || shouldUpdateTimer;
 
     if (shouldUpdateTimerRelatedData) {
-      RuntimeService.previousTimerUpdate = state.clock;
+      RuntimeService.previousTimerUpdate = state.clock; // set the timer update here so that `getForceUpdate` dosn't trigger if no timer is loaded or is paused
       const updateTimer = !deepEqual(RuntimeService.previousState?.timer, state.timer);
       if (updateTimer) {
         RuntimeService.previousTimerValue = state.timer.current;
@@ -703,24 +702,17 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       if (updateRuntime) {
         RuntimeService.previousState.runtime = structuredClone(state.runtime);
       }
+      const updateCurrentBlock = !deepEqual(RuntimeService?.previousState.currentBlock, state.currentBlock);
+      if (updateCurrentBlock) {
+        RuntimeService.previousState.currentBlock = structuredClone(state.currentBlock);
+      }
       RuntimeService.previousClockUpdate = state.clock;
       eventStore.batchSet({
         timer: updateTimer ? state.timer : undefined,
         runtime: updateRuntime ? state.runtime : undefined,
+        currentBlock: updateCurrentBlock ? state.currentBlock : undefined,
         clock: state.clock,
       });
-    }
-
-    // Update the events if they have changed
-    updateEventIfChanged('eventNow', state);
-    updateEventIfChanged('publicEventNow', state);
-    updateEventIfChanged('eventNext', state);
-    updateEventIfChanged('publicEventNext', state);
-
-    if (!deepEqual(RuntimeService?.previousState.currentBlock, state.currentBlock)) {
-      eventStore.set('currentBlock', state.currentBlock, state.clock);
-      RuntimeService.previousClockUpdate = state.clock;
-      RuntimeService.previousState.currentBlock = { ...state.currentBlock };
     }
 
     if (shouldUpdateClock || hasImmediateChanges) {
@@ -730,6 +722,12 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     if (hasChangedPlayback) {
       eventStore.set('onAir', state.timer.playback !== Playback.Stop);
     }
+
+    // Update the events if they have changed
+    updateEventIfChanged('eventNow', state);
+    updateEventIfChanged('publicEventNow', state);
+    updateEventIfChanged('eventNext', state);
+    updateEventIfChanged('publicEventNext', state);
 
     // Helper function to update an event if it has changed
     function updateEventIfChanged(eventKey: keyof RuntimeStore, state: runtimeState.RuntimeState) {

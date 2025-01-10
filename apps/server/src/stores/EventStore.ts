@@ -21,12 +21,11 @@ export const eventStore = {
   get<T extends keyof RuntimeStore>(key: T) {
     return store[key];
   },
-  set<T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T], clock?: number) {
+  set<T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) {
     store[key] = value;
     socket.sendAsJson({
       type: `ontime-${key}`,
       payload: value,
-      clock,
     });
   },
   batchSet(values: Partial<RuntimeStore>) {

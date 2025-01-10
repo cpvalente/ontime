@@ -145,7 +145,7 @@ export const connectSocket = () => {
           break;
         }
         case 'ontime-timer': {
-          patchRuntime({ timer: payload, clock });
+          patchRuntimeProperty('timer', payload);
           updateDevTools({ timer: payload, clock });
           break;
         }
@@ -160,8 +160,8 @@ export const connectSocket = () => {
           break;
         }
         case 'ontime-runtime': {
-          patchRuntime({ runtime: payload, clock });
-          updateDevTools({ runtime: payload, clock });
+          patchRuntimeProperty('runtime', payload);
+          updateDevTools({ runtime: payload });
           break;
         }
         case 'ontime-eventNow': {
