@@ -11,7 +11,7 @@ import {
   TimerPhase,
   TimerState,
 } from 'ontime-types';
-import { millisToString, validatePlayback } from 'ontime-utils';
+import { isPlaybackActive, millisToString, validatePlayback } from 'ontime-utils';
 
 import { deepEqual } from 'fast-equals';
 
@@ -36,6 +36,7 @@ import { integrationService } from '../integration-service/IntegrationService.js
 
 import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
 import { skippedOutOfEvent } from '../timerUtils.js';
+import { clock } from '../Clock.js';
 
 /**
  * Service manages runtime status of app
@@ -678,13 +679,6 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // we do the comparison by explicitly for each property
     // to apply custom logic for different datasets
 
-    const shouldForceTimerUpdate = getForceUpdate(RuntimeService.previousTimerUpdate, state.clock);
-    const shouldUpdateClock = getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock);
-    const shouldUpdateTimer =
-      shouldUpdateClock ||
-      shouldForceTimerUpdate ||
-      getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current);
-
     // some changes need an immediate update
     const hasNewLoaded = state.eventNow?.id !== RuntimeService.previousState?.eventNow?.id;
 
@@ -692,22 +686,29 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     const hasChangedPlayback = RuntimeService.previousState.timer?.playback !== state.timer.playback;
     const hasImmediateChanges = hasNewLoaded || justStarted || hasChangedPlayback;
 
-    if (hasChangedPlayback) {
-      eventStore.set('onAir', state.timer.playback !== Playback.Stop);
-    }
+    const shouldForceTimerUpdate = getForceUpdate(RuntimeService.previousTimerUpdate, state.clock);
+    const shouldUpdateClock = getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock);
+    const shouldUpdateTimer = getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current);
+    const shouldUpdateTimerRelatedData =
+      hasImmediateChanges || shouldUpdateClock || shouldForceTimerUpdate || shouldUpdateTimer;
 
-    if (hasImmediateChanges || (shouldUpdateTimer && !deepEqual(RuntimeService.previousState?.timer, state.timer))) {
+    if (shouldUpdateTimerRelatedData) {
       RuntimeService.previousTimerUpdate = state.clock;
-      RuntimeService.previousTimerValue = state.timer.current;
-      eventStore.set('timer', state.timer, state.clock);
+      const updateTimer = !deepEqual(RuntimeService.previousState?.timer, state.timer);
+      if (updateTimer) {
+        RuntimeService.previousTimerValue = state.timer.current;
+        RuntimeService.previousState.timer = structuredClone(state.timer);
+      }
+      const updateRuntime = !deepEqual(RuntimeService.previousState?.runtime, state.runtime);
+      if (updateRuntime) {
+        RuntimeService.previousState.runtime = structuredClone(state.runtime);
+      }
       RuntimeService.previousClockUpdate = state.clock;
-      RuntimeService.previousState.timer = { ...state.timer };
-    }
-
-    if (hasChangedPlayback || (shouldUpdateTimer && !deepEqual(RuntimeService.previousState?.runtime, state.runtime))) {
-      eventStore.set('runtime', state.runtime, state.clock);
-      RuntimeService.previousClockUpdate = state.clock;
-      RuntimeService.previousState.runtime = { ...state.runtime };
+      eventStore.batchSet({
+        timer: updateTimer ? state.timer : undefined,
+        runtime: updateRuntime ? state.runtime : undefined,
+        clock: state.clock,
+      });
     }
 
     // Update the events if they have changed
@@ -722,12 +723,12 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       RuntimeService.previousState.currentBlock = { ...state.currentBlock };
     }
 
-    if (shouldUpdateClock) {
+    if (shouldUpdateClock || hasImmediateChanges) {
       saveRestoreState(state);
-      if (RuntimeService.previousClockUpdate !== state.clock) {
-        RuntimeService.previousClockUpdate = state.clock;
-        eventStore.set('clock', state.clock);
-      }
+    }
+
+    if (hasChangedPlayback) {
+      eventStore.set('onAir', state.timer.playback !== Playback.Stop);
     }
 
     // Helper function to update an event if it has changed

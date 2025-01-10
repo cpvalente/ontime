@@ -33,7 +33,10 @@ export const eventStore = {
     Object.entries(values).forEach(([key, value]) => {
       store[key] = value;
     });
-    this.broadcast();
+    socket.sendAsJson({
+      type: 'ontime',
+      payload: values,
+    });
   },
   poll() {
     return store;
