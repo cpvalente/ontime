@@ -39,6 +39,7 @@ export const connectSocket = () => {
     }
 
     socketSendJson('set-client-type', 'ontime');
+    socketSendJson('set-client-use-patch', 'ontime');
     setOnlineStatus(true);
   };
 
@@ -64,7 +65,7 @@ export const connectSocket = () => {
   websocket.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
-
+      console.log(data);
       const { type, payload } = data;
 
       if (!type) {
@@ -137,6 +138,11 @@ export const connectSocket = () => {
 
           patchRuntime(serverPayload);
           updateDevTools(serverPayload);
+          break;
+        }
+        case 'ontime-patch': {
+          patchRuntime(payload);
+          updateDevTools(payload);
           break;
         }
         case 'ontime-clock': {
