@@ -7,6 +7,8 @@ export type StoreGetter = <T extends keyof RuntimeStore>(key: T) => Partial<Runt
 
 let store: Partial<RuntimeStore> = {};
 
+const changedKeys = new Array<keyof RuntimeStore>();
+let trigger: NodeJS.Immediate | null = null;
 /**
  * A runtime store that broadcasts its payload
  * - init: allows for adding an initial payload to the store
@@ -23,16 +25,13 @@ export const eventStore = {
   },
   set<T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) {
     store[key] = value;
-    socket.sendAsJson({
-      type: `ontime-${key}`,
-      payload: value,
-    });
-  },
-  batchSet(values: Partial<RuntimeStore>) {
-    Object.entries(values).forEach(([key, value]) => {
-      store[key] = value;
-    });
-    this.broadcast();
+    if (!changedKeys.includes(key)) changedKeys.push(key);
+    if (!trigger) {
+      trigger = setImmediate(() => {
+        socket.sendRuntimeStoreUpdate(changedKeys, store);
+        trigger = null;
+      });
+    }
   },
   poll() {
     return store;

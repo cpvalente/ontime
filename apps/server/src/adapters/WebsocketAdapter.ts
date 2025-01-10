@@ -14,7 +14,7 @@
  * Payload: adds necessary payload for the request to be completed
  */
 
-import { Client, LogOrigin } from 'ontime-types';
+import { Client, LogOrigin, RuntimeStore } from 'ontime-types';
 
 import { WebSocket, WebSocketServer } from 'ws';
 import type { Server } from 'http';
@@ -37,6 +37,10 @@ export class SocketServer implements IAdapter {
   private lastConnection: Date | null = null;
   private shouldShowWelcome = true;
 
+  //should we be tacking versions
+  private readonly patchClients: Map<string, WebSocket>;
+  private readonly keyClients: Map<string, WebSocket>;
+
   constructor() {
     if (instance) {
       throw new Error('There can be only one');
@@ -45,6 +49,8 @@ export class SocketServer implements IAdapter {
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
     this.clients = new Map<string, Client>();
+    this.keyClients = new Map<string, WebSocket>();
+    this.patchClients = new Map<string, WebSocket>();
     this.wss = null;
   }
 
@@ -66,6 +72,8 @@ export class SocketServer implements IAdapter {
         name: getRandomName(),
         path: '',
       });
+
+      this.keyClients.set(clientId, ws);
 
       this.lastConnection = new Date();
       logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientId}`);
@@ -98,6 +106,9 @@ export class SocketServer implements IAdapter {
 
       ws.on('close', () => {
         this.clients.delete(clientId);
+        this.patchClients.delete(clientId);
+        this.keyClients.delete(clientId);
+
         logger.info(LogOrigin.Client, `${this.clients.size} Connections with disconnected: ${clientId}`);
         this.sendClientList();
       });
@@ -181,6 +192,18 @@ export class SocketServer implements IAdapter {
             return;
           }
 
+          if (type === 'set-client-use-patch') {
+            this.keyClients.delete(clientId);
+            this.patchClients.set(clientId, ws);
+            return;
+          }
+
+          if (type === 'set-client-use-key') {
+            this.patchClients.delete(clientId);
+            this.keyClients.set(clientId, ws);
+            return;
+          }
+
           // Protocol specific stuff handled above
           try {
             const reply = dispatchFromAdapter(type, payload, 'ws');
@@ -260,6 +283,30 @@ export class SocketServer implements IAdapter {
       });
     } catch (_) {
       /** We do not handle this error */
+    }
+  }
+
+  public sendRuntimeStoreUpdate(keys: (keyof RuntimeStore)[], store: Partial<RuntimeStore>) {
+    console.log(keys);
+    const patch = {};
+    keys.map((key) => {
+      Object.assign(patch, { [key]: store[key] });
+    });
+    const stringifiedPatch = JSON.stringify({ type: 'ontime-patch', payload: patch });
+    this.patchClients.forEach((ws) => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(stringifiedPatch);
+      }
+    });
+
+    while (keys.length) {
+      const key = keys.pop();
+      const stringifiedMessage = JSON.stringify({ type: `ontime-${key}`, payload: store[key] });
+      this.keyClients.forEach((ws) => {
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(stringifiedMessage);
+        }
+      });
     }
   }
 
