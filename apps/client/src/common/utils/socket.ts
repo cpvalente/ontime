@@ -65,7 +65,7 @@ export const connectSocket = () => {
     try {
       const data = JSON.parse(event.data);
 
-      const { type, payload } = data;
+      const { type, payload, clock } = data;
 
       if (!type) {
         return;
@@ -145,8 +145,8 @@ export const connectSocket = () => {
           break;
         }
         case 'ontime-timer': {
-          patchRuntimeProperty('timer', payload);
-          updateDevTools({ timer: payload });
+          patchRuntime({ timer: payload, clock });
+          updateDevTools({ timer: payload, clock });
           break;
         }
         case 'ontime-onAir': {
@@ -160,8 +160,8 @@ export const connectSocket = () => {
           break;
         }
         case 'ontime-runtime': {
-          patchRuntimeProperty('runtime', payload);
-          updateDevTools({ runtime: payload });
+          patchRuntime({ runtime: payload, clock });
+          updateDevTools({ runtime: payload, clock });
           break;
         }
         case 'ontime-eventNow': {
@@ -170,8 +170,8 @@ export const connectSocket = () => {
           break;
         }
         case 'ontime-currentBlock': {
-          patchRuntimeProperty('currentBlock', payload);
-          updateDevTools({ currentBlock: payload });
+          patchRuntime({ currentBlock: payload, clock });
+          updateDevTools({ currentBlock: payload, clock });
           break;
         }
         case 'ontime-publicEventNow': {

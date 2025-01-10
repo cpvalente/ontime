@@ -679,8 +679,11 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // to apply custom logic for different datasets
 
     const shouldForceTimerUpdate = getForceUpdate(RuntimeService.previousTimerUpdate, state.clock);
+    const shouldUpdateClock = getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock);
     const shouldUpdateTimer =
-      shouldForceTimerUpdate || getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current);
+      shouldUpdateClock ||
+      shouldForceTimerUpdate ||
+      getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current);
 
     // some changes need an immediate update
     const hasNewLoaded = state.eventNow?.id !== RuntimeService.previousState?.eventNow?.id;
@@ -696,12 +699,14 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     if (hasImmediateChanges || (shouldUpdateTimer && !deepEqual(RuntimeService.previousState?.timer, state.timer))) {
       RuntimeService.previousTimerUpdate = state.clock;
       RuntimeService.previousTimerValue = state.timer.current;
-      eventStore.set('timer', state.timer);
+      eventStore.set('timer', state.timer, state.clock);
+      RuntimeService.previousClockUpdate = state.clock;
       RuntimeService.previousState.timer = { ...state.timer };
     }
 
     if (hasChangedPlayback || (shouldUpdateTimer && !deepEqual(RuntimeService.previousState?.runtime, state.runtime))) {
-      eventStore.set('runtime', state.runtime);
+      eventStore.set('runtime', state.runtime, state.clock);
+      RuntimeService.previousClockUpdate = state.clock;
       RuntimeService.previousState.runtime = { ...state.runtime };
     }
 
@@ -711,20 +716,18 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     updateEventIfChanged('eventNext', state);
     updateEventIfChanged('publicEventNext', state);
 
-    let syncBlockStartAt = false;
-
     if (!deepEqual(RuntimeService?.previousState.currentBlock, state.currentBlock)) {
-      eventStore.set('currentBlock', state.currentBlock);
+      eventStore.set('currentBlock', state.currentBlock, state.clock);
+      RuntimeService.previousClockUpdate = state.clock;
       RuntimeService.previousState.currentBlock = { ...state.currentBlock };
-      syncBlockStartAt = true;
     }
 
-    const shouldUpdateClock = syncBlockStartAt || getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock);
-
     if (shouldUpdateClock) {
-      RuntimeService.previousClockUpdate = state.clock;
-      eventStore.set('clock', state.clock);
       saveRestoreState(state);
+      if (RuntimeService.previousClockUpdate !== state.clock) {
+        RuntimeService.previousClockUpdate = state.clock;
+        eventStore.set('clock', state.clock);
+      }
     }
 
     // Helper function to update an event if it has changed
