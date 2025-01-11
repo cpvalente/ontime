@@ -36,6 +36,7 @@ import { integrationService } from '../integration-service/IntegrationService.js
 
 import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
 import { skippedOutOfEvent } from '../timerUtils.js';
+import { triggerAutomations } from '../../api-data/automation/automation.service.js';
 
 /**
  * Service manages runtime status of app
@@ -75,11 +76,11 @@ class RuntimeService {
     if (timerPhaseChanged) {
       if (newState.timer.phase === TimerPhase.Warning) {
         process.nextTick(() => {
-          integrationService.dispatch(TimerLifeCycle.onWarning);
+          triggerAutomations(TimerLifeCycle.onWarning, newState);
         });
       } else if (newState.timer.phase === TimerPhase.Danger) {
         process.nextTick(() => {
-          integrationService.dispatch(TimerLifeCycle.onDanger);
+          triggerAutomations(TimerLifeCycle.onDanger, newState);
         });
       }
     }
@@ -95,7 +96,7 @@ class RuntimeService {
       } else if (hasTimerFinished) {
         // if the timer has finished, we need to load next and keep rolling
         process.nextTick(() => {
-          integrationService.dispatch(TimerLifeCycle.onFinish);
+          triggerAutomations(TimerLifeCycle.onFinish, newState);
         });
         this.handleLoadNext();
         this.rollLoaded(keepOffset);
@@ -115,7 +116,7 @@ class RuntimeService {
     // 3. find if we need to process actions related to the timer finishing
     if (newState.timer.playback === Playback.Play && hasTimerFinished) {
       process.nextTick(() => {
-        integrationService.dispatch(TimerLifeCycle.onFinish);
+        triggerAutomations(TimerLifeCycle.onFinish, newState);
       });
 
       // handle end action if there was a timer playing
@@ -135,7 +136,7 @@ class RuntimeService {
     const shouldUpdateTimer = getShouldTimerUpdate(this.lastIntegrationTimerValue, newState.timer.current);
     if (shouldUpdateTimer) {
       process.nextTick(() => {
-        integrationService.dispatch(TimerLifeCycle.onUpdate);
+        triggerAutomations(TimerLifeCycle.onUpdate, newState);
       });
 
       this.lastIntegrationTimerValue = newState.timer.current ?? -1;
@@ -145,7 +146,7 @@ class RuntimeService {
     const shouldUpdateClock = getShouldClockUpdate(this.lastIntegrationClockUpdate, newState.clock);
     if (shouldUpdateClock) {
       process.nextTick(() => {
-        integrationService.dispatch(TimerLifeCycle.onClock);
+        triggerAutomations(TimerLifeCycle.onClock, newState);
       });
 
       this.lastIntegrationClockUpdate = newState.clock;
@@ -292,7 +293,7 @@ class RuntimeService {
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
       process.nextTick(() => {
-        integrationService.dispatch(TimerLifeCycle.onLoad);
+        triggerAutomations(TimerLifeCycle.onLoad, runtimeState.getState());
       });
     }
     return success;
@@ -471,7 +472,7 @@ class RuntimeService {
 
     if (didStart) {
       process.nextTick(() => {
-        integrationService.dispatch(TimerLifeCycle.onStart);
+        triggerAutomations(TimerLifeCycle.onStart, newState);
       });
     }
     return didStart;
@@ -524,7 +525,7 @@ class RuntimeService {
     const newState = runtimeState.getState();
     logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
     process.nextTick(() => {
-      integrationService.dispatch(TimerLifeCycle.onPause);
+      triggerAutomations(TimerLifeCycle.onPause, newState);
     });
   }
 
@@ -543,7 +544,7 @@ class RuntimeService {
       const newState = runtimeState.getState();
       logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
       process.nextTick(() => {
-        integrationService.dispatch(TimerLifeCycle.onStop);
+        triggerAutomations(TimerLifeCycle.onStop, newState);
       });
 
       return true;
@@ -591,16 +592,17 @@ class RuntimeService {
     try {
       const rundown = getRundown();
       const result = runtimeState.roll(rundown);
+      const newState = runtimeState.getState();
       if (result.eventId !== previousState.eventNow?.id) {
         logger.info(LogOrigin.Playback, `Loaded event with ID ${result.eventId}`);
         process.nextTick(() => {
-          integrationService.dispatch(TimerLifeCycle.onLoad);
+          triggerAutomations(TimerLifeCycle.onLoad, newState);
         });
       }
 
       if (result.didStart) {
         process.nextTick(() => {
-          integrationService.dispatch(TimerLifeCycle.onStart);
+          triggerAutomations(TimerLifeCycle.onStart, newState);
         });
       }
     } catch (error) {
