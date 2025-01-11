@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { useSearchParams } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'motion/react';
+import * as motion from 'motion/react-m';
 import { CustomFields, OntimeEvent, ProjectData, Settings, SupportedEvent } from 'ontime-types';
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 
