@@ -1,7 +1,7 @@
 import { TimerLifeCycle } from 'ontime-types';
 
 import { deleteAllAutomations, addAutomation, addBlueprint } from '../automation.dao.js';
-import { triggerAction } from '../automation.service.js';
+import { triggerAutomations } from '../automation.service.js';
 
 import { makeOSCAction, makeHTTPAction } from './testUtils.js';
 
@@ -67,25 +67,25 @@ describe('triggerAction()', () => {
   });
 
   it('should trigger automations for a given action', () => {
-    triggerAction(TimerLifeCycle.onLoad, {});
+    triggerAutomations(TimerLifeCycle.onLoad, {});
     expect(oscSpy).toHaveBeenCalledTimes(1);
     expect(httpSpy).not.toBeCalled();
     oscSpy.mockReset();
     httpSpy.mockReset();
 
-    triggerAction(TimerLifeCycle.onStart, {});
+    triggerAutomations(TimerLifeCycle.onStart, {});
     expect(oscClient.emitOSC).not.toBeCalled();
     expect(httpSpy).not.toBeCalled();
     oscSpy.mockReset();
     httpSpy.mockReset();
 
-    triggerAction(TimerLifeCycle.onFinish, {});
+    triggerAutomations(TimerLifeCycle.onFinish, {});
     expect(oscSpy).not.toBeCalled();
     expect(httpSpy).toHaveBeenCalledTimes(1);
     oscSpy.mockReset();
     httpSpy.mockReset();
 
-    triggerAction(TimerLifeCycle.onStop, {});
+    triggerAutomations(TimerLifeCycle.onStop, {});
     expect(oscSpy).not.toBeCalled();
     expect(httpSpy).not.toBeCalled();
   });

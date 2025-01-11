@@ -8,7 +8,7 @@ import {
 } from 'ontime-types';
 
 import { Request, Response, NextFunction } from 'express';
-import { body, param, validationResult } from 'express-validator';
+import { body, oneOf, param, validationResult } from 'express-validator';
 
 import * as assert from '../../utils/assert.js';
 
@@ -170,7 +170,11 @@ export const validateTestPayload = [
   body('type').exists().isIn(['osc', 'http']),
 
   // validation for OSC message
-  body('targetIP').if(body('type').equals('osc')).isIP(),
+  oneOf([
+    body('targetIP').if(body('type').equals('osc')).isIP(),
+    body('targetIP').if(body('type').equals('osc')).isFQDN(),
+    body('targetIP').if(body('type').equals('osc')).equals('localhost'),
+  ]),
   body('targetPort').if(body('type').equals('osc')).isPort(),
   body('address').if(body('type').equals('osc')).isString().trim(),
   body('args').if(body('type').equals('osc')).isString().trim(),
