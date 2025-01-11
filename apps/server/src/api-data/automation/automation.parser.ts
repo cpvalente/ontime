@@ -4,10 +4,35 @@ import { dbModel } from '../../models/dataModel.js';
 import type { ErrorEmitter } from '../../utils/parser.js';
 
 export function parseAutomationSettings(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): AutomationSettings {
+  /**
+   * Leaving a path for migrating users to the new automations
+   * This should be removed after a few releases
+   */
+  // @ts-expect-error -- these are legacy keys that may exist in a file <= 3.9.5
+  if (data.http || data.osc) {
+    emitError?.('Found legacy integrations');
+    console.log('Found legacy integrations...');
+    // @ts-expect-error -- these are legacy keys that may exist in a file <= 3.9.5
+    if (data.osc) {
+      return {
+        enabledAutomations: dbModel.automation.enabledAutomations,
+        // @ts-expect-error -- these are legacy keys that may exist in a file <= 3.9.5
+        enabledOscIn: data.osc?.enabledIn ?? dbModel.automation.enabledOscIn,
+        // @ts-expect-error -- these are legacy keys that may exist in a file <= 3.9.5
+        oscPortIn: data.osc?.portIn ?? dbModel.automation.oscPortIn,
+        automations: [],
+        blueprints: {},
+      };
+    } else {
+      return { ...dbModel.automation };
+    }
+  }
+
   if (!data.automation) {
     emitError?.('No data found to import');
     return { ...dbModel.automation };
   }
+  console.log('Found Automation settings, importing...');
 
   return {
     enabledAutomations: data.automation.enabledAutomations ?? dbModel.automation.enabledAutomations,

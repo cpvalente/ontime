@@ -12,7 +12,7 @@ import { compressedStatic } from './middleware/staticGZip.js';
 
 // import utils
 import { publicDir, srcDir, srcFiles } from './setup/index.js';
-import { environment, isOntimeCloud, isProduction, updateRouterPrefix } from './externals.js';
+import { environment, isProduction, updateRouterPrefix } from './externals.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
 
@@ -25,10 +25,7 @@ import { socket } from './adapters/WebsocketAdapter.js';
 import { getDataProvider } from './classes/data-provider/DataProvider.js';
 
 // Services
-import { integrationService } from './services/integration-service/IntegrationService.js';
 import { logger } from './classes/Logger.js';
-import { oscIntegration } from './services/integration-service/OscIntegration.js';
-import { httpIntegration } from './services/integration-service/HttpIntegration.js';
 import { populateStyles } from './setup/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
 import { runtimeService } from './services/runtime-service/RuntimeService.js';
@@ -132,7 +129,7 @@ let expressServer: Server | null = null;
 const checkStart = (currentState: OntimeStartOrder) => {
   if (step !== currentState) {
     step = OntimeStartOrder.Error;
-    throw new Error('Init order error: initAssets > startServer > startOsc > startIntegrations');
+    throw new Error('Init order error: initAssets > startServer');
   } else {
     if (step === 1 || step === 2) {
       step = step + 1;
@@ -280,7 +277,6 @@ export const shutdown = async (exitCode = 0) => {
 
   expressServer?.close();
   runtimeService.shutdown();
-  integrationService.shutdown();
   logger.shutdown();
   socket.shutdown();
   process.exit(exitCode);

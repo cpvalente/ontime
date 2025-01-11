@@ -3,10 +3,8 @@ import {
   OntimeRundown,
   ViewSettings,
   DatabaseModel,
-  OSCSettings,
   Settings,
   CustomFields,
-  HttpSettings,
   URLPreset,
   AutomationSettings,
 } from 'ontime-types';
@@ -49,14 +47,10 @@ export function getDataProvider() {
     setRundown,
     getSettings,
     setSettings,
-    getOsc,
-    getHttp,
     getUrlPresets,
     setUrlPresets,
     getViewSettings,
     setViewSettings,
-    setOsc,
-    setHttp,
     getAutomation,
     setAutomation,
     getRundown,
@@ -104,14 +98,6 @@ async function setSettings(newData: Settings): ReadonlyPromise<Settings> {
   return db.data.settings;
 }
 
-function getOsc(): Readonly<OSCSettings> {
-  return db.data.osc;
-}
-
-function getHttp(): Readonly<HttpSettings> {
-  return db.data.http;
-}
-
 function getUrlPresets(): Readonly<URLPreset[]> {
   return db.data.urlPresets;
 }
@@ -130,19 +116,6 @@ async function setViewSettings(newData: ViewSettings): ReadonlyPromise<ViewSetti
   db.data.viewSettings = { ...newData };
   await persist();
   return db.data.viewSettings;
-}
-
-async function setOsc(newData: OSCSettings): ReadonlyPromise<OSCSettings> {
-  db.data.osc = { ...newData };
-  await persist();
-  return db.data.osc;
-}
-
-async function setHttp(newData: HttpSettings): ReadonlyPromise<HttpSettings> {
-  db.data.http = { ...newData };
-
-  await persist();
-  return db.data.http;
 }
 
 function getAutomation(): Readonly<AutomationSettings> {
@@ -165,11 +138,10 @@ async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<D
   db.data.settings = mergedData.settings;
   db.data.viewSettings = mergedData.viewSettings;
   db.data.automation = mergedData.automation;
-  db.data.osc = mergedData.osc;
-  db.data.http = mergedData.http;
   db.data.urlPresets = mergedData.urlPresets;
   db.data.customFields = mergedData.customFields;
   db.data.rundown = mergedData.rundown;
+  db.data.automation = mergedData.automation;
 
   await persist();
   return db.data;

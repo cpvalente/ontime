@@ -28,8 +28,6 @@ import {
   setLastLoadedProject,
 } from '../app-state-service/AppStateService.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
-import { oscIntegration } from '../integration-service/OscIntegration.js';
-import { httpIntegration } from '../integration-service/HttpIntegration.js';
 
 import {
   copyCorruptFile,
@@ -176,14 +174,10 @@ export async function loadProjectFile(name: string) {
   // apply data model
   runtimeService.stop();
 
-  const { rundown, customFields, osc, http } = result.data;
+  const { rundown, customFields } = result.data;
 
   // apply the rundown
   await initRundown(rundown, customFields);
-
-  // apply integrations
-  oscIntegration.init(osc);
-  httpIntegration.init(http);
 }
 
 /**
@@ -250,14 +244,10 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
     // apply data model
     runtimeService.stop();
 
-    const { rundown, customFields, osc, http } = result.data;
+    const { rundown, customFields } = result.data;
 
     // apply the rundown
     await initRundown(rundown, customFields);
-
-    // apply integrations
-    oscIntegration.init(osc);
-    httpIntegration.init(http);
   }
 }
 

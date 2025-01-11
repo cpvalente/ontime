@@ -1,4 +1,3 @@
-import type { OSCSettings } from '../../definitions/core/OscSettings.type.js';
 import type { OntimeRundown } from '../../definitions/core/Rundown.type.js';
 import type { Playback } from '../../definitions/runtime/Playback.type.js';
 import type { MaybeString } from '../../utils/utils.type.js';
@@ -22,7 +21,6 @@ export interface GetInfo {
   networkInterfaces: NetworkInterface[];
   version: string;
   serverPort: number;
-  osc: OSCSettings;
   publicDir: string;
 }
 
