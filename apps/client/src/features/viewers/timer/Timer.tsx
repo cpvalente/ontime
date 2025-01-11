@@ -1,5 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
+import * as motion from 'motion/react-m';
 import {
   CustomFields,
   MessageState,
