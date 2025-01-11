@@ -11,6 +11,7 @@ import {
   isHTTPOutput,
   isOSCOutput,
   OntimeEvent,
+  OSCOutput,
 } from 'ontime-types';
 
 import { addBlueprint, editBlueprint, testOutput } from '../../../../common/api/automation';
@@ -93,8 +94,22 @@ export default function BlueprintForm(props: BlueprintFormProps) {
     appendOutput({ type: 'http', url: '' });
   };
 
-  const handleTestOSCOutput = async () => {
-    console.log('Test OSC output not implemented');
+  const handleTestOSCOutput = async (index: number) => {
+    try {
+      const values = getValues(`outputs.${index}`) as OSCOutput;
+      if (!values.targetIP || !values.targetPort || !values.address || !values.args) {
+        return;
+      }
+      await testOutput({
+        type: 'osc',
+        targetIP: values.targetIP,
+        targetPort: values.targetPort,
+        address: values.address,
+        args: values.args,
+      });
+    } catch (_error) {
+      /** we dont handle errors here, users should use the network tab */
+    }
   };
 
   const handleTestHTTPOutput = async (index: number) => {
@@ -331,7 +346,7 @@ export default function BlueprintForm(props: BlueprintFormProps) {
                     <Panel.Error>{rowErrors?.args?.message}</Panel.Error>
                   </label>
                   <Panel.InlineElements relation='inner'>
-                    <Button size='sm' variant='ontime-ghosted' isDisabled={!canTest} onClick={handleTestOSCOutput}>
+                    <Button size='sm' variant='ontime-ghosted' onClick={() => handleTestOSCOutput(index)}>
                       Test
                     </Button>
                     <IconButton
