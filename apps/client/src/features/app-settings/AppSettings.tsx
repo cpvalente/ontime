@@ -7,7 +7,6 @@ import AutomationPanel from './panel/automations-panel/AutomationPanel';
 import ClientControlPanel from './panel/client-control-panel/ClientControlPanel';
 import FeatureSettingsPanel from './panel/feature-settings-panel/FeatureSettingsPanel';
 import GeneralPanel from './panel/general-panel/GeneralPanel';
-import IntegrationsPanel from './panel/integrations-panel/IntegrationsPanel';
 import NetworkLogPanel from './panel/network-panel/NetworkLogPanel';
 import ProjectPanel from './panel/project-panel/ProjectPanel';
 import ShutdownPanel from './panel/shutdown-panel/ShutdownPanel';
@@ -31,7 +30,6 @@ export default function AppSettings() {
           {panel === 'general' && <GeneralPanel location={location} />}
           {panel === 'feature_settings' && <FeatureSettingsPanel location={location} />}
           {panel === 'sources' && <SourcesPanel />}
-          {panel === 'integrations' && <IntegrationsPanel location={location} />}
           {panel === 'automation' && <AutomationPanel location={location} />}
           {panel === 'client_control' && <ClientControlPanel />}
           {panel === 'about' && <AboutPanel />}

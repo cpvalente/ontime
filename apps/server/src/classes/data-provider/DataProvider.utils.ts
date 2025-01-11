@@ -11,8 +11,6 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
     viewSettings = {},
     urlPresets = existing.urlPresets,
     customFields = existing.customFields,
-    osc = {},
-    http = {},
     automation = existing.automation,
   } = newData;
 
