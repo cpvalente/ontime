@@ -11,6 +11,7 @@ import {
   isHTTPOutput,
   isOSCOutput,
   OntimeEvent,
+  OSCOutput,
 } from 'ontime-types';
 
 import { addBlueprint, editBlueprint, testOutput } from '../../../../common/api/automation';
@@ -342,7 +343,7 @@ export default function BlueprintForm(props: BlueprintFormProps) {
                     <Panel.Error>{rowErrors?.args?.message}</Panel.Error>
                   </label>
                   <Panel.InlineElements relation='inner'>
-                    <Button size='sm' variant='ontime-ghosted' isDisabled={!canTest} onClick={handleTestOSCOutput}>
+                    <Button size='sm' variant='ontime-ghosted' onClick={() => handleTestOSCOutput(index)}>
                       Test
                     </Button>
                     <IconButton

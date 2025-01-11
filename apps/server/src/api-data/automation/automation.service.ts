@@ -9,9 +9,11 @@ import {
 } from 'ontime-types';
 
 import { getState, type RuntimeState } from '../../stores/runtimeState.js';
+
 import { emitOSC } from './clients/osc.client.js';
 import { emitHTTP } from './clients/http.client.js';
 import { getAutomations, getBlueprints } from './automation.dao.js';
+import { isOntimeCloud } from '../../externals.js';
 
 /**
  * Exposes a method for triggering actions based on a TimerLifeCycle event
@@ -94,9 +96,10 @@ function send(output: AutomationOutput[], state?: RuntimeState) {
   const stateSnapshot = state ?? getState();
   output.forEach((payload) => {
     if (isOSCOutput(payload)) {
-      emitOSC();
-    }
-    if (isHTTPOutput(payload)) {
+      if (!isOntimeCloud) {
+        emitOSC(payload, stateSnapshot);
+      }
+    } else if (isHTTPOutput(payload)) {
       emitHTTP(payload, stateSnapshot);
     }
   });
