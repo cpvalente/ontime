@@ -1,4 +1,11 @@
-import { AutomationBlueprint, AutomationFilter, AutomationOutput, timerLifecycleValues } from 'ontime-types';
+import {
+  AutomationBlueprint,
+  AutomationFilter,
+  AutomationOutput,
+  HTTPOutput,
+  OSCOutput,
+  timerLifecycleValues,
+} from 'ontime-types';
 
 import { Request, Response, NextFunction } from 'express';
 import { body, param, validationResult } from 'express-validator';
@@ -130,30 +137,32 @@ function validateOutput(output: Array<unknown>): output is AutomationOutput[] {
     assert.isString(type);
 
     if (type === 'osc') {
-      assert.hasKeys(payload, ['targetIP', 'targetPort', 'address', 'args']);
-      const { targetIP, targetPort, address, args } = payload;
-      assert.isString(targetIP);
-      assert.isNumber(targetPort);
-      assert.isString(address);
-      if (typeof args !== 'string' && typeof args !== 'number') {
-        throw new Error('Invalid automation');
-      }
+      validateOSCOutput(payload);
     } else if (type === 'http') {
-      assert.hasKeys(payload, ['targetIP', 'address']);
-      const { targetIP, address } = payload;
-      assert.isString(targetIP);
-      assert.isString(address);
-    } else if (type === 'companion') {
-      assert.hasKeys(payload, ['targetIP', 'address', 'page', 'bank']);
-      const { targetIP, address, page, bank } = payload;
-      assert.isString(targetIP);
-      assert.isString(address);
-      assert.isNumber(page);
-      assert.isNumber(bank);
+      validateHttpOutput(payload);
     } else {
       throw new Error('Invalid automation');
     }
   });
+  return true;
+}
+
+function validateOSCOutput(payload: object): payload is OSCOutput {
+  assert.hasKeys(payload, ['targetIP', 'targetPort', 'address', 'args']);
+  const { targetIP, targetPort, address, args } = payload;
+  assert.isString(targetIP);
+  assert.isNumber(targetPort);
+  assert.isString(address);
+  if (typeof args !== 'string' && typeof args !== 'number') {
+    throw new Error('Invalid automation');
+  }
+  return true;
+}
+
+function validateHttpOutput(payload: object): payload is HTTPOutput {
+  assert.hasKeys(payload, ['url']);
+  const { url } = payload;
+  assert.isString(url);
   return true;
 }
 
@@ -164,10 +173,10 @@ export const validateTestPayload = [
   body('targetIP').if(body('type').equals('osc')).isIP(),
   body('targetPort').if(body('type').equals('osc')).isPort(),
   body('address').if(body('type').equals('osc')).isString().trim(),
-  body('message').if(body('type').equals('osc')).isString().trim(),
+  body('args').if(body('type').equals('osc')).isString().trim(),
 
   // validation for HTTP message
-  body('url').if(body('type').equals('http')).isString().trim(),
+  body('url').if(body('type').equals('http')).isURL({ require_tld: false }).trim(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

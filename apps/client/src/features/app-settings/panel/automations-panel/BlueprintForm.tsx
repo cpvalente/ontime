@@ -6,14 +6,14 @@ import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import {
   AutomationBlueprint,
   AutomationBlueprintDTO,
-  AutomationOutput,
   CustomFields,
   HTTPOutput,
+  isHTTPOutput,
+  isOSCOutput,
   OntimeEvent,
-  OSCOutput,
 } from 'ontime-types';
 
-import { addBlueprint, editBlueprint } from '../../../../common/api/automation';
+import { addBlueprint, editBlueprint, testOutput } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
@@ -39,6 +39,7 @@ export default function BlueprintForm(props: BlueprintFormProps) {
   const {
     control,
     handleSubmit,
+    getValues,
     register,
     setError,
     setFocus,
@@ -92,11 +93,23 @@ export default function BlueprintForm(props: BlueprintFormProps) {
     appendOutput({ type: 'http', url: '' });
   };
 
-  const handleTestOSCOutput = () => {
+  const handleTestOSCOutput = async () => {
     console.log('Test OSC output not implemented');
   };
-  const handleTestHTTPOutput = () => {
-    console.log('Test HTTP output not implemented');
+
+  const handleTestHTTPOutput = async (index: number) => {
+    try {
+      const values = getValues(`outputs.${index}`) as HTTPOutput;
+      if (!values.url) {
+        return;
+      }
+      await testOutput({
+        type: 'http',
+        url: values.url,
+      });
+    } catch (_error) {
+      /** we dont handle errors here, users should use the network tab */
+    }
   };
 
   const onSubmit = async (values: AutomationBlueprintDTO) => {
@@ -342,7 +355,6 @@ export default function BlueprintForm(props: BlueprintFormProps) {
                   url?: { message?: string };
                 }
               | undefined;
-            const canTest = output.url;
             return (
               <div key={output.id} className={style.outputCard}>
                 <div className={style.outputTag}>
@@ -367,7 +379,7 @@ export default function BlueprintForm(props: BlueprintFormProps) {
                     <Panel.Error>{rowErrors?.url?.message}</Panel.Error>
                   </label>
                   <Panel.InlineElements relation='inner'>
-                    <Button size='sm' variant='ontime-ghosted' isDisabled={!canTest} onClick={handleTestHTTPOutput}>
+                    <Button size='sm' variant='ontime-ghosted' onClick={() => handleTestHTTPOutput(index)}>
                       Test
                     </Button>
                     <IconButton
@@ -425,14 +437,10 @@ export default function BlueprintForm(props: BlueprintFormProps) {
   );
 }
 
-function isOSCOutput(output: AutomationOutput): output is OSCOutput {
-  return output.type === 'osc';
-}
-
-function isHTTPOutput(output: AutomationOutput): output is HTTPOutput {
-  return output.type === 'http';
-}
-
+/**
+ * We use this guard to find out if the form is receiving an existing blueprint or creating a DTO
+ * We do this by checking whether an ID has been generated
+ */
 function isBlueprint(blueprint: AutomationBlueprintDTO | AutomationBlueprint): blueprint is AutomationBlueprint {
   return Object.hasOwn(blueprint, 'id');
 }

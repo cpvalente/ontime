@@ -1,5 +1,14 @@
-import type { AutomationFilter, AutomationOutput, FilterRule, RuntimeStore, TimerLifeCycle } from 'ontime-types';
+import {
+  isHTTPOutput,
+  isOSCOutput,
+  type AutomationFilter,
+  type AutomationOutput,
+  type FilterRule,
+  type RuntimeStore,
+  type TimerLifeCycle,
+} from 'ontime-types';
 
+import { getState, type RuntimeState } from '../../stores/runtimeState.js';
 import { emitOSC } from './clients/osc.client.js';
 import { emitHTTP } from './clients/http.client.js';
 import { getAutomations, getBlueprints } from './automation.dao.js';
@@ -7,7 +16,7 @@ import { getAutomations, getBlueprints } from './automation.dao.js';
 /**
  * Exposes a method for triggering actions based on a TimerLifeCycle event
  */
-export function triggerAction(event: TimerLifeCycle, state: Partial<RuntimeStore>) {
+export function triggerAutomations(event: TimerLifeCycle, state: RuntimeState) {
   const automations = getAutomations();
   const triggerAutomations = automations.filter((automation) => automation.trigger === event);
   if (triggerAutomations.length === 0) {
@@ -31,11 +40,8 @@ export function triggerAction(event: TimerLifeCycle, state: Partial<RuntimeStore
   });
 }
 
-export function testOutput(payload: AutomationOutput, state: Partial<RuntimeStore>) {
-  const success = send([payload], state);
-  if (!success) {
-    throw new Error('Failed to send output');
-  }
+export function testOutput(payload: AutomationOutput) {
+  send([payload]);
 }
 
 /**
@@ -60,6 +66,7 @@ export function testConditions(
     const { field, operator, value } = filter;
     const fieldValue = state[field];
 
+    // TODO: if value is empty string, the user could be meaning to check if the value does not exist
     switch (operator) {
       case 'equals':
         return fieldValue === value;
@@ -83,17 +90,14 @@ export function testConditions(
  * Handles preparing and sending of the data
  * Returns a boolean indicating whether a message was sent
  */
-function send(output: AutomationOutput[], _state: Partial<RuntimeStore>): boolean {
+function send(output: AutomationOutput[], state?: RuntimeState) {
+  const stateSnapshot = state ?? getState();
   output.forEach((payload) => {
-    if (payload.type === 'osc') {
+    if (isOSCOutput(payload)) {
       emitOSC();
-      return true;
     }
-    if (payload.type === 'http') {
-      emitHTTP();
-      return true;
+    if (isHTTPOutput(payload)) {
+      emitHTTP(payload, stateSnapshot);
     }
-    return false;
   });
-  return true;
 }
