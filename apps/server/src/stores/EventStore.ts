@@ -41,7 +41,7 @@ export const eventStore = {
     }
   },
   poll() {
-    return store;
+    return store as RuntimeStore;
   },
   broadcast() {
     socket.sendAsJson({
