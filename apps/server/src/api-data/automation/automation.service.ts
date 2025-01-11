@@ -12,13 +12,17 @@ import { getState, type RuntimeState } from '../../stores/runtimeState.js';
 
 import { emitOSC } from './clients/osc.client.js';
 import { emitHTTP } from './clients/http.client.js';
-import { getAutomations, getBlueprints } from './automation.dao.js';
+import { getAutomations, getAutomationsEnabled, getBlueprints } from './automation.dao.js';
 import { isOntimeCloud } from '../../externals.js';
 
 /**
  * Exposes a method for triggering actions based on a TimerLifeCycle event
  */
 export function triggerAutomations(event: TimerLifeCycle, state: RuntimeState) {
+  if (!getAutomationsEnabled()) {
+    return;
+  }
+
   const automations = getAutomations();
   const triggerAutomations = automations.filter((automation) => automation.trigger === event);
   if (triggerAutomations.length === 0) {

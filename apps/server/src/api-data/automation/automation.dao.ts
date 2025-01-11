@@ -18,6 +18,13 @@ export function getAutomationSettings(): AutomationSettings {
 }
 
 /**
+ * Gets the enabled status of the automations
+ */
+export function getAutomationsEnabled(): boolean {
+  return getAutomationSettings().enabledAutomations;
+}
+
+/**
  * Gets a copy of the stored automations
  */
 export function getAutomations(): Automation[] {
