@@ -1,6 +1,7 @@
 import QRCode from 'react-qr-code';
 import { useSearchParams } from 'react-router-dom';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence } from 'motion/react';
+import * as motion from 'motion/react-m';
 import { CustomFields, OntimeEvent, ProjectData, Settings } from 'ontime-types';
 
 import Schedule from '../../../common/components/schedule/Schedule';
