@@ -1,4 +1,4 @@
-import { defineRecipe, SystemStyleObject } from '@chakra-ui/react';
+import { defineRecipe, SystemStyleObject } from '@chakra-ui/react/styled-system';
 
 const commonStyles: SystemStyleObject = {
   fontSize: 'sm',

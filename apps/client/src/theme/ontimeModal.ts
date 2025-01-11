@@ -1,5 +1,5 @@
-import { defineSlotRecipe } from '@chakra-ui/react';
 import { dialogAnatomy } from '@chakra-ui/react/anatomy';
+import { defineSlotRecipe } from '@chakra-ui/react/styled-system';
 
 export const ontimeDialogRecipe = defineSlotRecipe({
   slots: dialogAnatomy.keys(),

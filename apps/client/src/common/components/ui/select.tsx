@@ -1,6 +1,7 @@
 import * as React from 'react';
-import type { CollectionItem } from '@chakra-ui/react';
-import { Portal, Select as ChakraSelect } from '@chakra-ui/react';
+import type { CollectionItem } from '@chakra-ui/react/collection';
+import { Portal } from '@chakra-ui/react/portal';
+import { Select as ChakraSelect } from '@chakra-ui/react/select';
 
 import { CloseButton } from './close-button';
 

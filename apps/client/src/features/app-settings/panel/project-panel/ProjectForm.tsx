@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react/input';
 
 import { Button } from '../../../../common/components/ui/button';
 

@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Drawer as ChakraDrawer, Portal } from '@chakra-ui/react';
+import { Drawer as ChakraDrawer } from '@chakra-ui/react/drawer';
+import { Portal } from '@chakra-ui/react/portal';
 
 import { CloseButton } from './close-button';
 

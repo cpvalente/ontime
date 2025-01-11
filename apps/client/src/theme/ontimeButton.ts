@@ -1,4 +1,4 @@
-import { defineRecipe, SystemStyleObject } from '@chakra-ui/react';
+import { defineRecipe, SystemStyleObject } from '@chakra-ui/react/styled-system';
 
 const ontimeButtonFilled: SystemStyleObject = {
   background: '#2B5ABC', // $blue-700

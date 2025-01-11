@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Badge, useDisclosure } from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
+import { Badge } from '@chakra-ui/react/badge';
 
 import { RedirectClientModal } from '../../../../common/components/client-modal/RedirectClientModal';
 import { RenameClientModal } from '../../../../common/components/client-modal/RenameClientModal';

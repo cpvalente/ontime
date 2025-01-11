@@ -1,4 +1,4 @@
-import { Group } from '@chakra-ui/react';
+import { Group } from '@chakra-ui/react/group';
 
 import { Button } from '../../../common/components/ui/button';
 import { AppMode, useAppMode } from '../../../common/stores/appModeStore';

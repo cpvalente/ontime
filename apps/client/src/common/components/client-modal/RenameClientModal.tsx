@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Input, Portal } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react/input';
+import { Portal } from '@chakra-ui/react/portal';
 
 import { setClientRemote } from '../../hooks/useSocket';
 import { Button } from '../ui/button';

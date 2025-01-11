@@ -1,5 +1,5 @@
 import { memo, PropsWithChildren } from 'react';
-import { Kbd } from '@chakra-ui/react';
+import { Kbd } from '@chakra-ui/react/kbd';
 
 import { deviceAlt, deviceMod } from '../../../common/utils/deviceUtils';
 import * as Editor from '../../editors/editor-utils/EditorUtils';

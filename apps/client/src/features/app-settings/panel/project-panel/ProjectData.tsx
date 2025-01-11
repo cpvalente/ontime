@@ -2,7 +2,8 @@ import { ChangeEvent, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { IoDownloadOutline } from 'react-icons/io5';
 import { IoTrash } from 'react-icons/io5';
-import { Input, Textarea } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react/input';
+import { Textarea } from '@chakra-ui/react/textarea';
 import { type ProjectData } from 'ontime-types';
 
 import { projectLogoPath } from '../../../../common/api/constants';

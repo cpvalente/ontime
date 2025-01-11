@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Input, Textarea } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react/input';
+import { Textarea } from '@chakra-ui/react/textarea';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { PROJECT_LIST } from '../../../../common/api/constants';

@@ -1,5 +1,5 @@
 import { BrowserRouter } from 'react-router-dom';
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider } from '@chakra-ui/react/styled-system';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 

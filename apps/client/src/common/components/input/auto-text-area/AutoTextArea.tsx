@@ -1,5 +1,5 @@
 import { forwardRef, RefObject, useEffect } from 'react';
-import { Textarea, TextareaProps } from '@chakra-ui/react';
+import { Textarea, TextareaProps } from '@chakra-ui/react/textarea';
 // @ts-expect-error no types from library
 import autosize from 'autosize/dist/autosize';
 

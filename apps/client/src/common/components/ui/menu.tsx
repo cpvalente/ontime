@@ -2,7 +2,9 @@
 
 import { forwardRef, ReactNode, RefObject } from 'react';
 import { LuCheck, LuChevronRight } from 'react-icons/lu';
-import { AbsoluteCenter, Menu as ChakraMenu, Portal } from '@chakra-ui/react';
+import { AbsoluteCenter } from '@chakra-ui/react/center';
+import { Menu as ChakraMenu } from '@chakra-ui/react/menu';
+import { Portal } from '@chakra-ui/react/portal';
 
 interface MenuContentProps extends ChakraMenu.ContentProps {
   portalled?: boolean;

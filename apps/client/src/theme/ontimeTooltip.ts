@@ -1,5 +1,5 @@
-import { defineSlotRecipe } from '@chakra-ui/react';
 import { tooltipAnatomy } from '@chakra-ui/react/anatomy';
+import { defineSlotRecipe } from '@chakra-ui/react/styled-system';
 
 export const ontimeTooltipRecipe = defineSlotRecipe({
   slots: tooltipAnatomy.keys(),

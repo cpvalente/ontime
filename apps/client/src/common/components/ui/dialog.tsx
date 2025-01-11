@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Dialog as ChakraDialog, Portal } from '@chakra-ui/react';
+import { Dialog as ChakraDialog } from '@chakra-ui/react/dialog';
+import { Portal } from '@chakra-ui/react/portal';
 
 import { CloseButton } from './close-button';
 

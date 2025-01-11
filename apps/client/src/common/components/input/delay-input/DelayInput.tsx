@@ -1,5 +1,6 @@
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
-import { Input, RadioGroupValueChangeDetails } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react/input';
+import { RadioGroupValueChangeDetails } from '@chakra-ui/react/radio-group';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
 import { useEventAction } from '../../../hooks/useEventAction';

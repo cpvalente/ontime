@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useDisclosure } from '@chakra-ui/react';
 
 import FloatingNavigation from '../../common/components/navigation-menu/FloatingNavigation';
 import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import ProtectRoute from '../../common/components/protect-route/ProtectRoute';
+import { useDisclosure } from '../../common/hooks/useDisclosure';
 
 import Operator from './Operator';
 

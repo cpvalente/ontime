@@ -2,13 +2,13 @@ import { useCallback, useMemo, useState } from 'react';
 import { IoApps } from 'react-icons/io5';
 import { IoSettingsOutline } from 'react-icons/io5';
 import { useSearchParams } from 'react-router-dom';
-import { useDisclosure } from '@chakra-ui/react';
 
 import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import { DialogBackdrop, DialogBody, DialogContent, DialogRoot } from '../../common/components/ui/dialog';
 import { IconButton } from '../../common/components/ui/icon-button';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
+import { useDisclosure } from '../../common/hooks/useDisclosure';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import { useFlatRundown } from '../../common/hooks-query/useRundown';

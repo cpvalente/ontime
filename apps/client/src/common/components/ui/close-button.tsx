@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { LuX } from 'react-icons/lu';
-import type { ButtonProps } from '@chakra-ui/react';
-import { IconButton as ChakraIconButton } from '@chakra-ui/react';
+import type { ButtonProps } from '@chakra-ui/react/button';
+
+import { IconButton as ChakraIconButton } from '../ui/icon-button';
 
 export type CloseButtonProps = ButtonProps;
 

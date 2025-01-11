@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Group, Input, InputAddon } from '@chakra-ui/react';
+import { Group } from '@chakra-ui/react/group';
+import { Input, InputAddon } from '@chakra-ui/react/input';
 
 import { setClientRemote } from '../../hooks/useSocket';
 import { Button } from '../ui/button';

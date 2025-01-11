@@ -1,6 +1,5 @@
 import { useCallback, useRef } from 'react';
 import { IoTrash } from 'react-icons/io5';
-import { useDisclosure } from '@chakra-ui/react';
 
 import { Button } from '../../../common/components/ui/button';
 import {
@@ -11,6 +10,7 @@ import {
   DialogHeader,
   DialogRoot,
 } from '../../../common/components/ui/dialog';
+import { useDisclosure } from '../../../common/hooks/useDisclosure';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useAppMode } from '../../../common/stores/appModeStore';
 import { useEventSelection } from '../useEventSelection';

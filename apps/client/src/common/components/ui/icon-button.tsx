@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { IconButton as ChakraIconButton, IconButtonProps as ChakraIconButtonProps } from '@chakra-ui/react';
+import { IconButton as ChakraIconButton, IconButtonProps as ChakraIconButtonProps } from '@chakra-ui/react/button';
 
 interface IconButtonProps extends ChakraIconButtonProps {
   disabled?: boolean;

@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import { Input, InputProps } from '@chakra-ui/react';
+import { Input, InputProps } from '@chakra-ui/react/input';
 
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
 import * as Editor from '../../../editors/editor-utils/EditorUtils';

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { createListCollection, Input } from '@chakra-ui/react';
+import { createListCollection } from '@chakra-ui/react/collection';
+import { Input } from '@chakra-ui/react/input';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 import { InputGroup } from '../ui/input-group';

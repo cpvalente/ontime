@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import { Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react/input';
 
 import useReactiveTextInput from '../../../common/components/input/text-input/useReactiveTextInput';
 import { useEventAction } from '../../../common/hooks/useEventAction';

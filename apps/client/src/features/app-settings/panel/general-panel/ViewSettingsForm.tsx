@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react/input';
 import { ViewSettings } from 'ontime-types';
 
 import { maybeAxiosError } from '../../../../common/api/utils';

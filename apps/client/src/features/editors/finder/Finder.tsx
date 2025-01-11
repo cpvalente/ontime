@@ -1,5 +1,5 @@
 import { KeyboardEvent, useState } from 'react';
-import { Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react/input';
 import { useDebouncedCallback } from '@mantine/hooks';
 import { SupportedEvent } from 'ontime-types';
 

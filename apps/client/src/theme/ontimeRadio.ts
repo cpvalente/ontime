@@ -1,5 +1,5 @@
-import { defineSlotRecipe } from '@chakra-ui/react';
 import { radioGroupAnatomy } from '@chakra-ui/react/anatomy';
+import { defineSlotRecipe } from '@chakra-ui/react/styled-system';
 
 export const ontimeRadioGroupRecipe = defineSlotRecipe({
   slots: radioGroupAnatomy.keys(),

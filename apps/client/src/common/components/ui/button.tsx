@@ -1,6 +1,9 @@
 import * as React from 'react';
-import type { ButtonProps as ChakraButtonProps } from '@chakra-ui/react';
-import { AbsoluteCenter, Button as ChakraButton, Span, Spinner } from '@chakra-ui/react';
+import { Span } from '@chakra-ui/react/box';
+import type { ButtonProps as ChakraButtonProps } from '@chakra-ui/react/button';
+import { Button as ChakraButton } from '@chakra-ui/react/button';
+import { AbsoluteCenter } from '@chakra-ui/react/center';
+import { Spinner } from '@chakra-ui/react/spinner';
 
 export interface ButtonProps extends ChakraButtonProps {
   disabled?: boolean;

@@ -1,6 +1,7 @@
 import * as React from 'react';
-import type { BoxProps, InputElementProps } from '@chakra-ui/react';
-import { Group, InputElement } from '@chakra-ui/react';
+import type { BoxProps } from '@chakra-ui/react/box';
+import { Group } from '@chakra-ui/react/group';
+import { type InputElementProps, InputElement } from '@chakra-ui/react/input';
 
 export interface InputGroupProps extends BoxProps {
   startElementProps?: InputElementProps;

@@ -1,7 +1,8 @@
 import { ChangeEvent, useEffect, useState } from 'react';
 import { IoCheckmark } from 'react-icons/io5';
 import { IoShieldCheckmarkOutline } from 'react-icons/io5';
-import { Input, Spinner } from '@chakra-ui/react';
+import { Input, } from '@chakra-ui/react/input';
+import { Spinner } from '@chakra-ui/react/spinner';
 
 import { getWorksheetNames } from '../../../../common/api/sheets';
 import { maybeAxiosError } from '../../../../common/api/utils';

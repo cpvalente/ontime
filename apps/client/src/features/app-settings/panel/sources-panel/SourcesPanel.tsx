@@ -1,7 +1,7 @@
 import { ChangeEvent, useRef, useState } from 'react';
 import { IoCloudOutline } from 'react-icons/io5';
 import { IoDownloadOutline } from 'react-icons/io5';
-import { Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react/input';
 import { getErrorMessage, ImportMap } from 'ontime-utils';
 
 import {

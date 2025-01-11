@@ -1,5 +1,4 @@
 import { useRef } from 'react';
-import { useDisclosure } from '@chakra-ui/react';
 
 import { Button } from '../../../../common/components/ui/button';
 import {
@@ -10,6 +9,7 @@ import {
   DialogHeader,
   DialogRoot,
 } from '../../../../common/components/ui/dialog';
+import { useDisclosure } from '../../../../common/hooks/useDisclosure';
 import { useElectronEvent } from '../../../../common/hooks/useElectronEvent';
 import { isLocalhost, isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';

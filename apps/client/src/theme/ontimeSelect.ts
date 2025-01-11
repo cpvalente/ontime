@@ -1,5 +1,5 @@
-import { defineSlotRecipe } from '@chakra-ui/react';
 import { nativeSelectAnatomy, selectAnatomy } from '@chakra-ui/react/anatomy';
+import { defineSlotRecipe } from '@chakra-ui/react/styled-system';
 
 export const ontimeSelectRecipe = defineSlotRecipe({
   slots: selectAnatomy.keys(),

@@ -1,6 +1,6 @@
 import { HTMLAttributes, ReactNode } from 'react';
 import { IoAdd } from 'react-icons/io5';
-import { Button } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react/button';
 
 import { cx } from '../../../common/utils/styleUtils';
 

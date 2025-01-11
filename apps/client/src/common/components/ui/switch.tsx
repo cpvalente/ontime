@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Switch as ChakraSwitch } from '@chakra-ui/react';
+import { Switch as ChakraSwitch } from '@chakra-ui/react/switch';
 
 export interface SwitchProps extends ChakraSwitch.RootProps {
   inputProps?: React.InputHTMLAttributes<HTMLInputElement>;

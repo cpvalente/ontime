@@ -1,5 +1,5 @@
 import { Controller, useForm } from 'react-hook-form';
-import { Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react/input';
 import { QuickStartData } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 

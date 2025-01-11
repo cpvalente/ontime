@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Textarea } from '@chakra-ui/react';
+import { Textarea } from '@chakra-ui/react/textarea';
 import { OntimeEvent } from 'ontime-types';
 
 import { Button } from '../../../common/components/ui/button';

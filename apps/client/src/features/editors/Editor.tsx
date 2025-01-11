@@ -2,11 +2,11 @@ import { lazy, useCallback, useEffect } from 'react';
 import { IoApps } from 'react-icons/io5';
 import { IoClose } from 'react-icons/io5';
 import { IoSettingsOutline } from 'react-icons/io5';
-import { useDisclosure } from '@chakra-ui/react';
 import { useHotkeys } from '@mantine/hooks';
 
 import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import { IconButton } from '../../common/components/ui/icon-button';
+import { useDisclosure } from '../../common/hooks/useDisclosure';
 import { useElectronListener } from '../../common/hooks/useElectronEvent';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import AppSettings from '../app-settings/AppSettings';
