@@ -80,6 +80,6 @@ export function deleteBlueprint(id: string): Promise<void> {
  * HTTP request to test automation output
  * The return is irrelevant as we care for the resolution of the promise
  */
-export async function testOutput(output: AutomationOutput): Promise<void> {
-  return axios.post(automationsPath, output);
+export function testOutput(output: AutomationOutput): Promise<void> {
+  return axios.post(`${automationsPath}/test`, output);
 }

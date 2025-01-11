@@ -6,13 +6,14 @@ import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import {
   AutomationBlueprint,
   AutomationBlueprintDTO,
+  CustomFields,
   HTTPOutput,
   isHTTPOutput,
   isOSCOutput,
-  OSCOutput,
+  OntimeEvent,
 } from 'ontime-types';
 
-import { addBlueprint, editBlueprint } from '../../../../common/api/automation';
+import { addBlueprint, editBlueprint, testOutput } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
@@ -40,6 +41,7 @@ export default function BlueprintForm(props: BlueprintFormProps) {
   const {
     control,
     handleSubmit,
+    getValues,
     register,
     setError,
     setFocus,
@@ -364,7 +366,6 @@ export default function BlueprintForm(props: BlueprintFormProps) {
                   url?: { message?: string };
                 }
               | undefined;
-            const canTest = output.url;
             return (
               <div key={output.id} className={style.outputCard}>
                 <Tag>HTTP</Tag>
@@ -387,7 +388,7 @@ export default function BlueprintForm(props: BlueprintFormProps) {
                     <Panel.Error>{rowErrors?.url?.message}</Panel.Error>
                   </label>
                   <Panel.InlineElements relation='inner'>
-                    <Button size='sm' variant='ontime-ghosted' isDisabled={!canTest} onClick={handleTestHTTPOutput}>
+                    <Button size='sm' variant='ontime-ghosted' onClick={() => handleTestHTTPOutput(index)}>
                       Test
                     </Button>
                     <IconButton
@@ -443,4 +444,39 @@ export default function BlueprintForm(props: BlueprintFormProps) {
       </Panel.InlineElements>
     </Panel.Indent>
   );
+}
+
+/**
+ * We use this guard to find out if the form is receiving an existing blueprint or creating a DTO
+ * We do this by checking whether an ID has been generated
+ */
+function isBlueprint(blueprint: AutomationBlueprintDTO | AutomationBlueprint): blueprint is AutomationBlueprint {
+  return Object.hasOwn(blueprint, 'id');
+}
+
+export const staticSelectProperties = [
+  { value: 'id', label: 'ID' },
+  { value: 'title', label: 'Title' },
+  { value: 'cue', label: 'Cue' },
+  { value: 'countToEnd', label: 'Count to end' },
+  { value: 'isPublic', label: 'Is public' },
+  { value: 'skip', label: 'Skip' },
+  { value: 'note', label: 'Note' },
+  { value: 'colour', label: 'Colour' },
+  { value: 'endAction', label: 'End action' },
+  { value: 'timerType', label: 'Timer type' },
+  { value: 'timeWarning', label: 'Time warning' },
+  { value: 'timeDanger', label: 'Time danger' },
+];
+
+type SelectableField = {
+  value: keyof OntimeEvent | string; // string for custom fields
+  label: string;
+};
+
+function makeFieldList(customFields: CustomFields): SelectableField[] {
+  return [
+    ...staticSelectProperties,
+    ...Object.entries(customFields).map(([key, { label }]) => ({ value: key, label: `Custom: ${label}` })),
+  ];
 }
