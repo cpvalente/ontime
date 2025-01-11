@@ -2,25 +2,20 @@ import {
   CustomField,
   CustomFields,
   DatabaseModel,
-  HttpSettings,
-  HttpSubscription,
-  OSCSettings,
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
   OntimeRundown,
-  OscSubscription,
   ProjectData,
   Settings,
   TimerType,
   URLPreset,
   ViewSettings,
   isOntimeBlock,
-  isOntimeCycle,
   isOntimeDelay,
   isOntimeEvent,
 } from 'ontime-types';
-import { customFieldLabelToKey, generateId, getErrorMessage, isAlphanumericWithSpace } from 'ontime-utils';
+import { customFieldLabelToKey, generateId, isAlphanumericWithSpace } from 'ontime-utils';
 
 import { dbModel } from '../models/dataModel.js';
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
@@ -162,102 +157,6 @@ export function parseViewSettings(data: Partial<DatabaseModel>, emitError?: Erro
     normalColor: data.viewSettings.normalColor ?? dbModel.viewSettings.normalColor,
     overrideStyles: data.viewSettings.overrideStyles ?? dbModel.viewSettings.overrideStyles,
     warningColor: data.viewSettings.warningColor ?? dbModel.viewSettings.warningColor,
-  };
-}
-
-/**
- * Sanitises an OSC Subscriptions array
- */
-export function sanitiseOscSubscriptions(subscriptions?: OscSubscription[]): OscSubscription[] {
-  if (!Array.isArray(subscriptions)) {
-    throw new Error('ERROR: invalid OSC subscriptions');
-  }
-
-  return subscriptions.filter(
-    ({ id, cycle, address, payload, enabled }) =>
-      typeof id === 'string' &&
-      isOntimeCycle(cycle) &&
-      typeof address === 'string' &&
-      typeof payload === 'string' &&
-      typeof enabled === 'boolean',
-  );
-}
-
-/**
- * Parse osc portion of an entry
- */
-export function parseOsc(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): OSCSettings {
-  if (!data.osc) {
-    emitError?.('No data found to import');
-    return { ...dbModel.osc };
-  }
-
-  console.log('Found OSC settings, importing...');
-
-  let newSubscriptions: OscSubscription[] = [];
-  try {
-    newSubscriptions = sanitiseOscSubscriptions(data.osc.subscriptions);
-  } catch (error) {
-    emitError?.(getErrorMessage(error));
-  }
-
-  if (newSubscriptions.length !== data.osc.subscriptions.length) {
-    emitError?.('Skipped invalid subscriptions');
-  }
-
-  return {
-    portIn: data.osc.portIn ?? dbModel.osc.portIn,
-    portOut: data.osc.portOut ?? dbModel.osc.portOut,
-    targetIP: data.osc.targetIP ?? dbModel.osc.targetIP,
-    enabledIn: data.osc.enabledIn ?? dbModel.osc.enabledIn,
-    enabledOut: data.osc.enabledOut ?? dbModel.osc.enabledOut,
-    subscriptions: newSubscriptions,
-  };
-}
-
-/**
- * Sanitises an HTTP Subscriptions array
- */
-export function sanitiseHttpSubscriptions(subscriptions?: HttpSubscription[]): HttpSubscription[] {
-  if (!Array.isArray(subscriptions)) {
-    throw new Error('ERROR: invalid HTTP subscriptions');
-  }
-
-  return subscriptions.filter(
-    ({ id, cycle, message, enabled }) =>
-      typeof id === 'string' &&
-      isOntimeCycle(cycle) &&
-      typeof message === 'string' &&
-      message.startsWith('http://') &&
-      typeof enabled === 'boolean',
-  );
-}
-
-/**
- * Parse Http portion of an entry
- */
-export function parseHttp(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): HttpSettings {
-  if (!data.http) {
-    emitError?.('No data found to import');
-    return { ...dbModel.http };
-  }
-
-  console.log('Found HTTP settings, importing...');
-
-  let newSubscriptions: HttpSubscription[] = [];
-  try {
-    newSubscriptions = sanitiseHttpSubscriptions(data.http.subscriptions);
-  } catch (error) {
-    emitError?.(getErrorMessage(error));
-  }
-
-  if (newSubscriptions.length !== data.http?.subscriptions.length) {
-    emitError?.('Skipped invalid subscriptions');
-  }
-
-  return {
-    enabledOut: data.http.enabledOut ?? dbModel.http.enabledOut,
-    subscriptions: newSubscriptions,
   };
 }
 

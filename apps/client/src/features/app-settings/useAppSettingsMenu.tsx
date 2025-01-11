@@ -47,14 +47,6 @@ const staticOptions = [
     split: true,
   },
   {
-    id: 'integrations',
-    label: 'Integrations',
-    secondary: [
-      { id: 'integrations__osc', label: 'OSC settings' },
-      { id: 'integrations__http', label: 'HTTP settings' },
-    ],
-  },
-  {
     id: 'automation',
     label: 'Automation',
     secondary: [

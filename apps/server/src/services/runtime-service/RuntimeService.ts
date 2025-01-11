@@ -32,7 +32,6 @@ import {
   getRundown,
   getTimedEvents,
 } from '../rundown-service/rundownUtils.js';
-import { integrationService } from '../integration-service/IntegrationService.js';
 
 import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
 import { skippedOutOfEvent } from '../timerUtils.js';

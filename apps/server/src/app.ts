@@ -27,10 +27,7 @@ import { socket } from './adapters/WebsocketAdapter.js';
 import { getDataProvider } from './classes/data-provider/DataProvider.js';
 
 // Services
-import { integrationService } from './services/integration-service/IntegrationService.js';
 import { logger } from './classes/Logger.js';
-import { oscIntegration } from './services/integration-service/OscIntegration.js';
-import { httpIntegration } from './services/integration-service/HttpIntegration.js';
 import { populateStyles } from './setup/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
 import { runtimeService } from './services/runtime-service/RuntimeService.js';
@@ -134,7 +131,7 @@ let expressServer: Server | null = null;
 const checkStart = (currentState: OntimeStartOrder) => {
   if (step !== currentState) {
     step = OntimeStartOrder.Error;
-    throw new Error('Init order error: initAssets > startServer > startOsc > startIntegrations');
+    throw new Error('Init order error: initAssets > startServer');
   } else {
     if (step === 1 || step === 2) {
       step = step + 1;
@@ -234,34 +231,6 @@ export const startServer = async (
  */
 export const startIntegrations = async () => {
   checkStart(OntimeStartOrder.InitIO);
-
-  // if a config is not provided, we use the persisted one
-  const { osc, http } = getDataProvider().getData();
-
-  if (http) {
-    logger.info(LogOrigin.Tx, 'Initialising HTTP Integration...');
-    try {
-      httpIntegration.init(http);
-      integrationService.register(httpIntegration);
-    } catch (error) {
-      logger.error(LogOrigin.Tx, `HTTP Integration initialisation failed: ${error}`);
-    }
-  }
-
-  if (isOntimeCloud) {
-    logger.info(LogOrigin.Tx, 'Skipping OSC in Cloud environment...');
-    return;
-  }
-
-  if (osc) {
-    logger.info(LogOrigin.Tx, 'Initialising OSC Integration...');
-    try {
-      oscIntegration.init(osc);
-      integrationService.register(oscIntegration);
-    } catch (error) {
-      logger.error(LogOrigin.Tx, 'OSC Integration initialisation failed');
-    }
-  }
 };
 
 /**
@@ -283,8 +252,8 @@ export const shutdown = async (exitCode = 0) => {
 
   expressServer?.close();
   runtimeService.shutdown();
-  integrationService.shutdown();
   logger.shutdown();
+  oscServer.shutdown();
   socket.shutdown();
   process.exit(exitCode);
 };

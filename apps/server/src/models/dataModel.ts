@@ -31,18 +31,6 @@ export const dbModel: DatabaseModel = {
   },
   urlPresets: [],
   customFields: {},
-  osc: {
-    portIn: 8888,
-    portOut: 9999,
-    targetIP: '127.0.0.1',
-    enabledIn: false,
-    enabledOut: false,
-    subscriptions: [],
-  },
-  http: {
-    enabledOut: false,
-    subscriptions: [],
-  },
   automation: {
     enabledAutomations: true,
     enabledOscIn: true,

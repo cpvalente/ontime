@@ -450,18 +450,6 @@ export const demoDb: DatabaseModel = {
       pathAndParams: 'lower?bg=ff2&text=f00&size=0.6&transition=5',
     },
   ],
-  osc: {
-    portIn: 8888,
-    portOut: 9999,
-    targetIP: '127.0.0.1',
-    enabledIn: true,
-    enabledOut: false,
-    subscriptions: [],
-  },
-  http: {
-    enabledOut: false,
-    subscriptions: [],
-  },
   automation: {
     enabledAutomations: false,
     enabledOscIn: true,
