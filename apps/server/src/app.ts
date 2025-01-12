@@ -228,34 +228,6 @@ export const startServer = async (
  */
 export const startIntegrations = async () => {
   checkStart(OntimeStartOrder.InitIO);
-
-  // if a config is not provided, we use the persisted one
-  const { osc, http } = getDataProvider().getData();
-
-  if (http) {
-    logger.info(LogOrigin.Tx, 'Initialising HTTP Integration...');
-    try {
-      httpIntegration.init(http);
-      integrationService.register(httpIntegration);
-    } catch (error) {
-      logger.error(LogOrigin.Tx, `HTTP Integration initialisation failed: ${error}`);
-    }
-  }
-
-  if (isOntimeCloud) {
-    logger.info(LogOrigin.Tx, 'Skipping OSC in Cloud environment...');
-    return;
-  }
-
-  if (osc) {
-    logger.info(LogOrigin.Tx, 'Initialising OSC Integration...');
-    try {
-      oscIntegration.init(osc);
-      integrationService.register(oscIntegration);
-    } catch (error) {
-      logger.error(LogOrigin.Tx, 'OSC Integration initialisation failed');
-    }
-  }
 };
 
 /**
