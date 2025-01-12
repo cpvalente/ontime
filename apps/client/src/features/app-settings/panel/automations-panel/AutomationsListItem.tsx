@@ -15,14 +15,14 @@ interface AutomationsListItemProps {
   id: string;
   title: string;
   trigger: TimerLifeCycle;
-  blueprintTitle: string;
+  blueprintId: string;
   duplicate?: boolean;
   handleDelete: () => void;
   postSubmit: () => void;
 }
 
 export default function AutomationsListItem(props: AutomationsListItemProps) {
-  const { blueprints, id, title, trigger, blueprintTitle, duplicate, handleDelete, postSubmit } = props;
+  const { blueprints, id, title, trigger, blueprintId, duplicate, handleDelete, postSubmit } = props;
   const [isEditing, setIsEditing] = useState(false);
 
   if (isEditing) {
@@ -34,7 +34,7 @@ export default function AutomationsListItem(props: AutomationsListItemProps) {
             initialId={id}
             initialTitle={title}
             initialTrigger={trigger}
-            initialBlueprint={blueprintTitle}
+            initialBlueprint={blueprintId}
             onCancel={() => setIsEditing(false)}
             postSubmit={() => {
               setIsEditing(false);
@@ -46,25 +46,24 @@ export default function AutomationsListItem(props: AutomationsListItemProps) {
     );
   }
 
+  const blueprintTitle = blueprints?.[blueprintId]?.title;
   return (
     <tr data-warn={duplicate}>
-      <td>
-        <Panel.InlineElements relation='inner'>
-          {duplicate && (
-            <IoWarningOutline
-              color='#FFBC56' // $orange-500
-            />
-          )}
-          {title}
-        </Panel.InlineElements>
-      </td>
+      <Panel.InlineElements as='td' relation='inner'>
+        {duplicate && (
+          <IoWarningOutline
+            color='#FFBC56' // $orange-500
+          />
+        )}
+        {title}
+      </Panel.InlineElements>
       <td>
         <Tag>{trigger}</Tag>
       </td>
       <td>
         <Tag>{blueprintTitle}</Tag>
       </td>
-      <td>
+      <Panel.InlineElements align='end' relation='inner' as='td'>
         <IconButton
           size='sm'
           variant='ontime-ghosted'
@@ -81,7 +80,7 @@ export default function AutomationsListItem(props: AutomationsListItemProps) {
           aria-label='Delete entry'
           onClick={handleDelete}
         />
-      </td>
+      </Panel.InlineElements>
     </tr>
   );
 }

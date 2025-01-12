@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { Button, IconButton } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoPencil } from '@react-icons/all-files/io5/IoPencil';
@@ -66,10 +66,10 @@ export default function BlueprintsList(props: BlueprintsListProps) {
       <Panel.Table>
         <thead>
           <tr>
-            <th style={{ width: '30%' }}>Title</th>
-            <th style={{ width: '30%' }}>Trigger rule</th>
-            <th>Filters</th>
-            <th>Outputs</th>
+            <th style={{ width: '45%' }}>Title</th>
+            <th style={{ width: '15%' }}>Trigger rule</th>
+            <th style={{ width: '15%' }}>Filters</th>
+            <th style={{ width: '15%' }}>Outputs</th>
             <th />
           </tr>
         </thead>
@@ -82,15 +82,15 @@ export default function BlueprintsList(props: BlueprintsListProps) {
               return null;
             }
             return (
-              <>
-                <tr key={blueprintId}>
+              <Fragment key={blueprintId}>
+                <tr>
                   <td>{blueprints[blueprintId].title}</td>
                   <td>
                     <Tag>{blueprints[blueprintId].filterRule}</Tag>
                   </td>
                   <td>{blueprints[blueprintId].filters.length}</td>
                   <td>{blueprints[blueprintId].outputs.length}</td>
-                  <td>
+                  <Panel.InlineElements align='end' relation='inner' as='td'>
                     <IconButton
                       size='sm'
                       variant='ontime-ghosted'
@@ -107,7 +107,7 @@ export default function BlueprintsList(props: BlueprintsListProps) {
                       aria-label='Delete entry'
                       onClick={() => handleDelete(blueprintId)}
                     />
-                  </td>
+                  </Panel.InlineElements>
                 </tr>
                 {deleteError && (
                   <tr>
@@ -116,7 +116,7 @@ export default function BlueprintsList(props: BlueprintsListProps) {
                     </td>
                   </tr>
                 )}
-              </>
+              </Fragment>
             );
           })}
         </tbody>

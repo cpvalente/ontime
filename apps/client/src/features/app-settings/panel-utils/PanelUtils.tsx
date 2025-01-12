@@ -124,21 +124,21 @@ export function Loader({ isLoading }: { isLoading: boolean }) {
   );
 }
 
-export function InlineElements({
+type AllowedInlineTags = 'div' | 'td';
+type InlineProps<C extends AllowedInlineTags> = {
+  as?: C;
+  relation?: 'inner' | 'component' | 'section';
+  align?: 'start' | 'end';
+  className?: string;
+};
+
+export function InlineElements<C extends AllowedInlineTags = 'div'>({
   children,
+  as,
   relation = 'component',
   align = 'start',
   className,
-  ...elementProps
-}: PropsWithChildren<
-  HTMLAttributes<HTMLDivElement> & {
-    relation?: 'inner' | 'component' | 'section';
-    align?: 'start' | 'end';
-  }
->) {
-  return (
-    <div {...elementProps} className={cx([style.inlineElements, style[relation], style[align], className])}>
-      {children}
-    </div>
-  );
+}: PropsWithChildren<InlineProps<C>>) {
+  const Element = as ?? 'div';
+  return <Element className={cx([style.inlineElements, style[relation], style[align], className])}>{children}</Element>;
 }

@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { Button } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { Automation, NormalisedAutomationBlueprint } from 'ontime-types';
 
 import { deleteAutomation } from '../../../../common/api/automation';
+import { maybeAxiosError } from '../../../../common/api/utils';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -20,12 +21,13 @@ export default function AutomationsList(props: AutomationsListProps) {
   const { automations, blueprints } = props;
   const [showForm, setShowForm] = useState(false);
   const { refetch } = useAutomationSettings();
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
     try {
       await deleteAutomation(id);
     } catch (error) {
-      /** nothing yet */
+      setDeleteError(maybeAxiosError(error));
     } finally {
       refetch();
     }
@@ -72,9 +74,9 @@ export default function AutomationsList(props: AutomationsListProps) {
           <thead>
             <tr>
               <th style={{ width: '35%' }}>Title</th>
-              <th style={{ width: '25%' }}>Trigger</th>
-              <th style={{ width: '25%' }}>Blueprint</th>
-              <th style={{ width: '15%' }} />
+              <th style={{ width: '20%' }}>Trigger</th>
+              <th style={{ width: '30%' }}>Blueprint</th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -85,20 +87,26 @@ export default function AutomationsList(props: AutomationsListProps) {
               />
             )}
             {automations.map((automation, index) => {
-              // TODO: do we have issues with AutomationListItem not knowing the blueprint id?
-              const blueprintTitle = blueprints[automation.blueprintId].title;
               return (
-                <AutomationsListItem
-                  key={automation.id}
-                  blueprints={blueprints}
-                  id={automation.id}
-                  title={automation.title}
-                  trigger={automation.trigger}
-                  blueprintTitle={blueprintTitle}
-                  duplicate={duplicates?.includes(index)}
-                  handleDelete={() => handleDelete(automation.id)}
-                  postSubmit={postSubmit}
-                />
+                <Fragment key={automation.id}>
+                  <AutomationsListItem
+                    blueprints={blueprints}
+                    id={automation.id}
+                    title={automation.title}
+                    trigger={automation.trigger}
+                    blueprintId={automation.blueprintId}
+                    duplicate={duplicates?.includes(index)}
+                    handleDelete={() => handleDelete(automation.id)}
+                    postSubmit={postSubmit}
+                  />
+                  {deleteError && (
+                    <tr>
+                      <td colSpan={5}>
+                        <Panel.Error>{deleteError}</Panel.Error>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               );
             })}
           </tbody>
