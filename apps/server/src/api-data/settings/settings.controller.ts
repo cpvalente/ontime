@@ -6,6 +6,7 @@ import type { Request, Response } from 'express';
 import { isDocker } from '../../externals.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { setShowWelcomeDialog, getShowWelcomeDialog } from '../../services/app-state-service/AppStateService.js';
 
 import { extractPin } from './settings.utils.js';
 
@@ -64,4 +65,16 @@ export async function postSettings(req: Request, res: Response<Settings | ErrorR
     const message = getErrorMessage(error);
     res.status(400).send({ message });
   }
+}
+
+export async function getWelcomeDialog(req: Request, res: Response) {
+  if (req.query) {
+    if ('show' in req.query) {
+      await setShowWelcomeDialog(true);
+    } else if ('hide' in req.query) {
+      await setShowWelcomeDialog(false);
+    }
+  }
+  const current = await getShowWelcomeDialog();
+  res.status(200).send({ show: current });
 }
