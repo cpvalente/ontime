@@ -1,20 +1,8 @@
-import { OntimeBlock, OntimeDelay, OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
-import { apply } from '../delayUtils.js';
+import { OntimeBlock, OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
-/**
- * Small utility to fill in the necessary data for the test
- */
-function makeOntimeEvent(event: Partial<OntimeEvent>): OntimeEvent {
-  return { ...event, type: SupportedEvent.Event, revision: 1 } as OntimeEvent;
-}
-
-/**
- * Small utility to make a delay event
- */
-function makeOntimeDelay(duration: number): OntimeDelay {
-  return { id: 'delay', type: SupportedEvent.Delay, duration } as OntimeDelay;
-}
+import { apply } from '../delayUtils.js';
+import { makeOntimeDelay, makeOntimeEvent } from '../__mocks__/rundown.mocks.js';
 
 describe('apply()', () => {
   it('applies a positive delay to the rundown', () => {
