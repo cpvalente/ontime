@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { Tooltip } from '@chakra-ui/react';
-import type { MaybeNumber } from 'ontime-types';
-import { dayInMs, isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
+import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { usePlayback, useTimelineStatus } from '../../../../common/hooks/useSocket';
 import { cx } from '../../../../common/utils/styleUtils';
@@ -12,18 +11,16 @@ import style from './EventBlockChip.module.scss';
 
 interface EventBlockChipProps {
   id: string;
-  timeStart: number;
+  trueTimeStart: number;
   isPast: boolean;
   isLoaded: boolean;
   className: string;
-  accumulatedGap: MaybeNumber;
-  isNext: boolean;
-  isLinked: boolean;
-  isNextDay: boolean;
+  totalGap: number;
+  isLinkedAndNext: boolean;
 }
 
 export default function EventBlockChip(props: EventBlockChipProps) {
-  const { timeStart, isPast, isLoaded, className, accumulatedGap, isNext, isLinked, isNextDay } = props;
+  const { trueTimeStart, isPast, isLoaded, className, totalGap, isLinkedAndNext } = props;
   const { playback } = usePlayback();
 
   if (isLoaded) {
@@ -41,9 +38,9 @@ export default function EventBlockChip(props: EventBlockChipProps) {
     return (
       <EventUntil
         className={className}
-        timeStart={timeStart + (isNextDay ? dayInMs : 0)}
-        accumulatedGap={accumulatedGap}
-        isNextAndLinked={isNext && isLinked}
+        trueTimeStart={trueTimeStart}
+        totalGap={totalGap}
+        isLinkedAndNext={isLinkedAndNext}
       />
     );
   }
@@ -53,24 +50,22 @@ export default function EventBlockChip(props: EventBlockChipProps) {
 
 interface EventUntilProps {
   className: string;
-  timeStart: number;
-  accumulatedGap: MaybeNumber;
-  isNextAndLinked: boolean;
+  trueTimeStart: number;
+  totalGap: number;
+  isLinkedAndNext: boolean;
 }
 
 function EventUntil(props: EventUntilProps) {
-  const { timeStart, className, accumulatedGap, isNextAndLinked } = props;
+  const { trueTimeStart, className, totalGap, isLinkedAndNext } = props;
   const { clock, offset } = useTimelineStatus();
 
   const [timeUntilString, isDue] = useMemo(() => {
-    const gap = accumulatedGap ?? 0;
-
-    const consumedOffset = isNextAndLinked ? offset : Math.min(offset + gap, 0);
-    const offsetTimestart = timeStart - consumedOffset;
+    const consumedOffset = isLinkedAndNext ? offset : Math.min(offset + totalGap, 0);
+    const offsetTimestart = trueTimeStart - consumedOffset;
     const timeUntil = offsetTimestart - clock;
     const isDue = timeUntil < MILLIS_PER_SECOND;
     return [isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`, isDue];
-  }, [accumulatedGap, clock, isNextAndLinked, offset, timeStart]);
+  }, [totalGap, isLinkedAndNext, offset, trueTimeStart, clock]);
 
   return (
     <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
