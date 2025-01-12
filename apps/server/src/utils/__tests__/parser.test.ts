@@ -314,7 +314,7 @@ describe('test parser edge cases', () => {
     //@ts-expect-error -- we know this is wrong, testing imports outside domain
     const { data, errors } = parseDatabaseModel(testData);
     expect(data.rundown.length).toBe(1);
-    expect(errors.length).toBe(7);
+    expect(errors.length).toBe(5);
   });
 
   it('handles incomplete datasets', () => {
@@ -724,8 +724,6 @@ describe('test import of v2 datamodel', () => {
     );
     // @ts-expect-error -- checking if the field is removed
     expect(parsed?.userFields).toBeUndefined();
-    expect(parsed.osc).toMatchObject({ subscriptions: [] });
-    expect(parsed.http).toMatchObject({ enabledOut: false, subscriptions: [] });
   });
 });
 

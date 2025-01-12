@@ -41,6 +41,6 @@ const baseState: RuntimeState = {
   },
 };
 
-export function makeRuntimeStateData(patch?: Partial<RuntimeState>) {
-  return deepmerge(baseState, patch);
+export function makeRuntimeStateData(patch?: Partial<RuntimeState>): RuntimeState {
+  return deepmerge(baseState, patch) as RuntimeState;
 }

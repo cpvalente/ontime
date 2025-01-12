@@ -47,11 +47,12 @@ const staticOptions = [
     split: true,
   },
   {
-    id: 'integrations',
-    label: 'Integrations',
+    id: 'automation',
+    label: 'Automation',
     secondary: [
-      { id: 'integrations__osc', label: 'OSC settings' },
-      { id: 'integrations__http', label: 'HTTP settings' },
+      { id: 'automation__settings', label: 'Automation settings' },
+      { id: 'automation__automations', label: 'Manage automations' },
+      { id: 'automation__blueprints', label: 'Manage blueprints' },
     ],
   },
   {

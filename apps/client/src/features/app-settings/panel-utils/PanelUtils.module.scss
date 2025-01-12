@@ -26,13 +26,13 @@ $inner-padding: 1rem;
   color: $gray-300;
 }
 
-.section, .indent {
+.section,
+.indent {
   font-size: calc(1rem - 1px);
   display: flex;
   flex-direction: column;
   gap: 1rem;
   color: $ui-white;
-
 }
 
 .section {
@@ -111,6 +111,12 @@ $inner-padding: 1rem;
   tr:nth-child(even) {
     background-color: $white-1;
   }
+
+  // allow highlighting table elements
+  tr[data-warn='true'],
+  td[data-warn='true'] {
+    background-color: $orange-1300;
+  }
 }
 
 .listGroup {
@@ -177,7 +183,7 @@ $inner-padding: 1rem;
   color: $muted-gray;
 
   td {
-    padding: 2rem;
+    padding-block: 1rem;
   }
 
   button {
@@ -185,23 +191,21 @@ $inner-padding: 1rem;
   }
 }
 
-.inlineSiblings {
+.inlineElements {
   display: flex;
   align-items: center;
-  gap: 1rem;
-}
 
-.empty {
-  background-color: $black-10;
-  text-align: center;
-  color: $muted-gray;
-  
-  td {    
-    padding: 2rem;
+  &.inner {
+    gap: 0.5rem;
   }
-
-  button {
-    margin-top: 1rem;
+  &.component {
+    gap: 1rem;
+  }
+  &.start {
+    justify-content: flex-start;
+  }
+  &.end {
+    justify-content: flex-end;
   }
 }
 

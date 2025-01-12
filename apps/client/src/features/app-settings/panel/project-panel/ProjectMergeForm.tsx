@@ -23,8 +23,7 @@ type ProjectMergeFormValues = {
   rundown: boolean;
   viewSettings: boolean;
   urlPresets: boolean;
-  osc: boolean;
-  http: boolean;
+  automation: boolean;
 };
 
 export default function ProjectMergeForm(props: ProjectMergeFromProps) {
@@ -42,8 +41,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
       rundown: false,
       viewSettings: false,
       urlPresets: false,
-      osc: false,
-      http: false,
+      automation: false,
     },
     resetOptions: {
       keepDirtyValues: true,
@@ -115,12 +113,8 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
           URL Presets
         </label>
         <label>
-          <Switch variant='ontime' {...register('osc')} />
-          OSC Integration
-        </label>
-        <label>
-          <Switch variant='ontime' {...register('http')} />
-          HTTP Integration
+          <Switch variant='ontime' {...register('automation')} />
+          Automation Settings
         </label>
       </Panel.Section>
     </Panel.Section>

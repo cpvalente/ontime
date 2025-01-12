@@ -33,7 +33,6 @@ export async function getSessionStats(): Promise<SessionStats> {
  */
 export async function getInfo(): Promise<GetInfo> {
   const { version, serverPort } = getDataProvider().getSettings();
-  const osc = getDataProvider().getOsc();
 
   // get nif and inject localhost
   const ni = getNetworkInterfaces();
@@ -43,7 +42,6 @@ export async function getInfo(): Promise<GetInfo> {
     networkInterfaces: ni,
     version,
     serverPort,
-    osc,
     publicDir: publicDir.root,
   };
 }
