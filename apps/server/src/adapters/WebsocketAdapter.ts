@@ -25,6 +25,7 @@ import { eventStore } from '../stores/EventStore.js';
 import { logger } from '../classes/Logger.js';
 import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
 import { generateId } from 'ontime-utils';
+import { getShowWelcomeDialog } from '../services/app-state-service/AppStateService.js';
 
 let instance: SocketServer | null = null;
 
@@ -138,12 +139,15 @@ export class SocketServer implements IAdapter {
 
               if (payload.includes('editor') && this.isFirstEditor) {
                 this.isFirstEditor = false;
-                ws.send(
-                  JSON.stringify({
-                    type: 'dialog',
-                    payload: { dialog: 'welcome' },
-                  }),
-                );
+                getShowWelcomeDialog().then((show) => {
+                  if (!show) return;
+                  ws.send(
+                    JSON.stringify({
+                      type: 'dialog',
+                      payload: { dialog: 'welcome' },
+                    }),
+                  );
+                });
               }
             }
 
