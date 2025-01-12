@@ -18,6 +18,7 @@
     "multer": "^1.4.5-lts.1",
     "node-osc": "^9.1.4",
     "ontime-utils": "workspace:*",
+    "osc-min": "^2.1.1",
     "sanitize-filename": "^1.6.3",
     "steno": "^4.0.2",
     "ws": "^8.18.0",
