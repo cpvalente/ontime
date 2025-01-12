@@ -65,7 +65,6 @@ export const connectSocket = () => {
   websocket.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
-      console.log(data);
       const { type, payload } = data;
 
       if (!type) {
@@ -145,6 +144,7 @@ export const connectSocket = () => {
           updateDevTools(payload);
           break;
         }
+        //TODO: remove all other types as they are now patched
         case 'ontime-clock': {
           patchRuntimeProperty('clock', payload);
           updateDevTools({ clock: payload });
