@@ -66,7 +66,7 @@ export function editAutomation(id: string, newAutomation: AutomationDTO): Automa
     throw new Error(`Automation with id ${id} not found`);
   }
 
-  automations[index] = { ...newAutomation, id };
+  automations[index] = deepmerge(automations[index], newAutomation);
   saveChanges({ automations });
   return automations[index];
 }
@@ -152,7 +152,10 @@ export function deleteBlueprint(id: string): void {
  */
 async function saveChanges(patch: Partial<AutomationSettings>) {
   const automation = getDataProvider().getAutomation();
-  await getDataProvider().setAutomation(deepmerge(automation, patch));
+
+  // remove undefined keys from object, we probably want a better solution
+  Object.keys(patch).forEach((key) => (patch[key] === undefined ? delete patch[key] : {}));
+  await getDataProvider().setAutomation({ ...automation, ...patch });
 }
 
 /**
