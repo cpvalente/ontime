@@ -7,7 +7,7 @@ import { logger } from '../../../classes/Logger.js';
 import { type RuntimeState } from '../../../stores/runtimeState.js';
 import { parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
 
-const udp = dgram.createSocket('udp4');
+const udpClient = dgram.createSocket('udp4');
 
 /**
  * Expose possibility to send a message using OSC protocol
@@ -31,10 +31,10 @@ function preparePayload(output: OSCOutput, state: RuntimeState): OscPacketInput 
 
 /** Emits message over transport */
 function emit(targetIP: string, targetPort: number, packet: OscPacketInput) {
-  logger.info(LogOrigin.Rx, `Sending OSC: ${targetIP}:${targetPort}`);
+  logger.info(LogOrigin.Tx, `Sending OSC: ${targetIP}:${targetPort}`);
 
   const dataView = oscPacketToBuffer(packet).buffer;
   const buffer = new Uint8Array(dataView, 0, dataView.byteLength);
-  udp.send(buffer, 0, buffer.byteLength, targetPort, targetIP);
+  udpClient.send(buffer, 0, buffer.byteLength, targetPort, targetIP);
   return;
 }
