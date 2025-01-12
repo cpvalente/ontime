@@ -1,6 +1,7 @@
-import { Argument } from 'node-osc';
 import { FilterRule, MaybeNumber } from 'ontime-types';
-import { millisToString, removeLeadingZero, splitWhitespace } from 'ontime-utils';
+import { millisToString, removeLeadingZero, splitWhitespace, getPropertyFromPath } from 'ontime-utils';
+
+import { Argument } from 'node-osc';
 
 type FilterOperator = 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains';
 
@@ -76,8 +77,7 @@ export function parseTemplateNested(template: string, state: object, humanReadab
         value = undefined;
       }
     } else {
-      // iterate through variable parts, and look for the property in the state object
-      value = variableParts.reduce((obj, key) => obj?.[key], state);
+      value = getPropertyFromPath(variableName, state);
     }
     if (value !== undefined) {
       parsedTemplate = parsedTemplate.replace(match[0], value);
@@ -87,9 +87,14 @@ export function parseTemplateNested(template: string, state: object, humanReadab
   return parsedTemplate;
 }
 
+/**
+ * Handles the specific case where the MaybeNumber is encoded in a string
+ * After parsed, the value is formatted to a human-readable string
+ */
 function formatDisplayFromString(value: string, hideZero = false): string {
   let valueInNumber: MaybeNumber = null;
 
+  // the value will be a string, so we need to convert it to the Maybe type
   if (value !== 'null') {
     const parsedValue = Number(value);
     if (!Number.isNaN(parsedValue)) {
@@ -104,6 +109,11 @@ function formatDisplayFromString(value: string, hideZero = false): string {
 }
 
 type AliasesDefinition = Record<string, { key: string; cb: (value: string) => string }>;
+
+/**
+ * This object matches some common RuntimeState paths
+ * to a function that formats them to a human-readable string
+ */
 const quickAliases: AliasesDefinition = {
   clock: { key: 'clock', cb: (value: string) => formatDisplayFromString(value) },
   duration: { key: 'timer.duration', cb: (value: string) => formatDisplayFromString(value, true) },
