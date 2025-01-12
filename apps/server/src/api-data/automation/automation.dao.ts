@@ -6,7 +6,7 @@ import type {
   AutomationSettings,
   NormalisedAutomationBlueprint,
 } from 'ontime-types';
-import { deleteAtIndex, generateId } from 'ontime-utils';
+import { deepmerge, deleteAtIndex, generateId } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
@@ -145,7 +145,7 @@ export function deleteBlueprint(id: string): void {
  */
 async function saveChanges(patch: Partial<AutomationSettings>) {
   const automation = getDataProvider().getAutomation();
-  await getDataProvider().setAutomation({ ...automation, ...patch });
+  await getDataProvider().setAutomation(deepmerge(automation, patch));
 }
 
 /**
