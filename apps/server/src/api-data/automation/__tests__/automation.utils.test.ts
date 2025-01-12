@@ -113,31 +113,31 @@ describe('parseNestedTemplate() -> stringToOSCArgs()', () => {
     const payloads = [
       {
         test: '"string with space and {{not.so.easy}}"',
-        expect: [{ type: 'string', value: 'string with space and data with space' }],
+        expect: { type: 'string', value: 'string with space and data with space' },
       },
       {
         test: '',
-        expect: [],
+        expect: undefined,
       },
       {
         test: ' ',
-        expect: [],
+        expect: undefined,
       },
       {
         test: '""',
-        expect: [{ type: 'string', value: '' }],
+        expect: { type: 'string', value: '' },
       },
       {
         test: '"string with space and {{not.so.empty}}"',
-        expect: [{ type: 'string', value: 'string with space and ' }],
+        expect: { type: 'string', value: 'string with space and ' },
       },
       {
         test: '"string with space and {{not.so.number}}"',
-        expect: [{ type: 'string', value: 'string with space and 1234' }],
+        expect: { type: 'string', value: 'string with space and 1234' },
       },
       {
         test: '"string with space and {{not.so.stringNumber}}"',
-        expect: [{ type: 'string', value: 'string with space and 1234' }],
+        expect: { type: 'string', value: 'string with space and 1234' },
       },
       {
         test: '"{{not.so.easy}}" 1',
@@ -155,7 +155,7 @@ describe('parseNestedTemplate() -> stringToOSCArgs()', () => {
       },
       {
         test: '',
-        expect: [],
+        expect: undefined,
       },
     ];
 
@@ -174,22 +174,28 @@ describe('test stringToOSCArgs()', () => {
       { type: 'string', value: 'test' },
       { type: 'integer', value: 1111 },
       { type: 'float', value: 0.1111 },
-      { type: 'T', value: true },
-      { type: 'F', value: false },
+      { type: 'true' },
+      { type: 'false' },
     ];
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
   it('empty is nothing', () => {
-    expect(stringToOSCArgs(undefined)).toStrictEqual([]);
+    const test = undefined;
+    const expected = undefined;
+    expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
   it('empty is nothing', () => {
-    expect(stringToOSCArgs('')).toStrictEqual([]);
+    const test = '';
+    const expected = undefined;
+    expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
   it('1 space is nothing', () => {
-    expect(stringToOSCArgs(' ')).toStrictEqual([]);
+    const test = ' ';
+    const expected = undefined;
+    expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
   it('keep other types in strings', () => {
@@ -210,8 +216,8 @@ describe('test stringToOSCArgs()', () => {
       { type: 'string', value: 'test space' },
       { type: 'integer', value: 1111 },
       { type: 'float', value: 0.1111 },
-      { type: 'T', value: true },
-      { type: 'F', value: false },
+      { type: 'true' },
+      { type: 'false' },
     ];
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
@@ -222,8 +228,8 @@ describe('test stringToOSCArgs()', () => {
       { type: 'string', value: 'test " space' },
       { type: 'integer', value: 1111 },
       { type: 'float', value: 0.1111 },
-      { type: 'T', value: true },
-      { type: 'F', value: false },
+      { type: 'true' },
+      { type: 'false' },
     ];
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
@@ -233,8 +239,8 @@ describe('test stringToOSCArgs()', () => {
     const expected = [
       { type: 'integer', value: 1111 },
       { type: 'float', value: 0.1111 },
-      { type: 'T', value: true },
-      { type: 'F', value: false },
+      { type: 'true' },
+      { type: 'false' },
     ];
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });

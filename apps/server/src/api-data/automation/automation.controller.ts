@@ -5,6 +5,7 @@ import type { Request, Response } from 'express';
 
 import * as automationDao from './automation.dao.js';
 import * as automationService from './automation.service.js';
+import { oscServer } from '../../adapters/OscAdapter.js';
 
 export function getAutomationSettings(_req: Request, res: Response<AutomationSettings>) {
   res.json(automationDao.getAutomationSettings());
@@ -20,6 +21,11 @@ export function postAutomationSettings(req: Request, res: Response<AutomationSet
       automations: req.body.automations ?? undefined,
       blueprints: req.body.blueprints ?? undefined,
     });
+    if (automationSettings.enabledOscIn) {
+      oscServer.init(automationSettings.oscPortIn);
+    } else {
+      oscServer.shutdown();
+    }
     res.status(200).send(automationSettings);
   } catch (error) {
     const message = getErrorMessage(error);

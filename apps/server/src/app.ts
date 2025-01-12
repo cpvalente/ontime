@@ -41,6 +41,7 @@ import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { timerConfig } from './config/config.js';
 import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
+import { oscServer } from './adapters/OscAdapter.js';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -228,6 +229,10 @@ export const startServer = async (
  */
 export const startIntegrations = async () => {
   checkStart(OntimeStartOrder.InitIO);
+  const { enabledOscIn, oscPortIn } = getDataProvider().getAutomation();
+  if (enabledOscIn) {
+    oscServer.init(oscPortIn);
+  }
 };
 
 /**
