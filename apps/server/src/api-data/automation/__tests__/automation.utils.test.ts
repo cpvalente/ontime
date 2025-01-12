@@ -113,49 +113,55 @@ describe('parseNestedTemplate() -> stringToOSCArgs()', () => {
     const payloads = [
       {
         test: '"string with space and {{not.so.easy}}"',
-        expect: [{ type: 'string', value: 'string with space and data with space' }],
+        expect: { type: 'string', value: 'string with space and data with space' },
       },
       {
         test: '',
-        expect: [],
+        expect: undefined,
       },
       {
         test: ' ',
-        expect: [],
+        expect: undefined,
       },
       {
         test: '""',
-        expect: [{ type: 'string', value: '' }],
+        expect: { type: 'string', value: '' },
       },
       {
         test: '"string with space and {{not.so.empty}}"',
-        expect: [{ type: 'string', value: 'string with space and ' }],
+        expect: { type: 'string', value: 'string with space and ' },
       },
       {
         test: '"string with space and {{not.so.number}}"',
-        expect: [{ type: 'string', value: 'string with space and 1234' }],
+        expect: { type: 'string', value: 'string with space and 1234' },
       },
       {
         test: '"string with space and {{not.so.stringNumber}}"',
-        expect: [{ type: 'string', value: 'string with space and 1234' }],
+        expect: { type: 'string', value: 'string with space and 1234' },
       },
       {
         test: '"{{not.so.easy}}" 1',
-        expect: [
-          { type: 'string', value: 'data with space' },
-          { type: 'integer', value: 1 },
-        ],
+        expect: {
+          type: 'array',
+          value: [
+            { type: 'string', value: 'data with space' },
+            { type: 'integer', value: 1 },
+          ],
+        },
       },
       {
         test: '"{{not.so.empty}}" 1',
-        expect: [
-          { type: 'string', value: '' },
-          { type: 'integer', value: 1 },
-        ],
+        expect: {
+          type: 'array',
+          value: [
+            { type: 'string', value: '' },
+            { type: 'integer', value: 1 },
+          ],
+        },
       },
       {
         test: '',
-        expect: [],
+        expect: undefined,
       },
     ];
 
@@ -170,72 +176,88 @@ describe('parseNestedTemplate() -> stringToOSCArgs()', () => {
 describe('test stringToOSCArgs()', () => {
   it('all types', () => {
     const test = 'test 1111 0.1111 TRUE FALSE';
-    const expected = [
-      { type: 'string', value: 'test' },
-      { type: 'integer', value: 1111 },
-      { type: 'float', value: 0.1111 },
-      { type: 'T', value: true },
-      { type: 'F', value: false },
-    ];
+    const expected = {
+      type: 'array',
+      value: [
+        { type: 'string', value: 'test' },
+        { type: 'integer', value: 1111 },
+        { type: 'float', value: 0.1111 },
+        { type: 'true' },
+        { type: 'false' },
+      ],
+    };
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
   it('empty is nothing', () => {
-    expect(stringToOSCArgs(undefined)).toStrictEqual([]);
+    const test = undefined;
+    const expected = undefined;
+    expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
   it('empty is nothing', () => {
-    expect(stringToOSCArgs('')).toStrictEqual([]);
+    const test = '';
+    const expected = undefined;
+    expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
   it('1 space is nothing', () => {
-    expect(stringToOSCArgs(' ')).toStrictEqual([]);
+    const test = ' ';
+    const expected = undefined;
+    expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
   it('keep other types in strings', () => {
     const test = 'test "1111" "0.1111" "TRUE" "FALSE"';
-    const expected = [
-      { type: 'string', value: 'test' },
-      { type: 'string', value: '1111' },
-      { type: 'string', value: '0.1111' },
-      { type: 'string', value: 'TRUE' },
-      { type: 'string', value: 'FALSE' },
-    ];
+    const expected = {
+      type: 'array',
+      value: [
+        { type: 'string', value: 'test' },
+        { type: 'string', value: '1111' },
+        { type: 'string', value: '0.1111' },
+        { type: 'string', value: 'TRUE' },
+        { type: 'string', value: 'FALSE' },
+      ],
+    };
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
   it('keep spaces in quoted strings', () => {
     const test = '"test space" 1111 0.1111 TRUE FALSE';
-    const expected = [
-      { type: 'string', value: 'test space' },
-      { type: 'integer', value: 1111 },
-      { type: 'float', value: 0.1111 },
-      { type: 'T', value: true },
-      { type: 'F', value: false },
-    ];
+    const expected = {
+      type: 'array',
+      value: [
+        { type: 'string', value: 'test space' },
+        { type: 'integer', value: 1111 },
+        { type: 'float', value: 0.1111 },
+        { type: 'true' },
+        { type: 'false' },
+      ],
+    };
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
   it('keep spaces escaped quotes', () => {
     const test = '"test \\" space" 1111 0.1111 TRUE FALSE';
-    const expected = [
-      { type: 'string', value: 'test " space' },
-      { type: 'integer', value: 1111 },
-      { type: 'float', value: 0.1111 },
-      { type: 'T', value: true },
-      { type: 'F', value: false },
-    ];
+    const expected = {
+      type: 'array',
+      value: [
+        { type: 'string', value: 'test " space' },
+        { type: 'integer', value: 1111 },
+        { type: 'float', value: 0.1111 },
+        { type: 'true' },
+        { type: 'false' },
+      ],
+    };
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
   it('2 spaces', () => {
     const test = '1111   0.1111 TRUE FALSE';
-    const expected = [
-      { type: 'integer', value: 1111 },
-      { type: 'float', value: 0.1111 },
-      { type: 'T', value: true },
-      { type: 'F', value: false },
-    ];
+    const expected = {
+      type: 'array',
+      value: [{ type: 'integer', value: 1111 }, { type: 'float', value: 0.1111 }, { type: 'true' }, { type: 'false' }],
+    };
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 });
