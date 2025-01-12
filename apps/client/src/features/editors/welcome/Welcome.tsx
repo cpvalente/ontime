@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react';
+import { Button, Checkbox, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react';
 
 import { loadDemo, loadProject } from '../../../common/api/db';
+import { postShowWelcomeDialog } from '../../../common/api/settings';
 import { invalidateAllCaches } from '../../../common/api/utils';
 import ExternalLink from '../../../common/components/external-link/ExternalLink';
 import { appVersion, discordUrl, documentationUrl, websiteUrl } from '../../../externals';
@@ -69,7 +70,7 @@ export default function Welcome(props: WelcomeProps) {
             </div>
             <div className={style.column}>
               <div className={style.header}>Welcome to Ontime</div>
-              <Editor.Title>Recent Projects</Editor.Title>
+              <Editor.Title>Select project</Editor.Title>
               <div className={style.tableContainer}>
                 <table className={style.table}>
                   <thead>
@@ -84,7 +85,7 @@ export default function Welcome(props: WelcomeProps) {
             </div>
           </div>
           <div className={style.buttonRow}>
-            <Button size='sm' variant='ontime-ghosted' onClick={handleLoadDemo}>
+            <Button size='sm' variant='ontime-subtle' onClick={handleLoadDemo}>
               Load demo project
             </Button>
             <ImportProjectButton onFinish={handleClose} />
@@ -92,6 +93,14 @@ export default function Welcome(props: WelcomeProps) {
               Create new...
             </Button>
           </div>
+          <Checkbox
+            size='sm'
+            variant='ontime-ondark'
+            checked
+            onChange={(event) => postShowWelcomeDialog(event.target.checked)}
+          >
+            Show this modal on next startup
+          </Checkbox>
         </ModalBody>
       </ModalContent>
     </Modal>

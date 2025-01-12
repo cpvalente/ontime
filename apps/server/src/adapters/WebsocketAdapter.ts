@@ -34,7 +34,7 @@ export class SocketServer implements IAdapter {
   private wss: WebSocketServer | null;
   private readonly clients: Map<string, Client>;
   private lastConnection: Date | null = null;
-  private isFirstEditor = true;
+  private shouldShowWelcome = true;
 
   constructor() {
     if (instance) {
@@ -47,7 +47,8 @@ export class SocketServer implements IAdapter {
     this.wss = null;
   }
 
-  init(server: Server, prefix?: string) {
+  init(server: Server, showWelcome: boolean, prefix?: string) {
+    this.shouldShowWelcome = showWelcome;
     this.wss = new WebSocketServer({ path: `${prefix}/ws`, server, maxPayload: this.MAX_PAYLOAD });
 
     this.wss.on('connection', (ws) => {
@@ -136,8 +137,8 @@ export class SocketServer implements IAdapter {
               previousData.path = payload;
               this.clients.set(clientId, previousData);
 
-              if (payload.includes('editor') && this.isFirstEditor) {
-                this.isFirstEditor = false;
+              if (payload.includes('editor') && this.shouldShowWelcome) {
+                this.shouldShowWelcome = false;
                 ws.send(
                   JSON.stringify({
                     type: 'dialog',
