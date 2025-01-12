@@ -1,7 +1,6 @@
 import { FilterRule, MaybeNumber } from 'ontime-types';
 import { millisToString, removeLeadingZero, splitWhitespace, getPropertyFromPath } from 'ontime-utils';
-
-import { Argument } from 'node-osc';
+import type { OscArgOrArrayInput, OscArgInput } from 'osc-min';
 
 type FilterOperator = 'equals' | 'not_equals' | 'greater_than' | 'less_than' | 'contains';
 
@@ -13,41 +12,44 @@ export function isFilterRule(value: string): value is FilterRule {
   return value === 'all' || value === 'any';
 }
 
-export function stringToOSCArgs(argsString: string | undefined): Argument[] {
-  if (typeof argsString === 'undefined' || argsString === '') {
-    return new Array<Argument>();
+function toOscValue(argString: string): OscArgInput {
+  const argAsNum = Number(argString);
+  // NOTE: number like: 1 2.0 33333
+  if (!Number.isNaN(argAsNum)) {
+    return { type: argString.includes('.') ? 'float' : 'integer', value: argAsNum };
   }
+
+  if (argString.startsWith('"') && argString.endsWith('"')) {
+    // NOTE: "quoted string"
+    return { type: 'string', value: argString.substring(1, argString.length - 1) };
+  }
+
+  if (argString === 'TRUE') {
+    // NOTE: Boolean true
+    return { type: 'true' };
+  }
+
+  if (argString === 'FALSE') {
+    // NOTE: Boolean false
+    return { type: 'false' };
+  }
+
+  // NOTE: string
+  return { type: 'string', value: argString };
+}
+
+export function stringToOSCArgs(argsString: string | undefined): OscArgInput | OscArgOrArrayInput[] | undefined {
+  if (typeof argsString === 'undefined' || argsString === '') return;
+
   const matches = splitWhitespace(argsString);
 
-  if (!matches) {
-    return new Array<Argument>();
+  if (!matches) return;
+
+  if (matches.length === 1) {
+    return toOscValue(matches[0]);
   }
 
-  const parsedArguments: Argument[] = matches.map((argString: string) => {
-    const argAsNum = Number(argString);
-    // NOTE: number like: 1 2.0 33333
-    if (!Number.isNaN(argAsNum)) {
-      return { type: argString.includes('.') ? 'float' : 'integer', value: argAsNum };
-    }
-
-    if (argString.startsWith('"') && argString.endsWith('"')) {
-      // NOTE: "quoted string"
-      return { type: 'string', value: argString.substring(1, argString.length - 1) };
-    }
-
-    if (argString === 'TRUE') {
-      // NOTE: Boolean true
-      return { type: 'T', value: true };
-    }
-
-    if (argString === 'FALSE') {
-      // NOTE: Boolean false
-      return { type: 'F', value: false };
-    }
-
-    // NOTE: string
-    return { type: 'string', value: argString };
-  });
+  const parsedArguments: OscArgOrArrayInput[] = matches.map(toOscValue);
 
   return parsedArguments;
 }
