@@ -30,7 +30,7 @@
 .httpSection,
 .companionSection {
   display: grid;
-  grid-gap: 1rem;
+  grid-gap: 0.5rem;
 
   button {
     align-self: end;
@@ -59,7 +59,7 @@
 }
 
 .oscSection {
-  grid-template-columns: 1fr 1fr 2fr 2fr auto;
+  grid-template-columns: 9rem 5rem 3fr 4fr auto;
 }
 
 .httpSection {
@@ -77,16 +77,6 @@
 }
 
 .outputCard {
-  display: grid;
-  grid-template-columns: 2rem 1fr;
-}
-
-.outputTag {
-  font-size: calc(1rem - 3px);
-  color: $gray-200;
-  font-weight: 600;
-  padding-inline: 0.5rem;
-  align-self: center;
-  justify-self: center;
-  rotate: -90deg;
+  border-left: 0.25rem solid $gray-1200;
+  padding-left: 0.5rem;
 }

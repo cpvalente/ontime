@@ -284,9 +284,7 @@ export default function BlueprintForm(props: BlueprintFormProps) {
 
             return (
               <div key={output.id} className={style.outputCard}>
-                <div className={style.outputTag}>
-                  <Tag>OSC</Tag>
-                </div>
+                <Tag>OSC</Tag>
                 <div className={style.oscSection}>
                   <label>
                     Target IP
@@ -372,9 +370,7 @@ export default function BlueprintForm(props: BlueprintFormProps) {
               | undefined;
             return (
               <div key={output.id} className={style.outputCard}>
-                <div className={style.outputTag}>
-                  <Tag>HTTP</Tag>
-                </div>
+                <Tag>HTTP</Tag>
                 <div className={style.httpSection}>
                   <label>
                     Target URL
