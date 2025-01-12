@@ -4,16 +4,16 @@ import {
   type AutomationFilter,
   type AutomationOutput,
   type FilterRule,
-  type RuntimeStore,
   type TimerLifeCycle,
 } from 'ontime-types';
+import { getPropertyFromPath } from 'ontime-utils';
 
 import { getState, type RuntimeState } from '../../stores/runtimeState.js';
+import { isOntimeCloud } from '../../externals.js';
 
 import { emitOSC } from './clients/osc.client.js';
 import { emitHTTP } from './clients/http.client.js';
 import { getAutomations, getAutomationsEnabled, getBlueprints } from './automation.dao.js';
-import { isOntimeCloud } from '../../externals.js';
 
 /**
  * Exposes a method for triggering actions based on a TimerLifeCycle event
@@ -46,6 +46,9 @@ export function triggerAutomations(event: TimerLifeCycle, state: RuntimeState) {
   });
 }
 
+/**
+ * Exposes a method for bypassing the condition check and testing the sending of an output
+ */
 export function testOutput(payload: AutomationOutput) {
   send([payload]);
 }
@@ -56,28 +59,33 @@ export function testOutput(payload: AutomationOutput) {
 export function testConditions(
   filters: AutomationFilter[],
   filterRule: FilterRule,
-  state: Partial<RuntimeStore>,
+  state: Partial<RuntimeState>,
 ): boolean {
   if (filters.length === 0) {
     return true;
   }
 
   if (filterRule === 'all') {
-    return filters.every((filter) => evaluateCondition(filter));
+    return filters.every(evaluateCondition);
   }
 
-  return filters.some((filter) => evaluateCondition(filter));
+  return filters.some(evaluateCondition);
 
   function evaluateCondition(filter: AutomationFilter): boolean {
     const { field, operator, value } = filter;
-    const fieldValue = state[field];
+    const fieldValue = getPropertyFromPath(field, state);
 
-    // TODO: if value is empty string, the user could be meaning to check if the value does not exist
+    // if value is empty string, the user could be meaning to check if the value does not exist
+    // we use loose equality to be able to check for converted values (eg '10' == 10)
     switch (operator) {
       case 'equals':
-        return fieldValue === value;
+        // overload the edge case where we use empty string to check if a value does not exist
+        if (value === '' && fieldValue === undefined) {
+          return true;
+        }
+        return fieldValue == value;
       case 'not_equals':
-        return fieldValue !== value;
+        return fieldValue != value;
       case 'greater_than':
         return fieldValue > value;
       case 'less_than':
