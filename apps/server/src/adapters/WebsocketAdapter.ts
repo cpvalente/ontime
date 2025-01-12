@@ -280,7 +280,6 @@ export class SocketServer implements IAdapter {
   }
 
   public sendRuntimeStoreUpdate(keys: (keyof RuntimeStore)[], store: Partial<RuntimeStore>) {
-    console.log(keys);
     const patch = {};
     keys.map((key) => {
       Object.assign(patch, { [key]: store[key] });
