@@ -141,23 +141,17 @@ describe('parseNestedTemplate() -> stringToOSCArgs()', () => {
       },
       {
         test: '"{{not.so.easy}}" 1',
-        expect: {
-          type: 'array',
-          value: [
-            { type: 'string', value: 'data with space' },
-            { type: 'integer', value: 1 },
-          ],
-        },
+        expect: [
+          { type: 'string', value: 'data with space' },
+          { type: 'integer', value: 1 },
+        ],
       },
       {
         test: '"{{not.so.empty}}" 1',
-        expect: {
-          type: 'array',
-          value: [
-            { type: 'string', value: '' },
-            { type: 'integer', value: 1 },
-          ],
-        },
+        expect: [
+          { type: 'string', value: '' },
+          { type: 'integer', value: 1 },
+        ],
       },
       {
         test: '',
@@ -176,16 +170,13 @@ describe('parseNestedTemplate() -> stringToOSCArgs()', () => {
 describe('test stringToOSCArgs()', () => {
   it('all types', () => {
     const test = 'test 1111 0.1111 TRUE FALSE';
-    const expected = {
-      type: 'array',
-      value: [
-        { type: 'string', value: 'test' },
-        { type: 'integer', value: 1111 },
-        { type: 'float', value: 0.1111 },
-        { type: 'true' },
-        { type: 'false' },
-      ],
-    };
+    const expected = [
+      { type: 'string', value: 'test' },
+      { type: 'integer', value: 1111 },
+      { type: 'float', value: 0.1111 },
+      { type: 'true' },
+      { type: 'false' },
+    ];
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
@@ -209,55 +200,48 @@ describe('test stringToOSCArgs()', () => {
 
   it('keep other types in strings', () => {
     const test = 'test "1111" "0.1111" "TRUE" "FALSE"';
-    const expected = {
-      type: 'array',
-      value: [
-        { type: 'string', value: 'test' },
-        { type: 'string', value: '1111' },
-        { type: 'string', value: '0.1111' },
-        { type: 'string', value: 'TRUE' },
-        { type: 'string', value: 'FALSE' },
-      ],
-    };
+    const expected = [
+      { type: 'string', value: 'test' },
+      { type: 'string', value: '1111' },
+      { type: 'string', value: '0.1111' },
+      { type: 'string', value: 'TRUE' },
+      { type: 'string', value: 'FALSE' },
+    ];
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
   it('keep spaces in quoted strings', () => {
     const test = '"test space" 1111 0.1111 TRUE FALSE';
-    const expected = {
-      type: 'array',
-      value: [
-        { type: 'string', value: 'test space' },
-        { type: 'integer', value: 1111 },
-        { type: 'float', value: 0.1111 },
-        { type: 'true' },
-        { type: 'false' },
-      ],
-    };
+    const expected = [
+      { type: 'string', value: 'test space' },
+      { type: 'integer', value: 1111 },
+      { type: 'float', value: 0.1111 },
+      { type: 'true' },
+      { type: 'false' },
+    ];
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
   it('keep spaces escaped quotes', () => {
     const test = '"test \\" space" 1111 0.1111 TRUE FALSE';
-    const expected = {
-      type: 'array',
-      value: [
-        { type: 'string', value: 'test " space' },
-        { type: 'integer', value: 1111 },
-        { type: 'float', value: 0.1111 },
-        { type: 'true' },
-        { type: 'false' },
-      ],
-    };
+    const expected = [
+      { type: 'string', value: 'test " space' },
+      { type: 'integer', value: 1111 },
+      { type: 'float', value: 0.1111 },
+      { type: 'true' },
+      { type: 'false' },
+    ];
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 
   it('2 spaces', () => {
     const test = '1111   0.1111 TRUE FALSE';
-    const expected = {
-      type: 'array',
-      value: [{ type: 'integer', value: 1111 }, { type: 'float', value: 0.1111 }, { type: 'true' }, { type: 'false' }],
-    };
+    const expected = [
+      { type: 'integer', value: 1111 },
+      { type: 'float', value: 0.1111 },
+      { type: 'true' },
+      { type: 'false' },
+    ];
     expect(stringToOSCArgs(test)).toStrictEqual(expected);
   });
 });
