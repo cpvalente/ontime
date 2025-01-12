@@ -9,7 +9,7 @@ import cookieParser from 'cookie-parser';
 
 // import utils
 import { publicDir, srcDir } from './setup/index.js';
-import { environment, isOntimeCloud, isProduction, updateRouterPrefix } from './externals.js';
+import { environment, isProduction, updateRouterPrefix } from './externals.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
 
@@ -37,13 +37,14 @@ import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
 import { initRundown } from './services/rundown-service/RundownService.js';
 import { initialiseProject } from './services/project-service/ProjectService.js';
+import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
+import { oscServer } from './adapters/OscAdapter.js';
 
 // Utilities
 import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { timerConfig } from './config/config.js';
 import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
-import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -231,6 +232,10 @@ export const startServer = async (
  */
 export const startIntegrations = async () => {
   checkStart(OntimeStartOrder.InitIO);
+  const { enabledOscIn, oscPortIn } = getDataProvider().getAutomation();
+  if (enabledOscIn) {
+    oscServer.init(oscPortIn);
+  }
 };
 
 /**
