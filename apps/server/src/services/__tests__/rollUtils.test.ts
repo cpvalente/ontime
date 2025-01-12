@@ -1,23 +1,7 @@
-import { OntimeEvent, SupportedEvent } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { loadRoll } from '../rollUtils.js';
-
-const baseEvent = {
-  type: SupportedEvent.Event,
-  skip: false,
-};
-
-function makeOntimeEvent(patch: Partial<OntimeEvent>): OntimeEvent {
-  return {
-    ...baseEvent,
-    ...patch,
-  } as OntimeEvent;
-}
-
-function prepareTimedEvents(events: Partial<OntimeEvent>[]): OntimeEvent[] {
-  return events.map(makeOntimeEvent);
-}
+import { prepareTimedEvents, makeOntimeEvent } from '../rundown-service/__mocks__/rundown.mocks.js';
 
 describe('loadRoll()', () => {
   const eventlist = [
