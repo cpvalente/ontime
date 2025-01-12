@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react';
 
 import { loadDemo, loadProject } from '../../../common/api/db';
+import { getShowWelcomeDialog } from '../../../common/api/settings';
 import { invalidateAllCaches } from '../../../common/api/utils';
 import ExternalLink from '../../../common/components/external-link/ExternalLink';
 import { appVersion, discordUrl, documentationUrl, websiteUrl } from '../../../externals';
@@ -82,7 +83,17 @@ export default function Welcome(props: WelcomeProps) {
               </div>
 
               <div className={style.buttonRow}>
-                <ImportProjectButton onFinish={handleClose} />
+                <Button
+                  size='sm'
+                  variant='ontime-subtle'
+                  onClick={() => {
+                    getShowWelcomeDialog(false);
+                    handleClose();
+                  }}
+                >
+                  <ImportProjectButton onFinish={handleClose} />
+                  Do not show welcome message again
+                </Button>
                 <Button size='sm' variant='ontime-subtle' onClick={handleLoadDemo}>
                   Load demo project
                 </Button>

@@ -8,9 +8,6 @@ const fileToDownload = 'e2e/tests/fixtures/tmp/test-db.json';
 test('project file upload', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
-  // close the welcome modal if it is open
-  await page.keyboard.down('Escape');
-
   await page.getByRole('button', { name: 'Edit' }).click();
   await page.getByRole('button', { name: 'Clear rundown' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
@@ -40,9 +37,6 @@ test('project file upload', async ({ page }) => {
 
 test('project file download', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
-
-  // close the welcome modal if it is open
-  await page.keyboard.down('Escape');
 
   await page.getByRole('button', { name: 'toggle settings' }).click();
   await page.getByRole('button', { name: 'Project', exact: true }).click();
