@@ -6,7 +6,7 @@ import type {
   AutomationSettings,
   NormalisedAutomationBlueprint,
 } from 'ontime-types';
-import { deepmerge, deleteAtIndex, generateId } from 'ontime-utils';
+import { deleteAtIndex, generateId } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
@@ -66,7 +66,7 @@ export function editAutomation(id: string, newAutomation: AutomationDTO): Automa
     throw new Error(`Automation with id ${id} not found`);
   }
 
-  automations[index] = deepmerge(automations[index], newAutomation);
+  automations[index] = { ...automations[index], ...newAutomation };
   saveChanges({ automations });
   return automations[index];
 }
