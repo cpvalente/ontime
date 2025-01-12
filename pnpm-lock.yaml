@@ -18,9 +18,6 @@ catalogs:
     eslint:
       specifier: 8.56.0
       version: 8.56.0
-    eslint-config-prettier:
-      specifier: 9.1.0
-      version: 9.1.0
     eslint-plugin-prettier:
       specifier: 5.1.3
       version: 5.1.3
@@ -318,9 +315,6 @@ importers:
       multer:
         specifier: ^1.4.5-lts.1
         version: 1.4.5-lts.1
-      node-osc:
-        specifier: ^9.1.4
-        version: 9.1.4
       ontime-utils:
         specifier: workspace:*
         version: link:../../packages/utils
@@ -2492,9 +2486,6 @@ packages:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
     engines: {node: '>=8'}
 
-  binpack@0.1.0:
-    resolution: {integrity: sha512-KcSrsGiIKgklTWweVb9XnZPWO1/rGSsK3fwR7VnbDPbLKPlkvSKd/ZrJ1W712r6HzH5u0fa/AZCftATO09x8Aw==}
-
   bl@4.1.0:
     resolution: {integrity: sha512-1W07cM9gS6DcLperZfFSj+bWLtaPGSOHWhPiGzXmvVJbRLdG82sH/Kn8EtW1VqWVA54AKf2h5k5BbnIbwF3h6w==}
 
@@ -4046,10 +4037,6 @@ packages:
       encoding:
         optional: true
 
-  node-osc@9.1.4:
-    resolution: {integrity: sha512-ChkdOHmy2Ay6egrGsL9C7u0RqBQ+VIHjw+lk6yd59TuyzmqbaosCo53E1lvjh1xM97c+ByBhyH6i2dHOiBa2bw==}
-    engines: {node: ^18.17.0 || ^20.5.0 || >=22.0.0}
-
   node-releases@2.0.14:
     resolution: {integrity: sha512-y10wOWt8yZpqXmOgRo77WaHEmhYQYGNA6y421PKsKYWEK8aW+cqAphborZDhqfyKrbZEN92CN1X2KbafY2s7Yw==}
 
@@ -4120,10 +4107,6 @@ packages:
   optionator@0.9.3:
     resolution: {integrity: sha512-JjCoypp+jKn1ttEFExxhetCKeJt9zhAgAve5FXHixTvFDW/5aEktX9bufBKLRRMdU7bNtpLfcGu94B3cdEJgjg==}
     engines: {node: '>= 0.8.0'}
-
-  osc-min@1.1.2:
-    resolution: {integrity: sha512-8DbiO8ME85R75stgNVCZtHxB9MNBBNcyy+isNBXrsFeinXGjwNAauvKVmGlfRas5VJWC/mhzIx7spR2gFvWxvg==}
-    engines: {node: '>=0.10.0'}
 
   osc-min@2.1.1:
     resolution: {integrity: sha512-3Ai9vP8AAh1sCh5Zm8BUybfulv5OvqpTVa2BcUoTrLeD1Ss3cohIQpF1f18gx0CTbi9Dv4SvtdMb7y4g++7lYA==}
@@ -5167,18 +5150,6 @@ packages:
 
   wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
-
-  ws@8.13.0:
-    resolution: {integrity: sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: '>=5.0.2'
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
 
   ws@8.18.0:
     resolution: {integrity: sha512-8VbfWfHLbbwu3+N6OKsOMpBdT4kXPDDB9cJk2bJ6mh9ucxdlnNvH1e+roYkKmN9Nxw2yjz7VzeO9oOz2zJ04Pw==}
@@ -7526,8 +7497,6 @@ snapshots:
 
   binary-extensions@2.2.0: {}
 
-  binpack@0.1.0: {}
-
   bl@4.1.0:
     dependencies:
       buffer: 5.7.1
@@ -9118,7 +9087,7 @@ snapshots:
       whatwg-encoding: 2.0.0
       whatwg-mimetype: 3.0.0
       whatwg-url: 11.0.0
-      ws: 8.13.0
+      ws: 8.18.0
       xml-name-validator: 4.0.0
     transitivePeerDependencies:
       - bufferutil
@@ -9361,10 +9330,6 @@ snapshots:
     dependencies:
       whatwg-url: 5.0.0
 
-  node-osc@9.1.4:
-    dependencies:
-      osc-min: 1.1.2
-
   node-releases@2.0.14: {}
 
   normalize-path@3.0.0: {}
@@ -9440,10 +9405,6 @@ snapshots:
       levn: 0.4.1
       prelude-ls: 1.2.1
       type-check: 0.4.0
-
-  osc-min@1.1.2:
-    dependencies:
-      binpack: 0.1.0
 
   osc-min@2.1.1: {}
 
@@ -10495,8 +10456,6 @@ snapshots:
       strip-ansi: 6.0.1
 
   wrappy@1.0.2: {}
-
-  ws@8.13.0: {}
 
   ws@8.18.0: {}
 
