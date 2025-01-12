@@ -44,6 +44,7 @@ import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
 import { timerConfig } from './config/config.js';
 import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
+import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
 
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
@@ -166,8 +167,9 @@ export const startServer = async (
   // the express server must be started before the socket otherwise the on error event listener will not attach properly
   const resultPort = await serverTryDesiredPort(expressServer, desiredPort);
   await getDataProvider().setSettings({ ...settings, serverPort: resultPort });
+  const showWelcome = await getShowWelcomeDialog();
 
-  socket.init(expressServer, prefix);
+  socket.init(expressServer, showWelcome, prefix);
 
   /**
    * Module initialises the services and provides initial payload for the store
