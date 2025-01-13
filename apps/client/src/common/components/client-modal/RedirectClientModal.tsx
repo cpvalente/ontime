@@ -46,10 +46,10 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
         <DialogHeader>Redirect: {name}</DialogHeader>
         <DialogCloseTrigger />
         <DialogBody>
-          <Group gap={0} attached>
+          <Group attached>
             <InputAddon className={styles.localhostInputAddon}>{host}</InputAddon>
             <Input
-              placeholder='minimal?key=0000ffff'
+              placeholder='/minimal?key=0000ffff'
               variant='ontime-filled'
               size='md'
               value={path}

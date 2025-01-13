@@ -14,23 +14,16 @@ interface TimeInputWithButtonProps<T extends string> {
   hasDelay?: boolean;
   disabled?: boolean;
   placeholder: string;
-  startElement?: ReactNode;
   endElement?: ReactNode;
 }
 
 export default function TimeInputWithButton<T extends string>(props: TimeInputWithButtonProps<T>) {
-  const { name, submitHandler, time, hasDelay, placeholder, disabled, startElement, endElement } = props;
+  const { name, submitHandler, time, hasDelay, placeholder, disabled, endElement } = props;
 
   const inputClasses = cx([style.timeInput, hasDelay ? style.delayed : null]);
 
   return (
-    <InputGroup
-      className={inputClasses}
-      startElement={startElement}
-      endElement={endElement}
-      startElementProps={{ padding: 0 }}
-      endElementProps={{ padding: 0 }}
-    >
+    <InputGroup className={inputClasses} endElement={endElement} endElementProps={{ padding: 0 }}>
       <TimeInput<T>
         name={name}
         submitHandler={submitHandler}
