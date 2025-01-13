@@ -9,7 +9,6 @@ import { ontimeDialogRecipe } from './ontimeModal';
 import { ontimeRadioGroupRecipe } from './ontimeRadio';
 import { ontimeNativeSelectRecipe, ontimeSelectRecipe } from './ontimeSelect';
 import { ontimeSwitchRecipe } from './ontimeSwitch';
-import { ontimeTabRecipe } from './ontimeTab';
 import { ontimeInputRecipe, ontimeTextareaRecipe } from './ontimeTextInputs';
 import { ontimeTooltipRecipe } from './ontimeTooltip';
 
@@ -25,7 +24,6 @@ const system = createSystem(defaultConfig, {
       select: ontimeSelectRecipe,
       nativeSelect: ontimeNativeSelectRecipe,
       switch: ontimeSwitchRecipe,
-      tabs: ontimeTabRecipe,
       tooltip: ontimeTooltipRecipe,
     },
     recipes: {
