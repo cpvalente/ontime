@@ -136,7 +136,7 @@ export default function GeneralPanelForm() {
                 error={errors.timeFormat?.message}
               />
               <NativeSelectRoot size='sm' disabled={disableInputs}>
-                <NativeSelectField width='auto' {...register('timeFormat')}>
+                <NativeSelectField {...register('timeFormat')}>
                   <option value='12'>12 hours 11:00:10 PM</option>
                   <option value='24'>24 hours 23:00:10</option>
                 </NativeSelectField>
@@ -149,7 +149,7 @@ export default function GeneralPanelForm() {
                 error={errors.language?.message}
               />
               <NativeSelectRoot size='sm' disabled={disableInputs}>
-                <NativeSelectField {...register('language')} width='auto'>
+                <NativeSelectField {...register('language')}>
                   <option value='en'>English</option>
                   <option value='fr'>French</option>
                   <option value='de'>German</option>
