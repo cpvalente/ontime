@@ -93,7 +93,7 @@ export default function QuickStart(props: QuickStartProps) {
                   error={errors.settings?.timeFormat?.message}
                 />
                 <NativeSelectRoot size='sm'>
-                  <NativeSelectField width='auto' {...register('settings.timeFormat')}>
+                  <NativeSelectField {...register('settings.timeFormat')}>
                     <option value='12'>12 hours 11:00:10 PM</option>
                     <option value='24'>24 hours 23:00:10</option>
                   </NativeSelectField>
@@ -106,7 +106,7 @@ export default function QuickStart(props: QuickStartProps) {
                   error={errors.settings?.language?.message}
                 />
                 <NativeSelectRoot size='sm'>
-                  <NativeSelectField width='auto' {...register('settings.language')}>
+                  <NativeSelectField {...register('settings.language')}>
                     <option value='en'>English</option>
                     <option value='fr'>French</option>
                     <option value='de'>German</option>
