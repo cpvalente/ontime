@@ -31,6 +31,7 @@ export default function GeneralPinInput(props: PropsWithChildren<GeneralPinInput
           <IoEyeOutline />
         </IconButton>
       }
+      endElementProps={{ padding: 0 }}
     >
       <Input
         variant='ontime-filled'
@@ -39,6 +40,7 @@ export default function GeneralPinInput(props: PropsWithChildren<GeneralPinInput
         {...register(formName)}
         placeholder='-'
         disabled={isDisabled}
+        size='xs'
       />
     </InputGroup>
   );
