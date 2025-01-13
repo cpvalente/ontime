@@ -25,6 +25,9 @@ export const ontimeSwitchRecipe = defineSlotRecipe({
       _focus: {
         outline: '2px solid #578AF4', // $blue-500
       },
+      _active: {
+        outline: '2px solid #578AF4',
+      },
     },
   },
 });

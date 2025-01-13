@@ -1,18 +1,18 @@
-import * as React from 'react';
+import { Children, cloneElement, forwardRef, ReactElement, ReactNode } from 'react';
 import type { BoxProps, InputElementProps } from '@chakra-ui/react';
 import { Group, InputElement } from '@chakra-ui/react';
 
 export interface InputGroupProps extends BoxProps {
   startElementProps?: InputElementProps;
   endElementProps?: InputElementProps;
-  startElement?: React.ReactNode;
-  endElement?: React.ReactNode;
-  children: React.ReactElement;
+  startElement?: ReactNode;
+  endElement?: ReactNode;
+  children: ReactElement;
   startOffset?: InputElementProps['paddingStart'];
   endOffset?: InputElementProps['paddingEnd'];
 }
 
-export const InputGroup = React.forwardRef<HTMLDivElement, InputGroupProps>(function InputGroup(props, ref) {
+export const InputGroup = forwardRef<HTMLDivElement, InputGroupProps>(function InputGroup(props, ref) {
   const {
     startElement,
     startElementProps,
@@ -24,7 +24,7 @@ export const InputGroup = React.forwardRef<HTMLDivElement, InputGroupProps>(func
     ...rest
   } = props;
 
-  const child = React.Children.only<React.ReactElement<InputElementProps>>(children);
+  const child = Children.only<ReactElement<InputElementProps>>(children);
 
   return (
     <Group ref={ref} {...rest}>
@@ -33,7 +33,7 @@ export const InputGroup = React.forwardRef<HTMLDivElement, InputGroupProps>(func
           {startElement}
         </InputElement>
       )}
-      {React.cloneElement(child, {
+      {cloneElement(child, {
         ...(startElement && {
           ps: `calc(var(--input-height) - ${startOffset})`,
         }),
