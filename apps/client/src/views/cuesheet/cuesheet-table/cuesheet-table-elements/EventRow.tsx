@@ -3,6 +3,7 @@ import { IoEllipsisHorizontal } from 'react-icons/io5';
 import Color from 'color';
 
 import { IconButton } from '../../../../common/components/ui/icon-button';
+import { MenuTrigger } from '../../../../common/components/ui/menu';
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { useCuesheetOptions } from '../../cuesheet.options';
 
@@ -60,9 +61,11 @@ function EventRow(props: PropsWithChildren<EventRowProps>) {
     >
       {showActionMenu && (
         <td className={style.actionColumn}>
-          <IconButton size='sm' aria-label='Options' variant='ontime-subtle'>
-            <IoEllipsisHorizontal />
-          </IconButton>
+          <MenuTrigger asChild>
+            <IconButton size='sm' aria-label='Options' variant='ontime-subtle'>
+              <IoEllipsisHorizontal />
+            </IconButton>
+          </MenuTrigger>
         </td>
       )}
       {!hideIndexColumn && (

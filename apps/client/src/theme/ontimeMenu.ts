@@ -8,10 +8,12 @@ export const ontimeMenuRecipe = defineSlotRecipe({
       borderRadius: '3px',
       borderColor: 'rgba(255, 255, 255, 0.1)',
       backgroundColor: '#202020', // $gray-1250
-      zIndex: 100,
+    },
+    itemText: {
+      color: '#ececec', // $gray-1030
     },
     item: {
-      color: '#ececec', // $gray-1030
+      cursor: 'pointer',
       _hover: {
         backgroundColor: 'rgba(0, 0, 0, 0.2)',
         _disabled: {
