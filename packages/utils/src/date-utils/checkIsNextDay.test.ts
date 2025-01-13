@@ -2,66 +2,51 @@ import { checkIsNextDay } from './checkIsNextDay';
 import { MILLIS_PER_HOUR } from './conversionUtils';
 
 describe('checkIsNextDay', () => {
-  it('returns false if the previous event duration is 0', () => {
-    const previousStart = 0;
-    const previousDuration = 0;
-    const timeStart = 0;
-    expect(checkIsNextDay(previousStart, timeStart, previousDuration)).toBeFalsy();
+  it('returns false if there is no previous event', () => {
+    const current = { timeStart: 0, dayOffset: 0 };
+    const previous = undefined;
+    expect(checkIsNextDay(current, previous)).toBeFalsy();
   });
 
   it('returns false if event starts after one before', () => {
-    const previousStart = 10;
-    const previousDuration = 2;
-    const timeStart = 11;
-    expect(checkIsNextDay(previousStart, timeStart, previousDuration)).toBeFalsy();
+    const current = { timeStart: 11, dayOffset: 0 };
+    const previous = { timeStart: 10, duration: 2, dayOffset: 0 };
+    expect(checkIsNextDay(current, previous)).toBeFalsy();
   });
 
   it('returns true if event starts after one before', () => {
-    const previousStart = 10;
-    const previousDuration = 2;
-    const timeStart = 9;
-    expect(checkIsNextDay(previousStart, timeStart, previousDuration)).toBeTruthy();
+    const current = { timeStart: 9, dayOffset: 1 };
+    const previous = { timeStart: 10, duration: 2, dayOffset: 0 };
+    expect(checkIsNextDay(current, previous)).toBeTruthy();
   });
 
   it('returns true if event starts at the same time as one before', () => {
-    const previousStart = 10;
-    const previousDuration = 2;
-    const timeStart = 10;
-    expect(checkIsNextDay(previousStart, timeStart, previousDuration)).toBeTruthy();
+    const current = { timeStart: 10, dayOffset: 1 };
+    const previous = { timeStart: 10, duration: 2, dayOffset: 0 };
+    expect(checkIsNextDay(current, previous)).toBeTruthy();
   });
 
   it('should account for an event that crossed midnight', () => {
-    const previousStart = 20 * MILLIS_PER_HOUR;
-    const previousDuration = 6 * MILLIS_PER_HOUR; // event finished at 02:00:00
-    const timeStart = 1 * MILLIS_PER_HOUR;
-    expect(checkIsNextDay(previousStart, timeStart, previousDuration)).toBeFalsy();
+    const current = { timeStart: 1 * MILLIS_PER_HOUR, dayOffset: 1 };
+    const previous = { timeStart: 20 * MILLIS_PER_HOUR, duration: 6 * MILLIS_PER_HOUR, dayOffset: 0 }; // event finished at 02:00:00
+    expect(checkIsNextDay(current, previous)).toBeFalsy();
   });
 
   it('should account for an event that crossed midnight and there is a gap', () => {
-    const previousStart = 23 * MILLIS_PER_HOUR;
-    const timeStart = 2 * MILLIS_PER_HOUR;
-    const previousDuration = 2 * MILLIS_PER_HOUR;
-    expect(checkIsNextDay(previousStart, timeStart, previousDuration)).toBeFalsy();
+    const current = { timeStart: 2 * MILLIS_PER_HOUR, dayOffset: 1 };
+    const previous = { timeStart: 23 * MILLIS_PER_HOUR, duration: 2 * MILLIS_PER_HOUR, dayOffset: 0 }; // event finished at 01:00:00
+    expect(checkIsNextDay(current, previous)).toBeFalsy();
   });
 
   it('should account for an event that crossed midnight with no overlaps', () => {
-    const previousStart = 20 * MILLIS_PER_HOUR;
-    const previousDuration = 6 * MILLIS_PER_HOUR; // event finished at 02:00:00
-    const timeStart = 19 * MILLIS_PER_HOUR;
-    expect(checkIsNextDay(previousStart, timeStart, previousDuration)).toBeFalsy();
+    const current = { timeStart: 19 * MILLIS_PER_HOUR, dayOffset: 1 };
+    const previous = { timeStart: 20 * MILLIS_PER_HOUR, duration: 6 * MILLIS_PER_HOUR, dayOffset: 0 }; // event finished at 02:00:00
+    expect(checkIsNextDay(current, previous)).toBeFalsy();
   });
 
   it('should account for an event that finishes exactly at midnight', () => {
-    const previousStart = 23 * MILLIS_PER_HOUR;
-    const previousDuration = 1 * MILLIS_PER_HOUR;
-    const timeStart = 2 * MILLIS_PER_HOUR;
-    expect(checkIsNextDay(previousStart, timeStart, previousDuration)).toBeTruthy();
-  });
-
-  it('should account for normalised start over multiple days', () => {
-    const previousStart = 90000000; // 25:00:00
-    const previousDuration = 1 * MILLIS_PER_HOUR;
-    const timeStart = 0;
-    expect(checkIsNextDay(previousStart, timeStart, previousDuration)).toBeTruthy();
+    const current = { timeStart: 2 * MILLIS_PER_HOUR, dayOffset: 1 };
+    const previous = { timeStart: 23 * MILLIS_PER_HOUR, duration: 1 * MILLIS_PER_HOUR, dayOffset: 0 }; // event finished at 24:00:00
+    expect(checkIsNextDay(current, previous)).toBeTruthy();
   });
 });

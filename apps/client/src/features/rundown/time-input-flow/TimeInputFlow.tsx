@@ -5,6 +5,7 @@ import { IoLockClosed } from 'react-icons/io5';
 import { IoLockOpenOutline } from 'react-icons/io5';
 import { IoUnlink } from 'react-icons/io5';
 import { MaybeString, TimeField, TimeStrategy } from 'ontime-types';
+import { dayInMs } from 'ontime-utils';
 
 import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
 import { Button } from '../../../common/components/ui/button';
@@ -46,7 +47,7 @@ function TimeInputFlow(props: EventBlockTimerProps) {
   };
 
   const warnings = [];
-  if (timeStart > timeEnd) {
+  if (timeStart + duration > dayInMs) {
     warnings.push('Over midnight');
   }
 
@@ -135,7 +136,7 @@ function TimeInputFlow(props: EventBlockTimerProps) {
       </div>
 
       {warnings.length > 0 && (
-        <div className={style.timerNote}>
+        <div className={style.timerNote} data-testid='event-warning'>
           <Tooltip content={warnings.join(' - ')} openDelay={tooltipDelayFast}>
             <IoAlertCircleOutline />
           </Tooltip>

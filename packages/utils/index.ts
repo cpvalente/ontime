@@ -63,7 +63,9 @@ export { customFieldLabelToKey } from './src/customField-utils/customFieldLabelT
 export { deepmerge } from './src/externals/deepmerge.js';
 
 // array utils
-export { deleteAtIndex, insertAtIndex, reorderArray } from './src/array-utils/arrayUtils.js';
+export { deleteAtIndex, insertAtIndex, reorderArray } from './src/common/arrayUtils.js';
+// object utils
+export { getPropertyFromPath } from './src/common/objectUtils.js';
 
 // generic utilities
 export { getErrorMessage } from './src/generic/generic.js';

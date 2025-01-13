@@ -39,8 +39,6 @@ interface EventBlockProps {
   title: string;
   note: string;
   delay: number;
-  previousStart?: number;
-  previousEnd?: number;
   colour: string;
   isPast: boolean;
   isNext: boolean;
@@ -49,6 +47,8 @@ interface EventBlockProps {
   hasCursor: boolean;
   playback?: Playback;
   isRolling: boolean;
+  gap: number;
+  isNextDay: boolean;
   actionHandler: (
     action: EventItemActions,
     payload?:
@@ -77,8 +77,6 @@ export default function EventBlock(props: EventBlockProps) {
     title,
     note,
     delay,
-    previousStart,
-    previousEnd,
     colour,
     isPast,
     isNext,
@@ -87,6 +85,8 @@ export default function EventBlock(props: EventBlockProps) {
     hasCursor,
     playback,
     isRolling,
+    gap,
+    isNextDay,
     actionHandler,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
@@ -266,12 +266,7 @@ export default function EventBlock(props: EventBlockProps) {
   return (
     <ContextMenu options={options}>
       <div className={blockClasses} ref={setNodeRef} style={dragStyle} onClick={handleFocusClick} id='event-block'>
-        <RundownIndicators
-          timeStart={timeStart}
-          previousStart={previousStart}
-          previousEnd={previousEnd}
-          delay={delay}
-        />
+        <RundownIndicators timeStart={timeStart} delay={delay} gap={gap} isNextDay={isNextDay} />
 
         <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
           <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>

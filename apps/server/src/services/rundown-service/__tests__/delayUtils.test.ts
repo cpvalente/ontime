@@ -1,20 +1,8 @@
-import { OntimeBlock, OntimeDelay, OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
-import { apply } from '../delayUtils.js';
+import { OntimeBlock, OntimeEvent, OntimeRundown, SupportedEvent } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
-/**
- * Small utility to fill in the necessary data for the test
- */
-function makeOntimeEvent(event: Partial<OntimeEvent>): OntimeEvent {
-  return { ...event, type: SupportedEvent.Event, revision: 1 } as OntimeEvent;
-}
-
-/**
- * Small utility to make a delay event
- */
-function makeOntimeDelay(duration: number): OntimeDelay {
-  return { id: 'delay', type: SupportedEvent.Delay, duration } as OntimeDelay;
-}
+import { apply } from '../delayUtils.js';
+import { makeOntimeDelay, makeOntimeEvent } from '../__mocks__/rundown.mocks.js';
 
 describe('apply()', () => {
   it('applies a positive delay to the rundown', () => {
@@ -150,11 +138,11 @@ describe('apply()', () => {
       makeOntimeDelay(100),
       makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 100, duration: 100 }),
       // gap 50
-      makeOntimeEvent({ id: '2', timeStart: 150, timeEnd: 200, duration: 50 }),
+      makeOntimeEvent({ id: '2', timeStart: 150, timeEnd: 200, duration: 50, gap: 50 }),
+      // gap 0
+      makeOntimeEvent({ id: '3', timeStart: 200, timeEnd: 250, duration: 50, gap: 0 }),
       // gap 50
-      makeOntimeEvent({ id: '3', timeStart: 200, timeEnd: 250, duration: 50 }),
-      // gap 50
-      makeOntimeEvent({ id: '4', timeStart: 300, timeEnd: 350, duration: 50 }),
+      makeOntimeEvent({ id: '4', timeStart: 300, timeEnd: 350, duration: 50, gap: 50 }),
       // linked
       makeOntimeEvent({ id: '5', timeStart: 350, timeEnd: 400, duration: 50, linkStart: '4' }),
     ];
@@ -165,7 +153,7 @@ describe('apply()', () => {
       // gap 50 (100 - 50)
       { id: '2', timeStart: 150 + 50, timeEnd: 200 + 50, duration: 50, revision: 2 },
       // gap 50 (50 - 50)
-      { id: '3', timeStart: 200 + 50, timeEnd: 250 + 50, duration: 50, revision: 2 },
+      { id: '3', timeStart: 200 + 50, timeEnd: 250 + 50, duration: 50, revision: 2, gap: 0 },
       // gap (delay is 0)
       { id: '4', timeStart: 300, timeEnd: 350, duration: 50, revision: 1 },
       // linked
@@ -178,6 +166,8 @@ describe('apply()', () => {
       makeOntimeDelay(2 * MILLIS_PER_HOUR),
       makeOntimeEvent({
         id: '1',
+        gap: 0,
+        dayOffset: 0,
         timeStart: 46800000, // 13:00:00
         timeEnd: 50400000, // 14:00:00
         duration: MILLIS_PER_HOUR,
@@ -185,6 +175,8 @@ describe('apply()', () => {
       // gap 1h
       makeOntimeEvent({
         id: '2',
+        gap: 1 * MILLIS_PER_HOUR,
+        dayOffset: 0,
         timeStart: 54000000, // 15:00:00
         timeEnd: 57600000, // 16:00:00
         duration: MILLIS_PER_HOUR,
