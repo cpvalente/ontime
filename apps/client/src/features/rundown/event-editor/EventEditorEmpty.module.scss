@@ -25,9 +25,9 @@
   kbd {
     border-radius: 2px;
     border: none;
-    background-color: #262626; // $gray-1200
+    background-color: $gray-1200;
     padding: 0.125rem 0.5rem;
-    color: #f6f6f6; // $ui-white
+    color: $ui-white;
     font-weight: 400;
     box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.4);
     font-size: calc(1rem - 2px);
