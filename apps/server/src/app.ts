@@ -5,16 +5,18 @@ import express from 'express';
 import http, { Server } from 'http';
 import cors from 'cors';
 import serverTiming from 'server-timing';
+import cookieParser from 'cookie-parser';
+
+// import utils
+import { publicDir, srcDir } from './setup/index.js';
+import { environment, isOntimeCloud, isProduction, updateRouterPrefix } from './externals.js';
+import { ONTIME_VERSION } from './ONTIME_VERSION.js';
+import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
 
 // Import middleware configuration
 import { bodyParser } from './middleware/bodyParser.js';
 import { compressedStatic } from './middleware/staticGZip.js';
-
-// import utils
-import { publicDir, srcDir, srcFiles } from './setup/index.js';
-import { environment, isOntimeCloud, isProduction, updateRouterPrefix } from './externals.js';
-import { ONTIME_VERSION } from './ONTIME_VERSION.js';
-import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
+import { loginRouter, makeAuthenticateMiddleware } from './middleware/authenticate.js';
 
 // Import Routers
 import { appRouter } from './api-data/index.js';
@@ -73,19 +75,18 @@ if (!isProduction) {
 }
 app.disable('x-powered-by');
 
-// setup cors for all routes
-app.use(cors());
-
-// enable pre-flight cors
-app.options('*', cors());
-
 // Implement middleware
+app.use(cors()); // setup cors for all routes
+app.options('*', cors()); // enable pre-flight cors
+
 app.use(bodyParser);
-app.use(prefix, compressedStatic);
+app.use(cookieParser());
+const { authenticate, authenticateAndRedirect } = makeAuthenticateMiddleware(prefix);
 
 // Implement route endpoints
-app.use(`${prefix}/data`, appRouter); // router for application data
-app.use(`${prefix}/api`, integrationRouter); // router for integrations
+app.use(`${prefix}/data`, authenticate, appRouter); // router for application data
+app.use(`${prefix}/api`, authenticate, integrationRouter); // router for integrations
+app.use(`${prefix}/login`, loginRouter); // router for login flow
 
 // serve static external files
 app.use(`${prefix}/external`, express.static(publicDir.externalDir));
@@ -95,9 +96,9 @@ app.use(`${prefix}/external`, (req, res) => {
 });
 app.use(`${prefix}/user`, express.static(publicDir.userDir));
 
-app.get(`${prefix}/*`, (_req, res) => {
-  res.sendFile(srcFiles.clientIndexHtml);
-});
+// Base route for static files
+app.use(`${prefix}`, authenticateAndRedirect, compressedStatic);
+app.use(`${prefix}/*`, authenticateAndRedirect, compressedStatic);
 
 // Implement catch all
 app.use((_error, response) => {

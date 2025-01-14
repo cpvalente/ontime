@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="description" content="Login page for Ontime application" />
+    <title>Ontime Login</title>
+    <style>
+      body,
+      html {
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana,
+          sans-serif;
+        background: #101010;
+        text-align: center;
+        box-sizing: border-box;
+      }
+
+      h1 {
+        padding-top: 30vh;
+        font-size: 3rem;
+        color: #ff7597;
+        font-weight: 400;
+      }
+
+      input {
+        all: unset;
+        text-align: start;
+        padding-left: 0.5rem;
+        background-color: #fffffa;
+        color: black;
+
+        height: 2rem;
+        border-radius: 2px;
+        margin-right: 0.5rem;
+      }
+      input:focus {
+        outline: 2px solid #779be7;
+        outline-offset: 2px;
+        color: #262626;
+      }
+
+      button {
+        all: unset;
+        color: #779be7;
+        background: #2d2d2d;
+        height: 2rem;
+        padding-inline: 2rem;
+        border-radius: 2px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #404040;
+      }
+      button:focus {
+        outline: 2px solid #779be7;
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <form method="post" class="form" autocomplete="off">
+      <h1>Welcome to Ontime</h1>
+      <input type="hidden" name="redirect" value="" id="redirect" />
+      <input type="password" name="password" placeholder="Password" required autocomplete="current-password" />
+      <button type="submit">Login</button>
+    </form>
+  </body>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect');
+    if (redirect) {
+      // Validate redirect URL to prevent open redirect attacks
+      const isValidRedirect = redirect.startsWith('/') && !redirect.startsWith('//');
+      if (isValidRedirect) {
+        document.getElementById('redirect').value = redirect;
+      }
+    }
+  </script>
+</html>
