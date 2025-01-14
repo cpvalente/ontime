@@ -1,11 +1,13 @@
 import { useCallback, useMemo, useState } from 'react';
+import { IoApps } from 'react-icons/io5';
+import { IoSettingsOutline } from 'react-icons/io5';
 import { useSearchParams } from 'react-router-dom';
-import { IconButton, Modal, ModalContent, ModalOverlay, useDisclosure } from '@chakra-ui/react';
-import { IoApps } from '@react-icons/all-files/io5/IoApps';
-import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
+import { useDisclosure } from '@chakra-ui/react';
 
 import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
 import EmptyPage from '../../common/components/state/EmptyPage';
+import { DialogBackdrop, DialogBody, DialogContent, DialogRoot } from '../../common/components/ui/dialog';
+import { IconButton } from '../../common/components/ui/icon-button';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import useCustomFields from '../../common/hooks-query/useCustomFields';
@@ -26,8 +28,8 @@ export default function CuesheetPage() {
   const { data: flatRundown } = useFlatRundown();
   const { data: customFields } = useCustomFields();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isEventEditorOpen, onOpen: onEventEditorOpen, onClose: onEventEditorClose } = useDisclosure();
+  const { open: isMenuOpen, onOpen, onClose } = useDisclosure();
+  const { open: isEventEditorOpen, onOpen: onEventEditorOpen, onClose: onEventEditorClose } = useDisclosure();
   const [eventId, setEventId] = useState<string | null>(null);
 
   const columns = useMemo(() => makeCuesheetColumns(customFields), [customFields]);
@@ -62,30 +64,24 @@ export default function CuesheetPage() {
 
   return (
     <>
-      <Modal isOpen={isEventEditorOpen} onClose={onEventEditorClose} variant='ontime'>
-        <ModalOverlay />
-        <ModalContent maxWidth='max(640px, 40vw)' padding='1rem'>
-          <CuesheetEventEditor eventId={eventId!} />
-        </ModalContent>
-      </Modal>
+      <DialogRoot open={isEventEditorOpen} onOpenChange={onEventEditorClose}>
+        <DialogBackdrop />
+        <DialogContent maxWidth='max(640px, 40vw)' padding='1rem'>
+          <DialogBody>
+            <CuesheetEventEditor eventId={eventId!} />
+          </DialogBody>
+        </DialogContent>
+      </DialogRoot>
       <div className={styles.tableWrapper} data-testid='cuesheet'>
         <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
         <ViewParamsEditor viewOptions={cuesheetOptions} />
         <CuesheetOverview>
-          <IconButton
-            aria-label='Toggle navigation'
-            variant='ontime-subtle-white'
-            size='lg'
-            icon={<IoApps />}
-            onClick={onOpen}
-          />
-          <IconButton
-            aria-label='Toggle settings'
-            variant='ontime-subtle-white'
-            size='lg'
-            icon={<IoSettingsOutline />}
-            onClick={showEditFormDrawer}
-          />
+          <IconButton aria-label='Toggle navigation' variant='ontime-subtle-white' size='lg' onClick={onOpen}>
+            <IoApps />
+          </IconButton>
+          <IconButton aria-label='Toggle settings' variant='ontime-subtle-white' size='lg' onClick={showEditFormDrawer}>
+            <IoSettingsOutline />
+          </IconButton>
         </CuesheetOverview>
         <CuesheetProgress />
         <CuesheetDnd columns={columns}>

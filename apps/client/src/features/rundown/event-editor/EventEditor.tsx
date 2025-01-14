@@ -1,8 +1,8 @@
 import { CSSProperties, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Button } from '@chakra-ui/react';
 import { CustomFieldLabel, OntimeEvent } from 'ontime-types';
 
+import { Button } from '../../../common/components/ui/button';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import { getAccessibleColour } from '../../../common/utils/styleUtils';

@@ -1,9 +1,9 @@
 import { memo, MouseEvent } from 'react';
-import { IoPause } from '@react-icons/all-files/io5/IoPause';
-import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
-import { IoReload } from '@react-icons/all-files/io5/IoReload';
-import { IoRemoveCircle } from '@react-icons/all-files/io5/IoRemoveCircle';
-import { IoRemoveCircleOutline } from '@react-icons/all-files/io5/IoRemoveCircleOutline';
+import { IoPause } from 'react-icons/io5';
+import { IoPlay } from 'react-icons/io5';
+import { IoReload } from 'react-icons/io5';
+import { IoRemoveCircle } from 'react-icons/io5';
+import { IoRemoveCircleOutline } from 'react-icons/io5';
 
 import TooltipActionBtn from '../../../../common/components/buttons/TooltipActionBtn';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
@@ -11,10 +11,6 @@ import { setEventPlayback } from '../../../../common/hooks/useSocket';
 import { tooltipDelayMid } from '../../../../ontimeConfig';
 
 import style from '../EventBlock.module.scss';
-
-const blockBtnStyle = {
-  size: 'sm',
-};
 
 type StyleVariant = {
   'aria-label': string;
@@ -97,19 +93,19 @@ const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
         backgroundColor={skip ? '#B20000' : undefined}
         _hover={{ backgroundColor: '#FF7878' }}
         {...tooltipProps}
-        {...blockBtnStyle}
+        size='xs'
         clickHandler={toggleSkip}
         tabIndex={-1}
-        isDisabled={loaded}
+        disabled={loaded}
       />
       <TooltipActionBtn
         variant='ontime-subtle-white'
         aria-label='Load event'
         tooltip='Load event'
         icon={<IoReload className={style.flip} />}
-        isDisabled={disablePlayback}
+        disabled={disablePlayback}
         {...tooltipProps}
-        {...blockBtnStyle}
+        size='xs'
         clickHandler={load}
         tabIndex={-1}
       />
@@ -118,9 +114,9 @@ const EventBlockPlayback = (props: EventBlockPlaybackProps) => {
         aria-label='Start event'
         tooltip='Start event'
         icon={!isPlaying ? <IoPlay /> : <IoPause />}
-        isDisabled={disablePlayback}
+        disabled={disablePlayback}
         {...tooltipProps}
-        {...blockBtnStyle}
+        size='xs'
         {...buttonVariant}
         clickHandler={actionHandler}
         tabIndex={-1}

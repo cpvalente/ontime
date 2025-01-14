@@ -21,7 +21,7 @@ import { getPublicOptions } from './public.options';
 
 import './Public.scss';
 
-export const MotionTitleCard = motion(TitleCard);
+export const MotionTitleCard = motion.create(TitleCard);
 
 interface BackstageProps {
   customFields: CustomFields;

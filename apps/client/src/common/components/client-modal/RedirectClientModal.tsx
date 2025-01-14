@@ -1,19 +1,19 @@
 import { useState } from 'react';
-import {
-  Button,
-  Input,
-  InputGroup,
-  InputLeftAddon,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-} from '@chakra-ui/react';
+import { Group, Input, InputAddon } from '@chakra-ui/react';
 
 import { setClientRemote } from '../../hooks/useSocket';
+import { Button } from '../ui/button';
+import {
+  DialogBackdrop,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
+} from '../ui/dialog';
+
+import styles from './RedirectClientModal.module.scss';
 
 interface RedirectClientModalProps {
   id: string;
@@ -40,26 +40,32 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
   const canSubmit = path !== currentPath && path !== '';
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Redirect: {name}</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <InputGroup variant='ontime-filled' size='md'>
-            <InputLeftAddon>{host}</InputLeftAddon>
-            <Input placeholder='minimal?key=0000ffff' value={path} onChange={(event) => setPath(event.target.value)} />
-          </InputGroup>
-        </ModalBody>
-        <ModalFooter>
+    <DialogRoot open={isOpen} onOpenChange={onClose}>
+      <DialogBackdrop />
+      <DialogContent>
+        <DialogHeader>Redirect: {name}</DialogHeader>
+        <DialogCloseTrigger />
+        <DialogBody>
+          <Group attached>
+            <InputAddon className={styles.localhostInputAddon}>{host}</InputAddon>
+            <Input
+              placeholder='/minimal?key=0000ffff'
+              variant='ontime-filled'
+              size='md'
+              value={path}
+              onChange={(event) => setPath(event.target.value)}
+            />
+          </Group>
+        </DialogBody>
+        <DialogFooter>
           <Button size='md' variant='ontime-subtle' onClick={onClose}>
             Cancel
           </Button>
-          <Button size='md' variant='ontime-filled' onClick={handleRedirect} isDisabled={!canSubmit}>
+          <Button size='md' variant='ontime-filled' onClick={handleRedirect} disabled={!canSubmit}>
             Submit
           </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+        </DialogFooter>
+      </DialogContent>
+    </DialogRoot>
   );
 }

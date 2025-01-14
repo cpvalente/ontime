@@ -1,17 +1,9 @@
 import { useState } from 'react';
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-} from '@chakra-ui/react';
+import { Input, Portal } from '@chakra-ui/react';
 
 import { setClientRemote } from '../../hooks/useSocket';
+import { Button } from '../ui/button';
+import { DialogBody, DialogCloseTrigger, DialogContent, DialogFooter, DialogHeader, DialogRoot } from '../ui/dialog';
 
 interface RenameClientModalProps {
   id: string;
@@ -36,29 +28,30 @@ export function RenameClientModal(props: RenameClientModalProps) {
   const canSubmit = name !== currentName && name !== '';
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} variant='ontime'>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Rename: {currentName}</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <Input
-            variant='ontime-filled'
-            size='md'
-            placeholder='new name'
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-          />
-        </ModalBody>
-        <ModalFooter>
-          <Button size='md' variant='ontime-subtle' onClick={onClose}>
-            Cancel
-          </Button>
-          <Button size='md' variant='ontime-filled' onClick={handleRename} isDisabled={!canSubmit}>
-            Submit
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+    <Portal>
+      <DialogRoot open={isOpen} onOpenChange={onClose}>
+        <DialogContent>
+          <DialogHeader>Rename: {currentName}</DialogHeader>
+          <DialogCloseTrigger />
+          <DialogBody>
+            <Input
+              variant='ontime-filled'
+              size='md'
+              placeholder='new name'
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+            />
+          </DialogBody>
+          <DialogFooter>
+            <Button size='md' variant='ontime-subtle' onClick={onClose}>
+              Cancel
+            </Button>
+            <Button size='md' variant='ontime-filled' onClick={handleRename} disabled={!canSubmit}>
+              Submit
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </DialogRoot>
+    </Portal>
   );
 }

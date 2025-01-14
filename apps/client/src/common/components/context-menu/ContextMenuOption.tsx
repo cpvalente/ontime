@@ -1,11 +1,12 @@
-import { MenuDivider, MenuItem } from '@chakra-ui/react';
+import { MenuItem, MenuSeparator } from '../ui/menu';
 
 import { OptionWithoutGroup } from './ContextMenu';
 
 export const ContextMenuOption = ({ label, onClick, isDisabled, icon: Icon, withDivider }: OptionWithoutGroup) => (
   <>
-    {withDivider && <MenuDivider />}
-    <MenuItem icon={<Icon style={{ fontSize: '1rem' }} />} onClick={onClick} isDisabled={isDisabled}>
+    {withDivider && <MenuSeparator />}
+    <MenuItem onClick={onClick} disabled={isDisabled} value={label}>
+      <Icon style={{ fontSize: '1rem' }} />
       {label}
     </MenuItem>
   </>

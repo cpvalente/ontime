@@ -8,7 +8,7 @@ import IdentifyOverlay from './common/components/identify-overlay/IdentifyOverla
 import { AppContextProvider } from './common/context/AppContext';
 import { ontimeQueryClient } from './common/queryClient';
 import { connectSocket } from './common/utils/socket';
-import theme from './theme/theme';
+import system from './theme/theme';
 import { TranslationProvider } from './translation/TranslationProvider';
 import AppRouter from './AppRouter';
 import { baseURI } from './externals';
@@ -17,7 +17,7 @@ connectSocket();
 
 function App() {
   return (
-    <ChakraProvider disableGlobalStyle resetCSS theme={theme}>
+    <ChakraProvider value={system}>
       <QueryClientProvider client={ontimeQueryClient}>
         <AppContextProvider>
           <BrowserRouter basename={baseURI}>

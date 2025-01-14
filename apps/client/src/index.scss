@@ -54,10 +54,11 @@ $thumb-color-hover: $gray-900;
 *,
 *:before,
 *:after {
-  box-sizing: inherit;
+  box-sizing: border-box;
 }
 
-body, html {
+body,
+html {
   font-size: 15px;
   font-family: $ontime-font-family;
   background-color: var(--background-color-override, $ui-black);
@@ -84,14 +85,6 @@ html,
   }
 }
 
-/**
- * workaround for chakra
- * https://github.com/chakra-ui/chakra-ui/issues/417
- */
-option {
-  color: initial;
-}
-
 /* width */
 ::-webkit-scrollbar {
   width: 6px;
@@ -114,4 +107,14 @@ option {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: $thumb-color-hover;
+}
+
+::-webkit-inner-spin-button,
+::-webkit-outer-spin-button {
+  display: none;
+}
+
+input[type='number'] {
+  appearance: inherit;
+  -moz-appearance: textfield;
 }

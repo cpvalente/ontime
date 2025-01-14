@@ -1,11 +1,12 @@
 import { ChangeEvent, useEffect, useState } from 'react';
-import { Button, Input, Spinner } from '@chakra-ui/react';
-import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
-import { IoShieldCheckmarkOutline } from '@react-icons/all-files/io5/IoShieldCheckmarkOutline';
+import { IoCheckmark } from 'react-icons/io5';
+import { IoShieldCheckmarkOutline } from 'react-icons/io5';
+import { Input, Spinner } from '@chakra-ui/react';
 
 import { getWorksheetNames } from '../../../../common/api/sheets';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import CopyTag from '../../../../common/components/copy-tag/CopyTag';
+import { Button } from '../../../../common/components/ui/button';
 import { openLink } from '../../../../common/utils/linkUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -141,7 +142,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
       <Panel.Title>
         Sync with Google Sheet (experimental)
         {isAuthenticated ? (
-          <Button variant='ontime-subtle' size='sm' onClick={handleRevoke} isLoading={loading === 'cancel'}>
+          <Button variant='ontime-subtle' size='sm' onClick={handleRevoke} loading={loading === 'cancel'}>
             Revoke Authentication
           </Button>
         ) : (
@@ -159,7 +160,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
           accept='.json'
           size='sm'
           variant='ontime-filled'
-          isDisabled={isLoading || canAuthenticate}
+          disabled={isLoading || canAuthenticate}
         />
       </Panel.ListGroup>
       <Panel.ListGroup>
@@ -171,7 +172,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
           autoComplete='off'
           placeholder='Sheet ID'
           onChange={(event) => setSheetId(event.target.value)}
-          isDisabled={isLoading || canAuthenticate}
+          disabled={isLoading || canAuthenticate}
         />
       </Panel.ListGroup>
       {!canAuthenticate ? (
@@ -180,12 +181,11 @@ export default function GSheetSetup(props: GSheetSetupProps) {
             <Button
               variant='ontime-subtle'
               size='sm'
-              leftIcon={<IoCheckmark />}
               onClick={handleConnect}
-              isDisabled={!canConnect || isLoading}
-              isLoading={loading === 'connect'}
+              disabled={!canConnect || isLoading}
+              loading={loading === 'connect'}
             >
-              Connect
+              <IoCheckmark /> Connect
             </Button>
           </div>
         </Panel.ListGroup>
@@ -196,13 +196,8 @@ export default function GSheetSetup(props: GSheetSetupProps) {
             <CopyTag copyValue={authKey ?? ''} label='Google Auth Key' disabled={!canAuthenticate} size='sm'>
               {authKey ? authKey : 'Upload files to generate Auth Key'}
             </CopyTag>
-            <Button
-              variant='ontime-filled'
-              size='sm'
-              leftIcon={<IoShieldCheckmarkOutline />}
-              onClick={handleAuthenticate}
-              isDisabled={!canAuthenticate}
-            >
+            <Button variant='ontime-filled' size='sm' onClick={handleAuthenticate} disabled={!canAuthenticate}>
+              <IoShieldCheckmarkOutline />
               Authenticate
             </Button>
           </div>

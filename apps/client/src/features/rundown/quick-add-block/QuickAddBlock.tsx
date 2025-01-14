@@ -1,8 +1,8 @@
 import { memo, useCallback, useRef } from 'react';
-import { Button } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
+import { IoAdd } from 'react-icons/io5';
 import { SupportedEvent } from 'ontime-types';
 
+import { Button } from '../../../common/components/ui/button';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useEmitLog } from '../../../common/stores/logger';
 
@@ -68,33 +68,27 @@ function QuickAddBlock(props: QuickAddBlockProps) {
     <div className={style.quickAdd}>
       <Button
         onClick={() => handleCreateEvent(SupportedEvent.Event)}
-        size='xs'
+        size='2xs'
         variant='ontime-subtle-white'
-        className={style.quickBtn}
-        leftIcon={<IoAdd />}
         color='#b1b1b1' // $gray-400
       >
-        Event
+        <IoAdd /> Event
       </Button>
       <Button
         onClick={() => handleCreateEvent(SupportedEvent.Delay)}
-        size='xs'
+        size='2xs'
         variant='ontime-subtle-white'
-        className={style.quickBtn}
-        leftIcon={<IoAdd />}
         color='#b1b1b1' // $gray-400
       >
-        Delay
+        <IoAdd /> Delay
       </Button>
       <Button
         onClick={() => handleCreateEvent(SupportedEvent.Block)}
-        size='xs'
+        size='2xs'
         variant='ontime-subtle-white'
-        className={style.quickBtn}
-        leftIcon={<IoAdd />}
         color='#b1b1b1' // $gray-400
       >
-        Block
+        <IoAdd /> Block
       </Button>
     </div>
   );

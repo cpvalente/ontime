@@ -1,7 +1,7 @@
-import { PropsWithChildren } from 'react';
-import { InputGroup } from '@chakra-ui/react';
+import { ReactNode } from 'react';
 
 import { cx } from '../../../utils/styleUtils';
+import { InputGroup } from '../../ui/input-group';
 
 import TimeInput from './TimeInput';
 
@@ -14,15 +14,16 @@ interface TimeInputWithButtonProps<T extends string> {
   hasDelay?: boolean;
   disabled?: boolean;
   placeholder: string;
+  endElement?: ReactNode;
 }
 
-export default function TimeInputWithButton<T extends string>(props: PropsWithChildren<TimeInputWithButtonProps<T>>) {
-  const { name, submitHandler, time, hasDelay, placeholder, disabled, children } = props;
+export default function TimeInputWithButton<T extends string>(props: TimeInputWithButtonProps<T>) {
+  const { name, submitHandler, time, hasDelay, placeholder, disabled, endElement } = props;
 
   const inputClasses = cx([style.timeInput, hasDelay ? style.delayed : null]);
 
   return (
-    <InputGroup size='sm' className={inputClasses} width='fit-content'>
+    <InputGroup className={inputClasses} endElement={endElement} endElementProps={{ padding: 0 }}>
       <TimeInput<T>
         name={name}
         submitHandler={submitHandler}
@@ -31,7 +32,6 @@ export default function TimeInputWithButton<T extends string>(props: PropsWithCh
         align='left'
         disabled={disabled}
       />
-      {children}
     </InputGroup>
   );
 }

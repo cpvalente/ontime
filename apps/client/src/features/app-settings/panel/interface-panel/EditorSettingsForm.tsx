@@ -1,8 +1,9 @@
-import { Select, Switch } from '@chakra-ui/react';
 import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
+import { NativeSelectField, NativeSelectRoot } from '../../../../common/components/ui/native-select';
+import { Switch } from '../../../../common/components/ui/switch';
 import { editorSettingsDefaults, useEditorSettings } from '../../../../common/stores/editorSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -44,10 +45,9 @@ export default function EditorSettingsForm() {
                 description='Whether the start time of new events should be linked to the previous event end time'
               />
               <Switch
-                variant='ontime'
                 size='lg'
                 defaultChecked={linkPrevious}
-                onChange={(event) => setLinkPrevious(event.target.checked)}
+                onCheckedChange={(event) => setLinkPrevious(event.checked)}
               />
             </Panel.ListItem>
             <Panel.ListItem>
@@ -55,16 +55,15 @@ export default function EditorSettingsForm() {
                 title='Timer strategy'
                 description='Which time should be maintained when event schedule is recalculated'
               />
-              <Select
-                variant='ontime'
-                size='sm'
-                width='auto'
-                value={defaultTimeStrategy}
-                onChange={(event) => setTimeStrategy(event.target.value as TimeStrategy)}
-              >
-                <option value={TimeStrategy.LockDuration}>Duration</option>
-                <option value={TimeStrategy.LockEnd}>End Time</option>
-              </Select>
+              <NativeSelectRoot size='sm'>
+                <NativeSelectField
+                  value={defaultTimeStrategy}
+                  onChange={(event) => setTimeStrategy(event.target.value as TimeStrategy)}
+                >
+                  <option value={TimeStrategy.LockDuration}>Duration</option>
+                  <option value={TimeStrategy.LockEnd}>End Time</option>
+                </NativeSelectField>
+              </NativeSelectRoot>
             </Panel.ListItem>
           </Panel.ListGroup>
           <Panel.ListGroup>
@@ -79,33 +78,31 @@ export default function EditorSettingsForm() {
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='Timer type' description='Default type of timer for new events' />
-              <Select
-                variant='ontime'
-                size='sm'
-                width='auto'
-                value={defaultTimerType}
-                onChange={(event) => setDefaultTimerType(event.target.value as TimerType)}
-              >
-                <option value={TimerType.CountDown}>Count down</option>
-                <option value={TimerType.CountUp}>Count up</option>
-                <option value={TimerType.Clock}>Clock</option>
-                <option value={TimerType.None}>None</option>
-              </Select>
+              <NativeSelectRoot size='sm'>
+                <NativeSelectField
+                  value={defaultTimerType}
+                  onChange={(event) => setDefaultTimerType(event.target.value as TimerType)}
+                >
+                  <option value={TimerType.CountDown}>Count down</option>
+                  <option value={TimerType.CountUp}>Count up</option>
+                  <option value={TimerType.Clock}>Clock</option>
+                  <option value={TimerType.None}>None</option>
+                </NativeSelectField>
+              </NativeSelectRoot>
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='End Action' description='Default end action for new events' />
-              <Select
-                variant='ontime'
-                size='sm'
-                width='auto'
-                value={defaultEndAction}
-                onChange={(event) => setDefaultEndAction(event.target.value as EndAction)}
-              >
-                <option value={EndAction.None}>None</option>
-                <option value={EndAction.Stop}>Stop</option>
-                <option value={EndAction.LoadNext}>Load next</option>
-                <option value={EndAction.PlayNext}>Play next</option>
-              </Select>
+              <NativeSelectRoot size='sm'>
+                <NativeSelectField
+                  value={defaultEndAction}
+                  onChange={(event) => setDefaultEndAction(event.target.value as EndAction)}
+                >
+                  <option value={EndAction.None}>None</option>
+                  <option value={EndAction.Stop}>Stop</option>
+                  <option value={EndAction.LoadNext}>Load next</option>
+                  <option value={EndAction.PlayNext}>Play next</option>
+                </NativeSelectField>
+              </NativeSelectRoot>
             </Panel.ListItem>
           </Panel.ListGroup>
           <Panel.ListGroup>
@@ -132,10 +129,9 @@ export default function EditorSettingsForm() {
             <Panel.ListItem>
               <Panel.Field title='Default public' description='New events will be public' />
               <Switch
-                variant='ontime'
                 size='lg'
                 defaultChecked={defaultPublic}
-                onChange={(event) => setDefaultPublic(event.target.checked)}
+                onCheckedChange={(event) => setDefaultPublic(event.checked)}
               />
             </Panel.ListItem>
           </Panel.ListGroup>
@@ -148,14 +144,14 @@ export default function EditorSettingsForm() {
                 title='Show quick entry'
                 description='Whether the quick entry buttons show above / under selected event'
               />
-              <Switch variant='ontime' size='lg' defaultChecked={false} isDisabled />
+              <Switch size='lg' defaultChecked={false} disabled />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
                 title='Follow playback'
                 description='Whether view automatically follows the event being played'
               />
-              <Switch variant='ontime' size='lg' defaultChecked isDisabled />
+              <Switch size='lg' defaultChecked disabled />
             </Panel.ListItem>
           </Panel.ListGroup>
         </Panel.Section>
@@ -167,14 +163,14 @@ export default function EditorSettingsForm() {
                 title='Show quick entry'
                 description='Whether the quick entry buttons show above / under selected event'
               />
-              <Switch variant='ontime' size='lg' defaultChecked isDisabled />
+              <Switch size='lg' defaultChecked disabled />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
                 title='Follow playback'
                 description='Whether view automatically follows the event being played'
               />
-              <Switch variant='ontime' size='lg' defaultChecked={false} isDisabled />
+              <Switch size='lg' defaultChecked={false} disabled />
             </Panel.ListItem>
           </Panel.ListGroup>
         </Panel.Section>

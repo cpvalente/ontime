@@ -1,11 +1,15 @@
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import { Button, IconButton, Input, Select, Switch } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { IoAdd } from 'react-icons/io5';
+import { IoTrash } from 'react-icons/io5';
+import { Input } from '@chakra-ui/react';
 import { HttpSettings } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
+import { Button } from '../../../../common/components/ui/button';
+import { IconButton } from '../../../../common/components/ui/icon-button';
+import { NativeSelectField, NativeSelectRoot } from '../../../../common/components/ui/native-select';
+import { Switch } from '../../../../common/components/ui/switch';
 import { useHttpSettings, usePostHttpSettings } from '../../../../common/hooks-query/useHttpSettings';
 import { isKeyEscape } from '../../../../common/utils/keyEvent';
 import { startsWithHttp } from '../../../../common/utils/regex';
@@ -77,7 +81,7 @@ export default function HttpIntegrations() {
         <Panel.SubHeader>
           HTTP settings
           <div className={style.flex}>
-            <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} isDisabled={!canSubmit}>
+            <Button variant='ontime-ghosted' size='sm' onClick={() => reset()} disabled={!canSubmit}>
               Revert to saved
             </Button>
             <Button
@@ -85,8 +89,8 @@ export default function HttpIntegrations() {
               size='sm'
               type='submit'
               form='http-form'
-              isDisabled={!canSubmit}
-              isLoading={isSubmitting}
+              disabled={!canSubmit}
+              loading={isSubmitting}
             >
               Save
             </Button>
@@ -103,7 +107,7 @@ export default function HttpIntegrations() {
                 control={control}
                 name='enabledOut'
                 render={({ field: { onChange, value, ref } }) => (
-                  <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
+                  <Switch size='lg' checked={value} onChange={onChange} ref={ref} />
                 )}
               />
             </Panel.ListItem>
@@ -113,8 +117,8 @@ export default function HttpIntegrations() {
 
           <Panel.Title>
             HTTP Integration
-            <Button variant='ontime-subtle' size='sm' rightIcon={<IoAdd />} onClick={handleAddNewSubscription}>
-              New
+            <Button variant='ontime-subtle' size='sm' onClick={handleAddNewSubscription}>
+              New <IoAdd />
             </Button>
           </Panel.Title>
           {fields.length > 0 && (
@@ -134,21 +138,27 @@ export default function HttpIntegrations() {
                   return (
                     <tr key={integration.id}>
                       <td>
-                        <Switch variant='ontime' {...register(`subscriptions.${index}.enabled`)} />
+                        <Controller
+                          control={control}
+                          name={`subscriptions.${index}.enabled`}
+                          render={({ field: { onChange, value, ref } }) => (
+                            <Switch size='lg' checked={value} onChange={onChange} ref={ref} />
+                          )}
+                        />
                       </td>
                       <td className={style.autoWidth}>
-                        <Select
-                          size='sm'
-                          variant='ontime'
-                          className={style.fitContents}
-                          {...register(`subscriptions.${index}.cycle`)}
-                        >
-                          {cycles.map((cycle) => (
-                            <option key={cycle.id} value={cycle.value}>
-                              {cycle.label}
-                            </option>
-                          ))}
-                        </Select>
+                        <NativeSelectRoot size='sm'>
+                          <NativeSelectField
+                            className={style.fitContents}
+                            {...register(`subscriptions.${index}.cycle`)}
+                          >
+                            {cycles.map((cycle) => (
+                              <option key={cycle.id} value={cycle.value}>
+                                {cycle.label}
+                              </option>
+                            ))}
+                          </NativeSelectField>
+                        </NativeSelectRoot>
                       </td>
                       <td className={style.fullWidth}>
                         <Input
@@ -171,10 +181,11 @@ export default function HttpIntegrations() {
                           size='sm'
                           variant='ontime-ghosted'
                           color='#FA5656' // $red-500
-                          icon={<IoTrash />}
                           aria-label='Delete entry'
                           onClick={() => handleDeleteSubscription(index)}
-                        />
+                        >
+                          <IoTrash />
+                        </IconButton>
                       </td>
                     </tr>
                   );

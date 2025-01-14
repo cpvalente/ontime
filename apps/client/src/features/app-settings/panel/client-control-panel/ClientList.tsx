@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Badge, Button, useDisclosure } from '@chakra-ui/react';
+import { Badge, useDisclosure } from '@chakra-ui/react';
 
 import { RedirectClientModal } from '../../../../common/components/client-modal/RedirectClientModal';
 import { RenameClientModal } from '../../../../common/components/client-modal/RenameClientModal';
+import { Button } from '../../../../common/components/ui/button';
 import { setClientRemote } from '../../../../common/hooks/useSocket';
 import { useClientStore } from '../../../../common/stores/clientStore';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -12,8 +13,8 @@ import style from './ClientControlPanel.module.scss';
 export default function ClientList() {
   const id = useClientStore((store) => store.id);
   const clients = useClientStore((store) => store.clients);
-  const { isOpen: isOpenRedirect, onOpen: onOpenRedirect, onClose: onCloseRedirect } = useDisclosure();
-  const { isOpen: isOpenRename, onOpen: onOpenRename, onClose: onCloseRename } = useDisclosure();
+  const { open: isOpenRedirect, onOpen: onOpenRedirect, onClose: onCloseRedirect } = useDisclosure();
+  const { open: isOpenRename, onOpen: onOpenRename, onClose: onCloseRename } = useDisclosure();
   const { setIdentify } = setClientRemote;
 
   const [targetId, setTargetId] = useState('');
@@ -64,11 +65,11 @@ export default function ClientList() {
               return (
                 <tr key={key}>
                   <td className={style.badgeList}>
-                    <Badge variant='outline' size='xs'>
+                    <Badge variant='subtle' size='sm'>
                       {key}
                     </Badge>
                     {isCurrent && (
-                      <Badge variant='outline' colorScheme='yellow' size='xs'>
+                      <Badge variant='subtle' colorPalette='yellow' size='sm'>
                         self
                       </Badge>
                     )}
@@ -79,7 +80,7 @@ export default function ClientList() {
                     <Button
                       size='xs'
                       className={`${identify ? style.blink : ''}`}
-                      isDisabled={isCurrent}
+                      disabled={isCurrent}
                       variant={identify ? 'ontime-filled' : 'ontime-subtle'}
                       data-testid={isCurrent ? '' : 'not-self-identify'}
                       onClick={() => {
@@ -100,7 +101,7 @@ export default function ClientList() {
                     <Button
                       size='xs'
                       variant='ontime-subtle'
-                      isDisabled={isCurrent}
+                      disabled={isCurrent}
                       data-testid={isCurrent ? '' : 'not-self-redirect'}
                       onClick={() => openRedirect(key)}
                     >
@@ -130,7 +131,7 @@ export default function ClientList() {
               return (
                 <tr key={key}>
                   <td className={style.badgeList}>
-                    <Badge variant='outline' size='sx'>
+                    <Badge variant='subtle' size='sm'>
                       {key}
                     </Badge>
                     {name}

@@ -1,9 +1,16 @@
 import { useNavigate } from 'react-router-dom';
-import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react';
 
 import { loadDemo, loadProject } from '../../../common/api/db';
 import { invalidateAllCaches } from '../../../common/api/utils';
 import ExternalLink from '../../../common/components/external-link/ExternalLink';
+import { Button } from '../../../common/components/ui/button';
+import {
+  DialogBackdrop,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogRoot,
+} from '../../../common/components/ui/dialog';
 import { appVersion, discordUrl, documentationUrl, websiteUrl } from '../../../externals';
 
 import ImportProjectButton from './composite/ImportProjectButton';
@@ -53,11 +60,11 @@ export default function Welcome(props: WelcomeProps) {
   };
 
   return (
-    <Modal isOpen onClose={handleClose} closeOnOverlayClick={false} variant='ontime'>
-      <ModalOverlay />
-      <ModalContent maxWidth='max(640px, 40vw)'>
-        <ModalCloseButton />
-        <ModalBody>
+    <DialogRoot defaultOpen onOpenChange={handleClose} closeOnInteractOutside={false}>
+      <DialogBackdrop />
+      <DialogContent maxWidth='max(640px, 40vw)'>
+        <DialogCloseTrigger />
+        <DialogBody>
           <div className={style.sections}>
             <div className={style.column}>
               <img src='ontime-logo.png' alt='ontime' className={style.logo} />
@@ -92,8 +99,8 @@ export default function Welcome(props: WelcomeProps) {
               </div>
             </div>
           </div>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+        </DialogBody>
+      </DialogContent>
+    </DialogRoot>
   );
 }

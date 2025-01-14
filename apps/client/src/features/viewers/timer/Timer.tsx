@@ -45,7 +45,7 @@ const titleVariants = {
   },
 };
 
-export const MotionTitleCard = motion(TitleCard);
+export const MotionTitleCard = motion.create(TitleCard);
 
 interface TimerProps {
   auxTimer: SimpleTimerState;

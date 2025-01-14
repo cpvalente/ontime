@@ -25,7 +25,7 @@ import { getBackstageOptions } from './backstage.options';
 
 import './Backstage.scss';
 
-export const MotionTitleCard = motion(TitleCard);
+export const MotionTitleCard = motion.create(TitleCard);
 
 interface BackstageProps {
   backstageEvents: OntimeEvent[];
