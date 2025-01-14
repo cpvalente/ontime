@@ -108,3 +108,13 @@ html,
 ::-webkit-scrollbar-thumb:hover {
   background: $thumb-color-hover;
 }
+
+::-webkit-inner-spin-button,
+::-webkit-outer-spin-button {
+  display: none;
+}
+
+input[type='number'] {
+  appearance: inherit;
+  -moz-appearance: textfield;
+}
