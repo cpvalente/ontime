@@ -12,7 +12,7 @@
       "vitest/globals"
     ],
     "module": "esnext",
-    "moduleResolution": "bundler",
+    "moduleResolution": "bundler", // "bundler" is required by chakra ui (https://www.chakra-ui.com/docs/get-started/frameworks/vite#update-tsconfig)
     "resolveJsonModule": true,
     "isolatedModules": true,
     "skipLibCheck": true,
