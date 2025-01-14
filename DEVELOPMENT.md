@@ -24,6 +24,16 @@ From the project root, run the following commands
 - __Install the project dependencies__ by running `pnpm i`
 - __Run dev mode__ by running `turbo dev`
 
+### Chakra UI Variant Types
+You may notice Typescript complaining about invalid values for the `variant` prop on some of the components. To
+remedy this, you'll need to generate those types locally:
+
+- __Navigate from the project root to the `client` dir__ by running `cd apps/client`
+- __Generate the variant types__ by running `pnpm typegen`
+
+__Note:__ Run the command whenever you add or remove variants from the `theme.ts` config. Consult the [Chakra UI documentation](https://www.chakra-ui.com/docs/get-started/cli#chakra-typegen)
+for more information
+
 ### Debugging backend
 
 To debug backend code in Node.js:
