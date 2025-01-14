@@ -117,7 +117,10 @@ function MultiOption(props: EditFormMultiOptionProps) {
       <SelectTrigger>
         <SelectValueText placeholder={defaultValue ?? 'Select an option'} />
       </SelectTrigger>
-      <SelectContent>
+      {/* e.preventDefault() prevents menu from closing on every selection (we want multiple enabled)
+          note and guess: this seems to be a bug with Ark-UI's handling of multiple focus layers
+      */}
+      <SelectContent portalled={false} onClick={(e) => e.preventDefault()}>
         {options.items.map((option) => (
           <SelectItem item={option} key={option.value}>
             {option.label}

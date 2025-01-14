@@ -135,9 +135,9 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
   };
 
   return (
-    <DrawerRoot open={isOpen} placement='end' onOpenChange={handleClose} size='lg' trapFocus={false}>
-      <DrawerBackdrop zIndex={15} />
-      <DrawerContent positionerZIndex={15} portalled={false}>
+    <DrawerRoot open={isOpen} placement='end' onOpenChange={handleClose} size='lg'>
+      <DrawerBackdrop />
+      <DrawerContent>
         <DrawerHeader className={style.drawerHeader}>
           Customise
           <DrawerCloseTrigger />
