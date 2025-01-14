@@ -9,6 +9,7 @@ test('project file upload', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
   // close the welcome modal if it is open
+  await expect(page.getByText('Welcome to Ontime')).toBeVisible();
   await page.keyboard.down('Escape');
 
   await page.getByRole('button', { name: 'Edit' }).click();

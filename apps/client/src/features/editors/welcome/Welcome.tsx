@@ -60,9 +60,8 @@ export default function Welcome(props: WelcomeProps) {
   };
 
   return (
-    <DialogRoot open onOpenChange={handleClose} closeOnInteractOutside={false}>
+    <DialogRoot defaultOpen onOpenChange={handleClose} closeOnInteractOutside={false}>
       <DialogBackdrop />
-
       <DialogContent maxWidth='max(640px, 40vw)'>
         <DialogCloseTrigger />
         <DialogBody>
