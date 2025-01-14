@@ -122,9 +122,7 @@ export default function DelayInput(props: DelayInputProps) {
       />
       <RadioGroup className={style.delayOptions} onValueChange={handleSlipChange} value={checkedOption} size='xs'>
         <Radio value='add'>Add time</Radio>
-        <Radio value='subtract' data-testid='subtract-time'>
-          Subtract time
-        </Radio>
+        <Radio value='subtract'>Subtract time</Radio>
       </RadioGroup>
     </div>
   );
