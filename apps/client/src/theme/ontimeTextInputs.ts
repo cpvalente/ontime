@@ -5,7 +5,6 @@ const commonStyles: SystemStyleObject = {
   fontWeight: '400',
   backgroundColor: '#262626', // $gray-1200
   color: '#e2e2e2', // $gray-200
-  border: '1px solid transparent',
   borderRadius: '3px',
   _hover: {
     backgroundColor: '#2d2d2d', // $gray-1100
@@ -13,7 +12,12 @@ const commonStyles: SystemStyleObject = {
   _focus: {
     backgroundColor: '#2d2d2d', // $gray-1000
     color: '#f6f6f6', // $gray-50
-    border: '1px solid #578AF4', // $blue-500
+    outline: '2px solid #578AF4', // $blue-500,
+  },
+  _focusVisible: {
+    backgroundColor: '#2d2d2d', // $gray-1000
+    color: '#f6f6f6', // $gray-50
+    outline: '2px solid #578AF4', // $blue-500,
   },
   _placeholder: { color: '#9d9d9d' }, // $gray-500
   _disabled: {

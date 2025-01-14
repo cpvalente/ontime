@@ -15,7 +15,7 @@ export const ontimeSwitchRecipe = defineSlotRecipe({
         },
       },
       '& [data-part="thumb"]': {
-        backgroundColor: '#fff !important',
+        backgroundColor: '#f6f6f6', // $ui-white
       },
     },
     thumb: {
@@ -25,8 +25,11 @@ export const ontimeSwitchRecipe = defineSlotRecipe({
       _focus: {
         outline: '2px solid #578AF4', // $blue-500
       },
+      _focusVisible: {
+        outline: '2px solid #578AF4 !important', // $blue-500
+      },
       _active: {
-        outline: '2px solid #578AF4',
+        outline: '2px solid #578AF4', // $blue-500
       },
     },
   },

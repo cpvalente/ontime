@@ -68,14 +68,19 @@ export const ontimeNativeSelectRecipe = defineSlotRecipe({
       color: '#e2e2e2', // $gray-200
     },
     field: {
-      border: '1px solid transparent',
       _hover: {
         background: '#404040', // $gray-1000
       },
       _focus: {
         background: '#404040', // $gray-1000
         color: '#f6f6f6', // $gray-50
-        border: '1px solid #578AF4', // $blue-500
+        outline: '2px solid #578AF4', // $blue-500
+      },
+      _focusVisible: {
+        background: '#404040', // $gray-1000
+        color: '#f6f6f6', // $gray-50
+        outline: '2px solid #578AF4', // $blue-500
+        borderColor: 'none',
       },
       _disabled: {
         _hover: {
