@@ -97,7 +97,7 @@ export default function BlueprintForm(props: BlueprintFormProps) {
   const handleTestOSCOutput = async (index: number) => {
     try {
       const values = getValues(`outputs.${index}`) as OSCOutput;
-      if (!values.targetIP || !values.targetPort || !values.address || !values.args) {
+      if (!values.targetIP || !values.targetPort || !values.address) {
         return;
       }
       await testOutput({
