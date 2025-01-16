@@ -84,9 +84,9 @@ app.use(cookieParser());
 const { authenticate, authenticateAndRedirect } = makeAuthenticateMiddleware(prefix);
 
 // Implement route endpoints
+app.use(`${prefix}/login`, loginRouter); // router for login flow
 app.use(`${prefix}/data`, authenticate, appRouter); // router for application data
 app.use(`${prefix}/api`, authenticate, integrationRouter); // router for integrations
-app.use(`${prefix}/login`, loginRouter); // router for login flow
 
 // serve static external files
 app.use(`${prefix}/external`, express.static(publicDir.externalDir));
