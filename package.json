@@ -38,7 +38,7 @@
     "cleanup": "rm -rf node_modules && rm -rf **/node_modules && rm -rf **/**/node_modules"
   },
   "devDependencies": {
-    "@playwright/test": "^1.42.1",
+    "@playwright/test": "^1.49.1",
     "@types/node": "catalog:",
     "@typescript-eslint/eslint-plugin": "catalog:",
     "@typescript-eslint/parser": "catalog:",
