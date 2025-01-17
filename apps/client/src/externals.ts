@@ -12,6 +12,9 @@ export const discordUrl = 'https://discord.com/invite/eje3CSUEXm';
 export const documentationUrl = 'https://docs.getontime.no';
 export const customFieldsDocsUrl = 'https://docs.getontime.no/features/custom-fields/';
 
+export const githubSponsorUrl = 'https://github.com/sponsors/cpvalente';
+export const buyMeACoffeeUrl = 'https://buymeacoffee.com/cpvalente';
+
 // resolve environment
 export const appVersion = version;
 export const isProduction = import.meta.env.MODE === 'production';
