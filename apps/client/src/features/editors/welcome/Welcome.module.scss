@@ -24,6 +24,10 @@
   display: flex;
   gap: 1rem;
   justify-content: end;
+
+  :first-child {
+    margin-right: auto;
+  }
 }
 
 .tableContainer {
@@ -38,14 +42,20 @@
   tbody {
     background-color: $gray-1300;
     tr {
-      &:has(:hover) {
+      &:hover:not(.current) {
         background-color: $gray-1350;
+      }
+      .current {
+        &:hover {
+          background-color: $blue-900;
+        }
       }
     }
   }
 
   tr {
     height: 2rem;
+    cursor: pointer;
   }
 
   th,
@@ -62,4 +72,8 @@
 
 .current {
   background-color: $blue-700;
+
+  &:hover {
+    background-color: $blue-900;
+  }
 }
