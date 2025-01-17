@@ -33,8 +33,11 @@ function preparePayload(output: OSCOutput, state: RuntimeState): OscPacketInput 
 function emit(targetIP: string, targetPort: number, packet: OscPacketInput) {
   logger.info(LogOrigin.Tx, `Sending OSC: ${targetIP}:${targetPort}`);
 
-  const dataView = oscPacketToBuffer(packet).buffer;
-  const buffer = new Uint8Array(dataView, 0, dataView.byteLength);
+  /**
+   * TODO: remove this type casting when mergend in deleration file
+   * https://github.com/DefinitelyTyped/DefinitelyTyped/pull/71659
+   */
+  const buffer = oscPacketToBuffer(packet) as unknown as Uint8Array;
   udpClient.send(buffer, 0, buffer.byteLength, targetPort, targetIP);
   return;
 }
