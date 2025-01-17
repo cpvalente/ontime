@@ -5,6 +5,7 @@ import { loadDemo, loadProject } from '../../../common/api/db';
 import { invalidateAllCaches } from '../../../common/api/utils';
 import ExternalLink from '../../../common/components/external-link/ExternalLink';
 import { appVersion, discordUrl, documentationUrl, websiteUrl } from '../../../externals';
+import * as Editor from '../editor-utils/EditorUtils';
 
 import ImportProjectButton from './composite/ImportProjectButton';
 import WelcomeProjectList from './composite/WelcomeProjectList';
@@ -68,29 +69,28 @@ export default function Welcome(props: WelcomeProps) {
             </div>
             <div className={style.column}>
               <div className={style.header}>Welcome to Ontime</div>
+              <Editor.Title>Recent Projects</Editor.Title>
               <div className={style.tableContainer}>
                 <table className={style.table}>
                   <thead>
                     <tr>
                       <th>Project Name</th>
                       <th>Last Used</th>
-                      <th />
                     </tr>
                   </thead>
                   <WelcomeProjectList loadProject={handleLoadProject} onClose={handleClose} />
                 </table>
               </div>
-
-              <div className={style.buttonRow}>
-                <ImportProjectButton onFinish={handleClose} />
-                <Button size='sm' variant='ontime-subtle' onClick={handleLoadDemo}>
-                  Load demo project
-                </Button>
-                <Button size='sm' variant='ontime-filled' onClick={handleCallCreate}>
-                  Create new...
-                </Button>
-              </div>
             </div>
+          </div>
+          <div className={style.buttonRow}>
+            <Button size='sm' variant='ontime-ghosted' onClick={handleLoadDemo}>
+              Load demo project
+            </Button>
+            <ImportProjectButton onFinish={handleClose} />
+            <Button size='sm' variant='ontime-filled' onClick={handleCallCreate}>
+              Create new...
+            </Button>
           </div>
         </ModalBody>
       </ModalContent>
