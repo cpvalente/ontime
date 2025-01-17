@@ -15,7 +15,7 @@ export interface SessionStats {
   lastRequest: MaybeString;
   projectName: string;
   playback: Playback;
-  timezone: number;
+  timezone: string;
 }
 
 export interface GetInfo {

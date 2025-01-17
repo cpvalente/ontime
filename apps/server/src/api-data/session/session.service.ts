@@ -7,6 +7,7 @@ import { getLastRequest } from '../../api-integration/integration.controller.js'
 import { getLastLoadedProject } from '../../services/app-state-service/AppStateService.js';
 import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
 import { getNetworkInterfaces } from '../../utils/network.js';
+import { getTimezoneLabel } from '../../utils/time.js';
 
 const startedAt = new Date();
 
@@ -24,7 +25,7 @@ export async function getSessionStats(): Promise<SessionStats> {
     lastRequest: lastRequest !== null ? lastRequest.toISOString() : null,
     projectName,
     playback,
-    timezone: startedAt.getTimezoneOffset(),
+    timezone: getTimezoneLabel(startedAt),
   };
 }
 
