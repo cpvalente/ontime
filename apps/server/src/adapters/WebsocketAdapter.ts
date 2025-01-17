@@ -286,21 +286,30 @@ export class SocketServer implements IAdapter {
     }
   }
 
-  public sendRuntimeStoreUpdate(keys: (keyof RuntimeStore)[], store: Partial<RuntimeStore>) {
+  public sendRuntimeStoreUpdate(keysToUpdate: (keyof RuntimeStore)[], store: Partial<RuntimeStore>) {
+    // create a patch object with all the keys marked for updating
     const patch = {};
-    keys.map((key) => {
+    keysToUpdate.map((key) => {
       Object.assign(patch, { [key]: store[key] });
     });
+
+    //convert to JSON once and reuse
     const stringifiedPatch = JSON.stringify({ type: 'ontime-patch', payload: patch });
+
+    // for each client that have subscribed to the patch method send the patch object
     this.patchClients.forEach((ws) => {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(stringifiedPatch);
       }
     });
 
-    while (keys.length) {
-      const key = keys.pop();
+    // all the old type clients are sent the normal way
+    while (keysToUpdate.length) {
+      // for each key in the list
+      const key = keysToUpdate.pop();
+      // create a reuseble JSON object
       const stringifiedMessage = JSON.stringify({ type: `ontime-${key}`, payload: store[key] });
+      //and send it to all client then hanve not switch to the patch method
       this.keyClients.forEach((ws) => {
         if (ws.readyState === WebSocket.OPEN) {
           ws.send(stringifiedMessage);
