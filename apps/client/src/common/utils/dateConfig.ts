@@ -1,10 +1,9 @@
 import { MaybeNumber } from 'ontime-types';
-import { formatFromMillis, MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
+
+import { formatDuration } from './time';
 
 /**
- * Parses a value in millis to a string which encodes a delay
- * @param millis
- * @param format
+ * Parses a value in milliseconds to a string which encodes a delay
  */
 export function millisToDelayString(millis: MaybeNumber, format: 'compact' | 'expanded' = 'compact'): string {
   if (millis == null || millis === 0) {
@@ -16,12 +15,7 @@ export function millisToDelayString(millis: MaybeNumber, format: 'compact' | 'ex
   const isCompact = format === 'compact';
   const delayed = isCompact ? '+' : 'delayed by ';
   const ahead = isCompact ? '-' : 'ahead by ';
+  const time = formatDuration(absMillis, false);
 
-  if (absMillis < MILLIS_PER_MINUTE) {
-    return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 's')} sec`;
-  } else if (absMillis < MILLIS_PER_HOUR && absMillis % MILLIS_PER_MINUTE === 0) {
-    return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 'm')} min`;
-  }
-
-  return `${isNegative ? ahead : delayed}${formatFromMillis(absMillis, 'HH:mm:ss')}`;
+  return `${isNegative ? ahead : delayed}${time}`;
 }
