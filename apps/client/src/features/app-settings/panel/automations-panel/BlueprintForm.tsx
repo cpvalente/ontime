@@ -6,11 +6,9 @@ import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import {
   AutomationBlueprint,
   AutomationBlueprintDTO,
-  CustomFields,
   HTTPOutput,
   isHTTPOutput,
   isOSCOutput,
-  OntimeEvent,
   OSCOutput,
 } from 'ontime-types';
 
@@ -22,6 +20,8 @@ import useCustomFields from '../../../../common/hooks-query/useCustomFields';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isIPAddress, startsWithHttp } from '../../../../common/utils/regex';
 import * as Panel from '../../panel-utils/PanelUtils';
+
+import { isBlueprint, makeFieldList } from './automationUtils';
 
 import style from './BlueprintForm.module.scss';
 
@@ -446,39 +446,4 @@ export default function BlueprintForm(props: BlueprintFormProps) {
       </Panel.InlineElements>
     </Panel.Indent>
   );
-}
-
-/**
- * We use this guard to find out if the form is receiving an existing blueprint or creating a DTO
- * We do this by checking whether an ID has been generated
- */
-function isBlueprint(blueprint: AutomationBlueprintDTO | AutomationBlueprint): blueprint is AutomationBlueprint {
-  return Object.hasOwn(blueprint, 'id');
-}
-
-export const staticSelectProperties = [
-  { value: 'id', label: 'ID' },
-  { value: 'title', label: 'Title' },
-  { value: 'cue', label: 'Cue' },
-  { value: 'countToEnd', label: 'Count to end' },
-  { value: 'isPublic', label: 'Is public' },
-  { value: 'skip', label: 'Skip' },
-  { value: 'note', label: 'Note' },
-  { value: 'colour', label: 'Colour' },
-  { value: 'endAction', label: 'End action' },
-  { value: 'timerType', label: 'Timer type' },
-  { value: 'timeWarning', label: 'Time warning' },
-  { value: 'timeDanger', label: 'Time danger' },
-];
-
-type SelectableField = {
-  value: keyof OntimeEvent | string; // string for custom fields
-  label: string;
-};
-
-function makeFieldList(customFields: CustomFields): SelectableField[] {
-  return [
-    ...staticSelectProperties,
-    ...Object.entries(customFields).map(([key, { label }]) => ({ value: key, label: `Custom: ${label}` })),
-  ];
 }

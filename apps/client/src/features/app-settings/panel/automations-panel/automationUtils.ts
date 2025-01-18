@@ -1,4 +1,11 @@
-import { Automation, TimerLifeCycle } from 'ontime-types';
+import {
+  Automation,
+  AutomationBlueprint,
+  AutomationBlueprintDTO,
+  CustomFields,
+  OntimeEvent,
+  TimerLifeCycle,
+} from 'ontime-types';
 
 type CycleLabel = {
   id: number;
@@ -18,15 +25,40 @@ export const cycles: CycleLabel[] = [
   { id: 8, label: 'On Danger', value: 'onDanger' },
 ];
 
-export const field = [
-  { id: 1, label: 'Cue', value: 'cue' },
-  { id: 2, label: 'Title', value: 'title' },
-  { id: 3, label: 'Note', value: 'note' },
-  { id: 4, label: 'Custom', value: 'cue' },
-  { id: 5, label: 'Cue', value: 'cue' },
-  { id: 6, label: 'Cue', value: 'cue' },
-  { id: 7, label: 'Cue', value: 'cue' },
+/**
+ * We use this guard to find out if the form is receiving an existing blueprint or creating a DTO
+ * We do this by checking whether an ID has been generated
+ */
+export function isBlueprint(blueprint: AutomationBlueprintDTO | AutomationBlueprint): blueprint is AutomationBlueprint {
+  return Object.hasOwn(blueprint, 'id');
+}
+
+export const staticSelectProperties = [
+  { value: 'id', label: 'ID' },
+  { value: 'title', label: 'Title' },
+  { value: 'cue', label: 'Cue' },
+  { value: 'countToEnd', label: 'Count to end' },
+  { value: 'isPublic', label: 'Is public' },
+  { value: 'skip', label: 'Skip' },
+  { value: 'note', label: 'Note' },
+  { value: 'colour', label: 'Colour' },
+  { value: 'endAction', label: 'End action' },
+  { value: 'timerType', label: 'Timer type' },
+  { value: 'timeWarning', label: 'Time warning' },
+  { value: 'timeDanger', label: 'Time danger' },
 ];
+
+type SelectableField = {
+  value: keyof OntimeEvent | string; // string for custom fields
+  label: string;
+};
+
+export function makeFieldList(customFields: CustomFields): SelectableField[] {
+  return [
+    ...staticSelectProperties,
+    ...Object.entries(customFields).map(([key, { label }]) => ({ value: key, label: `Custom: ${label}` })),
+  ];
+}
 
 /**
  * We warn the user if they have created multiple links between the same blueprint and automation
