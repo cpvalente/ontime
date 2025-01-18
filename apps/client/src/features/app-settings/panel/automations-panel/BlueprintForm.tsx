@@ -205,7 +205,7 @@ export default function BlueprintForm(props: BlueprintFormProps) {
                   {...register(`filters.${index}.field`, { required: { value: true, message: 'Required field' } })}
                   size='sm'
                   variant='ontime'
-                  placeholder='Select a field'
+                  placeholder='Event field'
                 >
                   {fieldList.map(({ value, label }) => (
                     <option key={value} value={value}>
@@ -221,7 +221,7 @@ export default function BlueprintForm(props: BlueprintFormProps) {
                   {...register(`filters.${index}.operator`, { required: { value: true, message: 'Required field' } })}
                   size='sm'
                   variant='ontime'
-                  placeholder='Select an operator'
+                  placeholder='Operator'
                 >
                   <option value='equals'>equals</option>
                   <option value='not_equals'>not equals</option>
