@@ -141,7 +141,6 @@ async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<D
   db.data.urlPresets = mergedData.urlPresets;
   db.data.customFields = mergedData.customFields;
   db.data.rundown = mergedData.rundown;
-  db.data.automation = mergedData.automation;
 
   await persist();
   return db.data;
