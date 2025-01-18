@@ -52,7 +52,7 @@ export default function AutomationsList(props: AutomationsListProps) {
           rightIcon={<IoAdd />}
           size='sm'
           type='submit'
-          form='osc-form'
+          form='automation-form'
           isDisabled={!canAdd}
           isLoading={false}
           onClick={() => setShowForm(true)}
