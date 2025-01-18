@@ -76,7 +76,7 @@ type CuesheetOptions = {
  * Utility extract the view options from URL Params
  * the names and fallbacks are manually matched with cuesheetOptions
  */
-export function getOptionsFromParams(searchParams: URLSearchParams): CuesheetOptions {
+function getOptionsFromParams(searchParams: URLSearchParams): CuesheetOptions {
   // we manually make an object that matches the key above
   return {
     showActionMenu: isStringBoolean(searchParams.get('showActionMenu')),
