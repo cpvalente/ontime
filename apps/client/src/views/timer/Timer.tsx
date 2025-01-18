@@ -13,17 +13,22 @@ import {
   ViewSettings,
 } from 'ontime-types';
 
-import { FitText } from '../../../common/components/fit-text/FitText';
-import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
-import TitleCard from '../../../common/components/title-card/TitleCard';
-import ViewLogo from '../../../common/components/view-logo/ViewLogo';
-import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
-import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
-import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
-import { formatTime, getDefaultFormat } from '../../../common/utils/time';
-import { useTranslation } from '../../../translation/TranslationProvider';
-import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
-import { getFormattedTimer, getPropertyValue, getTimerByType, isStringBoolean } from '../common/viewUtils';
+import { FitText } from '../../common/components/fit-text/FitText';
+import MultiPartProgressBar from '../../common/components/multi-part-progress-bar/MultiPartProgressBar';
+import TitleCard from '../../common/components/title-card/TitleCard';
+import ViewLogo from '../../common/components/view-logo/ViewLogo';
+import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
+import { useWindowTitle } from '../../common/hooks/useWindowTitle';
+import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
+import { formatTime, getDefaultFormat } from '../../common/utils/time';
+import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
+import {
+  getFormattedTimer,
+  getPropertyValue,
+  getTimerByType,
+  isStringBoolean,
+} from '../../features/viewers/common/viewUtils';
+import { useTranslation } from '../../translation/TranslationProvider';
 
 import { getTimerOptions } from './timer.options';
 
