@@ -1,4 +1,6 @@
-import { CustomFields } from 'ontime-types';
+import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { CustomFields, OntimeEvent } from 'ontime-types';
 
 import {
   getTimeOption,
@@ -7,6 +9,7 @@ import {
   showLeadingZeros,
 } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/types';
+import { isStringBoolean } from '../../features/viewers/common/viewUtils';
 
 export const getTimerOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
   const mainOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
@@ -59,17 +62,58 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
     },
     {
       id: 'hideMessage',
-      title: 'Hide Presenter Message',
-      description: 'Prevents the screen from displaying messages from the presenter',
+      title: 'Hide Timer Message',
+      description: 'Prevents displaying fullscreen messages in the timer',
       type: 'boolean',
       defaultValue: false,
     },
     {
       id: 'hideExternal',
-      title: 'Hide External',
-      description: 'Prevents the screen from displaying the external field',
+      title: 'Hide Auxiliary timer / External message',
+      description: 'Prevents the screen from displaying the secondary timer field',
       type: 'boolean',
       defaultValue: false,
     },
   ];
 };
+
+type TimerOptions = {
+  hideClock: boolean;
+  hideCards: boolean;
+  hideProgress: boolean;
+  hideMessage: boolean;
+  hideExternal: boolean;
+  hideTimerSeconds: boolean;
+  removeLeadingZeros: boolean;
+  mainSource: keyof OntimeEvent | null;
+  secondarySource: keyof OntimeEvent | null;
+};
+
+/**
+ * Utility extract the view options from URL Params
+ * the names and fallbacks are manually matched with timerOptions
+ */
+function getOptionsFromParams(searchParams: URLSearchParams): TimerOptions {
+  // we manually make an object that matches the key above
+  return {
+    hideClock: isStringBoolean(searchParams.get('hideClock')),
+    hideCards: isStringBoolean(searchParams.get('hideCards')),
+    hideProgress: isStringBoolean(searchParams.get('hideProgress')),
+    hideMessage: isStringBoolean(searchParams.get('hideMessage')),
+    hideExternal: isStringBoolean(searchParams.get('hideExternal')),
+    hideTimerSeconds: isStringBoolean(searchParams.get('hideTimerSeconds')),
+    removeLeadingZeros: !isStringBoolean(searchParams.get('showLeadingZeros')),
+
+    mainSource: searchParams.get('main') as keyof OntimeEvent | null,
+    secondarySource: searchParams.get('secondary-src') as keyof OntimeEvent | null,
+  };
+}
+
+/**
+ * Hook exposes the timer view options
+ */
+export function useTimerOptions(): TimerOptions {
+  const [searchParams] = useSearchParams();
+  const options = useMemo(() => getOptionsFromParams(searchParams), [searchParams]);
+  return options;
+}
