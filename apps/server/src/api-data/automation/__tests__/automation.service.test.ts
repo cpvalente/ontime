@@ -204,7 +204,7 @@ describe('testConditions()', () => {
     });
   });
 
-  describe('for all filter rule', () => {
+  describe('for any filter rule', () => {
     it('should return true when all filters are true', () => {
       const mockStore = makeRuntimeStateData({
         clock: 10,
