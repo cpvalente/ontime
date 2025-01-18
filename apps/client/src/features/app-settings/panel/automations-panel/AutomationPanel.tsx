@@ -8,15 +8,18 @@ import AutomationsList from './AutomationsList';
 import BlueprintsList from './BlueprintsList';
 
 export default function AutomationPanel({ location }: PanelBaseProps) {
-  const { data } = useAutomationSettings();
+  const { data, status } = useAutomationSettings();
   const settingsRef = useScrollIntoView<HTMLDivElement>('settings', location);
   const automationRef = useScrollIntoView<HTMLDivElement>('automations', location);
   const blueprintsRef = useScrollIntoView<HTMLDivElement>('blueprints', location);
+
+  const isLoading = status === 'pending';
 
   return (
     <>
       <Panel.Header>Automation</Panel.Header>
       <Panel.Section>
+        <Panel.Loader isLoading={isLoading} />
         <div ref={settingsRef}>
           <AutomationSettingsForm
             enabledAutomations={data.enabledAutomations}
