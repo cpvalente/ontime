@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input, Select } from '@chakra-ui/react';
-import { AutomationDTO, NormalisedAutomationBlueprint } from 'ontime-types';
+import { AutomationDTO, NormalisedAutomationBlueprint, TimerLifeCycle } from 'ontime-types';
 
 import { addAutomation, editAutomation } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -15,7 +15,7 @@ interface AutomationFormProps {
   initialId?: string;
   initialTitle?: string;
   initialBlueprint?: string;
-  initialTrigger?: string;
+  initialTrigger?: TimerLifeCycle;
   onCancel: () => void;
   postSubmit: () => void;
 }
@@ -29,7 +29,11 @@ export default function AutomationForm(props: AutomationFormProps) {
     setError,
     formState: { errors, isSubmitting, isValid, isDirty },
   } = useForm<AutomationDTO>({
-    defaultValues: {},
+    defaultValues: {
+      title: initialTitle,
+      trigger: initialTrigger,
+      blueprintId: initialBlueprint,
+    },
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -72,7 +76,12 @@ export default function AutomationForm(props: AutomationFormProps) {
   const canSubmit = isDirty && isValid;
 
   return (
-    <Panel.Indent as='form' onSubmit={handleSubmit(onSubmit)} onKeyDown={(event) => preventEscape(event, onCancel)}>
+    <Panel.Indent
+      as='form'
+      name='automation-form'
+      onSubmit={handleSubmit(onSubmit)}
+      onKeyDown={(event) => preventEscape(event, onCancel)}
+    >
       <Panel.SubHeader>{initialId ? 'Edit automation' : 'Create automation'}</Panel.SubHeader>
       <label>
         Title
