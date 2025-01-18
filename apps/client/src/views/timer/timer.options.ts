@@ -5,8 +5,8 @@ import {
   hideTimerSeconds,
   makeOptionsFromCustomFields,
   showLeadingZeros,
-} from '../../../common/components/view-params-editor/constants';
-import { ViewOption } from '../../../common/components/view-params-editor/types';
+} from '../../common/components/view-params-editor/constants';
+import { ViewOption } from '../../common/components/view-params-editor/types';
 
 export const getTimerOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
   const mainOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });

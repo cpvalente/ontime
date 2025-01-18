@@ -22,7 +22,7 @@ const Editor = React.lazy(() => import('./features/editors/ProtectedEditor'));
 const Cuesheet = React.lazy(() => import('./views/cuesheet/ProtectedCuesheet'));
 const Operator = React.lazy(() => import('./features/operator/OperatorExport'));
 
-const TimerView = React.lazy(() => import('./features/viewers/timer/Timer'));
+const TimerView = React.lazy(() => import('./views/timer/Timer'));
 const MinimalTimerView = React.lazy(() => import('./features/viewers/minimal-timer/MinimalTimer'));
 const ClockView = React.lazy(() => import('./features/viewers/clock/Clock'));
 const Countdown = React.lazy(() => import('./features/viewers/countdown/Countdown'));
