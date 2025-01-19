@@ -96,7 +96,7 @@ export default function Welcome(props: WelcomeProps) {
           <Checkbox
             size='sm'
             variant='ontime-ondark'
-            checked
+            defaultChecked
             onChange={(event) => postShowWelcomeDialog(event.target.checked)}
           >
             Show this modal on next startup
