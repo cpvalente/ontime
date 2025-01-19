@@ -29,6 +29,13 @@ export const validateUrlPresetPath = (preset: string): { message: string; isVali
 };
 
 /**
+ * Utility removes trailing slash from a string
+ */
+function removeTrailingSlash(text: string): string {
+  return text.replace(/\/$/, '');
+}
+
+/**
  * Gets the URL to send a preset to
  * @param location
  * @param data
@@ -38,7 +45,7 @@ export const getRouteFromPreset = (location: Location, data: URLPreset[], search
   const currentURL = location.pathname.substring(1);
 
   // we need to check if the whole url here is an alias, so we can redirect
-  const foundPreset = data.filter((d) => d.alias === currentURL && d.enabled)[0];
+  const foundPreset = data.find((preset) => preset.alias === removeTrailingSlash(currentURL) && preset.enabled);
   if (foundPreset) {
     return generateUrlFromPreset(foundPreset);
   }
