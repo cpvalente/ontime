@@ -1,10 +1,10 @@
 import {
   Automation,
-  AutomationBlueprint,
-  AutomationBlueprintDTO,
+  AutomationDTO,
   CustomFields,
   OntimeEvent,
   TimerLifeCycle,
+  Trigger,
 } from 'ontime-types';
 
 type CycleLabel = {
@@ -26,11 +26,11 @@ export const cycles: CycleLabel[] = [
 ];
 
 /**
- * We use this guard to find out if the form is receiving an existing blueprint or creating a DTO
+ * We use this guard to find out if the form is receiving an existing automation or creating a DTO
  * We do this by checking whether an ID has been generated
  */
-export function isBlueprint(blueprint: AutomationBlueprintDTO | AutomationBlueprint): blueprint is AutomationBlueprint {
-  return Object.hasOwn(blueprint, 'id');
+export function isAutomation(automation: AutomationDTO | Automation): automation is Automation {
+  return Object.hasOwn(automation, 'id');
 }
 
 export const staticSelectProperties = [
@@ -61,22 +61,22 @@ export function makeFieldList(customFields: CustomFields): SelectableField[] {
 }
 
 /**
- * We warn the user if they have created multiple links between the same blueprint and automation
+ * We warn the user if they have created multiple links between the same automation and a trigger
  */
-export function checkDuplicates(automations: Automation[]) {
-  const automationMap: Record<string, string[]> = {};
+export function checkDuplicates(triggers: Trigger[]) {
+  const triggersMap: Record<string, string[]> = {};
   const duplicates = [];
 
-  for (let i = 0; i < automations.length; i++) {
-    const automation = automations[i];
-    if (!Object.hasOwn(automationMap, automation.trigger)) {
-      automationMap[automation.trigger] = [];
+  for (let i = 0; i < triggers.length; i++) {
+    const trigger = triggers[i];
+    if (!Object.hasOwn(triggersMap, trigger.trigger)) {
+      triggersMap[trigger.trigger] = [];
     }
 
-    if (automationMap[automation.trigger].includes(automation.blueprintId)) {
+    if (triggersMap[trigger.trigger].includes(trigger.automationId)) {
       duplicates.push(i);
     } else {
-      automationMap[automation.trigger].push(automation.blueprintId);
+      triggersMap[trigger.trigger].push(trigger.automationId);
     }
   }
   return duplicates.length > 0 ? duplicates : undefined;

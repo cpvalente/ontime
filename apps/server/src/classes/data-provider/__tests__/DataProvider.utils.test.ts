@@ -39,8 +39,8 @@ describe('safeMerge', () => {
       enabledAutomations: false,
       enabledOscIn: false,
       oscPortIn: 8000,
-      automations: [],
-      blueprints: {},
+      triggers: [],
+      automations: {},
     },
   } as DatabaseModel;
 
@@ -127,8 +127,8 @@ describe('safeMerge', () => {
         enabledAutomations: false,
         enabledOscIn: false,
         oscPortIn: 8000,
-        automations: [],
-        blueprints: {},
+        triggers: [],
+        automations: {},
       },
     } as DatabaseModel;
 

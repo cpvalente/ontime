@@ -1,4 +1,4 @@
-import { DatabaseModel, AutomationSettings, Automation, NormalisedAutomationBlueprint } from 'ontime-types';
+import { DatabaseModel, AutomationSettings, NormalisedAutomation, Trigger } from 'ontime-types';
 
 import { dbModel } from '../../models/dataModel.js';
 import type { ErrorEmitter } from '../../utils/parser.js';
@@ -24,8 +24,8 @@ export function parseAutomationSettings(data: LegacyData, emitError?: ErrorEmitt
         enabledAutomations: dbModel.automation.enabledAutomations,
         enabledOscIn: data.osc?.enabledIn ?? dbModel.automation.enabledOscIn,
         oscPortIn: data.osc?.portIn ?? dbModel.automation.oscPortIn,
-        automations: [],
-        blueprints: {},
+        triggers: [],
+        automations: {},
       };
     } else {
       return { ...dbModel.automation };
@@ -42,17 +42,17 @@ export function parseAutomationSettings(data: LegacyData, emitError?: ErrorEmitt
     enabledAutomations: data.automation.enabledAutomations ?? dbModel.automation.enabledAutomations,
     enabledOscIn: data.automation.enabledOscIn ?? dbModel.automation.enabledOscIn,
     oscPortIn: data.automation.oscPortIn ?? dbModel.automation.oscPortIn,
+    triggers: parseTriggers(data.automation.triggers),
     automations: parseAutomations(data.automation.automations),
-    blueprints: parseBlueprints(data.automation.blueprints),
   };
 }
 
-function parseAutomations(maybeAutomations: unknown): Automation[] {
+function parseTriggers(maybeAutomations: unknown): Trigger[] {
   if (!Array.isArray(maybeAutomations)) return [];
-  return maybeAutomations as Automation[];
+  return maybeAutomations as Trigger[];
 }
 
-function parseBlueprints(maybeBlueprint: unknown): NormalisedAutomationBlueprint {
-  if (typeof maybeBlueprint !== 'object' || maybeBlueprint === null) return {};
-  return maybeBlueprint as NormalisedAutomationBlueprint;
+function parseAutomations(maybeAutomation: unknown): NormalisedAutomation {
+  if (typeof maybeAutomation !== 'object' || maybeAutomation === null) return {};
+  return maybeAutomation as NormalisedAutomation;
 }

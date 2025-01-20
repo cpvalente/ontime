@@ -62,7 +62,7 @@ export default function AutomationSettingsForm(props: AutomationSettingsProps) {
             variant='ontime-filled'
             size='sm'
             type='submit'
-            form='automation-form'
+            form='automation-settings-form'
             isDisabled={!canSubmit}
             isLoading={isSubmitting}
           >
@@ -87,7 +87,7 @@ export default function AutomationSettingsForm(props: AutomationSettingsProps) {
 
       <Panel.Section
         as='form'
-        id='automation-form'
+        id='automation-settings-form'
         onSubmit={handleSubmit(onSubmit)}
         onKeyDown={(event) => preventEscape(event, onReset)}
       >

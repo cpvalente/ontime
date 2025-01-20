@@ -3,27 +3,27 @@ import { IconButton } from '@chakra-ui/react';
 import { IoPencil } from '@react-icons/all-files/io5/IoPencil';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { IoWarningOutline } from '@react-icons/all-files/io5/IoWarningOutline';
-import { NormalisedAutomationBlueprint, TimerLifeCycle } from 'ontime-types';
+import { NormalisedAutomation, TimerLifeCycle } from 'ontime-types';
 
 import Tag from '../../../../common/components/tag/Tag';
 import * as Panel from '../../panel-utils/PanelUtils';
 
-import AutomationForm from './AutomationForm';
 import { cycles } from './automationUtils';
+import AutomationForm from './TriggerForm';
 
-interface AutomationsListItemProps {
-  blueprints: NormalisedAutomationBlueprint;
+interface TriggersListItemProps {
+  automations: NormalisedAutomation;
   id: string;
   title: string;
   trigger: TimerLifeCycle;
-  blueprintId: string;
+  automationId: string;
   duplicate?: boolean;
   handleDelete: () => void;
   postSubmit: () => void;
 }
 
-export default function AutomationsListItem(props: AutomationsListItemProps) {
-  const { blueprints, id, title, trigger, blueprintId, duplicate, handleDelete, postSubmit } = props;
+export default function TriggersListItem(props: TriggersListItemProps) {
+  const { automations, id, title, trigger, automationId, duplicate, handleDelete, postSubmit } = props;
   const [isEditing, setIsEditing] = useState(false);
 
   if (isEditing) {
@@ -31,11 +31,11 @@ export default function AutomationsListItem(props: AutomationsListItemProps) {
       <tr>
         <td colSpan={99}>
           <AutomationForm
-            blueprints={blueprints}
+            automations={automations}
             initialId={id}
             initialTitle={title}
             initialTrigger={trigger}
-            initialBlueprint={blueprintId}
+            initialAutomationId={automationId}
             onCancel={() => setIsEditing(false)}
             postSubmit={() => {
               setIsEditing(false);
@@ -47,7 +47,6 @@ export default function AutomationsListItem(props: AutomationsListItemProps) {
     );
   }
 
-  const blueprintTitle = blueprints?.[blueprintId]?.title;
   return (
     <tr data-warn={duplicate}>
       <Panel.InlineElements as='td' relation='inner'>
@@ -62,7 +61,7 @@ export default function AutomationsListItem(props: AutomationsListItemProps) {
         <Tag>{cycles.find((cycle) => cycle.value === trigger)?.label}</Tag>
       </td>
       <td>
-        <Tag>{blueprintTitle}</Tag>
+        <Tag>{automations?.[automationId]?.title}</Tag>
       </td>
       <Panel.InlineElements align='end' relation='inner' as='td'>
         <IconButton

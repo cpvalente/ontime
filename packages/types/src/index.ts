@@ -18,17 +18,17 @@ export { TimerType } from './definitions/TimerType.type.js';
 
 // ---> Automations
 export type {
-  AutomationSettings,
-  AutomationBlueprint,
-  AutomationBlueprintDTO,
   Automation,
   AutomationDTO,
   AutomationFilter,
+  AutomationSettings,
   AutomationOutput,
   FilterRule,
   HTTPOutput,
-  NormalisedAutomationBlueprint,
+  NormalisedAutomation,
   OSCOutput,
+  Trigger,
+  TriggerDTO,
 } from './definitions/core/Automation.type.js';
 
 // ---> Project Data

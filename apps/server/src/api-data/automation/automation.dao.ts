@@ -1,11 +1,4 @@
-import type {
-  Automation,
-  AutomationBlueprint,
-  AutomationBlueprintDTO,
-  AutomationDTO,
-  AutomationSettings,
-  NormalisedAutomationBlueprint,
-} from 'ontime-types';
+import type { Automation, AutomationDTO, AutomationSettings, NormalisedAutomation, Trigger, TriggerDTO } from 'ontime-types';
 import { deleteAtIndex, generateId } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -25,19 +18,22 @@ export function getAutomationsEnabled(): boolean {
 }
 
 /**
+ * Gets a copy of the stored automation triggers
+ */
+export function getAutomationTriggers(): Trigger[] {
+  return getAutomationSettings().triggers;
+}
+
+/**
  * Gets a copy of the stored automations
  */
-export function getAutomations(): Automation[] {
+export function getAutomations(): NormalisedAutomation {
   return getAutomationSettings().automations;
 }
 
 /**
- * Gets a copy of the stored blueprints
+ * Patches the automation settings object
  */
-export function getBlueprints(): NormalisedAutomationBlueprint {
-  return getAutomationSettings().blueprints;
-}
-
 export function editAutomationSettings(settings: Partial<AutomationSettings>): AutomationSettings {
   saveChanges(settings);
   return getAutomationSettings();
@@ -46,105 +42,105 @@ export function editAutomationSettings(settings: Partial<AutomationSettings>): A
 /**
  * Adds a validated automation to the store
  */
-export function addAutomation(newAutomation: AutomationDTO): Automation {
-  const automations = getAutomations();
-  const id = getUniqueAutomationId(automations);
-  const automation = { ...newAutomation, id };
-  automations.push(automation);
-  saveChanges({ automations });
-  return automation;
+export function addTrigger(newTrigger: TriggerDTO): Trigger {
+  const triggers = getAutomationTriggers();
+  const id = getUniqueTriggerId(triggers);
+  const trigger = { ...newTrigger, id };
+  triggers.push(trigger);
+  saveChanges({ triggers });
+  return trigger;
 }
 
 /**
- * Patches an existing automation
+ * Patches an existing automation trigger
  */
-export function editAutomation(id: string, newAutomation: AutomationDTO): Automation {
-  const automations = getAutomations();
-  const index = automations.findIndex((automation) => automation.id === id);
+export function editTrigger(id: string, newTrigger: TriggerDTO): Trigger {
+  const triggers = getAutomationTriggers();
+  const index = triggers.findIndex((trigger) => trigger.id === id);
 
   if (index === -1) {
     throw new Error(`Automation with id ${id} not found`);
   }
 
-  automations[index] = { ...automations[index], ...newAutomation };
-  saveChanges({ automations });
-  return automations[index];
+  triggers[index] = { ...triggers[index], ...newTrigger };
+  saveChanges({ triggers });
+  return triggers[index];
 }
 
 /**
- * Deletes an automation given its ID
+ * Deletes an automation trigger given its ID
  */
-export function deleteAutomation(id: string): void {
-  let automations = getAutomations();
-  const index = automations.findIndex((automation) => automation.id === id);
+export function deleteTrigger(id: string): void {
+  let triggers = getAutomationTriggers();
+  const index = triggers.findIndex((trigger) => trigger.id === id);
 
   if (index === -1) {
     throw new Error(`Automation with id ${id} not found`);
   }
 
-  automations = deleteAtIndex(index, automations);
-  saveChanges({ automations });
+  triggers = deleteAtIndex(index, triggers);
+  saveChanges({ triggers });
 }
 
 /**
- * Deletes all project automations
+ * Deletes all project automation triggers
  */
-export function deleteAllAutomations(): void {
-  saveChanges({ automations: [] });
+export function deleteAllTriggers(): void {
+  saveChanges({ triggers: [] });
 }
 
 /**
- * Deletes all project automations and blueprints
+ * Deletes all project automation triggers and automations
  * We do this together to avoid issues with missing references
  */
 export function deleteAll(): void {
-  saveChanges({ automations: [], blueprints: {} });
+  saveChanges({ triggers: [], automations: {} });
 }
 
 /**
- * Adds a validated blueprint to the store
+ * Adds a validated automation to the store
  */
-export function addBlueprint(newBlueprint: Omit<AutomationBlueprint, 'id'>): AutomationBlueprint {
-  const blueprints = getBlueprints();
-  const id = getUniqueBlueprintId(blueprints);
-  blueprints[id] = { ...newBlueprint, id };
-  saveChanges({ blueprints });
-  return blueprints[id];
+export function addAutomation(newAutomation: AutomationDTO): Automation {
+  const automations = getAutomations();
+  const id = getUniqueAutomationId(automations);
+  automations[id] = { ...newAutomation, id };
+  saveChanges({ automations });
+  return automations[id];
 }
 
 /**
- * Updates an existing blueprint with a new entry
+ * Updates an existing automation with a new entry
  */
-export function editBlueprint(id: string, newBlueprint: AutomationBlueprintDTO): AutomationBlueprint {
-  const blueprints = getBlueprints();
-  if (!Object.hasOwn(blueprints, id)) {
-    throw new Error(`Blueprint with id ${id} not found`);
+export function editAutomation(id: string, newAutomation: AutomationDTO): Automation {
+  const automations = getAutomations();
+  if (!Object.hasOwn(automations, id)) {
+    throw new Error(`Automation with id ${id} not found`);
   }
 
-  blueprints[id] = { ...newBlueprint, id };
-  saveChanges({ blueprints });
-  return blueprints[id];
+  automations[id] = { ...newAutomation, id };
+  saveChanges({ automations });
+  return automations[id];
 }
 
 /**
- * Deletes a blueprint given its ID
+ * Deletes a automation given its ID
  */
-export function deleteBlueprint(id: string): void {
-  const blueprints = getBlueprints();
-  // ignore request if blueprint does not exist
-  if (!Object.hasOwn(blueprints, id)) {
+export function deleteAutomation(id: string): void {
+  const automations = getAutomations();
+  // ignore request if automation does not exist
+  if (!Object.hasOwn(automations, id)) {
     return;
   }
-  // prevent deleting a blueprint that is in use
-  const automations = getAutomations();
-  for (let i = 0; i < automations.length; i++) {
-    const automation = automations[i];
-    if (automation.blueprintId === id) {
-      throw new Error(`Unable to delete blueprint used in automation ${automation.title}`);
+  // prevent deleting a automation that is in use
+  const triggers = getAutomationTriggers();
+  for (let i = 0; i < triggers.length; i++) {
+    const trigger = triggers[i];
+    if (trigger.automationId === id) {
+      throw new Error(`Unable to delete automation used in trigger ${trigger.title}`);
     }
   }
-  delete blueprints[id];
-  saveChanges({ blueprints });
+  delete automations[id];
+  saveChanges({ automations });
 }
 
 /**
@@ -161,14 +157,14 @@ async function saveChanges(patch: Partial<AutomationSettings>) {
 /**
  * Returns an ID guaranteed to be unique in an array
  */
-function getUniqueAutomationId(automations: Automation[]): string {
+function getUniqueTriggerId(triggers: Trigger[]): string {
   let id = '';
   do {
     id = generateId();
   } while (isInArray(id));
 
   function isInArray(id: string): boolean {
-    return automations.some((automation) => automation.id === id);
+    return triggers.some((trigger) => trigger.id === id);
   }
   return id;
 }
@@ -176,10 +172,10 @@ function getUniqueAutomationId(automations: Automation[]): string {
 /**
  * Returns an ID guaranteed to be unique in an objects keys
  */
-function getUniqueBlueprintId(blueprints: NormalisedAutomationBlueprint): string {
+function getUniqueAutomationId(automations: NormalisedAutomation): string {
   let id = '';
   do {
     id = generateId();
-  } while (Object.hasOwn(blueprints, id));
+  } while (Object.hasOwn(automations, id));
   return id;
 }

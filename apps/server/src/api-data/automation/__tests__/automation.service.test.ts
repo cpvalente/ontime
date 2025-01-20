@@ -3,7 +3,7 @@ import { PlayableEvent, TimerLifeCycle } from 'ontime-types';
 import { makeRuntimeStateData } from '../../../stores/__mocks__/runtimeState.mocks.js';
 import { makeOntimeEvent } from '../../../services/rundown-service/__mocks__/rundown.mocks.js';
 
-import { deleteAllAutomations, addAutomation, addBlueprint } from '../automation.dao.js';
+import { deleteAllTriggers, addTrigger, addAutomation } from '../automation.dao.js';
 import { testConditions, triggerAutomations } from '../automation.service.js';
 import * as oscClient from '../clients/osc.client.js';
 import * as httpClient from '../clients/http.client.js';
@@ -17,8 +17,8 @@ beforeAll(() => {
       enabledAutomations: true,
       enabledOscIn: true,
       oscPortIn: 8888,
-      automations: [],
-      blueprints: {},
+      triggers: [],
+      automations: {},
     };
     return {
       getDataProvider: vi.fn().mockImplementation(() => {
@@ -43,28 +43,28 @@ describe('triggerAction()', () => {
     oscSpy = vi.spyOn(oscClient, 'emitOSC').mockImplementation(() => {});
     httpSpy = vi.spyOn(httpClient, 'emitHTTP').mockImplementation(() => {});
 
-    deleteAllAutomations();
-    const oscBlueprint = addBlueprint({
+    deleteAllTriggers();
+    const oscAutomation = addAutomation({
       title: 'test-osc',
       filterRule: 'all',
       filters: [],
       outputs: [makeOSCAction()],
     });
-    const httpBlueprint = addBlueprint({
+    const httpAutomation = addAutomation({
       title: 'test-http',
       filterRule: 'any',
       filters: [],
       outputs: [makeHTTPAction()],
     });
-    addAutomation({
+    addTrigger({
       title: 'test-osc',
       trigger: TimerLifeCycle.onLoad,
-      blueprintId: oscBlueprint.id,
+      automationId: oscAutomation.id,
     });
-    addAutomation({
+    addTrigger({
       title: 'test-http',
       trigger: TimerLifeCycle.onFinish,
-      blueprintId: httpBlueprint.id,
+      automationId: httpAutomation.id,
     });
   });
 

@@ -1,5 +1,5 @@
 import {
-  AutomationBlueprint,
+  Automation,
   AutomationFilter,
   AutomationOutput,
   HTTPOutput,
@@ -28,11 +28,36 @@ export const validateAutomationSettings = [
   body('enabledAutomations').exists().isBoolean(),
   body('enabledOscIn').exists().isBoolean(),
   body('oscPortIn').exists().isPort(),
-  body('automations').optional().isArray(),
-  body('automations.*.title').optional().isString().trim(),
-  body('automations.*.trigger').optional().isIn(timerLifecycleValues),
-  body('automations.*.blueprintId').optional().isString().trim(),
-  body('blueprints').optional().custom(parseBluePrint),
+  body('triggers').optional().isArray(),
+  body('triggers.*.title').optional().isString().trim(),
+  body('triggers.*.trigger').optional().isIn(timerLifecycleValues),
+  body('triggers.*.automationId').optional().isString().trim(),
+  body('automations').optional().custom(parseAutomation),
+
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
+
+export const validateTrigger = [
+  body('title').exists().isString().trim(),
+  body('trigger').exists().isIn(timerLifecycleValues),
+  body('automationId').exists().isString().trim(),
+
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
+
+export const validateTriggerPatch = [
+  param('id').exists(),
+  body('title').optional().isString().trim(),
+  body('trigger').optional().isIn(timerLifecycleValues),
+  body('automationId').optional().isString().trim(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -42,9 +67,7 @@ export const validateAutomationSettings = [
 ];
 
 export const validateAutomation = [
-  body('title').exists().isString().trim(),
-  body('trigger').exists().isIn(timerLifecycleValues),
-  body('blueprintId').exists().isString().trim(),
+  body().custom(parseAutomation),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -55,30 +78,7 @@ export const validateAutomation = [
 
 export const validateAutomationPatch = [
   param('id').exists(),
-  body('title').optional().isString().trim(),
-  body('trigger').optional().isIn(timerLifecycleValues),
-  body('blueprintId').optional().isString().trim(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
-
-export const validateBlueprint = [
-  body().custom(parseBluePrint),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
-
-export const validateBlueprintPatch = [
-  param('id').exists(),
-  body().custom(parseBluePrint),
+  body().custom(parseAutomation),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -88,17 +88,17 @@ export const validateBlueprintPatch = [
 ];
 
 /**
- * Parses and validates a use given blueprint
+ * Parses and validates a use given automation
  */
-export function parseBluePrint(maybeBlueprint: unknown): AutomationBlueprint {
-  assert.isObject(maybeBlueprint);
-  assert.hasKeys(maybeBlueprint, ['title', 'filterRule', 'filters', 'outputs']);
+export function parseAutomation(maybeAutomation: unknown): Automation {
+  assert.isObject(maybeAutomation);
+  assert.hasKeys(maybeAutomation, ['title', 'filterRule', 'filters', 'outputs']);
 
-  const { title, filterRule, filters, outputs } = maybeBlueprint;
+  const { title, filterRule, filters, outputs } = maybeAutomation;
   assert.isString(title);
   assert.isString(filterRule);
   if (!isFilterRule(filterRule)) {
-    throw new Error(`Invalid blueprint: unknown filter rule ${filterRule}`);
+    throw new Error(`Invalid automation: unknown filter rule ${filterRule}`);
   }
   assert.isArray(filters);
   validateFilters(filters);
@@ -106,7 +106,7 @@ export function parseBluePrint(maybeBlueprint: unknown): AutomationBlueprint {
   assert.isArray(outputs);
   validateOutput(outputs);
 
-  return maybeBlueprint as AutomationBlueprint;
+  return maybeAutomation as Automation;
 }
 
 function validateFilters(filters: Array<unknown>): filters is AutomationFilter[] {
@@ -119,7 +119,7 @@ function validateFilters(filters: Array<unknown>): filters is AutomationFilter[]
     assert.isString(operator);
     assert.isString(value);
     if (!isFilterOperator(operator)) {
-      throw new Error(`Invalid blueprint: unknown filter operator ${operator}`);
+      throw new Error(`Invalid automation: unknown filter operator ${operator}`);
     }
 
     if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {

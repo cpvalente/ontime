@@ -35,7 +35,7 @@ export const dbModel: DatabaseModel = {
     enabledAutomations: true,
     enabledOscIn: true,
     oscPortIn: 8888,
-    automations: [],
-    blueprints: {},
+    triggers: [],
+    automations: {},
   },
 };

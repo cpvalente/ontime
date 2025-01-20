@@ -13,7 +13,7 @@ import { isOntimeCloud } from '../../externals.js';
 
 import { emitOSC } from './clients/osc.client.js';
 import { emitHTTP } from './clients/http.client.js';
-import { getAutomations, getAutomationsEnabled, getBlueprints } from './automation.dao.js';
+import { getAutomationsEnabled, getAutomations, getAutomationTriggers } from './automation.dao.js';
 
 /**
  * Exposes a method for triggering actions based on a TimerLifeCycle event
@@ -23,25 +23,25 @@ export function triggerAutomations(event: TimerLifeCycle, state: RuntimeState) {
     return;
   }
 
-  const automations = getAutomations();
-  const triggerAutomations = automations.filter((automation) => automation.trigger === event);
+  const triggers = getAutomationTriggers();
+  const triggerAutomations = triggers.filter((trigger) => trigger.trigger === event);
   if (triggerAutomations.length === 0) {
     return;
   }
 
-  const blueprints = getBlueprints();
-  if (Object.keys(blueprints).length === 0) {
+  const automations = getAutomations();
+  if (Object.keys(automations).length === 0) {
     return;
   }
 
-  triggerAutomations.forEach((automation) => {
-    const blueprint = blueprints[automation.blueprintId];
-    if (!blueprint) {
+  triggerAutomations.forEach((trigger) => {
+    const automation = automations[trigger.automationId];
+    if (!automation) {
       return;
     }
-    const shouldSend = testConditions(blueprint.filters, blueprint.filterRule, state);
+    const shouldSend = testConditions(automation.filters, automation.filterRule, state);
     if (shouldSend) {
-      send(blueprint.outputs, state);
+      send(automation.outputs, state);
     }
   });
 }

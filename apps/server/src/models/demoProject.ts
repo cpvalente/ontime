@@ -454,7 +454,7 @@ export const demoDb: DatabaseModel = {
     enabledAutomations: false,
     enabledOscIn: true,
     oscPortIn: 8888,
-    automations: [],
-    blueprints: {},
+    triggers: [],
+    automations: {},
   },
 };

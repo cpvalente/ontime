@@ -1,24 +1,24 @@
 import express from 'express';
 
 import {
+  deleteTrigger,
   deleteAutomation,
-  deleteBlueprint,
-  editBlueprint,
+  editAutomation,
   getAutomationSettings,
+  postTrigger,
   postAutomation,
-  postBlueprint,
-  putAutomation,
+  putTrigger,
   postAutomationSettings,
   testOutput,
 } from './automation.controller.js';
 import {
   paramContainsId,
+  validateAutomationSettings,
   validateAutomation,
   validateAutomationPatch,
-  validateAutomationSettings,
-  validateBlueprint,
-  validateBlueprintPatch,
   validateTestPayload,
+  validateTrigger,
+  validateTriggerPatch,
 } from './automation.validation.js';
 
 export const router = express.Router();
@@ -26,12 +26,12 @@ export const router = express.Router();
 router.get('/', getAutomationSettings);
 router.post('/', validateAutomationSettings, postAutomationSettings);
 
-router.post('/automation', validateAutomation, postAutomation);
-router.put('/automation/:id', validateAutomationPatch, putAutomation);
-router.delete('/automation/:id', paramContainsId, deleteAutomation);
+router.post('/trigger', validateTrigger, postTrigger);
+router.put('/trigger/:id', validateTriggerPatch, putTrigger);
+router.delete('/trigger/:id', paramContainsId, deleteTrigger);
 
-router.post('/blueprint', validateBlueprint, postBlueprint);
-router.put('/blueprint/:id', validateBlueprintPatch, editBlueprint);
-router.delete('/blueprint/:id', paramContainsId, deleteBlueprint);
+router.post('/automation', validateAutomation, postAutomation);
+router.put('/automation/:id', validateAutomationPatch, editAutomation);
+router.delete('/automation/:id', paramContainsId, deleteAutomation);
 
 router.post('/test', validateTestPayload, testOutput);
