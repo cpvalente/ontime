@@ -1,5 +1,5 @@
 import { getErrorMessage } from 'ontime-utils';
-import { Automation, AutomationBlueprint, AutomationOutput, AutomationSettings, ErrorResponse } from 'ontime-types';
+import { Automation, AutomationOutput, AutomationSettings, ErrorResponse, Trigger } from 'ontime-types';
 
 import type { Request, Response } from 'express';
 
@@ -18,8 +18,8 @@ export function postAutomationSettings(req: Request, res: Response<AutomationSet
       enabledAutomations: req.body.enabledAutomations,
       enabledOscIn: req.body.enabledOscIn,
       oscPortIn: req.body.oscPortIn,
+      triggers: req.body.triggers ?? undefined,
       automations: req.body.automations ?? undefined,
-      blueprints: req.body.blueprints ?? undefined,
     });
     if (automationSettings.enabledOscIn) {
       oscServer.init(automationSettings.oscPortIn);
@@ -33,12 +33,12 @@ export function postAutomationSettings(req: Request, res: Response<AutomationSet
   }
 }
 
-export function postAutomation(req: Request, res: Response<Automation | ErrorResponse>) {
+export function postTrigger(req: Request, res: Response<Trigger | ErrorResponse>) {
   try {
-    const automation = automationDao.addAutomation({
+    const automation = automationDao.addTrigger({
       title: req.body.title,
       trigger: req.body.trigger,
-      blueprintId: req.body.blueprintId,
+      automationId: req.body.automationId,
     });
     res.status(201).send(automation);
   } catch (error) {
@@ -47,15 +47,55 @@ export function postAutomation(req: Request, res: Response<Automation | ErrorRes
   }
 }
 
-export function putAutomation(req: Request, res: Response<Automation | ErrorResponse>) {
+export function putTrigger(req: Request, res: Response<Trigger | ErrorResponse>) {
   try {
     // body payload is a patch object
-    const automation = automationDao.editAutomation(req.params.id, {
+    const automation = automationDao.editTrigger(req.params.id, {
       title: req.body.title ?? undefined,
       trigger: req.body.trigger ?? undefined,
-      blueprintId: req.body.blueprintId ?? undefined,
+      automationId: req.body.automationId ?? undefined,
     });
     res.status(200).send(automation);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+}
+
+export function deleteTrigger(req: Request, res: Response<void | ErrorResponse>) {
+  try {
+    automationDao.deleteTrigger(req.params.id);
+    res.status(204).send();
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+}
+
+export function postAutomation(req: Request, res: Response<Automation | ErrorResponse>) {
+  try {
+    const newAutomation = automationDao.addAutomation({
+      title: req.body.title,
+      filterRule: req.body.filterRule,
+      filters: req.body.filters,
+      outputs: req.body.outputs,
+    });
+    res.status(201).send(newAutomation);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+}
+
+export function editAutomation(req: Request, res: Response<Automation | ErrorResponse>) {
+  try {
+    const newAutomation = automationDao.editAutomation(req.params.id, {
+      title: req.body.title,
+      filterRule: req.body.filterRule,
+      filters: req.body.filters,
+      outputs: req.body.outputs,
+    });
+    res.status(200).send(newAutomation);
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });
@@ -65,46 +105,6 @@ export function putAutomation(req: Request, res: Response<Automation | ErrorResp
 export function deleteAutomation(req: Request, res: Response<void | ErrorResponse>) {
   try {
     automationDao.deleteAutomation(req.params.id);
-    res.status(204).send();
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-}
-
-export function postBlueprint(req: Request, res: Response<AutomationBlueprint | ErrorResponse>) {
-  try {
-    const newBlueprint = automationDao.addBlueprint({
-      title: req.body.title,
-      filterRule: req.body.filterRule,
-      filters: req.body.filters,
-      outputs: req.body.outputs,
-    });
-    res.status(201).send(newBlueprint);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-}
-
-export function editBlueprint(req: Request, res: Response<AutomationBlueprint | ErrorResponse>) {
-  try {
-    const newBlueprint = automationDao.editBlueprint(req.params.id, {
-      title: req.body.title,
-      filterRule: req.body.filterRule,
-      filters: req.body.filters,
-      outputs: req.body.outputs,
-    });
-    res.status(200).send(newBlueprint);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-}
-
-export function deleteBlueprint(req: Request, res: Response<void | ErrorResponse>) {
-  try {
-    automationDao.deleteBlueprint(req.params.id);
     res.status(204).send();
   } catch (error) {
     const message = getErrorMessage(error);

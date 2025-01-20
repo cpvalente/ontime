@@ -4,33 +4,33 @@ export type AutomationSettings = {
   enabledAutomations: boolean;
   enabledOscIn: boolean;
   oscPortIn: number;
-  automations: Automation[];
-  blueprints: NormalisedAutomationBlueprint;
+  triggers: Trigger[];
+  automations: NormalisedAutomation;
 };
 
-type BlueprintId = string;
+type AutomationId = string;
 export type FilterRule = 'all' | 'any';
 
-export type AutomationBlueprint = {
-  id: BlueprintId;
+export type Automation = {
+  id: AutomationId;
   title: string;
   filterRule: FilterRule;
   filters: AutomationFilter[];
   outputs: AutomationOutput[];
 };
 
-export type AutomationBlueprintDTO = Omit<AutomationBlueprint, 'id'>;
+export type AutomationDTO = Omit<Automation, 'id'>;
 
-export type NormalisedAutomationBlueprint = Record<BlueprintId, AutomationBlueprint>;
+export type NormalisedAutomation = Record<AutomationId, Automation>;
 
-export type Automation = {
+export type Trigger = {
   id: string;
   title: string;
   trigger: TimerLifeCycle;
-  blueprintId: BlueprintId;
+  automationId: AutomationId;
 };
 
-export type AutomationDTO = Omit<Automation, 'id'>;
+export type TriggerDTO = Omit<Trigger, 'id'>;
 
 export type AutomationFilter = {
   field: string; // this should be a key of a OntimeEvent + custom fields

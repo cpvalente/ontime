@@ -1,11 +1,11 @@
 import axios from 'axios';
 import type {
   Automation,
-  AutomationBlueprint,
-  AutomationBlueprintDTO,
   AutomationDTO,
   AutomationOutput,
   AutomationSettings,
+  Trigger,
+  TriggerDTO,
 } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
@@ -31,6 +31,29 @@ export async function editAutomationSettings(
 }
 
 /**
+ * HTTP request to create a new automation trigger
+ */
+export async function addTrigger(trigger: TriggerDTO): Promise<Trigger> {
+  const res = await axios.post(`${automationsPath}/trigger`, trigger);
+  return res.data;
+}
+
+/**
+ * HTTP request to update an automation trigger
+ */
+export async function editTrigger(id: string, trigger: Trigger): Promise<Trigger> {
+  const res = await axios.put(`${automationsPath}/trigger/${id}`, trigger);
+  return res.data;
+}
+
+/**
+ * HTTP request to delete an automation trigger
+ */
+export function deleteTrigger(id: string): Promise<void> {
+  return axios.delete(`${automationsPath}/trigger/${id}`);
+}
+
+/**
  * HTTP request to create a new automation
  */
 export async function addAutomation(automation: AutomationDTO): Promise<Automation> {
@@ -39,7 +62,7 @@ export async function addAutomation(automation: AutomationDTO): Promise<Automati
 }
 
 /**
- * HTTP request to update an automation
+ * HTTP request to update a automation
  */
 export async function editAutomation(id: string, automation: Automation): Promise<Automation> {
   const res = await axios.put(`${automationsPath}/automation/${id}`, automation);
@@ -47,33 +70,10 @@ export async function editAutomation(id: string, automation: Automation): Promis
 }
 
 /**
- * HTTP request to delete an automation
+ * HTTP request to delete a automation
  */
 export function deleteAutomation(id: string): Promise<void> {
   return axios.delete(`${automationsPath}/automation/${id}`);
-}
-
-/**
- * HTTP request to create a new blueprint
- */
-export async function addBlueprint(blueprint: AutomationBlueprintDTO): Promise<AutomationBlueprint> {
-  const res = await axios.post(`${automationsPath}/blueprint`, blueprint);
-  return res.data;
-}
-
-/**
- * HTTP request to update a blueprint
- */
-export async function editBlueprint(id: string, blueprint: AutomationBlueprint): Promise<AutomationBlueprint> {
-  const res = await axios.put(`${automationsPath}/blueprint/${id}`, blueprint);
-  return res.data;
-}
-
-/**
- * HTTP request to delete a blueprint
- */
-export function deleteBlueprint(id: string): Promise<void> {
-  return axios.delete(`${automationsPath}/blueprint/${id}`);
 }
 
 /**

@@ -5,13 +5,13 @@ import * as Panel from '../../panel-utils/PanelUtils';
 
 import AutomationSettingsForm from './AutomationSettingsForm';
 import AutomationsList from './AutomationsList';
-import BlueprintsList from './BlueprintsList';
+import TriggersList from './TriggersList';
 
 export default function AutomationPanel({ location }: PanelBaseProps) {
   const { data, status } = useAutomationSettings();
   const settingsRef = useScrollIntoView<HTMLDivElement>('settings', location);
-  const automationRef = useScrollIntoView<HTMLDivElement>('automations', location);
-  const blueprintsRef = useScrollIntoView<HTMLDivElement>('blueprints', location);
+  const triggersRef = useScrollIntoView<HTMLDivElement>('triggers', location);
+  const automationsRef = useScrollIntoView<HTMLDivElement>('automations', location);
 
   const isLoading = status === 'pending';
 
@@ -27,11 +27,11 @@ export default function AutomationPanel({ location }: PanelBaseProps) {
             oscPortIn={data.oscPortIn}
           />
         </div>
-        <div ref={automationRef}>
-          <AutomationsList automations={data.automations} blueprints={data.blueprints} />
+        <div ref={triggersRef}>
+          <TriggersList triggers={data.triggers} automations={data.automations} />
         </div>
-        <div ref={blueprintsRef}>
-          <BlueprintsList blueprints={data.blueprints} />
+        <div ref={automationsRef}>
+          <AutomationsList automations={data.automations} />
         </div>
       </Panel.Section>
     </>

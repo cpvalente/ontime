@@ -440,8 +440,8 @@
     "enabledAutomations": false,
     "enabledOscIn": true,
     "oscPortIn": 8888,
-    "automations": [],
-    "blueprints": {}
+    "triggers": [],
+    "automations": {}
   },
   "customFields": {
     "song": {

@@ -1,16 +1,16 @@
-import { AutomationBlueprint, AutomationBlueprintDTO, AutomationDTO, TimerLifeCycle } from 'ontime-types';
+import { TriggerDTO, TimerLifeCycle, AutomationDTO, Automation } from 'ontime-types';
 
 import {
+  addTrigger,
   addAutomation,
-  addBlueprint,
   deleteAll,
-  deleteAllAutomations,
+  deleteAllTriggers,
+  deleteTrigger,
   deleteAutomation,
-  deleteBlueprint,
+  editTrigger,
   editAutomation,
-  editBlueprint,
+  getAutomationTriggers,
   getAutomations,
-  getBlueprints,
 } from '../automation.dao.js';
 import { makeOSCAction, makeHTTPAction } from './testUtils.js';
 
@@ -21,8 +21,8 @@ beforeAll(() => {
       enabledAutomations: true,
       enabledOscIn: true,
       oscPortIn: 8888,
-      automations: [],
-      blueprints: {},
+      triggers: [],
+      automations: {},
     };
     return {
       getDataProvider: vi.fn().mockImplementation(() => {
@@ -39,117 +39,117 @@ afterAll(() => {
   vi.clearAllMocks();
 });
 
-describe('addAutomations()', () => {
+describe('addTrigger()', () => {
   beforeEach(() => {
-    deleteAllAutomations();
+    deleteAllTriggers();
   });
 
   it('should accept a valid automation', () => {
-    const testData: AutomationDTO = {
+    const testData: TriggerDTO = {
       title: 'test',
       trigger: TimerLifeCycle.onLoad,
-      blueprintId: 'test-blueprint-id',
+      automationId: 'test-automation-id',
     };
 
-    const automation = addAutomation(testData);
-    expect(automation).toMatchObject(testData);
+    const trigger = addTrigger(testData);
+    expect(trigger).toMatchObject(testData);
   });
 });
 
-describe('editAutomation()', () => {
+describe('editTrigger()', () => {
   beforeEach(() => {
-    deleteAllAutomations();
-    addAutomation({
+    deleteAllTriggers();
+    addTrigger({
       title: 'test-osc',
       trigger: TimerLifeCycle.onLoad,
-      blueprintId: 'test-osc-blueprint',
+      automationId: 'test-osc-automation',
     });
-    addAutomation({
+    addTrigger({
       title: 'test-http',
       trigger: TimerLifeCycle.onFinish,
-      blueprintId: 'test-http-blueprint',
+      automationId: 'test-http-automation',
     });
   });
 
   it('should edit the contents of an automation', () => {
-    const automations = getAutomations();
-    const firstAutomation = automations[0];
-    expect(firstAutomation).toMatchObject({ id: expect.any(String), title: 'test-osc' });
+    const triggers = getAutomationTriggers();
+    const fistTrigger = triggers[0];
+    expect(fistTrigger).toMatchObject({ id: expect.any(String), title: 'test-osc' });
 
-    const editedOSC = editAutomation(firstAutomation.id, {
+    const editedOSC = editTrigger(fistTrigger.id, {
       title: 'edited-title',
       trigger: TimerLifeCycle.onDanger,
-      blueprintId: 'test-osc-blueprint',
+      automationId: 'test-osc-automation',
     });
 
     expect(editedOSC).toMatchObject({
       id: expect.any(String),
       title: 'edited-title',
       trigger: TimerLifeCycle.onDanger,
-      blueprintId: 'test-osc-blueprint',
+      automationId: 'test-osc-automation',
     });
   });
 });
 
-describe('deleteAutomation()', () => {
+describe('deleteTrigger()', () => {
   beforeEach(() => {
-    deleteAllAutomations();
-    addAutomation({
+    deleteAllTriggers();
+    addTrigger({
       title: 'test-osc',
       trigger: TimerLifeCycle.onLoad,
-      blueprintId: 'test-osc-blueprint',
+      automationId: 'test-osc-automation',
     });
-    addAutomation({
+    addTrigger({
       title: 'test-http',
       trigger: TimerLifeCycle.onFinish,
-      blueprintId: 'test-http-blueprint',
+      automationId: 'test-http-automation',
     });
   });
 
   it('should remove an automation from the list', () => {
-    const automations = getAutomations();
-    expect(automations.length).toEqual(2);
-    const firstAutomation = automations[0];
-    expect(firstAutomation).toMatchObject({ id: expect.any(String), title: 'test-osc' });
+    const triggers = getAutomationTriggers();
+    expect(triggers.length).toEqual(2);
+    const fistTrigger = triggers[0];
+    expect(fistTrigger).toMatchObject({ id: expect.any(String), title: 'test-osc' });
 
-    deleteAutomation(firstAutomation.id);
-    const removed = getAutomations();
+    deleteTrigger(fistTrigger.id);
+    const removed = getAutomationTriggers();
     expect(removed.length).toEqual(1);
     expect(removed[0].title).not.toEqual('test-osc');
   });
 });
 
-describe('addBlueprint()', () => {
+describe('addAutomation()', () => {
   beforeEach(() => {
     deleteAll();
   });
 
-  it('should accept a valid blueprint', () => {
-    const testData: AutomationBlueprintDTO = {
+  it('should accept a valid automation', () => {
+    const testData: AutomationDTO = {
       title: 'test',
       filterRule: 'all',
       filters: [],
       outputs: [makeOSCAction(), makeHTTPAction()],
     };
 
-    const blueprint = addBlueprint(testData);
-    const blueprints = getBlueprints();
-    expect(blueprints[blueprint.id]).toMatchObject(testData);
+    const automation = addAutomation(testData);
+    const automations = getAutomations();
+    expect(automations[automation.id]).toMatchObject(testData);
   });
 });
 
-describe('editBlueprint()', () => {
-  // saving the ID of the added blueprint
-  let firstBlueprint: AutomationBlueprint;
+describe('editAutomation()', () => {
+  // saving the ID of the added automation
+  let firstAutomation: Automation;
   beforeEach(() => {
     deleteAll();
-    firstBlueprint = addBlueprint({
+    firstAutomation = addAutomation({
       title: 'test-osc',
       filterRule: 'all',
       filters: [],
       outputs: [],
     });
-    addBlueprint({
+    addAutomation({
       title: 'test-http',
       filterRule: 'all',
       filters: [],
@@ -157,18 +157,18 @@ describe('editBlueprint()', () => {
     });
   });
 
-  it('should edit the contents of a blueprint', () => {
-    const blueprints = getBlueprints();
-    expect(Object.keys(blueprints).length).toEqual(2);
-    expect(blueprints[firstBlueprint.id]).toMatchObject({
-      id: firstBlueprint.id,
+  it('should edit the contents of an automation', () => {
+    const automations = getAutomations();
+    expect(Object.keys(automations).length).toEqual(2);
+    expect(automations[firstAutomation.id]).toMatchObject({
+      id: firstAutomation.id,
       title: 'test-osc',
       filterRule: 'all',
       filters: expect.any(Array),
       outputs: expect.any(Array),
     });
 
-    const editedOSC = editBlueprint(firstBlueprint.id, {
+    const editedOSC = editAutomation(firstAutomation.id, {
       title: 'edited-title',
       filterRule: 'any',
       filters: [],
@@ -176,7 +176,7 @@ describe('editBlueprint()', () => {
     });
 
     expect(editedOSC).toMatchObject({
-      id: firstBlueprint.id,
+      id: firstAutomation.id,
       title: 'edited-title',
       filterRule: 'any',
       filters: expect.any(Array),
@@ -185,12 +185,12 @@ describe('editBlueprint()', () => {
   });
 });
 
-describe('deleteBlueprint()', () => {
-  // saving the ID of the added blueprint
-  let firstBlueprint: AutomationBlueprint;
+describe('deleteAutomation()', () => {
+  // saving the ID of the added automation
+  let firstAutomation: Automation;
   beforeEach(() => {
     deleteAll();
-    firstBlueprint = addBlueprint({
+    firstAutomation = addAutomation({
       title: 'test-osc',
       filterRule: 'all',
       filters: [],
@@ -198,35 +198,35 @@ describe('deleteBlueprint()', () => {
     });
   });
 
-  it('should remove a blueprint from the list', () => {
-    const blueprints = getBlueprints();
-    expect(Object.keys(blueprints).length).toEqual(1);
+  it('should remove m automation from the list', () => {
+    const automations = getAutomations();
+    expect(Object.keys(automations).length).toEqual(1);
 
-    deleteBlueprint(Object.keys(blueprints)[0]);
-    const removed = getBlueprints();
+    deleteAutomation(Object.keys(automations)[0]);
+    const removed = getAutomations();
     expect(Object.keys(removed).length).toEqual(0);
   });
 
-  it('should not remove a blueprint which is in use', () => {
-    const blueprints = getBlueprints();
-    addAutomation({
+  it('should not remove an automation which is in use', () => {
+    const automations = getAutomations();
+    addTrigger({
       title: 'test-automation',
       trigger: TimerLifeCycle.onLoad,
-      blueprintId: firstBlueprint.id,
+      automationId: firstAutomation.id,
     });
 
-    const blueprintKeys = Object.keys(blueprints);
-    const blueprintId = blueprintKeys[0];
-    expect(blueprintId).toEqual(firstBlueprint.id);
-    expect(blueprintKeys.length).toEqual(1);
-    expect(blueprints[blueprintId]).toMatchObject({
-      id: blueprintId,
+    const automationKeys = Object.keys(automations);
+    const automationId = automationKeys[0];
+    expect(automationId).toEqual(firstAutomation.id);
+    expect(automationKeys.length).toEqual(1);
+    expect(automations[automationId]).toMatchObject({
+      id: automationId,
       title: 'test-osc',
       filterRule: 'all',
       filters: expect.any(Array),
       outputs: expect.any(Array),
     });
 
-    expect(() => deleteBlueprint(blueprintId)).toThrowError();
+    expect(() => deleteAutomation(automationId)).toThrowError();
   });
 });
