@@ -1,6 +1,7 @@
 import { MaybeNumber } from 'ontime-types';
 
 import { getProgress } from '../../utils/getProgress';
+import { cx } from '../../utils/styleUtils';
 
 import './MultiPartProgressBar.scss';
 
@@ -37,9 +38,12 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
 
   return (
     <div
-      className={`multiprogress-bar ${hidden ? 'multiprogress-bar--hidden' : ''} ${
-        ignoreCssOverride ? 'multiprogress-bar--ignore-css-override' : ''
-      } ${className}`}
+      className={cx([
+        'multiprogress-bar',
+        hidden && 'multiprogress-bar--hidden',
+        ignoreCssOverride && 'multiprogress-bar--ignore-css-override',
+        className,
+      ])}
     >
       {now !== null && (
         <>

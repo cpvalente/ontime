@@ -11,18 +11,11 @@
   font-family: var(--font-family-override, $viewer-font-family);
   background: var(--background-color-override, $viewer-background-color);
   color: var(--color-override, $viewer-color);
-  gap: min(2vh, 16px);
-  padding: min(2vh, 16px) clamp(16px, 10vw, 64px);
+  gap: $view-element-gap;
+  padding: $view-outer-padding;
 
-  display: grid;
-  grid-template-columns: 100%;
-  grid-template-rows: auto 1fr auto auto auto;
-  grid-template-areas:
-    'clock'
-    'timer'
-    'progress'
-    'now'
-    'next';
+  display: flex;
+  flex-direction: column;
 
   &--finished {
     outline: clamp(4px, 1vw, 16px) solid $timer-finished-color;
@@ -48,19 +41,18 @@
   /* =================== CLOCK ===================*/
 
   .clock-container {
-    grid-area: clock;
     margin-left: auto;
     font-weight: 600;
     transition: opacity $viewer-transition-time;
 
     .label {
-      font-size: clamp(16px, 1.5vw, 24px);
+      font-size: $timer-label-size;
       color: var(--label-color-override, $viewer-label-color);
       text-transform: uppercase;
     }
 
     .clock {
-      font-size: clamp(32px, 3.5vw, 50px);
+      font-size: $timer-value-size;
       color: var(--secondary-color-override, $viewer-secondary-color);
       letter-spacing: 0.05em;
       line-height: 0.95em;
@@ -75,8 +67,8 @@
 
   .event {
     background-color: var(--card-background-color-override, $viewer-card-bg-color);
-    padding: 16px 24px;
-    border-radius: 8px;
+    padding: $view-card-padding;
+    border-radius: $element-border-radius;
 
     &.now {
       grid-area: now;
@@ -90,7 +82,8 @@
   /* =================== MAIN ===================*/
 
   .timer-container {
-    grid-area: timer;
+    flex: 1;
+    align-content: center;
     justify-self: center;
     align-self: center;
 
@@ -134,14 +127,14 @@
     overflow: hidden;
     text-overflow: ellipsis;
 
-    margin-top: 0.25em;
-    padding-block: 0.25em;
+    margin-top: 0.125em;
+    padding-block: 0.125em;
 
     font-weight: 600;
     text-align: center;
     color: var(--external-color-override, $external-color);
     letter-spacing: 0.5px;
-    line-height: 0.9em;
+    line-height: 1em;
     transition-property: opacity, height;
     transition-duration: $viewer-transition-time;
     border-top: 1px solid color-mix(in srgb, var(--external-color-override, $external-color) 10%, transparent);
@@ -153,7 +146,6 @@
   }
 
   .progress-container {
-    grid-area: progress;
     width: 100%;
     margin: 0 auto;
     opacity: 1;
@@ -195,10 +187,11 @@
     font-weight: 600;
   }
 
+  /* =================== LOGO ===================*/
   .logo {
     position: absolute;
-    top: 2vw;
-    left: 2vw;
+    top: min(2vh, 16px);
+    left: min(2vw, 16px);
     max-width: min(200px, 20vw);
     max-height: min(100px, 20vh);
   }
