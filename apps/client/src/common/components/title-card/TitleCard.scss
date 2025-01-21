@@ -1,10 +1,12 @@
 @use '../../../theme/viewerDefs' as *;
 
+$title-primary-size: clamp(1.5rem, 3vw, 3rem);
+$title-secondary-size: clamp(1rem, 2vw, 2.25rem);
+
 .title-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
 }
 
 .title-card__title,
@@ -16,13 +18,13 @@
 
 .title-card__title {
   font-weight: 600;
-  font-size: clamp(1.5rem, 3vw, 3rem);
+  font-size: $title-primary-size;
   color: var(--color-override, $viewer-color);
   line-height: 1.2em;
 }
 
 .title-card__secondary {
-  font-size: clamp(1rem, 2vw, 2.25rem);
+  font-size: $title-secondary-size;
   color: var(--secondary-color-override, $viewer-secondary-color);
   line-height: 1.2em;
 }
@@ -31,7 +33,7 @@
   position: absolute;
   right: 1rem;
   top: 0.5rem;
-  font-size: clamp(1rem, 1.5vw, 1.5rem);
+  font-size: $timer-label-size;
   color: var(--secondary-color-override, $viewer-secondary-color);
   margin-left: auto;
   text-transform: uppercase;

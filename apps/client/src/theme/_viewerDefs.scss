@@ -21,6 +21,11 @@ $viewer-secondary-color: rgba(white, 45%); // --secondary-color-override
 $viewer-card-bg-color: rgba(white, 7%); // --card-background-color-override
 $element-border-radius: 8px;
 
+// Generic element sizes
+$view-element-gap: min(2vh, 16px);
+$view-outer-padding: min(2vh, 16px) clamp(16px, 2vw, 24px);
+$view-card-padding: min(2vh, 8px) clamp(16px, 2vw, 24px);
+
 // Properties related to timer
 $timer-color: rgba(white, 80%); // --timer-color-override
 $timer-finished-color: $playback-negative;
@@ -30,4 +35,4 @@ $external-color: rgba(white, 85%); // --external-color-override
 
 // properties of other timers (clock and countdown)
 $timer-label-size: clamp(16px, 1.5vw, 24px);
-$timer-value-size: clamp(2rem, 3.5vw, 3.5rem);
+$timer-value-size: clamp(32px, 3.5vw, 50px);

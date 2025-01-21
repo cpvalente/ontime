@@ -59,6 +59,7 @@ export default function Timer(props: TimerProps) {
     hideCards,
     hideProgress,
     hideMessage,
+    hideExternal,
     hideTimerSeconds,
     removeLeadingZeros,
     mainSource,
@@ -66,6 +67,7 @@ export default function Timer(props: TimerProps) {
   } = useTimerOptions();
 
   const { getLocalizedString } = useTranslation();
+  const localisedMinutes = getLocalizedString('common.minutes');
 
   useWindowTitle('Timer');
 
@@ -91,7 +93,7 @@ export default function Timer(props: TimerProps) {
   const totalTime = getTotalTime(time.duration, time.addedTime);
   const clock = formatTime(time.clock);
   const stageTimer = getTimerByType(viewSettings.freezeEnd, time);
-  const display = getFormattedTimer(stageTimer, time.timerType, getLocalizedString('common.minutes'), {
+  const display = getFormattedTimer(stageTimer, time.timerType, localisedMinutes, {
     removeSeconds: hideTimerSeconds,
     removeLeadingZero: removeLeadingZeros,
   });
@@ -99,14 +101,15 @@ export default function Timer(props: TimerProps) {
   const secondaryContent = getSecondaryDisplay(
     message,
     auxTimer.current,
-    getLocalizedString('common.minutes'),
+    localisedMinutes,
     hideTimerSeconds,
     removeLeadingZeros,
+    hideExternal,
   );
 
   // gather presentation styles
   const timerColour = getTimerColour(viewSettings, showWarning, showDanger);
-  const { timerFontSize, externalFontSize } = getEstimatedFontSize(display, Boolean(secondaryContent));
+  const { timerFontSize, externalFontSize } = getEstimatedFontSize(display, secondaryContent);
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
@@ -124,7 +127,7 @@ export default function Timer(props: TimerProps) {
       <div className={cx(['blackout', message.timer.blackout && 'blackout--active'])} />
 
       {!hideMessage && (
-        <div className={cx(['message-overlay', showOverlay && ' message-overlay--active'])}>
+        <div className={cx(['message-overlay', showOverlay && 'message-overlay--active'])}>
           <FitText mode='multi' min={32} max={256} className={cx(['message', message.timer.blink && 'blink'])}>
             {message.timer.text}
           </FitText>
@@ -140,7 +143,9 @@ export default function Timer(props: TimerProps) {
 
       <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
         {showEndMessage ? (
-          <div className='end-message'>{viewSettings.endMessage}</div>
+          <FitText mode='multi' min={64} max={256} className='end-message'>
+            {viewSettings.endMessage}
+          </FitText>
         ) : (
           <div
             className={cx(['timer', !isPlaying && 'timer--paused', showFinished && 'timer--finished'])}
