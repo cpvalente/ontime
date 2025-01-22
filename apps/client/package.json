@@ -76,7 +76,7 @@
     "eslint-plugin-react": "^7.32.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^8.0.0",
-    "jsdom": "^21.1.0",
+    "happy-dom": "^16.7.2",
     "ontime-types": "workspace:*",
     "ontime-utils": "workspace:*",
     "prettier": "catalog:",
