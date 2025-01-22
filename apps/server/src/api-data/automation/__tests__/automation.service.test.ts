@@ -112,6 +112,26 @@ describe('testConditions()', () => {
       const result = testConditions([{ field: 'eventNow.title', operator: 'equals', value: '' }], 'all', mockStore);
       expect(result).toBe(true);
     });
+
+    it('should handle trueness boolean comparisons', () => {
+      const mockStore = makeRuntimeStateData({ eventNow: { countToEnd: true } as PlayableEvent });
+      expect(
+        testConditions([{ field: 'eventNow.countToEnd', operator: 'equals', value: 'true' }], 'all', mockStore),
+      ).toBe(true);
+      expect(
+        testConditions([{ field: 'eventNow.countToEnd', operator: 'equals', value: 'false' }], 'all', mockStore),
+      ).toBe(false);
+    });
+
+    it('should handle falseness boolean comparisons', () => {
+      const mockStore = makeRuntimeStateData({ eventNow: { countToEnd: false } as PlayableEvent });
+      expect(
+        testConditions([{ field: 'eventNow.countToEnd', operator: 'equals', value: 'false' }], 'all', mockStore),
+      ).toBe(true);
+      expect(
+        testConditions([{ field: 'eventNow.countToEnd', operator: 'equals', value: 'true' }], 'all', mockStore),
+      ).toBe(false);
+    });
   });
 
   describe('not_equals operator', () => {
