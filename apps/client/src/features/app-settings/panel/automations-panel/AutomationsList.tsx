@@ -77,7 +77,9 @@ export default function AutomationsList(props: AutomationsListProps) {
         </thead>
         <tbody>
           {arrayAutomations.length === 0 && (
-            <Panel.TableEmpty handleClick={() => setAutomationFormData(automationPlaceholder)} />
+            <Panel.TableEmpty
+              handleClick={!automationFormData ? () => setAutomationFormData(automationPlaceholder) : undefined}
+            />
           )}
           {arrayAutomations.map((automationId) => {
             if (!Object.hasOwn(automations, automationId)) {
