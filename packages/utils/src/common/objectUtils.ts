@@ -1,7 +1,7 @@
 /**
  * Extracts a value from a nested object using a dot-separated path
  */
-export function getPropertyFromPath<T extends object>(path: string, obj: T): any | undefined {
+export function getPropertyFromPath<T extends object>(path: string, obj: T): unknown | undefined {
   const keys = path.split('.');
   let result: any = obj;
 

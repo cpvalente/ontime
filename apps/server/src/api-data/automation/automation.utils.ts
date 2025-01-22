@@ -133,3 +133,41 @@ const quickAliases: AliasesDefinition = {
   },
   startedAt: { key: 'timer.startedAt', cb: (value: string) => formatDisplayFromString(value) },
 };
+
+/**
+ * Utility encapsulates logic for comparing two strings which may encode numbers
+ * @example isGreaterThan('10', '5') // true
+ * @example isGreaterThan('5', '10') // false
+ * @example isGreaterThan('Ontime', 'Cool') // false
+ */
+export function isGreaterThan(a: string, b: string): boolean {
+  const aValue = Number(a);
+  const bValue = Number(b);
+
+  // we check if the values encore numbers and compare them
+  if (!isNaN(aValue) && !isNaN(bValue)) {
+    return aValue > bValue;
+  }
+
+  // If either value is not a number, there is no logical comparison to be made
+  return false;
+}
+
+/**
+ * Utility encapsulates logic for comparing two strings which may encode numbers
+ * @example isLessThan('10', '5') // false
+ * @example isLessThan('5', '10') // true
+ * @example isLessThan('Ontime', 'Cool') // false
+ */
+export function isLessThan(a: string, b: string): boolean {
+  const aValue = Number(a);
+  const bValue = Number(b);
+
+  // we check if the values encore numbers and compare them
+  if (!isNaN(aValue) && !isNaN(bValue)) {
+    return aValue < bValue;
+  }
+
+  // If either value is not a number, there is no logical comparison to be made
+  return false;
+}
