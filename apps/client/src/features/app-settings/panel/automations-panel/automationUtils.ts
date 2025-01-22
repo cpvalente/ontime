@@ -1,11 +1,4 @@
-import {
-  Automation,
-  AutomationDTO,
-  CustomFields,
-  OntimeEvent,
-  TimerLifeCycle,
-  Trigger,
-} from 'ontime-types';
+import { Automation, AutomationDTO, CustomFields, TimerLifeCycle, Trigger } from 'ontime-types';
 
 type CycleLabel = {
   id: number;
@@ -33,30 +26,28 @@ export function isAutomation(automation: AutomationDTO | Automation): automation
   return Object.hasOwn(automation, 'id');
 }
 
-export const staticSelectProperties = [
-  { value: 'id', label: 'ID' },
-  { value: 'title', label: 'Title' },
-  { value: 'cue', label: 'Cue' },
-  { value: 'countToEnd', label: 'Count to end' },
-  { value: 'isPublic', label: 'Is public' },
-  { value: 'skip', label: 'Skip' },
-  { value: 'note', label: 'Note' },
-  { value: 'colour', label: 'Colour' },
-  { value: 'endAction', label: 'End action' },
-  { value: 'timerType', label: 'Timer type' },
-  { value: 'timeWarning', label: 'Time warning' },
-  { value: 'timeDanger', label: 'Time danger' },
+const staticSelectProperties = [
+  { value: 'eventNow.id', label: 'ID' },
+  { value: 'eventNow.title', label: 'Title' },
+  { value: 'eventNow.cue', label: 'Cue' },
+  { value: 'eventNow.countToEnd', label: 'Count to end' },
+  { value: 'eventNow.isPublic', label: 'Is public' },
+  { value: 'eventNow.note', label: 'Note' },
+  { value: 'eventNow.colour', label: 'Colour' },
 ];
 
 type SelectableField = {
-  value: keyof OntimeEvent | string; // string for custom fields
+  value: string; // string encodes path in runtime state object
   label: string;
 };
 
 export function makeFieldList(customFields: CustomFields): SelectableField[] {
   return [
     ...staticSelectProperties,
-    ...Object.entries(customFields).map(([key, { label }]) => ({ value: key, label: `Custom: ${label}` })),
+    ...Object.entries(customFields).map(([key, { label }]) => ({
+      value: `eventNow.custom.${key}`,
+      label: `Custom: ${label}`,
+    })),
   ];
 }
 
