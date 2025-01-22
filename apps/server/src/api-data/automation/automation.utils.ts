@@ -79,7 +79,8 @@ export function parseTemplateNested(template: string, state: object, humanReadab
         value = undefined;
       }
     } else {
-      value = getPropertyFromPath(variableName, state);
+      // we cast to string since this will be used in a string context
+      value = getPropertyFromPath(variableName, state) as string;
     }
     if (value !== undefined) {
       parsedTemplate = parsedTemplate.replace(match[0], value);
@@ -140,17 +141,18 @@ const quickAliases: AliasesDefinition = {
  * @example isGreaterThan('5', '10') // false
  * @example isGreaterThan('Ontime', 'Cool') // false
  */
-export function isGreaterThan(a: string, b: string): boolean {
-  const aValue = Number(a);
-  const bValue = Number(b);
-
-  // we check if the values encore numbers and compare them
-  if (!isNaN(aValue) && !isNaN(bValue)) {
-    return aValue > bValue;
+export function isGreaterThan(a: unknown, b: string): boolean {
+  // If either value is not a number, there is no logical comparison to be made
+  if (typeof a !== 'number') {
+    return false;
   }
 
-  // If either value is not a number, there is no logical comparison to be made
-  return false;
+  const bValue = Number(b);
+  if (isNaN(bValue)) {
+    return false;
+  }
+
+  return a > bValue;
 }
 
 /**
@@ -159,15 +161,33 @@ export function isGreaterThan(a: string, b: string): boolean {
  * @example isLessThan('5', '10') // true
  * @example isLessThan('Ontime', 'Cool') // false
  */
-export function isLessThan(a: string, b: string): boolean {
-  const aValue = Number(a);
-  const bValue = Number(b);
-
-  // we check if the values encore numbers and compare them
-  if (!isNaN(aValue) && !isNaN(bValue)) {
-    return aValue < bValue;
+export function isLessThan(a: unknown, b: string): boolean {
+  // If either value is not a number, there is no logical comparison to be made
+  if (typeof a !== 'number') {
+    return false;
   }
 
-  // If either value is not a number, there is no logical comparison to be made
+  const bValue = Number(b);
+  if (isNaN(bValue)) {
+    return false;
+  }
+
+  return a < bValue;
+}
+
+/**
+ * Utility encapsulates logic for comparing two strings which may encode booleans
+ * @example isBooleanEquals(true, 'true') // true
+ * @example isBooleanEquals(true, 'false') // false
+ * @example isBooleanEquals(true, 'something') // false
+ */
+export function isBooleanEquals(a: boolean, b: string): boolean {
+  if (b === 'true') {
+    return a === true;
+  }
+
+  if (b === 'false') {
+    return a === false;
+  }
   return false;
 }

@@ -14,7 +14,7 @@ import { isOntimeCloud } from '../../externals.js';
 import { emitOSC } from './clients/osc.client.js';
 import { emitHTTP } from './clients/http.client.js';
 import { getAutomationsEnabled, getAutomations, getAutomationTriggers } from './automation.dao.js';
-import { isGreaterThan, isLessThan } from './automation.utils.js';
+import { isBooleanEquals, isGreaterThan, isLessThan } from './automation.utils.js';
 
 /**
  * Exposes a method for triggering actions based on a TimerLifeCycle event
@@ -74,12 +74,18 @@ export function testConditions(
 
   function evaluateCondition(filter: AutomationFilter): boolean {
     const { field, operator, value } = filter;
+    const lowerCasedValue = value.toLowerCase();
     const fieldValue = getPropertyFromPath(field, state);
 
     // if value is empty string, the user could be meaning to check if the value does not exist
     // we use loose equality to be able to check for converted values (eg '10' == 10)
     switch (operator) {
       case 'equals':
+        // handle the case where we are comparing boolean strings
+
+        if (typeof fieldValue === 'boolean') {
+          return isBooleanEquals(fieldValue, lowerCasedValue);
+        }
         // overload the edge case where we use empty string to check if a value does not exist
         if (value === '' && fieldValue === undefined) {
           return true;
@@ -88,14 +94,8 @@ export function testConditions(
       case 'not_equals':
         return fieldValue != value;
       case 'greater_than':
-        if (typeof fieldValue !== 'number') {
-          return false;
-        }
         return isGreaterThan(fieldValue, value);
       case 'less_than':
-        if (typeof fieldValue !== 'number') {
-          return false;
-        }
         return isLessThan(fieldValue, value);
       case 'contains':
         return typeof fieldValue === 'string' && fieldValue.includes(value);
