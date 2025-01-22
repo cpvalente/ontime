@@ -27,13 +27,12 @@
 .titleSection,
 .filterSection,
 .oscSection,
-.httpSection,
-.companionSection {
+.httpSection {
   display: grid;
   grid-gap: 0.5rem;
 
   button {
-    align-self: end;
+    align-self: flex-end;
   }
 }
 
@@ -41,10 +40,13 @@
 .ruleSection,
 .filterSection,
 .oscSection,
-.httpSection,
-.companionSection {
-  label {
+.httpSection {
+  label, div {
+    // we use the div as non-interactive placeholder for button cells
+    // it needs to match the size of the label element
     font-size: calc(1rem - 3px);
+  }
+  label {
     color: $label-gray;
   }
 }

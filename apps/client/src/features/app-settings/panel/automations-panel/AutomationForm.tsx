@@ -212,8 +212,10 @@ export default function AutomationForm(props: AutomationFormProps) {
                   {...register(`filters.${index}.field`, { required: { value: true, message: 'Required field' } })}
                   size='sm'
                   variant='ontime'
-                  placeholder='Event field'
                 >
+                  <option selected hidden disabled value=''>
+                    Event field
+                  </option>
                   {fieldList.map(({ value, label }) => (
                     <option key={value} value={value}>
                       {label}
@@ -228,8 +230,10 @@ export default function AutomationForm(props: AutomationFormProps) {
                   {...register(`filters.${index}.operator`, { required: { value: true, message: 'Required field' } })}
                   size='sm'
                   variant='ontime'
-                  placeholder='Operator'
                 >
+                  <option selected hidden disabled value=''>
+                    Operator
+                  </option>
                   <option value='equals'>equals</option>
                   <option value='not_equals'>not equals</option>
                   <option value='contains'>contains</option>
@@ -248,16 +252,21 @@ export default function AutomationForm(props: AutomationFormProps) {
                   autoComplete='off'
                 />
               </label>
-              <IconButton
-                aria-label='Delete'
-                icon={<IoTrash />}
-                variant='ontime-ghosted'
-                size='sm'
-                color='#FA5656' // $red-500
-                onClick={() => removeFilter(index)}
-                isDisabled={false}
-                isLoading={false}
-              />
+              <div>
+                <span>&nbsp;</span>
+                <div>
+                  <IconButton
+                    aria-label='Delete'
+                    icon={<IoTrash />}
+                    variant='ontime-ghosted'
+                    size='sm'
+                    color='#FA5656' // $red-500
+                    onClick={() => removeFilter(index)}
+                    isDisabled={false}
+                    isLoading={false}
+                  />
+                </div>
+              </div>
             </div>
           ))}
           <div>
@@ -354,21 +363,24 @@ export default function AutomationForm(props: AutomationFormProps) {
                     />
                     <Panel.Error>{rowErrors?.args?.message}</Panel.Error>
                   </label>
-                  <Panel.InlineElements relation='inner'>
-                    <Button size='sm' variant='ontime-ghosted' onClick={() => handleTestOSCOutput(index)}>
-                      Test
-                    </Button>
-                    <IconButton
-                      aria-label='Delete'
-                      icon={<IoTrash />}
-                      variant='ontime-ghosted'
-                      size='sm'
-                      onClick={() => removeOutput(index)}
-                      color='#FA5656' // $red-500
-                      isDisabled={false}
-                      isLoading={false}
-                    />
-                  </Panel.InlineElements>
+                  <div>
+                    <span>&nbsp;</span>
+                    <Panel.InlineElements relation='inner'>
+                      <Button size='sm' variant='ontime-ghosted-white' onClick={() => handleTestOSCOutput(index)}>
+                        Test
+                      </Button>
+                      <IconButton
+                        aria-label='Delete'
+                        icon={<IoTrash />}
+                        variant='ontime-ghosted'
+                        size='sm'
+                        onClick={() => removeOutput(index)}
+                        color='#FA5656' // $red-500
+                        isDisabled={false}
+                        isLoading={false}
+                      />
+                    </Panel.InlineElements>
+                  </div>
                 </div>
               </div>
             );
@@ -400,21 +412,24 @@ export default function AutomationForm(props: AutomationFormProps) {
                     />
                     <Panel.Error>{rowErrors?.url?.message}</Panel.Error>
                   </label>
-                  <Panel.InlineElements relation='inner'>
-                    <Button size='sm' variant='ontime-ghosted' onClick={() => handleTestHTTPOutput(index)}>
-                      Test
-                    </Button>
-                    <IconButton
-                      aria-label='Delete'
-                      icon={<IoTrash />}
-                      variant='ontime-ghosted'
-                      size='sm'
-                      onClick={() => removeOutput(index)}
-                      color='#FA5656' // $red-500
-                      isDisabled={false}
-                      isLoading={false}
-                    />
-                  </Panel.InlineElements>
+                  <div>
+                    <span>&nbsp;</span>
+                    <Panel.InlineElements relation='inner'>
+                      <Button size='sm' variant='ontime-ghosted-white' onClick={() => handleTestHTTPOutput(index)}>
+                        Test
+                      </Button>
+                      <IconButton
+                        aria-label='Delete'
+                        icon={<IoTrash />}
+                        variant='ontime-ghosted'
+                        size='sm'
+                        onClick={() => removeOutput(index)}
+                        color='#FA5656' // $red-500
+                        isDisabled={false}
+                        isLoading={false}
+                      />
+                    </Panel.InlineElements>
+                  </div>
                 </div>
               </div>
             );
