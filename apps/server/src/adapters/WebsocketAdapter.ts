@@ -37,7 +37,6 @@ export class SocketServer implements IAdapter {
   private lastConnection: Date | null = null;
   private shouldShowWelcome = true;
 
-  //should we be tacking versions
   private readonly patchClients: Map<string, WebSocket>;
   private readonly keyClients: Map<string, WebSocket>;
 
