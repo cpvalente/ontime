@@ -1,4 +1,4 @@
-import { memo, PropsWithChildren, useRef } from 'react';
+import { memo, PropsWithChildren } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router-dom';
 import {
@@ -19,7 +19,6 @@ import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 
 import { isLocalhost } from '../../../externals';
 import { navigatorConstants } from '../../../viewerConfig';
-import useClickOutside from '../../hooks/useClickOutside';
 import { useElectronEvent } from '../../hooks/useElectronEvent';
 import useInfo from '../../hooks-query/useInfo';
 import { useClientStore } from '../../stores/clientStore';
@@ -48,12 +47,8 @@ function NavigationMenu(props: NavigationMenuProps) {
   const { mirror, toggleMirror } = useViewOptionsStore();
   const location = useLocation();
 
-  const menuRef = useRef<HTMLDivElement | null>(null);
-
-  useClickOutside(menuRef, () => onClose);
-
   return createPortal(
-    <div id='navigation-menu-portal' ref={menuRef}>
+    <div id='navigation-menu-portal'>
       <RenameClientModal id={id} name={name} isOpen={isOpenRename} onClose={onCloseRename} />
       <Drawer placement='left' onClose={onClose} isOpen={isOpen} variant='ontime' data-testid='navigation__menu'>
         <DrawerOverlay />
