@@ -48,6 +48,7 @@ class RuntimeService {
 
   /** last time we updated the socket */
   static previousTimerUpdate: number;
+  static previousRuntimeUpdate: number;
   static previousTimerValue: MaybeNumber; // previous timer value, could be null
   static previousClockUpdate: number;
 
@@ -58,6 +59,7 @@ class RuntimeService {
     this.eventTimer = eventTimer;
 
     RuntimeService.previousTimerUpdate = -1;
+    RuntimeService.previousRuntimeUpdate = -1;
     RuntimeService.previousTimerValue = -1;
     RuntimeService.previousClockUpdate = -1;
     RuntimeService.previousState = {} as RuntimeState;
@@ -678,9 +680,16 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // we do the comparison by explicitly for each property
     // to apply custom logic for different datasets
 
-    const shouldForceTimerUpdate = getForceUpdate(RuntimeService.previousTimerUpdate, state.clock); //FIXME: pause causess an avlache of update if timer is negative
+    const shouldForceTimerUpdate = getForceUpdate(
+      RuntimeService.previousTimerUpdate,
+      state.clock,
+      state.timer.playback,
+    );
+
     const shouldUpdateTimer =
       shouldForceTimerUpdate || getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current);
+
+    const shouldRuntimeUpdate = shouldUpdateTimer || getForceUpdate(RuntimeService.previousRuntimeUpdate, state.clock);
 
     // some changes need an immediate update
     const hasNewLoaded = state.eventNow?.id !== RuntimeService.previousState?.eventNow?.id;
@@ -702,9 +711,13 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       RuntimeService.previousState.timer = { ...state.timer };
     }
 
-    if (hasChangedPlayback || (shouldUpdateTimer && !deepEqual(RuntimeService.previousState?.runtime, state.runtime))) {
+    if (
+      hasChangedPlayback ||
+      (shouldRuntimeUpdate && !deepEqual(RuntimeService.previousState?.runtime, state.runtime))
+    ) {
       eventStore.set('runtime', state.runtime);
       RuntimeService.previousClockUpdate = state.clock;
+      RuntimeService.previousRuntimeUpdate = state.clock;
       eventStore.set('clock', state.clock);
       RuntimeService.previousState.runtime = { ...state.runtime };
     }

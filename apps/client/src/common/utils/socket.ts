@@ -39,7 +39,6 @@ export const connectSocket = () => {
     }
 
     socketSendJson('set-client-type', 'ontime');
-    socketSendJson('set-client-use-patch', 'ontime');
     setOnlineStatus(true);
   };
 
@@ -65,6 +64,7 @@ export const connectSocket = () => {
   websocket.onmessage = (event) => {
     try {
       const data = JSON.parse(event.data);
+
       const { type, payload } = data;
 
       if (!type) {
@@ -139,12 +139,6 @@ export const connectSocket = () => {
           updateDevTools(serverPayload);
           break;
         }
-        case 'ontime-patch': {
-          patchRuntime(payload);
-          updateDevTools(payload);
-          break;
-        }
-        //TODO: remove all other types as they are now patched
         case 'ontime-clock': {
           patchRuntimeProperty('clock', payload);
           updateDevTools({ clock: payload });

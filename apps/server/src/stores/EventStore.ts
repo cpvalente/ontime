@@ -7,7 +7,7 @@ export type StoreGetter = <T extends keyof RuntimeStore>(key: T) => Partial<Runt
 
 let store: Partial<RuntimeStore> = {};
 
-const changedKeys = new Array<keyof RuntimeStore>();
+const changedKeys = new Set<keyof RuntimeStore>();
 let isUpdatePending: NodeJS.Immediate | null = null;
 /**
  * A runtime store that broadcasts its payload
@@ -27,13 +27,16 @@ export const eventStore = {
     store[key] = value;
 
     // check if the key is already marked for and update otherwise push it onto the update array
-    if (!changedKeys.includes(key)) changedKeys.push(key);
+    changedKeys.add(key);
 
     //if there is already and update pending we don't need to schedule another one
     if (!isUpdatePending) {
       isUpdatePending = setImmediate(() => {
-        socket.sendRuntimeStoreUpdate(changedKeys, store);
+        for (const dataKey of changedKeys) {
+          socket.sendAsJson({ type: `ontime-${dataKey}`, payload: store[dataKey] });
+        }
         isUpdatePending = null;
+        changedKeys.clear();
       });
     }
   },
