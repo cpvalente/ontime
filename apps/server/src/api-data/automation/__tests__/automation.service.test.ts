@@ -100,66 +100,88 @@ describe('testConditions()', () => {
     expect(result).toBe(true);
   });
 
-  it('should compare two equal values', () => {
-    const mockStore = makeRuntimeStateData({ clock: 10 });
-    const result = testConditions([{ field: 'clock', operator: 'equals', value: '10' }], 'all', mockStore);
-    expect(result).toBe(true);
+  describe('equals operator', () => {
+    it('should compare two equal values', () => {
+      const mockStore = makeRuntimeStateData({ clock: 10 });
+      const result = testConditions([{ field: 'clock', operator: 'equals', value: '10' }], 'all', mockStore);
+      expect(result).toBe(true);
+    });
+
+    it('should check if a value does not exist', () => {
+      const mockStore = makeRuntimeStateData({ eventNow: null });
+      const result = testConditions([{ field: 'eventNow.title', operator: 'equals', value: '' }], 'all', mockStore);
+      expect(result).toBe(true);
+    });
   });
 
-  it('should check if a value does not exist', () => {
-    const mockStore = makeRuntimeStateData({ eventNow: null });
-    const result = testConditions([{ field: 'eventNow.title', operator: 'equals', value: '' }], 'all', mockStore);
-    expect(result).toBe(true);
+  describe('not_equals operator', () => {
+    it('should check if two values are different', () => {
+      const mockStore = makeRuntimeStateData({ clock: 10 });
+      const result = testConditions([{ field: 'clock', operator: 'not_equals', value: '11' }], 'all', mockStore);
+      expect(result).toBe(true);
+    });
   });
 
-  it('should check if two values are different', () => {
-    const mockStore = makeRuntimeStateData({ clock: 10 });
-    const result = testConditions([{ field: 'clock', operator: 'not_equals', value: '11' }], 'all', mockStore);
-    expect(result).toBe(true);
+  describe('greater_than operator', () => {
+    it('should check if the given value is smaller', () => {
+      const mockStore = makeRuntimeStateData({ clock: 10 });
+      const result = testConditions([{ field: 'clock', operator: 'greater_than', value: '9' }], 'all', mockStore);
+      expect(result).toBe(true);
+    });
+    it('should handle values which are not numbers', () => {
+      const mockStore = makeRuntimeStateData({ clock: 10 });
+      const result = testConditions([{ field: 'clock', operator: 'greater_than', value: 'testing' }], 'all', mockStore);
+      expect(result).toBe(false);
+    });
   });
 
-  it('should check if the given value is smaller', () => {
-    const mockStore = makeRuntimeStateData({ clock: 10 });
-    const result = testConditions([{ field: 'clock', operator: 'greater_than', value: '9' }], 'all', mockStore);
-    expect(result).toBe(true);
+  describe('less_than operator', () => {
+    it('should check if the given value is larger', () => {
+      const mockStore = makeRuntimeStateData({ clock: 10 });
+      const result = testConditions([{ field: 'clock', operator: 'less_than', value: '11' }], 'all', mockStore);
+      expect(result).toBe(true);
+    });
+    it('should handle values which are not numbers', () => {
+      const mockStore = makeRuntimeStateData({ clock: 10 });
+      const result = testConditions([{ field: 'clock', operator: 'less_than', value: 'testing' }], 'all', mockStore);
+      expect(result).toBe(false);
+    });
   });
 
-  it('should check if the given value is larger', () => {
-    const mockStore = makeRuntimeStateData({ clock: 10 });
-    const result = testConditions([{ field: 'clock', operator: 'less_than', value: '11' }], 'all', mockStore);
-    expect(result).toBe(true);
+  describe('contains operator', () => {
+    it('should check if value contains given string', () => {
+      const result = testConditions(
+        [{ field: 'eventNow.title', operator: 'contains', value: 'lighting' }],
+        'all',
+        makeRuntimeStateData({ eventNow: makeOntimeEvent({ title: 'test-lighting' }) as PlayableEvent }),
+      );
+      expect(result).toBe(true);
+
+      const result2 = testConditions(
+        [{ field: 'eventNow.title', operator: 'contains', value: 'sound' }],
+        'all',
+        makeRuntimeStateData({ eventNow: makeOntimeEvent({ title: 'test-lighting' }) as PlayableEvent }),
+      );
+      expect(result2).toBe(false);
+    });
   });
 
-  it('should check if value contains given string', () => {
-    const result = testConditions(
-      [{ field: 'eventNow.title', operator: 'contains', value: 'lighting' }],
-      'all',
-      makeRuntimeStateData({ eventNow: makeOntimeEvent({ title: 'test-lighting' }) as PlayableEvent }),
-    );
-    expect(result).toBe(true);
+  describe('not_contains operator', () => {
+    it('should check if value does not contain given string', () => {
+      const result = testConditions(
+        [{ field: 'eventNow.title', operator: 'not_contains', value: 'lighting' }],
+        'all',
+        makeRuntimeStateData({ eventNow: makeOntimeEvent({ title: 'test-lighting' }) as PlayableEvent }),
+      );
+      expect(result).toBe(false);
 
-    const result2 = testConditions(
-      [{ field: 'eventNow.title', operator: 'contains', value: 'sound' }],
-      'all',
-      makeRuntimeStateData({ eventNow: makeOntimeEvent({ title: 'test-lighting' }) as PlayableEvent }),
-    );
-    expect(result2).toBe(false);
-  });
-
-  it('should check if value does not contain given string', () => {
-    const result = testConditions(
-      [{ field: 'eventNow.title', operator: 'not_contains', value: 'lighting' }],
-      'all',
-      makeRuntimeStateData({ eventNow: makeOntimeEvent({ title: 'test-lighting' }) as PlayableEvent }),
-    );
-    expect(result).toBe(false);
-
-    const result2 = testConditions(
-      [{ field: 'eventNow.title', operator: 'not_contains', value: 'sound' }],
-      'all',
-      makeRuntimeStateData({ eventNow: makeOntimeEvent({ title: 'test-lighting' }) as PlayableEvent }),
-    );
-    expect(result2).toBe(true);
+      const result2 = testConditions(
+        [{ field: 'eventNow.title', operator: 'not_contains', value: 'sound' }],
+        'all',
+        makeRuntimeStateData({ eventNow: makeOntimeEvent({ title: 'test-lighting' }) as PlayableEvent }),
+      );
+      expect(result2).toBe(true);
+    });
   });
 
   describe('for all filter rule', () => {

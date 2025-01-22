@@ -14,6 +14,7 @@ import { isOntimeCloud } from '../../externals.js';
 import { emitOSC } from './clients/osc.client.js';
 import { emitHTTP } from './clients/http.client.js';
 import { getAutomationsEnabled, getAutomations, getAutomationTriggers } from './automation.dao.js';
+import { isGreaterThan, isLessThan } from './automation.utils.js';
 
 /**
  * Exposes a method for triggering actions based on a TimerLifeCycle event
@@ -87,9 +88,15 @@ export function testConditions(
       case 'not_equals':
         return fieldValue != value;
       case 'greater_than':
-        return fieldValue > value;
+        if (typeof fieldValue !== 'number') {
+          return false;
+        }
+        return isGreaterThan(fieldValue, value);
       case 'less_than':
-        return fieldValue < value;
+        if (typeof fieldValue !== 'number') {
+          return false;
+        }
+        return isLessThan(fieldValue, value);
       case 'contains':
         return typeof fieldValue === 'string' && fieldValue.includes(value);
       case 'not_contains':
