@@ -82,9 +82,12 @@ export function testConditions(
     switch (operator) {
       case 'equals':
         // handle the case where we are comparing boolean strings
-
         if (typeof fieldValue === 'boolean') {
           return isBooleanEquals(fieldValue, lowerCasedValue);
+        }
+        // make string comparisons case insensitive
+        if (typeof fieldValue === 'string') {
+          return fieldValue.toLowerCase() === lowerCasedValue;
         }
         // overload the edge case where we use empty string to check if a value does not exist
         if (value === '' && fieldValue === undefined) {
