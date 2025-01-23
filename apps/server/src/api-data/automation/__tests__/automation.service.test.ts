@@ -107,6 +107,16 @@ describe('testConditions()', () => {
       expect(result).toBe(true);
     });
 
+    it('string comparisons should be case insensitive', () => {
+      const mockStore = makeRuntimeStateData({ eventNow: { title: 'Title' } as PlayableEvent });
+      const result = testConditions(
+        [{ field: 'eventNow.title', operator: 'equals', value: 'title' }],
+        'all',
+        mockStore,
+      );
+      expect(result).toBe(true);
+    });
+
     it('should check if a value does not exist', () => {
       const mockStore = makeRuntimeStateData({ eventNow: null });
       const result = testConditions([{ field: 'eventNow.title', operator: 'equals', value: '' }], 'all', mockStore);
