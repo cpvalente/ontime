@@ -237,8 +237,11 @@ export default function AutomationForm(props: AutomationFormProps) {
                   <option value='equals'>equals</option>
                   <option value='not_equals'>not equals</option>
                   <option value='contains'>contains</option>
+                  {/* 
+                  We dont currently offer a data source where these operators would make sense
                   <option value='greater_than'>greater than</option>
-                  <option value='less_than'>less than</option>
+                  <option value='less_than'>less than</option> 
+                  */}
                 </Select>
                 <Panel.Error>{errors.filters?.[index]?.operator?.message}</Panel.Error>
               </label>
