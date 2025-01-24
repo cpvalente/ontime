@@ -9,7 +9,7 @@ import {
   normaliseEndTime,
   skippedOutOfEvent,
 } from '../timerUtils.js';
-import { RuntimeState } from '../../stores/runtimeState.js';
+import type { RuntimeState } from '../../stores/runtimeState.js';
 
 describe('getExpectedFinish()', () => {
   it('is null if we havent started', () => {

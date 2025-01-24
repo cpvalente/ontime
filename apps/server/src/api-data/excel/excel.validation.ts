@@ -1,7 +1,7 @@
 import { isImportMap } from 'ontime-utils';
 
 import { body, validationResult } from 'express-validator';
-import { NextFunction, Request, Response } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 
 export const validateFileExists = [
   (req: Request, res: Response, next: NextFunction) => {

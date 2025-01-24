@@ -1,6 +1,6 @@
 import { MaybeNumber, TimerPhase } from 'ontime-types';
 import { dayInMs, isPlaybackActive } from 'ontime-utils';
-import { RuntimeState } from '../stores/runtimeState.js';
+import type { RuntimeState } from '../stores/runtimeState.js';
 
 /**
  * handle events that span over midnight

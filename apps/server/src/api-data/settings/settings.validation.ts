@@ -1,5 +1,5 @@
 import { body, validationResult } from 'express-validator';
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 
 /**
  * @description Validates object for POST /ontime/settings/welcomedialog

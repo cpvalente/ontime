@@ -22,7 +22,7 @@ import { timerConfig } from '../../config/config.js';
 import { eventStore } from '../../stores/EventStore.js';
 
 import { EventTimer } from '../EventTimer.js';
-import { RestorePoint, restoreService } from '../RestoreService.js';
+import { type RestorePoint, restoreService } from '../RestoreService.js';
 import {
   findNext,
   findPrevious,

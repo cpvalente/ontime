@@ -1,6 +1,6 @@
 import { TimerPhase, Playback } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
-import { RuntimeState } from '../runtimeState.js';
+import type { RuntimeState } from '../runtimeState.js';
 
 const baseState: RuntimeState = {
   clock: 0,

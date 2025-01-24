@@ -21,7 +21,7 @@ import {
 } from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
-import { RestorePoint } from '../services/RestoreService.js';
+import type { RestorePoint } from '../services/RestoreService.js';
 import {
   getCurrent,
   getExpectedEnd,
