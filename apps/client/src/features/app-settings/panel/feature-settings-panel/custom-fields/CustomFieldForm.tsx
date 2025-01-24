@@ -107,14 +107,14 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
       </div>
 
       {errors.root && <Panel.Error>{errors.root.message}</Panel.Error>}
-      <div className={style.buttonRow}>
+      <Panel.InlineElements relation='inner' align='end'>
         <Button size='sm' variant='ontime-ghosted' onClick={onCancel}>
           Cancel
         </Button>
         <Button size='sm' type='submit' variant='ontime-filled' isDisabled={!canSubmit} isLoading={isSubmitting}>
           Save
         </Button>
-      </div>
+      </Panel.InlineElements>
     </form>
   );
 }

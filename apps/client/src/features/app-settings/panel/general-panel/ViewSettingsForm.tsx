@@ -11,8 +11,6 @@ import useInfo from '../../../../common/hooks-query/useInfo';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
 
-import style from './GeneralPanel.module.scss';
-
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
 export default function ViewSettingsForm() {
@@ -71,14 +69,14 @@ export default function ViewSettingsForm() {
       <Panel.Card>
         <Panel.SubHeader>
           View settings
-          <div className={style.actionButtons}>
+          <Panel.InlineElements>
             <Button isDisabled={!isDirty} variant='ontime-ghosted' size='sm' onClick={onReset}>
               Revert to saved
             </Button>
             <Button type='submit' isLoading={isSubmitting} isDisabled={!isDirty} variant='ontime-filled' size='sm'>
               Save
             </Button>
-          </div>
+          </Panel.InlineElements>
         </Panel.SubHeader>
         <Panel.Divider />
         <Alert status='info' variant='ontime-on-dark-info'>

@@ -75,7 +75,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
     <Panel.Section as='form' onSubmit={handleSubmit(handleSubmitCreate)}>
       <Panel.Title>
         Merge {`"${fileName}"`}
-        <div className={style.createActionButtons}>
+        <Panel.InlineElements>
           <Button onClick={onClose} variant='ontime-ghosted' size='sm' isDisabled={isSubmitting}>
             Cancel
           </Button>
@@ -88,7 +88,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
           >
             Merge
           </Button>
-        </div>
+        </Panel.InlineElements>
       </Panel.Title>
       {error && <Panel.Error>{error}</Panel.Error>}
       <Panel.Section className={cx([style.innerColumn, style.inlineLabels])}>

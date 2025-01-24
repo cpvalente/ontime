@@ -100,7 +100,7 @@ export default function ProjectData() {
       <Panel.Card>
         <Panel.SubHeader>
           Project data
-          <div className={style.headerButtons}>
+          <Panel.InlineElements>
             <Button variant='ontime-ghosted' size='sm' onClick={onReset} isDisabled={isSubmitting || !isDirty}>
               Revert to saved
             </Button>
@@ -113,7 +113,7 @@ export default function ProjectData() {
             >
               Save
             </Button>
-          </div>
+          </Panel.InlineElements>
         </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>

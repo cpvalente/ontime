@@ -12,8 +12,6 @@ import * as Panel from '../../panel-utils/PanelUtils';
 import useGoogleSheet from './useGoogleSheet';
 import { useSheetStore } from './useSheetStore';
 
-import style from './SourcesPanel.module.scss';
-
 interface GSheetSetupProps {
   onCancel: () => void;
 }
@@ -176,7 +174,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
       </Panel.ListGroup>
       {!canAuthenticate ? (
         <Panel.ListGroup>
-          <div className={style.buttonRow}>
+          <Panel.InlineElements>
             <Button
               variant='ontime-subtle'
               size='sm'
@@ -187,11 +185,11 @@ export default function GSheetSetup(props: GSheetSetupProps) {
             >
               Connect
             </Button>
-          </div>
+          </Panel.InlineElements>
         </Panel.ListGroup>
       ) : (
         <Panel.ListGroup>
-          <div className={style.buttonRow}>
+          <Panel.InlineElements>
             {isAuthenticating && <Spinner />}
             <CopyTag copyValue={authKey ?? ''} label='Google Auth Key' disabled={!canAuthenticate} size='sm'>
               {authKey ? authKey : 'Upload files to generate Auth Key'}
@@ -205,7 +203,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
             >
               Authenticate
             </Button>
-          </div>
+          </Panel.InlineElements>
         </Panel.ListGroup>
       )}
     </Panel.Section>

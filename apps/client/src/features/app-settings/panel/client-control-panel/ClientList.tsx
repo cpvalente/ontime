@@ -52,7 +52,7 @@ export default function ClientList() {
         <Panel.Table>
           <thead>
             <tr>
-              <td className={style.fullWidth}>Client Name (Connection ID)</td>
+              <td className={style.halfWidth}>Client Name (Connection ID)</td>
               <td className={style.fullWidth}>Path</td>
               <td />
             </tr>
@@ -63,7 +63,7 @@ export default function ClientList() {
               const isCurrent = id === key;
               return (
                 <tr key={key}>
-                  <td className={style.badgeList}>
+                  <Panel.InlineElements relation='inner' as='td'>
                     <Badge variant='outline' size='xs'>
                       {key}
                     </Badge>
@@ -73,9 +73,9 @@ export default function ClientList() {
                       </Badge>
                     )}
                     {name}
-                  </td>
-                  <td className={style.pathList}>{path}</td>
-                  <td className={style.actionButtons}>
+                  </Panel.InlineElements>
+                  <td>{path}</td>
+                  <Panel.InlineElements relation='inner'>
                     <Button
                       size='xs'
                       className={`${identify ? style.blink : ''}`}
@@ -106,7 +106,7 @@ export default function ClientList() {
                     >
                       Redirect
                     </Button>
-                  </td>
+                  </Panel.InlineElements>
                 </tr>
               );
             })}
@@ -119,8 +119,8 @@ export default function ClientList() {
         <Panel.Table>
           <thead>
             <tr>
-              <td className={style.halfWidth}>Client Name (Connection ID)</td>
-              <td className={style.halfWidth}>Client type</td>
+              <td className={style.halfWidthNoWrap}>Client Name (Connection ID)</td>
+              <td className={style.halfWidthNoWrap}>Client type</td>
             </tr>
           </thead>
           <tbody>
@@ -129,12 +129,12 @@ export default function ClientList() {
 
               return (
                 <tr key={key}>
-                  <td className={style.badgeList}>
+                  <Panel.InlineElements relation='inner' as='td'>
                     <Badge variant='outline' size='sx'>
                       {key}
                     </Badge>
                     {name}
-                  </td>
+                  </Panel.InlineElements>
                   <td>{type}</td>
                 </tr>
               );

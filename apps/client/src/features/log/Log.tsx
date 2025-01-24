@@ -3,6 +3,7 @@ import { Button } from '@chakra-ui/react';
 import { LogOrigin } from 'ontime-types';
 
 import { clearLogs, useLogData } from '../../common/stores/logger';
+import * as Panel from '../app-settings/panel-utils/PanelUtils';
 
 import style from './Log.module.scss';
 
@@ -49,7 +50,7 @@ export default function Log() {
 
   return (
     <>
-      <div className={style.buttonBar}>
+      <Panel.InlineElements className={style.buttonBar}>
         <Button
           variant={showUser ? 'ontime-filled' : 'ontime-outlined'}
           size='xs'
@@ -107,7 +108,7 @@ export default function Log() {
         <Button variant='ontime-subtle' size='xs' onClick={clearLogs}>
           Clear
         </Button>
-      </div>
+      </Panel.InlineElements>
       <ul className={style.log}>
         {filteredData.map((logEntry) => (
           <li key={logEntry.id} className={`${style.logEntry} ${style[logEntry.level]} `}>

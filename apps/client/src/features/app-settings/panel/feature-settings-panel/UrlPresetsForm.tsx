@@ -92,14 +92,14 @@ export default function UrlPresetsForm() {
       <Panel.Card>
         <Panel.SubHeader>
           URL presets
-          <div className={style.actionButtons}>
+          <Panel.InlineElements>
             <Button variant='ontime-ghosted' size='sm' onClick={onReset} isDisabled={!canSubmit}>
               Revert to saved
             </Button>
             <Button variant='ontime-filled' size='sm' type='submit' isDisabled={!canSubmit} isLoading={isSubmitting}>
               Save
             </Button>
-          </div>
+          </Panel.InlineElements>
         </Panel.SubHeader>
         <Panel.Divider />
         <Alert status='info' variant='ontime-on-dark-info'>
@@ -192,7 +192,7 @@ export default function UrlPresetsForm() {
                       />
                       <Panel.Error>{maybeUrlError}</Panel.Error>
                     </td>
-                    <td className={style.flex}>
+                    <Panel.InlineElements relation='inner' as='td'>
                       <TooltipActionBtn
                         size='sm'
                         isDisabled={!canTest}
@@ -213,7 +213,7 @@ export default function UrlPresetsForm() {
                         aria-label='Delete entry'
                         data-testid={`field__delete_${index}`}
                       />
-                    </td>
+                    </Panel.InlineElements>
                   </tr>
                 );
               })}

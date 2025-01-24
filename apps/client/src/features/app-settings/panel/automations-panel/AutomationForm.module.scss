@@ -68,16 +68,6 @@
   grid-template-columns: 1fr auto;
 }
 
-.actions {
-  justify-content: flex-end;
-}
-
-.actionButtons {
-  display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
 .outputCard {
   border-left: 0.25rem solid $gray-1200;
   padding-left: 0.5rem;
