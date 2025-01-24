@@ -18,7 +18,7 @@
   flex-direction: column;
 
   &--finished {
-    outline: clamp(4px, 1vw, 16px) solid $timer-finished-color;
+    outline: clamp(4px, 1vw, 16px) solid var(--timer-overtime-color-override, $timer-finished-color);
     outline-offset: calc(clamp(4px, 1vw, 16px) * -1);
     transition: $viewer-transition-time;
   }
@@ -95,7 +95,7 @@
       font-size: 11.5vw;
       line-height: 0.9em;
       font-weight: 600;
-      color: $timer-finished-color;
+      color: var(--timer-overtime-color-override, $timer-finished-color);
       padding: 0;
     }
 
@@ -116,8 +116,16 @@
         transition: $viewer-transition-time;
       }
 
+      // use a class instead of a phase, to allow suppressing overtime style
       &--finished {
-        color: $timer-finished-color;
+        color: var(--timer-overtime-color-override, $timer-finished-color);
+      }
+
+      &[data-phase="warning"] {
+        color: var(--timer-warning-color-override, var(--phase-color));
+      }
+      &[data-phase="danger"] {
+        color: var(--timer-danger-color-override, var(--phase-color));
       }
     }
   }

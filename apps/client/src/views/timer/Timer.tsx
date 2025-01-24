@@ -153,6 +153,7 @@ export default function Timer(props: TimerProps) {
               fontSize: `${timerFontSize}vw`,
               '--phase-color': timerColour,
             }}
+            data-phase={time.phase}
           >
             {display}
           </div>
@@ -175,6 +176,7 @@ export default function Timer(props: TimerProps) {
           warningColor={viewSettings.warningColor}
           danger={eventNow?.timeDanger}
           dangerColor={viewSettings.dangerColor}
+          hideOvertime={!showFinished}
         />
       )}
 

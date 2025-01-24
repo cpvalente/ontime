@@ -53,3 +53,6 @@ $progress-bar-br: 3px;
 .multiprogress-bar__bg-danger {
   flex-shrink: 0;
 }
+.multiprogress-bar__bg-danger--overtime {
+  background: var(--timer-overtime-color-override, $timer-finished-color);
+}
