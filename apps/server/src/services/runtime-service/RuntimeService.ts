@@ -689,31 +689,28 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     const hasImmediateChanges = hasNewLoaded || justStarted || hasChangedPlayback;
 
     const shouldUpdateTimer =
-      hasImmediateChanges ||
-      getForceUpdate(RuntimeService.previousTimerUpdate, state.clock, state.timer.playback) ||
-      getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current);
+      (getForceUpdate(RuntimeService.previousTimerUpdate, state.clock, state.timer.playback) ||
+        getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current)) &&
+      !deepEqual(RuntimeService.previousState?.timer, state.timer);
 
     const shouldRuntimeUpdate =
-      hasImmediateChanges || getShouldTimerUpdate(RuntimeService.previousState.runtime.offset, state.runtime.offset);
+      (shouldUpdateTimer || getForceUpdate(RuntimeService.previousRuntimeUpdate, state.clock)) &&
+      !deepEqual(RuntimeService.previousState?.runtime, state.runtime);
 
     if (hasChangedPlayback) {
       eventStore.set('onAir', state.timer.playback !== Playback.Stop);
     }
 
-    if (shouldUpdateTimer && !deepEqual(RuntimeService.previousState?.timer, state.timer)) {
+    if (hasImmediateChanges || shouldUpdateTimer) {
       RuntimeService.previousTimerUpdate = state.clock;
       RuntimeService.previousTimerValue = state.timer.current;
-      RuntimeService.previousClockUpdate = state.clock;
-      eventStore.set('clock', state.clock);
       eventStore.set('timer', state.timer);
       RuntimeService.previousState.timer = { ...state.timer };
     }
 
-    if (shouldRuntimeUpdate && !deepEqual(RuntimeService.previousState?.runtime, state.runtime)) {
+    if (hasImmediateChanges || shouldRuntimeUpdate) {
       eventStore.set('runtime', state.runtime);
-      RuntimeService.previousClockUpdate = state.clock;
       RuntimeService.previousRuntimeUpdate = state.clock;
-      eventStore.set('clock', state.clock);
       RuntimeService.previousState.runtime = { ...state.runtime };
     }
 
@@ -728,7 +725,8 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       saveRestoreState(state);
     }
 
-    const shouldUpdateClock = getForceUpdate(RuntimeService.previousClockUpdate, state.clock);
+    const shouldUpdateClock =
+      shouldUpdateTimer || shouldRuntimeUpdate || getForceUpdate(RuntimeService.previousClockUpdate, state.clock);
 
     if (shouldUpdateClock) {
       RuntimeService.previousClockUpdate = state.clock;
