@@ -1,6 +1,6 @@
 .drawerFooter {
   display: flex;
-  justify-content: end;  
+  justify-content: end;
   gap: $section-spacing;
 
   button {
@@ -25,39 +25,11 @@
   }
 }
 
-.label {
-  font-size: $inner-section-text-size;
-  color: $label-gray;
+.sectionList {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-}
-
-.section {
-  color: $ui-white;
-  font-size: 1rem;
-
-  &:not(:first-child) {
-    margin-top: 2rem;
-  }
-}
-
-.fieldSet {
-  display: flex;
-  padding: $section-spacing 0;
-  flex-direction: column;
-  gap: $element-spacing;
-  margin-left: 0.5rem;
-}
-
-.title {
-  font-size: $inner-section-text-size;
-  display: block;
-  width: 100%;
-}
-
-.description {
-  font-size: $inner-section-text-size;
-  display: block;
-  color: $modal-note-color;
+  min-height: 100%;
+  gap: 2rem;
+  overflow-y: scroll;
+  padding-right: 0.5rem;
 }

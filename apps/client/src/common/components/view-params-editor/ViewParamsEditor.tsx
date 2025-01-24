@@ -15,8 +15,8 @@ import { IoAlertCircle } from '@react-icons/all-files/io5/IoAlertCircle';
 
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
 
-import ParamInput from './ParamInput';
-import { isSection, ViewOption } from './types';
+import { ViewOption } from './types';
+import ViewParamsSection from './ViewParamsSection';
 
 import style from './ViewParamsEditor.module.scss';
 
@@ -40,15 +40,15 @@ const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj, paramFields: ViewOp
 
   // Convert paramFields to an object that contains default values
   const defaultValues: Record<string, string> = {};
-  paramFields.forEach((option) => {
-    if (!isSection(option)) {
+  paramFields.forEach((section) => {
+    section.options.forEach((option) => {
       defaultValues[option.id] = String(option.defaultValue);
-    }
 
-    // extract persisted values
-    if ('type' in option && option.type === 'persist') {
-      newSearchParams.set(option.id, option.value);
-    }
+      // extract persisted values
+      if ('type' in option && option.type === 'persist') {
+        newSearchParams.set(option.id, option.value);
+      }
+    });
   });
 
   // compare which values are different from the default values
@@ -138,30 +138,15 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
               This view style is being modified by a custom CSS file. <br />
             </div>
           )}
-          <form id='edit-params-form' onSubmit={onParamsFormSubmit}>
-            {viewOptions.map((option) => {
-              if (isSection(option)) {
-                return (
-                  <div key={option.section} className={style.section}>
-                    {option.section}
-                  </div>
-                );
-              }
-
-              if (option.type === 'persist') {
-                return null;
-              }
-
-              return (
-                <div key={option.title} className={style.fieldSet}>
-                  <label className={style.label}>
-                    <span className={style.title}>{option.title}</span>
-                    <span className={style.description}>{option.description}</span>
-                    <ParamInput key={option.title} paramField={option} />
-                  </label>
-                </div>
-              );
-            })}
+          <form id='edit-params-form' onSubmit={onParamsFormSubmit} className={style.sectionList}>
+            {viewOptions.map((section) => (
+              <ViewParamsSection
+                key={section.title}
+                title={section.title}
+                collapsible={section.collapsible}
+                options={section.options}
+              />
+            ))}
           </form>
         </DrawerBody>
 

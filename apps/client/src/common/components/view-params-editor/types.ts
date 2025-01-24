@@ -1,7 +1,3 @@
-type ParamSection = {
-  section: string;
-};
-
 type BaseField = {
   id: string;
   title: string;
@@ -28,11 +24,9 @@ type PersistedField = { type: 'persist'; defaultValue?: string; value: string };
 
 export type ParamField = BaseField &
   (OptionsField | MultiOptionsField | StringField | NumberField | BooleanField | ColourField | PersistedField);
-export type ViewOption = ParamSection | ParamField;
 
-/**
- * Type assertion utility checks whether an entry is a section separator
- */
-export function isSection(entry: ViewOption): entry is ParamSection {
-  return 'section' in entry;
-}
+export type ViewOption = {
+  title: string;
+  options: ParamField[];
+  collapsible?: boolean;
+};
