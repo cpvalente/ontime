@@ -27,4 +27,8 @@ describe('validateTimerType()', () => {
     expect(emptyType).toBe(TimerType.Clock);
     expect(invalidType).toBe(TimerType.CountDown);
   });
+  it('handles a null value from params', () => {
+    const nullType = validateTimerType(null, TimerType.Clock);
+    expect(nullType).toBe(TimerType.Clock);
+  });
 });

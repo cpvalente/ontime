@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { CustomFields, OntimeEvent } from 'ontime-types';
+import { CustomFields, OntimeEvent, TimerType } from 'ontime-types';
+import { validateTimerType } from 'ontime-utils';
 
 import {
   getTimeOption,
@@ -10,6 +11,14 @@ import {
 } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/types';
 import { isStringBoolean } from '../../features/viewers/common/viewUtils';
+
+// manually match the properties of TimerType excluding the None
+const timerDisplayOptions = {
+  'no-overrides': 'No Overrides',
+  'count-up': 'Count up',
+  'count-down': 'Count down',
+  clock: 'Clock',
+};
 
 export const getTimerOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
   const mainOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
@@ -21,6 +30,14 @@ export const getTimerOptions = (timeFormat: string, customFields: CustomFields):
     { section: 'Timer Options' },
     hideTimerSeconds,
     showLeadingZeros,
+    {
+      id: 'timerType',
+      title: 'Timer type',
+      description: 'Override the timer type',
+      type: 'option',
+      values: timerDisplayOptions,
+      defaultValue: 'no-overrides',
+    },
     { section: 'Data sources' },
     {
       id: 'main',
@@ -87,6 +104,7 @@ type TimerOptions = {
   removeLeadingZeros: boolean;
   mainSource: keyof OntimeEvent | null;
   secondarySource: keyof OntimeEvent | null;
+  timerType?: TimerType;
 };
 
 /**
@@ -94,6 +112,7 @@ type TimerOptions = {
  * the names and fallbacks are manually matched with timerOptions
  */
 function getOptionsFromParams(searchParams: URLSearchParams): TimerOptions {
+  const timerType = validateTimerType(searchParams.get('timerType'), TimerType.None);
   // we manually make an object that matches the key above
   return {
     hideClock: isStringBoolean(searchParams.get('hideClock')),
@@ -106,6 +125,9 @@ function getOptionsFromParams(searchParams: URLSearchParams): TimerOptions {
 
     mainSource: searchParams.get('main') as keyof OntimeEvent | null,
     secondarySource: searchParams.get('secondary-src') as keyof OntimeEvent | null,
+
+    // none doesnt make sense as a configuration of the view
+    timerType: timerType === TimerType.None ? undefined : timerType,
   };
 }
 
