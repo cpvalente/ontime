@@ -11,6 +11,7 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import TooltipActionBtn from '../../../../common/components/buttons/TooltipActionBtn';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
+import { preventEscape } from '../../../../common/utils/keyEvent';
 import { handleLinks } from '../../../../common/utils/linkUtils';
 import { validateUrlPresetPath } from '../../../../common/utils/urlPresets';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -88,7 +89,12 @@ export default function UrlPresetsForm() {
   const canSubmit = !isSubmitting && isDirty && isValid;
 
   return (
-    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} data-testid='url-preset-form'>
+    <Panel.Section
+      as='form'
+      onSubmit={handleSubmit(onSubmit)}
+      onKeyDown={(event) => preventEscape(event, onReset)}
+      data-testid='url-preset-form'
+    >
       <Panel.Card>
         <Panel.SubHeader>
           URL presets

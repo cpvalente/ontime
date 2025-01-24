@@ -9,6 +9,7 @@ import { projectLogoPath } from '../../../../common/api/constants';
 import { postProjectData, uploadProjectLogo } from '../../../../common/api/project';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useProjectData from '../../../../common/hooks-query/useProjectData';
+import { preventEscape } from '../../../../common/utils/keyEvent';
 import { validateLogo } from '../../../../common/utils/uploadUtils';
 import { documentationUrl, websiteUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -96,7 +97,7 @@ export default function ProjectData() {
   const isLoading = status === 'pending';
 
   return (
-    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)}>
+    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)}  onKeyDown={(event) => preventEscape(event, onReset)}>
       <Panel.Card>
         <Panel.SubHeader>
           Project data
