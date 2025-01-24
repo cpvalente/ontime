@@ -157,26 +157,6 @@ export function getRuntimeOffset(state: RuntimeState): number {
 }
 
 /**
- * Calculates total duration of a time span
- * @param firstStart
- * @param lastEnd
- * @param daySpan
- * @returns
- */
-export function getTotalDuration(firstStart: number, lastEnd: number, daySpan: number): number {
-  if (!lastEnd) {
-    return 0;
-  }
-  let correctDay = 0;
-  if (lastEnd < firstStart) {
-    correctDay = dayInMs;
-    daySpan -= 1;
-  }
-  // eslint-disable-next-line prettier/prettier -- we like the clarity
-  return lastEnd + correctDay + daySpan * dayInMs - firstStart;
-}
-
-/**
  * Calculates the expected end of the rundown
  */
 export function getExpectedEnd(state: RuntimeState): MaybeNumber {
