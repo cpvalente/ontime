@@ -18,12 +18,13 @@ import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
-import { getFormattedTimer, getPropertyValue, getTimerByType } from '../../features/viewers/common/viewUtils';
+import { getFormattedTimer, getTimerByType } from '../../features/viewers/common/viewUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
 
 import { MotionTitleCard, titleVariants } from './timer.animations';
 import { getTimerOptions, useTimerOptions } from './timer.options';
 import {
+  getCardData,
   getEstimatedFontSize,
   getIsPlaying,
   getSecondaryDisplay,
@@ -84,10 +85,14 @@ export default function Timer(props: TimerProps) {
   const showProgressBar = !hideProgress && getShowProgressBar(time.timerType);
 
   // gather card data
-  const mainFieldNow = getPropertyValue(eventNow, mainSource) ?? eventNow?.title ?? '';
-  const mainFieldNext = getPropertyValue(eventNext, mainSource) ?? eventNext?.title ?? '';
-  const secondaryTextNow = getPropertyValue(eventNow, secondarySource);
-  const secondaryTextNext = getPropertyValue(eventNext, secondarySource);
+  const { showNow, nowMain, nowSecondary, showNext, nextMain, nextSecondary } = getCardData(
+    eventNow,
+    eventNext,
+    mainSource,
+    secondarySource,
+    time.playback,
+    time.phase,
+  );
 
   // gather timer data
   const totalTime = getTotalTime(time.duration, time.addedTime);
@@ -183,7 +188,7 @@ export default function Timer(props: TimerProps) {
       {!hideCards && (
         <>
           <AnimatePresence>
-            {eventNow?.title && (
+            {showNow && (
               <MotionTitleCard
                 className='event now'
                 key='now'
@@ -192,14 +197,14 @@ export default function Timer(props: TimerProps) {
                 animate='visible'
                 exit='exit'
                 label='now'
-                title={mainFieldNow}
-                secondary={secondaryTextNow}
+                title={nowMain}
+                secondary={nowSecondary}
               />
             )}
           </AnimatePresence>
 
           <AnimatePresence>
-            {eventNext?.title && (
+            {showNext && (
               <MotionTitleCard
                 className='event next'
                 key='next'
@@ -208,8 +213,8 @@ export default function Timer(props: TimerProps) {
                 animate='visible'
                 exit='exit'
                 label='next'
-                title={mainFieldNext}
-                secondary={secondaryTextNext}
+                title={nextMain}
+                secondary={nextSecondary}
               />
             )}
           </AnimatePresence>
