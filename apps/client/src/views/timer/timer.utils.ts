@@ -1,6 +1,16 @@
-import { MaybeNumber, MessageState, Playback, TimerMessage, TimerPhase, TimerType, ViewSettings } from 'ontime-types';
+import {
+  MaybeNumber,
+  MessageState,
+  OntimeEvent,
+  Playback,
+  TimerMessage,
+  TimerPhase,
+  TimerType,
+  ViewSettings,
+} from 'ontime-types';
+import { isPlaybackActive } from 'ontime-utils';
 
-import { getFormattedTimer } from '../../features/viewers/common/viewUtils';
+import { getFormattedTimer, getPropertyValue } from '../../features/viewers/common/viewUtils';
 
 /**
  * Whether a message should be shown
@@ -125,4 +135,49 @@ export function getSecondaryDisplay(
     return message.external;
   }
   return;
+}
+
+/**
+ * What should we be showing in the cards?
+ */
+export function getCardData(
+  eventNow: OntimeEvent | null,
+  eventNext: OntimeEvent | null,
+  mainSource: keyof OntimeEvent | null,
+  secondarySource: keyof OntimeEvent | null,
+  playback: Playback,
+  phase: TimerPhase,
+) {
+  if (playback === Playback.Stop) {
+    return {
+      showNow: false,
+      nowMain: undefined,
+      nowSecondary: undefined,
+      showNext: false,
+      nextMain: undefined,
+      nextSecondary: undefined,
+    };
+  }
+
+  // pending roll timers would be classified as active
+  const hasActiveTimer = isPlaybackActive(playback) && phase !== TimerPhase.Pending;
+
+  // if we are loaded, we show the upcoming event as next
+  const nowMain = hasActiveTimer ? getPropertyValue(eventNow, mainSource ?? 'title') : undefined;
+  const nowSecondary = hasActiveTimer ? getPropertyValue(eventNow, secondarySource) : undefined;
+  const nextMain = hasActiveTimer
+    ? getPropertyValue(eventNext, mainSource ?? 'title')
+    : getPropertyValue(eventNow, mainSource ?? 'title');
+  const nextSecondary = hasActiveTimer
+    ? getPropertyValue(eventNext, secondarySource)
+    : getPropertyValue(eventNow, secondarySource);
+
+  return {
+    showNow: Boolean(nowMain) || Boolean(nowSecondary),
+    nowMain,
+    nowSecondary,
+    showNext: Boolean(nextMain) || Boolean(nextSecondary),
+    nextMain,
+    nextSecondary,
+  };
 }

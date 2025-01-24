@@ -5,7 +5,7 @@ import { useTranslation } from '../../../translation/TranslationProvider';
 import './TitleCard.scss';
 
 interface TitleCardProps {
-  title: string;
+  title?: string;
   label?: 'now' | 'next';
   secondary?: string;
   className?: string;
