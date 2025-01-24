@@ -1,3 +1,5 @@
+import { OptionTitle } from './constants';
+
 type BaseField = {
   id: string;
   title: string;
@@ -26,7 +28,7 @@ export type ParamField = BaseField &
   (OptionsField | MultiOptionsField | StringField | NumberField | BooleanField | ColourField | PersistedField);
 
 export type ViewOption = {
-  title: string;
+  title: OptionTitle;
   options: ParamField[];
   collapsible?: boolean;
 };
