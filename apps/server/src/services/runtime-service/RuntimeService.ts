@@ -736,7 +736,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       eventStore.set('clock', state.clock);
     }
 
-    const shouldUpdateClock = getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock);
+    const shouldUpdateClock = getForceUpdate(RuntimeService.previousClockUpdate, state.clock);
 
     if (shouldUpdateClock) {
       RuntimeService.previousClockUpdate = state.clock;
