@@ -1,4 +1,4 @@
-import { MILLIS_PER_HOUR, dayInMs, millisToString } from 'ontime-utils';
+import { dayInMs, millisToString } from 'ontime-utils';
 import { EndAction, Playback, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 
 import {
@@ -6,7 +6,6 @@ import {
   getExpectedFinish,
   getRuntimeOffset,
   getTimerPhase,
-  getTotalDuration,
   normaliseEndTime,
   skippedOutOfEvent,
 } from '../timerUtils.js';
@@ -1044,40 +1043,6 @@ describe('getRuntimeOffset()', () => {
     const offset = getRuntimeOffset(state);
     expect(millisToString(offset)).toBe('-00:16:40');
     expect(offset).toBe(81000000 - 82000000); // <-- planned end - now
-  });
-});
-
-describe('getTotalDuration()', () => {
-  it('calculates the duration of events in a single day', () => {
-    const start = MILLIS_PER_HOUR * 9;
-    const end = MILLIS_PER_HOUR * 17;
-    const daySpan = 0;
-    const duration = getTotalDuration(start, end, daySpan);
-    expect(duration).toBe(MILLIS_PER_HOUR * (17 - 9));
-  });
-
-  it('calculates the duration of events across days', () => {
-    const start = MILLIS_PER_HOUR * 9;
-    const end = MILLIS_PER_HOUR * 17;
-    const daySpan = 1;
-    const duration = getTotalDuration(start, end, daySpan);
-    expect(duration).toBe(MILLIS_PER_HOUR * (17 - 9) + dayInMs);
-  });
-
-  it('calculates the duration of events across days (2)', () => {
-    const start = new Date(0).setHours(12);
-    const end = new Date(0).setHours(8);
-    const daySpan = 1;
-    const duration = getTotalDuration(start, end, daySpan);
-    expect(millisToString(duration)).toBe('20:00:00');
-  });
-
-  it('calculates the duration of events across days (3)', () => {
-    const start = new Date(0).setHours(9);
-    const end = new Date(0).setHours(23);
-    const daySpan = 2;
-    const duration = getTotalDuration(start, end, daySpan);
-    expect(millisToString(duration)).toBe('62:00:00');
   });
 });
 
