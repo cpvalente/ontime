@@ -20,7 +20,7 @@ import { WebSocket, WebSocketServer } from 'ws';
 import type { Server } from 'http';
 
 import getRandomName from '../utils/getRandomName.js';
-import { IAdapter } from './IAdapter.js';
+import type { IAdapter } from './IAdapter.js';
 import { eventStore } from '../stores/EventStore.js';
 import { logger } from '../classes/Logger.js';
 import { dispatchFromAdapter } from '../api-integration/integration.controller.js';

@@ -8,7 +8,7 @@ import {
 } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import {

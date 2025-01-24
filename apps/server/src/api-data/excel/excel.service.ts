@@ -4,7 +4,7 @@
  */
 
 import { CustomFields, OntimeRundown } from 'ontime-types';
-import { ImportMap } from 'ontime-utils';
+import type { ImportMap } from 'ontime-utils';
 
 import { extname } from 'path';
 import { existsSync } from 'fs';

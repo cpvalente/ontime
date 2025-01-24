@@ -3,7 +3,7 @@
  * Google Sheets
  */
 
-import { Request, Response } from 'express';
+import type { Request, Response } from 'express';
 import { generateRundownPreview, listWorksheets, saveExcelFile } from './excel.service.js';
 
 export async function postExcel(req: Request, res: Response) {

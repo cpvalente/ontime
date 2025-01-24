@@ -7,7 +7,7 @@
 import { AuthenticationStatus, CustomFields, LogOrigin, MaybeString, OntimeRundown } from 'ontime-types';
 import { ImportMap, getErrorMessage } from 'ontime-utils';
 
-import { sheets, sheets_v4 } from '@googleapis/sheets';
+import { sheets, type sheets_v4 } from '@googleapis/sheets';
 import { Credentials, OAuth2Client } from 'google-auth-library';
 import got from 'got';
 

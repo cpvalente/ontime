@@ -3,7 +3,7 @@ import { LogOrigin } from 'ontime-types';
 import { fromBuffer } from 'osc-min';
 import * as dgram from 'node:dgram';
 
-import { IAdapter } from './IAdapter.js';
+import type { IAdapter } from './IAdapter.js';
 import { logger } from '../classes/Logger.js';
 import { integrationPayloadFromPath } from './utils/parse.js';
 import { dispatchFromAdapter } from '../api-integration/integration.controller.js';

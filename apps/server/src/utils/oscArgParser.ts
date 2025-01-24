@@ -1,4 +1,4 @@
-import { Argument } from 'node-osc';
+import type { Argument } from 'node-osc';
 import { splitWhitespace } from 'ontime-utils';
 
 export function stringToOSCArgs(argsString: string | undefined): Argument[] {

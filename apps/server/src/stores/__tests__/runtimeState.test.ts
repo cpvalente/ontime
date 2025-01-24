@@ -1,7 +1,7 @@
 import { PlayableEvent, Playback, TimerPhase } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
 
-import { RuntimeState, addTime, clear, getState, load, pause, roll, start, stop } from '../runtimeState.js';
+import { type RuntimeState, addTime, clear, getState, load, pause, roll, start, stop } from '../runtimeState.js';
 import { initRundown } from '../../services/rundown-service/RundownService.js';
 
 const mockEvent = {

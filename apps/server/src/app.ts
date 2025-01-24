@@ -2,7 +2,7 @@ import { LogOrigin, Playback, runtimeStorePlaceholder, SimpleDirection, SimplePl
 
 import 'dotenv/config';
 import express from 'express';
-import http, { Server } from 'http';
+import http, { type Server } from 'http';
 import cors from 'cors';
 import serverTiming from 'server-timing';
 import cookieParser from 'cookie-parser';

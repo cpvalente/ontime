@@ -7,7 +7,7 @@ import {
   timerLifecycleValues,
 } from 'ontime-types';
 
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { body, oneOf, param, validationResult } from 'express-validator';
 
 import * as assert from '../../utils/assert.js';

@@ -1,5 +1,5 @@
 import { body, param, query, validationResult } from 'express-validator';
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 
 export const rundownPostValidator = [
   body('type').isString().exists().isIn(['event', 'delay', 'block']),
