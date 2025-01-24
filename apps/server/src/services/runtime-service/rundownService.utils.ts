@@ -21,7 +21,7 @@ export function getShouldClockUpdate(previousUpdate: number, now: number): boole
  * Checks whether we should update the timer value
  * - we have rolled into a new seconds unit
  */
-export function getShouldTimerUpdate(previousValue: number, currentValue: MaybeNumber): boolean {
+export function getShouldTimerUpdate(previousValue: MaybeNumber, currentValue: MaybeNumber): boolean {
   if (currentValue === null) {
     return false;
   }
