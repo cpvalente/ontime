@@ -9,6 +9,7 @@ import ExternalLink from '../../../../common/components/external-link/ExternalLi
 import { SwatchPickerRHF } from '../../../../common/components/input/colour-input/SwatchPicker';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
+import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
@@ -65,7 +66,12 @@ export default function ViewSettingsForm() {
   const isLoading = status === 'pending' || infoStatus === 'pending';
 
   return (
-    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} id='view-settings'>
+    <Panel.Section
+      as='form'
+      onSubmit={handleSubmit(onSubmit)}
+      onKeyDown={(event) => preventEscape(event, onReset)}
+      id='view-settings'
+    >
       <Panel.Card>
         <Panel.SubHeader>
           View settings

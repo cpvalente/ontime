@@ -2,6 +2,9 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input } from '@chakra-ui/react';
 
+import { preventEscape } from '../../../../common/utils/keyEvent';
+import * as Panel from '../../panel-utils/PanelUtils';
+
 import style from './ProjectPanel.module.scss';
 
 export type ProjectFormValues = {
@@ -34,7 +37,11 @@ export default function ProjectForm({ action, filename, onSubmit, onCancel }: Pr
   }, [setFocus]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className={style.form}>
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      onKeyDown={(event) => preventEscape(event, onCancel)}
+      className={style.form}
+    >
       <Input
         className={style.formInput}
         id='filename'

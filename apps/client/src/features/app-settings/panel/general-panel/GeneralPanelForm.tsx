@@ -6,6 +6,7 @@ import { Settings } from 'ontime-types';
 import { postSettings } from '../../../../common/api/settings';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useSettings from '../../../../common/hooks-query/useSettings';
+import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -60,7 +61,12 @@ export default function GeneralPanelForm() {
   const isLoading = status === 'pending';
 
   return (
-    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} id='app-settings'>
+    <Panel.Section
+      as='form'
+      onSubmit={handleSubmit(onSubmit)}
+      onKeyDown={(event) => preventEscape(event, onReset)}
+      id='app-settings'
+    >
       <Panel.Card>
         <Panel.SubHeader>
           General settings
