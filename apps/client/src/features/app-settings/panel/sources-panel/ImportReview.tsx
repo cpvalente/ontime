@@ -8,8 +8,6 @@ import PreviewSpreadsheet from './preview/PreviewRundown';
 import useGoogleSheet from './useGoogleSheet';
 import { useSheetStore } from './useSheetStore';
 
-import style from './SourcesPanel.module.scss';
-
 interface ImportReviewProps {
   rundown: OntimeRundown;
   customFields: CustomFields;
@@ -40,14 +38,14 @@ export default function ImportReview(props: ImportReviewProps) {
     <Panel.Section>
       <Panel.Title>
         Review Rundown
-        <div className={style.buttonRow}>
+        <Panel.InlineElements>
           <Button onClick={handleCancel} variant='ontime-ghosted' size='sm' isDisabled={loading}>
             Cancel
           </Button>
           <Button onClick={applyImport} variant='ontime-filled' size='sm' isLoading={loading}>
             Apply
           </Button>
-        </div>
+        </Panel.InlineElements>
       </Panel.Title>
       <PreviewSpreadsheet rundown={rundown} customFields={customFields} />
     </Panel.Section>

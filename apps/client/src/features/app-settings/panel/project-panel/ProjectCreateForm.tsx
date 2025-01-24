@@ -69,14 +69,14 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
     <Panel.Section as='form' onSubmit={handleSubmit(handleSubmitCreate)}>
       <Panel.Title>
         Create new project
-        <div className={style.createActionButtons}>
+        <Panel.InlineElements>
           <Button onClick={onClose} variant='ontime-ghosted' size='sm' isDisabled={isSubmitting}>
             Cancel
           </Button>
           <Button isDisabled={!isValid} type='submit' isLoading={isSubmitting} variant='ontime-filled' size='sm'>
-            Create
+            Create project
           </Button>
-        </div>
+        </Panel.InlineElements>
       </Panel.Title>
       {error && <Panel.Error>{error}</Panel.Error>}
       <Panel.Section className={style.innerColumn}>

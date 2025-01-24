@@ -4,7 +4,6 @@ import { useKeyDown } from '../../common/hooks/useKeyDown';
 
 import AboutPanel from './panel/about-panel/AboutPanel';
 import AutomationPanel from './panel/automations-panel/AutomationPanel';
-import ClientControlPanel from './panel/client-control-panel/ClientControlPanel';
 import FeatureSettingsPanel from './panel/feature-settings-panel/FeatureSettingsPanel';
 import GeneralPanel from './panel/general-panel/GeneralPanel';
 import NetworkLogPanel from './panel/network-panel/NetworkLogPanel';
@@ -31,9 +30,8 @@ export default function AppSettings() {
           {panel === 'feature_settings' && <FeatureSettingsPanel location={location} />}
           {panel === 'sources' && <SourcesPanel />}
           {panel === 'automation' && <AutomationPanel location={location} />}
-          {panel === 'client_control' && <ClientControlPanel />}
-          {panel === 'about' && <AboutPanel />}
           {panel === 'network' && <NetworkLogPanel location={location} />}
+          {panel === 'about' && <AboutPanel />}
           {panel === 'shutdown' && <ShutdownPanel />}
         </PanelContent>
       </ErrorBoundary>

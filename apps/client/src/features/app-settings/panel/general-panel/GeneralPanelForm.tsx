@@ -11,8 +11,6 @@ import * as Panel from '../../panel-utils/PanelUtils';
 
 import GeneralPinInput from './GeneralPinInput';
 
-import style from './GeneralPanel.module.scss';
-
 export type GeneralPanelFormValues = {
   filename: string;
 };
@@ -66,7 +64,7 @@ export default function GeneralPanelForm() {
       <Panel.Card>
         <Panel.SubHeader>
           General settings
-          <div className={style.actionButtons}>
+          <Panel.InlineElements>
             <Button isDisabled={!isDirty || isSubmitting} variant='ontime-ghosted' size='sm' onClick={onReset}>
               Revert to saved
             </Button>
@@ -80,7 +78,7 @@ export default function GeneralPanelForm() {
             >
               Save
             </Button>
-          </div>
+          </Panel.InlineElements>
         </Panel.SubHeader>
         {submitError && <Panel.Error>{submitError}</Panel.Error>}
         <Panel.Divider />
