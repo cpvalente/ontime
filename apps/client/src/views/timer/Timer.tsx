@@ -65,6 +65,7 @@ export default function Timer(props: TimerProps) {
     removeLeadingZeros,
     mainSource,
     secondarySource,
+    timerType,
   } = useTimerOptions();
 
   const { getLocalizedString } = useTranslation();
@@ -73,6 +74,7 @@ export default function Timer(props: TimerProps) {
   useWindowTitle('Timer');
 
   // gather modifiers
+  const viewTimerType = timerType ?? time.timerType;
   const showOverlay = getShowMessage(message.timer);
   const { showEndMessage, showFinished, showWarning, showDanger } = getShowModifiers(
     time.timerType,
@@ -81,8 +83,8 @@ export default function Timer(props: TimerProps) {
     viewSettings,
   );
   const isPlaying = getIsPlaying(time.playback);
-  const showClock = !hideClock && getShowClock(time.timerType);
-  const showProgressBar = !hideProgress && getShowProgressBar(time.timerType);
+  const showClock = !hideClock && getShowClock(viewTimerType);
+  const showProgressBar = !hideProgress && getShowProgressBar(viewTimerType);
 
   // gather card data
   const { showNow, nowMain, nowSecondary, showNext, nextMain, nextSecondary } = getCardData(
@@ -97,8 +99,8 @@ export default function Timer(props: TimerProps) {
   // gather timer data
   const totalTime = getTotalTime(time.duration, time.addedTime);
   const clock = formatTime(time.clock);
-  const stageTimer = getTimerByType(viewSettings.freezeEnd, time);
-  const display = getFormattedTimer(stageTimer, time.timerType, localisedMinutes, {
+  const stageTimer = getTimerByType(viewSettings.freezeEnd, time, timerType);
+  const display = getFormattedTimer(stageTimer, viewTimerType, localisedMinutes, {
     removeSeconds: hideTimerSeconds,
     removeLeadingZero: removeLeadingZeros,
   });
