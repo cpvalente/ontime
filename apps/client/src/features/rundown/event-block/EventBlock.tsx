@@ -9,6 +9,7 @@ import { IoPeopleOutline } from '@react-icons/all-files/io5/IoPeopleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { IoTrashBin } from '@react-icons/all-files/io5/IoTrashBin';
 import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
 import { EndAction, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
@@ -177,6 +178,12 @@ export default function EventBlock(props: EventBlockProps) {
           },
           { withDivider: true, label: 'Clone', icon: IoDuplicateOutline, onClick: () => actionHandler('clone') },
           { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
+          {
+            withDivider: true,
+            label: 'Clear Report',
+            icon: IoTrashBin,
+            onClick: () => actionHandler('clear-report', { field: 'id', value: eventId }),
+          },
         ],
   );
 
