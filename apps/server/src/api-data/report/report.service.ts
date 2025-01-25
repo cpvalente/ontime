@@ -4,6 +4,7 @@ import { RuntimeState } from '../../stores/runtimeState.js';
 //TODO: there seams to be some actions that should invalidate reports
 // events timer edits?
 // event delete
+// Also what about roll mode?
 
 const report = new Map<string, OntimeReportData>();
 
