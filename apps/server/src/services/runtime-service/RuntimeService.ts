@@ -6,7 +6,6 @@ import {
   MaybeNumber,
   OntimeEvent,
   Playback,
-  RuntimeStore,
   TimerLifeCycle,
   TimerPhase,
   TimerState,
@@ -36,6 +35,8 @@ import {
 import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
 import { skippedOutOfEvent } from '../timerUtils.js';
 import { triggerAutomations } from '../../api-data/automation/automation.service.js';
+
+type RuntimeStateEventKeys = keyof Pick<RuntimeState, 'eventNext' | 'eventNow' | 'publicEventNow' | 'publicEventNext'>;
 
 /**
  * Service manages runtime status of app
@@ -774,7 +775,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     updateEventIfChanged('publicEventNext', state);
 
     // Helper function to update an event if it has changed
-    function updateEventIfChanged(eventKey: keyof RuntimeStore, state: runtimeState.RuntimeState) {
+    function updateEventIfChanged(eventKey: RuntimeStateEventKeys, state: runtimeState.RuntimeState) {
       const previous = RuntimeService.previousState?.[eventKey];
       const now = state[eventKey];
 
@@ -795,7 +796,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
         return;
       }
 
-      function storeKey(eventKey: keyof RuntimeStore) {
+      function storeKey(eventKey: RuntimeStateEventKeys) {
         eventStore.set(eventKey, state[eventKey]);
         RuntimeService.previousState[eventKey] = { ...state[eventKey] };
       }
