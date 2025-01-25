@@ -8,6 +8,7 @@ import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import ClientControlPanel from '../client-control-panel/ClientControlPanel';
 
+import ApiToken from './ApiToken';
 import InfoNif from './NetworkInterfaces';
 import LogExport from './NetworkLogExport';
 
@@ -23,6 +24,7 @@ export default function NetworkLogPanel({ location }: PanelBaseProps) {
         <Panel.Paragraph>Ontime is streaming on the following network interfaces</Panel.Paragraph>
       </Panel.Section>
       <InfoNif />
+      <ApiToken />
       <div ref={logRef}>
         <LogExport />
       </div>
