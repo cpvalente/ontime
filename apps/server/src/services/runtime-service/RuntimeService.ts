@@ -182,10 +182,10 @@ class RuntimeService {
     const next = state.eventNext?.id;
     const nextPublic = state.publicEventNext?.id;
     return (
-      affectedIds.includes(now) ||
-      affectedIds.includes(nowPublic) ||
-      affectedIds.includes(next) ||
-      affectedIds.includes(nextPublic)
+      (now !== undefined && affectedIds.includes(now)) ||
+      (nowPublic !== undefined && affectedIds.includes(nowPublic)) ||
+      (next !== undefined && affectedIds.includes(next)) ||
+      (nextPublic !== undefined && affectedIds.includes(nextPublic))
     );
   }
 
