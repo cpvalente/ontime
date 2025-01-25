@@ -22,7 +22,7 @@ import { timerConfig } from '../../config/config.js';
 import { eventStore } from '../../stores/EventStore.js';
 
 import { EventTimer } from '../EventTimer.js';
-import { type RestorePoint, restoreService } from '../RestoreService.js';
+import { RestorePoint, restoreService } from '../RestoreService.js';
 import {
   findNext,
   findPrevious,
@@ -681,46 +681,90 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // we do the comparison by explicitly for each property
     // to apply custom logic for different datasets
 
-    const shouldForceTimerUpdate = getForceUpdate(
-      RuntimeService.previousTimerUpdate,
-      state.clock,
-      state.timer.playback,
-    );
-
-    const shouldUpdateTimer =
-      shouldForceTimerUpdate || getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current);
-
-    const shouldRuntimeUpdate = shouldUpdateTimer || getForceUpdate(RuntimeService.previousRuntimeUpdate, state.clock);
-
-    // some changes need an immediate update
+    // if a new event was loaded most things should update
     const hasNewLoaded = state.eventNow?.id !== RuntimeService.previousState?.eventNow?.id;
 
+    // for the very fist run there will be nothing in the previousState so we force an update
     const justStarted = !RuntimeService.previousState?.timer;
+
+    // if playback changes most things should update
     const hasChangedPlayback = RuntimeService.previousState.timer?.playback !== state.timer.playback;
+
+    // combine all big changes
     const hasImmediateChanges = hasNewLoaded || justStarted || hasChangedPlayback;
 
+    /**
+     * Timer should be updated if
+     * - big changes
+     * - notification rate has been exceeded
+     * - the timer has rolled over into the next UI display unit
+     *
+     * Then check if there is actually a change in the data
+     */
+    const shouldUpdateTimer =
+      (hasImmediateChanges ||
+        getForceUpdate(RuntimeService.previousTimerUpdate, state.clock) ||
+        getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current)) &&
+      !deepEqual(RuntimeService.previousState?.timer, state.timer);
+
+    /**
+     * Runtime should be updated if
+     * - big changes
+     * - the timer is updating so runtime also updates to keep them in sync ???
+     * - notification rate has been exceeded
+     *
+     * Then check if there is actually a change in the data
+     */
+    const shouldRuntimeUpdate =
+      (hasImmediateChanges || shouldUpdateTimer || getForceUpdate(RuntimeService.previousRuntimeUpdate, state.clock)) &&
+      !deepEqual(RuntimeService.previousState?.runtime, state.runtime);
+
+    /**
+     * the currentBlock object has no ticking values so we only need to check for equallety
+     */
+    const shouldBlockUpdate = !deepEqual(RuntimeService?.previousState.currentBlock, state.currentBlock);
+
+    /**
+     * Many other values are calculated based on the clock
+     * so if any of them are updated we also need to send the clock
+     * in case nothing else is updating the clock will bw updated at the notification rate
+     */
+    const shouldUpdateClock =
+      shouldUpdateTimer ||
+      shouldRuntimeUpdate ||
+      shouldBlockUpdate ||
+      getForceUpdate(RuntimeService.previousClockUpdate, state.clock);
+
+    //Now we set all the updates on the eventstore and update the previous value
     if (hasChangedPlayback) {
       eventStore.set('onAir', state.timer.playback !== Playback.Stop);
     }
 
-    if (hasImmediateChanges || (shouldUpdateTimer && !deepEqual(RuntimeService.previousState?.timer, state.timer))) {
+    if (shouldUpdateTimer) {
+      eventStore.set('timer', state.timer);
       RuntimeService.previousTimerUpdate = state.clock;
       RuntimeService.previousTimerValue = state.timer.current;
-      RuntimeService.previousClockUpdate = state.clock;
-      eventStore.set('clock', state.clock);
-      eventStore.set('timer', state.timer);
       RuntimeService.previousState.timer = { ...state.timer };
     }
 
-    if (
-      hasChangedPlayback ||
-      (shouldRuntimeUpdate && !deepEqual(RuntimeService.previousState?.runtime, state.runtime))
-    ) {
+    if (shouldRuntimeUpdate) {
       eventStore.set('runtime', state.runtime);
-      RuntimeService.previousClockUpdate = state.clock;
       RuntimeService.previousRuntimeUpdate = state.clock;
-      eventStore.set('clock', state.clock);
       RuntimeService.previousState.runtime = { ...state.runtime };
+    }
+
+    if (shouldBlockUpdate) {
+      eventStore.set('currentBlock', state.currentBlock);
+      RuntimeService.previousState.currentBlock = { ...state.currentBlock };
+    }
+
+    if (hasImmediateChanges) {
+      saveRestoreState(state);
+    }
+
+    if (shouldUpdateClock) {
+      RuntimeService.previousClockUpdate = state.clock;
+      eventStore.set('clock', state.clock);
     }
 
     // Update the events if they have changed
@@ -728,21 +772,6 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     updateEventIfChanged('publicEventNow', state);
     updateEventIfChanged('eventNext', state);
     updateEventIfChanged('publicEventNext', state);
-
-    if (!deepEqual(RuntimeService?.previousState.currentBlock, state.currentBlock)) {
-      eventStore.set('currentBlock', state.currentBlock);
-      RuntimeService.previousState.currentBlock = { ...state.currentBlock };
-      RuntimeService.previousClockUpdate = state.clock;
-      eventStore.set('clock', state.clock);
-    }
-
-    const shouldUpdateClock = getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock);
-
-    if (shouldUpdateClock) {
-      RuntimeService.previousClockUpdate = state.clock;
-      eventStore.set('clock', state.clock);
-      saveRestoreState(state);
-    }
 
     // Helper function to update an event if it has changed
     function updateEventIfChanged(eventKey: keyof RuntimeStore, state: runtimeState.RuntimeState) {

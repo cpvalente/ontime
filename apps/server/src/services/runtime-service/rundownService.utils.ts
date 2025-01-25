@@ -1,7 +1,7 @@
 import { millisToSeconds } from 'ontime-utils';
 
 import { timerConfig } from '../../config/config.js';
-import { MaybeNumber, Playback } from 'ontime-types';
+import { MaybeNumber } from 'ontime-types';
 
 /**
  * Checks whether we should update the clock value
@@ -21,7 +21,7 @@ export function getShouldClockUpdate(previousUpdate: number, now: number): boole
  * Checks whether we should update the timer value
  * - we have rolled into a new seconds unit
  */
-export function getShouldTimerUpdate(previousValue: number, currentValue: MaybeNumber): boolean {
+export function getShouldTimerUpdate(previousValue: MaybeNumber, currentValue: MaybeNumber): boolean {
   if (currentValue === null) {
     return false;
   }
@@ -36,8 +36,7 @@ export function getShouldTimerUpdate(previousValue: number, currentValue: MaybeN
  * - if we have escaped the update rate (clock slid forward)
  * - if we are not playing then there is no need to update the timer
  */
-export function getForceUpdate(previousUpdate: number, now: number, playbackState: Playback = Playback.Play): boolean {
-  if (playbackState !== Playback.Play) return false;
+export function getForceUpdate(previousUpdate: number, now: number): boolean {
   const isClockBehind = now < previousUpdate;
   const hasExceededRate = now - previousUpdate >= timerConfig.notificationRate;
   return isClockBehind || hasExceededRate;
