@@ -721,7 +721,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       !deepEqual(RuntimeService.previousState?.runtime, state.runtime);
 
     /**
-     * the currentBlock object has no ticking values so we only need to check for equallety
+     * the currentBlock object has no ticking values so we only need to check for equality
      */
     const shouldBlockUpdate = !deepEqual(RuntimeService?.previousState.currentBlock, state.currentBlock);
 
