@@ -125,6 +125,7 @@ function EventBlockInner(props: EventBlockInnerProps) {
           isLoaded={loaded}
           totalGap={totalGap}
           isLinkedAndNext={isNext && linkStart !== null}
+          duration={duration}
         />
       )}
       <div className={style.statusElements} id='block-status' data-ispublic={isPublic}>

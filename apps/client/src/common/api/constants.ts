@@ -14,6 +14,7 @@ export const SHEET_STATE = ['sheetState'];
 export const URL_PRESETS = ['urlpresets'];
 export const VIEW_SETTINGS = ['viewSettings'];
 export const CLIENT_LIST = ['clientList'];
+export const REPORT = ['report'];
 
 // API URLs
 export const apiEntryUrl = `${serverURL}/data`;

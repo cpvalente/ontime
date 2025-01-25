@@ -1,7 +1,9 @@
 import { Tooltip } from '@chakra-ui/react';
+import type { OntimeReportData } from 'ontime-types';
 import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { usePlayback, useTimelineStatus } from '../../../../common/hooks/useSocket';
+import useReport from '../../../../common/hooks-query/useReport';
 import { cx } from '../../../../common/utils/styleUtils';
 import { formatDuration } from '../../../../common/utils/time';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
@@ -16,10 +18,11 @@ interface EventBlockChipProps {
   className: string;
   totalGap: number;
   isLinkedAndNext: boolean;
+  duration: number;
 }
 
 export default function EventBlockChip(props: EventBlockChipProps) {
-  const { trueTimeStart, isPast, isLoaded, className, totalGap, isLinkedAndNext } = props;
+  const { trueTimeStart, isPast, isLoaded, className, totalGap, isLinkedAndNext, id, duration } = props;
   const { playback } = usePlayback();
 
   if (isLoaded) {
@@ -29,7 +32,7 @@ export default function EventBlockChip(props: EventBlockChipProps) {
   const playbackActive = isPlaybackActive(playback);
 
   if (!playbackActive || isPast) {
-    return null; //TODO: Event report will go here
+    return <EventReport className={className} id={id} duration={duration} />;
   }
 
   if (playbackActive) {
@@ -64,4 +67,52 @@ function EventUntil(props: EventUntilProps) {
   const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
 
   return <div className={cx([style.chip, isDue && style.due])}>{timeUntilString}</div>;
+}
+
+interface EventReportProps {
+  className: string;
+  id: string;
+  duration: number;
+}
+
+function EventReport(props: EventReportProps) {
+  const { className, id, duration } = props;
+  const { data } = useReport();
+
+  const currentReport: OntimeReportData | undefined = data[id];
+
+  const [value, isOver] = useMemo(() => {
+    if (!currentReport) {
+      return [null, false];
+    }
+    const { startAt, endAt } = currentReport;
+    if (!startAt || !endAt) {
+      return [null, false];
+    }
+
+    const actualDuration = endAt - startAt;
+    const difference = actualDuration - duration;
+    const absDifference = Math.abs(difference);
+
+    if (absDifference < MILLIS_PER_SECOND) {
+      return ['==', false]; //TODO: how to symbolize ontime?
+    }
+
+    const isOver = difference > 0;
+
+    const value = `${isOver ? '+' : '-'}${formatDuration(Math.abs(difference), difference > 2 * MILLIS_PER_MINUTE)}`;
+    return [value, isOver];
+  }, [currentReport, duration]);
+
+  if (!value) {
+    return null;
+  }
+
+  return (
+    <Tooltip label='Difference from the expected duration' openDelay={tooltipDelayFast}>
+      <div className={cx([style.chip, isOver ? style.over : style.under, className])}>
+        <div>{value}</div>
+      </div>
+    </Tooltip>
+  );
 }
