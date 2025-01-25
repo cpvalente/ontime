@@ -24,7 +24,7 @@ export default function EventBlockChip(props: EventBlockChipProps) {
   const { playback } = usePlayback();
 
   if (isLoaded) {
-    return null;
+    return null; //TODO: the is a small flash of 'DUE' on the loaded event as clock data arrives before isLoaded propagates
   }
 
   const playbackActive = isPlaybackActive(playback);
