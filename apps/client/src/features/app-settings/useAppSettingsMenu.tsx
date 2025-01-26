@@ -61,6 +61,10 @@ const staticOptions = [
     split: true,
     secondary: [
       {
+        id: 'network__link',
+        label: 'Share link',
+      },
+      {
         id: 'network__log',
         label: 'Event log',
       },

@@ -8,11 +8,9 @@ import { parse as parseCookie } from 'cookie';
 import { hashPassword } from '../utils/hash.js';
 import { srcFiles } from '../setup/index.js';
 import { logger } from '../classes/Logger.js';
-import { password } from '../externals.js';
-import { noopMiddleware } from './noop.js';
+import { hashedPassword, hasPassword } from '../api-data/session/session.service.js';
 
-export const hasPassword = Boolean(password);
-const hashedPassword = hasPassword ? hashPassword(password) : '';
+import { noopMiddleware } from './noop.js';
 
 /**
  * List of public assets that can be accessed without authentication

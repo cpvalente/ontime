@@ -24,6 +24,10 @@ export interface GetInfo {
   publicDir: string;
 }
 
+export interface GetUrl {
+  url: string;
+}
+
 export type ProjectFile = {
   filename: string;
   updatedAt: string;
