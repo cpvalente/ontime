@@ -664,6 +664,11 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
 
   // there is something to run, load event
 
+  // update runtime
+  if (runtimeState.currentBlock.startedAt === null) {
+    runtimeState.currentBlock.startedAt = runtimeState.clock;
+  }
+
   // event will finish on time
   // account for event that finishes the day after
   const endTime =
@@ -696,13 +701,13 @@ function loadBlock(rundown: OntimeRundown) {
 
   const newCurrentBlock = getPreviousBlock(rundown, runtimeState.eventNow.id);
 
-  // test all block change posibiletys
-  const formNoBlockToBlock = runtimeState.currentBlock.block === null && newCurrentBlock !== null;
-  const formBlockToNoBlock = runtimeState.currentBlock.block !== null && newCurrentBlock === null;
-  const formBlockToNewBlock = runtimeState.currentBlock.block?.id !== newCurrentBlock?.id;
+  // test all block change possibilities
+  const loadedBlock = runtimeState.currentBlock.block === null && newCurrentBlock !== null;
+  const unloadedBlock = runtimeState.currentBlock.block !== null && newCurrentBlock === null;
+  const changedBlock = runtimeState.currentBlock.block?.id !== newCurrentBlock?.id;
 
   // update time only if the block has changed
-  if (formNoBlockToBlock || formBlockToNoBlock || formBlockToNewBlock) {
+  if (loadedBlock || unloadedBlock || changedBlock) {
     runtimeState.currentBlock.startedAt = null;
   }
 
