@@ -3,7 +3,7 @@ import { body, validationResult } from 'express-validator';
 
 export const validateGenerateUrl = [
   body('baseUrl').exists().isString().notEmpty().trim(),
-  body('path').exists().isString().notEmpty().trim(),
+  body('path').exists().isString().trim(),
   body('lock').exists().isBoolean(),
   body('authenticate').exists().isBoolean(),
 

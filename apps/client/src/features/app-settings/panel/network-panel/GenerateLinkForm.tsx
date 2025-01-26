@@ -92,6 +92,9 @@ export default function GenerateLinkForm() {
             <option key='timer' value='timer'>
               Timer
             </option>
+            <option key='companion' value=''>
+              Companion
+            </option>
             {urlPresetData.map((preset) => {
               return (
                 <option key={preset.alias} value={preset.alias}>
