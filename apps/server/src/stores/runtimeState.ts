@@ -136,10 +136,14 @@ export function clear() {
  * Utility to allow modifying the state from the outside
  * @param newState
  */
-function patchTimer(newState: Partial<TimerState>) {
+function patchTimer(newState: Partial<TimerState & RestorePoint>) {
   for (const key in newState) {
     if (key in runtimeState.timer) {
       runtimeState.timer[key] = newState[key];
+    } else if (key in runtimeState._timer) {
+      // in case of a RestorePoint we will receive a pausedAt value
+      // wiche is needed to resume a paused timer
+      runtimeState._timer[key] = newState[key];
     }
   }
 }

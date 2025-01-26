@@ -14,7 +14,7 @@ import {
 } from '../stores/clientStore';
 import { addDialog } from '../stores/dialogStore';
 import { addLog } from '../stores/logger';
-import { patchRuntime, patchRuntimeProperty } from '../stores/runtime';
+import { addToBatchUpdates, flushBatchUpdates, patchRuntime, patchRuntimeProperty } from '../stores/runtime';
 
 export let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
@@ -140,57 +140,57 @@ export const connectSocket = () => {
           break;
         }
         case 'ontime-clock': {
-          patchRuntimeProperty('clock', payload);
+          addToBatchUpdates('clock', payload);
           updateDevTools({ clock: payload });
           break;
         }
         case 'ontime-timer': {
-          patchRuntimeProperty('timer', payload);
+          addToBatchUpdates('timer', payload);
           updateDevTools({ timer: payload });
           break;
         }
         case 'ontime-onAir': {
-          patchRuntimeProperty('onAir', payload);
+          addToBatchUpdates('onAir', payload);
           updateDevTools({ onAir: payload });
           break;
         }
         case 'ontime-message': {
-          patchRuntimeProperty('message', payload);
+          addToBatchUpdates('message', payload);
           updateDevTools({ message: payload });
           break;
         }
         case 'ontime-runtime': {
-          patchRuntimeProperty('runtime', payload);
+          addToBatchUpdates('runtime', payload);
           updateDevTools({ runtime: payload });
           break;
         }
         case 'ontime-eventNow': {
-          patchRuntimeProperty('eventNow', payload);
+          addToBatchUpdates('eventNow', payload);
           updateDevTools({ eventNow: payload });
           break;
         }
         case 'ontime-currentBlock': {
-          patchRuntimeProperty('currentBlock', payload);
+          addToBatchUpdates('currentBlock', payload);
           updateDevTools({ currentBlock: payload });
           break;
         }
         case 'ontime-publicEventNow': {
-          patchRuntimeProperty('publicEventNow', payload);
+          addToBatchUpdates('publicEventNow', payload);
           updateDevTools({ publicEventNow: payload });
           break;
         }
         case 'ontime-eventNext': {
-          patchRuntimeProperty('eventNext', payload);
+          addToBatchUpdates('eventNext', payload);
           updateDevTools({ eventNext: payload });
           break;
         }
         case 'ontime-publicEventNext': {
-          patchRuntimeProperty('publicEventNext', payload);
+          addToBatchUpdates('publicEventNext', payload);
           updateDevTools({ publicEventNext: payload });
           break;
         }
         case 'ontime-auxtimer1': {
-          patchRuntimeProperty('auxtimer1', payload);
+          addToBatchUpdates('auxtimer1', payload);
           updateDevTools({ auxtimer1: payload });
           break;
         }
@@ -205,6 +205,10 @@ export const connectSocket = () => {
             ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
             ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
           }
+          break;
+        }
+        case 'ontime-flush': {
+          flushBatchUpdates()
           break;
         }
       }
