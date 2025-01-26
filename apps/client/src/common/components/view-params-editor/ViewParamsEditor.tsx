@@ -11,9 +11,9 @@ import {
   DrawerOverlay,
   useDisclosure,
 } from '@chakra-ui/react';
-import { IoAlertCircle } from '@react-icons/all-files/io5/IoAlertCircle';
 
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
+import Info from '../info/Info';
 
 import { ViewOption } from './types';
 import ViewParamsSection from './ViewParamsSection';
@@ -132,12 +132,7 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
         </DrawerHeader>
 
         <DrawerBody>
-          {viewSettings.overrideStyles && (
-            <div className={style.infoLabel}>
-              <IoAlertCircle />
-              This view style is being modified by a custom CSS file. <br />
-            </div>
-          )}
+          {viewSettings.overrideStyles && <Info>This view style is being modified by a custom CSS file.</Info>}
           <form id='edit-params-form' onSubmit={onParamsFormSubmit} className={style.sectionList}>
             {viewOptions.map((section) => (
               <ViewParamsSection

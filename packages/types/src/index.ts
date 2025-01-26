@@ -57,6 +57,7 @@ export type {
   AuthenticationStatus,
   NetworkInterface,
   GetInfo,
+  GetUrl,
   ProjectFileList,
   ProjectFile,
   ErrorResponse,
