@@ -681,17 +681,6 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // we do the comparison by explicitly for each property
     // to apply custom logic for different datasets
 
-    const shouldForceTimerUpdate = getForceUpdate(
-      RuntimeService.previousTimerUpdate,
-      state.clock,
-      state.timer.playback,
-    );
-
-    const shouldUpdateTimer =
-      shouldForceTimerUpdate || getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current);
-
-    const shouldRuntimeUpdate = shouldUpdateTimer || getForceUpdate(RuntimeService.previousRuntimeUpdate, state.clock);
-
     // some changes need an immediate update
     const hasNewLoaded = state.eventNow?.id !== RuntimeService.previousState?.eventNow?.id;
 
@@ -699,35 +688,31 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     const hasChangedPlayback = RuntimeService.previousState.timer?.playback !== state.timer.playback;
     const hasImmediateChanges = hasNewLoaded || justStarted || hasChangedPlayback;
 
+    const shouldUpdateTimer =
+      (getForceUpdate(RuntimeService.previousTimerUpdate, state.clock, state.timer.playback) ||
+        getShouldTimerUpdate(RuntimeService.previousTimerValue, state.timer.current)) &&
+      !deepEqual(RuntimeService.previousState?.timer, state.timer);
+
+    const shouldRuntimeUpdate =
+      (shouldUpdateTimer || getForceUpdate(RuntimeService.previousRuntimeUpdate, state.clock)) &&
+      !deepEqual(RuntimeService.previousState?.runtime, state.runtime);
+
     if (hasChangedPlayback) {
       eventStore.set('onAir', state.timer.playback !== Playback.Stop);
     }
 
-    if (hasImmediateChanges || (shouldUpdateTimer && !deepEqual(RuntimeService.previousState?.timer, state.timer))) {
+    if (hasImmediateChanges || shouldUpdateTimer) {
       RuntimeService.previousTimerUpdate = state.clock;
       RuntimeService.previousTimerValue = state.timer.current;
-      RuntimeService.previousClockUpdate = state.clock;
-      eventStore.set('clock', state.clock);
       eventStore.set('timer', state.timer);
       RuntimeService.previousState.timer = { ...state.timer };
     }
 
-    if (
-      hasChangedPlayback ||
-      (shouldRuntimeUpdate && !deepEqual(RuntimeService.previousState?.runtime, state.runtime))
-    ) {
+    if (hasImmediateChanges || shouldRuntimeUpdate) {
       eventStore.set('runtime', state.runtime);
-      RuntimeService.previousClockUpdate = state.clock;
       RuntimeService.previousRuntimeUpdate = state.clock;
-      eventStore.set('clock', state.clock);
       RuntimeService.previousState.runtime = { ...state.runtime };
     }
-
-    // Update the events if they have changed
-    updateEventIfChanged('eventNow', state);
-    updateEventIfChanged('publicEventNow', state);
-    updateEventIfChanged('eventNext', state);
-    updateEventIfChanged('publicEventNext', state);
 
     if (!deepEqual(RuntimeService?.previousState.currentBlock, state.currentBlock)) {
       eventStore.set('currentBlock', state.currentBlock);
@@ -736,13 +721,23 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       eventStore.set('clock', state.clock);
     }
 
-    const shouldUpdateClock = getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock);
+    if (hasImmediateChanges) {
+      saveRestoreState(state);
+    }
+
+    const shouldUpdateClock =
+      shouldUpdateTimer || shouldRuntimeUpdate || getForceUpdate(RuntimeService.previousClockUpdate, state.clock);
 
     if (shouldUpdateClock) {
       RuntimeService.previousClockUpdate = state.clock;
       eventStore.set('clock', state.clock);
-      saveRestoreState(state);
     }
+
+    // Update the events if they have changed
+    updateEventIfChanged('eventNow', state);
+    updateEventIfChanged('publicEventNow', state);
+    updateEventIfChanged('eventNext', state);
+    updateEventIfChanged('publicEventNext', state);
 
     // Helper function to update an event if it has changed
     function updateEventIfChanged(eventKey: keyof RuntimeStore, state: runtimeState.RuntimeState) {

@@ -14,13 +14,22 @@ export const runtimeStore = createWithEqualityFn<RuntimeStore>(
 export const useRuntimeStore = <T>(selector: (state: RuntimeStore) => T) =>
   useStoreWithEqualityFn(runtimeStore, selector, deepCompare);
 
+let batchStore: Partial<RuntimeStore> = {};
+let isUpdatePending: NodeJS.Timeout | null = null;
+
 /**
  * Allows patching a property of the runtime store
  */
 export function patchRuntimeProperty<K extends keyof RuntimeStore>(key: K, value: RuntimeStore[K]) {
-  const state = runtimeStore.getState();
-  state[key] = value;
-  runtimeStore.setState({ ...state });
+  batchStore[key] = value;
+  if (!isUpdatePending) {
+    isUpdatePending = setTimeout(() => {
+      const state = runtimeStore.getState();
+      runtimeStore.setState({ ...state, ...batchStore });
+      batchStore = {};
+      isUpdatePending = null;
+    });
+  }
 }
 
 /**
