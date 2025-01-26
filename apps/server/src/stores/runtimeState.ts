@@ -492,6 +492,7 @@ export type UpdateResult = {
 
 export function update(): UpdateResult {
   // 0. there are some things we always do
+  const previousClock = runtimeState.clock;
   runtimeState.clock = clock.timeNow(); // we update the clock on every update call
 
   // 1. is playback idle?
@@ -501,7 +502,8 @@ export function update(): UpdateResult {
 
   // 2. are we waiting to roll?
   if (runtimeState.timer.playback === Playback.Roll && runtimeState.timer.secondaryTimer !== null) {
-    return updateIfWaitingToRoll();
+    const hasCrossedMidnight = previousClock > runtimeState.clock;
+    return updateIfWaitingToRoll(hasCrossedMidnight);
   }
 
   // 3. at this point we know that we are playing an event
@@ -543,16 +545,24 @@ export function update(): UpdateResult {
     return { hasTimerFinished: false, hasSecondaryTimerFinished: false };
   }
 
-  function updateIfWaitingToRoll() {
+  function updateIfWaitingToRoll(hasCrossedMidnight: boolean) {
     // eslint-disable-next-line no-unused-labels -- dev code path
     DEV: {
       if (runtimeState.eventNow === null || runtimeState._timer.secondaryTarget === null) {
         throw new Error('runtimeState.updateIfWaitingToRoll: invalid state received');
       }
     }
-    //account for offset
+
+    // account for offset
     const offsetClock = runtimeState.clock + runtimeState.runtime.offset;
     runtimeState.timer.phase = TimerPhase.Pending;
+
+    if (hasCrossedMidnight) {
+      // if we crossed midnight, we need to update the target
+      // this is the same logic from the roll function
+      runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, offsetClock);
+    }
+
     runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - offsetClock;
     return { hasTimerFinished: false, hasSecondaryTimerFinished: runtimeState.timer.secondaryTimer <= 0 };
   }
