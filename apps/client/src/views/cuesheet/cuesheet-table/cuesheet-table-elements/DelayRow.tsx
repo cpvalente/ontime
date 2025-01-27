@@ -14,7 +14,9 @@ function DelayRow(props: DelayRowProps) {
 
   return (
     <tr className={style.delayRow}>
-      <td>{delayTime}</td>
+      <td tabIndex={-1} role='gridcell'>
+        {delayTime}
+      </td>
     </tr>
   );
 }

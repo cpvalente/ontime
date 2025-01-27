@@ -28,7 +28,7 @@ export function SortableCell({ header, style, children }: SortableCellProps) {
   };
 
   return (
-    <th ref={setNodeRef} style={dragStyle} colSpan={colSpan}>
+    <th ref={setNodeRef} style={dragStyle} colSpan={colSpan} tabIndex={-1}>
       <div {...attributes} {...listeners}>
         {children}
       </div>
