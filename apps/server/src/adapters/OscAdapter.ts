@@ -28,8 +28,7 @@ class OscServer implements IAdapter {
       // args: extra data, only used on some API entries
 
       /**
-       * TODO: remove this type casting when mergend in deleration file
-       * https://github.com/DefinitelyTyped/DefinitelyTyped/pull/71659
+       * TODO: fix ArrayBuffer casting
        */
       const msg = fromBuffer(buf);
       if (msg.oscType === 'bundle') {
