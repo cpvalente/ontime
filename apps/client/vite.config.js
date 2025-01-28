@@ -1,4 +1,5 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin';
+import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
@@ -32,6 +33,7 @@ export default defineConfig({
           excludeReplayWorker: true,
         },
       }),
+    legacy({ targets: ['chrome >= 89'] }),
     compression({
       algorithm: 'brotliCompress',
       exclude: /\.(html)$/, // Ontime cloud: Exclude HTML files from compression so we can change the base property at runtime
