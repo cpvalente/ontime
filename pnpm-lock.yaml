@@ -316,8 +316,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/utils
       osc-min:
-        specifier: ^2.1.1
-        version: 2.1.1
+        specifier: 2.1.2
+        version: 2.1.2
       sanitize-filename:
         specifier: ^1.6.3
         version: 1.6.3
@@ -3983,8 +3983,8 @@ packages:
     resolution: {integrity: sha512-JjCoypp+jKn1ttEFExxhetCKeJt9zhAgAve5FXHixTvFDW/5aEktX9bufBKLRRMdU7bNtpLfcGu94B3cdEJgjg==}
     engines: {node: '>= 0.8.0'}
 
-  osc-min@2.1.1:
-    resolution: {integrity: sha512-3Ai9vP8AAh1sCh5Zm8BUybfulv5OvqpTVa2BcUoTrLeD1Ss3cohIQpF1f18gx0CTbi9Dv4SvtdMb7y4g++7lYA==}
+  osc-min@2.1.2:
+    resolution: {integrity: sha512-dEhg7wBJ+QTHqY4iwnctkaFWzXLq+yHA2olxYfnxBw1fMy/iWJ/b7ovfXfwc/yxLXGiUHQhTxlQSHzL8ueHz6Q==}
     engines: {node: '>=0.10.0'}
 
   p-cancelable@2.1.1:
@@ -9130,7 +9130,7 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
 
-  osc-min@2.1.1: {}
+  osc-min@2.1.2: {}
 
   p-cancelable@2.1.1: {}
 
