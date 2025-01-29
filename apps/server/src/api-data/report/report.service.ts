@@ -1,4 +1,4 @@
-import { OntimeReport, OntimeReportData } from 'ontime-types';
+import { OntimeReport, OntimeEventReport } from 'ontime-types';
 import { RuntimeState } from '../../stores/runtimeState.js';
 
 //TODO: there seams to be some actions that should invalidate reports
@@ -6,16 +6,16 @@ import { RuntimeState } from '../../stores/runtimeState.js';
 // event delete
 // Also what about roll mode?
 
-const report = new Map<string, OntimeReportData>();
+const report = new Map<string, OntimeEventReport>();
 
 let formattedReport: OntimeReport | null = null;
 
 /**
  * blank placeholder data
  */
-const blankReportData: OntimeReportData = {
-  startAt: null,
-  endAt: null,
+const blankReportData: OntimeEventReport = {
+  startedAt: null,
+  endedAt: null,
 } as const;
 
 /**
@@ -29,7 +29,7 @@ export function generate(): OntimeReport {
   return formattedReport;
 }
 
-export function getWithId(id: string): OntimeReportData | null {
+export function getWithId(id: string): OntimeEventReport | null {
   return report.get(id) ?? null;
 }
 
@@ -57,7 +57,7 @@ export function eventStart(state: RuntimeState) {
   }
 
   // this clears out potentaly old data
-  report.set(state.eventNow.id, { ...blankReportData, startAt: state.timer.startedAt });
+  report.set(state.eventNow.id, { ...blankReportData, startedAt: state.timer.startedAt });
 }
 
 export function eventStop(state: RuntimeState) {
@@ -74,10 +74,10 @@ export function eventStop(state: RuntimeState) {
     return;
   }
 
-  if (prevReport.startAt === null) {
+  if (prevReport.startedAt === null) {
     //we can't stop it if the is no start, so better to clear out bad data
     report.delete(state.eventNow.id);
   }
 
-  prevReport.endAt = state.clock;
+  prevReport.endedAt = state.clock;
 }

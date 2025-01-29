@@ -1,5 +1,5 @@
 import { Tooltip } from '@chakra-ui/react';
-import type { OntimeReportData } from 'ontime-types';
+import type { OntimeEventReport } from 'ontime-types';
 import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { usePlayback, useTimelineStatus } from '../../../../common/hooks/useSocket';
@@ -78,19 +78,19 @@ interface EventReportProps {
 function EventReport(props: EventReportProps) {
   const { className, id, duration } = props;
   const { data } = useReport();
-
-  const currentReport: OntimeReportData | undefined = data[id];
+  const currentReport: OntimeEventReport | undefined = data[id];
 
   const [value, isOver] = useMemo(() => {
     if (!currentReport) {
       return [null, false];
     }
-    const { startAt, endAt } = currentReport;
-    if (!startAt || !endAt) {
+
+    const { startedAt, endedAt } = currentReport;
+    if (!startedAt || !endedAt) {
       return [null, false];
     }
 
-    const actualDuration = endAt - startAt;
+    const actualDuration = endedAt - startedAt;
     const difference = actualDuration - duration;
     const absDifference = Math.abs(difference);
 
