@@ -20,17 +20,13 @@ class OscServer implements IAdapter {
     logger.info(LogOrigin.Rx, `OSC: Starting server on port ${port}`);
     this.udpSocket = dgram.createSocket('udp4');
     this.udpSocket.on('error', (error) => logger.error(LogOrigin.Rx, `OSC IN: ${error}`));
-    this.udpSocket.on('message', (buf: ArrayBuffer) => {
+    this.udpSocket.on('message', (buf) => {
       // message should look like /ontime/{command}/{params?} {args} where
       // ontime: fixed message for app
       // command: command to be called
       // params: used to create a nested object to patch with
       // args: extra data, only used on some API entries
 
-      /**
-       * TODO: remove this type casting when mergend in deleration file
-       * https://github.com/DefinitelyTyped/DefinitelyTyped/pull/71659
-       */
       const msg = fromBuffer(buf);
       if (msg.oscType === 'bundle') {
         //TODO: manage bundles

@@ -33,11 +33,7 @@ function preparePayload(output: OSCOutput, state: RuntimeState): OscPacketInput 
 function emit(targetIP: string, targetPort: number, packet: OscPacketInput) {
   logger.info(LogOrigin.Tx, `Sending OSC: ${targetIP}:${targetPort}`);
 
-  /**
-   * TODO: remove this type casting when change is merged
-   * https://github.com/DefinitelyTyped/DefinitelyTyped/pull/71659
-   */
-  const buffer = oscPacketToBuffer(packet) as unknown as Uint8Array;
+  const buffer = oscPacketToBuffer(packet);
   udpClient.send(buffer, 0, buffer.byteLength, targetPort, targetIP, (error) => {
     if (error) {
       logger.warning(LogOrigin.Tx, `Failed sending OSC: ${error}`);
