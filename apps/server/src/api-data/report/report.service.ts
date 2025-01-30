@@ -38,6 +38,7 @@ export function getWithId(id: string): OntimeEventReport | null {
  * @param id optional id of a event report to clear
  */
 export function clear(id?: string) {
+  console.log('clear report',id)
   formattedReport = null;
   if (id) {
     report.delete(id);

@@ -6,7 +6,7 @@ import { REPORT } from '../api/constants';
 import { fetchReport } from '../api/report';
 
 export default function useReport() {
-  const { data } = useQuery<OntimeReport>({
+  const { data, status } = useQuery<OntimeReport>({
     queryKey: REPORT,
     queryFn: fetchReport,
     placeholderData: (previousData, _previousQuery) => previousData,
@@ -15,5 +15,5 @@ export default function useReport() {
     refetchInterval: queryRefetchIntervalSlow,
     networkMode: 'always',
   });
-  return { data: data ?? {} };
+  return { data: data ?? {}, status };
 }

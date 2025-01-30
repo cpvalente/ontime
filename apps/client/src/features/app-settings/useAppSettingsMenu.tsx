@@ -35,6 +35,7 @@ const staticOptions = [
     secondary: [
       { id: 'feature_settings__custom', label: 'Custom fields' },
       { id: 'feature_settings__urlpresets', label: 'URL Presets' },
+      { id: 'feature_settings__report', label: 'Reporter' },
     ],
   },
   {
