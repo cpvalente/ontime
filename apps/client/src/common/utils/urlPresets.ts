@@ -1,13 +1,11 @@
-import isEqual from 'react-fast-compare';
-import { Location, resolvePath } from 'react-router-dom';
+import { Path, resolvePath } from 'react-router-dom';
 import { URLPreset } from 'ontime-types';
 
 /**
  * Validates a preset against defined parameters
- * @param {string} preset
- * @returns {{message: string, isValid: boolean}}
+ * Used in the context of form validation
  */
-export const validateUrlPresetPath = (preset: string): { message: string; isValid: boolean } => {
+export function validateUrlPresetPath(preset: string): { message: string; isValid: boolean } {
   if (preset === '' || preset == null) {
     return { isValid: false, message: 'Path cannot be empty' };
   }
@@ -26,7 +24,7 @@ export const validateUrlPresetPath = (preset: string): { message: string; isVali
   }
 
   return { isValid: true, message: 'ok' };
-};
+}
 
 /**
  * Utility removes trailing slash from a string
@@ -36,48 +34,52 @@ function removeTrailingSlash(text: string): string {
 }
 
 /**
- * Gets the URL to send a preset to
- * @param location
- * @param data
- * @param searchParams
+ * Checks whether the current location corresponds to a preset and returns the new path if necessary
  */
-export const getRouteFromPreset = (location: Location, data: URLPreset[], searchParams: URLSearchParams) => {
+export function getRouteFromPreset(location: Path, urlPresets: URLPreset[]) {
+  // current url is the pathname without the leading slash
   const currentURL = location.pathname.substring(1);
 
-  // we need to check if the whole url here is an alias, so we can redirect
-  const foundPreset = data.find((preset) => preset.alias === removeTrailingSlash(currentURL) && preset.enabled);
+  // we need to check if the whole url is an alias
+  const foundPreset = urlPresets.find((preset) => preset.alias === removeTrailingSlash(currentURL) && preset.enabled);
   if (foundPreset) {
-    return generateUrlFromPreset(foundPreset);
+    // if so, we can redirect to the preset path
+    return generatePathFromPreset(foundPreset.pathAndParams, foundPreset.alias);
   }
 
+  // if the current url is not an alias, we check if the alias is in the search parameters
+  const searchParams = new URLSearchParams(location.search);
+
   const presetOnPage = searchParams.get('alias');
-  for (const d of data) {
-    if (presetOnPage) {
-      // if the alias fits the preset on this page, but the URL is different, we redirect user to the new URL
-      // if we have the same alias and its enabled and its not empty
-      if (d.alias !== '' && d.enabled && d.alias === presetOnPage) {
-        const newPath = resolvePath(d.pathAndParams);
-        const urlParams = new URLSearchParams(newPath.search);
-        urlParams.set('alias', d.alias);
-        // we confirm either the url parameters does not match or the url path doesnt
-        if (!isEqual(urlParams, searchParams) || newPath.pathname !== location.pathname) {
-          // we then redirect to the alias route, since the view listening to this alias has an outdated URL
-          return `${newPath.pathname}?${urlParams}`;
-        }
+  if (!presetOnPage) {
+    return null;
+  }
+
+  for (const preset of urlPresets) {
+    // if the page has a known enabled alias, we check if we need to redirect
+    if (preset.alias === presetOnPage && preset.enabled) {
+      const newPath = generatePathFromPreset(preset.pathAndParams, preset.alias);
+      const currentPath = `${location.pathname}${location.search}`.substring(1);
+      if (currentPath !== newPath) {
+        // if current path is out of date
+        // return new path so we can redirect
+        return newPath;
       }
     }
   }
   return null;
-};
+}
 
 /**
- * Generate URL from an preset
- * @param presetData
+ * Handles generating a path and search parameters from a preset
  */
-export const generateUrlFromPreset = (presetData: URLPreset) => {
-  const newPresetPath = resolvePath(presetData.pathAndParams);
-  const urlParams = new URLSearchParams(newPresetPath.search);
-  urlParams.set('alias', presetData.alias);
+export function generatePathFromPreset(pathAndParams: string, alias: string): string {
+  const path = resolvePath(pathAndParams);
+  const searchParams = new URLSearchParams(path.search);
 
-  return `${newPresetPath.pathname}?${urlParams}`;
-};
+  // save the alias so we have a reference to it being a preset and can update if necessary
+  searchParams.set('alias', alias);
+
+  // return path concatenated without the leading slash
+  return `${path.pathname}?${searchParams}`.substring(1);
+}
