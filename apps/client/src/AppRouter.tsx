@@ -44,6 +44,8 @@ const SPublic = withPreset(withData(Public));
 const SLowerThird = withPreset(withData(Lower));
 const SStudio = withPreset(withData(StudioClock));
 const STimeline = withPreset(withData(Timeline));
+const PCuesheet = withPreset(Cuesheet);
+const POperator = withPreset(Operator);
 
 const EditorFeatureWrapper = React.lazy(() => import('./features/EditorFeatureWrapper'));
 const RundownPanel = React.lazy(() => import('./features/rundown/RundownExport'));
@@ -155,8 +157,8 @@ export default function AppRouter() {
 
         {/*/!* Protected Routes *!/*/}
         <Route path='/editor' element={<Editor />} />
-        <Route path='/cuesheet' element={<Cuesheet />} />
-        <Route path='/op' element={<Operator />} />
+        <Route path='/cuesheet' element={<PCuesheet />} />
+        <Route path='/op' element={<POperator />} />
 
         {/*/!* Protected Routes - Elements *!/*/}
         <Route
