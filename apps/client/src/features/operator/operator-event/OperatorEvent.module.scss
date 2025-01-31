@@ -114,10 +114,11 @@
   }
 
   .value {
+    display: inline-flex;
     padding-inline: 0.25rem;
     background-color: $gray-1250;
     color: $ui-white;
-    margin-right: 1rem;
+    white-space: pre;
   }
 }
 
