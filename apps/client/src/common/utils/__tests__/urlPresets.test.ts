@@ -3,7 +3,7 @@ import { resolvePath } from 'react-router-dom';
 import { generateUrlFromPreset, getRouteFromPreset, validateUrlPresetPath } from '../urlPresets';
 
 describe('A preset fails if incorrect', () => {
-  const testsToFail = [
+  test.each([
     // no empty
     '',
     // no https, http or www
@@ -17,14 +17,11 @@ describe('A preset fails if incorrect', () => {
     // no editor
     'editor',
     'editor?test',
-  ];
-
-  testsToFail.forEach((t) =>
-    it(`${t}`, () => {
-      expect(validateUrlPresetPath(t).isValid).toBeFalsy();
-    }),
-  );
+  ])('validateUrlPresetPath(%s) should return false', (t) => {
+    expect(validateUrlPresetPath(t).isValid).toBeFalsy();
+  });
 });
+
 describe('generateUrlFromPreset and getRouteFromPreset function', () => {
   test('generate the expected url from an alias', () => {
     const testData = [
@@ -60,6 +57,7 @@ describe('generateUrlFromPreset and getRouteFromPreset function', () => {
       },
     ];
 
+    // @ts-expect-error -- using a Path as a Location
     expect(getRouteFromPreset(location, presets, null)).toStrictEqual(expected[0].url);
   });
   test('generate the url to redirect to when the current URL the same url but with a change of params', () => {
@@ -83,6 +81,7 @@ describe('generateUrlFromPreset and getRouteFromPreset function', () => {
       },
     ];
 
+    // @ts-expect-error -- using a Path as a Location
     expect(getRouteFromPreset(location, presets, urlSearchParams)).toStrictEqual(expected[0].url);
   });
   test('generate no url to redirect to when the current URL the same url', () => {
@@ -96,8 +95,9 @@ describe('generateUrlFromPreset and getRouteFromPreset function', () => {
     // let current location be the actual url with alias attached to it
     const location = resolvePath(presets[0].pathAndParams);
     const urlSearchParams = new URLSearchParams(location.search);
-    urlSearchParams.append('alias', presets[0].alias); //
+    urlSearchParams.append('alias', presets[0].alias);
 
+    // @ts-expect-error -- using a Path as a Location
     expect(getRouteFromPreset(location, presets, urlSearchParams)).toBeNull();
   });
 });
