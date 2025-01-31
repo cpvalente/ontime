@@ -1,8 +1,8 @@
 import { resolvePath } from 'react-router-dom';
 
-import { generateUrlFromPreset, getRouteFromPreset, validateUrlPresetPath } from '../urlPresets';
+import { generatePathFromPreset, getRouteFromPreset, validateUrlPresetPath } from '../urlPresets';
 
-describe('A preset fails if incorrect', () => {
+describe('validateUrlPresetPaths()', () => {
   test.each([
     // no empty
     '',
@@ -17,87 +17,56 @@ describe('A preset fails if incorrect', () => {
     // no editor
     'editor',
     'editor?test',
-  ])('validateUrlPresetPath(%s) should return false', (t) => {
+  ])('flags known edge cases: %s', (t) => {
     expect(validateUrlPresetPath(t).isValid).toBeFalsy();
   });
 });
 
-describe('generateUrlFromPreset and getRouteFromPreset function', () => {
-  test('generate the expected url from an alias', () => {
-    const testData = [
-      {
-        enabled: true,
-        alias: 'demopage',
-        pathAndParams: '/timer?user=guest',
-      },
-    ];
+describe('getRouteFromPreset()', () => {
+  const presets = [
+    {
+      enabled: true,
+      alias: 'demopage',
+      pathAndParams: '/timer?user=guest',
+    },
+  ];
 
-    const expected = [
-      {
-        url: '/timer?user=guest&alias=demopage',
-      },
-    ];
-
-    expect(generateUrlFromPreset(testData[0])).toStrictEqual(expected[0].url);
+  it('checks if the current location matches an enabled preset', () => {
+    // we make the current location be the alias
+    const location = resolvePath('demopage');
+    expect(getRouteFromPreset(location, presets)).toStrictEqual('timer?user=guest&alias=demopage');
   });
-  test('generate the url to redirect to when the current URL is just the alias', () => {
-    const presets = [
-      {
-        enabled: true,
-        alias: 'demopage',
-        pathAndParams: '/timer?user=guest',
-      },
-    ];
-    // let current location be the alias
-    const location = resolvePath(presets[0].alias);
 
-    const expected = [
-      {
-        url: '/timer?user=guest&alias=demopage',
-      },
-    ];
-
-    // @ts-expect-error -- using a Path as a Location
-    expect(getRouteFromPreset(location, presets, null)).toStrictEqual(expected[0].url);
+  it('returns null if the current location is the exact match of an unwrapped alias', () => {
+    // we make the current location be the alias
+    const location = resolvePath('/timer?user=guest&alias=demopage');
+    expect(getRouteFromPreset(location, presets)).toEqual(null);
   });
-  test('generate the url to redirect to when the current URL the same url but with a change of params', () => {
-    const presets = [
-      {
-        enabled: true,
-        alias: 'demopage',
-        pathAndParams: '/timer?user=guest',
-      },
-    ];
-    // let current location be the actual url with alias attached to it
-    const location = resolvePath(presets[0].pathAndParams);
-    const urlSearchParams = new URLSearchParams(location.search);
-    urlSearchParams.append('alias', presets[0].alias); //
 
-    // update current alias with extra param
-    presets[0].pathAndParams += '&eventId=674';
-    const expected = [
-      {
-        url: '/timer?user=guest&eventId=674&alias=demopage',
-      },
-    ];
-
-    // @ts-expect-error -- using a Path as a Location
-    expect(getRouteFromPreset(location, presets, urlSearchParams)).toStrictEqual(expected[0].url);
+  it('returns a new destination if the current location is an out-of-date unwrapped alias', () => {
+    // we make the current location be the alias
+    const location = resolvePath('/timer?user=admin&alias=demopage');
+    expect(getRouteFromPreset(location, presets)).toEqual('timer?user=guest&alias=demopage');
   });
-  test('generate no url to redirect to when the current URL the same url', () => {
-    const presets = [
-      {
-        enabled: true,
-        alias: 'demopage',
-        pathAndParams: '/timer?user=guest',
-      },
-    ];
-    // let current location be the actual url with alias attached to it
-    const location = resolvePath(presets[0].pathAndParams);
-    const urlSearchParams = new URLSearchParams(location.search);
-    urlSearchParams.append('alias', presets[0].alias);
 
-    // @ts-expect-error -- using a Path as a Location
-    expect(getRouteFromPreset(location, presets, urlSearchParams)).toBeNull();
+  it('checks if the current location contains an unwrapped preset', () => {
+    // we make the current location be the alias
+    const location = resolvePath('/timer?user=guest&alias=demopage');
+    expect(getRouteFromPreset(location, presets)).toEqual(null);
+  });
+
+  it('ignores a location that has no presets', () => {
+    // we make the current location be the alias
+    const location = resolvePath('/unknown');
+    expect(getRouteFromPreset(location, presets)).toEqual(null);
+  });
+});
+
+describe('generatePathFromPreset()', () => {
+  test.each([
+    ['timer?user=guest', 'demopage', 'timer?user=guest&alias=demopage'],
+    ['timer?user=admin', 'demopage', 'timer?user=admin&alias=demopage'],
+  ])('generates a path from a preset: %s', (path, alias, expected) => {
+    expect(generatePathFromPreset(path, alias)).toEqual(expected);
   });
 });
