@@ -340,7 +340,7 @@ describe('roll mode', () => {
   });
 });
 
-describe.only('loadBlock', () => {
+describe('loadBlock', () => {
   test('from no-block to a block will clear startedAt', () => {
     const rundown = [
       { id: '0', type: SupportedEvent.Event },

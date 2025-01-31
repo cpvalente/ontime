@@ -705,13 +705,8 @@ export function loadBlock(rundown: OntimeRundown, state = runtimeState) {
 
   const newCurrentBlock = getPreviousBlock(rundown, state.eventNow.id);
 
-  // test all block change possibilities
-  const loadedBlock = state.currentBlock.block === null && newCurrentBlock !== null;
-  const unloadedBlock = state.currentBlock.block !== null && newCurrentBlock === null;
-  const changedBlock = state.currentBlock.block?.id !== newCurrentBlock?.id;
-
   // update time only if the block has changed
-  if (loadedBlock || unloadedBlock || changedBlock) {
+  if (state.currentBlock.block?.id !== newCurrentBlock?.id) {
     state.currentBlock.startedAt = null;
   }
 
