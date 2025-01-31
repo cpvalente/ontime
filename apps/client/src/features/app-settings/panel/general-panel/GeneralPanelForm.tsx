@@ -8,6 +8,7 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import useSettings from '../../../../common/hooks-query/useSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
+import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import GeneralPinInput from './GeneralPinInput';
@@ -25,6 +26,7 @@ export default function GeneralPanelForm() {
     setError,
     formState: { isSubmitting, isDirty, isValid, errors },
   } = useForm<Settings>({
+    mode: 'onChange',
     defaultValues: data,
     values: data,
     resetOptions: {
@@ -94,7 +96,11 @@ export default function GeneralPanelForm() {
             <Panel.ListItem>
               <Panel.Field
                 title='Ontime server port'
-                description='Port ontime server listens in. Defaults to 4001 (needs app restart)'
+                description={
+                  isOntimeCloud
+                    ? 'Server port disabled for Ontime Cloud'
+                    : 'Port ontime server listens in. Defaults to 4001 (needs app restart)'
+                }
                 error={errors.serverPort?.message}
               />
               <Input
@@ -104,6 +110,7 @@ export default function GeneralPanelForm() {
                 variant='ontime-filled'
                 maxLength={5}
                 width='75px'
+                isDisabled={isOntimeCloud}
                 {...register('serverPort', {
                   required: { value: true, message: 'Required field' },
                   max: { value: 65535, message: 'Port must be within range 1024 - 65535' },
