@@ -691,26 +691,30 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
   return { eventId: runtimeState.eventNow.id, didStart: true };
 }
 
-function loadBlock(rundown: OntimeRundown) {
-  if (runtimeState.eventNow === null) {
+/**
+ * handle block loading, not for use outside of runtimeState
+ * @param rundown
+ */
+export function loadBlock(rundown: OntimeRundown, state = runtimeState) {
+  if (state.eventNow === null) {
     // we need a loaded event to have a block
-    runtimeState.currentBlock.block = null;
-    runtimeState.currentBlock.startedAt = null;
+    state.currentBlock.block = null;
+    state.currentBlock.startedAt = null;
     return;
   }
 
-  const newCurrentBlock = getPreviousBlock(rundown, runtimeState.eventNow.id);
+  const newCurrentBlock = getPreviousBlock(rundown, state.eventNow.id);
 
   // test all block change possibilities
-  const loadedBlock = runtimeState.currentBlock.block === null && newCurrentBlock !== null;
-  const unloadedBlock = runtimeState.currentBlock.block !== null && newCurrentBlock === null;
-  const changedBlock = runtimeState.currentBlock.block?.id !== newCurrentBlock?.id;
+  const loadedBlock = state.currentBlock.block === null && newCurrentBlock !== null;
+  const unloadedBlock = state.currentBlock.block !== null && newCurrentBlock === null;
+  const changedBlock = state.currentBlock.block?.id !== newCurrentBlock?.id;
 
   // update time only if the block has changed
   if (loadedBlock || unloadedBlock || changedBlock) {
-    runtimeState.currentBlock.startedAt = null;
+    state.currentBlock.startedAt = null;
   }
 
   // update the block anyway
-  runtimeState.currentBlock.block = newCurrentBlock === null ? null : { ...newCurrentBlock };
+  state.currentBlock.block = newCurrentBlock === null ? null : { ...newCurrentBlock };
 }

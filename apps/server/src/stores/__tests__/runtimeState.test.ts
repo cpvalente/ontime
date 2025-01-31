@@ -1,7 +1,18 @@
-import { PlayableEvent, Playback, TimerPhase } from 'ontime-types';
+import { OntimeRundown, PlayableEvent, Playback, SupportedEvent, TimerPhase } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
 
-import { type RuntimeState, addTime, clear, getState, load, pause, roll, start, stop } from '../runtimeState.js';
+import {
+  type RuntimeState,
+  addTime,
+  clear,
+  getState,
+  load,
+  loadBlock,
+  pause,
+  roll,
+  start,
+  stop,
+} from '../runtimeState.js';
 import { initRundown } from '../../services/rundown-service/RundownService.js';
 
 const mockEvent = {
@@ -325,6 +336,128 @@ describe('roll mode', () => {
 
     test.todo('with gaps', () => {
       //this is a bit involved as it also depends somewhat on the RintimeService
+    });
+  });
+});
+
+describe.only('loadBlock', () => {
+  test('from no-block to a block will clear startedAt', () => {
+    const rundown = [
+      { id: '0', type: SupportedEvent.Event },
+      { id: '1', type: SupportedEvent.Block },
+      { id: '2', type: SupportedEvent.Event },
+      { id: '3', type: SupportedEvent.Block },
+      { id: '4', type: SupportedEvent.Event },
+    ] as OntimeRundown;
+
+    const state = {
+      currentBlock: {
+        block: null,
+        startedAt: 123,
+      },
+      eventNow: rundown[2],
+    } as RuntimeState;
+
+    loadBlock(rundown, state);
+
+    expect(state).toMatchObject({
+      currentBlock: { block: rundown[1], startedAt: null },
+      eventNow: rundown[2],
+    });
+  });
+
+  test('from block to a different block will clear startedAt', () => {
+    const rundown = [
+      { id: '0', type: SupportedEvent.Event },
+      { id: '1', type: SupportedEvent.Block },
+      { id: '2', type: SupportedEvent.Event },
+      { id: '3', type: SupportedEvent.Block },
+      { id: '4', type: SupportedEvent.Event },
+    ] as OntimeRundown;
+
+    const state = {
+      currentBlock: {
+        block: rundown[1],
+        startedAt: 123,
+      },
+      eventNow: rundown[4],
+    } as RuntimeState;
+
+    loadBlock(rundown, state);
+
+    expect(state).toMatchObject({
+      currentBlock: { block: rundown[3], startedAt: null },
+      eventNow: rundown[4],
+    });
+  });
+
+  test('from block to a no-block will clear startedAt', () => {
+    const rundown = [
+      { id: '0', type: SupportedEvent.Event },
+      { id: '1', type: SupportedEvent.Block },
+      { id: '2', type: SupportedEvent.Event },
+      { id: '3', type: SupportedEvent.Block },
+      { id: '4', type: SupportedEvent.Event },
+    ] as OntimeRundown;
+
+    const state = {
+      currentBlock: {
+        block: rundown[1],
+        startedAt: 123,
+      },
+      eventNow: rundown[0],
+    } as RuntimeState;
+
+    loadBlock(rundown, state);
+
+    expect(state).toMatchObject({
+      currentBlock: { block: null, startedAt: null },
+      eventNow: rundown[0],
+    });
+  });
+
+  test('from block to same block will keep startedAt', () => {
+    const rundown = [
+      { id: '0', type: SupportedEvent.Block },
+      { id: '1', type: SupportedEvent.Event },
+      { id: '2', type: SupportedEvent.Event },
+    ] as OntimeRundown;
+
+    const state = {
+      currentBlock: {
+        block: rundown[0],
+        startedAt: 123,
+      },
+      eventNow: rundown[2],
+    } as RuntimeState;
+
+    loadBlock(rundown, state);
+
+    expect(state).toMatchObject({
+      currentBlock: { block: rundown[0], startedAt: 123 },
+      eventNow: rundown[2],
+    });
+  });
+
+  test('from no-block to no-block will keep startedAt', () => {
+    const rundown = [
+      { id: '0', type: SupportedEvent.Event },
+      { id: '1', type: SupportedEvent.Event },
+    ] as OntimeRundown;
+
+    const state = {
+      currentBlock: {
+        block: null,
+        startedAt: 123,
+      },
+      eventNow: rundown[0],
+    } as RuntimeState;
+
+    loadBlock(rundown, state);
+
+    expect(state).toMatchObject({
+      currentBlock: { block: null, startedAt: 123 },
+      eventNow: rundown[0],
     });
   });
 });
