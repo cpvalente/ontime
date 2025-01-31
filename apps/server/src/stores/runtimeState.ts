@@ -674,6 +674,11 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
 
   // there is something to run, load event
 
+  // update runtime
+  if (runtimeState.currentBlock.startedAt === null) {
+    runtimeState.currentBlock.startedAt = runtimeState.clock;
+  }
+
   // event will finish on time
   // account for event that finishes the day after
   const endTime =
@@ -696,26 +701,25 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
   return { eventId: runtimeState.eventNow.id, didStart: true };
 }
 
-function loadBlock(rundown: OntimeRundown) {
-  if (runtimeState.eventNow === null) {
+/**
+ * handle block loading, not for use outside of runtimeState
+ * @param rundown
+ */
+export function loadBlock(rundown: OntimeRundown, state = runtimeState) {
+  if (state.eventNow === null) {
     // we need a loaded event to have a block
-    runtimeState.currentBlock.block = null;
-    runtimeState.currentBlock.startedAt = null;
+    state.currentBlock.block = null;
+    state.currentBlock.startedAt = null;
     return;
   }
 
-  const newCurrentBlock = getPreviousBlock(rundown, runtimeState.eventNow.id);
-
-  // test all block change posibiletys
-  const formNoBlockToBlock = runtimeState.currentBlock.block === null && newCurrentBlock !== null;
-  const formBlockToNoBlock = runtimeState.currentBlock.block !== null && newCurrentBlock === null;
-  const formBlockToNewBlock = runtimeState.currentBlock.block?.id !== newCurrentBlock?.id;
+  const newCurrentBlock = getPreviousBlock(rundown, state.eventNow.id);
 
   // update time only if the block has changed
-  if (formNoBlockToBlock || formBlockToNoBlock || formBlockToNewBlock) {
-    runtimeState.currentBlock.startedAt = null;
+  if (state.currentBlock.block?.id !== newCurrentBlock?.id) {
+    state.currentBlock.startedAt = null;
   }
 
   // update the block anyway
-  runtimeState.currentBlock.block = newCurrentBlock === null ? null : { ...newCurrentBlock };
+  state.currentBlock.block = newCurrentBlock === null ? null : { ...newCurrentBlock };
 }
