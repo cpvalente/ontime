@@ -23,6 +23,7 @@ describe('getExpectedFinish()', () => {
         duration: 10,
         finishedAt: null,
         startedAt: null,
+        speed: 1,
       },
       _timer: {
         pausedAt: null,
@@ -42,6 +43,7 @@ describe('getExpectedFinish()', () => {
         duration: 10,
         finishedAt: 20, // <---- finished at
         startedAt: 10,
+        speed: 1,
       },
       _timer: {
         pausedAt: null,
@@ -61,6 +63,7 @@ describe('getExpectedFinish()', () => {
         duration: 10,
         finishedAt: null,
         startedAt: 1,
+        speed: 1,
       },
       _timer: {
         pausedAt: null,
@@ -80,6 +83,7 @@ describe('getExpectedFinish()', () => {
         duration: 10,
         finishedAt: null,
         startedAt: 1,
+        speed: 1,
       },
       _timer: {
         pausedAt: null,
@@ -100,6 +104,7 @@ describe('getExpectedFinish()', () => {
         duration: 10,
         finishedAt: null,
         startedAt: 1,
+        speed: 1,
       },
       _timer: {
         pausedAt: null,
@@ -120,6 +125,7 @@ describe('getExpectedFinish()', () => {
         duration: 10,
         finishedAt: null,
         startedAt: 1,
+        speed: 1,
       },
       _timer: {
         pausedAt: null,
@@ -140,6 +146,7 @@ describe('getExpectedFinish()', () => {
         duration: 0,
         finishedAt: null,
         startedAt: 1,
+        speed: 1,
       },
       _timer: {
         pausedAt: null,
@@ -160,6 +167,7 @@ describe('getExpectedFinish()', () => {
         duration: dayInMs,
         finishedAt: null,
         startedAt: 10,
+        speed: 1,
       },
       _timer: {
         pausedAt: null,
@@ -181,6 +189,7 @@ describe('getExpectedFinish()', () => {
           duration: dayInMs,
           finishedAt: null,
           startedAt: 10,
+          speed: 1,
         },
         _timer: {
           pausedAt: null,
@@ -200,6 +209,7 @@ describe('getExpectedFinish()', () => {
           addedTime: 0,
           finishedAt: null,
           startedAt: 79200000, // 22:00:00
+          speed: 1,
         },
         _timer: {
           pausedAt: null,
@@ -230,6 +240,7 @@ describe('getCurrent()', () => {
         duration: 111, // <-- we take the duration value
         startedAt: null,
         finishedAt: null,
+        speed: 1,
       },
       _timer: {
         pausedAt: null,
@@ -251,6 +262,7 @@ describe('getCurrent()', () => {
         duration: 10,
         startedAt: 0,
         finishedAt: null,
+        speed: 1,
       },
       _timer: {
         pausedAt: null,
@@ -272,6 +284,7 @@ describe('getCurrent()', () => {
         duration: 10,
         startedAt: 0,
         finishedAt: null,
+        speed: 1,
       },
       _timer: {
         pausedAt: null,
@@ -492,6 +505,7 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
         duration,
         startedAt: 0,
         finishedAt: null,
+        speed: 1,
       },
       _timer: {
         pausedAt: null,
@@ -520,6 +534,7 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
         duration,
         startedAt: 0,
         finishedAt: null,
+        speed: 1,
       },
       _timer: {
         pausedAt: null,
