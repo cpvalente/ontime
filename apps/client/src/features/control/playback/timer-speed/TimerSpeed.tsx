@@ -50,8 +50,8 @@ export default function TimerSpeed() {
           <div className={style.speedRegular} />
         </div>
         <div className={style.labels}>
-          <span className={style.override} style={{ left: '66%' }}>{`${newSpeed}x`}</span>
           <span>0.5x</span>
+          <span className={style.override} style={{ left: `${newSpeedIndicator}%` }}>{`${newSpeed}x`}</span>
           <span style={{ left: '33.33%' }}>1.0x</span>
           <span style={{ left: '66.66%' }}>1.5x</span>
           <span style={{ left: '100%' }}>2.0x</span>
