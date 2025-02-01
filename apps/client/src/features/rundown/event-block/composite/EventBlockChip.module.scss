@@ -6,13 +6,17 @@
   color: $label-gray;
   padding: 0.125rem 0.5rem;
   border-radius: 2px;
-
+  
   &.over {
     color: $playback-negative;
   }
-
+  
   &.under {
     color: $playback-ahead;
+  }
+  
+  &.ontime {
+    color: $ontime-color;
   }
 
   &.due {

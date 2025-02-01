@@ -1,11 +1,12 @@
 import { Tooltip } from '@chakra-ui/react';
+import { IoCheckmarkCircle } from '@react-icons/all-files/io5/IoCheckmarkCircle';
 import type { OntimeEventReport } from 'ontime-types';
 import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { usePlayback, useTimelineStatus } from '../../../../common/hooks/useSocket';
 import useReport from '../../../../common/hooks-query/useReport';
 import { cx } from '../../../../common/utils/styleUtils';
-import { formatDuration } from '../../../../common/utils/time';
+import { formatDuration, formatTime } from '../../../../common/utils/time';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
 
 import style from './EventBlockChip.module.scss';
@@ -80,14 +81,14 @@ function EventReport(props: EventReportProps) {
   const { data } = useReport();
   const currentReport: OntimeEventReport | undefined = data[id];
 
-  const [value, isOver] = useMemo(() => {
+  const [value, overUnderStyle, tooltip] = useMemo(() => {
     if (!currentReport) {
-      return [null, false];
+      return [null, 'none', ''];
     }
 
     const { startedAt, endedAt } = currentReport;
     if (!startedAt || !endedAt) {
-      return [null, false];
+      return [null, 'none', ''];
     }
 
     const actualDuration = endedAt - startedAt;
@@ -95,13 +96,17 @@ function EventReport(props: EventReportProps) {
     const absDifference = Math.abs(difference);
 
     if (absDifference < MILLIS_PER_SECOND) {
-      return ['==', false]; //TODO: how to symbolize ontime?
+      return ['ontime', 'ontime', 'Event finished ontime'];
     }
 
     const isOver = difference > 0;
 
-    const value = `${isOver ? '+' : '-'}${formatDuration(Math.abs(difference), difference > 2 * MILLIS_PER_MINUTE)}`;
-    return [value, isOver];
+    const fullTimeValue = formatTime(absDifference);
+
+    const tooltip = `Event ran ${isOver ? 'over' : 'under'} time by ${fullTimeValue}`;
+
+    const value = `${isOver ? '+' : '-'}${formatDuration(absDifference, absDifference > 2 * MILLIS_PER_MINUTE)}`;
+    return [value, isOver ? 'over' : 'under', tooltip];
   }, [currentReport, duration]);
 
   if (!value) {
@@ -109,9 +114,9 @@ function EventReport(props: EventReportProps) {
   }
 
   return (
-    <Tooltip label='Difference from the expected duration' openDelay={tooltipDelayFast}>
-      <div className={cx([style.chip, isOver ? style.over : style.under, className])}>
-        <div>{value}</div>
+    <Tooltip label={tooltip} openDelay={tooltipDelayFast}>
+      <div className={cx([style.chip, style[overUnderStyle], className])}>
+        {value === 'ontime' ? <IoCheckmarkCircle size='1.1rem' /> : value}
       </div>
     </Tooltip>
   );
