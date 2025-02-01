@@ -1,0 +1,18 @@
+.separator {
+    display: flex;
+    align-items: center;
+    margin-block: 0.5rem;
+
+    &:before {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid $gray-1000; // same as divider
+        height: 1px;
+    }
+    &:after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid $gray-1000; // same as divider
+        height: 1px;
+    }
+}

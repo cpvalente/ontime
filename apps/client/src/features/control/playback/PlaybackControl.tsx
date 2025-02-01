@@ -1,5 +1,6 @@
 import { Playback } from 'ontime-types';
 
+import Expand from '../../../common/components/expand/Expand';
 import { usePlaybackControl } from '../../../common/hooks/useSocket';
 
 import AddTime from './add-time/AddTime';
@@ -13,6 +14,8 @@ import style from './PlaybackControl.module.scss';
 export default function PlaybackControl() {
   const data = usePlaybackControl();
 
+  // TODO: save expanded state in local storage
+
   return (
     <div className={style.mainContainer}>
       <PlaybackTimer playback={data.playback as Playback}>
@@ -24,7 +27,9 @@ export default function PlaybackControl() {
         selectedEventIndex={data.selectedEventIndex}
         timerPhase={data.timerPhase}
       />
-      <TimerSpeed />
+      <Expand initialExpanded>
+        <TimerSpeed />
+      </Expand>
       <AuxTimer />
     </div>
   );

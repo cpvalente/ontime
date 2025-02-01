@@ -149,10 +149,9 @@ export const setAuxTimer = {
   setDuration: (time: number) => socketSendJson('auxtimer', { '1': { duration: time } }),
 };
 
-// TODO: plugin data
 export const useTimerSpeed = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    speed: state.timer.addedTime,
+    speed: state.timer.speed,
   });
 
   return useRuntimeStore(featureSelector);

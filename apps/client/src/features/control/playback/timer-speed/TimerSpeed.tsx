@@ -1,74 +1,44 @@
 import { useState } from 'react';
-import { Button } from '@chakra-ui/react';
+import { Slider, SliderFilledTrack, SliderMark, SliderThumb, SliderTrack } from '@chakra-ui/react';
 
-import { setTimerSpeed, useTimerSpeed } from '../../../../common/hooks/useSocket';
+import { useTimerSpeed } from '../../../../common/hooks/useSocket';
+
+import MeetSchedule from './MeetSchedule';
 
 import style from './TimerSpeed.module.scss';
 
-// TODO: extract and test
-function mapRange(value: number, fromA_start: number, fromA_end: number, toB_start: number, toB_end: number): number {
-  return ((value - fromA_start) * (toB_end - toB_start)) / (fromA_end - fromA_start) + toB_start;
-}
+const labelStyles = {
+  mt: '2',
+  ml: '-2.5',
+  fontSize: 'sm',
+};
 
 export default function TimerSpeed() {
-  // TODO: this is the speed currently in place
-  const { speed: _currentSpeed } = useTimerSpeed();
-
-  // TODO: new speed comes from reply from server
-  const [newSpeed, _setNewSpeed] = useState(1.23);
-  const newSpeedIndicator = mapRange(newSpeed, 0.5, 2.0, 0, 100);
-  const { calculateSpeed, setSpeed, resetSpeed } = setTimerSpeed;
-
-  console.log('newSpeedIndicator', newSpeedIndicator);
-
-  const handleApply = () => {
-    console.log('timerSpeedControl.apply');
-    // TODO: add dynamic value
-    setSpeed(1.23);
-  };
-
-  const handleReset = () => {
-    console.log('timerSpeedControl.reset');
-    resetSpeed();
-  };
-
-  const handleMeetSchedule = () => {
-    console.log('timerSpeedControl.calculate');
-    calculateSpeed();
-  };
+  const { speed } = useTimerSpeed();
+  const [newSpeed, setNewSpeed] = useState(1);
 
   return (
     <div className={style.panelContainer}>
       <div className={style.label}>Timer speed</div>
-      <div style={{ display: 'flex', gap: '1rem' }}>
-        <Button size='sm' variant='ontime-subtle-white' onClick={handleApply}>
-          Apply
-        </Button>
-        <Button size='sm' variant='ontime-subtle-white' onClick={handleReset}>
-          Reset
-        </Button>
-        <Button size='sm' variant='ontime-subtle-white' onClick={handleMeetSchedule}>
-          Meet schedule
-        </Button>
-      </div>
-      <div>
-        <span>1.0x</span>
-        <span>{'->'}</span>
-        <span className={style.highlight}>{`${newSpeed}x`}</span>
-      </div>
-      <div>
-        <div className={style.speedContainer}>
-          <div className={style.speedOverride} style={{ '--override': newSpeedIndicator }} />
-          <div className={style.speedRegular} />
-        </div>
-        <div className={style.labels}>
-          <span>0.5x</span>
-          <span className={style.override} style={{ left: `${newSpeedIndicator}%` }}>{`${newSpeed}x`}</span>
-          <span style={{ left: '33.33%' }}>1.0x</span>
-          <span style={{ left: '66.66%' }}>1.5x</span>
-          <span style={{ left: '100%' }}>2.0x</span>
-        </div>
-      </div>
+      <MeetSchedule speed={speed} newSpeed={newSpeed} />
+      <Slider defaultValue={newSpeed} min={0.5} max={2.0} step={0.01} onChange={(v) => setNewSpeed(v)}>
+        <SliderMark value={0.5} {...labelStyles}>
+          0.5x
+        </SliderMark>
+        <SliderMark value={1.0} {...labelStyles}>
+          1.0x
+        </SliderMark>
+        <SliderMark value={1.5} {...labelStyles}>
+          1.5x
+        </SliderMark>
+        <SliderMark value={2.0} {...labelStyles}>
+          2.0x
+        </SliderMark>
+        <SliderTrack>
+          <SliderFilledTrack />
+        </SliderTrack>
+        <SliderThumb />
+      </Slider>
     </div>
   );
 }
