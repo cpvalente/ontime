@@ -2,6 +2,7 @@ import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
+import { IoCloseCircle } from '@react-icons/all-files/io5/IoCloseCircle';
 import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
 import { IoLink } from '@react-icons/all-files/io5/IoLink';
 import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
@@ -9,7 +10,6 @@ import { IoPeopleOutline } from '@react-icons/all-files/io5/IoPeopleOutline';
 import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
-import { IoTrashBin } from '@react-icons/all-files/io5/IoTrashBin';
 import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
 import { EndAction, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
@@ -176,14 +176,14 @@ export default function EventBlock(props: EventBlockProps) {
             },
             isDisabled: selectedEventId == null || selectedEventId === eventId,
           },
-          { withDivider: true, label: 'Clone', icon: IoDuplicateOutline, onClick: () => actionHandler('clone') },
-          { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
+          { withDivider: false, label: 'Clone', icon: IoDuplicateOutline, onClick: () => actionHandler('clone') },
           {
             withDivider: true,
-            label: 'Clear Report',
-            icon: IoTrashBin,
+            label: 'Clear report',
+            icon: IoCloseCircle,
             onClick: () => actionHandler('clear-report', { field: 'id', value: eventId }),
           },
+          { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
         ],
   );
 
