@@ -38,7 +38,6 @@ export function getWithId(id: string): OntimeEventReport | null {
  * @param id optional id of a event report to clear
  */
 export function clear(id?: string) {
-  console.log('clear report',id)
   formattedReport = null;
   if (id) {
     report.delete(id);
@@ -47,7 +46,7 @@ export function clear(id?: string) {
   }
 }
 
-export function eventStart(state: RuntimeState) {
+export function eventStart(state: Readonly<RuntimeState>) {
   formattedReport = null;
   if (state.eventNow === null) {
     // eslint-disable-next-line no-unused-labels -- dev code path
@@ -61,7 +60,7 @@ export function eventStart(state: RuntimeState) {
   report.set(state.eventNow.id, { ...blankReportData, startedAt: state.timer.startedAt });
 }
 
-export function eventStop(state: RuntimeState) {
+export function eventStop(state: Readonly<RuntimeState>) {
   formattedReport = null;
   if (state.eventNow === null) {
     // This is normal and happens every time we call load

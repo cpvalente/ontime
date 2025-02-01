@@ -593,6 +593,7 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
         runtimeState.runtime.actualStart = runtimeState.clock;
       }
       runtimeState.timer.secondaryTimer = null;
+      report.eventStart(runtimeState);
     } else {
       runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, offsetClock);
       runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - offsetClock;
@@ -676,6 +677,7 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
 
   // update runtime
   runtimeState.runtime.actualStart = runtimeState.clock;
+  report.eventStart(runtimeState);
   return { eventId: runtimeState.eventNow.id, didStart: true };
 }
 
