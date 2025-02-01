@@ -149,6 +149,21 @@ export const setAuxTimer = {
   setDuration: (time: number) => socketSendJson('auxtimer', { '1': { duration: time } }),
 };
 
+// TODO: plugin data
+export const useTimerSpeed = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    speed: state.timer.addedTime,
+  });
+
+  return useRuntimeStore(featureSelector);
+};
+
+export const setTimerSpeed = {
+  getSpeedAdjust: () => socketSendJson('get-speed'),
+  setSpeed: (speed: number) => socketSendJson('set-speed', speed),
+  resetSpeed: () => socketSendJson('reset-speed'),
+};
+
 export const useSelectedEventId = () => {
   const featureSelector = (state: RuntimeStore) => ({
     selectedEventId: state.eventNow?.id ?? null,
