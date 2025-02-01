@@ -11,6 +11,7 @@ const labelStyles = {
   mt: '2',
   ml: '-2.5',
   fontSize: 'sm',
+  color: 'gray',
 };
 
 export default function TimerSpeed() {
@@ -20,8 +21,16 @@ export default function TimerSpeed() {
   return (
     <div className={style.panelContainer}>
       <div className={style.label}>Timer speed</div>
-      <MeetSchedule speed={speed} newSpeed={newSpeed} />
-      <Slider defaultValue={newSpeed} min={0.5} max={2.0} step={0.01} onChange={(v) => setNewSpeed(v)}>
+      <MeetSchedule speed={speed} newSpeed={newSpeed} setNewSpeed={setNewSpeed} />
+      <Slider size='lg' value={newSpeed} min={0.5} max={2.0} step={0.05} onChange={(v) => setNewSpeed(v)}>
+        <SliderMark
+          value={newSpeed}
+          {...labelStyles}
+          color={newSpeed > 1.5 ? 'red.500' : newSpeed > 1 ? 'orange.500' : newSpeed < 1 ? 'blue.500' : ''}
+        >
+          {/* TODO: append .0 */}
+          {newSpeed}x
+        </SliderMark>
         <SliderMark value={0.5} {...labelStyles}>
           0.5x
         </SliderMark>
@@ -34,8 +43,10 @@ export default function TimerSpeed() {
         <SliderMark value={2.0} {...labelStyles}>
           2.0x
         </SliderMark>
-        <SliderTrack>
-          <SliderFilledTrack />
+        <SliderTrack height='.75em' rounded='lg' bg='gray'>
+          <SliderFilledTrack
+            bg={newSpeed > 1.5 ? 'red.500' : newSpeed > 1 ? 'orange.500' : newSpeed < 1 ? 'blue.500' : ''}
+          />
         </SliderTrack>
         <SliderThumb />
       </Slider>

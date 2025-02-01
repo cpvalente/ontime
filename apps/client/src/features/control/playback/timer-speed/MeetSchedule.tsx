@@ -10,11 +10,12 @@ type SpeedOverridePhase = 'idle' | 'calculating' | 'applied';
 interface MeetScheduleProps {
   speed: number;
   newSpeed: number;
+  setNewSpeed: (value: number) => void;
 }
 
 export default function MeetSchedule(props: MeetScheduleProps) {
-  const { speed, newSpeed } = props;
-  const { setSpeed, resetSpeed } = setTimerSpeed;
+  const { speed, newSpeed, setNewSpeed } = props;
+  const { setSpeed } = setTimerSpeed;
   const { startedAt, expectedFinish, current } = useTimer();
 
   const handleApply = () => {
@@ -22,7 +23,7 @@ export default function MeetSchedule(props: MeetScheduleProps) {
   };
 
   const handleReset = () => {
-    resetSpeed();
+    setNewSpeed(1);
   };
 
   const phase: SpeedOverridePhase = (() => {
@@ -45,22 +46,20 @@ export default function MeetSchedule(props: MeetScheduleProps) {
 
   return (
     <>
-      <div>
-        <div className={style.start}>
-          <span className={style.tag}>Started at</span>
-          <span className={style.time}>{started}</span>
-        </div>
-        <div className={style.finish}>
-          <span className={style.tag}>Expect end</span>
-          <span className={style.time}>{finishAt}</span>
-        </div>
-        {phase === 'calculating' && (
-          <div className={style.finish}>
-            <span className={style.tag}>Estimated end</span>
-            <span className={style.time}>{newFinish}</span>
-          </div>
-        )}
-      </div>
+      <table>
+        <tr>
+          <td className={style.label}>Started at </td>
+          <td>{started}</td>
+        </tr>
+        <tr>
+          <td className={style.label}>Normal Expected end </td>
+          <td>{finishAt}</td>
+        </tr>
+        <tr>
+          <td className={style.label}>Estimated Speedup end </td>
+          <td>{newFinish}</td>
+        </tr>
+      </table>
 
       <div style={{ display: 'flex', gap: '1rem', justifyContent: 'space-between' }}>
         <div>
