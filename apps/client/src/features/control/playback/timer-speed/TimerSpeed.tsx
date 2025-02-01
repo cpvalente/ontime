@@ -9,10 +9,12 @@ import style from './TimerSpeed.module.scss';
 
 const labelStyles = {
   mt: '2',
-  ml: '-2.5',
+  ml: '-3',
   fontSize: 'sm',
   color: 'gray',
 };
+
+//TODO: styling breaks when Extracted
 
 export default function TimerSpeed() {
   const { speed } = useTimerSpeed();
@@ -27,10 +29,7 @@ export default function TimerSpeed() {
           value={newSpeed}
           {...labelStyles}
           color={newSpeed > 1.5 ? 'red.500' : newSpeed > 1 ? 'orange.500' : newSpeed < 1 ? 'blue.500' : ''}
-        >
-          {/* TODO: append .0 */}
-          {newSpeed}x
-        </SliderMark>
+        />
         <SliderMark value={0.5} {...labelStyles}>
           0.5x
         </SliderMark>

@@ -1,4 +1,5 @@
 import { Button } from '@chakra-ui/react';
+import { MaybeNumber } from 'ontime-types';
 import { dayInMs, millisToString } from 'ontime-utils';
 
 import { setTimerSpeed, useClock, useTimer } from '../../../../common/hooks/useSocket';
@@ -36,13 +37,13 @@ export default function MeetSchedule(props: MeetScheduleProps) {
     return 'calculating';
   })();
 
-  // TODO: check that it does AM-PM
+  //TODO: can these functions be memoised
   const started = millisToString(startedAt);
-  // TODO: finish at should account for speed factor
+  // TODO: Should this stay as the default expected end or change to the expected end of the speed up after it is applied
   const finishAt = millisToString(expectedFinish !== null ? expectedFinish % dayInMs : null);
 
   // TODO: this would cause re-renders on every second, we want to isolate this
-  const newFinish = millisToString(useExpectedTime(current ?? 0, newSpeed));
+  const newFinish = millisToString(useExpectedTime(expectedFinish !== null ? current : null, newSpeed));
 
   return (
     <>
@@ -84,8 +85,11 @@ export default function MeetSchedule(props: MeetScheduleProps) {
 
 // TODO: extract and test
 // calculate the new finish time
-function useExpectedTime(remainingTimeMs: number, speedFactor: number): number {
+function useExpectedTime(remainingTimeMs: MaybeNumber, speedFactor: number): MaybeNumber {
   const { clock } = useClock();
+  if (remainingTimeMs === null) {
+    return null;
+  }
   const adjustedRemainingTimeMs = remainingTimeMs / speedFactor;
   const newFinishTimeMs = clock + adjustedRemainingTimeMs;
   return newFinishTimeMs;
