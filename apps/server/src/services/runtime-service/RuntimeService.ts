@@ -20,6 +20,8 @@ import type { RuntimeState } from '../../stores/runtimeState.js';
 import { timerConfig } from '../../config/config.js';
 import { eventStore } from '../../stores/EventStore.js';
 
+import { triggerReportEntry } from '../../api-data/report/report.service.js';
+
 import { EventTimer } from '../EventTimer.js';
 import { RestorePoint, restoreService } from '../RestoreService.js';
 import {
@@ -294,8 +296,10 @@ class RuntimeService {
 
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
+      const newState = runtimeState.getState();
       process.nextTick(() => {
-        triggerAutomations(TimerLifeCycle.onLoad, runtimeState.getState());
+        triggerReportEntry(TimerLifeCycle.onLoad, newState);
+        triggerAutomations(TimerLifeCycle.onLoad, newState);
       });
     }
     return success;
@@ -474,6 +478,7 @@ class RuntimeService {
 
     if (didStart) {
       process.nextTick(() => {
+        triggerReportEntry(TimerLifeCycle.onStart, newState);
         triggerAutomations(TimerLifeCycle.onStart, newState);
       });
     }
@@ -546,6 +551,7 @@ class RuntimeService {
       const newState = runtimeState.getState();
       logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
       process.nextTick(() => {
+        triggerReportEntry(TimerLifeCycle.onStop, newState);
         triggerAutomations(TimerLifeCycle.onStop, newState);
       });
 
@@ -598,12 +604,14 @@ class RuntimeService {
       if (result.eventId !== previousState.eventNow?.id) {
         logger.info(LogOrigin.Playback, `Loaded event with ID ${result.eventId}`);
         process.nextTick(() => {
+          triggerReportEntry(TimerLifeCycle.onLoad, newState);
           triggerAutomations(TimerLifeCycle.onLoad, newState);
         });
       }
 
       if (result.didStart) {
         process.nextTick(() => {
+          triggerReportEntry(TimerLifeCycle.onStart, newState);
           triggerAutomations(TimerLifeCycle.onStart, newState);
         });
       }

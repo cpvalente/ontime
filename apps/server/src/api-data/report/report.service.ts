@@ -1,4 +1,4 @@
-import { OntimeReport, OntimeEventReport } from 'ontime-types';
+import { OntimeReport, OntimeEventReport, TimerLifeCycle, MaybeString } from 'ontime-types';
 import { RuntimeState } from '../../stores/runtimeState.js';
 
 //TODO: there seams to be some actions that should invalidate reports
@@ -46,38 +46,30 @@ export function clear(id?: string) {
   }
 }
 
-export function eventStart(state: Readonly<RuntimeState>) {
-  formattedReport = null;
-  if (state.eventNow === null) {
-    // eslint-disable-next-line no-unused-labels -- dev code path
-    DEV: {
-      throw new Error('report.eventStart: called without eventNow present');
+let currentReportId: MaybeString = null;
+
+/**
+ * trigger report entry
+ * @param cycle
+ * @param state
+ * @returns
+ */
+export function triggerReportEntry(cycle: TimerLifeCycle, state: Readonly<RuntimeState>) {
+  switch (cycle) {
+    case TimerLifeCycle.onStart: {
+      currentReportId = state.eventNow.id;
+      report.set(currentReportId, { ...blankReportData, startedAt: state.timer.startedAt });
+      break;
     }
-    return;
+    case TimerLifeCycle.onLoad:
+    case TimerLifeCycle.onStop: {
+      if (currentReportId) {
+        const startedAt = report.get(currentReportId).startedAt;
+        report.set(currentReportId, { startedAt, endedAt: state.clock });
+        currentReportId = null;
+        formattedReport = null;
+      }
+      break;
+    }
   }
-
-  // this clears out potentaly old data
-  report.set(state.eventNow.id, { ...blankReportData, startedAt: state.timer.startedAt });
-}
-
-export function eventStop(state: Readonly<RuntimeState>) {
-  formattedReport = null;
-  if (state.eventNow === null) {
-    // This is normal and happens every time we call load
-    return;
-  }
-
-  const prevReport = report.get(state.eventNow.id);
-
-  if (prevReport === undefined) {
-    //we can't stop it if the is no start
-    return;
-  }
-
-  if (prevReport.startedAt === null) {
-    //we can't stop it if the is no start, so better to clear out bad data
-    report.delete(state.eventNow.id);
-  }
-
-  prevReport.endedAt = state.clock;
 }

@@ -154,7 +154,6 @@ export function load(
   rundown: OntimeRundown,
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
-  report.eventStop(runtimeState);
   // we need to persist the current block state across loads
   const prevCurrentBlock = { ...runtimeState.currentBlock };
   clear();
@@ -392,8 +391,6 @@ export function start(state: RuntimeState = runtimeState): boolean {
   // update offset
   state.runtime.offset = getRuntimeOffset(state);
   state.runtime.expectedEnd = state.runtime.plannedEnd - state.runtime.offset;
-
-  report.eventStart(runtimeState);
   return true;
 }
 
@@ -412,8 +409,6 @@ export function stop(state: RuntimeState = runtimeState): boolean {
   if (state.timer.playback === Playback.Stop) {
     return false;
   }
-
-  report.eventStop(runtimeState);
   clear();
   runtimeState.runtime.actualStart = null;
   runtimeState.runtime.expectedEnd = null;
@@ -593,7 +588,6 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
         runtimeState.runtime.actualStart = runtimeState.clock;
       }
       runtimeState.timer.secondaryTimer = null;
-      report.eventStart(runtimeState);
     } else {
       runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, offsetClock);
       runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - offsetClock;
@@ -677,7 +671,6 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
 
   // update runtime
   runtimeState.runtime.actualStart = runtimeState.clock;
-  report.eventStart(runtimeState);
   return { eventId: runtimeState.eventNow.id, didStart: true };
 }
 
