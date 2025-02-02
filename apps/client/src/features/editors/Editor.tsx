@@ -5,7 +5,7 @@ import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoClose } from '@react-icons/all-files/io5/IoClose';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
-import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
+import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
 import { useElectronListener } from '../../common/hooks/useElectronEvent';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import AppSettings from '../app-settings/AppSettings';
@@ -58,7 +58,7 @@ export default function Editor() {
     <div className={styles.mainContainer} data-testid='event-editor'>
       <WelcomePlacement />
       <Finder isOpen={isFinderOpen} onClose={onFinderClose} />
-      <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
+      <NavigationMenu isOpen={isMenuOpen} onClose={onClose} />
       <EditorOverview>
         <IconButton
           aria-label='Toggle navigation'

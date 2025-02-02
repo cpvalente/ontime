@@ -87,7 +87,7 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
 
     return (
       <>
-        <ViewNavigationMenu />
+        <ViewNavigationMenu isLockable />
         <Component
           {...props}
           auxTimer={auxtimer1}

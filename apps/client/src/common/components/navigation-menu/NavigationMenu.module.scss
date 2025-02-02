@@ -7,24 +7,38 @@ $icon-color: $ui-white;
 $button-bg: $gray-1050;
 $button-size: 3rem;
 
+.fadeable {
+  opacity: 1;
+
+  transition-property: opacity;
+  transition-duration: 0.3s;
+
+  &.hidden {
+    opacity: 0;
+  }
+}
+
+.lockIcon {
+  font-size: 1.5rem;
+  color: $active-indicator;
+  padding: 0.5em;
+
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 12;
+}
+
 .buttonContainer {
   display: flex;
   flex-direction: column;
   row-gap: 1rem;
   padding: 0.5em;
 
-  transition-property: opacity;
-  transition-duration: 0.3s;
-
-  opacity: 1;
   position: fixed;
   left: 0;
   top: 0;
   z-index: 12;
-
-  &.hidden {
-    opacity: 0;
-  }
 }
 
 .button {
@@ -36,16 +50,6 @@ $button-size: 3rem;
   display: grid;
   place-content: center;
   border-radius: 3px;
-}
-
-.lockIcon {
-  font-size: 1.5rem;
-  display: grid;
-  place-content: center;
-  border-radius: 3px;
-  background-color: transparent;
-  color: $active-indicator;
-  cursor: default;
 }
 
 .navButton {
