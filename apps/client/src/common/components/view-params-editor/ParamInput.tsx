@@ -119,7 +119,7 @@ function MultiOption(props: EditFormMultiOptionProps) {
         <MenuButton as={Button} variant='ontime-subtle-white' position='relative' width='fit-content' fontWeight={400}>
           {paramField.title} <IoChevronDown style={{ display: 'inline' }} />
         </MenuButton>
-        <MenuList>
+        <MenuList overflow='auto' maxHeight='200px'>
           <MenuOptionGroup
             type='checkbox'
             value={paramState}
