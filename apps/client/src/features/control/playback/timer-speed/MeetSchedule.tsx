@@ -23,6 +23,10 @@ export default function MeetSchedule(props: MeetScheduleProps) {
     setSpeed(newSpeed);
   };
 
+  const handleCancel = () => {
+    setNewSpeed(speed);
+  };
+
   const handleReset = () => {
     setNewSpeed(1);
   };
@@ -40,10 +44,9 @@ export default function MeetSchedule(props: MeetScheduleProps) {
   //TODO: can these functions be memoised
   const started = millisToString(startedAt);
   // TODO: Should this stay as the default expected end or change to the expected end of the speed up after it is applied
-  const finishAt = millisToString(expectedFinish !== null ? expectedFinish % dayInMs : null);
 
-  // TODO: this would cause re-renders on every second, we want to isolate this
-  const newFinish = millisToString(useExpectedTime(expectedFinish !== null ? current : null, newSpeed));
+  const currentExpectedFinish = millisToString(expectedFinish !== null ? expectedFinish % dayInMs : null);
+  const newExpectedFinish = millisToString(useExpectedTime(expectedFinish !== null ? current : null, newSpeed));
 
   return (
     <>
@@ -53,12 +56,11 @@ export default function MeetSchedule(props: MeetScheduleProps) {
           <td>{started}</td>
         </tr>
         <tr>
-          <td className={style.label}>Normal Expected end </td>
-          <td>{finishAt}</td>
-        </tr>
-        <tr>
-          <td className={style.label}>Estimated Speedup end </td>
-          <td>{newFinish}</td>
+          <td className={style.label}>Expected end </td>
+          <td>
+            <span>{currentExpectedFinish}</span>
+            {phase === 'calculating' ? <span className={style.highlight}>{` ⇢ ${newExpectedFinish}`}</span> : null}
+          </td>
         </tr>
       </table>
 
@@ -68,6 +70,9 @@ export default function MeetSchedule(props: MeetScheduleProps) {
           {newSpeed !== speed && <span className={style.highlight}>{` ⇢ ${newSpeed}x`}</span>}
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <Button size='sm' variant='ontime-subtle-white' isDisabled={phase !== 'calculating'} onClick={handleCancel}>
+            Cancel
+          </Button>
           {phase !== 'applied' ? (
             <Button size='sm' variant='ontime-subtle-white' onClick={handleApply} isDisabled={phase !== 'calculating'}>
               Apply
