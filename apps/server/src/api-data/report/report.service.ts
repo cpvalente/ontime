@@ -1,5 +1,6 @@
 import { OntimeReport, OntimeEventReport, TimerLifeCycle, MaybeString } from 'ontime-types';
 import { RuntimeState } from '../../stores/runtimeState.js';
+import { sendRefetch } from '../../adapters/websocketAux.js';
 
 //TODO: there seams to be some actions that should invalidate reports
 // events timer edits?
@@ -68,6 +69,9 @@ export function triggerReportEntry(cycle: TimerLifeCycle, state: Readonly<Runtim
         report.set(currentReportId, { startedAt, endedAt: state.clock });
         currentReportId = null;
         formattedReport = null;
+        sendRefetch({
+          target: 'REPORT',
+        });
       }
       break;
     }
