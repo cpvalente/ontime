@@ -251,7 +251,7 @@ export default function AutomationForm(props: AutomationFormProps) {
                   {...register(`filters.${index}.value`)}
                   variant='ontime-filled'
                   size='sm'
-                  placeholder='<no value>'
+                  placeholder='<empty / no value>'
                   autoComplete='off'
                 />
               </label>
