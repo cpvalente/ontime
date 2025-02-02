@@ -377,6 +377,9 @@ export function updateAll(rundown: OntimeRundown) {
 }
 
 export function setSpeed(speed: number) {
+  if (speed < 0.5 || speed > 2) {
+    throw new Error('speed outside of allowed value');
+  }
   runtimeState.timer.speed = speed;
 }
 
