@@ -5,21 +5,21 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { CustomFields, OntimeEvent, ProjectData, Settings, SupportedEvent } from 'ontime-types';
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 
-import ProgressBar from '../../../common/components/progress-bar/ProgressBar';
-import Schedule from '../../../common/components/schedule/Schedule';
-import { ScheduleProvider } from '../../../common/components/schedule/ScheduleContext';
-import ScheduleNav from '../../../common/components/schedule/ScheduleNav';
-import TitleCard from '../../../common/components/title-card/TitleCard';
-import ViewLogo from '../../../common/components/view-logo/ViewLogo';
-import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
-import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
-import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
-import { timerPlaceholderMin } from '../../../common/utils/styleUtils';
-import { formatTime, getDefaultFormat } from '../../../common/utils/time';
-import { useTranslation } from '../../../translation/TranslationProvider';
-import { titleVariants } from '../common/animation';
-import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
-import { getPropertyValue } from '../common/viewUtils';
+import ProgressBar from '../../common/components/progress-bar/ProgressBar';
+import Schedule from '../../common/components/schedule/Schedule';
+import { ScheduleProvider } from '../../common/components/schedule/ScheduleContext';
+import ScheduleNav from '../../common/components/schedule/ScheduleNav';
+import TitleCard from '../../common/components/title-card/TitleCard';
+import ViewLogo from '../../common/components/view-logo/ViewLogo';
+import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
+import { useWindowTitle } from '../../common/hooks/useWindowTitle';
+import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
+import { timerPlaceholderMin } from '../../common/utils/styleUtils';
+import { formatTime, getDefaultFormat } from '../../common/utils/time';
+import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
+import { getPropertyValue } from '../../features/viewers/common/viewUtils';
+import { useTranslation } from '../../translation/TranslationProvider';
+import { titleVariants } from '../timer/timer.animations';
 
 import { getBackstageOptions } from './backstage.options';
 
