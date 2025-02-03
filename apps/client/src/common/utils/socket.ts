@@ -207,8 +207,7 @@ export const connectSocket = () => {
               ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
             }
           } else if (target === 'REPORT') {
-            ontimeQueryClient.refetchQueries({ queryKey: REPORT });
-            //we need to use refech and not invalidate
+            ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
           }
           break;
         }
