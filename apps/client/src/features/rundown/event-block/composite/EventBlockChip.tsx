@@ -1,10 +1,9 @@
 import { Tooltip } from '@chakra-ui/react';
 import { IoCheckmarkCircle } from '@react-icons/all-files/io5/IoCheckmarkCircle';
-import type { OntimeEventReport } from 'ontime-types';
 import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { usePlayback, useTimelineStatus } from '../../../../common/hooks/useSocket';
-import useReport from '../../../../common/hooks-query/useReport';
+import { useGetEventReport } from '../../../../common/hooks-query/useReport';
 import { cx } from '../../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../../common/utils/time';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
@@ -78,8 +77,7 @@ interface EventReportProps {
 
 function EventReport(props: EventReportProps) {
   const { className, id, duration } = props;
-  const { data } = useReport();
-  const currentReport: OntimeEventReport | undefined = data[id];
+  const currentReport = useGetEventReport(id);
 
   const [value, overUnderStyle, tooltip] = useMemo(() => {
     if (!currentReport) {

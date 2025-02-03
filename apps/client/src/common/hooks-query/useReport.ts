@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { OntimeReport } from 'ontime-types';
 
@@ -17,4 +18,11 @@ export default function useReport() {
   });
 
   return { data: data ?? {} };
+}
+
+export function useGetEventReport(id: string) {
+  const { data } = useReport();
+  return useMemo(() => {
+    return data[id];
+  }, [data, id]);
 }
