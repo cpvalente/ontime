@@ -130,7 +130,7 @@ export default function ProjectListItem({
           <>
             <td className={style.containCell}>{filename}</td>
             <td>{current ? 'Currently loaded' : new Date(updatedAt).toLocaleString()}</td>
-            <td className={style.actionButton}>
+            <td>
               <ActionMenu
                 current={current}
                 filename={filename}

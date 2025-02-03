@@ -1,8 +1,7 @@
 import type {
+  AutomationSettings,
   CustomFields,
-  HttpSettings,
   OntimeRundown,
-  OSCSettings,
   ProjectData,
   Settings,
   URLPreset,
@@ -16,6 +15,5 @@ export type DatabaseModel = {
   viewSettings: ViewSettings;
   urlPresets: URLPreset[];
   customFields: CustomFields;
-  osc: OSCSettings;
-  http: HttpSettings;
+  automation: AutomationSettings;
 };

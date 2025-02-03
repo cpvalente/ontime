@@ -1,0 +1,74 @@
+.outerColumn {
+  gap: 2rem;
+  margin-bottom: 2rem;
+
+  h3 {
+    font-size: 1rem;
+  }
+}
+
+.innerColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.matchRadio {
+  display: flex;
+  gap: 1rem;
+}
+
+.ruleSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.titleSection,
+.filterSection,
+.oscSection,
+.httpSection {
+  display: grid;
+  grid-gap: 0.5rem;
+
+  button {
+    align-self: flex-end;
+  }
+}
+
+.titleSection,
+.ruleSection,
+.filterSection,
+.oscSection,
+.httpSection {
+  label, div {
+    // we use the div as non-interactive placeholder for button cells
+    // it needs to match the size of the label element
+    font-size: calc(1rem - 3px);
+  }
+  label {
+    color: $label-gray;
+  }
+}
+
+
+.titleSection {
+  grid-template-columns: 1fr;
+}
+
+.filterSection {
+  grid-template-columns: 2fr 1fr 2fr auto;
+}
+
+.oscSection {
+  grid-template-columns: 9rem 5rem 3fr 4fr auto;
+}
+
+.httpSection {
+  grid-template-columns: 1fr auto;
+}
+
+.outputCard {
+  border-left: 0.25rem solid $gray-1200;
+  padding-left: 0.5rem;
+}

@@ -7,6 +7,9 @@ import { getLastRequest } from '../../api-integration/integration.controller.js'
 import { getLastLoadedProject } from '../../services/app-state-service/AppStateService.js';
 import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
 import { getNetworkInterfaces } from '../../utils/network.js';
+import { getTimezoneLabel } from '../../utils/time.js';
+import { password } from '../../externals.js';
+import { hashPassword } from '../../utils/hash.js';
 
 const startedAt = new Date();
 
@@ -24,7 +27,7 @@ export async function getSessionStats(): Promise<SessionStats> {
     lastRequest: lastRequest !== null ? lastRequest.toISOString() : null,
     projectName,
     playback,
-    timezone: startedAt.getTimezoneOffset(),
+    timezone: getTimezoneLabel(startedAt),
   };
 }
 
@@ -33,7 +36,6 @@ export async function getSessionStats(): Promise<SessionStats> {
  */
 export async function getInfo(): Promise<GetInfo> {
   const { version, serverPort } = getDataProvider().getSettings();
-  const osc = getDataProvider().getOsc();
 
   // get nif and inject localhost
   const ni = getNetworkInterfaces();
@@ -43,7 +45,23 @@ export async function getInfo(): Promise<GetInfo> {
     networkInterfaces: ni,
     version,
     serverPort,
-    osc,
     publicDir: publicDir.root,
   };
+}
+
+export const hasPassword = Boolean(password);
+export const hashedPassword = hasPassword ? hashPassword(password as string) : undefined;
+
+/**
+ * Generates a pre-authenticated URL by injecting a token in the URL params
+ */
+export function generateAuthenticatedUrl(baseUrl: string, path: string, lock: boolean, authenticate: boolean): URL {
+  const url = new URL(path, baseUrl);
+  if (authenticate && hashedPassword) {
+    url.searchParams.append('token', hashedPassword);
+  }
+  if (lock) {
+    url.searchParams.append('locked', 'true');
+  }
+  return url;
 }

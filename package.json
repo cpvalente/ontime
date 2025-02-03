@@ -1,6 +1,6 @@
 {
   "name": "ontime",
-  "version": "3.10.3",
+  "version": "3.11.0-beta.1",
   "description": "Time keeping for live events",
   "keywords": [
     "ontime",
@@ -38,7 +38,7 @@
     "cleanup": "rm -rf node_modules && rm -rf **/node_modules && rm -rf **/**/node_modules"
   },
   "devDependencies": {
-    "@playwright/test": "^1.42.1",
+    "@playwright/test": "^1.49.1",
     "@types/node": "catalog:",
     "@typescript-eslint/eslint-plugin": "catalog:",
     "@typescript-eslint/parser": "catalog:",

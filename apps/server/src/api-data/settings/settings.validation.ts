@@ -1,5 +1,17 @@
 import { body, validationResult } from 'express-validator';
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
+
+/**
+ * @description Validates object for POST /ontime/settings/welcomedialog
+ */
+export const validateWelcomeDialog = [
+  body('show').exists().isBoolean(),
+  (req: Request, res: Response, next: NextFunction) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    next();
+  },
+];
 
 /**
  * @description Validates object for POST /ontime/settings

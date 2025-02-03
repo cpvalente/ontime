@@ -30,7 +30,7 @@
 
   &.running {
     border-top: 1px solid $gray-1300;
-    background-color: $active-red;
+    background-color: var(--operator-running-bg-override, $active-red);
   }
 
   &.past {
@@ -92,12 +92,14 @@
 
 .fields {
   grid-area: fields;
-  font-size: 1.25rem;
+  font-size: var(--operator-customfield-font-size-override, 1.25rem);
   font-weight: 400;
   color: $ui-black;
   margin: 0.25rem 0;
   display: flex;
   flex-wrap: wrap;
+  gap: 0.5em;
+  row-gap: 0.25em;
 
   .field {
     font-weight: 600;
@@ -112,10 +114,11 @@
   }
 
   .value {
+    display: inline-flex;
     padding-inline: 0.25rem;
     background-color: $gray-1250;
     color: $ui-white;
-    margin-right: 1rem;
+    white-space: pre;
   }
 }
 

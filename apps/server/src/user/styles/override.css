@@ -5,60 +5,62 @@
  */
 
 :root {
-    /** Background colour for the views */
-    --background-color-override: #ececec;
-    
-    /** Main text colour for the views */
-    --color-override: #101010;
-    
-    /** Text colour for the views */
-    --secondary-color-override: #404040;
+  /** Background colour for the views */
+  --background-color-override: #ececec;
 
-    /** Accent text colour, used on active elements */
-    --accent-color-override: #fa5656;
+  /** Main text colour for the views */
+  --color-override: #101010;
 
-    /** Label text colour, used on active elements */
-    --label-color-override: #6c6c6c;
+  /** Text colour for the views */
+  --secondary-color-override: #404040;
 
-    /** Timer text colour */
-    --timer-color-override: #202020;
+  /** Accent text colour, used on active elements */
+  --accent-color-override: #fa5656;
 
-    /** Background for card elements on background */
-    --card-background-color-override: #fff;
+  /** Label text colour, used on active elements */
+  --label-color-override: #6c6c6c;
 
-    /** Background highlight for blink behaviour, used only in /backstage */
-    --card-background-color-blink-override: #339e4e;
-    
-    /** Font used for all text in views */
-    --font-family-override: "Open Sans";
+  /** Timer text colour */
+  --timer-color-override: #202020;
+  --timer-warning-color-override: #ffbc56;
+  --timer-danger-color-override: #e69000;
+  --timer-overtime-color-override: #fa5656;
 
-    /** Font used for clock in /minimal and /clock views */
-    --font-family-bold-override: "Arial Black";
+  /** Background for card elements on background */
+  --card-background-color-override: #fff;
 
-    /** Colour used for progress bar background */
-    --timer-progress-bg-override: #fff;
+  /** Font used for all text in views */
+  --font-family-override: 'Open Sans';
 
-    /** Colour used for progress bar progress */
-    --timer-progress-override: #202020;
-    
-    /** Colour used for external message and aux timer in /timer */
-    --external-color-override: #161616;
-        
-    /** View specific features: /studio */
-    --studio-active: #101010;
-    --studio-idle: #cfcfcf;
-    --studio-active-label: #101010;
-    --studio-idle-label: #595959;
-    --studio-overtime: #101010;
-    
-    /** View specific features: /lower */
-    --lowerThird-font-family-override: 'Courier New';
-    --lowerThird-top-font-weight-override: bold;
-    --lowerThird-bottom-font-weight-override: bold;
-    --lowerThird-top-font-style-override: normal;
-    --lowerThird-bottom-font-style-override: italic;
-    --lowerThird-line-height-override: 1vh;
-    --lowerThird-text-align-override: end;
+  /** Font used for clock in /minimal and /clock views */
+  --font-family-bold-override: 'Arial Black';
+
+  /** Colour used for external message and aux timer in /timer */
+  --external-color-override: #161616;
+
+  /** View specific features: /backstage */
+  /** ---- Background highlight for blink behaviour */
+  --card-background-color-blink-override: #339e4e;
+  /** ---- Colour used for progress bar background */
+  --timer-progress-bg-override: #fff;
+  /** ---- Colour used for progress bar progress */
+  --timer-progress-override: #202020;
+
+  /** View specific features: /studio */
+  --studio-active: #101010;
+  --studio-idle: #cfcfcf;
+  --studio-active-label: #101010;
+  --studio-idle-label: #595959;
+  --studio-overtime: #101010;
+
+  /** View specific features: /lower */
+  --lowerThird-font-family-override: 'Courier New';
+  --lowerThird-top-font-weight-override: bold;
+  --lowerThird-bottom-font-weight-override: bold;
+  --lowerThird-top-font-style-override: normal;
+  --lowerThird-bottom-font-style-override: italic;
+  --lowerThird-line-height-override: 1vh;
+  --lowerThird-text-align-override: end;
 }
 
 /** 
@@ -66,5 +68,5 @@
  * In the below example, we change the colour of the overlay message in the stage-timer view.
  */
 .stage-timer > .message-overlay--active > div {
-    color: red;
+  color: red;
 }

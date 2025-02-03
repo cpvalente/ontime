@@ -2,12 +2,8 @@ import {
   CustomFields,
   DatabaseModel,
   EndAction,
-  HttpSettings,
-  HttpSubscription,
-  OSCSettings,
   OntimeEvent,
   OntimeRundown,
-  OscSubscription,
   Settings,
   SupportedEvent,
   TimeStrategy,
@@ -17,16 +13,12 @@ import {
 
 import {
   parseCustomFields,
-  parseHttp,
-  parseOsc,
   parseProject,
   parseRundown,
   parseSettings,
   parseUrlPresets,
   parseViewSettings,
   sanitiseCustomFields,
-  sanitiseHttpSubscriptions,
-  sanitiseOscSubscriptions,
 } from '../parserFunctions.js';
 
 describe('parseRundown()', () => {
@@ -111,66 +103,6 @@ describe('parseViewSettings()', () => {
   });
 });
 
-describe('parseOsc()', () => {
-  it('returns an a base model if nothing is given', () => {
-    const errorEmitter = vi.fn();
-    const result = parseOsc({}, errorEmitter);
-    expect(result).toBeTypeOf('object');
-    expect(errorEmitter).toHaveBeenCalledOnce();
-  });
-
-  it('parses data, skipping invalid results', () => {
-    const errorEmitter = vi.fn();
-    const osc = {
-      subscriptions: [
-        { id: '1', cycle: 'onLoad', address: '/test', payload: 'test', enabled: true }, // OK
-        {}, // no data
-        { id: '2', cycle: 'onStart', payload: 'test', enabled: true }, // no address
-      ],
-    } as OSCSettings;
-    const result = parseOsc({ osc }, errorEmitter);
-    expect(result.subscriptions.length).toEqual(1);
-    expect(result.subscriptions.at(0)).toMatchObject({
-      id: '1',
-      cycle: 'onLoad',
-      address: '/test',
-      payload: 'test',
-      enabled: true,
-    });
-    expect(errorEmitter).toHaveBeenCalled();
-  });
-});
-
-describe('parseHttp()', () => {
-  it('returns an a base model if nothing is given', () => {
-    const errorEmitter = vi.fn();
-    const result = parseHttp({}, errorEmitter);
-    expect(result).toBeTypeOf('object');
-    expect(errorEmitter).toHaveBeenCalledOnce();
-  });
-
-  it('parses data, skipping invalid results', () => {
-    const errorEmitter = vi.fn();
-    const http = {
-      subscriptions: [
-        { id: '1', cycle: 'onLoad', message: 'http://', enabled: true }, // OK
-        {}, // no data
-        { id: '2', cycle: 'onStart', enabled: true }, // no message
-        { id: '3', cycle: 'onLoad', message: '/test', enabled: true }, // doesnt start with http
-      ],
-    } as HttpSettings;
-    const result = parseHttp({ http }, errorEmitter);
-    expect(result.subscriptions.length).toEqual(1);
-    expect(result.subscriptions.at(0)).toMatchObject({
-      id: '1',
-      cycle: 'onLoad',
-      message: 'http://',
-      enabled: true,
-    });
-    expect(errorEmitter).toHaveBeenCalled();
-  });
-});
-
 describe('parseUrlPresets()', () => {
   it('returns an a base model if nothing is given', () => {
     const errorEmitter = vi.fn();
@@ -220,81 +152,6 @@ describe('parseCustomFields()', () => {
       },
     });
     expect(errorEmitter).toHaveBeenCalled();
-  });
-});
-
-describe('sanitiseOscSubscriptions()', () => {
-  it('throws if not an array an empty array if not an array', () => {
-    expect(() => sanitiseOscSubscriptions(undefined)).toThrow();
-    // @ts-expect-error -- data is external, we check bad types
-    expect(() => sanitiseOscSubscriptions({})).toThrow();
-    expect(() => sanitiseOscSubscriptions(null)).toThrow();
-  });
-
-  it('returns an array of valid entries', () => {
-    const oscSubscriptions: OscSubscription[] = [
-      { id: '1', cycle: 'onLoad', address: '/test', payload: 'test', enabled: true },
-      { id: '2', cycle: 'onStart', address: '/test', payload: 'test', enabled: false },
-      { id: '3', cycle: 'onPause', address: '/test', payload: 'test', enabled: true },
-      { id: '4', cycle: 'onStop', address: '/test', payload: 'test', enabled: false },
-      { id: '5', cycle: 'onUpdate', address: '/test', payload: 'test', enabled: true },
-      { id: '6', cycle: 'onFinish', address: '/test', payload: 'test', enabled: false },
-      { id: '7', cycle: 'onWarning', address: '/test', payload: 'test', enabled: false },
-      { id: '8', cycle: 'onDanger', address: '/test', payload: 'test', enabled: false },
-    ];
-    const sanitationResult = sanitiseOscSubscriptions(oscSubscriptions);
-    expect(sanitationResult).toStrictEqual(oscSubscriptions);
-  });
-
-  it('filters invalid entries', () => {
-    const oscSubscriptions = [
-      { id: '1', cycle: 'onLoad', address: 4, payload: 'test', enabled: true },
-      { cycle: 'onLoad', payload: 'test', enabled: true },
-      { id: '2', cycle: 'unknown', payload: 'test', enabled: false },
-      { id: '3', payload: 'test', enabled: true },
-      { id: '4', cycle: 'onStop', enabled: false },
-      { id: '5', cycle: 'onUpdate', payload: 'test' },
-      { id: '6', cycle: 'onFinish', payload: 'test', enabled: 'true' },
-    ] as OscSubscription[];
-    const sanitationResult = sanitiseOscSubscriptions(oscSubscriptions);
-    expect(sanitationResult.length).toBe(0);
-  });
-});
-
-describe('sanitiseHttpSubscriptions()', () => {
-  it('throws if the data is unexpected', () => {
-    expect(() => sanitiseHttpSubscriptions(undefined)).toThrow();
-    // @ts-expect-error -- data is external, we check bad types
-    expect(() => sanitiseHttpSubscriptions({})).toThrow();
-    expect(() => sanitiseHttpSubscriptions(null)).toThrow();
-  });
-
-  it('returns an array of valid entries', () => {
-    const httpSubscription: HttpSubscription[] = [
-      { id: '1', cycle: 'onLoad', message: 'http://test', enabled: true },
-      { id: '2', cycle: 'onStart', message: 'http://test', enabled: false },
-      { id: '3', cycle: 'onPause', message: 'http://test', enabled: true },
-      { id: '4', cycle: 'onStop', message: 'http://test', enabled: false },
-      { id: '5', cycle: 'onUpdate', message: 'http://test', enabled: true },
-      { id: '6', cycle: 'onFinish', message: 'http://test', enabled: false },
-      { id: '7', cycle: 'onWarning', message: 'http://test', enabled: false },
-      { id: '8', cycle: 'onDanger', message: 'http://test', enabled: false },
-    ];
-    const sanitationResult = sanitiseHttpSubscriptions(httpSubscription);
-    expect(sanitationResult).toStrictEqual(httpSubscription);
-  });
-
-  it('filters invalid entries', () => {
-    const httpSubscription = [
-      { cycle: 'onLoad', message: 'http://test', enabled: true },
-      { id: '2', cycle: 'unknown', message: 'http://test', enabled: false },
-      { id: '3', message: 'http://test', enabled: true },
-      { id: '4', cycle: 'onStop', enabled: false },
-      { id: '5', cycle: 'onUpdate', message: 'http://test' },
-      { id: '6', cycle: 'onFinish', message: 'ftp://test', enabled: 'true' },
-    ];
-    const sanitationResult = sanitiseHttpSubscriptions(httpSubscription as HttpSubscription[]);
-    expect(sanitationResult.length).toBe(0);
   });
 });
 

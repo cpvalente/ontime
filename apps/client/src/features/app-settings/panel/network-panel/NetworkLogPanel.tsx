@@ -8,21 +8,34 @@ import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import ClientControlPanel from '../client-control-panel/ClientControlPanel';
 
+import GenerateLinkForm from './GenerateLinkForm';
 import InfoNif from './NetworkInterfaces';
 import LogExport from './NetworkLogExport';
 
 export default function NetworkLogPanel({ location }: PanelBaseProps) {
+  const linkRef = useScrollIntoView<HTMLDivElement>('link', location);
   const clientsRef = useScrollIntoView<HTMLDivElement>('clients', location);
   const logRef = useScrollIntoView<HTMLDivElement>('log', location);
 
   return (
     <>
       <Panel.Header>Network</Panel.Header>
-      <Panel.Section>
-        {isDockerImage && <OntimeCloudStats />}
-        <Panel.Paragraph>Ontime is streaming on the following network interfaces</Panel.Paragraph>
-      </Panel.Section>
-      <InfoNif />
+      {isDockerImage && (
+        <Panel.Section>
+          <OntimeCloudStats />
+        </Panel.Section>
+      )}
+      <div ref={linkRef}>
+        <Panel.Section>
+          <Panel.Card>
+            <Panel.SubHeader>Share Ontime Link</Panel.SubHeader>
+            <Panel.Divider />
+            <Panel.Paragraph>Ontime is streaming on the following network interfaces</Panel.Paragraph>
+            <InfoNif />
+            <GenerateLinkForm />
+          </Panel.Card>
+        </Panel.Section>
+      </div>
       <div ref={logRef}>
         <LogExport />
       </div>

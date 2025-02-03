@@ -1,7 +1,7 @@
-import { getTimeOption, hideTimerSeconds } from '../../../common/components/view-params-editor/constants';
-import { ViewOption } from '../../../common/components/view-params-editor/types';
+import { getTimeOption, hideTimerSeconds, OptionTitle } from '../../../common/components/view-params-editor/constants';
+import { ParamField, ViewOption } from '../../../common/components/view-params-editor/types';
 
-const makePersistedField = (id: string, value: string): ViewOption => {
+const makePersistedField = (id: string, value: string): ParamField => {
   return {
     id,
     title: 'Used to keep the selection on submit',
@@ -13,17 +13,20 @@ const makePersistedField = (id: string, value: string): ViewOption => {
 
 type Persisted = { id: string; value: string };
 export const getCountdownOptions = (timeFormat: string, persisted?: Persisted): ViewOption[] => [
-  { section: 'Clock Options' },
-  getTimeOption(timeFormat),
-  { section: 'Timer Options' },
-  hideTimerSeconds,
-  { section: 'View behaviour' },
+  { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
+  { title: OptionTitle.TimerOptions, collapsible: true, options: [hideTimerSeconds] },
   {
-    id: 'showProjected',
-    title: 'Show projected time',
-    description: 'Show projected times for the event, as well as apply the runtime offset to the timer.',
-    type: 'boolean',
-    defaultValue: false,
+    title: OptionTitle.BehaviourOptions,
+    collapsible: true,
+    options: [
+      {
+        id: 'showProjected',
+        title: 'Show projected time',
+        description: 'Show projected times for the event, as well as apply the runtime offset to the timer.',
+        type: 'boolean',
+        defaultValue: false,
+      },
+      ...(persisted ? [makePersistedField(persisted.id, persisted.value)] : []),
+    ],
   },
-  ...(persisted ? [makePersistedField(persisted.id, persisted.value)] : []),
 ];

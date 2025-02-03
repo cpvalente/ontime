@@ -6,6 +6,7 @@ import { CustomField, CustomFieldLabel } from 'ontime-types';
 
 import CopyTag from '../../../../../common/components/copy-tag/CopyTag';
 import Swatch from '../../../../../common/components/input/colour-input/Swatch';
+import * as Panel from '../../../panel-utils/PanelUtils';
 
 import CustomFieldForm from './CustomFieldForm';
 
@@ -55,7 +56,7 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
           {field}
         </CopyTag>
       </td>
-      <td className={style.actions}>
+      <Panel.InlineElements relation='inner' as='td'>
         <IconButton
           size='sm'
           variant='ontime-ghosted'
@@ -72,7 +73,7 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
           aria-label='Delete entry'
           onClick={() => onDelete(field)}
         />
-      </td>
+      </Panel.InlineElements>
     </tr>
   );
 }

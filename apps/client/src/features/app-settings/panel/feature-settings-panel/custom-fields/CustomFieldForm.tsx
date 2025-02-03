@@ -7,6 +7,7 @@ import { customFieldLabelToKey, isAlphanumericWithSpace } from 'ontime-utils';
 import { maybeAxiosError } from '../../../../../common/api/utils';
 import SwatchSelect from '../../../../../common/components/input/colour-input/SwatchSelect';
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
+import { preventEscape } from '../../../../../common/utils/keyEvent';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
 import style from '../FeatureSettings.module.scss';
@@ -71,7 +72,11 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
   const isEditMode = initialKey !== undefined;
 
   return (
-    <form onSubmit={handleSubmit(setupSubmit)} className={style.fieldForm}>
+    <form
+      onSubmit={handleSubmit(setupSubmit)}
+      className={style.fieldForm}
+      onKeyDown={(event) => preventEscape(event, onCancel)}
+    >
       <div className={style.twoCols}>
         <div>
           <Panel.Description>Label (only alphanumeric characters are allowed)</Panel.Description>
@@ -107,14 +112,14 @@ export default function CustomFieldForm(props: CustomFieldsFormProps) {
       </div>
 
       {errors.root && <Panel.Error>{errors.root.message}</Panel.Error>}
-      <div className={style.buttonRow}>
+      <Panel.InlineElements relation='inner' align='end'>
         <Button size='sm' variant='ontime-ghosted' onClick={onCancel}>
           Cancel
         </Button>
         <Button size='sm' type='submit' variant='ontime-filled' isDisabled={!canSubmit} isLoading={isSubmitting}>
           Save
         </Button>
-      </div>
+      </Panel.InlineElements>
     </form>
   );
 }

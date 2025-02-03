@@ -21,7 +21,7 @@ export function getShouldClockUpdate(previousUpdate: number, now: number): boole
  * Checks whether we should update the timer value
  * - we have rolled into a new seconds unit
  */
-export function getShouldTimerUpdate(previousValue: number, currentValue: MaybeNumber): boolean {
+export function getShouldTimerUpdate(previousValue: MaybeNumber, currentValue: MaybeNumber): boolean {
   if (currentValue === null) {
     return false;
   }
@@ -34,6 +34,7 @@ export function getShouldTimerUpdate(previousValue: number, currentValue: MaybeN
  * In some cases we want to force an update to the timer
  * - if the clock has slid back
  * - if we have escaped the update rate (clock slid forward)
+ * - if we are not playing then there is no need to update the timer
  */
 export function getForceUpdate(previousUpdate: number, now: number): boolean {
   const isClockBehind = now < previousUpdate;

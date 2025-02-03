@@ -1,17 +1,20 @@
-import { getTimeOption, hideTimerSeconds } from '../../../common/components/view-params-editor/constants';
+import { getTimeOption, hideTimerSeconds, OptionTitle } from '../../../common/components/view-params-editor/constants';
 import type { ViewOption } from '../../../common/components/view-params-editor/types';
 
 export const getStudioClockOptions = (timeFormat: string): ViewOption[] => [
-  { section: 'Clock Options' },
-  getTimeOption(timeFormat),
-  { section: 'Timer Options' },
-  hideTimerSeconds,
-  { section: 'Element visibility' },
+  { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
+  { title: OptionTitle.TimerOptions, collapsible: true, options: [hideTimerSeconds] },
   {
-    id: 'hideRight',
-    title: 'Hide right section',
-    description: 'Hides the right section with On Air indicator and the schedule',
-    type: 'boolean',
-    defaultValue: false,
+    title: OptionTitle.ElementVisibility,
+    collapsible: true,
+    options: [
+      {
+        id: 'hideRight',
+        title: 'Hide right section',
+        description: 'Hides the right section with On Air indicator and the schedule',
+        type: 'boolean',
+        defaultValue: false,
+      },
+    ],
   },
 ];

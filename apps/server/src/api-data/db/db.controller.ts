@@ -18,8 +18,16 @@ import * as projectService from '../../services/project-service/ProjectService.j
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   try {
-    const { rundown, project, settings, viewSettings, urlPresets, customFields, osc, http } = req.body;
-    const patchDb: DatabaseModel = { rundown, project, settings, viewSettings, urlPresets, customFields, osc, http };
+    const { rundown, project, settings, viewSettings, urlPresets, customFields, automation } = req.body;
+    const patchDb: DatabaseModel = {
+      rundown,
+      project,
+      settings,
+      viewSettings,
+      urlPresets,
+      customFields,
+      automation,
+    };
 
     const newData = await projectService.patchCurrentProject(patchDb);
 

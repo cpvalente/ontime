@@ -14,7 +14,7 @@ import { ontimeDrawer } from './ontimeDrawer';
 import { ontimeEditable } from './ontimeEditable';
 import { ontimeMenuOnDark } from './ontimeMenu';
 import { ontimeModal } from './ontimeModal';
-import { ontimeBlockRadio } from './ontimeRadio';
+import { ontimeBlockRadio, ontimeRadio } from './ontimeRadio';
 import { ontimeSelect } from './ontimeSelect';
 import { ontimeSwitch } from './ontimeSwitch';
 import { ontimeTab } from './ontimeTab';
@@ -109,6 +109,7 @@ const theme = extendTheme({
     },
     Radio: {
       variants: {
+        ontime: { ...ontimeRadio },
         'ontime-block': { ...ontimeBlockRadio },
       },
     },

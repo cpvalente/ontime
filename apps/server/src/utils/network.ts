@@ -2,7 +2,7 @@ import { LogOrigin } from 'ontime-types';
 
 import type { Server } from 'http';
 import { networkInterfaces } from 'os';
-import { AddressInfo } from 'net';
+import type { AddressInfo } from 'net';
 
 import { isDocker, isProduction } from '../externals.js';
 import { logger } from '../classes/Logger.js';

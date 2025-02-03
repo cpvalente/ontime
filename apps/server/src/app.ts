@@ -2,19 +2,21 @@ import { LogOrigin, Playback, runtimeStorePlaceholder, SimpleDirection, SimplePl
 
 import 'dotenv/config';
 import express from 'express';
-import http, { Server } from 'http';
+import http, { type Server } from 'http';
 import cors from 'cors';
 import serverTiming from 'server-timing';
+import cookieParser from 'cookie-parser';
+
+// import utils
+import { publicDir, srcDir } from './setup/index.js';
+import { environment, isProduction, updateRouterPrefix } from './externals.js';
+import { ONTIME_VERSION } from './ONTIME_VERSION.js';
+import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
 
 // Import middleware configuration
 import { bodyParser } from './middleware/bodyParser.js';
 import { compressedStatic } from './middleware/staticGZip.js';
-
-// import utils
-import { publicDir, srcDir, srcFiles } from './setup/index.js';
-import { environment, isOntimeCloud, isProduction, updateRouterPrefix } from './externals.js';
-import { ONTIME_VERSION } from './ONTIME_VERSION.js';
-import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
+import { loginRouter, makeAuthenticateMiddleware } from './middleware/authenticate.js';
 
 // Import Routers
 import { appRouter } from './api-data/index.js';
@@ -25,10 +27,7 @@ import { socket } from './adapters/WebsocketAdapter.js';
 import { getDataProvider } from './classes/data-provider/DataProvider.js';
 
 // Services
-import { integrationService } from './services/integration-service/IntegrationService.js';
 import { logger } from './classes/Logger.js';
-import { oscIntegration } from './services/integration-service/OscIntegration.js';
-import { httpIntegration } from './services/integration-service/HttpIntegration.js';
 import { populateStyles } from './setup/loadStyles.js';
 import { eventStore } from './stores/EventStore.js';
 import { runtimeService } from './services/runtime-service/RuntimeService.js';
@@ -38,6 +37,8 @@ import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
 import { initRundown } from './services/rundown-service/RundownService.js';
 import { initialiseProject } from './services/project-service/ProjectService.js';
+import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
+import { oscServer } from './adapters/OscAdapter.js';
 
 // Utilities
 import { clearUploadfolder } from './utils/upload.js';
@@ -72,19 +73,18 @@ if (!isProduction) {
 }
 app.disable('x-powered-by');
 
-// setup cors for all routes
-app.use(cors());
-
-// enable pre-flight cors
-app.options('*', cors());
-
 // Implement middleware
+app.use(cors()); // setup cors for all routes
+app.options('*', cors()); // enable pre-flight cors
+
 app.use(bodyParser);
-app.use(prefix, compressedStatic);
+app.use(cookieParser());
+const { authenticate, authenticateAndRedirect } = makeAuthenticateMiddleware(prefix);
 
 // Implement route endpoints
-app.use(`${prefix}/data`, appRouter); // router for application data
-app.use(`${prefix}/api`, integrationRouter); // router for integrations
+app.use(`${prefix}/login`, loginRouter); // router for login flow
+app.use(`${prefix}/data`, authenticate, appRouter); // router for application data
+app.use(`${prefix}/api`, authenticate, integrationRouter); // router for integrations
 
 // serve static external files
 app.use(`${prefix}/external`, express.static(publicDir.externalDir));
@@ -94,9 +94,9 @@ app.use(`${prefix}/external`, (req, res) => {
 });
 app.use(`${prefix}/user`, express.static(publicDir.userDir));
 
-app.get(`${prefix}/*`, (_req, res) => {
-  res.sendFile(srcFiles.clientIndexHtml);
-});
+// Base route for static files
+app.use(`${prefix}`, authenticateAndRedirect, compressedStatic);
+app.use(`${prefix}/*`, authenticateAndRedirect, compressedStatic);
 
 // Implement catch all
 app.use((_error, response) => {
@@ -132,7 +132,7 @@ let expressServer: Server | null = null;
 const checkStart = (currentState: OntimeStartOrder) => {
   if (step !== currentState) {
     step = OntimeStartOrder.Error;
-    throw new Error('Init order error: initAssets > startServer > startOsc > startIntegrations');
+    throw new Error('Init order error: initAssets > startServer');
   } else {
     if (step === 1 || step === 2) {
       step = step + 1;
@@ -166,8 +166,9 @@ export const startServer = async (
   // the express server must be started before the socket otherwise the on error event listener will not attach properly
   const resultPort = await serverTryDesiredPort(expressServer, desiredPort);
   await getDataProvider().setSettings({ ...settings, serverPort: resultPort });
+  const showWelcome = await getShowWelcomeDialog();
 
-  socket.init(expressServer, prefix);
+  socket.init(expressServer, showWelcome, prefix);
 
   /**
    * Module initialises the services and provides initial payload for the store
@@ -231,33 +232,9 @@ export const startServer = async (
  */
 export const startIntegrations = async () => {
   checkStart(OntimeStartOrder.InitIO);
-
-  // if a config is not provided, we use the persisted one
-  const { osc, http } = getDataProvider().getData();
-
-  if (http) {
-    logger.info(LogOrigin.Tx, 'Initialising HTTP Integration...');
-    try {
-      httpIntegration.init(http);
-      integrationService.register(httpIntegration);
-    } catch (error) {
-      logger.error(LogOrigin.Tx, `HTTP Integration initialisation failed: ${error}`);
-    }
-  }
-
-  if (isOntimeCloud) {
-    logger.info(LogOrigin.Tx, 'Skipping OSC in Cloud environment...');
-    return;
-  }
-
-  if (osc) {
-    logger.info(LogOrigin.Tx, 'Initialising OSC Integration...');
-    try {
-      oscIntegration.init(osc);
-      integrationService.register(oscIntegration);
-    } catch (error) {
-      logger.error(LogOrigin.Tx, 'OSC Integration initialisation failed');
-    }
+  const { enabledOscIn, oscPortIn } = getDataProvider().getAutomation();
+  if (enabledOscIn) {
+    oscServer.init(oscPortIn);
   }
 };
 
@@ -280,8 +257,8 @@ export const shutdown = async (exitCode = 0) => {
 
   expressServer?.close();
   runtimeService.shutdown();
-  integrationService.shutdown();
   logger.shutdown();
+  oscServer.shutdown();
   socket.shutdown();
   process.exit(exitCode);
 };

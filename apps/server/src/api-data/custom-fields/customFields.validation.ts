@@ -1,6 +1,6 @@
 import { isAlphanumericWithSpace } from 'ontime-utils';
 
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { body, param, validationResult } from 'express-validator';
 
 export const validateCustomField = [

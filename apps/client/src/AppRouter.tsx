@@ -22,7 +22,7 @@ const Editor = React.lazy(() => import('./features/editors/ProtectedEditor'));
 const Cuesheet = React.lazy(() => import('./views/cuesheet/ProtectedCuesheet'));
 const Operator = React.lazy(() => import('./features/operator/OperatorExport'));
 
-const TimerView = React.lazy(() => import('./features/viewers/timer/Timer'));
+const TimerView = React.lazy(() => import('./views/timer/Timer'));
 const MinimalTimerView = React.lazy(() => import('./features/viewers/minimal-timer/MinimalTimer'));
 const ClockView = React.lazy(() => import('./features/viewers/clock/Clock'));
 const Countdown = React.lazy(() => import('./features/viewers/countdown/Countdown'));
@@ -44,6 +44,8 @@ const SPublic = withPreset(withData(Public));
 const SLowerThird = withPreset(withData(Lower));
 const SStudio = withPreset(withData(StudioClock));
 const STimeline = withPreset(withData(Timeline));
+const PCuesheet = withPreset(Cuesheet);
+const POperator = withPreset(Operator);
 
 const EditorFeatureWrapper = React.lazy(() => import('./features/EditorFeatureWrapper'));
 const RundownPanel = React.lazy(() => import('./features/rundown/RundownExport'));
@@ -155,8 +157,8 @@ export default function AppRouter() {
 
         {/*/!* Protected Routes *!/*/}
         <Route path='/editor' element={<Editor />} />
-        <Route path='/cuesheet' element={<Cuesheet />} />
-        <Route path='/op' element={<Operator />} />
+        <Route path='/cuesheet' element={<PCuesheet />} />
+        <Route path='/op' element={<POperator />} />
 
         {/*/!* Protected Routes - Elements *!/*/}
         <Route

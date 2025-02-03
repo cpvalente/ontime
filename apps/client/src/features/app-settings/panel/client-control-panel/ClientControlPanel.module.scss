@@ -2,23 +2,11 @@
   width: 100%;
 }
 
-.actionButtons {
-  display: flex;
-  gap: $element-spacing;
-}
-
 .halfWidth {
   width: 50%;
+}
+
+.halfWidthNoWrap {
+  width: 50%;
   white-space: nowrap;
-}
-
-.pathList {
-  width: 100%;
-}
-
-.badgeList {
-  width: 100%;
-  * {
-    margin-right: $element-spacing;
-  }
 }

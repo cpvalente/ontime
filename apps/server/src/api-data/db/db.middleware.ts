@@ -1,5 +1,5 @@
-import { Request } from 'express';
-import multer, { FileFilterCallback } from 'multer';
+import type { Request } from 'express';
+import multer, { type FileFilterCallback } from 'multer';
 
 import { JSON_MIME } from '../../utils/parser.js';
 import { storage } from '../../utils/upload.js';

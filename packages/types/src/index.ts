@@ -16,6 +16,21 @@ export type { OntimeEntryCommonKeys, OntimeRundown, OntimeRundownEntry } from '.
 export { TimeStrategy } from './definitions/TimeStrategy.type.js';
 export { TimerType } from './definitions/TimerType.type.js';
 
+// ---> Automations
+export type {
+  Automation,
+  AutomationDTO,
+  AutomationFilter,
+  AutomationSettings,
+  AutomationOutput,
+  FilterRule,
+  HTTPOutput,
+  NormalisedAutomation,
+  OSCOutput,
+  Trigger,
+  TriggerDTO,
+} from './definitions/core/Automation.type.js';
+
 // ---> Project Data
 export type { ProjectData } from './definitions/core/ProjectData.type.js';
 
@@ -37,15 +52,12 @@ export type {
   EventCustomFields,
 } from './definitions/core/CustomFields.type.js';
 
-// ---> Integration, Subscription
-export type { OSCSettings, OscSubscription } from './definitions/core/OscSettings.type.js';
-export type { HttpSettings, HttpSubscription } from './definitions/core/HttpSettings.type.js';
-
 // SERVER RESPONSES
 export type {
   AuthenticationStatus,
   NetworkInterface,
   GetInfo,
+  GetUrl,
   ProjectFileList,
   ProjectFile,
   ErrorResponse,
@@ -67,7 +79,7 @@ export type {
 // SERVER RUNTIME
 export { type Log, LogLevel, type LogMessage, LogOrigin } from './definitions/runtime/Logger.type.js';
 export { Playback } from './definitions/runtime/Playback.type.js';
-export { TimerLifeCycle } from './definitions/core/TimerLifecycle.type.js';
+export { TimerLifeCycle, timerLifecycleValues } from './definitions/core/TimerLifecycle.type.js';
 export type { TimerMessage, MessageState } from './definitions/runtime/MessageControl.type.js';
 
 export type { Runtime } from './definitions/runtime/Runtime.type.js';
@@ -90,5 +102,7 @@ export {
   isPlayableEvent,
   isOntimeCycle,
   isKeyOfType,
+  isOSCOutput,
+  isHTTPOutput,
 } from './utils/guards.js';
 export type { MaybeNumber, MaybeString } from './utils/utils.type.js';

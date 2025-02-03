@@ -1,6 +1,7 @@
 import { MaybeNumber } from 'ontime-types';
 
 import { getProgress } from '../../utils/getProgress';
+import { cx } from '../../utils/styleUtils';
 
 import './MultiPartProgressBar.scss';
 
@@ -13,6 +14,7 @@ interface MultiPartProgressBar {
   danger?: MaybeNumber;
   dangerColor: string;
   hidden?: boolean;
+  hideOvertime?: boolean;
   ignoreCssOverride?: boolean;
   className?: string;
 }
@@ -27,6 +29,7 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
     danger,
     dangerColor,
     hidden,
+    hideOvertime,
     ignoreCssOverride,
     className = '',
   } = props;
@@ -34,12 +37,17 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
   const percentRemaining = 100 - getProgress(now, complete);
   const dangerWidth = danger ? 100 - getProgress(danger, complete) : 0;
   const warningWidth = warning ? 100 - dangerWidth - getProgress(warning, complete) : 0;
+  const isOvertime = now !== null && now < 0;
+  const showOvertime = isOvertime && !hideOvertime;
 
   return (
     <div
-      className={`multiprogress-bar ${hidden ? 'multiprogress-bar--hidden' : ''} ${
-        ignoreCssOverride ? 'multiprogress-bar--ignore-css-override' : ''
-      } ${className}`}
+      className={cx([
+        'multiprogress-bar',
+        hidden && 'multiprogress-bar--hidden',
+        ignoreCssOverride && 'multiprogress-bar--ignore-css-override',
+        className,
+      ])}
     >
       {now !== null && (
         <>
@@ -50,8 +58,8 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
               style={{ width: `${warningWidth}%`, backgroundColor: warningColor }}
             />
             <div
-              className='multiprogress-bar__bg-danger'
-              style={{ width: `${dangerWidth}%`, backgroundColor: dangerColor }}
+              className={cx(['multiprogress-bar__bg-danger', showOvertime && 'multiprogress-bar__bg-danger--overtime'])}
+              style={{ width: `${dangerWidth}%`, backgroundColor: showOvertime ? undefined : dangerColor }}
             />
           </div>
           <div className='multiprogress-bar__indicator'>

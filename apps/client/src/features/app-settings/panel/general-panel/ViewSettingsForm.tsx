@@ -9,9 +9,8 @@ import ExternalLink from '../../../../common/components/external-link/ExternalLi
 import { SwatchPickerRHF } from '../../../../common/components/input/colour-input/SwatchPicker';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
+import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
-
-import style from './GeneralPanel.module.scss';
 
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
@@ -67,18 +66,23 @@ export default function ViewSettingsForm() {
   const isLoading = status === 'pending' || infoStatus === 'pending';
 
   return (
-    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} id='view-settings'>
+    <Panel.Section
+      as='form'
+      onSubmit={handleSubmit(onSubmit)}
+      onKeyDown={(event) => preventEscape(event, onReset)}
+      id='view-settings'
+    >
       <Panel.Card>
         <Panel.SubHeader>
           View settings
-          <div className={style.actionButtons}>
+          <Panel.InlineElements>
             <Button isDisabled={!isDirty} variant='ontime-ghosted' size='sm' onClick={onReset}>
               Revert to saved
             </Button>
             <Button type='submit' isLoading={isSubmitting} isDisabled={!isDirty} variant='ontime-filled' size='sm'>
               Save
             </Button>
-          </div>
+          </Panel.InlineElements>
         </Panel.SubHeader>
         <Panel.Divider />
         <Alert status='info' variant='ontime-on-dark-info'>

@@ -3,11 +3,10 @@ import {
   OntimeRundown,
   ViewSettings,
   DatabaseModel,
-  OSCSettings,
   Settings,
   CustomFields,
-  HttpSettings,
   URLPreset,
+  AutomationSettings,
 } from 'ontime-types';
 
 import type { Low } from 'lowdb';
@@ -48,14 +47,12 @@ export function getDataProvider() {
     setRundown,
     getSettings,
     setSettings,
-    getOsc,
-    getHttp,
     getUrlPresets,
     setUrlPresets,
     getViewSettings,
     setViewSettings,
-    setOsc,
-    setHttp,
+    getAutomation,
+    setAutomation,
     getRundown,
     mergeIntoData,
   };
@@ -101,14 +98,6 @@ async function setSettings(newData: Settings): ReadonlyPromise<Settings> {
   return db.data.settings;
 }
 
-function getOsc(): Readonly<OSCSettings> {
-  return db.data.osc;
-}
-
-function getHttp(): Readonly<HttpSettings> {
-  return db.data.http;
-}
-
 function getUrlPresets(): Readonly<URLPreset[]> {
   return db.data.urlPresets;
 }
@@ -129,16 +118,14 @@ async function setViewSettings(newData: ViewSettings): ReadonlyPromise<ViewSetti
   return db.data.viewSettings;
 }
 
-async function setOsc(newData: OSCSettings): ReadonlyPromise<OSCSettings> {
-  db.data.osc = { ...newData };
-  await persist();
-  return db.data.osc;
+function getAutomation(): Readonly<AutomationSettings> {
+  return db.data.automation;
 }
 
-async function setHttp(newData: HttpSettings): ReadonlyPromise<HttpSettings> {
-  db.data.http = { ...newData };
+async function setAutomation(newData: AutomationSettings): ReadonlyPromise<AutomationSettings> {
+  db.data.automation = { ...newData };
   await persist();
-  return db.data.http;
+  return db.data.automation;
 }
 
 function getRundown(): Readonly<OntimeRundown> {
@@ -150,8 +137,7 @@ async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<D
   db.data.project = mergedData.project;
   db.data.settings = mergedData.settings;
   db.data.viewSettings = mergedData.viewSettings;
-  db.data.osc = mergedData.osc;
-  db.data.http = mergedData.http;
+  db.data.automation = mergedData.automation;
   db.data.urlPresets = mergedData.urlPresets;
   db.data.customFields = mergedData.customFields;
   db.data.rundown = mergedData.rundown;

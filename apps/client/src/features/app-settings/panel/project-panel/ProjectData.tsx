@@ -9,6 +9,7 @@ import { projectLogoPath } from '../../../../common/api/constants';
 import { postProjectData, uploadProjectLogo } from '../../../../common/api/project';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import useProjectData from '../../../../common/hooks-query/useProjectData';
+import { preventEscape } from '../../../../common/utils/keyEvent';
 import { validateLogo } from '../../../../common/utils/uploadUtils';
 import { documentationUrl, websiteUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -96,11 +97,11 @@ export default function ProjectData() {
   const isLoading = status === 'pending';
 
   return (
-    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)}>
+    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)}  onKeyDown={(event) => preventEscape(event, onReset)}>
       <Panel.Card>
         <Panel.SubHeader>
           Project data
-          <div className={style.headerButtons}>
+          <Panel.InlineElements>
             <Button variant='ontime-ghosted' size='sm' onClick={onReset} isDisabled={isSubmitting || !isDirty}>
               Revert to saved
             </Button>
@@ -113,7 +114,7 @@ export default function ProjectData() {
             >
               Save
             </Button>
-          </div>
+          </Panel.InlineElements>
         </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>

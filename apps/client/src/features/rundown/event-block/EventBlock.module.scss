@@ -9,7 +9,7 @@ $skip-opacity: 0.2;
   display: grid;
   grid-template-areas:
     'binder ...        ...     ...'
-    'binder pb-actions times   ...'
+    'binder pb-actions times   chip'
     'binder pb-actions title   title'
     'binder pb-actions estatus estatus'
     'binder ...        ...     ...';
@@ -129,6 +129,10 @@ $skip-opacity: 0.2;
   align-items: center;
   gap: $block-clearance;
   height: 100%;
+}
+
+.chipSection {
+  grid-area: chip;
 }
 
 .titleSection {

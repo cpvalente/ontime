@@ -1,0 +1,206 @@
+@use '../../theme/viewerDefs' as *;
+
+.stage-timer {
+  margin: 0;
+  box-sizing: border-box; /* reset */
+  overflow: hidden;
+  width: 100%; /* restrict the page width to viewport */
+  height: 100vh;
+  transition: opacity 0.5s ease-in-out;
+
+  font-family: var(--font-family-override, $viewer-font-family);
+  background: var(--background-color-override, $viewer-background-color);
+  color: var(--color-override, $viewer-color);
+  gap: $view-element-gap;
+  padding: $view-outer-padding;
+
+  display: flex;
+  flex-direction: column;
+
+  &--finished {
+    outline: clamp(4px, 1vw, 16px) solid var(--timer-overtime-color-override, $timer-finished-color);
+    outline-offset: calc(clamp(4px, 1vw, 16px) * -1);
+    transition: $viewer-transition-time;
+  }
+
+  .blackout {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity $viewer-transition-time;
+    &--active {
+      opacity: 1;
+    }
+  }
+
+  /* =================== CLOCK ===================*/
+
+  .clock-container {
+    margin-left: auto;
+    font-weight: 600;
+    transition: opacity $viewer-transition-time;
+
+    .label {
+      font-size: $timer-label-size;
+      color: var(--label-color-override, $viewer-label-color);
+      text-transform: uppercase;
+    }
+
+    .clock {
+      font-size: $timer-value-size;
+      color: var(--secondary-color-override, $viewer-secondary-color);
+      letter-spacing: 0.05em;
+      line-height: 0.95em;
+    }
+
+    &--hidden {
+      opacity: 0;
+    }
+  }
+
+  /* =================== TITLES ===================*/
+
+  .event {
+    background-color: var(--card-background-color-override, $viewer-card-bg-color);
+    padding: $view-card-padding;
+    border-radius: $element-border-radius;
+
+    &.now {
+      grid-area: now;
+    }
+
+    &.next {
+      grid-area: next;
+    }
+  }
+
+  /* =================== MAIN ===================*/
+
+  .timer-container {
+    flex: 1;
+    align-content: center;
+    justify-self: center;
+    align-self: center;
+
+    width: 100%;
+    overflow: hidden;
+
+    .end-message {
+      text-align: center;
+      font-size: 11.5vw;
+      line-height: 0.9em;
+      font-weight: 600;
+      color: var(--timer-overtime-color-override, $timer-finished-color);
+      padding: 0;
+    }
+
+    .timer {
+      opacity: 1;
+      font-family: var(--font-family-override, $viewer-font-family);
+      color: var(--timer-color-override, var(--phase-color));
+      line-height: 0.9em;
+      text-align: center;
+      letter-spacing: 0.05em;
+      font-weight: 600;
+
+      transition-property: font-size;
+      transition-duration: $viewer-transition-time;
+
+      &--paused {
+        opacity: $viewer-opacity-disabled;
+        transition: $viewer-transition-time;
+      }
+
+      // use a class instead of a phase, to allow suppressing overtime style
+      &--finished {
+        color: var(--timer-overtime-color-override, $timer-finished-color);
+      }
+
+      &[data-phase="warning"] {
+        color: var(--timer-warning-color-override, var(--phase-color));
+      }
+      &[data-phase="danger"] {
+        color: var(--timer-danger-color-override, var(--phase-color));
+      }
+    }
+  }
+
+  .secondary {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    margin-top: 0.125em;
+    padding-block: 0.125em;
+
+    font-weight: 600;
+    text-align: center;
+    color: var(--external-color-override, $external-color);
+    letter-spacing: 0.5px;
+    line-height: 1em;
+    transition-property: opacity, height;
+    transition-duration: $viewer-transition-time;
+    border-top: 1px solid color-mix(in srgb, var(--external-color-override, $external-color) 10%, transparent);
+
+    &--hidden {
+      opacity: 0;
+      height: 0;
+    }
+  }
+
+  .progress-container {
+    width: 100%;
+    margin: 0 auto;
+    opacity: 1;
+    transition: $viewer-transition-time;
+
+    &--paused {
+      opacity: $viewer-opacity-disabled;
+      transition: $viewer-transition-time;
+    }
+  }
+
+  /* =================== OVERLAY ===================*/
+
+  .message-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 2vw;
+    background: var(--background-color-override, $viewer-background-color);
+    opacity: 0;
+    transition: opacity $viewer-transition-time;
+    z-index: 2;
+
+    &--active {
+      opacity: 1;
+    }
+  }
+
+  .message {
+    display: grid;
+    place-content: center;
+    height: 100%;
+    width: 100%;
+
+    color: var(--color-override, $viewer-color);
+    text-align: center;
+    font-weight: 600;
+  }
+
+  /* =================== LOGO ===================*/
+  .logo {
+    position: absolute;
+    top: min(2vh, 16px);
+    left: min(2vw, 16px);
+    max-width: min(200px, 20vw);
+    max-height: min(100px, 20vh);
+  }
+}

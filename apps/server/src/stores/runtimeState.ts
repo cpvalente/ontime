@@ -21,7 +21,7 @@ import {
 } from 'ontime-utils';
 
 import { clock } from '../services/Clock.js';
-import { RestorePoint } from '../services/RestoreService.js';
+import type { RestorePoint } from '../services/RestoreService.js';
 import {
   getCurrent,
   getExpectedEnd,
@@ -136,10 +136,14 @@ export function clear() {
  * Utility to allow modifying the state from the outside
  * @param newState
  */
-function patchTimer(newState: Partial<TimerState>) {
+function patchTimer(newState: Partial<TimerState & RestorePoint>) {
   for (const key in newState) {
     if (key in runtimeState.timer) {
       runtimeState.timer[key] = newState[key];
+    } else if (key in runtimeState._timer) {
+      // in case of a RestorePoint we will receive a pausedAt value
+      // wiche is needed to resume a paused timer
+      runtimeState._timer[key] = newState[key];
     }
   }
 }
@@ -488,6 +492,7 @@ export type UpdateResult = {
 
 export function update(): UpdateResult {
   // 0. there are some things we always do
+  const previousClock = runtimeState.clock;
   runtimeState.clock = clock.timeNow(); // we update the clock on every update call
 
   // 1. is playback idle?
@@ -497,7 +502,8 @@ export function update(): UpdateResult {
 
   // 2. are we waiting to roll?
   if (runtimeState.timer.playback === Playback.Roll && runtimeState.timer.secondaryTimer !== null) {
-    return updateIfWaitingToRoll();
+    const hasCrossedMidnight = previousClock > runtimeState.clock;
+    return updateIfWaitingToRoll(hasCrossedMidnight);
   }
 
   // 3. at this point we know that we are playing an event
@@ -539,16 +545,24 @@ export function update(): UpdateResult {
     return { hasTimerFinished: false, hasSecondaryTimerFinished: false };
   }
 
-  function updateIfWaitingToRoll() {
+  function updateIfWaitingToRoll(hasCrossedMidnight: boolean) {
     // eslint-disable-next-line no-unused-labels -- dev code path
     DEV: {
       if (runtimeState.eventNow === null || runtimeState._timer.secondaryTarget === null) {
         throw new Error('runtimeState.updateIfWaitingToRoll: invalid state received');
       }
     }
-    //account for offset
+
+    // account for offset
     const offsetClock = runtimeState.clock + runtimeState.runtime.offset;
     runtimeState.timer.phase = TimerPhase.Pending;
+
+    if (hasCrossedMidnight) {
+      // if we crossed midnight, we need to update the target
+      // this is the same logic from the roll function
+      runtimeState._timer.secondaryTarget = normaliseRollStart(runtimeState.eventNow.timeStart, offsetClock);
+    }
+
     runtimeState.timer.secondaryTimer = runtimeState._timer.secondaryTarget - offsetClock;
     return { hasTimerFinished: false, hasSecondaryTimerFinished: runtimeState.timer.secondaryTimer <= 0 };
   }
@@ -660,6 +674,11 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
 
   // there is something to run, load event
 
+  // update runtime
+  if (runtimeState.currentBlock.startedAt === null) {
+    runtimeState.currentBlock.startedAt = runtimeState.clock;
+  }
+
   // event will finish on time
   // account for event that finishes the day after
   const endTime =
@@ -682,26 +701,25 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
   return { eventId: runtimeState.eventNow.id, didStart: true };
 }
 
-function loadBlock(rundown: OntimeRundown) {
-  if (runtimeState.eventNow === null) {
+/**
+ * handle block loading, not for use outside of runtimeState
+ * @param rundown
+ */
+export function loadBlock(rundown: OntimeRundown, state = runtimeState) {
+  if (state.eventNow === null) {
     // we need a loaded event to have a block
-    runtimeState.currentBlock.block = null;
-    runtimeState.currentBlock.startedAt = null;
+    state.currentBlock.block = null;
+    state.currentBlock.startedAt = null;
     return;
   }
 
-  const newCurrentBlock = getPreviousBlock(rundown, runtimeState.eventNow.id);
-
-  // test all block change posibiletys
-  const formNoBlockToBlock = runtimeState.currentBlock.block === null && newCurrentBlock !== null;
-  const formBlockToNoBlock = runtimeState.currentBlock.block !== null && newCurrentBlock === null;
-  const formBlockToNewBlock = runtimeState.currentBlock.block?.id !== newCurrentBlock?.id;
+  const newCurrentBlock = getPreviousBlock(rundown, state.eventNow.id);
 
   // update time only if the block has changed
-  if (formNoBlockToBlock || formBlockToNoBlock || formBlockToNewBlock) {
-    runtimeState.currentBlock.startedAt = null;
+  if (state.currentBlock.block?.id !== newCurrentBlock?.id) {
+    state.currentBlock.startedAt = null;
   }
 
   // update the block anyway
-  runtimeState.currentBlock.block = newCurrentBlock === null ? null : { ...newCurrentBlock };
+  state.currentBlock.block = newCurrentBlock === null ? null : { ...newCurrentBlock };
 }
