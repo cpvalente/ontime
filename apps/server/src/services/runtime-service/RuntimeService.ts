@@ -290,6 +290,7 @@ class RuntimeService {
       logger.warning(LogOrigin.Playback, `Refused skipped event with ID ${event.id}`);
       return false;
     }
+    const previousState = runtimeState.getState();
 
     const rundown = getRundown();
     const success = runtimeState.load(event, rundown, initialData);
@@ -298,7 +299,7 @@ class RuntimeService {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
       const newState = runtimeState.getState();
       process.nextTick(() => {
-        triggerReportEntry(TimerLifeCycle.onLoad, newState);
+        triggerReportEntry(TimerLifeCycle.onStop, previousState);
         triggerAutomations(TimerLifeCycle.onLoad, newState);
       });
     }
@@ -604,7 +605,7 @@ class RuntimeService {
       if (result.eventId !== previousState.eventNow?.id) {
         logger.info(LogOrigin.Playback, `Loaded event with ID ${result.eventId}`);
         process.nextTick(() => {
-          triggerReportEntry(TimerLifeCycle.onLoad, newState);
+          triggerReportEntry(TimerLifeCycle.onStop, previousState);
           triggerAutomations(TimerLifeCycle.onLoad, newState);
         });
       }

@@ -1,11 +1,7 @@
-import { OntimeReport, OntimeEventReport, TimerLifeCycle, MaybeString } from 'ontime-types';
+import { OntimeReport, OntimeEventReport, TimerLifeCycle } from 'ontime-types';
 import { RuntimeState } from '../../stores/runtimeState.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
-
-//TODO: there seams to be some actions that should invalidate reports
-// events timer edits?
-// event delete
-// Also what about roll mode?
+import { DeepReadonly } from 'ts-essentials';
 
 const report = new Map<string, OntimeEventReport>();
 
@@ -47,31 +43,37 @@ export function clear(id?: string) {
   }
 }
 
-let currentReportId: MaybeString = null;
-
 /**
  * trigger report entry
  * @param cycle
  * @param state
  * @returns
  */
-export function triggerReportEntry(cycle: TimerLifeCycle, state: Readonly<RuntimeState>) {
+export function triggerReportEntry(
+  cycle: TimerLifeCycle.onStart | TimerLifeCycle.onStop,
+  state: DeepReadonly<RuntimeState>,
+) {
   switch (cycle) {
     case TimerLifeCycle.onStart: {
-      currentReportId = state.eventNow.id;
-      report.set(currentReportId, { ...blankReportData, startedAt: state.timer.startedAt });
+      report.set(state.eventNow.id, { ...blankReportData, startedAt: state.timer.startedAt });
       break;
     }
-    case TimerLifeCycle.onLoad:
     case TimerLifeCycle.onStop: {
-      if (currentReportId) {
-        const startedAt = report.get(currentReportId).startedAt;
-        report.set(currentReportId, { startedAt, endedAt: state.clock });
-        currentReportId = null;
-        formattedReport = null;
-        sendRefetch({
-          target: 'REPORT',
-        });
+      const activeReport = report.get(state.eventNow?.id);
+      // check that there is an active report for this id
+      if (activeReport) {
+        const { startedAt, endedAt } = activeReport;
+        // and that the correct values are populated/free
+        if (startedAt !== null && endedAt === null) {
+          report.set(state.eventNow.id, { startedAt, endedAt: state.clock });
+          formattedReport = null;
+          sendRefetch({
+            target: 'REPORT',
+          });
+        } else {
+          // otherwise something is wrong and we should clear the report
+          report.delete(state.eventNow?.id);
+        }
       }
       break;
     }
