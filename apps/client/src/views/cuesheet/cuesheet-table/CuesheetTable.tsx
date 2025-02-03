@@ -32,7 +32,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
   const tableContainerRef = useRef<HTMLDivElement | null>(null);
   useFollowComponent({ followRef: selectedRef, scrollRef: tableContainerRef, doFollow: followSelected });
 
-  const { listeners } = useTableNav({ debug: true });
+  const { listeners } = useTableNav();
 
   const table = useReactTable({
     data,
