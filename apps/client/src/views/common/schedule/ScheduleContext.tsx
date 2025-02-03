@@ -2,8 +2,8 @@ import { createContext, PropsWithChildren, useContext, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { OntimeEvent } from 'ontime-types';
 
+import { useInterval } from '../../../common/hooks/useInterval';
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
-import { useInterval } from '../../hooks/useInterval';
 
 interface ScheduleContextState {
   events: OntimeEvent[];
