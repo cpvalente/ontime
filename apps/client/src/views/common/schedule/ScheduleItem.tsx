@@ -1,5 +1,5 @@
+import { formatTime } from '../../../common/utils/time';
 import SuperscriptTime from '../../../features/viewers/common/superscript-time/SuperscriptTime';
-import { formatTime } from '../../utils/time';
 
 import './Schedule.scss';
 
