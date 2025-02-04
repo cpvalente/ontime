@@ -198,8 +198,8 @@
   /* =================== LOGO ===================*/
   .logo {
     position: absolute;
-    top: min(2vh, 16px);
-    left: min(2vw, 16px);
+    top: $view-block-padding;
+    left: $view-inline-padding;
     max-width: min(200px, 20vw);
     max-height: min(100px, 20vh);
   }

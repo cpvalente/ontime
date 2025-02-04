@@ -1,31 +1,26 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
-import { useSearchParams } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
-import { CustomFields, OntimeEvent, ProjectData, Settings, SupportedEvent } from 'ontime-types';
+import { useViewportSize } from '@mantine/hooks';
+import { CustomFields, OntimeEvent, ProjectData, Runtime, Settings } from 'ontime-types';
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 
 import ProgressBar from '../../common/components/progress-bar/ProgressBar';
+import Empty from '../../common/components/state/Empty';
 import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
-import { timerPlaceholderMin } from '../../common/utils/styleUtils';
+import { cx, timerPlaceholderMin } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
-import { getPropertyValue } from '../../features/viewers/common/viewUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
-import Schedule from '../common/schedule/Schedule';
-import { ScheduleProvider } from '../common/schedule/ScheduleContext';
-import ScheduleNav from '../common/schedule/ScheduleNav';
-import { titleVariants } from '../timer/timer.animations';
+import BackstageSchedule from '../common/schedule/BackstageSchedule';
 
-import { getBackstageOptions } from './backstage.options';
+import { getBackstageOptions, useBackstageOptions } from './backstage.options';
+import { getCardData, getIsPendingStart, getShowProgressBar, isOvertime } from './backstage.utils';
 
 import './Backstage.scss';
-
-export const MotionTitleCard = motion(TitleCard);
 
 interface BackstageProps {
   backstageEvents: OntimeEvent[];
@@ -35,16 +30,29 @@ interface BackstageProps {
   general: ProjectData;
   isMirrored: boolean;
   time: ViewExtendedTimer;
+  runtime: Runtime;
   selectedId: string | null;
   settings: Settings | undefined;
 }
 
 export default function Backstage(props: BackstageProps) {
-  const { backstageEvents, customFields, eventNext, eventNow, general, time, isMirrored, selectedId, settings } = props;
+  const {
+    backstageEvents,
+    customFields,
+    eventNext,
+    eventNow,
+    general,
+    time,
+    isMirrored,
+    runtime,
+    selectedId,
+    settings,
+  } = props;
 
   const { getLocalizedString } = useTranslation();
+  const { secondarySource } = useBackstageOptions();
   const [blinkClass, setBlinkClass] = useState(false);
-  const [searchParams] = useSearchParams();
+  const { height: screenHeight } = useViewportSize();
 
   useWindowTitle('Backstage');
 
@@ -59,22 +67,31 @@ export default function Backstage(props: BackstageProps) {
     return () => clearTimeout(timer);
   }, [selectedId]);
 
+  // gather card data
+  const { showNow, nowMain, nowSecondary, showNext, nextMain, nextSecondary } = getCardData(
+    eventNow,
+    eventNext,
+    'title',
+    secondarySource,
+    time.playback,
+  );
+
+  // gather timer data
   const clock = formatTime(time.clock);
-  const startedAt = formatTime(time.startedAt);
-  const isNegative = (time.current ?? 0) < 0;
-  const expectedFinish = isNegative ? getLocalizedString('countdown.overtime') : formatTime(time.expectedFinish);
-
-  const qrSize = Math.max(window.innerWidth / 15, 128);
-  const filteredEvents = backstageEvents.filter((event) => event.type === SupportedEvent.Event);
-  const showProgress = time.playback !== 'stop';
-
-  const secondarySource = searchParams.get('secondary-src');
-  const secondaryTextNext = getPropertyValue(eventNext, secondarySource);
-  const secondaryTextNow = getPropertyValue(eventNow, secondarySource);
+  const isPendingStart = getIsPendingStart(time.playback, time.phase);
+  const startedAt = isPendingStart ? formatTime(time.secondaryTimer) : formatTime(time.startedAt);
+  const scheduledStart = showNow ? '' : formatTime(runtime.plannedStart, { format12: 'hh:mm a', format24: 'HH:mm' });
+  const scheduledEnd = showNow ? '' : formatTime(runtime.plannedEnd, { format12: 'hh:mm a', format24: 'HH:mm' });
 
   let stageTimer = millisToString(time.current, { fallback: timerPlaceholderMin });
   stageTimer = removeLeadingZero(stageTimer);
 
+  // gather presentation styles
+  const qrSize = Math.max(window.innerWidth / 15, 72);
+  const showProgress = getShowProgressBar(time.playback);
+  const showSchedule = screenHeight > 700; // in vertical screens we may not have space
+
+  // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const backstageOptions = getBackstageOptions(defaultFormat, customFields);
 
@@ -82,8 +99,8 @@ export default function Backstage(props: BackstageProps) {
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
       <ViewParamsEditor viewOptions={backstageOptions} />
       <div className='project-header'>
-        {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
-        {general.title}
+        {general?.projectLogo ? <ViewLogo name={general.projectLogo} className='logo' /> : <div className='logo' />}
+        <div className='title'>{general.title}</div>
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>
           <SuperscriptTime time={clock} className='time' />
@@ -97,63 +114,62 @@ export default function Backstage(props: BackstageProps) {
         hidden={!showProgress}
       />
 
-      <div className='now-container'>
-        <AnimatePresence>
-          {eventNow && (
-            <motion.div
-              className={`event now ${blinkClass ? 'blink' : ''}`}
-              key='now'
-              variants={titleVariants}
-              initial='hidden'
-              animate='visible'
-              exit='exit'
-            >
-              <TitleCard title={eventNow.title} secondary={secondaryTextNow} />
-              <div className='timer-group'>
-                <div className='aux-timers'>
-                  <div className='aux-timers__label'>{getLocalizedString('common.started_at')}</div>
-                  <SuperscriptTime time={startedAt} className='aux-timers__value' />
-                </div>
-                <div className='timer-gap' />
-                <div className='aux-timers'>
-                  <div className='aux-timers__label'>{getLocalizedString('common.expected_finish')}</div>
-                  {isNegative ? (
-                    <div className='aux-timers__value'>{expectedFinish}</div>
-                  ) : (
-                    <SuperscriptTime time={expectedFinish} className='aux-timers__value' />
-                  )}
-                </div>
-                <div className='timer-gap' />
-                <div className='aux-timers'>
-                  <div className='aux-timers__label'>{getLocalizedString('common.stage_timer')}</div>
-                  <div className='aux-timers__value'>{stageTimer}</div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      {backstageEvents.length === 0 && (
+        <div className='empty-container'>
+          <Empty text={getLocalizedString('common.no_data')} />
+        </div>
+      )}
 
-        <AnimatePresence>
-          {eventNext && (
-            <MotionTitleCard
-              className='event next'
-              key='next'
-              variants={titleVariants}
-              initial='hidden'
-              animate='visible'
-              exit='exit'
-              label='next'
-              title={eventNext.title}
-              secondary={secondaryTextNext}
-            />
-          )}
-        </AnimatePresence>
+      <div className='card-container'>
+        {showNow ? (
+          <div className={cx(['event', 'now', blinkClass && 'blink'])}>
+            <TitleCard title={nowMain} secondary={nowSecondary} />
+            <div className='timer-group'>
+              <div className='aux-timers'>
+                <div className={cx(['aux-timers__label', isPendingStart && 'aux-timers--pending'])}>
+                  {isPendingStart ? getLocalizedString('countdown.waiting') : getLocalizedString('common.started_at')}
+                </div>
+                <SuperscriptTime time={startedAt} className='aux-timers__value' />
+              </div>
+              <div className='timer-gap' />
+              <div className='aux-timers'>
+                <div className='aux-timers__label'>{getLocalizedString('common.expected_finish')}</div>
+                {isOvertime(time.current) ? (
+                  <div className='aux-timers__value'>{getLocalizedString('countdown.overtime')}</div>
+                ) : (
+                  <SuperscriptTime time={formatTime(time.expectedFinish)} className='aux-timers__value' />
+                )}
+              </div>
+              <div className='timer-gap' />
+              <div className='aux-timers'>
+                <div className='aux-timers__label'>{getLocalizedString('common.stage_timer')}</div>
+                <div className='aux-timers__value'>{stageTimer}</div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className='event'>
+            <div className='title-card__placeholder'>{getLocalizedString('countdown.waiting')}</div>
+            <div className='timer-group'>
+              <div className='aux-timers'>
+                <div className={cx(['aux-timers__label', isPendingStart && 'aux-timers--pending'])}>
+                  {getLocalizedString('common.scheduled_start')}
+                </div>
+                <SuperscriptTime time={scheduledStart} className='aux-timers__value' />
+              </div>
+              <div className='timer-gap' />
+              <div className='aux-timers'>
+                <div className='aux-timers__label'>{getLocalizedString('common.scheduled_end')}</div>
+                <SuperscriptTime time={scheduledEnd} className='aux-timers__value' />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showNext && <TitleCard className='event' label='next' title={nextMain} secondary={nextSecondary} />}
       </div>
 
-      <ScheduleProvider events={filteredEvents} selectedEventId={selectedId} isBackstage>
-        <ScheduleNav className='schedule-nav-container' />
-        <Schedule isProduction className='schedule-container' />
-      </ScheduleProvider>
+      {showSchedule && <BackstageSchedule selectedId={selectedId} />}
 
       <div className='info'>
         {general.backstageUrl && <QRCode value={general.backstageUrl} size={qrSize} level='L' className='qr' />}

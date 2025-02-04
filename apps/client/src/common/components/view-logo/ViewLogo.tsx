@@ -7,5 +7,5 @@ interface ViewLogoProps {
 
 export default function ViewLogo(props: ViewLogoProps) {
   const { name, className } = props;
-  return <img src={`${projectLogoPath}/${name}`} className={className} />;
+  return <img alt='' src={`${projectLogoPath}/${name}`} className={className} />;
 }
