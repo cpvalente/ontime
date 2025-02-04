@@ -10,9 +10,7 @@ import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import { formatTime, getDefaultFormat } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
-import Schedule from '../../../views/common/schedule/Schedule';
-import { ScheduleProvider } from '../../../views/common/schedule/ScheduleContext';
-import ScheduleNav from '../../../views/common/schedule/ScheduleNav';
+import PublicSchedule from '../../../views/common/schedule/PublicSchedule';
 import { titleVariants } from '../common/animation';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getPropertyValue } from '../common/viewUtils';
@@ -30,23 +28,13 @@ interface BackstageProps {
   publicEventNow: OntimeEvent | null;
   publicEventNext: OntimeEvent | null;
   time: ViewExtendedTimer;
-  events: OntimeEvent[];
   publicSelectedId: string | null;
   settings: Settings | undefined;
 }
 
 export default function Public(props: BackstageProps) {
-  const {
-    customFields,
-    general,
-    isMirrored,
-    publicEventNow,
-    publicEventNext,
-    time,
-    events,
-    publicSelectedId,
-    settings,
-  } = props;
+  const { customFields, general, isMirrored, publicEventNow, publicEventNext, time, publicSelectedId, settings } =
+    props;
 
   const { getLocalizedString } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -109,10 +97,7 @@ export default function Public(props: BackstageProps) {
         </AnimatePresence>
       </div>
 
-      <ScheduleProvider events={events} selectedEventId={publicSelectedId}>
-        <ScheduleNav className='schedule-nav-container' />
-        <Schedule className='schedule-container' />
-      </ScheduleProvider>
+      <PublicSchedule selectedId={publicSelectedId} />
 
       <div className='info'>
         {general.publicUrl && <QRCode value={general.publicUrl} size={qrSize} level='L' className='qr' />}

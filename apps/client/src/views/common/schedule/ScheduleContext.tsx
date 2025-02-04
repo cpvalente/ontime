@@ -1,91 +1,155 @@
-import { createContext, PropsWithChildren, useContext, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { OntimeEvent } from 'ontime-types';
+import {
+  createContext,
+  PropsWithChildren,
+  RefObject,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
+import { isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
 
-import { useInterval } from '../../../common/hooks/useInterval';
-import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
+import { usePartialRundown } from '../../../common/hooks-query/useRundown';
+import { useScheduleOptions } from '../../backstage/backstage.options';
 
 interface ScheduleContextState {
   events: OntimeEvent[];
-  paginatedEvents: OntimeEvent[];
   selectedEventId: string | null;
-  scheduleType: 'past' | 'now' | 'future';
   numPages: number;
   visiblePage: number;
   isBackstage: boolean;
+  containerRef: RefObject<HTMLUListElement>;
 }
 
 const ScheduleContext = createContext<ScheduleContextState | undefined>(undefined);
 
 interface ScheduleProviderProps {
-  events: OntimeEvent[];
   selectedEventId: string | null;
   isBackstage?: boolean;
-  time?: number;
 }
-
-const numEventsPerPage = 8;
 
 export const ScheduleProvider = ({
   children,
-  events,
   selectedEventId,
   isBackstage = false,
-  time = 10,
 }: PropsWithChildren<ScheduleProviderProps>) => {
-  const [visiblePage, setVisiblePage] = useState(0);
-  const [searchParams] = useSearchParams();
+  const { cycleInterval, stopCycle } = useScheduleOptions();
+  const { data: events } = usePartialRundown((event: OntimeRundownEntry) => {
+    if (isBackstage) {
+      return isOntimeEvent(event);
+    }
+    return isOntimeEvent(event) && event.isPublic && !event.skip;
+  });
 
-  // look for overrides from views
-  const hidePast = isStringBoolean(searchParams.get('hidePast'));
-  const stopCycle = isStringBoolean(searchParams.get('stopCycle'));
-  const eventsPerPage = Number(searchParams.get('eventsPerPage') ?? numEventsPerPage);
+  const [firstIndex, setFirstIndex] = useState(-1);
+  const [numPages, setNumPages] = useState(0);
+  const [visiblePage, setVisiblePage] = useState(0);
+
+  const lastIndex = useRef(-1);
+  const paginator = useRef<NodeJS.Timeout>();
+
+  const containerRef = useRef<HTMLUListElement>(null);
+
+  useLayoutEffect(() => {
+    if (!containerRef.current) return;
+
+    const children = Array.from(containerRef.current.children) as HTMLElement[];
+    if (children.length === 0) {
+      return;
+    }
+
+    const containerHeight = containerRef.current.clientHeight;
+    let currentPageHeight = 0; // used to check when we need to paginate
+    let currentPage = 1;
+    let numPages = 1;
+    let lastVisibleIndex = -1; // keep track of last index on screen
+    let isShowingElements = false;
+
+    for (let i = 0; i < children.length; i++) {
+      const currentElementHeight = children[i].clientHeight;
+
+      // can we fit this element in the current page?
+      const isNextPage = currentPageHeight + currentElementHeight > containerHeight;
+      if (isNextPage) {
+        currentPageHeight = 0;
+        numPages += 1;
+      }
+
+      // we hide elements that are before and after the first element to show
+      if (i < firstIndex) {
+        hideElement(children[i]);
+      } else if (lastVisibleIndex === -1) {
+        isShowingElements = true;
+        currentPage = numPages;
+      } else if (isNextPage) {
+        isShowingElements = false;
+      }
+
+      if (!isShowingElements) {
+        hideElement(children[i]);
+      } else {
+        lastVisibleIndex = i;
+        showElement(children[i], currentPageHeight);
+      }
+
+      currentPageHeight += currentElementHeight;
+    }
+
+    setVisiblePage(currentPage);
+    setNumPages(numPages);
+    lastIndex.current = lastVisibleIndex;
+
+    function showElement(element: HTMLElement, yPosition: number) {
+      element.style.top = `${yPosition}px`;
+    }
+
+    function hideElement(element: HTMLElement) {
+      element.style.top = `${-1000}px`;
+    }
+    // we need to add the events to make sure the effect runs on first render
+  }, [firstIndex, events]);
+
+  // schedule cycling through events
+  useEffect(() => {
+    if (stopCycle) {
+      setVisiblePage(1);
+      setFirstIndex(0);
+      return;
+    }
+
+    if (paginator.current) {
+      clearInterval(paginator.current);
+    }
+
+    const interval = setInterval(() => {
+      // ensure we cycle back to the first event
+      if (visiblePage === numPages) {
+        setFirstIndex(0);
+      } else {
+        setFirstIndex(lastIndex.current + 1);
+      }
+    }, cycleInterval * 1000);
+    paginator.current = interval;
+
+    return () => clearInterval(paginator.current);
+  }, [cycleInterval, numPages, stopCycle, visiblePage]);
 
   let selectedEventIndex = events.findIndex((event) => event.id === selectedEventId);
 
-  const viewEvents = [...events];
-  if (hidePast) {
-    // we want to show the event after the next
-    viewEvents.splice(0, selectedEventIndex + 2);
-    selectedEventIndex = 0;
-  }
-
-  const numPages = Math.ceil(viewEvents.length / eventsPerPage);
-  const eventStart = eventsPerPage * visiblePage;
-  const eventEnd = eventsPerPage * (visiblePage + 1);
-  const paginatedEvents = viewEvents.slice(eventStart, eventEnd);
-
-  const resolveScheduleType = () => {
-    if (selectedEventIndex >= eventStart && selectedEventIndex < eventEnd) {
-      return 'now';
-    }
-    if (selectedEventIndex > eventEnd) {
-      return 'past';
-    }
-    return 'future';
-  };
-  const scheduleType = resolveScheduleType();
-
-  // every SCROLL_TIME go to the next array
-  useInterval(() => {
-    if (stopCycle) {
-      setVisiblePage(0);
-    } else if (events.length > eventsPerPage) {
-      const next = (visiblePage + 1) % numPages;
-      setVisiblePage(next);
-    }
-  }, time * 1000);
+  // we want to show the event after the current
+  const viewEvents = events.toSpliced(0, selectedEventIndex + 1);
+  selectedEventIndex = 0;
 
   return (
     <ScheduleContext.Provider
       value={{
-        events,
-        paginatedEvents,
+        events: viewEvents as OntimeEvent[],
         selectedEventId,
-        scheduleType,
         numPages,
         visiblePage,
         isBackstage,
+        containerRef,
       }}
     >
       {children}

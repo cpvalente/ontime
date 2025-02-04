@@ -1,3 +1,4 @@
+import { cx } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
 import SuperscriptTime from '../../../features/viewers/common/superscript-time/SuperscriptTime';
 
@@ -9,33 +10,55 @@ const formatOptions = {
 };
 
 interface ScheduleItemProps {
-  selected: 'past' | 'now' | 'future';
   timeStart: number;
   timeEnd: number;
   title: string;
   backstageEvent: boolean;
-  colour: string;
-  skip: boolean;
+  colour?: string;
+  skip?: boolean;
+  delay: number;
 }
 
 export default function ScheduleItem(props: ScheduleItemProps) {
-  const { selected, timeStart, timeEnd, title, backstageEvent, colour, skip } = props;
+  const { timeStart, timeEnd, title, backstageEvent, colour, skip, delay } = props;
 
   const start = formatTime(timeStart, formatOptions);
   const end = formatTime(timeEnd, formatOptions);
-  const userColour = colour !== '' ? colour : '';
-  const selectStyle = `entry--${selected}`;
+
+  if (delay > 0) {
+    const delayedStart = formatTime(timeStart + delay, formatOptions);
+    const delayedEnd = formatTime(timeEnd + delay, formatOptions);
+
+    return (
+      <li className={cx(['entry', skip && 'entry--skip'])}>
+        <div className='entry-times'>
+          <span className='entry-times--delayed'>
+            <span className='entry-colour' style={{ backgroundColor: colour }} />
+            <SuperscriptTime time={start} />
+            {' → '}
+            <SuperscriptTime time={end} />
+            {backstageEvent && '*'}
+          </span>
+          <span className='entry-times--delay'>
+            <SuperscriptTime time={delayedStart} />
+            {' → '}
+            <SuperscriptTime time={delayedEnd} />
+            {backstageEvent && '*'}
+          </span>
+        </div>
+        <div className='entry-title'>{title}</div>
+      </li>
+    );
+  }
 
   return (
-    <li className={`entry ${selectStyle} ${skip ? 'skip' : ''}`}>
+    <li className={cx(['entry', skip && 'entry--skip'])}>
       <div className='entry-times'>
-        <span className='entry-colour' style={{ backgroundColor: userColour }} />
-        <div style={{ display: 'flex' }}>
-          <SuperscriptTime time={start} />
-          {' → '}
-          <SuperscriptTime time={end} />
-          {backstageEvent ? '*' : ''}
-        </div>
+        <span className='entry-colour' style={{ backgroundColor: colour }} />
+        <SuperscriptTime time={start} />
+        {' → '}
+        <SuperscriptTime time={end} />
+        {backstageEvent && '*'}
       </div>
       <div className='entry-title'>{title}</div>
     </li>

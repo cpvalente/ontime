@@ -13,6 +13,7 @@ export const langSv: TranslationObject = {
   'common.stage_timer': 'Timer för scenen',
   'common.started_at': 'Började vid',
   'common.time_now': 'Klockan nu',
+  'common.no_data': 'Inga tillgängliga data',
   'countdown.ended': 'Evenemanget avslutades vid',
   'countdown.running': 'Evenemang pågår',
   'countdown.select_event': 'Välj ett evenemang att följa',
