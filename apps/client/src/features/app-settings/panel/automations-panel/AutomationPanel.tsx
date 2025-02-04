@@ -27,11 +27,11 @@ export default function AutomationPanel({ location }: PanelBaseProps) {
             oscPortIn={data.oscPortIn}
           />
         </div>
-        <div ref={triggersRef}>
-          <TriggersList triggers={data.triggers} automations={data.automations} />
-        </div>
         <div ref={automationsRef}>
           <AutomationsList automations={data.automations} />
+        </div>
+        <div ref={triggersRef}>
+          <TriggersList triggers={data.triggers} automations={data.automations} />
         </div>
       </Panel.Section>
     </>
