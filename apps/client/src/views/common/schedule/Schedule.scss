@@ -2,75 +2,82 @@
 
 .schedule {
   width: 100%;
-  border-spacing: 50px;
+  position: relative;
+  list-style: none;
 
   .entry {
-    font-size: clamp(16px, 1.5vw, 24px);
+    position: absolute;
+    padding-bottom: 1em;
 
-    .entry-colour {
-      background-color: var(--card-background-color-override, $viewer-card-bg-color);
-      height: clamp(8px, 0.75vw, 12px);
-      width: clamp(8px, 0.75vw, 12px);
-      border-radius: 6px;
-      display: inline-block;
+    &--skip {
+      text-decoration: line-through;
+      text-decoration-color: var(--secondary-color-override, $viewer-secondary-color);
     }
+  }
 
-    .entry-times {
-      font-family: $viewer-font-family;
-      color: var(--secondary-color-override, $viewer-secondary-color);
-      font-weight: 300;
-      letter-spacing: 0.05em;
+  .entry-colour {
+    background-color: var(--card-background-color-override, $viewer-card-bg-color);
+    height: clamp(8px, 0.75vw, 12px);
+    width: clamp(8px, 0.75vw, 12px);
+    border-radius: 6px;
+    margin-right: 0.25rem;
+  }
+
+  .entry-times {
+    color: var(--secondary-color-override, $viewer-secondary-color);
+    letter-spacing: 0.05em;
+    font-size: $timer-label-size;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+
+    &--delayed,
+    &--delay {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 0.25rem;
     }
 
-    .entry-title {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .entry-secondary {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    &:not(:last-child) {
-      padding-bottom: 8px;
-    }
-
-    &--past {
-      color: var(--secondary-color-override, $viewer-secondary-color);
-    }
-
-    &--now {
-      .entry-title {
-        color: var(--accent-color-override, $accent-color);
-        font-weight: 600;
-      }
-    }
-
-    &.skip {
+    &--delayed {
       text-decoration: line-through;
+      text-decoration-color: $ontime-delay;
     }
+
+    &--delay {
+      color: $ontime-delay-text;
+    }
+  }
+
+  .entry-title {
+    font-size: clamp(16px, 1.5vw, 24px);
+    font-size: $base-font-size;
+    line-height: 1.2em;
   }
 }
 
 .schedule-nav {
   display: flex;
-  justify-content: flex-end;
 
   .schedule-nav__item {
-    background-color: var(--card-background-color-override, $viewer-card-bg-color);
-    width: 12px;
-    height: 12px;
+    background-color: var(--color-override, $viewer-color);
+    opacity: 0.2;
+
+    height: clamp(8px, 0.75vw, 12px);
+    width: clamp(8px, 0.75vw, 12px);
     border-radius: 6px;
-    margin-left: 8px;
+    margin-right: 8px;
+
+    transition-property: opacity;
+    transition-duration: 1s;
 
     &--selected {
-      background-color: var(--color-override, $viewer-color);
+      transition-property: opacity;
+      transition-duration: $viewer-transition-time;
+      opacity: 1;
+    }
+
+    &--indeterminate {
+      width: clamp(32px, 3vw, 48px);
     }
   }
 }

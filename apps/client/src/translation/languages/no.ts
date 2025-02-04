@@ -13,6 +13,7 @@ export const langNo: TranslationObject = {
   'common.stage_timer': 'Scenetimer',
   'common.started_at': 'Startet',
   'common.time_now': 'Klokken nå',
+  'common.no_data': 'Ingen data tilgjengelig',
   'countdown.ended': 'Hendelse avsluttet',
   'countdown.running': 'Hendelse pågår',
   'countdown.select_event': 'Velg en hendelse å følge',
