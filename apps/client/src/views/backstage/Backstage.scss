@@ -10,17 +10,17 @@
   font-family: var(--font-family-override, $viewer-font-family);
   background: var(--background-color-override, $viewer-background-color);
   color: var(--color-override, $viewer-color);
-  gap: min(2vh, 16px);
-  padding: min(2vh, 16px) clamp(16px, 10vw, 64px);
+  gap: $view-element-gap;
+  padding: $view-outer-padding;
 
   display: grid;
   grid-template-columns: 1fr 1fr 40vw;
   grid-template-rows: auto 12px 1fr auto;
   grid-template-areas:
-    ' header    header    header'
-    ' progress  progress  schedule-nav'
-    ' now       now       schedule'
-    ' info      info      schedule';
+    'header    header    header'
+    'progress  progress  schedule-nav'
+    'now       now       schedule'
+    'info      info      schedule';
 
   /* =================== HEADER + EXTRAS ===================*/
 
@@ -39,17 +39,16 @@
 
   .clock-container {
     margin-left: auto;
+    font-weight: 600;
 
     .label {
-      font-size: clamp(16px, 1.5vw, 24px);
-      font-weight: 600;
+      font-size: $timer-label-size;
       color: var(--label-color-override, $viewer-label-color);
       text-transform: uppercase;
     }
 
     .time {
-      font-size: clamp(32px, 3.5vw, 50px);
-      font-weight: 600;
+      font-size: $timer-value-size;
       color: var(--secondary-color-override, $viewer-secondary-color);
       letter-spacing: 0.05em;
       line-height: 0.95em;
@@ -68,13 +67,13 @@
     grid-area: now;
     display: flex;
     flex-direction: column;
-    gap: min(2vh, 16px);
+    gap: $view-element-gap;
   }
 
   .event {
     background-color: var(--card-background-color-override, $viewer-card-bg-color);
-    padding: 16px 24px;
-    border-radius: 8px;
+    padding: $view-card-padding;
+    border-radius: $element-border-radius;
 
     &.blink {
       animation-name: blink;
@@ -127,6 +126,8 @@
     align-self: center;
   }
 
+  /* =================== MAIN - INFO ===================*/
+
   .info {
     grid-area: info;
     display: flex;
@@ -143,13 +144,43 @@
     }
 
     .qr {
-      padding: 4px;
-      background-color: white;
+      padding: 0.5rem;
+      background-color: $ui-white;
+      border-radius: 2px;
     }
   }
 }
 
-/* =================== AMIMATION ===================*/
+/* =================== MOBILE ===================*/
+@media screen and (max-width: 768px) {
+  .backstage {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+
+    .project-header {
+      flex-direction: column;
+      position: relative;
+      gap: 0.5rem;
+    }
+
+    .title {
+      line-height: 1.1em;
+    }
+
+    .timer-group {
+      flex-wrap: wrap;
+    }
+
+    .clock-container {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+  }
+}
+
+/* =================== ANIMATION ===================*/
 
 @keyframes blink {
   0% {

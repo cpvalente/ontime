@@ -1,4 +1,6 @@
-import { CustomFields } from 'ontime-types';
+import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { CustomFields, OntimeEvent } from 'ontime-types';
 
 import {
   getTimeOption,
@@ -56,3 +58,27 @@ export const getBackstageOptions = (timeFormat: string, customFields: CustomFiel
     },
   ];
 };
+
+type BackstageOptions = {
+  secondarySource: keyof OntimeEvent | null;
+};
+
+/**
+ * Utility extract the view options from URL Params
+ * the names and fallbacks are manually matched with timerOptions
+ */
+function getOptionsFromParams(searchParams: URLSearchParams): BackstageOptions {
+  // we manually make an object that matches the key above
+  return {
+    secondarySource: searchParams.get('secondary-src') as keyof OntimeEvent | null,
+  };
+}
+
+/**
+ * Hook exposes the backstage view options
+ */
+export function useBackstageOptions(): BackstageOptions {
+  const [searchParams] = useSearchParams();
+  const options = useMemo(() => getOptionsFromParams(searchParams), [searchParams]);
+  return options;
+}

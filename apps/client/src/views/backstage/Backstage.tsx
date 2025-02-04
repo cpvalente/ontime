@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'react-qr-code';
-import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { CustomFields, OntimeEvent, ProjectData, Settings, SupportedEvent } from 'ontime-types';
+import { CustomFields, isOntimeEvent, OntimeEvent, ProjectData, Settings } from 'ontime-types';
 import { millisToString, removeLeadingZero } from 'ontime-utils';
 
 import ProgressBar from '../../common/components/progress-bar/ProgressBar';
@@ -21,7 +20,8 @@ import { getPropertyValue } from '../../features/viewers/common/viewUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
 import { titleVariants } from '../timer/timer.animations';
 
-import { getBackstageOptions } from './backstage.options';
+import { getBackstageOptions, useBackstageOptions } from './backstage.options';
+import { getShowProgressBar, isOvertime } from './backstage.utils';
 
 import './Backstage.scss';
 
@@ -43,8 +43,8 @@ export default function Backstage(props: BackstageProps) {
   const { backstageEvents, customFields, eventNext, eventNow, general, time, isMirrored, selectedId, settings } = props;
 
   const { getLocalizedString } = useTranslation();
+  const { secondarySource } = useBackstageOptions();
   const [blinkClass, setBlinkClass] = useState(false);
-  const [searchParams] = useSearchParams();
 
   useWindowTitle('Backstage');
 
@@ -59,22 +59,25 @@ export default function Backstage(props: BackstageProps) {
     return () => clearTimeout(timer);
   }, [selectedId]);
 
-  const clock = formatTime(time.clock);
-  const startedAt = formatTime(time.startedAt);
-  const isNegative = (time.current ?? 0) < 0;
-  const expectedFinish = isNegative ? getLocalizedString('countdown.overtime') : formatTime(time.expectedFinish);
-
-  const qrSize = Math.max(window.innerWidth / 15, 128);
-  const filteredEvents = backstageEvents.filter((event) => event.type === SupportedEvent.Event);
-  const showProgress = time.playback !== 'stop';
-
-  const secondarySource = searchParams.get('secondary-src');
+  // gather auxiliar view data
+  const filteredEvents = backstageEvents.filter(isOntimeEvent);
   const secondaryTextNext = getPropertyValue(eventNext, secondarySource);
   const secondaryTextNow = getPropertyValue(eventNow, secondarySource);
+
+  // gather timer data
+  const clock = formatTime(time.clock);
+  const startedAt = formatTime(time.startedAt);
+  const isNegative = isOvertime(time.current);
 
   let stageTimer = millisToString(time.current, { fallback: timerPlaceholderMin });
   stageTimer = removeLeadingZero(stageTimer);
 
+  // gather presentation styles
+  const expectedFinish = isNegative ? getLocalizedString('countdown.overtime') : formatTime(time.expectedFinish);
+  const qrSize = Math.max(window.innerWidth / 15, 128);
+  const showProgress = getShowProgressBar(time.playback);
+
+  // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const backstageOptions = getBackstageOptions(defaultFormat, customFields);
 
@@ -83,7 +86,7 @@ export default function Backstage(props: BackstageProps) {
       <ViewParamsEditor viewOptions={backstageOptions} />
       <div className='project-header'>
         {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
-        {general.title}
+        <div className='title'>{general.title}</div>
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>
           <SuperscriptTime time={clock} className='time' />

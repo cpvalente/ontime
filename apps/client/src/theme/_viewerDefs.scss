@@ -23,7 +23,10 @@ $element-border-radius: 8px;
 
 // Generic element sizes
 $view-element-gap: min(2vh, 16px);
+$view-block-padding: min(2vh, 16px);
+$view-inline-padding: clamp(16px, 2vw, 24px);
 $view-outer-padding: min(2vh, 16px) clamp(16px, 2vw, 24px);
+
 $view-card-padding: min(2vh, 8px) clamp(16px, 2vw, 24px);
 
 // Properties related to timer
