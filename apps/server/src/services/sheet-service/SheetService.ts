@@ -219,6 +219,7 @@ async function verifySheet(
         'This operation is not supported for this document. the reason is most likely that this is a .xlsx document',
       );
     }
+    revoke();
     const errorMessage = getErrorMessage(error);
     throw new Error(`Failed to verify sheet: ${errorMessage}`);
   }
