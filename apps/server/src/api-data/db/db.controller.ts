@@ -15,6 +15,7 @@ import {
   handleUploaded,
 } from '../../services/project-service/projectServiceUtils.js';
 import * as projectService from '../../services/project-service/ProjectService.js';
+import { ensureJsonExtension } from '../../utils/fileManagement.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   try {
@@ -49,7 +50,7 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
  */
 export async function createProjectFile(req: Request, res: Response<{ filename: string } | ErrorResponse>) {
   try {
-    const newFileName = await projectService.createProject(req.body.filename, {
+    const newFileName = await projectService.createProject(req.body.filename || 'untitled', {
       project: {
         title: req.body?.title ?? '',
         description: req.body?.description ?? '',
@@ -75,7 +76,7 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
  */
 export async function quickProjectFile(req: Request, res: Response<{ filename: string } | ErrorResponse>) {
   try {
-    const filename = await projectService.createProject(req.body.project.title, req.body);
+    const filename = await projectService.createProject(req.body.project.title || 'untitled', req.body);
     res.status(200).send({
       filename,
     });
