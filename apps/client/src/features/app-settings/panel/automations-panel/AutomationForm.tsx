@@ -25,6 +25,7 @@ import { preventEscape } from '../../../../common/utils/keyEvent';
 import { startsWithHttp } from '../../../../common/utils/regex';
 import * as Panel from '../../panel-utils/PanelUtils';
 
+import TemplateInput from './template-input/TemplateInput';
 import { isAutomation, makeFieldList } from './automationUtils';
 
 import style from './AutomationForm.module.scss';
@@ -357,7 +358,7 @@ export default function AutomationForm(props: AutomationFormProps) {
                   </label>
                   <label>
                     Parameters
-                    <Input
+                    <TemplateInput
                       {...register(`outputs.${index}.args`)}
                       variant='ontime-filled'
                       size='sm'
