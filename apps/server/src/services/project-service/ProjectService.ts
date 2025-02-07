@@ -9,6 +9,7 @@ import {
   appendToName,
   dockerSafeRename,
   ensureDirectory,
+  ensureJsonExtension,
   generateUniqueFileName,
   getFileNameFromPath,
   removeFileExtension,
@@ -20,6 +21,7 @@ import { parseRundown } from '../../utils/parserFunctions.js';
 import { demoDb } from '../../models/demoProject.js';
 import { config } from '../../setup/config.js';
 import { getDataProvider, initPersistence } from '../../classes/data-provider/DataProvider.js';
+import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 
 import { initRundown } from '../rundown-service/RundownService.js';
 import {
@@ -37,7 +39,6 @@ import {
   moveCorruptFile,
   parseJsonFile,
 } from './projectServiceUtils.js';
-import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 
 // init dependencies
 init();
@@ -257,7 +258,8 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
 export async function createProject(filename: string, initialData: Partial<DatabaseModel>) {
   const data = safeMerge(dbModel, initialData);
 
-  const uniqueFileName = generateUniqueFileName(publicDir.projectsDir, filename);
+  const fileNameWithExtension = ensureJsonExtension(filename);
+  const uniqueFileName = generateUniqueFileName(publicDir.projectsDir, fileNameWithExtension);
   const newFile = getPathToProject(uniqueFileName);
 
   // change LowDB to point to new file
