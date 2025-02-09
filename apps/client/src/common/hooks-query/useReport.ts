@@ -6,7 +6,7 @@ import { REPORT } from '../api/constants';
 import { fetchReport } from '../api/report';
 
 export default function useReport() {
-  const { data } = useQuery<OntimeReport>({
+  const { data, refetch } = useQuery<OntimeReport>({
     queryKey: REPORT,
     queryFn: fetchReport,
     placeholderData: (previousData, _previousQuery) => previousData,
@@ -16,5 +16,5 @@ export default function useReport() {
     staleTime: MILLIS_PER_HOUR,
   });
 
-  return { data: data ?? {} };
+  return { data: data ?? {}, refetch };
 }
