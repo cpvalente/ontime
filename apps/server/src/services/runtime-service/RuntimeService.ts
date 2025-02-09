@@ -542,8 +542,8 @@ class RuntimeService {
    */
   @broadcastResult
   public stop(): boolean {
-    const state = runtimeState.getState();
-    const canStop = validatePlayback(state.timer.playback, state.timer.phase).stop;
+    const previousState = runtimeState.getState();
+    const canStop = validatePlayback(previousState.timer.playback, previousState.timer.phase).stop;
     if (!canStop) {
       return false;
     }
@@ -552,7 +552,7 @@ class RuntimeService {
       const newState = runtimeState.getState();
       logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
       process.nextTick(() => {
-        triggerReportEntry(TimerLifeCycle.onStop, newState);
+        triggerReportEntry(TimerLifeCycle.onStop, previousState);
         triggerAutomations(TimerLifeCycle.onStop, newState);
       });
 

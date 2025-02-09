@@ -8,7 +8,7 @@ import { apiEntryUrl, REPORT } from './constants';
 export const reportUrl = `${apiEntryUrl}/report`;
 
 /**
- * HTTP request to fetch all events
+ * HTTP request to fetch all reports
  */
 export async function fetchReport(): Promise<OntimeReport> {
   const res = await axios.get(`${reportUrl}/`);

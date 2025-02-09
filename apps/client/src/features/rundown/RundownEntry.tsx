@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
 
-import { deleteReport } from '../../common/api/report';
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
 import { useEmitLog } from '../../common/stores/logger';
@@ -145,14 +144,6 @@ export default function RundownEntry(props: RundownEntryProps) {
         }
 
         return emitError(`Unknown field: ${field}`);
-      }
-      case 'clear-report': {
-        const { field, value } = payload as FieldValue;
-        if (field === undefined || field !== 'id' || value === undefined || typeof value !== 'string') {
-          return;
-        }
-        deleteReport(value);
-        break;
       }
       default:
         throw new Error(`Unhandled event ${action}`);

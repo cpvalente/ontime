@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { OntimeReport } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
@@ -18,11 +17,4 @@ export default function useReport() {
   });
 
   return { data: data ?? {} };
-}
-
-export function useGetEventReport(id: string) {
-  const { data } = useReport();
-  return useMemo(() => {
-    return data[id];
-  }, [data, id]);
 }

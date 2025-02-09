@@ -2,7 +2,6 @@ import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoCloseCircle } from '@react-icons/all-files/io5/IoCloseCircle';
 import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
 import { IoLink } from '@react-icons/all-files/io5/IoLink';
 import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
@@ -177,12 +176,6 @@ export default function EventBlock(props: EventBlockProps) {
             isDisabled: selectedEventId == null || selectedEventId === eventId,
           },
           { withDivider: false, label: 'Clone', icon: IoDuplicateOutline, onClick: () => actionHandler('clone') },
-          {
-            withDivider: true,
-            label: 'Clear report',
-            icon: IoCloseCircle,
-            onClick: () => actionHandler('clear-report', { field: 'id', value: eventId }),
-          },
           { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
         ],
   );

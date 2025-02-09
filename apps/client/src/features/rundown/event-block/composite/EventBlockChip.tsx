@@ -3,7 +3,7 @@ import { IoCheckmarkCircle } from '@react-icons/all-files/io5/IoCheckmarkCircle'
 import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { usePlayback, useTimelineStatus } from '../../../../common/hooks/useSocket';
-import { useGetEventReport } from '../../../../common/hooks-query/useReport';
+import useReport from '../../../../common/hooks-query/useReport';
 import { cx } from '../../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../../common/utils/time';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
@@ -77,7 +77,8 @@ interface EventReportProps {
 
 function EventReport(props: EventReportProps) {
   const { className, id, duration } = props;
-  const currentReport = useGetEventReport(id);
+  const { data } = useReport();
+  const currentReport = data[id];
 
   const [value, overUnderStyle, tooltip] = useMemo(() => {
     if (!currentReport) {
