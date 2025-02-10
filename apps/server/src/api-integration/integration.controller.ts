@@ -259,6 +259,24 @@ const actionHandlers: Record<string, ActionHandler> = {
     }
     throw new Error('No matching method provided');
   },
+  /* Speed */
+  'calculate-speed': () => {
+    const factor = runtimeService.calculateSpeed();
+    return { payload: factor };
+  },
+  'get-speed': () => {
+    const factor = runtimeService.getSpeed();
+    return { payload: factor };
+  },
+  'set-speed': (payload) => {
+    const speedToSet = numberOrError(payload);
+    const speedSet = runtimeService.setSpeed(speedToSet);
+    return { payload: speedSet };
+  },
+  'reset-speed': () => {
+    const factor = runtimeService.resetSpeed();
+    return { payload: factor };
+  },
   /* Client */
   client: (payload) => {
     assert.isObject(payload);

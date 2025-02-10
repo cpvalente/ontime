@@ -30,4 +30,6 @@ export type TimerState = {
   secondaryTimer: MaybeNumber;
   /** only if timer has already started */
   startedAt: MaybeNumber;
+  /** the speed of the current timer 1.0 = realtime, 2.0 = double time */
+  speed: number;
 };
