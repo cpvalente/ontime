@@ -33,19 +33,14 @@ export default function EventBlockChip(props: EventBlockChipProps) {
     return null; //TODO: Event report will go here
   }
 
-  if (playbackActive) {
-    // we extracted the component to avoid unnecessary calculations and re-renders
-    return (
-      <EventUntil
-        className={className}
-        trueTimeStart={trueTimeStart}
-        totalGap={totalGap}
-        isLinkedAndNext={isLinkedAndNext}
-      />
-    );
-  }
-
-  return null;
+  // we extracted the component to avoid unnecessary calculations and re-renders
+  return (
+    <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
+      <div className={className}>
+        <EventUntil trueTimeStart={trueTimeStart} totalGap={totalGap} isLinkedAndNext={isLinkedAndNext} />
+      </div>
+    </Tooltip>
+  );
 }
 
 interface EventUntilProps {
