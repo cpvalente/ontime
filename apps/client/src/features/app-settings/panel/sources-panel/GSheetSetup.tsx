@@ -76,6 +76,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
   const handleConnect = async () => {
     if (!file) return;
     if (!sheetId) return;
+    patchStepData({ worksheet: { available: false, error: '' } });
 
     setLoading('connect');
     const result = await connect(file, sheetId);
