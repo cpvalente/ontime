@@ -215,9 +215,7 @@ async function verifySheet(
       error.errors[0].reason === 'failedPrecondition' &&
       error.errors[0].message === 'This operation is not supported for this document'
     ) {
-      throw new Error(
-        'This operation is not supported for this document. the reason is most likely that this is a .xlsx document',
-      );
+      throw new Error('Cannot read the linked file as a Google Sheet. It may be an .xlsx file instead.');
     }
     const errorMessage = getErrorMessage(error);
     throw new Error(`Failed to verify sheet: ${errorMessage}`);
