@@ -11,14 +11,12 @@ import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward'
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
-import { dayInMs } from 'ontime-utils';
 
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 import TimeInputFlow from '../time-input-flow/TimeInputFlow';
 
-import EventBlockChip from './composite/EventBlockChip';
 import EventBlockPlayback from './composite/EventBlockPlayback';
 import EventBlockProgressBar from './composite/EventBlockProgressBar';
 
@@ -44,9 +42,6 @@ interface EventBlockInnerProps {
   loaded: boolean;
   playback?: Playback;
   isRolling: boolean;
-  dayOffset: number;
-  isPast: boolean;
-  totalGap: number;
 }
 
 function EventBlockInner(props: EventBlockInnerProps) {
@@ -69,9 +64,6 @@ function EventBlockInner(props: EventBlockInnerProps) {
     loaded,
     playback,
     isRolling,
-    dayOffset,
-    isPast,
-    totalGap,
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
@@ -116,17 +108,6 @@ function EventBlockInner(props: EventBlockInnerProps) {
         loaded={loaded}
         disablePlayback={skip || isRolling}
       />
-      {!skip && (
-        <EventBlockChip
-          className={style.chipSection}
-          id={eventId}
-          trueTimeStart={timeStart + dayOffset * dayInMs}
-          isPast={isPast}
-          isLoaded={loaded}
-          totalGap={totalGap}
-          isLinkedAndNext={isNext && linkStart !== null}
-        />
-      )}
       <div className={style.statusElements} id='block-status' data-ispublic={isPublic}>
         <span className={style.eventNote}>{note}</span>
         <div className={loaded ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
