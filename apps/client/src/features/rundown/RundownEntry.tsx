@@ -175,7 +175,6 @@ export default function RundownEntry(props: RundownEntryProps) {
         isRolling={isRolling}
         gap={data.gap}
         isNextDay={isNextDay}
-        dayOffset={data.dayOffset - currentDay}
         dayOffset={data.dayOffset}
         totalGap={totalGap}
         actionHandler={actionHandler}

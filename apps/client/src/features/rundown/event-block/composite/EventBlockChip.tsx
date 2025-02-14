@@ -10,7 +10,7 @@ import style from './EventBlockChip.module.scss';
 
 interface EventBlockChipProps {
   id: string;
-  trueTimeStart: number;
+  normalizedTimeStart: number;
   isPast: boolean;
   isLoaded: boolean;
   className: string;
@@ -19,7 +19,7 @@ interface EventBlockChipProps {
 }
 
 export default function EventBlockChip(props: EventBlockChipProps) {
-  const { trueTimeStart, isPast, isLoaded, className, totalGap, isLinkedAndNext } = props;
+  const { normalizedTimeStart, isPast, isLoaded, className, totalGap, isLinkedAndNext } = props;
   const { playback } = usePlayback();
 
   if (isLoaded) {
@@ -37,7 +37,7 @@ export default function EventBlockChip(props: EventBlockChipProps) {
     return (
       <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
         <div className={className}>
-          <EventUntil trueTimeStart={trueTimeStart} totalGap={totalGap} isLinkedAndNext={isLinkedAndNext} />
+          <EventUntil normalizedTimeStart={normalizedTimeStart} totalGap={totalGap} isLinkedAndNext={isLinkedAndNext} />
         </div>
       </Tooltip>
     );
@@ -47,29 +47,19 @@ export default function EventBlockChip(props: EventBlockChipProps) {
 }
 
 interface EventUntilProps {
-  trueTimeStart: number;
+  normalizedTimeStart: number;
   totalGap: number;
   isLinkedAndNext: boolean;
 }
 
 function EventUntil(props: EventUntilProps) {
-  const { trueTimeStart, totalGap, isLinkedAndNext } = props;
-  const { clock, offset } = useTimelineStatus();
-
-  const consumedOffset = isLinkedAndNext ? offset : Math.min(offset + totalGap, 0);
-  const offsetTimestart = trueTimeStart - consumedOffset;
-  const timeUntil = offsetTimestart - clock;
-  const isDue = timeUntil < MILLIS_PER_SECOND;
-  const { normalizedTimeStart, className, totalGap, isLinkedAndNext } = props;
+  const { normalizedTimeStart, totalGap, isLinkedAndNext } = props;
   const { clock, offset, currentDay } = useTimelineStatus();
 
-  const [timeUntilString, isDue] = useMemo(() => {
-    const consumedOffset = isLinkedAndNext ? offset : Math.min(offset + totalGap, 0);
-    const offsetTimestart = normalizedTimeStart - currentDay * dayInMs - consumedOffset;
-    const timeUntil = offsetTimestart - clock;
-    const isDue = timeUntil < MILLIS_PER_SECOND;
-    return [isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`, isDue];
-  }, [totalGap, isLinkedAndNext, offset, normalizedTimeStart, clock, currentDay]);
+  const consumedOffset = isLinkedAndNext ? offset : Math.min(offset + totalGap, 0);
+  const offsetTimestart = normalizedTimeStart - currentDay * dayInMs - consumedOffset;
+  const timeUntil = offsetTimestart - clock;
+  const isDue = timeUntil < MILLIS_PER_SECOND;
 
   const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
 
