@@ -229,6 +229,7 @@ export const useTimelineStatus = () => {
   const featureSelector = (state: RuntimeStore) => ({
     clock: state.clock,
     offset: state.runtime.offset,
+    currentDay: state.runtime.day,
   });
 
   return useRuntimeStore(featureSelector);

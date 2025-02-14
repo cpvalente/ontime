@@ -4,6 +4,7 @@ export type Runtime = {
   numEvents: number;
   selectedEventIndex: MaybeNumber;
   offset: number;
+  day: number;
   plannedStart: MaybeNumber;
   actualStart: MaybeNumber;
   plannedEnd: MaybeNumber;

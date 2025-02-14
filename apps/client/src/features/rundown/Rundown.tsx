@@ -7,7 +7,6 @@ import {
   isOntimeEvent,
   isPlayableEvent,
   MaybeString,
-  OntimeEvent,
   PlayableEvent,
   Playback,
   RundownCached,
@@ -312,6 +311,7 @@ export default function Rundown({ data }: RundownProps) {
               const isNext = featureData?.nextEventId === entry.id;
               const hasCursor = entry.id === cursor;
               if (isLoaded) {
+                // We know this is an Event
                 isPast = false;
                 currentDay = (entry as OntimeEvent).dayOffset;
               }

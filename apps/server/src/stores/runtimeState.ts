@@ -208,6 +208,7 @@ export function loadNow(timedEvents: OntimeEvent[], eventIndex: MaybeNumber = ru
   const event = timedEvents[eventIndex] as PlayableEvent;
   runtimeState.runtime.selectedEventIndex = eventIndex;
   runtimeState.eventNow = event;
+  runtimeState.runtime.day = event.dayOffset;
 
   // check if current is also public
   if (event.isPublic) {

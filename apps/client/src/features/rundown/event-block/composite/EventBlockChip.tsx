@@ -1,5 +1,5 @@
 import { Tooltip } from '@chakra-ui/react';
-import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
+import { dayInMs, isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { usePlayback, useTimelineStatus } from '../../../../common/hooks/useSocket';
 import { cx } from '../../../../common/utils/styleUtils';
@@ -60,6 +60,16 @@ function EventUntil(props: EventUntilProps) {
   const offsetTimestart = trueTimeStart - consumedOffset;
   const timeUntil = offsetTimestart - clock;
   const isDue = timeUntil < MILLIS_PER_SECOND;
+  const { normalizedTimeStart, className, totalGap, isLinkedAndNext } = props;
+  const { clock, offset, currentDay } = useTimelineStatus();
+
+  const [timeUntilString, isDue] = useMemo(() => {
+    const consumedOffset = isLinkedAndNext ? offset : Math.min(offset + totalGap, 0);
+    const offsetTimestart = normalizedTimeStart - currentDay * dayInMs - consumedOffset;
+    const timeUntil = offsetTimestart - clock;
+    const isDue = timeUntil < MILLIS_PER_SECOND;
+    return [isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`, isDue];
+  }, [totalGap, isLinkedAndNext, offset, normalizedTimeStart, clock, currentDay]);
 
   const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
 
