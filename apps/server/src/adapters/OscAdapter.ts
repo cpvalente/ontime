@@ -29,8 +29,7 @@ class OscServer implements IAdapter {
 
       const msg = fromBuffer(buf);
       if (msg.oscType === 'bundle') {
-        //TODO: manage bundles
-        logger.error(LogOrigin.Rx, `OSC IN: We don't take bundles`);
+        logger.error(LogOrigin.Rx, 'OSC IN: Ontime is unable to handle OSC bundles');
         return;
       }
 
@@ -38,7 +37,7 @@ class OscServer implements IAdapter {
 
       // split message
       const [, ontimeKey, command, ...params] = address.split('/');
-      const args = oscArgs[0]?.value ?? undefined; //TODO: manage multiple args or mayeb we have no usecase
+      const args = oscArgs[0]?.value ?? undefined;
 
       // get first part (ontime)
       if (ontimeKey !== 'ontime') {
@@ -67,7 +66,7 @@ class OscServer implements IAdapter {
     this.udpSocket.bind(port);
   }
   shutdown() {
-    logger.info(LogOrigin.Rx, `OSC: Closing server`);
+    logger.info(LogOrigin.Rx, 'OSC: Closing server');
     this.udpSocket?.close();
     this.udpSocket = null;
   }

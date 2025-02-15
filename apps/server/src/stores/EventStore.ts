@@ -35,7 +35,7 @@ export const eventStore = {
         for (const dataKey of changedKeys) {
           socket.sendAsJson({ type: `ontime-${dataKey}`, payload: store[dataKey] });
         }
-        socket.sendAsJson({ type: `ontime-flush` });
+        socket.sendAsJson({ type: 'ontime-flush' });
         isUpdatePending = null;
         changedKeys.clear();
       });
