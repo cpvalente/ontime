@@ -37,7 +37,7 @@ export function triggerAutomations(event: TimerLifeCycle, state: RuntimeState) {
 
   triggerAutomations.forEach((trigger) => {
     const automation = automations[trigger.automationId];
-    if (!automation) {
+    if (!automation || automation.outputs.length === 0) {
       return;
     }
     const shouldSend = testConditions(automation.filters, automation.filterRule, state);
