@@ -144,7 +144,7 @@ export const initAssets = async () => {
   checkStart(OntimeStartOrder.InitAssets);
   await clearUploadfolder();
   populateStyles();
-  populateDemo();
+  await populateDemo();
   const project = await initialiseProject();
   logger.info(LogOrigin.Server, `Initialised Ontime with ${project}`);
 };
@@ -200,7 +200,7 @@ export const startServer = async (
   // initialise rundown service
   const persistedRundown = getDataProvider().getRundown();
   const persistedCustomFields = getDataProvider().getCustomFields();
-  initRundown(persistedRundown, persistedCustomFields);
+  await initRundown(persistedRundown, persistedCustomFields);
 
   // initialise message service
   messageService.init(eventStore.set, eventStore.get);

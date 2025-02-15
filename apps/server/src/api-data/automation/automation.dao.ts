@@ -1,4 +1,11 @@
-import type { Automation, AutomationDTO, AutomationSettings, NormalisedAutomation, Trigger, TriggerDTO } from 'ontime-types';
+import type {
+  Automation,
+  AutomationDTO,
+  AutomationSettings,
+  NormalisedAutomation,
+  Trigger,
+  TriggerDTO,
+} from 'ontime-types';
 import { deleteAtIndex, generateId } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -34,27 +41,27 @@ export function getAutomations(): NormalisedAutomation {
 /**
  * Patches the automation settings object
  */
-export function editAutomationSettings(settings: Partial<AutomationSettings>): AutomationSettings {
-  saveChanges(settings);
+export async function editAutomationSettings(settings: Partial<AutomationSettings>): Promise<AutomationSettings> {
+  await saveChanges(settings);
   return getAutomationSettings();
 }
 
 /**
  * Adds a validated automation to the store
  */
-export function addTrigger(newTrigger: TriggerDTO): Trigger {
+export async function addTrigger(newTrigger: TriggerDTO): Promise<Trigger> {
   const triggers = getAutomationTriggers();
   const id = getUniqueTriggerId(triggers);
   const trigger = { ...newTrigger, id };
   triggers.push(trigger);
-  saveChanges({ triggers });
+  await saveChanges({ triggers });
   return trigger;
 }
 
 /**
  * Patches an existing automation trigger
  */
-export function editTrigger(id: string, newTrigger: TriggerDTO): Trigger {
+export async function editTrigger(id: string, newTrigger: TriggerDTO): Promise<Trigger> {
   const triggers = getAutomationTriggers();
   const index = triggers.findIndex((trigger) => trigger.id === id);
 
@@ -63,14 +70,14 @@ export function editTrigger(id: string, newTrigger: TriggerDTO): Trigger {
   }
 
   triggers[index] = { ...triggers[index], ...newTrigger };
-  saveChanges({ triggers });
+  await saveChanges({ triggers });
   return triggers[index];
 }
 
 /**
  * Deletes an automation trigger given its ID
  */
-export function deleteTrigger(id: string): void {
+export async function deleteTrigger(id: string): Promise<void> {
   let triggers = getAutomationTriggers();
   const index = triggers.findIndex((trigger) => trigger.id === id);
 
@@ -79,53 +86,53 @@ export function deleteTrigger(id: string): void {
   }
 
   triggers = deleteAtIndex(index, triggers);
-  saveChanges({ triggers });
+  await saveChanges({ triggers });
 }
 
 /**
  * Deletes all project automation triggers
  */
-export function deleteAllTriggers(): void {
-  saveChanges({ triggers: [] });
+export async function deleteAllTriggers(): Promise<void> {
+  await saveChanges({ triggers: [] });
 }
 
 /**
  * Deletes all project automation triggers and automations
  * We do this together to avoid issues with missing references
  */
-export function deleteAll(): void {
-  saveChanges({ triggers: [], automations: {} });
+export async function deleteAll() {
+  await saveChanges({ triggers: [], automations: {} });
 }
 
 /**
  * Adds a validated automation to the store
  */
-export function addAutomation(newAutomation: AutomationDTO): Automation {
+export async function addAutomation(newAutomation: AutomationDTO): Promise<Automation> {
   const automations = getAutomations();
   const id = getUniqueAutomationId(automations);
   automations[id] = { ...newAutomation, id };
-  saveChanges({ automations });
+  await saveChanges({ automations });
   return automations[id];
 }
 
 /**
  * Updates an existing automation with a new entry
  */
-export function editAutomation(id: string, newAutomation: AutomationDTO): Automation {
+export async function editAutomation(id: string, newAutomation: AutomationDTO): Promise<Automation> {
   const automations = getAutomations();
   if (!Object.hasOwn(automations, id)) {
     throw new Error(`Automation with id ${id} not found`);
   }
 
   automations[id] = { ...newAutomation, id };
-  saveChanges({ automations });
+  await saveChanges({ automations });
   return automations[id];
 }
 
 /**
  * Deletes a automation given its ID
  */
-export function deleteAutomation(id: string): void {
+export async function deleteAutomation(id: string): Promise<void> {
   const automations = getAutomations();
   // ignore request if automation does not exist
   if (!Object.hasOwn(automations, id)) {
@@ -140,7 +147,7 @@ export function deleteAutomation(id: string): void {
     }
   }
   delete automations[id];
-  saveChanges({ automations });
+  await saveChanges({ automations });
 }
 
 /**

@@ -114,18 +114,13 @@ async function getDeviceCodes(clientSecret: ClientSecret): Promise<CodesResponse
 
 /**
  * Gets credentials from Google Auth server
- * @param clientSecret
- * @param device_code
- * @param interval
- * @param expires_in
- * @param postAction
  */
 function verifyConnection(
   clientSecret: ClientSecret,
   device_code: string,
   interval: number,
   expires_in: number,
-  postAction: () => void,
+  postAction: () => Promise<any>,
 ) {
   // create poller to check for auth
   pollInterval = setInterval(pollForAuth, interval * 1000);
