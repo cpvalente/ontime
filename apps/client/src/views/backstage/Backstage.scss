@@ -106,7 +106,6 @@
   }
 
   .timer-group {
-    grid-area: timer;
     border-top: 2px solid var(--background-color-override, $viewer-background-color);
     margin-top: max(1vh, 16px);
     padding-top: max(1vh, 16px);
@@ -207,14 +206,27 @@
       right: 0;
     }
 
+    .schedule-nav-container {
+      padding-left: 0;
+      justify-content: center;
+    }
+
     .schedule-container {
-      margin-left: 0;
+      padding-left: 0;
       flex: 1;
     }
 
     .info {
-      flex: 1;
       width: 100%;
+      text-align: right;
+    }
+
+    .qr {
+      display: none;
+    }
+
+    .info--stretch {
+      flex: 1;
     }
   }
 }

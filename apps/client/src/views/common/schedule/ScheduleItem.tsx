@@ -35,13 +35,13 @@ export default function ScheduleItem(props: ScheduleItemProps) {
           <span className='entry-times--delayed'>
             <span className='entry-colour' style={{ backgroundColor: colour }} />
             <SuperscriptTime time={start} />
-            {' → '}
+            →
             <SuperscriptTime time={end} />
             {backstageEvent && '*'}
           </span>
           <span className='entry-times--delay'>
             <SuperscriptTime time={delayedStart} />
-            {' → '}
+            →
             <SuperscriptTime time={delayedEnd} />
             {backstageEvent && '*'}
           </span>
@@ -56,7 +56,7 @@ export default function ScheduleItem(props: ScheduleItemProps) {
       <div className='entry-times'>
         <span className='entry-colour' style={{ backgroundColor: colour }} />
         <SuperscriptTime time={start} />
-        {' → '}
+        →
         <SuperscriptTime time={end} />
         {backstageEvent && '*'}
       </div>

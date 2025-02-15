@@ -171,7 +171,7 @@ export default function Backstage(props: BackstageProps) {
 
       {showSchedule && <BackstageSchedule selectedId={selectedId} />}
 
-      <div className='info'>
+      <div className={cx(['info', !showSchedule && 'info--stretch'])}>
         {general.backstageUrl && <QRCode value={general.backstageUrl} size={qrSize} level='L' className='qr' />}
         {general.backstageInfo && <div className='info__message'>{general.backstageInfo}</div>}
       </div>
