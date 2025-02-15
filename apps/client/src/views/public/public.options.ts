@@ -4,8 +4,8 @@ import {
   getTimeOption,
   makeOptionsFromCustomFields,
   OptionTitle,
-} from '../../../common/components/view-params-editor/constants';
-import { ViewOption } from '../../../common/components/view-params-editor/types';
+} from '../../common/components/view-params-editor/constants';
+import { ViewOption } from '../../common/components/view-params-editor/types';
 
 export const getPublicOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
   const secondaryOptions = makeOptionsFromCustomFields(customFields, { note: 'Note' });
