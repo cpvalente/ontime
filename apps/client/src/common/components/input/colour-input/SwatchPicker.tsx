@@ -3,9 +3,9 @@ import { useController, UseControllerProps } from 'react-hook-form';
 import { IoEyedrop } from '@react-icons/all-files/io5/IoEyedrop';
 import { ViewSettings } from 'ontime-types';
 
-import PopoverPicker from '../../../../common/components/input/popover-picker/PopoverPicker';
-import { debounce } from '../../../../common/utils/debounce';
+import { debounce } from '../../../utils/debounce';
 import { cx, getAccessibleColour } from '../../../utils/styleUtils';
+import PopoverPicker from '../popover-picker/PopoverPicker';
 
 import style from './SwatchSelect.module.scss';
 
