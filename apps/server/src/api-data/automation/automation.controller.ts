@@ -11,10 +11,10 @@ export function getAutomationSettings(_req: Request, res: Response<AutomationSet
   res.json(automationDao.getAutomationSettings());
 }
 
-export function postAutomationSettings(req: Request, res: Response<AutomationSettings | ErrorResponse>) {
+export async function postAutomationSettings(req: Request, res: Response<AutomationSettings | ErrorResponse>) {
   try {
     // body payload is a patch object that must contain root properties
-    const automationSettings = automationDao.editAutomationSettings({
+    const automationSettings = await automationDao.editAutomationSettings({
       enabledAutomations: req.body.enabledAutomations,
       enabledOscIn: req.body.enabledOscIn,
       oscPortIn: req.body.oscPortIn,
@@ -33,9 +33,9 @@ export function postAutomationSettings(req: Request, res: Response<AutomationSet
   }
 }
 
-export function postTrigger(req: Request, res: Response<Trigger | ErrorResponse>) {
+export async function postTrigger(req: Request, res: Response<Trigger | ErrorResponse>) {
   try {
-    const automation = automationDao.addTrigger({
+    const automation = await automationDao.addTrigger({
       title: req.body.title,
       trigger: req.body.trigger,
       automationId: req.body.automationId,
@@ -47,10 +47,10 @@ export function postTrigger(req: Request, res: Response<Trigger | ErrorResponse>
   }
 }
 
-export function putTrigger(req: Request, res: Response<Trigger | ErrorResponse>) {
+export async function putTrigger(req: Request, res: Response<Trigger | ErrorResponse>) {
   try {
     // body payload is a patch object
-    const automation = automationDao.editTrigger(req.params.id, {
+    const automation = await automationDao.editTrigger(req.params.id, {
       title: req.body.title ?? undefined,
       trigger: req.body.trigger ?? undefined,
       automationId: req.body.automationId ?? undefined,
@@ -62,9 +62,9 @@ export function putTrigger(req: Request, res: Response<Trigger | ErrorResponse>)
   }
 }
 
-export function deleteTrigger(req: Request, res: Response<void | ErrorResponse>) {
+export async function deleteTrigger(req: Request, res: Response<void | ErrorResponse>) {
   try {
-    automationDao.deleteTrigger(req.params.id);
+    await automationDao.deleteTrigger(req.params.id);
     res.status(204).send();
   } catch (error) {
     const message = getErrorMessage(error);
@@ -72,9 +72,9 @@ export function deleteTrigger(req: Request, res: Response<void | ErrorResponse>)
   }
 }
 
-export function postAutomation(req: Request, res: Response<Automation | ErrorResponse>) {
+export async function postAutomation(req: Request, res: Response<Automation | ErrorResponse>) {
   try {
-    const newAutomation = automationDao.addAutomation({
+    const newAutomation = await automationDao.addAutomation({
       title: req.body.title,
       filterRule: req.body.filterRule,
       filters: req.body.filters,
@@ -87,9 +87,9 @@ export function postAutomation(req: Request, res: Response<Automation | ErrorRes
   }
 }
 
-export function editAutomation(req: Request, res: Response<Automation | ErrorResponse>) {
+export async function editAutomation(req: Request, res: Response<Automation | ErrorResponse>) {
   try {
-    const newAutomation = automationDao.editAutomation(req.params.id, {
+    const newAutomation = await automationDao.editAutomation(req.params.id, {
       title: req.body.title,
       filterRule: req.body.filterRule,
       filters: req.body.filters,
@@ -102,9 +102,9 @@ export function editAutomation(req: Request, res: Response<Automation | ErrorRes
   }
 }
 
-export function deleteAutomation(req: Request, res: Response<void | ErrorResponse>) {
+export async function deleteAutomation(req: Request, res: Response<void | ErrorResponse>) {
   try {
-    automationDao.deleteAutomation(req.params.id);
+    await automationDao.deleteAutomation(req.params.id);
     res.status(204).send();
   } catch (error) {
     const message = getErrorMessage(error);

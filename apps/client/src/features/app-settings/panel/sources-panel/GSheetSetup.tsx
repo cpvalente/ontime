@@ -55,15 +55,14 @@ export default function GSheetSetup(props: GSheetSetupProps) {
     setLoading('');
   };
 
-  const handleCancelFlow = async () => {
+  const handleCancelFlow = () => {
     onCancel();
   };
 
   /**
    * Gets file from input
-   * @param event
    */
-  const handleClientSecret = async (event: ChangeEvent<HTMLInputElement>) => {
+  const handleClientSecret = (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files?.length) {
       return;
     }
