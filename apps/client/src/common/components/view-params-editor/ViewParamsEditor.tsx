@@ -12,7 +12,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
-import useViewSettings from '../../../common/hooks-query/useViewSettings';
+import useViewSettings from '../../hooks-query/useViewSettings';
 import Info from '../info/Info';
 
 import { ViewOption } from './types';
