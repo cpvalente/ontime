@@ -16,6 +16,7 @@ const baseState: RuntimeState = {
     selectedEventIndex: null,
     numEvents: 0,
     offset: 0,
+    day: 0,
     plannedStart: 0,
     plannedEnd: 0,
     actualStart: null,
