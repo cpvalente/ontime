@@ -15,7 +15,7 @@ import { cx, timerPlaceholderMin } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
 import { useTranslation } from '../../translation/TranslationProvider';
-import BackstageSchedule from '../common/schedule/BackstageSchedule';
+import ScheduleExport from '../common/schedule/ScheduleExport';
 
 import { getBackstageOptions, useBackstageOptions } from './backstage.options';
 import { getCardData, getIsPendingStart, getShowProgressBar, isOvertime } from './backstage.utils';
@@ -68,6 +68,7 @@ export default function Backstage(props: BackstageProps) {
   }, [selectedId]);
 
   // gather card data
+  const hasEvents = backstageEvents.length > 0;
   const { showNow, nowMain, nowSecondary, showNext, nextMain, nextSecondary } = getCardData(
     eventNow,
     eventNext,
@@ -80,16 +81,18 @@ export default function Backstage(props: BackstageProps) {
   const clock = formatTime(time.clock);
   const isPendingStart = getIsPendingStart(time.playback, time.phase);
   const startedAt = isPendingStart ? formatTime(time.secondaryTimer) : formatTime(time.startedAt);
-  const scheduledStart = showNow ? '' : formatTime(runtime.plannedStart, { format12: 'hh:mm a', format24: 'HH:mm' });
-  const scheduledEnd = showNow ? '' : formatTime(runtime.plannedEnd, { format12: 'hh:mm a', format24: 'HH:mm' });
+  const scheduledStart =
+    hasEvents && showNow ? '' : formatTime(runtime.plannedStart, { format12: 'hh:mm a', format24: 'HH:mm' });
+  const scheduledEnd =
+    hasEvents && showNow ? '' : formatTime(runtime.plannedEnd, { format12: 'hh:mm a', format24: 'HH:mm' });
 
-  let stageTimer = millisToString(time.current, { fallback: timerPlaceholderMin });
-  stageTimer = removeLeadingZero(stageTimer);
+  let displayTimer = millisToString(time.current, { fallback: timerPlaceholderMin });
+  displayTimer = removeLeadingZero(displayTimer);
 
   // gather presentation styles
   const qrSize = Math.max(window.innerWidth / 15, 72);
   const showProgress = getShowProgressBar(time.playback);
-  const showSchedule = screenHeight > 700; // in vertical screens we may not have space
+  const showSchedule = hasEvents && screenHeight > 700; // in vertical screens we may not have space
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
@@ -107,71 +110,66 @@ export default function Backstage(props: BackstageProps) {
         </div>
       </div>
 
-      <ProgressBar
-        className='progress-container'
-        current={time.current}
-        duration={time.duration}
-        hidden={!showProgress}
-      />
+      {showProgress && <ProgressBar className='progress-container' current={time.current} duration={time.duration} />}
 
-      {backstageEvents.length === 0 && (
-        <div className='empty-container'>
-          <Empty text={getLocalizedString('common.no_data')} />
-        </div>
-      )}
+      {!hasEvents && <Empty text={getLocalizedString('common.no_data')} className='empty-container' />}
 
       <div className='card-container'>
-        {showNow ? (
+        {showNow && (
           <div className={cx(['event', 'now', blinkClass && 'blink'])}>
             <TitleCard title={nowMain} secondary={nowSecondary} />
             <div className='timer-group'>
-              <div className='aux-timers'>
-                <div className={cx(['aux-timers__label', isPendingStart && 'aux-timers--pending'])}>
+              <div className='time-entry'>
+                <div className={cx(['time-entry__label', isPendingStart && 'time-entry--pending'])}>
                   {isPendingStart ? getLocalizedString('countdown.waiting') : getLocalizedString('common.started_at')}
                 </div>
-                <SuperscriptTime time={startedAt} className='aux-timers__value' />
+                <SuperscriptTime time={startedAt} className='time-entry__value' />
               </div>
               <div className='timer-gap' />
-              <div className='aux-timers'>
-                <div className='aux-timers__label'>{getLocalizedString('common.expected_finish')}</div>
+              <div className='time-entry'>
+                <div className='time-entry__label'>{getLocalizedString('common.expected_finish')}</div>
                 {isOvertime(time.current) ? (
-                  <div className='aux-timers__value'>{getLocalizedString('countdown.overtime')}</div>
+                  <div className='time-entry__value'>{getLocalizedString('countdown.overtime')}</div>
                 ) : (
-                  <SuperscriptTime time={formatTime(time.expectedFinish)} className='aux-timers__value' />
+                  <SuperscriptTime time={formatTime(time.expectedFinish)} className='time-entry__value' />
                 )}
               </div>
               <div className='timer-gap' />
-              <div className='aux-timers'>
-                <div className='aux-timers__label'>{getLocalizedString('common.stage_timer')}</div>
-                <div className='aux-timers__value'>{stageTimer}</div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className='event'>
-            <div className='title-card__placeholder'>{getLocalizedString('countdown.waiting')}</div>
-            <div className='timer-group'>
-              <div className='aux-timers'>
-                <div className={cx(['aux-timers__label', isPendingStart && 'aux-timers--pending'])}>
-                  {getLocalizedString('common.scheduled_start')}
-                </div>
-                <SuperscriptTime time={scheduledStart} className='aux-timers__value' />
-              </div>
-              <div className='timer-gap' />
-              <div className='aux-timers'>
-                <div className='aux-timers__label'>{getLocalizedString('common.scheduled_end')}</div>
-                <SuperscriptTime time={scheduledEnd} className='aux-timers__value' />
+              <div className='time-entry'>
+                <div className='time-entry__label'>{getLocalizedString('common.stage_timer')}</div>
+                <div className='time-entry__value'>{displayTimer}</div>
               </div>
             </div>
           </div>
         )}
 
-        {showNext && <TitleCard className='event' label='next' title={nextMain} secondary={nextSecondary} />}
+        {!showNow && hasEvents && (
+          <div className='event'>
+            <div className='title-card__placeholder'>{getLocalizedString('countdown.waiting')}</div>
+            <div className='timer-group'>
+              <div className='time-entry'>
+                <div className={cx(['time-entry__label', isPendingStart && 'time-entry--pending'])}>
+                  {getLocalizedString('common.scheduled_start')}
+                </div>
+                <SuperscriptTime time={scheduledStart} className='time-entry__value' />
+              </div>
+              <div className='timer-gap' />
+              <div className='time-entry'>
+                <div className='time-entry__label'>{getLocalizedString('common.scheduled_end')}</div>
+                <SuperscriptTime time={scheduledEnd} className='time-entry__value' />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showNext && hasEvents && (
+          <TitleCard className='event' label='next' title={nextMain} secondary={nextSecondary} />
+        )}
       </div>
 
-      {showSchedule && <BackstageSchedule selectedId={selectedId} />}
+      {showSchedule && <ScheduleExport selectedId={selectedId} isBackstage />}
 
-      <div className='info'>
+      <div className={cx(['info', !showSchedule && 'info--stretch'])}>
         {general.backstageUrl && <QRCode value={general.backstageUrl} size={qrSize} level='L' className='qr' />}
         {general.backstageInfo && <div className='info__message'>{general.backstageInfo}</div>}
       </div>
