@@ -3,17 +3,17 @@ import { useSearchParams } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CustomFields, OntimeEvent, ProjectData, Settings } from 'ontime-types';
 
-import TitleCard from '../../../common/components/title-card/TitleCard';
-import ViewLogo from '../../../common/components/view-logo/ViewLogo';
-import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
-import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
-import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
-import { formatTime, getDefaultFormat } from '../../../common/utils/time';
-import { useTranslation } from '../../../translation/TranslationProvider';
-import PublicSchedule from '../../../views/common/schedule/PublicSchedule';
-import { titleVariants } from '../common/animation';
-import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
-import { getPropertyValue } from '../common/viewUtils';
+import TitleCard from '../../common/components/title-card/TitleCard';
+import ViewLogo from '../../common/components/view-logo/ViewLogo';
+import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
+import { useWindowTitle } from '../../common/hooks/useWindowTitle';
+import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
+import { formatTime, getDefaultFormat } from '../../common/utils/time';
+import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
+import { getPropertyValue } from '../../features/viewers/common/viewUtils';
+import { useTranslation } from '../../translation/TranslationProvider';
+import PublicSchedule from '../common/schedule/PublicSchedule';
+import { titleVariants } from '../timer/timer.animations';
 
 import { getPublicOptions } from './public.options';
 
