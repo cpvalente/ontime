@@ -1,5 +1,8 @@
 @use '../../../theme/viewerDefs' as *;
 
+$circle-size: clamp(8px, 0.75vw, 12px);
+$indeterminate-width: clamp(32px, 3vw, 48px);
+
 .schedule {
   width: 100%;
   position: relative;
@@ -17,9 +20,9 @@
 
   .entry-colour {
     background-color: var(--card-background-color-override, $viewer-card-bg-color);
-    height: clamp(8px, 0.75vw, 12px);
-    width: clamp(8px, 0.75vw, 12px);
-    border-radius: 6px;
+    height: $circle-size;
+    width: $circle-size;
+    border-radius: $component-border-radius-full;
     margin-right: 0.25rem;
   }
 
@@ -49,7 +52,6 @@
   }
 
   .entry-title {
-    font-size: clamp(16px, 1.5vw, 24px);
     font-size: $base-font-size;
     line-height: 1.2em;
   }
@@ -62,10 +64,10 @@
     background-color: var(--color-override, $viewer-color);
     opacity: 0.2;
 
-    height: clamp(8px, 0.75vw, 12px);
-    width: clamp(8px, 0.75vw, 12px);
-    border-radius: 6px;
-    margin-right: 8px;
+    height: $circle-size;
+    width: $circle-size;
+    border-radius: $component-border-radius-full;
+    margin-right: 0.5em;
 
     transition-property: opacity;
     transition-duration: 1s;
@@ -77,7 +79,7 @@
     }
 
     &--indeterminate {
-      width: clamp(32px, 3vw, 48px);
+      width: $indeterminate-width;
     }
   }
 }

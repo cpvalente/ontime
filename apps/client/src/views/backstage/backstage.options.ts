@@ -8,7 +8,7 @@ import {
   OptionTitle,
 } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/types';
-import { isStringBoolean } from '../../features/viewers/common/viewUtils';
+import { scheduleOptions } from '../common/schedule/schedule.options';
 
 export const getBackstageOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
   const secondaryOptions = makeOptionsFromCustomFields(customFields, { note: 'Note' });
@@ -29,26 +29,7 @@ export const getBackstageOptions = (timeFormat: string, customFields: CustomFiel
         },
       ],
     },
-    {
-      title: OptionTitle.Schedule,
-      collapsible: true,
-      options: [
-        {
-          id: 'stopCycle',
-          title: 'Stop cycling through event pages',
-          description: 'Schedule will not auto-cycle through events',
-          type: 'boolean',
-          defaultValue: false,
-        },
-        {
-          id: 'cycleInterval',
-          title: 'Cycle interval',
-          description: 'How long (in seconds) should each schedule page be shown.',
-          type: 'number',
-          defaultValue: 10,
-        },
-      ],
-    },
+    scheduleOptions,
   ];
 };
 
@@ -73,26 +54,5 @@ function getOptionsFromParams(searchParams: URLSearchParams): BackstageOptions {
 export function useBackstageOptions(): BackstageOptions {
   const [searchParams] = useSearchParams();
   const options = useMemo(() => getOptionsFromParams(searchParams), [searchParams]);
-  return options;
-}
-
-type ScheduleOptions = {
-  cycleInterval: number;
-  stopCycle: boolean;
-};
-
-function getScheduleOptionsFromParams(searchParams: URLSearchParams): ScheduleOptions {
-  return {
-    cycleInterval: Number(searchParams.get('cycleInterval')) || 10,
-    stopCycle: isStringBoolean(searchParams.get('stopCycle')),
-  };
-}
-
-/**
- * Hook exposes the schedule component options
- */
-export function useScheduleOptions() {
-  const [searchParams] = useSearchParams();
-  const options = useMemo(() => getScheduleOptionsFromParams(searchParams), [searchParams]);
   return options;
 }

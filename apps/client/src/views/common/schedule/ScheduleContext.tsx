@@ -11,7 +11,8 @@ import {
 import { isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
 
 import { usePartialRundown } from '../../../common/hooks-query/useRundown';
-import { useScheduleOptions } from '../../backstage/backstage.options';
+
+import { useScheduleOptions } from './schedule.options';
 
 interface ScheduleContextState {
   events: OntimeEvent[];
@@ -51,6 +52,7 @@ export const ScheduleProvider = ({
 
   const containerRef = useRef<HTMLUListElement>(null);
 
+  // After the view is rendered, we paginate by hiding elements that dont fit
   useLayoutEffect(() => {
     if (!containerRef.current) return;
 

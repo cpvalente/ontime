@@ -1,4 +1,6 @@
-import { CustomFields } from 'ontime-types';
+import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { CustomFields, OntimeEvent } from 'ontime-types';
 
 import {
   getTimeOption,
@@ -6,6 +8,7 @@ import {
   OptionTitle,
 } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/types';
+import { scheduleOptions } from '../common/schedule/schedule.options';
 
 export const getPublicOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
   const secondaryOptions = makeOptionsFromCustomFields(customFields, { note: 'Note' });
@@ -26,32 +29,30 @@ export const getPublicOptions = (timeFormat: string, customFields: CustomFields)
         },
       ],
     },
-    {
-      title: OptionTitle.Schedule,
-      collapsible: true,
-      options: [
-        {
-          id: 'eventsPerPage',
-          title: 'Events per page',
-          description: 'Sets the number of events on the page, can cause overflow',
-          type: 'number',
-          placeholder: '8 (default)',
-        },
-        {
-          id: 'hidePast',
-          title: 'Hide past events',
-          description: 'Scheduler will only show upcoming events',
-          type: 'boolean',
-          defaultValue: false,
-        },
-        {
-          id: 'stopCycle',
-          title: 'Stop cycling through event pages',
-          description: 'Schedule will not auto-cycle through events',
-          type: 'boolean',
-          defaultValue: false,
-        },
-      ],
-    },
+    scheduleOptions,
   ];
 };
+
+type PublicOptions = {
+  secondarySource: keyof OntimeEvent | null;
+};
+
+/**
+ * Utility extract the view options from URL Params
+ * the names and fallback are manually matched with timerOptions
+ */
+function getOptionsFromParams(searchParams: URLSearchParams): PublicOptions {
+  // we manually make an object that matches the key above
+  return {
+    secondarySource: searchParams.get('secondary-src') as keyof OntimeEvent | null,
+  };
+}
+
+/**
+ * Hook exposes the backstage view options
+ */
+export function usePublicOptions(): PublicOptions {
+  const [searchParams] = useSearchParams();
+  const options = useMemo(() => getOptionsFromParams(searchParams), [searchParams]);
+  return options;
+}
