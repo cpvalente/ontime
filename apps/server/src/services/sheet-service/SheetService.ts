@@ -208,6 +208,15 @@ async function verifySheet(
     });
     return { worksheetOptions: spreadsheets.data.sheets.map((i) => i.properties.title) };
   } catch (error) {
+    // attempt to catch errors caused by importing xlsx
+    if (
+      error.code === 400 &&
+      Array.isArray(error.errors) &&
+      error.errors[0].reason === 'failedPrecondition' &&
+      error.errors[0].message === 'This operation is not supported for this document'
+    ) {
+      throw new Error('Cannot read the linked file as a Google Sheet. It may be an .xlsx file instead.');
+    }
     const errorMessage = getErrorMessage(error);
     throw new Error(`Failed to verify sheet: ${errorMessage}`);
   }

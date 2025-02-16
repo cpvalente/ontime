@@ -51,8 +51,8 @@ const staticOptions = [
     label: 'Automation',
     secondary: [
       { id: 'automation__settings', label: 'Automation settings' },
-      { id: 'automation__triggers', label: 'Manage triggers' },
       { id: 'automation__automations', label: 'Manage automations' },
+      { id: 'automation__triggers', label: 'Manage triggers' },
     ],
   },
   {

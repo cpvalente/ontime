@@ -2,6 +2,7 @@ import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
 import { useFadeOutOnInactivity } from '../../../common/hooks/useFadeOutOnInactivity';
+import { cx } from '../../utils/styleUtils';
 
 import style from './NavigationMenu.module.scss';
 
@@ -15,7 +16,7 @@ export default function FloatingNavigation(props: FloatingNavigationProps) {
   const isButtonShown = useFadeOutOnInactivity();
 
   return (
-    <div className={`${style.buttonContainer} ${!isButtonShown ? style.hidden : ''}`}>
+    <div className={cx([style.fadeable, style.buttonContainer, !isButtonShown && style.hidden])}>
       <button
         onClick={toggleMenu}
         aria-label='toggle menu'

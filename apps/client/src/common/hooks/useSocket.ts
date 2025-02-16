@@ -250,11 +250,3 @@ export const useIsOnline = () => {
 
   return useRuntimeStore(featureSelector);
 };
-
-export const usePlayback = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    playback: state.timer.playback,
-  });
-
-  return useRuntimeStore(featureSelector);
-};

@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { IconButton, Modal, ModalContent, ModalOverlay, useDisclosure } from '@chakra-ui/react';
 import { IoApps } from '@react-icons/all-files/io5/IoApps';
 import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
-import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
+import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
+import useViewEditor from '../../common/components/navigation-menu/useViewEditor';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
@@ -25,7 +25,7 @@ export default function CuesheetPage() {
   // TODO: can we use the normalised rundown for the table?
   const { data: flatRundown } = useFlatRundown();
   const { data: customFields } = useCustomFields();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { showEditFormDrawer, isViewLocked } = useViewEditor({ isLockable: true });
   const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isEventEditorOpen, onOpen: onEventEditorOpen, onClose: onEventEditorClose } = useDisclosure();
   const [eventId, setEventId] = useState<string | null>(null);
@@ -33,12 +33,6 @@ export default function CuesheetPage() {
   const columns = useMemo(() => makeCuesheetColumns(customFields), [customFields]);
 
   useWindowTitle('Cuesheet');
-
-  /** Handles showing the view params edit drawer */
-  const showEditFormDrawer = useCallback(() => {
-    searchParams.set('edit', 'true');
-    setSearchParams(searchParams);
-  }, [searchParams, setSearchParams]);
 
   /**
    * Handles setting the edit modal target and visibility
@@ -69,7 +63,7 @@ export default function CuesheetPage() {
         </ModalContent>
       </Modal>
       <div className={styles.tableWrapper} data-testid='cuesheet'>
-        <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
+        <NavigationMenu isOpen={isMenuOpen} onClose={onClose} />
         <ViewParamsEditor viewOptions={cuesheetOptions} />
         <CuesheetOverview>
           <IconButton
@@ -78,6 +72,7 @@ export default function CuesheetPage() {
             size='lg'
             icon={<IoApps />}
             onClick={onOpen}
+            isDisabled={isViewLocked}
           />
           <IconButton
             aria-label='Toggle settings'
@@ -85,6 +80,7 @@ export default function CuesheetPage() {
             size='lg'
             icon={<IoSettingsOutline />}
             onClick={showEditFormDrawer}
+            isDisabled={isViewLocked}
           />
         </CuesheetOverview>
         <CuesheetProgress />

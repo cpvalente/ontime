@@ -8,6 +8,7 @@ import {
   PlayableEvent,
   Playback,
   Runtime,
+  runtimeStorePlaceholder,
   TimerPhase,
   TimerState,
 } from 'ontime-types';
@@ -32,29 +33,6 @@ import {
 import { timerConfig } from '../config/config.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 
-const initialRuntime: Runtime = {
-  selectedEventIndex: null, // changes if rundown changes or we load a new event
-  numEvents: 0, // change initiated by user
-  offset: 0, // changes at runtime
-  plannedStart: 0, // only changes if event changes
-  plannedEnd: 0, // only changes if event changes, overflows over dayInMs
-  actualStart: null, // set once we start the timer
-  expectedEnd: null, // changes with runtime, based on offset, overflows over dayInMs
-} as const;
-
-const initialTimer: TimerState = {
-  addedTime: 0,
-  current: null, // changes on every update
-  duration: null, // only changes if event changes
-  elapsed: null, // changes on every update
-  expectedFinish: null, // change can only be initiated by user, can roll over midnight
-  finishedAt: null, // can change on update or user action
-  phase: TimerPhase.None, // can change on update or user action
-  playback: Playback.Stop, // change initiated by user
-  secondaryTimer: null, // change on every update
-  startedAt: null, // change can only be initiated by user
-} as const;
-
 export type RuntimeState = {
   clock: number; // realtime clock
   eventNow: PlayableEvent | null;
@@ -75,16 +53,13 @@ export type RuntimeState = {
 
 const runtimeState: RuntimeState = {
   clock: clock.timeNow(),
-  currentBlock: {
-    block: null,
-    startedAt: null,
-  },
+  currentBlock: { ...runtimeStorePlaceholder.currentBlock },
   eventNow: null,
   publicEventNow: null,
   eventNext: null,
   publicEventNext: null,
-  runtime: { ...initialRuntime },
-  timer: { ...initialTimer },
+  runtime: { ...runtimeStorePlaceholder.runtime },
+  timer: { ...runtimeStorePlaceholder.timer },
   _timer: {
     forceFinish: null,
     totalDelay: 0,
@@ -124,7 +99,7 @@ export function clear() {
 
   runtimeState.timer.playback = Playback.Stop;
   runtimeState.clock = clock.timeNow();
-  runtimeState.timer = { ...initialTimer };
+  runtimeState.timer = { ...runtimeStorePlaceholder.timer };
 
   // when clearing, we maintain the total delay from the rundown
   runtimeState._timer.forceFinish = null;

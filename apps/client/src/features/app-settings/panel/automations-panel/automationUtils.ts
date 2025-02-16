@@ -36,6 +36,12 @@ const staticSelectProperties = [
   { value: 'eventNow.colour', label: 'Colour' },
 ];
 
+const staticNextSelectProperties = [
+  { value: 'eventNow.id', label: 'Next ID' },
+  { value: 'eventNow.title', label: 'Next Title' },
+  { value: 'eventNow.cue', label: 'Next Cue' },
+];
+
 type SelectableField = {
   value: string; // string encodes path in runtime state object
   label: string;
@@ -47,6 +53,11 @@ export function makeFieldList(customFields: CustomFields): SelectableField[] {
     ...Object.entries(customFields).map(([key, { label }]) => ({
       value: `eventNow.custom.${key}`,
       label: `Custom: ${label}`,
+    })),
+    ...staticNextSelectProperties,
+    ...Object.entries(customFields).map(([key, { label }]) => ({
+      value: `eventNext.custom.${key}`,
+      label: `Next custom: ${label}`,
     })),
   ];
 }
