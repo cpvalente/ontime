@@ -170,6 +170,10 @@ export const useTimelineStatus = createSelector((state: RuntimeStore) => ({
   offset: state.runtime.offset,
 }));
 
+export const useRuntimeOffset = createSelector((state: RuntimeStore) => ({
+  offset: state.runtime.offset,
+}));
+
 export const usePing = createSelector((state: RuntimeStore) => ({
   ping: state.ping,
 }));

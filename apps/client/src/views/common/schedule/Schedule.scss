@@ -49,6 +49,14 @@ $indeterminate-width: clamp(32px, 3vw, 48px);
     &--delay {
       color: $ontime-delay-text;
     }
+
+    &--ahead {
+      color: $green-500;
+    }
+
+    &--behind {
+      color: $orange-500;
+    }
   }
 
   .entry-title {
