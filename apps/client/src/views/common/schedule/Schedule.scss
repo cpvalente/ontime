@@ -46,6 +46,14 @@
     &--delay {
       color: $ontime-delay-text;
     }
+
+    &--ahead {
+      color: $green-500;
+    }
+
+    &--behind {
+      color: $orange-500;
+    }
   }
 
   .entry-title {
