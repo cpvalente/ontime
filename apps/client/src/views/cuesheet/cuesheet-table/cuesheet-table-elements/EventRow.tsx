@@ -59,7 +59,7 @@ function EventRow(props: PropsWithChildren<EventRowProps>) {
       ref={selectedRef ?? ownRef}
     >
       {showActionMenu && (
-        <td className={style.actionColumn} tabIndex={-1} role='gridcell'>
+        <td className={style.actionColumn} tabIndex={-1} role='cell'>
           <MenuButton
             as={IconButton}
             size='sm'
@@ -70,7 +70,7 @@ function EventRow(props: PropsWithChildren<EventRowProps>) {
         </td>
       )}
       {!hideIndexColumn && (
-        <td className={style.indexColumn} style={{ backgroundColor, color: mutedText }} tabIndex={-1} role='gridcell'>
+        <td className={style.indexColumn} style={{ backgroundColor, color: mutedText }} tabIndex={-1} role='cell'>
           {eventIndex}
         </td>
       )}

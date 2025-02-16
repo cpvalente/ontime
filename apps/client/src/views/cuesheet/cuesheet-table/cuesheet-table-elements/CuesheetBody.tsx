@@ -84,7 +84,7 @@ export default function CuesheetBody(props: CuesheetBodyProps) {
               >
                 {row.getVisibleCells().map((cell) => {
                   return (
-                    <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }} tabIndex={-1} role='gridcell'>
+                    <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }} tabIndex={-1} role='cell'>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   );
