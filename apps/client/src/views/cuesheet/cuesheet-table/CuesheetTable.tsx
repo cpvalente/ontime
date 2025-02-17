@@ -23,8 +23,8 @@ import BlockRow from './cuesheet-table-elements/BlockRow';
 import CuesheetHeader from './cuesheet-table-elements/CuesheetHeader';
 import DelayRow from './cuesheet-table-elements/DelayRow';
 import EventRow from './cuesheet-table-elements/EventRow';
+import CuesheetTableMenu from './cuesheet-table-menu/CuesheetTableMenu';
 import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
-import CuesheetTableMenu from './CuesheetTableMenu';
 import useColumnManager from './useColumnManager';
 
 import style from './CuesheetTable.module.scss';

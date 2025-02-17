@@ -7,8 +7,8 @@ import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { OntimeEvent, SupportedEvent } from 'ontime-types';
 
-import { useEventAction } from '../../../common/hooks/useEventAction';
-import { cloneEvent } from '../../../common/utils/eventsManager';
+import { useEventAction } from '../../../../common/hooks/useEventAction';
+import { cloneEvent } from '../../../../common/utils/eventsManager';
 
 interface CuesheetTableMenuProps {
   event: OntimeEvent;
