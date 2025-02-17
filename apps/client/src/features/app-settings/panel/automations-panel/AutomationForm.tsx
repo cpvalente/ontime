@@ -1,16 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  Button,
-  IconButton,
-  Input,
-  Radio,
-  RadioGroup,
-  Select,
-} from '@chakra-ui/react';
+import { Button, IconButton, Input, Radio, RadioGroup, Select } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { Automation, AutomationDTO, HTTPOutput, isHTTPOutput, isOSCOutput, OSCOutput } from 'ontime-types';
@@ -18,6 +8,7 @@ import { Automation, AutomationDTO, HTTPOutput, isHTTPOutput, isOSCOutput, OSCOu
 import { addAutomation, editAutomation, testOutput } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
+import Info from '../../../../common/components/info/Info';
 import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
@@ -291,13 +282,10 @@ export default function AutomationForm(props: AutomationFormProps) {
 
       <div className={style.innerColumn}>
         <h3>Outputs</h3>
-        <Alert status='info' variant='ontime-on-dark-info'>
-          <AlertIcon />
-          <AlertDescription>
-            Automation outputs can be used to send data from Ontime to external software.
-            <ExternalLink href={integrationsDocsUrl}>See the documentation for templates</ExternalLink>
-          </AlertDescription>
-        </Alert>
+        <Info>
+          Automation outputs can be used to send data from Ontime to external software.
+          <ExternalLink href={integrationsDocsUrl}>See the documentation for templates</ExternalLink>
+        </Info>
 
         {fieldOutputs.map((output, index) => {
           if (isOSCOutput(output)) {
