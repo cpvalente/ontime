@@ -1,15 +1,12 @@
 .eventEditor {
-  max-height: 100%;
-  overflow-y: auto;
-  padding-inline: 0.5rem;
-
+  max-height: 80vh;
   display: flex;
   flex-direction: column;
   overflow-x: auto;
 }
 
 .content {
-  padding-right: 4px;
+  padding-inline: 0.5rem 1.5rem;
   padding-bottom: 4rem;
 
   flex: 1;
