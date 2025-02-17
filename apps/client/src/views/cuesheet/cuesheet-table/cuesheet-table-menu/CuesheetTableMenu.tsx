@@ -1,70 +1,35 @@
-import { MenuDivider, MenuItem, MenuList, Portal } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
-import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
-import { isOntimeEvent, SupportedEvent } from 'ontime-types';
+import { memo } from 'react';
+import { Menu, MenuButton, Portal } from '@chakra-ui/react';
 
-import { useEventAction } from '../../../../common/hooks/useEventAction';
-import { cloneEvent } from '../../../../common/utils/eventsManager';
+import CuesheetTableMenuActionsProps from './CuesheetTableMenuActions';
+import { useCuesheetTableMenu } from './useCuesheetTableMenu';
 
 interface CuesheetTableMenuProps {
-  eventId: string;
-  entryIndex: number;
-  showModal: (entryId: string) => void;
+  showModal: (eventId: string) => void;
 }
 
-export default function CuesheetTableMenu(props: CuesheetTableMenuProps) {
-  const { eventId, entryIndex, showModal } = props;
-  const { addEvent, getEventById, reorderEvent, deleteEvent } = useEventAction();
+export default memo(CuesheetTableMenu);
 
-  const handleCloneEvent = () => {
-    const currentEvent = getEventById(eventId);
-    if (!currentEvent || !isOntimeEvent(currentEvent)) {
-      return;
-    }
-
-    const newEvent = cloneEvent(currentEvent);
-    try {
-      addEvent(newEvent, { after: eventId });
-    } catch (_error) {
-      // we do not handle errors here
-    }
-  };
+function CuesheetTableMenu(props: CuesheetTableMenuProps) {
+  const { showModal } = props;
+  const { isOpen, eventId, entryIndex, position, closeMenu } = useCuesheetTableMenu();
 
   return (
     <Portal>
-      <MenuList>
-        <MenuItem icon={<IoOptions />} onClick={() => showModal(eventId)}>
-          Edit ...
-        </MenuItem>
-        <MenuDivider />
-        <MenuItem icon={<IoAdd />} onClick={() => addEvent({ type: SupportedEvent.Event }, { before: eventId })}>
-          Add event above
-        </MenuItem>
-        <MenuItem icon={<IoAdd />} onClick={() => addEvent({ type: SupportedEvent.Event }, { after: eventId })}>
-          Add event below
-        </MenuItem>
-        <MenuItem icon={<IoDuplicateOutline />} onClick={handleCloneEvent}>
-          Clone event
-        </MenuItem>
-        <MenuDivider />
-        <MenuItem
-          isDisabled={entryIndex < 1}
-          icon={<IoArrowUp />}
-          onClick={() => reorderEvent(eventId, entryIndex, entryIndex - 1)}
-        >
-          Move up
-        </MenuItem>
-        <MenuItem icon={<IoArrowDown />} onClick={() => reorderEvent(eventId, entryIndex, entryIndex + 1)}>
-          Move down
-        </MenuItem>
-        <MenuItem icon={<IoTrash />} onClick={() => deleteEvent([eventId])}>
-          Delete
-        </MenuItem>
-      </MenuList>
+      {isOpen && (
+        <Menu isOpen size='sm' onClose={closeMenu} isLazy variant='ontime-on-dark'>
+          <MenuButton
+            position='absolute'
+            left={position.x}
+            top={position.y}
+            pointerEvents='none'
+            aria-hidden
+            w={1}
+            h={1}
+          />
+          <CuesheetTableMenuActionsProps eventId={eventId} entryIndex={entryIndex} showModal={showModal} />
+        </Menu>
+      )}
     </Portal>
   );
 }

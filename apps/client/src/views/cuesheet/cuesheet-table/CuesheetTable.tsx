@@ -22,6 +22,7 @@ import BlockRow from './cuesheet-table-elements/BlockRow';
 import CuesheetHeader from './cuesheet-table-elements/CuesheetHeader';
 import DelayRow from './cuesheet-table-elements/DelayRow';
 import EventRow from './cuesheet-table-elements/EventRow';
+import CuesheetTableMenu from './cuesheet-table-menu/CuesheetTableMenu';
 import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
 import useColumnManager from './useColumnManager';
 
@@ -172,7 +173,6 @@ export default function CuesheetTable(props: CuesheetTableProps) {
                     selectedRef={isSelected ? selectedRef : undefined}
                     skip={entry.skip}
                     colour={entry.colour}
-                    showModal={showModal}
                   >
                     {row.getVisibleCells().map((cell) => {
                       return (
@@ -191,6 +191,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
           </tbody>
         </table>
       </div>
+      <CuesheetTableMenu showModal={showModal} />
     </>
   );
 }
