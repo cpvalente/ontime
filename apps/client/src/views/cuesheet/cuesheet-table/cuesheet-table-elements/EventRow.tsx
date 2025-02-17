@@ -1,11 +1,11 @@
 import { memo, MutableRefObject, PropsWithChildren, useLayoutEffect, useRef, useState } from 'react';
-import { IconButton, Menu, MenuButton } from '@chakra-ui/react';
+import { IconButton } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 import Color from 'color';
 
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { useCuesheetOptions } from '../../cuesheet.options';
-import CuesheetTableMenu from '../cuesheet-table-menu/CuesheetTableMenu';
+import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
 
 import style from '../CuesheetTable.module.scss';
 
@@ -17,14 +17,15 @@ interface EventRowProps {
   selectedRef?: MutableRefObject<HTMLTableRowElement | null>;
   skip?: boolean;
   colour?: string;
-  showModal: (eventId: string) => void;
 }
 
 function EventRow(props: PropsWithChildren<EventRowProps>) {
-  const { children, eventId, eventIndex, rowIndex, isPast, selectedRef, skip, colour, showModal } = props;
+  const { children, eventId, eventIndex, rowIndex, isPast, selectedRef, skip, colour } = props;
   const { hideIndexColumn, showActionMenu } = useCuesheetOptions();
   const ownRef = useRef<HTMLTableRowElement>(null);
   const [isVisible, setIsVisible] = useState(false);
+
+  const { openMenu } = useCuesheetTableMenu();
 
   useLayoutEffect(() => {
     const observer = new IntersectionObserver(
@@ -64,16 +65,17 @@ function EventRow(props: PropsWithChildren<EventRowProps>) {
     >
       {showActionMenu && (
         <td className={style.actionColumn}>
-          <Menu variant='ontime-on-dark' size='sm' isLazy>
-            <MenuButton
-              as={IconButton}
-              size='sm'
-              aria-label='Options'
-              icon={<IoEllipsisHorizontal />}
-              variant='ontime-subtle'
-            />
-            <CuesheetTableMenu eventId={eventId} entryIndex={rowIndex} showModal={showModal} />
-          </Menu>
+          <IconButton
+            size='sm'
+            aria-label='Options'
+            icon={<IoEllipsisHorizontal />}
+            variant='ontime-subtle'
+            onClick={(event) => {
+              const rect = event.currentTarget.getBoundingClientRect();
+              const yPos = 8 + rect.y + rect.height / 2;
+              openMenu({ x: rect.x, y: yPos }, eventId, rowIndex);
+            }}
+          />
         </td>
       )}
       {!hideIndexColumn && (
