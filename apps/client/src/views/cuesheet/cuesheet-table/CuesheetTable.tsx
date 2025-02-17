@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import Color from 'color';
 import {
@@ -92,13 +92,13 @@ export default function CuesheetTable(props: CuesheetTableProps) {
     },
   });
 
-  const setAllVisible = () => {
+  const setAllVisible = useCallback(() => {
     table.toggleAllColumnsVisible(true);
-  };
+  }, []);
 
-  const resetColumnResizing = () => {
+  const resetColumnResizing = useCallback(() => {
     setColumnSizing({});
-  };
+  }, []);
 
   const headerGroups = table.getHeaderGroups();
   const rowModel = table.getRowModel();
