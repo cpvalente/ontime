@@ -14,7 +14,6 @@ interface ExternalLinkProps {
 
 export default function ExternalLink(props: ExternalLinkProps) {
   const { href, inline, children } = props;
-  const classes = cx([style.link, inline ? style.inline : null]);
 
   const handleClick = (event: MouseEvent) => {
     event.preventDefault();
@@ -22,8 +21,14 @@ export default function ExternalLink(props: ExternalLinkProps) {
   };
 
   return (
-    <a href='#!' target='_blank' rel='noreferrer' className={classes} onClick={handleClick}>
-      {children} <IoOpenOutline />
+    <a
+      href='#!'
+      target='_blank'
+      rel='noreferrer'
+      className={cx([style.link, inline && style.inline])}
+      onClick={handleClick}
+    >
+      {children} <IoOpenOutline style={{ fontSize: '1em' }} />
     </a>
   );
 }

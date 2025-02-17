@@ -1,15 +1,17 @@
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Alert, AlertDescription, AlertIcon, Button, Input, Switch } from '@chakra-ui/react';
+import { Button, Input, Switch } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { postViewSettings } from '../../../../common/api/viewSettings';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
+import Info from '../../../../common/components/info/Info';
 import { SwatchPickerRHF } from '../../../../common/components/input/colour-input/SwatchPicker';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
+import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
@@ -85,16 +87,19 @@ export default function ViewSettingsForm() {
           </Panel.InlineElements>
         </Panel.SubHeader>
         <Panel.Divider />
-        <Alert status='info' variant='ontime-on-dark-info'>
-          <AlertIcon />
-          <AlertDescription>
-            You can the Ontime views or customise its styles by modifying the provided CSS file. <br />
-            The CSS file is in the user directory at {`${info.publicDir}/user/styles/override.css`}
-            <br />
-            <br />
-            <ExternalLink href={cssOverrideDocsUrl}>See the docs</ExternalLink>
-          </AlertDescription>
-        </Alert>
+        <Info>
+          You can the Ontime views or customise its styles by modifying the provided CSS file.
+          <br />
+          {!isOntimeCloud && (
+            <>
+              <br />
+              The loaded CSS file is in the user directory at{' '}
+              <Panel.BlockQuote>{`${info.publicDir}/user/styles/override.css`}</Panel.BlockQuote>
+              <br />
+            </>
+          )}
+          <ExternalLink href={cssOverrideDocsUrl}>See the docs</ExternalLink>
+        </Info>
         <Panel.Section>
           <Panel.Loader isLoading={isLoading} />
           <Panel.ListGroup>
