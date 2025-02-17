@@ -1,5 +1,4 @@
 import { useRef } from 'react';
-import { Menu } from '@chakra-ui/react';
 import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import Color from 'color';
 import {
@@ -23,7 +22,6 @@ import BlockRow from './cuesheet-table-elements/BlockRow';
 import CuesheetHeader from './cuesheet-table-elements/CuesheetHeader';
 import DelayRow from './cuesheet-table-elements/DelayRow';
 import EventRow from './cuesheet-table-elements/EventRow';
-import CuesheetTableMenu from './cuesheet-table-menu/CuesheetTableMenu';
 import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
 import useColumnManager from './useColumnManager';
 
@@ -165,24 +163,25 @@ export default function CuesheetTable(props: CuesheetTableProps) {
                 }
 
                 return (
-                  <Menu key={key} variant='ontime-on-dark' size='sm' isLazy>
-                    <EventRow
-                      eventIndex={eventIndex}
-                      isPast={isPast}
-                      selectedRef={isSelected ? selectedRef : undefined}
-                      skip={entry.skip}
-                      colour={entry.colour}
-                    >
-                      {row.getVisibleCells().map((cell) => {
-                        return (
-                          <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </td>
-                        );
-                      })}
-                    </EventRow>
-                    <CuesheetTableMenu event={entry} entryIndex={index} showModal={showModal} />
-                  </Menu>
+                  <EventRow
+                    key={key}
+                    eventId={entry.id}
+                    eventIndex={eventIndex}
+                    rowIndex={index}
+                    isPast={isPast}
+                    selectedRef={isSelected ? selectedRef : undefined}
+                    skip={entry.skip}
+                    colour={entry.colour}
+                    showModal={showModal}
+                  >
+                    {row.getVisibleCells().map((cell) => {
+                      return (
+                        <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
+                      );
+                    })}
+                  </EventRow>
                 );
               }
 
