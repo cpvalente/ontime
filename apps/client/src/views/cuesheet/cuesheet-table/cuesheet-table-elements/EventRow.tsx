@@ -1,23 +1,27 @@
 import { memo, MutableRefObject, PropsWithChildren, useLayoutEffect, useRef, useState } from 'react';
-import { IconButton, MenuButton } from '@chakra-ui/react';
+import { IconButton, Menu, MenuButton } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 import Color from 'color';
 
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { useCuesheetOptions } from '../../cuesheet.options';
+import CuesheetTableMenu from '../cuesheet-table-menu/CuesheetTableMenu';
 
 import style from '../CuesheetTable.module.scss';
 
 interface EventRowProps {
+  eventId: string;
   eventIndex: number;
+  rowIndex: number;
   isPast?: boolean;
   selectedRef?: MutableRefObject<HTMLTableRowElement | null>;
   skip?: boolean;
   colour?: string;
+  showModal: (eventId: string) => void;
 }
 
 function EventRow(props: PropsWithChildren<EventRowProps>) {
-  const { children, eventIndex, isPast, selectedRef, skip, colour } = props;
+  const { children, eventId, eventIndex, rowIndex, isPast, selectedRef, skip, colour, showModal } = props;
   const { hideIndexColumn, showActionMenu } = useCuesheetOptions();
   const ownRef = useRef<HTMLTableRowElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -60,13 +64,16 @@ function EventRow(props: PropsWithChildren<EventRowProps>) {
     >
       {showActionMenu && (
         <td className={style.actionColumn}>
-          <MenuButton
-            as={IconButton}
-            size='sm'
-            aria-label='Options'
-            icon={<IoEllipsisHorizontal />}
-            variant='ontime-subtle'
-          />
+          <Menu variant='ontime-on-dark' size='sm' isLazy>
+            <MenuButton
+              as={IconButton}
+              size='sm'
+              aria-label='Options'
+              icon={<IoEllipsisHorizontal />}
+              variant='ontime-subtle'
+            />
+            <CuesheetTableMenu eventId={eventId} entryIndex={rowIndex} showModal={showModal} />
+          </Menu>
         </td>
       )}
       {!hideIndexColumn && (
