@@ -1,13 +1,21 @@
 import { PropsWithChildren } from 'react';
 import { IoAlertCircle } from '@react-icons/all-files/io5/IoAlertCircle';
 
+import { cx } from '../../utils/styleUtils';
+
 import style from './Info.module.scss';
 
-export default function Info({ children }: PropsWithChildren) {
+interface InfoProps {
+  className?: string;
+}
+
+export default function Info(props: PropsWithChildren<InfoProps>) {
+  const { className, children } = props;
+
   return (
-    <div className={style.infoLabel}>
+    <div className={cx([style.infoLabel, className])}>
       <IoAlertCircle />
-      {children}
+      <div>{children}</div>
     </div>
   );
 }
