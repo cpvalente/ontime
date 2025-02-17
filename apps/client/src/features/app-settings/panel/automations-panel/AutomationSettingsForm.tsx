@@ -7,6 +7,7 @@ import ExternalLink from '../../../../common/components/external-link/ExternalLi
 import Info from '../../../../common/components/info/Info';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
+import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 const oscApiDocsUrl = 'https://docs.getontime.no/api/protocols/osc/';
@@ -112,7 +113,9 @@ export default function AutomationSettingsForm(props: AutomationSettingsProps) {
         </Panel.ListGroup>
 
         <Panel.Title>OSC Input</Panel.Title>
+
         <Panel.ListGroup>
+          {isOntimeCloud && <Info>For security reasons OSC integrations are not available in the cloud service.</Info>}
           <Panel.ListItem>
             <Panel.Field
               title='OSC input'
