@@ -182,3 +182,11 @@ export const usePing = createSelector((state: RuntimeStore) => ({
 export const useIsOnline = createSelector((state: RuntimeStore) => ({
   isOnline: state.ping > 0,
 }));
+
+export const usePlayback = () => {
+  const featureSelector = (state: RuntimeStore) => ({
+    playback: state.timer.playback,
+  });
+
+  return useRuntimeStore(featureSelector);
+};
