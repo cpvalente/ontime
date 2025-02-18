@@ -3,7 +3,16 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { Button, IconButton, Input, Radio, RadioGroup, Select } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
-import { Automation, AutomationDTO, HTTPOutput, isHTTPOutput, isOSCOutput, OSCOutput } from 'ontime-types';
+import {
+  Automation,
+  AutomationDTO,
+  HTTPOutput,
+  isHTTPOutput,
+  isOntimeAction,
+  isOSCOutput,
+  OntimeAction,
+  OSCOutput,
+} from 'ontime-types';
 
 import { addAutomation, editAutomation, testOutput } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -18,6 +27,7 @@ import * as Panel from '../../panel-utils/PanelUtils';
 
 import TemplateInput from './template-input/TemplateInput';
 import { isAutomation, makeFieldList } from './automationUtils';
+import OntimeActionForm from './OntimeActionForm';
 
 import style from './AutomationForm.module.scss';
 
@@ -42,6 +52,7 @@ export default function AutomationForm(props: AutomationFormProps) {
     register,
     setError,
     setFocus,
+    setValue,
     formState: { errors, isSubmitting, isDirty, isValid },
   } = useForm<AutomationDTO>({
     mode: 'onChange',
@@ -92,6 +103,11 @@ export default function AutomationForm(props: AutomationFormProps) {
     appendOutput({ type: 'http', url: '' });
   };
 
+  const handleAddnewOntimeAction = () => {
+    // @ts-expect-error -- we dont want to choose an action
+    appendOutput({ type: 'ontime', action: undefined });
+  };
+
   const handleTestOSCOutput = async (index: number) => {
     try {
       const values = getValues(`outputs.${index}`) as OSCOutput;
@@ -122,6 +138,19 @@ export default function AutomationForm(props: AutomationFormProps) {
       });
     } catch (_error) {
       /** we dont handle errors here, users should use the network tab */
+    }
+  };
+
+  const handleTestOntimeAction = async (index: number) => {
+    try {
+      const values = getValues(`outputs.${index}`) as OntimeAction;
+      // NOTE: there is no meaningful validation to do here, we let the server deal with the data
+      await testOutput({
+        ...values,
+        type: 'ontime',
+      });
+    } catch (_error) {
+      /** we dont handle errors here */
     }
   };
 
@@ -374,8 +403,6 @@ export default function AutomationForm(props: AutomationFormProps) {
                         size='sm'
                         onClick={() => removeOutput(index)}
                         color='#FA5656' // $red-500
-                        isDisabled={false}
-                        isLoading={false}
                       />
                     </Panel.InlineElements>
                   </div>
@@ -423,8 +450,6 @@ export default function AutomationForm(props: AutomationFormProps) {
                         size='sm'
                         onClick={() => removeOutput(index)}
                         color='#FA5656' // $red-500
-                        isDisabled={false}
-                        isLoading={false}
                       />
                     </Panel.InlineElements>
                   </div>
@@ -432,29 +457,58 @@ export default function AutomationForm(props: AutomationFormProps) {
               </div>
             );
           }
+
+          if (isOntimeAction(output)) {
+            const rowErrors = errors.outputs?.[index] as
+              | {
+                  action?: { message?: string };
+                  time?: { message?: string };
+                  text?: { message?: string };
+                  visible?: { message?: string };
+                  secondarySource?: { message?: string };
+                }
+              | undefined;
+            return (
+              <div key={output.id} className={style.outputCard}>
+                <Tag>Ontime action</Tag>
+                <OntimeActionForm
+                  value={output.action}
+                  index={index}
+                  register={register}
+                  rowErrors={rowErrors}
+                  setValue={setValue}
+                >
+                  <span>&nbsp;</span>
+                  <Panel.InlineElements relation='inner'>
+                    <Button size='sm' variant='ontime-ghosted-white' onClick={() => handleTestOntimeAction(index)}>
+                      Test
+                    </Button>
+                    <IconButton
+                      aria-label='Delete'
+                      icon={<IoTrash />}
+                      variant='ontime-ghosted'
+                      size='sm'
+                      onClick={() => removeOutput(index)}
+                      color='#FA5656' // $red-500
+                    />
+                  </Panel.InlineElements>
+                </OntimeActionForm>
+              </div>
+            );
+          }
+
           // there should be no other output types
           return null;
         })}
         <Panel.InlineElements relation='inner'>
-          <Button
-            variant='ontime-subtle'
-            rightIcon={<IoAdd />}
-            size='sm'
-            onClick={handleAddNewOSCOutput}
-            isDisabled={false}
-            isLoading={false}
-          >
+          <Button variant='ontime-subtle' rightIcon={<IoAdd />} size='sm' onClick={handleAddNewOSCOutput}>
             OSC
           </Button>
-          <Button
-            variant='ontime-subtle'
-            rightIcon={<IoAdd />}
-            size='sm'
-            onClick={handleAddNewHTTPOutput}
-            isDisabled={false}
-            isLoading={false}
-          >
+          <Button variant='ontime-subtle' rightIcon={<IoAdd />} size='sm' onClick={handleAddNewHTTPOutput}>
             HTTP
+          </Button>
+          <Button variant='ontime-subtle' rightIcon={<IoAdd />} size='sm' onClick={handleAddnewOntimeAction}>
+            Ontime action
           </Button>
         </Panel.InlineElements>
       </div>

@@ -1,11 +1,13 @@
 import { getErrorMessage } from 'ontime-utils';
-import { Automation, AutomationOutput, AutomationSettings, ErrorResponse, Trigger } from 'ontime-types';
+import { Automation, AutomationSettings, ErrorResponse, Trigger } from 'ontime-types';
 
 import type { Request, Response } from 'express';
 
+import { oscServer } from '../../adapters/OscAdapter.js';
+
 import * as automationDao from './automation.dao.js';
 import * as automationService from './automation.service.js';
-import { oscServer } from '../../adapters/OscAdapter.js';
+import { parseOutput } from './automation.validation.js';
 
 export function getAutomationSettings(_req: Request, res: Response<AutomationSettings>) {
   res.json(automationDao.getAutomationSettings());
@@ -114,8 +116,9 @@ export async function deleteAutomation(req: Request, res: Response<void | ErrorR
 
 export function testOutput(req: Request, res: Response<void | ErrorResponse>) {
   try {
-    const payload = req.body as AutomationOutput;
-    automationService.testOutput(payload);
+    const payload = req.body;
+    const parsed = parseOutput(payload);
+    automationService.testOutput(parsed);
     res.status(200).send();
   } catch (error) {
     const message = getErrorMessage(error);
