@@ -31,6 +31,9 @@ const SingleLineCell = forwardRef((props: SingleLineCellProps, inputRef) => {
       select() {
         ref.current?.select();
       },
+      focusParentElement() {
+        ref.current?.parentElement?.focus();
+      }
     };
   }, [ref]);
 
