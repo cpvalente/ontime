@@ -33,13 +33,11 @@ const TemplateInput = forwardRef(function TemplateInput(props: TemplateInputProp
 
     if (event.target.value.endsWith('{')) {
       setShowSuggestions(true);
+      setSuggestions(updateSuggestions(event.target.value));
     } else if (event.target.value === '' || event.target.value.endsWith('}}')) {
       setShowSuggestions(false);
-    }
-
-    if (showSuggestions) {
-      const suggestions = updateSuggestions(event.target.value);
-      setSuggestions(suggestions);
+    } else if (showSuggestions) {
+      setSuggestions(updateSuggestions(event.target.value));
     }
 
     onChange?.(event);
@@ -55,7 +53,7 @@ const TemplateInput = forwardRef(function TemplateInput(props: TemplateInputProp
 
   return (
     <div className={style.wrapper} ref={mergeRefs(localRef, ref)}>
-      <Input {...rest} value={inputValue} onChange={handleInputChange} autoComplete='off' autoCorrect='off' />
+      <Input value={inputValue} {...rest} onChange={handleInputChange} autoComplete='off' autoCorrect='off' />
       {showSuggestions && suggestions.length > 0 && (
         <ul className={style.suggestions}>
           {suggestions.map((suggestion) => (

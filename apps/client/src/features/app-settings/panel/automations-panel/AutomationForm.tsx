@@ -380,13 +380,13 @@ export default function AutomationForm(props: AutomationFormProps) {
                     <Panel.Error>{rowErrors?.address?.message}</Panel.Error>
                   </label>
                   <label>
-                    Parameters
+                    Arguments
                     <TemplateInput
                       {...register(`outputs.${index}.args`)}
+                      value={output.args}
                       variant='ontime-filled'
                       size='sm'
                       placeholder='1'
-                      autoComplete='off'
                     />
                     <Panel.Error>{rowErrors?.args?.message}</Panel.Error>
                   </label>
