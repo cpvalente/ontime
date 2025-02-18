@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
@@ -36,12 +35,11 @@ export default function EventBlockChip(props: EventBlockChipProps) {
   if (playbackActive) {
     // we extracted the component to avoid unnecessary calculations and re-renders
     return (
-      <EventUntil
-        className={className}
-        trueTimeStart={trueTimeStart}
-        totalGap={totalGap}
-        isLinkedAndNext={isLinkedAndNext}
-      />
+      <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
+        <div className={className}>
+          <EventUntil trueTimeStart={trueTimeStart} totalGap={totalGap} isLinkedAndNext={isLinkedAndNext} />
+        </div>
+      </Tooltip>
     );
   }
 
@@ -49,29 +47,21 @@ export default function EventBlockChip(props: EventBlockChipProps) {
 }
 
 interface EventUntilProps {
-  className: string;
   trueTimeStart: number;
   totalGap: number;
   isLinkedAndNext: boolean;
 }
 
 function EventUntil(props: EventUntilProps) {
-  const { trueTimeStart, className, totalGap, isLinkedAndNext } = props;
+  const { trueTimeStart, totalGap, isLinkedAndNext } = props;
   const { clock, offset } = useTimelineStatus();
 
-  const [timeUntilString, isDue] = useMemo(() => {
-    const consumedOffset = isLinkedAndNext ? offset : Math.min(offset + totalGap, 0);
-    const offsetTimestart = trueTimeStart - consumedOffset;
-    const timeUntil = offsetTimestart - clock;
-    const isDue = timeUntil < MILLIS_PER_SECOND;
-    return [isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`, isDue];
-  }, [totalGap, isLinkedAndNext, offset, trueTimeStart, clock]);
+  const consumedOffset = isLinkedAndNext ? offset : Math.min(offset + totalGap, 0);
+  const offsetTimestart = trueTimeStart - consumedOffset;
+  const timeUntil = offsetTimestart - clock;
+  const isDue = timeUntil < MILLIS_PER_SECOND;
 
-  return (
-    <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
-      <div className={cx([style.chip, isDue ? style.due : null, className])}>
-        <div>{timeUntilString}</div>
-      </div>
-    </Tooltip>
-  );
+  const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
+
+  return <div className={cx([style.chip, isDue && style.due])}>{timeUntilString}</div>;
 }
