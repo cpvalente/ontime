@@ -1,9 +1,11 @@
+export type SecondarySource = 'aux' | 'external' | null;
+
 export type TimerMessage = {
   text: string;
   visible: boolean;
   blink: boolean;
   blackout: boolean;
-  secondarySource: 'aux' | 'external' | null;
+  secondarySource: SecondarySource;
 };
 
 export type MessageState = {

@@ -1,4 +1,4 @@
-import type { AutomationOutput, HTTPOutput, OSCOutput } from '../definitions/core/Automation.type.js';
+import type { AutomationOutput, HTTPOutput, OntimeAction, OSCOutput } from '../definitions/core/Automation.type.js';
 import type { OntimeBlock, OntimeDelay, OntimeEvent, PlayableEvent } from '../definitions/core/OntimeEvent.type.js';
 import { SupportedEvent } from '../definitions/core/OntimeEvent.type.js';
 import type { OntimeRundownEntry } from '../definitions/core/Rundown.type.js';
@@ -40,4 +40,8 @@ export function isOSCOutput(output: AutomationOutput): output is OSCOutput {
 
 export function isHTTPOutput(output: AutomationOutput): output is HTTPOutput {
   return output.type === 'http';
+}
+
+export function isOntimeAction(output: AutomationOutput): output is OntimeAction {
+  return output.type === 'ontime';
 }

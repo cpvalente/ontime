@@ -1,4 +1,4 @@
-import { FilterRule, MaybeNumber } from 'ontime-types';
+import { FilterRule, MaybeNumber, OntimeAction } from 'ontime-types';
 import { millisToString, removeLeadingZero, splitWhitespace, getPropertyFromPath } from 'ontime-utils';
 import type { OscArgOrArrayInput, OscArgInput } from 'osc-min';
 
@@ -10,6 +10,10 @@ export function isFilterOperator(value: string): value is FilterOperator {
 
 export function isFilterRule(value: string): value is FilterRule {
   return value === 'all' || value === 'any';
+}
+
+export function isOntimeActionAction(value: string): value is OntimeAction['action'] {
+  return ['aux-start', 'aux-stop', 'aux-pause', 'aux-set', 'message-set', 'message-secondary'].includes(value);
 }
 
 function toOscValue(argString: string): OscArgInput {
