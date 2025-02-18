@@ -181,7 +181,7 @@ export default function AutomationForm(props: AutomationFormProps) {
       </div>
 
       <div className={style.innerSection}>
-        <h3>Filters</h3>
+        <h3>Filters (optional)</h3>
         <div className={style.ruleSection}>
           <label>
             Trigger outputs if
@@ -196,74 +196,80 @@ export default function AutomationForm(props: AutomationFormProps) {
               )}
             />
           </label>
-          {fieldFilters.map((field, index) => (
-            <div key={field.id} className={style.filterSection}>
-              <label>
-                Runtime data source
-                <Select
-                  {...register(`filters.${index}.field`, { required: { value: true, message: 'Required field' } })}
-                  size='sm'
-                  variant='ontime'
-                >
-                  <option selected hidden disabled value=''>
-                    Event field
-                  </option>
-                  {fieldList.map(({ value, label }) => (
-                    <option key={value} value={value}>
-                      {label}
+          {fieldFilters.map((field, index) => {
+            const key = `filters.${index}.field.${field.id}`;
+            return (
+              <div key={key} className={style.filterSection}>
+                <label>
+                  Runtime data source
+                  <Select
+                    {...register(`filters.${index}.field`, { required: { value: true, message: 'Required field' } })}
+                    size='sm'
+                    variant='ontime'
+                  >
+                    <option selected hidden disabled value=''>
+                      Event field
                     </option>
-                  ))}
-                </Select>
-                <Panel.Error>{errors.filters?.[index]?.field?.message}</Panel.Error>
-              </label>
-              <label>
-                Matching condition
-                <Select
-                  {...register(`filters.${index}.operator`, { required: { value: true, message: 'Required field' } })}
-                  size='sm'
-                  variant='ontime'
-                >
-                  <option selected hidden disabled value=''>
-                    Operator
-                  </option>
-                  <option value='equals'>equals</option>
-                  <option value='not_equals'>not equals</option>
-                  <option value='contains'>contains</option>
-                  {/* 
+                    {fieldList.map(({ value, label }, localIndex) => {
+                      const key = `filters.${index}.field.${localIndex}`;
+                      return (
+                        <option key={key} value={value}>
+                          {label}
+                        </option>
+                      );
+                    })}
+                  </Select>
+                  <Panel.Error>{errors.filters?.[index]?.field?.message}</Panel.Error>
+                </label>
+                <label>
+                  Matching condition
+                  <Select
+                    {...register(`filters.${index}.operator`, { required: { value: true, message: 'Required field' } })}
+                    size='sm'
+                    variant='ontime'
+                  >
+                    <option selected hidden disabled value=''>
+                      Operator
+                    </option>
+                    <option value='equals'>equals</option>
+                    <option value='not_equals'>not equals</option>
+                    <option value='contains'>contains</option>
+                    {/* 
                   We dont currently offer a data source where these operators would make sense
                   <option value='greater_than'>greater than</option>
                   <option value='less_than'>less than</option> 
                   */}
-                </Select>
-                <Panel.Error>{errors.filters?.[index]?.operator?.message}</Panel.Error>
-              </label>
-              <label>
-                Value to match
-                <Input
-                  {...register(`filters.${index}.value`)}
-                  variant='ontime-filled'
-                  size='sm'
-                  placeholder='<empty / no value>'
-                  autoComplete='off'
-                />
-              </label>
-              <div>
-                <span>&nbsp;</span>
-                <div>
-                  <IconButton
-                    aria-label='Delete'
-                    icon={<IoTrash />}
-                    variant='ontime-ghosted'
+                  </Select>
+                  <Panel.Error>{errors.filters?.[index]?.operator?.message}</Panel.Error>
+                </label>
+                <label>
+                  Value to match
+                  <Input
+                    {...register(`filters.${index}.value`)}
+                    variant='ontime-filled'
                     size='sm'
-                    color='#FA5656' // $red-500
-                    onClick={() => removeFilter(index)}
-                    isDisabled={false}
-                    isLoading={false}
+                    placeholder='<empty / no value>'
+                    autoComplete='off'
                   />
+                </label>
+                <div>
+                  <span>&nbsp;</span>
+                  <div>
+                    <IconButton
+                      aria-label='Delete'
+                      icon={<IoTrash />}
+                      variant='ontime-ghosted'
+                      size='sm'
+                      color='#FA5656' // $red-500
+                      onClick={() => removeFilter(index)}
+                      isDisabled={false}
+                      isLoading={false}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           <div>
             <Button
               variant='ontime-subtle'
