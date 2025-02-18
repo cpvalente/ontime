@@ -250,21 +250,29 @@ function makeSettingsMenu(redirectWindow) {
         ],
       },
       {
-        label: 'Integrations',
+        label: 'Automation',
         submenu: [
           {
-            label: 'OSC settings',
-            click: () => redirectWindow('/editor?settings=integrations__osc'),
+            label: 'Automation settings',
+            click: () => redirectWindow('/editor?settings=automation__settings'),
           },
           {
-            label: 'HTTP settings',
-            click: () => redirectWindow('/editor?settings=integrations__http'),
+            label: 'Manage automations',
+            click: () => redirectWindow('/editor?settings=automation__automations'),
+          },
+          {
+            label: 'Manage triggers',
+            click: () => redirectWindow('/editor?settings=automation__triggers'),
           },
         ],
       },
       {
         label: 'Network',
         submenu: [
+          {
+            label: 'Share link',
+            click: () => redirectWindow('/editor?settings=network__link'),
+          },
           {
             label: 'Event log',
             click: () => redirectWindow('/editor?settings=network__log'),
