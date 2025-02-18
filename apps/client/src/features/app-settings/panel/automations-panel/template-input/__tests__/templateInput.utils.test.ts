@@ -6,10 +6,8 @@ describe('matchRemaining()', () => {
     expect(matchRemaining('{{{hum', '{{human}}')).toBe('an}}');
     expect(matchRemaining('send {', '{{human}}')).toBe('{human}}');
 
-    // we should be able to match the following
-    // however, the current implementation only needs to deal with strings that start with {{
-    // expect(matchRemaining('{', '{{human}}')).toBe('{human}}');
-    // expect(matchRemaining('{{', '{{human}}')).toBe('human}}');
+    expect(matchRemaining('{', '{{human}}')).toBe('{human}}');
+    expect(matchRemaining('{{', '{{human}}')).toBe('human}}');
   });
 
   it('should return an empty string if there are no matches or if it is complete', () => {
