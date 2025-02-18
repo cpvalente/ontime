@@ -235,6 +235,8 @@ export const startIntegrations = async () => {
   const { enabledOscIn, oscPortIn } = getDataProvider().getAutomation();
   if (enabledOscIn) {
     oscServer.init(oscPortIn);
+  } else {
+    logger.info(LogOrigin.Server, 'Skipping OSC integration');
   }
 };
 
