@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { forwardRef, useMemo, useState } from 'react';
 import { type InputProps, Input } from '@chakra-ui/react';
-import { useClickOutside } from '@mantine/hooks';
+import { mergeRefs, useClickOutside } from '@mantine/hooks';
 
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
 
@@ -10,10 +10,10 @@ import style from './TemplateInput.module.scss';
 
 interface TemplateInputProps extends InputProps {}
 
-export default function TemplateInput(props: TemplateInputProps) {
+const TemplateInput = forwardRef(function TemplateInput(props: TemplateInputProps, ref) {
   const { value, onChange, ...rest } = props;
   const { data } = useCustomFields();
-  const ref = useClickOutside(() => setShowSuggestions(false));
+  const localRef = useClickOutside(() => setShowSuggestions(false));
 
   const autocompleteList = useMemo(() => {
     return makeAutoCompleteList(data);
@@ -31,7 +31,7 @@ export default function TemplateInput(props: TemplateInputProps) {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
 
-    if (event.target.value.endsWith('{{')) {
+    if (event.target.value.endsWith('{')) {
       setShowSuggestions(true);
     } else if (event.target.value === '' || event.target.value.endsWith('}}')) {
       setShowSuggestions(false);
@@ -54,7 +54,7 @@ export default function TemplateInput(props: TemplateInputProps) {
   };
 
   return (
-    <div className={style.wrapper} ref={ref}>
+    <div className={style.wrapper} ref={mergeRefs(localRef, ref)}>
       <Input {...rest} value={inputValue} onChange={handleInputChange} autoComplete='off' autoCorrect='off' />
       {showSuggestions && suggestions.length > 0 && (
         <ul className={style.suggestions}>
@@ -67,4 +67,6 @@ export default function TemplateInput(props: TemplateInputProps) {
       )}
     </div>
   );
-}
+});
+
+export default TemplateInput;
