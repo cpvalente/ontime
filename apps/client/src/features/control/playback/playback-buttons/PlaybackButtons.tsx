@@ -34,7 +34,7 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
   const isLast = selectedEventIndex === numEvents - 1;
   const noEvents = numEvents === 0;
 
-  const disableGo = isRolling || noEvents || (isLast && !isArmed);
+  const disableGo = isRolling || noEvents;
   const disableNext = isRolling || noEvents || isLast;
   const disablePrev = isRolling || noEvents || isFirst;
 
@@ -45,10 +45,14 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
   const disableStop = !playbackCan.stop;
   const disableReload = !playbackCan.reload;
 
-  const goModeText = selectedEventIndex === null || isArmed ? 'Start' : 'Next';
+  const goModeText =
+    isPlaying && isLast ? 'Finish' : selectedEventIndex === null ? 'Start' : isArmed ? 'Start' : 'Next';
+
   const goModeAction = () => {
     if (isArmed) {
       setPlayback.start();
+    } else if (isLast) {
+      setPlayback.stop();
     } else {
       setPlayback.startNext();
     }
