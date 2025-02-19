@@ -156,7 +156,7 @@ describe('parseCustomFields()', () => {
 });
 
 describe('sanitiseCustomFields()', () => {
-  it('returns an empty array if not an array', () => {
+  it('returns an empty object the type is incorrect', () => {
     expect(sanitiseCustomFields({})).toEqual({});
   });
 
@@ -170,16 +170,16 @@ describe('sanitiseCustomFields()', () => {
     expect(sanitationResult).toStrictEqual(customFields);
   });
 
-  it('type is forced to be string', () => {
-    const customFields: CustomFields = {
-      // @ts-expect-error intentional bad data
-      test: { label: 'test', type: 'another', colour: 'red' },
-    };
-    const expectedCustomFields: CustomFields = {
-      test: { label: 'test', type: 'string', colour: 'red' },
-    };
-    const sanitationResult = sanitiseCustomFields(customFields);
-    expect(sanitationResult).toStrictEqual(expectedCustomFields);
+  it('type should be one of (image | string)', () => {
+    const testTypes = sanitiseCustomFields({
+      test1: { label: 'test1', type: 'another', colour: 'red' },
+      test2: { label: 'test2', type: 'image', colour: 'red' },
+      test3: { label: 'test3', type: 'string', colour: 'red' },
+    });
+    expect(testTypes).toMatchObject({
+      test2: { label: 'test2', type: 'image', colour: 'red' },
+      test3: { label: 'test3', type: 'string', colour: 'red' },
+    });
   });
 
   it('colour must be a string', () => {

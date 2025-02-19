@@ -1,0 +1,18 @@
+.imageCell {
+  position: relative;
+  min-height: 2rem;
+
+  &:hover {
+    .overlay {
+      display: grid;
+      place-content: center;
+      background-color: $black-60;
+    }
+  }
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
