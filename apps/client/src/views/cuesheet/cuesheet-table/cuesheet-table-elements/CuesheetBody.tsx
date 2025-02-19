@@ -4,6 +4,7 @@ import Color from 'color';
 import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
 
 import { useSelectedEventId } from '../../../../common/hooks/useSocket';
+import { lazyEvaluate } from '../../../../common/utils/lazyEvaluate';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { useCuesheetOptions } from '../../../cuesheet/cuesheet.options';
 
@@ -24,6 +25,8 @@ export default function CuesheetBody(props: CuesheetBodyProps) {
   const { selectedEventId } = useSelectedEventId();
   const { hideDelays, hidePast } = useCuesheetOptions();
 
+  const getColumnCount = lazyEvaluate(() => table.getVisibleFlatColumns().length);
+
   let eventIndex = 0;
   // for the first event, it will be past if there is something selected
   let isPast = Boolean(selectedEventId);
@@ -38,7 +41,8 @@ export default function CuesheetBody(props: CuesheetBodyProps) {
         }
 
         if (isOntimeBlock(entry)) {
-          return <BlockRow key={key} title={entry.title} hidePast={isPast && hidePast} />;
+          const columnCount = getColumnCount();
+          return <BlockRow columnCount={columnCount} key={key} title={entry.title} hidePast={isPast && hidePast} />;
         }
         if (isOntimeDelay(entry)) {
           if (isPast && hidePast) {
