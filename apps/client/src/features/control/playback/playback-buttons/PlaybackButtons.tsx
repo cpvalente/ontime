@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { IoPause } from '@react-icons/all-files/io5/IoPause';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
@@ -45,18 +46,16 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
   const disableStop = !playbackCan.stop;
   const disableReload = !playbackCan.reload;
 
-  const goModeText =
-    isPlaying && isLast ? 'Finish' : selectedEventIndex === null ? 'Start' : isArmed ? 'Start' : 'Next';
-
-  const goModeAction = () => {
+  const [goModeAction, goModeText] = useMemo(() => {
     if (isArmed) {
-      setPlayback.start();
+      return [setPlayback.start, 'Start'];
     } else if (isLast) {
-      setPlayback.stop();
-    } else {
-      setPlayback.startNext();
+      return [setPlayback.stop, 'Finish'];
+    } else if (selectedEventIndex === null) {
+      return [setPlayback.startNext, 'Start'];
     }
-  };
+    return [setPlayback.startNext, 'Next'];
+  }, [isArmed, isLast, selectedEventIndex]);
 
   return (
     <div className={style.buttonContainer}>
