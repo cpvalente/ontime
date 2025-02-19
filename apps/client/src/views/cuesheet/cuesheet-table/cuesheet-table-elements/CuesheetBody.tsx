@@ -14,13 +14,14 @@ import DelayRow from './DelayRow';
 import EventRow from './EventRow';
 
 interface CuesheetBodyProps {
+  columnCount: number;
   rowModel: RowModel<OntimeRundownEntry>;
   selectedRef: MutableRefObject<HTMLTableRowElement | null>;
   showModal: (eventId: MaybeString) => void;
 }
 
 export default function CuesheetBody(props: CuesheetBodyProps) {
-  const { rowModel, selectedRef, showModal } = props;
+  const { columnCount, rowModel, selectedRef, showModal } = props;
 
   const { selectedEventId } = useSelectedEventId();
   const { hideDelays, hidePast } = useCuesheetOptions();
@@ -39,7 +40,7 @@ export default function CuesheetBody(props: CuesheetBodyProps) {
         }
 
         if (isOntimeBlock(entry)) {
-          return <BlockRow key={key} title={entry.title} hidePast={isPast && hidePast} />;
+          return <BlockRow columnCount={columnCount} key={key} title={entry.title} hidePast={isPast && hidePast} />;
         }
         if (isOntimeDelay(entry)) {
           if (isPast && hidePast) {
@@ -84,7 +85,12 @@ export default function CuesheetBody(props: CuesheetBodyProps) {
               >
                 {row.getVisibleCells().map((cell) => {
                   return (
-                    <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }} tabIndex={-1} role='cell'>
+                    <td
+                      key={cell.id}
+                      style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}
+                      tabIndex={-1}
+                      role='cell'
+                    >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   );

@@ -91,6 +91,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
   const rowModel = table.getRowModel();
   const allLeafColumns = table.getAllLeafColumns();
 
+  const columnCount = Object.values(columnVisibility).filter((value) => value).length;
   return (
     <>
       <CuesheetTableSettings
@@ -102,7 +103,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
       <div ref={tableContainerRef} className={style.cuesheetContainer}>
         <table className={style.cuesheet} id='cuesheet' {...listeners}>
           <CuesheetHeader headerGroups={headerGroups} />
-          <CuesheetBody rowModel={rowModel} selectedRef={selectedRef} showModal={showModal} />
+          <CuesheetBody columnCount={columnCount} rowModel={rowModel} selectedRef={selectedRef} showModal={showModal} />
         </table>
       </div>
     </>
