@@ -37,6 +37,8 @@ interface RundownEntryProps {
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
   isRolling: boolean; // we need to know even if not related to this event
+  totalGap: number;
+  currentDay: number;
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
@@ -52,6 +54,8 @@ export default function RundownEntry(props: RundownEntryProps) {
     isRolling,
     eventIndex,
     isNextDay,
+    totalGap,
+    currentDay,
   } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
@@ -173,6 +177,8 @@ export default function RundownEntry(props: RundownEntryProps) {
         isRolling={isRolling}
         gap={data.gap}
         isNextDay={isNextDay}
+        dayOffset={data.dayOffset - currentDay}
+        totalGap={totalGap}
         actionHandler={actionHandler}
       />
     );

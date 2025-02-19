@@ -7,6 +7,7 @@ import {
   isOntimeEvent,
   isPlayableEvent,
   MaybeString,
+  OntimeEvent,
   PlayableEvent,
   Playback,
   RundownCached,
@@ -269,8 +270,9 @@ export default function Rundown({ data }: RundownProps) {
   // all events before the current selected are in the past
   let isPast = Boolean(featureData?.selectedEventId);
   let isNextDay = false;
+  let totalGap = 0;
   const isEditMode = appMode === AppMode.Edit;
-
+  let currentDay = 0;
   return (
     <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext onDragEnd={handleOnDragEnd} sensors={sensors} collisionDetection={closestCenter}>
@@ -297,6 +299,7 @@ export default function Rundown({ data }: RundownProps) {
 
                 if (isPlayableEvent(entry)) {
                   isNextDay = checkIsNextDay(entry, lastEvent);
+                  totalGap += !isPast ? entry.gap : 0;
                   if (isNewLatest(entry, lastEvent)) {
                     // populate previous entry
                     thisEvent = entry;
@@ -310,6 +313,7 @@ export default function Rundown({ data }: RundownProps) {
               const hasCursor = entry.id === cursor;
               if (isLoaded) {
                 isPast = false;
+                currentDay = (entry as OntimeEvent).dayOffset;
               }
 
               return (
@@ -331,6 +335,8 @@ export default function Rundown({ data }: RundownProps) {
                         playback={isLoaded ? featureData.playback : undefined}
                         isRolling={featureData.playback === Playback.Roll}
                         isNextDay={isNextDay}
+                        totalGap={totalGap}
+                        currentDay={currentDay}
                       />
                     </div>
                   </div>
