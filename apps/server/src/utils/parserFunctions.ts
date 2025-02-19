@@ -217,15 +217,15 @@ export function sanitiseCustomFields(data: object): CustomFields {
     }
 
     const keyFromLabel = customFieldLabelToKey(field.label);
-    //Test label and key cohesion, but allow old lowercased keys to stay
-    //TODO: the `toLocaleLowerCase` part here is to conserve keys from old projects and could be removed at some point (okt. 2024)
+    // Test label and key cohesion, but allow old lowercased keys to stay
+    // TODO: the `toLocaleLowerCase` part here is to conserve keys from old projects and could be removed at some point (okt. 2024)
     const key = originalKey.toLocaleLowerCase() === keyFromLabel.toLocaleLowerCase() ? originalKey : keyFromLabel;
     if (key in newCustomFields) {
       continue;
     }
 
     newCustomFields[key] = {
-      type: 'string',
+      type: field.type,
       colour: field.colour,
       label: field.label,
     };
@@ -238,7 +238,9 @@ export function sanitiseCustomFields(data: object): CustomFields {
       'label' in data &&
       data.label !== '' &&
       'colour' in data &&
-      typeof data.colour === 'string'
+      typeof data.colour === 'string' &&
+      'type' in data &&
+      (data.type === 'string' || data.type === 'image')
     );
   }
 

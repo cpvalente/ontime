@@ -78,3 +78,9 @@
   font-size: 1.25em;
   margin-left: 0.25em;
 }
+
+.customImage {
+  display: grid;
+  grid-template-columns: 1fr 72px;
+  gap: 1rem;
+}
