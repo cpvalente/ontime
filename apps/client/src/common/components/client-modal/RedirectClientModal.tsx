@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { IoArrowForward } from '@react-icons/all-files/io5/IoArrowForward';
 
+import { navigatorConstants } from '../../../viewerConfig';
 import { setClientRemote } from '../../hooks/useSocket';
 import useUrlPresets from '../../hooks-query/useUrlPresets';
 import Info from '../info/Info';
@@ -39,6 +40,7 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
     if (newPath === '/' || newPath === currentPath) {
       return;
     }
+    console.log('----> redirect to', newPath);
     setRedirect({ target: id, redirect: newPath });
     onClose();
   };
@@ -62,19 +64,26 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
             </a>
           </Info>
           <div>
-            <span className={style.label}>Select URL Preset</span>
+            <span className={style.label}>Select View or URL Preset</span>
             <div className={style.textEntry}>
               <Select
                 size='md'
                 variant='ontime'
                 isDisabled={enabledPresets.length === 0}
-                onChange={(event) => setSelected(`/${event.target.value}`)}
+                onChange={(event) => setSelected(event.target.value)}
               >
-                <option value=''>Select a preset</option>
+                <option value='/'>Select view or preset</option>
+                {navigatorConstants.map((view) => {
+                  return (
+                    <option key={view.url} value={`/${view.url}`}>
+                      {view.label}
+                    </option>
+                  );
+                })}
                 {enabledPresets.map((preset) => {
                   return (
                     <option key={preset.pathAndParams} value={preset.pathAndParams}>
-                      {preset.alias}
+                      {`Preset: ${preset.alias}`}
                     </option>
                   );
                 })}
