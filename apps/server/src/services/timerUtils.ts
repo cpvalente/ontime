@@ -1,4 +1,4 @@
-import { MaybeNumber, TimerPhase } from 'ontime-types';
+import { MaybeNumber, OffsetMode, TimerPhase } from 'ontime-types';
 import { dayInMs, isPlaybackActive } from 'ontime-utils';
 import type { RuntimeState } from '../stores/runtimeState.js';
 
@@ -123,7 +123,7 @@ export function getRuntimeOffset(state: RuntimeState): number {
   }
 
   let relativeStartOffset = 0;
-  if (state.runtime.runMode === 'relative') {
+  if (state.runtime.offsetMode === OffsetMode.Relative) {
     const { actualStart, plannedStart } = state.runtime;
     relativeStartOffset = actualStart - plannedStart;
   }

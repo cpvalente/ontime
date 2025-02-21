@@ -1,5 +1,6 @@
 import { SimpleDirection, SimplePlayback } from './AuxTimer.type.js';
 import { Playback } from './Playback.type.js';
+import { OffsetMode } from './Runtime.type.js';
 import type { RuntimeStore } from './RuntimeStore.type.js';
 import { TimerPhase } from './TimerState.type.js';
 
@@ -36,8 +37,7 @@ export const runtimeStorePlaceholder: RuntimeStore = {
     plannedEnd: 0, // only changes if event changes, overflows over dayInMs
     actualStart: null, // set once we start the timer
     expectedEnd: null, // changes with runtime, based on offset, overflows over dayInMs
-    runMode: 'relative',
-    // runMode: 'absolute',
+    offsetMode: OffsetMode.Absolute,
   },
   currentBlock: {
     block: null,
