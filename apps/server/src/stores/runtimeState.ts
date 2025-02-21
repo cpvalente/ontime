@@ -3,6 +3,7 @@ import {
   isPlayableEvent,
   MaybeNumber,
   MaybeString,
+  OffsetMode,
   OntimeEvent,
   OntimeRundown,
   PlayableEvent,
@@ -697,4 +698,8 @@ export function loadBlock(rundown: OntimeRundown, state = runtimeState) {
 
   // update the block anyway
   state.currentBlock.block = newCurrentBlock === null ? null : { ...newCurrentBlock };
+}
+
+export function setOffsetMode(mode: OffsetMode) {
+  runtimeState.runtime.offsetMode = mode;
 }

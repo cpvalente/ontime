@@ -37,7 +37,7 @@ import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
 import { initRundown } from './services/rundown-service/RundownService.js';
 import { initialiseProject } from './services/project-service/ProjectService.js';
-import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
+import { getOffsetMode, getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
 import { oscServer } from './adapters/OscAdapter.js';
 
 // Utilities
@@ -170,6 +170,8 @@ export const startServer = async (
 
   socket.init(expressServer, showWelcome, prefix);
 
+  const offsetMode = await getOffsetMode();
+
   /**
    * Module initialises the services and provides initial payload for the store
    */
@@ -210,6 +212,7 @@ export const startServer = async (
 
   // TODO: pass event store to rundownservice
   runtimeService.init(maybeRestorePoint);
+  runtimeService.setOffsetMode(offsetMode);
 
   const nif = getNetworkInterfaces();
   consoleSuccess(`Local: http://localhost:${resultPort}${prefix}/editor`);

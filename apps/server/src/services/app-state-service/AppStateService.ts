@@ -5,10 +5,12 @@ import { publicFiles } from '../../setup/index.js';
 import { isTest } from '../../externals.js';
 import { isPath } from '../../utils/fileManagement.js';
 import { shouldCrashDev } from '../../utils/development.js';
+import { OffsetMode } from 'ontime-types';
 
 interface AppState {
   lastLoadedProject?: string;
   showWelcomeDialog?: boolean;
+  offsetMode?: OffsetMode;
 }
 
 const adapter = new JSONFile<AppState>(publicFiles.appState);
@@ -50,4 +52,20 @@ export async function setShowWelcomeDialog(show: boolean): Promise<boolean> {
   config.data.showWelcomeDialog = show;
   await config.write();
   return show;
+}
+
+export async function getOffsetMode(): Promise<OffsetMode> {
+  // in test environment, we do not want the dialog
+  if (isTest) return OffsetMode.Absolute;
+
+  await config.read();
+  return config.data.offsetMode ?? OffsetMode.Absolute;
+}
+
+export async function setOffsetMode(mode: OffsetMode): Promise<OffsetMode> {
+  if (isTest) return OffsetMode.Absolute;
+
+  config.data.offsetMode = mode;
+  await config.write();
+  return mode;
 }
