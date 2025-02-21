@@ -34,12 +34,16 @@ export const connectSocket = () => {
     hasConnected = true;
     reconnectAttempts = 0;
 
+    socketSendJson('set-client-patch', {
+      type: 'ontime',
+      origin: window.location.origin,
+      path: window.location.pathname + window.location.search,
+    });
+    setOnlineStatus(true);
+
     if (preferredClientName) {
       socketSendJson('set-client-name', preferredClientName);
     }
-
-    socketSendJson('set-client-type', 'ontime');
-    setOnlineStatus(true);
   };
 
   websocket.onclose = () => {
@@ -78,16 +82,14 @@ export const connectSocket = () => {
           updateDevTools({ ping: offset });
           break;
         }
-        case 'client-id': {
-          if (typeof payload === 'string') {
-            setClientId(payload);
-          }
-          break;
-        }
-
-        case 'client-name': {
-          if (typeof payload === 'string') {
-            setClientName(payload);
+        case 'client': {
+          if (typeof payload === 'object' || payload !== null) {
+            if (payload.clientId && payload.clientName) {
+              setClientId(payload.clientId);
+              if (!preferredClientName) {
+                setClientName(payload.clientName);
+              }
+            }
           }
           break;
         }
