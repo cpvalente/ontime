@@ -36,6 +36,8 @@ export const runtimeStorePlaceholder: RuntimeStore = {
     plannedEnd: 0, // only changes if event changes, overflows over dayInMs
     actualStart: null, // set once we start the timer
     expectedEnd: null, // changes with runtime, based on offset, overflows over dayInMs
+    runMode: 'relative',
+    // runMode: 'absolute',
   },
   currentBlock: {
     block: null,

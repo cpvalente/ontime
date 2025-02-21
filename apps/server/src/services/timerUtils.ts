@@ -122,6 +122,12 @@ export function getRuntimeOffset(state: RuntimeState): number {
     return 0;
   }
 
+  let relativeStartOffset = 0;
+  if (state.runtime.runMode === 'relative') {
+    const { actualStart, plannedStart } = state.runtime;
+    relativeStartOffset = actualStart - plannedStart;
+  }
+
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: {
     // we know current exists as long as eventNow exists
@@ -137,13 +143,13 @@ export function getRuntimeOffset(state: RuntimeState): number {
   // if we havent started, but the timer is armed
   // the offset is the difference to the schedule
   if (startedAt === null) {
-    return timeStart - clock;
+    return timeStart - clock - relativeStartOffset; //TODO: relativeStartOffset calc
   }
 
   const overtime = Math.min(current, 0);
   // in time-to-end, offset is overtime
   if (countToEnd) {
-    return overtime;
+    return overtime - relativeStartOffset; //TODO: relativeStartOffset calc
   }
 
   const startOffset = timeStart - startedAt;
@@ -153,7 +159,7 @@ export function getRuntimeOffset(state: RuntimeState): number {
   // addedTime - time added by user (negative offset)
   // pausedTime - time the playback was paused (negative offset)
   // overtime - how long the timer has been over-running (negative offset)
-  return startOffset - addedTime - pausedTime + overtime;
+  return startOffset - addedTime - pausedTime + overtime + relativeStartOffset;
 }
 
 /**

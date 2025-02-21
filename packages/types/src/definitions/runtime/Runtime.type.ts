@@ -8,4 +8,5 @@ export type Runtime = {
   actualStart: MaybeNumber;
   plannedEnd: MaybeNumber;
   expectedEnd: MaybeNumber;
+  runMode: 'absolute' | 'relative'; // TODO: get proper names
 };

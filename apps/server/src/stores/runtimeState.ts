@@ -93,7 +93,7 @@ export function clear() {
   runtimeState.publicEventNext = null;
 
   runtimeState.runtime.offset = 0;
-  runtimeState.runtime.actualStart = null;
+  // runtimeState.runtime.actualStart = null; //TODO: find consequence of not clearing this
   runtimeState.runtime.expectedEnd = null;
   runtimeState.runtime.selectedEventIndex = null;
 
