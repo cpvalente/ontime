@@ -1,0 +1,31 @@
+.textEntry {
+  grid-area: input;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: $label-gray;
+}
+
+.inlineEntry {
+  display: grid;
+  grid-template-areas:
+    'label label'
+    'input btn';
+  grid-template-columns: 1fr auto;
+  column-gap: 0.5rem;
+}
+
+.redirect {
+  grid-area: btn;
+}
+
+.label {
+  color: $label-gray;
+}
+
+.link {
+  color: $label-gray;
+  font-size: $text-body-size;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
