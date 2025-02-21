@@ -234,6 +234,10 @@ function makeSettingsMenu(redirectWindow) {
             label: 'URL presets',
             click: () => redirectWindow('/editor?settings=feature_settings__urlpresets'),
           },
+          {
+            label: 'Report',
+            click: () => redirectWindow('/editor?settings=feature_settings__report'),
+          },
         ],
       },
       {
