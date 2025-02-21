@@ -68,7 +68,7 @@ export default function Public(props: BackstageProps) {
 
   // gather presentation styles
   const qrSize = Math.max(window.innerWidth / 15, 72);
-  const showSchedule = hasEvents && screenHeight > 700; // in vertical screens we may not have space
+  const showSchedule = hasEvents && screenHeight > 550; // in vertical screens we may not have space
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
