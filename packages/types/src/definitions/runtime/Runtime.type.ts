@@ -1,5 +1,10 @@
 import type { MaybeNumber } from '../../utils/utils.type.js';
 
+export enum OffsetMode {
+  Absolute = 'absolute',
+  Relative = 'relative',
+}
+
 export type Runtime = {
   numEvents: number;
   selectedEventIndex: MaybeNumber;
@@ -8,4 +13,5 @@ export type Runtime = {
   actualStart: MaybeNumber;
   plannedEnd: MaybeNumber;
   expectedEnd: MaybeNumber;
+  offsetMode: OffsetMode; // TODO: get proper names
 };

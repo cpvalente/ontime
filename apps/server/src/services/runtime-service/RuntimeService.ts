@@ -4,6 +4,7 @@ import {
   isPlayableEvent,
   LogOrigin,
   MaybeNumber,
+  OffsetMode,
   OntimeEvent,
   Playback,
   TimerLifeCycle,
@@ -64,6 +65,11 @@ class RuntimeService {
     RuntimeService.previousTimerValue = -1;
     RuntimeService.previousClockUpdate = -1;
     RuntimeService.previousState = {} as RuntimeState;
+  }
+
+  @broadcastResult
+  setOffsetMode(mode: OffsetMode) {
+    runtimeState.setOffsetMode(mode);
   }
 
   /**

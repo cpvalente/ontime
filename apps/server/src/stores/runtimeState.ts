@@ -3,6 +3,7 @@ import {
   isPlayableEvent,
   MaybeNumber,
   MaybeString,
+  OffsetMode,
   OntimeEvent,
   OntimeRundown,
   PlayableEvent,
@@ -93,7 +94,7 @@ export function clear() {
   runtimeState.publicEventNext = null;
 
   runtimeState.runtime.offset = 0;
-  runtimeState.runtime.actualStart = null;
+  // runtimeState.runtime.actualStart = null; //TODO: find consequence of not clearing this
   runtimeState.runtime.expectedEnd = null;
   runtimeState.runtime.selectedEventIndex = null;
 
@@ -697,4 +698,8 @@ export function loadBlock(rundown: OntimeRundown, state = runtimeState) {
 
   // update the block anyway
   state.currentBlock.block = newCurrentBlock === null ? null : { ...newCurrentBlock };
+}
+
+export function setOffsetMode(mode: OffsetMode) {
+  runtimeState.runtime.offsetMode = mode;
 }

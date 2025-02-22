@@ -9,6 +9,7 @@ import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import * as appState from '../../services/app-state-service/AppStateService.js';
 
 import { extractPin } from './settings.utils.js';
+import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
 
 export async function getSettings(_req: Request, res: Response<Settings>) {
   const settings = getDataProvider().getSettings();
@@ -70,4 +71,10 @@ export async function postSettings(req: Request, res: Response<Settings | ErrorR
 export async function postWelcomeDialog(req: Request, res: Response) {
   const show = await appState.setShowWelcomeDialog(req.body.show);
   res.status(200).send({ show });
+}
+
+export async function postOffsetMode(req: Request, res: Response) {
+  const mode = await appState.setOffsetMode(req.body.mode);
+  runtimeService.setOffsetMode(mode);
+  res.status(200).send({ mode });
 }

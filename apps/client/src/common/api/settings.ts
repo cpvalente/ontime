@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { Settings } from 'ontime-types';
+import { OffsetMode, Settings } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 
@@ -25,4 +25,11 @@ export async function postSettings(data: Settings): Promise<AxiosResponse<Settin
  */
 export async function postShowWelcomeDialog(show: boolean) {
   axios.post(`${settingsPath}/welcomedialog`, { show });
+}
+
+/**
+ * Allows setting offset mode
+ */
+export async function postOffsetMode(mode: OffsetMode) {
+  axios.post(`${settingsPath}/offsetmode`, { mode });
 }
