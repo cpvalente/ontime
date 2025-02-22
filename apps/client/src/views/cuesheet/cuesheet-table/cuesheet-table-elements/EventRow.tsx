@@ -1,10 +1,10 @@
 import { memo, MutableRefObject, useLayoutEffect, useRef, useState } from 'react';
-import { IconButton } from '@chakra-ui/react';
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 import { flexRender, Table } from '@tanstack/react-table';
 import Color from 'color';
 import { OntimeRundownEntry } from 'ontime-types';
 
+import IconButton from '../../../../common/components/buttons/IconButton';
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { useCuesheetOptions } from '../../cuesheet.options';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
@@ -75,16 +75,15 @@ function EventRow(props: EventRowProps) {
       {showActionMenu && (
         <td className={style.actionColumn}>
           <IconButton
-            size='sm'
             aria-label='Options'
-            icon={<IoEllipsisHorizontal />}
-            variant='ontime-subtle'
             onClick={(event) => {
               const rect = event.currentTarget.getBoundingClientRect();
               const yPos = 8 + rect.y + rect.height / 2;
               openMenu({ x: rect.x, y: yPos }, eventId, rowIndex);
             }}
-          />
+          >
+            <IoEllipsisHorizontal />
+          </IconButton>
         </td>
       )}
       {!hideIndexColumn && (
