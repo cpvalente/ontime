@@ -391,7 +391,6 @@ export function start(state: RuntimeState = runtimeState): boolean {
   // update offset
   state.runtime.offset = getRuntimeOffset(state);
   state.runtime.expectedEnd = state.runtime.plannedEnd - state.runtime.offset;
-
   return true;
 }
 
@@ -410,7 +409,6 @@ export function stop(state: RuntimeState = runtimeState): boolean {
   if (state.timer.playback === Playback.Stop) {
     return false;
   }
-
   clear();
   runtimeState.runtime.actualStart = null;
   runtimeState.runtime.expectedEnd = null;

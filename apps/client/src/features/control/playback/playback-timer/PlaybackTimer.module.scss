@@ -76,3 +76,10 @@
   color: $ontime-roll;
   font-size: $text-body-size;
 }
+
+.reportLink {
+  color: $label-gray;
+  font-size: $text-body-size;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

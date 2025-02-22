@@ -16,6 +16,9 @@ export type { OntimeEntryCommonKeys, OntimeRundown, OntimeRundownEntry } from '.
 export { TimeStrategy } from './definitions/TimeStrategy.type.js';
 export { TimerType } from './definitions/TimerType.type.js';
 
+// ---> Report
+export type { OntimeReport, OntimeEventReport } from './definitions/core/Report.type.js';
+
 // ---> Automations
 export type {
   Automation,
