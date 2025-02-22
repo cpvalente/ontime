@@ -130,6 +130,7 @@ export class SocketServer implements IAdapter {
             if (payload && typeof payload == 'object') {
               this.clients.set(clientId, { ...this.clients.get(clientId), ...payload });
             }
+            this.sendClientList();
             return;
           }
 
