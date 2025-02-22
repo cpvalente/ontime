@@ -34,7 +34,7 @@ function EventRow(props: EventRowProps) {
   const ownRef = useRef<HTMLTableRowElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  const { openMenu } = useCuesheetTableMenu();
+  const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
   useLayoutEffect(() => {
     const observer = new IntersectionObserver(
