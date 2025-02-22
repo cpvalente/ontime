@@ -92,7 +92,7 @@ export default function Backstage(props: BackstageProps) {
   // gather presentation styles
   const qrSize = Math.max(window.innerWidth / 15, 72);
   const showProgress = getShowProgressBar(time.playback);
-  const showSchedule = hasEvents && screenHeight > 700; // in vertical screens we may not have space
+  const showSchedule = hasEvents && screenHeight > 420; // in vertical screens we may not have space
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
