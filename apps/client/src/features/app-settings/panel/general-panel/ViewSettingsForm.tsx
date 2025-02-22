@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button, Input, Switch } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
+import { getCSSContents } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { postViewSettings } from '../../../../common/api/viewSettings';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
@@ -14,11 +15,23 @@ import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
+import CodeEditor from './StyleEditor';
+
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
 export default function ViewSettingsForm() {
   const { data, status, refetch } = useViewSettings();
   const { data: info, status: infoStatus } = useInfo();
+
+  const [css, setCSS] = useState('');
+
+  useEffect(() => {
+    async function fetchServerCSS() {
+      const css = await getCSSContents();
+      setCSS(css);
+    }
+    fetchServerCSS();
+  }, []);
 
   const {
     control,
@@ -103,6 +116,7 @@ export default function ViewSettingsForm() {
         <Panel.Section>
           <Panel.Loader isLoading={isLoading} />
           <Panel.ListGroup>
+            <CodeEditor onChange={console.log} initialValue={css} language='css' />
             <Panel.ListItem>
               <Panel.Field
                 title='Override CSS styles'

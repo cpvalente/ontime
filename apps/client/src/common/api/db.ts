@@ -174,3 +174,10 @@ async function fileDownload(fileName: string): Promise<{ data: DatabaseModel; na
 
   return { data: response.data, name };
 }
+
+export async function getCSSContents(): Promise<string> {
+  const res = await axios.get(`${dbPath}/css`);
+  return res.data;
+  console.log(res)
+
+}

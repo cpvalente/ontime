@@ -23,6 +23,7 @@
     "color": "^4.2.3",
     "csv-stringify": "^6.4.5",
     "framer-motion": "^10.10.0",
+    "prismjs": "^1.29.0",
     "react": "^18.3.1",
     "react-colorful": "^5.6.1",
     "react-dom": "^18.3.1",
@@ -30,6 +31,7 @@
     "react-hook-form": "^7.53.1",
     "react-qr-code": "^2.0.12",
     "react-router-dom": "^6.3.0",
+    "react-simple-code-editor": "^0.14.1",
     "web-vitals": "^3.1.1",
     "zustand": "^5.0.3"
   },
@@ -64,6 +66,7 @@
     "@sentry/vite-plugin": "^2.16.1",
     "@tanstack/eslint-plugin-query": "^5.8.4",
     "@types/color": "^3.0.3",
+    "@types/prismjs": "^1.26.5",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.10",
     "@typescript-eslint/eslint-plugin": "catalog:",
