@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import Color from 'color';
 import {
   isOntimeBlock,
@@ -165,7 +165,8 @@ export default function CuesheetTable(props: CuesheetTableProps) {
 
                 return (
                   <EventRow
-                    key={key}
+                    key={row.id}
+                    rowId={row.id}
                     eventId={entry.id}
                     eventIndex={eventIndex}
                     rowIndex={index}
@@ -173,15 +174,10 @@ export default function CuesheetTable(props: CuesheetTableProps) {
                     selectedRef={isSelected ? selectedRef : undefined}
                     skip={entry.skip}
                     colour={entry.colour}
-                  >
-                    {row.getVisibleCells().map((cell) => {
-                      return (
-                        <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      );
-                    })}
-                  </EventRow>
+                    rowBgColour={rowBgColour}
+                    table={table}
+                    columnSizing={columnSizing}
+                  />
                 );
               }
 
