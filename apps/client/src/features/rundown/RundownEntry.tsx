@@ -22,7 +22,8 @@ export type EventItemActions =
   | 'delete'
   | 'clone'
   | 'update'
-  | 'swap';
+  | 'swap'
+  | 'clear-report';
 
 interface RundownEntryProps {
   type: SupportedEvent;
