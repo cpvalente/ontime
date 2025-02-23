@@ -120,6 +120,9 @@ export const parseExcel = (
   let endActionIndex: number | null = null;
   let timerTypeIndex: number | null = null;
 
+  //ID
+  let entryIdIndex: number | null = null;
+
   // record of column index and the name of the field
   const customFieldIndexes: Record<number, string> = {};
 
@@ -185,11 +188,15 @@ export const parseExcel = (
       },
       [importMap.timeWarning]: (row: number, col: number) => {
         timeWarningIndex = col;
-        rundownMetadata['timeWarningIndex'] = { row, col };
+        rundownMetadata['timeWarning'] = { row, col };
       },
       [importMap.timeDanger]: (row: number, col: number) => {
         timeDangerIndex = col;
-        rundownMetadata['timeDangerIndex'] = { row, col };
+        rundownMetadata['timeDanger'] = { row, col };
+      },
+      [importMap.entryId]: (row: number, col: number) => {
+        entryIdIndex = col;
+        rundownMetadata['id'] = { row, col };
       },
       custom: (row: number, col: number, columnText: string) => {
         customFieldIndexes[col] = columnText;
@@ -242,6 +249,8 @@ export const parseExcel = (
         event.timeDanger = parseExcelDate(column);
       } else if (j === colourIndex) {
         event.colour = makeString(column, '');
+      } else if (j === entryIdIndex) {
+        event.id = makeString(column, undefined);
       } else if (j in customFieldIndexes) {
         const importKey = customFieldIndexes[j];
         const ontimeKey = customFieldImportKeys[importKey];

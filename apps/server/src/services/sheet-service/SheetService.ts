@@ -293,8 +293,12 @@ export async function upload(sheetId: string, options: ImportMap) {
   }
 
   const { rundownMetadata } = parseExcel(readResponse.data.values, getCustomFields(), options);
+
+  console.log(rundownMetadata)
   const rundown = getRundown();
   const titleRow = Object.values(rundownMetadata)[0]['row'];
+  console.log(titleRow)
+
   const updateRundown = Array<sheets_v4.Schema$Request>();
 
   // we can't delete the last unfrozen row so we create an empty one

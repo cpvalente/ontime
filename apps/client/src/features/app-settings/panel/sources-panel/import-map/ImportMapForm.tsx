@@ -117,6 +117,9 @@ export default function ImportMapForm(props: ImportMapFormProps) {
           </Button>
         </Panel.InlineElements>
       </Panel.Title>
+      <Panel.Highlight>
+        If an ID is provided Ontime will attempt to merge the sheet with the existing elements
+      </Panel.Highlight>
       <Panel.Table>
         <thead>
           <tr>
