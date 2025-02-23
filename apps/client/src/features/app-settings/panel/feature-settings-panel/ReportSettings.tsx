@@ -19,7 +19,7 @@ export default function ReportSettings() {
   const { data } = useRundown();
 
   const clearReport = async () => await deleteAllReport();
-  const downloadCSV = async (combinedReport: CombinedReport[]) => {
+  const downloadCSV = (combinedReport: CombinedReport[]) => {
     if (!combinedReport) {
       return;
     }

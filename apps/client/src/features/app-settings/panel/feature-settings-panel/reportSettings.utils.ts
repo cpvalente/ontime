@@ -54,8 +54,8 @@ export function makeReportCSV(combinedReport: CombinedReport[]) {
       entry.title,
       entry.cue,
       formatTime(entry.scheduledStart),
-      formatTime(entry.scheduledEnd),
       formatTime(entry.actualStart),
+      formatTime(entry.scheduledEnd),
       formatTime(entry.actualEnd),
     ]);
   }
