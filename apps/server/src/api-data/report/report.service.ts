@@ -41,19 +41,21 @@ export function triggerReportEntry(
   cycle: TimerLifeCycle.onStart | TimerLifeCycle.onStop,
   state: DeepReadonly<RuntimeState>,
 ) {
-  if (state.eventNow === null) {
+  if (!state.eventNow?.id) {
     return;
   }
 
+  const eventId = state.eventNow.id;
+
   if (cycle === TimerLifeCycle.onStart) {
-    report.set(state.eventNow.id, { startedAt: state.timer.startedAt, endedAt: null });
+    report.set(eventId, { startedAt: state.timer.startedAt, endedAt: null });
     formattedReport = null;
     return;
   }
 
   if (cycle === TimerLifeCycle.onStop) {
-    const startedAt = report.get(state.eventNow.id)?.startedAt ?? null;
-    report.set(state.eventNow.id, { startedAt, endedAt: state.clock });
+    const startedAt = report.get(eventId)?.startedAt ?? null;
+    report.set(eventId, { startedAt, endedAt: state.clock });
     formattedReport = null;
     sendRefetch({
       target: 'REPORT',
