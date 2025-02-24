@@ -41,3 +41,6 @@ $timer-finished-color: $playback-negative;
 $timer-bold-font-family: 'Arial Black', sans-serif; // --font-family-bold-override
 
 $external-color: rgba(white, 85%); // --external-color-override
+
+// properties related to the studio clock
+$studio-breakpoint: 1200px;
