@@ -65,6 +65,7 @@ $aux-text-size: calc(1rem - 3px);
 // media queries
 $min-tablet: 500px;
 $small-screen: 800px;
+$small-desktop: 1440px;
 
 .blink {
   animation: blink 1s step-start infinite;

@@ -36,18 +36,7 @@ interface BackstageProps {
 }
 
 export default function Backstage(props: BackstageProps) {
-  const {
-    events,
-    customFields,
-    eventNext,
-    eventNow,
-    general,
-    time,
-    isMirrored,
-    runtime,
-    selectedId,
-    settings,
-  } = props;
+  const { events, customFields, eventNext, eventNow, general, time, isMirrored, runtime, selectedId, settings } = props;
 
   const { getLocalizedString } = useTranslation();
   const { secondarySource } = useBackstageOptions();
