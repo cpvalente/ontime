@@ -121,7 +121,7 @@ function MakeSingleLineField({ row, column, table }: CellContext<OntimeRundownEn
 
   const initialValue = event[column.id as keyof OntimeRundownEntry] ?? '';
 
-  return <SingleLineCell initialValue={initialValue} handleUpdate={update} />;
+  return <SingleLineCell initialValue={initialValue} handleUpdate={update} allowKeyboardNavigation />;
 }
 
 function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {

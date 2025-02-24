@@ -50,6 +50,8 @@ export default function CuesheetTable(props: CuesheetTableProps) {
       handleUpdate: (rowIndex: number, accessor: string, payload: string, isCustom = false) => {
         // check if value is the same
         const event = data[rowIndex];
+
+
         if (!event || !isOntimeEvent(event)) {
           return;
         }
