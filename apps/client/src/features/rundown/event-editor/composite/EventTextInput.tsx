@@ -27,7 +27,7 @@ export default function EventTextInput(props: EventTextInputProps) {
       <Input
         id={field}
         ref={ref}
-        size='sm'
+        size='xs'
         variant='ontime-filled'
         data-testid='input-textfield'
         value={value}

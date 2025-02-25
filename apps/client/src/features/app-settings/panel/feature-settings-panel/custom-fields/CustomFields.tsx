@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Button } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
+import { IoAdd } from 'react-icons/io5';
 import { CustomField, CustomFieldLabel } from 'ontime-types';
 
 import { deleteCustomField, editCustomField, postCustomField } from '../../../../../common/api/customFields';
 import ExternalLink from '../../../../../common/components/external-link/ExternalLink';
 import Info from '../../../../../common/components/info/Info';
+import { Button } from '../../../../../common/components/ui/button';
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
 import { customFieldsDocsUrl } from '../../../../../externals';
 import * as Panel from '../../../panel-utils/PanelUtils';
@@ -50,8 +50,8 @@ export default function CustomFields() {
       <Panel.Card>
         <Panel.SubHeader>
           Custom fields
-          <Button variant='ontime-subtle' rightIcon={<IoAdd />} size='sm' onClick={handleInitiateCreate}>
-            New
+          <Button variant='ontime-subtle' size='sm' onClick={handleInitiateCreate}>
+            New <IoAdd />
           </Button>
         </Panel.SubHeader>
         <Panel.Divider />

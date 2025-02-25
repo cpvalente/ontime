@@ -4,10 +4,11 @@
  */
 
 import { ChangeEvent, useRef } from 'react';
-import { Button, Input } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
 
 import { uploadProjectFile } from '../../../../common/api/db';
 import { invalidateAllCaches } from '../../../../common/api/utils';
+import { Button } from '../../../../common/components/ui/button';
 import { validateProjectFile } from '../../../../common/utils/uploadUtils';
 
 interface ImportProjectButtonProps {

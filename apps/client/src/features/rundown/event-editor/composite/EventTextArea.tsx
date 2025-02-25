@@ -16,7 +16,7 @@ interface CountedTextAreaProps {
 
 export default function EventTextArea(props: CountedTextAreaProps) {
   const { className, field, label, initialValue, style: givenStyles, submitHandler } = props;
-  const ref = useRef<HTMLInputElement | null>(null);
+  const ref = useRef<HTMLTextAreaElement | null>(null);
   const submitCallback = useCallback((newValue: string) => submitHandler(field, newValue), [field, submitHandler]);
 
   const { value, onChange, onBlur, onKeyDown } = useReactiveTextInput(initialValue, submitCallback, ref, {
@@ -30,7 +30,7 @@ export default function EventTextArea(props: CountedTextAreaProps) {
       </Editor.Label>
       <AutoTextArea
         id={field}
-        inputref={ref}
+        ref={ref}
         rows={1}
         size='sm'
         resize='none'

@@ -1,9 +1,8 @@
 import { useEffect } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
-import { Button, IconButton, Input, Switch } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoOpenOutline } from '@react-icons/all-files/io5/IoOpenOutline';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { IoAdd } from 'react-icons/io5';
+import { IoOpenOutline } from 'react-icons/io5';
+import { Input } from '@chakra-ui/react';
 import { URLPreset } from 'ontime-types';
 
 import { postUrlPresets } from '../../../../common/api/urlPresets';
@@ -11,6 +10,9 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import TooltipActionBtn from '../../../../common/components/buttons/TooltipActionBtn';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import Info from '../../../../common/components/info/Info';
+import { Button } from '../../../../common/components/ui/button';
+import { IconButton } from '../../../../common/components/ui/icon-button';
+import { Switch } from '../../../../common/components/ui/switch';
 import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { handleLinks } from '../../../../common/utils/linkUtils';
@@ -100,10 +102,10 @@ export default function UrlPresetsForm() {
         <Panel.SubHeader>
           URL presets
           <Panel.InlineElements>
-            <Button variant='ontime-ghosted' size='sm' onClick={onReset} isDisabled={!canSubmit}>
+            <Button variant='ontime-ghosted' size='sm' onClick={onReset} disabled={!canSubmit}>
               Revert to saved
             </Button>
-            <Button variant='ontime-filled' size='sm' type='submit' isDisabled={!canSubmit} isLoading={isSubmitting}>
+            <Button variant='ontime-filled' size='sm' type='submit' disabled={!canSubmit} loading={isSubmitting}>
               Save
             </Button>
           </Panel.InlineElements>
@@ -136,8 +138,8 @@ export default function UrlPresetsForm() {
           <Panel.Loader isLoading={isLoading} />
           <Panel.Title>
             Manage presets
-            <Button variant='ontime-subtle' rightIcon={<IoAdd />} size='sm' onClick={addNew}>
-              New
+            <Button variant='ontime-subtle' size='sm' onClick={addNew}>
+              New <IoAdd />
             </Button>
           </Panel.Title>
           {errors?.root && <Panel.Error>{errors.root.message}</Panel.Error>}
@@ -164,10 +166,12 @@ export default function UrlPresetsForm() {
                 return (
                   <tr key={preset.id}>
                     <td className={style.fit}>
-                      <Switch
-                        {...register(`data.${index}.enabled`)}
-                        variant='ontime'
-                        data-testid={`field__enable_${index}`}
+                      <Controller
+                        control={control}
+                        name={`data.${index}.enabled`}
+                        render={({ field: { onChange, value, ref } }) => (
+                          <Switch size='lg' checked={value} onChange={onChange} ref={ref} />
+                        )}
                       />
                     </td>
                     <td className={style.aliasConstrain}>
@@ -199,7 +203,7 @@ export default function UrlPresetsForm() {
                     <Panel.InlineElements relation='inner' as='td'>
                       <TooltipActionBtn
                         size='sm'
-                        isDisabled={!canTest}
+                        disabled={!canTest}
                         clickHandler={(event) => handleLinks(event, preset.alias)}
                         tooltip='Test preset'
                         aria-label='Test preset'
@@ -213,7 +217,6 @@ export default function UrlPresetsForm() {
                         onClick={() => remove(index)}
                         variant='ontime-ghosted'
                         color='#FA5656' // $red-500
-                        icon={<IoTrash />}
                         aria-label='Delete entry'
                         data-testid={`field__delete_${index}`}
                       />

@@ -1,15 +1,9 @@
 import { useMemo } from 'react';
-import { Tooltip } from '@chakra-ui/react';
-import { IoPause } from '@react-icons/all-files/io5/IoPause';
-import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
-import { IoPlaySkipBack } from '@react-icons/all-files/io5/IoPlaySkipBack';
-import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
-import { IoReload } from '@react-icons/all-files/io5/IoReload';
-import { IoStop } from '@react-icons/all-files/io5/IoStop';
-import { IoTime } from '@react-icons/all-files/io5/IoTime';
+import { IoPause, IoPlay, IoPlaySkipBack, IoPlaySkipForward, IoReload, IoStop, IoTime } from 'react-icons/io5';
 import { Playback, TimerPhase } from 'ontime-types';
 import { validatePlayback } from 'ontime-utils';
 
+import { Tooltip } from '../../../../common/components/ui/tooltip';
 import { setPlayback } from '../../../../common/hooks/useSocket';
 import { tooltipDelayMid } from '../../../../ontimeConfig';
 import TapButton from '../tap-button/TapButton';
@@ -72,12 +66,12 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
         </TapButton>
       </div>
       <div className={style.transportContainer}>
-        <Tooltip label='Previous event' openDelay={tooltipDelayMid}>
+        <Tooltip content='Previous event' openDelay={tooltipDelayMid}>
           <TapButton onClick={setPlayback.previous} disabled={disablePrev}>
             <IoPlaySkipBack />
           </TapButton>
         </Tooltip>
-        <Tooltip label='Next event' openDelay={tooltipDelayMid}>
+        <Tooltip content='Next event' openDelay={tooltipDelayMid}>
           <TapButton onClick={setPlayback.next} disabled={disableNext}>
             <IoPlaySkipForward />
           </TapButton>
@@ -87,12 +81,12 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
         <TapButton onClick={setPlayback.roll} disabled={disableRoll} theme={Playback.Roll} active={isRolling}>
           <IoTime />
         </TapButton>
-        <Tooltip label='Reload event' openDelay={tooltipDelayMid}>
+        <Tooltip content='Reload event' openDelay={tooltipDelayMid}>
           <TapButton onClick={setPlayback.reload} disabled={disableReload}>
             <IoReload className={style.invertX} />
           </TapButton>
         </Tooltip>
-        <Tooltip label='Unload Event' openDelay={tooltipDelayMid}>
+        <Tooltip content='Unload Event' openDelay={tooltipDelayMid}>
           <TapButton onClick={setPlayback.stop} disabled={disableStop} theme={Playback.Stop}>
             <IoStop />
           </TapButton>

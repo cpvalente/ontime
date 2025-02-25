@@ -1,10 +1,18 @@
 import { useNavigate } from 'react-router-dom';
-import { Button, Checkbox, Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay } from '@chakra-ui/react';
 
 import { loadDemo, loadProject } from '../../../common/api/db';
 import { postShowWelcomeDialog } from '../../../common/api/settings';
 import { invalidateAllCaches } from '../../../common/api/utils';
 import ExternalLink from '../../../common/components/external-link/ExternalLink';
+import { Button } from '../../../common/components/ui/button';
+import { Checkbox } from '../../../common/components/ui/checkbox';
+import {
+  DialogBackdrop,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogRoot,
+} from '../../../common/components/ui/dialog';
 import { appVersion, discordUrl, documentationUrl, websiteUrl } from '../../../externals';
 import * as Editor from '../editor-utils/EditorUtils';
 
@@ -55,11 +63,11 @@ export default function Welcome(props: WelcomeProps) {
   };
 
   return (
-    <Modal isOpen onClose={handleClose} closeOnOverlayClick={false} variant='ontime'>
-      <ModalOverlay />
-      <ModalContent maxWidth='max(640px, 40vw)'>
-        <ModalCloseButton />
-        <ModalBody>
+    <DialogRoot defaultOpen onOpenChange={handleClose} closeOnInteractOutside={false}>
+      <DialogBackdrop />
+      <DialogContent maxWidth='max(640px, 40vw)'>
+        <DialogCloseTrigger />
+        <DialogBody>
           <div className={style.sections}>
             <div className={style.column}>
               <img src='ontime-logo.png' alt='ontime' className={style.logo} />
@@ -93,16 +101,11 @@ export default function Welcome(props: WelcomeProps) {
               Create new...
             </Button>
           </div>
-          <Checkbox
-            size='sm'
-            variant='ontime-ondark'
-            defaultChecked
-            onChange={(event) => postShowWelcomeDialog(event.target.checked)}
-          >
+          <Checkbox size='sm' defaultChecked onCheckedChange={({ checked }) => postShowWelcomeDialog(!!checked)}>
             Show this modal on next startup
           </Checkbox>
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+        </DialogBody>
+      </DialogContent>
+    </DialogRoot>
   );
 }

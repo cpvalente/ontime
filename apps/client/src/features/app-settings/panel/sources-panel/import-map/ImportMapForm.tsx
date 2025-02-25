@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Button, IconButton, Input, Select, Tooltip } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { IoAdd } from 'react-icons/io5';
+import { IoTrash } from 'react-icons/io5';
+import { Input } from '@chakra-ui/react';
 import { ImportMap, isAlphanumericWithSpace } from 'ontime-utils';
 
+import { Button } from '../../../../../common/components/ui/button';
+import { IconButton } from '../../../../../common/components/ui/icon-button';
+import { NativeSelectField, NativeSelectRoot } from '../../../../../common/components/ui/native-select';
+import { Tooltip } from '../../../../../common/components/ui/tooltip';
 import * as Panel from '../../../panel-utils/PanelUtils';
 import useGoogleSheet from '../useGoogleSheet';
 import { useSheetStore } from '../useSheetStore';
@@ -86,13 +90,13 @@ export default function ImportMapForm(props: ImportMapFormProps) {
         Import options
         <Panel.InlineElements>
           {!isSpreadsheet && (
-            <Tooltip label='Revoke the google authentication'>
-              <Button variant='ontime-subtle' size='sm' onClick={handleRevoke} isDisabled={isLoading}>
+            <Tooltip content='Revoke the google authentication'>
+              <Button variant='ontime-subtle' size='sm' onClick={handleRevoke} disabled={isLoading}>
                 Revoke
               </Button>
             </Tooltip>
           )}
-          <Button variant='ontime-subtle' size='sm' onClick={onCancel} isDisabled={isLoading}>
+          <Button variant='ontime-subtle' size='sm' onClick={onCancel} disabled={isLoading}>
             Cancel
           </Button>
           {!isSpreadsheet && (
@@ -100,8 +104,8 @@ export default function ImportMapForm(props: ImportMapFormProps) {
               variant='ontime-filled'
               size='sm'
               onClick={handleSubmit(handleExport)}
-              isDisabled={!canSubmitGSheet}
-              isLoading={loading === 'export'}
+              disabled={!canSubmitGSheet}
+              loading={loading === 'export'}
             >
               Export
             </Button>
@@ -110,8 +114,8 @@ export default function ImportMapForm(props: ImportMapFormProps) {
             variant='ontime-filled'
             size='sm'
             onClick={handleSubmit(handleImportPreview)}
-            isDisabled={!canSubmit}
-            isLoading={loading === 'import'}
+            disabled={!canSubmit}
+            loading={loading === 'import'}
           >
             Import preview
           </Button>
@@ -135,20 +139,17 @@ export default function ImportMapForm(props: ImportMapFormProps) {
                 <tr key={importName as string}>
                   <td>{label}</td>
                   <td>
-                    <Select
-                      variant='ontime'
-                      id={importName as string}
-                      size='sm'
-                      {...register(label as keyof NamedImportMap)}
-                    >
-                      {worksheetNames?.map((name) => {
-                        return (
-                          <option key={name} value={name}>
-                            {name}
-                          </option>
-                        );
-                      })}
-                    </Select>
+                    <NativeSelectRoot size='sm'>
+                      <NativeSelectField id={importName as string} {...register(label as keyof NamedImportMap)}>
+                        {worksheetNames?.map((name) => {
+                          return (
+                            <option key={name} value={name}>
+                              {name}
+                            </option>
+                          );
+                        })}
+                      </NativeSelectField>
+                    </NativeSelectRoot>
                   </td>
                   <td className={style.singleActionCell} />
                 </tr>
@@ -214,10 +215,11 @@ export default function ImportMapForm(props: ImportMapFormProps) {
                     size='sm'
                     variant='ontime-ghosted'
                     color='#FA5656' // $red-500
-                    icon={<IoTrash />}
                     aria-label='Delete entry'
                     onClick={() => deleteCustomImport(index)}
-                  />
+                  >
+                    <IoTrash />
+                  </IconButton>
                 </td>
               </tr>
             );
@@ -225,8 +227,8 @@ export default function ImportMapForm(props: ImportMapFormProps) {
           <tr>
             <td />
             <Panel.InlineElements as='td' align='end'>
-              <Button size='sm' variant='ontime-subtle' rightIcon={<IoAdd />} onClick={addCustomImport}>
-                Add custom field
+              <Button size='sm' variant='ontime-subtle' onClick={addCustomImport}>
+                Add custom field <IoAdd />
               </Button>
             </Panel.InlineElements>
             <td />

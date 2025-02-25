@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Button } from '@chakra-ui/react';
 import { CustomFields, OntimeRundown } from 'ontime-types';
 
+import { Button } from '../../../../common/components/ui/button';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import PreviewSpreadsheet from './preview/PreviewRundown';
@@ -39,10 +39,10 @@ export default function ImportReview(props: ImportReviewProps) {
       <Panel.Title>
         Review Rundown
         <Panel.InlineElements>
-          <Button onClick={handleCancel} variant='ontime-ghosted' size='sm' isDisabled={loading}>
+          <Button onClick={handleCancel} variant='ontime-ghosted' size='sm' disabled={loading}>
             Cancel
           </Button>
-          <Button onClick={applyImport} variant='ontime-filled' size='sm' isLoading={loading}>
+          <Button onClick={applyImport} variant='ontime-filled' size='sm' loading={loading}>
             Apply
           </Button>
         </Panel.InlineElements>

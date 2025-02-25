@@ -1,6 +1,6 @@
-import { IconButton } from '@chakra-ui/react';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { IoTrash } from 'react-icons/io5';
 
+import { IconButton } from '../../../common/components/ui/icon-button';
 import { AppMode, useAppMode } from '../../../common/stores/appModeStore';
 
 interface BlockDeleteProps {
@@ -16,12 +16,13 @@ export default function BlockDelete(props: BlockDeleteProps) {
   return (
     <IconButton
       aria-label='Delete'
-      size='sm'
-      icon={<IoTrash />}
+      size='xs'
       variant='ontime-subtle'
       color='#FA5656'
       onClick={onDelete}
-      isDisabled={isRunMode}
-    />
+      disabled={isRunMode}
+    >
+      <IoTrash />
+    </IconButton>
   );
 }

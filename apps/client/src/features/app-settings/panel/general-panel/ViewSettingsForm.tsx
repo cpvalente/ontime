@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Button, Input, Switch } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -8,6 +8,8 @@ import { postViewSettings } from '../../../../common/api/viewSettings';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import Info from '../../../../common/components/info/Info';
 import { SwatchPickerRHF } from '../../../../common/components/input/colour-input/SwatchPicker';
+import { Button } from '../../../../common/components/ui/button';
+import { Switch } from '../../../../common/components/ui/switch';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
@@ -78,10 +80,10 @@ export default function ViewSettingsForm() {
         <Panel.SubHeader>
           View settings
           <Panel.InlineElements>
-            <Button isDisabled={!isDirty} variant='ontime-ghosted' size='sm' onClick={onReset}>
+            <Button disabled={!isDirty} variant='ontime-ghosted' size='sm' onClick={onReset}>
               Revert to saved
             </Button>
-            <Button type='submit' isLoading={isSubmitting} isDisabled={!isDirty} variant='ontime-filled' size='sm'>
+            <Button type='submit' loading={isSubmitting} disabled={!isDirty} variant='ontime-filled' size='sm'>
               Save
             </Button>
           </Panel.InlineElements>
@@ -112,7 +114,7 @@ export default function ViewSettingsForm() {
                 control={control}
                 name='overrideStyles'
                 render={({ field: { onChange, value, ref } }) => (
-                  <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
+                  <Switch size='lg' checked={value} onChange={onChange} ref={ref} />
                 )}
               />
             </Panel.ListItem>
@@ -141,7 +143,7 @@ export default function ViewSettingsForm() {
                 control={control}
                 name='freezeEnd'
                 render={({ field: { onChange, value, ref } }) => (
-                  <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
+                  <Switch size='lg' checked={value} onCheckedChange={onChange} ref={ref} />
                 )}
               />
             </Panel.ListItem>

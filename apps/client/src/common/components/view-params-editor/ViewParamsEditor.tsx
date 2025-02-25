@@ -1,19 +1,19 @@
 import { FormEvent, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import {
-  Button,
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerOverlay,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 
 import useViewSettings from '../../hooks-query/useViewSettings';
 import Info from '../info/Info';
+import { Button } from '../ui/button';
+import {
+  DrawerBackdrop,
+  DrawerBody,
+  DrawerCloseTrigger,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerRoot,
+} from '../ui/drawer';
 
 import { ViewOption } from './types';
 import ViewParamsSection from './ViewParamsSection';
@@ -92,7 +92,7 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: viewSettings } = useViewSettings();
 
-  const { isOpen, onClose, onOpen } = useDisclosure();
+  const { open: isOpen, onClose, onOpen } = useDisclosure();
 
   useEffect(() => {
     const isEditing = searchParams.get('edit');
@@ -117,18 +117,30 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
   const onParamsFormSubmit = (formEvent: FormEvent<HTMLFormElement>) => {
     formEvent.preventDefault();
 
-    const newParamsObject = Object.fromEntries(new FormData(formEvent.currentTarget));
+    const newParamsObject: Record<string, string> = {};
+
+    new FormData(formEvent.currentTarget).forEach((value, key) => {
+      // handle multi-select values by concating new values
+      if (key in newParamsObject) {
+        newParamsObject[key] = newParamsObject[key].concat(`,${value}`);
+      } else {
+        newParamsObject[key] = String(value);
+      }
+    });
+
     const newSearchParams = getURLSearchParamsFromObj(newParamsObject, viewOptions);
     setSearchParams(newSearchParams);
+
+    onClose();
   };
 
   return (
-    <Drawer isOpen={isOpen} placement='right' onClose={handleClose} variant='ontime' size='lg'>
-      <DrawerOverlay />
+    <DrawerRoot open={isOpen} placement='end' onOpenChange={handleClose} size='lg'>
+      <DrawerBackdrop />
       <DrawerContent>
-        <DrawerHeader>
-          <DrawerCloseButton size='lg' />
+        <DrawerHeader className={style.drawerHeader}>
           Customise
+          <DrawerCloseTrigger />
         </DrawerHeader>
 
         <DrawerBody>
@@ -156,6 +168,6 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
           </Button>
         </DrawerFooter>
       </DrawerContent>
-    </Drawer>
+    </DrawerRoot>
   );
 }

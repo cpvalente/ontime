@@ -1,12 +1,12 @@
-import { MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
-import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { IoAdd } from 'react-icons/io5';
+import { IoArrowDown } from 'react-icons/io5';
+import { IoArrowUp } from 'react-icons/io5';
+import { IoDuplicateOutline } from 'react-icons/io5';
+import { IoOptions } from 'react-icons/io5';
+import { IoTrash } from 'react-icons/io5';
 import { isOntimeEvent, SupportedEvent } from 'ontime-types';
 
+import { MenuContent, MenuItem, MenuSeparator } from '../../../../common/components/ui/menu';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
 import { cloneEvent } from '../../../../common/utils/eventsManager';
 
@@ -35,34 +35,34 @@ export default function CuesheetTableMenuActions(props: CuesheetTableMenuActions
   };
 
   return (
-    <MenuList>
-      <MenuItem icon={<IoOptions />} onClick={() => showModal(eventId)}>
-        Edit ...
+    <MenuContent>
+      <MenuItem value='edit' onClick={() => showModal(eventId)}>
+        <IoOptions /> Edit ...
       </MenuItem>
-      <MenuDivider />
-      <MenuItem icon={<IoAdd />} onClick={() => addEvent({ type: SupportedEvent.Event }, { before: eventId })}>
-        Add event above
+      <MenuSeparator />
+      <MenuItem value='addEventAbove' onClick={() => addEvent({ type: SupportedEvent.Event }, { before: eventId })}>
+        <IoAdd /> Add event above
       </MenuItem>
-      <MenuItem icon={<IoAdd />} onClick={() => addEvent({ type: SupportedEvent.Event }, { after: eventId })}>
-        Add event below
+      <MenuItem value='addEventBelow' onClick={() => addEvent({ type: SupportedEvent.Event }, { after: eventId })}>
+        <IoAdd /> Add event below
       </MenuItem>
-      <MenuItem icon={<IoDuplicateOutline />} onClick={handleCloneEvent}>
-        Clone event
+      <MenuItem onClick={handleCloneEvent} value='cloneEvent'>
+        <IoDuplicateOutline /> Clone event
       </MenuItem>
-      <MenuDivider />
+      <MenuSeparator />
       <MenuItem
-        isDisabled={entryIndex < 1}
-        icon={<IoArrowUp />}
+        value='moveUp'
+        disabled={entryIndex < 1}
         onClick={() => reorderEvent(eventId, entryIndex, entryIndex - 1)}
       >
-        Move up
+        <IoArrowUp /> Move up
       </MenuItem>
-      <MenuItem icon={<IoArrowDown />} onClick={() => reorderEvent(eventId, entryIndex, entryIndex + 1)}>
-        Move down
+      <MenuItem value='moveDown' onClick={() => reorderEvent(eventId, entryIndex, entryIndex + 1)}>
+        <IoArrowDown /> Move down
       </MenuItem>
-      <MenuItem icon={<IoTrash />} onClick={() => deleteEvent([eventId])}>
-        Delete
+      <MenuItem value='delete' onClick={() => deleteEvent([eventId])}>
+        <IoTrash /> Delete
       </MenuItem>
-    </MenuList>
+    </MenuContent>
   );
 }

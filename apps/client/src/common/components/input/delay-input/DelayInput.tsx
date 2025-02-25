@@ -1,8 +1,9 @@
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
-import { Input, Radio, RadioGroup } from '@chakra-ui/react';
+import { Input, RadioGroupValueChangeDetails } from '@chakra-ui/react';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
 import { useEventAction } from '../../../hooks/useEventAction';
+import { Radio, RadioGroup } from '../../ui/radio';
 
 import style from './DelayInput.module.scss';
 
@@ -86,7 +87,7 @@ export default function DelayInput(props: DelayInputProps) {
    * @description handles direction change to delay
    * @param newDirection
    */
-  const handleSlipChange = (newDirection: 'add' | 'subtract') => {
+  const handleSlipChange = ({ value: newDirection }: RadioGroupValueChangeDetails) => {
     if (newDirection === 'add') {
       // add time
       if (duration < 0) {
@@ -119,13 +120,7 @@ export default function DelayInput(props: DelayInputProps) {
         value={value}
         maxLength={9}
       />
-      <RadioGroup
-        className={style.delayOptions}
-        onChange={handleSlipChange}
-        value={checkedOption}
-        variant='ontime-block'
-        size='sm'
-      >
+      <RadioGroup className={style.delayOptions} onValueChange={handleSlipChange} value={checkedOption} size='xs'>
         <Radio value='add'>Add time</Radio>
         <Radio value='subtract'>Subtract time</Radio>
       </RadioGroup>

@@ -1,14 +1,15 @@
 import { memo } from 'react';
-import { InputRightElement, Tooltip } from '@chakra-ui/react';
-import { IoAlertCircleOutline } from '@react-icons/all-files/io5/IoAlertCircleOutline';
-import { IoLink } from '@react-icons/all-files/io5/IoLink';
-import { IoLockClosed } from '@react-icons/all-files/io5/IoLockClosed';
-import { IoLockOpenOutline } from '@react-icons/all-files/io5/IoLockOpenOutline';
-import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
+import { IoAlertCircleOutline } from 'react-icons/io5';
+import { IoLink } from 'react-icons/io5';
+import { IoLockClosed } from 'react-icons/io5';
+import { IoLockOpenOutline } from 'react-icons/io5';
+import { IoUnlink } from 'react-icons/io5';
 import { MaybeString, TimeField, TimeStrategy } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 
 import TimeInputWithButton from '../../../common/components/input/time-input/TimeInputWithButton';
+import { Button } from '../../../common/components/ui/button';
+import { Tooltip } from '../../../common/components/ui/tooltip';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayFast, tooltipDelayMid } from '../../../ontimeConfig';
@@ -74,14 +75,15 @@ function TimeInputFlow(props: EventBlockTimerProps) {
           hasDelay={hasDelay}
           placeholder='Start'
           disabled={Boolean(linkStart)}
-        >
-          <Tooltip label='Link start to previous end' openDelay={tooltipDelayMid}>
-            <InputRightElement className={activeStart} onClick={() => handleLink(!linkStart)}>
-              <span className={style.timeLabel}>S</span>
-              <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
-            </InputRightElement>
-          </Tooltip>
-        </TimeInputWithButton>
+          endElement={
+            <Tooltip content='Link start to previous end' openDelay={tooltipDelayMid}>
+              <Button className={activeStart} onClick={() => handleLink(!linkStart)} size='2xs'>
+                <span className={style.timeLabel}>S</span>
+                <span className={style.fourtyfive}>{linkStart ? <IoLink /> : <IoUnlink />}</span>
+              </Button>
+            </Tooltip>
+          }
+        />
       </div>
 
       <div>
@@ -93,18 +95,20 @@ function TimeInputFlow(props: EventBlockTimerProps) {
           hasDelay={hasDelay}
           disabled={isLockedDuration}
           placeholder='End'
-        >
-          <Tooltip label='Lock end' openDelay={tooltipDelayMid}>
-            <InputRightElement
-              className={activeEnd}
-              onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}
-              data-testid='lock__end'
-            >
-              <span className={style.timeLabel}>E</span>
-              {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
-            </InputRightElement>
-          </Tooltip>
-        </TimeInputWithButton>
+          endElement={
+            <Tooltip content='Lock end' openDelay={tooltipDelayMid}>
+              <Button
+                className={activeEnd}
+                onClick={() => handleChangeStrategy(TimeStrategy.LockEnd)}
+                data-testid='lock__end'
+                size='2xs'
+              >
+                <span className={style.timeLabel}>E</span>
+                {isLockedEnd ? <IoLockClosed /> : <IoLockOpenOutline />}
+              </Button>
+            </Tooltip>
+          }
+        />
       </div>
 
       <div>
@@ -115,23 +119,25 @@ function TimeInputFlow(props: EventBlockTimerProps) {
           time={duration}
           disabled={isLockedEnd}
           placeholder='Duration'
-        >
-          <Tooltip label='Lock duration' openDelay={tooltipDelayMid}>
-            <InputRightElement
-              className={activeDuration}
-              onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}
-              data-testid='lock__duration'
-            >
-              <span className={style.timeLabel}>D</span>
-              {isLockedDuration ? <IoLockClosed /> : <IoLockOpenOutline />}
-            </InputRightElement>
-          </Tooltip>
-        </TimeInputWithButton>
+          endElement={
+            <Tooltip content='Lock duration' openDelay={tooltipDelayMid}>
+              <Button
+                className={activeDuration}
+                onClick={() => handleChangeStrategy(TimeStrategy.LockDuration)}
+                data-testid='lock__duration'
+                size='2xs'
+              >
+                <span className={style.timeLabel}>D</span>
+                {isLockedDuration ? <IoLockClosed /> : <IoLockOpenOutline />}
+              </Button>
+            </Tooltip>
+          }
+        />
       </div>
 
       {warnings.length > 0 && (
         <div className={style.timerNote} data-testid='event-warning'>
-          <Tooltip label={warnings.join(' - ')} openDelay={tooltipDelayFast} variant='ontime-ondark' shouldWrapChildren>
+          <Tooltip content={warnings.join(' - ')} openDelay={tooltipDelayFast}>
             <IoAlertCircleOutline />
           </Tooltip>
         </div>

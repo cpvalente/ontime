@@ -1,21 +1,12 @@
 import { memo, PropsWithChildren } from 'react';
-import { createPortal } from 'react-dom';
+import { IoArrowUp } from 'react-icons/io5';
+import { IoContract } from 'react-icons/io5';
+import { IoExpand } from 'react-icons/io5';
+import { IoLockClosedOutline } from 'react-icons/io5';
+import { IoSwapVertical } from 'react-icons/io5';
 import { Link, useLocation } from 'react-router-dom';
-import {
-  Drawer,
-  DrawerBody,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerHeader,
-  DrawerOverlay,
-  useDisclosure,
-} from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 import { useFullscreen } from '@mantine/hooks';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-import { IoContract } from '@react-icons/all-files/io5/IoContract';
-import { IoExpand } from '@react-icons/all-files/io5/IoExpand';
-import { IoLockClosedOutline } from '@react-icons/all-files/io5/IoLockClosedOutline';
-import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
 
 import { isLocalhost } from '../../../externals';
 import { navigatorConstants } from '../../../viewerConfig';
@@ -28,6 +19,7 @@ import { handleLinks, linkToOtherHost, openLink } from '../../utils/linkUtils';
 import { cx } from '../../utils/styleUtils';
 import { RenameClientModal } from '../client-modal/RenameClientModal';
 import CopyTag from '../copy-tag/CopyTag';
+import { DrawerBackdrop, DrawerBody, DrawerCloseTrigger, DrawerContent, DrawerHeader, DrawerRoot } from '../ui/drawer';
 
 import style from './NavigationMenu.module.scss';
 
@@ -42,20 +34,20 @@ function NavigationMenu(props: NavigationMenuProps) {
   const id = useClientStore((store) => store.id);
   const name = useClientStore((store) => store.name);
 
-  const { isOpen: isOpenRename, onOpen: onRenameOpen, onClose: onCloseRename } = useDisclosure();
+  const { open: isOpenRename, onOpen: onRenameOpen, onClose: onCloseRename } = useDisclosure();
   const { fullscreen, toggle } = useFullscreen();
   const { mirror, toggleMirror } = useViewOptionsStore();
   const location = useLocation();
 
-  return createPortal(
+  return (
     <div id='navigation-menu-portal'>
       <RenameClientModal id={id} name={name} isOpen={isOpenRename} onClose={onCloseRename} />
-      <Drawer placement='left' onClose={onClose} isOpen={isOpen} variant='ontime' data-testid='navigation__menu'>
-        <DrawerOverlay />
-        <DrawerContent maxWidth='22rem'>
-          <DrawerHeader>
-            <DrawerCloseButton size='lg' />
+      <DrawerRoot placement='start' onOpenChange={onClose} open={isOpen} data-testid='navigation__menu'>
+        <DrawerBackdrop />
+        <DrawerContent portalled>
+          <DrawerHeader className={style.navHeader}>
             Ontime
+            <DrawerCloseTrigger />
           </DrawerHeader>
           <DrawerBody padding={0}>
             <div className={style.buttonsContainer}>
@@ -121,9 +113,8 @@ function NavigationMenu(props: NavigationMenuProps) {
             {isLocalhost && <OtherAddresses currentLocation={location.pathname} />}
           </DrawerBody>
         </DrawerContent>
-      </Drawer>
-    </div>,
-    document.body,
+      </DrawerRoot>
+    </div>
   );
 }
 

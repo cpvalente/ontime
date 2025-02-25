@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Switch } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { PROJECT_DATA } from '../../../../common/api/constants';
 import { getDb, patchData } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
+import { Button } from '../../../../common/components/ui/button';
+import { Switch } from '../../../../common/components/ui/switch';
 import { cx } from '../../../../common/utils/styleUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -76,13 +77,13 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
       <Panel.Title>
         Merge {`"${fileName}"`}
         <Panel.InlineElements>
-          <Button onClick={onClose} variant='ontime-ghosted' size='sm' isDisabled={isSubmitting}>
+          <Button onClick={onClose} variant='ontime-ghosted' size='sm' disabled={isSubmitting}>
             Cancel
           </Button>
           <Button
-            isDisabled={!isValid || !isDirty}
+            disabled={!isValid || !isDirty}
             type='submit'
-            isLoading={isSubmitting}
+            loading={isSubmitting}
             variant='ontime-filled'
             size='sm'
           >
@@ -97,23 +98,23 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
           <br /> This process is irreversible.
         </Panel.Description>
         <label>
-          <Switch variant='ontime' {...register('project')} />
+          <Switch {...register('project')} />
           Project data
         </label>
         <label>
-          <Switch variant='ontime' {...register('rundown')} />
+          <Switch {...register('rundown')} />
           Rundown + Custom Fields
         </label>
         <label>
-          <Switch variant='ontime' {...register('viewSettings')} />
+          <Switch {...register('viewSettings')} />
           View Settings
         </label>
         <label>
-          <Switch variant='ontime' {...register('urlPresets')} />
+          <Switch {...register('urlPresets')} />
           URL Presets
         </label>
         <label>
-          <Switch variant='ontime' {...register('automation')} />
+          <Switch {...register('automation')} />
           Automation Settings
         </label>
       </Panel.Section>

@@ -1,9 +1,11 @@
 import { PropsWithChildren, useState } from 'react';
 import { UseFormRegister } from 'react-hook-form';
-import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react';
-import { IoEyeOutline } from '@react-icons/all-files/io5/IoEyeOutline';
+import { IoEyeOutline } from 'react-icons/io5';
+import { Input } from '@chakra-ui/react';
 import { Settings } from 'ontime-types';
 
+import { IconButton } from '../../../../common/components/ui/icon-button';
+import { InputGroup } from '../../../../common/components/ui/input-group';
 import { isAlphanumeric } from '../../../../common/utils/regex';
 
 interface GeneralPinInputProps {
@@ -16,7 +18,21 @@ export default function GeneralPinInput(props: PropsWithChildren<GeneralPinInput
   const { register, formName, isDisabled } = props;
   const [isVisible, setVisible] = useState(false);
   return (
-    <InputGroup size='sm' width='100px'>
+    <InputGroup
+      width='100px'
+      endElement={
+        <IconButton
+          onMouseDown={() => setVisible(true)}
+          onMouseUp={() => setVisible(false)}
+          size='xs'
+          variant='ontime-ghosted'
+          aria-label='Show pin code'
+        >
+          <IoEyeOutline />
+        </IconButton>
+      }
+      endElementProps={{ padding: 0 }}
+    >
       <Input
         variant='ontime-filled'
         type={isVisible ? 'text' : 'password'}
@@ -28,18 +44,9 @@ export default function GeneralPinInput(props: PropsWithChildren<GeneralPinInput
           },
         })}
         placeholder='-'
-        isDisabled={isDisabled}
+        disabled={isDisabled}
+        size='xs'
       />
-      <InputRightElement>
-        <IconButton
-          onMouseDown={() => setVisible(true)}
-          onMouseUp={() => setVisible(false)}
-          size='sm'
-          variant='ontime-ghosted'
-          icon={<IoEyeOutline />}
-          aria-label='Show pin code'
-        />
-      </InputRightElement>
     </InputGroup>
   );
 }

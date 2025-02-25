@@ -13,7 +13,7 @@ interface ViewNavigationMenuProps {
 function ViewNavigationMenu(props: ViewNavigationMenuProps) {
   const { isLockable } = props;
 
-  const { isOpen: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
+  const { open: isMenuOpen, onOpen: onMenuOpen, onClose: onMenuClose } = useDisclosure();
   const { showEditFormDrawer, isViewLocked } = useViewEditor({ isLockable });
 
   const toggleMenu = () => (isMenuOpen ? onMenuClose() : onMenuOpen());

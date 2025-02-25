@@ -1,18 +1,18 @@
 import { memo, useEffect, useState } from 'react';
-import { Tooltip } from '@chakra-ui/react';
-import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-import { IoBan } from '@react-icons/all-files/io5/IoBan';
-import { IoFlag } from '@react-icons/all-files/io5/IoFlag';
-import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
-import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
-import { IoPlayForward } from '@react-icons/all-files/io5/IoPlayForward';
-import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
-import { IoStop } from '@react-icons/all-files/io5/IoStop';
-import { IoTime } from '@react-icons/all-files/io5/IoTime';
+import { IoArrowDown } from 'react-icons/io5';
+import { IoArrowUp } from 'react-icons/io5';
+import { IoBan } from 'react-icons/io5';
+import { IoFlag } from 'react-icons/io5';
+import { IoPeople } from 'react-icons/io5';
+import { IoPlay } from 'react-icons/io5';
+import { IoPlayForward } from 'react-icons/io5';
+import { IoPlaySkipForward } from 'react-icons/io5';
+import { IoStop } from 'react-icons/io5';
+import { IoTime } from 'react-icons/io5';
 import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 
+import { Tooltip } from '../../../common/components/ui/tooltip';
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
 import EditableBlockTitle from '../common/EditableBlockTitle';
@@ -134,22 +134,22 @@ function EventBlockInner(props: EventBlockInnerProps) {
           {loaded && <EventBlockProgressBar />}
         </div>
         <div className={style.eventStatus} tabIndex={-1}>
-          <Tooltip label={`Time type: ${timerType}`} openDelay={tooltipDelayMid}>
+          <Tooltip content={`Time type: ${timerType}`} openDelay={tooltipDelayMid}>
             <span>
               <TimerIcon type={timerType} className={style.statusIcon} />
             </span>
           </Tooltip>
-          <Tooltip label={`End action: ${endAction}`} openDelay={tooltipDelayMid}>
+          <Tooltip content={`End action: ${endAction}`} openDelay={tooltipDelayMid}>
             <span>
               <EndActionIcon action={endAction} className={style.statusIcon} />
             </span>
           </Tooltip>
-          <Tooltip label={`${countToEnd ? 'Count to End' : 'Count duration'}`} openDelay={tooltipDelayMid}>
+          <Tooltip content={`${countToEnd ? 'Count to End' : 'Count duration'}`} openDelay={tooltipDelayMid}>
             <span>
               <IoFlag className={`${style.statusIcon} ${countToEnd ? style.active : style.disabled}`} />
             </span>
           </Tooltip>
-          <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} openDelay={tooltipDelayMid}>
+          <Tooltip content={`${isPublic ? 'Event is public' : 'Event is private'}`} openDelay={tooltipDelayMid}>
             <span>
               <IoPeople className={`${style.statusIcon} ${isPublic ? style.active : style.disabled}`} />
             </span>

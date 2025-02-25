@@ -16,12 +16,12 @@
 
   .buttonRow {
     margin-top: auto;
-    display: flex;
-    justify-content: space-between; 
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 1rem;
 
     button {
-     width: 100%;
+      width: 100%;
     }
   }
 }

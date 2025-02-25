@@ -18,6 +18,8 @@ test('CRUD operations on the rundown', async ({ page }) => {
   // test quick add options - star2+5-t is last end
   await page.getByTestId('entry-2').getByTestId('time-input-duration').fill('20m');
   await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
+
+  await page.waitForTimeout(1000);
   expect(await page.getByTestId('entry-3').getByTestId('time-input-timeStart').inputValue()).toContain('00:30:00');
 
   // test quick add options - event is public

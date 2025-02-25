@@ -1,11 +1,11 @@
-import { Tooltip } from '@chakra-ui/react';
-import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-import { IoBan } from '@react-icons/all-files/io5/IoBan';
-import { IoFlag } from '@react-icons/all-files/io5/IoFlag';
-import { IoTime } from '@react-icons/all-files/io5/IoTime';
+import { IoArrowDown } from 'react-icons/io5';
+import { IoArrowUp } from 'react-icons/io5';
+import { IoBan } from 'react-icons/io5';
+import { IoFlag } from 'react-icons/io5';
+import { IoTime } from 'react-icons/io5';
 import { TimerPhase, TimerType } from 'ontime-types';
 
+import { Tooltip } from '../../../common/components/ui/tooltip';
 import { useMessagePreview } from '../../../common/hooks/useSocket';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
 import { handleLinks } from '../../../common/utils/linkUtils';
@@ -65,19 +65,19 @@ export default function TimerPreview() {
         {secondary !== null && <div className={style.secondaryContent}>{secondary}</div>}
       </div>
       <div className={style.eventStatus}>
-        <Tooltip label='Time type: Count down' openDelay={tooltipDelayMid} shouldWrapChildren>
+        <Tooltip content='Time type: Count down' openDelay={tooltipDelayMid}>
           <IoArrowDown className={style.statusIcon} data-active={timerType === TimerType.CountDown} />
         </Tooltip>
-        <Tooltip label='Time type: Count up' openDelay={tooltipDelayMid} shouldWrapChildren>
+        <Tooltip content='Time type: Count up' openDelay={tooltipDelayMid}>
           <IoArrowUp className={style.statusIcon} data-active={timerType === TimerType.CountUp} />
         </Tooltip>
-        <Tooltip label='Time type: Clock' openDelay={tooltipDelayMid} shouldWrapChildren>
+        <Tooltip content='Time type: Clock' openDelay={tooltipDelayMid}>
           <IoTime className={style.statusIcon} data-active={timerType === TimerType.Clock} />
         </Tooltip>
-        <Tooltip label='Time type: None' openDelay={tooltipDelayMid} shouldWrapChildren>
+        <Tooltip content='Time type: None' openDelay={tooltipDelayMid}>
           <IoBan className={style.statusIcon} data-active={timerType === TimerType.None} />
         </Tooltip>
-        <Tooltip label={countToEnd ? 'Count to end' : 'Count duration'} openDelay={tooltipDelayMid} shouldWrapChildren>
+        <Tooltip content={countToEnd ? 'Count to end' : 'Count duration'} openDelay={tooltipDelayMid}>
           <IoFlag className={style.statusIcon} data-active={countToEnd} />
         </Tooltip>
       </div>

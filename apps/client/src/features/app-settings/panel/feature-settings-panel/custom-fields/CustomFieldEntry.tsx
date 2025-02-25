@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { IconButton } from '@chakra-ui/react';
-import { IoPencil } from '@react-icons/all-files/io5/IoPencil';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { IoPencil } from 'react-icons/io5';
 import { CustomField, CustomFieldLabel } from 'ontime-types';
 
 import CopyTag from '../../../../../common/components/copy-tag/CopyTag';
 import Swatch from '../../../../../common/components/input/colour-input/Swatch';
+import { IconButton } from '../../../../../common/components/ui/icon-button';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
 import CustomFieldForm from './CustomFieldForm';
@@ -61,15 +60,15 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
           size='sm'
           variant='ontime-ghosted'
           color='#e2e2e2' // $gray-200
-          icon={<IoPencil />}
           aria-label='Edit entry'
           onClick={() => setIsEditing(true)}
-        />
+        >
+          <IoPencil />
+        </IconButton>
         <IconButton
           size='sm'
           variant='ontime-ghosted'
           color='#FA5656' // $red-500
-          icon={<IoTrash />}
           aria-label='Delete entry'
           onClick={() => onDelete(field)}
         />

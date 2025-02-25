@@ -14,7 +14,7 @@ type OptionsField = {
 
 type MultiOptionsField = {
   type: 'multi-option';
-  values: Record<string, { value: string; label: string; colour: string }>;
+  values: { value: string; label: string }[];
   defaultValue?: string;
 };
 

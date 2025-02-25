@@ -1,10 +1,11 @@
 import { ChangeEvent, useRef, useState } from 'react';
+import { IoAdd } from 'react-icons/io5';
 import { useSearchParams } from 'react-router-dom';
-import { Button, Input } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
+import { Input } from '@chakra-ui/react';
 
 import { uploadProjectFile } from '../../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../../common/api/utils';
+import { Button } from '../../../../common/components/ui/button';
 import { validateProjectFile } from '../../../../common/utils/uploadUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -73,8 +74,8 @@ export default function ManageProjects() {
               variant='ontime-subtle'
               onClick={handleSelectFile}
               size='sm'
-              isDisabled={Boolean(loading) || isCreatingProject}
-              isLoading={loading === 'import'}
+              disabled={Boolean(loading) || isCreatingProject}
+              loading={loading === 'import'}
             >
               Import
             </Button>
@@ -82,10 +83,9 @@ export default function ManageProjects() {
               variant='ontime-subtle'
               onClick={handleToggleCreate}
               size='sm'
-              isDisabled={Boolean(loading) || isCreatingProject}
-              rightIcon={<IoAdd />}
+              disabled={Boolean(loading) || isCreatingProject}
             >
-              New
+              New <IoAdd />
             </Button>
           </Panel.InlineElements>
         </Panel.SubHeader>
