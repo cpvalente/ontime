@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form';
 import { Input } from '@chakra-ui/react';
 
 import { Button } from '../../../../common/components/ui/button';
-
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
 
