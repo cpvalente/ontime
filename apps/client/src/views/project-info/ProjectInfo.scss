@@ -18,7 +18,6 @@
 
   .logo {
     max-width: min(200px, 30vw);
-    max-height: min(100px, 20vh);
   }
 
   .info {
@@ -43,6 +42,15 @@
     color: $action-text-color;
     &:hover {
       color: $ontime-color;
+    }
+  }
+}
+
+/* =================== MOBILE ===================*/
+@media screen and (max-width: 768px) {
+  .project {
+    .logo img {
+      height: min(50px, 10vh);
     }
   }
 }
