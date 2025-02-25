@@ -157,6 +157,16 @@ export function getRuntimeOffset(state: RuntimeState): number {
 }
 
 /**
+ * Calculates relative offset
+ * should always be calculated after the absolute offset
+ */
+export function getRelativeOffset(state: RuntimeState): number {
+  const { actualStart, plannedStart } = state.runtime;
+  const relativeStartOffset = actualStart - plannedStart;
+  return state.runtime.offset + relativeStartOffset;
+}
+
+/**
  * Calculates the expected end of the rundown
  */
 export function getExpectedEnd(state: RuntimeState): MaybeNumber {

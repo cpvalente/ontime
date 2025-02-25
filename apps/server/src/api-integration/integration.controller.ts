@@ -1,4 +1,4 @@
-import { MessageState, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { MessageState, OffsetMode, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { DeepPartial } from 'ts-essentials';
@@ -17,6 +17,7 @@ import { throttle } from '../utils/throttle.js';
 import { willCauseRegeneration } from '../services/rundown-service/rundownCacheUtils.js';
 
 import { handleLegacyMessageConversion } from './integration.legacy.js';
+import { coerceEnum } from '../utils/coerceType.js';
 
 const throttledUpdateEvent = throttle(updateEvent, 20);
 let lastRequest: Date | null = null;
@@ -285,6 +286,11 @@ const actionHandlers: Record<string, ActionHandler> = {
     }
 
     throw new Error('No matching method provided');
+  },
+  offsetmode: (payload) => {
+    const mode = coerceEnum<OffsetMode>(payload, OffsetMode);
+    runtimeService.setOffsetMode(mode);
+    return { payload: 'success' };
   },
 };
 
