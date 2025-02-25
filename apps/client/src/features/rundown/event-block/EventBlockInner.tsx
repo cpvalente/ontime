@@ -120,7 +120,7 @@ function EventBlockInner(props: EventBlockInnerProps) {
         <EventBlockChip
           className={style.chipSection}
           id={eventId}
-          trueTimeStart={timeStart + dayOffset * dayInMs}
+          normalisedTimeStart={timeStart + dayOffset * dayInMs}
           isPast={isPast}
           isLoaded={loaded}
           totalGap={totalGap}
