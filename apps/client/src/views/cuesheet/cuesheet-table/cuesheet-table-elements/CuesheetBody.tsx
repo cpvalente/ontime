@@ -1,13 +1,11 @@
 import { MutableRefObject } from 'react';
-import { Menu } from '@chakra-ui/react';
-import { flexRender, RowModel } from '@tanstack/react-table';
+import { RowModel, Table } from '@tanstack/react-table';
 import Color from 'color';
-import { isOntimeBlock, isOntimeDelay, isOntimeEvent, MaybeString, OntimeRundownEntry } from 'ontime-types';
+import { isOntimeBlock, isOntimeDelay, isOntimeEvent, OntimeRundownEntry } from 'ontime-types';
 
 import { useSelectedEventId } from '../../../../common/hooks/useSocket';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { useCuesheetOptions } from '../../../cuesheet/cuesheet.options';
-import CuesheetTableMenu from '../CuesheetTableMenu';
 
 import BlockRow from './BlockRow';
 import DelayRow from './DelayRow';
@@ -16,11 +14,12 @@ import EventRow from './EventRow';
 interface CuesheetBodyProps {
   rowModel: RowModel<OntimeRundownEntry>;
   selectedRef: MutableRefObject<HTMLTableRowElement | null>;
-  showModal: (eventId: MaybeString) => void;
+  table: Table<OntimeRundownEntry>;
+  columnSizing: Record<string, number>;
 }
 
 export default function CuesheetBody(props: CuesheetBodyProps) {
-  const { rowModel, selectedRef, showModal } = props;
+  const { rowModel, selectedRef, table, columnSizing } = props;
 
   const { selectedEventId } = useSelectedEventId();
   const { hideDelays, hidePast } = useCuesheetOptions();
@@ -74,24 +73,20 @@ export default function CuesheetBody(props: CuesheetBodyProps) {
           }
 
           return (
-            <Menu key={key} variant='ontime-on-dark' size='sm' isLazy>
-              <EventRow
-                eventIndex={eventIndex}
-                isPast={isPast}
-                selectedRef={isSelected ? selectedRef : undefined}
-                skip={entry.skip}
-                colour={entry.colour}
-              >
-                {row.getVisibleCells().map((cell) => {
-                  return (
-                    <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }} tabIndex={-1} role='cell'>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  );
-                })}
-              </EventRow>
-              <CuesheetTableMenu event={entry} entryIndex={index} showModal={showModal} />
-            </Menu>
+            <EventRow
+              key={row.id}
+              rowId={row.id}
+              eventId={entry.id}
+              eventIndex={eventIndex}
+              rowIndex={index}
+              isPast={isPast}
+              selectedRef={isSelected ? selectedRef : undefined}
+              skip={entry.skip}
+              colour={entry.colour}
+              rowBgColour={rowBgColour}
+              table={table}
+              columnSizing={columnSizing}
+            />
           );
         }
 

@@ -1,6 +1,6 @@
 import { IoLockClosedOutline } from '@react-icons/all-files/io5/IoLockClosedOutline';
 
-import { useFadeOutOnInactivity } from '../../../common/hooks/useFadeOutOnInactivity';
+import { useFadeOutOnInactivity } from '../../hooks/useFadeOutOnInactivity';
 import { cx } from '../../utils/styleUtils';
 
 import style from './NavigationMenu.module.scss';

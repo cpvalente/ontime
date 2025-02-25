@@ -49,6 +49,8 @@ interface EventBlockProps {
   isRolling: boolean;
   gap: number;
   isNextDay: boolean;
+  dayOffset: number;
+  totalGap: number;
   actionHandler: (
     action: EventItemActions,
     payload?:
@@ -87,6 +89,8 @@ export default function EventBlock(props: EventBlockProps) {
     isRolling,
     gap,
     isNextDay,
+    dayOffset,
+    totalGap,
     actionHandler,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
@@ -171,7 +175,7 @@ export default function EventBlock(props: EventBlockProps) {
             },
             isDisabled: selectedEventId == null || selectedEventId === eventId,
           },
-          { withDivider: true, label: 'Clone', icon: IoDuplicateOutline, onClick: () => actionHandler('clone') },
+          { withDivider: false, label: 'Clone', icon: IoDuplicateOutline, onClick: () => actionHandler('clone') },
           { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
         ],
   );
@@ -303,6 +307,9 @@ export default function EventBlock(props: EventBlockProps) {
           loaded={loaded}
           playback={playback}
           isRolling={isRolling}
+          dayOffset={dayOffset}
+          isPast={isPast}
+          totalGap={totalGap}
         />
       )}
     </div>

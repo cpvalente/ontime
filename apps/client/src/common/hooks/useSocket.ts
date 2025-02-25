@@ -3,73 +3,54 @@ import { RuntimeStore, SimpleDirection, SimplePlayback, TimerMessage } from 'ont
 import { useRuntimeStore } from '../stores/runtime';
 import { socketSendJson } from '../utils/socket';
 
+const createSelector =
+  <T>(selector: (state: RuntimeStore) => T) =>
+  () =>
+    useRuntimeStore(selector);
+
 export const setClientRemote = {
   setIdentify: (payload: { target: string; identify: boolean }) => socketSendJson('client', payload),
   setRedirect: (payload: { target: string; redirect: string }) => socketSendJson('client', payload),
   setClientName: (payload: { target: string; rename: string }) => socketSendJson('client', payload),
 };
 
-export const useRundownEditor = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    playback: state.timer.playback,
-    selectedEventId: state.eventNow?.id ?? null,
-    nextEventId: state.eventNext?.id ?? null,
-  });
+export const useRundownEditor = createSelector((state: RuntimeStore) => ({
+  playback: state.timer.playback,
+  selectedEventId: state.eventNow?.id ?? null,
+  nextEventId: state.eventNext?.id ?? null,
+}));
 
-  return useRuntimeStore(featureSelector);
-};
+export const useOperator = createSelector((state: RuntimeStore) => ({
+  playback: state.timer.playback,
+  selectedEventId: state.eventNow?.id ?? null,
+}));
 
-export const useOperator = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    playback: state.timer.playback,
-    selectedEventId: state.eventNow?.id ?? null,
-  });
+export const useTimerViewControl = createSelector((state: RuntimeStore) => ({
+  blackout: state.message.timer.blackout,
+  blink: state.message.timer.blink,
+  secondarySource: state.message.timer.secondarySource,
+}));
 
-  return useRuntimeStore(featureSelector);
-};
+export const useTimerMessageInput = createSelector((state: RuntimeStore) => ({
+  text: state.message.timer.text,
+  visible: state.message.timer.visible,
+}));
 
-export const useTimerViewControl = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    blackout: state.message.timer.blackout,
-    blink: state.message.timer.blink,
-    secondarySource: state.message.timer.secondarySource,
-  });
+export const useExternalMessageInput = createSelector((state: RuntimeStore) => ({
+  text: state.message.external,
+  visible: state.message.timer.secondarySource === 'external',
+}));
 
-  return useRuntimeStore(featureSelector);
-};
-
-export const useTimerMessageInput = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    text: state.message.timer.text,
-    visible: state.message.timer.visible,
-  });
-
-  return useRuntimeStore(featureSelector);
-};
-
-export const useExternalMessageInput = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    text: state.message.external,
-    visible: state.message.timer.secondarySource === 'external',
-  });
-
-  return useRuntimeStore(featureSelector);
-};
-
-export const useMessagePreview = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    blink: state.message.timer.blink,
-    blackout: state.message.timer.blackout,
-    phase: state.timer.phase,
-    showAuxTimer: state.message.timer.secondarySource === 'aux',
-    showExternalMessage: state.message.timer.secondarySource === 'external' && Boolean(state.message.external),
-    showTimerMessage: state.message.timer.visible && Boolean(state.message.timer.text),
-    timerType: state.eventNow?.timerType ?? null,
-    countToEnd: state.eventNow?.countToEnd ?? false,
-  });
-
-  return useRuntimeStore(featureSelector);
-};
+export const useMessagePreview = createSelector((state: RuntimeStore) => ({
+  blink: state.message.timer.blink,
+  blackout: state.message.timer.blackout,
+  phase: state.timer.phase,
+  showAuxTimer: state.message.timer.secondarySource === 'aux',
+  showExternalMessage: state.message.timer.secondarySource === 'external' && Boolean(state.message.external),
+  showTimerMessage: state.message.timer.visible && Boolean(state.message.timer.text),
+  timerType: state.eventNow?.timerType ?? null,
+  countToEnd: state.eventNow?.countToEnd ?? false,
+}));
 
 export const setMessage = {
   timerText: (payload: string) => socketSendJson('message', { timer: { text: payload } }),
@@ -81,16 +62,12 @@ export const setMessage = {
     socketSendJson('message', { timer: { secondarySource: payload } }),
 };
 
-export const usePlaybackControl = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    playback: state.timer.playback,
-    selectedEventIndex: state.runtime.selectedEventIndex,
-    numEvents: state.runtime.numEvents,
-    timerPhase: state.timer.phase,
-  });
-
-  return useRuntimeStore(featureSelector);
-};
+export const usePlaybackControl = createSelector((state: RuntimeStore) => ({
+  playback: state.timer.playback,
+  selectedEventIndex: state.runtime.selectedEventIndex,
+  numEvents: state.runtime.numEvents,
+  timerPhase: state.timer.phase,
+}));
 
 export const setPlayback = {
   start: () => socketSendJson('start'),
@@ -114,32 +91,20 @@ export const setPlayback = {
   },
 };
 
-export const useInfoPanel = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    eventNow: state.eventNow,
-    eventNext: state.eventNext,
-    playback: state.timer.playback,
-    selectedEventIndex: state.runtime.selectedEventIndex,
-    numEvents: state.runtime.numEvents,
-  });
+export const useInfoPanel = createSelector((state: RuntimeStore) => ({
+  eventNow: state.eventNow,
+  eventNext: state.eventNext,
+  playback: state.timer.playback,
+  selectedEventIndex: state.runtime.selectedEventIndex,
+  numEvents: state.runtime.numEvents,
+}));
 
-  return useRuntimeStore(featureSelector);
-};
+export const useAuxTimerTime = createSelector((state: RuntimeStore) => state.auxtimer1.current);
 
-export const useAuxTimerTime = () => {
-  const featureSelector = (state: RuntimeStore) => state.auxtimer1.current;
-
-  return useRuntimeStore(featureSelector);
-};
-
-export const useAuxTimerControl = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    playback: state.auxtimer1.playback,
-    direction: state.auxtimer1.direction,
-  });
-
-  return useRuntimeStore(featureSelector);
-};
+export const useAuxTimerControl = createSelector((state: RuntimeStore) => ({
+  playback: state.auxtimer1.playback,
+  direction: state.auxtimer1.direction,
+}));
 
 export const setAuxTimer = {
   start: () => socketSendJson('auxtimer', { '1': SimplePlayback.Start }),
@@ -149,20 +114,13 @@ export const setAuxTimer = {
   setDuration: (time: number) => socketSendJson('auxtimer', { '1': { duration: time } }),
 };
 
-export const useSelectedEventId = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    selectedEventId: state.eventNow?.id ?? null,
-  });
+export const useSelectedEventId = createSelector((state: RuntimeStore) => ({
+  selectedEventId: state.eventNow?.id ?? null,
+}));
 
-  return useRuntimeStore(featureSelector);
-};
-
-export const useCurrentBlockId = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    currentBlockId: state.currentBlock.block?.id ?? null,
-  });
-  return useRuntimeStore(featureSelector);
-};
+export const useCurrentBlockId = createSelector((state: RuntimeStore) => ({
+  currentBlockId: state.currentBlock.block?.id ?? null,
+}));
 
 export const setEventPlayback = {
   loadEvent: (id: string) => socketSendJson('load', { id }),
@@ -171,81 +129,63 @@ export const setEventPlayback = {
   pause: () => socketSendJson('pause'),
 };
 
-export const useTimer = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    ...state.timer,
-  });
+export const useTimer = createSelector((state: RuntimeStore) => ({
+  ...state.timer,
+}));
 
-  return useRuntimeStore(featureSelector);
-};
-
-export const useClock = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    clock: state.clock,
-  });
-  return useRuntimeStore(featureSelector);
-};
+export const useClock = createSelector((state: RuntimeStore) => ({
+  clock: state.clock,
+}));
 
 /** Used by the progress bar components */
-export const useProgressData = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    current: state.timer.current,
-    duration: state.timer.duration,
-    timeWarning: state.eventNow?.timeWarning ?? null,
-    timeDanger: state.eventNow?.timeDanger ?? null,
-  });
-  return useRuntimeStore(featureSelector);
-};
+export const useProgressData = createSelector((state: RuntimeStore) => ({
+  current: state.timer.current,
+  duration: state.timer.duration,
+  timeWarning: state.eventNow?.timeWarning ?? null,
+  timeDanger: state.eventNow?.timeDanger ?? null,
+}));
 
 export const setClientName = (newName: string) => socketSendJson('set-client-name', newName);
 
-export const useRuntimeOverview = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    plannedStart: state.runtime.plannedStart,
-    actualStart: state.runtime.actualStart,
-    plannedEnd: state.runtime.plannedEnd,
-    expectedEnd: state.runtime.expectedEnd,
-  });
+export const useRuntimeOverview = createSelector((state: RuntimeStore) => ({
+  plannedStart: state.runtime.plannedStart,
+  actualStart: state.runtime.actualStart,
+  plannedEnd: state.runtime.plannedEnd,
+  expectedEnd: state.runtime.expectedEnd,
+}));
 
-  return useRuntimeStore(featureSelector);
-};
+export const useRuntimePlaybackOverview = createSelector((state: RuntimeStore) => ({
+  playback: state.timer.playback,
+  clock: state.clock,
 
-export const useRuntimePlaybackOverview = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    playback: state.timer.playback,
-    clock: state.clock,
+  numEvents: state.runtime.numEvents,
+  selectedEventIndex: state.runtime.selectedEventIndex,
+  offset: state.runtime.offset,
 
-    numEvents: state.runtime.numEvents,
-    selectedEventIndex: state.runtime.selectedEventIndex,
-    offset: state.runtime.offset,
+  currentBlock: state.currentBlock,
+}));
 
-    currentBlock: state.currentBlock,
-  });
+export const useTimelineStatus = createSelector((state: RuntimeStore) => ({
+  clock: state.clock,
+  offset: state.runtime.offset,
+}));
 
-  return useRuntimeStore(featureSelector);
-};
+export const useRuntimeOffset = createSelector((state: RuntimeStore) => ({
+  offset: state.runtime.offset,
+}));
 
-export const useTimelineStatus = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    clock: state.clock,
-    offset: state.runtime.offset,
-  });
-
-  return useRuntimeStore(featureSelector);
-};
-
-export const usePing = () => {
-  const featureSelector = (state: RuntimeStore) => ({
-    ping: state.ping,
-  });
-
-  return useRuntimeStore(featureSelector);
-};
+export const usePing = createSelector((state: RuntimeStore) => ({
+  ping: state.ping,
+}));
 
 /** convert ping into a derived value which changes less often */
-export const useIsOnline = () => {
+export const useIsOnline = createSelector((state: RuntimeStore) => ({
+  isOnline: state.ping > 0,
+}));
+
+export const usePlayback = () => {
   const featureSelector = (state: RuntimeStore) => ({
-    isOnline: state.ping > 0,
+    playback: state.timer.playback,
   });
 
   return useRuntimeStore(featureSelector);

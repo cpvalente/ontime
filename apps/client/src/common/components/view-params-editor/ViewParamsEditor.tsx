@@ -12,7 +12,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react';
 
-import useViewSettings from '../../../common/hooks-query/useViewSettings';
+import useViewSettings from '../../hooks-query/useViewSettings';
 import Info from '../info/Info';
 
 import { ViewOption } from './types';
@@ -132,7 +132,9 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
         </DrawerHeader>
 
         <DrawerBody>
-          {viewSettings.overrideStyles && <Info>This view style is being modified by a custom CSS file.</Info>}
+          {viewSettings.overrideStyles && (
+            <Info className={style.info}>This view style is being modified by a custom CSS file.</Info>
+          )}
           <form id='edit-params-form' onSubmit={onParamsFormSubmit} className={style.sectionList}>
             {viewOptions.map((section) => (
               <ViewParamsSection

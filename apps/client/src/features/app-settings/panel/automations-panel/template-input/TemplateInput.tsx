@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { forwardRef, useMemo, useState } from 'react';
 import { type InputProps, Input } from '@chakra-ui/react';
-import { useClickOutside } from '@mantine/hooks';
+import { mergeRefs, useClickOutside } from '@mantine/hooks';
 
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
 
@@ -10,10 +10,10 @@ import style from './TemplateInput.module.scss';
 
 interface TemplateInputProps extends InputProps {}
 
-export default function TemplateInput(props: TemplateInputProps) {
+const TemplateInput = forwardRef(function TemplateInput(props: TemplateInputProps, ref) {
   const { value, onChange, ...rest } = props;
   const { data } = useCustomFields();
-  const ref = useClickOutside(() => setShowSuggestions(false));
+  const localRef = useClickOutside(() => setShowSuggestions(false));
 
   const autocompleteList = useMemo(() => {
     return makeAutoCompleteList(data);
@@ -31,15 +31,13 @@ export default function TemplateInput(props: TemplateInputProps) {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
 
-    if (event.target.value.endsWith('{{')) {
+    if (event.target.value.endsWith('{')) {
       setShowSuggestions(true);
+      setSuggestions(updateSuggestions(event.target.value));
     } else if (event.target.value === '' || event.target.value.endsWith('}}')) {
       setShowSuggestions(false);
-    }
-
-    if (showSuggestions) {
-      const suggestions = updateSuggestions(event.target.value);
-      setSuggestions(suggestions);
+    } else if (showSuggestions) {
+      setSuggestions(updateSuggestions(event.target.value));
     }
 
     onChange?.(event);
@@ -54,8 +52,8 @@ export default function TemplateInput(props: TemplateInputProps) {
   };
 
   return (
-    <div className={style.wrapper} ref={ref}>
-      <Input {...rest} value={inputValue} onChange={handleInputChange} autoComplete='off' autoCorrect='off' />
+    <div className={style.wrapper} ref={mergeRefs(localRef, ref)}>
+      <Input value={inputValue} {...rest} onChange={handleInputChange} autoComplete='off' autoCorrect='off' />
       {showSuggestions && suggestions.length > 0 && (
         <ul className={style.suggestions}>
           {suggestions.map((suggestion) => (
@@ -67,4 +65,6 @@ export default function TemplateInput(props: TemplateInputProps) {
       )}
     </div>
   );
-}
+});
+
+export default TemplateInput;

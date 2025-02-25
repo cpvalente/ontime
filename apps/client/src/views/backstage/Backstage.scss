@@ -1,4 +1,4 @@
-@use '../../../theme/viewerDefs' as *;
+@use '../../theme/viewerDefs' as *;
 
 .backstage {
   margin: 0;
@@ -10,23 +10,33 @@
   font-family: var(--font-family-override, $viewer-font-family);
   background: var(--background-color-override, $viewer-background-color);
   color: var(--color-override, $viewer-color);
-  gap: min(2vh, 16px);
-  padding: min(2vh, 16px) clamp(16px, 10vw, 64px);
+  gap: $view-element-gap;
+  padding: $view-outer-padding;
+  font-size: $base-font-size;
 
   display: grid;
-  grid-template-columns: 1fr 1fr 40vw;
+  grid-template-columns: 1fr 40vw;
   grid-template-rows: auto 12px 1fr auto;
   grid-template-areas:
-    ' header    header    header'
-    ' progress  progress  schedule-nav'
-    ' now       now       schedule'
-    ' info      info      schedule';
+    'header    header'
+    'progress  schedule-nav'
+    'card      schedule'
+    'info      schedule';
+
+  .empty-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin-top: 25vh;
+    color: var(--label-color-override, $viewer-label-color);
+  }
 
   /* =================== HEADER + EXTRAS ===================*/
 
   .project-header {
     grid-area: header;
-    font-size: clamp(32px, 4.5vw, 64px);
+    font-size: $header-font-size;
     font-weight: 600;
     display: flex;
     gap: 1rem;
@@ -37,19 +47,22 @@
     max-height: min(100px, 20vh);
   }
 
+  .title {
+    line-height: 1.1em;
+  }
+
   .clock-container {
     margin-left: auto;
+    font-weight: 600;
 
     .label {
-      font-size: clamp(16px, 1.5vw, 24px);
-      font-weight: 600;
+      font-size: $timer-label-size;
       color: var(--label-color-override, $viewer-label-color);
       text-transform: uppercase;
     }
 
     .time {
-      font-size: clamp(32px, 3.5vw, 50px);
-      font-weight: 600;
+      font-size: $timer-value-size;
       color: var(--secondary-color-override, $viewer-secondary-color);
       letter-spacing: 0.05em;
       line-height: 0.95em;
@@ -64,17 +77,17 @@
     margin: 0 auto -8px;
   }
 
-  .now-container {
-    grid-area: now;
+  .card-container {
+    grid-area: card;
     display: flex;
     flex-direction: column;
-    gap: min(2vh, 16px);
+    gap: $view-element-gap;
   }
 
   .event {
     background-color: var(--card-background-color-override, $viewer-card-bg-color);
-    padding: 16px 24px;
-    border-radius: 8px;
+    padding: $view-card-padding;
+    border-radius: $element-border-radius;
 
     &.blink {
       animation-name: blink;
@@ -85,11 +98,11 @@
   }
 
   .timer-group {
-    grid-area: timer;
     border-top: 2px solid var(--background-color-override, $viewer-background-color);
-    margin-top: 2em;
-    padding-top: 1em;
+    margin-top: max(1vh, 16px);
+    padding-top: max(1vh, 16px);
     display: flex;
+    row-gap: 0.5em;
   }
 
   .timer-gap {
@@ -97,35 +110,42 @@
     max-width: 7.5em;
   }
 
-  .aux-timers {
-    font-size: max(1vw, 16px);
-
+  .time-entry {
     &__label {
+      font-size: $timer-label-size;
       color: var(--label-color-override, $viewer-label-color);
       font-weight: 600;
       text-transform: uppercase;
     }
 
     &__value {
+      font-size: $base-font-size;
       color: var(--secondary-color-override, $viewer-secondary-color);
-      font-size: clamp(24px, 2vw, 32px);
       letter-spacing: 0.05em;
+      line-height: 0.95em;
+    }
+
+    &--pending {
+      color: var(--timer-pending-color-override, $ontime-roll);
     }
   }
 
   /* =================== MAIN - SCHEDULE ===================*/
 
+  $schedule-left-spacing: clamp(16px, 4vw, 64px);
   .schedule-container {
     grid-area: schedule;
     overflow: hidden;
     height: 100%;
-    margin-left: clamp(16px, 5vw, 64px);
+    padding-left: $schedule-left-spacing;
   }
 
   .schedule-nav-container {
     grid-area: schedule-nav;
-    align-self: center;
+    padding-left: $schedule-left-spacing;
   }
+
+  /* =================== MAIN - INFO ===================*/
 
   .info {
     grid-area: info;
@@ -133,23 +153,77 @@
     gap: max(1vw, 16px);
     align-self: flex-end;
     overflow: hidden;
+    align-items: end;
 
     &__message {
-      font-size: clamp(16px, 1.5vw, 24px);
-      line-height: 1.3em;
+      font-size: $base-font-size;
+      line-height: 1.2em;
       white-space: pre-line;
       overflow: hidden;
       flex: 1;
     }
 
     .qr {
-      padding: 4px;
-      background-color: white;
+      padding: 0.5rem;
+      background-color: $ui-white;
+      border-radius: 2px;
     }
   }
 }
 
-/* =================== AMIMATION ===================*/
+/* =================== MOBILE ===================*/
+@media screen and (max-width: 768px) {
+  .backstage {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+
+    .project-header {
+      flex-direction: column;
+      position: relative;
+      gap: 0.5rem;
+    }
+
+    .logo {
+      height: min(50px, 10vh);
+    }
+
+    .timer-group {
+      flex-wrap: wrap;
+    }
+
+    .clock-container {
+      position: absolute;
+      top: 0;
+      right: 0;
+    }
+
+    .schedule-nav-container {
+      padding-left: 0;
+      justify-content: center;
+    }
+
+    .schedule-container {
+      padding-left: 0;
+      flex: 1;
+    }
+
+    .info {
+      width: 100%;
+      text-align: right;
+    }
+
+    .qr {
+      display: none;
+    }
+
+    .info--stretch {
+      flex: 1;
+    }
+  }
+}
+
+/* =================== ANIMATION ===================*/
 
 @keyframes blink {
   0% {

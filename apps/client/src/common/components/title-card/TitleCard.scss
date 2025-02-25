@@ -1,8 +1,5 @@
 @use '../../../theme/viewerDefs' as *;
 
-$title-primary-size: clamp(1.5rem, 3vw, 3rem);
-$title-secondary-size: clamp(1rem, 2vw, 2.25rem);
-
 .title-card {
   position: relative;
   display: flex;
@@ -10,21 +7,23 @@ $title-secondary-size: clamp(1rem, 2vw, 2.25rem);
 }
 
 .title-card__title,
-.title-card__secondary {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.title-card__title {
+.title-card__placeholder {
   font-weight: 600;
-  font-size: $title-primary-size;
-  color: var(--color-override, $viewer-color);
+  font-size: $title-font-size;
   line-height: 1.2em;
 }
 
+.title-card__title {
+  color: var(--color-override, $viewer-color);
+  padding-right: 1em;
+}
+
+.title-card__placeholder {
+  color: var(--label-color-override, $viewer-label-color);
+}
+
 .title-card__secondary {
-  font-size: $title-secondary-size;
+  font-size: $base-font-size;
   color: var(--secondary-color-override, $viewer-secondary-color);
   line-height: 1.2em;
 }
@@ -35,7 +34,6 @@ $title-secondary-size: clamp(1rem, 2vw, 2.25rem);
   top: 0.5rem;
   font-size: $timer-label-size;
   color: var(--secondary-color-override, $viewer-secondary-color);
-  margin-left: auto;
   text-transform: uppercase;
 
   &--accent {

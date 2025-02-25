@@ -1,7 +1,14 @@
-import { useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { useTableNav } from '@table-nav/react';
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { isOntimeEvent, MaybeString, OntimeEvent, OntimeRundown, OntimeRundownEntry, TimeField } from 'ontime-types';
+import {
+  isOntimeEvent,
+  MaybeString,
+  OntimeEvent,
+  OntimeRundown,
+  OntimeRundownEntry,
+  TimeField,
+} from 'ontime-types';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import useFollowComponent from '../../../common/hooks/useFollowComponent';
@@ -9,6 +16,7 @@ import { useCuesheetOptions } from '../cuesheet.options';
 
 import CuesheetBody from './cuesheet-table-elements/CuesheetBody';
 import CuesheetHeader from './cuesheet-table-elements/CuesheetHeader';
+import CuesheetTableMenu from './cuesheet-table-menu/CuesheetTableMenu';
 import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
 import useColumnManager from './useColumnManager';
 
@@ -51,7 +59,6 @@ export default function CuesheetTable(props: CuesheetTableProps) {
         // check if value is the same
         const event = data[rowIndex];
 
-
         if (!event || !isOntimeEvent(event)) {
           return;
         }
@@ -81,13 +88,13 @@ export default function CuesheetTable(props: CuesheetTableProps) {
     },
   });
 
-  const setAllVisible = () => {
+  const setAllVisible = useCallback(() => {
     table.toggleAllColumnsVisible(true);
-  };
+  }, []);
 
-  const resetColumnResizing = () => {
+  const resetColumnResizing = useCallback(() => {
     setColumnSizing({});
-  };
+  }, []);
 
   const headerGroups = table.getHeaderGroups();
   const rowModel = table.getRowModel();
@@ -104,9 +111,10 @@ export default function CuesheetTable(props: CuesheetTableProps) {
       <div ref={tableContainerRef} className={style.cuesheetContainer}>
         <table className={style.cuesheet} id='cuesheet' {...listeners}>
           <CuesheetHeader headerGroups={headerGroups} />
-          <CuesheetBody rowModel={rowModel} selectedRef={selectedRef} showModal={showModal} />
+          <CuesheetBody rowModel={rowModel} selectedRef={selectedRef} table={table} columnSizing={columnSizing} />
         </table>
       </div>
+      <CuesheetTableMenu showModal={showModal} />
     </>
   );
 }

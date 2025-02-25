@@ -13,6 +13,7 @@ export const langPl: TranslationObject = {
   'common.stage_timer': 'Timer Scena',
   'common.started_at': 'Rozpoczęte o',
   'common.time_now': 'Aktualny czas',
+  'common.no_data': 'Brak danych',
   'countdown.ended': 'Zakończone o',
   'countdown.running': 'Trwa',
   'countdown.select_event': 'Wybierz event który chcesz śledzić',

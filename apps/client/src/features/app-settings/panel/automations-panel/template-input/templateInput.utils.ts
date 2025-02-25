@@ -83,6 +83,16 @@ export function matchRemaining(a: string, b: string) {
     return '';
   }
 
+  // naive match assuming that a template will start with {{
+  if (a.endsWith('{{') && b.startsWith('{{')) {
+    return b.substring(2);
+  }
+
+  // naive match assuming that a template will start with {
+  if (a.endsWith('{') && b.startsWith('{{')) {
+    return b.substring(1);
+  }
+
   for (let i = 0; i < b.length; i++) {
     const searchString = b.substring(0, i + 1);
     if (a.endsWith(searchString)) {

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
-import { Alert, AlertDescription, AlertIcon, Button, IconButton, Input, Switch } from '@chakra-ui/react';
+import { Button, IconButton, Input, Switch } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { IoOpenOutline } from '@react-icons/all-files/io5/IoOpenOutline';
 import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
@@ -10,6 +10,7 @@ import { postUrlPresets } from '../../../../common/api/urlPresets';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import TooltipActionBtn from '../../../../common/components/buttons/TooltipActionBtn';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
+import Info from '../../../../common/components/info/Info';
 import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { handleLinks } from '../../../../common/utils/linkUtils';
@@ -108,32 +109,29 @@ export default function UrlPresetsForm() {
           </Panel.InlineElements>
         </Panel.SubHeader>
         <Panel.Divider />
-        <Alert status='info' variant='ontime-on-dark-info'>
-          <AlertIcon />
-          <AlertDescription>
-            URL presets are user defined aliases to Ontime URLs
-            <br />
-            <br />
-            <b>Preset Name</b> <br />
-            The alias for the URL. This will be the URL you will be calling. eg: <br />
-            <Panel.BlockQuote>
-              Preset name <Panel.Highlight>cam3</Panel.Highlight> called as{' '}
-              <Panel.Highlight>http://localhost:4001/cam3</Panel.Highlight>
-            </Panel.BlockQuote>
-            <br />
-            <b>URL Segment</b> <br />
-            The corresponding alias path and configuration parameters. eg: <br />
-            <Panel.BlockQuote>
-              URL segment <Panel.Highlight>backstage?hidePast=true&stopCycle=true</Panel.Highlight> corresponds to
-              complete URL
-              <Panel.Highlight>http://localhost:4001/backstage?hidePast=true&stopCycle=true</Panel.Highlight>
-            </Panel.BlockQuote>
-            <br />
-            You will need to save the changes before the presets are functional.
-            <br />
-            <ExternalLink href={urlPresetsDocs}>See the docs</ExternalLink>
-          </AlertDescription>
-        </Alert>
+        <Info>
+          URL presets are user defined aliases to Ontime URLs
+          <br />
+          <br />
+          <b>Preset Name</b> <br />
+          The alias for the URL. This will be the URL you will be calling. eg: <br />
+          <Panel.BlockQuote>
+            Preset name <Panel.Highlight>cam3</Panel.Highlight> called as{' '}
+            <Panel.Highlight>http://localhost:4001/cam3</Panel.Highlight>
+          </Panel.BlockQuote>
+          <br />
+          <b>URL Segment</b> <br />
+          The corresponding alias path and configuration parameters. eg: <br />
+          <Panel.BlockQuote>
+            URL segment <Panel.Highlight>backstage?hidePast=true&stopCycle=true</Panel.Highlight> corresponds to
+            complete URL
+            <Panel.Highlight>http://localhost:4001/backstage?hidePast=true&stopCycle=true</Panel.Highlight>
+          </Panel.BlockQuote>
+          <br />
+          You will need to save the changes before the presets are functional.
+          <br />
+          <ExternalLink href={urlPresetsDocs}>See the docs</ExternalLink>
+        </Info>
         <Panel.Section>
           <Panel.Loader isLoading={isLoading} />
           <Panel.Title>

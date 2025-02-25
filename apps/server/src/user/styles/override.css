@@ -25,6 +25,7 @@
   --timer-warning-color-override: #ffbc56;
   --timer-danger-color-override: #e69000;
   --timer-overtime-color-override: #fa5656;
+  --timer-pending-color-override: #578AF4;
 
   /** Background for card elements on background */
   --card-background-color-override: #fff;
