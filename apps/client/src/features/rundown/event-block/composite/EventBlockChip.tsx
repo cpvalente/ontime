@@ -7,13 +7,14 @@ import { usePlayback, useTimelineStatus } from '../../../../common/hooks/useSock
 import useReport from '../../../../common/hooks-query/useReport';
 import { cx } from '../../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../../common/utils/time';
+import { calculateTimeUntilStart } from '../../../../common/utils/timeuntil';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
 
 import style from './EventBlockChip.module.scss';
 
 interface EventBlockChipProps {
   id: string;
-  trueTimeStart: number;
+  normalisedTimeStart: number;
   isPast: boolean;
   isLoaded: boolean;
   className: string;
@@ -23,7 +24,7 @@ interface EventBlockChipProps {
 }
 
 export default function EventBlockChip(props: EventBlockChipProps) {
-  const { trueTimeStart, isPast, isLoaded, className, totalGap, isLinkedAndNext, id, duration } = props;
+  const { normalisedTimeStart, isPast, isLoaded, className, totalGap, isLinkedAndNext, id, duration } = props;
   const { playback } = usePlayback();
 
   if (isLoaded) {
@@ -41,7 +42,7 @@ export default function EventBlockChip(props: EventBlockChipProps) {
     return (
       <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
         <div className={className}>
-          <EventUntil trueTimeStart={trueTimeStart} totalGap={totalGap} isLinkedAndNext={isLinkedAndNext} />
+          <EventUntil normalisedTimeStart={normalisedTimeStart} totalGap={totalGap} isLinkedAndNext={isLinkedAndNext} />
         </div>
       </Tooltip>
     );
@@ -51,18 +52,16 @@ export default function EventBlockChip(props: EventBlockChipProps) {
 }
 
 interface EventUntilProps {
-  trueTimeStart: number;
+  normalisedTimeStart: number;
   totalGap: number;
   isLinkedAndNext: boolean;
 }
 
 function EventUntil(props: EventUntilProps) {
-  const { trueTimeStart, totalGap, isLinkedAndNext } = props;
+  const { normalisedTimeStart, totalGap, isLinkedAndNext } = props;
   const { clock, offset } = useTimelineStatus();
 
-  const consumedOffset = isLinkedAndNext ? offset : Math.min(offset + totalGap, 0);
-  const offsetTimestart = trueTimeStart - consumedOffset;
-  const timeUntil = offsetTimestart - clock;
+  const timeUntil = calculateTimeUntilStart(normalisedTimeStart, totalGap, isLinkedAndNext, clock, offset);
   const isDue = timeUntil < MILLIS_PER_SECOND;
 
   const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
