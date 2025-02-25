@@ -82,7 +82,7 @@ export default function TriggersList(props: TriggersListProps) {
           <tbody>
             {!showForm && triggers.length === 0 && (
               <Panel.TableEmpty
-                label='Create an automation before to attach triggers to'
+                label='Create an automation to attach triggers to'
                 handleClick={canAdd ? () => setShowForm(true) : undefined}
               />
             )}
