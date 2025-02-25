@@ -7,6 +7,7 @@ import {
   CustomFields,
   URLPreset,
   AutomationSettings,
+  OffsetMode,
 } from 'ontime-types';
 
 import type { Low } from 'lowdb';
@@ -55,6 +56,8 @@ export function getDataProvider() {
     setAutomation,
     getRundown,
     mergeIntoData,
+    getOffsetMode,
+    setOffsetMode,
   };
 }
 
@@ -130,6 +133,17 @@ async function setAutomation(newData: AutomationSettings): ReadonlyPromise<Autom
 
 function getRundown(): Readonly<OntimeRundown> {
   return db.data.rundown;
+}
+
+function getOffsetMode(): Readonly<OffsetMode> {
+  return db.data.offsetMode;
+}
+
+async function setOffsetMode(mode): ReadonlyPromise<OffsetMode> {
+  db.data.offsetMode = mode;
+  //TODO: should this maybe not be persisted every time
+  await persist();
+  return db.data.offsetMode;
 }
 
 async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<DatabaseModel> {

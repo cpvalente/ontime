@@ -1,6 +1,7 @@
 import type {
   AutomationSettings,
   CustomFields,
+  OffsetMode,
   OntimeRundown,
   ProjectData,
   Settings,
@@ -16,4 +17,5 @@ export type DatabaseModel = {
   urlPresets: URLPreset[];
   customFields: CustomFields;
   automation: AutomationSettings;
+  offsetMode: OffsetMode;
 };

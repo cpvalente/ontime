@@ -2,6 +2,7 @@ import {
   CustomField,
   CustomFields,
   DatabaseModel,
+  OffsetMode,
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
@@ -20,6 +21,7 @@ import { customFieldLabelToKey, generateId, isAlphanumericWithSpace } from 'onti
 import { dbModel } from '../models/dataModel.js';
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
 import { createEvent, type ErrorEmitter } from './parser.js';
+import { coerceEnum } from './coerceType.js';
 
 /**
  * Parse rundown array of an entry
@@ -115,6 +117,25 @@ export function parseProject(data: Partial<DatabaseModel>, emitError?: ErrorEmit
     backstageInfo: data.project.backstageInfo ?? dbModel.project.backstageInfo,
     projectLogo: data.project.projectLogo ?? dbModel.project.projectLogo,
   };
+}
+
+/**
+ * Parse offsetmode
+ */
+export function parseOffsetMode(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): OffsetMode {
+  if (!data.offsetMode) {
+    emitError?.('No offsetmode found to import');
+    return dbModel.offsetMode;
+  }
+
+  console.log('Found offsetmode, importing...');
+
+  try {
+    return coerceEnum<OffsetMode>(data.offsetMode, OffsetMode);
+  } catch (error) {
+    emitError?.('Invalid offsetmode found');
+    return dbModel.offsetMode;
+  }
 }
 
 /**

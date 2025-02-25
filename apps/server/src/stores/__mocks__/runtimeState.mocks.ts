@@ -1,4 +1,4 @@
-import { TimerPhase, Playback } from 'ontime-types';
+import { TimerPhase, Playback, OffsetMode } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
 import type { RuntimeState } from '../runtimeState.js';
 
@@ -16,10 +16,12 @@ const baseState: RuntimeState = {
     selectedEventIndex: null,
     numEvents: 0,
     offset: 0,
+    relativeOffset: 0,
     plannedStart: 0,
     plannedEnd: 0,
     actualStart: null,
     expectedEnd: null,
+    offsetMode: OffsetMode.Absolute,
   },
   timer: {
     addedTime: 0,
