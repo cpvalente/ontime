@@ -43,7 +43,6 @@
 
   .logo {
     max-width: min(200px, 20vw);
-    max-height: min(100px, 20vh);
   }
 
   .title {
@@ -165,7 +164,7 @@
       gap: 0.5rem;
     }
 
-    .logo {
+    .logo img{
       height: min(50px, 10vh);
     }
 
