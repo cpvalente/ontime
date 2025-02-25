@@ -75,7 +75,7 @@ export default function Welcome(props: WelcomeProps) {
                 <table className={style.table}>
                   <thead>
                     <tr>
-                      <th>Project Name</th>
+                      <th>File Name</th>
                       <th>Last Used</th>
                     </tr>
                   </thead>
