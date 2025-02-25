@@ -60,8 +60,6 @@ export default function useReactiveTextInput(
         }
       }
 
-      console.log(options);
-
       setTimeout(() => {
         if (options?.allowKeyboardNavigation) {
           ref.current?.parentElement?.focus(); // Focus on parent element to continue keyboard navigation
