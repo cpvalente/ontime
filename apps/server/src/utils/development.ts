@@ -1,5 +1,6 @@
 import { isProduction } from '../externals.js';
-import { consoleError } from '../utils/console.js';
+
+import { consoleError } from './console.js';
 
 /**
  * Milestone checker for dev environment

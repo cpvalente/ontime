@@ -35,6 +35,7 @@ const staticOptions = [
     secondary: [
       { id: 'feature_settings__custom', label: 'Custom fields' },
       { id: 'feature_settings__urlpresets', label: 'URL Presets' },
+      { id: 'feature_settings__report', label: 'Report' },
     ],
   },
   {
@@ -47,11 +48,12 @@ const staticOptions = [
     split: true,
   },
   {
-    id: 'integrations',
-    label: 'Integrations',
+    id: 'automation',
+    label: 'Automation',
     secondary: [
-      { id: 'integrations__osc', label: 'OSC settings' },
-      { id: 'integrations__http', label: 'HTTP settings' },
+      { id: 'automation__settings', label: 'Automation settings' },
+      { id: 'automation__automations', label: 'Manage automations' },
+      { id: 'automation__triggers', label: 'Manage triggers' },
     ],
   },
   {
@@ -59,6 +61,10 @@ const staticOptions = [
     label: 'Network',
     split: true,
     secondary: [
+      {
+        id: 'network__link',
+        label: 'Share link',
+      },
       {
         id: 'network__log',
         label: 'Event log',

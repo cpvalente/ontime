@@ -13,6 +13,7 @@ export const langHu: TranslationObject = {
   'common.stage_timer': 'Színpadi időzítő',
   'common.started_at': 'Kezdődött',
   'common.time_now': 'Jelenlegi idő',
+  'common.no_data': 'Nincsenek adatok',
   'countdown.ended': 'Esemény véget ért',
   'countdown.running': 'Esemény folyamatban',
   'countdown.select_event': 'Válassza ki a követendő eseményt',

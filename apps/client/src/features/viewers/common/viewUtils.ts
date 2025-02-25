@@ -7,10 +7,16 @@ import { formatTime } from '../../../common/utils/time';
 
 type TimerTypeParams = Pick<ViewExtendedTimer, 'countToEnd' | 'timerType' | 'current' | 'elapsed' | 'clock'>;
 
-export function getTimerByType(freezeEnd: boolean, timerObject?: TimerTypeParams): number | null {
+export function getTimerByType(
+  freezeEnd: boolean,
+  timerObject?: TimerTypeParams,
+  timerTypeOverride?: TimerType,
+): number | null {
   if (!timerObject) {
     return null;
   }
+
+  const viewTimerType = timerTypeOverride ?? timerObject.timerType;
 
   if (timerObject.countToEnd) {
     if (timerObject.current === null) {
@@ -19,7 +25,7 @@ export function getTimerByType(freezeEnd: boolean, timerObject?: TimerTypeParams
     return freezeEnd ? Math.max(timerObject.current, 0) : timerObject.current;
   }
 
-  switch (timerObject.timerType) {
+  switch (viewTimerType) {
     case TimerType.CountDown:
       if (timerObject.current === null) {
         return null;
@@ -31,10 +37,8 @@ export function getTimerByType(freezeEnd: boolean, timerObject?: TimerTypeParams
       return timerObject.clock;
     case TimerType.None:
       return null;
-    default: {
-      const exhaustiveCheck: never = timerObject.timerType;
-      return exhaustiveCheck;
-    }
+    default:
+      return null;
   }
 }
 

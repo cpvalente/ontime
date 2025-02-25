@@ -1,7 +1,7 @@
 import { Log, RundownCached, RuntimeStore } from 'ontime-types';
 
 import { isProduction, websocketUrl } from '../../externals';
-import { CLIENT_LIST, CUSTOM_FIELDS, RUNDOWN, RUNTIME } from '../api/constants';
+import { CLIENT_LIST, CUSTOM_FIELDS, REPORT, RUNDOWN, RUNTIME } from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
 import {
@@ -14,7 +14,7 @@ import {
 } from '../stores/clientStore';
 import { addDialog } from '../stores/dialogStore';
 import { addLog } from '../stores/logger';
-import { patchRuntime, patchRuntimeProperty } from '../stores/runtime';
+import { addToBatchUpdates, flushBatchUpdates, patchRuntime, patchRuntimeProperty } from '../stores/runtime';
 
 export let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
@@ -34,12 +34,16 @@ export const connectSocket = () => {
     hasConnected = true;
     reconnectAttempts = 0;
 
+    socketSendJson('set-client-patch', {
+      type: 'ontime',
+      origin: window.location.origin,
+      path: window.location.pathname + window.location.search,
+    });
+    setOnlineStatus(true);
+
     if (preferredClientName) {
       socketSendJson('set-client-name', preferredClientName);
     }
-
-    socketSendJson('set-client-type', 'ontime');
-    setOnlineStatus(true);
   };
 
   websocket.onclose = () => {
@@ -78,16 +82,14 @@ export const connectSocket = () => {
           updateDevTools({ ping: offset });
           break;
         }
-        case 'client-id': {
-          if (typeof payload === 'string') {
-            setClientId(payload);
-          }
-          break;
-        }
-
-        case 'client-name': {
-          if (typeof payload === 'string') {
-            setClientName(payload);
+        case 'client': {
+          if (typeof payload === 'object' || payload !== null) {
+            if (payload.clientId && payload.clientName) {
+              setClientId(payload.clientId);
+              if (!preferredClientName) {
+                setClientName(payload.clientName);
+              }
+            }
           }
           break;
         }
@@ -140,71 +142,79 @@ export const connectSocket = () => {
           break;
         }
         case 'ontime-clock': {
-          patchRuntimeProperty('clock', payload);
+          addToBatchUpdates('clock', payload);
           updateDevTools({ clock: payload });
           break;
         }
         case 'ontime-timer': {
-          patchRuntimeProperty('timer', payload);
+          addToBatchUpdates('timer', payload);
           updateDevTools({ timer: payload });
           break;
         }
         case 'ontime-onAir': {
-          patchRuntimeProperty('onAir', payload);
+          addToBatchUpdates('onAir', payload);
           updateDevTools({ onAir: payload });
           break;
         }
         case 'ontime-message': {
-          patchRuntimeProperty('message', payload);
+          addToBatchUpdates('message', payload);
           updateDevTools({ message: payload });
           break;
         }
         case 'ontime-runtime': {
-          patchRuntimeProperty('runtime', payload);
+          addToBatchUpdates('runtime', payload);
           updateDevTools({ runtime: payload });
           break;
         }
         case 'ontime-eventNow': {
-          patchRuntimeProperty('eventNow', payload);
+          addToBatchUpdates('eventNow', payload);
           updateDevTools({ eventNow: payload });
           break;
         }
         case 'ontime-currentBlock': {
-          patchRuntimeProperty('currentBlock', payload);
+          addToBatchUpdates('currentBlock', payload);
           updateDevTools({ currentBlock: payload });
           break;
         }
         case 'ontime-publicEventNow': {
-          patchRuntimeProperty('publicEventNow', payload);
+          addToBatchUpdates('publicEventNow', payload);
           updateDevTools({ publicEventNow: payload });
           break;
         }
         case 'ontime-eventNext': {
-          patchRuntimeProperty('eventNext', payload);
+          addToBatchUpdates('eventNext', payload);
           updateDevTools({ eventNext: payload });
           break;
         }
         case 'ontime-publicEventNext': {
-          patchRuntimeProperty('publicEventNext', payload);
+          addToBatchUpdates('publicEventNext', payload);
           updateDevTools({ publicEventNext: payload });
           break;
         }
         case 'ontime-auxtimer1': {
-          patchRuntimeProperty('auxtimer1', payload);
+          addToBatchUpdates('auxtimer1', payload);
           updateDevTools({ auxtimer1: payload });
           break;
         }
         case 'ontime-refetch': {
           // the refetch message signals that the rundown has changed in the server side
-          const { revision, reload } = payload;
-          const currentRevision = ontimeQueryClient.getQueryData<RundownCached>(RUNDOWN)?.revision ?? -1;
-
+          const { reload, target } = payload;
           if (reload) {
             invalidateAllCaches();
-          } else if (revision > currentRevision) {
-            ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
-            ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
+          } else if (target === 'RUNDOWN') {
+            const { revision } = payload;
+            const currentRevision = ontimeQueryClient.getQueryData<RundownCached>(RUNDOWN)?.revision ?? -1;
+            if (revision > currentRevision) {
+              ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
+              ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
+            }
+          } else if (target === 'REPORT') {
+            ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
           }
+          break;
+        }
+        case 'ontime-flush': {
+          flushBatchUpdates();
           break;
         }
       }

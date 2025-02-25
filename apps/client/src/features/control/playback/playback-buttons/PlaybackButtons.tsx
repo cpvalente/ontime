@@ -1,10 +1,5 @@
-import { IoPause } from 'react-icons/io5';
-import { IoPlay } from 'react-icons/io5';
-import { IoPlaySkipBack } from 'react-icons/io5';
-import { IoPlaySkipForward } from 'react-icons/io5';
-import { IoReload } from 'react-icons/io5';
-import { IoStop } from 'react-icons/io5';
-import { IoTime } from 'react-icons/io5';
+import { useMemo } from 'react';
+import { IoPause, IoPlay, IoPlaySkipBack, IoPlaySkipForward, IoReload, IoStop, IoTime } from 'react-icons/io5';
 import { Playback, TimerPhase } from 'ontime-types';
 import { validatePlayback } from 'ontime-utils';
 
@@ -34,7 +29,7 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
   const isLast = selectedEventIndex === numEvents - 1;
   const noEvents = numEvents === 0;
 
-  const disableGo = isRolling || noEvents || (isLast && !isArmed);
+  const disableGo = isRolling || noEvents;
   const disableNext = isRolling || noEvents || isLast;
   const disablePrev = isRolling || noEvents || isFirst;
 
@@ -45,14 +40,16 @@ export default function PlaybackButtons(props: PlaybackButtonsProps) {
   const disableStop = !playbackCan.stop;
   const disableReload = !playbackCan.reload;
 
-  const goModeText = selectedEventIndex === null || isArmed ? 'Start' : 'Next';
-  const goModeAction = () => {
+  const [goModeAction, goModeText] = useMemo(() => {
     if (isArmed) {
-      setPlayback.start();
-    } else {
-      setPlayback.startNext();
+      return [setPlayback.start, 'Start'];
+    } else if (isLast) {
+      return [setPlayback.stop, 'Finish'];
+    } else if (selectedEventIndex === null) {
+      return [setPlayback.startNext, 'Start'];
     }
-  };
+    return [setPlayback.startNext, 'Next'];
+  }, [isArmed, isLast, selectedEventIndex]);
 
   return (
     <div className={style.buttonContainer}>

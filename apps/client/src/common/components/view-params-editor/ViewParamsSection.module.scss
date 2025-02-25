@@ -1,0 +1,50 @@
+.section {
+  color: $ui-white;
+  font-size: 1rem;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 2rem;
+
+  &.collapsible {
+    cursor: pointer;
+
+    &:hover {
+      border-bottom: 1px solid $white-10;
+    }
+  }
+}
+
+.label {
+  margin-top: $section-spacing;
+  font-size: $inner-section-text-size;
+  color: $label-gray;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.title {
+  font-size: $inner-section-text-size;
+  display: block;
+  width: 100%;
+}
+
+.description {
+  font-size: $inner-section-text-size;
+  display: block;
+  color: $modal-note-color;
+}
+
+.closed {
+  transition: rotate $transition-time-feedback;
+  rotate: 0deg;
+}
+
+.open {
+  transition: rotate $transition-time-feedback;
+  rotate: 180deg;
+}

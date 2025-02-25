@@ -13,8 +13,6 @@ import * as Panel from '../../panel-utils/PanelUtils';
 import useGoogleSheet from './useGoogleSheet';
 import { useSheetStore } from './useSheetStore';
 
-import style from './SourcesPanel.module.scss';
-
 interface GSheetSetupProps {
   onCancel: () => void;
 }
@@ -58,15 +56,14 @@ export default function GSheetSetup(props: GSheetSetupProps) {
     setLoading('');
   };
 
-  const handleCancelFlow = async () => {
+  const handleCancelFlow = () => {
     onCancel();
   };
 
   /**
    * Gets file from input
-   * @param event
    */
-  const handleClientSecret = async (event: ChangeEvent<HTMLInputElement>) => {
+  const handleClientSecret = (event: ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files?.length) {
       return;
     }
@@ -79,6 +76,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
   const handleConnect = async () => {
     if (!file) return;
     if (!sheetId) return;
+    patchStepData({ worksheet: { available: false, error: '' } });
 
     setLoading('connect');
     const result = await connect(file, sheetId);
@@ -177,7 +175,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
       </Panel.ListGroup>
       {!canAuthenticate ? (
         <Panel.ListGroup>
-          <div className={style.buttonRow}>
+          <Panel.InlineElements>
             <Button
               variant='ontime-subtle'
               size='sm'
@@ -187,11 +185,11 @@ export default function GSheetSetup(props: GSheetSetupProps) {
             >
               <IoCheckmark /> Connect
             </Button>
-          </div>
+          </Panel.InlineElements>
         </Panel.ListGroup>
       ) : (
         <Panel.ListGroup>
-          <div className={style.buttonRow}>
+          <Panel.InlineElements>
             {isAuthenticating && <Spinner />}
             <CopyTag copyValue={authKey ?? ''} label='Google Auth Key' disabled={!canAuthenticate} size='sm'>
               {authKey ? authKey : 'Upload files to generate Auth Key'}
@@ -200,7 +198,7 @@ export default function GSheetSetup(props: GSheetSetupProps) {
               <IoShieldCheckmarkOutline />
               Authenticate
             </Button>
-          </div>
+          </Panel.InlineElements>
         </Panel.ListGroup>
       )}
     </Panel.Section>

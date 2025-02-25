@@ -13,6 +13,7 @@ export const langZhCn: TranslationObject = {
   'common.stage_timer': '舞台计时器',
   'common.started_at': '开始于',
   'common.time_now': '当前时间',
+  'common.no_data': '无数据',
   'countdown.ended': '事件结束于',
   'countdown.running': '事件进行中',
   'countdown.select_event': '选择要关注的事件',

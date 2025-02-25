@@ -2,7 +2,7 @@ import type { MaybeNumber } from 'ontime-types';
 
 import { millisToSeconds, secondsToHours, secondsToMinutes } from './conversionUtils.js';
 
-function pad(val: number): string {
+export function pad(val: number): string {
   return String(val).padStart(2, '0');
 }
 

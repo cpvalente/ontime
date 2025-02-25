@@ -19,3 +19,10 @@ export async function getSettings(): Promise<Settings> {
 export async function postSettings(data: Settings): Promise<AxiosResponse<Settings>> {
   return axios.post(settingsPath, data);
 }
+
+/**
+ * Allows setting the welcome modal dialog state from the clients
+ */
+export async function postShowWelcomeDialog(show: boolean) {
+  axios.post(`${settingsPath}/welcomedialog`, { show });
+}

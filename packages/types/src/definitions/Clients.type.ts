@@ -4,6 +4,7 @@ export type Client = {
   name: string;
   type: ClientType;
   identify: boolean;
+  origin: string;
   path: string;
 };
 

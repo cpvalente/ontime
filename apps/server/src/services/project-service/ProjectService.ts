@@ -9,6 +9,7 @@ import {
   appendToName,
   dockerSafeRename,
   ensureDirectory,
+  ensureJsonExtension,
   generateUniqueFileName,
   getFileNameFromPath,
   removeFileExtension,
@@ -20,6 +21,7 @@ import { parseRundown } from '../../utils/parserFunctions.js';
 import { demoDb } from '../../models/demoProject.js';
 import { config } from '../../setup/config.js';
 import { getDataProvider, initPersistence } from '../../classes/data-provider/DataProvider.js';
+import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 
 import { initRundown } from '../rundown-service/RundownService.js';
 import {
@@ -28,8 +30,6 @@ import {
   setLastLoadedProject,
 } from '../app-state-service/AppStateService.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
-import { oscIntegration } from '../integration-service/OscIntegration.js';
-import { httpIntegration } from '../integration-service/HttpIntegration.js';
 
 import {
   copyCorruptFile,
@@ -39,7 +39,6 @@ import {
   moveCorruptFile,
   parseJsonFile,
 } from './projectServiceUtils.js';
-import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 
 // init dependencies
 init();
@@ -176,14 +175,10 @@ export async function loadProjectFile(name: string) {
   // apply data model
   runtimeService.stop();
 
-  const { rundown, customFields, osc, http } = result.data;
+  const { rundown, customFields } = result.data;
 
   // apply the rundown
   await initRundown(rundown, customFields);
-
-  // apply integrations
-  oscIntegration.init(osc);
-  httpIntegration.init(http);
 }
 
 /**
@@ -250,14 +245,10 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
     // apply data model
     runtimeService.stop();
 
-    const { rundown, customFields, osc, http } = result.data;
+    const { rundown, customFields } = result.data;
 
     // apply the rundown
     await initRundown(rundown, customFields);
-
-    // apply integrations
-    oscIntegration.init(osc);
-    httpIntegration.init(http);
   }
 }
 
@@ -267,7 +258,8 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
 export async function createProject(filename: string, initialData: Partial<DatabaseModel>) {
   const data = safeMerge(dbModel, initialData);
 
-  const uniqueFileName = generateUniqueFileName(publicDir.projectsDir, filename);
+  const fileNameWithExtension = ensureJsonExtension(filename);
+  const uniqueFileName = generateUniqueFileName(publicDir.projectsDir, fileNameWithExtension);
   const newFile = getPathToProject(uniqueFileName);
 
   // change LowDB to point to new file

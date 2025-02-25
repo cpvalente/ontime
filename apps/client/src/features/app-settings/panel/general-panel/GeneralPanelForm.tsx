@@ -8,12 +8,12 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import { Button } from '../../../../common/components/ui/button';
 import { NativeSelectField, NativeSelectRoot } from '../../../../common/components/ui/native-select';
 import useSettings from '../../../../common/hooks-query/useSettings';
+import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
+import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import GeneralPinInput from './GeneralPinInput';
-
-import style from './GeneralPanel.module.scss';
 
 export type GeneralPanelFormValues = {
   filename: string;
@@ -28,6 +28,7 @@ export default function GeneralPanelForm() {
     setError,
     formState: { isSubmitting, isDirty, isValid, errors },
   } = useForm<Settings>({
+    mode: 'onChange',
     defaultValues: data,
     values: data,
     resetOptions: {
@@ -64,11 +65,16 @@ export default function GeneralPanelForm() {
   const isLoading = status === 'pending';
 
   return (
-    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} id='app-settings'>
+    <Panel.Section
+      as='form'
+      onSubmit={handleSubmit(onSubmit)}
+      onKeyDown={(event) => preventEscape(event, onReset)}
+      id='app-settings'
+    >
       <Panel.Card>
         <Panel.SubHeader>
           General settings
-          <div className={style.actionButtons}>
+          <Panel.InlineElements>
             <Button disabled={!isDirty || isSubmitting} variant='ontime-ghosted' size='sm' onClick={onReset}>
               Revert to saved
             </Button>
@@ -82,7 +88,7 @@ export default function GeneralPanelForm() {
             >
               Save
             </Button>
-          </div>
+          </Panel.InlineElements>
         </Panel.SubHeader>
         {submitError && <Panel.Error>{submitError}</Panel.Error>}
         <Panel.Divider />
@@ -92,7 +98,11 @@ export default function GeneralPanelForm() {
             <Panel.ListItem>
               <Panel.Field
                 title='Ontime server port'
-                description='Port ontime server listens in. Defaults to 4001 (needs app restart)'
+                description={
+                  isOntimeCloud
+                    ? 'Server port disabled for Ontime Cloud'
+                    : 'Port ontime server listens in. Defaults to 4001 (needs app restart)'
+                }
                 error={errors.serverPort?.message}
               />
               <Input
@@ -102,6 +112,7 @@ export default function GeneralPanelForm() {
                 variant='ontime-filled'
                 maxLength={5}
                 width='75px'
+                disabled={isOntimeCloud}
                 {...register('serverPort', {
                   required: { value: true, message: 'Required field' },
                   max: { value: 65535, message: 'Port must be within range 1024 - 65535' },

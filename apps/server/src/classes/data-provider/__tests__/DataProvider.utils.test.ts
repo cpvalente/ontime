@@ -35,17 +35,12 @@ describe('safeMerge', () => {
       lighting: { type: 'string', label: 'lighting', colour: 'red' },
       vfx: { type: 'string', label: 'vfx', colour: 'blue' },
     },
-    osc: {
-      portIn: 8888,
-      portOut: 9999,
-      targetIP: '127.0.0.1',
-      enabledIn: false,
-      enabledOut: false,
-      subscriptions: [],
-    },
-    http: {
-      enabledOut: false,
-      subscriptions: [],
+    automation: {
+      enabledAutomations: false,
+      enabledOscIn: false,
+      oscPortIn: 8000,
+      triggers: [],
+      automations: {},
     },
   } as DatabaseModel;
 
@@ -100,38 +95,6 @@ describe('safeMerge', () => {
       language: 'pt',
     });
   });
-  it('merges the osc key', () => {
-    const newData = {
-      osc: {
-        portIn: 7777,
-        subscriptions: [
-          {
-            id: 'unique',
-            cycle: 'onStart',
-            message: 'new message',
-            enabled: true,
-          },
-        ],
-      },
-    };
-    //@ts-expect-error -- testing partial merge
-    const mergedData = safeMerge(existing, newData);
-    expect(mergedData.osc).toMatchObject({
-      portIn: 7777,
-      portOut: 9999,
-      targetIP: '127.0.0.1',
-      enabledIn: false,
-      enabledOut: false,
-      subscriptions: [
-        {
-          id: 'unique',
-          cycle: 'onStart',
-          message: 'new message',
-          enabled: true,
-        },
-      ],
-    });
-  });
 
   it('should merge the urlPresets key when present', () => {
     const existingData = {
@@ -160,17 +123,12 @@ describe('safeMerge', () => {
       } as ViewSettings,
       urlPresets: [],
       customFields: {},
-      osc: {
-        portIn: 8888,
-        portOut: 9999,
-        targetIP: '127.0.0.1',
-        enabledIn: false,
-        enabledOut: false,
-        subscriptions: [],
-      },
-      http: {
-        enabledOut: false,
-        subscriptions: [],
+      automation: {
+        enabledAutomations: false,
+        enabledOscIn: false,
+        oscPortIn: 8000,
+        triggers: [],
+        automations: {},
       },
     } as DatabaseModel;
 

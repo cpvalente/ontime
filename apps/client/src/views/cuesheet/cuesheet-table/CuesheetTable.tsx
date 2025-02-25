@@ -1,5 +1,5 @@
-import { useRef } from 'react';
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { useCallback, useRef } from 'react';
+import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import Color from 'color';
 import {
   isOntimeBlock,
@@ -12,7 +12,6 @@ import {
   TimeField,
 } from 'ontime-types';
 
-import { MenuRoot } from '../../../common/components/ui/menu';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import useFollowComponent from '../../../common/hooks/useFollowComponent';
 import { useSelectedEventId } from '../../../common/hooks/useSocket';
@@ -23,8 +22,8 @@ import BlockRow from './cuesheet-table-elements/BlockRow';
 import CuesheetHeader from './cuesheet-table-elements/CuesheetHeader';
 import DelayRow from './cuesheet-table-elements/DelayRow';
 import EventRow from './cuesheet-table-elements/EventRow';
+import CuesheetTableMenu from './cuesheet-table-menu/CuesheetTableMenu';
 import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
-import CuesheetTableMenu from './CuesheetTableMenu';
 import useColumnManager from './useColumnManager';
 
 import style from './CuesheetTable.module.scss';
@@ -93,13 +92,13 @@ export default function CuesheetTable(props: CuesheetTableProps) {
     },
   });
 
-  const setAllVisible = () => {
+  const setAllVisible = useCallback(() => {
     table.toggleAllColumnsVisible(true);
-  };
+  }, []);
 
-  const resetColumnResizing = () => {
+  const resetColumnResizing = useCallback(() => {
     setColumnSizing({});
-  };
+  }, []);
 
   const headerGroups = table.getHeaderGroups();
   const rowModel = table.getRowModel();
@@ -165,24 +164,20 @@ export default function CuesheetTable(props: CuesheetTableProps) {
                 }
 
                 return (
-                  <MenuRoot key={key} lazyMount>
-                    <EventRow
-                      eventIndex={eventIndex}
-                      isPast={isPast}
-                      selectedRef={isSelected ? selectedRef : undefined}
-                      skip={entry.skip}
-                      colour={entry.colour}
-                    >
-                      {row.getVisibleCells().map((cell) => {
-                        return (
-                          <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </td>
-                        );
-                      })}
-                    </EventRow>
-                    <CuesheetTableMenu event={entry} entryIndex={index} showModal={showModal} />
-                  </MenuRoot>
+                  <EventRow
+                    key={row.id}
+                    rowId={row.id}
+                    eventId={entry.id}
+                    eventIndex={eventIndex}
+                    rowIndex={index}
+                    isPast={isPast}
+                    selectedRef={isSelected ? selectedRef : undefined}
+                    skip={entry.skip}
+                    colour={entry.colour}
+                    rowBgColour={rowBgColour}
+                    table={table}
+                    columnSizing={columnSizing}
+                  />
                 );
               }
 
@@ -192,6 +187,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
           </tbody>
         </table>
       </div>
+      <CuesheetTableMenu showModal={showModal} />
     </>
   );
 }

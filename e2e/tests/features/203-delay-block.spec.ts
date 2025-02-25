@@ -84,9 +84,9 @@ test('delays are show correctly', async ({ page }) => {
 
   // delay is NOT shown in the public view
   await page.goto('http://localhost:4001/public');
-  await page.getByText('00:10 → 00:20').click();
+  await page.getByText('00:10→00:20').click();
 
   // delay is shown in the backstage view
   await page.goto('http://localhost:4001/backstage');
-  await page.getByText('00:11 → 00:21').click();
+  await page.getByText('00:11→00:21').click();
 });

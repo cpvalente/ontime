@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
 import { IoApps } from 'react-icons/io5';
 import { IoSettingsOutline } from 'react-icons/io5';
-import { useSearchParams } from 'react-router-dom';
 import { useDisclosure } from '@chakra-ui/react';
 
-import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
+import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
+import useViewEditor from '../../common/components/navigation-menu/useViewEditor';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import { DialogBackdrop, DialogBody, DialogContent, DialogRoot } from '../../common/components/ui/dialog';
 import { IconButton } from '../../common/components/ui/icon-button';
@@ -27,20 +27,13 @@ export default function CuesheetPage() {
   // TODO: can we use the normalised rundown for the table?
   const { data: flatRundown } = useFlatRundown();
   const { data: customFields } = useCustomFields();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { open: isMenuOpen, onOpen, onClose } = useDisclosure();
+  const { showEditFormDrawer, isViewLocked } = useViewEditor({ isLockable: true });
   const { open: isEventEditorOpen, onOpen: onEventEditorOpen, onClose: onEventEditorClose } = useDisclosure();
   const [eventId, setEventId] = useState<string | null>(null);
 
   const columns = useMemo(() => makeCuesheetColumns(customFields), [customFields]);
 
   useWindowTitle('Cuesheet');
-
-  /** Handles showing the view params edit drawer */
-  const showEditFormDrawer = useCallback(() => {
-    searchParams.set('edit', 'true');
-    setSearchParams(searchParams);
-  }, [searchParams, setSearchParams]);
 
   /**
    * Handles setting the edit modal target and visibility
@@ -73,13 +66,25 @@ export default function CuesheetPage() {
         </DialogContent>
       </DialogRoot>
       <div className={styles.tableWrapper} data-testid='cuesheet'>
-        <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
+        <NavigationMenu isOpen={isEventEditorOpen} onClose={onEventEditorClose} />
         <ViewParamsEditor viewOptions={cuesheetOptions} />
         <CuesheetOverview>
-          <IconButton aria-label='Toggle navigation' variant='ontime-subtle-white' size='lg' onClick={onOpen}>
+          <IconButton
+            aria-label='Toggle navigation'
+            variant='ontime-subtle-white'
+            size='lg'
+            onClick={onEventEditorOpen}
+            disabled={isViewLocked}
+          >
             <IoApps />
           </IconButton>
-          <IconButton aria-label='Toggle settings' variant='ontime-subtle-white' size='lg' onClick={showEditFormDrawer}>
+          <IconButton
+            aria-label='Toggle settings'
+            variant='ontime-subtle-white'
+            size='lg'
+            onClick={showEditFormDrawer}
+            disabled={isViewLocked}
+          >
             <IoSettingsOutline />
           </IconButton>
         </CuesheetOverview>

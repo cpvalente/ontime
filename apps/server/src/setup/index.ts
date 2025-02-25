@@ -87,6 +87,8 @@ export const srcFiles = {
   userReadme: join(srcDir.root, config.user, 'README.md'),
   /** Path to bundled CSS readme */
   cssReadme: join(srcDir.root, config.user, config.styles.directory, 'README.md'),
+  /** Path to login */
+  login: join(srcDir.root, 'html/login.html'),
 };
 
 /**

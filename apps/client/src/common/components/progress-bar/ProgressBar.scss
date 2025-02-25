@@ -9,10 +9,6 @@ $progress-bar-br: 3px;
   border-radius: $progress-bar-br;
   background-color: var(--timer-progress-bg-override, $viewer-card-bg-color);
   overflow: clip;
-
-  &--hidden {
-    display: none;
-  }
 }
 
 .progress-bar__indicator {

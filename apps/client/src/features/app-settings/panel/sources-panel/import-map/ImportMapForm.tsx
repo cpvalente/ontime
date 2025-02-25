@@ -88,7 +88,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
     <Panel.Section as='form' id='import-map'>
       <Panel.Title>
         Import options
-        <div className={style.buttonRow}>
+        <Panel.InlineElements>
           {!isSpreadsheet && (
             <Tooltip content='Revoke the google authentication'>
               <Button variant='ontime-subtle' size='sm' onClick={handleRevoke} disabled={isLoading}>
@@ -119,7 +119,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
           >
             Import preview
           </Button>
-        </div>
+        </Panel.InlineElements>
       </Panel.Title>
       <Panel.Table>
         <thead>
@@ -226,11 +226,11 @@ export default function ImportMapForm(props: ImportMapFormProps) {
           })}
           <tr>
             <td />
-            <td className={style.buttonRow} colSpan={99}>
+            <Panel.InlineElements as='td' align='end'>
               <Button size='sm' variant='ontime-subtle' onClick={addCustomImport}>
                 Add custom field <IoAdd />
               </Button>
-            </td>
+            </Panel.InlineElements>
             <td />
           </tr>
         </tbody>

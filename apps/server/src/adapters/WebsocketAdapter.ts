@@ -20,11 +20,12 @@ import { WebSocket, WebSocketServer } from 'ws';
 import type { Server } from 'http';
 
 import getRandomName from '../utils/getRandomName.js';
-import { IAdapter } from './IAdapter.js';
+import type { IAdapter } from './IAdapter.js';
 import { eventStore } from '../stores/EventStore.js';
 import { logger } from '../classes/Logger.js';
 import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
 import { generateId } from 'ontime-utils';
+import { authenticateSocket } from '../middleware/authenticate.js';
 
 let instance: SocketServer | null = null;
 
@@ -34,7 +35,7 @@ export class SocketServer implements IAdapter {
   private wss: WebSocketServer | null;
   private readonly clients: Map<string, Client>;
   private lastConnection: Date | null = null;
-  private isFirstEditor = true;
+  private shouldShowWelcome = true;
 
   constructor() {
     if (instance) {
@@ -47,16 +48,24 @@ export class SocketServer implements IAdapter {
     this.wss = null;
   }
 
-  init(server: Server, prefix?: string) {
+  init(server: Server, showWelcome: boolean, prefix?: string) {
+    this.shouldShowWelcome = showWelcome;
     this.wss = new WebSocketServer({ path: `${prefix}/ws`, server, maxPayload: this.MAX_PAYLOAD });
 
-    this.wss.on('connection', (ws) => {
+    this.wss.on('connection', (ws, req) => {
+      authenticateSocket(ws, req, (error) => {
+        if (error) {
+          ws.close(1008, 'Unauthorized');
+        }
+      });
       const clientId = generateId();
+      const clientName = getRandomName();
 
       this.clients.set(clientId, {
         type: 'unknown',
         identify: false,
-        name: getRandomName(),
+        name: clientName,
+        origin: '',
         path: '',
       });
 
@@ -65,15 +74,11 @@ export class SocketServer implements IAdapter {
 
       ws.send(
         JSON.stringify({
-          type: 'client-id',
-          payload: clientId,
-        }),
-      );
-
-      ws.send(
-        JSON.stringify({
-          type: 'client-name',
-          payload: this.clients.get(clientId).name,
+          type: 'client',
+          payload: {
+            clientId,
+            clientName,
+          },
         }),
       );
 
@@ -121,6 +126,14 @@ export class SocketServer implements IAdapter {
             return;
           }
 
+          if (type === 'set-client-patch') {
+            if (payload && typeof payload == 'object') {
+              this.clients.set(clientId, { ...this.clients.get(clientId), ...payload });
+            }
+            this.sendClientList();
+            return;
+          }
+
           if (type === 'set-client-type') {
             if (payload && typeof payload == 'string') {
               const previousData = this.clients.get(clientId);
@@ -136,8 +149,8 @@ export class SocketServer implements IAdapter {
               previousData.path = payload;
               this.clients.set(clientId, previousData);
 
-              if (payload.includes('editor') && this.isFirstEditor) {
-                this.isFirstEditor = false;
+              if (payload.includes('editor') && this.shouldShowWelcome) {
+                this.shouldShowWelcome = false;
                 ws.send(
                   JSON.stringify({
                     type: 'dialog',

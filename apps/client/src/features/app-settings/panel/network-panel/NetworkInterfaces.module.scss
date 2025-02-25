@@ -1,10 +1,3 @@
-.interfaces {
-  display: flex;
-  flex-wrap: wrap;
-  gap: $section-spacing;
-  row-gap: $element-inner-spacing;
-}
-
 .goIcon {
   @include rotate-fourty-five;
   margin-left: 0.25rem;

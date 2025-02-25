@@ -1,5 +1,4 @@
-import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, parseUserTime } from 'ontime-utils';
-import { isISO8601 } from '../../../../packages/utils/src/date-utils/isTimeString.js';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, pad, parseUserTime, isISO8601 } from 'ontime-utils';
 
 export const timeFormat = 'HH:mm';
 export const timeFormatSeconds = 'HH:mm:ss';
@@ -45,4 +44,19 @@ export function parseExcelDate(excelDate: unknown): number {
   }
 
   return 0;
+}
+
+export function getTimezoneLabel(date: Date): string {
+  const tz = date.getTimezoneOffset();
+  const tzName = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  // timezone offset is inverted
+  const sign = tz < 0 ? '+' : '-';
+  const abs = Math.abs(tz);
+
+  // convert minutes to hours
+  const hours = Math.floor(abs / 60);
+  const minutes = abs % 60;
+
+  return `GMT ${sign}${pad(hours)}:${pad(minutes)} ${tzName}`;
 }

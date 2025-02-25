@@ -2,6 +2,7 @@
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/cpvalente/ontime/total)
 ![Docker Pulls](https://img.shields.io/docker/pulls/getontime/ontime)
 ![NPM Downloads](https://img.shields.io/npm/dy/%40getontime%2Fcli)
+![Homebrew Cask Version](https://img.shields.io/homebrew/cask/v/ontime)
 [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/cpvalente)
 [![](https://img.shields.io/static/v1?label=Buy%20me%20a%20coffee&message=%E2%9D%A4&logo=buymeacoffee&color=%23fe8e86)](https://www.buymeacoffee.com/cpvalente)
 
@@ -12,7 +13,11 @@
 - Download for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-macOS-arm64.dmg">MacOS Arm</a>
 - Download for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-macOS-x64.dmg">MacOS Intel</a>
 - Download AppImage for <a href="https://github.com/cpvalente/ontime/releases/latest/download/ontime-linux.AppImage">Linux</a>
+
+... or
 - Get from <a href="https://hub.docker.com/r/getontime/ontime">Docker hub</a>
+- Install from <a href="https://www.npmjs.com/package/ontime">NPM</a>
+- Install from <a href="https://formulae.brew.sh/cask/ontime">Homebrew</a>
 
 ## Need help?
 We do our best to have most topics covered by the documentation. However, if your question is not covered, you are welcome to [fill in a bug report in an issue](https://github.com/cpvalente/ontime/issues), [ask a question in GitHub discussions](https://github.com/cpvalente/ontime/discussions) or hop in the [discord server](https://discord.com/invite/eje3CSUEXm) for a chat.

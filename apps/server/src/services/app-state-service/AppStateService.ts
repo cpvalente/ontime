@@ -8,6 +8,7 @@ import { shouldCrashDev } from '../../utils/development.js';
 
 interface AppState {
   lastLoadedProject?: string;
+  showWelcomeDialog?: boolean;
 }
 
 const adapter = new JSONFile<AppState>(publicFiles.appState);
@@ -33,4 +34,20 @@ export async function setLastLoadedProject(filename: string): Promise<void> {
 
   config.data.lastLoadedProject = filename;
   await config.write();
+}
+
+export async function getShowWelcomeDialog(): Promise<boolean> {
+  // in test environment, we do not want the dialog
+  if (isTest) return false;
+
+  await config.read();
+  return config.data.showWelcomeDialog ?? true; // default to  true
+}
+
+export async function setShowWelcomeDialog(show: boolean): Promise<boolean> {
+  if (isTest) return;
+
+  config.data.showWelcomeDialog = show;
+  await config.write();
+  return show;
 }

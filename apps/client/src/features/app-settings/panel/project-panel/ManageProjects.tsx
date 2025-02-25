@@ -12,8 +12,6 @@ import * as Panel from '../../panel-utils/PanelUtils';
 import ProjectCreateForm from './ProjectCreateForm';
 import ProjectList from './ProjectList';
 
-import style from './ProjectPanel.module.scss';
-
 export default function ManageProjects() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [error, setError] = useState('');
@@ -71,7 +69,7 @@ export default function ManageProjects() {
       <Panel.Card>
         <Panel.SubHeader>
           Manage projects
-          <div className={style.headerButtons}>
+          <Panel.InlineElements>
             <Button
               variant='ontime-subtle'
               onClick={handleSelectFile}
@@ -89,7 +87,7 @@ export default function ManageProjects() {
             >
               New <IoAdd />
             </Button>
-          </div>
+          </Panel.InlineElements>
         </Panel.SubHeader>
         {error && <Panel.Error>{error}</Panel.Error>}
         <Panel.Divider />

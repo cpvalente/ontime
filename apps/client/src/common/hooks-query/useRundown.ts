@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { NormalisedRundown, OntimeRundown, RundownCached } from 'ontime-types';
+import { NormalisedRundown, OntimeRundown, OntimeRundownEntry, RundownCached } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { RUNDOWN } from '../api/constants';
@@ -11,6 +11,9 @@ import useProjectData from './useProjectData';
 // revision is -1 so that the remote revision is higher
 const cachedRundownPlaceholder = { order: [] as string[], rundown: {} as NormalisedRundown, revision: -1 };
 
+/**
+ * Normalised rundown data
+ */
 export default function useRundown() {
   const { data, status, isError, refetch, isFetching } = useQuery<RundownCached>({
     queryKey: RUNDOWN,
@@ -24,6 +27,10 @@ export default function useRundown() {
   return { data: data ?? cachedRundownPlaceholder, status, isError, refetch, isFetching };
 }
 
+/**
+ * Provides access to a flat rundown
+ * built from the order and rundown fields
+ */
 export function useFlatRundown() {
   const { data, status } = useRundown();
   const { data: projectData } = useProjectData();
@@ -51,4 +58,16 @@ export function useFlatRundown() {
   }, [projectData]);
 
   return { data: flatRunDown, status };
+}
+
+/**
+ * Provides access to a partial rundown based on a filter callback
+ */
+export function usePartialRundown(cb: (event: OntimeRundownEntry) => boolean) {
+  const { data, status } = useFlatRundown();
+  const filteredData = useMemo(() => {
+    return data.filter(cb);
+  }, [data, cb]);
+
+  return { data: filteredData, status };
 }

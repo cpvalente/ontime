@@ -7,6 +7,7 @@ import { PROJECT_LIST } from '../../../../common/api/constants';
 import { createProject } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { Button } from '../../../../common/components/ui/button';
+import { preventEscape } from '../../../../common/utils/keyEvent';
 import { documentationUrl, websiteUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -67,17 +68,21 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
   };
 
   return (
-    <Panel.Section as='form' onSubmit={handleSubmit(handleSubmitCreate)}>
+    <Panel.Section
+      as='form'
+      onSubmit={handleSubmit(handleSubmitCreate)}
+      onKeyDown={(event) => preventEscape(event, onClose)}
+    >
       <Panel.Title>
         Create new project
-        <div className={style.createActionButtons}>
+        <Panel.InlineElements>
           <Button onClick={onClose} variant='ontime-ghosted' size='sm' disabled={isSubmitting}>
             Cancel
           </Button>
           <Button disabled={!isValid} type='submit' loading={isSubmitting} variant='ontime-filled' size='sm'>
-            Create
+            Create project
           </Button>
-        </div>
+        </Panel.InlineElements>
       </Panel.Title>
       {error && <Panel.Error>{error}</Panel.Error>}
       <Panel.Section className={style.innerColumn}>

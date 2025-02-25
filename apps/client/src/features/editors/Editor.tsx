@@ -2,11 +2,10 @@ import { lazy, useCallback, useEffect } from 'react';
 import { IoApps } from 'react-icons/io5';
 import { IoClose } from 'react-icons/io5';
 import { IoSettingsOutline } from 'react-icons/io5';
-import { useDisclosure } from '@chakra-ui/react';
+import { IconButton, useDisclosure } from '@chakra-ui/react';
 import { useHotkeys } from '@mantine/hooks';
 
-import ProductionNavigationMenu from '../../common/components/navigation-menu/ProductionNavigationMenu';
-import { IconButton } from '../../common/components/ui/icon-button';
+import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
 import { useElectronListener } from '../../common/hooks/useElectronEvent';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import AppSettings from '../app-settings/AppSettings';
@@ -59,9 +58,9 @@ export default function Editor() {
     <div className={styles.mainContainer} data-testid='event-editor'>
       <WelcomePlacement />
       <Finder isOpen={isFinderOpen} onClose={onFinderClose} />
-      <ProductionNavigationMenu isMenuOpen={isMenuOpen} onMenuClose={onClose} />
+      <NavigationMenu isOpen={isMenuOpen} onClose={onClose} />
       <EditorOverview>
-        <IconButton aria-label='Toggle navigation' variant='ontime-subtle-white' size='lg' onClick={onOpen}>
+        <IconButton aria-label='Toggle navigation' size='lg' onClick={onOpen}>
           <IoApps />
         </IconButton>
         <IconButton

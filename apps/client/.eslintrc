@@ -15,7 +15,6 @@
   ],
   "plugins": [
     "react",
-    "testing-library",
     "simple-import-sort",
     "@tanstack/query"
   ],

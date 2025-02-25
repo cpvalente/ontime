@@ -44,10 +44,11 @@ export {
   millisToSeconds,
   secondsInMillis,
 } from './src/date-utils/conversionUtils.js';
-export { isTimeString } from './src/date-utils/isTimeString.js';
+export { isISO8601, isTimeString } from './src/date-utils/isTimeString.js';
 export {
   formatFromMillis,
   millisToString,
+  pad,
   removeLeadingZero,
   removeSeconds,
   removeTrailingZero,

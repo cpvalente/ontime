@@ -1,0 +1,21 @@
+.infoLabel {
+  display: flex;
+  align-items: center;
+  gap: $element-spacing;
+
+  background-color: $gray-1200;
+  border-radius: 3px;
+  font-size: $text-body-size;
+  padding: 1rem;
+
+  .content {
+    color: $gray-200;
+  }
+
+  svg {
+    min-width: 1.5rem;
+    align-self: start;
+    font-size: 1.5rem;
+    color: $info-blue;
+  }
+}

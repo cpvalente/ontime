@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { PROJECT_DATA } from '../../../../common/api/constants';
@@ -24,8 +24,7 @@ type ProjectMergeFormValues = {
   rundown: boolean;
   viewSettings: boolean;
   urlPresets: boolean;
-  osc: boolean;
-  http: boolean;
+  automation: boolean;
 };
 
 export default function ProjectMergeForm(props: ProjectMergeFromProps) {
@@ -35,7 +34,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
 
   const {
     handleSubmit,
-    control,
+    register,
     formState: { isSubmitting, isValid, isDirty },
   } = useForm<ProjectMergeFormValues>({
     defaultValues: {
@@ -43,8 +42,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
       rundown: false,
       viewSettings: false,
       urlPresets: false,
-      osc: false,
-      http: false,
+      automation: false,
     },
     resetOptions: {
       keepDirtyValues: true,
@@ -78,7 +76,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
     <Panel.Section as='form' onSubmit={handleSubmit(handleSubmitCreate)}>
       <Panel.Title>
         Merge {`"${fileName}"`}
-        <div className={style.createActionButtons}>
+        <Panel.InlineElements>
           <Button onClick={onClose} variant='ontime-ghosted' size='sm' disabled={isSubmitting}>
             Cancel
           </Button>
@@ -91,7 +89,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
           >
             Merge
           </Button>
-        </div>
+        </Panel.InlineElements>
       </Panel.Title>
       {error && <Panel.Error>{error}</Panel.Error>}
       <Panel.Section className={cx([style.innerColumn, style.inlineLabels])}>
@@ -99,66 +97,26 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
           Select partial data from {`"${fileName}"`} to merge into the current project.
           <br /> This process is irreversible.
         </Panel.Description>
-        <Controller
-          name='project'
-          control={control}
-          render={({ field }) => (
-            <label>
-              <Switch checked={field.value} onChange={field.onChange} />
-              Project data
-            </label>
-          )}
-        />
-        <Controller
-          name='rundown'
-          control={control}
-          render={({ field }) => (
-            <label>
-              <Switch checked={field.value} onChange={field.onChange} />
-              Rundown + Custom Fields
-            </label>
-          )}
-        />
-        <Controller
-          name='viewSettings'
-          control={control}
-          render={({ field }) => (
-            <label>
-              <Switch checked={field.value} onChange={field.onChange} />
-              View Settings
-            </label>
-          )}
-        />
-        <Controller
-          name='urlPresets'
-          control={control}
-          render={({ field }) => (
-            <label>
-              <Switch checked={field.value} onChange={field.onChange} />
-              URL Presets
-            </label>
-          )}
-        />
-        <Controller
-          name='osc'
-          control={control}
-          render={({ field }) => (
-            <label>
-              <Switch checked={field.value} onChange={field.onChange} />
-              OSC Integration
-            </label>
-          )}
-        />
-        <Controller
-          name='http'
-          control={control}
-          render={({ field }) => (
-            <label>
-              <Switch checked={field.value} onChange={field.onChange} />
-              HTTP Integration
-            </label>
-          )}
-        />
+        <label>
+          <Switch {...register('project')} />
+          Project data
+        </label>
+        <label>
+          <Switch {...register('rundown')} />
+          Rundown + Custom Fields
+        </label>
+        <label>
+          <Switch {...register('viewSettings')} />
+          View Settings
+        </label>
+        <label>
+          <Switch {...register('urlPresets')} />
+          URL Presets
+        </label>
+        <label>
+          <Switch {...register('automation')} />
+          Automation Settings
+        </label>
       </Panel.Section>
     </Panel.Section>
   );

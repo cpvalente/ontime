@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd } from 'react-icons/io5';
 import { IoOpenOutline } from 'react-icons/io5';
-import { IoTrash } from 'react-icons/io5';
 import { Input } from '@chakra-ui/react';
 import { URLPreset } from 'ontime-types';
 
@@ -10,11 +9,12 @@ import { postUrlPresets } from '../../../../common/api/urlPresets';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import TooltipActionBtn from '../../../../common/components/buttons/TooltipActionBtn';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
-import { Alert } from '../../../../common/components/ui/alert';
+import Info from '../../../../common/components/info/Info';
 import { Button } from '../../../../common/components/ui/button';
 import { IconButton } from '../../../../common/components/ui/icon-button';
 import { Switch } from '../../../../common/components/ui/switch';
 import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
+import { preventEscape } from '../../../../common/utils/keyEvent';
 import { handleLinks } from '../../../../common/utils/linkUtils';
 import { validateUrlPresetPath } from '../../../../common/utils/urlPresets';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -92,48 +92,48 @@ export default function UrlPresetsForm() {
   const canSubmit = !isSubmitting && isDirty && isValid;
 
   return (
-    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} data-testid='url-preset-form'>
+    <Panel.Section
+      as='form'
+      onSubmit={handleSubmit(onSubmit)}
+      onKeyDown={(event) => preventEscape(event, onReset)}
+      data-testid='url-preset-form'
+    >
       <Panel.Card>
         <Panel.SubHeader>
           URL presets
-          <div className={style.actionButtons}>
+          <Panel.InlineElements>
             <Button variant='ontime-ghosted' size='sm' onClick={onReset} disabled={!canSubmit}>
               Revert to saved
             </Button>
             <Button variant='ontime-filled' size='sm' type='submit' disabled={!canSubmit} loading={isSubmitting}>
               Save
             </Button>
-          </div>
+          </Panel.InlineElements>
         </Panel.SubHeader>
         <Panel.Divider />
-        <Alert
-          status='info'
-          title={
-            <>
-              URL presets are user defined aliases to Ontime URLs
-              <br />
-              <br />
-              <b>Preset Name</b> <br />
-              The alias for the URL. This will be the URL you will be calling. eg: <br />
-              <Panel.BlockQuote>
-                Preset name <Panel.Highlight>cam3</Panel.Highlight> called as{' '}
-                <Panel.Highlight>http://localhost:4001/cam3</Panel.Highlight>
-              </Panel.BlockQuote>
-              <br />
-              <b>URL Segment</b> <br />
-              The corresponding alias path and configuration parameters. eg: <br />
-              <Panel.BlockQuote>
-                URL segment <Panel.Highlight>backstage?hidePast=true&stopCycle=true</Panel.Highlight> corresponds to
-                complete URL
-                <Panel.Highlight>http://localhost:4001/backstage?hidePast=true&stopCycle=true</Panel.Highlight>
-              </Panel.BlockQuote>
-              <br />
-              You will need to save the changes before the presets are functional.
-              <br />
-              <ExternalLink href={urlPresetsDocs}>See the docs</ExternalLink>
-            </>
-          }
-        />
+        <Info>
+          URL presets are user defined aliases to Ontime URLs
+          <br />
+          <br />
+          <b>Preset Name</b> <br />
+          The alias for the URL. This will be the URL you will be calling. eg: <br />
+          <Panel.BlockQuote>
+            Preset name <Panel.Highlight>cam3</Panel.Highlight> called as{' '}
+            <Panel.Highlight>http://localhost:4001/cam3</Panel.Highlight>
+          </Panel.BlockQuote>
+          <br />
+          <b>URL Segment</b> <br />
+          The corresponding alias path and configuration parameters. eg: <br />
+          <Panel.BlockQuote>
+            URL segment <Panel.Highlight>backstage?hidePast=true&stopCycle=true</Panel.Highlight> corresponds to
+            complete URL
+            <Panel.Highlight>http://localhost:4001/backstage?hidePast=true&stopCycle=true</Panel.Highlight>
+          </Panel.BlockQuote>
+          <br />
+          You will need to save the changes before the presets are functional.
+          <br />
+          <ExternalLink href={urlPresetsDocs}>See the docs</ExternalLink>
+        </Info>
         <Panel.Section>
           <Panel.Loader isLoading={isLoading} />
           <Panel.Title>
@@ -200,7 +200,7 @@ export default function UrlPresetsForm() {
                       />
                       <Panel.Error>{maybeUrlError}</Panel.Error>
                     </td>
-                    <td className={style.flex}>
+                    <Panel.InlineElements relation='inner' as='td'>
                       <TooltipActionBtn
                         size='sm'
                         disabled={!canTest}
@@ -219,10 +219,8 @@ export default function UrlPresetsForm() {
                         color='#FA5656' // $red-500
                         aria-label='Delete entry'
                         data-testid={`field__delete_${index}`}
-                      >
-                        <IoTrash />
-                      </IconButton>
-                    </td>
+                      />
+                    </Panel.InlineElements>
                   </tr>
                 );
               })}

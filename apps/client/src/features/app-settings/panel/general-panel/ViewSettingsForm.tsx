@@ -6,15 +6,15 @@ import { ViewSettings } from 'ontime-types';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { postViewSettings } from '../../../../common/api/viewSettings';
 import ExternalLink from '../../../../common/components/external-link/ExternalLink';
+import Info from '../../../../common/components/info/Info';
 import { SwatchPickerRHF } from '../../../../common/components/input/colour-input/SwatchPicker';
-import { Alert } from '../../../../common/components/ui/alert';
 import { Button } from '../../../../common/components/ui/button';
 import { Switch } from '../../../../common/components/ui/switch';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
+import { preventEscape } from '../../../../common/utils/keyEvent';
+import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
-
-import style from './GeneralPanel.module.scss';
 
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
@@ -70,32 +70,38 @@ export default function ViewSettingsForm() {
   const isLoading = status === 'pending' || infoStatus === 'pending';
 
   return (
-    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} id='view-settings'>
+    <Panel.Section
+      as='form'
+      onSubmit={handleSubmit(onSubmit)}
+      onKeyDown={(event) => preventEscape(event, onReset)}
+      id='view-settings'
+    >
       <Panel.Card>
         <Panel.SubHeader>
           View settings
-          <div className={style.actionButtons}>
+          <Panel.InlineElements>
             <Button disabled={!isDirty} variant='ontime-ghosted' size='sm' onClick={onReset}>
               Revert to saved
             </Button>
             <Button type='submit' loading={isSubmitting} disabled={!isDirty} variant='ontime-filled' size='sm'>
               Save
             </Button>
-          </div>
+          </Panel.InlineElements>
         </Panel.SubHeader>
         <Panel.Divider />
-        <Alert
-          status='info'
-          title={
+        <Info>
+          You can the Ontime views or customise its styles by modifying the provided CSS file.
+          <br />
+          {!isOntimeCloud && (
             <>
-              You can the Ontime views or customise its styles by modifying the provided CSS file. <br />
-              The CSS file is in the user directory at {`${info.publicDir}/user/styles/override.css`}
               <br />
+              The loaded CSS file is in the user directory at{' '}
+              <Panel.BlockQuote>{`${info.publicDir}/user/styles/override.css`}</Panel.BlockQuote>
               <br />
-              <ExternalLink href={cssOverrideDocsUrl}>See the docs</ExternalLink>
             </>
-          }
-        />
+          )}
+          <ExternalLink href={cssOverrideDocsUrl}>See the docs</ExternalLink>
+        </Info>
         <Panel.Section>
           <Panel.Loader isLoading={isLoading} />
           <Panel.ListGroup>

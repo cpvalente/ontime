@@ -1,12 +1,13 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { body, param, validationResult } from 'express-validator';
-import { ensureJsonExtension } from '../../utils/fileManagement.js';
 import sanitize from 'sanitize-filename';
+import { ensureJsonExtension } from '../../utils/fileManagement.js';
 
 /**
  * @description Validates request for a new project.
  */
 export const validateNewProject = [
+  body('filename').optional().isString().trim(),
   body('title').optional().isString().trim(),
   body('description').optional().isString().trim(),
   body('publicUrl').optional().isString().trim(),

@@ -26,8 +26,8 @@ describe('simple tests for regex', () => {
   });
 
   test('startsWithHttp', () => {
-    const right = ['http://test'];
-    const wrong = ['https://test', 'testing', '123.0.1'];
+    const right = ['https://test', 'http://test'];
+    const wrong = ['testing', '123.0.1'];
 
     right.forEach((t) => {
       expect(startsWithHttp.test(t)).toBe(true);

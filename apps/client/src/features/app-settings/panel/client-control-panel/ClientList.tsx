@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Badge, useDisclosure } from '@chakra-ui/react';
+import { Client } from 'ontime-types';
 
 import { RedirectClientModal } from '../../../../common/components/client-modal/RedirectClientModal';
 import { RenameClientModal } from '../../../../common/components/client-modal/RenameClientModal';
@@ -32,15 +33,16 @@ export default function ClientList() {
   const ontimeClients = Object.entries(clients).filter(([_, { type }]) => type === 'ontime');
   const otherClients = Object.entries(clients).filter(([_, { type }]) => type !== 'ontime');
 
-  const targetClient = clients[targetId];
+  const targetClient: Client | undefined = clients[targetId];
 
   return (
     <>
-      {isOpenRedirect && (
+      {isOpenRedirect && targetClient !== undefined && (
         <RedirectClientModal
           id={targetId}
-          name={targetClient?.name}
-          path={targetClient?.path}
+          name={targetClient.name}
+          origin={targetClient.origin}
+          currentPath={targetClient.path}
           isOpen={isOpenRedirect}
           onClose={onCloseRedirect}
         />
@@ -53,7 +55,7 @@ export default function ClientList() {
         <Panel.Table>
           <thead>
             <tr>
-              <td className={style.fullWidth}>Client Name (Connection ID)</td>
+              <td className={style.halfWidth}>Client Name</td>
               <td className={style.fullWidth}>Path</td>
               <td />
             </tr>
@@ -64,19 +66,16 @@ export default function ClientList() {
               const isCurrent = id === key;
               return (
                 <tr key={key}>
-                  <td className={style.badgeList}>
-                    <Badge variant='subtle' size='sm'>
-                      {key}
-                    </Badge>
+                  <Panel.InlineElements relation='inner' as='td'>
                     {isCurrent && (
                       <Badge variant='subtle' colorPalette='yellow' size='sm'>
                         self
                       </Badge>
                     )}
                     {name}
-                  </td>
-                  <td className={style.pathList}>{path}</td>
-                  <td className={style.actionButtons}>
+                  </Panel.InlineElements>
+                  <td>{path}</td>
+                  <Panel.InlineElements relation='inner'>
                     <Button
                       size='xs'
                       className={`${identify ? style.blink : ''}`}
@@ -107,7 +106,7 @@ export default function ClientList() {
                     >
                       Redirect
                     </Button>
-                  </td>
+                  </Panel.InlineElements>
                 </tr>
               );
             })}
@@ -120,8 +119,8 @@ export default function ClientList() {
         <Panel.Table>
           <thead>
             <tr>
-              <td className={style.halfWidth}>Client Name (Connection ID)</td>
-              <td className={style.halfWidth}>Client type</td>
+              <td className={style.halfWidthNoWrap}>Client Name</td>
+              <td className={style.halfWidthNoWrap}>Client type</td>
             </tr>
           </thead>
           <tbody>
@@ -130,12 +129,7 @@ export default function ClientList() {
 
               return (
                 <tr key={key}>
-                  <td className={style.badgeList}>
-                    <Badge variant='subtle' size='sm'>
-                      {key}
-                    </Badge>
-                    {name}
-                  </td>
+                  <td>{name}</td>
                   <td>{type}</td>
                 </tr>
               );

@@ -10,7 +10,7 @@ test('redirect', async ({ context }) => {
   await controllerPage.getByTestId('not-self-redirect').click();
   await controllerPage.getByPlaceholder('minimal?key=0000ffff').click();
   await controllerPage.getByPlaceholder('minimal?key=0000ffff').fill('clock');
-  await controllerPage.getByRole('button', { name: 'Submit' }).click();
+  await controllerPage.getByLabel('Redirect', { exact: true }).click();
 
   await expect(remotePage.getByTestId('clock-view')).toBeVisible();
 });

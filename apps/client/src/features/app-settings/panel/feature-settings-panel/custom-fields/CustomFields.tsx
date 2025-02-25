@@ -4,7 +4,7 @@ import { CustomField, CustomFieldLabel } from 'ontime-types';
 
 import { deleteCustomField, editCustomField, postCustomField } from '../../../../../common/api/customFields';
 import ExternalLink from '../../../../../common/components/external-link/ExternalLink';
-import { Alert } from '../../../../../common/components/ui/alert';
+import Info from '../../../../../common/components/info/Info';
 import { Button } from '../../../../../common/components/ui/button';
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
 import { customFieldsDocsUrl } from '../../../../../externals';
@@ -56,22 +56,17 @@ export default function CustomFields() {
         </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
-          <Alert
-            status='info'
-            title={
-              <>
-                Custom fields allow for additional information to be added to an event.
-                <br />
-                <br />
-                This data is not used by Ontime, but provides place for cueing or department specific information (eg.
-                light, sound, camera).
-                <br />
-                <br />
-                Custom fields can be used width the Integrations feature using the generated key.
-                <ExternalLink href={customFieldsDocsUrl}>See the docs</ExternalLink>
-              </>
-            }
-          />
+          <Info>
+            Custom fields allow for additional information to be added to an event.
+            <br />
+            <br />
+            This data is not used by Ontime, but provides place for cueing or department specific information (eg.
+            light, sound, camera).
+            <br />
+            <br />
+            Custom fields can be used width the Integrations feature using the generated key.
+            <ExternalLink href={customFieldsDocsUrl}>See the docs</ExternalLink>
+          </Info>
         </Panel.Section>
         <Panel.Section>
           {isAdding && <CustomFieldForm onSubmit={handleCreate} onCancel={handleCancel} />}

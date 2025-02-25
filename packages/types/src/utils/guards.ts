@@ -1,3 +1,4 @@
+import type { AutomationOutput, HTTPOutput, OntimeAction, OSCOutput } from '../definitions/core/Automation.type.js';
 import type { OntimeBlock, OntimeDelay, OntimeEvent, PlayableEvent } from '../definitions/core/OntimeEvent.type.js';
 import { SupportedEvent } from '../definitions/core/OntimeEvent.type.js';
 import type { OntimeRundownEntry } from '../definitions/core/Rundown.type.js';
@@ -31,4 +32,16 @@ export function isKeyOfType<T extends object>(key: PropertyKey, obj: T): key is 
 export function isOntimeCycle(maybeCycle: unknown): maybeCycle is TimerLifeCycleKey {
   if (typeof maybeCycle !== 'string') return false;
   return Object.values(TimerLifeCycle).includes(maybeCycle as TimerLifeCycle);
+}
+
+export function isOSCOutput(output: AutomationOutput): output is OSCOutput {
+  return output.type === 'osc';
+}
+
+export function isHTTPOutput(output: AutomationOutput): output is HTTPOutput {
+  return output.type === 'http';
+}
+
+export function isOntimeAction(output: AutomationOutput): output is OntimeAction {
+  return output.type === 'ontime';
 }

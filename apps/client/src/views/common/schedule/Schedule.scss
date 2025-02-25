@@ -1,0 +1,93 @@
+@use '../../../theme/viewerDefs' as *;
+
+$circle-size: clamp(8px, 0.75vw, 12px);
+$indeterminate-width: clamp(32px, 3vw, 48px);
+
+.schedule {
+  width: 100%;
+  position: relative;
+  list-style: none;
+
+  .entry {
+    position: absolute;
+    padding-bottom: 1em;
+
+    &--skip {
+      text-decoration: line-through;
+      text-decoration-color: var(--secondary-color-override, $viewer-secondary-color);
+    }
+  }
+
+  .entry-colour {
+    background-color: var(--card-background-color-override, $viewer-card-bg-color);
+    height: $circle-size;
+    width: $circle-size;
+    border-radius: $component-border-radius-full;
+    margin-right: 0.25rem;
+  }
+
+  .entry-times {
+    color: var(--secondary-color-override, $viewer-secondary-color);
+    letter-spacing: 0.05em;
+    font-size: $timer-label-size;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+
+    &--delayed,
+    &--delay {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    &--delayed {
+      text-decoration: line-through;
+      text-decoration-color: $ontime-delay;
+    }
+
+    &--delay {
+      color: $ontime-delay-text;
+    }
+
+    &--ahead {
+      color: $green-500;
+    }
+
+    &--behind {
+      color: $orange-500;
+    }
+  }
+
+  .entry-title {
+    font-size: $base-font-size;
+    line-height: 1.2em;
+  }
+}
+
+.schedule-nav {
+  display: flex;
+
+  .schedule-nav__item {
+    background-color: var(--color-override, $viewer-color);
+    opacity: 0.2;
+
+    height: $circle-size;
+    width: $circle-size;
+    border-radius: $component-border-radius-full;
+    margin-right: 0.5em;
+
+    transition-property: opacity;
+    transition-duration: 1s;
+
+    &--selected {
+      transition-property: opacity;
+      transition-duration: $viewer-transition-time;
+      opacity: 1;
+    }
+
+    &--indeterminate {
+      width: $indeterminate-width;
+    }
+  }
+}

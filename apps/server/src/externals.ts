@@ -15,6 +15,8 @@ export const environment = isTest ? 'test' : env;
 export const isDocker = env === 'docker';
 export const isProduction = isDocker || (env === 'production' && !isTest);
 export const isOntimeCloud = Boolean(process.env.IS_CLOUD);
+export const password = process.env.SESSION_PASSWORD;
+
 /**
  * Updates the router prefix in the index.html file
  * This is only needed in the cloud environment where the client is not at the root segment

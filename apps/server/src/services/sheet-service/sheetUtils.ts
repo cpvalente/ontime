@@ -1,7 +1,7 @@
 import { isOntimeBlock, isOntimeEvent, OntimeEvent, OntimeRundownEntry } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
-import { sheets_v4 } from '@googleapis/sheets';
+import type { sheets_v4 } from '@googleapis/sheets';
 import { isObject } from '../../utils/assert.js';
 
 // we expect client secret file to contain the following keys

@@ -1,11 +1,13 @@
 import { useState } from 'react';
+import { IoChevronDown } from 'react-icons/io5';
 import { useSearchParams } from 'react-router-dom';
-import { createListCollection, Input } from '@chakra-ui/react';
+import { Input, useCheckboxGroup } from '@chakra-ui/react';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
+import { Button } from '../ui/button';
 import { InputGroup } from '../ui/input-group';
+import { MenuCheckboxItem, MenuContent, MenuItemGroup, MenuRoot, MenuTrigger } from '../ui/menu';
 import { NativeSelectField, NativeSelectRoot } from '../ui/native-select';
-import { SelectContent, SelectItem, SelectRoot, SelectTrigger, SelectValueText } from '../ui/select';
 import { Switch } from '../ui/switch';
 
 import InlineColourPicker from './InlineColourPicker';
@@ -97,36 +99,37 @@ interface EditFormMultiOptionProps {
 function MultiOption(props: EditFormMultiOptionProps) {
   const [searchParams] = useSearchParams();
   const { paramField } = props;
-  const { id, defaultValue, values } = paramField;
+  const { id, defaultValue } = paramField;
 
   const optionFromParams = searchParams.getAll(id);
-  const [paramState, setParamState] = useState<string[]>(optionFromParams || [defaultValue] || ['']);
+  const [paramState] = useState<string[]>(optionFromParams || [defaultValue] || ['']);
 
-  const options = createListCollection({ items: values });
+  const group = useCheckboxGroup({ defaultValue: optionFromParams || [defaultValue] || [''] });
 
   return (
-    <SelectRoot
-      name={id}
-      multiple
-      collection={options}
-      value={paramState}
-      onValueChange={({ value }) => setParamState(value)}
-      lazyMount
-      unmountOnExit
-    >
-      <SelectTrigger>
-        <SelectValueText placeholder={defaultValue ?? 'Select an option'} />
-      </SelectTrigger>
-      {/* e.preventDefault() prevents menu from closing on every selection (we want multiple enabled)
-          note and guess: this seems to be a bug with Ark-UI's handling of multiple focus layers
-      */}
-      <SelectContent portalled={false} onClick={(e) => e.preventDefault()}>
-        {options.items.map((option) => (
-          <SelectItem item={option} key={option.value}>
-            {option.label}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </SelectRoot>
+    <>
+      <input name={id} hidden readOnly value={paramState} />
+      <MenuRoot lazyMount closeOnSelect={false}>
+        <MenuTrigger position='relative' width='fit-content' fontWeight={400}>
+          <Button>
+            {paramField.title} <IoChevronDown style={{ display: 'inline' }} />
+          </Button>
+        </MenuTrigger>
+        <MenuContent overflow='auto' maxHeight='200px'>
+          <MenuItemGroup title='Features'>
+            {Object.values(paramField.values).map(({ label, value }) => (
+              <MenuCheckboxItem
+                key={value}
+                value={value}
+                checked={group.isChecked(value)}
+                onCheckedChange={() => group.toggleValue(value)}
+              >
+                {label}
+              </MenuCheckboxItem>
+            ))}
+          </MenuItemGroup>
+        </MenuContent>
+      </MenuRoot>
+    </>
   );
 }
