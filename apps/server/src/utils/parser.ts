@@ -250,7 +250,7 @@ export const parseExcel = (
       } else if (j === colourIndex) {
         event.colour = makeString(column, '');
       } else if (j === entryIdIndex) {
-        event.id = makeString(column, undefined);
+        event.id = encodeURIComponent(makeString(column, undefined));
       } else if (j in customFieldIndexes) {
         const importKey = customFieldIndexes[j];
         const ontimeKey = customFieldImportKeys[importKey];
