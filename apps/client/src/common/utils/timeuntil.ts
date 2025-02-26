@@ -11,3 +11,13 @@ export function calculateTimeUntilStart(
   const timeUntil = offsetTimestart - clock;
   return timeUntil;
 }
+
+/**
+ * for refrencce
+ * 
+ * export function getTimeToStart(now: number, start: number, delay: number, offset: number): number {
+    return start + delay - now - offset;
+  }
+ * 
+ * 
+ */

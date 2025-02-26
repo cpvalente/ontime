@@ -1,10 +1,11 @@
+import { dayInMs, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
+
 import { useTimelineStatus, useTimer } from '../../common/hooks/useSocket';
 import { getProgress } from '../../common/utils/getProgress';
 import { alpha, cx } from '../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../common/utils/time';
+import { calculateTimeUntilStart } from '../../common/utils/timeuntil';
 import { useTranslation } from '../../translation/TranslationProvider';
-
-import { getStatusLabel, getTimeToStart } from './timeline.utils';
 
 import style from './Timeline.module.scss';
 
@@ -19,6 +20,10 @@ interface TimelineEntryProps {
   start: number;
   title: string;
   width: number;
+  totalGap: number;
+  normalisedDayOffset: number;
+  isNext: boolean;
+  isLinked: boolean;
 }
 
 const formatOptions = {
@@ -27,7 +32,21 @@ const formatOptions = {
 };
 
 export function TimelineEntry(props: TimelineEntryProps) {
-  const { colour, delay, duration, left, status, start, title, width } = props;
+  const {
+    colour,
+    delay,
+    duration,
+    left,
+    status,
+    start,
+    title,
+    width,
+    totalGap,
+    normalisedDayOffset,
+    isNext,
+    isLinked,
+  } = props;
+  const { getLocalizedString } = useTranslation();
 
   const formattedStartTime = formatTime(start, formatOptions);
   const formattedDuration = formatDuration(duration);
@@ -65,7 +84,15 @@ export function TimelineEntry(props: TimelineEntryProps) {
         {status !== 'done' && (
           <>
             <div className={style.duration}>{formattedDuration}</div>
-            <TimelineEntryStatus delay={delay} start={start} status={status} />
+            {status === 'live' ? (
+              <div className={style.status}>{getLocalizedString('timeline.live')}</div>
+            ) : (
+              <TimelineEntryStatus
+                totalGap={totalGap}
+                normalisedTimeStart={start + normalisedDayOffset * dayInMs}
+                isLinkedAndNext={isNext && isLinked}
+              />
+            )}
           </>
         )}
       </div>
@@ -74,26 +101,22 @@ export function TimelineEntry(props: TimelineEntryProps) {
 }
 
 interface TimelineEntryStatusProps {
-  delay: number;
-  start: number;
-  status: ProgressStatus;
+  normalisedTimeStart: number;
+  totalGap: number;
+  isLinkedAndNext: boolean;
 }
 
 // extract component to isolate re-renders provoked by the clock changes
 function TimelineEntryStatus(props: TimelineEntryStatusProps) {
-  const { delay, start, status } = props;
+  const { normalisedTimeStart, totalGap, isLinkedAndNext } = props;
   const { clock, offset } = useTimelineStatus();
-  const { getLocalizedString } = useTranslation();
 
-  // start times need to be normalised in a rundown that crosses midnight
-  let statusText = getStatusLabel(getTimeToStart(clock, start, delay, offset), status);
-  if (statusText === 'live') {
-    statusText = getLocalizedString('timeline.live');
-  } else if (statusText === 'pending') {
-    statusText = getLocalizedString('timeline.due');
-  }
+  const timeUntil = calculateTimeUntilStart(normalisedTimeStart, totalGap, isLinkedAndNext, clock, offset);
+  const isDue = timeUntil < MILLIS_PER_SECOND;
 
-  return <div className={style.status}>{statusText}</div>;
+  const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
+
+  return <div className={style.status}>{timeUntilString}</div>;
 }
 
 /** Generates a block level progress bar */

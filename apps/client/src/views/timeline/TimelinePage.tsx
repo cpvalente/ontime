@@ -1,18 +1,20 @@
 import { useMemo } from 'react';
 import { MaybeString, OntimeEvent, ProjectData, Runtime, Settings } from 'ontime-types';
+import { dayInMs } from 'ontime-utils';
 
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
 import { formatDuration, formatTime, getDefaultFormat } from '../../common/utils/time';
+import { calculateTimeUntilStart } from '../../common/utils/timeuntil';
 import SuperscriptTime from '../../features/viewers/common/superscript-time/SuperscriptTime';
 import { useTranslation } from '../../translation/TranslationProvider';
 
 import Section from './timeline-section/TimelineSection';
 import Timeline from './Timeline';
 import { getTimelineOptions } from './timeline.options';
-import { getTimeToStart, getUpcomingEvents, useScopedRundown } from './timeline.utils';
+import { getUpcomingEvents, useScopedRundown } from './timeline.utils';
 
 import './TimelinePage.scss';
 
@@ -55,7 +57,13 @@ export default function TimelinePage(props: TimelinePageProps) {
   let followedByStatus: string | undefined;
 
   if (next !== null) {
-    const timeToStart = getTimeToStart(time.clock, next.timeStart, next?.delay ?? 0, runtime.offset);
+    const timeToStart = calculateTimeUntilStart(
+      next.timeStart + (next.dayOffset - (now?.dayOffset ?? 0)) * dayInMs,
+      next.gap,
+      next.linkStart !== null,
+      time.clock,
+      runtime.offset,
+    );
     if (timeToStart < 0) {
       nextStatus = dueText;
     } else {
@@ -64,7 +72,13 @@ export default function TimelinePage(props: TimelinePageProps) {
   }
 
   if (followedBy !== null) {
-    const timeToStart = getTimeToStart(time.clock, followedBy.timeStart, followedBy?.delay ?? 0, runtime.offset);
+    const timeToStart = calculateTimeUntilStart(
+      followedBy.timeStart + (followedBy.dayOffset - (now?.dayOffset ?? 0)) * dayInMs,
+      followedBy.gap + (next?.gap ?? 0),
+      false,
+      time.clock,
+      runtime.offset,
+    );
     if (timeToStart < 0) {
       followedByStatus = dueText;
     } else {
@@ -97,6 +111,7 @@ export default function TimelinePage(props: TimelinePageProps) {
         firstStart={firstStart}
         rundown={scopedRundown}
         selectedEventId={selectedId}
+        nextEventId={next?.id ?? null}
         totalDuration={totalDuration}
       />
     </div>

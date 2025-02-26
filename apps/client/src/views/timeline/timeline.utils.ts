@@ -12,10 +12,7 @@ import {
 } from 'ontime-utils';
 
 import { clamp } from '../../common/utils/math';
-import { formatDuration } from '../../common/utils/time';
 import { isStringBoolean } from '../../features/viewers/common/viewUtils';
-
-import type { ProgressStatus } from './TimelineEntry';
 
 type CSSPosition = {
   left: number;
@@ -72,21 +69,6 @@ export function makeTimelineSections(firstHour: number, lastHour: number) {
     timelineSections.push(i);
   }
   return timelineSections;
-}
-
-/**
- * Returns a formatted label for a progress status
- */
-export function getStatusLabel(timeToStart: number, status: ProgressStatus): string {
-  if (status === 'done' || status === 'live') {
-    return status;
-  }
-
-  if (timeToStart < 0) {
-    return 'pending';
-  }
-
-  return formatDuration(timeToStart);
 }
 
 interface ScopedRundownData {
@@ -191,11 +173,4 @@ export function getUpcomingEvents(events: OntimeRundown, selectedId: MaybeString
     next,
     followedBy,
   };
-}
-
-/**
- * Utility function calculates time to start
- */
-export function getTimeToStart(now: number, start: number, delay: number, offset: number): number {
-  return start + delay - now - offset;
 }

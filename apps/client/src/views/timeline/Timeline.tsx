@@ -13,13 +13,14 @@ interface TimelineProps {
   firstStart: number;
   rundown: OntimeRundown;
   selectedEventId: string | null;
+  nextEventId: string | null;
   totalDuration: number;
 }
 
 export default memo(Timeline);
 
 function Timeline(props: TimelineProps) {
-  const { firstStart, rundown, selectedEventId, totalDuration } = props;
+  const { firstStart, rundown, selectedEventId, nextEventId, totalDuration } = props;
   const { width: screenWidth } = useViewportSize();
 
   if (totalDuration === 0) {
@@ -32,6 +33,9 @@ function Timeline(props: TimelineProps) {
 
   // we use selectedEventId as a signifier on whether the timeline is live
   let eventStatus: ProgressStatus = selectedEventId ? 'done' : 'future';
+
+  let totalGap = 0;
+  let currentDay = 0;
 
   return (
     <div className={style.timeline}>
@@ -48,6 +52,12 @@ function Timeline(props: TimelineProps) {
         }
         if (event.id === selectedEventId) {
           eventStatus = 'live';
+          currentDay = event.dayOffset;
+        }
+        const isNext = nextEventId === event.id;
+
+        if (isPlayableEvent(event)) {
+          totalGap += event.gap;
         }
 
         const normalisedStart = event.timeStart + event.dayOffset * dayInMs;
@@ -71,6 +81,10 @@ function Timeline(props: TimelineProps) {
             start={normalisedStart} // dataset solves issues related to crossing midnight
             title={event.title}
             width={elementWidth}
+            totalGap={totalGap}
+            normalisedDayOffset={event.dayOffset - currentDay}
+            isNext={isNext}
+            isLinked={event.linkStart !== null}
           />
         );
       })}
