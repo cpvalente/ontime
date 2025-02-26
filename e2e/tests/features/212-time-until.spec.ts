@@ -33,4 +33,11 @@ test('linked time until', async ({ page }) => {
   await expect(page.getByTestId('entry-2').locator('#event-block')).toContainText('29s');
   await expect(page.getByTestId('entry-3').locator('#event-block')).toContainText('10m');
   await expect(page.getByTestId('entry-4').locator('#event-block')).toContainText('20m');
+
+  await page.goto('http://localhost:4001/timeline/');
+  await expect(page.getByTestId('timeline-view')).toContainText('29s');
+  await expect(page.getByTestId('timeline-view')).toContainText('10m');
+  await expect(page.getByTestId('timeline-view')).toContainText('20m');
+  await expect(page.getByTestId('timeline-view')).toContainText('T -');
+  await expect(page.getByTestId('timeline-view')).toContainText('T - 10m');
 });
