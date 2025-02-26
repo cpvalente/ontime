@@ -40,7 +40,6 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
     if (newPath === '/' || newPath === currentPath) {
       return;
     }
-    console.log('----> redirect to', newPath);
     setRedirect({ target: id, redirect: newPath });
     onClose();
   };
