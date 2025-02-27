@@ -3,8 +3,8 @@ import { Button, Input, Switch } from '@chakra-ui/react';
 
 import { editAutomationSettings } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
-import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import Info from '../../../../common/components/info/Info';
+import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
 import { isOntimeCloud } from '../../../../externals';

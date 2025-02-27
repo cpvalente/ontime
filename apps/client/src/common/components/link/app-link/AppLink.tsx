@@ -1,7 +1,7 @@
 import { MouseEvent, ReactNode } from 'react';
 import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 
-import { openLink } from '../../utils/linkUtils';
+import { openLink } from '../../../utils/linkUtils';
 
 import style from './AppLink.module.scss';
 
