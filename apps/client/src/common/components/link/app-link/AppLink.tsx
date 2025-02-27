@@ -1,26 +1,25 @@
-import { MouseEvent, ReactNode } from 'react';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-
-import { openLink } from '../../../utils/linkUtils';
+import { type PropsWithChildren } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import style from './AppLink.module.scss';
 
 interface AppLinkProps {
-  href: string;
-  children: ReactNode;
+  search: string;
 }
 
-export default function AppLink(props: AppLinkProps) {
-  const { href, children } = props;
+/**
+ * Component used to navigate to an editor link inside the same window
+ * Handles the path to respect Ontime Clouds base URL
+ */
+export default function AppLink(props: PropsWithChildren<AppLinkProps>) {
+  const { search, children } = props;
+  const navigate = useNavigate();
 
-  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault();
-    openLink(href);
-  };
+  const handleClick = () => navigate({ search });
 
   return (
-    <a href='#!' target='_blank' rel='noreferrer' className={style.link} onClick={handleClick}>
-      {children} <IoArrowUp className={style.linkIcon} />
-    </a>
+    <button onClick={handleClick} className={style.link}>
+      {children}
+    </button>
   );
 }

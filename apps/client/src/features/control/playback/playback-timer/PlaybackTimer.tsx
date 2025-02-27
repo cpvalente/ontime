@@ -3,6 +3,7 @@ import { Tooltip } from '@chakra-ui/react';
 import { MaybeNumber, Playback, TimerPhase } from 'ontime-types';
 import { dayInMs, millisToString } from 'ontime-utils';
 
+import AppLink from '../../../../common/components/link/app-link/AppLink';
 import { useTimer } from '../../../../common/hooks/useSocket';
 import useReport from '../../../../common/hooks-query/useReport';
 import { formatDuration } from '../../../../common/utils/time';
@@ -98,11 +99,7 @@ function StoppedStatus() {
   const hasReport = Object.keys(data).length > 0;
 
   if (hasReport) {
-    return (
-      <a className={style.reportLink} href='/editor?settings=feature_settings__report'>
-        Go to report management
-      </a>
-    );
+    return <AppLink search='settings=feature_settings__report'>Go to report management</AppLink>;
   }
 
   return null;

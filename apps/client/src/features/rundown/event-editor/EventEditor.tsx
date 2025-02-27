@@ -1,8 +1,7 @@
 import { CSSProperties, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Button } from '@chakra-ui/react';
 import { CustomFieldLabel, OntimeEvent } from 'ontime-types';
 
+import AppLink from '../../../common/components/link/app-link/AppLink';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import { getAccessibleColour } from '../../../common/utils/styleUtils';
@@ -29,7 +28,6 @@ export default function EventEditor(props: EventEditorProps) {
   const { event } = props;
   const { data: customFields } = useCustomFields();
   const { updateEvent } = useEventAction();
-  const [_searchParams, setSearchParams] = useSearchParams();
 
   const isEditor = window.location.pathname.includes('editor');
 
@@ -44,10 +42,6 @@ export default function EventEditor(props: EventEditorProps) {
     },
     [event?.id, updateEvent],
   );
-
-  const handleOpenCustomManager = () => {
-    setSearchParams({ settings: 'feature_settings__custom' });
-  };
 
   if (!event) {
     return <EventEditorEmpty />;
@@ -83,11 +77,7 @@ export default function EventEditor(props: EventEditorProps) {
       <div className={style.column}>
         <Editor.Title>
           Custom Fields
-          {isEditor && (
-            <Button variant='ontime-subtle' size='sm' onClick={handleOpenCustomManager}>
-              Manage
-            </Button>
-          )}
+          {isEditor && <AppLink search='settings=feature_settings__custom'>Manage</AppLink>}
         </Editor.Title>
 
         {Object.keys(customFields).map((fieldKey) => {
