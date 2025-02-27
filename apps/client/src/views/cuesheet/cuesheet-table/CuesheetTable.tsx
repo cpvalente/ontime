@@ -165,7 +165,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
 
                 return (
                   <EventRow
-                    key={row.id}
+                    key={`${row.id}-${entry.revision}`}
                     rowId={row.id}
                     eventId={entry.id}
                     eventIndex={eventIndex}
