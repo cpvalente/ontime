@@ -24,4 +24,10 @@ export const langNo: TranslationObject = {
   'timeline.done': 'Ferdig',
   'timeline.due': 'Venter',
   'timeline.followedby': 'Etterfulgt av',
+  'project.title': 'Tittel',
+  'project.description': 'Beskrivelse',
+  'project.backstage_info': 'Backstage-informasjon',
+  'project.backstage_url': 'Backstage-URL',
+  'project.public_info': 'Offentlig informasjon',
+  'project.public_url': 'Offentlig URL',
 };

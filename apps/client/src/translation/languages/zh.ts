@@ -24,4 +24,10 @@ export const langZhCn: TranslationObject = {
   'timeline.done': '已结束',
   'timeline.due': '即将开始',
   'timeline.followedby': '随后是',
+  'project.title': '标题',
+  'project.description': '描述',
+  'project.backstage_info': '后台信息',
+  'project.backstage_url': '后台网址',
+  'project.public_info': '公开信息',
+  'project.public_url': '公开网址',
 };

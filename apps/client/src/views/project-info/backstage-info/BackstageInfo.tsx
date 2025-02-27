@@ -2,6 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 import { ProjectData } from 'ontime-types';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
+import { useTranslation } from '../../../translation/TranslationProvider';
 
 interface BackstageInfoProps {
   general: ProjectData;
@@ -10,6 +11,7 @@ interface BackstageInfoProps {
 export default function BackstageInfo(props: BackstageInfoProps) {
   const { general } = props;
   const [searchParams] = useSearchParams();
+  const { getLocalizedString } = useTranslation();
 
   const showBackstage = isStringBoolean(searchParams.get('showBackstage'));
 
@@ -21,13 +23,13 @@ export default function BackstageInfo(props: BackstageInfoProps) {
     <>
       {general.backstageInfo && (
         <>
-          <div className='info__label'>Backstage info</div>
+          <div className='info__label'>{getLocalizedString('project.backstage_info')}</div>
           <div className='info__value'>{general.backstageInfo}</div>
         </>
       )}
       {general.backstageUrl && (
         <>
-          <div className='info__label'>Backstage URL</div>
+          <div className='info__label'>{getLocalizedString('project.backstage_url')}</div>
           <a href={general.backstageUrl} target='_blank' rel='noreferrer' className='info__value'>
             {general.backstageUrl}
           </a>
