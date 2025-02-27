@@ -5,9 +5,9 @@ import { ViewSettings } from 'ontime-types';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { postViewSettings } from '../../../../common/api/viewSettings';
-import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import Info from '../../../../common/components/info/Info';
 import { SwatchPickerRHF } from '../../../../common/components/input/colour-input/SwatchPicker';
+import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useViewSettings from '../../../../common/hooks-query/useViewSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';

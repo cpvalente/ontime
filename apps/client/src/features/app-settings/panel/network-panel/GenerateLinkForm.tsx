@@ -5,8 +5,8 @@ import { Button, Select, Switch } from '@chakra-ui/react';
 
 import { generateUrl } from '../../../../common/api/session';
 import { maybeAxiosError } from '../../../../common/api/utils';
-import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import Info from '../../../../common/components/info/Info';
+import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
 import copyToClipboard from '../../../../common/utils/copyToClipboard';

@@ -4,8 +4,8 @@ import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { CustomField, CustomFieldLabel } from 'ontime-types';
 
 import { deleteCustomField, editCustomField, postCustomField } from '../../../../../common/api/customFields';
-import ExternalLink from '../../../../../common/components/external-link/ExternalLink';
 import Info from '../../../../../common/components/info/Info';
+import ExternalLink from '../../../../../common/components/link/external-link/ExternalLink';
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
 import { customFieldsDocsUrl } from '../../../../../externals';
 import * as Panel from '../../../panel-utils/PanelUtils';

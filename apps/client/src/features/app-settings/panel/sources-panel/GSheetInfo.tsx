@@ -1,5 +1,6 @@
-import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import Info from '../../../../common/components/info/Info';
+import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
+
 const googleSheetDocsUrl = 'https://docs.getontime.no/features/import-spreadsheet-gsheet/';
 
 export default function GSheetInfo() {

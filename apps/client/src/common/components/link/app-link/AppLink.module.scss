@@ -1,4 +1,4 @@
-@use "../../../theme/mixins" as *;
+@use "../../../../theme/mixins" as *;
 
 .link {
   @include action-link;
