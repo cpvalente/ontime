@@ -47,6 +47,10 @@
   /** ---- Colour used for progress bar progress */
   --timer-progress-override: #202020;
 
+  /** View specific features: /op */
+  --operator-customfield-font-size-override: 1.25rem;
+  --operator-running-bg-override: #339e4e;
+
   /** View specific features: /studio */
   --studio-active: #101010;
   --studio-idle: #cfcfcf;
