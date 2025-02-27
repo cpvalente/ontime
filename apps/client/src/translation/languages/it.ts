@@ -24,4 +24,10 @@ export const langIt: TranslationObject = {
   'timeline.done': 'Terminato',
   'timeline.due': 'previsto',
   'timeline.followedby': 'Seguito da',
+  'project.title': 'Titolo',
+  'project.description': 'Descrizione',
+  'project.backstage_info': 'Informazioni di backstage',
+  'project.backstage_url': 'URL di backstage',
+  'project.public_info': 'Informazioni pubbliche',
+  'project.public_url': 'URL pubblico',
 };

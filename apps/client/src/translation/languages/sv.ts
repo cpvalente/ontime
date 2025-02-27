@@ -24,4 +24,10 @@ export const langSv: TranslationObject = {
   'timeline.done': 'Avslutad',
   'timeline.due': 'Väntande',
   'timeline.followedby': 'Följt av',
+  'project.title': 'Titel',
+  'project.description': 'Beskrivning',
+  'project.backstage_info': 'Backstageinformation',
+  'project.backstage_url': 'Backstage-URL',
+  'project.public_info': 'Offentlig information',
+  'project.public_url': 'Offentlig URL',
 };
