@@ -1,12 +1,10 @@
-@use "../../../../theme/mixins" as *;
-
 .link {
-  @include action-link;
-  font-size: $inner-section-text-size;
-}
+  color: $label-gray;
+  font-size: $text-body-size;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 
-.linkIcon {
-  margin-left: $element-inner-spacing;
-  display: inline-block;
-  @include rotate-fourty-five;
+  &:hover {
+    color: $blue-400;
+  }
 }
