@@ -158,7 +158,14 @@ export default function AppRouter() {
         {/*/!* Protected Routes *!/*/}
         <Route path='/editor' element={<Editor />} />
         <Route path='/cuesheet' element={<PCuesheet />} />
-        <Route path='/op' element={<POperator />} />
+        <Route
+          path='/op'
+          element={
+            <ViewLoader>
+              <POperator />
+            </ViewLoader>
+          }
+        />
 
         {/*/!* Protected Routes - Elements *!/*/}
         <Route
