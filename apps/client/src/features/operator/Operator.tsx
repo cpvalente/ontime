@@ -116,7 +116,7 @@ export default function Operator() {
 
   // subscriptions is a MultiSelect and may have multiple values
   const subscriptions = searchParams.getAll('subscribe').filter((value) => Object.hasOwn(customFields, value));
-  const canEdit = shouldEdit && subscriptions;
+  const canEdit = shouldEdit && subscriptions.length;
 
   const main = searchParams.get('main') as keyof TitleFields | null;
   const secondary = searchParams.get('secondary');
