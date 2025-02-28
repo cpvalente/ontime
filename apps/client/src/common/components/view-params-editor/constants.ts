@@ -1,6 +1,6 @@
 import { CustomFields } from 'ontime-types';
 
-import type { ParamField } from './types';
+import type { MultiselectOptions, ParamField } from './types';
 
 export const makeOptionsFromCustomFields = (
   customFields: CustomFields,
@@ -17,6 +17,17 @@ export const makeOptionsFromCustomFields = (
   }
   return options;
 };
+
+export function makeCustomFieldSelectOptions(customFields: CustomFields, filterImageType = true): MultiselectOptions {
+  const options: MultiselectOptions = {};
+  for (const [key, value] of Object.entries(customFields)) {
+    if (filterImageType && value.type === 'image') {
+      continue;
+    }
+    options[key] = { value: key, label: value.label, colour: value.colour };
+  }
+  return options;
+}
 
 export const getTimeOption = (timeFormat: string): ParamField => {
   const placeholder = `${timeFormat} (default)`;
