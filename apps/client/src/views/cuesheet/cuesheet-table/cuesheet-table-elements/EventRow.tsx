@@ -97,7 +97,12 @@ function EventRow(props: EventRowProps) {
             ?.getVisibleCells()
             .map((cell) => {
               return (
-                <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}>
+                <td
+                  key={cell.id}
+                  style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}
+                  tabIndex={-1}
+                  role='cell'
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               );
