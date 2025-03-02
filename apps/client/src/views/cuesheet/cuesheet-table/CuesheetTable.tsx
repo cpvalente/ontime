@@ -1,27 +1,14 @@
 import { useCallback, useRef } from 'react';
+import { useTableNav } from '@table-nav/react';
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import Color from 'color';
-import {
-  isOntimeBlock,
-  isOntimeDelay,
-  isOntimeEvent,
-  MaybeString,
-  OntimeEvent,
-  OntimeRundown,
-  OntimeRundownEntry,
-  TimeField,
-} from 'ontime-types';
+import { isOntimeEvent, MaybeString, OntimeEvent, OntimeRundown, OntimeRundownEntry, TimeField } from 'ontime-types';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import useFollowComponent from '../../../common/hooks/useFollowComponent';
-import { useSelectedEventId } from '../../../common/hooks/useSocket';
-import { getAccessibleColour } from '../../../common/utils/styleUtils';
 import { useCuesheetOptions } from '../cuesheet.options';
 
-import BlockRow from './cuesheet-table-elements/BlockRow';
+import CuesheetBody from './cuesheet-table-elements/CuesheetBody';
 import CuesheetHeader from './cuesheet-table-elements/CuesheetHeader';
-import DelayRow from './cuesheet-table-elements/DelayRow';
-import EventRow from './cuesheet-table-elements/EventRow';
 import CuesheetTableMenu from './cuesheet-table-menu/CuesheetTableMenu';
 import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettings';
 import useColumnManager from './useColumnManager';
@@ -38,14 +25,15 @@ export default function CuesheetTable(props: CuesheetTableProps) {
   const { data, columns, showModal } = props;
 
   const { updateEvent, updateTimer } = useEventAction();
-  const { selectedEventId } = useSelectedEventId();
-  const { followSelected, hideDelays, hidePast, showDelayedTimes, hideTableSeconds } = useCuesheetOptions();
+  const { followSelected, showDelayedTimes, hideTableSeconds } = useCuesheetOptions();
   const { columnVisibility, columnOrder, columnSizing, resetColumnOrder, setColumnVisibility, setColumnSizing } =
     useColumnManager(columns);
 
   const selectedRef = useRef<HTMLTableRowElement | null>(null);
   const tableContainerRef = useRef<HTMLDivElement | null>(null);
   useFollowComponent({ followRef: selectedRef, scrollRef: tableContainerRef, doFollow: followSelected });
+
+  const { listeners } = useTableNav();
 
   const table = useReactTable({
     data,
@@ -63,6 +51,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
       handleUpdate: (rowIndex: number, accessor: string, payload: string, isCustom = false) => {
         // check if value is the same
         const event = data[rowIndex];
+
         if (!event || !isOntimeEvent(event)) {
           return;
         }
@@ -104,10 +93,6 @@ export default function CuesheetTable(props: CuesheetTableProps) {
   const rowModel = table.getRowModel();
   const allLeafColumns = table.getAllLeafColumns();
 
-  let eventIndex = 0;
-  // for the first event, it will be past if there is something selected
-  let isPast = Boolean(selectedEventId);
-
   return (
     <>
       <CuesheetTableSettings
@@ -117,74 +102,9 @@ export default function CuesheetTable(props: CuesheetTableProps) {
         handleClearToggles={setAllVisible}
       />
       <div ref={tableContainerRef} className={style.cuesheetContainer}>
-        <table className={style.cuesheet} id='cuesheet'>
+        <table className={style.cuesheet} id='cuesheet' {...listeners}>
           <CuesheetHeader headerGroups={headerGroups} />
-          <tbody>
-            {rowModel.rows.map((row, index) => {
-              const key = row.original.id;
-              const isSelected = selectedEventId === key;
-              const entry = row.original;
-              if (isSelected) {
-                isPast = false;
-              }
-
-              if (isOntimeBlock(entry)) {
-                return <BlockRow key={key} title={entry.title} hidePast={isPast && hidePast} />;
-              }
-              if (isOntimeDelay(entry)) {
-                if (isPast && hidePast) {
-                  return null;
-                }
-                const delayVal = entry.duration;
-                if (hideDelays || delayVal === 0) {
-                  return null;
-                }
-
-                return <DelayRow key={key} duration={delayVal} />;
-              }
-              if (isOntimeEvent(entry)) {
-                eventIndex++;
-                const isSelected = key === selectedEventId;
-
-                if (isPast && hidePast) {
-                  return null;
-                }
-
-                let rowBgColour: string | undefined;
-                if (isSelected) {
-                  rowBgColour = '#D20300'; // $red-700
-                } else if (entry.colour) {
-                  try {
-                    // the colour is user defined and might be invalid
-                    const accessibleBackgroundColor = Color(getAccessibleColour(entry.colour).backgroundColor);
-                    rowBgColour = accessibleBackgroundColor.fade(0.75).hexa();
-                  } catch (_error) {
-                    /* we do not handle errors here */
-                  }
-                }
-
-                return (
-                  <EventRow
-                    key={`${row.id}-${entry.revision}`}
-                    rowId={row.id}
-                    eventId={entry.id}
-                    eventIndex={eventIndex}
-                    rowIndex={index}
-                    isPast={isPast}
-                    selectedRef={isSelected ? selectedRef : undefined}
-                    skip={entry.skip}
-                    colour={entry.colour}
-                    rowBgColour={rowBgColour}
-                    table={table}
-                    columnSizing={columnSizing}
-                  />
-                );
-              }
-
-              // currently there is no scenario where entryType is not handled above, either way...
-              return null;
-            })}
-          </tbody>
+          <CuesheetBody rowModel={rowModel} selectedRef={selectedRef} table={table} columnSizing={columnSizing} />
         </table>
       </div>
       <CuesheetTableMenu showModal={showModal} />

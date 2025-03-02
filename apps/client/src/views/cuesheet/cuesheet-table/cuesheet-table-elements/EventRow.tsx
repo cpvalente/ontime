@@ -2,7 +2,7 @@ import { memo, MutableRefObject, useLayoutEffect, useRef, useState } from 'react
 import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
 import { flexRender, Table } from '@tanstack/react-table';
 import Color from 'color';
-import { OntimeRundownEntry } from 'ontime-types';
+import { OntimeEvent, OntimeRundownEntry } from 'ontime-types';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
@@ -13,7 +13,7 @@ import style from '../CuesheetTable.module.scss';
 
 interface EventRowProps {
   rowId: string;
-  eventId: string;
+  event: OntimeEvent;
   eventIndex: number;
   rowIndex: number;
   isPast?: boolean;
@@ -26,10 +26,22 @@ interface EventRowProps {
   columnSizing: Record<string, number>;
 }
 
-export default memo(EventRow);
+export default memo(EventRow, (prevProps, nextProps) => {
+  return (
+    prevProps.rowId === nextProps.rowId &&
+    prevProps.event.revision === nextProps.event.revision &&
+    prevProps.eventIndex === nextProps.eventIndex &&
+    prevProps.rowIndex === nextProps.rowIndex &&
+    prevProps.isPast === nextProps.isPast &&
+    prevProps.selectedRef === nextProps.selectedRef &&
+    prevProps.rowBgColour === nextProps.rowBgColour &&
+    prevProps.table === nextProps.table &&
+    prevProps.columnSizing === nextProps.columnSizing
+  );
+});
 
 function EventRow(props: EventRowProps) {
-  const { rowId, eventId, eventIndex, rowIndex, isPast, selectedRef, skip, colour, rowBgColour, table } = props;
+  const { rowId, event, eventIndex, rowIndex, isPast, selectedRef, rowBgColour, table } = props;
   const { hideIndexColumn, showActionMenu } = useCuesheetOptions();
   const ownRef = useRef<HTMLTableRowElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -63,23 +75,23 @@ function EventRow(props: EventRowProps) {
     };
   }, [ownRef, selectedRef]);
 
-  const { color, backgroundColor } = getAccessibleColour(colour);
+  const { color, backgroundColor } = getAccessibleColour(event.colour);
   const mutedText = Color(color).fade(0.4).hexa();
 
   return (
     <tr
-      className={cx([style.eventRow, skip ?? style.skip])}
+      className={cx([style.eventRow, event.skip ?? style.skip])}
       style={{ opacity: `${isPast ? '0.2' : '1'}` }}
       ref={selectedRef ?? ownRef}
     >
       {showActionMenu && (
-        <td className={style.actionColumn}>
+        <td className={style.actionColumn} tabIndex={-1} role='cell'>
           <IconButton
             aria-label='Options'
-            onClick={(event) => {
-              const rect = event.currentTarget.getBoundingClientRect();
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
               const yPos = 8 + rect.y + rect.height / 2;
-              openMenu({ x: rect.x, y: yPos }, eventId, rowIndex);
+              openMenu({ x: rect.x, y: yPos }, event.id, rowIndex);
             }}
           >
             <IoEllipsisHorizontal />
@@ -87,7 +99,7 @@ function EventRow(props: EventRowProps) {
         </td>
       )}
       {!hideIndexColumn && (
-        <td className={style.indexColumn} style={{ backgroundColor, color: mutedText }}>
+        <td className={style.indexColumn} style={{ backgroundColor, color: mutedText }} tabIndex={-1} role='cell'>
           {eventIndex}
         </td>
       )}
@@ -97,7 +109,12 @@ function EventRow(props: EventRowProps) {
             ?.getVisibleCells()
             .map((cell) => {
               return (
-                <td key={cell.id} style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}>
+                <td
+                  key={cell.id}
+                  style={{ width: cell.column.getSize(), backgroundColor: rowBgColour }}
+                  tabIndex={-1}
+                  role='cell'
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               );

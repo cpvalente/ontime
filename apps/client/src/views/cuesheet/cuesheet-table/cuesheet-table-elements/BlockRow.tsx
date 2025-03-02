@@ -19,7 +19,9 @@ function BlockRow(props: BlockRowProps) {
 
   return (
     <tr className={style.blockRow}>
-      <td>{title}</td>
+      <td tabIndex={-1} role='cell'>
+        {title}
+      </td>
     </tr>
   );
 }
