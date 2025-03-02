@@ -350,31 +350,24 @@ export function updateAll(rundown: OntimeRundown) {
   loadBlock(rundown);
 }
 
-export function setSpeed(speed: number) {
+export function setSpeed(speed: number): number {
+  const remainingMs = runtimeState.timer.current;
+  const adjustedRemainingTimeMs = remainingMs / speed;
+  const newFinishTimeMs = runtimeState.clock + adjustedRemainingTimeMs;
+
   runtimeState.timer.speed = speed;
+  runtimeState.timer.expectedFinish = newFinishTimeMs;
+
+  return runtimeState.timer.speed;
 }
 
 export function resetSpeed() {
   runtimeState.timer.speed = 1.0;
+  return runtimeState.timer.speed;
 }
 
 export function getSpeed() {
   return runtimeState.timer.speed;
-}
-
-export function calculateSpeed() {
-  // TODO: what should this return if no timer is running?
-  if (runtimeState.eventNow !== null) {
-    const timeToDesiredFinish = runtimeState.eventNow.timeEnd - runtimeState.clock;
-    const timeToActualFinish = runtimeState.timer.expectedFinish - runtimeState.clock;
-    const factor = 1 / (timeToDesiredFinish / timeToActualFinish);
-
-    // TODO: this can produce negative speeds (i.e. the desired finish time is in the past)
-    // TODO: should there be some clamping or rounding on this number?
-    return factor;
-  }
-
-  return 1.0;
 }
 
 export function start(state: RuntimeState = runtimeState): boolean {

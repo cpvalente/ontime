@@ -130,7 +130,6 @@ export const useTimerSpeed = createSelector((state: RuntimeStore) => ({
 }));
 
 export const setTimerSpeed = {
-  calculateSpeed: () => socketSendJson('calculate-speed'),
   getSpeed: () => socketSendJson('get-speed'),
   setSpeed: (speed: number) => socketSendJson('set-speed', speed),
 };
