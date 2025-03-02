@@ -1,8 +1,8 @@
 import { MouseEvent, ReactNode } from 'react';
 import { IoOpenOutline } from '@react-icons/all-files/io5/IoOpenOutline';
 
-import { openLink } from '../../utils/linkUtils';
-import { cx } from '../../utils/styleUtils';
+import { openLink } from '../../../utils/linkUtils';
+import { cx } from '../../../utils/styleUtils';
 
 import style from './ExternalLink.module.scss';
 

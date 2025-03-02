@@ -1,4 +1,4 @@
-import ExternalLink from '../../../../common/components/external-link/ExternalLink';
+import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import useAppVersion from '../../../../common/hooks-query/useAppVersion';
 import { appVersion } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';

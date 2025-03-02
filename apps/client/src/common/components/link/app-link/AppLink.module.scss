@@ -1,0 +1,10 @@
+.link {
+  color: $label-gray;
+  font-size: $text-body-size;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  &:hover {
+    color: $blue-400;
+  }
+}

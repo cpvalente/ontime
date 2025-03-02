@@ -16,8 +16,8 @@ import {
 
 import { addAutomation, editAutomation, testOutput } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
-import ExternalLink from '../../../../common/components/external-link/ExternalLink';
 import Info from '../../../../common/components/info/Info';
+import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';

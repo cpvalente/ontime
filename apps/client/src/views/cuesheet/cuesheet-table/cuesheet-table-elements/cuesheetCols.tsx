@@ -6,6 +6,7 @@ import { millisToString, removeSeconds } from 'ontime-utils';
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
 import { formatDuration } from '../../../../common/utils/time';
 
+import EditableImage from './EditableImage';
 import MultiLineCell from './MultiLineCell';
 import SingleLineCell from './SingleLineCell';
 import TimeInput from './TimeInput';
@@ -105,6 +106,24 @@ function MakeMultiLineField({ row, column, table }: CellContext<OntimeRundownEnt
   return <MultiLineCell initialValue={initialValue} handleUpdate={update} />;
 }
 
+function LazyImage({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
+  const update = useCallback(
+    (newValue: string) => {
+      table.options.meta?.handleUpdate(row.index, column.id, newValue, true);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- we skip table.options.meta since the reference seems unstable
+    [column.id, row.index],
+  );
+
+  const event = row.original;
+  if (!isOntimeEvent(event)) {
+    return null;
+  }
+
+  const initialValue = event.custom[column.id];
+  return <EditableImage initialValue={initialValue} updateValue={update} />;
+}
+
 function MakeSingleLineField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
   const update = useCallback(
     (newValue: string) => {
@@ -139,7 +158,6 @@ function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry,
   }
 
   const initialValue = event.custom[column.id] ?? '';
-
   return <MultiLineCell initialValue={initialValue} handleUpdate={update} />;
 }
 
@@ -148,8 +166,8 @@ export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<Ontim
     accessorKey: key,
     id: key,
     header: customFields[key].label,
-    meta: { colour: customFields[key].colour },
-    cell: MakeCustomField,
+    meta: { colour: customFields[key].colour, type: customFields[key].type },
+    cell: customFields[key].type === 'string' ? MakeCustomField : LazyImage,
     size: 250,
     minSize: 75,
   }));

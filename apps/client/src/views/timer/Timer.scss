@@ -201,6 +201,14 @@
     top: $view-block-padding;
     left: $view-inline-padding;
     max-width: min(200px, 20vw);
-    max-height: min(100px, 20vh);
+  }
+}
+
+/* =================== MOBILE ===================*/
+@media screen and (max-width: 768px) {
+  .stage-timer {
+    .logo img {
+      height: min(50px, 10vh);
+    }
   }
 }

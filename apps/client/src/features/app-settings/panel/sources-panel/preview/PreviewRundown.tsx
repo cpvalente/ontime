@@ -49,6 +49,7 @@ export default function PreviewRundown(props: PreviewRundownProps) {
           {fieldLabels.map((label) => (
             <th key={label}>{label}</th>
           ))}
+          <th>ID</th>
         </tr>
       </thead>
       <tbody>
@@ -113,6 +114,9 @@ export default function PreviewRundown(props: PreviewRundownProps) {
                     }
                     return <td key={field}>{value}</td>;
                   })}
+                <td className={style.center}>
+                  <Tag>{event.id}</Tag>
+                </td>
               </tr>
               {event.note && (
                 <tr>

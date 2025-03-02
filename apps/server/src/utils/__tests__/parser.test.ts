@@ -787,6 +787,7 @@ describe('getCustomFieldData()', () => {
         sound: 'sound',
         video: 'av',
       },
+      entryId: 'id',
     } as ImportMap;
 
     const result = getCustomFieldData(importMap, {});
@@ -838,6 +839,7 @@ describe('getCustomFieldData()', () => {
         sound: 'sound',
         video: 'av',
       },
+      entryId: 'id',
     } as ImportMap;
 
     const customFields: CustomFields = {

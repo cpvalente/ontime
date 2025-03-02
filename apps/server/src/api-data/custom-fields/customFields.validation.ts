@@ -11,7 +11,7 @@ export const validateCustomField = [
     .custom((value) => {
       return isAlphanumericWithSpace(value);
     }),
-  body('type').exists().isString().trim(),
+  body('type').exists().isIn(['string', 'image']),
   body('colour').exists().isString().trim(),
 
   (req: Request, res: Response, next: NextFunction) => {
@@ -23,8 +23,14 @@ export const validateCustomField = [
 
 export const validateEditCustomField = [
   param('label').exists().isString().trim(),
-  body('label').exists().isString().trim(),
-  body('type').exists().isString().trim(),
+  body('label')
+    .exists()
+    .isString()
+    .trim()
+    .custom((value) => {
+      return isAlphanumericWithSpace(value);
+    }),
+  body('type').exists().isIn(['string', 'image']),
   body('colour').exists().isString().trim(),
 
   (req: Request, res: Response, next: NextFunction) => {

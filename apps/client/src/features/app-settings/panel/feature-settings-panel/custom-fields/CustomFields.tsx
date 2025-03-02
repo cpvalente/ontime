@@ -4,8 +4,8 @@ import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { CustomField, CustomFieldLabel } from 'ontime-types';
 
 import { deleteCustomField, editCustomField, postCustomField } from '../../../../../common/api/customFields';
-import ExternalLink from '../../../../../common/components/external-link/ExternalLink';
 import Info from '../../../../../common/components/info/Info';
+import ExternalLink from '../../../../../common/components/link/external-link/ExternalLink';
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
 import { customFieldsDocsUrl } from '../../../../../externals';
 import * as Panel from '../../../panel-utils/PanelUtils';
@@ -74,19 +74,21 @@ export default function CustomFields() {
             <thead>
               <tr>
                 <th>Colour</th>
+                <th>Type</th>
                 <th>Name</th>
                 <th>Key (used in Integrations)</th>
                 <th />
               </tr>
             </thead>
             <tbody>
-              {Object.entries(data).map(([key, { colour, label }]) => {
+              {Object.entries(data).map(([key, { colour, label, type }]) => {
                 return (
                   <CustomFieldEntry
                     key={key}
-                    field={key}
+                    fieldKey={key}
                     colour={colour}
                     label={label}
+                    type={type}
                     onEdit={handleEditField}
                     onDelete={handleDelete}
                   />

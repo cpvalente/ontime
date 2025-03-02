@@ -16,6 +16,7 @@ import { navigatorConstants } from '../../../viewerConfig';
 import { setClientRemote } from '../../hooks/useSocket';
 import useUrlPresets from '../../hooks-query/useUrlPresets';
 import Info from '../info/Info';
+import AppLink from '../link/app-link/AppLink';
 
 import style from './RedirectClientModal.module.scss';
 
@@ -40,7 +41,6 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
     if (newPath === '/' || newPath === currentPath) {
       return;
     }
-    console.log('----> redirect to', newPath);
     setRedirect({ target: id, redirect: newPath });
     onClose();
   };
@@ -59,9 +59,7 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
             Either by selecting a URL Preset or entering a custom path.
             <br />
             <br />
-            <a href='/editor?settings=feature_settings__urlpresets' target='_blank' className={style.link}>
-              Manage URL Presets
-            </a>
+            <AppLink search='settings=feature_settings__urlpresets'>Manage URL Presets</AppLink>
           </Info>
           <div>
             <span className={style.label}>Select View or URL Preset</span>

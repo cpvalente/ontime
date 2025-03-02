@@ -1,14 +1,7 @@
 import { useCallback, useRef } from 'react';
 import { useTableNav } from '@table-nav/react';
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import {
-  isOntimeEvent,
-  MaybeString,
-  OntimeEvent,
-  OntimeRundown,
-  OntimeRundownEntry,
-  TimeField,
-} from 'ontime-types';
+import { isOntimeEvent, MaybeString, OntimeEvent, OntimeRundown, OntimeRundownEntry, TimeField } from 'ontime-types';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import useFollowComponent from '../../../common/hooks/useFollowComponent';

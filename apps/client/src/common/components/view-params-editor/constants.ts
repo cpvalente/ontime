@@ -5,11 +5,17 @@ import type { ParamField } from './types';
 export const makeOptionsFromCustomFields = (
   customFields: CustomFields,
   additionalOptions: Record<string, string> = {},
+  filterImageType = true,
 ) => {
-  return Object.entries(customFields).reduce((options, [key, value]) => {
+  const options = structuredClone(additionalOptions);
+  for (const [key, value] of Object.entries(customFields)) {
+    if (filterImageType && value.type === 'image') {
+      continue;
+    }
+
     options[`custom-${key}`] = `Custom: ${value.label}`;
-    return options;
-  }, additionalOptions);
+  }
+  return options;
 };
 
 export const getTimeOption = (timeFormat: string): ParamField => {

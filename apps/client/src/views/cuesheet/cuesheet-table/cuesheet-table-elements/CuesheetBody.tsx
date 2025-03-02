@@ -72,6 +72,7 @@ export default function CuesheetBody(props: CuesheetBodyProps) {
             }
           }
 
+
           return (
             <EventRow
               key={row.id}

@@ -10,7 +10,8 @@
   font-family: var(--font-family-override, $viewer-font-family);
   background: var(--background-color-override, $viewer-background-color);
   color: var(--color-override, $viewer-color);
-  padding: min(2vh, 16px) clamp(16px, 10vw, 64px);
+  padding: $view-outer-padding;
+  font-size: $base-font-size;
 
   display: flex;
   flex-direction: column;
@@ -18,7 +19,6 @@
 
   .logo {
     max-width: min(200px, 30vw);
-    max-height: min(100px, 20vh);
   }
 
   .info {
@@ -26,23 +26,29 @@
     max-height: 100%;
     overflow-y: auto;
     width: min(calc(100vw - 4rem), 800px);
-    font-size: clamp(16px, 1.5vw, 24px);
   }
 
   .info__label {
     font-weight: 600;
     color: var(--label-color-override, $viewer-label-color);
     text-transform: uppercase;
+    margin-top: $view-element-gap;
+    white-space: pre;
   }
-  .info__label {
-    margin-top: 1rem;
-  }
-
 
   a.info__value {
     color: $action-text-color;
     &:hover {
       color: $ontime-color;
+    }
+  }
+}
+
+/* =================== MOBILE ===================*/
+@media screen and (max-width: 768px) {
+  .project {
+    .logo img {
+      height: min(50px, 10vh);
     }
   }
 }
