@@ -110,11 +110,14 @@ interface TimelineEntryStatusProps {
 function TimelineEntryStatus(props: TimelineEntryStatusProps) {
   const { normalisedTimeStart, totalGap, isLinkedAndNext } = props;
   const { clock, offset } = useTimelineStatus();
+  const { getLocalizedString } = useTranslation();
 
   const timeUntil = calculateTimeUntilStart(normalisedTimeStart, totalGap, isLinkedAndNext, clock, offset);
   const isDue = timeUntil < MILLIS_PER_SECOND;
 
-  const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
+  const timeUntilString = isDue
+    ? getLocalizedString('timeline.due')
+    : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
 
   return <div className={style.status}>{timeUntilString}</div>;
 }
