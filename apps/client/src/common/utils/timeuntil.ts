@@ -1,4 +1,14 @@
 //TODO: handle delays..?
+
+/**
+ *
+ * @param normalisedTimeStart the start time of the event including the day offset to the currentlyb loaded event
+ * @param totalGap accumulated gap of the entire rundown up to this point
+ * @param isLinkedAndNext is this the imidialy next event and start linked
+ * @param clock wall clock
+ * @param offset runtime offset
+ * @returns
+ */
 export function calculateTimeUntilStart(
   normalisedTimeStart: number,
   totalGap: number,

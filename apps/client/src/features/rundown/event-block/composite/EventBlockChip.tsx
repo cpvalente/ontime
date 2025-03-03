@@ -67,7 +67,7 @@ function EventUntil(props: EventUntilProps) {
   const isDue = timeUntil < MILLIS_PER_SECOND;
 
   const timeUntilString = isDue
-    ? getLocalizedString('timeline.due')
+    ? getLocalizedString('timeline.due').toUpperCase()
     : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
 
   return <div className={cx([style.chip, isDue && style.due])}>{timeUntilString}</div>;
