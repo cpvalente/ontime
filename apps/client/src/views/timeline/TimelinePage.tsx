@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { MaybeString, OntimeEvent, ProjectData, Runtime, Settings } from 'ontime-types';
-import { dayInMs } from 'ontime-utils';
+import { dayInMs, isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
@@ -45,6 +45,8 @@ export default function TimelinePage(props: TimelinePageProps) {
 
   useWindowTitle('Timeline');
 
+  const playbackActive = isPlaybackActive(time.playback);
+
   // populate options
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const progressOptions = getTimelineOptions(defaultFormat);
@@ -56,33 +58,33 @@ export default function TimelinePage(props: TimelinePageProps) {
   let nextStatus: string | undefined;
   let followedByStatus: string | undefined;
 
-  if (next !== null) {
+  if (playbackActive && now && next !== null) {
     const timeToStart = calculateTimeUntilStart(
-      next.timeStart + (next.dayOffset - (now?.dayOffset ?? 0)) * dayInMs,
+      next.timeStart + (next.dayOffset - now.dayOffset) * dayInMs,
       next.gap,
       next.linkStart !== null,
       time.clock,
       runtime.offset,
     );
-    if (timeToStart < 0) {
+    if (timeToStart < MILLIS_PER_SECOND) {
       nextStatus = dueText;
     } else {
-      nextStatus = `T - ${formatDuration(timeToStart)}`;
+      nextStatus = `T - ${formatDuration(timeToStart, timeToStart > 2 * MILLIS_PER_MINUTE)}`;
     }
-  }
 
-  if (followedBy !== null) {
-    const timeToStart = calculateTimeUntilStart(
-      followedBy.timeStart + (followedBy.dayOffset - (now?.dayOffset ?? 0)) * dayInMs,
-      followedBy.gap + (next?.gap ?? 0),
-      false,
-      time.clock,
-      runtime.offset,
-    );
-    if (timeToStart < 0) {
-      followedByStatus = dueText;
-    } else {
-      followedByStatus = `T - ${formatDuration(timeToStart)}`;
+    if (followedBy !== null) {
+      const timeToStart = calculateTimeUntilStart(
+        followedBy.timeStart + (followedBy.dayOffset - now.dayOffset) * dayInMs,
+        followedBy.gap + next.gap,
+        false,
+        time.clock,
+        runtime.offset,
+      );
+      if (timeToStart < MILLIS_PER_SECOND) {
+        followedByStatus = dueText;
+      } else {
+        followedByStatus = `T - ${formatDuration(timeToStart, timeToStart > 2 * MILLIS_PER_MINUTE)}`;
+      }
     }
   }
   return (
