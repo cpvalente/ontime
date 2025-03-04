@@ -87,6 +87,7 @@ export { TimerLifeCycle, timerLifecycleValues } from './definitions/core/TimerLi
 export type { TimerMessage, MessageState, SecondarySource } from './definitions/runtime/MessageControl.type.js';
 
 export type { Runtime } from './definitions/runtime/Runtime.type.js';
+export { OffsetMode } from './definitions/runtime/Runtime.type.js';
 export type { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
 export { runtimeStorePlaceholder } from './definitions/runtime/RuntimeStore.js';
 export { type TimerState, TimerPhase } from './definitions/runtime/TimerState.type.js';
