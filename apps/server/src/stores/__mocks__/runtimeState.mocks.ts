@@ -32,6 +32,7 @@ const baseState: RuntimeState = {
     playback: Playback.Stop,
     secondaryTimer: null,
     startedAt: null,
+    speed: 1,
   },
   _timer: {
     forceFinish: null,
