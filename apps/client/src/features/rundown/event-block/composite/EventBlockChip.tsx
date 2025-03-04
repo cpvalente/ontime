@@ -6,8 +6,7 @@ import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-u
 import { usePlayback, useTimelineStatus } from '../../../../common/hooks/useSocket';
 import useReport from '../../../../common/hooks-query/useReport';
 import { cx } from '../../../../common/utils/styleUtils';
-import { formatDuration, formatTime } from '../../../../common/utils/time';
-import { calculateTimeUntilStart } from '../../../../common/utils/timeuntil';
+import { calculateTimeUntilStart, formatDuration, formatTime } from '../../../../common/utils/time';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
 import { useTranslation } from '../../../../translation/TranslationProvider';
 
