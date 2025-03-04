@@ -128,25 +128,41 @@ export function formatDuration(duration: number, hideSeconds = true): string {
 
 //TODO: handle delays..?
 
+/**
+ *
+ * @param normalisedTimeStart the start time of the event inclyding the day offset from the current event
+ * @param totalGap acumelated gap from the current event
+ * @param isLinkedToLoaded is this event part of a cain linking back to the current loaded event
+ * @param clock
+ * @param offset
+ * @returns
+ */
 export function calculateTimeUntilStart(
   normalisedTimeStart: number,
   totalGap: number,
-  isLinkedAndNext: boolean,
+  isLinkedToLoaded: boolean,
   clock: number,
   offset: number,
 ) {
-  const consumedOffset = isLinkedAndNext ? offset : Math.min(offset + totalGap, 0);
-  const offsetTimestart = normalisedTimeStart - consumedOffset;
-  const timeUntil = offsetTimestart - clock;
-  return timeUntil;
-}
+  const offsetTimestart = normalisedTimeStart - offset;
+  const offsetTimeUntil = offsetTimestart - clock;
 
-/**
- * for refrencce
- * 
- * export function getTimeToStart(now: number, start: number, delay: number, offset: number): number {
-    return start + delay - now - offset;
+  if (isLinkedToLoaded) {
+    //if we are directly linked back to the loaded event we just follow the offset
+    return offsetTimeUntil;
   }
- * 
- * 
- */
+
+  const scheduledTimeUntil = normalisedTimeStart - clock;
+
+  const isAheadOfSchedule = offset >= 0;
+  const gapsCanCompensadeForOffset = totalGap + offset >= 0;
+
+  if (isAheadOfSchedule || gapsCanCompensadeForOffset) {
+    // if we are adead of schedule or the gap can compensade for the amount we are behind then expect to start at the scheduled time
+    return scheduledTimeUntil;
+  }
+
+  // otherwise consume as much of the offset as posibe we the gap
+  const offsetTimeUntilBufferedByGaps = offsetTimeUntil - totalGap;
+  return offsetTimeUntilBufferedByGaps;
+}

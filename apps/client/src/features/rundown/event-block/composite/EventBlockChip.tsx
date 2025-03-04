@@ -19,12 +19,12 @@ interface EventBlockChipProps {
   isLoaded: boolean;
   className: string;
   totalGap: number;
-  isLinkedAndNext: boolean;
   duration: number;
+  linkedToLoaded: boolean;
 }
 
 export default function EventBlockChip(props: EventBlockChipProps) {
-  const { normalisedTimeStart, isPast, isLoaded, className, totalGap, isLinkedAndNext, id, duration } = props;
+  const { normalisedTimeStart, isPast, isLoaded, className, totalGap, id, duration, linkedToLoaded } = props;
   const { playback } = usePlayback();
 
   if (isLoaded) {
@@ -42,7 +42,7 @@ export default function EventBlockChip(props: EventBlockChipProps) {
     return (
       <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
         <div className={className}>
-          <EventUntil normalisedTimeStart={normalisedTimeStart} totalGap={totalGap} isLinkedAndNext={isLinkedAndNext} />
+          <EventUntil normalisedTimeStart={normalisedTimeStart} totalGap={totalGap} linkedToLoaded={linkedToLoaded} />
         </div>
       </Tooltip>
     );
@@ -54,15 +54,15 @@ export default function EventBlockChip(props: EventBlockChipProps) {
 interface EventUntilProps {
   normalisedTimeStart: number;
   totalGap: number;
-  isLinkedAndNext: boolean;
+  linkedToLoaded: boolean;
 }
 
 function EventUntil(props: EventUntilProps) {
-  const { normalisedTimeStart, totalGap, isLinkedAndNext } = props;
+  const { normalisedTimeStart, totalGap, linkedToLoaded } = props;
   const { clock, offset } = useTimelineStatus();
   const { getLocalizedString } = useTranslation();
 
-  const timeUntil = calculateTimeUntilStart(normalisedTimeStart, totalGap, isLinkedAndNext, clock, offset);
+  const timeUntil = calculateTimeUntilStart(normalisedTimeStart, totalGap, linkedToLoaded, clock, offset);
   const isDue = timeUntil < MILLIS_PER_SECOND;
 
   const timeUntilString = isDue

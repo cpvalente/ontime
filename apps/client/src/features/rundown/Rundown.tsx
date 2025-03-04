@@ -273,6 +273,7 @@ export default function Rundown({ data }: RundownProps) {
   let totalGap = 0;
   const isEditMode = appMode === AppMode.Edit;
   let currentDay = 0;
+  let linkedToLoaded = true;
   return (
     <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext onDragEnd={handleOnDragEnd} sensors={sensors} collisionDetection={closestCenter}>
@@ -299,7 +300,10 @@ export default function Rundown({ data }: RundownProps) {
 
                 if (isPlayableEvent(entry)) {
                   isNextDay = checkIsNextDay(entry, lastEvent);
-                  totalGap += !isPast ? entry.gap : 0;
+                  if (!isPast) {
+                    totalGap += entry.gap;
+                    linkedToLoaded = linkedToLoaded && entry.linkStart !== null;
+                  }
                   if (isNewLatest(entry, lastEvent)) {
                     // populate previous entry
                     thisEvent = entry;
@@ -337,6 +341,7 @@ export default function Rundown({ data }: RundownProps) {
                         isNextDay={isNextDay}
                         totalGap={totalGap}
                         currentDay={currentDay}
+                        linkedToLoaded={linkedToLoaded}
                       />
                     </div>
                   </div>

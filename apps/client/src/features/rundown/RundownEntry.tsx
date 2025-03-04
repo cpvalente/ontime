@@ -40,6 +40,7 @@ interface RundownEntryProps {
   isRolling: boolean; // we need to know even if not related to this event
   totalGap: number;
   currentDay: number;
+  linkedToLoaded: boolean;
 }
 
 export default function RundownEntry(props: RundownEntryProps) {
@@ -57,6 +58,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     isNextDay,
     totalGap,
     currentDay,
+    linkedToLoaded,
   } = props;
   const { emitError } = useEmitLog();
   const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
@@ -180,6 +182,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         isNextDay={isNextDay}
         dayOffset={data.dayOffset - currentDay}
         totalGap={totalGap}
+        linkedToLoaded={linkedToLoaded}
         actionHandler={actionHandler}
       />
     );

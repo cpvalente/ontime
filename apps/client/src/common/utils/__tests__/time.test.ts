@@ -40,6 +40,8 @@ describe('formatTime()', () => {
 });
 
 describe('calculateTimeUntilStart()', () => {
+  //TODO: redo
+
   it('accounts for offsets when running behind', () => {
     const now = 150;
     const start = 150;

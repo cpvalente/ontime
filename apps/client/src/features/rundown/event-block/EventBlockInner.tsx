@@ -47,6 +47,7 @@ interface EventBlockInnerProps {
   dayOffset: number;
   isPast: boolean;
   totalGap: number;
+  linkedToLoaded: boolean;
 }
 
 function EventBlockInner(props: EventBlockInnerProps) {
@@ -72,6 +73,7 @@ function EventBlockInner(props: EventBlockInnerProps) {
     dayOffset,
     isPast,
     totalGap,
+    linkedToLoaded,
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
@@ -121,10 +123,10 @@ function EventBlockInner(props: EventBlockInnerProps) {
           className={style.chipSection}
           id={eventId}
           normalisedTimeStart={timeStart + dayOffset * dayInMs}
+          linkedToLoaded={linkedToLoaded}
           isPast={isPast}
           isLoaded={loaded}
           totalGap={totalGap}
-          isLinkedAndNext={isNext && linkStart !== null}
           duration={duration}
         />
       )}
