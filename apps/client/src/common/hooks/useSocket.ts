@@ -170,6 +170,11 @@ export const useTimelineStatus = createSelector((state: RuntimeStore) => ({
   offset: state.runtime.offset,
 }));
 
+export const useTimeUntilData = createSelector((state: RuntimeStore) => ({
+  clock: state.clock,
+  offset: state.runtime.offset,
+}));
+
 export const useRuntimeOffset = createSelector((state: RuntimeStore) => ({
   offset: state.runtime.offset,
 }));

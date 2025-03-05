@@ -3,10 +3,10 @@ import { Tooltip } from '@chakra-ui/react';
 import { IoCheckmarkCircle } from '@react-icons/all-files/io5/IoCheckmarkCircle';
 import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
-import { usePlayback, useTimelineStatus } from '../../../../common/hooks/useSocket';
+import { usePlayback } from '../../../../common/hooks/useSocket';
 import useReport from '../../../../common/hooks-query/useReport';
 import { cx } from '../../../../common/utils/styleUtils';
-import { calculateTimeUntilStart, formatDuration, formatTime } from '../../../../common/utils/time';
+import { formatDuration, formatTime, useTimeUntilStart } from '../../../../common/utils/time';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
 import { useTranslation } from '../../../../translation/TranslationProvider';
 
@@ -59,10 +59,9 @@ interface EventUntilProps {
 
 function EventUntil(props: EventUntilProps) {
   const { normalisedTimeStart, totalGap, linkedToLoaded } = props;
-  const { clock, offset } = useTimelineStatus();
   const { getLocalizedString } = useTranslation();
 
-  const timeUntil = calculateTimeUntilStart(normalisedTimeStart, totalGap, linkedToLoaded, clock, offset);
+  const timeUntil = useTimeUntilStart(normalisedTimeStart, totalGap, linkedToLoaded);
   const isDue = timeUntil < MILLIS_PER_SECOND;
 
   const timeUntilString = isDue
