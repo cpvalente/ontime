@@ -14,17 +14,18 @@ import style from './EventBlockChip.module.scss';
 
 interface EventBlockChipProps {
   id: string;
-  normalisedTimeStart: number;
+  timeStart: number;
+  dayOffset: number;
   isPast: boolean;
   isLoaded: boolean;
   className: string;
   totalGap: number;
   duration: number;
-  linkedToLoaded: boolean;
+  isLinkedToLoaded: boolean;
 }
 
 export default function EventBlockChip(props: EventBlockChipProps) {
-  const { normalisedTimeStart, isPast, isLoaded, className, totalGap, id, duration, linkedToLoaded } = props;
+  const { timeStart, dayOffset, isPast, isLoaded, className, totalGap, id, duration, isLinkedToLoaded } = props;
   const { playback } = usePlayback();
 
   if (isLoaded) {
@@ -42,7 +43,12 @@ export default function EventBlockChip(props: EventBlockChipProps) {
     return (
       <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
         <div className={className}>
-          <EventUntil normalisedTimeStart={normalisedTimeStart} totalGap={totalGap} linkedToLoaded={linkedToLoaded} />
+          <EventUntil
+            timeStart={timeStart}
+            dayOffset={dayOffset}
+            totalGap={totalGap}
+            isLinkedToLoaded={isLinkedToLoaded}
+          />
         </div>
       </Tooltip>
     );
@@ -52,16 +58,17 @@ export default function EventBlockChip(props: EventBlockChipProps) {
 }
 
 interface EventUntilProps {
-  normalisedTimeStart: number;
+  timeStart: number;
+  dayOffset: number;
   totalGap: number;
-  linkedToLoaded: boolean;
+  isLinkedToLoaded: boolean;
 }
 
 function EventUntil(props: EventUntilProps) {
-  const { normalisedTimeStart, totalGap, linkedToLoaded } = props;
+  const { timeStart, dayOffset, totalGap, isLinkedToLoaded } = props;
   const { getLocalizedString } = useTranslation();
 
-  const timeUntil = useTimeUntilStart(normalisedTimeStart, totalGap, linkedToLoaded);
+  const timeUntil = useTimeUntilStart({ timeStart, dayOffset, totalGap, isLinkedToLoaded });
   const isDue = timeUntil < MILLIS_PER_SECOND;
 
   const timeUntilString = isDue

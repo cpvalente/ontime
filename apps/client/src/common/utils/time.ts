@@ -1,5 +1,5 @@
-import { MaybeNumber, Settings, TimeFormat } from 'ontime-types';
-import { formatFromMillis, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
+import { MaybeNumber, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
+import { dayInMs, formatFromMillis, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';
 import { APP_SETTINGS } from '../api/constants';
@@ -131,14 +131,19 @@ export function formatDuration(duration: number, hideSeconds = true): string {
 
 /**
  *
- * @param normalisedTimeStart the start time of the event inclyding the day offset from the current event
  * @param totalGap acumelated gap from the current event
  * @param isLinkedToLoaded is this event part of a cain linking back to the current loaded event
  * @returns
  */
-export function useTimeUntilStart(normalisedTimeStart: number, totalGap: number, isLinkedToLoaded: boolean) {
-  const { offset, clock } = useTimeUntilData();
-  return calculateTimeUntilStart(normalisedTimeStart, totalGap, isLinkedToLoaded, clock, offset);
+export function useTimeUntilStart(
+  data: Pick<OntimeEvent, 'timeStart' | 'dayOffset'> & {
+    totalGap: number;
+    isLinkedToLoaded: boolean;
+  },
+) {
+  const { timeStart, dayOffset, totalGap, isLinkedToLoaded } = data;
+  const { offset, clock, currentDay } = useTimeUntilData();
+  return calculateTimeUntilStart({ timeStart, dayOffset, currentDay, totalGap, isLinkedToLoaded, clock, offset });
 }
 
 /**
@@ -151,12 +156,22 @@ export function useTimeUntilStart(normalisedTimeStart: number, totalGap: number,
  * @returns
  */
 export function calculateTimeUntilStart(
-  normalisedTimeStart: number,
-  totalGap: number,
-  isLinkedToLoaded: boolean,
-  clock: number,
-  offset: number,
+  data: Pick<OntimeEvent, 'timeStart' | 'dayOffset'> & {
+    currentDay: number;
+    totalGap: number;
+    isLinkedToLoaded: boolean;
+    clock: number;
+    offset: number;
+  },
 ) {
+  const { timeStart, dayOffset, currentDay, totalGap, isLinkedToLoaded, clock, offset } = data;
+
+  //How many days from the currently running event to this one
+  const relativeDayOffset = dayOffset - currentDay;
+
+  //The normalised start time of this event relative to the currently running event
+  const normalisedTimeStart = timeStart + relativeDayOffset * dayInMs;
+
   const offsetTimestart = normalisedTimeStart - offset;
   const offsetTimeUntil = offsetTimestart - clock;
 

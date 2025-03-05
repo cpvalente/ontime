@@ -173,6 +173,7 @@ export const useTimelineStatus = createSelector((state: RuntimeStore) => ({
 export const useTimeUntilData = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
   offset: state.runtime.offset,
+  currentDay: state.eventNow?.dayOffset ?? 0, //The day of the currently running event
 }));
 
 export const useRuntimeOffset = createSelector((state: RuntimeStore) => ({

@@ -51,7 +51,7 @@ interface EventBlockProps {
   isNextDay: boolean;
   dayOffset: number;
   totalGap: number;
-  linkedToLoaded: boolean;
+  isLinkedToLoaded: boolean;
   actionHandler: (
     action: EventItemActions,
     payload?:
@@ -92,7 +92,7 @@ export default function EventBlock(props: EventBlockProps) {
     isNextDay,
     dayOffset,
     totalGap,
-    linkedToLoaded,
+    isLinkedToLoaded,
     actionHandler,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
@@ -312,7 +312,7 @@ export default function EventBlock(props: EventBlockProps) {
           dayOffset={dayOffset}
           isPast={isPast}
           totalGap={totalGap}
-          linkedToLoaded={linkedToLoaded}
+          isLinkedToLoaded={isLinkedToLoaded}
         />
       )}
     </div>
