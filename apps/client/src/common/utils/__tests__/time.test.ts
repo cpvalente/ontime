@@ -40,48 +40,77 @@ describe('formatTime()', () => {
 });
 
 describe('calculateTimeUntilStart()', () => {
-  //TODO: redo
+  test('ontime', () => {
+    const test = {
+      timeStart: 100,
+      dayOffset: 0,
+      currentDay: 0,
+      totalGap: 0,
+      clock: 90,
+      offset: 0,
+    };
 
-  it('accounts for offsets when running behind', () => {
-    const now = 150;
-    const start = 150;
-    const offset = -50; // running behind
-
-    const result = calculateTimeUntilStart(start, 0, false, now, offset);
-    expect(result).toBe(50);
+    expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(10);
+    expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: true })).toBe(10);
   });
-  it('accounts for offsets when running ahead', () => {
-    const now = 100;
-    const start = 150;
-    const offset = 50;
 
-    const result = calculateTimeUntilStart(start, 0, false, now, offset);
-    expect(result).toBe(50);
-  });
-  it('offsets when running ahead are ignored when linked', () => {
-    const now = 100;
-    const start = 150;
-    const offset = 50;
+  test('running behind', () => {
+    const test = {
+      timeStart: 100,
+      dayOffset: 0,
+      currentDay: 0,
+      totalGap: 0,
+      clock: 90,
+      offset: -20,
+    };
 
-    const result = calculateTimeUntilStart(start, 0, true, now, offset);
-    expect(result).toBe(0);
+    expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(30);
+    expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: true })).toBe(30);
   });
-  it('consume gaps when running behind', () => {
-    const now = 150;
-    const start = 160;
-    const gap = 50;
-    const offset = -40;
 
-    const result = calculateTimeUntilStart(start, gap, false, now, offset);
-    expect(result).toBe(10);
-  });
-  it('when there is no more gap to consume push out the start time', () => {
-    const now = 150;
-    const start = 160;
-    const gap = 50;
-    const offset = -60;
+  test('running ahead', () => {
+    const test = {
+      timeStart: 100,
+      dayOffset: 0,
+      currentDay: 0,
+      totalGap: 0,
+      clock: 80,
+      offset: 10,
+    };
 
-    const result = calculateTimeUntilStart(start, gap, false, now, offset);
-    expect(result).toBe(20);
+    expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(20); // <-- when running ahead the unlinked timer stays put
+    expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: true })).toBe(10);
   });
+
+  test('running behind with enough gaps', () => {
+    const test = {
+      timeStart: 100,
+      dayOffset: 0,
+      currentDay: 0,
+      totalGap: 20,
+      clock: 50,
+      offset: -20,
+    };
+
+    expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(50);
+    expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: true })).toBe(70); // This should not be possible
+  });
+
+  test('running behind with to little gaps', () => {
+    const test = {
+      timeStart: 100,
+      dayOffset: 0,
+      currentDay: 0,
+      totalGap: 10,
+      clock: 50,
+      offset: -20,
+    };
+
+    expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(60);
+    expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: true })).toBe(70); // This should not be possible
+  });
+
+  //TODO: more indepth testing,
+  // including day offset handling
+  // and more?
 });
