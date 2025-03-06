@@ -271,7 +271,7 @@ export default function Rundown({ data }: RundownProps) {
   let isNextDay = false;
   let totalGap = 0;
   const isEditMode = appMode === AppMode.Edit;
-  let isLinkedToLoaded = true;
+  let isLinkedToLoaded = true; //check if the event can link all the way back to the currently playing event
   return (
     <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext onDragEnd={handleOnDragEnd} sensors={sensors} collisionDetection={closestCenter}>
