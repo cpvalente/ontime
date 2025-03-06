@@ -8,7 +8,6 @@ import useReport from '../../../../common/hooks-query/useReport';
 import { cx } from '../../../../common/utils/styleUtils';
 import { formatDuration, formatTime, useTimeUntilStart } from '../../../../common/utils/time';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
-import { useTranslation } from '../../../../translation/TranslationProvider';
 
 import style from './EventBlockChip.module.scss';
 
@@ -66,14 +65,11 @@ interface EventUntilProps {
 
 function EventUntil(props: EventUntilProps) {
   const { timeStart, dayOffset, totalGap, isLinkedToLoaded } = props;
-  const { getLocalizedString } = useTranslation();
 
   const timeUntil = useTimeUntilStart({ timeStart, dayOffset, totalGap, isLinkedToLoaded });
   const isDue = timeUntil < MILLIS_PER_SECOND;
 
-  const timeUntilString = isDue
-    ? getLocalizedString('timeline.due').toUpperCase()
-    : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
+  const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
 
   return <div className={cx([style.chip, isDue && style.due])}>{timeUntilString}</div>;
 }
