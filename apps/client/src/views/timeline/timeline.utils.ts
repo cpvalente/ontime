@@ -11,7 +11,6 @@ import {
   MILLIS_PER_HOUR,
 } from 'ontime-utils';
 
-import { clamp } from '../../common/utils/math';
 import { formatDuration } from '../../common/utils/time';
 import { isStringBoolean } from '../../features/viewers/common/viewUtils';
 
@@ -21,13 +20,6 @@ type CSSPosition = {
   left: number;
   width: number;
 };
-
-/**
- * Calculates the position (in %) of an element relative to a schedule
- */
-export function getRelativePositionX(scheduleStart: number, scheduleEnd: number, now: number): number {
-  return clamp(((now - scheduleStart) / (scheduleEnd - scheduleStart)) * 100, 0, 100);
-}
 
 /**
  * Calculates an absolute position of an element based on a schedule

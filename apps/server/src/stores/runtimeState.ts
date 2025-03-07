@@ -22,7 +22,7 @@ import {
   isPlaybackActive,
 } from 'ontime-utils';
 
-import { clock } from '../services/Clock.js';
+import { timeNow } from '../utils/time.js';
 import type { RestorePoint } from '../services/RestoreService.js';
 import {
   getCurrent,
@@ -55,7 +55,7 @@ export type RuntimeState = {
 };
 
 const runtimeState: RuntimeState = {
-  clock: clock.timeNow(),
+  clock: timeNow(),
   currentBlock: { ...runtimeStorePlaceholder.currentBlock },
   eventNow: null,
   publicEventNow: null,
@@ -130,7 +130,7 @@ export function clearState() {
   runtimeState.runtime.selectedEventIndex = null;
 
   runtimeState.timer.playback = Playback.Stop;
-  runtimeState.clock = clock.timeNow();
+  runtimeState.clock = timeNow();
   runtimeState.timer = { ...runtimeStorePlaceholder.timer };
 
   // when clearing, we maintain the total delay from the rundown
@@ -388,7 +388,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
   if (state.timer.playback === Playback.Play) {
     return false;
   }
-  state.clock = clock.timeNow();
+  state.clock = timeNow();
   state.timer.secondaryTimer = null;
 
   // add paused time if it exists
@@ -433,7 +433,7 @@ export function pause(state: RuntimeState = runtimeState): boolean {
   }
 
   state.timer.playback = Playback.Pause;
-  state.clock = clock.timeNow();
+  state.clock = timeNow();
   state._timer.pausedAt = state.clock;
   return true;
 }
@@ -469,7 +469,7 @@ export function addTime(amount: number) {
 
   if (willGoNegative && !hasFinished) {
     // set finished time so side effects are triggered
-    runtimeState._timer.forceFinish = clock.timeNow();
+    runtimeState._timer.forceFinish = timeNow();
   } else {
     const willGoPositive = runtimeState.timer.current < 0 && runtimeState.timer.current + amount > 0;
     if (willGoPositive) {
@@ -499,7 +499,7 @@ export type UpdateResult = {
 export function update(): UpdateResult {
   // 0. there are some things we always do
   const previousClock = runtimeState.clock;
-  runtimeState.clock = clock.timeNow(); // we update the clock on every update call
+  runtimeState.clock = timeNow(); // we update the clock on every update call
 
   // 1. is playback idle?
   if (!isPlaybackActive(runtimeState.timer.playback)) {
