@@ -12,7 +12,7 @@ interface SectionProps {
 
 export default memo(Section);
 
-export function Section(props: SectionProps) {
+function Section(props: SectionProps) {
   const { category, content, title, status } = props;
 
   const sectionClasses = cx(['section', category === 'now' && 'section--now']);
