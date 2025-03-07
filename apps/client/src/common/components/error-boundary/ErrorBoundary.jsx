@@ -26,17 +26,22 @@ class ErrorBoundary extends React.Component {
       error,
       errorInfo: info,
     });
+    this.reportContent = `${error} ${info.componentStack}`;
+
+    const appState = runtimeStore.getState();
+    if (appState.ping < 0) {
+      return;
+    }
 
     Sentry.withScope((scope) => {
       scope.setExtras({
         error,
-        store: runtimeStore.getState(),
+        store: appState,
         hasSocket: { hasConnected, shouldReconnect, reconnectAttempts },
       });
       const eventId = Sentry.captureException(error);
       this.setState({ eventId, info });
     });
-    this.reportContent = `${error} ${info.componentStack}`;
   }
 
   render() {
