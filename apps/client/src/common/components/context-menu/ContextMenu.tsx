@@ -23,7 +23,7 @@ export type OptionWithoutGroup = {
   withDivider?: boolean;
 };
 
-export type OptionWithGroup = {
+type OptionWithGroup = {
   label: string;
   group: Omit<OptionWithoutGroup, 'isGroup'>[];
 };
