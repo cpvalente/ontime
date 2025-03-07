@@ -64,11 +64,16 @@ export default function Public(props: BackstageProps) {
   // gather timer data
   const clock = formatTime(time.clock);
   const isPendingStart = getIsPendingStart(time.playback, time.phase);
-  const scheduledStart = hasEvents && showNow ? '' : getFirstStartTime(events[0]);
+  const scheduledStart = (() => {
+    if (showNow) return undefined;
+    if (!hasEvents) return undefined;
+    return getFirstStartTime(events[0]);
+  })();
 
   // gather presentation styles
   const qrSize = Math.max(window.innerWidth / 15, 72);
   const showSchedule = hasEvents && screenHeight > 700; // in vertical screens we may not have space
+  const showPending = scheduledStart !== undefined;
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
@@ -92,7 +97,7 @@ export default function Public(props: BackstageProps) {
         {showNow && hasEvents && (
           <TitleCard className='event now' label='now' title={nowMain} secondary={nowSecondary} />
         )}
-        {!showNow && scheduledStart && (
+        {showPending && (
           <div className='event'>
             <div className='title-card__placeholder'>{getLocalizedString('countdown.waiting')}</div>
             <div className='timer-group'>
