@@ -6,7 +6,7 @@ import { RUNDOWN } from '../../common/api/constants';
 import { ontimeQueryClient } from '../../common/queryClient';
 import { isMacOS } from '../../common/utils/deviceUtils';
 
-export type SelectionMode = 'shift' | 'click' | 'ctrl';
+type SelectionMode = 'shift' | 'click' | 'ctrl';
 
 interface EventSelectionStore {
   selectedEvents: Set<string>;

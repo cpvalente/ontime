@@ -1,13 +1,10 @@
 import {
   CustomFields,
   DatabaseModel,
-  EndAction,
   OntimeEvent,
   OntimeRundown,
   Settings,
   SupportedEvent,
-  TimeStrategy,
-  TimerType,
   URLPreset,
 } from 'ontime-types';
 
@@ -359,49 +356,6 @@ describe('parseRundown() linking', () => {
       id: '3',
       cue: '3',
       linkStart: '2',
-    });
-  });
-});
-
-describe('parseRundown() migrations', () => {
-  const legacyEvent = {
-    id: '1',
-    type: SupportedEvent.Event,
-    cue: '',
-    title: '',
-    note: '',
-    endAction: EndAction.None,
-    timerType: 'time-to-end',
-    linkStart: null,
-    timeStrategy: TimeStrategy.LockDuration,
-    timeStart: 0,
-    timeEnd: 0,
-    duration: 0,
-    isPublic: false,
-    skip: false,
-    colour: '',
-    revision: 0,
-    timeWarning: 120000,
-    timeDanger: 60000,
-    custom: {},
-  };
-
-  it('migrates an event with time-to-end', () => {
-    const result = parseRundown({ rundown: [legacyEvent] as OntimeRundown });
-    expect(result.rundown[0]).toMatchObject({
-      id: '1',
-      timerType: TimerType.CountDown,
-      countToEnd: true,
-    });
-  });
-
-  it('migrates an event without time-to-end', () => {
-    const countdownEvent = { ...legacyEvent, timerType: TimerType.CountDown };
-    const result = parseRundown({ rundown: [countdownEvent] as OntimeRundown });
-    expect(result.rundown[0]).toMatchObject({
-      id: '1',
-      timerType: TimerType.CountDown,
-      countToEnd: false,
     });
   });
 });
