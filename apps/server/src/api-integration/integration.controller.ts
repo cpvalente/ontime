@@ -16,8 +16,6 @@ import { socket } from '../adapters/WebsocketAdapter.js';
 import { throttle } from '../utils/throttle.js';
 import { willCauseRegeneration } from '../services/rundown-service/rundownCacheUtils.js';
 
-import { handleLegacyMessageConversion } from './integration.legacy.js';
-
 const throttledUpdateEvent = throttle(updateEvent, 20);
 let lastRequest: Date | null = null;
 
@@ -89,12 +87,9 @@ const actionHandlers: Record<string, ActionHandler> = {
   message: (payload) => {
     assert.isObject(payload);
 
-    // TODO: remove this once we feel its been enough time, ontime 3.6.0, 20/09/2024
-    const migratedPayload = handleLegacyMessageConversion(payload);
-
     const patch: DeepPartial<MessageState> = {
-      timer: 'timer' in migratedPayload ? validateTimerMessage(migratedPayload.timer) : undefined,
-      external: 'external' in migratedPayload ? validateMessage(migratedPayload.external) : undefined,
+      timer: 'timer' in payload ? validateTimerMessage(payload.timer) : undefined,
+      external: 'external' in payload ? validateMessage(payload.external) : undefined,
     };
 
     const newMessage = messageService.patch(patch);

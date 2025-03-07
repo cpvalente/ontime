@@ -21,7 +21,7 @@ import {
   isPlaybackActive,
 } from 'ontime-utils';
 
-import { clock } from '../services/Clock.js';
+import { timeNow } from '../utils/time.js';
 import type { RestorePoint } from '../services/RestoreService.js';
 import {
   getCurrent,
