@@ -3,8 +3,8 @@ import React from 'react';
 // skipcq: JS-C1003 - sentry does not expose itself as an ES Module.
 import * as Sentry from '@sentry/react';
 
-import { runtimeStore } from '@/common/stores/runtime';
-import { hasConnected, reconnectAttempts, shouldReconnect } from '@/common/utils/socket';
+import { hasConnected, reconnectAttempts } from '../../../common/utils/socket';
+import { runtimeStore } from '../../stores/runtime';
 
 import style from './ErrorBoundary.module.scss';
 
@@ -37,7 +37,7 @@ class ErrorBoundary extends React.Component {
       scope.setExtras({
         error,
         store: appState,
-        hasSocket: { hasConnected, shouldReconnect, reconnectAttempts },
+        hasSocket: { hasConnected, reconnectAttempts },
       });
       const eventId = Sentry.captureException(error);
       this.setState({ eventId, info });

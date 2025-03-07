@@ -16,11 +16,10 @@ import { addDialog } from '../stores/dialogStore';
 import { addLog } from '../stores/logger';
 import { addToBatchUpdates, flushBatchUpdates, patchRuntime, patchRuntimeProperty } from '../stores/runtime';
 
-export let websocket: WebSocket | null = null;
+let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
 const reconnectInterval = 1000;
 
-export let shouldReconnect = true;
 export let hasConnected = false;
 export let reconnectAttempts = 0;
 
@@ -50,15 +49,14 @@ export const connectSocket = () => {
     console.warn('WebSocket disconnected');
     setOnlineStatus(false);
 
-    if (shouldReconnect) {
-      reconnectTimeout = setTimeout(() => {
-        console.warn('WebSocket: attempting reconnect');
-        if (websocket && websocket.readyState === WebSocket.CLOSED) {
-          reconnectAttempts += 1;
-          connectSocket();
-        }
-      }, reconnectInterval);
-    }
+    // we decide to allows reconnect
+    reconnectTimeout = setTimeout(() => {
+      console.warn('WebSocket: attempting reconnect');
+      if (websocket && websocket.readyState === WebSocket.CLOSED) {
+        reconnectAttempts += 1;
+        connectSocket();
+      }
+    }, reconnectInterval);
   };
 
   websocket.onerror = (error) => {
@@ -222,11 +220,6 @@ export const connectSocket = () => {
       // ignore unhandled
     }
   };
-};
-
-export const disconnectSocket = () => {
-  shouldReconnect = false;
-  websocket?.close();
 };
 
 export const socketSend = (message: any) => {
