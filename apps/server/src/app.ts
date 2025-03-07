@@ -245,7 +245,7 @@ export const startIntegrations = async () => {
  * @param {number} exitCode
  * @return {Promise<void>}
  */
-export const shutdown = async (exitCode = 0) => {
+const shutdown = async (exitCode = 0) => {
   consoleHighlight(`Ontime shutting down with code ${exitCode}`);
 
   // clear the restore file if it was a normal exit
