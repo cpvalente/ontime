@@ -14,6 +14,7 @@ import style from './EventBlockChip.module.scss';
 interface EventBlockChipProps {
   id: string;
   timeStart: number;
+  delay: number;
   dayOffset: number;
   isPast: boolean;
   isLoaded: boolean;
@@ -24,7 +25,7 @@ interface EventBlockChipProps {
 }
 
 export default function EventBlockChip(props: EventBlockChipProps) {
-  const { timeStart, dayOffset, isPast, isLoaded, className, totalGap, id, duration, isLinkedToLoaded } = props;
+  const { timeStart, delay, dayOffset, isPast, isLoaded, className, totalGap, id, duration, isLinkedToLoaded } = props;
   const { playback } = usePlayback();
 
   if (isLoaded) {
@@ -44,6 +45,7 @@ export default function EventBlockChip(props: EventBlockChipProps) {
         <div className={className}>
           <EventUntil
             timeStart={timeStart}
+            delay={delay}
             dayOffset={dayOffset}
             totalGap={totalGap}
             isLinkedToLoaded={isLinkedToLoaded}
@@ -58,15 +60,16 @@ export default function EventBlockChip(props: EventBlockChipProps) {
 
 interface EventUntilProps {
   timeStart: number;
+  delay: number;
   dayOffset: number;
   totalGap: number;
   isLinkedToLoaded: boolean;
 }
 
 function EventUntil(props: EventUntilProps) {
-  const { timeStart, dayOffset, totalGap, isLinkedToLoaded } = props;
+  const { timeStart, delay, dayOffset, totalGap, isLinkedToLoaded } = props;
 
-  const timeUntil = useTimeUntilStart({ timeStart, dayOffset, totalGap, isLinkedToLoaded });
+  const timeUntil = useTimeUntilStart({ timeStart, delay, dayOffset, totalGap, isLinkedToLoaded });
   const isDue = timeUntil < MILLIS_PER_SECOND;
 
   const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;

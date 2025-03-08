@@ -136,14 +136,14 @@ export function formatDuration(duration: number, hideSeconds = true): string {
  * @returns
  */
 export function useTimeUntilStart(
-  data: Pick<OntimeEvent, 'timeStart' | 'dayOffset'> & {
+  // typed like this to make it very clear what the data is
+  data: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'> & {
     totalGap: number;
     isLinkedToLoaded: boolean;
   },
-) {
-  const { timeStart, dayOffset, totalGap, isLinkedToLoaded } = data;
+): number {
   const { offset, clock, currentDay } = useTimeUntilData();
-  return calculateTimeUntilStart({ timeStart, dayOffset, currentDay, totalGap, isLinkedToLoaded, clock, offset });
+  return calculateTimeUntilStart({ ...data, currentDay, clock, offset });
 }
 
 /**
@@ -156,21 +156,23 @@ export function useTimeUntilStart(
  * @returns
  */
 export function calculateTimeUntilStart(
-  data: Pick<OntimeEvent, 'timeStart' | 'dayOffset'> & {
+  data: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'> & {
     currentDay: number;
     totalGap: number;
     isLinkedToLoaded: boolean;
     clock: number;
     offset: number;
   },
-) {
-  const { timeStart, dayOffset, currentDay, totalGap, isLinkedToLoaded, clock, offset } = data;
+): number {
+  const { timeStart, dayOffset, currentDay, totalGap, isLinkedToLoaded, clock, offset, delay } = data;
 
   //How many days from the currently running event to this one
   const relativeDayOffset = dayOffset - currentDay;
 
+  const delayedStart = Math.max(0, timeStart + delay);
+
   //The normalised start time of this event relative to the currently running event
-  const normalisedTimeStart = timeStart + relativeDayOffset * dayInMs;
+  const normalisedTimeStart = delayedStart + relativeDayOffset * dayInMs;
 
   const offsetTimestart = normalisedTimeStart - offset;
   const offsetTimeUntil = offsetTimestart - clock;

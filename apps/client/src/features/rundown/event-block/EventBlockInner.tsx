@@ -122,6 +122,7 @@ function EventBlockInner(props: EventBlockInnerProps) {
           className={style.chipSection}
           id={eventId}
           timeStart={timeStart}
+          delay={delay}
           dayOffset={dayOffset}
           isLinkedToLoaded={isLinkedToLoaded}
           isPast={isPast}
