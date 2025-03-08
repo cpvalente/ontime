@@ -37,6 +37,23 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
     return timeEnd + addedTime + pausedTime;
   }
 
+  // TODO: need to calculate the expected end taking the speed into account
+  /**
+   *   // For normal timer events:
+  // 1. Compute how much real time (excluding paused time) has elapsed.
+  const realElapsed = clock - startedAt - pausedTime;
+  // 2. Translate real elapsed time to virtual elapsed time using the speed factor.
+  const virtualElapsed = realElapsed * speed;
+  // 3. The virtual total time is the base duration plus any added time.
+  const virtualTotal = duration! + addedTime;
+  // 4. The remaining virtual time is the total virtual time minus what’s already elapsed.
+  const virtualRemaining = virtualTotal - virtualElapsed;
+  // 5. Convert the remaining virtual time back to real time.
+  const remainingReal = virtualRemaining / speed;
+  // 6. The new expected finish time is the current clock plus the adjusted remaining time.
+  const adjustedFinish = clock + remainingReal;
+   */
+
   // handle events that finish the day after
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- duration exists if ther eis a timer
   const expectedFinish = startedAt + duration! + addedTime + pausedTime;

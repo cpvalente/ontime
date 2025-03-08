@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Tooltip } from '@chakra-ui/react';
 import { useLocalStorage } from '@mantine/hooks';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
@@ -16,7 +17,9 @@ interface AddTimeProps {
   playback: Playback;
 }
 
-export default function AddTime(props: AddTimeProps) {
+export default memo(AddTime);
+
+function AddTime(props: AddTimeProps) {
   const { playback } = props;
   const [time, setTime] = useLocalStorage({ key: 'add-time', defaultValue: 300_000 }); // 5 minutes
 
