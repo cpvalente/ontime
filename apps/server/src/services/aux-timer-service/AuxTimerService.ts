@@ -4,8 +4,8 @@ import { SimpleTimer } from '../../classes/simple-timer/SimpleTimer.js';
 import { eventStore } from '../../stores/EventStore.js';
 import { timerConfig } from '../../config/config.js';
 
-export type EmitFn = (state: SimpleTimerState) => void;
-export type GetTimeFn = () => number;
+type EmitFn = (state: SimpleTimerState) => void;
+type GetTimeFn = () => number;
 
 export class AuxTimerService {
   private timer: SimpleTimer;

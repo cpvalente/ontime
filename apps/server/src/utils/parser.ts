@@ -303,7 +303,7 @@ export const parseExcel = (
   };
 };
 
-export type ParsingError = {
+type ParsingError = {
   context: string;
   message: string;
 };

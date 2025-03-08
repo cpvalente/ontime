@@ -101,19 +101,3 @@ export function findNext(currentEventId?: string): PlayableEvent | null {
   const nextEvent = playableEvents.at(newIndex);
   return nextEvent ?? null;
 }
-
-/**
- * Returns a paginated rundown
- * Exposes a getter function for the rundown for testing
- */
-export function getPaginated(
-  offset: number,
-  limit: number,
-  source = getRundown,
-): { rundown: OntimeRundownEntry[]; total: number } {
-  const rundown = source();
-  return {
-    rundown: rundown.slice(Math.min(offset, rundown.length), Math.min(offset + limit, rundown.length)),
-    total: rundown.length,
-  };
-}

@@ -8,7 +8,6 @@ import {
   OntimeRundown,
   ProjectData,
   Settings,
-  TimerType,
   URLPreset,
   ViewSettings,
   isOntimeBlock,
@@ -53,7 +52,7 @@ export function parseRundown(
     let newEvent: OntimeEvent | OntimeDelay | OntimeBlock | null;
 
     if (isOntimeEvent(event)) {
-      const maybeEvent = runEventMigrations({ ...event, id });
+      const maybeEvent = { ...event, id };
 
       if (event.linkStart) {
         maybeEvent.linkStart = previousId;
@@ -245,23 +244,4 @@ export function sanitiseCustomFields(data: object): CustomFields {
   }
 
   return newCustomFields;
-}
-
-/**
- * Time to end was moved from a TimerType to a standalone boolean named count to end
- * Released as part of v3.10.0
- */
-function migrateTimeToEnd(event: any): OntimeEvent {
-  if (event.timerType === 'time-to-end') {
-    event.timerType = TimerType.CountDown;
-    event.countToEnd = true;
-  }
-  return event;
-}
-
-/**
- * Mutating function migrates event data entries
- */
-function runEventMigrations(event: any): OntimeEvent {
-  return migrateTimeToEnd(event);
 }
