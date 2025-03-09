@@ -3,27 +3,29 @@ import { Tooltip } from '@chakra-ui/react';
 import { IoCheckmarkCircle } from '@react-icons/all-files/io5/IoCheckmarkCircle';
 import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
-import { usePlayback, useTimelineStatus } from '../../../../common/hooks/useSocket';
+import { usePlayback } from '../../../../common/hooks/useSocket';
 import useReport from '../../../../common/hooks-query/useReport';
 import { cx } from '../../../../common/utils/styleUtils';
-import { formatDuration, formatTime } from '../../../../common/utils/time';
+import { formatDuration, formatTime, useTimeUntilStart } from '../../../../common/utils/time';
 import { tooltipDelayFast } from '../../../../ontimeConfig';
 
 import style from './EventBlockChip.module.scss';
 
 interface EventBlockChipProps {
   id: string;
-  trueTimeStart: number;
+  timeStart: number;
+  delay: number;
+  dayOffset: number;
   isPast: boolean;
   isLoaded: boolean;
   className: string;
   totalGap: number;
-  isLinkedAndNext: boolean;
   duration: number;
+  isLinkedToLoaded: boolean;
 }
 
 export default function EventBlockChip(props: EventBlockChipProps) {
-  const { trueTimeStart, isPast, isLoaded, className, totalGap, isLinkedAndNext, id, duration } = props;
+  const { timeStart, delay, dayOffset, isPast, isLoaded, className, totalGap, id, duration, isLinkedToLoaded } = props;
   const { playback } = usePlayback();
 
   if (isLoaded) {
@@ -41,7 +43,13 @@ export default function EventBlockChip(props: EventBlockChipProps) {
     return (
       <Tooltip label='Expected time until start' openDelay={tooltipDelayFast}>
         <div className={className}>
-          <EventUntil trueTimeStart={trueTimeStart} totalGap={totalGap} isLinkedAndNext={isLinkedAndNext} />
+          <EventUntil
+            timeStart={timeStart}
+            delay={delay}
+            dayOffset={dayOffset}
+            totalGap={totalGap}
+            isLinkedToLoaded={isLinkedToLoaded}
+          />
         </div>
       </Tooltip>
     );
@@ -51,18 +59,17 @@ export default function EventBlockChip(props: EventBlockChipProps) {
 }
 
 interface EventUntilProps {
-  trueTimeStart: number;
+  timeStart: number;
+  delay: number;
+  dayOffset: number;
   totalGap: number;
-  isLinkedAndNext: boolean;
+  isLinkedToLoaded: boolean;
 }
 
 function EventUntil(props: EventUntilProps) {
-  const { trueTimeStart, totalGap, isLinkedAndNext } = props;
-  const { clock, offset } = useTimelineStatus();
+  const { timeStart, delay, dayOffset, totalGap, isLinkedToLoaded } = props;
 
-  const consumedOffset = isLinkedAndNext ? offset : Math.min(offset + totalGap, 0);
-  const offsetTimestart = trueTimeStart - consumedOffset;
-  const timeUntil = offsetTimestart - clock;
+  const timeUntil = useTimeUntilStart({ timeStart, delay, dayOffset, totalGap, isLinkedToLoaded });
   const isDue = timeUntil < MILLIS_PER_SECOND;
 
   const timeUntilString = isDue ? 'DUE' : `${formatDuration(Math.abs(timeUntil), timeUntil > 2 * MILLIS_PER_MINUTE)}`;
