@@ -44,6 +44,7 @@ describe('calculateTimeUntilStart()', () => {
     const test = {
       timeStart: 100,
       dayOffset: 0,
+      delay: 0,
       currentDay: 0,
       totalGap: 0,
       clock: 90,
@@ -58,6 +59,7 @@ describe('calculateTimeUntilStart()', () => {
     const test = {
       timeStart: 100,
       dayOffset: 0,
+      delay: 0,
       currentDay: 0,
       totalGap: 0,
       clock: 90,
@@ -72,6 +74,7 @@ describe('calculateTimeUntilStart()', () => {
     const test = {
       timeStart: 100,
       dayOffset: 0,
+      delay: 0,
       currentDay: 0,
       totalGap: 0,
       clock: 80,
@@ -86,6 +89,7 @@ describe('calculateTimeUntilStart()', () => {
     const test = {
       timeStart: 100,
       dayOffset: 0,
+      delay: 0,
       currentDay: 0,
       totalGap: 20,
       clock: 50,
@@ -100,6 +104,7 @@ describe('calculateTimeUntilStart()', () => {
     const test = {
       timeStart: 100,
       dayOffset: 0,
+      delay: 0,
       currentDay: 0,
       totalGap: 10,
       clock: 50,
