@@ -43,10 +43,14 @@ test('project file download', async ({ page }) => {
 
   // workaround to download
   // https://playwright.dev/docs/api/class-download
-  const downloadPromise = page.waitForEvent('download');
+  const downloadPromise = page.waitForEvent('download', { timeout: 10000 });
 
   await page
-    .getByRole('row', { name: RegExp('^test-db') })
+    .getByRole('row', { name: /test-db/ })
+    .getByLabel('Options')
+    .scrollIntoViewIfNeeded();
+  await page
+    .getByRole('row', { name: /test-db/ })
     .getByLabel('Options')
     .click();
   await page.getByRole('menuitem', { name: 'Download' }).click();

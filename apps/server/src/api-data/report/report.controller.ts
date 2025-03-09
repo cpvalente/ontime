@@ -3,7 +3,7 @@ import type { OntimeReport } from 'ontime-types';
 import * as report from './report.service.js';
 
 export function getAll(_req: Request, res: Response<OntimeReport>) {
-  res.json(report.generate());
+  res.status(200).json(report.generate());
 }
 
 export function deleteAll(_req: Request, res: Response<OntimeReport>) {

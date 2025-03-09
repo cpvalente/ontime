@@ -27,7 +27,7 @@ integrationRouter.get('/', (_req: Request, res: Response<{ message: string }>) =
 /**
  * All calls are sent to the dispatcher
  */
-integrationRouter.get('/*', (req: Request, res: Response) => {
+integrationRouter.get('/*splat', (req: Request, res: Response) => {
   let action = req.path.substring(1);
   if (!action) {
     return res.status(400).json({ error: 'No action found' });

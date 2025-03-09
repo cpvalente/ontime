@@ -30,12 +30,12 @@ import {
 
 export async function rundownGetAll(_req: Request, res: Response<OntimeRundown>) {
   const rundown = getRundown();
-  res.json(rundown);
+  res.status(200).json(rundown);
 }
 
 export async function rundownGetNormalised(_req: Request, res: Response<RundownCached>) {
   const cachedRundown = getNormalisedRundown();
-  res.json(cachedRundown);
+  res.status(200).json(cachedRundown);
 }
 
 export async function rundownGetById(req: Request, res: Response<OntimeRundownEntry | ErrorResponse>) {
@@ -59,7 +59,7 @@ export async function rundownGetPaginated(req: Request, res: Response<RundownPag
   const { limit, offset } = req.query;
 
   if (limit == null && offset == null) {
-    return res.json({
+    return res.status(200).json({
       rundown: getRundown(),
       total: getRundown().length,
     });

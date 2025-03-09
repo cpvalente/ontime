@@ -75,7 +75,7 @@ app.disable('x-powered-by');
 
 // Implement middleware
 app.use(cors()); // setup cors for all routes
-app.options('*', cors()); // enable pre-flight cors
+app.options('{*splat}', cors()); // enable pre-flight cors
 
 app.use(bodyParser);
 app.use(cookieParser());
@@ -96,7 +96,7 @@ app.use(`${prefix}/user`, express.static(publicDir.userDir));
 
 // Base route for static files
 app.use(`${prefix}`, authenticateAndRedirect, compressedStatic);
-app.use(`${prefix}/*`, authenticateAndRedirect, compressedStatic);
+app.use(`${prefix}/{*splat}`, authenticateAndRedirect, compressedStatic);
 
 // Implement catch all
 app.use((_error, response) => {

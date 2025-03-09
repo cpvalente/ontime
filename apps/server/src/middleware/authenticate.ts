@@ -36,7 +36,7 @@ loginRouter.post('/', (req, res) => {
 
   if (hashPassword(reqPassword) === hashedPassword) {
     setSessionCookie(res, hashedPassword);
-    res.redirect(redirect || '/');
+    res.redirect(302, redirect || '/');
     return;
   }
 
@@ -85,7 +85,7 @@ export function makeAuthenticateMiddleware(prefix: string) {
       return next();
     }
 
-    res.redirect(`${prefix}/login?redirect=${req.originalUrl}`);
+    res.redirect(302, `${prefix}/login?redirect=${req.originalUrl}`);
   }
 
   return { authenticate, authenticateAndRedirect };

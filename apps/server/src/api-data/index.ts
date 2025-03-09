@@ -28,7 +28,7 @@ appRouter.use('/session', sessionRouter);
 appRouter.use('/view-settings', viewSettingsRouter);
 appRouter.use('/report', reportRouter);
 
-//we don't want to redirect to react index when using api routes
-appRouter.all('/*', (_req, res) => {
+// we don't want to redirect to react index when using api routes
+appRouter.all('/{*splat}', (_req, res) => {
   res.status(404).send();
 });
