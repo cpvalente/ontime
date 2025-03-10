@@ -17,7 +17,7 @@ export const ontimeButtonFilled = {
 
 export const ontimeButtonOutlined = {
   backgroundColor: '#2d2d2d', // $gray-1100
-  color: '#e2e2e2', // $blue-400
+  color: '#e2e2e2', // $gray-200
   border: '1px solid rgba(255, 255, 255, 0.10)', // white-10
   _hover: {
     backgroundColor: '#404040', // $gray-1000
@@ -74,5 +74,4 @@ export const ontimeButtonGhosted = {
 export const ontimeButtonSubtleWhite = {
   ...ontimeButtonSubtle,
   color: '#f6f6f6', // $gray-50
-  fontWeight: 600,
 };

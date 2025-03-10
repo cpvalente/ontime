@@ -1,0 +1,48 @@
+.panelContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.inlineApart {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.inlineSiblings {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.timers {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.entry {
+  display: flex;
+  gap: 0.25rem;
+  height: 1.2rem;
+  align-items: end;
+  line-height: 1em;
+}
+
+.timerLabel {
+  color: $label-gray;
+  font-size: calc(1rem - 3px);
+}
+
+.roll {
+    color: $ontime-roll;
+}
+
+.highlight {
+  color: $highlight-orange;
+}
+
+.disabled {
+  opacity: $opacity-disabled;
+}

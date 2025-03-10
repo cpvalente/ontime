@@ -1,9 +1,6 @@
 .timeContainer {
   display: grid;
-  grid-template-areas:
-    'indicators timer  addtime'
-    'status     status addtime';
-  grid-template-rows: 1fr auto;
+  grid-template-areas: 'indicators timer addtime';
   grid-template-columns: 1.25rem 1fr 6.5rem;
   gap: $element-inner-spacing;
 }
@@ -49,30 +46,4 @@
   &[data-active='true'] {
     background-color: $playback-negative;
   }
-}
-
-// ---------> LABELS
-
-.status {
-  grid-area: status;
-  height: 1.5rem;
-  display: flex;
-  gap: $section-spacing;
-  margin-left: 1.5rem;
-}
-
-.tag {
-  color: $label-gray;
-  font-size: calc(1rem - 2px);
-  margin-right: 0.25rem;
-}
-
-.time {
-  color: $section-white;
-  font-size: $text-body-size;
-}
-
-.rolltag {
-  color: $ontime-roll;
-  font-size: $text-body-size;
 }

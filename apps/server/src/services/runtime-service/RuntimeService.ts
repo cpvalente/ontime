@@ -666,6 +666,43 @@ class RuntimeService {
       logger.info(LogOrigin.Playback, `${time > 0 ? 'Added' : 'Removed'} ${millisToString(time)}`);
     }
   }
+
+  /**
+   * @returns {number} speed factor currently applied
+   */
+  public getSpeed(): number {
+    return runtimeState.getSpeed();
+  }
+
+  /**
+   * Applies a speed factor to current timer
+   * @param {number} speed - speed factor
+   * @returns {number} applied speed factor
+   */
+  public setSpeed(speed: number): number {
+    if (speed < 0.5 || speed > 2.0) {
+      logger.warning(LogOrigin.Server, `Speed out of bounds: ${speed}`);
+      return;
+    }
+
+    const currentState = runtimeState.getState();
+    if (currentState.eventNow === null) {
+      logger.warning(LogOrigin.Server, 'No event running to set speed to');
+    }
+
+    const newSpeed = runtimeState.setSpeed(speed);
+    logger.info(LogOrigin.Server, `Speed set to ${newSpeed}`);
+    return newSpeed;
+  }
+
+  /**
+   * Resets the speed of the current timer
+   */
+  public resetSpeed(): number {
+    const speed = runtimeState.resetSpeed();
+    logger.info(LogOrigin.Server, `Speed set to ${speed}`);
+    return speed;
+  }
 }
 
 // calculate at 30fps, refresh at 1fps
