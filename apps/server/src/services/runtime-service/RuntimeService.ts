@@ -4,6 +4,7 @@ import {
   isPlayableEvent,
   LogOrigin,
   MaybeNumber,
+  OffsetMode,
   OntimeEvent,
   Playback,
   TimerLifeCycle,
@@ -37,6 +38,7 @@ import {
 import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
 import { skippedOutOfEvent } from '../timerUtils.js';
 import { triggerAutomations } from '../../api-data/automation/automation.service.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
 type RuntimeStateEventKeys = keyof Pick<RuntimeState, 'eventNext' | 'eventNow' | 'publicEventNow' | 'publicEventNext'>;
 
@@ -66,6 +68,14 @@ class RuntimeService {
     RuntimeService.previousTimerValue = -1;
     RuntimeService.previousClockUpdate = -1;
     RuntimeService.previousState = {} as RuntimeState;
+  }
+
+  @broadcastResult
+  setOffsetMode(mode: OffsetMode) {
+    runtimeState.setOffsetMode(mode);
+    process.nextTick(() => {
+      getDataProvider().setOffsetMode(mode);
+    });
   }
 
   /**
@@ -697,11 +707,14 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // for the very fist run there will be nothing in the previousState so we force an update
     const justStarted = !RuntimeService.previousState?.timer;
 
+    // offset mode has been changed
+    const offsetModeChanged = RuntimeService.previousState?.runtime?.offsetMode !== state.runtime.offsetMode;
+
     // if playback changes most things should update
     const hasChangedPlayback = RuntimeService.previousState.timer?.playback !== state.timer.playback;
 
     // combine all big changes
-    const hasImmediateChanges = hasNewLoaded || justStarted || hasChangedPlayback;
+    const hasImmediateChanges = hasNewLoaded || justStarted || hasChangedPlayback || offsetModeChanged;
 
     /**
      * Timer should be updated if

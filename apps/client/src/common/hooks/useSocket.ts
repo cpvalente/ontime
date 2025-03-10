@@ -1,4 +1,4 @@
-import { RuntimeStore, SimpleDirection, SimplePlayback, TimerMessage } from 'ontime-types';
+import { OffsetMode, RuntimeStore, SimpleDirection, SimplePlayback, TimerMessage } from 'ontime-types';
 
 import { useRuntimeStore } from '../stores/runtime';
 import { socketSendJson } from '../utils/socket';
@@ -188,6 +188,12 @@ export const usePing = createSelector((state: RuntimeStore) => ({
 export const useIsOnline = createSelector((state: RuntimeStore) => ({
   isOnline: state.ping > 0,
 }));
+
+export const useOffsetMode = createSelector((state: RuntimeStore) => ({
+  offsetMode: state.runtime.offsetMode,
+}));
+
+export const setOffsetMode = (payload: OffsetMode) => socketSendJson('offsetmode', payload);
 
 export const usePlayback = () => {
   const featureSelector = (state: RuntimeStore) => ({
