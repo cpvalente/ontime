@@ -127,12 +127,10 @@ export function formatDuration(duration: number, hideSeconds = true): string {
   return result;
 }
 
-//TODO: handle delays
-
 /**
  *
- * @param totalGap acumelated gap from the current event
- * @param isLinkedToLoaded is this event part of a cain linking back to the current loaded event
+ * @param totalGap accumulated gap from the current event
+ * @param isLinkedToLoaded is this event part of a chain linking back to the current loaded event
  * @returns
  */
 export function useTimeUntilStart(
@@ -148,9 +146,9 @@ export function useTimeUntilStart(
 
 /**
  *
- * @param normalisedTimeStart the start time of the event inclyding the day offset from the current event
- * @param totalGap acumelated gap from the current event
- * @param isLinkedToLoaded is this event part of a cain linking back to the current loaded event
+ * @param currentDay the day offset of the urrently running event
+ * @param totalGap accumulated gap from the current event
+ * @param isLinkedToLoaded is this event part of a chain linking back to the current loaded event
  * @param clock
  * @param offset
  * @returns
