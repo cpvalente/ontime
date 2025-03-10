@@ -84,7 +84,7 @@ export function getState(): Readonly<RuntimeState> {
   };
 }
 
-//TODO: find other thinbgs that dose not need clearing
+//TODO: find other things that dose not need clearing
 export function softClear() {
   runtimeState.eventNow = null;
   runtimeState.publicEventNow = null;

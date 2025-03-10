@@ -707,11 +707,14 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // for the very fist run there will be nothing in the previousState so we force an update
     const justStarted = !RuntimeService.previousState?.timer;
 
+    // offset mode has been changed
+    const offsetModeChanged = RuntimeService.previousState?.runtime?.offsetMode !== state.runtime.offsetMode;
+
     // if playback changes most things should update
     const hasChangedPlayback = RuntimeService.previousState.timer?.playback !== state.timer.playback;
 
     // combine all big changes
-    const hasImmediateChanges = hasNewLoaded || justStarted || hasChangedPlayback;
+    const hasImmediateChanges = hasNewLoaded || justStarted || hasChangedPlayback || offsetModeChanged;
 
     /**
      * Timer should be updated if
