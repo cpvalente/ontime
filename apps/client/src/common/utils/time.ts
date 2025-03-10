@@ -1,8 +1,9 @@
-import { MaybeNumber, Settings, TimeFormat } from 'ontime-types';
-import { formatFromMillis, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
+import { MaybeNumber, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
+import { dayInMs, formatFromMillis, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';
 import { APP_SETTINGS } from '../api/constants';
+import { useTimeUntilData } from '../hooks/useSocket';
 import { ontimeQueryClient } from '../queryClient';
 
 /**
@@ -124,4 +125,72 @@ export function formatDuration(duration: number, hideSeconds = true): string {
     }
   }
   return result;
+}
+
+/**
+ *
+ * @param totalGap accumulated gap from the current event
+ * @param isLinkedToLoaded is this event part of a chain linking back to the current loaded event
+ * @returns
+ */
+export function useTimeUntilStart(
+  // typed like this to make it very clear what the data is
+  data: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'> & {
+    totalGap: number;
+    isLinkedToLoaded: boolean;
+  },
+): number {
+  const { offset, clock, currentDay } = useTimeUntilData();
+  return calculateTimeUntilStart({ ...data, currentDay, clock, offset });
+}
+
+/**
+ *
+ * @param currentDay the day offset of the urrently running event
+ * @param totalGap accumulated gap from the current event
+ * @param isLinkedToLoaded is this event part of a chain linking back to the current loaded event
+ * @param clock
+ * @param offset
+ * @returns
+ */
+export function calculateTimeUntilStart(
+  data: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'> & {
+    currentDay: number;
+    totalGap: number;
+    isLinkedToLoaded: boolean;
+    clock: number;
+    offset: number;
+  },
+): number {
+  const { timeStart, dayOffset, currentDay, totalGap, isLinkedToLoaded, clock, offset, delay } = data;
+
+  //How many days from the currently running event to this one
+  const relativeDayOffset = dayOffset - currentDay;
+
+  const delayedStart = Math.max(0, timeStart + delay);
+
+  //The normalised start time of this event relative to the currently running event
+  const normalisedTimeStart = delayedStart + relativeDayOffset * dayInMs;
+
+  const offsetTimestart = normalisedTimeStart - offset;
+  const offsetTimeUntil = offsetTimestart - clock;
+
+  if (isLinkedToLoaded) {
+    //if we are directly linked back to the loaded event we just follow the offset
+    return offsetTimeUntil;
+  }
+
+  const scheduledTimeUntil = normalisedTimeStart - clock;
+
+  const isAheadOfSchedule = offset >= 0;
+  const gapsCanCompensadeForOffset = totalGap + offset >= 0;
+
+  if (isAheadOfSchedule || gapsCanCompensadeForOffset) {
+    // if we are ahead of schedule or the gap can compensate for the amount we are behind then expect to start at the scheduled time
+    return scheduledTimeUntil;
+  }
+
+  // otherwise consume as much of the offset as possible with the gap
+  const offsetTimeUntilBufferedByGaps = offsetTimeUntil - totalGap;
+  return offsetTimeUntilBufferedByGaps;
 }

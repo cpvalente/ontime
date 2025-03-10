@@ -11,7 +11,6 @@ import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward'
 import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
-import { dayInMs } from 'ontime-utils';
 
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
@@ -47,6 +46,7 @@ interface EventBlockInnerProps {
   dayOffset: number;
   isPast: boolean;
   totalGap: number;
+  isLinkedToLoaded: boolean;
 }
 
 function EventBlockInner(props: EventBlockInnerProps) {
@@ -72,6 +72,7 @@ function EventBlockInner(props: EventBlockInnerProps) {
     dayOffset,
     isPast,
     totalGap,
+    isLinkedToLoaded,
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
@@ -120,11 +121,13 @@ function EventBlockInner(props: EventBlockInnerProps) {
         <EventBlockChip
           className={style.chipSection}
           id={eventId}
-          trueTimeStart={timeStart + dayOffset * dayInMs}
+          timeStart={timeStart}
+          delay={delay}
+          dayOffset={dayOffset}
+          isLinkedToLoaded={isLinkedToLoaded}
           isPast={isPast}
           isLoaded={loaded}
           totalGap={totalGap}
-          isLinkedAndNext={isNext && linkStart !== null}
           duration={duration}
         />
       )}
