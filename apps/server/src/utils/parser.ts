@@ -27,14 +27,7 @@ import { logger } from '../classes/Logger.js';
 import { event as eventDef } from '../models/eventsDefinition.js';
 
 import { makeString } from './parserUtils.js';
-import {
-  parseOffsetMode,
-  parseProject,
-  parseRundown,
-  parseSettings,
-  parseUrlPresets,
-  parseViewSettings,
-} from './parserFunctions.js';
+import { parseProject, parseRundown, parseSettings, parseUrlPresets, parseViewSettings } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
 
 export type ErrorEmitter = (message: string) => void;
@@ -343,7 +336,6 @@ export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): { data: Da
     urlPresets: parseUrlPresets(jsonData, makeEmitError('URL Presets')),
     customFields,
     automation: parseAutomationSettings(jsonData),
-    offsetMode: parseOffsetMode(jsonData, makeEmitError('OffsetMode')),
   };
 
   return { data, errors };

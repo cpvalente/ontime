@@ -1,4 +1,4 @@
-import { DatabaseModel, EndAction, OffsetMode, SupportedEvent, TimeStrategy, TimerType } from 'ontime-types';
+import { DatabaseModel, EndAction, SupportedEvent, TimeStrategy, TimerType } from 'ontime-types';
 
 export const demoDb: DatabaseModel = {
   rundown: [
@@ -457,5 +457,4 @@ export const demoDb: DatabaseModel = {
     triggers: [],
     automations: {},
   },
-  offsetMode: OffsetMode.Absolute,
 };
