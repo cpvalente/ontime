@@ -179,6 +179,15 @@ async function fileDownload(fileName: string): Promise<{ data: DatabaseModel; na
 export async function getCSSContents(): Promise<string> {
   const res = await axios.get(`${dbPath}/css`);
   return res.data;
-  console.log(res)
+}
 
+export async function postCSSContents(css: string): Promise<void> {
+  await axios.post(`${dbPath}/css`, {
+    css,
+  });
+}
+
+export async function restoreCSSContents(): Promise<string> {
+  const res = await axios.post(`${dbPath}/css/restore`);
+  return res.data;
 }
