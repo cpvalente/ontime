@@ -23,8 +23,8 @@ import styles from './CuesheetPage.module.scss';
 
 export default function CuesheetPage() {
   // TODO: can we use the normalised rundown for the table?
-  const { data: flatRundown } = useFlatRundown();
-  const { data: customFields } = useCustomFields();
+  const { data: flatRundown, status: rundownStatus } = useFlatRundown();
+  const { data: customFields, status: customFieldStatus } = useCustomFields();
   const { showEditFormDrawer, isViewLocked } = useViewEditor({ isLockable: true });
   const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isEventEditorOpen, onOpen: onEventEditorOpen, onClose: onEventEditorClose } = useDisclosure();
@@ -50,7 +50,7 @@ export default function CuesheetPage() {
     [onEventEditorClose, onEventEditorOpen],
   );
 
-  if (!customFields || !flatRundown) {
+  if (!customFields || !flatRundown || rundownStatus === 'pending' || customFieldStatus === 'pending') {
     return <EmptyPage text='Loading...' />;
   }
 

@@ -1,4 +1,3 @@
-import { stringify } from 'csv-stringify/browser/esm/sync';
 import {
   CustomFields,
   isOntimeDelay,
@@ -102,14 +101,4 @@ export const makeTable = (headerData: ProjectData, rundown: OntimeRundown, custo
   });
 
   return data;
-};
-
-/**
- * @description Converts an array of arrays to a csv file
- * @param {string[][]} arrayOfArrays
- * @return {string}
- */
-export const makeCSV = (arrayOfArrays: string[][]): string => {
-  const stringifiedData = stringify(arrayOfArrays);
-  return stringifiedData;
 };

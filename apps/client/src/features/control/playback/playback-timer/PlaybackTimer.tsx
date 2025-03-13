@@ -1,9 +1,11 @@
 import { PropsWithChildren } from 'react';
 import { Tooltip } from '@chakra-ui/react';
-import { Playback, TimerPhase } from 'ontime-types';
+import { MaybeNumber, Playback, TimerPhase } from 'ontime-types';
 import { dayInMs, millisToString } from 'ontime-utils';
 
+import AppLink from '../../../../common/components/link/app-link/AppLink';
 import { useTimer } from '../../../../common/hooks/useSocket';
+import useReport from '../../../../common/hooks-query/useReport';
 import { formatDuration } from '../../../../common/utils/time';
 import TimerDisplay from '../timer-display/TimerDisplay';
 
@@ -28,10 +30,6 @@ function resolveAddedTimeLabel(addedTime: number) {
 export default function PlaybackTimer(props: PropsWithChildren<PlaybackTimerProps>) {
   const { playback, children } = props;
   const timer = useTimer();
-
-  const started = millisToString(timer.startedAt);
-  const expectedFinish = timer.expectedFinish !== null ? timer.expectedFinish % dayInMs : null;
-  const finish = millisToString(expectedFinish);
 
   const isRolling = playback === Playback.Roll;
   const isWaiting = timer.phase === TimerPhase.Pending;
@@ -58,19 +56,51 @@ export default function PlaybackTimer(props: PropsWithChildren<PlaybackTimerProp
         {isWaiting ? (
           <span className={style.rolltag}>Roll: Countdown to start</span>
         ) : (
-          <>
-            <span className={style.start}>
-              <span className={style.tag}>Started at</span>
-              <span className={style.time}>{started}</span>
-            </span>
-            <span className={style.finish}>
-              <span className={style.tag}>Expect end</span>
-              <span className={style.time}>{finish}</span>
-            </span>
-          </>
+          <RunningStatus startedAt={timer.startedAt} expectedFinish={timer.expectedFinish} playback={playback} />
         )}
       </div>
       {children}
     </div>
   );
+}
+
+interface RunningStatusProps {
+  startedAt: MaybeNumber;
+  expectedFinish: MaybeNumber;
+  playback: Playback;
+}
+function RunningStatus(props: RunningStatusProps) {
+  const { startedAt, expectedFinish, playback } = props;
+
+  if (playback === Playback.Stop) {
+    return <StoppedStatus />;
+  }
+
+  const started = millisToString(startedAt);
+  const finishedMs = expectedFinish !== null ? expectedFinish % dayInMs : null;
+  const finish = millisToString(finishedMs);
+
+  return (
+    <>
+      <span className={style.start}>
+        <span className={style.tag}>Started at</span>
+        <span className={style.time}>{started}</span>
+      </span>
+      <span className={style.finish}>
+        <span className={style.tag}>Expect end</span>
+        <span className={style.time}>{finish}</span>
+      </span>
+    </>
+  );
+}
+
+function StoppedStatus() {
+  const { data } = useReport();
+  const hasReport = Object.keys(data).length > 0;
+
+  if (hasReport) {
+    return <AppLink search='settings=feature_settings__report'>Go to report management</AppLink>;
+  }
+
+  return null;
 }

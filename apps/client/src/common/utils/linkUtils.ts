@@ -6,7 +6,6 @@ import { baseURI, serverURL } from '../../externals';
  * Open an external URLs: specifically for a electron / browser case
  * If electron: ask main process to call a new browser window
  * If browser: open in new tab
- * @param url
  */
 export function openLink(url: string) {
   if (window.process?.type === 'renderer') {

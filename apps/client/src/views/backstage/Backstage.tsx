@@ -81,10 +81,18 @@ export default function Backstage(props: BackstageProps) {
   const clock = formatTime(time.clock);
   const isPendingStart = getIsPendingStart(time.playback, time.phase);
   const startedAt = isPendingStart ? formatTime(time.secondaryTimer) : formatTime(time.startedAt);
-  const scheduledStart =
-    hasEvents && showNow ? '' : formatTime(runtime.plannedStart, { format12: 'hh:mm a', format24: 'HH:mm' });
-  const scheduledEnd =
-    hasEvents && showNow ? '' : formatTime(runtime.plannedEnd, { format12: 'hh:mm a', format24: 'HH:mm' });
+
+  const scheduledStart = (() => {
+    if (showNow) return undefined;
+    if (!hasEvents) return undefined;
+    return formatTime(runtime.plannedStart, { format12: 'hh:mm a', format24: 'HH:mm' });
+  })();
+
+  const scheduledEnd = (() => {
+    if (showNow) return undefined;
+    if (!hasEvents) return undefined;
+    return formatTime(runtime.plannedEnd, { format12: 'hh:mm a', format24: 'HH:mm' });
+  })();
 
   let displayTimer = millisToString(time.current, { fallback: timerPlaceholderMin });
   displayTimer = removeLeadingZero(displayTimer);
@@ -92,7 +100,8 @@ export default function Backstage(props: BackstageProps) {
   // gather presentation styles
   const qrSize = Math.max(window.innerWidth / 15, 72);
   const showProgress = getShowProgressBar(time.playback);
-  const showSchedule = hasEvents && screenHeight > 700; // in vertical screens we may not have space
+  const showSchedule = hasEvents && screenHeight > 420; // in vertical screens we may not have space
+  const showPending = scheduledStart && scheduledEnd;
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
@@ -143,7 +152,7 @@ export default function Backstage(props: BackstageProps) {
           </div>
         )}
 
-        {!showNow && hasEvents && (
+        {showPending && (
           <div className='event'>
             <div className='title-card__placeholder'>{getLocalizedString('countdown.waiting')}</div>
             <div className='timer-group'>

@@ -51,6 +51,7 @@ interface EventBlockProps {
   isNextDay: boolean;
   dayOffset: number;
   totalGap: number;
+  isLinkedToLoaded: boolean;
   actionHandler: (
     action: EventItemActions,
     payload?:
@@ -91,6 +92,7 @@ export default function EventBlock(props: EventBlockProps) {
     isNextDay,
     dayOffset,
     totalGap,
+    isLinkedToLoaded,
     actionHandler,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
@@ -175,7 +177,7 @@ export default function EventBlock(props: EventBlockProps) {
             },
             isDisabled: selectedEventId == null || selectedEventId === eventId,
           },
-          { withDivider: true, label: 'Clone', icon: IoDuplicateOutline, onClick: () => actionHandler('clone') },
+          { withDivider: false, label: 'Clone', icon: IoDuplicateOutline, onClick: () => actionHandler('clone') },
           { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
         ],
   );
@@ -310,6 +312,7 @@ export default function EventBlock(props: EventBlockProps) {
           dayOffset={dayOffset}
           isPast={isPast}
           totalGap={totalGap}
+          isLinkedToLoaded={isLinkedToLoaded}
         />
       )}
     </div>

@@ -1,6 +1,6 @@
 import { ProjectData } from 'ontime-types';
 
-import { makeCSV, makeTable, parseField } from '../cuesheet.utils';
+import { makeTable, parseField } from '../cuesheet.utils';
 
 describe('parseField()', () => {
   it('returns a string from given millis on timeStart, TimeEnd and duration', () => {
@@ -112,17 +112,5 @@ describe('makeTable()', () => {
         ],
       ]
     `);
-  });
-});
-
-describe('make CSV()', () => {
-  it('joins an array of arrays with commas and newlines', () => {
-    const testdata = [['field'], ['after newline', 'after comma'], ['', 'after empty']];
-    expect(makeCSV(testdata)).toMatchInlineSnapshot(`
-"field
-after newline,after comma
-,after empty
-"
-`);
   });
 });

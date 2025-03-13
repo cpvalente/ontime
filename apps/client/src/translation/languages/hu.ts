@@ -24,4 +24,10 @@ export const langHu: TranslationObject = {
   'timeline.done': 'kész',
   'timeline.due': 'esedékes',
   'timeline.followedby': 'Követi',
+  'project.title': 'Cím',
+  'project.description': 'Leírás',
+  'project.backstage_info': 'Kulisszák mögötti információ',
+  'project.backstage_url': 'Kulisszák mögötti URL',
+  'project.public_info': 'Nyilvános információ',
+  'project.public_url': 'Nyilvános URL',
 };

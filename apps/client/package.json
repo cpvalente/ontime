@@ -1,6 +1,6 @@
 {
   "name": "ontime-ui",
-  "version": "3.12.0",
+  "version": "3.14.1",
   "private": true,
   "type": "module",
   "dependencies": {
@@ -15,6 +15,7 @@
     "@mantine/hooks": "^7.13.3",
     "@react-icons/all-files": "^4.1.0",
     "@sentry/react": "^8.43.0",
+    "@table-nav/react": "^0.0.7",
     "@tanstack/react-query": "^5.62.7",
     "@tanstack/react-query-devtools": "^5.62.7",
     "@tanstack/react-table": "^8.20.5",

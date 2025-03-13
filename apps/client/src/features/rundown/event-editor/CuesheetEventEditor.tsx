@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { isOntimeEvent, OntimeEvent } from 'ontime-types';
 
 import useRundown from '../../../common/hooks-query/useRundown';
+import { cx } from '../../../common/utils/styleUtils';
 
 import EventEditor from './EventEditor';
 
@@ -37,7 +38,7 @@ export default function CuesheetEventEditor(props: CuesheetEventEditorProps) {
   }
 
   return (
-    <div className={style.eventEditor} data-testid='editor-container'>
+    <div className={cx([style.eventEditor, style.inModal])} data-testid='editor-container'>
       <EventEditor event={event} />
     </div>
   );

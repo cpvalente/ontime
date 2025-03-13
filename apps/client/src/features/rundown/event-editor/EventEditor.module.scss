@@ -1,8 +1,12 @@
 .eventEditor {
-  max-height: 80vh;
+  max-height: 100%;
   display: flex;
   flex-direction: column;
   overflow-x: auto;
+
+  &.inModal {
+    max-height: 80vh;
+  }
 }
 
 .content {
@@ -77,4 +81,10 @@
   display: inline-block;
   font-size: 1.25em;
   margin-left: 0.25em;
+}
+
+.customImage {
+  display: grid;
+  grid-template-columns: 1fr 72px;
+  gap: 1rem;
 }

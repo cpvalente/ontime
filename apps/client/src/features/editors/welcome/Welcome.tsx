@@ -4,7 +4,7 @@ import { Button, Checkbox, Modal, ModalBody, ModalCloseButton, ModalContent, Mod
 import { loadDemo, loadProject } from '../../../common/api/db';
 import { postShowWelcomeDialog } from '../../../common/api/settings';
 import { invalidateAllCaches } from '../../../common/api/utils';
-import ExternalLink from '../../../common/components/external-link/ExternalLink';
+import ExternalLink from '../../../common/components/link/external-link/ExternalLink';
 import { appVersion, discordUrl, documentationUrl, websiteUrl } from '../../../externals';
 import * as Editor from '../editor-utils/EditorUtils';
 
@@ -75,7 +75,7 @@ export default function Welcome(props: WelcomeProps) {
                 <table className={style.table}>
                   <thead>
                     <tr>
-                      <th>Project Name</th>
+                      <th>File Name</th>
                       <th>Last Used</th>
                     </tr>
                   </thead>

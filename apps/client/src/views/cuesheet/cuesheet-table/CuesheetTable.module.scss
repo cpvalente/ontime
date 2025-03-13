@@ -28,6 +28,11 @@ $table-header-font-size: calc(1rem - 2px);
     position: relative;
     @include ellipsis-overflow;
   }
+
+  th:focus,
+  td:focus {
+    outline: 2px solid $ui-white;
+  }
 }
 
 .tableHeader,

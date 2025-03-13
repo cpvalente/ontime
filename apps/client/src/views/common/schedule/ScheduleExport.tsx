@@ -14,7 +14,7 @@ export default memo(ScheduleExport);
 function ScheduleExport(props: ScheduleExportProps) {
   const { selectedId, isBackstage } = props;
   return (
-    <ScheduleProvider selectedEventId={selectedId} isBackstage>
+    <ScheduleProvider selectedEventId={selectedId} isBackstage={isBackstage}>
       <ScheduleNav className='schedule-nav-container' />
       <Schedule isProduction={isBackstage} className='schedule-container' />
     </ScheduleProvider>

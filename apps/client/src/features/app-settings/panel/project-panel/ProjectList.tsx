@@ -31,7 +31,7 @@ export default function ProjectList() {
     <Panel.Table>
       <thead>
         <tr>
-          <th className={style.containCell}>Project Name</th>
+          <th className={style.containCell}>File Name</th>
           <th>Last Used</th>
           <th />
         </tr>

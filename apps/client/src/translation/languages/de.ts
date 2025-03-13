@@ -24,4 +24,10 @@ export const langDe: TranslationObject = {
   'timeline.done': 'Beendet',
   'timeline.due': 'fällig',
   'timeline.followedby': 'Gefolgt von',
+  'project.title': 'Titel',
+  'project.description': 'Beschreibung',
+  'project.backstage_info': 'Backstage-Informationen',
+  'project.backstage_url': 'Backstage-URL',
+  'project.public_info': 'Öffentliche Informationen',
+  'project.public_url': 'Öffentliche URL',
 };

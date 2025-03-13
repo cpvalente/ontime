@@ -2,6 +2,7 @@ import { CustomFields } from 'ontime-types';
 
 import {
   getTimeOption,
+  makeCustomFieldSelectOptions,
   makeOptionsFromCustomFields,
   OptionTitle,
 } from '../../common/components/view-params-editor/constants';
@@ -9,13 +10,7 @@ import { ViewOption } from '../../common/components/view-params-editor/types';
 
 export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ViewOption[] => {
   const fieldOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });
-
-  const customFieldSelect = Object.entries(customFields).reduce<
-    Record<string, { value: string; label: string; colour: string }>
-  >((acc, [key, field]) => {
-    acc[key] = { value: key, label: field.label, colour: field.colour };
-    return acc;
-  }, {});
+  const customFieldSelect = makeCustomFieldSelectOptions(customFields);
 
   return [
     { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
@@ -46,6 +41,13 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
           type: 'multi-option',
           values: customFieldSelect,
         },
+        {
+          id: 'shouldEdit',
+          title: 'Edit custom field',
+          description: 'Allows editing an highlighted custom field by long pressing',
+          type: 'boolean',
+          defaultValue: false,
+        },
       ],
     },
     {
@@ -56,13 +58,6 @@ export const getOperatorOptions = (customFields: CustomFields, timeFormat: strin
           id: 'hidepast',
           title: 'Hide Past Events',
           description: 'Whether to hide events that have passed',
-          type: 'boolean',
-          defaultValue: false,
-        },
-        {
-          id: 'shouldEdit',
-          title: 'Edit custom field',
-          description: 'Allows editing an events selected custom field by long pressing.',
           type: 'boolean',
           defaultValue: false,
         },
