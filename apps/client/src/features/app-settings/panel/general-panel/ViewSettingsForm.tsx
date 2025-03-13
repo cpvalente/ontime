@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Button, Input, Switch } from '@chakra-ui/react';
+import { Button, Input, Switch, useDisclosure } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
 import { getCSSContents } from '../../../../common/api/db';
@@ -15,13 +15,14 @@ import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
-import CodeEditor from './StyleEditor';
+import CodeEditorModal from './StyleEditorModal';
 
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
 export default function ViewSettingsForm() {
   const { data, status, refetch } = useViewSettings();
   const { data: info, status: infoStatus } = useInfo();
+  const { isOpen: isCodeEditorOpen, onOpen: onCodeEditorOpen, onClose: onCodeEditorClose } = useDisclosure();
 
   const [css, setCSS] = useState('');
 
@@ -116,7 +117,7 @@ export default function ViewSettingsForm() {
         <Panel.Section>
           <Panel.Loader isLoading={isLoading} />
           <Panel.ListGroup>
-            <CodeEditor onChange={console.log} initialValue={css} language='css' />
+            <CodeEditorModal isOpen={isCodeEditorOpen} onClose={onCodeEditorClose} initialValue={css} />
             <Panel.ListItem>
               <Panel.Field
                 title='Override CSS styles'
@@ -129,6 +130,9 @@ export default function ViewSettingsForm() {
                   <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
                 )}
               />
+              <Button onClick={onCodeEditorOpen} variant='ontime-subtle'>
+                Edit CSS
+              </Button>
             </Panel.ListItem>
           </Panel.ListGroup>
           <Panel.ListGroup>

@@ -8,7 +8,15 @@ import 'prismjs/components/prism-css';
 import 'prismjs/themes/prism-funky.min.css';
 import style from './StyleEditor.module.scss';
 
-const CodeEditor = ({ language = 'css', initialValue = '', onChange }) => {
+interface CodeEditorProps {
+  language: string;
+  initialValue: string;
+  onChange: (newValue: string) => void;
+}
+
+const CodeEditor = (props: CodeEditorProps) => {
+  const { language, initialValue, onChange } = props;
+
   const [code, setCode] = useState(initialValue);
 
   useEffect(() => {
