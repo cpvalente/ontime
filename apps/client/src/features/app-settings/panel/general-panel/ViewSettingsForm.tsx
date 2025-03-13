@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import { lazy, useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button, Input, Switch, useDisclosure } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
-import { getCSSContents } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { postViewSettings } from '../../../../common/api/viewSettings';
 import Info from '../../../../common/components/info/Info';
@@ -15,7 +14,7 @@ import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
-import CodeEditorModal from './StyleEditorModal';
+const CodeEditorModal = lazy(() => import('./StyleEditorModal'));
 
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
@@ -23,16 +22,6 @@ export default function ViewSettingsForm() {
   const { data, status, refetch } = useViewSettings();
   const { data: info, status: infoStatus } = useInfo();
   const { isOpen: isCodeEditorOpen, onOpen: onCodeEditorOpen, onClose: onCodeEditorClose } = useDisclosure();
-
-  const [css, setCSS] = useState('');
-
-  useEffect(() => {
-    async function fetchServerCSS() {
-      const css = await getCSSContents();
-      setCSS(css);
-    }
-    fetchServerCSS();
-  }, []);
 
   const {
     control,
@@ -117,7 +106,7 @@ export default function ViewSettingsForm() {
         <Panel.Section>
           <Panel.Loader isLoading={isLoading} />
           <Panel.ListGroup>
-            <CodeEditorModal isOpen={isCodeEditorOpen} onClose={onCodeEditorClose} initialValue={css} />
+            <CodeEditorModal isOpen={isCodeEditorOpen} onClose={onCodeEditorClose} />
             <Panel.ListItem>
               <Panel.Field
                 title='Override CSS styles'
