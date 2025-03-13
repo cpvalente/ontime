@@ -14,5 +14,5 @@ export type Runtime = {
   actualStart: MaybeNumber;
   plannedEnd: MaybeNumber;
   expectedEnd: MaybeNumber;
-  offsetMode: OffsetMode; // TODO: get proper names
+  offsetMode: OffsetMode;
 };

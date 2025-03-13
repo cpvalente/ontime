@@ -1,4 +1,4 @@
-import { DatabaseModel, OffsetMode } from 'ontime-types';
+import { DatabaseModel } from 'ontime-types';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
 export const dbModel: DatabaseModel = {
@@ -38,5 +38,4 @@ export const dbModel: DatabaseModel = {
     triggers: [],
     automations: {},
   },
-  offsetMode: OffsetMode.Absolute,
 };

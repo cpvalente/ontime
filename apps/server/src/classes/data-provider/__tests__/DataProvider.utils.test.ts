@@ -1,4 +1,4 @@
-import { DatabaseModel, OffsetMode, OntimeRundown, Settings, URLPreset, ViewSettings } from 'ontime-types';
+import { DatabaseModel, OntimeRundown, Settings, URLPreset, ViewSettings } from 'ontime-types';
 import { safeMerge } from '../DataProvider.utils.js';
 
 describe('safeMerge', () => {
@@ -42,7 +42,6 @@ describe('safeMerge', () => {
       triggers: [],
       automations: {},
     },
-    offsetMode: OffsetMode.Absolute,
   } as DatabaseModel;
 
   it('returns existing data if new data is not provided', () => {

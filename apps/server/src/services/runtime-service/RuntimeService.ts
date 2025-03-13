@@ -38,7 +38,6 @@ import {
 import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
 import { skippedOutOfEvent } from '../timerUtils.js';
 import { triggerAutomations } from '../../api-data/automation/automation.service.js';
-import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
 type RuntimeStateEventKeys = keyof Pick<RuntimeState, 'eventNext' | 'eventNow' | 'publicEventNow' | 'publicEventNext'>;
 
@@ -73,9 +72,6 @@ class RuntimeService {
   @broadcastResult
   setOffsetMode(mode: OffsetMode) {
     runtimeState.setOffsetMode(mode);
-    process.nextTick(() => {
-      getDataProvider().setOffsetMode(mode);
-    });
   }
 
   /**

@@ -170,8 +170,6 @@ export const startServer = async (
 
   socket.init(expressServer, showWelcome, prefix);
 
-  const offsetMode = getDataProvider().getOffsetMode();
-
   /**
    * Module initialises the services and provides initial payload for the store
    */
@@ -212,7 +210,6 @@ export const startServer = async (
 
   // TODO: pass event store to rundownservice
   runtimeService.init(maybeRestorePoint);
-  runtimeService.setOffsetMode(offsetMode);
 
   const nif = getNetworkInterfaces();
   consoleSuccess(`Local: http://localhost:${resultPort}${prefix}/editor`);
