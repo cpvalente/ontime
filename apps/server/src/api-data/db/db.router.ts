@@ -15,6 +15,7 @@ import {
   projectDownload,
   quickProjectFile,
   renameProjectFile,
+  restoreCss,
 } from './db.controller.js';
 import { uploadProjectFile } from './db.middleware.js';
 import {
@@ -46,3 +47,4 @@ router.delete('/:filename', validateFilenameParam, deleteProjectFile);
 
 router.get('/css', getCssOverride);
 router.post('/css', postCssOverride);
+router.post('/css/restore', restoreCss);
