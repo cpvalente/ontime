@@ -119,9 +119,11 @@ export default function ViewSettingsForm() {
                   <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
                 )}
               />
-              <Button onClick={onCodeEditorOpen} variant='ontime-subtle'>
-                Edit CSS
-              </Button>
+              <Panel.InlineElements>
+                <Button onClick={onCodeEditorOpen} variant='ontime-subtle' marginTop='1rem'>
+                  Edit CSS
+                </Button>
+              </Panel.InlineElements>
             </Panel.ListItem>
           </Panel.ListGroup>
           <Panel.ListGroup>
