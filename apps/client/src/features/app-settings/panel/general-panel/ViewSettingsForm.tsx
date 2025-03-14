@@ -1,4 +1,4 @@
-import { lazy, useEffect, useState } from 'react';
+import { lazy, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Button, Input, Switch, useDisclosure } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
