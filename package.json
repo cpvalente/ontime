@@ -32,10 +32,11 @@
     "dist-win": "turbo run dist-win",
     "dist-mac": "turbo run dist-mac",
     "dist-linux": "turbo run dist-linux",
-    "e2e": "cross-env DEBUG=pw:webserver npx playwright test -c playwright.config.ts",
+    "e2e": "pnpm clear-temp && cross-env DEBUG=pw:webserver npx playwright test -c playwright.config.ts",
     "e2e:ui": "cross-env DEBUG=pw:webserver npx playwright test --ui -c playwright.config.ts",
     "e2e:i": "npx playwright codegen",
-    "cleanup": "rm -rf node_modules && rm -rf **/node_modules && rm -rf **/**/node_modules"
+    "cleanup": "rm -rf node_modules && rm -rf **/node_modules && rm -rf **/**/node_modules",
+    "clear-temp": "rm -rf e2e/tests/fixtures/tmp"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.1",

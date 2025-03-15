@@ -1,4 +1,4 @@
-import { Log, RundownCached, RuntimeStore } from 'ontime-types';
+import { Log, Rundown, RuntimeStore } from 'ontime-types';
 
 import { isProduction, websocketUrl } from '../../externals';
 import { CLIENT_LIST, CUSTOM_FIELDS, REPORT, RUNDOWN, RUNTIME } from '../api/constants';
@@ -201,7 +201,7 @@ export const connectSocket = () => {
             invalidateAllCaches();
           } else if (target === 'RUNDOWN') {
             const { revision } = payload;
-            const currentRevision = ontimeQueryClient.getQueryData<RundownCached>(RUNDOWN)?.revision ?? -1;
+            const currentRevision = ontimeQueryClient.getQueryData<Rundown>(RUNDOWN)?.revision ?? -1;
             if (revision > currentRevision) {
               ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
               ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });

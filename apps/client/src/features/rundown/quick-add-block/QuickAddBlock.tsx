@@ -1,7 +1,7 @@
 import { memo, useCallback, useRef } from 'react';
 import { Button } from '@chakra-ui/react';
 import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { SupportedEvent } from 'ontime-types';
+import { MaybeString, SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useEmitLog } from '../../../common/stores/logger';
@@ -9,7 +9,7 @@ import { useEmitLog } from '../../../common/stores/logger';
 import style from './QuickAddBlock.module.scss';
 
 interface QuickAddBlockProps {
-  previousEventId?: string;
+  previousEventId: MaybeString;
 }
 
 export default memo(QuickAddBlock);
