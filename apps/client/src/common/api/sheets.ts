@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { AuthenticationStatus, CustomFields, OntimeRundown } from 'ontime-types';
+import { AuthenticationStatus, CustomFields, Rundown } from 'ontime-types';
 import { ImportMap } from 'ontime-utils';
 
 import { apiEntryUrl } from './constants';
@@ -54,7 +54,7 @@ export const previewRundown = async (
   sheetId: string,
   options: ImportMap,
 ): Promise<{
-  rundown: OntimeRundown;
+  rundown: Rundown;
   customFields: CustomFields;
 }> => {
   const response = await axios.post(`${sheetsPath}/${sheetId}/read`, { options });

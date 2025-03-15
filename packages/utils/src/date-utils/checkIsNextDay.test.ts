@@ -4,7 +4,7 @@ import { MILLIS_PER_HOUR } from './conversionUtils';
 describe('checkIsNextDay', () => {
   it('returns false if there is no previous event', () => {
     const current = { timeStart: 0, dayOffset: 0 };
-    const previous = undefined;
+    const previous = null;
     expect(checkIsNextDay(current, previous)).toBeFalsy();
   });
 

@@ -4,7 +4,7 @@ import { isNewLatest } from './isNewLatest';
 describe('isNewLatest', () => {
   it('should be true if there is no previous', () => {
     const current = { timeStart: 0, duration: MILLIS_PER_HOUR, dayOffset: 0 };
-    const previous = undefined;
+    const previous = null;
     expect(isNewLatest(current, previous)).toBe(true);
   });
 

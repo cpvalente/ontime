@@ -18,7 +18,7 @@ import {
 import { dbModel } from '../../models/dataModel.js';
 import { deleteFile } from '../../utils/parserUtils.js';
 import { parseDatabaseModel } from '../../utils/parser.js';
-import { parseRundown } from '../../utils/parserFunctions.js';
+import { parseRundowns } from '../../utils/parserFunctions.js';
 import { demoDb } from '../../models/demoProject.js';
 import { config } from '../../setup/config.js';
 import { getDataProvider, initPersistence } from '../../classes/data-provider/DataProvider.js';
@@ -40,6 +40,7 @@ import {
   moveCorruptFile,
   parseJsonFile,
 } from './projectServiceUtils.js';
+import { getFirstRundown } from '../rundown-service/rundownUtils.js';
 
 // init dependencies
 init();
@@ -83,7 +84,7 @@ async function loadNewProject(): Promise<string> {
 }
 
 /**
- * Private function handles side effects on currupted files
+ * Private function handles side effects on corrupted files
  * Corrupted files in this context contain data that failed domain validation
  */
 async function handleCorruptedFile(filePath: string, fileName: string): Promise<string> {
@@ -176,10 +177,11 @@ export async function loadProjectFile(name: string) {
   // apply data model
   runtimeService.stop();
 
-  const { rundown, customFields } = result.data;
+  const { rundowns, customFields } = result.data;
 
   // apply the rundown
-  await initRundown(rundown, customFields);
+  const firstRundown = getFirstRundown(rundowns);
+  await initRundown(firstRundown, customFields);
 }
 
 /**
@@ -246,10 +248,11 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
     // apply data model
     runtimeService.stop();
 
-    const { rundown, customFields } = result.data;
+    const { rundowns, customFields } = result.data;
 
     // apply the rundown
-    await initRundown(rundown, customFields);
+    const firstRundown = getFirstRundown(rundowns);
+    await initRundown(firstRundown, customFields);
   }
 }
 
@@ -300,17 +303,23 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
   runtimeService.stop();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars  -- we need to remove the fields before merging
-  const { rundown, customFields, ...rest } = data;
+  const { rundowns, customFields, ...rest } = data;
   // we can pass some stuff straight to the data provider
-  const newData = await getDataProvider().mergeIntoData(rest);
+  await getDataProvider().mergeIntoData(rest);
 
   // ... but rundown and custom fields need to be checked
-  if (rundown != null) {
-    const result = parseRundown(data);
-    await initRundown(result.rundown, result.customFields);
+  if (rundowns != null) {
+    const result = parseRundowns(data);
+    /**
+     * The user may have multiple rundowns
+     * We currently ignore all other rundowns
+     */
+    const firstRundown = getFirstRundown(result.rundowns);
+    initRundown(firstRundown, result.customFields);
   }
 
-  return newData;
+  const updatedData = await getDataProvider().getData();
+  return updatedData;
 }
 
 /**
