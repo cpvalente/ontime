@@ -9,6 +9,7 @@ import {
 } from 'ontime-types';
 
 export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
+  type: SupportedEvent.Event,
   title: '',
   note: '',
   endAction: EndAction.None,
@@ -22,22 +23,33 @@ export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
   isPublic: false,
   skip: false,
   colour: '',
-  type: SupportedEvent.Event,
-  revision: 0,
-  delay: 0,
-  dayOffset: 0,
-  gap: 0,
+  currentBlock: null,
+  revision: 0, // calculated at runtime
+  delay: 0, // calculated at runtime
+  dayOffset: 0, // calculated at runtime
+  gap: 0, // calculated at runtime
   timeWarning: 120000,
   timeDanger: 60000,
   custom: {},
 };
 
 export const delay: Omit<OntimeDelay, 'id'> = {
-  duration: 0,
   type: SupportedEvent.Delay,
+  duration: 0,
 };
 
 export const block: Omit<OntimeBlock, 'id'> = {
-  title: '',
   type: SupportedEvent.Block,
+  title: '',
+  note: '',
+  events: [],
+  skip: false,
+  colour: '',
+  revision: 0, // calculated at runtime
+  startTime: null, // calculated at runtime
+  endTime: null, // calculated at runtime
+  duration: 0, // calculated at runtime
+  isFirstLinked: false, // calculated at runtime
+  numEvents: 0, // calculated at runtime
+  custom: {},
 };

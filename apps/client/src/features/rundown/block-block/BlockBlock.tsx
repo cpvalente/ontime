@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { PropsWithChildren, useRef } from 'react';
 import { IoReorderTwo } from 'react-icons/io5';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -7,18 +7,15 @@ import { OntimeBlock } from 'ontime-types';
 import { cx } from '../../../common/utils/styleUtils';
 import EditableBlockTitle from '../common/EditableBlockTitle';
 
-import BlockDelete from './BlockDelete';
-
 import style from './BlockBlock.module.scss';
 
 interface BlockBlockProps {
   data: OntimeBlock;
   hasCursor: boolean;
-  onDelete: () => void;
 }
 
-export default function BlockBlock(props: BlockBlockProps) {
-  const { data, hasCursor, onDelete } = props;
+export default function BlockBlock(props: PropsWithChildren<BlockBlockProps>) {
+  const { data, hasCursor, children } = props;
 
   const handleRef = useRef<null | HTMLSpanElement>(null);
 
@@ -46,7 +43,8 @@ export default function BlockBlock(props: BlockBlockProps) {
         <IoReorderTwo />
       </span>
       <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Block title' />
-      <BlockDelete onDelete={onDelete} />
+      <button>+++</button>
+      <div>{children}</div>
     </div>
   );
 }

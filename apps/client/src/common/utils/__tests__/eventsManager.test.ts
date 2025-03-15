@@ -1,4 +1,4 @@
-import { EndAction, EventCustomFields, OntimeEvent, SupportedEvent, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, EntryCustomFields, OntimeEvent, SupportedEvent, TimerType, TimeStrategy } from 'ontime-types';
 
 import { cloneEvent } from '../eventsManager';
 
@@ -29,7 +29,7 @@ describe('cloneEvent()', () => {
       gap: 0,
       custom: {
         lighting: '3',
-      } as EventCustomFields,
+      } as EntryCustomFields,
     };
 
     const cloned = cloneEvent(original);
