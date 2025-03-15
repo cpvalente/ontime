@@ -1,5 +1,8 @@
 import {
+  Box,
   Button,
+  Flex,
+  HStack,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -31,6 +34,7 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
       setCSS(defaultCss);
       setLoading(false);
     } catch (_error) {
+      /** no error handling for now */
     } finally {
       setLoading(false);
     }
@@ -42,6 +46,7 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
       await postCSSContents(css);
       setLoading(false);
     } catch (_error) {
+      /** no error handling for now */
     } finally {
       setLoading(false);
     }
@@ -59,19 +64,30 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
     <Modal isOpen={isOpen} onClose={onClose} variant='ontime' isCentered>
       <ModalOverlay />
       <ModalContent maxWidth='max(800px, 40vw)' padding='1rem'>
-        <ModalHeader>Customise CSS</ModalHeader>
+        <ModalHeader>Edit CSS</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <CodeEditor onChange={(updatedCss: string) => setCSS(updatedCss)} initialValue={css} language='css' />
         </ModalBody>
 
         <ModalFooter>
-          <Button variant='ontime-subtle' isDisabled={loading} onClick={handleReset}>
-            Reset to default
-          </Button>
-          <Button variant='ontime-filled' isDisabled={loading} onClick={handleSave}>
-            Save changes
-          </Button>
+          <Flex alignItems='center' justifyContent='space-between' width='100%'>
+            <Box>
+              <Button variant='ontime-subtle' onClick={handleReset} isDisabled={loading}>
+                Reset to default
+              </Button>
+            </Box>
+            <Box>
+              <HStack gap={30}>
+                <Button variant='ontime-ghosted' onClick={onClose}>
+                  Cancel
+                </Button>
+                <Button variant='ontime-filled' isDisabled={loading} isLoading={loading} onClick={handleSave}>
+                  Save changes
+                </Button>
+              </HStack>
+            </Box>
+          </Flex>
         </ModalFooter>
       </ModalContent>
     </Modal>
