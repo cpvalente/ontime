@@ -157,7 +157,12 @@ async function saveChanges(patch: Partial<AutomationSettings>) {
   const automation = getDataProvider().getAutomation();
 
   // remove undefined keys from object, we probably want a better solution
-  Object.keys(patch).forEach((key) => (patch[key] === undefined ? delete patch[key] : {}));
+  Object.keys(patch).forEach((key) => {
+    const typedKey = key as keyof AutomationSettings;
+    if (patch[typedKey] === undefined) {
+      delete patch[typedKey];
+    }
+  });
   await getDataProvider().setAutomation({ ...automation, ...patch });
 }
 
