@@ -1,4 +1,4 @@
-import { isOntimeEvent, MaybeString, OntimeEvent, OntimeRundown } from 'ontime-types';
+import { isOntimeEvent, MaybeString, OntimeEntry, OntimeEvent } from 'ontime-types';
 
 import { formatTime } from '../../../common/utils/time';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
@@ -8,7 +8,7 @@ import { trimRundown } from './studioClock.utils';
 import './StudioClock.scss';
 
 interface StudioClockScheduleProps {
-  rundown: OntimeRundown;
+  rundown: OntimeEntry[];
   selectedId: MaybeString;
   nextId: MaybeString;
   onAir: boolean;

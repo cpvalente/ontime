@@ -31,13 +31,15 @@ import {
   getEventAtIndex,
   getNextEventWithCue,
   getEventWithId,
-  getRundown,
+  getCurrentRundown,
   getTimedEvents,
+  getRundownData,
 } from '../rundown-service/rundownUtils.js';
 
 import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
 import { skippedOutOfEvent } from '../timerUtils.js';
 import { triggerAutomations } from '../../api-data/automation/automation.service.js';
+import { getEventOrder } from '../rundown-service/rundownCache.js';
 
 type RuntimeStateEventKeys = keyof Pick<RuntimeState, 'eventNext' | 'eventNow' | 'publicEventNow' | 'publicEventNext'>;
 
@@ -270,8 +272,9 @@ class RuntimeService {
         if (onlyChangedNow) {
           runtimeState.updateLoaded(eventNow);
         } else {
-          const rundown = getRundown();
-          runtimeState.updateAll(rundown);
+          const rundown = getCurrentRundown();
+          const { timedEventsOrder } = getEventOrder();
+          runtimeState.updateAll(rundown, timedEventsOrder);
         }
         return;
       }
@@ -298,8 +301,8 @@ class RuntimeService {
     }
     const previousState = runtimeState.getState();
 
-    const rundown = getRundown();
-    const success = runtimeState.load(event, rundown, initialData);
+    const { rundown, rundownOrder } = getRundownData();
+    const success = runtimeState.load(event, rundown, rundownOrder.timedEventsOrder, initialData);
 
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
@@ -583,9 +586,11 @@ class RuntimeService {
    * Handles special case to call roll on a loaded event which we do not want to discard
    */
   private rollLoaded(offset?: number) {
-    const rundown = getRundown();
+    const rundown = getCurrentRundown();
+    const { timedEventsOrder } = getEventOrder();
+
     try {
-      runtimeState.roll(rundown, offset);
+      runtimeState.roll(rundown, timedEventsOrder, offset);
     } catch (error) {
       logger.error(LogOrigin.Server, `Roll: ${error}`);
     }
@@ -605,8 +610,8 @@ class RuntimeService {
     }
 
     try {
-      const rundown = getRundown();
-      const result = runtimeState.roll(rundown);
+      const { rundown, rundownOrder } = getRundownData();
+      const result = runtimeState.roll(rundown, rundownOrder.timedEventsOrder);
       const newState = runtimeState.getState();
       if (result.eventId !== previousState.eventNow?.id) {
         logger.info(LogOrigin.Playback, `Loaded event with ID ${result.eventId}`);
@@ -657,8 +662,8 @@ class RuntimeService {
       return;
     }
 
-    const rundown = getRundown();
-    runtimeState.resume(restorePoint, event, rundown);
+    const { rundown, rundownOrder } = getRundownData();
+    runtimeState.resume(restorePoint, event, rundown, rundownOrder.timedEventsOrder);
     logger.info(LogOrigin.Playback, 'Resuming playback');
   }
 

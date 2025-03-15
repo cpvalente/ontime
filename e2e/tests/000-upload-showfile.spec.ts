@@ -2,8 +2,8 @@ import { test, expect } from '@playwright/test';
 
 import { readFile } from 'fs/promises';
 
-const fileToUpload = 'e2e/tests/fixtures/test-db.json';
-const fileToDownload = 'e2e/tests/fixtures/tmp/test-db.json';
+const fileToUpload = 'e2e/tests/fixtures/e2e-test-db.json';
+const fileToDownload = 'e2e/tests/fixtures/tmp/e2e-test-db.json';
 
 test('project file upload', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
@@ -46,7 +46,7 @@ test('project file download', async ({ page }) => {
   const downloadPromise = page.waitForEvent('download');
 
   await page
-    .getByRole('row', { name: RegExp('^test-db') })
+    .getByRole('row', { name: /^e2e-test-db/ })
     .getByLabel('Options')
     .click();
   await page.getByRole('menuitem', { name: 'Download' }).click();
