@@ -1,57 +1,35 @@
-import {
-  OntimeEvent,
-  isOntimeEvent,
-  OntimeRundown,
-  CustomFieldLabel,
-  CustomFields,
-  OntimeRundownEntry,
-  OntimeBaseEvent,
-} from 'ontime-types';
+import { OntimeEvent, CustomFieldLabel, CustomFields, OntimeEntry, OntimeBaseEvent } from 'ontime-types';
 import { dayInMs, getLinkedTimes } from 'ontime-utils';
 
 /**
- * Get linked event
- */
-export function getLink(currentIndex: number, rundown: OntimeRundown): OntimeEvent | null {
-  // currently the link is the previous event
-  for (let i = currentIndex - 1; i >= 0; i--) {
-    const event = rundown[i];
-    if (isOntimeEvent(event) && !event.skip) {
-      return event;
-    }
-  }
-  return null;
-}
-
-/**
- * Populates data from link, if necessary
- * Mutates in place mutableEvent
- * Mutates in place links
+ * Checks that link can be established (ie, events exist and are valid)
+ * and populates the time data from link
+ * With the current implementation, the links is always the previous playable event
+ * Mutates mutableEvent in place
+ * Mutates links in place
  */
 export function handleLink(
-  currentIndex: number,
-  rundown: OntimeRundown,
   mutableEvent: OntimeEvent,
+  previousEvent: OntimeEvent | null,
   links: Record<string, string>,
 ): void {
   if (!mutableEvent.linkStart) {
     return;
   }
 
-  const linkedEvent = getLink(currentIndex, rundown);
-  if (!linkedEvent) {
-    mutableEvent.linkStart = null;
+  /**
+   * If no previous event exist, we dont remove the link
+   * this means that the event will keep the behaviour in case a new event is added before
+   * However, we do add its ID to the links and prevent out-of-sync data
+   */
+  if (!previousEvent) {
+    mutableEvent.linkStart = 'true';
     return;
   }
 
-  // sometimes the client cannot set the previous event
-  if (mutableEvent.linkStart === 'true') {
-    mutableEvent.linkStart = linkedEvent.id;
-  }
-
-  links[linkedEvent.id] = mutableEvent.id;
-
-  const timePatch = getLinkedTimes(mutableEvent, linkedEvent);
+  const timePatch = getLinkedTimes(mutableEvent, previousEvent);
+  mutableEvent.linkStart = previousEvent.id;
+  links[previousEvent.id] = mutableEvent.id;
   // use object.assign to force mutation
   Object.assign(mutableEvent, timePatch);
 }
@@ -125,7 +103,7 @@ enum RegenerateWhitelist {
  * given a patch, returns whether all keys are whitelisted
  * @param path
  */
-export function isDataStale(patch: Partial<OntimeRundownEntry>): boolean {
+export function isDataStale(patch: Partial<OntimeEntry>): boolean {
   return Object.keys(patch).some((key) => !(key in RegenerateWhitelist));
 }
 
@@ -157,7 +135,7 @@ export function hasChanges<T extends OntimeBaseEvent>(existingEvent: T, newEvent
  */
 export function calculateDayOffset(
   current: Pick<OntimeEvent, 'timeStart'>,
-  previous?: Pick<OntimeEvent, 'timeStart' | 'duration'>,
+  previous: Pick<OntimeEvent, 'timeStart' | 'duration'> | null,
 ) {
   // if there is no previous there can't be a day offset
   if (!previous) {

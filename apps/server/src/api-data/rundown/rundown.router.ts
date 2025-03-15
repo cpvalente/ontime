@@ -7,7 +7,7 @@ import {
   rundownDelete,
   rundownGetAll,
   rundownGetById,
-  rundownGetNormalised,
+  rundownGetCurrent,
   rundownPost,
   rundownPut,
   rundownReorder,
@@ -25,8 +25,8 @@ import {
 
 export const router = express.Router();
 
-router.get('/', rundownGetAll); // not used in Ontime frontend
-router.get('/normalised', rundownGetNormalised);
+router.get('/', rundownGetAll);
+router.get('/current', rundownGetCurrent);
 router.get('/:eventId', paramsMustHaveEventId, rundownGetById); // not used in Ontime frontend
 
 router.post('/', rundownPostValidator, rundownPost);
