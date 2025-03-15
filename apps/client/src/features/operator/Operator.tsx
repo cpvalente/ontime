@@ -126,8 +126,8 @@ export default function Operator() {
   let isPast = Boolean(featureData.selectedEventId);
   const hidePast = isStringBoolean(searchParams.get('hidepast'));
 
-  const { firstEvent } = getFirstEventNormal(data.rundown, data.order);
-  const { lastEvent } = getLastEventNormal(data.rundown, data.order);
+  const { firstEvent } = getFirstEventNormal(data.entries, data.order);
+  const { lastEvent } = getLastEventNormal(data.entries, data.order);
 
   return (
     <div className={style.operatorContainer}>
@@ -152,7 +152,7 @@ export default function Operator() {
 
       <div className={style.operatorEvents} onWheel={handleScroll} onTouchMove={handleScroll} ref={scrollRef}>
         {data.order.map((eventId) => {
-          const entry = data.rundown[eventId];
+          const entry = data.entries[eventId];
           if (isOntimeEvent(entry)) {
             const isSelected = featureData.selectedEventId === entry.id;
             if (isSelected) {

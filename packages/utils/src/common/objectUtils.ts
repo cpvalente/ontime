@@ -16,3 +16,7 @@ export function getPropertyFromPath<T extends object>(path: string, obj: T): unk
 
   return result;
 }
+
+export function isObjectEmpty(obj: object): boolean {
+  return Object.keys(obj).length === 0;
+}
