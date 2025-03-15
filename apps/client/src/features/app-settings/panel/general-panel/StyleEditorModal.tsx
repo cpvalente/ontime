@@ -73,13 +73,13 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
         <ModalFooter>
           <Flex alignItems='center' justifyContent='space-between' width='100%'>
             <Box>
-              <Button variant='ontime-subtle' onClick={handleReset} isDisabled={loading}>
+              <Button variant='ontime-ghosted' onClick={handleReset} isDisabled={loading}>
                 Reset to default
               </Button>
             </Box>
             <Box>
               <HStack gap={30}>
-                <Button variant='ontime-ghosted' onClick={onClose}>
+                <Button variant='ontime-subtle' onClick={onClose}>
                   Cancel
                 </Button>
                 <Button variant='ontime-filled' isDisabled={loading} isLoading={loading} onClick={handleSave}>

@@ -120,7 +120,13 @@ export default function ViewSettingsForm() {
                 )}
               />
               <Panel.InlineElements>
-                <Button onClick={onCodeEditorOpen} variant='ontime-subtle' marginTop='1rem'>
+                <Button
+                  onClick={onCodeEditorOpen}
+                  variant='ontime-subtle'
+                  size='sm'
+                  marginTop='1rem'
+                  isDisabled={!data.overrideStyles}
+                >
                   Edit CSS
                 </Button>
               </Panel.InlineElements>
