@@ -5,8 +5,9 @@ import {
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
-  OntimeRundown,
   ProjectData,
+  ProjectRundowns,
+  Rundown,
   Settings,
   URLPreset,
   ViewSettings,
@@ -14,45 +15,86 @@ import {
   isOntimeDelay,
   isOntimeEvent,
 } from 'ontime-types';
-import { customFieldLabelToKey, generateId, isAlphanumericWithSpace } from 'ontime-utils';
+import { customFieldLabelToKey, generateId, isAlphanumericWithSpace, isObjectEmpty } from 'ontime-utils';
 
-import { dbModel } from '../models/dataModel.js';
+import { dbModel, defaultRundown } from '../models/dataModel.js';
 import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
+
 import { createEvent, type ErrorEmitter } from './parser.js';
 
 /**
- * Parse rundown array of an entry
+ * Parse a rundowns object along with the project custom fields
  */
-export function parseRundown(
+export function parseRundowns(
   data: Partial<DatabaseModel>,
   emitError?: ErrorEmitter,
-): { customFields: CustomFields; rundown: OntimeRundown } {
+): { customFields: CustomFields; rundowns: ProjectRundowns } {
   // check custom fields first
   const parsedCustomFields = parseCustomFields(data, emitError);
 
-  if (!data.rundown) {
+  if (!data.rundowns || isObjectEmpty(data.rundowns)) {
     emitError?.('No data found to import');
-    return { customFields: parsedCustomFields, rundown: [] };
+    return {
+      customFields: parsedCustomFields,
+      rundowns: {
+        default: {
+          ...defaultRundown,
+        },
+      },
+    };
   }
 
-  console.log('Found rundown, importing...');
+  const parsedRundowns: ProjectRundowns = {};
+  const iterableRundownsIds = Object.keys(data.rundowns);
 
-  const rundown: OntimeRundown = [];
+  // parse all the rundowns individually
+  for (const id of iterableRundownsIds) {
+    console.log('Found rundown, importing...');
+    const rundown = data.rundowns[id];
+    const parsedRundown = parseRundown(rundown, parsedCustomFields, emitError);
+    parsedRundowns[parsedRundown.id] = parsedRundown;
+  }
+
+  return { customFields: parsedCustomFields, rundowns: parsedRundowns };
+}
+
+/**
+ * Parses and validates a single project rundown along with given project custom fields
+ */
+export function parseRundown(
+  rundown: Rundown,
+  parsedCustomFields: Readonly<CustomFields>,
+  emitError?: ErrorEmitter,
+): Rundown {
+  const parsedRundown: Rundown = {
+    id: rundown.id || generateId(),
+    title: rundown.title ?? '',
+    entries: {},
+    order: [],
+    revision: rundown.revision ?? 1,
+  };
+
   let eventIndex = 0;
   let previousId: string | null = null;
-  const ids: string[] = [];
 
-  for (const event of data.rundown) {
-    if (ids.includes(event.id)) {
+  for (let i = 0; i < rundown.order.length; i++) {
+    const entryId = rundown.order[i];
+    const event = rundown.entries[entryId];
+    if (event === undefined) {
+      emitError?.('Could not find referenced event, skipping');
+      continue;
+    }
+
+    if (parsedRundown.order.includes(event.id)) {
       emitError?.('ID collision on event import, skipping');
       continue;
     }
 
-    const id = event.id || generateId();
+    const id = entryId;
     let newEvent: OntimeEvent | OntimeDelay | OntimeBlock | null;
 
     if (isOntimeEvent(event)) {
-      const maybeEvent = { ...event, id };
+      const maybeEvent = { ...event };
 
       if (event.linkStart) {
         maybeEvent.linkStart = previousId;
@@ -78,20 +120,29 @@ export function parseRundown(
     } else if (isOntimeDelay(event)) {
       newEvent = { ...delayDef, duration: event.duration, id };
     } else if (isOntimeBlock(event)) {
-      newEvent = { ...blockDef, title: event.title, id };
+      newEvent = {
+        ...blockDef,
+        title: event.title,
+        note: event.note,
+        events: event.events?.filter((eventId) => Object.hasOwn(rundown.entries, eventId)) ?? [],
+        skip: event.skip,
+        colour: event.colour,
+        custom: { ...event.custom },
+        id,
+      };
     } else {
       emitError?.('Unknown event type, skipping');
       continue;
     }
 
     if (newEvent) {
-      rundown.push(newEvent);
-      ids.push(id);
+      parsedRundown.entries[id] = newEvent;
+      parsedRundown.order.push(id);
     }
   }
 
-  console.log(`Uploaded rundown with ${rundown.length} entries`);
-  return { customFields: parsedCustomFields, rundown };
+  console.log(`Imported rundown ${parsedRundown.title} with ${parsedRundown.order.length} entries`);
+  return parsedRundown;
 }
 
 /**
@@ -216,10 +267,15 @@ export function sanitiseCustomFields(data: object): CustomFields {
       continue;
     }
 
-    const keyFromLabel = customFieldLabelToKey(field.label);
-    // Test label and key cohesion, but allow old lowercased keys to stay
-    // TODO: the `toLocaleLowerCase` part here is to conserve keys from old projects and could be removed at some point (okt. 2024)
-    const key = originalKey.toLocaleLowerCase() === keyFromLabel.toLocaleLowerCase() ? originalKey : keyFromLabel;
+    // Test label and key cohesion
+    const key = (() => {
+      const keyFromLabel = customFieldLabelToKey(field.label);
+      if (keyFromLabel === null) {
+        return originalKey;
+      }
+      return originalKey.toLowerCase() === keyFromLabel.toLowerCase() ? originalKey : keyFromLabel;
+    })();
+
     if (key in newCustomFields) {
       continue;
     }
