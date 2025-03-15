@@ -1,7 +1,7 @@
 import { memo, ReactNode } from 'react';
 import { Button, Checkbox } from '@chakra-ui/react';
 import { Column } from '@tanstack/react-table';
-import { OntimeRundownEntry } from 'ontime-types';
+import { OntimeEntry } from 'ontime-types';
 
 import * as Editor from '../../../../features/editors/editor-utils/EditorUtils';
 
@@ -14,7 +14,7 @@ const buttonProps = {
 };
 
 interface CuesheetTableSettingsProps {
-  columns: Column<OntimeRundownEntry, unknown>[];
+  columns: Column<OntimeEntry, unknown>[];
   handleResetResizing: () => void;
   handleResetReordering: () => void;
   handleClearToggles: () => void;

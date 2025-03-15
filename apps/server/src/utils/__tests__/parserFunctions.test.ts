@@ -1,44 +1,170 @@
-import {
-  CustomFields,
-  DatabaseModel,
-  OntimeEvent,
-  OntimeRundown,
-  Settings,
-  SupportedEvent,
-  URLPreset,
-} from 'ontime-types';
+import { CustomFields, OntimeBlock, OntimeEvent, Rundown, Settings, SupportedEvent, URLPreset } from 'ontime-types';
+
+import { defaultRundown } from '../../models/dataModel.js';
 
 import {
   parseCustomFields,
   parseProject,
   parseRundown,
+  parseRundowns,
   parseSettings,
   parseUrlPresets,
   parseViewSettings,
   sanitiseCustomFields,
 } from '../parserFunctions.js';
 
-describe('parseRundown()', () => {
-  it('returns an empty array if no rundown is given', () => {
+describe('parseRundowns()', () => {
+  it('returns a default project rundown if nothing is given', () => {
     const errorEmitter = vi.fn();
-    const result = parseRundown({}, errorEmitter);
-    expect(result.rundown).toEqual([]);
+    const result = parseRundowns({}, errorEmitter);
     expect(result.customFields).toEqual({});
+    expect(result.rundowns).toStrictEqual({ default: defaultRundown });
+    // one for not having custom fields
+    // one for not having a rundown
     expect(errorEmitter).toHaveBeenCalledTimes(2);
   });
 
+  it('ensures the rundown IDs are consistent', () => {
+    const errorEmitter = vi.fn();
+    const r1 = { ...defaultRundown, id: '1' };
+    const r2 = { ...defaultRundown, id: '2' };
+    const result = parseRundowns(
+      {
+        rundowns: {
+          '1': r1,
+          '3': r2,
+        },
+      },
+      errorEmitter,
+    );
+    expect(result.rundowns).toMatchObject({
+      '1': r1,
+      '2': r2,
+    });
+    // one for not having a rundown
+    expect(errorEmitter).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('parseRundown()', () => {
   it('parses data, skipping invalid results', () => {
     const errorEmitter = vi.fn();
-    const rundown = [
-      { id: '1', type: SupportedEvent.Event, title: 'test', skip: false }, // OK
-      { id: '1', type: SupportedEvent.Block, title: 'test 2', skip: false }, // duplicate ID
-      {}, // no data
-      { id: '2', title: 'test 2', skip: false }, // no type
-    ] as OntimeRundown;
-    const { rundown: parsedRundown } = parseRundown({ rundown, customFields: {} }, errorEmitter);
-    expect(parsedRundown.length).toEqual(1);
-    expect(parsedRundown.at(0)).toMatchObject({ id: '1', type: SupportedEvent.Event, title: 'test', skip: false });
+    const rundown = {
+      id: '',
+      title: '',
+      order: ['1', '2', '3', '4'],
+      entries: {
+        '1': { id: '1', type: SupportedEvent.Event, title: 'test', skip: false } as OntimeEvent, // OK
+        '2': { id: '1', type: SupportedEvent.Block, title: 'test 2', skip: false } as OntimeBlock, // duplicate ID
+        '3': {} as OntimeEvent, // no data
+        '4': { id: '4', title: 'test 2', skip: false } as OntimeEvent, // no type
+      },
+      revision: 1,
+    } as Rundown;
+
+    const parsedRundown = parseRundown(rundown, {}, errorEmitter);
+    expect(parsedRundown.id).not.toBe('');
+    expect(parsedRundown.id).toBeTypeOf('string');
+    expect(parsedRundown.order.length).toEqual(1);
+    expect(parsedRundown.order).toEqual(['1']);
+    expect(parsedRundown.entries).toMatchObject({
+      '1': {
+        id: '1',
+        type: SupportedEvent.Event,
+        title: 'test',
+        skip: false,
+      },
+    });
     expect(errorEmitter).toHaveBeenCalled();
+  });
+
+  it('stringifies necessary values', () => {
+    const rundown = {
+      id: '',
+      title: '',
+      order: ['1', '2'],
+      entries: {
+        // @ts-expect-error -- testing external data which could be incorrect
+        '1': { id: '1', type: SupportedEvent.Event, cue: 101 } as OntimeEvent,
+        // @ts-expect-error -- testing external data which could be incorrect
+        '2': { id: '2', type: SupportedEvent.Event, cue: 101.1 } as OntimeEvent,
+      },
+      revision: 1,
+    } as Rundown;
+
+    expect(parseRundown(rundown, {})).toMatchObject({
+      entries: {
+        '1': {
+          cue: '101',
+        },
+        '2': {
+          cue: '101.1',
+        },
+      },
+    });
+  });
+
+  it('detects duplicate Ids', () => {
+    const rundown = {
+      id: '',
+      title: '',
+      order: ['1', '1'],
+      entries: {
+        '1': { id: '1', type: SupportedEvent.Event } as OntimeEvent,
+        '2': { id: '2', type: SupportedEvent.Event } as OntimeEvent,
+      },
+      revision: 1,
+    } as Rundown;
+
+    const parsedRundown = parseRundown(rundown, {});
+    expect(parsedRundown.order.length).toEqual(1);
+    expect(Object.keys(parsedRundown.entries).length).toEqual(1);
+  });
+
+  it('completes partial datasets', () => {
+    const rundown = {
+      id: 'test',
+      title: '',
+      order: ['1', '2'],
+      entries: {
+        '1': { id: '1', type: SupportedEvent.Event } as OntimeEvent,
+        '2': { id: '2', type: SupportedEvent.Event } as OntimeEvent,
+      },
+      revision: 1,
+    } as Rundown;
+
+    const parsedRundown = parseRundown(rundown, {});
+    expect(parsedRundown.order.length).toEqual(2);
+    expect(parsedRundown.entries).toMatchObject({
+      '1': {
+        title: '',
+        cue: '1',
+        custom: {},
+      },
+      '2': {
+        title: '',
+        cue: '2',
+        custom: {},
+      },
+    });
+  });
+
+  it('handles empty events', () => {
+    const rundown = {
+      id: 'test',
+      title: '',
+      order: ['1', '2', '3', '4'],
+      entries: {
+        '1': { id: '1', type: SupportedEvent.Event } as OntimeEvent,
+        '2': { id: '2', type: SupportedEvent.Event } as OntimeEvent,
+        'not-mentioned': {} as OntimeEvent,
+      },
+      revision: 1,
+    } as Rundown;
+
+    const parsedRundown = parseRundown(rundown, {});
+    expect(parsedRundown.order.length).toEqual(2);
+    expect(Object.keys(parsedRundown.entries).length).toEqual(2);
   });
 });
 
@@ -77,7 +203,6 @@ describe('parseProject()', () => {
       projectLogo: null,
       custom: [],
     });
-    expect(errorEmitter).not.toHaveBeenCalled();
   });
 });
 
@@ -87,9 +212,17 @@ describe('parseSettings()', () => {
   });
 
   it('returns an a base model as long as we have the app and version', () => {
-    const minimalSettings = { app: 'ontime', version: '1' } as Settings;
-    const result = parseSettings({ settings: minimalSettings });
+    const result = parseSettings({ settings: { app: 'ontime', version: '1' } as Settings });
     expect(result).toBeTypeOf('object');
+    expect(result).toMatchObject({
+      app: 'ontime',
+      version: expect.any(String),
+      serverPort: 4001,
+      editorKey: null,
+      operatorKey: null,
+      timeFormat: '24',
+      language: 'en',
+    });
   });
 });
 
@@ -221,17 +354,6 @@ describe('sanitiseCustomFields()', () => {
     expect(sanitationResult).toStrictEqual(expectedCustomFields);
   });
 
-  it('allow old keys', () => {
-    const customFields: CustomFields = {
-      test: { label: 'Test', type: 'string', colour: 'red' },
-    };
-    const expectedCustomFields: CustomFields = {
-      test: { label: 'Test', type: 'string', colour: 'red' },
-    };
-    const sanitationResult = sanitiseCustomFields(customFields);
-    expect(sanitationResult).toStrictEqual(expectedCustomFields);
-  });
-
   it('labels with space', () => {
     const customFields: CustomFields = {
       Test_with_Space: { label: 'Test with Space', type: 'string', colour: 'red' },
@@ -262,100 +384,120 @@ describe('sanitiseCustomFields()', () => {
 
 describe('parseRundown() linking', () => {
   it('returns linked events', () => {
-    const data: Partial<DatabaseModel> = {
-      rundown: [
-        {
+    const rundown: Rundown = {
+      id: '',
+      title: '',
+      revision: 1,
+      order: ['1', '2'],
+      entries: {
+        '1': {
           id: '1',
           type: SupportedEvent.Event,
           skip: false,
         } as OntimeEvent,
-        {
+        '2': {
           id: '2',
           type: SupportedEvent.Event,
           linkStart: 'true',
           skip: false,
         } as OntimeEvent,
-      ],
-      customFields: {},
+      },
     };
 
-    const result = parseRundown(data);
-    expect(result.rundown[1]).toMatchObject({
-      id: '2',
-      linkStart: '1',
+    const result = parseRundown(rundown, {});
+    expect(result).toMatchObject({
+      order: ['1', '2'],
+      entries: {
+        '2': {
+          linkStart: '1',
+        },
+      },
     });
   });
 
   it('returns unlinked if no previous', () => {
-    const data: Partial<DatabaseModel> = {
-      rundown: [
-        {
+    const rundown: Rundown = {
+      id: '',
+      title: '',
+      revision: 1,
+      order: ['1', '2'],
+      entries: {
+        '2': {
           id: '2',
           type: SupportedEvent.Event,
           linkStart: 'true',
           skip: false,
         } as OntimeEvent,
-      ],
-      customFields: {},
+      },
     };
 
-    const result = parseRundown(data);
-    expect(result.rundown[0]).toMatchObject({
-      id: '2',
-      linkStart: null,
+    const result = parseRundown(rundown, {});
+    expect(result).toMatchObject({
+      order: ['2'],
+      entries: {
+        '2': {
+          linkStart: null,
+        },
+      },
     });
   });
 
   it('returns linked events past blocks and delays', () => {
-    const data: Partial<DatabaseModel> = {
-      rundown: [
-        {
+    const rundown: Rundown = {
+      id: '',
+      title: '',
+      revision: 1,
+      order: ['1', 'delay1', '2', 'block1', '3'],
+      entries: {
+        '1': {
           id: '1',
           type: SupportedEvent.Event,
           skip: false,
         } as OntimeEvent,
-        {
+        delay1: {
           id: 'delay1',
           type: SupportedEvent.Delay,
           duration: 0,
         },
-        {
+        '2': {
           id: '2',
           type: SupportedEvent.Event,
           linkStart: 'true',
           skip: false,
         } as OntimeEvent,
-        {
+        block1: {
           id: 'block1',
           type: SupportedEvent.Block,
           title: '',
-        },
-        {
+        } as OntimeBlock,
+        '3': {
           id: '3',
           type: SupportedEvent.Event,
           linkStart: 'true',
           skip: false,
         } as OntimeEvent,
-      ],
-      customFields: {},
+      },
     };
 
-    const result = parseRundown(data);
-    expect(result.rundown[0]).toMatchObject({
-      id: '1',
-      cue: '1',
-    });
-    // skip delay
-    expect(result.rundown[2]).toMatchObject({
-      id: '2',
-      cue: '2',
-      linkStart: '1',
-    });
-    // skip block
-    expect(result.rundown[4]).toMatchObject({
-      id: '3',
-      cue: '3',
-      linkStart: '2',
+    const result = parseRundown(rundown, {});
+    expect(result).toMatchObject({
+      order: rundown.order,
+      entries: {
+        '1': {
+          id: '1',
+          cue: '1',
+        },
+        '2': {
+          id: '2',
+          cue: '2',
+          linkStart: '1',
+        },
+        '3': {
+          id: '3',
+          cue: '3',
+          linkStart: '2',
+        },
+      },
     });
   });
 });

@@ -6,7 +6,7 @@ export async function makeProjectPatch(data: DatabaseModel, mergeKeys: Record<st
   for (const key in mergeKeys) {
     if (isKeyOfType(key, data) && mergeKeys[key]) {
       // if the rundown is merged we also need the custom fields
-      if (key === 'rundown') {
+      if (key === 'rundowns') {
         patchObject.customFields = data['customFields'];
       }
       Object.assign(patchObject, { [key]: data[key] });
