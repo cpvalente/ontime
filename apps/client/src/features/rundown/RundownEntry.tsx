@@ -1,5 +1,14 @@
 import { useCallback } from 'react';
-import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
+import {
+  isOntimeBlock,
+  isOntimeDelay,
+  isOntimeEvent,
+  MaybeString,
+  OntimeEntry,
+  OntimeEvent,
+  Playback,
+  SupportedEvent,
+} from 'ontime-types';
 
 import { useEventAction } from '../../common/hooks/useEventAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
@@ -28,13 +37,13 @@ export type EventItemActions =
 interface RundownEntryProps {
   type: SupportedEvent;
   isPast: boolean;
-  data: OntimeRundownEntry;
+  data: OntimeEntry;
   loaded: boolean;
   eventIndex: number;
   hasCursor: boolean;
   isNext: boolean;
   isNextDay: boolean;
-  previousEntryId?: string;
+  previousEntryId: MaybeString;
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
   isRolling: boolean; // we need to know even if not related to this event
@@ -150,7 +159,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     }
   });
 
-  if (data.type === SupportedEvent.Event) {
+  if (isOntimeEvent(data)) {
     return (
       <EventBlock
         eventId={data.id}
@@ -167,7 +176,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         timerType={data.timerType}
         title={data.title}
         note={data.note}
-        delay={data.delay ?? 0}
+        delay={data.delay}
         colour={data.colour}
         isPast={isPast}
         isNext={isNext}
@@ -184,9 +193,15 @@ export default function RundownEntry(props: RundownEntryProps) {
         actionHandler={actionHandler}
       />
     );
-  } else if (data.type === SupportedEvent.Block) {
-    return <BlockBlock data={data} hasCursor={hasCursor} onDelete={() => actionHandler('delete')} />;
-  } else if (data.type === SupportedEvent.Delay) {
+  } else if (isOntimeBlock(data)) {
+    return (
+      <BlockBlock data={data} hasCursor={hasCursor}>
+        {data.events.map((eventId) => {
+          return <div key={eventId}>{eventId}</div>;
+        })}
+      </BlockBlock>
+    );
+  } else if (isOntimeDelay(data)) {
     return <DelayBlock data={data} hasCursor={hasCursor} />;
   }
   return null;
