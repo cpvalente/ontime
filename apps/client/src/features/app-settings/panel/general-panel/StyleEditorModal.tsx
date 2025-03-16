@@ -1,5 +1,5 @@
+import { useEffect, useState } from 'react';
 import {
-  Box,
   Button,
   Flex,
   HStack,
@@ -11,9 +11,10 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
+
 import { getCSSContents, postCSSContents, restoreCSSContents } from '../../../../common/api/db';
+
 import CodeEditor from './StyleEditor';
-import { useEffect, useState } from 'react';
 
 interface CodeEditorModalProps {
   isOpen: boolean;
