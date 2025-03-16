@@ -24,31 +24,30 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
   const { isOpen, onClose } = props;
 
   const [css, setCSS] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
 
   const handleReset = async () => {
     try {
-      setLoading(true);
+      setResetLoading(true);
       const defaultCss = await restoreCSSContents();
       console.log(defaultCss);
       setCSS(defaultCss);
-      setLoading(false);
     } catch (_error) {
       /** no error handling for now */
     } finally {
-      setLoading(false);
+      setResetLoading(false);
     }
   };
 
   const handleSave = async () => {
     try {
-      setLoading(true);
+      setSaveLoading(true);
       await postCSSContents(css);
-      setLoading(false);
     } catch (_error) {
       /** no error handling for now */
     } finally {
-      setLoading(false);
+      setSaveLoading(false);
     }
   };
 
@@ -72,21 +71,31 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
 
         <ModalFooter>
           <Flex alignItems='center' justifyContent='space-between' width='100%'>
-            <Box>
-              <Button variant='ontime-ghosted' onClick={handleReset} isDisabled={loading}>
+            <div>
+              <Button
+                variant='ontime-ghosted'
+                onClick={handleReset}
+                isDisabled={saveLoading || resetLoading}
+                isLoading={resetLoading}
+              >
                 Reset to default
               </Button>
-            </Box>
-            <Box>
-              <HStack gap={30}>
+            </div>
+            <div>
+              <HStack gap='1rem'>
                 <Button variant='ontime-subtle' onClick={onClose}>
                   Cancel
                 </Button>
-                <Button variant='ontime-filled' isDisabled={loading} isLoading={loading} onClick={handleSave}>
+                <Button
+                  variant='ontime-filled'
+                  onClick={handleSave}
+                  isDisabled={saveLoading || resetLoading}
+                  isLoading={saveLoading}
+                >
                   Save changes
                 </Button>
               </HStack>
-            </Box>
+            </div>
           </Flex>
         </ModalFooter>
       </ModalContent>
