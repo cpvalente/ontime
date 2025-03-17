@@ -31,7 +31,7 @@ import OntimeActionForm from './OntimeActionForm';
 
 import style from './AutomationForm.module.scss';
 
-const integrationsDocsUrl = 'https://docs.getontime.no/api/integrations/#using-variables-in-integrations';
+const integrationsDocsUrl = 'https://docs.getontime.no/api/automation/#using-variables-in-automation';
 
 interface AutomationFormProps {
   automation: Automation | AutomationDTO;
