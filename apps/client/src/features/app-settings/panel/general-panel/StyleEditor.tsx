@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import Editor from 'react-simple-code-editor';
-import Prism from 'prismjs';
-
-import 'prismjs/components/prism-json';
+import Prism from 'prismjs/components/prism-core';
 
 import 'prismjs/components/prism-css';
-import 'prismjs/themes/prism-funky.min.css';
+
+import 'prismjs/themes/prism-tomorrow.min.css';
+
 import style from './StyleEditor.module.scss';
 
 interface CodeEditorProps {
