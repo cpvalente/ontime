@@ -51,6 +51,8 @@ export default function EditableBlockTitle(props: TitleEditorProps) {
       fontWeight='600'
       letterSpacing='0.25px'
       paddingLeft='0'
+      size='sm'
+      fontSize='1rem'
     />
   );
 }
