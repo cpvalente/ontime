@@ -16,13 +16,14 @@ export const isDocker = env === 'docker';
 export const isProduction = isDocker || (env === 'production' && !isTest);
 export const isOntimeCloud = Boolean(process.env.IS_CLOUD);
 export const password = process.env.SESSION_PASSWORD;
+export const routerPrefix = process.env.ROUTER_PREFIX;
 
 /**
  * Updates the router prefix in the index.html file
  * This is only needed in the cloud environment where the client is not at the root segment
  * ie: https://cloud.getontime.com/client-hash/timer
  */
-export function updateRouterPrefix(prefix: string | undefined = process.env.ROUTER_PREFIX): string {
+export function updateRouterPrefix(prefix: string | undefined = routerPrefix): string {
   if (!prefix) {
     return '';
   }
