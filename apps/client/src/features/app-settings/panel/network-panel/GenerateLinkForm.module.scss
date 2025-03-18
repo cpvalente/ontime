@@ -3,3 +3,12 @@
   background: $ui-white;
   border-radius: 3px;
 }
+
+.column {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: $label-gray;
+  user-select: text;
+}
