@@ -16,6 +16,7 @@ export const runtimeStorePlaceholder: RuntimeStore = {
     playback: Playback.Stop, // change initiated by user
     secondaryTimer: null, // change on every update
     startedAt: null, // change can only be initiated by user
+    speed: 1.0, // change initiated by user
   },
   onAir: false,
   message: {

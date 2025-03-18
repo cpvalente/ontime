@@ -16,6 +16,7 @@ import { ontimeMenuOnDark } from './ontimeMenu';
 import { ontimeModal } from './ontimeModal';
 import { ontimeBlockRadio, ontimeRadio } from './ontimeRadio';
 import { ontimeSelect } from './ontimeSelect';
+import { ontimeHighlightSlider, ontimeSlider } from './ontimeSlider';
 import { ontimeSwitch } from './ontimeSwitch';
 import { ontimeTab } from './ontimeTab';
 import {
@@ -138,6 +139,12 @@ const theme = extendTheme({
     Select: {
       variants: {
         ontime: { ...ontimeSelect },
+      },
+    },
+    Slider: {
+      variants: {
+        ontime: { ...ontimeSlider },
+        'ontime-highlight': { ...ontimeHighlightSlider },
       },
     },
   },
