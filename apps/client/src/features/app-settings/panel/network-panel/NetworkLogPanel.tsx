@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import { usePing } from '../../../../common/hooks/useSocket';
 import { socketSendJson } from '../../../../common/utils/socket';
-import { isDockerImage } from '../../../../externals';
+import { isDockerImage, isOntimeCloud } from '../../../../externals';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import ClientControlPanel from '../client-control-panel/ClientControlPanel';
@@ -30,8 +30,12 @@ export default function NetworkLogPanel({ location }: PanelBaseProps) {
           <Panel.Card>
             <Panel.SubHeader>Share Ontime Link</Panel.SubHeader>
             <Panel.Divider />
-            <Panel.Paragraph>Ontime is streaming on the following network interfaces</Panel.Paragraph>
-            <InfoNif />
+            {!isOntimeCloud && (
+              <>
+                <Panel.Paragraph>Ontime is streaming on the following network interfaces</Panel.Paragraph>
+                <InfoNif />
+              </>
+            )}
             <GenerateLinkForm />
           </Panel.Card>
         </Panel.Section>

@@ -39,6 +39,12 @@ export default function GenerateLinkForm() {
     formState: { errors },
   } = useForm<GenerateLinkFormOptions>({
     mode: 'onChange',
+    defaultValues: {
+      baseUrl: currentHostName,
+      path: '',
+      lock: false,
+      authenticate: false,
+    },
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -72,8 +78,11 @@ export default function GenerateLinkForm() {
       </Info>
       <Panel.ListGroup>
         <Panel.ListItem>
-          <Panel.Field title='Host IP' description='Which IP address will be used' />
-          <Select variant='ontime' size='sm' {...register('baseUrl')}>
+          <Panel.Field
+            title='Host IP'
+            description={`Which IP address will be used${isOntimeCloud ? ' (not applicable in Ontime Cloud)' : ''}`}
+          />
+          <Select variant='ontime' isDisabled={isOntimeCloud} size='sm' {...register('baseUrl')}>
             {infoData.networkInterfaces.map((nif) => {
               return (
                 <option key={nif.name} value={nif.address}>
