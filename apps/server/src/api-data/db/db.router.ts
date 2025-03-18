@@ -5,14 +5,17 @@ import {
   currentProjectDownload,
   deleteProjectFile,
   duplicateProjectFile,
+  getCssOverride,
   listProjects,
   loadDemo,
   loadProject,
   patchPartialProjectFile,
+  postCssOverride,
   postProjectFile,
   projectDownload,
   quickProjectFile,
   renameProjectFile,
+  restoreCss,
 } from './db.controller.js';
 import { uploadProjectFile } from './db.middleware.js';
 import {
@@ -41,3 +44,7 @@ router.post('/demo', loadDemo);
 router.post('/:filename/duplicate', validateFilenameParam, validateNewFilenameBody, duplicateProjectFile);
 router.put('/:filename/rename', validateFilenameParam, validateNewFilenameBody, renameProjectFile);
 router.delete('/:filename', validateFilenameParam, deleteProjectFile);
+
+router.get('/css', getCssOverride);
+router.post('/css', postCssOverride);
+router.post('/css/restore', restoreCss);
