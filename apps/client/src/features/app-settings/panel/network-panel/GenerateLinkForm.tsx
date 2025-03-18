@@ -6,13 +6,12 @@ import { Button, Select, Switch } from '@chakra-ui/react';
 import { generateUrl } from '../../../../common/api/session';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Info from '../../../../common/components/info/Info';
-import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import useInfo from '../../../../common/hooks-query/useInfo';
 import useUrlPresets from '../../../../common/hooks-query/useUrlPresets';
 import copyToClipboard from '../../../../common/utils/copyToClipboard';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { linkToOtherHost } from '../../../../common/utils/linkUtils';
-import { serverURL } from '../../../../externals';
+import { currentHostName, isOntimeCloud, serverURL } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './GenerateLinkForm.module.scss';
@@ -137,9 +136,9 @@ export default function GenerateLinkForm() {
           >
             {formState === 'success' ? 'Link copied to clipboard!' : 'Update share link'}
           </Button>
-          <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <div className={style.column}>
             <QRCode size={172} value={url} className={style.qrCode} />
-            <ExternalLink href={url}>{url}</ExternalLink>
+            <div>{url}</div>
           </div>
         </Panel.ListItem>
       </Panel.ListGroup>
