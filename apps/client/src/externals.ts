@@ -19,9 +19,10 @@ export const buyMeACoffeeUrl = 'https://buymeacoffee.com/cpvalente';
 export const appVersion = version;
 export const isProduction = import.meta.env.MODE === 'production';
 export const isDev = !isProduction;
-export const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+export const currentHostName = window.location.hostname;
+export const isLocalhost = currentHostName === 'localhost' || currentHostName === '127.0.0.1';
 export const isDockerImage = Boolean(import.meta.env.VITE_IS_DOCKER);
-export const isOntimeCloud = window.location.hostname.includes('cloud.getontime.no');
+export const isOntimeCloud = currentHostName.includes('cloud.getontime.no');
 
 // resolve entrypoint URLs
 
