@@ -7,8 +7,7 @@ import {
   rundownDelete,
   rundownGetAll,
   rundownGetById,
-  rundownGetNormalised,
-  rundownGetPaginated,
+  rundownGetCurrent,
   rundownPost,
   rundownPut,
   rundownReorder,
@@ -18,7 +17,6 @@ import {
   paramsMustHaveEventId,
   rundownArrayOfIds,
   rundownBatchPutValidator,
-  rundownGetPaginatedQueryParams,
   rundownPostValidator,
   rundownPutValidator,
   rundownReorderValidator,
@@ -27,9 +25,8 @@ import {
 
 export const router = express.Router();
 
-router.get('/', rundownGetAll); // not used in Ontime frontend
-router.get('/paginated', rundownGetPaginatedQueryParams, rundownGetPaginated); // not used in Ontime frontend
-router.get('/normalised', rundownGetNormalised);
+router.get('/', rundownGetAll);
+router.get('/current', rundownGetCurrent);
 router.get('/:eventId', paramsMustHaveEventId, rundownGetById); // not used in Ontime frontend
 
 router.post('/', rundownPostValidator, rundownPost);

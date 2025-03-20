@@ -23,6 +23,7 @@ export const cloneEvent = (event: OntimeEvent): ClonedEvent => {
     isPublic: event.isPublic,
     skip: event.skip,
     colour: event.colour,
+    currentBlock: event.currentBlock,
     revision: 0,
     delay: 0,
     dayOffset: 0,

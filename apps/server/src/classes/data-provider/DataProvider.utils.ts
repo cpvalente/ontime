@@ -5,7 +5,7 @@ import { DatabaseModel } from 'ontime-types';
  */
 export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseModel>): DatabaseModel {
   const {
-    rundown = existing.rundown,
+    rundowns = {},
     project = {},
     settings = {},
     viewSettings = {},
@@ -16,7 +16,7 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
 
   return {
     ...existing,
-    rundown,
+    rundowns: { ...existing.rundowns, ...rundowns },
     project: { ...existing.project, ...project },
     settings: { ...existing.settings, ...settings },
     viewSettings: { ...existing.viewSettings, ...viewSettings },
