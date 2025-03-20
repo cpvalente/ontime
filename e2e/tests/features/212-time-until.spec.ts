@@ -14,6 +14,12 @@ test('linked time until', async ({ page }) => {
   await page.getByTestId('entry-1').getByLabel('Start event').click();
   await page.getByLabel('Pause event').click();
 
+  await page.getByRole('button', { name: 'Absolute' }).click();
+  await expect(page.getByTestId('entry-2').locator('#event-block')).toContainText('9m');
+  await expect(page.getByTestId('entry-3').locator('#event-block')).toContainText('19m');
+  await expect(page.getByTestId('entry-4').locator('#event-block')).toContainText('29m');
+
+  await page.getByRole('button', { name: 'Relative' }).click();
   await expect(page.getByTestId('entry-2').locator('#event-block')).toContainText('9m');
   await expect(page.getByTestId('entry-3').locator('#event-block')).toContainText('19m');
   await expect(page.getByTestId('entry-4').locator('#event-block')).toContainText('29m');
@@ -22,6 +28,12 @@ test('linked time until', async ({ page }) => {
   await page.getByTestId('entry-1').getByTestId('time-input-duration').fill('6h');
   await page.getByTestId('entry-1').getByTestId('time-input-duration').press('Enter');
 
+  await page.getByRole('button', { name: 'Absolute' }).click();
+  await expect(page.getByTestId('entry-2').locator('#event-block')).toContainText('5h59m');
+  await expect(page.getByTestId('entry-3').locator('#event-block')).toContainText('6h9m');
+  await expect(page.getByTestId('entry-4').locator('#event-block')).toContainText('6h19m');
+
+  await page.getByRole('button', { name: 'Relative' }).click();
   await expect(page.getByTestId('entry-2').locator('#event-block')).toContainText('5h59m');
   await expect(page.getByTestId('entry-3').locator('#event-block')).toContainText('6h9m');
   await expect(page.getByTestId('entry-4').locator('#event-block')).toContainText('6h19m');
@@ -30,6 +42,12 @@ test('linked time until', async ({ page }) => {
   await page.getByTestId('entry-1').getByTestId('time-input-duration').fill('30s');
   await page.getByTestId('entry-1').getByTestId('time-input-duration').press('Enter');
 
+  await page.getByRole('button', { name: 'Absolute' }).click();
+  await expect(page.getByTestId('entry-2').locator('#event-block')).toContainText('29s');
+  await expect(page.getByTestId('entry-3').locator('#event-block')).toContainText('10m');
+  await expect(page.getByTestId('entry-4').locator('#event-block')).toContainText('20m');
+
+  await page.getByRole('button', { name: 'Relative' }).click();
   await expect(page.getByTestId('entry-2').locator('#event-block')).toContainText('29s');
   await expect(page.getByTestId('entry-3').locator('#event-block')).toContainText('10m');
   await expect(page.getByTestId('entry-4').locator('#event-block')).toContainText('20m');
