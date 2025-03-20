@@ -13,8 +13,7 @@ import useViewSettings from '../../../../common/hooks-query/useViewSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
-
-const CodeEditorModal = lazy(() => import('./StyleEditorModal'));
+import CodeEditorModal from './StyleEditorModal';
 
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 

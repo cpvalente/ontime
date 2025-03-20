@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, useEffect, useState } from 'react';
 import {
   Button,
   Flex,
@@ -14,7 +14,7 @@ import {
 
 import { getCSSContents, postCSSContents, restoreCSSContents } from '../../../../common/api/assets';
 
-import CodeEditor from './StyleEditor';
+const CodeEditor = lazy(() => import('./StyleEditor'));
 
 interface CodeEditorModalProps {
   isOpen: boolean;
