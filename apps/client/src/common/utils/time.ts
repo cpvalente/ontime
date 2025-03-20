@@ -138,11 +138,10 @@ export function useTimeUntilStart(
   data: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'> & {
     totalGap: number;
     isLinkedToLoaded: boolean;
-    offsetMode: OffsetMode;
   },
 ): number {
-  const { offset, clock, currentDay } = useTimeUntilData();
-  return calculateTimeUntilStart({ ...data, currentDay, clock, offset });
+  const { offset, clock, currentDay, offsetMode, actualStart, plannedStart } = useTimeUntilData();
+  return calculateTimeUntilStart({ ...data, currentDay, clock, offset, offsetMode, actualStart, plannedStart });
 }
 
 /**
@@ -162,8 +161,8 @@ export function calculateTimeUntilStart(
     clock: number;
     offset: number;
     offsetMode: OffsetMode;
-    actualStart?: number;
-    plannedStart?: number;
+    actualStart: MaybeNumber;
+    plannedStart: MaybeNumber;
   },
 ): number {
   const {
@@ -191,9 +190,7 @@ export function calculateTimeUntilStart(
   let relativeStartOffset = 0;
 
   if (offsetMode === OffsetMode.Relative) {
-    assert(actualStart !== undefined);
-    assert(plannedStart !== undefined);
-    relativeStartOffset = actualStart - plannedStart;
+    relativeStartOffset = (actualStart ?? 0) - (plannedStart ?? 0);
   }
 
   const scheduledTimeUntil = normalisedTimeStart - clock + relativeStartOffset;
