@@ -12,7 +12,7 @@ import {
   ModalOverlay,
 } from '@chakra-ui/react';
 
-import { getCSSContents, postCSSContents, restoreCSSContents } from '../../../../common/api/db';
+import { getCSSContents, postCSSContents, restoreCSSContents } from '../../../../common/api/assets';
 
 import CodeEditor from './StyleEditor';
 
