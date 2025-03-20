@@ -54,6 +54,8 @@ describe('calculateTimeUntilStart()', () => {
         clock: 90,
         offset: 0,
         offsetMode: OffsetMode.Absolute,
+        actualStart: null,
+        plannedStart: null,
       };
 
       expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(10);
@@ -70,6 +72,8 @@ describe('calculateTimeUntilStart()', () => {
         clock: 90,
         offset: -20,
         offsetMode: OffsetMode.Absolute,
+        actualStart: null,
+        plannedStart: null,
       };
 
       expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(30);
@@ -86,6 +90,8 @@ describe('calculateTimeUntilStart()', () => {
         clock: 80,
         offset: 10,
         offsetMode: OffsetMode.Absolute,
+        actualStart: null,
+        plannedStart: null,
       };
 
       expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(20); // <-- when running ahead the unlinked timer stays put
@@ -102,6 +108,8 @@ describe('calculateTimeUntilStart()', () => {
         clock: 50,
         offset: -20,
         offsetMode: OffsetMode.Absolute,
+        actualStart: null,
+        plannedStart: null,
       };
 
       expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(50);
@@ -118,6 +126,8 @@ describe('calculateTimeUntilStart()', () => {
         clock: 50,
         offset: -20,
         offsetMode: OffsetMode.Absolute,
+        actualStart: 0,
+        plannedStart: 0,
       };
 
       expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(60);
