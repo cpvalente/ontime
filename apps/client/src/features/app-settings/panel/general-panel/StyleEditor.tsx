@@ -14,7 +14,7 @@ interface CodeEditorProps {
   onChange: (newValue: string) => void;
 }
 
-const CodeEditor = (props: CodeEditorProps) => {
+export default function CodeEditor(props: CodeEditorProps) {
   const { language, initialValue, onChange } = props;
 
   const [code, setCode] = useState(initialValue);
@@ -35,9 +35,17 @@ const CodeEditor = (props: CodeEditorProps) => {
 
   return (
     <div className={style.wrapper}>
-      <Editor value={code} padding={15} onValueChange={handleChange} highlight={highlight} className={style.code} />
+      <Editor
+        value={code}
+        padding={15}
+        onValueChange={handleChange}
+        highlight={highlight}
+        style={{
+          fontFamily: 'monospace',
+          fontSize: 12,
+          minHeight: 500,
+        }}
+      />
     </div>
   );
-};
-
-export default CodeEditor;
+}
