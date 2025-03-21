@@ -25,9 +25,9 @@ import {
   getRuntimeOffset,
   getTimerPhase,
 } from '../services/timerUtils.js';
-import { timerConfig } from '../config/config.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
 import { filterTimedEvents } from '../services/rundown-service/rundownUtils.js';
+import { timerConfig } from '../setup/config.js';
 
 export type RuntimeState = {
   clock: number; // realtime clock
@@ -141,10 +141,12 @@ export function clearState() {
 function patchTimer(newState: Partial<TimerState & RestorePoint>) {
   for (const key in newState) {
     if (key in runtimeState.timer) {
+      // @ts-expect-error -- not sure how to type this in a sane way
       runtimeState.timer[key] = newState[key];
     } else if (key in runtimeState._timer) {
       // in case of a RestorePoint we will receive a pausedAt value
-      // wiche is needed to resume a paused timer
+      // which is needed to resume a paused timer
+      // @ts-expect-error -- not sure how to type this in a sane way
       runtimeState._timer[key] = newState[key];
     }
   }
@@ -423,6 +425,15 @@ export function start(state: RuntimeState = runtimeState): boolean {
   const { absoluteOffset, relativeOffset } = getRuntimeOffset(runtimeState);
   runtimeState.runtime.offset = absoluteOffset;
   runtimeState.runtime.relativeOffset = relativeOffset;
+
+  // as long as there is a timer, we need an planned end
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: {
+    if (state.runtime.plannedEnd === null) {
+      throw new Error('runtimeState.start: invalid state received');
+    }
+  }
+
   state.runtime.expectedEnd = state.runtime.plannedEnd - state.runtime.offset;
   return true;
 }

@@ -4,7 +4,7 @@
  * @param {string} value - value to assign
  * @returns {object | string | null} nested object or null if no object was created
  */
-export const integrationPayloadFromPath = (path: string[], value?: unknown): object | string | null => {
+export function integrationPayloadFromPath(path: string[], value?: unknown): object | string | null {
   if (path.length === 1) {
     const key = path[0];
     return value === undefined ? key : { [key]: value };
@@ -16,4 +16,4 @@ export const integrationPayloadFromPath = (path: string[], value?: unknown): obj
   const obj = shortenedPath.reduceRight((result, key) => ({ [key]: result }), parsedValue);
 
   return typeof obj === 'object' ? obj : null;
-};
+}
