@@ -36,8 +36,9 @@ integrationRouter.get('/*', (req: Request, res: Response) => {
   try {
     const actionArray = action.split('/');
     const query = isEmptyObject(req.query) ? undefined : (req.query as object);
-    let payload = {};
+    let payload: unknown = {};
     if (actionArray.length > 1) {
+      // @ts-expect-error -- we decide to give up on typing here
       action = actionArray.shift();
       payload = integrationPayloadFromPath(actionArray, query);
     } else {
