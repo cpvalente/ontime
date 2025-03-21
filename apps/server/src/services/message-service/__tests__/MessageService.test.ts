@@ -1,12 +1,16 @@
+import { RuntimeStore } from 'ontime-types';
+
 import * as messageService from '../MessageService.js';
 
 describe('MessageService', () => {
+  let store: Partial<RuntimeStore>;
   beforeEach(() => {
     // at runtime, the store is instantiated before the message service
-    const store = {};
-    const storeSetter = (key, value) => (store[key] = value);
-    const storeGetter = (key) => store[key];
-    messageService.init(storeSetter, storeGetter);
+    store = {};
+    messageService.init(
+      (key, value) => (store[key] = value),
+      (key) => store[key],
+    );
     messageService.clear();
   });
 
