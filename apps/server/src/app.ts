@@ -43,7 +43,7 @@ import { oscServer } from './adapters/OscAdapter.js';
 // Utilities
 import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
-import { timerConfig } from './config/config.js';
+import { timerConfig } from './setup/config.js';
 import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
 
 console.log('\n');

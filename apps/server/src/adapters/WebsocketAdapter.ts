@@ -102,7 +102,7 @@ class SocketServer implements IAdapter {
 
       ws.on('message', (data) => {
         try {
-          // @ts-expect-error -- ??
+          // @ts-expect-error -- this works fine
           const message = JSON.parse(data);
           const { type, payload } = message;
 
@@ -120,7 +120,7 @@ class SocketServer implements IAdapter {
             ws.send(
               JSON.stringify({
                 type: 'client-name',
-                payload: this.clients.get(clientId).name,
+                payload: this.getOrCreateClient(clientId),
               }),
             );
             return;
@@ -136,7 +136,7 @@ class SocketServer implements IAdapter {
 
           if (type === 'set-client-type') {
             if (payload && typeof payload == 'string') {
-              const previousData = this.clients.get(clientId);
+              const previousData = this.getOrCreateClient(clientId);
               this.clients.set(clientId, { ...previousData, type: payload });
             }
             this.sendClientList();
@@ -145,7 +145,7 @@ class SocketServer implements IAdapter {
 
           if (type === 'set-client-path') {
             if (payload && typeof payload == 'string') {
-              const previousData = this.clients.get(clientId);
+              const previousData = this.getOrCreateClient(clientId);
               previousData.path = payload;
               this.clients.set(clientId, previousData);
 
@@ -166,13 +166,13 @@ class SocketServer implements IAdapter {
 
           if (type === 'set-client-name') {
             if (payload) {
-              const previousData = this.clients.get(clientId);
+              const previousData = this.getOrCreateClient(clientId);
               logger.info(LogOrigin.Client, `Client ${previousData.name} renamed to ${payload}`);
               this.clients.set(clientId, { ...previousData, name: payload });
               ws.send(
                 JSON.stringify({
                   type: 'client-name',
-                  payload: this.clients.get(clientId).name,
+                  payload: this.getOrCreateClient(clientId).name,
                 }),
               );
             }
@@ -213,6 +213,19 @@ class SocketServer implements IAdapter {
       connectedClients: this.clients.size,
       lastConnection: this.lastConnection,
     };
+  }
+
+  private getOrCreateClient(clientId: string): Client {
+    if (!this.clients.has(clientId)) {
+      this.clients.set(clientId, {
+        type: 'unknown',
+        identify: false,
+        name: getRandomName(),
+        origin: '',
+        path: '',
+      });
+    }
+    return this.clients.get(clientId) as Client;
   }
 
   private sendClientList(): void {

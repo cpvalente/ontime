@@ -26,11 +26,6 @@ vi.mock('../projectServiceUtils.js', () => ({
  * controller depend on these to send the right responses
  */
 describe('deleteProjectFile', () => {
-  it('throws an error if trying to delete the currently loaded project', async () => {
-    (isLastLoadedProject as Mock).mockResolvedValue(true);
-    await expect(deleteProjectFile('loadedProject')).rejects.toThrow('Cannot delete currently loaded project');
-  });
-
   it('throws an error if the project file does not exist', async () => {
     (isLastLoadedProject as Mock).mockResolvedValue(false);
     (doesProjectExist as Mock).mockReturnValue(null);

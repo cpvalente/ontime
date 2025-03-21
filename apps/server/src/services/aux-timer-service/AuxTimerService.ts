@@ -2,7 +2,7 @@ import { SimpleDirection, SimplePlayback, SimpleTimerState } from 'ontime-types'
 
 import { SimpleTimer } from '../../classes/simple-timer/SimpleTimer.js';
 import { eventStore } from '../../stores/EventStore.js';
-import { timerConfig } from '../../config/config.js';
+import { timerConfig } from '../../setup/config.js';
 
 type EmitFn = (state: SimpleTimerState) => void;
 type GetTimeFn = () => number;
@@ -77,7 +77,8 @@ function broadcastReturn(_target: any, _propertyKey: string, descriptor: Propert
 
   descriptor.value = function (...args: any[]) {
     const result = originalMethod.apply(this, args);
-    this.emit(result);
+    // @ts-expect-error -- we can access private properties from the decorator
+    (this as AuxTimerService).emit(result);
     return result;
   };
 

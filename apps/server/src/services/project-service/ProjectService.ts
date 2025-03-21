@@ -42,6 +42,21 @@ import {
 } from './projectServiceUtils.js';
 import { getFirstRundown } from '../rundown-service/rundownUtils.js';
 
+type ProjectState =
+  | {
+      status: 'PENDING';
+      currentProjectName: undefined;
+    }
+  | {
+      status: 'INITIALIZED';
+      currentProjectName: string;
+    };
+
+let currentProjectState: ProjectState = {
+  status: 'PENDING',
+  currentProjectName: undefined,
+};
+
 // init dependencies
 init();
 
@@ -53,11 +68,17 @@ function init() {
   ensureDirectory(publicDir.corruptDir);
 }
 
-export async function getCurrentProject() {
-  const filename = await getLastLoadedProject();
-  const pathToFile = getPathToProject(filename);
+export async function getCurrentProject(): Promise<{ filename: string; pathToFile: string }> {
+  if (currentProjectState.status === 'PENDING') {
+    const lastLoadedProject = await initialiseProject();
+    currentProjectState = {
+      status: 'INITIALIZED',
+      currentProjectName: lastLoadedProject,
+    };
+  }
+  const pathToFile = getPathToProject(currentProjectState.currentProjectName);
 
-  return { filename, pathToFile };
+  return { filename: currentProjectState.currentProjectName, pathToFile };
 }
 
 /**
@@ -276,6 +297,9 @@ export async function createProject(filename: string, initialData: Partial<Datab
   // update app state to point to new value
   setLastLoadedProject(uniqueFileName);
 
+  // update the service state
+  currentProjectState.currentProjectName = uniqueFileName;
+
   return uniqueFileName;
 }
 
@@ -283,8 +307,7 @@ export async function createProject(filename: string, initialData: Partial<Datab
  * Deletes a project file
  */
 export async function deleteProjectFile(filename: string) {
-  const isPreviousProject = await isLastLoadedProject(filename);
-  if (isPreviousProject) {
+  if (filename === currentProjectState.currentProjectName) {
     throw new Error('Cannot delete currently loaded project');
   }
 

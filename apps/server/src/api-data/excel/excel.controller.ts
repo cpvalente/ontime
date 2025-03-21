@@ -9,7 +9,8 @@ import { CustomFields, Rundown } from 'ontime-types';
 
 export async function postExcel(req: Request, res: Response) {
   try {
-    const filePath = req.file.path;
+    // file has been validated by middleware
+    const filePath = (req.file as Express.Multer.File).path;
     await saveExcelFile(filePath);
     res.status(200).send();
   } catch (error) {
