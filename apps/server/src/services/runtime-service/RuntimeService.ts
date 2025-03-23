@@ -128,9 +128,7 @@ class RuntimeService {
       // handle end action if there was a timer playing
       // actions are added to the queue stack to ensure that the order of operations is maintained
       if (newState.eventNow) {
-        if (newState.eventNow.endAction === EndAction.Stop) {
-          setTimeout(this.stop.bind(this), 0);
-        } else if (newState.eventNow.endAction === EndAction.LoadNext) {
+        if (newState.eventNow.endAction === EndAction.LoadNext) {
           setTimeout(this.loadNext.bind(this), 0);
         } else if (newState.eventNow.endAction === EndAction.PlayNext) {
           setTimeout(this.startNext.bind(this), 0);
