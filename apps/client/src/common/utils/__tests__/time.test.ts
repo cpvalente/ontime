@@ -43,7 +43,7 @@ describe('formatTime()', () => {
 });
 
 describe('calculateTimeUntilStart()', () => {
-  describe('Absolute', () => {
+  describe('Absolute offset mode', () => {
     test('ontime', () => {
       const test = {
         timeStart: 100,
@@ -112,11 +112,11 @@ describe('calculateTimeUntilStart()', () => {
         plannedStart: null,
       };
 
-      expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(50);
+      expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(50); // <-- when gap is enough to compensate for the running behind
       expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: true })).toBe(70); // This should not be possible
     });
 
-    test('running behind with to little gaps', () => {
+    test('running behind with too little gaps', () => {
       const test = {
         timeStart: 100,
         dayOffset: 0,
@@ -130,13 +130,13 @@ describe('calculateTimeUntilStart()', () => {
         plannedStart: 0,
       };
 
-      expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(60);
+      expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(60); // <-- when gap is not enough to compensate for the running behind it absorbs at much as possible
       expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: true })).toBe(70); // This should not be possible
     });
   });
 
-  describe('Relative', () => {
-    test('Basic test', () => {
+  describe('Relative offset mode', () => {
+    test('basic function', () => {
       const test = {
         timeStart: 0,
         dayOffset: 0,
@@ -154,20 +154,29 @@ describe('calculateTimeUntilStart()', () => {
       const timeStartEvent2 = 10;
       const timeStartEvent3 = 20;
 
+      //event 1 is the currently running event
+
+      //event 2
       expect(calculateTimeUntilStart({ ...test, timeStart: timeStartEvent2, isLinkedToLoaded: true })).toBe(10);
-      expect(calculateTimeUntilStart({ ...test, timeStart: timeStartEvent3, isLinkedToLoaded: true })).toBe(20);
       expect(calculateTimeUntilStart({ ...test, timeStart: timeStartEvent2, isLinkedToLoaded: false })).toBe(10);
+
+      //event 3
+      expect(calculateTimeUntilStart({ ...test, timeStart: timeStartEvent3, isLinkedToLoaded: true })).toBe(20);
       expect(calculateTimeUntilStart({ ...test, timeStart: timeStartEvent3, isLinkedToLoaded: false })).toBe(20);
 
+      // When clock advances by 5ms, time until start should decrease by 5ms
       test.clock = 105;
 
+      //event 2
       expect(calculateTimeUntilStart({ ...test, timeStart: timeStartEvent2, isLinkedToLoaded: true })).toBe(5);
-      expect(calculateTimeUntilStart({ ...test, timeStart: timeStartEvent3, isLinkedToLoaded: true })).toBe(15);
       expect(calculateTimeUntilStart({ ...test, timeStart: timeStartEvent2, isLinkedToLoaded: false })).toBe(5);
+
+      //event 3
+      expect(calculateTimeUntilStart({ ...test, timeStart: timeStartEvent3, isLinkedToLoaded: true })).toBe(15);
       expect(calculateTimeUntilStart({ ...test, timeStart: timeStartEvent3, isLinkedToLoaded: false })).toBe(15);
     });
 
-    test('Test gaps', () => {
+    test('gaps', () => {
       const test = {
         timeStart: 20,
         dayOffset: 0,
@@ -185,13 +194,13 @@ describe('calculateTimeUntilStart()', () => {
       expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: true })).toBe(20);
       expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(20);
 
+      // When clock advances by 5ms, time until start should decrease by 5ms
       test.clock = 105;
-
       expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: true })).toBe(15);
       expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(15);
     });
 
-    test('Test added/remove time', () => {
+    test('added/remove time', () => {
       const test = {
         timeStart: 20,
         dayOffset: 0,
@@ -220,7 +229,7 @@ describe('calculateTimeUntilStart()', () => {
       expect(calculateTimeUntilStart({ ...test, isLinkedToLoaded: false })).toBe(25);
     });
 
-    test('Test next day', () => {
+    test('next day', () => {
       const test = {
         // timeStart: 10,
         // dayOffset: 0,
@@ -235,15 +244,7 @@ describe('calculateTimeUntilStart()', () => {
         offsetMode: OffsetMode.Relative,
       };
 
-      expect(
-        calculateTimeUntilStart({
-          ...test,
-          timeStart: 10,
-          dayOffset: 0,
-          totalGap: 0,
-          isLinkedToLoaded: true,
-        }),
-      ).toBe(10);
+      // this event will start the current day
       expect(
         calculateTimeUntilStart({
           ...test,
@@ -254,6 +255,9 @@ describe('calculateTimeUntilStart()', () => {
         }),
       ).toBe(10);
 
+      // this event will start the next day
+      // in absolute mode this would start in dayInMs - 100 since the gap would compensate
+      // but in relative mode with and actual start that is 100 offset it starts in dayInMs
       expect(
         calculateTimeUntilStart({
           ...test,
@@ -264,6 +268,7 @@ describe('calculateTimeUntilStart()', () => {
         }),
       ).toBe(dayInMs);
 
+      // advancing 100ms
       test.clock = 200;
 
       expect(
@@ -278,7 +283,7 @@ describe('calculateTimeUntilStart()', () => {
     });
   });
 
-  test('Test overlap', () => {
+  test('overlap with negative total gap', () => {
     const test = {
       // timeStart: 20,
       dayOffset: 0,
@@ -294,11 +299,9 @@ describe('calculateTimeUntilStart()', () => {
       isLinkedToLoaded: false,
     };
 
+    // the overlap will be pushed out to the expected available time
     expect(calculateTimeUntilStart({ ...test, timeStart: 5, totalGap: -5 })).toBe(10);
 
     test.clock = 105;
   });
-  //TODO: more indepth testing,
-  // including day offset handling
-  // and more?
 });
