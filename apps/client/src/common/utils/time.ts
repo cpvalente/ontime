@@ -202,8 +202,8 @@ export function calculateTimeUntilStart(
     return offsetTimeUntil;
   }
 
-  const gapsCanCompensadeForOffset = totalGap + offset >= 0;
-  if (gapsCanCompensadeForOffset) {
+  const gapsCanCompensateForOffset = totalGap + offset >= 0;
+  if (gapsCanCompensateForOffset) {
     // if we are ahead of schedule or the gap can compensate for the amount we are behind then expect to start at the scheduled time
     return scheduledTimeUntil;
   }
