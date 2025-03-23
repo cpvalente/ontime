@@ -8,7 +8,6 @@ import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
 import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
 import { IoPlayForward } from '@react-icons/all-files/io5/IoPlayForward';
 import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
-import { IoStop } from '@react-icons/all-files/io5/IoStop';
 import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
@@ -174,9 +173,6 @@ function EndActionIcon(props: { action: EndAction; className: string }) {
   }
   if (action === EndAction.PlayNext) {
     return <IoPlayForward className={maybeActiveClasses} />;
-  }
-  if (action === EndAction.Stop) {
-    return <IoStop className={maybeActiveClasses} />;
   }
   return <IoPlay className={className} />;
 }
