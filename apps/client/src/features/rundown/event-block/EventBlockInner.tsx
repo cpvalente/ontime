@@ -8,7 +8,6 @@ import {
   IoPlay,
   IoPlayForward,
   IoPlaySkipForward,
-  IoStop,
   IoTime,
 } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/react';
@@ -176,9 +175,6 @@ function EndActionIcon(props: { action: EndAction; className: string }) {
   }
   if (action === EndAction.PlayNext) {
     return <IoPlayForward className={maybeActiveClasses} />;
-  }
-  if (action === EndAction.Stop) {
-    return <IoStop className={maybeActiveClasses} />;
   }
   return <IoPlay className={className} />;
 }
