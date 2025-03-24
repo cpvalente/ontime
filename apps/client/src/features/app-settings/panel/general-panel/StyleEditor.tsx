@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import Editor from 'react-simple-code-editor';
 import Prism from 'prismjs/components/prism-core';
 
@@ -14,7 +14,7 @@ interface CodeEditorProps {
   onChange: (newValue: string) => void;
 }
 
-export default function CodeEditor(props: CodeEditorProps) {
+function CodeEditor(props: CodeEditorProps) {
   const { language, initialValue, onChange } = props;
 
   const [code, setCode] = useState(initialValue);
@@ -50,3 +50,5 @@ export default function CodeEditor(props: CodeEditorProps) {
     </div>
   );
 }
+
+export default memo(CodeEditor);
