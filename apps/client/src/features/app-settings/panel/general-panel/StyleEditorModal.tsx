@@ -1,8 +1,6 @@
 import { lazy, useEffect, useState } from 'react';
 import {
   Button,
-  Flex,
-  HStack,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -11,6 +9,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
+import style from './StyleEditorModal.module.scss';
 
 import { getCSSContents, postCSSContents, restoreCSSContents } from '../../../../common/api/assets';
 
@@ -71,7 +70,7 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
         </ModalBody>
 
         <ModalFooter>
-          <Flex alignItems='center' justifyContent='space-between' width='100%'>
+          <div className={style.editorActions}>
             <div>
               <Button
                 variant='ontime-ghosted'
@@ -83,7 +82,7 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
               </Button>
             </div>
             <div>
-              <HStack gap='1rem'>
+              <div className={style.buttonRow}>
                 <Button variant='ontime-subtle' onClick={onClose}>
                   Cancel
                 </Button>
@@ -95,9 +94,9 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
                 >
                   Save changes
                 </Button>
-              </HStack>
+              </div>
             </div>
-          </Flex>
+          </div>
         </ModalFooter>
       </ModalContent>
     </Modal>
