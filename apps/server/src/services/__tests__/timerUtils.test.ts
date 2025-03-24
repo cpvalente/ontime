@@ -1121,6 +1121,71 @@ describe('getRelativeOffset()', () => {
     expect(absoluteOffset).toBe(50);
     expect(relativeOffset).toBe(0);
   });
+
+  it('handles pausing across midnight', () => {
+    const state = {
+      clock: 82000000, // 22:46:40
+      eventNow: {
+        id: 'd6a2ce',
+        timeStart: 0,
+        timeEnd: 3600000, // 01:00:00
+        duration: 3600000, // 01:00:00
+        timeStrategy: TimeStrategy.LockEnd,
+        linkStart: null,
+        endAction: EndAction.None,
+        timerType: TimerType.CountDown,
+        countToEnd: true,
+      },
+      runtime: {
+        selectedEventIndex: 0,
+        numEvents: 1,
+        offset: 0,
+        plannedStart: 0,
+        plannedEnd: 3600000, // 01:00:00
+        actualStart: 82000000, // 22:46:40 <--- started now
+        expectedEnd: 82000000 + 3600000, // <--- now + duration
+      },
+      timer: {
+        addedTime: 0,
+        current: 0,
+        duration: 3600000,
+        elapsed: 0,
+        expectedFinish: 82000000 + 3600000, // <--- now + duration
+        finishedAt: null,
+        playback: Playback.Play,
+        secondaryTimer: null,
+        startedAt: 82000000, // <--- started now
+      },
+      _timer: { pausedAt: null },
+    } as RuntimeState;
+
+    state.timer.current = getCurrent(state);
+    let offset = getRuntimeOffset(state);
+    expect(millisToString(offset)).toBe('-21:46:40');
+    expect(offset).toBe(3600000 - 82000000); // <-- planned end - now
+
+    state.clock += 1000; //advance 1 sec
+    state.timer.current = getCurrent(state);
+    offset = getRuntimeOffset(state);
+    expect(millisToString(offset)).toBe('-21:46:41');
+    expect(offset).toBe(3600000 - 82001000); // <-- planned end - now
+
+    //pause the timer
+    state.timer.playback = Playback.Pause;
+    state._timer.pausedAt = state.clock;
+
+    state.clock += 1000; //advance 1 sec
+    state.timer.current = getCurrent(state);
+    offset = getRuntimeOffset(state);
+    expect(millisToString(offset)).toBe('-21:46:42');
+    expect(offset).toBe(3600000 - 82002000); // <-- planned end - now
+
+    state.clock = 1000; //advance to the next day
+    state.timer.current = getCurrent(state);
+    offset = getRuntimeOffset(state);
+    expect(millisToString(offset)).toBe('-21:46:42');
+    expect(offset).toBe(3600000 - 82002000); // <-- planned end - now
+  });
 });
 
 describe('getTimerPhase()', () => {

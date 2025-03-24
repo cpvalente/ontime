@@ -14,6 +14,7 @@ import {
   roll,
   start,
   stop,
+  update,
 } from '../runtimeState.js';
 
 const mockEvent = {
