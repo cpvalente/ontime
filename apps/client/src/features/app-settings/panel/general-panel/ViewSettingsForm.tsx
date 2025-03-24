@@ -118,17 +118,16 @@ export default function ViewSettingsForm() {
                   <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
                 )}
               />
-              <Panel.InlineElements>
-                <Button
-                  onClick={onCodeEditorOpen}
-                  variant='ontime-subtle'
-                  size='sm'
-                  marginTop='1rem'
-                  isDisabled={!data.overrideStyles}
-                >
-                  Edit CSS
-                </Button>
-              </Panel.InlineElements>
+              <Button
+                onClick={onCodeEditorOpen}
+                variant='ontime-subtle'
+                size='sm'
+                marginTop='1rem'
+                isDisabled={!data.overrideStyles}
+                width={24}
+              >
+                Edit CSS
+              </Button>
             </Panel.ListItem>
           </Panel.ListGroup>
           <Panel.ListGroup>
