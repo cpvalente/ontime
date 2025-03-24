@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, MutableRefObject, useEffect, useState } from 'react';
 import Editor from 'react-simple-code-editor';
 import Prism from 'prismjs/components/prism-core';
 
@@ -11,11 +11,11 @@ import style from './StyleEditor.module.scss';
 interface CodeEditorProps {
   language: string;
   initialValue: string;
-  onChange: (newValue: string) => void;
+  cssRef?: MutableRefObject<string>;
 }
 
 function CodeEditor(props: CodeEditorProps) {
-  const { language, initialValue, onChange } = props;
+  const { language, initialValue, cssRef } = props;
 
   const [code, setCode] = useState(initialValue);
 
@@ -30,7 +30,9 @@ function CodeEditor(props: CodeEditorProps) {
 
   const handleChange = (newCode: string) => {
     setCode(newCode);
-    if (onChange) onChange(newCode);
+    if (cssRef && cssRef.current) {
+      cssRef.current = newCode;
+    }
   };
 
   return (

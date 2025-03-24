@@ -1,4 +1,4 @@
-import { lazy, useEffect, useState } from 'react';
+import { lazy, useEffect, useRef, useState } from 'react';
 import {
   Button,
   Modal,
@@ -27,12 +27,14 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
   const [saveLoading, setSaveLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
 
+  const cssRef = useRef<string>(css);
+
   const handleReset = async () => {
     try {
       setResetLoading(true);
       const defaultCss = await restoreCSSContents();
-      console.log(defaultCss);
       setCSS(defaultCss);
+      cssRef.current = defaultCss;
     } catch (_error) {
       /** no error handling for now */
     } finally {
@@ -43,7 +45,8 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
   const handleSave = async () => {
     try {
       setSaveLoading(true);
-      await postCSSContents(css);
+      await postCSSContents(cssRef.current);
+      setCSS(cssRef.current);
     } catch (_error) {
       /** no error handling for now */
     } finally {
@@ -55,6 +58,7 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
     async function fetchServerCSS() {
       const css = await getCSSContents();
       setCSS(css);
+      cssRef.current = css;
     }
     fetchServerCSS();
   }, []);
@@ -66,7 +70,7 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
         <ModalHeader>Edit CSS</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <CodeEditor onChange={(updatedCss: string) => setCSS(updatedCss)} initialValue={css} language='css' />
+          <CodeEditor cssRef={cssRef} initialValue={css} language='css' />
         </ModalBody>
 
         <ModalFooter>
