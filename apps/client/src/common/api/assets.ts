@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 import { apiEntryUrl } from './constants';
 
 const assetsPath = `${apiEntryUrl}/assets`;

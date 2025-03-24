@@ -9,9 +9,10 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react';
-import style from './StyleEditorModal.module.scss';
 
 import { getCSSContents, postCSSContents, restoreCSSContents } from '../../../../common/api/assets';
+
+import style from './StyleEditorModal.module.scss';
 
 const CodeEditor = lazy(() => import('./StyleEditor'));
 
