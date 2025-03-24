@@ -44,6 +44,7 @@ export default function CodeEditor(props: CodeEditorProps) {
           fontFamily: 'monospace',
           fontSize: 12,
           minHeight: 500,
+          background: '#2d2d2d', // Background of tomorrow theme
         }}
       />
     </div>
