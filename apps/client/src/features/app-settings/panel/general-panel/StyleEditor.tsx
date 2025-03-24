@@ -21,6 +21,12 @@ function CodeEditor(props: CodeEditorProps) {
     setCode(initialValue);
   }, [initialValue]);
 
+  useEffect(() => {
+    if (cssRef) {
+      cssRef.current = code;
+    }
+  }, [code, cssRef]);
+
   const highlight = (code: string) => {
     const grammar = Prism.languages[language];
     return grammar ? Prism.highlight(code, grammar, language) : code;
@@ -28,9 +34,6 @@ function CodeEditor(props: CodeEditorProps) {
 
   const handleChange = (newCode: string) => {
     setCode(newCode);
-    if (cssRef && cssRef.current) {
-      cssRef.current = newCode;
-    }
   };
 
   return (
