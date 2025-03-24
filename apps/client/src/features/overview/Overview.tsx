@@ -170,7 +170,7 @@ function RuntimeOverview() {
 
   return (
     <>
-      <TimeColumn label='Offset' value={offsetText} className={offsetClasses} />
+      <TimeColumn label='Offset' value={offsetText} className={offsetClasses} testId='offset' />
       <TimeColumn label='Time now' value={formatedTime(clock)} />
     </>
   );

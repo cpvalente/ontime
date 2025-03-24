@@ -160,7 +160,7 @@ export const useRuntimePlaybackOverview = createSelector((state: RuntimeStore) =
 
   numEvents: state.runtime.numEvents,
   selectedEventIndex: state.runtime.selectedEventIndex,
-  offset: state.runtime.offset,
+  offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offset : state.runtime.relativeOffset,
 
   currentBlock: state.currentBlock,
 }));
