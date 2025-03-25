@@ -1,9 +1,7 @@
 @use '../blockMixins' as *;
 
 .block {
-  @include block-spacing;
   @include block-styling;
-  margin-left: 0.5rem;
 
   background-color: $block-bg2;
 

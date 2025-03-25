@@ -7,7 +7,6 @@
   margin-top: 1rem;
   display: flex;
   flex-direction: column;
-  padding-right: 4px; // size of scrollbar
   overflow-y: scroll;
   height: 100%;
 }
@@ -16,6 +15,7 @@
   overflow-x: clip;
   display: flex;
   flex-direction: column;
+  padding-inline: 1rem;
 }
 
 .empty {
