@@ -1,8 +1,7 @@
 import { ChangeEvent, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
+import { IoDownloadOutline, IoTrash } from 'react-icons/io5';
 import { Button, Input, Textarea } from '@chakra-ui/react';
-import { IoDownloadOutline } from '@react-icons/all-files/io5/IoDownloadOutline';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { type ProjectData } from 'ontime-types';
 
 import { projectLogoPath } from '../../../../common/api/constants';
@@ -97,7 +96,7 @@ export default function ProjectData() {
   const isLoading = status === 'pending';
 
   return (
-    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)}  onKeyDown={(event) => preventEscape(event, onReset)}>
+    <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} onKeyDown={(event) => preventEscape(event, onReset)}>
       <Panel.Card>
         <Panel.SubHeader>
           Project data

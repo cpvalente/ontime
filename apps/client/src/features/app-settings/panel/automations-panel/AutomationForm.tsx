@@ -1,8 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
+import { IoAdd, IoTrash } from 'react-icons/io5';
 import { Button, IconButton, Input, Radio, RadioGroup, Select } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import {
   Automation,
   AutomationDTO,

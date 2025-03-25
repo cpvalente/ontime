@@ -1,5 +1,5 @@
 import { memo, MutableRefObject, useLayoutEffect, useRef, useState } from 'react';
-import { IoEllipsisHorizontal } from '@react-icons/all-files/io5/IoEllipsisHorizontal';
+import { IoEllipsisHorizontal } from 'react-icons/io5';
 import { flexRender, Table } from '@tanstack/react-table';
 import Color from 'color';
 import { OntimeEvent, OntimeRundownEntry } from 'ontime-types';

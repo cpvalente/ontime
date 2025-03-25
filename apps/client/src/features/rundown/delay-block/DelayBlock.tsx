@@ -1,10 +1,8 @@
 import { useEffect, useRef } from 'react';
+import { IoCheckmarkDone, IoClose, IoReorderTwo } from 'react-icons/io5';
 import { Button } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IoCheckmarkDone } from '@react-icons/all-files/io5/IoCheckmarkDone';
-import { IoClose } from '@react-icons/all-files/io5/IoClose';
-import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { OntimeDelay } from 'ontime-types';
 
 import DelayInput from '../../../common/components/input/delay-input/DelayInput';

@@ -1,7 +1,7 @@
 import { PropsWithChildren, useState } from 'react';
 import { UseFormRegister } from 'react-hook-form';
+import { IoEyeOutline } from 'react-icons/io5';
 import { IconButton, Input, InputGroup, InputRightElement } from '@chakra-ui/react';
-import { IoEyeOutline } from '@react-icons/all-files/io5/IoEyeOutline';
 import { Settings } from 'ontime-types';
 
 import { isAlphanumeric } from '../../../../common/utils/regex';

@@ -1,7 +1,7 @@
 import { useRef } from 'react';
+import { IoReorderTwo } from 'react-icons/io5';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
 import { OntimeBlock } from 'ontime-types';
 
 import { cx } from '../../../common/utils/styleUtils';

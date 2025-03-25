@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
+import { IoCheckmarkCircle } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/react';
-import { IoCheckmarkCircle } from '@react-icons/all-files/io5/IoCheckmarkCircle';
 import { isPlaybackActive, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { usePlayback } from '../../../../common/hooks/useSocket';

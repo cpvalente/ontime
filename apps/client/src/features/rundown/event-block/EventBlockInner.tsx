@@ -1,15 +1,17 @@
 import { memo, useEffect, useState } from 'react';
+import {
+  IoArrowDown,
+  IoArrowUp,
+  IoBan,
+  IoFlag,
+  IoPeople,
+  IoPlay,
+  IoPlayForward,
+  IoPlaySkipForward,
+  IoStop,
+  IoTime,
+} from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/react';
-import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-import { IoBan } from '@react-icons/all-files/io5/IoBan';
-import { IoFlag } from '@react-icons/all-files/io5/IoFlag';
-import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
-import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
-import { IoPlayForward } from '@react-icons/all-files/io5/IoPlayForward';
-import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
-import { IoStop } from '@react-icons/all-files/io5/IoStop';
-import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { cx } from '../../../common/utils/styleUtils';

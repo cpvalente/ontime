@@ -1,9 +1,5 @@
+import { IoArrowDown, IoArrowUp, IoBan, IoFlag, IoTime } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/react';
-import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-import { IoBan } from '@react-icons/all-files/io5/IoBan';
-import { IoFlag } from '@react-icons/all-files/io5/IoFlag';
-import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { TimerPhase, TimerType } from 'ontime-types';
 
 import { useMessagePreview } from '../../../common/hooks/useSocket';

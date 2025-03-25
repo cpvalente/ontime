@@ -1,6 +1,5 @@
+import { IoChevronDown, IoChevronUp } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/react';
-import { IoChevronDown } from '@react-icons/all-files/io5/IoChevronDown';
-import { IoChevronUp } from '@react-icons/all-files/io5/IoChevronUp';
 
 import { tooltipDelayFast } from '../../../ontimeConfig';
 import { millisToDelayString } from '../../utils/dateConfig';

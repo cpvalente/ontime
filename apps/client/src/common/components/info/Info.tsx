@@ -1,5 +1,5 @@
 import { PropsWithChildren } from 'react';
-import { IoAlertCircle } from '@react-icons/all-files/io5/IoAlertCircle';
+import { IoAlertCircle } from 'react-icons/io5';
 
 import { cx } from '../../utils/styleUtils';
 

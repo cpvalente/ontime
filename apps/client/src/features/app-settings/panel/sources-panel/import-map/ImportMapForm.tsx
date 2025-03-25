@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
+import { IoAdd, IoTrash } from 'react-icons/io5';
 import { Button, IconButton, Input, Select, Tooltip } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { ImportMap, isAlphanumericWithSpace } from 'ontime-utils';
 
 import * as Panel from '../../../panel-utils/PanelUtils';

@@ -1,4 +1,4 @@
-import { IoLockClosedOutline } from '@react-icons/all-files/io5/IoLockClosedOutline';
+import { IoLockClosedOutline } from 'react-icons/io5';
 
 import { useFadeOutOnInactivity } from '../../hooks/useFadeOutOnInactivity';
 import { cx } from '../../utils/styleUtils';

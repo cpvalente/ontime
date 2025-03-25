@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
+import { IoTrashBin } from 'react-icons/io5';
 import { Button } from '@chakra-ui/react';
-import { IoTrashBin } from '@react-icons/all-files/io5/IoTrashBin';
 
 import { deleteAllReport } from '../../../../common/api/report';
 import { createBlob, downloadBlob } from '../../../../common/api/utils';

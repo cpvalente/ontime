@@ -1,8 +1,4 @@
-import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-import { IoPause } from '@react-icons/all-files/io5/IoPause';
-import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
-import { IoStop } from '@react-icons/all-files/io5/IoStop';
+import { IoArrowDown, IoArrowUp, IoPause, IoPlay, IoStop } from 'react-icons/io5';
 import { Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 

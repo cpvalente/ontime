@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useController, UseControllerProps } from 'react-hook-form';
-import { IoEyedrop } from '@react-icons/all-files/io5/IoEyedrop';
+import { IoEyedrop } from 'react-icons/io5';
 import { ViewSettings } from 'ontime-types';
 
 import { debounce } from '../../../utils/debounce';

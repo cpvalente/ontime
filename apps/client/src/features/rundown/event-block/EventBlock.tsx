@@ -1,15 +1,17 @@
 import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  IoAdd,
+  IoDuplicateOutline,
+  IoLink,
+  IoPeople,
+  IoPeopleOutline,
+  IoReorderTwo,
+  IoSwapVertical,
+  IoTrash,
+  IoUnlink,
+} from 'react-icons/io5';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
-import { IoLink } from '@react-icons/all-files/io5/IoLink';
-import { IoPeople } from '@react-icons/all-files/io5/IoPeople';
-import { IoPeopleOutline } from '@react-icons/all-files/io5/IoPeopleOutline';
-import { IoReorderTwo } from '@react-icons/all-files/io5/IoReorderTwo';
-import { IoSwapVertical } from '@react-icons/all-files/io5/IoSwapVertical';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
-import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
 import { EndAction, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
