@@ -2,8 +2,8 @@
 // https://github.com/lukasbach/chakra-ui-contextmenu/blob/main/src/ContextMenu.tsx
 
 import { ReactElement } from 'react';
+import { IconType } from 'react-icons';
 import { Menu, MenuButton, MenuGroup, MenuList } from '@chakra-ui/react';
-import { IconType } from '@react-icons/all-files';
 import { create } from 'zustand';
 
 import { ContextMenuOption } from './ContextMenuOption';
