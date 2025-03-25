@@ -1,10 +1,5 @@
+import { IoAdd, IoArrowDown, IoArrowUp, IoDuplicateOutline, IoOptions, IoTrash } from 'react-icons/io5';
 import { MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoArrowDown } from '@react-icons/all-files/io5/IoArrowDown';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
-import { IoDuplicateOutline } from '@react-icons/all-files/io5/IoDuplicateOutline';
-import { IoOptions } from '@react-icons/all-files/io5/IoOptions';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { isOntimeEvent, SupportedEvent } from 'ontime-types';
 
 import { useEventAction } from '../../../../common/hooks/useEventAction';

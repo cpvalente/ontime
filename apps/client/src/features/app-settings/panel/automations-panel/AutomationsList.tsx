@@ -1,8 +1,6 @@
 import { Fragment, useState } from 'react';
+import { IoAdd, IoPencil, IoTrash } from 'react-icons/io5';
 import { Button, IconButton } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoPencil } from '@react-icons/all-files/io5/IoPencil';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { AutomationDTO, NormalisedAutomation } from 'ontime-types';
 
 import { deleteAutomation } from '../../../../common/api/automation';

@@ -1,7 +1,6 @@
+import { IoAdd, IoRemove } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/react';
 import { useLocalStorage } from '@mantine/hooks';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
-import { IoRemove } from '@react-icons/all-files/io5/IoRemove';
 import { Playback } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_SECOND, parseUserTime } from 'ontime-utils';
 

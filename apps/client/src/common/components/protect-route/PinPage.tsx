@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
+import { IoCheckmark } from 'react-icons/io5';
 import { IconButton, PinInput, PinInputField } from '@chakra-ui/react';
-import { IoCheckmark } from '@react-icons/all-files/io5/IoCheckmark';
 
 import style from './ProtectRoute.module.scss';
 

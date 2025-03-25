@@ -1,10 +1,6 @@
 import { memo } from 'react';
+import { IoAlertCircleOutline, IoLink, IoLockClosed, IoLockOpenOutline, IoUnlink } from 'react-icons/io5';
 import { InputRightElement, Tooltip } from '@chakra-ui/react';
-import { IoAlertCircleOutline } from '@react-icons/all-files/io5/IoAlertCircleOutline';
-import { IoLink } from '@react-icons/all-files/io5/IoLink';
-import { IoLockClosed } from '@react-icons/all-files/io5/IoLockClosed';
-import { IoLockOpenOutline } from '@react-icons/all-files/io5/IoLockOpenOutline';
-import { IoUnlink } from '@react-icons/all-files/io5/IoUnlink';
 import { MaybeString, TimeField, TimeStrategy } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 

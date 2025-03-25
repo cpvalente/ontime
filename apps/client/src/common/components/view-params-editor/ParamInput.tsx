@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { IoChevronDown } from 'react-icons/io5';
 import { useSearchParams } from 'react-router-dom';
 import {
   Button,
@@ -13,7 +14,6 @@ import {
   Select,
   Switch,
 } from '@chakra-ui/react';
-import { IoChevronDown } from '@react-icons/all-files/io5/IoChevronDown';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 

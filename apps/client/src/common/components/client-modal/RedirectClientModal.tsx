@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { IoArrowForward } from 'react-icons/io5';
 import {
   IconButton,
   Input,
@@ -10,7 +11,6 @@ import {
   ModalOverlay,
   Select,
 } from '@chakra-ui/react';
-import { IoArrowForward } from '@react-icons/all-files/io5/IoArrowForward';
 
 import { navigatorConstants } from '../../../viewerConfig';
 import { setClientRemote } from '../../hooks/useSocket';

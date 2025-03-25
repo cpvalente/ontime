@@ -1,8 +1,6 @@
 import { useState } from 'react';
+import { IoPencil, IoTrash, IoWarningOutline } from 'react-icons/io5';
 import { IconButton } from '@chakra-ui/react';
-import { IoPencil } from '@react-icons/all-files/io5/IoPencil';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
-import { IoWarningOutline } from '@react-icons/all-files/io5/IoWarningOutline';
 import { NormalisedAutomation, TimerLifeCycle } from 'ontime-types';
 
 import Tag from '../../../../common/components/tag/Tag';

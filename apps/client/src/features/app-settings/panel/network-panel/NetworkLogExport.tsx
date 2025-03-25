@@ -1,6 +1,6 @@
 import { MouseEvent } from 'react';
+import { IoArrowUp } from 'react-icons/io5';
 import { Button } from '@chakra-ui/react';
-import { IoArrowUp } from '@react-icons/all-files/io5/IoArrowUp';
 
 import { handleLinks } from '../../../../common/utils/linkUtils';
 import Log from '../../../log/Log';

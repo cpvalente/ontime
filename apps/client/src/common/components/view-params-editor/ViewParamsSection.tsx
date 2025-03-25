@@ -1,5 +1,5 @@
+import { IoChevronDown } from 'react-icons/io5';
 import { useLocalStorage } from '@mantine/hooks';
-import { IoChevronDown } from '@react-icons/all-files/io5/IoChevronDown';
 
 import { cx } from '../../utils/styleUtils';
 

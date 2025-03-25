@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import { IoTrash } from 'react-icons/io5';
 import {
   AlertDialog,
   AlertDialogBody,
@@ -9,7 +10,6 @@ import {
   Button,
   useDisclosure,
 } from '@chakra-ui/react';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import { useAppMode } from '../../../common/stores/appModeStore';

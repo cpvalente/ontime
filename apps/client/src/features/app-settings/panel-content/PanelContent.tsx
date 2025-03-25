@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react';
+import { IoClose } from 'react-icons/io5';
 import { Button } from '@chakra-ui/react';
-import { IoClose } from '@react-icons/all-files/io5/IoClose';
 
 import style from './PanelContent.module.scss';
 

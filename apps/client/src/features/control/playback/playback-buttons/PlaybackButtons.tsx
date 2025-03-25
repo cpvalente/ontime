@@ -1,12 +1,6 @@
 import { useMemo } from 'react';
+import { IoPause, IoPlay, IoPlaySkipBack, IoPlaySkipForward, IoReload, IoStop, IoTime } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/react';
-import { IoPause } from '@react-icons/all-files/io5/IoPause';
-import { IoPlay } from '@react-icons/all-files/io5/IoPlay';
-import { IoPlaySkipBack } from '@react-icons/all-files/io5/IoPlaySkipBack';
-import { IoPlaySkipForward } from '@react-icons/all-files/io5/IoPlaySkipForward';
-import { IoReload } from '@react-icons/all-files/io5/IoReload';
-import { IoStop } from '@react-icons/all-files/io5/IoStop';
-import { IoTime } from '@react-icons/all-files/io5/IoTime';
 import { Playback, TimerPhase } from 'ontime-types';
 import { validatePlayback } from 'ontime-utils';
 

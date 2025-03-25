@@ -1,7 +1,6 @@
 import { useState } from 'react';
+import { IoPencil, IoTrash } from 'react-icons/io5';
 import { IconButton } from '@chakra-ui/react';
-import { IoPencil } from '@react-icons/all-files/io5/IoPencil';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
 import { CustomField, CustomFieldLabel } from 'ontime-types';
 
 import CopyTag from '../../../../../common/components/copy-tag/CopyTag';

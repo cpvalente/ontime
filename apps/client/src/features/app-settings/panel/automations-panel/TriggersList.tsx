@@ -1,6 +1,6 @@
 import { Fragment, useMemo, useState } from 'react';
+import { IoAdd } from 'react-icons/io5';
 import { Button } from '@chakra-ui/react';
-import { IoAdd } from '@react-icons/all-files/io5/IoAdd';
 import { NormalisedAutomation, Trigger } from 'ontime-types';
 
 import { deleteTrigger } from '../../../../common/api/automation';

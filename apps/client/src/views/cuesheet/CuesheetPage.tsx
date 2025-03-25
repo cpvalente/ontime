@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
+import { IoApps, IoSettingsOutline } from 'react-icons/io5';
 import { IconButton, Modal, ModalContent, ModalOverlay, useDisclosure } from '@chakra-ui/react';
-import { IoApps } from '@react-icons/all-files/io5/IoApps';
-import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
 import useViewEditor from '../../common/components/navigation-menu/useViewEditor';

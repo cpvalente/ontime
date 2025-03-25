@@ -1,9 +1,7 @@
 import { lazy, useCallback, useEffect } from 'react';
+import { IoApps, IoClose, IoSettingsOutline } from 'react-icons/io5';
 import { IconButton, useDisclosure } from '@chakra-ui/react';
 import { useHotkeys } from '@mantine/hooks';
-import { IoApps } from '@react-icons/all-files/io5/IoApps';
-import { IoClose } from '@react-icons/all-files/io5/IoClose';
-import { IoSettingsOutline } from '@react-icons/all-files/io5/IoSettingsOutline';
 
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
 import { useElectronListener } from '../../common/hooks/useElectronEvent';
