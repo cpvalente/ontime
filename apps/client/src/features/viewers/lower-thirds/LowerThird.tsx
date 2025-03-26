@@ -191,6 +191,7 @@ export default function LowerThird(props: LowerProps) {
         <div className='clip'>
           <div
             className='data-top'
+            data-testid='l3-top'
             style={{
               animationDuration: transition,
               color: `#${options.topColour}`,
@@ -210,6 +211,7 @@ export default function LowerThird(props: LowerProps) {
         <div className='clip'>
           <div
             className='data-bottom'
+            data-testid='l3-bottom'
             style={{
               animationDuration: transition,
               color: `#${options.bottomColour}`,
