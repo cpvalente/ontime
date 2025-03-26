@@ -1,8 +1,14 @@
-import { CSSProperties, useCallback } from 'react';
-import { CustomFieldLabel, OntimeEvent } from 'ontime-types';
+import { CSSProperties, useCallback, useState } from 'react';
+import { Select } from '@chakra-ui/react';
+import { IconButton } from '@chakra-ui/react';
+import { IoAddCircle } from '@react-icons/all-files/io5/IoAddCircle';
+import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { CustomFieldLabel, OntimeEvent, TimerLifeCycle, timerLifecycleValues, Trigger } from 'ontime-types';
+import { generateId } from 'ontime-utils';
 
 import AppLink from '../../../common/components/link/app-link/AppLink';
 import { useEventAction } from '../../../common/hooks/useEventAction';
+import useAutomationSettings from '../../../common/hooks-query/useAutomationSettings';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
 import { getAccessibleColour } from '../../../common/utils/styleUtils';
 import * as Editor from '../../editors/editor-utils/EditorUtils';
@@ -28,6 +34,12 @@ export default function EventEditor(props: EventEditorProps) {
   const { event } = props;
   const { data: customFields } = useCustomFields();
   const { updateEvent } = useEventAction();
+  const { data: automationSettings } = useAutomationSettings();
+
+  const [newTriggerValue, setNewTriggerValue] = useState({
+    id: automationSettings.automations[0]?.id ?? '',
+    cycle: TimerLifeCycle.onStart,
+  });
 
   const isEditor = window.location.pathname.includes('editor');
 
@@ -41,6 +53,26 @@ export default function EventEditor(props: EventEditorProps) {
       }
     },
     [event?.id, updateEvent],
+  );
+
+  const submitTrigger = useCallback(
+    (value: typeof newTriggerValue) => {
+      const triggers = event.triggers ?? new Array<Trigger>();
+      const id = generateId();
+      triggers.push({ title: '', id, trigger: value.cycle, automationId: value.id });
+      updateEvent({ id: event?.id, triggers: triggers });
+    },
+    [event?.id, event.triggers, updateEvent],
+  );
+
+  const deleteTrigger = useCallback(
+    (id: string) => {
+      if (event.triggers) {
+        const newTriggerList = event.triggers.filter((value) => value.id !== id);
+        updateEvent({ id: event?.id, triggers: newTriggerList });
+      }
+    },
+    [event?.id, event.triggers, updateEvent],
   );
 
   if (!event) {
@@ -123,6 +155,68 @@ export default function EventEditor(props: EventEditorProps) {
           // we should have exhausted all types by now
           return null;
         })}
+      </div>
+      <div className={style.column}>
+        <Editor.Title>
+          Triggers
+          {isEditor && <AppLink search='settings=automation__automations'>Manage</AppLink>}
+        </Editor.Title>
+        {event.triggers !== undefined && (
+          <>
+            {Object.values(event.triggers).map((trigger) => {
+              const { id, trigger: triggerType, automationId } = trigger;
+              const automationTitle = automationSettings.automations[automationId]?.title;
+              return (
+                <div key={id}>
+                  {triggerType} 🠆 {automationTitle}
+                  <IconButton
+                    size='sm'
+                    variant='ontime-ghosted'
+                    color='#FA5656' // $red-500
+                    icon={<IoTrash />}
+                    aria-label='Delete entry'
+                    onClick={() => deleteTrigger(id)}
+                  />
+                </div>
+              );
+            })}
+          </>
+        )}
+        <div className={style.inline}>
+          <Select
+            size='sm'
+            variant='ontime'
+            value={newTriggerValue.id}
+            onChange={(e) => setNewTriggerValue({ id: e.target.value, cycle: newTriggerValue.cycle })}
+            // defaultValue={initialAutomationId}
+          >
+            {Object.values(automationSettings.automations).map(({ id, title }) => (
+              <option key={id} value={id}>
+                {title}
+              </option>
+            ))}
+          </Select>
+          <Select
+            size='sm'
+            variant='ontime'
+            value={newTriggerValue.cycle}
+            onChange={(e) => setNewTriggerValue({ id: newTriggerValue.id, cycle: e.target.value })}
+            defaultValue={TimerLifeCycle.onStart}
+          >
+            {timerLifecycleValues.map((cycle) => (
+              <option key={cycle} value={cycle}>
+                {cycle}
+              </option>
+            ))}
+          </Select>
+          <IconButton
+            onClick={() => submitTrigger(newTriggerValue)}
+            size='sm'
+            variant='ontime-ghosted'
+            aria-label='Add entry'
+            icon={<IoAddCircle />}
+          />
+        </div>
       </div>
     </div>
   );
