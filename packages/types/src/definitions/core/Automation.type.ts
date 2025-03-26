@@ -9,7 +9,7 @@ export type AutomationSettings = {
   automations: NormalisedAutomation;
 };
 
-type AutomationId = string;
+export type AutomationId = string;
 export type FilterRule = 'all' | 'any';
 
 export type Automation = {

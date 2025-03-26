@@ -1,4 +1,5 @@
 import type { EndAction, EntryCustomFields, MaybeNumber, MaybeString, TimerType, TimeStrategy } from '../../index.js';
+import type { Trigger } from './Automation.type.js';
 
 export type EntryId = string;
 
@@ -54,6 +55,7 @@ export type OntimeEvent = OntimeBaseEvent & {
   timeWarning: number;
   timeDanger: number;
   custom: EntryCustomFields;
+  triggers?: Trigger[];
   // !==== RUNTIME METADATA ====! //
   currentBlock: EntryId | null;
   revision: number;
