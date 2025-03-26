@@ -1,8 +1,6 @@
 import { CSSProperties, useCallback, useState } from 'react';
-import { Select } from '@chakra-ui/react';
-import { IconButton } from '@chakra-ui/react';
-import { IoAddCircle } from '@react-icons/all-files/io5/IoAddCircle';
-import { IoTrash } from '@react-icons/all-files/io5/IoTrash';
+import { IoAddCircle, IoTrash } from 'react-icons/io5';
+import { IconButton, Select } from '@chakra-ui/react';
 import { CustomFieldLabel, OntimeEvent, TimerLifeCycle, timerLifecycleValues, Trigger } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
@@ -188,7 +186,6 @@ export default function EventEditor(props: EventEditorProps) {
             variant='ontime'
             value={newTriggerValue.id}
             onChange={(e) => setNewTriggerValue({ id: e.target.value, cycle: newTriggerValue.cycle })}
-            // defaultValue={initialAutomationId}
           >
             {Object.values(automationSettings.automations).map(({ id, title }) => (
               <option key={id} value={id}>
@@ -203,7 +200,7 @@ export default function EventEditor(props: EventEditorProps) {
             onChange={(e) => setNewTriggerValue({ id: newTriggerValue.id, cycle: e.target.value })}
             defaultValue={TimerLifeCycle.onStart}
           >
-            {timerLifecycleValues.map((cycle) => (
+            {['onLoad', 'onStart', 'onPause', 'onFinish', 'onWarning', 'onDanger'].map((cycle) => (
               <option key={cycle} value={cycle}>
                 {cycle}
               </option>
