@@ -17,10 +17,12 @@ function CodeEditor(props: CodeEditorProps) {
 
   const [code, setCode] = useState(initialValue);
 
+  // add contents to editor on mount
   useEffect(() => {
     setCode(initialValue);
   }, [initialValue]);
 
+  // sync editor contents to external source
   useEffect(() => {
     if (cssRef) {
       cssRef.current = code;
