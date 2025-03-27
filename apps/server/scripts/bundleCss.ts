@@ -18,7 +18,6 @@ async function bundleCss() {
     await writeFile(cssFile, defaultCss, { encoding: 'utf8' });
   } catch (error) {
     console.error('Failed writing to CSS file: ', error);
-    process.exit(1);
   }
 }
 
