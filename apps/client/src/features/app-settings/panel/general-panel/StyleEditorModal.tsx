@@ -30,7 +30,7 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
 
   const cssRef = useRef<string>(css);
 
-  const handleReset = async () => {
+  const handleRestore = async () => {
     try {
       setResetLoading(true);
       const defaultCss = await restoreCSSContents();
@@ -79,7 +79,7 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
             <div>
               <Button
                 variant='ontime-ghosted'
-                onClick={handleReset}
+                onClick={handleRestore}
                 isDisabled={saveLoading || resetLoading}
                 isLoading={resetLoading}
               >
