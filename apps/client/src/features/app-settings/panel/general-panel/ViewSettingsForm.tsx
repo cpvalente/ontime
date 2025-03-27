@@ -125,7 +125,7 @@ export default function ViewSettingsForm() {
                 size='sm'
                 marginTop='1rem'
                 isDisabled={!data.overrideStyles}
-                width={24}
+                width='fit-content'
               >
                 Edit CSS
               </Button>
