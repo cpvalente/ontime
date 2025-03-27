@@ -11,6 +11,7 @@ import {
 } from '@chakra-ui/react';
 
 import { getCSSContents, postCSSContents, restoreCSSContents } from '../../../../common/api/assets';
+import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './StyleEditorModal.module.scss';
 
@@ -87,7 +88,7 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
               </Button>
             </div>
             <div>
-              <div className={style.buttonRow}>
+              <Panel.InlineElements>
                 <Button variant='ontime-subtle' onClick={onClose}>
                   Cancel
                 </Button>
@@ -99,7 +100,7 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
                 >
                   Save changes
                 </Button>
-              </div>
+              </Panel.InlineElements>
             </div>
           </div>
         </ModalFooter>
