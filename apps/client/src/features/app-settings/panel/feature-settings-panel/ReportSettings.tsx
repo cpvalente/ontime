@@ -94,7 +94,7 @@ export default function ReportSettings() {
                 })();
                 return (
                   <tr key={entry.index}>
-                    <th>{entry.index}</th>
+                    <th>{entry.index + 1}</th>
                     <th>{entry.cue}</th>
                     <th>{entry.title}</th>
                     <th className={cx([start && style[start]])}>{formatTime(entry.scheduledStart)}</th>
