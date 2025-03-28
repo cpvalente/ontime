@@ -276,20 +276,32 @@ export function getPreviousEventNormal(
 export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): { newA: OntimeEvent; newB: OntimeEvent } => {
   const newA = {
     ...eventB,
+    // events keep the ID
     id: eventA.id,
+    // events keep the schedule
     timeStart: eventA.timeStart,
     timeEnd: eventA.timeEnd,
     duration: eventA.duration,
+    linkStart: eventA.linkStart,
+    // keep schedule metadata
     delay: eventA.delay,
+    gap: eventA.gap,
+    dayOffset: eventA.dayOffset,
   };
 
   const newB = {
     ...eventA,
+    // events keep the ID
     id: eventB.id,
+    // events keep the schedule
     timeStart: eventB.timeStart,
     timeEnd: eventB.timeEnd,
     duration: eventB.duration,
+    linkStart: eventB.linkStart,
+    // keep schedule metadata
     delay: eventB.delay,
+    gap: eventB.gap,
+    dayOffset: eventB.dayOffset,
   };
 
   return { newA, newB };
