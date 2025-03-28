@@ -1,7 +1,7 @@
-import type { OntimeEvent, OntimeRundown, OntimeRundownEntry } from 'ontime-types';
+import type { EntryId, OntimeEntry, RundownEntries } from 'ontime-types';
 import { isOntimeEvent } from 'ontime-types';
 
-import { getFirstEvent, getNextEvent, getPreviousEvent } from '../rundown-utils/rundownUtils.js';
+import { getFirstEventNormal, getNextEventNormal, getPreviousEventNormal } from '../rundown-utils/rundownUtils.js';
 import { isNumeric } from '../types/types.js';
 
 // Zero or more non-digit characters at the beginning ((\D*)).
@@ -11,7 +11,6 @@ const regex = /^(\D*)(\d+)(\.\d+)?$/;
 
 /**
  * Finds if last characters in input are a number and increments
- * @param input {string}
  */
 export function getIncrement(input: string): string {
   // Check if the input string contains a number at the end
@@ -41,55 +40,57 @@ export function getIncrement(input: string): string {
 
 /**
  * Gets suitable name for a new event cue
- * @param rundown {OntimeRundown}
- * @param insertAfterId {string}
  */
-export function getCueCandidate(rundown: OntimeRundown, insertAfterId?: string): string {
-  function addAtTop() {
-    const firstEventCue = getFirstEvent(rundown).firstEvent?.cue;
+export function getCueCandidate(entries: RundownEntries, order: EntryId[], insertAfterId?: string): string {
+  // we did not provide a element to go after, we attempt to go first so only need to check for a cue with value 1
+  if (insertAfterId === undefined || order.length === 0) {
+    return addAtTop();
+  }
 
-    if (isNumeric(firstEventCue)) {
-      return (Number(firstEventCue) / 10).toString();
+  // get the given event, or any before that
+  let previousEvent: OntimeEntry | null | undefined = entries[insertAfterId];
+
+  if (!isOntimeEvent(previousEvent)) {
+    previousEvent = getPreviousEventNormal(entries, order, insertAfterId).previousEvent;
+    if (!isOntimeEvent(previousEvent)) {
+      return addAtTop();
+    }
+  }
+
+  // the cue is based on the previous event cue
+  const cue = getIncrement(previousEvent.cue);
+  const { nextEvent } = getNextEventNormal(entries, order, insertAfterId);
+
+  // if increment is clashing with next, we add a decimal instead
+  if (cue !== nextEvent?.cue) {
+    return cue;
+  }
+
+  // there is a clash, bt the cue is a pure number
+  if (isNumeric(cue)) {
+    return incrementDecimal(previousEvent.cue);
+  }
+
+  /**
+   * at this point, we know the cue is not numeric
+   * but the increment failed, so we have a numeric ending
+   * eg. Presenter 1   .... Presenter 2   -> Presenter1.1
+   * eg. Presenter 1.1 .... Presenter 1.2 -> Presenter1.1.1
+   */
+  return `${previousEvent.cue}.1`;
+
+  function incrementDecimal(cue: string) {
+    const n = Number(cue);
+    return (n + 0.1).toString();
+  }
+
+  function addAtTop() {
+    const firstEventCue = getFirstEventNormal(entries, order).firstEvent?.cue;
+    if (firstEventCue === '1') {
+      return '0.1';
     }
     return '1';
   }
-
-  // we did not provide a element to go after, we attempt to go first so only need to check for a cue with value 1
-  if (typeof insertAfterId === 'undefined' || rundown.length === 0) {
-    return addAtTop();
-  }
-
-  const afterIndex = rundown.findIndex((event) => event.id === insertAfterId);
-
-  // we did not find the previous element, insert at top
-  if (afterIndex === -1) {
-    return addAtTop();
-  }
-
-  // get elements around
-  let previousEvent: OntimeRundownEntry | undefined | null | OntimeEvent = rundown.at(afterIndex);
-  if (!isOntimeEvent(previousEvent)) {
-    previousEvent = getPreviousEvent(rundown, insertAfterId).previousEvent as null | OntimeEvent;
-  }
-
-  let cue = '1';
-  const { nextEvent } = getNextEvent(rundown, insertAfterId);
-
-  // try and increment the cue
-  if (isOntimeEvent(previousEvent)) {
-    cue = getIncrement(previousEvent.cue);
-  }
-
-  // if increment is clashing with next, we add a decimal instead
-  if (cue === nextEvent?.cue) {
-    if (previousEvent === null) {
-      cue = '0.1';
-    } else {
-      cue = `${previousEvent.cue}.1`;
-    }
-  }
-
-  return cue;
 }
 
 export function sanitiseCue(cue: string) {

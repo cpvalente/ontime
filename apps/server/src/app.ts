@@ -43,7 +43,7 @@ import { oscServer } from './adapters/OscAdapter.js';
 // Utilities
 import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
-import { timerConfig } from './config/config.js';
+import { timerConfig } from './setup/config.js';
 import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
 
 console.log('\n');
@@ -245,7 +245,7 @@ export const startIntegrations = async () => {
  * @param {number} exitCode
  * @return {Promise<void>}
  */
-export const shutdown = async (exitCode = 0) => {
+const shutdown = async (exitCode = 0) => {
   consoleHighlight(`Ontime shutting down with code ${exitCode}`);
 
   // clear the restore file if it was a normal exit

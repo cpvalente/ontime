@@ -2,15 +2,18 @@ import {
   CustomField,
   CustomFieldLabel,
   CustomFields,
+  EntryId,
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
   isPlayableEvent,
   MaybeNumber,
+  OntimeBlock,
   OntimeEvent,
-  OntimeRundown,
-  OntimeRundownEntry,
+  OntimeEntry,
   PlayableEvent,
+  Rundown,
+  RundownEntries,
 } from 'ontime-types';
 import {
   generateId,
@@ -21,26 +24,32 @@ import {
   isNewLatest,
   customFieldLabelToKey,
 } from 'ontime-utils';
+
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
+
 import { apply } from './delayUtils.js';
 import { calculateDayOffset, handleCustomField, handleLink, hasChanges, isDataStale } from './rundownCacheUtils.js';
 
-type EventID = string;
-type NormalisedRundown = Record<EventID, OntimeRundownEntry>;
-
-let persistedRundown: OntimeRundown = [];
+let currentRundownId: EntryId = '';
+let currentRundown: Rundown = {
+  id: '',
+  title: '',
+  order: [],
+  entries: {},
+  revision: 0,
+};
 let persistedCustomFields: CustomFields = {};
 
 /**
  * Get the cached rundown without triggering regeneration
  */
-export const getPersistedRundown = (): OntimeRundown => persistedRundown;
+export const getCurrentRundown = (): Rundown => currentRundown;
 export const getCustomFields = (): CustomFields => persistedCustomFields;
 
-let normalisedRundown: NormalisedRundown = {};
-let order: EventID[] = [];
-let revision = 0;
+let playableEventsOrder: EntryId[] = [];
+let timedEventsOrder: EntryId[] = [];
+let flatIndexOrder: EntryId[] = [];
 
 /**
  * all mutating functions will set this value if there is a need for re-generation
@@ -59,7 +68,7 @@ let totalDays = 0;
 let firstStart: MaybeNumber = null;
 let lastEnd: MaybeNumber = null;
 
-let links: Record<EventID, EventID> = {};
+let links: Record<EntryId, EntryId> = {};
 
 /**
  * Object that contains reference of renamed custom fields
@@ -76,13 +85,17 @@ export const customFieldChangelog = new Map<string, string>();
  * Keep track of which custom fields are used.
  * This will be handy for when we delete custom fields
  */
-let assignedCustomFields: Record<CustomFieldLabel, EventID[]> = {};
+let assignedCustomFields: Record<CustomFieldLabel, EntryId[]> = {};
 
-export async function init(initialRundown: Readonly<OntimeRundown>, customFields: Readonly<CustomFields>) {
-  persistedRundown = structuredClone(initialRundown) as OntimeRundown;
+/**
+ * Receives a rundown which will be processed and used as the new current rundown
+ */
+export async function init(initialRundown: Rundown, customFields: Readonly<CustomFields>) {
+  currentRundown = structuredClone(initialRundown);
+  currentRundownId = initialRundown.id;
   persistedCustomFields = structuredClone(customFields);
   generate();
-  await getDataProvider().setRundown(persistedRundown);
+  await getDataProvider().setRundown(currentRundownId, currentRundown);
   await getDataProvider().setCustomFields(customFields);
 }
 
@@ -90,10 +103,7 @@ export async function init(initialRundown: Readonly<OntimeRundown>, customFields
  * Utility generate cache
  * @private should not be called outside of `rundownCache.ts`
  */
-export function generate(
-  initialRundown: OntimeRundown = persistedRundown,
-  customFields: CustomFields = persistedCustomFields,
-) {
+export function generate(initialRundown: Rundown = currentRundown, customFields: CustomFields = persistedCustomFields) {
   function clearIsStale() {
     isStale = false;
   }
@@ -102,8 +112,10 @@ export function generate(
   // instead of maintaining logic to update it
 
   assignedCustomFields = {};
-  normalisedRundown = {};
-  order = [];
+  playableEventsOrder = [];
+  timedEventsOrder = [];
+  flatIndexOrder = [];
+
   links = {};
   firstStart = null;
   lastEnd = null;
@@ -111,20 +123,30 @@ export function generate(
   totalDays = 0;
   totalDelay = 0;
 
+  // temporary parsed rundown
+  const parsedEntries: RundownEntries = {};
+  const parsedOrder: EntryId[] = [];
+
+  /** A playableEvent from the previous iteration */
+  let previousEntry: PlayableEvent | null = null;
+  /** The playableEvent most forwards in time processed so far */
   let lastEntry: PlayableEvent | null = null;
 
-  for (let i = 0; i < initialRundown.length; i++) {
+  for (let i = 0; i < initialRundown.order.length; i++) {
     // we assign a reference to the current entry, this will be mutated in place
-    const currentEntry = initialRundown[i];
+    const currentEntryId = initialRundown.order[i];
+    const currentEntry = initialRundown.entries[currentEntryId];
+    flatIndexOrder.push(currentEntryId);
 
     if (isOntimeEvent(currentEntry)) {
       currentEntry.delay = 0;
       currentEntry.gap = 0;
+      timedEventsOrder.push(currentEntryId);
 
-      // 1. handle links - mutates updatedEvent
-      handleLink(i, initialRundown, currentEntry, links);
+      // 1. handle links - mutates currentEntry and links
+      handleLink(currentEntry, previousEntry, links);
 
-      // 2. handle custom fields - mutates updatedEvent
+      // 2. handle custom fields - mutates currentEntry
       handleCustomField(customFields, customFieldChangelog, currentEntry, assignedCustomFields);
 
       totalDays += calculateDayOffset(currentEntry, lastEntry);
@@ -132,6 +154,7 @@ export function generate(
 
       // update rundown metadata, it only concerns playable events
       if (isPlayableEvent(currentEntry)) {
+        playableEventsOrder.push(currentEntryId);
         // fist start is always the first event
         if (firstStart === null) {
           firstStart = currentEntry.timeStart;
@@ -160,6 +183,7 @@ export function generate(
         // current event delay is the current accumulated delay
         currentEntry.delay = totalDelay;
 
+        previousEntry = currentEntry;
         // lastEntry is the event with the latest end time
         if (isNewLatest(currentEntry, lastEntry)) {
           lastEntry = currentEntry;
@@ -178,17 +202,21 @@ export function generate(
     }
 
     // add id to order
-    order.push(currentEntry.id);
+    parsedOrder.push(currentEntry.id);
     // add entry to rundown
-    normalisedRundown[currentEntry.id] = currentEntry;
+    parsedEntries[currentEntry.id] = currentEntry;
   }
 
   lastEnd = lastEntry?.timeEnd ?? null;
   clearIsStale();
   customFieldChangelog.clear();
 
-  //The return value is used for testing
-  return { rundown: normalisedRundown, order, links, totalDelay, totalDuration, assignedCustomFields };
+  // update the cache values
+  currentRundown.entries = parsedEntries;
+  currentRundown.order = parsedOrder;
+
+  // The return value is used for testing
+  return { rundown: parsedEntries, order: parsedOrder, links, totalDelay, totalDuration, assignedCustomFields };
 }
 
 /** Returns an ID guaranteed to be unique */
@@ -199,21 +227,31 @@ export function getUniqueId(): string {
   let id = '';
   do {
     id = generateId();
-  } while (Object.hasOwn(normalisedRundown, id));
+  } while (Object.hasOwn(currentRundown.entries, id));
   return id;
 }
 
 /** Returns index of an event with a given id */
-export function getIndexOf(eventId: string) {
+export function getIndexOf(eventId: EntryId) {
   if (isStale) {
     generate();
   }
-  return order.indexOf(eventId);
+  return currentRundown.order.indexOf(eventId);
+}
+
+/** Returns id of an event at a given index */
+export function getIdOf(index: number) {
+  if (isStale) {
+    generate();
+  }
+  return currentRundown.order.at(index);
 }
 
 type RundownCache = {
-  rundown: NormalisedRundown;
-  order: string[];
+  id: string;
+  title: string;
+  order: EntryId[];
+  entries: RundownEntries;
   revision: number;
   totalDelay: number;
   totalDuration: number;
@@ -228,19 +266,29 @@ export function get(): Readonly<RundownCache> {
     generate();
   }
   return {
-    rundown: normalisedRundown,
-    order,
-    revision,
+    id: currentRundown.id,
+    title: currentRundown.title,
+    entries: currentRundown.entries,
+    order: currentRundown.order,
+    revision: currentRundown.revision,
     totalDelay,
     totalDuration,
   };
 }
 
+export type RundownMetadata = {
+  firstStart: MaybeNumber;
+  lastEnd: MaybeNumber;
+  totalDelay: number;
+  totalDuration: number;
+  revision: number;
+};
+
 /**
  * Returns calculated metadata from rundown
  * Will triggering regeneration if data is stale.
  */
-export function getMetadata() {
+export function getMetadata(): Readonly<RundownMetadata> {
   if (isStale) {
     generate();
   }
@@ -250,15 +298,35 @@ export function getMetadata() {
     lastEnd,
     totalDelay,
     totalDuration,
-    revision,
+    revision: currentRundown.revision,
   };
 }
 
-type CommonParams = { rundown: OntimeRundown };
+export type RundownOrder = {
+  order: EntryId[];
+  timedEventsOrder: EntryId[];
+  playableEventsOrder: EntryId[];
+};
+
+/**
+ * Exposes the order of events
+ */
+export function getEventOrder(): Readonly<RundownOrder> {
+  if (isStale) {
+    generate();
+  }
+  return {
+    order: currentRundown.order,
+    timedEventsOrder,
+    playableEventsOrder,
+  };
+}
+
+type CommonParams = { rundown: Rundown };
 type MutationParams<T> = T & CommonParams;
 type MutatingReturn = {
-  newRundown: OntimeRundown;
-  newEvent?: OntimeRundownEntry;
+  newRundown: Rundown;
+  newEvent?: OntimeEntry;
   didMutate: boolean;
 };
 type MutatingFn<T extends object> = (params: MutationParams<T>) => MutatingReturn;
@@ -269,15 +337,17 @@ type MutatingFn<T extends object> = (params: MutationParams<T>) => MutatingRetur
  */
 export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
   function scopedMutation(params: T) {
-    const { newEvent, newRundown, didMutate } = mutation({ ...params, rundown: persistedRundown });
+    // we work on a copy of the rundown
+    const rundownCopy = structuredClone(currentRundown);
+    const { newEvent, newRundown, didMutate } = mutation({ ...params, rundown: rundownCopy });
 
     // early return without calling side effects
     if (!didMutate) {
       return { newEvent, newRundown, didMutate };
     }
 
-    revision = revision + 1;
-    persistedRundown = newRundown;
+    newRundown.revision += 1;
+    currentRundown = newRundown;
 
     // schedule a non priority cache update
     setImmediate(() => {
@@ -286,7 +356,7 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
 
     // defer writing to the database
     setImmediate(async () => {
-      await getDataProvider().setRundown(persistedRundown);
+      await getDataProvider().setRundown(currentRundownId, currentRundown);
     });
 
     return { newEvent, newRundown, didMutate };
@@ -295,70 +365,91 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
   return scopedMutation;
 }
 
-type AddArgs = MutationParams<{ atIndex: number; event: OntimeRundownEntry }>;
+type AddArgs = MutationParams<{ atIndex: number; event: OntimeEntry }>;
 /**
  * Add entry to rundown
  */
 export function add({ rundown, atIndex, event }: AddArgs): Required<MutatingReturn> {
-  const newEvent: OntimeRundownEntry = { ...event };
-  const newRundown = insertAtIndex(atIndex, newEvent, rundown);
+  const newEvent: OntimeEntry = { ...event };
+
+  rundown.entries[newEvent.id] = newEvent;
+  rundown.order = insertAtIndex(atIndex, newEvent.id, rundown.order);
   setIsStale();
-  return { newRundown, newEvent, didMutate: true };
+  return { newRundown: rundown, newEvent, didMutate: true };
 }
 
-type RemoveArgs = MutationParams<{ eventIds: string[] }>;
+type RemoveArgs = MutationParams<{ eventIds: EntryId[] }>;
 /**
  * Remove entry to rundown
  */
 export function remove({ rundown, eventIds }: RemoveArgs): MutatingReturn {
-  const newRundown = rundown.filter((event) => !eventIds.includes(event.id));
-  const didMutate = rundown.length !== newRundown.length;
+  const previousLength = rundown.order.length;
+  rundown.order = rundown.order.filter((id) => !eventIds.includes(id));
+  for (const id of eventIds) {
+    delete rundown.entries[id];
+  }
+  const didMutate = rundown.order.length !== previousLength;
   if (didMutate) setIsStale();
-  return { newRundown, didMutate };
+  return { newRundown: rundown, didMutate };
 }
 
 export function removeAll(): MutatingReturn {
   setIsStale();
-  return { newRundown: [], didMutate: true };
+  return {
+    newRundown: {
+      id: '',
+      title: '',
+      order: [],
+      entries: {},
+      revision: 0,
+    },
+    didMutate: true,
+  };
 }
 
 /**
  * Utility function for patching an existing event with new data
  */
-function makeEvent(eventFromRundown: OntimeRundownEntry, patch: Partial<OntimeRundownEntry>): OntimeRundownEntry {
+function makeEvent<T extends OntimeEntry>(eventFromRundown: T, patch: Partial<T>): T {
   if (isOntimeEvent(eventFromRundown)) {
-    const newEvent = createPatch(eventFromRundown, patch as OntimeEvent);
+    const newEvent = createPatch(eventFromRundown, patch as Partial<OntimeEvent>);
     newEvent.revision++;
-    return newEvent;
+    return newEvent as T;
   }
-  // TODO: exhaustive check
-  return { ...eventFromRundown, ...patch } as OntimeRundownEntry;
+  if (isOntimeBlock(eventFromRundown)) {
+    const newEvent: OntimeBlock = { ...eventFromRundown, ...patch };
+    newEvent.revision++;
+    return newEvent as T;
+  }
+
+  return { ...eventFromRundown, ...patch } as T;
 }
 
-type EditArgs = MutationParams<{ eventId: string; patch: Partial<OntimeRundownEntry> }>;
+type EditArgs = MutationParams<{ eventId: EntryId; patch: Partial<OntimeEntry> }>;
 /**
  * Apply patch to an entry with given id
  */
 export function edit({ rundown, eventId, patch }: EditArgs): Required<MutatingReturn> {
-  const indexAt = rundown.findIndex((event) => event.id === eventId);
-  if (indexAt < 0) {
-    throw new Error('Event not found');
+  const entry = rundown.entries[eventId];
+  if (!entry) {
+    // there should be no reason for the entry not to be found
+    // check if it exists in the rundown order
+    rundown.order = rundown.order.filter((id) => id !== eventId);
+    throw new Error('Entry not found');
   }
 
-  if (patch?.type && rundown[indexAt].type !== patch.type) {
+  // we cannot allow patching to a different type
+  if (patch?.type && entry.type !== patch.type) {
     throw new Error('Invalid event type');
   }
 
-  const eventInMemory = rundown[indexAt];
-
-  if (!hasChanges(eventInMemory, patch)) {
-    return { newRundown: rundown, newEvent: eventInMemory, didMutate: false };
+  // if nothing changed, nothing to do
+  if (!hasChanges(entry, patch)) {
+    return { newRundown: rundown, newEvent: entry, didMutate: false };
   }
 
-  const newEvent = makeEvent(eventInMemory, patch);
-
-  const newRundown = [...rundown];
-  newRundown[indexAt] = newEvent;
+  const newEvent = makeEvent(entry, patch);
+  rundown.entries[newEvent.id] = newEvent;
 
   // check whether the data warrants recalculation of cache
   const makeStale = isDataStale(patch);
@@ -366,91 +457,77 @@ export function edit({ rundown, eventId, patch }: EditArgs): Required<MutatingRe
   if (makeStale) {
     setIsStale();
   } else {
-    normalisedRundown[newEvent.id] = newEvent;
+    rundown.entries[newEvent.id] = newEvent;
   }
 
-  return { newRundown, newEvent, didMutate: true };
+  return { newRundown: rundown, newEvent, didMutate: true };
 }
 
-type BatchEditArgs = MutationParams<{ eventIds: string[]; patch: Partial<OntimeRundownEntry> }>;
+type BatchEditArgs = MutationParams<{ eventIds: EntryId[]; patch: Partial<OntimeEntry> }>;
 /**
  * Apply patch to multiple entries
  */
 export function batchEdit({ rundown, eventIds, patch }: BatchEditArgs): MutatingReturn {
-  const ids = new Set(eventIds);
-
-  const newRundown = [];
-  for (let i = 0; i < rundown.length; i++) {
-    if (ids.has(rundown[i].id)) {
-      if (patch?.type && rundown[i].type !== patch.type) {
-        continue;
-      }
-      const newEvent = makeEvent(rundown[i], patch);
-      newRundown.push(newEvent);
-    } else {
-      newRundown.push(rundown[i]);
-    }
+  for (const eventId of eventIds) {
+    edit({ rundown, eventId, patch });
   }
-  setIsStale();
-  return { newRundown, didMutate: true };
+  return { newRundown: rundown, didMutate: true };
 }
 
-type ReorderArgs = MutationParams<{ eventId: string; from: number; to: number }>;
+type ReorderArgs = MutationParams<{ eventId: EntryId; from: number; to: number }>;
 /**
- * Redorder two entries
+ * Reorder two entries
  */
 export function reorder({ rundown, eventId, from, to }: ReorderArgs): Required<MutatingReturn> {
-  const event = rundown[from];
-  if (!event || eventId !== event.id) {
+  const eventFrom = rundown.entries[eventId];
+  if (!eventFrom) {
     throw new Error('Event not found');
   }
 
-  const newRundown = reorderArray(rundown, from, to);
+  rundown.order = reorderArray(rundown.order, from, to);
+
+  // increment revision of all events in between
   for (let i = from; i <= to; i++) {
-    const event = newRundown.at(i);
-    if (isOntimeEvent(event)) {
-      event.revision += 1;
+    const eventId = rundown.order[i];
+    const entry = rundown.entries[eventId];
+    if (isOntimeEvent(entry) || isOntimeBlock(entry)) {
+      entry.revision += 1;
     }
   }
+
   setIsStale();
-  return { newRundown, newEvent: newRundown.at(from) as OntimeRundownEntry, didMutate: true };
+  return { newRundown: rundown, newEvent: eventFrom, didMutate: true };
 }
 
-type ApplyDelayArgs = MutationParams<{ eventId: string }>;
+type ApplyDelayArgs = MutationParams<{ delayId: EntryId }>;
 /**
  * Apply a delay
  */
-export function applyDelay({ rundown, eventId }: ApplyDelayArgs): MutatingReturn {
-  const newRundown = apply(eventId, rundown);
+export function applyDelay({ rundown, delayId }: ApplyDelayArgs): MutatingReturn {
+  apply(delayId, rundown);
   setIsStale();
-  return { newRundown, didMutate: true };
+  return { newRundown: rundown, didMutate: true };
 }
 
-type SwapArgs = MutationParams<{ fromId: string; toId: string }>;
+type SwapArgs = MutationParams<{ fromId: EntryId; toId: EntryId }>;
 /**
  * Swap two entries
  */
 export function swap({ rundown, fromId, toId }: SwapArgs): MutatingReturn {
-  const indexA = rundown.findIndex((event) => event.id === fromId);
-  const eventA = rundown.at(indexA);
+  const fromEvent = rundown.entries[fromId];
+  const toEvent = rundown.entries[toId];
 
-  const indexB = rundown.findIndex((event) => event.id === toId);
-  const eventB = rundown.at(indexB);
-
-  if (!isOntimeEvent(eventA) || !isOntimeEvent(eventB)) {
+  if (!isOntimeEvent(fromEvent) || !isOntimeEvent(toEvent)) {
     throw new Error('Swap only available for OntimeEvents');
   }
 
-  const { newA, newB } = swapEventData(eventA, eventB);
-  const newRundown = [...rundown];
+  const [newFrom, newTo] = swapEventData(fromEvent, toEvent);
 
-  newRundown[indexA] = newA;
-  (newRundown[indexA] as OntimeEvent).revision += 1;
-  newRundown[indexB] = newB;
-  (newRundown[indexB] as OntimeEvent).revision += 1;
+  rundown.entries[fromId] = newFrom;
+  rundown.entries[toId] = newTo;
 
   setIsStale();
-  return { newRundown, didMutate: true };
+  return { newRundown: rundown, didMutate: true };
 }
 
 /**
@@ -468,7 +545,7 @@ function invalidateIfUsed(label: CustomFieldLabel) {
   // schedule a non priority cache update
   setImmediate(async () => {
     generate();
-    await getDataProvider().setRundown(persistedRundown);
+    await getDataProvider().setRundown(currentRundownId, currentRundown);
   });
 }
 

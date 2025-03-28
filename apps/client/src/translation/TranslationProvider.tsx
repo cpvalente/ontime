@@ -32,7 +32,7 @@ interface TranslationContextValue {
   getLocalizedString: (key: keyof typeof langEn, lang?: string) => string;
 }
 
-export const TranslationContext = createContext<TranslationContextValue>({
+const TranslationContext = createContext<TranslationContextValue>({
   getLocalizedString: () => '',
 });
 

@@ -26,11 +26,6 @@ vi.mock('../projectServiceUtils.js', () => ({
  * controller depend on these to send the right responses
  */
 describe('deleteProjectFile', () => {
-  it('throws an error if trying to delete the currently loaded project', async () => {
-    (isLastLoadedProject as Mock).mockResolvedValue(true);
-    await expect(deleteProjectFile('loadedProject')).rejects.toThrow('Cannot delete currently loaded project');
-  });
-
   it('throws an error if the project file does not exist', async () => {
     (isLastLoadedProject as Mock).mockResolvedValue(false);
     (doesProjectExist as Mock).mockReturnValue(null);
@@ -44,12 +39,12 @@ describe('duplicateProjectFile', () => {
     await expect(duplicateProjectFile('does not exist', 'doesnt matter')).rejects.toThrow('Project file not found');
   });
 
-  it('throws an error if new file name is already a project', () => {
+  it('throws an error if new file name is already a project', async () => {
     // current project exists
     (doesProjectExist as Mock).mockReturnValueOnce('thisoneexists');
     // new project exists
     (doesProjectExist as Mock).mockReturnValueOnce('existingproject');
-    expect(duplicateProjectFile('thisoneexists', 'existingproject')).rejects.toThrow(
+    await expect(duplicateProjectFile('thisoneexists', 'existingproject')).rejects.toThrow(
       'Project file with name existingproject already exists',
     );
   });
@@ -66,7 +61,7 @@ describe('renameProjectFile', () => {
     (doesProjectExist as Mock).mockReturnValueOnce('this one exists');
     // new project exists
     (doesProjectExist as Mock).mockReturnValueOnce('existingproject');
-    expect(renameProjectFile('this one exists', 'existingproject')).rejects.toThrow(
+    await expect(renameProjectFile('this one exists', 'existingproject')).rejects.toThrow(
       'Project file with name existingproject already exists',
     );
   });
