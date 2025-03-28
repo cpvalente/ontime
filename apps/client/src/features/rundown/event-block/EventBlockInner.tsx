@@ -11,7 +11,7 @@ import {
   IoTime,
 } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/react';
-import { EndAction, MaybeString, Playback, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { cx } from '../../../common/utils/styleUtils';
 import { tooltipDelayMid } from '../../../ontimeConfig';
@@ -30,7 +30,7 @@ interface EventBlockInnerProps {
   timeEnd: number;
   duration: number;
   timeStrategy: TimeStrategy;
-  linkStart: MaybeString;
+  linkStart: boolean;
   countToEnd: boolean;
   eventIndex: number;
   isPublic: boolean;
