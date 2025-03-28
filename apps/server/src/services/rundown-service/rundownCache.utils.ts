@@ -1,38 +1,19 @@
-import { OntimeEvent, CustomFieldLabel, CustomFields, OntimeEntry, OntimeBaseEvent } from 'ontime-types';
-import { dayInMs, getLinkedTimes } from 'ontime-utils';
+import {
+  OntimeEvent,
+  CustomFieldLabel,
+  CustomFields,
+  OntimeEntry,
+  OntimeBaseEvent,
+  EntryId,
+  isOntimeEvent,
+  isPlayableEvent,
+  isOntimeDelay,
+  PlayableEvent,
+  RundownEntries,
+} from 'ontime-types';
+import { dayInMs, getLinkedTimes, getTimeFrom, isNewLatest } from 'ontime-utils';
 
-/**
- * Checks that link can be established (ie, events exist and are valid)
- * and populates the time data from link
- * With the current implementation, the links is always the previous playable event
- * Mutates mutableEvent in place
- * Mutates links in place
- */
-export function handleLink(
-  mutableEvent: OntimeEvent,
-  previousEvent: OntimeEvent | null,
-  links: Record<string, string>,
-): void {
-  if (!mutableEvent.linkStart) {
-    return;
-  }
-
-  /**
-   * If no previous event exist, we dont remove the link
-   * this means that the event will keep the behaviour in case a new event is added before
-   * However, we do add its ID to the links and prevent out-of-sync data
-   */
-  if (!previousEvent) {
-    mutableEvent.linkStart = 'true';
-    return;
-  }
-
-  const timePatch = getLinkedTimes(mutableEvent, previousEvent);
-  mutableEvent.linkStart = previousEvent.id;
-  links[previousEvent.id] = mutableEvent.id;
-  // use object.assign to force mutation
-  Object.assign(mutableEvent, timePatch);
-}
+import type { RundownMetadata } from './rundown.types.js';
 
 /**
  * Utility function to add an entry, mutates given assignedCustomFields in place
@@ -52,19 +33,19 @@ export function addToCustomAssignment(
 
 /**
  * Sanitises custom fields and updates values if necessary
- * Mudates in place mutableEvent and assignedCustomFields
+ * Mutates in place mutableEvent and assignedCustomFields
  */
 export function handleCustomField(
   customFields: CustomFields,
-  customFieldChangelog: Map<string, string>,
+  customFieldChangelog: Record<string, string>,
   mutableEvent: OntimeEvent,
   assignedCustomFields: Record<string, string[]>,
 ) {
   for (const field in mutableEvent.custom) {
     // rename the property if it is in the changelog
-    if (customFieldChangelog.has(field)) {
+    if (field in customFieldChangelog) {
       const oldData = mutableEvent.custom[field];
-      const newLabel = customFieldChangelog.get(field) as string; // it os OK to cast to string here since we already checked that it existed
+      const newLabel = customFieldChangelog[field];
 
       mutableEvent.custom[newLabel] = oldData;
       delete mutableEvent.custom[field];
@@ -101,17 +82,15 @@ enum RegenerateWhitelist {
 
 /**
  * given a patch, returns whether all keys are whitelisted
- * @param path
  */
 export function isDataStale(patch: Partial<OntimeEntry>): boolean {
-  return Object.keys(patch).some((key) => !(key in RegenerateWhitelist));
+  return Object.keys(patch).some(willCauseRegeneration);
 }
 
 /**
  * given a key, returns whether it is whitelisted
- * @param path
  */
-export function willCauseRegeneration(key: keyof OntimeEvent): boolean {
+export function willCauseRegeneration(key: string): boolean {
   return !(key in RegenerateWhitelist);
 }
 
@@ -158,4 +137,144 @@ export function calculateDayOffset(
   }
 
   return 0;
+}
+
+export type ProcessedRundownMetadata = RundownMetadata & {
+  entries: RundownEntries;
+  order: EntryId[];
+  previousEvent: PlayableEvent | null; // The playableEvent from the previous iteration
+  latestEvent: PlayableEvent | null; // The playableEvent most forwards in time processed so far
+};
+
+export function makeRundownMetadata(customFields: CustomFields, customFieldChangelog: Record<string, string>) {
+  let rundownMeta: ProcessedRundownMetadata = {
+    totalDelay: 0,
+    totalDuration: 0,
+    totalDays: 0,
+    firstStart: null,
+    lastEnd: null,
+
+    assignedCustomFields: {},
+    playableEventOrder: [],
+    timedEventOrder: [],
+    flatEventOrder: [],
+
+    entries: {},
+    order: [],
+    previousEvent: null,
+    latestEvent: null,
+  };
+
+  function process<T extends OntimeEntry>(
+    entry: T,
+    childOfBlock: EntryId | null,
+  ): { processedData: ProcessedRundownMetadata; processedEntry: T } {
+    const data = processEntry(rundownMeta, customFields, customFieldChangelog, entry, childOfBlock);
+    rundownMeta = data.processedData;
+    return data;
+  }
+
+  function getMetadata(): ProcessedRundownMetadata {
+    return rundownMeta;
+  }
+
+  return { process, getMetadata };
+}
+
+function processEntry<T extends OntimeEntry>(
+  rundownMetadata: ProcessedRundownMetadata,
+  customFields: CustomFields,
+  customFieldChangelog: Record<string, string>,
+  entry: T,
+  childOfBlock: EntryId | null,
+): { processedData: ProcessedRundownMetadata; processedEntry: T } {
+  const processedData = { ...rundownMetadata };
+  const currentEntry = structuredClone(entry);
+  processedData.flatEventOrder.push(currentEntry.id);
+
+  if (isOntimeEvent(currentEntry)) {
+    if (!childOfBlock) {
+      processedData.timedEventOrder.push(currentEntry.id);
+    }
+
+    /**
+     * 1.Checks that link can be established (ie, events exist and are valid)
+     * and populates the time data from link
+     * The linked event is always the previous playable event
+     * If no previous event exists, the link is removed
+     */
+    if (currentEntry.linkStart) {
+      if (processedData.previousEvent) {
+        const timePatch = getLinkedTimes(currentEntry, processedData.previousEvent);
+        currentEntry.timeStart = timePatch.timeStart;
+        currentEntry.timeEnd = timePatch.timeEnd;
+        currentEntry.duration = timePatch.duration;
+      } else {
+        currentEntry.linkStart = false;
+      }
+    }
+
+    // 2. handle custom fields - mutates currentEntry
+    handleCustomField(customFields, customFieldChangelog, currentEntry, processedData.assignedCustomFields);
+
+    processedData.totalDays += calculateDayOffset(currentEntry, processedData.previousEvent);
+    currentEntry.dayOffset = processedData.totalDays;
+    currentEntry.delay = 0; // this means we dont calculate delays or gaps for skipped events
+    currentEntry.gap = 0; // this means we dont calculate delays or gaps for skipped events
+    currentEntry.currentBlock = childOfBlock;
+
+    // update rundown metadata, it only concerns playable events
+    if (isPlayableEvent(currentEntry)) {
+      if (!childOfBlock) {
+        processedData.playableEventOrder.push(currentEntry.id);
+      }
+
+      // first start is always the first event
+      if (processedData.firstStart === null) {
+        processedData.firstStart = currentEntry.timeStart;
+      }
+
+      currentEntry.gap = getTimeFrom(currentEntry, processedData.latestEvent);
+
+      if (currentEntry.gap === 0) {
+        // event starts on previous finish, we add its duration
+        processedData.totalDuration += currentEntry.duration;
+      } else if (currentEntry.gap > 0) {
+        // event has a gap, we add the gap and the duration
+        processedData.totalDuration += currentEntry.gap + currentEntry.duration;
+      } else if (currentEntry.gap < 0) {
+        // there is an overlap, we remove the overlap from the duration
+        // ensuring that the sum is not negative (ie: fully overlapped events)
+        // NOTE: we add the gap since it is a negative number
+        processedData.totalDuration += Math.max(currentEntry.duration + currentEntry.gap, 0);
+      }
+
+      // remove eventual gaps from the accumulated delay
+      // we only affect positive delays (time forwards)
+      if (processedData.totalDelay > 0 && currentEntry.gap > 0) {
+        processedData.totalDelay = Math.max(processedData.totalDelay - currentEntry.gap, 0);
+      }
+      // current event delay is the current accumulated delay
+      currentEntry.delay = processedData.totalDelay;
+
+      // assign data for next iteration
+      processedData.previousEvent = currentEntry;
+
+      // lastEntry is the event with the latest end time
+      if (isNewLatest(currentEntry, processedData.latestEvent)) {
+        processedData.latestEvent = currentEntry;
+        processedData.lastEnd = currentEntry.timeEnd;
+      }
+    }
+  } else if (isOntimeDelay(currentEntry)) {
+    // !!! this must happen after handling the links
+    processedData.totalDelay += currentEntry.duration;
+  }
+
+  if (!childOfBlock) {
+    processedData.order.push(currentEntry.id);
+  }
+  processedData.entries[currentEntry.id] = currentEntry;
+
+  return { processedData, processedEntry: currentEntry };
 }

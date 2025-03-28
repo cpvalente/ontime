@@ -5,23 +5,19 @@ import { useHotkeys } from '@mantine/hooks';
 import {
   type EntryId,
   type MaybeString,
-  type PlayableEvent,
   type Rundown,
   isOntimeBlock,
   isOntimeEvent,
-  isPlayableEvent,
   Playback,
   SupportedEvent,
 } from 'ontime-types';
 import {
-  checkIsNextDay,
   getFirstNormal,
   getLastNormal,
   getNextBlockNormal,
   getNextNormal,
   getPreviousBlockNormal,
   getPreviousNormal,
-  isNewLatest,
   reorderArray,
 } from 'ontime-utils';
 
@@ -32,7 +28,10 @@ import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
+import BlockBlock from './block-block/BlockBlock';
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
+import BlockEmpty from './BlockEmpty';
+import { makeRundownMetadata } from './rundown.utils';
 import RundownEmpty from './RundownEmpty';
 import { useEventSelection } from './useEventSelection';
 
@@ -264,20 +263,11 @@ export default function Rundown({ data }: RundownProps) {
     return <RundownEmpty handleAddNew={() => insertAtId(SupportedEvent.Event, cursor)} />;
   }
 
-  // last event is used to calculate relative timings
-  let lastEvent: PlayableEvent | null = null; // used by indicators
-  let thisEvent: PlayableEvent | null = null;
-  // previous entry is used to infer position in the rundown for new events
-  let previousEntryId: MaybeString = null;
-  let thisId: MaybeString = null;
-
-  let eventIndex = 0;
-  // all events before the current selected are in the past
-  let isPast = Boolean(featureData?.selectedEventId);
-  let isNextDay = false;
-  let totalGap = 0;
+  // 1. gather presentation options
   const isEditMode = appMode === AppMode.Edit;
-  let isLinkedToLoaded = true; //check if the event can link all the way back to the currently playing event
+
+  // 2. initialise rundown metadata
+  const process = makeRundownMetadata(featureData?.selectedEventId);
 
   return (
     <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
@@ -292,64 +282,96 @@ export default function Rundown({ data }: RundownProps) {
               if (!entry) {
                 return null;
               }
-              if (index === 0) {
-                eventIndex = 0;
-              }
-              isNextDay = false;
-              previousEntryId = thisId;
-              thisId = entryId;
-              if (isOntimeEvent(entry)) {
-                // event indexes are 1 based in frontend
-                eventIndex++;
-                lastEvent = thisEvent;
 
-                if (isPlayableEvent(entry)) {
-                  isNextDay = checkIsNextDay(entry, lastEvent);
-                  if (!isPast) {
-                    totalGap += entry.gap;
-                    // We also include countToEnd in this test as the behavior of a linked event coming after a countToEnd is simelar to an unlinked event
-                    isLinkedToLoaded = isLinkedToLoaded && entry.linkStart !== null && !lastEvent?.countToEnd;
-                  }
-                  if (isNewLatest(entry, lastEvent)) {
-                    // populate previous entry
-                    thisEvent = entry;
-                  }
-                }
-              }
+              const rundownMeta = process(entry);
               const isFirst = index === 0;
               const isLast = index === order.length - 1;
-              const isLoaded = featureData?.selectedEventId === entry.id;
               const isNext = featureData?.nextEventId === entry.id;
               const hasCursor = entry.id === cursor;
-              if (isLoaded) {
-                isPast = false;
-              }
 
               return (
                 <Fragment key={entry.id}>
-                  {isEditMode && (hasCursor || isFirst) && <QuickAddBlock previousEventId={previousEntryId} />}
-                  <div className={style.entryWrapper} data-testid={`entry-${eventIndex}`}>
-                    {isOntimeEvent(entry) && <div className={style.entryIndex}>{eventIndex}</div>}
-                    <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
-                      <RundownEntry
-                        type={entry.type}
-                        isPast={isPast}
-                        eventIndex={eventIndex}
-                        data={entry}
-                        loaded={isLoaded}
-                        hasCursor={hasCursor}
-                        isNext={isNext}
-                        previousEntryId={previousEntryId}
-                        previousEventId={lastEvent?.id}
-                        playback={isLoaded ? featureData.playback : undefined}
-                        isRolling={featureData.playback === Playback.Roll}
-                        isNextDay={isNextDay}
-                        totalGap={totalGap}
-                        isLinkedToLoaded={isLinkedToLoaded}
-                      />
+                  {isEditMode && (hasCursor || isFirst) && (
+                    <QuickAddBlock showBlocks previousEventId={rundownMeta.previousEntryId} />
+                  )}
+                  {isOntimeBlock(entry) ? (
+                    <BlockBlock data={entry} hasCursor={hasCursor}>
+                      {entry.events.length === 0 && (
+                        <BlockEmpty handleAddNew={() => insertAtId(SupportedEvent.Event, cursor)} />
+                      )}
+                      {entry.events.map((eventId, nestedIndex) => {
+                        const nestedEntry = entries[eventId];
+                        const nestedRundownMeta = process(nestedEntry);
+                        const isFirstInGroup = nestedIndex === 0;
+                        const isLastInGroup = nestedIndex === entry.events.length - 1;
+                        const hasNestedCursor = nestedEntry.id === cursor;
+
+                        if (!isOntimeEvent(nestedEntry)) {
+                          return null;
+                        }
+                        return (
+                          <Fragment key={nestedEntry.id}>
+                            {isEditMode && (hasNestedCursor || isFirstInGroup) && (
+                              <QuickAddBlock previousEventId={rundownMeta.previousEntryId} />
+                            )}
+
+                            <div
+                              key={nestedEntry.id}
+                              className={style.entryWrapper}
+                              data-testid={`entry-${nestedRundownMeta.eventIndex}`}
+                            >
+                              <div className={style.entryIndex}>{nestedRundownMeta.eventIndex}</div>
+                              <div className={style.entry} ref={hasNestedCursor ? cursorRef : undefined}>
+                                <RundownEntry
+                                  key={nestedEntry.id}
+                                  type={nestedEntry.type}
+                                  isPast={nestedRundownMeta.isPast}
+                                  eventIndex={nestedRundownMeta.eventIndex}
+                                  data={nestedEntry}
+                                  loaded={nestedRundownMeta.isLoaded}
+                                  hasCursor={hasNestedCursor}
+                                  isNext={isNext}
+                                  previousEntryId={nestedRundownMeta.previousEntryId}
+                                  previousEventId={nestedRundownMeta.previousEvent?.id}
+                                  playback={nestedRundownMeta.isLoaded ? featureData.playback : undefined}
+                                  isRolling={featureData.playback === Playback.Roll}
+                                  isNextDay={nestedRundownMeta.isNextDay}
+                                  totalGap={nestedRundownMeta.totalGap}
+                                  isLinkedToLoaded={nestedRundownMeta.isLinkedToLoaded}
+                                />
+                              </div>
+                            </div>
+                            {isEditMode && (hasNestedCursor || isLastInGroup) && (
+                              <QuickAddBlock previousEventId={entry.id} />
+                            )}
+                          </Fragment>
+                        );
+                      })}
+                    </BlockBlock>
+                  ) : (
+                    <div className={style.entryWrapper} data-testid={`entry-${rundownMeta.eventIndex}`}>
+                      {isOntimeEvent(entry) && <div className={style.entryIndex}>{rundownMeta.eventIndex}</div>}
+                      <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
+                        <RundownEntry
+                          type={entry.type}
+                          isPast={rundownMeta.isPast}
+                          eventIndex={rundownMeta.eventIndex}
+                          data={entry}
+                          loaded={rundownMeta.isLoaded}
+                          hasCursor={hasCursor}
+                          isNext={isNext}
+                          previousEntryId={rundownMeta.previousEntryId}
+                          previousEventId={rundownMeta.previousEvent?.id}
+                          playback={rundownMeta.isLoaded ? featureData.playback : undefined}
+                          isRolling={featureData.playback === Playback.Roll}
+                          isNextDay={rundownMeta.isNextDay}
+                          totalGap={rundownMeta.totalGap}
+                          isLinkedToLoaded={rundownMeta.isLinkedToLoaded}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  {isEditMode && (hasCursor || isLast) && <QuickAddBlock previousEventId={entry.id} />}
+                  )}
+                  {isEditMode && (hasCursor || isLast) && <QuickAddBlock showBlocks previousEventId={entry.id} />}
                 </Fragment>
               );
             })}

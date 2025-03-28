@@ -4,33 +4,24 @@ import {
   CustomFields,
   EntryId,
   isOntimeBlock,
-  isOntimeDelay,
   isOntimeEvent,
   isPlayableEvent,
-  MaybeNumber,
   OntimeBlock,
   OntimeEvent,
   OntimeEntry,
-  PlayableEvent,
   Rundown,
   RundownEntries,
 } from 'ontime-types';
-import {
-  generateId,
-  insertAtIndex,
-  reorderArray,
-  swapEventData,
-  getTimeFromPrevious,
-  isNewLatest,
-  customFieldLabelToKey,
-} from 'ontime-utils';
+import { generateId, insertAtIndex, reorderArray, swapEventData, customFieldLabelToKey } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createPatch } from '../../utils/parser.js';
 
+import type { RundownMetadata } from './rundown.types.js';
 import { apply } from './delayUtils.js';
-import { calculateDayOffset, handleCustomField, handleLink, hasChanges, isDataStale } from './rundownCacheUtils.js';
+import { hasChanges, isDataStale, makeRundownMetadata, type ProcessedRundownMetadata } from './rundownCache.utils.js';
 
+/** We hold the currently selected rundown and its metadata in memory */
 let currentRundownId: EntryId = '';
 let currentRundown: Rundown = {
   id: '',
@@ -39,17 +30,26 @@ let currentRundown: Rundown = {
   entries: {},
   revision: 0,
 };
-let persistedCustomFields: CustomFields = {};
+let projectCustomFields: CustomFields = {};
+let rundownMetadata: RundownMetadata = {
+  totalDelay: 0,
+  totalDuration: 0,
+  totalDays: 0,
+  firstStart: null,
+  lastEnd: null,
+
+  playableEventOrder: [],
+  timedEventOrder: [],
+  flatEventOrder: [],
+
+  assignedCustomFields: {},
+};
 
 /**
  * Get the cached rundown without triggering regeneration
  */
 export const getCurrentRundown = (): Rundown => currentRundown;
-export const getCustomFields = (): CustomFields => persistedCustomFields;
-
-let playableEventsOrder: EntryId[] = [];
-let timedEventsOrder: EntryId[] = [];
-let flatIndexOrder: EntryId[] = [];
+export const getCustomFields = (): CustomFields => projectCustomFields;
 
 /**
  * all mutating functions will set this value if there is a need for re-generation
@@ -62,161 +62,111 @@ function setIsStale() {
   isStale = true;
 }
 
-let totalDelay = 0;
-let totalDuration = 0;
-let totalDays = 0;
-let firstStart: MaybeNumber = null;
-let lastEnd: MaybeNumber = null;
-
-let links: Record<EntryId, EntryId> = {};
-
 /**
  * Object that contains reference of renamed custom fields
  * Used to rename the custom fields in the events
+ * @private exported only to simplify testing
  * @example
  * {
  *  oldLabel: newLabel
  *  lighting: lx
  * }
  */
-export const customFieldChangelog = new Map<string, string>();
-
-/**
- * Keep track of which custom fields are used.
- * This will be handy for when we delete custom fields
- */
-let assignedCustomFields: Record<CustomFieldLabel, EntryId[]> = {};
+export let customFieldChangelog: Record<string, string> = {};
 
 /**
  * Receives a rundown which will be processed and used as the new current rundown
  */
-export async function init(initialRundown: Rundown, customFields: Readonly<CustomFields>) {
+export async function init(initialRundown: Readonly<Rundown>, customFields: Readonly<CustomFields>) {
+  // TODO: do we need to clone?
   currentRundown = structuredClone(initialRundown);
   currentRundownId = initialRundown.id;
-  persistedCustomFields = structuredClone(customFields);
+  projectCustomFields = structuredClone(customFields);
   generate();
+
+  // TODO: we may not need to persist this data since it should come from the database
+  // update the persisted data
   await getDataProvider().setRundown(currentRundownId, currentRundown);
   await getDataProvider().setCustomFields(customFields);
 }
 
 /**
  * Utility generate cache
- * @private should not be called outside of `rundownCache.ts`
+ * @private should not be called outside of `rundownCache.ts`, exported for testing
  */
-export function generate(initialRundown: Rundown = currentRundown, customFields: CustomFields = persistedCustomFields) {
+export function generate(
+  initialRundown: Readonly<Rundown> = currentRundown,
+  customFields: Readonly<CustomFields> = projectCustomFields,
+): ProcessedRundownMetadata {
+  // The stale state can only be cleared inside generate()
   function clearIsStale() {
     isStale = false;
   }
 
-  // we decided to re-write this dataset for every change
-  // instead of maintaining logic to update it
-
-  assignedCustomFields = {};
-  playableEventsOrder = [];
-  timedEventsOrder = [];
-  flatIndexOrder = [];
-
-  links = {};
-  firstStart = null;
-  lastEnd = null;
-  totalDuration = 0;
-  totalDays = 0;
-  totalDelay = 0;
-
-  // temporary parsed rundown
-  const parsedEntries: RundownEntries = {};
-  const parsedOrder: EntryId[] = [];
-
-  /** A playableEvent from the previous iteration */
-  let previousEntry: PlayableEvent | null = null;
-  /** The playableEvent most forwards in time processed so far */
-  let lastEntry: PlayableEvent | null = null;
+  const { process, getMetadata } = makeRundownMetadata(customFields, customFieldChangelog);
 
   for (let i = 0; i < initialRundown.order.length; i++) {
     // we assign a reference to the current entry, this will be mutated in place
     const currentEntryId = initialRundown.order[i];
     const currentEntry = initialRundown.entries[currentEntryId];
-    flatIndexOrder.push(currentEntryId);
+    const { processedEntry } = process(currentEntry, null);
 
-    if (isOntimeEvent(currentEntry)) {
-      currentEntry.delay = 0;
-      currentEntry.gap = 0;
-      timedEventsOrder.push(currentEntryId);
+    // if the event is a block, we process the nested entries
+    // the code here is a copy of the processing of top level events
+    if (isOntimeBlock(processedEntry)) {
+      let totalBlockDuration = 0;
+      let blockStartTime = null;
+      let blockEndTime = null;
+      let isFirstLinked = false;
 
-      // 1. handle links - mutates currentEntry and links
-      handleLink(currentEntry, previousEntry, links);
+      // check if the block contains events
+      for (let i = 0; i < processedEntry.events.length; i++) {
+        const nestedEntryId = processedEntry.events[i];
+        const nestedEntry = initialRundown.entries[nestedEntryId];
+        const { processedData: processedNestedData, processedEntry: processedNestedEntry } = process(
+          nestedEntry,
+          processedEntry.id,
+        );
 
-      // 2. handle custom fields - mutates currentEntry
-      handleCustomField(customFields, customFieldChangelog, currentEntry, assignedCustomFields);
-
-      totalDays += calculateDayOffset(currentEntry, lastEntry);
-      currentEntry.dayOffset = totalDays;
-
-      // update rundown metadata, it only concerns playable events
-      if (isPlayableEvent(currentEntry)) {
-        playableEventsOrder.push(currentEntryId);
-        // fist start is always the first event
-        if (firstStart === null) {
-          firstStart = currentEntry.timeStart;
+        // we dont extract metadata of skipped events,
+        // if this is not a playable event there is  nothing else to do
+        if (!isOntimeEvent(processedNestedEntry) || !isPlayableEvent(processedNestedEntry)) {
+          continue;
         }
 
-        currentEntry.gap = getTimeFromPrevious(currentEntry, lastEntry);
-
-        if (currentEntry.gap === 0) {
-          // event starts on previous finish, we add its duration
-          totalDuration += currentEntry.duration;
-        } else if (currentEntry.gap > 0) {
-          // event has a gap, we add the gap and the duration
-          totalDuration += currentEntry.gap + currentEntry.duration;
-        } else if (currentEntry.gap < 0) {
-          // there is an overlap, we remove the overlap from the duration
-          // ensuring that the sum is not negative (ie: fully overlapped events)
-          // NOTE: we add the gap since it is a negative number
-          totalDuration += Math.max(currentEntry.duration + currentEntry.gap, 0);
+        // first start is always the first event
+        if (blockStartTime === null) {
+          blockStartTime = processedNestedEntry.timeStart;
+          isFirstLinked = Boolean(processedNestedEntry.linkStart);
         }
 
-        // remove eventual gaps from the accumulated delay
-        // we only affect positive delays (time forwards)
-        if (totalDelay > 0 && currentEntry.gap > 0) {
-          totalDelay = Math.max(totalDelay - currentEntry.gap, 0);
-        }
-        // current event delay is the current accumulated delay
-        currentEntry.delay = totalDelay;
-
-        previousEntry = currentEntry;
         // lastEntry is the event with the latest end time
-        if (isNewLatest(currentEntry, lastEntry)) {
-          lastEntry = currentEntry;
-        }
+        blockEndTime = processedNestedData.lastEnd;
+        totalBlockDuration += processedNestedEntry.duration;
       }
-    } else if (isOntimeDelay(currentEntry)) {
-      // calculate delays
-      // !!! this must happen after handling the links
-      totalDelay += currentEntry.duration;
-    } else if (isOntimeBlock(currentEntry)) {
-      // calculate block - nothing yet
-    } else {
-      // unknown - type skip it
-      // this is needed to get the type guard working when we assign the entry to the rundown
-      continue;
-    }
 
-    // add id to order
-    parsedOrder.push(currentEntry.id);
-    // add entry to rundown
-    parsedEntries[currentEntry.id] = currentEntry;
+      // update block metadata
+      processedEntry.duration = totalBlockDuration;
+      processedEntry.startTime = blockStartTime;
+      processedEntry.endTime = blockEndTime;
+      processedEntry.isFirstLinked = isFirstLinked;
+      processedEntry.numEvents = processedEntry.events.length;
+    }
   }
 
-  lastEnd = lastEntry?.timeEnd ?? null;
+  const processedData = getMetadata();
   clearIsStale();
-  customFieldChangelog.clear();
+  customFieldChangelog = {};
 
   // update the cache values
-  currentRundown.entries = parsedEntries;
-  currentRundown.order = parsedOrder;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- we are not interested in the iteration data
+  const { entries, order, previousEvent, latestEvent, ...metadata } = processedData;
+  currentRundown.entries = entries;
+  currentRundown.order = order;
+  rundownMetadata = metadata;
 
   // The return value is used for testing
-  return { rundown: parsedEntries, order: parsedOrder, links, totalDelay, totalDuration, assignedCustomFields };
+  return processedData;
 }
 
 /** Returns an ID guaranteed to be unique */
@@ -271,33 +221,22 @@ export function get(): Readonly<RundownCache> {
     entries: currentRundown.entries,
     order: currentRundown.order,
     revision: currentRundown.revision,
-    totalDelay,
-    totalDuration,
+    totalDelay: rundownMetadata.totalDelay,
+    totalDuration: rundownMetadata.totalDuration,
   };
 }
-
-export type RundownMetadata = {
-  firstStart: MaybeNumber;
-  lastEnd: MaybeNumber;
-  totalDelay: number;
-  totalDuration: number;
-  revision: number;
-};
 
 /**
  * Returns calculated metadata from rundown
  * Will triggering regeneration if data is stale.
  */
-export function getMetadata(): Readonly<RundownMetadata> {
+export function getMetadata(): Readonly<RundownMetadata & { revision: number }> {
   if (isStale) {
     generate();
   }
 
   return {
-    firstStart,
-    lastEnd,
-    totalDelay,
-    totalDuration,
+    ...rundownMetadata,
     revision: currentRundown.revision,
   };
 }
@@ -317,8 +256,8 @@ export function getEventOrder(): Readonly<RundownOrder> {
   }
   return {
     order: currentRundown.order,
-    timedEventsOrder,
-    playableEventsOrder,
+    timedEventsOrder: rundownMetadata.timedEventOrder,
+    playableEventsOrder: rundownMetadata.playableEventOrder,
   };
 }
 
@@ -536,11 +475,8 @@ export function swap({ rundown, fromId, toId }: SwapArgs): MutatingReturn {
  * Utility for invalidating service cache if a custom field is used
  */
 function invalidateIfUsed(label: CustomFieldLabel) {
-  if (label in assignedCustomFields) {
-    setIsStale();
-  }
   // if the field was in use, we mark the cache as stale
-  if (label in assignedCustomFields) {
+  if (label in rundownMetadata.assignedCustomFields) {
     setIsStale();
   }
   // ... and schedule a cache update
@@ -556,7 +492,7 @@ function invalidateIfUsed(label: CustomFieldLabel) {
  */
 function scheduleCustomFieldPersist() {
   setImmediate(async () => {
-    await getDataProvider().setCustomFields(persistedCustomFields);
+    await getDataProvider().setCustomFields(projectCustomFields);
   });
 }
 
@@ -572,29 +508,29 @@ export function createCustomField(field: CustomField): CustomFields {
   }
 
   // check if label already exists
-  const alreadyExists = Object.hasOwn(persistedCustomFields, key);
+  const alreadyExists = Object.hasOwn(projectCustomFields, key);
 
   if (alreadyExists) {
     throw new Error('Label already exists');
   }
 
   // update object and persist
-  persistedCustomFields[key] = { label, type, colour };
+  projectCustomFields[key] = { label, type, colour };
 
   scheduleCustomFieldPersist();
 
-  return persistedCustomFields;
+  return projectCustomFields;
 }
 
 /**
  * Edits an existing custom field in the database
  */
 export function editCustomField(key: string, newField: Partial<CustomField>): CustomFields {
-  if (!(key in persistedCustomFields)) {
+  if (!(key in projectCustomFields)) {
     throw new Error('Could not find label');
   }
 
-  const existingField = persistedCustomFields[key];
+  const existingField = projectCustomFields[key];
   if (newField.type !== undefined && existingField.type !== newField.type) {
     throw new Error('Change of field type is not allowed');
   }
@@ -607,29 +543,29 @@ export function editCustomField(key: string, newField: Partial<CustomField>): Cu
   if (newKey === null) {
     throw new Error('Unable to convert label to a valid key');
   }
-  persistedCustomFields[newKey] = { ...existingField, ...newField };
+  projectCustomFields[newKey] = { ...existingField, ...newField };
 
   if (key !== newKey) {
-    delete persistedCustomFields[key];
-    customFieldChangelog.set(key, newKey);
+    delete projectCustomFields[key];
+    customFieldChangelog[key] = newKey;
   }
 
   scheduleCustomFieldPersist();
   invalidateIfUsed(key);
 
-  return persistedCustomFields;
+  return projectCustomFields;
 }
 
 /**
  * Deletes a custom field from the database
  */
 export function removeCustomField(label: string): CustomFields {
-  if (label in persistedCustomFields) {
-    delete persistedCustomFields[label];
+  if (label in projectCustomFields) {
+    delete projectCustomFields[label];
   }
 
   scheduleCustomFieldPersist();
   invalidateIfUsed(label);
 
-  return persistedCustomFields;
+  return projectCustomFields;
 }
