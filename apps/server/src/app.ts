@@ -49,8 +49,7 @@ import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
 console.log('\n');
 consoleHighlight(`Starting Ontime version ${ONTIME_VERSION}`);
 
-const canLog = isProduction;
-if (!canLog) {
+if (!isProduction) {
   console.log(`Ontime running in ${environment} environment`);
   console.log(`Ontime source directory at ${srcDir.root} `);
   console.log(`Ontime public directory at ${publicDir.root} `);
