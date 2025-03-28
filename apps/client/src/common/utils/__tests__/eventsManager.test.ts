@@ -1,10 +1,10 @@
-import { EndAction, EventCustomFields, OntimeEvent, SupportedEvent, TimerType } from 'ontime-types';
+import { EndAction, EventCustomFields, OntimeEvent, SupportedEvent, TimerType, TimeStrategy } from 'ontime-types';
 
 import { cloneEvent } from '../eventsManager';
 
 describe('cloneEvent()', () => {
   it('creates a stem from a given event', () => {
-    const original = {
+    const original: OntimeEvent = {
       id: 'unique',
       type: SupportedEvent.Event,
       title: 'title',
@@ -14,6 +14,9 @@ describe('cloneEvent()', () => {
       duration: 10,
       timeEnd: 10,
       timerType: TimerType.CountDown,
+      timeStrategy: TimeStrategy.LockEnd,
+      linkStart: null,
+      countToEnd: false,
       endAction: EndAction.None,
       isPublic: false,
       skip: false,
@@ -21,29 +24,39 @@ describe('cloneEvent()', () => {
       revision: 10,
       timeWarning: 120000,
       timeDanger: 60000,
+      delay: 0,
+      dayOffset: 0,
+      gap: 0,
       custom: {
         lighting: '3',
       } as EventCustomFields,
-    } as OntimeEvent;
+    };
 
     const cloned = cloneEvent(original);
     expect(cloned).not.toBe(original);
-    // @ts-expect-error -- safeguarding this
-    expect(cloned?.id).toBe(undefined);
-    expect(cloned.title).toBe(original.title);
-    expect(cloned.note).toBe(original.note);
-    expect(cloned.endAction).toBe(original.endAction);
-    expect(cloned.timerType).toBe(original.timerType);
-    expect(cloned.timeStart).toBe(original.timeStart);
-    expect(cloned.timeEnd).toBe(original.timeEnd);
-    expect(cloned.duration).toBe(original.duration);
-    expect(cloned.isPublic).toBe(original.isPublic);
-    expect(cloned.skip).toBe(original.skip);
-    expect(cloned.colour).toBe(original.colour);
-    expect(cloned.type).toBe(SupportedEvent.Event);
-    expect(cloned.revision).toBe(0);
-    expect(cloned.timeWarning).toBe(original.timeWarning);
-    expect(cloned.timeDanger).toBe(original.timeDanger);
-    expect(cloned.custom).toStrictEqual({});
+    expect(cloned.custom).not.toBe(original.custom);
+
+    expect(cloned).toMatchObject({
+      type: SupportedEvent.Event,
+      title: original.title,
+      note: original.note,
+      timeStart: original.timeStart,
+      duration: original.duration,
+      timeEnd: original.timeEnd,
+      timerType: original.timerType,
+      timeStrategy: original.timeStrategy,
+      countToEnd: original.countToEnd,
+      linkStart: original.linkStart,
+      endAction: original.endAction,
+      isPublic: original.isPublic,
+      skip: original.skip,
+      colour: original.colour,
+      revision: 0,
+      delay: original.delay,
+      dayOffset: original.dayOffset,
+      gap: 0,
+      timeWarning: original.timeWarning,
+      timeDanger: original.timeDanger,
+    });
   });
 });

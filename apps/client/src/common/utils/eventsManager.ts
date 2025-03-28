@@ -24,11 +24,11 @@ export const cloneEvent = (event: OntimeEvent): ClonedEvent => {
     skip: event.skip,
     colour: event.colour,
     revision: 0,
-    delay: 0,
-    dayOffset: 0,
+    delay: event.delay, // the events will be collocated, so having the same metadata is a good start
+    dayOffset: event.dayOffset,
     gap: 0,
     timeWarning: event.timeWarning,
     timeDanger: event.timeDanger,
-    custom: {},
+    custom: { ...event.custom },
   };
 };
