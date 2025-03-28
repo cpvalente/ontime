@@ -1,6 +1,6 @@
 // runtime utils
 export { validatePlayback } from './src/validate-action/validatePlayback.js';
-export { isKnownTimerType, validateLinkStart, validateTimeStrategy } from './src/validate-events/validateEvent.js';
+export { isKnownTimerType, validateTimeStrategy } from './src/validate-events/validateEvent.js';
 export { calculateDuration, getLinkedTimes, validateTimes } from './src/validate-times/validateTimes.js';
 
 // rundown utils
@@ -78,7 +78,7 @@ export { validateEndAction, validateTimerType } from './src/validate-events/vali
 // feature business logic - rundown
 export { checkIsNow } from './src/date-utils/checkIsNow.js';
 export { checkIsNextDay } from './src/date-utils/checkIsNextDay.js';
-export { getTimeFromPrevious } from './src/date-utils/getTimeFromPrevious.js';
+export { getTimeFrom } from './src/date-utils/getTimeFrom.js';
 export { isNewLatest } from './src/date-utils/isNewLatest.js';
 
 // feature business logic - spreadsheet import

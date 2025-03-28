@@ -6,7 +6,7 @@ import {
   getEventWithId,
   getFirstEvent,
   getNextEvent,
-  getTimeFromPrevious,
+  getTimeFrom,
   isNewLatest,
   MILLIS_PER_HOUR,
 } from 'ontime-utils';
@@ -134,7 +134,7 @@ export function useScopedRundown(rundown: OntimeEntry[], selectedEventId: MaybeS
           firstStart = currentEntry.timeStart;
         }
 
-        const timeFromPrevious: number = getTimeFromPrevious(currentEntry, lastEntry);
+        const timeFromPrevious: number = getTimeFrom(currentEntry, lastEntry);
 
         if (timeFromPrevious === 0) {
           totalDuration += currentEntry.duration;
