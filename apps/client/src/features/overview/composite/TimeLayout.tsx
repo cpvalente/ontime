@@ -10,13 +10,16 @@ interface TimeLayoutProps {
   muted?: boolean;
   daySpan?: number;
   className?: string;
+  testId?: string;
 }
 
-export function TimeColumn({ label, value, muted, className }: TimeLayoutProps) {
+export function TimeColumn({ label, value, muted, className, testId }: TimeLayoutProps) {
   return (
     <div className={style.column}>
       <span className={style.label}>{label}</span>
-      <span className={cx([style.clock, muted && style.muted, className])}>{value}</span>
+      <span className={cx([style.clock, muted && style.muted, className])} data-testid={testId}>
+        {value}
+      </span>
     </div>
   );
 }
