@@ -3,9 +3,9 @@ import type { OntimeEvent } from 'ontime-types';
 import { dayInMs } from './conversionUtils.js';
 
 /**
- * Utility returns the gap from previous event
+ * Utility returns the gap from a previous given event
  */
-export function getTimeFromPrevious(
+export function getTimeFrom(
   current: Pick<OntimeEvent, 'timeStart' | 'dayOffset'>,
   previous: Pick<OntimeEvent, 'timeStart' | 'duration' | 'dayOffset'> | null,
 ): number {
