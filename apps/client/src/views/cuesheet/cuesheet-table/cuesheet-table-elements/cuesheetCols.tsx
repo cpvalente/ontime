@@ -22,7 +22,7 @@ function MakeStart({ getValue, row, table }: CellContext<OntimeEntry, unknown>) 
   const update = (newValue: string) => handleUpdateTimer(row.original.id, 'timeStart', newValue);
 
   const startTime = getValue() as number;
-  const isStartLocked = (row.original as OntimeEvent).linkStart === null;
+  const isStartLocked = !(row.original as OntimeEvent).linkStart;
   const delayValue = (row.original as OntimeEvent)?.delay ?? 0;
 
   const displayTime = showDelayedTimes ? startTime + delayValue : startTime;
