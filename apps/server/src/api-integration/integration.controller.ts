@@ -14,7 +14,7 @@ import { isEmptyObject } from '../utils/parserUtils.js';
 import { parseProperty, updateEvent } from './integration.utils.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { throttle } from '../utils/throttle.js';
-import { willCauseRegeneration } from '../services/rundown-service/rundownCacheUtils.js';
+import { willCauseRegeneration } from '../services/rundown-service/rundownCache.utils.js';
 import { coerceEnum } from '../utils/coerceType.js';
 
 const throttledUpdateEvent = throttle(updateEvent, 20);
