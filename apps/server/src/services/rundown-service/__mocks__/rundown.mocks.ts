@@ -9,6 +9,7 @@ const baseEvent = {
 
 const baseBlock = {
   type: SupportedEvent.Block,
+  events: [],
 };
 
 /**
