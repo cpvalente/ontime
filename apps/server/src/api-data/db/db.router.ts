@@ -5,10 +5,12 @@ import {
   currentProjectDownload,
   deleteProjectFile,
   duplicateProjectFile,
+  getCssOverride,
   listProjects,
   loadDemo,
   loadProject,
   patchPartialProjectFile,
+  postCssOverride,
   postProjectFile,
   projectDownload,
   quickProjectFile,
@@ -41,3 +43,6 @@ router.post('/demo', loadDemo);
 router.post('/:filename/duplicate', validateFilenameParam, validateNewFilenameBody, duplicateProjectFile);
 router.put('/:filename/rename', validateFilenameParam, validateNewFilenameBody, renameProjectFile);
 router.delete('/:filename', validateFilenameParam, deleteProjectFile);
+
+router.get('/css', getCssOverride);
+router.post('/css', postCssOverride);

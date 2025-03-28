@@ -8,6 +8,8 @@ import {
 import { getErrorMessage } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
+import { existsSync } from 'node:fs';
+import { readFile } from 'node:fs/promises';
 
 import {
   doesProjectExist,
@@ -15,6 +17,7 @@ import {
   handleUploaded,
 } from '../../services/project-service/projectServiceUtils.js';
 import * as projectService from '../../services/project-service/ProjectService.js';
+import { publicFiles } from '../../setup/index.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   try {
@@ -310,4 +313,35 @@ export async function deleteProjectFile(req: Request, res: Response<MessageRespo
 
     res.status(500).send({ message });
   }
+}
+
+/**
+ * Exposes the contents of the cssOverride.css file
+ */
+export async function getCssOverride(_req: Request, res: Response) {
+  const path = publicFiles.cssOverride;
+  if (!existsSync(path)) {
+    return res.status(500).send({ message: 'File not found' });
+  }
+  try {
+    const data = await readFile(path, { encoding: 'utf8' });
+    res.status(200).send(data);
+  } catch (error) {
+    res.status(500).send({ message: error });
+  }
+}
+
+/**
+ * Allows modifying the cssOverride.css file
+ */
+export function postCssOverride(req: Request, res: Response) {
+  res.status(500).send({ message: 'not implemented' });
+  return;
+  if (!req.file) {
+    res.status(400).send({ message: 'File not found' });
+    return;
+  }
+
+  const { filename, path } = req.file;
+  res.status(201).send({ filename, path });
 }
