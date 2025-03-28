@@ -15,7 +15,7 @@ export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
   endAction: EndAction.None,
   timerType: TimerType.CountDown,
   timeStrategy: TimeStrategy.LockDuration,
-  linkStart: null,
+  linkStart: false,
   countToEnd: false,
   timeStart: 0,
   timeEnd: 0,
@@ -23,14 +23,15 @@ export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
   isPublic: false,
   skip: false,
   colour: '',
+  timeWarning: 120000,
+  timeDanger: 60000,
+  custom: {},
+  // !==== RUNTIME METADATA ====! //
   currentBlock: null,
   revision: 0, // calculated at runtime
   delay: 0, // calculated at runtime
   dayOffset: 0, // calculated at runtime
   gap: 0, // calculated at runtime
-  timeWarning: 120000,
-  timeDanger: 60000,
-  custom: {},
 };
 
 export const delay: Omit<OntimeDelay, 'id'> = {
@@ -45,11 +46,12 @@ export const block: Omit<OntimeBlock, 'id'> = {
   events: [],
   skip: false,
   colour: '',
+  custom: {},
+  // !==== RUNTIME METADATA ====! //
   revision: 0, // calculated at runtime
   startTime: null, // calculated at runtime
   endTime: null, // calculated at runtime
   duration: 0, // calculated at runtime
   isFirstLinked: false, // calculated at runtime
   numEvents: 0, // calculated at runtime
-  custom: {},
 };

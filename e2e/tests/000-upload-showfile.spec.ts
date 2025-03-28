@@ -13,7 +13,7 @@ test('project file upload', async ({ page }) => {
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   await page.getByRole('button', { name: 'toggle settings' }).click();
-  await page.getByRole('button', { name: 'Project', exact: true }).click();
+  await page.getByRole('button', { name: 'Manage projects' }).click();
 
   // workaround to upload file on hidden input
   // https://playwright.dev/docs/api/class-filechooser
@@ -39,14 +39,14 @@ test('project file download', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
   await page.getByRole('button', { name: 'toggle settings' }).click();
-  await page.getByRole('button', { name: 'Project', exact: true }).click();
+  await page.getByRole('button', { name: 'Manage projects' }).click();
 
   // workaround to download
   // https://playwright.dev/docs/api/class-download
   const downloadPromise = page.waitForEvent('download');
 
   await page
-    .getByRole('row', { name: /^e2e-test-db/ })
+    .getByRole('row', { name: /.*currently loaded/i })
     .getByLabel('Options')
     .click();
   await page.getByRole('menuitem', { name: 'Download' }).click();
