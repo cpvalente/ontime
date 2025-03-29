@@ -1,6 +1,8 @@
 import { CustomFields, OntimeEvent, SupportedEvent, TimeStrategy } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 
+import { demoDb } from '../../../models/demoProject.js';
+
 import {
   add,
   batchEdit,
@@ -15,6 +17,7 @@ import {
   customFieldChangelog,
 } from '../rundownCache.js';
 import { makeOntimeBlock, makeOntimeDelay, makeOntimeEvent, makeRundown } from '../__mocks__/rundown.mocks.js';
+import { ProcessedRundownMetadata } from '../rundownCache.utils.js';
 
 beforeAll(() => {
   vi.mock('../../../classes/data-provider/DataProvider.js', () => {
@@ -30,6 +33,23 @@ beforeAll(() => {
 });
 
 describe('generate()', () => {
+  test('benchmark function execution time', () => {
+    const rundown = demoDb.rundowns.default;
+    const t1 = performance.now();
+    let result: ProcessedRundownMetadata | null = null;
+    for (let i = 0; i < 100; i++) {
+      result = generate(rundown);
+    }
+    const t2 = performance.now();
+    console.warn(
+      'Rundown generation took',
+      t2 - t1,
+      'milliseconds for 100x',
+      Object.keys(result?.entries ?? {}).length,
+      'events',
+    );
+  });
+
   it('creates normalised versions of a given rundown', () => {
     const rundown = makeRundown({
       order: ['1', '2', '3'],
@@ -43,9 +63,9 @@ describe('generate()', () => {
     const initResult = generate(rundown);
     expect(initResult.order.length).toBe(3);
     expect(initResult.order).toStrictEqual(['1', '2', '3']);
-    expect(initResult.rundown['1'].type).toBe(SupportedEvent.Event);
-    expect(initResult.rundown['2'].type).toBe(SupportedEvent.Block);
-    expect(initResult.rundown['3'].type).toBe(SupportedEvent.Delay);
+    expect(initResult.entries['1'].type).toBe(SupportedEvent.Event);
+    expect(initResult.entries['2'].type).toBe(SupportedEvent.Block);
+    expect(initResult.entries['3'].type).toBe(SupportedEvent.Delay);
   });
 
   it('calculates delays versions of a given rundown', () => {
@@ -59,7 +79,7 @@ describe('generate()', () => {
 
     const initResult = generate(rundown);
     expect(initResult.order.length).toBe(2);
-    expect((initResult.rundown['2'] as OntimeEvent).delay).toBe(100);
+    expect((initResult.entries['2'] as OntimeEvent).delay).toBe(100);
     expect(initResult.totalDelay).toBe(100);
   });
 
@@ -79,10 +99,10 @@ describe('generate()', () => {
 
     const initResult = generate(rundown);
     expect(initResult.order.length).toBe(7);
-    expect((initResult.rundown['1'] as OntimeEvent).delay).toBe(0);
-    expect((initResult.rundown['2'] as OntimeEvent).delay).toBe(200);
-    expect((initResult.rundown['3'] as OntimeEvent).delay).toBe(100);
-    expect((initResult.rundown['4'] as OntimeEvent).delay).toBe(0);
+    expect((initResult.entries['1'] as OntimeEvent).delay).toBe(0);
+    expect((initResult.entries['2'] as OntimeEvent).delay).toBe(200);
+    expect((initResult.entries['3'] as OntimeEvent).delay).toBe(100);
+    expect((initResult.entries['4'] as OntimeEvent).delay).toBe(0);
     expect(initResult.totalDelay).toBe(0);
     expect(initResult.totalDuration).toBe(700 - 100);
   });
@@ -167,10 +187,10 @@ describe('generate()', () => {
 
     const initResult = generate(rundown);
     expect(initResult.order.length).toBe(7);
-    expect((initResult.rundown['1'] as OntimeEvent).delay).toBe(0);
-    expect((initResult.rundown['2'] as OntimeEvent).delay).toBe(-200);
-    expect((initResult.rundown['3'] as OntimeEvent).delay).toBe(-200);
-    expect((initResult.rundown['4'] as OntimeEvent).delay).toBe(-200);
+    expect((initResult.entries['1'] as OntimeEvent).delay).toBe(0);
+    expect((initResult.entries['2'] as OntimeEvent).delay).toBe(-200);
+    expect((initResult.entries['3'] as OntimeEvent).delay).toBe(-200);
+    expect((initResult.entries['4'] as OntimeEvent).delay).toBe(-200);
     expect(initResult.totalDelay).toBe(-200);
     expect(initResult.totalDuration).toBe(700 - 100);
   });
@@ -191,7 +211,7 @@ describe('generate()', () => {
           timeStart: 11,
           duration: 1,
           timeEnd: 12,
-          linkStart: '1',
+          linkStart: true,
           timeStrategy: TimeStrategy.LockEnd,
         }),
         block: makeOntimeBlock({ id: 'block' }),
@@ -201,7 +221,7 @@ describe('generate()', () => {
           timeStart: 21,
           duration: 1,
           timeEnd: 22,
-          linkStart: '2',
+          linkStart: true,
           timeStrategy: TimeStrategy.LockEnd,
         }),
       },
@@ -209,16 +229,13 @@ describe('generate()', () => {
 
     const initResult = generate(rundown);
     expect(initResult.order.length).toBe(5);
-    expect((initResult.rundown['2'] as OntimeEvent).timeStart).toBe(2);
-    expect((initResult.rundown['2'] as OntimeEvent).timeEnd).toBe(12);
-    expect((initResult.rundown['2'] as OntimeEvent).duration).toBe(10);
+    expect((initResult.entries['2'] as OntimeEvent).timeStart).toBe(2);
+    expect((initResult.entries['2'] as OntimeEvent).timeEnd).toBe(12);
+    expect((initResult.entries['2'] as OntimeEvent).duration).toBe(10);
 
-    expect((initResult.rundown['3'] as OntimeEvent).timeStart).toBe(12);
-    expect((initResult.rundown['3'] as OntimeEvent).timeEnd).toBe(22);
-    expect((initResult.rundown['3'] as OntimeEvent).duration).toBe(10);
-
-    expect(initResult.links['1']).toBe('2');
-    expect(initResult.links['2']).toBe('3');
+    expect((initResult.entries['3'] as OntimeEvent).timeStart).toBe(12);
+    expect((initResult.entries['3'] as OntimeEvent).timeEnd).toBe(22);
+    expect((initResult.entries['3'] as OntimeEvent).duration).toBe(10);
   });
 
   it('links times across events, reordered', () => {
@@ -226,16 +243,14 @@ describe('generate()', () => {
       order: ['1', '3', '2'],
       entries: {
         '1': makeOntimeEvent({ id: '1', timeStart: 1, timeEnd: 2 }),
-        '3': makeOntimeEvent({ id: '3', timeStart: 21, timeEnd: 22, linkStart: '2' }),
-        '2': makeOntimeEvent({ id: '2', timeStart: 11, timeEnd: 12, linkStart: '1' }),
+        '3': makeOntimeEvent({ id: '3', timeStart: 21, timeEnd: 22, linkStart: true }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 11, timeEnd: 12, linkStart: true }),
       },
     });
 
     const initResult = generate(rundown);
     expect(initResult.order.length).toBe(3);
-    expect((initResult.rundown['3'] as OntimeEvent).timeStart).toBe(2);
-    expect(initResult.links['1']).toBe('3');
-    expect(initResult.links['3']).toBe('2');
+    expect((initResult.entries['3'] as OntimeEvent).timeStart).toBe(2);
   });
 
   it('calculates total duration', () => {
@@ -333,7 +348,7 @@ describe('generate()', () => {
           timeEnd: 600000,
           duration: 600000,
           timeStrategy: TimeStrategy.LockDuration,
-          linkStart: null,
+          linkStart: false,
         }),
         '2': makeOntimeEvent({
           id: '2',
@@ -341,7 +356,7 @@ describe('generate()', () => {
           timeEnd: 601000,
           duration: 85801000, // <------------- value out of sync
           timeStrategy: TimeStrategy.LockEnd,
-          linkStart: '1',
+          linkStart: true,
         }),
         '3': makeOntimeEvent({
           id: '3',
@@ -349,49 +364,35 @@ describe('generate()', () => {
           timeEnd: 602000,
           duration: 0,
           timeStrategy: TimeStrategy.LockEnd,
-          linkStart: '2',
+          linkStart: true,
         }),
       },
     });
 
     const initResult = generate(rundown);
-    expect(initResult.rundown).toMatchObject({
+    expect(initResult.entries).toMatchObject({
       '1': {
         timeStart: 0,
         timeEnd: 600000,
         duration: 600000,
         timeStrategy: 'lock-duration',
-        linkStart: null,
+        linkStart: false,
       },
       '2': {
         timeStart: 600000,
         timeEnd: 601000,
         duration: 1000,
         timeStrategy: 'lock-end',
-        linkStart: '1',
+        linkStart: true,
       },
       '3': {
         timeStart: 601000,
         timeEnd: 602000,
         duration: 1000,
         timeStrategy: 'lock-end',
-        linkStart: '2',
+        linkStart: true,
       },
     });
-  });
-
-  it('deletes links if invalid', () => {
-    const rundown = makeRundown({
-      order: ['1'],
-      entries: {
-        '1': makeOntimeEvent({ id: '1', timeStart: 1, linkStart: '10' }),
-      },
-    });
-
-    const initResult = generate(rundown);
-    expect(initResult.order.length).toBe(1);
-    expect((initResult.rundown['1'] as OntimeEvent).timeStart).toBe(1);
-    expect(Object.keys(initResult.links).length).toBe(0);
   });
 
   describe('custom properties feature', () => {
@@ -433,10 +434,110 @@ describe('generate()', () => {
         lighting: ['1', '2'],
         sound: ['2'],
       });
-      expect((initResult.rundown['1'] as OntimeEvent).custom).toMatchObject({ lighting: 'event 1 lx' });
-      expect((initResult.rundown['2'] as OntimeEvent).custom).toMatchObject({
+      expect((initResult.entries['1'] as OntimeEvent).custom).toMatchObject({ lighting: 'event 1 lx' });
+      expect((initResult.entries['2'] as OntimeEvent).custom).toMatchObject({
         lighting: 'event 2 lx',
         sound: 'event 2 sound',
+      });
+    });
+  });
+});
+
+describe('generate() v4', () => {
+  describe('handle of event groups', () => {
+    it('correctly parses group metadata', () => {
+      const rundown = makeRundown({
+        order: ['1'],
+        entries: {
+          '1': makeOntimeBlock({ id: '1', events: ['100', '200', '300'] }),
+          '100': makeOntimeEvent({ id: '100', timeStart: 100, timeEnd: 200, duration: 100, linkStart: false }),
+          '200': makeOntimeEvent({ id: '200', timeStart: 200, timeEnd: 300, duration: 100 }),
+          '300': makeOntimeEvent({ id: '300', timeStart: 300, timeEnd: 400, duration: 100 }),
+        },
+      });
+      const generatedRundown = generate(rundown);
+
+      expect(generatedRundown.order).toMatchObject(['1']);
+      expect(generatedRundown.totalDuration).toBe(300);
+      expect(generatedRundown.totalDelay).toBe(0);
+      expect(generatedRundown.entries).toMatchObject({
+        '1': {
+          type: SupportedEvent.Block,
+          events: ['100', '200', '300'],
+          startTime: 100,
+          endTime: 400,
+          duration: 300,
+          isFirstLinked: false,
+          numEvents: 3,
+        },
+        '100': { type: SupportedEvent.Event, currentBlock: '1' },
+        '200': { type: SupportedEvent.Event, currentBlock: '1' },
+        '300': { type: SupportedEvent.Event, currentBlock: '1' },
+      });
+    });
+
+    it('treats groups as invisible for gap calculations', () => {
+      const rundown = makeRundown({
+        order: ['0', '1', '2', '3'],
+        entries: {
+          '0': makeOntimeEvent({ id: '0', timeStart: 0, timeEnd: 10, duration: 10, linkStart: false }),
+          '1': makeOntimeBlock({ id: '1', events: ['101', '102', '103'] }),
+          '101': makeOntimeEvent({ id: '101', timeStart: 100, timeEnd: 200, duration: 100, linkStart: false }),
+          '102': makeOntimeEvent({ id: '102', timeStart: 200, timeEnd: 300, duration: 100, linkStart: true }),
+          '103': makeOntimeEvent({ id: '103', timeStart: 300, timeEnd: 400, duration: 100, linkStart: true }),
+          '2': makeOntimeBlock({ id: '2', events: ['201', '202', '203'] }),
+          '201': makeOntimeEvent({ id: '201', timeStart: 500, timeEnd: 600, duration: 100, linkStart: false }),
+          '202': makeOntimeEvent({ id: '202', timeStart: 600, timeEnd: 700, duration: 100, linkStart: true }),
+          '203': makeOntimeEvent({ id: '203', timeStart: 700, timeEnd: 800, duration: 100, linkStart: true }),
+          '3': makeOntimeBlock({ id: '3', events: ['301', '302', '303'] }),
+          '301': makeOntimeEvent({ id: '301', timeStart: 900, timeEnd: 1000, duration: 100, linkStart: false }),
+          '302': makeOntimeEvent({ id: '302', timeStart: 1000, timeEnd: 1100, duration: 100, linkStart: true }),
+          '303': makeOntimeEvent({ id: '303', timeStart: 1100, timeEnd: 1200, duration: 100, linkStart: true }),
+        },
+      });
+      const generatedRundown = generate(rundown);
+
+      expect(generatedRundown.order).toMatchObject(['0', '1', '2', '3']);
+      expect(generatedRundown.totalDuration).toBe(1200);
+      expect(generatedRundown.totalDelay).toBe(0);
+      expect(generatedRundown.entries).toMatchObject({
+        '0': { type: SupportedEvent.Event, currentBlock: null },
+        '1': {
+          type: SupportedEvent.Block,
+          events: ['101', '102', '103'],
+          startTime: 100,
+          endTime: 400,
+          duration: 300,
+          isFirstLinked: false,
+          numEvents: 3,
+        },
+        '101': { currentBlock: '1', gap: 90, linkStart: false },
+        '102': { currentBlock: '1' },
+        '103': { currentBlock: '1' },
+        '2': {
+          type: SupportedEvent.Block,
+          events: ['201', '202', '203'],
+          startTime: 500,
+          endTime: 800,
+          duration: 300,
+          isFirstLinked: false,
+          numEvents: 3,
+        },
+        '201': { id: '201', timeStart: 500, timeEnd: 600, duration: 100, gap: 100, linkStart: false },
+        '202': { id: '202', timeStart: 600, timeEnd: 700, duration: 100 },
+        '203': { id: '203', timeStart: 700, timeEnd: 800, duration: 100 },
+        '3': {
+          type: SupportedEvent.Block,
+          events: ['301', '302', '303'],
+          startTime: 900,
+          endTime: 1200,
+          duration: 300,
+          isFirstLinked: false,
+          numEvents: 3,
+        },
+        '301': { id: '301', timeStart: 900, timeEnd: 1000, duration: 100, gap: 100, linkStart: false },
+        '302': { id: '302', timeStart: 1000, timeEnd: 1100, duration: 100 },
+        '303': { id: '303', timeStart: 1100, timeEnd: 1200, duration: 100 },
       });
     });
   });
@@ -605,7 +706,7 @@ describe('swap() mutation', () => {
   });
 });
 
-describe('custom fields', () => {
+describe('custom fields flow', () => {
   describe('createCustomField()', () => {
     it('creates a field from given parameters', () => {
       const expected = {
@@ -639,8 +740,7 @@ describe('custom fields', () => {
       };
 
       const customField = editCustomField('Sound', { label: 'Sound', type: 'string', colour: 'green' });
-      expect(customFieldChangelog).toStrictEqual(new Map());
-
+      expect(customFieldChangelog).toStrictEqual({});
       expect(customField).toStrictEqual(expected);
     });
 
@@ -689,10 +789,10 @@ describe('custom fields', () => {
       vi.useFakeTimers();
       const customField = editCustomField('Video', { label: 'AV', type: 'string', colour: 'red' });
       expect(customField).toStrictEqual(expectedAfter);
-      expect(customFieldChangelog).toStrictEqual(new Map([['Video', 'AV']]));
+      expect(customFieldChangelog).toStrictEqual({ Video: 'AV' });
       editCustomField('AV', { label: 'Video' });
       vi.runAllTimers();
-      expect(customFieldChangelog).toStrictEqual(new Map());
+      expect(customFieldChangelog).toStrictEqual({});
       vi.useRealTimers();
     });
   });

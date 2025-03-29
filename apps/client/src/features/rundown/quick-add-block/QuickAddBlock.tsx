@@ -10,12 +10,13 @@ import style from './QuickAddBlock.module.scss';
 
 interface QuickAddBlockProps {
   previousEventId: MaybeString;
+  showBlocks?: boolean;
 }
 
 export default memo(QuickAddBlock);
 
 function QuickAddBlock(props: QuickAddBlockProps) {
-  const { previousEventId } = props;
+  const { previousEventId, showBlocks } = props;
   const { addEvent } = useEventAction();
   const { emitError } = useEmitLog();
 
@@ -86,16 +87,18 @@ function QuickAddBlock(props: QuickAddBlockProps) {
       >
         Delay
       </Button>
-      <Button
-        onClick={() => handleCreateEvent(SupportedEvent.Block)}
-        size='xs'
-        variant='ontime-subtle-white'
-        className={style.quickBtn}
-        leftIcon={<IoAdd />}
-        color='#b1b1b1' // $gray-400
-      >
-        Block
-      </Button>
+      {showBlocks && (
+        <Button
+          onClick={() => handleCreateEvent(SupportedEvent.Block)}
+          size='xs'
+          variant='ontime-subtle-white'
+          className={style.quickBtn}
+          leftIcon={<IoAdd />}
+          color='#b1b1b1' // $gray-400
+        >
+          Block
+        </Button>
+      )}
     </div>
   );
 }

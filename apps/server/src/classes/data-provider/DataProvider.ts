@@ -23,6 +23,9 @@ type ReadonlyPromise<T> = Promise<Readonly<T>>;
 
 let db = {} as Low<DatabaseModel>;
 
+/**
+ * Initialises the JSON adapter to persist data to a file
+ */
 export async function initPersistence(filePath: string, fallbackData: DatabaseModel) {
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: shouldCrashDev(!isPath(filePath), 'initPersistence should be called with a path');
