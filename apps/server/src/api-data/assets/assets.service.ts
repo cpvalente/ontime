@@ -1,6 +1,7 @@
 import { publicFiles } from '../../setup/index.js';
 import { existsSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
+import { defaultCss } from '../../user/styles/bundledCss.js';
 
 /**
  * Reads the user's css file
@@ -9,7 +10,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 export async function readCssFile(): Promise<string> {
   const path = publicFiles.cssOverride;
   if (!existsSync(path)) {
-    throw new Error('File not found');
+    await writeFile(path, defaultCss, { encoding: 'utf8' });
   }
 
   const css = await readFile(path, { encoding: 'utf8' });
@@ -24,7 +25,8 @@ export async function readCssFile(): Promise<string> {
 export async function writeCssFile(css: string) {
   const path = publicFiles.cssOverride;
   if (!existsSync(path)) {
-    throw new Error('File not found');
+    await writeFile(path, css, { encoding: 'utf8' });
+    return;
   }
 
   await writeFile(path, css, { encoding: 'utf8' });
