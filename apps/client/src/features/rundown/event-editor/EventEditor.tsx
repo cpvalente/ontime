@@ -35,8 +35,8 @@ export default function EventEditor(props: EventEditorProps) {
   const { updateEvent } = useEventAction();
   const { data: automationSettings } = useAutomationSettings();
 
-  const [newTriggerValue, setNewTriggerValue] = useState({
-    id: automationSettings.automations[0]?.id ?? '',
+  const [newTriggerValue, setNewTriggerValue] = useState<{ id: string | undefined; cycle: TimerLifeCycle }>({
+    id: undefined,
     cycle: TimerLifeCycle.onStart,
   });
 
@@ -56,6 +56,7 @@ export default function EventEditor(props: EventEditorProps) {
 
   const submitTrigger = useCallback(
     (value: typeof newTriggerValue) => {
+      if (!value.id) return;
       const triggers = event.triggers ?? new Array<Trigger>();
       const id = generateId();
       triggers.push({ title: '', id, trigger: value.cycle, automationId: value.id });
@@ -166,8 +167,12 @@ export default function EventEditor(props: EventEditorProps) {
             size='sm'
             variant='ontime'
             value={newTriggerValue.id}
+            defaultValue='default'
             onChange={(e) => setNewTriggerValue({ id: e.target.value, cycle: newTriggerValue.cycle })}
           >
+            <option disabled value='default'>
+              --select an automation to trigger--
+            </option>
             {Object.values(automationSettings.automations).map(({ id, title }) => (
               <option key={id} value={id}>
                 {title}
@@ -188,6 +193,7 @@ export default function EventEditor(props: EventEditorProps) {
             ))}
           </Select>
           <IconButton
+            isDisabled={newTriggerValue.id === undefined}
             onClick={() => submitTrigger(newTriggerValue)}
             size='sm'
             variant='ontime-ghosted'
