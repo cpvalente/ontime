@@ -12,6 +12,7 @@ import {
   EventPostPayload,
   Rundown,
   EntryId,
+  MaybeString,
 } from 'ontime-types';
 import { getCueCandidate } from 'ontime-utils';
 
@@ -32,6 +33,9 @@ type CompleteEntry<T> =
       : T extends Partial<OntimeBlock>
         ? OntimeBlock
         : never;
+
+/** keep track of which rundown is loaded */
+let currentlyLoadedRundownId: MaybeString = null;
 
 /**
  * Generates a fully formed RundownEntry of the patch type
@@ -282,10 +286,11 @@ function notifyChanges(options: NotifyChangesOptions) {
 }
 
 /**
- * Overrides the rundown with the given
- * @param rundown
+ * Sets a new rundown in the cache
+ * and marks it as the currently loaded one
  */
 export async function initRundown(rundown: Readonly<Rundown>, customFields: Readonly<CustomFields>) {
+  currentlyLoadedRundownId = rundown.id;
   await cache.init(rundown, customFields);
 
   // notify runtime that rundown has changed
@@ -293,4 +298,15 @@ export async function initRundown(rundown: Readonly<Rundown>, customFields: Read
 
   // notify timer of change
   notifyChanges({ timer: true, external: true, reload: true });
+}
+
+/**
+ * Sets a new rundown in the cache
+ */
+export async function loadRundown(rundown: Readonly<Rundown>, customFields: Readonly<CustomFields>) {
+  if (currentlyLoadedRundownId !== rundown.id) {
+    await initRundown(rundown, customFields);
+  } else {
+    // TODO: generate metadata from rundown
+  }
 }

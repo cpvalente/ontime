@@ -2,7 +2,7 @@ import { GetInfo } from 'ontime-types';
 
 export const ontimePlaceholderInfo: GetInfo = {
   networkInterfaces: [],
-  version: '2.0.0',
+  version: '4.0.0',
   serverPort: 4001,
   publicDir: '',
 };

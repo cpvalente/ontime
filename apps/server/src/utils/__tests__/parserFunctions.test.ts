@@ -229,11 +229,10 @@ describe('parseSettings()', () => {
     expect(() => parseSettings({})).toThrow();
   });
 
-  it('returns an a base model as long as we have the app and version', () => {
-    const result = parseSettings({ settings: { app: 'ontime', version: '1' } as Settings });
+  it('returns an a base model as long as we have the app version', () => {
+    const result = parseSettings({ settings: { version: '1' } as Settings });
     expect(result).toBeTypeOf('object');
     expect(result).toMatchObject({
-      app: 'ontime',
       version: expect.any(String),
       serverPort: 4001,
       editorKey: null,

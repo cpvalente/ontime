@@ -82,9 +82,11 @@ export async function init(initialRundown: Readonly<Rundown>, customFields: Read
   currentRundown = structuredClone(initialRundown);
   currentRundownId = initialRundown.id;
   projectCustomFields = structuredClone(customFields);
+
+  // TODO: pass the rundown to the generate function
   generate();
 
-  // TODO: we may not need to persist this data since it should come from the database
+  // we may not need to persist this data since it should come from the database
   // update the persisted data
   await getDataProvider().setRundown(currentRundownId, currentRundown);
   await getDataProvider().setCustomFields(customFields);

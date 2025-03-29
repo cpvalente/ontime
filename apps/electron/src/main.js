@@ -49,9 +49,9 @@ async function startBackend() {
   const ontimeServer = require(nodePath);
   const { initAssets, startServer, startIntegrations } = ontimeServer;
 
-  await initAssets();
+  await initAssets(escalateError);
 
-  const result = await startServer(escalateError);
+  const result = await startServer();
   loaded = result.message;
 
   await startIntegrations();
