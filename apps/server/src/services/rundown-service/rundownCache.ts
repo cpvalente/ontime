@@ -21,7 +21,6 @@ import type { RundownMetadata } from './rundown.types.js';
 import { apply } from './delayUtils.js';
 import { hasChanges, isDataStale, makeRundownMetadata, type ProcessedRundownMetadata } from './rundownCache.utils.js';
 
-/** We hold the currently selected rundown and its metadata in memory */
 let currentRundownId: EntryId = '';
 let currentRundown: Rundown = {
   id: '',
@@ -78,16 +77,14 @@ export let customFieldChangelog: Record<string, string> = {};
  * Receives a rundown which will be processed and used as the new current rundown
  */
 export async function init(initialRundown: Readonly<Rundown>, customFields: Readonly<CustomFields>) {
-  // TODO: do we need to clone?
+  // we clone this objects since we use mutating logic in the cache
   currentRundown = structuredClone(initialRundown);
   currentRundownId = initialRundown.id;
   projectCustomFields = structuredClone(customFields);
-  generate();
 
-  // TODO: we may not need to persist this data since it should come from the database
-  // update the persisted data
-  await getDataProvider().setRundown(currentRundownId, currentRundown);
-  await getDataProvider().setCustomFields(customFields);
+  updateCache();
+
+  currentRundownId;
 }
 
 /**
@@ -95,14 +92,9 @@ export async function init(initialRundown: Readonly<Rundown>, customFields: Read
  * @private should not be called outside of `rundownCache.ts`, exported for testing
  */
 export function generate(
-  initialRundown: Readonly<Rundown> = currentRundown,
-  customFields: Readonly<CustomFields> = projectCustomFields,
+  initialRundown: Readonly<Rundown>,
+  customFields: Readonly<CustomFields>,
 ): ProcessedRundownMetadata {
-  // The stale state can only be cleared inside generate()
-  function clearIsStale() {
-    isStale = false;
-  }
-
   const { process, getMetadata } = makeRundownMetadata(customFields, customFieldChangelog);
 
   for (let i = 0; i < initialRundown.order.length; i++) {
@@ -154,9 +146,18 @@ export function generate(
     }
   }
 
-  const processedData = getMetadata();
-  clearIsStale();
-  customFieldChangelog = {};
+  return getMetadata();
+}
+
+/**
+ * Runs the generate function in the currently loaded rundown and updates caches
+ */
+export function updateCache() {
+  // The stale state can only be cleared inside updateCache()
+  function clearIsStale() {
+    isStale = false;
+  }
+  const processedData = generate(currentRundown, projectCustomFields);
 
   // update the cache values
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- we are not interested in the iteration data
@@ -164,15 +165,14 @@ export function generate(
   currentRundown.entries = entries;
   currentRundown.order = order;
   rundownMetadata = metadata;
-
-  // The return value is used for testing
-  return processedData;
+  clearIsStale();
+  customFieldChangelog = {};
 }
 
 /** Returns an ID guaranteed to be unique */
 export function getUniqueId(): string {
   if (isStale) {
-    generate();
+    updateCache();
   }
   let id = '';
   do {
@@ -184,7 +184,7 @@ export function getUniqueId(): string {
 /** Returns index of an event with a given id */
 export function getIndexOf(eventId: EntryId) {
   if (isStale) {
-    generate();
+    updateCache();
   }
   return currentRundown.order.indexOf(eventId);
 }
@@ -192,7 +192,7 @@ export function getIndexOf(eventId: EntryId) {
 /** Returns id of an event at a given index */
 export function getIdOf(index: number) {
   if (isStale) {
-    generate();
+    updateCache();
   }
   return currentRundown.order.at(index);
 }
@@ -213,7 +213,7 @@ type RundownCache = {
  */
 export function get(): Readonly<RundownCache> {
   if (isStale) {
-    generate();
+    updateCache();
   }
   return {
     id: currentRundown.id,
@@ -232,7 +232,7 @@ export function get(): Readonly<RundownCache> {
  */
 export function getMetadata(): Readonly<RundownMetadata & { revision: number }> {
   if (isStale) {
-    generate();
+    updateCache();
   }
 
   return {
@@ -252,7 +252,7 @@ export type RundownOrder = {
  */
 export function getEventOrder(): Readonly<RundownOrder> {
   if (isStale) {
-    generate();
+    updateCache();
   }
   return {
     order: currentRundown.order,
@@ -482,7 +482,7 @@ function invalidateIfUsed(label: CustomFieldLabel) {
   // ... and schedule a cache update
   // schedule a non priority cache update
   setImmediate(async () => {
-    generate();
+    updateCache();
     await getDataProvider().setRundown(currentRundownId, currentRundown);
   });
 }
