@@ -496,7 +496,6 @@ export const demoDb: DatabaseModel = {
     custom: [],
   },
   settings: {
-    app: 'ontime',
     version: '-',
     serverPort: 4001,
     editorKey: null,

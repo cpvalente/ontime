@@ -24,7 +24,6 @@ export const dbModel: DatabaseModel = {
     custom: [],
   },
   settings: {
-    app: 'ontime',
     version: ONTIME_VERSION,
     serverPort: 4001,
     editorKey: null,
