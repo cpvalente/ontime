@@ -4,13 +4,12 @@ import { IoCopy } from 'react-icons/io5';
 import { Button, ButtonGroup, IconButton, Tooltip } from '@chakra-ui/react';
 
 import { tooltipDelayFast } from '../../../ontimeConfig';
-import { Size } from '../../models/Util.type';
 import copyToClipboard from '../../utils/copyToClipboard';
 
 interface CopyTagProps {
   copyValue: string;
   label: string;
-  size?: Size;
+  size?: 'xs' | 'sm' | 'md' | 'lg';
   disabled?: boolean;
   onClick?: () => void;
 }
