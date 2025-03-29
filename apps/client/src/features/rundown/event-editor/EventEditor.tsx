@@ -1,7 +1,7 @@
 import { CSSProperties, useCallback, useState } from 'react';
-import { IoAddCircle, IoTrash } from 'react-icons/io5';
+import { IoAddCircle } from 'react-icons/io5';
 import { IconButton, Select } from '@chakra-ui/react';
-import { CustomFieldLabel, OntimeEvent, TimerLifeCycle, timerLifecycleValues, Trigger } from 'ontime-types';
+import { CustomFieldLabel, OntimeEvent, TimerLifeCycle, Trigger } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
 import AppLink from '../../../common/components/link/app-link/AppLink';
@@ -16,6 +16,7 @@ import EventEditorTimes from './composite/EventEditorTimes';
 import EventEditorTitles from './composite/EventEditorTitles';
 import EventTextArea from './composite/EventTextArea';
 import EventTextInput from './composite/EventTextInput';
+import EventTriggers from './composite/EventTriggers';
 import EventEditorEmpty from './EventEditorEmpty';
 
 import style from './EventEditor.module.scss';
@@ -159,27 +160,7 @@ export default function EventEditor(props: EventEditorProps) {
           Triggers
           {isEditor && <AppLink search='settings=automation__automations'>Manage</AppLink>}
         </Editor.Title>
-        {event.triggers !== undefined && (
-          <>
-            {Object.values(event.triggers).map((trigger) => {
-              const { id, trigger: triggerType, automationId } = trigger;
-              const automationTitle = automationSettings.automations[automationId]?.title;
-              return (
-                <div key={id}>
-                  {triggerType} 🠆 {automationTitle}
-                  <IconButton
-                    size='sm'
-                    variant='ontime-ghosted'
-                    color='#FA5656' // $red-500
-                    icon={<IoTrash />}
-                    aria-label='Delete entry'
-                    onClick={() => deleteTrigger(id)}
-                  />
-                </div>
-              );
-            })}
-          </>
-        )}
+        {event.triggers !== undefined && <EventTriggers triggers={event.triggers} deleteHandler={deleteTrigger} />}
         <div className={style.inline}>
           <Select
             size='sm'
