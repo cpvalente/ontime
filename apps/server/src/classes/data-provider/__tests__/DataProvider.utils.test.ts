@@ -127,7 +127,6 @@ describe('safeMerge', () => {
       } as Settings,
     });
     expect(mergedData.settings).toStrictEqual({
-      app: 'ontime',
       version: 'new',
       serverPort: 3000,
       operatorKey: null,

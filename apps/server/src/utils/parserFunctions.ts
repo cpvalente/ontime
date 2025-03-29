@@ -24,6 +24,7 @@ import { createEvent, type ErrorEmitter } from './parser.js';
 
 /**
  * Parse a rundowns object along with the project custom fields
+ * Returns a default rundown if none exists
  */
 export function parseRundowns(
   data: Partial<DatabaseModel>,
@@ -32,6 +33,8 @@ export function parseRundowns(
   // check custom fields first
   const parsedCustomFields = parseCustomFields(data, emitError);
 
+  // ensure there is always a rundown to import
+  // this is important since the rest of the app assumes this exist
   if (!data.rundowns || isObjectEmpty(data.rundowns)) {
     emitError?.('No data found to import');
     return {
@@ -194,14 +197,14 @@ export function parseProject(data: Partial<DatabaseModel>, emitError?: ErrorEmit
  */
 export function parseSettings(data: Partial<DatabaseModel>): Settings {
   // skip if file definition is missing
-  if (!data.settings || data.settings?.app !== 'ontime' || data.settings?.version == null) {
-    throw new Error('ERROR: unable to parse settings, missing app or version');
+  // TODO: skip parsing if the version is not correct
+  if (!data.settings || data.settings?.version == null) {
+    throw new Error('ERROR: unable to parse settings, missing or incorrect version');
   }
 
   console.log('Found settings, importing...');
 
   return {
-    app: dbModel.settings.app,
     version: dbModel.settings.version,
     serverPort: data.settings.serverPort ?? dbModel.settings.serverPort,
     editorKey: data.settings.editorKey ?? null,
