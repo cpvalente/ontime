@@ -34,11 +34,10 @@ beforeAll(() => {
 
 describe('generate()', () => {
   test('benchmark function execution time', () => {
-    const rundown = demoDb.rundowns.default;
     const t1 = performance.now();
     let result: ProcessedRundownMetadata | null = null;
     for (let i = 0; i < 100; i++) {
-      result = generate(rundown);
+      result = generate(demoDb.rundowns.default, demoDb.customFields);
     }
     const t2 = performance.now();
     console.warn(
@@ -60,7 +59,7 @@ describe('generate()', () => {
       },
     });
 
-    const initResult = generate(rundown);
+    const initResult = generate(rundown, {});
     expect(initResult.order.length).toBe(3);
     expect(initResult.order).toStrictEqual(['1', '2', '3']);
     expect(initResult.entries['1'].type).toBe(SupportedEvent.Event);
@@ -77,7 +76,7 @@ describe('generate()', () => {
       },
     });
 
-    const initResult = generate(rundown);
+    const initResult = generate(rundown, {});
     expect(initResult.order.length).toBe(2);
     expect((initResult.entries['2'] as OntimeEvent).delay).toBe(100);
     expect(initResult.totalDelay).toBe(100);
@@ -97,7 +96,7 @@ describe('generate()', () => {
       },
     });
 
-    const initResult = generate(rundown);
+    const initResult = generate(rundown, {});
     expect(initResult.order.length).toBe(7);
     expect((initResult.entries['1'] as OntimeEvent).delay).toBe(0);
     expect((initResult.entries['2'] as OntimeEvent).delay).toBe(200);
@@ -117,7 +116,7 @@ describe('generate()', () => {
       },
     });
 
-    const initResult = generate(rundown);
+    const initResult = generate(rundown, {});
     expect(initResult.totalDuration).toBe(10500 - 9000); // last end - first start
   });
 
@@ -132,7 +131,7 @@ describe('generate()', () => {
       },
     });
 
-    const initResult = generate(rundown);
+    const initResult = generate(rundown, {});
     expect(initResult.totalDuration).toBe(20000 - 9000); // last end - first start
   });
 
@@ -167,7 +166,7 @@ describe('generate()', () => {
       },
     });
 
-    const initResult = generate(rundown);
+    const initResult = generate(rundown, {});
     expect(initResult.totalDuration).toBe(dayInMs + MILLIS_PER_HOUR); // day + last end - first start
   });
 
@@ -185,7 +184,7 @@ describe('generate()', () => {
       },
     });
 
-    const initResult = generate(rundown);
+    const initResult = generate(rundown, {});
     expect(initResult.order.length).toBe(7);
     expect((initResult.entries['1'] as OntimeEvent).delay).toBe(0);
     expect((initResult.entries['2'] as OntimeEvent).delay).toBe(-200);
@@ -227,7 +226,7 @@ describe('generate()', () => {
       },
     });
 
-    const initResult = generate(rundown);
+    const initResult = generate(rundown, {});
     expect(initResult.order.length).toBe(5);
     expect((initResult.entries['2'] as OntimeEvent).timeStart).toBe(2);
     expect((initResult.entries['2'] as OntimeEvent).timeEnd).toBe(12);
@@ -248,7 +247,7 @@ describe('generate()', () => {
       },
     });
 
-    const initResult = generate(rundown);
+    const initResult = generate(rundown, {});
     expect(initResult.order.length).toBe(3);
     expect((initResult.entries['3'] as OntimeEvent).timeStart).toBe(2);
   });
@@ -264,7 +263,7 @@ describe('generate()', () => {
       },
     });
 
-    const initResult = generate(rundown);
+    const initResult = generate(rundown, {});
     expect(initResult.order.length).toBe(4);
     expect(initResult.totalDuration).toBe(500 - 100);
   });
@@ -280,7 +279,7 @@ describe('generate()', () => {
       },
     });
 
-    const initResult = generate(rundown);
+    const initResult = generate(rundown, {});
     expect(initResult.order.length).toBe(4);
     expect(initResult.totalDuration).toBe(500 - 100);
   });
@@ -310,7 +309,7 @@ describe('generate()', () => {
       },
     });
 
-    const initResult = generate(rundown);
+    const initResult = generate(rundown, {});
     expect(initResult.totalDuration).toBe((23 - 9 + 48) * MILLIS_PER_HOUR);
   });
 
@@ -333,7 +332,7 @@ describe('generate()', () => {
       },
     });
 
-    const initResult = generate(rundown);
+    const initResult = generate(rundown, {});
     const expectedDuration = 8 * MILLIS_PER_HOUR + (dayInMs - 12 * MILLIS_PER_HOUR);
     expect(initResult.totalDuration).toBe(expectedDuration);
   });
@@ -369,7 +368,7 @@ describe('generate()', () => {
       },
     });
 
-    const initResult = generate(rundown);
+    const initResult = generate(rundown, {});
     expect(initResult.entries).toMatchObject({
       '1': {
         timeStart: 0,
@@ -455,7 +454,7 @@ describe('generate() v4', () => {
           '300': makeOntimeEvent({ id: '300', timeStart: 300, timeEnd: 400, duration: 100 }),
         },
       });
-      const generatedRundown = generate(rundown);
+      const generatedRundown = generate(rundown, {});
 
       expect(generatedRundown.order).toMatchObject(['1']);
       expect(generatedRundown.totalDuration).toBe(300);
@@ -495,7 +494,7 @@ describe('generate() v4', () => {
           '303': makeOntimeEvent({ id: '303', timeStart: 1100, timeEnd: 1200, duration: 100, linkStart: true }),
         },
       });
-      const generatedRundown = generate(rundown);
+      const generatedRundown = generate(rundown, {});
 
       expect(generatedRundown.order).toMatchObject(['0', '1', '2', '3']);
       expect(generatedRundown.totalDuration).toBe(1200);

@@ -149,10 +149,18 @@ export function filterTimedEvents(rundown: Rundown, timedEventOrder: EntryId[]):
 
 /**
  * Gets the first rundown in the project
- * We ensure that the projects always have a rundown
+ * We know that the project has at least one rundown
  */
 export function getFirstRundown(rundowns: ProjectRundowns): Rundown {
   const firstKey = Object.keys(rundowns)[0];
+
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: {
+    if (!firstKey) {
+      throw new Error('rundownUtils.getFirstRundown() No rundowns found');
+    }
+  }
+
   return rundowns[firstKey];
 }
 

@@ -146,7 +146,6 @@ describe('test aliases import', () => {
     const testData = {
       rundown: [],
       settings: {
-        app: 'ontime',
         version: '2.0.0',
       },
       urlPresets: [
@@ -171,7 +170,6 @@ describe('test views import', () => {
     const testData = {
       rundown: [],
       settings: {
-        app: 'ontime',
         version: '2.0.0',
       },
       viewSettings: {
@@ -205,7 +203,6 @@ describe('test views import', () => {
     const testData = {
       rundown: [],
       settings: {
-        app: 'ontime',
         version: '2.0.0',
       },
     } as unknown as DatabaseModel;
