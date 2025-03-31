@@ -22,21 +22,25 @@ interface CodeEditorModalProps {
   onClose: () => void;
 }
 
+interface CSSRef {
+  getCss: () => string;
+}
+
 export default function CodeEditorModal(props: CodeEditorModalProps) {
   const { isOpen, onClose } = props;
 
   const [css, setCSS] = useState('');
+  const [isDirty, setIsDirty] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
 
-  const cssRef = useRef<string>(css);
+  const cssRef = useRef<CSSRef>(null);
 
   const handleRestore = async () => {
     try {
       setResetLoading(true);
       const defaultCss = await restoreCSSContents();
       setCSS(defaultCss);
-      cssRef.current = defaultCss;
     } catch (_error) {
       /** no error handling for now */
     } finally {
@@ -47,8 +51,10 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
   const handleSave = async () => {
     try {
       setSaveLoading(true);
-      await postCSSContents(cssRef.current);
-      setCSS(cssRef.current);
+      if (cssRef.current) {
+        await postCSSContents(cssRef.current.getCss());
+        setIsDirty(false);
+      }
     } catch (_error) {
       /** no error handling for now */
     } finally {
@@ -58,12 +64,14 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
 
   useEffect(() => {
     async function fetchServerCSS() {
-      const css = await getCSSContents();
-      setCSS(css);
-      cssRef.current = css;
+      // check for isOpen to fetch recent css
+      if (isOpen) {
+        const css = await getCSSContents();
+        setCSS(css);
+      }
     }
     fetchServerCSS();
-  }, []);
+  }, [isOpen]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} variant='ontime' isCentered>
@@ -72,7 +80,7 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
         <ModalHeader>Edit CSS</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <CodeEditor cssRef={cssRef} initialValue={css} language='css' />
+          <CodeEditor ref={cssRef} initialValue={css} language='css' isDirty={isDirty} setIsDirty={setIsDirty} />
         </ModalBody>
 
         <ModalFooter>
@@ -95,7 +103,7 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
                 <Button
                   variant='ontime-filled'
                   onClick={handleSave}
-                  isDisabled={saveLoading || resetLoading}
+                  isDisabled={saveLoading || resetLoading || !isDirty}
                   isLoading={saveLoading}
                 >
                   Save changes

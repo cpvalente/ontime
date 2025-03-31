@@ -1,4 +1,4 @@
-import { memo, MutableRefObject, useEffect, useState } from 'react';
+import { forwardRef, memo, useEffect, useImperativeHandle, useState } from 'react';
 import Editor from 'react-simple-code-editor';
 import Prism from 'prismjs/components/prism-core';
 
@@ -9,25 +9,14 @@ import style from './StyleEditor.module.scss';
 interface CodeEditorProps {
   language: string;
   initialValue: string;
-  cssRef?: MutableRefObject<string>;
+  isDirty: boolean;
+  setIsDirty: (value: boolean) => void;
 }
 
-function CodeEditor(props: CodeEditorProps) {
-  const { language, initialValue, cssRef } = props;
+const CodeEditor = forwardRef((props: CodeEditorProps, cssRef) => {
+  const { language, initialValue, isDirty, setIsDirty } = props;
 
   const [code, setCode] = useState(initialValue);
-
-  // add contents to editor on mount
-  useEffect(() => {
-    setCode(initialValue);
-  }, [initialValue]);
-
-  // sync editor contents to external source
-  useEffect(() => {
-    if (cssRef) {
-      cssRef.current = code;
-    }
-  }, [code, cssRef]);
 
   const highlight = (code: string) => {
     const grammar = Prism.languages[language];
@@ -37,6 +26,28 @@ function CodeEditor(props: CodeEditorProps) {
   const handleChange = (newCode: string) => {
     setCode(newCode);
   };
+
+  useImperativeHandle(cssRef, () => {
+    return {
+      getCss: () => code,
+    };
+  });
+
+  // add contents to editor on mount and any change in initialValue
+  useEffect(() => {
+    setCode(initialValue);
+  }, [initialValue]);
+
+  // handle dirty state on change
+  useEffect(() => {
+    if (initialValue.trim() !== code.trim() && !isDirty && code.length !== 0) {
+      setIsDirty(true);
+    }
+
+    if (initialValue.trim() === code.trim() && isDirty) {
+      setIsDirty(false);
+    }
+  }, [initialValue, code]);
 
   return (
     <div className={style.wrapper}>
@@ -54,6 +65,8 @@ function CodeEditor(props: CodeEditorProps) {
       />
     </div>
   );
-}
+});
+
+CodeEditor.displayName = 'StyleEditor';
 
 export default memo(CodeEditor);
