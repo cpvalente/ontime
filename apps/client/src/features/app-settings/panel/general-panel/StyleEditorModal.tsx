@@ -53,6 +53,7 @@ export default function CodeEditorModal(props: CodeEditorModalProps) {
       setSaveLoading(true);
       if (cssRef.current) {
         await postCSSContents(cssRef.current.getCss());
+        setCSS(cssRef.current.getCss());
         setIsDirty(false);
       }
     } catch (_error) {

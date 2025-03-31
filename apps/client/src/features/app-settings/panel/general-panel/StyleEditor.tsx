@@ -35,6 +35,7 @@ const CodeEditor = forwardRef((props: CodeEditorProps, cssRef) => {
 
   // add contents to editor on mount and any change in initialValue
   useEffect(() => {
+    console.log("value changed")
     setCode(initialValue);
   }, [initialValue]);
 
