@@ -269,7 +269,7 @@ export function getPreviousEventNormal(
  * @description swaps two OntimeEvents in the rundown
  */
 export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): [newA: OntimeEvent, newB: OntimeEvent] => {
-  const newA = {
+  const newA: OntimeEvent = {
     ...eventB,
     // events keep the ID
     id: eventA.id,
@@ -282,9 +282,12 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): [newA: 
     delay: eventA.delay,
     gap: eventA.gap,
     dayOffset: eventA.dayOffset,
+
+    //increment revion of the original event
+    revision: eventA.revision + 1,
   };
 
-  const newB = {
+  const newB: OntimeEvent = {
     ...eventA,
     // events keep the ID
     id: eventB.id,
@@ -297,6 +300,9 @@ export const swapEventData = (eventA: OntimeEvent, eventB: OntimeEvent): [newA: 
     delay: eventB.delay,
     gap: eventB.gap,
     dayOffset: eventB.dayOffset,
+
+    //increment revion of the original event
+    revision: eventB.revision + 1,
   };
 
   return [newA, newB];
