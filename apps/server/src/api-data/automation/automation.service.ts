@@ -28,11 +28,8 @@ export function triggerAutomations(cycle: TimerLifeCycle, state: RuntimeState) {
     return;
   }
 
-  let triggers = getAutomationTriggers();
-
-  if (state.eventNow && state.eventNow.triggers) {
-    triggers = triggers.concat(state.eventNow.triggers);
-  } //TODO: onStop dosn't work in the current way of implementing
+  //TODO: onStop dosn't work in the current way of implementing
+  const triggers = getAutomationTriggers(state.eventNow);
 
   const triggerAutomations = triggers.filter((trigger) => trigger.trigger === cycle);
   if (triggerAutomations.length === 0) {

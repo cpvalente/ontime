@@ -3,6 +3,7 @@ import type {
   AutomationDTO,
   AutomationSettings,
   NormalisedAutomation,
+  OntimeEvent,
   Trigger,
   TriggerDTO,
 } from 'ontime-types';
@@ -27,8 +28,15 @@ export function getAutomationsEnabled(): boolean {
 /**
  * Gets a copy of the stored automation triggers
  */
-export function getAutomationTriggers(): Trigger[] {
-  return getAutomationSettings().triggers;
+export function getAutomationTriggers(event?: OntimeEvent | null): Trigger[] {
+  const automationTriggers = getAutomationSettings().triggers;
+  if (event && event.triggers) {
+    const eventTriggers = Object.entries(event.triggers).flatMap(([id, trigger]) => {
+      return { id, ...trigger } as Trigger;
+    });
+    return automationTriggers.concat(eventTriggers);
+  }
+  return automationTriggers;
 }
 
 /**

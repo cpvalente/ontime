@@ -1,7 +1,7 @@
 import { CSSProperties, useCallback, useState } from 'react';
 import { IoAddCircle } from 'react-icons/io5';
 import { IconButton, Select } from '@chakra-ui/react';
-import { CustomFieldLabel, OntimeEvent, TimerLifeCycle, Trigger } from 'ontime-types';
+import { CustomFieldLabel, OntimeEvent, TimerLifeCycle } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
 import AppLink from '../../../common/components/link/app-link/AppLink';
@@ -46,33 +46,33 @@ export default function EventEditor(props: EventEditorProps) {
     (field: EditorUpdateFields, value: string) => {
       if (field.startsWith('custom-')) {
         const fieldLabel = field.split('custom-')[1];
-        updateEvent({ id: event?.id, custom: { [fieldLabel]: value } });
+        updateEvent({ id: event.id, custom: { [fieldLabel]: value } });
       } else {
-        updateEvent({ id: event?.id, [field]: value });
+        updateEvent({ id: event.id, [field]: value });
       }
     },
-    [event?.id, updateEvent],
+    [event.id, updateEvent],
   );
 
   const submitTrigger = useCallback(
     (value: typeof newTriggerValue) => {
       if (!value.id) return;
-      const triggers = event.triggers ?? new Array<Trigger>();
+      const triggers = event.triggers ?? {};
       const id = generateId();
-      triggers.push({ title: '', id, trigger: value.cycle, automationId: value.id });
+      triggers[id] = { title: '', trigger: value.cycle, automationId: value.id };
       updateEvent({ id: event?.id, triggers: triggers });
     },
-    [event?.id, event.triggers, updateEvent],
+    [event.id, event.triggers, updateEvent],
   );
 
   const deleteTrigger = useCallback(
-    (id: string) => {
+    (triggerId: string) => {
       if (event.triggers) {
-        const newTriggerList = event.triggers.filter((value) => value.id !== id);
-        updateEvent({ id: event?.id, triggers: newTriggerList });
+        delete event.triggers[triggerId];
+        updateEvent({ id: event.id, triggers: event.triggers });
       }
     },
-    [event?.id, event.triggers, updateEvent],
+    [event.id, event.triggers, updateEvent],
   );
 
   if (!event) {
@@ -183,7 +183,7 @@ export default function EventEditor(props: EventEditorProps) {
             size='sm'
             variant='ontime'
             value={newTriggerValue.cycle}
-            onChange={(e) => setNewTriggerValue({ id: newTriggerValue.id, cycle: e.target.value })}
+            onChange={(e) => setNewTriggerValue({ id: newTriggerValue.id, cycle: e.target.value as TimerLifeCycle })}
             defaultValue={TimerLifeCycle.onStart}
           >
             {['onLoad', 'onStart', 'onPause', 'onFinish', 'onWarning', 'onDanger'].map((cycle) => (
