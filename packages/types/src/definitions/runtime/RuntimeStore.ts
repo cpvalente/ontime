@@ -4,7 +4,7 @@ import { OffsetMode } from './Runtime.type.js';
 import type { RuntimeStore } from './RuntimeStore.type.js';
 import { TimerPhase } from './TimerState.type.js';
 
-export const runtimeStorePlaceholder: RuntimeStore = {
+export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
   clock: 0,
   timer: {
     addedTime: 0,
