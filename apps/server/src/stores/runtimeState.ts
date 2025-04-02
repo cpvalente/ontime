@@ -182,10 +182,7 @@ export function load(
   rundown: OntimeRundown,
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
-  // we need to persist the current block state across loads
-  // const prevCurrentBlock = { ...runtimeState.currentBlock };
   softClear();
-  // runtimeState.currentBlock = prevCurrentBlock;
 
   // filter rundown
   const timedEvents = filterTimedEvents(rundown);
