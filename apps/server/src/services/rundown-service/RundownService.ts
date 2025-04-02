@@ -142,8 +142,6 @@ export async function editEvent(patch: PatchWithId) {
     throw new Error('Cue value invalid');
   }
 
-  console.log(patch);
-
   const scopedMutation = cache.mutateCache(cache.edit);
   const { newEvent, didMutate } = await scopedMutation({ patch, eventId: patch.id });
 
