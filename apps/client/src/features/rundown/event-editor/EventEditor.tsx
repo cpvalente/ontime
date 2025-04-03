@@ -35,8 +35,8 @@ export default function EventEditor(props: EventEditorProps) {
   const { updateEvent } = useEventAction();
   const { data: automationSettings } = useAutomationSettings();
 
-  const [newTriggerValue, setNewTriggerValue] = useState<{ id: string | undefined; cycle: TimerLifeCycle }>({
-    id: undefined,
+  const [newTriggerValue, setNewTriggerValue] = useState<{ id: string; cycle: TimerLifeCycle }>({
+    id: automationSettings.automations[0]?.id,
     cycle: TimerLifeCycle.onStart,
   });
 
@@ -55,22 +55,18 @@ export default function EventEditor(props: EventEditorProps) {
   );
 
   const submitTrigger = useCallback(
-    (value: typeof newTriggerValue) => {
-      if (!value.id) return;
+    (value: { id: string; cycle: TimerLifeCycle } | string) => {
+      if (typeof value === 'string') {
+        if (event.triggers) {
+          delete event.triggers[value];
+          updateEvent({ id: event.id, triggers: event.triggers });
+        }
+        return;
+      }
       const triggers = event.triggers ?? {};
       const id = generateId();
       triggers[id] = { title: '', trigger: value.cycle, automationId: value.id };
       updateEvent({ id: event?.id, triggers: triggers });
-    },
-    [event.id, event.triggers, updateEvent],
-  );
-
-  const deleteTrigger = useCallback(
-    (triggerId: string) => {
-      if (event.triggers) {
-        delete event.triggers[triggerId];
-        updateEvent({ id: event.id, triggers: event.triggers });
-      }
     },
     [event.id, event.triggers, updateEvent],
   );
@@ -161,7 +157,7 @@ export default function EventEditor(props: EventEditorProps) {
           Triggers
           {isEditor && <AppLink search='settings=automation__automations'>Manage</AppLink>}
         </Editor.Title>
-        {event.triggers !== undefined && <EventTriggers triggers={event.triggers} deleteHandler={deleteTrigger} />}
+        {event.triggers !== undefined && <EventTriggers triggers={event.triggers} deleteHandler={submitTrigger} />}
         <div className={style.inline}>
           <Select
             size='sm'

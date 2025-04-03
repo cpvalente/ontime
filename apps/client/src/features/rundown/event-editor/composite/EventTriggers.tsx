@@ -21,9 +21,12 @@ export default function EventTriggers(props: EventTriggersProps) {
   const filteredTriggers: Record<string, EventTriggers> = {};
 
   timerLifecycleValues.forEach((triggerType) => {
-    Object.entries(triggers)
-      .filter(([_id, value]) => value.trigger === triggerType)
-      .forEach(([id, value]) => (filteredTriggers[triggerType][id] = value));
+    const thisTriggerType = Object.entries(triggers).filter(([_id, value]) => value.trigger === triggerType);
+
+    if (thisTriggerType.length > 0) {
+      Object.assign(filteredTriggers, { [triggerType]: {} });
+      thisTriggerType.forEach(([id, value]) => Object.assign(filteredTriggers[triggerType], { [id]: value }));
+    }
   });
 
   return (
