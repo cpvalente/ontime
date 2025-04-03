@@ -1248,8 +1248,10 @@ describe('getTimerPhase()', () => {
       },
       _timer: {
         forceFinish: null,
-        totalDelay: 0,
         pausedAt: null,
+      },
+      _rundown: {
+        totalDelay: 0,
       },
     } as RuntimeState;
 
@@ -1287,8 +1289,10 @@ describe('getTimerPhase()', () => {
       },
       _timer: {
         forceFinish: null,
-        totalDelay: 0,
         pausedAt: null,
+      },
+      _rundown: {
+        totalDelay: 0,
       },
     } as RuntimeState;
 
