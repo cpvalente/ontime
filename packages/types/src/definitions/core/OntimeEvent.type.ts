@@ -1,4 +1,4 @@
-import type { EndAction, EventCustomFields, MaybeString, TimerType, TimeStrategy } from '../../index.js';
+import type { EndAction, EventCustomFields, MaybeString, TimerType, TimeStrategy, TriggerDTO } from '../../index.js';
 
 export enum SupportedEvent {
   Event = 'event',
@@ -44,6 +44,7 @@ export type OntimeEvent = OntimeBaseEvent & {
   timeWarning: number;
   timeDanger: number;
   custom: EventCustomFields;
+  triggers?: Record<string, TriggerDTO>;
 };
 
 export type PlayableEvent = OntimeEvent & { skip: false };
