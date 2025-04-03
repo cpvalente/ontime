@@ -27,6 +27,7 @@ describe('cloneEvent()', () => {
       delay: 0,
       dayOffset: 0,
       gap: 0,
+      currentBlock: null,
       custom: {
         lighting: '3',
       } as EntryCustomFields,
