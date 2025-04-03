@@ -181,7 +181,7 @@ export function getExpectedEnd(state: RuntimeState): MaybeNumber {
   if (state.runtime.actualStart === null || state.runtime.plannedEnd === null) {
     return null;
   }
-  return state.runtime.plannedEnd - state.runtime.offset + state._timer.totalDelay;
+  return state.runtime.plannedEnd - state.runtime.offset + state._rundown.totalDelay;
 }
 
 /**

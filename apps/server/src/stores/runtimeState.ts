@@ -47,9 +47,11 @@ export type RuntimeState = {
   // private properties of the timer calculations
   _timer: {
     forceFinish: MaybeNumber; // whether we should declare an event as finished, will contain the finish time
-    totalDelay: number; // this value comes from rundown service
     pausedAt: MaybeNumber;
     secondaryTarget: MaybeNumber;
+  };
+  _rundown: {
+    totalDelay: number; // this value comes from rundown service
   };
 };
 
@@ -64,9 +66,11 @@ const runtimeState: RuntimeState = {
   timer: { ...runtimeStorePlaceholder.timer },
   _timer: {
     forceFinish: null,
-    totalDelay: 0,
     pausedAt: null,
     secondaryTarget: null,
+  },
+  _rundown: {
+    totalDelay: 0,
   },
 };
 
@@ -81,6 +85,7 @@ export function getState(): Readonly<RuntimeState> {
     runtime: { ...runtimeState.runtime },
     timer: { ...runtimeState.timer },
     _timer: { ...runtimeState._timer },
+    _rundown: { totalDelay: 0 },
   };
 }
 
@@ -165,7 +170,7 @@ type RundownData = {
  */
 export function updateRundownData(rundownData: RundownData) {
   // we keep this in private state since there is no UI use case for it
-  runtimeState._timer.totalDelay = rundownData.totalDelay;
+  runtimeState._rundown.totalDelay = rundownData.totalDelay;
 
   runtimeState.runtime.numEvents = rundownData.numEvents;
   runtimeState.runtime.plannedStart = rundownData.firstStart;
