@@ -57,6 +57,14 @@ export const getLowerThirdOptions = (customFields: CustomFields): ViewOption[] =
           type: 'number',
           placeholder: '3 (default)',
         },
+        {
+          id: 'trigger',
+          title: 'Animation trigger',
+          description: 'Select what triggesr the animation',
+          type: 'option',
+          values: { data: 'Event data', in: 'Force in', out: 'Force out' },
+          defaultValue: 'data',
+        },
       ],
     },
 

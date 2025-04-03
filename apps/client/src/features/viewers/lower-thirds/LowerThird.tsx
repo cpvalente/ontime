@@ -27,6 +27,7 @@ type LowerOptions = {
   key: string;
   lineColour: string;
   lineHeight: string;
+  trigger: string;
 };
 
 interface LowerProps {
@@ -50,6 +51,7 @@ const defaultOptions: Readonly<LowerOptions> = {
   key: 'FFF0',
   lineColour: 'FF0000',
   lineHeight: '0.4em',
+  trigger: 'data',
 };
 
 export default function LowerThird(props: LowerProps) {
@@ -130,6 +132,11 @@ export default function LowerThird(props: LowerProps) {
       newOptions.lineColour = lineColour;
     }
 
+    const trigger = searchParams.get('trigger');
+    if (trigger !== null) {
+      newOptions.trigger = trigger;
+    }
+
     return newOptions;
   }, [searchParams]);
 
@@ -143,6 +150,18 @@ export default function LowerThird(props: LowerProps) {
 
   // check if data has changed and schedule animations
   useEffect(() => {
+    console.log('current state', playState);
+
+    if (options.trigger === 'in') {
+      setPlayState('in');
+      return;
+    }
+
+    if (options.trigger === 'out') {
+      setPlayState('out');
+      return;
+    }
+
     const hasChanged = eventNow?.id !== previousId.current;
     if (!hasChanged) {
       return;
@@ -174,7 +193,7 @@ export default function LowerThird(props: LowerProps) {
     }
     setPlayState('in');
     reschedule('out');
-  }, [eventNow?.id, options.delay, options.transition, playState, previousId]);
+  }, [options.delay, options.transition, options.trigger, playState, previousId]);
 
   const topText = getPropertyValue(eventNow, options.topSrc) ?? '';
   const bottomText = getPropertyValue(eventNow, options.bottomSrc) ?? '';
