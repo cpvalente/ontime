@@ -7,66 +7,66 @@ export const defaultCss = `
 
 :root {
   /** Background colour for the views */
-  --background-color-override: #ececec;
+  --background-color-override: #101010;
 
   /** Main text colour for the views */
-  --color-override: #101010;
+  --color-override: rgba(white, 80%);
 
   /** Text colour for the views */
-  --secondary-color-override: #404040;
+  --secondary-color-override: rgba(white, 45%);
 
   /** Accent text colour, used on active elements */
   --accent-color-override: #fa5656;
 
   /** Label text colour, used on active elements */
-  --label-color-override: #6c6c6c;
+  --label-color-override: rgba(white, 25%);
 
   /** Timer text colour */
-  --timer-color-override: #202020;
+  --timer-color-override: rgba(white, 80%);
   --timer-warning-color-override: #ffbc56;
   --timer-danger-color-override: #e69000;
   --timer-overtime-color-override: #fa5656;
   --timer-pending-color-override: #578AF4;
 
   /** Background for card elements on background */
-  --card-background-color-override: #fff;
+  --card-background-color-override: rgba(white, 7%);
 
   /** Font used for all text in views */
-  --font-family-override: 'Open Sans';
+  --font-family-override: 'Open Sans', 'Segoe UI', sans-serif;
 
   /** Font used for clock in /minimal and /clock views */
-  --font-family-bold-override: 'Arial Black';
+  --font-family-bold-override: 'Arial Black', sans-serif;
 
   /** Colour used for external message and aux timer in /timer */
-  --external-color-override: #161616;
+  --external-color-override: rgba(white, 85%);
 
   /** View specific features: /backstage */
   /** ---- Background highlight for blink behaviour */
   --card-background-color-blink-override: #339e4e;
   /** ---- Colour used for progress bar background */
-  --timer-progress-bg-override: #fff;
+  --timer-progress-bg-override: rgba(white, 7%);
   /** ---- Colour used for progress bar progress */
-  --timer-progress-override: #202020;
+  --timer-progress-override: #fa5656;
 
   /** View specific features: /op */
   --operator-customfield-font-size-override: 1.25rem;
-  --operator-running-bg-override: #339e4e;
+  --operator-running-bg-override: #d20300;
 
   /** View specific features: /studio */
-  --studio-active: #101010;
-  --studio-idle: #cfcfcf;
-  --studio-active-label: #101010;
-  --studio-idle-label: #595959;
-  --studio-overtime: #101010;
+  --studio-active: #d20300;
+  --studio-idle: #360000;
+  --studio-active-label: #0ff;
+  --studio-idle-label: #0aa;
+  --studio-overtime: #f60;
 
   /** View specific features: /lower */
-  --lowerThird-font-family-override: 'Courier New';
-  --lowerThird-top-font-weight-override: bold;
-  --lowerThird-bottom-font-weight-override: bold;
+  --lowerThird-font-family-override: 'Lato', 'Arial', sans-serif;
+  --lowerThird-top-font-weight-override: 600;
+  --lowerThird-bottom-font-weight-override: normal;
   --lowerThird-top-font-style-override: normal;
-  --lowerThird-bottom-font-style-override: italic;
+  --lowerThird-bottom-font-style-override: normal;
   --lowerThird-line-height-override: 1vh;
-  --lowerThird-text-align-override: end;
+  --lowerThird-text-align-override: left;
 }
 
 /** 
