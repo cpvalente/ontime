@@ -92,14 +92,8 @@
 .trigger {
   gap: 0em;
   margin-left: 2em;
-  button {
-    display: none;
-  }
 
   &:hover {
     background-color: $gray-1100;
-    button {
-      display: inline;
-    }
   }
 }
