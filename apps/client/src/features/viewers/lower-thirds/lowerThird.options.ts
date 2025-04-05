@@ -44,6 +44,13 @@ export const getLowerThirdOptions = (customFields: CustomFields): ViewOption[] =
       collapsible: true,
       options: [
         {
+          id: 'delay',
+          title: 'Delay',
+          description: 'Delay between transition trigger and the animation starting in seconds (default 0)',
+          type: 'number',
+          placeholder: '0 (default)',
+        },
+        {
           id: 'transition',
           title: 'Transition',
           description: 'Transition in time in seconds (default 3)',
@@ -51,11 +58,19 @@ export const getLowerThirdOptions = (customFields: CustomFields): ViewOption[] =
           placeholder: '3 (default)',
         },
         {
-          id: 'delay',
-          title: 'Delay',
+          id: 'wait',
+          title: 'Wait',
           description: 'Delay between transition in and out in seconds (default 3)',
           type: 'number',
           placeholder: '3 (default)',
+        },
+        {
+          id: 'trigger',
+          title: 'Animation trigger',
+          description: 'Select what triggesr the animation',
+          type: 'option',
+          values: { data: 'Event data', in: 'Force in', out: 'Force out' },
+          defaultValue: 'data',
         },
       ],
     },
