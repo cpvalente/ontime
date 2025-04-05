@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { IoAddCircle, IoTrash } from 'react-icons/io5';
-import { IconButton, Select } from '@chakra-ui/react';
+import { IconButton, Select, Tooltip } from '@chakra-ui/react';
 import { TimerLifeCycle, timerLifecycleValues, TriggerDTO } from 'ontime-types';
 
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
@@ -35,18 +35,23 @@ interface EventTriggerFormProps {
 function EventTriggerForm(props: EventTriggerFormProps) {
   const { handleSubmit, triggers } = props;
   const { data: automationSettings } = useAutomationSettings();
-  const [automationId, setAutomationId] = useState('');
+  const [automationId, setAutomationId] = useState<string | undefined>(undefined);
   const [cycleValue, setCycleValue] = useState(TimerLifeCycle.onStart);
 
-  const isValidTrigger = useCallback(
-    (cycle: TimerLifeCycle, automationId: string): boolean => {
+  const isInvalidTrigger = useCallback(
+    (cycle: TimerLifeCycle, automationId?: string): false | string => {
+      if (automationId === undefined) {
+        return 'Select an automation';
+      }
       if (!Object.keys(automationSettings.automations).includes(automationId)) {
-        return true;
+        return 'This automation dose not exist';
       }
       if (triggers === undefined) {
         return false;
       }
-      return Object.values(triggers).some((t) => t.automationId === automationId && t.trigger === cycle);
+      return Object.values(triggers).some((t) => t.automationId === automationId && t.trigger === cycle)
+        ? 'Automation can only be used once'
+        : false;
     },
     [automationSettings.automations, triggers],
   );
@@ -82,14 +87,16 @@ function EventTriggerForm(props: EventTriggerFormProps) {
           </option>
         ))}
       </Select>
-      <IconButton
-        isDisabled={isValidTrigger(cycleValue, automationId)}
-        onClick={() => handleSubmit(`trigger-${automationId}`, cycleValue)}
-        size='sm'
-        variant='ontime-ghosted'
-        aria-label='Add entry'
-        icon={<IoAddCircle />}
-      />
+      <Tooltip label={isInvalidTrigger(cycleValue, automationId)}>
+        <IconButton
+          isDisabled={isInvalidTrigger(cycleValue, automationId) ? true : false}
+          onClick={() => handleSubmit(`trigger-${automationId}`, cycleValue)}
+          size='sm'
+          variant='ontime-ghosted'
+          aria-label='Add entry'
+          icon={<IoAddCircle />}
+        />
+      </Tooltip>
     </div>
   );
 }
