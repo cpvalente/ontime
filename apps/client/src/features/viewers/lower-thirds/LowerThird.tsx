@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CustomFields, OntimeEvent, ViewSettings } from 'ontime-types';
+import { MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
@@ -24,6 +25,7 @@ type LowerOptions = {
   bottomSize: string;
   transition: number;
   delay: number;
+  wait: number;
   key: string;
   lineColour: string;
   lineHeight: string;
@@ -47,7 +49,8 @@ const defaultOptions: Readonly<LowerOptions> = {
   topSize: '65px',
   bottomSize: '40px',
   transition: 3,
-  delay: 3,
+  delay: 0,
+  wait: 3,
   key: 'FFF0',
   lineColour: 'FF0000',
   lineHeight: '0.4em',
@@ -122,6 +125,11 @@ export default function LowerThird(props: LowerProps) {
       newOptions.delay = Number(delay);
     }
 
+    const wait = searchParams.get('wait');
+    if (wait !== null) {
+      newOptions.wait = Number(wait);
+    }
+
     const key = searchParams.get('key');
     if (key !== null) {
       newOptions.key = key;
@@ -150,8 +158,6 @@ export default function LowerThird(props: LowerProps) {
 
   // check if data has changed and schedule animations
   useEffect(() => {
-    console.log('current state', playState);
-
     if (options.trigger === 'in') {
       setPlayState('in');
       return;
@@ -168,32 +174,35 @@ export default function LowerThird(props: LowerProps) {
     }
 
     previousId.current = eventNow?.id;
-    const animateOutInMs = options.delay * 1000 + options.transition * 1000;
+    clearTimeout(animationTimeout.current);
 
-    const reschedule = (newState: 'pre' | 'in' | 'out') => {
-      clearTimeout(animationTimeout.current);
-      animationTimeout.current = setTimeout(() => setPlayState(newState), animateOutInMs);
-    };
-    if (eventNow?.id == null) {
-      setPlayState('out');
-      reschedule('pre');
+    if (eventNow === null) {
+      if (playState === 'in') setPlayState('out');
       return;
     }
 
-    if (eventNow.id && !previousId.current) {
+    animationTimeout.current = setTimeout(() => {
       setPlayState('in');
-      reschedule('out');
-      return;
-    }
+    }, options.delay * MILLIS_PER_SECOND);
+  }, [eventNow, eventNow?.id, options.delay, options.transition, options.trigger, options.wait, playState, previousId]);
 
+  useEffect(() => {
+    clearTimeout(animationTimeout.current);
     if (playState === 'in') {
-      // event has changed, we just reschedule the timeout
-      reschedule('out');
+      const outDelayMs = (options.transition + options.wait) * MILLIS_PER_SECOND;
+      animationTimeout.current = setTimeout(() => {
+        setPlayState('out');
+      }, outDelayMs);
       return;
     }
-    setPlayState('in');
-    reschedule('out');
-  }, [options.delay, options.transition, options.trigger, playState, previousId]);
+    if (playState === 'out') {
+      const preDelayMs = options.transition * MILLIS_PER_SECOND;
+      animationTimeout.current = setTimeout(() => {
+        setPlayState('pre');
+      }, preDelayMs);
+      return;
+    }
+  }, [options.transition, options.wait, playState]);
 
   const topText = getPropertyValue(eventNow, options.topSrc) ?? '';
   const bottomText = getPropertyValue(eventNow, options.bottomSrc) ?? '';
