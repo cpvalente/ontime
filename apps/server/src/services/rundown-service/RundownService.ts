@@ -114,7 +114,7 @@ export async function deleteEvent(eventIds: string[]) {
   const scopedMutation = cache.mutateCache(cache.remove);
   const { didMutate } = await scopedMutation({ eventIds });
 
-  if (didMutate === false) {
+  if (!didMutate) {
     return;
   }
 
@@ -152,7 +152,7 @@ export async function editEvent(patch: PatchWithId) {
   const { newEvent, didMutate } = await scopedMutation({ patch, eventId: patch.id });
 
   // short circuit if nothing changed
-  if (didMutate === false) {
+  if (!didMutate) {
     return newEvent;
   }
 
