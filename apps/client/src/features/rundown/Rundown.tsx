@@ -300,7 +300,7 @@ export default function Rundown({ data }: RundownProps) {
                   isNextDay = checkIsNextDay(entry, lastEvent);
                   if (!isPast) {
                     totalGap += entry.gap;
-                    isLinkedToLoaded = isLinkedToLoaded && entry.linkStart !== null;
+                    isLinkedToLoaded = isLinkedToLoaded && entry.linkStart !== null && !lastEvent?.countToEnd;
                   }
                   if (isNewLatest(entry, lastEvent)) {
                     // populate previous entry
