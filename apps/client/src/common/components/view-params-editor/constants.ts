@@ -4,10 +4,10 @@ import type { MultiselectOptions, ParamField } from './types';
 
 export const makeOptionsFromCustomFields = (
   customFields: CustomFields,
-  additionalOptions: Record<string, string> = {},
+  additionalOptions: Readonly<Record<string, string>> = {},
   filterImageType = true,
 ) => {
-  const options = structuredClone(additionalOptions);
+  const options = { ...additionalOptions };
   for (const [key, value] of Object.entries(customFields)) {
     if (filterImageType && value.type === 'image') {
       continue;
