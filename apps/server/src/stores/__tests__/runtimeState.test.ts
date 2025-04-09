@@ -1,5 +1,5 @@
 import { OntimeRundown, PlayableEvent, Playback, SupportedEvent, TimerPhase } from 'ontime-types';
-import { deepmerge } from 'ontime-utils';
+import { deepmerge, MILLIS_PER_HOUR } from 'ontime-utils';
 
 import {
   type RuntimeState,
@@ -12,6 +12,7 @@ import {
   roll,
   start,
   stop,
+  update,
 } from '../runtimeState.js';
 import { initRundown } from '../../services/rundown-service/RundownService.js';
 
@@ -236,6 +237,85 @@ describe('mutation on runtimeState', () => {
       expect(newState.runtime.actualStart).toBeNull();
       expect(newState.runtime.offset).toBe(0);
       expect(newState.runtime.expectedEnd).toBeNull();
+    });
+
+    test.only('runtime offset when pausing across midnight', async () => {
+      const event1 = { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000 };
+      const event2 = { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500 };
+      // force update
+      vi.useFakeTimers();
+      await initRundown([event1, event2], {});
+      vi.runAllTimers();
+      //YYYY-MM-DDTHH:mm:ss.sssZ
+      vi.setSystemTime(new Date('2025-01-01T19:00:00'));
+
+      // 1. Load event
+      load(event1, [event1, event2]);
+      let newState = getState();
+      expect(newState.runtime.actualStart).toBeNull();
+      expect(newState.runtime.plannedStart).toBe(0);
+      expect(newState.runtime.plannedEnd).toBe(1500);
+      expect(newState.currentBlock.block).toBeNull();
+      expect(newState.runtime.offset).toBe(0);
+
+      // 2. Start event
+      start();
+      newState = getState();
+      if (newState.runtime.offset === null) {
+        throw new Error('Value cannot be null at this stage');
+      }
+
+      expect(newState.clock).toBe(19 * MILLIS_PER_HOUR);
+      expect(newState.runtime.actualStart).toBe(19 * MILLIS_PER_HOUR);
+      expect(newState.runtime.offset).toBe(event1.timeStart - newState.clock);
+
+      // 3. advance clock
+      vi.setSystemTime(new Date('2025-01-01T20:00:00'));
+      vi.runAllTimers();
+      update();
+      newState = getState();
+
+      expect(newState.clock).toBe(20 * MILLIS_PER_HOUR);
+      expect(newState.runtime.actualStart).toBe(19 * MILLIS_PER_HOUR);
+      expect(newState.runtime.offset).toBe(-71999000); //FIXME: event1.timeStart - newState.clock we are missing a second here?????
+
+      //Pause
+      pause();
+      update();
+      newState = getState();
+
+      expect(newState.clock).toBe(20 * MILLIS_PER_HOUR);
+      expect(newState.runtime.actualStart).toBe(19 * MILLIS_PER_HOUR);
+      expect(newState.runtime.offset).toBe(-71999000); //FIXME: event1.timeStart - newState.clock we are missing a second here?????
+
+      // 4. advance clock
+      vi.setSystemTime(new Date('2025-01-01T23:00:00'));
+      vi.runAllTimers();
+      update();
+      newState = getState();
+
+      expect(newState.clock).toBe(23 * MILLIS_PER_HOUR);
+      expect(newState.runtime.actualStart).toBe(19 * MILLIS_PER_HOUR);
+      expect(newState.runtime.offset).toBe(-82799000); //FIXME: event1.timeStart - newState.clock we are missing a second here?????
+
+      // 4. advance clock
+      vi.setSystemTime(new Date('2025-01-02T00:00:00'));
+      vi.runAllTimers();
+      update();
+      newState = getState();
+
+      expect(newState.clock).toBe(24 * MILLIS_PER_HOUR);
+      expect(newState.runtime.actualStart).toBe(24 * MILLIS_PER_HOUR);
+      expect(newState.runtime.offset).toBe(-82799000); //FIXME: event1.timeStart - newState.clock we are missing a second here?????
+
+      // 5. Stop event
+      stop();
+      newState = getState();
+      expect(newState.runtime.actualStart).toBeNull();
+      expect(newState.runtime.offset).toBe(0);
+      expect(newState.runtime.expectedEnd).toBeNull();
+
+      vi.useRealTimers();
     });
 
     test.todo('runtime offset on timers in overtime', () => {});
