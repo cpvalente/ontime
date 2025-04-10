@@ -28,7 +28,6 @@ export function triggerAutomations(cycle: TimerLifeCycle, state: RuntimeState) {
     return;
   }
 
-  //TODO: onStop dosn't work in the current way of implementing
   const triggers = getAutomationTriggers(state.eventNow);
 
   const triggerAutomations = triggers.filter((trigger) => trigger.trigger === cycle);

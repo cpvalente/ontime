@@ -81,6 +81,7 @@ function EventTriggerForm(props: EventTriggerFormProps) {
         onChange={(e) => setCycleValue(e.target.value as TimerLifeCycle)}
         defaultValue={TimerLifeCycle.onStart}
       >
+        {/* Notice here that we don't support onStop */}
         {['onLoad', 'onStart', 'onPause', 'onFinish', 'onWarning', 'onDanger'].map((cycle) => (
           <option key={cycle} value={cycle}>
             {cycle}
