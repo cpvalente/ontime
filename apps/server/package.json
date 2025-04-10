@@ -52,6 +52,7 @@
     "dev": "cross-env NODE_ENV=development tsx watch ./src/index.ts",
     "dev:inspect": "cross-env NODE_ENV=development tsx watch --inspect ./src/index.ts",
     "dev:test": "cross-env IS_TEST=true tsx ./src/index.ts",
+    "prebuild": "tsx ./scripts/bundleCss.ts",
     "build": "node esbuild.electron.js",
     "build:electron": "node esbuild.electron.js",
     "build:local": "node esbuild.dev.js",

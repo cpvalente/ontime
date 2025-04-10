@@ -207,6 +207,9 @@ $inner-padding: 1rem;
   &.end {
     justify-content: flex-end;
   }
+  &.apart {
+    justify-content: space-between;
+  }
 }
 
 @keyframes animloader {

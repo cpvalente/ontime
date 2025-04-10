@@ -6,9 +6,6 @@ settings:
 
 catalogs:
   default:
-    '@types/node':
-      specifier: 20.17.16
-      version: 20.17.16
     '@typescript-eslint/eslint-plugin':
       specifier: 7.16.1
       version: 7.16.1
@@ -143,6 +140,9 @@ importers:
       framer-motion:
         specifier: ^10.10.0
         version: 10.11.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      prismjs:
+        specifier: ^1.29.0
+        version: 1.29.0
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -167,6 +167,9 @@ importers:
       react-router-dom:
         specifier: ^6.3.0
         version: 6.6.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-simple-code-editor:
+        specifier: ^0.14.1
+        version: 0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       web-vitals:
         specifier: ^3.1.1
         version: 3.1.1
@@ -183,6 +186,9 @@ importers:
       '@types/color':
         specifier: ^3.0.3
         version: 3.0.3
+      '@types/prismjs':
+        specifier: ^1.26.5
+        version: 1.26.5
       '@types/react':
         specifier: ^18.0.26
         version: 18.0.26
@@ -2075,6 +2081,9 @@ packages:
 
   '@types/plist@3.0.5':
     resolution: {integrity: sha512-E6OCaRmAe4WDmWNsL/9RMqdkkzDCY1etutkflWk4c+AcjDU07Pcz1fQwTX0TQz+Pxqn9i4L1TU3UFpjnrcDgxA==}
+
+  '@types/prismjs@1.26.5':
+    resolution: {integrity: sha512-AUZTa7hQ2KY5L7AmtSiqxlhWxb4ina0yd8hNbl4TWuqnv/pFP0nDMb3YrfSBf4hJVGLh2YEIBfKaBW/9UEl6IQ==}
 
   '@types/prop-types@15.7.5':
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
@@ -4123,6 +4132,10 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
+  prismjs@1.29.0:
+    resolution: {integrity: sha512-Kx/1w86q/epKcmte75LNrEoT+lX8pBpavuAbvJWRXar7Hz8jrtF+e3vY751p0R8H9HdArwaCTNDDzHg/ScJK1Q==}
+    engines: {node: '>=6'}
+
   process-nextick-args@2.0.1:
     resolution: {integrity: sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==}
 
@@ -4277,6 +4290,12 @@ packages:
     engines: {node: '>=14'}
     peerDependencies:
       react: '>=16.8'
+
+  react-simple-code-editor@0.14.1:
+    resolution: {integrity: sha512-BR5DtNRy+AswWJECyA17qhUDvrrCZ6zXOCfkQY5zSmb96BVUbpVAv03WpcjcwtCwiLbIANx3gebHOcXYn1EHow==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
 
   react-style-singleton@2.2.1:
     resolution: {integrity: sha512-ZWj0fHEMyWkHzKYUr2Bs/4zU6XLmq9HsgBURm7g5pAVfyn49DgUiNgY2d4lXRlYSiCif9YBGpQleewkcqddc7g==}
@@ -6850,6 +6869,8 @@ snapshots:
       xmlbuilder: 15.1.1
     optional: true
 
+  '@types/prismjs@1.26.5': {}
+
   '@types/prop-types@15.7.5': {}
 
   '@types/qs@6.9.7': {}
@@ -9287,6 +9308,8 @@ snapshots:
 
   prettier@3.3.1: {}
 
+  prismjs@1.29.0: {}
+
   process-nextick-args@2.0.1: {}
 
   progress@2.0.3: {}
@@ -9430,6 +9453,11 @@ snapshots:
     dependencies:
       '@remix-run/router': 1.2.1
       react: 18.3.1
+
+  react-simple-code-editor@0.14.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+    dependencies:
+      react: 18.3.1
+      react-dom: 18.3.1(react@18.3.1)
 
   react-style-singleton@2.2.1(@types/react@18.0.26)(react@18.3.1):
     dependencies:
