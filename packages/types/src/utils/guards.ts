@@ -3,7 +3,7 @@ import type { OntimeBlock, OntimeDelay, OntimeEvent, PlayableEvent } from '../de
 import { SupportedEvent } from '../definitions/core/OntimeEvent.type.js';
 import type { OntimeRundownEntry } from '../definitions/core/Rundown.type.js';
 import type { TimerLifeCycleKey } from '../definitions/core/TimerLifecycle.type.js';
-import { TimerLifeCycle } from '../definitions/core/TimerLifecycle.type.js';
+import { TimerLifeCycle, timerLifecycleValues } from '../definitions/core/TimerLifecycle.type.js';
 
 type MaybeEvent = OntimeRundownEntry | Partial<OntimeRundownEntry> | null | undefined;
 
@@ -44,4 +44,8 @@ export function isHTTPOutput(output: AutomationOutput): output is HTTPOutput {
 
 export function isOntimeAction(output: AutomationOutput): output is OntimeAction {
   return output.type === 'ontime';
+}
+
+export function isTimerLifeCycle(val: string): val is TimerLifeCycle {
+  return timerLifecycleValues.includes(val);
 }

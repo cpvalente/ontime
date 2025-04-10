@@ -396,6 +396,7 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     timeWarning: patchEvent.timeWarning ?? originalEvent.timeWarning,
     timeDanger: patchEvent.timeDanger ?? originalEvent.timeDanger,
     custom: { ...originalEvent.custom, ...patchEvent.custom },
+    triggers: patchEvent.triggers ?? originalEvent.triggers,
   };
 }
 

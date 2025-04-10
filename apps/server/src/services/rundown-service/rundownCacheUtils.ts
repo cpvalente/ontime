@@ -118,6 +118,7 @@ export enum regenerateWhitelist {
   'timeWarning',
   'timeDanger',
   'custom',
+  'triggers',
 }
 
 /**

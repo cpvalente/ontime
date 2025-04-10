@@ -1,5 +1,6 @@
 import { CSSProperties, useCallback } from 'react';
-import { CustomFieldLabel, OntimeEvent } from 'ontime-types';
+import { CustomFieldLabel, isTimerLifeCycle, OntimeEvent } from 'ontime-types';
+import { generateId } from 'ontime-utils';
 
 import AppLink from '../../../common/components/link/app-link/AppLink';
 import { useEventAction } from '../../../common/hooks/useEventAction';
@@ -12,6 +13,7 @@ import EventEditorTimes from './composite/EventEditorTimes';
 import EventEditorTitles from './composite/EventEditorTitles';
 import EventTextArea from './composite/EventTextArea';
 import EventTextInput from './composite/EventTextInput';
+import EventTriggers from './composite/EventTriggers';
 import EventEditorEmpty from './EventEditorEmpty';
 
 import style from './EventEditor.module.scss';
@@ -35,12 +37,23 @@ export default function EventEditor(props: EventEditorProps) {
     (field: EditorUpdateFields, value: string) => {
       if (field.startsWith('custom-')) {
         const fieldLabel = field.split('custom-')[1];
-        updateEvent({ id: event?.id, custom: { [fieldLabel]: value } });
+        updateEvent({ id: event.id, custom: { [fieldLabel]: value } });
+      } else if (field.startsWith('trigger-')) {
+        const triggerId = field.split('trigger-')[1];
+        if (isTimerLifeCycle(value)) {
+          const triggers = event.triggers ?? {};
+          const id = generateId();
+          triggers[id] = { title: '', trigger: value, automationId: triggerId };
+          updateEvent({ id: event?.id, triggers: triggers });
+        } else if (event.triggers) {
+          delete event.triggers[triggerId];
+          updateEvent({ id: event.id, triggers: event.triggers });
+        }
       } else {
-        updateEvent({ id: event?.id, [field]: value });
+        updateEvent({ id: event.id, [field]: value });
       }
     },
-    [event?.id, updateEvent],
+    [event.id, event.triggers, updateEvent],
   );
 
   if (!event) {
@@ -123,6 +136,13 @@ export default function EventEditor(props: EventEditorProps) {
           // we should have exhausted all types by now
           return null;
         })}
+      </div>
+      <div className={style.column}>
+        <Editor.Title>
+          Triggers
+          {isEditor && <AppLink search='settings=automation__automations'>Manage</AppLink>}
+        </Editor.Title>
+        <EventTriggers triggers={event.triggers} handleSubmit={handleSubmit} />
       </div>
     </div>
   );
