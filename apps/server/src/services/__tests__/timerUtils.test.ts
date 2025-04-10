@@ -4,6 +4,7 @@ import { EndAction, Playback, TimeStrategy, TimerPhase, TimerType } from 'ontime
 import {
   getCurrent,
   getExpectedFinish,
+  getRelativeOffset,
   getRuntimeOffset,
   getTimerPhase,
   normaliseEndTime,
@@ -1046,6 +1047,84 @@ describe('getRuntimeOffset()', () => {
   });
 });
 
+describe('getRelativeOffset()', () => {
+  it('relative offset is 0 when starting at the planed time', () => {
+    const state = {
+      eventNow: {
+        id: '1',
+        timeStart: 150,
+      },
+      timer: {
+        startedAt: 150,
+        addedTime: 0,
+        current: 0,
+      },
+      _timer: {
+        pausedAt: null,
+      },
+      runtime: {
+        actualStart: 150,
+        plannedStart: 150,
+      },
+    } as RuntimeState;
+
+    state.runtime.offset = getRuntimeOffset(state);
+    expect(state.runtime.offset).toBe(0);
+    const relativeOffsetoffset = getRelativeOffset(state);
+    expect(relativeOffsetoffset).toBe(0);
+  });
+  it('relative offset is 0 when starting after the planed time', () => {
+    const state = {
+      eventNow: {
+        id: '1',
+        timeStart: 100,
+      },
+      timer: {
+        startedAt: 150,
+        addedTime: 0,
+        current: 0,
+      },
+      _timer: {
+        pausedAt: null,
+      },
+      runtime: {
+        actualStart: 150,
+        plannedStart: 100,
+      },
+    } as RuntimeState;
+
+    state.runtime.offset = getRuntimeOffset(state);
+    expect(state.runtime.offset).toBe(-50);
+    const relativeOffsetoffset = getRelativeOffset(state);
+    expect(relativeOffsetoffset).toBe(0);
+  });
+  it('relative offset is 0 when starting before the planed time', () => {
+    const state = {
+      eventNow: {
+        id: '1',
+        timeStart: 150,
+      },
+      timer: {
+        startedAt: 100,
+        addedTime: 0,
+        current: 0,
+      },
+      _timer: {
+        pausedAt: null,
+      },
+      runtime: {
+        actualStart: 100,
+        plannedStart: 150,
+      },
+    } as RuntimeState;
+
+    state.runtime.offset = getRuntimeOffset(state);
+    expect(state.runtime.offset).toBe(50);
+    const relativeOffsetoffset = getRelativeOffset(state);
+    expect(relativeOffsetoffset).toBe(0);
+  });
+});
+
 describe('getTimerPhase()', () => {
   it('should be None if the timer is not running', () => {
     const state = {
@@ -1169,8 +1248,10 @@ describe('getTimerPhase()', () => {
       },
       _timer: {
         forceFinish: null,
-        totalDelay: 0,
         pausedAt: null,
+      },
+      _rundown: {
+        totalDelay: 0,
       },
     } as RuntimeState;
 
@@ -1208,8 +1289,10 @@ describe('getTimerPhase()', () => {
       },
       _timer: {
         forceFinish: null,
-        totalDelay: 0,
         pausedAt: null,
+      },
+      _rundown: {
+        totalDelay: 0,
       },
     } as RuntimeState;
 

@@ -157,6 +157,23 @@ export function getRuntimeOffset(state: RuntimeState): number {
 }
 
 /**
+ * Calculates relative offset
+ * should always be calculated after the absolute offset
+ */
+export function getRelativeOffset(state: RuntimeState): number {
+  const { actualStart, plannedStart, offset } = state.runtime;
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: {
+    // we know actualStart and plannedStart exists as long as a timer is running
+    if (actualStart === null || plannedStart === null) {
+      throw new Error('timerUtils.calculate: actualStart and plannedStart must be set');
+    }
+  }
+  const relativeStartOffset = actualStart - plannedStart;
+  return offset + relativeStartOffset;
+}
+
+/**
  * Calculates the expected end of the rundown
  */
 export function getExpectedEnd(state: RuntimeState): MaybeNumber {
@@ -164,7 +181,7 @@ export function getExpectedEnd(state: RuntimeState): MaybeNumber {
   if (state.runtime.actualStart === null || state.runtime.plannedEnd === null) {
     return null;
   }
-  return state.runtime.plannedEnd - state.runtime.offset + state._timer.totalDelay;
+  return state.runtime.plannedEnd - state.runtime.offset + state._rundown.totalDelay;
 }
 
 /**
