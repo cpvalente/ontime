@@ -300,6 +300,7 @@ export default function Rundown({ data }: RundownProps) {
                   isNextDay = checkIsNextDay(entry, lastEvent);
                   if (!isPast) {
                     totalGap += entry.gap;
+                    // We also include countToEnd in this test as the behavior of a linked event coming after a countToEnd is simelar to an unlinked event
                     isLinkedToLoaded = isLinkedToLoaded && entry.linkStart !== null && !lastEvent?.countToEnd;
                   }
                   if (isNewLatest(entry, lastEvent)) {
