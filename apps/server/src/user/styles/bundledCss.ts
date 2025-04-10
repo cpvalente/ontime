@@ -1,3 +1,4 @@
+export const defaultCss = `
 /** 
  * This CSS file allows user customisation of the UI
  * We expose some CSS properties to facilitate this (see below in :root)
@@ -75,3 +76,4 @@
 .stage-timer > .message-overlay--active > div {
   color: red;
 }
+`;
