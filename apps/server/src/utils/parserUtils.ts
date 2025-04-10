@@ -1,5 +1,4 @@
 import { unlink } from 'fs';
-import { deepmerge } from 'ontime-utils';
 
 /**
  * @description Ensures variable is string, it skips object types
@@ -34,33 +33,6 @@ export const isEmptyObject = (obj: object) => {
   }
   throw new Error('Variable is not an object');
 };
-
-/**
- * @description Merges two objects, suppressing undefined keys
- * @param {object} a - any object
- * @param {object} b - a potential partial object of same time as a
- */
-export function mergeObject<T extends object>(a: T, b: Partial<T>): T {
-  const merged = { ...a };
-
-  for (const key in b) {
-    const aValue = a[key];
-    const bValue = b[key];
-
-    // ignore keys that do not exist in original object
-    if (!Object.hasOwn(merged, key)) {
-      continue;
-    }
-
-    if (typeof bValue === 'object' && bValue !== null && typeof aValue === 'object' && aValue !== null) {
-      // @ts-expect-error -- not sure how to type this
-      merged[key] = deepmerge(aValue, bValue);
-    } else if (bValue !== undefined) {
-      merged[key] = bValue;
-    }
-  }
-  return merged;
-}
 
 /**
  * @description Removes undefined

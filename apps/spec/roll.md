@@ -12,7 +12,7 @@ It can be user either on its own, or as in conjunction with manual playback to a
 ## Implementation details
 
 ### starting to roll
-> RuntimeService.roll(rundown: OntimeRundown)
+> RuntimeService.roll(rundown)
 
 When calling the roll function, we try and find events to load. There should always be an event as long as the rundown is not empty.
 

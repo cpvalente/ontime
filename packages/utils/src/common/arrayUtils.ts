@@ -30,17 +30,14 @@ export function insertAtIndex<T>(index: number, item: T, array: T[]): T[] {
  * @param index
  * @param array
  */
-export function deleteAtIndex<T>(index: number, array: T[]) {
+export function deleteAtIndex<T>(index: number, array: T[]): T[] {
   return array.toSpliced(index, 1);
 }
 
 /**
  * Reorders two objects in an array
- * @param array
- * @param fromIndex
- * @param toIndex
  */
-export function reorderArray<T>(array: T[], fromIndex: number, toIndex: number) {
+export function reorderArray<T>(array: T[], fromIndex: number, toIndex: number): T[] {
   if (fromIndex === toIndex) {
     return array; // No change needed, return the original array
   }

@@ -1,12 +1,13 @@
 import {
   ProjectData,
-  OntimeRundown,
   ViewSettings,
   DatabaseModel,
   Settings,
   CustomFields,
   URLPreset,
   AutomationSettings,
+  Rundown,
+  ProjectRundowns,
 } from 'ontime-types';
 
 import type { Low } from 'lowdb';
@@ -45,6 +46,7 @@ export function getDataProvider() {
     setCustomFields,
     getCustomFields,
     setRundown,
+    mergeRundown,
     getSettings,
     setSettings,
     getUrlPresets,
@@ -78,14 +80,28 @@ async function setCustomFields(newData: CustomFields): ReadonlyPromise<CustomFie
   return db.data.customFields;
 }
 
+async function mergeRundown(
+  newCustomFields: CustomFields,
+  newRundowns: ProjectRundowns,
+): ReadonlyPromise<{ rundowns: ProjectRundowns; customFields: CustomFields }> {
+  db.data.customFields = { ...db.data.customFields, ...newCustomFields };
+
+  Object.entries(newRundowns).forEach(([id, rundown]) => {
+    // Note that entries with the same key will be overridden
+    db.data.rundowns[id] = rundown;
+  });
+  await persist();
+  return { rundowns: db.data.rundowns, customFields: db.data.customFields };
+}
+
 function getCustomFields(): Readonly<CustomFields> {
   return db.data.customFields;
 }
 
-async function setRundown(newData: OntimeRundown): ReadonlyPromise<OntimeRundown> {
-  db.data.rundown = newData;
+async function setRundown(rundownKey: string, newData: Rundown): ReadonlyPromise<Rundown> {
+  db.data.rundowns[rundownKey] = newData;
   await persist();
-  return db.data.rundown;
+  return db.data.rundowns[rundownKey];
 }
 
 function getSettings(): Readonly<Settings> {
@@ -128,8 +144,9 @@ async function setAutomation(newData: AutomationSettings): ReadonlyPromise<Autom
   return db.data.automation;
 }
 
-function getRundown(): Readonly<OntimeRundown> {
-  return db.data.rundown;
+function getRundown(): Readonly<Rundown> {
+  const firstRundown = Object.keys(db.data.rundowns)[0];
+  return db.data.rundowns[firstRundown];
 }
 
 async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<DatabaseModel> {
@@ -140,7 +157,7 @@ async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<D
   db.data.automation = mergedData.automation;
   db.data.urlPresets = mergedData.urlPresets;
   db.data.customFields = mergedData.customFields;
-  db.data.rundown = mergedData.rundown;
+  db.data.rundowns = mergedData.rundowns;
 
   await persist();
   return db.data;

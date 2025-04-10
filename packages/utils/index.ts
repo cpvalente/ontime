@@ -8,10 +8,7 @@ export { sanitiseCue } from './src/cue-utils/cueUtils.js';
 export { getCueCandidate } from './src/cue-utils/cueUtils.js';
 export { generateId } from './src/generate-id/generateId.js';
 export {
-  filterPlayable,
-  filterTimedEvents,
   getEventWithId,
-  getFirst,
   getFirstEvent,
   getFirstEventNormal,
   getFirstNormal,
@@ -66,7 +63,7 @@ export { deepmerge } from './src/externals/deepmerge.js';
 // array utils
 export { deleteAtIndex, insertAtIndex, reorderArray } from './src/common/arrayUtils.js';
 // object utils
-export { getPropertyFromPath } from './src/common/objectUtils.js';
+export { getPropertyFromPath, isObjectEmpty } from './src/common/objectUtils.js';
 
 // generic utilities
 export { getErrorMessage } from './src/generic/generic.js';

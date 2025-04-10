@@ -3,8 +3,8 @@
  * Google Sheets
  */
 
-import { CustomFields, OntimeRundown } from 'ontime-types';
-import type { ImportMap } from 'ontime-utils';
+import { CustomFields, Rundown } from 'ontime-types';
+import { type ImportMap } from 'ontime-utils';
 
 import { extname } from 'path';
 import { existsSync } from 'fs';
@@ -12,7 +12,7 @@ import xlsx from 'xlsx';
 import type { WorkBook } from 'xlsx';
 
 import { parseExcel } from '../../utils/parser.js';
-import { parseRundown } from '../../utils/parserFunctions.js';
+import { parseCustomFields, parseRundown } from '../../utils/parserFunctions.js';
 import { deleteFile } from '../../utils/parserUtils.js';
 import { getCustomFields } from '../../services/rundown-service/rundownCache.js';
 
@@ -34,7 +34,7 @@ export function listWorksheets(): string[] {
   return excelData.SheetNames;
 }
 
-export function generateRundownPreview(options: ImportMap): { rundown: OntimeRundown; customFields: CustomFields } {
+export function generateRundownPreview(options: ImportMap): { rundown: Rundown; customFields: CustomFields } {
   const data = excelData.Sheets[options.worksheet];
 
   if (!data) {
@@ -43,15 +43,17 @@ export function generateRundownPreview(options: ImportMap): { rundown: OntimeRun
 
   const arrayOfData: unknown[][] = xlsx.utils.sheet_to_json(data, { header: 1, blankrows: false, raw: false });
 
-  const dataFromExcel = parseExcel(arrayOfData, getCustomFields(), options);
+  const dataFromExcel = parseExcel(arrayOfData, getCustomFields(), options.worksheet, options);
+  const parsedCustomFields = parseCustomFields(dataFromExcel);
+
   // we run the parsed data through an extra step to ensure the objects shape
-  const { rundown, customFields } = parseRundown(dataFromExcel);
-  if (rundown.length === 0) {
+  const Rundown = parseRundown(dataFromExcel.rundown, parsedCustomFields);
+  if (Rundown.order.length === 0) {
     throw new Error(`Could not find data to import in the worksheet: ${options.worksheet}`);
   }
 
   // clear the data
   excelData = xlsx.utils.book_new();
 
-  return { rundown, customFields };
+  return { rundown: Rundown, customFields: parsedCustomFields };
 }

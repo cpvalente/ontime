@@ -5,10 +5,12 @@
 
 import type { Request, Response } from 'express';
 import { generateRundownPreview, listWorksheets, saveExcelFile } from './excel.service.js';
+import { CustomFields, Rundown } from 'ontime-types';
 
 export async function postExcel(req: Request, res: Response) {
   try {
-    const filePath = req.file.path;
+    // file has been validated by middleware
+    const filePath = (req.file as Express.Multer.File).path;
     await saveExcelFile(filePath);
     res.status(200).send();
   } catch (error) {
@@ -29,7 +31,10 @@ export async function getWorksheets(req: Request, res: Response) {
  * parses an Excel spreadsheet
  * @returns parsed result
  */
-export async function previewExcel(req: Request, res: Response) {
+export async function previewExcel(
+  req: Request,
+  res: Response<{ rundown: Rundown; customFields: CustomFields } | { message: string }>,
+) {
   try {
     const { options } = req.body;
     const data = generateRundownPreview(options);

@@ -12,7 +12,7 @@ type noop = (this: any, ...args: any[]) => any;
 
 type PickFunction<T extends noop> = (this: ThisParameterType<T>, ...args: Parameters<T>) => ReturnType<T>;
 
-export const isFunction = (value: unknown): value is (...args: any) => any => typeof value === 'function';
+const isFunction = (value: unknown): value is (...args: any) => any => typeof value === 'function';
 
 export default function useMemoisedFn<T extends noop>(fn: T) {
   if (isDev) {

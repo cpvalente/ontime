@@ -1,15 +1,16 @@
 import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useHotkeys } from '@mantine/hooks';
 import {
+  type EntryId,
+  type MaybeString,
+  type PlayableEvent,
+  type Rundown,
   isOntimeBlock,
   isOntimeEvent,
   isPlayableEvent,
-  MaybeString,
-  PlayableEvent,
   Playback,
-  RundownCached,
   SupportedEvent,
 } from 'ontime-types';
 import {
@@ -21,6 +22,7 @@ import {
   getPreviousBlockNormal,
   getPreviousNormal,
   isNewLatest,
+  reorderArray,
 } from 'ontime-utils';
 
 import { type EventOptions, useEventAction } from '../../common/hooks/useEventAction';
@@ -39,12 +41,12 @@ import style from './Rundown.module.scss';
 const RundownEntry = lazy(() => import('./RundownEntry'));
 
 interface RundownProps {
-  data: RundownCached;
+  data: Rundown;
 }
 
 export default function Rundown({ data }: RundownProps) {
-  const { order, rundown } = data;
-  const [statefulEntries, setStatefulEntries] = useState(order);
+  const { order, entries } = data;
+  const [statefulEntries, setStatefulEntries] = useState<EntryId[]>(order);
 
   const featureData = useRundownEditor();
   const { addEvent, reorderEvent, deleteEvent } = useEventAction();
@@ -65,30 +67,30 @@ export default function Rundown({ data }: RundownProps) {
   const deleteAtCursor = useCallback(
     (cursor: string | null) => {
       if (!cursor) return;
-      const { entry, index } = getPreviousNormal(rundown, order, cursor);
+      const { entry, index } = getPreviousNormal(entries, order, cursor);
       deleteEvent([cursor]);
       if (entry && index !== null) {
         setSelectedEvents({ id: entry.id, selectMode: 'click', index });
       }
     },
-    [rundown, order, deleteEvent, setSelectedEvents],
+    [entries, order, deleteEvent, setSelectedEvents],
   );
 
   const insertCopyAtId = useCallback(
     (atId: string | null, copyId: string | null, above = false) => {
-      const adjustedCursor = above ? getPreviousNormal(rundown, order, atId ?? '').entry?.id ?? null : atId;
+      const adjustedCursor = above ? getPreviousNormal(entries, order, atId ?? '').entry?.id ?? null : atId;
       if (copyId === null) {
         // we cant clone without selection
         return;
       }
-      const cloneEntry = rundown[copyId];
+      const cloneEntry = entries[copyId];
       if (cloneEntry?.type === SupportedEvent.Event) {
         //if we don't have a cursor add the new event on top
         const newEvent = cloneEvent(cloneEntry);
         addEvent(newEvent, { after: adjustedCursor ?? undefined });
       }
     },
-    [addEvent, order, rundown],
+    [addEvent, order, entries],
   );
 
   const insertAtId = useCallback(
@@ -124,7 +126,7 @@ export default function Rundown({ data }: RundownProps) {
       let newCursor = cursor;
       if (cursor === null) {
         // there is no cursor, we select the first or last depending on direction
-        const selected = direction === 'up' ? getLastNormal(rundown, order) : getFirstNormal(rundown, order);
+        const selected = direction === 'up' ? getLastNormal(entries, order) : getFirstNormal(entries, order);
 
         if (isOntimeBlock(selected)) {
           setSelectedEvents({ id: selected.id, selectMode: 'click', index: direction === 'up' ? order.length : 0 });
@@ -140,14 +142,14 @@ export default function Rundown({ data }: RundownProps) {
       // otherwise we select the next or previous
       const selected =
         direction === 'up'
-          ? getPreviousBlockNormal(rundown, order, newCursor)
-          : getNextBlockNormal(rundown, order, newCursor);
+          ? getPreviousBlockNormal(entries, order, newCursor)
+          : getNextBlockNormal(entries, order, newCursor);
 
       if (selected.entry !== null && selected.index !== null) {
         setSelectedEvents({ id: selected.entry.id, selectMode: 'click', index: selected.index });
       }
     },
-    [order, rundown, setSelectedEvents],
+    [order, entries, setSelectedEvents],
   );
 
   const selectEntry = useCallback(
@@ -158,7 +160,7 @@ export default function Rundown({ data }: RundownProps) {
 
       if (cursor === null) {
         // there is no cursor, we select the first or last depending on direction if it exists
-        const selected = direction === 'up' ? getLastNormal(rundown, order) : getFirstNormal(rundown, order);
+        const selected = direction === 'up' ? getLastNormal(entries, order) : getFirstNormal(entries, order);
         if (selected !== null) {
           setSelectedEvents({ id: selected.id, selectMode: 'click', index: direction === 'up' ? order.length : 0 });
         }
@@ -167,13 +169,13 @@ export default function Rundown({ data }: RundownProps) {
 
       // otherwise we select the next or previous
       const selected =
-        direction === 'up' ? getPreviousNormal(rundown, order, cursor) : getNextNormal(rundown, order, cursor);
+        direction === 'up' ? getPreviousNormal(entries, order, cursor) : getNextNormal(entries, order, cursor);
 
       if (selected.entry !== null && selected.index !== null) {
         setSelectedEvents({ id: selected.entry.id, selectMode: 'click', index: selected.index });
       }
     },
-    [order, rundown, setSelectedEvents],
+    [order, entries, setSelectedEvents],
   );
 
   const moveEntry = useCallback(
@@ -182,14 +184,14 @@ export default function Rundown({ data }: RundownProps) {
         return;
       }
       const { index } =
-        direction === 'up' ? getPreviousNormal(rundown, order, cursor) : getNextNormal(rundown, order, cursor);
+        direction === 'up' ? getPreviousNormal(entries, order, cursor) : getNextNormal(entries, order, cursor);
 
       if (index !== null) {
         const offsetIndex = direction === 'up' ? index + 1 : index - 1;
         reorderEvent(cursor, offsetIndex, index);
       }
     },
-    [order, reorderEvent, rundown],
+    [order, reorderEvent, entries],
   );
 
   // shortcuts
@@ -238,6 +240,9 @@ export default function Rundown({ data }: RundownProps) {
     setSelectedEvents({ id: featureData.selectedEventId, selectMode: 'click', index });
   }, [appMode, featureData.selectedEventId, order, setSelectedEvents]);
 
+  /**
+   * On drag end, we reorder the events
+   */
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -245,9 +250,10 @@ export default function Rundown({ data }: RundownProps) {
       if (active.id !== over?.id) {
         const fromIndex = active.data.current?.sortable.index;
         const toIndex = over.data.current?.sortable.index;
-        // ugly hack to handle inconsistencies between dnd-kit and async store updates
+
+        // we keep a copy of the state as a hack to handle inconsistencies between dnd-kit and async store updates
         setStatefulEntries((currentEntries) => {
-          return arrayMove(currentEntries, fromIndex, toIndex);
+          return reorderArray(currentEntries, fromIndex, toIndex);
         });
         reorderEvent(String(active.id), fromIndex, toIndex);
       }
@@ -259,11 +265,11 @@ export default function Rundown({ data }: RundownProps) {
   }
 
   // last event is used to calculate relative timings
-  let lastEvent: PlayableEvent | undefined; // used by indicators
-  let thisEvent: PlayableEvent | undefined;
+  let lastEvent: PlayableEvent | null = null; // used by indicators
+  let thisEvent: PlayableEvent | null = null;
   // previous entry is used to infer position in the rundown for new events
-  let previousEntryId: string | undefined;
-  let thisId = previousEntryId;
+  let previousEntryId: MaybeString = null;
+  let thisId: MaybeString = null;
 
   let eventIndex = 0;
   // all events before the current selected are in the past
@@ -272,6 +278,7 @@ export default function Rundown({ data }: RundownProps) {
   let totalGap = 0;
   const isEditMode = appMode === AppMode.Edit;
   let isLinkedToLoaded = true; //check if the event can link all the way back to the currently playing event
+
   return (
     <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext onDragEnd={handleOnDragEnd} sensors={sensors} collisionDetection={closestCenter}>
@@ -281,7 +288,7 @@ export default function Rundown({ data }: RundownProps) {
               // we iterate through a stateful copy of order to make the operations smoother
               // this means that this can be out of sync with order until the useEffect runs
               // instead of writing all the logic guards, we simply short circuit rendering here
-              const entry = rundown[entryId];
+              const entry = entries[entryId];
               if (!entry) {
                 return null;
               }
