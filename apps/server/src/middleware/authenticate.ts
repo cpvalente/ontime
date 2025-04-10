@@ -124,6 +124,6 @@ function setSessionCookie(res: Response, token: string) {
     httpOnly: false, // allow websocket to access cookie
     secure: true,
     path: '/', // allow cookie to be accessed from any path
-    sameSite: 'strict',
+    sameSite: 'none', // allow cookies to be sent in cross-origin requests (e.g., iframes)
   });
 }
