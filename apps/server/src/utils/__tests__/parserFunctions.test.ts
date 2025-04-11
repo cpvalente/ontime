@@ -12,6 +12,7 @@ import {
   parseViewSettings,
   sanitiseCustomFields,
 } from '../parserFunctions.js';
+import { makeOntimeBlock, makeOntimeEvent } from '../../services/rundown-service/__mocks__/rundown.mocks.js';
 
 describe('parseRundowns()', () => {
   it('returns a default project rundown if nothing is given', () => {
@@ -166,6 +167,43 @@ describe('parseRundown()', () => {
     expect(parsedRundown.order.length).toEqual(2);
     expect(Object.keys(parsedRundown.entries).length).toEqual(2);
   });
+
+  it('handles empty events', () => {
+    const rundown = {
+      id: 'test',
+      title: '',
+      order: ['1', '2', '3', '4'],
+      entries: {
+        '1': { id: '1', type: SupportedEvent.Event } as OntimeEvent,
+        '2': { id: '2', type: SupportedEvent.Event } as OntimeEvent,
+        'not-mentioned': {} as OntimeEvent,
+      },
+      revision: 1,
+    } as Rundown;
+
+    const parsedRundown = parseRundown(rundown, {});
+    expect(parsedRundown.order.length).toEqual(2);
+    expect(Object.keys(parsedRundown.entries).length).toEqual(2);
+  });
+
+  it('parses events nested in blocks', () => {
+    const rundown = {
+      id: 'test',
+      title: '',
+      order: ['block'],
+      entries: {
+        block: makeOntimeBlock({ id: 'block', events: ['1', '2'] }),
+        '1': makeOntimeEvent({ id: '1' }),
+        '2': makeOntimeEvent({ id: '2' }),
+      },
+      revision: 1,
+    } as Rundown;
+
+    const parsedRundown = parseRundown(rundown, {});
+    expect(parsedRundown.order.length).toEqual(1);
+    expect(parsedRundown.entries.block).toMatchObject({ events: ['1', '2'] });
+    expect(Object.keys(parsedRundown.entries).length).toEqual(3);
+  });
 });
 
 describe('parseProject()', () => {
@@ -191,11 +229,10 @@ describe('parseSettings()', () => {
     expect(() => parseSettings({})).toThrow();
   });
 
-  it('returns an a base model as long as we have the app and version', () => {
-    const result = parseSettings({ settings: { app: 'ontime', version: '1' } as Settings });
+  it('returns an a base model as long as we have the app version', () => {
+    const result = parseSettings({ settings: { version: '1' } as Settings });
     expect(result).toBeTypeOf('object');
     expect(result).toMatchObject({
-      app: 'ontime',
       version: expect.any(String),
       serverPort: 4001,
       editorKey: null,
@@ -359,125 +396,5 @@ describe('sanitiseCustomFields()', () => {
     };
     const sanitationResult = sanitiseCustomFields(customFields);
     expect(sanitationResult).toStrictEqual(expectedCustomFields);
-  });
-});
-
-describe('parseRundown() linking', () => {
-  it('returns linked events', () => {
-    const rundown: Rundown = {
-      id: '',
-      title: '',
-      revision: 1,
-      order: ['1', '2'],
-      entries: {
-        '1': {
-          id: '1',
-          type: SupportedEvent.Event,
-          skip: false,
-        } as OntimeEvent,
-        '2': {
-          id: '2',
-          type: SupportedEvent.Event,
-          linkStart: 'true',
-          skip: false,
-        } as OntimeEvent,
-      },
-    };
-
-    const result = parseRundown(rundown, {});
-    expect(result).toMatchObject({
-      order: ['1', '2'],
-      entries: {
-        '2': {
-          linkStart: '1',
-        },
-      },
-    });
-  });
-
-  it('returns unlinked if no previous', () => {
-    const rundown: Rundown = {
-      id: '',
-      title: '',
-      revision: 1,
-      order: ['1', '2'],
-      entries: {
-        '2': {
-          id: '2',
-          type: SupportedEvent.Event,
-          linkStart: 'true',
-          skip: false,
-        } as OntimeEvent,
-      },
-    };
-
-    const result = parseRundown(rundown, {});
-    expect(result).toMatchObject({
-      order: ['2'],
-      entries: {
-        '2': {
-          linkStart: null,
-        },
-      },
-    });
-  });
-
-  it('returns linked events past blocks and delays', () => {
-    const rundown: Rundown = {
-      id: '',
-      title: '',
-      revision: 1,
-      order: ['1', 'delay1', '2', 'block1', '3'],
-      entries: {
-        '1': {
-          id: '1',
-          type: SupportedEvent.Event,
-          skip: false,
-        } as OntimeEvent,
-        delay1: {
-          id: 'delay1',
-          type: SupportedEvent.Delay,
-          duration: 0,
-        },
-        '2': {
-          id: '2',
-          type: SupportedEvent.Event,
-          linkStart: 'true',
-          skip: false,
-        } as OntimeEvent,
-        block1: {
-          id: 'block1',
-          type: SupportedEvent.Block,
-          title: '',
-        } as OntimeBlock,
-        '3': {
-          id: '3',
-          type: SupportedEvent.Event,
-          linkStart: 'true',
-          skip: false,
-        } as OntimeEvent,
-      },
-    };
-
-    const result = parseRundown(rundown, {});
-    expect(result).toMatchObject({
-      order: rundown.order,
-      entries: {
-        '1': {
-          id: '1',
-          cue: '1',
-        },
-        '2': {
-          id: '2',
-          cue: '2',
-          linkStart: '1',
-        },
-        '3': {
-          id: '3',
-          cue: '3',
-          linkStart: '2',
-        },
-      },
-    });
   });
 });

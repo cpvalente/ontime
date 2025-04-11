@@ -5,7 +5,6 @@ import {
   type ImportMap,
   isKnownTimerType,
   validateEndAction,
-  validateLinkStart,
   validateTimerType,
   validateTimes,
 } from 'ontime-utils';
@@ -23,6 +22,8 @@ import {
   TimeStrategy,
 } from 'ontime-types';
 
+import { Merge } from 'ts-essentials';
+
 import { parseAutomationSettings } from '../api-data/automation/automation.parser.js';
 import { logger } from '../classes/Logger.js';
 import { event as eventDef } from '../models/eventsDefinition.js';
@@ -30,7 +31,6 @@ import { event as eventDef } from '../models/eventsDefinition.js';
 import { makeString } from './parserUtils.js';
 import { parseProject, parseRundowns, parseSettings, parseUrlPresets, parseViewSettings } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
-import { Merge } from 'ts-essentials';
 import { is } from './is.js';
 
 export type ErrorEmitter = (message: string) => void;
@@ -244,7 +244,7 @@ export const parseExcel = (
       } else if (j === timeStartIndex) {
         entry.timeStart = parseExcelDate(column);
       } else if (j === linkStartIndex) {
-        entry.linkStart = parseBooleanString(column) ? 'true' : null;
+        entry.linkStart = parseBooleanString(column);
       } else if (j === timeEndIndex) {
         entry.timeEnd = parseExcelDate(column);
       } else if (j === durationIndex) {
@@ -409,7 +409,7 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     timeEnd,
     duration,
     timeStrategy,
-    linkStart: validateLinkStart(patchEvent.linkStart, originalEvent.linkStart),
+    linkStart: typeof patchEvent.linkStart === 'boolean' ? patchEvent.linkStart : originalEvent.linkStart,
     endAction: validateEndAction(patchEvent.endAction, originalEvent.endAction),
     timerType: validateTimerType(patchEvent.timerType, originalEvent.timerType),
     countToEnd: typeof patchEvent.countToEnd === 'boolean' ? patchEvent.countToEnd : originalEvent.countToEnd,

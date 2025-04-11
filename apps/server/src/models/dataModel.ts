@@ -23,7 +23,6 @@ export const dbModel: DatabaseModel = {
     projectLogo: null,
   },
   settings: {
-    app: 'ontime',
     version: ONTIME_VERSION,
     serverPort: 4001,
     editorKey: null,

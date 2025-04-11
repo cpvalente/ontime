@@ -22,7 +22,7 @@ export default function RundownEventEditor() {
       return;
     }
 
-    const selectedEventId = data.order.find((entryId) => selectedEvents.has(entryId));
+    const selectedEventId = Array.from(selectedEvents).at(0);
     if (!selectedEventId) {
       setEvent(null);
       return;

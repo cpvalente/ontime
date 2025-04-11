@@ -68,7 +68,7 @@ export function apply(delayId: EntryId, rundown: Rundown): Rundown {
     lastEntry = { ...currentEntry };
 
     if (shouldUnlink) {
-      currentEntry.linkStart = null;
+      currentEntry.linkStart = false;
       shouldUnlink = false;
     }
 

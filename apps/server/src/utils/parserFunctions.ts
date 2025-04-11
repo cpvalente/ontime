@@ -24,6 +24,7 @@ import { createEvent, type ErrorEmitter } from './parser.js';
 
 /**
  * Parse a rundowns object along with the project custom fields
+ * Returns a default rundown if none exists
  */
 export function parseRundowns(
   data: Partial<DatabaseModel>,
@@ -32,6 +33,8 @@ export function parseRundowns(
   // check custom fields first
   const parsedCustomFields = parseCustomFields(data, emitError);
 
+  // ensure there is always a rundown to import
+  // this is important since the rest of the app assumes this exist
   if (!data.rundowns || isObjectEmpty(data.rundowns)) {
     emitError?.('No data found to import');
     return {
@@ -75,11 +78,11 @@ export function parseRundown(
   };
 
   let eventIndex = 0;
-  let previousId: string | null = null;
 
   for (let i = 0; i < rundown.order.length; i++) {
     const entryId = rundown.order[i];
     const event = rundown.entries[entryId];
+
     if (event === undefined) {
       emitError?.('Could not find referenced event, skipping');
       continue;
@@ -94,13 +97,7 @@ export function parseRundown(
     let newEvent: OntimeEvent | OntimeDelay | OntimeBlock | null;
 
     if (isOntimeEvent(event)) {
-      const maybeEvent = { ...event };
-
-      if (event.linkStart) {
-        maybeEvent.linkStart = previousId;
-      }
-
-      newEvent = createEvent(maybeEvent, eventIndex);
+      newEvent = createEvent(event, eventIndex);
       // skip if event is invalid
       if (newEvent == null) {
         emitError?.('Skipping event without payload');
@@ -115,11 +112,38 @@ export function parseRundown(
         }
       }
 
-      previousId = id;
       eventIndex += 1;
     } else if (isOntimeDelay(event)) {
       newEvent = { ...delayDef, duration: event.duration, id };
     } else if (isOntimeBlock(event)) {
+      for (let i = 0; i < event.events.length; i++) {
+        const nestedEventId = event.events[i];
+        const nestedEvent = rundown.entries[nestedEventId];
+
+        if (isOntimeEvent(nestedEvent)) {
+          const newNestedEvent = createEvent(nestedEvent, eventIndex);
+          // skip if event is invalid
+          if (newNestedEvent == null) {
+            emitError?.('Skipping event without payload');
+            continue;
+          }
+
+          // for every field in custom, check that a key exists in customfields
+          for (const field in newNestedEvent.custom) {
+            if (!Object.hasOwn(parsedCustomFields, field)) {
+              emitError?.(`Custom field ${field} not found`);
+              delete newNestedEvent.custom[field];
+            }
+          }
+
+          eventIndex += 1;
+
+          if (newNestedEvent) {
+            parsedRundown.entries[nestedEventId] = newNestedEvent;
+          }
+        }
+      }
+
       newEvent = {
         ...blockDef,
         title: event.title,
@@ -172,14 +196,14 @@ export function parseProject(data: Partial<DatabaseModel>, emitError?: ErrorEmit
  */
 export function parseSettings(data: Partial<DatabaseModel>): Settings {
   // skip if file definition is missing
-  if (!data.settings || data.settings?.app !== 'ontime' || data.settings?.version == null) {
-    throw new Error('ERROR: unable to parse settings, missing app or version');
+  // TODO: skip parsing if the version is not correct
+  if (!data.settings || data.settings?.version == null) {
+    throw new Error('ERROR: unable to parse settings, missing or incorrect version');
   }
 
   console.log('Found settings, importing...');
 
   return {
-    app: dbModel.settings.app,
     version: dbModel.settings.version,
     serverPort: data.settings.serverPort ?? dbModel.settings.serverPort,
     editorKey: data.settings.editorKey ?? null,
