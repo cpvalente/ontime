@@ -30,8 +30,8 @@ export function insertAtIndex<T>(index: number, item: T, array: T[]): T[] {
  * @param index
  * @param array
  */
-export function deleteAtIndex<T>(index: number, array: T[]): T[] {
-  return array.toSpliced(index, 1);
+export function deleteAtIndex<T>(index: number, array: T[]) {
+  return array.filter((_, i) => i !== index);
 }
 
 /**
