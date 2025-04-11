@@ -140,7 +140,7 @@ export const ScheduleProvider = ({
   let selectedEventIndex = events.findIndex((event) => event.id === selectedEventId);
 
   // we want to show the event after the current
-  const viewEvents = events.toSpliced(0, selectedEventIndex + 1);
+  const viewEvents = events.slice(selectedEventIndex + 1);
   selectedEventIndex = 0;
 
   return (

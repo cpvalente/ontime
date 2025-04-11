@@ -31,7 +31,7 @@ export function insertAtIndex<T>(index: number, item: T, array: T[]): T[] {
  * @param array
  */
 export function deleteAtIndex<T>(index: number, array: T[]) {
-  return array.toSpliced(index, 1);
+  return array.filter((_, i) => i !== index);
 }
 
 /**
