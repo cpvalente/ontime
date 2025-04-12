@@ -27,6 +27,7 @@ export async function postProjectData(req: Request, res: Response<ProjectData | 
       backstageInfo: req.body?.backstageInfo,
       endMessage: req.body?.endMessage,
       projectLogo: req.body?.projectLogo,
+      custom: req.body?.custom,
     });
 
     const updatedData = await editCurrentProjectData(newData);
