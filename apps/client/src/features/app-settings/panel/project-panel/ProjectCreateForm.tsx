@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
+import { IoTrash } from 'react-icons/io5';
 import { Button, Input, Textarea } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -11,7 +12,6 @@ import { documentationUrl, websiteUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './ProjectPanel.module.scss';
-import { IoTrash } from 'react-icons/io5';
 
 interface ProjectCreateFromProps {
   onClose: () => void;

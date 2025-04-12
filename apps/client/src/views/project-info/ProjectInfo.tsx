@@ -8,11 +8,11 @@ import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { useTranslation } from '../../translation/TranslationProvider';
 
 import BackstageInfo from './backstage-info/BackstageInfo';
-import PublicInfo from './public-info/PublicInfo';
 import CustomInfo from './custom-info/CustomInfo';
+import PublicInfo from './public-info/PublicInfo';
+import { projectInfoOptions } from './projectInfo.options';
 
 import './ProjectInfo.scss';
-import { projectInfoOptions } from './projectInfo.options';
 
 interface ProjectInfoProps {
   general: ProjectData;

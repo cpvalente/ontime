@@ -1,5 +1,5 @@
-import { ProjectData } from 'ontime-types';
 import { useSearchParams } from 'react-router-dom';
+import { ProjectData } from 'ontime-types';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -25,8 +25,8 @@ export default function CustomInfo(props: CustomInfoProps) {
         <>
           <div className='info__label'>{getLocalizedString('project.custom')}</div>
           {general.custom &&
-            general.custom.map((info) => (
-              <div className='custom_data'>
+            general.custom.map((info, idx) => (
+              <div className='custom_data' key={idx}>
                 <p>{info.title}:</p>
                 <p>{info.value}</p>
               </div>
