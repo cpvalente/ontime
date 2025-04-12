@@ -258,7 +258,7 @@ export default function ProjectData() {
                     <Input
                       variant='ontime-filled'
                       size='sm'
-                      value={field.title}
+                      defaultValue={field.title}
                       autoComplete='off'
                       {...register(`custom.${idx}.title`)}
                     />
@@ -268,7 +268,7 @@ export default function ProjectData() {
                     <Input
                       variant='ontime-filled'
                       size='sm'
-                      value={field.value}
+                      defaultValue={field.value}
                       autoComplete='off'
                       {...register(`custom.${idx}.value`)}
                     />
