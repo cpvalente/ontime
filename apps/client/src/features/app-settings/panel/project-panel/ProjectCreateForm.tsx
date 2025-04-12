@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { Button, Input, Textarea } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -23,6 +23,7 @@ type ProjectCreateFormValues = {
   publicUrl?: string;
   backstageInfo?: string;
   backstageUrl?: string;
+  custom?: { title: string; value: string }[];
 };
 
 export default function ProjectCreateForm(props: ProjectCreateFromProps) {
@@ -34,6 +35,7 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
   const {
     handleSubmit,
     register,
+    control,
     formState: { isSubmitting, isValid },
     setFocus,
   } = useForm<ProjectCreateFormValues>({
@@ -42,6 +44,11 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
     resetOptions: {
       keepDirtyValues: true,
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'custom',
   });
 
   // set focus to first field
@@ -59,11 +66,16 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
         ...values,
         filename,
       });
+
       await queryClient.invalidateQueries({ queryKey: PROJECT_LIST });
       onClose();
     } catch (error) {
       setError(maybeAxiosError(error));
     }
+  };
+
+  const handleAddCustom = () => {
+    append({ title: '', value: '' });
   };
 
   return (
@@ -151,6 +163,41 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
             {...register('backstageUrl')}
           />
         </label>
+        <Panel.Section>
+          <Panel.ListItem>
+            <Panel.Field title='Custom data' description='Add custom data for your project' />
+            <Button variant='ontime-subtle' onClick={handleAddCustom}>
+              +
+            </Button>
+          </Panel.ListItem>
+          {fields.map((field, idx) => (
+            <Panel.InlineElements key={field.id}>
+              <label>
+                Title
+                <Input
+                  variant='ontime-filled'
+                  size='sm'
+                  placeholder={field.title}
+                  autoComplete='off'
+                  {...register(`custom.${idx}.title` as const)}
+                />
+              </label>
+              <label>
+                Value
+                <Input
+                  variant='ontime-filled'
+                  size='sm'
+                  placeholder={field.value}
+                  autoComplete='off'
+                  {...register(`custom.${idx}.value` as const)}
+                />
+              </label>
+              <Button variant='ontime-ghost' onClick={() => remove(idx)}>
+                X
+              </Button>
+            </Panel.InlineElements>
+          ))}
+        </Panel.Section>
       </Panel.Section>
     </Panel.Section>
   );
