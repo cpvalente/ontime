@@ -9,9 +9,10 @@ import { useTranslation } from '../../translation/TranslationProvider';
 
 import BackstageInfo from './backstage-info/BackstageInfo';
 import PublicInfo from './public-info/PublicInfo';
-import { projectInfoOptions } from './projectInfo.options';
+import CustomInfo from './custom-info/CustomInfo';
 
 import './ProjectInfo.scss';
+import { projectInfoOptions } from './projectInfo.options';
 
 interface ProjectInfoProps {
   general: ProjectData;
@@ -66,6 +67,7 @@ export default function ProjectInfo(props: ProjectInfoProps) {
         )}
         <BackstageInfo general={general} />
         <PublicInfo general={general} />
+        <CustomInfo general={general} />
       </div>
     </div>
   );
