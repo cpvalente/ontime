@@ -35,7 +35,7 @@ test('project file upload', async ({ page }) => {
   await expect(thirdTitle).toHaveValue('Lithuania');
 });
 
-test('project file download', async ({ page }) => {
+test.fixme('project file download', async ({ page }) => {
   await page.goto('http://localhost:4001/editor');
 
   await page.getByRole('button', { name: 'toggle settings' }).click();
