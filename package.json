@@ -39,7 +39,7 @@
     "clear-temp": "rm -rf e2e/tests/fixtures/tmp"
   },
   "devDependencies": {
-    "@playwright/test": "^1.49.1",
+    "@playwright/test": "^1.51.1",
     "@types/node": "catalog:",
     "@typescript-eslint/eslint-plugin": "catalog:",
     "@typescript-eslint/parser": "catalog:",
