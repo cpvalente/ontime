@@ -30,4 +30,5 @@ export const langZhCn: TranslationObject = {
   'project.backstage_url': '后台网址',
   'project.public_info': '公开信息',
   'project.public_url': '公开网址',
+  'project.custom': '自定义数据',
 };

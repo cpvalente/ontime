@@ -30,4 +30,5 @@ export const langDe: TranslationObject = {
   'project.backstage_url': 'Backstage-URL',
   'project.public_info': 'Öffentliche Informationen',
   'project.public_url': 'Öffentliche URL',
+  'project.custom': 'Benutzerdefinierte Daten',
 };
