@@ -1,4 +1,4 @@
-import { ChangeEvent, Fragment, useEffect, useRef } from 'react';
+import { ChangeEvent, useEffect, useRef } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoDownloadOutline, IoTrash } from 'react-icons/io5';
 import { Button, Input, Textarea } from '@chakra-ui/react';
@@ -241,42 +241,44 @@ export default function ProjectData() {
               {...register('backstageUrl')}
             />
           </label>
-          <Panel.ListItem>
-            <Panel.Field title='Custom data' description='' />
-            <Button variant='ontime-subtle' onClick={handleAddCustom}>
-              +
-            </Button>
-          </Panel.ListItem>
-          {fields.length === 0 && <p>Project has no metadata currently</p>}
-          {fields.length > 0 &&
-            fields.map((field, idx) => (
-              <Panel.InlineElements key={field.id}>
-                <Panel.Paragraph>{idx + 1}.</Panel.Paragraph>
-                <label>
-                  Title
-                  <Input
-                    variant='ontime-filled'
-                    size='sm'
-                    placeholder={field.title}
-                    autoComplete='off'
-                    {...register(`custom.${idx}.title`)}
-                  />
-                </label>
-                <label>
-                  Value
-                  <Input
-                    variant='ontime-filled'
-                    size='sm'
-                    placeholder={field.value}
-                    autoComplete='off'
-                    {...register(`custom.${idx}.value`)}
-                  />
-                </label>
-                <Button variant='ontime-ghosted' onClick={() => remove(idx)}>
-                  X
-                </Button>
-              </Panel.InlineElements>
-            ))}
+          <Panel.Section style={{ marginTop: 0 }}>
+            <Panel.ListItem>
+              <Panel.Field title='Custom data' description='' />
+              <Button variant='ontime-subtle' onClick={handleAddCustom}>
+                +
+              </Button>
+            </Panel.ListItem>
+            {fields.length === 0 && !isDirty && <p>Project has no metadata currently</p>}
+            {fields.length > 0 &&
+              fields.map((field, idx) => (
+                <div key={field.id} className={style.customDataItem}>
+                  <Panel.Paragraph>{idx + 1}.</Panel.Paragraph>
+                  <label>
+                    Title
+                    <Input
+                      variant='ontime-filled'
+                      size='sm'
+                      value={field.title}
+                      autoComplete='off'
+                      {...register(`custom.${idx}.title`)}
+                    />
+                  </label>
+                  <label>
+                    Value
+                    <Input
+                      variant='ontime-filled'
+                      size='sm'
+                      value={field.value}
+                      autoComplete='off'
+                      {...register(`custom.${idx}.value`)}
+                    />
+                  </label>
+                  <Button variant='ontime-ghosted' onClick={() => remove(idx)}>
+                    <IoTrash />
+                  </Button>
+                </div>
+              ))}
+          </Panel.Section>
         </Panel.Section>
       </Panel.Card>
     </Panel.Section>

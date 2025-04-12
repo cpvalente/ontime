@@ -11,6 +11,7 @@ import { documentationUrl, websiteUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './ProjectPanel.module.scss';
+import { IoTrash } from 'react-icons/io5';
 
 interface ProjectCreateFromProps {
   onClose: () => void;
@@ -171,7 +172,8 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
             </Button>
           </Panel.ListItem>
           {fields.map((field, idx) => (
-            <Panel.InlineElements key={field.id}>
+            <div key={field.id} className={style.customDataItem}>
+              <Panel.Paragraph>{idx + 1}.</Panel.Paragraph>
               <label>
                 Title
                 <Input
@@ -192,10 +194,10 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
                   {...register(`custom.${idx}.value` as const)}
                 />
               </label>
-              <Button variant='ontime-ghost' onClick={() => remove(idx)}>
-                X
+              <Button variant='ontime-ghosted' onClick={() => remove(idx)}>
+                <IoTrash />
               </Button>
-            </Panel.InlineElements>
+            </div>
           ))}
         </Panel.Section>
       </Panel.Section>
