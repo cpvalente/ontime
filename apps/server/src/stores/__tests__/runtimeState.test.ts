@@ -28,7 +28,7 @@ const mockEvent = {
   timeEnd: 1000,
   duration: 1000,
   skip: false,
-  currentBlock: null,
+  parent: null,
 } as PlayableEvent;
 
 const mockState = {
@@ -166,8 +166,8 @@ describe('mutation on runtimeState', () => {
 
     // do this before the test so that it is applied
     const entries = {
-      event1: { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000, currentBlock: null },
-      event2: { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500, currentBlock: null },
+      event1: { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000, parent: null },
+      event2: { ...mockEvent, id: 'event2', timeStart: 1000, timeEnd: 1500, duration: 500, parent: null },
     };
     const rundown = makeRundown({ entries, order: ['event1', 'event2'] });
 
@@ -346,11 +346,11 @@ describe('loadBlock', () => {
   test('from no-block to a block will clear startedAt', () => {
     const rundown = makeRundown({
       entries: {
-        0: makeOntimeEvent({ id: '0', currentBlock: null }),
+        0: makeOntimeEvent({ id: '0', parent: null }),
         1: makeOntimeBlock({ id: '1', events: ['11'] }),
-        11: makeOntimeEvent({ id: '11', currentBlock: '1' }),
+        11: makeOntimeEvent({ id: '11', parent: '1' }),
         2: makeOntimeBlock({ id: '2', events: [] }),
-        3: makeOntimeEvent({ id: '3', currentBlock: null }),
+        3: makeOntimeEvent({ id: '3', parent: null }),
       },
       order: ['0', '1', '2', '3'],
     });
@@ -374,11 +374,11 @@ describe('loadBlock', () => {
   test('from block to a different block will clear startedAt', () => {
     const rundown = makeRundown({
       entries: {
-        0: makeOntimeEvent({ id: '0', currentBlock: null }),
+        0: makeOntimeEvent({ id: '0', parent: null }),
         1: makeOntimeBlock({ id: '1', events: ['11'] }),
-        11: makeOntimeEvent({ id: '11', currentBlock: '1' }),
+        11: makeOntimeEvent({ id: '11', parent: '1' }),
         2: makeOntimeBlock({ id: '2', events: ['22'] }),
-        22: makeOntimeEvent({ id: '22', currentBlock: '2' }),
+        22: makeOntimeEvent({ id: '22', parent: '2' }),
       },
       order: ['0', '1', '2'],
     });
@@ -402,11 +402,11 @@ describe('loadBlock', () => {
   test('from block to a no-block will clear startedAt', () => {
     const rundown = makeRundown({
       entries: {
-        0: makeOntimeEvent({ id: '0', currentBlock: null }),
+        0: makeOntimeEvent({ id: '0', parent: null }),
         1: makeOntimeBlock({ id: '1', events: ['11'] }),
-        11: makeOntimeEvent({ id: '11', currentBlock: '1' }),
+        11: makeOntimeEvent({ id: '11', parent: '1' }),
         2: makeOntimeBlock({ id: '2', events: ['22'] }),
-        22: makeOntimeEvent({ id: '22', currentBlock: '2' }),
+        22: makeOntimeEvent({ id: '22', parent: '2' }),
       },
       order: ['0', '1', '2'],
     });
@@ -431,8 +431,8 @@ describe('loadBlock', () => {
     const rundown = makeRundown({
       entries: {
         0: makeOntimeBlock({ id: '0', events: ['1', '2'] }),
-        1: makeOntimeEvent({ id: '1', currentBlock: '0' }),
-        2: makeOntimeEvent({ id: '2', currentBlock: '0' }),
+        1: makeOntimeEvent({ id: '1', parent: '0' }),
+        2: makeOntimeEvent({ id: '2', parent: '0' }),
       },
       order: ['0'],
     });
@@ -456,8 +456,8 @@ describe('loadBlock', () => {
   test('from no-block to no-block will keep startedAt', () => {
     const rundown = makeRundown({
       entries: {
-        0: makeOntimeEvent({ id: '0', currentBlock: null }),
-        1: makeOntimeEvent({ id: '1', currentBlock: null }),
+        0: makeOntimeEvent({ id: '0', parent: null }),
+        1: makeOntimeEvent({ id: '1', parent: null }),
       },
       order: ['0', '1'],
     });

@@ -424,7 +424,7 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
     gap: originalEvent.gap, // is regenerated if timer related data is changed
     // short circuit empty string
     cue: makeString(patchEvent.cue ?? null, originalEvent.cue),
-    currentBlock: originalEvent.currentBlock,
+    parent: originalEvent.parent,
     revision: originalEvent.revision,
     timeWarning: patchEvent.timeWarning ?? originalEvent.timeWarning,
     timeDanger: patchEvent.timeDanger ?? originalEvent.timeDanger,

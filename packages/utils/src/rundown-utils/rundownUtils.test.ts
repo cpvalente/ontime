@@ -203,7 +203,7 @@ describe('swapEventData', () => {
       duration: 1,
       delay: 1,
       revision: 3,
-      currentBlock: null,
+      parent: null,
     } as OntimeEvent;
     const eventB = {
       id: '2',
@@ -213,7 +213,7 @@ describe('swapEventData', () => {
       duration: 2,
       delay: 2,
       revision: 7,
-      currentBlock: 'testing',
+      parent: 'testing',
     } as OntimeEvent;
 
     const [newA, newB] = swapEventData(eventA, eventB);
@@ -226,7 +226,7 @@ describe('swapEventData', () => {
       duration: 1,
       delay: 1,
       revision: 3,
-      currentBlock: null,
+      parent: null,
     });
     expect(newB).toMatchObject({
       id: '2',
@@ -236,7 +236,7 @@ describe('swapEventData', () => {
       duration: 2,
       delay: 2,
       revision: 7,
-      currentBlock: 'testing',
+      parent: 'testing',
     });
   });
 });
@@ -341,9 +341,9 @@ describe('getLastEvent', () => {
         entries: {
           1: { id: '1', type: SupportedEvent.Event } as OntimeEvent,
           block: { id: 'block', type: SupportedEvent.Block, events: ['21', '22', '23'] } as OntimeBlock,
-          21: { id: '21', type: SupportedEvent.Event, currentBlock: 'block' } as OntimeEvent,
-          22: { id: '22', type: SupportedEvent.Event, currentBlock: 'block' } as OntimeEvent,
-          23: { id: '23', type: SupportedEvent.Event, currentBlock: 'block' } as OntimeEvent,
+          21: { id: '21', type: SupportedEvent.Event, parent: 'block' } as OntimeEvent,
+          22: { id: '22', type: SupportedEvent.Event, parent: 'block' } as OntimeEvent,
+          23: { id: '23', type: SupportedEvent.Event, parent: 'block' } as OntimeEvent,
         },
         order: ['1', 'block'],
       };
