@@ -143,6 +143,7 @@ export type ProcessedRundownMetadata = RundownMetadata & {
   order: EntryId[];
   previousEvent: PlayableEvent | null; // The playableEvent from the previous iteration
   latestEvent: PlayableEvent | null; // The playableEvent most forwards in time processed so far
+  previousEntry: OntimeEntry | null; // The entry processed in the previous iteration
 };
 
 export function makeRundownMetadata(customFields: CustomFields, customFieldChangelog: Record<string, string>) {
@@ -162,6 +163,7 @@ export function makeRundownMetadata(customFields: CustomFields, customFieldChang
     order: [],
     previousEvent: null,
     latestEvent: null,
+    previousEntry: null,
   };
 
   function process<T extends OntimeEntry>(
@@ -251,8 +253,16 @@ function processEntry<T extends OntimeEntry>(
       // remove eventual gaps from the accumulated delay
       // we only affect positive delays (time forwards)
       if (processedData.totalDelay > 0 && currentEntry.gap > 0) {
+        let correctedDelay = 0;
+        // we need to separate the delay that is accumulated from one that may exist after the gap
+        if (isOntimeDelay(processedData.previousEntry)) {
+          correctedDelay = processedData.previousEntry.duration;
+          processedData.totalDelay -= correctedDelay;
+        }
         processedData.totalDelay = Math.max(processedData.totalDelay - currentEntry.gap, 0);
+        processedData.totalDelay += correctedDelay;
       }
+
       // current event delay is the current accumulated delay
       currentEntry.delay = processedData.totalDelay;
 
@@ -274,6 +284,7 @@ function processEntry<T extends OntimeEntry>(
     processedData.order.push(currentEntry.id);
   }
   processedData.entries[currentEntry.id] = currentEntry;
+  processedData.previousEntry = currentEntry;
 
   return { processedData, processedEntry: currentEntry };
 }
