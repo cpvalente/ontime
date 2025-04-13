@@ -1,10 +1,10 @@
-import {
-  type Automation,
-  type AutomationDTO,
-  type AutomationSettings,
-  type NormalisedAutomation,
-  type Trigger,
-  type TriggerDTO,
+import type {
+  Automation,
+  AutomationDTO,
+  AutomationSettings,
+  NormalisedAutomation,
+  Trigger,
+  TriggerDTO,
 } from 'ontime-types';
 import { deleteAtIndex, generateId } from 'ontime-utils';
 

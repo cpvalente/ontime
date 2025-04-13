@@ -104,7 +104,6 @@ export {
   isOntimeDelay,
   isOntimeEvent,
   isPlayableEvent,
-  isOntimeCycle,
   isKeyOfType,
   isOSCOutput,
   isHTTPOutput,
