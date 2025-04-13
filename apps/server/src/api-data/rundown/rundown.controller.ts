@@ -8,10 +8,10 @@ import {
   addEvent,
   applyDelay,
   batchEditEvents,
-  deleteAllEvents,
+  deleteAllEntries,
   deleteEvent,
   editEvent,
-  reorderEvent,
+  reorderEntry,
   swapEvents,
 } from '../../services/rundown-service/RundownService.js';
 import { getEventWithId, getCurrentRundown } from '../../services/rundown-service/rundownUtils.js';
@@ -93,7 +93,7 @@ export async function rundownReorder(req: Request, res: Response<OntimeEntry | E
 
   try {
     const { eventId, from, to } = req.body;
-    const event = await reorderEvent(eventId, from, to);
+    const event = await reorderEntry(eventId, from, to);
     res.status(200).send(event.newEvent);
   } catch (error) {
     const message = getErrorMessage(error);
@@ -128,7 +128,7 @@ export async function rundownApplyDelay(req: Request, res: Response<MessageRespo
 
 export async function rundownDelete(_req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
-    await deleteAllEvents();
+    await deleteAllEntries();
     res.status(204).send({ message: 'All events deleted' });
   } catch (error) {
     const message = getErrorMessage(error);
