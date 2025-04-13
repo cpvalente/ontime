@@ -55,7 +55,7 @@ export type OntimeEvent = OntimeBaseEvent & {
   timeDanger: number;
   custom: EntryCustomFields;
   // !==== RUNTIME METADATA ====! //
-  currentBlock: EntryId | null;
+  parent: EntryId | null;
   revision: number;
   delay: number; // calculated at runtime
   dayOffset: number; // calculated at runtime
