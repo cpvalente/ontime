@@ -4,6 +4,7 @@ import {
   isOSCOutput,
   LogOrigin,
   TimerLifeCycle,
+  Trigger,
   type AutomationFilter,
   type AutomationOutput,
   type FilterRule,
@@ -28,10 +29,18 @@ export function triggerAutomations(cycle: TimerLifeCycle, state: RuntimeState) {
     return;
   }
 
-  const triggers = getAutomationTriggers(state.eventNow);
+  let triggers = getAutomationTriggers();
 
-  const triggerAutomations = triggers.filter((trigger) => trigger.trigger === cycle);
-  if (triggerAutomations.length === 0) {
+  // get triggers from event
+  if (state.eventNow && state.eventNow.triggers) {
+    const eventTriggers = Object.entries(state.eventNow.triggers).flatMap(([id, trigger]) => {
+      return { id, ...trigger } as Trigger;
+    });
+    triggers = triggers.concat(eventTriggers);
+  }
+
+  const filteredTrigger = triggers.filter((trigger) => trigger.trigger === cycle);
+  if (filteredTrigger.length === 0) {
     return;
   }
 
@@ -40,7 +49,7 @@ export function triggerAutomations(cycle: TimerLifeCycle, state: RuntimeState) {
     return;
   }
 
-  triggerAutomations.forEach((trigger) => {
+  filteredTrigger.forEach((trigger) => {
     const automation = automations[trigger.automationId];
     if (!automation || automation.outputs.length === 0) {
       return;
