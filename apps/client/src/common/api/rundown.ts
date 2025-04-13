@@ -1,5 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import {
+  EntryId,
   MessageResponse,
   OntimeEntry,
   OntimeEvent,
@@ -29,16 +30,16 @@ export async function fetchCurrentRundown(): Promise<Rundown> {
 }
 
 /**
- * HTTP request to post new event
+ * HTTP request to post new entry
  */
-export async function requestPostEvent(data: TransientEventPayload): Promise<AxiosResponse<OntimeEntry>> {
+export async function postAddEntry(data: TransientEventPayload): Promise<AxiosResponse<OntimeEntry>> {
   return axios.post(rundownPath, data);
 }
 
 /**
- * HTTP request to put new event
+ * HTTP request to edit an entry
  */
-export async function requestPutEvent(data: Partial<OntimeEntry>): Promise<AxiosResponse<OntimeEntry>> {
+export async function putEditEntry(data: Partial<OntimeEntry>): Promise<AxiosResponse<OntimeEntry>> {
   return axios.put(rundownPath, data);
 }
 
@@ -48,9 +49,9 @@ type BatchEditEntry = {
 };
 
 /**
- * HTTP request to put multiple events
+ * HTTP request to edit multiple events
  */
-export async function requestBatchPutEvents(data: BatchEditEntry): Promise<AxiosResponse<MessageResponse>> {
+export async function putBatchEditEvents(data: BatchEditEntry): Promise<AxiosResponse<MessageResponse>> {
   return axios.put(`${rundownPath}/batch`, data);
 }
 
@@ -61,9 +62,9 @@ export type ReorderEntry = {
 };
 
 /**
- * HTTP request to reorder events
+ * HTTP request to reorder an entry
  */
-export async function requestReorderEvent(data: ReorderEntry): Promise<AxiosResponse<OntimeEntry>> {
+export async function patchReorderEntry(data: ReorderEntry): Promise<AxiosResponse<OntimeEntry>> {
   return axios.patch(`${rundownPath}/reorder`, data);
 }
 
@@ -82,15 +83,15 @@ export async function requestEventSwap(data: SwapEntry): Promise<AxiosResponse<M
 /**
  * HTTP request to request application of delay
  */
-export async function requestApplyDelay(eventId: string): Promise<AxiosResponse<MessageResponse>> {
-  return axios.patch(`${rundownPath}/applydelay/${eventId}`);
+export async function requestApplyDelay(delayId: string): Promise<AxiosResponse<MessageResponse>> {
+  return axios.patch(`${rundownPath}/applydelay/${delayId}`);
 }
 
 /**
- * HTTP request to delete given event
+ * HTTP request to delete entries
  */
-export async function requestDelete(eventIds: string[]): Promise<AxiosResponse<MessageResponse>> {
-  return axios.delete(rundownPath, { data: { ids: eventIds } });
+export async function deleteEntries(entryIds: EntryId[]): Promise<AxiosResponse<MessageResponse>> {
+  return axios.delete(rundownPath, { data: { ids: entryIds } });
 }
 
 /**

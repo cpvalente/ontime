@@ -60,9 +60,9 @@ export function getEventAtIndex(eventIndex: number): OntimeEvent | undefined {
 /**
  * returns first event that matches a given ID
  */
-export function getEventWithId(eventId: string): OntimeEntry | undefined {
+export function getEntryWithId(entryId: EntryId): OntimeEntry | undefined {
   const { entries } = getCurrentRundown();
-  return entries[eventId];
+  return entries[entryId];
 }
 
 /**
@@ -71,7 +71,7 @@ export function getEventWithId(eventId: string): OntimeEntry | undefined {
 export function getFirstPlayable(playableOrder: EntryId[]): PlayableEvent | undefined {
   const firstEventId = playableOrder.at(0);
   if (!firstEventId) return;
-  return getEventWithId(firstEventId) as PlayableEvent | undefined;
+  return getEntryWithId(firstEventId) as PlayableEvent | undefined;
 }
 
 /**
@@ -84,7 +84,7 @@ export function getNextEventWithCue(targetCue: string, currentEventIndex = 0): O
 
   for (let i = currentEventIndex; i < playableEventsOrder.length; i++) {
     const eventId = playableEventsOrder[i];
-    const event = getEventWithId(eventId) as PlayableEvent | undefined;
+    const event = getEntryWithId(eventId) as PlayableEvent | undefined;
     if (event?.cue.toLowerCase() === lowerCaseCue) {
       return event;
     }
@@ -114,7 +114,7 @@ export function findPrevious(currentEventId?: string): OntimeEvent | undefined {
     return getFirstPlayable(playableEventsOrder);
   }
 
-  return getEventWithId(previousEventId) as PlayableEvent | undefined;
+  return getEntryWithId(previousEventId) as PlayableEvent | undefined;
 }
 
 /**
@@ -140,7 +140,7 @@ export function findNext(currentEventId?: string): PlayableEvent | undefined {
     return getFirstPlayable(playableEventsOrder);
   }
 
-  return getEventWithId(nextEventId) as PlayableEvent | undefined;
+  return getEntryWithId(nextEventId) as PlayableEvent | undefined;
 }
 
 export function filterTimedEvents(rundown: Rundown, timedEventOrder: EntryId[]): OntimeEvent[] {
