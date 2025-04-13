@@ -1,5 +1,5 @@
 import { MouseEvent } from 'react';
-import { isOntimeEvent, MaybeNumber, MaybeString, OntimeEvent, Rundown } from 'ontime-types';
+import { EntryId, isOntimeEvent, MaybeNumber, MaybeString, Rundown } from 'ontime-types';
 import { create } from 'zustand';
 
 import { RUNDOWN } from '../../common/api/constants';
@@ -66,11 +66,11 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       if (!rundownData) return;
 
       // get list of rundown with only ontime events
-      const events: OntimeEvent[] = [];
-      rundownData.order.forEach((eventId) => {
+      const eventIds: EntryId[] = [];
+      rundownData.flatOrder.forEach((eventId) => {
         const event = rundownData.entries[eventId];
         if (isOntimeEvent(event)) {
-          events.push(event);
+          eventIds.push(event.id);
         }
       });
 
@@ -78,7 +78,7 @@ export const useEventSelection = create<EventSelectionStore>()((set, get) => ({
       const end = anchoredIndex === null ? index : Math.max(anchoredIndex, index + 1);
 
       // create new set with range of ids from start to end
-      const selectedEventIds = events.slice(start, end).map((event) => event.id);
+      const selectedEventIds = eventIds.slice(start, end);
 
       return set({
         selectedEvents: new Set([...selectedEvents, ...selectedEventIds]),
