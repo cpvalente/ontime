@@ -23,7 +23,7 @@ export const cloneEvent = (event: OntimeEvent): ClonedEvent => {
     isPublic: event.isPublic,
     skip: event.skip,
     colour: event.colour,
-    currentBlock: event.currentBlock,
+    parent: event.parent,
     revision: 0,
     delay: event.delay, // the events will be collocated, so having the same metadata is a good start
     dayOffset: event.dayOffset,
