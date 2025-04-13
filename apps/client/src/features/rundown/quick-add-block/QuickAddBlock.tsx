@@ -3,7 +3,7 @@ import { IoAdd } from 'react-icons/io5';
 import { Button } from '@chakra-ui/react';
 import { MaybeString, SupportedEvent } from 'ontime-types';
 
-import { useEventAction } from '../../../common/hooks/useEventAction';
+import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { useEmitLog } from '../../../common/stores/logger';
 
 import style from './QuickAddBlock.module.scss';
@@ -17,7 +17,7 @@ export default memo(QuickAddBlock);
 
 function QuickAddBlock(props: QuickAddBlockProps) {
   const { previousEventId, showBlocks } = props;
-  const { addEvent } = useEventAction();
+  const { addEntry } = useEntryActions();
   const { emitError } = useEmitLog();
 
   const doLinkPrevious = useRef<HTMLInputElement | null>(null);
@@ -37,7 +37,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
             lastEventId: previousEventId,
             linkPrevious,
           };
-          addEvent(newEvent, options);
+          addEntry(newEvent, options);
           break;
         }
         case 'delay': {
@@ -45,7 +45,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
             lastEventId: previousEventId,
             after: previousEventId,
           };
-          addEvent({ type: SupportedEvent.Delay }, options);
+          addEntry({ type: SupportedEvent.Delay }, options);
           break;
         }
         case 'block': {
@@ -53,7 +53,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
             lastEventId: previousEventId,
             after: previousEventId,
           };
-          addEvent({ type: SupportedEvent.Block }, options);
+          addEntry({ type: SupportedEvent.Block }, options);
           break;
         }
         default: {
@@ -62,7 +62,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
         }
       }
     },
-    [previousEventId, addEvent, emitError],
+    [previousEventId, addEntry, emitError],
   );
 
   return (

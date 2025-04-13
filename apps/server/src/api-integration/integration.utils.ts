@@ -2,7 +2,7 @@ import { EndAction, OntimeEvent, TimerType, isKeyOfType, isOntimeEvent } from 'o
 import { MILLIS_PER_SECOND, maxDuration } from 'ontime-utils';
 
 import { editEvent } from '../services/rundown-service/RundownService.js';
-import { getEventWithId } from '../services/rundown-service/rundownUtils.js';
+import { getEntryWithId } from '../services/rundown-service/rundownUtils.js';
 import { coerceBoolean, coerceColour, coerceEnum, coerceNumber, coerceString } from '../utils/coerceType.js';
 import { getDataProvider } from '../classes/data-provider/DataProvider.js';
 
@@ -64,7 +64,7 @@ export function parseProperty(property: string, value: unknown) {
  * @param {Partial<OntimeEvent>} patchEvent
  */
 export function updateEvent(patchEvent: Partial<OntimeEvent> & { id: string }) {
-  const event = getEventWithId(patchEvent?.id ?? '');
+  const event = getEntryWithId(patchEvent?.id ?? '');
   if (!event) {
     throw new Error(`Event with ID ${patchEvent?.id} not found`);
   }
