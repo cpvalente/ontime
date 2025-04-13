@@ -9,12 +9,12 @@ import { EditorUpdateFields } from '../EventEditor';
 
 import style from '../EventEditor.module.scss';
 
-interface EventTriggersProps {
+interface EventEditorTriggersProps {
   triggers?: Trigger[];
   handleSubmit: (field: EditorUpdateFields, value: string) => void;
 }
 
-export default function EventTriggers(props: EventTriggersProps) {
+export default function EventEditorTriggers(props: EventEditorTriggersProps) {
   const { triggers, handleSubmit } = props;
   const showTriggers = triggers !== undefined && triggers.length > 0;
 
