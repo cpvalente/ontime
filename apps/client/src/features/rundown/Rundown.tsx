@@ -21,7 +21,7 @@ import {
   reorderArray,
 } from 'ontime-utils';
 
-import { type EventOptions, useEventAction } from '../../common/hooks/useEventAction';
+import { type EventOptions, useEntryActions } from '../../common/hooks/useEntryAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
@@ -48,7 +48,7 @@ export default function Rundown({ data }: RundownProps) {
   const [statefulEntries, setStatefulEntries] = useState<EntryId[]>(order);
 
   const featureData = useRundownEditor();
-  const { addEvent, reorderEvent, deleteEvent } = useEventAction();
+  const { addEntry, reorderEntry, deleteEntry } = useEntryActions();
 
   const { entryCopyId, setEntryCopyId } = useEntryCopy();
 
@@ -67,12 +67,12 @@ export default function Rundown({ data }: RundownProps) {
     (cursor: string | null) => {
       if (!cursor) return;
       const { entry, index } = getPreviousNormal(entries, order, cursor);
-      deleteEvent([cursor]);
+      deleteEntry([cursor]);
       if (entry && index !== null) {
         setSelectedEvents({ id: entry.id, selectMode: 'click', index });
       }
     },
-    [entries, order, deleteEvent, setSelectedEvents],
+    [entries, order, deleteEntry, setSelectedEvents],
   );
 
   const insertCopyAtId = useCallback(
@@ -86,10 +86,10 @@ export default function Rundown({ data }: RundownProps) {
       if (cloneEntry?.type === SupportedEvent.Event) {
         //if we don't have a cursor add the new event on top
         const newEvent = cloneEvent(cloneEntry);
-        addEvent(newEvent, { after: adjustedCursor ?? undefined });
+        addEntry(newEvent, { after: adjustedCursor ?? undefined });
       }
     },
-    [addEvent, order, entries],
+    [addEntry, order, entries],
   );
 
   const insertAtId = useCallback(
@@ -109,12 +109,12 @@ export default function Rundown({ data }: RundownProps) {
         if (!above && id) {
           options.lastEventId = id;
         }
-        addEvent(newEvent, options);
+        addEntry(newEvent, options);
       } else {
-        addEvent({ type }, options);
+        addEntry({ type }, options);
       }
     },
-    [addEvent],
+    [addEntry],
   );
 
   const selectBlock = useCallback(
@@ -187,10 +187,10 @@ export default function Rundown({ data }: RundownProps) {
 
       if (index !== null) {
         const offsetIndex = direction === 'up' ? index + 1 : index - 1;
-        reorderEvent(cursor, offsetIndex, index);
+        reorderEntry(cursor, offsetIndex, index);
       }
     },
-    [order, reorderEvent, entries],
+    [order, reorderEntry, entries],
   );
 
   // shortcuts
@@ -254,7 +254,7 @@ export default function Rundown({ data }: RundownProps) {
         setStatefulEntries((currentEntries) => {
           return reorderArray(currentEntries, fromIndex, toIndex);
         });
-        reorderEvent(String(active.id), fromIndex, toIndex);
+        reorderEntry(String(active.id), fromIndex, toIndex);
       }
     }
   };
