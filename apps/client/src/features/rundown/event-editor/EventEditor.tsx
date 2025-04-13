@@ -1,5 +1,5 @@
 import { CSSProperties, useCallback } from 'react';
-import { CustomFieldLabel, isTimerLifeCycle, OntimeEvent } from 'ontime-types';
+import { CustomFieldLabel, isTimerLifeCycle, OntimeEvent, Trigger } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
 import AppLink from '../../../common/components/link/app-link/AppLink';
@@ -41,13 +41,13 @@ export default function EventEditor(props: EventEditorProps) {
       } else if (field.startsWith('trigger-')) {
         const triggerId = field.split('trigger-')[1];
         if (isTimerLifeCycle(value)) {
-          const triggers = event.triggers ?? {};
+          const triggers = event.triggers ?? new Array<Trigger>();
           const id = generateId();
-          triggers[id] = { title: '', trigger: value, automationId: triggerId };
-          updateEvent({ id: event?.id, triggers: triggers });
+          triggers.push({ id, title: '', trigger: value, automationId: triggerId });
+          updateEvent({ id: event?.id, triggers });
         } else if (event.triggers) {
-          delete event.triggers[triggerId];
-          updateEvent({ id: event.id, triggers: event.triggers });
+          const triggers = event.triggers.filter((trigger) => trigger.id !== triggerId);
+          updateEvent({ id: event.id, triggers: triggers });
         }
       } else {
         updateEvent({ id: event.id, [field]: value });

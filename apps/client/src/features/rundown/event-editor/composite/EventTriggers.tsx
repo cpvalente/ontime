@@ -1,7 +1,7 @@
 import { Fragment, useCallback, useState } from 'react';
 import { IoAddCircle, IoTrash } from 'react-icons/io5';
 import { IconButton, Select, Tooltip } from '@chakra-ui/react';
-import { TimerLifeCycle, timerLifecycleValues, TriggerDTO } from 'ontime-types';
+import { TimerLifeCycle, timerLifecycleValues, Trigger } from 'ontime-types';
 
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import * as Editor from '../../../editors/editor-utils/EditorUtils';
@@ -9,27 +9,26 @@ import { EditorUpdateFields } from '../EventEditor';
 
 import style from '../EventEditor.module.scss';
 
-type EventTriggers = Record<string, TriggerDTO>;
-
 interface EventTriggersProps {
-  triggers?: EventTriggers;
+  triggers?: Trigger[];
   handleSubmit: (field: EditorUpdateFields, value: string) => void;
 }
 
 export default function EventTriggers(props: EventTriggersProps) {
   const { triggers, handleSubmit } = props;
+  const showTriggers = triggers !== undefined && triggers.length > 0;
 
   return (
-    <>
-      {triggers !== undefined && <ExistingEventTriggers triggers={triggers} handleSubmit={handleSubmit} />}
+    <Fragment>
+      {showTriggers && <ExistingEventTriggers triggers={triggers} handleSubmit={handleSubmit} />}
       <EventTriggerForm handleSubmit={handleSubmit} triggers={triggers} />
-    </>
+    </Fragment>
   );
 }
 
 interface EventTriggerFormProps {
   handleSubmit: (field: EditorUpdateFields, value: string) => void;
-  triggers?: EventTriggers;
+  triggers?: Trigger[];
 }
 
 function EventTriggerForm(props: EventTriggerFormProps) {
@@ -103,7 +102,7 @@ function EventTriggerForm(props: EventTriggerFormProps) {
 }
 
 interface ExistingEventTriggersProps {
-  triggers: EventTriggers;
+  triggers: Trigger[];
   handleSubmit: (field: EditorUpdateFields, value: string) => void;
 }
 
@@ -111,43 +110,40 @@ function ExistingEventTriggers(props: ExistingEventTriggersProps) {
   const { handleSubmit, triggers } = props;
   const { data: automationSettings } = useAutomationSettings();
 
-  const filteredTriggers: Record<string, EventTriggers> = {};
+  const filteredTriggers: Record<string, Trigger[]> = {};
 
+  // sort triggers out into groups by the Lifecycle they are on
   timerLifecycleValues.forEach((triggerType) => {
-    const thisTriggerType = Object.entries(triggers).filter(([_id, value]) => value.trigger === triggerType);
-
-    if (thisTriggerType.length > 0) {
-      Object.assign(filteredTriggers, { [triggerType]: {} });
-      thisTriggerType.forEach(([id, value]) => Object.assign(filteredTriggers[triggerType], { [id]: value }));
+    const thisTriggerType = triggers.filter((trigger) => trigger.trigger === triggerType);
+    if (thisTriggerType.length) {
+      Object.assign(filteredTriggers, { [triggerType]: thisTriggerType });
     }
   });
 
   return (
     <div>
-      {Object.entries(filteredTriggers)
-        .filter(([_, group]) => group !== undefined)
-        .map(([triggerLifeCycle, triggerGroup]) => (
-          <Fragment key={triggerLifeCycle}>
-            <Editor.Label className={style.decorated}>{triggerLifeCycle}</Editor.Label>
-            {Object.entries(triggerGroup).map(([id, trigger]) => {
-              const { automationId } = trigger;
-              const automationTitle = automationSettings.automations[automationId]?.title ?? '<MISSING AUTOMATION>';
-              return (
-                <div key={id} className={style.trigger}>
-                  <span>🠆 {automationTitle}</span>
-                  <IconButton
-                    size='sm'
-                    variant='ontime-ghosted'
-                    color='#FA5656' // $red-500
-                    icon={<IoTrash />}
-                    aria-label='Delete entry'
-                    onClick={() => handleSubmit(`trigger-${id}`, '')}
-                  />
-                </div>
-              );
-            })}
-          </Fragment>
-        ))}
+      {Object.entries(filteredTriggers).map(([triggerLifeCycle, triggerGroup]) => (
+        <Fragment key={triggerLifeCycle}>
+          <Editor.Label className={style.decorated}>{triggerLifeCycle}</Editor.Label>
+          {triggerGroup.map((trigger) => {
+            const { id, automationId } = trigger;
+            const automationTitle = automationSettings.automations[automationId]?.title ?? '<MISSING AUTOMATION>';
+            return (
+              <div key={id} className={style.trigger}>
+                <span>🠆 {automationTitle}</span>
+                <IconButton
+                  size='sm'
+                  variant='ontime-ghosted'
+                  color='#FA5656' // $red-500
+                  icon={<IoTrash />}
+                  aria-label='Delete entry'
+                  onClick={() => handleSubmit(`trigger-${id}`, '')}
+                />
+              </div>
+            );
+          })}
+        </Fragment>
+      ))}
     </div>
   );
 }

@@ -4,7 +4,6 @@ import {
   isOSCOutput,
   LogOrigin,
   TimerLifeCycle,
-  Trigger,
   type AutomationFilter,
   type AutomationOutput,
   type FilterRule,
@@ -33,12 +32,10 @@ export function triggerAutomations(cycle: TimerLifeCycle, state: RuntimeState) {
 
   // get triggers from event
   if (state.eventNow && state.eventNow.triggers) {
-    const eventTriggers = Object.entries(state.eventNow.triggers).flatMap(([id, trigger]) => {
-      return { id, ...trigger } as Trigger;
-    });
-    triggers = triggers.concat(eventTriggers);
+    triggers = triggers.concat(state.eventNow.triggers);
   }
 
+  // note: there are no onStop triggers in event
   const filteredTrigger = triggers.filter((trigger) => trigger.trigger === cycle);
   if (filteredTrigger.length === 0) {
     return;
