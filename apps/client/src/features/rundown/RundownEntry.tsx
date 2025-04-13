@@ -9,7 +9,7 @@ import {
   SupportedEvent,
 } from 'ontime-types';
 
-import { useEventAction } from '../../common/hooks/useEventAction';
+import { useEntryActions } from '../../common/hooks/useEntryAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
 import { useEmitLog } from '../../common/stores/logger';
 import { cloneEvent } from '../../common/utils/eventsManager';
@@ -66,7 +66,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     isLinkedToLoaded,
   } = props;
   const { emitError } = useEmitLog();
-  const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
+  const { addEntry, updateEntry, batchUpdateEvents, deleteEntry, swapEvents } = useEntryActions();
   const { selectedEvents, unselect, clearSelectedEvents } = useEventSelection();
 
   const removeOpenEvent = useCallback(() => {
@@ -91,26 +91,26 @@ export default function RundownEntry(props: RundownEntryProps) {
           after: data.id,
           lastEventId: previousEventId,
         };
-        return addEvent(newEvent, options);
+        return addEntry(newEvent, options);
       }
       case 'event-before': {
         const newEvent = { type: SupportedEvent.Event };
         const options = {
           after: previousEntryId,
         };
-        return addEvent(newEvent, options);
+        return addEntry(newEvent, options);
       }
       case 'delay': {
-        return addEvent({ type: SupportedEvent.Delay }, { after: data.id });
+        return addEntry({ type: SupportedEvent.Delay }, { after: data.id });
       }
       case 'delay-before': {
-        return addEvent({ type: SupportedEvent.Delay }, { after: previousEntryId });
+        return addEntry({ type: SupportedEvent.Delay }, { after: previousEntryId });
       }
       case 'block': {
-        return addEvent({ type: SupportedEvent.Block }, { after: data.id });
+        return addEntry({ type: SupportedEvent.Block }, { after: data.id });
       }
       case 'block-before': {
-        return addEvent({ type: SupportedEvent.Block }, { after: previousEntryId });
+        return addEntry({ type: SupportedEvent.Block }, { after: previousEntryId });
       }
       case 'swap': {
         const { value } = payload as FieldValue;
@@ -119,14 +119,14 @@ export default function RundownEntry(props: RundownEntryProps) {
       case 'delete': {
         if (selectedEvents.size > 1) {
           clearMultiSelection();
-          return deleteEvent(Array.from(selectedEvents));
+          return deleteEntry(Array.from(selectedEvents));
         }
         removeOpenEvent();
-        return deleteEvent([data.id]);
+        return deleteEntry([data.id]);
       }
       case 'clone': {
         const newEvent = cloneEvent(data as OntimeEvent);
-        addEvent(newEvent, { after: data.id });
+        addEntry(newEvent, { after: data.id });
         break;
       }
       case 'update': {
@@ -147,7 +147,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         if (field in data) {
           // @ts-expect-error -- not sure how to type this
           newData[field] = value;
-          return updateEvent(newData);
+          return updateEntry(newData);
         }
 
         return emitError(`Unknown field: ${field}`);

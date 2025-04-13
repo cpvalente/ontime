@@ -126,9 +126,9 @@ export async function deleteEvent(eventIds: string[]) {
 }
 
 /**
- * deletes all events in database
+ * deletes all entries in database
  */
-export async function deleteAllEvents() {
+export async function deleteAllEntries() {
   const scopedMutation = cache.mutateCache(cache.removeAll);
   await scopedMutation({});
 
@@ -182,12 +182,12 @@ export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>)
 }
 
 /**
- * reorders a given event
+ * reorders a given entry
  * @param {string} eventId - ID of event from, for sanity check
  * @param {number} from - index of event from
  * @param {number} to - index of event to
  */
-export async function reorderEvent(eventId: string, from: number, to: number) {
+export async function reorderEntry(eventId: EntryId, from: number, to: number) {
   const scopedMutation = cache.mutateCache(cache.reorder);
   const reorderedItem = await scopedMutation({ eventId, from, to });
 
