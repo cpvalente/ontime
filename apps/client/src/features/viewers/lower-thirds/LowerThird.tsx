@@ -158,6 +158,17 @@ export default function LowerThird(props: LowerProps) {
 
   // check if data has changed and schedule animations
   useEffect(() => {
+    // negative hold time forces the element to stay on screen
+    if (options.hold < 0) {
+      setPlayState(true);
+      setTextValue({
+        top: getPropertyValue(eventNow, options.topSrc) ?? '',
+        button: getPropertyValue(eventNow, options.bottomSrc) ?? '',
+      });
+      clearTimeout(animationTimeout.current);
+      return;
+    }
+
     const hasChanged = eventNow?.id !== previousId.current;
     if (!hasChanged) {
       // nothing has changed
