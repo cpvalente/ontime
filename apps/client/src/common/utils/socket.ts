@@ -48,10 +48,12 @@ export const connectSocket = () => {
 
   websocket.onclose = () => {
     console.warn('WebSocket disconnected');
-    setOnlineStatus(false);
 
     if (shouldReconnect) {
       reconnectTimeout = setTimeout(() => {
+        if (reconnectAttempts > 2) {
+          setOnlineStatus(false);
+        }
         console.warn('WebSocket: attempting reconnect');
         if (websocket && websocket.readyState === WebSocket.CLOSED) {
           reconnectAttempts += 1;
