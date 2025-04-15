@@ -1,9 +1,7 @@
-import { useEffect, useRef } from 'react';
-import { IoEye, IoEyeOffOutline } from 'react-icons/io5';
+import { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import { Input } from '@chakra-ui/react';
 
-import TooltipActionBtn from '../../../common/components/buttons/TooltipActionBtn';
-import { tooltipDelayMid } from '../../../ontimeConfig';
+import { cx } from '../../../common/utils/styleUtils';
 
 import style from './InputRow.module.scss';
 
@@ -12,50 +10,53 @@ interface InputRowProps {
   placeholder: string;
   text: string;
   visible: boolean;
-  actionHandler: () => void;
   changeHandler: (newValue: string) => void;
 }
 
-export default function InputRow(props: InputRowProps) {
-  const { label, placeholder, text, visible, actionHandler, changeHandler } = props;
+export default function InputRow(props: PropsWithChildren<InputRowProps>) {
+  const { label, placeholder, text, visible, changeHandler, children } = props;
 
+  const [value, setValue] = useState(text);
   const inputRef = useRef<HTMLInputElement>(null);
   const cursorPositionRef = useRef(0);
 
   // sync cursor position with text
   useEffect(() => {
-    if (inputRef.current) {
+    if (inputRef.current && inputRef.current !== document.activeElement) {
       inputRef.current.selectionStart = cursorPositionRef.current;
       inputRef.current.selectionEnd = cursorPositionRef.current;
     }
   }, [text]);
 
+  // synchronise external text
+  useEffect(() => {
+    if (inputRef.current !== document.activeElement) {
+      setValue(text);
+    }
+  }, [text]);
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     cursorPositionRef.current = event.target.selectionStart ?? 0;
+    setValue(event.target.value);
     changeHandler(event.target.value);
   };
 
   return (
     <div className={style.inputRow}>
-      <label className={`${style.label} ${visible ? style.active : ''}`}>{label}</label>
+      <label className={cx([style.label, visible ?? style.active])} htmlFor={label}>
+        {label}
+      </label>
       <div className={style.inputItems}>
         <Input
+          id={label}
           ref={inputRef}
           size='sm'
           variant='ontime-filled'
-          value={text}
+          value={value}
           onChange={handleInputChange}
           placeholder={placeholder}
         />
-        <TooltipActionBtn
-          clickHandler={actionHandler}
-          tooltip={visible ? 'Make invisible' : 'Make visible'}
-          aria-label={`Toggle ${label}`}
-          openDelay={tooltipDelayMid}
-          icon={visible ? <IoEye size='18px' /> : <IoEyeOffOutline size='18px' />}
-          variant={visible ? 'ontime-filled' : 'ontime-subtle'}
-          size='sm'
-        />
+        {children}
       </div>
     </div>
   );
