@@ -23,7 +23,8 @@ type LowerOptions = {
   bottomBg: string;
   topSize: string;
   bottomSize: string;
-  transition: number;
+  transitionIn: number;
+  transitionOut: number;
   hold: number;
   delay: number;
   key: string;
@@ -47,7 +48,8 @@ const defaultOptions: Readonly<LowerOptions> = {
   bottomBg: 'FFF0',
   topSize: '65px',
   bottomSize: '40px',
-  transition: 3,
+  transitionIn: 3,
+  transitionOut: 3,
   hold: 3,
   delay: 0,
   key: 'FFF0',
@@ -114,9 +116,13 @@ export default function LowerThird(props: LowerProps) {
       newOptions.bottomSize = bottomSize;
     }
 
-    const transition = searchParams.get('transition');
-    if (transition !== null) {
-      newOptions.transition = Number(transition);
+    const transitionIn = searchParams.get('transition-in');
+    if (transitionIn !== null) {
+      newOptions.transitionIn = Number(transitionIn);
+    }
+    const transitionOut = searchParams.get('transition-out');
+    if (transitionOut !== null) {
+      newOptions.transitionOut = Number(transitionOut);
     }
 
     const hold = searchParams.get('hold');
@@ -173,15 +179,15 @@ export default function LowerThird(props: LowerProps) {
       button: getPropertyValue(eventNow, options.bottomSrc) ?? '',
     });
 
-    // reschedule out animatnion
+    // reschedule out animatnion, should animate out after the in animatnion time + holde time
     clearTimeout(animationTimeout.current);
-    setTimeout(() => setPlayState(false), (options.hold + options.transition) * MILLIS_PER_SECOND);
-  }, [eventNow, eventNow?.id, options.bottomSrc, options.hold, options.topSrc, options.transition]);
+    setTimeout(() => setPlayState(false), (options.hold + options.transitionIn) * MILLIS_PER_SECOND);
+  }, [eventNow, eventNow?.id, options.bottomSrc, options.hold, options.topSrc, options.transitionIn]);
 
-  const boxDuration = `${options.transition}s`;
+  const boxDuration = playState ? `${options.transitionIn}s` : `${options.transitionOut}s`;
   const boxDelay = playState ? `${options.delay}s` : '0s';
-  const textDuration = playState ? `${options.transition * 0.5}s` : `${options.transition * 0.75}s`;
-  const textDelay = playState ? `${options.delay + options.transition * 0.25}s` : '0s';
+  const textDuration = playState ? `${options.transitionIn * 0.5}s` : `${options.transitionOut * 0.75}s`;
+  const textDelay = playState ? `${options.delay + options.transitionIn * 0.25}s` : '0s';
 
   return (
     <div className='lower-third' style={{ backgroundColor: `#${options.key}` }}>

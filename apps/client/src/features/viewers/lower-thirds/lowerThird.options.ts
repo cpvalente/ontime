@@ -44,9 +44,16 @@ export const getLowerThirdOptions = (customFields: CustomFields): ViewOption[] =
       collapsible: true,
       options: [
         {
-          id: 'transition',
-          title: 'Transition',
+          id: 'transition-in',
+          title: 'Transition In',
           description: 'Transition in time (default 3 seconds)',
+          type: 'number',
+          placeholder: '3 (default)',
+        },
+        {
+          id: 'transition-out',
+          title: 'Transition Out',
+          description: 'Transition out time (default 3 seconds)',
           type: 'number',
           placeholder: '3 (default)',
         },
