@@ -9,7 +9,7 @@ import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { editCurrentProjectData } from '../../services/project-service/ProjectService.js';
 
 export function getProjectData(_req: Request, res: Response<ProjectData>) {
-  res.json(getDataProvider().getProjectData());
+  res.status(200).json(getDataProvider().getProjectData());
 }
 
 export async function postProjectData(req: Request, res: Response<ProjectData | ErrorResponse>) {
