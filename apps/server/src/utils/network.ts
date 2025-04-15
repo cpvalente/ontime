@@ -4,7 +4,7 @@ import type { Server } from 'http';
 import { networkInterfaces } from 'os';
 import type { AddressInfo } from 'net';
 
-import { isDocker, isProduction } from '../externals.js';
+import { isDocker, isOntimeCloud, isProduction } from '../externals.js';
 import { logger } from '../classes/Logger.js';
 
 /**
@@ -72,6 +72,11 @@ export function serverTryDesiredPort(server: Server, desiredPort: number): Promi
         resolve(address.port);
       });
     });
+
+    if (isOntimeCloud) {
+      logger.info(LogOrigin.Server, 'Is in cloud forceing port to 4001');
+      desiredPort = 4001;
+    }
 
     server.listen(desiredPort, '0.0.0.0', () => {
       const address = server.address();
