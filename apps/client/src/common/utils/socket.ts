@@ -47,7 +47,6 @@ export const connectSocket = () => {
 
   websocket.onclose = () => {
     console.warn('WebSocket disconnected');
-    setOnlineStatus(false);
 
     // we decide to allows reconnect
     reconnectTimeout = setTimeout(() => {
