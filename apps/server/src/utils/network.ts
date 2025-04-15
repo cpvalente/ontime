@@ -73,7 +73,7 @@ export function serverTryDesiredPort(server: Server, desiredPort: number): Promi
       });
     });
 
-    if (isOntimeCloud) {
+    if (isOntimeCloud && desiredPort !== 4001) {
       logger.info(LogOrigin.Server, 'Is in cloud forceing port to 4001');
       desiredPort = 4001;
     }
