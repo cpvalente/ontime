@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CustomFields, OntimeEvent, ViewSettings } from 'ontime-types';
+import { MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
@@ -23,6 +24,7 @@ type LowerOptions = {
   topSize: string;
   bottomSize: string;
   transition: number;
+  hold: number;
   delay: number;
   key: string;
   lineColour: string;
@@ -46,7 +48,8 @@ const defaultOptions: Readonly<LowerOptions> = {
   topSize: '65px',
   bottomSize: '40px',
   transition: 3,
-  delay: 3,
+  hold: 3,
+  delay: 0,
   key: 'FFF0',
   lineColour: 'FF0000',
   lineHeight: '0.4em',
@@ -57,7 +60,8 @@ export default function LowerThird(props: LowerProps) {
   const [searchParams] = useSearchParams();
   const previousId = useRef<string>();
   const animationTimeout = useRef<NodeJS.Timeout>();
-  const [playState, setPlayState] = useState<'pre' | 'in' | 'out'>('pre');
+  const [playState, setPlayState] = useState<boolean>(false);
+  const [textValue, setTextValue] = useState<{ top: string; button: string }>({ top: '', button: '' });
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
 
   useWindowTitle('Lower Third');
@@ -115,6 +119,11 @@ export default function LowerThird(props: LowerProps) {
       newOptions.transition = Number(transition);
     }
 
+    const hold = searchParams.get('hold');
+    if (hold !== null) {
+      newOptions.hold = Number(hold);
+    }
+
     const delay = searchParams.get('delay');
     if (delay !== null) {
       newOptions.delay = Number(delay);
@@ -145,60 +154,58 @@ export default function LowerThird(props: LowerProps) {
   useEffect(() => {
     const hasChanged = eventNow?.id !== previousId.current;
     if (!hasChanged) {
+      // nothing has changed
       return;
     }
 
     previousId.current = eventNow?.id;
-    const animateOutInMs = options.delay * 1000 + options.transition * 1000;
-
-    const reschedule = (newState: 'pre' | 'in' | 'out') => {
+    if (eventNow === null) {
+      // there is no longer an event, animate out
+      setPlayState(false);
       clearTimeout(animationTimeout.current);
-      animationTimeout.current = setTimeout(() => setPlayState(newState), animateOutInMs);
-    };
-    if (eventNow?.id == null) {
-      setPlayState('out');
-      reschedule('pre');
       return;
     }
 
-    if (eventNow.id && !previousId.current) {
-      setPlayState('in');
-      reschedule('out');
-      return;
-    }
+    // We have an event, animate in (or stay in, this i handled by the css animation) and update the data
+    setPlayState(true);
+    setTextValue({
+      top: getPropertyValue(eventNow, options.topSrc) ?? '',
+      button: getPropertyValue(eventNow, options.bottomSrc) ?? '',
+    });
 
-    if (playState === 'in') {
-      // event has changed, we just reschedule the timeout
-      reschedule('out');
-      return;
-    }
-    setPlayState('in');
-    reschedule('out');
-  }, [eventNow?.id, options.delay, options.transition, playState, previousId]);
+    // reschedule out animatnion
+    clearTimeout(animationTimeout.current);
+    setTimeout(() => setPlayState(false), (options.hold + options.transition) * MILLIS_PER_SECOND);
+  }, [eventNow, eventNow?.id, options.bottomSrc, options.hold, options.topSrc, options.transition]);
 
-  const topText = getPropertyValue(eventNow, options.topSrc) ?? '';
-  const bottomText = getPropertyValue(eventNow, options.bottomSrc) ?? '';
-
-  const transition = `${options.transition}s`;
+  const boxDuration = `${options.transition}s`;
+  const boxDelay = playState ? `${options.delay}s` : '0s';
+  const textDuration = playState ? `${options.transition * 0.5}s` : `${options.transition * 0.75}s`;
+  const textDelay = playState ? `${options.delay + options.transition * 0.25}s` : '0s';
 
   return (
     <div className='lower-third' style={{ backgroundColor: `#${options.key}` }}>
       <ViewParamsEditor viewOptions={getLowerThirdOptions(customFields)} />
       <div
-        className={`container container--${playState}`}
-        style={{ minWidth: `${options.width}vw`, animationDuration: transition }}
+        className={`container ${playState ? 'container--in' : 'container--out'}`}
+        style={{
+          minWidth: `${options.width}vw`,
+          transitionDuration: boxDuration,
+          transitionDelay: boxDelay,
+        }}
       >
         <div className='clip'>
           <div
             className='data-top'
             style={{
-              animationDuration: transition,
+              transitionDuration: textDuration,
+              transitionDelay: textDelay,
               color: `#${options.topColour}`,
               backgroundColor: `#${options.topBg}`,
               fontSize: options.topSize,
             }}
           >
-            {topText}
+            {textValue.top}
           </div>
         </div>
         <div
@@ -211,13 +218,14 @@ export default function LowerThird(props: LowerProps) {
           <div
             className='data-bottom'
             style={{
-              animationDuration: transition,
+              transitionDuration: textDuration,
+              transitionDelay: textDelay,
               color: `#${options.bottomColour}`,
               backgroundColor: `#${options.bottomBg}`,
               fontSize: options.bottomSize,
             }}
           >
-            {bottomText}
+            {textValue.button}
           </div>
         </div>
       </div>
