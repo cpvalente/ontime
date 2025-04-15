@@ -4,7 +4,7 @@ import type { Server } from 'http';
 import { networkInterfaces } from 'os';
 import type { AddressInfo } from 'net';
 
-import { isDocker, isProduction } from '../externals.js';
+import { isDocker, isOntimeCloud, isProduction } from '../externals.js';
 import { logger } from '../classes/Logger.js';
 
 /**
@@ -42,6 +42,10 @@ export function getNetworkInterfaces(): { name: string; address: string }[] {
  * @throws any other server errors will result in a throw
  */
 export function serverTryDesiredPort(server: Server, desiredPort: number): Promise<number> {
+  if (isOntimeCloud) {
+    return forceCloudPort(server);
+  }
+
   return new Promise((resolve, reject) => {
     server.once('error', (error) => {
       // we should only move ports if we are in a desktop environment
@@ -74,6 +78,19 @@ export function serverTryDesiredPort(server: Server, desiredPort: number): Promi
     });
 
     server.listen(desiredPort, '0.0.0.0', () => {
+      const address = server.address();
+      if (!isAddressInfo(address)) {
+        reject(new Error('Unknown port type, unable to proceed'));
+        return;
+      }
+      resolve(address.port);
+    });
+  });
+}
+
+function forceCloudPort(server: Server): Promise<number> {
+  return new Promise((resolve, reject) => {
+    server.listen(4001, '0.0.0.0', () => {
       const address = server.address();
       if (!isAddressInfo(address)) {
         reject(new Error('Unknown port type, unable to proceed'));
