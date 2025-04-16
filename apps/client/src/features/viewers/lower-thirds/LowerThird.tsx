@@ -210,6 +210,9 @@ export default function LowerThird(props: LowerProps) {
 
   const boxDuration = playState ? `${options.transitionIn}s` : `${options.transitionOut}s`;
   const boxDelay = playState ? `${options.delay}s` : '0s';
+
+  // the in animation of the text is starts 1/4 after the box animation and compleats 1/4 before the box
+  // the out animation follows the box but cmpleats 1/4 before the box
   const textDuration = playState ? `${options.transitionIn * 0.5}s` : `${options.transitionOut * 0.75}s`;
   const textDelay = playState ? `${options.delay + options.transitionIn * 0.25}s` : '0s';
 
