@@ -1,4 +1,5 @@
-import { Select, Switch } from '@chakra-ui/react';
+import { Switch } from '@chakra-ui/react';
+import { NativeSelect } from '@mantine/core';
 import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 
@@ -55,16 +56,15 @@ export default function EditorSettingsForm() {
                 title='Timer strategy'
                 description='Which time should be maintained when event schedule is recalculated'
               />
-              <Select
-                variant='ontime'
+              <NativeSelect
                 size='sm'
-                width='auto'
+                w='auto'
                 value={defaultTimeStrategy}
                 onChange={(event) => setTimeStrategy(event.target.value as TimeStrategy)}
               >
                 <option value={TimeStrategy.LockDuration}>Duration</option>
                 <option value={TimeStrategy.LockEnd}>End Time</option>
-              </Select>
+              </NativeSelect>
             </Panel.ListItem>
           </Panel.ListGroup>
           <Panel.ListGroup>
@@ -79,10 +79,9 @@ export default function EditorSettingsForm() {
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='Timer type' description='Default type of timer for new events' />
-              <Select
-                variant='ontime'
+              <NativeSelect
                 size='sm'
-                width='auto'
+                w='auto'
                 value={defaultTimerType}
                 onChange={(event) => setDefaultTimerType(event.target.value as TimerType)}
               >
@@ -90,21 +89,20 @@ export default function EditorSettingsForm() {
                 <option value={TimerType.CountUp}>Count up</option>
                 <option value={TimerType.Clock}>Clock</option>
                 <option value={TimerType.None}>None</option>
-              </Select>
+              </NativeSelect>
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='End Action' description='Default end action for new events' />
-              <Select
-                variant='ontime'
+              <NativeSelect
                 size='sm'
-                width='auto'
+                w='auto'
                 value={defaultEndAction}
                 onChange={(event) => setDefaultEndAction(event.target.value as EndAction)}
               >
                 <option value={EndAction.None}>None</option>
                 <option value={EndAction.LoadNext}>Load next</option>
                 <option value={EndAction.PlayNext}>Play next</option>
-              </Select>
+              </NativeSelect>
             </Panel.ListItem>
           </Panel.ListGroup>
           <Panel.ListGroup>

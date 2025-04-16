@@ -11,9 +11,9 @@ import {
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
-  Select,
   Switch,
 } from '@chakra-ui/react';
+import { NativeSelect } from '@mantine/core';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 
@@ -38,9 +38,8 @@ export default function ParamInput(props: EditFormInputProps) {
     const defaultOptionValue = optionFromParams || defaultValue;
 
     return (
-      <Select
+      <NativeSelect
         placeholder={defaultValue ? undefined : 'Select an option'}
-        variant='ontime'
         name={id}
         defaultValue={defaultOptionValue}
       >
@@ -49,7 +48,7 @@ export default function ParamInput(props: EditFormInputProps) {
             {value}
           </option>
         ))}
-      </Select>
+      </NativeSelect>
     );
   }
 

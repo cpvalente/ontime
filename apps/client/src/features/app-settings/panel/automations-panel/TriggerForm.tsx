@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Select } from '@chakra-ui/react';
+import { Button, Input } from '@chakra-ui/react';
+import { NativeSelect } from '@mantine/core';
 import { NormalisedAutomation, TimerLifeCycle, TriggerDTO } from 'ontime-types';
 
 import { addTrigger, editTrigger } from '../../../../common/api/automation';
@@ -96,9 +97,8 @@ export default function TriggerForm(props: TriggerFormProps) {
       </label>
       <label>
         Lifecycle trigger
-        <Select
+        <NativeSelect
           size='sm'
-          variant='ontime'
           defaultValue={initialTrigger}
           {...register('trigger', { required: { value: true, message: 'Required field' } })}
         >
@@ -107,14 +107,13 @@ export default function TriggerForm(props: TriggerFormProps) {
               {cycle.label}
             </option>
           ))}
-        </Select>
+        </NativeSelect>
         <Panel.Error>{errors.trigger?.message}</Panel.Error>
       </label>
       <label>
         Automation title
-        <Select
+        <NativeSelect
           size='sm'
-          variant='ontime'
           defaultValue={initialAutomationId}
           {...register('automationId', { required: { value: true, message: 'Required field' } })}
         >
@@ -123,7 +122,7 @@ export default function TriggerForm(props: TriggerFormProps) {
               {automation.label}
             </option>
           ))}
-        </Select>
+        </NativeSelect>
         <Panel.Error>{errors.automationId?.message}</Panel.Error>
       </label>
       <Panel.InlineElements align='end'>

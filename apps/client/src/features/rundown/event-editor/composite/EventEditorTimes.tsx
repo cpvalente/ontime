@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { IoInformationCircle } from 'react-icons/io5';
-import { Select, Switch, Tooltip } from '@chakra-ui/react';
+import { Switch, Tooltip } from '@chakra-ui/react';
+import { NativeSelect } from '@mantine/core';
 import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
@@ -105,18 +106,17 @@ function EventEditorTimes(props: EventEditorTimesProps) {
         <div className={style.splitTwo}>
           <div>
             <Editor.Label htmlFor='endAction'>End Action</Editor.Label>
-            <Select
+            <NativeSelect
               id='endAction'
               size='sm'
               name='endAction'
               value={endAction}
               onChange={(event) => handleSubmit('endAction', event.target.value)}
-              variant='ontime'
             >
               <option value={EndAction.None}>None</option>
               <option value={EndAction.LoadNext}>Load next event</option>
               <option value={EndAction.PlayNext}>Play next event</option>
-            </Select>
+            </NativeSelect>
           </div>
           <div>
             <Editor.Label htmlFor='countToEnd'>Count to End</Editor.Label>
@@ -146,19 +146,18 @@ function EventEditorTimes(props: EventEditorTimesProps) {
         <div className={style.splitTwo}>
           <div>
             <Editor.Label htmlFor='timerType'>Timer Type</Editor.Label>
-            <Select
+            <NativeSelect
               size='sm'
               id='timerType'
               name='timerType'
               value={timerType}
               onChange={(event) => handleSubmit('timerType', event.target.value)}
-              variant='ontime'
             >
               <option value={TimerType.CountDown}>Count down</option>
               <option value={TimerType.CountUp}>Count up</option>
               <option value={TimerType.Clock}>Clock</option>
               <option value={TimerType.None}>None</option>
-            </Select>
+            </NativeSelect>
           </div>
           <div>
             <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
