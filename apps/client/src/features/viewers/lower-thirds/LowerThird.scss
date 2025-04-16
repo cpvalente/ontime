@@ -48,7 +48,7 @@
     &--out {
       transition-timing-function: cubic-bezier(0.5, 0, 0.75, 0.5);
       transform: translateX(-100%);
-      opacity: 0%;
+      opacity: 0;
       .data-top {
         transform: translateY(100%);
       }
