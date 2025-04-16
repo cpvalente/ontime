@@ -64,7 +64,7 @@ export default function LowerThird(props: LowerProps) {
   const previousId = useRef<string>();
   const animationTimeout = useRef<NodeJS.Timeout>();
   const [playState, setPlayState] = useState<boolean>(false);
-  const [textValue, setTextValue] = useState<{ top: string; button: string }>({ top: '', button: '' });
+  const [textValue, setTextValue] = useState<{ top: string; bottom: string }>({ top: '', bottom: '' });
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
   const { playback } = usePlayback();
 
@@ -161,19 +161,20 @@ export default function LowerThird(props: LowerProps) {
   const animateIn = useCallback(() => {
     // if hold is negative then force animate in
     if (options.hold < 0) {
-      setPlayState(true);
+      clearTimeout(animationTimeout.current);
       setTextValue({
         top: getPropertyValue(eventNow, options.topSrc) ?? '',
-        button: getPropertyValue(eventNow, options.bottomSrc) ?? '',
+        bottom: getPropertyValue(eventNow, options.bottomSrc) ?? '',
       });
-      clearTimeout(animationTimeout.current);
+      setPlayState(true);
+      return;
     }
     //clear any pending timeouts
     clearTimeout(animationTimeout.current);
     // set the values
     setTextValue({
       top: getPropertyValue(eventNow, options.topSrc) ?? '',
-      button: getPropertyValue(eventNow, options.bottomSrc) ?? '',
+      bottom: getPropertyValue(eventNow, options.bottomSrc) ?? '',
     });
     // start animation
     setPlayState(true);
@@ -254,7 +255,7 @@ export default function LowerThird(props: LowerProps) {
               fontSize: options.bottomSize,
             }}
           >
-            {textValue.button}
+            {textValue.bottom}
           </div>
         </div>
       </div>
