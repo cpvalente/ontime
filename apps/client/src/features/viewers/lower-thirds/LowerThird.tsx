@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CustomFields, OntimeEvent, ViewSettings } from 'ontime-types';
-import { MILLIS_PER_SECOND } from 'ontime-utils';
+import { isPlaybackActive, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { overrideStylesURL } from '../../../common/api/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
+import { usePlayback } from '../../../common/hooks/useSocket';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { getPropertyValue } from '../common/viewUtils';
 
@@ -65,6 +66,7 @@ export default function LowerThird(props: LowerProps) {
   const [playState, setPlayState] = useState<boolean>(false);
   const [textValue, setTextValue] = useState<{ top: string; button: string }>({ top: '', button: '' });
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+  const { playback } = usePlayback();
 
   useWindowTitle('Lower Third');
 
@@ -156,9 +158,8 @@ export default function LowerThird(props: LowerProps) {
     };
   }, []);
 
-  // check if data has changed and schedule animations
-  useEffect(() => {
-    // negative hold time forces the element to stay on screen
+  const animateIn = useCallback(() => {
+    // if hold is negative then force animate in
     if (options.hold < 0) {
       setPlayState(true);
       setTextValue({
@@ -166,34 +167,45 @@ export default function LowerThird(props: LowerProps) {
         button: getPropertyValue(eventNow, options.bottomSrc) ?? '',
       });
       clearTimeout(animationTimeout.current);
-      return;
     }
-
-    const hasChanged = eventNow?.id !== previousId.current;
-    if (!hasChanged) {
-      // nothing has changed
-      return;
-    }
-
-    previousId.current = eventNow?.id;
-    if (eventNow === null) {
-      // there is no longer an event, animate out
-      setPlayState(false);
-      clearTimeout(animationTimeout.current);
-      return;
-    }
-
-    // We have an event, animate in (or stay in, this i handled by the css animation) and update the data
-    setPlayState(true);
+    //clear any pending timeouts
+    clearTimeout(animationTimeout.current);
+    // set the values
     setTextValue({
       top: getPropertyValue(eventNow, options.topSrc) ?? '',
       button: getPropertyValue(eventNow, options.bottomSrc) ?? '',
     });
-
+    // start animation
+    setPlayState(true);
     // reschedule out animatnion, should animate out after the in animatnion time + holde time
-    clearTimeout(animationTimeout.current);
     setTimeout(() => setPlayState(false), (options.hold + options.transitionIn) * MILLIS_PER_SECOND);
-  }, [eventNow, eventNow?.id, options.bottomSrc, options.hold, options.topSrc, options.transitionIn]);
+  }, [eventNow, options.bottomSrc, options.hold, options.topSrc, options.transitionIn]);
+
+  const animateOut = useCallback(() => {
+    if (options.hold < 0) return; // if hold is negative then we never animate out
+    //clear any pending timeouts
+    clearTimeout(animationTimeout.current);
+    // start animation
+    setPlayState(false);
+  }, [options.hold]);
+
+  // check if playback has changed and schedule animations
+  useEffect(() => {
+    if (isPlaybackActive(playback)) {
+      animateIn();
+    } else {
+      animateOut();
+    }
+  }, [animateIn, animateOut, playback]);
+
+  // check if data has changed and schedule animations
+  useEffect(() => {
+    const hasChanged = eventNow?.id !== previousId.current;
+    if (hasChanged) {
+      previousId.current = eventNow?.id;
+      animateIn();
+    }
+  }, [animateIn, eventNow?.id]);
 
   const boxDuration = playState ? `${options.transitionIn}s` : `${options.transitionOut}s`;
   const boxDelay = playState ? `${options.delay}s` : '0s';
