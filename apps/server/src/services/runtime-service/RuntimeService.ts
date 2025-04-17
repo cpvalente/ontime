@@ -29,7 +29,7 @@ import {
   findPrevious,
   getEventAtIndex,
   getNextEventWithCue,
-  getEventWithId,
+  getEntryWithId,
   getCurrentRundown,
   getTimedEvents,
   getRundownData,
@@ -252,7 +252,7 @@ class RuntimeService {
     if (safeOption || eventInMemory) {
       if (state.eventNow !== null) {
         // load stuff again, but keep running if our events still exist
-        const eventNow = getEventWithId(state.eventNow.id);
+        const eventNow = getEntryWithId(state.eventNow.id);
         if (!isOntimeEvent(eventNow) || !isPlayableEvent(eventNow)) {
           // maybe the event was deleted or the skip state was changed
           runtimeState.stop();
@@ -317,7 +317,7 @@ class RuntimeService {
    */
   @broadcastResult
   public startById(eventId: string): boolean {
-    const event = getEventWithId(eventId);
+    const event = getEntryWithId(eventId);
     if (!event || !isOntimeEvent(event)) {
       return false;
     }
@@ -371,7 +371,7 @@ class RuntimeService {
    */
   @broadcastResult
   public loadById(eventId: string): boolean {
-    const event = getEventWithId(eventId);
+    const event = getEntryWithId(eventId);
     if (!event || !isOntimeEvent(event)) {
       return false;
     }
@@ -648,7 +648,7 @@ class RuntimeService {
 
     // the db would have to change for the event not to exist
     // we do not know the reason for the crash, so we check anyway
-    const event = getEventWithId(selectedEventId);
+    const event = getEntryWithId(selectedEventId);
     if (!isOntimeEvent(event) || !isPlayableEvent(event)) {
       return;
     }
