@@ -7,6 +7,8 @@ import useAutomationSettings from '../../../../common/hooks-query/useAutomationS
 import * as Editor from '../../../editors/editor-utils/EditorUtils';
 import { EditorUpdateFields } from '../EventEditor';
 
+import { eventTriggerOptions } from './eventTrigger.constants';
+
 import style from '../EventEditor.module.scss';
 
 interface EventEditorTriggersProps {
@@ -80,8 +82,7 @@ function EventTriggerForm(props: EventTriggerFormProps) {
         onChange={(e) => setCycleValue(e.target.value as TimerLifeCycle)}
         defaultValue={TimerLifeCycle.onStart}
       >
-        {/* Notice here that we don't support onStop */}
-        {['onLoad', 'onStart', 'onPause', 'onFinish', 'onWarning', 'onDanger'].map((cycle) => (
+        {eventTriggerOptions.map((cycle) => (
           <option key={cycle} value={cycle}>
             {cycle}
           </option>
