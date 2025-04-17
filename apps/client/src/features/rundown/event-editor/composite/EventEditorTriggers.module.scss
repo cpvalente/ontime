@@ -1,0 +1,30 @@
+.triggerForm {
+  padding-block: 0.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.trigger {
+  padding: 0.25rem 0.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+
+  &:nth-child(even) {
+    background-color: $white-1;
+  }
+
+  & > span {
+    width: fit-content;
+  }
+}
+
+.errorLabel {
+  color: $red-500;
+}
+
+.success {
+  color: $green-500;
+}
