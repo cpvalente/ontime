@@ -40,7 +40,7 @@ let rundownMetadata: RundownMetadata = {
 
   playableEventOrder: [],
   timedEventOrder: [],
-  flatEventOrder: [],
+  flatEntryOrder: [],
 
   assignedCustomFields: {},
 };
@@ -172,7 +172,7 @@ export function updateCache() {
   const { previousEvent, latestEvent, ...metadata } = processedData;
   currentRundown.entries = metadata.entries;
   currentRundown.order = metadata.order;
-  currentRundown.flatOrder = metadata.flatEventOrder;
+  currentRundown.flatOrder = metadata.flatEntryOrder;
   rundownMetadata = metadata;
   clearIsStale();
   customFieldChangelog = {};
@@ -320,7 +320,7 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
   return scopedMutation;
 }
 
-type AddArgs = MutationParams<{ atIndex: number; parent?: EntryId; entry: OntimeEntry }>;
+type AddArgs = MutationParams<{ atIndex: number; parent: EntryId | null; entry: OntimeEntry }>;
 /**
  * Add entry to rundown
  */
