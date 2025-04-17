@@ -1,4 +1,5 @@
 import { extendTheme } from '@chakra-ui/react';
+import { createTheme } from '@mantine/core';
 
 import { ontimeAlertOnDark, ontimeDialog } from './OntimeAlert';
 import {
@@ -144,3 +145,5 @@ const theme = extendTheme({
 });
 
 export default theme;
+
+export const mantineTheme = createTheme({});
