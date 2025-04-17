@@ -5,6 +5,7 @@ export const defaultRundown: Rundown = {
   id: 'default',
   title: 'Default',
   order: [],
+  flatOrder: [],
   entries: {},
   revision: 0,
 };

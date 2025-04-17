@@ -156,7 +156,7 @@ export function makeRundownMetadata(customFields: CustomFields, customFieldChang
     assignedCustomFields: {},
     playableEventOrder: [],
     timedEventOrder: [],
-    flatEventOrder: [],
+    flatEntryOrder: [],
 
     entries: {},
     order: [],
@@ -189,12 +189,10 @@ function processEntry<T extends OntimeEntry>(
 ): { processedData: ProcessedRundownMetadata; processedEntry: T } {
   const processedData = { ...rundownMetadata };
   const currentEntry = structuredClone(entry);
-  processedData.flatEventOrder.push(currentEntry.id);
+  processedData.flatEntryOrder.push(currentEntry.id);
 
   if (isOntimeEvent(currentEntry)) {
-    if (!childOfBlock) {
-      processedData.timedEventOrder.push(currentEntry.id);
-    }
+    processedData.timedEventOrder.push(currentEntry.id);
 
     /**
      * 1.Checks that link can be established (ie, events exist and are valid)
@@ -224,9 +222,7 @@ function processEntry<T extends OntimeEntry>(
 
     // update rundown metadata, it only concerns playable events
     if (isPlayableEvent(currentEntry)) {
-      if (!childOfBlock) {
-        processedData.playableEventOrder.push(currentEntry.id);
-      }
+      processedData.playableEventOrder.push(currentEntry.id);
 
       // first start is always the first event
       if (processedData.firstStart === null) {

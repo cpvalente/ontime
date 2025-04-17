@@ -71,7 +71,7 @@ export async function addEvent(eventData: EventPostPayload): Promise<OntimeEntry
   }
 
   // 2. if the user provides a parent (inside a group), we make sure it exists
-  let parent: EntryId | undefined;
+  let parent: EntryId | null = null;
   if ('parent' in eventData && eventData.parent != null) {
     if (!cache.hasId(eventData.parent)) {
       throw new Error(`Parent event with ID ${eventData.parent} not found`);

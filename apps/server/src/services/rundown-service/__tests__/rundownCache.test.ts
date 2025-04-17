@@ -49,6 +49,19 @@ describe('generate()', () => {
     );
   });
 
+  it('generates metadata from given rundown', () => {
+    const initResult = generate(demoDb.rundowns.default, demoDb.customFields);
+
+    expect(initResult.order.length).toBe(12);
+    expect(initResult.flatEntryOrder.length).toBe(17);
+    expect(initResult.timedEventOrder.length).toBe(14);
+    expect(initResult.playableEventOrder.length).toBe(14);
+    expect(initResult.firstStart).toBe(36000000);
+    expect(initResult.lastEnd).toBe(61800000);
+    expect(initResult.totalDays).toBe(0);
+    expect(initResult.totalDelay).toBe(0);
+  });
+
   it('creates normalised versions of a given rundown', () => {
     const rundown = makeRundown({
       order: ['1', '2', '3'],
@@ -546,7 +559,7 @@ describe('add() mutation', () => {
   test('adds an event to the rundown', () => {
     const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
     const rundown = makeRundown({});
-    const { newRundown } = add({ atIndex: 0, event: mockEvent, rundown });
+    const { newRundown } = add({ atIndex: 0, entry: mockEvent, parent: null, rundown });
     expect(newRundown.order.length).toBe(1);
     expect(newRundown.entries['mock']).toMatchObject(mockEvent);
   });
