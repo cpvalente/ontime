@@ -7,9 +7,9 @@ export type RundownMetadata = {
   firstStart: MaybeNumber;
   lastEnd: MaybeNumber;
 
-  playableEventOrder: EntryId[];
-  timedEventOrder: EntryId[];
-  flatEventOrder: EntryId[];
+  playableEventOrder: EntryId[]; // flat order of playable events
+  timedEventOrder: EntryId[]; // flat order of timed events
+  flatEntryOrder: EntryId[]; // flat order of entries
 
   /**
    * Keep track of which custom fields are used.
