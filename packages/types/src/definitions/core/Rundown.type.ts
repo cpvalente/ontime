@@ -12,6 +12,7 @@ export type Rundown = {
   id: string;
   title: string;
   order: EntryId[];
+  flatOrder: EntryId[];
   entries: RundownEntries;
   revision: number;
 };
