@@ -5,6 +5,7 @@ $skip-opacity: 0.2;
 .eventBlock {
   @include block-styling;
   background-color: $block-bg;
+  margin-block: 0.25rem;
 
   display: grid;
   grid-template-areas:
