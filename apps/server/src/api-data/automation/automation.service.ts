@@ -31,7 +31,7 @@ export function triggerAutomations(cycle: TimerLifeCycle, state: RuntimeState) {
   let triggers = getAutomationTriggers();
 
   // get triggers from event
-  if (state.eventNow && state.eventNow.triggers) {
+  if (state.eventNow?.triggers) {
     triggers = triggers.concat(state.eventNow.triggers);
   }
 

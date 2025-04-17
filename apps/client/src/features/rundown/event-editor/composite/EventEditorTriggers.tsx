@@ -57,7 +57,7 @@ function EventTriggerForm(props: EventTriggerFormProps) {
         return 'Select an automation';
       }
       if (!Object.keys(automationSettings.automations).includes(automationId)) {
-        return 'This automation dose not exist';
+        return 'This automation does not exist';
       }
       if (triggers === undefined) {
         return false;
@@ -102,9 +102,8 @@ function EventTriggerForm(props: EventTriggerFormProps) {
       </Select>
       <Tooltip label={isInvalidTrigger(cycleValue, automationId)}>
         <IconButton
-          isDisabled={isInvalidTrigger(cycleValue, automationId) ? true : false}
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know automationId exosts otherwise the button would have been disabled
-          onClick={() => handleSubmit(cycleValue, automationId!)}
+          isDisabled={Boolean(isInvalidTrigger(cycleValue, automationId))}
+          onClick={() => automationId && handleSubmit(cycleValue, automationId)}
           size='sm'
           variant='ontime-ghosted'
           aria-label='Add entry'
@@ -153,7 +152,7 @@ function ExistingEventTriggers(props: ExistingEventTriggersProps) {
             const automationTitle = automationSettings.automations[automationId]?.title ?? '<MISSING AUTOMATION>';
             return (
               <div key={id} className={style.trigger}>
-                <span>🠆 {automationTitle}</span>
+                <span>→ {automationTitle}</span>
                 <IconButton
                   size='sm'
                   variant='ontime-ghosted'
