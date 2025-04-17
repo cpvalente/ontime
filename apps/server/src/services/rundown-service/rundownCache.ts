@@ -15,7 +15,7 @@ import {
 import { generateId, insertAtIndex, reorderArray, swapEventData, customFieldLabelToKey } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { createPatch } from '../../utils/parser.js';
+import { createPatch } from '../../api-data/rundown/rundown.utils.js';
 
 import type { RundownMetadata } from './rundown.types.js';
 import { apply } from './delayUtils.js';
