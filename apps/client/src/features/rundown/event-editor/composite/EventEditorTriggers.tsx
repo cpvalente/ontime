@@ -2,42 +2,54 @@ import { Fragment, useCallback, useState } from 'react';
 import { IoAddCircle, IoTrash } from 'react-icons/io5';
 import { IconButton, Select, Tooltip } from '@chakra-ui/react';
 import { TimerLifeCycle, timerLifecycleValues, Trigger } from 'ontime-types';
+import { generateId } from 'ontime-utils';
 
+import { useEventAction } from '../../../../common/hooks/useEventAction';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import * as Editor from '../../../editors/editor-utils/EditorUtils';
-import { EditorUpdateFields } from '../EventEditor';
 
 import { eventTriggerOptions } from './eventTrigger.constants';
 
 import style from '../EventEditor.module.scss';
 
 interface EventEditorTriggersProps {
+  eventId: string;
   triggers?: Trigger[];
-  handleSubmit: (field: EditorUpdateFields, value: string) => void;
 }
 
 export default function EventEditorTriggers(props: EventEditorTriggersProps) {
-  const { triggers, handleSubmit } = props;
+  const { triggers, eventId } = props;
   const showTriggers = triggers !== undefined && triggers.length > 0;
 
   return (
     <Fragment>
-      {showTriggers && <ExistingEventTriggers triggers={triggers} handleSubmit={handleSubmit} />}
-      <EventTriggerForm handleSubmit={handleSubmit} triggers={triggers} />
+      {showTriggers && <ExistingEventTriggers triggers={triggers} eventId={eventId} />}
+      <EventTriggerForm triggers={triggers} eventId={eventId} />
     </Fragment>
   );
 }
 
 interface EventTriggerFormProps {
-  handleSubmit: (field: EditorUpdateFields, value: string) => void;
+  eventId: string;
   triggers?: Trigger[];
 }
 
 function EventTriggerForm(props: EventTriggerFormProps) {
-  const { handleSubmit, triggers } = props;
+  const { eventId, triggers } = props;
   const { data: automationSettings } = useAutomationSettings();
+  const { updateEvent } = useEventAction();
   const [automationId, setAutomationId] = useState<string | undefined>(undefined);
   const [cycleValue, setCycleValue] = useState(TimerLifeCycle.onStart);
+
+  const handleSubmit = useCallback(
+    (triggerLifeCycle: TimerLifeCycle, automationId: string) => {
+      const newTriggers = triggers ?? new Array<Trigger>();
+      const id = generateId();
+      newTriggers.push({ id, title: '', trigger: triggerLifeCycle, automationId });
+      updateEvent({ id: eventId, triggers: newTriggers });
+    },
+    [eventId, triggers, updateEvent],
+  );
 
   const isInvalidTrigger = useCallback(
     (cycle: TimerLifeCycle, automationId?: string): false | string => {
@@ -91,7 +103,8 @@ function EventTriggerForm(props: EventTriggerFormProps) {
       <Tooltip label={isInvalidTrigger(cycleValue, automationId)}>
         <IconButton
           isDisabled={isInvalidTrigger(cycleValue, automationId) ? true : false}
-          onClick={() => handleSubmit(`trigger-${automationId}`, cycleValue)}
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know automationId exosts otherwise the button would have been disabled
+          onClick={() => handleSubmit(cycleValue, automationId!)}
           size='sm'
           variant='ontime-ghosted'
           aria-label='Add entry'
@@ -103,13 +116,22 @@ function EventTriggerForm(props: EventTriggerFormProps) {
 }
 
 interface ExistingEventTriggersProps {
+  eventId: string;
   triggers: Trigger[];
-  handleSubmit: (field: EditorUpdateFields, value: string) => void;
 }
 
 function ExistingEventTriggers(props: ExistingEventTriggersProps) {
-  const { handleSubmit, triggers } = props;
+  const { eventId, triggers } = props;
+  const { updateEvent } = useEventAction();
   const { data: automationSettings } = useAutomationSettings();
+
+  const handleDelete = useCallback(
+    (triggerId: string) => {
+      const newTriggers = triggers.filter((trigger) => trigger.id !== triggerId);
+      updateEvent({ id: eventId, triggers: newTriggers });
+    },
+    [eventId, triggers, updateEvent],
+  );
 
   const filteredTriggers: Record<string, Trigger[]> = {};
 
@@ -138,7 +160,7 @@ function ExistingEventTriggers(props: ExistingEventTriggersProps) {
                   color='#FA5656' // $red-500
                   icon={<IoTrash />}
                   aria-label='Delete entry'
-                  onClick={() => handleSubmit(`trigger-${id}`, '')}
+                  onClick={() => handleDelete(id)}
                 />
               </div>
             );

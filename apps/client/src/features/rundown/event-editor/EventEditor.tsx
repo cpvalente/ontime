@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
-import { CustomFieldLabel, isTimerLifeCycle, OntimeEvent, Trigger } from 'ontime-types';
-import { generateId } from 'ontime-utils';
+import { CustomFieldLabel, OntimeEvent } from 'ontime-types';
 
 import AppLink from '../../../common/components/link/app-link/AppLink';
 import { useEventAction } from '../../../common/hooks/useEventAction';
@@ -35,22 +34,11 @@ export default function EventEditor(props: EventEditorProps) {
       if (field.startsWith('custom-')) {
         const fieldLabel = field.split('custom-')[1];
         updateEvent({ id: event.id, custom: { [fieldLabel]: value } });
-      } else if (field.startsWith('trigger-')) {
-        const triggerId = field.split('trigger-')[1];
-        if (isTimerLifeCycle(value)) {
-          const triggers = event.triggers ?? new Array<Trigger>();
-          const id = generateId();
-          triggers.push({ id, title: '', trigger: value, automationId: triggerId });
-          updateEvent({ id: event?.id, triggers });
-        } else if (event.triggers) {
-          const triggers = event.triggers.filter((trigger) => trigger.id !== triggerId);
-          updateEvent({ id: event.id, triggers: triggers });
-        }
       } else {
         updateEvent({ id: event.id, [field]: value });
       }
     },
-    [event.id, event.triggers, updateEvent],
+    [event.id, updateEvent],
   );
 
   if (!event) {
@@ -96,7 +84,7 @@ export default function EventEditor(props: EventEditorProps) {
           Triggers
           {isEditor && <AppLink search='settings=automation__automations'>Manage</AppLink>}
         </Editor.Title>
-        <EventEditorTriggers triggers={event.triggers} handleSubmit={handleSubmit} />
+        <EventEditorTriggers triggers={event.triggers} eventId={event.id} />
       </div>
     </div>
   );
