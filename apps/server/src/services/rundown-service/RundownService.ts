@@ -1,6 +1,5 @@
 import {
   CustomFields,
-  LogOrigin,
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
@@ -17,12 +16,12 @@ import { getCueCandidate } from 'ontime-utils';
 
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
-import { logger } from '../../classes/Logger.js';
 import { createEvent } from '../../utils/parser.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 import * as cache from './rundownCache.js';
+import { getInsertionPosition } from './rundownUtils.js';
 
 type CompleteEntry<T> =
   T extends Partial<OntimeEvent>
@@ -40,10 +39,6 @@ function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | P
   eventData: T,
   afterId?: string,
 ): CompleteEntry<T> {
-  // TODO: could we keep the UI ID to avoid the flash on create?
-  // we discard any UI provided IDs and add our own
-  const id = cache.getUniqueId();
-
   if (isOntimeEvent(eventData)) {
     const currentRundown = cache.getCurrentRundown();
     return createEvent(
@@ -52,10 +47,13 @@ function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | P
     ) as CompleteEntry<T>;
   }
 
+  const id = eventData.id || cache.getUniqueId();
+
   if (isOntimeDelay(eventData)) {
     return { ...delayDef, duration: eventData.duration ?? 0, id } as CompleteEntry<T>;
   }
 
+  // TODO(v4): allow user to provide a larger patch of the block entry
   if (isOntimeBlock(eventData)) {
     return { ...blockDef, title: eventData?.title ?? '', id } as CompleteEntry<T>;
   }
@@ -67,41 +65,46 @@ function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | P
  * creates a new event with given data
  */
 export async function addEvent(eventData: EventPostPayload): Promise<OntimeEntry> {
-  // if the user didnt provide an index, we add the event to start
-  let atIndex = 0;
-  let afterId: string | undefined = eventData?.after;
+  // 1. we allow the user to provide an ID, but make sure it is unique
+  if (eventData?.id && cache.hasId(eventData.id)) {
+    throw new Error(`Event with ID ${eventData.id} already exists`);
+  }
 
-  if (afterId) {
-    const previousIndex = cache.getIndexOf(afterId);
-    if (previousIndex < 0) {
-      logger.warning(LogOrigin.Server, `Could not find event with id ${afterId}`);
-    } else {
-      atIndex = previousIndex + 1;
+  // 2. if the user provides a parent (inside a group), we make sure it exists
+  let parent: EntryId | undefined;
+  if ('parent' in eventData && eventData.parent != null) {
+    if (!cache.hasId(eventData.parent)) {
+      throw new Error(`Parent event with ID ${eventData.parent} not found`);
     }
-  } else if (eventData?.before !== undefined) {
-    const previousIndex = cache.getIndexOf(eventData.before);
-    if (previousIndex < 0) {
-      logger.warning(LogOrigin.Server, `Could not find event with id ${eventData.before}`);
-    } else {
-      atIndex = previousIndex;
-      if (previousIndex > 0) {
-        afterId = cache.getIdOf(atIndex - 1);
-      }
+    parent = eventData.parent;
+  }
+
+  // 3. if the user provides an after or before ID, we make sure it exists
+  if (eventData?.after !== undefined) {
+    if (!cache.hasId(eventData.after)) {
+      throw new Error(`Event with ID ${eventData.after} not found`);
+    }
+  }
+  if (eventData?.before !== undefined) {
+    if (!cache.hasId(eventData.before)) {
+      throw new Error(`Event with ID ${eventData.before} not found`);
     }
   }
 
-  // generate a fully formed event from the patch
-  const eventToAdd = generateEvent(eventData, afterId);
+  const { afterId, atIndex } = getInsertionPosition(parent, eventData?.after, eventData?.before);
+
+  // generate a fully formed entry from the patch
+  const sanitisedEntry = generateEvent(eventData, afterId);
 
   // modify rundown
   const scopedMutation = cache.mutateCache(cache.add);
-  const { newEvent } = await scopedMutation({ atIndex, event: eventToAdd });
+  const { newEvent } = await scopedMutation({ atIndex, parent, entry: sanitisedEntry });
 
   // notify runtime that rundown has changed
   updateRuntimeOnChange();
 
   // notify timer and external services of change
-  notifyChanges({ timer: [eventToAdd.id], external: true });
+  notifyChanges({ timer: [sanitisedEntry.id], external: true });
 
   // we know this mutation returns an OntimeEntry
   return newEvent as OntimeEntry;
