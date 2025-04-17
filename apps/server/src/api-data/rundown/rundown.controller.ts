@@ -14,7 +14,7 @@ import {
   reorderEntry,
   swapEvents,
 } from '../../services/rundown-service/RundownService.js';
-import { getEventWithId, getCurrentRundown } from '../../services/rundown-service/rundownUtils.js';
+import { getEntryWithId, getCurrentRundown } from '../../services/rundown-service/rundownUtils.js';
 
 export async function rundownGetAll(_req: Request, res: Response<ProjectRundownsList>) {
   const rundown = getCurrentRundown();
@@ -30,7 +30,7 @@ export async function rundownGetById(req: Request, res: Response<OntimeEntry | E
   const { eventId } = req.params;
 
   try {
-    const event = getEventWithId(eventId);
+    const event = getEntryWithId(eventId);
 
     if (!event) {
       res.status(404).send({ message: 'Event not found' });
