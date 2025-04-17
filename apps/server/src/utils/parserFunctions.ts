@@ -74,6 +74,7 @@ export function parseRundown(
     title: rundown.title ?? '',
     entries: {},
     order: [],
+    flatOrder: [],
     revision: rundown.revision ?? 1,
   };
 
@@ -95,6 +96,7 @@ export function parseRundown(
 
     const id = entryId;
     let newEvent: OntimeEvent | OntimeDelay | OntimeBlock | null;
+    const nestedEntryIds: string[] = [];
 
     if (isOntimeEvent(event)) {
       newEvent = createEvent(event, eventIndex);
@@ -139,6 +141,7 @@ export function parseRundown(
           eventIndex += 1;
 
           if (newNestedEvent) {
+            nestedEntryIds.push(nestedEventId);
             parsedRundown.entries[nestedEventId] = newNestedEvent;
           }
         }
@@ -162,6 +165,8 @@ export function parseRundown(
     if (newEvent) {
       parsedRundown.entries[id] = newEvent;
       parsedRundown.order.push(id);
+      parsedRundown.flatOrder.push(id);
+      parsedRundown.flatOrder.push(...nestedEntryIds);
     }
   }
 
