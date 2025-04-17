@@ -1,24 +1,25 @@
-import { PropsWithChildren, useRef } from 'react';
+import { useRef } from 'react';
 import { IoChevronDown, IoChevronUp, IoReorderTwo } from 'react-icons/io5';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useSessionStorage } from '@mantine/hooks';
-import { OntimeBlock } from 'ontime-types';
+import { EntryId, OntimeBlock } from 'ontime-types';
 
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../common/utils/time';
 import EditableBlockTitle from '../common/EditableBlockTitle';
+import { canDrop } from '../rundown.utils';
 
 import style from './BlockBlock.module.scss';
 
 interface BlockBlockProps {
   data: OntimeBlock;
   hasCursor: boolean;
+  collapsed: boolean;
+  onCollapse: (collapsed: boolean, groupId: EntryId) => void;
 }
 
-export default function BlockBlock(props: PropsWithChildren<BlockBlockProps>) {
-  const { data, hasCursor, children } = props;
-  const [collapsed, setCollapsed] = useSessionStorage<boolean>({ key: `block-${data.id}`, defaultValue: false });
+export default function BlockBlock(props: BlockBlockProps) {
+  const { data, hasCursor, collapsed, onCollapse } = props;
   const handleRef = useRef<null | HTMLSpanElement>(null);
 
   const {
@@ -27,21 +28,30 @@ export default function BlockBlock(props: PropsWithChildren<BlockBlockProps>) {
     setNodeRef,
     transform,
     transition,
+    isDragging,
+    isOver,
+    over,
   } = useSortable({
     id: data.id,
+    data: {
+      type: 'block',
+    },
     animateLayoutChanges: () => false,
   });
 
+  const binderColours = data.colour && getAccessibleColour(data.colour);
+  const isValidDrop = over?.id && canDrop(over.data.current?.type, over.data.current?.parent);
+
   const dragStyle = {
+    zIndex: isDragging ? 2 : 'inherit',
     transform: CSS.Translate.toString(transform),
     transition,
+    cursor: isOver ? (isValidDrop ? 'grabbing' : 'no-drop') : 'default',
   };
-
-  const binderColours = data.colour && getAccessibleColour(data.colour);
 
   return (
     <div
-      className={cx([style.block, hasCursor && style.hasCursor])}
+      className={cx([style.block, hasCursor && style.hasCursor, !collapsed && style.expanded])}
       ref={setNodeRef}
       style={{
         ...(binderColours ? { '--user-bg': binderColours.backgroundColor } : {}),
@@ -49,14 +59,19 @@ export default function BlockBlock(props: PropsWithChildren<BlockBlockProps>) {
       }}
     >
       <div className={style.binder} style={{ ...binderColours }} tabIndex={-1}>
-        <span className={style.drag} ref={handleRef} {...dragAttributes} {...dragListeners}>
+        <span
+          className={cx([style.drag, isDragging && style.isDragging, isDragging && !isValidDrop && style.notAllowed])}
+          ref={handleRef}
+          {...dragAttributes}
+          {...dragListeners}
+        >
           <IoReorderTwo />
         </span>
       </div>
       <div className={style.header}>
         <div className={style.titleRow}>
           <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Block title' />
-          <button onClick={() => setCollapsed((prev) => !prev)}>
+          <button onClick={() => onCollapse(!collapsed, data.id)}>
             {collapsed ? <IoChevronUp /> : <IoChevronDown />}
           </button>
         </div>
@@ -79,12 +94,6 @@ export default function BlockBlock(props: PropsWithChildren<BlockBlockProps>) {
           </div>
         </div>
       </div>
-      {!collapsed && (
-        <div className={style.group} style={binderColours ? { '--user-bg': binderColours.backgroundColor } : {}}>
-          {children}
-        </div>
-      )}
-      <div className={style.footer} style={binderColours ? { '--user-bg': binderColours.backgroundColor } : {}} />
     </div>
   );
 }

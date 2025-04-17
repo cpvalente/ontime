@@ -179,6 +179,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         isPast={isPast}
         isNext={isNext}
         skip={data.skip}
+        parent={data.parent}
         loaded={loaded}
         hasCursor={hasCursor}
         playback={playback}
