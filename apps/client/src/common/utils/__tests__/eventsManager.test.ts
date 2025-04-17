@@ -1,4 +1,4 @@
-import { EndAction, EntryCustomFields, OntimeEvent, SupportedEvent, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, EntryCustomFields, OntimeEvent, SupportedEntry, TimerType, TimeStrategy } from 'ontime-types';
 
 import { cloneEvent } from '../eventsManager';
 
@@ -6,7 +6,7 @@ describe('cloneEvent()', () => {
   it('creates a stem from a given event', () => {
     const original: OntimeEvent = {
       id: 'unique',
-      type: SupportedEvent.Event,
+      type: SupportedEntry.Event,
       title: 'title',
       cue: 'cue',
       note: 'note',
@@ -38,7 +38,7 @@ describe('cloneEvent()', () => {
     expect(cloned.custom).not.toBe(original.custom);
 
     expect(cloned).toMatchObject({
-      type: SupportedEvent.Event,
+      type: SupportedEntry.Event,
       title: original.title,
       note: original.note,
       timeStart: original.timeStart,

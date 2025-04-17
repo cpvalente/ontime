@@ -1,7 +1,7 @@
 /* eslint-disable no-console -- we are mocking the console */
 import { assertType, vi } from 'vitest';
 
-import { CustomFields, DatabaseModel, OntimeEvent, SupportedEvent, TimerType } from 'ontime-types';
+import { CustomFields, DatabaseModel, OntimeEvent, SupportedEntry, TimerType } from 'ontime-types';
 import { ImportMap, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { dbModel } from '../../models/dataModel.js';
@@ -530,7 +530,7 @@ describe('parseExcel()', () => {
     const firstEvent = result.rundown.entries[result.rundown.order[0]];
 
     expect(result.rundown.order.length).toBe(2);
-    expect((firstEvent as OntimeEvent).type).toBe(SupportedEvent.Block);
+    expect((firstEvent as OntimeEvent).type).toBe(SupportedEntry.Block);
   });
 
   it('imports as events if there is no timer type column', () => {
@@ -546,12 +546,12 @@ describe('parseExcel()', () => {
 
     expect(result.rundown.order.length).toBe(2);
     expect(firstEvent).toMatchObject({
-      type: SupportedEvent.Event,
+      type: SupportedEntry.Event,
       timerType: TimerType.CountDown,
     });
 
     expect(secondEvent).toMatchObject({
-      type: SupportedEvent.Event,
+      type: SupportedEntry.Event,
       timerType: TimerType.CountDown,
     });
   });
@@ -573,9 +573,9 @@ describe('parseExcel()', () => {
     const secondEvent = result.rundown.entries[result.rundown.order[1]];
     const thirdEvent = result.rundown.entries[result.rundown.order[2]];
     expect(result.rundown.order.length).toBe(3);
-    expect(firstEvent).toMatchObject({ title: 'first', type: SupportedEvent.Event, timerType: TimerType.CountDown });
-    expect(secondEvent).toMatchObject({ title: 'second', type: SupportedEvent.Event, timerType: TimerType.CountDown });
-    expect(thirdEvent).toMatchObject({ title: 'third', type: SupportedEvent.Event, timerType: TimerType.CountUp });
+    expect(firstEvent).toMatchObject({ title: 'first', type: SupportedEntry.Event, timerType: TimerType.CountDown });
+    expect(secondEvent).toMatchObject({ title: 'second', type: SupportedEntry.Event, timerType: TimerType.CountDown });
+    expect(thirdEvent).toMatchObject({ title: 'third', type: SupportedEntry.Event, timerType: TimerType.CountUp });
   });
 
   it('am/pm conversion to 24h', () => {
@@ -690,7 +690,7 @@ describe('parseExcel()', () => {
         linkStart: false,
       },
       BLOCK: {
-        type: SupportedEvent.Block,
+        type: SupportedEntry.Block,
       },
       E: {
         linkStart: true,

@@ -1,4 +1,4 @@
-import { CustomFields, OntimeEvent, SupportedEvent, TimeStrategy } from 'ontime-types';
+import { CustomFields, OntimeEvent, SupportedEntry, TimeStrategy } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 
 import { demoDb } from '../../../models/demoProject.js';
@@ -75,9 +75,9 @@ describe('generate()', () => {
     const initResult = generate(rundown, {});
     expect(initResult.order.length).toBe(3);
     expect(initResult.order).toStrictEqual(['1', '2', '3']);
-    expect(initResult.entries['1'].type).toBe(SupportedEvent.Event);
-    expect(initResult.entries['2'].type).toBe(SupportedEvent.Block);
-    expect(initResult.entries['3'].type).toBe(SupportedEvent.Delay);
+    expect(initResult.entries['1'].type).toBe(SupportedEntry.Event);
+    expect(initResult.entries['2'].type).toBe(SupportedEntry.Block);
+    expect(initResult.entries['3'].type).toBe(SupportedEntry.Delay);
   });
 
   it('calculates delays versions of a given rundown', () => {
@@ -474,7 +474,7 @@ describe('generate() v4', () => {
       expect(generatedRundown.totalDelay).toBe(0);
       expect(generatedRundown.entries).toMatchObject({
         '1': {
-          type: SupportedEvent.Block,
+          type: SupportedEntry.Block,
           events: ['100', '200', '300'],
           startTime: 100,
           endTime: 400,
@@ -482,9 +482,9 @@ describe('generate() v4', () => {
           isFirstLinked: false,
           numEvents: 3,
         },
-        '100': { type: SupportedEvent.Event, parent: '1' },
-        '200': { type: SupportedEvent.Event, parent: '1' },
-        '300': { type: SupportedEvent.Event, parent: '1' },
+        '100': { type: SupportedEntry.Event, parent: '1' },
+        '200': { type: SupportedEntry.Event, parent: '1' },
+        '300': { type: SupportedEntry.Event, parent: '1' },
       });
     });
 
@@ -513,9 +513,9 @@ describe('generate() v4', () => {
       expect(generatedRundown.totalDuration).toBe(1200);
       expect(generatedRundown.totalDelay).toBe(0);
       expect(generatedRundown.entries).toMatchObject({
-        '0': { type: SupportedEvent.Event, parent: null },
+        '0': { type: SupportedEntry.Event, parent: null },
         '1': {
-          type: SupportedEvent.Block,
+          type: SupportedEntry.Block,
           events: ['101', '102', '103'],
           startTime: 100,
           endTime: 400,
@@ -527,7 +527,7 @@ describe('generate() v4', () => {
         '102': { parent: '1' },
         '103': { parent: '1' },
         '2': {
-          type: SupportedEvent.Block,
+          type: SupportedEntry.Block,
           events: ['201', '202', '203'],
           startTime: 500,
           endTime: 800,
@@ -539,7 +539,7 @@ describe('generate() v4', () => {
         '202': { id: '202', timeStart: 600, timeEnd: 700, duration: 100 },
         '203': { id: '203', timeStart: 700, timeEnd: 800, duration: 100 },
         '3': {
-          type: SupportedEvent.Block,
+          type: SupportedEntry.Block,
           events: ['301', '302', '303'],
           startTime: 900,
           endTime: 1200,
@@ -618,7 +618,7 @@ describe('edit() mutation', () => {
     expect(newEvent).toMatchObject({
       id: 'mock',
       cue: 'patched',
-      type: SupportedEvent.Event,
+      type: SupportedEntry.Event,
     });
   });
 });
@@ -640,9 +640,9 @@ describe('batchEdit() mutation', () => {
     const { newRundown } = batchEdit({ rundown, eventIds, patch });
 
     expect(newRundown.entries).toMatchObject({
-      '1': { id: '1', type: SupportedEvent.Event, cue: 'newData' },
-      '2': { id: '2', type: SupportedEvent.Event, cue: 'data2' },
-      '3': { id: '3', type: SupportedEvent.Event, cue: 'newData' },
+      '1': { id: '1', type: SupportedEntry.Event, cue: 'newData' },
+      '2': { id: '2', type: SupportedEntry.Event, cue: 'data2' },
+      '3': { id: '3', type: SupportedEntry.Event, cue: 'newData' },
     });
   });
 });

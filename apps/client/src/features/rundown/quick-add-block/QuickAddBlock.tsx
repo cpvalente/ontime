@@ -1,7 +1,7 @@
 import { memo, useRef } from 'react';
 import { IoAdd } from 'react-icons/io5';
 import { Button } from '@chakra-ui/react';
-import { MaybeString, SupportedEvent } from 'ontime-types';
+import { MaybeString, SupportedEntry } from 'ontime-types';
 
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 
@@ -24,7 +24,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
   const addEvent = () => {
     addEntry(
       {
-        type: SupportedEvent.Event,
+        type: SupportedEntry.Event,
         parent: parentBlock ?? null,
       },
       {
@@ -39,7 +39,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
   const addDelay = () => {
     addEntry(
       // TODO(v4): add delays to blocks
-      { type: SupportedEvent.Delay },
+      { type: SupportedEntry.Delay },
       {
         lastEventId: previousEventId,
         after: previousEventId,
@@ -52,7 +52,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
       return;
     }
     addEntry(
-      { type: SupportedEvent.Block },
+      { type: SupportedEntry.Block },
       {
         lastEventId: previousEventId,
         after: previousEventId,
