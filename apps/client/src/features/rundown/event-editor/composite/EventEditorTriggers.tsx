@@ -1,16 +1,16 @@
 import { Fragment, useCallback, useState } from 'react';
-import { IoAddCircle, IoTrash } from 'react-icons/io5';
-import { IconButton, Select, Tooltip } from '@chakra-ui/react';
+import { IoAlertCircle, IoCheckmarkCircle, IoTrash } from 'react-icons/io5';
+import { Button, IconButton, Select, Tooltip } from '@chakra-ui/react';
 import { TimerLifeCycle, timerLifecycleValues, Trigger } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
+import Tag from '../../../../common/components/tag/Tag';
 import { useEventAction } from '../../../../common/hooks/useEventAction';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
-import * as Editor from '../../../editors/editor-utils/EditorUtils';
 
 import { eventTriggerOptions } from './eventTrigger.constants';
 
-import style from '../EventEditor.module.scss';
+import style from './EventEditorTriggers.module.scss';
 
 interface EventEditorTriggersProps {
   eventId: string;
@@ -22,10 +22,10 @@ export default function EventEditorTriggers(props: EventEditorTriggersProps) {
   const showTriggers = triggers !== undefined && triggers.length > 0;
 
   return (
-    <Fragment>
+    <>
       {showTriggers && <ExistingEventTriggers triggers={triggers} eventId={eventId} />}
       <EventTriggerForm triggers={triggers} eventId={eventId} />
-    </Fragment>
+    </>
   );
 }
 
@@ -41,52 +41,32 @@ function EventTriggerForm(props: EventTriggerFormProps) {
   const [automationId, setAutomationId] = useState<string | undefined>(undefined);
   const [cycleValue, setCycleValue] = useState(TimerLifeCycle.onStart);
 
-  const handleSubmit = useCallback(
-    (triggerLifeCycle: TimerLifeCycle, automationId: string) => {
-      const newTriggers = triggers ?? new Array<Trigger>();
-      const id = generateId();
-      newTriggers.push({ id, title: '', trigger: triggerLifeCycle, automationId });
-      updateEvent({ id: eventId, triggers: newTriggers });
-    },
-    [eventId, triggers, updateEvent],
-  );
+  const handleSubmit = (triggerLifeCycle: TimerLifeCycle, automationId: string) => {
+    const newTriggers = triggers ?? new Array<Trigger>();
+    const id = generateId();
+    newTriggers.push({ id, title: '', trigger: triggerLifeCycle, automationId });
+    updateEvent({ id: eventId, triggers: newTriggers });
+  };
 
-  const isInvalidTrigger = useCallback(
-    (cycle: TimerLifeCycle, automationId?: string): false | string => {
-      if (automationId === undefined) {
-        return 'Select an automation';
-      }
-      if (!Object.keys(automationSettings.automations).includes(automationId)) {
-        return 'This automation does not exist';
-      }
-      if (triggers === undefined) {
-        return false;
-      }
-      return Object.values(triggers).some((t) => t.automationId === automationId && t.trigger === cycle)
-        ? 'Automation can only be used once'
-        : false;
-    },
-    [automationSettings.automations, triggers],
-  );
+  const getValidationError = (cycle: TimerLifeCycle, automationId?: string): string | undefined => {
+    if (automationId === undefined) {
+      return 'Select an automation';
+    }
+    if (!Object.keys(automationSettings.automations).includes(automationId)) {
+      return 'This automation does not exist';
+    }
+    if (triggers === undefined) {
+      return;
+    }
+    return Object.values(triggers).some((t) => t.automationId === automationId && t.trigger === cycle)
+      ? 'Automation can only be used once'
+      : undefined;
+  };
+
+  const validationError = getValidationError(cycleValue, automationId);
 
   return (
-    <div className={style.inline}>
-      <Select
-        size='sm'
-        variant='ontime'
-        value={automationId}
-        defaultValue='default'
-        onChange={(e) => setAutomationId(e.target.value)}
-      >
-        <option disabled value='default'>
-          select an automation
-        </option>
-        {Object.values(automationSettings.automations).map(({ id, title }) => (
-          <option key={id} value={id}>
-            {title}
-          </option>
-        ))}
-      </Select>
+    <div className={style.triggerForm}>
       <Select
         size='sm'
         variant='ontime'
@@ -94,22 +74,42 @@ function EventTriggerForm(props: EventTriggerFormProps) {
         onChange={(e) => setCycleValue(e.target.value as TimerLifeCycle)}
         defaultValue={TimerLifeCycle.onStart}
       >
+        <option disabled>Lifecycle Trigger</option>
         {eventTriggerOptions.map((cycle) => (
           <option key={cycle} value={cycle}>
             {cycle}
           </option>
         ))}
       </Select>
-      <Tooltip label={isInvalidTrigger(cycleValue, automationId)}>
-        <IconButton
-          isDisabled={Boolean(isInvalidTrigger(cycleValue, automationId))}
-          onClick={() => automationId && handleSubmit(cycleValue, automationId)}
-          size='sm'
-          variant='ontime-ghosted'
-          aria-label='Add entry'
-          icon={<IoAddCircle />}
-        />
-      </Tooltip>
+      <Select
+        size='sm'
+        variant='ontime'
+        value={automationId}
+        defaultValue='default'
+        onChange={(e) => setAutomationId(e.target.value)}
+      >
+        <option disabled>Automation</option>
+        {Object.values(automationSettings.automations).map(({ id, title }) => (
+          <option key={id} value={id}>
+            {title}
+          </option>
+        ))}
+      </Select>
+      <Button
+        variant='ontime-subtle'
+        size='sm'
+        isDisabled={validationError !== undefined}
+        onClick={() => automationId && handleSubmit(cycleValue, automationId)}
+      >
+        Add
+      </Button>
+      {validationError !== undefined ? (
+        <Tooltip label={validationError} shouldWrapChildren>
+          <IoAlertCircle className={style.errorLabel} />
+        </Tooltip>
+      ) : (
+        <IoCheckmarkCircle className={style.success} />
+      )}
     </div>
   );
 }
@@ -146,13 +146,13 @@ function ExistingEventTriggers(props: ExistingEventTriggersProps) {
     <div>
       {Object.entries(filteredTriggers).map(([triggerLifeCycle, triggerGroup]) => (
         <Fragment key={triggerLifeCycle}>
-          <Editor.Label className={style.decorated}>{triggerLifeCycle}</Editor.Label>
           {triggerGroup.map((trigger) => {
             const { id, automationId } = trigger;
             const automationTitle = automationSettings.automations[automationId]?.title ?? '<MISSING AUTOMATION>';
             return (
               <div key={id} className={style.trigger}>
-                <span>→ {automationTitle}</span>
+                <Tag>{triggerLifeCycle}</Tag>
+                <Tag>{automationTitle}</Tag>
                 <IconButton
                   size='sm'
                   variant='ontime-ghosted'

@@ -75,14 +75,14 @@ export default function EventEditor(props: EventEditorProps) {
       <div className={style.column}>
         <Editor.Title>
           Custom Fields
-          {isEditor && <AppLink search='settings=feature_settings__custom'>Manage</AppLink>}
+          {isEditor && <AppLink search='settings=feature_settings__custom'>Manage Custom Fields</AppLink>}
         </Editor.Title>
         <EventCustom fields={customFields} handleSubmit={handleSubmit} event={event} />
       </div>
       <div className={style.column}>
         <Editor.Title>
-          Triggers
-          {isEditor && <AppLink search='settings=automation__automations'>Manage</AppLink>}
+          Automations
+          {isEditor && <AppLink search='settings=automation__automations'>Manage Automations</AppLink>}
         </Editor.Title>
         <EventEditorTriggers triggers={event.triggers} eventId={event.id} />
       </div>
