@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import QRCode from 'react-qr-code';
-import { Button, Select, Switch } from '@chakra-ui/react';
+import { Button, Switch } from '@chakra-ui/react';
+import { NativeSelect } from '@mantine/core';
 
 import { generateUrl } from '../../../../common/api/session';
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -81,7 +82,7 @@ export default function GenerateLinkForm() {
             title='Host IP'
             description={`Which IP address will be used${isOntimeCloud ? ' (not applicable in Ontime Cloud)' : ''}`}
           />
-          <Select variant='ontime' isDisabled={isOntimeCloud} size='sm' {...register('baseUrl')}>
+          <NativeSelect disabled={isOntimeCloud} size='sm' {...register('baseUrl')}>
             {infoData.networkInterfaces.map((nif) => {
               return (
                 <option key={nif.name} value={nif.address}>
@@ -89,14 +90,14 @@ export default function GenerateLinkForm() {
                 </option>
               );
             })}
-          </Select>
+          </NativeSelect>
         </Panel.ListItem>
         <Panel.ListItem>
           <Panel.Field
             title='URL Preset'
             description='Which preset will the link point to (will default to /timer if none is given)'
           />
-          <Select variant='ontime' size='sm' {...register('path')}>
+          <NativeSelect size='sm' {...register('path')}>
             <option key='timer' value='timer'>
               Timer
             </option>
@@ -110,7 +111,7 @@ export default function GenerateLinkForm() {
                 </option>
               );
             })}
-          </Select>
+          </NativeSelect>
         </Panel.ListItem>
         <Panel.ListItem>
           <Panel.Field

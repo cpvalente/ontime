@@ -9,9 +9,9 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Select,
   Switch,
 } from '@chakra-ui/react';
+import { NativeSelect } from '@mantine/core';
 import { QuickStartData } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 
@@ -92,10 +92,10 @@ export default function QuickStart(props: QuickStartProps) {
                   description='Default time format to show in views 12 /24 hours'
                   error={errors.settings?.timeFormat?.message}
                 />
-                <Select variant='ontime' size='sm' width='auto' isDisabled={false} {...register('settings.timeFormat')}>
+                <NativeSelect size='sm' w='auto' disabled={false} {...register('settings.timeFormat')}>
                   <option value='12'>12 hours 11:00:10 PM</option>
                   <option value='24'>24 hours 23:00:10</option>
-                </Select>
+                </NativeSelect>
               </Panel.ListItem>
               <Panel.ListItem>
                 <Panel.Field
@@ -103,7 +103,7 @@ export default function QuickStart(props: QuickStartProps) {
                   description='Language to be displayed in views'
                   error={errors.settings?.language?.message}
                 />
-                <Select variant='ontime' size='sm' width='auto' isDisabled={false} {...register('settings.language')}>
+                <NativeSelect size='sm' w='auto' disabled={false} {...register('settings.language')}>
                   <option value='en'>English</option>
                   <option value='fr'>French</option>
                   <option value='de'>German</option>
@@ -115,7 +115,7 @@ export default function QuickStart(props: QuickStartProps) {
                   <option value='sv'>Swedish</option>
                   <option value='pl'>Polish</option>
                   <option value='zh'>Chinese (Simplified)</option>
-                </Select>
+                </NativeSelect>
               </Panel.ListItem>
             </Panel.ListGroup>
 

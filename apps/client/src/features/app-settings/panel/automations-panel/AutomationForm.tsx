@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from 'react';
 import { Controller, useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoTrash } from 'react-icons/io5';
-import { Button, IconButton, Input, Radio, RadioGroup, Select } from '@chakra-ui/react';
+import { Button, IconButton, Input, Radio, RadioGroup } from '@chakra-ui/react';
+import { NativeSelect } from '@mantine/core';
 import {
   Automation,
   AutomationDTO,
@@ -230,10 +231,9 @@ export default function AutomationForm(props: AutomationFormProps) {
               <div key={key} className={style.filterSection}>
                 <label>
                   Runtime data source
-                  <Select
+                  <NativeSelect
                     {...register(`filters.${index}.field`, { required: { value: true, message: 'Required field' } })}
                     size='sm'
-                    variant='ontime'
                   >
                     <option selected hidden disabled value=''>
                       Event field
@@ -246,15 +246,14 @@ export default function AutomationForm(props: AutomationFormProps) {
                         </option>
                       );
                     })}
-                  </Select>
+                  </NativeSelect>
                   <Panel.Error>{errors.filters?.[index]?.field?.message}</Panel.Error>
                 </label>
                 <label>
                   Matching condition
-                  <Select
+                  <NativeSelect
                     {...register(`filters.${index}.operator`, { required: { value: true, message: 'Required field' } })}
                     size='sm'
-                    variant='ontime'
                   >
                     <option selected hidden disabled value=''>
                       Operator
@@ -267,7 +266,7 @@ export default function AutomationForm(props: AutomationFormProps) {
                   <option value='greater_than'>greater than</option>
                   <option value='less_than'>less than</option> 
                   */}
-                  </Select>
+                  </NativeSelect>
                   <Panel.Error>{errors.filters?.[index]?.operator?.message}</Panel.Error>
                 </label>
                 <label>
