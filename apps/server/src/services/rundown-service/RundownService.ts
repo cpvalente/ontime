@@ -16,7 +16,7 @@ import { getCueCandidate } from 'ontime-utils';
 
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
-import { createEvent } from '../../utils/parser.js';
+import { createEvent } from '../../api-data/rundown/rundown.utils.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
