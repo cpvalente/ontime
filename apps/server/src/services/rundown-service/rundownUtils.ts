@@ -6,6 +6,7 @@ import {
   EntryId,
   RundownEntries,
   ProjectRundowns,
+  OntimeBlock,
 } from 'ontime-types';
 
 import * as cache from './rundownCache.js';
@@ -172,4 +173,39 @@ export function getRundownOrThrow(rundowns: ProjectRundowns, rundownId: string):
     throw new Error(`Rundown with ID ${rundownId} not found`);
   }
   return rundowns[rundownId];
+}
+
+export function getInsertionPosition(
+  parentId?: EntryId,
+  afterId?: EntryId,
+  beforeId?: EntryId,
+): { atIndex: number; afterId: EntryId | undefined } {
+  if (afterId) {
+    const order = selectOrderList(parentId);
+    return {
+      atIndex: order.findIndex((id) => id === afterId) + 1,
+      afterId,
+    };
+  }
+
+  if (beforeId) {
+    const order = selectOrderList(parentId);
+    const atIndex = order.findIndex((id) => id === beforeId);
+    return {
+      atIndex,
+      afterId: order[atIndex - 1] ?? null,
+    };
+  }
+
+  return {
+    atIndex: 0,
+    afterId: undefined,
+  };
+
+  function selectOrderList(parentId?: EntryId) {
+    if (parentId) {
+      return (getEntryWithId(parentId) as OntimeBlock).events;
+    }
+    return cache.getEventOrder().order;
+  }
 }
