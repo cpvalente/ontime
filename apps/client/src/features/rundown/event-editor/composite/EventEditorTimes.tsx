@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { IoInformationCircle } from 'react-icons/io5';
-import { Select, Switch, Tooltip } from '@chakra-ui/react';
+import { Select, Tooltip } from '@chakra-ui/react';
+import { Switch } from '@mantine/core';
 import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
@@ -124,9 +125,8 @@ function EventEditorTimes(props: EventEditorTimesProps) {
               <Switch
                 id='countToEnd'
                 size='md'
-                isChecked={countToEnd}
+                checked={countToEnd}
                 onChange={() => handleSubmit('countToEnd', countToEnd)}
-                variant='ontime'
               />
               {countToEnd ? 'On' : 'Off'}
             </Editor.Label>
@@ -174,13 +174,7 @@ function EventEditorTimes(props: EventEditorTimesProps) {
           <div>
             <Editor.Label htmlFor='isPublic'>Event Visibility</Editor.Label>
             <Editor.Label className={style.switchLabel}>
-              <Switch
-                id='isPublic'
-                size='md'
-                isChecked={isPublic}
-                onChange={() => handleSubmit('isPublic', isPublic)}
-                variant='ontime'
-              />
+              <Switch id='isPublic' size='md' checked={isPublic} onChange={() => handleSubmit('isPublic', isPublic)} />
               {isPublic ? 'Public' : 'Private'}
             </Editor.Label>
           </div>

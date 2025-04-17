@@ -1,5 +1,5 @@
 import { extendTheme } from '@chakra-ui/react';
-import { createTheme } from '@mantine/core';
+import { createTheme, Switch } from '@mantine/core';
 
 import { ontimeAlertOnDark, ontimeDialog } from './OntimeAlert';
 import {
@@ -17,7 +17,6 @@ import { ontimeMenuOnDark } from './ontimeMenu';
 import { ontimeModal } from './ontimeModal';
 import { ontimeBlockRadio, ontimeRadio } from './ontimeRadio';
 import { ontimeSelect } from './ontimeSelect';
-import { ontimeSwitch } from './ontimeSwitch';
 import { ontimeTab } from './ontimeTab';
 import {
   ontimeInputFilled,
@@ -27,6 +26,8 @@ import {
   ontimeTextAreaTransparent,
 } from './ontimeTextInputs';
 import { ontimeTooltip } from './ontimeTooltip';
+
+import ontimeSwitch from './_ontimeSwitch.module.scss';
 
 const theme = extendTheme({
   initialColorMode: 'dark',
@@ -131,11 +132,6 @@ const theme = extendTheme({
     Tooltip: {
       baseStyle: { ...ontimeTooltip },
     },
-    Switch: {
-      variants: {
-        ontime: { ...ontimeSwitch },
-      },
-    },
     Select: {
       variants: {
         ontime: { ...ontimeSelect },
@@ -146,4 +142,12 @@ const theme = extendTheme({
 
 export default theme;
 
-export const mantineTheme = createTheme({});
+export const mantineTheme = createTheme({
+  components: {
+    Switch: Switch.extend({
+      classNames: {
+        track: ontimeSwitch.track,
+      },
+    }),
+  },
+});

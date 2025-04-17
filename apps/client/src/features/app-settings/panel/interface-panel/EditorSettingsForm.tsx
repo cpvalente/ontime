@@ -1,4 +1,5 @@
-import { Select, Switch } from '@chakra-ui/react';
+import { Select } from '@chakra-ui/react';
+import { Switch } from '@mantine/core';
 import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 
@@ -44,7 +45,6 @@ export default function EditorSettingsForm() {
                 description='Whether the start time of new events should be linked to the previous event end time'
               />
               <Switch
-                variant='ontime'
                 size='lg'
                 defaultChecked={linkPrevious}
                 onChange={(event) => setLinkPrevious(event.target.checked)}
@@ -131,7 +131,6 @@ export default function EditorSettingsForm() {
             <Panel.ListItem>
               <Panel.Field title='Default public' description='New events will be public' />
               <Switch
-                variant='ontime'
                 size='lg'
                 defaultChecked={defaultPublic}
                 onChange={(event) => setDefaultPublic(event.target.checked)}
@@ -147,14 +146,14 @@ export default function EditorSettingsForm() {
                 title='Show quick entry'
                 description='Whether the quick entry buttons show above / under selected event'
               />
-              <Switch variant='ontime' size='lg' defaultChecked={false} isDisabled />
+              <Switch size='lg' defaultChecked={false} disabled />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
                 title='Follow playback'
                 description='Whether view automatically follows the event being played'
               />
-              <Switch variant='ontime' size='lg' defaultChecked isDisabled />
+              <Switch size='lg' defaultChecked disabled />
             </Panel.ListItem>
           </Panel.ListGroup>
         </Panel.Section>
@@ -166,14 +165,14 @@ export default function EditorSettingsForm() {
                 title='Show quick entry'
                 description='Whether the quick entry buttons show above / under selected event'
               />
-              <Switch variant='ontime' size='lg' defaultChecked isDisabled />
+              <Switch size='lg' defaultChecked disabled />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
                 title='Follow playback'
                 description='Whether view automatically follows the event being played'
               />
-              <Switch variant='ontime' size='lg' defaultChecked={false} isDisabled />
+              <Switch size='lg' defaultChecked={false} disabled />
             </Panel.ListItem>
           </Panel.ListGroup>
         </Panel.Section>

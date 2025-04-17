@@ -1,0 +1,14 @@
+.track {
+  input:checked + & {
+    background-color: $blue-700;
+    border-color: $blue-700;
+  }
+
+  input:not(:checked) + & {
+    background-color: $gray-1100 !important;
+  }
+
+  input:focus-visible + & {
+    outline: 2px solid $blue-700 !important;
+  }
+}

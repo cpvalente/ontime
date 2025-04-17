@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Switch } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
+import { Switch } from '@mantine/core';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { PROJECT_DATA } from '../../../../common/api/constants';
@@ -97,23 +98,23 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
           <br /> This process is irreversible.
         </Panel.Description>
         <label>
-          <Switch variant='ontime' {...register('project')} />
+          <Switch {...register('project')} />
           Project data
         </label>
         <label>
-          <Switch variant='ontime' {...register('rundown')} />
+          <Switch {...register('rundown')} />
           Rundown + Custom Fields
         </label>
         <label>
-          <Switch variant='ontime' {...register('viewSettings')} />
+          <Switch {...register('viewSettings')} />
           View Settings
         </label>
         <label>
-          <Switch variant='ontime' {...register('urlPresets')} />
+          <Switch {...register('urlPresets')} />
           URL Presets
         </label>
         <label>
-          <Switch variant='ontime' {...register('automation')} />
+          <Switch {...register('automation')} />
           Automation Settings
         </label>
       </Panel.Section>

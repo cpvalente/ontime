@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { Button, Input, Switch } from '@chakra-ui/react';
+import { Button, Input } from '@chakra-ui/react';
+import { Switch } from '@mantine/core';
 import { ViewSettings } from 'ontime-types';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -112,7 +113,7 @@ export default function ViewSettingsForm() {
                 control={control}
                 name='overrideStyles'
                 render={({ field: { onChange, value, ref } }) => (
-                  <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
+                  <Switch size='lg' checked={value} onChange={onChange} ref={ref} />
                 )}
               />
             </Panel.ListItem>
@@ -141,7 +142,7 @@ export default function ViewSettingsForm() {
                 control={control}
                 name='freezeEnd'
                 render={({ field: { onChange, value, ref } }) => (
-                  <Switch variant='ontime' size='lg' isChecked={value} onChange={onChange} ref={ref} />
+                  <Switch size='lg' checked={value} onChange={onChange} ref={ref} />
                 )}
               />
             </Panel.ListItem>
