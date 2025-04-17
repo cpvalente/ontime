@@ -8,6 +8,7 @@ import {
   type Rundown,
   isOntimeBlock,
   isOntimeEvent,
+  OntimeEntry,
   Playback,
   SupportedEvent,
 } from 'ontime-types';
@@ -93,7 +94,7 @@ export default function Rundown({ data }: RundownProps) {
   );
 
   const insertAtId = useCallback(
-    (type: SupportedEvent, id: MaybeString, above = false) => {
+    (patch: Partial<OntimeEntry> & { type: SupportedEvent }, id: MaybeString, above = false) => {
       const options: EventOptions =
         id === null
           ? {}
@@ -102,17 +103,10 @@ export default function Rundown({ data }: RundownProps) {
               before: above ? id : undefined,
             };
 
-      if (type === SupportedEvent.Event) {
-        const newEvent = {
-          type: SupportedEvent.Event,
-        };
-        if (!above && id) {
-          options.lastEventId = id;
-        }
-        addEntry(newEvent, options);
-      } else {
-        addEntry({ type }, options);
+      if (!above && id) {
+        options.lastEventId = id;
       }
+      addEntry(patch, options);
     },
     [addEntry],
   );
@@ -208,14 +202,14 @@ export default function Rundown({ data }: RundownProps) {
 
     ['mod + Backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
 
-    ['alt + E', () => insertAtId(SupportedEvent.Event, cursor), { preventDefault: true }],
-    ['alt + shift + E', () => insertAtId(SupportedEvent.Event, cursor, true), { preventDefault: true }],
+    ['alt + E', () => insertAtId({ type: SupportedEvent.Event }, cursor), { preventDefault: true }],
+    ['alt + shift + E', () => insertAtId({ type: SupportedEvent.Event }, cursor, true), { preventDefault: true }],
 
-    ['alt + B', () => insertAtId(SupportedEvent.Block, cursor), { preventDefault: true }],
-    ['alt + shift + B', () => insertAtId(SupportedEvent.Block, cursor, true), { preventDefault: true }],
+    ['alt + B', () => insertAtId({ type: SupportedEvent.Block }, cursor), { preventDefault: true }],
+    ['alt + shift + B', () => insertAtId({ type: SupportedEvent.Block }, cursor, true), { preventDefault: true }],
 
-    ['alt + D', () => insertAtId(SupportedEvent.Delay, cursor), { preventDefault: true }],
-    ['alt + shift + D', () => insertAtId(SupportedEvent.Delay, cursor, true), { preventDefault: true }],
+    ['alt + D', () => insertAtId({ type: SupportedEvent.Delay }, cursor), { preventDefault: true }],
+    ['alt + shift + D', () => insertAtId({ type: SupportedEvent.Delay }, cursor, true), { preventDefault: true }],
 
     ['mod + C', () => setEntryCopyId(cursor)],
     ['mod + V', () => insertCopyAtId(cursor, entryCopyId)],
@@ -260,7 +254,7 @@ export default function Rundown({ data }: RundownProps) {
   };
 
   if (statefulEntries.length < 1) {
-    return <RundownEmpty handleAddNew={() => insertAtId(SupportedEvent.Event, cursor)} />;
+    return <RundownEmpty handleAddNew={() => insertAtId({ type: SupportedEvent.Event }, cursor)} />;
   }
 
   // 1. gather presentation options
@@ -292,15 +286,21 @@ export default function Rundown({ data }: RundownProps) {
               return (
                 <Fragment key={entry.id}>
                   {isEditMode && (hasCursor || isFirst) && (
-                    <QuickAddBlock showBlocks previousEventId={rundownMeta.previousEntryId} />
+                    <QuickAddBlock previousEventId={rundownMeta.previousEntryId} parentBlock={null} />
                   )}
                   {isOntimeBlock(entry) ? (
                     <BlockBlock data={entry} hasCursor={hasCursor}>
                       {entry.events.length === 0 && (
-                        <BlockEmpty handleAddNew={() => insertAtId(SupportedEvent.Event, cursor)} />
+                        <BlockEmpty
+                          handleAddNew={() => insertAtId({ type: SupportedEvent.Event, parent: entry.id }, entry.id)}
+                        />
                       )}
                       {entry.events.map((eventId, nestedIndex) => {
                         const nestedEntry = entries[eventId];
+                        if (!nestedEntry) {
+                          return null;
+                        }
+
                         const nestedRundownMeta = process(nestedEntry);
                         const isFirstInGroup = nestedIndex === 0;
                         const isLastInGroup = nestedIndex === entry.events.length - 1;
@@ -312,7 +312,10 @@ export default function Rundown({ data }: RundownProps) {
                         return (
                           <Fragment key={nestedEntry.id}>
                             {isEditMode && (hasNestedCursor || isFirstInGroup) && (
-                              <QuickAddBlock previousEventId={rundownMeta.previousEntryId} />
+                              <QuickAddBlock
+                                parentBlock={entry.id}
+                                previousEventId={nestedRundownMeta.previousEntryId}
+                              />
                             )}
 
                             <div
@@ -342,7 +345,7 @@ export default function Rundown({ data }: RundownProps) {
                               </div>
                             </div>
                             {isEditMode && (hasNestedCursor || isLastInGroup) && (
-                              <QuickAddBlock previousEventId={entry.id} />
+                              <QuickAddBlock parentBlock={entry.id} previousEventId={nestedEntry.id} />
                             )}
                           </Fragment>
                         );
@@ -371,7 +374,9 @@ export default function Rundown({ data }: RundownProps) {
                       </div>
                     </div>
                   )}
-                  {isEditMode && (hasCursor || isLast) && <QuickAddBlock showBlocks previousEventId={entry.id} />}
+                  {isEditMode && (hasCursor || isLast) && (
+                    <QuickAddBlock previousEventId={entry.id} parentBlock={null} />
+                  )}
                 </Fragment>
               );
             })}
