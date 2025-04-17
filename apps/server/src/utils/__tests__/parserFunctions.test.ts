@@ -1,4 +1,4 @@
-import { CustomFields, OntimeBlock, OntimeEvent, Rundown, Settings, SupportedEvent, URLPreset } from 'ontime-types';
+import { CustomFields, OntimeBlock, OntimeEvent, Rundown, Settings, SupportedEntry, URLPreset } from 'ontime-types';
 
 import { defaultRundown } from '../../models/dataModel.js';
 
@@ -56,8 +56,8 @@ describe('parseRundown()', () => {
       order: ['1', '2', '3', '4'],
       flatOrder: ['1', '2', '3', '4'],
       entries: {
-        '1': { id: '1', type: SupportedEvent.Event, title: 'test', skip: false } as OntimeEvent, // OK
-        '2': { id: '1', type: SupportedEvent.Block, title: 'test 2', skip: false } as OntimeBlock, // duplicate ID
+        '1': { id: '1', type: SupportedEntry.Event, title: 'test', skip: false } as OntimeEvent, // OK
+        '2': { id: '1', type: SupportedEntry.Block, title: 'test 2', skip: false } as OntimeBlock, // duplicate ID
         '3': {} as OntimeEvent, // no data
         '4': { id: '4', title: 'test 2', skip: false } as OntimeEvent, // no type
       },
@@ -72,7 +72,7 @@ describe('parseRundown()', () => {
     expect(parsedRundown.entries).toMatchObject({
       '1': {
         id: '1',
-        type: SupportedEvent.Event,
+        type: SupportedEntry.Event,
         title: 'test',
         skip: false,
       },
@@ -88,9 +88,9 @@ describe('parseRundown()', () => {
       flatOrder: ['1', '2'],
       entries: {
         // @ts-expect-error -- testing external data which could be incorrect
-        '1': { id: '1', type: SupportedEvent.Event, cue: 101 } as OntimeEvent,
+        '1': { id: '1', type: SupportedEntry.Event, cue: 101 } as OntimeEvent,
         // @ts-expect-error -- testing external data which could be incorrect
-        '2': { id: '2', type: SupportedEvent.Event, cue: 101.1 } as OntimeEvent,
+        '2': { id: '2', type: SupportedEntry.Event, cue: 101.1 } as OntimeEvent,
       },
       revision: 1,
     } as Rundown;
@@ -114,8 +114,8 @@ describe('parseRundown()', () => {
       order: ['1', '1'],
       flatOrder: ['1', '1'],
       entries: {
-        '1': { id: '1', type: SupportedEvent.Event } as OntimeEvent,
-        '2': { id: '2', type: SupportedEvent.Event } as OntimeEvent,
+        '1': { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+        '2': { id: '2', type: SupportedEntry.Event } as OntimeEvent,
       },
       revision: 1,
     } as Rundown;
@@ -132,8 +132,8 @@ describe('parseRundown()', () => {
       order: ['1', '2'],
       flatOrder: ['1', '2'],
       entries: {
-        '1': { id: '1', type: SupportedEvent.Event } as OntimeEvent,
-        '2': { id: '2', type: SupportedEvent.Event } as OntimeEvent,
+        '1': { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+        '2': { id: '2', type: SupportedEntry.Event } as OntimeEvent,
       },
       revision: 1,
     } as Rundown;
@@ -161,8 +161,8 @@ describe('parseRundown()', () => {
       order: ['1', '2', '3', '4'],
       flatOrder: ['1', '2', '3', '4'],
       entries: {
-        '1': { id: '1', type: SupportedEvent.Event } as OntimeEvent,
-        '2': { id: '2', type: SupportedEvent.Event } as OntimeEvent,
+        '1': { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+        '2': { id: '2', type: SupportedEntry.Event } as OntimeEvent,
         'not-mentioned': {} as OntimeEvent,
       },
       revision: 1,
@@ -180,8 +180,8 @@ describe('parseRundown()', () => {
       order: ['1', '2', '3', '4'],
       flatOrder: ['1', '2', '3', '4'],
       entries: {
-        '1': { id: '1', type: SupportedEvent.Event } as OntimeEvent,
-        '2': { id: '2', type: SupportedEvent.Event } as OntimeEvent,
+        '1': { id: '1', type: SupportedEntry.Event } as OntimeEvent,
+        '2': { id: '2', type: SupportedEntry.Event } as OntimeEvent,
         'not-mentioned': {} as OntimeEvent,
       },
       revision: 1,

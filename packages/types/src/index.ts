@@ -11,7 +11,7 @@ export {
   type OntimeEvent,
   type PlayableEvent,
   type TimeField,
-  SupportedEvent,
+  SupportedEntry as SupportedEntry,
 } from './definitions/core/OntimeEvent.type.js';
 export type {
   OntimeEntryCommonKeys,
