@@ -1,74 +1,69 @@
-import { memo, useCallback, useRef } from 'react';
+import { memo, useRef } from 'react';
 import { IoAdd } from 'react-icons/io5';
 import { Button } from '@chakra-ui/react';
 import { MaybeString, SupportedEvent } from 'ontime-types';
 
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
-import { useEmitLog } from '../../../common/stores/logger';
 
 import style from './QuickAddBlock.module.scss';
 
 interface QuickAddBlockProps {
   previousEventId: MaybeString;
-  showBlocks?: boolean;
+  parentBlock: MaybeString;
 }
 
 export default memo(QuickAddBlock);
 
 function QuickAddBlock(props: QuickAddBlockProps) {
-  const { previousEventId, showBlocks } = props;
+  const { previousEventId, parentBlock } = props;
   const { addEntry } = useEntryActions();
-  const { emitError } = useEmitLog();
 
   const doLinkPrevious = useRef<HTMLInputElement | null>(null);
   const doPublic = useRef<HTMLInputElement | null>(null);
 
-  const handleCreateEvent = useCallback(
-    (eventType: SupportedEvent) => {
-      switch (eventType) {
-        case 'event': {
-          const defaultPublic = doPublic?.current?.checked;
-          const linkPrevious = doLinkPrevious?.current?.checked;
+  const addEvent = () => {
+    addEntry(
+      {
+        type: SupportedEvent.Event,
+        parent: parentBlock ?? null,
+      },
+      {
+        after: previousEventId,
+        defaultPublic: doPublic?.current?.checked,
+        lastEventId: previousEventId,
+        linkPrevious: doLinkPrevious?.current?.checked,
+      },
+    );
+  };
 
-          const newEvent = { type: SupportedEvent.Event };
-          const options = {
-            after: previousEventId,
-            defaultPublic,
-            lastEventId: previousEventId,
-            linkPrevious,
-          };
-          addEntry(newEvent, options);
-          break;
-        }
-        case 'delay': {
-          const options = {
-            lastEventId: previousEventId,
-            after: previousEventId,
-          };
-          addEntry({ type: SupportedEvent.Delay }, options);
-          break;
-        }
-        case 'block': {
-          const options = {
-            lastEventId: previousEventId,
-            after: previousEventId,
-          };
-          addEntry({ type: SupportedEvent.Block }, options);
-          break;
-        }
-        default: {
-          emitError(`Cannot create unknown event type: ${eventType}`);
-          break;
-        }
-      }
-    },
-    [previousEventId, addEntry, emitError],
-  );
+  const addDelay = () => {
+    addEntry(
+      // TODO(v4): add delays to blocks
+      { type: SupportedEvent.Delay },
+      {
+        lastEventId: previousEventId,
+        after: previousEventId,
+      },
+    );
+  };
+
+  const addBlock = () => {
+    if (parentBlock !== null) {
+      return;
+    }
+    addEntry(
+      { type: SupportedEvent.Block },
+      {
+        lastEventId: previousEventId,
+        after: previousEventId,
+      },
+    );
+  };
 
   return (
     <div className={style.quickAdd}>
       <Button
-        onClick={() => handleCreateEvent(SupportedEvent.Event)}
+        onClick={addEvent}
         size='xs'
         variant='ontime-subtle-white'
         className={style.quickBtn}
@@ -78,7 +73,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
         Event
       </Button>
       <Button
-        onClick={() => handleCreateEvent(SupportedEvent.Delay)}
+        onClick={addDelay}
         size='xs'
         variant='ontime-subtle-white'
         className={style.quickBtn}
@@ -87,9 +82,9 @@ function QuickAddBlock(props: QuickAddBlockProps) {
       >
         Delay
       </Button>
-      {showBlocks && (
+      {parentBlock === null && (
         <Button
-          onClick={() => handleCreateEvent(SupportedEvent.Block)}
+          onClick={addBlock}
           size='xs'
           variant='ontime-subtle-white'
           className={style.quickBtn}
