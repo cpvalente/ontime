@@ -33,12 +33,12 @@ export default function EventEditor(props: EventEditorProps) {
     (field: EditorUpdateFields, value: string) => {
       if (field.startsWith('custom-')) {
         const fieldLabel = field.split('custom-')[1];
-        updateEvent({ id: event.id, custom: { [fieldLabel]: value } });
+        updateEvent({ id: event?.id, custom: { [fieldLabel]: value } });
       } else {
-        updateEvent({ id: event.id, [field]: value });
+        updateEvent({ id: event?.id, [field]: value });
       }
     },
-    [event.id, updateEvent],
+    [event?.id, updateEvent],
   );
 
   if (!event) {
