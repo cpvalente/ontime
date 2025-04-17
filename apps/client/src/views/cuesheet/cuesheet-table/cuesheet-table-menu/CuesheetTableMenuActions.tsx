@@ -1,6 +1,6 @@
 import { IoAdd, IoArrowDown, IoArrowUp, IoDuplicateOutline, IoOptions, IoTrash } from 'react-icons/io5';
 import { MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
-import { isOntimeEvent, SupportedEvent } from 'ontime-types';
+import { isOntimeEvent, SupportedEntry } from 'ontime-types';
 
 import { useEntryActions } from '../../../../common/hooks/useEntryAction';
 import { cloneEvent } from '../../../../common/utils/eventsManager';
@@ -35,10 +35,10 @@ export default function CuesheetTableMenuActions(props: CuesheetTableMenuActions
         Edit ...
       </MenuItem>
       <MenuDivider />
-      <MenuItem icon={<IoAdd />} onClick={() => addEntry({ type: SupportedEvent.Event }, { before: eventId })}>
+      <MenuItem icon={<IoAdd />} onClick={() => addEntry({ type: SupportedEntry.Event }, { before: eventId })}>
         Add event above
       </MenuItem>
-      <MenuItem icon={<IoAdd />} onClick={() => addEntry({ type: SupportedEvent.Event }, { after: eventId })}>
+      <MenuItem icon={<IoAdd />} onClick={() => addEntry({ type: SupportedEntry.Event }, { after: eventId })}>
         Add event below
       </MenuItem>
       <MenuItem icon={<IoDuplicateOutline />} onClick={handleCloneEvent}>
