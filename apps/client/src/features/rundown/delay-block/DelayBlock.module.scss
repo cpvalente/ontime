@@ -3,6 +3,7 @@
 .delay {
   @include block-styling;
 
+  margin-block: 0.25rem;
   background-color: $block-bg2;
   padding-right: 0.5rem;
 
