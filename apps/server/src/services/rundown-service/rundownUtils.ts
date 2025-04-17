@@ -122,23 +122,23 @@ export function findPrevious(currentEventId?: string): OntimeEvent | undefined {
  * finds the next event
  */
 export function findNext(currentEventId?: string): PlayableEvent | undefined {
-  const { playableEventsOrder } = cache.getEventOrder();
+  const { playableEventOrder } = cache.getMetadata();
 
-  if (!playableEventsOrder.length) {
+  if (!playableEventOrder.length) {
     return;
   }
 
   // if there is no event running, go to first
   if (!currentEventId) {
-    return getFirstPlayable(playableEventsOrder);
+    return getFirstPlayable(playableEventOrder);
   }
 
-  const currentIndex = playableEventsOrder.findIndex((eventId) => eventId === currentEventId);
-  const newIndex = Math.min(currentIndex + 1, playableEventsOrder.length - 1);
-  const nextEventId = playableEventsOrder.at(newIndex);
+  const currentIndex = playableEventOrder.findIndex((eventId) => eventId === currentEventId);
+  const newIndex = Math.min(currentIndex + 1, playableEventOrder.length - 1);
+  const nextEventId = playableEventOrder.at(newIndex);
 
   if (!nextEventId) {
-    return getFirstPlayable(playableEventsOrder);
+    return getFirstPlayable(playableEventOrder);
   }
 
   return getEntryWithId(nextEventId) as PlayableEvent | undefined;
@@ -176,7 +176,7 @@ export function getRundownOrThrow(rundowns: ProjectRundowns, rundownId: string):
 }
 
 export function getInsertionPosition(
-  parentId?: EntryId,
+  parentId: EntryId | null,
   afterId?: EntryId,
   beforeId?: EntryId,
 ): { atIndex: number; afterId: EntryId | undefined } {
@@ -202,7 +202,7 @@ export function getInsertionPosition(
     afterId: undefined,
   };
 
-  function selectOrderList(parentId?: EntryId) {
+  function selectOrderList(parentId: EntryId | null) {
     if (parentId) {
       return (getEntryWithId(parentId) as OntimeBlock).events;
     }

@@ -54,6 +54,7 @@ describe('parseRundown()', () => {
       id: '',
       title: '',
       order: ['1', '2', '3', '4'],
+      flatOrder: ['1', '2', '3', '4'],
       entries: {
         '1': { id: '1', type: SupportedEvent.Event, title: 'test', skip: false } as OntimeEvent, // OK
         '2': { id: '1', type: SupportedEvent.Block, title: 'test 2', skip: false } as OntimeBlock, // duplicate ID
@@ -84,6 +85,7 @@ describe('parseRundown()', () => {
       id: '',
       title: '',
       order: ['1', '2'],
+      flatOrder: ['1', '2'],
       entries: {
         // @ts-expect-error -- testing external data which could be incorrect
         '1': { id: '1', type: SupportedEvent.Event, cue: 101 } as OntimeEvent,
@@ -110,6 +112,7 @@ describe('parseRundown()', () => {
       id: '',
       title: '',
       order: ['1', '1'],
+      flatOrder: ['1', '1'],
       entries: {
         '1': { id: '1', type: SupportedEvent.Event } as OntimeEvent,
         '2': { id: '2', type: SupportedEvent.Event } as OntimeEvent,
@@ -127,6 +130,7 @@ describe('parseRundown()', () => {
       id: 'test',
       title: '',
       order: ['1', '2'],
+      flatOrder: ['1', '2'],
       entries: {
         '1': { id: '1', type: SupportedEvent.Event } as OntimeEvent,
         '2': { id: '2', type: SupportedEvent.Event } as OntimeEvent,
@@ -155,6 +159,7 @@ describe('parseRundown()', () => {
       id: 'test',
       title: '',
       order: ['1', '2', '3', '4'],
+      flatOrder: ['1', '2', '3', '4'],
       entries: {
         '1': { id: '1', type: SupportedEvent.Event } as OntimeEvent,
         '2': { id: '2', type: SupportedEvent.Event } as OntimeEvent,
@@ -173,6 +178,7 @@ describe('parseRundown()', () => {
       id: 'test',
       title: '',
       order: ['1', '2', '3', '4'],
+      flatOrder: ['1', '2', '3', '4'],
       entries: {
         '1': { id: '1', type: SupportedEvent.Event } as OntimeEvent,
         '2': { id: '2', type: SupportedEvent.Event } as OntimeEvent,
@@ -191,6 +197,7 @@ describe('parseRundown()', () => {
       id: 'test',
       title: '',
       order: ['block'],
+      flatOrder: ['block'],
       entries: {
         block: makeOntimeBlock({ id: 'block', events: ['1', '2'] }),
         '1': makeOntimeEvent({ id: '1' }),
