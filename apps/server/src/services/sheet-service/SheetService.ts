@@ -14,7 +14,7 @@ import got from 'got';
 
 import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
-import { parseRundowns } from '../../utils/parserFunctions.js';
+import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 
 import { getCurrentRundown, getCustomFields } from '../rundown-service/rundownCache.js';
 import { getRundownOrThrow } from '../rundown-service/rundownUtils.js';

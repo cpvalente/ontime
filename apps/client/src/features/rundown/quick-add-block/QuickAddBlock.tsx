@@ -10,12 +10,13 @@ import style from './QuickAddBlock.module.scss';
 interface QuickAddBlockProps {
   previousEventId: MaybeString;
   parentBlock: MaybeString;
+  backgroundColor?: string;
 }
 
 export default memo(QuickAddBlock);
 
 function QuickAddBlock(props: QuickAddBlockProps) {
-  const { previousEventId, parentBlock } = props;
+  const { previousEventId, parentBlock, backgroundColor } = props;
   const { addEntry } = useEntryActions();
 
   const doLinkPrevious = useRef<HTMLInputElement | null>(null);
@@ -25,7 +26,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
     addEntry(
       {
         type: SupportedEntry.Event,
-        parent: parentBlock ?? null,
+        parent: parentBlock,
       },
       {
         after: previousEventId,
@@ -38,8 +39,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
 
   const addDelay = () => {
     addEntry(
-      // TODO(v4): add delays to blocks
-      { type: SupportedEntry.Delay },
+      { type: SupportedEntry.Delay, parent: parentBlock },
       {
         lastEventId: previousEventId,
         after: previousEventId,
@@ -60,8 +60,15 @@ function QuickAddBlock(props: QuickAddBlockProps) {
     );
   };
 
+  /**
+   * If the colour is empty string ''
+   * ie: we are inside a block, but there is no defined colour
+   * we default to $gray-1050 #303030
+   */
+  const blockColour = backgroundColor === '' ? '#303030' : backgroundColor;
+
   return (
-    <div className={style.quickAdd}>
+    <div className={style.quickAdd} style={blockColour ? { '--user-bg': blockColour } : {}}>
       <Button
         onClick={addEvent}
         size='xs'

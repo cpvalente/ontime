@@ -25,14 +25,19 @@ export default function DelayBlock(props: DelayBlockProps) {
     attributes: dragAttributes,
     listeners: dragListeners,
     setNodeRef,
+    isDragging,
     transform,
     transition,
   } = useSortable({
     id: data.id,
+    data: {
+      type: 'delay',
+    },
     animateLayoutChanges: () => false,
   });
 
   const dragStyle = {
+    zIndex: isDragging ? 2 : 'inherit',
     transform: CSS.Translate.toString(transform),
     transition,
   };
