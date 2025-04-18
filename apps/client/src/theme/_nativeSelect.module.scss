@@ -1,27 +1,31 @@
 .input {
-  color: $gray-200;
-  border-radius: 3px;
-  font-weight: 400;
-  background: $gray-1100 !important;
-  border: 1px solid transparent;
+  @include mantine.dark {
+    color: $gray-200;
+    border-radius: 3px;
+    font-weight: 400;
+    background-color: $gray-1200;
+    border: 1px solid transparent;
 
-  &:hover {
-    background: $gray-1000;
-  }
-
-  &:focus {
-    background: $gray-1000;
-    color: $gray-50;
-    border: 1px solid $blue-500;
-  }
-
-  &:disabled {
     &:hover {
-      background: $gray-1100;
+      background: $gray-1000;
+    }
+
+    &:focus {
+      background-color: $gray-1000;
+      color: $gray-50;
+      border: 1px solid $blue-500;
+    }
+
+    &:disabled {
+      &:hover {
+        background: $gray-1100;
+      }
     }
   }
 }
 
 .section {
-  color: $gray-200;
+  @include mantine.dark {
+    color: $gray-200;
+  }
 }
