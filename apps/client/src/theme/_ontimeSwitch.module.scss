@@ -5,10 +5,10 @@
   }
 
   input:not(:checked) + & {
-    background-color: $gray-1100 !important;
+    background-color: $gray-1100;
   }
 
-  input:focus-visible + & {
-    outline: 2px solid $blue-700 !important;
+  input:focus-visible + &.track {
+    outline: 2px solid $blue-700;
   }
 }
