@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import QRCode from 'react-qr-code';
-import { Button, Select, Switch } from '@chakra-ui/react';
+import { Button, Select } from '@chakra-ui/react';
+import { Switch } from '@mantine/core';
 
 import { generateUrl } from '../../../../common/api/session';
 import { maybeAxiosError } from '../../../../common/api/utils';
@@ -117,11 +118,11 @@ export default function GenerateLinkForm() {
             title='Lock navigation'
             description='Prevent showing navigation (will only work for non production URLs)'
           />
-          <Switch variant='ontime' size='lg' {...register('lock')} />
+          <Switch size='lg' {...register('lock')} />
         </Panel.ListItem>
         <Panel.ListItem>
           <Panel.Field title='Authenticate' description='Whether the URL should be pre-authenticated' />
-          <Switch variant='ontime' size='lg' {...register('authenticate')} />
+          <Switch size='lg' {...register('authenticate')} />
         </Panel.ListItem>
       </Panel.ListGroup>
       <Panel.ListGroup>

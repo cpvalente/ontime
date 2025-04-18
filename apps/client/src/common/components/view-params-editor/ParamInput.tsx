@@ -12,8 +12,8 @@ import {
   MenuList,
   MenuOptionGroup,
   Select,
-  Switch,
 } from '@chakra-ui/react';
+import { Switch } from '@mantine/core';
 
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 
@@ -61,7 +61,7 @@ export default function ParamInput(props: EditFormInputProps) {
     const defaultCheckedValue = isStringBoolean(searchParams.get(id)) || defaultValue;
 
     // checked value should be 'true', so it can be captured by the form event
-    return <Switch variant='ontime' name={id} defaultChecked={defaultCheckedValue} value='true' />;
+    return <Switch name={id} defaultChecked={defaultCheckedValue} value='true' />;
   }
 
   if (type === 'number') {
