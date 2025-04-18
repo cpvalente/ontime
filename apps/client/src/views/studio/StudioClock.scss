@@ -1,0 +1,79 @@
+@use '../../theme/viewerDefs' as *;
+
+$studio-red: $red-600;
+$studio-idle: $red-1350;
+
+.studio__clock {
+  --half-size: calc(min(75vh, 90vw) / 2);
+  --smaller-half-size: calc(var(--half-size) - 2rem);
+
+  .clock-container {
+    color: $studio-red;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    display: grid;
+    place-content: center;
+  }
+
+  .clock-container__time {
+    max-width: 100%;
+    width: 100%;
+    margin-top: 0.3em;
+    margin-inline: auto;
+  }
+
+  .tick {
+    background: $studio-idle;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 99px;
+
+    position: absolute;
+    top: 0;
+    top: 50%;
+    left: 50%;
+  }
+
+  .tick--active {
+    background: $studio-red;
+  }
+
+  .ampm,
+  .on-air {
+    margin: 0 auto;
+    text-align: center;
+    padding: 0.125em 0.25em;
+    line-height: 1em;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    font-size: $title-font-size;
+  }
+
+  .ampm {
+    background: $gray-1200;
+    color: $studio-red;
+  }
+
+  .on-air {
+    background: $studio-idle;
+    color: $ui-white;
+  }
+
+  .on-air--active {
+    background: $studio-red;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .studio__clock {
+    .clock-container {
+      aspect-ratio: unset;
+    }
+
+    .tick {
+      display: none;
+    }
+  }
+}
