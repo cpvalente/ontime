@@ -9,8 +9,8 @@ import {
   ModalContent,
   ModalHeader,
   ModalOverlay,
-  Select,
 } from '@chakra-ui/react';
+import { NativeSelect } from '@mantine/core';
 
 import { navigatorConstants } from '../../../viewerConfig';
 import { setClientRemote } from '../../hooks/useSocket';
@@ -64,10 +64,9 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
           <div>
             <span className={style.label}>Select View or URL Preset</span>
             <div className={style.textEntry}>
-              <Select
+              <NativeSelect
                 size='md'
-                variant='ontime'
-                isDisabled={enabledPresets.length === 0}
+                disabled={enabledPresets.length === 0}
                 onChange={(event) => setSelected(event.target.value)}
               >
                 <option value='/'>Select view or preset</option>
@@ -85,7 +84,7 @@ export function RedirectClientModal(props: RedirectClientModalProps) {
                     </option>
                   );
                 })}
-              </Select>
+              </NativeSelect>
               <IconButton
                 variant='ontime-filled'
                 size='md'

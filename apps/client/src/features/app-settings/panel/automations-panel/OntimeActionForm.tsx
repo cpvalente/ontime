@@ -1,6 +1,7 @@
 import { PropsWithChildren, useState } from 'react';
 import { UseFormRegister, UseFormSetValue } from 'react-hook-form';
-import { Input, Select } from '@chakra-ui/react';
+import { Input } from '@chakra-ui/react';
+import { NativeSelect } from '@mantine/core';
 import { AutomationDTO, OntimeAction } from 'ontime-types';
 
 import { cx } from '../../../../common/utils/styleUtils';
@@ -36,7 +37,7 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
       <input type='hidden' {...register(`outputs.${index}.action`)} value={selectedAction} />
       <label>
         Action
-        <Select
+        <NativeSelect
           variant='ontime'
           size='sm'
           value={selectedAction}
@@ -48,7 +49,7 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
           <option value='aux-set'>Auxiliary timer: set</option>
           <option value='message-set'>Timer: timer message</option>
           <option value='message-secondary'>Timer: timer secondary</option>
-        </Select>
+        </NativeSelect>
         <Panel.Error>{rowErrors?.action?.message}</Panel.Error>
       </label>
 
@@ -83,11 +84,11 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
           </label>
           <label>
             Visibility
-            <Select variant='ontime' size='sm' {...register(`outputs.${index}.visible`)}>
+            <NativeSelect size='sm' {...register(`outputs.${index}.visible`)}>
               <option value=''>Untouched</option>
               <option value='true'>Show</option>
               <option value='false'>Hide</option>
-            </Select>
+            </NativeSelect>
             <Panel.Error>{rowErrors?.visible?.message}</Panel.Error>
           </label>
         </>
@@ -96,11 +97,11 @@ export default function OntimeActionForm(props: PropsWithChildren<OntimeActionFo
       {selectedAction === 'message-secondary' && (
         <label>
           Timer secondary source
-          <Select variant='ontime' size='sm' {...register(`outputs.${index}.secondarySource`)}>
+          <NativeSelect size='sm' {...register(`outputs.${index}.secondarySource`)}>
             <option value='aux'>Auxiliary timer</option>
             <option value='external'>External</option>
             <option value='null'>None</option>
-          </Select>
+          </NativeSelect>
           <Panel.Error>{rowErrors?.secondarySource?.message}</Panel.Error>
         </label>
       )}

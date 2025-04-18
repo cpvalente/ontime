@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Select } from '@chakra-ui/react';
+import { Button, Input } from '@chakra-ui/react';
+import { NativeSelect } from '@mantine/core';
 import { Settings } from 'ontime-types';
 
 import { postSettings } from '../../../../common/api/settings';
@@ -140,10 +141,10 @@ export default function GeneralPanelForm() {
                 description='Default time format to show in views 12 /24 hours'
                 error={errors.timeFormat?.message}
               />
-              <Select variant='ontime' size='sm' width='auto' isDisabled={disableInputs} {...register('timeFormat')}>
+              <NativeSelect size='sm' w='auto' disabled={disableInputs} {...register('timeFormat')}>
                 <option value='12'>12 hours 11:00:10 PM</option>
                 <option value='24'>24 hours 23:00:10</option>
-              </Select>
+              </NativeSelect>
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
@@ -151,7 +152,7 @@ export default function GeneralPanelForm() {
                 description='Language to be displayed in views'
                 error={errors.language?.message}
               />
-              <Select variant='ontime' size='sm' width='auto' isDisabled={disableInputs} {...register('language')}>
+              <NativeSelect size='sm' w='auto' disabled={disableInputs} {...register('language')}>
                 <option value='en'>English</option>
                 <option value='fr'>French</option>
                 <option value='de'>German</option>
@@ -163,7 +164,7 @@ export default function GeneralPanelForm() {
                 <option value='sv'>Swedish</option>
                 <option value='pl'>Polish</option>
                 <option value='zh'>Chinese (Simplified)</option>
-              </Select>
+              </NativeSelect>
             </Panel.ListItem>
           </Panel.ListGroup>
         </Panel.Section>

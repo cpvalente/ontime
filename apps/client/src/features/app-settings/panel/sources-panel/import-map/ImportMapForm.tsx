@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoTrash } from 'react-icons/io5';
-import { Button, IconButton, Input, Select, Tooltip } from '@chakra-ui/react';
+import { Button, IconButton, Input, Tooltip } from '@chakra-ui/react';
+import { NativeSelect } from '@mantine/core';
 import { ImportMap, isAlphanumericWithSpace } from 'ontime-utils';
 
 import * as Panel from '../../../panel-utils/PanelUtils';
@@ -134,12 +135,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
                 <tr key={importName as string}>
                   <td>{label}</td>
                   <td>
-                    <Select
-                      variant='ontime'
-                      id={importName as string}
-                      size='sm'
-                      {...register(label as keyof NamedImportMap)}
-                    >
+                    <NativeSelect id={importName as string} size='sm' {...register(label as keyof NamedImportMap)}>
                       {worksheetNames?.map((name) => {
                         return (
                           <option key={name} value={name}>
@@ -147,7 +143,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
                           </option>
                         );
                       })}
-                    </Select>
+                    </NativeSelect>
                   </td>
                   <td className={style.singleActionCell} />
                 </tr>
