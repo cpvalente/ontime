@@ -1,0 +1,28 @@
+.header {
+  @include mantine.dark {
+    color: $gray-50;
+    background-color: $gray-1250;
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    button {
+      color: $gray-50;
+    }
+
+    button:hover {
+      color: $gray-1050;
+      background-color: $gray-50;
+    }
+  }
+}
+
+.body {
+  @include mantine.dark {
+    color: $gray-50;
+    background-color: $gray-1250;
+    padding: 0;
+  }
+}
