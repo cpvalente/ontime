@@ -1,7 +1,11 @@
 .drawerFooter {
+  position: sticky;
+  inset: 0 auto 0 0;
   display: flex;
   justify-content: end;
+  background-color: $gray-1200;
   gap: $section-spacing;
+  padding: 1rem;
 
   button {
     padding: 0 2em;
@@ -9,12 +13,12 @@
 }
 
 .sectionList {
+  padding: 0 1rem 1rem 1rem;
   display: flex;
   flex-direction: column;
   min-height: 100%;
   gap: 2rem;
   overflow-y: scroll;
-  padding-right: 0.5rem;
 }
 
 .info {

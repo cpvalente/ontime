@@ -1,0 +1,21 @@
+.header {
+  color: $gray-50;
+  background-color: $gray-1250;
+
+  button {
+    color: $gray-50;
+  }
+
+  button:hover {
+    color: $gray-1050;
+    background-color: $gray-50;
+  }
+}
+
+.body {
+  display: 'flex';
+  flex-direction: 'column';
+  color: $gray-50;
+  background-color: $gray-1250;
+  padding: 0;
+}

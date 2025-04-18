@@ -1,5 +1,5 @@
 import { extendTheme } from '@chakra-ui/react';
-import { createTheme } from '@mantine/core';
+import { createTheme, Drawer } from '@mantine/core';
 
 import { ontimeAlertOnDark, ontimeDialog } from './OntimeAlert';
 import {
@@ -11,7 +11,6 @@ import {
   ontimeButtonSubtleWhite,
 } from './ontimeButton';
 import { ontimeCheckboxOnDark } from './ontimeCheckbox';
-import { ontimeDrawer } from './ontimeDrawer';
 import { ontimeEditable } from './ontimeEditable';
 import { ontimeMenuOnDark } from './ontimeMenu';
 import { ontimeModal } from './ontimeModal';
@@ -27,6 +26,8 @@ import {
   ontimeTextAreaTransparent,
 } from './ontimeTextInputs';
 import { ontimeTooltip } from './ontimeTooltip';
+
+import ontimeDrawer from './_ontimeDrawer.module.scss';
 
 const theme = extendTheme({
   initialColorMode: 'dark',
@@ -146,4 +147,13 @@ const theme = extendTheme({
 
 export default theme;
 
-export const mantineTheme = createTheme({});
+export const mantineTheme = createTheme({
+  components: {
+    Drawer: Drawer.extend({
+      classNames: {
+        body: ontimeDrawer.body,
+        header: ontimeDrawer.header,
+      },
+    }),
+  },
+});
