@@ -43,7 +43,7 @@ import { oscServer } from './adapters/OscAdapter.js';
 // Utilities
 import { clearUploadfolder } from './utils/upload.js';
 import { generateCrashReport } from './utils/generateCrashReport.js';
-import { timerConfig } from './config/config.js';
+import { timerConfig } from './setup/config.js';
 import { serverTryDesiredPort, getNetworkInterfaces } from './utils/network.js';
 
 console.log('\n');
@@ -140,8 +140,11 @@ const checkStart = (currentState: OntimeStartOrder) => {
   }
 };
 
-export const initAssets = async () => {
+export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable: boolean) => void) => {
   checkStart(OntimeStartOrder.InitAssets);
+  // initialise logging service, escalateErrorFn only exists in electron
+  logger.init(escalateErrorFn);
+
   await clearUploadfolder();
   populateStyles();
   await populateDemo();
@@ -152,12 +155,8 @@ export const initAssets = async () => {
 /**
  * Starts servers
  */
-export const startServer = async (
-  escalateErrorFn?: (error: string, unrecoverable: boolean) => void,
-): Promise<{ message: string; serverPort: number }> => {
+export const startServer = async (): Promise<{ message: string; serverPort: number }> => {
   checkStart(OntimeStartOrder.InitServer);
-  // initialise logging service, escalateErrorFn only exists in electron
-  logger.init(escalateErrorFn);
   const settings = getDataProvider().getSettings();
   const { serverPort: desiredPort } = settings;
 
@@ -208,7 +207,6 @@ export const startServer = async (
   // load restore point if it exists
   const maybeRestorePoint = await restoreService.load();
 
-  // TODO: pass event store to rundownservice
   runtimeService.init(maybeRestorePoint);
 
   const nif = getNetworkInterfaces();
@@ -245,7 +243,7 @@ export const startIntegrations = async () => {
  * @param {number} exitCode
  * @return {Promise<void>}
  */
-export const shutdown = async (exitCode = 0) => {
+const shutdown = async (exitCode = 0) => {
   consoleHighlight(`Ontime shutting down with code ${exitCode}`);
 
   // clear the restore file if it was a normal exit

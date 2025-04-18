@@ -1,36 +1,38 @@
 import { Fragment, lazy, useCallback, useEffect, useRef, useState } from 'react';
 import { closestCenter, DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useHotkeys } from '@mantine/hooks';
 import {
+  type EntryId,
+  type MaybeString,
+  type Rundown,
   isOntimeBlock,
   isOntimeEvent,
-  isPlayableEvent,
-  MaybeString,
-  PlayableEvent,
+  OntimeEntry,
   Playback,
-  RundownCached,
-  SupportedEvent,
+  SupportedEntry,
 } from 'ontime-types';
 import {
-  checkIsNextDay,
   getFirstNormal,
   getLastNormal,
   getNextBlockNormal,
   getNextNormal,
   getPreviousBlockNormal,
   getPreviousNormal,
-  isNewLatest,
+  reorderArray,
 } from 'ontime-utils';
 
-import { type EventOptions, useEventAction } from '../../common/hooks/useEventAction';
+import { type EventOptions, useEntryActions } from '../../common/hooks/useEntryAction';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
 import { cloneEvent } from '../../common/utils/eventsManager';
 
+import BlockBlock from './block-block/BlockBlock';
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
+import BlockEmpty from './BlockEmpty';
+import { makeRundownMetadata } from './rundown.utils';
 import RundownEmpty from './RundownEmpty';
 import { useEventSelection } from './useEventSelection';
 
@@ -39,15 +41,15 @@ import style from './Rundown.module.scss';
 const RundownEntry = lazy(() => import('./RundownEntry'));
 
 interface RundownProps {
-  data: RundownCached;
+  data: Rundown;
 }
 
 export default function Rundown({ data }: RundownProps) {
-  const { order, rundown } = data;
-  const [statefulEntries, setStatefulEntries] = useState(order);
+  const { order, entries } = data;
+  const [statefulEntries, setStatefulEntries] = useState<EntryId[]>(order);
 
   const featureData = useRundownEditor();
-  const { addEvent, reorderEvent, deleteEvent } = useEventAction();
+  const { addEntry, reorderEntry, deleteEntry } = useEntryActions();
 
   const { entryCopyId, setEntryCopyId } = useEntryCopy();
 
@@ -65,34 +67,34 @@ export default function Rundown({ data }: RundownProps) {
   const deleteAtCursor = useCallback(
     (cursor: string | null) => {
       if (!cursor) return;
-      const { entry, index } = getPreviousNormal(rundown, order, cursor);
-      deleteEvent([cursor]);
+      const { entry, index } = getPreviousNormal(entries, order, cursor);
+      deleteEntry([cursor]);
       if (entry && index !== null) {
         setSelectedEvents({ id: entry.id, selectMode: 'click', index });
       }
     },
-    [rundown, order, deleteEvent, setSelectedEvents],
+    [entries, order, deleteEntry, setSelectedEvents],
   );
 
   const insertCopyAtId = useCallback(
     (atId: string | null, copyId: string | null, above = false) => {
-      const adjustedCursor = above ? getPreviousNormal(rundown, order, atId ?? '').entry?.id ?? null : atId;
+      const adjustedCursor = above ? getPreviousNormal(entries, order, atId ?? '').entry?.id ?? null : atId;
       if (copyId === null) {
         // we cant clone without selection
         return;
       }
-      const cloneEntry = rundown[copyId];
-      if (cloneEntry?.type === SupportedEvent.Event) {
+      const cloneEntry = entries[copyId];
+      if (cloneEntry?.type === SupportedEntry.Event) {
         //if we don't have a cursor add the new event on top
         const newEvent = cloneEvent(cloneEntry);
-        addEvent(newEvent, { after: adjustedCursor ?? undefined });
+        addEntry(newEvent, { after: adjustedCursor ?? undefined });
       }
     },
-    [addEvent, order, rundown],
+    [addEntry, order, entries],
   );
 
   const insertAtId = useCallback(
-    (type: SupportedEvent, id: MaybeString, above = false) => {
+    (patch: Partial<OntimeEntry> & { type: SupportedEntry }, id: MaybeString, above = false) => {
       const options: EventOptions =
         id === null
           ? {}
@@ -101,19 +103,12 @@ export default function Rundown({ data }: RundownProps) {
               before: above ? id : undefined,
             };
 
-      if (type === SupportedEvent.Event) {
-        const newEvent = {
-          type: SupportedEvent.Event,
-        };
-        if (!above && id) {
-          options.lastEventId = id;
-        }
-        addEvent(newEvent, options);
-      } else {
-        addEvent({ type }, options);
+      if (!above && id) {
+        options.lastEventId = id;
       }
+      addEntry(patch, options);
     },
-    [addEvent],
+    [addEntry],
   );
 
   const selectBlock = useCallback(
@@ -124,7 +119,7 @@ export default function Rundown({ data }: RundownProps) {
       let newCursor = cursor;
       if (cursor === null) {
         // there is no cursor, we select the first or last depending on direction
-        const selected = direction === 'up' ? getLastNormal(rundown, order) : getFirstNormal(rundown, order);
+        const selected = direction === 'up' ? getLastNormal(entries, order) : getFirstNormal(entries, order);
 
         if (isOntimeBlock(selected)) {
           setSelectedEvents({ id: selected.id, selectMode: 'click', index: direction === 'up' ? order.length : 0 });
@@ -140,14 +135,14 @@ export default function Rundown({ data }: RundownProps) {
       // otherwise we select the next or previous
       const selected =
         direction === 'up'
-          ? getPreviousBlockNormal(rundown, order, newCursor)
-          : getNextBlockNormal(rundown, order, newCursor);
+          ? getPreviousBlockNormal(entries, order, newCursor)
+          : getNextBlockNormal(entries, order, newCursor);
 
       if (selected.entry !== null && selected.index !== null) {
         setSelectedEvents({ id: selected.entry.id, selectMode: 'click', index: selected.index });
       }
     },
-    [order, rundown, setSelectedEvents],
+    [order, entries, setSelectedEvents],
   );
 
   const selectEntry = useCallback(
@@ -158,7 +153,7 @@ export default function Rundown({ data }: RundownProps) {
 
       if (cursor === null) {
         // there is no cursor, we select the first or last depending on direction if it exists
-        const selected = direction === 'up' ? getLastNormal(rundown, order) : getFirstNormal(rundown, order);
+        const selected = direction === 'up' ? getLastNormal(entries, order) : getFirstNormal(entries, order);
         if (selected !== null) {
           setSelectedEvents({ id: selected.id, selectMode: 'click', index: direction === 'up' ? order.length : 0 });
         }
@@ -167,13 +162,13 @@ export default function Rundown({ data }: RundownProps) {
 
       // otherwise we select the next or previous
       const selected =
-        direction === 'up' ? getPreviousNormal(rundown, order, cursor) : getNextNormal(rundown, order, cursor);
+        direction === 'up' ? getPreviousNormal(entries, order, cursor) : getNextNormal(entries, order, cursor);
 
       if (selected.entry !== null && selected.index !== null) {
         setSelectedEvents({ id: selected.entry.id, selectMode: 'click', index: selected.index });
       }
     },
-    [order, rundown, setSelectedEvents],
+    [order, entries, setSelectedEvents],
   );
 
   const moveEntry = useCallback(
@@ -182,14 +177,14 @@ export default function Rundown({ data }: RundownProps) {
         return;
       }
       const { index } =
-        direction === 'up' ? getPreviousNormal(rundown, order, cursor) : getNextNormal(rundown, order, cursor);
+        direction === 'up' ? getPreviousNormal(entries, order, cursor) : getNextNormal(entries, order, cursor);
 
       if (index !== null) {
         const offsetIndex = direction === 'up' ? index + 1 : index - 1;
-        reorderEvent(cursor, offsetIndex, index);
+        reorderEntry(cursor, offsetIndex, index);
       }
     },
-    [order, reorderEvent, rundown],
+    [order, reorderEntry, entries],
   );
 
   // shortcuts
@@ -207,14 +202,14 @@ export default function Rundown({ data }: RundownProps) {
 
     ['mod + Backspace', () => deleteAtCursor(cursor), { preventDefault: true }],
 
-    ['alt + E', () => insertAtId(SupportedEvent.Event, cursor), { preventDefault: true }],
-    ['alt + shift + E', () => insertAtId(SupportedEvent.Event, cursor, true), { preventDefault: true }],
+    ['alt + E', () => insertAtId({ type: SupportedEntry.Event }, cursor), { preventDefault: true }],
+    ['alt + shift + E', () => insertAtId({ type: SupportedEntry.Event }, cursor, true), { preventDefault: true }],
 
-    ['alt + B', () => insertAtId(SupportedEvent.Block, cursor), { preventDefault: true }],
-    ['alt + shift + B', () => insertAtId(SupportedEvent.Block, cursor, true), { preventDefault: true }],
+    ['alt + B', () => insertAtId({ type: SupportedEntry.Block }, cursor), { preventDefault: true }],
+    ['alt + shift + B', () => insertAtId({ type: SupportedEntry.Block }, cursor, true), { preventDefault: true }],
 
-    ['alt + D', () => insertAtId(SupportedEvent.Delay, cursor), { preventDefault: true }],
-    ['alt + shift + D', () => insertAtId(SupportedEvent.Delay, cursor, true), { preventDefault: true }],
+    ['alt + D', () => insertAtId({ type: SupportedEntry.Delay }, cursor), { preventDefault: true }],
+    ['alt + shift + D', () => insertAtId({ type: SupportedEntry.Delay }, cursor, true), { preventDefault: true }],
 
     ['mod + C', () => setEntryCopyId(cursor)],
     ['mod + V', () => insertCopyAtId(cursor, entryCopyId)],
@@ -238,6 +233,9 @@ export default function Rundown({ data }: RundownProps) {
     setSelectedEvents({ id: featureData.selectedEventId, selectMode: 'click', index });
   }, [appMode, featureData.selectedEventId, order, setSelectedEvents]);
 
+  /**
+   * On drag end, we reorder the events
+   */
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -245,33 +243,26 @@ export default function Rundown({ data }: RundownProps) {
       if (active.id !== over?.id) {
         const fromIndex = active.data.current?.sortable.index;
         const toIndex = over.data.current?.sortable.index;
-        // ugly hack to handle inconsistencies between dnd-kit and async store updates
+
+        // we keep a copy of the state as a hack to handle inconsistencies between dnd-kit and async store updates
         setStatefulEntries((currentEntries) => {
-          return arrayMove(currentEntries, fromIndex, toIndex);
+          return reorderArray(currentEntries, fromIndex, toIndex);
         });
-        reorderEvent(String(active.id), fromIndex, toIndex);
+        reorderEntry(String(active.id), fromIndex, toIndex);
       }
     }
   };
 
   if (statefulEntries.length < 1) {
-    return <RundownEmpty handleAddNew={() => insertAtId(SupportedEvent.Event, cursor)} />;
+    return <RundownEmpty handleAddNew={() => insertAtId({ type: SupportedEntry.Event }, cursor)} />;
   }
 
-  // last event is used to calculate relative timings
-  let lastEvent: PlayableEvent | undefined; // used by indicators
-  let thisEvent: PlayableEvent | undefined;
-  // previous entry is used to infer position in the rundown for new events
-  let previousEntryId: string | undefined;
-  let thisId = previousEntryId;
-
-  let eventIndex = 0;
-  // all events before the current selected are in the past
-  let isPast = Boolean(featureData?.selectedEventId);
-  let isNextDay = false;
-  let totalGap = 0;
+  // 1. gather presentation options
   const isEditMode = appMode === AppMode.Edit;
-  let isLinkedToLoaded = true; //check if the event can link all the way back to the currently playing event
+
+  // 2. initialise rundown metadata
+  const process = makeRundownMetadata(featureData?.selectedEventId);
+
   return (
     <div className={style.rundownContainer} ref={scrollRef} data-testid='rundown'>
       <DndContext onDragEnd={handleOnDragEnd} sensors={sensors} collisionDetection={closestCenter}>
@@ -281,68 +272,111 @@ export default function Rundown({ data }: RundownProps) {
               // we iterate through a stateful copy of order to make the operations smoother
               // this means that this can be out of sync with order until the useEffect runs
               // instead of writing all the logic guards, we simply short circuit rendering here
-              const entry = rundown[entryId];
+              const entry = entries[entryId];
               if (!entry) {
                 return null;
               }
-              if (index === 0) {
-                eventIndex = 0;
-              }
-              isNextDay = false;
-              previousEntryId = thisId;
-              thisId = entryId;
-              if (isOntimeEvent(entry)) {
-                // event indexes are 1 based in frontend
-                eventIndex++;
-                lastEvent = thisEvent;
 
-                if (isPlayableEvent(entry)) {
-                  isNextDay = checkIsNextDay(entry, lastEvent);
-                  if (!isPast) {
-                    totalGap += entry.gap;
-                    // We also include countToEnd in this test as the behavior of a linked event coming after a countToEnd is simelar to an unlinked event
-                    isLinkedToLoaded = isLinkedToLoaded && entry.linkStart !== null && !lastEvent?.countToEnd;
-                  }
-                  if (isNewLatest(entry, lastEvent)) {
-                    // populate previous entry
-                    thisEvent = entry;
-                  }
-                }
-              }
+              const rundownMeta = process(entry);
               const isFirst = index === 0;
               const isLast = index === order.length - 1;
-              const isLoaded = featureData?.selectedEventId === entry.id;
               const isNext = featureData?.nextEventId === entry.id;
               const hasCursor = entry.id === cursor;
-              if (isLoaded) {
-                isPast = false;
-              }
 
               return (
                 <Fragment key={entry.id}>
-                  {isEditMode && (hasCursor || isFirst) && <QuickAddBlock previousEventId={previousEntryId} />}
-                  <div className={style.entryWrapper} data-testid={`entry-${eventIndex}`}>
-                    {isOntimeEvent(entry) && <div className={style.entryIndex}>{eventIndex}</div>}
-                    <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
-                      <RundownEntry
-                        type={entry.type}
-                        isPast={isPast}
-                        eventIndex={eventIndex}
-                        data={entry}
-                        loaded={isLoaded}
-                        hasCursor={hasCursor}
-                        isNext={isNext}
-                        previousEntryId={previousEntryId}
-                        previousEventId={lastEvent?.id}
-                        playback={isLoaded ? featureData.playback : undefined}
-                        isRolling={featureData.playback === Playback.Roll}
-                        isNextDay={isNextDay}
-                        totalGap={totalGap}
-                        isLinkedToLoaded={isLinkedToLoaded}
-                      />
+                  {isEditMode && (hasCursor || isFirst) && (
+                    <QuickAddBlock previousEventId={rundownMeta.previousEntryId} parentBlock={null} />
+                  )}
+                  {isOntimeBlock(entry) ? (
+                    <BlockBlock data={entry} hasCursor={hasCursor}>
+                      {entry.events.length === 0 && (
+                        <BlockEmpty
+                          handleAddNew={() => insertAtId({ type: SupportedEntry.Event, parent: entry.id }, entry.id)}
+                        />
+                      )}
+                      {entry.events.map((eventId, nestedIndex) => {
+                        const nestedEntry = entries[eventId];
+                        if (!nestedEntry) {
+                          return null;
+                        }
+
+                        const nestedRundownMeta = process(nestedEntry);
+                        const isFirstInGroup = nestedIndex === 0;
+                        const isLastInGroup = nestedIndex === entry.events.length - 1;
+                        const hasNestedCursor = nestedEntry.id === cursor;
+
+                        if (!isOntimeEvent(nestedEntry)) {
+                          return null;
+                        }
+                        return (
+                          <Fragment key={nestedEntry.id}>
+                            {isEditMode && (hasNestedCursor || isFirstInGroup) && (
+                              <QuickAddBlock
+                                parentBlock={entry.id}
+                                previousEventId={nestedRundownMeta.previousEntryId}
+                              />
+                            )}
+
+                            <div
+                              key={nestedEntry.id}
+                              className={style.entryWrapper}
+                              data-testid={`entry-${nestedRundownMeta.eventIndex}`}
+                            >
+                              <div className={style.entryIndex}>{nestedRundownMeta.eventIndex}</div>
+                              <div className={style.entry} ref={hasNestedCursor ? cursorRef : undefined}>
+                                <RundownEntry
+                                  key={nestedEntry.id}
+                                  type={nestedEntry.type}
+                                  isPast={nestedRundownMeta.isPast}
+                                  eventIndex={nestedRundownMeta.eventIndex}
+                                  data={nestedEntry}
+                                  loaded={nestedRundownMeta.isLoaded}
+                                  hasCursor={hasNestedCursor}
+                                  isNext={isNext}
+                                  previousEntryId={nestedRundownMeta.previousEntryId}
+                                  previousEventId={nestedRundownMeta.previousEvent?.id}
+                                  playback={nestedRundownMeta.isLoaded ? featureData.playback : undefined}
+                                  isRolling={featureData.playback === Playback.Roll}
+                                  isNextDay={nestedRundownMeta.isNextDay}
+                                  totalGap={nestedRundownMeta.totalGap}
+                                  isLinkedToLoaded={nestedRundownMeta.isLinkedToLoaded}
+                                />
+                              </div>
+                            </div>
+                            {isEditMode && (hasNestedCursor || isLastInGroup) && (
+                              <QuickAddBlock parentBlock={entry.id} previousEventId={nestedEntry.id} />
+                            )}
+                          </Fragment>
+                        );
+                      })}
+                    </BlockBlock>
+                  ) : (
+                    <div className={style.entryWrapper} data-testid={`entry-${rundownMeta.eventIndex}`}>
+                      {isOntimeEvent(entry) && <div className={style.entryIndex}>{rundownMeta.eventIndex}</div>}
+                      <div className={style.entry} key={entry.id} ref={hasCursor ? cursorRef : undefined}>
+                        <RundownEntry
+                          type={entry.type}
+                          isPast={rundownMeta.isPast}
+                          eventIndex={rundownMeta.eventIndex}
+                          data={entry}
+                          loaded={rundownMeta.isLoaded}
+                          hasCursor={hasCursor}
+                          isNext={isNext}
+                          previousEntryId={rundownMeta.previousEntryId}
+                          previousEventId={rundownMeta.previousEvent?.id}
+                          playback={rundownMeta.isLoaded ? featureData.playback : undefined}
+                          isRolling={featureData.playback === Playback.Roll}
+                          isNextDay={rundownMeta.isNextDay}
+                          totalGap={rundownMeta.totalGap}
+                          isLinkedToLoaded={rundownMeta.isLinkedToLoaded}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  {isEditMode && (hasCursor || isLast) && <QuickAddBlock previousEventId={entry.id} />}
+                  )}
+                  {isEditMode && (hasCursor || isLast) && (
+                    <QuickAddBlock previousEventId={entry.id} parentBlock={null} />
+                  )}
                 </Fragment>
               );
             })}

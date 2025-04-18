@@ -1,35 +1,49 @@
-import type { EndAction, EventCustomFields, MaybeString, TimerType, TimeStrategy } from '../../index.js';
+import type { EndAction, EntryCustomFields, MaybeNumber, TimerType, TimeStrategy } from '../../index.js';
 
-export enum SupportedEvent {
+export type EntryId = string;
+
+export enum SupportedEntry {
   Event = 'event',
   Delay = 'delay',
   Block = 'block',
 }
 
 export type OntimeBaseEvent = {
-  type: SupportedEvent;
-  id: string;
+  type: SupportedEntry;
+  id: EntryId;
 };
 
 export type OntimeDelay = OntimeBaseEvent & {
-  type: SupportedEvent.Delay;
+  type: SupportedEntry.Delay;
   duration: number;
 };
 
 export type OntimeBlock = OntimeBaseEvent & {
-  type: SupportedEvent.Block;
+  type: SupportedEntry.Block;
   title: string;
+  note: string;
+  events: EntryId[];
+  skip: boolean;
+  colour: string;
+  custom: EntryCustomFields;
+  // !==== RUNTIME METADATA ====! //
+  revision: number;
+  startTime: MaybeNumber; // calculated at runtime
+  endTime: MaybeNumber; // calculated at runtime
+  duration: number; // calculated at runtime
+  isFirstLinked: boolean; // calculated at runtime, whether the first event is linked
+  numEvents: number; // calculated at runtime
 };
 
 export type OntimeEvent = OntimeBaseEvent & {
-  type: SupportedEvent.Event;
+  type: SupportedEntry.Event;
   cue: string;
   title: string;
   note: string;
   endAction: EndAction;
   timerType: TimerType;
   countToEnd: boolean;
-  linkStart: MaybeString; // ID of event to link to
+  linkStart: boolean;
   timeStrategy: TimeStrategy;
   timeStart: number;
   timeEnd: number;
@@ -37,13 +51,15 @@ export type OntimeEvent = OntimeBaseEvent & {
   isPublic: boolean;
   skip: boolean;
   colour: string;
+  timeWarning: number;
+  timeDanger: number;
+  custom: EntryCustomFields;
+  parent: EntryId | null;
+  // !==== RUNTIME METADATA ====! //
   revision: number;
   delay: number; // calculated at runtime
   dayOffset: number; // calculated at runtime
   gap: number; // calculated at runtime
-  timeWarning: number;
-  timeDanger: number;
-  custom: EventCustomFields;
 };
 
 export type PlayableEvent = OntimeEvent & { skip: false };

@@ -1,28 +1,27 @@
 import {
   CustomFields,
-  LogOrigin,
   OntimeBlock,
   OntimeDelay,
   OntimeEvent,
-  OntimeRundownEntry,
+  OntimeEntry,
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
-  OntimeRundown,
   PatchWithId,
   EventPostPayload,
+  Rundown,
+  EntryId,
 } from 'ontime-types';
 import { getCueCandidate } from 'ontime-utils';
 
 import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
-import { logger } from '../../classes/Logger.js';
-import { createEvent } from '../../utils/parser.js';
+import { createEvent } from '../../api-data/rundown/rundown.utils.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 import * as cache from './rundownCache.js';
-import { getPlayableEvents, getTimedEvents } from './rundownUtils.js';
+import { getInsertionPosition } from './rundownUtils.js';
 
 type CompleteEntry<T> =
   T extends Partial<OntimeEvent>
@@ -33,21 +32,28 @@ type CompleteEntry<T> =
         ? OntimeBlock
         : never;
 
+/**
+ * Generates a fully formed RundownEntry of the patch type
+ */
 function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>>(
   eventData: T,
   afterId?: string,
 ): CompleteEntry<T> {
-  // we discard any UI provided IDs and add our own
-  const id = cache.getUniqueId();
-
   if (isOntimeEvent(eventData)) {
-    return createEvent(eventData, getCueCandidate(cache.getPersistedRundown(), afterId)) as CompleteEntry<T>;
+    const currentRundown = cache.getCurrentRundown();
+    return createEvent(
+      eventData,
+      getCueCandidate(currentRundown.entries, currentRundown.order, afterId),
+    ) as CompleteEntry<T>;
   }
+
+  const id = eventData.id || cache.getUniqueId();
 
   if (isOntimeDelay(eventData)) {
     return { ...delayDef, duration: eventData.duration ?? 0, id } as CompleteEntry<T>;
   }
 
+  // TODO(v4): allow user to provide a larger patch of the block entry
   if (isOntimeBlock(eventData)) {
     return { ...blockDef, title: eventData?.title ?? '', id } as CompleteEntry<T>;
   }
@@ -56,53 +62,56 @@ function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | P
 }
 
 /**
- * @description creates a new event with given data
- * @param {object} eventData
- * @return {OntimeRundownEntry}
+ * creates a new event with given data
  */
-export async function addEvent(eventData: EventPostPayload): Promise<OntimeRundownEntry> {
-  // if the user didnt provide an index, we add the event to start
-  let atIndex = 0;
-  let afterId: string | undefined = eventData?.after;
+export async function addEvent(eventData: EventPostPayload): Promise<OntimeEntry> {
+  // 1. we allow the user to provide an ID, but make sure it is unique
+  if (eventData?.id && cache.hasId(eventData.id)) {
+    throw new Error(`Event with ID ${eventData.id} already exists`);
+  }
 
-  if (eventData?.after !== undefined) {
-    const previousIndex = cache.getIndexOf(eventData.after);
-    if (previousIndex < 0) {
-      logger.warning(LogOrigin.Server, `Could not find event with id ${eventData.after}`);
-    } else {
-      atIndex = previousIndex + 1;
+  // 2. if the user provides a parent (inside a group), we make sure it exists
+  let parent: EntryId | null = null;
+  if ('parent' in eventData && eventData.parent != null) {
+    if (!cache.hasId(eventData.parent)) {
+      throw new Error(`Parent event with ID ${eventData.parent} not found`);
     }
-  } else if (eventData?.before !== undefined) {
-    const previousIndex = cache.getIndexOf(eventData.before);
-    if (previousIndex < 0) {
-      logger.warning(LogOrigin.Server, `Could not find event with id ${eventData.before}`);
-    } else {
-      atIndex = previousIndex;
-      if (previousIndex > 0) {
-        afterId = cache.getPersistedRundown()[atIndex - 1].id;
-      }
+    parent = eventData.parent;
+  }
+
+  // 3. if the user provides an after or before ID, we make sure it exists
+  if (eventData?.after !== undefined) {
+    if (!cache.hasId(eventData.after)) {
+      throw new Error(`Event with ID ${eventData.after} not found`);
+    }
+  }
+  if (eventData?.before !== undefined) {
+    if (!cache.hasId(eventData.before)) {
+      throw new Error(`Event with ID ${eventData.before} not found`);
     }
   }
 
-  // generate a fully formed event from the patch
-  const eventToAdd = generateEvent(eventData, afterId);
+  const { afterId, atIndex } = getInsertionPosition(parent, eventData?.after, eventData?.before);
+
+  // generate a fully formed entry from the patch
+  const sanitisedEntry = generateEvent(eventData, afterId);
 
   // modify rundown
   const scopedMutation = cache.mutateCache(cache.add);
-  const { newEvent } = await scopedMutation({ atIndex, event: eventToAdd });
+  const { newEvent } = await scopedMutation({ atIndex, parent, entry: sanitisedEntry });
 
   // notify runtime that rundown has changed
   updateRuntimeOnChange();
 
   // notify timer and external services of change
-  notifyChanges({ timer: [eventData.id], external: true });
+  notifyChanges({ timer: [sanitisedEntry.id], external: true });
 
-  return newEvent;
+  // we know this mutation returns an OntimeEntry
+  return newEvent as OntimeEntry;
 }
 
 /**
  * deletes event by its ID
- * @param eventId
  */
 export async function deleteEvent(eventIds: string[]) {
   const scopedMutation = cache.mutateCache(cache.remove);
@@ -120,9 +129,9 @@ export async function deleteEvent(eventIds: string[]) {
 }
 
 /**
- * deletes all events in database
+ * deletes all entries in database
  */
-export async function deleteAllEvents() {
+export async function deleteAllEntries() {
   const scopedMutation = cache.mutateCache(cache.removeAll);
   await scopedMutation({});
 
@@ -176,12 +185,12 @@ export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>)
 }
 
 /**
- * reorders a given event
+ * reorders a given entry
  * @param {string} eventId - ID of event from, for sanity check
  * @param {number} from - index of event from
  * @param {number} to - index of event to
  */
-export async function reorderEvent(eventId: string, from: number, to: number) {
+export async function reorderEntry(eventId: EntryId, from: number, to: number) {
   const scopedMutation = cache.mutateCache(cache.reorder);
   const reorderedItem = await scopedMutation({ eventId, from, to });
 
@@ -194,9 +203,9 @@ export async function reorderEvent(eventId: string, from: number, to: number) {
   return reorderedItem;
 }
 
-export async function applyDelay(eventId: string) {
+export async function applyDelay(delayId: EntryId) {
   const scopedMutation = cache.mutateCache(cache.applyDelay);
-  await scopedMutation({ eventId });
+  await scopedMutation({ delayId });
 
   // notify runtime that rundown has changed
   updateRuntimeOnChange();
@@ -227,8 +236,8 @@ export async function swapEvents(from: string, to: string) {
  * Called when we make changes to the rundown object
  */
 function updateRuntimeOnChange() {
-  const timedEvents = getTimedEvents();
-  const numEvents = timedEvents.length;
+  const { timedEventsOrder } = cache.getEventOrder();
+  const numEvents = timedEventsOrder.length;
   const metadata = cache.getMetadata();
 
   // schedule an update for the end of the event loop
@@ -251,9 +260,9 @@ type NotifyChangesOptions = {
  */
 function notifyChanges(options: NotifyChangesOptions) {
   if (options.timer) {
-    const playableEvents = getPlayableEvents();
+    const { playableEventsOrder } = cache.getEventOrder();
 
-    if (playableEvents.length === 0) {
+    if (playableEventsOrder.length === 0) {
       runtimeService.stop();
     } else {
       // notify timer service of changed events
@@ -276,10 +285,10 @@ function notifyChanges(options: NotifyChangesOptions) {
 }
 
 /**
- * Overrides the rundown with the given
- * @param rundown
+ * Sets a new rundown in the cache
+ * and marks it as the currently loaded one
  */
-export async function initRundown(rundown: Readonly<OntimeRundown>, customFields: Readonly<CustomFields>) {
+export async function initRundown(rundown: Readonly<Rundown>, customFields: Readonly<CustomFields>) {
   await cache.init(rundown, customFields);
 
   // notify runtime that rundown has changed
