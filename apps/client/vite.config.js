@@ -1,5 +1,6 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
+import path from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import { compression } from 'vite-plugin-compression2';
@@ -73,6 +74,7 @@ export default defineConfig({
         @use './src/theme/ontimeColours' as *;
         @use './src/theme/ontimeStyles' as *;
         @use './src/theme/mixins' as *;
+        @use "${path.join(process.cwd(), 'src/_mantine').replace(/\\/g, '/')}" as mantine;
         `,
       },
     },
