@@ -63,11 +63,6 @@ const theme = extendTheme({
         'ontime-ondark': { ...ontimeCheckboxOnDark },
       },
     },
-    Drawer: {
-      variants: {
-        ontime: { ...ontimeDrawer },
-      },
-    },
     Editable: {
       variants: {
         ontime: { ...ontimeEditable },
