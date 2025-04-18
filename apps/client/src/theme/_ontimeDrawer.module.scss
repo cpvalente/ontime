@@ -1,24 +1,28 @@
 .header {
-  color: $gray-50;
-  background-color: $gray-1250 !important;
-
-  h2 {
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-
-  button {
+  @include mantine.dark {
     color: $gray-50;
-  }
+    background-color: $gray-1250;
 
-  button:hover {
-    color: $gray-1050;
-    background-color: $gray-50;
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    button {
+      color: $gray-50;
+    }
+
+    button:hover {
+      color: $gray-1050;
+      background-color: $gray-50;
+    }
   }
 }
 
 .body {
-  color: $gray-50;
-  background-color: $gray-1250;
-  padding: 0 !important;
+  @include mantine.dark {
+    color: $gray-50;
+    background-color: $gray-1250;
+    padding: 0;
+  }
 }
