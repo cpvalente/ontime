@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { CustomFields, OntimeEvent, ViewSettings } from 'ontime-types';
+import { CustomFields, OntimeEvent } from 'ontime-types';
 
-import { overrideStylesURL } from '../../../common/api/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
-import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
+import useOverrideStylesheet from '../../../common/hooks-query/useOverrideStylesheet';
 import { getPropertyValue } from '../common/viewUtils';
 
 import { getLowerThirdOptions } from './lowerThird.options';
@@ -32,7 +31,6 @@ type LowerOptions = {
 interface LowerProps {
   customFields: CustomFields;
   eventNow: OntimeEvent | null;
-  viewSettings: ViewSettings;
 }
 
 const defaultOptions: Readonly<LowerOptions> = {
@@ -53,13 +51,12 @@ const defaultOptions: Readonly<LowerOptions> = {
 };
 
 export default function LowerThird(props: LowerProps) {
-  const { customFields, eventNow, viewSettings } = props;
+  const { customFields, eventNow } = props;
   const [searchParams] = useSearchParams();
   const previousId = useRef<string>();
   const animationTimeout = useRef<NodeJS.Timeout>();
   const [playState, setPlayState] = useState<'pre' | 'in' | 'out'>('pre');
-  useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
-
+  useOverrideStylesheet();
   useWindowTitle('Lower Third');
 
   const options = useMemo(() => {

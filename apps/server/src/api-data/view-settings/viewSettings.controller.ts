@@ -4,6 +4,7 @@ import { getErrorMessage } from 'ontime-utils';
 import type { Request, Response } from 'express';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { sendRefetch } from '../../adapters/websocketAux.js';
 
 export async function getViewSettings(_req: Request, res: Response<ViewSettings>) {
   const views = getDataProvider().getViewSettings();
@@ -11,6 +12,7 @@ export async function getViewSettings(_req: Request, res: Response<ViewSettings>
 }
 
 export async function postViewSettings(req: Request, res: Response<ViewSettings | ErrorResponse>) {
+  const { overrideStyles: oldOverrideState } = getDataProvider().getViewSettings();
   try {
     const newData = {
       dangerColor: req.body.dangerColor,
@@ -22,6 +24,10 @@ export async function postViewSettings(req: Request, res: Response<ViewSettings 
     } as ViewSettings;
     await getDataProvider().setViewSettings(newData);
     res.status(200).send(newData);
+    const { overrideStyles: newOverrideState } = newData;
+    if (oldOverrideState !== newOverrideState) {
+      sendRefetch({ target: 'VIEW_SETTINGS' });
+    }
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });

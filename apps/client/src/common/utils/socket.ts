@@ -1,7 +1,7 @@
 import { Log, RundownCached, RuntimeStore } from 'ontime-types';
 
 import { isProduction, websocketUrl } from '../../externals';
-import { CLIENT_LIST, CUSTOM_FIELDS, REPORT, RUNDOWN, RUNTIME } from '../api/constants';
+import { CLIENT_LIST, CSS_OVERRIDE, CUSTOM_FIELDS, REPORT, RUNDOWN, RUNTIME, VIEW_SETTINGS } from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
 import {
@@ -212,6 +212,10 @@ export const connectSocket = () => {
             }
           } else if (target === 'REPORT') {
             ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
+          } else if (target === 'VIEW_SETTINGS') {
+            ontimeQueryClient.invalidateQueries({ queryKey: VIEW_SETTINGS });
+          } else if (target === 'CSS_OVERRIDE') {
+            ontimeQueryClient.invalidateQueries({ queryKey: CSS_OVERRIDE });
           }
           break;
         }

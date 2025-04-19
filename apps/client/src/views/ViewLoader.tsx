@@ -1,14 +1,11 @@
 import { PropsWithChildren } from 'react';
 
-import { overrideStylesURL } from '../common/api/constants';
-import { useRuntimeStylesheet } from '../common/hooks/useRuntimeStylesheet';
-import useViewSettings from '../common/hooks-query/useViewSettings';
+import useOverrideStylesheet from '../common/hooks-query/useOverrideStylesheet';
 
 import style from './ViewLoader.module.scss';
 
 export default function ViewLoader({ children }: PropsWithChildren) {
-  const { data } = useViewSettings();
-  const { shouldRender } = useRuntimeStylesheet(data.overrideStyles && overrideStylesURL);
+  const { shouldRender } = useOverrideStylesheet();
 
   // eventually we would want to leverage suspense here
   // while the feature is not ready, we simply trigger a loader

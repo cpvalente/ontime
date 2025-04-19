@@ -13,6 +13,7 @@ export const RUNTIME = ['runtimeStore'];
 export const SHEET_STATE = ['sheetState'];
 export const URL_PRESETS = ['urlpresets'];
 export const VIEW_SETTINGS = ['viewSettings'];
+export const CSS_OVERRIDE = ['cssOverride'];
 export const CLIENT_LIST = ['clientList'];
 export const REPORT = ['report'];
 

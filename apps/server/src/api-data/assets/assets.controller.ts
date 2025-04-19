@@ -1,6 +1,7 @@
 import { defaultCss } from '../../user/styles/bundledCss.js';
 import type { Request, Response } from 'express';
 import { readCssFile, writeCssFile } from './assets.service.js';
+import { sendRefetch } from '../../adapters/websocketAux.js';
 
 /**
  * Exposes the contents of the cssOverride.css file
@@ -23,6 +24,7 @@ export async function postCssOverride(req: Request, res: Response) {
   try {
     await writeCssFile(css);
     res.status(204).send();
+    sendRefetch({ target: 'CSS_OVERRIDE' });
   } catch (error) {
     res.status(500).send({ message: error });
   }
@@ -35,6 +37,7 @@ export async function restoreCss(_req: Request, res: Response) {
   try {
     await writeCssFile(defaultCss);
     res.status(200).send(defaultCss);
+    sendRefetch({ target: 'CSS_OVERRIDE' });
   } catch (error) {
     res.status(500).send({ message: error });
   }
