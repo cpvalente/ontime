@@ -146,8 +146,7 @@ describe('calculateTimeUntilStart()', () => {
         clock: 100,
         actualStart: 100,
         plannedStart: 0,
-        offset: 0, // relative
-        // offset: -100, // absolute
+        offset: 0,
         offsetMode: OffsetMode.Relative,
       };
 
@@ -186,8 +185,7 @@ describe('calculateTimeUntilStart()', () => {
         clock: 100,
         actualStart: 100,
         plannedStart: 0,
-        offset: 0, // relative
-        // offset: -100, // absolute
+        offset: 0,
         offsetMode: OffsetMode.Relative,
       };
 
@@ -210,8 +208,7 @@ describe('calculateTimeUntilStart()', () => {
         clock: 100,
         actualStart: 100,
         plannedStart: 0,
-        offset: 0, // relative
-        // offset: -100, // absolute
+        offset: 0,
         offsetMode: OffsetMode.Relative,
       };
 
@@ -231,16 +228,12 @@ describe('calculateTimeUntilStart()', () => {
 
     test('next day', () => {
       const test = {
-        // timeStart: 10,
-        // dayOffset: 0,
         delay: 0,
         currentDay: 0,
-        // totalGap: 0,
         clock: 100,
         actualStart: 100,
         plannedStart: 0,
-        offset: 0, // relative
-        // offset: -100, // absolute
+        offset: 0,
         offsetMode: OffsetMode.Relative,
       };
 
@@ -285,16 +278,13 @@ describe('calculateTimeUntilStart()', () => {
 
   test('overlap with negative total gap', () => {
     const test = {
-      // timeStart: 20,
       dayOffset: 0,
       delay: 0,
       currentDay: 0,
-      // totalGap: 10,
       clock: 100,
       actualStart: 100,
       plannedStart: 0,
-      offset: 0, // relative
-      // offset: -100, // absolute
+      offset: 0,
       offsetMode: OffsetMode.Relative,
       isLinkedToLoaded: false,
     };
