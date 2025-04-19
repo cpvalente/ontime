@@ -165,7 +165,7 @@ export default function LowerThird(props: LowerProps) {
     });
     // start animation
     setPlayState(true);
-    // reschedule out animatnion, should animate out after the in animatnion time + holde time
+    // reschedule out animation, should animate out after the in animation time + hold time
     setTimeout(() => setPlayState(false), (options.hold + options.transitionIn) * MILLIS_PER_SECOND);
   }, [eventNow, options.bottomSrc, options.hold, options.topSrc, options.transitionIn]);
 

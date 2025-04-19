@@ -61,7 +61,7 @@ export const getLowerThirdOptions = (customFields: CustomFields): ViewOption[] =
           id: 'hold',
           title: 'Hold',
           description:
-            'How long to stay on screen before transition out (default 3 seconds) negative value will keep it on screen',
+            'Time on screen before transition out. Set to -1 to stop transition (default 3 seconds) ',
           type: 'number',
           placeholder: '3 (default)',
         },
