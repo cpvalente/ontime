@@ -1,7 +1,10 @@
+import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { CustomFields } from 'ontime-types';
 
 import { makeOptionsFromCustomFields, OptionTitle } from '../../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../../common/components/view-params-editor/types';
+import safeParseNumber from '../../../common/utils/safeParseNumber';
 
 export const getLowerThirdOptions = (customFields: CustomFields): ViewOption[] => {
   const topSourceOptions = makeOptionsFromCustomFields(customFields, {
@@ -60,8 +63,7 @@ export const getLowerThirdOptions = (customFields: CustomFields): ViewOption[] =
         {
           id: 'hold',
           title: 'Hold',
-          description:
-            'Time on screen before transition out. Set to -1 to stop transition (default 3 seconds) ',
+          description: 'Time on screen before transition out. Set to -1 to stop transition (default 3 seconds) ',
           type: 'number',
           placeholder: '3 (default)',
         },
@@ -84,14 +86,14 @@ export const getLowerThirdOptions = (customFields: CustomFields): ViewOption[] =
           title: 'Top Text Size',
           description: 'Font size of the top text',
           type: 'string',
-          placeholder: '65px',
+          placeholder: '5em',
         },
         {
           id: 'bottom-size',
           title: 'Bottom Text Size',
           description: 'Font size of the bottom text',
           type: 'string',
-          placeholder: '64px',
+          placeholder: '4em',
         },
         {
           id: 'width',
@@ -147,3 +149,73 @@ export const getLowerThirdOptions = (customFields: CustomFields): ViewOption[] =
     },
   ];
 };
+
+type LowerOptions = {
+  width: number;
+  topSrc: string;
+  bottomSrc: string;
+  topColour: string;
+  bottomColour: string;
+  topBg: string;
+  bottomBg: string;
+  topSize: number;
+  bottomSize: number;
+  transitionIn: number;
+  transitionOut: number;
+  hold: number;
+  delay: number;
+  key: string;
+  lineColour: string;
+};
+
+const defaultOptions: Readonly<LowerOptions> = {
+  width: 45,
+  topSrc: 'title',
+  bottomSrc: 'lowerMsg',
+  topColour: '000000',
+  bottomColour: '000000',
+  topBg: 'FFF0',
+  bottomBg: 'FFF0',
+  topSize: 5,
+  bottomSize: 4,
+  transitionIn: 3,
+  transitionOut: 3,
+  hold: 3,
+  delay: 0,
+  key: 'FFF0',
+  lineColour: 'FF0000',
+};
+
+/**
+ * Utility extract the view options from URL Params
+ * the names and fallbacks are manually matched with defaultOptions
+ */
+function getOptionsFromParams(searchParams: URLSearchParams): LowerOptions {
+  // we manually make an object that matches the key above
+  return {
+    width: safeParseNumber(searchParams.get('width'), defaultOptions.width),
+    topSrc: searchParams.get('top-src') ?? defaultOptions.topSrc,
+    bottomSrc: searchParams.get('bottom-src') ?? defaultOptions.bottomSrc,
+    topColour: searchParams.get('top-colour') ?? defaultOptions.topColour,
+    bottomColour: searchParams.get('bottom-colour') ?? defaultOptions.bottomColour,
+    topBg: searchParams.get('top-bg') ?? defaultOptions.topBg,
+    bottomBg: searchParams.get('bottom-bg') ?? defaultOptions.bottomBg,
+    topSize: safeParseNumber(searchParams.get('top-size'), defaultOptions.topSize),
+    bottomSize: safeParseNumber(searchParams.get('bottom-size'), defaultOptions.bottomSize),
+    transitionIn: safeParseNumber(searchParams.get('transition-in'), defaultOptions.transitionIn),
+    transitionOut: safeParseNumber(searchParams.get('transition-out'), defaultOptions.transitionOut),
+    hold: safeParseNumber(searchParams.get('hold'), defaultOptions.hold),
+    delay: safeParseNumber(searchParams.get('hold'), defaultOptions.delay),
+    key: searchParams.get('key') ?? defaultOptions.key,
+    lineColour: searchParams.get('line-colour') ?? defaultOptions.lineColour,
+  };
+}
+
+/**
+ * Hook exposes the timer view options
+ */
+export function useLowerOptions(): LowerOptions {
+  const [searchParams] = useSearchParams();
+  const options = useMemo(() => getOptionsFromParams(searchParams), [searchParams]);
+  return options;
+}

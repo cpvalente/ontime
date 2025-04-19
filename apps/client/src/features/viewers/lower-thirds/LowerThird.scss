@@ -11,7 +11,7 @@
 
     .line {
       width: 100%;
-      height: var(--bottomThird-line-height-override, 0.5vh);
+      height: var(--lowerThird-line-height-override, 0.5vh);
     }
 
     .clip {
@@ -22,7 +22,7 @@
     .data-top {
       padding: 0 3vw;
       font-family: var(--lowerThird-font-family-override), Lato, Arial, sans-serif;
-      text-align: var(--lowerThird-text-align-override, left);
+      text-align: var(--lowerThird-text-align-override, right);
       white-space: nowrap;
       @include ellipsis-text();
 
@@ -37,7 +37,7 @@
     }
 
     .data-bottom {
-      font-weight: var(--lowerThird-bottom-font-weight-override, normal);
+      font-weight: var(--lowerThird-bottom-font-weight-override, 540);
       font-style: var(--lowerThird-bottom-font-style-override, normal);
     }
 

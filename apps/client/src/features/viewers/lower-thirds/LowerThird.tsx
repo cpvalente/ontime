@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { CustomFields, OntimeEvent, ViewSettings } from 'ontime-types';
 import { isPlaybackActive, MILLIS_PER_SECOND } from 'ontime-utils';
 
@@ -8,31 +7,11 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
 import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
-import safeParseNumber from '../../../common/utils/safeParseNumber';
 import { getPropertyValue } from '../common/viewUtils';
 
-import { getLowerThirdOptions } from './lowerThird.options';
+import { getLowerThirdOptions, useLowerOptions } from './lowerThird.options';
 
 import './LowerThird.scss';
-
-type LowerOptions = {
-  width: number;
-  topSrc: string;
-  bottomSrc: string;
-  topColour: string;
-  bottomColour: string;
-  topBg: string;
-  bottomBg: string;
-  topSize: string;
-  bottomSize: string;
-  transitionIn: number;
-  transitionOut: number;
-  hold: number;
-  delay: number;
-  key: string;
-  lineColour: string;
-  lineHeight: string;
-};
 
 interface LowerProps {
   customFields: CustomFields;
@@ -41,112 +20,20 @@ interface LowerProps {
   time: ViewExtendedTimer;
 }
 
-const defaultOptions: Readonly<LowerOptions> = {
-  width: 45,
-  topSrc: 'title',
-  bottomSrc: 'lowerMsg',
-  topColour: '000000',
-  bottomColour: '000000',
-  topBg: 'FFF0',
-  bottomBg: 'FFF0',
-  topSize: '65px',
-  bottomSize: '40px',
-  transitionIn: 3,
-  transitionOut: 3,
-  hold: 3,
-  delay: 0,
-  key: 'FFF0',
-  lineColour: 'FF0000',
-  lineHeight: '0.4em',
-};
-
 export default function LowerThird(props: LowerProps) {
   const { customFields, eventNow, viewSettings, time } = props;
-  const [searchParams] = useSearchParams();
   const previousId = useRef<string>();
   const animationTimeout = useRef<NodeJS.Timeout>();
   const [playState, setPlayState] = useState<boolean>(false);
   const [textValue, setTextValue] = useState<{ top: string; bottom: string }>({ top: '', bottom: '' });
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+  const options = useLowerOptions();
   const { playback } = time;
 
   useWindowTitle('Lower Third');
 
-  const options = useMemo(() => {
-    const newOptions = { ...defaultOptions };
-
-    const width = searchParams.get('width');
-    if (width !== null) {
-      newOptions.width = Number(width);
-    }
-
-    const topSrc = searchParams.get('top-src');
-    if (topSrc) {
-      newOptions.topSrc = topSrc;
-    }
-
-    const bottomSrc = searchParams.get('bottom-src');
-    if (bottomSrc) {
-      newOptions.bottomSrc = bottomSrc;
-    }
-
-    const topColour = searchParams.get('top-colour');
-    if (topColour !== null) {
-      newOptions.topColour = topColour;
-    }
-
-    const bottomColour = searchParams.get('bottom-colour');
-    if (bottomColour !== null) {
-      newOptions.bottomColour = bottomColour;
-    }
-
-    const topBg = searchParams.get('top-bg');
-    if (topBg !== null) {
-      newOptions.topBg = topBg;
-    }
-
-    const bottomBg = searchParams.get('bottom-bg');
-    if (bottomBg !== null) {
-      newOptions.bottomBg = bottomBg;
-    }
-
-    const topSize = searchParams.get('top-size');
-    if (topSize !== null) {
-      newOptions.topSize = topSize;
-    }
-
-    const bottomSize = searchParams.get('bottom-size');
-    if (bottomSize && bottomSize != newOptions.bottomSize) {
-      newOptions.bottomSize = bottomSize;
-    }
-
-    newOptions.transitionIn = safeParseNumber(searchParams.get('transition-in'), newOptions.transitionIn);
-    newOptions.transitionOut = safeParseNumber(searchParams.get('transition-out'), newOptions.transitionOut);
-    newOptions.hold = safeParseNumber(searchParams.get('hold'), newOptions.hold);
-    newOptions.delay = safeParseNumber(searchParams.get('hold'), newOptions.delay);
-
-    const key = searchParams.get('key');
-    if (key !== null) {
-      newOptions.key = key;
-    }
-
-    const lineColour = searchParams.get('line-colour');
-    if (lineColour !== null) {
-      newOptions.lineColour = lineColour;
-    }
-
-    return newOptions;
-  }, [searchParams]);
-
   // on unmount, cancel any ongoing animations
   useEffect(() => {
-    return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      clearTimeout(animationTimeout.current);
-    };
-  }, []);
-
-  const animateIn = useCallback(() => {
     // if hold is negative then force animate in
     if (options.hold < 0) {
       clearTimeout(animationTimeout.current);
@@ -157,6 +44,12 @@ export default function LowerThird(props: LowerProps) {
       setPlayState(true);
       return;
     }
+  }, [eventNow, options.bottomSrc, options.hold, options.topSrc]);
+
+  const animateIn = useCallback(() => {
+    // if hold skip
+    if (options.hold < 0) return;
+
     //clear any pending timeouts
     clearTimeout(animationTimeout.current);
     // set the values
@@ -192,7 +85,7 @@ export default function LowerThird(props: LowerProps) {
     const hasChanged = eventNow?.id !== previousId.current;
     if (hasChanged) {
       previousId.current = eventNow?.id;
-      animateIn();
+      if (eventNow?.id) animateIn();
     }
   }, [animateIn, eventNow?.id]);
 
@@ -223,7 +116,7 @@ export default function LowerThird(props: LowerProps) {
               transitionDelay: textDelay,
               color: `#${options.topColour}`,
               backgroundColor: `#${options.topBg}`,
-              fontSize: options.topSize,
+              fontSize: `${options.topSize}em`,
             }}
           >
             {textValue.top}
@@ -243,7 +136,7 @@ export default function LowerThird(props: LowerProps) {
               transitionDelay: textDelay,
               color: `#${options.bottomColour}`,
               backgroundColor: `#${options.bottomBg}`,
-              fontSize: options.bottomSize,
+              fontSize: `${options.bottomSize}em`,
             }}
           >
             {textValue.bottom}
