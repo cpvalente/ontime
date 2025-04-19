@@ -3,8 +3,9 @@
   font-size: $text-body-size;
   text-decoration: underline;
   text-underline-offset: 2px;
+  color: $blue-400;
 
   &:hover {
-    color: $blue-400;
+    color: $blue-500;
   }
 }

@@ -3,10 +3,10 @@ import {
   isOntimeAction,
   isOSCOutput,
   LogOrigin,
+  TimerLifeCycle,
   type AutomationFilter,
   type AutomationOutput,
   type FilterRule,
-  type TimerLifeCycle,
 } from 'ontime-types';
 import { getPropertyFromPath } from 'ontime-utils';
 
@@ -23,14 +23,21 @@ import { toOntimeAction } from './clients/ontime.client.js';
 /**
  * Exposes a method for triggering actions based on a TimerLifeCycle event
  */
-export function triggerAutomations(event: TimerLifeCycle, state: RuntimeState) {
+export function triggerAutomations(cycle: TimerLifeCycle, state: RuntimeState) {
   if (!getAutomationsEnabled()) {
     return;
   }
 
-  const triggers = getAutomationTriggers();
-  const triggerAutomations = triggers.filter((trigger) => trigger.trigger === event);
-  if (triggerAutomations.length === 0) {
+  let triggers = getAutomationTriggers();
+
+  // get triggers from event
+  if (state.eventNow?.triggers) {
+    triggers = triggers.concat(state.eventNow.triggers);
+  }
+
+  // note: there are no onStop triggers in event
+  const filteredTrigger = triggers.filter((trigger) => trigger.trigger === cycle);
+  if (filteredTrigger.length === 0) {
     return;
   }
 
@@ -39,7 +46,7 @@ export function triggerAutomations(event: TimerLifeCycle, state: RuntimeState) {
     return;
   }
 
-  triggerAutomations.forEach((trigger) => {
+  filteredTrigger.forEach((trigger) => {
     const automation = automations[trigger.automationId];
     if (!automation || automation.outputs.length === 0) {
       return;

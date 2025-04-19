@@ -104,10 +104,10 @@ export {
   isOntimeDelay,
   isOntimeEvent,
   isPlayableEvent,
-  isOntimeCycle,
   isKeyOfType,
   isOSCOutput,
   isHTTPOutput,
   isOntimeAction,
+  isTimerLifeCycle,
 } from './utils/guards.js';
 export type { MaybeNumber, MaybeString } from './utils/utils.type.js';

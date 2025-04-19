@@ -1,17 +1,15 @@
-import { CSSProperties, useCallback } from 'react';
+import { useCallback } from 'react';
 import { CustomFieldLabel, OntimeEvent } from 'ontime-types';
 
 import AppLink from '../../../common/components/link/app-link/AppLink';
 import { useEventAction } from '../../../common/hooks/useEventAction';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
-import { getAccessibleColour } from '../../../common/utils/styleUtils';
 import * as Editor from '../../editors/editor-utils/EditorUtils';
 
-import EventEditorImage from './composite/EventEditorImage';
+import EventCustom from './composite/EventEditorCustom';
 import EventEditorTimes from './composite/EventEditorTimes';
 import EventEditorTitles from './composite/EventEditorTitles';
-import EventTextArea from './composite/EventTextArea';
-import EventTextInput from './composite/EventTextInput';
+import EventEditorTriggers from './composite/EventEditorTriggers';
 import EventEditorEmpty from './EventEditorEmpty';
 
 import style from './EventEditor.module.scss';
@@ -77,52 +75,16 @@ export default function EventEditor(props: EventEditorProps) {
       <div className={style.column}>
         <Editor.Title>
           Custom Fields
-          {isEditor && <AppLink search='settings=feature_settings__custom'>Manage</AppLink>}
+          {isEditor && <AppLink search='settings=feature_settings__custom'>Manage Custom Fields</AppLink>}
         </Editor.Title>
-
-        {Object.keys(customFields).map((fieldKey) => {
-          const key = `${event.id}-${fieldKey}`;
-          const fieldName = `custom-${fieldKey}`;
-          const initialValue = event.custom[fieldKey] ?? '';
-          const { backgroundColor, color } = getAccessibleColour(customFields[fieldKey].colour);
-          const labelText = customFields[fieldKey].label;
-
-          if (customFields[fieldKey].type === 'string') {
-            return (
-              <EventTextArea
-                key={key}
-                field={fieldName}
-                label={labelText}
-                initialValue={initialValue}
-                submitHandler={handleSubmit}
-                className={style.decorated}
-                style={{ '--decorator-bg': backgroundColor, '--decorator-color': color } as CSSProperties}
-              />
-            );
-          }
-
-          if (customFields[fieldKey].type === 'image') {
-            return (
-              <div key={key} className={style.customImage}>
-                <EventTextInput
-                  key={key}
-                  field={fieldName}
-                  label={labelText}
-                  initialValue={initialValue}
-                  placeholder='Paste image URL'
-                  submitHandler={handleSubmit}
-                  className={style.decorated}
-                  maxLength={255}
-                  style={{ '--decorator-bg': backgroundColor, '--decorator-color': color } as CSSProperties}
-                />
-                <EventEditorImage src={initialValue} />
-              </div>
-            );
-          }
-
-          // we should have exhausted all types by now
-          return null;
-        })}
+        <EventCustom fields={customFields} handleSubmit={handleSubmit} event={event} />
+      </div>
+      <div className={style.column}>
+        <Editor.Title>
+          Automations
+          {isEditor && <AppLink search='settings=automation__automations'>Manage Automations</AppLink>}
+        </Editor.Title>
+        <EventEditorTriggers triggers={event.triggers} eventId={event.id} />
       </div>
     </div>
   );

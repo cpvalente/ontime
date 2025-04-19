@@ -2,8 +2,7 @@ import type { AutomationOutput, HTTPOutput, OntimeAction, OSCOutput } from '../d
 import type { OntimeBlock, OntimeDelay, OntimeEvent, PlayableEvent } from '../definitions/core/OntimeEvent.type.js';
 import { SupportedEvent } from '../definitions/core/OntimeEvent.type.js';
 import type { OntimeRundownEntry } from '../definitions/core/Rundown.type.js';
-import type { TimerLifeCycleKey } from '../definitions/core/TimerLifecycle.type.js';
-import { TimerLifeCycle } from '../definitions/core/TimerLifecycle.type.js';
+import { type TimerLifeCycle, timerLifecycleValues } from '../definitions/core/TimerLifecycle.type.js';
 
 type MaybeEvent = OntimeRundownEntry | Partial<OntimeRundownEntry> | null | undefined;
 
@@ -29,11 +28,6 @@ export function isKeyOfType<T extends object>(key: PropertyKey, obj: T): key is 
   return key in obj;
 }
 
-export function isOntimeCycle(maybeCycle: unknown): maybeCycle is TimerLifeCycleKey {
-  if (typeof maybeCycle !== 'string') return false;
-  return Object.values(TimerLifeCycle).includes(maybeCycle as TimerLifeCycle);
-}
-
 export function isOSCOutput(output: AutomationOutput): output is OSCOutput {
   return output.type === 'osc';
 }
@@ -44,4 +38,9 @@ export function isHTTPOutput(output: AutomationOutput): output is HTTPOutput {
 
 export function isOntimeAction(output: AutomationOutput): output is OntimeAction {
   return output.type === 'ontime';
+}
+
+export function isTimerLifeCycle(maybeCycle: unknown): maybeCycle is TimerLifeCycle {
+  if (typeof maybeCycle !== 'string') return false;
+  return timerLifecycleValues.includes(maybeCycle);
 }
