@@ -8,7 +8,7 @@ import ViewParamsEditor from '../../../common/components/view-params-editor/View
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
 import { usePlayback } from '../../../common/hooks/useSocket';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
-import urlNumber from '../../../common/utils/urlNumber';
+import safeParseNumber from '../../../common/utils/safeParseNumber';
 import { getPropertyValue } from '../common/viewUtils';
 
 import { getLowerThirdOptions } from './lowerThird.options';
@@ -119,10 +119,10 @@ export default function LowerThird(props: LowerProps) {
       newOptions.bottomSize = bottomSize;
     }
 
-    newOptions.transitionIn = urlNumber(searchParams.get('transition-in'), newOptions.transitionIn);
-    newOptions.transitionOut = urlNumber(searchParams.get('transition-out'), newOptions.transitionOut);
-    newOptions.hold = urlNumber(searchParams.get('hold'), newOptions.hold);
-    newOptions.delay = urlNumber(searchParams.get('hold'), newOptions.delay);
+    newOptions.transitionIn = safeParseNumber(searchParams.get('transition-in'), newOptions.transitionIn);
+    newOptions.transitionOut = safeParseNumber(searchParams.get('transition-out'), newOptions.transitionOut);
+    newOptions.hold = safeParseNumber(searchParams.get('hold'), newOptions.hold);
+    newOptions.delay = safeParseNumber(searchParams.get('hold'), newOptions.delay);
 
     const key = searchParams.get('key');
     if (key !== null) {
