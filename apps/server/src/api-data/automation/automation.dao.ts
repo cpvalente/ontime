@@ -149,10 +149,12 @@ export async function deleteAutomation(id: string): Promise<void> {
   }
 
   // prevent deleting a automation that is in use in events
-  const events = getTimedEvents().filter((event) => event.triggers.some((trigger) => trigger.automationId === id));
+  const events = getTimedEvents().filter(
+    (event) => event.triggers && event.triggers.some((trigger) => trigger.automationId === id),
+  );
   if (events.length) {
     throw new Error(
-      `Unable to delete automation used in event "${events[0].id} - ${events[0].title}"${events.length > 1 ? ` and ${events.length - 1} more` : ''}`,
+      `Unable to delete automation used in event: ${events[0].id}${events.length > 1 ? ` and ${events.length - 1} more` : ''}`,
     );
   }
 
