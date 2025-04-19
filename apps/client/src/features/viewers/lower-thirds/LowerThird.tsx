@@ -89,13 +89,11 @@ export default function LowerThird(props: LowerProps) {
     }
   }, [animateIn, eventNow?.id]);
 
-  const boxDuration = playState ? `${options.transitionIn}s` : `${options.transitionOut}s`;
-  const boxDelay = playState ? `${options.delay}s` : '0s';
+  const boxDuration = playState ? `${options.transitionIn * 0.5}s` : `${options.transitionOut * 0.5}s`;
+  const boxDelay = playState ? `${options.delay}s` : `${options.transitionOut * 0.5}s`;
 
-  // the in animation of the text is starts 1/4 after the box animation and compleats 1/4 before the box
-  // the out animation follows the box but cmpleats 1/4 before the box
-  const textDuration = playState ? `${options.transitionIn * 0.5}s` : `${options.transitionOut * 0.75}s`;
-  const textDelay = playState ? `${options.delay + options.transitionIn * 0.25}s` : '0s';
+  const textDuration = playState ? `${options.transitionIn * 0.5}s` : `${options.transitionOut * 0.5}s`;
+  const textDelay = playState ? `${options.delay + options.transitionIn * 0.5}s` : '0s';
 
   return (
     <div className='lower-third' style={{ backgroundColor: `#${options.key}` }}>
