@@ -85,10 +85,12 @@ function EventTriggerForm(props: EventTriggerFormProps) {
         size='sm'
         variant='ontime'
         value={automationId}
-        defaultValue='default'
+        defaultValue='«invalid»'
         onChange={(e) => setAutomationId(e.target.value)}
       >
-        <option disabled>Automation</option>
+        <option disabled value='«invalid»'>
+          Automation
+        </option>
         {Object.values(automationSettings.automations).map(({ id, title }) => (
           <option key={id} value={id}>
             {title}
