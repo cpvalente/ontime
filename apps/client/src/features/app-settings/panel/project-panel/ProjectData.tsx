@@ -1,5 +1,5 @@
 import { ChangeEvent, useEffect, useRef } from 'react';
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
 import { IoDownloadOutline, IoTrash } from 'react-icons/io5';
 import { Button, Input, Textarea } from '@chakra-ui/react';
 import { type ProjectData } from 'ontime-types';
@@ -25,6 +25,7 @@ export default function ProjectData() {
     formState: { isSubmitting, isValid, isDirty, errors },
     setError,
     watch,
+    control,
     setValue,
   } = useForm({
     defaultValues: data,
@@ -32,6 +33,11 @@ export default function ProjectData() {
     resetOptions: {
       keepDirtyValues: true,
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'custom',
   });
 
   // reset form values if data changes
@@ -75,6 +81,10 @@ export default function ProjectData() {
     setValue('projectLogo', null, {
       shouldDirty: true,
     });
+  };
+
+  const handleAddCustom = () => {
+    append({ title: '', value: '' });
   };
 
   const onSubmit = async (formData: ProjectData) => {
@@ -231,6 +241,44 @@ export default function ProjectData() {
               {...register('backstageUrl')}
             />
           </label>
+          <Panel.Section style={{ marginTop: 0 }}>
+            <Panel.ListItem>
+              <Panel.Field title='Custom data' description='' />
+              <Button variant='ontime-subtle' onClick={handleAddCustom}>
+                +
+              </Button>
+            </Panel.ListItem>
+            {fields.length === 0 && !isDirty && <p>Project has no metadata currently</p>}
+            {fields.length > 0 &&
+              fields.map((field, idx) => (
+                <div key={field.id} className={style.customDataItem}>
+                  <Panel.Paragraph>{idx + 1}.</Panel.Paragraph>
+                  <label>
+                    Title
+                    <Input
+                      variant='ontime-filled'
+                      size='sm'
+                      defaultValue={field.title}
+                      autoComplete='off'
+                      {...register(`custom.${idx}.title`)}
+                    />
+                  </label>
+                  <label>
+                    Value
+                    <Input
+                      variant='ontime-filled'
+                      size='sm'
+                      defaultValue={field.value}
+                      autoComplete='off'
+                      {...register(`custom.${idx}.value`)}
+                    />
+                  </label>
+                  <Button variant='ontime-ghosted' onClick={() => remove(idx)}>
+                    <IoTrash />
+                  </Button>
+                </div>
+              ))}
+          </Panel.Section>
         </Panel.Section>
       </Panel.Card>
     </Panel.Section>

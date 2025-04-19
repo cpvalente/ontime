@@ -57,3 +57,11 @@
     height: auto;
   }
 }
+
+.customDataItem {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+  justify-content: center;
+}
