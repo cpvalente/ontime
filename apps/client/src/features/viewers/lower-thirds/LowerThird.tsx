@@ -6,8 +6,8 @@ import { isPlaybackActive, MILLIS_PER_SECOND } from 'ontime-utils';
 import { overrideStylesURL } from '../../../common/api/constants';
 import ViewParamsEditor from '../../../common/components/view-params-editor/ViewParamsEditor';
 import { useRuntimeStylesheet } from '../../../common/hooks/useRuntimeStylesheet';
-import { usePlayback } from '../../../common/hooks/useSocket';
 import { useWindowTitle } from '../../../common/hooks/useWindowTitle';
+import { ViewExtendedTimer } from '../../../common/models/TimeManager.type';
 import safeParseNumber from '../../../common/utils/safeParseNumber';
 import { getPropertyValue } from '../common/viewUtils';
 
@@ -38,6 +38,7 @@ interface LowerProps {
   customFields: CustomFields;
   eventNow: OntimeEvent | null;
   viewSettings: ViewSettings;
+  time: ViewExtendedTimer;
 }
 
 const defaultOptions: Readonly<LowerOptions> = {
@@ -60,14 +61,14 @@ const defaultOptions: Readonly<LowerOptions> = {
 };
 
 export default function LowerThird(props: LowerProps) {
-  const { customFields, eventNow, viewSettings } = props;
+  const { customFields, eventNow, viewSettings, time } = props;
   const [searchParams] = useSearchParams();
   const previousId = useRef<string>();
   const animationTimeout = useRef<NodeJS.Timeout>();
   const [playState, setPlayState] = useState<boolean>(false);
   const [textValue, setTextValue] = useState<{ top: string; bottom: string }>({ top: '', bottom: '' });
   useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
-  const { playback } = usePlayback();
+  const { playback } = time;
 
   useWindowTitle('Lower Third');
 
