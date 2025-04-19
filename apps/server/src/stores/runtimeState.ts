@@ -3,6 +3,7 @@ import {
   isPlayableEvent,
   MaybeNumber,
   MaybeString,
+  OffsetMode,
   OntimeEvent,
   OntimeRundown,
   PlayableEvent,
@@ -27,6 +28,7 @@ import {
   getCurrent,
   getExpectedEnd,
   getExpectedFinish,
+  getRelativeOffset,
   getRuntimeOffset,
   getTimerPhase,
 } from '../services/timerUtils.js';
@@ -45,9 +47,11 @@ export type RuntimeState = {
   // private properties of the timer calculations
   _timer: {
     forceFinish: MaybeNumber; // whether we should declare an event as finished, will contain the finish time
-    totalDelay: number; // this value comes from rundown service
     pausedAt: MaybeNumber;
     secondaryTarget: MaybeNumber;
+  };
+  _rundown: {
+    totalDelay: number; // this value comes from rundown service
   };
 };
 
@@ -62,9 +66,11 @@ const runtimeState: RuntimeState = {
   timer: { ...runtimeStorePlaceholder.timer },
   _timer: {
     forceFinish: null,
-    totalDelay: 0,
     pausedAt: null,
     secondaryTarget: null,
+  },
+  _rundown: {
+    totalDelay: 0,
   },
 };
 
@@ -79,10 +85,36 @@ export function getState(): Readonly<RuntimeState> {
     runtime: { ...runtimeState.runtime },
     timer: { ...runtimeState.timer },
     _timer: { ...runtimeState._timer },
+    _rundown: { ...runtimeState._rundown },
   };
 }
 
-export function clear() {
+/* clear data related to the current event, but leav in place data about the global run state
+ * used when loading a new event but the playback is not interrupted
+ */
+export function clearEventData() {
+  runtimeState.eventNow = null;
+  runtimeState.publicEventNow = null;
+  runtimeState.eventNext = null;
+  runtimeState.publicEventNext = null;
+
+  runtimeState.runtime.offset = 0;
+  runtimeState.runtime.relativeOffset = 0;
+  runtimeState.runtime.expectedEnd = null;
+  runtimeState.runtime.selectedEventIndex = null;
+
+  runtimeState.timer.playback = Playback.Stop;
+  runtimeState.clock = clock.timeNow();
+  runtimeState.timer = { ...runtimeStorePlaceholder.timer };
+
+  // when clearing, we maintain the total delay from the rundown
+  runtimeState._timer.forceFinish = null;
+  runtimeState._timer.pausedAt = null;
+  runtimeState._timer.secondaryTarget = null;
+}
+
+// clear all necessary data when doing a full stop and the event is unloaded
+export function clearState() {
   runtimeState.eventNow = null;
   runtimeState.publicEventNow = null;
   runtimeState.eventNext = null;
@@ -93,6 +125,7 @@ export function clear() {
   runtimeState.publicEventNext = null;
 
   runtimeState.runtime.offset = 0;
+  runtimeState.runtime.relativeOffset = 0;
   runtimeState.runtime.actualStart = null;
   runtimeState.runtime.expectedEnd = null;
   runtimeState.runtime.selectedEventIndex = null;
@@ -137,7 +170,7 @@ type RundownData = {
  */
 export function updateRundownData(rundownData: RundownData) {
   // we keep this in private state since there is no UI use case for it
-  runtimeState._timer.totalDelay = rundownData.totalDelay;
+  runtimeState._rundown.totalDelay = rundownData.totalDelay;
 
   runtimeState.runtime.numEvents = rundownData.numEvents;
   runtimeState.runtime.plannedStart = rundownData.firstStart;
@@ -154,10 +187,7 @@ export function load(
   rundown: OntimeRundown,
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
-  // we need to persist the current block state across loads
-  const prevCurrentBlock = { ...runtimeState.currentBlock };
-  clear();
-  runtimeState.currentBlock = prevCurrentBlock;
+  clearEventData();
 
   // filter rundown
   const timedEvents = filterTimedEvents(rundown);
@@ -185,6 +215,7 @@ export function load(
     if (firstStart === null || typeof firstStart === 'number') {
       runtimeState.runtime.actualStart = firstStart;
       runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
+      runtimeState.runtime.relativeOffset = getRelativeOffset(runtimeState);
       runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
     }
     if (typeof initialData.blockStartAt === 'number') {
@@ -390,6 +421,7 @@ export function start(state: RuntimeState = runtimeState): boolean {
 
   // update offset
   state.runtime.offset = getRuntimeOffset(state);
+  state.runtime.relativeOffset = getRelativeOffset(state);
   state.runtime.expectedEnd = state.runtime.plannedEnd - state.runtime.offset;
   return true;
 }
@@ -409,9 +441,7 @@ export function stop(state: RuntimeState = runtimeState): boolean {
   if (state.timer.playback === Playback.Stop) {
     return false;
   }
-  clear();
-  runtimeState.runtime.actualStart = null;
-  runtimeState.runtime.expectedEnd = null;
+  clearState();
   return true;
 }
 
@@ -453,6 +483,7 @@ export function addTime(amount: number) {
 
   // update runtime delays: over - under
   runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
+  runtimeState.runtime.relativeOffset = getRelativeOffset(runtimeState);
   runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
 
   return true;
@@ -498,6 +529,7 @@ export function update(): UpdateResult {
 
   // update runtime, needs up-to-date timer state
   runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
+  runtimeState.runtime.relativeOffset = getRelativeOffset(runtimeState);
   runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
 
   const finishedNow =
@@ -604,9 +636,7 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
   }
 
   // we need to persist the current block state across loads
-  const prevCurrentBlock = { ...runtimeState.currentBlock };
-  clear();
-  runtimeState.currentBlock = prevCurrentBlock;
+  clearEventData();
 
   //account for offset but we only keep it if passed to us
   runtimeState.runtime.offset = offset;
@@ -695,4 +725,8 @@ export function loadBlock(rundown: OntimeRundown, state = runtimeState) {
 
   // update the block anyway
   state.currentBlock.block = newCurrentBlock === null ? null : { ...newCurrentBlock };
+}
+
+export function setOffsetMode(mode: OffsetMode) {
+  runtimeState.runtime.offsetMode = mode;
 }

@@ -1,4 +1,4 @@
-import { MaybeNumber, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
+import { MaybeNumber, OffsetMode, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
 import { dayInMs, formatFromMillis, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';
@@ -140,8 +140,8 @@ export function useTimeUntilStart(
     isLinkedToLoaded: boolean;
   },
 ): number {
-  const { offset, clock, currentDay } = useTimeUntilData();
-  return calculateTimeUntilStart({ ...data, currentDay, clock, offset });
+  const { offset, clock, currentDay, offsetMode, actualStart, plannedStart } = useTimeUntilData();
+  return calculateTimeUntilStart({ ...data, currentDay, clock, offset, offsetMode, actualStart, plannedStart });
 }
 
 /**
@@ -160,9 +160,24 @@ export function calculateTimeUntilStart(
     isLinkedToLoaded: boolean;
     clock: number;
     offset: number;
+    offsetMode: OffsetMode;
+    actualStart: MaybeNumber;
+    plannedStart: MaybeNumber;
   },
 ): number {
-  const { timeStart, dayOffset, currentDay, totalGap, isLinkedToLoaded, clock, offset, delay } = data;
+  const {
+    timeStart,
+    dayOffset,
+    currentDay,
+    totalGap,
+    isLinkedToLoaded,
+    clock,
+    offset,
+    delay,
+    offsetMode,
+    actualStart,
+    plannedStart,
+  } = data;
 
   //How many days from the currently running event to this one
   const relativeDayOffset = dayOffset - currentDay;
@@ -172,20 +187,23 @@ export function calculateTimeUntilStart(
   //The normalised start time of this event relative to the currently running event
   const normalisedTimeStart = delayedStart + relativeDayOffset * dayInMs;
 
-  const offsetTimestart = normalisedTimeStart - offset;
-  const offsetTimeUntil = offsetTimestart - clock;
+  let relativeStartOffset = 0;
+
+  if (offsetMode === OffsetMode.Relative) {
+    relativeStartOffset = (actualStart ?? 0) - (plannedStart ?? 0);
+  }
+
+  const scheduledTimeUntil = normalisedTimeStart - clock + relativeStartOffset;
+
+  const offsetTimeUntil = scheduledTimeUntil - offset;
 
   if (isLinkedToLoaded) {
     //if we are directly linked back to the loaded event we just follow the offset
     return offsetTimeUntil;
   }
 
-  const scheduledTimeUntil = normalisedTimeStart - clock;
-
-  const isAheadOfSchedule = offset >= 0;
-  const gapsCanCompensadeForOffset = totalGap + offset >= 0;
-
-  if (isAheadOfSchedule || gapsCanCompensadeForOffset) {
+  const gapsCanCompensateForOffset = totalGap + offset >= 0;
+  if (gapsCanCompensateForOffset) {
     // if we are ahead of schedule or the gap can compensate for the amount we are behind then expect to start at the scheduled time
     return scheduledTimeUntil;
   }

@@ -1,9 +1,10 @@
 import { SimpleDirection, SimplePlayback } from './AuxTimer.type.js';
 import { Playback } from './Playback.type.js';
+import { OffsetMode } from './Runtime.type.js';
 import type { RuntimeStore } from './RuntimeStore.type.js';
 import { TimerPhase } from './TimerState.type.js';
 
-export const runtimeStorePlaceholder: RuntimeStore = {
+export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
   clock: 0,
   timer: {
     addedTime: 0,
@@ -32,10 +33,12 @@ export const runtimeStorePlaceholder: RuntimeStore = {
     selectedEventIndex: null, // changes if rundown changes or we load a new event
     numEvents: 0, // change initiated by user
     offset: 0, // changes at runtime
+    relativeOffset: 0, // changes at runtime
     plannedStart: 0, // only changes if event changes
     plannedEnd: 0, // only changes if event changes, overflows over dayInMs
     actualStart: null, // set once we start the timer
     expectedEnd: null, // changes with runtime, based on offset, overflows over dayInMs
+    offsetMode: OffsetMode.Absolute,
   },
   currentBlock: {
     block: null,

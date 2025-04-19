@@ -4,7 +4,7 @@ import { deepmerge } from 'ontime-utils';
 import {
   type RuntimeState,
   addTime,
-  clear,
+  clearState,
   getState,
   load,
   loadBlock,
@@ -71,7 +71,7 @@ beforeAll(() => {
 
 describe('mutation on runtimeState', () => {
   beforeEach(() => {
-    clear();
+    clearState();
 
     vi.mock('../../services/rundown-service/RundownService.js', async (importOriginal) => {
       const actual = (await importOriginal()) as object;
@@ -246,7 +246,7 @@ describe('roll mode', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime('jan 1 00:00');
-    clear();
+    clearState();
   });
   afterEach(() => {
     vi.useRealTimers();

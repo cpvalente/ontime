@@ -1,4 +1,4 @@
-import { RuntimeStore, SimpleDirection, SimplePlayback, TimerMessage } from 'ontime-types';
+import { OffsetMode, RuntimeStore, SimpleDirection, SimplePlayback, TimerMessage } from 'ontime-types';
 
 import { useRuntimeStore } from '../stores/runtime';
 import { socketSendJson } from '../utils/socket';
@@ -160,7 +160,7 @@ export const useRuntimePlaybackOverview = createSelector((state: RuntimeStore) =
 
   numEvents: state.runtime.numEvents,
   selectedEventIndex: state.runtime.selectedEventIndex,
-  offset: state.runtime.offset,
+  offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offset : state.runtime.relativeOffset,
 
   currentBlock: state.currentBlock,
 }));
@@ -172,8 +172,11 @@ export const useTimelineStatus = createSelector((state: RuntimeStore) => ({
 
 export const useTimeUntilData = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
-  offset: state.runtime.offset,
+  offset: state.runtime.offsetMode === OffsetMode.Absolute ? state.runtime.offset : state.runtime.relativeOffset,
+  offsetMode: state.runtime.offsetMode,
   currentDay: state.eventNow?.dayOffset ?? 0, //The day of the currently running event
+  actualStart: state.runtime.actualStart,
+  plannedStart: state.runtime.plannedStart,
 }));
 
 export const useRuntimeOffset = createSelector((state: RuntimeStore) => ({
@@ -188,6 +191,12 @@ export const usePing = createSelector((state: RuntimeStore) => ({
 export const useIsOnline = createSelector((state: RuntimeStore) => ({
   isOnline: state.ping > 0,
 }));
+
+export const useOffsetMode = createSelector((state: RuntimeStore) => ({
+  offsetMode: state.runtime.offsetMode,
+}));
+
+export const setOffsetMode = (payload: OffsetMode) => socketSendJson('offsetmode', payload);
 
 export const usePlayback = () => {
   const featureSelector = (state: RuntimeStore) => ({
