@@ -3,9 +3,10 @@
   align-items: center;
   gap: 1rem;
 
-  margin: 0.25rem 0;
+  padding-block: 0.5rem;
   font-size: calc(1rem - 3px);
-  margin-left: calc(2em + 0.5rem);
+  padding-left: calc(2em + 0.5rem);
+  background-color: color-mix(in srgb, var(--user-bg, transparent) 10%, transparent 90%);
 }
 
 .quickBtn {

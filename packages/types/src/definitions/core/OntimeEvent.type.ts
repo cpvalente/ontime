@@ -16,6 +16,7 @@ export type OntimeBaseEvent = {
 export type OntimeDelay = OntimeBaseEvent & {
   type: SupportedEntry.Delay;
   duration: number;
+  parent: EntryId | null;
 };
 
 export type OntimeBlock = OntimeBaseEvent & {
