@@ -93,7 +93,7 @@ $orange-active: #f60;
   }
 
   .studio-timer {
-    font-size: calc(var(--clock-size) / 5);
+    font-size: calc(var(--clock-size) / 6);
     line-height: 1em;
 
     color: var(--studio-active, $red-active);
