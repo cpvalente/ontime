@@ -2,7 +2,7 @@ import { IoAdd, IoRemove } from 'react-icons/io5';
 import { Tooltip } from '@chakra-ui/react';
 import { useLocalStorage } from '@mantine/hooks';
 import { Playback } from 'ontime-types';
-import { MILLIS_PER_HOUR, MILLIS_PER_SECOND, parseUserTime } from 'ontime-utils';
+import { MILLIS_PER_HOUR, parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import { setPlayback } from '../../../../common/hooks/useSocket';
@@ -28,9 +28,9 @@ export default function AddTime(props: AddTimeProps) {
   const handleAddTime = (direction: 'add' | 'remove') => {
     // API expects input in seconds
     if (direction === 'add') {
-      setPlayback.addTime(time / MILLIS_PER_SECOND);
+      setPlayback.addTime(time);
     } else {
-      setPlayback.addTime((-1 * time) / MILLIS_PER_SECOND);
+      setPlayback.addTime(-1 * time);
     }
   };
 
