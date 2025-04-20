@@ -14,7 +14,7 @@ import {
 } from '../stores/clientStore';
 import { addDialog } from '../stores/dialogStore';
 import { addLog } from '../stores/logger';
-import { addToBatchUpdates, flushBatchUpdates, patchRuntime, patchRuntimeProperty } from '../stores/runtime';
+import { addToBatchUpdates, patchRuntime, patchRuntimeProperty } from '../stores/runtime';
 
 let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
@@ -50,9 +50,9 @@ export const connectSocket = () => {
 
     // we decide to allows reconnect
     reconnectTimeout = setTimeout(() => {
-        if (reconnectAttempts > 2) {
-          setOnlineStatus(false);
-        }
+      if (reconnectAttempts > 2) {
+        setOnlineStatus(false);
+      }
       console.warn('WebSocket: attempting reconnect');
       if (websocket && websocket.readyState === WebSocket.CLOSED) {
         reconnectAttempts += 1;
@@ -141,6 +141,12 @@ export const connectSocket = () => {
           updateDevTools(serverPayload);
           break;
         }
+        case 'ontime-patch': {
+          const patch = payload as Partial<RuntimeStore>;
+          patchRuntime(patch);
+          updateDevTools(patch);
+          break;
+        }
         case 'ontime-clock': {
           addToBatchUpdates('clock', payload);
           updateDevTools({ clock: payload });
@@ -211,10 +217,6 @@ export const connectSocket = () => {
           } else if (target === 'REPORT') {
             ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
           }
-          break;
-        }
-        case 'ontime-flush': {
-          flushBatchUpdates();
           break;
         }
       }

@@ -32,10 +32,11 @@ export const eventStore = {
     //if there is already and update pending we don't need to schedule another one
     if (!isUpdatePending) {
       isUpdatePending = setImmediate(() => {
+        const patch: Partial<RuntimeStore> = {};
         for (const dataKey of changedKeys) {
-          socket.sendAsJson({ type: `ontime-${dataKey}`, payload: store[dataKey] });
+          Object.assign(patch, { [dataKey]: store[dataKey] });
         }
-        socket.sendAsJson({ type: 'ontime-flush' });
+        socket.sendAsJson({ type: 'ontime-patch', payload: patch });
         isUpdatePending = null;
         changedKeys.clear();
       });
