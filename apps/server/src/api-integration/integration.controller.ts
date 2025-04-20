@@ -202,12 +202,11 @@ const actionHandlers: Record<string, ActionHandler> = {
       return { payload: 'success' };
     }
 
-    const timeToAdd = time * MILLIS_PER_SECOND; // frontend is seconds based
-    if (Math.abs(timeToAdd) > MILLIS_PER_HOUR) {
+    if (Math.abs(time) > MILLIS_PER_HOUR) {
       throw new Error(`Payload too large: ${time}`);
     }
 
-    runtimeService.addTime(timeToAdd);
+    runtimeService.addTime(time);
     return { payload: 'success' };
   },
   /* Extra timers */
@@ -233,13 +232,11 @@ const actionHandlers: Record<string, ActionHandler> = {
     } else if (command && typeof command === 'object') {
       const reply = { payload: {} };
       if ('duration' in command) {
-        // convert duration in seconds to ms
-        const timeInMs = numberOrError(command.duration) * 1000;
+        const timeInMs = numberOrError(command.duration);
         reply.payload = auxTimerService.setTime(timeInMs);
       }
       if ('addtime' in command) {
-        // convert addTime in seconds to ms
-        const timeInMs = numberOrError(command.addtime) * 1000;
+        const timeInMs = numberOrError(command.addtime);
         reply.payload = auxTimerService.addTime(timeInMs);
       }
       if ('direction' in command) {
