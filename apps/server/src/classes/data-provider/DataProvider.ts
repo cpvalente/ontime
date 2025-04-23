@@ -8,6 +8,7 @@ import {
   AutomationSettings,
   Rundown,
   ProjectRundowns,
+  LogOrigin,
 } from 'ontime-types';
 
 import type { Low } from 'lowdb';
@@ -23,6 +24,18 @@ type ReadonlyPromise<T> = Promise<Readonly<T>>;
 
 let db = {} as Low<DatabaseModel>;
 
+import { publicDir } from '../../setup/index.js';
+import { ClassicLevel } from 'classic-level';
+import { logger } from '../Logger.js';
+
+const main_db = new ClassicLevel<keyof DatabaseModel, any>(`${publicDir.projectsDir}/db`, {
+  valueEncoding: 'json',
+});
+
+const rundown_db = main_db.sublevel<string, Rundown>('rundowns', {
+  valueEncoding: 'json',
+});
+
 /**
  * Initialises the JSON adapter to persist data to a file
  */
@@ -30,6 +43,19 @@ export async function initPersistence(filePath: string, fallbackData: DatabaseMo
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: shouldCrashDev(!isPath(filePath), 'initPersistence should be called with a path');
   const newDb = await JSONFilePreset<DatabaseModel>(filePath, fallbackData);
+
+  const { project, settings, viewSettings, urlPresets, customFields, automation, rundowns } = fallbackData;
+  await main_db.open();
+  await main_db.put('project', project);
+  await main_db.put('settings', settings);
+  await main_db.put('viewSettings', viewSettings);
+  await main_db.put('urlPresets', urlPresets);
+  await main_db.put('customFields', customFields);
+  await main_db.put('automation', automation);
+
+  Object.entries(rundowns).forEach(([key, rundown]) => {
+    rundown_db.put(key, rundown);
+  });
 
   // Read the database to initialize it
   newDb.data = fallbackData;
@@ -60,6 +86,7 @@ export function getDataProvider() {
     setAutomation,
     getRundown,
     mergeIntoData,
+    shutdown,
   };
 }
 
@@ -68,13 +95,13 @@ function getData(): Readonly<DatabaseModel> {
 }
 
 async function setProjectData(newData: Partial<ProjectData>): ReadonlyPromise<ProjectData> {
-  db.data.project = { ...db.data.project, ...newData };
-  await persist();
-  return db.data.project;
+  const newProjectData = { ...getProjectData(), ...newData };
+  await main_db.put('project', newProjectData);
+  return newProjectData;
 }
 
-function getProjectData(): Readonly<ProjectData> {
-  return db.data.project;
+function getProjectData(): ProjectData {
+  return main_db.getSync('project') as ProjectData;
 }
 
 async function setCustomFields(newData: CustomFields): ReadonlyPromise<CustomFields> {
@@ -97,8 +124,8 @@ async function mergeRundown(
   return { rundowns: db.data.rundowns, customFields: db.data.customFields };
 }
 
-function getCustomFields(): Readonly<CustomFields> {
-  return db.data.customFields;
+function getCustomFields(): CustomFields {
+  return main_db.getSync('customFields') as CustomFields;
 }
 
 async function setRundown(rundownKey: string, newData: Rundown): ReadonlyPromise<Rundown> {
@@ -107,8 +134,8 @@ async function setRundown(rundownKey: string, newData: Rundown): ReadonlyPromise
   return db.data.rundowns[rundownKey];
 }
 
-function getSettings(): Readonly<Settings> {
-  return db.data.settings;
+function getSettings(): Settings {
+  return main_db.getSync('settings') as Settings;
 }
 
 async function setSettings(newData: Settings): ReadonlyPromise<Settings> {
@@ -117,8 +144,8 @@ async function setSettings(newData: Settings): ReadonlyPromise<Settings> {
   return db.data.settings;
 }
 
-function getUrlPresets(): Readonly<URLPreset[]> {
-  return db.data.urlPresets;
+function getUrlPresets(): URLPreset[] {
+  return main_db.getSync('urlPresets') as URLPreset[];
 }
 
 async function setUrlPresets(newData: URLPreset[]): ReadonlyPromise<URLPreset[]> {
@@ -127,8 +154,8 @@ async function setUrlPresets(newData: URLPreset[]): ReadonlyPromise<URLPreset[]>
   return db.data.urlPresets;
 }
 
-function getViewSettings(): Readonly<ViewSettings> {
-  return db.data.viewSettings;
+function getViewSettings(): ViewSettings {
+  return main_db.getSync('viewSettings');
 }
 
 async function setViewSettings(newData: ViewSettings): ReadonlyPromise<ViewSettings> {
@@ -137,8 +164,10 @@ async function setViewSettings(newData: ViewSettings): ReadonlyPromise<ViewSetti
   return db.data.viewSettings;
 }
 
-function getAutomation(): Readonly<AutomationSettings> {
-  return db.data.automation;
+function getAutomation(): AutomationSettings {
+  const automation = main_db.getSync('automation');
+  if (!automation) throw new Error('Failed to load automation from db');
+  return automation;
 }
 
 async function setAutomation(newData: AutomationSettings): ReadonlyPromise<AutomationSettings> {
@@ -147,9 +176,10 @@ async function setAutomation(newData: AutomationSettings): ReadonlyPromise<Autom
   return db.data.automation;
 }
 
-function getRundown(): Readonly<Rundown> {
-  const firstRundown = Object.keys(db.data.rundowns)[0];
-  return db.data.rundowns[firstRundown];
+function getRundown(): Rundown {
+  const rundown = rundown_db.getSync('default');
+  if (!rundown) throw new Error('Failed to load rundown from db');
+  return rundown;
 }
 
 async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<DatabaseModel> {
@@ -172,4 +202,9 @@ async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<D
 async function persist() {
   if (isTest) return;
   await db.write();
+}
+
+async function shutdown() {
+  logger.info(LogOrigin.Server, 'Closing DB');
+  await main_db.close();
 }
