@@ -26,7 +26,7 @@ export default function AddTime(props: AddTimeProps) {
   };
 
   const handleAddTime = (direction: 'add' | 'remove') => {
-    // API expects input in seconds
+    // API expects input in milliseconds
     if (direction === 'add') {
       setPlayback.addTime(time);
     } else {
