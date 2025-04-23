@@ -1,5 +1,5 @@
 import { MessageState, OffsetMode, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
-import { MILLIS_PER_HOUR, MILLIS_PER_SECOND } from 'ontime-utils';
+import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { DeepPartial } from 'ts-essentials';
 
@@ -187,16 +187,14 @@ const actionHandlers: Record<string, ActionHandler> = {
     throw new Error('No matching method provided');
   },
   addtime: (payload) => {
-    let time = 0;
-    if (payload && typeof payload === 'object') {
-      if ('add' in payload) {
-        time = numberOrError(payload.add);
-      } else if ('remove' in payload) {
-        time = numberOrError(payload.remove) * -1;
+    const time = (() => {
+      if (payload && typeof payload === 'object') {
+        if ('add' in payload) return numberOrError(payload.add);
+        if ('remove' in payload) return numberOrError(payload.remove) * -1;
       }
-    } else {
-      time = numberOrError(payload);
-    }
+      return numberOrError(payload);
+    })();
+
     assert.isNumber(time);
     if (time === 0) {
       return { payload: 'success' };
