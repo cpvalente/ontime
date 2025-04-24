@@ -164,6 +164,10 @@ export const connectSocket = () => {
           }
           break;
         }
+        default: {
+          console.log('unknown WS message', type);
+          break;
+        }
       }
     } catch (_) {
       // ignore unhandled
