@@ -56,7 +56,7 @@ export function generateUniqueFileName(directory: string, filename: string): str
   const extension = extname(filename);
   const baseName = basename(filename, extension);
 
-  let counter = 0;
+  let counter = Number(baseName.match(/\((\d)\)$/)?.at(1) ?? 0);
   let uniqueFilename = filename;
 
   while (fileExists(uniqueFilename)) {
