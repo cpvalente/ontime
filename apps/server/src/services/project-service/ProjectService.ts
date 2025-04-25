@@ -80,11 +80,12 @@ export async function getCurrentProject(): Promise<{ filename: string; pathToFil
 
 /**
  * Private function loads a project file and handles necessary side effects
+ * @param fileName file name of the project including the extention
  */
-async function loadProject(projectData: DatabaseModel, projectName: string) {
+async function loadProject(projectData: DatabaseModel, fileName: string) {
   // change LowDB to point to new file
-  await initPersistence(getPathToProject(projectName), projectData);
-  logger.info(LogOrigin.Server, `Loaded project ${projectName}`);
+  await initPersistence(getPathToProject(fileName), projectData);
+  logger.info(LogOrigin.Server, `Loaded project ${fileName}`);
 
   // stop the runtime service
   runtimeService.stop();
@@ -94,8 +95,8 @@ async function loadProject(projectData: DatabaseModel, projectName: string) {
   await initRundown(firstRundown, projectData.customFields);
 
   // persist the project selection
-  const newName = getFileNameFromPath(projectName);
-  await setLastLoadedProject(projectName);
+  const newName = getFileNameFromPath(fileName);
+  await setLastLoadedProject(fileName);
 
   // update the service state
   currentProjectState = {
@@ -124,6 +125,8 @@ async function loadNewProject(): Promise<string> {
 /**
  * Private function handles side effects on corrupted files
  * Corrupted files in this context contain data that failed domain validation
+ * @param filePath file name of the project including the extention
+ * @param filename file name of the project including the extention
  */
 async function handleCorruptedFile(filePath: string, fileName: string): Promise<string> {
   // copy file to corrupted folder
@@ -170,9 +173,10 @@ export async function initialiseProject(): Promise<string> {
 
 /**
  * Loads a data from a file into the runtime
+ * @param fileName file name of the project including the extention
  */
-export async function loadProjectFile(name: string): Promise<string> {
-  const filePath = doesProjectExist(name);
+export async function loadProjectFile(fileName: string): Promise<string> {
+  const filePath = doesProjectExist(fileName);
   if (filePath === null) {
     throw new Error('Project file not found');
   }
@@ -180,11 +184,11 @@ export async function loadProjectFile(name: string): Promise<string> {
   // when loading a project file, we allow parsing to fail and interrupt the process
   const fileData = await parseJsonFile(filePath);
   const result = parseDatabaseModel(fileData);
-  let parsedFileName = name;
+  let parsedFileName = fileName;
 
   if (result.errors.length > 0) {
     logger.warning(LogOrigin.Server, 'Project loaded with errors');
-    parsedFileName = await handleCorruptedFile(filePath, name);
+    parsedFileName = await handleCorruptedFile(filePath, fileName);
   }
 
   const projectName = await loadProject(result.data, parsedFileName);
@@ -253,10 +257,11 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
 
 /**
  * Creates a new project file and applies its result
+ * @param fileName file name of the project including the extention
  */
-export async function createProject(filename: string, initialData: Partial<DatabaseModel>): Promise<string> {
+export async function createProject(fileName: string, initialData: Partial<DatabaseModel>): Promise<string> {
   const data = safeMerge(dbModel, initialData);
-  const fileNameWithExtension = generateUniqueFileName(publicDir.projectsDir, ensureJsonExtension(filename));
+  const fileNameWithExtension = generateUniqueFileName(publicDir.projectsDir, ensureJsonExtension(fileName));
   await loadProject(data, fileNameWithExtension);
   return fileNameWithExtension;
 }
