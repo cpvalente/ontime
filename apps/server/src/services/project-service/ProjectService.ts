@@ -82,11 +82,8 @@ export async function getCurrentProject(): Promise<{ filename: string; pathToFil
  * Private function loads a project file and handles necessary side effects
  */
 async function loadProject(projectData: DatabaseModel, projectName: string) {
-  // we need to make sure the file name is unique in the projects directory
-  const pathToNewFile = generateUniqueFileName(publicDir.projectsDir, projectName);
-
   // change LowDB to point to new file
-  await initPersistence(getPathToProject(pathToNewFile), projectData);
+  await initPersistence(getPathToProject(projectName), projectData);
   logger.info(LogOrigin.Server, `Loaded project ${projectName}`);
 
   // stop the runtime service
@@ -97,8 +94,8 @@ async function loadProject(projectData: DatabaseModel, projectName: string) {
   await initRundown(firstRundown, projectData.customFields);
 
   // persist the project selection
-  const newName = getFileNameFromPath(pathToNewFile);
-  await setLastLoadedProject(newName);
+  const newName = getFileNameFromPath(projectName);
+  await setLastLoadedProject(projectName);
 
   // update the service state
   currentProjectState = {
@@ -113,7 +110,7 @@ async function loadProject(projectData: DatabaseModel, projectName: string) {
  * Loads the demo project
  */
 export async function loadDemoProject(): Promise<string> {
-  return loadProject(demoDb, config.demoProject);
+  return createProject(config.demoProject, demoDb);
 }
 
 /**
@@ -121,7 +118,7 @@ export async function loadDemoProject(): Promise<string> {
  * to be composed in the loading functions
  */
 async function loadNewProject(): Promise<string> {
-  return loadProject(dbModel, config.newProject);
+  return createProject(config.newProject, dbModel);
 }
 
 /**
@@ -259,10 +256,9 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
  */
 export async function createProject(filename: string, initialData: Partial<DatabaseModel>): Promise<string> {
   const data = safeMerge(dbModel, initialData);
-
-  const fileNameWithExtension = ensureJsonExtension(filename);
-  const newFilename = await loadProject(data, fileNameWithExtension);
-  return newFilename;
+  const fileNameWithExtension = generateUniqueFileName(publicDir.projectsDir, ensureJsonExtension(filename));
+  await loadProject(data, fileNameWithExtension);
+  return fileNameWithExtension;
 }
 
 /**
