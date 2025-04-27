@@ -1,7 +1,7 @@
 import { describe, it, expect, Mock } from 'vitest';
 import * as fs from 'fs';
 
-import { appendToName, ensureJsonExtension, generateUniqueFileName } from '../fileManagement.js';
+import { appendToName, ensureJsonExtension, generateUniqueFileName, getProjectNumber } from '../fileManagement.js';
 
 // Mock fs.existsSync to control the test environment
 vi.mock('fs', () => ({
@@ -88,5 +88,27 @@ describe('generateUniqueFileName', () => {
     const expectedFilename = `${baseName} (2)${extension}`;
     const uniqueFilename = generateUniqueFileName(directory, filename);
     expect(uniqueFilename).toBe(expectedFilename);
+  });
+});
+
+describe('file index', () => {
+  it('returns 0 when there is no index', () => {
+    expect(getProjectNumber('test file')).toBe(0);
+  });
+
+  it('returns 1 when index is 1', () => {
+    expect(getProjectNumber('test file (1)')).toBe(1);
+  });
+
+  it('dont count number not warpd in parentecies', () => {
+    expect(getProjectNumber('test file 1')).toBe(0);
+  });
+
+  it('dont count number if there is not a space', () => {
+    expect(getProjectNumber('test file(1)')).toBe(0);
+  });
+
+  it('counts multi digit numbers', () => {
+    expect(getProjectNumber('test file (890)')).toBe(890);
   });
 });
