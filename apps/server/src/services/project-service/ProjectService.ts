@@ -96,16 +96,15 @@ async function loadProject(projectData: DatabaseModel, fileName: string) {
   await initRundown(firstRundown, projectData.customFields);
 
   // persist the project selection
-  const newName = getFileNameFromPath(fileName);
   await setLastLoadedProject(fileName);
 
   // update the service state
   currentProjectState = {
     status: 'INITIALIZED',
-    currentProjectName: newName,
+    currentProjectName: fileName,
   };
 
-  return newName;
+  return fileName;
 }
 
 /**
