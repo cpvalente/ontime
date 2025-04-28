@@ -100,11 +100,11 @@ describe('file index', () => {
     expect(getProjectNumber('test file (1)')).toBe(1);
   });
 
-  it('dont count number not warpd in parentecies', () => {
+  it('dose not count number not warped in parenthesise', () => {
     expect(getProjectNumber('test file 1')).toBe(0);
   });
 
-  it('dont count number if there is not a space', () => {
+  it('dose not count number if there is not a space', () => {
     expect(getProjectNumber('test file(1)')).toBe(0);
   });
 

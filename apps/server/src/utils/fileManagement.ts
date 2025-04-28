@@ -117,7 +117,7 @@ export async function dockerSafeRename(oldPath: PathLike, newPath: PathLike) {
 
 /**
  * finds potential file index number in our (*) format
- * @param baseName the base name of the project file, without extention af path
+ * @param baseName the base name of the project file, without extension af path
  */
 export function getProjectNumber(baseName: string): number {
   return Number(baseName.match(/ \((\d+)\)$/)?.at(1) ?? 0);

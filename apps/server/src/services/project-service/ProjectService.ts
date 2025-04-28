@@ -80,7 +80,7 @@ export async function getCurrentProject(): Promise<{ filename: string; pathToFil
 
 /**
  * Private function loads a project file and handles necessary side effects
- * @param fileName file name of the project including the extention
+ * @param fileName file name of the project including the extension
  */
 async function loadProject(projectData: DatabaseModel, fileName: string) {
   // change LowDB to point to new file
@@ -125,8 +125,8 @@ async function loadNewProject(): Promise<string> {
 /**
  * Private function handles side effects on corrupted files
  * Corrupted files in this context contain data that failed domain validation
- * @param filePath file name of the project including the extention
- * @param filename file name of the project including the extention
+ * @param filePath file name of the project including the extension
+ * @param filename file name of the project including the extension
  */
 async function handleCorruptedFile(filePath: string, fileName: string): Promise<string> {
   // copy file to corrupted folder
@@ -173,7 +173,7 @@ export async function initialiseProject(): Promise<string> {
 
 /**
  * Loads a data from a file into the runtime
- * @param fileName file name of the project including the extention
+ * @param fileName file name of the project including the extension
  */
 export async function loadProjectFile(fileName: string): Promise<string> {
   const filePath = doesProjectExist(fileName);
@@ -257,7 +257,7 @@ export async function renameProjectFile(originalFile: string, newFilename: strin
 
 /**
  * Creates a new project file and applies its result
- * @param fileName file name of the project including the extention
+ * @param fileName file name of the project including the extension
  */
 export async function createProject(fileName: string, initialData: Partial<DatabaseModel>): Promise<string> {
   const data = safeMerge(dbModel, initialData);
