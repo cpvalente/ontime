@@ -19,7 +19,10 @@ function BlockRow(props: BlockRowProps) {
     return null;
   }
 
-  const paddingRows = new Array(columnCount - 1).fill(null);
+  // guard the use case where user has hidden all columns
+  const fillColumns = Math.min(columnCount, 1);
+
+  const paddingRows = new Array(fillColumns).fill(null);
 
   return (
     <tr className={style.blockRow}>
