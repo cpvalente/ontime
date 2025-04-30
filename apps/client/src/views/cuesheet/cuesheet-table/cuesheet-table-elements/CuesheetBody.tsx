@@ -16,16 +16,24 @@ interface CuesheetBodyProps {
   rowModel: RowModel<OntimeRundownEntry>;
   selectedRef: MutableRefObject<HTMLTableRowElement | null>;
   table: Table<OntimeRundownEntry>;
-  columnSizing: Record<string, number>;
 }
 
 export default function CuesheetBody(props: CuesheetBodyProps) {
-  const { rowModel, selectedRef, table, columnSizing } = props;
+  const { rowModel, selectedRef, table } = props;
 
   const { selectedEventId } = useSelectedEventId();
   const { hideDelays, hidePast } = useCuesheetOptions();
 
-  const getColumnCount = lazyEvaluate(() => table.getVisibleFlatColumns().length);
+  const getVisibleColumns = lazyEvaluate(() => table.getVisibleFlatColumns());
+  const getColumnHash = lazyEvaluate(() => {
+    let columnHash = '';
+    const columns = getVisibleColumns();
+
+    for (let i = 0; i < columns.length; i++) {
+      columnHash += `${columns[i].getIndex()}-${columns[i].getSize()} `;
+    }
+    return columnHash;
+  });
 
   let eventIndex = 0;
   // for the first event, it will be past if there is something selected
@@ -41,7 +49,7 @@ export default function CuesheetBody(props: CuesheetBodyProps) {
         }
 
         if (isOntimeBlock(entry)) {
-          const columnCount = getColumnCount();
+          const columnCount = getVisibleColumns().length;
           return <BlockRow columnCount={columnCount} key={key} title={entry.title} hidePast={isPast && hidePast} />;
         }
         if (isOntimeDelay(entry)) {
@@ -58,6 +66,7 @@ export default function CuesheetBody(props: CuesheetBodyProps) {
         if (isOntimeEvent(entry)) {
           eventIndex++;
           const isSelected = key === selectedEventId;
+          const columnHash = getColumnHash();
 
           if (isPast && hidePast) {
             return null;
@@ -87,7 +96,7 @@ export default function CuesheetBody(props: CuesheetBodyProps) {
               selectedRef={isSelected ? selectedRef : undefined}
               rowBgColour={rowBgColour}
               table={table}
-              columnSizing={columnSizing}
+              columnHash={columnHash}
             />
           );
         }

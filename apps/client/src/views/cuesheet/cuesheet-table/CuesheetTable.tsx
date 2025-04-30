@@ -104,7 +104,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
       <div ref={tableContainerRef} className={style.cuesheetContainer}>
         <table className={style.cuesheet} id='cuesheet' {...listeners}>
           <CuesheetHeader headerGroups={headerGroups} />
-          <CuesheetBody rowModel={rowModel} selectedRef={selectedRef} table={table} columnSizing={columnSizing} />
+          <CuesheetBody rowModel={rowModel} selectedRef={selectedRef} table={table} />
         </table>
       </div>
       <CuesheetTableMenu showModal={showModal} />

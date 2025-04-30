@@ -23,7 +23,7 @@ interface EventRowProps {
   rowBgColour?: string;
   table: Table<OntimeRundownEntry>;
   /** hack to force re-rendering of the row when the column sizes change */
-  columnSizing: Record<string, number>;
+  columnHash: string;
 }
 
 export default memo(EventRow, (prevProps, nextProps) => {
@@ -35,8 +35,7 @@ export default memo(EventRow, (prevProps, nextProps) => {
     prevProps.isPast === nextProps.isPast &&
     prevProps.selectedRef === nextProps.selectedRef &&
     prevProps.rowBgColour === nextProps.rowBgColour &&
-    prevProps.table === nextProps.table &&
-    prevProps.columnSizing === nextProps.columnSizing
+    prevProps.columnHash === nextProps.columnHash
   );
 });
 
