@@ -1,6 +1,6 @@
 {
   "name": "ontime-electron",
-  "version": "3.15.0",
+  "version": "3.15.1",
   "author": "Carlos Valente",
   "description": "Time keeping for live events",
   "repository": "https://github.com/cpvalente/ontime",
