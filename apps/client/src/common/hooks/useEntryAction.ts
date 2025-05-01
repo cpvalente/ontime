@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   EntryId,
+  isOntimeBlock,
   isOntimeEvent,
   MaybeString,
   OntimeBlock,
@@ -679,12 +680,12 @@ function optimisticDeleteEntries(entryIds: EntryId[], rundown: Rundown) {
   }
 
   function deleteEntry(entry: OntimeEntry) {
-    if (isOntimeEvent(entry) && entry.parent) {
+    if (isOntimeBlock(entry) || !entry.parent) {
+      order = order.filter((id) => id !== entry.id);
+    } else {
       const parent = entries[entry.parent] as OntimeBlock;
       parent.events = parent.events.filter((event) => event !== entry.id);
       parent.numEvents -= 1;
-    } else {
-      order = order.filter((id) => id !== entry.id);
     }
 
     delete entries[entry.id];
