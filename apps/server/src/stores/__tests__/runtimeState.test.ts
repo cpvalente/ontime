@@ -346,9 +346,11 @@ describe('roll mode', () => {
 
       load(rundown.entries[1] as PlayableEvent, rundown, rundown.order);
       start();
+      // the current offset after manual play
       const currentOffset = getState().runtime.offset;
       let result = roll(rundown, rundown.order, getState().runtime.offset);
       expect(result).toStrictEqual({ eventId: '1', didStart: false });
+      // the current offset should be maintain by roll mode whn taking over from play
       expect(getState().runtime.offset).toBe(currentOffset);
 
       vi.setSystemTime('jan 1 00:00:01');
