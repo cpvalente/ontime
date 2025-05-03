@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, PathLike } from 'fs';
 import { readdir, copyFile, unlink } from 'fs/promises';
-import { basename, extname, join, parse } from 'path';
+import { basename, join, parse } from 'path';
 
 /**
  * @description Creates a directory if it doesn't exist
@@ -53,16 +53,11 @@ export function appendToName(filePath: string, append: string): string {
  * If a file with the same name already exists, appends a counter to the filename.
  */
 export function generateUniqueFileName(directory: string, filename: string): string {
-  const extension = extname(filename);
-  const baseName = basename(filename, extension);
-
-  let counter = getProjectNumber(baseName);
   let uniqueFilename = filename;
 
   while (fileExists(uniqueFilename)) {
-    counter++;
     // Append counter to filename if the file exists.
-    uniqueFilename = `${baseName} (${counter})${extension}`;
+    uniqueFilename = incrementProjectNumber(uniqueFilename);
   }
 
   return uniqueFilename;
@@ -116,9 +111,18 @@ export async function dockerSafeRename(oldPath: PathLike, newPath: PathLike) {
 }
 
 /**
- * finds potential file index number in our (*) format
- * @param baseName the base name of the project file, without extension af path
+ * finds potential file index number in our (*) format and increments
  */
-export function getProjectNumber(baseName: string): number {
-  return Number(baseName.match(/ \((\d+)\)$/)?.at(1) ?? 0);
+export function incrementProjectNumber(path: string): string {
+  const { dir, name, ext } = parse(path);
+
+  if (!name.endsWith(')')) return join(dir, `${name} (1)${ext}`);
+
+  const openingParenIndex = name.lastIndexOf(' (');
+  if (openingParenIndex === -1) return join(dir, `${name} (1)${ext}`);
+
+  const maybeNumber = Number(name.slice(openingParenIndex + 2, -1));
+  if (isNaN(maybeNumber)) return join(dir, `${name} (1)${ext}`);
+
+  return join(dir, `${name.slice(0, openingParenIndex)} (${maybeNumber + 1})${ext}`);
 }

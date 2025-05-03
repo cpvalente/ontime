@@ -1,7 +1,12 @@
 import { describe, it, expect, Mock } from 'vitest';
 import * as fs from 'fs';
 
-import { appendToName, ensureJsonExtension, generateUniqueFileName, getProjectNumber } from '../fileManagement.js';
+import {
+  appendToName,
+  ensureJsonExtension,
+  generateUniqueFileName,
+  incrementProjectNumber,
+} from '../fileManagement.js';
 
 // Mock fs.existsSync to control the test environment
 vi.mock('fs', () => ({
@@ -92,23 +97,23 @@ describe('generateUniqueFileName', () => {
 });
 
 describe('file index', () => {
-  it('returns 0 when there is no index', () => {
-    expect(getProjectNumber('test file')).toBe(0);
+  it('sets index to 1 when there is no index', () => {
+    expect(incrementProjectNumber('test file.json')).toBe('test file (1).json');
   });
 
-  it('returns 1 when index is 1', () => {
-    expect(getProjectNumber('test file (1)')).toBe(1);
+  it('increments to 2 when index is 1', () => {
+    expect(incrementProjectNumber('test file (1).json')).toBe('test file (2).json');
   });
 
   it('dose not count number not warped in parenthesise', () => {
-    expect(getProjectNumber('test file 1')).toBe(0);
+    expect(incrementProjectNumber('test file 1.json')).toBe('test file 1 (1).json');
   });
 
   it('dose not count number if there is not a space', () => {
-    expect(getProjectNumber('test file(1)')).toBe(0);
+    expect(incrementProjectNumber('test file(1).json')).toBe('test file(1) (1).json');
   });
 
   it('counts multi digit numbers', () => {
-    expect(getProjectNumber('test file (890)')).toBe(890);
+    expect(incrementProjectNumber('test file (890).json')).toBe('test file (891).json');
   });
 });
