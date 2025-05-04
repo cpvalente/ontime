@@ -33,7 +33,7 @@ export const eventStore = {
       },
       send() {
         if (isEmptyObject(patch)) return;
-        store = { ...patch };
+        store = { ...store, ...patch };
         socket.sendAsJson({ type: 'ontime-patch', payload: patch });
       },
     };
