@@ -12,7 +12,12 @@ describe('safeMerge', () => {
       publicInfo: 'existing backstageInfo',
       backstageInfo: 'existing backstageInfo',
       projectLogo: null,
-      custom: [],
+      custom: [
+        {
+          title: 'existing custom title',
+          value: 'existing custom value',
+        },
+      ],
     },
     settings: {
       app: 'ontime',
@@ -63,6 +68,12 @@ describe('safeMerge', () => {
       project: {
         title: 'new title',
         publicInfo: 'new public info',
+        custom: [
+          {
+            title: 'new custom title',
+            value: 'new custom value',
+          },
+        ],
       },
     };
     // @ts-expect-error -- just testing
@@ -75,6 +86,12 @@ describe('safeMerge', () => {
       backstageUrl: 'existing backstageUrl',
       backstageInfo: 'existing backstageInfo',
       projectLogo: null,
+      custom: [
+        {
+          title: 'new custom title',
+          value: 'new custom value',
+        },
+      ],
     });
   });
 
@@ -108,6 +125,7 @@ describe('safeMerge', () => {
         backstageUrl: '',
         backstageInfo: '',
         projectLogo: null,
+        custom: [],
       },
       settings: {
         app: 'ontime',
