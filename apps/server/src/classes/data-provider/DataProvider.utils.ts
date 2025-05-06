@@ -4,24 +4,27 @@ import { DatabaseModel } from 'ontime-types';
  * Merges a partial ontime project into a given ontime project
  */
 export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseModel>): DatabaseModel {
+  const deepExisting = structuredClone(existing);
+  const deepNewData = structuredClone(newData);
+
   const {
-    rundown = existing.rundown,
+    rundown = deepExisting.rundown,
     project = {},
     settings = {},
     viewSettings = {},
-    urlPresets = existing.urlPresets,
-    customFields = existing.customFields,
-    automation = existing.automation,
-  } = newData;
+    urlPresets = deepExisting.urlPresets,
+    customFields = deepExisting.customFields,
+    automation = deepExisting.automation,
+  } = deepNewData;
 
   return {
-    ...existing,
+    ...deepExisting,
     rundown,
-    project: { ...existing.project, ...project },
-    settings: { ...existing.settings, ...settings },
-    viewSettings: { ...existing.viewSettings, ...viewSettings },
-    urlPresets: urlPresets ?? existing.urlPresets,
-    customFields: customFields ?? existing.customFields,
-    automation: { ...existing.automation, ...automation },
+    project: { ...deepExisting.project, ...project },
+    settings: { ...deepExisting.settings, ...settings },
+    viewSettings: { ...deepExisting.viewSettings, ...viewSettings },
+    urlPresets: urlPresets ?? deepExisting.urlPresets,
+    customFields: customFields ?? deepExisting.customFields,
+    automation: { ...deepExisting.automation, ...automation },
   };
 }
