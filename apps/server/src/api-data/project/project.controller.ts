@@ -5,11 +5,11 @@ import type { Request, Response } from 'express';
 
 import { removeUndefined } from '../../utils/parserUtils.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
-import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { editCurrentProjectData } from '../../services/project-service/ProjectService.js';
+import * as projectDao from './project.dao.js';
 
 export function getProjectData(_req: Request, res: Response<ProjectData>) {
-  res.json(getDataProvider().getProjectData());
+  res.json(projectDao.getProjectData());
 }
 
 export async function postProjectData(req: Request, res: Response<ProjectData | ErrorResponse>) {

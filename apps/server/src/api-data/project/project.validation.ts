@@ -11,6 +11,8 @@ export const projectSanitiser = [
   body('endMessage').optional().isString().trim(),
   body('projectLogo').optional({ nullable: true }).isString().trim(),
   body('custom').optional().isArray(),
+  body('custom.*.title').optional().isString().trim(),
+  body('custom.*.value').optional().isString().trim(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
