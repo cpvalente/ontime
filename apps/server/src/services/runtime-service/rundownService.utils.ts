@@ -1,5 +1,5 @@
 import { millisToSeconds } from 'ontime-utils';
-import { MaybeNumber } from 'ontime-types';
+import { MaybeNumber, TimerType } from 'ontime-types';
 
 import { timerConfig } from '../../setup/config.js';
 
@@ -13,8 +13,8 @@ export function getShouldClockUpdate(previousUpdate: number, now: number): boole
   if (shouldForceUpdate) {
     return true;
   }
-  const isClockSecondAhead = millisToSeconds(now) !== millisToSeconds(previousUpdate + timerConfig.triggerAhead);
-  return isClockSecondAhead;
+  const newSeconds = millisToSeconds(now, TimerType.CountUp) !== millisToSeconds(previousUpdate, TimerType.CountUp);
+  return newSeconds;
 }
 
 /**
@@ -39,6 +39,5 @@ export function getShouldTimerUpdate(previousValue: MaybeNumber, currentValue: M
 export function getForceUpdate(previousUpdate: number, now: number): boolean {
   const isClockBehind = now < previousUpdate;
   const hasExceededRate = now - previousUpdate >= timerConfig.notificationRate;
-  const newSeconds = millisToSeconds(previousUpdate) !== millisToSeconds(now);
-  return isClockBehind || hasExceededRate || newSeconds;
+  return isClockBehind || hasExceededRate;
 }
