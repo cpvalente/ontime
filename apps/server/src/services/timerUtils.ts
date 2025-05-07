@@ -116,10 +116,10 @@ export function skippedOutOfEvent(state: RuntimeState, previousTime: number, ski
  * Positive offset is time ahead
  * Negative offset is time delayed
  */
-export function getRuntimeOffset(state: RuntimeState): number {
+export function getRuntimeOffset(state: RuntimeState): { absoluteOffset: number; relativeOffset: number } {
   // nothing to calculate if there are no loaded events or if we havent started
   if (state.eventNow === null || state.runtime.actualStart === null) {
-    return 0;
+    return { absoluteOffset: 0, relativeOffset: 0 };
   }
 
   // eslint-disable-next-line no-unused-labels -- dev code path
@@ -133,18 +133,16 @@ export function getRuntimeOffset(state: RuntimeState): number {
   const { clock } = state;
   const { countToEnd, timeStart } = state.eventNow;
   const { addedTime, current, startedAt } = state.timer;
+  const { actualStart, plannedStart } = state.runtime;
 
   // if we havent started, but the timer is armed
   // the offset is the difference to the schedule
   if (startedAt === null) {
-    return timeStart - clock;
+    return { absoluteOffset: timeStart - clock, relativeOffset: 0 };
   }
 
   const overtime = Math.min(current, 0);
   // in time-to-end, offset is overtime
-  if (countToEnd) {
-    return overtime;
-  }
 
   const startOffset = timeStart - startedAt;
   const pausedTime = state._timer.pausedAt === null ? 0 : clock - state._timer.pausedAt;
@@ -153,24 +151,20 @@ export function getRuntimeOffset(state: RuntimeState): number {
   // addedTime - time added by user (negative offset)
   // pausedTime - time the playback was paused (negative offset)
   // overtime - how long the timer has been over-running (negative offset)
-  return startOffset - addedTime - pausedTime + overtime;
-}
+  const offset = startOffset - addedTime - pausedTime + overtime;
 
-/**
- * Calculates relative offset
- * should always be calculated after the absolute offset
- */
-export function getRelativeOffset(state: RuntimeState): number {
-  const { actualStart, plannedStart, offset } = state.runtime;
-  // eslint-disable-next-line no-unused-labels -- dev code path
-  DEV: {
-    // we know actualStart and plannedStart exists as long as a timer is running
-    if (actualStart === null || plannedStart === null) {
-      throw new Error('timerUtils.calculate: actualStart and plannedStart must be set');
-    }
+  // offset between planned rundown start and actual rundown start
+  const rundownStartOffset = actualStart - plannedStart;
+
+  // offset offset relative to the actual rundown start
+  const relativeOffset = offset + rundownStartOffset;
+
+  // in time-to-end, offset is overtime
+  if (countToEnd) {
+    return { absoluteOffset: overtime, relativeOffset };
   }
-  const relativeStartOffset = actualStart - plannedStart;
-  return offset + relativeStartOffset;
+
+  return { absoluteOffset: offset, relativeOffset };
 }
 
 /**
