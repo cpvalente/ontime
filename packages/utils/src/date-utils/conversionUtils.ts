@@ -1,4 +1,5 @@
 import type { MaybeNumber } from 'ontime-types';
+import { TimerType } from 'ontime-types';
 
 export const MILLIS_PER_SECOND = 1000;
 export const MILLIS_PER_MINUTE = 1000 * 60;
@@ -25,8 +26,22 @@ function convertMillis(millis: MaybeNumber, conversion: number): number {
  * @param millis
  * @returns
  */
-export function millisToSeconds(millis: MaybeNumber): number {
-  return convertMillis(millis, MILLIS_PER_SECOND);
+export function millisToSeconds(
+  millis: MaybeNumber,
+  direction: TimerType.CountDown | TimerType.CountUp = TimerType.CountDown,
+) {
+  if (millis === null) return 0;
+
+  if (direction === TimerType.CountDown) {
+    // 0 + is there to avoid result giving -0
+    return 0 + Math.ceil(millis / MILLIS_PER_SECOND);
+  }
+
+  if (direction === TimerType.CountUp) {
+    return Math.floor(millis / MILLIS_PER_SECOND);
+  }
+
+  throw new Error('?????');
 }
 
 /**
