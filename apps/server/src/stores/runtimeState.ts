@@ -28,7 +28,6 @@ import {
   getCurrent,
   getExpectedEnd,
   getExpectedFinish,
-  getRelativeOffset,
   getRuntimeOffset,
   getTimerPhase,
 } from '../services/timerUtils.js';
@@ -89,7 +88,7 @@ export function getState(): Readonly<RuntimeState> {
   };
 }
 
-/* clear data related to the current event, but leav in place data about the global run state
+/* clear data related to the current event, but leave in place data about the global run state
  * used when loading a new event but the playback is not interrupted
  */
 export function clearEventData() {
@@ -214,8 +213,9 @@ export function load(
     const firstStart = initialData?.firstStart;
     if (firstStart === null || typeof firstStart === 'number') {
       runtimeState.runtime.actualStart = firstStart;
-      runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
-      runtimeState.runtime.relativeOffset = getRelativeOffset(runtimeState);
+      const { absoluteOffset, relativeOffset } = getRuntimeOffset(runtimeState);
+      runtimeState.runtime.offset = absoluteOffset;
+      runtimeState.runtime.relativeOffset = relativeOffset;
       runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
     }
     if (typeof initialData.blockStartAt === 'number') {
@@ -420,8 +420,9 @@ export function start(state: RuntimeState = runtimeState): boolean {
   runtimeState.timer.phase = getTimerPhase(runtimeState);
 
   // update offset
-  state.runtime.offset = getRuntimeOffset(state);
-  state.runtime.relativeOffset = getRelativeOffset(state);
+  const { absoluteOffset, relativeOffset } = getRuntimeOffset(runtimeState);
+  runtimeState.runtime.offset = absoluteOffset;
+  runtimeState.runtime.relativeOffset = relativeOffset;
   state.runtime.expectedEnd = state.runtime.plannedEnd - state.runtime.offset;
   return true;
 }
@@ -482,8 +483,9 @@ export function addTime(amount: number) {
   runtimeState.timer.current += amount;
 
   // update runtime delays: over - under
-  runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
-  runtimeState.runtime.relativeOffset = getRelativeOffset(runtimeState);
+  const { absoluteOffset, relativeOffset } = getRuntimeOffset(runtimeState);
+  runtimeState.runtime.offset = absoluteOffset;
+  runtimeState.runtime.relativeOffset = relativeOffset;
   runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
 
   return true;
@@ -528,8 +530,9 @@ export function update(): UpdateResult {
   runtimeState.timer.elapsed = runtimeState.timer.duration - runtimeState.timer.current;
 
   // update runtime, needs up-to-date timer state
-  runtimeState.runtime.offset = getRuntimeOffset(runtimeState);
-  runtimeState.runtime.relativeOffset = getRelativeOffset(runtimeState);
+  const { absoluteOffset, relativeOffset } = getRuntimeOffset(runtimeState);
+  runtimeState.runtime.offset = absoluteOffset;
+  runtimeState.runtime.relativeOffset = relativeOffset;
   runtimeState.runtime.expectedEnd = getExpectedEnd(runtimeState);
 
   const finishedNow =
