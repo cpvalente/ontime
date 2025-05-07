@@ -112,6 +112,9 @@ export async function dockerSafeRename(oldPath: PathLike, newPath: PathLike) {
 
 /**
  * finds potential file index number in our (*) format and increments
+ * the number section (*) must be separated from the name by a space
+ * @example incrementProjectNumber('test(1).json') -> 'test(1).json'
+  * @example incrementProjectNumber('test (1).json') -> 'test(2).json'
  */
 export function incrementProjectNumber(path: string): string {
   const { dir, name, ext } = parse(path);

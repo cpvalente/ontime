@@ -105,11 +105,11 @@ describe('file index', () => {
     expect(incrementProjectNumber('test file (1).json')).toBe('test file (2).json');
   });
 
-  it('dose not count number not warped in parenthesise', () => {
+  it('does not count number not wrapped in parenthesis', () => {
     expect(incrementProjectNumber('test file 1.json')).toBe('test file 1 (1).json');
   });
 
-  it('dose not count number if there is not a space', () => {
+  it('does not count number if there is not a space', () => {
     expect(incrementProjectNumber('test file(1).json')).toBe('test file(1) (1).json');
   });
 
