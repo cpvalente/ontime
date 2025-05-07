@@ -9,19 +9,6 @@ export const dayInMs = 86400000;
 export const maxDuration = dayInMs - MILLIS_PER_SECOND;
 
 /**
- * Utility converts milliseconds to a specific unit
- * @param millis
- * @param conversion
- * @returns
- */
-function convertMillis(millis: MaybeNumber, conversion: number): number {
-  if (!millis) {
-    return 0;
-  }
-  return Math.floor(millis / conversion);
-}
-
-/**
  * Converts value in milliseconds to seconds
  * @param millis
  * @returns
@@ -42,24 +29,6 @@ export function millisToSeconds(
   }
 
   throw new Error('?????');
-}
-
-/**
- * Converts value in milliseconds to minutes
- * @param millis
- * @returns
- */
-export function millisToMinutes(millis: MaybeNumber): number {
-  return convertMillis(millis, MILLIS_PER_MINUTE);
-}
-
-/**
- * Converts value in milliseconds to hours
- * @param millis
- * @returns
- */
-export function millisToHours(millis: MaybeNumber): number {
-  return convertMillis(millis, MILLIS_PER_HOUR);
 }
 
 /**
