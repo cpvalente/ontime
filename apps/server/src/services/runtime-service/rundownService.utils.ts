@@ -9,10 +9,6 @@ import { timerConfig } from '../../setup/config.js';
  * - we have rolled into a new seconds unit
  */
 export function getShouldClockUpdate(previousUpdate: number, now: number): boolean {
-  const shouldForceUpdate = getForceUpdate(previousUpdate, now);
-  if (shouldForceUpdate) {
-    return true;
-  }
   const newSeconds = millisToSeconds(now, TimerType.CountUp) !== millisToSeconds(previousUpdate, TimerType.CountUp);
   return newSeconds;
 }
