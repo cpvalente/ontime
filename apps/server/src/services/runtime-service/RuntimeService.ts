@@ -717,7 +717,9 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     const hasImmediateChanges = hasNewLoaded || justStarted || hasChangedPlayback || offsetModeChanged;
 
     // we would like the wall clock to tick on a regular rate
-    const beutyClockUpdate = getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock);
+    const normalClockUpdate =
+      getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock) ||
+      getForceUpdate(RuntimeService.previousClockUpdate, state.clock);
 
     /**
      * Timer should be updated if
@@ -743,7 +745,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
      * Then check if there is actually a change in the data
      */
     const shouldRuntimeUpdate =
-      (beutyClockUpdate ||
+      (normalClockUpdate ||
         hasImmediateChanges ||
         shouldUpdateTimer ||
         getForceUpdate(RuntimeService.previousRuntimeUpdate, state.clock)) &&
@@ -759,7 +761,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
      * so if any of them are updated we also need to send the clock
      * in case nothing else is updating the clock will be updated at the notification rate
      */
-    const shouldUpdateClock = shouldRuntimeUpdate || shouldBlockUpdate || beutyClockUpdate;
+    const shouldUpdateClock = shouldRuntimeUpdate || shouldBlockUpdate || normalClockUpdate;
 
     //Now we set all the updates on the eventstore and update the previous value
     if (hasChangedPlayback) {
