@@ -5,8 +5,8 @@ import { timerConfig } from '../../setup/config.js';
 
 /**
  * Checks whether we should update the clock value
- * - clock has slid
  * - we have rolled into a new seconds unit
+ * this is different from the timer update as it looks at the clock as counting up
  */
 export function getShouldClockUpdate(previousUpdate: number, now: number): boolean {
   const newSeconds = millisToSeconds(now, TimerType.CountUp) !== millisToSeconds(previousUpdate, TimerType.CountUp);
@@ -18,10 +18,6 @@ export function getShouldClockUpdate(previousUpdate: number, now: number): boole
  * - we have rolled into a new seconds unit
  */
 export function getShouldTimerUpdate(previousValue: MaybeNumber, currentValue: MaybeNumber): boolean {
-  if (currentValue === null) {
-    return false;
-  }
-  // we avoid trigger ahead since it can cause duplicate triggers
   const shouldUpdateTimer = millisToSeconds(currentValue) !== millisToSeconds(previousValue);
   return shouldUpdateTimer;
 }
