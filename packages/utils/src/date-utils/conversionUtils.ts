@@ -19,16 +19,17 @@ export function millisToSeconds(
 ) {
   if (millis === null) return 0;
 
+  let seconds = 0;
   if (direction === TimerType.CountDown) {
-    // 0 + is there to avoid result giving -0
-    return 0 + Math.ceil(millis / MILLIS_PER_SECOND);
+    seconds = Math.ceil(millis / MILLIS_PER_SECOND);
   }
 
   if (direction === TimerType.CountUp) {
-    return Math.floor(millis / MILLIS_PER_SECOND);
+    seconds = Math.floor(millis / MILLIS_PER_SECOND);
   }
 
-  throw new Error('?????');
+  // this is there to avoid result giving -0
+  return seconds === 0 ? 0 : seconds;
 }
 
 /**
