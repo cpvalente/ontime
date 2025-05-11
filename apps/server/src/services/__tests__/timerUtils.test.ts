@@ -737,6 +737,7 @@ describe('getRuntimeOffset()', () => {
       },
       runtime: {
         actualStart: 150,
+        plannedStart: 100,
       },
     } as RuntimeState;
 
@@ -760,6 +761,7 @@ describe('getRuntimeOffset()', () => {
       },
       runtime: {
         actualStart: 150,
+        plannedStart: 100,
       },
     } as RuntimeState;
 
@@ -784,6 +786,7 @@ describe('getRuntimeOffset()', () => {
       },
       runtime: {
         actualStart: 100,
+        plannedStart: 100,
       },
     } as RuntimeState;
 
@@ -809,6 +812,7 @@ describe('getRuntimeOffset()', () => {
       },
       runtime: {
         actualStart: 100,
+        plannedStart: 100,
       },
     } as RuntimeState;
 
