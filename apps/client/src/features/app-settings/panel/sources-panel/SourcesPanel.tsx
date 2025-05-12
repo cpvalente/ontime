@@ -103,6 +103,7 @@ export default function SourcesPanel() {
   };
 
   const handleSubmitImportPreview = async (importMap: ImportMap) => {
+    setError(''); // to clear previous error
     if (importFlow === 'excel') {
       try {
         const previewData = await importRundownPreviewExcel(importMap);
@@ -217,7 +218,6 @@ export default function SourcesPanel() {
           {showAuth && <GSheetSetup onCancel={cancelGSheetFlow} />}
           {showImportMap && !showReview && (
             <ImportMapForm
-              hasErrors={Boolean(error)}
               isSpreadsheet={isExcelFlow}
               onCancel={cancelImportMap}
               onSubmitExport={handleSubmitExport}

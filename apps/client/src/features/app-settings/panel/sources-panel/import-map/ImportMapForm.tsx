@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoTrash } from 'react-icons/io5';
 import { Button, IconButton, Input, Select, Tooltip } from '@chakra-ui/react';
@@ -13,7 +13,6 @@ import { convertToImportMap, getPersistedOptions, NamedImportMap, persistImportM
 import style from '../SourcesPanel.module.scss';
 
 interface ImportMapFormProps {
-  hasErrors: boolean;
   isSpreadsheet: boolean;
   onCancel: () => void;
   onSubmitExport: (importMap: ImportMap) => Promise<void>;
@@ -21,13 +20,14 @@ interface ImportMapFormProps {
 }
 
 export default function ImportMapForm(props: ImportMapFormProps) {
-  const { hasErrors, isSpreadsheet, onCancel, onSubmitExport, onSubmitImport } = props;
+  const { isSpreadsheet, onCancel, onSubmitExport, onSubmitImport } = props;
   const namedImportMap = getPersistedOptions();
   const { revoke } = useGoogleSheet();
   const {
     control,
     handleSubmit,
     register,
+    setValue,
     formState: { errors, isValid },
   } = useForm<NamedImportMap>({
     mode: 'onChange',
@@ -77,7 +77,15 @@ export default function ImportMapForm(props: ImportMapFormProps) {
   const isLoading = Boolean(loading);
   const canSubmitSpreadsheet = isSpreadsheet && !isLoading;
   const canSubmitGSheet = !isLoading && !stepData.worksheet.error;
-  const canSubmit = !hasErrors && isValid && (canSubmitSpreadsheet || canSubmitGSheet);
+  const canSubmit = isValid && (canSubmitSpreadsheet || canSubmitGSheet);
+
+  // Set first sheet as default worksheet when 'event schedule' sheet is not there 
+  useEffect(() => {
+    if (!worksheetNames || worksheetNames.length === 0) return;
+    if (!worksheetNames.includes(namedImportMap.Worksheet)) {
+      setValue('Worksheet', worksheetNames[0], { shouldValidate: true, shouldDirty: true });
+    }
+  }, [worksheetNames, setValue]);
 
   return (
     <Panel.Section as='form' id='import-map'>
