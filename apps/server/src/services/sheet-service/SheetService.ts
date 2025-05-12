@@ -206,22 +206,22 @@ async function verifySheet(
   if (!sheetId || !authClient) {
     throw new Error('Missing sheet ID or authentication');
   }
-
+  
   try {
     const spreadsheets = await sheets({ version: 'v4', auth: authClient }).spreadsheets.get({
       spreadsheetId: sheetId,
       includeGridData: false,
     });
-    const worksheets = spreadsheets.data.sheets?.forEach((sheet) => {
+    const worksheets = spreadsheets.data.sheets?.map((sheet) => {
       if (sheet.properties?.title) {
         return sheet.properties.title;
       }
-    });
+    }).filter(e => e !== undefined);
 
-    if (!worksheets) {
+    if (worksheets === undefined) {
       throw new Error('No worksheets found');
     }
-    return worksheets;
+    return { worksheetOptions: worksheets };
   } catch (error) {
     // attempt to catch errors caused by importing xlsx
     catchCommonImportXlsxError(error);
@@ -294,7 +294,7 @@ async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ wo
   if (!selectedWorksheet) {
     throw new Error('Could not find worksheet');
   }
-  if (!selectedWorksheet.properties || !selectedWorksheet.properties.sheetId) {
+  if (!selectedWorksheet.properties || (!selectedWorksheet.properties.sheetId && selectedWorksheet.properties.sheetId !== 0)) {
     throw new Error('Got invalid data from worksheet');
   }
 
