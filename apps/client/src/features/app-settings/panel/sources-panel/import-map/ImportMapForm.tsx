@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoTrash } from 'react-icons/io5';
 import { Button, IconButton, Input, Select, Tooltip } from '@chakra-ui/react';
@@ -28,6 +28,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
     control,
     handleSubmit,
     register,
+    setValue,
     formState: { errors, isValid },
   } = useForm<NamedImportMap>({
     mode: 'onChange',
@@ -44,6 +45,14 @@ export default function ImportMapForm(props: ImportMapFormProps) {
   const worksheetNames = useSheetStore((state) => state.worksheetNames);
 
   const [loading, setLoading] = useState<'' | 'export' | 'import'>('');
+
+  // Set first sheet as default worksheet when 'event schedule' sheet is not there
+  useEffect(() => {
+    if (!worksheetNames || worksheetNames.length === 0) return;
+    if (!worksheetNames.includes(namedImportMap.Worksheet)) {
+      setValue('Worksheet', worksheetNames[0], { shouldValidate: true, shouldDirty: true });
+    }
+  }, [worksheetNames, setValue, namedImportMap.Worksheet]);
 
   const handleExport = async (values: NamedImportMap) => {
     setLoading('export');

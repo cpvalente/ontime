@@ -103,6 +103,7 @@ export default function SourcesPanel() {
   };
 
   const handleSubmitImportPreview = async (importMap: ImportMap) => {
+    setError(''); // to clear previous error
     if (importFlow === 'excel') {
       try {
         const previewData = await importRundownPreviewExcel(importMap);
