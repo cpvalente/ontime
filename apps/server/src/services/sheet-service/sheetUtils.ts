@@ -4,6 +4,9 @@ import { millisToString } from 'ontime-utils';
 import type { sheets_v4 } from '@googleapis/sheets';
 import { is } from '../../utils/is.js';
 
+import Color from 'color';
+import { logger } from '../../classes/Logger.js';
+
 export type ClientSecret = {
   installed: {
     client_id: string;
@@ -111,7 +114,7 @@ export function cellRequestFromEvent(
         rowIndex: index + rowData[0][1]['row'] + 1,
         columnIndex: titleCol,
       },
-      fields: 'userEnteredValue',
+      fields: 'userEnteredValue,userEnteredFormat',
       rows: [
         {
           values: returnRows,
@@ -123,25 +126,33 @@ export function cellRequestFromEvent(
 
 function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
   if (isOntimeEvent(event)) {
+    const cellColor = {
+      userEnteredFormat: {
+        backgroundColor: getSheetFormatColor(event['colour'], true),
+        textFormat: {
+          foregroundColor: getSheetFormatColor(event['colour'], false),
+        }
+      },
+    } as sheets_v4.Schema$CellData;
     if (key === 'blank') {
-      return {};
+      return cellColor;
     }
     if (key === 'colour') {
-      return { userEnteredValue: { stringValue: event[key] } };
+      return { userEnteredValue: { stringValue: event[key] }, ...cellColor };
     }
     if (key.startsWith('custom')) {
       const customKey = key.split(':')[1];
-      return { userEnteredValue: { stringValue: event.custom[customKey] } };
+      return { userEnteredValue: { stringValue: event.custom[customKey] }, ...cellColor };
     }
 
     if (typeof event[key] === 'number') {
-      return { userEnteredValue: { stringValue: millisToString(event[key]) } };
+      return { userEnteredValue: { stringValue: millisToString(event[key]) }, ...cellColor };
     }
     if (typeof event[key] === 'string') {
-      return { userEnteredValue: { stringValue: event[key] } };
+      return { userEnteredValue: { stringValue: event[key] }, ...cellColor };
     }
     if (typeof event[key] === 'boolean') {
-      return { userEnteredValue: { boolValue: event[key] } };
+      return { userEnteredValue: { boolValue: event[key] }, ...cellColor };
     }
   }
 
@@ -156,3 +167,26 @@ function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
 
   return {};
 }
+
+function getSheetFormatColor(col: string, isBg: boolean): { [key in 'red' | 'green' | 'blue']: number } {
+  const FinalColor = Color(getAccessibleColour(col)[isBg ? 0 : 1])
+  return {
+    red: FinalColor.red() / 255,
+    green: FinalColor.green() / 255,
+    blue: FinalColor.blue() / 255
+  };
+}
+
+const getAccessibleColour = (bgColour?: string): [string, string] => {
+  if (bgColour) {
+    try {
+      const originalColour = Color(bgColour);
+      const backgroundColorMix = originalColour.alpha(1).mix(Color('#1a1a1a'), 1 - originalColour.alpha());
+      const textColor = backgroundColorMix.isLight() ? 'black' : '#fffffa';
+      return [ backgroundColorMix.hexa(), textColor ];
+    } catch (_error) {
+      /* we do not handle errors here */
+    }
+  }
+  return [ '#1a1a1a', '#fffffa' ];
+};
