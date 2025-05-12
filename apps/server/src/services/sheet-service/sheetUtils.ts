@@ -125,15 +125,18 @@ export function cellRequestFromEvent(
 }
 
 function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
+  if (!isOntimeEvent(event) && !isOntimeBlock(event)) return {};
+
+  const cellColor = {
+    userEnteredFormat: {
+      backgroundColor: getSheetFormatColor(event['colour'], true),
+      textFormat: {
+        foregroundColor: getSheetFormatColor(event['colour'], false),
+      }
+    },
+  } as sheets_v4.Schema$CellData;
+
   if (isOntimeEvent(event)) {
-    const cellColor = {
-      userEnteredFormat: {
-        backgroundColor: getSheetFormatColor(event['colour'], true),
-        textFormat: {
-          foregroundColor: getSheetFormatColor(event['colour'], false),
-        }
-      },
-    } as sheets_v4.Schema$CellData;
     if (key === 'blank') {
       return cellColor;
     }
@@ -156,16 +159,16 @@ function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
     }
   }
 
-  if (isOntimeBlock(event)) {
+  else if (isOntimeBlock(event)) {
     if (key === 'title') {
-      return { userEnteredValue: { stringValue: event[key] } };
+      return { userEnteredValue: { stringValue: event[key] }, ...cellColor };
     }
     if (key === 'timerType') {
-      return { userEnteredValue: { stringValue: 'block' } };
+      return { userEnteredValue: { stringValue: 'block' }, ...cellColor };
     }
   }
 
-  return {};
+  return cellColor;
 }
 
 function getSheetFormatColor(col: string, isBg: boolean): { [key in 'red' | 'green' | 'blue']: number } {
@@ -183,10 +186,10 @@ const getAccessibleColour = (bgColour?: string): [string, string] => {
       const originalColour = Color(bgColour);
       const backgroundColorMix = originalColour.alpha(1).mix(Color('#1a1a1a'), 1 - originalColour.alpha());
       const textColor = backgroundColorMix.isLight() ? 'black' : '#fffffa';
-      return [ backgroundColorMix.hexa(), textColor ];
+      return [backgroundColorMix.hexa(), textColor];
     } catch (_error) {
       /* we do not handle errors here */
     }
   }
-  return [ '#1a1a1a', '#fffffa' ];
+  return ['#1a1a1a', '#fffffa'];
 };
