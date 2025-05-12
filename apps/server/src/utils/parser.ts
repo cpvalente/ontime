@@ -1,5 +1,6 @@
 import {
   customFieldLabelToKey,
+  customKeyFromLabel,
   defaultImportMap,
   generateId,
   type ImportMap,
@@ -60,7 +61,7 @@ export function getCustomFieldData(
   const customFields = {};
   const customFieldImportKeys = {};
   for (const ontimeLabel in importMap.custom) {
-    const ontimeKey = customFieldLabelToKey(ontimeLabel);
+    const ontimeKey = customKeyFromLabel(ontimeLabel, existingCustomFields) ?? customFieldLabelToKey(ontimeLabel);
     const importLabel = importMap.custom[ontimeLabel].toLowerCase();
     const colour = ontimeKey in existingCustomFields ? existingCustomFields[ontimeKey].colour : '';
     customFields[ontimeKey] = {
@@ -198,9 +199,9 @@ export const parseExcel = (
         entryIdIndex = col;
         rundownMetadata['id'] = { row, col };
       },
-      custom: (row: number, col: number, columnText: string) => {
+      custom: (row: number, col: number, columnText: string, ontimeKey: string) => {
         customFieldIndexes[col] = columnText;
-        rundownMetadata[`custom:${columnText}`] = { row, col };
+        rundownMetadata[`custom:${ontimeKey}`] = { row, col };
       },
     } as const;
 
@@ -266,12 +267,13 @@ export const parseExcel = (
 
           // check if it is an ontime column
           if (handlers[columnText]) {
-            handlers[columnText](rowIndex, j, undefined);
+            handlers[columnText](rowIndex, j, undefined, undefined);
           }
 
           // check if it is a custom field
           if (columnText in customFieldImportKeys) {
-            handlers.custom(rowIndex, j, columnText);
+            const ontimeKey = customFieldImportKeys[columnText];
+            handlers.custom(rowIndex, j, columnText, ontimeKey);
           }
 
           // else. we don't know how to handle this column
