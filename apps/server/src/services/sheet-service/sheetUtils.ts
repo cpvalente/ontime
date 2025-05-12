@@ -125,9 +125,9 @@ export function cellRequestFromEvent(
 }
 
 enum colorFor {
-  BACKGROUND = 0,
-  TEXT = 1,
-  BORDER = 2
+  BACKGROUND = 'backgroundColor',
+  TEXT = 'textColor',
+  BORDER = 'borderColor'
 }
 
 function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
@@ -187,8 +187,8 @@ function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
   return cellColor;
 }
 
-function getSheetFormatColor(col: string, isBg: colorFor): { [key in 'red' | 'green' | 'blue']: number } {
-  const FinalColor = Color(getAccessibleColour(col)[isBg])
+function getSheetFormatColor(col: string, ColorFor: colorFor): { [key in 'red' | 'green' | 'blue']: number } {
+  const FinalColor = Color(getAccessibleColour(col)[ColorFor])
   return {
     red: FinalColor.red() / 255,
     green: FinalColor.green() / 255,
@@ -196,17 +196,25 @@ function getSheetFormatColor(col: string, isBg: colorFor): { [key in 'red' | 'gr
   };
 }
 
-const getAccessibleColour = (bgColour?: string): [string, string, string] => {
+const getAccessibleColour = (bgColour?: string): { [key in colorFor]: string } => {
   if (bgColour) {
     try {
       const originalColour = Color(bgColour);
       const backgroundColorMix = originalColour.alpha(1).mix(Color('#1a1a1a'), 1 - originalColour.alpha());
       const textColor = backgroundColorMix.isLight() ? 'black' : '#fffffa';
       const borderColor = backgroundColorMix.alpha(1).mix(Color(textColor), 0.2);
-      return [backgroundColorMix.hexa(), textColor, borderColor.hexa()];
+      return {
+        backgroundColor: backgroundColorMix.hexa(),
+        textColor: textColor,
+        borderColor: borderColor.hexa()
+      };
     } catch (_error) {
       /* we do not handle errors here */
     }
   }
-  return ['#1a1a1a', '#fffffa', '#484847'];
+  return {
+    backgroundColor: '#1a1a1a',
+    textColor: '#fffffa',
+    borderColor: '#484847'
+  };
 };
