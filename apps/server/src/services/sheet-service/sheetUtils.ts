@@ -3,7 +3,6 @@ import { millisToString } from 'ontime-utils';
 
 import type { sheets_v4 } from '@googleapis/sheets';
 import { is } from '../../utils/is.js';
-import { logger } from '../../classes/Logger.js';
 
 export type ClientSecret = {
   installed: {
@@ -188,7 +187,6 @@ function getSheetFormatColor(col: string) {
     isNaN(finalCol.blue) ||
     isNaN(finalCol.alpha)
   ) throw new Error('Invalid color string format');
-  logger.warning('', col + "\n" + JSON.stringify(finalCol, null, 4))
   return finalCol;
 }
 
