@@ -104,7 +104,7 @@ export function cellRequestFromEvent(
   }
 
   const colors = isOntimeEvent(event) || isOntimeBlock(event) ? getAccessibleColour(event.colour) : getAccessibleColour()
-  const cellColor: sheets_v4.Schema$CellData = {
+  const cellColor: sheets_v4.Schema$CellData = !colors ? {} : {
     userEnteredFormat: {
       backgroundColor: colors.backgroundColor,
       textFormat: {
@@ -189,7 +189,7 @@ function getSheetFormatColor(col: Color): { [key in 'red' | 'green' | 'blue']: n
   };
 }
 
-const getAccessibleColour = (bgColour?: string): { [key in 'backgroundColor' | 'textColor' | 'borderColor']: { [key in 'red' | 'green' | 'blue']: number } } => {
+const getAccessibleColour = (bgColour?: string): { [key in 'backgroundColor' | 'textColor' | 'borderColor']: { [key in 'red' | 'green' | 'blue']: number } } | void => {
   if (bgColour) {
     try {
       const originalColour = Color(bgColour);
@@ -205,9 +205,4 @@ const getAccessibleColour = (bgColour?: string): { [key in 'backgroundColor' | '
       /* we do not handle errors here */
     }
   }
-  return {
-    backgroundColor: getSheetFormatColor(Color('#1a1a1a')),
-    textColor: getSheetFormatColor(Color('#fffffa')),
-    borderColor: getSheetFormatColor(Color('#484847'))
-  };
 };
