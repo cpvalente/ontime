@@ -12,7 +12,7 @@ import {
 
 export async function getCustomFields(_req: Request, res: Response<CustomFields>) {
   const customFields = getCustomFieldsFromCache();
-  res.json(customFields);
+  res.status(200).json(customFields);
 }
 
 export async function postCustomField(req: Request, res: Response<CustomFields | ErrorResponse>) {
