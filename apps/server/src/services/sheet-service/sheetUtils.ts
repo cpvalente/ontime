@@ -202,8 +202,9 @@ function mixColors(col1: { [key in 'red' | 'green' | 'blue' | 'alpha']: number }
 }
 
 function isLight(col: { [key in 'red' | 'green' | 'blue' | 'alpha']: number }) {
-  const finalCol = Object.values(col).map(e => e * 255)
-  return ((finalCol[0] * 2126 + finalCol[1] * 7152 + finalCol[2] * 722) / 10000) >= 128;
+  const [r, g, b] = [col.red, col.green, col.blue].map(e => e * 255);
+  const luminance = (r * 0.2126 + g * 0.7152 + b * 0.0722);
+  return luminance >= 128;
 }
 
 const getAccessibleColour = (bgColour?: string): { [key in 'backgroundColor' | 'textColor' | 'borderColor']: { [key in 'red' | 'green' | 'blue' | 'alpha']: number } } | void => {
