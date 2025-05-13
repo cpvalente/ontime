@@ -296,6 +296,13 @@ async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ wo
   if (!selectedWorksheet) {
     throw new Error('Could not find worksheet');
   }
+  /*
+    The first spreadsheet provided by google sheet has an id = 0,
+    so !0 returns true, the only other number that returns true in this setup is NaN,
+    so if x !== 0 && x !== NaN, then !x returns false, we indeed want !NaN to return true,
+    but we would like !0 to return false, reason why is also checked that the id is not 0,
+    because if it is 0, then I should not enter the condition.
+  */
   if (!selectedWorksheet.properties || (!selectedWorksheet.properties.sheetId && selectedWorksheet.properties.sheetId !== 0)) {
     throw new Error('Got invalid data from worksheet');
   }
