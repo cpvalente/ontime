@@ -3,8 +3,6 @@ import { millisToString } from 'ontime-utils';
 
 import type { sheets_v4 } from '@googleapis/sheets';
 import { is } from '../../utils/is.js';
-
-import Color from 'color';
 import { logger } from '../../classes/Logger.js';
 
 export type ClientSecret = {
@@ -103,7 +101,7 @@ export function cellRequestFromEvent(
     }
   }
 
-  const colors = isOntimeEvent(event) || isOntimeBlock(event) ? getAccessibleColour(event.colour) : getAccessibleColour()
+  const colors = isOntimeEvent(event) || isOntimeBlock(event) ? getAccessibleColour(event.colour) : undefined
   const cellColor: sheets_v4.Schema$CellData = !colors ? {} : {
     userEnteredFormat: {
       backgroundColor: colors.backgroundColor,
@@ -111,10 +109,6 @@ export function cellRequestFromEvent(
         foregroundColor: colors.textColor
       },
       borders: {
-        right: {
-          style: 'SOLID',
-          color: colors.borderColor
-        },
         bottom: {
           style: 'SOLID',
           color: colors.borderColor
@@ -181,25 +175,48 @@ function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
   return {};
 }
 
-function getSheetFormatColor(col: Color): { [key in 'red' | 'green' | 'blue']: number } {
+function getSheetFormatColor(col: string) {
+  const finalCol = {
+    red: parseInt(col.slice(1, 3), 16) / 255,
+    green: parseInt(col.slice(3, 5), 16) / 255,
+    blue: parseInt(col.slice(5, 7), 16) / 255,
+    alpha: col.length > 7 ? parseInt(col.slice(7, 9), 16) / 255 : 1
+  };
+  if (
+    isNaN(finalCol.red) ||
+    isNaN(finalCol.green) ||
+    isNaN(finalCol.blue) ||
+    isNaN(finalCol.alpha)
+  ) throw new Error('Invalid color string format');
+  logger.warning('', col + "\n" + JSON.stringify(finalCol, null, 4))
+  return finalCol;
+}
+
+function mixColors(col1: { [key in 'red' | 'green' | 'blue' | 'alpha']: number }, col2: { [key in 'red' | 'green' | 'blue' | 'alpha']: number }, mixPct: number) {
   return {
-    red: col.red() / 255,
-    green: col.green() / 255,
-    blue: col.blue() / 255
+    red: Math.round((col1.red * (1 - mixPct) + col2.red * mixPct) * 255) / 255,
+    green: Math.round((col1.green * (1 - mixPct) + col2.green * mixPct) * 255) / 255,
+    blue: Math.round((col1.blue * (1 - mixPct) + col2.blue * mixPct) * 255) / 255,
+    alpha: Math.round((col1.alpha * (1 - mixPct) + col2.alpha * mixPct) * 255) / 255
   };
 }
 
-const getAccessibleColour = (bgColour?: string): { [key in 'backgroundColor' | 'textColor' | 'borderColor']: { [key in 'red' | 'green' | 'blue']: number } } | void => {
+function isLight(col: { [key in 'red' | 'green' | 'blue' | 'alpha']: number }) {
+  const finalCol = Object.values(col).map(e => e * 255)
+  return ((finalCol[0] * 2126 + finalCol[1] * 7152 + finalCol[2] * 722) / 10000) >= 128;
+}
+
+const getAccessibleColour = (bgColour?: string): { [key in 'backgroundColor' | 'textColor' | 'borderColor']: { [key in 'red' | 'green' | 'blue' | 'alpha']: number } } | void => {
   if (bgColour) {
     try {
-      const originalColour = Color(bgColour);
-      const backgroundColorMix = originalColour.alpha(1).mix(Color('#1a1a1a'), 1 - originalColour.alpha());
-      const textColor = backgroundColorMix.isLight() ? 'black' : '#fffffa';
-      const borderColor = backgroundColorMix.alpha(1).mix(Color(textColor), 0.2);
+      const originalColour = getSheetFormatColor(bgColour);
+      const backgroundColorMix = mixColors(originalColour, getSheetFormatColor('#1a1a1a'), 1 - originalColour.alpha);
+      const textColor = isLight(backgroundColorMix) ? '#000000' : '#fffffa';
+      const borderColor = mixColors(backgroundColorMix, getSheetFormatColor(textColor), 0.2);
       return {
-        backgroundColor: getSheetFormatColor(backgroundColorMix),
-        textColor: getSheetFormatColor(Color(textColor)),
-        borderColor: getSheetFormatColor(borderColor)
+        backgroundColor: backgroundColorMix,
+        textColor: getSheetFormatColor(textColor),
+        borderColor: borderColor
       };
     } catch (_error) {
       /* we do not handle errors here */
