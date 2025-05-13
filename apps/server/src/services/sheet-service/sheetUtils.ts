@@ -202,8 +202,8 @@ function mixColors(col1: { [key in 'red' | 'green' | 'blue' | 'alpha']: number }
 }
 
 function isLight(col: { [key in 'red' | 'green' | 'blue' | 'alpha']: number }) {
-  const [r, g, b] = [col.red, col.green, col.blue].map(e => e * 255);
-  const luminance = (r * 0.2126 + g * 0.7152 + b * 0.0722);
+  const [r, g, b] = [col.red, col.green, col.blue];
+  const luminance = (r * 54.213 + g * 182.376 + b * 18.411);
   return luminance >= 128;
 }
 
