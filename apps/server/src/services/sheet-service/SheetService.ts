@@ -212,7 +212,7 @@ async function verifySheet(
       includeGridData: false,
     });
 
-    var worksheets: string[] = [];
+    let worksheets: string[] = [];
     spreadsheets.data.sheets?.forEach((sheet) => {
       if (sheet.properties?.title) {
         worksheets.push(sheet.properties.title);
