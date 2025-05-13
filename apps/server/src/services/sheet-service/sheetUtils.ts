@@ -100,8 +100,24 @@ export function cellRequestFromEvent(
     }
   }
 
+  const colors = isOntimeEvent(event) || isOntimeBlock(event) ? getAccessibleColour(event.colour) : undefined
+  const cellColor: sheets_v4.Schema$CellData = !colors ? {} : {
+    userEnteredFormat: {
+      backgroundColor: colors.backgroundColor,
+      textFormat: {
+        foregroundColor: colors.textColor
+      },
+      borders: {
+        bottom: {
+          style: 'SOLID',
+          color: colors.borderColor
+        }
+      }
+    },
+  };
+
   const returnRows: sheets_v4.Schema$CellData[] = rowData.map(([key, _]) => {
-    return getCellData(key, event);
+    return { ...getCellData(key, event), ...cellColor };
   });
 
   return {
@@ -111,7 +127,7 @@ export function cellRequestFromEvent(
         rowIndex: index + rowData[0][1]['row'] + 1,
         columnIndex: titleCol,
       },
-      fields: 'userEnteredValue',
+      fields: 'userEnteredValue,userEnteredFormat',
       rows: [
         {
           values: returnRows,
@@ -122,6 +138,7 @@ export function cellRequestFromEvent(
 }
 
 function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
+
   if (isOntimeEvent(event)) {
     if (key === 'blank') {
       return {};
@@ -156,3 +173,52 @@ function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
 
   return {};
 }
+
+function getSheetFormatColor(col: string) {
+  const finalCol = {
+    red: parseInt(col.slice(1, 3), 16) / 255,
+    green: parseInt(col.slice(3, 5), 16) / 255,
+    blue: parseInt(col.slice(5, 7), 16) / 255,
+    alpha: col.length > 7 ? parseInt(col.slice(7, 9), 16) / 255 : 1
+  };
+  if (
+    isNaN(finalCol.red) ||
+    isNaN(finalCol.green) ||
+    isNaN(finalCol.blue) ||
+    isNaN(finalCol.alpha)
+  ) throw new Error('Invalid color string format');
+  return finalCol;
+}
+
+function mixColors(col1: { [key in 'red' | 'green' | 'blue' | 'alpha']: number }, col2: { [key in 'red' | 'green' | 'blue' | 'alpha']: number }, mixPct: number) {
+  return {
+    red: Math.round((col1.red * (1 - mixPct) + col2.red * mixPct) * 255) / 255,
+    green: Math.round((col1.green * (1 - mixPct) + col2.green * mixPct) * 255) / 255,
+    blue: Math.round((col1.blue * (1 - mixPct) + col2.blue * mixPct) * 255) / 255,
+    alpha: Math.round((col1.alpha * (1 - mixPct) + col2.alpha * mixPct) * 255) / 255
+  };
+}
+
+function isLight(col: { [key in 'red' | 'green' | 'blue' | 'alpha']: number }) {
+  const [r, g, b] = [col.red, col.green, col.blue];
+  const luminance = (r * 54.213 + g * 182.376 + b * 18.411);
+  return luminance >= 128;
+}
+
+const getAccessibleColour = (bgColour?: string): { [key in 'backgroundColor' | 'textColor' | 'borderColor']: { [key in 'red' | 'green' | 'blue' | 'alpha']: number } } | void => {
+  if (bgColour) {
+    try {
+      const originalColour = getSheetFormatColor(bgColour);
+      const backgroundColorMix = mixColors(originalColour, getSheetFormatColor('#1a1a1a'), 1 - originalColour.alpha);
+      const textColor = isLight(backgroundColorMix) ? '#000000' : '#fffffa';
+      const borderColor = mixColors(backgroundColorMix, getSheetFormatColor(textColor), 0.2);
+      return {
+        backgroundColor: backgroundColorMix,
+        textColor: getSheetFormatColor(textColor),
+        borderColor: borderColor
+      };
+    } catch (_error) {
+      /* we do not handle errors here */
+    }
+  }
+};
