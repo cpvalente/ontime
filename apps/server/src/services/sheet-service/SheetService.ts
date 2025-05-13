@@ -212,13 +212,15 @@ async function verifySheet(
       spreadsheetId: sheetId,
       includeGridData: false,
     });
-    const worksheets = spreadsheets.data.sheets?.map((sheet) => {
-      if (sheet.properties?.title) {
-        return sheet.properties.title;
-      }
-    }).filter(e => e !== undefined);
 
-    if (!worksheets) {
+    var worksheets: string[] = [];
+    spreadsheets.data.sheets?.forEach((sheet) => {
+      if (sheet.properties?.title) {
+        worksheets.push(sheet.properties.title);
+      }
+    });
+
+    if (worksheets.length === 0) {
       throw new Error('No worksheets found');
     }
     return { worksheetOptions: worksheets };
