@@ -217,7 +217,7 @@ async function verifySheet(
       }
     }).filter(e => e !== undefined);
 
-    if (worksheets === undefined) {
+    if (!worksheets) {
       throw new Error('No worksheets found');
     }
     return { worksheetOptions: worksheets };
