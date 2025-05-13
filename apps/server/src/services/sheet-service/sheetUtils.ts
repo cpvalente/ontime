@@ -103,8 +103,28 @@ export function cellRequestFromEvent(
     }
   }
 
+  const colors = isOntimeEvent(event) || isOntimeBlock(event) ? getAccessibleColour(event.colour) : getAccessibleColour()
+  const cellColor: sheets_v4.Schema$CellData = {
+    userEnteredFormat: {
+      backgroundColor: colors.backgroundColor,
+      textFormat: {
+        foregroundColor: colors.textColor
+      },
+      borders: {
+        right: {
+          style: 'SOLID',
+          color: colors.borderColor
+        },
+        bottom: {
+          style: 'SOLID',
+          color: colors.borderColor
+        }
+      }
+    },
+  };
+
   const returnRows: sheets_v4.Schema$CellData[] = rowData.map(([key, _]) => {
-    return getCellData(key, event);
+    return { ...getCellData(key, event), ...cellColor };
   });
 
   return {
@@ -124,79 +144,52 @@ export function cellRequestFromEvent(
   };
 }
 
-enum colorFor {
-  BACKGROUND = 'backgroundColor',
-  TEXT = 'textColor',
-  BORDER = 'borderColor'
-}
-
 function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
-  if (!isOntimeEvent(event) && !isOntimeBlock(event)) return {};
-
-  const cellColor = {
-    userEnteredFormat: {
-      backgroundColor: getSheetFormatColor(event['colour'], colorFor.BACKGROUND),
-      textFormat: {
-        foregroundColor: getSheetFormatColor(event['colour'], colorFor.TEXT)
-      },
-      borders: {
-        right: {
-          style: 'SOLID',
-          color: getSheetFormatColor(event['colour'], colorFor.BORDER)
-        },
-        bottom: {
-          style: 'SOLID',
-          color: getSheetFormatColor(event['colour'], colorFor.BORDER)
-        }
-      }
-    },
-  } as sheets_v4.Schema$CellData;
 
   if (isOntimeEvent(event)) {
     if (key === 'blank') {
-      return cellColor;
+      return {};
     }
     if (key === 'colour') {
-      return { userEnteredValue: { stringValue: event[key] }, ...cellColor };
+      return { userEnteredValue: { stringValue: event[key] } };
     }
     if (key.startsWith('custom')) {
       const customKey = key.split(':')[1];
-      return { userEnteredValue: { stringValue: event.custom[customKey] }, ...cellColor };
+      return { userEnteredValue: { stringValue: event.custom[customKey] } };
     }
 
     if (typeof event[key] === 'number') {
-      return { userEnteredValue: { stringValue: millisToString(event[key]) }, ...cellColor };
+      return { userEnteredValue: { stringValue: millisToString(event[key]) } };
     }
     if (typeof event[key] === 'string') {
-      return { userEnteredValue: { stringValue: event[key] }, ...cellColor };
+      return { userEnteredValue: { stringValue: event[key] } };
     }
     if (typeof event[key] === 'boolean') {
-      return { userEnteredValue: { boolValue: event[key] }, ...cellColor };
+      return { userEnteredValue: { boolValue: event[key] } };
     }
   }
 
-  else if (isOntimeBlock(event)) {
+  if (isOntimeBlock(event)) {
     if (key === 'title') {
-      return { userEnteredValue: { stringValue: event[key] }, ...cellColor };
+      return { userEnteredValue: { stringValue: event[key] } };
     }
     if (key === 'timerType') {
-      return { userEnteredValue: { stringValue: 'block' }, ...cellColor };
+      return { userEnteredValue: { stringValue: 'block' } };
     }
   }
 
-  return cellColor;
+  return {};
 }
 
-function getSheetFormatColor(col: string, ColorFor: colorFor): { [key in 'red' | 'green' | 'blue']: number } {
-  const FinalColor = Color(getAccessibleColour(col)[ColorFor])
+function getSheetFormatColor(col: Color): { [key in 'red' | 'green' | 'blue']: number } {
   return {
-    red: FinalColor.red() / 255,
-    green: FinalColor.green() / 255,
-    blue: FinalColor.blue() / 255
+    red: col.red() / 255,
+    green: col.green() / 255,
+    blue: col.blue() / 255
   };
 }
 
-const getAccessibleColour = (bgColour?: string): { [key in colorFor]: string } => {
+const getAccessibleColour = (bgColour?: string): { [key in 'backgroundColor' | 'textColor' | 'borderColor']: { [key in 'red' | 'green' | 'blue']: number } } => {
   if (bgColour) {
     try {
       const originalColour = Color(bgColour);
@@ -204,17 +197,17 @@ const getAccessibleColour = (bgColour?: string): { [key in colorFor]: string } =
       const textColor = backgroundColorMix.isLight() ? 'black' : '#fffffa';
       const borderColor = backgroundColorMix.alpha(1).mix(Color(textColor), 0.2);
       return {
-        backgroundColor: backgroundColorMix.hexa(),
-        textColor: textColor,
-        borderColor: borderColor.hexa()
+        backgroundColor: getSheetFormatColor(backgroundColorMix),
+        textColor: getSheetFormatColor(Color(textColor)),
+        borderColor: getSheetFormatColor(borderColor)
       };
     } catch (_error) {
       /* we do not handle errors here */
     }
   }
   return {
-    backgroundColor: '#1a1a1a',
-    textColor: '#fffffa',
-    borderColor: '#484847'
+    backgroundColor: getSheetFormatColor(Color('#1a1a1a')),
+    textColor: getSheetFormatColor(Color('#fffffa')),
+    borderColor: getSheetFormatColor(Color('#484847'))
   };
 };
