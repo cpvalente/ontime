@@ -219,6 +219,7 @@ export default function SourcesPanel() {
           {showImportMap && !showReview && (
             <ImportMapForm
               hasErrors={Boolean(error)}
+              resetError={() => setError('')}
               isSpreadsheet={isExcelFlow}
               onCancel={cancelImportMap}
               onSubmitExport={handleSubmitExport}

@@ -14,6 +14,7 @@ import style from '../SourcesPanel.module.scss';
 
 interface ImportMapFormProps {
   hasErrors: boolean;
+  resetError: () => void;
   isSpreadsheet: boolean;
   onCancel: () => void;
   onSubmitExport: (importMap: ImportMap) => Promise<void>;
@@ -21,7 +22,7 @@ interface ImportMapFormProps {
 }
 
 export default function ImportMapForm(props: ImportMapFormProps) {
-  const { hasErrors, isSpreadsheet, onCancel, onSubmitExport, onSubmitImport } = props;
+  const { hasErrors, resetError, isSpreadsheet, onCancel, onSubmitExport, onSubmitImport } = props;
   const namedImportMap = getPersistedOptions();
   const { revoke } = useGoogleSheet();
   const {
@@ -30,6 +31,7 @@ export default function ImportMapForm(props: ImportMapFormProps) {
     register,
     setValue,
     formState: { errors, isValid },
+    watch,
   } = useForm<NamedImportMap>({
     mode: 'onChange',
     defaultValues: namedImportMap,
@@ -53,6 +55,16 @@ export default function ImportMapForm(props: ImportMapFormProps) {
       setValue('Worksheet', worksheetNames[0], { shouldValidate: true, shouldDirty: true });
     }
   }, [worksheetNames, setValue, namedImportMap.Worksheet]);
+
+  // Reset any error when worksheet option changes
+  useEffect(() => {
+    const subscription = watch((_, { name }) => {
+      if (name === 'Worksheet' && hasErrors) {
+        resetError();
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, resetError, hasErrors]);
 
   const handleExport = async (values: NamedImportMap) => {
     setLoading('export');
