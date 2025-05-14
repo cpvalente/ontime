@@ -1,76 +1,13 @@
-import {
-  CustomFields,
-  EndAction,
-  OntimeEvent,
-  OntimeRundown,
-  SupportedEvent,
-  TimeStrategy,
-  TimerType,
-} from 'ontime-types';
+import { CustomFields, EndAction, OntimeEvent, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
 import {
   addToCustomAssignment,
   calculateDayOffset,
-  getLink,
   handleCustomField,
-  handleLink,
   hasChanges,
   isDataStale,
-} from '../rundownCacheUtils.js';
+} from '../rundownCache.utils.js';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
-
-describe('getLink()', () => {
-  it('should return null if there is no link', () => {
-    const rundown = [
-      { type: SupportedEvent.Block, id: 'block' },
-      { type: SupportedEvent.Event, id: '1' },
-    ] as OntimeRundown;
-
-    const result = getLink(1, rundown);
-    expect(result).toBeNull();
-  });
-
-  it('returns previous event', () => {
-    const rundown = [
-      { type: SupportedEvent.Event, id: '1', timeEnd: 100 },
-      { type: SupportedEvent.Event, id: '2', timeStart: 0, linkStart: '1' },
-    ] as OntimeRundown;
-
-    const result = getLink(1, rundown);
-    expect(result.id).toBe('1');
-  });
-});
-
-describe('handleLink()', () => {
-  it('populates data in object and updates link map', () => {
-    const rundown = [
-      { type: SupportedEvent.Event, id: '1', timeEnd: 100 },
-      { type: SupportedEvent.Event, id: '2', timeStart: 0, linkStart: '1' },
-    ] as OntimeRundown;
-    const mutableEvent = { ...rundown[1] } as OntimeEvent;
-    const links = {};
-
-    const result = handleLink(1, rundown, mutableEvent, links);
-    expect(result).toBeUndefined();
-    expect(mutableEvent.timeStart).toBe(100);
-    expect(mutableEvent.linkStart).toBe('1');
-    expect(links).toStrictEqual({ '1': '2' });
-  });
-
-  it('removes link if linked event is not found', () => {
-    const rundown = [
-      { type: SupportedEvent.Block, id: '1' },
-      { type: SupportedEvent.Event, id: '2', timeStart: 0, linkStart: '1' },
-    ] as OntimeRundown;
-    const mutableEvent = { ...rundown[1] } as OntimeEvent;
-    const links = {};
-
-    const result = handleLink(1, rundown, mutableEvent, links);
-    expect(result).toBeUndefined();
-    expect(mutableEvent.timeStart).toBe(0);
-    expect(mutableEvent.linkStart).toBe(null);
-    expect(links).toStrictEqual({});
-  });
-});
+import { makeOntimeEvent } from '../__mocks__/rundown.mocks.js';
 
 describe('addToCustomAssignment()', () => {
   it('adds given entry to assignedCustomFields', () => {
@@ -98,18 +35,17 @@ describe('handleCustomField()', () => {
         label: 'sound',
       },
     } as CustomFields;
-    const customFieldChangelog = new Map<string, string>();
+    const customFieldChangelog = {};
 
-    // @ts-expect-error -- partial event for testing
-    const event: OntimeEvent = {
-      type: SupportedEvent.Event,
+    const event = makeOntimeEvent({
+      type: SupportedEntry.Event,
       id: '2',
       timeStart: 0,
-      linkStart: '1',
+      linkStart: true,
       custom: {
         lighting: 'on',
       },
-    };
+    });
     const assignedCustomFields = {};
 
     const result = handleCustomField(customFields, customFieldChangelog, event, assignedCustomFields);
@@ -134,18 +70,17 @@ describe('handleCustomField()', () => {
       },
     } as CustomFields;
 
-    const customFieldChangelog = new Map([['sound', 'video']]);
+    const customFieldChangelog = { sound: 'video' };
 
-    // @ts-expect-error -- partial event for testing
-    const event: OntimeEvent = {
-      type: SupportedEvent.Event,
+    const event = makeOntimeEvent({
+      type: SupportedEntry.Event,
       id: '2',
       timeStart: 0,
-      linkStart: '1',
+      linkStart: true,
       custom: {
         sound: 'on',
       },
-    };
+    });
     const assignedCustomFields = {};
 
     const result = handleCustomField(customFields, customFieldChangelog, event, assignedCustomFields);
@@ -170,17 +105,16 @@ describe('handleCustomField()', () => {
       },
     } as CustomFields;
 
-    const customFieldChangelog = new Map([['field1', 'newField1']]);
+    const customFieldChangelog = { field1: 'newField1' };
 
-    // @ts-expect-error -- partial event for testing
-    const mutableEvent: OntimeEvent = {
-      type: SupportedEvent.Event,
+    const mutableEvent = makeOntimeEvent({
+      type: SupportedEntry.Event,
       id: 'event1',
       custom: {
         field1: 'value1',
         field2: 'value2',
       },
-    };
+    });
 
     const assignedCustomFields = {};
 
@@ -207,7 +141,7 @@ describe('isDataStale()', () => {
       { timeStart: 10 },
       { timeEnd: 10 },
       { duration: 10 },
-      { linkStart: '1' },
+      { linkStart: true },
       { timerStrategy: TimeStrategy.LockDuration },
     ];
 
@@ -252,7 +186,7 @@ describe('hasChanges()', () => {
 
 describe('calculateDayOffset', () => {
   it('returns 0 if there is no previous event', () => {
-    expect(calculateDayOffset({ timeStart: 0 })).toBe(0);
+    expect(calculateDayOffset({ timeStart: 0 }, null)).toBe(0);
   });
 
   it('returns 0 if the previous event duration is 0', () => {

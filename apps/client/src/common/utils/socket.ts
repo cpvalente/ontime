@@ -1,4 +1,4 @@
-import { Log, RundownCached, RuntimeStore } from 'ontime-types';
+import { Log, Rundown, RuntimeStore } from 'ontime-types';
 
 import { isProduction, websocketUrl } from '../../externals';
 import { CLIENT_LIST, CUSTOM_FIELDS, REPORT, RUNDOWN, RUNTIME } from '../api/constants';
@@ -14,13 +14,12 @@ import {
 } from '../stores/clientStore';
 import { addDialog } from '../stores/dialogStore';
 import { addLog } from '../stores/logger';
-import { addToBatchUpdates, flushBatchUpdates, patchRuntime, patchRuntimeProperty } from '../stores/runtime';
+import { patchRuntime, patchRuntimeProperty } from '../stores/runtime';
 
-export let websocket: WebSocket | null = null;
+let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
 const reconnectInterval = 1000;
 
-export let shouldReconnect = true;
 export let hasConnected = false;
 export let reconnectAttempts = 0;
 
@@ -49,18 +48,17 @@ export const connectSocket = () => {
   websocket.onclose = () => {
     console.warn('WebSocket disconnected');
 
-    if (shouldReconnect) {
-      reconnectTimeout = setTimeout(() => {
-        if (reconnectAttempts > 2) {
-          setOnlineStatus(false);
-        }
-        console.warn('WebSocket: attempting reconnect');
-        if (websocket && websocket.readyState === WebSocket.CLOSED) {
-          reconnectAttempts += 1;
-          connectSocket();
-        }
-      }, reconnectInterval);
-    }
+    // we decide to allows reconnect
+    reconnectTimeout = setTimeout(() => {
+      if (reconnectAttempts > 2) {
+        setOnlineStatus(false);
+      }
+      console.warn('WebSocket: attempting reconnect');
+      if (websocket && websocket.readyState === WebSocket.CLOSED) {
+        reconnectAttempts += 1;
+        connectSocket();
+      }
+    }, reconnectInterval);
   };
 
   websocket.onerror = (error) => {
@@ -143,59 +141,10 @@ export const connectSocket = () => {
           updateDevTools(serverPayload);
           break;
         }
-        case 'ontime-clock': {
-          addToBatchUpdates('clock', payload);
-          updateDevTools({ clock: payload });
-          break;
-        }
-        case 'ontime-timer': {
-          addToBatchUpdates('timer', payload);
-          updateDevTools({ timer: payload });
-          break;
-        }
-        case 'ontime-onAir': {
-          addToBatchUpdates('onAir', payload);
-          updateDevTools({ onAir: payload });
-          break;
-        }
-        case 'ontime-message': {
-          addToBatchUpdates('message', payload);
-          updateDevTools({ message: payload });
-          break;
-        }
-        case 'ontime-runtime': {
-          addToBatchUpdates('runtime', payload);
-          updateDevTools({ runtime: payload });
-          break;
-        }
-        case 'ontime-eventNow': {
-          addToBatchUpdates('eventNow', payload);
-          updateDevTools({ eventNow: payload });
-          break;
-        }
-        case 'ontime-currentBlock': {
-          addToBatchUpdates('currentBlock', payload);
-          updateDevTools({ currentBlock: payload });
-          break;
-        }
-        case 'ontime-publicEventNow': {
-          addToBatchUpdates('publicEventNow', payload);
-          updateDevTools({ publicEventNow: payload });
-          break;
-        }
-        case 'ontime-eventNext': {
-          addToBatchUpdates('eventNext', payload);
-          updateDevTools({ eventNext: payload });
-          break;
-        }
-        case 'ontime-publicEventNext': {
-          addToBatchUpdates('publicEventNext', payload);
-          updateDevTools({ publicEventNext: payload });
-          break;
-        }
-        case 'ontime-auxtimer1': {
-          addToBatchUpdates('auxtimer1', payload);
-          updateDevTools({ auxtimer1: payload });
+        case 'ontime-patch': {
+          const patch = payload as Partial<RuntimeStore>;
+          patchRuntime(patch);
+          updateDevTools(patch);
           break;
         }
         case 'ontime-refetch': {
@@ -205,7 +154,7 @@ export const connectSocket = () => {
             invalidateAllCaches();
           } else if (target === 'RUNDOWN') {
             const { revision } = payload;
-            const currentRevision = ontimeQueryClient.getQueryData<RundownCached>(RUNDOWN)?.revision ?? -1;
+            const currentRevision = ontimeQueryClient.getQueryData<Rundown>(RUNDOWN)?.revision ?? -1;
             if (revision > currentRevision) {
               ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
               ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
@@ -215,8 +164,8 @@ export const connectSocket = () => {
           }
           break;
         }
-        case 'ontime-flush': {
-          flushBatchUpdates();
+        default: {
+          console.log('unknown WS message', type);
           break;
         }
       }
@@ -224,11 +173,6 @@ export const connectSocket = () => {
       // ignore unhandled
     }
   };
-};
-
-export const disconnectSocket = () => {
-  shouldReconnect = false;
-  websocket?.close();
 };
 
 export const socketSend = (message: any) => {

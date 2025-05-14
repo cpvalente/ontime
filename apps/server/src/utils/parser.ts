@@ -6,38 +6,35 @@ import {
   type ImportMap,
   isKnownTimerType,
   validateEndAction,
-  validateLinkStart,
   validateTimerType,
-  validateTimes,
 } from 'ontime-utils';
 import {
   CustomFields,
   DatabaseModel,
-  EventCustomFields,
+  EntryCustomFields,
   isOntimeBlock,
   LogOrigin,
+  OntimeBlock,
   OntimeEvent,
-  OntimeRundown,
-  SupportedEvent,
+  Rundown,
+  SupportedEntry,
   TimerType,
-  TimeStrategy,
 } from 'ontime-types';
 
+import { Merge } from 'ts-essentials';
+
 import { parseAutomationSettings } from '../api-data/automation/automation.parser.js';
+import { parseRundowns } from '../api-data/rundown/rundown.parser.js';
 import { logger } from '../classes/Logger.js';
-import { event as eventDef } from '../models/eventsDefinition.js';
 
 import { makeString } from './parserUtils.js';
-import { parseProject, parseRundown, parseSettings, parseUrlPresets, parseViewSettings } from './parserFunctions.js';
+import { parseProject, parseSettings, parseUrlPresets, parseViewSettings } from './parserFunctions.js';
 import { parseExcelDate } from './time.js';
+import { is } from './is.js';
 
 export type ErrorEmitter = (message: string) => void;
 export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 export const JSON_MIME = 'application/json';
-
-type ExcelData = Pick<DatabaseModel, 'rundown' | 'customFields'> & {
-  rundownMetadata: Record<string, { row: number; col: number }>;
-};
 
 function parseBooleanString(value: unknown): boolean {
   if (typeof value === 'boolean') {
@@ -59,14 +56,19 @@ export function getCustomFieldData(
   customFieldImportKeys: Record<keyof CustomFields, string>;
 } {
   const customFields = {};
-  const customFieldImportKeys = {};
+  const customFieldImportKeys: Record<string, string> = {};
+
   for (const ontimeLabel in importMap.custom) {
     const ontimeKey = customKeyFromLabel(ontimeLabel, existingCustomFields) ?? customFieldLabelToKey(ontimeLabel);
+    if (!ontimeKey) {
+      continue;
+    }
     const importLabel = importMap.custom[ontimeLabel].toLowerCase();
-    const colour = ontimeKey in existingCustomFields ? existingCustomFields[ontimeKey].colour : '';
+
+    // @ts-expect-error -- we are sure that the key exists
     customFields[ontimeKey] = {
       type: 'string',
-      colour,
+      colour: ontimeKey in existingCustomFields ? existingCustomFields[ontimeKey].colour : '',
       label: ontimeLabel,
     };
     customFieldImportKeys[importLabel] = ontimeKey;
@@ -83,19 +85,32 @@ export function getCustomFieldData(
 export const parseExcel = (
   excelData: unknown[][],
   existingCustomFields: CustomFields,
+  sheetName: string = 'Rundown from excel',
   options?: Partial<ImportMap>,
-): ExcelData => {
-  const rundownMetadata = {};
+): {
+  rundown: Rundown;
+  customFields: CustomFields;
+  rundownMetadata: Record<string, { row: number; col: number }>;
+} => {
+  const rundownMetadata: Record<string, { row: number; col: number }> = {};
   const importMap: ImportMap = { ...defaultImportMap, ...options };
 
   for (const [key, value] of Object.entries(importMap)) {
-    if (typeof value === 'string') {
-      importMap[key] = value.toLocaleLowerCase().trim();
+    if (is.string(value)) {
+      // @ts-expect-error -- we are sure that the key exists
+      importMap[key] = value.toLowerCase().trim();
     }
   }
 
   const { customFields, customFieldImportKeys } = getCustomFieldData(importMap, existingCustomFields);
-  const rundown: OntimeRundown = [];
+  const rundown: Rundown = {
+    id: generateId(),
+    title: sheetName,
+    order: [],
+    flatOrder: [],
+    entries: {},
+    revision: 0,
+  };
 
   // title stuff: strings
   let titleIndex: number | null = null;
@@ -205,8 +220,8 @@ export const parseExcel = (
       },
     } as const;
 
-    const event: any = {};
-    const eventCustomFields: EventCustomFields = {};
+    const entry: Partial<Merge<OntimeEvent, OntimeBlock>> = {};
+    const entryCustomFields: EntryCustomFields = {};
 
     for (let j = 0; j < row.length; j++) {
       const column = row[j];
@@ -214,48 +229,50 @@ export const parseExcel = (
       if (j === timerTypeIndex) {
         const maybeTimeType = makeString(column, '');
         if (maybeTimeType === 'block') {
-          event.type = SupportedEvent.Block;
+          // we leave this as a clue for the object filtering later on
+          entry.type = SupportedEntry.Block;
         } else if (maybeTimeType === '' || isKnownTimerType(maybeTimeType)) {
-          event.type = SupportedEvent.Event;
-          event.timerType = validateTimerType(maybeTimeType);
+          // @ts-expect-error -- we leave this as a clue for the object filtering later on
+          entry.type = SupportedEntry.Event;
+          entry.timerType = validateTimerType(maybeTimeType);
         } else {
           // if it is not a block or a known type, we dont import it
           return;
         }
       } else if (j === titleIndex) {
-        event.title = makeString(column, '');
+        entry.title = makeString(column, '');
       } else if (j === timeStartIndex) {
-        event.timeStart = parseExcelDate(column);
+        entry.timeStart = parseExcelDate(column);
       } else if (j === linkStartIndex) {
-        event.linkStart = parseBooleanString(column);
+        entry.linkStart = parseBooleanString(column);
       } else if (j === timeEndIndex) {
-        event.timeEnd = parseExcelDate(column);
+        entry.timeEnd = parseExcelDate(column);
       } else if (j === durationIndex) {
-        event.duration = parseExcelDate(column);
+        entry.duration = parseExcelDate(column);
       } else if (j === cueIndex) {
-        event.cue = makeString(column, '');
+        entry.cue = makeString(column, '');
       } else if (j === countToEndIndex) {
-        event.countToEnd = parseBooleanString(column);
+        entry.countToEnd = parseBooleanString(column);
       } else if (j === isPublicIndex) {
-        event.isPublic = parseBooleanString(column);
+        entry.isPublic = parseBooleanString(column);
       } else if (j === skipIndex) {
-        event.skip = parseBooleanString(column);
+        entry.skip = parseBooleanString(column);
       } else if (j === notesIndex) {
-        event.note = makeString(column, '');
+        entry.note = makeString(column, '');
       } else if (j === endActionIndex) {
-        event.endAction = validateEndAction(column);
+        entry.endAction = validateEndAction(column);
       } else if (j === timeWarningIndex) {
-        event.timeWarning = parseExcelDate(column);
+        entry.timeWarning = parseExcelDate(column);
       } else if (j === timeDangerIndex) {
-        event.timeDanger = parseExcelDate(column);
+        entry.timeDanger = parseExcelDate(column);
       } else if (j === colourIndex) {
-        event.colour = makeString(column, '');
+        entry.colour = makeString(column, '');
       } else if (j === entryIdIndex) {
-        event.id = encodeURIComponent(makeString(column, undefined));
+        entry.id = encodeURIComponent(makeString(column, undefined));
       } else if (j in customFieldIndexes) {
         const importKey = customFieldIndexes[j];
         const ontimeKey = customFieldImportKeys[importKey];
-        eventCustomFields[ontimeKey] = makeString(column, '');
+        entryCustomFields[ontimeKey] = makeString(column, '');
       } else {
         // 2. if there is no flag, lets see if we know the field type
         if (typeof column === 'string') {
@@ -267,6 +284,7 @@ export const parseExcel = (
 
           // check if it is an ontime column
           if (handlers[columnText]) {
+            // @ts-expect-error -- its ok
             handlers[columnText](rowIndex, j, undefined, undefined);
           }
 
@@ -282,20 +300,33 @@ export const parseExcel = (
       }
     }
 
-    // if any data was found in row, push to array
-    const keysFound = Object.keys(event).length + Object.keys(eventCustomFields).length;
-    if (keysFound > 0) {
-      // if it is a Block type drop all other filed
-      if (isOntimeBlock(event)) {
-        rundown.push({ type: event.type, id: event.id, title: event.title });
-      } else {
-        if (timerTypeIndex === null) {
-          event.timerType = TimerType.CountDown;
-          event.type = SupportedEvent.Event;
-        }
-        rundown.push({ ...event, custom: { ...eventCustomFields } });
-      }
+    // if we didnt find any keys (empty row, or some other data), skip making an event
+    const keysFound = Object.keys(entry).length + Object.keys(entryCustomFields).length;
+    if (keysFound === 0) {
+      return;
     }
+
+    const id = entry.id || generateId();
+    // from excel, we can only get blocks and events
+    if (isOntimeBlock(entry)) {
+      const block: OntimeBlock = { ...entry, custom: { ...entryCustomFields } };
+      rundown.order.push(id);
+      rundown.entries[id] = block;
+      return;
+    }
+
+    const event = {
+      ...entry,
+      custom: { ...entryCustomFields },
+      type: SupportedEntry.Event,
+    } as OntimeEvent;
+
+    if (timerTypeIndex === null) {
+      event.timerType = TimerType.CountDown;
+    }
+    rundown.order.push(id);
+    rundown.flatOrder.push(id);
+    rundown.entries[id] = event;
   });
 
   return {
@@ -305,7 +336,7 @@ export const parseExcel = (
   };
 };
 
-export type ParsingError = {
+type ParsingError = {
   context: string;
   message: string;
 };
@@ -327,11 +358,10 @@ export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): { data: Da
   };
 
   // we need to parse the custom fields first so they can be used in validating events
-  // TODO: can we improve the readability of the error?
-  const { rundown, customFields } = parseRundown(jsonData, makeEmitError('Rundown'));
+  const { rundowns, customFields } = parseRundowns(jsonData, makeEmitError('Rundown'));
 
   const data: DatabaseModel = {
-    rundown,
+    rundowns,
     project: parseProject(jsonData, makeEmitError('Project')),
     settings,
     viewSettings: parseViewSettings(jsonData, makeEmitError('View Settings')),
@@ -342,84 +372,3 @@ export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): { data: Da
 
   return { data, errors };
 }
-
-/**
- * Function infers strategy for a patch with only partial timer data
- * @param end
- * @param duration
- * @param fallback
- * @returns
- */
-function inferStrategy(end: unknown, duration: unknown, fallback: TimeStrategy): TimeStrategy {
-  if (end && !duration) {
-    return TimeStrategy.LockEnd;
-  }
-
-  if (!end && duration) {
-    return TimeStrategy.LockDuration;
-  }
-  return fallback;
-}
-
-export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<OntimeEvent>): OntimeEvent {
-  if (Object.keys(patchEvent).length === 0) {
-    return originalEvent;
-  }
-
-  const { timeStart, timeEnd, duration, timeStrategy } = validateTimes(
-    patchEvent?.timeStart ?? originalEvent.timeStart,
-    patchEvent?.timeEnd ?? originalEvent.timeEnd,
-    patchEvent?.duration ?? originalEvent.duration,
-    patchEvent?.timeStrategy ?? inferStrategy(patchEvent?.timeEnd, patchEvent?.duration, originalEvent.timeStrategy),
-  );
-
-  return {
-    id: originalEvent.id,
-    type: SupportedEvent.Event,
-    title: makeString(patchEvent.title, originalEvent.title),
-    timeStart,
-    timeEnd,
-    duration,
-    timeStrategy,
-    linkStart: validateLinkStart(patchEvent.linkStart, originalEvent.linkStart),
-    endAction: validateEndAction(patchEvent.endAction, originalEvent.endAction),
-    timerType: validateTimerType(patchEvent.timerType, originalEvent.timerType),
-    countToEnd: typeof patchEvent.countToEnd === 'boolean' ? patchEvent.countToEnd : originalEvent.countToEnd,
-    isPublic: typeof patchEvent.isPublic === 'boolean' ? patchEvent.isPublic : originalEvent.isPublic,
-    skip: typeof patchEvent.skip === 'boolean' ? patchEvent.skip : originalEvent.skip,
-    note: makeString(patchEvent.note, originalEvent.note),
-    colour: makeString(patchEvent.colour, originalEvent.colour),
-    delay: originalEvent.delay, // is regenerated if timer related data is changed
-    dayOffset: originalEvent.dayOffset, // is regenerated if timer related data is changed
-    gap: originalEvent.gap, // is regenerated if timer related data is changed
-    // short circuit empty string
-    cue: makeString(patchEvent.cue ?? null, originalEvent.cue),
-    revision: originalEvent.revision,
-    timeWarning: patchEvent.timeWarning ?? originalEvent.timeWarning,
-    timeDanger: patchEvent.timeDanger ?? originalEvent.timeDanger,
-    custom: { ...originalEvent.custom, ...patchEvent.custom },
-    triggers: patchEvent.triggers ?? originalEvent.triggers,
-  };
-}
-
-/**
- * @description Enforces formatting for events
- * @param {object} eventArgs - attributes of event
- * @param {number} eventIndex - can be a string when we pass the a suggested cue name
- * @returns {object|null} - formatted object or null in case is invalid
- */
-export const createEvent = (eventArgs: Partial<OntimeEvent>, eventIndex: number | string): OntimeEvent | null => {
-  if (Object.keys(eventArgs).length === 0) {
-    return null;
-  }
-
-  const cue = typeof eventIndex === 'number' ? String(eventIndex + 1) : eventIndex;
-
-  const baseEvent = {
-    id: eventArgs?.id ?? generateId(),
-    cue,
-    ...eventDef,
-  };
-  const event = createPatch(baseEvent, eventArgs);
-  return event;
-};

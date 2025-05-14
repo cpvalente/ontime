@@ -12,7 +12,7 @@ import {
 } from 'react-icons/io5';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { EndAction, MaybeString, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, EntryId, OntimeEvent, Playback, TimerType, TimeStrategy } from 'ontime-types';
 
 import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
@@ -32,7 +32,7 @@ interface EventBlockProps {
   timeEnd: number;
   duration: number;
   timeStrategy: TimeStrategy;
-  linkStart: MaybeString;
+  linkStart: boolean;
   countToEnd: boolean;
   eventIndex: number;
   isPublic: boolean;
@@ -45,6 +45,7 @@ interface EventBlockProps {
   isPast: boolean;
   isNext: boolean;
   skip: boolean;
+  parent: EntryId | null;
   loaded: boolean;
   hasCursor: boolean;
   playback?: Playback;
@@ -86,6 +87,7 @@ export default function EventBlock(props: EventBlockProps) {
     isPast,
     isNext,
     skip = false,
+    parent,
     loaded,
     hasCursor,
     playback,
@@ -151,7 +153,7 @@ export default function EventBlock(props: EventBlockProps) {
             onClick: () =>
               actionHandler('update', {
                 field: 'linkStart',
-                value: linkStart ? null : 'true',
+                value: linkStart,
               }),
           },
           {
@@ -193,6 +195,10 @@ export default function EventBlock(props: EventBlockProps) {
     transition,
   } = useSortable({
     id: eventId,
+    data: {
+      type: 'event',
+      parent,
+    },
     animateLayoutChanges: () => false,
   });
 

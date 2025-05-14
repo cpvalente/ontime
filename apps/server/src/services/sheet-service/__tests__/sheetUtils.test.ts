@@ -1,4 +1,4 @@
-import { EndAction, OntimeEvent, SupportedEvent, TimeStrategy, TimerType } from 'ontime-types';
+import { EndAction, OntimeEvent, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { getA1Notation, cellRequestFromEvent } from '../sheetUtils.js';
@@ -21,14 +21,14 @@ describe('getA1Notation()', () => {
 describe('cellRequestFromEvent()', () => {
   test('string to string', () => {
     const event: OntimeEvent = {
-      type: SupportedEvent.Event,
+      type: SupportedEntry.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
       timeStart: 46800000,
       timeEnd: 57600000,
       timeStrategy: TimeStrategy.LockEnd,
-      linkStart: null,
+      linkStart: false,
       endAction: EndAction.None,
       timerType: TimerType.CountDown,
       countToEnd: false,
@@ -39,6 +39,7 @@ describe('cellRequestFromEvent()', () => {
       delay: 0,
       gap: 0,
       dayOffset: 0,
+      parent: null,
       revision: 0,
       id: '1358',
       timeWarning: 0,
@@ -69,7 +70,7 @@ describe('cellRequestFromEvent()', () => {
 
   test('number to timer', () => {
     const event: OntimeEvent = {
-      type: SupportedEvent.Event,
+      type: SupportedEntry.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -80,10 +81,11 @@ describe('cellRequestFromEvent()', () => {
       countToEnd: false,
       duration: 10800000,
       timeStrategy: TimeStrategy.LockEnd,
-      linkStart: null,
+      linkStart: false,
       isPublic: false,
       skip: false,
       colour: 'red',
+      parent: null,
       revision: 0,
       delay: 0,
       gap: 0,
@@ -119,7 +121,7 @@ describe('cellRequestFromEvent()', () => {
 
   test('boolean to TRUE', () => {
     const event: OntimeEvent = {
-      type: SupportedEvent.Event,
+      type: SupportedEntry.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -130,10 +132,11 @@ describe('cellRequestFromEvent()', () => {
       countToEnd: false,
       duration: 10800000,
       timeStrategy: TimeStrategy.LockEnd,
-      linkStart: null,
+      linkStart: false,
       isPublic: true,
       skip: false,
       colour: 'red',
+      parent: null,
       revision: 0,
       delay: 0,
       gap: 0,
@@ -168,7 +171,7 @@ describe('cellRequestFromEvent()', () => {
 
   test('spacing in metadata', () => {
     const event: OntimeEvent = {
-      type: SupportedEvent.Event,
+      type: SupportedEntry.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -178,7 +181,7 @@ describe('cellRequestFromEvent()', () => {
       timerType: TimerType.CountDown,
       countToEnd: false,
       timeStrategy: TimeStrategy.LockEnd,
-      linkStart: null,
+      linkStart: false,
       duration: 10800000,
       isPublic: true,
       skip: false,
@@ -186,6 +189,7 @@ describe('cellRequestFromEvent()', () => {
       delay: 0,
       gap: 0,
       dayOffset: 0,
+      parent: null,
       revision: 0,
       id: '1358',
       timeWarning: 0,
@@ -203,7 +207,7 @@ describe('cellRequestFromEvent()', () => {
 
   test('metadata offset from zero', () => {
     const event: OntimeEvent = {
-      type: SupportedEvent.Event,
+      type: SupportedEntry.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -214,10 +218,11 @@ describe('cellRequestFromEvent()', () => {
       countToEnd: false,
       duration: 10800000,
       timeStrategy: TimeStrategy.LockEnd,
-      linkStart: null,
+      linkStart: false,
       isPublic: true,
       skip: false,
       colour: 'red',
+      parent: null,
       revision: 0,
       delay: 0,
       gap: 0,
@@ -239,7 +244,7 @@ describe('cellRequestFromEvent()', () => {
 
   test('sheet setup', () => {
     const event: OntimeEvent = {
-      type: SupportedEvent.Event,
+      type: SupportedEntry.Event,
       cue: '1',
       title: 'Fancy',
       note: 'Blue button on the right',
@@ -250,10 +255,11 @@ describe('cellRequestFromEvent()', () => {
       countToEnd: false,
       duration: 10800000,
       timeStrategy: TimeStrategy.LockEnd,
-      linkStart: null,
+      linkStart: false,
       isPublic: true,
       skip: false,
       colour: 'red',
+      parent: null,
       revision: 0,
       delay: 0,
       gap: 0,

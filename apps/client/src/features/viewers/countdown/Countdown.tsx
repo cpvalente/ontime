@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
+  OntimeEntry,
   OntimeEvent,
-  OntimeRundownEntry,
   Playback,
   ProjectData,
   Runtime,
   Settings,
-  SupportedEvent,
+  SupportedEntry,
   TimerPhase,
 } from 'ontime-types';
 
@@ -63,7 +63,7 @@ export default function Countdown(props: CountdownProps) {
     }
 
     let followThis: OntimeEvent | null = null;
-    const events: OntimeEvent[] = [...backstageEvents].filter((event) => event.type === SupportedEvent.Event);
+    const events: OntimeEvent[] = [...backstageEvents].filter((event) => event.type === SupportedEntry.Event);
 
     if (eventId !== null) {
       followThis = events.find((event) => event.id === eventId) || null;
@@ -72,7 +72,7 @@ export default function Countdown(props: CountdownProps) {
     }
     if (followThis !== null) {
       setFollow(followThis);
-      const idx: number = backstageEvents.findIndex((event: OntimeRundownEntry) => event.id === followThis?.id);
+      const idx: number = backstageEvents.findIndex((event: OntimeEntry) => event.id === followThis?.id);
       const delayToEvent = backstageEvents[idx]?.delay ?? 0;
       setDelay(delayToEvent);
     }

@@ -1,4 +1,4 @@
-import { EndAction, EventCustomFields, OntimeEvent, SupportedEvent, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, EntryCustomFields, OntimeEvent, SupportedEntry, TimerType, TimeStrategy } from 'ontime-types';
 
 import { cloneEvent } from '../eventsManager';
 
@@ -6,7 +6,7 @@ describe('cloneEvent()', () => {
   it('creates a stem from a given event', () => {
     const original: OntimeEvent = {
       id: 'unique',
-      type: SupportedEvent.Event,
+      type: SupportedEntry.Event,
       title: 'title',
       cue: 'cue',
       note: 'note',
@@ -15,7 +15,8 @@ describe('cloneEvent()', () => {
       timeEnd: 10,
       timerType: TimerType.CountDown,
       timeStrategy: TimeStrategy.LockEnd,
-      linkStart: null,
+      parent: 'test',
+      linkStart: false,
       countToEnd: false,
       endAction: EndAction.None,
       isPublic: false,
@@ -29,7 +30,7 @@ describe('cloneEvent()', () => {
       gap: 0,
       custom: {
         lighting: '3',
-      } as EventCustomFields,
+      } as EntryCustomFields,
     };
 
     const cloned = cloneEvent(original);
@@ -37,7 +38,7 @@ describe('cloneEvent()', () => {
     expect(cloned.custom).not.toBe(original.custom);
 
     expect(cloned).toMatchObject({
-      type: SupportedEvent.Event,
+      type: SupportedEntry.Event,
       title: original.title,
       note: original.note,
       timeStart: original.timeStart,
@@ -45,6 +46,7 @@ describe('cloneEvent()', () => {
       timeEnd: original.timeEnd,
       timerType: original.timerType,
       timeStrategy: original.timeStrategy,
+      parent: 'test',
       countToEnd: original.countToEnd,
       linkStart: original.linkStart,
       endAction: original.endAction,
