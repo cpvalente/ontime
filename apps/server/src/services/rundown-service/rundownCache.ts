@@ -114,6 +114,7 @@ export function generate(
       let blockStartTime = null;
       let blockEndTime = null;
       let isFirstLinked = false;
+      const blockEvents: EntryId[] = [];
 
       // check if the block contains events
       for (let i = 0; i < processedEntry.events.length; i++) {
@@ -123,6 +124,8 @@ export function generate(
         if (!nestedEntry) {
           continue;
         }
+
+        blockEvents.push(nestedEntry.id);
         const { processedData: processedNestedData, processedEntry: processedNestedEntry } = process(
           nestedEntry,
           processedEntry.id,
@@ -150,7 +153,8 @@ export function generate(
       processedEntry.startTime = blockStartTime;
       processedEntry.endTime = blockEndTime;
       processedEntry.isFirstLinked = isFirstLinked;
-      processedEntry.numEvents = processedEntry.events.length;
+      processedEntry.events = blockEvents;
+      processedEntry.numEvents = blockEvents.length;
     }
   }
 
@@ -343,27 +347,36 @@ export function add({ rundown, atIndex, parent, entry }: AddArgs): Required<Muta
 type RemoveArgs = MutationParams<{ eventIds: EntryId[] }>;
 /**
  * Remove entries in a rundown
+ * It needs to ensure that the parent block is updated
  */
 export function remove({ rundown, eventIds }: RemoveArgs): MutatingReturn {
   let didMutate = false;
 
   for (let i = 0; i < eventIds.length; i++) {
     const entry = rundown.entries[eventIds[i]];
-    if (isOntimeEvent(entry) && entry.parent) {
+    if (isOntimeBlock(entry) || !entry.parent) {
+      // top level events can simply be removed from the order
+      // the deletion process and the flatOrder are handled globally
+      rundown.order = rundown.order.filter((id) => id !== eventIds[i]);
+    } else {
       const parentBlock = rundown.entries[entry.parent] as OntimeBlock;
+      const parentEvents = parentBlock.events.filter((id) => id !== eventIds[i]);
+
+      // we call a mutation to the parent event to
+      // - remove this entry from the events
+      // - reduce the children count
       edit({
         rundown,
         eventId: entry.parent,
         patch: {
-          events: parentBlock.events.filter((id) => id !== eventIds[i]),
-          numEvents: parentBlock.events.length - 1,
+          events: parentEvents,
+          numEvents: parentEvents.length,
         },
       });
-      parentBlock.events = parentBlock.events.filter((id) => id !== entry.id);
-    } else {
-      rundown.order = rundown.order.filter((id) => id !== eventIds[i]);
     }
+
     didMutate = true;
+    rundown.flatOrder = rundown.flatOrder.filter((id) => id !== eventIds[i]);
     delete rundown.entries[eventIds[i]];
   }
 
