@@ -19,6 +19,7 @@ import { ONTIME_VERSION } from './ONTIME_VERSION';
 import { sentryDsn, sentryRecommendedIgnore } from './sentry.config';
 
 const Editor = React.lazy(() => import('./features/editors/ProtectedEditor'));
+const MobileEditor = React.lazy(() => import('./features/editors/ProtectedMobileEditor'));
 const Cuesheet = React.lazy(() => import('./views/cuesheet/ProtectedCuesheet'));
 const Operator = React.lazy(() => import('./features/operator/OperatorExport'));
 
@@ -157,6 +158,7 @@ export default function AppRouter() {
 
         {/*/!* Protected Routes *!/*/}
         <Route path='/editor' element={<Editor />} />
+        <Route path='/mobile-editor' element={<MobileEditor />} />
         <Route path='/cuesheet' element={<PCuesheet />} />
         <Route
           path='/op'
