@@ -58,7 +58,7 @@ export default function MobileEditor() {
           <MobileTimerControl />
           <div className={rundownStyle.side}>
             <ErrorBoundary>
-              <MobileRundownEventEditor />
+              <MobileRundownEventEditor hideFooter={true} />
             </ErrorBoundary>
           </div>
         </div>

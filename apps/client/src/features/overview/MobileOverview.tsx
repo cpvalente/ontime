@@ -1,5 +1,6 @@
 import { memo, PropsWithChildren, ReactNode, useMemo } from 'react';
 import { millisToString } from 'ontime-utils';
+import { Box } from '@chakra-ui/react';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
 import { useIsOnline, useRuntimeOverview, useRuntimePlaybackOverview, useTimer } from '../../common/hooks/useSocket';
@@ -24,25 +25,27 @@ function _MobileEditorOverview({ children }: PropsWithChildren) {
 
   return (
     <OverviewWrapper navElements={children}>
-      <TitlesOverview />
-      <ProgressOverview />
-      <RuntimeOverview />
-      <div>
-        <TimeRow
-          label='Planned end'
-          value={plannedEndText}
-          className={style.end}
-          daySpan={maybePlannedDaySpan}
-          muted={maybePlannedEnd === null}
-        />
-        <TimeRow
-          label='Expected end'
-          value={expectedEndText}
-          className={style.end}
-          daySpan={maybeExpectedDaySpan}
-          muted={maybeExpectedEnd === null}
-        />
-      </div>
+      <Box maxW="1200px" mx="auto" px={4} ml={-2} display="flex" alignItems="center" gap={8}>
+        <TitlesOverview />
+        <ProgressOverview />
+        <RuntimeOverview />
+        <div>
+          <TimeRow
+            label='Planned end'
+            value={plannedEndText}
+            className={style.end}
+            daySpan={maybePlannedDaySpan}
+            muted={maybePlannedEnd === null}
+          />
+          <TimeRow
+            label='Expected end'
+            value={expectedEndText}
+            className={style.end}
+            daySpan={maybeExpectedDaySpan}
+            muted={maybeExpectedEnd === null}
+          />
+        </div>
+      </Box>
     </OverviewWrapper>
   );
 }
