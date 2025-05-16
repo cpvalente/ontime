@@ -1,9 +1,11 @@
 import { useRef } from 'react';
-import { IoChevronDown, IoChevronUp, IoReorderTwo } from 'react-icons/io5';
+import { IoChevronDown, IoChevronUp, IoEllipsisHorizontal, IoReorderTwo } from 'react-icons/io5';
+import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EntryId, OntimeBlock } from 'ontime-types';
 
+import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../common/utils/time';
 import EditableBlockTitle from '../common/EditableBlockTitle';
@@ -21,6 +23,7 @@ interface BlockBlockProps {
 export default function BlockBlock(props: BlockBlockProps) {
   const { data, hasCursor, collapsed, onCollapse } = props;
   const handleRef = useRef<null | HTMLSpanElement>(null);
+  const { dissolveBlock } = useEntryActions();
 
   const {
     attributes: dragAttributes,
@@ -71,9 +74,28 @@ export default function BlockBlock(props: BlockBlockProps) {
       <div className={style.header}>
         <div className={style.titleRow}>
           <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Block title' />
-          <button onClick={() => onCollapse(!collapsed, data.id)}>
+          <Menu variant='ontime-on-dark' size='sm'>
+            <MenuButton
+              as={IconButton}
+              aria-label='Options'
+              icon={<IoEllipsisHorizontal />}
+              color='#e2e2e2' // $gray-200
+              variant='ontime-ghosted'
+              size='sm'
+            />
+            <MenuList>
+              <MenuItem onClick={() => dissolveBlock(data.id)}>Dissolve Block</MenuItem>
+            </MenuList>
+          </Menu>
+          <IconButton
+            aria-label='Dissolve'
+            onClick={() => onCollapse(!collapsed, data.id)}
+            color='#e2e2e2' // $gray-200
+            variant='ontime-ghosted'
+            size='sm'
+          >
             {collapsed ? <IoChevronUp /> : <IoChevronDown />}
-          </button>
+          </IconButton>
         </div>
         <div className={style.metaRow}>
           <div className={style.metaEntry}>

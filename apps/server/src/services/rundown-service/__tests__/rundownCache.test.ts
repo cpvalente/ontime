@@ -15,6 +15,7 @@ import {
   editCustomField,
   removeCustomField,
   customFieldChangelog,
+  dissolveBlock,
 } from '../rundownCache.js';
 import { makeOntimeBlock, makeOntimeDelay, makeOntimeEvent, makeRundown } from '../__mocks__/rundown.mocks.js';
 import { ProcessedRundownMetadata } from '../rundownCache.utils.js';
@@ -762,6 +763,35 @@ describe('reorder() mutation', () => {
       '1': { id: '1', cue: 'data1', revision: 1 },
     });
     expect(changeList).toStrictEqual(['2', '3', '1']);
+  });
+});
+
+describe('dissolveBlock() mutation', () => {
+  it('should correctly dissolve a block into its events', () => {
+    const rundown = makeRundown({
+      order: ['1', '2'],
+      flatOrder: ['1', '2', '21', '22'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', cue: 'data1', parent: null }),
+        '2': makeOntimeBlock({ id: '2', events: ['21', '22'] }),
+        '21': makeOntimeEvent({ id: '21', cue: 'data21', parent: '2' }),
+        '22': makeOntimeEvent({ id: '22', cue: 'data22', parent: '2' }),
+      },
+    });
+
+    const { newRundown } = dissolveBlock({
+      rundown,
+      blockId: '2',
+    });
+
+    expect(newRundown.order).toStrictEqual(['1', '21', '22']);
+    expect(newRundown.flatOrder).toStrictEqual(['1', '21', '22']);
+    expect(newRundown.entries['2']).toBeUndefined();
+    expect(newRundown.entries).toMatchObject({
+      '1': { id: '1', type: SupportedEntry.Event, cue: 'data1', parent: null },
+      '21': { id: '21', type: SupportedEntry.Event, cue: 'data21', parent: null },
+      '22': { id: '22', type: SupportedEntry.Event, cue: 'data22', parent: null },
+    });
   });
 });
 
