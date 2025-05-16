@@ -1,4 +1,5 @@
 import { memo, PropsWithChildren, ReactNode, useMemo } from 'react';
+import { Playback } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
@@ -7,7 +8,7 @@ import useProjectData from '../../common/hooks-query/useProjectData';
 import { cx, enDash, timerPlaceholder } from '../../common/utils/styleUtils';
 
 import { TimeColumn, TimeRow } from './composite/TimeLayout';
-import { calculateEndAndDaySpan, formatedTime, getOffsetClasses, getOffsetText } from './overviewUtils';
+import { calculateEndAndDaySpan, formatedTime, getOffsetText } from './overviewUtils';
 
 import style from './Overview.module.scss';
 
@@ -166,7 +167,7 @@ function RuntimeOverview() {
   const { clock, offset, playback } = useRuntimePlaybackOverview();
 
   const offsetText = getOffsetText(offset);
-  const offsetClasses = getOffsetClasses(offset, playback);
+  const offsetClasses = playback === Playback.Stop ? style.inactive : offset < 0 ? style.behind : style.ahead;
 
   return (
     <>
