@@ -1,4 +1,5 @@
 import { memo, PropsWithChildren, ReactNode, useMemo } from 'react';
+import { Playback } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import ErrorBoundary from '../../common/components/error-boundary/ErrorBoundary';
@@ -163,10 +164,10 @@ function ProgressOverview() {
 }
 
 function RuntimeOverview() {
-  const { clock, offset } = useRuntimePlaybackOverview();
+  const { clock, offset, playback } = useRuntimePlaybackOverview();
 
   const offsetText = getOffsetText(offset);
-  const offsetClasses = offset === null ? undefined : offset <= 0 ? style.behind : style.ahead;
+  const offsetClasses = cx([style.offset, playback !== Playback.Stop && (offset < 0 ? style.behind : style.ahead)]);
 
   return (
     <>
