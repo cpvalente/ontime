@@ -549,6 +549,22 @@ export const useEntryActions = () => {
     onError: (_error, _data, context) => {
       queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
     },
+
+    // Mutation finished, we update the rundown with the response
+    onSuccess: (response) => {
+      if (response.data) {
+        const { id, title, order, flatOrder, entries, revision } = response.data;
+        queryClient.setQueryData<Rundown>(RUNDOWN, {
+          id,
+          title,
+          order,
+          flatOrder,
+          entries,
+          revision,
+        });
+      }
+    },
+
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
