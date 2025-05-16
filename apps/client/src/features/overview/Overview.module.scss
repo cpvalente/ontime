@@ -45,6 +45,10 @@
   @include ellipsis-overflow;
 }
 
+.offset {
+  color: $muted-gray;
+}
+
 .ahead {
   color: $playback-ahead;
 }
