@@ -362,6 +362,8 @@ export default function Rundown({ data }: RundownProps) {
 
                 if (isBlockCollapsed && isEditMode && isLast) {
                   return <QuickAddBlock key={entryId} previousEventId={parentId} parentBlock={null} />;
+                } else if (isBlockCollapsed) {
+                  return null;
                 } else {
                   const parentColour = (entries[parentId] as OntimeBlock | undefined)?.colour;
                   // if the previous element is selected, it will have its own QuickAddBlock
