@@ -215,6 +215,22 @@ export async function applyDelay(delayId: EntryId) {
 }
 
 /**
+ * Deletes a block from the rundown and moves all its children to the top level
+ */
+export async function dissolveBlock(blockId: EntryId) {
+  const scopedMutation = cache.mutateCache(cache.dissolveBlock);
+  const { newRundown } = await scopedMutation({ blockId });
+
+  // notify runtime that rundown has changed
+  updateRuntimeOnChange();
+
+  // we dont need to modify the timer since the grouping does not affect the runtime
+  notifyChanges({ external: true });
+
+  return newRundown;
+}
+
+/**
  * swaps two events
  * @param {string} from - id of event from
  * @param {string} to - id of event to
