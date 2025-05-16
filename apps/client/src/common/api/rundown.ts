@@ -64,7 +64,7 @@ export type ReorderEntry = {
 /**
  * HTTP request to reorder an entry
  */
-export async function patchReorderEntry(data: ReorderEntry): Promise<AxiosResponse<OntimeEntry>> {
+export async function patchReorderEntry(data: ReorderEntry): Promise<AxiosResponse<Rundown>> {
   return axios.patch(`${rundownPath}/reorder`, data);
 }
 

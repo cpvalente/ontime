@@ -286,6 +286,7 @@ type MutationParams<T> = T & CommonParams;
 type MutatingReturn = {
   newRundown: Rundown;
   newEvent?: OntimeEntry;
+  changeList?: EntryId[];
   didMutate: boolean;
 };
 type MutatingFn<T extends object> = (params: MutationParams<T>) => MutatingReturn;
@@ -298,11 +299,11 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
   function scopedMutation(params: T) {
     // we work on a copy of the rundown
     const rundownCopy = structuredClone(currentRundown);
-    const { newEvent, newRundown, didMutate } = mutation({ ...params, rundown: rundownCopy });
+    const { newEvent, newRundown, changeList, didMutate } = mutation({ ...params, rundown: rundownCopy });
 
     // early return without calling side effects
     if (!didMutate) {
-      return { newEvent, newRundown, didMutate };
+      return { newEvent, newRundown, changeList, didMutate };
     }
 
     newRundown.revision += 1;
@@ -341,7 +342,7 @@ export function add({ rundown, atIndex, parent, entry }: AddArgs): Required<Muta
   }
 
   setIsStale();
-  return { newRundown: rundown, newEvent: newEntry, didMutate: true };
+  return { newRundown: rundown, changeList: [], newEvent: newEntry, didMutate: true };
 }
 
 type RemoveArgs = MutationParams<{ eventIds: EntryId[] }>;
@@ -440,7 +441,7 @@ export function edit({ rundown, eventId, patch }: EditArgs): Required<MutatingRe
 
   // if nothing changed, nothing to do
   if (!hasChanges(entry, patch)) {
-    return { newRundown: rundown, newEvent: entry, didMutate: false };
+    return { newRundown: rundown, changeList: [eventId], newEvent: entry, didMutate: false };
   }
 
   const newEvent = makeEvent(entry, patch);
@@ -455,7 +456,7 @@ export function edit({ rundown, eventId, patch }: EditArgs): Required<MutatingRe
     rundown.entries[newEvent.id] = newEvent;
   }
 
-  return { newRundown: rundown, newEvent, didMutate: true };
+  return { newRundown: rundown, changeList: [newEvent.id], newEvent, didMutate: true };
 }
 
 type BatchEditArgs = MutationParams<{ eventIds: EntryId[]; patch: Partial<OntimeEntry> }>;
@@ -490,8 +491,11 @@ export function reorder({ rundown, eventId, from, to }: ReorderArgs): Required<M
     }
   }
 
+  // all events from the first one, need to be updated
+  const changeList = rundown.order.slice(Math.min(from, to), rundown.order.length);
+
   setIsStale();
-  return { newRundown: rundown, newEvent: eventFrom, didMutate: true };
+  return { newRundown: rundown, changeList, newEvent: eventFrom, didMutate: true };
 }
 
 type ApplyDelayArgs = MutationParams<{ delayId: EntryId }>;
