@@ -2,6 +2,7 @@ import { MaybeNumber, Playback } from 'ontime-types';
 import { dayInMs, millisToString } from 'ontime-utils';
 
 import { enDash, timerPlaceholder } from '../../common/utils/styleUtils';
+
 import style from './Overview.module.scss';
 
 /**
