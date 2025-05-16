@@ -68,7 +68,7 @@ export const paramsMustHaveEventId = [
 ];
 
 export const rundownArrayOfIds = [
-  body('ids').isArray().exists(),
+  body('ids').isArray().notEmpty(),
   body('ids.*').isString(),
 
   (req: Request, res: Response, next: NextFunction) => {
