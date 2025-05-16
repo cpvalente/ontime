@@ -83,8 +83,22 @@ export async function requestEventSwap(data: SwapEntry): Promise<AxiosResponse<M
 /**
  * HTTP request to request application of delay
  */
-export async function requestApplyDelay(delayId: string): Promise<AxiosResponse<MessageResponse>> {
+export async function requestApplyDelay(delayId: EntryId): Promise<AxiosResponse<MessageResponse>> {
   return axios.patch(`${rundownPath}/applydelay/${delayId}`);
+}
+
+/**
+ * HTTP request for dissolving of a block
+ */
+export async function requestDissolveBlock(blockId: EntryId): Promise<AxiosResponse<MessageResponse>> {
+  return axios.post(`${rundownPath}/dissolve/${blockId}`);
+}
+
+/**
+ * HTTP request for grouping a list of entries into a block
+ */
+export async function requestGroupEntries(entryIds: EntryId[]): Promise<AxiosResponse<MessageResponse>> {
+  return axios.post(`${rundownPath}/group`, { data: { ids: entryIds } });
 }
 
 /**
