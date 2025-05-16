@@ -509,6 +509,38 @@ export function applyDelay({ rundown, delayId }: ApplyDelayArgs): MutatingReturn
   return { newRundown: rundown, didMutate: true };
 }
 
+type DissolveBlockArgs = MutationParams<{ blockId: EntryId }>;
+/**
+ * Deletes a block and moves all its children to the top level order
+ * Mutates the given rundown
+ * @throws if block ID not found
+ */
+export function dissolveBlock({ rundown, blockId }: DissolveBlockArgs): MutatingReturn {
+  const block = rundown.entries[blockId];
+  if (!isOntimeBlock(block)) {
+    throw new Error('Block with ID not found');
+  }
+
+  // get the events from the block and merge them into the order where the block was
+  const nestedEvents = block.events;
+  const blockIndex = rundown.order.indexOf(blockId);
+  rundown.order.splice(blockIndex, 1, ...nestedEvents);
+  rundown.flatOrder = rundown.flatOrder.filter((id) => id !== blockId);
+
+  // delete block from entries and remove its reference from the child events
+  delete rundown.entries[blockId];
+  for (let i = 0; i < nestedEvents.length; i++) {
+    const eventId = nestedEvents[i];
+    const entry = rundown.entries[eventId];
+    if (!entry) {
+      throw new Error('Entry not found');
+    }
+    (entry as OntimeEvent | OntimeDelay).parent = null;
+  }
+
+  return { newRundown: rundown, didMutate: true };
+}
+
 type SwapArgs = MutationParams<{ fromId: EntryId; toId: EntryId }>;
 /**
  * Swap two entries
