@@ -5,6 +5,7 @@ import {
   rundownApplyDelay,
   rundownBatchPut,
   rundownDelete,
+  rundownDissolveBlock,
   rundownGetAll,
   rundownGetById,
   rundownGetCurrent,
@@ -37,6 +38,7 @@ router.put('/batch', rundownBatchPutValidator, rundownBatchPut);
 router.patch('/reorder/', rundownReorderValidator, rundownReorder);
 router.patch('/swap', rundownSwapValidator, rundownSwap);
 router.patch('/applydelay/:eventId', paramsMustHaveEventId, rundownApplyDelay);
+router.post('/dissolve/:eventId', paramsMustHaveEventId, rundownDissolveBlock);
 
 router.delete('/', rundownArrayOfIds, deletesEventById);
 router.delete('/all', rundownDelete);
