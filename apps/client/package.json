@@ -19,7 +19,7 @@
     "@tanstack/react-query-devtools": "^5.62.7",
     "@tanstack/react-table": "^8.21.3",
     "autosize": "^6.0.1",
-    "axios": "^1.2.0",
+    "axios": "^1.9.0",
     "color": "^4.2.3",
     "csv-stringify": "^6.4.5",
     "framer-motion": "^10.10.0",
