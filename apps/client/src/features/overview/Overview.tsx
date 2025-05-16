@@ -7,7 +7,7 @@ import useProjectData from '../../common/hooks-query/useProjectData';
 import { cx, enDash, timerPlaceholder } from '../../common/utils/styleUtils';
 
 import { TimeColumn, TimeRow } from './composite/TimeLayout';
-import { calculateEndAndDaySpan, formatedTime, getOffsetText } from './overviewUtils';
+import { calculateEndAndDaySpan, formatedTime, getOffsetClasses, getOffsetText } from './overviewUtils';
 
 import style from './Overview.module.scss';
 
@@ -163,10 +163,10 @@ function ProgressOverview() {
 }
 
 function RuntimeOverview() {
-  const { clock, offset } = useRuntimePlaybackOverview();
+  const { clock, offset, playback } = useRuntimePlaybackOverview();
 
   const offsetText = getOffsetText(offset);
-  const offsetClasses = offset === null ? undefined : offset <= 0 ? style.behind : style.ahead;
+  const offsetClasses = getOffsetClasses(offset, playback);
 
   return (
     <>
