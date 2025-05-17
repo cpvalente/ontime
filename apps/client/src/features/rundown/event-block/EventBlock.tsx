@@ -2,6 +2,7 @@ import { MouseEvent, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   IoAdd,
   IoDuplicateOutline,
+  IoFolder,
   IoLink,
   IoPeople,
   IoPeopleOutline,
@@ -26,7 +27,7 @@ import RundownIndicators from './RundownIndicators';
 import style from './EventBlock.module.scss';
 
 interface EventBlockProps {
-  eventId: string;
+  eventId: EntryId;
   cue: string;
   timeStart: number;
   timeEnd: number;
@@ -144,6 +145,7 @@ export default function EventBlock(props: EventBlockProps) {
                 value: false,
               }),
           },
+          { withDivider: true, label: 'Group', icon: IoFolder, onClick: () => actionHandler('group') },
           { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
         ]
       : [
