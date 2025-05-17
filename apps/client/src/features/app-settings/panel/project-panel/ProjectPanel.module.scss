@@ -57,3 +57,18 @@
     height: auto;
   }
 }
+
+.customDataItem {
+  display: contents;
+  width: 100%;
+
+  .titleRow{
+    display: flex;
+    gap: 1rem;
+    align-items: end;
+
+    label {
+      flex: 1;
+    }
+  }
+}

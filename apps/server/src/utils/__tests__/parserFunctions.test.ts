@@ -65,6 +65,7 @@ describe('parseProject()', () => {
           publicInfo: 'publicInfo',
           backstageUrl: 'backstageUrl',
           backstageInfo: 'backstageInfo',
+          custom: [],
         },
       },
       errorEmitter,
@@ -77,6 +78,7 @@ describe('parseProject()', () => {
       backstageUrl: 'backstageUrl',
       backstageInfo: 'backstageInfo',
       projectLogo: null,
+      custom: [],
     });
     expect(errorEmitter).not.toHaveBeenCalled();
   });
