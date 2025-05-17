@@ -25,7 +25,9 @@
     flex: 1;
     max-height: 100%;
     overflow-y: auto;
-    width: min(calc(100vw - 4rem), 800px);
+    width: min(calc(100vw - 4rem), 960px);
+
+    padding-bottom: 10vh;
   }
 
   .info__label {
@@ -33,11 +35,15 @@
     color: var(--label-color-override, $viewer-label-color);
     text-transform: uppercase;
     margin-top: $view-element-gap;
-    white-space: pre;
+  }
+
+  .info__value {
+    white-space: break-spaces;
   }
 
   a.info__value {
     color: $action-text-color;
+  
     &:hover {
       color: $ontime-color;
     }

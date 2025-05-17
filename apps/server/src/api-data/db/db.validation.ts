@@ -16,6 +16,7 @@ export const validateNewProject = [
   body('backstageInfo').optional().isString().trim(),
   body('projectLogo').optional().isString().trim(),
   body('endMessage').optional().isString().trim(),
+  body('custom').optional().isArray(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

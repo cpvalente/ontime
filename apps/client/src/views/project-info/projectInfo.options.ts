@@ -9,14 +9,21 @@ export const projectInfoOptions: ViewOption[] = [
       {
         id: 'showBackstage',
         title: 'Show backstage Data',
-        description: 'Weather to show fields related to the backstage views',
+        description: 'Whether to show fields related to the backstage views',
         type: 'boolean',
         defaultValue: false,
       },
       {
         id: 'showPublic',
         title: 'Show Public Data',
-        description: 'Weather to show fields related to the public views',
+        description: 'Whether to show fields related to the public views',
+        type: 'boolean',
+        defaultValue: false,
+      },
+      {
+        id: 'showCustom',
+        title: 'Show Custom Data',
+        description: 'Whether to show fields related to the custom data',
         type: 'boolean',
         defaultValue: false,
       },

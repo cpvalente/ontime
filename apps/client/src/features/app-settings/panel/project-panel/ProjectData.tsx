@@ -1,6 +1,6 @@
 import { ChangeEvent, useEffect, useRef } from 'react';
-import { useForm } from 'react-hook-form';
-import { IoDownloadOutline, IoTrash } from 'react-icons/io5';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { IoAdd, IoDownloadOutline, IoTrash } from 'react-icons/io5';
 import { Button, Input, Textarea } from '@chakra-ui/react';
 import { type ProjectData } from 'ontime-types';
 
@@ -25,6 +25,7 @@ export default function ProjectData() {
     formState: { isSubmitting, isValid, isDirty, errors },
     setError,
     watch,
+    control,
     setValue,
   } = useForm({
     defaultValues: data,
@@ -32,6 +33,12 @@ export default function ProjectData() {
     resetOptions: {
       keepDirtyValues: true,
     },
+    mode: 'onChange',
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'custom',
   });
 
   // reset form values if data changes
@@ -75,6 +82,10 @@ export default function ProjectData() {
     setValue('projectLogo', null, {
       shouldDirty: true,
     });
+  };
+
+  const handleAddCustom = () => {
+    append({ title: '', value: '' });
   };
 
   const onSubmit = async (formData: ProjectData) => {
@@ -231,6 +242,69 @@ export default function ProjectData() {
               {...register('backstageUrl')}
             />
           </label>
+          <Panel.Section style={{ marginTop: 0 }}>
+            <Panel.ListItem>
+              <Panel.Field title='Custom data' description='' />
+              <Button leftIcon={<IoAdd />} size='sm' variant='ontime-subtle' onClick={handleAddCustom}>
+                Add
+              </Button>
+            </Panel.ListItem>
+            {fields.length > 0 &&
+              fields.map((field, idx) => {
+                const rowErrors = errors.custom?.[idx] as
+                  | {
+                      title?: { message?: string };
+                      value?: { message?: string };
+                    }
+                  | undefined;
+                return (
+                  <div key={field.id} className={style.customDataItem}>
+                    <div>
+                      <div className={style.titleRow}>
+                        <label>
+                          Title
+                          <Input
+                            variant='ontime-filled'
+                            size='sm'
+                            defaultValue={field.title}
+                            placeholder='Title of your custom data'
+                            autoComplete='off'
+                            {...register(`custom.${idx}.title`, {
+                              required: { value: true, message: 'Field cannot be empty' },
+                            })}
+                          />
+                        </label>
+                        <Button
+                          size='sm'
+                          variant='ontime-subtle'
+                          color='#FA5656' // $red-500
+                          onClick={() => remove(idx)}
+                          leftIcon={<IoTrash />}
+                        >
+                          Delete Entry
+                        </Button>
+                      </div>
+                      {rowErrors?.title?.message && <Panel.Error>{rowErrors.title.message}</Panel.Error>}
+                    </div>
+                    <label>
+                      Value
+                      <Textarea
+                        variant='ontime-filled'
+                        resize='none'
+                        size='sm'
+                        defaultValue={field.value}
+                        autoComplete='off'
+                        placeholder='Text of your custom data'
+                        {...register(`custom.${idx}.value`, {
+                          required: { value: true, message: 'Field cannot be empty' },
+                        })}
+                      />
+                      {rowErrors?.value?.message && <Panel.Error>{rowErrors.value.message}</Panel.Error>}
+                    </label>
+                  </div>
+                );
+              })}
+          </Panel.Section>
         </Panel.Section>
       </Panel.Card>
     </Panel.Section>

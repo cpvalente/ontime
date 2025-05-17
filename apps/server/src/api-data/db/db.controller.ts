@@ -58,6 +58,7 @@ export async function createProjectFile(req: Request, res: Response<{ filename: 
         backstageUrl: req.body?.backstageUrl ?? '',
         backstageInfo: req.body?.backstageInfo ?? '',
         projectLogo: req.body?.projectLogo ?? null,
+        custom: req.body?.custom ?? [],
       },
     });
 
@@ -203,7 +204,7 @@ export async function loadProject(req: Request, res: Response<MessageResponse | 
 /**
  * Loads the demo project
  */
-export async function loadDemo(req: Request, res: Response<MessageResponse | ErrorResponse>) {
+export async function loadDemo(_req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
     const projectName = await projectService.loadDemoProject();
 

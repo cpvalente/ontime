@@ -314,16 +314,12 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
 }
 
 /**
- * Changes the title of a project
- * it handles invalidating the necessary data
+ * Patches the current project data
+ * Handles deleting the local logo if the logo has been removed
  */
 export async function editCurrentProjectData(newData: Partial<ProjectData>) {
   const currentProjectData = getDataProvider().getProjectData();
   const updatedProjectData = await getDataProvider().setProjectData(newData);
-
-  if (currentProjectData.title !== updatedProjectData.title) {
-    // something
-  }
 
   // Delete the old logo if the logo has been removed
   if (!updatedProjectData.projectLogo && currentProjectData.projectLogo) {
