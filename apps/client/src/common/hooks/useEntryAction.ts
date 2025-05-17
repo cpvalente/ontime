@@ -27,6 +27,7 @@ import {
   requestDeleteAll,
   requestDissolveBlock,
   requestEventSwap,
+  requestGroupEntries,
   SwapEntry,
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
@@ -521,6 +522,19 @@ export const useEntryActions = () => {
    */
   const _dissolveBlockMutation = useMutation({
     mutationFn: requestDissolveBlock,
+    onSuccess: (response) => {
+      if (!response.data) return;
+
+      const { id, title, order, flatOrder, entries, revision } = response.data;
+      queryClient.setQueryData<Rundown>(RUNDOWN, {
+        id,
+        title,
+        order,
+        flatOrder,
+        entries,
+        revision,
+      });
+    },
     onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
   });
 
@@ -537,6 +551,43 @@ export const useEntryActions = () => {
     },
     [_dissolveBlockMutation],
   );
+
+  /**
+   * Calls mutation to create a block with a selection
+   * @private
+   */
+  const _groupEntriesMutation = useMutation({
+    mutationFn: requestGroupEntries,
+    onSuccess: (response) => {
+      if (!response.data) return;
+
+      const { id, title, order, flatOrder, entries, revision } = response.data;
+      queryClient.setQueryData<Rundown>(RUNDOWN, {
+        id,
+        title,
+        order,
+        flatOrder,
+        entries,
+        revision,
+      });
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
+  });
+
+  /**
+   * Create a block with a selection
+   */
+  const groupEntries = useCallback(
+    async (entryIds: EntryId[]) => {
+      try {
+        await _groupEntriesMutation.mutateAsync(entryIds);
+      } catch (error) {
+        logAxiosError('Error grouping entries', error);
+      }
+    },
+    [_groupEntriesMutation],
+  );
+
   /**
    * Calls mutation to reorder an entry
    * @private
@@ -575,17 +626,17 @@ export const useEntryActions = () => {
 
     // Mutation finished, we update the rundown with the response
     onSuccess: (response) => {
-      if (response.data) {
-        const { id, title, order, flatOrder, entries, revision } = response.data;
-        queryClient.setQueryData<Rundown>(RUNDOWN, {
-          id,
-          title,
-          order,
-          flatOrder,
-          entries,
-          revision,
-        });
-      }
+      if (!response.data) return;
+
+      const { id, title, order, flatOrder, entries, revision } = response.data;
+      queryClient.setQueryData<Rundown>(RUNDOWN, {
+        id,
+        title,
+        order,
+        flatOrder,
+        entries,
+        revision,
+      });
     },
 
     // Mutation finished, failed or successful
@@ -688,6 +739,7 @@ export const useEntryActions = () => {
     deleteAllEntries,
     dissolveBlock,
     getEntryById,
+    groupEntries,
     reorderEntry,
     swapEvents,
     updateEntry,
