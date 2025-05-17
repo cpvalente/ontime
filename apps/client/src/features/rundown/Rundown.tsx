@@ -329,7 +329,7 @@ export default function Rundown({ data }: RundownProps) {
   };
 
   if (sortableData.length < 1) {
-    return <RundownEmpty handleAddNew={() => insertAtId({ type: SupportedEntry.Event }, cursor)} />;
+    return <RundownEmpty handleAddNew={(type: SupportedEntry) => insertAtId({ type }, cursor)} />;
   }
 
   // 1. gather presentation options
