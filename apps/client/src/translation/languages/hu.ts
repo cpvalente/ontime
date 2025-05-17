@@ -30,4 +30,5 @@ export const langHu: TranslationObject = {
   'project.backstage_url': 'Kulisszák mögötti URL',
   'project.public_info': 'Nyilvános információ',
   'project.public_url': 'Nyilvános URL',
+  'project.custom': 'Egyéni adatok',
 };

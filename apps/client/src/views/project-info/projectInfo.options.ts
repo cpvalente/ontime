@@ -20,6 +20,13 @@ export const projectInfoOptions: ViewOption[] = [
         type: 'boolean',
         defaultValue: false,
       },
+      {
+        id: 'showCustom',
+        title: 'Show Custom Data',
+        description: 'Weather to show fields related to the custom data',
+        type: 'boolean',
+        defaultValue: false,
+      },
     ],
   },
 ];
