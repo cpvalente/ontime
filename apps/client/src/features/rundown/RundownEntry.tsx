@@ -19,18 +19,17 @@ import EventBlock from './event-block/EventBlock';
 import { useEventSelection } from './useEventSelection';
 
 export type EventItemActions =
-  | 'set-cursor'
   | 'event'
   | 'event-before'
   | 'delay'
   | 'delay-before'
   | 'block'
   | 'block-before'
+  | 'swap'
   | 'delete'
   | 'clone'
-  | 'update'
-  | 'swap'
-  | 'clear-report';
+  | 'group'
+  | 'update';
 
 interface RundownEntryProps {
   type: SupportedEntry;
@@ -66,7 +65,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     isLinkedToLoaded,
   } = props;
   const { emitError } = useEmitLog();
-  const { addEntry, updateEntry, batchUpdateEvents, deleteEntry, swapEvents } = useEntryActions();
+  const { addEntry, updateEntry, batchUpdateEvents, deleteEntry, groupEntries, swapEvents } = useEntryActions();
   const { selectedEvents, unselect, clearSelectedEvents } = useEventSelection();
 
   const removeOpenEvent = useCallback(() => {
@@ -127,6 +126,13 @@ export default function RundownEntry(props: RundownEntryProps) {
       case 'clone': {
         const newEvent = cloneEvent(data as OntimeEvent);
         addEntry(newEvent, { after: data.id });
+        break;
+      }
+      case 'group': {
+        if (selectedEvents.size > 1) {
+          clearMultiSelection();
+          return groupEntries(Array.from(selectedEvents));
+        }
         break;
       }
       case 'update': {
