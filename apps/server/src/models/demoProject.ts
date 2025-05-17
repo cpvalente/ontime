@@ -413,6 +413,7 @@ export const demoDb: DatabaseModel = {
     backstageUrl: 'www.github.com/cpvalente/ontime',
     backstageInfo: 'Rehearsal Schedule - Turin 2022\nAll performers to wear full costumes for 1st rehearsal',
     projectLogo: null,
+    custom: [],
   },
   settings: {
     app: 'ontime',
