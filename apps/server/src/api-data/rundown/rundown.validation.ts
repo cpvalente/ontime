@@ -57,8 +57,8 @@ export const rundownSwapValidator = [
   },
 ];
 
-export const paramsMustHaveEventId = [
-  param('eventId').exists(),
+export const paramsMustHaveEntryId = [
+  param('entryId').exists(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
