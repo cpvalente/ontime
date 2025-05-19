@@ -54,5 +54,4 @@ export const block: Omit<OntimeBlock, 'id'> = {
   endTime: null, // calculated at runtime
   duration: 0, // calculated at runtime
   isFirstLinked: false, // calculated at runtime
-  numEvents: 0, // calculated at runtime
 };
