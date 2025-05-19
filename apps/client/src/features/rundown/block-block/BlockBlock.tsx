@@ -134,7 +134,7 @@ export default function BlockBlock(props: BlockBlockProps) {
           </div>
           <div className={style.metaEntry}>
             <div>Events</div>
-            <div>{data.numEvents}</div>
+            <div>{data.events.length}</div>
           </div>
         </div>
       </div>

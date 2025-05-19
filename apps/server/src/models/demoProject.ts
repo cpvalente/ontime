@@ -52,7 +52,6 @@ export const demoDb: DatabaseModel = {
           endTime: null,
           duration: 0,
           isFirstLinked: false,
-          numEvents: 0,
           custom: {
             song: 'Sekret',
             artist: 'Ronela Hajati',
@@ -219,7 +218,6 @@ export const demoDb: DatabaseModel = {
           endTime: null,
           duration: 0,
           isFirstLinked: false,
-          numEvents: 0,
         },
         '1c420': {
           type: SupportedEntry.Event,
@@ -382,7 +380,6 @@ export const demoDb: DatabaseModel = {
           endTime: null,
           duration: 0,
           isFirstLinked: false,
-          numEvents: 0,
         },
         '503c4': {
           type: SupportedEntry.Event,
