@@ -1,6 +1,14 @@
 import { useRef } from 'react';
-import { IoChevronDown, IoChevronUp, IoEllipsisHorizontal, IoReorderTwo } from 'react-icons/io5';
-import { IconButton, Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/react';
+import {
+  IoChevronDown,
+  IoChevronUp,
+  IoDuplicateOutline,
+  IoEllipsisHorizontal,
+  IoFolderOpenOutline,
+  IoReorderTwo,
+  IoTrash,
+} from 'react-icons/io5';
+import { IconButton, Menu, MenuButton, MenuItem, MenuList, Portal } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EntryId, OntimeBlock } from 'ontime-types';
@@ -23,7 +31,7 @@ interface BlockBlockProps {
 export default function BlockBlock(props: BlockBlockProps) {
   const { data, hasCursor, collapsed, onCollapse } = props;
   const handleRef = useRef<null | HTMLSpanElement>(null);
-  const { dissolveBlock } = useEntryActions();
+  const { clone, dissolveBlock, deleteEntry } = useEntryActions();
 
   const {
     attributes: dragAttributes,
@@ -51,6 +59,8 @@ export default function BlockBlock(props: BlockBlockProps) {
     transition,
     cursor: isOver ? (isValidDrop ? 'grabbing' : 'no-drop') : 'default',
   };
+
+  const hasChildren = data.events.length > 0;
 
   return (
     <div
@@ -83,12 +93,24 @@ export default function BlockBlock(props: BlockBlockProps) {
               variant='ontime-ghosted'
               size='sm'
             />
-            <MenuList>
-              <MenuItem onClick={() => dissolveBlock(data.id)}>Dissolve Block</MenuItem>
-            </MenuList>
+            <Portal>
+              <MenuList>
+                <MenuItem icon={<IoDuplicateOutline />} onClick={() => clone(data.id)}>
+                  Clone Block
+                </MenuItem>
+                {hasChildren && (
+                  <MenuItem icon={<IoFolderOpenOutline />} onClick={() => dissolveBlock(data.id)}>
+                    Dissolve Block
+                  </MenuItem>
+                )}
+                <MenuItem icon={<IoTrash />} onClick={() => deleteEntry([data.id])}>
+                  Delete Block
+                </MenuItem>
+              </MenuList>
+            </Portal>
           </Menu>
           <IconButton
-            aria-label='Dissolve'
+            aria-label='Collapse'
             onClick={() => onCollapse(!collapsed, data.id)}
             color='#e2e2e2' // $gray-200
             variant='ontime-ghosted'
