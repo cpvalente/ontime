@@ -1,4 +1,4 @@
-import { deleteAtIndex, insertAtIndex, reorderArray } from './arrayUtils.js';
+import { deleteAtIndex, insertAtIndex, mergeAtIndex, reorderArray } from './arrayUtils.js';
 
 describe('insertAtIndex', () => {
   it('should insert an item at the beginning of the array', () => {
@@ -23,7 +23,34 @@ describe('insertAtIndex', () => {
     const array = [1, 2, 3];
     const result = insertAtIndex(1, 5, array);
     expect(result).toEqual([1, 5, 2, 3]);
-    expect(array).toEqual([1, 2, 3]); // Original array should remain unchanged
+    expect(array).toEqual([1, 2, 3]);
+  });
+});
+
+describe('mergeAtIndex', () => {
+  it('should insert an item at the beginning of the array', () => {
+    const array = ['1', '2', '3'];
+    const result = mergeAtIndex(0, ['a', 'b'], array);
+    expect(result).toEqual(['a', 'b', '1', '2', '3']);
+  });
+
+  it('should insert an item at the end of the array', () => {
+    const array = ['1', '2', '3'];
+    const result = mergeAtIndex(3, ['a', 'b'], array);
+    expect(result).toEqual(['1', '2', '3', 'a', 'b']);
+  });
+
+  it('should insert an item in the middle of the array', () => {
+    const array = ['1', '2', '3'];
+    const result = mergeAtIndex(2, ['a', 'b'], array);
+    expect(result).toEqual(['1', '2', 'a', 'b', '3']);
+  });
+
+  it('should return a new array and not modify the original array', () => {
+    const array = ['1', '2', '3'];
+    const result = mergeAtIndex(5, ['a', 'b'], array);
+    expect(result).toEqual(['1', '2', '3', 'a', 'b']);
+    expect(array).toEqual(['1', '2', '3']);
   });
 });
 
