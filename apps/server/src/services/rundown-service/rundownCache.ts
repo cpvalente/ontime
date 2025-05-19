@@ -27,7 +27,14 @@ import { createBlock, createPatch } from '../../api-data/rundown/rundown.utils.j
 
 import type { RundownMetadata } from './rundown.types.js';
 import { apply } from './delayUtils.js';
-import { hasChanges, isDataStale, makeRundownMetadata, type ProcessedRundownMetadata } from './rundownCache.utils.js';
+import {
+  cloneBlock,
+  cloneEntry,
+  hasChanges,
+  isDataStale,
+  makeRundownMetadata,
+  type ProcessedRundownMetadata,
+} from './rundownCache.utils.js';
 
 let currentRundownId: EntryId = '';
 let currentRundown: Rundown = {
@@ -271,6 +278,7 @@ export function getMetadata(): Readonly<RundownMetadata & { revision: number }> 
 
 export type RundownOrder = {
   order: EntryId[];
+  flatOrder: EntryId[];
   timedEventsOrder: EntryId[];
   playableEventsOrder: EntryId[];
 };
@@ -284,6 +292,7 @@ export function getEventOrder(): Readonly<RundownOrder> {
   }
   return {
     order: currentRundown.order,
+    flatOrder: currentRundown.flatOrder,
     timedEventsOrder: rundownMetadata.timedEventOrder,
     playableEventsOrder: rundownMetadata.playableEventOrder,
   };
@@ -333,41 +342,69 @@ export function mutateCache<T extends object>(mutation: MutatingFn<T>) {
   return scopedMutation;
 }
 
-type AddArgs = MutationParams<{ atIndex: number; parent: EntryId | null; entry: OntimeEntry }>;
+type AddArgs = MutationParams<{ afterId?: string; parent: EntryId | null; entry: OntimeEntry }>;
 /**
- * Add entry to rundown
+ * Add entry to rundown, handles the following cases:
+ * - 1. add entry in block, after a given entry
+ * - 2. add entry in block, at the beginning
+ * - 3. add entry to the rundown, after a given entry
+ * - 4. add entry to the rundown, at the beginning
  */
-export function add({ rundown, atIndex, parent, entry }: AddArgs): Required<MutatingReturn> {
-  const newEntry: OntimeEntry = { ...entry };
-
-  rundown.entries[newEntry.id] = newEntry;
-
+export function add({ rundown, afterId, parent, entry }: AddArgs): Required<MutatingReturn> {
   if (parent) {
     const parentBlock = rundown.entries[parent] as OntimeBlock;
-    parentBlock.events = insertAtIndex(atIndex, newEntry.id, parentBlock.events);
+    if (afterId) {
+      const atEventsIndex = parentBlock.events.indexOf(afterId) + 1;
+      const atFlatIndex = rundown.flatOrder.indexOf(afterId) + 1;
+      parentBlock.events = insertAtIndex(atEventsIndex, entry.id, parentBlock.events);
+      rundown.flatOrder = insertAtIndex(atFlatIndex, entry.id, rundown.flatOrder);
+    } else {
+      parentBlock.events = insertAtIndex(0, entry.id, parentBlock.events);
+      const atFlatIndex = rundown.flatOrder.indexOf(parent) + 1;
+      rundown.flatOrder = insertAtIndex(atFlatIndex, entry.id, rundown.flatOrder);
+    }
   } else {
-    rundown.order = insertAtIndex(atIndex, newEntry.id, rundown.order);
+    if (afterId) {
+      const atOrderIndex = rundown.order.indexOf(afterId) + 1;
+      const atFlatIndex = rundown.flatOrder.indexOf(afterId) + 1;
+      rundown.order = insertAtIndex(atOrderIndex, entry.id, rundown.order);
+      rundown.flatOrder = insertAtIndex(atFlatIndex, entry.id, rundown.flatOrder);
+    } else {
+      rundown.order = insertAtIndex(0, entry.id, rundown.order);
+      rundown.flatOrder = insertAtIndex(0, entry.id, rundown.flatOrder);
+    }
   }
 
+  // either way, we insert the entry into the rundown
+  rundown.entries[entry.id] = entry;
   setIsStale();
-  return { newRundown: rundown, changeList: [], newEvent: newEntry, didMutate: true };
+  return { newRundown: rundown, changeList: [], newEvent: entry, didMutate: true };
 }
 
 type RemoveArgs = MutationParams<{ eventIds: EntryId[] }>;
 /**
  * Remove entries in a rundown
- * It needs to ensure that the parent block is updated
+ * It handles element relationships specifically when dealing with nested items
+ * - when removing a nested item, remove the reference from the parent block
+ * - when removing a block, remove all nested items
  */
 export function remove({ rundown, eventIds }: RemoveArgs): MutatingReturn {
-  let didMutate = false;
+  /**
+   * changelist will hold a list of entries that need to be removed
+   * it will then be returned to the caller as a list of actually deleted entries
+   */
+  const changeList: EntryId[] = [];
 
   for (let i = 0; i < eventIds.length; i++) {
     const entry = rundown.entries[eventIds[i]];
-    if (isOntimeBlock(entry) || !entry.parent) {
-      // top level events can simply be removed from the order
-      // the deletion process and the flatOrder are handled globally
-      rundown.order = rundown.order.filter((id) => id !== eventIds[i]);
-    } else {
+    // add the top level entry to the changeList
+    changeList.push(entry.id);
+
+    if (isOntimeBlock(entry)) {
+      // for ontime blocks, we need to iterate through the children and delete them
+      changeList.concat([...entry.events]);
+    } else if (entry.parent) {
+      // at this point, we are handling entries inside a block, so we need to remove the references
       const parentBlock = rundown.entries[entry.parent] as OntimeBlock;
       const parentEvents = parentBlock.events.filter((id) => id !== eventIds[i]);
 
@@ -383,14 +420,19 @@ export function remove({ rundown, eventIds }: RemoveArgs): MutatingReturn {
         },
       });
     }
-
-    didMutate = true;
-    rundown.flatOrder = rundown.flatOrder.filter((id) => id !== eventIds[i]);
-    delete rundown.entries[eventIds[i]];
   }
 
+  // delete all entries in the changeList
+  for (let i = 0; i < changeList.length; i++) {
+    const entryId = changeList[i];
+    rundown.order = rundown.order.filter((id) => id !== entryId);
+    rundown.flatOrder = rundown.flatOrder.filter((id) => id !== entryId);
+    delete rundown.entries[entryId];
+  }
+
+  const didMutate = changeList.length > 0;
   if (didMutate) setIsStale();
-  return { newRundown: rundown, didMutate };
+  return { newRundown: rundown, didMutate, changeList };
 }
 
 /**
@@ -515,6 +557,55 @@ export function applyDelay({ rundown, delayId }: ApplyDelayArgs): MutatingReturn
   apply(delayId, rundown);
   setIsStale();
   return { newRundown: rundown, didMutate: true };
+}
+
+type CloneEntryArgs = MutationParams<{ entryId: EntryId }>;
+/**
+ * Apply a delay
+ * Mutates the given rundown
+ */
+export function clone({ rundown, entryId }: CloneEntryArgs): MutatingReturn {
+  const entry = rundown.entries[entryId];
+  if (!entry) {
+    throw new Error('Entry not found');
+  }
+
+  if (isOntimeBlock(entry)) {
+    const newBlock = cloneBlock(entry, getUniqueId());
+    const nestedIds: EntryId[] = [];
+
+    for (let i = 0; i < entry.events.length; i++) {
+      const nestedEntryId = entry.events[i];
+      const nestedEntry = rundown.entries[nestedEntryId];
+      if (!nestedEntry) {
+        continue;
+      }
+
+      // clone the event and assign it to the new block
+      const newNestedEntry = cloneEntry(nestedEntry, getUniqueId());
+      (newNestedEntry as OntimeEvent | OntimeDelay).parent = newBlock.id;
+
+      nestedIds.push(newNestedEntry.id);
+      // we immediately insert the nested entries into the rundown
+      rundown.entries[newNestedEntry.id] = newNestedEntry;
+    }
+    // indexes + 1 since we are inserting after the cloned block
+    const atIndex = rundown.order.indexOf(entryId) + 1;
+    // we need to find the index of the last entry
+    const lastNestedIdInOriginal = entry.events.at(-1) ?? '0';
+    const flatIndex = rundown.flatOrder.indexOf(lastNestedIdInOriginal) + 1;
+
+    newBlock.events = nestedIds;
+    newBlock.title = `${entry.title} (copy)`;
+
+    rundown.entries[newBlock.id] = newBlock;
+    rundown.order = insertAtIndex(atIndex, newBlock.id, rundown.order);
+    rundown.flatOrder = mergeAtIndex(flatIndex, [newBlock.id, ...nestedIds], rundown.flatOrder);
+
+    return { newRundown: rundown, didMutate: true, newEvent: newBlock };
+  } else {
+    return add({ rundown, afterId: entryId, parent: entry.parent, entry: cloneEntry(entry, getUniqueId()) });
+  }
 }
 
 type DissolveBlockArgs = MutationParams<{ blockId: EntryId }>;
