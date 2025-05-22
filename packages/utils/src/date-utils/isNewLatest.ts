@@ -7,7 +7,7 @@ import { dayInMs } from './conversionUtils.js';
  */
 export function isNewLatest(
   currentEvent: Pick<OntimeEvent, 'timeStart' | 'duration' | 'dayOffset'>,
-  previousEvent?: Pick<OntimeEvent, 'timeStart' | 'duration' | 'dayOffset'>,
+  previousEvent: Pick<OntimeEvent, 'timeStart' | 'duration' | 'dayOffset'> | null,
 ) {
   // true if there is no previous
   if (!previousEvent) {

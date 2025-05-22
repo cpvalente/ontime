@@ -5,7 +5,7 @@ import { TimerLifeCycle, timerLifecycleValues, Trigger } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
 import Tag from '../../../../common/components/tag/Tag';
-import { useEventAction } from '../../../../common/hooks/useEventAction';
+import { useEntryActions } from '../../../../common/hooks/useEntryAction';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 
 import { eventTriggerOptions } from './eventTrigger.constants';
@@ -37,7 +37,7 @@ interface EventTriggerFormProps {
 function EventTriggerForm(props: EventTriggerFormProps) {
   const { eventId, triggers } = props;
   const { data: automationSettings } = useAutomationSettings();
-  const { updateEvent } = useEventAction();
+  const { updateEntry } = useEntryActions();
   const [automationId, setAutomationId] = useState<string | undefined>(undefined);
   const [cycleValue, setCycleValue] = useState(TimerLifeCycle.onStart);
 
@@ -45,7 +45,7 @@ function EventTriggerForm(props: EventTriggerFormProps) {
     const newTriggers = triggers ?? new Array<Trigger>();
     const id = generateId();
     newTriggers.push({ id, title: '', trigger: triggerLifeCycle, automationId });
-    updateEvent({ id: eventId, triggers: newTriggers });
+    updateEntry({ id: eventId, triggers: newTriggers });
   };
 
   const getValidationError = (cycle: TimerLifeCycle, automationId?: string): string | undefined => {
@@ -123,15 +123,15 @@ interface ExistingEventTriggersProps {
 
 function ExistingEventTriggers(props: ExistingEventTriggersProps) {
   const { eventId, triggers } = props;
-  const { updateEvent } = useEventAction();
+  const { updateEntry } = useEntryActions();
   const { data: automationSettings } = useAutomationSettings();
 
   const handleDelete = useCallback(
     (triggerId: string) => {
       const newTriggers = triggers.filter((trigger) => trigger.id !== triggerId);
-      updateEvent({ id: eventId, triggers: newTriggers });
+      updateEntry({ id: eventId, triggers: newTriggers });
     },
-    [eventId, triggers, updateEvent],
+    [eventId, triggers, updateEntry],
   );
 
   const filteredTriggers: Record<string, Trigger[]> = {};

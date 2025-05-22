@@ -16,7 +16,7 @@ const config: PlaywrightTestConfig = {
   workers: 1,
   reporter: 'html',
   webServer: {
-    command: 'turbo run dev:test',
+    command: 'turbo run dev --filter=ontime-server',
     port: 4001,
     reuseExistingServer: true,
     timeout: 60 * 1000,

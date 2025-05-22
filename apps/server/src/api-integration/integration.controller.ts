@@ -1,5 +1,5 @@
 import { MessageState, OffsetMode, OntimeEvent, SimpleDirection, SimplePlayback } from 'ontime-types';
-import { MILLIS_PER_HOUR, MILLIS_PER_SECOND } from 'ontime-utils';
+import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { DeepPartial } from 'ts-essentials';
 
@@ -14,9 +14,7 @@ import { isEmptyObject } from '../utils/parserUtils.js';
 import { parseProperty, updateEvent } from './integration.utils.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { throttle } from '../utils/throttle.js';
-import { willCauseRegeneration } from '../services/rundown-service/rundownCacheUtils.js';
-
-import { handleLegacyMessageConversion } from './integration.legacy.js';
+import { willCauseRegeneration } from '../services/rundown-service/rundownCache.utils.js';
 import { coerceEnum } from '../utils/coerceType.js';
 
 const throttledUpdateEvent = throttle(updateEvent, 20);
@@ -90,12 +88,9 @@ const actionHandlers: Record<string, ActionHandler> = {
   message: (payload) => {
     assert.isObject(payload);
 
-    // TODO: remove this once we feel its been enough time, ontime 3.6.0, 20/09/2024
-    const migratedPayload = handleLegacyMessageConversion(payload);
-
     const patch: DeepPartial<MessageState> = {
-      timer: 'timer' in migratedPayload ? validateTimerMessage(migratedPayload.timer) : undefined,
-      external: 'external' in migratedPayload ? validateMessage(migratedPayload.external) : undefined,
+      timer: 'timer' in payload ? validateTimerMessage(payload.timer) : undefined,
+      external: 'external' in payload ? validateMessage(payload.external) : undefined,
     };
 
     const newMessage = messageService.patch(patch);
@@ -192,27 +187,24 @@ const actionHandlers: Record<string, ActionHandler> = {
     throw new Error('No matching method provided');
   },
   addtime: (payload) => {
-    let time = 0;
-    if (payload && typeof payload === 'object') {
-      if ('add' in payload) {
-        time = numberOrError(payload.add);
-      } else if ('remove' in payload) {
-        time = numberOrError(payload.remove) * -1;
+    const time = (() => {
+      if (payload && typeof payload === 'object') {
+        if ('add' in payload) return numberOrError(payload.add);
+        if ('remove' in payload) return numberOrError(payload.remove) * -1;
       }
-    } else {
-      time = numberOrError(payload);
-    }
+      return numberOrError(payload);
+    })();
+
     assert.isNumber(time);
     if (time === 0) {
       return { payload: 'success' };
     }
 
-    const timeToAdd = time * MILLIS_PER_SECOND; // frontend is seconds based
-    if (Math.abs(timeToAdd) > MILLIS_PER_HOUR) {
+    if (Math.abs(time) > MILLIS_PER_HOUR) {
       throw new Error(`Payload too large: ${time}`);
     }
 
-    runtimeService.addTime(timeToAdd);
+    runtimeService.addTime(time);
     return { payload: 'success' };
   },
   /* Extra timers */
@@ -238,13 +230,11 @@ const actionHandlers: Record<string, ActionHandler> = {
     } else if (command && typeof command === 'object') {
       const reply = { payload: {} };
       if ('duration' in command) {
-        // convert duration in seconds to ms
-        const timeInMs = numberOrError(command.duration) * 1000;
+        const timeInMs = numberOrError(command.duration);
         reply.payload = auxTimerService.setTime(timeInMs);
       }
       if ('addtime' in command) {
-        // convert addTime in seconds to ms
-        const timeInMs = numberOrError(command.addtime) * 1000;
+        const timeInMs = numberOrError(command.addtime);
         reply.payload = auxTimerService.addTime(timeInMs);
       }
       if ('direction' in command) {

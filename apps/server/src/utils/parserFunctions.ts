@@ -1,99 +1,9 @@
-import {
-  CustomField,
-  CustomFields,
-  DatabaseModel,
-  OntimeBlock,
-  OntimeDelay,
-  OntimeEvent,
-  OntimeRundown,
-  ProjectData,
-  Settings,
-  TimerType,
-  URLPreset,
-  ViewSettings,
-  isOntimeBlock,
-  isOntimeDelay,
-  isOntimeEvent,
-} from 'ontime-types';
-import { customFieldLabelToKey, generateId, isAlphanumericWithSpace } from 'ontime-utils';
+import { CustomField, CustomFields, DatabaseModel, ProjectData, Settings, URLPreset, ViewSettings } from 'ontime-types';
+import { customFieldLabelToKey, isAlphanumericWithSpace } from 'ontime-utils';
 
 import { dbModel } from '../models/dataModel.js';
-import { block as blockDef, delay as delayDef } from '../models/eventsDefinition.js';
-import { createEvent, type ErrorEmitter } from './parser.js';
 
-/**
- * Parse rundown array of an entry
- */
-export function parseRundown(
-  data: Partial<DatabaseModel>,
-  emitError?: ErrorEmitter,
-): { customFields: CustomFields; rundown: OntimeRundown } {
-  // check custom fields first
-  const parsedCustomFields = parseCustomFields(data, emitError);
-
-  if (!data.rundown) {
-    emitError?.('No data found to import');
-    return { customFields: parsedCustomFields, rundown: [] };
-  }
-
-  console.log('Found rundown, importing...');
-
-  const rundown: OntimeRundown = [];
-  let eventIndex = 0;
-  let previousId: string | null = null;
-  const ids: string[] = [];
-
-  for (const event of data.rundown) {
-    if (ids.includes(event.id)) {
-      emitError?.('ID collision on event import, skipping');
-      continue;
-    }
-
-    const id = event.id || generateId();
-    let newEvent: OntimeEvent | OntimeDelay | OntimeBlock | null;
-
-    if (isOntimeEvent(event)) {
-      const maybeEvent = runEventMigrations({ ...event, id });
-
-      if (event.linkStart) {
-        maybeEvent.linkStart = previousId;
-      }
-
-      newEvent = createEvent(maybeEvent, eventIndex);
-      // skip if event is invalid
-      if (newEvent == null) {
-        emitError?.('Skipping event without payload');
-        continue;
-      }
-
-      // for every field in custom, check that a key exists in customfields
-      for (const field in newEvent.custom) {
-        if (!Object.hasOwn(parsedCustomFields, field)) {
-          emitError?.(`Custom field ${field} not found`);
-          delete newEvent.custom[field];
-        }
-      }
-
-      previousId = id;
-      eventIndex += 1;
-    } else if (isOntimeDelay(event)) {
-      newEvent = { ...delayDef, duration: event.duration, id };
-    } else if (isOntimeBlock(event)) {
-      newEvent = { ...blockDef, title: event.title, id };
-    } else {
-      emitError?.('Unknown event type, skipping');
-      continue;
-    }
-
-    if (newEvent) {
-      rundown.push(newEvent);
-      ids.push(id);
-    }
-  }
-
-  console.log(`Uploaded rundown with ${rundown.length} entries`);
-  return { customFields: parsedCustomFields, rundown };
-}
+import { type ErrorEmitter } from './parser.js';
 
 /**
  * Parse event portion of an entry
@@ -122,14 +32,14 @@ export function parseProject(data: Partial<DatabaseModel>, emitError?: ErrorEmit
  */
 export function parseSettings(data: Partial<DatabaseModel>): Settings {
   // skip if file definition is missing
-  if (!data.settings || data.settings?.app !== 'ontime' || data.settings?.version == null) {
-    throw new Error('ERROR: unable to parse settings, missing app or version');
+  // TODO: skip parsing if the version is not correct
+  if (!data.settings || data.settings?.version == null) {
+    throw new Error('ERROR: unable to parse settings, missing or incorrect version');
   }
 
   console.log('Found settings, importing...');
 
   return {
-    app: dbModel.settings.app,
     version: dbModel.settings.version,
     serverPort: data.settings.serverPort ?? dbModel.settings.serverPort,
     editorKey: data.settings.editorKey ?? null,
@@ -216,10 +126,15 @@ export function sanitiseCustomFields(data: object): CustomFields {
       continue;
     }
 
-    const keyFromLabel = customFieldLabelToKey(field.label);
-    // Test label and key cohesion, but allow old lowercased keys to stay
-    // TODO: the `toLocaleLowerCase` part here is to conserve keys from old projects and could be removed at some point (okt. 2024)
-    const key = originalKey.toLocaleLowerCase() === keyFromLabel.toLocaleLowerCase() ? originalKey : keyFromLabel;
+    // Test label and key cohesion
+    const key = (() => {
+      const keyFromLabel = customFieldLabelToKey(field.label);
+      if (keyFromLabel === null) {
+        return originalKey;
+      }
+      return originalKey.toLowerCase() === keyFromLabel.toLowerCase() ? originalKey : keyFromLabel;
+    })();
+
     if (key in newCustomFields) {
       continue;
     }
@@ -245,23 +160,4 @@ export function sanitiseCustomFields(data: object): CustomFields {
   }
 
   return newCustomFields;
-}
-
-/**
- * Time to end was moved from a TimerType to a standalone boolean named count to end
- * Released as part of v3.10.0
- */
-function migrateTimeToEnd(event: any): OntimeEvent {
-  if (event.timerType === 'time-to-end') {
-    event.timerType = TimerType.CountDown;
-    event.countToEnd = true;
-  }
-  return event;
-}
-
-/**
- * Mutating function migrates event data entries
- */
-function runEventMigrations(event: any): OntimeEvent {
-  return migrateTimeToEnd(event);
 }

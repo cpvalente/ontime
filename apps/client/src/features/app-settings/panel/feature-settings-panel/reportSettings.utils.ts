@@ -1,4 +1,4 @@
-import { isOntimeEvent, MaybeNumber, NormalisedRundown, OntimeReport } from 'ontime-types';
+import { EntryId, isOntimeEvent, MaybeNumber, OntimeReport, RundownEntries } from 'ontime-types';
 
 import { makeCSVFromArrayOfArrays } from '../../../../common/utils/csv';
 import { formatTime } from '../../../../common/utils/time';
@@ -16,7 +16,7 @@ export type CombinedReport = {
 /**
  * Creates a combined report with the rundown data
  */
-export function getCombinedReport(report: OntimeReport, rundown: NormalisedRundown, order: string[]): CombinedReport[] {
+export function getCombinedReport(report: OntimeReport, rundown: RundownEntries, order: EntryId[]): CombinedReport[] {
   if (Object.keys(report).length === 0) return [];
   if (order.length === 0) return [];
 
