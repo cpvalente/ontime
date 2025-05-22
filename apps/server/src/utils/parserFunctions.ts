@@ -88,6 +88,7 @@ export function parseUrlPresets(data: Partial<DatabaseModel>, emitError?: ErrorE
       enabled: preset.enabled ?? false,
       alias: preset.alias ?? '',
       pathAndParams: preset.pathAndParams ?? '',
+      password: preset.password,
     };
     newPresets.push(newPreset);
   }

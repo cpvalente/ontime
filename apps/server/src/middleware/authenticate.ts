@@ -11,6 +11,7 @@ import { logger } from '../classes/Logger.js';
 import { hashedPassword, hasPassword } from '../api-data/session/session.service.js';
 
 import { noopMiddleware } from './noop.js';
+import { getDataProvider } from '../classes/data-provider/DataProvider.js';
 
 /**
  * List of public assets that can be accessed without authentication
@@ -40,6 +41,22 @@ loginRouter.post('/', (req, res) => {
     return;
   }
 
+  const alias = (redirect as string)
+    .split('?')
+    .at(1)
+    ?.split('&')
+    .find((s) => s.startsWith('alias='))
+    ?.substring(6);
+
+  console.log('try alias', alias);
+
+  if (authenticateAlias(alias, reqPassword)) {
+    console.log('auth for alias', alias);
+    setSessionCookie(res, reqPassword);
+    res.redirect(redirect || '/');
+    return;
+  }
+
   res.status(401).send('Unauthorized');
 });
 
@@ -48,12 +65,15 @@ loginRouter.post('/', (req, res) => {
  * @param {string} prefix - Prefix is used for the client hashes in Ontime Cloud
  */
 export function makeAuthenticateMiddleware(prefix: string) {
-  // we dont need to initialise the authenticate middleware if there is no password
-  if (!hasPassword) {
-    return { authenticate: noopMiddleware, authenticateAndRedirect: noopMiddleware };
-  }
-
   function authenticate(req: Request, res: Response, next: NextFunction) {
+    if (req.query.alias) {
+      console.log('request with alias');
+    }
+
+    if (!hasPassword) {
+      return next();
+    }
+
     const token = req.query.token || req.cookies?.token;
     if (token && token === hashedPassword) {
       return next();
@@ -65,6 +85,14 @@ export function makeAuthenticateMiddleware(prefix: string) {
   function authenticateAndRedirect(req: Request, res: Response, next: NextFunction) {
     // Allow access to specific public assets without authentication
     if (publicAssets.has(req.originalUrl)) {
+      return next();
+    }
+
+    if (authenticateAlias(req.query.alias as string, req.cookies?.token)) {
+      return next();
+    }
+
+    if (!hasPassword) {
       return next();
     }
 
@@ -128,4 +156,27 @@ function setSessionCookie(res: Response, token: string) {
     path: '/', // allow cookie to be accessed from any path
     sameSite: 'none', // allow cookies to be sent in cross-origin requests (e.g., iframes)
   });
+}
+
+function authenticateAlias(targetAlias: string | undefined | null, password: string | undefined) {
+  if (!targetAlias) return false;
+
+  const alias = getDataProvider()
+    .getUrlPresets()
+    .find((preset) => preset.alias === targetAlias);
+
+  // no mating alias
+  if (!alias) return false;
+
+  // no password required for this password
+  if (!alias.password) return true;
+
+  // match password
+  if (password === alias.password) {
+    console.log('request with alias', alias);
+    return true;
+  }
+
+  // failed password
+  return false;
 }

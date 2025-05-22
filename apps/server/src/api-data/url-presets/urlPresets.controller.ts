@@ -20,6 +20,7 @@ export async function postUrlPresets(req: Request, res: Response<URLPreset[] | E
       enabled: preset.enabled,
       alias: preset.alias,
       pathAndParams: preset.pathAndParams,
+      password: preset.password,
     }));
     await getDataProvider().setUrlPresets(newPresets);
     res.status(200).send(newPresets);
