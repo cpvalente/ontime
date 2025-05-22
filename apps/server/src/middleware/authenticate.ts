@@ -10,7 +10,7 @@ import { srcFiles } from '../setup/index.js';
 import { logger } from '../classes/Logger.js';
 import { hashedPassword, hasPassword } from '../api-data/session/session.service.js';
 
-import { noopMiddleware } from './noop.js';
+// import { noopMiddleware } from './noop.js';
 import { getDataProvider } from '../classes/data-provider/DataProvider.js';
 
 /**
@@ -41,18 +41,17 @@ loginRouter.post('/', (req, res) => {
     return;
   }
 
-  const alias = (redirect as string)
-    .split('?')
-    .at(1)
-    ?.split('&')
-    .find((s) => s.startsWith('alias='))
-    ?.substring(6);
-
-  console.log('try alias', alias);
+  //TODO: could not find a way to make URL parse this
+  const alias =
+    (redirect as string)
+      .split('?')
+      .at(1)
+      ?.split('&')
+      .find((s) => s.startsWith('alias='))
+      ?.substring(6) ?? (redirect as string).replaceAll('/', '');
 
   if (authenticateAlias(alias, reqPassword)) {
-    console.log('auth for alias', alias);
-    setSessionCookie(res, reqPassword);
+    setAliasCookie(res, reqPassword, alias);
     res.redirect(redirect || '/');
     return;
   }
@@ -66,8 +65,17 @@ loginRouter.post('/', (req, res) => {
  */
 export function makeAuthenticateMiddleware(prefix: string) {
   function authenticate(req: Request, res: Response, next: NextFunction) {
-    if (req.query.alias) {
-      console.log('request with alias');
+    if (authenticateAlias(req.query.alias as string, req.cookies?.token)) {
+      return next();
+    }
+
+    // alias in the co
+    const cookieString = req.headers.cookie;
+    if (typeof cookieString === 'string') {
+      const cookies = parseCookie(cookieString);
+      if (authenticateAlias(cookies.alias, cookies.token)) {
+        return next();
+      }
     }
 
     if (!hasPassword) {
@@ -88,15 +96,25 @@ export function makeAuthenticateMiddleware(prefix: string) {
       return next();
     }
 
+    // alias in the query parm
     if (authenticateAlias(req.query.alias as string, req.cookies?.token)) {
       return next();
+    }
+
+    // alias in the co
+    const cookieString = req.headers.cookie;
+    if (typeof cookieString === 'string') {
+      const cookies = parseCookie(cookieString);
+      if (authenticateAlias(cookies.alias, cookies.token)) {
+        return next();
+      }
     }
 
     if (!hasPassword) {
       return next();
     }
 
-    // we shouldnt be here in the login route
+    // we shouldn't be here in the login route
     if (req.originalUrl.startsWith('/login')) {
       return next();
     }
@@ -125,12 +143,19 @@ export function makeAuthenticateMiddleware(prefix: string) {
  * Middleware to authenticate a WebSocket connection with a token in the cookie
  */
 export function authenticateSocket(_ws: WebSocket, req: IncomingMessage, next: (error?: Error) => void) {
+  const cookieString = req.headers.cookie;
+  if (typeof cookieString === 'string') {
+    const cookies = parseCookie(cookieString);
+    if (authenticateAlias(cookies.alias, cookies.token)) {
+      return next();
+    }
+  }
+
   if (!hasPassword) {
     return next();
   }
 
   // check if the token is in the cookie
-  const cookieString = req.headers.cookie;
   if (typeof cookieString === 'string') {
     const cookies = parseCookie(cookieString);
     if (cookies.token === hashedPassword) {
@@ -158,7 +183,25 @@ function setSessionCookie(res: Response, token: string) {
   });
 }
 
-function authenticateAlias(targetAlias: string | undefined | null, password: string | undefined) {
+function setAliasCookie(res: Response, token: string, alias: string) {
+  res.cookie('token', token, {
+    httpOnly: false, // allow websocket to access cookie
+    secure: true,
+    path: '/', // allow cookie to be accessed from any path
+    sameSite: 'none', // allow cookies to be sent in cross-origin requests (e.g., iframes)
+  });
+  res.cookie('alias', alias, {
+    httpOnly: false, // allow websocket to access cookie
+    secure: true,
+    path: '/', // allow cookie to be accessed from any path
+    sameSite: 'none', // allow cookies to be sent in cross-origin requests (e.g., iframes)
+  });
+}
+
+function authenticateAlias(
+  targetAlias: string | undefined | null,
+  password: string | undefined,
+): targetAlias is string {
   if (!targetAlias) return false;
 
   const alias = getDataProvider()
@@ -173,7 +216,7 @@ function authenticateAlias(targetAlias: string | undefined | null, password: str
 
   // match password
   if (password === alias.password) {
-    console.log('request with alias', alias);
+    // console.log('request with alias', alias);
     return true;
   }
 
