@@ -78,7 +78,7 @@ export default function Rundown({ data }: RundownProps) {
   useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: appMode === AppMode.Run });
 
   // DND KIT
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 10 } }));
 
   const deleteAtCursor = useCallback(
     (cursor: string | null) => {

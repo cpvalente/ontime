@@ -97,8 +97,8 @@ export async function postCloneEntry(entryId: EntryId): Promise<AxiosResponse<Ru
 /**
  * HTTP request for dissolving of a block
  */
-export async function requestDissolveBlock(blockId: EntryId): Promise<AxiosResponse<Rundown>> {
-  return axios.post(`${rundownPath}/dissolve/${blockId}`);
+export async function requestUngroup(blockId: EntryId): Promise<AxiosResponse<Rundown>> {
+  return axios.post(`${rundownPath}/ungroup/${blockId}`);
 }
 
 /**
