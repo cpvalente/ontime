@@ -7,7 +7,7 @@ import {
   rundownBatchPut,
   rundownCloneEntry,
   rundownDelete,
-  rundownDissolveBlock,
+  rundownUngroupEntries,
   rundownGetAll,
   rundownGetById,
   rundownGetCurrent,
@@ -41,7 +41,7 @@ router.patch('/reorder/', rundownReorderValidator, rundownReorder);
 router.patch('/swap', rundownSwapValidator, rundownSwap);
 router.patch('/applydelay/:entryId', paramsMustHaveEntryId, rundownApplyDelay);
 router.post('/clone/:entryId', paramsMustHaveEntryId, rundownCloneEntry);
-router.post('/dissolve/:entryId', paramsMustHaveEntryId, rundownDissolveBlock);
+router.post('/ungroup/:entryId', paramsMustHaveEntryId, rundownUngroupEntries);
 router.post('/group', rundownArrayOfIds, rundownAddToBlock);
 
 router.delete('/', rundownArrayOfIds, deletesEventById);

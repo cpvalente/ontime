@@ -594,7 +594,7 @@ export function clone({ rundown, entryId }: CloneEntryArgs): MutatingReturn {
     const flatIndex = rundown.flatOrder.indexOf(lastNestedIdInOriginal) + 1;
 
     newBlock.events = nestedIds;
-    newBlock.title = `${entry.title} (copy)`;
+    newBlock.title = `${entry.title || 'Untitled'} (copy)`;
 
     rundown.entries[newBlock.id] = newBlock;
     rundown.order = insertAtIndex(atIndex, newBlock.id, rundown.order);
@@ -606,13 +606,13 @@ export function clone({ rundown, entryId }: CloneEntryArgs): MutatingReturn {
   }
 }
 
-type DissolveBlockArgs = MutationParams<{ blockId: EntryId }>;
+type UngroupArgs = MutationParams<{ blockId: EntryId }>;
 /**
  * Deletes a block and moves all its children to the top level order
  * Mutates the given rundown
  * @throws if block ID not found
  */
-export function dissolveBlock({ rundown, blockId }: DissolveBlockArgs): MutatingReturn {
+export function ungroup({ rundown, blockId }: UngroupArgs): MutatingReturn {
   const block = rundown.entries[blockId];
   if (!isOntimeBlock(block)) {
     throw new Error('Block with ID not found');
