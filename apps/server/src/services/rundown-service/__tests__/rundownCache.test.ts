@@ -15,7 +15,7 @@ import {
   editCustomField,
   removeCustomField,
   customFieldChangelog,
-  dissolveBlock,
+  ungroup,
   groupEntries,
   clone,
 } from '../rundownCache.js';
@@ -870,7 +870,7 @@ describe('clone() mutation', () => {
   });
 });
 
-describe('dissolveBlock() mutation', () => {
+describe('ungroup() mutation', () => {
   it('should correctly dissolve a block into its events', () => {
     const rundown = makeRundown({
       order: ['1', '2'],
@@ -883,7 +883,7 @@ describe('dissolveBlock() mutation', () => {
       },
     });
 
-    const { newRundown } = dissolveBlock({
+    const { newRundown } = ungroup({
       rundown,
       blockId: '2',
     });

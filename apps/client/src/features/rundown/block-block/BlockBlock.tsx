@@ -3,16 +3,16 @@ import {
   IoChevronDown,
   IoChevronUp,
   IoDuplicateOutline,
-  IoEllipsisHorizontal,
   IoFolderOpenOutline,
   IoReorderTwo,
   IoTrash,
 } from 'react-icons/io5';
-import { IconButton, Menu, MenuButton, MenuItem, MenuList, Portal } from '@chakra-ui/react';
+import { IconButton } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EntryId, OntimeBlock } from 'ontime-types';
 
+import { useContextMenu } from '../../../common/hooks/useContextMenu';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../common/utils/time';
@@ -31,7 +31,27 @@ interface BlockBlockProps {
 export default function BlockBlock(props: BlockBlockProps) {
   const { data, hasCursor, collapsed, onCollapse } = props;
   const handleRef = useRef<null | HTMLSpanElement>(null);
-  const { clone, dissolveBlock, deleteEntry } = useEntryActions();
+  const { clone, ungroup, deleteEntry } = useEntryActions();
+
+  const [onContextMenu] = useContextMenu<HTMLDivElement>([
+    {
+      label: 'Clone Block',
+      icon: IoDuplicateOutline,
+      onClick: () => clone(data.id),
+    },
+    {
+      label: 'Ungroup',
+      icon: IoFolderOpenOutline,
+      onClick: () => ungroup(data.id),
+      isDisabled: data.events.length === 0,
+    },
+    {
+      label: 'Delete Block',
+      icon: IoTrash,
+      onClick: () => deleteEntry([data.id]),
+      withDivider: true,
+    },
+  ]);
 
   const {
     attributes: dragAttributes,
@@ -60,12 +80,11 @@ export default function BlockBlock(props: BlockBlockProps) {
     cursor: isOver ? (isValidDrop ? 'grabbing' : 'no-drop') : 'default',
   };
 
-  const hasChildren = data.events.length > 0;
-
   return (
     <div
       className={cx([style.block, hasCursor && style.hasCursor, !collapsed && style.expanded])}
       ref={setNodeRef}
+      onContextMenu={onContextMenu}
       style={{
         ...(binderColours ? { '--user-bg': binderColours.backgroundColor } : {}),
         ...dragStyle,
@@ -84,31 +103,6 @@ export default function BlockBlock(props: BlockBlockProps) {
       <div className={style.header}>
         <div className={style.titleRow}>
           <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Block title' />
-          <Menu variant='ontime-on-dark' size='sm'>
-            <MenuButton
-              as={IconButton}
-              aria-label='Options'
-              icon={<IoEllipsisHorizontal />}
-              color='#e2e2e2' // $gray-200
-              variant='ontime-ghosted'
-              size='sm'
-            />
-            <Portal>
-              <MenuList>
-                <MenuItem icon={<IoDuplicateOutline />} onClick={() => clone(data.id)}>
-                  Clone Block
-                </MenuItem>
-                {hasChildren && (
-                  <MenuItem icon={<IoFolderOpenOutline />} onClick={() => dissolveBlock(data.id)}>
-                    Dissolve Block
-                  </MenuItem>
-                )}
-                <MenuItem icon={<IoTrash />} onClick={() => deleteEntry([data.id])}>
-                  Delete Block
-                </MenuItem>
-              </MenuList>
-            </Portal>
-          </Menu>
           <IconButton
             aria-label='Collapse'
             onClick={() => onCollapse(!collapsed, data.id)}
