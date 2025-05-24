@@ -1,5 +1,6 @@
 import {
   EndAction,
+  EntryId,
   isOntimeEvent,
   isPlayableEvent,
   LogOrigin,
@@ -238,7 +239,7 @@ class RuntimeService {
    * Called when the underlying data has changed,
    * we check if the change affects the runtime
    */
-  public notifyOfChangedEvents(affectedIds?: string[]) {
+  public notifyOfChangedEvents(affectedIds?: EntryId[]) {
     const state = runtimeState.getState();
     const hasLoadedElements = state.eventNow !== null || state.eventNext !== null;
     if (!hasLoadedElements) {

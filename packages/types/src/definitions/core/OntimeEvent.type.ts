@@ -33,7 +33,6 @@ export type OntimeBlock = OntimeBaseEvent & {
   endTime: MaybeNumber; // calculated at runtime
   duration: number; // calculated at runtime
   isFirstLinked: boolean; // calculated at runtime, whether the first event is linked
-  numEvents: number; // calculated at runtime
 };
 
 export type OntimeEvent = OntimeBaseEvent & {

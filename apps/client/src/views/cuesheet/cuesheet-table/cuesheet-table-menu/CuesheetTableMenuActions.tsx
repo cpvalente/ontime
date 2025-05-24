@@ -3,7 +3,7 @@ import { MenuDivider, MenuItem, MenuList } from '@chakra-ui/react';
 import { isOntimeEvent, SupportedEntry } from 'ontime-types';
 
 import { useEntryActions } from '../../../../common/hooks/useEntryAction';
-import { cloneEvent } from '../../../../common/utils/eventsManager';
+import { cloneEvent } from '../../../../common/utils/clone';
 
 interface CuesheetTableMenuActionsProps {
   eventId: string;

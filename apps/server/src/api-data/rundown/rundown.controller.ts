@@ -11,8 +11,11 @@ import {
   deleteAllEntries,
   deleteEvent,
   editEvent,
+  ungroupEntries,
+  groupEntries,
   reorderEntry,
   swapEvents,
+  cloneEntry,
 } from '../../services/rundown-service/RundownService.js';
 import { getEntryWithId, getCurrentRundown } from '../../services/rundown-service/rundownUtils.js';
 
@@ -86,15 +89,15 @@ export async function rundownBatchPut(req: Request, res: Response<MessageRespons
   }
 }
 
-export async function rundownReorder(req: Request, res: Response<OntimeEntry | ErrorResponse>) {
+export async function rundownReorder(req: Request, res: Response<Rundown | ErrorResponse>) {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
 
   try {
     const { eventId, from, to } = req.body;
-    const event = await reorderEntry(eventId, from, to);
-    res.status(200).send(event.newEvent);
+    const newRundown = await reorderEntry(eventId, from, to);
+    res.status(200).send(newRundown);
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });
@@ -118,8 +121,38 @@ export async function rundownSwap(req: Request, res: Response<MessageResponse | 
 
 export async function rundownApplyDelay(req: Request, res: Response<MessageResponse | ErrorResponse>) {
   try {
-    await applyDelay(req.params.eventId);
+    await applyDelay(req.params.entryId);
     res.status(200).send({ message: 'Delay applied' });
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+}
+
+export async function rundownCloneEntry(req: Request, res: Response<Rundown | ErrorResponse>) {
+  try {
+    const newRundown = await cloneEntry(req.params.entryId);
+    res.status(200).send(newRundown);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+}
+
+export async function rundownUngroupEntries(req: Request, res: Response<Rundown | ErrorResponse>) {
+  try {
+    const newRundown = await ungroupEntries(req.params.entryId);
+    res.status(200).send(newRundown);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+}
+
+export async function rundownAddToBlock(req: Request, res: Response<Rundown | ErrorResponse>) {
+  try {
+    const newRundown = await groupEntries(req.body.ids);
+    res.status(200).send(newRundown);
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });

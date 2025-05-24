@@ -1,4 +1,4 @@
-import { CustomFields, OntimeEvent, SupportedEntry, TimeStrategy } from 'ontime-types';
+import { CustomFields, OntimeBlock, OntimeEvent, SupportedEntry, TimeStrategy } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 
 import { demoDb } from '../../../models/demoProject.js';
@@ -15,9 +15,12 @@ import {
   editCustomField,
   removeCustomField,
   customFieldChangelog,
+  ungroup,
+  groupEntries,
+  clone,
 } from '../rundownCache.js';
 import { makeOntimeBlock, makeOntimeDelay, makeOntimeEvent, makeRundown } from '../__mocks__/rundown.mocks.js';
-import { ProcessedRundownMetadata } from '../rundownCache.utils.js';
+import type { ProcessedRundownMetadata } from '../rundownCache.utils.js';
 
 beforeAll(() => {
   vi.mock('../../../classes/data-provider/DataProvider.js', () => {
@@ -547,7 +550,6 @@ describe('generate() v4', () => {
           endTime: 400,
           duration: 300,
           isFirstLinked: false,
-          numEvents: 3,
         },
         '100': { type: SupportedEntry.Event, parent: '1' },
         '200': { type: SupportedEntry.Event, parent: '1' },
@@ -588,7 +590,6 @@ describe('generate() v4', () => {
           endTime: 400,
           duration: 300,
           isFirstLinked: false,
-          numEvents: 3,
         },
         '101': { parent: '1', gap: 90, linkStart: false },
         '102': { parent: '1' },
@@ -600,7 +601,6 @@ describe('generate() v4', () => {
           endTime: 800,
           duration: 300,
           isFirstLinked: false,
-          numEvents: 3,
         },
         '201': { id: '201', timeStart: 500, timeEnd: 600, duration: 100, gap: 100, linkStart: false },
         '202': { id: '202', timeStart: 600, timeEnd: 700, duration: 100 },
@@ -612,7 +612,6 @@ describe('generate() v4', () => {
           endTime: 1200,
           duration: 300,
           isFirstLinked: false,
-          numEvents: 3,
         },
         '301': { id: '301', timeStart: 900, timeEnd: 1000, duration: 100, gap: 100, linkStart: false },
         '302': { id: '302', timeStart: 1000, timeEnd: 1100, duration: 100 },
@@ -623,11 +622,58 @@ describe('generate() v4', () => {
 });
 
 describe('add() mutation', () => {
-  test('adds an event to the rundown', () => {
+  test('adds an event an empty rundown', () => {
     const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
     const rundown = makeRundown({});
-    const { newRundown } = add({ atIndex: 0, entry: mockEvent, parent: null, rundown });
+    const { newRundown } = add({ afterId: undefined, entry: mockEvent, parent: null, rundown });
     expect(newRundown.order.length).toBe(1);
+    expect(newRundown.entries['mock']).toMatchObject(mockEvent);
+  });
+
+  test('adds an event at the top if no afterId is given', () => {
+    const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
+    const rundown = makeRundown({
+      flatOrder: ['1'],
+      order: ['1'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', cue: '1' }),
+      },
+    });
+    const { newRundown } = add({ afterId: undefined, entry: mockEvent, parent: null, rundown });
+    expect(newRundown.order).toStrictEqual(['mock', '1']);
+    expect(newRundown.flatOrder).toStrictEqual(['mock', '1']);
+    expect(newRundown.entries['mock']).toMatchObject(mockEvent);
+  });
+
+  test('adds an event at the top of the block if no after is given', () => {
+    const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
+    const rundown = makeRundown({
+      flatOrder: ['1', '1a'],
+      order: ['1'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1' }),
+        '1a': makeOntimeEvent({ id: '1a', parent: '1' }),
+      },
+    });
+    const { newRundown } = add({ afterId: undefined, entry: mockEvent, parent: '1', rundown });
+    expect(newRundown.order).toStrictEqual(['1']);
+    expect(newRundown.flatOrder).toStrictEqual(['1', 'mock', '1a']);
+    expect(newRundown.entries['mock']).toMatchObject(mockEvent);
+  });
+
+  test('adds an event at the a given location inside a block', () => {
+    const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
+    const rundown = makeRundown({
+      flatOrder: ['1', '1a'],
+      order: ['1'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1' }),
+        '1a': makeOntimeEvent({ id: '1a', parent: '1' }),
+      },
+    });
+    const { newRundown } = add({ afterId: '1a', entry: mockEvent, parent: '1', rundown });
+    expect(newRundown.order).toStrictEqual(['1']);
+    expect(newRundown.flatOrder).toStrictEqual(['1', '1a', 'mock']);
     expect(newRundown.entries['mock']).toMatchObject(mockEvent);
   });
 });
@@ -662,6 +708,28 @@ describe('remove() mutation', () => {
     const { newRundown } = remove({ eventIds: ['1', '2', '3'], rundown });
     expect(newRundown.order.length).toBe(3);
     expect(newRundown.entries[newRundown.order[0]].id).toBe('4');
+  });
+
+  test('deletes a nested event', () => {
+    const rundown = makeRundown({
+      order: ['1'],
+      flatOrder: ['1', '11', '12', '13'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1', events: ['11', '12', '13'] }),
+        '11': makeOntimeEvent({ id: '11', parent: '1' }),
+        '12': makeOntimeDelay({ id: '12', parent: '1' }),
+        '13': makeOntimeEvent({ id: '13', parent: '1' }),
+      },
+    });
+
+    const { newRundown } = remove({ eventIds: ['12'], rundown });
+    expect(newRundown.order).toStrictEqual(['1']);
+    expect(newRundown.entries).toMatchObject({
+      '1': { id: '1' },
+      '11': { id: '11' },
+      '13': { id: '13' },
+    });
+    expect((newRundown.entries['1'] as OntimeBlock).events).toStrictEqual(['11', '13']);
   });
 });
 
@@ -726,7 +794,7 @@ describe('reorder() mutation', () => {
     });
 
     // move first event to the end
-    const { newRundown } = reorder({
+    const { newRundown, changeList } = reorder({
       rundown: rundown,
       eventId: rundown.order[0],
       from: 0,
@@ -738,6 +806,128 @@ describe('reorder() mutation', () => {
       '2': { id: '2', cue: 'data2', revision: 1 },
       '3': { id: '3', cue: 'data3', revision: 1 },
       '1': { id: '1', cue: 'data1', revision: 1 },
+    });
+    expect(changeList).toStrictEqual(['2', '3', '1']);
+  });
+});
+
+describe('clone() mutation', () => {
+  it('clones an event and adds it to the rundown', () => {
+    const rundown = makeRundown({
+      order: ['1'],
+      flatOrder: ['1'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', cue: 'data1', parent: null }),
+      },
+    });
+
+    const { newRundown, newEvent } = clone({ rundown, entryId: '1' });
+
+    expect(newRundown.order).toStrictEqual(['1', newEvent!.id]);
+    expect(newRundown.flatOrder).toStrictEqual(['1', newEvent!.id]);
+  });
+
+  it('clones an event inside a block and adds it to the rundown', () => {
+    const rundown = makeRundown({
+      order: ['1'],
+      flatOrder: ['1', '1a'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1', events: ['1a'] }),
+        '1a': makeOntimeEvent({ id: '1a', cue: 'nested', parent: '1' }),
+      },
+    });
+
+    const { newRundown, newEvent } = clone({ rundown, entryId: '1a' });
+
+    expect(newRundown.order).toStrictEqual(['1']);
+    expect(newRundown.flatOrder).toStrictEqual(['1', '1a', newEvent!.id]);
+    expect(newRundown.entries['1']).toMatchObject({ events: ['1a', newEvent!.id] });
+    expect(newRundown.entries[newEvent!.id]).toMatchObject({
+      type: SupportedEntry.Event,
+      parent: '1',
+      cue: 'nested',
+    });
+  });
+
+  it('clones a block and its nested elements', () => {
+    const rundown = makeRundown({
+      order: ['1'],
+      flatOrder: ['1', '1a'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1', title: 'top', events: ['1a'] }),
+        '1a': makeOntimeEvent({ id: '1a', cue: 'nested', parent: '1' }),
+      },
+    });
+
+    const { newRundown, newEvent } = clone({ rundown, entryId: '1' });
+
+    expect(newRundown.order).toStrictEqual(['1', newEvent!.id]);
+    expect(newRundown.flatOrder).toStrictEqual(['1', '1a', expect.any(String), expect.any(String)]);
+    expect(newRundown.entries[newEvent!.id]).toMatchObject({
+      type: SupportedEntry.Block,
+      events: [expect.any(String)],
+    });
+  });
+});
+
+describe('ungroup() mutation', () => {
+  it('should correctly dissolve a block into its events', () => {
+    const rundown = makeRundown({
+      order: ['1', '2'],
+      flatOrder: ['1', '2', '21', '22'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', cue: 'data1', parent: null }),
+        '2': makeOntimeBlock({ id: '2', events: ['21', '22'] }),
+        '21': makeOntimeEvent({ id: '21', cue: 'data21', parent: '2' }),
+        '22': makeOntimeEvent({ id: '22', cue: 'data22', parent: '2' }),
+      },
+    });
+
+    const { newRundown } = ungroup({
+      rundown,
+      blockId: '2',
+    });
+
+    expect(newRundown.order).toStrictEqual(['1', '21', '22']);
+    expect(newRundown.flatOrder).toStrictEqual(['1', '21', '22']);
+    expect(newRundown.entries['2']).toBeUndefined();
+    expect(newRundown.entries).toMatchObject({
+      '1': { id: '1', type: SupportedEntry.Event, cue: 'data1', parent: null },
+      '21': { id: '21', type: SupportedEntry.Event, cue: 'data21', parent: null },
+      '22': { id: '22', type: SupportedEntry.Event, cue: 'data22', parent: null },
+    });
+  });
+});
+
+describe('groupEntries() mutation', () => {
+  it('groups a list of existing events into a new block', () => {
+    const rundown = makeRundown({
+      order: ['1', '2', '3'],
+      flatOrder: ['1', '2', '3'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', parent: null }),
+        '2': makeOntimeEvent({ id: '2', parent: null }),
+        '3': makeOntimeEvent({ id: '3', parent: null }),
+      },
+    });
+
+    const { newRundown } = groupEntries({
+      rundown,
+      entryIds: ['1', '2'],
+    });
+
+    const blockId = newRundown.order[0];
+    expect(blockId).toStrictEqual(expect.any(String));
+    expect(newRundown.order).toStrictEqual([expect.any(String), '3']);
+    expect(newRundown.flatOrder).toStrictEqual([expect.any(String), '1', '2', '3']);
+    expect(newRundown.entries).toMatchObject({
+      [blockId]: {
+        type: SupportedEntry.Block,
+        events: ['1', '2'],
+      },
+      '1': { id: '1', type: SupportedEntry.Event, parent: blockId },
+      '2': { id: '2', type: SupportedEntry.Event, parent: blockId },
+      '3': { id: '3', type: SupportedEntry.Event, parent: null },
     });
   });
 });

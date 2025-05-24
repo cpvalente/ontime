@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   EntryId,
+  isOntimeBlock,
   isOntimeEvent,
   MaybeString,
   OntimeBlock,
@@ -19,12 +20,15 @@ import {
   deleteEntries,
   patchReorderEntry,
   postAddEntry,
+  postCloneEntry,
   putBatchEditEvents,
   putEditEntry,
   ReorderEntry,
   requestApplyDelay,
   requestDeleteAll,
   requestEventSwap,
+  requestGroupEntries,
+  requestUngroup,
   SwapEntry,
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
@@ -74,10 +78,7 @@ export const useEntryActions = () => {
   const _addEntryMutation = useMutation({
     // TODO(v4): optimistic create entry
     mutationFn: postAddEntry,
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: RUNDOWN });
-    },
-    networkMode: 'always',
+    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
   });
 
   /**
@@ -165,6 +166,29 @@ export const useEntryActions = () => {
   );
 
   /**
+   * Calls mutation to clone a selection
+   * @private
+   */
+  const _cloneMutation = useMutation({
+    mutationFn: postCloneEntry,
+    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
+  });
+
+  /**
+   * Clone a selection
+   */
+  const clone = useCallback(
+    async (entryId: EntryId) => {
+      try {
+        await _cloneMutation.mutateAsync(entryId);
+      } catch (error) {
+        logAxiosError('Error cloning entry', error);
+      }
+    },
+    [_cloneMutation],
+  );
+
+  /**
    * Calls mutation to update existing entry
    * @private
    */
@@ -206,7 +230,6 @@ export const useEntryActions = () => {
     onSettled: async () => {
       await queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
-    networkMode: 'always',
   });
 
   /**
@@ -371,7 +394,6 @@ export const useEntryActions = () => {
     onError: (_error, _newEvent, context) => {
       queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousRundown);
     },
-    networkMode: 'always',
   });
 
   const batchUpdateEvents = useCallback(
@@ -426,7 +448,6 @@ export const useEntryActions = () => {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
-    networkMode: 'always',
   });
 
   /**
@@ -480,7 +501,6 @@ export const useEntryActions = () => {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
-    networkMode: 'always',
   });
 
   /**
@@ -504,14 +524,13 @@ export const useEntryActions = () => {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
-    networkMode: 'always',
   });
 
   /**
    * Applies a given delay
    */
   const applyDelay = useCallback(
-    async (delayEventId: string) => {
+    async (delayEventId: EntryId) => {
       try {
         await _applyDelayMutation.mutateAsync(delayEventId);
       } catch (error) {
@@ -519,6 +538,78 @@ export const useEntryActions = () => {
       }
     },
     [_applyDelayMutation],
+  );
+
+  /**
+   * Calls mutation to dissolve a block
+   * @private
+   */
+  const _ungroupMutation = useMutation({
+    mutationFn: requestUngroup,
+    onSuccess: (response) => {
+      if (!response.data) return;
+
+      const { id, title, order, flatOrder, entries, revision } = response.data;
+      queryClient.setQueryData<Rundown>(RUNDOWN, {
+        id,
+        title,
+        order,
+        flatOrder,
+        entries,
+        revision,
+      });
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
+  });
+
+  /**
+   * Deletes a block and moves its events to the top level
+   */
+  const ungroup = useCallback(
+    async (blockId: EntryId) => {
+      try {
+        await _ungroupMutation.mutateAsync(blockId);
+      } catch (error) {
+        logAxiosError('Error dissolving block', error);
+      }
+    },
+    [_ungroupMutation],
+  );
+
+  /**
+   * Calls mutation to create a block with a selection
+   * @private
+   */
+  const _groupEntriesMutation = useMutation({
+    mutationFn: requestGroupEntries,
+    onSuccess: (response) => {
+      if (!response.data) return;
+
+      const { id, title, order, flatOrder, entries, revision } = response.data;
+      queryClient.setQueryData<Rundown>(RUNDOWN, {
+        id,
+        title,
+        order,
+        flatOrder,
+        entries,
+        revision,
+      });
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
+  });
+
+  /**
+   * Create a block with a selection
+   */
+  const groupEntries = useCallback(
+    async (entryIds: EntryId[]) => {
+      try {
+        await _groupEntriesMutation.mutateAsync(entryIds);
+      } catch (error) {
+        logAxiosError('Error grouping entries', error);
+      }
+    },
+    [_groupEntriesMutation],
   );
 
   /**
@@ -556,12 +647,27 @@ export const useEntryActions = () => {
     onError: (_error, _data, context) => {
       queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
     },
+
+    // Mutation finished, we update the rundown with the response
+    onSuccess: (response) => {
+      if (!response.data) return;
+
+      const { id, title, order, flatOrder, entries, revision } = response.data;
+      queryClient.setQueryData<Rundown>(RUNDOWN, {
+        id,
+        title,
+        order,
+        flatOrder,
+        entries,
+        revision,
+      });
+    },
+
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
-    networkMode: 'always',
   });
 
   /**
@@ -633,7 +739,6 @@ export const useEntryActions = () => {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });
     },
-    networkMode: 'always',
   });
 
   /**
@@ -654,9 +759,12 @@ export const useEntryActions = () => {
     addEntry,
     applyDelay,
     batchUpdateEvents,
+    clone,
     deleteEntry,
     deleteAllEntries,
+    ungroup,
     getEntryById,
+    groupEntries,
     reorderEntry,
     swapEvents,
     updateEntry,
@@ -679,12 +787,11 @@ function optimisticDeleteEntries(entryIds: EntryId[], rundown: Rundown) {
   }
 
   function deleteEntry(entry: OntimeEntry) {
-    if (isOntimeEvent(entry) && entry.parent) {
+    if (isOntimeBlock(entry) || !entry.parent) {
+      order = order.filter((id) => id !== entry.id);
+    } else {
       const parent = entries[entry.parent] as OntimeBlock;
       parent.events = parent.events.filter((event) => event !== entry.id);
-      parent.numEvents -= 1;
-    } else {
-      order = order.filter((id) => id !== entry.id);
     }
 
     delete entries[entry.id];

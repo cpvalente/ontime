@@ -37,7 +37,7 @@ import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useRundownEditor } from '../../common/hooks/useSocket';
 import { AppMode, useAppMode } from '../../common/stores/appModeStore';
 import { useEntryCopy } from '../../common/stores/entryCopyStore';
-import { cloneEvent } from '../../common/utils/eventsManager';
+import { cloneEvent } from '../../common/utils/clone';
 
 import BlockBlock from './block-block/BlockBlock';
 import BlockEnd from './block-block/BlockEnd';
@@ -78,7 +78,7 @@ export default function Rundown({ data }: RundownProps) {
   useFollowComponent({ followRef: cursorRef, scrollRef, doFollow: appMode === AppMode.Run });
 
   // DND KIT
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 10 } }));
 
   const deleteAtCursor = useCallback(
     (cursor: string | null) => {
@@ -329,7 +329,7 @@ export default function Rundown({ data }: RundownProps) {
   };
 
   if (sortableData.length < 1) {
-    return <RundownEmpty handleAddNew={() => insertAtId({ type: SupportedEntry.Event }, cursor)} />;
+    return <RundownEmpty handleAddNew={(type: SupportedEntry) => addEntry({ type })} />;
   }
 
   // 1. gather presentation options
@@ -362,6 +362,8 @@ export default function Rundown({ data }: RundownProps) {
 
                 if (isBlockCollapsed && isEditMode && isLast) {
                   return <QuickAddBlock key={entryId} previousEventId={parentId} parentBlock={null} />;
+                } else if (isBlockCollapsed) {
+                  return null;
                 } else {
                   const parentColour = (entries[parentId] as OntimeBlock | undefined)?.colour;
                   // if the previous element is selected, it will have its own QuickAddBlock
@@ -372,7 +374,7 @@ export default function Rundown({ data }: RundownProps) {
                     <Fragment key={entryId}>
                       {showPrependingQuickAdd && (
                         <QuickAddBlock
-                          previousEventId={rundownMetadata.previousEntryId}
+                          previousEventId={rundownMetadata.thisId}
                           parentBlock={parentId}
                           backgroundColor={parentColour}
                         />

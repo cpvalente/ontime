@@ -1,9 +1,19 @@
 import { useRef } from 'react';
-import { IoChevronDown, IoChevronUp, IoReorderTwo } from 'react-icons/io5';
+import {
+  IoChevronDown,
+  IoChevronUp,
+  IoDuplicateOutline,
+  IoFolderOpenOutline,
+  IoReorderTwo,
+  IoTrash,
+} from 'react-icons/io5';
+import { IconButton } from '@chakra-ui/react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { EntryId, OntimeBlock } from 'ontime-types';
 
+import { useContextMenu } from '../../../common/hooks/useContextMenu';
+import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../common/utils/time';
 import EditableBlockTitle from '../common/EditableBlockTitle';
@@ -21,6 +31,27 @@ interface BlockBlockProps {
 export default function BlockBlock(props: BlockBlockProps) {
   const { data, hasCursor, collapsed, onCollapse } = props;
   const handleRef = useRef<null | HTMLSpanElement>(null);
+  const { clone, ungroup, deleteEntry } = useEntryActions();
+
+  const [onContextMenu] = useContextMenu<HTMLDivElement>([
+    {
+      label: 'Clone Block',
+      icon: IoDuplicateOutline,
+      onClick: () => clone(data.id),
+    },
+    {
+      label: 'Ungroup',
+      icon: IoFolderOpenOutline,
+      onClick: () => ungroup(data.id),
+      isDisabled: data.events.length === 0,
+    },
+    {
+      label: 'Delete Block',
+      icon: IoTrash,
+      onClick: () => deleteEntry([data.id]),
+      withDivider: true,
+    },
+  ]);
 
   const {
     attributes: dragAttributes,
@@ -53,6 +84,7 @@ export default function BlockBlock(props: BlockBlockProps) {
     <div
       className={cx([style.block, hasCursor && style.hasCursor, !collapsed && style.expanded])}
       ref={setNodeRef}
+      onContextMenu={onContextMenu}
       style={{
         ...(binderColours ? { '--user-bg': binderColours.backgroundColor } : {}),
         ...dragStyle,
@@ -71,9 +103,15 @@ export default function BlockBlock(props: BlockBlockProps) {
       <div className={style.header}>
         <div className={style.titleRow}>
           <EditableBlockTitle title={data.title} eventId={data.id} placeholder='Block title' />
-          <button onClick={() => onCollapse(!collapsed, data.id)}>
+          <IconButton
+            aria-label='Collapse'
+            onClick={() => onCollapse(!collapsed, data.id)}
+            color='#e2e2e2' // $gray-200
+            variant='ontime-ghosted'
+            size='sm'
+          >
             {collapsed ? <IoChevronUp /> : <IoChevronDown />}
-          </button>
+          </IconButton>
         </div>
         <div className={style.metaRow}>
           <div className={style.metaEntry}>
@@ -90,7 +128,7 @@ export default function BlockBlock(props: BlockBlockProps) {
           </div>
           <div className={style.metaEntry}>
             <div>Events</div>
-            <div>{data.numEvents}</div>
+            <div>{data.events.length}</div>
           </div>
         </div>
       </div>

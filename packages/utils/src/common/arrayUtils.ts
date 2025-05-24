@@ -26,6 +26,24 @@ export function insertAtIndex<T>(index: number, item: T, array: T[]): T[] {
 }
 
 /**
+ * Inserts an array into another one of the same type at a given index
+ */
+export function mergeAtIndex<T>(index: number, newArray: T[], currentArray: T[]): T[] {
+  // Insert at beginning
+  if (index === 0) {
+    return [...newArray, ...currentArray];
+  }
+
+  // insert at end
+  else if (index >= currentArray.length) {
+    return [...currentArray, ...newArray];
+  }
+
+  // insert in the middle
+  return currentArray.toSpliced(index, 0, ...newArray);
+}
+
+/**
  * Deletes array element at a given index
  * @param index
  * @param array

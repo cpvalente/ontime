@@ -64,7 +64,7 @@ export type ReorderEntry = {
 /**
  * HTTP request to reorder an entry
  */
-export async function patchReorderEntry(data: ReorderEntry): Promise<AxiosResponse<OntimeEntry>> {
+export async function patchReorderEntry(data: ReorderEntry): Promise<AxiosResponse<Rundown>> {
   return axios.patch(`${rundownPath}/reorder`, data);
 }
 
@@ -83,8 +83,29 @@ export async function requestEventSwap(data: SwapEntry): Promise<AxiosResponse<M
 /**
  * HTTP request to request application of delay
  */
-export async function requestApplyDelay(delayId: string): Promise<AxiosResponse<MessageResponse>> {
+export async function requestApplyDelay(delayId: EntryId): Promise<AxiosResponse<MessageResponse>> {
   return axios.patch(`${rundownPath}/applydelay/${delayId}`);
+}
+
+/**
+ * HTTP request for cloning an entry
+ */
+export async function postCloneEntry(entryId: EntryId): Promise<AxiosResponse<Rundown>> {
+  return axios.post(`${rundownPath}/clone/${entryId}`);
+}
+
+/**
+ * HTTP request for dissolving of a block
+ */
+export async function requestUngroup(blockId: EntryId): Promise<AxiosResponse<Rundown>> {
+  return axios.post(`${rundownPath}/ungroup/${blockId}`);
+}
+
+/**
+ * HTTP request for grouping a list of entries into a block
+ */
+export async function requestGroupEntries(entryIds: EntryId[]): Promise<AxiosResponse<Rundown>> {
+  return axios.post(`${rundownPath}/group`, { ids: entryIds });
 }
 
 /**

@@ -14,14 +14,14 @@ import {
 } from 'ontime-types';
 import { getCueCandidate } from 'ontime-utils';
 
-import { block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
+import { delay as delayDef } from '../../models/eventsDefinition.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
-import { createEvent } from '../../api-data/rundown/rundown.utils.js';
+import { createBlock, createEvent } from '../../api-data/rundown/rundown.utils.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 import * as cache from './rundownCache.js';
-import { getInsertionPosition } from './rundownUtils.js';
+import { getPreviousId } from './rundownUtils.js';
 
 type CompleteEntry<T> =
   T extends Partial<OntimeEvent>
@@ -55,7 +55,7 @@ function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | P
 
   // TODO(v4): allow user to provide a larger patch of the block entry
   if (isOntimeBlock(eventData)) {
-    return { ...blockDef, title: eventData?.title ?? '', id } as CompleteEntry<T>;
+    return createBlock({ id, title: eventData.title ?? '' }) as CompleteEntry<T>;
   }
 
   throw new Error('Invalid event type');
@@ -70,11 +70,12 @@ export async function addEvent(eventData: EventPostPayload): Promise<OntimeEntry
     throw new Error(`Event with ID ${eventData.id} already exists`);
   }
 
-  // 2. if the user provides a parent (inside a group), we make sure it exists
+  // 2. if the user provides a parent (inside a group), we make sure it exists and it is a group
   let parent: EntryId | null = null;
   if ('parent' in eventData && eventData.parent != null) {
-    if (!cache.hasId(eventData.parent)) {
-      throw new Error(`Parent event with ID ${eventData.parent} not found`);
+    const maybeParent = cache.getCurrentRundown().entries[eventData.parent];
+    if (!maybeParent || !isOntimeBlock(maybeParent)) {
+      throw new Error(`Invalid parent event with ID ${eventData.parent}`);
     }
     parent = eventData.parent;
   }
@@ -91,14 +92,14 @@ export async function addEvent(eventData: EventPostPayload): Promise<OntimeEntry
     }
   }
 
-  const { afterId, atIndex } = getInsertionPosition(parent, eventData?.after, eventData?.before);
+  const afterId = getPreviousId(eventData?.after, eventData?.before);
 
   // generate a fully formed entry from the patch
   const sanitisedEntry = generateEvent(eventData, afterId);
 
   // modify rundown
   const scopedMutation = cache.mutateCache(cache.add);
-  const { newEvent } = await scopedMutation({ atIndex, parent, entry: sanitisedEntry });
+  const { newEvent } = await scopedMutation({ afterId, parent, entry: sanitisedEntry });
 
   // notify runtime that rundown has changed
   updateRuntimeOnChange();
@@ -113,9 +114,9 @@ export async function addEvent(eventData: EventPostPayload): Promise<OntimeEntry
 /**
  * deletes event by its ID
  */
-export async function deleteEvent(eventIds: string[]) {
+export async function deleteEvent(eventIds: EntryId[]) {
   const scopedMutation = cache.mutateCache(cache.remove);
-  const { didMutate } = await scopedMutation({ eventIds });
+  const { didMutate, changeList } = await scopedMutation({ eventIds });
 
   if (!didMutate) {
     return;
@@ -125,7 +126,7 @@ export async function deleteEvent(eventIds: string[]) {
   updateRuntimeOnChange();
 
   // notify timer and external services of change
-  notifyChanges({ timer: eventIds, external: true });
+  notifyChanges({ timer: changeList, external: true });
 }
 
 /**
@@ -190,19 +191,24 @@ export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>)
  * @param {number} from - index of event from
  * @param {number} to - index of event to
  */
-export async function reorderEntry(eventId: EntryId, from: number, to: number) {
+export async function reorderEntry(eventId: EntryId, from: number, to: number): Promise<Rundown> {
   const scopedMutation = cache.mutateCache(cache.reorder);
-  const reorderedItem = await scopedMutation({ eventId, from, to });
+  const { changeList, newRundown } = await scopedMutation({ eventId, from, to });
 
   // notify runtime that rundown has changed
   updateRuntimeOnChange();
 
   // notify timer and external services of change
-  notifyChanges({ timer: true, external: true });
+  notifyChanges({ timer: changeList, external: true });
 
-  return reorderedItem;
+  return newRundown;
 }
 
+/**
+ * Applies a delay into the rundown effectively changing the schedule
+ * The applied delay is deleted
+ * @param delayId
+ */
 export async function applyDelay(delayId: EntryId) {
   const scopedMutation = cache.mutateCache(cache.applyDelay);
   await scopedMutation({ delayId });
@@ -212,6 +218,59 @@ export async function applyDelay(delayId: EntryId) {
 
   // notify timer and external services of change
   notifyChanges({ timer: true, external: true });
+}
+
+/**
+ * Clones an entry, ensuring that all dependencies are preserved
+ */
+export async function cloneEntry(entryId: EntryId) {
+  const scopedMutation = cache.mutateCache(cache.clone);
+  const { newRundown, newEvent } = await scopedMutation({ entryId });
+
+  // notify runtime that rundown has changed
+  updateRuntimeOnChange();
+
+  if (isOntimeBlock(newEvent)) {
+    notifyChanges({ timer: newEvent.events, external: true });
+  } else if (isOntimeEvent(newEvent)) {
+    notifyChanges({ timer: [newEvent.id], external: true });
+  } else if (isOntimeDelay(newEvent)) {
+    notifyChanges({ external: true });
+  }
+
+  return newRundown;
+}
+
+/**
+ * Deletes a block from the rundown and moves all its children to the top level
+ */
+export async function ungroupEntries(blockId: EntryId) {
+  const scopedMutation = cache.mutateCache(cache.ungroup);
+  const { newRundown } = await scopedMutation({ blockId });
+
+  // notify runtime that rundown has changed
+  updateRuntimeOnChange();
+
+  // we dont need to modify the timer since the grouping does not affect the runtime
+  notifyChanges({ external: true });
+
+  return newRundown;
+}
+
+/**
+ * Groups a list of entries into a block
+ */
+export async function groupEntries(entryIds: EntryId[]) {
+  const scopedMutation = cache.mutateCache(cache.groupEntries);
+  const { newRundown } = await scopedMutation({ entryIds });
+
+  // notify runtime that rundown has changed
+  updateRuntimeOnChange();
+
+  // we dont need to modify the timer since the grouping does not affect the runtime
+  notifyChanges({ external: true });
+
+  return newRundown;
 }
 
 /**
