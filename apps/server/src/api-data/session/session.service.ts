@@ -49,8 +49,8 @@ export async function getInfo(): Promise<GetInfo> {
   };
 }
 
-export const hasPassword = Boolean(password);
-export const hashedPassword = hasPassword ? hashPassword(password as string) : undefined;
+export const hasSessionPassword = Boolean(password);
+export const hashedPassword = hasSessionPassword ? hashPassword(password as string) : undefined;
 
 /**
  * Generates a pre-authenticated URL by injecting a token in the URL params

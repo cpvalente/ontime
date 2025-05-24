@@ -81,6 +81,7 @@ export default function UrlPresetsForm() {
       enabled: true,
       alias: '',
       pathAndParams: '',
+      password: undefined,
     });
   };
 
@@ -147,6 +148,7 @@ export default function UrlPresetsForm() {
                 <th className={style.fit}>Active</th>
                 <th className={style.aliasConstrain}>Preset name</th>
                 <th className={style.fullWidth}>URL segment</th>
+                <th className={style.fullWidth}>Password</th>
                 <th />
               </tr>
             </thead>
@@ -190,6 +192,17 @@ export default function UrlPresetsForm() {
                         variant='ontime-filled'
                         placeholder='URL (portion after ontime Port)'
                         data-testid={`field__url_${index}`}
+                        autoComplete='off'
+                      />
+                      <Panel.Error>{maybeUrlError}</Panel.Error>
+                    </td>
+                    <td className={style.fullWidth}>
+                      <Input
+                        {...register(`data.${index}.password`, {})}
+                        size='sm'
+                        variant='ontime-filled'
+                        placeholder='Password (optional)'
+                        data-testid={`field__password_${index}`}
                         autoComplete='off'
                       />
                       <Panel.Error>{maybeUrlError}</Panel.Error>
