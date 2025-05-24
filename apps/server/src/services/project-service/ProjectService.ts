@@ -41,6 +41,7 @@ import {
   moveCorruptFile,
   parseJsonFile,
 } from './projectServiceUtils.js';
+import { replaceUrlPresets } from '../../api-data/url-presets/urlPreset.service.js';
 
 type ProjectState =
   | {
@@ -90,6 +91,9 @@ async function loadProject(projectData: DatabaseModel, fileName: string) {
 
   // stop the runtime service
   runtimeService.stop();
+
+  // reload presets to refresh hashed values
+  await replaceUrlPresets(projectData.urlPresets);
 
   // load the first rundown in the project
   const firstRundown = getFirstRundown(projectData.rundowns);
