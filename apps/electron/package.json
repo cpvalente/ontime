@@ -12,8 +12,8 @@
   "license": "AGPL-3.0-only",
   "main": "src/main.js",
   "devDependencies": {
-    "electron": "^31.2.0",
-    "electron-builder": "^24.13.3",
+    "electron": "36.3.1",
+    "electron-builder": "26.0.12",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
     "prettier": "catalog:",
@@ -38,9 +38,7 @@
       "icon": "icon.icns"
     },
     "mac": {
-      "notarize": {
-        "teamId": "MDAU6QK6R4"
-      },
+      "notarize": true,
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "entitlements": "./entitlements.plist",
