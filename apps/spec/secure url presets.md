@@ -38,3 +38,18 @@ type URLPreset = {
   obscureParams: boolean;
 };
 ```
+
+### Strategy
+
+For an incoming request eg: `www.ontime.com/test`
+The request is intercepted by authenticate middleware
+
+1. we check if check if the session in password protected
+2. we check if the URL (alias) is password protected
+
+Users can login with a session password or alias password
+Password hash can be in URL
+
+Users are moved through to get the app if the password is valid
+Otherwise they are redirected to the login page
+
