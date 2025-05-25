@@ -20,7 +20,7 @@ type CsvHeaderKey = OntimeEntryCommonKeys | keyof CustomFields;
 
 export const parseField = (field: CsvHeaderKey, data: unknown): string => {
   if (field === 'timeStart' || field === 'timeEnd' || field === 'duration') {
-    return millisToString(data as MaybeNumber);
+    return millisToString(data as MaybeNumber, { fallback: '' });
   }
 
   if (field === 'isPublic' || field === 'skip') {
