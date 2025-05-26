@@ -126,44 +126,29 @@ function processEntry(
  * Due to limitations in dnd-kit we need to flatten the list of entries
  * This list should also be aware of any elements that are sortable (ie: block ends)
  */
-export function makeSortableList(flatOrder: EntryId[], entries: RundownEntries): EntryId[] {
-  const entryIds: EntryId[] = [];
-  let lastSeenBlock: MaybeString = null;
+export function makeSortableList(order: EntryId[], entries: RundownEntries): EntryId[] {
+  const flatIds: EntryId[] = [];
 
-  for (let i = 0; i < flatOrder.length; i++) {
-    const entry = entries[flatOrder[i]];
+  for (let i = 0; i < order.length; i++) {
+    const entry = entries[order[i]];
 
     if (!entry) {
       continue;
     }
 
     if (isOntimeBlock(entry)) {
-      // close any previous blocks
-      if (lastSeenBlock !== null) {
-        entryIds.push(`end-${lastSeenBlock}`);
-      }
-      lastSeenBlock = entry.id;
+      // inside a block there are delays and events
+      // there is no need for special handling
+      flatIds.push(entry.id);
+      flatIds.push(...entry.events);
+
+      // close the block
+      flatIds.push(`end-${entry.id}`);
+    } else {
+      flatIds.push(entry.id);
     }
-
-    if (isOntimeEvent(entry)) {
-      // Close the previous block if the parent changes
-      if (lastSeenBlock !== null && entry.parent !== lastSeenBlock) {
-        entryIds.push(`end-${lastSeenBlock}`);
-      }
-      lastSeenBlock = entry.parent;
-    }
-
-    entryIds.push(entry.id);
   }
-
-  // double check that we close any dangling blocks
-  // - if the last element is a block
-  // - if a rundown only has a top level block
-  if (lastSeenBlock !== null) {
-    entryIds.push(`end-${lastSeenBlock}`);
-  }
-
-  return entryIds;
+  return flatIds;
 }
 
 /**
@@ -177,4 +162,22 @@ export function canDrop(targetType?: SupportedEntry, targetParent?: EntryId | nu
   // remaining events will be block or end-block
   // we can swap places with other blocks
   return targetType == 'block';
+}
+
+export function getNextId(entryId: EntryId, sortableData: EntryId[]): MaybeString {
+  const currentIndex = sortableData.indexOf(entryId);
+  if (currentIndex === -1 || currentIndex === sortableData.length - 1) {
+    // No next ID if not found or at the end
+    return null;
+  }
+  return sortableData[currentIndex + 1];
+}
+
+export function getPreviousId(entryId: EntryId, sortableData: EntryId[]): MaybeString {
+  const currentIndex = sortableData.indexOf(entryId);
+  if (currentIndex < 1) {
+    // No previous ID found or at the beginning
+    return null;
+  }
+  return sortableData[currentIndex - 1];
 }
