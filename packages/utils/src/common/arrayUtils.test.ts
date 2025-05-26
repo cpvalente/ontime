@@ -88,10 +88,16 @@ describe('deleteAtIndex', () => {
 });
 
 describe('reorderArray', () => {
-  it('should reorder an item in the array', () => {
+  it('should reorder an item in the array (up)', () => {
     const array = ['a', 'b', 'c', 'd'];
     const result = reorderArray(array, 1, 3);
     expect(result).toEqual(['a', 'c', 'd', 'b']);
+  });
+
+  it('should reorder an item in the array (down)', () => {
+    const array = ['a', 'b', 'c', 'd'];
+    const result = reorderArray(array, 3, 1);
+    expect(result).toEqual(['a', 'd', 'b', 'c']);
   });
 
   it('should return the original array if fromIndex and toIndex are the same', () => {
