@@ -42,7 +42,7 @@ import { cloneEvent } from '../../common/utils/clone';
 import BlockBlock from './block-block/BlockBlock';
 import BlockEnd from './block-block/BlockEnd';
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
-import { makeRundownMetadata, makeSortableList } from './rundown.utils';
+import { getNextId, getPreviousId, makeRundownMetadata, makeSortableList } from './rundown.utils';
 import RundownEmpty from './RundownEmpty';
 import { useEventSelection } from './useEventSelection';
 
@@ -55,10 +55,10 @@ interface RundownProps {
 }
 
 export default function Rundown({ data }: RundownProps) {
-  const { order, flatOrder, entries, id } = data;
+  const { order, entries, id } = data;
   // we create a copy of the rundown with a data structured aligned with what dnd-kit needs
   const featureData = useRundownEditor();
-  const [sortableData, setSortableData] = useState<EntryId[]>(() => makeSortableList(flatOrder, entries));
+  const [sortableData, setSortableData] = useState<EntryId[]>(() => makeSortableList(order, entries));
   const [collapsedGroups, setCollapsedGroups] = useSessionStorage<EntryId[]>({
     // we ensure that this is unique to the rundown
     key: `rundown.${id}-editor-collapsed-groups`,
@@ -192,15 +192,15 @@ export default function Rundown({ data }: RundownProps) {
       if (order.length < 2 || cursor == null) {
         return;
       }
-      const { index } =
-        direction === 'up' ? getPreviousNormal(entries, order, cursor) : getNextNormal(entries, order, cursor);
 
-      if (index !== null) {
-        const offsetIndex = direction === 'up' ? index + 1 : index - 1;
-        reorderEntry(cursor, offsetIndex, index);
+      const destinationId = direction === 'up' ? getPreviousId(cursor, sortableData) : getNextId(cursor, sortableData);
+      if (direction === 'up' && destinationId === null) {
+        reorderEntry(cursor, cursor, 'before');
+      } else if (destinationId !== null) {
+        reorderEntry(cursor, destinationId);
       }
     },
-    [order, reorderEntry, entries],
+    [order.length, sortableData, reorderEntry],
   );
 
   // shortcuts
@@ -237,8 +237,8 @@ export default function Rundown({ data }: RundownProps) {
   // we copy the state from the store here
   // to workaround async updates on the drag mutations
   useEffect(() => {
-    setSortableData(makeSortableList(flatOrder, entries));
-  }, [flatOrder, entries]);
+    setSortableData(makeSortableList(order, entries));
+  }, [order, entries]);
 
   // in run mode, we follow selection
   useEffect(() => {
@@ -287,14 +287,13 @@ export default function Rundown({ data }: RundownProps) {
 
     if (over?.id) {
       if (active.id !== over?.id) {
-        const fromIndex = active.data.current?.sortable.index;
-        const toIndex = over.data.current?.sortable.index;
-
         // we keep a copy of the state as a hack to handle inconsistencies between dnd-kit and async store updates
         setSortableData((currentEntries) => {
+          const fromIndex = active.data.current?.sortable.index;
+          const toIndex = over.data.current?.sortable.index;
           return reorderArray(currentEntries, fromIndex, toIndex);
         });
-        reorderEntry(String(active.id), fromIndex, toIndex);
+        reorderEntry(active.id as string, over.id as string, 'before');
       }
     }
   };
