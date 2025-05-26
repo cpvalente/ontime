@@ -286,7 +286,7 @@ describe('makeRundownMetadata()', () => {
 
 describe('makeSortableList()', () => {
   it('generates a list with block ends', () => {
-    const flatOrder = ['block-1', '11', '2', 'block-3', '31', 'block-4'];
+    const order = ['block-1', '2', 'block-3', 'block-4'];
     const entries: RundownEntries = {
       'block-1': { type: SupportedEntry.Block, id: 'block-1', events: ['11'] } as OntimeBlock,
       '11': { type: SupportedEntry.Event, id: '11', parent: 'block-1' } as OntimeEvent,
@@ -296,8 +296,8 @@ describe('makeSortableList()', () => {
       'block-4': { type: SupportedEntry.Block, id: 'block-4', events: [] as string[] } as OntimeBlock,
     };
 
-    const sortableList = makeSortableList(flatOrder, entries);
-    expect(sortableList).toEqual([
+    const sortableList = makeSortableList(order, entries);
+    expect(sortableList).toStrictEqual([
       'block-1',
       '11',
       'end-block-1',
@@ -311,25 +311,25 @@ describe('makeSortableList()', () => {
   });
 
   it('closes dangling blocks', () => {
-    const flatOrder = ['block', '11', '12'];
+    const order = ['block'];
     const entries: RundownEntries = {
       block: { type: SupportedEntry.Block, id: 'block-1', events: ['11', '12'] } as OntimeBlock,
       '11': { type: SupportedEntry.Event, id: '11', parent: 'block-1' } as OntimeEvent,
       '12': { type: SupportedEntry.Event, id: '12', parent: 'block-1' } as OntimeEvent,
     };
 
-    const sortableList = makeSortableList(flatOrder, entries);
+    const sortableList = makeSortableList(order, entries);
     expect(sortableList).toStrictEqual(['block-1', '11', '12', 'end-block-1']);
   });
 
   it('handles a list with a with just blocks', () => {
-    const flatOrder = ['block-1', 'block-2'];
+    const order = ['block-1', 'block-2'];
     const entries: RundownEntries = {
       'block-1': { type: SupportedEntry.Block, id: 'block-1', events: [] as string[] } as OntimeBlock,
       'block-2': { type: SupportedEntry.Block, id: 'block-2', events: [] as string[] } as OntimeBlock,
     };
 
-    const sortableList = makeSortableList(flatOrder, entries);
+    const sortableList = makeSortableList(order, entries);
     expect(sortableList).toStrictEqual(['block-1', 'end-block-1', 'block-2', 'end-block-2']);
   });
 });
