@@ -13,8 +13,9 @@ import {
   TimeStrategy,
   TransientEventPayload,
 } from 'ontime-types';
-import { dayInMs, generateId, MILLIS_PER_SECOND, parseUserTime, reorderArray, swapEventData } from 'ontime-utils';
+import { dayInMs, generateId, MILLIS_PER_SECOND, parseUserTime, swapEventData } from 'ontime-utils';
 
+import { moveDown, moveUp } from '../../features/rundown/rundown.utils';
 import { RUNDOWN } from '../api/constants';
 import {
   deleteEntries,
@@ -618,51 +619,6 @@ export const useEntryActions = () => {
    */
   const _reorderEntryMutation = useMutation({
     mutationFn: patchReorderEntry,
-    // we optimistically update here
-    onMutate: async (data) => {
-      // cancel ongoing queries
-      await queryClient.cancelQueries({ queryKey: RUNDOWN });
-
-      // Snapshot the previous value
-      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
-
-      if (previousData) {
-        // optimistically update object
-        const newOrder = reorderArray(previousData.order, data.from, data.to);
-        queryClient.setQueryData<Rundown>(RUNDOWN, {
-          id: previousData.id,
-          title: previousData.title,
-          order: newOrder,
-          flatOrder: previousData.flatOrder,
-          entries: previousData.entries,
-          revision: -1,
-        });
-      }
-
-      // Return a context with the previous and new events
-      return { previousData };
-    },
-
-    // Mutation fails, rollback undoes optimist update
-    onError: (_error, _data, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
-    },
-
-    // Mutation finished, we update the rundown with the response
-    onSuccess: (response) => {
-      if (!response.data) return;
-
-      const { id, title, order, flatOrder, entries, revision } = response.data;
-      queryClient.setQueryData<Rundown>(RUNDOWN, {
-        id,
-        title,
-        order,
-        flatOrder,
-        entries,
-        revision,
-      });
-    },
-
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
@@ -674,12 +630,12 @@ export const useEntryActions = () => {
    * Reorders a given entry
    */
   const reorderEntry = useCallback(
-    async (entryId: string, from: number, to: number) => {
+    async (entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') => {
       try {
         const reorderObject: ReorderEntry = {
-          eventId: entryId,
-          from,
-          to,
+          entryId,
+          destinationId,
+          order,
         };
         await _reorderEntryMutation.mutateAsync(reorderObject);
       } catch (error) {
@@ -688,6 +644,30 @@ export const useEntryActions = () => {
     },
     [_reorderEntryMutation],
   );
+
+  const move = useCallback(async (entryId: EntryId, direction: 'up' | 'down') => {
+    const cachedRundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+    if (!cachedRundown?.order) {
+      return;
+    }
+    const { destinationId, order } =
+      direction === 'up'
+        ? moveUp(entryId, cachedRundown.order, cachedRundown.entries)
+        : moveDown(entryId, cachedRundown.order, cachedRundown.entries);
+
+    if (destinationId) {
+      try {
+        const reorderObject: ReorderEntry = {
+          entryId,
+          destinationId,
+          order: order as 'before' | 'after' | 'insert',
+        };
+        await _reorderEntryMutation.mutateAsync(reorderObject);
+      } catch (error) {
+        logAxiosError('Error re-ordering event', error);
+      }
+    }
+  }, []);
 
   /**
    * Calls mutation to swap events
@@ -765,6 +745,7 @@ export const useEntryActions = () => {
     ungroup,
     getEntryById,
     groupEntries,
+    move,
     reorderEntry,
     swapEvents,
     updateEntry,
