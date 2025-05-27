@@ -56,9 +56,9 @@ export async function putBatchEditEvents(data: BatchEditEntry): Promise<AxiosRes
 }
 
 export type ReorderEntry = {
-  eventId: string;
-  from: number;
-  to: number;
+  entryId: EntryId;
+  destinationId: EntryId;
+  order: 'before' | 'after' | 'insert';
 };
 
 /**

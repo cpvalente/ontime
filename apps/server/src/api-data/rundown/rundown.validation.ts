@@ -35,9 +35,9 @@ export const rundownBatchPutValidator = [
 ];
 
 export const rundownReorderValidator = [
-  body('eventId').isString().exists(),
-  body('from').isNumeric().exists(),
-  body('to').isNumeric().exists(),
+  body('entryId').isString().exists(),
+  body('destinationId').isString().exists(),
+  body('order').isIn(['before', 'after', 'insert']).exists(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

@@ -42,7 +42,7 @@ import { cloneEvent } from '../../common/utils/clone';
 import BlockBlock from './block-block/BlockBlock';
 import BlockEnd from './block-block/BlockEnd';
 import QuickAddBlock from './quick-add-block/QuickAddBlock';
-import { getNextId, getPreviousId, makeRundownMetadata, makeSortableList } from './rundown.utils';
+import { makeRundownMetadata, makeSortableList, moveDown, moveUp } from './rundown.utils';
 import RundownEmpty from './RundownEmpty';
 import { useEventSelection } from './useEventSelection';
 
@@ -188,19 +188,26 @@ export default function Rundown({ data }: RundownProps) {
   );
 
   const moveEntry = useCallback(
-    (cursor: string | null, direction: 'up' | 'down') => {
-      if (order.length < 2 || cursor == null) {
+    (cursor: EntryId | null, direction: 'up' | 'down') => {
+      if (sortableData.length < 2 || cursor == null) {
         return;
       }
 
-      const destinationId = direction === 'up' ? getPreviousId(cursor, sortableData) : getNextId(cursor, sortableData);
-      if (direction === 'up' && destinationId === null) {
-        reorderEntry(cursor, cursor, 'before');
-      } else if (destinationId !== null) {
-        reorderEntry(cursor, destinationId);
+      const { destinationId, order, isBlock } =
+        direction === 'up' ? moveUp(cursor, sortableData, entries) : moveDown(cursor, sortableData, entries);
+
+      if (!destinationId) {
+        return;
       }
+
+      // if we are moving into a block, we need to make sure it is expanded
+      if (isBlock) {
+        handleCollapseGroup(false, destinationId);
+      }
+
+      reorderEntry(cursor, destinationId, order as 'before' | 'after' | 'insert');
     },
-    [order.length, sortableData, reorderEntry],
+    [sortableData, reorderEntry],
   );
 
   // shortcuts
@@ -285,17 +292,33 @@ export default function Rundown({ data }: RundownProps) {
   const handleOnDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (over?.id) {
-      if (active.id !== over?.id) {
-        // we keep a copy of the state as a hack to handle inconsistencies between dnd-kit and async store updates
-        setSortableData((currentEntries) => {
-          const fromIndex = active.data.current?.sortable.index;
-          const toIndex = over.data.current?.sortable.index;
-          return reorderArray(currentEntries, fromIndex, toIndex);
-        });
-        reorderEntry(active.id as string, over.id as string, 'before');
-      }
+    if (!over?.id || active.id === over.id) {
+      return;
     }
+
+    const fromIndex = active.data.current?.sortable.index;
+    const toIndex = over.data.current?.sortable.index;
+
+    // we keep a copy of the state as a hack to handle inconsistencies between dnd-kit and async store updates
+    setSortableData((currentEntries) => {
+      return reorderArray(currentEntries, fromIndex, toIndex);
+    });
+
+    let destinationId = over.id as EntryId;
+    let order: 'before' | 'after' | 'insert' = fromIndex < toIndex ? 'after' : 'before';
+
+    /**
+     * We need to specially handle the end blocks
+     * Dragging before and end block will add the entry to the end of the block
+     * Dragging after an end block will add the event after the block itself
+     */
+    if (destinationId.startsWith('end-')) {
+      destinationId = destinationId.replace('end-', '');
+      // if we are moving before the end, we use the insert operation
+      order = 'insert';
+    }
+
+    reorderEntry(active.id as EntryId, destinationId, order);
   };
 
   /**
