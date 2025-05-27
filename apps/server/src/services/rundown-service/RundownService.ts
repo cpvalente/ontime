@@ -187,13 +187,14 @@ export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>)
 
 /**
  * reorders a given entry
- * @param {string} eventId - ID of event from, for sanity check
- * @param {number} from - index of event from
- * @param {number} to - index of event to
  */
-export async function reorderEntry(eventId: EntryId, from: number, to: number): Promise<Rundown> {
+export async function reorderEntry(
+  entryId: EntryId,
+  destinationId: EntryId,
+  order: 'before' | 'after' | 'insert',
+): Promise<Rundown> {
   const scopedMutation = cache.mutateCache(cache.reorder);
-  const { changeList, newRundown } = await scopedMutation({ eventId, from, to });
+  const { changeList, newRundown } = await scopedMutation({ entryId, destinationId, order });
 
   // notify runtime that rundown has changed
   updateRuntimeOnChange();

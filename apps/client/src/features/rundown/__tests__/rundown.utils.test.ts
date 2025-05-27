@@ -1,6 +1,6 @@
-import { OntimeBlock, OntimeDelay, OntimeEvent, RundownEntries, SupportedEntry } from 'ontime-types';
+import { EntryId, OntimeBlock, OntimeDelay, OntimeEvent, RundownEntries, SupportedEntry } from 'ontime-types';
 
-import { makeRundownMetadata, makeSortableList } from '../rundown.utils';
+import { makeRundownMetadata, makeSortableList, moveDown, moveUp } from '../rundown.utils';
 
 describe('makeRundownMetadata()', () => {
   it('processes nested rundown data', () => {
@@ -332,4 +332,68 @@ describe('makeSortableList()', () => {
     const sortableList = makeSortableList(order, entries);
     expect(sortableList).toStrictEqual(['block-1', 'end-block-1', 'block-2', 'end-block-2']);
   });
+});
+
+describe('moveUp()', () => {
+  const sortableData = ['event1', 'event2', 'block1', 'event11', 'end-block1', 'block2', 'end-block2', 'event3'];
+  const entries = {
+    event1: { type: 'event', id: 'event1', parent: null } as OntimeEvent,
+    event2: { type: 'event', id: 'event2', parent: null }as OntimeEvent,
+    block1: { type: 'block', id: 'block1', events: ['event3'] } as OntimeBlock,
+    event11: { type: 'event', id: 'event11', parent: 'block1' } as OntimeEvent,
+    block2: { type: 'block', id: 'block2', events: [] as EntryId[] } as OntimeBlock,
+    event3: { type: 'event', id: 'event3', parent: null } as OntimeEvent,
+  };
+
+  it('moves an event up in the list', () => {
+    const result = moveUp('event2', sortableData, entries);
+    expect(result).toStrictEqual({ destinationId: 'event1', order: 'before', isBlock: false });
+  })
+
+  it.todo('disallows nesting blocks', () => {
+    const result = moveUp('block2', sortableData, entries);
+    expect(result).toStrictEqual({ destinationId: 'block1', order: 'before', isBlock: false });
+  })
+
+  it('moves an event into a block', () => {
+    const result = moveUp('event3', sortableData, entries);
+    expect(result).toStrictEqual({ destinationId: 'block2', order: 'insert', isBlock: true });
+  })
+
+  it('moving up from top is noop', () => {
+    const result = moveUp('event1', sortableData, entries);
+    expect(result).toMatchObject({ destinationId: null });
+  })
+});
+
+describe('moveDown()', () => {
+  const sortableData = ['event1', 'event2', 'block1', 'event11', 'end-block1', 'block2', 'end-block2', 'event3'];
+  const entries = {
+    event1: { type: 'event', id: 'event1', parent: null } as OntimeEvent,
+    event2: { type: 'event', id: 'event2', parent: null }as OntimeEvent,
+    block1: { type: 'block', id: 'block1', events: ['event11'] } as OntimeBlock,
+    event11: { type: 'event', id: 'event11', parent: 'block1' } as OntimeEvent,
+    block2: { type: 'block', id: 'block2', events: [] as EntryId[] } as OntimeBlock,
+    event3: { type: 'event', id: 'event3', parent: null } as OntimeEvent,
+  };
+
+  it('moves an event down in the list', () => {
+    const result = moveDown('event1', sortableData, entries);
+    expect(result).toStrictEqual({ destinationId: 'event2', order: 'after', isBlock: false });
+  })
+
+  it.todo('disallows nesting blocks', () => {
+    const result = moveDown('block1', sortableData, entries);
+    expect(result).toStrictEqual({ destinationId: 'block2', order: 'before', isBlock: false });
+  })
+
+  it('moves an event into a block', () => {
+    const result = moveDown('event2', sortableData, entries);
+    expect(result).toStrictEqual({ destinationId: 'event11', order: 'before', isBlock: true });
+  })
+
+  it('moving down from bottom is noop', () => {
+    const result = moveDown('event3', sortableData, entries);
+    expect(result).toMatchObject({ destinationId: null });
+  })
 });
