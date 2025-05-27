@@ -6,12 +6,13 @@ import useReactiveTextInput from '../../../../common/components/input/text-input
 interface MultiLineCellProps {
   initialValue: string;
   handleUpdate: (newValue: string) => void;
+  allowEdits?: boolean;
 }
 
 export default memo(MultiLineCell);
 
 function MultiLineCell(props: MultiLineCellProps) {
-  const { initialValue, handleUpdate } = props;
+  const { initialValue, handleUpdate, allowEdits } = props;
   const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback((newValue: string) => handleUpdate(newValue), [handleUpdate]);
 
@@ -38,6 +39,7 @@ function MultiLineCell(props: MultiLineCellProps) {
       onBlur={onBlur}
       onKeyDown={onKeyDown}
       spellCheck={false}
+      isDisabled={!allowEdits}
     />
   );
 }

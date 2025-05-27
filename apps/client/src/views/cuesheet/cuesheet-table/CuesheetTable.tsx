@@ -1,4 +1,5 @@
 import { useCallback, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useTableNav } from '@table-nav/react';
 import { ColumnDef, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { isOntimeEvent, MaybeString, OntimeEvent, OntimeRundown, OntimeRundownEntry, TimeField } from 'ontime-types';
@@ -25,6 +26,9 @@ export default function CuesheetTable(props: CuesheetTableProps) {
   const { data, columns, showModal } = props;
 
   const { updateEvent, updateTimer } = useEventAction();
+  const [searchParams] = useSearchParams();
+  const blockEdits = searchParams.get('locked') ?? false;
+
   const { followSelected, showDelayedTimes, hideTableSeconds } = useCuesheetOptions();
   const { columnVisibility, columnOrder, columnSizing, resetColumnOrder, setColumnVisibility, setColumnSizing } =
     useColumnManager(columns);
@@ -77,6 +81,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
       options: {
         showDelayedTimes,
         hideTableSeconds,
+        allowEdits: !blockEdits,
       },
     },
   });

@@ -31,6 +31,7 @@ declare module '@tanstack/react-table' {
     options: {
       showDelayedTimes: boolean;
       hideTableSeconds: boolean;
+      allowEdits: boolean;
     };
   }
 }

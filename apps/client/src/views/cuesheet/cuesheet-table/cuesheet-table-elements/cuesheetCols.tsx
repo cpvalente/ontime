@@ -32,7 +32,13 @@ function MakeStart({ getValue, row, table }: CellContext<OntimeRundownEntry, unk
   }
 
   return (
-    <TimeInput initialValue={startTime} onSubmit={update} lockedValue={isStartLocked} delayed={delayValue !== 0}>
+    <TimeInput
+      initialValue={startTime}
+      onSubmit={update}
+      lockedValue={isStartLocked}
+      delayed={delayValue !== 0}
+      allowEdits={table.options.meta?.options.allowEdits}
+    >
       {formattedTime}
       <DelayIndicator delayValue={delayValue} tooltipPrefix={millisToString(startTime)} />
     </TimeInput>
@@ -60,7 +66,13 @@ function MakeEnd({ getValue, row, table }: CellContext<OntimeRundownEntry, unkno
   }
 
   return (
-    <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked} delayed={delayValue !== 0}>
+    <TimeInput
+      initialValue={endTime}
+      onSubmit={update}
+      lockedValue={isEndLocked}
+      delayed={delayValue !== 0}
+      allowEdits={table.options.meta?.options.allowEdits}
+    >
       {formattedTime}
       <DelayIndicator delayValue={delayValue} tooltipPrefix={millisToString(endTime)} />
     </TimeInput>
@@ -81,7 +93,12 @@ function MakeDuration({ getValue, row, table }: CellContext<OntimeRundownEntry, 
   const formattedDuration = formatDuration(duration, false);
 
   return (
-    <TimeInput initialValue={duration} onSubmit={update} lockedValue={isDurationLocked}>
+    <TimeInput
+      initialValue={duration}
+      onSubmit={update}
+      lockedValue={isDurationLocked}
+      allowEdits={table.options.meta?.options.allowEdits}
+    >
       {formattedDuration}
     </TimeInput>
   );
@@ -103,7 +120,13 @@ function MakeMultiLineField({ row, column, table }: CellContext<OntimeRundownEnt
 
   const initialValue = event[column.id as keyof OntimeRundownEntry] ?? '';
 
-  return <MultiLineCell initialValue={initialValue} handleUpdate={update} />;
+  return (
+    <MultiLineCell
+      initialValue={initialValue}
+      handleUpdate={update}
+      allowEdits={table.options.meta?.options.allowEdits}
+    />
+  );
 }
 
 function LazyImage({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
@@ -140,7 +163,13 @@ function MakeSingleLineField({ row, column, table }: CellContext<OntimeRundownEn
 
   const initialValue = event[column.id as keyof OntimeRundownEntry] ?? '';
 
-  return <SingleLineCell initialValue={initialValue} handleUpdate={update} />;
+  return (
+    <SingleLineCell
+      initialValue={initialValue}
+      handleUpdate={update}
+      allowEdits={table.options.meta?.options.allowEdits}
+    />
+  );
 }
 
 function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry, unknown>) {
@@ -158,7 +187,13 @@ function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry,
   }
 
   const initialValue = event.custom[column.id] ?? '';
-  return <MultiLineCell initialValue={initialValue} handleUpdate={update} />;
+  return (
+    <MultiLineCell
+      initialValue={initialValue}
+      handleUpdate={update}
+      allowEdits={table.options.meta?.options.allowEdits}
+    />
+  );
 }
 
 export function makeCuesheetColumns(customFields: CustomFields): ColumnDef<OntimeRundownEntry>[] {
