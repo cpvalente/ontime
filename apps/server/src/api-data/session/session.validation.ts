@@ -5,6 +5,8 @@ export const validateGenerateUrl = [
   body('baseUrl').exists().isString().notEmpty().trim(),
   body('path').exists().isString().trim(),
   body('lock').exists().isBoolean(),
+  body('lockMainFields').exists().isBoolean(),
+  body('lockCustomFields').exists().isBoolean(),
   body('authenticate').exists().isBoolean(),
 
   (req: Request, res: Response, next: NextFunction) => {

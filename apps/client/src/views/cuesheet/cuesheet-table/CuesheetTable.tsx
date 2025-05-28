@@ -27,7 +27,8 @@ export default function CuesheetTable(props: CuesheetTableProps) {
 
   const { updateEvent, updateTimer } = useEventAction();
   const [searchParams] = useSearchParams();
-  const blockEdits = searchParams.get('locked') ?? false;
+  const allowMainEdits = !searchParams.get('lmain');
+  const allowCustomEdits = !searchParams.get('lcustom');
 
   const { followSelected, showDelayedTimes, hideTableSeconds } = useCuesheetOptions();
   const { columnVisibility, columnOrder, columnSizing, resetColumnOrder, setColumnVisibility, setColumnSizing } =
@@ -81,7 +82,8 @@ export default function CuesheetTable(props: CuesheetTableProps) {
       options: {
         showDelayedTimes,
         hideTableSeconds,
-        allowEdits: !blockEdits,
+        allowMainEdits,
+        allowCustomEdits,
       },
     },
   });

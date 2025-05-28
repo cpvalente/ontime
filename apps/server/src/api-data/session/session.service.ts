@@ -59,6 +59,8 @@ export function generateAuthenticatedUrl(
   baseUrl: string,
   path: string,
   lock: boolean,
+  lockMainFields: boolean,
+  lockCustomFields: boolean,
   authenticate: boolean,
   prefix = routerPrefix,
   hash = hashedPassword,
@@ -71,6 +73,12 @@ export function generateAuthenticatedUrl(
   }
   if (lock) {
     url.searchParams.append('locked', 'true');
+  }
+  if (lockMainFields) {
+    url.searchParams.append('lmain', 'true');
+  }
+  if (lockCustomFields) {
+    url.searchParams.append('lcustom', 'true');
   }
   return url;
 }

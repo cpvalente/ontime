@@ -31,6 +31,8 @@ export async function generateUrl(req: Request, res: Response<GetUrl | ErrorResp
       req.body.baseUrl,
       req.body.path,
       req.body.lock,
+      req.body.lockMainFields,
+      req.body.lockCustomFields,
       req.body.authenticate,
     );
     res.status(200).send({ url: url.toString() });

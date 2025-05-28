@@ -37,7 +37,7 @@ function MakeStart({ getValue, row, table }: CellContext<OntimeRundownEntry, unk
       onSubmit={update}
       lockedValue={isStartLocked}
       delayed={delayValue !== 0}
-      allowEdits={table.options.meta?.options.allowEdits}
+      allowEdits={table.options.meta?.options.allowMainEdits}
     >
       {formattedTime}
       <DelayIndicator delayValue={delayValue} tooltipPrefix={millisToString(startTime)} />
@@ -71,7 +71,7 @@ function MakeEnd({ getValue, row, table }: CellContext<OntimeRundownEntry, unkno
       onSubmit={update}
       lockedValue={isEndLocked}
       delayed={delayValue !== 0}
-      allowEdits={table.options.meta?.options.allowEdits}
+      allowEdits={table.options.meta?.options.allowMainEdits}
     >
       {formattedTime}
       <DelayIndicator delayValue={delayValue} tooltipPrefix={millisToString(endTime)} />
@@ -97,7 +97,7 @@ function MakeDuration({ getValue, row, table }: CellContext<OntimeRundownEntry, 
       initialValue={duration}
       onSubmit={update}
       lockedValue={isDurationLocked}
-      allowEdits={table.options.meta?.options.allowEdits}
+      allowEdits={table.options.meta?.options.allowMainEdits}
     >
       {formattedDuration}
     </TimeInput>
@@ -124,7 +124,7 @@ function MakeMultiLineField({ row, column, table }: CellContext<OntimeRundownEnt
     <MultiLineCell
       initialValue={initialValue}
       handleUpdate={update}
-      allowEdits={table.options.meta?.options.allowEdits}
+      allowEdits={table.options.meta?.options.allowMainEdits}
     />
   );
 }
@@ -167,7 +167,7 @@ function MakeSingleLineField({ row, column, table }: CellContext<OntimeRundownEn
     <SingleLineCell
       initialValue={initialValue}
       handleUpdate={update}
-      allowEdits={table.options.meta?.options.allowEdits}
+      allowEdits={table.options.meta?.options.allowMainEdits}
     />
   );
 }
@@ -191,7 +191,7 @@ function MakeCustomField({ row, column, table }: CellContext<OntimeRundownEntry,
     <MultiLineCell
       initialValue={initialValue}
       handleUpdate={update}
-      allowEdits={table.options.meta?.options.allowEdits}
+      allowEdits={table.options.meta?.options.allowCustomEdits}
     />
   );
 }
