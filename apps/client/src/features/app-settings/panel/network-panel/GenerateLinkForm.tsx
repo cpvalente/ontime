@@ -20,6 +20,8 @@ interface GenerateLinkFormOptions {
   baseUrl: string;
   path: string;
   lock: boolean;
+  lockMainFields: boolean;
+  lockCustomFields: boolean;
   authenticate: boolean;
 }
 
@@ -35,13 +37,15 @@ export default function GenerateLinkForm() {
     handleSubmit,
     register,
     setError,
-    formState: { errors },
+    formState: { errors, dirtyFields },
   } = useForm<GenerateLinkFormOptions>({
     mode: 'onChange',
     defaultValues: {
       baseUrl: currentHostName,
       path: '',
       lock: false,
+      lockMainFields: false,
+      lockCustomFields: false,
       authenticate: false,
     },
     resetOptions: {
@@ -53,7 +57,14 @@ export default function GenerateLinkForm() {
     try {
       setFormState('loading');
       const baseUrl = linkToOtherHost(options.baseUrl);
-      const url = await generateUrl(baseUrl, options.path, options.lock, options.authenticate);
+      const url = await generateUrl(
+        baseUrl,
+        options.path,
+        options.lock,
+        options.lockMainFields,
+        options.lockCustomFields,
+        options.authenticate,
+      );
       await copyToClipboard(url);
       setUrl(url);
       setFormState('success');
@@ -119,6 +130,18 @@ export default function GenerateLinkForm() {
           />
           <Switch variant='ontime' size='lg' {...register('lock')} />
         </Panel.ListItem>
+        {dirtyFields.lock && (
+          <>
+            <Panel.ListItem>
+              <Panel.Field title='Lock main field edits' description='Prevent edits to main fields' />
+              <Switch variant='ontime' size='lg' {...register('lockMainFields')} />
+            </Panel.ListItem>
+            <Panel.ListItem>
+              <Panel.Field title='Lock custom field edits' description='Prevent edits to custom fields' />
+              <Switch variant='ontime' size='lg' {...register('lockCustomFields')} />
+            </Panel.ListItem>
+          </>
+        )}
         <Panel.ListItem>
           <Panel.Field title='Authenticate' description='Whether the URL should be pre-authenticated' />
           <Switch variant='ontime' size='lg' {...register('authenticate')} />

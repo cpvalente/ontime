@@ -49,6 +49,13 @@ export const cuesheetOptions: ViewOption[] = [
         type: 'boolean',
         defaultValue: false,
       },
+      {
+        id: 'hideCustomColumns',
+        title: 'Hide custom data columns',
+        description: 'Whether the hide the custom data in the table',
+        type: 'boolean',
+        defaultValue: false,
+      },
     ],
   },
   {
@@ -81,6 +88,7 @@ type CuesheetOptions = {
   hideIndexColumn: boolean;
   showDelayedTimes: boolean;
   hideDelays: boolean;
+  hideCustom: boolean;
 };
 
 /**
@@ -97,6 +105,7 @@ function getOptionsFromParams(searchParams: URLSearchParams): CuesheetOptions {
     hideIndexColumn: isStringBoolean(searchParams.get('hideIndexColumn')),
     showDelayedTimes: isStringBoolean(searchParams.get('showDelayedTimes')),
     hideDelays: isStringBoolean(searchParams.get('hideDelays')),
+    hideCustom: isStringBoolean(searchParams.get('hideCustomColumns')),
   };
 }
 

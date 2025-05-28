@@ -8,6 +8,7 @@ interface TimeInputDurationProps {
   initialValue: number;
   lockedValue: boolean;
   delayed?: boolean;
+  allowEdits?: boolean;
   onSubmit: (value: string) => void;
 }
 
@@ -18,7 +19,7 @@ interface ParentFocusableInput extends HTMLInputElement {
 export default memo(TimeInputDuration);
 
 function TimeInputDuration(props: PropsWithChildren<TimeInputDurationProps>) {
-  const { initialValue, lockedValue, delayed, onSubmit, children } = props;
+  const { initialValue, lockedValue, delayed, onSubmit, children, allowEdits } = props;
 
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialValue);
@@ -86,7 +87,7 @@ function TimeInputDuration(props: PropsWithChildren<TimeInputDurationProps>) {
 
   const timeString = millisToString(value);
 
-  return isEditing ? (
+  return isEditing && allowEdits ? (
     <SingleLineCell
       ref={inputRef}
       initialValue={timeString}

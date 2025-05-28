@@ -45,11 +45,14 @@ export function getRouteFromPreset(location: Path, urlPresets: URLPreset[]): str
   const locked = searchParams.get('locked');
   const token = searchParams.get('token');
 
+  const lmain = searchParams.get('lmain');
+  const lcustom = searchParams.get('lcustom');
+
   // we need to check if the whole url is an alias
   const foundPreset = urlPresets.find((preset) => preset.alias === removeTrailingSlash(currentURL) && preset.enabled);
   if (foundPreset) {
     // if so, we can redirect to the preset path
-    return generatePathFromPreset(foundPreset.pathAndParams, foundPreset.alias, locked, token);
+    return generatePathFromPreset(foundPreset.pathAndParams, foundPreset.alias, locked, token, lmain, lcustom);
   }
 
   // if the current url is not an alias, we check if the alias is in the search parameters
@@ -63,7 +66,7 @@ export function getRouteFromPreset(location: Path, urlPresets: URLPreset[]): str
   for (const preset of urlPresets) {
     // if the page has a known enabled alias, we check if we need to redirect
     if (preset.alias === presetOnPage && preset.enabled) {
-      const newPath = generatePathFromPreset(preset.pathAndParams, preset.alias, locked, token);
+      const newPath = generatePathFromPreset(preset.pathAndParams, preset.alias, locked, token, lmain, lcustom);
       if (!arePathsEquivalent(currentPath, newPath)) {
         // if current path is out of date
         // return new path so we can redirect
@@ -77,7 +80,14 @@ export function getRouteFromPreset(location: Path, urlPresets: URLPreset[]): str
 /**
  * Handles generating a path and search parameters from a preset
  */
-export function generatePathFromPreset(pathAndParams: string, alias: string, locked: string | null, token: string | null ): string {
+export function generatePathFromPreset(
+  pathAndParams: string,
+  alias: string,
+  locked: string | null,
+  token: string | null,
+  lmain: string | null,
+  lcustom: string | null,
+): string {
   const path = resolvePath(pathAndParams);
   const searchParams = new URLSearchParams(path.search);
 
@@ -93,6 +103,14 @@ export function generatePathFromPreset(pathAndParams: string, alias: string, loc
     searchParams.set('token', token);
   }
 
+  if (lmain) {
+    searchParams.set('lmain', lmain);
+  }
+
+  if (lcustom) {
+    searchParams.set('lcustom', lcustom);
+  }
+
   // return path concatenated without the leading slash
   return `${path.pathname}?${searchParams}`.substring(1);
 }
@@ -106,16 +124,16 @@ export function generatePathFromPreset(pathAndParams: string, alias: string, loc
 export function arePathsEquivalent(currentPath: string, newPath: string): boolean {
   const currentUrl = new URL(currentPath, document.location.origin);
   const newUrl = new URL(newPath, document.location.origin);
-  
+
   // check path
   if (currentUrl.pathname !== newUrl.pathname) {
-    return false
+    return false;
   }
 
   // check search params
   // if the params match, we dont need further checks
   if (currentUrl.searchParams.toString() === newUrl.searchParams.toString()) {
-    return true
+    return true;
   }
 
   // if there is no match, we check the edge cases for the url sharing feature

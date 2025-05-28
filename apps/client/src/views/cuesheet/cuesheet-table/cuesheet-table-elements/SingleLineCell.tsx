@@ -1,17 +1,18 @@
 import { forwardRef, memo, useCallback, useImperativeHandle, useRef } from 'react';
-import { Input } from '@chakra-ui/react';
+import { Input, Text } from '@chakra-ui/react';
 
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
 
 interface SingleLineCellProps {
   initialValue: string;
   allowSubmitSameValue?: boolean;
+  allowEdits?: boolean;
   handleUpdate: (newValue: string) => void;
   handleCancelUpdate?: () => void;
 }
 
 const SingleLineCell = forwardRef((props: SingleLineCellProps, inputRef) => {
-  const { initialValue, allowSubmitSameValue, handleUpdate, handleCancelUpdate } = props;
+  const { initialValue, allowSubmitSameValue, handleUpdate, handleCancelUpdate, allowEdits } = props;
   const ref = useRef<HTMLInputElement | null>(null);
   const submitCallback = useCallback((newValue: string) => handleUpdate(newValue), [handleUpdate]);
 
@@ -37,6 +38,14 @@ const SingleLineCell = forwardRef((props: SingleLineCellProps, inputRef) => {
       },
     };
   }, [ref]);
+
+  if (allowEdits === false) {
+    return (
+      <Text ref={ref} size='sm' variant='ontime-transparent' padding={0} fontSize='md'>
+        {initialValue}
+      </Text>
+    );
+  }
 
   return (
     <Input
