@@ -1,4 +1,4 @@
-FROM node:20-bullseye AS builder
+FROM node:22-bullseye AS builder
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN npm install -g pnpm@9.5.0
@@ -7,7 +7,7 @@ WORKDIR /app
 RUN pnpm --filter=ontime-ui --filter=ontime-server --filter=ontime-utils install --config.dedupe-peer-dependents=false --frozen-lockfile
 RUN pnpm --filter=ontime-ui --filter=ontime-server run build:docker
 
-FROM node:20-alpine
+FROM node:22-alpine
 
 # Set environment variables
 # Environment Variable to signal that we are running production
