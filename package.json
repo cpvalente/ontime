@@ -16,7 +16,7 @@
   },
   "license": "AGPL-3.0-only",
   "engines": {
-    "node": "~20",
+    "node": "~22",
     "pnpm": "~9"
   },
   "type": "module",

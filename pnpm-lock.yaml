@@ -7,8 +7,8 @@ settings:
 catalogs:
   default:
     '@types/node':
-      specifier: 20.17.16
-      version: 20.17.16
+      specifier: 22.15.26
+      version: 22.15.26
     '@typescript-eslint/eslint-plugin':
       specifier: 7.16.1
       version: 7.16.1
@@ -43,7 +43,7 @@ importers:
         version: 1.49.1
       '@types/node':
         specifier: 'catalog:'
-        version: 20.17.16
+        version: 22.15.26
       '@typescript-eslint/eslint-plugin':
         specifier: 'catalog:'
         version: 7.16.1(@typescript-eslint/parser@7.16.1(eslint@8.56.0)(typescript@5.5.3))(eslint@8.56.0)(typescript@5.5.3)
@@ -206,7 +206,7 @@ importers:
         version: 7.16.1(eslint@8.56.0)(typescript@5.5.3)
       '@vitejs/plugin-react':
         specifier: ^4.2.1
-        version: 4.2.1(vite@5.2.11(@types/node@22.10.10)(sass@1.57.1))
+        version: 4.2.1(vite@5.2.11(@types/node@22.15.26)(sass@1.57.1))
       eslint:
         specifier: 'catalog:'
         version: 8.56.0
@@ -248,19 +248,19 @@ importers:
         version: 5.5.3
       vite:
         specifier: ^5.2.11
-        version: 5.2.11(@types/node@22.10.10)(sass@1.57.1)
+        version: 5.2.11(@types/node@22.15.26)(sass@1.57.1)
       vite-plugin-compression2:
         specifier: ^1.3.3
-        version: 1.3.3(rollup@4.17.2)(vite@5.2.11(@types/node@22.10.10)(sass@1.57.1))
+        version: 1.3.3(rollup@4.17.2)(vite@5.2.11(@types/node@22.15.26)(sass@1.57.1))
       vite-plugin-svgr:
         specifier: ^4.2.0
-        version: 4.2.0(rollup@4.17.2)(typescript@5.5.3)(vite@5.2.11(@types/node@22.10.10)(sass@1.57.1))
+        version: 4.2.0(rollup@4.17.2)(typescript@5.5.3)(vite@5.2.11(@types/node@22.15.26)(sass@1.57.1))
       vite-tsconfig-paths:
         specifier: ^4.3.1
-        version: 4.3.1(typescript@5.5.3)(vite@5.2.11(@types/node@22.10.10)(sass@1.57.1))
+        version: 4.3.1(typescript@5.5.3)(vite@5.2.11(@types/node@22.15.26)(sass@1.57.1))
       vitest:
         specifier: 'catalog:'
-        version: 2.1.6(@types/node@22.10.10)(happy-dom@16.7.2)(jsdom@21.1.0)(sass@1.57.1)
+        version: 2.1.6(@types/node@22.15.26)(happy-dom@16.7.2)(jsdom@21.1.0)(sass@1.57.1)
 
   apps/electron:
     devDependencies:
@@ -354,7 +354,7 @@ importers:
         version: 1.4.11
       '@types/node':
         specifier: 'catalog:'
-        version: 20.17.16
+        version: 22.15.26
       '@types/websocket':
         specifier: ^1.0.5
         version: 1.0.5
@@ -399,7 +399,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: 'catalog:'
-        version: 2.1.6(@types/node@20.17.16)(happy-dom@16.7.2)(jsdom@21.1.0)(sass@1.57.1)
+        version: 2.1.6(@types/node@22.15.26)(happy-dom@16.7.2)(jsdom@21.1.0)(sass@1.57.1)
 
   packages/types:
     devDependencies:
@@ -454,7 +454,7 @@ importers:
         version: 5.5.3
       vitest:
         specifier: 'catalog:'
-        version: 2.1.6(@types/node@22.10.10)(happy-dom@16.7.2)(jsdom@21.1.0)(sass@1.57.1)
+        version: 2.1.6(@types/node@22.15.26)(happy-dom@16.7.2)(jsdom@21.1.0)(sass@1.57.1)
 
 packages:
 
@@ -1071,11 +1071,6 @@ packages:
 
   '@electron/asar@3.2.18':
     resolution: {integrity: sha512-2XyvMe3N3Nrs8cV39IKELRHTYUWFKrmqqSY1U+GMlc0jvqjIVnoxhNd2H4JolWQncbJi1DCvb5TNxZuI2fEjWg==}
-    engines: {node: '>=10.12.0'}
-    hasBin: true
-
-  '@electron/asar@3.2.8':
-    resolution: {integrity: sha512-cmskk5M06ewHMZAplSiF4AlME3IrnnZhKnWbtwKVLRkdJkKyUVjMLhDIiPIx/+6zQWVlKX/LtmK9xDme7540Sg==}
     engines: {node: '>=10.12.0'}
     hasBin: true
 
@@ -2130,11 +2125,11 @@ packages:
   '@types/multer@1.4.11':
     resolution: {integrity: sha512-svK240gr6LVWvv3YGyhLlA+6LRRWA4mnGIU7RcNmgjBYFl6665wcXrRfxGp5tEPVHUNm5FMcmq7too9bxCwX/w==}
 
-  '@types/node@20.17.16':
-    resolution: {integrity: sha512-vOTpLduLkZXePLxHiHsBLp98mHGnl8RptV4YAO3HfKO5UHjDvySGbxKtpYfy8Sx5+WKcgc45qNreJJRVM3L6mw==}
-
   '@types/node@22.10.10':
     resolution: {integrity: sha512-X47y/mPNzxviAGY5TcYPtYL8JsY3kAq2n8fMmKoRCxq/c4v4pyGNCzM2R6+M5/umG4ZfHuT+sgqDYqWc9rJ6ww==}
+
+  '@types/node@22.15.26':
+    resolution: {integrity: sha512-lgISkNrqdQ5DAzjBhnDNGKDuXDNo7/1V4FhNzsKREhWLZTOELQAptuAnJMzHtUl1qyEBBy9lNBKQ9WjyiSloTw==}
 
   '@types/parse-json@4.0.0':
     resolution: {integrity: sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==}
@@ -5162,11 +5157,11 @@ packages:
   unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==}
 
-  undici-types@6.19.8:
-    resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
-
   undici-types@6.20.0:
     resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
+
+  undici-types@6.21.0:
+    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
   unique-filename@2.0.1:
     resolution: {integrity: sha512-ODWHtkkdx3IAR+veKxFV+VBkUMcN+FaqzUUd7IZzt+0zhDZFPFxhlqwPF3YQvMHx1TD0tdgYl+kuPnJ8E6ql7A==}
@@ -6384,12 +6379,6 @@ snapshots:
       glob: 7.2.3
       minimatch: 3.1.2
 
-  '@electron/asar@3.2.8':
-    dependencies:
-      commander: 5.1.0
-      glob: 7.2.3
-      minimatch: 3.1.2
-
   '@electron/fuses@1.8.0':
     dependencies:
       chalk: 4.1.2
@@ -6486,7 +6475,7 @@ snapshots:
 
   '@electron/universal@1.5.1':
     dependencies:
-      '@electron/asar': 3.2.8
+      '@electron/asar': 3.2.18
       '@malept/cross-spawn-promise': 1.1.1
       debug: 4.3.7
       dir-compare: 3.3.0
@@ -6888,7 +6877,7 @@ snapshots:
 
   '@malept/cross-spawn-promise@1.1.1':
     dependencies:
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
 
   '@malept/cross-spawn-promise@2.0.0':
     dependencies:
@@ -7252,7 +7241,7 @@ snapshots:
   '@types/body-parser@1.19.2':
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 22.10.10
+      '@types/node': 22.15.26
 
   '@types/cacheable-request@6.0.3':
     dependencies:
@@ -7273,11 +7262,11 @@ snapshots:
 
   '@types/connect@3.4.35':
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 22.15.26
 
   '@types/cors@2.8.17':
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 22.15.26
 
   '@types/debug@4.1.12':
     dependencies:
@@ -7287,7 +7276,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.17.33':
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 22.15.26
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
 
@@ -7324,13 +7313,13 @@ snapshots:
     dependencies:
       '@types/express': 4.17.17
 
-  '@types/node@20.17.16':
-    dependencies:
-      undici-types: 6.19.8
-
   '@types/node@22.10.10':
     dependencies:
       undici-types: 6.20.0
+
+  '@types/node@22.15.26':
+    dependencies:
+      undici-types: 6.21.0
 
   '@types/parse-json@4.0.0': {}
 
@@ -7369,18 +7358,18 @@ snapshots:
   '@types/serve-static@1.15.0':
     dependencies:
       '@types/mime': 3.0.1
-      '@types/node': 22.10.10
+      '@types/node': 22.15.26
 
   '@types/verror@1.10.9':
     optional: true
 
   '@types/websocket@1.0.5':
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 22.15.26
 
   '@types/ws@8.5.10':
     dependencies:
-      '@types/node': 22.10.10
+      '@types/node': 22.15.26
 
   '@types/yauzl@2.10.3':
     dependencies:
@@ -7511,14 +7500,14 @@ snapshots:
 
   '@ungap/structured-clone@1.2.0': {}
 
-  '@vitejs/plugin-react@4.2.1(vite@5.2.11(@types/node@22.10.10)(sass@1.57.1))':
+  '@vitejs/plugin-react@4.2.1(vite@5.2.11(@types/node@22.15.26)(sass@1.57.1))':
     dependencies:
       '@babel/core': 7.23.6
       '@babel/plugin-transform-react-jsx-self': 7.23.3(@babel/core@7.23.6)
       '@babel/plugin-transform-react-jsx-source': 7.23.3(@babel/core@7.23.6)
       '@types/babel__core': 7.20.5
       react-refresh: 0.14.0
-      vite: 5.2.11(@types/node@22.10.10)(sass@1.57.1)
+      vite: 5.2.11(@types/node@22.15.26)(sass@1.57.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -7529,21 +7518,13 @@ snapshots:
       chai: 5.1.2
       tinyrainbow: 1.2.0
 
-  '@vitest/mocker@2.1.6(vite@5.2.11(@types/node@20.17.16)(sass@1.57.1))':
+  '@vitest/mocker@2.1.6(vite@5.2.11(@types/node@22.15.26)(sass@1.57.1))':
     dependencies:
       '@vitest/spy': 2.1.6
       estree-walker: 3.0.3
       magic-string: 0.30.14
     optionalDependencies:
-      vite: 5.2.11(@types/node@20.17.16)(sass@1.57.1)
-
-  '@vitest/mocker@2.1.6(vite@5.2.11(@types/node@22.10.10)(sass@1.57.1))':
-    dependencies:
-      '@vitest/spy': 2.1.6
-      estree-walker: 3.0.3
-      magic-string: 0.30.14
-    optionalDependencies:
-      vite: 5.2.11(@types/node@22.10.10)(sass@1.57.1)
+      vite: 5.2.11(@types/node@22.15.26)(sass@1.57.1)
 
   '@vitest/pretty-format@2.1.6':
     dependencies:
@@ -7692,7 +7673,7 @@ snapshots:
       read-config-file: 6.3.2
       sanitize-filename: 1.6.3
       semver: 7.6.2
-      tar: 6.2.0
+      tar: 6.2.1
       temp-file: 3.4.0
     transitivePeerDependencies:
       - supports-color
@@ -7938,7 +7919,7 @@ snapshots:
       bluebird-lst: 1.0.9
       builder-util-runtime: 9.2.4
       chalk: 4.1.2
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       debug: 4.3.7
       fs-extra: 10.1.0
       http-proxy-agent: 5.0.0
@@ -10888,9 +10869,9 @@ snapshots:
       has-symbols: 1.0.3
       which-boxed-primitive: 1.0.2
 
-  undici-types@6.19.8: {}
-
   undici-types@6.20.0: {}
+
+  undici-types@6.21.0: {}
 
   unique-filename@2.0.1:
     dependencies:
@@ -10973,13 +10954,13 @@ snapshots:
       extsprintf: 1.4.1
     optional: true
 
-  vite-node@2.1.6(@types/node@20.17.16)(sass@1.57.1):
+  vite-node@2.1.6(@types/node@22.15.26)(sass@1.57.1):
     dependencies:
       cac: 6.7.14
       debug: 4.3.7
       es-module-lexer: 1.5.4
       pathe: 1.1.2
-      vite: 5.2.11(@types/node@20.17.16)(sass@1.57.1)
+      vite: 5.2.11(@types/node@22.15.26)(sass@1.57.1)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -10990,77 +10971,50 @@ snapshots:
       - supports-color
       - terser
 
-  vite-node@2.1.6(@types/node@22.10.10)(sass@1.57.1):
-    dependencies:
-      cac: 6.7.14
-      debug: 4.3.7
-      es-module-lexer: 1.5.4
-      pathe: 1.1.2
-      vite: 5.2.11(@types/node@22.10.10)(sass@1.57.1)
-    transitivePeerDependencies:
-      - '@types/node'
-      - less
-      - lightningcss
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-
-  vite-plugin-compression2@1.3.3(rollup@4.17.2)(vite@5.2.11(@types/node@22.10.10)(sass@1.57.1)):
+  vite-plugin-compression2@1.3.3(rollup@4.17.2)(vite@5.2.11(@types/node@22.15.26)(sass@1.57.1)):
     dependencies:
       '@rollup/pluginutils': 5.1.0(rollup@4.17.2)
       tar-mini: 0.2.0
-      vite: 5.2.11(@types/node@22.10.10)(sass@1.57.1)
+      vite: 5.2.11(@types/node@22.15.26)(sass@1.57.1)
     transitivePeerDependencies:
       - rollup
 
-  vite-plugin-svgr@4.2.0(rollup@4.17.2)(typescript@5.5.3)(vite@5.2.11(@types/node@22.10.10)(sass@1.57.1)):
+  vite-plugin-svgr@4.2.0(rollup@4.17.2)(typescript@5.5.3)(vite@5.2.11(@types/node@22.15.26)(sass@1.57.1)):
     dependencies:
       '@rollup/pluginutils': 5.1.0(rollup@4.17.2)
       '@svgr/core': 8.1.0(typescript@5.5.3)
       '@svgr/plugin-jsx': 8.1.0(@svgr/core@8.1.0(typescript@5.5.3))
-      vite: 5.2.11(@types/node@22.10.10)(sass@1.57.1)
+      vite: 5.2.11(@types/node@22.15.26)(sass@1.57.1)
     transitivePeerDependencies:
       - rollup
       - supports-color
       - typescript
 
-  vite-tsconfig-paths@4.3.1(typescript@5.5.3)(vite@5.2.11(@types/node@22.10.10)(sass@1.57.1)):
+  vite-tsconfig-paths@4.3.1(typescript@5.5.3)(vite@5.2.11(@types/node@22.15.26)(sass@1.57.1)):
     dependencies:
       debug: 4.3.7
       globrex: 0.1.2
       tsconfck: 3.0.2(typescript@5.5.3)
     optionalDependencies:
-      vite: 5.2.11(@types/node@22.10.10)(sass@1.57.1)
+      vite: 5.2.11(@types/node@22.15.26)(sass@1.57.1)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@5.2.11(@types/node@20.17.16)(sass@1.57.1):
+  vite@5.2.11(@types/node@22.15.26)(sass@1.57.1):
     dependencies:
       esbuild: 0.20.2
       postcss: 8.4.38
       rollup: 4.17.2
     optionalDependencies:
-      '@types/node': 20.17.16
+      '@types/node': 22.15.26
       fsevents: 2.3.3
       sass: 1.57.1
 
-  vite@5.2.11(@types/node@22.10.10)(sass@1.57.1):
-    dependencies:
-      esbuild: 0.20.2
-      postcss: 8.4.38
-      rollup: 4.17.2
-    optionalDependencies:
-      '@types/node': 22.10.10
-      fsevents: 2.3.3
-      sass: 1.57.1
-
-  vitest@2.1.6(@types/node@20.17.16)(happy-dom@16.7.2)(jsdom@21.1.0)(sass@1.57.1):
+  vitest@2.1.6(@types/node@22.15.26)(happy-dom@16.7.2)(jsdom@21.1.0)(sass@1.57.1):
     dependencies:
       '@vitest/expect': 2.1.6
-      '@vitest/mocker': 2.1.6(vite@5.2.11(@types/node@20.17.16)(sass@1.57.1))
+      '@vitest/mocker': 2.1.6(vite@5.2.11(@types/node@22.15.26)(sass@1.57.1))
       '@vitest/pretty-format': 2.1.6
       '@vitest/runner': 2.1.6
       '@vitest/snapshot': 2.1.6
@@ -11076,47 +11030,11 @@ snapshots:
       tinyexec: 0.3.1
       tinypool: 1.0.2
       tinyrainbow: 1.2.0
-      vite: 5.2.11(@types/node@20.17.16)(sass@1.57.1)
-      vite-node: 2.1.6(@types/node@20.17.16)(sass@1.57.1)
+      vite: 5.2.11(@types/node@22.15.26)(sass@1.57.1)
+      vite-node: 2.1.6(@types/node@22.15.26)(sass@1.57.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@types/node': 20.17.16
-      happy-dom: 16.7.2
-      jsdom: 21.1.0
-    transitivePeerDependencies:
-      - less
-      - lightningcss
-      - msw
-      - sass
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-
-  vitest@2.1.6(@types/node@22.10.10)(happy-dom@16.7.2)(jsdom@21.1.0)(sass@1.57.1):
-    dependencies:
-      '@vitest/expect': 2.1.6
-      '@vitest/mocker': 2.1.6(vite@5.2.11(@types/node@22.10.10)(sass@1.57.1))
-      '@vitest/pretty-format': 2.1.6
-      '@vitest/runner': 2.1.6
-      '@vitest/snapshot': 2.1.6
-      '@vitest/spy': 2.1.6
-      '@vitest/utils': 2.1.6
-      chai: 5.1.2
-      debug: 4.3.7
-      expect-type: 1.1.0
-      magic-string: 0.30.14
-      pathe: 1.1.2
-      std-env: 3.8.0
-      tinybench: 2.9.0
-      tinyexec: 0.3.1
-      tinypool: 1.0.2
-      tinyrainbow: 1.2.0
-      vite: 5.2.11(@types/node@22.10.10)(sass@1.57.1)
-      vite-node: 2.1.6(@types/node@22.10.10)(sass@1.57.1)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@types/node': 22.10.10
+      '@types/node': 22.15.26
       happy-dom: 16.7.2
       jsdom: 21.1.0
     transitivePeerDependencies:
