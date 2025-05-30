@@ -9,6 +9,7 @@ export const validateUrlPresets = [
   body('*.enabled').isBoolean(),
   body('*.alias').isString().trim(),
   body('*.pathAndParams').isString().trim(),
+  body('*.password').optional().isString().trim(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
