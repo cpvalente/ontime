@@ -1,0 +1,103 @@
+import {
+  makeOntimeEvent,
+  makeRundown,
+  makeOntimeBlock,
+} from '../../../services/rundown-service/__mocks__/rundown.mocks.js';
+
+import { createTransaction, rundownMutation } from '../rundown.dao.js';
+
+beforeAll(() => {
+  vi.mock('../../../classes/data-provider/DataProvider.js', () => {
+    return {
+      getDataProvider: vi.fn().mockImplementation(() => {
+        return {
+          setRundown: vi.fn().mockImplementation(() => undefined),
+        };
+      }),
+    };
+  });
+});
+
+afterAll(() => {
+  vi.clearAllMocks();
+});
+
+describe('createTransaction', () => {
+  it('should return a snapshot of the cached rundown and an commit function', () => {
+    const { rundown, commit } = createTransaction();
+    expect(rundown).toBeDefined();
+    expect(typeof commit).toBe('function');
+  });
+
+  it('should return the updated rundown after commit is called and update the db', () => {
+    const { rundown, commit } = createTransaction();
+    rundown.title = 'Another Title';
+    const updated = commit();
+    expect(updated.rundown.title).toBe('Another Title');
+  });
+});
+
+describe('rundownMutation.add()', () => {
+  test('adds an event an empty rundown', () => {
+    const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
+    const rundown = makeRundown({});
+
+    rundownMutation.add(rundown, mockEvent, null, null);
+
+    expect(rundown.order.length).toBe(1);
+    expect(rundown.entries['mock']).toMatchObject(mockEvent);
+  });
+
+  test('adds an event at the top if no afterId is given', () => {
+    const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
+    const rundown = makeRundown({
+      flatOrder: ['1'],
+      order: ['1'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', cue: '1' }),
+      },
+    });
+
+    rundownMutation.add(rundown, mockEvent, null, null);
+
+    expect(rundown.order).toStrictEqual(['mock', '1']);
+    expect(rundown.flatOrder).toStrictEqual(['mock', '1']);
+    expect(rundown.entries['mock']).toMatchObject(mockEvent);
+  });
+
+  test('adds an event at the top of the block if no after is given', () => {
+    const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
+    const rundown = makeRundown({
+      flatOrder: ['1', '1a'],
+      order: ['1'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1' }),
+        '1a': makeOntimeEvent({ id: '1a', parent: '1' }),
+      },
+    });
+
+    rundownMutation.add(rundown, mockEvent, null, '1');
+
+    expect(rundown.order).toStrictEqual(['1']);
+    expect(rundown.flatOrder).toStrictEqual(['1', 'mock', '1a']);
+    expect(rundown.entries['mock']).toMatchObject(mockEvent);
+  });
+
+  test('adds an event at the a given location inside a block', () => {
+    const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
+    const rundown = makeRundown({
+      flatOrder: ['1', '1a'],
+      order: ['1'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1' }),
+        '1a': makeOntimeEvent({ id: '1a', parent: '1' }),
+      },
+    });
+
+    rundownMutation.add(rundown, mockEvent, '1a', '1');
+
+    expect(rundown.order).toStrictEqual(['1']);
+    expect(rundown.flatOrder).toStrictEqual(['1', '1a', 'mock']);
+    expect(rundown.entries['mock']).toMatchObject(mockEvent);
+  });
+});

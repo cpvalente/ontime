@@ -178,17 +178,16 @@ export function getRundownOrThrow(rundowns: ProjectRundowns, rundownId: string):
  * Receives an insertion order and returns the reference to an event ID
  * after which we will insert the new event
  */
-export function getPreviousId(afterId?: EntryId, beforeId?: EntryId): EntryId | undefined {
+export function getPreviousId(rundown: Rundown, afterId?: EntryId, beforeId?: EntryId): EntryId | null {
   if (afterId) {
     return afterId;
   }
 
   if (beforeId) {
-    const flatOrder = cache.getEventOrder().flatOrder;
-    const atIndex = flatOrder.findIndex((id) => id === beforeId);
-    if (atIndex < 1) return undefined;
-    return flatOrder[atIndex - 1];
+    const atIndex = rundown.flatOrder.findIndex((id) => id === beforeId);
+    if (atIndex < 1) return null;
+    return rundown.flatOrder[atIndex - 1];
   }
 
-  return;
+  return null;
 }

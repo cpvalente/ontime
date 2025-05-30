@@ -15,7 +15,7 @@ import {
 } from 'ontime-types';
 import { dayInMs, getLinkedTimes, getTimeFrom, isNewLatest } from 'ontime-utils';
 
-import type { RundownMetadata } from './rundown.types.js';
+import type { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 
 /**
  * Utility function to add an entry, mutates given assignedCustomFields in place
@@ -149,6 +149,10 @@ export type ProcessedRundownMetadata = RundownMetadata & {
   previousEntry: OntimeEntry | null; // The entry processed in the previous iteration
 };
 
+/**
+ * Factory function to create a rundown metadata processor
+ * @returns {process, getMetadata} process() - processes entries in order | getMetadata() -> returns the current metadata
+ */
 export function makeRundownMetadata(customFields: CustomFields, customFieldChangelog: Record<string, string>) {
   let rundownMeta: ProcessedRundownMetadata = {
     totalDelay: 0,
@@ -185,6 +189,9 @@ export function makeRundownMetadata(customFields: CustomFields, customFieldChang
   return { process, getMetadata };
 }
 
+/**
+ * Processes a single entry and updates the rundown metadata
+ */
 function processEntry<T extends OntimeEntry>(
   rundownMetadata: ProcessedRundownMetadata,
   customFields: CustomFields,

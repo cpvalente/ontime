@@ -18,7 +18,7 @@ import { generateId, insertAtIndex, swapEventData, customFieldLabelToKey, mergeA
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createBlock, createPatch } from '../../api-data/rundown/rundown.utils.js';
 
-import type { RundownMetadata } from './rundown.types.js';
+import type { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 import { apply } from './delayUtils.js';
 import {
   cloneBlock,

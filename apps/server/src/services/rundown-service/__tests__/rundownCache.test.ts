@@ -4,7 +4,6 @@ import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 import { demoDb } from '../../../models/demoProject.js';
 
 import {
-  add,
   batchEdit,
   edit,
   generate,
@@ -621,62 +620,6 @@ describe('generate() v4', () => {
   });
 });
 
-describe('add() mutation', () => {
-  test('adds an event an empty rundown', () => {
-    const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
-    const rundown = makeRundown({});
-    const { newRundown } = add({ afterId: undefined, entry: mockEvent, parent: null, rundown });
-    expect(newRundown.order.length).toBe(1);
-    expect(newRundown.entries['mock']).toMatchObject(mockEvent);
-  });
-
-  test('adds an event at the top if no afterId is given', () => {
-    const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
-    const rundown = makeRundown({
-      flatOrder: ['1'],
-      order: ['1'],
-      entries: {
-        '1': makeOntimeEvent({ id: '1', cue: '1' }),
-      },
-    });
-    const { newRundown } = add({ afterId: undefined, entry: mockEvent, parent: null, rundown });
-    expect(newRundown.order).toStrictEqual(['mock', '1']);
-    expect(newRundown.flatOrder).toStrictEqual(['mock', '1']);
-    expect(newRundown.entries['mock']).toMatchObject(mockEvent);
-  });
-
-  test('adds an event at the top of the block if no after is given', () => {
-    const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
-    const rundown = makeRundown({
-      flatOrder: ['1', '1a'],
-      order: ['1'],
-      entries: {
-        '1': makeOntimeBlock({ id: '1' }),
-        '1a': makeOntimeEvent({ id: '1a', parent: '1' }),
-      },
-    });
-    const { newRundown } = add({ afterId: undefined, entry: mockEvent, parent: '1', rundown });
-    expect(newRundown.order).toStrictEqual(['1']);
-    expect(newRundown.flatOrder).toStrictEqual(['1', 'mock', '1a']);
-    expect(newRundown.entries['mock']).toMatchObject(mockEvent);
-  });
-
-  test('adds an event at the a given location inside a block', () => {
-    const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
-    const rundown = makeRundown({
-      flatOrder: ['1', '1a'],
-      order: ['1'],
-      entries: {
-        '1': makeOntimeBlock({ id: '1' }),
-        '1a': makeOntimeEvent({ id: '1a', parent: '1' }),
-      },
-    });
-    const { newRundown } = add({ afterId: '1a', entry: mockEvent, parent: '1', rundown });
-    expect(newRundown.order).toStrictEqual(['1']);
-    expect(newRundown.flatOrder).toStrictEqual(['1', '1a', 'mock']);
-    expect(newRundown.entries['mock']).toMatchObject(mockEvent);
-  });
-});
 
 describe('remove() mutation', () => {
   test('deletes an event from the rundown', () => {

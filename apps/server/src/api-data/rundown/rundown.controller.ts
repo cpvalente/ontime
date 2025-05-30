@@ -5,7 +5,6 @@ import type { Request, Response } from 'express';
 
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import {
-  addEvent,
   applyDelay,
   batchEditEvents,
   deleteAllEntries,
@@ -16,16 +15,25 @@ import {
   swapEvents,
   cloneEntry,
 } from '../../services/rundown-service/RundownService.js';
-import { getEntryWithId, getCurrentRundown } from '../../services/rundown-service/rundownUtils.js';
+import { getEntryWithId } from '../../services/rundown-service/rundownUtils.js';
 
+import { getCurrentRundown } from './rundown.dao.js';
+
+/**
+ * Returns all rundowns in the project
+ * TODO: we currently only return the current rundown
+ */
 export async function rundownGetAll(_req: Request, res: Response<ProjectRundownsList>) {
   const rundown = getCurrentRundown();
   res.json([{ id: rundown.id, title: rundown.title, numEntries: rundown.order.length, revision: rundown.revision }]);
 }
 
+/**
+ * Returns the current rundown
+ */
 export async function rundownGetCurrent(_req: Request, res: Response<Rundown>) {
-  const cachedRundown = getCurrentRundown();
-  res.json(cachedRundown);
+  const rundown = getCurrentRundown();
+  res.json(rundown);
 }
 
 export async function rundownGetById(req: Request, res: Response<OntimeEntry | ErrorResponse>) {
@@ -42,20 +50,6 @@ export async function rundownGetById(req: Request, res: Response<OntimeEntry | E
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(500).json({ message });
-  }
-}
-
-export async function rundownPost(req: Request, res: Response<OntimeEntry | ErrorResponse>) {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
-
-  try {
-    const newEvent = await addEvent(req.body);
-    res.status(201).send(newEvent);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
   }
 }
 

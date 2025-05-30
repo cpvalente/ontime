@@ -1,8 +1,54 @@
-import { OntimeBlock, OntimeEvent, SupportedEntry, TimeStrategy } from 'ontime-types';
-import { generateId, validateEndAction, validateTimerType, validateTimes } from 'ontime-utils';
+import {
+  EntryId,
+  isOntimeBlock,
+  isOntimeDelay,
+  isOntimeEvent,
+  OntimeBlock,
+  OntimeDelay,
+  OntimeEvent,
+  Rundown,
+  SupportedEntry,
+  TimeStrategy,
+} from 'ontime-types';
+import { generateId, getCueCandidate, validateEndAction, validateTimerType, validateTimes } from 'ontime-utils';
 
-import { event as eventDef, block as blockDef } from '../../models/eventsDefinition.js';
+import { event as eventDef, block as blockDef, delay as delayDef } from '../../models/eventsDefinition.js';
 import { makeString } from '../../utils/parserUtils.js';
+
+type CompleteEntry<T> =
+  T extends Partial<OntimeEvent>
+    ? OntimeEvent
+    : T extends Partial<OntimeDelay>
+      ? OntimeDelay
+      : T extends Partial<OntimeBlock>
+        ? OntimeBlock
+        : never;
+
+/**
+ * Generates a fully formed RundownEntry of the patch type
+ */
+export function generateEvent<T extends Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeBlock>>(
+  rundown: Rundown,
+  eventData: T,
+  afterId: EntryId | null,
+): CompleteEntry<T> {
+  if (isOntimeEvent(eventData)) {
+    return createEvent(eventData, getCueCandidate(rundown.entries, rundown.order, afterId)) as CompleteEntry<T>;
+  }
+
+  const id = eventData.id || getUniqueId(rundown);
+
+  if (isOntimeDelay(eventData)) {
+    return { ...delayDef, duration: eventData.duration ?? 0, id } as CompleteEntry<T>;
+  }
+
+  // TODO(v4): allow user to provide a larger patch of the block entry
+  if (isOntimeBlock(eventData)) {
+    return createBlock({ id, title: eventData.title ?? '' }) as CompleteEntry<T>;
+  }
+
+  throw new Error('Invalid event type');
+}
 
 export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<OntimeEvent>): OntimeEvent {
   if (Object.keys(patchEvent).length === 0) {
@@ -109,4 +155,22 @@ function inferStrategy(end: unknown, duration: unknown, fallback: TimeStrategy):
     return TimeStrategy.LockDuration;
   }
   return fallback;
+}
+
+/**
+ * Whether a given ID is exists in the current rundown
+ */
+export function hasId(rundown: Rundown, id: EntryId): boolean {
+  return Object.hasOwn(rundown.entries, id);
+}
+
+/**
+ * Returns an ID guaranteed to be unique
+ */
+export function getUniqueId(rundown: Rundown): EntryId {
+  let id: EntryId;
+  do {
+    id = generateId();
+  } while (rundown.entries[id]);
+  return id;
 }

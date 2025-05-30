@@ -1,4 +1,4 @@
-import { ErrorResponse, Rundown } from 'ontime-types';
+import { ErrorResponse, OntimeEntry, Rundown } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
@@ -17,10 +17,10 @@ import {
   rundownGetAll,
   rundownGetById,
   rundownGetCurrent,
-  rundownPost,
   rundownPut,
   rundownSwap,
 } from './rundown.controller.js';
+import { addEntry } from './rundown.service.js';
 import {
   paramsMustHaveEntryId,
   rundownArrayOfIds,
@@ -37,7 +37,15 @@ router.get('/', rundownGetAll);
 router.get('/current', rundownGetCurrent);
 router.get('/:eventId', paramsMustHaveEntryId, rundownGetById); // not used in Ontime frontend
 
-router.post('/', rundownPostValidator, rundownPost);
+router.post('/', rundownPostValidator, async (req: Request, res: Response<OntimeEntry | ErrorResponse>) => {
+  try {
+    const newEvent = await addEntry(req.body);
+    res.status(201).send(newEvent);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
 
 router.put('/', rundownPutValidator, rundownPut);
 router.put('/batch', rundownBatchPutValidator, rundownBatchPut);
