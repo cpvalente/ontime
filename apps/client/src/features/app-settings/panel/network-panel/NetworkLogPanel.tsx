@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
+import { WsType } from 'ontime-types';
 
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import { usePing } from '../../../../common/hooks/useSocket';
-import { socketSendJson } from '../../../../common/utils/socket';
+import { sendOntimeSocket } from '../../../../common/utils/socket';
 import { isDockerImage, isOntimeCloud } from '../../../../externals';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -57,10 +58,10 @@ function OntimeCloudStats() {
    * Send immediate ping request, and keep sending on an interval
    */
   useEffect(() => {
-    socketSendJson('ping', new Date());
+    sendOntimeSocket({ type: WsType.PING, payload: new Date() });
 
     const doPing = setInterval(() => {
-      socketSendJson('ping', new Date());
+      sendOntimeSocket({ type: WsType.PING, payload: new Date() });
     }, 5000);
 
     return () => {

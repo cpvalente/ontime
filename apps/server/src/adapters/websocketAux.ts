@@ -1,3 +1,4 @@
+import { WsType } from 'ontime-types';
 import { socket } from './WebsocketAdapter.js';
 
 export enum RefetchTargets {
@@ -11,7 +12,7 @@ export enum RefetchTargets {
  */
 export function sendRefetch(payload: unknown = null) {
   socket.sendAsJson({
-    type: 'ontime-refetch',
+    type: WsType.ONTIME_REFETCH,
     payload,
   });
 }

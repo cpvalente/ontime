@@ -1,4 +1,4 @@
-import { Log, LogLevel } from 'ontime-types';
+import { Log, LogLevel, WsType } from 'ontime-types';
 import { generateId, millisToString } from 'ontime-utils';
 
 import { socket } from '../adapters/WebsocketAdapter.js';
@@ -55,7 +55,7 @@ class Logger {
 
     try {
       socket.sendAsJson({
-        type: 'ontime-log',
+        type: WsType.ONTIME_LOG,
         payload: log,
       });
     } catch (_e) {
