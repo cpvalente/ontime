@@ -167,12 +167,6 @@ export const connectSocket = () => {
   };
 };
 
-export const socketSend = (message: any) => {
-  if (websocket && websocket.readyState === WebSocket.OPEN) {
-    websocket.send(message);
-  }
-};
-
 export function sendOntimeSocket(packet: WebSocketPacketToServer): void {
   if (websocket && websocket.readyState === WebSocket.OPEN) {
     websocket.send(JSON.stringify(packet));
