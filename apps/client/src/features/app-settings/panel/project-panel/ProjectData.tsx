@@ -16,7 +16,7 @@ import * as Panel from '../../panel-utils/PanelUtils';
 import style from './ProjectPanel.module.scss';
 
 export default function ProjectData() {
-  const { data, status, refetch } = useProjectData();
+  const { data, status } = useProjectData();
 
   const {
     handleSubmit,
@@ -83,8 +83,6 @@ export default function ProjectData() {
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });
-    } finally {
-      await refetch();
     }
   };
 
