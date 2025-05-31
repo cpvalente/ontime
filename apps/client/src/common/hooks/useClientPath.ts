@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { WsType } from 'ontime-types';
+import { MessageType } from 'ontime-types';
 import { useShallow } from 'zustand/shallow';
 
 import { useClientStore } from '../stores/clientStore';
@@ -23,7 +23,7 @@ export const useClientPath = () => {
   useEffect(() => {
     if (!isOnline) return;
 
-    sendOntimeSocket({ type: WsType.CLIENT_SET_PATH, payload: pathname + search });
+    sendOntimeSocket({ type: MessageType.ClientSetPath, payload: pathname + search });
   }, [pathname, search, isOnline]);
 
   // navigate to new path when received from server
