@@ -1,7 +1,7 @@
 FROM node:22-bullseye AS builder
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN npm install -g pnpm@9.5.0
+RUN npm install -g pnpm@10.11.0
 COPY . /app
 WORKDIR /app
 RUN pnpm --filter=ontime-ui --filter=ontime-server --filter=ontime-utils install --config.dedupe-peer-dependents=false --frozen-lockfile
