@@ -14,7 +14,7 @@
  * Payload: adds necessary payload for the request to be completed
  */
 
-import { Client, LogOrigin, WebSocketPacketToClient, WsType } from 'ontime-types';
+import { Client, LogOrigin, WsPacketToClient, WsPacketToServer, MessageType } from 'ontime-types';
 
 import { WebSocket, WebSocketServer } from 'ws';
 import type { Server } from 'http';
@@ -60,7 +60,7 @@ class SocketServer implements IAdapter {
       });
       const clientId = generateId();
       const clientName = getRandomName();
-      const sendPacket = (packet: WebSocketPacketToClient) => {
+      const sendPacket = (packet: WsPacketToClient) => {
         ws.send(JSON.stringify(packet));
       };
 
@@ -76,7 +76,7 @@ class SocketServer implements IAdapter {
       logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientId}`);
 
       sendPacket({
-        type: WsType.CLIENT_INIT,
+        type: MessageType.ClientInit,
         payload: {
           clientId,
           clientName,
@@ -103,36 +103,35 @@ class SocketServer implements IAdapter {
 
       ws.on('message', (data) => {
         try {
-          // @ts-expect-error -- this works fine
-          const message = JSON.parse(data) as WebSocketPacketToServer;
+          const message = JSON.parse(data.toString()) as WsPacketToServer;
           const { type, payload } = message;
 
           switch (type) {
-            case WsType.PING: {
-              sendPacket({ type: WsType.PONG, payload });
+            case MessageType.Ping: {
+              sendPacket({ type: MessageType.Pong, payload });
               break;
             }
-            case WsType.CLIENT_SET: {
+            case MessageType.ClientSet: {
               const previousData = this.getOrCreateClient(clientId);
               this.clients.set(clientId, { ...previousData, ...payload });
               this.sendClientList();
               break;
             }
-            case WsType.CLIENT_SET_PATH: {
+            case MessageType.ClientSetPath: {
               const previousData = this.getOrCreateClient(clientId);
               previousData.path = payload;
               this.clients.set(clientId, previousData);
               if (payload.includes('editor') && this.shouldShowWelcome) {
                 this.shouldShowWelcome = false;
                 sendPacket({
-                  type: WsType.DIALOG,
+                  type: MessageType.Dialog,
                   payload: { dialog: 'welcome' },
                 });
               }
               this.sendClientList();
               break;
             }
-            case WsType.ONTIME_LOG: {
+            case MessageType.Log: {
               logger.emit(payload.level, payload.origin, payload.text);
               break;
             }
@@ -184,7 +183,7 @@ class SocketServer implements IAdapter {
 
   private sendClientList(): void {
     const payload = Object.fromEntries(this.clients.entries());
-    this.sendAsJson({ type: WsType.CLIENT_LIST, payload });
+    this.sendAsJson({ type: MessageType.ClientList, payload });
   }
 
   public getClientList(): string[] {
@@ -199,7 +198,7 @@ class SocketServer implements IAdapter {
     logger.info(LogOrigin.Client, `Client ${previousData.name} renamed to ${name}`);
     this.clients.set(target, { ...previousData, name });
     this.sendAsJson({
-      type: WsType.CLIENT_RENAME,
+      type: MessageType.ClientRename,
       payload: { name, target },
     });
     this.sendClientList();
@@ -210,7 +209,7 @@ class SocketServer implements IAdapter {
     if (!previousData) {
       throw new Error(`Client "${target}" not found`);
     }
-    this.sendAsJson({ type: WsType.CLIENT_REDIRECT, payload: { target, path } });
+    this.sendAsJson({ type: MessageType.ClientRedirect, payload: { target, path } });
   }
 
   public identifyClient(target: string, identify: boolean) {
@@ -223,7 +222,7 @@ class SocketServer implements IAdapter {
   }
 
   // message is any serializable value
-  public sendAsJson(message: WebSocketPacketToClient) {
+  public sendAsJson(message: WsPacketToClient) {
     try {
       const stringifiedMessage = JSON.stringify(message);
       this.wss?.clients.forEach((client) => {

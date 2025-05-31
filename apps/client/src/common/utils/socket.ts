@@ -1,7 +1,7 @@
-import { Log, Rundown, RuntimeStore, WebSocketPacketToClient, WebSocketPacketToServer, WsType } from 'ontime-types';
+import { Log, RefetchKey, RuntimeStore, WsPacketToClient, WsPacketToServer, MessageType } from 'ontime-types';
 
 import { isProduction, websocketUrl } from '../../externals';
-import { CLIENT_LIST, CUSTOM_FIELDS, REPORT, RUNDOWN, RUNTIME } from '../api/constants';
+import { CLIENT_LIST, CUSTOM_FIELDS, RUNDOWN, RUNTIME } from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
 import {
@@ -34,7 +34,7 @@ export const connectSocket = () => {
     reconnectAttempts = 0;
 
     sendOntimeSocket({
-      type: WsType.CLIENT_SET,
+      type: MessageType.ClientSet,
       payload: {
         type: 'ontime',
         origin: window.location.origin,
@@ -68,7 +68,7 @@ export const connectSocket = () => {
 
   websocket.onmessage = (event) => {
     try {
-      const data = JSON.parse(event.data) as WebSocketPacketToClient;
+      const data = JSON.parse(event.data) as WsPacketToClient;
 
       const { type, payload } = data;
 
@@ -77,13 +77,13 @@ export const connectSocket = () => {
       }
 
       switch (type) {
-        case WsType.PONG: {
+        case MessageType.Pong: {
           const offset = (new Date().getTime() - new Date(payload).getTime()) * 0.5;
           patchRuntimeProperty('ping', offset);
           updateDevTools({ ping: offset });
           break;
         }
-        case WsType.CLIENT_INIT: {
+        case MessageType.ClientInit: {
           setClientId(payload.clientId);
           if (!preferredClientName) {
             setClientName(payload.clientName);
@@ -91,7 +91,7 @@ export const connectSocket = () => {
           break;
         }
 
-        case WsType.CLIENT_RENAME: {
+        case MessageType.ClientRename: {
           const id = getClientId();
           if (payload.target === id) {
             setClientName(payload.name);
@@ -99,7 +99,7 @@ export const connectSocket = () => {
           break;
         }
 
-        case WsType.CLIENT_REDIRECT: {
+        case MessageType.ClientRedirect: {
           const id = getClientId();
           if (payload.target === id) {
             setClientRedirect(payload.path);
@@ -107,7 +107,7 @@ export const connectSocket = () => {
           break;
         }
 
-        case WsType.CLIENT_LIST: {
+        case MessageType.ClientList: {
           setClients(payload);
           if (!isProduction) {
             ontimeQueryClient.setQueryData(CLIENT_LIST, payload);
@@ -115,44 +115,44 @@ export const connectSocket = () => {
           break;
         }
 
-        case WsType.DIALOG: {
+        case MessageType.Dialog: {
           if (payload.dialog === 'welcome') {
             addDialog('welcome');
           }
           break;
         }
 
-        case WsType.ONTIME_LOG: {
+        case MessageType.Log: {
           addLog(payload as Log);
           break;
         }
-        case WsType.ONTIME: {
+        case MessageType.RuntimeData: {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars -- removing the key from the payload
           const { ping, ...serverPayload } = payload;
           patchRuntime(serverPayload);
           updateDevTools(serverPayload);
           break;
         }
-        case WsType.ONTIME_PATCH: {
+        case MessageType.RuntimePatch: {
           const patch = payload;
           patchRuntime(patch);
           updateDevTools(patch);
           break;
         }
-        case WsType.ONTIME_REFETCH: {
+        case MessageType.Refetch: {
           // the refetch message signals that the rundown has changed in the server side
-          const { reload, target } = payload;
-          if (reload) {
-            invalidateAllCaches();
-          } else if (target === 'RUNDOWN') {
-            const { revision } = payload;
-            const currentRevision = ontimeQueryClient.getQueryData<Rundown>(RUNDOWN)?.revision ?? -1;
-            if (!revision || revision > currentRevision) {
+          const { target } = payload;
+          switch (target) {
+            case RefetchKey.All:
+              invalidateAllCaches();
+              break;
+            case RefetchKey.Rundown:
               ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
               ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
-            }
-          } else if (target === 'REPORT') {
-            ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
+              break;
+            default:
+              console.log('unknown refetch target', target);
+              break;
           }
           break;
         }
@@ -167,13 +167,7 @@ export const connectSocket = () => {
   };
 };
 
-export const socketSend = (message: any) => {
-  if (websocket && websocket.readyState === WebSocket.OPEN) {
-    websocket.send(message);
-  }
-};
-
-export function sendOntimeSocket(packet: WebSocketPacketToServer): void {
+export function sendOntimeSocket(packet: WsPacketToServer): void {
   if (websocket && websocket.readyState === WebSocket.OPEN) {
     websocket.send(JSON.stringify(packet));
   }

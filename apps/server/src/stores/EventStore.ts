@@ -1,4 +1,4 @@
-import { RuntimeStore, WsType } from 'ontime-types';
+import { RuntimeStore, MessageType } from 'ontime-types';
 
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { isEmptyObject } from '../utils/parserUtils.js';
@@ -23,7 +23,7 @@ export const eventStore = {
   },
   set<T extends keyof RuntimeStore>(key: T, value: RuntimeStore[T]) {
     store[key] = value;
-    socket.sendAsJson({ type: WsType.ONTIME_PATCH, payload: { [key]: value } });
+    socket.sendAsJson({ type: MessageType.RuntimePatch, payload: { [key]: value } });
   },
   createBatch() {
     const patch: Partial<RuntimeStore> = {};
@@ -34,7 +34,7 @@ export const eventStore = {
       send() {
         if (isEmptyObject(patch)) return;
         store = { ...store, ...patch };
-        socket.sendAsJson({ type: WsType.ONTIME_PATCH, payload: patch });
+        socket.sendAsJson({ type: MessageType.RuntimePatch, payload: patch });
       },
     };
   },
@@ -43,7 +43,7 @@ export const eventStore = {
   },
   broadcast() {
     socket.sendAsJson({
-      type: WsType.ONTIME,
+      type: MessageType.RuntimeData,
       payload: store as RuntimeStore, // We assume that it has been initialized at this point
     });
   },

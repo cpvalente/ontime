@@ -10,6 +10,7 @@ import {
   OntimeEntry,
   OntimeEvent,
   PatchWithId,
+  RefetchKey,
   Rundown,
 } from 'ontime-types';
 import { customFieldLabelToKey } from 'ontime-utils';
@@ -553,13 +554,10 @@ export function notifyChanges(rundownMetadata: RundownMetadata, revision: number
   }
 
   // notify external services of changes
-  if (options.external) {
-    const payload = {
-      target: 'RUNDOWN',
-      reload: options.reload,
-      revision,
-    };
-    sendRefetch(payload);
+  if (options.reload) {
+    sendRefetch(RefetchKey.All);
+  } else if (options.external) {
+    sendRefetch(RefetchKey.Rundown, revision);
   }
 }
 

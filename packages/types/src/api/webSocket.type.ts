@@ -1,58 +1,62 @@
 import type { Client } from '../definitions/Clients.type.js';
 import type { Log } from '../definitions/runtime/Logger.type.js';
 import type { RuntimeStore } from '../definitions/runtime/RuntimeStore.type.js';
+import type { RefetchKey } from './refetch.type.js';
 
-export enum WsType {
-  PING = 'ping',
-  PONG = 'pong',
-  CLIENT_INIT = 'client-init',
-  CLIENT_SET = 'client-set',
-  CLIENT_SET_PATH = 'client-set-path',
-  CLIENT_RENAME = 'client-rename',
-  CLIENT_REDIRECT = 'client-redirect',
-  CLIENT_LIST = 'client-list',
-  DIALOG = 'dialog',
-  ONTIME_LOG = 'ontime-log',
-  ONTIME = 'ontime',
-  ONTIME_PATCH = 'ontime-patch',
-  ONTIME_REFETCH = 'ontime-refetch',
+export enum MessageType {
+  Ping = 'ping',
+  Pong = 'pong',
+  ClientInit = 'client-init',
+  ClientSet = 'client-set',
+  ClientSetPath = 'client-set-path',
+  ClientRename = 'client-rename',
+  ClientRedirect = 'client-redirect',
+  ClientList = 'client-list',
+  Dialog = 'dialog',
+  Log = 'log',
+  RuntimeData = 'runtime-data',
+  RuntimePatch = 'runtime-patch',
+  Refetch = 'refetch',
 }
 
-//TO SERVER
-type pingPacket = { type: WsType.PING; payload: Date };
-type setClientPacket = { type: WsType.CLIENT_SET_PATH; payload: string };
-type setClientPathPacket = { type: WsType.CLIENT_SET; payload: Partial<Client> };
+//CLIENT TO SERVER
+type PingPacket = { type: MessageType.Ping; payload: Date };
+type SetClientPacket = { type: MessageType.ClientSetPath; payload: string };
+type SetClientPathPacket = { type: MessageType.ClientSet; payload: Partial<Client> };
 
-//TO CLIENT
-type pongPacket = { type: WsType.PONG; payload: Date };
-type initClientPacket = { type: WsType.CLIENT_INIT; payload: { clientId: string; clientName: string } };
-type renameClientPacket = { type: WsType.CLIENT_RENAME; payload: { target: string; name: string } };
-type redirectClientPacket = { type: WsType.CLIENT_REDIRECT; payload: { target: string; path: string } };
-type dialogPacket = { type: WsType.DIALOG; payload: { dialog: string } };
-type listClientPacket = {
-  type: WsType.CLIENT_LIST;
+// SERVER TO CLIENT
+type PongPacket = { type: MessageType.Pong; payload: Date };
+type InitClientPacket = { type: MessageType.ClientInit; payload: { clientId: string; clientName: string } };
+type RenameClientPacket = { type: MessageType.ClientRename; payload: { target: string; name: string } };
+type RedirectClientPacket = { type: MessageType.ClientRedirect; payload: { target: string; path: string } };
+type DialogPacket = { type: MessageType.Dialog; payload: { dialog: string } };
+type ListClientPacket = {
+  type: MessageType.ClientList;
   payload: Record<string, Client>;
 };
-type ontimePacket = { type: WsType.ONTIME; payload: RuntimeStore };
-type ontimePatchPacket = { type: WsType.ONTIME_PATCH; payload: Partial<RuntimeStore> };
+type RuntimePacket = { type: MessageType.RuntimeData; payload: RuntimeStore };
+type RuntimePatchPacket = { type: MessageType.RuntimePatch; payload: Partial<RuntimeStore> };
 
-type ontimeRefetchPacket = {
-  type: WsType.ONTIME_REFETCH;
-  payload: any; //{ reload?: boolean; target?: string; revision?: number };
+type RefetchPacket = {
+  type: MessageType.Refetch;
+  payload: {
+    target?: RefetchKey;
+    extra?: unknown;
+  };
 };
 
 // SHARED
-type logPacket = { type: WsType.ONTIME_LOG; payload: Log };
+type LogPacket = { type: MessageType.Log; payload: Log };
 
-export type WebSocketPacketToServer = pingPacket | setClientPacket | setClientPathPacket | logPacket;
-export type WebSocketPacketToClient =
-  | pongPacket
-  | initClientPacket
-  | renameClientPacket
-  | redirectClientPacket
-  | dialogPacket
-  | logPacket
-  | listClientPacket
-  | ontimePacket
-  | ontimePatchPacket
-  | ontimeRefetchPacket;
+export type WsPacketToServer = PingPacket | SetClientPacket | SetClientPathPacket | LogPacket;
+export type WsPacketToClient =
+  | PongPacket
+  | InitClientPacket
+  | RenameClientPacket
+  | RedirectClientPacket
+  | DialogPacket
+  | LogPacket
+  | ListClientPacket
+  | RuntimePacket
+  | RuntimePatchPacket
+  | RefetchPacket;
