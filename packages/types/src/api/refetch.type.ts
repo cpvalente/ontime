@@ -6,7 +6,7 @@ export enum RefetchKey {
   APP_VERSION = 'appVersion',
   AUTOMATION = 'automation',
   APP_INFO = 'appinfo',
-  PROJECT_DATA = 'project',
+  PROJECT_DATA = 'projectData',
   URL_PRESETS = 'urlpresets',
   PROJECT_LIST = 'projectList',
   APP_SETTINGS = 'appSettings',

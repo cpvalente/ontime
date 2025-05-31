@@ -150,11 +150,9 @@ export const connectSocket = () => {
               ontimeQueryClient.invalidateQueries({ queryKey: RefetchKey.RUNDOWN });
               ontimeQueryClient.invalidateQueries({ queryKey: RefetchKey.CUSTOM_FIELDS });
               break;
-            case RefetchKey.REPORT:
-              ontimeQueryClient.invalidateQueries({ queryKey: RefetchKey.REPORT });
-              break;
             default:
-              console.log('unknown refetch target message', target);
+              ontimeQueryClient.invalidateQueries({ queryKey: [target] });
+              console.log('refetch target', target);
               break;
           }
           break;
