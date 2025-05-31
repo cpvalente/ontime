@@ -8,6 +8,7 @@ import {
   OntimeBlock,
   OntimeEntry,
   OntimeEvent,
+  RefetchKey,
   Rundown,
   TimeField,
   TimeStrategy,
@@ -16,7 +17,6 @@ import {
 import { dayInMs, generateId, MILLIS_PER_SECOND, parseUserTime, swapEventData } from 'ontime-utils';
 
 import { moveDown, moveUp } from '../../features/rundown/rundown.utils';
-import { RUNDOWN } from '../api/constants';
 import {
   deleteEntries,
   patchReorderEntry,
@@ -63,7 +63,7 @@ export const useEntryActions = () => {
 
   const getEntryById = useCallback(
     (eventId: string): OntimeEntry | undefined => {
-      const cachedRundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const cachedRundown = queryClient.getQueryData<Rundown>([RefetchKey.RUNDOWN]);
       if (!cachedRundown?.entries) {
         return;
       }
@@ -79,7 +79,7 @@ export const useEntryActions = () => {
   const _addEntryMutation = useMutation({
     // TODO(v4): optimistic create entry
     mutationFn: postAddEntry,
-    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: [RefetchKey.RUNDOWN] }),
   });
 
   /**
@@ -102,7 +102,7 @@ export const useEntryActions = () => {
 
         if (applicationOptions?.lastEventId) {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- we know this is a value
-          const rundownData = queryClient.getQueryData<Rundown>(RUNDOWN)!;
+          const rundownData = queryClient.getQueryData<Rundown>([RefetchKey.RUNDOWN])!;
           const previousEvent = rundownData.entries[applicationOptions.lastEventId];
           if (isOntimeEvent(previousEvent)) {
             newEntry.timeStart = previousEvent.timeEnd;
@@ -172,7 +172,7 @@ export const useEntryActions = () => {
    */
   const _cloneMutation = useMutation({
     mutationFn: postCloneEntry,
-    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: [RefetchKey.RUNDOWN] }),
   });
 
   /**
@@ -198,10 +198,10 @@ export const useEntryActions = () => {
     // we optimistically update here
     onMutate: async (newEvent) => {
       // cancel ongoing queries
-      await queryClient.cancelQueries({ queryKey: RUNDOWN });
+      await queryClient.cancelQueries({ queryKey: [RefetchKey.RUNDOWN] });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousData = queryClient.getQueryData<Rundown>([RefetchKey.RUNDOWN]);
       const eventId = newEvent.id;
 
       if (previousData && eventId) {
@@ -209,7 +209,7 @@ export const useEntryActions = () => {
         const newRundown = { ...previousData.entries };
         // @ts-expect-error -- we expect the events to be of same type
         newRundown[eventId] = { ...newRundown[eventId], ...newEvent };
-        queryClient.setQueryData<Rundown>(RUNDOWN, {
+        queryClient.setQueryData<Rundown>([RefetchKey.RUNDOWN], {
           id: previousData.id,
           title: previousData.title,
           order: previousData.order,
@@ -224,12 +224,12 @@ export const useEntryActions = () => {
     },
     // Mutation fails, rollback undoes optimist update
     onError: (_error, _newEvent, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
+      queryClient.setQueryData<Rundown>([RefetchKey.RUNDOWN], context?.previousData);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: RUNDOWN });
+      await queryClient.invalidateQueries({ queryKey: [RefetchKey.RUNDOWN] });
     },
   });
 
@@ -323,7 +323,7 @@ export const useEntryActions = () => {
        * Utility function to get the previous event end time
        */
       function getPreviousEnd(): number {
-        const cachedRundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+        const cachedRundown = queryClient.getQueryData<Rundown>([RefetchKey.RUNDOWN]);
 
         if (!cachedRundown?.order || !cachedRundown?.entries) {
           return 0;
@@ -355,10 +355,10 @@ export const useEntryActions = () => {
     mutationFn: putBatchEditEvents,
     onMutate: async ({ ids, data }) => {
       // cancel ongoing queries
-      await queryClient.cancelQueries({ queryKey: RUNDOWN });
+      await queryClient.cancelQueries({ queryKey: [RefetchKey.RUNDOWN] });
 
       // Snapshot the previous value
-      const previousRundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousRundown = queryClient.getQueryData<Rundown>([RefetchKey.RUNDOWN]);
 
       if (previousRundown) {
         const eventIds = new Set(ids);
@@ -376,7 +376,7 @@ export const useEntryActions = () => {
           }
         });
 
-        queryClient.setQueryData<Rundown>(RUNDOWN, {
+        queryClient.setQueryData<Rundown>([RefetchKey.RUNDOWN], {
           id: previousRundown.id,
           title: previousRundown.title,
           order: previousRundown.order,
@@ -390,10 +390,10 @@ export const useEntryActions = () => {
       return { previousRundown };
     },
     onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: RUNDOWN });
+      await queryClient.invalidateQueries({ queryKey: [RefetchKey.RUNDOWN] });
     },
     onError: (_error, _newEvent, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousRundown);
+      queryClient.setQueryData<Rundown>([RefetchKey.RUNDOWN], context?.previousRundown);
     },
   });
 
@@ -417,16 +417,16 @@ export const useEntryActions = () => {
     // we optimistically update here
     onMutate: async (entryIds: EntryId[]) => {
       // cancel ongoing queries
-      await queryClient.cancelQueries({ queryKey: RUNDOWN });
+      await queryClient.cancelQueries({ queryKey: [RefetchKey.RUNDOWN] });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousData = queryClient.getQueryData<Rundown>([RefetchKey.RUNDOWN]);
 
       if (previousData) {
         // optimistically update object
         const { entries, order, flatOrder } = optimisticDeleteEntries(entryIds, previousData);
 
-        queryClient.setQueryData<Rundown>(RUNDOWN, {
+        queryClient.setQueryData<Rundown>([RefetchKey.RUNDOWN], {
           id: previousData.id,
           title: previousData.title,
           order,
@@ -442,12 +442,12 @@ export const useEntryActions = () => {
 
     // Mutation fails, rollback undoes optimist update
     onError: (_error, _entryIds, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
+      queryClient.setQueryData<Rundown>([RefetchKey.RUNDOWN], context?.previousData);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: RUNDOWN });
+      queryClient.invalidateQueries({ queryKey: [RefetchKey.RUNDOWN] });
     },
   });
 
@@ -474,13 +474,13 @@ export const useEntryActions = () => {
     // we optimistically update here
     onMutate: async () => {
       // cancel ongoing queries
-      await queryClient.cancelQueries({ queryKey: RUNDOWN });
+      await queryClient.cancelQueries({ queryKey: [RefetchKey.RUNDOWN] });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousData = queryClient.getQueryData<Rundown>([RefetchKey.RUNDOWN]);
 
       // optimistically update object
-      queryClient.setQueryData<Rundown>(RUNDOWN, {
+      queryClient.setQueryData<Rundown>([RefetchKey.RUNDOWN], {
         id: previousData?.id ?? 'default',
         title: previousData?.title ?? '',
         order: [],
@@ -495,12 +495,12 @@ export const useEntryActions = () => {
 
     // Mutation fails, rollback optimist update
     onError: (_error, _, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
+      queryClient.setQueryData<Rundown>([RefetchKey.RUNDOWN], context?.previousData);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: RUNDOWN });
+      queryClient.invalidateQueries({ queryKey: [RefetchKey.RUNDOWN] });
     },
   });
 
@@ -523,7 +523,7 @@ export const useEntryActions = () => {
     mutationFn: requestApplyDelay,
     // Mutation finished, failed or successful
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: RUNDOWN });
+      queryClient.invalidateQueries({ queryKey: [RefetchKey.RUNDOWN] });
     },
   });
 
@@ -551,7 +551,7 @@ export const useEntryActions = () => {
       if (!response.data) return;
 
       const { id, title, order, flatOrder, entries, revision } = response.data;
-      queryClient.setQueryData<Rundown>(RUNDOWN, {
+      queryClient.setQueryData<Rundown>([RefetchKey.RUNDOWN], {
         id,
         title,
         order,
@@ -560,7 +560,7 @@ export const useEntryActions = () => {
         revision,
       });
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: [RefetchKey.RUNDOWN] }),
   });
 
   /**
@@ -587,7 +587,7 @@ export const useEntryActions = () => {
       if (!response.data) return;
 
       const { id, title, order, flatOrder, entries, revision } = response.data;
-      queryClient.setQueryData<Rundown>(RUNDOWN, {
+      queryClient.setQueryData<Rundown>([RefetchKey.RUNDOWN], {
         id,
         title,
         order,
@@ -596,7 +596,7 @@ export const useEntryActions = () => {
         revision,
       });
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: RUNDOWN }),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: [RefetchKey.RUNDOWN] }),
   });
 
   /**
@@ -622,7 +622,7 @@ export const useEntryActions = () => {
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: RUNDOWN });
+      queryClient.invalidateQueries({ queryKey: [RefetchKey.RUNDOWN] });
     },
   });
 
@@ -646,7 +646,7 @@ export const useEntryActions = () => {
   );
 
   const move = useCallback(async (entryId: EntryId, direction: 'up' | 'down') => {
-    const cachedRundown = queryClient.getQueryData<Rundown>(RUNDOWN);
+    const cachedRundown = queryClient.getQueryData<Rundown>([RefetchKey.RUNDOWN]);
     if (!cachedRundown?.order) {
       return;
     }
@@ -678,10 +678,10 @@ export const useEntryActions = () => {
     // we optimistically update here
     onMutate: async ({ from, to }) => {
       // cancel ongoing queries
-      await queryClient.cancelQueries({ queryKey: RUNDOWN });
+      await queryClient.cancelQueries({ queryKey: [RefetchKey.RUNDOWN] });
 
       // Snapshot the previous value
-      const previousData = queryClient.getQueryData<Rundown>(RUNDOWN);
+      const previousData = queryClient.getQueryData<Rundown>([RefetchKey.RUNDOWN]);
       if (previousData) {
         // optimistically update object
         const newRundown = { ...previousData.entries };
@@ -696,7 +696,7 @@ export const useEntryActions = () => {
         newRundown[from] = newA;
         newRundown[to] = newB;
 
-        queryClient.setQueryData<Rundown>(RUNDOWN, {
+        queryClient.setQueryData<Rundown>([RefetchKey.RUNDOWN], {
           id: previousData.id,
           title: previousData.title,
           order: previousData.order,
@@ -712,12 +712,12 @@ export const useEntryActions = () => {
 
     // Mutation fails, rollback undoes optimist update
     onError: (_error, _eventId, context) => {
-      queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousData);
+      queryClient.setQueryData<Rundown>([RefetchKey.RUNDOWN], context?.previousData);
     },
     // Mutation finished, failed or successful
     // Fetch anyway, just to be sure
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: RUNDOWN });
+      queryClient.invalidateQueries({ queryKey: [RefetchKey.RUNDOWN] });
     },
   });
 

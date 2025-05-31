@@ -1,6 +1,7 @@
 import type { Client } from '../definitions/Clients.type.js';
 import type { Log } from '../definitions/runtime/Logger.type.js';
 import type { RuntimeStore } from '../definitions/runtime/RuntimeStore.type.js';
+import type { RefetchKey } from './refetch.type.js';
 
 export enum WsType {
   PING = 'ping',
@@ -38,7 +39,10 @@ type ontimePatchPacket = { type: WsType.ONTIME_PATCH; payload: Partial<RuntimeSt
 
 type ontimeRefetchPacket = {
   type: WsType.ONTIME_REFETCH;
-  payload: any; //{ reload?: boolean; target?: string; revision?: number };
+  payload: {
+    target?: RefetchKey;
+    extra?: unknown;
+  }; //{ reload?: boolean; target?: string; revision?: number };
 };
 
 // SHARED

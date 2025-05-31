@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
+import { RefetchKey } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
-import { URL_PRESETS } from '../api/constants';
 import { getUrlPresets } from '../api/urlPresets';
 
 export default function useUrlPresets() {
   const { data, status, isError, refetch } = useQuery({
-    queryKey: URL_PRESETS,
+    queryKey: [RefetchKey.URL_PRESETS],
     queryFn: getUrlPresets,
     placeholderData: (previousData, _previousQuery) => previousData,
     retry: 5,

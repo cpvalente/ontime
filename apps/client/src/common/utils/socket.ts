@@ -1,7 +1,7 @@
-import { Log, Rundown, RuntimeStore, WebSocketPacketToClient, WebSocketPacketToServer, WsType } from 'ontime-types';
+import { Log, RefetchKey, RuntimeStore, WebSocketPacketToClient, WebSocketPacketToServer, WsType } from 'ontime-types';
 
 import { isProduction, websocketUrl } from '../../externals';
-import { CLIENT_LIST, CUSTOM_FIELDS, REPORT, RUNDOWN, RUNTIME } from '../api/constants';
+import { CLIENT_LIST, RUNTIME } from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
 import {
@@ -141,18 +141,21 @@ export const connectSocket = () => {
         }
         case WsType.ONTIME_REFETCH: {
           // the refetch message signals that the rundown has changed in the server side
-          const { reload, target } = payload;
-          if (reload) {
-            invalidateAllCaches();
-          } else if (target === 'RUNDOWN') {
-            const { revision } = payload;
-            const currentRevision = ontimeQueryClient.getQueryData<Rundown>(RUNDOWN)?.revision ?? -1;
-            if (!revision || revision > currentRevision) {
-              ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
-              ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
-            }
-          } else if (target === 'REPORT') {
-            ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
+          const { target } = payload;
+          switch (target) {
+            case RefetchKey.ALL:
+              invalidateAllCaches();
+              break;
+            case RefetchKey.RUNDOWN:
+              ontimeQueryClient.invalidateQueries({ queryKey: RefetchKey.RUNDOWN });
+              ontimeQueryClient.invalidateQueries({ queryKey: RefetchKey.CUSTOM_FIELDS });
+              break;
+            case RefetchKey.REPORT:
+              ontimeQueryClient.invalidateQueries({ queryKey: RefetchKey.REPORT });
+              break;
+            default:
+              console.log('unknown refetch target message', target);
+              break;
           }
           break;
         }

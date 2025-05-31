@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Switch } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
+import { RefetchKey } from 'ontime-types';
 
-import { PROJECT_DATA } from '../../../../common/api/constants';
 import { getDb, patchData } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { cx } from '../../../../common/utils/styleUtils';
@@ -64,7 +64,7 @@ export default function ProjectMergeForm(props: ProjectMergeFromProps) {
 
       // request patch
       await patchData(patch);
-      await queryClient.invalidateQueries({ queryKey: PROJECT_DATA });
+      await queryClient.invalidateQueries({ queryKey: [RefetchKey.PROJECT_DATA] });
       onClose();
     } catch (error) {
       setError(maybeAxiosError(error));
