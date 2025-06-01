@@ -74,7 +74,7 @@ export const makeTable = (headerData: ProjectData, rundown: OntimeRundown, custo
     'Is Public? (x)',
     'Skip?',
     ...customFieldLabels,
-    'Type',
+    'Timer Type',
   ];
 
   // add header row to data
