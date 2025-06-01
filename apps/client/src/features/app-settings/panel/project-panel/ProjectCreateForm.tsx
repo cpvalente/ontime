@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Button, Input, Textarea } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { RefetchKey } from 'ontime-types';
 
+import { PROJECT_LIST } from '../../../../common/api/constants';
 import { createProject } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { preventEscape } from '../../../../common/utils/keyEvent';
@@ -59,7 +59,7 @@ export default function ProjectCreateForm(props: ProjectCreateFromProps) {
         ...values,
         filename,
       });
-      await queryClient.invalidateQueries({ queryKey: RefetchKey.PROJECT_LIST });
+      await queryClient.invalidateQueries({ queryKey: PROJECT_LIST });
       onClose();
     } catch (error) {
       setError(maybeAxiosError(error));

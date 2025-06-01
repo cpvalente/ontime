@@ -1,7 +1,8 @@
-import { MaybeNumber, OffsetMode, OntimeEvent, RefetchKey, Settings, TimeFormat } from 'ontime-types';
+import { MaybeNumber, OffsetMode, OntimeEvent, Settings, TimeFormat } from 'ontime-types';
 import { dayInMs, formatFromMillis, MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
 
 import { FORMAT_12, FORMAT_24 } from '../../viewerConfig';
+import { APP_SETTINGS } from '../api/constants';
 import { useTimeUntilData } from '../hooks/useSocket';
 import { ontimeQueryClient } from '../queryClient';
 
@@ -35,7 +36,7 @@ function getFormatFromParams() {
  * @returns a string equivalent to the format, ie: hh:mm:ss a or HH:mm:ss
  */
 function getFormatFromSettings(): TimeFormat {
-  const settings: Settings | undefined = ontimeQueryClient.getQueryData([RefetchKey.APP_SETTINGS]);
+  const settings: Settings | undefined = ontimeQueryClient.getQueryData(APP_SETTINGS);
   return settings?.timeFormat ?? '24';
 }
 

@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { OntimeEntry, RefetchKey, Rundown } from 'ontime-types';
+import { OntimeEntry, Rundown } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
+import { RUNDOWN } from '../api/constants';
 import { fetchCurrentRundown } from '../api/rundown';
 
 import useProjectData from './useProjectData';
@@ -22,7 +23,7 @@ const cachedRundownPlaceholder: Rundown = {
  */
 export default function useRundown() {
   const { data, status, isError, refetch, isFetching } = useQuery<Rundown>({
-    queryKey: [RefetchKey.RUNDOWN],
+    queryKey: RUNDOWN,
     queryFn: fetchCurrentRundown,
     placeholderData: (previousData, _previousQuery) => previousData,
     retry: 5,

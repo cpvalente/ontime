@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { OntimeReport, RefetchKey } from 'ontime-types';
+import { OntimeReport } from 'ontime-types';
 
 import { ontimeQueryClient } from '../../common/queryClient';
 
-import { apiEntryUrl } from './constants';
+import { apiEntryUrl, REPORT } from './constants';
 
 export const reportUrl = `${apiEntryUrl}/report`;
 
@@ -17,10 +17,10 @@ export async function fetchReport(): Promise<OntimeReport> {
 
 export async function deleteReport(id: string) {
   await axios.delete(`${reportUrl}/${id}`);
-  await ontimeQueryClient.invalidateQueries({ queryKey: [RefetchKey.REPORT] });
+  await ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
 }
 
 export async function deleteAllReport() {
   await axios.delete(`${reportUrl}/all`);
-  await ontimeQueryClient.invalidateQueries({ queryKey: [RefetchKey.REPORT] });
+  await ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
 }

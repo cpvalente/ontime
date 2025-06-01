@@ -1,7 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { AuthenticationStatus, CustomFields, ProjectRundowns, RefetchKey } from 'ontime-types';
+import { AuthenticationStatus, CustomFields, ProjectRundowns } from 'ontime-types';
 import { ImportMap } from 'ontime-utils';
 
+import { CUSTOM_FIELDS, RUNDOWN } from '../../../../common/api/constants';
 import { patchData } from '../../../../common/api/db';
 import {
   previewRundown,
@@ -80,7 +81,7 @@ export default function useGoogleSheet() {
       // we are unable to optimistically set the rundown since we need
       // it to be normalised
       await queryClient.invalidateQueries({
-        queryKey: [RefetchKey.RUNDOWN, RefetchKey.CUSTOM_FIELDS],
+        queryKey: [RUNDOWN, CUSTOM_FIELDS],
       });
     } catch (error) {
       patchStepData({ pullPush: { available: true, error: maybeAxiosError(error) } });

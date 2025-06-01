@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { RefetchKey } from 'ontime-types';
 import { unobfuscate } from 'ontime-utils';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
+import { APP_SETTINGS } from '../api/constants';
 import { getSettings } from '../api/settings';
 import { ontimePlaceholderSettings } from '../models/OntimeSettings';
 
 export default function useSettings() {
   const { data, status, isFetching, isError, refetch } = useQuery({
-    queryKey: [RefetchKey.APP_SETTINGS],
+    queryKey: APP_SETTINGS,
     queryFn: getSettings,
     placeholderData: (previousData, _previousQuery) => previousData,
     retry: 5,

@@ -1,7 +1,7 @@
 import { Log, RefetchKey, RuntimeStore, WebSocketPacketToClient, WebSocketPacketToServer, WsType } from 'ontime-types';
 
 import { isProduction, websocketUrl } from '../../externals';
-import { CLIENT_LIST, RUNTIME } from '../api/constants';
+import { CLIENT_LIST, CUSTOM_FIELDS, RUNDOWN, RUNTIME } from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
 import {
@@ -147,12 +147,11 @@ export const connectSocket = () => {
               invalidateAllCaches();
               break;
             case RefetchKey.RUNDOWN:
-              ontimeQueryClient.invalidateQueries({ queryKey: RefetchKey.RUNDOWN });
-              ontimeQueryClient.invalidateQueries({ queryKey: RefetchKey.CUSTOM_FIELDS });
+              ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
+              ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
               break;
             default:
-              ontimeQueryClient.invalidateQueries({ queryKey: [target] });
-              console.log('refetch target', target);
+              console.log('unknown refetch target', target);
               break;
           }
           break;

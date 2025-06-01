@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ProjectFileListResponse, RefetchKey } from 'ontime-types';
+import { ProjectFileListResponse } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
+import { PROJECT_LIST } from '../api/constants';
 import { getProjects } from '../api/db';
 
 const placeholderProjectList: ProjectFileListResponse = {
@@ -12,7 +13,7 @@ const placeholderProjectList: ProjectFileListResponse = {
 
 function useProjectList() {
   const { data, status, refetch } = useQuery({
-    queryKey: [RefetchKey.PROJECT_LIST],
+    queryKey: PROJECT_LIST,
     queryFn: getProjects,
     placeholderData: (previousData, _previousQuery) => previousData,
     retry: 5,
