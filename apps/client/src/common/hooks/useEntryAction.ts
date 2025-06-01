@@ -389,8 +389,18 @@ export const useEntryActions = () => {
       // Return a context with the previous rundown
       return { previousRundown };
     },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({ queryKey: RUNDOWN });
+    onSuccess: (response) => {
+      if (!response.data) return;
+
+      const { id, title, order, flatOrder, entries, revision } = response.data;
+      queryClient.setQueryData<Rundown>(RUNDOWN, {
+        id,
+        title,
+        order,
+        flatOrder,
+        entries,
+        revision,
+      });
     },
     onError: (_error, _newEvent, context) => {
       queryClient.setQueryData<Rundown>(RUNDOWN, context?.previousRundown);

@@ -1,7 +1,9 @@
+import { SupportedEntry } from 'ontime-types';
 import {
   makeOntimeEvent,
   makeRundown,
   makeOntimeBlock,
+  makeOntimeDelay,
 } from '../../../services/rundown-service/__mocks__/rundown.mocks.js';
 
 import { createTransaction, rundownMutation } from '../rundown.dao.js';
@@ -99,5 +101,46 @@ describe('rundownMutation.add()', () => {
     expect(rundown.order).toStrictEqual(['1']);
     expect(rundown.flatOrder).toStrictEqual(['1', '1a', 'mock']);
     expect(rundown.entries['mock']).toMatchObject(mockEvent);
+  });
+});
+
+describe('rundownMutation.edit()', () => {
+  test('edits an event in the rundown', () => {
+    const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
+    const mockEventPatch = { id: 'mock', cue: 'patched' };
+    const rundown = makeRundown({
+      order: ['mock'],
+      entries: {
+        mock: mockEvent,
+      },
+    });
+
+    const { entry, didInvalidate } = rundownMutation.edit(rundown, mockEventPatch);
+
+    expect(rundown.order.length).toBe(1);
+    expect(didInvalidate).toBeFalsy();
+    expect(entry).toMatchObject({
+      id: 'mock',
+      cue: 'patched',
+      type: SupportedEntry.Event,
+    });
+  });
+
+  test('changing time fields invalidates the rundown', () => {
+    const rundown = makeRundown({
+      order: ['delay', 'event'],
+      entries: {
+        delay: makeOntimeDelay({ id: 'delay' }),
+        event: makeOntimeEvent({ id: 'event' }),
+      },
+    });
+
+    expect(rundownMutation.edit(rundown, { id: 'delay', duration: 1000 }).didInvalidate).toBeTruthy();
+
+    expect(rundownMutation.edit(rundown, { id: 'event', timeStart: 1000 }).didInvalidate).toBeTruthy();
+    expect(rundownMutation.edit(rundown, { id: 'event', timeEnd: 1000 }).didInvalidate).toBeTruthy();
+    expect(rundownMutation.edit(rundown, { id: 'event', duration: 1000 }).didInvalidate).toBeTruthy();
+    expect(rundownMutation.edit(rundown, { id: 'event', linkStart: true }).didInvalidate).toBeTruthy();
+    expect(rundownMutation.edit(rundown, { id: 'event', linkStart: false }).didInvalidate).toBeTruthy();
   });
 });

@@ -1,13 +1,4 @@
-import {
-  CustomFields,
-  OntimeEvent,
-  isOntimeBlock,
-  isOntimeDelay,
-  isOntimeEvent,
-  PatchWithId,
-  Rundown,
-  EntryId,
-} from 'ontime-types';
+import { CustomFields, isOntimeBlock, isOntimeDelay, isOntimeEvent, Rundown, EntryId } from 'ontime-types';
 
 import { RefetchTargets, sendRefetch } from '../../adapters/websocketAux.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
@@ -45,48 +36,6 @@ export async function deleteAllEntries() {
 
   // notify timer and external services of change
   notifyChanges({ timer: true, external: true });
-}
-
-/**
- * Apply patch to an element in rundown
- * @param patch
- */
-export async function editEvent(patch: PatchWithId) {
-  if (isOntimeEvent(patch) && patch?.cue === '') {
-    throw new Error('Cue value invalid');
-  }
-
-  const scopedMutation = cache.mutateCache(cache.edit);
-  const { newEvent, didMutate } = await scopedMutation({ patch, eventId: patch.id });
-
-  // short circuit if nothing changed
-  if (!didMutate) {
-    return newEvent;
-  }
-
-  // notify runtime that rundown has changed
-  updateRuntimeOnChange();
-
-  // notify timer and external services of change
-  notifyChanges({ timer: [patch.id], external: true });
-
-  return newEvent;
-}
-
-/**
- * Applies a patch to several elements in a rundown
- * @param ids
- * @param data
- */
-export async function batchEditEvents(ids: string[], data: Partial<OntimeEvent>) {
-  const scopedMutation = cache.mutateCache(cache.batchEdit);
-  await scopedMutation({ patch: data, eventIds: ids });
-
-  // notify runtime that rundown has changed
-  updateRuntimeOnChange();
-
-  // notify timer and external services of change
-  notifyChanges({ timer: ids, external: true });
 }
 
 /**

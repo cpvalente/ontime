@@ -3,8 +3,10 @@ import {
   isOntimeBlock,
   isOntimeDelay,
   isOntimeEvent,
+  OntimeBaseEvent,
   OntimeBlock,
   OntimeDelay,
+  OntimeEntry,
   OntimeEvent,
   Rundown,
   SupportedEntry,
@@ -93,6 +95,26 @@ export function createPatch(originalEvent: OntimeEvent, patchEvent: Partial<Onti
 }
 
 /**
+ * Utility function for patching an existing event with new data
+ * Increments the revision of the event when applying the patch
+ */
+export function applyPatchToEntry<T extends OntimeEntry>(eventFromRundown: T, patch: Partial<T>): T {
+  if (isOntimeEvent(eventFromRundown)) {
+    const newEvent = createPatch(eventFromRundown, patch as Partial<OntimeEvent>);
+    newEvent.revision++;
+    return newEvent as T;
+  }
+  if (isOntimeBlock(eventFromRundown)) {
+    const newBlock: OntimeBlock = { ...eventFromRundown, ...patch };
+    newBlock.revision++;
+    return newBlock as T;
+  }
+
+  // only delay is left
+  return { ...eventFromRundown, ...patch } as T;
+}
+
+/**
  * @description Enforces formatting for events
  * @param {object} eventArgs - attributes of event
  * @param {number} eventIndex - can be a string when we pass the a suggested cue name
@@ -173,4 +195,48 @@ export function getUniqueId(rundown: Rundown): EntryId {
     id = generateId();
   } while (rundown.entries[id]);
   return id;
+}
+
+/** List of event properties which do not need the rundown to be regenerated */
+enum RegenerateWhitelist {
+  'id', // adding it for completeness, users cannot change ID
+  'type', // adding it for completeness, users cannot change ID
+  'cue',
+  'title',
+  'note',
+  'endAction',
+  'timerType',
+  'countToEnd',
+  'isPublic',
+  'colour',
+  'timeWarning',
+  'timeDanger',
+  'custom',
+  'triggers',
+}
+
+/**
+ * given a patch, returns whether it invalidates the rundown metadata
+ */
+export function doesInvalidateMetadata(patch: Partial<OntimeEntry>): boolean {
+  return Object.keys(patch).some(willCauseRegeneration);
+}
+
+/**
+ * given a key, returns whether it is whitelisted
+ */
+export function willCauseRegeneration(key: string): boolean {
+  return !(key in RegenerateWhitelist);
+}
+
+/**
+ * Given an event and a patch to that event checks whether there are actual changes to the dataset
+ * @param existingEvent
+ * @param newEvent
+ * @returns
+ */
+export function hasChanges<T extends OntimeBaseEvent>(existingEvent: T, newEvent: Partial<T>): boolean {
+  return Object.keys(newEvent).some(
+    (key) => !Object.hasOwn(existingEvent, key) || existingEvent[key as keyof T] !== newEvent[key as keyof T],
+  );
 }

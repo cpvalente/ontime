@@ -51,7 +51,7 @@ type BatchEditEntry = {
 /**
  * HTTP request to edit multiple events
  */
-export async function putBatchEditEvents(data: BatchEditEntry): Promise<AxiosResponse<MessageResponse>> {
+export async function putBatchEditEvents(data: BatchEditEntry): Promise<AxiosResponse<Rundown>> {
   return axios.put(`${rundownPath}/batch`, data);
 }
 

@@ -1,4 +1,13 @@
-import { CustomFields, EntryId, EventPostPayload, isOntimeBlock, OntimeEntry, Rundown } from 'ontime-types';
+import {
+  CustomFields,
+  EntryId,
+  EventPostPayload,
+  isOntimeBlock,
+  isOntimeEvent,
+  OntimeEntry,
+  PatchWithId,
+  Rundown,
+} from 'ontime-types';
 
 import { getPreviousId } from '../../services/rundown-service/rundownUtils.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
@@ -7,7 +16,7 @@ import { runtimeService } from '../../services/runtime-service/RuntimeService.js
 
 import { createTransaction, rundownCache, rundownMutation } from './rundown.dao.js';
 import { RundownMetadata } from './rundown.types.js';
-import { generateEvent } from './rundown.utils.js';
+import { generateEvent, hasChanges } from './rundown.utils.js';
 
 /**
  * creates a new entry with given data
@@ -50,6 +59,119 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
   });
 
   return newEntry;
+}
+
+/**
+ * Applies a patch to an entry in the rundown
+ */
+export async function editEntry(patch: PatchWithId): Promise<OntimeEntry> {
+  const { rundown, commit } = createTransaction();
+  const currentEntry = rundown.entries[patch.id];
+
+  /**
+   * We validate the patch before applying it
+   * - disallow edit an entry that does not exist
+   * - disallow setting the cue to empty string
+   * - disallow change the type of an entry
+   */
+
+  // could the entry have been deleted?
+  if (!currentEntry) {
+    throw new Error('Entry not found');
+  }
+
+  // we dont allow the user to change the cue to empty string
+  if (isOntimeEvent(patch) && patch?.cue === '') {
+    throw new Error('Cue value invalid');
+  }
+
+  // we cannot allow patching to a different type
+  if (patch?.type && currentEntry.type !== patch.type) {
+    throw new Error('Invalid event type');
+  }
+
+  // if nothing changed, nothing to do
+  if (!hasChanges(currentEntry, patch)) {
+    return currentEntry;
+  }
+
+  const { entry, didInvalidate } = rundownMutation.edit(rundown, patch);
+  const { rundownMetadata, revision } = commit(didInvalidate);
+
+  // schedule the side effects
+  setImmediate(() => {
+    // notify runtime that rundown has changed
+    updateRuntimeOnChange(rundownMetadata);
+
+    // notify timer and external services of change
+    notifyChanges(rundownMetadata, revision, { timer: [entry.id], external: true });
+  });
+
+  return entry;
+}
+
+/**
+ * Applies a patch to several entries in the rundown
+ */
+export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntry>): Promise<Rundown> {
+  const { rundown, commit } = createTransaction();
+
+  /**
+   * We can do some validation globally, but mostly we will validate each entry individually
+   * - disallow setting the cue to empty string
+   */
+  if ('cue' in patch && patch.cue === '') {
+    throw new Error('Cue value invalid');
+  }
+
+  let batchDidInvalidate = false;
+  const changedIds: EntryId[] = [];
+  const patchedEntries: OntimeEntry[] = [];
+  for (let i = 0; i < ids.length; i++) {
+    const currentId = ids[i];
+    const currentEntry = rundown.entries[currentId];
+    /**
+     * Most of the validation needs to be done in regard to the change
+     * - cannot edit an entry that does not exist
+     * - disallow change the type of an entry
+     * - disallow change the ID of an entry
+     */
+    // could the entry have been deleted?
+    if (!currentEntry) {
+      continue;
+    }
+
+    // we cannot allow patching to a different type
+    if (patch?.type && currentEntry.type !== patch.type) {
+      throw new Error('Invalid event type');
+    }
+
+    // if nothing changed, nothing to do
+    if (!hasChanges(currentEntry, patch)) {
+      continue;
+    }
+
+    const { entry, didInvalidate } = rundownMutation.edit(rundown, { ...patch, id: currentId });
+
+    changedIds.push(currentId);
+    patchedEntries.push(entry);
+
+    if (didInvalidate) {
+      batchDidInvalidate = true;
+    }
+  }
+  const { rundown: rundownResult, rundownMetadata, revision } = commit(batchDidInvalidate);
+
+  // schedule the side effects
+  setImmediate(() => {
+    // notify runtime that rundown has changed
+    updateRuntimeOnChange(rundownMetadata);
+
+    // notify timer and external services of change
+    notifyChanges(rundownMetadata, revision, { timer: changedIds, external: true });
+  });
+
+  return rundownResult;
 }
 
 /**

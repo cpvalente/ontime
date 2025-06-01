@@ -16,18 +16,11 @@ import {
 import { generateId, insertAtIndex, swapEventData, customFieldLabelToKey, mergeAtIndex } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { createBlock, createPatch } from '../../api-data/rundown/rundown.utils.js';
+import { createBlock } from '../../api-data/rundown/rundown.utils.js';
 
 import type { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 import { apply } from './delayUtils.js';
-import {
-  cloneBlock,
-  cloneEntry,
-  hasChanges,
-  isDataStale,
-  makeRundownMetadata,
-  type ProcessedRundownMetadata,
-} from './rundownCache.utils.js';
+import { cloneBlock, cloneEntry, makeRundownMetadata, type ProcessedRundownMetadata } from './rundownCache.utils.js';
 
 let currentRundownId: EntryId = '';
 let currentRundown: Rundown = {
@@ -402,14 +395,8 @@ export function remove({ rundown, eventIds }: RemoveArgs): MutatingReturn {
 
       // we call a mutation to the parent event to
       // - remove this entry from the events
-      // - reduce the children count
-      edit({
-        rundown,
-        eventId: entry.parent,
-        patch: {
-          events: parentEvents,
-        },
-      });
+      parentBlock.events = parentEvents;
+      parentBlock.revision += 1;
     }
   }
 
@@ -442,73 +429,6 @@ export function removeAll(): MutatingReturn {
     },
     didMutate: true,
   };
-}
-
-/**
- * Utility function for patching an existing event with new data
- */
-function makeEvent<T extends OntimeEntry>(eventFromRundown: T, patch: Partial<T>): T {
-  if (isOntimeEvent(eventFromRundown)) {
-    const newEvent = createPatch(eventFromRundown, patch as Partial<OntimeEvent>);
-    newEvent.revision++;
-    return newEvent as T;
-  }
-  if (isOntimeBlock(eventFromRundown)) {
-    const newEvent: OntimeBlock = { ...eventFromRundown, ...patch };
-    newEvent.revision++;
-    return newEvent as T;
-  }
-
-  return { ...eventFromRundown, ...patch } as T;
-}
-
-type EditArgs = MutationParams<{ eventId: EntryId; patch: Partial<OntimeEntry> }>;
-/**
- * Apply patch to an entry with given id
- */
-export function edit({ rundown, eventId, patch }: EditArgs): Required<MutatingReturn> {
-  const entry = rundown.entries[eventId];
-  if (!entry) {
-    // there should be no reason for the entry not to be found
-    // check if it exists in the rundown order
-    rundown.order = rundown.order.filter((id) => id !== eventId);
-    throw new Error('Entry not found');
-  }
-
-  // we cannot allow patching to a different type
-  if (patch?.type && entry.type !== patch.type) {
-    throw new Error('Invalid event type');
-  }
-
-  // if nothing changed, nothing to do
-  if (!hasChanges(entry, patch)) {
-    return { newRundown: rundown, changeList: [eventId], newEvent: entry, didMutate: false };
-  }
-
-  const newEvent = makeEvent(entry, patch);
-  rundown.entries[newEvent.id] = newEvent;
-
-  // check whether the data warrants recalculation of cache
-  const makeStale = isDataStale(patch);
-
-  if (makeStale) {
-    setIsStale();
-  } else {
-    rundown.entries[newEvent.id] = newEvent;
-  }
-
-  return { newRundown: rundown, changeList: [newEvent.id], newEvent, didMutate: true };
-}
-
-type BatchEditArgs = MutationParams<{ eventIds: EntryId[]; patch: Partial<OntimeEntry> }>;
-/**
- * Apply patch to multiple entries
- */
-export function batchEdit({ rundown, eventIds, patch }: BatchEditArgs): MutatingReturn {
-  for (const eventId of eventIds) {
-    edit({ rundown, eventId, patch });
-  }
-  return { newRundown: rundown, didMutate: true };
 }
 
 type ReorderArgs = MutationParams<{

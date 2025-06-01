@@ -10,17 +10,15 @@ import {
   deletesEventById,
   rundownAddToBlock,
   rundownApplyDelay,
-  rundownBatchPut,
   rundownCloneEntry,
   rundownDelete,
   rundownUngroupEntries,
   rundownGetAll,
   rundownGetById,
   rundownGetCurrent,
-  rundownPut,
   rundownSwap,
 } from './rundown.controller.js';
-import { addEntry } from './rundown.service.js';
+import { addEntry, batchEditEntries, editEntry } from './rundown.service.js';
 import {
   paramsMustHaveEntryId,
   rundownArrayOfIds,
@@ -47,8 +45,25 @@ router.post('/', rundownPostValidator, async (req: Request, res: Response<Ontime
   }
 });
 
-router.put('/', rundownPutValidator, rundownPut);
-router.put('/batch', rundownBatchPutValidator, rundownBatchPut);
+router.put('/', rundownPutValidator, async (req: Request, res: Response<OntimeEntry | ErrorResponse>) => {
+  try {
+    const event = await editEntry(req.body);
+    res.status(200).send(event);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
+
+router.put('/batch', rundownBatchPutValidator, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+  try {
+    const rundown = await batchEditEntries(req.body.ids, req.body.data);
+    res.status(200).send(rundown);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
 
 router.patch('/reorder', rundownReorderValidator, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
   try {

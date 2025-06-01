@@ -6,10 +6,8 @@ import type { Request, Response } from 'express';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import {
   applyDelay,
-  batchEditEvents,
   deleteAllEntries,
   deleteEvent,
-  editEvent,
   ungroupEntries,
   groupEntries,
   swapEvents,
@@ -50,35 +48,6 @@ export async function rundownGetById(req: Request, res: Response<OntimeEntry | E
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(500).json({ message });
-  }
-}
-
-export async function rundownPut(req: Request, res: Response<OntimeEntry | ErrorResponse>) {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
-
-  try {
-    const event = await editEvent(req.body);
-    res.status(200).send(event);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-}
-
-export async function rundownBatchPut(req: Request, res: Response<MessageResponse | ErrorResponse>) {
-  if (failEmptyObjects(req.body, res)) {
-    return res.status(404);
-  }
-
-  try {
-    const { data, ids } = req.body;
-    await batchEditEvents(ids, data);
-    res.status(200).send({ message: 'Batch edit successful' });
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
   }
 }
 

@@ -4,8 +4,6 @@ import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 import { demoDb } from '../../../models/demoProject.js';
 
 import {
-  batchEdit,
-  edit,
   generate,
   remove,
   reorder,
@@ -673,55 +671,6 @@ describe('remove() mutation', () => {
       '13': { id: '13' },
     });
     expect((newRundown.entries['1'] as OntimeBlock).events).toStrictEqual(['11', '13']);
-  });
-});
-
-describe('edit() mutation', () => {
-  test('edits an event in the rundown', () => {
-    const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
-    const mockEventPatch = makeOntimeEvent({ cue: 'patched' });
-    const rundown = makeRundown({
-      order: ['mock'],
-      entries: {
-        mock: mockEvent,
-      },
-    });
-
-    const { newRundown, newEvent } = edit({
-      eventId: mockEvent.id,
-      patch: mockEventPatch,
-      rundown,
-    });
-    expect(newRundown.order.length).toBe(1);
-    expect(newEvent).toMatchObject({
-      id: 'mock',
-      cue: 'patched',
-      type: SupportedEntry.Event,
-    });
-  });
-});
-
-describe('batchEdit() mutation', () => {
-  it('should correctly apply the patch to the events with the given IDs', () => {
-    const rundown = makeRundown({
-      order: ['1', '2', '3'],
-      entries: {
-        '1': makeOntimeEvent({ id: '1', cue: 'data1' }),
-        '2': makeOntimeEvent({ id: '2', cue: 'data2' }),
-        '3': makeOntimeEvent({ id: '3', cue: 'data3' }),
-      },
-    });
-
-    const eventIds = ['1', '3'];
-    const patch = { cue: 'newData' };
-
-    const { newRundown } = batchEdit({ rundown, eventIds, patch });
-
-    expect(newRundown.entries).toMatchObject({
-      '1': { id: '1', type: SupportedEntry.Event, cue: 'newData' },
-      '2': { id: '2', type: SupportedEntry.Event, cue: 'data2' },
-      '3': { id: '3', type: SupportedEntry.Event, cue: 'newData' },
-    });
   });
 });
 

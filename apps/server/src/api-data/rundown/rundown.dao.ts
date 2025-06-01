@@ -18,15 +18,17 @@ import {
   isPlayableEvent,
   OntimeBlock,
   OntimeEntry,
+  PatchWithId,
   Rundown,
 } from 'ontime-types';
 import { insertAtIndex } from 'ontime-utils';
 
 import { makeRundownMetadata, ProcessedRundownMetadata } from '../../services/rundown-service/rundownCache.utils.js';
 import { customFieldChangelog } from '../../services/rundown-service/rundownCache.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
 import type { RundownMetadata } from './rundown.types.js';
-import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { applyPatchToEntry, doesInvalidateMetadata } from './rundown.utils.js';
 
 /**
  * The currently loaded rundown in cache
@@ -68,24 +70,36 @@ export function createTransaction() {
   const rundown = structuredClone(cachedRundown);
   const customFields = projectCustomFields;
 
-  function commit() {
-    const processedData = processRundown(rundown, projectCustomFields);
+  function commit(shouldProcess: boolean = true) {
+    // schedule a database update
+    setImmediate(async () => {
+      await getDataProvider().setRundown(cachedRundown.id, cachedRundown);
+    });
+
     const revision = rundown.revision + 1;
+    cachedRundown.revision = revision;
+
+    /**
+     * Some mutations do not require processing the rundown
+     * We simply increment the revision and return the rundown
+     */
+    if (!shouldProcess) {
+      cachedRundown.entries = rundown.entries;
+      cachedRundown.order = rundown.order;
+      cachedRundown.flatOrder = rundown.flatOrder;
+      return { rundown, rundownMetadata, customFields: projectCustomFields, revision: cachedRundown.revision };
+    }
+
+    const processedData = processRundown(rundown, projectCustomFields);
     // update the cache values
     // eslint-disable-next-line @typescript-eslint/no-unused-vars -- we are not interested in the iteration data
     const { previousEvent, latestEvent, previousEntry, entries, order, ...metadata } = processedData;
     cachedRundown.entries = entries;
     cachedRundown.order = order;
     cachedRundown.flatOrder = metadata.flatEntryOrder; // TODO: remove in favour of the metadata flatEntryOrder
-    cachedRundown.revision = revision;
     rundownMetadata = metadata;
 
-    // defer writing to the database
-    setImmediate(async () => {
-      await getDataProvider().setRundown(cachedRundown.id, cachedRundown);
-    });
-
-    return { rundown, rundownMetadata, customFields: projectCustomFields, revision };
+    return { rundown, rundownMetadata, customFields: projectCustomFields, revision: cachedRundown.revision };
   }
 
   return {
@@ -135,8 +149,26 @@ function add(rundown: Rundown, entry: OntimeEntry, afterId: EntryId | null, pare
   return entry;
 }
 
+/**
+ * Applies a patch of changes to an existing entry
+ * @returns { entry: OntimeEntry, didInvalidate: boolean } - didInvalidate indicates whether the change warrants a recalculation of the cache
+ */
+function edit(rundown: Rundown, patch: PatchWithId): { entry: OntimeEntry; didInvalidate: boolean } {
+  const entry = rundown.entries[patch.id];
+
+  // apply the patch and replace the entry
+  const newEntry = applyPatchToEntry(entry, patch);
+  rundown.entries[entry.id] = newEntry;
+
+  // check whether the data warrants recalculation of cache
+  const didInvalidate = doesInvalidateMetadata(patch);
+
+  return { entry: newEntry, didInvalidate };
+}
+
 export const rundownMutation = {
   add,
+  edit,
 };
 
 /**

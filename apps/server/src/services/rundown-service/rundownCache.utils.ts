@@ -3,7 +3,6 @@ import {
   CustomFieldLabel,
   CustomFields,
   OntimeEntry,
-  OntimeBaseEvent,
   EntryId,
   isOntimeEvent,
   isPlayableEvent,
@@ -63,49 +62,6 @@ export function handleCustomField(
       delete mutableEvent.custom[field];
     }
   }
-}
-
-/** List of event properties which do not need the rundown to be regenerated */
-enum RegenerateWhitelist {
-  'id',
-  'cue',
-  'title',
-  'note',
-  'endAction',
-  'timerType',
-  'countToEnd',
-  'isPublic',
-  'colour',
-  'timeWarning',
-  'timeDanger',
-  'custom',
-  'triggers',
-}
-
-/**
- * given a patch, returns whether all keys are whitelisted
- */
-export function isDataStale(patch: Partial<OntimeEntry>): boolean {
-  return Object.keys(patch).some(willCauseRegeneration);
-}
-
-/**
- * given a key, returns whether it is whitelisted
- */
-export function willCauseRegeneration(key: string): boolean {
-  return !(key in RegenerateWhitelist);
-}
-
-/**
- * Given an event and a patch to that event checks whether there are actual changes to the dataset
- * @param existingEvent
- * @param newEvent
- * @returns
- */
-export function hasChanges<T extends OntimeBaseEvent>(existingEvent: T, newEvent: Partial<T>): boolean {
-  return Object.keys(newEvent).some(
-    (key) => !Object.hasOwn(existingEvent, key) || existingEvent[key as keyof T] !== newEvent[key as keyof T],
-  );
 }
 
 /**
