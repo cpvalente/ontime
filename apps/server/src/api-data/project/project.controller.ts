@@ -1,4 +1,4 @@
-import { ErrorResponse, ProjectData } from 'ontime-types';
+import { ErrorResponse, ProjectData, RefetchKey } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
@@ -7,12 +7,13 @@ import { removeUndefined } from '../../utils/parserUtils.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { editCurrentProjectData } from '../../services/project-service/ProjectService.js';
+import { sendRefetch } from '../../adapters/websocketAux.js';
 
 export function getProjectData(_req: Request, res: Response<ProjectData>) {
   res.json(getDataProvider().getProjectData());
 }
 
-export async function postProjectData(req: Request, res: Response<ProjectData | ErrorResponse>) {
+export async function postProjectData(req: Request, res: Response<ErrorResponse>) {
   if (failEmptyObjects(req.body, res)) {
     return;
   }
@@ -29,11 +30,11 @@ export async function postProjectData(req: Request, res: Response<ProjectData | 
       projectLogo: req.body?.projectLogo,
     });
 
-    const updatedData = await editCurrentProjectData(newData);
-
-    res.status(200).send(updatedData);
+    await editCurrentProjectData(newData);
+    res.status(200).send();
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });
   }
+  sendRefetch(RefetchKey.PROJECT_DATA);
 }

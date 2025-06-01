@@ -11,11 +11,12 @@ import {
   EventPostPayload,
   Rundown,
   EntryId,
+  RefetchKey,
 } from 'ontime-types';
 import { getCueCandidate } from 'ontime-utils';
 
 import { delay as delayDef } from '../../models/eventsDefinition.js';
-import { RefetchTargets, sendRefetch } from '../../adapters/websocketAux.js';
+import { sendRefetch } from '../../adapters/websocketAux.js';
 import { createBlock, createEvent } from '../../api-data/rundown/rundown.utils.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
@@ -335,12 +336,11 @@ function notifyChanges(options: NotifyChangesOptions) {
   if (options.external) {
     // advice socket subscribers of change
     const payload = {
-      target: RefetchTargets.Rundown,
       changes: Array.isArray(options.timer) ? options.timer : undefined,
       reload: options.reload,
       revision: cache.getMetadata().revision,
     };
-    sendRefetch(payload);
+    sendRefetch(RefetchKey.RUNDOWN, payload);
   }
 }
 

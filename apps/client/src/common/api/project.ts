@@ -16,7 +16,7 @@ export async function getProjectData(): Promise<ProjectData> {
 /**
  * HTTP request to mutate project data
  */
-export async function postProjectData(data: ProjectData): Promise<AxiosResponse<ProjectData>> {
+export async function postProjectData(data: ProjectData): Promise<AxiosResponse> {
   return axios.post(projectPath, data);
 }
 
