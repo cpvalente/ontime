@@ -96,7 +96,7 @@ describe('makeTable()', () => {
           "Is Public? (x)",
           "Skip?",
           "lighting",
-          "Timer Type",
+          "Type",
         ],
         [
           "00:00:00",
