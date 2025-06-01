@@ -215,7 +215,7 @@ export const parseExcel = (
         const maybeTimeType = makeString(column, '');
         if (maybeTimeType === 'block') {
           event.type = SupportedEvent.Block;
-        } else if (maybeTimeType === '' || isKnownTimerType(maybeTimeType)) {
+        } else if (maybeTimeType === '' || maybeTimeType === 'event' || isKnownTimerType(maybeTimeType)) {
           event.type = SupportedEvent.Event;
           event.timerType = validateTimerType(maybeTimeType);
         } else {
