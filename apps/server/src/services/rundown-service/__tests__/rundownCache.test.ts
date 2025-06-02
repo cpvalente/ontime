@@ -1,11 +1,10 @@
-import { CustomFields, OntimeBlock, OntimeEvent, SupportedEntry, TimeStrategy } from 'ontime-types';
+import { CustomFields, OntimeEvent, SupportedEntry, TimeStrategy } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 
 import { demoDb } from '../../../models/demoProject.js';
 
 import {
   generate,
-  remove,
   reorder,
   swap,
   createCustomField,
@@ -615,62 +614,6 @@ describe('generate() v4', () => {
         '303': { id: '303', timeStart: 1100, timeEnd: 1200, duration: 100 },
       });
     });
-  });
-});
-
-
-describe('remove() mutation', () => {
-  test('deletes an event from the rundown', () => {
-    const mockEvent = makeOntimeEvent({ id: 'mock', cue: 'mock' });
-    const rundown = makeRundown({
-      order: ['mock'],
-      entries: {
-        mock: mockEvent,
-      },
-    });
-
-    const { newRundown } = remove({ eventIds: [mockEvent.id], rundown });
-    expect(newRundown.order.length).toBe(0);
-  });
-
-  test('deletes multiple events from the rundown', () => {
-    const rundown = makeRundown({
-      order: ['1', '2', '3', '4', '5', '6'],
-      entries: {
-        '1': makeOntimeEvent({ id: '1' }),
-        '2': makeOntimeBlock({ id: '2' }),
-        '3': makeOntimeDelay({ id: '3' }),
-        '4': makeOntimeEvent({ id: '4' }),
-        '5': makeOntimeEvent({ id: '5' }),
-        '6': makeOntimeEvent({ id: '6' }),
-      },
-    });
-
-    const { newRundown } = remove({ eventIds: ['1', '2', '3'], rundown });
-    expect(newRundown.order.length).toBe(3);
-    expect(newRundown.entries[newRundown.order[0]].id).toBe('4');
-  });
-
-  test('deletes a nested event', () => {
-    const rundown = makeRundown({
-      order: ['1'],
-      flatOrder: ['1', '11', '12', '13'],
-      entries: {
-        '1': makeOntimeBlock({ id: '1', events: ['11', '12', '13'] }),
-        '11': makeOntimeEvent({ id: '11', parent: '1' }),
-        '12': makeOntimeDelay({ id: '12', parent: '1' }),
-        '13': makeOntimeEvent({ id: '13', parent: '1' }),
-      },
-    });
-
-    const { newRundown } = remove({ eventIds: ['12'], rundown });
-    expect(newRundown.order).toStrictEqual(['1']);
-    expect(newRundown.entries).toMatchObject({
-      '1': { id: '1' },
-      '11': { id: '11' },
-      '13': { id: '13' },
-    });
-    expect((newRundown.entries['1'] as OntimeBlock).events).toStrictEqual(['11', '13']);
   });
 });
 

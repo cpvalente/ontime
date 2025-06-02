@@ -240,3 +240,17 @@ export function hasChanges<T extends OntimeBaseEvent>(existingEvent: T, newEvent
     (key) => !Object.hasOwn(existingEvent, key) || existingEvent[key as keyof T] !== newEvent[key as keyof T],
   );
 }
+
+/**
+ * Deletes the first instance of string from an array of strings
+ * Used for cases when we want to delete an ID from an array
+ *
+ * We keep this just for backend because the use of `toSpliced` does not have enough browser support
+ */
+export function deleteById(array: EntryId[], deleteId: EntryId): EntryId[] {
+  const deleteIndex = array.findIndex((id) => id === deleteId);
+  if (deleteIndex === -1) {
+    return array;
+  }
+  return array.toSpliced(deleteIndex, 1);
+}

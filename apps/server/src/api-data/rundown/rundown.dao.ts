@@ -28,7 +28,7 @@ import { customFieldChangelog } from '../../services/rundown-service/rundownCach
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
 import type { RundownMetadata } from './rundown.types.js';
-import { applyPatchToEntry, doesInvalidateMetadata } from './rundown.utils.js';
+import { applyPatchToEntry, deleteById, doesInvalidateMetadata } from './rundown.utils.js';
 
 /**
  * The currently loaded rundown in cache
@@ -166,9 +166,53 @@ function edit(rundown: Rundown, patch: PatchWithId): { entry: OntimeEntry; didIn
   return { entry: newEntry, didInvalidate };
 }
 
+/**
+ * Deletes an entry from the rundown
+ * - if the entry is an ontime block, we delete it along with its children
+ * - if the entry is inside a block, we delete it and remove the reference from the parent block
+ */
+function remove(rundown: Rundown, entryId: EntryId) {
+  const entry = rundown.entries[entryId];
+
+  if (isOntimeBlock(entry)) {
+    // for ontime blocks, we need to iterate through the children and delete them
+    for (let i = 0; i < entry.events.length; i++) {
+      const nestedEntryId = entry.events[i];
+      deleteEntry(nestedEntryId);
+    }
+  } else if (entry.parent) {
+    // at this point, we are handling entries inside a block, so we need to remove the reference
+    const parentBlock = rundown.entries[entry.parent] as OntimeBlock;
+    if (parentBlock) {
+      // we call a mutation to the parent event to remove the entry from the events
+      const filteredEvents = deleteById(parentBlock.events, entry.id);
+      edit(rundown, { id: parentBlock.id, events: filteredEvents });
+    }
+  }
+  deleteEntry(entryId);
+
+  function deleteEntry(idToDelete: EntryId) {
+    rundown.order = deleteById(rundown.order, idToDelete);
+    delete rundown.entries[idToDelete];
+  }
+}
+
+/**
+ * Removes all entries from the rundown
+ */
+function removeAll(rundown: Rundown): Rundown {
+  rundown.order = [];
+  rundown.flatOrder = [];
+  rundown.entries = {};
+
+  return rundown;
+}
+
 export const rundownMutation = {
   add,
   edit,
+  remove,
+  removeAll,
 };
 
 /**

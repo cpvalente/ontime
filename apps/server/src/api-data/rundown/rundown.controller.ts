@@ -6,8 +6,6 @@ import type { Request, Response } from 'express';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import {
   applyDelay,
-  deleteAllEntries,
-  deleteEvent,
   ungroupEntries,
   groupEntries,
   swapEvents,
@@ -100,26 +98,6 @@ export async function rundownAddToBlock(req: Request, res: Response<Rundown | Er
   try {
     const newRundown = await groupEntries(req.body.ids);
     res.status(200).send(newRundown);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-}
-
-export async function rundownDelete(_req: Request, res: Response<MessageResponse | ErrorResponse>) {
-  try {
-    await deleteAllEntries();
-    res.status(204).send({ message: 'All events deleted' });
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-}
-
-export async function deletesEventById(req: Request, res: Response<MessageResponse | ErrorResponse>) {
-  try {
-    await deleteEvent(req.body.ids);
-    res.status(204).send({ message: 'Events deleted' });
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });

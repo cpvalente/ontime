@@ -1,4 +1,4 @@
-import { ErrorResponse, OntimeEntry, Rundown } from 'ontime-types';
+import { ErrorResponse, MessageResponse, OntimeEntry, Rundown } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
@@ -7,18 +7,16 @@ import express from 'express';
 import { reorderEntry } from '../../services/rundown-service/RundownService.js';
 
 import {
-  deletesEventById,
   rundownAddToBlock,
   rundownApplyDelay,
   rundownCloneEntry,
-  rundownDelete,
   rundownUngroupEntries,
   rundownGetAll,
   rundownGetById,
   rundownGetCurrent,
   rundownSwap,
 } from './rundown.controller.js';
-import { addEntry, batchEditEntries, editEntry } from './rundown.service.js';
+import { addEntry, batchEditEntries, deleteAllEntries, deleteEntries, editEntry } from './rundown.service.js';
 import {
   paramsMustHaveEntryId,
   rundownArrayOfIds,
@@ -81,5 +79,22 @@ router.post('/clone/:entryId', paramsMustHaveEntryId, rundownCloneEntry);
 router.post('/ungroup/:entryId', paramsMustHaveEntryId, rundownUngroupEntries);
 router.post('/group', rundownArrayOfIds, rundownAddToBlock);
 
-router.delete('/', rundownArrayOfIds, deletesEventById);
-router.delete('/all', rundownDelete);
+router.delete('/', rundownArrayOfIds, async (req: Request, res: Response<MessageResponse | ErrorResponse>) => {
+  try {
+    await deleteEntries(req.body.ids);
+    res.status(204).send({ message: 'Events deleted' });
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
+
+router.delete('/all', async (_req: Request, res: Response<Rundown | ErrorResponse>) => {
+  try {
+    const rundown = await deleteAllEntries();
+    res.status(204).send(rundown);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});

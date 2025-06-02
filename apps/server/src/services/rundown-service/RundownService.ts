@@ -7,38 +7,6 @@ import { runtimeService } from '../runtime-service/RuntimeService.js';
 import * as cache from './rundownCache.js';
 
 /**
- * deletes event by its ID
- */
-export async function deleteEvent(eventIds: EntryId[]) {
-  const scopedMutation = cache.mutateCache(cache.remove);
-  const { didMutate, changeList } = await scopedMutation({ eventIds });
-
-  if (!didMutate) {
-    return;
-  }
-
-  // notify runtime that rundown has changed
-  updateRuntimeOnChange();
-
-  // notify timer and external services of change
-  notifyChanges({ timer: changeList, external: true });
-}
-
-/**
- * deletes all entries in database
- */
-export async function deleteAllEntries() {
-  const scopedMutation = cache.mutateCache(cache.removeAll);
-  await scopedMutation({});
-
-  // notify event loader that rundown has changed
-  updateRuntimeOnChange();
-
-  // notify timer and external services of change
-  notifyChanges({ timer: true, external: true });
-}
-
-/**
  * reorders a given entry
  */
 export async function reorderEntry(

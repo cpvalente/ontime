@@ -175,10 +175,62 @@ export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntr
 }
 
 /**
+ * Deletes a known entry from the current rundown
+ */
+export async function deleteEntries(entryIds: EntryId[]): Promise<Rundown> {
+  const { rundown, commit } = createTransaction();
+
+  for (let i = 0; i < entryIds.length; i++) {
+    const entry = rundown.entries[entryIds[i]];
+    if (!entry) {
+      continue;
+    }
+    rundownMutation.remove(rundown, entryIds[i]);
+  }
+
+  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+
+  // schedule the side effects
+  setImmediate(() => {
+    // notify runtime that rundown has changed
+    updateRuntimeOnChange(rundownMetadata);
+
+    // notify timer and external services of change
+    notifyChanges(rundownMetadata, revision, { timer: entryIds, external: true });
+  });
+
+  return rundownResult;
+}
+
+/**
+ * Deletes all entries from the current rundown
+ */
+export async function deleteAllEntries(): Promise<Rundown> {
+  const { rundown, commit } = createTransaction();
+
+  rundownMutation.removeAll(rundown);
+
+  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+
+  // schedule the side effects
+  setImmediate(() => {
+    // notify runtime that rundown has changed
+    updateRuntimeOnChange(rundownMetadata);
+
+    // notify timer and external services of change
+    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+  });
+
+  return rundownResult;
+}
+
+/**
  * Forces update in the store
  * Called when we make changes to the rundown object
+ *
+ * @private - exported for testing
  */
-function updateRuntimeOnChange(rundownMetadata: RundownMetadata) {
+export function updateRuntimeOnChange(rundownMetadata: RundownMetadata) {
   // we only declare the amount of playable events
   const numEvents = rundownMetadata.timedEventOrder.length;
 
@@ -197,8 +249,10 @@ type NotifyChangesOptions = {
 
 /**
  * Notify services of changes in the rundown
+ *
+ * @private - exported for testing
  */
-function notifyChanges(rundownMetadata: RundownMetadata, revision: number, options: NotifyChangesOptions) {
+export function notifyChanges(rundownMetadata: RundownMetadata, revision: number, options: NotifyChangesOptions) {
   // notify timer service of changed events
   if (options.timer) {
     // all events were deleted

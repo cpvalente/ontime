@@ -144,3 +144,85 @@ describe('rundownMutation.edit()', () => {
     expect(rundownMutation.edit(rundown, { id: 'event', linkStart: false }).didInvalidate).toBeTruthy();
   });
 });
+
+describe('rundownMutation.remove()', () => {
+  it('deletes an event from the rundown', () => {
+    const rundown = makeRundown({
+      order: ['1', '2', '3'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', cue: 'mock' }),
+        '2': makeOntimeEvent({ id: '2', cue: 'mock' }),
+        '3': makeOntimeEvent({ id: '3', cue: 'mock' }),
+      },
+    });
+
+    rundownMutation.remove(rundown, '2');
+
+    expect(rundown.order).toStrictEqual(['1', '3']);
+    expect(rundown.entries['1']).not.toBeUndefined();
+    expect(rundown.entries['2']).toBeUndefined();
+    expect(rundown.entries['3']).not.toBeUndefined();
+  });
+
+  it('deletes a block and its children', () => {
+    const rundown = makeRundown({
+      order: ['1', '4'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1', events: ['2', '3'] }),
+        '2': makeOntimeEvent({ id: '2', parent: '1' }),
+        '3': makeOntimeDelay({ id: '3', parent: '1' }),
+        '4': makeOntimeEvent({ id: '4', parent: null }),
+      },
+    });
+
+    rundownMutation.remove(rundown, '1');
+
+    expect(rundown.order).toStrictEqual(['4']);
+    expect(rundown.entries).not.toHaveProperty('1');
+    expect(rundown.entries).not.toHaveProperty('2');
+    expect(rundown.entries).not.toHaveProperty('3');
+    expect(rundown.entries['4']).toMatchObject({
+      parent: null,
+    });
+  });
+
+  it('deletes a nested event and its reference in the parent', () => {
+    const rundown = makeRundown({
+      order: ['1', '4'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1', events: ['2', '3'] }),
+        '2': makeOntimeEvent({ id: '2', parent: '1' }),
+        '3': makeOntimeDelay({ id: '3', parent: '1' }),
+        '4': makeOntimeEvent({ id: '4', parent: null }),
+      },
+    });
+
+    rundownMutation.remove(rundown, '2');
+
+    expect(rundown.order).toStrictEqual(['1', '4']);
+    expect(rundown.entries).not.toHaveProperty('2');
+    expect(rundown.entries['1']).toMatchObject({
+      events: ['3'],
+    });
+  });
+});
+
+describe('rundownMutation.removeAll()', () => {
+  test('deletes all events from the rundown', () => {
+    const rundown = makeRundown({
+      order: ['1', '2', '3'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', cue: 'mock' }),
+        '2': makeOntimeEvent({ id: '2', cue: 'mock' }),
+        '3': makeOntimeEvent({ id: '3', cue: 'mock' }),
+      },
+    });
+
+    rundownMutation.removeAll(rundown);
+
+    expect(rundown.order).toStrictEqual([]);
+    expect(rundown.entries['1']).toBeUndefined();
+    expect(rundown.entries['2']).toBeUndefined();
+    expect(rundown.entries['3']).toBeUndefined();
+  });
+});
