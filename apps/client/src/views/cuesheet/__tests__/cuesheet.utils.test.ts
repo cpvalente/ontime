@@ -96,6 +96,7 @@ describe('makeTable()', () => {
           "Is Public? (x)",
           "Skip?",
           "lighting",
+          "Type",
         ],
         [
           "00:00:00",
@@ -107,6 +108,7 @@ describe('makeTable()', () => {
           "test title 1",
           "",
           "x",
+          "",
           "",
           "",
         ],
