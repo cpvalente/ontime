@@ -30,7 +30,14 @@ import { customFieldChangelog } from '../../services/rundown-service/rundownCach
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
 import type { RundownMetadata } from './rundown.types.js';
-import { applyPatchToEntry, deleteById, doesInvalidateMetadata } from './rundown.utils.js';
+import {
+  applyPatchToEntry,
+  cloneBlock,
+  cloneEntry,
+  deleteById,
+  doesInvalidateMetadata,
+  getUniqueId,
+} from './rundown.utils.js';
 
 /**
  * The currently loaded rundown in cache
@@ -368,6 +375,46 @@ function swap(rundown: Rundown, eventFrom: OntimeEvent, eventTo: OntimeEvent) {
   };
 }
 
+/**
+ * Inserts a clone of the given entry into the rundown
+ * Handles cloning children if the entry is a block
+ */
+function clone(rundown: Rundown, entry: OntimeEntry): OntimeEntry {
+  if (isOntimeBlock(entry)) {
+    const newBlock = cloneBlock(entry, getUniqueId(rundown));
+    const nestedIds: EntryId[] = [];
+
+    for (let i = 0; i < entry.events.length; i++) {
+      const nestedEntryId = entry.events[i];
+      const nestedEntry = rundown.entries[nestedEntryId];
+      if (!nestedEntry) {
+        continue;
+      }
+
+      // clone the event and assign it to the new block
+      const newNestedEntry = cloneEntry(nestedEntry, getUniqueId(rundown));
+      (newNestedEntry as OntimeEvent | OntimeDelay).parent = newBlock.id;
+
+      nestedIds.push(newNestedEntry.id);
+      // we immediately insert the nested entries into the rundown
+      rundown.entries[newNestedEntry.id] = newNestedEntry;
+    }
+
+    // indexes + 1 since we are inserting after the cloned block
+    const atIndex = rundown.order.indexOf(entry.id) + 1;
+
+    newBlock.events = nestedIds;
+    newBlock.title = `${entry.title || 'Untitled'} (copy)`;
+
+    rundown.entries[newBlock.id] = newBlock;
+    rundown.order = insertAtIndex(atIndex, newBlock.id, rundown.order);
+
+    return newBlock;
+  } else {
+    return add(rundown, cloneEntry(entry, getUniqueId(rundown)), entry.id, entry.parent);
+  }
+}
+
 export const rundownMutation = {
   add,
   edit,
@@ -376,6 +423,7 @@ export const rundownMutation = {
   reorder,
   applyDelay,
   swap,
+  clone,
 };
 
 /**

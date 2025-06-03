@@ -19,7 +19,7 @@ import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createBlock } from '../../api-data/rundown/rundown.utils.js';
 
 import type { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
-import { cloneBlock, cloneEntry, makeRundownMetadata, type ProcessedRundownMetadata } from './rundownCache.utils.js';
+import { makeRundownMetadata, type ProcessedRundownMetadata } from './rundownCache.utils.js';
 
 let currentRundownId: EntryId = '';
 let currentRundown: Rundown = {
@@ -363,55 +363,6 @@ export function add({ rundown, afterId, parent, entry }: AddArgs): Required<Muta
   rundown.entries[entry.id] = entry;
   setIsStale();
   return { newRundown: rundown, changeList: [], newEvent: entry, didMutate: true };
-}
-
-type CloneEntryArgs = MutationParams<{ entryId: EntryId }>;
-/**
- * Apply a delay
- * Mutates the given rundown
- */
-export function clone({ rundown, entryId }: CloneEntryArgs): MutatingReturn {
-  const entry = rundown.entries[entryId];
-  if (!entry) {
-    throw new Error('Entry not found');
-  }
-
-  if (isOntimeBlock(entry)) {
-    const newBlock = cloneBlock(entry, getUniqueId());
-    const nestedIds: EntryId[] = [];
-
-    for (let i = 0; i < entry.events.length; i++) {
-      const nestedEntryId = entry.events[i];
-      const nestedEntry = rundown.entries[nestedEntryId];
-      if (!nestedEntry) {
-        continue;
-      }
-
-      // clone the event and assign it to the new block
-      const newNestedEntry = cloneEntry(nestedEntry, getUniqueId());
-      (newNestedEntry as OntimeEvent | OntimeDelay).parent = newBlock.id;
-
-      nestedIds.push(newNestedEntry.id);
-      // we immediately insert the nested entries into the rundown
-      rundown.entries[newNestedEntry.id] = newNestedEntry;
-    }
-    // indexes + 1 since we are inserting after the cloned block
-    const atIndex = rundown.order.indexOf(entryId) + 1;
-    // we need to find the index of the last entry
-    const lastNestedIdInOriginal = entry.events.at(-1) ?? '0';
-    const flatIndex = rundown.flatOrder.indexOf(lastNestedIdInOriginal) + 1;
-
-    newBlock.events = nestedIds;
-    newBlock.title = `${entry.title || 'Untitled'} (copy)`;
-
-    rundown.entries[newBlock.id] = newBlock;
-    rundown.order = insertAtIndex(atIndex, newBlock.id, rundown.order);
-    rundown.flatOrder = mergeAtIndex(flatIndex, [newBlock.id, ...nestedIds], rundown.flatOrder);
-
-    return { newRundown: rundown, didMutate: true, newEvent: newBlock };
-  } else {
-    return add({ rundown, afterId: entryId, parent: entry.parent, entry: cloneEntry(entry, getUniqueId()) });
-  }
 }
 
 type UngroupArgs = MutationParams<{ blockId: EntryId }>;

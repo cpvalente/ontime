@@ -6,7 +6,6 @@ import express from 'express';
 
 import {
   rundownAddToBlock,
-  rundownCloneEntry,
   rundownUngroupEntries,
   rundownGetAll,
   rundownGetById,
@@ -16,6 +15,7 @@ import {
   addEntry,
   applyDelay,
   batchEditEntries,
+  cloneEntry,
   deleteAllEntries,
   deleteEntries,
   editEntry,
@@ -103,7 +103,16 @@ router.patch(
   },
 );
 
-router.post('/clone/:entryId', paramsMustHaveEntryId, rundownCloneEntry);
+router.post('/clone/:entryId', paramsMustHaveEntryId, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+  try {
+    const newRundown = await cloneEntry(req.params.entryId);
+    res.status(200).send(newRundown);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
+
 router.post('/ungroup/:entryId', paramsMustHaveEntryId, rundownUngroupEntries);
 router.post('/group', rundownArrayOfIds, rundownAddToBlock);
 

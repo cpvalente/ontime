@@ -3,7 +3,7 @@ import { getErrorMessage } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
 
-import { ungroupEntries, groupEntries, cloneEntry } from '../../services/rundown-service/RundownService.js';
+import { ungroupEntries, groupEntries } from '../../services/rundown-service/RundownService.js';
 import { getEntryWithId } from '../../services/rundown-service/rundownUtils.js';
 
 import { getCurrentRundown } from './rundown.dao.js';
@@ -39,16 +39,6 @@ export async function rundownGetById(req: Request, res: Response<OntimeEntry | E
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(500).json({ message });
-  }
-}
-
-export async function rundownCloneEntry(req: Request, res: Response<Rundown | ErrorResponse>) {
-  try {
-    const newRundown = await cloneEntry(req.params.entryId);
-    res.status(200).send(newRundown);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
   }
 }
 

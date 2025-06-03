@@ -321,6 +321,40 @@ export async function swapEvents(fromId: EntryId, toId: EntryId): Promise<Rundow
 }
 
 /**
+ * Clones an entry, ensuring that all dependencies are preserved
+ * @throws if the entry to clone does not exist
+ */
+export async function cloneEntry(entryId: EntryId): Promise<Rundown> {
+  const { rundown, commit } = createTransaction();
+  const originalEntry = rundown.entries[entryId];
+
+  if (!originalEntry) {
+    throw new Error('Did not find event to clone');
+  }
+
+  const newEntry = rundownMutation.clone(rundown, originalEntry);
+  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+
+  // schedule the side effects
+  setImmediate(() => {
+    // notify runtime that rundown has changed
+    updateRuntimeOnChange(rundownMetadata);
+
+    // notify timer and external services of change
+    if (isOntimeBlock(newEntry)) {
+      notifyChanges(rundownMetadata, revision, { timer: newEntry.events, external: true });
+    } else if (isOntimeEvent(newEntry)) {
+      notifyChanges(rundownMetadata, revision, { timer: [newEntry.id], external: true });
+    } else if (isOntimeDelay(newEntry)) {
+      notifyChanges(rundownMetadata, revision, { external: true });
+    }
+    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+  });
+
+  return rundownResult;
+}
+
+/**
  * Forces update in the store
  * Called when we make changes to the rundown object
  *

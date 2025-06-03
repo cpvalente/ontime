@@ -1,31 +1,10 @@
-import { CustomFields, isOntimeBlock, isOntimeDelay, isOntimeEvent, Rundown, EntryId } from 'ontime-types';
+import { CustomFields, Rundown, EntryId } from 'ontime-types';
 
 import { RefetchTargets, sendRefetch } from '../../adapters/websocketAux.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 import * as cache from './rundownCache.js';
-
-/**
- * Clones an entry, ensuring that all dependencies are preserved
- */
-export async function cloneEntry(entryId: EntryId) {
-  const scopedMutation = cache.mutateCache(cache.clone);
-  const { newRundown, newEvent } = await scopedMutation({ entryId });
-
-  // notify runtime that rundown has changed
-  updateRuntimeOnChange();
-
-  if (isOntimeBlock(newEvent)) {
-    notifyChanges({ timer: newEvent.events, external: true });
-  } else if (isOntimeEvent(newEvent)) {
-    notifyChanges({ timer: [newEvent.id], external: true });
-  } else if (isOntimeDelay(newEvent)) {
-    notifyChanges({ external: true });
-  }
-
-  return newRundown;
-}
 
 /**
  * Deletes a block from the rundown and moves all its children to the top level

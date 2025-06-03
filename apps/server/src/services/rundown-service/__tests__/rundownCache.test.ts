@@ -11,7 +11,6 @@ import {
   customFieldChangelog,
   ungroup,
   groupEntries,
-  clone,
 } from '../rundownCache.js';
 import { makeOntimeBlock, makeOntimeDelay, makeOntimeEvent, makeRundown } from '../__mocks__/rundown.mocks.js';
 import type { ProcessedRundownMetadata } from '../rundownCache.utils.js';
@@ -611,65 +610,6 @@ describe('generate() v4', () => {
         '302': { id: '302', timeStart: 1000, timeEnd: 1100, duration: 100 },
         '303': { id: '303', timeStart: 1100, timeEnd: 1200, duration: 100 },
       });
-    });
-  });
-});
-
-describe('clone() mutation', () => {
-  it('clones an event and adds it to the rundown', () => {
-    const rundown = makeRundown({
-      order: ['1'],
-      flatOrder: ['1'],
-      entries: {
-        '1': makeOntimeEvent({ id: '1', cue: 'data1', parent: null }),
-      },
-    });
-
-    const { newRundown, newEvent } = clone({ rundown, entryId: '1' });
-
-    expect(newRundown.order).toStrictEqual(['1', newEvent!.id]);
-    expect(newRundown.flatOrder).toStrictEqual(['1', newEvent!.id]);
-  });
-
-  it('clones an event inside a block and adds it to the rundown', () => {
-    const rundown = makeRundown({
-      order: ['1'],
-      flatOrder: ['1', '1a'],
-      entries: {
-        '1': makeOntimeBlock({ id: '1', events: ['1a'] }),
-        '1a': makeOntimeEvent({ id: '1a', cue: 'nested', parent: '1' }),
-      },
-    });
-
-    const { newRundown, newEvent } = clone({ rundown, entryId: '1a' });
-
-    expect(newRundown.order).toStrictEqual(['1']);
-    expect(newRundown.flatOrder).toStrictEqual(['1', '1a', newEvent!.id]);
-    expect(newRundown.entries['1']).toMatchObject({ events: ['1a', newEvent!.id] });
-    expect(newRundown.entries[newEvent!.id]).toMatchObject({
-      type: SupportedEntry.Event,
-      parent: '1',
-      cue: 'nested',
-    });
-  });
-
-  it('clones a block and its nested elements', () => {
-    const rundown = makeRundown({
-      order: ['1'],
-      flatOrder: ['1', '1a'],
-      entries: {
-        '1': makeOntimeBlock({ id: '1', title: 'top', events: ['1a'] }),
-        '1a': makeOntimeEvent({ id: '1a', cue: 'nested', parent: '1' }),
-      },
-    });
-
-    const { newRundown, newEvent } = clone({ rundown, entryId: '1' });
-
-    expect(newRundown.order).toStrictEqual(['1', newEvent!.id]);
-    expect(newRundown.flatOrder).toStrictEqual(['1', '1a', expect.any(String), expect.any(String)]);
-    expect(newRundown.entries[newEvent!.id]).toMatchObject({
-      type: SupportedEntry.Block,
-      events: [expect.any(String)],
     });
   });
 });

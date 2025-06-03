@@ -254,3 +254,49 @@ export function deleteById(array: EntryId[], deleteId: EntryId): EntryId[] {
   }
   return array.toSpliced(deleteIndex, 1);
 }
+
+/**
+ * Gathers business logic for how to clone an OntimeEvent
+ */
+export function cloneEvent(entry: OntimeEvent, newId: EntryId): OntimeEvent {
+  const newEntry = structuredClone(entry);
+  newEntry.id = newId;
+  newEntry.revision = 0;
+  return newEntry;
+}
+
+/**
+ * Gathers business logic for how to clone an OntimeDelay
+ */
+export function cloneDelay(entry: OntimeDelay, newId: EntryId): OntimeDelay {
+  const newEntry = structuredClone(entry);
+  newEntry.id = newId;
+  return newEntry;
+}
+
+/**
+ * Gathers business logic for how to clone an OntimeBlock
+ */
+export function cloneBlock(entry: OntimeBlock, newId: EntryId): OntimeBlock {
+  const newEntry = structuredClone(entry);
+  newEntry.id = newId;
+
+  // in blocks, we need to remove the events references
+  newEntry.events = [];
+  newEntry.revision = 0;
+  return newEntry;
+}
+
+/**
+ * Receives an entry and chooses the correct cloning strategy
+ */
+export function cloneEntry<T extends OntimeEntry>(entry: T, newId: EntryId): T {
+  if (isOntimeEvent(entry)) {
+    return cloneEvent(entry, newId) as T;
+  } else if (isOntimeDelay(entry)) {
+    return cloneDelay(entry, newId) as T;
+  } else if (entry.type === 'block') {
+    return cloneBlock(entry as OntimeBlock, newId) as T;
+  }
+  throw new Error(`Unsupported entry type for cloning: ${entry}`);
+}

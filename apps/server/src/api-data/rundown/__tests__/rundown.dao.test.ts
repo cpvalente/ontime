@@ -1,4 +1,4 @@
-import { OntimeEvent, SupportedEntry } from 'ontime-types';
+import { OntimeBlock, OntimeEvent, SupportedEntry } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import {
@@ -874,5 +874,65 @@ describe('rundownMutation.swap()', () => {
     expect((testRundown.entries['3'] as OntimeEvent).cue).toBe('data3');
     expect((testRundown.entries['3'] as OntimeEvent).timeStart).toBe(3);
     expect((testRundown.entries['3'] as OntimeEvent).revision).toBe(1);
+  });
+});
+
+describe('rundownMutation.clone()', () => {
+  it('clones an event and adds it to the rundown', () => {
+    const testRundown = makeRundown({
+      order: ['1'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', cue: 'data1', parent: null }),
+      },
+    });
+
+    const newEntry = rundownMutation.clone(testRundown, testRundown.entries['1']);
+
+    expect(testRundown.order).toStrictEqual(['1', newEntry.id]);
+    expect(testRundown.entries[newEntry.id]).toMatchObject({
+      type: SupportedEntry.Event,
+      cue: 'data1',
+      parent: null,
+      revision: 0,
+    });
+  });
+
+  it('clones an event inside a block and adds it to the rundown', () => {
+    const testRundown = makeRundown({
+      order: ['1'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1', events: ['1a'] }),
+        '1a': makeOntimeEvent({ id: '1a', cue: 'nested', parent: '1' }),
+      },
+    });
+
+    const newEntry = rundownMutation.clone(testRundown, testRundown.entries['1a']);
+
+    expect(testRundown.order).toStrictEqual(['1']);
+    expect(testRundown.entries['1']).toMatchObject({ events: ['1a', newEntry.id] });
+    expect(testRundown.entries[newEntry.id]).toMatchObject({
+      type: SupportedEntry.Event,
+      parent: '1',
+      cue: 'nested',
+    });
+  });
+
+  it('clones a block and its nested elements', () => {
+    const testRundown = makeRundown({
+      order: ['1'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1', title: 'top', events: ['1a'] }),
+        '1a': makeOntimeEvent({ id: '1a', cue: 'nested', parent: '1' }),
+      },
+    });
+
+    const newEntry = rundownMutation.clone(testRundown, testRundown.entries['1']);
+
+    expect(testRundown.order).toStrictEqual(['1', newEntry.id]);
+    expect(testRundown.entries[newEntry.id]).toMatchObject({
+      type: SupportedEntry.Block,
+      events: [expect.any(String)],
+    });
+    expect((testRundown.entries[newEntry.id] as OntimeBlock).events[0]).not.toBe('1a');
   });
 });
