@@ -1,11 +1,12 @@
 @use '../../../theme/viewerDefs' as *;
 
 .baseButton {
-  height: 2rem;
-  padding-inline: 1em;
   display: flex;
   align-items: center;
   gap: 0.5em;
+
+  width: fit-content;
+  padding-inline: 1em;
 
   border: 1px solid transparent;
   border-radius: 3px;
@@ -49,4 +50,12 @@
   &:disabled {
     opacity: $viewer-opacity-disabled;
   }
+}
+
+.medium {
+  height: 2rem;
+}
+
+.large {
+  height: 3.5rem;
 }
