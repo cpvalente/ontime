@@ -1,0 +1,199 @@
+@use '../../theme/viewerDefs' as *;
+
+$item-height: 3.5rem;
+
+.countdown {
+  margin: 0;
+  box-sizing: border-box; /* reset */
+  overflow: hidden;
+  width: 100%; /* restrict the page width to viewport */
+  height: 100vh;
+
+  font-family: var(--font-family-override, $viewer-font-family);
+  background: var(--background-color-override, $viewer-background-color);
+  color: var(--color-override, $viewer-color);
+  display: flex;
+  flex-direction: column;
+  gap: $view-element-gap;
+  padding: $view-outer-padding;
+  font-size: $base-font-size;
+
+  /* =================== HEADER + EXTRAS ===================*/
+  .project-header {
+    font-size: $header-font-size;
+    font-weight: 600;
+    display: flex;
+    gap: 1rem;
+  }
+
+  .logo {
+    max-width: min(200px, 20vw);
+  }
+
+  .title {
+    line-height: 1.1em;
+  }
+
+  .clock-container {
+    margin-left: auto;
+    font-weight: 600;
+
+    .label {
+      font-size: $timer-label-size;
+      color: var(--label-color-override, $viewer-label-color);
+      text-transform: uppercase;
+    }
+
+    .time {
+      font-size: $timer-value-size;
+      color: var(--secondary-color-override, $viewer-secondary-color);
+      letter-spacing: 0.05em;
+      line-height: 0.95em;
+    }
+  }
+
+  .fab-container {
+    position: fixed;
+    bottom: 1.5rem;
+    bottom: calc(1.5rem + env(safe-area-inset-bottom));
+    right: $view-inline-padding;
+    left: 0;
+
+    display: flex;
+    justify-content: end;
+    gap: 2rem;
+
+    transition-property: opacity;
+    transition-duration: 0.3s;
+  }
+
+  .fab-container--hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* ========================= LIST ========================*/
+  .empty-container {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    button {
+      margin-top: 2rem;
+    }
+  }
+
+  .list-container {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  /* ====================== LIST-ITEM ======================*/
+  .sub {
+    margin: 2px;
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1rem 1fr auto;
+    grid-template-areas:
+      'binder schedule  status'
+      'binder title     timer'
+      'binder secondary secondary';
+    column-gap: 1rem;
+    background: $viewer-card-bg-color;
+    padding-right: 1rem;
+    border-radius: $element-border-radius;
+    overflow: clip;
+
+    &:hover {
+      .sub__label {
+        color: $ui-white;
+      }
+    }
+  }
+
+  .sub--selected {
+    background: $blue-700;
+  }
+
+  .sub--live {
+    background-color: $green-700;
+  }
+
+  .sub__binder {
+    background: var(--user-color, $viewer-card-bg-color);
+    grid-area: binder;
+  }
+
+  .sub__schedule {
+    grid-area: schedule;
+    padding-top: 0.5rem;
+
+    display: flex;
+    gap: 0.25em;
+    font-size: $timer-label-size;
+  }
+
+  .sub__schedule--delayed {
+    color: $delay-color;
+  }
+
+  .sub__schedule--ahead {
+    color: $green-500;
+  }
+
+  .sub__schedule--behind {
+    color: $orange-500;
+  }
+
+  .sub__title {
+    grid-area: title;
+    padding-bottom: 0.5rem;
+
+    font-size: $title-font-size;
+    line-height: 1.1em;
+  }
+
+  .sub__secondary {
+    grid-area: secondary;
+    padding-bottom: 0.5rem;
+
+    font-size: $base-font-size;
+    line-height: 1.1em;
+    // allow multi-line text but trim before
+    white-space: pre-line;
+  }
+
+  .sub__status {
+    grid-area: status;
+    padding-top: 0.5rem;
+
+    font-size: $timer-label-size;
+    text-align: right;
+    text-transform: uppercase;
+  }
+
+  .sub__label {
+    grid-area: status;
+    padding-top: 0.5rem;
+
+    font-size: $timer-label-size;
+    color: var(--label-color-override, $viewer-label-color);
+    text-align: right;
+  }
+
+  .sub__timer {
+    grid-area: timer;
+
+    font-size: $timer-value-size;
+    line-height: 1.1em;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  /* ====================== MODIFIERS ======================*/
+  .subdued {
+    opacity: 0.6;
+  }
+}
