@@ -40,6 +40,7 @@
     },
     "dist-mac:local": {},
     "dist-linux": {},
-    "cleanup": {}
+    "cleanup": {},
+    "gen": {}
   }
 }

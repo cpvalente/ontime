@@ -29,6 +29,7 @@
     "build:local": "turbo run build:local",
     "build:electron": "turbo run build:electron",
     "build:localdocker": "turbo run build:localdocker",
+    "gen": "turbo run gen",
     "dist-win": "turbo run dist-win",
     "dist-mac": "turbo run dist-mac",
     "dist-linux": "turbo run dist-linux",
