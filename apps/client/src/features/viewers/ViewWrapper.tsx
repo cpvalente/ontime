@@ -57,8 +57,7 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     const { data: customFields } = useCustomFields();
 
     // websocket data
-    const { clock, timer, message, onAir, eventNext, eventNow, runtime, auxtimer1 } =
-      useStore(runtimeStore);
+    const { clock, timer, message, onAir, eventNext, eventNow, runtime, auxtimer1 } = useStore(runtimeStore);
     const selectedId = eventNow?.id ?? null;
     const nextId = eventNext?.id ?? null;
 

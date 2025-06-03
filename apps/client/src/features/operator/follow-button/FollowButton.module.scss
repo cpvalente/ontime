@@ -14,15 +14,16 @@
   color: #fff;
   font-size: 1rem;
   border-radius: 99px;
-  transition: bottom 1s;
+  // transition in
+  transition: bottom 0.3s;
 
   &:active {
-    transition: background-color $transition-time-action;
     background-color: $blue-900;
   }
 }
 
 .hidden {
+  // transition out
   transition: bottom 1s;
   bottom: -50px;
 }
