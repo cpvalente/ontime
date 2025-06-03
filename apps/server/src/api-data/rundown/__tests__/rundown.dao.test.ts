@@ -846,3 +846,33 @@ describe('rundownMutation.applyDelay()', () => {
     });
   });
 });
+
+describe('rundownMutation.swap()', () => {
+  it('should correctly swap data between events', () => {
+    const testRundown = makeRundown({
+      order: ['1', '2', '3'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', cue: 'data1', timeStart: 1 }),
+        '2': makeOntimeEvent({ id: '2', cue: 'data2', timeStart: 2 }),
+        '3': makeOntimeEvent({ id: '3', cue: 'data3', timeStart: 3 }),
+      },
+    });
+
+    rundownMutation.swap(testRundown, testRundown.entries['1'] as OntimeEvent, testRundown.entries['2'] as OntimeEvent);
+
+    expect((testRundown.entries['1'] as OntimeEvent).id).toBe('1');
+    expect((testRundown.entries['1'] as OntimeEvent).cue).toBe('data2');
+    expect((testRundown.entries['1'] as OntimeEvent).timeStart).toBe(1);
+    expect((testRundown.entries['1'] as OntimeEvent).revision).toBe(1);
+
+    expect((testRundown.entries['2'] as OntimeEvent).id).toBe('2');
+    expect((testRundown.entries['2'] as OntimeEvent).cue).toBe('data1');
+    expect((testRundown.entries['2'] as OntimeEvent).timeStart).toBe(2);
+    expect((testRundown.entries['2'] as OntimeEvent).revision).toBe(1);
+
+    expect((testRundown.entries['3'] as OntimeEvent).id).toBe('3');
+    expect((testRundown.entries['3'] as OntimeEvent).cue).toBe('data3');
+    expect((testRundown.entries['3'] as OntimeEvent).timeStart).toBe(3);
+    expect((testRundown.entries['3'] as OntimeEvent).revision).toBe(1);
+  });
+});

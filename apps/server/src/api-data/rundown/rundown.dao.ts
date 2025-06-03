@@ -325,6 +325,49 @@ function applyDelay(rundown: Rundown, delayId: EntryId) {
   }
 }
 
+/**
+ * Swaps the data between two events
+ * The schedule and metadata are preserved
+ * TODO: this logic is for now duplcate of Ontime-Utils.swapEventData
+ */
+function swap(rundown: Rundown, eventFrom: OntimeEvent, eventTo: OntimeEvent) {
+  rundown.entries[eventFrom.id] = {
+    ...eventTo,
+    // events keep the ID
+    id: eventFrom.id,
+    // events keep the schedule
+    timeStart: eventFrom.timeStart,
+    timeEnd: eventFrom.timeEnd,
+    duration: eventFrom.duration,
+    linkStart: eventFrom.linkStart,
+    parent: eventFrom.parent,
+    // keep schedule metadata
+    delay: eventFrom.delay,
+    gap: eventFrom.gap,
+    dayOffset: eventFrom.dayOffset,
+    // keep revision number but increment it
+    revision: eventFrom.revision++,
+  };
+
+  rundown.entries[eventTo.id] = {
+    ...eventFrom,
+    // events keep the ID
+    id: eventTo.id,
+    // events keep the schedule
+    timeStart: eventTo.timeStart,
+    timeEnd: eventTo.timeEnd,
+    duration: eventTo.duration,
+    linkStart: eventTo.linkStart,
+    parent: eventTo.parent,
+    // keep schedule metadata
+    delay: eventTo.delay,
+    gap: eventTo.gap,
+    dayOffset: eventTo.dayOffset,
+    // keep revision number but increment it
+    revision: eventTo.revision++,
+  };
+}
+
 export const rundownMutation = {
   add,
   edit,
@@ -332,6 +375,7 @@ export const rundownMutation = {
   removeAll,
   reorder,
   applyDelay,
+  swap,
 };
 
 /**

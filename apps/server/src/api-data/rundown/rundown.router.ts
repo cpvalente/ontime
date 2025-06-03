@@ -11,7 +11,6 @@ import {
   rundownGetAll,
   rundownGetById,
   rundownGetCurrent,
-  rundownSwap,
 } from './rundown.controller.js';
 import {
   addEntry,
@@ -21,6 +20,7 @@ import {
   deleteEntries,
   editEntry,
   reorderEntry,
+  swapEvents,
 } from './rundown.service.js';
 import {
   paramsMustHaveEntryId,
@@ -78,7 +78,17 @@ router.patch('/reorder', rundownReorderValidator, async (req: Request, res: Resp
     res.status(400).send({ message });
   }
 });
-router.patch('/swap', rundownSwapValidator, rundownSwap);
+
+router.patch('/swap', rundownSwapValidator, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+  try {
+    const rundown = await swapEvents(req.body.from, req.body.to);
+    res.status(200).send(rundown);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
+
 router.patch(
   '/applydelay/:entryId',
   paramsMustHaveEntryId,

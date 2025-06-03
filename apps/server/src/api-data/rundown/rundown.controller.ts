@@ -1,10 +1,9 @@
-import { ErrorResponse, MessageResponse, OntimeEntry, ProjectRundownsList, Rundown } from 'ontime-types';
+import { ErrorResponse, OntimeEntry, ProjectRundownsList, Rundown } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
 
-import { failEmptyObjects } from '../../utils/routerUtils.js';
-import { ungroupEntries, groupEntries, swapEvents, cloneEntry } from '../../services/rundown-service/RundownService.js';
+import { ungroupEntries, groupEntries, cloneEntry } from '../../services/rundown-service/RundownService.js';
 import { getEntryWithId } from '../../services/rundown-service/rundownUtils.js';
 
 import { getCurrentRundown } from './rundown.dao.js';
@@ -40,21 +39,6 @@ export async function rundownGetById(req: Request, res: Response<OntimeEntry | E
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(500).json({ message });
-  }
-}
-
-export async function rundownSwap(req: Request, res: Response<MessageResponse | ErrorResponse>) {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
-
-  try {
-    const { from, to } = req.body;
-    await swapEvents(from, to);
-    res.status(200).send({ message: 'Swap successful' });
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
   }
 }
 

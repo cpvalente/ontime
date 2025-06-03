@@ -288,6 +288,39 @@ export async function applyDelay(delayId: EntryId): Promise<Rundown> {
 }
 
 /**
+ * Swaps the data between two events in the rundown
+ */
+export async function swapEvents(fromId: EntryId, toId: EntryId): Promise<Rundown> {
+  const { rundown, commit } = createTransaction();
+  const eventFrom = rundown.entries[fromId];
+  const eventTo = rundown.entries[toId];
+
+  // check that both entries exist
+  if (!eventFrom || !eventTo) {
+    throw new Error('Event not found');
+  }
+
+  // we can only swap events
+  if (!isOntimeEvent(eventFrom) || !isOntimeEvent(eventTo)) {
+    throw new Error('Both entries must be events');
+  }
+
+  rundownMutation.swap(rundown, eventFrom, eventTo);
+  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+
+  // schedule the side effects
+  setImmediate(() => {
+    // notify runtime that rundown has changed
+    updateRuntimeOnChange(rundownMetadata);
+
+    // notify timer and external services of change
+    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+  });
+
+  return rundownResult;
+}
+
+/**
  * Forces update in the store
  * Called when we make changes to the rundown object
  *

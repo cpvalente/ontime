@@ -13,7 +13,7 @@ import {
   RundownEntries,
   OntimeDelay,
 } from 'ontime-types';
-import { generateId, insertAtIndex, swapEventData, customFieldLabelToKey, mergeAtIndex } from 'ontime-utils';
+import { generateId, insertAtIndex, customFieldLabelToKey, mergeAtIndex } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createBlock } from '../../api-data/rundown/rundown.utils.js';
@@ -496,29 +496,6 @@ export function groupEntries({ rundown, entryIds }: GroupArgs): MutatingReturn {
   rundown.flatOrder = mergeAtIndex(insertIndex, [block.id, ...nestedEvents], rundown.flatOrder);
   rundown.entries[block.id] = block;
 
-  return { newRundown: rundown, didMutate: true };
-}
-
-type SwapArgs = MutationParams<{ fromId: EntryId; toId: EntryId }>;
-/**
- * Swap two entries
- */
-export function swap({ rundown, fromId, toId }: SwapArgs): MutatingReturn {
-  const fromEvent = rundown.entries[fromId];
-  const toEvent = rundown.entries[toId];
-
-  if (!isOntimeEvent(fromEvent) || !isOntimeEvent(toEvent)) {
-    throw new Error('Swap only available for OntimeEvents');
-  }
-
-  const [newFrom, newTo] = swapEventData(fromEvent, toEvent);
-
-  rundown.entries[fromId] = newFrom;
-  rundown.entries[toId] = newTo;
-  newFrom.revision++;
-  newTo.revision++;
-
-  setIsStale();
   return { newRundown: rundown, didMutate: true };
 }
 

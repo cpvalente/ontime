@@ -60,23 +60,6 @@ export async function groupEntries(entryIds: EntryId[]) {
 }
 
 /**
- * swaps two events
- * @param {string} from - id of event from
- * @param {string} to - id of event to
- * @returns {Promise<void>}
- */
-export async function swapEvents(from: string, to: string) {
-  const scopedMutation = cache.mutateCache(cache.swap);
-  await scopedMutation({ fromId: from, toId: to });
-
-  // notify runtime that rundown has changed
-  updateRuntimeOnChange();
-
-  // notify timer and external services of change
-  notifyChanges({ timer: true, external: true });
-}
-
-/**
  * Forces update in the store
  * Called when we make changes to the rundown object
  */

@@ -5,7 +5,6 @@ import { demoDb } from '../../../models/demoProject.js';
 
 import {
   generate,
-  swap,
   createCustomField,
   editCustomField,
   removeCustomField,
@@ -733,49 +732,6 @@ describe('groupEntries() mutation', () => {
       '1': { id: '1', type: SupportedEntry.Event, parent: blockId },
       '2': { id: '2', type: SupportedEntry.Event, parent: blockId },
       '3': { id: '3', type: SupportedEntry.Event, parent: null },
-    });
-  });
-});
-
-describe('swap() mutation', () => {
-  it('should correctly swap data between events', () => {
-    const rundown = makeRundown({
-      order: ['1', '2', '3'],
-      entries: {
-        '1': makeOntimeEvent({ id: '1', cue: 'data1', timeStart: 1, revision: 4 }),
-        '2': makeOntimeEvent({ id: '2', cue: 'data2', timeStart: 2, revision: 8 }),
-        '3': makeOntimeEvent({ id: '3', cue: 'data3', timeStart: 3, revision: 12 }),
-      },
-    });
-
-    // swap first and second event
-    const { newRundown } = swap({
-      rundown: rundown,
-      fromId: rundown.order[0],
-      toId: rundown.order[1],
-    });
-
-    expect(newRundown.order).toStrictEqual(['1', '2', '3']);
-
-    expect(newRundown.entries['1']).toMatchObject({
-      id: '1',
-      cue: 'data2',
-      timeStart: 1,
-      revision: 5,
-    });
-
-    expect(newRundown.entries['2']).toMatchObject({
-      id: '2',
-      cue: 'data1',
-      timeStart: 2,
-      revision: 9,
-    });
-
-    expect(newRundown.entries['3']).toMatchObject({
-      id: '3',
-      cue: 'data3',
-      timeStart: 3,
-      revision: 12,
     });
   });
 });
