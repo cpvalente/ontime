@@ -4,8 +4,6 @@ import { getErrorMessage } from 'ontime-utils';
 import type { Request, Response } from 'express';
 import express from 'express';
 
-import { reorderEntry } from '../../services/rundown-service/RundownService.js';
-
 import {
   rundownAddToBlock,
   rundownApplyDelay,
@@ -16,7 +14,14 @@ import {
   rundownGetCurrent,
   rundownSwap,
 } from './rundown.controller.js';
-import { addEntry, batchEditEntries, deleteAllEntries, deleteEntries, editEntry } from './rundown.service.js';
+import {
+  addEntry,
+  batchEditEntries,
+  deleteAllEntries,
+  deleteEntries,
+  editEntry,
+  reorderEntry,
+} from './rundown.service.js';
 import {
   paramsMustHaveEntryId,
   rundownArrayOfIds,

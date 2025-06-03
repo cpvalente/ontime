@@ -225,6 +225,38 @@ export async function deleteAllEntries(): Promise<Rundown> {
 }
 
 /**
+ * Moves an event to a new position in the rundown
+ * Handles moving across root orders (a block order and top level order)
+ * @throws if entryId or destinationId not found
+ */
+export function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') {
+  const { rundown, commit } = createTransaction();
+
+  // check that both entries exist
+  const eventFrom = rundown.entries[entryId];
+  const eventTo = rundown.entries[destinationId];
+
+  if (!eventFrom || !eventTo) {
+    throw new Error('Event not found');
+  }
+
+  rundownMutation.reorder(rundown, entryId, destinationId, order);
+
+  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+
+  // schedule the side effects
+  setImmediate(() => {
+    // notify runtime that rundown has changed
+    updateRuntimeOnChange(rundownMetadata);
+
+    // notify timer and external services of change
+    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+  });
+
+  return rundownResult;
+}
+
+/**
  * Forces update in the store
  * Called when we make changes to the rundown object
  *

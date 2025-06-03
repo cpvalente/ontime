@@ -366,64 +366,6 @@ export function add({ rundown, afterId, parent, entry }: AddArgs): Required<Muta
   return { newRundown: rundown, changeList: [], newEvent: entry, didMutate: true };
 }
 
-type ReorderArgs = MutationParams<{
-  entryId: EntryId;
-  destinationId: EntryId;
-  order: 'before' | 'after' | 'insert';
-}>;
-/**
- * Moves an event to a new position in the rundown
- * Handles moving across root orders (a block order and top level order)
- * @throws if entryId or destinationId not found
- * @throws if trying to insert an event into a block inside another block
- */
-export function reorder({ rundown, entryId, destinationId, order }: ReorderArgs): Required<MutatingReturn> {
-  const eventFrom = rundown.entries[entryId];
-  const eventTo = rundown.entries[destinationId];
-
-  if (!eventFrom || !eventTo) {
-    throw new Error('Event not found');
-  }
-
-  const fromParent: EntryId | null = (eventFrom as { parent?: EntryId })?.parent ?? null;
-  const toParent = (() => {
-    if (isOntimeBlock(eventTo)) {
-      if (order === 'insert') {
-        return eventTo.id;
-      }
-      return null;
-    }
-    return eventTo.parent ?? null;
-  })();
-
-  if (!isOntimeBlock(eventFrom)) {
-    eventFrom.parent = toParent;
-  }
-
-  const sourceArray = fromParent === null ? rundown.order : (rundown.entries[fromParent] as OntimeBlock).events;
-  const destinationArray = toParent === null ? rundown.order : (rundown.entries[toParent] as OntimeBlock).events;
-
-  const fromIndex = sourceArray.indexOf(entryId);
-  const toIndex = (() => {
-    const baseIndex = destinationArray.indexOf(destinationId);
-    if (order === 'before') return baseIndex;
-    // only add one if we are moving down
-    if (order === 'after') return baseIndex + (fromIndex < baseIndex ? 0 : 1);
-    // for insert we add in the end of the array
-    return destinationArray.length;
-  })();
-
-  // Remove from source array
-  sourceArray.splice(fromIndex, 1);
-  // Insert into destination array
-  destinationArray.splice(toIndex, 0, entryId);
-
-  // changelist is derived from the flat order
-  const changeList = rundown.flatOrder.slice(Math.min(fromIndex, toIndex), rundown.flatOrder.length);
-
-  return { newRundown: rundown, changeList, newEvent: eventFrom, didMutate: true };
-}
-
 type ApplyDelayArgs = MutationParams<{ delayId: EntryId }>;
 /**
  * Apply a delay

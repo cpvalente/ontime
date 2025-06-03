@@ -7,26 +7,6 @@ import { runtimeService } from '../runtime-service/RuntimeService.js';
 import * as cache from './rundownCache.js';
 
 /**
- * reorders a given entry
- */
-export async function reorderEntry(
-  entryId: EntryId,
-  destinationId: EntryId,
-  order: 'before' | 'after' | 'insert',
-): Promise<Rundown> {
-  const scopedMutation = cache.mutateCache(cache.reorder);
-  const { changeList, newRundown } = await scopedMutation({ entryId, destinationId, order });
-
-  // notify runtime that rundown has changed
-  updateRuntimeOnChange();
-
-  // notify timer and external services of change
-  notifyChanges({ timer: changeList, external: true });
-
-  return newRundown;
-}
-
-/**
  * Applies a delay into the rundown effectively changing the schedule
  * The applied delay is deleted
  * @param delayId

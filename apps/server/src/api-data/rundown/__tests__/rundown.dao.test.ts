@@ -226,3 +226,215 @@ describe('rundownMutation.removeAll()', () => {
     expect(rundown.entries['3']).toBeUndefined();
   });
 });
+
+describe('rundownMutation.reorder()', () => {
+  it('moves an event into a block', () => {
+    const rundown = makeRundown({
+      order: ['1', '2', '3'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1', events: [] }),
+        '2': makeOntimeEvent({ id: '2', parent: null }),
+        '3': makeOntimeEvent({ id: '3', parent: null }),
+      },
+    });
+
+    rundownMutation.reorder(rundown, '3', '1', 'insert');
+
+    expect(rundown.order).toStrictEqual(['1', '2']);
+    expect(rundown.entries['1']).toMatchObject({
+      events: ['3'],
+    });
+    expect(rundown.entries['3']).toMatchObject({
+      parent: '1',
+    });
+  });
+
+  it('adds an event into a block', () => {
+    const rundown = makeRundown({
+      order: ['1', '2'],
+      flatOrder: ['1', '11', '2'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1', events: ['11'] }),
+        '11': makeOntimeEvent({ id: '11', parent: '1' }),
+        '2': makeOntimeEvent({ id: '2', parent: null }),
+      },
+    });
+
+    rundownMutation.reorder(rundown, '2', '11', 'before');
+
+    expect(rundown.order).toStrictEqual(['1']);
+    expect(rundown.entries['1']).toMatchObject({
+      events: ['2', '11'],
+    });
+    expect(rundown.entries['2']).toMatchObject({
+      parent: '1',
+    });
+  });
+
+  it('moves an event after another', () => {
+    const rundown = makeRundown({
+      order: ['1', '2', '3'],
+      flatOrder: ['1', '2', '3'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', cue: 'data1' }),
+        '2': makeOntimeEvent({ id: '2', cue: 'data2' }),
+        '3': makeOntimeEvent({ id: '3', cue: 'data3' }),
+      },
+    });
+
+    // move first event to the end
+    rundownMutation.reorder(rundown, '1', '2', 'after');
+
+    expect(rundown.order).toStrictEqual(['2', '1', '3']);
+  });
+
+  it('moves an event before another', () => {
+    const rundown = makeRundown({
+      order: ['1', '2', '3'],
+      flatOrder: ['1', '2', '3'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', cue: 'data1' }),
+        '2': makeOntimeEvent({ id: '2', cue: 'data2' }),
+        '3': makeOntimeEvent({ id: '3', cue: 'data3' }),
+      },
+    });
+
+    // move last event to the beginning
+    rundownMutation.reorder(rundown, '3', '1', 'before');
+
+    expect(rundown.order).toStrictEqual(['3', '1', '2']);
+  });
+
+  it('moves an event out of a block', () => {
+    const rundown = makeRundown({
+      order: ['1', '2'],
+      flatOrder: ['1', '11', '2'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1', events: ['11'] }),
+        '11': makeOntimeEvent({ id: '11', parent: '1' }),
+        '2': makeOntimeEvent({ id: '2', parent: null }),
+      },
+    });
+
+    rundownMutation.reorder(rundown, '11', '2', 'before');
+
+    expect(rundown.order).toStrictEqual(['1', '11', '2']);
+    expect(rundown.entries['1']).toMatchObject({
+      events: [],
+    });
+    expect(rundown.entries['2']).toMatchObject({
+      parent: null,
+    });
+  });
+
+  it('moves an event between blocks', () => {
+    const rundown = makeRundown({
+      order: ['1', '2'],
+      flatOrder: ['1', '11', '2', '22'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1', events: ['11'] }),
+        '11': makeOntimeEvent({ id: '11', parent: '1' }),
+        '2': makeOntimeBlock({ id: '2', events: ['22'] }),
+        '22': makeOntimeEvent({ id: '22', parent: '2' }),
+      },
+    });
+
+    rundownMutation.reorder(rundown, '11', '22', 'before');
+
+    expect(rundown.order).toStrictEqual(['1', '2']);
+    expect(rundown.entries['1']).toMatchObject({
+      events: [],
+    });
+    expect(rundown.entries['2']).toMatchObject({
+      events: ['11', '22'],
+    });
+    expect(rundown.entries['11']).toMatchObject({
+      parent: '2',
+    });
+  });
+
+  it('moves an event into an empty block', () => {
+    const rundown = makeRundown({
+      order: ['1', '2'],
+      flatOrder: ['1', '2', '22'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1', events: [] }),
+        '2': makeOntimeBlock({ id: '2', events: ['22'] }),
+        '22': makeOntimeEvent({ id: '22', parent: '2' }),
+      },
+    });
+
+    rundownMutation.reorder(rundown, '22', '1', 'insert');
+
+    expect(rundown.order).toStrictEqual(['1', '2']);
+    expect(rundown.entries['1']).toMatchObject({
+      events: ['22'],
+    });
+    expect(rundown.entries['2']).toMatchObject({
+      events: [],
+    });
+    expect(rundown.entries['22']).toMatchObject({
+      parent: '1',
+    });
+  });
+
+  it('moves an event out of a block (up)', () => {
+    const rundown = makeRundown({
+      order: ['1', '2'],
+      flatOrder: ['1', '11', '2', '22'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1', events: ['11'] }),
+        '11': makeOntimeEvent({ id: '11', parent: '1' }),
+        '2': makeOntimeBlock({ id: '2', events: ['22'] }),
+        '22': makeOntimeEvent({ id: '22', parent: '2' }),
+      },
+    });
+
+    rundownMutation.reorder(rundown, '22', '2', 'before');
+
+    expect(rundown.order).toStrictEqual(['1', '22', '2']);
+    // expect(newRundown.flatOrder).toStrictEqual(['1', '2', '11', '22']);
+    // expect(changeList).toStrictEqual(['1', '2', '11', '22']);
+    expect(rundown.entries['1']).toMatchObject({
+      events: ['11'],
+    });
+    expect(rundown.entries['11']).toMatchObject({
+      parent: '1',
+    });
+    expect(rundown.entries['2']).toMatchObject({
+      events: [],
+    });
+    expect(rundown.entries['22']).toMatchObject({
+      parent: null,
+    });
+  });
+
+  it('moves an event out of a block (down)', () => {
+    const rundown = makeRundown({
+      order: ['1', '2'],
+      flatOrder: ['1', '11', '2', '22'],
+      entries: {
+        '1': makeOntimeBlock({ id: '1', events: ['11'] }),
+        '11': makeOntimeEvent({ id: '11', parent: '1' }),
+        '2': makeOntimeBlock({ id: '2', events: ['22'] }),
+        '22': makeOntimeEvent({ id: '22', parent: '2' }),
+      },
+    });
+
+    rundownMutation.reorder(rundown, '11', '1', 'after');
+
+    expect(rundown.order).toStrictEqual(['1', '11', '2']);
+    expect(rundown.entries['1']).toMatchObject({
+      events: [],
+    });
+    expect(rundown.entries['11']).toMatchObject({
+      parent: null,
+    });
+    expect(rundown.entries['2']).toMatchObject({
+      events: ['22'],
+    });
+    expect(rundown.entries['22']).toMatchObject({
+      parent: '2',
+    });
+  });
+});

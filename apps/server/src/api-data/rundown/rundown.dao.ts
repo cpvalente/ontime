@@ -208,11 +208,56 @@ function removeAll(rundown: Rundown): Rundown {
   return rundown;
 }
 
+/**
+ * Reorders an entry in the rundown
+ * Handle moving across order lists
+ */
+function reorder(rundown: Rundown, entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') {
+  const eventFrom = rundown.entries[entryId];
+  const eventTo = rundown.entries[destinationId];
+
+  // handle moving across parents
+  const fromParent: EntryId | null = (eventFrom as { parent?: EntryId })?.parent ?? null;
+  const toParent = (() => {
+    if (isOntimeBlock(eventTo)) {
+      if (order === 'insert') {
+        return eventTo.id;
+      }
+      return null;
+    }
+    return eventTo.parent ?? null;
+  })();
+
+  if (!isOntimeBlock(eventFrom)) {
+    eventFrom.parent = toParent;
+  }
+
+  const sourceArray = fromParent === null ? rundown.order : (rundown.entries[fromParent] as OntimeBlock).events;
+  const destinationArray = toParent === null ? rundown.order : (rundown.entries[toParent] as OntimeBlock).events;
+
+  const fromIndex = sourceArray.indexOf(entryId);
+  const toIndex = (() => {
+    const baseIndex = destinationArray.indexOf(destinationId);
+    if (order === 'before') return baseIndex;
+    // only add one if we are moving down
+    if (order === 'after') return baseIndex + (fromIndex < baseIndex ? 0 : 1);
+    // for insert we add in the end of the array
+    return destinationArray.length;
+  })();
+
+  // Remove from source array
+  sourceArray.splice(fromIndex, 1);
+
+  // Insert into destination array
+  destinationArray.splice(toIndex, 0, entryId);
+}
+
 export const rundownMutation = {
   add,
   edit,
   remove,
   removeAll,
+  reorder,
 };
 
 /**
