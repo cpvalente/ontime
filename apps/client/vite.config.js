@@ -6,9 +6,11 @@ import { compression } from 'vite-plugin-compression2';
 import svgrPlugin from 'vite-plugin-svgr';
 
 import { ONTIME_VERSION } from './src/ONTIME_VERSION';
+import { dirname, join } from 'node:path';
 
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 const isDev = process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'development';
+const currentDir = dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   base: './', // Ontime cloud: we use relative paths to allow them to reference a dynamic base set at runtime
@@ -70,9 +72,9 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         additionalData: `
-        @use './src/theme/ontimeColours' as *;
-        @use './src/theme/ontimeStyles' as *;
-        @use './src/theme/mixins' as *;
+        @use "${join(currentDir, './src/theme/ontimeColours')}" as *;
+        @use "${join(currentDir, './src/theme/ontimeStyles')}" as *;
+        @use "${join(currentDir, './src/theme/mixins')}" as *;
         `,
       },
     },

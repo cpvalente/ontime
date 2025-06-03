@@ -72,7 +72,7 @@
     "@types/react-dom": "^18.0.10",
     "@typescript-eslint/eslint-plugin": "catalog:",
     "@typescript-eslint/parser": "catalog:",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@vitejs/plugin-react": "4.5.1",
     "eslint": "catalog:",
     "eslint-config-prettier": "catalog:",
     "eslint-plugin-jest": "^28.6.0",
@@ -86,10 +86,10 @@
     "prettier": "catalog:",
     "sass": "^1.57.1",
     "typescript": "catalog:",
-    "vite": "^5.2.11",
-    "vite-plugin-compression2": "^1.3.3",
-    "vite-plugin-svgr": "^4.2.0",
-    "vite-tsconfig-paths": "^4.3.1",
+    "vite": "6.3.1",
+    "vite-plugin-compression2": "1.4.0",
+    "vite-plugin-svgr": "4.3.0",
+    "vite-tsconfig-paths": "5.1.4",
     "vitest": "catalog:"
   }
 }
