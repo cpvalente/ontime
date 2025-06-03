@@ -25,7 +25,7 @@ const Operator = React.lazy(() => import('./features/operator/OperatorExport'));
 const TimerView = React.lazy(() => import('./views/timer/Timer'));
 const MinimalTimerView = React.lazy(() => import('./features/viewers/minimal-timer/MinimalTimer'));
 const ClockView = React.lazy(() => import('./features/viewers/clock/Clock'));
-const Countdown = React.lazy(() => import('./features/viewers/countdown/Countdown'));
+const Countdown = React.lazy(() => import('./views/countdown/Countdown'));
 
 const Backstage = React.lazy(() => import('./views/backstage/Backstage'));
 const Timeline = React.lazy(() => import('./views/timeline/TimelinePage'));

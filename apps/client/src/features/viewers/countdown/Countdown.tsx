@@ -20,7 +20,7 @@ import { useTranslation } from '../../../translation/TranslationProvider';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getFormattedTimer, isStringBoolean } from '../common/viewUtils';
 
-import { fetchTimerData, getTimerItems, TimerMessage } from './countdown.helpers';
+import { getSubscriptionDisplayData, getTimerItems, TimerMessage } from '../../../views/countdown/countdown.utils';
 import { getCountdownOptions } from './countdown.options';
 import CountdownSelect from './CountdownSelect';
 
@@ -78,7 +78,7 @@ export default function Countdown(props: CountdownProps) {
     }
   }, [backstageEvents, searchParams]);
 
-  const { message: runningMessage, timer: runningTimer } = fetchTimerData(time, follow, selectedId, runtime.offset);
+  const { message: runningMessage, timer: runningTimer } = getSubscriptionDisplayData(time, follow, selectedId, runtime.offset);
 
   const standby = time.playback !== Playback.Play && time.playback !== Playback.Roll && selectedId === follow?.id;
   const finished = time.phase === TimerPhase.Overtime;
