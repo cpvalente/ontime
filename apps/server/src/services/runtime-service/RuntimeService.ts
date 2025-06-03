@@ -832,15 +832,19 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     // Helper function to save the restore state
     function saveRestoreState(state: runtimeState.RuntimeState) {
-      restoreService.save({
-        playback: state.timer.playback,
-        selectedEventId: state.eventNow?.id ?? null,
-        startedAt: state.timer.startedAt,
-        addedTime: state.timer.addedTime,
-        pausedAt: state._timer.pausedAt,
-        firstStart: state.runtime.actualStart,
-        blockStartAt: state.currentBlock.startedAt,
-      });
+      restoreService
+        .save({
+          playback: state.timer.playback,
+          selectedEventId: state.eventNow?.id ?? null,
+          startedAt: state.timer.startedAt,
+          addedTime: state.timer.addedTime,
+          pausedAt: state._timer.pausedAt,
+          firstStart: state.runtime.actualStart,
+          blockStartAt: state.currentBlock.startedAt,
+        })
+        .catch((_e) => {
+          //we don't do anything with the error here
+        });
     }
 
     batch.send();
