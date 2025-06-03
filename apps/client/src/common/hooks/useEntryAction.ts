@@ -531,6 +531,19 @@ export const useEntryActions = () => {
    */
   const _applyDelayMutation = useMutation({
     mutationFn: requestApplyDelay,
+    onSuccess: (response) => {
+      if (!response.data) return;
+
+      const { id, title, order, flatOrder, entries, revision } = response.data;
+      queryClient.setQueryData<Rundown>(RUNDOWN, {
+        id,
+        title,
+        order,
+        flatOrder,
+        entries,
+        revision,
+      });
+    },
     // Mutation finished, failed or successful
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: RUNDOWN });

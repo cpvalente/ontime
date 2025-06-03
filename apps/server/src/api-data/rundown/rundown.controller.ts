@@ -4,13 +4,7 @@ import { getErrorMessage } from 'ontime-utils';
 import type { Request, Response } from 'express';
 
 import { failEmptyObjects } from '../../utils/routerUtils.js';
-import {
-  applyDelay,
-  ungroupEntries,
-  groupEntries,
-  swapEvents,
-  cloneEntry,
-} from '../../services/rundown-service/RundownService.js';
+import { ungroupEntries, groupEntries, swapEvents, cloneEntry } from '../../services/rundown-service/RundownService.js';
 import { getEntryWithId } from '../../services/rundown-service/rundownUtils.js';
 
 import { getCurrentRundown } from './rundown.dao.js';
@@ -58,16 +52,6 @@ export async function rundownSwap(req: Request, res: Response<MessageResponse | 
     const { from, to } = req.body;
     await swapEvents(from, to);
     res.status(200).send({ message: 'Swap successful' });
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
-}
-
-export async function rundownApplyDelay(req: Request, res: Response<MessageResponse | ErrorResponse>) {
-  try {
-    await applyDelay(req.params.entryId);
-    res.status(200).send({ message: 'Delay applied' });
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).send({ message });

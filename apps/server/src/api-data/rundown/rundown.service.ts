@@ -3,6 +3,7 @@ import {
   EntryId,
   EventPostPayload,
   isOntimeBlock,
+  isOntimeDelay,
   isOntimeEvent,
   OntimeEntry,
   PatchWithId,
@@ -241,6 +242,36 @@ export function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'b
   }
 
   rundownMutation.reorder(rundown, entryId, destinationId, order);
+
+  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+
+  // schedule the side effects
+  setImmediate(() => {
+    // notify runtime that rundown has changed
+    updateRuntimeOnChange(rundownMetadata);
+
+    // notify timer and external services of change
+    notifyChanges(rundownMetadata, revision, { timer: true, external: true });
+  });
+
+  return rundownResult;
+}
+
+/**
+ * Applies a delay into the rundown effectively changing the schedule
+ * The applied delay is deleted
+ */
+export async function applyDelay(delayId: EntryId): Promise<Rundown> {
+  const { rundown, commit } = createTransaction();
+
+  // check that delay exists
+  if (!rundown.entries[delayId] || !isOntimeDelay(rundown.entries[delayId])) {
+    throw new Error('Given delay ID not found');
+  }
+
+  // apply the delay and delete the it
+  rundownMutation.applyDelay(rundown, delayId);
+  rundownMutation.remove(rundown, delayId);
 
   const { rundown: rundownResult, rundownMetadata, revision } = commit();
 

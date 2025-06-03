@@ -7,22 +7,6 @@ import { runtimeService } from '../runtime-service/RuntimeService.js';
 import * as cache from './rundownCache.js';
 
 /**
- * Applies a delay into the rundown effectively changing the schedule
- * The applied delay is deleted
- * @param delayId
- */
-export async function applyDelay(delayId: EntryId) {
-  const scopedMutation = cache.mutateCache(cache.applyDelay);
-  await scopedMutation({ delayId });
-
-  // notify runtime that rundown has changed
-  updateRuntimeOnChange();
-
-  // notify timer and external services of change
-  notifyChanges({ timer: true, external: true });
-}
-
-/**
  * Clones an entry, ensuring that all dependencies are preserved
  */
 export async function cloneEntry(entryId: EntryId) {

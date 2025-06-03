@@ -6,7 +6,6 @@ import express from 'express';
 
 import {
   rundownAddToBlock,
-  rundownApplyDelay,
   rundownCloneEntry,
   rundownUngroupEntries,
   rundownGetAll,
@@ -16,6 +15,7 @@ import {
 } from './rundown.controller.js';
 import {
   addEntry,
+  applyDelay,
   batchEditEntries,
   deleteAllEntries,
   deleteEntries,
@@ -79,7 +79,20 @@ router.patch('/reorder', rundownReorderValidator, async (req: Request, res: Resp
   }
 });
 router.patch('/swap', rundownSwapValidator, rundownSwap);
-router.patch('/applydelay/:entryId', paramsMustHaveEntryId, rundownApplyDelay);
+router.patch(
+  '/applydelay/:entryId',
+  paramsMustHaveEntryId,
+  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+    try {
+      const newRundown = await applyDelay(req.params.entryId);
+      res.status(200).send(newRundown);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
+
 router.post('/clone/:entryId', paramsMustHaveEntryId, rundownCloneEntry);
 router.post('/ungroup/:entryId', paramsMustHaveEntryId, rundownUngroupEntries);
 router.post('/group', rundownArrayOfIds, rundownAddToBlock);

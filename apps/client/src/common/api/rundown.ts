@@ -83,7 +83,7 @@ export async function requestEventSwap(data: SwapEntry): Promise<AxiosResponse<M
 /**
  * HTTP request to request application of delay
  */
-export async function requestApplyDelay(delayId: EntryId): Promise<AxiosResponse<MessageResponse>> {
+export async function requestApplyDelay(delayId: EntryId): Promise<AxiosResponse<Rundown>> {
   return axios.patch(`${rundownPath}/applydelay/${delayId}`);
 }
 

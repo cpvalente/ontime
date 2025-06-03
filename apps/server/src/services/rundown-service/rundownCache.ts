@@ -19,7 +19,6 @@ import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { createBlock } from '../../api-data/rundown/rundown.utils.js';
 
 import type { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
-import { apply } from './delayUtils.js';
 import { cloneBlock, cloneEntry, makeRundownMetadata, type ProcessedRundownMetadata } from './rundownCache.utils.js';
 
 let currentRundownId: EntryId = '';
@@ -364,17 +363,6 @@ export function add({ rundown, afterId, parent, entry }: AddArgs): Required<Muta
   rundown.entries[entry.id] = entry;
   setIsStale();
   return { newRundown: rundown, changeList: [], newEvent: entry, didMutate: true };
-}
-
-type ApplyDelayArgs = MutationParams<{ delayId: EntryId }>;
-/**
- * Apply a delay
- * Mutates the given rundown
- */
-export function applyDelay({ rundown, delayId }: ApplyDelayArgs): MutatingReturn {
-  apply(delayId, rundown);
-  setIsStale();
-  return { newRundown: rundown, didMutate: true };
 }
 
 type CloneEntryArgs = MutationParams<{ entryId: EntryId }>;

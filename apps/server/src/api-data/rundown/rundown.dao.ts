@@ -17,7 +17,9 @@ import {
   isOntimeEvent,
   isPlayableEvent,
   OntimeBlock,
+  OntimeDelay,
   OntimeEntry,
+  OntimeEvent,
   PatchWithId,
   Rundown,
 } from 'ontime-types';
@@ -252,12 +254,84 @@ function reorder(rundown: Rundown, entryId: EntryId, destinationId: EntryId, ord
   destinationArray.splice(toIndex, 0, entryId);
 }
 
+/**
+ * Applies delay from given event ID
+ * Mutates the given rundown
+ */
+function applyDelay(rundown: Rundown, delayId: EntryId) {
+  const delayEvent = rundown.entries[delayId] as OntimeDelay;
+  const delayIndex = rundownMetadata.flatEntryOrder.indexOf(delayId);
+
+  // if the delay is empty, or the last element
+  // there is nothing do apply
+  if (delayEvent.duration === 0 || delayIndex === rundown.order.length - 1) {
+    return;
+  }
+
+  /**
+   * We iterate through the rundown and apply the delay
+   * The delay values becomes part of the event schedule
+   * The delay is applied as if the rundown was flat
+   */
+  let delayValue = delayEvent.duration;
+  let lastEntry: OntimeEvent | null = null;
+  let isFirstEvent = true;
+
+  for (let i = delayIndex + 1; i < rundownMetadata.flatEntryOrder.length; i++) {
+    const currentId = rundownMetadata.flatEntryOrder[i];
+    const currentEntry = rundown.entries[currentId];
+
+    // we don't do operation on other event types
+    if (!isOntimeEvent(currentEntry)) {
+      continue;
+    }
+
+    // we need to remove the link in the first event to maintain the gap
+    let shouldUnlink = isFirstEvent;
+    isFirstEvent = false;
+
+    // if the event is not linked, we try and maintain gaps
+    if (lastEntry !== null) {
+      // when applying negative delays, we need to unlink the event
+      // if the previous event was fully consumed by the delay
+      if (currentEntry.linkStart && delayValue < 0 && lastEntry.timeStart + delayValue < 0) {
+        shouldUnlink = true;
+      }
+
+      if (currentEntry.gap > 0) {
+        delayValue = Math.max(delayValue - currentEntry.gap, 0);
+      }
+
+      if (delayValue === 0) {
+        // we can bail from continuing if there are no further delays to apply
+        break;
+      }
+    }
+
+    // save the current entry before making mutations on its values
+    lastEntry = { ...currentEntry };
+
+    if (shouldUnlink) {
+      currentEntry.linkStart = false;
+      shouldUnlink = false;
+    }
+
+    // event times move up by the delay value
+    // we dont update the delay value since we would need to iterate through the entire dataset
+    // this is handled by the rundownCache.generate function
+    currentEntry.timeStart = Math.max(0, currentEntry.timeStart + delayValue);
+    currentEntry.timeEnd = Math.max(currentEntry.duration, currentEntry.timeEnd + delayValue);
+    currentEntry.revision += 1;
+  }
+}
+
 export const rundownMutation = {
   add,
   edit,
   remove,
   removeAll,
   reorder,
+  applyDelay,
 };
 
 /**
@@ -267,8 +341,6 @@ export function init(initialRundown: Readonly<Rundown>, initialCustomFields: Rea
   const rundown = structuredClone(initialRundown);
   const customFields = structuredClone(initialCustomFields);
   const processedData = processRundown(rundown, customFields);
-
-  const revision = rundown.revision + 1;
 
   // update the cache values
   cachedRundown.id = rundown.id;
@@ -280,7 +352,7 @@ export function init(initialRundown: Readonly<Rundown>, initialCustomFields: Rea
   cachedRundown.entries = entries;
   cachedRundown.order = order;
   cachedRundown.flatOrder = metadata.flatEntryOrder; // TODO: remove in favour of the metadata flatEntryOrder
-  cachedRundown.revision = revision;
+  cachedRundown.revision = rundown.revision;
   rundownMetadata = metadata;
 
   // defer writing to the database
@@ -288,7 +360,7 @@ export function init(initialRundown: Readonly<Rundown>, initialCustomFields: Rea
     await getDataProvider().setRundown(cachedRundown.id, cachedRundown);
   });
 
-  return { rundown, rundownMetadata, customFields, revision };
+  return { rundown, rundownMetadata, customFields, revision: rundown.revision };
 }
 
 export const rundownCache = {
@@ -305,7 +377,7 @@ export const rundownCache = {
 /**
  * Utility updates cache after a mutation
  * Handles calculating the rundown metadata
- * @private should not be called outside of `rundownCache.ts`, exported for testing
+ * @private should not be called outside of `rundown.dao.ts`, exported for testing
  */
 export function processRundown(
   initialRundown: Readonly<Rundown>,
