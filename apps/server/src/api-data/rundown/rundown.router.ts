@@ -1,10 +1,10 @@
-import { ErrorResponse, MessageResponse, OntimeEntry, Rundown } from 'ontime-types';
+import { ErrorResponse, MessageResponse, OntimeEntry, ProjectRundownsList, Rundown } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
 import express from 'express';
 
-import { rundownGetAll, rundownGetById, rundownGetCurrent } from './rundown.controller.js';
+import { getCurrentRundown } from './rundown.dao.js';
 import {
   addEntry,
   applyDelay,
@@ -30,9 +30,23 @@ import {
 
 export const router = express.Router();
 
-router.get('/', rundownGetAll);
-router.get('/current', rundownGetCurrent);
-router.get('/:eventId', paramsMustHaveEntryId, rundownGetById); // not used in Ontime frontend
+/**
+ * Returns all rundowns in the project
+ */
+router.get('/', async (_req: Request, res: Response<ProjectRundownsList>) => {
+  const rundown = getCurrentRundown();
+
+  // TODO: we currently make a project with only the current rundown
+  res.json([{ id: rundown.id, title: rundown.title, numEntries: rundown.order.length, revision: rundown.revision }]);
+});
+
+/**
+ * Returns the current rundown
+ */
+router.get('/current', async (_req: Request, res: Response<Rundown>) => {
+  const rundown = getCurrentRundown();
+  res.json(rundown);
+});
 
 router.post('/', rundownPostValidator, async (req: Request, res: Response<OntimeEntry | ErrorResponse>) => {
   try {

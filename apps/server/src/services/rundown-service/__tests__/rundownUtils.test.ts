@@ -1,4 +1,4 @@
-import { makeRundown } from '../__mocks__/rundown.mocks.js';
+import { makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { getPreviousId } from '../rundownUtils.js';
 
 describe('getPreviousId', () => {

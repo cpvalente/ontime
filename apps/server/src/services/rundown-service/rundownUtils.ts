@@ -8,21 +8,16 @@ import {
   ProjectRundowns,
 } from 'ontime-types';
 
-import * as cache from './rundownCache.js';
+import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
 
-/**
- * returns entire unfiltered rundown
- */
-export function getCurrentRundown(): Rundown {
-  return cache.getCurrentRundown();
-}
+import * as cache from './rundownCache.js';
 
 /**
  * returns the the project rundown and the order arrays
  */
 export function getRundownData() {
   return {
-    rundown: cache.getCurrentRundown(),
+    rundown: getCurrentRundown(),
     rundownOrder: cache.getEventOrder(),
   };
 }

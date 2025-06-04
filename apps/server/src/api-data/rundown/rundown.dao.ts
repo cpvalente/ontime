@@ -72,9 +72,8 @@ let rundownMetadata: RundownMetadata = {
  */
 let projectCustomFields: CustomFields = {};
 
-export function getCurrentRundown(): Readonly<Rundown> {
-  return cachedRundown;
-}
+export const getCurrentRundown = (): Readonly<Rundown> => cachedRundown;
+export const getProjectCustomFields = (): Readonly<CustomFields> => projectCustomFields;
 
 export function createTransaction() {
   const rundown = structuredClone(cachedRundown);

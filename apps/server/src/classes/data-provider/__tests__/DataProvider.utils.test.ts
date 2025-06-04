@@ -1,7 +1,7 @@
 import { DatabaseModel, Settings, URLPreset } from 'ontime-types';
 
 import { demoDb } from '../../../models/demoProject.js';
-import { makeOntimeEvent, makeRundown } from '../../../services/rundown-service/__mocks__/rundown.mocks.js';
+import { makeOntimeEvent, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 
 import { safeMerge } from '../DataProvider.utils.js';
 
