@@ -1,42 +1,10 @@
-import { CustomFields, Rundown, EntryId } from 'ontime-types';
+import { CustomFields, Rundown } from 'ontime-types';
 
 import { RefetchTargets, sendRefetch } from '../../adapters/websocketAux.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
 
 import * as cache from './rundownCache.js';
-
-/**
- * Deletes a block from the rundown and moves all its children to the top level
- */
-export async function ungroupEntries(blockId: EntryId) {
-  const scopedMutation = cache.mutateCache(cache.ungroup);
-  const { newRundown } = await scopedMutation({ blockId });
-
-  // notify runtime that rundown has changed
-  updateRuntimeOnChange();
-
-  // we dont need to modify the timer since the grouping does not affect the runtime
-  notifyChanges({ external: true });
-
-  return newRundown;
-}
-
-/**
- * Groups a list of entries into a block
- */
-export async function groupEntries(entryIds: EntryId[]) {
-  const scopedMutation = cache.mutateCache(cache.groupEntries);
-  const { newRundown } = await scopedMutation({ entryIds });
-
-  // notify runtime that rundown has changed
-  updateRuntimeOnChange();
-
-  // we dont need to modify the timer since the grouping does not affect the runtime
-  notifyChanges({ external: true });
-
-  return newRundown;
-}
 
 /**
  * Forces update in the store

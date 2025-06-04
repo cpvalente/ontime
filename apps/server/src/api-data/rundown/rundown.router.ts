@@ -4,13 +4,7 @@ import { getErrorMessage } from 'ontime-utils';
 import type { Request, Response } from 'express';
 import express from 'express';
 
-import {
-  rundownAddToBlock,
-  rundownUngroupEntries,
-  rundownGetAll,
-  rundownGetById,
-  rundownGetCurrent,
-} from './rundown.controller.js';
+import { rundownGetAll, rundownGetById, rundownGetCurrent } from './rundown.controller.js';
 import {
   addEntry,
   applyDelay,
@@ -19,8 +13,10 @@ import {
   deleteAllEntries,
   deleteEntries,
   editEntry,
+  groupEntries,
   reorderEntry,
   swapEvents,
+  ungroupEntries,
 } from './rundown.service.js';
 import {
   paramsMustHaveEntryId,
@@ -113,8 +109,29 @@ router.post('/clone/:entryId', paramsMustHaveEntryId, async (req: Request, res: 
   }
 });
 
-router.post('/ungroup/:entryId', paramsMustHaveEntryId, rundownUngroupEntries);
-router.post('/group', rundownArrayOfIds, rundownAddToBlock);
+router.post('/group', rundownArrayOfIds, async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+  try {
+    const newRundown = await groupEntries(req.body.ids);
+    res.status(200).send(newRundown);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+});
+
+router.post(
+  '/ungroup/:entryId',
+  paramsMustHaveEntryId,
+  async (req: Request, res: Response<Rundown | ErrorResponse>) => {
+    try {
+      const newRundown = await ungroupEntries(req.params.entryId);
+      res.status(200).send(newRundown);
+    } catch (error) {
+      const message = getErrorMessage(error);
+      res.status(400).send({ message });
+    }
+  },
+);
 
 router.delete('/', rundownArrayOfIds, async (req: Request, res: Response<MessageResponse | ErrorResponse>) => {
   try {

@@ -936,3 +936,55 @@ describe('rundownMutation.clone()', () => {
     expect((testRundown.entries[newEntry.id] as OntimeBlock).events[0]).not.toBe('1a');
   });
 });
+
+describe('rundownMutation.group()', () => {
+  it('groups a list of existing events into a new block', () => {
+    const rundown = makeRundown({
+      order: ['1', '2', '3'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', parent: null }),
+        '2': makeOntimeEvent({ id: '2', parent: null }),
+        '3': makeOntimeEvent({ id: '3', parent: null }),
+      },
+    });
+
+    rundownMutation.group(rundown, ['1', '2']);
+
+    const blockId = rundown.order[0];
+    expect(blockId).toStrictEqual(expect.any(String));
+    expect(rundown.order).toStrictEqual([expect.any(String), '3']);
+    expect(rundown.entries).toMatchObject({
+      [blockId]: {
+        type: SupportedEntry.Block,
+        events: ['1', '2'],
+      },
+      '1': { id: '1', type: SupportedEntry.Event, parent: blockId },
+      '2': { id: '2', type: SupportedEntry.Event, parent: blockId },
+      '3': { id: '3', type: SupportedEntry.Event, parent: null },
+    });
+  });
+});
+
+describe('rundownMutation.ungroup()', () => {
+  it('should correctly dissolve a block into its events', () => {
+    const testRundown = makeRundown({
+      order: ['1', '2'],
+      entries: {
+        '1': makeOntimeEvent({ id: '1', cue: 'data1', parent: null }),
+        '2': makeOntimeBlock({ id: '2', events: ['21', '22'] }),
+        '21': makeOntimeEvent({ id: '21', cue: 'data21', parent: '2' }),
+        '22': makeOntimeEvent({ id: '22', cue: 'data22', parent: '2' }),
+      },
+    });
+
+    rundownMutation.ungroup(testRundown, testRundown.entries['2'] as OntimeBlock);
+
+    expect(testRundown.order).toStrictEqual(['1', '21', '22']);
+    expect(testRundown.entries['2']).toBeUndefined();
+    expect(testRundown.entries).toMatchObject({
+      '1': { id: '1', type: SupportedEntry.Event, cue: 'data1', parent: null },
+      '21': { id: '21', type: SupportedEntry.Event, cue: 'data21', parent: null },
+      '22': { id: '22', type: SupportedEntry.Event, cue: 'data22', parent: null },
+    });
+  });
+});

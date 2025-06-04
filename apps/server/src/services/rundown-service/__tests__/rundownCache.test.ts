@@ -9,8 +9,6 @@ import {
   editCustomField,
   removeCustomField,
   customFieldChangelog,
-  ungroup,
-  groupEntries,
 } from '../rundownCache.js';
 import { makeOntimeBlock, makeOntimeDelay, makeOntimeEvent, makeRundown } from '../__mocks__/rundown.mocks.js';
 import type { ProcessedRundownMetadata } from '../rundownCache.utils.js';
@@ -610,68 +608,6 @@ describe('generate() v4', () => {
         '302': { id: '302', timeStart: 1000, timeEnd: 1100, duration: 100 },
         '303': { id: '303', timeStart: 1100, timeEnd: 1200, duration: 100 },
       });
-    });
-  });
-});
-
-describe('ungroup() mutation', () => {
-  it('should correctly dissolve a block into its events', () => {
-    const rundown = makeRundown({
-      order: ['1', '2'],
-      flatOrder: ['1', '2', '21', '22'],
-      entries: {
-        '1': makeOntimeEvent({ id: '1', cue: 'data1', parent: null }),
-        '2': makeOntimeBlock({ id: '2', events: ['21', '22'] }),
-        '21': makeOntimeEvent({ id: '21', cue: 'data21', parent: '2' }),
-        '22': makeOntimeEvent({ id: '22', cue: 'data22', parent: '2' }),
-      },
-    });
-
-    const { newRundown } = ungroup({
-      rundown,
-      blockId: '2',
-    });
-
-    expect(newRundown.order).toStrictEqual(['1', '21', '22']);
-    expect(newRundown.flatOrder).toStrictEqual(['1', '21', '22']);
-    expect(newRundown.entries['2']).toBeUndefined();
-    expect(newRundown.entries).toMatchObject({
-      '1': { id: '1', type: SupportedEntry.Event, cue: 'data1', parent: null },
-      '21': { id: '21', type: SupportedEntry.Event, cue: 'data21', parent: null },
-      '22': { id: '22', type: SupportedEntry.Event, cue: 'data22', parent: null },
-    });
-  });
-});
-
-describe('groupEntries() mutation', () => {
-  it('groups a list of existing events into a new block', () => {
-    const rundown = makeRundown({
-      order: ['1', '2', '3'],
-      flatOrder: ['1', '2', '3'],
-      entries: {
-        '1': makeOntimeEvent({ id: '1', parent: null }),
-        '2': makeOntimeEvent({ id: '2', parent: null }),
-        '3': makeOntimeEvent({ id: '3', parent: null }),
-      },
-    });
-
-    const { newRundown } = groupEntries({
-      rundown,
-      entryIds: ['1', '2'],
-    });
-
-    const blockId = newRundown.order[0];
-    expect(blockId).toStrictEqual(expect.any(String));
-    expect(newRundown.order).toStrictEqual([expect.any(String), '3']);
-    expect(newRundown.flatOrder).toStrictEqual([expect.any(String), '1', '2', '3']);
-    expect(newRundown.entries).toMatchObject({
-      [blockId]: {
-        type: SupportedEntry.Block,
-        events: ['1', '2'],
-      },
-      '1': { id: '1', type: SupportedEntry.Event, parent: blockId },
-      '2': { id: '2', type: SupportedEntry.Event, parent: blockId },
-      '3': { id: '3', type: SupportedEntry.Event, parent: null },
     });
   });
 });

@@ -355,6 +355,53 @@ export async function cloneEntry(entryId: EntryId): Promise<Rundown> {
 }
 
 /**
+ * Groups a list of entries into a new block
+ */
+export async function groupEntries(entryIds: EntryId[]): Promise<Rundown> {
+  const { rundown, commit } = createTransaction();
+
+  rundownMutation.group(rundown, entryIds);
+  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+
+  // schedule the side effects
+  setImmediate(() => {
+    // notify runtime that rundown has changed
+    updateRuntimeOnChange(rundownMetadata);
+
+    // we dont need to notify the timer since the grouping does not affect the runtime
+    notifyChanges(rundownMetadata, revision, { external: true });
+  });
+
+  return rundownResult;
+}
+
+/**
+ * Deletes a block and moves all its children to the top level
+ */
+export async function ungroupEntries(blockId: EntryId): Promise<Rundown> {
+  const { rundown, commit } = createTransaction();
+
+  const block = rundown.entries[blockId];
+  if (!block || !isOntimeBlock(block)) {
+    throw new Error(`Block with ID ${blockId} not found or is not a block`);
+  }
+
+  rundownMutation.ungroup(rundown, block);
+  const { rundown: rundownResult, rundownMetadata, revision } = commit();
+
+  // schedule the side effects
+  setImmediate(() => {
+    // notify runtime that rundown has changed
+    updateRuntimeOnChange(rundownMetadata);
+
+    // we dont need to notify the timer since the grouping does not affect the runtime
+    notifyChanges(rundownMetadata, revision, { external: true });
+  });
+
+  return rundownResult;
+}
+
+/**
  * Forces update in the store
  * Called when we make changes to the rundown object
  *

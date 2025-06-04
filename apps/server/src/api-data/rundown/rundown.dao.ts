@@ -34,6 +34,7 @@ import {
   applyPatchToEntry,
   cloneBlock,
   cloneEntry,
+  createBlock,
   deleteById,
   doesInvalidateMetadata,
   getUniqueId,
@@ -415,6 +416,68 @@ function clone(rundown: Rundown, entry: OntimeEntry): OntimeEntry {
   }
 }
 
+/**
+ * Groups a list of entries into a block
+ * It ensures that the entries get reassigned parent and the block gets a list of events
+ * The block will be created at the index of the first event in the order, not at the lowest index
+ * Mutates the given rundown
+ */
+function group(rundown: Rundown, entryIds: EntryId[]): OntimeBlock {
+  const newBlock = createBlock({ id: getUniqueId(rundown) });
+
+  const nestedEvents: EntryId[] = [];
+  let firstIndex = -1;
+  for (let i = 0; i < entryIds.length; i++) {
+    const entryId = entryIds[i];
+    const entry = rundown.entries[entryId];
+    if (!entry || isOntimeBlock(entry)) {
+      // invalid operation, we skip this entry
+      continue;
+    }
+
+    // the block will be created at the first selected event position
+    // note that this is not the lowest index
+    if (firstIndex === -1) {
+      firstIndex = rundown.flatOrder.indexOf(entryId);
+    }
+
+    nestedEvents.push(entryId);
+    entry.parent = newBlock.id;
+    rundown.flatOrder = rundown.flatOrder.filter((id) => id !== entryId);
+    rundown.order = rundown.order.filter((id) => id !== entryId);
+  }
+
+  newBlock.events = nestedEvents;
+  const insertIndex = Math.max(0, firstIndex);
+  // we have filtered the items from the order
+  // we will insert them now, with only the block at top level ...
+  rundown.order = insertAtIndex(insertIndex, newBlock.id, rundown.order);
+  rundown.entries[newBlock.id] = newBlock;
+
+  return newBlock;
+}
+
+/**
+ * Deletes a block and moves all its children to the top level order
+ */
+function ungroup(rundown: Rundown, block: OntimeBlock) {
+  // get the events from the block and merge them into the order where the block was
+  const nestedEvents = block.events;
+  const blockIndex = rundown.order.indexOf(block.id);
+  rundown.order.splice(blockIndex, 1, ...nestedEvents);
+
+  // delete block from entries and remove its reference from the child events
+  delete rundown.entries[block.id];
+  for (let i = 0; i < nestedEvents.length; i++) {
+    const eventId = nestedEvents[i];
+    const entry = rundown.entries[eventId];
+    if (!entry) {
+      throw new Error('Entry not found');
+    }
+    (entry as OntimeEvent | OntimeDelay).parent = null;
+  }
+}
+
 export const rundownMutation = {
   add,
   edit,
@@ -424,6 +487,8 @@ export const rundownMutation = {
   applyDelay,
   swap,
   clone,
+  group,
+  ungroup,
 };
 
 /**
