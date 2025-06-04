@@ -1,12 +1,7 @@
-import { OntimeBlock, OntimeEvent, SupportedEntry } from 'ontime-types';
+import { OntimeBlock, OntimeDelay, OntimeEvent, SupportedEntry } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
-import {
-  makeOntimeEvent,
-  makeRundown,
-  makeOntimeBlock,
-  makeOntimeDelay,
-} from '../../../services/rundown-service/__mocks__/rundown.mocks.js';
+import { makeOntimeEvent, makeRundown, makeOntimeBlock, makeOntimeDelay } from '../__mocks__/rundown.mocks.js';
 
 import { createTransaction, rundownCache, rundownMutation } from '../rundown.dao.js';
 
@@ -158,7 +153,7 @@ describe('rundownMutation.remove()', () => {
       },
     });
 
-    rundownMutation.remove(rundown, '2');
+    rundownMutation.remove(rundown, rundown.entries['2']);
 
     expect(rundown.order).toStrictEqual(['1', '3']);
     expect(rundown.entries['1']).not.toBeUndefined();
@@ -177,7 +172,7 @@ describe('rundownMutation.remove()', () => {
       },
     });
 
-    rundownMutation.remove(rundown, '1');
+    rundownMutation.remove(rundown, rundown.entries['1']);
 
     expect(rundown.order).toStrictEqual(['4']);
     expect(rundown.entries).not.toHaveProperty('1');
@@ -199,7 +194,7 @@ describe('rundownMutation.remove()', () => {
       },
     });
 
-    rundownMutation.remove(rundown, '2');
+    rundownMutation.remove(rundown, rundown.entries['2']);
 
     expect(rundown.order).toStrictEqual(['1', '4']);
     expect(rundown.entries).not.toHaveProperty('2');
@@ -240,7 +235,7 @@ describe('rundownMutation.reorder()', () => {
       },
     });
 
-    rundownMutation.reorder(rundown, '3', '1', 'insert');
+    rundownMutation.reorder(rundown, rundown.entries['3'], rundown.entries['1'], 'insert');
 
     expect(rundown.order).toStrictEqual(['1', '2']);
     expect(rundown.entries['1']).toMatchObject({
@@ -262,7 +257,7 @@ describe('rundownMutation.reorder()', () => {
       },
     });
 
-    rundownMutation.reorder(rundown, '2', '11', 'before');
+    rundownMutation.reorder(rundown, rundown.entries['2'], rundown.entries['11'], 'before');
 
     expect(rundown.order).toStrictEqual(['1']);
     expect(rundown.entries['1']).toMatchObject({
@@ -285,7 +280,7 @@ describe('rundownMutation.reorder()', () => {
     });
 
     // move first event to the end
-    rundownMutation.reorder(rundown, '1', '2', 'after');
+    rundownMutation.reorder(rundown, rundown.entries['1'], rundown.entries['2'], 'after');
 
     expect(rundown.order).toStrictEqual(['2', '1', '3']);
   });
@@ -302,7 +297,7 @@ describe('rundownMutation.reorder()', () => {
     });
 
     // move last event to the beginning
-    rundownMutation.reorder(rundown, '3', '1', 'before');
+    rundownMutation.reorder(rundown, rundown.entries['3'], rundown.entries['1'], 'before');
 
     expect(rundown.order).toStrictEqual(['3', '1', '2']);
   });
@@ -318,7 +313,7 @@ describe('rundownMutation.reorder()', () => {
       },
     });
 
-    rundownMutation.reorder(rundown, '11', '2', 'before');
+    rundownMutation.reorder(rundown, rundown.entries['11'], rundown.entries['2'], 'before');
 
     expect(rundown.order).toStrictEqual(['1', '11', '2']);
     expect(rundown.entries['1']).toMatchObject({
@@ -341,7 +336,7 @@ describe('rundownMutation.reorder()', () => {
       },
     });
 
-    rundownMutation.reorder(rundown, '11', '22', 'before');
+    rundownMutation.reorder(rundown, rundown.entries['11'], rundown.entries['22'], 'before');
 
     expect(rundown.order).toStrictEqual(['1', '2']);
     expect(rundown.entries['1']).toMatchObject({
@@ -366,7 +361,7 @@ describe('rundownMutation.reorder()', () => {
       },
     });
 
-    rundownMutation.reorder(rundown, '22', '1', 'insert');
+    rundownMutation.reorder(rundown, rundown.entries['22'], rundown.entries['1'], 'insert');
 
     expect(rundown.order).toStrictEqual(['1', '2']);
     expect(rundown.entries['1']).toMatchObject({
@@ -392,7 +387,7 @@ describe('rundownMutation.reorder()', () => {
       },
     });
 
-    rundownMutation.reorder(rundown, '22', '2', 'before');
+    rundownMutation.reorder(rundown, rundown.entries['22'], rundown.entries['2'], 'before');
 
     expect(rundown.order).toStrictEqual(['1', '22', '2']);
     // expect(newRundown.flatOrder).toStrictEqual(['1', '2', '11', '22']);
@@ -423,7 +418,7 @@ describe('rundownMutation.reorder()', () => {
       },
     });
 
-    rundownMutation.reorder(rundown, '11', '1', 'after');
+    rundownMutation.reorder(rundown, rundown.entries['11'], rundown.entries['1'], 'after');
 
     expect(rundown.order).toStrictEqual(['1', '11', '2']);
     expect(rundown.entries['1']).toMatchObject({
@@ -457,7 +452,7 @@ describe('rundownMutation.applyDelay()', () => {
     });
 
     rundownCache.init(testRundown, {});
-    rundownMutation.applyDelay(testRundown, 'delay');
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
       '1': { id: '1', timeStart: 10, timeEnd: 20, duration: 10, revision: 2 },
@@ -483,7 +478,7 @@ describe('rundownMutation.applyDelay()', () => {
     });
 
     rundownCache.init(testRundown, {});
-    rundownMutation.applyDelay(testRundown, 'delay');
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
       '1': { id: '1', timeStart: 0, timeEnd: 10, duration: 10, revision: 2 },
@@ -505,7 +500,7 @@ describe('rundownMutation.applyDelay()', () => {
     });
 
     rundownCache.init(testRundown, {});
-    rundownMutation.applyDelay(testRundown, 'delay');
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
       '1': {
@@ -539,7 +534,7 @@ describe('rundownMutation.applyDelay()', () => {
     });
 
     rundownCache.init(testRundown, {});
-    rundownMutation.applyDelay(testRundown, 'delay');
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
       '1': {
@@ -571,7 +566,7 @@ describe('rundownMutation.applyDelay()', () => {
     });
 
     rundownCache.init(testRundown, {});
-    rundownMutation.applyDelay(testRundown, 'delay');
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
       '1': {
@@ -603,7 +598,7 @@ describe('rundownMutation.applyDelay()', () => {
     });
 
     rundownCache.init(testRundown, {});
-    rundownMutation.applyDelay(testRundown, 'delay');
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
       '1': { id: '1', timeStart: 0, timeEnd: 100, duration: 100, revision: 1 },
@@ -636,7 +631,7 @@ describe('rundownMutation.applyDelay()', () => {
     });
 
     rundownCache.init(testRundown, {});
-    rundownMutation.applyDelay(testRundown, 'delay');
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
       '1': { id: '1', timeStart: 0 + 100, timeEnd: 100 + 100, duration: 100, revision: 2 },
@@ -677,7 +672,7 @@ describe('rundownMutation.applyDelay()', () => {
     });
 
     rundownCache.init(testRundown, {});
-    rundownMutation.applyDelay(testRundown, 'delay');
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
       '1': { id: '1', timeStart: 54000000 /* 16 */, revision: 2 },
@@ -696,7 +691,7 @@ describe('rundownMutation.applyDelay()', () => {
     });
 
     rundownCache.init(testRundown, {});
-    rundownMutation.applyDelay(testRundown, 'delay');
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({ '1': { id: '1', timeStart: 0, timeEnd: 100, duration: 100 } });
   });
@@ -711,7 +706,7 @@ describe('rundownMutation.applyDelay()', () => {
     });
 
     rundownCache.init(testRundown, {});
-    rundownMutation.applyDelay(testRundown, 'delay');
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({ '1': { id: '1', timeStart: 0, timeEnd: 100, duration: 100 } });
   });
@@ -728,7 +723,7 @@ describe('rundownMutation.applyDelay()', () => {
     });
 
     rundownCache.init(testRundown, {});
-    rundownMutation.applyDelay(testRundown, 'delay');
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
       '1': {
@@ -763,7 +758,7 @@ describe('rundownMutation.applyDelay()', () => {
     });
 
     rundownCache.init(testRundown, {});
-    rundownMutation.applyDelay(testRundown, 'delay');
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
       '1': {
@@ -813,7 +808,7 @@ describe('rundownMutation.applyDelay()', () => {
     });
 
     rundownCache.init(testRundown, {});
-    rundownMutation.applyDelay(testRundown, 'delay');
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
       '1': {

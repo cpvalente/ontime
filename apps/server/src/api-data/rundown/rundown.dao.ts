@@ -181,9 +181,7 @@ function edit(rundown: Rundown, patch: PatchWithId): { entry: OntimeEntry; didIn
  * - if the entry is an ontime block, we delete it along with its children
  * - if the entry is inside a block, we delete it and remove the reference from the parent block
  */
-function remove(rundown: Rundown, entryId: EntryId) {
-  const entry = rundown.entries[entryId];
-
+function remove(rundown: Rundown, entry: OntimeEntry) {
   if (isOntimeBlock(entry)) {
     // for ontime blocks, we need to iterate through the children and delete them
     for (let i = 0; i < entry.events.length; i++) {
@@ -199,7 +197,7 @@ function remove(rundown: Rundown, entryId: EntryId) {
       edit(rundown, { id: parentBlock.id, events: filteredEvents });
     }
   }
-  deleteEntry(entryId);
+  deleteEntry(entry.id);
 
   function deleteEntry(idToDelete: EntryId) {
     rundown.order = deleteById(rundown.order, idToDelete);
@@ -222,10 +220,7 @@ function removeAll(rundown: Rundown): Rundown {
  * Reorders an entry in the rundown
  * Handle moving across order lists
  */
-function reorder(rundown: Rundown, entryId: EntryId, destinationId: EntryId, order: 'before' | 'after' | 'insert') {
-  const eventFrom = rundown.entries[entryId];
-  const eventTo = rundown.entries[destinationId];
-
+function reorder(rundown: Rundown, eventFrom: OntimeEntry, eventTo: OntimeEntry, order: 'before' | 'after' | 'insert') {
   // handle moving across parents
   const fromParent: EntryId | null = (eventFrom as { parent?: EntryId })?.parent ?? null;
   const toParent = (() => {
@@ -245,9 +240,9 @@ function reorder(rundown: Rundown, entryId: EntryId, destinationId: EntryId, ord
   const sourceArray = fromParent === null ? rundown.order : (rundown.entries[fromParent] as OntimeBlock).events;
   const destinationArray = toParent === null ? rundown.order : (rundown.entries[toParent] as OntimeBlock).events;
 
-  const fromIndex = sourceArray.indexOf(entryId);
+  const fromIndex = sourceArray.indexOf(eventFrom.id);
   const toIndex = (() => {
-    const baseIndex = destinationArray.indexOf(destinationId);
+    const baseIndex = destinationArray.indexOf(eventTo.id);
     if (order === 'before') return baseIndex;
     // only add one if we are moving down
     if (order === 'after') return baseIndex + (fromIndex < baseIndex ? 0 : 1);
@@ -259,20 +254,19 @@ function reorder(rundown: Rundown, entryId: EntryId, destinationId: EntryId, ord
   sourceArray.splice(fromIndex, 1);
 
   // Insert into destination array
-  destinationArray.splice(toIndex, 0, entryId);
+  destinationArray.splice(toIndex, 0, eventFrom.id);
 }
 
 /**
  * Applies delay from given event ID
  * Mutates the given rundown
  */
-function applyDelay(rundown: Rundown, delayId: EntryId) {
-  const delayEvent = rundown.entries[delayId] as OntimeDelay;
-  const delayIndex = rundownMetadata.flatEntryOrder.indexOf(delayId);
+function applyDelay(rundown: Rundown, delay: OntimeDelay) {
+  const delayIndex = rundownMetadata.flatEntryOrder.indexOf(delay.id);
 
   // if the delay is empty, or the last element
   // there is nothing do apply
-  if (delayEvent.duration === 0 || delayIndex === rundown.order.length - 1) {
+  if (delay.duration === 0 || delayIndex === rundown.order.length - 1) {
     return;
   }
 
@@ -281,7 +275,7 @@ function applyDelay(rundown: Rundown, delayId: EntryId) {
    * The delay values becomes part of the event schedule
    * The delay is applied as if the rundown was flat
    */
-  let delayValue = delayEvent.duration;
+  let delayValue = delay.duration;
   let lastEntry: OntimeEvent | null = null;
   let isFirstEvent = true;
 

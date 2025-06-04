@@ -186,7 +186,7 @@ export async function deleteEntries(entryIds: EntryId[]): Promise<Rundown> {
     if (!entry) {
       continue;
     }
-    rundownMutation.remove(rundown, entryIds[i]);
+    rundownMutation.remove(rundown, entry);
   }
 
   const { rundown: rundownResult, rundownMetadata, revision } = commit();
@@ -241,7 +241,7 @@ export function reorderEntry(entryId: EntryId, destinationId: EntryId, order: 'b
     throw new Error('Event not found');
   }
 
-  rundownMutation.reorder(rundown, entryId, destinationId, order);
+  rundownMutation.reorder(rundown, eventFrom, eventTo, order);
 
   const { rundown: rundownResult, rundownMetadata, revision } = commit();
 
@@ -265,13 +265,14 @@ export async function applyDelay(delayId: EntryId): Promise<Rundown> {
   const { rundown, commit } = createTransaction();
 
   // check that delay exists
-  if (!rundown.entries[delayId] || !isOntimeDelay(rundown.entries[delayId])) {
+  const delay = rundown.entries[delayId];
+  if (!delay || !isOntimeDelay(delay)) {
     throw new Error('Given delay ID not found');
   }
 
   // apply the delay and delete the it
-  rundownMutation.applyDelay(rundown, delayId);
-  rundownMutation.remove(rundown, delayId);
+  rundownMutation.applyDelay(rundown, delay);
+  rundownMutation.remove(rundown, delay);
 
   const { rundown: rundownResult, rundownMetadata, revision } = commit();
 
