@@ -2,7 +2,7 @@ import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
 
 import { publicFiles } from '../../setup/index.js';
-import { isTest } from '../../externals.js';
+import { isTest } from '../../setup/environment.js';
 import { isPath } from '../../utils/fileManagement.js';
 import { shouldCrashDev } from '../../utils/development.js';
 

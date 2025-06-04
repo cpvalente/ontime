@@ -12,7 +12,7 @@ import { getPropertyFromPath } from 'ontime-utils';
 
 import { logger } from '../../classes/Logger.js';
 import { getState, type RuntimeState } from '../../stores/runtimeState.js';
-import { isOntimeCloud } from '../../externals.js';
+import { isOntimeCloud } from '../../setup/environment.js';
 
 import { emitOSC } from './clients/osc.client.js';
 import { emitHTTP } from './clients/http.client.js';

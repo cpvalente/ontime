@@ -3,7 +3,7 @@ import { getErrorMessage, obfuscate } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
 
-import { isDocker } from '../../externals.js';
+import { isDocker } from '../../setup/environment.js';
 import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import * as appState from '../../services/app-state-service/AppStateService.js';

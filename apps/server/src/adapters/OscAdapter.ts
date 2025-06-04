@@ -5,7 +5,7 @@ import * as dgram from 'node:dgram';
 
 import { logger } from '../classes/Logger.js';
 import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
-import { isOntimeCloud } from '../externals.js';
+import { isOntimeCloud } from '../setup/environment.js';
 
 import { integrationPayloadFromPath } from './utils/parse.js';
 import type { IAdapter } from './IAdapter.js';

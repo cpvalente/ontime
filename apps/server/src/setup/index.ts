@@ -10,7 +10,7 @@ import { dirname, join } from 'path';
 
 import { config } from './config.js';
 import { ensureDirectory } from '../utils/fileManagement.js';
-import { isProduction } from '../externals.js';
+import { isProduction } from './environment.js';
 
 /**
  * Returns public path depending on OS
