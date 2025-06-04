@@ -1,6 +1,5 @@
 import { sentryVitePlugin } from '@sentry/vite-plugin';
 import react from '@vitejs/plugin-react';
-import { dirname, join } from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import { compression } from 'vite-plugin-compression2';
@@ -10,7 +9,6 @@ import { ONTIME_VERSION } from './src/ONTIME_VERSION';
 
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 const isDev = process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'development';
-const currentDir = dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   base: './', // Ontime cloud: we use relative paths to allow them to reference a dynamic base set at runtime
@@ -72,9 +70,9 @@ export default defineConfig({
     preprocessorOptions: {
       scss: {
         additionalData: `
-        @use "${join(currentDir, './src/theme/ontimeColours')}" as *;
-        @use "${join(currentDir, './src/theme/ontimeStyles')}" as *;
-        @use "${join(currentDir, './src/theme/mixins')}" as *;
+        @use '@/theme/ontimeColours' as *;
+        @use '@/theme/ontimeStyles' as *;
+        @use '@/theme/mixins' as *;
         `,
       },
     },
