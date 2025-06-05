@@ -119,7 +119,7 @@ export function formatDuration(duration: number, hideSeconds = true): string {
   }
 
   if (!hideSeconds) {
-    const seconds = Math.floor((duration % MILLIS_PER_MINUTE) / MILLIS_PER_SECOND);
+    const seconds = Math.ceil((duration % MILLIS_PER_MINUTE) / MILLIS_PER_SECOND);
     if (seconds > 0) {
       result += `${seconds}s`;
     }
