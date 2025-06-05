@@ -243,47 +243,69 @@ export const startIntegrations = async () => {
  * @param {number} exitCode
  * @return {Promise<void>}
  */
-const shutdown = async (exitCode = 0) => {
-  consoleHighlight(`Ontime shutting down with code ${exitCode}`);
+const shutdown = (exitCode = 0) => {
+  consoleHighlight(`Ontime shutting down with code: ${exitCode}`);
+
+  // sync shutdowns
+  oscServer.shutdown();
+  socket.shutdown();
+  runtimeService.shutdown();
 
   // clear the restore file if it was a normal exit
   // 0 means it was a SIGNAL
   // 1 means crash -> keep the file
   // 2 means dev crash -> do nothing
   // 99 means there was a shutdown request from the UI
-  if (exitCode === 0 || exitCode === 99) {
-    await restoreService.clear();
-  }
 
-  expressServer?.close();
-  runtimeService.shutdown();
+  const pendingRestoreService = new Promise((resolve, _reject) => {
+    if (exitCode === 0 || exitCode === 99) {
+      restoreService.clear().then(resolve);
+    }
+    resolve;
+  });
+
+  const pendingExpressServer = new Promise((resolve, _reject) => {
+    expressServer?.close(resolve);
+  });
+
+  const pendingDataProvider = new Promise((resolve, _reject) => {
+    getDataProvider().shutdown().then(resolve);
+  });
+
+  Promise.all([pendingRestoreService, pendingExpressServer, pendingDataProvider]);
+
   logger.shutdown();
-  oscServer.shutdown();
-  socket.shutdown();
-  process.exit(exitCode);
+
+  expressServer?.close(() => {
+    getDataProvider()
+      .shutdown()
+      .then(() => {
+        process.exit(exitCode);
+      });
+  });
 };
 
 process.on('exit', (code) => consoleHighlight(`Ontime shutdown with code: ${code}`));
 
-process.on('unhandledRejection', async (error) => {
+process.on('unhandledRejection', (error) => {
   if (!isProduction && error instanceof Error && error.stack) {
     consoleError(error.stack);
   }
   generateCrashReport(error);
   logger.crash(LogOrigin.Server, `Uncaught rejection | ${error}`);
-  await shutdown(1);
+  shutdown(1);
 });
 
-process.on('uncaughtException', async (error) => {
+process.on('uncaughtException', (error) => {
   if (!isProduction && error instanceof Error && error.stack) {
     consoleError(error.stack);
   }
   generateCrashReport(error);
   logger.crash(LogOrigin.Server, `Uncaught exception | ${error}`);
-  await shutdown(1);
+  shutdown(1);
 });
 
 // register shutdown signals
-process.once('SIGHUP', async () => shutdown(0));
-process.once('SIGINT', async () => shutdown(0));
-process.once('SIGTERM', async () => shutdown(0));
+process.once('SIGHUP', () => shutdown(0));
+process.once('SIGINT', () => shutdown(0));
+process.once('SIGTERM', () => shutdown(0));
