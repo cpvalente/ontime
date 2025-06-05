@@ -4,7 +4,7 @@ import { generateId, millisToString } from 'ontime-utils';
 import { clock } from '../services/Clock.js';
 import { socket } from '../adapters/WebsocketAdapter.js';
 import { consoleSubdued, consoleError } from '../utils/console.js';
-import { isProduction } from '../externals.js';
+import { isProduction } from '../setup/environment.js';
 
 class Logger {
   private queue: Log[];

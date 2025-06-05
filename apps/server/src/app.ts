@@ -9,7 +9,8 @@ import cookieParser from 'cookie-parser';
 
 // import utils
 import { publicDir, srcDir } from './setup/index.js';
-import { environment, isProduction, updateRouterPrefix } from './externals.js';
+import { environment, isProduction } from './setup/environment.js';
+import { updateRouterPrefix } from './externals.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { consoleSuccess, consoleHighlight, consoleError } from './utils/console.js';
 

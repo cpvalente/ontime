@@ -2,4 +2,4 @@
 
 exports[`cx() > ignores falsy values 1`] = `""`;
 
-exports[`cx() > merges styles 1`] = `"_test_98a1e0 _another_98a1e0"`;
+exports[`cx() > merges styles 1`] = `"_test_d5d33f _another_d5d33f"`;

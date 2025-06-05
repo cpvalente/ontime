@@ -4,7 +4,7 @@ import type { Server } from 'http';
 import { networkInterfaces } from 'os';
 import type { AddressInfo } from 'net';
 
-import { isDocker, isOntimeCloud, isProduction } from '../externals.js';
+import { isDocker, isOntimeCloud, isProduction } from '../setup/environment.js';
 import { logger } from '../classes/Logger.js';
 
 /**

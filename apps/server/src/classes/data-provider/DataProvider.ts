@@ -14,7 +14,7 @@ import { JSONFilePreset } from 'lowdb/node';
 
 import { isPath } from '../../utils/fileManagement.js';
 import { shouldCrashDev } from '../../utils/development.js';
-import { isTest } from '../../externals.js';
+import { isTest } from '../../setup/environment.js';
 
 import { safeMerge } from './DataProvider.utils.js';
 
