@@ -15,8 +15,8 @@ import got from 'got';
 import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
 import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
+import { getCurrentRundown, getProjectCustomFields } from '../../api-data/rundown/rundown.dao.js';
 
-import { getCurrentRundown, getCustomFields } from '../rundown-service/rundownCache.js';
 import { getRundownOrThrow } from '../rundown-service/rundownUtils.js';
 
 import { cellRequestFromEvent, type ClientSecret, getA1Notation, isClientSecret } from './sheetUtils.js';
@@ -323,7 +323,7 @@ export async function upload(sheetId: string, options: ImportMap) {
     throw new Error(`Sheet read failed: ${readResponse.statusText}`);
   }
 
-  const { rundownMetadata } = parseExcel(readResponse.data.values, getCustomFields(), 'not-used', options);
+  const { rundownMetadata } = parseExcel(readResponse.data.values, getProjectCustomFields(), 'not-used', options);
   const rundown = getCurrentRundown();
   const titleRow = Object.values(rundownMetadata)[0]['row'];
   const updateRundown = Array<sheets_v4.Schema$Request>();
@@ -409,7 +409,7 @@ export async function download(
     throw new Error('Sheet: No data found in the worksheet');
   }
 
-  const dataFromSheet = parseExcel(googleResponse.data.values, getCustomFields(), 'Rundown', options);
+  const dataFromSheet = parseExcel(googleResponse.data.values, getProjectCustomFields(), 'Rundown', options);
 
   const rundownId = dataFromSheet.rundown.id;
   const dataModel: Pick<DatabaseModel, 'rundowns' | 'customFields'> = {

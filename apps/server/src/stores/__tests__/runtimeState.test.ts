@@ -1,11 +1,7 @@
 import { PlayableEvent, Playback, TimerPhase } from 'ontime-types';
 
-import { initRundown } from '../../services/rundown-service/RundownService.js';
-import {
-  makeOntimeBlock,
-  makeOntimeEvent,
-  makeRundown,
-} from '../../services/rundown-service/__mocks__/rundown.mocks.js';
+import { makeOntimeBlock, makeOntimeEvent, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { initRundown } from '../../api-data/rundown/rundown.service.js';
 
 import {
   type RuntimeState,
@@ -71,18 +67,6 @@ beforeAll(() => {
 });
 
 describe('mutation on runtimeState', () => {
-  beforeEach(async () => {
-    clearState();
-    vi.mock('../../services/rundown-service/RundownService.js', async (importOriginal) => {
-      const actual = (await importOriginal()) as object;
-
-      return {
-        ...actual,
-        initRunddown: vi.fn().mockReturnValue(undefined),
-      };
-    });
-  });
-
   afterEach(() => {
     vi.clearAllMocks();
   });
