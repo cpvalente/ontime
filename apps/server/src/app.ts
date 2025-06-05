@@ -35,7 +35,7 @@ import { restoreService } from './services/RestoreService.js';
 import * as messageService from './services/message-service/MessageService.js';
 import { populateDemo } from './setup/loadDemo.js';
 import { getState } from './stores/runtimeState.js';
-import { initRundown } from './services/rundown-service/RundownService.js';
+import { initRundown } from './api-data/rundown/rundown.service.js';
 import { initialiseProject } from './services/project-service/ProjectService.js';
 import { getShowWelcomeDialog } from './services/app-state-service/AppStateService.js';
 import { oscServer } from './adapters/OscAdapter.js';
