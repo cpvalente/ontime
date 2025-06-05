@@ -1,20 +1,16 @@
 import { millisToSeconds } from 'ontime-utils';
-import { MaybeNumber } from 'ontime-types';
+import { MaybeNumber, TimerType } from 'ontime-types';
 
 import { timerConfig } from '../../setup/config.js';
 
 /**
  * Checks whether we should update the clock value
- * - clock has slid
  * - we have rolled into a new seconds unit
+ * this is different from the timer update as it looks at the clock as counting up
  */
 export function getShouldClockUpdate(previousUpdate: number, now: number): boolean {
-  const shouldForceUpdate = getForceUpdate(previousUpdate, now);
-  if (shouldForceUpdate) {
-    return true;
-  }
-  const isClockSecondAhead = millisToSeconds(now) !== millisToSeconds(previousUpdate + timerConfig.triggerAhead);
-  return isClockSecondAhead;
+  const newSeconds = millisToSeconds(now, TimerType.CountUp) !== millisToSeconds(previousUpdate, TimerType.CountUp);
+  return newSeconds;
 }
 
 /**
@@ -22,10 +18,6 @@ export function getShouldClockUpdate(previousUpdate: number, now: number): boole
  * - we have rolled into a new seconds unit
  */
 export function getShouldTimerUpdate(previousValue: MaybeNumber, currentValue: MaybeNumber): boolean {
-  if (currentValue === null) {
-    return false;
-  }
-  // we avoid trigger ahead since it can cause duplicate triggers
   const shouldUpdateTimer = millisToSeconds(currentValue) !== millisToSeconds(previousValue);
   return shouldUpdateTimer;
 }
@@ -39,6 +31,5 @@ export function getShouldTimerUpdate(previousValue: MaybeNumber, currentValue: M
 export function getForceUpdate(previousUpdate: number, now: number): boolean {
   const isClockBehind = now < previousUpdate;
   const hasExceededRate = now - previousUpdate >= timerConfig.notificationRate;
-  const newSeconds = millisToSeconds(previousUpdate) !== millisToSeconds(now);
-  return isClockBehind || hasExceededRate || newSeconds;
+  return isClockBehind || hasExceededRate;
 }
