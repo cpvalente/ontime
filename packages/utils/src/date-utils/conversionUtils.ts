@@ -1,4 +1,5 @@
 import type { MaybeNumber } from 'ontime-types';
+import { TimerType } from 'ontime-types';
 
 export const MILLIS_PER_SECOND = 1000;
 export const MILLIS_PER_MINUTE = 1000 * 60;
@@ -8,43 +9,27 @@ export const dayInMs = 86400000;
 export const maxDuration = dayInMs - MILLIS_PER_SECOND;
 
 /**
- * Utility converts milliseconds to a specific unit
- * @param millis
- * @param conversion
- * @returns
- */
-function convertMillis(millis: MaybeNumber, conversion: number): number {
-  if (!millis) {
-    return 0;
-  }
-  return Math.floor(millis / conversion);
-}
-
-/**
  * Converts value in milliseconds to seconds
  * @param millis
  * @returns
  */
-export function millisToSeconds(millis: MaybeNumber): number {
-  return convertMillis(millis, MILLIS_PER_SECOND);
-}
+export function millisToSeconds(
+  millis: MaybeNumber,
+  direction: TimerType.CountDown | TimerType.CountUp = TimerType.CountDown,
+) {
+  if (millis === null) return 0;
 
-/**
- * Converts value in milliseconds to minutes
- * @param millis
- * @returns
- */
-export function millisToMinutes(millis: MaybeNumber): number {
-  return convertMillis(millis, MILLIS_PER_MINUTE);
-}
+  let seconds = 0;
+  if (direction === TimerType.CountDown) {
+    seconds = Math.ceil(millis / MILLIS_PER_SECOND);
+  }
 
-/**
- * Converts value in milliseconds to hours
- * @param millis
- * @returns
- */
-export function millisToHours(millis: MaybeNumber): number {
-  return convertMillis(millis, MILLIS_PER_HOUR);
+  if (direction === TimerType.CountUp) {
+    seconds = Math.floor(millis / MILLIS_PER_SECOND);
+  }
+
+  // this is there to avoid result giving -0
+  return seconds === 0 ? 0 : seconds;
 }
 
 /**
