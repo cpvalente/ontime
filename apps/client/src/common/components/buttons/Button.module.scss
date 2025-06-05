@@ -1,0 +1,51 @@
+@use '../../../theme/viewerDefs' as *;
+
+.baseButton {
+  height: 2rem;
+  padding-inline: 1em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+
+  border: 1px solid transparent;
+  border-radius: 3px;
+
+  cursor: pointer;
+}
+
+.subtle {
+  background: $gray-1050;
+  color: $blue-400;
+
+  &:hover:not(:disabled):not(:active) {
+    background: $gray-1000;
+    color: $blue-500;
+  }
+
+  &:active:not(:disabled) {
+    background: $gray-1100;
+    border-color: $gray-1250;
+  }
+
+  &:disabled {
+    background: $gray-1050;
+  }
+}
+
+.primary {
+  background: $blue-700;
+  color: $ui-white;
+
+  &:hover:not(:disabled):not(:active) {
+    background: $blue-600;
+  }
+
+  &:active:not(:disabled) {
+    background: $blue-800;
+    border-color: $blue-900;
+  }
+
+  &:disabled {
+    opacity: $viewer-opacity-disabled;
+  }
+}

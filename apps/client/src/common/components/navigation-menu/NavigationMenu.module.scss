@@ -3,8 +3,6 @@
 $menu-hover-bg: $gray-1350;
 $menu-focus-bg: $gray-1300;
 
-$icon-color: $ui-white;
-$button-bg: $gray-1050;
 $button-size: 3rem;
 
 .fadeable {
@@ -41,20 +39,10 @@ $button-size: 3rem;
   z-index: 12;
 }
 
-.button {
-  font-size: 1.5rem;
-  color: $icon-color;
-  background-color: $button-bg;
-  width: $button-size;
-  height: $button-size;
-  display: grid;
-  place-content: center;
-  border-radius: 3px;
-}
-
 .navButton {
-  @extend .button;
-  z-index: 3;
+  font-size: 1.5rem;
+  height: $button-size;
+  width: $button-size;;
 }
 
 .link {
