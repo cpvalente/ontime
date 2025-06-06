@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
 import { Button } from '@chakra-ui/react';
-import { CustomField, CustomFieldLabel } from 'ontime-types';
+import { CustomField, CustomFieldKey } from 'ontime-types';
 
 import { deleteCustomField, editCustomField, postCustomField } from '../../../../../common/api/customFields';
 import Info from '../../../../../common/components/info/Info';
@@ -31,14 +31,14 @@ export default function CustomFields() {
     setIsAdding(false);
   };
 
-  const handleEditField = async (label: CustomFieldLabel, customField: CustomField) => {
-    await editCustomField(label, customField);
+  const handleEditField = async (key: CustomFieldKey, customField: CustomField) => {
+    await editCustomField(key, customField);
     refetch();
   };
 
-  const handleDelete = async (label: string) => {
+  const handleDelete = async (key: CustomFieldKey) => {
     try {
-      await deleteCustomField(label);
+      await deleteCustomField(key);
       refetch();
     } catch (_error) {
       /** we do not handle errors here */

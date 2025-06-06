@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { CustomFieldLabel, OntimeEvent } from 'ontime-types';
+import { OntimeEvent } from 'ontime-types';
 
 import AppLink from '../../../common/components/link/app-link/AppLink';
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
@@ -14,7 +14,8 @@ import EventEditorEmpty from './EventEditorEmpty';
 
 import style from './EventEditor.module.scss';
 
-export type EditorUpdateFields = 'cue' | 'title' | 'note' | 'colour' | CustomFieldLabel;
+// any of the titles + custom field labels
+export type EditorUpdateFields = 'cue' | 'title' | 'note' | 'colour' | string;
 
 interface EventEditorProps {
   event: OntimeEvent;

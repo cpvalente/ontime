@@ -27,8 +27,8 @@ import {
   getTimerPhase,
 } from '../services/timerUtils.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
-import { filterTimedEvents } from '../services/rundown-service/rundownUtils.js';
 import { timerConfig } from '../setup/config.js';
+import { filterTimedEvents } from '../services/runtime-service/rundownService.utils.js';
 
 export type RuntimeState = {
   clock: number; // realtime clock
@@ -182,22 +182,23 @@ export function updateRundownData(rundownData: RundownData) {
 export function load(
   event: PlayableEvent,
   rundown: Rundown,
-  timedEventsOrder: EntryId[],
+  timedEventOrder: EntryId[],
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
   clearEventData();
 
-  if (timedEventsOrder.length === 0 || !isPlayableEvent(event)) {
+  if (timedEventOrder.length === 0 || !isPlayableEvent(event)) {
     return false;
   }
 
   // filter rundown
-  const eventIndex = timedEventsOrder.findIndex((timedEventId) => timedEventId === event.id);
+  const eventIndex = timedEventOrder.findIndex((entryId) => entryId === event.id);
   if (eventIndex === -1) {
     return false;
   }
 
-  const timedEvents = filterTimedEvents(rundown, timedEventsOrder);
+  // TODO(remove public): it is wasteful to recreate the object
+  const timedEvents = filterTimedEvents(rundown, timedEventOrder);
   // load events in memory along with their data
   loadNow(timedEvents, eventIndex);
   loadNext(timedEvents, eventIndex);
@@ -377,6 +378,7 @@ export function updateLoaded(event?: PlayableEvent): string | undefined {
  */
 export function updateAll(rundown: Rundown, timedEventsOrder: EntryId[]) {
   const timedEvents = filterTimedEvents(rundown, timedEventsOrder);
+  // TODO(remove public): we dont need to make the timedEvents object, we pass primitives and let the functions handle it
   loadNow(timedEvents);
   loadNext(timedEvents);
   updateLoaded(runtimeState.eventNow ?? undefined);
