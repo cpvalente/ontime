@@ -11,12 +11,13 @@ import { existsSync } from 'fs';
 import xlsx from 'xlsx';
 import type { WorkBook } from 'xlsx';
 
-import { parseExcel } from '../../utils/parser.js';
-import { parseCustomFields } from '../../utils/parserFunctions.js';
-import { deleteFile } from '../../utils/parserUtils.js';
+import { deleteFile } from '../../utils/fileManagement.js';
 
 import { parseRundown } from '../rundown/rundown.parser.js';
 import { getProjectCustomFields } from '../rundown/rundown.dao.js';
+import { parseCustomFields } from '../custom-fields/customFields.parser.js';
+
+import { parseExcel } from './excel.parser.js';
 
 let excelData: WorkBook = xlsx.utils.book_new();
 
