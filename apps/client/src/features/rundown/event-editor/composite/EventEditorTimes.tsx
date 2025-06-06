@@ -1,11 +1,11 @@
 import { memo } from 'react';
 import { IoInformationCircle } from 'react-icons/io5';
 import { Select, Switch, Tooltip } from '@chakra-ui/react';
-import { EndAction, MaybeString, TimerType, TimeStrategy } from 'ontime-types';
+import { EndAction, TimerType, TimeStrategy } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
-import { useEventAction } from '../../../../common/hooks/useEventAction';
+import { useEntryActions } from '../../../../common/hooks/useEntryAction';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
 import * as Editor from '../../../editors/editor-utils/EditorUtils';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
@@ -18,7 +18,7 @@ interface EventEditorTimesProps {
   timeEnd: number;
   duration: number;
   timeStrategy: TimeStrategy;
-  linkStart: MaybeString;
+  linkStart: boolean;
   countToEnd: boolean;
   delay: number;
   isPublic: boolean;
@@ -46,27 +46,27 @@ function EventEditorTimes(props: EventEditorTimesProps) {
     timeWarning,
     timeDanger,
   } = props;
-  const { updateEvent } = useEventAction();
+  const { updateEntry } = useEntryActions();
 
   const handleSubmit = (field: HandledActions, value: string | boolean) => {
     if (field === 'isPublic') {
-      updateEvent({ id: eventId, isPublic: !(value as boolean) });
+      updateEntry({ id: eventId, isPublic: !(value as boolean) });
       return;
     }
 
     if (field === 'countToEnd') {
-      updateEvent({ id: eventId, countToEnd: !(value as boolean) });
+      updateEntry({ id: eventId, countToEnd: !(value as boolean) });
       return;
     }
 
     if (field === 'timeWarning' || field === 'timeDanger') {
       const newTime = parseUserTime(value as string);
-      updateEvent({ id: eventId, [field]: newTime });
+      updateEntry({ id: eventId, [field]: newTime });
       return;
     }
 
     if (field === 'timerType' || field === 'endAction') {
-      updateEvent({ id: eventId, [field]: value });
+      updateEntry({ id: eventId, [field]: value });
       return;
     }
   };
@@ -114,7 +114,6 @@ function EventEditorTimes(props: EventEditorTimesProps) {
               variant='ontime'
             >
               <option value={EndAction.None}>None</option>
-              <option value={EndAction.Stop}>Stop rundown</option>
               <option value={EndAction.LoadNext}>Load next event</option>
               <option value={EndAction.PlayNext}>Play next event</option>
             </Select>

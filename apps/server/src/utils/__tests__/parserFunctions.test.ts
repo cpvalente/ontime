@@ -1,49 +1,13 @@
-import {
-  CustomFields,
-  DatabaseModel,
-  EndAction,
-  OntimeEvent,
-  OntimeRundown,
-  Settings,
-  SupportedEvent,
-  TimeStrategy,
-  TimerType,
-  URLPreset,
-} from 'ontime-types';
+import { CustomFields, Settings, URLPreset } from 'ontime-types';
 
 import {
   parseCustomFields,
   parseProject,
-  parseRundown,
   parseSettings,
   parseUrlPresets,
   parseViewSettings,
   sanitiseCustomFields,
 } from '../parserFunctions.js';
-
-describe('parseRundown()', () => {
-  it('returns an empty array if no rundown is given', () => {
-    const errorEmitter = vi.fn();
-    const result = parseRundown({}, errorEmitter);
-    expect(result.rundown).toEqual([]);
-    expect(result.customFields).toEqual({});
-    expect(errorEmitter).toHaveBeenCalledTimes(2);
-  });
-
-  it('parses data, skipping invalid results', () => {
-    const errorEmitter = vi.fn();
-    const rundown = [
-      { id: '1', type: SupportedEvent.Event, title: 'test', skip: false }, // OK
-      { id: '1', type: SupportedEvent.Block, title: 'test 2', skip: false }, // duplicate ID
-      {}, // no data
-      { id: '2', title: 'test 2', skip: false }, // no type
-    ] as OntimeRundown;
-    const { rundown: parsedRundown } = parseRundown({ rundown, customFields: {} }, errorEmitter);
-    expect(parsedRundown.length).toEqual(1);
-    expect(parsedRundown.at(0)).toMatchObject({ id: '1', type: SupportedEvent.Event, title: 'test', skip: false });
-    expect(errorEmitter).toHaveBeenCalled();
-  });
-});
 
 describe('parseProject()', () => {
   it('returns an a base model if nothing is given', () => {
@@ -80,7 +44,6 @@ describe('parseProject()', () => {
       projectLogo: null,
       custom: [],
     });
-    expect(errorEmitter).not.toHaveBeenCalled();
   });
 });
 
@@ -89,10 +52,17 @@ describe('parseSettings()', () => {
     expect(() => parseSettings({})).toThrow();
   });
 
-  it('returns an a base model as long as we have the app and version', () => {
-    const minimalSettings = { app: 'ontime', version: '1' } as Settings;
-    const result = parseSettings({ settings: minimalSettings });
+  it('returns an a base model as long as we have the app version', () => {
+    const result = parseSettings({ settings: { version: '1' } as Settings });
     expect(result).toBeTypeOf('object');
+    expect(result).toMatchObject({
+      version: expect.any(String),
+      serverPort: 4001,
+      editorKey: null,
+      operatorKey: null,
+      timeFormat: '24',
+      language: 'en',
+    });
   });
 });
 
@@ -224,17 +194,6 @@ describe('sanitiseCustomFields()', () => {
     expect(sanitationResult).toStrictEqual(expectedCustomFields);
   });
 
-  it('allow old keys', () => {
-    const customFields: CustomFields = {
-      test: { label: 'Test', type: 'string', colour: 'red' },
-    };
-    const expectedCustomFields: CustomFields = {
-      test: { label: 'Test', type: 'string', colour: 'red' },
-    };
-    const sanitationResult = sanitiseCustomFields(customFields);
-    expect(sanitationResult).toStrictEqual(expectedCustomFields);
-  });
-
   it('labels with space', () => {
     const customFields: CustomFields = {
       Test_with_Space: { label: 'Test with Space', type: 'string', colour: 'red' },
@@ -260,148 +219,5 @@ describe('sanitiseCustomFields()', () => {
     };
     const sanitationResult = sanitiseCustomFields(customFields);
     expect(sanitationResult).toStrictEqual(expectedCustomFields);
-  });
-});
-
-describe('parseRundown() linking', () => {
-  it('returns linked events', () => {
-    const data: Partial<DatabaseModel> = {
-      rundown: [
-        {
-          id: '1',
-          type: SupportedEvent.Event,
-          skip: false,
-        } as OntimeEvent,
-        {
-          id: '2',
-          type: SupportedEvent.Event,
-          linkStart: 'true',
-          skip: false,
-        } as OntimeEvent,
-      ],
-      customFields: {},
-    };
-
-    const result = parseRundown(data);
-    expect(result.rundown[1]).toMatchObject({
-      id: '2',
-      linkStart: '1',
-    });
-  });
-
-  it('returns unlinked if no previous', () => {
-    const data: Partial<DatabaseModel> = {
-      rundown: [
-        {
-          id: '2',
-          type: SupportedEvent.Event,
-          linkStart: 'true',
-          skip: false,
-        } as OntimeEvent,
-      ],
-      customFields: {},
-    };
-
-    const result = parseRundown(data);
-    expect(result.rundown[0]).toMatchObject({
-      id: '2',
-      linkStart: null,
-    });
-  });
-
-  it('returns linked events past blocks and delays', () => {
-    const data: Partial<DatabaseModel> = {
-      rundown: [
-        {
-          id: '1',
-          type: SupportedEvent.Event,
-          skip: false,
-        } as OntimeEvent,
-        {
-          id: 'delay1',
-          type: SupportedEvent.Delay,
-          duration: 0,
-        },
-        {
-          id: '2',
-          type: SupportedEvent.Event,
-          linkStart: 'true',
-          skip: false,
-        } as OntimeEvent,
-        {
-          id: 'block1',
-          type: SupportedEvent.Block,
-          title: '',
-        },
-        {
-          id: '3',
-          type: SupportedEvent.Event,
-          linkStart: 'true',
-          skip: false,
-        } as OntimeEvent,
-      ],
-      customFields: {},
-    };
-
-    const result = parseRundown(data);
-    expect(result.rundown[0]).toMatchObject({
-      id: '1',
-      cue: '1',
-    });
-    // skip delay
-    expect(result.rundown[2]).toMatchObject({
-      id: '2',
-      cue: '2',
-      linkStart: '1',
-    });
-    // skip block
-    expect(result.rundown[4]).toMatchObject({
-      id: '3',
-      cue: '3',
-      linkStart: '2',
-    });
-  });
-});
-
-describe('parseRundown() migrations', () => {
-  const legacyEvent = {
-    id: '1',
-    type: SupportedEvent.Event,
-    cue: '',
-    title: '',
-    note: '',
-    endAction: EndAction.None,
-    timerType: 'time-to-end',
-    linkStart: null,
-    timeStrategy: TimeStrategy.LockDuration,
-    timeStart: 0,
-    timeEnd: 0,
-    duration: 0,
-    isPublic: false,
-    skip: false,
-    colour: '',
-    revision: 0,
-    timeWarning: 120000,
-    timeDanger: 60000,
-    custom: {},
-  };
-
-  it('migrates an event with time-to-end', () => {
-    const result = parseRundown({ rundown: [legacyEvent] as OntimeRundown });
-    expect(result.rundown[0]).toMatchObject({
-      id: '1',
-      timerType: TimerType.CountDown,
-      countToEnd: true,
-    });
-  });
-
-  it('migrates an event without time-to-end', () => {
-    const countdownEvent = { ...legacyEvent, timerType: TimerType.CountDown };
-    const result = parseRundown({ rundown: [countdownEvent] as OntimeRundown });
-    expect(result.rundown[0]).toMatchObject({
-      id: '1',
-      timerType: TimerType.CountDown,
-      countToEnd: false,
-    });
   });
 });

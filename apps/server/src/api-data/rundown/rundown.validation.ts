@@ -1,4 +1,4 @@
-import { body, param, query, validationResult } from 'express-validator';
+import { body, param, validationResult } from 'express-validator';
 import type { Request, Response, NextFunction } from 'express';
 
 export const rundownPostValidator = [
@@ -25,7 +25,8 @@ export const rundownPutValidator = [
 
 export const rundownBatchPutValidator = [
   body('data').isObject().exists(),
-  body('ids').isArray().exists(),
+  body('ids').isArray().notEmpty(),
+  body('ids.*').isString(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -35,9 +36,9 @@ export const rundownBatchPutValidator = [
 ];
 
 export const rundownReorderValidator = [
-  body('eventId').isString().exists(),
-  body('from').isNumeric().exists(),
-  body('to').isNumeric().exists(),
+  body('entryId').isString().exists(),
+  body('destinationId').isString().exists(),
+  body('order').isIn(['before', 'after', 'insert']).exists(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -57,8 +58,8 @@ export const rundownSwapValidator = [
   },
 ];
 
-export const paramsMustHaveEventId = [
-  param('eventId').exists(),
+export const paramsMustHaveEntryId = [
+  param('entryId').exists(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -68,19 +69,8 @@ export const paramsMustHaveEventId = [
 ];
 
 export const rundownArrayOfIds = [
-  body('ids').isArray().exists(),
+  body('ids').isArray().notEmpty(),
   body('ids.*').isString(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
-
-export const rundownGetPaginatedQueryParams = [
-  query('offset').isNumeric().optional(),
-  query('limit').isNumeric().optional(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

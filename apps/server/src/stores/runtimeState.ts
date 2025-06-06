@@ -1,28 +1,23 @@
 import {
   CurrentBlockState,
+  EntryId,
   isPlayableEvent,
   MaybeNumber,
   MaybeString,
   OffsetMode,
+  OntimeBlock,
   OntimeEvent,
-  OntimeRundown,
   PlayableEvent,
   Playback,
+  Rundown,
   Runtime,
   runtimeStorePlaceholder,
   TimerPhase,
   TimerState,
 } from 'ontime-types';
-import {
-  calculateDuration,
-  checkIsNow,
-  dayInMs,
-  filterTimedEvents,
-  getPreviousBlock,
-  isPlaybackActive,
-} from 'ontime-utils';
+import { calculateDuration, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
 
-import { clock } from '../services/Clock.js';
+import { timeNow } from '../utils/time.js';
 import type { RestorePoint } from '../services/RestoreService.js';
 import {
   getCurrent,
@@ -31,8 +26,9 @@ import {
   getRuntimeOffset,
   getTimerPhase,
 } from '../services/timerUtils.js';
-import { timerConfig } from '../config/config.js';
 import { loadRoll, normaliseRollStart } from '../services/rollUtils.js';
+import { filterTimedEvents } from '../services/rundown-service/rundownUtils.js';
+import { timerConfig } from '../setup/config.js';
 
 export type RuntimeState = {
   clock: number; // realtime clock
@@ -55,7 +51,7 @@ export type RuntimeState = {
 };
 
 const runtimeState: RuntimeState = {
-  clock: clock.timeNow(),
+  clock: timeNow(),
   currentBlock: { ...runtimeStorePlaceholder.currentBlock },
   eventNow: null,
   publicEventNow: null,
@@ -103,7 +99,7 @@ export function clearEventData() {
   runtimeState.runtime.selectedEventIndex = null;
 
   runtimeState.timer.playback = Playback.Stop;
-  runtimeState.clock = clock.timeNow();
+  runtimeState.clock = timeNow();
   runtimeState.timer = { ...runtimeStorePlaceholder.timer };
 
   // when clearing, we maintain the total delay from the rundown
@@ -130,7 +126,7 @@ export function clearState() {
   runtimeState.runtime.selectedEventIndex = null;
 
   runtimeState.timer.playback = Playback.Stop;
-  runtimeState.clock = clock.timeNow();
+  runtimeState.clock = timeNow();
   runtimeState.timer = { ...runtimeStorePlaceholder.timer };
 
   // when clearing, we maintain the total delay from the rundown
@@ -146,10 +142,12 @@ export function clearState() {
 function patchTimer(newState: Partial<TimerState & RestorePoint>) {
   for (const key in newState) {
     if (key in runtimeState.timer) {
+      // @ts-expect-error -- not sure how to type this in a sane way
       runtimeState.timer[key] = newState[key];
     } else if (key in runtimeState._timer) {
       // in case of a RestorePoint we will receive a pausedAt value
-      // wiche is needed to resume a paused timer
+      // which is needed to resume a paused timer
+      // @ts-expect-error -- not sure how to type this in a sane way
       runtimeState._timer[key] = newState[key];
     }
   }
@@ -183,19 +181,23 @@ export function updateRundownData(rundownData: RundownData) {
  */
 export function load(
   event: PlayableEvent,
-  rundown: OntimeRundown,
+  rundown: Rundown,
+  timedEventsOrder: EntryId[],
   initialData?: Partial<TimerState & RestorePoint>,
 ): boolean {
   clearEventData();
 
-  // filter rundown
-  const timedEvents = filterTimedEvents(rundown);
-  const eventIndex = timedEvents.findIndex((eventInMemory) => eventInMemory.id === event.id);
-
-  if (timedEvents.length === 0 || eventIndex === -1 || !isPlayableEvent(event)) {
+  if (timedEventsOrder.length === 0 || !isPlayableEvent(event)) {
     return false;
   }
 
+  // filter rundown
+  const eventIndex = timedEventsOrder.findIndex((timedEventId) => timedEventId === event.id);
+  if (eventIndex === -1) {
+    return false;
+  }
+
+  const timedEvents = filterTimedEvents(rundown, timedEventsOrder);
   // load events in memory along with their data
   loadNow(timedEvents, eventIndex);
   loadNext(timedEvents, eventIndex);
@@ -312,8 +314,8 @@ export function loadNext(
 /**
  * Resume from restore point
  */
-export function resume(restorePoint: RestorePoint, event: PlayableEvent, rundown: OntimeRundown) {
-  load(event, rundown, restorePoint);
+export function resume(restorePoint: RestorePoint, event: PlayableEvent, rundown: Rundown, timedEventOrder: EntryId[]) {
+  load(event, rundown, timedEventOrder, restorePoint);
 }
 
 /**
@@ -373,8 +375,8 @@ export function updateLoaded(event?: PlayableEvent): string | undefined {
 /**
  * Used in situations when we want to hot-reload all events without interrupting timer
  */
-export function updateAll(rundown: OntimeRundown) {
-  const timedEvents = filterTimedEvents(rundown);
+export function updateAll(rundown: Rundown, timedEventsOrder: EntryId[]) {
+  const timedEvents = filterTimedEvents(rundown, timedEventsOrder);
   loadNow(timedEvents);
   loadNext(timedEvents);
   updateLoaded(runtimeState.eventNow ?? undefined);
@@ -388,7 +390,8 @@ export function start(state: RuntimeState = runtimeState): boolean {
   if (state.timer.playback === Playback.Play) {
     return false;
   }
-  state.clock = clock.timeNow();
+
+  state.clock = timeNow();
   state.timer.secondaryTimer = null;
 
   // add paused time if it exists
@@ -423,6 +426,15 @@ export function start(state: RuntimeState = runtimeState): boolean {
   const { absoluteOffset, relativeOffset } = getRuntimeOffset(runtimeState);
   runtimeState.runtime.offset = absoluteOffset;
   runtimeState.runtime.relativeOffset = relativeOffset;
+
+  // as long as there is a timer, we need an planned end
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: {
+    if (state.runtime.plannedEnd === null) {
+      throw new Error('runtimeState.start: invalid state received');
+    }
+  }
+
   state.runtime.expectedEnd = state.runtime.plannedEnd - state.runtime.offset;
   return true;
 }
@@ -433,7 +445,7 @@ export function pause(state: RuntimeState = runtimeState): boolean {
   }
 
   state.timer.playback = Playback.Pause;
-  state.clock = clock.timeNow();
+  state.clock = timeNow();
   state._timer.pausedAt = state.clock;
   return true;
 }
@@ -469,7 +481,7 @@ export function addTime(amount: number) {
 
   if (willGoNegative && !hasFinished) {
     // set finished time so side effects are triggered
-    runtimeState._timer.forceFinish = clock.timeNow();
+    runtimeState._timer.forceFinish = timeNow();
   } else {
     const willGoPositive = runtimeState.timer.current < 0 && runtimeState.timer.current + amount > 0;
     if (willGoPositive) {
@@ -499,7 +511,7 @@ export type UpdateResult = {
 export function update(): UpdateResult {
   // 0. there are some things we always do
   const previousClock = runtimeState.clock;
-  runtimeState.clock = clock.timeNow(); // we update the clock on every update call
+  runtimeState.clock = timeNow(); // we update the clock on every update call
 
   // 1. is playback idle?
   if (!isPlaybackActive(runtimeState.timer.playback)) {
@@ -576,7 +588,11 @@ export function update(): UpdateResult {
   }
 }
 
-export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString; didStart: boolean } {
+export function roll(
+  rundown: Rundown,
+  timedEventOrder: EntryId[],
+  offset = 0,
+): { eventId: MaybeString; didStart: boolean } {
   // 1. if an event is running, we simply take over the playback
   if (runtimeState.timer.playback === Playback.Play && runtimeState.runtime.selectedEventIndex !== null) {
     runtimeState.timer.playback = Playback.Roll;
@@ -633,7 +649,7 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
   }
 
   // 3. if there is no event running, we need to find the next event
-  const timedEvents = filterTimedEvents(rundown);
+  const timedEvents = filterTimedEvents(rundown, timedEventOrder);
   if (timedEvents.length === 0) {
     throw new Error('No playable events found');
   }
@@ -709,9 +725,8 @@ export function roll(rundown: OntimeRundown, offset = 0): { eventId: MaybeString
 
 /**
  * handle block loading, not for use outside of runtimeState
- * @param rundown
  */
-export function loadBlock(rundown: OntimeRundown, state = runtimeState) {
+export function loadBlock(rundown: Rundown, state = runtimeState) {
   if (state.eventNow === null) {
     // we need a loaded event to have a block
     state.currentBlock.block = null;
@@ -719,15 +734,21 @@ export function loadBlock(rundown: OntimeRundown, state = runtimeState) {
     return;
   }
 
-  const newCurrentBlock = getPreviousBlock(rundown, state.eventNow.id);
+  const currentBlockId = state.eventNow.parent;
 
   // update time only if the block has changed
-  if (state.currentBlock.block?.id !== newCurrentBlock?.id) {
+  if (state.currentBlock.block?.id != currentBlockId) {
     state.currentBlock.startedAt = null;
   }
 
   // update the block anyway
-  state.currentBlock.block = newCurrentBlock === null ? null : { ...newCurrentBlock };
+  if (currentBlockId === null) {
+    state.currentBlock.block = null;
+    return;
+  }
+
+  const currentBlock = rundown.entries[currentBlockId];
+  state.currentBlock.block = currentBlock as OntimeBlock;
 }
 
 export function setOffsetMode(mode: OffsetMode) {

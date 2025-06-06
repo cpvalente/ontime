@@ -1,40 +1,46 @@
 import { useCallback } from 'react';
-import { OntimeEvent, OntimeRundownEntry, Playback, SupportedEvent } from 'ontime-types';
+import {
+  isOntimeDelay,
+  isOntimeEvent,
+  MaybeString,
+  OntimeEntry,
+  OntimeEvent,
+  Playback,
+  SupportedEntry,
+} from 'ontime-types';
 
-import { useEventAction } from '../../common/hooks/useEventAction';
+import { useEntryActions } from '../../common/hooks/useEntryAction';
 import useMemoisedFn from '../../common/hooks/useMemoisedFn';
 import { useEmitLog } from '../../common/stores/logger';
-import { cloneEvent } from '../../common/utils/eventsManager';
+import { cloneEvent } from '../../common/utils/clone';
 
-import BlockBlock from './block-block/BlockBlock';
 import DelayBlock from './delay-block/DelayBlock';
 import EventBlock from './event-block/EventBlock';
 import { useEventSelection } from './useEventSelection';
 
 export type EventItemActions =
-  | 'set-cursor'
   | 'event'
   | 'event-before'
   | 'delay'
   | 'delay-before'
   | 'block'
   | 'block-before'
+  | 'swap'
   | 'delete'
   | 'clone'
-  | 'update'
-  | 'swap'
-  | 'clear-report';
+  | 'group'
+  | 'update';
 
 interface RundownEntryProps {
-  type: SupportedEvent;
+  type: SupportedEntry;
   isPast: boolean;
-  data: OntimeRundownEntry;
+  data: OntimeEntry;
   loaded: boolean;
   eventIndex: number;
   hasCursor: boolean;
   isNext: boolean;
   isNextDay: boolean;
-  previousEntryId?: string;
+  previousEntryId: MaybeString;
   previousEventId?: string;
   playback?: Playback; // we only care about this if this event is playing
   isRolling: boolean; // we need to know even if not related to this event
@@ -59,7 +65,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     isLinkedToLoaded,
   } = props;
   const { emitError } = useEmitLog();
-  const { addEvent, updateEvent, batchUpdateEvents, deleteEvent, swapEvents } = useEventAction();
+  const { addEntry, updateEntry, batchUpdateEvents, deleteEntry, groupEntries, swapEvents } = useEntryActions();
   const { selectedEvents, unselect, clearSelectedEvents } = useEventSelection();
 
   const removeOpenEvent = useCallback(() => {
@@ -79,31 +85,31 @@ export default function RundownEntry(props: RundownEntryProps) {
   const actionHandler = useMemoisedFn((action: EventItemActions, payload?: number | FieldValue) => {
     switch (action) {
       case 'event': {
-        const newEvent = { type: SupportedEvent.Event };
+        const newEvent = { type: SupportedEntry.Event };
         const options = {
           after: data.id,
           lastEventId: previousEventId,
         };
-        return addEvent(newEvent, options);
+        return addEntry(newEvent, options);
       }
       case 'event-before': {
-        const newEvent = { type: SupportedEvent.Event };
+        const newEvent = { type: SupportedEntry.Event };
         const options = {
           after: previousEntryId,
         };
-        return addEvent(newEvent, options);
+        return addEntry(newEvent, options);
       }
       case 'delay': {
-        return addEvent({ type: SupportedEvent.Delay }, { after: data.id });
+        return addEntry({ type: SupportedEntry.Delay }, { after: data.id });
       }
       case 'delay-before': {
-        return addEvent({ type: SupportedEvent.Delay }, { after: previousEntryId });
+        return addEntry({ type: SupportedEntry.Delay }, { after: previousEntryId });
       }
       case 'block': {
-        return addEvent({ type: SupportedEvent.Block }, { after: data.id });
+        return addEntry({ type: SupportedEntry.Block }, { after: data.id });
       }
       case 'block-before': {
-        return addEvent({ type: SupportedEvent.Block }, { after: previousEntryId });
+        return addEntry({ type: SupportedEntry.Block }, { after: previousEntryId });
       }
       case 'swap': {
         const { value } = payload as FieldValue;
@@ -112,14 +118,21 @@ export default function RundownEntry(props: RundownEntryProps) {
       case 'delete': {
         if (selectedEvents.size > 1) {
           clearMultiSelection();
-          return deleteEvent(Array.from(selectedEvents));
+          return deleteEntry(Array.from(selectedEvents));
         }
         removeOpenEvent();
-        return deleteEvent([data.id]);
+        return deleteEntry([data.id]);
       }
       case 'clone': {
         const newEvent = cloneEvent(data as OntimeEvent);
-        addEvent(newEvent, { after: data.id });
+        addEntry(newEvent, { after: data.id });
+        break;
+      }
+      case 'group': {
+        if (selectedEvents.size > 1) {
+          clearMultiSelection();
+          return groupEntries(Array.from(selectedEvents));
+        }
         break;
       }
       case 'update': {
@@ -140,7 +153,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         if (field in data) {
           // @ts-expect-error -- not sure how to type this
           newData[field] = value;
-          return updateEvent(newData);
+          return updateEntry(newData);
         }
 
         return emitError(`Unknown field: ${field}`);
@@ -150,7 +163,7 @@ export default function RundownEntry(props: RundownEntryProps) {
     }
   });
 
-  if (data.type === SupportedEvent.Event) {
+  if (isOntimeEvent(data)) {
     return (
       <EventBlock
         eventId={data.id}
@@ -167,11 +180,12 @@ export default function RundownEntry(props: RundownEntryProps) {
         timerType={data.timerType}
         title={data.title}
         note={data.note}
-        delay={data.delay ?? 0}
+        delay={data.delay}
         colour={data.colour}
         isPast={isPast}
         isNext={isNext}
         skip={data.skip}
+        parent={data.parent}
         loaded={loaded}
         hasCursor={hasCursor}
         playback={playback}
@@ -184,9 +198,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         actionHandler={actionHandler}
       />
     );
-  } else if (data.type === SupportedEvent.Block) {
-    return <BlockBlock data={data} hasCursor={hasCursor} onDelete={() => actionHandler('delete')} />;
-  } else if (data.type === SupportedEvent.Delay) {
+  } else if (isOntimeDelay(data)) {
     return <DelayBlock data={data} hasCursor={hasCursor} />;
   }
   return null;

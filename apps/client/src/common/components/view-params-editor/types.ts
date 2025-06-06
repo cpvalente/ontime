@@ -12,7 +12,7 @@ type OptionsField = {
   defaultValue?: string;
 };
 
-export type MultiselectOption = { value: string; label: string; colour: string };
+type MultiselectOption = { value: string; label: string; colour: string };
 export type MultiselectOptions = Record<string, MultiselectOption>;
 type MultiOptionsField = {
   type: 'multi-option';

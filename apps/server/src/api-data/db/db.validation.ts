@@ -59,7 +59,7 @@ export const validatePatchProject = [
     next();
   },
 
-  body('rundown').isArray().optional({ nullable: false }),
+  body('rundowns').isObject().optional({ nullable: false }),
   body('project').isObject().optional({ nullable: false }),
   body('settings').isObject().optional({ nullable: false }),
   body('viewSettings').isObject().optional({ nullable: false }),

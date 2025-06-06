@@ -24,7 +24,7 @@ test.describe('pages routes are available', () => {
     });
 
     test('operator', async ({ page }) => {
-      await page.goto('http://localhost:4001/operator');
+      await page.goto('http://localhost:4001/op');
 
       await expect(page).toHaveTitle(/ontime/);
       await page.screenshot({ path: 'automated-screenshots/operator.png' });
