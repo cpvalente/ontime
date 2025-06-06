@@ -12,12 +12,11 @@ import { Credentials, OAuth2Client } from 'google-auth-library';
 // TODO: rewrite logic to use fetch and remove dependency
 import got from 'got';
 
-import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
 import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { getCurrentRundown, getProjectCustomFields } from '../../api-data/rundown/rundown.dao.js';
-
-import { getRundownOrThrow } from '../rundown-service/rundownUtils.js';
+import { parseExcel } from '../../api-data/excel/excel.parser.js';
+import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
 
 import { cellRequestFromEvent, type ClientSecret, getA1Notation, isClientSecret } from './sheetUtils.js';
 import { catchCommonImportXlsxError } from './googleApi.utils.js';
@@ -381,6 +380,12 @@ export async function upload(sheetId: string, options: ImportMap) {
   }
 }
 
+/**
+ * Imports a sheet as a rundown
+ * @throws if the client is not authenticated
+ * @throws if the response from Google Sheets fails
+ * @throws if the sheet does not contain any data
+ */
 export async function download(
   sheetId: string,
   options: ImportMap,
@@ -418,10 +423,18 @@ export async function download(
     },
     customFields: dataFromSheet.customFields,
   };
-  const { customFields, rundowns } = parseRundowns(dataModel);
-  const rundown = getRundownOrThrow(rundowns, rundownId);
-  if (rundown.order.length < 1) {
+
+  const customFields = parseCustomFields(dataModel);
+  const rundowns = parseRundowns(dataModel, customFields);
+
+  const importedRundown = rundowns[rundownId];
+  if (!importedRundown) {
+    throw new Error(`Sheet: Rundown with ID ${rundownId} not found in the worksheet`);
+  }
+
+  if (importedRundown.order.length < 1) {
     throw new Error('Sheet: Could not find data to import in the worksheet');
   }
+
   return { rundown: rundowns[rundownId], customFields };
 }

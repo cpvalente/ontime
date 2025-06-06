@@ -1,4 +1,5 @@
 import { ProjectData } from 'ontime-types';
+
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
 /**

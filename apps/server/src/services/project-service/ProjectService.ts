@@ -1,5 +1,5 @@
 import { DatabaseModel, LogOrigin, ProjectData, ProjectFileListResponse } from 'ontime-types';
-import { getErrorMessage } from 'ontime-utils';
+import { getErrorMessage, getFirstRundown } from 'ontime-utils';
 
 import { join } from 'path';
 import { copyFile } from 'fs/promises';
@@ -8,6 +8,7 @@ import { logger } from '../../classes/Logger.js';
 import { publicDir } from '../../setup/index.js';
 import {
   appendToName,
+  deleteFile,
   dockerSafeRename,
   ensureDirectory,
   ensureJsonExtension,
@@ -16,14 +17,14 @@ import {
   removeFileExtension,
 } from '../../utils/fileManagement.js';
 import { dbModel } from '../../models/dataModel.js';
-import { deleteFile } from '../../utils/parserUtils.js';
-import { parseDatabaseModel } from '../../utils/parser.js';
 import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { demoDb } from '../../models/demoProject.js';
 import { config } from '../../setup/config.js';
 import { getDataProvider, initPersistence } from '../../classes/data-provider/DataProvider.js';
 import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
+import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
+import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
 
 import {
   getLastLoadedProject,
@@ -31,7 +32,6 @@ import {
   setLastLoadedProject,
 } from '../app-state-service/AppStateService.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
-import { getFirstRundown } from '../rundown-service/rundownUtils.js';
 
 import {
   copyCorruptFile,
@@ -93,6 +93,7 @@ async function loadProject(projectData: DatabaseModel, fileName: string) {
 
   // load the first rundown in the project
   const firstRundown = getFirstRundown(projectData.rundowns);
+
   await initRundown(firstRundown, projectData.customFields);
 
   // persist the project selection
@@ -296,13 +297,16 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
 
   // ... but rundown and custom fields need to be checked
   if (rundowns != null) {
-    const result = parseRundowns(data);
+    const customFields = parseCustomFields(data);
+    const result = parseRundowns(data, customFields);
+
     /**
      * The user may have multiple rundowns
      * We currently ignore all other rundowns
      */
-    const firstRundown = getFirstRundown(result.rundowns);
-    await initRundown(firstRundown, result.customFields);
+    const firstRundown = getFirstRundown(result);
+
+    await initRundown(firstRundown, customFields);
   }
 
   const updatedData = await getDataProvider().getData();

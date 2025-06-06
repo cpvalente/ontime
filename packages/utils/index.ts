@@ -28,6 +28,7 @@ export {
   getPreviousBlockNormal,
   swapEventData,
 } from './src/rundown-utils/rundownUtils.js';
+export { getFirstRundown } from './src/rundown/rundown.utils.js';
 
 // time format utils
 export {
@@ -53,7 +54,7 @@ export { isAlphanumeric, isAlphanumericWithSpace } from './src/regex-utils/isAlp
 export { isColourHex } from './src/regex-utils/isColourHex.js';
 export { splitWhitespace } from './src/regex-utils/splitWhitespace.js';
 
-export { customFieldLabelToKey, customKeyFromLabel } from './src/customField-utils/customFieldLabelToKey.js';
+export { customFieldLabelToKey, customKeyFromLabel } from './src/customField-utils/customFieldUtils.js';
 
 // helpers from externals
 export { deepmerge } from './src/externals/deepmerge.js';
