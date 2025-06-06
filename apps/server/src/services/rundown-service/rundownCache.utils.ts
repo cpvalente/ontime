@@ -1,6 +1,5 @@
 import {
   OntimeEvent,
-  CustomFieldLabel,
   CustomFields,
   OntimeEntry,
   EntryId,
@@ -9,6 +8,7 @@ import {
   isOntimeDelay,
   PlayableEvent,
   RundownEntries,
+  CustomFieldKey,
 } from 'ontime-types';
 import { dayInMs, getLinkedTimes, getTimeFrom, isNewLatest } from 'ontime-utils';
 
@@ -20,44 +20,33 @@ import type { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
  * @param eventId
  */
 export function addToCustomAssignment(
-  label: CustomFieldLabel,
-  eventId: string,
+  key: CustomFieldKey,
+  eventId: EntryId,
   assignedCustomFields: Record<string, string[]>,
 ) {
-  if (!Array.isArray(assignedCustomFields[label])) {
-    assignedCustomFields[label] = [];
+  if (!Array.isArray(assignedCustomFields[key])) {
+    assignedCustomFields[key] = [];
   }
-  assignedCustomFields[label].push(eventId);
+  assignedCustomFields[key].push(eventId);
 }
 
 /**
- * Sanitises custom fields and updates values if necessary
- * Mutates in place mutableEvent and assignedCustomFields
+ * Keeps track of which custom fields are assigned to which events
+ * Mutates the given assignedCustomFields in place
+ * If a field is referenced but is not in the customFields map, it is deleted
  */
 export function handleCustomField(
   customFields: CustomFields,
-  customFieldChangelog: Record<string, string>,
-  mutableEvent: OntimeEvent,
-  assignedCustomFields: Record<string, string[]>,
+  event: OntimeEvent,
+  assignedCustomFields: Record<CustomFieldKey, EntryId[]>,
 ) {
-  for (const field in mutableEvent.custom) {
-    // rename the property if it is in the changelog
-    if (field in customFieldChangelog) {
-      const oldData = mutableEvent.custom[field];
-      const newLabel = customFieldChangelog[field];
-
-      mutableEvent.custom[newLabel] = oldData;
-      delete mutableEvent.custom[field];
-      addToCustomAssignment(newLabel, mutableEvent.id, assignedCustomFields);
-      continue;
-    }
-
+  for (const field in event.custom) {
     if (field in customFields) {
       // add field to assignment map
-      addToCustomAssignment(field, mutableEvent.id, assignedCustomFields);
+      addToCustomAssignment(field, event.id, assignedCustomFields);
     } else {
       // delete data if it is not declared in project level custom fields
-      delete mutableEvent.custom[field];
+      delete event.custom[field];
     }
   }
 }
@@ -101,13 +90,14 @@ export type ProcessedRundownMetadata = RundownMetadata & {
   previousEvent: PlayableEvent | null; // The playableEvent from the previous iteration
   latestEvent: PlayableEvent | null; // The playableEvent most forwards in time processed so far
   previousEntry: OntimeEntry | null; // The entry processed in the previous iteration
+  assignedCustomFields: Record<CustomFieldKey, string[]>; // Custom fields assigned to events
 };
 
 /**
  * Factory function to create a rundown metadata processor
  * @returns {process, getMetadata} process() - processes entries in order | getMetadata() -> returns the current metadata
  */
-export function makeRundownMetadata(customFields: CustomFields, customFieldChangelog: Record<string, string>) {
+export function makeRundownMetadata(customFields: CustomFields) {
   let rundownMeta: ProcessedRundownMetadata = {
     totalDelay: 0,
     totalDuration: 0,
@@ -131,7 +121,7 @@ export function makeRundownMetadata(customFields: CustomFields, customFieldChang
     entry: T,
     childOfBlock: EntryId | null,
   ): { processedData: ProcessedRundownMetadata; processedEntry: T } {
-    const data = processEntry(rundownMeta, customFields, customFieldChangelog, entry, childOfBlock);
+    const data = processEntry(rundownMeta, customFields, entry, childOfBlock);
     rundownMeta = data.processedData;
     return data;
   }
@@ -149,7 +139,6 @@ export function makeRundownMetadata(customFields: CustomFields, customFieldChang
 function processEntry<T extends OntimeEntry>(
   rundownMetadata: ProcessedRundownMetadata,
   customFields: CustomFields,
-  customFieldChangelog: Record<string, string>,
   entry: T,
   childOfBlock: EntryId | null,
 ): { processedData: ProcessedRundownMetadata; processedEntry: T } {
@@ -178,7 +167,7 @@ function processEntry<T extends OntimeEntry>(
     }
 
     // 2. handle custom fields - mutates currentEntry
-    handleCustomField(customFields, customFieldChangelog, currentEntry, processedData.assignedCustomFields);
+    handleCustomField(customFields, currentEntry, processedData.assignedCustomFields);
 
     processedData.totalDays += calculateDayOffset(currentEntry, processedData.previousEvent);
     currentEntry.dayOffset = processedData.totalDays;

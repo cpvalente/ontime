@@ -1,4 +1,5 @@
-import { SupportedEntry, OntimeEvent, OntimeDelay, OntimeBlock, Rundown } from 'ontime-types';
+import { SupportedEntry, OntimeEvent, OntimeDelay, OntimeBlock, Rundown, CustomField } from 'ontime-types';
+
 import { defaultRundown } from '../../../models/dataModel.js';
 
 const baseEvent = {
@@ -42,6 +43,15 @@ export function makeOntimeBlock(patch: Partial<OntimeBlock>): OntimeBlock {
 export function makeRundown(patch: Partial<Rundown>): Rundown {
   return {
     ...defaultRundown,
+    ...patch,
+  };
+}
+
+export function makeCustomField(patch: Partial<CustomField>): CustomField {
+  return {
+    type: 'string',
+    colour: '#000000',
+    label: 'Custom Field',
     ...patch,
   };
 }

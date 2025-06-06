@@ -118,7 +118,7 @@ export function parseCustomFields(data: Partial<DatabaseModel>, emitError?: Erro
 export function sanitiseCustomFields(data: object): CustomFields {
   const newCustomFields: CustomFields = {};
 
-  for (const [originalKey, field] of Object.entries(data)) {
+  for (const [_originalKey, field] of Object.entries(data)) {
     if (!isValidField(field)) {
       continue;
     }
@@ -127,14 +127,8 @@ export function sanitiseCustomFields(data: object): CustomFields {
       continue;
     }
 
-    // Test label and key cohesion
-    const key = (() => {
-      const keyFromLabel = customFieldLabelToKey(field.label);
-      if (keyFromLabel === null) {
-        return originalKey;
-      }
-      return originalKey.toLowerCase() === keyFromLabel.toLowerCase() ? originalKey : keyFromLabel;
-    })();
+    // the key is always made from the label
+    const key = customFieldLabelToKey(field.label);
 
     if (key in newCustomFields) {
       continue;

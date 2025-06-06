@@ -29,7 +29,6 @@ describe('handleCustomField()', () => {
         label: 'sound',
       },
     } as CustomFields;
-    const customFieldChangelog = {};
 
     const event = makeOntimeEvent({
       type: SupportedEntry.Event,
@@ -42,7 +41,7 @@ describe('handleCustomField()', () => {
     });
     const assignedCustomFields = {};
 
-    const result = handleCustomField(customFields, customFieldChangelog, event, assignedCustomFields);
+    const result = handleCustomField(customFields, event, assignedCustomFields);
     expect(result).toBeUndefined();
     expect(assignedCustomFields).toStrictEqual({ lighting: ['2'] });
     expect(event.custom).toStrictEqual({

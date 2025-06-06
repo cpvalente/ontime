@@ -2,7 +2,7 @@ import express from 'express';
 
 import { router as automationsRouter } from './automation/automation.router.js';
 import { router as urlPresetsRouter } from './url-presets/urlPresets.router.js';
-import { router as customFieldsRouter } from './custom-fields/customFields.router.js';
+import { router as customFieldsRouter } from './rundown/customFields.router.js';
 import { router as dbRouter } from './db/db.router.js';
 import { router as projectRouter } from './project/project.router.js';
 import { router as rundownRouter } from './rundown/rundown.router.js';

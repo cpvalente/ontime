@@ -4,6 +4,7 @@ import {
   defaultImportMap,
   generateId,
   type ImportMap,
+  isAlphanumeric,
   isKnownTimerType,
   validateEndAction,
   validateTimerType,
@@ -59,10 +60,10 @@ export function getCustomFieldData(
   const customFieldImportKeys: Record<string, string> = {};
 
   for (const ontimeLabel in importMap.custom) {
-    const ontimeKey = customKeyFromLabel(ontimeLabel, existingCustomFields) ?? customFieldLabelToKey(ontimeLabel);
-    if (!ontimeKey) {
+    if (!isAlphanumeric(ontimeLabel)) {
       continue;
     }
+    const ontimeKey = customKeyFromLabel(ontimeLabel, existingCustomFields) ?? customFieldLabelToKey(ontimeLabel);
     const importLabel = importMap.custom[ontimeLabel].toLowerCase();
 
     // @ts-expect-error -- we are sure that the key exists
