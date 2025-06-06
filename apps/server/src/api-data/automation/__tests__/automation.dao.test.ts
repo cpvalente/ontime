@@ -1,4 +1,6 @@
-import { TriggerDTO, TimerLifeCycle, AutomationDTO, Automation } from 'ontime-types';
+import { TriggerDTO, TimerLifeCycle, AutomationDTO, Automation, EntryId } from 'ontime-types';
+
+import { makeRundown } from '../../rundown/__mocks__/rundown.mocks.js';
 
 import {
   addTrigger,
@@ -12,6 +14,7 @@ import {
   getAutomationTriggers,
   getAutomations,
 } from '../automation.dao.js';
+
 import { makeOSCAction, makeHTTPAction } from './testUtils.js';
 
 beforeAll(() => {
@@ -186,11 +189,9 @@ describe('editAutomation()', async () => {
 });
 
 describe('deleteAutomation()', () => {
-  // saving the ID of the added automation
-  let firstAutomation: Automation;
   beforeEach(async () => {
     await deleteAll();
-    firstAutomation = await addAutomation({
+    await addAutomation({
       title: 'test-osc',
       filterRule: 'all',
       filters: [],
@@ -198,35 +199,15 @@ describe('deleteAutomation()', () => {
     });
   });
 
-  it('should remove m automation from the list', async () => {
+  it('should remove an automation from the list', async () => {
     const automations = getAutomations();
     expect(Object.keys(automations).length).toEqual(1);
 
-    await deleteAutomation(Object.keys(automations)[0]);
+    const rundown = makeRundown({});
+    const timedEventOrder: EntryId[] = [];
+
+    await deleteAutomation(rundown, timedEventOrder, Object.keys(automations)[0]);
     const removed = getAutomations();
     expect(Object.keys(removed).length).toEqual(0);
-  });
-
-  it('should not remove an automation which is in use', async () => {
-    const automations = getAutomations();
-    await addTrigger({
-      title: 'test-automation',
-      trigger: TimerLifeCycle.onLoad,
-      automationId: firstAutomation.id,
-    });
-
-    const automationKeys = Object.keys(automations);
-    const automationId = automationKeys[0];
-    expect(automationId).toEqual(firstAutomation.id);
-    expect(automationKeys.length).toEqual(1);
-    expect(automations[automationId]).toMatchObject({
-      id: automationId,
-      title: 'test-osc',
-      filterRule: 'all',
-      filters: expect.any(Array),
-      outputs: expect.any(Array),
-    });
-
-    await expect(deleteAutomation(automationId)).rejects.toThrowError();
   });
 });

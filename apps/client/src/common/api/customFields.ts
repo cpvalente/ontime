@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { CustomField, CustomFieldLabel, CustomFields } from 'ontime-types';
+import { CustomField, CustomFieldKey, CustomFields } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 
@@ -24,15 +24,15 @@ export async function postCustomField(newField: CustomField): Promise<CustomFiel
 /**
  * Edits single custom field
  */
-export async function editCustomField(label: CustomFieldLabel, newField: CustomField): Promise<CustomFields> {
-  const res = await axios.put(`${customFieldsPath}/${label}`, { ...newField });
+export async function editCustomField(key: CustomFieldKey, newField: CustomField): Promise<CustomFields> {
+  const res = await axios.put(`${customFieldsPath}/${key}`, { ...newField });
   return res.data;
 }
 
 /**
  * Deletes single custom field
  */
-export async function deleteCustomField(label: CustomFieldLabel): Promise<CustomFields> {
-  const res = await axios.delete(`${customFieldsPath}/${label}`);
+export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFields> {
+  const res = await axios.delete(`${customFieldsPath}/${key}`);
   return res.data;
 }

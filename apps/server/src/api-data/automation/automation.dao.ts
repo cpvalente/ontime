@@ -2,14 +2,17 @@ import type {
   Automation,
   AutomationDTO,
   AutomationSettings,
+  EntryId,
   NormalisedAutomation,
+  Rundown,
   Trigger,
   TriggerDTO,
 } from 'ontime-types';
 import { deleteAtIndex, generateId } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { getTimedEvents } from '../../services/rundown-service/rundownUtils.js';
+
+import { isAutomationUsed } from './automation.utils.js';
 
 /**
  * Gets a copy of the stored automation settings
@@ -133,7 +136,7 @@ export async function editAutomation(id: string, newAutomation: AutomationDTO): 
 /**
  * Deletes a automation given its ID
  */
-export async function deleteAutomation(id: string): Promise<void> {
+export async function deleteAutomation(rundown: Rundown, timedEventOrder: EntryId[], id: string): Promise<void> {
   const automations = getAutomations();
   // ignore request if automation does not exist
   if (!Object.hasOwn(automations, id)) {
@@ -149,13 +152,9 @@ export async function deleteAutomation(id: string): Promise<void> {
   }
 
   // prevent deleting a automation that is in use in events
-  const events = getTimedEvents().filter(
-    (event) => event.triggers && event.triggers.some((trigger) => trigger.automationId === id),
-  );
-  if (events.length) {
-    throw new Error(
-      `Unable to delete automation used in event: ${events[0].id}${events.length > 1 ? ` and ${events.length - 1} more` : ''}`,
-    );
+  const isInUse = isAutomationUsed(rundown, timedEventOrder, id);
+  if (isInUse) {
+    throw new Error(`Unable to delete automation used in event with ID ${isInUse}`);
   }
 
   delete automations[id];

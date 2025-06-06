@@ -1,294 +1,9 @@
-/* eslint-disable no-console -- we are mocking the console */
-import { vi } from 'vitest';
+import { CustomFields, OntimeEvent, SupportedEntry, TimerType } from 'ontime-types';
+import { defaultImportMap, ImportMap, MILLIS_PER_MINUTE } from 'ontime-utils';
 
-import { CustomFields, DatabaseModel, OntimeEvent, SupportedEntry, TimerType } from 'ontime-types';
-import { ImportMap, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { getCustomFieldData, parseExcel } from '../excel.parser.js';
 
-import { dbModel } from '../../models/dataModel.js';
-import { demoDb } from '../../models/demoProject.js';
-
-import { getCustomFieldData, parseExcel, parseDatabaseModel } from '../parser.js';
-import { makeString } from '../parserUtils.js';
-import { parseUrlPresets, parseViewSettings } from '../parserFunctions.js';
-
-import { dataFromExcelTemplate } from './parser.mock-data.js';
-
-// mock data provider
-beforeAll(() => {
-  vi.mock('../../classes/data-provider/DataProvider.js', () => {
-    return {
-      getDataProvider: vi.fn().mockImplementation(() => {
-        return {
-          setRundown: vi.fn().mockImplementation((newData) => newData),
-          setCustomFields: vi.fn().mockImplementation((newData) => newData),
-        };
-      }),
-    };
-  });
-});
-
-describe('test parseDatabaseModel() with demo project (valid)', () => {
-  const filteredDemoProject = structuredClone(demoDb);
-  const { data } = parseDatabaseModel(filteredDemoProject);
-
-  it('has 17 events with 12 top level events', () => {
-    expect(data.rundowns.default.order.length).toBe(12);
-    expect(Object.keys(data.rundowns.default.entries).length).toBe(17);
-  });
-
-  it('is the same as the demo project since all data is valid', () => {
-    // @ts-expect-error -- its ok
-    delete filteredDemoProject.settings.version;
-    // @ts-expect-error -- its ok
-    delete data.settings.version;
-    expect(data).toMatchObject(filteredDemoProject);
-  });
-});
-
-describe('test parseDatabaseModel() edge cases', () => {
-  it('skips unknown app and version settings', () => {
-    console.log = vi.fn();
-    const testData = {
-      settings: {
-        osc_port: 8888,
-      },
-    };
-
-    // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    expect(() => parseDatabaseModel(testData)).toThrow();
-  });
-
-  it('fails with invalid JSON', () => {
-    // @ts-expect-error -- we know this is wrong, testing imports outside domain
-    expect(() => parseDatabaseModel('some random dataset')).toThrow();
-  });
-});
-
-describe('test aliases import', () => {
-  it('imports a well defined urlPreset', () => {
-    const testData = {
-      rundown: [],
-      settings: {
-        version: '2.0.0',
-      },
-      urlPresets: [
-        {
-          enabled: false,
-          alias: 'testalias',
-          pathAndParams: 'testpathAndParams',
-        },
-      ],
-    } as unknown as DatabaseModel;
-
-    const parsed = parseUrlPresets(testData);
-    expect(parsed.length).toBe(1);
-
-    // generates missing id
-    expect(parsed[0].alias).toBeDefined();
-  });
-});
-
-describe('test views import', () => {
-  it('imports data from file', () => {
-    const testData = {
-      rundown: [],
-      settings: {
-        version: '2.0.0',
-      },
-      viewSettings: {
-        normalColor: '#ffffffcc',
-        warningColor: '#FFAB33',
-        dangerColor: '#ED3333',
-        endMessage: '',
-        overrideStyles: false,
-        // known error: properties do not exist
-        notAthing: true,
-      },
-      // known error: views does not exist
-      views: {
-        overrideStyles: true,
-      },
-    };
-    const expectedParsedViewSettings = {
-      normalColor: '#ffffffcc',
-      warningColor: '#FFAB33',
-      dangerColor: '#ED3333',
-      freezeEnd: false,
-      endMessage: '',
-      overrideStyles: false,
-    };
-    // @ts-expect-error -- we know the above is incorrect
-    const parsed = parseViewSettings(testData);
-    expect(parsed).toStrictEqual(expectedParsedViewSettings);
-  });
-
-  it('imports defaults to model', () => {
-    const testData = {
-      rundown: [],
-      settings: {
-        version: '2.0.0',
-      },
-    } as unknown as DatabaseModel;
-    const parsed = parseViewSettings(testData);
-    expect(parsed).toStrictEqual(dbModel.viewSettings);
-  });
-});
-
-describe('makeString()', () => {
-  it('converts variables to string', () => {
-    const cases = [
-      {
-        val: 2,
-        expected: '2',
-      },
-      {
-        val: 2.22222222,
-        expected: '2.22222222',
-      },
-      {
-        val: ['testing'],
-        expected: 'testing',
-      },
-      {
-        val: ' testing    ',
-        expected: 'testing',
-      },
-      {
-        val: { doing: 'testing' },
-        expected: 'fallback',
-      },
-      {
-        val: undefined,
-        expected: 'fallback',
-      },
-    ];
-
-    cases.forEach(({ val, expected }) => {
-      const converted = makeString(val, 'fallback');
-      expect(converted).toBe(expected);
-    });
-  });
-});
-
-describe('getCustomFieldData()', () => {
-  it('generates a list of keys from the given import map', () => {
-    const importMap = {
-      worksheet: 'event schedule',
-      timeStart: 'time start',
-      linkStart: 'link start',
-      timeEnd: 'time end',
-      duration: 'duration',
-      cue: 'cue',
-      title: 'title',
-      countToEnd: 'count to end',
-      isPublic: 'public',
-      skip: 'skip',
-      note: 'notes',
-      colour: 'colour',
-      endAction: 'end action',
-      timerType: 'timer type',
-      timeWarning: 'warning time',
-      timeDanger: 'danger time',
-      custom: {
-        lighting: 'lx',
-        sound: 'sound',
-        video: 'av',
-      },
-      entryId: 'id',
-    } as ImportMap;
-
-    const result = getCustomFieldData(importMap, {});
-    expect(result.customFields).toStrictEqual({
-      lighting: {
-        type: 'string',
-        colour: '',
-        label: 'lighting',
-      },
-      sound: {
-        type: 'string',
-        colour: '',
-        label: 'sound',
-      },
-      video: {
-        type: 'string',
-        colour: '',
-        label: 'video',
-      },
-    });
-
-    // it is an inverted record of <importKey, ontimeKey>
-    expect(result.customFieldImportKeys).toStrictEqual({
-      lx: 'lighting',
-      sound: 'sound',
-      av: 'video',
-    });
-  });
-  it('keeps colour information from existing fields', () => {
-    const importMap = {
-      worksheet: 'event schedule',
-      timeStart: 'time start',
-      linkStart: 'link start',
-      timeEnd: 'time end',
-      duration: 'duration',
-      cue: 'cue',
-      title: 'title',
-      countToEnd: 'count to end',
-      isPublic: 'public',
-      skip: 'skip',
-      note: 'notes',
-      colour: 'colour',
-      endAction: 'end action',
-      timerType: 'timer type',
-      timeWarning: 'warning time',
-      timeDanger: 'danger time',
-      custom: {
-        lighting: 'lx',
-        sound: 'sound',
-        video: 'av',
-        ontime_label: 'excel label',
-      },
-      entryId: 'id',
-    } as ImportMap;
-
-    const customFields: CustomFields = {
-      lighting: { label: 'lx', type: 'string', colour: 'red' },
-      sound: { label: 'sound', type: 'string', colour: 'green' },
-      ontime_key: { label: 'ontime_label', type: 'string', colour: 'blue' },
-    };
-
-    const result = getCustomFieldData(importMap, customFields);
-    expect(result.customFields).toStrictEqual({
-      lighting: {
-        type: 'string',
-        colour: 'red',
-        label: 'lighting',
-      },
-      sound: {
-        type: 'string',
-        colour: 'green',
-        label: 'sound',
-      },
-      video: {
-        type: 'string',
-        colour: '',
-        label: 'video',
-      },
-      ontime_key: {
-        type: 'string',
-        colour: 'blue',
-        label: 'ontime_label',
-      },
-    });
-
-    // it is an inverted record of <importKey, ontimeKey>
-    expect(result.customFieldImportKeys).toStrictEqual({
-      lx: 'lighting',
-      sound: 'sound',
-      av: 'video',
-      'excel label': 'ontime_key',
-    });
-  });
-});
+import { dataFromExcelTemplate } from './mockData.js';
 
 describe('parseExcel()', () => {
   it('parses the example file', () => {
@@ -704,6 +419,164 @@ describe('parseExcel()', () => {
       duration: 30 * MILLIS_PER_MINUTE,
       timeWarning: 11 * MILLIS_PER_MINUTE,
       linkStart: true,
+    });
+  });
+});
+
+describe('getCustomFieldData()', () => {
+  it('generates a list of keys from the given import map', () => {
+    const importMap = {
+      worksheet: 'event schedule',
+      timeStart: 'time start',
+      linkStart: 'link start',
+      timeEnd: 'time end',
+      duration: 'duration',
+      cue: 'cue',
+      title: 'title',
+      countToEnd: 'count to end',
+      isPublic: 'public',
+      skip: 'skip',
+      note: 'notes',
+      colour: 'colour',
+      endAction: 'end action',
+      timerType: 'timer type',
+      timeWarning: 'warning time',
+      timeDanger: 'danger time',
+      custom: {
+        lighting: 'lx',
+        sound: 'sound',
+        video: 'av',
+      },
+      entryId: 'id',
+    } as ImportMap;
+
+    const result = getCustomFieldData(importMap, {});
+    expect(result.mergedCustomFields).toStrictEqual({
+      lighting: {
+        type: 'string',
+        colour: '',
+        label: 'lighting',
+      },
+      sound: {
+        type: 'string',
+        colour: '',
+        label: 'sound',
+      },
+      video: {
+        type: 'string',
+        colour: '',
+        label: 'video',
+      },
+    });
+
+    // it is an inverted record of <importKey, ontimeKey>
+    expect(result.customFieldImportKeys).toStrictEqual({
+      lx: 'lighting',
+      sound: 'sound',
+      av: 'video',
+    });
+  });
+
+  it('keeps colour information from existing fields', () => {
+    const importMap = {
+      worksheet: 'event schedule',
+      timeStart: 'time start',
+      linkStart: 'link start',
+      timeEnd: 'time end',
+      duration: 'duration',
+      cue: 'cue',
+      title: 'title',
+      countToEnd: 'count to end',
+      isPublic: 'public',
+      skip: 'skip',
+      note: 'notes',
+      colour: 'colour',
+      endAction: 'end action',
+      timerType: 'timer type',
+      timeWarning: 'warning time',
+      timeDanger: 'danger time',
+      custom: {
+        lighting: 'lx',
+        sound: 'sound',
+        video: 'av',
+        'ontime key': 'excel label',
+      },
+      entryId: 'id',
+    } as ImportMap;
+
+    const existingCustomFields: CustomFields = {
+      lighting: { label: 'lighting', type: 'string', colour: 'red' },
+      sound: { label: 'sound', type: 'string', colour: 'green' },
+      ontime_key: { label: 'ontime key', type: 'string', colour: 'blue' },
+    };
+
+    const result = getCustomFieldData(importMap, existingCustomFields);
+    expect(result.mergedCustomFields).toStrictEqual({
+      lighting: {
+        type: 'string',
+        colour: 'red',
+        label: 'lighting',
+      },
+      sound: {
+        type: 'string',
+        colour: 'green',
+        label: 'sound',
+      },
+      video: {
+        type: 'string',
+        colour: '',
+        label: 'video',
+      },
+      ontime_key: {
+        type: 'string',
+        colour: 'blue',
+        label: 'ontime key',
+      },
+    });
+
+    // it is an inverted record of <importKey, ontimeKey>
+    expect(result.customFieldImportKeys).toStrictEqual({
+      lx: 'lighting',
+      sound: 'sound',
+      av: 'video',
+      'excel label': 'ontime_key',
+    });
+  });
+
+  it('lowercases the keys in the import map', () => {
+    const importMap: ImportMap = {
+      ...defaultImportMap,
+      custom: {
+        Lighting: 'Lx',
+        Sound: 'sound',
+        video: 'av',
+      },
+    };
+
+    const result = getCustomFieldData(importMap, {});
+    expect(result.mergedCustomFields).toStrictEqual({
+      Lighting: {
+        type: 'string',
+        colour: '',
+        label: 'Lighting',
+      },
+      Sound: {
+        type: 'string',
+        colour: '',
+        label: 'Sound',
+      },
+      video: {
+        type: 'string',
+        colour: '',
+        label: 'video',
+      },
+    });
+
+    // notice that the keys excel keys are lowercased
+    expect(result.customFieldImportKeys).toStrictEqual({
+      lx: 'Lighting',
+      sound: 'Sound',
+      av: 'video',
     });
   });
 });

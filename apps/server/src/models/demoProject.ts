@@ -53,8 +53,8 @@ export const demoDb: DatabaseModel = {
           duration: 0,
           isFirstLinked: false,
           custom: {
-            song: 'Sekret',
-            artist: 'Ronela Hajati',
+            Song: 'Sekret',
+            Artist: 'Ronela Hajati',
           },
         },
         '32d31': {
@@ -82,8 +82,8 @@ export const demoDb: DatabaseModel = {
           timeWarning: 500000,
           timeDanger: 100000,
           custom: {
-            song: 'Sekret',
-            artist: 'Ronela Hajati',
+            Song: 'Sekret',
+            Artist: 'Ronela Hajati',
           },
         },
         '21cd2': {
@@ -111,8 +111,8 @@ export const demoDb: DatabaseModel = {
           timeWarning: 500000,
           timeDanger: 100000,
           custom: {
-            song: 'Eat Your Salad',
-            artist: 'Citi Zeni',
+            Song: 'Eat Your Salad',
+            Artist: 'Citi Zeni',
           },
         },
         '0b371': {
@@ -140,8 +140,8 @@ export const demoDb: DatabaseModel = {
           timeWarning: 500000,
           timeDanger: 100000,
           custom: {
-            song: 'Sentimentai',
-            artist: 'Monika Liu',
+            Song: 'Sentimentai',
+            Artist: 'Monika Liu',
           },
         },
         '3cd28': {
@@ -169,8 +169,8 @@ export const demoDb: DatabaseModel = {
           timeWarning: 500000,
           timeDanger: 100000,
           custom: {
-            song: 'Boys Do Cry',
-            artist: 'Marius Bear',
+            Song: 'Boys Do Cry',
+            Artist: 'Marius Bear',
           },
         },
         e457f: {
@@ -198,9 +198,9 @@ export const demoDb: DatabaseModel = {
           timeWarning: 500000,
           timeDanger: 100000,
           custom: {
-            song: 'Disko',
-            artist: 'LPS',
-          },
+            Song: 'Disko',
+            Artist: 'LPS',
+          }
         },
         /// <----- BLOCK
         '01e85': {
@@ -244,8 +244,8 @@ export const demoDb: DatabaseModel = {
           timeWarning: 500000,
           timeDanger: 100000,
           custom: {
-            song: 'Stefania',
-            artist: 'Kalush Orchestra',
+            Song: 'Stefania',
+            Artist: 'Kalush Orchestra',
           },
         },
         b7737: {
@@ -273,8 +273,8 @@ export const demoDb: DatabaseModel = {
           timeWarning: 500000,
           timeDanger: 100000,
           custom: {
-            song: 'Intention',
-            artist: 'Intelligent Music Project',
+            Song: 'Intention',
+            Artist: 'Intelligent Music Project',
           },
         },
         d3a80: {
@@ -302,8 +302,8 @@ export const demoDb: DatabaseModel = {
           timeWarning: 500000,
           timeDanger: 100000,
           custom: {
-            song: 'De Diepte',
-            artist: 'S10',
+            Song: 'De Diepte',
+            Artist: 'S10',
           },
         },
         '8276c': {
@@ -331,8 +331,8 @@ export const demoDb: DatabaseModel = {
           timeWarning: 500000,
           timeDanger: 100000,
           custom: {
-            song: 'Trenuletul',
-            artist: 'Zdob si Zdub',
+            Song: 'Trenuletul',
+            Artist: 'Zdob si Zdub',
           },
         },
         '2340b': {
@@ -360,8 +360,8 @@ export const demoDb: DatabaseModel = {
           timeWarning: 500000,
           timeDanger: 100000,
           custom: {
-            song: 'Saudade Saudade',
-            artist: 'Maro',
+            Song: 'Saudade Saudade',
+            Artist: 'Maro',
           },
         },
         /// <----- BLOCK
@@ -406,8 +406,8 @@ export const demoDb: DatabaseModel = {
           timeWarning: 500000,
           timeDanger: 100000,
           custom: {
-            song: 'Guilty Pleasure',
-            artist: 'Mia Dimsic',
+            Song: 'Guilty Pleasure',
+            Artist: 'Mia Dimsic',
           },
         },
         '5e965': {
@@ -435,8 +435,8 @@ export const demoDb: DatabaseModel = {
           timeWarning: 500000,
           timeDanger: 100000,
           custom: {
-            song: 'The Show',
-            artist: 'Reddi',
+            Song: 'The Show',
+            Artist: 'Reddi',
           },
         },
         bab4a: {
@@ -464,8 +464,8 @@ export const demoDb: DatabaseModel = {
           timeWarning: 500000,
           timeDanger: 100000,
           custom: {
-            song: 'Halo',
-            artist: 'LUM!X & Pia Maria',
+            Song: 'Halo',
+            Artist: 'LUM!X & Pia Maria',
           },
         },
         d3eb1: {
@@ -493,8 +493,8 @@ export const demoDb: DatabaseModel = {
           timeWarning: 500000,
           timeDanger: 100000,
           custom: {
-            song: 'Die Together',
-            artist: 'Amanda Tenfjord',
+            Song: 'Die Together',
+            Artist: 'Amanda Tenfjord',
           },
         },
       },
@@ -528,12 +528,12 @@ export const demoDb: DatabaseModel = {
     warningColor: '#FFAB33',
   },
   customFields: {
-    song: {
+    Song: {
       label: 'Song',
       type: 'string',
       colour: '#339E4E',
     },
-    artist: {
+    Artist: {
       label: 'Artist',
       type: 'string',
       colour: '#3E75E8',
