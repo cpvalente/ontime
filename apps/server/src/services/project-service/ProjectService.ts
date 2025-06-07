@@ -8,6 +8,7 @@ import { logger } from '../../classes/Logger.js';
 import { publicDir } from '../../setup/index.js';
 import {
   appendToName,
+  deleteFile,
   dockerSafeRename,
   ensureDirectory,
   ensureJsonExtension,
@@ -16,14 +17,13 @@ import {
   removeFileExtension,
 } from '../../utils/fileManagement.js';
 import { dbModel } from '../../models/dataModel.js';
-import { deleteFile } from '../../utils/parserUtils.js';
-import { parseDatabaseModel } from '../../utils/parser.js';
 import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { demoDb } from '../../models/demoProject.js';
 import { config } from '../../setup/config.js';
 import { getDataProvider, initPersistence } from '../../classes/data-provider/DataProvider.js';
 import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
+import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
 
 import {
   getLastLoadedProject,

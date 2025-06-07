@@ -1,81 +1,30 @@
 import {
-  customFieldLabelToKey,
-  customKeyFromLabel,
+  CustomFields,
+  Rundown,
+  OntimeEvent,
+  OntimeBlock,
+  EntryCustomFields,
+  SupportedEntry,
+  isOntimeBlock,
+  TimerType,
+  CustomFieldKey,
+} from 'ontime-types';
+import {
+  ImportMap,
   defaultImportMap,
   generateId,
-  type ImportMap,
-  isAlphanumeric,
   isKnownTimerType,
-  validateEndAction,
   validateTimerType,
+  validateEndAction,
+  customFieldLabelToKey,
+  isAlphanumeric,
 } from 'ontime-utils';
-import {
-  CustomFields,
-  DatabaseModel,
-  EntryCustomFields,
-  isOntimeBlock,
-  LogOrigin,
-  OntimeBlock,
-  OntimeEvent,
-  Rundown,
-  SupportedEntry,
-  TimerType,
-} from 'ontime-types';
 
 import { Merge } from 'ts-essentials';
 
-import { parseAutomationSettings } from '../api-data/automation/automation.parser.js';
-import { parseRundowns } from '../api-data/rundown/rundown.parser.js';
-import { logger } from '../classes/Logger.js';
-
-import { makeString } from './parserUtils.js';
-import { parseProject, parseSettings, parseUrlPresets, parseViewSettings } from './parserFunctions.js';
-import { parseExcelDate } from './time.js';
-import { is } from './is.js';
-
-export type ErrorEmitter = (message: string) => void;
-export const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-export const JSON_MIME = 'application/json';
-
-function parseBooleanString(value: unknown): boolean {
-  if (typeof value === 'boolean') {
-    return value;
-  }
-
-  // falsy values would be nullish or empty string
-  if (!value || typeof value !== 'string') {
-    return false;
-  }
-  return value.toLowerCase() !== 'false';
-}
-
-export function getCustomFieldData(
-  importMap: ImportMap,
-  existingCustomFields: CustomFields,
-): {
-  customFields: CustomFields;
-  customFieldImportKeys: Record<keyof CustomFields, string>;
-} {
-  const customFields = {};
-  const customFieldImportKeys: Record<string, string> = {};
-
-  for (const ontimeLabel in importMap.custom) {
-    if (!isAlphanumeric(ontimeLabel)) {
-      continue;
-    }
-    const ontimeKey = customKeyFromLabel(ontimeLabel, existingCustomFields) ?? customFieldLabelToKey(ontimeLabel);
-    const importLabel = importMap.custom[ontimeLabel].toLowerCase();
-
-    // @ts-expect-error -- we are sure that the key exists
-    customFields[ontimeKey] = {
-      type: 'string',
-      colour: ontimeKey in existingCustomFields ? existingCustomFields[ontimeKey].colour : '',
-      label: ontimeLabel,
-    };
-    customFieldImportKeys[importLabel] = ontimeKey;
-  }
-  return { customFields, customFieldImportKeys };
-}
+import { is } from '../../utils/is.js';
+import { makeString } from '../../utils/parserUtils.js';
+import { parseExcelDate } from '../../utils/time.js';
 
 /**
  * @description Excel array parser
@@ -337,39 +286,48 @@ export const parseExcel = (
   };
 };
 
-type ParsingError = {
-  context: string;
-  message: string;
-};
+/**
+ * Utility function infers a boolean from a string value
+ */
+function parseBooleanString(value: unknown): boolean {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  // falsy values would be nullish or empty string
+  if (!value || typeof value !== 'string') {
+    return false;
+  }
+  return value.toLowerCase() !== 'false';
+}
 
 /**
- * @description handles parsing of ontime project file
- * @param {object} jsonData - project file to be parsed
- * @returns {object} - parsed object
+ * @private exported for testing
  */
-export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): { data: DatabaseModel; errors: ParsingError[] } {
-  // we need to parse settings first to make sure the data is ours
-  // this may throw
-  const settings = parseSettings(jsonData);
+export function getCustomFieldData(
+  importMap: ImportMap,
+  existingCustomFields: CustomFields,
+): {
+  customFields: CustomFields;
+  customFieldImportKeys: Record<keyof CustomFields, string>;
+} {
+  const customFields = {};
+  const customFieldImportKeys: Record<string, CustomFieldKey> = {};
 
-  const errors: ParsingError[] = [];
-  const makeEmitError = (context: string) => (message: string) => {
-    logger.error(LogOrigin.Server, `Error parsing ${context}: ${message}`);
-    errors.push({ context, message });
-  };
+  for (const ontimeLabel in importMap.custom) {
+    if (!isAlphanumeric(ontimeLabel)) {
+      continue;
+    }
+    const ontimeKey = customFieldLabelToKey(ontimeLabel);
+    const importLabel = importMap.custom[ontimeLabel].toLowerCase();
 
-  // we need to parse the custom fields first so they can be used in validating events
-  const { rundowns, customFields } = parseRundowns(jsonData, makeEmitError('Rundown'));
-
-  const data: DatabaseModel = {
-    rundowns,
-    project: parseProject(jsonData, makeEmitError('Project')),
-    settings,
-    viewSettings: parseViewSettings(jsonData, makeEmitError('View Settings')),
-    urlPresets: parseUrlPresets(jsonData, makeEmitError('URL Presets')),
-    customFields,
-    automation: parseAutomationSettings(jsonData),
-  };
-
-  return { data, errors };
+    // @ts-expect-error -- we are sure that the key exists
+    customFields[ontimeKey] = {
+      type: 'string',
+      colour: ontimeKey in existingCustomFields ? existingCustomFields[ontimeKey].colour : '',
+      label: ontimeLabel,
+    };
+    customFieldImportKeys[importLabel] = ontimeKey;
+  }
+  return { customFields, customFieldImportKeys };
 }

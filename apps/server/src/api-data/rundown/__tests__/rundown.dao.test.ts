@@ -17,8 +17,8 @@ import {
   rundownMutation,
 } from '../rundown.dao.js';
 import { demoDb } from '../../../models/demoProject.js';
-import { ProcessedRundownMetadata } from '../../../services/rundown-service/rundownCache.utils.js';
-import { AssignedMap } from '../rundown.types.js';
+import type { AssignedMap } from '../rundown.types.js';
+import { type ProcessedRundownMetadata } from '../rundown.parser.js';
 
 const setRundownMock = vi.fn();
 const setCustomFieldsMock = vi.fn();

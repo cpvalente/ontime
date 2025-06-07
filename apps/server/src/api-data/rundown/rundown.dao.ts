@@ -27,7 +27,6 @@ import {
 } from 'ontime-types';
 import { customFieldLabelToKey, insertAtIndex } from 'ontime-utils';
 
-import { makeRundownMetadata, ProcessedRundownMetadata } from '../../services/rundown-service/rundownCache.utils.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
 import type { AssignedMap, CustomFieldsMetadata, RundownMetadata } from './rundown.types.js';
@@ -40,6 +39,7 @@ import {
   doesInvalidateMetadata,
   getUniqueId,
 } from './rundown.utils.js';
+import { makeRundownMetadata, ProcessedRundownMetadata } from './rundown.parser.js';
 
 /**
  * The currently loaded rundown in cache

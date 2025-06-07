@@ -12,10 +12,10 @@ import { Credentials, OAuth2Client } from 'google-auth-library';
 // TODO: rewrite logic to use fetch and remove dependency
 import got from 'got';
 
-import { parseExcel } from '../../utils/parser.js';
 import { logger } from '../../classes/Logger.js';
 import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { getCurrentRundown, getProjectCustomFields } from '../../api-data/rundown/rundown.dao.js';
+import { parseExcel } from '../../api-data/excel/excel.parser.js';
 
 import { getRundownOrThrow } from '../rundown-service/rundownUtils.js';
 
