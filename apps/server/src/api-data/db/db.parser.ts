@@ -8,6 +8,7 @@ import { parseRundowns } from '../rundown/rundown.parser.js';
 import { parseSettings } from '../settings/settings.parser.js';
 import { parseUrlPresets } from '../url-presets/urlPresets.parser.js';
 import { parseViewSettings } from '../view-settings/viewSettings.parser.js';
+import { parseCustomFields } from '../rundown/customFields.parser.js';
 
 type ParsingError = {
   context: string;
@@ -31,7 +32,8 @@ export function parseDatabaseModel(jsonData: Partial<DatabaseModel>): { data: Da
   };
 
   // we need to parse the custom fields first so they can be used in validating events
-  const { rundowns, customFields } = parseRundowns(jsonData, makeEmitError('Rundown'));
+  const customFields = parseCustomFields(jsonData, makeEmitError('Custom Fields'));
+  const rundowns = parseRundowns(jsonData, customFields, makeEmitError('Rundowns'));
 
   const data: DatabaseModel = {
     rundowns,

@@ -24,6 +24,7 @@ import { getDataProvider, initPersistence } from '../../classes/data-provider/Da
 import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
 import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
+import { parseCustomFields } from '../../api-data/rundown/customFields.parser.js';
 
 import {
   getLastLoadedProject,
@@ -296,13 +297,15 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
 
   // ... but rundown and custom fields need to be checked
   if (rundowns != null) {
-    const result = parseRundowns(data);
+    const customFields = parseCustomFields(data);
+    const result = parseRundowns(data, customFields);
+
     /**
      * The user may have multiple rundowns
      * We currently ignore all other rundowns
      */
-    const firstRundown = getFirstRundown(result.rundowns);
-    await initRundown(firstRundown, result.customFields);
+    const firstRundown = getFirstRundown(result);
+    await initRundown(firstRundown, customFields);
   }
 
   const updatedData = await getDataProvider().getData();

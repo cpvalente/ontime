@@ -17,7 +17,7 @@ import {
   validateTimerType,
   validateEndAction,
   customFieldLabelToKey,
-  isAlphanumeric,
+  isAlphanumericWithSpace,
 } from 'ontime-utils';
 
 import { Merge } from 'ts-essentials';
@@ -52,7 +52,7 @@ export const parseExcel = (
     }
   }
 
-  const { customFields, customFieldImportKeys } = getCustomFieldData(importMap, existingCustomFields);
+  const { mergedCustomFields, customFieldImportKeys } = getCustomFieldData(importMap, existingCustomFields);
   const rundown: Rundown = {
     id: generateId(),
     title: sheetName,
@@ -281,7 +281,7 @@ export const parseExcel = (
 
   return {
     rundown,
-    customFields,
+    customFields: mergedCustomFields,
     rundownMetadata,
   };
 };
@@ -302,32 +302,47 @@ function parseBooleanString(value: unknown): boolean {
 }
 
 /**
+ * Receives an import map which contains custom field labels and a custom fields object
+ * the result importkeys is an inverted record of <importKey, ontimeKey>
+ * We need this function since, when importing from sheets, the user gives us custom field labels, not keys
+ * @returns the new custom fields, and a map of excel column names to ontime keys
  * @private exported for testing
  */
 export function getCustomFieldData(
   importMap: ImportMap,
   existingCustomFields: CustomFields,
 ): {
-  customFields: CustomFields;
+  mergedCustomFields: CustomFields;
   customFieldImportKeys: Record<keyof CustomFields, string>;
 } {
-  const customFields = {};
+  const mergedCustomFields: CustomFields = {};
+  /**
+   * A map of import keys to ontime keys
+   * Map<excel column name, ontime key>
+   */
   const customFieldImportKeys: Record<string, CustomFieldKey> = {};
 
   for (const ontimeLabel in importMap.custom) {
-    if (!isAlphanumeric(ontimeLabel)) {
+    // if the label is not valid, we skip the import
+    if (!isAlphanumericWithSpace(ontimeLabel)) {
       continue;
     }
-    const ontimeKey = customFieldLabelToKey(ontimeLabel);
-    const importLabel = importMap.custom[ontimeLabel].toLowerCase();
 
-    // @ts-expect-error -- we are sure that the key exists
-    customFields[ontimeKey] = {
-      type: 'string',
-      colour: ontimeKey in existingCustomFields ? existingCustomFields[ontimeKey].colour : '',
+    // generate a key for the custom field
+    const keyInCustomFields = customFieldLabelToKey(ontimeLabel);
+    // we lower case the excel key to make it easier to match
+    const columnNameInExcel = importMap.custom[ontimeLabel].toLowerCase();
+    const maybeExistingColour = existingCustomFields[keyInCustomFields]?.colour ?? '';
+
+    // 1. add the custom field to the merged custom fields
+    mergedCustomFields[keyInCustomFields] = {
+      type: 'string', // we currently only support string custom fields
+      colour: maybeExistingColour,
       label: ontimeLabel,
     };
-    customFieldImportKeys[importLabel] = ontimeKey;
+
+    // 2. add the column to the import keys
+    customFieldImportKeys[columnNameInExcel] = keyInCustomFields;
   }
-  return { customFields, customFieldImportKeys };
+  return { mergedCustomFields, customFieldImportKeys };
 }

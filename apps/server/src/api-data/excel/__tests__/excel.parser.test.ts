@@ -1,5 +1,5 @@
 import { CustomFields, OntimeEvent, SupportedEntry, TimerType } from 'ontime-types';
-import { ImportMap, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { defaultImportMap, ImportMap, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { getCustomFieldData, parseExcel } from '../excel.parser.js';
 
@@ -451,7 +451,7 @@ describe('getCustomFieldData()', () => {
     } as ImportMap;
 
     const result = getCustomFieldData(importMap, {});
-    expect(result.customFields).toStrictEqual({
+    expect(result.mergedCustomFields).toStrictEqual({
       lighting: {
         type: 'string',
         colour: '',
@@ -476,6 +476,7 @@ describe('getCustomFieldData()', () => {
       av: 'video',
     });
   });
+
   it('keeps colour information from existing fields', () => {
     const importMap = {
       worksheet: 'event schedule',
@@ -498,19 +499,19 @@ describe('getCustomFieldData()', () => {
         lighting: 'lx',
         sound: 'sound',
         video: 'av',
-        ontime_label: 'excel label',
+        'ontime key': 'excel label',
       },
       entryId: 'id',
     } as ImportMap;
 
-    const customFields: CustomFields = {
-      lighting: { label: 'lx', type: 'string', colour: 'red' },
+    const existingCustomFields: CustomFields = {
+      lighting: { label: 'lighting', type: 'string', colour: 'red' },
       sound: { label: 'sound', type: 'string', colour: 'green' },
-      ontime_key: { label: 'ontime_label', type: 'string', colour: 'blue' },
+      ontime_key: { label: 'ontime key', type: 'string', colour: 'blue' },
     };
 
-    const result = getCustomFieldData(importMap, customFields);
-    expect(result.customFields).toStrictEqual({
+    const result = getCustomFieldData(importMap, existingCustomFields);
+    expect(result.mergedCustomFields).toStrictEqual({
       lighting: {
         type: 'string',
         colour: 'red',
@@ -529,7 +530,7 @@ describe('getCustomFieldData()', () => {
       ontime_key: {
         type: 'string',
         colour: 'blue',
-        label: 'ontime_label',
+        label: 'ontime key',
       },
     });
 
@@ -539,6 +540,43 @@ describe('getCustomFieldData()', () => {
       sound: 'sound',
       av: 'video',
       'excel label': 'ontime_key',
+    });
+  });
+
+  it('lowercases the keys in the import map', () => {
+    const importMap: ImportMap = {
+      ...defaultImportMap,
+      custom: {
+        Lighting: 'Lx',
+        Sound: 'sound',
+        video: 'av',
+      },
+    };
+
+    const result = getCustomFieldData(importMap, {});
+    expect(result.mergedCustomFields).toStrictEqual({
+      Lighting: {
+        type: 'string',
+        colour: '',
+        label: 'Lighting',
+      },
+      Sound: {
+        type: 'string',
+        colour: '',
+        label: 'Sound',
+      },
+      video: {
+        type: 'string',
+        colour: '',
+        label: 'video',
+      },
+    });
+
+    // notice that the keys excel keys are lowercased
+    expect(result.customFieldImportKeys).toStrictEqual({
+      lx: 'Lighting',
+      sound: 'Sound',
+      av: 'video',
     });
   });
 });
