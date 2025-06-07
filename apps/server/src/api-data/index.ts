@@ -2,9 +2,9 @@ import express from 'express';
 
 import { router as automationsRouter } from './automation/automation.router.js';
 import { router as urlPresetsRouter } from './url-presets/urlPresets.router.js';
-import { router as customFieldsRouter } from './custom-fields/customFields.router.js';
+import { router as customFieldsRouter } from './rundown/customFields.router.js';
 import { router as dbRouter } from './db/db.router.js';
-import { router as projectRouter } from './project/project.router.js';
+import { router as projectRouter } from './project-data/projectData.router.js';
 import { router as rundownRouter } from './rundown/rundown.router.js';
 import { router as settingsRouter } from './settings/settings.router.js';
 import { router as sheetsRouter } from './sheets/sheets.router.js';

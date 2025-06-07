@@ -1,8 +1,10 @@
 import { TimeStrategy, EndAction, TimerType, OntimeEvent } from 'ontime-types';
+import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { assertType } from 'vitest';
 
-import { createEvent, deleteById, doesInvalidateMetadata, hasChanges } from '../rundown.utils.js';
+import { calculateDayOffset, createEvent, deleteById, doesInvalidateMetadata, getInsertAfterId, hasChanges } from '../rundown.utils.js';
+import { makeRundown } from '../__mocks__/rundown.mocks.js';
 
 describe('test event validator', () => {
   it('validates a good object', () => {
@@ -130,7 +132,7 @@ describe('hasChanges()', () => {
   });
 });
 
-describe('deleteById', () => {
+describe('deleteById()', () => {
   it('should delete the first instance of the specified ID from the array', () => {
     const array = ['id1', 'id2', 'id3', 'id4'];
     const result = deleteById(array, 'id2');
@@ -154,5 +156,85 @@ describe('deleteById', () => {
     const array = ['id1', 'id2', 'id3'];
     const result = deleteById(array, 'id4');
     expect(result).toStrictEqual(['id1', 'id2', 'id3']);
+  });
+});
+
+describe('calculateDayOffset()', () => {
+  it('returns 0 if there is no previous event', () => {
+    expect(calculateDayOffset({ timeStart: 0 }, null)).toBe(0);
+  });
+
+  it('returns 0 if the previous event duration is 0', () => {
+    expect(calculateDayOffset({ timeStart: 0 }, { timeStart: 0, duration: 0 })).toBe(0);
+  });
+
+  it('returns 0 if event starts after previous', () => {
+    expect(calculateDayOffset({ timeStart: 11 }, { timeStart: 10, duration: 2 })).toBe(0);
+  });
+
+  it('returns 1 if event starts before previous', () => {
+    expect(calculateDayOffset({ timeStart: 9 }, { timeStart: 10, duration: 2 })).toBe(1);
+  });
+
+  it('returns 1 if event starts at the same time as one before', () => {
+    expect(calculateDayOffset({ timeStart: 10 }, { timeStart: 10, duration: 2 })).toBe(1);
+  });
+
+  it('should account for an event that crossed midnight and there is a overlap', () => {
+    expect(
+      calculateDayOffset(
+        { timeStart: MILLIS_PER_HOUR }, // starts at 01:00:00
+        { timeStart: 20 * MILLIS_PER_HOUR, duration: 6 * MILLIS_PER_HOUR }, // ends at 02:00:00
+      ),
+    ).toBe(1);
+  });
+
+  it('should account for an event that crossed midnight and there is a gap', () => {
+    expect(
+      calculateDayOffset(
+        { timeStart: 2 * MILLIS_PER_HOUR }, // starts at 02:00:00
+        { timeStart: 23 * MILLIS_PER_HOUR, duration: 2 * MILLIS_PER_HOUR }, // ends at 01:00:00
+      ),
+    ).toBe(1);
+  });
+
+  it('should account for an event that crossed midnight with no overlaps or gaps', () => {
+    expect(
+      calculateDayOffset(
+        { timeStart: 2 * MILLIS_PER_HOUR }, // starts at 02:00:00
+        { timeStart: 20 * MILLIS_PER_HOUR, duration: 6 * MILLIS_PER_HOUR }, // ends at 02:00:00
+      ),
+    ).toBe(1);
+  });
+
+  it('should account for an event that finishes exactly at midnight', () => {
+    expect(
+      calculateDayOffset(
+        { timeStart: 2 * MILLIS_PER_HOUR }, // starts at 02:00:00
+        { timeStart: 23 * MILLIS_PER_HOUR, duration: 6 * MILLIS_PER_HOUR }, // ends at 24:00:00
+      ),
+    ).toBe(1);
+  });
+});
+
+describe('getInsertAfterId()', () => {
+  const rundown = makeRundown({
+    flatOrder: ['a', 'b', 'c', 'd'],
+  });
+
+  it('returns afterId if provided', () => {
+    expect(getInsertAfterId(rundown, 'b')).toBe('b');
+  });
+
+  it('returns the previous id before beforeId if provided', () => {
+    expect(getInsertAfterId(rundown, undefined, 'c')).toBe('b');
+  });
+
+  it('returns undefined if neither afterId nor beforeId is provided', () => {
+    expect(getInsertAfterId(rundown)).toBeNull();
+  });
+
+  it('returns undefined if beforeId is not found', () => {
+    expect(getInsertAfterId(rundown, undefined, 'z')).toBeNull();
   });
 });

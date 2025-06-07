@@ -23,23 +23,22 @@ import { eventStore } from '../../stores/EventStore.js';
 import { triggerReportEntry } from '../../api-data/report/report.service.js';
 import { timerConfig } from '../../setup/config.js';
 import { triggerAutomations } from '../../api-data/automation/automation.service.js';
-import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
+import { getCurrentRundown, getEntryWithId, getRundownMetadata } from '../../api-data/rundown/rundown.dao.js';
 
 import { EventTimer } from '../EventTimer.js';
 import { RestorePoint, restoreService } from '../RestoreService.js';
-import {
-  findNext,
-  findPrevious,
-  getEventAtIndex,
-  getNextEventWithCue,
-  getEntryWithId,
-  getTimedEvents,
-  getRundownData,
-} from '../rundown-service/rundownUtils.js';
 import { skippedOutOfEvent } from '../timerUtils.js';
-import { getEventOrder } from '../rundown-service/rundownCache.js';
 
-import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
+import {
+  filterTimedEvents,
+  findNextPlayableId,
+  findNextPlayableWithCue,
+  findPreviousPlayableId,
+  getEventAtIndex,
+  getForceUpdate,
+  getShouldClockUpdate,
+  getShouldTimerUpdate,
+} from './rundownService.utils.js';
 
 type RuntimeStateEventKeys = keyof Pick<RuntimeState, 'eventNext' | 'eventNow' | 'publicEventNow' | 'publicEventNext'>;
 
@@ -198,7 +197,10 @@ class RuntimeService {
   }
 
   private isNewNext() {
-    const timedEvents = getTimedEvents();
+    const rundown = getCurrentRundown();
+    const { timedEventOrder } = getRundownMetadata();
+    const timedEvents = filterTimedEvents(rundown, timedEventOrder);
+
     const state = runtimeState.getState();
     const now = state.eventNow?.id;
     const next = state.eventNext?.id;
@@ -271,8 +273,8 @@ class RuntimeService {
           runtimeState.updateLoaded(eventNow);
         } else {
           const rundown = getCurrentRundown();
-          const { timedEventsOrder } = getEventOrder();
-          runtimeState.updateAll(rundown, timedEventsOrder);
+          const { timedEventOrder } = getRundownMetadata();
+          runtimeState.updateAll(rundown, timedEventOrder);
         }
         return;
       }
@@ -281,7 +283,9 @@ class RuntimeService {
     // Maybe the event will become the next
     isNext = this.isNewNext();
     if (isNext) {
-      const timedEvents = getTimedEvents();
+      const rundown = getCurrentRundown();
+      const { timedEventOrder } = getRundownMetadata();
+      const timedEvents = filterTimedEvents(rundown, timedEventOrder);
       runtimeState.loadNext(timedEvents);
     }
   }
@@ -299,8 +303,10 @@ class RuntimeService {
     }
     const previousState = runtimeState.getState();
 
-    const { rundown, rundownOrder } = getRundownData();
-    const success = runtimeState.load(event, rundown, rundownOrder.timedEventsOrder, initialData);
+    // we can ignore events which are not playable
+    const rundown = getCurrentRundown();
+    const rundownMetadata = getRundownMetadata();
+    const success = runtimeState.load(event, rundown, rundownMetadata.playableEventOrder, initialData);
 
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
@@ -342,14 +348,20 @@ class RuntimeService {
    */
   @broadcastResult
   public startByIndex(eventIndex: number): boolean {
-    const event = getEventAtIndex(eventIndex);
+    const rundown = getCurrentRundown();
+    const { timedEventOrder } = getRundownMetadata();
+
+    const event = getEventAtIndex(rundown, timedEventOrder, eventIndex);
+
     if (!event) {
       return false;
     }
+
     const loaded = this.loadEvent(event);
     if (!loaded) {
       return false;
     }
+
     return this.handleStart();
   }
 
@@ -360,10 +372,21 @@ class RuntimeService {
    */
   @broadcastResult
   public startByCue(cue: string): boolean {
-    const event = getNextEventWithCue(cue); //TODO: add index
+    const state = runtimeState.getState();
+    const rundown = getCurrentRundown();
+    const { playableEventOrder } = getRundownMetadata();
+
+    const event = findNextPlayableWithCue(
+      rundown,
+      playableEventOrder,
+      cue,
+      state.runtime.selectedEventIndex ?? undefined,
+    );
+
     if (!event) {
       return false;
     }
+
     const loaded = this.loadEvent(event);
     if (!loaded) {
       return false;
@@ -392,7 +415,11 @@ class RuntimeService {
    */
   @broadcastResult
   public loadByIndex(eventIndex: number): boolean {
-    const event = getEventAtIndex(eventIndex);
+    const rundown = getCurrentRundown();
+    const { timedEventOrder } = getRundownMetadata();
+
+    const event = getEventAtIndex(rundown, timedEventOrder, eventIndex);
+
     if (!event) {
       return false;
     }
@@ -406,10 +433,21 @@ class RuntimeService {
    */
   @broadcastResult
   public loadByCue(cue: string): boolean {
-    const event = getNextEventWithCue(cue); //TODO: add index
+    const state = runtimeState.getState();
+    const rundown = getCurrentRundown();
+    const { playableEventOrder } = getRundownMetadata();
+
+    const event = findNextPlayableWithCue(
+      rundown,
+      playableEventOrder,
+      cue,
+      state.runtime.selectedEventIndex ?? undefined,
+    );
+
     if (!event) {
       return false;
     }
+
     return this.loadEvent(event);
   }
 
@@ -421,10 +459,16 @@ class RuntimeService {
    */
   private handleLoadPrevious(): boolean {
     const state = runtimeState.getState();
-    const previousEvent = findPrevious(state.eventNow?.id);
-    if (previousEvent) {
-      return this.loadEvent(previousEvent);
+    const { playableEventOrder } = getRundownMetadata();
+
+    const previousId = findPreviousPlayableId(playableEventOrder, state.eventNow?.id);
+    if (previousId) {
+      const previousEvent = getEntryWithId(previousId);
+      if (previousEvent && isOntimeEvent(previousEvent)) {
+        return this.loadEvent(previousEvent);
+      }
     }
+
     return false;
   }
 
@@ -446,8 +490,15 @@ class RuntimeService {
    */
   private handleLoadNext(): boolean {
     const state = runtimeState.getState();
-    const nextEvent = findNext(state.eventNow?.id);
-    if (nextEvent) {
+    const { playableEventOrder } = getRundownMetadata();
+
+    const nextId = findNextPlayableId(playableEventOrder, state.eventNow?.id);
+    if (nextId) {
+      const nextEvent = getEntryWithId(nextId);
+      if (!nextEvent || !isOntimeEvent(nextEvent)) {
+        return false;
+      }
+
       if (state.timer.playback === Playback.Roll) {
         return this.loadEvent(nextEvent, { firstStart: state.runtime.actualStart });
       }
@@ -457,7 +508,6 @@ class RuntimeService {
     logger.info(LogOrigin.Playback, 'No next event found! Continuing playback');
     return false;
   }
-
   /**
    * Loads event after currently selected
    * @return {boolean} success
@@ -585,10 +635,10 @@ class RuntimeService {
    */
   private rollLoaded(offset?: number) {
     const rundown = getCurrentRundown();
-    const { timedEventsOrder } = getEventOrder();
+    const { timedEventOrder } = getRundownMetadata();
 
     try {
-      runtimeState.roll(rundown, timedEventsOrder, offset);
+      runtimeState.roll(rundown, timedEventOrder, offset);
     } catch (error) {
       logger.error(LogOrigin.Server, `Roll: ${error}`);
     }
@@ -608,8 +658,10 @@ class RuntimeService {
     }
 
     try {
-      const { rundown, rundownOrder } = getRundownData();
-      const result = runtimeState.roll(rundown, rundownOrder.timedEventsOrder);
+      const rundown = getCurrentRundown();
+      const rundownMetadata = getRundownMetadata();
+      const result = runtimeState.roll(rundown, rundownMetadata.playableEventOrder);
+
       const newState = runtimeState.getState();
       if (result.eventId !== previousState.eventNow?.id) {
         logger.info(LogOrigin.Playback, `Loaded event with ID ${result.eventId}`);
@@ -660,8 +712,10 @@ class RuntimeService {
       return;
     }
 
-    const { rundown, rundownOrder } = getRundownData();
-    runtimeState.resume(restorePoint, event, rundown, rundownOrder.timedEventsOrder);
+    const rundown = getCurrentRundown();
+    const rundownMetadata = getRundownMetadata();
+    runtimeState.resume(restorePoint, event, rundown, rundownMetadata.playableEventOrder);
+
     logger.info(LogOrigin.Playback, 'Resuming playback');
   }
 

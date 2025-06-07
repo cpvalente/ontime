@@ -5,7 +5,6 @@ import { NextFunction, Request, Response } from 'express';
 
 export const validateRequestConnection = [
   param('sheetId')
-    .exists()
     .isString()
     .isLength({
       min: 20,
@@ -25,7 +24,7 @@ export const validateRequestConnection = [
 ];
 
 export const validateSheetId = [
-  param('sheetId').exists().isString(),
+  param('sheetId').isString(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -35,9 +34,8 @@ export const validateSheetId = [
 ];
 
 export const validateSheetOptions = [
-  param('sheetId').exists().isString(),
+  param('sheetId').isString(),
   body('options')
-    .exists()
     .isObject()
     .custom((content) => {
       const isValid = isImportMap(content);

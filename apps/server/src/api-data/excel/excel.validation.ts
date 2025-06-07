@@ -14,7 +14,6 @@ export const validateFileExists = [
 
 export const validateImportMapOptions = [
   body('options')
-    .exists()
     .isObject()
     .custom((content) => {
       return isImportMap(content);
