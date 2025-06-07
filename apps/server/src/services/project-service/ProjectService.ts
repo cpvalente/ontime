@@ -1,5 +1,5 @@
 import { DatabaseModel, LogOrigin, ProjectData, ProjectFileListResponse } from 'ontime-types';
-import { getErrorMessage } from 'ontime-utils';
+import { getErrorMessage, getFirstRundown } from 'ontime-utils';
 
 import { join } from 'path';
 import { copyFile } from 'fs/promises';
@@ -32,7 +32,6 @@ import {
   setLastLoadedProject,
 } from '../app-state-service/AppStateService.js';
 import { runtimeService } from '../runtime-service/RuntimeService.js';
-import { getFirstRundown } from '../rundown-service/rundownUtils.js';
 
 import {
   copyCorruptFile,

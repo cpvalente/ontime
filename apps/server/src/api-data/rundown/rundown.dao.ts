@@ -81,7 +81,9 @@ const customFieldsMetadata: CustomFieldsMetadata = {
 let projectCustomFields: CustomFields = {};
 
 export const getCurrentRundown = (): Readonly<Rundown> => cachedRundown;
+export const getRundownMetadata = (): Readonly<RundownMetadata> => rundownMetadata;
 export const getProjectCustomFields = (): Readonly<CustomFields> => projectCustomFields;
+export const getEntryWithId = (entryId: EntryId): OntimeEntry | undefined => cachedRundown.entries[entryId];
 
 type Transaction = {
   customFields: CustomFields;

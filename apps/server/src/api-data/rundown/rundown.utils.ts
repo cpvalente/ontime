@@ -340,3 +340,21 @@ export function calculateDayOffset(
 
   return 0;
 }
+
+/**
+ * Receives an insertion order and returns the reference to an event ID
+ * after which we will insert the new event
+ */
+export function getInsertAfterId(rundown: Rundown, afterId?: EntryId, beforeId?: EntryId): EntryId | null {
+  if (afterId) {
+    return afterId;
+  }
+
+  if (beforeId) {
+    const atIndex = rundown.flatOrder.findIndex((id) => id === beforeId);
+    if (atIndex < 1) return null;
+    return rundown.flatOrder[atIndex - 1];
+  }
+
+  return null;
+}

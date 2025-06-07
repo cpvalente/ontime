@@ -11,16 +11,15 @@ import {
   PatchWithId,
   Rundown,
 } from 'ontime-types';
+import { customFieldLabelToKey } from 'ontime-utils';
 
-import { getPreviousId } from '../../services/rundown-service/rundownUtils.js';
 import { updateRundownData } from '../../stores/runtimeState.js';
 import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
 
 import { createTransaction, customFieldMutation, rundownCache, rundownMutation } from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
-import { generateEvent, hasChanges } from './rundown.utils.js';
-import { customFieldLabelToKey } from 'ontime-utils';
+import { generateEvent, getInsertAfterId, hasChanges } from './rundown.utils.js';
 
 /**
  * creates a new entry with given data
@@ -44,7 +43,7 @@ export async function addEntry(eventData: EventPostPayload): Promise<OntimeEntry
   }
 
   // normalise the position of the event in the rundown order
-  const afterId = getPreviousId(rundown, eventData?.after, eventData?.before);
+  const afterId = getInsertAfterId(rundown, eventData?.after, eventData?.before);
 
   // generate a fully formed entry from the patch
   const newEntry = generateEvent(rundown, eventData, afterId);

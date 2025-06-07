@@ -3,7 +3,8 @@ import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { assertType } from 'vitest';
 
-import { calculateDayOffset, createEvent, deleteById, doesInvalidateMetadata, hasChanges } from '../rundown.utils.js';
+import { calculateDayOffset, createEvent, deleteById, doesInvalidateMetadata, getInsertAfterId, hasChanges } from '../rundown.utils.js';
+import { makeRundown } from '../__mocks__/rundown.mocks.js';
 
 describe('test event validator', () => {
   it('validates a good object', () => {
@@ -131,7 +132,7 @@ describe('hasChanges()', () => {
   });
 });
 
-describe('deleteById', () => {
+describe('deleteById()', () => {
   it('should delete the first instance of the specified ID from the array', () => {
     const array = ['id1', 'id2', 'id3', 'id4'];
     const result = deleteById(array, 'id2');
@@ -158,7 +159,7 @@ describe('deleteById', () => {
   });
 });
 
-describe('calculateDayOffset', () => {
+describe('calculateDayOffset()', () => {
   it('returns 0 if there is no previous event', () => {
     expect(calculateDayOffset({ timeStart: 0 }, null)).toBe(0);
   });
@@ -213,5 +214,27 @@ describe('calculateDayOffset', () => {
         { timeStart: 23 * MILLIS_PER_HOUR, duration: 6 * MILLIS_PER_HOUR }, // ends at 24:00:00
       ),
     ).toBe(1);
+  });
+});
+
+describe('getInsertAfterId()', () => {
+  const rundown = makeRundown({
+    flatOrder: ['a', 'b', 'c', 'd'],
+  });
+
+  it('returns afterId if provided', () => {
+    expect(getInsertAfterId(rundown, 'b')).toBe('b');
+  });
+
+  it('returns the previous id before beforeId if provided', () => {
+    expect(getInsertAfterId(rundown, undefined, 'c')).toBe('b');
+  });
+
+  it('returns undefined if neither afterId nor beforeId is provided', () => {
+    expect(getInsertAfterId(rundown)).toBeNull();
+  });
+
+  it('returns undefined if beforeId is not found', () => {
+    expect(getInsertAfterId(rundown, undefined, 'z')).toBeNull();
   });
 });

@@ -28,6 +28,7 @@ export {
   getPreviousBlockNormal,
   swapEventData,
 } from './src/rundown-utils/rundownUtils.js';
+export { getFirstRundown } from './src/rundown/rundown.utils.js';
 
 // time format utils
 export {
