@@ -13,6 +13,7 @@ $button-size: 3rem;
 
   &.hidden {
     opacity: 0;
+    pointer-events: none;
   }
 }
 
