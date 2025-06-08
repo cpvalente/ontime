@@ -111,7 +111,7 @@ export default function Backstage(props: BackstageProps) {
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>
       <ViewParamsEditor viewOptions={backstageOptions} />
       <div className='project-header'>
-        {general?.projectLogo ? <ViewLogo name={general.projectLogo} className='logo' /> : <div className='logo' />}
+        {general?.projectLogo && <ViewLogo name={general.projectLogo} className='logo' />}
         <div className='title'>{general.title}</div>
         <div className='clock-container'>
           <div className='label'>{getLocalizedString('common.time_now')}</div>
