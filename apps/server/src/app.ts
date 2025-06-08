@@ -72,7 +72,8 @@ if (!isProduction) {
   // log server timings to requests
   app.use(serverTiming());
 }
-app.disable('x-powered-by');
+app.set('x-powered-by', false);
+app.set('etag', false);
 
 // Implement middleware
 app.use(cors()); // setup cors for all routes

@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 import { serverURL } from '../../externals';
 
 // keys in tanstack store
@@ -23,3 +25,10 @@ const cssOverridePath = 'styles/override.css';
 
 export const overrideStylesURL = `${serverURL}/${userAssetsPath}/${cssOverridePath}`;
 export const projectLogoPath = `${serverURL}/${userAssetsPath}/logo`;
+
+export const axiosInstance = axios.create({
+  baseURL: apiEntryUrl,
+  validateStatus: (status) => {
+    return status < 300 || status === 304;
+  },
+});

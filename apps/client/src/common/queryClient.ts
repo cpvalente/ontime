@@ -1,11 +1,17 @@
 import { QueryClient } from '@tanstack/react-query';
+import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { isOntimeCloud } from '../externals';
 
 export const ontimeQueryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      gcTime: 1000 * 60 * 10, // 10 min
+      gcTime: 10 * MILLIS_PER_MINUTE,
+      // staleTime: MILLIS_PER_HOUR, //TODO: when all routes have implemented refetch signal from server
+      networkMode: 'always',
+      refetchOnWindowFocus: false,
+      retry: 5,
+      retryDelay: (attempt) => attempt * 2500,
     },
     mutations: {
       /**
