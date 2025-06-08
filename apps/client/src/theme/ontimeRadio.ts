@@ -25,12 +25,12 @@ export const ontimeBlockRadio = {
     backgroundColor: '#262626', // $gray-1200
     _checked: {
       borderColor: '#262626', // $gray-1200
-      color: '#3182ce', // $action-blue
-      backgroundColor: '#3182ce', // $action-blue
+      color: '#578AF4', // $blue-500
+      backgroundColor: '#578AF4', // $blue-500
     },
     _hover: {
-      color: '#3182ce', // $action-blue
-      backgroundColor: '#3182ce', // $action-blue
+      color: '#578AF4', // $blue-500
+      backgroundColor: '#578AF4', // $blue-500
       outline: 'none',
     },
   },
