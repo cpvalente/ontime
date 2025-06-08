@@ -3,4 +3,5 @@ export enum RefetchKey {
   ProjectData = 'project-data',
   Report = 'report',
   Rundown = 'rundown',
+  ViewSettings = 'view-settings',
 }

@@ -3,8 +3,6 @@ import { Controller, useForm } from 'react-hook-form';
 import { Button, Input, Switch, useDisclosure } from '@chakra-ui/react';
 import { ViewSettings } from 'ontime-types';
 
-import { maybeAxiosError } from '../../../../common/api/utils';
-import { postViewSettings } from '../../../../common/api/viewSettings';
 import Info from '../../../../common/components/info/Info';
 import { SwatchPickerRHF } from '../../../../common/components/input/colour-input/SwatchPicker';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
@@ -19,7 +17,7 @@ import CodeEditorModal from './StyleEditorModal';
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
 export default function ViewSettingsForm() {
-  const { data, status, refetch } = useViewSettings();
+  const { data, isFetching, mutate, mutateError } = useViewSettings();
   const { data: info, status: infoStatus } = useInfo();
   const { isOpen: isCodeEditorOpen, onOpen: onCodeEditorOpen, onClose: onCodeEditorClose } = useDisclosure();
 
@@ -29,7 +27,7 @@ export default function ViewSettingsForm() {
     register,
     reset,
     setError,
-    formState: { isSubmitting, isDirty },
+    formState: { isSubmitting, isDirty, errors },
   } = useForm<ViewSettings>({
     defaultValues: data,
     values: data,
@@ -45,19 +43,13 @@ export default function ViewSettingsForm() {
     }
   }, [data, reset]);
 
-  const onSubmit = async (formData: ViewSettings) => {
-    const newData = {
-      ...formData,
-    };
+  useEffect(() => {
+    return setError('root', { message: mutateError });
+  }, [mutateError]);
 
-    try {
-      await postViewSettings(newData);
-    } catch (error) {
-      const message = maybeAxiosError(error);
-      setError('root', { message });
-    } finally {
-      await refetch();
-    }
+  const onSubmit = async (formData: ViewSettings) => {
+    const newData = { ...formData };
+    await mutate(newData);
   };
 
   const onReset = () => {
@@ -68,7 +60,7 @@ export default function ViewSettingsForm() {
     return null;
   }
 
-  const isLoading = status === 'pending' || infoStatus === 'pending';
+  const isLoading = isFetching || infoStatus === 'pending';
 
   return (
     <Panel.Section
@@ -105,6 +97,7 @@ export default function ViewSettingsForm() {
         </Info>
         <Panel.Section>
           <Panel.Loader isLoading={isLoading} />
+          <Panel.Error>{errors.root?.message}</Panel.Error>
           <Panel.ListGroup>
             <CodeEditorModal isOpen={isCodeEditorOpen} onClose={onCodeEditorClose} />
             <Panel.ListItem>

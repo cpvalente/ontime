@@ -1,5 +1,6 @@
-import { Log, RefetchKey, RuntimeStore, WsPacketToClient, WsPacketToServer, MessageType } from 'ontime-types';
+import { Log, MessageType,RefetchKey, RuntimeStore, WsPacketToClient, WsPacketToServer } from 'ontime-types';
 
+import { refetchViewSettings } from '../../common/hooks-query/useViewSettings';
 import { isProduction, websocketUrl } from '../../externals';
 import { CLIENT_LIST, CUSTOM_FIELDS, RUNDOWN, RUNTIME } from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
@@ -66,7 +67,7 @@ export const connectSocket = () => {
     console.error('WebSocket error:', error);
   };
 
-  websocket.onmessage = (event) => {
+  websocket.onmessage = async (event) => {
     try {
       const data = JSON.parse(event.data) as WsPacketToClient;
 
@@ -141,7 +142,7 @@ export const connectSocket = () => {
         }
         case MessageType.Refetch: {
           // the refetch message signals that the rundown has changed in the server side
-          const { target } = payload;
+          const { target, revision } = payload;
           switch (target) {
             case RefetchKey.All:
               invalidateAllCaches();
@@ -149,6 +150,9 @@ export const connectSocket = () => {
             case RefetchKey.Rundown:
               ontimeQueryClient.invalidateQueries({ queryKey: RUNDOWN });
               ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
+              break;
+            case RefetchKey.ViewSettings:
+              await refetchViewSettings(revision);
               break;
             default:
               console.log('unknown refetch target', target);
