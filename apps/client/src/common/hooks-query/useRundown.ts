@@ -49,11 +49,11 @@ export function useFlatRundown() {
   // update data whenever the revision changes
   useEffect(() => {
     if (data.revision !== -1 && data.revision !== prevRevision) {
-      const flatRundown = data.order.map((id) => data.entries[id]);
+      const flatRundown = data.flatOrder.map((id) => data.entries[id]);
       setFlatRundown(flatRundown);
       setPrevRevision(data.revision);
     }
-  }, [data.entries, data.order, data.revision, prevRevision]);
+  }, [data.entries, data.flatOrder, data.revision, prevRevision]);
 
   // TODO: should we have a project id field?
   // invalidate current version if project changes
