@@ -132,7 +132,7 @@ function EventBlockInner(props: EventBlockInnerProps) {
           duration={duration}
         />
       )}
-      <div className={style.statusElements} id='block-status' data-timerType={timerType}>
+      <div className={style.statusElements} id='block-status' data-timertype={timerType}>
         <span className={style.eventNote}>{note}</span>
         <div className={loaded ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
           {loaded && <EventBlockProgressBar />}
