@@ -43,7 +43,7 @@ test('project file download', async ({ page }) => {
 
   // workaround to download
   // https://playwright.dev/docs/api/class-download
-  const downloadPromise = page.waitForEvent('download');
+  const downloadPromise = page.waitForEvent('download', { timeout: 10_000 });
 
   await page
     .getByRole('row', { name: /.*currently loaded/i })
