@@ -153,7 +153,6 @@ class SocketServer implements IAdapter {
               break;
             }
           }
-          return;
         } catch (_) {
           // we ignore unknown
         }

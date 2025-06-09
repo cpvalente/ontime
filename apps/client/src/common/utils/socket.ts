@@ -1,4 +1,12 @@
-import { Log, MessageType,RefetchKey, RuntimeStore, WsPacketToClient, WsPacketToServer } from 'ontime-types';
+import {
+  ApiAction,
+  Log,
+  MessageType,
+  RefetchKey,
+  RuntimeStore,
+  WsPacketToClient,
+  WsPacketToServer,
+} from 'ontime-types';
 
 import { refetchViewSettings } from '../../common/hooks-query/useViewSettings';
 import { isProduction, websocketUrl } from '../../externals';
@@ -34,7 +42,7 @@ export const connectSocket = () => {
     hasConnected = true;
     reconnectAttempts = 0;
 
-    sendOntimeSocket({
+    sendDataSocket({
       type: MessageType.ClientSet,
       payload: {
         type: 'ontime',
@@ -171,13 +179,13 @@ export const connectSocket = () => {
   };
 };
 
-export function sendOntimeSocket(packet: WsPacketToServer): void {
+export function sendDataSocket(packet: WsPacketToServer): void {
   if (websocket && websocket.readyState === WebSocket.OPEN) {
     websocket.send(JSON.stringify(packet));
   }
 }
 
-export function socketSendJson(type: string, payload?: unknown): void {
+export function sendApiSocket(type: ApiAction, payload?: unknown): void {
   if (websocket && websocket.readyState === WebSocket.OPEN) {
     websocket.send(JSON.stringify({ type, payload }));
   }

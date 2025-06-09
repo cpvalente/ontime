@@ -1,4 +1,12 @@
-import { MessageState, OffsetMode, OntimeEvent, PatchWithId, SimpleDirection, SimplePlayback } from 'ontime-types';
+import {
+  ApiAction,
+  MessageState,
+  OffsetMode,
+  OntimeEvent,
+  PatchWithId,
+  SimpleDirection,
+  SimplePlayback,
+} from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { DeepPartial } from 'ts-essentials';
@@ -23,7 +31,7 @@ let lastRequest: Date | null = null;
 
 export function dispatchFromAdapter(type: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
   const action = type.toLowerCase();
-  const handler = actionHandlers[action];
+  const handler = actionHandlers[action as ApiAction];
   lastRequest = new Date();
 
   if (handler) {
@@ -39,7 +47,7 @@ export function getLastRequest() {
 
 type ActionHandler = (payload: unknown) => { payload: unknown };
 
-const actionHandlers: Record<string, ActionHandler> = {
+const actionHandlers: Record<ApiAction, ActionHandler> = {
   /* General */
   version: () => ({ payload: ONTIME_VERSION }),
   poll: () => ({

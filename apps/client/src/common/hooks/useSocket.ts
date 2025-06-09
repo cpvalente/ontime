@@ -1,7 +1,7 @@
 import { OffsetMode, RuntimeStore, SimpleDirection, SimplePlayback, TimerMessage } from 'ontime-types';
 
 import { useRuntimeStore } from '../stores/runtime';
-import { socketSendJson } from '../utils/socket';
+import { sendApiSocket } from '../utils/socket';
 
 const createSelector =
   <T>(selector: (state: RuntimeStore) => T) =>
@@ -9,9 +9,9 @@ const createSelector =
     useRuntimeStore(selector);
 
 export const setClientRemote = {
-  setIdentify: (payload: { target: string; identify: boolean }) => socketSendJson('client', payload),
-  setRedirect: (payload: { target: string; redirect: string }) => socketSendJson('client', payload),
-  setClientName: (payload: { target: string; rename: string }) => socketSendJson('client', payload),
+  setIdentify: (payload: { target: string; identify: boolean }) => sendApiSocket('client', payload),
+  setRedirect: (payload: { target: string; redirect: string }) => sendApiSocket('client', payload),
+  setClientName: (payload: { target: string; rename: string }) => sendApiSocket('client', payload),
 };
 
 export const useRundownEditor = createSelector((state: RuntimeStore) => ({
@@ -53,13 +53,13 @@ export const useMessagePreview = createSelector((state: RuntimeStore) => ({
 }));
 
 export const setMessage = {
-  timerText: (payload: string) => socketSendJson('message', { timer: { text: payload } }),
-  timerVisible: (payload: boolean) => socketSendJson('message', { timer: { visible: payload } }),
-  externalText: (payload: string) => socketSendJson('message', { external: payload }),
-  timerBlink: (payload: boolean) => socketSendJson('message', { timer: { blink: payload } }),
-  timerBlackout: (payload: boolean) => socketSendJson('message', { timer: { blackout: payload } }),
+  timerText: (payload: string) => sendApiSocket('message', { timer: { text: payload } }),
+  timerVisible: (payload: boolean) => sendApiSocket('message', { timer: { visible: payload } }),
+  externalText: (payload: string) => sendApiSocket('message', { external: payload }),
+  timerBlink: (payload: boolean) => sendApiSocket('message', { timer: { blink: payload } }),
+  timerBlackout: (payload: boolean) => sendApiSocket('message', { timer: { blackout: payload } }),
   timerSecondary: (payload: TimerMessage['secondarySource']) =>
-    socketSendJson('message', { timer: { secondarySource: payload } }),
+    sendApiSocket('message', { timer: { secondarySource: payload } }),
 };
 
 export const usePlaybackControl = createSelector((state: RuntimeStore) => ({
@@ -70,24 +70,24 @@ export const usePlaybackControl = createSelector((state: RuntimeStore) => ({
 }));
 
 export const setPlayback = {
-  start: () => socketSendJson('start'),
-  pause: () => socketSendJson('pause'),
-  roll: () => socketSendJson('roll'),
-  startNext: () => socketSendJson('start', 'next'),
+  start: () => sendApiSocket('start'),
+  pause: () => sendApiSocket('pause'),
+  roll: () => sendApiSocket('roll'),
+  startNext: () => sendApiSocket('start', 'next'),
   previous: () => {
-    socketSendJson('load', 'previous');
+    sendApiSocket('load', 'previous');
   },
   next: () => {
-    socketSendJson('load', 'next');
+    sendApiSocket('load', 'next');
   },
   stop: () => {
-    socketSendJson('stop');
+    sendApiSocket('stop');
   },
   reload: () => {
-    socketSendJson('reload');
+    sendApiSocket('reload');
   },
   addTime: (amount: number) => {
-    socketSendJson('addtime', amount);
+    sendApiSocket('addtime', amount);
   },
 };
 
@@ -99,11 +99,11 @@ export const useAuxTimerControl = createSelector((state: RuntimeStore) => ({
 }));
 
 export const setAuxTimer = {
-  start: () => socketSendJson('auxtimer', { '1': SimplePlayback.Start }),
-  pause: () => socketSendJson('auxtimer', { '1': SimplePlayback.Pause }),
-  stop: () => socketSendJson('auxtimer', { '1': SimplePlayback.Stop }),
-  setDirection: (direction: SimpleDirection) => socketSendJson('auxtimer', { '1': { direction } }),
-  setDuration: (time: number) => socketSendJson('auxtimer', { '1': { duration: time } }),
+  start: () => sendApiSocket('auxtimer', { '1': SimplePlayback.Start }),
+  pause: () => sendApiSocket('auxtimer', { '1': SimplePlayback.Pause }),
+  stop: () => sendApiSocket('auxtimer', { '1': SimplePlayback.Stop }),
+  setDirection: (direction: SimpleDirection) => sendApiSocket('auxtimer', { '1': { direction } }),
+  setDuration: (time: number) => sendApiSocket('auxtimer', { '1': { duration: time } }),
 };
 
 export const useSelectedEventId = createSelector((state: RuntimeStore) => ({
@@ -115,10 +115,10 @@ export const useCurrentBlockId = createSelector((state: RuntimeStore) => ({
 }));
 
 export const setEventPlayback = {
-  loadEvent: (id: string) => socketSendJson('load', { id }),
-  startEvent: (id: string) => socketSendJson('start', { id }),
-  start: () => socketSendJson('start'),
-  pause: () => socketSendJson('pause'),
+  loadEvent: (id: string) => sendApiSocket('load', { id }),
+  startEvent: (id: string) => sendApiSocket('start', { id }),
+  start: () => sendApiSocket('start'),
+  pause: () => sendApiSocket('pause'),
 };
 
 export const useTimer = createSelector((state: RuntimeStore) => ({
@@ -190,7 +190,7 @@ export const useOffsetMode = createSelector((state: RuntimeStore) => ({
   offsetMode: state.runtime.offsetMode,
 }));
 
-export const setOffsetMode = (payload: OffsetMode) => socketSendJson('offsetmode', payload);
+export const setOffsetMode = (payload: OffsetMode) => sendApiSocket('offsetmode', payload);
 
 export const usePlayback = () => {
   const featureSelector = (state: RuntimeStore) => ({
