@@ -19,14 +19,14 @@ export const scheduleOptions: ViewOption = {
     {
       id: 'cycleInterval',
       title: 'Cycle interval',
-      description: 'How long (in seconds) should each schedule page be shown.',
+      description: 'How long (in seconds) should each schedule page be shown',
       type: 'number',
       defaultValue: 10,
     },
     {
       id: 'showProjected',
       title: 'Show projected time',
-      description: 'Whether scheduled times should account for runtime offset.',
+      description: 'Whether scheduled times should account for runtime offset',
       type: 'boolean',
       defaultValue: false,
     },
