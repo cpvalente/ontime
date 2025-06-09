@@ -14,6 +14,7 @@ import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettin
 import useColumnManager from './useColumnManager';
 
 import style from './CuesheetTable.module.scss';
+import useSettings from '../../../common/hooks-query/useSettings';
 
 interface CuesheetTableProps {
   data: OntimeEntry[];
@@ -32,6 +33,9 @@ export default function CuesheetTable(props: CuesheetTableProps) {
   const selectedRef = useRef<HTMLTableRowElement | null>(null);
   const tableContainerRef = useRef<HTMLDivElement | null>(null);
   useFollowComponent({ followRef: selectedRef, scrollRef: tableContainerRef, doFollow: followSelected });
+
+  const { data: settings } = useSettings();
+  const timeFormat = settings.timeFormat; 
 
   const { listeners } = useTableNav();
 
@@ -77,6 +81,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
       options: {
         showDelayedTimes,
         hideTableSeconds,
+        timeFormat,
       },
     },
   });
