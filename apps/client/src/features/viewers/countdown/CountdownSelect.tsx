@@ -4,8 +4,7 @@ import { OntimeEntry, OntimeEvent, SupportedEntry } from 'ontime-types';
 import Empty from '../../../common/components/state/Empty';
 import { formatTime } from '../../../common/utils/time';
 import { useTranslation } from '../../../translation/TranslationProvider';
-
-import { sanitiseTitle } from './countdown.helpers';
+import { sanitiseTitle } from '../../../views/countdown/countdown.utils';
 
 import './Countdown.scss';
 
