@@ -54,7 +54,7 @@ export type OntimeEvent = OntimeBaseEvent & {
   timeWarning: number;
   timeDanger: number;
   custom: EntryCustomFields;
-  triggers?: Trigger[];
+  triggers: Trigger[];
   parent: EntryId | null;
   // !==== RUNTIME METADATA ====! //
   revision: number;
