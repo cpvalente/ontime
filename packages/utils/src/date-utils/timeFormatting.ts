@@ -1,4 +1,4 @@
-import type { MaybeNumber } from 'ontime-types';
+import type { MaybeNumber, TimeFormat } from 'ontime-types';
 
 import { millisToSeconds, secondsToHours, secondsToMinutes } from './conversionUtils.js';
 
@@ -8,6 +8,7 @@ export function pad(val: number): string {
 
 type FormatOptions = {
   fallback?: string;
+  timeFormat?: TimeFormat;
 };
 
 /**
@@ -26,7 +27,11 @@ export function millisToString(millis?: MaybeNumber, options?: FormatOptions): s
   const totalSeconds = Math.abs(millisToSeconds(millis));
   const seconds = totalSeconds % 60;
   const minutes = secondsToMinutes(totalSeconds) % 60;
-  const hours = secondsToHours(totalSeconds);
+  let hours = secondsToHours(totalSeconds);
+
+  if (options?.timeFormat && options?.timeFormat === '12') {
+    hours = hours % 12;
+  }
 
   return `${isNegative ? '-' : ''}${[hours, minutes, seconds].map(pad).join(':')}`;
 }
