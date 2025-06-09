@@ -35,13 +35,15 @@ export async function postSettings(req: Request, res: Response<Settings | ErrorR
     const serverPort = Number(req.body?.serverPort);
     //TODO: should this not be part of the validator?
     if (isNaN(serverPort)) {
-      return res.status(400).send({ message: `Invalid value found for server port: ${req.body?.serverPort}` });
+      res.status(400).send({ message: `Invalid value found for server port: ${req.body?.serverPort}` });
+      return;
     }
 
     const hasChangedPort = settings.serverPort !== serverPort;
 
     if (isDocker && hasChangedPort) {
-      return res.status(403).json({ message: 'Can`t change port when running inside docker' });
+      res.status(403).json({ message: 'Can`t change port when running inside docker' });
+      return;
     }
 
     let timeFormat = settings.timeFormat;

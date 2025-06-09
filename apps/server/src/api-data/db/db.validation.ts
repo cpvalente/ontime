@@ -20,7 +20,10 @@ export const validateNewProject = [
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    if (!errors.isEmpty()) {
+      res.status(422).json({ errors: errors.array() });
+      return;
+    }
     next();
   },
 ];
@@ -42,7 +45,10 @@ export const validateQuickProject = [
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    if (!errors.isEmpty()) {
+      res.status(422).json({ errors: errors.array() });
+      return;
+    }
     next();
   },
 ];
@@ -70,7 +76,10 @@ export const validatePatchProject = [
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    if (!errors.isEmpty()) {
+      res.status(422).json({ errors: errors.array() });
+      return;
+    }
     next();
   },
 ];
@@ -91,7 +100,8 @@ export const validateNewFilenameBody = [
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
+      res.status(422).json({ errors: errors.array() });
+      return;
     }
 
     next();
@@ -114,7 +124,8 @@ export const validateFilenameBody = [
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
+      res.status(422).json({ errors: errors.array() });
+      return;
     }
 
     next();
@@ -137,7 +148,8 @@ export const validateFilenameParam = [
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
+      res.status(422).json({ errors: errors.array() });
+      return;
     }
 
     next();

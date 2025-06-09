@@ -14,10 +14,14 @@ export const validateRequestConnection = [
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    if (!errors.isEmpty()) {
+      res.status(422).json({ errors: errors.array() });
+      return;
+    }
     // check that the file exists
     if (!req.file) {
-      return res.status(422).json({ errors: 'File not found' });
+      res.status(422).json({ errors: 'File not found' });
+      return;
     }
     next();
   },
@@ -28,8 +32,11 @@ export const validateSheetId = [
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
+    if (!errors.isEmpty()) {
+      res.status(422).json({ errors: errors.array() });
+    } else {
+      next();
+    }
   },
 ];
 
@@ -44,7 +51,10 @@ export const validateSheetOptions = [
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
+    if (!errors.isEmpty()) {
+      res.status(422).json({ errors: errors.array() });
+      return;
+    }
     next();
   },
 ];
