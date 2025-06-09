@@ -1,7 +1,7 @@
 import type { Client } from '../definitions/Clients.type.js';
 import type { Log } from '../definitions/runtime/Logger.type.js';
 import type { RuntimeStore } from '../definitions/runtime/RuntimeStore.type.js';
-import { MaybeNumber } from '../utils/utils.type.js';
+import type { MaybeNumber } from '../utils/utils.type.js';
 import type { RefetchKey } from './refetch.type.js';
 
 export enum MessageType {
