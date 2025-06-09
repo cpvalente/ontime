@@ -1,3 +1,5 @@
+import { TimeFormat } from "ontime-types";
+
 declare module '*.scss' {
   const content: Record<string, string>;
   export default content;
@@ -31,6 +33,7 @@ declare module '@tanstack/react-table' {
     options: {
       showDelayedTimes: boolean;
       hideTableSeconds: boolean;
+      timeFormat: TimeFormat;
     };
   }
 }
