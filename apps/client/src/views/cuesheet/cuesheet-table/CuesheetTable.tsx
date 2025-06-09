@@ -5,6 +5,7 @@ import { isOntimeEvent, MaybeString, OntimeEntry, OntimeEvent, TimeField } from 
 
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import useFollowComponent from '../../../common/hooks/useFollowComponent';
+import useSettings from '../../../common/hooks-query/useSettings';
 import { useCuesheetOptions } from '../cuesheet.options';
 
 import CuesheetBody from './cuesheet-table-elements/CuesheetBody';
@@ -14,7 +15,6 @@ import CuesheetTableSettings from './cuesheet-table-settings/CuesheetTableSettin
 import useColumnManager from './useColumnManager';
 
 import style from './CuesheetTable.module.scss';
-import useSettings from '../../../common/hooks-query/useSettings';
 
 interface CuesheetTableProps {
   data: OntimeEntry[];
