@@ -2,6 +2,7 @@ import { isImportMap } from 'ontime-utils';
 
 import { body, param, validationResult } from 'express-validator';
 import { NextFunction, Request, Response } from 'express';
+import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
 export const validateRequestConnection = [
   param('sheetId')
@@ -27,18 +28,7 @@ export const validateRequestConnection = [
   },
 ];
 
-export const validateSheetId = [
-  param('sheetId').isString().trim().notEmpty(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(422).json({ errors: errors.array() });
-    } else {
-      next();
-    }
-  },
-];
+export const validateSheetId = [param('sheetId').isString().trim().notEmpty(), requestValidationFunction];
 
 export const validateSheetOptions = [
   param('sheetId').isString().trim().notEmpty(),
@@ -49,12 +39,5 @@ export const validateSheetOptions = [
       return isValid;
     }),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(422).json({ errors: errors.array() });
-      return;
-    }
-    next();
-  },
+  requestValidationFunction,
 ];

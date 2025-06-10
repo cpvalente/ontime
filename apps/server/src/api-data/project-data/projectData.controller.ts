@@ -4,7 +4,6 @@ import { getErrorMessage } from 'ontime-utils';
 import type { Request, Response } from 'express';
 
 import { removeUndefined } from '../../utils/parserUtils.js';
-import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { editCurrentProjectData } from '../../services/project-service/ProjectService.js';
 import * as projectDao from './projectData.dao.js';
 

@@ -1,7 +1,7 @@
 import { isAlphanumericWithSpace } from 'ontime-utils';
 
-import type { Request, Response, NextFunction } from 'express';
-import { body, param, validationResult } from 'express-validator';
+import { body, param } from 'express-validator';
+import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
 export const validateCustomField = [
   body('label')
@@ -14,14 +14,7 @@ export const validateCustomField = [
   body('type').isIn(['string', 'image']),
   body('colour').isString().trim(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(422).json({ errors: errors.array() });
-      return;
-    }
-    next();
-  },
+  requestValidationFunction,
 ];
 
 export const validateEditCustomField = [
@@ -36,25 +29,7 @@ export const validateEditCustomField = [
   body('type').isIn(['string', 'image']),
   body('colour').isString().trim(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(422).json({ errors: errors.array() });
-      return;
-    }
-    next();
-  },
+  requestValidationFunction,
 ];
 
-export const validateDeleteCustomField = [
-  param('key').isString().notEmpty(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(422).json({ errors: errors.array() });
-      return;
-    }
-    next();
-  },
-];
+export const validateDeleteCustomField = [param('key').isString().notEmpty(), requestValidationFunction];

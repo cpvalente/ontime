@@ -1,17 +1,12 @@
 import { isImportMap } from 'ontime-utils';
 
-import { body, validationResult } from 'express-validator';
-import type { NextFunction, Request, Response } from 'express';
+import { body } from 'express-validator';
+import {
+  requestValidationFunction,
+  requestValidationFunctionWithFile,
+} from '../validation-utils/validationFunction.js';
 
-export const validateFileExists = [
-  (req: Request, res: Response, next: NextFunction) => {
-    if (!req.file) {
-      res.status(422).json({ errors: 'File not found' });
-      return;
-    }
-    next();
-  },
-];
+export const validateFileExists = [requestValidationFunctionWithFile];
 
 export const validateImportMapOptions = [
   body('options')
@@ -20,12 +15,5 @@ export const validateImportMapOptions = [
       return isImportMap(content);
     }),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(422).json({ errors: errors.array() });
-      return;
-    }
-    next();
-  },
+  requestValidationFunction,
 ];

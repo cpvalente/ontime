@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from 'express';
-import { body, validationResult } from 'express-validator';
+import { body } from 'express-validator';
+import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
 export const projectSanitiser = [
   body().notEmpty().withMessage('No object found in request'),
@@ -15,12 +15,5 @@ export const projectSanitiser = [
   body('custom.*.title').optional().isString().trim().notEmpty(),
   body('custom.*.value').optional().isString().trim().notEmpty(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res.status(422).json({ errors: errors.array() });
-      return;
-    }
-    next();
-  },
+  requestValidationFunction,
 ];

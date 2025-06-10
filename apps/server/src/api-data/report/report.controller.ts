@@ -12,7 +12,7 @@ export function deleteAll(_req: Request, res: Response<OntimeReport>) {
 }
 
 export function deleteWithId(req: Request, res: Response<OntimeReport>) {
-  const { eventId } = req.params;
-  report.clear(eventId);
+  const { id } = req.params;
+  report.clear(id);
   res.status(200).send();
 }
