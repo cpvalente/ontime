@@ -13,7 +13,7 @@ export const router = express.Router();
 
 router.get('/', async (_req: Request, res: Response<CustomFields>) => {
   const customFields = getProjectCustomFields();
-  res.json(customFields);
+  res.status(200).json(customFields);
 });
 
 router.post('/', validateCustomField, async (req: Request, res: Response<CustomFields | ErrorResponse>) => {

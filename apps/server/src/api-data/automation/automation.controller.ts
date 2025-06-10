@@ -12,7 +12,7 @@ import * as automationService from './automation.service.js';
 import { parseOutput } from './automation.validation.js';
 
 export function getAutomationSettings(_req: Request, res: Response<AutomationSettings>) {
-  res.json(automationDao.getAutomationSettings());
+  res.status(200).json(automationDao.getAutomationSettings());
 }
 
 export async function postAutomationSettings(req: Request, res: Response<AutomationSettings | ErrorResponse>) {

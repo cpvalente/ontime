@@ -9,7 +9,7 @@ import { editCurrentProjectData } from '../../services/project-service/ProjectSe
 import * as projectDao from './projectData.dao.js';
 
 export function getProjectData(_req: Request, res: Response<ProjectData>) {
-  res.json(projectDao.getProjectData());
+  res.status(200).json(projectDao.getProjectData());
 }
 
 export async function postProjectData(req: Request, res: Response<ProjectData | ErrorResponse>) {
