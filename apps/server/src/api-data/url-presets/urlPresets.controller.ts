@@ -3,7 +3,6 @@ import { getErrorMessage } from 'ontime-utils';
 
 import type { Request, Response } from 'express';
 
-import { failIsNotArray } from '../../utils/routerUtils.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 
 export async function getUrlPresets(_req: Request, res: Response<URLPreset[]>) {
@@ -12,9 +11,6 @@ export async function getUrlPresets(_req: Request, res: Response<URLPreset[]>) {
 }
 
 export async function postUrlPresets(req: Request, res: Response<URLPreset[] | ErrorResponse>) {
-  if (failIsNotArray(req.body, res)) {
-    return;
-  }
   try {
     const newPresets: URLPreset[] = req.body.map((preset: URLPreset) => ({
       enabled: preset.enabled,

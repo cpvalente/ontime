@@ -4,7 +4,6 @@ import { getErrorMessage, obfuscate } from 'ontime-utils';
 import type { Request, Response } from 'express';
 
 import { isDocker } from '../../setup/environment.js';
-import { failEmptyObjects } from '../../utils/routerUtils.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import * as appState from '../../services/app-state-service/AppStateService.js';
 
@@ -25,9 +24,6 @@ export async function getSettings(_req: Request, res: Response<Settings>) {
 }
 
 export async function postSettings(req: Request, res: Response<Settings | ErrorResponse>) {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
   try {
     const settings = getDataProvider().getSettings();
     const editorKey = extractPin(req.body?.editorKey, settings.editorKey);

@@ -6,6 +6,7 @@ import { isEmptyObject } from './parserUtils.js';
  * @description initial checks for an empty of malformed request object
  * @param obj
  * @param res
+ * @deprecated
  */
 export const failEmptyObjects = (obj: object, res: Response): boolean => {
   try {
@@ -24,6 +25,7 @@ export const failEmptyObjects = (obj: object, res: Response): boolean => {
  * @description initial checks for an empty of malformed request object
  * @param obj
  * @param res
+ * @deprecated
  */
 export const failIsNotArray = (obj: object, res: Response): boolean => {
   try {

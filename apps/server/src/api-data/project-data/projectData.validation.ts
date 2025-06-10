@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { body, validationResult } from 'express-validator';
 
 export const projectSanitiser = [
+  body().notEmpty().withMessage('No object found in request'),
   body('title').optional().isString().trim(),
   body('description').optional().isString().trim(),
   body('publicUrl').optional().isString().trim(),
@@ -9,7 +10,7 @@ export const projectSanitiser = [
   body('backstageUrl').optional().isString().trim(),
   body('backstageInfo').optional().isString().trim(),
   body('endMessage').optional().isString().trim(),
-  body('projectLogo').optional({ nullable: true }).isString().trim(),
+  body('projectLogo').optional({ nullable: true }).isString().trim().isBase64(),
   body('custom').optional().isArray(),
   body('custom.*.title').optional().isString().trim().notEmpty(),
   body('custom.*.value').optional().isString().trim().notEmpty(),

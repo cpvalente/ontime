@@ -5,7 +5,7 @@ import { Request, Response, NextFunction } from 'express';
  * validate array of URL preset objects
  */
 export const validateUrlPresets = [
-  body().isArray(),
+  body().isArray().withMessage('No array found in request'),
   body('*.enabled').isBoolean(),
   body('*.alias').isString().trim(),
   body('*.pathAndParams').isString().trim(),

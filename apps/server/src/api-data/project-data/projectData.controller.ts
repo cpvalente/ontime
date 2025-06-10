@@ -13,10 +13,6 @@ export function getProjectData(_req: Request, res: Response<ProjectData>) {
 }
 
 export async function postProjectData(req: Request, res: Response<ProjectData | ErrorResponse>) {
-  if (failEmptyObjects(req.body, res)) {
-    return;
-  }
-
   try {
     const newData: Partial<ProjectData> = removeUndefined({
       title: req.body?.title,
