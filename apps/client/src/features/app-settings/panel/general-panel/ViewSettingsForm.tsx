@@ -123,7 +123,7 @@ export default function ViewSettingsForm() {
                 onClick={onCodeEditorOpen}
                 variant='ontime-subtle'
                 size='sm'
-                isDisabled={!data.overrideStyles}
+                isDisabled={isSubmitting}
                 width='fit-content'
               >
                 Edit CSS override
