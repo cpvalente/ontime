@@ -28,7 +28,7 @@ export const validateRequestConnection = [
 ];
 
 export const validateSheetId = [
-  param('sheetId').isString(),
+  param('sheetId').isString().trim().notEmpty(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);
@@ -41,7 +41,7 @@ export const validateSheetId = [
 ];
 
 export const validateSheetOptions = [
-  param('sheetId').isString(),
+  param('sheetId').isString().trim().notEmpty(),
   body('options')
     .isObject()
     .custom((content) => {

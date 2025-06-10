@@ -1,5 +1,6 @@
 import { body, validationResult } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
+import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
 /**
  * validate array of URL preset objects
@@ -7,8 +8,8 @@ import { Request, Response, NextFunction } from 'express';
 export const validateUrlPresets = [
   body().isArray().withMessage('No array found in request'),
   body('*.enabled').isBoolean(),
-  body('*.alias').isString().trim(),
-  body('*.pathAndParams').isString().trim(),
+  body('*.alias').isString().trim().notEmpty(),
+  body('*.pathAndParams').isString().trim().notEmpty(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

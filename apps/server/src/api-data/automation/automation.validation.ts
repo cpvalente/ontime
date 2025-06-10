@@ -51,9 +51,9 @@ export const validateAutomationSettings = [
 ];
 
 export const validateTrigger = [
-  body('title').isString().trim(),
+  body('title').isString().trim().notEmpty(),
   body('trigger').isIn(timerLifecycleValues),
-  body('automationId').isString().trim(),
+  body('automationId').isString().trim().notEmpty(),
 
   (req: Request, res: Response, next: NextFunction) => {
     const errors = validationResult(req);

@@ -7,6 +7,7 @@ import { ensureJsonExtension } from '../../utils/fileManagement.js';
  * @description Validates request for a new project.
  */
 export const validateNewProject = [
+  body().notEmpty().withMessage('No object found in request'),
   body('filename').optional().isString().trim(),
   body('title').optional().isString().trim(),
   body('description').optional().isString().trim(),
