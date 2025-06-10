@@ -329,7 +329,7 @@ function applyDelay(rundown: Rundown, delay: OntimeDelay) {
 
   // if the delay is empty, or the last element
   // there is nothing do apply
-  if (delay.duration === 0 || delayIndex === rundown.order.length - 1) {
+  if (delay.duration === 0 || delayIndex === rundownMetadata.flatEntryOrder.length - 1) {
     return;
   }
 
