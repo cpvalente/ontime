@@ -6,6 +6,9 @@ settings:
 
 catalogs:
   default:
+    '@types/node':
+      specifier: 20.17.16
+      version: 20.17.16
     '@typescript-eslint/eslint-plugin':
       specifier: 7.16.1
       version: 7.16.1
@@ -164,6 +167,9 @@ importers:
       react-qr-code:
         specifier: ^2.0.12
         version: 2.0.12(react@18.3.1)
+      react-redux:
+        specifier: ^9.2.0
+        version: 9.2.0(@types/react@18.0.26)(react@18.3.1)
       react-router-dom:
         specifier: ^6.3.0
         version: 6.6.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -175,7 +181,7 @@ importers:
         version: 3.1.1
       zustand:
         specifier: ^5.0.3
-        version: 5.0.3(@types/react@18.0.26)(react@18.3.1)(use-sync-external-store@1.2.0(react@18.3.1))
+        version: 5.0.3(@types/react@18.0.26)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1))
     devDependencies:
       '@sentry/vite-plugin':
         specifier: ^2.16.1
@@ -2112,6 +2118,9 @@ packages:
   '@types/serve-static@1.15.0':
     resolution: {integrity: sha512-z5xyF6uh8CbjAu9760KDKsH2FcDxZ2tFCsA4HIMWE6IkiYMXfVoa+4f9KX+FN0ZLsaMw1WNG2ETLA6N+/YA+cg==}
 
+  '@types/use-sync-external-store@0.0.6':
+    resolution: {integrity: sha512-zFDAD+tlpf2r4asuHEj0XH6pY6i0g5NeAHPn+15wk3BV6JA69eERFXC1gyGThDkVa1zCyKr5jox1+2LbV/AMLg==}
+
   '@types/verror@1.10.9':
     resolution: {integrity: sha512-MLx9Z+9lGzwEuW16ubGeNkpBDE84RpB/NyGgg6z2BTpWzKkGU451cAY3UkUzZEp72RHF585oJ3V8JVNqIplcAQ==}
 
@@ -3923,6 +3932,7 @@ packages:
   multer@1.4.5-lts.1:
     resolution: {integrity: sha512-ywPWvcDMeH+z9gQq5qYHCCy+ethsk4goepZ45GLD63fOu0YcNecQxi64nDs3qluZB+murG3/D4dJ7+dGctcCQQ==}
     engines: {node: '>= 6.0.0'}
+    deprecated: Multer 1.x is impacted by a number of vulnerabilities, which have been patched in 2.x. You should upgrade to the latest 2.x version.
 
   nanoid@3.3.7:
     resolution: {integrity: sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==}
@@ -4252,6 +4262,18 @@ packages:
       react-native-svg: '*'
     peerDependenciesMeta:
       react-native-svg:
+        optional: true
+
+  react-redux@9.2.0:
+    resolution: {integrity: sha512-ROY9fvHhwOD9ySfrF0wmvu//bKCQ6AeZZq1nJNtbDC+kk5DuSuNX/n6YWYF/SYy7bSba4D4FSz8DJeKY/S/r+g==}
+    peerDependencies:
+      '@types/react': ^18.2.25 || ^19
+      react: ^18.0 || ^19
+      redux: ^5.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      redux:
         optional: true
 
   react-refresh@0.14.0:
@@ -4873,10 +4895,10 @@ packages:
       '@types/react':
         optional: true
 
-  use-sync-external-store@1.2.0:
-    resolution: {integrity: sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==}
+  use-sync-external-store@1.5.0:
+    resolution: {integrity: sha512-Rb46I4cGGVBmjamjphe8L/UnvJD+uPPtTkNvX5mZgqdbavhI4EbgIWJiIHXJ8bc/i9EQGPRh4DwEURJ552Do0A==}
     peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   utf8-byte-length@1.0.4:
     resolution: {integrity: sha512-4+wkEYLBbWxqTahEsWrhxepcoVOJ+1z5PGIjPZxRkytcdSUaNjIjBM7Xn8E+pdSuV7SzvWovBFA54FO0JSoqhA==}
@@ -6899,6 +6921,8 @@ snapshots:
     dependencies:
       '@types/mime': 3.0.1
       '@types/node': 22.10.10
+
+  '@types/use-sync-external-store@0.0.6': {}
 
   '@types/verror@1.10.9':
     optional: true
@@ -9421,6 +9445,14 @@ snapshots:
       qr.js: 0.0.0
       react: 18.3.1
 
+  react-redux@9.2.0(@types/react@18.0.26)(react@18.3.1):
+    dependencies:
+      '@types/use-sync-external-store': 0.0.6
+      react: 18.3.1
+      use-sync-external-store: 1.5.0(react@18.3.1)
+    optionalDependencies:
+      '@types/react': 18.0.26
+
   react-refresh@0.14.0: {}
 
   react-remove-scroll-bar@2.3.4(@types/react@18.0.26)(react@18.3.1):
@@ -10074,10 +10106,9 @@ snapshots:
     optionalDependencies:
       '@types/react': 18.0.26
 
-  use-sync-external-store@1.2.0(react@18.3.1):
+  use-sync-external-store@1.5.0(react@18.3.1):
     dependencies:
       react: 18.3.1
-    optional: true
 
   utf8-byte-length@1.0.4: {}
 
@@ -10390,8 +10421,8 @@ snapshots:
       compress-commons: 4.1.2
       readable-stream: 3.6.2
 
-  zustand@5.0.3(@types/react@18.0.26)(react@18.3.1)(use-sync-external-store@1.2.0(react@18.3.1)):
+  zustand@5.0.3(@types/react@18.0.26)(react@18.3.1)(use-sync-external-store@1.5.0(react@18.3.1)):
     optionalDependencies:
       '@types/react': 18.0.26
       react: 18.3.1
-      use-sync-external-store: 1.2.0(react@18.3.1)
+      use-sync-external-store: 1.5.0(react@18.3.1)
