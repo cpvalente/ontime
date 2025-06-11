@@ -1,6 +1,7 @@
 import { IoPencil } from 'react-icons/io5';
 import { EntryId, OntimeEvent, Playback } from 'ontime-types';
 
+import AnimatedListItem from './AnimatedListItem'; // Added import
 import Button from '../../common/components/buttons/Button';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import { useCurrentDay, useRuntimeOffset } from '../../common/hooks/useSocket';
@@ -33,6 +34,13 @@ export default function CountdownSubscriptions(props: CountdownSubscriptionsProp
   // gather data
   const subscribedEvents = getOrderedSubscriptions(subscriptions, events);
 
+  // This function would ideally be passed down from a parent component that manages the state
+  // For now, it's a placeholder. In a real app, this would trigger a state update.
+  const handleRemoveSubscription = (eventId: EntryId) => {
+    console.log(`Placeholder: Would remove event ${eventId} from subscriptions`);
+    // Example: setSubscriptions(currentSubscriptions => currentSubscriptions.filter(id => id !== eventId));
+  };
+
   return (
     <div className='list-container'>
       {subscribedEvents.map((event) => {
@@ -40,23 +48,28 @@ export default function CountdownSubscriptions(props: CountdownSubscriptionsProp
         const isLive = event.id === selectedId && time.playback !== Playback.Armed;
 
         return (
-          <div key={event.id} className={cx(['sub', isLive && 'sub--live'])}>
-            <div className='sub__binder' style={{ '--user-color': event.colour }} />
-            <div className={cx(['sub__schedule', event.delay > 0 && 'sub__schedule--delayed'])}>
-              {showProjected ? (
-                <ProjectedSchedule timeStart={event.timeStart} timeEnd={event.timeEnd} delay={event.delay} />
-              ) : (
-                <>
-                  <ClockTime value={event.timeStart + event.delay} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
-                  →
-                  <ClockTime value={event.timeEnd + event.delay} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
-                </>
-              )}
+          <AnimatedListItem
+            key={event.id}
+            onUnmount={() => handleRemoveSubscription(event.id)}
+          >
+            <div className={cx(['sub', isLive && 'sub--live'])}>
+              <div className='sub__binder' style={{ '--user-color': event.colour }} />
+              <div className={cx(['sub__schedule', event.delay > 0 && 'sub__schedule--delayed'])}>
+                {showProjected ? (
+                  <ProjectedSchedule timeStart={event.timeStart} timeEnd={event.timeEnd} delay={event.delay} />
+                ) : (
+                  <>
+                    <ClockTime value={event.timeStart + event.delay} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
+                    →
+                    <ClockTime value={event.timeEnd + event.delay} preferredFormat12='h:mm' preferredFormat24='HH:mm' />
+                  </>
+                )}
+              </div>
+              <SubscriptionStatus key={`status-${event.id}`} event={event} selectedId={selectedId} time={time} />
+              <div className={cx(['sub__title', !event.title && 'subdued'])}>{sanitiseTitle(event.title)}</div>
+              {secondaryData && <div className='sub__secondary'>{secondaryData}</div>}
             </div>
-            <SubscriptionStatus key={event.id} event={event} selectedId={selectedId} time={time} />
-            <div className={cx(['sub__title', !event.title && 'subdued'])}>{sanitiseTitle(event.title)}</div>
-            {secondaryData && <div className='sub__secondary'>{secondaryData}</div>}
-          </div>
+          </AnimatedListItem>
         );
       })}
       <div className={cx(['fab-container', !showFab && 'fab-container--hidden'])}>

@@ -197,3 +197,9 @@ $item-height: 3.5rem;
     opacity: 0.6;
   }
 }
+
+/* Styles for AnimatedListItem */
+.animated-list-item {
+  overflow: hidden;
+  transition: max-height 300ms ease-in-out, opacity 300ms ease-in-out;
+}
