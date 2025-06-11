@@ -1,0 +1,129 @@
+import {
+  AutomationSettings,
+  CustomFields,
+  DatabaseModel,
+  isOntimeEvent,
+  OntimeEntry,
+  ProjectData,
+  Rundown,
+  RundownEntries,
+  Settings,
+  URLPreset,
+  ViewSettings,
+} from 'ontime-types';
+import { customFieldLabelToKey } from 'ontime-utils';
+import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
+
+/**
+ * Changes from v3 to v4
+ * PROJECT-DATA
+ * - must have logo
+ * - must have custom array
+ * - public url and info is removed
+ *
+ * CUSTOM-FIELD
+ *  - keys must be derived from label
+ *
+ * EVENT
+ * - trigger is not optional
+ * - parent is not  optional
+ * - isPublic is removed
+ * - TODO: has the end action of events ben changed?
+ *
+ * BLOCK
+ * - TODO: what has changed here
+ *
+ * RUNDOWN
+ * - there are now multiple rundowns
+ * - new rundown format
+ *
+ */
+
+export function migrate_v3_to_v4(jsonData: object): Partial<DatabaseModel> {
+  const migratedDb = {} as Partial<DatabaseModel>;
+
+  if ('settings' in jsonData) {
+    migratedDb.settings = jsonData.settings as Settings;
+    migratedDb.settings.version = ONTIME_VERSION;
+  }
+
+  if ('project' in jsonData) {
+    migratedDb.project = jsonData.project as ProjectData;
+    if (!('projectLogo' in migratedDb.project)) {
+      Object.assign(migratedDb.project, { projectLogo: null });
+    }
+    if (!('custom' in migratedDb.project)) {
+      Object.assign(migratedDb.project, { custom: [] });
+    }
+
+    if ('publicInfo' in migratedDb.project) {
+      delete migratedDb.project.publicInfo;
+    }
+
+    if ('publicUrl' in migratedDb.project) {
+      delete migratedDb.project.publicUrl;
+    }
+  }
+
+  if ('viewSettings' in jsonData) {
+    migratedDb.viewSettings = jsonData.viewSettings as ViewSettings;
+  }
+
+  if ('urlPresets' in jsonData) {
+    migratedDb.urlPresets = jsonData.urlPresets as URLPreset[];
+  }
+
+  if ('automation' in jsonData) {
+    migratedDb.automation = jsonData.automation as AutomationSettings;
+  }
+
+  let renamedCustomFields: Record<string, string> = {};
+  if ('customFields' in jsonData) {
+    const newCustomFields: CustomFields = {};
+    for (const [originalKey, field] of Object.entries(jsonData.customFields as CustomFields)) {
+      const key = customFieldLabelToKey(field.label);
+      if (originalKey !== key) {
+        renamedCustomFields[originalKey] = key;
+      }
+      newCustomFields[key] = field;
+    }
+
+    migratedDb.customFields = newCustomFields;
+  }
+
+  if ('rundown' in jsonData) {
+    const oldRundown = jsonData.rundown as OntimeEntry[];
+    const order = oldRundown.map((entry) => entry.id);
+    const entries: RundownEntries = {};
+
+    oldRundown.forEach((entry) => {
+      if (isOntimeEvent(entry)) {
+        entry.parent = null;
+        entry.triggers = [];
+        Object.entries(entry.custom).forEach(([oldKey, value]) => {
+          if (oldKey in renamedCustomFields) {
+            entry.custom[renamedCustomFields[oldKey]] = value;
+            delete entry.custom[oldKey];
+          }
+        });
+        if ('isPublic' in entry) {
+          delete entry.isPublic;
+        }
+      }
+      entries[entry.id] = { ...entry };
+    });
+
+    const rundown: Rundown = {
+      id: 'default',
+      title: 'Default',
+      order,
+      flatOrder: order,
+      entries,
+      revision: 0,
+    };
+
+    migratedDb.rundowns = { default: rundown };
+  }
+
+  return migratedDb;
+}
