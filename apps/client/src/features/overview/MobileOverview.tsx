@@ -25,7 +25,7 @@ function _MobileEditorOverview({ children }: PropsWithChildren) {
 
   return (
     <OverviewWrapper navElements={children}>
-      <Box maxW="1200px" mx="auto" px={4} ml={-2} display="flex" alignItems="center" gap={8}>
+      <Box maxW="1100px" mx="auto" px={4} ml={-2} display="flex" alignItems="center" gap={8}>
         <TitlesOverview />
         <ProgressOverview />
         <RuntimeOverview />
