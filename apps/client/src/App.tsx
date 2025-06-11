@@ -21,7 +21,7 @@ function App() {
       <QueryClientProvider client={ontimeQueryClient}>
         <AppContextProvider>
           <BrowserRouter basename={baseURI}>
-            <div className='App'>
+            <div className='App' style={{ width: '100%', maxWidth: '100vw', overflowX: 'hidden' }}>
               <ErrorBoundary>
                 <TranslationProvider>
                   <IdentifyOverlay />
