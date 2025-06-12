@@ -1,38 +1,22 @@
-import { body, param, validationResult } from 'express-validator';
-import type { Request, Response, NextFunction } from 'express';
+import { body, param } from 'express-validator';
+import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
 export const rundownPostValidator = [
   body('type').isString().isIn(['event', 'delay', 'block']),
   body('after').optional().isString(),
   body('before').optional().isString(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
-export const rundownPutValidator = [
-  body('id').isString().notEmpty(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
+export const rundownPutValidator = [body('id').isString().notEmpty(), requestValidationFunction];
 
 export const rundownBatchPutValidator = [
   body('data').isObject(),
   body('ids').isArray().notEmpty(),
   body('ids.*').isString(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
 export const rundownReorderValidator = [
@@ -40,41 +24,21 @@ export const rundownReorderValidator = [
   body('destinationId').isString().notEmpty(),
   body('order').isIn(['before', 'after', 'insert']),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
 export const rundownSwapValidator = [
   body('from').isString().notEmpty(),
   body('to').isString().notEmpty(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
-export const paramsMustHaveEntryId = [
-  param('entryId').isString().notEmpty(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
+export const paramsMustHaveEntryId = [param('entryId').isString().notEmpty(), requestValidationFunction];
 
 export const rundownArrayOfIds = [
   body('ids').isArray().notEmpty(),
   body('ids.*').isString(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
