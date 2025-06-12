@@ -1,5 +1,5 @@
-import { isOntimeBlock, isOntimeEvent, OntimeEvent, OntimeEntry } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { isOntimeBlock, isOntimeEvent, OntimeEvent, OntimeEntry, RGBColour } from 'ontime-types';
+import { cssOrHexToColour, isLightColour, millisToString, mixColours } from 'ontime-utils';
 
 import type { sheets_v4 } from '@googleapis/sheets';
 import { is } from '../../utils/is.js';
@@ -100,21 +100,23 @@ export function cellRequestFromEvent(
     }
   }
 
-  const colors = isOntimeEvent(event) || isOntimeBlock(event) ? getAccessibleColour(event.colour) : undefined
-  const cellColor: sheets_v4.Schema$CellData = !colors ? {} : {
-    userEnteredFormat: {
-      backgroundColor: colors.backgroundColor,
-      textFormat: {
-        foregroundColor: colors.textColor
-      },
-      borders: {
-        bottom: {
-          style: 'SOLID',
-          color: colors.borderColor
-        }
-      }
-    },
-  };
+  const colors = isOntimeEvent(event) || isOntimeBlock(event) ? getAccessibleColour(event.colour) : undefined;
+  const cellColor: sheets_v4.Schema$CellData = !colors
+    ? {}
+    : {
+        userEnteredFormat: {
+          backgroundColor: toSheetColourLevel(colors.background),
+          textFormat: {
+            foregroundColor: toSheetColourLevel(colors.text),
+          },
+          borders: {
+            bottom: {
+              style: 'SOLID',
+              color: toSheetColourLevel(colors.border),
+            },
+          },
+        },
+      };
 
   const returnRows: sheets_v4.Schema$CellData[] = rowData.map(([key, _]) => {
     return { ...getCellData(key, event), ...cellColor };
@@ -138,7 +140,6 @@ export function cellRequestFromEvent(
 }
 
 function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
-
   if (isOntimeEvent(event)) {
     if (key === 'blank') {
       return {};
@@ -174,51 +175,28 @@ function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
   return {};
 }
 
-function getSheetFormatColor(col: string) {
-  const finalCol = {
-    red: parseInt(col.slice(1, 3), 16) / 255,
-    green: parseInt(col.slice(3, 5), 16) / 255,
-    blue: parseInt(col.slice(5, 7), 16) / 255,
-    alpha: col.length > 7 ? parseInt(col.slice(7, 9), 16) / 255 : 1
-  };
-  if (
-    isNaN(finalCol.red) ||
-    isNaN(finalCol.green) ||
-    isNaN(finalCol.blue) ||
-    isNaN(finalCol.alpha)
-  ) throw new Error('Invalid color string format');
-  return finalCol;
-}
-
-function mixColors(col1: { [key in 'red' | 'green' | 'blue' | 'alpha']: number }, col2: { [key in 'red' | 'green' | 'blue' | 'alpha']: number }, mixPct: number) {
-  return {
-    red: Math.round((col1.red * (1 - mixPct) + col2.red * mixPct) * 255) / 255,
-    green: Math.round((col1.green * (1 - mixPct) + col2.green * mixPct) * 255) / 255,
-    blue: Math.round((col1.blue * (1 - mixPct) + col2.blue * mixPct) * 255) / 255,
-    alpha: Math.round((col1.alpha * (1 - mixPct) + col2.alpha * mixPct) * 255) / 255
-  };
-}
-
-function isLight(col: { [key in 'red' | 'green' | 'blue' | 'alpha']: number }) {
-  const [r, g, b] = [col.red, col.green, col.blue];
-  const luminance = (r * 54.213 + g * 182.376 + b * 18.411);
-  return luminance >= 128;
-}
-
-const getAccessibleColour = (bgColour?: string): { [key in 'backgroundColor' | 'textColor' | 'borderColor']: { [key in 'red' | 'green' | 'blue' | 'alpha']: number } } | void => {
-  if (bgColour) {
-    try {
-      const originalColour = getSheetFormatColor(bgColour);
-      const backgroundColorMix = mixColors(originalColour, getSheetFormatColor('#1a1a1a'), 1 - originalColour.alpha);
-      const textColor = isLight(backgroundColorMix) ? '#000000' : '#fffffa';
-      const borderColor = mixColors(backgroundColorMix, getSheetFormatColor(textColor), 0.2);
-      return {
-        backgroundColor: backgroundColorMix,
-        textColor: getSheetFormatColor(textColor),
-        borderColor: borderColor
-      };
-    } catch (_error) {
-      /* we do not handle errors here */
-    }
-  }
+type googleSheetCellColour = {
+  background: RGBColour;
+  text: RGBColour;
+  border: RGBColour;
 };
+
+function getAccessibleColour(bgColour?: string): googleSheetCellColour | undefined {
+  if (!bgColour) return undefined;
+
+  const background = cssOrHexToColour(bgColour);
+  if (!background) return undefined;
+
+  const text = isLightColour(background) ? BLACK : WHITE;
+  const border = mixColours(background, text, 0.2);
+
+  return { background, text, border };
+}
+
+const BLACK: RGBColour = { red: 0, green: 0, blue: 0, alpha: 1 };
+const WHITE: RGBColour = { red: 255, green: 255, blue: 255, alpha: 0.98 };
+
+// sheets use color values from 0 to 1
+function toSheetColourLevel(colour: RGBColour): RGBColour {
+  return { red: colour.red / 255, green: colour.green / 255, blue: colour.blue / 255, alpha: colour.alpha };
+}

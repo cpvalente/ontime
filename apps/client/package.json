@@ -21,7 +21,6 @@
     "@tanstack/react-table": "^8.21.3",
     "autosize": "^6.0.1",
     "axios": "^1.9.0",
-    "color": "^4.2.3",
     "csv-stringify": "^6.4.5",
     "framer-motion": "^10.10.0",
     "prismjs": "^1.29.0",
@@ -67,7 +66,6 @@
   "devDependencies": {
     "@sentry/vite-plugin": "^2.16.1",
     "@tanstack/eslint-plugin-query": "^5.8.4",
-    "@types/color": "^3.0.3",
     "@types/prismjs": "^1.26.5",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.10",
