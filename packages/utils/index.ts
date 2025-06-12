@@ -90,3 +90,13 @@ export {
 } from './src/feature/spreadsheet-import/spreadsheetImport.js';
 
 export { isPlaybackActive } from './src/playback-utils/playbackstate.js';
+
+//Colour
+export {
+  colourToHex,
+  cssOrHexToColour,
+  hexToColour,
+  isLightColour,
+  mixColours,
+  CssColours,
+} from './src/colour/colour.utils.js';
