@@ -1,12 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
-import { body, validationResult } from 'express-validator';
+import { body } from 'express-validator';
+import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
-export const validatePostCss = [
-  body('css').isString().trim(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
+export const validatePostCss = [body('css').isString().trim(), requestValidationFunction];

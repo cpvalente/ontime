@@ -10,22 +10,12 @@ import {
 } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 
-import type { Request, Response, NextFunction } from 'express';
-import { body, oneOf, param, validationResult } from 'express-validator';
+import { body, oneOf, param } from 'express-validator';
 
 import * as assert from '../../utils/assert.js';
 
 import { isFilterOperator, isFilterRule, isOntimeActionAction } from './automation.utils.js';
-
-export const paramContainsId = [
-  param('id').isString().notEmpty(),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
+import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
 export const validateAutomationSettings = [
   body('enabledAutomations').isBoolean(),
@@ -37,57 +27,33 @@ export const validateAutomationSettings = [
   body('triggers.*.automationId').optional().isString().trim(),
   body('automations').optional().custom(parseAutomation),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
 export const validateTrigger = [
-  body('title').isString().trim(),
+  body('title').isString().trim().notEmpty(),
   body('trigger').isIn(timerLifecycleValues),
-  body('automationId').isString().trim(),
+  body('automationId').isString().trim().notEmpty(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
 export const validateTriggerPatch = [
   param('id').isString().notEmpty(),
-  body('title').optional().isString().trim(),
+  body('title').optional().isString().trim().notEmpty(),
   body('trigger').optional().isIn(timerLifecycleValues),
-  body('automationId').optional().isString().trim(),
+  body('automationId').optional().isString().trim().notEmpty(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
-export const validateAutomation = [
-  body().custom(parseAutomation),
-
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
-];
+export const validateAutomation = [body().custom(parseAutomation), requestValidationFunction];
 
 export const validateAutomationPatch = [
   param('id').isString().notEmpty(),
   body().custom(parseAutomation),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
 /**
@@ -162,11 +128,7 @@ export const validateTestPayload = [
   body('visible').if(body('type').equals('ontime')).optional().isString().trim(),
   body('secondarySource').if(body('type').equals('ontime')).optional().isString().trim(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
 /**

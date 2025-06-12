@@ -1,12 +1,13 @@
-import type { Request, Response, NextFunction } from 'express';
-import { body, param, validationResult } from 'express-validator';
+import { body, param } from 'express-validator';
 import sanitize from 'sanitize-filename';
 import { ensureJsonExtension } from '../../utils/fileManagement.js';
+import { requestValidationFunction } from '../validation-utils/validationFunction.js';
 
 /**
  * @description Validates request for a new project.
  */
 export const validateNewProject = [
+  body().notEmpty().withMessage('No object found in request'),
   body('filename').optional().isString().trim(),
   body('title').optional().isString().trim(),
   body('description').optional().isString().trim(),
@@ -18,11 +19,7 @@ export const validateNewProject = [
   body('endMessage').optional().isString().trim(),
   body('custom').optional().isArray(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
 /**
@@ -40,25 +37,14 @@ export const validateQuickProject = [
   body('viewSettings.freezeEnd').optional().isBoolean(),
   body('viewSettings.endMessage').optional().isString().trim(),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
 /**
  * @description Validates request for pathing data in the project.
  */
 export const validatePatchProject = [
-  // Custom validator to ensure the body is not empty
-  (req: Request, res: Response, next: NextFunction) => {
-    if (Object.keys(req.body).length === 0) {
-      return res.status(422).json({ errors: [{ msg: 'Request body cannot be empty' }] });
-    }
-    next();
-  },
-
+  body().notEmpty().withMessage('No object found in request'),
   body('rundowns').isObject().optional({ nullable: false }),
   body('project').isObject().optional({ nullable: false }),
   body('settings').isObject().optional({ nullable: false }),
@@ -68,11 +54,7 @@ export const validatePatchProject = [
   body('osc').isObject().optional({ nullable: false }),
   body('http').isObject().optional({ nullable: false }),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(422).json({ errors: errors.array() });
-    next();
-  },
+  requestValidationFunction,
 ];
 
 /**
@@ -88,14 +70,7 @@ export const validateNewFilenameBody = [
     .withMessage('Filename was empty or contained only invalid characters')
     .customSanitizer((input: string) => ensureJsonExtension(input)),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-
-    next();
-  },
+  requestValidationFunction,
 ];
 
 /**
@@ -111,14 +86,7 @@ export const validateFilenameBody = [
     .withMessage('Filename was empty or contained only invalid characters')
     .customSanitizer((input: string) => ensureJsonExtension(input)),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-
-    next();
-  },
+  requestValidationFunction,
 ];
 
 /**
@@ -134,12 +102,5 @@ export const validateFilenameParam = [
     .withMessage('Filename was empty or contained only invalid characters')
     .customSanitizer((input: string) => ensureJsonExtension(input)),
 
-  (req: Request, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() });
-    }
-
-    next();
-  },
+  requestValidationFunction,
 ];

@@ -21,6 +21,24 @@
         "bab4a",
         "d3eb1"
       ],
+      "flatOrder": [
+        "32d31",
+        "21cd2",
+        "0b371",
+        "3cd28",
+        "e457f",
+        "01e85",
+        "1c420",
+        "b7737",
+        "d3a80",
+        "8276c",
+        "2340b",
+        "cb90b",
+        "503c4",
+        "5e965",
+        "bab4a",
+        "d3eb1"
+      ],
       "entries": {
         "32d31": {
           "type": "event",
@@ -469,7 +487,8 @@
     "publicInfo": "Rehearsal Schedule - Turin 2022",
     "backstageUrl": "www.github.com/cpvalente/ontime",
     "backstageInfo": "Rehearsal Schedule - Turin 2022\nAll performers to wear full costumes for 1st rehearsal",
-    "projectLogo": null
+    "projectLogo": null,
+    "custom": []
   },
   "settings": {
     "app": "ontime",
@@ -489,12 +508,12 @@
     "warningColor": "#FFAB33"
   },
   "customFields": {
-    "song": {
+    "Song": {
       "label": "Song",
       "type": "string",
       "colour": "#339E4E"
     },
-    "artist": {
+    "Artist": {
       "label": "Artist",
       "type": "string",
       "colour": "#3E75E8"
