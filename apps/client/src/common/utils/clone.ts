@@ -30,6 +30,7 @@ export const cloneEvent = (event: OntimeEvent): ClonedEvent => {
     gap: 0,
     timeWarning: event.timeWarning,
     timeDanger: event.timeDanger,
-    custom: { ...event.custom },
+    triggers: structuredClone(event.triggers),
+    custom: structuredClone(event.custom),
   };
 };
