@@ -1,4 +1,5 @@
 import { memo, PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
+import { TimeFormat } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
 import SingleLineCell from './SingleLineCell';
@@ -8,6 +9,7 @@ interface TimeInputDurationProps {
   initialValue: number;
   lockedValue: boolean;
   delayed?: boolean;
+  timeFormat?: TimeFormat;
   onSubmit: (value: string) => void;
 }
 
@@ -18,7 +20,7 @@ interface ParentFocusableInput extends HTMLInputElement {
 export default memo(TimeInputDuration);
 
 function TimeInputDuration(props: PropsWithChildren<TimeInputDurationProps>) {
-  const { initialValue, lockedValue, delayed, onSubmit, children } = props;
+  const { initialValue, lockedValue, delayed, timeFormat, onSubmit, children } = props;
 
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialValue);
@@ -84,7 +86,7 @@ function TimeInputDuration(props: PropsWithChildren<TimeInputDurationProps>) {
     [initialValue, lockedValue, onSubmit],
   );
 
-  const timeString = millisToString(value);
+  const timeString = millisToString(value, { timeFormat });
 
   return isEditing ? (
     <SingleLineCell

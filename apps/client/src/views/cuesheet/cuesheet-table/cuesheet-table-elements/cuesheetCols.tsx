@@ -17,7 +17,7 @@ function MakeStart({ getValue, row, table }: CellContext<OntimeEntry, unknown>) 
   }
 
   const { handleUpdateTimer } = table.options.meta;
-  const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
+  const { showDelayedTimes, hideTableSeconds, timeFormat } = table.options.meta.options;
 
   const update = (newValue: string) => handleUpdateTimer(row.original.id, 'timeStart', newValue);
 
@@ -26,13 +26,13 @@ function MakeStart({ getValue, row, table }: CellContext<OntimeEntry, unknown>) 
   const delayValue = (row.original as OntimeEvent)?.delay ?? 0;
 
   const displayTime = showDelayedTimes ? startTime + delayValue : startTime;
-  let formattedTime = millisToString(displayTime);
+  let formattedTime = millisToString(displayTime, { timeFormat });
   if (hideTableSeconds) {
     formattedTime = removeSeconds(formattedTime);
   }
 
   return (
-    <TimeInput initialValue={startTime} onSubmit={update} lockedValue={isStartLocked} delayed={delayValue !== 0}>
+    <TimeInput initialValue={startTime} onSubmit={update} lockedValue={isStartLocked} delayed={delayValue !== 0} timeFormat={timeFormat}>
       {formattedTime}
       <DelayIndicator delayValue={delayValue} tooltipPrefix={millisToString(startTime)} />
     </TimeInput>
@@ -45,7 +45,7 @@ function MakeEnd({ getValue, row, table }: CellContext<OntimeEntry, unknown>) {
   }
 
   const { handleUpdateTimer } = table.options.meta;
-  const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
+  const { showDelayedTimes, hideTableSeconds, timeFormat } = table.options.meta.options;
 
   const update = (newValue: string) => handleUpdateTimer(row.original.id, 'timeEnd', newValue);
 
@@ -54,13 +54,13 @@ function MakeEnd({ getValue, row, table }: CellContext<OntimeEntry, unknown>) {
   const delayValue = (row.original as OntimeEvent)?.delay ?? 0;
 
   const displayTime = showDelayedTimes ? endTime + delayValue : endTime;
-  let formattedTime = millisToString(displayTime);
+  let formattedTime = millisToString(displayTime, { timeFormat });
   if (hideTableSeconds) {
     formattedTime = removeSeconds(formattedTime);
   }
 
   return (
-    <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked} delayed={delayValue !== 0}>
+    <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked} delayed={delayValue !== 0} timeFormat={timeFormat}>
       {formattedTime}
       <DelayIndicator delayValue={delayValue} tooltipPrefix={millisToString(endTime)} />
     </TimeInput>
