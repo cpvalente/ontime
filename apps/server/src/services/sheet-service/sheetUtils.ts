@@ -1,5 +1,5 @@
 import { isOntimeBlock, isOntimeEvent, OntimeEvent, OntimeEntry, RGBColour } from 'ontime-types';
-import { cssOrHexToColour, isLightColour, millisToString } from 'ontime-utils';
+import { cssOrHexToColour, isLightColour, millisToString, mixColours } from 'ontime-utils';
 
 import type { sheets_v4 } from '@googleapis/sheets';
 import { is } from '../../utils/is.js';
@@ -105,14 +105,14 @@ export function cellRequestFromEvent(
     ? {}
     : {
         userEnteredFormat: {
-          backgroundColor: colors.background,
+          backgroundColor: toSheetColourLevel(colors.background),
           textFormat: {
-            foregroundColor: colors.text,
+            foregroundColor: toSheetColourLevel(colors.text),
           },
           borders: {
             bottom: {
               style: 'SOLID',
-              color: colors.border,
+              color: toSheetColourLevel(colors.border),
             },
           },
         },
@@ -175,15 +175,6 @@ function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
   return {};
 }
 
-function mixColors(col1: RGBColour, col2: RGBColour, mixPct: number) {
-  return {
-    red: Math.round((col1.red * (1 - mixPct) + col2.red * mixPct) * 255) / 255,
-    green: Math.round((col1.green * (1 - mixPct) + col2.green * mixPct) * 255) / 255,
-    blue: Math.round((col1.blue * (1 - mixPct) + col2.blue * mixPct) * 255) / 255,
-    alpha: Math.round((col1.alpha * (1 - mixPct) + col2.alpha * mixPct) * 255) / 255,
-  };
-}
-
 type googleSheetCellColour = {
   background: RGBColour;
   text: RGBColour;
@@ -197,10 +188,15 @@ function getAccessibleColour(bgColour?: string): googleSheetCellColour | undefin
   if (!background) return undefined;
 
   const text = isLightColour(background) ? BLACK : WHITE;
-  const border = mixColors(background, text, 0.2);
+  const border = mixColours(background, text, 0.2);
 
   return { background, text, border };
 }
 
 const BLACK: RGBColour = { red: 0, green: 0, blue: 0, alpha: 1 };
 const WHITE: RGBColour = { red: 255, green: 255, blue: 255, alpha: 0.98 };
+
+// sheets use color values from 0 to 1
+function toSheetColourLevel(colour: RGBColour): RGBColour {
+  return { red: colour.red / 255, green: colour.green / 255, blue: colour.blue / 255, alpha: colour.alpha };
+}

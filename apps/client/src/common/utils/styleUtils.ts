@@ -14,10 +14,13 @@ const defaultUiBackground: RGBColour = { red: 26, green: 26, blue: 26, alpha: 1 
  */
 export const getAccessibleColour = (bgColour?: string): ColourCombination => {
   if (!bgColour) return { backgroundColor: '#1a1a1a', color: '#fffffa' };
+
   const originalColour = cssOrHexToColour(bgColour);
   if (!originalColour) return { backgroundColor: '#1a1a1a', color: '#fffffa' };
-  const backgroundColorMix = mixColours(defaultUiBackground, originalColour, 1);
+
+  const backgroundColorMix = mixColours(defaultUiBackground, originalColour, 1 - originalColour.alpha);
   const textColor = isLightColour(backgroundColorMix) ? 'black' : '#fffffa';
+
   return { backgroundColor: colourToHex(backgroundColorMix), color: textColor };
 };
 

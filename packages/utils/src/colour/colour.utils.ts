@@ -1,12 +1,16 @@
 import { RGBColour } from 'ontime-types';
 import { isColourHex } from '../regex-utils/isColourHex.js';
 
-export function mixColours(col1: RGBColour, col2: RGBColour, mixPct: number) {
+// naive colour mix
+export function mixColours(colour1: RGBColour, colour2: RGBColour, p: number = 0.5) {
+  const w1 = p;
+  const w2 = 1 - w1;
+
   return {
-    red: Math.round((col1.red * (1 - mixPct) + col2.red * mixPct) * 255) / 255,
-    green: Math.round((col1.green * (1 - mixPct) + col2.green * mixPct) * 255) / 255,
-    blue: Math.round((col1.blue * (1 - mixPct) + col2.blue * mixPct) * 255) / 255,
-    alpha: Math.round((col1.alpha * (1 - mixPct) + col2.alpha * mixPct) * 255) / 255,
+    red: Math.round(colour1.red * w1 + colour2.red * w2),
+    green: Math.round(colour1.green * w1 + colour2.green * w2),
+    blue: Math.round(colour1.blue * w1 + colour2.blue * w2),
+    alpha: 1,
   };
 }
 
