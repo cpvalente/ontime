@@ -1,5 +1,5 @@
-import { isOntimeBlock, isOntimeEvent, OntimeEvent, OntimeEntry } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { isOntimeBlock, isOntimeEvent, OntimeEvent, OntimeEntry, RGBColour } from 'ontime-types';
+import { cssOrHexToColour, isLightColour, millisToString, mixColours } from 'ontime-utils';
 
 import type { sheets_v4 } from '@googleapis/sheets';
 import { is } from '../../utils/is.js';
@@ -100,8 +100,26 @@ export function cellRequestFromEvent(
     }
   }
 
+  const colors = isOntimeEvent(event) || isOntimeBlock(event) ? getAccessibleColour(event.colour) : undefined;
+  const cellColor: sheets_v4.Schema$CellData = !colors
+    ? {}
+    : {
+        userEnteredFormat: {
+          backgroundColor: toSheetColourLevel(colors.background),
+          textFormat: {
+            foregroundColor: toSheetColourLevel(colors.text),
+          },
+          borders: {
+            bottom: {
+              style: 'SOLID',
+              color: toSheetColourLevel(colors.border),
+            },
+          },
+        },
+      };
+
   const returnRows: sheets_v4.Schema$CellData[] = rowData.map(([key, _]) => {
-    return getCellData(key, event);
+    return { ...getCellData(key, event), ...cellColor };
   });
 
   return {
@@ -111,7 +129,7 @@ export function cellRequestFromEvent(
         rowIndex: index + rowData[0][1]['row'] + 1,
         columnIndex: titleCol,
       },
-      fields: 'userEnteredValue',
+      fields: 'userEnteredValue,userEnteredFormat',
       rows: [
         {
           values: returnRows,
@@ -155,4 +173,30 @@ function getCellData(key: keyof OntimeEvent | 'blank', event: OntimeEntry) {
   }
 
   return {};
+}
+
+type googleSheetCellColour = {
+  background: RGBColour;
+  text: RGBColour;
+  border: RGBColour;
+};
+
+function getAccessibleColour(bgColour?: string): googleSheetCellColour | undefined {
+  if (!bgColour) return undefined;
+
+  const background = cssOrHexToColour(bgColour);
+  if (!background) return undefined;
+
+  const text = isLightColour(background) ? BLACK : WHITE;
+  const border = mixColours(background, text, 0.2);
+
+  return { background, text, border };
+}
+
+const BLACK: RGBColour = { red: 0, green: 0, blue: 0, alpha: 1 };
+const WHITE: RGBColour = { red: 255, green: 255, blue: 255, alpha: 0.98 };
+
+// sheets use color values from 0 to 1
+function toSheetColourLevel(colour: RGBColour): RGBColour {
+  return { red: colour.red / 255, green: colour.green / 255, blue: colour.blue / 255, alpha: colour.alpha };
 }
