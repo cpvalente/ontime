@@ -57,7 +57,6 @@ $item-height: 3.5rem;
     bottom: 1.5rem;
     bottom: calc(1.5rem + env(safe-area-inset-bottom));
     right: $view-inline-padding;
-    left: 0;
 
     display: flex;
     justify-content: end;

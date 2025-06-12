@@ -1,11 +1,14 @@
+import { useEffect, useRef, useState } from 'react';
 import { IoPencil } from 'react-icons/io5';
 import { EntryId, OntimeEvent, Playback } from 'ontime-types';
 
 import Button from '../../common/components/buttons/Button';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
+import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useCurrentDay, useRuntimeOffset } from '../../common/hooks/useSocket';
 import { ViewExtendedTimer } from '../../common/models/TimeManager.type';
 import { cx } from '../../common/utils/styleUtils';
+import FollowButton from '../../features/operator/follow-button/FollowButton';
 import ClockTime from '../../features/viewers/common/clock-time/ClockTime';
 import { getPropertyValue } from '../../features/viewers/common/viewUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
@@ -25,10 +28,35 @@ interface CountdownSubscriptionsProps {
 
 export default function CountdownSubscriptions(props: CountdownSubscriptionsProps) {
   const { time, events, selectedId, goToEditMode } = props;
-  const { secondarySource, subscriptions, showProjected } = useCountdownOptions();
+  const { followSelected, secondarySource, subscriptions, showProjected } = useCountdownOptions();
   const showFab = useFadeOutOnInactivity(true);
 
-  // TODO: add follow selected
+  const [lockAutoScroll, setLockAutoScroll] = useState(false);
+  const selectedRef = useRef<HTMLDivElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const scrollToComponent = useFollowComponent({
+    followRef: selectedRef,
+    scrollRef,
+    doFollow: !lockAutoScroll,
+    topOffset: 0,
+  });
+
+  // reset scroll if nothing is selected
+  useEffect(() => {
+    if (!selectedId) {
+      if (!lockAutoScroll) {
+        scrollRef.current?.scrollTo(0, 0);
+      }
+    }
+  }, [selectedId, lockAutoScroll, scrollRef]);
+
+  // scroll to component if user clicks the Follow button
+  const handleOffset = () => {
+    if (selectedId) {
+      scrollToComponent();
+    }
+    setLockAutoScroll(false);
+  };
 
   // gather data
   const subscribedEvents = getOrderedSubscriptions(subscriptions, events);
@@ -64,6 +92,7 @@ export default function CountdownSubscriptions(props: CountdownSubscriptionsProp
           <IoPencil /> Edit
         </Button>
       </div>
+      <FollowButton isVisible={lockAutoScroll} onClickHandler={handleOffset} />
     </div>
   );
 }
