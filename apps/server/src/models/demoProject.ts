@@ -81,6 +81,7 @@ export const demoDb: DatabaseModel = {
           gap: 0,
           timeWarning: 500000,
           timeDanger: 100000,
+          triggers: [],
           custom: {
             Song: 'Sekret',
             Artist: 'Ronela Hajati',
@@ -110,6 +111,7 @@ export const demoDb: DatabaseModel = {
           gap: 0,
           timeWarning: 500000,
           timeDanger: 100000,
+          triggers: [],
           custom: {
             Song: 'Eat Your Salad',
             Artist: 'Citi Zeni',
@@ -139,6 +141,7 @@ export const demoDb: DatabaseModel = {
           gap: 0,
           timeWarning: 500000,
           timeDanger: 100000,
+          triggers: [],
           custom: {
             Song: 'Sentimentai',
             Artist: 'Monika Liu',
@@ -168,6 +171,7 @@ export const demoDb: DatabaseModel = {
           gap: 0,
           timeWarning: 500000,
           timeDanger: 100000,
+          triggers: [],
           custom: {
             Song: 'Boys Do Cry',
             Artist: 'Marius Bear',
@@ -197,10 +201,11 @@ export const demoDb: DatabaseModel = {
           gap: 0,
           timeWarning: 500000,
           timeDanger: 100000,
+          triggers: [],
           custom: {
             Song: 'Disko',
             Artist: 'LPS',
-          }
+          },
         },
         /// <----- BLOCK
         '01e85': {
@@ -243,6 +248,7 @@ export const demoDb: DatabaseModel = {
           gap: 0,
           timeWarning: 500000,
           timeDanger: 100000,
+          triggers: [],
           custom: {
             Song: 'Stefania',
             Artist: 'Kalush Orchestra',
@@ -272,6 +278,7 @@ export const demoDb: DatabaseModel = {
           gap: 0,
           timeWarning: 500000,
           timeDanger: 100000,
+          triggers: [],
           custom: {
             Song: 'Intention',
             Artist: 'Intelligent Music Project',
@@ -301,6 +308,7 @@ export const demoDb: DatabaseModel = {
           gap: 0,
           timeWarning: 500000,
           timeDanger: 100000,
+          triggers: [],
           custom: {
             Song: 'De Diepte',
             Artist: 'S10',
@@ -330,6 +338,7 @@ export const demoDb: DatabaseModel = {
           gap: 0,
           timeWarning: 500000,
           timeDanger: 100000,
+          triggers: [],
           custom: {
             Song: 'Trenuletul',
             Artist: 'Zdob si Zdub',
@@ -359,6 +368,7 @@ export const demoDb: DatabaseModel = {
           gap: 0,
           timeWarning: 500000,
           timeDanger: 100000,
+          triggers: [],
           custom: {
             Song: 'Saudade Saudade',
             Artist: 'Maro',
@@ -405,6 +415,7 @@ export const demoDb: DatabaseModel = {
           gap: 0,
           timeWarning: 500000,
           timeDanger: 100000,
+          triggers: [],
           custom: {
             Song: 'Guilty Pleasure',
             Artist: 'Mia Dimsic',
@@ -434,6 +445,7 @@ export const demoDb: DatabaseModel = {
           gap: 0,
           timeWarning: 500000,
           timeDanger: 100000,
+          triggers: [],
           custom: {
             Song: 'The Show',
             Artist: 'Reddi',
@@ -463,6 +475,7 @@ export const demoDb: DatabaseModel = {
           gap: 0,
           timeWarning: 500000,
           timeDanger: 100000,
+          triggers: [],
           custom: {
             Song: 'Halo',
             Artist: 'LUM!X & Pia Maria',
@@ -492,6 +505,7 @@ export const demoDb: DatabaseModel = {
           gap: 0,
           timeWarning: 500000,
           timeDanger: 100000,
+          triggers: [],
           custom: {
             Song: 'Die Together',
             Artist: 'Amanda Tenfjord',
