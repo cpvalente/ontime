@@ -8,6 +8,7 @@ import {
   isOntimeDelay,
   isOntimeEvent,
   OntimeEntry,
+  OntimeEvent,
   PatchWithId,
   Rundown,
 } from 'ontime-types';
@@ -84,8 +85,7 @@ export async function editEntry(patch: PatchWithId): Promise<OntimeEntry> {
   }
 
   // we dont allow the user to change the cue to empty string
-  // FIXME this is not guarding as expected
-  if (isOntimeEvent(patch) && patch?.cue === '') {
+  if ((patch as Partial<OntimeEvent>)?.cue === '') {
     throw new Error('Cue value invalid');
   }
 
