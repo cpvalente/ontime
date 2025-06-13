@@ -311,7 +311,6 @@ describe('loadRoll() handle edge cases with before and after start', () => {
         id: '1',
         timeStart: 10 * MILLIS_PER_HOUR,
         timeEnd: 11 * MILLIS_PER_HOUR,
-        isPublic: true,
       }),
     ];
 
@@ -331,7 +330,6 @@ describe('loadRoll() handle edge cases with before and after start', () => {
         id: '1',
         timeStart: 10 * MILLIS_PER_HOUR,
         timeEnd: 11 * MILLIS_PER_HOUR,
-        isPublic: true,
       }),
     ];
 
@@ -351,7 +349,6 @@ describe('loadRoll() handle edge cases with before and after start', () => {
         id: '1',
         timeStart: 10 * MILLIS_PER_HOUR,
         timeEnd: 2 * MILLIS_PER_HOUR,
-        isPublic: true,
       }),
     ];
     const expected = {
@@ -370,7 +367,6 @@ describe('loadRoll() handle edge cases with before and after start', () => {
         id: '1',
         timeStart: 72000000, // 20:00
         timeEnd: 72010000, // 20:10
-        isPublic: true,
       }),
     ];
     const expected = {
@@ -389,19 +385,16 @@ describe('loadRoll() test that roll behaviour with overlapping times', () => {
       id: '1',
       timeStart: 10,
       timeEnd: 10,
-      isPublic: false,
     },
     {
       id: '2',
       timeStart: 10,
       timeEnd: 20,
-      isPublic: true,
     },
     {
       id: '3',
       timeStart: 10,
       timeEnd: 30,
-      isPublic: false,
     },
   ];
   const timedEvents = prepareTimedEvents(eventlist);
@@ -472,7 +465,6 @@ describe('loadRoll() test that roll behaviour multi day event edge cases', () =>
         id: '1',
         timeStart: 66000000, // 19:20
         timeEnd: 54600000, // 16:10
-        isPublic: false,
       }),
     ];
     const expected = {
@@ -491,7 +483,6 @@ describe('loadRoll() test that roll behaviour multi day event edge cases', () =>
         id: '1',
         timeStart: 67200000, // 19:40
         timeEnd: 66900000, // 19:35
-        isPublic: false,
       }),
     ];
     const expected = {

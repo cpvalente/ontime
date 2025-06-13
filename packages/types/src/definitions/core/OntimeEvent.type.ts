@@ -48,7 +48,6 @@ export type OntimeEvent = OntimeBaseEvent & {
   timeStart: number;
   timeEnd: number;
   duration: number;
-  isPublic: boolean;
   skip: boolean;
   colour: string;
   timeWarning: number;

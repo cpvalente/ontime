@@ -9,7 +9,6 @@ export const dataFromExcelTemplate = [
     'End Action',
     'Timer type',
     'Count to end',
-    'Public',
     'Skip',
     'Notes',
     't0',
@@ -27,7 +26,6 @@ export const dataFromExcelTemplate = [
     '', // <-- endAction
     '', // <-- timerType
     'x', // <-- count to end
-    'x', // <-- public
     '', // <-- skip
     'Ballyhoo', // <-- notes
     'a0', // <-- t0
@@ -45,7 +43,6 @@ export const dataFromExcelTemplate = [
     'load-next', // <-- endAction
     'clock', // timerType
     'x', // <-- count to end
-    '', // <-- public
     'x', // <-- skip
     'Rainbow chase', // <-- notes
     'b0', // <-- t0
