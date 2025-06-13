@@ -25,10 +25,10 @@ interface BackstageProps {
   events: OntimeEvent[];
   general: ProjectData;
   isMirrored: boolean;
-  publicEventNow: OntimeEvent | null;
-  publicEventNext: OntimeEvent | null;
+  eventNow: OntimeEvent | null;
+  eventNext: OntimeEvent | null;
+  selectedId: string | null;
   time: ViewExtendedTimer;
-  publicSelectedId: string | null;
   settings: Settings | undefined;
 }
 
@@ -38,10 +38,10 @@ export default function Public(props: BackstageProps) {
     events,
     general,
     isMirrored,
-    publicEventNow,
-    publicEventNext,
+    eventNow,
+    eventNext,
+    selectedId,
     time,
-    publicSelectedId,
     settings,
   } = props;
 
@@ -54,8 +54,8 @@ export default function Public(props: BackstageProps) {
   // gather card data
   const hasEvents = events.length > 0;
   const { showNow, nowMain, nowSecondary, showNext, nextMain, nextSecondary } = getCardData(
-    publicEventNow,
-    publicEventNext,
+    eventNow,
+    eventNext,
     'title',
     secondarySource,
     time.playback,
@@ -115,7 +115,7 @@ export default function Public(props: BackstageProps) {
         )}
       </div>
 
-      {showSchedule && <ScheduleExport selectedId={publicSelectedId} />}
+      {showSchedule && <ScheduleExport selectedId={selectedId} />}
 
       <div className={cx(['info', !showSchedule && 'info--stretch'])}>
         {general.publicUrl && <QRCode value={general.publicUrl} size={qrSize} level='L' className='qr' />}

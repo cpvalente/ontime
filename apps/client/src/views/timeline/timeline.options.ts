@@ -15,13 +15,6 @@ export const getTimelineOptions = (timeFormat: string): ViewOption[] => {
           type: 'boolean',
           defaultValue: false,
         },
-        {
-          id: 'hideBackstage',
-          title: 'Hide Private Events',
-          description: 'Whether to hide non-public events',
-          type: 'boolean',
-          defaultValue: false,
-        },
       ],
     },
   ];

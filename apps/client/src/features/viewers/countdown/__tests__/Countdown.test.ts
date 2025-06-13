@@ -1,8 +1,8 @@
+import { ViewExtendedTimer } from 'common/models/TimeManager.type';
+import { OntimeEvent } from 'ontime-types';
 import { dayInMs } from 'ontime-utils';
 
 import { fetchTimerData, sanitiseTitle, TimerMessage } from '../countdown.helpers';
-import { ViewExtendedTimer } from 'common/models/TimeManager.type';
-import { OntimeEvent } from 'ontime-types';
 
 describe('sanitiseTitle() function', () => {
   it('should return a title when valid', () => {

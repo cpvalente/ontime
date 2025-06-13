@@ -23,7 +23,7 @@ export const parseField = (field: CsvHeaderKey, data: unknown): string => {
     return millisToString(data as MaybeNumber, { fallback: '' });
   }
 
-  if (field === 'isPublic' || field === 'skip') {
+  if (field === 'skip') {
     return data ? 'x' : '';
   }
 
@@ -52,7 +52,6 @@ export const makeTable = (headerData: ProjectData, rundown: OntimeEntry[], custo
     'cue',
     'title',
     'note',
-    'isPublic',
     'skip',
     ...customFieldKeys,
     'type',
@@ -67,7 +66,6 @@ export const makeTable = (headerData: ProjectData, rundown: OntimeEntry[], custo
     'Cue',
     'Title',
     'Note',
-    'Is Public? (x)',
     'Skip?',
     ...customFieldLabels,
     'Type',

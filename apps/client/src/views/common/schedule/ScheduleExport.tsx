@@ -7,16 +7,15 @@ import ScheduleNav from './ScheduleNav';
 
 interface ScheduleExportProps {
   selectedId: MaybeString;
-  isBackstage?: boolean;
 }
 
 export default memo(ScheduleExport);
 function ScheduleExport(props: ScheduleExportProps) {
-  const { selectedId, isBackstage } = props;
+  const { selectedId } = props;
   return (
-    <ScheduleProvider selectedEventId={selectedId} isBackstage={isBackstage}>
+    <ScheduleProvider selectedEventId={selectedId}>
       <ScheduleNav className='schedule-nav-container' />
-      <Schedule isProduction={isBackstage} className='schedule-container' />
+      <Schedule className='schedule-container' />
     </ScheduleProvider>
   );
 }

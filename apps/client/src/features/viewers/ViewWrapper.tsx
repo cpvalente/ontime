@@ -1,4 +1,4 @@
-import { ComponentType, useMemo } from 'react';
+import { ComponentType } from 'react';
 import { ViewExtendedTimer } from 'common/models/TimeManager.type';
 import {
   CustomFields,
@@ -8,7 +8,6 @@ import {
   Runtime,
   Settings,
   SimpleTimerState,
-  SupportedEntry,
   TimerType,
   ViewSettings,
 } from 'ontime-types';
@@ -25,19 +24,15 @@ import { useViewOptionsStore } from '../../common/stores/viewOptions';
 
 type WithDataProps = {
   auxTimer: SimpleTimerState;
-  backstageEvents: OntimeEvent[];
+  events: OntimeEvent[];
   customFields: CustomFields;
   eventNext: OntimeEvent | null;
   eventNow: OntimeEvent | null;
-  events: OntimeEvent[];
   general: ProjectData;
   isMirrored: boolean;
   message: MessageState;
   nextId: string | null;
   onAir: boolean;
-  publicEventNext: OntimeEvent | null;
-  publicEventNow: OntimeEvent | null;
-  publicSelectedId: string | null;
   runtime: Runtime;
   selectedId: string | null;
   settings: Settings | undefined; // TODO: what is the case for this being undefined?
@@ -61,17 +56,9 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
     const { data: settings } = useSettings();
     const { data: customFields } = useCustomFields();
 
-    const publicEvents = useMemo(() => {
-      if (Array.isArray(rundownData)) {
-        return rundownData.filter((e) => e.type === SupportedEntry.Event && e.title && e.isPublic);
-      }
-      return [];
-    }, [rundownData]);
-
     // websocket data
-    const { clock, timer, message, onAir, eventNext, publicEventNext, publicEventNow, eventNow, runtime, auxtimer1 } =
+    const { clock, timer, message, onAir, eventNext, eventNow, runtime, auxtimer1 } =
       useStore(runtimeStore);
-    const publicSelectedId = publicEventNow?.id ?? null;
     const selectedId = eventNow?.id ?? null;
     const nextId = eventNext?.id ?? null;
 
@@ -91,19 +78,15 @@ const withData = <P extends WithDataProps>(Component: ComponentType<P>) => {
         <Component
           {...props}
           auxTimer={auxtimer1}
-          backstageEvents={rundownData}
+          events={rundownData}
           customFields={customFields}
           eventNext={eventNext}
           eventNow={eventNow}
-          events={publicEvents}
           general={project}
           isMirrored={isMirrored}
           message={message}
           nextId={nextId}
           onAir={onAir}
-          publicEventNext={publicEventNext}
-          publicEventNow={publicEventNow}
-          publicSelectedId={publicSelectedId}
           runtime={runtime}
           selectedId={selectedId}
           settings={settings}

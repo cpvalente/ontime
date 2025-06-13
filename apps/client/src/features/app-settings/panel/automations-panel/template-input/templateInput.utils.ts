@@ -38,7 +38,6 @@ const eventStaticPropertiesNow = [
   '{{eventNow.timeStart}}',
   '{{eventNow.timeEnd}}',
   '{{eventNow.duration}}',
-  '{{eventNow.isPublic}}',
   '{{eventNow.colour}}',
   '{{eventNow.delay}}',
 ];
@@ -51,7 +50,6 @@ const eventStaticPropertiesNext = [
   '{{eventNext.timeStart}}',
   '{{eventNext.timeEnd}}',
   '{{eventNext.duration}}',
-  '{{eventNext.isPublic}}',
   '{{eventNext.colour}}',
   '{{eventNext.delay}}',
 ];
