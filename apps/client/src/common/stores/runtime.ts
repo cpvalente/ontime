@@ -14,18 +14,6 @@ export const runtimeStore = createWithEqualityFn<RuntimeStore>(
 export const useRuntimeStore = <T>(selector: (state: RuntimeStore) => T) =>
   useStoreWithEqualityFn(runtimeStore, selector, deepCompare);
 
-let batchStore: Partial<RuntimeStore> = {};
-
-export function addToBatchUpdates<K extends keyof RuntimeStore>(key: K, value: RuntimeStore[K]) {
-  batchStore[key] = value;
-}
-
-export function flushBatchUpdates() {
-  const state = runtimeStore.getState();
-  runtimeStore.setState({ ...state, ...batchStore });
-  batchStore = {};
-}
-
 /**
  * Allows patching a property of the runtime store
  */

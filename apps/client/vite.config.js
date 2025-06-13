@@ -39,6 +39,29 @@ export default defineConfig({
   ],
   server: {
     port: 3000,
+    proxy: {
+      '^/login*': {
+        target: 'http://localhost:4001/',
+        changeOrigin: true,
+        configure: logProxyRequests,
+      },
+      '^/data*': {
+        target: 'http://localhost:4001/',
+        changeOrigin: true,
+        configure: logProxyRequests,
+      },
+      '^/api*': {
+        target: 'http://localhost:4001/',
+        changeOrigin: true,
+        configure: logProxyRequests,
+      },
+      '^/ws*': {
+        target: 'http://localhost:4001/',
+        changeOrigin: true,
+        configure: logProxyRequests,
+        ws: true,
+      },
+    },
   },
   test: {
     globals: true,
@@ -78,3 +101,9 @@ export default defineConfig({
     },
   },
 });
+
+function logProxyRequests(proxy) {
+  proxy.on('proxyReq', (_proxyReq, req, _res) => {
+    console.log('Proxy:', req.method, req.url);
+  });
+}

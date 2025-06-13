@@ -10,7 +10,6 @@ import AppSettings from '../app-settings/AppSettings';
 import useAppSettingsNavigation from '../app-settings/useAppSettingsNavigation';
 import { EditorOverview } from '../overview/Overview';
 
-import Finder from './finder/Finder';
 import WelcomePlacement from './welcome/WelcomePlacement';
 
 import styles from './Editor.module.scss';
@@ -22,7 +21,6 @@ const MessageControl = lazy(() => import('../control/message/MessageControlExpor
 export default function Editor() {
   const { isOpen: isSettingsOpen, setLocation, close } = useAppSettingsNavigation();
   const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isFinderOpen, onToggle: onFinderToggle, onClose: onFinderClose } = useDisclosure();
 
   useWindowTitle('Editor');
 
@@ -46,16 +44,11 @@ export default function Editor() {
     }
   }, [close, isSettingsOpen, setLocation]);
 
-  useHotkeys([
-    ['mod + ,', toggleSettings],
-    ['mod + f', onFinderToggle],
-    ['Escape', onFinderClose],
-  ]);
+  useHotkeys([['mod + ,', toggleSettings]]);
 
   return (
     <div className={styles.mainContainer} data-testid='event-editor'>
       <WelcomePlacement />
-      <Finder isOpen={isFinderOpen} onClose={onFinderClose} />
       <NavigationMenu isOpen={isMenuOpen} onClose={onClose} />
       <EditorOverview>
         <IconButton

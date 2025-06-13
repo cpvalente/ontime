@@ -1,5 +1,6 @@
 import {
   EndAction,
+  EntryId,
   isOntimeEvent,
   isPlayableEvent,
   LogOrigin,
@@ -18,26 +19,26 @@ import { deepEqual } from 'fast-equals';
 import { logger } from '../../classes/Logger.js';
 import * as runtimeState from '../../stores/runtimeState.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
-import { timerConfig } from '../../config/config.js';
 import { eventStore } from '../../stores/EventStore.js';
-
 import { triggerReportEntry } from '../../api-data/report/report.service.js';
+import { timerConfig } from '../../setup/config.js';
+import { triggerAutomations } from '../../api-data/automation/automation.service.js';
+import { getCurrentRundown, getEntryWithId, getRundownMetadata } from '../../api-data/rundown/rundown.dao.js';
 
 import { EventTimer } from '../EventTimer.js';
 import { RestorePoint, restoreService } from '../RestoreService.js';
-import {
-  findNext,
-  findPrevious,
-  getEventAtIndex,
-  getNextEventWithCue,
-  getEventWithId,
-  getRundown,
-  getTimedEvents,
-} from '../rundown-service/rundownUtils.js';
-
-import { getForceUpdate, getShouldClockUpdate, getShouldTimerUpdate } from './rundownService.utils.js';
 import { skippedOutOfEvent } from '../timerUtils.js';
-import { triggerAutomations } from '../../api-data/automation/automation.service.js';
+
+import {
+  filterTimedEvents,
+  findNextPlayableId,
+  findNextPlayableWithCue,
+  findPreviousPlayableId,
+  getEventAtIndex,
+  getForceUpdate,
+  getShouldClockUpdate,
+  getShouldTimerUpdate,
+} from './rundownService.utils.js';
 
 type RuntimeStateEventKeys = keyof Pick<RuntimeState, 'eventNext' | 'eventNow' | 'publicEventNow' | 'publicEventNext'>;
 
@@ -46,7 +47,7 @@ type RuntimeStateEventKeys = keyof Pick<RuntimeState, 'eventNext' | 'eventNow' |
  * Coordinating with necessary services
  */
 class RuntimeService {
-  private eventTimer: EventTimer;
+  private readonly eventTimer: EventTimer;
   private lastIntegrationClockUpdate = -1;
   private lastIntegrationTimerValue = -1;
 
@@ -132,9 +133,7 @@ class RuntimeService {
       // handle end action if there was a timer playing
       // actions are added to the queue stack to ensure that the order of operations is maintained
       if (newState.eventNow) {
-        if (newState.eventNow.endAction === EndAction.Stop) {
-          setTimeout(this.stop.bind(this), 0);
-        } else if (newState.eventNow.endAction === EndAction.LoadNext) {
+        if (newState.eventNow.endAction === EndAction.LoadNext) {
           setTimeout(this.loadNext.bind(this), 0);
         } else if (newState.eventNow.endAction === EndAction.PlayNext) {
           setTimeout(this.startNext.bind(this), 0);
@@ -198,7 +197,10 @@ class RuntimeService {
   }
 
   private isNewNext() {
-    const timedEvents = getTimedEvents();
+    const rundown = getCurrentRundown();
+    const { timedEventOrder } = getRundownMetadata();
+    const timedEvents = filterTimedEvents(rundown, timedEventOrder);
+
     const state = runtimeState.getState();
     const now = state.eventNow?.id;
     const next = state.eventNext?.id;
@@ -239,7 +241,7 @@ class RuntimeService {
    * Called when the underlying data has changed,
    * we check if the change affects the runtime
    */
-  public notifyOfChangedEvents(affectedIds?: string[]) {
+  public notifyOfChangedEvents(affectedIds?: EntryId[]) {
     const state = runtimeState.getState();
     const hasLoadedElements = state.eventNow !== null || state.eventNext !== null;
     if (!hasLoadedElements) {
@@ -259,7 +261,7 @@ class RuntimeService {
     if (safeOption || eventInMemory) {
       if (state.eventNow !== null) {
         // load stuff again, but keep running if our events still exist
-        const eventNow = getEventWithId(state.eventNow.id);
+        const eventNow = getEntryWithId(state.eventNow.id);
         if (!isOntimeEvent(eventNow) || !isPlayableEvent(eventNow)) {
           // maybe the event was deleted or the skip state was changed
           runtimeState.stop();
@@ -270,8 +272,9 @@ class RuntimeService {
         if (onlyChangedNow) {
           runtimeState.updateLoaded(eventNow);
         } else {
-          const rundown = getRundown();
-          runtimeState.updateAll(rundown);
+          const rundown = getCurrentRundown();
+          const { timedEventOrder } = getRundownMetadata();
+          runtimeState.updateAll(rundown, timedEventOrder);
         }
         return;
       }
@@ -280,7 +283,9 @@ class RuntimeService {
     // Maybe the event will become the next
     isNext = this.isNewNext();
     if (isNext) {
-      const timedEvents = getTimedEvents();
+      const rundown = getCurrentRundown();
+      const { timedEventOrder } = getRundownMetadata();
+      const timedEvents = filterTimedEvents(rundown, timedEventOrder);
       runtimeState.loadNext(timedEvents);
     }
   }
@@ -298,8 +303,10 @@ class RuntimeService {
     }
     const previousState = runtimeState.getState();
 
-    const rundown = getRundown();
-    const success = runtimeState.load(event, rundown, initialData);
+    // we can ignore events which are not playable
+    const rundown = getCurrentRundown();
+    const rundownMetadata = getRundownMetadata();
+    const success = runtimeState.load(event, rundown, rundownMetadata.playableEventOrder, initialData);
 
     if (success) {
       logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
@@ -323,7 +330,7 @@ class RuntimeService {
    */
   @broadcastResult
   public startById(eventId: string): boolean {
-    const event = getEventWithId(eventId);
+    const event = getEntryWithId(eventId);
     if (!event || !isOntimeEvent(event)) {
       return false;
     }
@@ -341,14 +348,20 @@ class RuntimeService {
    */
   @broadcastResult
   public startByIndex(eventIndex: number): boolean {
-    const event = getEventAtIndex(eventIndex);
+    const rundown = getCurrentRundown();
+    const { timedEventOrder } = getRundownMetadata();
+
+    const event = getEventAtIndex(rundown, timedEventOrder, eventIndex);
+
     if (!event) {
       return false;
     }
+
     const loaded = this.loadEvent(event);
     if (!loaded) {
       return false;
     }
+
     return this.handleStart();
   }
 
@@ -359,10 +372,21 @@ class RuntimeService {
    */
   @broadcastResult
   public startByCue(cue: string): boolean {
-    const event = getNextEventWithCue(cue); //TODO: add index
+    const state = runtimeState.getState();
+    const rundown = getCurrentRundown();
+    const { playableEventOrder } = getRundownMetadata();
+
+    const event = findNextPlayableWithCue(
+      rundown,
+      playableEventOrder,
+      cue,
+      state.runtime.selectedEventIndex ?? undefined,
+    );
+
     if (!event) {
       return false;
     }
+
     const loaded = this.loadEvent(event);
     if (!loaded) {
       return false;
@@ -377,7 +401,7 @@ class RuntimeService {
    */
   @broadcastResult
   public loadById(eventId: string): boolean {
-    const event = getEventWithId(eventId);
+    const event = getEntryWithId(eventId);
     if (!event || !isOntimeEvent(event)) {
       return false;
     }
@@ -391,7 +415,11 @@ class RuntimeService {
    */
   @broadcastResult
   public loadByIndex(eventIndex: number): boolean {
-    const event = getEventAtIndex(eventIndex);
+    const rundown = getCurrentRundown();
+    const { timedEventOrder } = getRundownMetadata();
+
+    const event = getEventAtIndex(rundown, timedEventOrder, eventIndex);
+
     if (!event) {
       return false;
     }
@@ -405,10 +433,21 @@ class RuntimeService {
    */
   @broadcastResult
   public loadByCue(cue: string): boolean {
-    const event = getNextEventWithCue(cue); //TODO: add index
+    const state = runtimeState.getState();
+    const rundown = getCurrentRundown();
+    const { playableEventOrder } = getRundownMetadata();
+
+    const event = findNextPlayableWithCue(
+      rundown,
+      playableEventOrder,
+      cue,
+      state.runtime.selectedEventIndex ?? undefined,
+    );
+
     if (!event) {
       return false;
     }
+
     return this.loadEvent(event);
   }
 
@@ -420,10 +459,16 @@ class RuntimeService {
    */
   private handleLoadPrevious(): boolean {
     const state = runtimeState.getState();
-    const previousEvent = findPrevious(state.eventNow?.id);
-    if (previousEvent) {
-      return this.loadEvent(previousEvent);
+    const { playableEventOrder } = getRundownMetadata();
+
+    const previousId = findPreviousPlayableId(playableEventOrder, state.eventNow?.id);
+    if (previousId) {
+      const previousEvent = getEntryWithId(previousId);
+      if (previousEvent && isOntimeEvent(previousEvent)) {
+        return this.loadEvent(previousEvent);
+      }
     }
+
     return false;
   }
 
@@ -445,8 +490,15 @@ class RuntimeService {
    */
   private handleLoadNext(): boolean {
     const state = runtimeState.getState();
-    const nextEvent = findNext(state.eventNow?.id);
-    if (nextEvent) {
+    const { playableEventOrder } = getRundownMetadata();
+
+    const nextId = findNextPlayableId(playableEventOrder, state.eventNow?.id);
+    if (nextId) {
+      const nextEvent = getEntryWithId(nextId);
+      if (!nextEvent || !isOntimeEvent(nextEvent)) {
+        return false;
+      }
+
       if (state.timer.playback === Playback.Roll) {
         return this.loadEvent(nextEvent, { firstStart: state.runtime.actualStart });
       }
@@ -456,7 +508,6 @@ class RuntimeService {
     logger.info(LogOrigin.Playback, 'No next event found! Continuing playback');
     return false;
   }
-
   /**
    * Loads event after currently selected
    * @return {boolean} success
@@ -583,9 +634,11 @@ class RuntimeService {
    * Handles special case to call roll on a loaded event which we do not want to discard
    */
   private rollLoaded(offset?: number) {
-    const rundown = getRundown();
+    const rundown = getCurrentRundown();
+    const { timedEventOrder } = getRundownMetadata();
+
     try {
-      runtimeState.roll(rundown, offset);
+      runtimeState.roll(rundown, timedEventOrder, offset);
     } catch (error) {
       logger.error(LogOrigin.Server, `Roll: ${error}`);
     }
@@ -605,8 +658,10 @@ class RuntimeService {
     }
 
     try {
-      const rundown = getRundown();
-      const result = runtimeState.roll(rundown);
+      const rundown = getCurrentRundown();
+      const rundownMetadata = getRundownMetadata();
+      const result = runtimeState.roll(rundown, rundownMetadata.playableEventOrder);
+
       const newState = runtimeState.getState();
       if (result.eventId !== previousState.eventNow?.id) {
         logger.info(LogOrigin.Playback, `Loaded event with ID ${result.eventId}`);
@@ -652,13 +707,15 @@ class RuntimeService {
 
     // the db would have to change for the event not to exist
     // we do not know the reason for the crash, so we check anyway
-    const event = getEventWithId(selectedEventId);
+    const event = getEntryWithId(selectedEventId);
     if (!isOntimeEvent(event) || !isPlayableEvent(event)) {
       return;
     }
 
-    const rundown = getRundown();
-    runtimeState.resume(restorePoint, event, rundown);
+    const rundown = getCurrentRundown();
+    const rundownMetadata = getRundownMetadata();
+    runtimeState.resume(restorePoint, event, rundown, rundownMetadata.playableEventOrder);
+
     logger.info(LogOrigin.Playback, 'Resuming playback');
   }
 
@@ -694,6 +751,8 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     const result = originalMethod.apply(this, args);
     const state = runtimeState.getState();
 
+    const batch = eventStore.createBatch();
+
     // we do the comparison by explicitly for each property
     // to apply custom logic for different datasets
 
@@ -712,6 +771,11 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // combine all big changes
     const hasImmediateChanges = hasNewLoaded || justStarted || hasChangedPlayback || offsetModeChanged;
 
+    // we would like the wall clock to tick on a regular rate
+    const normalClockUpdate =
+      getShouldClockUpdate(RuntimeService.previousClockUpdate, state.clock) ||
+      getForceUpdate(RuntimeService.previousClockUpdate, state.clock);
+
     /**
      * Timer should be updated if
      * - big changes
@@ -728,6 +792,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     /**
      * Runtime should be updated if
+     * - clock tick
      * - big changes
      * - the timer is updating so runtime also updates to keep them in sync ???
      * - notification rate has been exceeded
@@ -735,7 +800,10 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
      * Then check if there is actually a change in the data
      */
     const shouldRuntimeUpdate =
-      (hasImmediateChanges || shouldUpdateTimer || getForceUpdate(RuntimeService.previousRuntimeUpdate, state.clock)) &&
+      (normalClockUpdate ||
+        hasImmediateChanges ||
+        shouldUpdateTimer ||
+        getForceUpdate(RuntimeService.previousRuntimeUpdate, state.clock)) &&
       !deepEqual(RuntimeService.previousState?.runtime, state.runtime);
 
     /**
@@ -746,34 +814,30 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     /**
      * Many other values are calculated based on the clock
      * so if any of them are updated we also need to send the clock
-     * in case nothing else is updating the clock will bw updated at the notification rate
+     * in case nothing else is updating the clock will be updated at the notification rate
      */
-    const shouldUpdateClock =
-      shouldUpdateTimer ||
-      shouldRuntimeUpdate ||
-      shouldBlockUpdate ||
-      getForceUpdate(RuntimeService.previousClockUpdate, state.clock);
+    const shouldUpdateClock = shouldRuntimeUpdate || shouldBlockUpdate || normalClockUpdate;
 
     //Now we set all the updates on the eventstore and update the previous value
     if (hasChangedPlayback) {
-      eventStore.set('onAir', state.timer.playback !== Playback.Stop);
+      batch.add('onAir', state.timer.playback !== Playback.Stop);
     }
 
     if (shouldUpdateTimer) {
-      eventStore.set('timer', state.timer);
+      batch.add('timer', state.timer);
       RuntimeService.previousTimerUpdate = state.clock;
       RuntimeService.previousTimerValue = state.timer.current;
       RuntimeService.previousState.timer = { ...state.timer };
     }
 
     if (shouldRuntimeUpdate) {
-      eventStore.set('runtime', state.runtime);
+      batch.add('runtime', state.runtime);
       RuntimeService.previousRuntimeUpdate = state.clock;
       RuntimeService.previousState.runtime = { ...state.runtime };
     }
 
     if (shouldBlockUpdate) {
-      eventStore.set('currentBlock', state.currentBlock);
+      batch.add('currentBlock', state.currentBlock);
       RuntimeService.previousState.currentBlock = { ...state.currentBlock };
     }
 
@@ -783,7 +847,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     if (shouldUpdateClock) {
       RuntimeService.previousClockUpdate = state.clock;
-      eventStore.set('clock', state.clock);
+      batch.add('clock', state.clock);
     }
 
     // Update the events if they have changed
@@ -815,24 +879,30 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
       }
 
       function storeKey(eventKey: RuntimeStateEventKeys) {
-        eventStore.set(eventKey, state[eventKey]);
+        batch.add(eventKey, state[eventKey]);
+        // @ts-expect-error -- not sure how to type this in a sane way
         RuntimeService.previousState[eventKey] = { ...state[eventKey] };
       }
     }
 
     // Helper function to save the restore state
     function saveRestoreState(state: runtimeState.RuntimeState) {
-      restoreService.save({
-        playback: state.timer.playback,
-        selectedEventId: state.eventNow?.id ?? null,
-        startedAt: state.timer.startedAt,
-        addedTime: state.timer.addedTime,
-        pausedAt: state._timer.pausedAt,
-        firstStart: state.runtime.actualStart,
-        blockStartAt: state.currentBlock.startedAt,
-      });
+      restoreService
+        .save({
+          playback: state.timer.playback,
+          selectedEventId: state.eventNow?.id ?? null,
+          startedAt: state.timer.startedAt,
+          addedTime: state.timer.addedTime,
+          pausedAt: state._timer.pausedAt,
+          firstStart: state.runtime.actualStart,
+          blockStartAt: state.currentBlock.startedAt,
+        })
+        .catch((_e) => {
+          //we don't do anything with the error here
+        });
     }
 
+    batch.send();
     return result;
   };
 

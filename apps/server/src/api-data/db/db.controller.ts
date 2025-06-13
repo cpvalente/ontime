@@ -18,9 +18,9 @@ import * as projectService from '../../services/project-service/ProjectService.j
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   try {
-    const { rundown, project, settings, viewSettings, urlPresets, customFields, automation } = req.body;
+    const { rundowns, project, settings, viewSettings, urlPresets, customFields, automation } = req.body;
     const patchDb: DatabaseModel = {
-      rundown,
+      rundowns,
       project,
       settings,
       viewSettings,
@@ -91,7 +91,7 @@ export async function quickProjectFile(req: Request, res: Response<{ filename: s
  */
 export async function currentProjectDownload(_req: Request, res: Response) {
   const { filename, pathToFile } = await projectService.getCurrentProject();
-  res.download(pathToFile, filename, (error) => {
+  res.download(pathToFile, filename, (error: Error | null) => {
     if (error) {
       const message = getErrorMessage(error);
       res.status(500).send({ message });
@@ -106,7 +106,8 @@ export async function projectDownload(req: Request, res: Response) {
   const { filename } = req.body;
   const pathToFile = doesProjectExist(filename);
   if (!pathToFile) {
-    return res.status(404).send({ message: `Project ${filename} not found.` });
+    res.status(404).send({ message: `Project ${filename} not found.` });
+    return;
   }
 
   res.download(pathToFile, filename, (error) => {
@@ -138,7 +139,8 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
   } catch (error) {
     const message = getErrorMessage(error);
     if (message.startsWith('Project file')) {
-      return res.status(403).send({ message });
+      res.status(403).send({ message });
+      return;
     }
     res.status(400).send({ message });
   }
@@ -195,7 +197,8 @@ export async function loadProject(req: Request, res: Response<MessageResponse | 
   } catch (error) {
     const message = getErrorMessage(error);
     if (message.startsWith('Project file')) {
-      return res.status(403).send({ message });
+      res.status(403).send({ message });
+      return;
     }
     res.status(500).send({ message });
   }
@@ -214,7 +217,8 @@ export async function loadDemo(_req: Request, res: Response<MessageResponse | Er
   } catch (error) {
     const message = getErrorMessage(error);
     if (message.startsWith('Project file')) {
-      return res.status(403).send({ message });
+      res.status(403).send({ message });
+      return;
     }
     res.status(500).send({ message });
   }
@@ -245,7 +249,8 @@ export async function duplicateProjectFile(req: Request, res: Response<MessageRe
   } catch (error) {
     const message = getErrorMessage(error);
     if (message.startsWith('Project file')) {
-      return res.status(403).send({ message });
+      res.status(403).send({ message });
+      return;
     }
 
     res.status(500).send({ message });
@@ -275,7 +280,8 @@ export async function renameProjectFile(req: Request, res: Response<MessageRespo
   } catch (error) {
     const message = getErrorMessage(error);
     if (message.startsWith('Project file')) {
-      return res.status(403).send({ message });
+      res.status(403).send({ message });
+      return;
     }
 
     res.status(500).send({ message });
@@ -303,10 +309,12 @@ export async function deleteProjectFile(req: Request, res: Response<MessageRespo
   } catch (error) {
     const message = getErrorMessage(error);
     if (message === 'Cannot delete currently loaded project') {
-      return res.status(403).send({ message });
+      res.status(403).send({ message });
+      return;
     }
     if (message === 'Project file not found') {
-      return res.status(404).send({ message });
+      res.status(404).send({ message });
+      return;
     }
 
     res.status(500).send({ message });

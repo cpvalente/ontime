@@ -1,17 +1,16 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { isOntimeEvent, isPlayableEvent, MaybeString, OntimeEvent, OntimeRundown, PlayableEvent } from 'ontime-types';
+import { isOntimeEvent, isPlayableEvent, MaybeString, OntimeEntry, OntimeEvent, PlayableEvent } from 'ontime-types';
 import {
   dayInMs,
   getEventWithId,
   getFirstEvent,
   getNextEvent,
-  getTimeFromPrevious,
+  getTimeFrom,
   isNewLatest,
   MILLIS_PER_HOUR,
 } from 'ontime-utils';
 
-import { clamp } from '../../common/utils/math';
 import { formatDuration } from '../../common/utils/time';
 import { isStringBoolean } from '../../features/viewers/common/viewUtils';
 
@@ -21,13 +20,6 @@ type CSSPosition = {
   left: number;
   width: number;
 };
-
-/**
- * Calculates the position (in %) of an element relative to a schedule
- */
-export function getRelativePositionX(scheduleStart: number, scheduleEnd: number, now: number): number {
-  return clamp(((now - scheduleStart) / (scheduleEnd - scheduleStart)) * 100, 0, 100);
-}
 
 /**
  * Calculates an absolute position of an element based on a schedule
@@ -95,7 +87,7 @@ interface ScopedRundownData {
   totalDuration: number;
 }
 
-export function useScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeString): ScopedRundownData {
+export function useScopedRundown(rundown: OntimeEntry[], selectedEventId: MaybeString): ScopedRundownData {
   const [searchParams] = useSearchParams();
 
   const data = useMemo(() => {
@@ -110,7 +102,7 @@ export function useScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeS
     let selectedIndex = selectedEventId ? Infinity : -1;
     let firstStart = null;
     let totalDuration = 0;
-    let lastEntry: PlayableEvent | undefined;
+    let lastEntry: PlayableEvent | null = null;
 
     for (let i = 0; i < rundown.length; i++) {
       const currentEntry = rundown[i];
@@ -142,7 +134,7 @@ export function useScopedRundown(rundown: OntimeRundown, selectedEventId: MaybeS
           firstStart = currentEntry.timeStart;
         }
 
-        const timeFromPrevious: number = getTimeFromPrevious(currentEntry, lastEntry);
+        const timeFromPrevious: number = getTimeFrom(currentEntry, lastEntry);
 
         if (timeFromPrevious === 0) {
           totalDuration += currentEntry.duration;
@@ -172,7 +164,7 @@ type UpcomingEvents = {
 /**
  * Returns upcoming events from current: now, next and followedBy
  */
-export function getUpcomingEvents(events: OntimeRundown, selectedId: MaybeString): UpcomingEvents {
+export function getUpcomingEvents(events: PlayableEvent[], selectedId: MaybeString): UpcomingEvents {
   if (events.length === 0) {
     return { now: null, next: null, followedBy: null };
   }

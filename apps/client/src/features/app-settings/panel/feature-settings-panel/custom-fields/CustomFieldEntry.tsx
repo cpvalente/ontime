@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { IoPencil, IoTrash } from 'react-icons/io5';
 import { IconButton } from '@chakra-ui/react';
-import { CustomField, CustomFieldLabel } from 'ontime-types';
+import { CustomField, CustomFieldKey } from 'ontime-types';
 
 import CopyTag from '../../../../../common/components/copy-tag/CopyTag';
 import Swatch from '../../../../../common/components/input/colour-input/Swatch';
@@ -17,8 +17,8 @@ interface CustomFieldEntryProps {
   label: string;
   fieldKey: string;
   type: 'string' | 'image';
-  onEdit: (label: CustomFieldLabel, patch: CustomField) => Promise<void>;
-  onDelete: (label: CustomFieldLabel) => Promise<void>;
+  onEdit: (key: CustomFieldKey, patch: CustomField) => Promise<void>;
+  onDelete: (key: CustomFieldKey) => Promise<void>;
 }
 
 export default function CustomFieldEntry(props: CustomFieldEntryProps) {
