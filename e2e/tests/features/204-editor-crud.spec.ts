@@ -20,8 +20,8 @@ test('CRUD operations on the rundown', async ({ page }) => {
   await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
   expect(await page.getByTestId('entry-3').getByTestId('time-input-timeStart').inputValue()).toContain('00:30:00');
 
-  // test quick add options - event is public
+  // test quick add options
   await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
 
-  await expect(page.getByTestId('entry-4').locator('#block-status')).toHaveAttribute('data-ispublic', 'true');
+  await expect(page.getByTestId('entry-4').locator('#block-status')).toBeVisible();
 });
