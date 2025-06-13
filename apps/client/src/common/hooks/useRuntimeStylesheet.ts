@@ -1,22 +1,23 @@
 import { useEffect, useState } from 'react';
 
 const scriptTagId = 'ontime-override';
-export const useRuntimeStylesheet = (pathToFile) => {
+export const useRuntimeStylesheet = (pathToFile: string | false) => {
   const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch(pathToFile);
-      if (response.ok) {
-        return response.text();
-      }
-    };
-
     if (!pathToFile) {
       document.getElementById(scriptTagId)?.remove();
       setShouldRender(true);
       return;
     }
+
+    const fetchData = async () => {
+      const response = await fetch(pathToFile);
+      if (response.ok) {
+        return response.text();
+      }
+      return undefined;
+    };
 
     if (document.getElementById(scriptTagId)) {
       setShouldRender(true);
@@ -25,11 +26,14 @@ export const useRuntimeStylesheet = (pathToFile) => {
 
     setShouldRender(false);
     const styleSheet = document.createElement('style');
-    styleSheet.rel = 'stylesheet';
     styleSheet.setAttribute('id', scriptTagId);
 
     fetchData()
       .then((data) => {
+        if (!data) {
+          console.error(`Error loading stylesheet: no data`);
+          return;
+        }
         styleSheet.innerHTML = data;
         document.head.append(styleSheet);
       })
