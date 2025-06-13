@@ -89,6 +89,7 @@ export default function AppRouter() {
           }
         />
         <Route
+          // TODO: should we redirect to backstage
           path='/public'
           element={
             <ViewLoader>
@@ -121,6 +122,7 @@ export default function AppRouter() {
           }
         />
         <Route
+          //  TODO: should this be renamed?
           path='/backstage'
           element={
             <ViewLoader>

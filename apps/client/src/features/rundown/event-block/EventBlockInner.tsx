@@ -33,7 +33,6 @@ interface EventBlockInnerProps {
   linkStart: boolean;
   countToEnd: boolean;
   eventIndex: number;
-  isPublic: boolean;
   endAction: EndAction;
   timerType: TimerType;
   title: string;
@@ -59,7 +58,6 @@ function EventBlockInner(props: EventBlockInnerProps) {
     timeStrategy,
     linkStart,
     countToEnd,
-    isPublic = true,
     endAction,
     timerType,
     title,
@@ -132,7 +130,7 @@ function EventBlockInner(props: EventBlockInnerProps) {
           duration={duration}
         />
       )}
-      <div className={style.statusElements} id='block-status' data-ispublic={isPublic}>
+      <div className={style.statusElements} id='block-status'>
         <span className={style.eventNote}>{note}</span>
         <div className={loaded ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
           {loaded && <EventBlockProgressBar />}
@@ -153,9 +151,10 @@ function EventBlockInner(props: EventBlockInnerProps) {
               <IoFlag className={`${style.statusIcon} ${countToEnd ? style.active : style.disabled}`} />
             </span>
           </Tooltip>
-          <Tooltip label={`${isPublic ? 'Event is public' : 'Event is private'}`} openDelay={tooltipDelayMid}>
+          {/* TODO: fix css and remove this element */}
+          <Tooltip label="Event is public" openDelay={tooltipDelayMid}>
             <span>
-              <IoPeople className={`${style.statusIcon} ${isPublic ? style.active : style.disabled}`} />
+              <IoPeople className={`${style.statusIcon} ${true ? style.active : style.disabled}`} />
             </span>
           </Tooltip>
         </div>
