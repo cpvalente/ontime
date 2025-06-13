@@ -1,17 +1,12 @@
+import { RefetchKey, MessageType, MaybeNumber } from 'ontime-types';
 import { socket } from './WebsocketAdapter.js';
-
-export enum RefetchTargets {
-  Rundown = 'rundown',
-  Report = 'report',
-}
 
 /**
  * Utility function to notify clients that the REST data is stale
- * @param payload -- possible patch payload
  */
-export function sendRefetch(payload: unknown = null) {
+export function sendRefetch(target: RefetchKey, revision: MaybeNumber = null) {
   socket.sendAsJson({
-    type: 'ontime-refetch',
-    payload,
+    type: MessageType.Refetch,
+    payload: { target, revision },
   });
 }

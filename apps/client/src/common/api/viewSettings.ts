@@ -1,21 +1,23 @@
 import axios from 'axios';
-import { ViewSettings } from 'ontime-types';
+import type { ViewSettings } from 'ontime-types';
 
-import { apiEntryUrl } from './constants';
+import { ontimeQueryClient } from '../../common/queryClient';
 
-const viewSettingsPath = `${apiEntryUrl}/view-settings`;
+import { apiEntryUrl, VIEW_SETTINGS } from './constants';
+const viewSettingsPath = apiEntryUrl + '/view-settings';
 
-/**
- * HTTP request to retrieve view settings
- */
-export async function getView(): Promise<ViewSettings> {
-  const res = await axios.get(viewSettingsPath);
+let etag: string | null = '-1';
+
+export async function getViewSettings() {
+  const res = await axios.get(viewSettingsPath, { headers: { ['if-none-match']: etag } });
+  if (res.status === 304) return ontimeQueryClient.getQueryData(VIEW_SETTINGS);
+  etag = res.headers.etag;
   return res.data;
 }
 
-/**
- * HTTP request to mutate view settings
- */
 export async function postViewSettings(data: ViewSettings) {
-  return axios.post(viewSettingsPath, data);
+  await ontimeQueryClient.cancelQueries({ queryKey: VIEW_SETTINGS });
+  const res = await axios.post(viewSettingsPath, data);
+  etag = res.headers.etag;
+  return res.data as ViewSettings;
 }

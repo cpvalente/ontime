@@ -1,20 +1,28 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { MILLIS_PER_HOUR } from 'ontime-utils';
 
-import { queryRefetchIntervalSlow } from '../../ontimeConfig';
+import { maybeAxiosError } from '../../common/api/utils';
+import { getViewSettings, postViewSettings } from '../../common/api/viewSettings';
+import { ontimeQueryClient } from '../../common/queryClient';
 import { VIEW_SETTINGS } from '../api/constants';
-import { getView } from '../api/viewSettings';
 import { viewsSettingsPlaceholder } from '../models/ViewSettings.type';
 
 export default function useViewSettings() {
-  const { data, status, isFetching, isError, refetch } = useQuery({
+  const { data, isFetching } = useQuery({
     queryKey: VIEW_SETTINGS,
-    queryFn: getView,
+    queryFn: getViewSettings,
     placeholderData: (previousData, _previousQuery) => previousData,
-    retry: 5,
-    retryDelay: (attempt) => attempt * 2500,
-    refetchInterval: queryRefetchIntervalSlow,
-    networkMode: 'always',
+    staleTime: MILLIS_PER_HOUR,
   });
 
-  return { data: data ?? viewsSettingsPlaceholder, status, isError, refetch, isFetching };
+  const { mutate, error } = useMutation({
+    mutationFn: postViewSettings,
+    onSuccess: (data) => {
+      ontimeQueryClient.setQueryData(VIEW_SETTINGS, data);
+    },
+  });
+
+  const mutateError = error ? maybeAxiosError(error) : '';
+
+  return { data: data ?? viewsSettingsPlaceholder, mutate, isFetching, mutateError };
 }
