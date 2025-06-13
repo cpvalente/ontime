@@ -2,7 +2,6 @@ import axios, { AxiosError } from 'axios';
 import { LogLevel } from 'ontime-types';
 import { generateId, millisToString } from 'ontime-utils';
 
-import { invalidateViewSettings } from '../../common/hooks-query/useViewSettings';
 import { ontimeQueryClient } from '../queryClient';
 import { addLog } from '../stores/logger';
 import { nowInMillis } from '../utils/time';
@@ -55,7 +54,6 @@ export function logAxiosError(prepend: string, error: unknown) {
  * Utility function invalidates react-query caches
  */
 export async function invalidateAllCaches() {
-  await invalidateViewSettings();
   await ontimeQueryClient.invalidateQueries();
 }
 

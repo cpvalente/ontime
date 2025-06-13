@@ -26,9 +26,6 @@ const cssOverridePath = 'styles/override.css';
 export const overrideStylesURL = `${serverURL}/${userAssetsPath}/${cssOverridePath}`;
 export const projectLogoPath = `${serverURL}/${userAssetsPath}/logo`;
 
-export const axiosInstance = axios.create({
-  baseURL: apiEntryUrl,
-  validateStatus: (status) => {
-    return status < 300 || status === 304;
-  },
-});
+axios.defaults.validateStatus = (status) => {
+  return (status >= 200 && status < 300) || status === 304;
+};
