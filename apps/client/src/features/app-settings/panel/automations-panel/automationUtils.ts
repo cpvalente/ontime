@@ -31,7 +31,6 @@ const staticSelectProperties = [
   { value: 'eventNow.title', label: 'Title' },
   { value: 'eventNow.cue', label: 'Cue' },
   { value: 'eventNow.countToEnd', label: 'Count to end' },
-  { value: 'eventNow.isPublic', label: 'Is public' },
   { value: 'eventNow.note', label: 'Note' },
   { value: 'eventNow.colour', label: 'Colour' },
 ];

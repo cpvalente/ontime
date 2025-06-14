@@ -20,7 +20,6 @@ export const cloneEvent = (event: OntimeEvent): ClonedEvent => {
     countToEnd: event.countToEnd,
     linkStart: event.linkStart,
     endAction: event.endAction,
-    isPublic: event.isPublic,
     skip: event.skip,
     colour: event.colour,
     parent: event.parent,
