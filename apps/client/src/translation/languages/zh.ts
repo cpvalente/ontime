@@ -28,6 +28,4 @@ export const langZhCn: TranslationObject = {
   'project.description': '描述',
   'project.backstage_info': '后台信息',
   'project.backstage_url': '后台网址',
-  'project.public_info': '公开信息',
-  'project.public_url': '公开网址',
 };

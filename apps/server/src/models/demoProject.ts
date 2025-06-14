@@ -504,8 +504,6 @@ export const demoDb: DatabaseModel = {
   project: {
     title: 'Eurovision Song Contest',
     description: 'Turin 2022',
-    publicUrl: 'www.getontime.no',
-    publicInfo: 'Rehearsal Schedule - Turin 2022',
     backstageUrl: 'www.github.com/cpvalente/ontime',
     backstageInfo: 'Rehearsal Schedule - Turin 2022\nAll performers to wear full costumes for 1st rehearsal',
     projectLogo: null,

@@ -9,49 +9,41 @@ describe('loadRoll()', () => {
       id: '1',
       timeStart: 5,
       timeEnd: 10,
-      isPublic: false,
     },
     {
       id: '2',
       timeStart: 10,
       timeEnd: 20,
-      isPublic: false,
     },
     {
       id: '3',
       timeStart: 20,
       timeEnd: 30,
-      isPublic: false,
     },
     {
       id: '4',
       timeStart: 30,
       timeEnd: 40,
-      isPublic: false,
     },
     {
       id: '5',
       timeStart: 40,
       timeEnd: 50,
-      isPublic: true,
     },
     {
       id: '6',
       timeStart: 50,
       timeEnd: 60,
-      isPublic: false,
     },
     {
       id: '7',
       timeStart: 60,
       timeEnd: 70,
-      isPublic: true,
     },
     {
       id: '8',
       timeStart: 70,
       timeEnd: 80,
-      isPublic: false,
     },
   ];
   const timedEvents = prepareTimedEvents(eventlist);
@@ -155,31 +147,26 @@ describe('loadRoll() handle edge cases with midnight', () => {
         id: '0',
         timeStart: 9 * MILLIS_PER_HOUR,
         timeEnd: 10 * MILLIS_PER_HOUR,
-        isPublic: true,
       },
       {
         id: '1',
         timeStart: 20 * MILLIS_PER_HOUR,
         timeEnd: 22 * MILLIS_PER_HOUR,
-        isPublic: true,
       },
       {
         id: '2',
         timeStart: 22 * MILLIS_PER_HOUR,
         timeEnd: 1 * MILLIS_PER_HOUR,
-        isPublic: true,
       },
       {
         id: '3',
         timeStart: 1 * MILLIS_PER_HOUR,
         timeEnd: 1 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE,
-        isPublic: true,
       },
       {
         id: '4',
         timeStart: 1 * MILLIS_PER_HOUR,
         timeEnd: 2 * MILLIS_PER_HOUR,
-        isPublic: true,
       },
     ];
     const timedEvents = prepareTimedEvents(eventlist);

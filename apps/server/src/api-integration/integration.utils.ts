@@ -22,7 +22,6 @@ const propertyConversion = {
   note: coerceString,
   cue: coerceString,
 
-  isPublic: coerceBoolean,
   skip: coerceBoolean,
 
   colour: coerceColour,
