@@ -1,0 +1,225 @@
+# Analysis of Event Lookup Functions in rundownService.utils.ts
+
+## 1. Introduction
+
+This document analyzes the performance of key event lookup functions in `apps/server/src/services/runtime-service/rundownService.utils.ts`. The primary focus is on understanding their time complexity, potential bottlenecks with large rundowns (i.e., many events), and proposing alternative data structures or algorithmic improvements where appropriate. The `playableEventsOrder` and `timedEventOrder` arrays, often iterated or searched, are key considerations.
+
+## 2. Analysis of Specific Functions
+
+Let `N` be the length of `playableEventsOrder` and `M` be the length of `timedEventOrder`. `K` is the number of entries in `rundown.entries`.
+
+### A. `findPreviousPlayableId`
+
+```typescript
+export function findPreviousPlayableId(playableEventsOrder: EntryId[], currentEventId?: string): EntryId | undefined {
+  if (!playableEventsOrder.length) {
+    return;
+  }
+
+  // if there is no event running, go to first
+  if (!currentEventId) {
+    return getFirstPlayableId(playableEventsOrder); // O(1) using .at(0)
+  }
+
+  const currentIndex = playableEventsOrder.findIndex((eventId) => eventId === currentEventId); // O(N)
+
+  if (currentIndex < 1) {
+    return getFirstPlayableId(playableEventsOrder); // O(1)
+  }
+
+  return playableEventsOrder.at(currentIndex - 1); // O(1)
+}
+```
+
+*   **Current Implementation:**
+    *   Handles empty `playableEventsOrder`.
+    *   If `currentEventId` is not provided, it returns the first playable ID (effectively `playableEventsOrder[0]`).
+    *   Uses `findIndex` to locate the `currentEventId` in `playableEventsOrder`.
+    *   Returns the element at `currentIndex - 1`.
+
+*   **Time Complexity:**
+    *   The dominant operation is `playableEventsOrder.findIndex(...)`, which has a time complexity of **O(N)** in the worst case (element is at the end or not found) and O(1) in the best case (element is at the beginning).
+    *   `.at()` is O(1).
+    *   `getFirstPlayableId` is O(1).
+
+*   **Impact of Large Rundowns:**
+    *   If `playableEventsOrder` (N) is large (e.g., hundreds or thousands of events), the linear scan of `findIndex` can become a performance bottleneck, especially if this function is called frequently.
+
+*   **Proposals & Trade-offs:**
+
+    1.  **Map ID to Index:**
+        *   **Proposal:** Pre-compute and maintain a `Map<EntryId, number>` where keys are event IDs and values are their indices in `playableEventsOrder`. This map would be updated whenever `playableEventsOrder` changes.
+        *   **Lookup Improvement:** `map.get(currentEventId)` would be O(1) on average. The overall function complexity would become O(1).
+        *   **Trade-offs:**
+            *   **Memory:** Additional memory for the Map (proportional to N).
+            *   **Complexity:** Increased complexity in maintaining this Map whenever `playableEventsOrder` is modified (e.g., when events are added, removed, reordered, or their playability status changes). This maintenance cost needs to be considered relative to the frequency of lookups. If `playableEventsOrder` changes rarely but lookups are frequent, this is a good trade-off.
+
+    2.  **Store Current Index:**
+        *   **Proposal:** Instead of passing `currentEventId`, pass `currentEventIndex` directly if it's already known by the caller (e.g., `RuntimeService` might already have this).
+        *   **Lookup Improvement:** If `currentEventIndex` is passed, `findIndex` is avoided, making the function O(1).
+        *   **Trade-offs:** Shifts the burden of knowing the index to the caller. May not always be feasible or clean.
+
+### B. `findNextPlayableId`
+
+```typescript
+export function findNextPlayableId(playableEventsOrder: EntryId[], currentEventId?: string): EntryId | undefined {
+  if (!playableEventsOrder.length) {
+    return;
+  }
+
+  // if there is no event running, go to first
+  if (!currentEventId) {
+    return getFirstPlayableId(playableEventsOrder); // O(1)
+  }
+
+  const currentIndex = playableEventsOrder.findIndex((eventId) => eventId === currentEventId); // O(N)
+  if (currentIndex === -1 || currentIndex >= playableEventsOrder.length - 1) {
+    return getFirstPlayableId(playableEventsOrder); // O(1) - though this logic might be intended to return undefined or loop, returning first is a specific choice.
+  }
+
+  return playableEventsOrder.at(currentIndex + 1); // O(1)
+}
+```
+
+*   **Current Implementation:** Similar structure to `findPreviousPlayableId`.
+*   **Time Complexity:** Dominated by `findIndex`, so **O(N)**.
+*   **Impact of Large Rundowns:** Similar to `findPreviousPlayableId`, potentially a bottleneck for large N.
+*   **Proposals & Trade-offs:** The same proposals as for `findPreviousPlayableId` apply here:
+    1.  **Map ID to Index:** O(1) lookup after map creation. Same trade-offs.
+    2.  **Store Current Index:** O(1) if index is passed. Same trade-offs.
+
+### C. `findNextPlayableWithCue`
+
+```typescript
+export function findNextPlayableWithCue(
+  rundown: Rundown,
+  playableEventsOrder: EntryId[],
+  targetCue: string,
+  currentEventIndex = 0,
+): OntimeEvent | undefined {
+  const lowerCaseCue = targetCue.toLowerCase();
+
+  for (let i = currentEventIndex; i < playableEventsOrder.length; i++) { // Potentially O(N)
+    const eventId = playableEventsOrder[i];
+    const event = rundown.entries[eventId]; // O(1) for object property access
+    if (isOntimeEvent(event) && isPlayableEvent(event) && event.cue.toLowerCase() === lowerCaseCue) {
+      return event;
+    }
+  }
+}
+```
+
+*   **Current Implementation:**
+    *   Iterates through `playableEventsOrder` starting from `currentEventIndex`.
+    *   For each ID, it fetches the event object from `rundown.entries` (which is a dictionary/object).
+    *   Checks if the event is an `OntimeEvent`, is playable, and if its cue (case-insensitive) matches `targetCue`.
+
+*   **Time Complexity:**
+    *   In the worst case, it iterates through all entries in `playableEventsOrder` from `currentEventIndex` to the end. So, it's **O(N - currentEventIndex)**, which is effectively **O(N)**.
+    *   Accessing `rundown.entries[eventId]` is generally O(1) on average for JavaScript object property access.
+    *   String conversion and comparison (`toLowerCase`, `===`) depend on cue length but are generally fast for typical cue lengths.
+
+*   **Impact of Large Rundowns:**
+    *   If N is large, and the target cue is far from `currentEventIndex` or not present, this function will scan a large portion of the array.
+
+*   **Proposals & Trade-offs:**
+
+    1.  **Map Cue to Event(s):**
+        *   **Proposal:** Pre-compute a `Map<string, EntryId[] | EntryId>` where keys are lowercase cue names and values are arrays of event IDs (or a single ID if cues are unique) that have that cue.
+        *   **Lookup Improvement:**
+            *   `map.get(lowerCaseCue)` would be O(1) on average to get the list of matching event IDs.
+            *   Then, you'd need to find the first one whose index in `playableEventsOrder` is `>= currentEventIndex`. This might still involve some iteration if multiple events share the same cue, or if you need to cross-reference with `playableEventsOrder` indices.
+            *   To optimize finding the one after `currentEventIndex`: if the `EntryId[]` from the map is sorted by their order in `playableEventsOrder`, you could binary search or `find` on this smaller list.
+        *   **Trade-offs:**
+            *   **Memory:** Additional memory for the cue map.
+            *   **Complexity:** Maintaining this map. Cues can be non-unique. If an event's cue changes, or if an event is added/deleted, the map needs updating.
+            *   The logic to find the *next* one after `currentEventIndex` still needs care.
+
+    2.  **Optimized Cue Map (Cue to Sorted Indices):**
+        *   **Proposal:** A `Map<string, number[]>` where keys are lowercase cue names and values are arrays of indices *directly from `playableEventsOrder`*, sorted in ascending order.
+        *   **Lookup Improvement:**
+            1.  `indices = cueMap.get(lowerCaseCue)` (O(1) for map access).
+            2.  If `indices` exists, use binary search (e.g., `findIndex` variant or custom) on `indices` to find the smallest index `j` such that `indices[j] >= currentEventIndex`. This is O(log P) where P is the number of events with that cue.
+            3.  Retrieve `playableEventsOrder[indices[j]]` and then `rundown.entries`.
+            Overall complexity would be roughly O(log P).
+        *   **Trade-offs:** Higher maintenance cost for the map, ensuring indices are updated if `playableEventsOrder` shuffles.
+
+### D. `getEventAtIndex`
+
+```typescript
+export function getEventAtIndex(
+  rundown: Rundown,
+  timedEventOrder: EntryId[],
+  eventIndex: number,
+): OntimeEvent | undefined {
+  const eventId = timedEventOrder[eventIndex]; // O(1)
+  if (!eventId) {
+    return undefined;
+  }
+
+  return rundown.entries[eventId] as OntimeEvent | undefined; // O(1) for object property access
+}
+```
+
+*   **Current Implementation:**
+    *   Directly accesses `timedEventOrder` using `eventIndex`.
+    *   Retrieves the event from `rundown.entries` using the obtained ID.
+
+*   **Time Complexity:**
+    *   Array access by index (`timedEventOrder[eventIndex]`) is **O(1)**.
+    *   Object property access (`rundown.entries[eventId]`) is **O(1)** on average.
+    *   So, the overall complexity is **O(1)**.
+
+*   **Impact of Large Rundowns:**
+    *   This function is already very efficient. The size of `timedEventOrder` (M) or `rundown.entries` (K) does not change its O(1) nature.
+
+*   **Proposals & Trade-offs:**
+    *   No changes are likely needed for this function regarding performance, as it's already optimal. The efficiency relies on `timedEventOrder` being an array (for O(1) index access) and `rundown.entries` being an object/dictionary (for O(1) key access).
+
+## 3. Bottleneck Potential of `playableEventsOrder` and `timedEventOrder`
+
+*   **`playableEventsOrder`:**
+    *   Yes, as shown in `findPreviousPlayableId`, `findNextPlayableId`, and `findNextPlayableWithCue`, linear iteration or `findIndex` on this array can be a bottleneck if the array is large and these functions are called frequently.
+
+*   **`timedEventOrder`:**
+    *   In `getEventAtIndex`, it's used efficiently (O(1)).
+    *   The `filterTimedEvents` function (marked as TODO for v4 removal) iterates it with `map`, which is O(M). If this function were used frequently before removal, it would be a consideration.
+    *   If other parts of the codebase iterate `timedEventOrder` extensively, similar concerns as with `playableEventsOrder` would apply.
+
+## 4. General Recommendations & Considerations
+
+1.  **Data Structure for `rundown.entries`:**
+    *   Currently, `rundown.entries` appears to be an object (dictionary/map-like structure: `{[entryId: string]: RundownEntry}`). This is good for O(1) average time complexity lookups by `entryId` (as seen in `getEventAtIndex` and `findNextPlayableWithCue`). This should be maintained.
+
+2.  **Improving Lookups in Ordered ID Arrays (`playableEventsOrder`):**
+    *   **When to Optimize:** The primary motivation for introducing more complex data structures (like ID-to-index Maps) is when `playableEventsOrder` is large AND the lookup functions (`findPreviousPlayableId`, `findNextPlayableId`) are called very frequently, to the point of becoming a noticeable performance drag.
+    *   **ID-to-Index Map:**
+        *   This is the most straightforward improvement for `findPreviousPlayableId` and `findNextPlayableId`.
+        *   **Creation/Maintenance:** This map needs to be generated whenever `playableEventsOrder` is definitively set or modified. If `playableEventsOrder` is derived dynamically or changes often, the cost of rebuilding/updating the map must be weighed against lookup savings. For example, if `playableEventsOrder` is built once when a rundown loads and changes infrequently, the upfront cost of map creation is amortized over many fast lookups.
+        *   Code example for map creation:
+            ```typescript
+            // Somewhere in the system where playableEventsOrder is finalized
+            const playableIdToIndexMap = new Map<EntryId, number>();
+            playableEventsOrder.forEach((id, index) => {
+              playableIdToIndexMap.set(id, index);
+            });
+            // This map would then be passed to lookup functions or stored in a relevant service.
+            ```
+
+3.  **Improving Cue Lookups (`findNextPlayableWithCue`):**
+    *   The `Map<string, number[]>` (cue to sorted array of indices in `playableEventsOrder`) is a powerful optimization.
+    *   **Maintenance:** This is more complex to maintain than the simple ID-to-index map, as it depends on event cues and their order within `playableEventsOrder`. Changes to cues or the order/composition of `playableEventsOrder` require careful updates to this map.
+
+4.  **Benchmarking:**
+    *   Before implementing complex changes, it would be beneficial to benchmark the existing functions under realistic high-load scenarios to confirm that these lookups are indeed significant bottlenecks.
+
+5.  **Context of Calls:**
+    *   The actual impact also depends on how often these utility functions are called. If they are called, for example, only on user interaction (clicking "next" or "previous"), the O(N) might be acceptable even for moderately large N. If they are called in rapid succession or as part of an automated process, optimization is more critical.
+
+## 5. Conclusion
+
+*   `getEventAtIndex` is already optimal (O(1)).
+*   `findPreviousPlayableId` and `findNextPlayableId` have O(N) complexity due to `findIndex` and could be optimized to O(1) using an ID-to-Index Map, with the trade-off of map creation and maintenance.
+*   `findNextPlayableWithCue` has O(N) complexity and could be optimized using a Cue-to-Sorted-Indices Map, making lookups significantly faster (e.g., O(log P)), but with higher maintenance complexity.
+
+The decision to implement these optimizations should be based on profiling data indicating these functions are bottlenecks and a careful consideration of the frequency of lookups versus the frequency and complexity of updating the proposed auxiliary data structures.

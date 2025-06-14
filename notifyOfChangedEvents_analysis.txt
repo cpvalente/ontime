@@ -1,0 +1,161 @@
+# Analysis and Proposals for `notifyOfChangedEvents` in RuntimeService.ts
+
+## 1. Current Logic of `notifyOfChangedEvents`
+
+The `notifyOfChangedEvents` method in `RuntimeService.ts` is responsible for reacting to changes in event data and updating the runtime state accordingly.
+
+**Inputs:**
+- `affectedIds?: EntryId[]`: An optional array of event IDs that have changed. If undefined, it implies a general change where specific affected events are unknown (safe option).
+
+**Core Logic:**
+
+1.  **No Loaded Elements:** If `eventNow` and `eventNext` are both null, the method returns early as there's nothing in the runtime to update.
+
+2.  **Determining Need for Reload:**
+    *   `safeOption`: True if `affectedIds` is undefined, indicating a need to be cautious and potentially reload everything.
+    *   `eventInMemory`: True if `safeOption` is false AND any of the `affectedIds` match `eventNow`, `publicEventNow`, `eventNext`, or `publicEventNext`. This check uses the `this.affectsLoaded(affectedIds)` method.
+    *   `isNext`: A flag that will be true if a changed event becomes the new "next" event. This is determined by `this.isNewNext()`.
+
+3.  **Reload/Update Scenarios:**
+
+    *   **Scenario A: `safeOption` or `eventInMemory` is true:**
+        *   If `state.eventNow` is not null (i.e., an event is currently loaded):
+            *   It retrieves the `eventNow` data using `getEntryWithId(state.eventNow.id)`.
+            *   **Critical Check:** If the re-fetched `eventNow` is no longer an `OntimeEvent` or `PlayableEvent` (e.g., deleted, type changed, or skip state changed), it calls `runtimeState.stop()` and returns, effectively clearing the runtime.
+            *   `onlyChangedNow`: True if `affectedIds` has exactly one ID, and that ID is `eventNow.id`.
+            *   **Conditional Update:**
+                *   If `onlyChangedNow`: It calls `runtimeState.updateLoaded(eventNow)`, which presumably updates the `eventNow` in the state with the new data but keeps other aspects like `eventNext` as they are (unless `eventNow`'s changes cascade).
+                *   Else (multiple events changed, or an event other than `eventNow` but still "in memory" changed): It calls `runtimeState.updateAll(rundown, timedEventOrder)`, which re-evaluates and reloads `eventNow`, `eventNext`, `publicEventNow`, and `publicEventNext` based on the current rundown and event order.
+            *   The method returns after these updates.
+
+    *   **Scenario B: Neither `safeOption` nor `eventInMemory` is true, BUT `isNewNext()` is true:**
+        *   This implies that the changed event(s) were not currently loaded BUT one of them has now become the next logical event in sequence.
+        *   It calls `runtimeState.loadNext(timedEvents)` to update `eventNext` (and potentially `publicEventNext`).
+
+**Key Helper Methods:**
+
+*   `affectsLoaded(affectedIds)`: Checks if any ID in `affectedIds` matches the ID of `eventNow`, `publicEventNow`, `eventNext`, or `publicEventNext`.
+*   `isNewNext()`: Determines if a changed event should become the new `eventNext`. It checks:
+    1.  If the index of `eventNow` and `eventNext` in the `timedEvents` list are not consecutive.
+    2.  If there are any new public events between `publicEventNow` and `publicEventNext` in the `timedEvents` list.
+
+## 2. Scenarios Where Full Reloads Can Be Avoided
+
+The current implementation has some granularity but can be improved.
+
+*   **Current Granularity:**
+    *   If only `eventNow` changes, it uses `runtimeState.updateLoaded(eventNow)`.
+    *   If a change results in a new `eventNext`, it uses `runtimeState.loadNext()`.
+    *   If `affectedIds` is undefined or multiple "in-memory" events are affected, it uses `runtimeState.updateAll()`.
+
+*   **Potential Areas for More Granular Updates:**
+
+    1.  **Metadata-Only Changes to `eventNow` or `eventNext`:**
+        *   **Scenario:** An event's notes, title (if not displayed directly in a way that requires recalculation of layout), color, or other non-timing, non-structural attributes change.
+        *   **Current Behavior:** If `eventNow` is affected, `runtimeState.updateLoaded(eventNow)` is called. If `eventNext` is affected, `runtimeState.updateAll()` is called (as `eventInMemory` would be true, but `onlyChangedNow` would be false).
+        *   **Desired Behavior:** If only non-critical metadata changes, it might be possible to update only those specific fields in the state without a full `updateLoaded` or `updateAll`, especially if these fields don't affect timing, playback logic, or the selection of the next event.
+
+    2.  **Changes to `eventNow` that don't affect its core playability or timing:**
+        *   **Scenario:** The `endAction` of `eventNow` changes, but its duration, expected start/end times, etc., remain the same.
+        *   **Current Behavior:** `runtimeState.updateLoaded(eventNow)` is called. This might be acceptable, but if `updateLoaded` is a heavy operation, a lighter version could be beneficial.
+        *   **Desired Behavior:** A more targeted update to just the parts of `eventNow` that changed.
+
+    3.  **Changes to `eventNext` that don't affect its core playability or timing:**
+        *   **Scenario:** Similar to point 1 or 2 but for `eventNext`.
+        *   **Current Behavior:** `runtimeState.updateAll()` is called.
+        *   **Desired Behavior:** If the change doesn't alter its status as the "next" event and doesn't change its fundamental timing, a lighter update than `updateAll` would be preferable.
+
+    4.  **Changes to events NOT currently loaded (`eventNow`, `eventNext`) and which DO NOT become the new `eventNext`:**
+        *   **Scenario:** An event further down the rundown is modified.
+        *   **Current Behavior:** `affectsLoaded` is false, `isNewNext` is false. The function does nothing. This is generally correct. No changes needed here unless the modification could indirectly affect cues or playable order for future `loadNext` operations, which `isNewNext` tries to capture.
+
+## 3. Proposed Changes for More Granular Updates
+
+To achieve more granular updates, the system needs more information about *what* changed within an event, not just *which* event changed.
+
+**Proposal 1: Enhance Change Notification Payload**
+
+*   Instead of just `affectedIds?: EntryId[]`, the notification system (presumably from `EventStore` or similar) could provide more detailed change information. For example:
+    ```typescript
+    interface EventChangeDetail {
+      id: EntryId;
+      changedFields?: Array<keyof OntimeEvent>; // List of fields that changed
+      changeType?: 'metadata' | 'timing' | 'structural' | 'content'; // Broader category of change
+      oldEvent?: OntimeEvent; // Optional: previous state of the event for comparison
+    }
+
+    // notifyOfChangedEvents could then receive:
+    // affectedEvents: EventChangeDetail[]
+    ```
+
+**Proposal 2: Refine Logic in `notifyOfChangedEvents`**
+
+*   **Modify the `eventInMemory` check:**
+    *   If an event is "in memory" (`eventNow` or `eventNext`), analyze `changedFields` or `changeType` from the enhanced payload.
+
+    ```typescript
+    // Inside notifyOfChangedEvents
+    if (safeOption || eventInMemory) {
+      if (state.eventNow !== null) {
+        const eventNowId = state.eventNow.id;
+        const eventNowUpdate = affectedEvents?.find(e => e.id === eventNowId); // Assuming affectedEvents payload
+
+        // ... (critical check for eventNow still playable)
+
+        if (eventNowUpdate && eventNowUpdate.changeType === 'metadata' && !isCriticalMetadataChange(eventNowUpdate.changedFields)) {
+          // Option A: Call a new lightweight update function in runtimeState
+          // runtimeState.updateEventMetadata(eventNowId, newEventData);
+          // Option B: Directly update specific fields if safe and simple (less ideal for state management)
+        } else if (onlyChangedNow) { // onlyChangedNow might need re-evaluation or removal if we have richer change info
+          runtimeState.updateLoaded(getEntryWithId(eventNowId) as OntimeEvent); // Ensure it's an OntimeEvent
+        } else {
+          // This branch implies changes to eventNext, public events, or multiple events.
+          // Further refinement needed here. If eventNext changed in a minor way, updateAll is too much.
+          // Consider if eventNext change is minor:
+          const eventNextId = state.eventNext?.id;
+          const eventNextUpdate = eventNextId ? affectedEvents?.find(e => e.id === eventNextId) : undefined;
+
+          if (eventNextUpdate && eventNextUpdate.changeType === 'metadata' && !isCriticalMetadataChange(eventNextUpdate.changedFields)) {
+            // runtimeState.updateEventMetadata(eventNextId, newEventNextData);
+            // Potentially update eventNow if it also changed but not metadata-only
+            if (eventNowUpdate && eventNowUpdate.changeType !== 'metadata') {
+                 runtimeState.updateLoaded(getEntryWithId(eventNowId) as OntimeEvent);
+            }
+          } else {
+            runtimeState.updateAll(rundown, timedEventOrder);
+          }
+        }
+        return;
+      }
+    }
+    ```
+
+*   **`isCriticalMetadataChange(changedFields)`:** A new helper function would be needed to determine if changed metadata fields necessitate a fuller reload (e.g., a change to a cue name if cues are used for navigation, or a change to `isPublic` status).
+
+**Proposal 3: New `runtimeState` Methods (Illustrative)**
+
+*   `runtimeState.updateEventMetadata(eventId: EntryId, newMetadata: Partial<OntimeEvent>)`: Updates only specified fields of an already loaded event without re-evaluating its timing or position extensively.
+*   `runtimeState.softUpdateLoaded(event: OntimeEvent)`: A version of `updateLoaded` that assumes the event's position and fundamental timing characteristics (like its calculated duration relative to other events) haven't changed, but other properties might have.
+
+**Proposal 4: Re-evaluate `isNewNext()` in light of more detailed changes.**
+
+*   If `isNewNext()` is true, `runtimeState.loadNext()` is likely still the correct action. However, the conditions within `isNewNext()` might be made more precise if the nature of changes to events between `publicEventNow` and `publicEventNext` is known. For example, if an event between them just had its notes updated, it might not trigger `foundNew = true`.
+
+**Challenges and Considerations:**
+
+*   **Complexity:** Introducing more granular updates increases the complexity of the logic.
+*   **State Immutability and Change Detection:** Care must be taken to ensure `deepEqual` checks in `broadcastResult` still function correctly and efficiently with more partial updates.
+*   **Defining "Critical" Changes:** Clearly defining which metadata changes are "critical" vs. "non-critical" is important.
+*   **Impact on `runtimeState`:** The `runtimeState` module would need to support these more granular updates, potentially requiring new methods or modifications to existing ones to apply partial updates correctly without causing inconsistencies.
+*   **Testing:** Thorough testing would be required to cover all new edge cases.
+
+## 4. Summary of Recommendations
+
+1.  **Enrich Change Notifications:** Pass more detailed information about event changes (e.g., `changedFields` or `changeType`) to `notifyOfChangedEvents`.
+2.  **Refine `notifyOfChangedEvents` Logic:**
+    *   Utilize the detailed change information to distinguish between minor (e.g., metadata) and major (e.g., timing, structural) changes.
+    *   If `eventNow` or `eventNext` experience minor changes, trigger lightweight updates instead of `updateLoaded` or `updateAll`.
+3.  **Introduce Granular `runtimeState` Updaters:** Add methods to `runtimeState` like `updateEventMetadata` or refine existing ones to handle partial updates to event data.
+4.  **Helper for Criticality:** Implement a helper function `isCriticalMetadataChange` to assist in decisions.
+
+By implementing these changes, `RuntimeService` can become more efficient by avoiding unnecessary full reloads when only minor aspects of events change, leading to a smoother experience, especially in rundowns with frequent small updates.

@@ -1,0 +1,198 @@
+# Analysis and Proposals for `deepEqual` Usage in `broadcastResult`
+
+## 1. Introduction
+
+The `broadcastResult` decorator in `RuntimeService.ts` is used to monitor changes in the runtime state after a decorated method executes. It then broadcasts these changes to clients via `eventStore`. A key part of this change detection is the use of `deepEqual` (from the `fast-equals` library) to compare previous state slices with the new state. This analysis focuses on identifying these `deepEqual` calls, evaluating their potential performance impact, and proposing alternatives.
+
+## 2. Instances of `deepEqual` Usage
+
+Within the `broadcastResult` decorator, `deepEqual` is used in the following places to determine if a specific part of the state has changed:
+
+1.  **`shouldUpdateTimer` Logic:**
+    ```typescript
+    !deepEqual(RuntimeService.previousState?.timer, state.timer)
+    ```
+    This compares the previous timer state (`RuntimeService.previousState?.timer`) with the current timer state (`state.timer`).
+
+2.  **`shouldRuntimeUpdate` Logic:**
+    ```typescript
+    !deepEqual(RuntimeService.previousState?.runtime, state.runtime)
+    ```
+    This compares the previous runtime-specific state (`RuntimeService.previousState?.runtime`) with the current runtime state (`state.runtime`).
+
+3.  **`shouldBlockUpdate` Logic:**
+    ```typescript
+    !deepEqual(RuntimeService?.previousState.currentBlock, state.currentBlock)
+    ```
+    This compares the previous current block state (`RuntimeService?.previousState.currentBlock`) with the current block state (`state.currentBlock`). (Note: `RuntimeService?.previousState` might be a typo and likely intended `RuntimeService.previousState?.currentBlock`).
+
+4.  **`updateEventIfChanged` Helper Function (called for `eventNow`, `publicEventNow`, `eventNext`, `publicEventNext`):**
+    ```typescript
+    !deepEqual(RuntimeService.previousState?.[eventKey], state[eventKey])
+    ```
+    This compares a previous event object (e.g., `RuntimeService.previousState?.eventNow`) with the corresponding current event object (e.g., `state.eventNow`). This is done for four event slots.
+
+## 3. Analysis of Potential Performance Impact
+
+The `fast-equals` library is generally optimized for speed. However, `deepEqual` inherently involves traversing object properties recursively, which can become computationally expensive for large or complex objects, especially if called frequently. The `broadcastResult` decorator is applied to many public methods of `RuntimeService`, meaning these checks run after almost any state-changing operation.
+
+Let's consider the complexity of the objects being compared:
+
+*   **`state.timer` (`TimerState`):**
+    *   Properties include: `playback` (enum), `phase` (enum), `current` (number/null), `duration` (number/null), `end` (number/null), `remaining` (number/null), `startedAt` (number/null), `pausedAt` (number/null), `warningThreshold` (number/null), `dangerThreshold` (number/null), `addedTime` (number).
+    *   This object is relatively small and flat, primarily composed of primitive types. Deep equality checks here are likely to be reasonably fast.
+
+*   **`state.runtime` (`RuntimeState['runtime']`):**
+    *   Properties include: `offsetMode` (enum), `offset` (number), `actualStart` (number/null), `expectedStart` (number/null), `expectedEnd` (number/null), `duration` (number/null), `selectedEventIndex` (number/null), `nextEventIndex` (number/null).
+    *   Similar to `TimerState`, this object is also small and flat, composed of primitives. Performance impact should be minimal.
+
+*   **`state.currentBlock` (`RuntimeState['currentBlock']`):**
+    *   Properties include: `id` (string/null), `type` (string/null, e.g., 'event' or 'break'), `title` (string/null), `startedAt` (number/null), `duration` (number/null), `expectedEnd` (number/null), `isBreak` (boolean).
+    *   This is another relatively small and flat object. Performance impact should be low.
+
+*   **Event Objects (`state.eventNow`, `state.publicEventNow`, etc. - `OntimeEvent`):**
+    *   `OntimeEvent` can be more complex. It inherits from `BaseEntry` and includes properties like:
+        *   `id`, `rundownId`, `blockId`, `rank`, `type` (enum).
+        *   `title`, `notes`, `cue`, `color`.
+        *   `isPublic`, `skip`.
+        *   `duration`, `endAction` (enum).
+        *   `expectedStartTime`, `expectedEndTime` (timestamps/strings).
+        *   `script` (string, potentially long).
+        *   `parts` (array of `Part` objects, though often empty or small for simple events). `Part` objects themselves have properties.
+        *   Custom properties (object).
+    *   **This is the primary area of concern.** Event objects, especially if they contain long scripts or multiple parts, can make `deepEqual` significantly more expensive. Since this check is performed up to four times (for `eventNow`, `publicEventNow`, `eventNext`, `publicEventNext`), the cumulative impact could be noticeable, particularly if events are frequently updated or re-evaluated.
+    *   The frequency of these checks (after every decorated method call) combined with the potential complexity of event objects makes this the most critical part for optimization.
+
+**Overall Frequency:**
+The `broadcastResult` decorator wraps many methods. If these methods are called rapidly (e.g., due to quick succession of user actions, automated triggers, or frequent timer updates that themselves call decorated methods like `checkTimerUpdate`), the cumulative cost of these `deepEqual` calls can add up, even if individual comparisons of smaller state slices are fast.
+
+## 4. Alternatives to `deepEqual`
+
+Here are several alternatives, which can be used in combination:
+
+**A. Shallow Equality Checks:**
+
+*   **When applicable:** For state slices where changes always result in a new object reference for the top-level slice, and where all relevant data is at the top level or managed immutably within.
+*   **Pros:** Extremely fast (reference check `===`, followed by shallow property comparison).
+*   **Cons:** Not suitable if nested objects within the slice are mutated directly without changing the top-level reference.
+*   **Application:**
+    *   `timer`, `runtime`, `currentBlock`: These state slices are often recreated wholesale in `runtimeState.ts` reducers (e.g., `return { ...state, timer: newTimerState }`). If this pattern is strictly followed, shallow equality on these *might* work. However, the current code in `broadcastResult` copies these (`RuntimeService.previousState.timer = { ...state.timer };`), which would break simple reference equality. If the copying is removed and direct assignment is used for `previousState`, then shallow equality could be an option if the state management ensures new objects on change.
+    *   A more robust shallow check would be:
+        ```typescript
+        function shallowEqual(objA, objB) {
+          if (objA === objB) return true;
+          if (!objA || !objB) return false;
+          const keysA = Object.keys(objA);
+          const keysB = Object.keys(objB);
+          if (keysA.length !== keysB.length) return false;
+          for (const key of keysA) {
+            if (objA[key] !== objB[key]) return false;
+          }
+          return true;
+        }
+        ```
+        This would still be faster than deep equality for these smaller, flatter objects.
+
+**B. More Specific/Targeted Change Detection:**
+
+*   **Concept:** Instead of generic deep comparison, implement logic tailored to each state slice, focusing on fields that actually matter for client updates or that are most likely to change.
+*   **Pros:** Can be much more performant by avoiding unnecessary comparisons.
+*   **Cons:** Requires more manual coding and understanding of each state slice's semantics.
+
+*   **Application:**
+    *   **`timer`:**
+        *   Many timer properties change frequently (`current`, `remaining`).
+        *   Critical changes like `playback`, `phase`, or `duration` (if it's set/changed) are important.
+        *   Could compare a few key fields directly:
+            ```typescript
+            const prevTimer = RuntimeService.previousState?.timer;
+            const newTimer = state.timer;
+            const timerChanged = !prevTimer ||
+              prevTimer.playback !== newTimer.playback ||
+              prevTimer.phase !== newTimer.phase ||
+              prevTimer.duration !== newTimer.duration || // etc. for critical fields
+              // For frequently changing numbers, rely on getShouldTimerUpdate logic
+              (getShouldTimerUpdate(RuntimeService.previousTimerValue, newTimer.current) && prevTimer.current !== newTimer.current) ;
+            ```
+    *   **Events (`OntimeEvent`):** This is where it's most needed.
+        *   **Version numbers/timestamps:** Add a `_version` number or `_lastModified` timestamp to `OntimeEvent` objects. When an event is meaningfully changed in the `EventStore` or during processing, its version/timestamp is updated. Then, comparison is just `prevEvent?._version !== newEvent?._version`. This is very efficient.
+        *   **Checksums/Hashes:** Generate a checksum or hash of critical event properties. Compare hashes. Can be computationally intensive to generate the hash initially but fast to compare. (Probably overkill here).
+        *   **Dirty flags:** If changes are made incrementally, set a `_dirty` flag.
+        *   **Compare critical fields only:** If a full version/timestamp approach isn't immediately feasible, manually compare a subset of critical fields instead of all of them:
+            ```typescript
+            function eventDataChanged(prevEvent, newEvent) {
+              if (!prevEvent || !newEvent) return prevEvent !== newEvent; // Handle null/undefined cases
+              if (prevEvent.id !== newEvent.id) return true; // Should not happen if comparing same eventKey
+              return prevEvent.title !== newEvent.title ||
+                     prevEvent.duration !== newEvent.duration ||
+                     prevEvent.isPublic !== newEvent.isPublic ||
+                     prevEvent.skip !== newEvent.skip ||
+                     prevEvent.endAction !== newEvent.endAction ||
+                     // Add other fields that, if changed, necessitate a client update
+                     // Potentially avoid comparing 'notes' or 'script' if they don't trigger UI changes directly for all views
+                     !deepEqual(prevEvent.parts, newEvent.parts); // Still might need deepEqual for parts if they are complex
+            }
+            // In updateEventIfChanged:
+            // if (previous?.id !== now?.id || eventDataChanged(RuntimeService.previousState?.[eventKey], state[eventKey])) { ... }
+            ```
+
+**C. Immutable Data Structures:**
+
+*   **Concept:** Use libraries like Immer or Immutable.js to manage application state. When a change is made to an object (even nested), it results in new references for the changed object and its ancestors up to the root. Unchanged parts of the state tree share the same references.
+*   **Pros:**
+    *   Change detection becomes extremely fast: `prevState === newState` (reference equality). If false, something changed.
+    *   Often leads to more predictable state management.
+*   **Cons:**
+    *   Requires adopting the library and its patterns throughout the state management logic (`runtimeState.ts` and potentially other stores). This is a significant architectural change.
+    *   Can have a learning curve.
+    *   Performance overhead for write operations, though usually offset by read/comparison speed.
+*   **Application:**
+    *   This would be a more holistic solution. If implemented, all `deepEqual` calls could potentially be replaced by reference checks (`===`) assuming `RuntimeService.previousState` stores direct references from the immutable store.
+    *   The current copying (`RuntimeService.previousState.timer = { ...state.timer }`) would need to be changed to `RuntimeService.previousState.timer = state.timer` (direct reference assignment).
+    *   Example with Immer: `runtimeState.ts` would use Immer's `produce` function for updates. `getState()` would return an immutable state.
+
+**D. Hybrid Approach (Recommended Initial Steps):**
+
+1.  **For `timer`, `runtime`, `currentBlock`:**
+    *   Ensure that `runtimeState.ts` always produces new objects for these slices if they change, rather than mutating them.
+    *   In `broadcastResult`, change the way `previousState` is updated:
+        ```typescript
+        // Instead of: RuntimeService.previousState.timer = { ...state.timer };
+        RuntimeService.previousState.timer = state.timer; // Assign reference
+        ```
+    *   Then, use a robust shallow equality check for these:
+        ```typescript
+        // In shouldUpdateTimer:
+        // !shallowEqual(RuntimeService.previousState?.timer, state.timer)
+        // (Define shallowEqual as described in 4A)
+        ```
+    *   This avoids deep traversal for these relatively simple objects.
+
+2.  **For Events (`OntimeEvent`):**
+    *   **Short-term:** Implement `eventDataChanged` as described in 4B, comparing a curated list of critical fields. This offers a significant improvement over full `deepEqual` without major architectural changes.
+    *   **Long-term:** Introduce a `_version` or `_lastModified` timestamp to `OntimeEvent` objects. Update this systematically whenever an event is changed in a way that clients need to be aware of. This would be the most performant solution for event comparison.
+
+**E. Review `getShouldTimerUpdate`, `getShouldClockUpdate`, `getForceUpdate`:**
+
+*   These functions already implement some form of specific change detection (e.g., based on time elapsed or value rollover).
+*   The `deepEqual` calls are currently used as an *additional* check (`&& !deepEqual(...)`). Ensure that if the specific change detection logic (like `getShouldTimerUpdate`) is robust, the `deepEqual` might be redundant or can be simplified. For example, if `getShouldTimerUpdate` is true, it implies `state.timer.current` changed. If other `timer` properties are not expected to change without `current` also changing in a way that `getShouldTimerUpdate` catches, the `deepEqual` might be too broad. However, changes like `playback` or `phase` are independent of `current`'s value.
+
+## 5. Conclusion and Recommendations
+
+The current use of `deepEqual` in `broadcastResult` is a sensible default for ensuring correctness. However, for performance optimization, especially concerning `OntimeEvent` objects:
+
+1.  **Immediate Action (Lower hanging fruit):**
+    *   For `timer`, `runtime`, and `currentBlock` state slices:
+        *   Modify `RuntimeService.previousState.slice = state.slice;` (reference assignment).
+        *   Replace `deepEqual` with a `shallowEqual` function for these slices.
+    *   For event objects (`eventNow`, etc.):
+        *   Implement a more targeted `eventDataChanged(prev, next)` function that compares only essential fields for client updates, potentially still using `deepEqual` for complex nested properties like `parts` if necessary as an interim step.
+
+2.  **Mid-Term Action:**
+    *   Introduce a `_version` number or `_lastModified` timestamp to `OntimeEvent` objects. Update this identifier whenever an event undergoes a significant change. This will make event comparisons in `broadcastResult` (i.e., `prevEvent?._version !== newEvent?._version`) extremely fast.
+
+3.  **Long-Term Consideration:**
+    *   Evaluate the adoption of immutable data structures (e.g., using Immer) for the entire `runtimeState`. This would simplify change detection to reference equality across the board but is a more significant architectural change.
+
+By implementing these changes, particularly the specific comparators or versioning for events, the performance of the `broadcastResult` decorator can be significantly improved, reducing CPU load and enhancing the responsiveness of the application, especially in scenarios with frequent state updates or complex event data.
+It is also important to verify the assumption about `RuntimeService?.previousState.currentBlock` and correct it if it's a typo.
