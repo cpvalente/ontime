@@ -5,8 +5,8 @@ import { sanitiseCue } from 'ontime-utils';
 import SwatchSelect from '../../../../common/components/input/colour-input/SwatchSelect';
 import * as Editor from '../../../editors/editor-utils/EditorUtils';
 import { type EditorUpdateFields } from '../EventEditor';
+import RichTextEditor from '../../../../common/components/input/rich-text-editor/RichTextEditor';
 
-import EventTextArea from './EventTextArea';
 import EventTextInput from './EventTextInput';
 
 import style from '../EventEditor.module.scss';
@@ -49,7 +49,10 @@ const EventEditorTitles = (props: EventEditorTitlesProps) => {
         <SwatchSelect name='colour' value={colour} handleChange={handleSubmit} />
       </div>
       <EventTextInput field='title' label='Title' initialValue={title} submitHandler={handleSubmit} />
-      <EventTextArea field='note' label='Note' initialValue={note} submitHandler={handleSubmit} />
+      <div>
+        <Editor.Label>Note</Editor.Label>
+        <RichTextEditor initialValue={note} onChange={(newNote) => handleSubmit('note', newNote)} />
+      </div>
     </div>
   );
 };

@@ -12,6 +12,8 @@
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@fontsource/open-sans": "^5.0.28",
+    "@lexical/react": "^0.16.1",
+    "@lexical/rich-text": "^0.16.1",
     "@mantine/hooks": "^7.17.2",
     "@sentry/react": "^8.43.0",
     "@table-nav/react": "^0.0.7",
@@ -34,7 +36,8 @@
     "react-router-dom": "^6.3.0",
     "react-simple-code-editor": "^0.14.1",
     "web-vitals": "^3.1.1",
-    "zustand": "^5.0.3"
+    "zustand": "^5.0.3",
+    "lexical": "^0.16.1"
   },
   "scripts": {
     "addversion": "node -p \"'export const ONTIME_VERSION = ' + JSON.stringify(require('../../package.json').version) + ';'\" > src/ONTIME_VERSION.js",
