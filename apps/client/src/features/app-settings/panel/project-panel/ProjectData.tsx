@@ -199,28 +199,6 @@ export default function ProjectData() {
             />
           </label>
           <label>
-            Public info
-            <Textarea
-              variant='ontime-filled'
-              size='sm'
-              maxLength={150}
-              placeholder='Shows always start ontime'
-              autoComplete='off'
-              resize='none'
-              {...register('publicInfo')}
-            />
-          </label>
-          <label>
-            Public QR code URL
-            <Input
-              variant='ontime-filled'
-              size='sm'
-              placeholder={websiteUrl}
-              autoComplete='off'
-              {...register('publicUrl')}
-            />
-          </label>
-          <label>
             Backstage info
             <Textarea
               variant='ontime-filled'

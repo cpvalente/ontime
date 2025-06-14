@@ -28,6 +28,4 @@ export const langSv: TranslationObject = {
   'project.description': 'Beskrivning',
   'project.backstage_info': 'Backstageinformation',
   'project.backstage_url': 'Backstage-URL',
-  'project.public_info': 'Offentlig information',
-  'project.public_url': 'Offentlig URL',
 };

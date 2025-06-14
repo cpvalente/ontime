@@ -28,6 +28,5 @@ export const langHu: TranslationObject = {
   'project.description': 'Leírás',
   'project.backstage_info': 'Kulisszák mögötti információ',
   'project.backstage_url': 'Kulisszák mögötti URL',
-  'project.public_info': 'Nyilvános információ',
-  'project.public_url': 'Nyilvános URL',
+
 };

@@ -28,6 +28,4 @@ export const langPt: TranslationObject = {
   'project.description': 'Descrição',
   'project.backstage_info': 'Informações de bastidores',
   'project.backstage_url': 'URL de bastidores',
-  'project.public_info': 'Informações públicas',
-  'project.public_url': 'URL pública',
 };

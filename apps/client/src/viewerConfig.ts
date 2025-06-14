@@ -4,7 +4,6 @@ export const navigatorConstants = [
   { url: 'clock', label: 'Wall Clock' },
   { url: 'backstage', label: 'Backstage' },
   { url: 'timeline', label: 'Timeline (beta)' },
-  { url: 'public', label: 'Public' },
   { url: 'lower', label: 'Lower Thirds' },
   { url: 'studio', label: 'Studio Clock' },
   { url: 'countdown', label: 'Countdown' },

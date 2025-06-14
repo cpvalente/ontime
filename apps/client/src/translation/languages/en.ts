@@ -26,8 +26,6 @@ export const langEn = {
   'project.description': 'Description',
   'project.backstage_info': 'Backstage Info',
   'project.backstage_url': 'Backstage URL',
-  'project.public_info': 'Public Info',
-  'project.public_url': 'Public URL',
 };
 
 export type TranslationObject = Record<keyof typeof langEn, string>;
