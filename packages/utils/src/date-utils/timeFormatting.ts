@@ -31,7 +31,7 @@ export function millisToString(millis?: MaybeNumber, options?: FormatOptions): s
   let hours = secondsToHours(totalSeconds);
 
   if (options?.timeFormat === '12') {
-    hours = hours % 12;
+    hours = hours % 12 || 12; // OR condition is to convert 00 -> 12
   }
 
   return `${isNegative ? '-' : ''}${[hours, minutes, seconds].map(pad).join(':')}`;
