@@ -17,7 +17,7 @@ function MakeStart({ getValue, row, table }: CellContext<OntimeEntry, unknown>) 
   }
 
   const { handleUpdateTimer } = table.options.meta;
-  const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
+  const { showDelayedTimes, hideTableSeconds, timeFormat } = table.options.meta.options;
 
   const update = (newValue: string) => handleUpdateTimer(row.original.id, 'timeStart', newValue);
 
@@ -28,7 +28,12 @@ function MakeStart({ getValue, row, table }: CellContext<OntimeEntry, unknown>) 
   const displayTime = showDelayedTimes ? startTime + delayValue : startTime;
   let formattedTime = formatTime(displayTime)
   if (hideTableSeconds) {
-    formattedTime = removeSeconds(formattedTime);
+    if (timeFormat === '12') {
+      const [parsingTime, amPmIndicator] = formattedTime.split(' ');
+      formattedTime = removeSeconds(parsingTime) + ' ' + amPmIndicator
+    } else {
+      formattedTime = removeSeconds(formattedTime);
+    }
   }
 
   return (
@@ -45,7 +50,7 @@ function MakeEnd({ getValue, row, table }: CellContext<OntimeEntry, unknown>) {
   }
 
   const { handleUpdateTimer } = table.options.meta;
-  const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
+  const { showDelayedTimes, hideTableSeconds, timeFormat } = table.options.meta.options;
 
   const update = (newValue: string) => handleUpdateTimer(row.original.id, 'timeEnd', newValue);
 
@@ -56,7 +61,12 @@ function MakeEnd({ getValue, row, table }: CellContext<OntimeEntry, unknown>) {
   const displayTime = showDelayedTimes ? endTime + delayValue : endTime;
   let formattedTime = formatTime(displayTime)
   if (hideTableSeconds) {
-    formattedTime = removeSeconds(formattedTime);
+    if (timeFormat === '12') {
+      const [parsingTime, amPmIndicator] = formattedTime.split(' ');
+      formattedTime = removeSeconds(parsingTime) + ' ' + amPmIndicator
+    } else {
+      formattedTime = removeSeconds(formattedTime);
+    }
   }
 
   return (
