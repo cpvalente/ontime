@@ -1,9 +1,10 @@
 import { memo, PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
 import { millisToString, parseUserTime } from 'ontime-utils';
 
+import { formatTime } from '../../../../common/utils/time';
+
 import SingleLineCell from './SingleLineCell';
 import TextLikeInput from './TextLikeInput';
-import { formatTime } from '../../../../common/utils/time';
 
 interface TimeInputDurationProps {
   initialValue: number;

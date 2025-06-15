@@ -27,7 +27,7 @@ export function millisToString(millis?: MaybeNumber, options?: FormatOptions): s
   const totalSeconds = Math.abs(millisToSeconds(millis, options?.direction));
   const seconds = totalSeconds % 60;
   const minutes = secondsToMinutes(totalSeconds) % 60;
-  let hours = secondsToHours(totalSeconds);
+  const hours = secondsToHours(totalSeconds);
 
   return `${isNegative ? '-' : ''}${[hours, minutes, seconds].map(pad).join(':')}`;
 }
