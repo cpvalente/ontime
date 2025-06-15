@@ -4,7 +4,7 @@ import { CustomFields, isOntimeEvent, OntimeEntry, OntimeEvent, TimeStrategy } f
 import { millisToString, removeSeconds } from 'ontime-utils';
 
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
-import { formatDuration } from '../../../../common/utils/time';
+import { formatDuration, formatTime } from '../../../../common/utils/time';
 
 import EditableImage from './EditableImage';
 import MultiLineCell from './MultiLineCell';
@@ -17,7 +17,7 @@ function MakeStart({ getValue, row, table }: CellContext<OntimeEntry, unknown>) 
   }
 
   const { handleUpdateTimer } = table.options.meta;
-  const { showDelayedTimes, hideTableSeconds, timeFormat } = table.options.meta.options;
+  const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
 
   const update = (newValue: string) => handleUpdateTimer(row.original.id, 'timeStart', newValue);
 
@@ -26,13 +26,13 @@ function MakeStart({ getValue, row, table }: CellContext<OntimeEntry, unknown>) 
   const delayValue = (row.original as OntimeEvent)?.delay ?? 0;
 
   const displayTime = showDelayedTimes ? startTime + delayValue : startTime;
-  let formattedTime = millisToString(displayTime, { timeFormat });
+  let formattedTime = formatTime(displayTime)
   if (hideTableSeconds) {
     formattedTime = removeSeconds(formattedTime);
   }
 
   return (
-    <TimeInput initialValue={startTime} onSubmit={update} lockedValue={isStartLocked} delayed={delayValue !== 0} timeFormat={timeFormat}>
+    <TimeInput initialValue={startTime} onSubmit={update} lockedValue={isStartLocked} delayed={delayValue !== 0} isFormat>
       {formattedTime}
       <DelayIndicator delayValue={delayValue} tooltipPrefix={millisToString(startTime)} />
     </TimeInput>
@@ -45,7 +45,7 @@ function MakeEnd({ getValue, row, table }: CellContext<OntimeEntry, unknown>) {
   }
 
   const { handleUpdateTimer } = table.options.meta;
-  const { showDelayedTimes, hideTableSeconds, timeFormat } = table.options.meta.options;
+  const { showDelayedTimes, hideTableSeconds } = table.options.meta.options;
 
   const update = (newValue: string) => handleUpdateTimer(row.original.id, 'timeEnd', newValue);
 
@@ -54,13 +54,13 @@ function MakeEnd({ getValue, row, table }: CellContext<OntimeEntry, unknown>) {
   const delayValue = (row.original as OntimeEvent)?.delay ?? 0;
 
   const displayTime = showDelayedTimes ? endTime + delayValue : endTime;
-  let formattedTime = millisToString(displayTime, { timeFormat });
+  let formattedTime = formatTime(displayTime)
   if (hideTableSeconds) {
     formattedTime = removeSeconds(formattedTime);
   }
 
   return (
-    <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked} delayed={delayValue !== 0} timeFormat={timeFormat}>
+    <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked} delayed={delayValue !== 0} isFormat>
       {formattedTime}
       <DelayIndicator delayValue={delayValue} tooltipPrefix={millisToString(endTime)} />
     </TimeInput>
