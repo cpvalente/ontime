@@ -5,6 +5,7 @@ import { isOntimeEvent, MaybeString, OntimeEntry, OntimeEvent, TimeField } from 
 
 import { useEntryActions } from '../../../common/hooks/useEntryAction';
 import useFollowComponent from '../../../common/hooks/useFollowComponent';
+import useSettings from '../../../common/hooks-query/useSettings';
 import { useCuesheetOptions } from '../cuesheet.options';
 
 import CuesheetBody from './cuesheet-table-elements/CuesheetBody';
@@ -32,6 +33,9 @@ export default function CuesheetTable(props: CuesheetTableProps) {
   const selectedRef = useRef<HTMLTableRowElement | null>(null);
   const tableContainerRef = useRef<HTMLDivElement | null>(null);
   useFollowComponent({ followRef: selectedRef, scrollRef: tableContainerRef, doFollow: followSelected });
+
+  const { data: settings } = useSettings();
+  const timeFormat = settings.timeFormat;
 
   const { listeners } = useTableNav();
 
@@ -77,6 +81,7 @@ export default function CuesheetTable(props: CuesheetTableProps) {
       options: {
         showDelayedTimes,
         hideTableSeconds,
+        timeFormat,
       },
     },
   });
