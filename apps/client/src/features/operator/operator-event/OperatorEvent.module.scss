@@ -118,7 +118,8 @@
     padding-inline: 0.25rem;
     background-color: $gray-1250;
     color: $ui-white;
-    white-space: pre;
+    // allow multi-line text but trim before
+    white-space: pre-line;
   }
 }
 
