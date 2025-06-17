@@ -4,7 +4,7 @@ import { MessageType } from 'ontime-types';
 import { useShallow } from 'zustand/shallow';
 
 import { useClientStore } from '../stores/clientStore';
-import { sendDataSocket } from '../utils/socket';
+import { sendSocket } from '../utils/socket';
 
 import { useIsOnline } from './useSocket';
 
@@ -23,7 +23,7 @@ export const useClientPath = () => {
   useEffect(() => {
     if (!isOnline) return;
 
-    sendDataSocket({ type: MessageType.ClientSetPath, payload: pathname + search });
+    sendSocket(MessageType.ClientSetPath, pathname + search);
   }, [pathname, search, isOnline]);
 
   // navigate to new path when received from server

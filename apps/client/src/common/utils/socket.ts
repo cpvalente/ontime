@@ -42,14 +42,11 @@ export const connectSocket = () => {
     hasConnected = true;
     reconnectAttempts = 0;
 
-    sendDataSocket({
-      type: MessageType.ClientSet,
-      payload: {
-        type: 'ontime',
-        origin: window.location.origin,
-        path: window.location.pathname + window.location.search,
-        name: preferredClientName,
-      },
+    sendSocket(MessageType.ClientSet, {
+      type: 'ontime',
+      origin: window.location.origin,
+      path: window.location.pathname + window.location.search,
+      name: preferredClientName,
     });
 
     setOnlineStatus(true);
@@ -169,6 +166,7 @@ export const connectSocket = () => {
             default: {
               const _exhaustiveCheck: never = target;
               break;
+            }
           }
           break;
         }
@@ -183,13 +181,10 @@ export const connectSocket = () => {
   };
 };
 
-export function sendDataSocket(packet: WsPacketToServer): void {
-  if (websocket && websocket.readyState === WebSocket.OPEN) {
-    websocket.send(JSON.stringify(packet));
-  }
-}
-
-export function sendApiSocket(type: ApiAction, payload?: unknown): void {
+export function sendSocket<T extends MessageType | ApiAction>(
+  type: T,
+  payload: T extends MessageType ? Pick<WsPacketToServer & { type: T }, 'payload'>['payload'] : unknown,
+): void {
   if (websocket && websocket.readyState === WebSocket.OPEN) {
     websocket.send(JSON.stringify({ type, payload }));
   }

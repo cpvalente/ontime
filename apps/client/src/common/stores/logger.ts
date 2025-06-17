@@ -4,7 +4,7 @@ import { generateId, millisToString } from 'ontime-utils';
 import { useStore } from 'zustand';
 import { createStore } from 'zustand/vanilla';
 
-import { sendDataSocket } from '../utils/socket';
+import { sendSocket } from '../utils/socket';
 import { nowInMillis } from '../utils/time';
 
 type LogStore = {
@@ -40,7 +40,7 @@ export function useEmitLog() {
       text,
     };
 
-    sendDataSocket({ type: MessageType.Log, payload: log });
+    sendSocket(MessageType.Log, log);
   }, []);
 
   /**
