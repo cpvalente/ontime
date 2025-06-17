@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { isOntimeEvent, OntimeEvent, SupportedEntry } from 'ontime-types';
 import { getFirstEventNormal, getLastEventNormal } from 'ontime-utils';
@@ -107,6 +107,10 @@ export default function Operator() {
   const missingData = !data || !customFields || !projectData;
   const isLoading = status === 'pending' || customFieldStatus === 'pending' || projectDataStatus === 'pending';
 
+  // gather option data
+  const defaultFormat = getDefaultFormat(settings?.timeFormat);
+  const operatorOptions = useMemo(() => getOperatorOptions(customFields, defaultFormat), [customFields, defaultFormat]);
+
   if (missingData || isLoading) {
     return <EmptyPage text='Loading...' />;
   }
@@ -121,8 +125,6 @@ export default function Operator() {
   const main = searchParams.get('main') as keyof TitleFields | null;
   const secondary = searchParams.get('secondary');
 
-  const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const operatorOptions = getOperatorOptions(customFields, defaultFormat);
   let isPast = Boolean(featureData.selectedEventId);
   const hidePast = isStringBoolean(searchParams.get('hidepast'));
 

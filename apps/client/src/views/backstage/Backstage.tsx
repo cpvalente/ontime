@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import QRCode from 'react-qr-code';
 import { useViewportSize } from '@mantine/hooks';
 import { CustomFields, OntimeEvent, ProjectData, Runtime, Settings } from 'ontime-types';
@@ -105,7 +105,10 @@ export default function Backstage(props: BackstageProps) {
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const backstageOptions = getBackstageOptions(defaultFormat, customFields);
+  const backstageOptions = useMemo(
+    () => getBackstageOptions(defaultFormat, customFields),
+    [defaultFormat, customFields],
+  );
 
   return (
     <div className={`backstage ${isMirrored ? 'mirror' : ''}`} data-testid='backstage-view'>

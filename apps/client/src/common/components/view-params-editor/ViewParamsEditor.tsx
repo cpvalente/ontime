@@ -1,4 +1,4 @@
-import { FormEvent, useEffect } from 'react';
+import { FormEvent, memo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Button,
@@ -25,8 +25,9 @@ interface EditFormDrawerProps {
   viewOptions: ViewOption[];
 }
 
-// TODO: this is a good candidate for memoisation, but needs the paramFields to be stable
-export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
+export default memo(ViewParamsEditor);
+
+function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: viewSettings } = useViewSettings();
 
