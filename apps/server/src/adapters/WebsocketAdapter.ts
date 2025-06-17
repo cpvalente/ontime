@@ -137,8 +137,9 @@ class SocketServer implements IAdapter {
             }
             default: {
               // Protocol specific stuff handled above
+              const notWsSpecificType: never = type;
               try {
-                const reply = dispatchFromAdapter(type, payload, 'ws');
+                const reply = dispatchFromAdapter(notWsSpecificType, payload, 'ws');
                 if (reply) {
                   ws.send(
                     JSON.stringify({

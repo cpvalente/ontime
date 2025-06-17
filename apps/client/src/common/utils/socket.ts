@@ -10,7 +10,7 @@ import {
 } from 'ontime-types';
 
 import { isProduction, websocketUrl } from '../../externals';
-import { CLIENT_LIST, CUSTOM_FIELDS, RUNDOWN, RUNTIME, VIEW_SETTINGS } from '../api/constants';
+import { CLIENT_LIST, CUSTOM_FIELDS, REPORT, RUNDOWN, RUNTIME, VIEW_SETTINGS } from '../api/constants';
 import { invalidateAllCaches } from '../api/utils';
 import { ontimeQueryClient } from '../queryClient';
 import {
@@ -163,14 +163,17 @@ export const connectSocket = () => {
             case RefetchKey.ViewSettings:
               ontimeQueryClient.invalidateQueries({ queryKey: VIEW_SETTINGS });
               break;
-            default:
-              console.log('unknown refetch target', target);
+            case RefetchKey.Report:
+              ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
+              break;
+            default: {
+              const _exhaustiveCheck: never = target;
               break;
           }
           break;
         }
         default: {
-          console.log('unknown WS message', type);
+          const _exhaustiveCheck: never = type;
           break;
         }
       }

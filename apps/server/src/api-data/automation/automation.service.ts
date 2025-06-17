@@ -115,8 +115,10 @@ export function testConditions(
         return typeof fieldValue === 'string' && fieldValue.includes(value);
       case 'not_contains':
         return typeof fieldValue === 'string' && !fieldValue.includes(value);
-      default:
+      default: {
+        const _exhaustiveCheck: never = operator;
         return false;
+      }
     }
   }
 }
