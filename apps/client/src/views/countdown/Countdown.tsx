@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
 import {
   CustomFields,
@@ -63,7 +63,10 @@ export default function Countdown({
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const countdownOptions = getCountdownOptions(defaultFormat, customFields, subscriptions);
+  const countdownOptions = useMemo(
+    () => getCountdownOptions(defaultFormat, customFields, subscriptions),
+    [defaultFormat, customFields, subscriptions],
+  );
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>

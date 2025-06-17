@@ -45,7 +45,7 @@ export default function TimelinePage(props: TimelinePageProps) {
 
   // populate options
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const progressOptions = getTimelineOptions(defaultFormat);
+  const progressOptions = useMemo(() => getTimelineOptions(defaultFormat), [defaultFormat]);
 
   const titleNow = now?.title ?? '-';
   const dueText = getLocalizedString('timeline.due').toUpperCase();
