@@ -1,9 +1,6 @@
-import {
-  hideTimerSeconds,
-  OptionTitle,
-  showLeadingZeros,
-} from '../../../common/components/view-params-editor/constants';
-import { ViewOption } from '../../../common/components/view-params-editor/types';
+import { hideTimerSeconds, showLeadingZeros } from '../../../common/components/view-params-editor/common.options';
+import { OptionTitle } from '../../../common/components/view-params-editor/constants';
+import { ViewOption } from '../../../common/components/view-params-editor/viewParams.types';
 
 export const MINIMAL_TIMER_OPTIONS: ViewOption[] = [
   { title: OptionTitle.TimerOptions, collapsible: true, options: [hideTimerSeconds, showLeadingZeros] },

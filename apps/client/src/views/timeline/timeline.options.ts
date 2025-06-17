@@ -1,5 +1,6 @@
-import { getTimeOption, OptionTitle } from '../../common/components/view-params-editor/constants';
-import { ViewOption } from '../../common/components/view-params-editor/types';
+import { getTimeOption } from '../../common/components/view-params-editor/common.options';
+import { OptionTitle } from '../../common/components/view-params-editor/constants';
+import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 
 export const getTimelineOptions = (timeFormat: string): ViewOption[] => {
   return [

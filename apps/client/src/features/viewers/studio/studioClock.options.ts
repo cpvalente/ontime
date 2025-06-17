@@ -1,5 +1,6 @@
-import { getTimeOption, hideTimerSeconds, OptionTitle } from '../../../common/components/view-params-editor/constants';
-import type { ViewOption } from '../../../common/components/view-params-editor/types';
+import { getTimeOption, hideTimerSeconds } from '../../../common/components/view-params-editor/common.options';
+import { OptionTitle } from '../../../common/components/view-params-editor/constants';
+import type { ViewOption } from '../../../common/components/view-params-editor/viewParams.types';
 
 export const getStudioClockOptions = (timeFormat: string): ViewOption[] => [
   { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },

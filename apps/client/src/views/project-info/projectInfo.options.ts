@@ -1,5 +1,5 @@
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
-import { ViewOption } from '../../common/components/view-params-editor/types';
+import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 
 export const projectInfoOptions: ViewOption[] = [
   {

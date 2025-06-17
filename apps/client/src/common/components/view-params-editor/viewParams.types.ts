@@ -24,7 +24,7 @@ type StringField = { type: 'string'; defaultValue?: string; prefix?: string; pla
 type NumberField = { type: 'number'; defaultValue?: number; prefix?: string; placeholder?: string };
 type BooleanField = { type: 'boolean'; defaultValue: boolean };
 type ColourField = { type: 'colour'; defaultValue: string; placeholder?: string };
-type PersistedField = { type: 'persist'; defaultValue?: string; value: string };
+type PersistedField = { type: 'persist'; defaultValue?: string[]; values: string[] };
 
 export type ParamField = BaseField &
   (OptionsField | MultiOptionsField | StringField | NumberField | BooleanField | ColourField | PersistedField);

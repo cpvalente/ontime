@@ -15,73 +15,11 @@ import {
 import useViewSettings from '../../hooks-query/useViewSettings';
 import Info from '../info/Info';
 
-import { ViewOption } from './types';
+import { ViewOption } from './viewParams.types';
+import { getURLSearchParamsFromObj } from './viewParams.utils';
 import ViewParamsSection from './ViewParamsSection';
 
 import style from './ViewParamsEditor.module.scss';
-
-type ViewParamsObj = { [key: string]: string | FormDataEntryValue };
-
-/**
- * Utility remove the # character from a hex string
- */
-function sanitiseColour(colour: string) {
-  if (colour.startsWith('#')) {
-    return colour.substring(1);
-  }
-  return colour;
-}
-
-/**
- * Makes a new URLSearchParams object from the given params object
- */
-const getURLSearchParamsFromObj = (paramsObj: ViewParamsObj, paramFields: ViewOption[]) => {
-  const newSearchParams = new URLSearchParams();
-
-  // Convert paramFields to an object that contains default values
-  const defaultValues: Record<string, string> = {};
-  paramFields.forEach((section) => {
-    section.options.forEach((option) => {
-      defaultValues[option.id] = String(option.defaultValue);
-
-      // extract persisted values
-      if ('type' in option && option.type === 'persist') {
-        newSearchParams.set(option.id, option.value);
-      }
-    });
-  });
-
-  // compare which values are different from the default values
-  Object.entries(paramsObj).forEach(([id, value]) => {
-    if (typeof value === 'string' && value.length) {
-      // we dont know which values contain colours
-      // unfortunately this means we run all the strings through the sanitation
-      const valueWithoutHash = sanitiseColour(value);
-      if (defaultValues[id] !== valueWithoutHash) {
-        handleValueString(id, valueWithoutHash);
-      }
-    }
-  });
-
-  /** Utility function contains logic to add a value into the searchParams object */
-  function handleValueString(id: string, value: string) {
-    const maybeMultipleValues = value.split(',');
-
-    // we need to check if the value contains comma separated list, for the case of the multi-select data
-    if (Array.isArray(maybeMultipleValues) && maybeMultipleValues.length > 1) {
-      const added = new Set();
-      maybeMultipleValues.forEach((v) => {
-        if (!added.has(v)) {
-          added.add(v);
-          newSearchParams.append(id, v);
-        }
-      });
-    } else {
-      newSearchParams.set(id, value);
-    }
-  }
-  return newSearchParams;
-};
 
 interface EditFormDrawerProps {
   viewOptions: ViewOption[];
@@ -94,6 +32,7 @@ export default function ViewParamsEditor({ viewOptions }: EditFormDrawerProps) {
 
   const { isOpen, onClose, onOpen } = useDisclosure();
 
+  // handle opening the drawer
   useEffect(() => {
     const isEditing = searchParams.get('edit');
 

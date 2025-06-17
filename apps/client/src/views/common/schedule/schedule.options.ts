@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { OptionTitle } from '../../../common/components/view-params-editor/constants';
-import { ViewOption } from '../../../common/components/view-params-editor/types';
+import { ViewOption } from '../../../common/components/view-params-editor/viewParams.types';
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 
 export const scheduleOptions: ViewOption = {
