@@ -8,6 +8,7 @@ import {
   isOntimeDelay,
   isOntimeEvent,
   OntimeEntry,
+  OntimeEvent,
   PatchWithId,
   Rundown,
 } from 'ontime-types';
@@ -84,7 +85,7 @@ export async function editEntry(patch: PatchWithId): Promise<OntimeEntry> {
   }
 
   // we dont allow the user to change the cue to empty string
-  if (isOntimeEvent(patch) && patch?.cue === '') {
+  if ((patch as Partial<OntimeEvent>)?.cue === '') {
     throw new Error('Cue value invalid');
   }
 
@@ -107,7 +108,7 @@ export async function editEntry(patch: PatchWithId): Promise<OntimeEntry> {
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: [entry.id], external: true });
+    notifyChanges(rundownMetadata, revision, { timer: didInvalidate ? true : [entry.id], external: true });
   });
 
   return entry;
@@ -171,7 +172,7 @@ export async function batchEditEntries(ids: EntryId[], patch: Partial<OntimeEntr
     updateRuntimeOnChange(rundownMetadata);
 
     // notify timer and external services of change
-    notifyChanges(rundownMetadata, revision, { timer: changedIds, external: true });
+    notifyChanges(rundownMetadata, revision, { timer: batchDidInvalidate ? true : changedIds, external: true });
   });
 
   return rundownResult;
