@@ -1,12 +1,12 @@
 import { CustomFields } from 'ontime-types';
 
+import { getTimeOption } from '../../common/components/view-params-editor/common.options';
+import { OptionTitle } from '../../common/components/view-params-editor/constants';
+import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import {
-  getTimeOption,
   makeCustomFieldSelectOptions,
   makeOptionsFromCustomFields,
-  OptionTitle,
-} from '../../common/components/view-params-editor/constants';
-import { ViewOption } from '../../common/components/view-params-editor/types';
+} from '../../common/components/view-params-editor/viewParams.utils';
 
 export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ViewOption[] => {
   const fieldOptions = makeOptionsFromCustomFields(customFields, { title: 'Title', note: 'Note' });

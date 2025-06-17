@@ -18,19 +18,21 @@ import {
 import { isStringBoolean } from '../../../features/viewers/common/viewUtils';
 
 import InlineColourPicker from './InlineColourPicker';
-import { ParamField } from './types';
+import { ParamField } from './viewParams.types';
 
-interface EditFormInputProps {
+interface ParamInputProps {
   paramField: ParamField;
 }
 
-export default function ParamInput(props: EditFormInputProps) {
-  const { paramField } = props;
+export default function ParamInput({ paramField }: ParamInputProps) {
   const [searchParams] = useSearchParams();
   const { id, type, defaultValue } = paramField;
 
   if (type === 'persist') {
-    return null;
+    if (!paramField.values || !paramField.values.length) {
+      return null;
+    }
+    return <input hidden name={id} readOnly value={paramField.values.join(',')} />;
   }
 
   if (type === 'option') {

@@ -63,7 +63,7 @@ export default function Countdown({
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const countdownOptions = getCountdownOptions(defaultFormat, customFields);
+  const countdownOptions = getCountdownOptions(defaultFormat, customFields, subscriptions);
 
   return (
     <div className={`countdown ${isMirrored ? 'mirror' : ''}`} data-testid='countdown-view'>

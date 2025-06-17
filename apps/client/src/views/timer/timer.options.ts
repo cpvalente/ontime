@@ -6,11 +6,11 @@ import { validateTimerType } from 'ontime-utils';
 import {
   getTimeOption,
   hideTimerSeconds,
-  makeOptionsFromCustomFields,
-  OptionTitle,
   showLeadingZeros,
-} from '../../common/components/view-params-editor/constants';
-import { ViewOption } from '../../common/components/view-params-editor/types';
+} from '../../common/components/view-params-editor/common.options';
+import { OptionTitle } from '../../common/components/view-params-editor/constants';
+import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
+import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
 import { isStringBoolean } from '../../features/viewers/common/viewUtils';
 
 // manually match the properties of TimerType excluding the None

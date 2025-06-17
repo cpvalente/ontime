@@ -2,15 +2,17 @@ import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CustomFields, EntryId, OntimeEvent } from 'ontime-types';
 
-import {
-  getTimeOption,
-  makeOptionsFromCustomFields,
-  OptionTitle,
-} from '../../common/components/view-params-editor/constants';
-import { ViewOption } from '../../common/components/view-params-editor/types';
+import { getTimeOption } from '../../common/components/view-params-editor/common.options';
+import { OptionTitle } from '../../common/components/view-params-editor/constants';
+import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
+import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
 import { isStringBoolean } from '../../features/viewers/common/viewUtils';
 
-export const getCountdownOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
+export const getCountdownOptions = (
+  timeFormat: string,
+  customFields: CustomFields,
+  persistedSubscriptions: EntryId[],
+): ViewOption[] => {
   const secondaryOptions = makeOptionsFromCustomFields(customFields, { note: 'Note' });
 
   return [
@@ -20,15 +22,6 @@ export const getCountdownOptions = (timeFormat: string, customFields: CustomFiel
       collapsible: true,
       options: [
         {
-          id: 'sub',
-          title: 'Event subscription',
-          description: 'The events to follow',
-          value: '',
-          type: 'persist',
-        },
-        {
-          // TODO: adding a secondary source is removing the subscriptions
-          // this seems to be a bug with persist assuming that the property has a single entry
           id: 'secondary-src',
           title: 'Event secondary text',
           description: 'Select the data source for auxiliary text shown in the card',
@@ -48,6 +41,18 @@ export const getCountdownOptions = (timeFormat: string, customFields: CustomFiel
           description: 'Whether scheduled times should account for runtime offset',
           type: 'boolean',
           defaultValue: false,
+        },
+      ],
+    },
+    {
+      title: OptionTitle.Hidden,
+      options: [
+        {
+          id: 'sub',
+          title: 'Event subscription',
+          description: 'The events to follow',
+          values: persistedSubscriptions,
+          type: 'persist',
         },
       ],
     },
