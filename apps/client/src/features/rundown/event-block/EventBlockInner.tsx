@@ -4,7 +4,7 @@ import {
   IoArrowUp,
   IoBan,
   IoFlag,
-  IoPeople,
+  IoFlash,
   IoPlay,
   IoPlayForward,
   IoPlaySkipForward,
@@ -47,6 +47,7 @@ interface EventBlockInnerProps {
   isPast: boolean;
   totalGap: number;
   isLinkedToLoaded: boolean;
+  hasTriggers: boolean;
 }
 
 function EventBlockInner(props: EventBlockInnerProps) {
@@ -72,6 +73,7 @@ function EventBlockInner(props: EventBlockInnerProps) {
     isPast,
     totalGap,
     isLinkedToLoaded,
+    hasTriggers,
   } = props;
 
   const [renderInner, setRenderInner] = useState(false);
@@ -151,10 +153,9 @@ function EventBlockInner(props: EventBlockInnerProps) {
               <IoFlag className={`${style.statusIcon} ${countToEnd ? style.active : style.disabled}`} />
             </span>
           </Tooltip>
-          {/* TODO: fix css and remove this element */}
-          <Tooltip label="Event is public" openDelay={tooltipDelayMid}>
+          <Tooltip label='Event has Triggers' openDelay={tooltipDelayMid}>
             <span>
-              <IoPeople className={`${style.statusIcon} ${true ? style.active : style.disabled}`} />
+              <IoFlash className={`${style.statusIcon} ${hasTriggers ? style.active : style.disabled}`} />
             </span>
           </Tooltip>
         </div>

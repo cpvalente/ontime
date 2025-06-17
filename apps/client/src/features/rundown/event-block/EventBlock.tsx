@@ -62,6 +62,7 @@ interface EventBlockProps {
           value: unknown;
         },
   ) => void;
+  hasTriggers: boolean;
 }
 
 export default function EventBlock(props: EventBlockProps) {
@@ -95,6 +96,7 @@ export default function EventBlock(props: EventBlockProps) {
     totalGap,
     isLinkedToLoaded,
     actionHandler,
+    hasTriggers,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
   const { selectedEvents, setSelectedEvents } = useEventSelection();
@@ -289,6 +291,7 @@ export default function EventBlock(props: EventBlockProps) {
           isPast={isPast}
           totalGap={totalGap}
           isLinkedToLoaded={isLinkedToLoaded}
+          hasTriggers={hasTriggers}
         />
       )}
     </div>

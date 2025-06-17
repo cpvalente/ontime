@@ -8,7 +8,7 @@ import { PROJECT_LIST } from '../../../../common/api/constants';
 import { createProject } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import { preventEscape } from '../../../../common/utils/keyEvent';
-import { documentationUrl, websiteUrl } from '../../../../externals';
+import { documentationUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './ProjectPanel.module.scss';

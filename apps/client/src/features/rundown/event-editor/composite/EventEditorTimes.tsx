@@ -154,6 +154,9 @@ function EventEditorTimes(props: EventEditorTimesProps) {
             </Select>
           </div>
           <div>
+            {/* TODO: rearrange this grid */}
+          </div>
+          <div>
             <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
             <TimeInput
               id='timeWarning'
@@ -164,14 +167,6 @@ function EventEditorTimes(props: EventEditorTimesProps) {
             />
           </div>
 
-          <div>
-            <Editor.Label htmlFor='isPublic'>Event Visibility</Editor.Label>
-            <Editor.Label className={style.switchLabel}>
-              <Switch id='isPublic' size='md' variant='ontime' />
-              Public
-              {/* TODO: fix css and remove this element */}
-            </Editor.Label>
-          </div>
           <div>
             <Editor.Label htmlFor='timeDanger'>Danger Time</Editor.Label>
             <TimeInput

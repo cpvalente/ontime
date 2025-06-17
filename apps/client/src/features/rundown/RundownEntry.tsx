@@ -195,6 +195,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         totalGap={totalGap}
         isLinkedToLoaded={isLinkedToLoaded}
         actionHandler={actionHandler}
+        hasTriggers={data.triggers.length > 0}
       />
     );
   } else if (isOntimeDelay(data)) {
