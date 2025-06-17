@@ -67,7 +67,7 @@ test('delays are show correctly', async ({ page }) => {
   await page.getByTestId('block__title').click();
   await page.getByTestId('block__title').fill('test');
   await page.getByTestId('block__title').press('Enter');
-  await expect(page.getByTestId('entry-1').locator('#block-status')).toBeVisible();
+  await expect(page.getByTestId('entry-1').locator('#block-status')).toHaveAttribute('data-timerType', 'count-down');
 
   // add a delay
   await page.getByRole('button', { name: 'Delay' }).nth(0).click();

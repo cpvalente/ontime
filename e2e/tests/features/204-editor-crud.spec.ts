@@ -23,5 +23,5 @@ test('CRUD operations on the rundown', async ({ page }) => {
   // test quick add options
   await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
 
-  await expect(page.getByTestId('entry-4').locator('#block-status')).toBeVisible();
+  await expect(page.getByTestId('entry-4').locator('#block-status')).toHaveAttribute('data-timerType', 'count-down');
 });
