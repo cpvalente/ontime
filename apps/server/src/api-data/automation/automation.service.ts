@@ -116,7 +116,7 @@ export function testConditions(
       case 'not_contains':
         return typeof fieldValue === 'string' && !fieldValue.includes(value);
       default: {
-        const _exhaustiveCheck: never = operator;
+        operator satisfies never;
         return false;
       }
     }

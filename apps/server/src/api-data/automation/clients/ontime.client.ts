@@ -42,8 +42,8 @@ export function toOntimeAction(action: OntimeAction) {
     }
 
     default: {
-      const unknownAction: never = actionType;
-      logger.warning(LogOrigin.Tx, `Unknown action type: ${unknownAction}`);
+      actionType satisfies never;
+      logger.warning(LogOrigin.Tx, `Unknown action type: ${actionType}`);
       break;
     }
   }

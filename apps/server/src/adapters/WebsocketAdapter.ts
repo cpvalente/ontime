@@ -104,9 +104,9 @@ class SocketServer implements IAdapter {
       ws.on('message', (data) => {
         try {
           const message = JSON.parse(data.toString()) as WsPacketToServer;
-          const { type, payload } = message;
+          const { type: messageType, payload } = message;
 
-          switch (type) {
+          switch (messageType) {
             case MessageType.Ping: {
               sendPacket({ type: MessageType.Pong, payload });
               break;
@@ -136,14 +136,14 @@ class SocketServer implements IAdapter {
               break;
             }
             default: {
+              messageType satisfies never;
               // Protocol specific stuff handled above
-              const notWsSpecificType: never = type;
               try {
-                const reply = dispatchFromAdapter(notWsSpecificType, payload, 'ws');
+                const reply = dispatchFromAdapter(messageType, payload, 'ws');
                 if (reply) {
                   ws.send(
                     JSON.stringify({
-                      type,
+                      type: messageType,
                       payload: reply.payload,
                     }),
                   );

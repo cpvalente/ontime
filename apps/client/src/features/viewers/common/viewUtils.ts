@@ -38,7 +38,7 @@ export function getTimerByType(
     case TimerType.None:
       return null;
     default: {
-      const _exhaustiveCheck: never = viewTimerType;
+      viewTimerType satisfies never;
       return null;
     }
   }

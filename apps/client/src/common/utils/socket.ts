@@ -76,13 +76,13 @@ export const connectSocket = () => {
     try {
       const data = JSON.parse(event.data) as WsPacketToClient;
 
-      const { type, payload } = data;
+      const { type: tag, payload } = data;
 
-      if (!type) {
+      if (!tag) {
         return;
       }
 
-      switch (type) {
+      switch (tag) {
         case MessageType.Pong: {
           const offset = (new Date().getTime() - new Date(payload).getTime()) * 0.5;
           patchRuntimeProperty('ping', offset);
@@ -164,14 +164,14 @@ export const connectSocket = () => {
               ontimeQueryClient.invalidateQueries({ queryKey: REPORT });
               break;
             default: {
-              const _exhaustiveCheck: never = target;
+              target satisfies never;
               break;
             }
           }
           break;
         }
         default: {
-          const _exhaustiveCheck: never = type;
+          tag satisfies never;
           break;
         }
       }
