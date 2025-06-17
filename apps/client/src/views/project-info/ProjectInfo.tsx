@@ -37,7 +37,13 @@ export default function ProjectInfo(props: ProjectInfoProps) {
     );
   }
 
-  const isEmpty = Object.values(general).every((value) => !value);
+  /**
+   * Check if there is data to show at all
+   * We need a special check for the project fields which can be an empty array
+   */
+  const isEmpty = Object.values(general).every(
+    (value) => !value || (value && Array.isArray(value) && value.length === 0),
+  );
   if (isEmpty) {
     return (
       <>
