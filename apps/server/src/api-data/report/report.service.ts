@@ -1,7 +1,7 @@
 import { OntimeReport, OntimeEventReport, TimerLifeCycle, RefetchKey } from 'ontime-types';
 import { RuntimeState } from '../../stores/runtimeState.js';
-import { sendRefetch } from '../../adapters/websocketAux.js';
 import { DeepReadonly } from 'ts-essentials';
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 
 const report = new Map<string, OntimeEventReport>();
 

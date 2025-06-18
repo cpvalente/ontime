@@ -1,7 +1,7 @@
 import {
   ApiAction,
   Log,
-  MessageType,
+  MessageTag,
   RefetchKey,
   Rundown,
   RuntimeStore,
@@ -42,7 +42,7 @@ export const connectSocket = () => {
     hasConnected = true;
     reconnectAttempts = 0;
 
-    sendSocket(MessageType.ClientSet, {
+    sendSocket(MessageTag.ClientSet, {
       type: 'ontime',
       origin: window.location.origin,
       path: window.location.pathname + window.location.search,
@@ -76,20 +76,20 @@ export const connectSocket = () => {
     try {
       const data = JSON.parse(event.data) as WsPacketToClient;
 
-      const { type: tag, payload } = data;
+      const { tag, payload } = data;
 
       if (!tag) {
         return;
       }
 
       switch (tag) {
-        case MessageType.Pong: {
+        case MessageTag.Pong: {
           const offset = (new Date().getTime() - new Date(payload).getTime()) * 0.5;
           patchRuntimeProperty('ping', offset);
           updateDevTools({ ping: offset });
           break;
         }
-        case MessageType.ClientInit: {
+        case MessageTag.ClientInit: {
           setClientId(payload.clientId);
           if (!preferredClientName) {
             setClientName(payload.clientName);
@@ -97,7 +97,7 @@ export const connectSocket = () => {
           break;
         }
 
-        case MessageType.ClientRename: {
+        case MessageTag.ClientRename: {
           const id = getClientId();
           if (payload.target === id) {
             setClientName(payload.name);
@@ -105,7 +105,7 @@ export const connectSocket = () => {
           break;
         }
 
-        case MessageType.ClientRedirect: {
+        case MessageTag.ClientRedirect: {
           const id = getClientId();
           if (payload.target === id) {
             setClientRedirect(payload.path);
@@ -113,7 +113,7 @@ export const connectSocket = () => {
           break;
         }
 
-        case MessageType.ClientList: {
+        case MessageTag.ClientList: {
           setClients(payload);
           if (!isProduction) {
             ontimeQueryClient.setQueryData(CLIENT_LIST, payload);
@@ -121,31 +121,31 @@ export const connectSocket = () => {
           break;
         }
 
-        case MessageType.Dialog: {
+        case MessageTag.Dialog: {
           if (payload.dialog === 'welcome') {
             addDialog('welcome');
           }
           break;
         }
 
-        case MessageType.Log: {
+        case MessageTag.Log: {
           addLog(payload as Log);
           break;
         }
-        case MessageType.RuntimeData: {
+        case MessageTag.RuntimeData: {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars -- removing the key from the payload
           const { ping, ...serverPayload } = payload;
           patchRuntime(serverPayload);
           updateDevTools(serverPayload);
           break;
         }
-        case MessageType.RuntimePatch: {
+        case MessageTag.RuntimePatch: {
           const patch = payload;
           patchRuntime(patch);
           updateDevTools(patch);
           break;
         }
-        case MessageType.Refetch: {
+        case MessageTag.Refetch: {
           // the refetch message signals that the rundown has changed in the server side
           const { target, revision } = payload;
           switch (target) {
@@ -181,12 +181,12 @@ export const connectSocket = () => {
   };
 };
 
-export function sendSocket<T extends MessageType | ApiAction>(
-  type: T,
-  payload: T extends MessageType ? Pick<WsPacketToServer & { type: T }, 'payload'>['payload'] : unknown,
+export function sendSocket<T extends MessageTag | ApiAction>(
+  tag: T,
+  payload: T extends MessageTag ? Pick<WsPacketToServer & { tag: T }, 'payload'>['payload'] : unknown,
 ): void {
   if (websocket && websocket.readyState === WebSocket.OPEN) {
-    websocket.send(JSON.stringify({ type, payload }));
+    websocket.send(JSON.stringify({ tag, payload }));
   }
 }
 

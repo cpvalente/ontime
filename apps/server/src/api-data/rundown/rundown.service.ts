@@ -16,12 +16,12 @@ import {
 import { customFieldLabelToKey } from 'ontime-utils';
 
 import { updateRundownData } from '../../stores/runtimeState.js';
-import { sendRefetch } from '../../adapters/websocketAux.js';
 import { runtimeService } from '../../services/runtime-service/RuntimeService.js';
 
 import { createTransaction, customFieldMutation, rundownCache, rundownMutation } from './rundown.dao.js';
 import type { RundownMetadata } from './rundown.types.js';
 import { generateEvent, getInsertAfterId, hasChanges } from './rundown.utils.js';
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 
 /**
  * creates a new entry with given data

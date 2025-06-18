@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { Log, LogLevel, LogOrigin, MessageType } from 'ontime-types';
+import { Log, LogLevel, LogOrigin, MessageTag } from 'ontime-types';
 import { generateId, millisToString } from 'ontime-utils';
 import { useStore } from 'zustand';
 import { createStore } from 'zustand/vanilla';
@@ -40,7 +40,7 @@ export function useEmitLog() {
       text,
     };
 
-    sendSocket(MessageType.Log, log);
+    sendSocket(MessageTag.Log, log);
   }, []);
 
   /**

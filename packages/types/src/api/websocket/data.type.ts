@@ -4,7 +4,7 @@ import type { RuntimeStore } from '../../definitions/runtime/RuntimeStore.type.j
 import type { MaybeNumber } from '../../utils/utils.type.js';
 import type { RefetchKey } from './refetch.type.js';
 
-export enum MessageType {
+export enum MessageTag {
   Ping = 'ping',
   Pong = 'pong',
   ClientInit = 'client-init',
@@ -21,25 +21,25 @@ export enum MessageType {
 }
 
 //CLIENT TO SERVER
-type PingPacket = { type: MessageType.Ping; payload: Date };
-type SetClientPacket = { type: MessageType.ClientSetPath; payload: string };
-type SetClientPathPacket = { type: MessageType.ClientSet; payload: Partial<Client> };
+type PingPacket = { tag: MessageTag.Ping; payload: Date };
+type SetClientPacket = { tag: MessageTag.ClientSetPath; payload: string };
+type SetClientPathPacket = { tag: MessageTag.ClientSet; payload: Partial<Client> };
 
 // SERVER TO CLIENT
-type PongPacket = { type: MessageType.Pong; payload: Date };
-type InitClientPacket = { type: MessageType.ClientInit; payload: { clientId: string; clientName: string } };
-type RenameClientPacket = { type: MessageType.ClientRename; payload: { target: string; name: string } };
-type RedirectClientPacket = { type: MessageType.ClientRedirect; payload: { target: string; path: string } };
-type DialogPacket = { type: MessageType.Dialog; payload: { dialog: string } };
+type PongPacket = { tag: MessageTag.Pong; payload: Date };
+type InitClientPacket = { tag: MessageTag.ClientInit; payload: { clientId: string; clientName: string } };
+type RenameClientPacket = { tag: MessageTag.ClientRename; payload: { target: string; name: string } };
+type RedirectClientPacket = { tag: MessageTag.ClientRedirect; payload: { target: string; path: string } };
+type DialogPacket = { tag: MessageTag.Dialog; payload: { dialog: string } };
 type ListClientPacket = {
-  type: MessageType.ClientList;
+  tag: MessageTag.ClientList;
   payload: Record<string, Client>;
 };
-type RuntimePacket = { type: MessageType.RuntimeData; payload: RuntimeStore };
-type RuntimePatchPacket = { type: MessageType.RuntimePatch; payload: Partial<RuntimeStore> };
+type RuntimePacket = { tag: MessageTag.RuntimeData; payload: RuntimeStore };
+type RuntimePatchPacket = { tag: MessageTag.RuntimePatch; payload: Partial<RuntimeStore> };
 
 type RefetchPacket = {
-  type: MessageType.Refetch;
+  tag: MessageTag.Refetch;
   payload: {
     target: RefetchKey;
     revision: MaybeNumber;
@@ -47,7 +47,7 @@ type RefetchPacket = {
 };
 
 // SHARED
-type LogPacket = { type: MessageType.Log; payload: Log };
+type LogPacket = { tag: MessageTag.Log; payload: Log };
 
 export type WsPacketToServer = PingPacket | SetClientPacket | SetClientPathPacket | LogPacket;
 export type WsPacketToClient =

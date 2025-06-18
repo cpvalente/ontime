@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { MessageType } from 'ontime-types';
+import { MessageTag } from 'ontime-types';
 
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import { usePing } from '../../../../common/hooks/useSocket';
@@ -58,10 +58,10 @@ function OntimeCloudStats() {
    * Send immediate ping request, and keep sending on an interval
    */
   useEffect(() => {
-    sendSocket(MessageType.Ping, new Date());
+    sendSocket(MessageTag.Ping, new Date());
 
     const doPing = setInterval(() => {
-      sendSocket(MessageType.Ping, new Date());
+      sendSocket(MessageTag.Ping, new Date());
     }, 5000);
 
     return () => {

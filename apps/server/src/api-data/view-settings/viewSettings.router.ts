@@ -4,9 +4,9 @@ import { RefetchKey, type ErrorResponse, type ViewSettings } from 'ontime-types'
 import { getErrorMessage } from 'ontime-utils';
 
 import { validateViewSettings } from './viewSettings.validation.js';
-import { sendRefetch } from '../../adapters/websocketAux.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { ifNoneMatch } from '../../middleware/etag.js';
+import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 
 export const router = express.Router();
 
