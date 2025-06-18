@@ -1,5 +1,16 @@
-import { memo } from 'react';
-import { Select, Switch } from '@chakra-ui/react';
+import { memo, useRef } from 'react';
+import {
+  AlertDialogContent,
+  AlertDialog,
+  AlertDialogOverlay,
+  Button,
+  Select,
+  Switch,
+  useDisclosure,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
+} from '@chakra-ui/react';
 import { EndAction, MaybeString, TimeStrategy } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
@@ -9,6 +20,7 @@ import * as Editor from '../../../editors/editor-utils/EditorUtils';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
 
 import style from '../EventEditor.module.scss';
+import { IoTrash } from 'react-icons/io5';
 
 interface MobileEventEditorTimesProps {
   eventId: string;
@@ -25,18 +37,12 @@ interface MobileEventEditorTimesProps {
 type HandledActions = 'countToEnd' | 'endAction';
 
 function MobileEventEditorTimes(props: MobileEventEditorTimesProps) {
-  const {
-    eventId,
-    timeStart,
-    timeEnd,
-    duration,
-    timeStrategy,
-    linkStart,
-    countToEnd,
-    delay,
-    endAction,
-  } = props;
-  const { updateEvent } = useEventAction();
+  const { eventId, timeStart, timeEnd, duration, timeStrategy, linkStart, countToEnd, delay, endAction } = props;
+  const { updateEvent, deleteEvent } = useEventAction();
+
+  // Delete event confirmation modal
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = useRef<HTMLButtonElement | null>(null);
 
   const handleSubmit = (field: HandledActions, value: string | boolean) => {
     if (field === 'countToEnd') {
@@ -57,8 +63,43 @@ function MobileEventEditorTimes(props: MobileEventEditorTimesProps) {
       )} → ${millisToString(timeEnd + delay)}`
     : '';
 
+  const handleDeleteConfirm = () => {
+    deleteEvent([eventId]);
+  };
+
   return (
     <>
+      <Button
+        colorScheme='red'
+        variant='ontime-outlined'
+        color='#FA5656'
+        leftIcon={<IoTrash />}
+        size='sm'
+        width='100%'
+        mb={4}
+        onClick={onOpen}
+      >
+        Delete Event
+      </Button>
+      <AlertDialog variant='ontime' isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize='lg' fontWeight='bold'>
+              Delete event
+            </AlertDialogHeader>
+            <AlertDialogBody>Are you sure you want to delete this event?</AlertDialogBody>
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onClose} variant='ontime-ghosted-white'>
+                Cancel
+              </Button>
+              <Button colorScheme='red' onClick={handleDeleteConfirm} ml={4}>
+                Delete event
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+
       <div className={style.column}>
         <Editor.Title>Event schedule</Editor.Title>
         <div>

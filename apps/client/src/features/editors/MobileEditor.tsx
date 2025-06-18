@@ -1,7 +1,6 @@
 import { lazy, useEffect } from 'react';
-import { useEventAction } from '../../common/hooks/useEventAction';
 import { IoApps } from 'react-icons/io5';
-import { IconButton, useDisclosure, Button } from '@chakra-ui/react';
+import { IconButton, useDisclosure } from '@chakra-ui/react';
 import { useHotkeys } from '@mantine/hooks';
 
 import NavigationMenu from '../../common/components/navigation-menu/NavigationMenu';
@@ -21,10 +20,6 @@ export default function MobileEditor() {
   const { setLocation } = useAppSettingsNavigation();
   const { isOpen: isMenuOpen, onOpen, onClose } = useDisclosure();
   const { onToggle: onFinderToggle, onClose: onFinderClose } = useDisclosure();
-
-  const selectedEventId = 'stub-event-id';
-
-  const { deleteEvent } = useEventAction();
 
   useWindowTitle('Mobile Editor');
 
@@ -62,29 +57,8 @@ export default function MobileEditor() {
         <div className={styles.left}>
           <MobileTimerControl />
           <div className={rundownStyle.side}>
-            <Button
-              colorScheme='red'
-              variant='outline'
-              size='sm'
-              width='100%'
-              mb={4}
-              isDisabled={!selectedEventId}
-              onClick={() => {
-                if (!selectedEventId) return;
-
-                if (window.confirm('Delete this event?')) {
-                  try {
-                    deleteEvent([selectedEventId]);
-                  } catch (error) {
-                    console.error('Failed to delete event:', error);
-                  }
-                }
-              }}
-            >
-              {selectedEventId ? 'Delete Event' : 'Select an event'}
-            </Button>
             <ErrorBoundary>
-              <MobileRundownEventEditor hideFooter={true} />
+              <MobileRundownEventEditor />
             </ErrorBoundary>
           </div>
         </div>
