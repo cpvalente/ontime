@@ -23,7 +23,7 @@ import { getCardData, getIsPendingStart, getShowProgressBar, isOvertime } from '
 import './Backstage.scss';
 
 interface BackstageProps {
-  backstageEvents: OntimeEvent[];
+  events: OntimeEvent[];
   customFields: CustomFields;
   eventNext: OntimeEvent | null;
   eventNow: OntimeEvent | null;
@@ -37,7 +37,7 @@ interface BackstageProps {
 
 export default function Backstage(props: BackstageProps) {
   const {
-    backstageEvents,
+    events,
     customFields,
     eventNext,
     eventNow,
@@ -68,7 +68,7 @@ export default function Backstage(props: BackstageProps) {
   }, [selectedId]);
 
   // gather card data
-  const hasEvents = backstageEvents.length > 0;
+  const hasEvents = events.length > 0;
   const { showNow, nowMain, nowSecondary, showNext, nextMain, nextSecondary } = getCardData(
     eventNow,
     eventNext,
@@ -176,7 +176,7 @@ export default function Backstage(props: BackstageProps) {
         )}
       </div>
 
-      {showSchedule && <ScheduleExport selectedId={selectedId} isBackstage />}
+      {showSchedule && <ScheduleExport selectedId={selectedId} />}
 
       <div className={cx(['info', !showSchedule && 'info--stretch'])}>
         {general.backstageUrl && <QRCode value={general.backstageUrl} size={qrSize} level='L' className='qr' />}

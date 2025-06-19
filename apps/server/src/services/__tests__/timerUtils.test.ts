@@ -914,7 +914,6 @@ describe('getRuntimeOffset()', () => {
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
         countToEnd: true,
-        isPublic: true,
         skip: false,
         note: '',
         colour: '',
@@ -967,7 +966,6 @@ describe('getRuntimeOffset()', () => {
         endAction: EndAction.None,
         timerType: TimerType.CountDown,
         countToEnd: true,
-        isPublic: true,
         skip: false,
         note: '',
         colour: '',
@@ -1222,9 +1220,7 @@ describe('getTimerPhase()', () => {
     const state = {
       clock: 55691050,
       eventNow: null,
-      publicEventNow: null,
       eventNext: null,
-      publicEventNext: null,
       runtime: {
         selectedEventIndex: null,
         numEvents: 1,
@@ -1263,9 +1259,7 @@ describe('getTimerPhase()', () => {
     const state = {
       clock: 55691050,
       eventNow: null,
-      publicEventNow: null,
       eventNext: null,
-      publicEventNext: null,
       runtime: {
         selectedEventIndex: null,
         numEvents: 1,

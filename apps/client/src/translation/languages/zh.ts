@@ -5,7 +5,6 @@ export const langZhCn: TranslationObject = {
   'common.minutes': '分钟',
   'common.now': '现在',
   'common.next': '接下来',
-  'common.public_message': '公众消息',
   'common.scheduled_start': '计划开始',
   'common.scheduled_end': '计划结束',
   'common.projected_start': '预计开始',
@@ -28,6 +27,4 @@ export const langZhCn: TranslationObject = {
   'project.description': '描述',
   'project.backstage_info': '后台信息',
   'project.backstage_url': '后台网址',
-  'project.public_info': '公开信息',
-  'project.public_url': '公开网址',
 };

@@ -32,12 +32,6 @@ test.describe('test view navigation feature', () => {
 
     await page.getByRole('button', { name: 'toggle menu' }).click();
     page.locator('data-test-id=navigation__menu');
-    await page.getByRole('link', { name: 'Public' }).click();
-    page.locator('data-test-id=public-view');
-    await expect(page).toHaveURL('http://localhost:4001/public');
-
-    await page.getByRole('button', { name: 'toggle menu' }).click();
-    page.locator('data-test-id=navigation__menu');
     await page.getByRole('link', { name: 'Lower Thirds' }).click();
     await expect(page).toHaveURL('http://localhost:4001/lower');
     const errorBoundary = page.locator('data-test-id=error-container');

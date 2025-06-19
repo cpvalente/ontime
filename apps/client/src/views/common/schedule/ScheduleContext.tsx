@@ -19,7 +19,6 @@ interface ScheduleContextState {
   selectedEventId: string | null;
   numPages: number;
   visiblePage: number;
-  isBackstage: boolean;
   containerRef: RefObject<HTMLUListElement>;
 }
 
@@ -27,20 +26,12 @@ const ScheduleContext = createContext<ScheduleContextState | undefined>(undefine
 
 interface ScheduleProviderProps {
   selectedEventId: string | null;
-  isBackstage?: boolean;
 }
 
-export const ScheduleProvider = ({
-  children,
-  selectedEventId,
-  isBackstage = false,
-}: PropsWithChildren<ScheduleProviderProps>) => {
+export const ScheduleProvider = ({ children, selectedEventId }: PropsWithChildren<ScheduleProviderProps>) => {
   const { cycleInterval, stopCycle } = useScheduleOptions();
   const { data: events } = usePartialRundown((event: OntimeEntry) => {
-    if (isBackstage) {
-      return isOntimeEvent(event);
-    }
-    return isOntimeEvent(event) && event.isPublic && !event.skip;
+    return isOntimeEvent(event);
   });
 
   const [firstIndex, setFirstIndex] = useState(-1);
@@ -150,7 +141,6 @@ export const ScheduleProvider = ({
         selectedEventId,
         numPages,
         visiblePage,
-        isBackstage,
         containerRef,
       }}
     >

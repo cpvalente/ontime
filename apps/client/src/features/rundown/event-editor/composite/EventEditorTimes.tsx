@@ -21,14 +21,13 @@ interface EventEditorTimesProps {
   linkStart: boolean;
   countToEnd: boolean;
   delay: number;
-  isPublic: boolean;
   endAction: EndAction;
   timerType: TimerType;
   timeWarning: number;
   timeDanger: number;
 }
 
-type HandledActions = 'countToEnd' | 'timerType' | 'endAction' | 'isPublic' | 'timeWarning' | 'timeDanger';
+type HandledActions = 'countToEnd' | 'timerType' | 'endAction' | 'timeWarning' | 'timeDanger';
 
 function EventEditorTimes(props: EventEditorTimesProps) {
   const {
@@ -40,7 +39,6 @@ function EventEditorTimes(props: EventEditorTimesProps) {
     linkStart,
     countToEnd,
     delay,
-    isPublic,
     endAction,
     timerType,
     timeWarning,
@@ -49,11 +47,6 @@ function EventEditorTimes(props: EventEditorTimesProps) {
   const { updateEntry } = useEntryActions();
 
   const handleSubmit = (field: HandledActions, value: string | boolean) => {
-    if (field === 'isPublic') {
-      updateEntry({ id: eventId, isPublic: !(value as boolean) });
-      return;
-    }
-
     if (field === 'countToEnd') {
       updateEntry({ id: eventId, countToEnd: !(value as boolean) });
       return;
@@ -161,6 +154,9 @@ function EventEditorTimes(props: EventEditorTimesProps) {
             </Select>
           </div>
           <div>
+            {/* TODO: rearrange this grid */}
+          </div>
+          <div>
             <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
             <TimeInput
               id='timeWarning'
@@ -171,19 +167,6 @@ function EventEditorTimes(props: EventEditorTimesProps) {
             />
           </div>
 
-          <div>
-            <Editor.Label htmlFor='isPublic'>Event Visibility</Editor.Label>
-            <Editor.Label className={style.switchLabel}>
-              <Switch
-                id='isPublic'
-                size='md'
-                isChecked={isPublic}
-                onChange={() => handleSubmit('isPublic', isPublic)}
-                variant='ontime'
-              />
-              {isPublic ? 'Public' : 'Private'}
-            </Editor.Label>
-          </div>
           <div>
             <Editor.Label htmlFor='timeDanger'>Danger Time</Editor.Label>
             <TimeInput
