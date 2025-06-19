@@ -148,7 +148,6 @@ function makeViewMenu(clientUrl) {
   return {
     label: 'Views',
     submenu: [
-      makeItemOpenInBrowser('Public', `${clientUrl}/public`),
       makeItemOpenInBrowser('Lower Thirds', `${clientUrl}/lower`),
       { type: 'separator' },
       makeItemOpenInBrowser('Timer', `${clientUrl}/timer`),

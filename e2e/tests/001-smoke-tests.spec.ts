@@ -58,13 +58,6 @@ test.describe('pages routes are available', () => {
       await page.screenshot({ path: 'automated-screenshots/backstage.png' });
     });
 
-    test('public', async ({ page }) => {
-      await page.goto('http://localhost:4001/public');
-
-      await expect(page).toHaveTitle(/ontime/);
-      await page.screenshot({ path: 'automated-screenshots/public.png' });
-    });
-
     test('studio', async ({ page }) => {
       await page.goto('http://localhost:4001/studio');
 

@@ -26,7 +26,7 @@ export default function LowerThird(props: LowerProps) {
   const animationTimeout = useRef<NodeJS.Timeout>();
   const [playState, setPlayState] = useState<boolean>(false);
   const [textValue, setTextValue] = useState<{ top: string; bottom: string }>({ top: '', bottom: '' });
-  useRuntimeStylesheet(viewSettings?.overrideStyles && overrideStylesURL);
+  useRuntimeStylesheet(viewSettings?.overrideStyles ? overrideStylesURL : undefined);
   const options = useLowerOptions();
   const { playback } = time;
 

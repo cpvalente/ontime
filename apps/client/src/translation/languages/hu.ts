@@ -5,7 +5,6 @@ export const langHu: TranslationObject = {
   'common.minutes': 'perc',
   'common.now': 'Most',
   'common.next': 'Következő',
-  'common.public_message': 'Nyilvános közlemény',
   'common.scheduled_start': 'Ütemezett kezdés',
   'common.scheduled_end': 'Ütemezett befejezés',
   'common.projected_start': 'Várható kezdés',
@@ -28,6 +27,4 @@ export const langHu: TranslationObject = {
   'project.description': 'Leírás',
   'project.backstage_info': 'Kulisszák mögötti információ',
   'project.backstage_url': 'Kulisszák mögötti URL',
-  'project.public_info': 'Nyilvános információ',
-  'project.public_url': 'Nyilvános URL',
 };
