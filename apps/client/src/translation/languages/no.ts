@@ -5,7 +5,6 @@ export const langNo: TranslationObject = {
   'common.minutes': 'min',
   'common.now': 'Nå',
   'common.next': 'Neste',
-  'common.public_message': 'Offentlig beskjed',
   'common.scheduled_start': 'Planlagt start',
   'common.scheduled_end': 'Planlagt slutt',
   'common.projected_start': 'Forventet start',

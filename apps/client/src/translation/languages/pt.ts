@@ -5,7 +5,6 @@ export const langPt: TranslationObject = {
   'common.minutes': 'min',
   'common.now': 'Agora',
   'common.next': 'Próximo',
-  'common.public_message': 'Mensagem pública',
   'common.scheduled_start': 'Início programado',
   'common.scheduled_end': 'Fim programado',
   'common.projected_start': 'Início previsto',

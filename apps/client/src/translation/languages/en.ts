@@ -3,7 +3,6 @@ export const langEn = {
   'common.minutes': 'min',
   'common.now': 'Now',
   'common.next': 'Next',
-  'common.public_message': 'Public message',
   'common.scheduled_start': 'Scheduled start',
   'common.scheduled_end': 'Scheduled end',
   'common.projected_start': 'Projected start',

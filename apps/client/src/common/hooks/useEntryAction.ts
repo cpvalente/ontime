@@ -36,10 +36,10 @@ import { logAxiosError } from '../api/utils';
 import { useEditorSettings } from '../stores/editorSettings';
 
 export type EventOptions = Partial<{
-  // options to any new block (event / delay / block)
+  // options of any new entries (event / delay / block)
   after: MaybeString;
   before: MaybeString;
-  // options to blocks of type OntimeEvent
+  // options of entries of type OntimeEvent
   linkPrevious: boolean;
   lastEventId: MaybeString;
 }>;

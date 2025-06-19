@@ -111,7 +111,6 @@ export default function AppRouter() {
           }
         />
         <Route
-          //  TODO: should this be renamed?
           path='/backstage'
           element={
             <ViewLoader>

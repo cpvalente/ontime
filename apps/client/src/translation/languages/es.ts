@@ -5,7 +5,6 @@ export const langEs: TranslationObject = {
   'common.minutes': 'min',
   'common.now': 'Ahora',
   'common.next': 'Siguiente',
-  'common.public_message': 'Mensaje público',
   'common.scheduled_start': 'Inicio programado',
   'common.scheduled_end': 'Fin programado',
   'common.projected_start': 'Inicio previsto',
