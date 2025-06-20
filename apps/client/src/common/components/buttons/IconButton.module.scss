@@ -2,8 +2,6 @@
 
 .baseIconButton {
   aspect-ratio: 1;
-  height: 2rem;
-  width: 2rem;
   display: grid;
   place-content: center;
 
@@ -64,4 +62,19 @@
     background: $red-800;
     border-color: $red-900;
   }
+}
+
+.medium {
+  height: 2rem;
+  width: 2rem;
+}
+
+.large {
+  height: 2.5rem;
+  width: 2.5rem;
+}
+
+.xlarge {
+  height: 3rem;
+  height: 3rem;
 }

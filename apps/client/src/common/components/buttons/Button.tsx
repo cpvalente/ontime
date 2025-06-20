@@ -6,7 +6,7 @@ import style from './Button.module.scss';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'subtle' | 'primary';
-  size?: 'medium' | 'large';
+  size?: 'medium' | 'large' | 'xlarge';
 }
 
 export default function Button(props: ButtonProps) {

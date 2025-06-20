@@ -83,13 +83,13 @@ export default function CountdownSelect({ events, subscriptions, disableEdit }: 
       })}
 
       <div className='fab-container'>
-        <Button variant='subtle' size='large' onClick={disableEdit}>
+        <Button variant='subtle' size='xlarge' onClick={disableEdit}>
           <IoArrowBack /> Go back
         </Button>
-        <Button variant='subtle' size='large' onClick={() => setSelected([])} disabled={selected.length === 0}>
+        <Button variant='subtle' size='xlarge' onClick={() => setSelected([])} disabled={selected.length === 0}>
           <IoClose /> Clear
         </Button>
-        <Button variant='primary' size='large' disabled={events.length < 1} onClick={applySelection}>
+        <Button variant='primary' size='xlarge' disabled={events.length < 1} onClick={applySelection}>
           <IoSaveOutline /> Save
         </Button>
       </div>

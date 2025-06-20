@@ -114,7 +114,7 @@ function CountdownContents({ playableEvents, selectedId, subscriptions, time, go
     return (
       <div className='empty-container'>
         <Empty text={getLocalizedString('countdown.select_event')} className='empty-container' />
-        <Button variant='primary' size='large' onClick={goToEditMode}>
+        <Button variant='primary' size='xlarge' onClick={goToEditMode}>
           <IoAdd /> Add
         </Button>
       </div>
@@ -127,7 +127,7 @@ function CountdownContents({ playableEvents, selectedId, subscriptions, time, go
     return (
       <div className='empty-container'>
         <Empty text={getLocalizedString('countdown.select_event')} className='empty-container' />
-        <Button variant='primary' size='large' onClick={goToEditMode}>
+        <Button variant='primary' size='xlarge' onClick={goToEditMode}>
           <IoAdd /> Add
         </Button>
       </div>

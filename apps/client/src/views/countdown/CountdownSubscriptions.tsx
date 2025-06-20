@@ -113,7 +113,7 @@ export default function CountdownSubscriptions({
         );
       })}
       <div className={cx(['fab-container', !showFab && 'fab-container--hidden'])}>
-        <Button variant='primary' size='large' onClick={goToEditMode}>
+        <Button variant='primary' size='xlarge' onClick={goToEditMode}>
           <IoPencil /> Edit
         </Button>
       </div>
