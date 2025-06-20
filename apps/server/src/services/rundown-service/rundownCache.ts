@@ -169,6 +169,7 @@ export function generate(
       processedEntry.endTime = blockEndTime;
       processedEntry.isFirstLinked = isFirstLinked;
       processedEntry.events = blockEvents;
+      processedEntry.numEvents = blockEvents.length;
     }
   }
 
@@ -415,6 +416,7 @@ export function remove({ rundown, eventIds }: RemoveArgs): MutatingReturn {
         eventId: entry.parent,
         patch: {
           events: parentEvents,
+          numEvents: parentEvents.length,
         },
       });
     }

@@ -180,7 +180,8 @@
           "startTime": null,
           "endTime": null,
           "duration": 0,
-          "isFirstLinked": false
+          "isFirstLinked": false,
+          "numEvents": 0
         },
         "1c420": {
           "type": "event",

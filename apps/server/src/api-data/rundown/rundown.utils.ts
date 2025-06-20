@@ -90,6 +90,7 @@ export function createBlock(patch?: Partial<OntimeBlock>): OntimeBlock {
     endTime: null,
     duration: 0,
     isFirstLinked: false,
+    numEvents: patch.events?.length ?? 0,
   };
 }
 
