@@ -109,7 +109,6 @@ export const parseExcel = (
     id: generateId(),
     title: sheetName,
     order: [],
-    flatOrder: [],
     entries: {},
     revision: 0,
   };
@@ -327,7 +326,6 @@ export const parseExcel = (
       event.timerType = TimerType.CountDown;
     }
     rundown.order.push(id);
-    rundown.flatOrder.push(id);
     rundown.entries[id] = event;
   });
 

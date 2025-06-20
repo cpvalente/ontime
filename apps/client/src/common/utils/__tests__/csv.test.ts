@@ -22,7 +22,6 @@ describe('aggregateRundowns()', () => {
         title: '',
         revision: 0,
         order: ['1', '2'],
-        flatOrder: ['1', '2'],
         entries: {
           '1': { id: '1' } as OntimeEntry,
           '2': { id: '2' } as OntimeEntry,
@@ -33,7 +32,6 @@ describe('aggregateRundowns()', () => {
         title: '',
         revision: 0,
         order: ['3', '4'],
-        flatOrder: ['3', '4'],
         entries: {
           '3': { id: '3' } as OntimeEntry,
           '4': { id: '4' } as OntimeEntry,

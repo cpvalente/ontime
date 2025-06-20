@@ -13,7 +13,6 @@ const cachedRundownPlaceholder: Rundown = {
   id: 'default',
   title: '',
   order: [],
-  flatOrder: [],
   entries: {},
   revision: -1,
 };
