@@ -69,6 +69,7 @@ export const parseExcel = (
   let colourIndex: number | null = null;
 
   // options: booleans
+  let isPublicIndex: number | null = null;
   let skipIndex: number | null = null;
   let countToEndIndex: number | null = null;
 
@@ -126,6 +127,10 @@ export const parseExcel = (
       [importMap.countToEnd]: (row: number, col: number) => {
         countToEndIndex = col;
         rundownMetadata['countToEnd'] = { row, col };
+      },
+      [importMap.isPublic]: (row: number, col: number) => {
+        isPublicIndex = col;
+        rundownMetadata['isPublic'] = { row, col };
       },
       [importMap.skip]: (row: number, col: number) => {
         skipIndex = col;
@@ -198,6 +203,8 @@ export const parseExcel = (
         entry.cue = makeString(column, '');
       } else if (j === countToEndIndex) {
         entry.countToEnd = parseBooleanString(column);
+      } else if (j === isPublicIndex) {
+        entry.isPublic = parseBooleanString(column);
       } else if (j === skipIndex) {
         entry.skip = parseBooleanString(column);
       } else if (j === notesIndex) {

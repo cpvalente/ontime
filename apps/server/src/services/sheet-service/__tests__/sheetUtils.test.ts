@@ -33,6 +33,7 @@ describe('cellRequestFromEvent()', () => {
       timerType: TimerType.CountDown,
       countToEnd: false,
       duration: 10800000,
+      isPublic: false,
       skip: false,
       colour: 'red',
       delay: 0,
@@ -56,6 +57,7 @@ describe('cellRequestFromEvent()', () => {
       endAction: { row: 1, col: 22 },
       timerType: { row: 1, col: 23 },
       duration: { row: 1, col: 24 },
+      isPublic: { row: 1, col: 25 },
       skip: { row: 1, col: 26 },
       colour: { row: 1, col: 27 },
       revision: { row: 1, col: 38 },
@@ -81,6 +83,7 @@ describe('cellRequestFromEvent()', () => {
       duration: 10800000,
       timeStrategy: TimeStrategy.LockEnd,
       linkStart: false,
+      isPublic: false,
       skip: false,
       colour: 'red',
       parent: null,
@@ -104,6 +107,7 @@ describe('cellRequestFromEvent()', () => {
       endAction: { row: 1, col: 22 },
       timerType: { row: 1, col: 23 },
       duration: { row: 1, col: 24 },
+      isPublic: { row: 1, col: 25 },
       skip: { row: 1, col: 26 },
       colour: { row: 1, col: 27 },
       revision: { row: 1, col: 38 },
@@ -131,6 +135,7 @@ describe('cellRequestFromEvent()', () => {
       duration: 10800000,
       timeStrategy: TimeStrategy.LockEnd,
       linkStart: false,
+      isPublic: true,
       skip: false,
       colour: 'red',
       parent: null,
@@ -154,6 +159,7 @@ describe('cellRequestFromEvent()', () => {
       endAction: { row: 1, col: 22 },
       timerType: { row: 1, col: 23 },
       duration: { row: 1, col: 24 },
+      isPublic: { row: 1, col: 25 },
       skip: { row: 1, col: 26 },
       colour: { row: 1, col: 27 },
       revision: { row: 1, col: 38 },
@@ -162,6 +168,7 @@ describe('cellRequestFromEvent()', () => {
       timeDanger: { row: 1, col: 41 },
     };
     const result = cellRequestFromEvent(event, 1, 1234, metadata);
+    expect(result.updateCells?.rows?.at(0)?.values?.at(11)?.userEnteredValue?.boolValue).toStrictEqual(true);
     expect(result.updateCells?.rows?.at(0)?.values?.at(12)?.userEnteredValue?.boolValue).toStrictEqual(false);
   });
 
@@ -179,6 +186,7 @@ describe('cellRequestFromEvent()', () => {
       timeStrategy: TimeStrategy.LockEnd,
       linkStart: false,
       duration: 10800000,
+      isPublic: true,
       skip: false,
       colour: 'red',
       delay: 0,
@@ -215,6 +223,7 @@ describe('cellRequestFromEvent()', () => {
       duration: 10800000,
       timeStrategy: TimeStrategy.LockEnd,
       linkStart: false,
+      isPublic: true,
       skip: false,
       colour: 'red',
       parent: null,
@@ -252,6 +261,7 @@ describe('cellRequestFromEvent()', () => {
       duration: 10800000,
       timeStrategy: TimeStrategy.LockEnd,
       linkStart: false,
+      isPublic: true,
       skip: false,
       colour: 'red',
       parent: null,

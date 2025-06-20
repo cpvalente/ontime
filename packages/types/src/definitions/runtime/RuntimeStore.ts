@@ -46,6 +46,8 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
   },
   eventNow: null,
   eventNext: null,
+  publicEventNow: null,
+  publicEventNext: null,
   auxtimer1: {
     current: 0,
     direction: SimpleDirection.CountUp,

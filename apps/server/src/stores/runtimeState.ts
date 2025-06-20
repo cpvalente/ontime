@@ -34,7 +34,9 @@ export type RuntimeState = {
   clock: number; // realtime clock
   eventNow: PlayableEvent | null;
   currentBlock: CurrentBlockState;
+  publicEventNow: PlayableEvent | null;
   eventNext: PlayableEvent | null;
+  publicEventNext: PlayableEvent | null;
   runtime: Runtime;
   timer: TimerState;
   // private properties of the timer calculations
@@ -52,7 +54,9 @@ const runtimeState: RuntimeState = {
   clock: timeNow(),
   currentBlock: { ...runtimeStorePlaceholder.currentBlock },
   eventNow: null,
+  publicEventNow: null,
   eventNext: null,
+  publicEventNext: null,
   runtime: { ...runtimeStorePlaceholder.runtime },
   timer: { ...runtimeStorePlaceholder.timer },
   _timer: {
@@ -71,6 +75,8 @@ export function getState(): Readonly<RuntimeState> {
     ...runtimeState,
     eventNow: runtimeState.eventNow ? { ...runtimeState.eventNow } : null,
     eventNext: runtimeState.eventNext ? { ...runtimeState.eventNext } : null,
+    publicEventNow: runtimeState.publicEventNow ? { ...runtimeState.publicEventNow } : null,
+    publicEventNext: runtimeState.publicEventNext ? { ...runtimeState.publicEventNext } : null,
     runtime: { ...runtimeState.runtime },
     timer: { ...runtimeState.timer },
     _timer: { ...runtimeState._timer },
@@ -83,7 +89,9 @@ export function getState(): Readonly<RuntimeState> {
  */
 export function clearEventData() {
   runtimeState.eventNow = null;
+  runtimeState.publicEventNow = null;
   runtimeState.eventNext = null;
+  runtimeState.publicEventNext = null;
 
   runtimeState.runtime.offset = 0;
   runtimeState.runtime.relativeOffset = 0;
@@ -103,10 +111,13 @@ export function clearEventData() {
 // clear all necessary data when doing a full stop and the event is unloaded
 export function clearState() {
   runtimeState.eventNow = null;
+  runtimeState.publicEventNow = null;
   runtimeState.eventNext = null;
 
   runtimeState.currentBlock.block = null;
   runtimeState.currentBlock.startedAt = null;
+
+  runtimeState.publicEventNext = null;
 
   runtimeState.runtime.offset = 0;
   runtimeState.runtime.relativeOffset = 0;
@@ -231,6 +242,33 @@ export function loadNow(timedEvents: OntimeEvent[], eventIndex: MaybeNumber = ru
   const event = timedEvents[eventIndex] as PlayableEvent;
   runtimeState.runtime.selectedEventIndex = eventIndex;
   runtimeState.eventNow = event;
+
+  // check if current is also public
+  if (event.isPublic) {
+    runtimeState.publicEventNow = event;
+  } else {
+    // assume there is no public event
+    runtimeState.publicEventNow = null;
+
+    // if there is nothing before, return
+    if (!eventIndex) {
+      return;
+    }
+
+    // iterate backwards to find it
+    for (let i = eventIndex; i >= 0; i--) {
+      const event = timedEvents[i];
+      // we dont deal with events that are not playable
+      if (!isPlayableEvent(event)) {
+        continue;
+      }
+
+      if (event.isPublic) {
+        runtimeState.publicEventNow = event;
+        break;
+      }
+    }
+  }
 }
 
 /**
@@ -243,21 +281,34 @@ export function loadNext(
   if (eventIndex === null) {
     // reset the state to indicate there is no future event
     runtimeState.eventNext = null;
+    runtimeState.publicEventNext = null;
     return;
   }
 
   // temporarily reset this value to simplify loop logic
   runtimeState.eventNext = null;
 
-  //TODO: do we already have a it as a list of not skipped events
   for (let i = eventIndex + 1; i < timedEvents.length; i++) {
     const event = timedEvents[i];
     // we dont deal with events that are not playable
     if (!isPlayableEvent(event)) {
       continue;
     }
-    runtimeState.eventNext = event;
-    return;
+
+    // the private event is the one immediately after the current event
+    if (runtimeState.eventNext === null) {
+      runtimeState.eventNext = event;
+    }
+
+    // if event is public
+    if (event.isPublic) {
+      runtimeState.publicEventNext = event;
+    }
+
+    // Stop if both are set
+    if (runtimeState.eventNext !== null && runtimeState.publicEventNext !== null) {
+      return;
+    }
   }
 }
 

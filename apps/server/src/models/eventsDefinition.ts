@@ -20,6 +20,7 @@ export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
   timeStart: 0,
   timeEnd: 0,
   duration: 0,
+  isPublic: false,
   skip: false,
   colour: '',
   timeWarning: 120000,

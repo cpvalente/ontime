@@ -20,6 +20,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
   const { addEntry } = useEntryActions();
 
   const doLinkPrevious = useRef<HTMLInputElement | null>(null);
+  const doPublic = useRef<HTMLInputElement | null>(null);
 
   const addEvent = () => {
     addEntry(
@@ -29,6 +30,7 @@ function QuickAddBlock(props: QuickAddBlockProps) {
       },
       {
         after: previousEventId,
+        defaultPublic: doPublic?.current?.checked,
         lastEventId: previousEventId,
         linkPrevious: doLinkPrevious?.current?.checked,
       },

@@ -41,6 +41,7 @@ export default function PreviewRundown(props: PreviewRundownProps) {
           <th>Warning Time</th>
           <th>Danger Time</th>
           <th>Count to end</th>
+          <th>Is Public</th>
           <th>Skip</th>
           <th>Colour</th>
           <th>Timer Type</th>
@@ -74,6 +75,7 @@ export default function PreviewRundown(props: PreviewRundownProps) {
           eventIndex += 1;
           const colour = entry.colour ? getAccessibleColour(entry.colour) : {};
           const countToEnd = booleanToText(entry.countToEnd);
+          const isPublic = booleanToText(entry.isPublic);
           const skip = booleanToText(entry.skip);
 
           return (
@@ -96,6 +98,7 @@ export default function PreviewRundown(props: PreviewRundownProps) {
                 <td>{millisToString(entry.timeWarning)}</td>
                 <td>{millisToString(entry.timeDanger)}</td>
                 <td className={style.center}>{countToEnd && <Tag>{countToEnd}</Tag>}</td>
+                <td className={style.center}>{isPublic && <Tag>{isPublic}</Tag>}</td>
                 <td>{skip && <Tag>{skip}</Tag>}</td>
                 <td style={{ ...colour }}>{entry.colour}</td>
                 <td className={style.center}>

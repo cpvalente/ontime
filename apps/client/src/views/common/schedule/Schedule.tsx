@@ -7,11 +7,12 @@ import ScheduleItem from './ScheduleItem';
 import './Schedule.scss';
 
 interface ScheduleProps {
+  isProduction?: boolean;
   className?: string;
 }
 
-export default function Schedule({ className }: ScheduleProps) {
-  const { events, containerRef } = useSchedule();
+export default function Schedule({ isProduction, className }: ScheduleProps) {
+  const { events, isBackstage, containerRef } = useSchedule();
 
   if (events?.length < 1) {
     return null;
@@ -20,7 +21,7 @@ export default function Schedule({ className }: ScheduleProps) {
   return (
     <ul className={cx(['schedule', className])} ref={containerRef}>
       {events.map((event) => {
-        const { timeStart, timeEnd, delay } = getScheduledTimes(event);
+        const { timeStart, timeEnd, delay } = getScheduledTimes(event, isProduction);
 
         return (
           <ScheduleItem
@@ -28,7 +29,8 @@ export default function Schedule({ className }: ScheduleProps) {
             timeStart={timeStart}
             timeEnd={timeEnd}
             title={event.title}
-            colour={event.colour}
+            colour={isBackstage ? event.colour : undefined}
+            backstageEvent={!event.isPublic}
             skip={event.skip}
             delay={delay}
           />

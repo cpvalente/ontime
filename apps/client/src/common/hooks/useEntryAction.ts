@@ -36,10 +36,11 @@ import { logAxiosError } from '../api/utils';
 import { useEditorSettings } from '../stores/editorSettings';
 
 export type EventOptions = Partial<{
-  // options of any new entries (event / delay / block)
+  // options to any new block (event / delay / block)
   after: MaybeString;
   before: MaybeString;
-  // options of entries of type OntimeEvent
+  // options to blocks of type OntimeEvent
+  defaultPublic: boolean;
   linkPrevious: boolean;
   lastEventId: MaybeString;
 }>;
@@ -50,6 +51,7 @@ export type EventOptions = Partial<{
 export const useEntryActions = () => {
   const queryClient = useQueryClient();
   const {
+    defaultPublic,
     linkPrevious,
     defaultTimeStrategy,
     defaultDuration,
@@ -93,6 +95,7 @@ export const useEntryActions = () => {
         const applicationOptions = {
           after: options?.after,
           before: options?.before,
+          defaultPublic: options?.defaultPublic ?? defaultPublic,
           lastEventId: options?.lastEventId,
           linkPrevious: options?.linkPrevious ?? linkPrevious,
         };
@@ -108,6 +111,7 @@ export const useEntryActions = () => {
 
         // Override event with options from editor settings
         newEntry.linkStart = applicationOptions.linkPrevious;
+        newEntry.isPublic = applicationOptions.defaultPublic;
 
         if (newEntry.duration === undefined && newEntry.timeEnd === undefined) {
           newEntry.duration = parseUserTime(defaultDuration);
@@ -153,6 +157,7 @@ export const useEntryActions = () => {
       defaultDangerTime,
       defaultDuration,
       defaultEndAction,
+      defaultPublic,
       defaultTimerType,
       defaultTimeStrategy,
       defaultWarnTime,

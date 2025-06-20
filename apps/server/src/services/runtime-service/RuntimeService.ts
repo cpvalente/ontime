@@ -40,7 +40,7 @@ import {
   getShouldTimerUpdate,
 } from './rundownService.utils.js';
 
-type RuntimeStateEventKeys = keyof Pick<RuntimeState, 'eventNext' | 'eventNow'>;
+type RuntimeStateEventKeys = keyof Pick<RuntimeState, 'eventNext' | 'eventNow' | 'publicEventNow' | 'publicEventNext'>;
 
 /**
  * Service manages runtime status of app
@@ -185,8 +185,15 @@ class RuntimeService {
   private affectsLoaded(affectedIds: string[]): boolean {
     const state = runtimeState.getState();
     const now = state.eventNow?.id;
+    const nowPublic = state.publicEventNow?.id;
     const next = state.eventNext?.id;
-    return (now !== undefined && affectedIds.includes(now)) || (next !== undefined && affectedIds.includes(next));
+    const nextPublic = state.publicEventNext?.id;
+    return (
+      (now !== undefined && affectedIds.includes(now)) ||
+      (nowPublic !== undefined && affectedIds.includes(nowPublic)) ||
+      (next !== undefined && affectedIds.includes(next)) ||
+      (nextPublic !== undefined && affectedIds.includes(nextPublic))
+    );
   }
 
   private isNewNext() {
@@ -202,7 +209,32 @@ class RuntimeService {
     const indexNow = timedEvents.findIndex((event) => event.id === now);
     const indexNext = timedEvents.findIndex((event) => event.id === next);
 
-    return indexNext - indexNow !== 1;
+    if (indexNext - indexNow !== 1) {
+      return true;
+    }
+    // iterate through timed events and see if there are public events between nowPublic and nextPublic
+    const nowPublic = state.publicEventNow?.id;
+    const nextPublic = state.publicEventNext?.id;
+
+    let foundNew = false;
+    let isAfter = false;
+    for (const event of timedEvents) {
+      if (!isAfter) {
+        if (event.id === nowPublic) {
+          isAfter = true;
+        }
+      } else {
+        if (event.id === nextPublic) {
+          break;
+        }
+        if (event.isPublic) {
+          foundNew = true;
+          break;
+        }
+      }
+    }
+
+    return foundNew;
   }
 
   /**
@@ -820,7 +852,9 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     // Update the events if they have changed
     updateEventIfChanged('eventNow', state);
+    updateEventIfChanged('publicEventNow', state);
     updateEventIfChanged('eventNext', state);
+    updateEventIfChanged('publicEventNext', state);
 
     // Helper function to update an event if it has changed
     function updateEventIfChanged(eventKey: RuntimeStateEventKeys, state: runtimeState.RuntimeState) {

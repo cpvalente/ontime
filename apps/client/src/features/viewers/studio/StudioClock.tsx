@@ -17,7 +17,7 @@ import StudioClockSchedule from './StudioClockSchedule';
 import './StudioClock.scss';
 
 interface StudioClockProps {
-  events: OntimeEntry[];
+  backstageEvents: OntimeEntry[];
   eventNext: OntimeEvent | null;
   general: ProjectData;
   isMirrored: boolean;
@@ -29,7 +29,7 @@ interface StudioClockProps {
 }
 
 export default function StudioClock(props: StudioClockProps) {
-  const { events, eventNext, general, isMirrored, time, selectedId, nextId, onAir, settings } = props;
+  const { backstageEvents, eventNext, general, isMirrored, time, selectedId, nextId, onAir, settings } = props;
 
   const [searchParams] = useSearchParams();
 
@@ -102,7 +102,7 @@ export default function StudioClock(props: StudioClockProps) {
         </div>
       </div>
       {!hideRight && (
-        <StudioClockSchedule rundown={events} selectedId={selectedId} nextId={nextId} onAir={onAir} />
+        <StudioClockSchedule rundown={backstageEvents} selectedId={selectedId} nextId={nextId} onAir={onAir} />
       )}
     </div>
   );

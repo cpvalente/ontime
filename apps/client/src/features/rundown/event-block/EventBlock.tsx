@@ -4,6 +4,8 @@ import {
   IoDuplicateOutline,
   IoFolder,
   IoLink,
+  IoPeople,
+  IoPeopleOutline,
   IoReorderTwo,
   IoSwapVertical,
   IoTrash,
@@ -34,6 +36,7 @@ interface EventBlockProps {
   linkStart: boolean;
   countToEnd: boolean;
   eventIndex: number;
+  isPublic: boolean;
   endAction: EndAction;
   timerType: TimerType;
   title: string;
@@ -62,7 +65,6 @@ interface EventBlockProps {
           value: unknown;
         },
   ) => void;
-  hasTriggers: boolean;
 }
 
 export default function EventBlock(props: EventBlockProps) {
@@ -75,6 +77,7 @@ export default function EventBlock(props: EventBlockProps) {
     timeStrategy,
     linkStart,
     countToEnd,
+    isPublic = true,
     eventIndex,
     endAction,
     timerType,
@@ -96,7 +99,6 @@ export default function EventBlock(props: EventBlockProps) {
     totalGap,
     isLinkedToLoaded,
     actionHandler,
-    hasTriggers,
   } = props;
   const { selectedEventId, setSelectedEventId, clearSelectedEventId } = useEventIdSwapping();
   const { selectedEvents, setSelectedEvents } = useEventSelection();
@@ -124,6 +126,25 @@ export default function EventBlock(props: EventBlockProps) {
                 value: null,
               }),
           },
+          {
+            label: 'Make public',
+            icon: IoPeople,
+            onClick: () =>
+              actionHandler('update', {
+                field: 'isPublic',
+                value: true,
+              }),
+            withDivider: true,
+          },
+          {
+            label: 'Make private',
+            icon: IoPeopleOutline,
+            onClick: () =>
+              actionHandler('update', {
+                field: 'isPublic',
+                value: false,
+              }),
+          },
           { withDivider: true, label: 'Group', icon: IoFolder, onClick: () => actionHandler('group') },
           { withDivider: true, label: 'Delete', icon: IoTrash, onClick: () => actionHandler('delete') },
         ]
@@ -136,6 +157,16 @@ export default function EventBlock(props: EventBlockProps) {
                 field: 'linkStart',
                 value: linkStart,
               }),
+          },
+          {
+            label: 'Toggle public',
+            icon: IoPeopleOutline,
+            onClick: () =>
+              actionHandler('update', {
+                field: 'isPublic',
+                value: !isPublic,
+              }),
+            withDivider: true,
           },
           {
             label: 'Add to swap',
@@ -277,6 +308,7 @@ export default function EventBlock(props: EventBlockProps) {
           timeStrategy={timeStrategy}
           eventId={eventId}
           eventIndex={eventIndex}
+          isPublic={isPublic}
           endAction={endAction}
           timerType={timerType}
           title={title}
@@ -291,7 +323,6 @@ export default function EventBlock(props: EventBlockProps) {
           isPast={isPast}
           totalGap={totalGap}
           isLinkedToLoaded={isLinkedToLoaded}
-          hasTriggers={hasTriggers}
         />
       )}
     </div>

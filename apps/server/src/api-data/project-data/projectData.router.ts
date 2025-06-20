@@ -21,6 +21,8 @@ router.post('/', projectSanitiser, async (req: Request, res: Response<ProjectDat
     const newData: Partial<ProjectData> = removeUndefined({
       title: req.body?.title,
       description: req.body?.description,
+      publicUrl: req.body?.publicUrl,
+      publicInfo: req.body?.publicInfo,
       backstageUrl: req.body?.backstageUrl,
       backstageInfo: req.body?.backstageInfo,
       endMessage: req.body?.endMessage,

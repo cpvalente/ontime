@@ -175,6 +175,7 @@ export default function RundownEntry(props: RundownEntryProps) {
         timeStrategy={data.timeStrategy}
         linkStart={data.linkStart}
         countToEnd={data.countToEnd}
+        isPublic={data.isPublic}
         endAction={data.endAction}
         timerType={data.timerType}
         title={data.title}
@@ -195,7 +196,6 @@ export default function RundownEntry(props: RundownEntryProps) {
         totalGap={totalGap}
         isLinkedToLoaded={isLinkedToLoaded}
         actionHandler={actionHandler}
-        hasTriggers={data.triggers.length > 0}
       />
     );
   } else if (isOntimeDelay(data)) {

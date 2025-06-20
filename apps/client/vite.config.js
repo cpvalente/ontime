@@ -61,12 +61,6 @@ export default defineConfig({
         configure: logProxyRequests,
         ws: true,
       },
-      '^/user*': {
-        target: 'http://localhost:4001/',
-        changeOrigin: true,
-        configure: logProxyRequests,
-        ws: true,
-      },
     },
   },
   test: {

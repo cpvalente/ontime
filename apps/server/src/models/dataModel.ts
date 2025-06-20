@@ -17,6 +17,8 @@ export const dbModel: DatabaseModel = {
   project: {
     title: '',
     description: '',
+    publicUrl: '',
+    publicInfo: '',
     backstageUrl: '',
     backstageInfo: '',
     projectLogo: null,

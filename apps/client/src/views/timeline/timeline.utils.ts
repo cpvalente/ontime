@@ -95,6 +95,7 @@ export function useScopedRundown(rundown: OntimeEntry[], selectedEventId: MaybeS
       return { scopedRundown: [], firstStart: 0, totalDuration: 0 };
     }
 
+    const hideBackstage = isStringBoolean(searchParams.get('hideBackstage'));
     const hidePast = isStringBoolean(searchParams.get('hidePast'));
 
     const scopedRundown: PlayableEvent[] = [];
@@ -113,6 +114,11 @@ export function useScopedRundown(rundown: OntimeEntry[], selectedEventId: MaybeS
 
         // maybe filter past
         if (hidePast && i < selectedIndex) {
+          continue;
+        }
+
+        // maybe filter backstage
+        if (!currentEntry.isPublic && hideBackstage) {
           continue;
         }
 

@@ -30,7 +30,9 @@ const mockEvent = {
 const mockState = {
   clock: 666,
   eventNow: null,
+  publicEventNow: null,
   eventNext: null,
+  publicEventNext: null,
   runtime: {
     selectedEventIndex: null,
     numEvents: 0,
