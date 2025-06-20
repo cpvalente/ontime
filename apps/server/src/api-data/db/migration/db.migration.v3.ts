@@ -13,6 +13,8 @@ import {
 } from 'ontime-types';
 import { customFieldLabelToKey } from 'ontime-utils';
 import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
+import { versionCheck } from './versionCheck.js';
+import { ErrorEmitter } from '../../../utils/parserUtils.js';
 
 /**
  * Changes from v3 to v4
@@ -39,11 +41,21 @@ import { ONTIME_VERSION } from '../../../ONTIME_VERSION.js';
  *
  */
 
-export function migrate_v3_to_v4(jsonData: object): Partial<DatabaseModel> {
+export function migrate_v3_to_v4(jsonData: object, emitError?: ErrorEmitter): Partial<DatabaseModel> {
+  const version = versionCheck(jsonData);
+  if (version === null) {
+    emitError?.('No version field found, can not migrate data');
+    return jsonData;
+  }
+
+  if (version.major > 3) {
+    return jsonData;
+  }
+
   const migratedDb = {} as Partial<DatabaseModel>;
 
   if ('settings' in jsonData) {
-    migratedDb.settings = jsonData.settings as Settings;
+    migratedDb.settings = structuredClone(jsonData.settings) as Settings;
     migratedDb.settings.version = ONTIME_VERSION;
   }
 
