@@ -110,16 +110,20 @@ function inferSeparators(value: string, isAM: boolean, isPM: boolean) {
  * @param {string} value
  */
 function checkMatchers(value: string): number | null {
-  const hoursMatch = /(\d+)h/i.exec(value);
+  // match hours with any digits after, but don't match digits that are part of seconds
+  const hoursMatch = /(\d+)h(?:(\d+)(?!s))?/i.exec(value);
   const hoursMatchValue = hoursMatch ? parse(hoursMatch[1]) : 0;
+  // if there's a number after 'h' without a unit and it's not followed by 's', treat it as minutes
+  const implicitMinutesValue = hoursMatch?.[2] ? parse(hoursMatch[2]) : 0;
 
   const minutesMatch = /(\d+)m/i.exec(value);
-  const minutesMatchValue = minutesMatch ? parse(minutesMatch[1]) : 0;
+  // only use implicit minutes if there's no explicit minutes match
+  const minutesMatchValue = minutesMatch ? parse(minutesMatch[1]) : implicitMinutesValue;
 
   const secondsMatch = /(\d+)s/i.exec(value);
   const secondsMatchValue = secondsMatch ? parse(secondsMatch[1]) : 0;
 
-  if (hoursMatchValue > 0 || minutesMatchValue > 0 || secondsMatchValue > 0) {
+  if (hoursMatch || minutesMatch || secondsMatch) {
     return (
       hoursMatchValue * MILLIS_PER_HOUR + minutesMatchValue * MILLIS_PER_MINUTE + secondsMatchValue * MILLIS_PER_SECOND
     );
